@@ -1,6 +1,8 @@
 /*
 
-	File  			 : main-ami.c
+	:ts=3
+
+	File  			 : main-ami.c DEVELOPER VERSION!
 
 	Version  		 : 1.004 (26 Aug 1998)
 	Angband  		 : 2.8.3/2.8.2/2.8.1
@@ -16,19 +18,53 @@
 
 	Tab size 		 : 3
 
-   This is a hacked down version of the main-ami.c development file. Since
-   most variants are still distributing 2.7.9v6 stuff, here is a marginally
-   more modern version.
- 
-   I'd urge anyone seriously interested in doing Amiga 'band development to
-   obtain the latest version, which will make your life easier -
-   (I'd include it here, but it's rather long and very 'generalised', working 
-   with most variants/Ang versions)
+	Todo:
+
+		Window backgrounds. Started, but not ready yet.
+		Put menu tables outside this file so they can be modified?
+		Improve the new sound system, because it's a major hack now.
 */
 
+/************************************************************************/
+/* Please define the following to suit each variant:							*/
+/* 																							*/
+/* If variant is based upon Ang 281 : #define ANG281							*/
+/* If variant is based upon Ang 282 : #define ANG282							*/
+/* If variant is based upon Ang 283 : #define ANG283 *and*					*/
+/*												  #define ANG282  						*/
+/*																								*/
+/* Comment out all the unused ANG28x definitions!								*/
+/*																								*/
+/* This is the 'developer' version, which means I've aimed more for 		*/
+/* convenience than for elegance; this file will compile with variants	*/
+/* based upon 281, 282 or 283. Yes, it's a hack. Every so often I'll		*/
+/* release a 'nice' version which is around 30K smaller, but will be		*/
+/* targeted for the latest version of Angband									*/
+/************************************************************************/
+
+/* What variant is this? Used in the highscore dump */
+#define VERSION "Zangband 2.2.2"
+
+/* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
+#define VERPATH "Zangband:"
+
+//#define SANGBAND             /* Define if this is Sangband. */
+#define ZANGBAND                /* Define if this is Zangband. Zangband now has extra gfx */
+//#define KANGBAND				/* Define for Kang, used in Highscore handling */
+//#define GFXFUNCS             /* Define if we allow gfx debugging functions. */
+#define QUICKGFX                /* Define if we have 'optimap.s' and we'd like to use it */
+//#define DEBUG
+#define ANG283
+#define ANG282                  /* Based upon Angband 2.8.2 ? */
+//#define ANG281                /* Based upon Angband 2.8.1 ? */
+
 #include "angband.h"
+
+#undef byte					/* Prevents conflicts with dos.h */
+
 #include "sound-ami.h"
 #include <math.h>
+#include <dos.h>
 #include <exec/memory.h>
 #include <exec/io.h>
 #include <exec/ports.h>
@@ -57,26 +93,13 @@
 #include <proto/gadtools.h>
 #include <proto/reqtools.h>
 
-/* What variant is this? Used in the highscore dump */
-#define VERSION "Kangband 2.8.3j"
-
-/* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
-#define VERPATH "Kangband:"
-
-//#define SANGBAND             /* Define if this is Sangband. */
-//#define ZANGBAND                /* Define if this is Zangband. Zangband now has extra gfx */
-#define KANGBAND						/* Define for Kang, used in Highscore handling */
-#define ANG283
-#define ANG282                /* Based upon Angband 2.8.2 ? */
-//#define ANG281                  /* Based upon Angband 2.8.1 ? */
-
-// Compiler weirdness. Might work.
-
 #ifdef __GNUC__
 #	define __near
 #endif
 
-#define MAX_TERM_DATA 8
+#ifdef QUICKGFX
+#	include "optimap.h"
+#endif
 
 /* Maximum length a filename (including a path) can reach. Somewhat arbitary */
 #define MAX_PATH_LENGTH		160
@@ -123,26 +146,37 @@
 // Max number of chars in a term (x)
 #define MAX_TERM_HORIZ 80
 
-/* Size of graphical tile */
-#define TILEW 8
-#define TILEH 8
+/* Size of 8x8 tile image */
+#define DF_GFXW 256
+#define DF_GFXH 256
+#define DF_GFXB 4
 
-/* Size of tile image */
-#define GFXW 256
+/* Size of 16x16 tile image */
+#define AB_GFXW 512
+#define AB_GFXH 848
+#define AB_GFXB 8
+
 #ifdef ZANGBAND
-#  define GFXH 512
-#else
-#  define GFXH 256
+#  undef DF_GFXH
+#  define DF_GFXH 736
 #endif
-#define GFXB 4
+
+/* Size of current bitmap...initialise by load_gfx() */
+int GFXW, GFXH, GFXB;
 
 /* Size of tombstone image */
 #define TOMW 512
 #define TOMH 168
-#define TOMB 4  // Bitplanes
+#define TOMB 4
 
-/* Filename of tile image */
-#define MGFX "gfx/tiles.raw"             /* in xtra */
+/* Filename of 8x8 tile image */
+#define DE_MGFX "gfx/tiles.raw"             /* in xtra */
+
+/* Filename of 16x16 tile image */
+#define AB_MGFX "gfx/tiles256.raw"             /* in xtra */
+
+/* Colour map for AB tiles */
+#define AB_MGFX_CMAP "gfx/tiles256.cmap"
 
 /* Filename of tombstone image */
 #define MTOM "gfx/tomb.raw"              /* in xtra */
@@ -152,6 +186,8 @@
 
 /* DisplayID specified with option -m */
 char modestr[ 256 ] = "";
+
+static byte palette256[1024];
 
 /* Library bases */
 
@@ -178,7 +214,7 @@ typedef struct term_data
 	cptr name;  				 /* Name string, eg. title */
 
 	struct BitMap *background;		/* Bitmap of special background */
-	cptr bkgname;
+	byte *bkgname;
 
 	char fontname[64];		 /* Name of font, ie. 'topaz/8'. Used by Save Windows */
 
@@ -222,16 +258,12 @@ typedef struct term_data
 
 	int gfx_w,gfx_h;
 
-	int map_w;
-	int map_h;
-	int map_x;
-	int map_y;
+	int map_w, map_h;
+	int map_x, map_y;
 
-	int mpt_w;
-	int mpt_h;
+	int mpt_w, mpt_h;
 
-	int cursor_xpos;
-	int cursor_ypos;
+	int cursor_xpos, cursor_ypos;
 	bool cursor_visible;
 	bool cursor_lit;
 	int cursor_frame;
@@ -242,8 +274,48 @@ typedef struct term_data
 }
 term_data;
 
+/* XXX XXX XXX Nasty */
+
+struct high_score
+{
+	char what[8];		/* Version info (string) */
+
+	char pts[10];		/* Total Score (number) */
+
+	char gold[10];		/* Total Gold (number) */
+
+	char turns[10];	/* Turns Taken (number) */
+
+	char day[10];		/* Time stamp (string) */
+
+	char who[16];		/* Player Name (string) */
+
+	char uid[8];		/* Player UID (number) */
+
+	char sex[2];		/* Player Sex (string) */
+	char p_r[3];		/* Player Race (number) */
+	char p_c[3];		/* Player Class (number) */
+
+	char cur_lev[4];		/* Current Player Level (number) */
+	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char max_lev[4];		/* Max Player Level (number) */
+	char max_dun[4];		/* Max Dungeon Level (number) */
+
+#ifdef KANGBAND
+	char arena_number[4];	/* Arena level attained -KMW- */
+	char inside_special[4];   /* Did the player die in the arena? -KMW- */
+	char exit_bldg[4];	/* Can the player exit arena? Goal obtained? -KMW- */
+
+#endif
+
+	char how[32];		/* Method of death (string) */
+//	char pad[9];
+};
+
 /* Term data for all windows */
 static term_data data[ MAX_TERM_DATA ];
+
+bool use_mask = FALSE;
 
 static char do_after;
 
@@ -282,6 +354,16 @@ bool amiga_palette = FALSE;
 */
 static bool block_nasty_gfx = FALSE;
 
+#ifdef QUICKGFX
+unsigned long *source_plane_addr;
+unsigned long *dest_plane_addr;
+unsigned short global_depth;
+unsigned long source_row;
+unsigned long dest_row;
+unsigned long global_map_x;
+unsigned long global_map_y;
+#endif
+
 /* Screen pointers */
 static struct Screen *amiscr = NULL;
 static struct Screen *pubscr = NULL;
@@ -305,6 +387,8 @@ static ULONG scr_m = 0;
 
 static BOOL screen_foreign = FALSE;	/* Use *only* graphics card compatible
 													functions? Turn off for AGA */
+
+static BOOL screen_enhanced = FALSE;
 
 static term_data *term_curs = NULL;	/* Last term for cursor */
 
@@ -387,14 +471,6 @@ struct AmiSound
 	struct SoundInfo *Address;
 };
 
-static char *sound_names[] =
-{
-	"hit", "miss", "flee", "drop", "kill", "level", "death", "study",
-	"teleport", "shoot", "quaff", "zap", "walk", "tpother", "hitwall",
-	"eat", "furious", "angry", "glad", "happy", "dig", "opendoor",
-	"shutdoor", "tplevel", "scroll", "buy", "sell", "warn", NULL
-};
-
 static char *sound_name_desc = NULL;
 static struct AmiSound *sound_data = NULL;
 static int sounds_needed = 0;
@@ -403,7 +479,7 @@ static int sounds_needed = 0;
 static struct AmiSound *sound_ref[SOUND_MAX][8];
 
 static int channel_last[ 4 ] = { -1, -1, -1, -1 };
-static int channel_num[ 4 ] = { 1, 1, 1, 1};
+static int channel_num[ 4 ] = { 1, 1, 1, 1 };
 
 static int has_sound = FALSE;
 
@@ -416,7 +492,6 @@ static int has_sound = FALSE;
 #define MNU_SAVE_PALETTE	1003
 #define MNU_LOAD_PALETTE	1004
 #define MNU_EXPORT_HS   	1005
-#define MNU_MERGE_HS   		1006
 #define MNU_GFXMAP			1007
 #define MNU_SAVE_WINDOWS 	1008
 
@@ -528,6 +603,12 @@ struct NewMenu post_item[] =
 	  { NM_ITEM, "Palette Requester", "r", 0, 0, (void *)MNU_PALETTE },
 	  { NM_ITEM, "Load Palette","l", 0, 0, (void *)MNU_LOAD_PALETTE },
 	  { NM_ITEM, "Save Palette","s", 0, 0, (void *)MNU_SAVE_PALETTE },
+	  { NM_ITEM,  NM_BARLABEL, 0, 0, 0, 0 },
+	  { NM_ITEM, "Save highscores as ASCII", "h", 0, 0, (void *)MNU_EXPORT_HS },
+#ifdef GFXFUNCS
+	  { NM_ITEM, "Gfx mapper", "g", 0, 0, (void *)MNU_GFXMAP },
+#endif
+/*		 { NM_ITEM, "Merge highscore files", "f", 0, 0, (void *)MNU_MERGE_HS }, */
 
 	{ NM_TITLE, "Help", 0, 0, 0, 0 },
 	  { NM_ITEM, "General Information", 0, 0, 0, MHL('1') },
@@ -574,6 +655,7 @@ static void request_font( char *str );
 static void request_mode( char *str );
 int read_prefs( void );
 static BOOL process_bool(char *param);
+static void process_gfx(char *param);
 static errr amiga_user( int n );
 static void amiga_nuke( term *t );
 static void amiga_open( term *t );
@@ -605,6 +687,8 @@ static void put_gfx( struct RastPort *rp, int x, int y, int chr, int col );
 static int amiga_fail( char *msg );
 static void amiga_map( void );
 void load_palette( void );
+ULONG trans( byte g );
+static void allocate_nearpens( void );
 int create_menus( void );
 void update_menus( void );
 int init_sound( void );
@@ -621,7 +705,6 @@ void amiga_redefine_colours( void );
 void amiga_makepath( char *name );
 void amiga_save_palette( void );
 void amiga_load_palette( void );
-static void amiga_merge_hs_files( void );
 static void amiga_hs_to_ascii(void);
 void amiga_user_name( char *buf, int id );
 void amiga_write_user_name( char *name );
@@ -632,7 +715,6 @@ void amiga_register(char *ourname);
 PROTO errr init_ami( void )
 {
 	int i;
-	LONG pen;
 	struct NewScreen new_scr;
 	struct NewWindow new_win;
 	struct DimensionInfo diminfo;
@@ -643,7 +725,7 @@ PROTO errr init_ami( void )
 	term_data *tt = NULL;
 
 	/* Open Amiga libraries */
-   amiga_open_libs();
+	amiga_open_libs();
 
 	/* Can't have palette requester if we don't have reqtools */
 	if (ReqToolsBase)
@@ -814,7 +896,6 @@ PROTO errr init_ami( void )
 				 SA_Quiet, TRUE,
 				 SA_Behind, TRUE,
 				 SA_AutoScroll, TRUE,
-//				 SA_Overscan, OSCAN_TEXT,
 				 KICK30 ? SA_Interleaved : TAG_IGNORE, TRUE,
 				 TAG_END );
 		}
@@ -847,11 +928,6 @@ PROTO errr init_ami( void )
 		SetDrMd( ts->rp, JAM2 );
 		SetFont( ts->rp, ts->font );
 
-		// Not sure I can do this, actually
-
-//      if ((GetBitMapAttr(ts->rp->BitMap,BMA_FLAGS) & BMF_STANDARD) == 0)
-//			screen_foreign = TRUE;
-
 		if (KICK20 && GetDisplayInfoData( NULL, (UBYTE *) &diminfo, sizeof( struct DimensionInfo ), DTAG_DIMS, scr_m ))
 			backdrop = TRUE;
 
@@ -878,13 +954,10 @@ PROTO errr init_ami( void )
 		for ( i = 0; i < MAX_TERM_DATA; i++ )
 			maxw = MAX( maxw, data[ i ].ww );
 
-//		printf("%d\n",maxw);
-//		maxw += pubscr->WBorLeft + pubscr->WBorRight;
-
 		/* Find height of tallest window */
-      maxh = ts->wh + ts->notitle ? 0 : th;
-      for ( i = 0; i < MAX_TERM_DATA; i++ )
-      {
+		maxh = ts->wh + ts->notitle ? 0 : th;
+		for ( i = 0; i < MAX_TERM_DATA; i++ )
+		{
 			int tmp;
 
 			tmp = data[ i ].wh + ( data[ i ].notitle ? 0 : th);
@@ -920,11 +993,9 @@ PROTO errr init_ami( void )
 		}
 	}
 
-//	printf("Public px %d py %d px2 %d py2 %d\n",px,py,px+pw,py+ph);
 	for (i = 0 ; i < MAX_TERM_DATA; i++)
 	{
 		changed = 0;
-//		printf("Window %d wx = %d wy = %d ww = %d wh = %d\n",i,data[i].wx,data[i].wy,data[i].ww,data[i].wh);
 		if (data[i].wx < px)
 		{
 			data[i].wx = px;
@@ -951,10 +1022,7 @@ PROTO errr init_ami( void )
 			changed = 1;
 		}
 		if (changed && data[i].use)
-{
 			printf("Window %d resized...Please change the window dimensions\n",i);
-//		printf("Window %d wx = %d wy = %d ww = %d wh = %d\n",i,data[i].wx,data[i].wy,data[i].ww,data[i].wh);
-}
 	}
 
 	/* Get visual info for GadTools */
@@ -1057,11 +1125,14 @@ PROTO errr init_ami( void )
 	/* Create palette for screen */
 	load_palette();
 
-	for ( i = MAX_TERM_DATA - 1; i >= 0 ; i--)
-   {
+	if (screen_enhanced)
+		allocate_nearpens();
+
+	for ( i = MAX_TERM_DATA; i-- > 0 ; )
+	{
 		if ( data[ i ].use )
 			link_term( i );
-   }
+	}
 
 	/* Bring main window to front */
 	if ( !backdrop )
@@ -1090,7 +1161,8 @@ PROTO errr init_ami( void )
 			{
 				if ( !size_gfx( &data[ i ] ) )
 				{
-					FAIL( "Out of memory while scaling graphics." );
+					break;
+//					FAIL( "Out of memory while scaling graphics." );
 				}
 			}
 		}
@@ -1158,8 +1230,8 @@ PROTO static int load_backpic(term_data *t, char *name)
 		}
 		if (bmhd = IFFL_GetBMHD( iff ) )
 		{
-			UBYTE *bkg;
-			ULONG pens[64];
+			struct BitMap *bkg;
+			long pens[64];
 
 			if (use_graphics)
 				start = 32;
@@ -1261,9 +1333,7 @@ PROTO static BOOL get_screenmode( char *modestr )
 		else
 		{
 			for (i = 0 ; i < 32 ; i++)
-			{
 				pubpens[ i ] = i;
-			}
 		}
 		for ( i = 0; i < 16; i++ )
 			penconv[ i ] = (UWORD) pubpens[ i + 16 ];
@@ -1288,7 +1358,8 @@ PROTO static BOOL get_screenmode( char *modestr )
 
 PROTO void amiga_open_libs( void )
 {
-	char tmpname[128];
+	static char tmpname[128];
+	void *lib;
 
 	/* No need to test if intuition.library opens. Ahem */
 
@@ -1305,22 +1376,29 @@ PROTO void amiga_open_libs( void )
 	kick_ver = IntuitionBase->LibNode.lib_Version;
 
 	/* Open some 2.0+ or better libraries. No point even trying under 1.3 */
-   if (KICK20)
+	if (KICK20)
 	{
 		AslBase = OpenLibrary( "asl.library", 36L);
 		GadToolsBase = OpenLibrary( "gadtools.library", 36L);
 	}
 
 	/* Initialise console (only using RawKeyConvert) */
-  	ConsoleDev = (struct Device *)OpenDevice("console.device",CONU_LIBRARY,(struct IORequest *)&io_req,0L);
-   ConsoleDevice = (struct Library *)io_req.io_Device;
+	ConsoleDev = (struct Device *)OpenDevice("console.device",CONU_LIBRARY,(struct IORequest *)&io_req,0L);
+	ConsoleDevice = (struct Library *)io_req.io_Device;
 
+	/* Primitive test for RTG */
+	lib = (void *)OpenLibrary( "cybergraphics.library", 0L);
+	if (lib)
+	{
+		screen_foreign = TRUE;
+		CloseLibrary( lib );
+	}
 	ReqToolsBase = (struct ReqToolsBase *)OpenLibrary( "reqtools.library",0L);
 	if (!ReqToolsBase)
 	{
-	   sprintf(tmpname,"%slibs/reqtools.library",ANGBAND_DIR);
+		sprintf(tmpname,"%slibs/reqtools.library",ANGBAND_DIR);
 		ReqToolsBase = (struct ReqToolsBase *)OpenLibrary( tmpname, 0L);
-   }
+	}
 }
 
 /* -------------------------------------------------------------------- */
@@ -1736,7 +1814,9 @@ PROTO int read_prefs( void )
       if (strreq(first,"ANGBAND"))
 		{
 			if (strreq(type,"gfx"))
-				use_graphics = process_bool(param);
+			{
+				process_gfx(param);
+			}
 			else if (strreq(type,"sound"))
 				use_sound = process_bool(param);
 			else if (strreq(type,"version"))
@@ -1754,7 +1834,11 @@ PROTO int read_prefs( void )
 			else if (strreq(type,"blankmouse"))
 				blankmouse = process_bool(param);
 			else if (strreq(type,"quick"))
-				nasty_optimise_gfx = process_bool(param);
+			{
+				/* Only allow quick graphics on non-RTG systems! */
+				if (!screen_foreign)
+					nasty_optimise_gfx = process_bool(param);
+			}
 			else if (strreq(type,"use"))
 			{
 				if (param[0] == 'p' || param[0] == 'P')
@@ -1988,7 +2072,7 @@ PROTO int read_prefs( void )
 	}
 	else
 	{
-		puts("Don't know whether to use a public or custom screen. Check prefs!");
+//		puts("Don't know whether to use a public or custom screen. Check prefs!");
 		modestr[0] = 0;
 	}
 	fclose( file );
@@ -2003,11 +2087,24 @@ PROTO static BOOL process_bool(char *param)
    	return FALSE;
 }
 
+PROTO static void process_gfx(char *param)
+{
+	use_graphics = FALSE;
+	if (*param == 'Y' || *param == 'y' || *param == '1' ||
+		 *param == 'T' || *param == 't')
+		use_graphics = TRUE;
+	if (*param == 'E' || *param == 'e')
+	{
+		use_graphics = TRUE;
+		screen_enhanced = TRUE;
+#ifdef ZANGBAND
+		ANGBAND_GRAF = "new";
+#endif
+	}
+}
+
 PROTO static errr amiga_user( int n )
 {
-	//term_data *td = (term_data*)( Term->data );
-
-	/* Unknown */
 	return( 1 );
 }
 
@@ -2515,8 +2612,6 @@ PROTO int amiga_tomb( void )
 	struct BitMap *filebm, *scalbm, *convbm;
 	long stdpens[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 	int depth;
-	BYTE *src, *dst;
-	int byt;
 
 	int tw = data[ 0 ].fw * 64;
 	int th = data[ 0 ].fh * 21;
@@ -2880,6 +2975,14 @@ PROTO void handle_menupick( int mnum )
 				case MNU_SCALEDMAP:
 					amiga_map();
 					break;
+				case MNU_EXPORT_HS:
+					amiga_hs_to_ascii();
+					break;
+#ifdef GFXFUNCS
+				case MNU_GFXMAP:
+					amiga_gfxmap();
+					break;
+#endif
 				default:
 					printf("handle_menupick() : bad menu item %d\n",ud);
 					break;
@@ -3151,21 +3254,32 @@ PROTO static int load_gfx( void )
 	char *p;
 	int plane, row, error = FALSE;
 
+	if (screen_enhanced)
+	{
+		GFXW = AB_GFXW;
+		GFXH = AB_GFXH;
+		GFXB = AB_GFXB;
+	}
+	else
+	{
+		GFXW = DF_GFXW;
+		GFXH = DF_GFXH;
+		GFXB = DF_GFXB;
+	}
 	/* Allocate bitmaps */
-
-	ts->gfxbm = alloc_bitmap( GFXW, GFXH, 4, BMF_CLEAR | BMF_STANDARD, ts->rp->BitMap );
+	ts->gfxbm = alloc_bitmap( GFXW, GFXH, GFXB, BMF_CLEAR | BMF_STANDARD, ts->rp->BitMap );
 	if ( !ts->gfxbm )
 		return( FALSE );
 
 	ts->mskbm = alloc_bitmap( GFXW, GFXH, 1, BMF_CLEAR | BMF_STANDARD, ts->rp->BitMap );
 	if ( !ts->mskbm )
-   {
-   	free_bitmap( ts->gfxbm );
+	{
+		free_bitmap( ts->gfxbm );
 		return( FALSE);
 	}
 
 	/* Open file */
-	path_build( tmp , MAX_PATH_LENGTH , ANGBAND_DIR_XTRA , MGFX );
+	path_build( tmp , MAX_PATH_LENGTH , ANGBAND_DIR_XTRA , screen_enhanced ? AB_MGFX : DE_MGFX );
 	file = Open( tmp, MODE_OLDFILE );
 	if (!file)
 	{
@@ -3188,11 +3302,25 @@ PROTO static int load_gfx( void )
 	}
 
 	MSG( 0, 0, "Loading graphics .." );
+
+//	if (screen_enhanced)
+//	{
+//		Close( file );
+//		return;
+//	}
 	/* Read mask data into bitmap */
 	p = ts->mskbm->Planes[ 0 ];
 	for ( row = 0; row < GFXH && !error; row++ )
 	{
+		int i;
 		error = ( Read( file, p, GFXW >> 3 ) != (GFXW >> 3) );
+		if (screen_enhanced)
+		{
+			for (i = 0 ; i < (GFXW >> 3) ; i++)
+			{
+				*(p + i) = 255 - *(p + i);
+			}
+		}
 		p += ts->mskbm->BytesPerRow;
 	}
 
@@ -3232,7 +3360,7 @@ PROTO static int conv_gfx( void )
 		return ( FALSE );
 	}
 
-   if (screen_foreign)
+	if (screen_foreign)
 	{
 		/* Use graphics card */
 
@@ -3333,6 +3461,7 @@ PROTO static int size_gfx( term_data *td )
 	struct BitMap *sbm = td->rp->BitMap;
 	struct BitMap *tmpbm;
 
+	int tilew = 8, tileh = 8;
 /*
 	DANGER DANGER!!
 
@@ -3342,9 +3471,12 @@ PROTO static int size_gfx( term_data *td )
 	if (KICK13)
 		return( TRUE );
 
+	if (screen_enhanced)
+		tilew = tileh = 16;
+
 	/* Calculate tile bitmap dimensions */
-	td->gfx_w = (GFXW / TILEW) * td->fw;
-	td->gfx_h = (GFXH / TILEH) * td->fh;
+	td->gfx_w = (GFXW / tilew) * td->fw;
+	td->gfx_h = (GFXH / tileh) * td->fh;
 
 	/* Calculate map bitmap dimensions */
 #ifdef ANG282
@@ -3399,10 +3531,19 @@ PROTO static void put_gfx( struct RastPort *rp, int x, int y, int chr, int col )
 	int y0 = y * fh;
 	int x1 = x0 + fw - 1;
 	int y1 = y0 + fh - 1;
-	int a = col & ((GFXH >> 3) - 1);
-	int c = chr & ((GFXW >> 3) - 1);
+	int a = col & 0x7F; // ((GFXH >> 3) - 1);
+	int c = chr & 0x7F; //((GFXW >> 3) - 1);
 
-   /* Paranoia */
+	/* Paranoia */
+
+	if (screen_enhanced)
+	{
+		x0 = x * 16;
+		y0 = y * 16;
+		x1 = x0 + 15;
+		y1 = y0 + 15;
+		fw = fh = 16;
+	}
 
 	if (( td->iconified ) || ( !rp ))
 		return;
@@ -3412,13 +3553,26 @@ PROTO static void put_gfx( struct RastPort *rp, int x, int y, int chr, int col )
 		printf("Sorry; can't use quick graphics option on this size screen\n");
 		printf("Quick graphics turned off.\n\n");
 		nasty_optimise_gfx = FALSE;
-   }
+	}
 
 	/* Just a black tile */
 	if ( a == 0 && c == 0 )
 	{
-		SetAPen( rp, PEN( 0 ));
-		RectFill( rp, x0, y0, x1, y1 );
+#ifdef QUICKGFX
+		if (nasty_optimise_gfx && !block_nasty_gfx)
+		{
+			global_depth = td->gfxbm->Depth;
+			dest_row = rp->BitMap->BytesPerRow;
+			dest_plane_addr = (unsigned long *)&(td->rp->BitMap->Planes[0]);
+
+			optimised_clear( x0, y0, PEN( 0 ));
+		}
+		else
+#endif
+		{
+			SetAPen( rp, PEN( 0 ));
+			RectFill( rp, x0, y0, x1, y1 );
+		}
 		return;
 	}
 
@@ -3430,14 +3584,14 @@ PROTO static void put_gfx( struct RastPort *rp, int x, int y, int chr, int col )
 	}
 
 	/* Draw tile through mask */
-	if ( col & 0x40 )
+	if ( use_mask || screen_enhanced) // col & 0x40 )
 	{
 		if (td->background)
 			BltBitMapRastPort( td->background, x * td->fw, y * td->fh, td->rp, x0, y0, fw, fh, 0xC0);
 		else
 		{
-			SetAPen( rp, PEN(0) );
-			RectFill( rp, x0, y0, x1, y1 );
+//			SetAPen( rp, PEN(0) );
+//			RectFill( rp, x0, y0, x1, y1 );
 		}
 		BltMaskBitMapRastPort( td->gfxbm, c * fw, a * fh, rp, x0, y0, fw, fh, (ABC|ANBC|ABNC), td->mskbm->Planes[ 0 ] );
 	}
@@ -3445,7 +3599,23 @@ PROTO static void put_gfx( struct RastPort *rp, int x, int y, int chr, int col )
 	/* Draw full tile */
 	else
 	{
-		BltBitMapRastPort( td->gfxbm, c * fw, a * fh, rp, x0, y0, fw, fh, 0xc0 );
+		if (fw != 8)
+			nasty_optimise_gfx = FALSE;
+
+#ifdef QUICKGFX
+		if (!block_nasty_gfx && nasty_optimise_gfx)
+		{
+			global_depth = td->gfxbm->Depth;
+			dest_row = rp->BitMap->BytesPerRow;
+			source_row = td->gfxbm->BytesPerRow;
+			source_plane_addr = (unsigned long *)&(td->gfxbm->Planes[0]);
+			dest_plane_addr = (unsigned long *)&(td->rp->BitMap->Planes[0]);
+
+			optimised_put_gfx( x0, y0, a, c );
+		}
+		else
+#endif
+			BltBitMapRastPort( td->gfxbm, c * fw, a * fh, rp, x0, y0, fw, fh, 0xc0 );
 	}
 }
 
@@ -3498,7 +3668,7 @@ PROTO static int amiga_fail( char *msg )
 	}
 
 	/* Free term resources */
-	for ( i = MAX_TERM_DATA - 1; i >= 0; i--)
+	for ( i = MAX_TERM_DATA; i-- > 0; )
 		free_term( &data[ i ] );
 
 	/* Free obtained pens */
@@ -3614,6 +3784,17 @@ PROTO static void amiga_map( void )
 	if (td->map_y < 0)
 		td->map_y = 0;
 
+	/* Inefficient */
+#ifdef QUICKGFX
+	global_map_x = td->map_x;
+	global_map_y = td->map_y;
+	source_plane_addr = (unsigned long *)&(td->mapbm->Planes[0]);
+	dest_plane_addr = (unsigned long *)&(td->rp->BitMap->Planes[0]);
+	source_row = td->mapbm->BytesPerRow;
+	global_depth = td->mapbm->Depth;
+	dest_row = td->rp->BitMap->BytesPerRow;
+#endif
+
 	/* Draw all "interesting" features */
 	for ( i = 0; i < cur_wid; i++ )
 	{
@@ -3714,6 +3895,73 @@ PROTO void load_palette( void )
 		}
 		LoadRGB4( &amiscr->ViewPort, palette4, n );
 	}
+	if (screen_enhanced)
+	{
+		char buffer[256];
+		FILE *f;
+
+		path_build( buffer, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, AB_MGFX_CMAP );
+		f = fopen(buffer, "r");
+		if (f)
+		{
+			long *a = (long *)palette256;
+			if ( 1 == fread(palette256,1024,1,f))
+			{
+				for (i = 0 ; i < 256 ; i++)
+				{
+					SetRGB32( &amiscr->ViewPort, i, trans((*a & 0x00FF0000) >> 16),trans((*a & 0x0000FF00) >> 8),trans(*a & 0x000000FF));
+					a++;
+				}
+			}
+		}
+		fclose(f);
+		return;
+	}
+}
+
+PROTO ULONG trans( byte g )
+{
+	ULONG h;
+
+	h = (g << 8) | (g << 16) | (g << 24) | g;
+	return h;
+}
+
+PROTO static void allocate_nearpens( void )
+{
+	int i,pen;
+
+	if (KICK30)
+	{
+		for (i = 0 ; i < 16 ; i++)
+		{
+			int z,x;
+			int r,g,b;
+			ULONG d,maxd;
+
+			x = penconv[i];
+			pen = 0;
+			for (z = 0 ; z < 256 ; z++)
+			{
+				r = (angband_color_table[x][1] - palette256[(z << 2) + 1]);
+				g = (angband_color_table[x][2] - palette256[(z << 2) + 2]);
+				b = (angband_color_table[x][3] - palette256[(z << 2) + 3]);
+				d = r*r + g*g + b*b;
+				if (!z)
+					maxd = d;
+				else
+				{
+					if (d < maxd)
+               {
+						pen = z;
+						maxd = d;
+					}
+				}
+			}
+			if (pen != -1)
+				penconv[i] = pen;
+		}
+	}
 }
 
 PROTO int create_menus( void )
@@ -3771,7 +4019,7 @@ PROTO void update_menus( void )
 	if ( item = ItemAddress( menu, FULLMENUNUM( 5, 9, 0 )))
 		item->Flags = amiga_palette ? item->Flags | ITEMENABLED : item->Flags & ~ITEMENABLED;
 
-   /* Enable/Disable and check window menu items according to use and iconified status */
+	/* Enable/Disable and check window menu items according to use and iconified status */
 	for ( i = 1; i < MAX_TERM_DATA; i++ )
 	{
 		if ( item = ItemAddress( menu, FULLMENUNUM( 7, ( i - 1 ), 0 )))
@@ -3830,11 +4078,11 @@ PROTO int init_sound( void )
 			}
 		}
 		slev = -1;
-		for (j = 0 ; sound_names[j] ; j++)
+		for (j = 1 ; j < SOUND_MAX ; j++)
 		{
-			if (strreq(sound_names[j] , line + k))
+			if (strreq(angband_sound_name[j] , line + k))
 			{
-				slev = j + 1;
+				slev = j;
 				break;
 			}
 		}
@@ -3972,9 +4220,12 @@ PROTO static void play_sound( int v )
 		/* Just pick 1st sound available at the moment */
 		snd = sound_ref[v][vnum = 1 + rand_int( (int)sound_ref[v][0] )];
 
+//		printf("%d %d\n",vnum,(int)sound_ref[v][0] );
+
 		/* Channel number */
 		channel = snd->Channel;
 
+//		printf("channel %d\n");
 		/* Last sample played on channel */
 		old = channel_last[ channel ];
 
@@ -4032,8 +4283,22 @@ PROTO static void play_sound( int v )
 
 PROTO void put_gfx_map( term_data *td, int x, int y, int c, int a )
 {
-   if (( td->iconified ) || ( td->wrp == NULL ) || ( td->mapbm == NULL ))
+	if (( td->iconified ) || ( td->wrp == NULL ) || ( td->mapbm == NULL ))
 		return;
+
+#ifdef QUICKGFX
+	if (nasty_optimise_gfx)
+	{
+		source_plane_addr = (unsigned long *)&(td->mapbm->Planes[0]);
+		dest_plane_addr = (unsigned long *)&(td->wrp->BitMap->Planes[0]);
+		source_row = td->mapbm->BytesPerRow;
+		global_depth = td->mapbm->Depth;
+	   dest_row = td->wrp->BitMap->BytesPerRow;
+
+		optimised_bltmap(c,a,td->mpt_w,td->mpt_h,x,y);
+		return;
+	}
+#endif
 
 	BltBitMapRastPort(
 		td->mapbm,
@@ -4059,20 +4324,19 @@ PROTO struct BitMap *alloc_bitmap( int width, int height, int depth, ULONG flags
 		/* True-color */
 		if ( depth > 8 )
 			return ( AllocBitMap( width, height, depth, flags | BMF_MINPLANES, friend ));
-
 		else
 		{
-			return ( AllocBitMap( width, height, depth, flags, friend ));
-      }
-   }
+			return(AllocBitMap( width, height, depth, flags, friend ));
+		}
+	}
 
-   else
-   {
-      /* Allocate bitmap structure */
-      if (( bitmap = AllocMem( sizeof( struct BitMap ), MEMF_PUBLIC | MEMF_CLEAR )))
-      {
-         InitBitMap( bitmap, depth, width, height );
-         /* Allocate bitplanes */
+	else
+	{
+		/* Allocate bitmap structure */
+		if (( bitmap = AllocMem( sizeof( struct BitMap ), MEMF_PUBLIC | MEMF_CLEAR )))
+		{
+			InitBitMap( bitmap, depth, width, height );
+			/* Allocate bitplanes */
 
 			for ( p = 0; p < depth; p++ )
 			{
@@ -4080,34 +4344,27 @@ PROTO struct BitMap *alloc_bitmap( int width, int height, int depth, ULONG flags
 				if ( !bp )
 					break;
 				bitmap->Planes[ p ] = bp;
-         }
+			}
 
-         /* Out of memory */
-         if ( p != depth )
-         {
-            /* Free bitplanes */
-            while ( --p >= 0 )
-               FreeRaster( bitmap->Planes[ p ], width, height );
+			/* Out of memory */
+			if ( p != depth )
+			{
+				/* Free bitplanes */
+				while ( --p >= 0 )
+					FreeRaster( bitmap->Planes[ p ], width, height );
 
-            /* Free bitmap structure */
-            FreeMem( bitmap, sizeof( struct BitMap ));
-            bitmap = NULL;
-         }
-      }
-      return ( bitmap );
-   }
+				/* Free bitmap structure */
+				FreeMem( bitmap, sizeof( struct BitMap ));
+				bitmap = NULL;
+			}
+		}
+		return ( bitmap );
+	}
 }
 
 PROTO void free_bitmap( struct BitMap *bitmap )
 {
 	int p;
-
-	/* Paranoia */
-	if ( !bitmap )
-	{
-		printf("free_bitmap() : Attempted to free null bitmap!\n");
-		return;
-	}
 
 	WaitBlit();
 
@@ -4157,10 +4414,8 @@ PROTO void remap_bitmap( struct BitMap *srcbm, struct BitMap *dstbm, long *pens,
 
 	if (screen_foreign)
 	{
-		struct RastPort tmprast;
 		struct RastPort mainrast,newrast;
 		LONG colour;
-		int i;
 
 		InitRastPort(&mainrast);
 		InitRastPort(&newrast);
@@ -4177,8 +4432,6 @@ PROTO void remap_bitmap( struct BitMap *srcbm, struct BitMap *dstbm, long *pens,
 				SetAPen(&newrast,colour);
 				WritePixel(&newrast,x,y);
 			}
-//			if ((y % p) == 0)
-//				MSG( ox++, 1, ".");
 		}
 		return;
 	}
@@ -4222,26 +4475,26 @@ PROTO void remap_bitmap( struct BitMap *srcbm, struct BitMap *dstbm, long *pens,
 				/* Remap */
 				c = pens[ c ];
 
-            /* Update destination longwords */
-            for ( p = 0; p < dd; p++ )
+				/* Update destination longwords */
+				for ( p = 0; p < dd; p++ )
 				{
 					if ( c & bm[ p ] )
 						ld[ p ] |= mask;
 				}
-         }
+			}
 
 			/* Write destination longwords */
- 			for ( p = 0; p < dd; p++ )
+			for ( p = 0; p < dd; p++ )
 				*(ULONG *)( dp[ p ] + ox ) = ld[ p ];
 
-         /* Update offset */
-         ox += 4;
-      }
+			/* Update offset */
+			ox += 4;
+		}
 
-      /* Update pointers to get to next line */
-      for ( p = 0; p < sd; sp[ p++ ] += srcbm->BytesPerRow );
-      for ( p = 0; p < dd; dp[ p++ ] += dstbm->BytesPerRow );
-   }
+		/* Update pointers to get to next line */
+		for ( p = 0; p < sd; sp[ p++ ] += srcbm->BytesPerRow );
+		for ( p = 0; p < dd; dp[ p++ ] += dstbm->BytesPerRow );
+	}
 }
 
 PROTO int depth_of_bitmap( struct BitMap *bm )
@@ -4264,7 +4517,7 @@ PROTO void amiga_show( char *str )
 
 	amiga_text( 0, 0, strlen( str ), 1, str );
 	Delay(80);
-   amiga_text( 0, 0, strlen( spaces ), 1, spaces );
+	amiga_text( 0, 0, strlen( spaces ), 1, spaces );
 }
 
 /*
@@ -4295,15 +4548,15 @@ PROTO void amiga_redefine_colours( void )
 		return;
 
 	/* Hack values into angband_color_table */
-   if (KICK30)
+	if (KICK30)
 	{
-      unsigned long *ctable,*c;
+		unsigned long *ctable,*c;
 
 		c = ctable = (long *)AllocMem(cols << 4,0);
 		if (!ctable)
 			return;
 		GetRGB32(amiscr->ViewPort.ColorMap,0,cols,ctable);
-      for (i = 0 ; i < cols ; i++)
+		for (i = 0 ; i < cols ; i++)
 		{
 			angband_color_table[use_graphics ? i : i + 16][0] = 1;
 			angband_color_table[use_graphics ? i : i + 16][1] = *c++ >> 24;
@@ -4325,6 +4578,64 @@ PROTO void amiga_redefine_colours( void )
 			angband_color_table[use_graphics ? i : i + 16][3] = (w & 0xF) << 4;
 		}
 	}
+}
+
+/* -------------------------------------------------------------------- */
+/*  amiga_makepath( path )                                              */
+/*                                                                      */
+/*  Attempt to pick a sensible path for Angband to load from. If we     */
+/*  have OS2.0 or better, then we can use 'PROGDIR:' - we don't need an */
+/*  explicit assign.                                                    */
+/*                                                                      */
+/*  Under OS1.3 (or if PROGDIR: is not available for some bizarre       */
+/*  reason), we'll use a game-specific assign (ie. 'Zangband:')         */
+/*                                                                      */
+/*  This is patched into the 'main.c' file at the moment. 				*/
+/* -------------------------------------------------------------------- */
+
+PROTO void amiga_makepath( char *name )
+{
+	FILE *f;
+   struct IntuitionBase *l;
+
+	/* XXX XXX XXX Ugh. Nasty */
+	l = (struct IntuitionBase *)OpenLibrary( "intuition.library", 0L);
+	kick_ver = l->LibNode.lib_Version;
+	CloseLibrary((struct Library *)l);
+
+	/* If KS1.3, user will have to have assigned 'angband' manually */
+	if (KICK13)
+	{
+		strcpy(name,VERPATH);
+		return;
+	}
+	/* Use PROGDIR if available; check if progdir points to correct path */
+
+	f = fopen("PROGDIR:/EDIT/f_info.txt","r");
+	if (!f)
+		f = fopen("PROGDIR:/DATA/f_info.raw","r");
+	if (!f)
+		f = fopen("/DATA/r_info.raw","r");
+	if (!f)
+		f = fopen("/EDIT/r_info.txt","r");
+	if (f && KICK20)
+	{
+		char c;
+
+		/* Found, so we'll use PROGDIR:/ as the path */
+		fclose(f);
+
+		NameFromLock(ParentDir(GetProgramDir()),name,500);
+		c = name[strlen(name) - 1];
+		if (c != '/' && c != ':')
+			strcat(name,"/");
+//		strcpy(name,"PROGDIR:/");
+		return;
+	}
+	if (f)
+		fclose(f);
+   strcpy(name,VERPATH);
+	return;
 }
 
 PROTO void amiga_save_palette( void )
@@ -4400,6 +4711,186 @@ PROTO void amiga_load_palette( void )
 }
 
 /* -------------------------------------------------------------------- */
+/*  amiga_hs_to_ascii( void )                                           */
+/*                                                                      */
+/*  Dumps the highscore table to the 'apex/scores.txt' file. This is    */
+/*  just *too* hacky to document right now.                             */
+/* -------------------------------------------------------------------- */
+
+PROTO static void amiga_hs_to_ascii(void)
+{
+	char filename[MAX_PATH_LENGTH];
+	char destfile[MAX_PATH_LENGTH];
+	char temp[200];
+	struct high_score h;
+	int i;
+	FILE *f,*d;
+
+	int pr, pc, clev, mlev, cdun, mdun;
+	cptr user, gold, when, aged;
+
+	path_build(filename,MAX_PATH_LENGTH,ANGBAND_DIR_APEX,"scores.raw");
+	f = fopen(filename,"r");
+	if (!f)
+	{
+		amiga_show("Can't open highscore file!");
+		return;
+	}
+
+	path_build(destfile,MAX_PATH_LENGTH,ANGBAND_DIR_APEX,"scores.txt");
+	d = fopen(destfile,"w");
+	if (!d)
+	{
+      amiga_show("Can't open destination file!");
+		fclose(f);
+		return;
+   }
+
+	/* Print header, and underline it*/
+
+	sprintf(temp,"Highscore file for %s",VERSION);
+	fprintf(d,"%s\n",temp);
+	temp[ i = strlen(temp) ] = 0;
+	while (i)
+		temp[--i] = '-';
+	fprintf(d,"%s\n\n",temp);
+
+	for (i = 0 ; i < MAX_HISCORES; i++)
+	{
+      if (!fread(&h,sizeof(h),1,f))
+			break;
+
+	/* Extract the race/class */
+	pr = atoi(h.p_r);
+	pc = atoi(h.p_c);
+
+	/* Extract the level info */
+	clev = atoi(h.cur_lev);
+	mlev = atoi(h.max_lev);
+	cdun = atoi(h.cur_dun);
+	mdun = atoi(h.max_dun);
+
+#ifdef KANGBAND
+	ia = atoi(h.inside_special);    /* -KMW- */
+#endif
+	/* Hack -- extract the gold and such */
+	for (user = h.uid; isspace(*user); user++) /* loop */;
+	for (when = h.day; isspace(*when); when++) /* loop */;
+	for (gold = h.gold; isspace(*gold); gold++) /* loop */;
+	for (aged = h.turns; isspace(*aged); aged++) /* loop */;
+
+	/* Dump some info */
+#ifdef KANGBAND
+	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
+	        i + 1, h.pts, h.who,
+	        p_info[pr].title, class_info[pc].title,
+	        clev);
+#else
+/*	sprintf(temp, "%3d.%9s  %s the %s %s",
+	        i + 1, h.pts, h.who,
+	        p_info[pr].title,magic_info[pc].title); */
+	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
+	        i + 1, h.pts, h.who,
+	        p_info[pr].title, class_info[pc].title,
+	        clev);
+
+#endif
+
+	/* Dump the first line */
+	fprintf(d, "%s\n",temp);
+
+		sprintf(temp, "               Killed by %s on %s %d",
+		    h.how, "Dungeon Level", cdun);
+
+			if (!cdun) /* -KMW- */
+				sprintf(temp, "               Killed by %s in the Town",
+				    h.how);
+
+	/* Append a "maximum level" */
+	if (mdun > cdun) strcat(temp, format(" (Max %d)", mdun));
+
+	/* Dump the info */
+	fprintf(d, "%s\n",temp);
+
+	/* And still another line of info */
+	sprintf(temp,
+	       "               (User %s, Date %s, Gold %s, Turn %s).",
+			        user, when, gold, aged);
+
+	fprintf(d, "%s\n\n",temp);
+
+	}
+	fclose(d);
+	fclose(f);
+}
+
+/* -------------------------------------------------------------------- */
+/*  amiga_user_name( char *buf, int id )                                */
+/*                                                                      */
+/*  Provides the name of the last used save file in 'buf'. If not       */
+/*  available, sets buf to 'PLAYER'. 'id' is currently ignored.         */
+/*  Uses the file 'data-ami.prf' (which must be available); see the     */
+/*  function 'amiga_write_user_name()' below.                           */
+/*                                                                      */
+/*  Note this must be explicitly added to 'main.c' (equiv. to '-u')     */
+/* -------------------------------------------------------------------- */
+
+PROTO void amiga_user_name( char *buf, int id )
+{
+	char temp[MAX_PATH_LENGTH];
+	char name[24];
+	int i;
+	FILE *f;
+
+	/* Check if our data file exists; if not, return 'PLAYER' */
+	path_build(temp,MAX_PATH_LENGTH,ANGBAND_DIR_USER,"data-ami.prf");
+	f = fopen(temp,"r");
+	if (!f)
+	{
+		strcpy(buf,"PLAYER");
+		return;
+	}
+	/* Paranoia - if line not valid, return "PLAYER" */
+	if (!fgets(name,24,f))
+	{
+		fclose(f);
+		strcpy(buf,"PLAYER");
+		return;
+   }
+
+	/* Kill white space */
+   for (i = strlen(name) - 1; i && (name[i] <= 32) ; i--)
+		name[i] = 0;
+
+	strcpy(buf,name);
+	fclose(f);
+}
+
+/* -------------------------------------------------------------------- */
+/*  amiga_write_user_name( char *name )                                 */
+/*                                                                      */
+/*  Writes the 'name' argument to the file 'user/data-ami.prf'.         */
+/*  Generally, the 'name' argument will be 'player_name' i.e. 'Gandalf' */
+/*  This is used in the 'save_player()' routine (see save.c) to         */
+/*  automagically load the last used player...                          */
+/*                                                                      */
+/*  Note that this has to be explicitly added to save.c                 */
+/* -------------------------------------------------------------------- */
+
+PROTO void amiga_write_user_name( char *name )
+{
+	char temp[MAX_PATH_LENGTH];
+	FILE *f;
+
+	path_build(temp,MAX_PATH_LENGTH,ANGBAND_DIR_USER,"data-ami.prf");
+	f = fopen(temp,"w");
+	if (!f)
+		return;
+	fprintf(f,"%s\n",name);
+	fclose(f);
+}
+
+/* -------------------------------------------------------------------- */
 /*  get_p_attr( void )                                                  */
 /*                                                                      */
 /*  Returns an integer representing the 'attr' attribute of the current */
@@ -4409,17 +4900,18 @@ PROTO void amiga_load_palette( void )
 
 PROTO static int get_p_attr( void )
 {
-#ifndef SANGBAND
-	int pc = p_ptr->pclass,pr = p_ptr->prace;
-#else
-	int pc = 1, pr = p_ptr->prace;
-#endif
 #ifdef ZANGBAND
-	return pc + 36;
+	return p_ptr->pclass + 36;
+#else
+#ifdef SANGBAND
+	int pc = 1,pr = p_ptr->prace;
+#else
+	int pc = p_ptr->pclass,pr = p_ptr->prace;
 #endif
 	pc = pc % 6;
 	pr = pr % 5;
-	return((( pc * 10 + pr) >> 5 ) + 12);
+	return((( pc * 10 + pr) >> 5) + 12);
+#endif
 }
 
 /* -------------------------------------------------------------------- */
@@ -4432,16 +4924,77 @@ PROTO static int get_p_attr( void )
 
 PROTO static int get_p_char( void )
 {
+#ifdef ZANGBAND
+	return p_ptr->prace;
+#else
 #ifdef SANGBAND
 	int pc = 1,pr = p_ptr->prace;
 #else
 	int pc = p_ptr->pclass,pr = p_ptr->prace;
 #endif
-#ifdef ZANGBAND
-	return pr;
-#endif
 	pc = pc % 6;
 	pr = pr % 5;
 	return(( pc * 10 + pr) & 0x1f );
+#endif
 }
 
+PROTO void amiga_register(char *ourname)
+{
+	char tmp[500];
+	char buf[200];
+	char *p;
+	FILE *f;
+	BPTR templock;
+
+	if (KICK13)
+		return;
+
+	/* Add ENVARC: stuff */
+
+	if (templock = Lock("ENVARC:Angband",ACCESS_READ))
+		UnLock(templock);
+	else
+	{
+		templock = CreateDir("ENVARC:Angband");
+		if (templock)
+			UnLock(templock);
+		else
+			return;
+	}
+
+	if (getasn("ENVARC"))
+	{
+		f = fopen("ENVARC:Angband/AngMUI","r");
+		if (!f)
+		{
+			f = fopen("ENVARC:Angband/AngMUI","w");
+			if (!f)
+				return;
+		}
+		while (fgets(tmp,500,f))
+		{
+			int z = strlen(tmp) - 1;
+
+			if (tmp[z] == '\n')
+				tmp[z] = 0;
+
+			p = strstr(tmp,",");
+			if (p) *p = 0;
+			if (streq(tmp, VERSION))
+			{
+				fclose(f);
+				return;
+			}
+		}
+		fclose(f);
+		f = fopen("ENVARC:Angband/AngMUI","a");
+		if (f)
+		{
+			NameFromLock(GetProgramDir(),tmp,400);
+			GetProgramName(buf,200);
+			AddPart(tmp,buf,500);
+			fprintf(f,"%s,%s,%s,%d\n",VERSION,ourname,tmp,SOUND_MAX);
+			fclose(f);
+		}
+	}
+}

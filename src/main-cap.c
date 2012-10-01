@@ -1081,3 +1081,5 @@ errr init_cap(int argc, char *argv[])
 
 
 #endif /* USE_CAP */
+
+

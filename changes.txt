@@ -1,0 +1,35 @@
+2.9.1 BETA
+- Updated the source code base to Angband 2.9.1 which involves numerous
+  minor changes (see change lists for standard Angband for details).
+- Females no longer get more gold at character birth.
+- Removed the pseudo-graphics in inventory, equipment and store
+  listings (may be restored later).
+- Pet fear handling removed (pet handling in general will get a major
+  overhaul in the next version).
+
+2.8.3j patch-level 1
+- Temple doesn't sell books anymore; book shop only buys books.
+- Random character/attribute options added to birth.
+- Fixed faulty vault layout (Greg Wooledge).
+- Now prints home details after death instead of black market stock.
+- Infamous save-file '2.8.3c' bug fixed.
+- Added Tim Baker's 'easy' patch (disabled though).
+- Some (fairly minor) source cleanups/changes.
+- Fixed bug where you could be asked to kill a unique who'd already
+  died. If you have a save-file where a quest cannot be completed
+  because of this, leave the town level; when you return the quest
+  will be marked completed.
+- It's now not possible to wield quest items multiple times to receive
+  multiple gifts (eg. Sting).
+- Various spells could destroy staircases ; fixed
+- Added Greg Wooledge's patch for glibc2.1/egcs systems
+ 
+2.8.3j
+- Can now wield item from floor to complete a quest.
+- Screen not always refreshed in casino; fixed.
+- Rogue-like commands wouldn't work in new buildings. Hopefully fixed.
+- Extra shopkeepers added (previously, Black Market and Bookstore had
+  the same owners).
+- Fixed/added a few prototypes. Some functions called with too many
+  arguments, etc.
+- Few other minor alterations.

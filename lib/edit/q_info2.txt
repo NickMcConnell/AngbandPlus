@@ -13,7 +13,7 @@ P:Kidnapped!
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.1
 
 N:100:Kobold Problems
 T1:Kobolds have been appearing outside the city for some reason.

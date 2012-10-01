@@ -109,7 +109,7 @@ sint critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  * AND monster sleep status - Added by GJW	-KMW-
-*/
+ */
 sint critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
 {
 	int i, k;
@@ -170,6 +170,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	int mult = 1;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	u32b f1, f2, f3;
 
@@ -193,7 +194,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ANIMAL);
+					l_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -205,7 +206,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -217,7 +218,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_UNDEAD);
+					l_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
 				if (mult < 3) mult = 3;
@@ -229,7 +230,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DEMON);
+					l_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -241,7 +242,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ORC);
+					l_ptr->r_flags3 |= (RF3_ORC);
 				}
 
 				if (mult < 3) mult = 3;
@@ -253,7 +254,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_TROLL);
+					l_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
 				if (mult < 3) mult = 3;
@@ -265,7 +266,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_GIANT);
+					l_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
 				if (mult < 3) mult = 3;
@@ -277,7 +278,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -289,7 +290,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 5) mult = 5;
@@ -304,7 +305,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_ACID);
+						l_ptr->r_flags3 |= (RF3_IM_ACID);
 					}
 				}
 
@@ -323,7 +324,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+						l_ptr->r_flags3 |= (RF3_IM_ELEC);
 					}
 				}
 
@@ -342,7 +343,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+						l_ptr->r_flags3 |= (RF3_IM_FIRE);
 					}
 				}
 
@@ -361,7 +362,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
+						l_ptr->r_flags3 |= (RF3_IM_COLD);
 					}
 				}
 
@@ -381,7 +382,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_POIS);
+						l_ptr->r_flags3 |= (RF3_IM_POIS);
 					}
 				}
 
@@ -456,8 +457,8 @@ void search(void)
 					/* Message */
 					msg_print("You have found a secret door.");
 
-					/* Pick a door XXX XXX XXX */
-					cave_set_feat(y, x, FEAT_DOOR_HEAD);
+					/* Pick a door */
+					place_closed_door(y, x);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -468,10 +469,10 @@ void search(void)
 				{
 					object_type *o_ptr;
 
-					/* Acquire object */
+					/* Get the object */
 					o_ptr = &o_list[this_o_idx];
 
-					/* Acquire next object */
+					/* Get the next object */
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Skip non-chests */
@@ -499,36 +500,106 @@ void search(void)
 }
 
 
+/*
+ * Determine if the object can be picked up, and has "=g" in its inscription.
+ */
+static bool auto_pickup_okay(object_type *o_ptr)
+{
+	cptr s;
+
+	/* It can't be carried */
+	if (!inven_carry_okay(o_ptr)) return (FALSE);
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Auto-pickup on "=g" */
+		if (s[1] == 'g') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
 
 
 /*
- * Make the player carry everything in a grid
+ * Helper routine for py_pickup() and py_pickup_floor().
  *
- * If "pickup" is FALSE then only gold will be picked up
+ * Add the given dungeon object to the character's inventory.
+ *
+ * Delete the object afterwards.
+ */
+static void py_pickup_aux(int o_idx)
+{
+	int slot;
+
+	char o_name[80];
+	object_type *o_ptr;
+
+	o_ptr = &o_list[o_idx];
+
+	/* Carry the object */
+	slot = inven_carry(o_ptr);
+
+	/* Get the object again */
+	o_ptr = &inventory[slot];
+
+	/* Describe the object */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+	/* Delete the object */
+	delete_object_idx(o_idx);
+}
+
+
+/*
+ * Make the player carry everything in a grid.
+ *
+ * If "pickup" is FALSE then only gold will be picked up.
  */
 void py_pickup(int pickup)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int i; /* -KMW- */
 
 	s16b this_o_idx, next_o_idx = 0;
 
+	object_type *o_ptr;
+
 	char o_name[80];
+
+#ifdef ALLOW_EASY_FLOOR
+
+	int last_o_idx = 0;
+
+	int can_pickup = 0;
+	int not_pickup = 0;
+
+#endif /* ALLOW_EASY_FLOOR */
 
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Hack -- disturb */
@@ -552,82 +623,175 @@ void py_pickup(int pickup)
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
+
+			/* Check the next object */
+			continue;
 		}
 
-		/* Pick up objects */
-		else
+		/* Test for auto-pickup */
+		if (auto_pickup_okay(o_ptr))
 		{
-			/* Describe the object */
-			if (!pickup)
+			/* Pick up the object */
+			py_pickup_aux(this_o_idx);
+
+			/* Check the next object */
+			continue;
+		}
+
+#ifdef ALLOW_EASY_FLOOR
+
+		/* Easy Floor */
+		if (easy_floor)
+		{
+			/* Pickup if possible */
+			if (pickup && inven_carry_okay(o_ptr))
 			{
+				/* Pick up if allowed */
+				if (!carry_query_flag)
+				{
+					/* Pick up the object */
+					py_pickup_aux(this_o_idx);
+				}
+
+				/* Else count */
+				else
+				{
+					/* Remember */
+					last_o_idx = this_o_idx;
+
+					/* Count */
+					++can_pickup;
+				}
+			}
+
+			/* Else count */
+			else
+			{
+				/* Remember */
+				last_o_idx = this_o_idx;
+
+				/* Count */
+				++not_pickup;
+			}
+
+			/* Check the next object */
+			continue;
+		}
+
+#endif /* ALLOW_EASY_FLOOR */
+
+		/* Describe the object */
+		if (!pickup)
+		{
+			msg_format("You see %s.", o_name);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Note that the pack is too full */
+		if (!inven_carry_okay(o_ptr))
+		{
+			msg_format("You have no room for %s.", o_name);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Query before picking up */
+		if (carry_query_flag)
+		{
+			char out_val[160];
+			sprintf(out_val, "Pick up %s? ", o_name);
+			if (!get_check(out_val)) continue;
+		}
+
+		/* Pick up the object */
+		py_pickup_aux(this_o_idx);
+	}
+
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Easy floor, objects left */
+	if (easy_floor && (can_pickup + not_pickup > 0))
+	{
+		/* Not picking up */
+		if (!pickup)
+		{
+			/* One object */
+			if (not_pickup == 1)
+			{
+				/* Get the object */
+				o_ptr = &o_list[last_o_idx];
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Message */
 				msg_format("You see %s.", o_name);
 			}
 
-			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr))
+			/* Multiple objects */
+			else
 			{
+				/* Message */
+				msg_format("You see a pile of %d objects.", not_pickup);
+			}
+
+			/* Done */
+			return;
+		}
+
+		/* No room */
+		if (!can_pickup)
+		{
+			/* One object */
+			if (not_pickup == 1)
+			{
+				/* Get the object */
+				o_ptr = &o_list[last_o_idx];
+
+				/* Describe the object */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Message */
 				msg_format("You have no room for %s.", o_name);
 			}
 
-			/* Pick up the item (if requested and allowed) */
+			/* Multiple objects */
 			else
 			{
-				int okay = TRUE;
-
-				/* Hack -- query every item */
-				if (carry_query_flag)
-				{
-					char out_val[160];
-					sprintf(out_val, "Pick up %s? ", o_name);
-					okay = get_check(out_val);
-				}
-
-				/* Attempt to pick up an object. */
-				if (okay)
-				{
-					int slot;
-
-					/* Carry the item */
-					slot = inven_carry(o_ptr);
-
-					/* Get the item again */
-					o_ptr = &inventory[slot];
-
-					/* Describe the object */
-					object_desc(o_name, o_ptr, TRUE, 3);
-
-					/* Message */
-					msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-					/* keep track of any quest activity */
-					if (p_ptr->inside_special == 2) {
-						for (i = 0; i < MAX_ITEM_QUEST; i++) {
-							if (o_ptr->name1 == p_ptr->cqitem[i]) {
-								p_ptr->cqitemc[i]++;
-							}
-						}
-					}
-
-					/* Check if completed a quest -KMW- */
-					for (i=0; i < MAX_QUESTS;i++)
-						if ((q_list[i].quest_type == QUEST_OBJ_FIND_OBJECT) &&
-						    (q_list[i].k_idx == o_ptr->name1) &&
-							(p_ptr->rewards[i + QUEST_REWARD] < QUEST_COMPLETED))
-						{
-							p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED;
-							msg_print("You completed your quest!");
-							msg_print(NULL);
-						}
-
-					/* Delete the object */
-					delete_object_idx(this_o_idx);
-				}
+				/* Message */
+				msg_print("You have no room for any of the objects on the floor.");
 			}
+
+			/* Done */
+			return;
+		}
+
+		/* Pick up objects */
+		while (1)
+		{
+			cptr q, s;
+
+			int item;
+
+			/* Restrict the choices */
+			item_tester_hook = inven_carry_okay;
+
+			/* Get an object*/
+			q = "Get which item? ";
+			s = NULL;
+			if (!get_item(&item, q, s, (USE_FLOOR))) break;
+
+			/* Pick up the object */
+			py_pickup_aux(0 - item);
 		}
 	}
+
+#endif /* ALLOW_EASY_FLOOR */
+
 }
-
-
 
 
 
@@ -938,6 +1102,7 @@ void py_attack(int y, int x)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
+	monster_lore *l_ptr;
 
 	object_type *o_ptr;
 
@@ -946,15 +1111,18 @@ void py_attack(int y, int x)
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
+
 	bool vorpal_cut = FALSE, chaos_effect = FALSE, force_effect = FALSE;
 	bool drain_msg = TRUE;
 	int drain_result = 0, drain_heal = 0;
 	int drain_left = 100;
 	u32b f1, f2, f3; /* A massive hack -- life-draining weapons */
 
-	/* Access the monster */
+
+	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
+	l_ptr = &l_list[m_ptr->r_idx];
 
 
 	/* Disturb the player */
@@ -983,7 +1151,7 @@ void py_attack(int y, int x)
 	}
 
 
-	/* Access the weapon */
+	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Calculate the "attack quality" */
@@ -997,11 +1165,8 @@ void py_attack(int y, int x)
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
-			/* Sound */
-			sound(SOUND_HIT);
-
 			/* Message */
-			msg_format("You hit %s.", m_name);
+			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1096,7 +1261,7 @@ void py_attack(int y, int x)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_NO_CONF);
+						l_ptr->r_flags3 |= (RF3_NO_CONF);
 					}
 
 					msg_format("%^s is unaffected.", m_name);
@@ -1139,11 +1304,8 @@ void py_attack(int y, int x)
 		/* Player misses */
 		else
 		{
-			/* Sound */
-			sound(SOUND_MISS);
-
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 	}
 
@@ -1151,11 +1313,8 @@ void py_attack(int y, int x)
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
 	{
-		/* Sound */
-		sound(SOUND_FLEE);
-
 		/* Message */
-		msg_format("%^s flees in terror!", m_name);
+		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 	}
 
 	if ((m_ptr->is_pet) || (m_ptr->is_friendly)) {
@@ -1190,12 +1349,12 @@ void py_attack(int y, int x)
  * Note that this routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int do_pickup)
+void move_player(int dir, int jumping)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-	int wt;
-	int y, x, i, i2; /* -KMW- */
+
+	int y, x;
 	bool oktomove = TRUE;
 
 	/* Find the result of moving */
@@ -1214,6 +1373,8 @@ void move_player(int dir, int do_pickup)
 	/* water & lava -KMW- */
 	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
 	{
+		int wt;
+
 		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
 		if ((p_ptr->total_weight < wt) || (p_ptr->levitate))
 			oktomove = TRUE;
@@ -1272,22 +1433,45 @@ void move_player(int dir, int do_pickup)
 
 	else if ((cave_feat[y][x] >= FEAT_BLDG_HEAD) &&
 		   (cave_feat[y][x] <= FEAT_BLDG_TAIL))
+	{
 		oktomove = TRUE;
+	}
 
 	else if ((cave_feat[y][x] == FEAT_TREES) &&
 		((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
-		oktomove = TRUE;
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-	/* Disarm a visible trap */
-	else if ((do_pickup != easy_disarm) &&
-		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		(cave_feat[y][x] <= FEAT_TRAP_TAIL))
 	{
-		extern bool do_cmd_disarm_aux(int y, int x);
-		(void) do_cmd_disarm_aux(y, x);
+		oktomove = TRUE;
 	}
-#endif /* ALLOW_EASY_DISARM */
+
+#ifdef ALLOW_EASY_ALTER
+
+	/* Optionally alter known traps/doors on (non-jumping) movement */
+	else if (easy_alter && !jumping &&
+	         (cave_info[y][x] & (CAVE_MARK)) &&
+	         (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+	         (cave_feat[y][x] <= FEAT_DOOR_TAIL))
+	{
+		/* Not already repeating */
+		if (!p_ptr->command_rep)
+		{
+			/* Hack -- Optional auto-repeat */
+			if (always_repeat && (p_ptr->command_arg <= 0))
+			{
+				/* Repeat 99 times */
+				p_ptr->command_rep = 99;
+
+				/* Reset the command count */
+				p_ptr->command_arg = 0;
+			}
+		}
+
+		/* Alter */
+		do_cmd_alter();
+
+		oktomove = FALSE;
+	}
+
+#endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls" */
 	else if ((!cave_floor_bold(y, x)) &&
@@ -1305,7 +1489,7 @@ void move_player(int dir, int do_pickup)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				msg_print("You feel a pile of rubble blocking your way.");
+				message(MSG_HITWALL, 0, "You feel a pile of rubble blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1313,7 +1497,7 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
-				msg_print("You feel a door blocking your way.");
+				message(MSG_HITWALL, 0, "You feel a door blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1321,7 +1505,7 @@ void move_player(int dir, int do_pickup)
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("You feel a wall blocking your way.");
+				message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
@@ -1333,27 +1517,21 @@ void move_player(int dir, int do_pickup)
 			/* Rubble */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
-				msg_print("There is a pile of rubble blocking your way.");
+				message(MSG_HITWALL, 0, "There is a pile of rubble blocking your way.");
 			}
 
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
-#ifdef ALLOW_EASY_OPEN /* TNB */
-				if (easy_open_door(y, x)) return;
-#endif
-				msg_print("There is a door blocking your way.");
+				message(MSG_HITWALL, 0, "There is a door blocking your way.");
 			}
 
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("There is a wall blocking your way.");
+				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
 			}
 		}
-
-		/* Sound */
-		sound(SOUND_HITWALL);
 	}
 
 	else if ((p_ptr->ghostly) && ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
@@ -1364,7 +1542,7 @@ void move_player(int dir, int do_pickup)
 	if (oktomove)
 	{
 		/* Sound XXX XXX XXX */
-		/* sound(SOUND_WALK); */
+		/* sound(MSG_WALK); */
 
 		/* Move player */
 		monster_swap(py, px, y, x);
@@ -1388,11 +1566,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-		py_pickup(do_pickup != always_pickup);
-#else
-		py_pickup(do_pickup);
-#endif /* ALLOW_EASY_DISARM */
+		py_pickup(jumping != always_pickup);
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -1400,8 +1574,12 @@ void move_player(int dir, int do_pickup)
 		{
 			/* Disturb */
 			disturb(0, 0);
+
 			/* Hack -- Enter store */
 			p_ptr->command_new = '_';
+
+			/* Free turn XXX XXX XXX */
+			p_ptr->energy_use = 0;
 		}
 
 		/* Handle "building doors" -KMW- */
@@ -1413,6 +1591,9 @@ void move_player(int dir, int do_pickup)
 
 			/* Hack -- Enter building */
 			p_ptr->command_new = ']';
+
+			/* Free turn XXX XXX XXX */
+			p_ptr->energy_use = 0;
 		}
 
 		/* Handle quest areas -KMW- */
@@ -1423,10 +1604,15 @@ void move_player(int dir, int do_pickup)
 
 			/* Hack -- Enter quest level */
 			p_ptr->command_new = '[';
+
+			/* Free turn XXX XXX XXX */
+			p_ptr->energy_use = 0;
 		}
 
 		if (cave_feat[y][x] == FEAT_QUEST_EXIT)
 		{
+			int i, i2;
+
 			for (i2=QUEST_REWARD_HEAD; i2 < QUEST_REWARD_TAIL; i2++) {
 				i = i2 - QUEST_DIFF;
 				if (p_ptr->rewards[i] == 1)
@@ -1713,6 +1899,7 @@ static void run_init(int dir)
 	bool deepleft, deepright;
 	bool shortleft, shortright;
 
+
 	/* Save the direction */
 	p_ptr->run_cur_dir = dir;
 
@@ -1818,6 +2005,7 @@ static bool run_test(void)
 	int i, max, inv;
 	int option, option2;
 
+
 	/* No options yet */
 	option = 0;
 	option2 = 0;
@@ -1858,10 +2046,10 @@ static bool run_test(void)
 		{
 			object_type *o_ptr;
 
-			/* Acquire object */
+			/* Get the object */
 			o_ptr = &o_list[this_o_idx];
 
-			/* Acquire next object */
+			/* Get the next object */
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
@@ -1880,7 +2068,6 @@ static bool run_test(void)
 			/* Examine the terrain */
 			switch (cave_feat[row][col])
 			{
-
 				/* Floors */
 				case FEAT_FLOOR:
 
@@ -2225,10 +2412,7 @@ void run_step(int dir)
 	/* Take time */
 	p_ptr->energy_use = 100;
 
-	/* Move the player, using the "pickup" flag */
-#ifdef ALLOW_EASY_DISARM /* TNB */
+	/* Move the player */
 	move_player(p_ptr->run_cur_dir, FALSE);
-#else
-	move_player(p_ptr->run_cur_dir, always_pickup);
-#endif /* ALLOW_EASY_DISARM */
 }
+

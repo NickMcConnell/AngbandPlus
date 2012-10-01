@@ -10,6 +10,7 @@
 
 #include "angband.h"
 
+
 /*
  * Some machines have a "main()" function in their "main-xxx.c" file,
  * all the others use this file for their "main()" function.
@@ -84,12 +85,7 @@ static void init_stuff(void)
 #if defined(AMIGA) || defined(VM)
 
 	/* Hack -- prepare "path" */
-#if defined(VM)
 	strcpy(path, "Angband:");
-#else
-	amiga_makepath(path);
-	amiga_register(path);
-#endif
 
 #else /* AMIGA / VM */
 
@@ -334,14 +330,11 @@ int main(int argc, char *argv[])
 		quit("The gates to Angband are closed (bad load).");
 	}
 
-	/* Acquire the "user name" as a default player name */
+	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, player_uid);
 
 #endif
 
-#ifdef AMIGA
-	amiga_write_user_name(op_ptr->full_name, player_uid);
-#endif
 
 	/* Process the command line arguments */
 	for (i = 1; args && (i < argc); i++)
@@ -476,13 +469,15 @@ int main(int argc, char *argv[])
 	process_player_name(TRUE);
 
 
-
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly) */
-	safe_setuid_drop();
+	/* Drop privs (so X11 will work correctly), unless we are running */
+	/* the Linux-SVGALib version. */
+#ifndef USE_LSL
+ 	safe_setuid_drop();
+#endif
 
 
 #ifdef USE_XAW
@@ -635,23 +630,23 @@ int main(int argc, char *argv[])
 #endif
 
 
-	/* Grab privs (dropped above for X11) */
+ 	/* Grab privs (dropped above for X11) */
+#ifndef USE_LSL
 	safe_setuid_grab();
+#endif
 
 
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
-
-
-	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
-
 
 	/* Catch nasty signals */
 	signals_init();
 
 	/* Initialize */
 	init_angband();
+
+	/* Hack -- If requested, display scores and quit */
+	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
 	pause_line(23);
@@ -667,3 +662,4 @@ int main(int argc, char *argv[])
 }
 
 #endif
+

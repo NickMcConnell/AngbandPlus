@@ -27,6 +27,7 @@ SRCS = \
   store.c bldg.c birth.c load.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
+  randart.c spells3.c \
   main-win.c readdib.c itsybits.c
 
 OBJS = \
@@ -39,6 +40,7 @@ OBJS = \
   store.obj bldg.obj birth.obj load.obj \
   wizard1.obj wizard2.obj \
   generate.obj dungeon.obj init1.obj init2.obj \
+  randart.obj spells3.obj \
   main-win.obj readdib.obj itsybits.obj
 
 OBJS32 = \
@@ -51,6 +53,7 @@ OBJS32 = \
   store.o32 bldg.o32 birth.o32 load.o32 \
   wizard1.o32 wizard2.o32 \
   generate.o32 dungeon.o32 init1.o32 init2.o32 \
+  randart.o32 spells3.o32 \
   main-win.o32 readdib.o32 itsybits.o32
 
 default: bccw16.cfg kangband cleanobj bccw32.cfg kangband32 cleanobj32
@@ -167,6 +170,7 @@ cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
 store bldg birth load +
 wizard1 wizard2 +
 generate dungeon init1 init2 +
+randart spells3 +
 main-win readdib itsybits,+
 ..\kangband.exe,..\kangband.map,import cwl,..\ext-win\src\kangband.def
 |
@@ -198,6 +202,7 @@ cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
 store.o32 bldg.o32 birth.o32 load.o32 +
 wizard1.o32 wizard2.o32 +
 generate.o32 dungeon.o32 init1.o32 init2.o32 +
+randart.o32 spells3.o32 +
 main-win.o32 readdib.o32 itsybits.o32,+
 ..\kangband32.exe,..\kangband.map,import32 cw32,..\ext-win\src\kangband.def
 |

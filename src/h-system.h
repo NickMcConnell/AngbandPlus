@@ -96,24 +96,26 @@
 
 #endif
 
+#ifdef __DJGPP__
+#include <unistd.h>
+#endif /* __DJGPP__ */
 
 #ifdef SET_UID
 
-# ifdef USG
-#  include <string.h>
-# else
-#  include <strings.h>
-/* Some compilers may define these as macros. */
-#  ifndef strstr
+#ifdef USG
+# include <string.h>
+#else
+# include <strings.h>
+# ifndef strstr
 extern char *strstr();
-#  endif
-#  ifndef strchr
-extern char *strchr();
-#  endif
-#  ifndef strrchr
-extern char *strrchr();
-#  endif
 # endif
+# ifndef strchr
+extern char *strchr();
+# endif
+# ifndef strrchr
+extern char *strrchr();
+# endif
+#endif
 
 #else
 
@@ -132,3 +134,5 @@ extern long atol();
 
 
 #endif
+
+

@@ -324,8 +324,8 @@ static void spoil_obj_desc(cptr fname)
 			fprintf(fff, "\n\n%s\n\n", group_item[i].name);
 		}
 
-		/* Acquire legal item types */
-		for (k = 1; k < MAX_K_IDX; k++)
+		/* Get legal item types */
+		for (k = 1; k < z_info->k_max; k++)
 		{
 			object_kind *k_ptr = &k_info[k];
 
@@ -707,7 +707,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_x_ptr,
 
 
 /*
- * Acquire a "basic" description "The Cloak of Death [1,+10]"
+ * Get a "basic" description "The Cloak of Death [1,+10]"
  */
 static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
 {
@@ -1154,7 +1154,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return FALSE;
 
-	/* Acquire the "kind" index */
+	/* Get the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
 
 	/* Oops */
@@ -1227,7 +1227,7 @@ static void spoil_artifact(cptr fname)
 		}
 
 		/* Now search through all of the artifacts */
-		for (j = 1; j < MAX_A_IDX; ++j)
+		for (j = 1; j < z_info->a_max; ++j)
 		{
 			artifact_type *a_ptr = &a_info[j];
 
@@ -1273,8 +1273,6 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
-	s16b who[MAX_R_IDX];
-
 	char buf[1024];
 
 	char nam[80];
@@ -1284,6 +1282,9 @@ static void spoil_mon_desc(cptr fname)
 	char ac[80];
 	char hp[80];
 	char exp[80];
+
+	u16b *who;
+	u16b why = 2;
 
 
 	/* Build the filename */
@@ -1314,8 +1315,11 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, u16b);
+
 	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1323,6 +1327,12 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->name) who[n++] = i;
 	}
 
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan again */
 	for (i = 0; i < n; i++)
@@ -1389,6 +1399,9 @@ static void spoil_mon_desc(cptr fname)
 
 	/* End it */
 	fprintf(fff, "\n");
+
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, u16b);
 
 
 	/* Check for errors */
@@ -1500,6 +1513,9 @@ static void spoil_mon_info(cptr fname)
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u16b why = 2;
+	s16b *who;
+	int count = 0;
 
 
 	/* Build the filename */
@@ -1525,12 +1541,31 @@ static void spoil_mon_info(cptr fname)
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, s16b);
+
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Use that monster */
+		if (r_ptr->name) who[count++] = i;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, count);
+
 	/*
 	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (n = 0; n < count; n++)
 	{
-		monster_race *r_ptr = &r_info[n];
+		monster_race *r_ptr = &r_info[who[n]];
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1579,7 +1614,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", n);
+		sprintf(buf, "Num:%d  ", who[n]);
 		spoil_out(buf);
 
 		/* Level */
@@ -1810,8 +1845,8 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_XXX6))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX7))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX8))            vp[vn++] = "do something";
+		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon similar monsters";
+		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
@@ -2094,7 +2129,7 @@ static void spoil_mon_info(cptr fname)
 			/* No method yet */
 			p = "???";
 
-			/* Acquire the method */
+			/* Get the method */
 			switch (r_ptr->blow[j].method)
 			{
 				case RBM_HIT:	p = "hit"; break;
@@ -2127,7 +2162,7 @@ static void spoil_mon_info(cptr fname)
 			/* Default effect */
 			q = "???";
 
-			/* Acquire the effect */
+			/* Get the effect */
 			switch (r_ptr->blow[j].effect)
 			{
 				case RBE_HURT:	q = "attack"; break;
@@ -2211,6 +2246,9 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(NULL);
 	}
 
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, s16b);
+
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -2236,7 +2274,7 @@ extern void do_cmd_spoilers(void);
  */
 void do_cmd_spoilers(void)
 {
-	int i;
+	char ch;
 
 
 	/* Save screen */
@@ -2266,34 +2304,34 @@ void do_cmd_spoilers(void)
 		prt("Command: ", 12, 0);
 
 		/* Get a choice */
-		i = inkey();
+		ch = inkey();
 
 		/* Escape */
-		if (i == ESCAPE)
+		if (ch == ESCAPE)
 		{
 			break;
 		}
 
 		/* Option (1) */
-		else if (i == '1')
+		else if (ch == '1')
 		{
 			spoil_obj_desc("obj-desc.spo");
 		}
 
 		/* Option (2) */
-		else if (i == '2')
+		else if (ch == '2')
 		{
 			spoil_artifact("artifact.spo");
 		}
 
 		/* Option (3) */
-		else if (i == '3')
+		else if (ch == '3')
 		{
 			spoil_mon_desc("mon-desc.spo");
 		}
 
 		/* Option (4) */
-		else if (i == '4')
+		else if (ch == '4')
 		{
 			spoil_mon_info("mon-info.spo");
 		}
@@ -2325,3 +2363,5 @@ static int i = 0;
 #endif
 
 #endif
+
+

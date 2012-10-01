@@ -8,27 +8,64 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
-# Available slots (?):
+# Available slots (possibly out of date):
 #   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
 #   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
 
-# XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
+# Add some "IGNORE_XXX" flags to Rings, Amulets, etc.  XXX XXX
 
-# The old "MULTI_HUED" objects are now "violet", and no other object
-# is violet, so all six violet objects can be made "multi-hued", though
-# this would be a heinous hack.  XXX XXX
+# === Understanding k_info.txt ===
 
-# Note that object zero is used for the "stack" picture (unused).
+# N: serial number : & object name~
+# G: symbol : color
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# A: depth/rarity : depth/rarity : etc
+# F: flag | flag | etc
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. The '&' and '~' symbols are use to
+# include articles and pluralization as necessary to ensure
+# grammatical correctness in object descriptions.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable. 
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the items value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'A' is for allocation - depth and rarity, in pairs. This allows an
+# item to have multiple natural depths and rarities. It is used to
+# ensure that certain vital items such as food and identify scrolls
+# are found throughout the dungeon.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
 
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.1
 
 
-##### Something special #####
+##### Non-kind (contains the "pile" picture) #####
 
-N:0:something
+N:0:<pile>
 G:&:w
 
 
@@ -258,6 +295,7 @@ I:23:30:0
 W:70:0:180:4000
 A:70/8
 P:0:6d5:0:0:0
+F:RES_CONFU |
 F:RES_CHAOS | SHOW_MODS
 
 N:37:& Two-Handed Sword~
@@ -692,9 +730,10 @@ A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
-##### Armor #####
+## XXX 90 XXX ##
 
-# 90 unused
+
+##### Armor #####
 
 N:91:& Pair~ of Soft Leather Boots
 G:]:U
@@ -2927,6 +2966,7 @@ I:38:18:0
 W:75:0:200:70000
 A:75/16
 P:30:2d4:-2:0:10
+F:RES_CONFU |
 F:RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2936,6 +2976,7 @@ I:38:20:0
 W:90:0:200:100000
 A:90/16
 P:30:2d4:-2:0:10
+F:RES_CONFU |
 F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -2945,6 +2986,7 @@ I:38:30:0
 W:110:0:200:300000
 A:110/64
 P:40:2d4:-3:0:15
+F:RES_CONFU |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

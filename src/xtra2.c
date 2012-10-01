@@ -732,6 +732,9 @@ bool set_invuln(int v)
 
 /*
  * Set "p_ptr->tim_s_invis", notice observable changes
+ *
+ * Note the use of "PU_MONSTERS", which is needed because
+ * "p_ptr->tim_image" affects monster visibility.
  */
 bool set_tim_s_invis(int v)
 {
@@ -2043,13 +2046,6 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
-	int i;
-
-
-	/* Note current level */
-	i = p_ptr->lev;
-
-
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -2106,11 +2102,8 @@ void check_experience(void)
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
 
-		/* Sound */
-		sound(SOUND_LEVEL);
-
 		/* Message */
-		msg_format("Welcome to level %d.", p_ptr->lev);
+		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2214,13 +2207,14 @@ static int get_coin_type(monster_race *r_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, j, i2, j2, y, x, ny, nx;
-
+	int i, j, y, x, ny, nx;
+	int i2, j2;
 	int dump_item = 0;
 	int dump_gold = 0;
 	int number_mon;
 
 	int number = 0;
+	int total = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -2258,10 +2252,10 @@ void monster_death(int m_idx)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Paranoia */
@@ -2521,6 +2515,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	s32b div, new_exp, new_exp_frac;
 
 
@@ -2542,19 +2538,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
-		/* Make a sound */
-		sound(SOUND_KILL);
-
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			msg_format("%^s%s", m_name, note);
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			msg_format("You have killed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -2563,13 +2556,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
 		         (strchr("Evg", r_ptr->d_char)))
 		{
-			msg_format("You have destroyed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			msg_format("You have slain %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
 		/* Maximum player level */
@@ -2586,11 +2579,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		if (new_exp_frac >= 0x10000L)
 		{
 			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000L;
+			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
 		}
 		else
 		{
-			p_ptr->exp_frac = new_exp_frac;
+			p_ptr->exp_frac = (u16b)new_exp_frac;
 		}
 
 		/* Gain experience */
@@ -2607,10 +2600,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
+			if (l_ptr->r_pkills < MAX_SHORT) l_ptr->r_pkills++;
 
 			/* Count kills in all lives */
-			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
+			if (l_ptr->r_tkills < MAX_SHORT) l_ptr->r_tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
@@ -2685,86 +2678,142 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 }
 
 
+/*
+ * Modify the current panel to the given coordinates, adjusting only to
+ * ensure the coordinates are legal, and return TRUE if anything done.
+ *
+ * Hack -- The town should never be scrolled around.
+ *
+ * Note that monsters are no longer affected in any way by panel changes.
+ *
+ * As a total hack, whenever the current panel changes, we assume that
+ * the "overhead view" window should be updated.
+ */
+bool modify_panel(int wy, int wx)
+{
+	/* Verify wy, adjust if needed */
+	/* if (p_ptr->depth == 0) wy = SCREEN_HGT; */
+	if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
+	else if (wy < 0) wy = 0;
+
+	/* Verify wx, adjust if needed */
+	/* if (p_ptr->depth == 0) wx = SCREEN_WID; */
+	if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
+	else if (wx < 0) wx = 0;
+
+	/* React to changes */
+	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
+	{
+		/* Save wy, wx */
+		p_ptr->wy = wy;
+		p_ptr->wx = wx;
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Hack -- Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+
+		/* Changed */
+		return (TRUE);
+	}
+
+	/* No change */
+	return (FALSE);
+}
 
 
 /*
- * Check for, and react to, the player leaving the panel
+ * Perform the minimum "whole panel" adjustment to ensure that the given
+ * location is contained inside the current panel, and return TRUE if any
+ * such adjustment was performed.
+ */
+bool adjust_panel(int y, int x)
+{
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
+
+	/* Adjust as needed */
+	while (y >= wy + SCREEN_HGT) wy += SCREEN_HGT;
+	while (y < wy) wy -= SCREEN_HGT;
+
+	/* Adjust as needed */
+	while (x >= wx + SCREEN_WID) wx += SCREEN_WID;
+	while (x < wx) wx -= SCREEN_WID;
+
+	/* Use "modify_panel" */
+	return (modify_panel(wy, wx));
+}
+
+
+/*
+ * Change the current panel to the panel lying in the given direction.
  *
- * When the player gets too close to the edge of a panel, the
- * map scrolls one panel in that direction so that the player
+ * Return TRUE if the panel was changed.
+ */
+bool change_panel(int dir)
+{
+	int wy = p_ptr->wy + ddy[dir] * PANEL_HGT;
+	int wx = p_ptr->wx + ddx[dir] * PANEL_WID;
+
+	/* Use "modify_panel" */
+	return (modify_panel(wy, wx));
+}
+
+
+/*
+ * Verify the current panel (relative to the player location).
+ *
+ * By default, when the player gets "too close" to the edge of the current
+ * panel, the map scrolls one panel in that direction so that the player
  * is no longer so close to the edge.
+ *
+ * The "center_player" option allows the current panel to always be centered
+ * around the player, which is very expensive, and also has some interesting
+ * gameplay ramifications.
  */
 void verify_panel(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i;
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
 
-	bool scroll = FALSE;
 
-
-	/* Initial row */
-	i = p_ptr->wy;
-
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
+	/* Scroll screen vertically when off-center */
+	if (center_player && (!p_ptr->running || !run_avoid_center) &&
+	    (py != wy + SCREEN_HGT / 2))
 	{
-		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+		wy = py - SCREEN_HGT / 2;
 	}
 
-	/* Hack -- handle town- DON'T need to do this - dungeon size now -KMW- */
-	/* if (!p_ptr->depth) i = TOWN_HEIGHT; */
-
-	/* New panel row */
-	if (p_ptr->wy != i)
+	/* Scroll screen vertically when 2 grids from top/bottom edge */
+	else if ((py < wy + 2) || (py >= wy + SCREEN_HGT - 2))
 	{
-		/* Update panel */
-		p_ptr->wy = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		wy = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 	}
 
 
-	/* Initial col */
-	i = p_ptr->wx;
-
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
+	/* Scroll screen horizontally when off-center */
+	if (center_player && (!p_ptr->running || !run_avoid_center) &&
+	    (px != wx + SCREEN_WID / 2))
 	{
-		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+		wx = px - SCREEN_WID / 2;
 	}
 
-	/* Hack -- handle town - DON'T need to do this - dungeon size now -KMW-*/
-	/* if (!p_ptr->depth) i = SCREEN_WID; */
-
-	/* New panel col */
-	if (p_ptr->wx != i)
+	/* Scroll screen horizontally when 4 grids from left/right edge */
+	else if ((px < wx + 4) || (px >= wx + SCREEN_WID - 4))
 	{
-		/* Update panel */
-		p_ptr->wx = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		wx = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 	}
 
 
-	/* Scroll */
-	if (scroll)
+	/* Scroll if needed */
+	if (modify_panel(wy, wx))
 	{
 		/* Optional disturb on "panel change" */
-		if (disturb_panel) disturb(0, 0);
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+		if (disturb_panel && !center_player) disturb(0, 0);
 	}
 }
 
@@ -2890,6 +2939,36 @@ void ang_sort(vptr u, vptr v, int n)
 
 
 /*
+ * Given a "source" and "target" location, extract a "direction",
+ * which will move one step from the "source" towards the "target".
+ *
+ * Note that we use "diagonal" motion whenever possible.
+ *
+ * We return "5" if no motion is needed.
+ */
+sint motion_dir(int y1, int x1, int y2, int x2)
+{
+	/* No movement required */
+	if ((y1 == y2) && (x1 == x2)) return (5);
+
+	/* South or North */
+	if (x1 == x2) return ((y1 < y2) ? 2 : 8);
+
+	/* East or West */
+	if (y1 == y2) return ((x1 < x2) ? 6 : 4);
+
+	/* South-east or South-west */
+	if (y1 < y2) return ((x1 < x2) ? 3 : 1);
+
+	/* North-east or North-west */
+	if (y1 > y2) return ((x1 < x2) ? 9 : 7);
+
+	/* Paranoia */
+	return (5);
+}
+
+
+/*
  * Extract a direction (or zero) from a character
  */
 sint target_dir(char ch)
@@ -3012,7 +3091,7 @@ bool target_okay(void)
 		{
 			monster_type *m_ptr = &m_list[m_idx];
 
-			/* Acquire monster location */
+			/* Get the monster location */
 			p_ptr->target_row = m_ptr->fy;
 			p_ptr->target_col = m_ptr->fx;
 
@@ -3225,10 +3304,10 @@ static bool target_set_interactive_accept(int y, int x)
 	{
 		object_type *o_ptr;
 
-		/* Acquire object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
-		/* Acquire next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Memorized object */
@@ -3304,9 +3383,9 @@ static void target_set_interactive_prepare(int mode)
 	temp_n = 0;
 
 	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
@@ -3369,6 +3448,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	bool boring;
 
+	bool floored;
+
 	int feat;
 
 	int query;
@@ -3414,7 +3495,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			query = inkey();
 
 			/* Stop on everything but "return" */
-			if ((query != '\r') && (query != '\n')) break;
+			if ((query != '\n') && (query != '\r')) break;
 
 			/* Repeat forever */
 			continue;
@@ -3493,8 +3574,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					recall = !recall;
 				}
 
-				/* Always stop at "normal" keys */
-				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+				/* Stop on everything but "return"/"space" */
+				if ((query != '\n') && (query != '\r') && (query != ' ')) break;
 
 				/* Sometimes stop at "space" key */
 				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
@@ -3506,6 +3587,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
 				else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
 
+#if 1
+
 				/* Use a preposition */
 				s2 = "carrying ";
 
@@ -3516,10 +3599,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 					object_type *o_ptr;
 
-					/* Acquire object */
+					/* Get the object */
 					o_ptr = &o_list[this_o_idx];
 
-					/* Acquire next object */
+					/* Get the next object */
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
@@ -3531,8 +3614,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					move_cursor_relative(y, x);
 					query = inkey();
 
-					/* Always stop at "normal" keys */
-					if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+					/* Stop on everything but "return"/"space" */
+					if ((query != '\n') && (query != '\r') && (query != ' ')) break;
 
 					/* Sometimes stop at "space" key */
 					if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
@@ -3544,22 +3627,100 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Double break */
 				if (this_o_idx) break;
 
+#endif
+
 				/* Use a preposition */
 				s2 = "on ";
 			}
 		}
 
 
+		/* Assume not floored */
+		floored = FALSE;
+
+#ifdef ALLOW_EASY_FLOOR
+
+		/* Scan all objects in the grid */
+		if (easy_floor)
+		{
+			int floor_list[24];
+			int floor_num;
+
+			/* Scan for floor objects */
+			floor_num = scan_floor(floor_list, 24, y, x, 0x02);
+
+			/* Actual pile */
+			if (floor_num > 1)
+			{
+				/* Not boring */
+				boring = FALSE;
+
+				/* Floored */
+				floored = TRUE;
+
+				/* Describe */
+				while (1)
+				{
+					/* Describe the pile */
+					sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
+						s1, s2, s3, floor_num, info);
+					prt(out_val, 0, 0);
+					move_cursor_relative(y, x);
+					query = inkey();
+
+					/* Display objects */
+					if (query == 'r')
+					{
+						/* Save screen */
+						screen_save();
+
+						/* Display */
+						show_floor(floor_list, floor_num);
+
+						/* Describe the pile */
+						prt(out_val, 0, 0);
+						query = inkey();
+
+						/* Load screen */
+						screen_load();
+
+						/* Continue on 'r' only */
+						if (query == 'r') continue;
+					}
+
+					/* Done */
+					break;
+				}
+
+				/* Stop on everything but "return"/"space" */
+				if ((query != '\n') && (query != '\r') && (query != ' ')) break;
+
+				/* Sometimes stop at "space" key */
+				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
+
+				/* Change the intro */
+				s1 = "It is ";
+
+				/* Preposition */
+				s2 = "on ";
+			}
+		}
+
+#endif /* ALLOW_EASY_FLOOR */
+
 		/* Scan all objects in the grid */
 		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
 
-			/* Acquire object */
+			/* Get the object */
 			o_ptr = &o_list[this_o_idx];
 
-			/* Acquire next object */
+			/* Get the next object */
 			next_o_idx = o_ptr->next_o_idx;
+
+			/* Skip objects if floored */
+			if (floored) continue;
 
 			/* Describe it */
 			if (o_ptr->marked)
@@ -3578,8 +3739,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				move_cursor_relative(y, x);
 				query = inkey();
 
-				/* Always stop at "normal" keys */
-				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+				/* Stop on everything but "return"/"space" */
+				if ((query != '\n') && (query != '\r') && (query != ' ')) break;
 
 				/* Sometimes stop at "space" key */
 				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
@@ -3636,12 +3797,12 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			move_cursor_relative(y, x);
 			query = inkey();
 
-			/* Always stop at "normal" keys */
-			if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+			/* Stop on everything but "return"/"space" */
+			if ((query != '\n') && (query != '\r') && (query != ' ')) break;
 		}
 
 		/* Stop on everything but "return" */
-		if ((query != '\r') && (query != '\n')) break;
+		if ((query != '\n') && (query != '\r')) break;
 	}
 
 	/* Keep going */
@@ -3656,11 +3817,15 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel.  XXX XXX XXX
- *
- * Perhaps consider the possibility of "auto-scrolling" the screen
- * while the cursor moves around.  This may require dynamic updating
- * of the "temp" grid set.  XXX XXX XXX
+ * All locations must be on the current panel, unless the "scroll_target"
+ * option is used, which allows changing the current panel during "look"
+ * and "target" commands.  Currently, when "flag" is true, that is, when
+ * "interesting" grids are being used, and a directional key is used, we
+ * only scroll by a single panel, in the direction requested, and check
+ * for any interesting grids on that panel.  The "correct" solution would
+ * actually involve scanning a larger set of grids, including ones in
+ * panels which are adjacent to the one currently scanned, but this is
+ * overkill for this function.  XXX XXX
  *
  * Hack -- targetting/observing an "outer border grid" may induce
  * problems, so this is not currently allowed.
@@ -3695,7 +3860,7 @@ bool target_set_interactive(int mode)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, d, m;
+	int i, d, m, t, bd;
 
 	int y = py;
 	int x = px;
@@ -3787,13 +3952,22 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
+					if (scroll_target)
+					{
+						/* Recenter around player */
+						verify_panel();
+
+						/* Handle stuff */
+						handle_stuff();
+					}
+
 					y = py;
 					x = px;
 				}
 
 				case 'o':
 				{
-					flag = !flag;
+					flag = FALSE;
 					break;
 				}
 
@@ -3805,6 +3979,7 @@ bool target_set_interactive(int mode)
 				case 't':
 				case '5':
 				case '0':
+				case '.':
 				{
 					int m_idx = cave_m_idx[y][x];
 
@@ -3836,10 +4011,41 @@ bool target_set_interactive(int mode)
 			/* Hack -- move around */
 			if (d)
 			{
-				/* Find a new monster */
-				i = target_pick(temp_y[m], temp_x[m], ddy[d], ddx[d]);
+				int old_y = temp_y[m];
+				int old_x = temp_x[m];
 
-				/* Use that grid */
+				/* Find a new monster */
+				i = target_pick(old_y, old_x, ddy[d], ddx[d]);
+
+				/* Scroll to find interesting grid */
+				if (scroll_target && (i < 0))
+				{
+					int old_wy = p_ptr->wy;
+					int old_wx = p_ptr->wx;
+
+					/* Change if legal */
+					if (change_panel(d))
+					{
+						/* Recalculate interesting grids */
+						target_set_interactive_prepare(mode);
+
+						/* Find a new monster */
+						i = target_pick(old_y, old_x, ddy[d], ddx[d]);
+
+						/* Restore panel if needed */
+						if ((i < 0) && modify_panel(old_wy, old_wx))
+						{
+
+							/* Recalculate interesting grids */
+							target_set_interactive_prepare(mode);
+						}
+
+						/* Handle stuff */
+						handle_stuff();
+					}
+				}
+
+				/* Use interesting grid if found */
 				if (i >= 0) m = i;
 			}
 		}
@@ -3879,6 +4085,15 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
+					if (scroll_target)
+					{
+						/* Recenter around player */
+						verify_panel();
+
+						/* Handle stuff */
+						handle_stuff();
+					}
+
 					y = py;
 					x = px;
 				}
@@ -3890,13 +4105,34 @@ bool target_set_interactive(int mode)
 
 				case 'm':
 				{
-					flag = !flag;
+					flag = TRUE;
+
+					m = 0;
+					bd = 999;
+
+					/* Pick a nearby monster */
+					for (i = 0; i < temp_n; i++)
+					{
+						t = distance(y, x, temp_y[i], temp_x[i]);
+
+						/* Pick closest */
+						if (t < bd)
+						{
+							m = i;
+							bd = t;
+						}
+					}
+
+					/* Nothing interesting */
+					if (bd == 999) flag = FALSE;
+
 					break;
 				}
 
 				case 't':
 				case '5':
 				case '0':
+				case '.':
 				{
 					target_set_location(y, x);
 					done = TRUE;
@@ -3922,13 +4158,37 @@ bool target_set_interactive(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-				/* Slide into legality */
-				if ((x >= DUNGEON_WID-1) || (x >= p_ptr->wx+SCREEN_WID)) x--;
-				else if ((x <= 0) || (x < p_ptr->wx)) x++;
+				if (scroll_target)
+				{
+					/* Slide into legality */
+					if (x >= DUNGEON_WID - 1) x--;
+					else if (x <= 0) x++;
 
-				/* Slide into legality */
-				if ((y >= DUNGEON_HGT-1) || (y >= p_ptr->wy+SCREEN_HGT)) y--;
-				else if ((y <= 0) || (y < p_ptr->wy)) y++;
+					/* Slide into legality */
+					if (y >= DUNGEON_HGT - 1) y--;
+					else if (y <= 0) y++;
+
+					/* Adjust panel if needed */
+					if (adjust_panel(y, x))
+					{
+						/* Handle stuff */
+						handle_stuff();
+
+						/* Recalculate interesting grids */
+						target_set_interactive_prepare(mode);
+					}
+				}
+
+				else
+				{
+					/* Slide into legality */
+					if (x >= p_ptr->wx + SCREEN_WID) x--;
+					else if (x < p_ptr->wx) x++;
+
+					/* Slide into legality */
+					if (y >= p_ptr->wy + SCREEN_HGT) y--;
+					else if (y < p_ptr->wy) y++;
+				}
 			}
 		}
 	}
@@ -3938,6 +4198,15 @@ bool target_set_interactive(int mode)
 
 	/* Clear the top line */
 	prt("", 0, 0);
+
+	if (scroll_target)
+	{
+		/* Recenter around player */
+		verify_panel();
+
+		/* Handle stuff */
+		handle_stuff();
+	}
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);
@@ -3971,15 +4240,16 @@ bool get_aim_dir(int *dp)
 
 	cptr p;
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    if (repeat_pull(dp)) {
-
-    	/* Verify */
-    	if (!(*dp == 5 && !target_okay())) {
-	        return (TRUE);
-	    }
-    }
+	if (repeat_pull(dp))
+	{
+		/* Verify */
+		if (!(*dp == 5 && !target_okay()))
+		{
+			return (TRUE);
+		}
+	}
 
 #endif /* ALLOW_REPEAT */
 
@@ -4022,6 +4292,7 @@ bool get_aim_dir(int *dp)
 			case 't':
 			case '5':
 			case '0':
+			case '.':
 			{
 				if (target_okay()) dir = 5;
 				break;
@@ -4062,9 +4333,9 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    repeat_push(dir);
+	repeat_push(dir);
 
 #endif /* ALLOW_REPEAT */
 
@@ -4097,14 +4368,15 @@ bool get_rep_dir(int *dp)
 
 	cptr p;
 
-#ifdef ALLOW_REPEAT /* TNB */
-	
+#ifdef ALLOW_REPEAT
+
 	if (repeat_pull(dp))
 	{
 		return (TRUE);
 	}
+
 #endif /* ALLOW_REPEAT */
-	
+
 	/* Initialize */
 	(*dp) = 0;
 
@@ -4136,9 +4408,9 @@ bool get_rep_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    repeat_push(dir);
+	repeat_push(dir);
 
 #endif /* ALLOW_REPEAT */
 
@@ -4187,7 +4459,10 @@ bool confuse_dir(int *dp)
 	return (FALSE);
 }
 
-/* From Psionic Angband by Aram Harrow */
+
+/*
+ * From Psionic Angband by Aram Harrow
+ */
 bool tgt_pt(int *x,int *y)
 {
 	char ch = 0;
@@ -4238,3 +4513,5 @@ bool tgt_pt(int *x,int *y)
 	return success;
 
 }
+
+

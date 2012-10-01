@@ -118,6 +118,8 @@ bool make_attack_normal(int m_idx)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	int ap_cnt;
 
 	int i, j, k, tmp, ac, rlev;
@@ -239,7 +241,7 @@ bool make_attack_normal(int m_idx)
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
 				/* Message */
@@ -718,7 +720,7 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Access the lite */
+					/* Get the lite */
 					o_ptr = &inventory[INVEN_LITE];
 
 					/* Drain fuel */
@@ -1149,7 +1151,7 @@ bool make_attack_normal(int m_idx)
 			/* Handle cut */
 			if (do_cut)
 			{
-				int k = 0;
+				int k;
 
 				/* Critical hit (zero if non-critical) */
 				tmp = monster_critical(d_dice, d_side, damage);
@@ -1174,7 +1176,7 @@ bool make_attack_normal(int m_idx)
 			/* Handle stun */
 			if (do_stun)
 			{
-				int k = 0;
+				int k;
 
 				/* Critical hit (zero if non-critical) */
 				tmp = monster_critical(d_dice, d_side, damage);
@@ -1235,12 +1237,12 @@ bool make_attack_normal(int m_idx)
 		if (visible)
 		{
 			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
+			if (obvious || damage || (l_ptr->r_blows[ap_cnt] > 10))
 			{
 				/* Count attacks of this type */
-				if (r_ptr->r_blows[ap_cnt] < MAX_UCHAR)
+				if (l_ptr->r_blows[ap_cnt] < MAX_UCHAR)
 				{
-					r_ptr->r_blows[ap_cnt]++;
+					l_ptr->r_blows[ap_cnt]++;
 				}
 			}
 		}
@@ -1256,12 +1258,14 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->is_dead && (l_ptr->r_deaths < MAX_SHORT))
 	{
-		r_ptr->r_deaths++;
+		l_ptr->r_deaths++;
 	}
 
 
 	/* Assume we attacked */
 	return (TRUE);
 }
+
+

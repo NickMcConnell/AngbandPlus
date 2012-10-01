@@ -48,11 +48,9 @@ extern byte adj_dex_safe[];
 extern byte adj_con_fix[];
 extern byte adj_con_mhp[];
 extern byte blows_table[12][12];
-extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern byte extract_energy[200];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
-extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
 extern u32b spell_flags[4][9][2]; /* first value for illusionists & druids -KMW- */
@@ -66,7 +64,8 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
-extern byte option_page[4][19];
+extern byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
+extern cptr inscrip_text[MAX_INSCRIP];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -94,6 +93,7 @@ extern bool character_loaded;
 extern bool character_saved;
 extern s16b character_icky;
 extern s16b character_xtra;
+extern u32b seed_randart;
 extern u32b seed_flavor;
 extern u32b seed_town;
 extern s16b arena_monsters[MAX_ARENA_MONS]; /* -KMW- */
@@ -101,6 +101,7 @@ extern char plot_names[MAX_PLOTS][40]; /* -KMW- */
 extern s16b num_repro;
 extern s16b object_level;
 extern s16b monster_level;
+extern char summon_kin_type;
 extern s32b turn;
 extern s32b old_turn;
 extern bool use_sound;
@@ -123,7 +124,7 @@ extern s16b o_max;
 extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
-extern s16b feeling;
+extern byte feeling;
 extern s16b rating;
 extern bool good_item_flag;
 extern bool closing_flag;
@@ -142,6 +143,8 @@ extern u16b message__head;
 extern u16b message__tail;
 extern u16b *message__ptr;
 extern char *message__buf;
+extern u16b *message__type;
+extern byte message__color[MSG_MAX];
 extern term *angband_term[8];
 extern char angband_term_name[8][16];
 extern byte angband_color_table[256][4];
@@ -158,13 +161,18 @@ extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
 extern byte (*cave_cost)[DUNGEON_WID];
 extern byte (*cave_when)[DUNGEON_WID];
+extern header *z_head;
+extern maxima *z_info;
 extern object_type *o_list;
 extern monster_type *m_list;
+extern monster_lore *l_list;
 extern quest q_list[MAX_QUESTS]; /* -KMW- */
 extern store_type *store;
 extern object_type *inventory;
 extern s16b alloc_kind_size;
 extern alloc_entry *alloc_kind_table;
+extern s16b alloc_ego_size;
+extern alloc_entry *alloc_ego_table;
 extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
 extern byte misc_to_attr[256];
@@ -202,7 +210,20 @@ extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
+extern header *p_head;
+extern player_race *p_info;
+extern char *p_name;
+extern char *p_text;
+extern header *h_head;
+extern hist_type *h_info;
+extern char *h_text;
+extern header *b_head;
+extern owner_type *b_info;
+extern char *b_name;
+extern header *g_head;
+extern byte *g_info;
 extern cptr ANGBAND_SYS;
+extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;
@@ -221,6 +242,9 @@ extern bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
 extern void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
+extern int highscore_fd;
+extern bool use_transparency;
+extern bool can_save;
 extern byte wild_info[DUNGEON_HGT][DUNGEON_WID];
 
 
@@ -236,7 +260,11 @@ extern sint distance(int y1, int x1, int y2, int x2);
 extern bool los(int y1, int x1, int y2, int x2);
 extern bool no_lite(void);
 extern bool cave_valid_bold(int y, int x);
+#ifdef USE_TRANSPARENCY
+extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
+#else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
+#endif /* USE_TRANSPARENCY */
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -274,7 +302,7 @@ extern void search(void);
 extern void py_pickup(int pickup);
 extern void hit_trap(int y, int x);
 extern void py_attack(int y, int x);
-extern void move_player(int dir, int do_pickup);
+extern void move_player(int dir, int jumping);
 extern void run_step(int dir);
 
 /* cmd2.c */
@@ -313,6 +341,8 @@ extern void do_cmd_target(void);
 extern void do_cmd_look(void);
 extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
+extern bool ang_sort_comp_hook(vptr u, vptr v, int a, int b);
+extern void ang_sort_swap_hook(vptr u, vptr v, int a, int b);
 extern bool research_mon(void);
 
 /* cmd4.c */
@@ -331,10 +361,8 @@ extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
-extern void do_cmd_checkquest(void); /* -KMW- */
 
 /* cmd5.c */
-extern void brand_ammo (int brand_type, int bolts_only); /* - KMW- */
 extern void do_cmd_browse(void);
 extern void do_cmd_study(bool in_bldg); /* -KMW- */
 extern void do_cmd_cast(void);
@@ -362,6 +390,7 @@ extern errr check_time(void);
 extern errr check_time_init(void);
 extern errr check_load(void);
 extern errr check_load_init(void);
+extern void player_flags(u32b *f1, u32b *f2, u32b *f3);
 extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
 extern bool show_file(cptr name, cptr what, int line, int mode);
@@ -372,33 +401,43 @@ extern void do_cmd_suicide(void);
 extern void do_cmd_save_game(void);
 extern long total_points(void);
 extern void display_scores(int from, int to);
-extern void show_highclass(int building); /* -KMW- */
-extern void race_legends(void); /* -KMW- */
+extern errr predict_score(void);
 extern void close_game(void);
 extern void exit_game_panic(void);
 extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
+extern int highscore_seek(int i);
+extern errr highscore_read(high_score *score);
+extern void display_scores_aux(int from, int to, int note, high_score *score);
 
 /* generate.c */
 extern void generate_cave(void);
 extern void wilderness_gen(int refresh); /* -KMW- */
 
 /* init1.c */
+extern int color_char_to_attr(char c);
+#ifdef ALLOW_TEMPLATES
+extern errr init_z_info_txt(FILE *fp, char *buf);
 extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
 extern errr init_f_info_txt(FILE *fp, char *buf);
-extern errr init_p_info_txt(FILE *fp, char *buf, int plotnum); /* -KMW- */
+extern errr init_plot_info_txt(FILE *fp, char *buf, int plotnum); /* -KMW- */
 extern errr init_q_info_txt(FILE *fp, char *buf, bool new_game); /* -KMW- */
 extern errr init_w_info_txt(FILE *fp, char *buf); /* -KMW- */
 extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_a_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
+extern errr init_p_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
+extern errr init_h_info_txt(FILE *fp, char *buf);
+extern errr init_b_info_txt(FILE *fp, char *buf);
+extern errr init_g_info_txt(FILE *fp, char *buf);
+#endif /* ALLOW_TEMPLATES */
 
 /* init2.c */
 extern void init_file_paths(char *path);
 extern errr init_v_info(void);
-extern errr init_p_info(int plotnum);
+extern errr init_plot_info(int plotnum);
 extern errr init_q_info(bool new_game);
 extern errr init_w_info(void);
 extern void init_angband(void);
@@ -414,7 +453,7 @@ extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
-extern void process_monsters(void);
+extern void process_monsters(byte minimum_energy);
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -454,14 +493,16 @@ extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
+extern int identify_random_gen(object_type *o_ptr, cptr *info, int len);
 extern bool identify_fully_aux(object_type *o_ptr);
-extern s16b index_to_label(int i);
+extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
 extern s16b wield_slot(object_type *o_ptr);
 extern cptr mention_use(int i);
 extern cptr describe_use(int i);
 extern bool item_tester_okay(object_type *o_ptr);
+extern sint scan_floor(int *items, int size, int y, int x, int mode);
 extern void display_inven(void);
 extern void display_equip(void);
 extern void show_inven(void);
@@ -498,6 +539,9 @@ extern void place_object(int y, int x, bool good, bool great);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);
 extern void place_trap(int y, int x);
+extern void place_secret_door(int y, int x);
+extern void place_closed_door(int y, int x);
+extern void place_random_door(int y, int x);
 extern void inven_item_charges(int item);
 extern void inven_item_describe(int item);
 extern void inven_item_increase(int item, int num);
@@ -518,6 +562,9 @@ extern bool spell_okay(int spell, bool known);
 extern void spell_info(char *p, int spell);
 extern void print_spells(byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
+
+/* quest.c */
+extern void do_cmd_checkquest(void); /* -KMW- */
 
 /* save.c */
 extern bool save_player(void);
@@ -552,6 +599,7 @@ extern bool remove_all_curse(void);
 extern bool restore_level(void);
 extern void self_knowledge(void);
 extern bool lose_all_info(void);
+extern void set_recall(void);
 extern bool detect_traps(void);
 extern bool detect_doors(void);
 extern bool detect_stairs(void);
@@ -564,6 +612,7 @@ extern bool detect_monsters_invis(void);
 extern bool detect_monsters_evil(void);
 extern bool detect_all(void);
 extern void stair_creation(void);
+extern bool item_tester_hook_armour(object_type *o_ptr);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool ident_spell(void);
@@ -585,15 +634,11 @@ extern bool mass_genocide(void);
 extern bool probing(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int r);
-extern void flood(int cy, int cx, int r, int typ);
-extern void fissure(int feat);
-extern void alter_terrain(int cy, int cx, int r, int typ);
 extern void lite_room(int y1, int x1);
 extern void unlite_room(int y1, int x1);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
-extern bool imprision(int typ, int dir, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
@@ -619,6 +664,17 @@ extern bool door_creation(void);
 extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
+
+/* spells3.c */
+extern void brand_ammo (int brand_type, int bolts_only); /* - KMW- */
+extern void fetch_item(int dir, int wgt);
+extern void do_sleep_monster(void);
+extern void do_fear_monster(void);
+extern void do_cure_wounds(void);
+extern void flood(int cy, int cx, int r, int typ);
+extern void fissure(int feat);
+extern void alter_terrain(int cy, int cx, int r, int typ);
+extern bool imprision(int typ, int dir, int rad);
 extern void rustproof(void); /* From Zangband by Topi Ylinen */
 extern void summon_monster(int type); /* From Kamband by Ivan Tkatchev */
 
@@ -649,11 +705,12 @@ extern errr fd_copy(cptr file, cptr what);
 extern int fd_make(cptr file, int mode);
 extern int fd_open(cptr file, int flags);
 extern errr fd_lock(int fd, int what);
-extern errr fd_seek(int fd, huge n);
+extern errr fd_seek(int fd, long n);
 extern errr fd_chop(int fd, huge n);
 extern errr fd_read(int fd, char *buf, huge n);
 extern errr fd_write(int fd, cptr buf, huge n);
 extern errr fd_close(int fd);
+extern errr check_modification_date(int fd, cptr template_file);
 extern void text_to_ascii(char *buf, cptr str);
 extern void ascii_to_text(char *buf, cptr str);
 extern sint macro_find_exact(cptr pat);
@@ -668,11 +725,15 @@ extern cptr quark_str(s16b i);
 extern errr quark_init(void);
 extern s16b message_num(void);
 extern cptr message_str(s16b age);
-extern void message_add(cptr str);
+extern u16b message_type(s16b age);
+extern byte message_color(s16b age);
+extern void message_add(cptr str, u16b type);
 extern errr message_init(void);
 extern void move_cursor(int row, int col);
 extern void msg_print(cptr msg);
 extern void msg_format(cptr fmt, ...);
+extern void message(u16b message_type, s16b extra, cptr message);
+extern void message_format(u16b message_type, s16b extra, cptr fmt, ...);
 extern void screen_save(void);
 extern void screen_load(void);
 extern void c_put_str(byte attr, cptr str, int row, int col);
@@ -692,11 +753,12 @@ extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
 extern uint maxroll(uint num, uint sides);
 extern bool is_a_vowel(int ch);
-#ifdef ALLOW_REPEAT
-extern void repeat_push(int what);
-extern bool repeat_pull(int *what);
-extern void repeat_check(void);
-#endif
+
+#ifdef SUPPORT_GAMMA
+extern void build_gamma_table(int gamma);
+extern byte gamma_table[256];
+#endif /* SUPPORT_GAMMA */
+
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
 extern s16b modify_stat_value(int value, int amount);
@@ -745,10 +807,14 @@ extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet);
+extern bool modify_panel(int wy, int wx);
+extern bool adjust_panel(int y, int x);
+extern bool change_panel(int dir);
 extern void verify_panel(void);
 extern cptr look_mon_desc(int m_idx);
 extern void ang_sort_aux(vptr u, vptr v, int p, int q);
 extern void ang_sort(vptr u, vptr v, int n);
+extern sint motion_dir(int y1, int x1, int y2, int x2);
 extern sint target_dir(char ch);
 extern bool target_able(int m_idx);
 extern bool target_okay(void);
@@ -759,17 +825,6 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 extern bool tgt_pt(int *x,int *y); /* From PSI-Angband by Aram Harrow */
-
-#ifdef AMIGA
-extern int amiga_tomb( void );
-extern void amiga_redefine_colours( void );
-extern void amiga_makepath( char *name );
-extern void amiga_save_palette( void );
-extern void amiga_load_palette( void );
-extern void amiga_user_name( char *buf, int id );
-extern void amiga_write_user_name( char *name );
-extern void amiga_register(char *ourname);
-#endif
 
 /*
  * Hack -- conditional (or "bizarre") externs
@@ -795,7 +850,7 @@ extern void user_name(char *buf, int id);
 
 #ifdef MACINTOSH
 /* main-mac.c */
-/* extern void main(void); */
+/* extern int main(void); */
 #endif
 
 #ifdef WINDOWS
@@ -805,3 +860,27 @@ extern void user_name(char *buf, int id);
 
 /* main.c */
 /* extern int main(int argc, char *argv[]); */
+
+
+#ifdef ALLOW_REPEAT
+
+/* util.c */
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
+
+#endif /* ALLOW_REPEAT */
+
+#ifdef ALLOW_EASY_FLOOR
+
+/* object1.c */
+extern void show_floor(int *floor_list, int floor_num);
+
+#endif /* ALLOW_EASY_FLOOR */
+
+#ifdef GJW_RANDART
+
+/* randart.c */
+extern int do_randart(u32b randart_seed);
+
+#endif /* GJW_RANDART */

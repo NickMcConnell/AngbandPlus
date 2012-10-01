@@ -70,12 +70,16 @@ bool character_saved;		/* The character was just saved to a savefile */
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
+u32b seed_randart;		/* Hack -- consistent random artifacts */
+
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
+
+char summon_kin_type;		/* Hack -- See summon_specific() */
 
 char plot_names[MAX_PLOTS][40]; /* -KMW- */
 
@@ -86,7 +90,7 @@ s32b old_turn;			/* Hack -- Level feeling counter */
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 
-s16b signal_count;		/* Hack -- Count interupts */
+s16b signal_count;		/* Hack -- Count interrupts */
 
 bool msg_flag;			/* Player has pending message */
 
@@ -115,10 +119,16 @@ s16b m_cnt = 0;			/* Number of live monsters */
 
 
 /*
+ * TRUE if process_command() is a repeated call.
+ */
+bool command_repeating = FALSE;
+
+
+/*
  * Dungeon variables
  */
 
-s16b feeling;			/* Most recent feeling */
+byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
 bool good_item_flag;	/* True if "Artifact" on this level */
@@ -197,6 +207,17 @@ u16b *message__ptr;
  */
 char *message__buf;
 
+/*
+ * The array[MESSAGE_MAX] of u16b for the types of messages
+ */
+u16b *message__type;
+
+
+/*
+ * Table of colors associated to message-types
+ */
+byte message__color[MSG_MAX];
+
 
 /*
  * The array[8] of window pointers
@@ -237,7 +258,7 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
 	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
+	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
@@ -245,9 +266,9 @@ byte angband_color_table[256][4] =
 
 
 /*
- * Standard sound names (modifiable?)
+ * Standard sound (and message) names
  */
-char angband_sound_name[SOUND_MAX][16] =
+char angband_sound_name[MSG_MAX][16] =
 {
 	"",
 	"hit",
@@ -273,7 +294,11 @@ char angband_sound_name[SOUND_MAX][16] =
 	"dig",
 	"opendoor",
 	"shutdoor",
-	"tplevel"
+	"tplevel",
+	"bell",
+	"nothing_to_open",
+	"lockpick_fail",
+	"stairs",
 };
 
 
@@ -346,28 +371,32 @@ byte (*cave_when)[DUNGEON_WID];
 
 #endif	/* MONSTER_FLOW */
 
+
 /*
- * Array[MAX_O_IDX] of dungeon objects
+ * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
 
 /*
- * Array[MAX_M_IDX] of dungeon monsters
+ * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *m_list;
 
+
 /*
- * Hack -- Quest array
+ * Array[z_info->r_max] of monster lore
+ */
+monster_lore *l_list;
+
+
+/*
+ * Hack -- Array[MAX_Q_IDX] of quests
  */
 quest q_list[MAX_QUESTS];
 
-/*
- * The array of wilderness features
- */
-byte wild_info[DUNGEON_HGT][DUNGEON_WID];
 
 /*
- * The stores [MAX_STORES]
+ * Array[MAX_STORES] of stores
  */
 store_type *store;
 
@@ -378,7 +407,7 @@ object_type *inventory;
 
 
 /*
- * The size of "alloc_kind_table" (at most MAX_K_IDX * 4)
+ * The size of "alloc_kind_table" (at most z_info->k_max * 4)
  */
 s16b alloc_kind_size;
 
@@ -389,7 +418,18 @@ alloc_entry *alloc_kind_table;
 
 
 /*
- * The size of "alloc_race_table" (at most MAX_R_IDX)
+ * The size of the "alloc_ego_table"
+ */
+s16b alloc_ego_size;
+
+/*
+ * The array[alloc_ego_size] of entries in the "ego allocator table"
+ */
+alloc_entry *alloc_ego_table;
+
+
+/*
+ * The size of "alloc_race_table" (at most z_info->r_max)
  */
 s16b alloc_race_size;
 
@@ -459,6 +499,12 @@ player_type *p_ptr = &player_type_body;
 
 
 /*
+ * Structure (not array) of size limits
+ */
+header *z_head;
+maxima *z_info;
+
+/*
  * The vault generation arrays
  */
 header *v_head;
@@ -508,10 +554,45 @@ char *r_text;
 
 
 /*
+ * The player race arrays
+ */
+header *p_head;
+player_race *p_info;
+char *p_name;
+char *p_text;
+
+/*
+ * The player history arrays
+ */
+header *h_head;
+hist_type *h_info;
+char *h_text;
+
+/*
+ * The shop owner arrays
+ */
+header *b_head;
+owner_type *b_info;
+char *b_name;
+
+/*
+ * The racial price adjustment arrays
+ */
+header *g_head;
+byte *g_info;
+
+
+/*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
+
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
@@ -626,3 +707,26 @@ bool (*get_mon_num_hook)(int r_idx);
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+
+
+/*
+ * The "highscore" file descriptor, if available.
+ */
+int highscore_fd = -1;
+
+
+/*
+ * Use transparent tiles
+ */
+bool use_transparency = FALSE;
+
+/*
+ * Game can be saved
+ */
+bool can_save = TRUE;
+
+/*
+ * The array of wilderness features
+ */
+byte wild_info[DUNGEON_HGT][DUNGEON_WID];
+

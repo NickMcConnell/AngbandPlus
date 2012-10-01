@@ -145,7 +145,7 @@ static void prt_stat(int stat)
  */
 static void prt_title(void)
 {
-	cptr p = "";
+	cptr p;
 
 	/* Wizard */
 	if (p_ptr->wizard)
@@ -586,7 +586,7 @@ static void prt_speed(void)
 {
 	int i = p_ptr->pspeed;
 
-	int attr = TERM_WHITE;
+	byte attr = TERM_WHITE;
 	char buf[32] = "";
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
@@ -721,7 +721,7 @@ static void health_redraw(void)
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 	}
 
-	/* Tracking a dead monster (???) */
+	/* Tracking a dead monster (?) */
 	else if (!m_list[p_ptr->health_who].hp < 0)
 	{
 		/* Indicate that the monster health is "unknown" */
@@ -732,11 +732,6 @@ static void health_redraw(void)
 	else
 	{
 		int pct, len;
-		/* Customized health bar: letters for fear/sleep status.  From GJW -KMW-*/
-		const char hb_normal[] = "**********";
-		const char hb_fearful[] = "FFFFFFFFFF";
-		const char hb_sleeping[] = "SSSSSSSSSS";
-		const char *hb_ptr = hb_normal;
 
 		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
@@ -758,11 +753,17 @@ static void health_redraw(void)
 		/* Healthy */
 		if (pct >= 100) attr = TERM_L_GREEN;
 
-		/* Afraid.  Modified by GJW -KMW- */
-		if (m_ptr->monfear) { attr = TERM_VIOLET; hb_ptr = hb_fearful; }
+		/* Afraid */
+		if (m_ptr->monfear) attr = TERM_VIOLET;
 
-		/* Asleep.  Modified by GJW -KMW- */
-		if (m_ptr->csleep) { attr = TERM_BLUE; hb_ptr = hb_sleeping; }
+		/* Confused */
+		if (m_ptr->confused) attr = TERM_UMBER;
+
+		/* Stunned */
+		if (m_ptr->stunned) attr = TERM_L_BLUE;
+
+		/* Asleep */
+		if (m_ptr->csleep) attr = TERM_BLUE;
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -770,8 +771,8 @@ static void health_redraw(void)
 		/* Default to "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
-		/* Dump the current "health" (use appropriate symbols -KMW-) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, hb_ptr);
+		/* Dump the current "health" (use '*' symbols) */
+		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
 }
 
@@ -785,7 +786,7 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+	prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -796,7 +797,7 @@ static void prt_frame_basic(void)
 	prt_exp();
 
 	/* All Stats */
-	for (i = 0; i < 6; i++) prt_stat(i);
+	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
 	/* Armor */
 	prt_ac();
@@ -1012,8 +1013,10 @@ static void fix_message(void)
 		/* Dump messages */
 		for (i = 0; i < h; i++)
 		{
+			byte color = message_color((s16b)i);
+
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, color, message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1032,18 +1035,18 @@ static void fix_message(void)
 
 
 /*
- * Hack -- display overhead view in sub-windows
+ * Hack -- display overhead view in sub-windows.
  *
- * Note that the "player" symbol does NOT appear on the map.
+ * This is most useful on a fast machine with the "center_player" option set,
+ * which induces a call to this function every time the player moves.  With
+ * the "center_player" option not set, this function is only called when the
+ * panel changes.
+ *
+ * The "display_map()" function handles NULL arguments in a special manner.
  */
 static void fix_overhead(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int j;
-
-	int cy, cx;
 
 	/* Scan windows */
 	for (j = 0; j < 8; j++)
@@ -1059,14 +1062,8 @@ static void fix_overhead(void)
 		/* Activate */
 		Term_activate(angband_term[j]);
 
-		/* Hack -- Hide player XXX XXX XXX */
-		cave_m_idx[py][px] = 0;
-
 		/* Redraw map */
-		display_map(&cy, &cx);
-
-		/* Hack -- Show player XXX XXX XXX */
-		cave_m_idx[py][px] = -1;
+		display_map(NULL, NULL);
 
 		/* Fresh */
 		Term_fresh();
@@ -1206,7 +1203,7 @@ static void calc_spells(void)
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
-		/* Access the spell */
+		/* Get the spell */
 		j = p_ptr->spell_order[i];
 
 		/* Skip non-spells */
@@ -1318,7 +1315,7 @@ static void calc_spells(void)
 		/* Skip unknown spells */
 		if (j >= 99) break;
 
-		/* Access the spell */
+		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
 
 		/* Skip spells we cannot remember */
@@ -1365,7 +1362,7 @@ static void calc_spells(void)
 	/* Count spells that can be learned */
 	for (j = 0; j < 64; j++)
 	{
-		/* Access the spell */
+		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
 
 		/* Skip spells we cannot remember */
@@ -1403,6 +1400,9 @@ static void calc_spells(void)
 
 		/* Redraw Study Status */
 		p_ptr->redraw |= (PR_STUDY);
+
+		/* Redraw object recall */
+		p_ptr->window |= (PW_OBJECT);
 	}
 }
 
@@ -1702,9 +1702,9 @@ extern void calc_bonuses(void)
 	int extra_shots;
 	int extra_might;
 
-	int old_stat_top[6];
-	int old_stat_use[6];
-	int old_stat_ind[6];
+	int old_stat_top[A_MAX];
+	int old_stat_use[A_MAX];
+	int old_stat_ind[A_MAX];
 
 	object_type *o_ptr;
 
@@ -1725,7 +1725,7 @@ extern void calc_bonuses(void)
 	old_dis_to_a = p_ptr->dis_to_a;
 
 	/* Save the old stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		old_stat_top[i] = p_ptr->stat_top[i];
 		old_stat_use[i] = p_ptr->stat_use[i];
@@ -1750,7 +1750,7 @@ extern void calc_bonuses(void)
 	extra_might = 0;
 
 	/* Clear the stat modifiers */
-	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
+	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
 
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
@@ -1840,33 +1840,61 @@ extern void calc_bonuses(void)
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
-	/* Elf */
-	if (p_ptr->prace == RACE_ELF) p_ptr->resist_lite = TRUE;
+	/*** Analyze player ***/
 
-	/* Hobbit */
-	if (p_ptr->prace == RACE_HOBBIT) p_ptr->sustain_dex = TRUE;
+	/* Extract the player flags */
+	player_flags(&f1, &f2, &f3);
 
-	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) p_ptr->free_act = TRUE;
+	/* Good flags */
+	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
-	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) p_ptr->resist_blind = TRUE;
+	/* Weird flags */
+	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) p_ptr->resist_dark = TRUE;
+	/* Bad flags */
+	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 
-	/* Half-Troll */
-	if (p_ptr->prace == RACE_HALF_TROLL) p_ptr->sustain_str = TRUE;
+	/* Immunity flags */
+	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
 
-	/* Dunadan */
-	if (p_ptr->prace == RACE_DUNADAN) p_ptr->sustain_con = TRUE;
+	/* Resistance flags */
+	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
+	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
-
-	/* Kobold  From GJW -KMW-*/
-	if (p_ptr->prace == RACE_KOBOLD) p_ptr->resist_pois = TRUE;
+	/* Sustain flags */
+	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+	if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 	/* Warrior */
 	if (p_ptr->pclass == CLASS_WARRIOR)
@@ -2006,7 +2034,7 @@ extern void calc_bonuses(void)
 	/*** Handle stats ***/
 
 	/* Calculate stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		int add, top, use, ind;
 
@@ -2014,7 +2042,7 @@ extern void calc_bonuses(void)
 		add = p_ptr->stat_add[i];
 
 		/* Maximize mode */
-		if (p_ptr->maximize)
+		if (adult_maximize)
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
@@ -2155,12 +2183,6 @@ extern void calc_bonuses(void)
 
 	/*** Special flags ***/
 
-	/* Hack -- Res chaos -> Res confu */
-	if (p_ptr->resist_chaos)
-	{
-		p_ptr->resist_confu = TRUE;
-	}
-
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
 	{
@@ -2185,6 +2207,9 @@ extern void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
+	/* Sanity check on extreme speeds */
+	if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
+	if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
 
 	/*** Apply modifier bonuses ***/
 
@@ -2379,7 +2404,8 @@ extern void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		int num = 0, wgt = 0, mul = 0;
+		int div;
 
 		/* Analyze the class */
 		switch (p_ptr->pclass)
@@ -2412,7 +2438,7 @@ extern void calc_bonuses(void)
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 
-		/* Access the strength vs weight */
+		/* Get the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
 
 		/* Maximal value */
@@ -2444,7 +2470,7 @@ extern void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if (((p_ptr->pclass == 2) || (p_ptr->pclass == 7)) && (!p_ptr->bless_blade) &&
+	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_DRUID)) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
@@ -2481,7 +2507,7 @@ extern void calc_bonuses(void)
 	/*** Notice changes ***/
 
 	/* Analyze stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Notice changes */
 		if (p_ptr->stat_top[i] != old_stat_top[i])
@@ -2791,7 +2817,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+		prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 	}
 
@@ -3037,3 +3063,5 @@ void handle_stuff(void)
 	/* Window stuff */
 	if (p_ptr->window) window_stuff();
 }
+
+

@@ -558,10 +558,10 @@ int fd_make(cptr file, int mode)
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
 
-#if defined(MACINTOSH) || defined(WINDOWS)
+#if defined(MACINTOSH)
 
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode /* TNB */));
+	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
 
 #else
 
@@ -664,7 +664,7 @@ errr fd_lock(int fd, int what)
 /*
  * Hack -- attempt to seek on a file descriptor
  */
-errr fd_seek(int fd, huge n)
+errr fd_seek(int fd, long n)
 {
 	long p;
 
@@ -729,7 +729,7 @@ errr fd_read(int fd, char *buf, huge n)
 #endif
 
 	/* Read the final piece */
-	if (read(fd, buf, n) != n) return (1);
+	if (read(fd, buf, n) != (int)n) return (1);
 
 	/* Success */
 	return (0);
@@ -762,7 +762,7 @@ errr fd_write(int fd, cptr buf, huge n)
 #endif
 
 	/* Write the final piece */
-	if (write(fd, buf, n) != n) return (1);
+	if (write(fd, buf, n) != (int)n) return (1);
 
 	/* Success */
 	return (0);
@@ -784,6 +784,49 @@ errr fd_close(int fd)
 	return (0);
 }
 
+
+#ifdef CHECK_MODIFICATION_TIME
+# ifdef MACINTOSH
+#  include <stat.h>
+# else
+#  include <sys/types.h>
+#  include <sys/stat.h>
+# endif /* MACINTOSH */
+
+
+errr check_modification_date(int fd, cptr template_file)
+{
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+	return (0);
+}
+
+#endif /* CHECK_MODIFICATION_TIME */
 
 #endif /* ACORN */
 
@@ -1169,7 +1212,7 @@ errr macro_add(cptr pat, cptr act)
 	/* Create a new macro */
 	else
 	{
-		/* Acquire a new index */
+		/* Get a new index */
 		n = macro__num++;
 
 		/* Save the pattern */
@@ -1258,7 +1301,8 @@ static bool parse_under = FALSE;
  */
 static char inkey_aux(void)
 {
-	int k = 0, n, p = 0, w = 0;
+	int k, n;
+	int p = 0, w = 0;
 
 	char ch;
 
@@ -1373,7 +1417,7 @@ static char inkey_aux(void)
 	if (Term_key_push(30)) return (0);
 
 
-	/* Access the macro action */
+	/* Get the macro action */
 	act = macro__act[k];
 
 	/* Get the length of the action */
@@ -1538,7 +1582,7 @@ char inkey(void)
 	}
 
 
-	/* Access cursor state */
+	/* Get the cursor state */
 	(void)Term_get_cursor(&v);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
@@ -1719,7 +1763,7 @@ void bell(cptr reason)
 	Term_fresh();
 
 	/* Hack -- memorize the reason if possible */
-	if (character_generated && reason) message_add(reason);
+	if (character_generated && reason) message_add(reason, MSG_BELL);
 
 	/* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
@@ -1798,7 +1842,7 @@ cptr quark_str(s16b i)
 	/* Verify */
 	if ((i < 0) || (i >= quark__num)) i = 0;
 
-	/* Access the quark */
+	/* Get the quark */
 	q = quark__str[i];
 
 	/* Return the quark */
@@ -1885,19 +1929,47 @@ cptr message_str(s16b age)
 	/* Forgotten messages have no text */
 	if ((age < 0) || (age >= message_num())) return ("");
 
-	/* Acquire the "logical" index */
+	/* Get the "logical" index */
 	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
 
 	/* Get the "offset" for the message */
 	o = message__ptr[x];
 
-	/* Access the message text */
+	/* Get the message text */
 	s = &message__buf[o];
 
 	/* Return the message text */
 	return (s);
 }
 
+
+
+
+/*
+ * Recall the "type" of a saved message
+ */
+u16b message_type(s16b age)
+{
+	s16b x;
+
+	/* Forgotten messages have no special color */
+	if ((age < 0) || (age >= message_num())) return (TERM_WHITE);
+
+	/* Get the "logical" index */
+	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+
+	/* Return the message type */
+	return (message__type[x]);
+}
+
+
+/*
+ * Recall the "color" of a saved message
+ */
+byte message_color(s16b age)
+{
+	return message__color[message_type(age)];
+}
 
 
 /*
@@ -1914,7 +1986,7 @@ cptr message_str(s16b age)
  * We attempt to minimize the use of "string compare" operations in this
  * function, because they are expensive when used in mass quantities.
  */
-void message_add(cptr str)
+void message_add(cptr str, u16b type)
 {
 	int n, k, i, x, o;
 
@@ -1969,7 +2041,7 @@ void message_add(cptr str)
 		/* Do not optimize over large distances */
 		if (q >= MESSAGE_BUF / 4) continue;
 
-		/* Access the old string */
+		/* Get the old string */
 		old = &message__buf[o];
 
 		/* Inline 'streq(str, old)' */
@@ -1993,6 +2065,9 @@ void message_add(cptr str)
 
 		/* Assign the starting address */
 		message__ptr[x] = message__ptr[i];
+
+		/* Store the message type */
+		message__type[x] = type;
 
 		/* Success */
 		return;
@@ -2090,6 +2165,9 @@ void message_add(cptr str)
 
 	/* Advance the "head" pointer */
 	message__head += (n + 1);
+
+	/* Store the message type */
+	message__type[x] = type;
 }
 
 
@@ -2101,6 +2179,10 @@ errr message_init(void)
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
+	C_MAKE(message__type, MESSAGE_MAX, u16b);
+
+	/* Init the message colors to white */
+	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
@@ -2181,10 +2263,11 @@ static void msg_flush(int x)
 	/* Get an acceptable keypress */
 	while (1)
 	{
-		int cmd = inkey();
+		char ch;
+		ch = inkey();
 		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
+		if ((ch == ESCAPE) || (ch == ' ')) break;
+		if ((ch == '\n') || (ch == '\r')) break;
 		bell("Illegal response to a 'more' prompt!");
 	}
 
@@ -2218,15 +2301,13 @@ static void msg_flush(int x)
  * Hack -- Note that "msg_print(NULL)" will clear the top line even if no
  * messages are pending.
  */
-void msg_print(cptr msg)
+static void msg_print_aux(u16b type, cptr msg)
 {
 	static int p = 0;
-
 	int n;
-
 	char *t;
-
 	char buf[1024];
+	byte color = TERM_WHITE;
 
 
 	/* Hack -- Reset */
@@ -2256,8 +2337,23 @@ void msg_print(cptr msg)
 	if (n > 1000) return;
 
 
-	/* Memorize the message */
-	if (character_generated) message_add(msg);
+	/* Memorize the message (if legal) */
+	if (character_generated && !(p_ptr->is_dead))
+		message_add(msg, type);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE);
+
+
+	/* Handle "auto_more" */
+	if (auto_more)
+	{
+		/* Force window update */
+		window_stuff();
+
+		/* Done */
+		return;
+	}
 
 
 	/* Copy it */
@@ -2265,6 +2361,13 @@ void msg_print(cptr msg)
 
 	/* Analyze the buffer */
 	t = buf;
+
+	/* Get the color of the message (if legal) */
+	if (message__color)
+		color = message__color[type];
+
+	/* HACK -- no "black" messages */
+	if (color == TERM_DARK) color = TERM_WHITE;
 
 	/* Split message */
 	while (n > 72)
@@ -2290,13 +2393,10 @@ void msg_print(cptr msg)
 		t[split] = '\0';
 
 		/* Display part of the message */
-		Term_putstr(0, 0, split, TERM_WHITE, t);
+		Term_putstr(0, 0, split, color, t);
 
 		/* Flush it */
 		msg_flush(split + 1);
-
-		/* Memorize the piece */
-		/* if (character_generated) message_add(t); */
 
 		/* Restore the split character */
 		t[split] = oops;
@@ -2308,15 +2408,8 @@ void msg_print(cptr msg)
 		t += split; n -= split;
 	}
 
-
 	/* Display the tail of the message */
-	Term_putstr(p, 0, n, TERM_WHITE, t);
-
-	/* Memorize the tail */
-	/* if (character_generated) message_add(t); */
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE);
+	Term_putstr(p, 0, n, color, t);
 
 	/* Remember the message */
 	msg_flag = TRUE;
@@ -2326,6 +2419,15 @@ void msg_print(cptr msg)
 
 	/* Optional refresh */
 	if (fresh_after) Term_fresh();
+}
+
+
+/*
+ * Print a message in the default color (white)
+ */
+void msg_print(cptr msg)
+{
+	msg_print_aux(MSG_GENERIC, msg);
 }
 
 
@@ -2348,7 +2450,46 @@ void msg_format(cptr fmt, ...)
 	va_end(vp);
 
 	/* Display */
-	msg_print(buf);
+	msg_print_aux(MSG_GENERIC, buf);
+}
+
+
+/*
+ * Display a message and play the associated sound.
+ *
+ * The "extra" parameter is currently unused.
+ */
+void message(u16b message_type, s16b extra, cptr message)
+{
+	sound(message_type);
+
+	msg_print_aux(message_type, message);
+}
+
+
+
+/*
+ * Display a formatted message and play the associated sound.
+ *
+ * The "extra" parameter is currently unused.
+ */
+void message_format(u16b message_type, s16b extra, cptr fmt, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Display */
+	message(message_type, extra, buf);
 }
 
 
@@ -2583,23 +2724,29 @@ void clear_from(int row)
 
 /*
  * Get some input at the cursor location.
- * Assume the buffer is initialized to a default string.
+ *
+ * The buffer is assumed to have been initialized to a default string.
  * Note that this string is often "empty" (see below).
- * The default buffer is displayed in yellow until cleared.
- * Pressing RETURN right away accepts the default entry.
+ *
+ * The default buffer is displayed in yellow until cleared, which happens
+ * on the first keypress, unless that keypress is Return.
+ *
  * Normal chars clear the default and append the char.
  * Backspace clears the default or deletes the final char.
- * ESCAPE clears the buffer and the window and returns FALSE.
- * RETURN accepts the current buffer contents and returns TRUE.
- * The buffer must be large enough for 'len+1' characters.
+ * Return accepts the current buffer contents and returns TRUE.
+ * Escape clears the buffer and the window and returns FALSE.
+ *
+ * Note that 'buf' must be able to hold 'len+1' characters, not just 'len'
+ * characters, as might be expected.  That is, 'len' primarily refers to
+ * the input, not the buffer itself.
  */
 bool askfor_aux(char *buf, int len)
 {
 	int y, x;
 
-	int i = 0;
-
 	int k = 0;
+
+	char ch = '\0';
 
 	bool done = FALSE;
 
@@ -2608,24 +2755,23 @@ bool askfor_aux(char *buf, int len)
 	Term_locate(&x, &y);
 
 
-	/* Paranoia -- check len */
-	if (len < 1) len = 1;
+	/* Paranoia */
+	if (len < 0) len = 0;
 
-	/* Paranoia -- check column */
+	/* Paranoia */
 	if ((x < 0) || (x >= 80)) x = 0;
+
 
 	/* Restrict the length */
 	if (x + len > 80) len = 80 - x;
 
-
-	/* Paranoia -- Clip the default entry */
+	/* Truncate the default entry */
 	buf[len] = '\0';
 
 
 	/* Display the default answer */
 	Term_erase(x, y, len);
 	Term_putstr(x, y, -1, TERM_YELLOW, buf);
-
 
 	/* Process input */
 	while (!done)
@@ -2634,10 +2780,10 @@ bool askfor_aux(char *buf, int len)
 		Term_gotoxy(x + k, y);
 
 		/* Get a key */
-		i = inkey();
+		ch = inkey();
 
 		/* Analyze the key */
-		switch (i)
+		switch (ch)
 		{
 			case ESCAPE:
 			{
@@ -2663,9 +2809,9 @@ bool askfor_aux(char *buf, int len)
 
 			default:
 			{
-				if ((k < len) && (isprint(i)))
+				if ((k < len) && (isprint(ch)))
 				{
-					buf[k++] = i;
+					buf[k++] = ch;
 				}
 				else
 				{
@@ -2683,23 +2829,18 @@ bool askfor_aux(char *buf, int len)
 		Term_putstr(x, y, -1, TERM_WHITE, buf);
 	}
 
-	/* Aborted */
-	if (i == ESCAPE) return (FALSE);
-
-	/* Success */
-	return (TRUE);
+	/* Done */
+	return (ch != ESCAPE);
 }
 
 
 /*
- * Get a string from the user
+ * Prompt for a string from the user.
  *
- * The "prompt" should take the form "Prompt: "
+ * The "prompt" should take the form "Prompt: ".
  *
- * Note that the initial contents of the string is used as
- * the default response, so be sure to "clear" it if needed.
- *
- * We clear the input, and return FALSE, on "ESCAPE".
+ * See "askfor_aux" for some notes about "buf" and "len", and about
+ * the return value of this function.
  */
 bool get_string(cptr prompt, char *buf, int len)
 {
@@ -2743,10 +2884,12 @@ s16b get_quantity(cptr prompt, int max)
 		p_ptr->command_arg = 0;
 	}
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    /* Get the item index */
-    else if ((max != 1) && allow_quantity && repeat_pull(&amt)) {
+	/* Get the item index */
+	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
+	{
+		/* nothing */
 	}
 
 #endif /* ALLOW_REPEAT */
@@ -2787,9 +2930,9 @@ s16b get_quantity(cptr prompt, int max)
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    if (amt) repeat_push(amt);
+	if (amt) repeat_push(amt);
 
 #endif /* ALLOW_REPEAT */
 
@@ -2807,7 +2950,7 @@ s16b get_quantity(cptr prompt, int max)
  */
 bool get_check(cptr prompt)
 {
-	int i;
+	char ch;
 
 	char buf[80];
 
@@ -2823,10 +2966,10 @@ bool get_check(cptr prompt)
 	/* Get an acceptable answer */
 	while (TRUE)
 	{
-		i = inkey();
+		ch = inkey();
 		if (quick_messages) break;
-		if (i == ESCAPE) break;
-		if (strchr("YyNn", i)) break;
+		if (ch == ESCAPE) break;
+		if (strchr("YyNn", ch)) break;
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
@@ -2834,7 +2977,7 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Normal negation */
-	if ((i != 'Y') && (i != 'y')) return (FALSE);
+	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -2850,6 +2993,8 @@ bool get_check(cptr prompt)
  */
 bool get_com(cptr prompt, char *command)
 {
+	char ch;
+
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
@@ -2857,16 +3002,16 @@ bool get_com(cptr prompt, char *command)
 	prt(prompt, 0, 0);
 
 	/* Get a key */
-	*command = inkey();
+	ch = inkey();
 
 	/* Clear the prompt */
 	prt("", 0, 0);
 
-	/* Handle "cancel" */
-	if (*command == ESCAPE) return (FALSE);
+	/* Save the command */
+	*command = ch;
 
-	/* Success */
-	return (TRUE);
+	/* Done */
+	return (ch != ESCAPE);
 }
 
 
@@ -2877,10 +3022,9 @@ bool get_com(cptr prompt, char *command)
  */
 void pause_line(int row)
 {
-	int i;
 	prt("", row, 0);
 	put_str("[Press any key to continue]", row, 23);
-	i = inkey();
+	(void)inkey();
 	prt("", row, 0);
 }
 
@@ -2916,7 +3060,7 @@ void request_command(bool shopping)
 {
 	int i;
 
-	char cmd;
+	char ch;
 
 	int mode;
 
@@ -2956,7 +3100,7 @@ void request_command(bool shopping)
 			msg_print(NULL);
 
 			/* Use auto-command */
-			cmd = p_ptr->command_new;
+			ch = (char)p_ptr->command_new;
 
 			/* Forget it */
 			p_ptr->command_new = 0;
@@ -2972,7 +3116,7 @@ void request_command(bool shopping)
 			inkey_flag = TRUE;
 
 			/* Get a command */
-			cmd = inkey();
+			ch = inkey();
 		}
 
 		/* Clear top line */
@@ -2980,7 +3124,7 @@ void request_command(bool shopping)
 
 
 		/* Command Count */
-		if (cmd == '0')
+		if (ch == '0')
 		{
 			int old_arg = p_ptr->command_arg;
 
@@ -2994,10 +3138,10 @@ void request_command(bool shopping)
 			while (1)
 			{
 				/* Get a new keypress */
-				cmd = inkey();
+				ch = inkey();
 
 				/* Simple editing (delete or backspace) */
-				if ((cmd == 0x7F) || (cmd == KTRL('H')))
+				if ((ch == 0x7F) || (ch == KTRL('H')))
 				{
 					/* Delete a digit */
 					p_ptr->command_arg = p_ptr->command_arg / 10;
@@ -3007,7 +3151,7 @@ void request_command(bool shopping)
 				}
 
 				/* Actual numeric data */
-				else if (cmd >= '0' && cmd <= '9')
+				else if (ch >= '0' && ch <= '9')
 				{
 					/* Stop count at 9999 */
 					if (p_ptr->command_arg >= 1000)
@@ -3023,7 +3167,7 @@ void request_command(bool shopping)
 					else
 					{
 						/* Incorporate that digit */
-						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(cmd);
+						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(ch);
 					}
 
 					/* Show current count */
@@ -3058,10 +3202,10 @@ void request_command(bool shopping)
 			}
 
 			/* Hack -- white-space means "enter command now" */
-			if ((cmd == ' ') || (cmd == '\n') || (cmd == '\r'))
+			if ((ch == ' ') || (ch == '\n') || (ch == '\r'))
 			{
 				/* Get a real command */
-				if (!get_com("Command: ", &cmd))
+				if (!get_com("Command: ", &ch))
 				{
 					/* Clear count */
 					p_ptr->command_arg = 0;
@@ -3074,10 +3218,10 @@ void request_command(bool shopping)
 
 
 		/* Allow "keymaps" to be bypassed */
-		if (cmd == '\\')
+		if (ch == '\\')
 		{
 			/* Get a real command */
-			(void)get_com("Command: ", &cmd);
+			(void)get_com("Command: ", &ch);
 
 			/* Hack -- bypass keymaps */
 			if (!inkey_next) inkey_next = "";
@@ -3085,15 +3229,15 @@ void request_command(bool shopping)
 
 
 		/* Allow "control chars" to be entered */
-		if (cmd == '^')
+		if (ch == '^')
 		{
 			/* Get a new command and controlify it */
-			if (get_com("Control: ", &cmd)) cmd = KTRL(cmd);
+			if (get_com("Control: ", &ch)) ch = KTRL(ch);
 		}
 
 
 		/* Look up applicable keymap */
-		act = keymap_act[mode][(byte)(cmd)];
+		act = keymap_act[mode][(byte)(ch)];
 
 		/* Apply keymap if not inside a keymap already */
 		if (act && !inkey_next)
@@ -3110,11 +3254,11 @@ void request_command(bool shopping)
 
 
 		/* Paranoia */
-		if (!cmd) continue;
+		if (ch == '\0') continue;
 
 
 		/* Use command */
-		p_ptr->command_cmd = cmd;
+		p_ptr->command_cmd = ch;
 
 		/* Done */
 		break;
@@ -3124,7 +3268,7 @@ void request_command(bool shopping)
 	if (always_repeat && (p_ptr->command_arg <= 0))
 	{
 		/* Hack -- auto repeat certain commands */
-		if (strchr("TBDoc+", p_ptr->command_cmd))
+		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
 		{
 			/* Repeat 99 times */
 			p_ptr->command_arg = 99;
@@ -3148,6 +3292,7 @@ void request_command(bool shopping)
 			case 's': p_ptr->command_cmd = 'd'; break;
 		}
 	}
+
 
 	/* Building commands, hack  -KMW- */
 	if ((shopping == 2) && (rogue_like_commands))
@@ -3183,11 +3328,8 @@ void request_command(bool shopping)
 		/* No inscription */
 		if (!o_ptr->note) continue;
 
-		/* Obtain the inscription */
-		s = quark_str(o_ptr->note);
-
 		/* Find a '^' */
-		s = strchr(s, '^');
+		s = strchr(quark_str(o_ptr->note), '^');
 
 		/* Process preventions */
 		while (s)
@@ -3198,8 +3340,8 @@ void request_command(bool shopping)
 				/* Hack -- Verify command */
 				if (!get_check("Are you sure? "))
 				{
-					/* Hack -- Use space */
-					p_ptr->command_cmd = ' ';
+					/* Hack -- Use "newline" */
+					p_ptr->command_cmd = '\n';
 				}
 			}
 
@@ -3221,11 +3363,13 @@ void request_command(bool shopping)
  */
 uint damroll(uint num, uint sides)
 {
-	int i, sum = 0;
+	uint i, sum = 0;
+
 	for (i = 0; i < num; i++)
 	{
 		sum += (rand_int(sides) + 1);
 	}
+
 	return (sum);
 }
 
@@ -3273,8 +3417,8 @@ bool is_a_vowel(int ch)
  * If "insert" is NULL, just remove the first instance of "target"
  * In either case, return TRUE if "target" is found.
  *
- * XXX Could be made more efficient, especially in the
- * case where "insert" is smaller than "target".
+ * Could be made more efficient, especially in the case where "insert"
+ * is smaller than "target".
  */
 static bool insert_str(char *buf, cptr target, cptr insert)
 {
@@ -3320,11 +3464,13 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 	return (TRUE);
 }
 
+
 #endif
 
-#ifdef ALLOW_REPEAT /* TNB */
 
-#define REPEAT_MAX		20
+#ifdef ALLOW_REPEAT
+
+#define REPEAT_MAX 20
 
 /* Number of chars saved */
 static int repeat__cnt = 0;
@@ -3335,6 +3481,10 @@ static int repeat__idx = 0;
 /* Saved "stuff" */
 static int repeat__key[REPEAT_MAX];
 
+
+/*
+ * Push data.
+ */
 void repeat_push(int what)
 {
 	/* Too many keys */
@@ -3347,6 +3497,10 @@ void repeat_push(int what)
 	++repeat__idx;
 }
 
+
+/*
+ * Pull data.
+ */
 bool repeat_pull(int *what)
 {
 	/* All out of keys */
@@ -3359,37 +3513,42 @@ bool repeat_pull(int *what)
 	return (TRUE);
 }
 
+
+/*
+ * Repeat previous command, or begin memorizing new command.
+ */
 void repeat_check(void)
 {
-	int		what;
+	int what;
 
-    /* Ignore some commands */
-    if (p_ptr->command_cmd == ESCAPE) return;
-    if (p_ptr->command_cmd == ' ') return;
-    if (p_ptr->command_cmd == '\r') return;
-    if (p_ptr->command_cmd == '\n') return;
+	/* Ignore some commands */
+	if (p_ptr->command_cmd == ESCAPE) return;
+	if (p_ptr->command_cmd == ' ') return;
+	if (p_ptr->command_cmd == '\n') return;
+	if (p_ptr->command_cmd == '\r') return;
 
 	/* Repeat Last Command */
-	if (p_ptr->command_cmd == 'n') {
-
+	if (p_ptr->command_cmd == KTRL('V'))
+	{
 		/* Reset */
 		repeat__idx = 0;
 
 		/* Get the command */
-		if (repeat_pull(&what)) {
-
+		if (repeat_pull(&what))
+		{
 			/* Save the command */
 			p_ptr->command_cmd = what;
 		}
 	}
 
 	/* Start saving new command */
-	else {
-
+	else
+	{
 		/* Reset */
 		repeat__cnt = 0;
 		repeat__idx = 0;
 
+		/* Get the current command */
 		what = p_ptr->command_cmd;
 
 		/* Save this command */
@@ -3399,3 +3558,104 @@ void repeat_check(void)
 
 #endif /* ALLOW_REPEAT */
 
+
+#ifdef SUPPORT_GAMMA
+
+/* Table of gamma values */
+byte gamma_table[256];
+
+/* Table of ln(x / 256) * 256 for x going from 0 -> 255 */
+static s16b gamma_helper[256] =
+{
+	0, -1420, -1242, -1138, -1065, -1007, -961, -921, -887, -857, -830,
+	-806, -783, -762, -744, -726, -710, -694, -679, -666, -652, -640,
+	-628, -617, -606, -596, -586, -576, -567, -577, -549, -541, -532,
+	-525, -517, -509, -502, -495, -488, -482, -475, -469, -463, -457,
+	-451, -455, -439, -434, -429, -423, -418, -413, -408, -403, -398,
+	-394, -389, -385, -380, -376, -371, -367, -363, -359, -355, -351,
+	-347, -343, -339, -336, -332, -328, -325, -321, -318, -314, -311,
+	-308, -304, -301, -298, -295, -291, -288, -285, -282, -279, -276,
+	-273, -271, -268, -265, -262, -259, -257, -254, -251, -248, -246,
+	-243, -241, -238, -236, -233, -231, -228, -226, -223, -221, -219,
+	-216, -214, -212, -209, -207, -205, -203, -200, -198, -196, -194,
+	-192, -190, -188, -186, -184, -182, -180, -178, -176, -174, -172,
+	-170, -168, -166, -164, -162, -160, -158, -156, -155, -153, -151,
+	-149, -147, -146, -144, -142, -140, -139, -137, -135, -134, -132,
+	-130, -128, -127, -125, -124, -122, -120, -119, -117, -116, -114,
+	-112, -111, -109, -108, -106, -105, -103, -102, -100, -99, -97, -96,
+	-95, -93, -92, -90, -89, -87, -86, -85, -83, -82, -80, -79, -78,
+	-76, -75, -74, -72, -71, -70, -68, -67, -66, -65, -63, -62, -61,
+	-59, -58, -57, -56, -54, -53, -52, -51, -50, -48, -47, -46, -45,
+	-44, -42, -41, -40, -39, -38, -37, -35, -34, -33, -32, -31, -30,
+	-29, -27, -26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16,
+	-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1
+};
+
+
+/*
+ * Build the gamma table so that floating point isn't needed.
+ *
+ * Note gamma goes from 0->256.  The old value of 100 is now 128.
+ */
+void build_gamma_table(int gamma)
+{
+	int i, n;
+
+	/*
+	 * value is the current sum.
+	 * diff is the new term to add to the series.
+	 */
+	long value, diff;
+
+	/* Hack - convergence is bad in these cases. */
+	gamma_table[0] = 0;
+	gamma_table[255] = 255;
+
+	for (i = 1; i < 255; i++)
+	{
+		/*
+		 * Initialise the Taylor series
+		 *
+		 * value and diff have been scaled by 256
+		 */
+		n = 1;
+		value = 256 * 256;
+		diff = ((long)gamma_helper[i]) * (gamma - 256);
+
+		while (diff)
+		{
+			value += diff;
+			n++;
+
+			/*
+			 * Use the following identiy to calculate the gamma table.
+			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
+			 *
+			 * n is the current term number.
+			 *
+			 * The gamma_helper array contains a table of
+			 * ln(x/256) * 256
+			 * This is used because a^b = exp(b*ln(a))
+			 *
+			 * In this case:
+			 * a is i / 256
+			 * b is gamma.
+			 *
+			 * Note that everything is scaled by 256 for accuracy,
+			 * plus another factor of 256 for the final result to
+			 * be from 0-255.  Thus gamma_helper[] * gamma must be
+			 * divided by 256*256 each itteration, to get back to
+			 * the original power series.
+			 */
+			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) / (256 * n);
+		}
+
+		/*
+		 * Store the value in the table so that the
+		 * floating point pow function isn't needed.
+		 */
+		gamma_table[i] = ((long)(value / 256) * i) / 256;
+	}
+}
+
+#endif /* SUPPORT_GAMMA */

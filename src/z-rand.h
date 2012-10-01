@@ -75,3 +75,5 @@ extern s16b Rand_normal(int mean, int stand);
 
 
 #endif
+
+

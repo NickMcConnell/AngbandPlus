@@ -68,17 +68,19 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 
 typedef struct header header;
+typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
+typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
-typedef struct quest quest;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
+typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
@@ -86,6 +88,7 @@ typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
+typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct building building; /* From Kamband -KMW- */
@@ -139,11 +142,39 @@ struct header
 
 	u16b info_size;		/* Size of the "info" array in bytes */
 
-	u16b name_size;		/* Size of the "name" array in bytes */
+	u32b name_size;		/* Size of the "name" array in bytes */
 
-	u16b text_size;		/* Size of the "text" array in bytes */
+	u32b text_size;		/* Size of the "text" array in bytes */
 };
 
+
+/*
+ * Information about maximal indices of certain arrays
+ * Actually, these are not the maxima, but the maxima plus one
+ */
+struct maxima
+{
+	u32b fake_text_size;
+	u32b fake_name_size;
+
+	u16b f_max;		/* Max size for "f_info[]" */
+	u16b k_max;		/* Max size for "k_info[]" */
+
+	u16b a_max;		/* Max size for "a_info[]" */
+	u16b e_max;		/* Max size for "e_info[]" */
+
+	u16b r_max;		/* Max size for "r_info[]" */
+	u16b v_max;		/* Max size for "v_info[]" */
+
+	u16b p_max;		/* Max size for "p_info[]" */
+	u16b h_max;		/* Max size for "h_info[]" */
+
+	u16b b_max;		/* Max size per element of "b_info[]" */
+	u16b unused;	/* Unused */
+
+	u16b o_max;		/* Max size for "o_list[]" */
+	u16b m_max;		/* Max size for "m_list[]" */
+};
 
 
 /*
@@ -151,8 +182,8 @@ struct header
  */
 struct feature_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte mimic;			/* Feature to mimic */
 
@@ -177,8 +208,8 @@ struct feature_type
  */
 struct object_kind
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -237,8 +268,8 @@ struct object_kind
  */
 struct artifact_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Artifact type */
 	byte sval;			/* Artifact sub type */
@@ -266,6 +297,10 @@ struct artifact_type
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
+
+	byte activation;	/* Activation to use */
+	u16b time;			/* Activation time */
+	u16b randtime;		/* Activation time dice */
 };
 
 
@@ -274,14 +309,19 @@ struct artifact_type
  */
 struct ego_item_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte slot;			/* Standard slot value */
 	byte rating;		/* Rating boost */
 
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
+
+	byte tval[3];		/* Legal tval */
+	byte min_sval[3];	/* Minimum legal sval */
+	byte max_sval[3];	/* Maximum legal tval */
+	byte xtra;			/* Extra Sustain/Resist/Power */
 
 	byte max_to_h;		/* Maximum to-hit bonus */
 	byte max_to_d;		/* Maximum to-dam bonus */
@@ -331,15 +371,14 @@ struct monster_blow
  * Note that "max_num" is reset when a new player is created.
  * Note that "cur_num" is reset when a new level is created.
  *
- * Note that several of these fields, related to "recall", can be
- * scrapped if space becomes an issue, resulting in less "complete"
- * monster recall (no knowledge of spells, etc).  All of the "recall"
- * fields have a special prefix to aid in searching for them.
+ * Maybe "x_attr", "x_char", "cur_num", and "max_num" should
+ * be moved out of this array since they are not read from
+ * "r_info.txt".
  */
 struct monster_race
 {
-	u16b name;				/* Name (offset) */
-	u16b text;				/* Text (offset) */
+	u32b name;				/* Name (offset) */
+	u32b text;				/* Text (offset) */
 
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
@@ -382,8 +421,21 @@ struct monster_race
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
+};
 
 
+
+/*
+ * Monster "lore" information
+ *
+ * Note that these fields are related to the "monster recall" and can
+ * be scrapped if space becomes an issue, resulting in less "complete"
+ * monster recall (no knowledge of spells, etc). XXX XXX XXX
+ *
+ * ToDo: The "r_" prefix is no longer needed and should be removed.
+ */
+struct monster_lore
+{
 	s16b r_sights;			/* Count sightings of this monster */
 	s16b r_deaths;			/* Count deaths from this monster */
 
@@ -419,8 +471,8 @@ struct monster_race
  */
 struct vault_type
 {
-	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte typ;			/* Vault type */
 
@@ -518,6 +570,8 @@ struct object_type
 
 	u16b note;			/* Inscription index */
 
+	byte inscrip;		/* INSCRIP_XXX constant */
+
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
@@ -561,17 +615,6 @@ struct monster_type
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
-
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif
 
 #ifdef DRS_SMART_OPTIONS
 
@@ -662,7 +705,8 @@ struct quest
  */
 struct owner_type
 {
-	cptr owner_name;	/* Name */
+	u32b owner_name;	/* Name (offset) */
+	u32b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -674,8 +718,6 @@ struct owner_type
 	byte insult_max;	/* Insult limit */
 
 	byte owner_race;	/* Owner race */
-
-	byte unused;		/* Unused */
 };
 
 
@@ -703,7 +745,7 @@ struct store_type
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
 
-	s16b stock_num;			/* Stock -- Number of entries */
+	byte stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
@@ -733,7 +775,7 @@ struct magic_type
  */
 struct player_magic
 {
-	s16b spell_book;		/* Tval of spell books (if any) */
+	byte spell_book;		/* Tval of spell books (if any) */
 	s16b spell_xtra;		/* Something for later */
 
 	s16b spell_stat;		/* Stat for spells (if any)  */
@@ -763,9 +805,10 @@ struct player_sex
  */
 struct player_race
 {
-	cptr title;			/* Type of race */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
-	s16b r_adj[6];		/* Racial stat bonuses */
+	s16b r_adj[A_MAX];	/* Racial stat bonuses */
 
 	s16b r_dis;			/* disarming */
 	s16b r_dev;			/* magic devices */
@@ -795,6 +838,12 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
 	byte choice;		/* Legal class choices */
+
+	s16b hist;			/* Starting history index */
+
+	u32b flags1;		/* Racial Flags, set 1 */
+	u32b flags2;		/* Racial Flags, set 2 */
+	u32b flags3;		/* Racial Flags, set 3 */
 };
 
 
@@ -805,7 +854,7 @@ struct player_class
 {
 	cptr title;			/* Type of class */
 
-	s16b c_adj[6];		/* Class stat modifier */
+	s16b c_adj[A_MAX];	/* Class stat modifier */
 
 	s16b c_dis;			/* class disarming */
 	s16b c_dev;			/* class magic devices */
@@ -832,6 +881,22 @@ struct player_class
 
 
 /*
+ * Player background information
+ */
+struct hist_type
+{
+	u32b unused;			/* Unused */
+	u32b text;			    /* Text (offset) */
+
+	byte roll;			    /* Frequency of this entry */
+	byte chart;			    /* Chart index */
+	byte next;			    /* Next chart index */
+	byte bonus;			    /* Social Class Bonus + 50 */
+};
+
+
+
+/*
  * Some more player information
  *
  * This information is retained across player lives
@@ -845,9 +910,9 @@ struct player_other
 
 	u32b window_flag[8];	/* Window flags */
 
-	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
-	s16b delay_factor;		/* Delay factor (0 to 9) */
+	byte delay_factor;		/* Delay factor (0 to 9) */
 };
 
 
@@ -918,8 +983,8 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[6];	/* Current "maximal" stat values */
-	s16b stat_cur[6];	/* Current "natural" stat values */
+	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
+	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -992,8 +1057,6 @@ struct player_type
 	bool is_dead;			/* Player is dead */
 
 	bool wizard;			/* Player is in wizard mode */
-
-	bool cheat[CHEAT_MAX];	/* Cheating options */
 
 	/*** Temporary fields ***/
 
@@ -1073,13 +1136,13 @@ struct player_type
 	u32b redraw;		/* Normal Redraws (bit flags) */
 	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[6];	/* Current modified stats */
-	s16b stat_top[6];	/* Maximal modified stats */
+	s16b stat_use[A_MAX];	/* Current modified stats */
+	s16b stat_top[A_MAX];	/* Maximal modified stats */
 
 	/*** Extracted fields ***/
 
-	s16b stat_add[6];	/* Equipment stat bonuses */
-	s16b stat_ind[6];	/* Indexes into stat tables */
+	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
+	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
@@ -1167,6 +1230,51 @@ struct player_type
 	s16b pspeed;		/* Current speed */
 };
 
+
+/*
+ * Semi-Portable High Score List Entry (128 bytes)
+ *
+ * All fields listed below are null terminated ascii strings.
+ *
+ * In addition, the "number" fields are right justified, and
+ * space padded, to the full available length (minus the "null").
+ *
+ * Note that "string comparisons" are thus valid on "pts".
+ */
+
+typedef struct high_score high_score;
+
+struct high_score
+{
+	char what[8];		/* Version info (string) */
+
+	char pts[10];		/* Total Score (number) */
+
+	char gold[10];		/* Total Gold (number) */
+
+	char turns[10];		/* Turns Taken (number) */
+
+	char day[10];		/* Time stamp (string) */
+
+	char who[16];		/* Player Name (string) */
+
+	char uid[8];		/* Player UID (number) */
+
+	char sex[2];		/* Player Sex (string) */
+	char p_r[3];		/* Player Race (number) */
+	char p_c[3];		/* Player Class (number) */
+
+	char cur_lev[4];		/* Current Player Level (number) */
+	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char max_lev[4];		/* Max Player Level (number) */
+	char max_dun[4];		/* Max Dungeon Level (number) */
+
+	char arena_number[4];	/* Arena level attained -KMW- */
+	char inside_special[4];   /* Did the player die in the arena? -KMW- */
+	char exit_bldg[4];	/* Can the player exit arena? Goal obtained? -KMW- */
+
+	char how[32];		/* Method of death (string) */
+};
 
 /*
  * A structure to describe a building.

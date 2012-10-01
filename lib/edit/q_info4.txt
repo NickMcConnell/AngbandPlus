@@ -19,7 +19,7 @@ P:Rival Towns
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.1
 
 N:100:Roving Thieves
 T1:For many years, the armies of my town have waged war against
@@ -573,13 +573,13 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 N:118:Sauron
 T1:Through your actions, we have defeated all the minions that Morgoth
 T2:sent against us, achieved a truce with Dulnshead and confined Morgoth
-T3:to the caves he occuppies, even to the point of occupying the two
-T4:guard towers. However, this will not sufficient. We cannot hold
+T3:to the caves he occupies, even to the point of occupying the two
+T4:guard towers. However, this will not be sufficient. We cannot hold
 T5:Morgoth at bay forever. His armies are still vast, and grow ever
 T6:larger. Therefore I call upon you to descend deep into Morgoth's
 T7:dungeon and slay Sauron, his greatest servant. Only then will you
 T8:be able to enter the level Morgoth inhabits. So, go now and slay
-T9:Sauron! Are hopes and prayers are with you.
+T9:Sauron! Our hopes and prayers are with you.
 Q:1:0:0:1:99:546:0:0:0:0:0
 
 # It seemed "right" to leave this quest, description and all, the same

@@ -26,12 +26,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 {
 	int i;
 
-	int spell = -1;
+	int spell;
 	int num = 0;
 
 	byte spells[64];
 
-	int ver;
+	bool verify;
 
 	bool flag, redraw, okay;
 	char choice;
@@ -42,20 +42,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    /* Get the spell, if available */
-    if (repeat_pull(sn)) {
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	{
+		/* Verify the spell */
+		if (spell_okay(*sn, known))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
 
-        /* Verify the spell */
-        if (spell_okay(*sn, known)) {
-
-            /* Success */
-            return (TRUE);
-        }
-    }
-
-#endif
+#endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
 	for (spell = 0; spell < 64; spell++)
@@ -150,7 +150,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 
 		/* Note verify */
-		ver = (isupper(choice));
+		verify = (isupper(choice) ? TRUE : FALSE);
 
 		/* Lowercase */
 		choice = tolower(choice);
@@ -177,11 +177,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 		}
 
 		/* Verify it */
-		if (ver)
+		if (verify)
 		{
 			char tmp_val[160];
 
-			/* Access the spell */
+			/* Get the spell */
 			s_ptr = &mp_ptr->info[spell];
 
 			/* Prompt */
@@ -215,11 +215,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	/* Save the choice */
 	(*sn) = spell;
 
-#ifdef ALLOW_REPEAT /* TNB */
+#ifdef ALLOW_REPEAT
 
-    repeat_push(*sn);
+	repeat_push(*sn);
 
-#endif
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -240,7 +240,7 @@ void do_cmd_browse(void)
 {
 	int item, sval;
 
-	int spell = -1;
+	int spell;
 	int num = 0;
 
 	byte spells[64];
@@ -295,7 +295,7 @@ void do_cmd_browse(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -329,8 +329,8 @@ void do_cmd_browse(void)
 	/* Prompt for a command */
 	put_str("(Browsing) Command: ", 0, 0);
 
-        /* Hack -- Get a new command */
-        p_ptr->command_new = inkey();
+	/* Hack -- Get a new command */
+	p_ptr->command_new = inkey();
 
 	/* Load screen */
 	screen_load();
@@ -410,7 +410,7 @@ void do_cmd_study(bool in_bldg)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -421,7 +421,7 @@ void do_cmd_study(bool in_bldg)
 	handle_stuff();
 
 
-	/* Mage& Illusionist -- Learn a selected spell */
+	/* Mage & Illusionist -- Learn a selected spell */
 	if((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
 	    (mp_ptr->spell_book == TV_ILLUSION_BOOK))  /* added -KMW- */
 	{
@@ -429,7 +429,7 @@ void do_cmd_study(bool in_bldg)
 		if (!get_spell(&spell, "study", sval, FALSE) && (spell == -1)) return;
 	}
 
-	/* Priest& Druid -- Learn a random prayer */
+	/* Priest & Druid -- Learn a random prayer */
 	if((mp_ptr->spell_book == TV_PRAYER_BOOK) ||
 	    (mp_ptr->spell_book == TV_NATURE_BOOK))
 	{
@@ -492,14 +492,11 @@ void do_cmd_study(bool in_bldg)
 	}
 
 	/* Add the spell to the known list */
-	p_ptr->spell_order[i++] = spell;
+	p_ptr->spell_order[i] = spell;
 
 	/* Mention the result */
-	msg_format("You have learned the %s of %s.",
+	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
 	           p, spell_names[mp_ptr->spell_type][spell]);
-
-	/* Sound */
-	sound(SOUND_STUDY);
 
 	/* One less spell available */
 	p_ptr->new_spells--;
@@ -518,188 +515,11 @@ void do_cmd_study(bool in_bldg)
 
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
+
+	/* Redraw object recall */
+	p_ptr->window |= (PW_OBJECT);
 }
 
-
-
-/*
-* Brand some ammunition.  Used by Cubragol and a mage spell.  The spell was
-* moved here from cmd6.c where it used to be for Cubragol only.  I've also
- * expanded it to do either frost, fire or venom, at random. -GJW	-KMW-
- */
-void brand_ammo (int brand_type, int bolts_only)
-{
-	int a;
-	int allowable;
-
-	if (bolts_only)
-		allowable = TV_BOLT;
-	else
-		allowable = TV_BOLT | TV_ARROW | TV_SHOT;
-
-	for (a = 0; a < INVEN_PACK; a++)
-	{
-		object_type *o_ptr = &inventory[a];
-
-		if ((bolts_only) && (o_ptr->tval != TV_BOLT)) continue;
-		if ((!bolts_only) && (o_ptr->tval != TV_BOLT) &&
-		    (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_SHOT))
-		    	continue;
-		if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-		   (!cursed_p(o_ptr) && !broken_p(o_ptr)))
-		   	break;
-	}
-
-	/* Enchant the ammo (or fail) */
-	if ((a < INVEN_PACK) && (rand_int(100) < 50))
-	{
-		object_type *o_ptr = &inventory[a];
-		char *ammo_name, *aura_name, msg[48];
-		int aura_type, r;
-
-		if (brand_type == 1) r = 0;		/* fire only */
-		else if (brand_type == 2) r = 99;	/* poison only */
-		else r = rand_int (100);
-
-		if (r < 33)
-		{
-			aura_name = "fiery";
-			aura_type = EGO_FLAME;
-		}
-		else if (r < 67)
-		{
-			aura_name = "frosty";
-			aura_type = EGO_FROST;
-		}
-		else
-		{
-			aura_name = "sickly";
-			aura_type = EGO_VENOM;
-		}
-
-		if (o_ptr->tval == TV_BOLT)
-			ammo_name = "bolts";
-		else if (o_ptr->tval == TV_ARROW)
-			ammo_name = "arrows";
-		else
-			ammo_name = "shots";
-
-		sprintf (msg, "Your %s are covered in a %s aura!",
-			ammo_name, aura_name);
-		msg_print (msg);
-		o_ptr->name2 = aura_type;
-		enchant (o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-	}
-	else
-	{
-		if (flush_failure) flush();
-		msg_print ("The enchantment failed.");
-	}
-}
-
-
-/* Fetch an item (teleport it right underneath the caster) */
-static void fetch_item(int dir, int wgt)
-{
-	int ty, tx, i;
-	bool flag;
-	object_type *o_ptr;
-	int py, px;
-
-	py = p_ptr->py; px = p_ptr->px;
-	/* Check to see if an object is already there */
-	if(cave_o_idx[py][px])
-	{
-		msg_print("You can't fetch when you're already standing on something.");
-		return;
-	}
-
-	/* Use a target */
-	if(dir==5 && target_okay())
-	{
-		tx = p_ptr->target_col;
-		ty = p_ptr->target_row;
-		if(distance(py, px, ty, tx)>MAX_RANGE)
-		{
-			msg_print("You can't fetch something that far away!");
-			return;
-		}
-	}
-	else
-	{
-		/* Use a direction */
-		ty = py; /* Where to drop the item */
-		tx = px;
-		flag = FALSE;
-		do
-		{
-			ty += ddy[dir];
-			tx += ddx[dir];
-			if ((distance(py, px, ty, tx)> MAX_RANGE)
-				|| !cave_floor_bold(ty, tx)) return;
-		} while(!cave_o_idx[ty][tx]);
-	}
-	o_ptr = &o_list[cave_o_idx[ty][tx]];
-	if (o_ptr->weight > wgt)
-	{	/* Too heavy to 'fetch' */
-		msg_print("The object is too heavy.");
-		return;
-	}
-	i = cave_o_idx[ty][tx];
-	cave_o_idx[ty][tx] = 0;
-	cave_o_idx[py][px] = i; /* 'move' it */
-	o_ptr->iy = py;
-	o_ptr->ix = px;
-
-	p_ptr->redraw |= PR_MAP;
-}
-
-
-/* incremental sleep spell */
-/* -KMW- */
-static void do_sleep_monster(void)
-{
-	int dir;
-
-	if (p_ptr->lev < 15) {
-		if (!get_aim_dir(&dir)) return;
-		sleep_monster(dir);
-	} else if (p_ptr->lev < 30)
-		sleep_monsters_touch();
-	else
-		sleep_monsters();
-}
-
-/* incremental fear spell */
-/* -KMW- */
-static void do_fear_monster(void)
-{
-	int dir;
-
-	if (p_ptr->lev < 15) {
-		if (!get_aim_dir(&dir)) return;
-		fear_monster(dir,p_ptr->lev);
-	} else if (p_ptr->lev < 30)
-		fear_monsters_touch();
-	else
-		fear_monsters();
-}
-
-/* incremental cure wounds spell */
-/* -KMW- */
-static void do_cure_wounds(void)
-{
-	if (p_ptr->lev < 15)
-		(void)hp_player(damroll(4, 10));
-	else if (p_ptr->lev < 30) {
-		(void)hp_player(damroll(6, 10));
-		(void)set_cut(0);
-	} else {
-		(void)hp_player(damroll(8, 10));
-		(void)set_stun(0);
-		(void)set_cut(0);
-	}
-}
 
 
 /*
@@ -765,7 +585,7 @@ void do_cmd_cast(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -784,7 +604,7 @@ void do_cmd_cast(void)
 	}
 
 
-	/* Access the spell */
+	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
 
@@ -835,25 +655,25 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 1: /* detect monsters */
+			case 1:
 			{
 				(void)detect_monsters_normal();
 				break;
 			}
 
-			case 2: /* phase door */
+			case 2:
 			{
 				teleport_player(10);
 				break;
 			}
 
-			case 3: /* light area */
+			case 3:
 			{
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
-			case 4: /* treasure detection */
+			case 4:
 			{
 				(void)detect_treasure();
 				(void)detect_objects_gold();
@@ -872,13 +692,13 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 6: /* object detection */
+			case 6:
 			{
 				(void)detect_objects_normal();
 				break;
 			}
 
-			case 7: /* find hidden traps/doors */
+			case 7:
 			{
 				(void)detect_traps();
 				(void)detect_doors();
@@ -886,7 +706,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 8: /* stinking cloud */
+			case 8:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
@@ -922,7 +742,7 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 11: /* trap/door destruction */
+			case 11:
 			{
 				(void)destroy_doors_touch();
 				break;
@@ -944,7 +764,7 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 13: /* cure poison */
+			case 13:
 			{
 				(void)set_poisoned(0);
 				break;
@@ -994,7 +814,7 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 17: /* turn stone to mud */
+			case 17:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)wall_to_mud(dir);
@@ -1013,13 +833,13 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 19: /* recharge item */
+			case 19:
 			{
 				(void)recharge((plev * 2));
 				break;
 			}
 
-			case 20: /* brand ammo */
+			case 20:
 			{
 				if (mp_ptr->spell_type == 2) {
 					(void)brand_ammo(1,0);
@@ -1092,7 +912,7 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 25: /* slow monster */
+			case 25:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)slow_monster(dir);
@@ -1144,12 +964,16 @@ void do_cmd_cast(void)
 				}
 			}
 
-			case 29: /* haste self */
+			case 29:
 			{
 				if (!p_ptr->fast)
+				{
 					(void)set_fast(randint(20) + plev);
+				}
 				else
+				{
 					(void)set_fast(p_ptr->fast + randint(5));
+				}
 				break;
 			}
 
@@ -1693,6 +1517,9 @@ void do_cmd_cast(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 		}
 	}
 
@@ -1757,7 +1584,7 @@ static void brand_weapon(void)
 	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
 	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
 	{
-		cptr act = NULL;
+		cptr act;
 
 		char o_name[80];
 
@@ -1766,7 +1593,6 @@ static void brand_weapon(void)
 			act = "is covered in a fiery shield!";
 			o_ptr->name2 = EGO_BRAND_FIRE;
 		}
-
 		else
 		{
 			act = "glows deep, icy blue!";
@@ -1852,7 +1678,7 @@ void do_cmd_pray(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Access the item's sval */
+	/* Get the item's sval */
 	sval = o_ptr->sval;
 
 
@@ -1871,7 +1697,7 @@ void do_cmd_pray(void)
 	}
 
 
-	/* Access the spell */
+	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
 
 
@@ -1905,13 +1731,13 @@ void do_cmd_pray(void)
 
 		switch (spell)
 		{
-			case 0: /* detect evil */
+			case 0:
 			{
 				(void)detect_monsters_evil();
 				break;
 			}
 
-			case 1: /* cure wounds */
+			case 1:
 			{
 				(void)do_cure_wounds();
 				break;
@@ -1931,32 +1757,32 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 3: /* remove fear */
+			case 3:
 			{
 				(void)set_afraid(0);
 				break;
 			}
 
-			case 4: /* call light */
+			case 4:
 			{
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
-			case 5: /* find traps */
+			case 5:
 			{
 				(void)detect_traps();
 				break;
 			}
 
-			case 6: /* detect doors/stairs */
+			case 6:
 			{
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;
 			}
 
-			case 7: /* slow poison */
+			case 7:
 			{
 				(void)set_poisoned(p_ptr->poisoned / 2);
 				break;
@@ -1975,13 +1801,13 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 9: /* portal */
+			case 9:
 			{
 				teleport_player(plev * 3);
 				break;
 			}
 
-			case 10: /* duststorm */
+			case 10:
 			{
 				fire_ball(GF_FORCE, 5, 3 + (plev / 4), 6);
 				break;
@@ -2012,26 +1838,26 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 13: /* satisfy hunger */
+			case 13:
 			{
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
-			case 14: /* remove curse */
+			case 14:
 			{
 				remove_curse();
 				break;
 			}
 
-			case 15: /* resist heat and cold */
+			case 15:
 			{
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10);
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10);
 				break;
 			}
 
-			case 16: /* levitate */
+			case 16:
 			{
 				if (p_ptr->levitate == 0)
 					p_ptr->levitate = p_ptr->levitate + randint(100);
@@ -2054,7 +1880,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 18: /* disintegrate */
+			case 18:
 			{
 				alter_terrain(py,px,plev,3);
 				break;
@@ -2072,7 +1898,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 20: /* protection from evil */
+			case 20:
 			{
 				(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
 				break;
@@ -2090,7 +1916,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 22: /* sense surroundings */
+			case 22:
 			{
 				map_area();
 				break;
@@ -2146,7 +1972,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 27: /* heal */
+			case 27:
 			{
 				(void)hp_player(300);
 				(void)set_stun(0);
@@ -2166,7 +1992,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 29: /* glyph of warding */
+			case 29:
 			{
 				warding_glyph();
 				break;
@@ -2203,7 +2029,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 32: /* detect monsters */
+			case 32:
 			{
 				(void)detect_monsters_normal();
 				break;
@@ -2232,19 +2058,19 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 34: /* perception */
+			case 34:
 			{
 				(void)ident_spell();
 				break;
 			}
 
-			case 35: /* probing */
+			case 35:
 			{
 				(void)probing();
 				break;
 			}
 
-			case 36: /* clairvoyance */
+			case 36:
 			{
 				wiz_lite();
 				break;
@@ -2269,7 +2095,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 39: /* cure mortal wounds */
+			case 39:
 			{
 				(void)hp_player(damroll(8, 10));
 				(void)set_stun(0);
@@ -2291,7 +2117,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 41: /* restoration */
+			case 41:
 			{
 				(void)do_res_stat(A_STR);
 				(void)do_res_stat(A_INT);
@@ -2397,7 +2223,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 49: /* balefire */
+			case 49:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_beam(GF_BALEFIRE, dir,
@@ -2405,13 +2231,13 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 50: /* unbarring ways */
+			case 50:
 			{
 				(void)destroy_doors_touch();
 				break;
 			}
 
-			case 51: /* recharging */
+			case 51:
 			{
 				(void)recharge((plev * 2));
 				break;
@@ -2459,32 +2285,32 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 55: /* elemental brand */
+			case 55:
 			{
 				brand_weapon();
 				break;
 			}
 
-			case 56: /* imprision */
+			case 56:
 			{
 				if (!get_aim_dir(&dir)) return;
 				imprision(FEAT_WALL_EXTRA,dir,p_ptr->lev/10);
 				break;
 			}
 
-			case 57: /* blink */
+			case 57:
 			{
 				teleport_player(10);
 				break;
 			}
 
-			case 58: /* teleport self */
+			case 58:
 			{
 				teleport_player(plev * 8);
 				break;
 			}
 
-			case 59: /* teleport other */
+			case 59:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)teleport_monster(dir);
@@ -2504,7 +2330,7 @@ void do_cmd_pray(void)
 				}
 			}
 
-			case 61: /* word of recall */
+			case 61:
 			{
 				if (p_ptr->word_recall == 0)
 				{
@@ -2519,7 +2345,7 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 62: /* alter reality */
+			case 62:
 			{
 				msg_print("The world changes!");
 
@@ -2566,6 +2392,9 @@ void do_cmd_pray(void)
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 		}
 	}
 

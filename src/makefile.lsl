@@ -12,7 +12,8 @@ SRCS = \
   store.c bldg.c birth.c load.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
-  main-ami.c main.c
+  randart.c spells3.c \
+  main-lsl.c main.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -24,6 +25,7 @@ OBJS = \
   store.o bldg.o birth.o load.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
+  randart.o spells3.o \
   main-lsl.o main.o
 
 CC = gcc

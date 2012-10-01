@@ -14,13 +14,13 @@
 
 
 /*
- * Global array for looping through the "keypad directions"
+ * Global array for looping through the "keypad directions".
  */
 s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
- * Global arrays for converting "keypad direction" into offsets
+ * Global arrays for converting "keypad direction" into "offsets".
  */
 s16b ddx[10] =
 { 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
@@ -29,14 +29,13 @@ s16b ddy[10] =
 { 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
 /*
- * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
+ * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]".
  */
 s16b ddx_ddd[9] =
 { 0, 0, 1, -1, 1, -1, 1, -1, 0 };
 
 s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
-
 
 
 /*
@@ -1029,14 +1028,14 @@ byte adj_con_mhp[] =
  *
  * This has been modified by GJW and -KMW- to balance spellcasters in melee combat
  *
-*    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
+ *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *    Mage    --> num = 4; mul = 3; div = 2* MAX(35, weapon_weight);
  *    Priest  --> num = 5; mul = 3; div = MAX(40, weapon_weight);
  *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
  *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *    Paladin --> num = 5; mul = 4; div = MAX(35, weapon_weight);
-*	Illusionist --> num = 4; mul = 3; div = 2 * MAX(35, weapon_weight); -KMW-
-*	Druid 	--> num = 5; mul = 3; div = MAX(40, weapon_weight); -KMW-
+ *    Illusionist --> num = 4; mul = 3; div = 2 * MAX(35, weapon_weight); -KMW-
+ *    Druid   --> num = 5; mul = 3; div = MAX(40, weapon_weight); -KMW-
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div", rounding down.
@@ -1147,79 +1146,6 @@ s16b arena_monsters[MAX_ARENA_MONS] = {   /* -KMW- */
 	287,	309,	334,	335,	348,	420,	421,
 	441
 };
-
-
-/*
- * Store owners (exactly four "possible" owners per store, chosen randomly)
- * { name, purse, max greed, min greed, haggle_per, tolerance, race, unused }
- */
-owner_type owners[MAX_STORES][MAX_OWNERS] =
-{
-	{
-		/* General store */
-		{ "Bilbo the Friendly",		200,	170, 108,  5, 15, RACE_HOBBIT},
-		{ "Rincewind the Chicken",	200,	175, 108,  4, 12, RACE_HUMAN},
-		{ "Sultan the Midget",		300,	170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",		300,	165, 107,  6, 18, RACE_ELF},
-	},
-	{
-		/* Armoury */
-		{ "Kon-Dar the Ugly",		5000,	210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",		10000,	190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",	25000,  200, 112,  4, 10, RACE_DUNADAN},
-		{ "Mauglin the Grumpy",		30000,	200, 112,  4,  5, RACE_DWARF},
-	},
-	{
-		/* Weapon Smith */
-		{ "Ithyl-Mak the Beastly",	5000,	210, 115,  6,  6, RACE_HALF_TROLL},
-		{ "Arndal Beast-Slayer",	10000,	185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Tarl Beast-Master",		25000,	190, 115,  5,  7, RACE_HOBBIT},
-		{ "Oglign Dragon-Slayer",	30000,	195, 112,  4,  8, RACE_DWARF},
-	},
-	{
-		/* Temple */
-		{ "Ludwig the Humble",		5000,	175, 109,  6, 15, RACE_HUMAN},
-		{ "Gunnar the Paladin",		10000,	185, 110,  5, 23, RACE_HUMAN},
-		{ "Delilah the Pure",		25000,	180, 107,  6, 20, RACE_ELF},
-		{ "Bosk the Wise",			30000,	185, 109,  5, 15, RACE_DWARF},
-	},
-	{
-		/* Alchemist */
-		{ "Mauser the Chemist",		10000,	190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",		10000,	190, 110,  6,  8, RACE_HOBBIT},
-		{ "Ga-nat the Greedy",		15000,	200, 116,  6,  9, RACE_GNOME},
-		{ "Sasha the Slender",		15000,	220, 111,  4,  9, RACE_ELF},
-	},
-	{
-		/* Magic Shop */
-		{ "Ariel the Sorceress",	20000,	200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",		20000,	215, 113,  6, 10, RACE_GNOME},
-		{ "Inglorian the Mage",		30000,	200, 110,  7, 10, RACE_HUMAN},
-		{ "Luthien Starshine",		30000,	175, 110,  5, 11, RACE_HIGH_ELF},
-	},
-	{
-		/* Bookstore */
-		{ "Lo-Hak the Awful",		10000,	175, 108, 4, 12, RACE_HALF_TROLL},
-		{ "Histor the Goblin",		15000,	120, 105, 6,  16, RACE_HALF_ORC},
-		{ "Durwin the Blue",		25000,	120, 110, 7,  19, RACE_KOBOLD},
-		{ "Drago the Fair",			30000,	140, 105, 6,  12, RACE_ELF},
-	},
-	{
-		/* Black Market */
-		{ "Elaen the Meek",		20000,	250, 150, 10,  5, RACE_ELF},
-		{ "Fen-Oek the Orc",		20000,	250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Hokus the Seer",		25000,	250, 150, 10,  5, RACE_GNOME},
-		{ "Kenwig the Brave",	30000,	250, 150, 10,  5, RACE_KOBOLD},
-	},
-	{
-		/* Home */
-		{ "Your home",				0,      100, 100,  0, 99, 99},
-		{ "Your home",				0,      100, 100,  0, 99, 99},
-		{ "Your home",				0,      100, 100,  0, 99, 99},
-		{ "Your home",				0,      100, 100,  0, 99, 99}
-	}
-};
-
 
 
 
@@ -1350,155 +1276,6 @@ player_sex sex_info[MAX_SEXES] =
 	{
 		"Male",
 		"King"
-	}
-};
-
-
-/*
- * Player Races
- *
- *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
- *	r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
- *	hitdie, exp base,
- *	Age (Base, Mod),
- *	Male (Hgt, Wgt),
- *	Female (Hgt, Wgt)
- *	infra,
- *	class-choices (Modified to include illusionist & druid -KMW-)
- */
-player_race race_info[MAX_RACES] =
-{
-	{
-		"Human",
-		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  10,  0,  0,
-		10,  100,
-		14,  6,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
-		0,
-		0xFF
-	},
-
-	{
-		"Half-Elf",
-		{ -1,  1,  0,  1, -1,  1 },
-		2,  3,  3,  1, 6,  11, -1,  5,
-		9,  110,
-		24, 16,
-		66,  6, 130, 15,
-		62,  6, 100, 10,
-		2,
-		0xFF
-	},
-
-	{
-		"Elf",
-		{ -1,  2,  1,  1, -2,  1 },
-		5,  6,  6,  1, 8,  12, -5, 15,
-		8,  120,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		3,
-		0xBF
-	},
-
-	{
-		"Hobbit",
-		{ -2,  2,  1,  3,  2,  1 },
-		15, 18, 18, 4, 12,  15, -10, 20,
-		7,  110,
-		21, 12,
-		36,  3, 60,  3,
-		33,  3, 50,  3,
-		4,
-		0x8B
-	},
-
-	{
-		"Gnome",
-		{ -1,  2,  0,  2,  1, -2 },
-		10, 12, 12,  3, 6,  13, -8, 12,
-		8,  125,
-		50, 40,
-		42,  3, 90,  6,
-		39,  3, 75,  3,
-		4,
-		0x8F
-	},
-
-	{
-		"Dwarf",
-		{  2, -3,  2, -2,  2, -3 },
-		2,  9,  9,  -1,  7,  10, 15,  0,
-		11,  120,
-		35, 15,
-		48,  3, 150, 10,
-		46,  3, 120, 10,
-		5,
-		0x05
-	},
-
-	{
-		"Half-Orc",
-		{  2, -1,  0,  0,  1, -4 },
-		-3, -3, -3,  -1,  0, 7, 12, -5,
-		10,  110,
-		11,  4,
-		66,  1, 150,  5,
-		62,  1, 120,  5,
-		3,
-		0x0D
-	},
-
-	{
-		"Half-Troll",
-		{ 4, -4, -2, -4,  3, -6 },
-		-5, -8, -8, -2,  -1, 5, 20, -10,
-		12,  120,
-		20, 10,
-		96, 10, 250, 50,
-		84,  8, 225, 40,
-		3,
-		0x05
-	},
-
-	{
-		"Dunadan",
-		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  5,  2, 3, 13, 15, 10,
-		10,  180,
-		50, 20,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		0,
-		0x3F
-	},
-
-	{
-		"High-Elf",
-		{  1,  3, -1,  3,  1,  5 },
-		4,  20, 20,  3,  3, 14, 10, 25,
-		10,  200,
-		100, 30,
-		90, 10, 190, 20,
-		82, 10, 180, 15,
-		4,
-		0x1F
-	},
-
-	{ /* Added by GJW -KMW- */
-		"Kobold",
-		{ -2, -1, 0, +2, +2, -1 },
-		10, 5, 10, 4, 15, 15, -5, 15,
-		9, 115,
-		15, 10,
-		38, 4, 70, 5,
-		36, 3, 60, 4,
-		5,
-		0x0D
 	}
 };
 
@@ -3052,15 +2829,11 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
-#ifdef ALLOW_EASY_OPEN /* TNB */
-	"easy_open",   /* OPT_easy_open */
-#else
 	NULL,						/* xxx */
-#endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
-	"testing_stack",			/* OPT_testing_stack */
-	"testing_carry",			/* OPT_testing_carry */
+	NULL,						/* xxx testing_stack */
+	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
 	"expand_list",				/* OPT_expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
@@ -3069,11 +2842,7 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-	"easy_disarm",   /* OPT_easy_disarm */
-#else
 	NULL,						/* xxx track_follow */
-#endif /* ALLOW_EASY_DISARM */
 	NULL,						/* xxx track_target */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
@@ -3093,9 +2862,198 @@ cptr option_text[OPT_MAX] =
 	"view_bright_lite",			/* OPT_view_bright_lite */
 	"view_granite_lite",		/* OPT_view_granite_lite */
 	"view_special_lite",		/* OPT_view_special_lite */
-	"show_inven_graph",			/* OPT_show_inven_graph */
-	"show_equip_graph",			/* OPT_show_equip_graph */
-	"show_store_graph"			/* OPT_show_store_graph */
+	"easy_open",				/* OPT_easy_open */
+	"easy_alter",				/* OPT_easy_alter */
+	"easy_floor",				/* OPT_easy_floor */
+	"show_piles",				/* OPT_show_piles */
+	"center_player",			/* OPT_center_player */
+	"run_avoid_center",			/* OPT_run_avoid_center */
+	"scroll_target",			/* OPT_scroll_target */
+	"auto_more",				/* OPT_auto_more */
+	"smart_monsters",			/* OPT_smart_monsters */
+	"smart_packs",				/* OPT_smart_packs */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"birth_point_based",		/* OPT_birth_point_based */
+	"birth_auto_roller",		/* OPT_birth_auto_roller */
+	"birth_maximize",			/* OPT_birth_maximize */
+	"birth_preserve",			/* OPT_birth_preserve */
+	"birth_ironman",			/* OPT_birth_ironman */
+	"birth_no_stores",			/* OPT_birth_no_stores */
+	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
+	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"cheat_peek",				/* OPT_cheat_peek */
+	"cheat_hear",				/* OPT_cheat_hear */
+	"cheat_room",				/* OPT_cheat_room */
+	"cheat_xtra",				/* OPT_cheat_xtra */
+	"cheat_know",				/* OPT_cheat_know */
+	"cheat_live",				/* OPT_cheat_live */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"adult_point_based",		/* OPT_adult_point_based */
+	"adult_auto_roller",		/* OPT_adult_auto_roller */
+	"adult_maximize",			/* OPT_adult_maximize */
+	"adult_preserve",			/* OPT_adult_preserve */
+	"adult_ironman",			/* OPT_adult_ironman */
+	"adult_no_stores",			/* OPT_adult_no_stores */
+	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
+	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	"score_peek",				/* OPT_score_peek */
+	"score_hear",				/* OPT_score_hear */
+	"score_room",				/* OPT_score_room */
+	"score_xtra",				/* OPT_score_xtra */
+	"score_know",				/* OPT_score_know */
+	"score_live",				/* OPT_score_live */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL						/* xxx */
 };
 
 
@@ -3135,15 +3093,11 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
-#ifdef ALLOW_EASY_OPEN /* TNB */
-	"Open and close automatically",   /* OPT_easy_open */
-#else
 	NULL,										/* xxx */
-#endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
-	"Allow objects to stack on floor",			/* OPT_testing_stack */
-	"Allow monsters to carry objects",			/* OPT_testing_carry */
+	NULL,										/* xxx testing_stack */
+	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
@@ -3152,12 +3106,8 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-#ifdef ALLOW_EASY_OPEN /* TNB */
-	"Disarm traps automatically",   /* OPT_easy_disarm */
-#else
-	NULL,										/* xxx */
-#endif /* ALLOW_EASY_DISARM */
-	NULL,										/* xxx */
+	NULL,										/* xxx track_follow */
+	NULL,										/* xxx track_target */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -3176,35 +3126,223 @@ cptr option_desc[OPT_MAX] =
 	"Use special colors for field of view",		/* OPT_view_bright_lite */
 	"Use special colors for wall grids",		/* OPT_view_granite_lite */
 	"Use special colors for floor grids",		/* OPT_view_special_lite */
-	"Show graphics in inventory list",			/* OPT_show_inven_graph */
-	"Show graphics in equipment list",			/* OPT_show_equip_graph */
-	"Show graphics in stores"					/* OPT_show_equip_graph */
+	"Open/Disarm/Close without direction",		/* OPT_easy_open */
+	"Open/Disarm doors/traps on movement",		/* OPT_easy_alter */
+	"Display floor stacks in a list",   		/* OPT_easy_floor */
+	"Show stacks using special attr/char",		/* OPT_show_piles */
+	"Center map continuously (very slow)",		/* OPT_center_player */
+	"Avoid centering while running",			/* OPT_run_avoid_center */
+	"Scroll map while targetting",				/* OPT_scroll_target */
+	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
+	"Monsters behave more intelligently",		/* OPT_smart_monsters */
+	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
+	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
+	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
+	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
+	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
+	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
+	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
+	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Cheat: Peek into object creation",			/* OPT_cheat_peek */
+	"Cheat: Peek into monster creation",		/* OPT_cheat_hear */
+	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
+	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
+	"Cheat: Know complete monster info",		/* OPT_cheat_know */
+	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Adult: Allow purchase of stats using points",	/* OPT_adult_point_based */
+	"Adult: Allow specification of minimal stats",	/* OPT_adult_auto_roller */
+	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
+	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
+	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
+	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
+	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
+	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	"Score: Peek into object creation",			/* OPT_score_peek */
+	"Score: Peek into monster creation",		/* OPT_score_hear */
+	"Score: Peek into dungeon creation",		/* OPT_score_room */
+	"Score: Peek into something else",			/* OPT_score_xtra */
+	"Score: Know complete monster info",		/* OPT_score_know */
+	"Score: Allow player to avoid death",		/* OPT_score_live */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL										/* xxx */
 };
 
 
 /*
  * Options -- normal values
- * Changed these to Kangband defaults -KMW-
-*/
+ */
 bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
-	TRUE,		/* OPT_floor_query_flag */
-	FALSE,		/* OPT_carry_query_flag */
-	TRUE,		/* OPT_use_old_target */
+	FALSE,		/* OPT_floor_query_flag */
+	TRUE,		/* OPT_carry_query_flag */
+	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	TRUE,		/* OPT_always_repeat */
-	TRUE,		/* OPT_depth_in_feet */
-	TRUE,		/* OPT_stack_force_notes */
-	TRUE,		/* OPT_stack_force_costs */
+	FALSE,		/* OPT_always_repeat */
+	FALSE,		/* OPT_depth_in_feet */
+	FALSE,		/* OPT_stack_force_notes */
+	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
-	FALSE,		/* OPT_ring_bell */
+	TRUE,		/* OPT_ring_bell */
 	TRUE,		/* OPT_show_flavors */
-	FALSE,		/* OPT_run_ignore_stairs */
+	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
 	TRUE,		/* OPT_run_use_corners */
@@ -3214,36 +3352,26 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
 	TRUE,		/* OPT_disturb_other */
-	TRUE,		/* OPT_alert_hitpoint */
+	FALSE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
-	
-	/* IMHO Easy patch should default to off */
-#ifdef ALLOW_EASY_OPEN /* TNB */
-	FALSE,   /* OPT_easy_open */
-#else
 	FALSE,		/* xxx */
-#endif /* ALLOW_EASY_OPEN */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
-	TRUE,		/* OPT_testing_stack */
-	TRUE,		/* OPT_testing_carry */
-	FALSE,		/* OPT_expand_look */
-	FALSE,		/* OPT_expand_list */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	TRUE,		/* OPT_expand_look */
+	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-	FALSE,   /* OPT_easy_disarm */
-#else
-	FALSE,		/* xxx */
-#endif /* ALLOW_EASY_DISARM */
-	FALSE,		/* xxx */
+	FALSE,		/* xxx track_follow */
+	FALSE,		/* xxx track_target */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -3258,20 +3386,211 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	TRUE,		/* OPT_view_yellow_lite */
-	TRUE,		/* OPT_view_bright_lite */
-	TRUE,		/* OPT_view_granite_lite */
-	TRUE,		/* OPT_view_special_lite */
-	FALSE,		/* OPT_show_inven_graph */
-	FALSE,		/* OPT_show_equip_graph */
-	FALSE		/* OPT_show_store_graph */
+	FALSE,		/* OPT_view_yellow_lite */
+	FALSE,		/* OPT_view_bright_lite */
+	FALSE,		/* OPT_view_granite_lite */
+	FALSE,		/* OPT_view_special_lite */
+	FALSE,		/* OPT_easy_open */
+	FALSE,		/* OPT_easy_alter */
+	FALSE,		/* OPT_easy_floor */
+	FALSE,		/* OPT_show_piles */
+	FALSE,		/* OPT_center_player */
+	FALSE,		/* OPT_run_avoid_center */
+	FALSE,		/* OPT_scroll_target */
+	FALSE,		/* OPT_auto_more */
+	FALSE,		/* OPT_smart_monsters */
+	FALSE,		/* OPT_smart_packs */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_point_based */
+	FALSE,		/* OPT_birth_auto_roller */
+	TRUE,		/* OPT_birth_maximize */
+	TRUE,		/* OPT_birth_preserve */
+	FALSE,		/* OPT_birth_ironman */
+	FALSE,		/* OPT_birth_no_stores */
+	FALSE,		/* OPT_birth_no_artifacts */
+	FALSE,		/* OPT_birth_rand_artifacts */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_cheat_peek */
+	FALSE,		/* OPT_cheat_hear */
+	FALSE,		/* OPT_cheat_room */
+	FALSE,		/* OPT_cheat_xtra */
+	FALSE,		/* OPT_cheat_know */
+	FALSE,		/* OPT_cheat_live */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_point_based */
+	FALSE,		/* OPT_adult_auto_roller */
+	TRUE,		/* OPT_adult_maximize */
+	TRUE,		/* OPT_adult_preserve */
+	FALSE,		/* OPT_adult_ironman */
+	FALSE,		/* OPT_adult_no_stores */
+	FALSE,		/* OPT_adult_no_artifacts */
+	FALSE,		/* OPT_adult_rand_artifacts */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* OPT_score_peek */
+	FALSE,		/* OPT_score_hear */
+	FALSE,		/* OPT_score_room */
+	FALSE,		/* OPT_score_xtra */
+	FALSE,		/* OPT_score_know */
+	FALSE,		/* OPT_score_live */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE		/* xxx */
 };
 
 
 /*
  * Option screen interface
+ *
+ * Note the special significance given to the constant "255".
  */
-byte option_page[4][19] =
+byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
 	/*** User-Interface ***/
 
@@ -3292,9 +3611,10 @@ byte option_page[4][19] =
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_ring_bell,
-		OPT_show_inven_graph,
-		OPT_show_equip_graph,
-		OPT_show_store_graph
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -3315,6 +3635,7 @@ byte option_page[4][19] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		OPT_auto_more,
 		255,
 		255,
 		255,
@@ -3326,8 +3647,6 @@ byte option_page[4][19] =
 	{
 		OPT_auto_haggle,
 		OPT_auto_scum,
-		OPT_testing_stack,
-		OPT_testing_carry,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
@@ -3336,11 +3655,14 @@ byte option_page[4][19] =
 		OPT_dungeon_stair,
 		OPT_flow_by_sound,
 		OPT_flow_by_smell,
+		OPT_smart_monsters,
+		OPT_smart_packs,
 		OPT_smart_learn,
 		OPT_smart_cheat,
-		255,
-		255,
-		255,
+		OPT_easy_open,
+		OPT_easy_alter,
+		OPT_easy_floor,
+		OPT_show_piles,
 		255,
 		255
 	},
@@ -3362,18 +3684,77 @@ byte option_page[4][19] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
-#ifdef ALLOW_EASY_OPEN /* TNB */
-		OPT_easy_open,
-#else
+ 		OPT_center_player,
+ 		OPT_run_avoid_center,
+		OPT_scroll_target,
 		255,
-#endif /* ALLOW_EASY_OPEN */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-		OPT_easy_disarm,
-#else
 		255,
-#endif /* ALLOW_EASY_DISARM */
- 		255,
+		255,
+	},
+
+	/*** Birth ***/
+
+	{
+		OPT_birth_point_based,
+		OPT_birth_auto_roller,
+		OPT_birth_maximize,
+		OPT_birth_preserve,
+		OPT_birth_ironman,
+		OPT_birth_no_stores,
+		OPT_birth_no_artifacts,
+		OPT_birth_rand_artifacts,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
+	},
+
+	/*** Cheat ***/
+
+	{
+		OPT_cheat_peek,
+		OPT_cheat_hear,
+		OPT_cheat_room,
+		OPT_cheat_xtra,
+		OPT_cheat_know,
+		OPT_cheat_live,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	}
 };
+
+
+cptr inscrip_text[MAX_INSCRIP] =
+{
+	NULL,
+	"terrible",
+	"worthless",
+	"cursed",
+	"broken",
+	"average",
+	"good",
+	"excellent",
+	"special",
+	"uncursed"
+};
+

@@ -13,7 +13,7 @@ P:The Haunting of Telamoor
 
 # Version stamp (required)
 
-V:2.8.3
+V:2.9.1
 
 N:100:North Gatehouse
 T1:I need you to reclaim the lost city of Telamoor for me. It has been

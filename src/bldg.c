@@ -297,7 +297,7 @@ void put_reward(byte thetval, byte thesval, int dunlevel)
 
 	choice = 0;
 
-	for(i=1; i < MAX_K_IDX; i++)
+	for(i=1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 		if ((k_ptr->tval == thetval) && (k_ptr->sval == thesval))
@@ -1281,6 +1281,219 @@ static void town_history(void)
 
 
 /*
+ * show_highclass - selectively list highscores based on class
+ * -KMW-
+ */
+static void show_highclass(int building)
+{
+
+	register int i = 0, j, m = 0;
+	int pr, pc, clev, al;
+	high_score the_score;
+	char buf[1024], out_val[256];
+
+	switch(building)
+	{
+		case 1:
+			prt("               Busts of Greatest Kings", 5, 0);
+			break;
+		case 2:
+			prt("               Plaque - Greatest Arena Champions", 5, 0);
+			break;
+		case 10:
+			prt("               Plaque - Greatest Fighters", 5, 0);
+			break;
+		case 11:
+			prt("               Spires of the Greatest Magic-Users", 5, 0);
+			break;
+		case 12:
+			prt("               Busts of Greatest Priests", 5, 0);
+			break;
+		case 13:
+			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
+			break;
+		case 14:
+			prt("               Plaque - Greatest Rangers", 5, 0);
+			break;
+		case 15:
+			prt("               Plaque - Greatest Paladins", 5, 0);
+			break;
+		case 16:
+			prt("               Spires of the Greatest Illusionists", 5, 0);
+			break;
+		default:
+			bell("Search string not found!");
+			break;
+	}
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+
+	highscore_fd = fd_open(buf, O_RDONLY);
+
+	if (highscore_fd < 0)
+	{
+		msg_print("Score file unavailable.");
+		msg_print(NULL);
+		return;
+	}
+
+	if (highscore_seek(0)) return;
+
+	for (i = 0; i < MAX_HISCORES; i++)
+		if (highscore_read(&the_score)) break;
+
+	m=0;
+	j=0;
+	clev = 0;
+
+	while ((m < 9) || (j < MAX_HISCORES))
+	{
+		if (highscore_seek(j)) break;
+		if (highscore_read(&the_score)) break;
+		pr = atoi(the_score.p_r);
+		pc = atoi(the_score.p_c);
+		clev = atoi(the_score.cur_lev);
+		al = atoi(the_score.arena_number);
+		if (((pc == (building - 10)) && (building != 1) && (building != 2)) ||
+		    ((building == 1) && (clev >= PY_MAX_LEVEL)) ||
+		    ((building == 2) && (al > MAX_ARENA_MONS)))
+		{
+			sprintf(out_val, "%3d) %s the %s (Level %2d)",
+			    (m + 1), the_score.who,p_name + rp_ptr->name, clev);
+			prt(out_val, (m + 7), 0);
+			m++;
+		}
+		j++;
+	}
+
+	/* Now, list the active player if they qualify */
+	if ((building == 1) && (p_ptr->lev >= PY_MAX_LEVEL))
+	{
+		sprintf(out_val, "You) %s the %s (Level %2d)",
+		    op_ptr->full_name,p_name + rp_ptr->name, p_ptr->lev);
+		prt(out_val, (m + 8), 0);
+	}
+	else if ((building == 2) && (p_ptr->arena_number > MAX_ARENA_MONS))
+	{
+		sprintf(out_val, "You) %s the %s (Level %2d)",
+		    op_ptr->full_name,p_name + rp_ptr->name, p_ptr->lev);
+		prt(out_val, (m + 8), 0);
+	}
+	else if ((building != 1) && (building != 2))
+	{
+		if ((p_ptr->lev > clev) && (p_ptr->pclass == (building - 10)))
+		{
+			sprintf(out_val, "You) %s the %s (Level %2d)",
+			    op_ptr->full_name,p_name + rp_ptr->name, p_ptr->lev);
+			prt(out_val, (m + 8), 0);
+		}
+	}
+
+	(void)fd_close(highscore_fd);
+	highscore_fd = -1;
+	msg_print("Hit any key to continue");
+	msg_print(NULL);
+	for (j=5;j<18;j++)
+		prt("",j,0);
+}
+
+
+/*
+ * Race Legends
+ * -KMW-
+ */
+static void race_score(int race_num)
+{
+	register int i = 0, j, m = 0;
+	int pr, pc, clev, al, lastlev;
+	high_score the_score;
+	char buf[1024], out_val[256], tmp_str[80];
+/*
+ *	static const char *race_name[11]={"Humans", "Half-Elves", "Elves",
+ *	    "Hobbits", "Gnomes", "Dwarves", "Half-Orcs", "Half-Trolls",
+ *	    "Dunadain", "High Elves", "Kobolds"};
+ */
+
+	rp_ptr = &p_info[race_num];
+
+	lastlev = 0;
+	/* (void) sprintf(tmp_str,"The Greatest of all the %s",race_name[race_num]); */
+	(void) sprintf(tmp_str,"The Greatest heroes of all time (%s)", p_name + rp_ptr->name);
+	prt(tmp_str, 5, 15);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+
+	highscore_fd = fd_open(buf, O_RDONLY);
+
+	if (highscore_fd < 0)
+	{
+		msg_print("Score file unavailable.");
+		msg_print(NULL);
+		return;
+	}
+
+	if (highscore_seek(0)) return;
+
+	for (i = 0; i < MAX_HISCORES; i++) {
+		if (highscore_read(&the_score)) break;
+	}
+
+	m=0;
+	j=0;
+
+	while ((m < 10) || (j < MAX_HISCORES))
+	{
+		if (highscore_seek(j)) break;
+		if (highscore_read(&the_score)) break;
+		pr = atoi(the_score.p_r);
+		pc = atoi(the_score.p_c);
+		clev = atoi(the_score.cur_lev);
+		al = atoi(the_score.arena_number);
+		if (pr == race_num)
+		{
+			sprintf(out_val, "%3d) %s the %s (Level %3d)",
+			    (m + 1), the_score.who,
+			p_name + rp_ptr->name, clev);
+			prt(out_val, (m + 7), 0);
+			m++;
+			lastlev = clev;
+		}
+		j++;
+	}
+
+	/* add player if qualified */
+	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev)) {
+		sprintf(out_val, "You) %s the %s (Level %3d)",
+		    op_ptr->full_name, p_name + rp_ptr->name, p_ptr->lev);
+		prt(out_val, (m + 8), 0);
+	}
+
+	(void)fd_close(highscore_fd);
+	highscore_fd = -1;
+}
+
+
+/*
+ * Race Legends
+ * -KMW-
+ */
+static void race_legends(void)
+{
+	int i,j;
+
+	for (i = 0; i < z_info->p_max; i++) {
+		race_score(i);
+		msg_print("Hit any key to continue");
+		msg_print(NULL);
+		for (j = 5; j < 19; j++)
+			prt("", j, 0);
+	}
+}
+
+
+/*
  * compare_weapon_aux2 -KMW-
  */
 static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, int color)
@@ -1360,6 +1573,9 @@ static bool compare_weapons(void)
 	cptr q, s;
 
 	clear_bldg(6,18);
+
+	/* Added this to avoid warning - remove if necessary */
+	orig_ptr = NULL;
 
 	o1_ptr = NULL; o2_ptr = NULL; i_ptr = NULL;
 

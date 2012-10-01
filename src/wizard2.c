@@ -148,7 +148,7 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Query the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
 		sprintf(ppp, "%s (3-118): ", stat_names[i]);
@@ -188,10 +188,28 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
 
 	/* Query */
 	if (!get_string("Experience: ", tmp_val, 9)) return;
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Verify */
+	if (tmp_long < 0) tmp_long = 0L;
+
+	/* Save */
+	p_ptr->exp = tmp_long;
+
+	/* Update */
+	check_experience();
+
+	/* Default */
+	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+
+	/* Query */
+	if (!get_string("Max Exp: ", tmp_val, 9)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -419,15 +437,18 @@ static void strip_name(char *buf, int k_idx)
  * Hack -- title for each column
  *
  * This will not work with "EBCDIC", I would think.  XXX XXX XXX
+ *
+ * The third column head overlaps the first after 17 items are
+ * listed.  XXX XXX XXX
  */
 static char head[3] =
 { 'a', 'A', '0' };
 
 
 /*
- * Acquire an object kind for creation (or zero)
+ * Get an object kind for creation (or zero)
  *
- * List up to 50 choices in three columns
+ * List up to 57 choices in three columns
  */
 static int wiz_create_itemtype(void)
 {
@@ -447,7 +468,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 60) && tvals[num].tval; num++)
+	for (num = 0; (num < 57) && tvals[num].tval; num++)
 	{
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
@@ -465,7 +486,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -481,7 +502,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
+	for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -496,7 +517,7 @@ static int wiz_create_itemtype(void)
 			col = 30 * (num / 20);
 			ch = head[num/20] + (num%20);
 
-			/* Acquire the "name" of object "i" */
+			/* Get the "name" of object "i" */
 			strip_name(buf, i);
 
 			/* Print it */
@@ -517,7 +538,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -597,10 +618,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 		/* Ask wizard what to do. */
 		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
-		{
-			changed = FALSE;
 			break;
-		}
 
 		/* Create/change it! */
 		if (ch == 'A' || ch == 'a')
@@ -635,6 +653,12 @@ static void wiz_reroll_item(object_type *o_ptr)
 	/* Notice change */
 	if (changed)
 	{
+		/* Restore the position information */
+		i_ptr->iy = o_ptr->iy;
+		i_ptr->ix = o_ptr->ix;
+		i_ptr->next_o_idx = o_ptr->next_o_idx;
+		i_ptr->marked = o_ptr->marked;
+
 		/* Apply changes */
 		object_copy(o_ptr, i_ptr);
 
@@ -716,8 +740,10 @@ static void wiz_statistics(object_type *o_ptr)
 		}
 		else
 		{
+#if 0 /* unused */
 			good = FALSE;
 			great = FALSE;
+#endif /* unused */
 			break;
 		}
 
@@ -871,7 +897,7 @@ static void do_cmd_wiz_play(void)
 
 	cptr q, s;
 
-	bool changed;
+	bool changed = FALSE;
 
 
 	/* Get an item */
@@ -890,10 +916,6 @@ static void do_cmd_wiz_play(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-
-	/* The item was not changed */
-	changed = FALSE;
 
 
 	/* Save screen */
@@ -915,10 +937,7 @@ static void do_cmd_wiz_play(void)
 
 		/* Get choice */
 		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
-		{
-			changed = FALSE;
 			break;
-		}
 
 		if (ch == 'A' || ch == 'a')
 		{
@@ -1029,6 +1048,56 @@ static void wiz_create_item(void)
 
 
 /*
+ * Create the artifact with the specified number
+ */
+static void wiz_create_artifact(int a_idx)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+	int k_idx;
+
+	artifact_type *a_ptr = &a_info[a_idx];
+
+	/* Ignore "empty" artifacts */
+	if (!a_ptr->name) return;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
+	/* Acquire the "kind" index */
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!k_idx) return;
+
+	/* Create the artifact */
+	object_prep(i_ptr, k_idx);
+
+	/* Save the name */
+	i_ptr->name1 = a_idx;
+
+	/* Extract the fields */
+	i_ptr->pval = a_ptr->pval;
+	i_ptr->ac = a_ptr->ac;
+	i_ptr->dd = a_ptr->dd;
+	i_ptr->ds = a_ptr->ds;
+	i_ptr->to_a = a_ptr->to_a;
+	i_ptr->to_h = a_ptr->to_h;
+	i_ptr->to_d = a_ptr->to_d;
+	i_ptr->weight = a_ptr->weight;
+
+	/* Drop the artifact from heaven */
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+
+	/* All done */
+	msg_print("Allocated.");
+}
+
+
+/*
  * Cure everything instantly
  */
 static void do_cmd_wiz_cure_all(void)
@@ -1130,7 +1199,7 @@ static void do_cmd_wiz_learn(void)
 	object_type object_type_body;
 
 	/* Scan every object */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -1220,7 +1289,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * This function is rather dangerous XXX XXX XXX
  */
-static void do_cmd_wiz_named(int r_idx, int slp)
+static void do_cmd_wiz_named(int r_idx, bool slp)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1229,7 +1298,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 
 	/* Paranoia */
 	if (!r_idx) return;
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= z_info->r_max-1) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1425,7 +1494,7 @@ void do_cmd_debug(void)
 	/* Analyze the command */
 	switch (cmd)
 	{
-		/* Nothing */
+		/* Ignore */
 		case ESCAPE:
 		case ' ':
 		case '\n':
@@ -1471,6 +1540,13 @@ void do_cmd_debug(void)
 		case 'c':
 		{
 			wiz_create_item();
+			break;
+		}
+
+		/* Create an artifact */
+		case 'C':
+		{
+			wiz_create_artifact(p_ptr->command_arg);
 			break;
 		}
 
@@ -1565,28 +1641,10 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Complete a Quest -KMW- */
+		/* Query the dungeon */
 		case 'q':
-		{			
-			for (i2 = QUEST_REWARD_HEAD ; i2 < QUEST_REWARD_TAIL && p_ptr->rewards[i2 - QUEST_DIFF] == 3 ; i2++)
-			  	;
-			if (i2 < QUEST_REWARD_TAIL)
-				p_ptr->rewards[i2 - QUEST_DIFF] = 3;
-			msg_print("Completed Quest");
-			msg_print(NULL);
-			wilderness_gen(1);
-			break;
-		}
-
-		/* Make every dungeon square "known" to test streamers -KMW- */
-		case 'r':
 		{
-			for(y=0;y < DUNGEON_HGT;y++) {
-				for(x=0;x < DUNGEON_WID;x++) {
-					cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
-				}
-			}
-			wiz_lite();
+			do_cmd_wiz_query();
 			break;
 		}
 
@@ -1642,16 +1700,6 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* test for quest flags - temporary -KMW- */
-		case 'y':
-		{
-			for (i = 0; i < MAX_MON_QUEST; i++){
-				sprintf(tmp_str,"i:%d, cqmon:%d, cqmonc:%d",i,p_ptr->cqmon[i], p_ptr->cqmonc[i]);
-				msg_print(tmp_str);msg_print(NULL);
-			}
-			break;
-		}
-
 		/* Zap Monsters (Genocide) */
 		case 'z':
 		{
@@ -1667,10 +1715,38 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Query the dungeon */
-		case '=':
+		/* test for quest flags - temporary -KMW- */
+		case 'y':
 		{
-			do_cmd_wiz_query();
+			for (i = 0; i < MAX_MON_QUEST; i++){
+				sprintf(tmp_str,"i:%d, cqmon:%d, cqmonc:%d",i,p_ptr->cqmon[i], p_ptr->cqmonc[i]);
+				msg_print(tmp_str);msg_print(NULL);
+			}
+			break;
+		}
+
+		/* Complete a Quest -KMW- */
+		case '=':
+		{			
+			for (i2 = QUEST_REWARD_HEAD ; i2 < QUEST_REWARD_TAIL && p_ptr->rewards[i2 - QUEST_DIFF] == 3 ; i2++)
+			  	;
+			if (i2 < QUEST_REWARD_TAIL)
+				p_ptr->rewards[i2 - QUEST_DIFF] = 3;
+			msg_print("Completed Quest");
+			msg_print(NULL);
+			wilderness_gen(1);
+			break;
+		}
+
+		/* Make every dungeon square "known" to test streamers -KMW- */
+		case 'r':
+		{
+			for(y=0;y < DUNGEON_HGT;y++) {
+				for(x=0;x < DUNGEON_WID;x++) {
+					cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
+				}
+			}
+			wiz_lite();
 			break;
 		}
 
@@ -1691,3 +1767,5 @@ static int i = 0;
 #endif
 
 #endif
+
+
