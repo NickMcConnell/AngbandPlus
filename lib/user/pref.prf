@@ -25,6 +25,14 @@
 # See "lib/help/command.txt" and "src/files.c" for more info.
 #
 
+# Include the "option.prf" file, which sets all the options
+
+%:options.prf
+
+
+# Include the "window.prf" file, which sets window options
+
+%:window.prf
 
 
 ## OPTION: Display "veins" (white "%") as "normal walls" (white "#") 
@@ -43,4 +51,5 @@
 
 A:w0
 C:X
+
 

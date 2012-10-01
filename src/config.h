@@ -45,6 +45,27 @@
 
 
 /*
+ * OPTION: Include some debugging code.  Note that this option may
+ * result in a server that crashes more frequently, as a core dump
+ * will be done instead of killing the bad connection.
+ */
+/* #define DEBUG */
+
+/*
+ * OPTION: Break graphics on the client side.  Due to a very bad
+ * network design, sending the character definitions needed for
+ * graphics may cause clients to not be able to connect.  This
+ * disables this, which may help in resolving connection problems.
+ * Note that you will need to connect to an 0.5.4 or later server
+ * for this to work.
+ *
+ * This option will be taken out in 0.6.0, which will have a
+ * completely different network design, thus alleviating this and
+ * other problems.
+ */
+/* #define BREAK_GRAPHICS */
+
+/*
  * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
  * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
  */
@@ -90,7 +111,7 @@
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
-/* #define USE_NCURSES */
+#define USE_NCURSES
 
 
 /*
@@ -169,6 +190,61 @@
 /* #define VERIFY_SAVEFILE */
 
 
+/*
+ * OPTION: Set the metaserver address.  The metaserver keeps track of
+ * all running servers so people can find an active server with other
+ * players on.  Define this to be an empty string if you don't want to
+ * report to a metaserver.
+ */
+/* #define META_ADDRESS "mangband.mit.edu" */
+#define	META_ADDRESS "mangband.mit.edu" 
+
+/*
+ * OPTION: Set a vhost bind address.  This is only used if you have
+ * multiple IP's on a single box, and care which one the server
+ * binds too, ( for name purposes, perhaps ).
+ * Note that this allows multiple servers to run on a single
+ * machine as well.
+ * Probably almost never used.
+#define	BIND_NAME "mangband.org" 
+#define	BIND_IP "198.252.166.15" 
+*/
+
+
+/* Define the password for the server console, used if NEW_SERVER_CONSOLE
+ * is defined below.  Provides authentication for the mangconsole program.
+ */
+#define		CONSOLE_PASSWORD	"change_me"
+
+
+/* Define the name of a special administration character who gets
+ * special powers, and will hopefully eventually get wizard mode.
+ * Better documentation of this feature is needed.
+ * In the future these two characters will probably be combined.
+ */
+
+#define 	ADMIN_WIZARD	"Serverchez"
+#define		DUNGEON_MASTER	"DungeonMaster"
+
+/* OPTION : Keep the town backwards compatible with some previous development
+ * versions, specifically those that have a broken auction house.  You probably
+ * don't want to enable this unless you have been running a development version of
+ * the code that has a 'store 9' in it.
+ */
+ /* #define	DEVEL_TOWN_COMPATIBILITY */ 
+
+
+/*
+ * OPTION: Use wider corrdiors (room for two people abreast).
+ */
+#define WIDE_CORRIDORS
+
+/*
+ * OPTION: Allow players to interact.  This has many effects, mainly
+ * that people can hit each other to do damage, and spells will now
+ * harm other players when they hit.
+ */
+#define PLAYER_INTERACTION
 
 /*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
@@ -205,7 +281,7 @@
 /*
  * OPTION: Allow characteres to be "auto-rolled"
  */
-#define ALLOW_AUTOROLLER
+/* #define ALLOW_AUTOROLLER */
 
 
 /*
@@ -231,32 +307,32 @@
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
  */
-#define ALLOW_OLD_SAVEFILES
+/* #define ALLOW_OLD_SAVEFILES */
 
 
 /*
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
-#define DELAY_LOAD_F_TEXT
+/* #define DELAY_LOAD_F_TEXT */
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually
  * needed, saving ~1K, since "object" descriptions are unused.
  */
-#define DELAY_LOAD_K_TEXT
+/* #define DELAY_LOAD_K_TEXT */
 
 /*
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
-#define DELAY_LOAD_A_TEXT
+/* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
  * needed, saving ~1K, since "ego-item" descriptions are unused.
  */
-#define DELAY_LOAD_E_TEXT
+/* #define DELAY_LOAD_E_TEXT */
 
 /*
  * OPTION: Delay the loading of the "r_text" array until it is actually
@@ -299,7 +375,7 @@
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
  * software options, which enable "monster flowing".
  */
-#define MONSTER_FLOW
+/* #define MONSTER_FLOW */
 
 
 /*
@@ -332,7 +408,7 @@
  *
  * This adds about 3K to the memory and about 5K to the executable.
  */
-#define DRS_SMART_OPTIONS
+/* #define DRS_SMART_OPTIONS */
 
 
 
@@ -350,12 +426,12 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+/* #define USE_SOUND */
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
+/* #define USE_GRAPHICS */
 
 
 /*
@@ -379,16 +455,6 @@
 
 #endif
 
-
-/*
- * OPTION: Hack -- EMX stuff
- */
-#ifdef USE_EMX
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
 
 
 /*
@@ -448,6 +514,9 @@
 # define SAVEFILE_MUTABLE
 #endif
 
+/* for the unique respawn... */
+#define COME_BACK_TIME 480
+
 
 /*
  * OPTION: Capitalize the "user_name" (for "default" player name)
@@ -467,8 +536,18 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@voicenet.com"
+#define MAINTAINER	"adingle@crud.net"
 
+
+/*
+ * OPTION: Have the server respond to commands typed in on its tty.
+ */
+/*define SERVER_CONSOLE */
+
+/*
+ * OPTION: Enable a method to control the server from an external program.
+ */
+#define NEW_SERVER_CONSOLE
 
 /*
  * OPTION: Default font (when using X11).

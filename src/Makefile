@@ -37,36 +37,76 @@
 #
 # This Makefile comes with "default" dependancies that may be obsolete.
 #
+# You may want to run "make depend" if you are planning on changing
+# anything.
+#
 
 
 #
 # The "source" and "object" files.
 #
 
-SRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-  variable.c tables.c util.c cave.c \
-  object1.c object2.c monster1.c monster2.c \
-  xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
-  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load1.c load2.c \
-  wizard1.c wizard2.c \
-  generate.c dungeon.c init1.c init2.c \
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+SERV_SRCS = \
+  common/z-util.c common/z-virt.c common/z-form.c common/z-rand.c \
+  common/net-unix.c common/sockbuf.c server/variable.c server/control.c \
+  server/party.c server/tables.c server/util.c server/cave.c \
+  server/object1.c server/object2.c server/monster1.c server/monster2.c \
+  server/xtra1.c server/xtra2.c server/spells1.c server/spells2.c \
+  server/melee1.c server/melee2.c server/save.c server/files.c \
+  server/cmd1.c server/cmd2.c server/cmd3.c server/cmd4.c server/cmd5.c \
+  server/cmd6.c server/store.c server/birth.c server/load2.c \
+  server/sched.c server/generate.c server/wilderness.c server/dungeon.c \
+  server/init1.c server/init2.c server/netserver.c server/printout.c \
+  server/main.c
 
-OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
-  wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+SERV_OBJS = \
+  common/z-util.o common/z-virt.o common/z-form.o common/z-rand.o \
+  common/net-unix.o common/sockbuf.o server/variable.o server/control.o \
+  server/party.o server/tables.o server/util.o server/cave.o \
+  server/object1.o server/object2.o server/monster1.o server/monster2.o \
+  server/xtra1.o server/xtra2.o server/spells1.o server/spells2.o \
+  server/melee1.o server/melee2.o server/save.o server/files.o \
+  server/cmd1.o server/cmd2.o server/cmd3.o server/cmd4.o server/cmd5.o \
+  server/cmd6.o server/store.o server/birth.o server/load2.o \
+  server/sched.o server/generate.o server/wilderness.o server/dungeon.o \
+  server/init1.o server/init2.o server/netserver.o server/printout.o \
+  server/main.o 
 
+
+CLI_SRCS = \
+  common/z-util.c common/z-virt.c common/z-form.c common/z-rand.c \
+  common/net-unix.c common/sockbuf.c common/net-ibm.c \
+  client/z-term.c client/c-util.c client/c-cmd.c client/c-inven.c \
+  client/c-files.c client/c-tables.c client/c-store.c client/c-init.c \
+  client/variable.c client/main-ibm.c client/main-cap.c client/main-gcu.c \
+  client/main-x11.c client/main-xaw.c client/netclient.c client/c-birth.c \
+  client/c-xtra1.c client/c-xtra2.c client/c-spell.c client/client.c
+
+CLI_OBJS = \
+  common/z-util.o common/z-virt.o common/z-form.o common/z-rand.o \
+  common/net-unix.o common/sockbuf.o common/net-ibm.o \
+  client/z-term.o client/c-util.o client/c-cmd.o client/c-inven.o \
+  client/c-files.o client/c-tables.o client/c-store.o client/c-init.o \
+  client/variable.o client/main-ibm.o client/main-cap.o client/main-gcu.o \
+  client/main-x11.o client/main-xaw.o client/netclient.o client/c-birth.o \
+  client/c-xtra1.o client/c-xtra2.o client/c-spell.o client/client.o
+
+
+CONS_SRCS = \
+  common/z-util.c common/z-virt.c common/z-form.c common/net-unix.c \
+  common/sockbuf.c common/net-ibm.c \
+  client/z-term.c \
+  client/main-ibm.c client/main-cap.c client/main-gcu.c \
+  client/main-x11.c client/main-xaw.c \
+  console/variable.c console/c-util.c console/console.c console/c-init.c
+
+CONS_OBJS = \
+  common/z-util.o common/z-virt.o common/z-form.o common/net-unix.o \
+  common/sockbuf.o common/net-ibm.o \
+  client/z-term.o \
+  client/main-ibm.o client/main-cap.o client/main-gcu.o \
+  client/main-x11.o client/main-xaw.o \
+  console/variable.o console/c-util.o console/console.o console/c-init.o
 
 
 ##
@@ -115,8 +155,8 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-LIBS = -lX11 -lcurses -ltermcap
+CFLAGS = -Wall -g -pipe -D"USE_X11" -D"USE_GCU" -I/usr/include/ncurses
+LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 
 ##
@@ -131,6 +171,17 @@ LIBS = -lX11 -lcurses -ltermcap
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU"
 #LIBS = -lcurses -ltermcap
+
+
+## Added by thaler, 6/28/97
+## Variation -- Only support "main-gcu.c" (not "main-x11.c") on localhost
+##
+## NOTE -- Using this variation requires that the server and client run
+## on the same machine!  Also define META_ADDRESS to be an empty string
+## in config.h.  --Keldon
+##
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_GCU" -DUNIX_SOCKETS
+#LIBS = -lncurses -ltermcap
 
 
 ##
@@ -175,8 +226,8 @@ LIBS = -lX11 -lcurses -ltermcap
 ##
 ## Variation -- compile for Solaris
 ##
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SOLARIS"
-#LIBS = -lX11 -lsocket -lcurses
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU" -D"SOLARIS" -I/usr/openwin/include
+#LIBS = -L/usr/openwin/lib -R/usr/openwin/lib -lX11 -lsocket -lnsl -lcurses
 
 
 ##
@@ -210,21 +261,59 @@ LIBS = -lX11 -lcurses -ltermcap
 #LIBS = -lcurses -ltermcap
 
 
+##
+## Variation -- Support for DJGPP with TCPLIB
+##
+#CFLAGS = -Wall -O2 -g -D"USE_IBM" -DMSDOS
+#LIBS = -ltcp
+
 
 #
 # Hack -- "install" as the base target
 #
+# If you want to build a server, remove the two hashes from the lines
+# below.
+#
 
-install: angband
-	cp angband ..
+install: mangclient mangconsole mangband
+	-mv ../mangclient ../mangclient.old
+	-mv ../mangband ../mangband.old
+	-mv ../mangconsole ../mangconsole.old
+	cp mangclient ..
+	cp mangconsole ..
+	cp mangband ..
+
 
 
 #
-# Build the "Angband" program
+# Build the "MAngband" server
 #
 
-angband: $(OBJS)
-	$(CC) $(CFLAGS) -o angband $(OBJS) $(LDFLAGS) $(LIBS)
+mangband: $(SERV_OBJS)
+	$(CC) $(CFLAGS) -o mangband $(SERV_OBJS) $(LDFLAGS) $(LIBS)
+
+
+#
+# Build the "MAngband" client
+#
+
+mangclient: $(CLI_OBJS)
+	$(CC) $(CFLAGS) -o mangclient $(CLI_OBJS) $(LDFLAGS) $(LIBS)
+
+
+#
+# Build the "MAngband" remote console
+#
+
+mangconsole: $(CONS_OBJS)
+	$(CC) $(CFLAGS) -o mangconsole $(CONS_OBJS) $(LDFLAGS) $(LIBS)
+
+
+#
+# Rule for making a '.o'
+#
+.c.o:
+	$(CC) $(CFLAGS) -o $*.o -c $*.c
 
 
 #
@@ -232,7 +321,11 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+	cd server; rm -f *.o
+	cd client; rm -f *.o
+	cd common; rm -f *.o
+	cd console; rm -f *.o
+
 
 
 #
@@ -240,63 +333,10 @@ clean:
 #
 
 depend:
-	makedepend -D__MAKEDEPEND__ $(SRCS)
+	makedepend -- $(CFLAGS) -D__MAKEDEPEND__ -- $(SERV_SRCS) $(CLI_SRCS)
 
 
-#
-# Hack -- some file dependencies
-#
+# DO NOT ADD ANYTHING BELOW THIS LINE.
 
-HDRS = \
-  h-basic.h \
-  h-define.h h-type.h h-system.h h-config.h
-
-INCS = \
-  angband.h \
-  config.h defines.h types.h externs.h \
-  z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
-
-
-birth.o: birth.c $(INCS)
-cave.o: cave.c $(INCS)
-cmd1.o: cmd1.c $(INCS)
-cmd2.o: cmd2.c $(INCS)
-cmd3.o: cmd3.c $(INCS)
-cmd4.o: cmd4.c $(INCS)
-cmd5.o: cmd5.c $(INCS)
-cmd6.o: cmd6.c $(INCS)
-dungeon.o: dungeon.c $(INCS)
-files.o: files.c $(INCS)
-generate.o: generate.c $(INCS)
-init1.o: init1.c $(INCS)
-init2.o: init2.c $(INCS)
-load1.o: load1.c $(INCS)
-load2.o: load2.c $(INCS)
-main-cap.o: main-cap.c $(INCS)
-main-gcu.o: main-gcu.c $(INCS)
-main-x11.o: main-x11.c $(INCS)
-main-xaw.o: main-xaw.c $(INCS)
-main.o: main.c $(INCS)
-melee1.o: melee1.c $(INCS)
-melee2.o: melee2.c $(INCS)
-monster1.o: monster1.c $(INCS)
-monster2.o: monster2.c $(INCS)
-object1.o: object1.c $(INCS)
-object2.o: object2.c $(INCS)
-save.o: save.c $(INCS)
-spells1.o: spells1.c $(INCS)
-spells2.o: spells2.c $(INCS)
-store.o: store.c $(INCS)
-tables.o: tables.c $(INCS)
-util.o: util.c $(INCS)
-variable.o: variable.c $(INCS)
-wizard1.o: wizard1.c $(INCS)
-wizard2.o: wizard2.c $(INCS)
-xtra1.o: xtra1.c $(INCS)
-xtra2.o: xtra2.c $(INCS)
-z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
-z-rand.o: z-rand.c $(HDRS) z-rand.h
-z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
-z-util.o: z-util.c $(HDRS) z-util.h
-z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
+# DO NOT DELETE THIS LINE -- make depend depends on it.
 

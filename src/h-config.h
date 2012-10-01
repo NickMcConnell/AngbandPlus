@@ -50,7 +50,7 @@
  * OPTION: Compile on a SYS V version of UNIX (not Solaris)
  */
 #ifndef SYS_V
-/* #define SYS_V */
+#define SYS_V
 #endif
 
 /*
@@ -147,7 +147,7 @@
  * The only such platform that angband is ported to is currently
  * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
  */
-#if defined(__alpha) && defined(__osf__)
+#if defined(__alpha)
 # define L64
 #endif
 
@@ -165,7 +165,7 @@
  * or for the "Atari" platform which is Unix-like, apparently
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
-    !defined(MSDOS) && !defined(USE_EMX) && \
+    !defined(MSDOS) && \
     !defined(AMIGA) && !defined(ACORN) && !defined(VM)
 # define SET_UID
 #endif
@@ -276,8 +276,8 @@
  * Note that this is only relevant for "SET_UID" machines
  */
 #ifdef SET_UID
-# if !defined(HPUX) && !defined(ultrix) && !defined(SOLARIS) && \
-     !defined(SGI) && !defined(ISC)
+# if !defined(ultrix) && !defined(SOLARIS) && \
+     !defined(SGI) && !defined(ISC) && !defined(USE_EMX)
 #  define HAS_USLEEP
 # endif
 #endif
