@@ -1,0 +1,63 @@
+N:1:1518:1:0:0:0
+I:Minister;
+T:Oh...you're still here...;
+A:Where can I find the queen?:0:0:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Minister;
+T:What do you want? We're in the middle of an important assembly, so I'd ask;
+T:you to not interrupt it.;
+A:Important assembly? The room isn't even full!:0:0:0:1:2:0:0:0:0
+A:Where can I find the queen?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Minister;
+T:Yes, most other ministers are worthless and do not realize the importance;
+T:of this assembly, which could very well reshape the future of Ivhala.;
+T:They are unfit to be politicians. If they were, they would have come;
+T:and assist to my assembly!;
+A:Perhaps they don't like you.:0:0:0:1:3:0:0:0:0
+A:Where can I find the queen?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Minister;
+T:How dare you!! I am one of the most respected and admired ministers;
+T:in this palace! Take a look at the other ministers! Look at their;
+T:cheerful faces full of admiration!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Most of the few ministers present either sleeps or do other things...;
+A:[CONTINUE]:0:0:0:1:5:0:0:1518:1
+%
+
+N:5:0:0:0:0:0
+I:Minister;
+T:....*sigh*......;
+A:Where can I find the queen?:0:0:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Minister;
+T:Look, ask the palace workers or other ministers. I am giving an important;
+T:speech, and you're interfering.;
+A:Important speech? There's almost no one in this room!:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Minister;
+T:*he looks depressed*...hmm? Oh, from the palace's entrance, go straight;
+T:north... You'll find her in the underground training room. Geez...;
+T:...maybe it's time for me to retire...;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

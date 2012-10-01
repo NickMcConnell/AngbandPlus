@@ -1,0 +1,336 @@
+N:1:93:5:0:0:0
+I:Tia;
+T:Hey <NAME>! Want me to make you a really cool weapon?;
+A:Yes please!:0:0:0:11:5:34:0:0:0
+A:How does it work?:0:0:0:1:33:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:93:4:0:0:0
+I:Tia;
+T:Hi there, <NAME>. As you can see, I'm still no imbuer. I'm gonna work;
+T:as a clerk in the alchemy shop until I save enough money to go back;
+T:to Karingen. Stop by if you need some potions and scrolls!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:93:3:0:0:0
+I:Tia;
+T:Hello there, <NAME>. Any luck with the gloves?;
+A:Yes! Here's the new gloves! [Show her the gloves]:2:31:15:1:22:0:0:0:0
+A:Uh...about the gloves...I lost them.:1:94:1:1:18:0:0:0:0
+A:Can you remind me where the ruins are located?:0:0:0:1:17:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:93:2:0:0:0
+I:Tia;
+T:Oh, it's you again. Anything I can do for you? If it's about imbuing,;
+T:though, you'd be better off looking for someone else...;
+A:You mentionned something about 'altering though the Flow'...:0:0:0:1:13:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:93:1:0:0:0
+I:Young Sorceress;
+T:Didn't I tell you to get out of here already? Are you deaf or what??;
+T:Get lost, and don't come back!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:You meet a young sorceress who is doing experiments on a blade with what;
+T:seems to be magical potions. She pour a strange mixture on the blade, and;
+T:then performs some magic...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Young Sorceress;
+T:All right...just a bit more...just a bit more...;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:Sudently, a black smoke forms itself, and the blade starts shaking!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Young Sorceress;
+T:Ahh...uh oh...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:*BOOM!*;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Young Sorceress;
+T:*Cough*, *cough* arrggg!! and my clothes are all ruined now!! Darn it!;
+T:Worthless magic gloves! They're not helping at all!;
+A:Uh...hello?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Young Sorceress;
+T:Huh? Oh no!! Don't tell me someone saw that too! Argh...great. Now my;
+T:reputation as an alchemist is completely tarnished! *sigh*... and there;
+T:goes my career...;
+A:Don't worry, I won't tell anyone.:0:0:0:1:9:0:0:93:2
+A:Yes, I will let everyone know how bad you are!:0:0:0:1:8:0:0:93:1
+%
+
+N:8:0:0:0:0:0
+I:Young Sorceress;
+T:Oh, because I assume YOU are SOOOO much better than I am, huh?? Well then,;
+T:get out of here and go open your own lab, <MrMiss> 'I am so great'!;
+T:I wish you the worst of luck!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Young Sorceress;
+T:Thanks... You see, I'm still new to this whole alchemy and enchanting stuff,;
+T:and I was trying to imbue this blade with the magic power of the potion.;
+T:But it's difficult, so I used these magical gloves to help me...but they;
+T:really aren't helping much.;
+A:So you're an alchemist?:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Tia;
+T:Yes, or at least I want to be. Oh, the name's Tia by the way. I went;
+T:to study in Karingen. Oooh, you wouldn't believe how advanced they are!;
+T:It's a completely different world! And I just graduated, so I came back;
+T:here in my boring home town, and started my own little shop. But if I can't;
+T:even perform basic imbuing, I'm afraid I won't keep this place up for long;
+T:So I ordered these gloves from a Karingen store, supposedly they were;
+T:specially made to help with imbuing and other alchemic manipulations,;
+T:but they really aren't helping.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Tia;
+T:Then again, we've only performed imbuing on small objects in my course.;
+T:I guess this is too advanced for me. I will have to save up some more money;
+T:to get access to higher level courses. Ah well... At least I've tried.;
+A:Anything I can do to help?:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Tia;
+T:Nah, don't worry about me. I won't have any problems gathering the money.;
+T:And as for these gloves, I'll probably just sell them or something.;
+T:Worthless piece of junk! They would have to be altered through the Flow;
+T:to become any good! *she laughs* Ahh, well, thanks for at least trying to;
+T:cheer me up. Hope you have better luck in your job than I do!;
+A:'Altered through the Flow'? What do you mean?:0:0:0:1:13:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Tia;
+T:Oh, that's right... No one probably knows what I'm talking about... sorry.;
+T:I was travelling, looking for potion ingredients, when I came across these;
+T:ruins. There, I found a journal written by some Theodore guy, and he;
+T:had this theory about the 'Flow' and altering things... Well, I didn't;
+T:investigate any further, because these ancient ruins are always full of;
+T:dangers, but his theory was interesting. It would even be revolutionary;
+T:if it was true!;
+A:Maybe I could check it out for you.:0:0:0:1:14:0:0:93:3
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Tia;
+T:Really? Well, I doubt that it would actually work. But hey, if you're;
+T:willing to try, then why not? I have nothing to lose. These gloves are;
+T:worthless anyway. I'm gonna give them to you, so you can try altering;
+T:them. The ruins were located at (48,51), if I remember correctly.;
+T:Who knows? Maybe they'll actually become good!;
+A:[CONTINUE]:0:0:0:3:1240:0:15:0:0
+%
+
+N:15:0:0:0:0:0
+I:Tia;
+T:Here's the gloves. If it does work, and the gloves become better, just;
+T:give them back to me, and I will use imbuing on one of your weapons as;
+T:your reward. I know it's kind of like cheating to rely on magical gloves,;
+T:but I have no choice if I want to keep this shop. Oh, and one more thing...;
+T:what is your name?;
+A:My name is <NAME>. I'm a <CLASS>.:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Tia;
+T:Well, good luck <NAME>. Who knows, perhaps it will actually work...;
+A:Can you remind me where the ruins are located?:0:0:0:1:17:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Tia;
+T:They were located at (48,51). They're surrounded by water, so make sure you;
+T:wear some waterproof boots!;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Tia;
+T:Ah...so, it didn't work? And the gloves are no more? Oh well. I didn't;
+T:really expect it to work anyway. Guess that Theodore is just a liar after;
+T:all! That whole Flow thing must have been totally fake. Heh, guess that's;
+T:why he was chased.;
+A:It did open a portal to the Flow. But I wasn't able to make it through.:0:0:0:1:19:0:0:93:4
+A:Some weird portal appeared, and I didn't risk entering.:0:0:0:1:20:0:0:93:4
+%
+
+N:19:0:0:0:0:0
+I:Tia;
+T:Really? So it was true after all. But I guess he never made sure the whole;
+T:thing was safe. Ah well, nevermind. Those gloves weren't worth it anyway.;
+T:Thanks for trying though. Here's 100 golds. It's not much, but I want to;
+T:give you something for your effort.;
+A:Uh, thanks...:0:0:0:3:488:100:21:0:0
+%
+
+N:20:0:0:0:0:0
+I:Tia;
+T:Yeah, I don't blame you. Who knows where it would have transported you.;
+T:Or maybe it would just have destroyed you right away. But anyway, those;
+T:gloves weren't worth anything. Thanks for trying though. Here's 100 golds.;
+T:I know it's not much, but you at least deserve something for your effort.;
+A:Uh, thanks...:0:0:0:3:488:100:21:0:0
+%
+
+N:21:0:0:0:0:0
+I:Tia;
+T:Well, looks like I'll have to continue saving money and return to Karingen.;
+T:Good luck in your adventures, <NAME>! Come back in a few years, maybe I'll;
+T:have become a true imbuer then!;
+A:I look forward to it. Good bye.:0:0:0:0:0:0:0:0:0
+A:We'll see about that. Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Tia;
+T:Huh?? You mean, it actually worked?? So, how was this 'Flow' thing?;
+A:It was...unique. [Tell her about it]:0:0:0:1:23:0:0:93:5
+%
+
+N:23:0:0:0:0:0
+I:Tia;
+T:Oooh, some kind of weird world huh? I'll have to visit that place someday.;
+T:But first! Let's try out the gloves!;
+A:[CONTINUE]:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I: ;
+T:She puts on the gloves, and then prepares a dagger and a potion.;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Tia;
+T:All right... So, if I take this dagger and this potion of fire, I should;
+T:be able to create a fire dagger... All right, here we go!;
+A:[CONTINUE]:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I: ;
+T:She pours the potion on the dagger, and she begins casting some spells on it.;
+T:Suddently, the dagger emits a reddish glow, and it's blade becomes reddish,;
+T:and covered in a bright, magical flame!;
+A:[CONTINUE]:0:0:0:1:27:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Tia;
+T:WOAH!! NO WAY!! IT... IT WORKED!!!! Haha, I can't believe it! It really;
+T:worked! Ooh, these gloves are really awesome! Let's use a scroll and;
+T:identify it! I want to feel all of their power!;
+A:[CONTINUE]:0:0:0:1:28:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I: ;
+T:She starts reading the scroll, and identify the gloves' powers.;
+A:[CONTINUE]:0:0:0:1:29:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Tia;
+T:So, that's the gloves' powers, huh? But... But, wait a minute. Their power...;
+T:It has nothing to do with alchemy! These gloves are altered all right, but;
+T:not in a way that helps me imbuing weapons!;
+A:But you DID succeed, didn't you?:0:0:0:1:30:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I:Tia;
+T:...yeah, you're right. Could it be that I am actually talented? Maybe my;
+T:teacher was right. He says I just needed to believe in myself. I though he;
+T:just said that because he HAD to say it, you know, they always say things;
+T:like that. I didn't really believe it, but I guess he was right after all!;
+T:Haha, this is awesome!! Now I can become a REAL Imbuer, and keep that shop;
+T:opened!;
+A:[CONTINUE]:0:0:0:1:31:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Tia;
+T:As for these gloves, you keep them. You've earned them, and I think they;
+T:will help you more than they will help me. And now, for your REAL reward...;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I:Tia;
+T:From now on, if you need imbuing, just come to me! Bring me a weapon and;
+T:a potion, and I will create an elemental weapon out of it! Of course, keep;
+T:in mind that I'm still new at the whole thing, so mundane weapons only.;
+T:But any potions will work. Heh heh, don't you want to experiment a bit?;
+T:How about a sword that heals monsters, hmm? In any case, come to me if;
+T:you need to turn a weapon into an elemental one!;
+A:I will. Thanks you very much!:0:0:0:0:0:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Tia;
+T:You need to bring me two things: a weapon, and a potion. The weapons;
+T:can be a normal weapon, ammos, ranged weapon, throwing weapon and even;
+T:gloves, if you're the martial arts type. It needs to be mundane though,;
+T:as I'm still new to imbuing, and magic items are too hard for me to imbue;
+T:yet. But hey! Don't complain, I'm not charging you anything after all!;
+T:And who knows, perhaps with enough practice, I'll become better and;
+T:eventually figure out how to imbue magical stuff. So bring me lots of stuff,;
+T:and it will benefit both of us. Now, you've got anything you'd like to imbue?;
+A:Yes please.:0:0:0:11:5:34:0:0:0
+A:Not for now. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:34:95:1:0:0:0
+I:Tia;
+T:There you go, it worked perfectly! Any other weapons you'd like me to imbue?;
+A:Yes please.:0:0:0:11:5:34:0:0:0
+A:Not right now, thanks for your help.:0:0:0:0:0:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Tia;
+T:Darn it, it failed... Hmmm. The weapon must be a melee weapon, ranged;
+T:weapon, throwing weapon, ammo or gloves, and must be mundane, I don't;
+T:have the skill to do it on magic weapons yet. Would you like me to;
+T:try it again?;
+A:Yes, let's try again.:0:0:0:11:5:34:0:0:0
+A:Not right now, thanks for trying.:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,251 @@
+N:1:1040:1:0:0:0
+I:Donoriel;
+T:You...bastard!!;
+A:[END DIALOG]:1:1054:0:5:-1:0:0:0:0
+A:[CONTINUE]:1:1054:1:1:21:0:0:1040:0
+%
+
+N:1:1054:1:0:0:0
+I:Donoriel;
+T:N...no!! P..please... spare my life!!;
+A:Why should I spare you? You didn't have mercy for that young apprentice!:0:0:0:1:15:0:0:0:0
+A:You went too far. Now you die!:0:0:0:1:20:0:0:0:0
+%
+
+N:1:1045:1:0:0:0
+I:Donoriel;
+T:You are no longer welcome in the Palace! Get out, or I call the guards!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1043:1:0:0:0
+I:Donoriel;
+T:Welcome back, <NAME>. What can I do for you today?;
+A:I've come to buy your 'palace'.:1:1039:1:1:11:0:0:0:0
+A:What is this place?:0:0:0:1:2:0:0:0:0
+A:What do you have for sale?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1043:0:0:0:0
+I:Donoriel;
+T:Welcome to the Palace of the Never Seen, my good friend. You are talking;
+T:to Donoriel, the one and only owner of this place. And who am I talking to?;
+A:Huh...my name's <NAME>.:0:0:0:1:2:0:0:1043:1
+A:No one important. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Donoriel;
+T:Pleased to make your acquintance, <NAME>. How may I help you?;
+A:I've come to buy your 'palace'.:1:1039:1:1:11:0:0:0:0
+A:What is this place?:0:0:0:1:2:0:0:0:0
+A:What do you have for sale?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Donoriel;
+T:You are in the Palace of the Never Seen. Why is it called the palace of;
+T:the 'Never Seen' you ask? Because all the merchandise you'll find here;
+T:was Never Seen before! It's all unique, and exclusive to my palace! And;
+T:for a modest price, it can be yours!;
+A:I've come to buy your 'palace'.:1:1039:1:1:11:0:0:0:0
+A:And what do you sell?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Donoriel;
+T:A vast collection of oddities my friend! Crystal balls, paintings,;
+T:magical wants, jewelry, and a wide assortment of unique items Never Seen;
+T:before! For example, see this copper statuette? It's a Copper Daldumaar!;
+T:Golden Statuettes of Daldumaar are common in Nimbraya, but here in Jindar,;
+T:a gold statuette would be too expensive, and wouldn't mean anything to most;
+T:peoples. But a Copper statuette, now that's much less expensive, and you;
+T:still get the 'Nimbrayan Feel' out of it. Great idea, don't you think? Only;
+T:100 golds! Interested?;
+A:All right, I'll take it. [Pay 100 golds]:0:0:0:8:100:4:5:0:0
+A:Err...no thanks. You have anything...useful?:0:0:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Donoriel;
+T:Excellent! Here you go my friend! A Copper Daldumaar to add a 'Nimbrayan Feel';
+T:to your home! I'm sure you'll enjoy it, and your friends will be impressed!;
+A:[CONTINUE]:0:0:0:3:1219:0:6:0:0
+%
+
+N:5:0:0:0:0:0
+I:Donoriel;
+T:It seems you don't have enough money, <NAME>. I can't just give away my;
+T:fine merchandise for free. 100 golds shouldn't be too hard to get though,;
+T:so come back when you've got the money.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Donoriel;
+T:Anything else I can do for you?;
+A:What is this place?:0:0:0:1:2:0:0:0:0
+A:What do you have for sale?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Donoriel;
+T:Oh, but of course! Take a look around you, you'll see a lot of unique;
+T:items 'Never Seen' before!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:His merchandise consists in a large assortment of weird stuff, including;
+T:odd crystal balls, paintings of various creatures, various flasks;
+T:containing fluorescent liquids, oddly crafted magic wands, and a wide;
+T:array of other, equally strange items. But there's a good chance that;
+T:most of that stuff is fake and useless.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Donoriel;
+T:So, what do you think of my inventory? Surely there's something that;
+T:interests you?;
+A:Not really.:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Donoriel;
+T:A pity. Well, if you need anything, come back whenever you wish!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Donoriel;
+T:What? You want to buy my palace? You mean, THE Palace of the Never Seen??;
+T:I'm afraid that's impossible, <NAME>. I can sell you anything that's;
+T:INSIDE the palace, but the palace itself, I cannot. Too much profits;
+T:to be made for me to give up that place. Everyone wants something;
+T:Never Seen before, and I can't just abandon my business. No, sorry, the;
+T:palace is not for sale.;
+A:I'm with the Stealthy Vipers... [Tell him your story]:0:0:0:1:12:0:0:0:0
+A:Good bye then.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Donoriel;
+T:Very interesting story, but like you, I have profits to make here.;
+T:And I was here before you, so you're out of luck. You'll have to go;
+T:look for another building elsewhere.;
+A:I insist, Donoriel. I can pay you 30000 golds for this place.:0:0:0:1:13:0:0:0:0
+A:Good bye then.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Donoriel;
+T:No, no and NO!!! For the last time, the Palace of the Never Seen is;
+T:not, I repeat, NOT FOR SALE!! Especially for the ridiculously small;
+T:price you're offering. We're talking two floors of solid stone walls,;
+T:not a small wooden cabin. 30000? Never! And if you're not going;
+T:to buy any of my Never Seen merchandise, then leave my Palace!;
+A:Two floors? There's a basement? Where's the stairs?:0:0:0:1:14:0:0:1045:1
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Donoriel;
+T:That's not what I meant!! That's it, <NAME>! You've wasted enough of my;
+T:time! You're no longer welcome here! Now leave, or I call the guards!;
+T:And don't ever come back!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Donoriel;
+T:I...I... I'm sorry! Please, understand, I was under Eloriel's orders!;
+T:He was so powerful, I had to obey! I had no choice!! Please, forgive me!;
+A:...what will you do if I let you go?:1:1039:1:1:16:0:0:0:0
+A:...what will you do if I let you go?:1:1039:0:1:17:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Donoriel;
+T:Well, you wanted the building, right? Well, it's yours! You and your guild;
+T:can do whatever you want with it. Also, I will donate all the profits to;
+T:temples and charity! And I'll even give your guild something too! And as for;
+T:me, I'll leave Jindar, and disappear somewhere... you'll never hear from;
+T:me again! So, will you let me go?;
+A:...all right. Leave, but never return to Jindar!:0:0:0:1:18:0:0:1058:1
+A:That's not enough. I'm sorry, but I'll have to kill you.:0:0:0:1:20:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Donoriel;
+T:Well, huh, I'll give all the profits we made to charity, and to temples!;
+T:And then I'll leave, and never return! Oh, and you can take whatever you;
+T:want from my shop! How does that sounds?;
+A:...all right. Leave, but never return to Jindar!:0:0:0:1:18:0:0:1058:1
+A:Are you kidding me? Die, Donoriel!:0:0:0:1:20:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Donoriel;
+T:Oh, thanks you very much! I promise to never return! Oh, and to show my;
+T:gratitude, I'll tell you a secret. Right here in this hideout, there is;
+T:a secret switch in the upper-right room. If you press it, it'll reveal;
+T:our hidden treasure! Go ahead and take it, it's yours. As for me, I'm;
+T:leaving Jindar right away. Farewell!;
+A:[CONTINUE]:0:0:0:9:1612:19:0:0:0
+%
+
+N:19:1039:1:0:0:0
+I: ;
+T:Donoriel leaves the hideout, and disappear in the wilderness. You doubt;
+T:you'll ever see him again. Since he's now gone, the Stealthy Vipers;
+T:will be able to use his "Palace of the Never Seen" as a new;
+T:guild hall. It looks like your mission was successful!;
+A:[END DIALOG]:0:0:0:0:0:0:0:1039:0
+%
+
+N:19:1039:0:0:0:0
+I: ;
+T:Donoriel flees, and disappears in the wilderness. You doubt you'll ever;
+T:see him again. After he's gone, you wonder if he will really donate the;
+T:profits to charity, and if letting him go was the right thing to do.;
+T:Now, all that's left is for you to find the secret treasure he mentionned;
+T:and gain something good out of this adventure!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Donoriel;
+T:NO, PLEASE!! UWAAAH!!;
+A:[END DIALOG]:0:0:0:10:1612:0:0:0:0
+%
+
+N:21:1039:1:0:0:0
+I: ;
+T:You have slain Donoriel, put an end to his dirty business, and avenged the;
+T:death of the young apprentice. And now that his building doesn't belong to;
+T:him anymore, you and the Stealthy Vipers are free to use it as your new;
+T:guild hall!;
+A:[CONTINUE]:0:0:0:1:22:0:0:1058:1
+%
+
+N:21:1039:0:0:0:0
+I: ;
+T:You have slain Donoriel, put an end to his dirty business, and avenged the;
+T:death of the young apprentice. You are not sure what you've gained in all;
+T:of this, but at least, there is one less thief in Jindar thanks to your;
+T:efforts!;
+A:[END DIALOG]:0:0:0:0:0:0:0:1058:1
+%
+
+N:22:0:0:0:0:0
+I: ;
+T:You should now return to Krind, and announce your victory!;
+A:[END DIALOG]:0:0:0:0:0:0:0:1039:0
+%

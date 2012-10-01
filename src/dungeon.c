@@ -12,8 +12,6 @@
 
 #include "angband.h"
 
-#define TY_CURSE_CHANCE 100
-#define DG_CURSE_CHANCE 50
 #define CHAINSWORD_NOISE 100
 
 /*
@@ -141,10 +139,7 @@ static void sense_inventory(void)
 	switch (p_ptr->pclass)
 	{
 		case CLASS_WARRIOR:
-                case CLASS_POSSESSOR:
-                case CLASS_ARCHER:
-                case CLASS_DARK_LORD:
-                case CLASS_HELLQUEEN:
+                case CLASS_MARKSMAN:
 		{
 			/* Good sensing */
 			if (0 != rand_int(9000L / (plev * plev + 40))) return;
@@ -158,8 +153,6 @@ static void sense_inventory(void)
 
                 case CLASS_MAGE:
                 case CLASS_HIGH_MAGE:
-                case CLASS_SORCERER:
-                case CLASS_ALCHEMIST:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
@@ -178,7 +171,6 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_ROGUE:
-                case CLASS_NECRO:
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -215,16 +207,6 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_WARRIOR_MAGE:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(75000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
 		case CLASS_MONK:
 		{
 			/* Okay sensing */
@@ -251,16 +233,10 @@ static void sense_inventory(void)
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
 		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
+			case TV_AMMO:
+			case TV_RANGED:
 			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-                        case TV_DAGGER:
-                        case TV_AXE:
+			case TV_WEAPON:
 			case TV_BOOTS:
 			case TV_GLOVES:
 			case TV_HELM:
@@ -270,7 +246,6 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
-                        case TV_ZELAR_WEAPON:
 			{
 				okay = TRUE;
 				break;
@@ -493,58 +468,32 @@ static void recharged_notice(object_type *o_ptr)
  */
 static void regenhp(int percent)
 {
-	s32b        new_chp, new_chp_frac;
-	int                   old_chp;
+	s32b regenamt;
+	s32b old_chp;
+
+	old_chp = p_ptr->chp;
         
-                /* Save the old hitpoints */
-                old_chp = p_ptr->chp;
+        /* Regenerate by (percent)% */
+	regenamt = multiply_divide(p_ptr->chp, percent, 100);
+	if (regenamt < 1) regenamt = 1;
+	p_ptr->chp += regenamt;
 
-                /* Extract the new hitpoints */
-                new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
-                p_ptr->chp += new_chp >> 16;   /* div 65536 */
+        /* Fully healed */
+        if (p_ptr->chp >= p_ptr->mhp)
+        {
+                p_ptr->chp = p_ptr->mhp;
+                p_ptr->chp_frac = 0;
+        }
 
-                /* check for overflow */
-                if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
-                new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;    /* mod 65536 */
-                if (new_chp_frac >= 0x10000L)
-                {
-                        p_ptr->chp_frac = new_chp_frac - 0x10000L;
-                        p_ptr->chp++;
-                }
-                else
-                {
-                        p_ptr->chp_frac = new_chp_frac;
-                }
-                /* Divine Blood priest ability! */
-                if (p_ptr->abilities[(CLASS_PRIEST * 10) + 2] >= 1)
-                {
-                        p_ptr->chp += p_ptr->abilities[(CLASS_PRIEST * 10) + 2] * 5;
-                }
+        /* Notice changes */
+        if (old_chp != p_ptr->chp)
+        {
+                /* Redraw */
+                p_ptr->redraw |= (PR_HP);
 
-
-                /* Skeletons regenrate even quicker than normal... */
-                if (p_ptr->prace == RACE_SKELETON)
-                {
-                        /* Actually very quickly... */
-                        p_ptr->chp += p_ptr->mhp / 10;
-                }
-
-                /* Fully healed */
-                if (p_ptr->chp >= p_ptr->mhp)
-                {
-                        p_ptr->chp = p_ptr->mhp;
-                        p_ptr->chp_frac = 0;
-                }
-
-                /* Notice changes */
-                if (old_chp != p_ptr->chp)
-                {
-                        /* Redraw */
-                        p_ptr->redraw |= (PR_HP);
-
-                        /* Window stuff */
-                        p_ptr->window |= (PW_PLAYER);
-                }
+                /* Window stuff */
+                p_ptr->window |= (PW_PLAYER);
+        }
 }
 
 
@@ -553,39 +502,29 @@ static void regenhp(int percent)
  */
 static void regenmana(int percent)
 {
-	s32b        new_mana, new_mana_frac;
-	int                   old_csp;
+	s32b regenamt;
+	s32b old_csp;
 
 	old_csp = p_ptr->csp;
-	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+
+	/* Regenerate by (percent)% */
+	regenamt = multiply_divide(p_ptr->csp, percent, 100);
 
         /* Wielding a rod with a high skill? */
         if (rod_has() && p_ptr->skill[17] >= 30)
         {
-                new_mana *= 2;
-                new_mana += 1;
+                regenamt *= 2;
+                regenamt += 1;
         }
 
-	p_ptr->csp += new_mana >> 16;	/* div 65536 */
-	/* check for overflow */
-	if ((p_ptr->csp < 0) && (old_csp > 0))
-	{
-		p_ptr->csp = MAX_SHORT;
-	}
-	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
-	if (new_mana_frac >= 0x10000L)
-	{
-		p_ptr->csp_frac = new_mana_frac - 0x10000L;
-		p_ptr->csp++;
-	}
-	else
-	{
-		p_ptr->csp_frac = new_mana_frac;
-	}
+	if (regenamt < 1) regenamt = 1;
+	p_ptr->csp += regenamt;
+
         /* Magic Blood high-mage ability! */
         if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 1] >= 1)
         {
-                p_ptr->csp += p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 1] * 3;
+		p_ptr->csp += multiply_divide(p_ptr->csp, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 1], 100);
+                p_ptr->csp += p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 1] * 5;
         }
 
 
@@ -763,6 +702,7 @@ bool is_recall = FALSE;
 static void process_world(void)
 {
         int x, y, i, j, temp;
+	int cursealloc;
 
 	int regen_amount;
 	bool cave_no_regen = FALSE;
@@ -908,7 +848,14 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
-        if ((rand_int(d_info[dungeon_type].max_m_alloc_chance) == 0) && !(p_ptr->inside_quest))
+
+	/* Cursed players will meet more monsters. */
+	cursealloc = p_ptr->cursed / 3;
+
+	/* Never exceed a certain amount. */
+	if (cursealloc > (d_info[dungeon_type].max_m_alloc_chance - 10)) cursealloc = (d_info[dungeon_type].max_m_alloc_chance - 10);
+
+        if ((rand_int(d_info[dungeon_type].max_m_alloc_chance - cursealloc) == 0) && !(p_ptr->inside_quest))
 	{
 		/* Make a new monster */
 		if (!special_flag) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
@@ -955,7 +902,8 @@ static void process_world(void)
 
 		/* Take damage */
 		msg_print("The lava burns you!");
-		take_hit(damage, "shallow lava");
+		/*take_hit(damage, "shallow lava");*/
+		project(-2, 0, py, px, damage, GF_FIRE, PROJECT_KILL | PROJECT_JUMP);
 		cave_no_regen = TRUE;
 	}
 
@@ -982,7 +930,8 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print(message);
-			take_hit(damage, hit_from);
+			/*take_hit(damage, hit_from);*/
+			project(-2, 0, py, px, damage, GF_FIRE, PROJECT_KILL | PROJECT_JUMP);
 
 			cave_no_regen = TRUE;
 		}
@@ -995,8 +944,59 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msg_print("You are drowning!");
-			take_hit(randint(p_ptr->lev), "drowning");
+			/*take_hit(randint(p_ptr->lev), "drowning");*/
+			project(-2, 0, py, px, randint(p_ptr->lev), GF_WATER, PROJECT_KILL | PROJECT_JUMP);
 			cave_no_regen = TRUE;
+		}
+	}
+
+	else if ((cave[py][px].feat == FEAT_FIRE_FIELD) && cave[py][px].owner != 0)
+	{
+		project(-2, 0, py, px, cave[py][px].field_damage, GF_FIRE, PROJECT_KILL | PROJECT_JUMP);
+		if (randint(100) >= 50)
+		{
+			cave[py][px].feat = FEAT_FLOOR;
+			update_and_handle();
+		}
+	}
+
+	else if ((cave[py][px].feat == FEAT_COLD_FIELD) && cave[py][px].owner != 0)
+	{
+		project(-2, 0, py, px, cave[py][px].field_damage, GF_COLD, PROJECT_KILL | PROJECT_JUMP);
+		if (randint(100) >= 50)
+		{
+			cave[py][px].feat = FEAT_FLOOR;
+			update_and_handle();
+		}
+	}
+
+	else if ((cave[py][px].feat == FEAT_ELEC_FIELD) && cave[py][px].owner != 0)
+	{
+		project(-2, 0, py, px, cave[py][px].field_damage, GF_ELEC, PROJECT_KILL | PROJECT_JUMP);
+		if (randint(100) >= 50)
+		{
+			cave[py][px].feat = FEAT_FLOOR;
+			update_and_handle();
+		}
+	}
+
+	else if ((cave[py][px].feat == FEAT_STORMS) && cave[py][px].owner != 0)
+	{
+		project(-2, 0, py, px, cave[py][px].field_damage, GF_WIND, PROJECT_KILL | PROJECT_JUMP);
+		if (randint(100) >= 50)
+		{
+			cave[py][px].feat = FEAT_FLOOR;
+			update_and_handle();
+		}
+	}
+
+	else if ((cave[py][px].feat == FEAT_THORNED_VINES) && cave[py][px].owner != 0)
+	{
+		project(-2, 0, py, px, cave[py][px].field_damage, GF_EARTH, PROJECT_KILL | PROJECT_JUMP);
+		if (randint(100) >= 50)
+		{
+			cave[py][px].feat = FEAT_FLOOR;
+			update_and_handle();
 		}
 	}
 
@@ -1064,105 +1064,14 @@ static void process_world(void)
 		take_hit(i, "a fatal wound");
 	}
 
-
-	/*** Check the Food, and Regenerate ***/
-
-	/* Digest normally */
-	if (p_ptr->food < PY_FOOD_MAX)
-	{
-		/* Every 100 game turns */
-		if (!(turn % 100))
-		{
-			/* Basic digestion rate based on speed */
-                        i = extract_energy[(p_ptr->pspeed > 199)?199:(p_ptr->pspeed < 0)?0:p_ptr->pspeed] * 2;
-
-			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
-
-                        /* Hell Queens... */
-                        if (p_ptr->pclass == CLASS_HELLQUEEN) i -= 100;
-
-                        /* Invisibility consume a lot of food */
-                        i += p_ptr->invis / 2;
-
-                        /* Wraith Form consume a lot of food */
-                        if (p_ptr->wraith_form) i += 30;
-
-                        /* Get the weapon */
-                        o_ptr = &inventory[INVEN_WIELD];
-
-                        /* Examine the sword */
-                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-                        /* Hitpoints multiplier consume a lot of food */
-                        if (o_ptr->k_idx && (f2 & (TR2_LIFE))) i += o_ptr->pval * 5;
-
-			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
-
-			/* Minimal digestion */
-                        if (p_ptr->prace == RACE_SKELETON)
-                        {
-                                i = 0;
-                        }
-                        else if (i < 1) i = 1;
-
-			/* Digest some food */
-			(void)set_food(p_ptr->food - i);
-		}
-	}
-
-	/* Digest quickly when gorged */
-	else
-	{
-		/* Digest a lot of food */
-		(void)set_food(p_ptr->food - 100);
-	}
-
-	/* Starve to death (slowly) */
-	if (p_ptr->food < PY_FOOD_STARVE)
-	{
-		/* Calculate damage */
-		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
-
-		/* Take damage */
-		take_hit(i, "starvation");
-	}
-
 	/* Default regeneration */
-	regen_amount = PY_REGEN_NORMAL;
+	regen_amount = 1;
 
-	/* Getting Weak */
-	if (p_ptr->food < PY_FOOD_WEAK)
+	/* Divine Blood ability */
+	if (p_ptr->abilities[(CLASS_PRIEST * 10) + 2] >= 1)
 	{
-		/* Lower regeneration */
-		if (p_ptr->food < PY_FOOD_STARVE)
-		{
-			regen_amount = 0;
-		}
-		else if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			regen_amount = PY_REGEN_FAINT;
-		}
-		else
-		{
-			regen_amount = PY_REGEN_WEAK;
-		}
 
-		/* Getting Faint */
-		if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (rand_int(100) < 10))
-			{
-				/* Message */
-				msg_print("You faint from the lack of food.");
-				disturb(1, 0);
-
-				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
-			}
-		}
+		regen_amount += (p_ptr->abilities[(CLASS_PRIEST * 10) + 2] / 5);
 	}
 
 	/* Are we walking the pattern? */
@@ -1186,55 +1095,10 @@ static void process_world(void)
 		regen_amount = regen_amount * 2;
 	}
 
-	if (total_friends)
-	{
-		int upkeep_divider = 20;
-
-		if (p_ptr->pclass == CLASS_MAGE)
-			upkeep_divider = 15;
-		else if (p_ptr->pclass == CLASS_HIGH_MAGE)
-			upkeep_divider = 12;
-
-#ifdef TRACK_FRIENDS
-		if (wizard)
-			msg_format("Total friends: %d.", total_friends);
-#endif /* TRACK_FRIENDS */
-
-		if (total_friends > 1 + (p_ptr->lev / (upkeep_divider)))
-		{
-			upkeep_factor = (total_friend_levels);
-
-			if (upkeep_factor > 100) upkeep_factor = 100;
-			else if (upkeep_factor < 10) upkeep_factor = 10;
-
-#ifdef TRACK_FRIENDS
-			if (wizard)
-			msg_format("Levels %d, upkeep %d", total_friend_levels, upkeep_factor);
-#endif /* TRACK_FRIENDS */
-
-		}
-	}
-
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
-		if (upkeep_factor)
-		{
-			s16b upkeep_regen = (((100 - upkeep_factor) * regen_amount) / 100);
-			regenmana(upkeep_regen);
-
-#ifdef TRACK_FRIENDS
-			if (wizard)
-			{
-				msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
-			}
-#endif /* TRACK_FRIENDS */
-
-		}
-		else
-		{
-			regenmana(regen_amount);
-		}
+		regenmana(regen_amount);
 	}
 
 
@@ -1267,6 +1131,9 @@ static void process_world(void)
         {
                 p_ptr->guardconfuse -= 1;
         }
+
+	/* Eventually remove the damages counter. */
+	if (damages_counter_duration > 0) damages_counter_duration -= 1;
 
 	/* Handle temporary stat drains */
 	for (i = 0; i < 6; i++)
@@ -1394,7 +1261,7 @@ static void process_world(void)
 	/* Poison */
 	if (p_ptr->poisoned)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = ((p_ptr->stat_ind[A_CON] / 10) + 1);
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -1403,7 +1270,7 @@ static void process_world(void)
 	/* Stun */
 	if (p_ptr->stun)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = ((p_ptr->stat_ind[A_CON] / 10) + 1);
 
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
@@ -1412,7 +1279,7 @@ static void process_world(void)
 	/* Cut */
 	if (p_ptr->cut)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = ((p_ptr->stat_ind[A_CON] / 10) + 1);
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
@@ -1551,21 +1418,6 @@ static void process_world(void)
 
                 object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-		/* TY Curse */
-		if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE)==1))
-		{
-			activate_ty_curse();
-		}
-
-                /* DG Curse */
-                if ((f4 & TR4_DG_CURSE) && (randint(DG_CURSE_CHANCE)==1))
-		{
-                        activate_dg_curse();
-
-                        /* The object recurse itself ! */
-                        o_ptr->ident |= IDENT_CURSED;
-		}
-
 		/*
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
 		 * can actually be useful!
@@ -1616,22 +1468,12 @@ static void process_world(void)
                                 }
                                 else
                                 {
-                                        inven_item_increase(i, -1);
+                                        inven_item_increase(i, -(o_ptr->number));
                                         inven_item_describe(i);
                                         inven_item_optimize(i);
                                         j++;                                        
                                 }
                         }
-		}
-
-                /* Recharge activatable mage staffs */
-                if ((o_ptr->pval > 0) && (o_ptr->name2==EGO_MSTAFF_POWER))
-		{
-			/* Recharge */
-                        o_ptr->pval--;
-
-			/* Notice changes */
-                        if (!(o_ptr->pval)) j++;
 		}
 	}
 
@@ -1683,7 +1525,7 @@ static void process_world(void)
 		}
 
                 /* Examine all charging souls */
-                if ((o_ptr->tval == TV_SOUL) && (o_ptr->timeout))
+                if ((o_ptr->tval == TV_SOUL || o_ptr->tval == TV_ESSENCE) && (o_ptr->timeout))
 		{
 			/* Charge it */
                         o_ptr->timeout--;
@@ -1930,7 +1772,7 @@ static void process_world(void)
 			{
 				msg_print("You feel yourself yanked downwards!");
 				/* Cannot recall to random dungeons! */
-				if (p_ptr->recall_dungeon == 200) p_ptr->recall_dungeon = 0;
+				if (p_ptr->recall_dungeon == 200 || p_ptr->recall_dungeon == 201) p_ptr->recall_dungeon = 0;
 
 				/* New depth */
                                 dungeon_type = p_ptr->recall_dungeon;
@@ -2186,6 +2028,7 @@ static void process_command(void)
                                 msg_print("That is too far away.");
                         }
 			else talk_to_monster(x, y);
+
 			break;
 		}
 
@@ -2261,7 +2104,8 @@ static void process_command(void)
                 /* Use a Licialhyd */
                 case 'X':
 		{
-                        do_cmd_use_licialhyd();
+                        /*do_cmd_use_licialhyd();*/
+			call_lua("use_licialhyd", "", "");
 			break;
 		}
 
@@ -2447,7 +2291,14 @@ static void process_command(void)
 		case 'm':
 		{
                         if (p_ptr->body_monster != 0)
-                        	use_body_power(p_ptr->body_monster, FALSE);
+			{
+				int i;
+				monster_race *r_ptr = &r_info[p_ptr->body_monster];
+				for (i = 0; i < r_ptr->spells; i++)
+				{
+                        		use_body_power(p_ptr->body_monster, FALSE);
+				}
+			}
                         else if (p_ptr->magic_mode == 1)
                         {
                         	use_monster_power();
@@ -2463,8 +2314,7 @@ static void process_command(void)
 		/* Also known as "Wisdom Casting" in NewAngband 1.7.2! :) */
 		case 'p':
 		{
-                        if (p_ptr->body_monster != 0)
-                        	use_body_power(p_ptr->body_monster, FALSE);                                        
+                        if (p_ptr->body_monster != 0) do_cmd_cast(FALSE);
 			else
                         {
                         	do_cmd_cast(TRUE);
@@ -2479,17 +2329,16 @@ static void process_command(void)
 			break;
 		}
 
-		/* Cut up a corpse */
-		case 'h':
+		/* Monster info */
+		case 'H':
 		{
-                        do_cmd_cut_corpse();
+			if (p_ptr->prace == RACE_MONSTER) evolution_compare(0, FALSE, FALSE);
 			break;
 		}
 
-		/* Cure some meat */
+		/* Toggle stuff */
 		case 'K':
                 {
-			/* do_cmd_cure_meat(); */
 			do_cmd_turn_on_off_misc();
                         break;
                 }
@@ -2524,13 +2373,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Eat some food */
-		case 'E':
-		{
-			do_cmd_eat_food();
-			break;
-		}
-
 		/* Fuel your lantern/torch */
 		case 'F':
 		{
@@ -2541,19 +2383,31 @@ static void process_command(void)
 		/* Fire an item */
 		case 'f':
                 {
-                        object_type *j_ptr;
-                        j_ptr = &inventory[INVEN_BOW];
-                        if(j_ptr->tval==TV_BOOMERANG)
-                        	do_cmd_boomerang();
-                        else
-                        	do_cmd_fire(0, FALSE);
+			if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29030] == 1)
+			{
+				monster_race *r_ptr = &r_info[p_ptr->body_monster];
+				if (r_ptr->attack[p_ptr->events[29031]].type == 3)
+				{
+					call_lua("monster_ranged_attacks", "(d)", "", p_ptr->events[29031]+1);
+				}
+				else do_cmd_fire();
+			}
+                        else do_cmd_fire();
+			break;
+		}
+
+		/* Reload a ranged weapon */
+		case 'O':
+                {
+                        reload_ranged();
 			break;
 		}
 
 		/* Throw an item */
 		case 'v':
                 {
-                        do_cmd_throw();
+			p_ptr->events[29044] = 0;
+			call_lua("ranged_throw", "", "");
 			break;
 		}
 
@@ -2567,7 +2421,8 @@ static void process_command(void)
 		/* Zap a rod */
 		case 'z':
 		{
-			do_cmd_zap_rod();
+			/*do_cmd_zap_rod();*/
+			call_lua("zap_rod", "", "");
 			break;
 		}
 
@@ -2611,7 +2466,8 @@ static void process_command(void)
 		/* Locate player on map */
 		case 'L':
 		{
-                        do_cmd_locate();
+			if (!center_player) do_cmd_locate();
+			else do_cmd_locate_center(py, px);
                         msg_format("x,y = %d, %d", px, py);
 			break;
 		}
@@ -2632,7 +2488,17 @@ static void process_command(void)
 
                 case 'x':
                 {
-                        scan_targetting();
+                        /*scan_targetting();*/
+			if (p_ptr->dualwield == 0)
+			{
+				msg_print("Dual Wielding is turned On.");
+				p_ptr->dualwield = 1;
+			}
+			else
+			{
+				msg_print("Dual Wielding is turned Off.");
+				p_ptr->dualwield = 0;
+			}
                         break;
                 }
 
@@ -2742,13 +2608,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Show quest status -KMW- */
-		case KTRL('Q'):
-		{
-			do_cmd_checkquest();
-			break;
-		}
-
 		/* Redraw the screen */
 		case KTRL('R'):
 		{
@@ -2813,7 +2672,12 @@ static void process_command(void)
 			do_cmd_save_screen();
 			break;
 		}
-
+		/* Use song! */
+		case 'h':
+		{
+			call_lua("music_menu", "", "");
+			break;
+		}
                 /* Charge weapon */
                 case 'N':
 		{
@@ -3207,8 +3071,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	int quest_num = 0;
-
 	/* Reset various flags */
 	hack_mind = FALSE;
 
@@ -3239,17 +3101,6 @@ static void dungeon(void)
 
 	/* Disturb */
 	disturb(1, 0);
-
-	/* Get index of current quest (if any) */
-	quest_num = random_quest_number(dun_level);
-	if (!quest_num) quest_num = p_ptr->inside_quest;
-
-	/* Inside a quest? */
-	if (quest_num)
-	{
-		/* Mark the quest monster */
-		r_info[quest[quest_num].r_idx].flags1 |= RF1_QUESTOR;
-	}
 
 	/* Track maximum player level */
 	if (p_ptr->max_plv < p_ptr->lev)
@@ -3524,23 +3375,22 @@ static void dungeon(void)
         {
                 dun_level = 0;
         }
-        if (dun_level > d_info[dungeon_type].maxdepth)
+        if (dun_level > d_info[dungeon_type].maxdepth && !(p_ptr->inside_quest))
         {
 		/* There may be a quest at the end of the dungeon... */
 		if (d_info[dungeon_type].quest > 0)
 		{
+			/* Reset the positions if we're not in a quest. */
+			if (!(p_ptr->inside_quest))
+			{
+				p_ptr->questx = 0;
+				p_ptr->questy = 0;
+			}
 			p_ptr->inside_quest = d_info[dungeon_type].quest;
 		}
                 else dun_level = 0;
         }
         is_recall = FALSE;
-
-	/* Inside a quest and non-unique questor? */
-	if (quest_num && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE))
-	{
-		/* Un-mark the quest monster */
-		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
-	}
 }
 
 
@@ -3564,7 +3414,7 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
+	sprintf(buf, "%s.prf", classes_def[p_ptr->pclass].name);
 
 	/* Process that file */
 	process_pref_file(buf);
@@ -3594,7 +3444,7 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
+	sprintf(buf, "%s.prf", classes_def[p_ptr->pclass].name);
 
 	/* Process that file */
 	process_pref_file(buf);
@@ -3725,12 +3575,7 @@ void play_game(bool new_game)
 		player_birth();
 
 		/* Hack -- enter the world */
-                /* Mega-hack Vampires and Spectres start in the dungeon */
-                /* Dark Lords too!! */
-                if ((p_ptr->prace == RACE_VAMPIRE) || (p_ptr->pclass == CLASS_DARK_LORD))
-                        turn = (10L * TOWN_DAWN / 2) + 1;
-                else
-                        turn = 1;
+                turn = 1;
 	}
 
 	/* Flash a message */
@@ -3906,9 +3751,6 @@ void play_game(bool new_game)
 				(void)set_stun(0);
 				(void)set_cut(0);
 
-				/* Hack -- Prevent starvation */
-				(void)set_food(PY_FOOD_MAX - 1);
-
 				/* Hack -- cancel recall */
 				if (p_ptr->word_recall)
 				{
@@ -4037,6 +3879,7 @@ void show_dialog(int dialognum)
 
 static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 {
+	int i;
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
@@ -4053,10 +3896,7 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 	o_ptr->pval = k_ptr->pval;
 
         /* Default "pval3" for weapons */
-        if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED ||
-        o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_SWORD_DEVASTATION ||
-        o_ptr->tval == TV_ROD || o_ptr->tval == TV_DAGGER || o_ptr->tval == TV_MSTAFF ||
-        o_ptr->tval == TV_HELL_STAFF || o_ptr->tval == TV_AXE || o_ptr->tval == TV_ZELAR_WEAPON)
+        if (is_weapon(o_ptr))
         {
         o_ptr->pval3 = 20 + randint(10);
         if (o_ptr->name1 || o_ptr->name2 == 131)
@@ -4098,22 +3938,55 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 	}
 
 	/* Default resistances */
-	o_ptr->fireres = k_ptr->fireres;
-	o_ptr->coldres = k_ptr->coldres;
-	o_ptr->elecres = k_ptr->elecres;
-	o_ptr->acidres = k_ptr->acidres;
-	o_ptr->poisres = k_ptr->poisres;
-	o_ptr->lightres = k_ptr->lightres;
-	o_ptr->darkres = k_ptr->darkres;
-	o_ptr->warpres = k_ptr->warpres;
-	o_ptr->waterres = k_ptr->waterres;
-	o_ptr->windres = k_ptr->windres;
-	o_ptr->earthres = k_ptr->earthres;
-	o_ptr->soundres = k_ptr->soundres;
-	o_ptr->radiores = k_ptr->radiores;
-	o_ptr->chaosres = k_ptr->chaosres;
-	o_ptr->physres = k_ptr->physres;
-	o_ptr->manares = k_ptr->manares;
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		o_ptr->resistances[i] = k_ptr->resistances[i];
+	}
+
+	/* Default stats bonus. */
+	for (i = 0; i < 6; i++)
+	{
+		o_ptr->statsbonus[i] = k_ptr->statsbonus[i];
+	}
+
+	/* Default skills bonus. */
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		o_ptr->skillsbonus[i] = k_ptr->skillsbonus[i];
+	}
+
+	/* Spells(if any) */
+	for (i = 0; i < 20; i++)
+	{
+		strcpy(o_ptr->spell[i].name, k_ptr->spell[i].name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = k_ptr->spell[i].type;
+		o_ptr->spell[i].power = k_ptr->spell[i].power;
+		o_ptr->spell[i].special1 = k_ptr->spell[i].special1;
+		o_ptr->spell[i].special2 = k_ptr->spell[i].special2;
+		o_ptr->spell[i].special3 = k_ptr->spell[i].special3;
+		o_ptr->spell[i].summchar = k_ptr->spell[i].summchar;
+		o_ptr->spell[i].cost = k_ptr->spell[i].cost;
+	}
+
+	/* Other bonuses. */
+	o_ptr->itemtype = k_ptr->itemtype;
+	o_ptr->itemskill = k_ptr->itemskill;
+	o_ptr->extrablows = k_ptr->extrablows;
+	o_ptr->extrashots = k_ptr->extrashots;
+	o_ptr->speedbonus = k_ptr->speedbonus;
+	o_ptr->lifebonus = k_ptr->lifebonus;
+	o_ptr->manabonus = k_ptr->manabonus;
+	o_ptr->infravision = k_ptr->infravision;
+	o_ptr->spellbonus = k_ptr->spellbonus;
+	o_ptr->invisibility = k_ptr->invisibility;
+	o_ptr->light = k_ptr->light;
+	o_ptr->extra1 = k_ptr->extra1;
+	o_ptr->extra2 = k_ptr->extra2;
+	o_ptr->extra3 = k_ptr->extra3;
+	o_ptr->extra4 = k_ptr->extra4;
+	o_ptr->extra5 = k_ptr->extra5;
+	o_ptr->reflect = k_ptr->reflect;
 
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0 && o_ptr->tval != TV_LICIALHYD) o_ptr->ident |= (IDENT_BROKEN);
@@ -4126,7 +3999,14 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
         {
                 o_ptr->level = 1;
                 o_ptr->kills = 0;
+		o_ptr->tweakpoints = 2;
         }
+
+	/* Ranged weapons are fully loaded. */
+	if (o_ptr->tval == TV_RANGED)
+	{
+		o_ptr->pval2 = k_ptr->extra3;
+	}
 
 	if (o_ptr->tval == TV_GOLD)
 	{
@@ -4138,22 +4018,22 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 		{
 			case 0:
 			{
-                		apply_magic(o_ptr, dun_level, TRUE, FALSE, FALSE, FALSE);
+                		apply_magic(o_ptr, p_ptr->lev, TRUE, FALSE, FALSE, FALSE);
 				break;
 			}
 			case 1:
 			{
-                		apply_magic(o_ptr, dun_level, TRUE, TRUE, FALSE, FALSE);
+                		apply_magic(o_ptr, p_ptr->lev, TRUE, TRUE, FALSE, FALSE);
 				break;
 			}
 			case 2:
 			{
-                		apply_magic(o_ptr, dun_level, TRUE, TRUE, TRUE, FALSE);
+                		apply_magic(o_ptr, p_ptr->lev, TRUE, TRUE, TRUE, FALSE);
 				break;
 			}
 			case 3:
 			{
-                		apply_magic(o_ptr, dun_level, TRUE, TRUE, TRUE, TRUE);
+                		apply_magic(o_ptr, p_ptr->lev, TRUE, TRUE, TRUE, TRUE);
 				break;
 			}
 		}
@@ -4162,10 +4042,11 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 
 static void dialog_artifact_prep(int a_idx)
 {
+	int i;
 	object_type forge;
 	object_type *q_ptr;
         object_kind *k_ptr;
-        int i;
+        int w;
         char out_val[80];
         artifact_type *a_ptr;
         u32b f1, f2, f3, f4;                              
@@ -4237,22 +4118,64 @@ static void dialog_artifact_prep(int a_idx)
 		q_ptr->brandrad = 0;
 	}
 
-	q_ptr->fireres = a_ptr->fireres;
-	q_ptr->coldres = a_ptr->coldres;
-	q_ptr->elecres = a_ptr->elecres;
-	q_ptr->acidres = a_ptr->acidres;
-	q_ptr->poisres = a_ptr->poisres;
-	q_ptr->lightres = a_ptr->lightres;
-	q_ptr->darkres = a_ptr->darkres;
-	q_ptr->warpres = a_ptr->warpres;
-	q_ptr->waterres = a_ptr->waterres;
-	q_ptr->windres = a_ptr->windres;
-	q_ptr->earthres = a_ptr->earthres;
-	q_ptr->soundres = a_ptr->soundres;
-	q_ptr->radiores = a_ptr->radiores;
-	q_ptr->chaosres = a_ptr->chaosres;
-	q_ptr->physres = a_ptr->physres;
-	q_ptr->manares = a_ptr->manares;
+	for (w = 0; w < MAX_RESIST; w++)
+	{
+		q_ptr->resistances[w] = a_ptr->resistances[w];
+	}
+
+	/* Default stats bonus. */
+	for (i = 0; i < 6; i++)
+	{
+		q_ptr->statsbonus[i] = a_ptr->statsbonus[i];
+	}
+
+	/* Default skills bonus. */
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		q_ptr->skillsbonus[i] = a_ptr->skillsbonus[i];
+	}
+
+	/* Spells(if any) */
+	for (i = 0; i < 20; i++)
+	{
+		strcpy(q_ptr->spell[i].name, a_ptr->spell[i].name);
+                strcpy(q_ptr->spell[i].act, "");
+		q_ptr->spell[i].type = a_ptr->spell[i].type;
+		q_ptr->spell[i].power = a_ptr->spell[i].power;
+		q_ptr->spell[i].special1 = a_ptr->spell[i].special1;
+		q_ptr->spell[i].special2 = a_ptr->spell[i].special2;
+		q_ptr->spell[i].special3 = a_ptr->spell[i].special3;
+		q_ptr->spell[i].summchar = a_ptr->spell[i].summchar;
+		q_ptr->spell[i].cost = a_ptr->spell[i].cost;
+	}
+
+	/* Hack give a basic exp/exp level to an object that needs it */
+        if(a_ptr->flags4 & (TR4_LEVELS))
+        {
+                q_ptr->level = 1;
+                q_ptr->kills = 0;
+		q_ptr->tweakpoints = 2;
+        }
+
+	/* Other bonuses. */
+	q_ptr->itemtype = a_ptr->itemtype;
+	q_ptr->itemskill = a_ptr->itemskill;
+	q_ptr->extrablows = a_ptr->extrablows;
+	q_ptr->extrashots = a_ptr->extrashots;
+	q_ptr->speedbonus = a_ptr->speedbonus;
+	q_ptr->lifebonus = a_ptr->lifebonus;
+	q_ptr->manabonus = a_ptr->manabonus;
+	q_ptr->infravision = a_ptr->infravision;
+	q_ptr->spellbonus = a_ptr->spellbonus;
+	q_ptr->invisibility = a_ptr->invisibility;
+	q_ptr->light = a_ptr->light;
+	q_ptr->extra1 = a_ptr->extra1;
+	q_ptr->extra2 = a_ptr->extra2;
+	q_ptr->extra3 = a_ptr->extra3;
+	q_ptr->extra4 = a_ptr->extra4;
+	q_ptr->extra5 = a_ptr->extra5;
+	q_ptr->reflect = a_ptr->reflect;
+	q_ptr->cursed = a_ptr->cursed;
 
         a_ptr->cur_num = 1;
 
@@ -4270,7 +4193,7 @@ int process_dialog(int dnum, FILE *fp)
 	char c;
 	char buf[1024];
 	char query;
-	int var1, var2, var3, var4, var5, var6, var7, var8, var9;
+	s32b var1, var2, var3, var4, var5, var6, var7, var8, var9;
 	bool dialogfound = FALSE;
 	bool dialog_active = TRUE;
 	dialog_answers answers[5];
@@ -4372,7 +4295,7 @@ int process_dialog(int dnum, FILE *fp)
 						}
 						if (strstr(tmpspec,"CLASS"))
 						{
-							sprintf(tmp, "%s%s", str, cp_ptr->title);
+							sprintf(tmp, "%s%s", str, classes_def[p_ptr->pclass].name);
 							strcpy(str, tmp);
 						}
 						if (strstr(tmpspec,"HeShe"))
@@ -4471,6 +4394,18 @@ int process_dialog(int dnum, FILE *fp)
 							else sprintf(tmp, "%s%s", str, "heroine");
 							strcpy(str, tmp);
 						}
+						if (strstr(tmpspec,"MrMiss"))
+						{
+							if (p_ptr->psex == SEX_MALE) sprintf(tmp, "%s%s", str, "Mr");
+							else sprintf(tmp, "%s%s", str, "Miss");
+							strcpy(str, tmp);
+						}
+						if (strstr(tmpspec,"MrMrs"))
+						{
+							if (p_ptr->psex == SEX_MALE) sprintf(tmp, "%s%s", str, "Mr");
+							else sprintf(tmp, "%s%s", str, "Mrs");
+							strcpy(str, tmp);
+						}
 					}
 					else
 					{
@@ -4531,7 +4466,7 @@ int process_dialog(int dnum, FILE *fp)
 						}
 						if (strstr(tmpspec,"CLASS"))
 						{
-							sprintf(tmp, "%s%s", aname, cp_ptr->title);
+							sprintf(tmp, "%s%s", aname, classes_def[p_ptr->pclass].name);
 							strcpy(aname, tmp);
 						}
 						if (strstr(tmpspec,"HeShe"))
@@ -4630,6 +4565,18 @@ int process_dialog(int dnum, FILE *fp)
 							else sprintf(tmp, "%s%s", aname, "heroine");
 							strcpy(aname, tmp);
 						}
+						if (strstr(tmpspec,"MrMiss"))
+						{
+							if (p_ptr->psex == SEX_MALE) sprintf(tmp, "%s%s", aname, "Mr");
+							else sprintf(tmp, "%s%s", aname, "Miss");
+							strcpy(aname, tmp);
+						}
+						if (strstr(tmpspec,"MrMrs"))
+						{
+							if (p_ptr->psex == SEX_MALE) sprintf(tmp, "%s%s", aname, "Mr");
+							else sprintf(tmp, "%s%s", aname, "Mrs");
+							strcpy(aname, tmp);
+						}
 					}
 					else
 					{
@@ -4644,7 +4591,7 @@ int process_dialog(int dnum, FILE *fp)
 				pos = pos + 1;
 
 				/* Scan for the other values */
-                        	if (9 != sscanf(buf+pos, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        	if (9 != sscanf(buf+pos, "%ld:%ld:%ld:%ld:%ld:%ld:%ld:%ld:%ld",
 					&var1, &var2, &var3, &var4, &var5, &var6, &var7, &var8, &var9)) return (1);
 
 				/* Save the values */
@@ -4736,7 +4683,7 @@ int process_dialog(int dnum, FILE *fp)
 					case 5:
 					{
 						answers[i].valid = 0;
-						if (p_ptr->stat_ind[A_CHR] >= answers[i].cparam1) answers[i].valid = 1;
+						if (p_ptr->stat_ind[A_CHR] + (p_ptr->abilities[(CLASS_BARD * 10) + 6] * 5) >= answers[i].cparam1) answers[i].valid = 1;
 						break;
 					}
 				}
@@ -4750,30 +4697,28 @@ int process_dialog(int dnum, FILE *fp)
 		/* First, look for the correct 'N' */
 		if ((buf[0] == 'N') && !(dialogfound))
 		{
-			int racevar, sexvar, alivar;
+			s32b racevar, sexvar, alivar;
 			/* Scan for the values */
-			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+			if (6 != sscanf(buf+2, "%ld:%ld:%ld:%ld:%ld:%ld",
                                 &var1, &var2, &var3, &racevar, &sexvar, &alivar)) return (1);
 
 			if (var1 == dnum)
 			{
-				if (var2 != 0)
+				
+				if (p_ptr->events[var2] == var3)
 				{
-					if (p_ptr->events[var2] == var3)
+					if ((racevar > 0) && (p_ptr->prace == racevar))
 					{
-						if ((racevar > 0) && (p_ptr->prace == racevar))
-						{
-							if ((sexvar > 0) && ((p_ptr->psex + 1) == sexvar)) dialogfound = TRUE;
-							else if (sexvar == 0) dialogfound = TRUE;
-						}
-						else if (racevar == 0)
-						{ 
-							if ((sexvar > 0) && ((p_ptr->psex + 1) == sexvar)) dialogfound = TRUE;
-							else if (sexvar == 0) dialogfound = TRUE;
-						}
+						if ((sexvar > 0) && ((p_ptr->psex + 1) == sexvar)) dialogfound = TRUE;
+						else if (sexvar == 0) dialogfound = TRUE;
+					}
+					else if (racevar == 0)
+					{ 
+						if ((sexvar > 0) && ((p_ptr->psex + 1) == sexvar)) dialogfound = TRUE;
+						else if (sexvar == 0) dialogfound = TRUE;
 					}
 				}
-				else dialogfound = TRUE; 
+				
 			}
 			/* Check the alignment here. */
 			if (alivar != 0)
@@ -4794,7 +4739,13 @@ int process_dialog(int dnum, FILE *fp)
 	while (answers[i].valid == 1)
 	{
 		sprintf(str, "[%d] %s", (i + 1), answers[i].name);
-		c_put_str(TERM_L_BLUE, str, curline, 0);
+		if (answers[i].ctype == 5) c_put_str(TERM_L_GREEN, str, curline, 0);
+		else if (answers[i].ctype == 4)
+		{
+			if (answers[i].cparam1 >= 0) c_put_str(TERM_YELLOW, str, curline, 0);
+			else c_put_str(TERM_L_RED, str, curline, 0);
+		}
+		else c_put_str(TERM_L_BLUE, str, curline, 0);
 		curline += 1;
 		i += 1;
 	}
@@ -4831,11 +4782,22 @@ int process_dialog(int dnum, FILE *fp)
 				/* End dialog, change town. */
 				case 2:
 				{
+					int newx, newy;
 					p_ptr->town_num = answers[choice].eparam1;
 					p_ptr->startx = answers[choice].eparam2;
 					p_ptr->starty = answers[choice].eparam3;
 					p_ptr->inside_quest = 0;
 					p_ptr->wild_mode = 0;
+
+					newx = get_town_overworldx(answers[choice].eparam1);
+					newy = get_town_overworldy(answers[choice].eparam1);
+
+					/* Shouldn't happen, but... */
+					if (newx != 0 && newy != 0)
+					{
+						p_ptr->wild_x = newx;
+						p_ptr->wild_y = newy;
+					}
 
 					dun_level = 0;
 					p_ptr->leaving = TRUE;
@@ -4862,9 +4824,9 @@ int process_dialog(int dnum, FILE *fp)
 						object_prep_magic(q_ptr, answers[choice].eparam1, answers[choice].eparam2);
 
 						/* If an ammo, create many! */
-						if (q_ptr->tval == TV_ARROW || q_ptr->tval == TV_BOLT || q_ptr->tval == TV_SHOT)
+						if (q_ptr->tval == TV_AMMO)
 						{
-							q_ptr->number = randint(10) + 20;
+							q_ptr->number = 20;
 						}
 
         					(void)inven_carry(q_ptr, FALSE);
@@ -4953,6 +4915,13 @@ int process_dialog(int dnum, FILE *fp)
 					}
 					else mass_change_allegiance(answers[choice].eparam1, FALSE);
 					process_dialog(answers[choice].eparam3, fp);
+					break;
+				}
+				/* Run script. */
+				case 11:
+				{
+					call_lua("dialog_script", "(d)", "", answers[choice].eparam1);
+					process_dialog(answers[choice].eparam2, fp);
 					break;
 				}
 			}

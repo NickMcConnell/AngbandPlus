@@ -1,0 +1,24 @@
+Some text is written on this old scroll, along with a drawing:
+
+#1##2##3#
+........#
+........#
+#4##5##6#
+
+
+Starting in front of a number that represents the great kingdoms, move
+three grids to the left. When you get in front of a new number, take
+that number, and substract from it an amount equal to half the number
+of letters in the name of the one who betrayed my king Zailab. Finally,
+answer this question: Who is the supreme being whom the betrayer
+claimed to serve?
+
+1. Ryoon, the Ghostfather.
+2. The god of treachery and corruption.
+3. Dalunia, Goddess of nature.
+4. An evil priest.
+5. He served no one but himself.
+
+Once you've made your choice, increase your number by the answer's number.
+
+Now, choose a door, and face your fate.

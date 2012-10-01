@@ -143,17 +143,12 @@ static bool wearable_p(object_type *o_ptr)
                 case TV_WAND:
                 case TV_STAFF:
                 case TV_ROD:
-		case TV_ARROW:
-		case TV_BOLT:
-                case TV_BOOMERANG:
-		case TV_BOW:
+		case TV_AMMO:
+                case TV_THROWING:
+		case TV_RANGED:
 		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
+		case TV_WEAPON:
                 case TV_MSTAFF:
-		case TV_SWORD:
-                case TV_DAGGER:
-                case TV_AXE:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -169,10 +164,6 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_RING:
                 case TV_HYPNOS:
                 case TV_INSTRUMENT:
-                case TV_SWORD_DEVASTATION:
-                case TV_HELL_STAFF:
-                case TV_VALKYRIE_SPEAR:
-                case TV_ZELAR_WEAPON:
 		{
 			return (TRUE);
 		}
@@ -292,8 +283,10 @@ static void strip_bytes(int n)
  */
 static void rd_item(object_type *o_ptr)
 {
-	byte old_dd;
-	byte old_ds;
+	s16b old_dd;
+	s16b old_ds;
+
+	int i;
 
         u32b f1, f2, f3, f4;
 
@@ -310,7 +303,7 @@ static void rd_item(object_type *o_ptr)
 
 	/* Type/Subtype */
         rd_byte(&o_ptr->tval);
-	rd_byte(&o_ptr->sval);
+	rd_s16b(&o_ptr->sval);
 
 	/* Special pval */
         rd_s32b(&o_ptr->pval);
@@ -322,22 +315,45 @@ static void rd_item(object_type *o_ptr)
         rd_s32b(&o_ptr->pval3);
 
 	/* Resistances! */
-	rd_s16b(&o_ptr->fireres);
-	rd_s16b(&o_ptr->coldres);
-	rd_s16b(&o_ptr->elecres);
-	rd_s16b(&o_ptr->acidres);
-	rd_s16b(&o_ptr->poisres);
-	rd_s16b(&o_ptr->lightres);
-	rd_s16b(&o_ptr->darkres);
-	rd_s16b(&o_ptr->warpres);
-	rd_s16b(&o_ptr->waterres);
-	rd_s16b(&o_ptr->windres);
-	rd_s16b(&o_ptr->earthres);
-	rd_s16b(&o_ptr->soundres);
-	rd_s16b(&o_ptr->chaosres);
-	rd_s16b(&o_ptr->radiores);
-	rd_s16b(&o_ptr->physres);
-	rd_s16b(&o_ptr->manares);
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		rd_s16b(&o_ptr->resistances[i]);
+	}
+
+	/* Stats bonus! */
+	for (i = 0; i < 6; i++)
+	{
+		rd_s16b(&o_ptr->statsbonus[i]);
+	}
+
+	/* Skills bonus! */
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		rd_s16b(&o_ptr->skillsbonus[i]);
+	}
+
+	/* Other bonus. */
+	rd_s16b(&o_ptr->itemtype);
+	rd_s16b(&o_ptr->itemskill);
+	rd_s16b(&o_ptr->extrablows);
+	rd_s16b(&o_ptr->extrashots);
+	rd_s16b(&o_ptr->speedbonus);
+	rd_s16b(&o_ptr->lifebonus);
+	rd_s16b(&o_ptr->manabonus);
+	rd_s16b(&o_ptr->infravision);
+	rd_s16b(&o_ptr->spellbonus);
+	rd_s16b(&o_ptr->invisibility);
+	rd_s16b(&o_ptr->light);
+	rd_s16b(&o_ptr->extra1);
+	rd_s16b(&o_ptr->extra2);
+	rd_s16b(&o_ptr->extra3);
+	rd_s16b(&o_ptr->extra4);
+	rd_s16b(&o_ptr->extra5);
+	rd_s16b(&o_ptr->reflect);
+	rd_s16b(&o_ptr->cursed);
+
+	rd_s16b(&o_ptr->tweakpoints);
+	rd_s16b(&o_ptr->disabled);
 
 	rd_s16b(&o_ptr->brandtype);
 	rd_s32b(&o_ptr->branddam);
@@ -347,18 +363,18 @@ static void rd_item(object_type *o_ptr)
         rd_byte(&o_ptr->number);
         rd_s32b(&o_ptr->weight);
 
-        rd_byte(&o_ptr->name1);
-        rd_byte(&o_ptr->name2);
+        rd_s16b(&o_ptr->name1);
+        rd_s16b(&o_ptr->name2);
         rd_s16b(&o_ptr->timeout);
 
-        rd_s16b(&o_ptr->to_h);
-        rd_s16b(&o_ptr->to_d);
-        rd_s16b(&o_ptr->to_a);
+        rd_s32b(&o_ptr->to_h);
+        rd_s32b(&o_ptr->to_d);
+        rd_s32b(&o_ptr->to_a);
 
-        rd_s16b(&o_ptr->ac);
+        rd_s32b(&o_ptr->ac);
 
-        rd_byte(&old_dd);
-        rd_byte(&old_ds);
+        rd_s16b(&old_dd);
+        rd_s16b(&old_ds);
 
         rd_byte(&o_ptr->ident);
 
@@ -383,6 +399,20 @@ static void rd_item(object_type *o_ptr)
         rd_s16b(&o_ptr->level);
         rd_s32b(&o_ptr->kills);
 
+	/* Read spells */
+	for (i = 0; i < 20; i++)
+	{
+		rd_string(o_ptr->spell[i].name, 80);
+                rd_string(o_ptr->spell[i].act, 80);
+		rd_s16b(&o_ptr->spell[i].type);
+		rd_s16b(&o_ptr->spell[i].power);
+		rd_s16b(&o_ptr->spell[i].special1);
+		rd_s16b(&o_ptr->spell[i].special2);
+		rd_s16b(&o_ptr->spell[i].special3);
+		rd_byte(&o_ptr->spell[i].summchar);
+		rd_s16b(&o_ptr->spell[i].cost);
+	}
+
 	/* Inscription */
 	rd_string(buf, 128);
 
@@ -406,30 +436,6 @@ static void rd_item(object_type *o_ptr)
 
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
-
-	/* Repair non "wearable" items */
-	if (!wearable_p(o_ptr))
-	{
-		/* Acquire correct fields */
-		o_ptr->to_h = k_ptr->to_h;
-		o_ptr->to_d = k_ptr->to_d;
-		o_ptr->to_a = k_ptr->to_a;
-
-                o_ptr->ac = k_ptr->ac;
-                o_ptr->dd = k_ptr->dd;
-                o_ptr->ds = k_ptr->ds;
-
-		/* Acquire correct weight */
-                if((o_ptr->tval != TV_CORPSE)&&(o_ptr->tval != TV_EGG)) o_ptr->weight = k_ptr->weight;
-
-		/* Paranoia */
-		o_ptr->name1 = o_ptr->name2 = 0;
-
-		/* All done */
-		return;
-	}
-
 
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -483,43 +489,6 @@ static void rd_item(object_type *o_ptr)
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 
-
-	/* Artifacts */
-	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr;
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Acquire new artifact fields */
-		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
-
-		/* Acquire new artifact weight */
-		o_ptr->weight = a_ptr->weight;
-
-		/* Hack -- extract the "broken" flag */
-		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-	}
-
-	/* Ego items */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr;
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
-
-
-		o_ptr->dd = old_dd;
-		o_ptr->ds = old_ds;
-
-		/* Hack -- extract the "broken" flag */
-		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-	}
-
 	if (o_ptr->art_name) /* A random artifact */
 	{
 		o_ptr->dd = old_dd;
@@ -562,23 +531,25 @@ static void rd_monster(monster_type *m_ptr)
         rd_s16b(&m_ptr->boss);
         rd_u32b(&m_ptr->abilities);
         rd_s16b(&m_ptr->friend);
-        rd_s16b(&m_ptr->hitrate);
-        rd_s16b(&m_ptr->defense);
+        rd_s32b(&m_ptr->hitrate);
+        rd_s32b(&m_ptr->defense);
         rd_byte(&m_ptr->animated);
         rd_s16b(&m_ptr->animdam_d);
         rd_s16b(&m_ptr->animdam_s);
         rd_s16b(&m_ptr->seallight);
-	rd_s16b(&m_ptr->str);
-	rd_s16b(&m_ptr->dex);
-	rd_s16b(&m_ptr->mind);
-	rd_s16b(&m_ptr->skill_attack);
-	rd_s16b(&m_ptr->skill_magic);
+	rd_s32b(&m_ptr->str);
+	rd_s32b(&m_ptr->dex);
+	rd_s32b(&m_ptr->mind);
+	rd_s32b(&m_ptr->skill_attack);
+	rd_s32b(&m_ptr->skill_ranged);
+	rd_s32b(&m_ptr->skill_magic);
 	rd_s32b(&m_ptr->mana);
 	rd_s16b(&m_ptr->hasted);
 	rd_s16b(&m_ptr->boosted);
 	rd_s16b(&m_ptr->spoke);
 	rd_s16b(&m_ptr->lives);
 	rd_s16b(&m_ptr->summoned);
+	rd_byte(&m_ptr->no_experience);
 }
 
 
@@ -715,25 +686,20 @@ static void rd_lore(int r_idx)
 	r_ptr->r_flags6 &= r_ptr->flags6;
 }
 
-
-
-
-/*
- * Read a store
- */
-static errr rd_store(int town_number, int store_number)
+static errr rd_store(int store_number)
 {
-	store_type *st_ptr = &town[town_number].store[store_number];
+	store_type *st_ptr = &stores[store_number];
 
 	int j;
 
-	byte own, num;
+	byte own;
+	s16b num;
 
 	/* Read the basic info */
 	rd_s32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
 	rd_byte(&own);
-	rd_byte(&num);
+	rd_s16b(&num);
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
 
@@ -759,20 +725,31 @@ static errr rd_store(int town_number, int store_number)
 		rd_item(q_ptr);
 
 		/* Acquire valid items */
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
+		if (store_number == 7)
 		{
-			int k = st_ptr->stock_num++;
+			if (st_ptr->stock_num < HOME_INVEN_MAX)
+			{
+				int k = st_ptr->stock_num++;
 
-			/* Acquire the item */
-			object_copy(&st_ptr->stock[k], q_ptr);
+				/* Acquire the item */
+				object_copy(&st_ptr->stock[k], q_ptr);
+			}
+		}
+		else
+		{
+			if (st_ptr->stock_num < STORE_INVEN_MAX)
+			{
+				int k = st_ptr->stock_num++;
+
+				/* Acquire the item */
+				object_copy(&st_ptr->stock[k], q_ptr);
+			}
 		}
 	}
 
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Read RNG state (added in 2.8.0)
@@ -1198,6 +1175,24 @@ static void rd_extra(void)
 	/* Random dungeon! */
 	rd_random_dungeon();
 
+	/* Random boss! */
+	rd_random_boss();
+
+	/* Random monsters! */
+	rd_random_monsters();
+
+	/* Read global object */
+	rd_global_object();
+
+	/* Read songs. */
+	rd_songs();
+
+	/* Read stores inventories. */
+	for (i = 0; i < MAX_STORES; i++)
+	{
+		rd_store(i);
+	}
+
         /* Player skills/abilities */
         rd_s32b(&p_ptr->ability_points);
         rd_s16b(&p_ptr->memorized);
@@ -1226,8 +1221,8 @@ static void rd_extra(void)
         rd_s16b(&p_ptr->pres_dur);
         rd_s16b(&p_ptr->mres);
         rd_s16b(&p_ptr->mres_dur);
-        rd_s16b(&p_ptr->ac_boost);
-        rd_s16b(&p_ptr->ac_boost_dur);
+        rd_s32b(&p_ptr->ac_boost);
+        rd_s32b(&p_ptr->ac_boost_dur);
         rd_s16b(&p_ptr->elem_shield);
 
         rd_s16b(&p_ptr->elemental);
@@ -1246,6 +1241,9 @@ static void rd_extra(void)
         for (i = 0; i < MAX_ABILITIES; ++i) rd_s16b(&p_ptr->abilities[i]);
         rd_s16b(&p_ptr->num_abilities);
 	for (i = 0; i < 36; ++i) rd_s16b(&p_ptr->abilities_powers[i]);
+	for (i = 0; i < 20; ++i) rd_s16b(&p_ptr->abilities_monster_attacks[i]);
+	for (i = 0; i < 20; ++i) rd_s16b(&p_ptr->abilities_monster_spells[i]);
+	rd_u32b(&p_ptr->boss_abilities);
         rd_s16b(&p_ptr->magic_mode);
         rd_byte(&p_ptr->auraon);
         rd_s32b(&p_ptr->deathcount);
@@ -1256,6 +1254,8 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->cur_wid);
 	rd_s16b(&p_ptr->cur_hgt);
 	rd_s16b(&p_ptr->alignment);
+	rd_s16b(&p_ptr->cursed);
+	rd_s16b(&p_ptr->dualwield);
 	for (i = 0; i < 30000; ++i) rd_s16b(&p_ptr->events[i]);
 	for (i = 0; i < 30000; ++i) rd_s16b(&p_ptr->towns[i]);
 }
@@ -1438,7 +1438,7 @@ static errr rd_dungeon(void)
 
 	/* Header info */
         rd_s16b(&dun_level);
-        rd_byte(&dungeon_type);
+        rd_s16b(&dungeon_type);
         rd_s16b(&num_repro);
 	rd_s16b(&py);
 	rd_s16b(&px);
@@ -1446,29 +1446,6 @@ static errr rd_dungeon(void)
 	rd_s16b(&cur_wid);
 	rd_s16b(&max_panel_rows);
 	rd_s16b(&max_panel_cols);
-
-        /* SAVE MY LIFE */
-        /* This little add-on (may) allow you to restore a character if an */
-        /* evil software bug makes the game crash and you are no longer */
-        /* able to play with your character... */
-
-        /*p_ptr->inside_quest = FALSE;*/ 
-        /*px = 40;                    */
-        /*py = 25;                    */
-
-	if (!dun_level && !p_ptr->inside_quest)
-	{
-		/* Init the wilderness */
-		/*process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid);*/
-
-		/* Init the town */
-		/*xstart = 0;
-		ystart = 0;
-		init_flags = 0;
-		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid);*/
-		/*generate_cave();*/
-	}
-
 
 	/* Maximal size */
 	ymax = cur_hgt;
@@ -1988,6 +1965,36 @@ static errr rd_dungeon(void)
 			}
 		}
 
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->owner = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
 		/* Read scripts! */
 		for (y = 0; y < cur_hgt; y++)
 		{
@@ -2373,51 +2380,6 @@ static errr rd_savefile_new_aux(void)
 	p_ptr->town_num = 1;
 
         {
-		u16b max_towns_load;
-		u16b max_quests_load;
-
-		/* Number of towns */
-		rd_u16b(&max_towns_load);
-
-		/* Incompatible save files */
-		if (max_towns_load > max_towns)
-		{
-			note(format("Too many (%u) towns!", max_towns_load));
-			return (23);
-		}
-
-		/* Number of quests */
-		rd_u16b(&max_quests_load);
-
-		/* Incompatible save files */
-		if (max_quests_load > max_quests)
-		{
-			note(format("Too many (%u) quests!", max_quests_load));
-			return (23);
-		}
-
-		for (i = 0; i < max_quests_load; i++)
-		{
-			rd_s16b(&quest[i].status);
-
-                        rd_s16b(&quest[i].level);
-
-			/* Load quest status if quest is running */
-			if (quest[i].status == 1)
-			{
-                                rd_s16b(&quest[i].k_idx);
-                                if(quest[i].k_idx)a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
-				rd_s16b(&quest[i].cur_num);
-				rd_s16b(&quest[i].max_num);
-				rd_s16b(&quest[i].type);
-
-				rd_s16b(&quest[i].r_idx);
-
-				/* Mark uniques */
-				if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
-						r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
-			}
-		}
 
 		/* Position in the wilderness */
 		rd_s32b(&p_ptr->wild_x);
@@ -2520,37 +2482,6 @@ static errr rd_savefile_new_aux(void)
 	rp_ptr = &race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 
-	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
-
-
-	/* Read spell info */
-	rd_u16b(&tmp16u);
-
-	/* Incompatible save files */
-        if (tmp16u > MAX_REALM)
-	{
-                note(format("Too many (%u) realm entries!", tmp16u));
-		return (25);
-	}
-
-	/* Read the player_hp array */
-	for (i = 0; i < tmp16u; i++)
-        {
-                rd_u32b(&spell_learned[i][0]);
-                rd_u32b(&spell_learned[i][1]);
-                rd_u32b(&spell_worked[i][0]);
-                rd_u32b(&spell_worked[i][1]);
-                rd_u32b(&spell_forgotten[i][0]);
-                rd_u32b(&spell_forgotten[i][1]);
-        }
-
-	for (i = 0; i < 64; i++)
-	{
-                rd_byte(&realm_order[i]);
-		rd_byte(&spell_order[i]);
-	}
-
 	/* Read the pet command settings */
         rd_byte(&p_ptr->pet_follow_distance);
         rd_byte(&p_ptr->pet_open_doors);
@@ -2561,20 +2492,6 @@ static errr rd_savefile_new_aux(void)
 	{
 		note("Unable to read inventory");
                 return (21);
-	}
-
-	/* Read number of towns */
-        rd_u16b(&tmp16u);
-        town_count = tmp16u;
-
-	/* Read the stores */
-	rd_u16b(&tmp16u);
-	for (i = 1; i < town_count; i++)
-	{
-		for (j = 0; j < tmp16u; j++)
-		{
-			if (rd_store(i, j)) return (22);
-		}
 	}
 
 	/* I'm not dead yet... */
@@ -2597,7 +2514,7 @@ static errr rd_savefile_new_aux(void)
 		/* Dead players have no dungeon */
                 note("You have lost all your items!!!");
                 no_more_items();
-                p_ptr->au = p_ptr->au / 2;
+                p_ptr->au = 0;
                 p_ptr->chp = 1;
                 p_ptr->inside_quest = 0;
                 p_ptr->cut = 0;
@@ -2607,11 +2524,13 @@ static errr rd_savefile_new_aux(void)
 		p_ptr->afraid = 0;
 		p_ptr->blind = 0;
                 p_ptr->word_recall = 0;
-                p_ptr->food = 5000;
                 /* max_dlv[p_ptr->recall_dungeon] -= 2;*/
                 /* if (max_dlv[p_ptr->recall_dungeon] < 0) max_dlv[p_ptr->recall_dungeon] = 0;*/
                 restore_level();
                 dun_level = 0;
+
+		p_ptr->town_num = p_ptr->events[29998];
+
 		/* Restart to the latest town's startx/starty */
 		for (x = 0; x < wild_max_x; x++)
 		{
@@ -2624,12 +2543,12 @@ static errr rd_savefile_new_aux(void)
 				}
 			}
 		}
-		if (p_ptr->wild_mode || p_ptr->recall_dungeon == 200)
-		{
+		/*if (p_ptr->wild_mode || p_ptr->recall_dungeon == 200)*/
+		/*{*/
 			p_ptr->startx = get_town_startx(p_ptr->town_num);
 			p_ptr->starty = get_town_starty(p_ptr->town_num);
 			if (p_ptr->recall_dungeon == 200) p_ptr->recall_dungeon = 0;
-		}
+		/*}*/
 
                 /* If a vampire, revive at night! */
                 if (p_ptr->prace == RACE_VAMPIRE)
@@ -2725,7 +2644,7 @@ errr rd_savefile_new(void)
 void rd_magic_spells()
 {
         int x, i;
-        for (x = 0; x <= 29; x++)
+        for (x = 0; x <= 30; x++)
         {
                 magic_spells *spell_ptr = &magic_spell[x];
                 rd_string(spell_ptr->name, 30);
@@ -2735,7 +2654,7 @@ void rd_magic_spells()
                 for (i = 0; i < 5; ++i) rd_s32b(&spell_ptr->power[i]);
                 for (i = 0; i < 5; ++i) rd_s16b(&spell_ptr->radius[i]);
                 for (i = 0; i < 5; ++i) rd_s16b(&spell_ptr->type[i]);
-                for (i = 0; i < 5; ++i) rd_s16b(&spell_ptr->manacost[i]);
+                for (i = 0; i < 5; ++i) rd_s32b(&spell_ptr->manacost[i]);
                 rd_byte(&spell_ptr->schar1);
                 rd_byte(&spell_ptr->schar2);
                 rd_byte(&spell_ptr->schar3);
@@ -2746,7 +2665,7 @@ void rd_magic_spells()
                 rd_string(spell_ptr->sspeci3, 30);
                 rd_string(spell_ptr->sspeci4, 30);
                 rd_string(spell_ptr->sspeci5, 30);
-                rd_s16b(&spell_ptr->finalcost);
+                rd_s32b(&spell_ptr->finalcost);
                 rd_byte(&spell_ptr->created);
         }
 }
@@ -2820,7 +2739,7 @@ void rd_random_dungeon()
         rd_s16b(&d_ptr->min_m_alloc_level);
         rd_s16b(&d_ptr->max_m_alloc_chance);
 
-        /*d_ptr->flags1;*/
+        rd_u32b(&d_ptr->flags1);
 
         /*d_ptr->mflags1;
         d_ptr->mflags2;
@@ -2838,4 +2757,395 @@ void rd_random_dungeon()
 
         rd_byte(&d_ptr->special_percent);
 	rd_s16b(&d_ptr->quest);
+
+	d_ptr = &d_info[201];
+	
+	rd_u32b(&d_ptr->name);
+	rd_u32b(&d_ptr->text);
+        rd_s16b(&d_ptr->floor1);
+        rd_byte(&d_ptr->floor_percent1);
+        rd_s16b(&d_ptr->floor2);
+        rd_byte(&d_ptr->floor_percent2);
+        rd_s16b(&d_ptr->floor3);
+        rd_byte(&d_ptr->floor_percent3);
+        rd_s16b(&d_ptr->outer_wall);
+        rd_s16b(&d_ptr->inner_wall);
+        rd_s16b(&d_ptr->fill_type1);
+        rd_byte(&d_ptr->fill_percent1);
+        rd_s16b(&d_ptr->fill_type2);
+        rd_byte(&d_ptr->fill_percent2);
+        rd_s16b(&d_ptr->fill_type3);
+        rd_byte(&d_ptr->fill_percent3);
+        rd_s16b(&d_ptr->mindepth);
+        rd_s16b(&d_ptr->maxdepth);
+        rd_byte(&d_ptr->principal);
+        rd_byte(&d_ptr->next);
+        rd_byte(&d_ptr->min_plev);
+        rd_byte(&d_ptr->mode);
+
+        rd_s16b(&d_ptr->min_m_alloc_level);
+        rd_s16b(&d_ptr->max_m_alloc_chance);
+
+        rd_u32b(&d_ptr->flags1);
+
+        /*d_ptr->mflags1;
+        d_ptr->mflags2;
+        d_ptr->mflags3;
+        d_ptr->mflags4;
+        d_ptr->mflags5;
+        d_ptr->mflags6;
+        d_ptr->mflags7;
+        d_ptr->mflags8;
+        d_ptr->mflags9;*/
+
+        /* d_ptr->r_char[5]; */
+        rd_s16b(&d_ptr->final_artifact);
+        rd_s16b(&d_ptr->final_guardian);
+
+        rd_byte(&d_ptr->special_percent);
+	rd_s16b(&d_ptr->quest);
+}
+
+/* Read the random boss! */
+void rd_random_boss()
+{
+	int i;
+	monster_race *r_ptr;
+	r_ptr = &r_info[1030];
+	
+	/*rd_u32b(&r_ptr->name);*/
+	/*rd_u32b(&r_ptr->text);*/
+	rd_string(&r_ptr->name_char, 200);
+
+	rd_byte(&r_ptr->hdice);
+	rd_byte(&r_ptr->hside);
+
+	rd_s16b(&r_ptr->ac);
+
+	rd_s16b(&r_ptr->sleep);
+	rd_byte(&r_ptr->aaf);
+	rd_byte(&r_ptr->speed);
+
+	rd_s32b(&r_ptr->mexp);
+
+        rd_s32b(&r_ptr->weight);
+
+	rd_byte(&r_ptr->freq_inate);
+	rd_byte(&r_ptr->freq_spell);
+
+	rd_u32b(&r_ptr->flags1);
+	rd_u32b(&r_ptr->flags2);
+	rd_u32b(&r_ptr->flags3);
+	rd_u32b(&r_ptr->flags4);
+	rd_u32b(&r_ptr->flags5);
+	rd_u32b(&r_ptr->flags6);
+	rd_u32b(&r_ptr->flags7);
+	rd_u32b(&r_ptr->flags8);
+	rd_u32b(&r_ptr->flags9);
+
+        rd_byte(&r_ptr->level);
+	rd_byte(&r_ptr->rarity);
+
+
+	rd_byte(&r_ptr->d_attr);
+	rd_byte(&r_ptr->d_char);
+
+
+	rd_byte(&r_ptr->x_attr);
+	rd_byte(&r_ptr->x_char);
+
+
+        rd_s16b(&r_ptr->max_num);
+
+	rd_byte(&r_ptr->cur_num);
+
+
+	rd_s16b(&r_ptr->r_sights);
+	rd_s16b(&r_ptr->r_deaths);
+
+	rd_s16b(&r_ptr->r_pkills);
+	rd_s16b(&r_ptr->r_tkills);
+
+	rd_byte(&r_ptr->r_wake);
+	rd_byte(&r_ptr->r_ignore);
+
+	rd_byte(&r_ptr->r_xtra1);
+	rd_byte(&r_ptr->r_xtra2);
+
+	rd_byte(&r_ptr->r_drop_gold);
+	rd_byte(&r_ptr->r_drop_item);
+
+	rd_byte(&r_ptr->r_cast_inate);
+	rd_byte(&r_ptr->r_cast_spell);
+
+	for (i = 0; i < 20; i++)
+	{
+		rd_byte(&r_ptr->r_blows[i]);
+		rd_byte(&r_ptr->r_spells[i]);
+	}
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		rd_byte(&r_ptr->r_resist[i]);
+	}
+	rd_u32b(&r_ptr->r_flags1);
+	rd_u32b(&r_ptr->r_flags2);
+	rd_u32b(&r_ptr->r_flags3);
+	rd_u32b(&r_ptr->r_flags4);
+	rd_u32b(&r_ptr->r_flags5);
+	rd_u32b(&r_ptr->r_flags6);
+	rd_u32b(&r_ptr->r_flags7);
+        rd_u32b(&r_ptr->r_flags8);
+        rd_u32b(&r_ptr->r_flags9);
+
+        rd_byte(&r_ptr->on_saved);
+	
+	rd_s16b(&r_ptr->str);
+	rd_s16b(&r_ptr->dex);
+	rd_s16b(&r_ptr->mind);
+	rd_s16b(&r_ptr->skill_attack);
+	rd_s16b(&r_ptr->skill_ranged);
+	rd_s16b(&r_ptr->skill_magic);
+	
+	rd_s16b(&r_ptr->countertype);
+	rd_s16b(&r_ptr->counterchance);
+
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		rd_s16b(&r_ptr->resistances[i]);
+	}
+
+	rd_s16b(&r_ptr->spellchance);
+
+	rd_s16b(&r_ptr->attacks);
+	for (i = 0; i < 20; i++)
+	{
+		monster_attack *att_ptr = &r_ptr->attack[i];
+                rd_string(att_ptr->name, 80);
+		rd_string(att_ptr->act, 80);
+		rd_s16b(&att_ptr->type);
+		rd_s16b(&att_ptr->effect);
+		rd_s16b(&att_ptr->ddice);
+		rd_s16b(&att_ptr->dside);
+		rd_s16b(&att_ptr->element);
+		rd_s16b(&att_ptr->special1);
+		rd_s16b(&att_ptr->special2);
+	}
+	rd_s16b(&r_ptr->spells);
+	for (i = 0; i < 20; i++)
+	{
+		monster_spell *sp_ptr = &r_ptr->spell[i];
+                rd_string(sp_ptr->name, 80);
+		rd_string(sp_ptr->act, 80);
+		rd_s16b(&sp_ptr->type);
+		rd_s16b(&sp_ptr->power);
+		rd_s16b(&sp_ptr->special1);
+		rd_s16b(&sp_ptr->special2);
+		rd_s16b(&sp_ptr->special3);
+		rd_byte(&sp_ptr->summchar);
+		rd_s16b(&sp_ptr->cost);
+	}
+	
+	rd_s16b(&r_ptr->treasuretval);
+	rd_s16b(&r_ptr->treasuresval);
+	rd_s16b(&r_ptr->treasurechance);
+	rd_s16b(&r_ptr->treasuremagic);
+	rd_s16b(&r_ptr->event);
+	rd_s16b(&r_ptr->extra1);
+	rd_s16b(&r_ptr->extra2);
+	rd_s16b(&r_ptr->fixedlevel);
+	rd_s16b(&r_ptr->townnum);
+	rd_s16b(&r_ptr->dunnum);
+	rd_s16b(&r_ptr->lives);
+
+	/* Save the name. */
+	/*r_ptr->name = ++r_head->name_size;*/
+
+	/* Append chars to the name */
+	/*strcpy(r_name + r_head->name_size, r_ptr->name_char);*/
+}
+
+/* Read random monsters */
+void rd_random_monsters()
+{
+	int i;
+	int j;
+	monster_race *r_ptr;
+	for (j = 2050; j <= 2099; j++)
+	{
+		r_ptr = &r_info[j];
+	
+		/*rd_u32b(&r_ptr->name);*/
+		/*rd_u32b(&r_ptr->text);*/
+		rd_string(&r_ptr->name_char, 200);
+
+		rd_byte(&r_ptr->hdice);
+		rd_byte(&r_ptr->hside);
+
+		rd_s16b(&r_ptr->ac);
+
+		rd_s16b(&r_ptr->sleep);
+		rd_byte(&r_ptr->aaf);
+		rd_byte(&r_ptr->speed);
+
+		rd_s32b(&r_ptr->mexp);
+
+        	rd_s32b(&r_ptr->weight);
+
+		rd_byte(&r_ptr->freq_inate);
+		rd_byte(&r_ptr->freq_spell);
+
+		rd_u32b(&r_ptr->flags1);
+		rd_u32b(&r_ptr->flags2);
+		rd_u32b(&r_ptr->flags3);
+		rd_u32b(&r_ptr->flags4);
+		rd_u32b(&r_ptr->flags5);
+		rd_u32b(&r_ptr->flags6);
+		rd_u32b(&r_ptr->flags7);
+		rd_u32b(&r_ptr->flags8);
+		rd_u32b(&r_ptr->flags9);
+
+        	rd_byte(&r_ptr->level);
+		rd_byte(&r_ptr->rarity);
+
+
+		rd_byte(&r_ptr->d_attr);
+		rd_byte(&r_ptr->d_char);
+
+
+		rd_byte(&r_ptr->x_attr);
+		rd_byte(&r_ptr->x_char);
+
+
+        	rd_s16b(&r_ptr->max_num);
+
+		rd_byte(&r_ptr->cur_num);
+
+
+		rd_s16b(&r_ptr->r_sights);
+		rd_s16b(&r_ptr->r_deaths);
+
+		rd_s16b(&r_ptr->r_pkills);
+		rd_s16b(&r_ptr->r_tkills);
+
+		rd_byte(&r_ptr->r_wake);
+		rd_byte(&r_ptr->r_ignore);
+
+		rd_byte(&r_ptr->r_xtra1);
+		rd_byte(&r_ptr->r_xtra2);
+
+		rd_byte(&r_ptr->r_drop_gold);
+		rd_byte(&r_ptr->r_drop_item);
+
+		rd_byte(&r_ptr->r_cast_inate);
+		rd_byte(&r_ptr->r_cast_spell);
+
+		for (i = 0; i < 20; i++)
+		{
+			rd_byte(&r_ptr->r_blows[i]);
+			rd_byte(&r_ptr->r_spells[i]);
+		}
+		for (i = 0; i < MAX_RESIST; i++)
+		{
+			rd_byte(&r_ptr->r_resist[i]);
+		}
+		rd_u32b(&r_ptr->r_flags1);
+		rd_u32b(&r_ptr->r_flags2);
+		rd_u32b(&r_ptr->r_flags3);
+		rd_u32b(&r_ptr->r_flags4);
+		rd_u32b(&r_ptr->r_flags5);
+		rd_u32b(&r_ptr->r_flags6);
+		rd_u32b(&r_ptr->r_flags7);
+        	rd_u32b(&r_ptr->r_flags8);
+        	rd_u32b(&r_ptr->r_flags9);
+
+        	rd_byte(&r_ptr->on_saved);
+	
+		rd_s16b(&r_ptr->str);
+		rd_s16b(&r_ptr->dex);
+		rd_s16b(&r_ptr->mind);
+		rd_s16b(&r_ptr->skill_attack);
+		rd_s16b(&r_ptr->skill_ranged);
+		rd_s16b(&r_ptr->skill_magic);
+	
+		rd_s16b(&r_ptr->countertype);
+		rd_s16b(&r_ptr->counterchance);
+
+		for (i = 0; i < MAX_RESIST; i++)
+		{
+			rd_s16b(&r_ptr->resistances[i]);
+		}
+
+		rd_s16b(&r_ptr->spellchance);
+
+		rd_s16b(&r_ptr->attacks);
+		for (i = 0; i < 20; i++)
+		{
+			monster_attack *att_ptr = &r_ptr->attack[i];
+                	rd_string(att_ptr->name, 80);
+			rd_string(att_ptr->act, 80);
+			rd_s16b(&att_ptr->type);
+			rd_s16b(&att_ptr->effect);
+			rd_s16b(&att_ptr->ddice);
+			rd_s16b(&att_ptr->dside);
+			rd_s16b(&att_ptr->element);
+			rd_s16b(&att_ptr->special1);
+			rd_s16b(&att_ptr->special2);
+		}
+		rd_s16b(&r_ptr->spells);
+		for (i = 0; i < 20; i++)
+		{
+			monster_spell *sp_ptr = &r_ptr->spell[i];
+                	rd_string(sp_ptr->name, 80);
+			rd_string(sp_ptr->act, 80);
+			rd_s16b(&sp_ptr->type);
+			rd_s16b(&sp_ptr->power);
+			rd_s16b(&sp_ptr->special1);
+			rd_s16b(&sp_ptr->special2);
+			rd_s16b(&sp_ptr->special3);
+			rd_byte(&sp_ptr->summchar);
+			rd_s16b(&sp_ptr->cost);
+		}
+	
+		rd_s16b(&r_ptr->treasuretval);
+		rd_s16b(&r_ptr->treasuresval);
+		rd_s16b(&r_ptr->treasurechance);
+		rd_s16b(&r_ptr->treasuremagic);
+		rd_s16b(&r_ptr->event);
+		rd_s16b(&r_ptr->extra1);
+		rd_s16b(&r_ptr->extra2);
+		rd_s16b(&r_ptr->fixedlevel);
+		rd_s16b(&r_ptr->townnum);
+		rd_s16b(&r_ptr->dunnum);
+		rd_s16b(&r_ptr->lives);
+
+		/* Save the name. */
+		/*r_ptr->name = ++r_head->name_size;*/
+
+		/* Append chars to the name */
+		/*strcpy(r_name + r_head->name_size, r_ptr->name_char);*/
+	}
+}
+
+void rd_global_object()
+{
+	object_type *o_ptr = &global_object;
+
+	rd_item(o_ptr);
+}
+
+/* Read the songs! */
+void rd_songs()
+{
+        int x;
+        for (x = 0; x <= 15; x++)
+        {
+                music_songs *song_ptr = &music_song[x];
+                rd_string(song_ptr->name, 80);
+                rd_s16b(&song_ptr->type);
+                rd_s16b(&song_ptr->power);
+		rd_s16b(&song_ptr->element);
+		rd_s16b(&song_ptr->radius);
+		rd_s16b(&song_ptr->cost);
+                rd_byte(&song_ptr->created);
+        }
 }

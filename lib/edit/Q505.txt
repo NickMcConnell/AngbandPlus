@@ -1,0 +1,93 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster.
+
+N: ;
+
+I:31:19:0:31:0:0:0
+S:3:9
+
+// Back to tunnels.
+E:2:9:4:504:45:27:0:0:0:0
+
+// Locked doors.
+E:20:9:3:1:999:0:1514:0:0:0
+
+// Simon.
+E:19:9:7:1344:0:60:1514:0:0:0
+
+// Some Orc Wiseblades.
+E:15:5:7:1343:0:40:1514:0:0:0
+E:15:7:7:1343:0:40:1514:0:0:0
+E:15:9:7:1343:0:40:1514:0:0:0
+E:15:11:7:1343:0:40:1514:0:0:0
+E:15:13:7:1343:0:40:1514:0:0:0
+
+E:17:7:7:1343:0:50:1514:0:0:0
+E:17:9:7:1343:0:50:1514:0:0:0
+E:17:11:7:1343:0:50:1514:0:0:0
+
+// Next floor.
+E:25:4:4:506:3:9:0:0:0:0
+
+D:###############################
+D:###############################
+D:###############################
+D:###############################
+D:#########################>#####
+D:#######...........#######.#####
+D:######.............######.#####
+D:#####...............#####.#####
+D:#####...............#####.#####
+D:##<.+...............+.....#####
+D:#####...............###########
+D:#####...............###########
+D:######.............############
+D:#######...........#############
+D:###############################
+D:###############################
+D:###############################
+D:###############################
+D:###############################

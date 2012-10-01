@@ -1,0 +1,380 @@
+N:1:1520:1:0:0:0
+I:Christina;
+T:Did you meet the Gold Soldiers? Time is of the essence, <NAME>.;
+T:If we wait too long, the cult will rise in power, and might become;
+T:too strong for us to stop it!;
+A:Can you remind me where I must go?:0:0:0:1:18:0:0:0:0
+A:I have some questions.:0:0:0:1:19:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Christina;
+T:As you've probably guessed, I am Christina, queen of Ivhala, although;
+T:I'm an adventurer at heart. My philosophy is that politics have limited;
+T:effect in this world. A leader needs to be powerful, and by that I mean;
+T:being a great and mighty warrior. Some creatures in this world will never;
+T:listen to words. When such creatures appears - and that's quite often -,;
+T:what is a leader going to do? Sit in his throne and let his soldier die;
+T:for him? Julian do that. Marek do that. Elowyn do that. But me? No.;
+T:I fight in the front row, and I protect even the other Defenders, for they,;
+T:like everyone else, have families and loved ones. Soldiers aren't just;
+T:units. They are peoples too.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1500:1
+%
+
+N:2:0:0:0:0:0
+I:Christina;
+T:But anyway, I think we have more important things to discuss right now.;
+T:You must have noticed that the palace gates were closed, and that apparently,;
+T:that's because I ordered it. However, that is wrong. Tell me, <NAME>...;
+T:What do you think happened?;
+A:They weren't really locked. It was all "their" work...:0:0:0:1:3:0:0:0:0
+A:Actually, I don't know.:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Christina;
+T:Precisely. And it seems that their spells do not affect only the physical;
+T:reality, but peoples perception as well. No one in Ivhala were able;
+T:to perceive that the gates weren't actually locked, and everyone believed;
+T:firmly that I ordered it to be that way. No one saw through the twists;
+T:of reality these zulgors used.;
+A:What about that diplomat you sent to Jindar?:0:0:0:1:5:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Christina;
+T:Hmmm... a disappointing answer, <NAME>. You who fought the zulgors, not;
+T:being able to understand their tricks might be fatal in the future.;
+T:You should pay closer attention to what's really happening around you.;
+T:In any cases, the gates were never really locked. It was all the work;
+T:of the strange spells they used. And it seems that their spells do not;
+T:affect only the physical reality, but peoples perception as well. No one;
+T:in Ivhala were able to perceive that the gates weren't actually locked,;
+T:and everyone believed firmly that I ordered it to be that way. No one saw;
+T:through the twists of reality these zulgors used.;
+A:What about that diplomat you sent to Jindar?:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Christina;
+T:I never sent a diplomat to cancel trades with Jindar. It was one more;
+T:of their tricks. My guess is that they want to raise the tensions between;
+T:Jindar and Ivhala so that a war might be declared. But no matter what I do;
+T:or say, peoples believes a different version of reality. Right now, I am;
+T:not much of a queen anymore. The peoples will only hear the words spoken;
+T:by that order's followers. And believe whatever reality they shape using;
+T:their chaotic powers.;
+A:How do you know all this?:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Christina;
+T:See that amulet? *she shows you the amulet she's wearing. It's a golden,;
+T:eye-shaped amulet with an heart in place of an iris...* It's a relic;
+T:called an amulet of Golden Truth. It is worn in Rhyzendal by the worshippers;
+T:of Shan, the archdemoness.;
+A:Actually, I also wear an Amulet of Golden Truth.:2:40:28:1:8:0:0:0:0
+A:Actually, I also wear an Amulet of Golden Truth.:2:40:29:1:8:0:0:0:0
+A:You wear an Archfiend's amulet??:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Christina;
+T:Shan is different than the others of her kind. Make no mistakes though, her;
+T:powers are no lesser. In Rhyzendal, she is worshipped as a goddess.;
+T:As for me...she is a friend. I know her personally. She gave me this amulet;
+T:as a token of our friendship, and for my own protection. It is this amulet;
+T:that has repelled the zulgors magics. Had I not been in possession of this;
+T:gift, I might have fallen prey to their spell as well...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Christina;
+T:Indeed, I see you too carry Shan's blessing with you! Heh, well, I guess;
+T:you can't really call that a blessing, can you? Not from someone like her.;
+T:Let's just say that the amulet is a source of power and protection that;
+T:will help us in these troubled times.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Christina;
+T:Some might question my decision to rely on an Archfiend's powers, but against;
+T:the kind of power we're facing, we might just need some help from an higher;
+T:being. And since gods rarely interfere with mortal actions...who is left;
+T:but an Archfiend to turn to?;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Christina;
+T:Now, I've heard of your deeds in Jindar. Well done! Tell me, did the king;
+T:had any ideas on what is happening?;
+A:He did tell me a story on the red licialhyd...:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Christina;
+T:Really? Tell me more!;
+A:[Tell her the story of the red licialhyd and the Children.]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Christina;
+T:...I see. Interesting. It is very possible that these new foes are somehow;
+T:connected to these children of the past. The original zulgors, as;
+T:I understand it. But to be able to cast spells like they do, their blood line;
+T:must have remained very pure through the centuries. Which means that their;
+T:cult might be centuries old, and that the founders were surely amongst;
+T:these children. It seems we may be facing a much greater and much older;
+T:foe than I originally thought...;
+A:What can we do?:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Christina;
+T:First, we must break the hold they're having on the country's reality.;
+T:The peoples now live in an alternate reality they have shaped. It seems;
+T:that only you and I know what's going on, so we don't have many allies;
+T:to help us. Anyone could turn into a foe at any times should the cult;
+T:decides so. But as you know, I wear an Amulet of Golden Truth. It bears;
+T:the word 'Truth' for a reason, as it allow it's wielder to see the true;
+T:reality. If we could somehow activate this power on the entire city, that;
+T:would surely break the twist of reality. However, I doubt one amulet is;
+T:enough. We'll need a second one. You will need an Amulet of Golden Truth;
+T:for yourself.;
+A:I already wear an Amulet of Golden Truth. [Show it]:2:40:28:1:14:0:0:0:0
+A:I already wear an Amulet of Golden Truth. [Show it]:2:40:29:1:14:0:0:0:0
+A:Where can I find one?:0:0:0:1:15:0:0:0:0
+A:Hold on! I don't want to associate with Archfiends!!:0:0:0:1:16:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Christina;
+T:*she looks at it* Hmmm...yes, that is an amulet of Golden Truth. However,;
+T:it's not powerful enough. You'll need a more powerful one.;
+A:Where can I find one?:0:0:0:1:15:0:0:0:0
+A:On second thought, I don't want to associate with Archfiends.:0:0:0:1:16:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Christina;
+T:You will have to talk to followers of Shan. They're mostly in Rhyzendal,;
+T:but they have agents everywhere in Portralis. And luckily, I know the;
+T:whereabouts of some of them near Ivhala. They are of 'Gold Soldier' rank,;
+T:so though they haven't reached the rank of 'Golden Knight', they are still;
+T:loyal and reliable men. I contact them regularly to get news on Rhyzendal,;
+T:Shan's doings and of course, they work for me too when I need their;
+T:services. You will need to meet them, and discuss obtaining an amulet;
+T:of Golden Truth.;
+A:[CONTINUE]:0:0:0:1:17:0:0:1520:1
+%
+
+N:16:0:0:0:0:0
+I:Christina;
+T:I understand your point of view. Although Shan isn't as evil and destructive;
+T:as the other Archfiends, she is still one. But in Rhyzendal, she is seen;
+T:as a goddess rather than a demon. Then again, the peoples of Rhyzendal are;
+T:demons themselves. An Archfiend's a demon's god I suppose. However, we are;
+T:facing an exceptionally powerful enemy here, and exceptional enemies requires;
+T:exceptional measures. Just for this once, you must get the amulet, so we can;
+T:combine it's powers with mine's and break the cult's hold over the city.;
+T:After that, you'll do whatever you want with the amulet.;
+A:To tell you the truth, I have one. [Show it]:2:40:28:1:14:0:0:0:0
+A:To tell you the truth, I have one. [Show it]:2:40:29:1:14:0:0:0:0
+A:All right... So, where do I get one?:0:0:0:1:15:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Christina;
+T:Beware though. They prefer to remain hidden in a deep cave west of here,;
+T:and this cave is extremely dangerous. However, you have already confronted;
+T:the dangers of the Agharias mountains, so I am confident that you'll do;
+T:fine. The cave is located at (80,46). Go there, and once you get the amulet,;
+T:come back here. We will then proceed to the next step. Good luck, <NAME>!;
+A:I have some questions first.:0:0:0:1:19:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Christina;
+T:It's at (80,46), west of Ivhala. Beware, it's a deep and dangerous cave,;
+T:and the beasts that lives there will kill you quickly if you're not prepared.;
+A:I have some questions.:0:0:0:1:19:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Christina;
+T:Sure, I'm listening.;
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Why aren't the Gods helping us? Why are we dealing with Archfiends?:0:0:0:1:25:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Christina;
+T:Well, she is a Sul-Rin Archfiend who is said to have given hope and light;
+T:to the demons of ancient times, before the foundation of Rhyzendal. Here...;
+T:take this document. It explains it. As for Shan's personality...hmmm, how;
+T:to describe her... Well, Sul-Rins plays with mortal souls and feelings.;
+T:She loves to act like a seductress or a playful girl, and it's easy to think;
+T:she's a very likable person, which she is I guess. But don't be fooled,;
+T:as any errands she asks her followers can turn out to be extremely deadly.; 
+A:How did you get to meet her in person?:0:0:0:1:21:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Why aren't the Gods helping us? Why are we dealing with Archfiends?:0:0:0:1:25:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Christina;
+T:It was during one of my adventures in Rhyzendal. I was exploring one of the;
+T:dungeons there, and then, I simply met her. She was looking for some;
+T:components for some alchemical stuff I believe. I didn't know she was;
+T:an Archfiend at first, so I talked to her and we got along pretty well.;
+T:Only later did I learn the truth! That was quite a shock!; 
+A:For being an Archfiend, she seems quite friendly.:0:0:0:1:22:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Why aren't the Gods helping us? Why are we dealing with Archfiends?:0:0:0:1:25:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Christina;
+T:Friendliness and sociability is perhaps a Sul-Rin's greatest weapon.;
+T:Never forget that.;
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Why aren't the Gods helping us? Why are we dealing with Archfiends?:0:0:0:1:25:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Christina;
+T:Well, I'm the queen of Ivhala! Though I'm different from the other rulers.;
+T:You know, I don't really believe politics can save the world. Sometimes,;
+T:words just can't do the job, and you have to use force. Very often actually.;
+T:In these case, the rulers sacrifices hundreds or even thousands of soldiers;
+T:to combat the threat. Too many losses of lives. Too many deaths. I don't;
+T:want that. So I train every days to be stronger than these enemies.;
+T:Am I the best queen ever? No. But if an enemy shows up, you can be sure;
+T:I'll be the first person to face it.;
+A:But you do have a powerful army.:0:0:0:1:24:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Why aren't the Gods helping us? Why are we dealing with Archfiends?:0:0:0:1:25:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Christina;
+T:Of course. I can't be everywhere at once. The soldiers protects the peoples;
+T:and handle criminals, as well as lesser wild beasts. But when a major;
+T:threat shows up, is it all right for a queen to stay in the back while;
+T:proud men get killed? Wives loses their husbands, children loses their;
+T:fathers... often for nothing. No, that isn't right. I am a Defender.;
+T:And as a Defender, it's my role to be in the front, and save as many;
+T:lives as I can. I don't care if some snobbish politicians think otherwise.;
+T:I'll listen to them the day they can lift a sword without moaning!;
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Why aren't the gods helping us? Why are we dealing with archfiends?:0:0:0:1:25:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Christina;
+T:I hate to say this, but I do not think the gods can help us. Gods are;
+T:beings of faith who grants power and good fortune to their followers.;
+T:However, the faith of the peoples is currently being twisted, and as a;
+T:result, the gods are losing their power of action. Weakening the gods...;
+T:I wonder if that's part of their plans...;
+A:If that happens, then the Archfiends will gain in power?:0:0:0:1:26:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Christina;
+T:In the short term, yes. But ultimately, for evil to exist, good needs to;
+T:exist as well. Without the gods, archfiend worshipping would become the;
+T:norm, and therefore would no longer be considered evil. The meaning of their;
+T:existance would be no more, and their powers would start waning.;
+T:And with no gods or archfiends, the thoughts, souls and powers of peoples;
+T:that makes up the Flow would go out of control. And then...disaster would;
+T:ensue.;
+A:The Flow?:0:0:0:1:27:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Christina;
+T:Everything that exists in the world is part of it. It's the gathering;
+T:and flowing of actions, thoughts, living beings, knowledge, magic, souls...;
+T:Everything is part of it. Everything affects it. As a result, any actions;
+T:you do have some impact somewhere in the world. It may be minor or major.;
+T:Gods and Archfiends are beings born from the Flow, a result of peoples;
+T:faith and fears. These beings controls the Flow, and ensure that it's;
+T:balance is maintained. The Flow has many names. Some call it the Void.;
+T:In Jindar, the Creator is pretty much like the Flow, although the Flow;
+T:isn't a person, and doesn't have thoughts or will. The Flow is the passing;
+T:of time. The gathering of essences and souls. Life and existance...;
+A:What would happen if the Flow was out of control?:0:0:0:1:28:0:0:0:0
+A:You seem well versed in theology.:0:0:0:1:29:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Christina;
+T:If there was no gods or archfiends to control the Flow, it would go out;
+T:of control. Prayers would be lost, with no gods to answer them. Fear;
+T:and despair would accumulate endlessly, with no good feelings to make;
+T:up for them, and no archfiends to give them form and shape. And eventually,;
+T:the Flow would be overflowed by these dreadful thoughts, and as a response,;
+T:would cause them to incarnate themselves in the form of fearful entities.;
+T:They would feed from fear, and there would be no limits to their powers.;
+T:They would be the incarnations of nightmares, quite literally. These;
+T:nightmare horrors would then proceed to destroying the world. And that would;
+T:be the end...;
+A:Nightmare horrors? I think you're going a bit too far...:0:0:0:1:30:0:0:0:0
+A:You seem well versed in theology.:0:0:0:1:29:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Christina;
+T:Well, as the queen of Ivhala, I spoke to Elowyn of Nimbraya quite;
+T:a few times. And then, being friend with an Archfiend is good for learning;
+T:this kind of things. If you ever have the chance to meet them, you too;
+T:will learn a lot. Trust me, after speaking to them, it will forever;
+T:change your perception of the world.;
+A:What would happen if the Flow was out of control?:0:0:0:1:28:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I:Christina;
+T:Well, that's one theory. To be honest, no one knows for sure what would;
+T:happen, since it can't really happen anyway. I don't really believe in;
+T:this nightmare stuff either, because I don't believe gods and archfiends;
+T:can cease to exist. And as long as gods and archfiends exists, prayers and;
+T:good wishes will come true. Fears and sinful thoughts will take the form;
+T:of demons and evil creatures due to archfiends work, but then heroes;
+T:of faith will appear to defeat them, thus maintaining the world's balance.;
+T:A nightmare incarnate is therefore impossible.;
+A:You seem well versed in theology.:0:0:0:1:29:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
+A:Tell me more about yourself.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

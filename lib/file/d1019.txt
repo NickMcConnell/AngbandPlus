@@ -1,8 +1,15 @@
+N:1:1027:2:0:0:0
+I:Julian;
+T:Welcome back, <NAME>. How can I assist you?;
+A:I have some questions...:0:0:0:1:67:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
 N:1:1027:1:0:0:0
 I:Julian;
-T:I will tell you more about the red licialhyd...but now is not the time.;
-T:But I will tell you everything when the time comes...;
-A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+T:Welcome back, <NAME>. How can I assist you?;
+A:I have some questions...:0:0:0:1:67:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
 %
 
 N:1:1021:1:0:0:0
@@ -64,7 +71,7 @@ A:[CONTINUE]:0:0:0:1:4:0:0:0:0
 %
 
 N:4:0:0:0:0:0
-I:Diana the Blue;
+I:Diana Thundermaid;
 T:...pardon me, sire, but perhaps we should still listen to what <heshe>;
 T:has to say... It may be really important. After all, they let <himher>;
 T:inside the palace for a reason...;
@@ -166,8 +173,8 @@ A:[CONTINUE]:0:0:0:1:16:0:0:0:0
 N:16:0:0:0:0:0
 I:Julian;
 T:Well, <NAME>, this matter must be investigated further! You look like;
-T:a very skilled <CLASS>, and of course, I expect you to help us in this;
-T:matter. Since demon worshipping might be involved in this matter,;
+T:a very skilled <CLASS>, and of course, I expect you to help us.;
+T:Since demon worshipping might be involved in this affair,;
 T:I suggest that you go to the temple, and speak with the high priest.;
 T:He is a good man of faith, but also a powerful priest of the Creator,;
 T:and has a lot of experience in dealing with demons, undeads and other;
@@ -177,7 +184,7 @@ A:[CONTINUE]:0:0:0:3:1208:0:17:0:0
 
 N:17:0:0:0:0:0
 I:Julian;
-T:Here, I shall write you a letter containing details about what we;
+T:Here, I wrote you a letter containing details about what we;
 T:just spoke about. Show it to the high priest, and he will be able to;
 T:help you. If there is demon worshipping involved, the priest will;
 T:surely be able to find the culprits. Once you think you've found;
@@ -451,7 +458,7 @@ T:but it's certainly worth searching. <Name>! You have to go to the;
 T:temple's graveyard, and look for this secret entrance! It could;
 T:be anywhere, perhaps even hidden under the graves... I hate to do;
 T:this, but we have no choice.;
-A:[CONTINUE]:0:0:0:7:1002:1020:49:0:0
+A:[CONTINUE]:0:0:0:7:102:120:49:0:0
 %
 
 N:49:0:0:0:0:0
@@ -482,32 +489,211 @@ A:Before dying, he said 'by Summapal'...:0:0:0:1:52:0:0:0:0
 N:52:0:0:0:0:0
 I:Julian;
 T:Summapal? Never heard of him...hmmm...;
-A:Your majesty... will you tell me about the red licialhyd?:0:0:0:1:53:0:0:0:0
+A:Your majesty... will you tell me all about the red licialhyd?:0:0:0:1:53:0:0:1027:1
 %
 
 N:53:0:0:0:0:0
 I:Julian;
-T:Yes, I will tell you...but not right now. It is not the time. For now,;
-T:you should rest a bit, and enjoy your victory!;
+T:Yes, I believe the time has come for me to tell you the whole story.;
+T:It looks like they are now the target of an unknown order, and I believe;
+T:only you can stop them. Therefore, it is your right to know the truth;
+T:about the stones that holds the power of Chaos...;
 A:[CONTINUE]:0:0:0:1:54:0:0:0:0
 %
 
 N:54:0:0:0:0:0
-I:Variaz;
-T:This is the end of the current beta version of Portralis! What is;
-T:this mysterious Red Licialhyd? And who is Summapal? And where is this;
-T:mysterious order, and what is their goal? These questions shall be;
-T:answered in a future release!;
-A:[CONTINUE]:0:0:0:1:55:0:0:1027:1
+I:Julian;
+T:As you probably know, this year marks the 700th anniversary of the;
+T:'Great Discovery', the Licialhyd. It was first discovered in Jindar,;
+T:but it didn't take long before all kingdoms gained access to it.;
+T:Whether they used it to improve their technology, or to create powerful;
+T:magical artifacts, everyone found a use for the Licialhyd and it;
+T:became an important part of the development of Portralis.;
+A:[CONTINUE]:0:0:0:1:55:0:0:0:0
 %
 
 N:55:0:0:0:0:0
-I:Variaz;
-T:I hope you enjoyed the game as much as I enjoyed making it! :);
-T:Post all your comments/suggestions/bug reports on the Portralis;
-T:newsgroups at http://variaz.proboards3.com. You can also e-mail;
-T:me at variaz@hotmail.com.;
-T:   ;
-T:Have Fun! :);
+I:Julian;
+T:But one day, as miners were gathering more Licialhyd, they discovered;
+T:a huge, red licialhyd. The Licialhyd is normally blue, but this one;
+T:was red, and glowing. It seemed to contain an unknown energy. The stone;
+T:was brought here in Jindar, and our mages studied it. And this is when;
+T:the problems started...;
+A:[CONTINUE]:0:0:0:1:56:0:0:0:0
+%
+
+N:56:0:0:0:0:0
+I:Julian;
+T:The energy contained in the Red Licialhyd was extremely unstable.;
+T:Mages tried to channel it's powers into normal blue licialhyds, but;
+T:they always ended up losing control of the energy, and many were;
+T:wounded during these experiments, often fatally so. It didn't take;
+T:long before the mages gave up their experiments, and decided to seal;
+T:the red stone away in a deep cave.;
+A:[CONTINUE]:0:0:0:1:57:0:0:0:0
+%
+
+N:57:0:0:0:0:0
+I:Julian;
+T:And then the years passed. But another strange phenomenon was about to;
+T:occur. Many of the miners and mages who were in contact with the;
+T:Red Licialhyd married, and had children. But these children had odd;
+T:features, such as oddly colored hairs and eyes, as well as being just;
+T:as strong as full grown adults. The link between these children and;
+T:the Red Licialhyd was quickly established, as they all had at least;
+T:one parent who had been in contact with the stone before.;
+A:[CONTINUE]:0:0:0:1:58:0:0:0:0
+%
+
+N:58:0:0:0:0:0
+I:Julian;
+T:These children, which were referred to as 'Zulgors', quickly learned;
+T:to call upon their inner chaotic powers, and started casting spells.;
+T:But being children, they did not have the maturity to use their powers;
+T:in a responsible manner, and became rebellious, as their parents were;
+T:unable to control them, being weaker than their own children! So they;
+T:called upon the king to do something about it. The king consulted his;
+T:council of mages, who determined that only the Red Licialhyd could seal;
+T:the powers of these children. The time had come to unseal the stone,;
+T:and resume researches, despite the dangers.;
+A:[CONTINUE]:0:0:0:1:59:0:0:0:0
+%
+
+N:59:0:0:0:0:0
+I:Julian;
+T:The stone was brought back into Jindar. However, the energy inside it;
+T:was stronger than ever before. And only hours after it was brought back,;
+T:all the Zulgor children gathered together, and came to the place where;
+T:the stone was, as if the stone was calling them. The guards tried to push;
+T:them back, only to be brutally slain by the seemingly hypnotized children;
+T:who, despite their age, were already very strong and very powerful.;
+T:Realizing the danger these children posed, but not wanting to kill them;
+T:either, the king ordered the mages to use their magic to shatter the;
+T:stone! The mages gathered, and casted several spells to attempt to destroy;
+T:the Red Licialhyd.;
+A:[CONTINUE]:0:0:0:1:60:0:0:0:0
+%
+
+N:60:0:0:0:0:0
+I:Julian;
+T:It was difficult, as the licialhyd was very resistant to magic, and when;
+T:struck by magic, it would cause a chaotic discharge to burst out of it,;
+T:often killing the mage who casted the spell. The soldiers could not help,;
+T:as they were busy with the children. After many deaths, the mages;
+T:were finally able to shatter the stone, which caused all children to fall;
+T:unconsciencious. The Red Licialhyd was not completely destroyed however,;
+T:and it was merely split into five fragments.;
+A:[CONTINUE]:0:0:0:1:61:0:0:0:0
+%
+
+N:61:0:0:0:0:0
+I:Julian;
+T:At this point, the fragments could have been destroyed, but the king;
+T:decided to not do so. First, because there was still much to learn from;
+T:the Red Licialhyds, and second, who knows what the destruction of the;
+T:fragments could have unleashed? However, he realized that it wouldn't be;
+T:safe to keep all fragments together in Jindar, so he called the rulers;
+T:of the other kingdoms, and explained the situation to them. Then, each;
+T:rulers were given one shard of the stone. With all five fragments split;
+T:between the five kingdoms, it no longer had influence on the children,;
+T:and their personality returned to that of a normal child. Parents were;
+T:finally able to take back their children, and educate them properly.;
+A:[CONTINUE]:0:0:0:1:62:0:0:0:0
+%
+
+N:62:0:0:0:0:0
+I:Julian;
+T:But the mysteries of the stones were never understood. All they knew was;
+T:that a powerful, chaotic magic was inside. Over the years, the mages;
+T:were able to create magical guardians, the Knights of Balance, who were;
+T:made of energy so stable that chaos had no influence on them. But after;
+T:that, the stones were left alone, sealed within a cave under the five;
+T:royal palaces in each kingdoms, and each protected by a Knight of Balance.;
+A:[CONTINUE]:0:0:0:1:63:0:0:0:0
+%
+
+N:63:0:0:0:0:0
+I:Julian;
+T:All of this happened 600 years ago, 100 years after the original discovery;
+T:of the Licialhyd. And now, centuries later, it seems that a new order;
+T:has found renewed interest in the stones. And seeing what they were able;
+T:to use it for, it is clear that their knowledge of the stones is far;
+T:superior to ours, which means they must have secretly studied them for;
+T:centuries. You were able to destroy one of their members, as well as one;
+T:of the five fragments. But, I wonder if that was the right thing to do...;
+T:Who knows what the destruction of a fragment will do?;
+A:[CONTINUE]:0:0:0:1:64:0:0:0:0
+%
+
+N:64:0:0:0:0:0
+I:Julian;
+T:Therefore, we must not waste more time in finding the other members.;
+T:And I believe their next target may be the stone in Ivhala. I'm sure;
+T:that the sudden change in Christina's attitude and the arrival of this;
+T:new order is no coincidence. Therefore, your next task is to travel to;
+T:Ivhala, and try to figure out what's happening to Christina. I'd like;
+T:to help you more, but I don't think I can do much, as it seems Jindar;
+T:and Ivhala are no longer allies for the time being. But you'll have;
+T:to figure out a way to enter the palace somehow.;
+A:[CONTINUE]:0:0:0:1:65:0:0:0:0
+%
+
+N:65:0:0:0:0:0
+I:Julian;
+T:Go to the Storm Wyvern Travel Agency, and have them bring you to Ivhala;
+T:safely and quickly. It's in the main district near the entrance of the;
+T:city, you can't miss it. Oh, and one more thing. I have asked the treasury;
+T:room on the floor below to be unlocked. Everything that's inside is yours.;
+T:Consider it your reward for saving Jindar! I am certain that it will;
+T:be of great help during your journey to Ivhala.;
+A:[CONTINUE]:0:0:0:1:66:0:0:0:0
+%
+
+N:66:0:0:0:0:0
+I:Julian;
+T:Thanks you for everything you've done, <NAME>. We are all counting on you;
+T:to put an end to this evil order's schemes. If you learn anything, let me;
+T:know, and I'll do everything I can to assist you. Good luck!;
+A:I have some questions...:0:0:0:1:67:0:0:0:0
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:67:0:0:0:0:0
+I:Julian;
+T:What do you want to know?;
+A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
+A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:68:0:0:9:0:0
+I:Julian;
+T:My guess is that they were raised as normal citizens, albeit ones with great;
+T:strength and powers. The few zulgors that exists today must be descendants;
+T:of these children. Which means that you, <NAME>, probably are one of those;
+T:descendants. It also means that you have some connection to the Red Licialhyd;
+T:within you, making your quest all the more important. Who knows what unknown;
+T:powers sleeps inside of you?;
+A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:68:0:0:0:0:0
+I:Julian;
+T:My guess is that they were raised as normal citizens, albeit ones with great;
+T:strength and powers. The few zulgors that exists today must be descendants;
+T:of these children. But we won't know for sure until we solve the mystery;
+T:of this order and the Red Licialhyd. I'm sure they have the answer to this;
+T:question, though I doubt they'll want to share it with us...;
+A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:69:0:0:0:0:0
+I:Julian;
+T:I have no ideas. I have never heard this name before. But cults and secret;
+T:orders often worship some kind of deity, so perhaps that's what Summapal;
+T:is. But I guess we'll only know for sure once we find the order.;
+A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
 %

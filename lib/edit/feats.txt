@@ -7,21 +7,21 @@
 # For example, if you wanted to create a new "Sword Slice" feat that has a required
 # Swords skill of 80, the syntax would look like something like this:
 
-# F:Sword Slice:12:80:0:100
+# F:Sword Slice:12:80:0:100:1
 
-# There is no maximum fats a skill can have. Some can have more, some can have less.
+# There is no maximum feats a skill can have. Some can have more, some can have less.
 
 # Please note that this is only the active feats. The passive ones need not to be
 # defined anywhere, they can be directly coded in passive.lua or anywhere else
 # just by doing a simplecondition, and then applying the bonus.
 
-F:Power Attack, Level 1:0:20:1:1000:0
-F:Power Attack, Level 2:0:40:1:1001:0
-F:Power Attack, Level 3:0:60:1:1002:0
+F:Power Attack, Level 1:0:20:0:1000:0
+F:Power Attack, Level 2:0:40:0:1001:0
+F:Power Attack, Level 3:0:60:0:1002:0
 F:Enchanted Blood:1:10:1:1003:0
 F:Mana Shield:1:40:1:1004:0
 F:Sharpen Ammos:2:20:1:1005:0
-F:Jump:5:1:1:1006:1
+F:Jump:5:1:0:1006:1
 F:Hide:6:10:1:1007:0
 F:Shadowblink:6:20:1:1008:0
 F:Dual Strike:8:40:1:1009:1
@@ -47,3 +47,6 @@ F:Sharpen Arrows:19:15:1:1026:0
 F:Arc Shooting:19:30:1:1027:0
 F:Sharpen Bolts:20:15:1:1028:0
 F:Sharpen Shots:21:15:1:1029:0
+F:Alchemic Branding:10:10:1:1030:0
+F:Alchemic Resistances:10:20:1:1031:0
+F:Ceiling Crumble:29:40:0:1032:0

@@ -281,7 +281,7 @@ T:Being imbued with the powers of Heaven, if the Licialhyd was to be;
 T:activated, legions of angels and celestial beings would appear, and;
 T:they would fight all the evil of the world. This might seem like a good;
 T:thing, right? However, a powerful user of dark magic could easily;
-T:use it's powers to corrupt the stone with evil powers. And then, if;
+T:use his powers to corrupt the stone with evil powers. And then, if;
 T:he was to activate the stone, legions of demonic creatures would;
 T:appear, and destroy our kingdoms. We must not let this happen!;
 A:What can I do?:0:0:0:1:24:0:0:0:0

@@ -1,0 +1,40 @@
+N:1:0:0:0:0:0
+I: ;
+T:You inspect the area, and there doesn't seem to be any sacrophagus, buried;
+T:treasures or even an old decayed body. All you find is some blood spilled;
+T:on the ground. It looks old, but there is no reasons to believe that this;
+T:blood is Belric's blood. Suddently, you hear the strange voice again.;
+A:[CONTINUE]:0:0:0:1:2:0:0:112:1
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:This blood is the woman's blood. The same woman that you've made cry.;
+T:She isn't happy. And her nightmare is spreading.;
+A:Belric is not here. Maelan was right after all!:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:His body has been consumed already. Consumed by the blood of the lady.;
+T:Everything will be restored to normal if you make the lady smile.;
+A:A body consumed by blood? Your story makes no sense. Show yourself!:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Voice;
+T:To make the woman smile again, help preserve history as it is. Lies have;
+T:been spread. The mayor of a small town has been tainted by lies. Kill this;
+T:evil man, for he is a descendant of Maelan. Kill him...and make the lady;
+T:smile again! Then return to the lady's resting place, her nightmare will;
+T:end.;
+A:You mean Jeffrey?:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:The voice does not respond, and fades once again. You should report to;
+T:Jeffrey. Or, you can listen to the voice, and kill him, though you;
+T:are unsure what good that would do.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

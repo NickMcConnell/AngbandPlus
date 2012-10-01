@@ -1,0 +1,6 @@
+N:1:0:0:0:0:0
+I:Messenger;
+T:Sorry, this area isn't ready in the current Portralis build. Come back;
+T:in a future build! In the meantime, why don't you go check (48,51)?;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

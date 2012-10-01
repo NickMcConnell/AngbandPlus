@@ -1,0 +1,66 @@
+N:1:106:1:0:0:0
+I:Voice;
+T:You've defeated the spirits of nightmare. But you've failed in making Ophelia;
+T:smile. But she isn't unhappy either. Her soul is resting. But I don't know;
+T:if she is resting in peace or not...;
+A:Will you ever tell me what's going on?:0:0:0:1:5:0:0:108:3
+%
+
+N:1:104:1:0:0:0
+I:Voice;
+T:You've defeated the spirits of nightmare. But you've failed... you did not;
+T:make Ophelia smile. She is sad, right now. Very sad.;
+A:Will you ever tell me what's going on?:0:0:0:1:2:0:0:108:1
+%
+
+N:1:105:1:0:0:0
+I:Voice;
+T:You've defeated the spirits of nightmare, and made Ophelia smile. Thanks you,;
+T:<CLASS>. Thanks you very much.;
+A:Will you ever tell me what's going on?:0:0:0:1:4:0:0:108:2
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:What's going on is that a restless spirit has not been put to rest.;
+T:Her nightmare lives on. It could have ended, had you made her smile.;
+T:But you didn't. And now she is more sad than ever. Her nightmare is;
+T:growing stronger. Why did you reinforce her nightmare? The spirits;
+T:of nightmare will revive...;
+A:I had my reasons. Now, why don't you show yourself once and for all?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:You've made Ophelia sad. But it is still possible to save her.;
+T:If you ever want to save her, and atone for your crime, then come back.;
+T:Otherwise, go away, and never return again!;
+A:I said show yourself!!:0:0:0:7:18:0:6:0:0
+%
+
+N:4:0:0:0:0:0
+I:Voice;
+T:What's going on is that a restless spirit has finally been put to rest.;
+T:With no more nightmares haunting her, and Maelan gone, Ophelia can finally;
+T:rest in peace. Thanks you, <CLASS>. You've done well.;
+T:Now, climb the stairs before you, and you'll be brought back outside.;
+T:Your deeds will not be forgotten.;
+A:Wait! Who are you?:0:0:0:7:18:0:6:0:0
+%
+
+N:5:0:0:0:0:0
+I:Voice;
+T:...I guess nothing is going on anymore. A good spirit has been slain, but;
+T:so has an evil one. Both are now resting. I don't think they are at peace.;
+T:But in a sense, Ophelia has been saved. But she wasn't avenged. I guess;
+T:all I have to say now is...good bye.;
+A:Will you tell me who you are?:0:0:0:7:18:0:6:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The voice fades away once again. It doesn't looks like there's anything;
+T:of interest here anymore. Perhaps you should go talk to Jeffrey, and tell;
+T:him what happened.;
+A:[END DIALOG]:0:0:0:0:0:0:0:109:1
+%

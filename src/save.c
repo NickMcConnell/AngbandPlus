@@ -535,6 +535,7 @@ void wr_string(cptr str)
  */
 static void wr_item(object_type *o_ptr)
 {
+	int i;
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
@@ -542,28 +543,51 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->ix);
 
 	wr_byte(o_ptr->tval);
-	wr_byte(o_ptr->sval);
+	wr_s16b(o_ptr->sval);
         wr_s32b(o_ptr->pval);
         wr_s32b(o_ptr->pval2);
         wr_s32b(o_ptr->pval3);
 
 	/* Resistances! */
-	wr_s16b(o_ptr->fireres);
-	wr_s16b(o_ptr->coldres);
-	wr_s16b(o_ptr->elecres);
-	wr_s16b(o_ptr->acidres);
-	wr_s16b(o_ptr->poisres);
-	wr_s16b(o_ptr->lightres);
-	wr_s16b(o_ptr->darkres);
-	wr_s16b(o_ptr->warpres);
-	wr_s16b(o_ptr->waterres);
-	wr_s16b(o_ptr->windres);
-	wr_s16b(o_ptr->earthres);
-	wr_s16b(o_ptr->soundres);
-	wr_s16b(o_ptr->chaosres);
-	wr_s16b(o_ptr->radiores);
-	wr_s16b(o_ptr->physres);
-	wr_s16b(o_ptr->manares);
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		wr_s16b(o_ptr->resistances[i]);
+	}
+
+	/* Stats bonus! */
+	for (i = 0; i < 6; i++)
+	{
+		wr_s16b(o_ptr->statsbonus[i]);
+	}
+
+	/* Skills bonus! */
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		wr_s16b(o_ptr->skillsbonus[i]);
+	}
+
+	/* Other bonus. */
+	wr_s16b(o_ptr->itemtype);
+	wr_s16b(o_ptr->itemskill);
+	wr_s16b(o_ptr->extrablows);
+	wr_s16b(o_ptr->extrashots);
+	wr_s16b(o_ptr->speedbonus);
+	wr_s16b(o_ptr->lifebonus);
+	wr_s16b(o_ptr->manabonus);
+	wr_s16b(o_ptr->infravision);
+	wr_s16b(o_ptr->spellbonus);
+	wr_s16b(o_ptr->invisibility);
+	wr_s16b(o_ptr->light);
+	wr_s16b(o_ptr->extra1);
+	wr_s16b(o_ptr->extra2);
+	wr_s16b(o_ptr->extra3);
+	wr_s16b(o_ptr->extra4);
+	wr_s16b(o_ptr->extra5);
+	wr_s16b(o_ptr->reflect);
+	wr_s16b(o_ptr->cursed);
+
+	wr_s16b(o_ptr->tweakpoints);
+	wr_s16b(o_ptr->disabled);
 
 	wr_s16b(o_ptr->brandtype);
 	wr_s32b(o_ptr->branddam);
@@ -573,16 +597,16 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->number);
         wr_s32b(o_ptr->weight);
 
-	wr_byte(o_ptr->name1);
-	wr_byte(o_ptr->name2);
+	wr_s16b(o_ptr->name1);
+	wr_s16b(o_ptr->name2);
 	wr_s16b(o_ptr->timeout);
 
-	wr_s16b(o_ptr->to_h);
-	wr_s16b(o_ptr->to_d);
-	wr_s16b(o_ptr->to_a);
-	wr_s16b(o_ptr->ac);
-	wr_byte(o_ptr->dd);
-	wr_byte(o_ptr->ds);
+	wr_s32b(o_ptr->to_h);
+	wr_s32b(o_ptr->to_d);
+	wr_s32b(o_ptr->to_a);
+	wr_s32b(o_ptr->ac);
+	wr_s16b(o_ptr->dd);
+	wr_s16b(o_ptr->ds);
 
 	wr_byte(o_ptr->ident);
 
@@ -603,6 +627,20 @@ static void wr_item(object_type *o_ptr)
         /* Write the exp/exp level */
         wr_s16b(o_ptr->level);
         wr_s32b(o_ptr->kills);
+
+	/* Write spells */
+	for (i = 0; i < 20; i++)
+	{
+		wr_string(o_ptr->spell[i].name);
+                wr_string(o_ptr->spell[i].act);
+		wr_s16b(o_ptr->spell[i].type);
+		wr_s16b(o_ptr->spell[i].power);
+		wr_s16b(o_ptr->spell[i].special1);
+		wr_s16b(o_ptr->spell[i].special2);
+		wr_s16b(o_ptr->spell[i].special3);
+		wr_byte(o_ptr->spell[i].summchar);
+		wr_s16b(o_ptr->spell[i].cost);
+	}
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -650,23 +688,25 @@ static void wr_monster(monster_type *m_ptr)
         wr_s16b(m_ptr->boss);
         wr_u32b(m_ptr->abilities);
         wr_s16b(m_ptr->friend);
-        wr_s16b(m_ptr->hitrate);
-        wr_s16b(m_ptr->defense);
+        wr_s32b(m_ptr->hitrate);
+        wr_s32b(m_ptr->defense);
         wr_byte(m_ptr->animated);
         wr_s16b(m_ptr->animdam_d);
         wr_s16b(m_ptr->animdam_s);
         wr_s16b(m_ptr->seallight);
-	wr_s16b(m_ptr->str);
-	wr_s16b(m_ptr->dex);
-	wr_s16b(m_ptr->mind);
-	wr_s16b(m_ptr->skill_attack);
-	wr_s16b(m_ptr->skill_magic);
+	wr_s32b(m_ptr->str);
+	wr_s32b(m_ptr->dex);
+	wr_s32b(m_ptr->mind);
+	wr_s32b(m_ptr->skill_attack);
+	wr_s32b(m_ptr->skill_ranged);
+	wr_s32b(m_ptr->skill_magic);
 	wr_s32b(m_ptr->mana);
         wr_s16b(m_ptr->hasted);
         wr_s16b(m_ptr->boosted);
 	wr_s16b(m_ptr->spoke);
 	wr_s16b(m_ptr->lives);
 	wr_s16b(m_ptr->summoned);
+	wr_byte(m_ptr->no_experience);
 }
 
 
@@ -821,7 +861,7 @@ static void wr_store(store_type *st_ptr)
 	wr_byte(st_ptr->owner);
 
 	/* Save the stock size */
-	wr_byte(st_ptr->stock_num);
+	wr_s16b(st_ptr->stock_num);
 
 	/* Save the "haggle" info */
 	wr_s16b(st_ptr->good_buy);
@@ -1183,6 +1223,25 @@ static void wr_extra(void)
 	/* Write random dungeon! */
 	wr_random_dungeon();
 
+	/* Write random boss! */
+	wr_random_boss();
+
+	/* Write random monsters! */
+	wr_random_monsters();
+
+	/* Write global object */
+	wr_global_object();
+
+	/* Write songs. */
+	wr_songs();
+
+	/* Write stores inventories. */
+	for (i = 0; i < MAX_STORES; i++)
+	{
+		store_type *st_ptr = &stores[i];
+		wr_store(st_ptr);
+	}
+
         /* Players skills/abilities */
         wr_s32b(p_ptr->ability_points);
         wr_s16b(p_ptr->memorized);
@@ -1211,8 +1270,8 @@ static void wr_extra(void)
         wr_s16b(p_ptr->pres_dur);
         wr_s16b(p_ptr->mres);
         wr_s16b(p_ptr->mres_dur);
-        wr_s16b(p_ptr->ac_boost);
-        wr_s16b(p_ptr->ac_boost_dur);
+        wr_s32b(p_ptr->ac_boost);
+        wr_s32b(p_ptr->ac_boost_dur);
         wr_s16b(p_ptr->elem_shield);
 
         wr_s16b(p_ptr->elemental);
@@ -1231,6 +1290,9 @@ static void wr_extra(void)
         for (i = 0; i < MAX_ABILITIES; ++i) wr_s16b(p_ptr->abilities[i]);
         wr_s16b(p_ptr->num_abilities);
 	for (i = 0; i < 36; ++i) wr_s16b(p_ptr->abilities_powers[i]);
+	for (i = 0; i < 20; ++i) wr_s16b(p_ptr->abilities_monster_attacks[i]);
+	for (i = 0; i < 20; ++i) wr_s16b(p_ptr->abilities_monster_spells[i]);
+	wr_u32b(p_ptr->boss_abilities);
         wr_s16b(p_ptr->magic_mode);
         wr_byte(p_ptr->auraon);
         wr_s32b(p_ptr->deathcount);
@@ -1241,6 +1303,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->cur_wid);
 	wr_s16b(p_ptr->cur_hgt);
 	wr_s16b(p_ptr->alignment);
+	wr_s16b(p_ptr->cursed);
+	wr_s16b(p_ptr->dualwield);
 	for (i = 0; i < 30000; ++i) wr_s16b(p_ptr->events[i]);
 	for (i = 0; i < 30000; ++i) wr_s16b(p_ptr->towns[i]);
 }
@@ -1270,7 +1334,7 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(dun_level);
-        wr_byte(dungeon_type);
+        wr_s16b(dungeon_type);
 	wr_u16b(num_repro);
 	wr_u16b(py);
 	wr_u16b(px);
@@ -1938,6 +2002,47 @@ static void wr_dungeon(void)
 		wr_u16b(prev_s16b);
 	}
 
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->owner;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
 	/* Write the scripts names */
 	/* Dump the cave */
 	for (y = 0; y < cur_hgt; y++)
@@ -2165,34 +2270,6 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
-	/* Dump the towns */
-	tmp16u = max_towns;
-	wr_u16b(tmp16u);
-
-	/* Dump the quests */
-	tmp16u = max_quests;
-	wr_u16b(tmp16u);
-
-	for (i = 0; i < max_quests; i++)
-	{
-		/* Save status for every quest */
-		wr_s16b(quest[i].status);
-
-		/* And the dungeon level too */
-		/* (prevents problems with multi-level quests) */
-		wr_s16b(quest[i].level);
-
-		/* Save quest status if quest is running */
-		if (quest[i].status == 1)
-		{
-                        wr_s16b(quest[i].k_idx);
-			wr_s16b(quest[i].cur_num);
-			wr_s16b(quest[i].max_num);
-			wr_s16b(quest[i].type);
-			wr_s16b(quest[i].r_idx);
-		}
-	}
-
 	/* Dump the position in the wilderness */
 	wr_s32b(p_ptr->wild_x);
 	wr_s32b(p_ptr->wild_y);
@@ -2248,26 +2325,6 @@ static bool wr_savefile_new(void)
 		wr_s16b(player_hp[i]);
 	}
 
-
-	/* Write spell data */
-        wr_u16b(MAX_REALM);
-        for (i = 0; i < MAX_REALM; i++)
-        {
-                wr_u32b(spell_learned[i][0]);
-                wr_u32b(spell_learned[i][1]);
-                wr_u32b(spell_worked[i][0]);
-                wr_u32b(spell_worked[i][1]);
-                wr_u32b(spell_forgotten[i][0]);
-                wr_u32b(spell_forgotten[i][1]);
-        }
-
-	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
-	{
-                wr_byte(realm_order[i]);
-		wr_byte(spell_order[i]);
-	}
-
 	/* Write the pet command settings */
 	wr_byte(p_ptr->pet_follow_distance);
 	wr_byte(p_ptr->pet_open_doors);
@@ -2290,23 +2347,6 @@ static bool wr_savefile_new(void)
 
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
-
-	/* Note the towns */
-	tmp16u = max_towns;
-	wr_u16b(tmp16u);
-
-	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
-
-	/* Dump the stores of all towns */
-	for (i = 1; i < max_towns; i++)
-	{
-		for (j = 0; j < MAX_STORES; j++)
-		{
-			wr_store(&town[i].store[j]);
-		}
-	}
 
 
 	/* Player is not dead, write the dungeon */
@@ -2815,7 +2855,7 @@ bool load_player(void)
 void wr_magic_spells()
 {
         int x, i;
-        for (x = 0; x <= 29; x++)
+        for (x = 0; x <= 30; x++)
         {
                 magic_spells *spell_ptr = &magic_spell[x];
                 wr_string(spell_ptr->name);
@@ -2825,7 +2865,7 @@ void wr_magic_spells()
                 for (i = 0; i < 5; ++i) wr_s32b(spell_ptr->power[i]);
                 for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->radius[i]);
                 for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->type[i]);
-                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->manacost[i]);
+                for (i = 0; i < 5; ++i) wr_s32b(spell_ptr->manacost[i]);
                 wr_byte(spell_ptr->schar1);
                 wr_byte(spell_ptr->schar2);
                 wr_byte(spell_ptr->schar3);
@@ -2836,7 +2876,7 @@ void wr_magic_spells()
                 wr_string(spell_ptr->sspeci3);
                 wr_string(spell_ptr->sspeci4);
                 wr_string(spell_ptr->sspeci5);
-                wr_s16b(spell_ptr->finalcost);
+                wr_s32b(spell_ptr->finalcost);
                 wr_byte(spell_ptr->created);
         }
 }
@@ -2910,7 +2950,7 @@ void wr_random_dungeon()
         wr_s16b(d_ptr->min_m_alloc_level);
         wr_s16b(d_ptr->max_m_alloc_chance);
 
-        /*d_ptr->flags1;*/
+        wr_u32b(d_ptr->flags1);
 
         /*d_ptr->mflags1;
         d_ptr->mflags2;
@@ -2928,4 +2968,384 @@ void wr_random_dungeon()
 
         wr_byte(d_ptr->special_percent);
 	wr_s16b(d_ptr->quest);
+
+	d_ptr = &d_info[201];
+	
+	wr_u32b(d_ptr->name);
+	wr_u32b(d_ptr->text);
+        wr_s16b(d_ptr->floor1);
+        wr_byte(d_ptr->floor_percent1);
+        wr_s16b(d_ptr->floor2);
+        wr_byte(d_ptr->floor_percent2);
+        wr_s16b(d_ptr->floor3);
+        wr_byte(d_ptr->floor_percent3);
+        wr_s16b(d_ptr->outer_wall);
+        wr_s16b(d_ptr->inner_wall);
+        wr_s16b(d_ptr->fill_type1);
+        wr_byte(d_ptr->fill_percent1);
+        wr_s16b(d_ptr->fill_type2);
+        wr_byte(d_ptr->fill_percent2);
+        wr_s16b(d_ptr->fill_type3);
+        wr_byte(d_ptr->fill_percent3);
+        wr_s16b(d_ptr->mindepth);
+        wr_s16b(d_ptr->maxdepth);
+        wr_byte(d_ptr->principal);
+        wr_byte(d_ptr->next);
+        wr_byte(d_ptr->min_plev);
+        wr_byte(d_ptr->mode);
+
+        wr_s16b(d_ptr->min_m_alloc_level);
+        wr_s16b(d_ptr->max_m_alloc_chance);
+
+        wr_u32b(d_ptr->flags1);
+
+        /*d_ptr->mflags1;
+        d_ptr->mflags2;
+        d_ptr->mflags3;
+        d_ptr->mflags4;
+        d_ptr->mflags5;
+        d_ptr->mflags6;
+        d_ptr->mflags7;
+        d_ptr->mflags8;
+        d_ptr->mflags9;*/
+
+        /* d_ptr->r_char[5]; */
+        wr_s16b(d_ptr->final_artifact);
+        wr_s16b(d_ptr->final_guardian);
+
+        wr_byte(d_ptr->special_percent);
+	wr_s16b(d_ptr->quest);
+}
+
+/* Save the random boss! */
+void wr_random_boss()
+{
+	int i;
+	monster_race *r_ptr;
+	r_ptr = &r_info[1030];
+	
+	/*wr_u32b(r_ptr->name);*/
+	/*wr_u32b(r_ptr->text);*/
+	wr_string(r_ptr->name_char);
+
+	wr_byte(r_ptr->hdice);
+	wr_byte(r_ptr->hside);
+
+	wr_s16b(r_ptr->ac);
+
+	wr_s16b(r_ptr->sleep);
+	wr_byte(r_ptr->aaf);
+	wr_byte(r_ptr->speed);
+
+	wr_s32b(r_ptr->mexp);
+
+        wr_s32b(r_ptr->weight);
+
+	wr_byte(r_ptr->freq_inate);
+	wr_byte(r_ptr->freq_spell);
+
+	wr_u32b(r_ptr->flags1);
+	wr_u32b(r_ptr->flags2);
+	wr_u32b(r_ptr->flags3);
+	wr_u32b(r_ptr->flags4);
+	wr_u32b(r_ptr->flags5);
+	wr_u32b(r_ptr->flags6);
+	wr_u32b(r_ptr->flags7);
+	wr_u32b(r_ptr->flags8);
+	wr_u32b(r_ptr->flags9);
+
+        wr_byte(r_ptr->level);
+	wr_byte(r_ptr->rarity);
+
+
+	wr_byte(r_ptr->d_attr);
+	wr_byte(r_ptr->d_char);
+
+
+	wr_byte(r_ptr->x_attr);
+	wr_byte(r_ptr->x_char);
+
+
+        wr_s16b(r_ptr->max_num);
+
+	wr_byte(r_ptr->cur_num);
+
+
+	wr_s16b(r_ptr->r_sights);
+	wr_s16b(r_ptr->r_deaths);
+
+	wr_s16b(r_ptr->r_pkills);
+	wr_s16b(r_ptr->r_tkills);
+
+	wr_byte(r_ptr->r_wake);
+	wr_byte(r_ptr->r_ignore);
+
+	wr_byte(r_ptr->r_xtra1);
+	wr_byte(r_ptr->r_xtra2);
+
+	wr_byte(r_ptr->r_drop_gold);
+	wr_byte(r_ptr->r_drop_item);
+
+	wr_byte(r_ptr->r_cast_inate);
+	wr_byte(r_ptr->r_cast_spell);
+
+	for (i = 0; i < 20; i++)
+	{
+		wr_byte(r_ptr->r_blows[i]);
+		wr_byte(r_ptr->r_spells[i]);
+	}
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		wr_byte(r_ptr->r_resist[i]);
+	}
+	wr_u32b(r_ptr->r_flags1);
+	wr_u32b(r_ptr->r_flags2);
+	wr_u32b(r_ptr->r_flags3);
+	wr_u32b(r_ptr->r_flags4);
+	wr_u32b(r_ptr->r_flags5);
+	wr_u32b(r_ptr->r_flags6);
+	wr_u32b(r_ptr->r_flags7);
+        wr_u32b(r_ptr->r_flags8);
+        wr_u32b(r_ptr->r_flags9);
+
+        wr_byte(r_ptr->on_saved);
+	
+	wr_s16b(r_ptr->str);
+	wr_s16b(r_ptr->dex);
+	wr_s16b(r_ptr->mind);
+	wr_s16b(r_ptr->skill_attack);
+	wr_s16b(r_ptr->skill_ranged);
+	wr_s16b(r_ptr->skill_magic);
+	
+	wr_s16b(r_ptr->countertype);
+	wr_s16b(r_ptr->counterchance);
+
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		wr_s16b(r_ptr->resistances[i]);
+	}
+
+	wr_s16b(r_ptr->spellchance);
+
+	wr_s16b(r_ptr->attacks);
+	for (i = 0; i < 20; i++)
+	{
+		monster_attack *att_ptr = &r_ptr->attack[i];
+                wr_string(att_ptr->name);
+		wr_string(att_ptr->act);
+		wr_s16b(att_ptr->type);
+		wr_s16b(att_ptr->effect);
+		wr_s16b(att_ptr->ddice);
+		wr_s16b(att_ptr->dside);
+		wr_s16b(att_ptr->element);
+		wr_s16b(att_ptr->special1);
+		wr_s16b(att_ptr->special2);
+	}
+	wr_s16b(r_ptr->spells);
+	for (i = 0; i < 20; i++)
+	{
+		monster_spell *sp_ptr = &r_ptr->spell[i];
+                wr_string(sp_ptr->name);
+		wr_string(sp_ptr->act);
+		wr_s16b(sp_ptr->type);
+		wr_s16b(sp_ptr->power);
+		wr_s16b(sp_ptr->special1);
+		wr_s16b(sp_ptr->special2);
+		wr_s16b(sp_ptr->special3);
+		wr_byte(sp_ptr->summchar);
+		wr_s16b(sp_ptr->cost);
+	}
+	
+	wr_s16b(r_ptr->treasuretval);
+	wr_s16b(r_ptr->treasuresval);
+	wr_s16b(r_ptr->treasurechance);
+	wr_s16b(r_ptr->treasuremagic);
+	wr_s16b(r_ptr->event);
+	wr_s16b(r_ptr->extra1);
+	wr_s16b(r_ptr->extra2);
+	wr_s16b(r_ptr->fixedlevel);
+	wr_s16b(r_ptr->townnum);
+	wr_s16b(r_ptr->dunnum);
+	wr_s16b(r_ptr->lives);
+}
+
+/* Save random monsters. */
+void wr_random_monsters()
+{
+	int i;
+	int j;
+	monster_race *r_ptr;
+
+	for (j = 2050; j <= 2099; j++)
+	{
+		r_ptr = &r_info[j];
+
+		/*wr_u32b(r_ptr->name);*/
+		/*wr_u32b(r_ptr->text);*/
+		wr_string(r_ptr->name_char);
+
+		wr_byte(r_ptr->hdice);
+		wr_byte(r_ptr->hside);
+
+		wr_s16b(r_ptr->ac);
+
+		wr_s16b(r_ptr->sleep);
+		wr_byte(r_ptr->aaf);
+		wr_byte(r_ptr->speed);
+
+		wr_s32b(r_ptr->mexp);
+
+        	wr_s32b(r_ptr->weight);
+
+		wr_byte(r_ptr->freq_inate);
+		wr_byte(r_ptr->freq_spell);
+
+		wr_u32b(r_ptr->flags1);
+		wr_u32b(r_ptr->flags2);
+		wr_u32b(r_ptr->flags3);
+		wr_u32b(r_ptr->flags4);
+		wr_u32b(r_ptr->flags5);
+		wr_u32b(r_ptr->flags6);
+		wr_u32b(r_ptr->flags7);
+		wr_u32b(r_ptr->flags8);
+		wr_u32b(r_ptr->flags9);
+
+        	wr_byte(r_ptr->level);
+		wr_byte(r_ptr->rarity);
+
+
+		wr_byte(r_ptr->d_attr);
+		wr_byte(r_ptr->d_char);
+
+
+		wr_byte(r_ptr->x_attr);
+		wr_byte(r_ptr->x_char);
+
+
+        	wr_s16b(r_ptr->max_num);
+
+		wr_byte(r_ptr->cur_num);
+
+
+		wr_s16b(r_ptr->r_sights);
+		wr_s16b(r_ptr->r_deaths);
+
+		wr_s16b(r_ptr->r_pkills);
+		wr_s16b(r_ptr->r_tkills);
+
+		wr_byte(r_ptr->r_wake);
+		wr_byte(r_ptr->r_ignore);
+
+		wr_byte(r_ptr->r_xtra1);
+		wr_byte(r_ptr->r_xtra2);
+
+		wr_byte(r_ptr->r_drop_gold);
+		wr_byte(r_ptr->r_drop_item);
+
+		wr_byte(r_ptr->r_cast_inate);
+		wr_byte(r_ptr->r_cast_spell);
+
+		for (i = 0; i < 20; i++)
+		{
+			wr_byte(r_ptr->r_blows[i]);
+			wr_byte(r_ptr->r_spells[i]);
+		}
+		for (i = 0; i < MAX_RESIST; i++)
+		{
+			wr_byte(r_ptr->r_resist[i]);
+		}
+		wr_u32b(r_ptr->r_flags1);
+		wr_u32b(r_ptr->r_flags2);
+		wr_u32b(r_ptr->r_flags3);
+		wr_u32b(r_ptr->r_flags4);
+		wr_u32b(r_ptr->r_flags5);
+		wr_u32b(r_ptr->r_flags6);
+		wr_u32b(r_ptr->r_flags7);
+        	wr_u32b(r_ptr->r_flags8);
+        	wr_u32b(r_ptr->r_flags9);
+
+        	wr_byte(r_ptr->on_saved);
+	
+		wr_s16b(r_ptr->str);
+		wr_s16b(r_ptr->dex);
+		wr_s16b(r_ptr->mind);
+		wr_s16b(r_ptr->skill_attack);
+		wr_s16b(r_ptr->skill_ranged);
+		wr_s16b(r_ptr->skill_magic);
+	
+		wr_s16b(r_ptr->countertype);
+		wr_s16b(r_ptr->counterchance);
+
+		for (i = 0; i < MAX_RESIST; i++)
+		{
+			wr_s16b(r_ptr->resistances[i]);
+		}
+
+		wr_s16b(r_ptr->spellchance);
+
+		wr_s16b(r_ptr->attacks);
+		for (i = 0; i < 20; i++)
+		{
+			monster_attack *att_ptr = &r_ptr->attack[i];
+                	wr_string(att_ptr->name);
+			wr_string(att_ptr->act);
+			wr_s16b(att_ptr->type);
+			wr_s16b(att_ptr->effect);
+			wr_s16b(att_ptr->ddice);
+			wr_s16b(att_ptr->dside);
+			wr_s16b(att_ptr->element);
+			wr_s16b(att_ptr->special1);
+			wr_s16b(att_ptr->special2);
+		}
+		wr_s16b(r_ptr->spells);
+		for (i = 0; i < 20; i++)
+		{
+			monster_spell *sp_ptr = &r_ptr->spell[i];
+                	wr_string(sp_ptr->name);
+			wr_string(sp_ptr->act);
+			wr_s16b(sp_ptr->type);
+			wr_s16b(sp_ptr->power);
+			wr_s16b(sp_ptr->special1);
+			wr_s16b(sp_ptr->special2);
+			wr_s16b(sp_ptr->special3);
+			wr_byte(sp_ptr->summchar);
+			wr_s16b(sp_ptr->cost);
+		}
+	
+		wr_s16b(r_ptr->treasuretval);
+		wr_s16b(r_ptr->treasuresval);
+		wr_s16b(r_ptr->treasurechance);
+		wr_s16b(r_ptr->treasuremagic);
+		wr_s16b(r_ptr->event);
+		wr_s16b(r_ptr->extra1);
+		wr_s16b(r_ptr->extra2);
+		wr_s16b(r_ptr->fixedlevel);
+		wr_s16b(r_ptr->townnum);
+		wr_s16b(r_ptr->dunnum);
+		wr_s16b(r_ptr->lives);
+	}
+}
+
+void wr_global_object()
+{
+	object_type *o_ptr = &global_object;
+
+	wr_item(o_ptr);
+}
+
+/* Write the songs! */
+void wr_songs()
+{
+        int x;
+        for (x = 0; x <= 15; x++)
+        {
+                music_songs *song_ptr = &music_song[x];
+                wr_string(song_ptr->name);
+                wr_s16b(song_ptr->type);
+                wr_s16b(song_ptr->power);
+		wr_s16b(song_ptr->element);
+		wr_s16b(song_ptr->radius);
+		wr_s16b(song_ptr->cost);
+                wr_byte(song_ptr->created);
+        }
 }

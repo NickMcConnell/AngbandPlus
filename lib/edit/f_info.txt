@@ -90,6 +90,14 @@ N:14:shaft up
 G:<:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
+N:15:open ice door
+G:':B
+F:FLOOR | NOTICE
+
+N:16:broken ice door
+G:':B
+F:FLOOR | NOTICE
+
 # 0x0F --> 0x1F -- UNUSED
 
 # 0x2x --> locked door (power 0)
@@ -442,8 +450,10 @@ F:WALL | NO_WALK | NO_VISION
 
 N:97:mountain chain
 G:^:U
-F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
+F:CAN_CLIMB | CAN_FLY | CAN_PASS | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
+
+# "Ice" dungeon features.
 
 N:98:snow
 G:.:B
@@ -462,6 +472,97 @@ F:WALL | NO_WALK | NO_VISION
 N:101:ice wall
 G:#:b
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+
+N:102:permanent ice wall
+G:#:b
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
+
+# Ice Doors!
+
+N:103:ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:104:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:105:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:106:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:107:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:108:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:109:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:110:locked ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+
+N:111:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:112:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:113:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:114:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:115:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:116:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:117:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:118:jammed ice door
+G:+:B
+M:103
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+
+N:119:secret ice door
+G:#:b
+M:101
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | DOOR
 
 N:128:Building
 G:+:U
@@ -786,8 +887,8 @@ F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 0x52 --> shop -- bookstore (perm)
 
-N:212:Bookstore
-G:9:o
+N:212:Dungeon Shop
+G:9:v
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 83 --> shop -- Pet Shop (perm)
@@ -886,10 +987,40 @@ G:.:D
 F:FLOOR | SUPPORT_LIGHT
 
 # Table/counter!
-N:233:table/counter/bench
+N:233:table/counter/bench/furniture
 G:-:U
 F:WALL | NO_WALK | SUPPORT_LIGHT
 
 N:234:border
 G: :d
 F:WALL | NO_WALK | NO_VISION | PERMANENT
+
+# Features of the Flow!
+N:235:Strange Portal
+G:+:o
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT
+
+# Various portals.
+N:236:Portal of Power
+G:+:G
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT
+
+N:237:Portal of The Shield
+G:+:W
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT
+
+N:238:Portal of Skill
+G:+:b
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT
+
+N:239:Portal of Resistance
+G:+:v
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT
+
+N:240:Final Portal
+G:+:y
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT
+
+N:241:Portal
+G:+:B
+F:FLOOR | NOTICE | PERMANENT | SUPPORT_LIGHT

@@ -1,0 +1,55 @@
+N:1:0:0:0:0:0
+I:Ivhalian Defender;
+T:Greetings, <CLASS>. How may I help you?;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Ivhalian Defender;
+T:In terms of military power, we are the most powerful kingdom in Portralis!;
+T:Our men are indestructible, and our women are better archers than Nimbrayans;
+T:and better enchantresses than Karingen. Combine that with dwarven-crafted;
+T:armors of steel and you have an invincible force! We might not be as big;
+T:as Jindar, but we can hold our own against anything!;
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Ivhalian Defender;
+T:Work? Just look around. Most of the jobs around here involves crafting,;
+T:materials gathering and killing monsters, but if you're good at that,;
+T:you'll enjoy Ivhala. And then you never know what else you can find.;
+T:Just visit the city, I'm sure you'll find something to do.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Ivhalian Defender;
+T:Rumors says that the cult of Ryoon, the Ghostfather, is becoming stronger;
+T:in Ivhala. If this is true, then this is bad news, as nothing but trouble;
+T:ever comes from demon worshippers. On the other hand, this might mean more;
+T:job for me, and a better pay, so it's not all that bad, hehehe...; 
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Ivhalian Defender;
+T:They say Gareck Silverbeard is a master smith, and knows everything about;
+T:metals of all kind! He is the owner of the Mithril Wall store. You should;
+T:pay him a visit if you're interested in learning more about metals and how;
+T:to craft them!;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

@@ -65,7 +65,7 @@ crystals have been used for milleniums by mages and priests, to
 store magical and divine power, and create powerful artifacts. 
 However, no stone in history has been able to contain as much 
 magical power as the Licialhyd. The Licialhyd, discovered
-in the dark mines of Jindark, were massively extracted, and sent
+in the dark mines of Jindar, were massively extracted, and sent
 to all the major cities of Portralis. Each of the five great
 kingdoms of Portralis received the Licialhyds, and used their powers
 to create great cities and powerful artifacts.
@@ -78,7 +78,7 @@ The very first kingdom in the history of Portralis, Jindar was built
 center of the world. Though this has later been proved wrong, Jindar 
 is still widely acknowledged as the largest kingdom of Portralis. The 
 current king of Jindar, Julian Strongheart, is a brave and charismatic 
-leader and warrior, and is widely considered to be the greatest king 
+leader and wizard, and is widely considered to be the greatest king 
 in all Portralis.
 
 Jindar is also a city within the kingdom, and it the kingdom's most 
@@ -118,7 +118,7 @@ knew that Karingen could make great use of these stones. Karingen used
 the Licialhyds to improve their technology, and have often used them 
 as a source of power for their mechanical inventions.
 
-Karingen's king is Marek Harrington. A young, brillant man and inventor, 
+Karingen's king is Marek Lenon. A young, brillant man and inventor, 
 Marek's greatest political achievement is to assimilate the Gnomish race 
 within the walls of Karingen. Already well known as inventors, gnomes 
 were at first hesitant to share their secrets with the humans. However, 
@@ -145,7 +145,7 @@ created some fine pieces of nearly legendary power.
 
 Ruling Ivhala is queen Christina, also know as the Iron Maiden. 
 Christina did not earn this name because of a cold heart, but rather 
-because she was the first and only woman to ever become a Defender. 
+because she was the first woman to ever become a Defender. 
 Very tough for a woman, she has bested the finest men in melee combat, 
 and she is said to never have been defeated in combat, even as a 
 young lady and against much stronger and tougher men.
@@ -293,16 +293,21 @@ widespread in the wilderness and filthy areas such as sewers and
 the like, as well as caves and dungeons. Having lived in filthy 
 areas during most of their history, and having used all kind of 
 poisons on their weapons to make up for their small size, Kobolds 
-are the vicious masters of poison, and are nearly immune to it. 
-Not all kobolds are evil, but they are generally impatient and 
-aggressive, especially toward Devlings, which they consider 
-rivals.
+are the vicious masters of poison, and are nearly immune to it.
+
+Today, however, many of them have adapted to a more civilized
+life style, and are trying to gain better acceptance in society,
+although they do not get along with devlings, the two having fought
+many territorial battles in underground dungeons, which have left
+the kobold-devling relations scarred. But overall, they have regained
+health and self-confidence, and are slowly rising to be a respected
+race in Portralis. But there is still much to do.
 
 DEVLINGS
 
 Devlings are descendants of imps and various lesser demons. 
 Like the kobolds, these minor demons were often used as slaves 
-and minions by more powerful archfiends. But about 700 years ago, 
+and minions by more powerful demons. But about 700 years ago, 
 a great revolt known as the Devling War erupted in the planes 
 of hell, and a battle between the devlings and the greater 
 demons raged. Details of the Devling War are rare, as not many 
@@ -313,10 +318,9 @@ Devlings are generally red skinned, though there are also green,
 black, purple and orange ones, about three feet tall, and have 
 short pointed ears, a tail and strong, powerful legs. Devlings 
 are known to fight in large, organized groups, and are known 
-rivals to the kobolds, although devlings can be seen in cities, 
-and are generally less aggressive than kobolds, despites their 
-demonic origins. They generally fight with long weapons like 
-spears and polearms.
+rivals to the kobolds. Despite being descendants of demons, they
+have adapted rather easily to the city life. They generally fight
+with long weapons like spears and polearms.
 
 CELESTIALS
 

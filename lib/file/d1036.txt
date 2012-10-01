@@ -1,0 +1,85 @@
+N:1:0:0:6:0:0
+I:Stealthy Vipers Mercenary;
+T:Heh heh... looks like this is the end for you, Devling!;
+A:[CONTINUE]:0:0:0:10:1600:0:6:0:0
+%
+
+N:1:1028:1:0:0:0
+I:Stealthy Vipers Mercenary;
+T:Greetings, fellow Viper! How may I help you?;
+A:Nothing. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:5:0:0
+I:Stealthy Vipers Mercenary;
+T:Greetings, fellow Kobold! How may the Stealthy Vipers help you?;
+A:The Stealthy Vipers?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Stealthy Vipers Mercenary;
+T:The Stealthy Vipers greets you, <CLASS>!;
+A:The Stealthy Vipers?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Stealthy Vipers Mercenary;
+T:We are a mercenary guild of Kobolds. We name ourselves the Stealthy Vipers;
+T:because as you know, we Kobolds master the arts of stealth and poison!;
+T:But don't be fooled by the name. We are capable of much more than just;
+T:covert operations. We are excellent warriors and wizards too! We can do;
+T:just about any jobs!;
+A:Do you get a lot of jobs?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Stealthy Vipers Mercenary;
+T:Well...not too much. We get some stuff in the slums around here, but we;
+T:would certainly like to expand! But unfortunately, this is not possible;
+T:at the moment. And it will never be as long as our rivals, the;
+T:Dragon Lancers, exists! Damned devlings... If only our leaders would;
+T:organize a big assault on these bastards...;
+A:Tell me more of the Dragon Lancers.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Stealthy Vipers Mercenary;
+T:The Dragon Lancers are a mercenary guild of Devlings, a bit like ours.;
+T:Because of them, we cannot expand beyond the southwest slums. Doing so;
+T:would cause a big, open war to erupt for control of the city. And I;
+T:doubt Julian's army would tolerate that. So right now, we're stuck;
+T:here, in the southwest slums. Hopefully our leaders will find a way;
+T:to kill those devlings once and for all!;
+A:Maybe I can help?:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:5:0:0
+I:Stealthy Vipers Mercenary;
+T:Ah, but of course! We can always use an extra kobold in our ranks!;
+T:If you're interested, speak with Krind, the representative. He will;
+T:allow you to join us, and believe me, you'll have plenty of jobs!;
+T:Trust me. There's plenty of devlings to kill, and lots of gold to be;
+T:made! You'll like this!;
+A:I'll seek out Krind then.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Stealthy Vipers Mercenary;
+T:Hmmm... want to help, heh? Well, I don't know... We've never used the;
+T:help of a non-kobold before. You'll have to speak to Krind the guild's;
+T:representative about this. I guess if you could prove your loyalty,;
+T:we could use you. After all, any enemies of the devlings are a friend;
+T:of the kobolds!;
+A:I'll seek out Krind then.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Stealthy Vipers Mercenary;
+T:Hey everyone!! Let's get <himher>!!;
+A:[END DIALOG]:0:0:0:10:1602:0:0:0:0
+%

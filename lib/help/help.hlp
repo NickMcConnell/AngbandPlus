@@ -1,21 +1,25 @@
-Welcome to the NewAngband Online Help System.
+Welcome to the Portralis Help System.
 
-Please choose one of the following online help files:
+Please choose one of the following help files:
 
-    (1) Newbies Guide(Read first!) (newbs.txt)
+    (1) Stats Guide                (stats.txt)
     (2) List of Commands/features  (command.txt)
     (3) Elites and Bosses          (elites.txt)
     (4) Spells Guide               (spells.txt)
     (5) Skills Guide               (skills.txt)
     (6) Classes Guide              (classes.txt)
     (7) Abilities Guide            (abilities.txt)
-    (8) Formulas Guide             (formula.txt)
+    (8) Monster Race Guide         (monster.txt)
+    (9) Magic items/colors Guide   (items.txt)
+    (0) Formulas Guide             (formula.txt)
 
-***** [1] newbs.txt
+***** [1] stats.txt
 ***** [2] command.txt
 ***** [3] elites.txt
 ***** [4] spells.txt
 ***** [5] skills.txt
 ***** [6] classes.txt
 ***** [7] abilities.txt
-***** [8] formula.txt
+***** [8] monster.txt
+***** [9] items.txt
+***** [0] formula.txt

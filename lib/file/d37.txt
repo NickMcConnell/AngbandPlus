@@ -1,0 +1,10 @@
+N:1:0:0:0:0:0
+I: ;
+T:You press the switch, and the licialhyds starts reacting. The object;
+T:you placed in the middle slot levitates in the air, and starts;
+T:glowing with a strong light. Then suddently, in a flash of blinding light,;
+T:the object disappears! As the light fades, the licialhyds are no more,;
+T:and a strange, glowing portal stands in the place where your object was.;
+T:It's probably risky to enter it, but who knows what lies on the other side?;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,6 +1,14 @@
 NEWANGBAND 1.7.0 SPELLS GUIDE
 -------------------------------
 
+
+
+NOTE THAT THIS GUIDE MAY BE SEVERLY OUTDATED, AND NEEDS TO BE
+UPDATED FOR THE NEW VERSION OF PORTRALIS!
+
+
+
+
 NewAngband 1.7.0 introduces a whole new spell system, that is
 completely different from the previous one. In the new system,
 you actually create your own spells based on various effects.
@@ -44,50 +52,32 @@ worse on certain types of enemies.
 
 MISSILE
 Effect: Does half magic, half physical damages to enemies.
-Damages: Power/level
 Mana Cost: 1
 
 The magic missile type does both magic and physical damages.
-It can work on any kind of enemies, but be warned that due
-to the resistance to physical of high level enemies, this
-will eventually do less damages than pure elemental spells.
-Monsters immune to physical attacks takes half the damages,
-and so does monsters immune to magic attacks. Spellcraft
-does improve this effect, but by a much lesser amount than 
-regular elemental spells.
+This makes it useful against a wide range of enemies, but keep
+it mind that Elemental and Spellcraft improves it at only half
+the power of other elements, thus making this element weaker
+in the long run.
 
 PHYSICAL
 Effect: Does physical damages to enemies.
-Damages: Power/level
 Mana Cost: 1
 
 This does physical damages. It's main use is to damage monsters
-immune to magical attacks. Note that the resistance to physical
-attacks of high level enemies still apply. Spellcraft does not
-make this effect more powerful.
+immune to magical attacks.
 
 WARP
 Effect: Does warp damages to enemies, teleport them away.
 Mana Cost: 1
 Fixed Cost: 40
 Can be resisted: Yes(teleportation)
-Damages: Power/level
 
 This effect is a little more expensive than other elemental
 effects, but is has the added benefit of teleporting enemies
-away. The teleportation effect can be resisted though. Some enemies
-are always immune to teleportation. Uniques can never be teleported.
-Elites and bosses can be teleported, but can resist a lot more
-easily.
-
-MANA
-Effect: Does pure magical damages.
-Damages: Power/level
-Mana Cost: 1
-
-This effect does pure magic damages. No monsters can resist it.
-On the other hand, it is more expensive than other elemental
-effects.
+away. The teleportation effect can be resisted though. 
+Uniques can never be teleported. Elites and bosses can be
+teleported, but can resist a lot more easily.
 
 ALTERATION
 ------------
@@ -125,7 +115,8 @@ Mana Cost: 100
 
 This effect allow you to reduce the speed of your enemies. Fast
 opponents are very deadly, and this effect is a good way to slow
-them down, but beware the high mana cost.
+them down, but beware the high mana cost. This will not work on
+uniques.
 
 REDUCE LEVEL
 Effect: Reduce an enemy's level.
@@ -137,11 +128,7 @@ will weaken them in many ways, making them more susceptible
 to other alteration spells, as well as weakening their magic.
 
 LIFE BLAST
-Effect: Reduce enemy's hp by 33%.
-Fixed Cost: 25
-
-Reduces enemy's hp by 33%. Effective when used on enemies with
-a very high hp.
+Effect: Reduce enemy's hp by (power)%.
 
 LOCK
 Effect: Prevent the casting of spells.
@@ -180,7 +167,7 @@ Mana Cost: 12
 
 Makes the enemies flee from you. Very useful to send a large pack away.
 Does not work against Elites, Bosses and Uniques, as well as monsters
-that are non-living or immune to fear. Other enemies can resist it.
+that are immune to fear. Other enemies can resist it.
 
 RETROGRADE
 Effect: Turn an elite or boss into a normal enemy.
@@ -498,3 +485,18 @@ This effect will permanently reveal a portion of the map, depending on
 the radius. It will remain revealed forever, and you will be able to see
 the monsters that are in the area. A large radius version of this effect
 can be extremely useful!
+
+DIVINATION
+Effect: Explained below.
+Mana Cost: 2
+Can be resisted: Yes.
+
+This effect lets you guess the values of level and depth of an enemy.
+The closer the two values are to the power of the spell, the more deadly
+it is. For example, if you use a power 30 Divination on a level 30
+enemy that normally appears on dungeon level 30, you will instantly kill
+it, assuming it doesn't resist. On the other hand, if you use a power
+30 Divination on a level 100, depth 100 enemy, you won't do much damages.
+Using this spell requires good planning, because it's not just a matter
+of having the most powerful spell, but having the correct one. Note that
+Unique monsters takes only 25% damages from this spell.

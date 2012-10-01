@@ -12,39 +12,6 @@
 
 #include "angband.h"
 
-/*
- * Teleport directly to a town
- */
-void teleport_player_town(int town)
-{
-        int x = 0, y = 0;
-
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
-
-        /* Change town */
-        dun_level = 0;
-        p_ptr->town_num = town;
-
-        for(x = 0; x < max_wild_x; x++)
-                for(y = 0; y < max_wild_y; y++)
-                        if(p_ptr->town_num == wf_info[wild_map[y][x].feat].entrance) goto finteletown;
-finteletown:
-        p_ptr->wild_y = y;
-        p_ptr->wild_x = x;
-
-	leaving_quest = p_ptr->inside_quest;
-	p_ptr->inside_quest = 0;
-
-	/* Leaving */
-	p_ptr->leaving = TRUE;
-}
-
 
 #ifdef ALLOW_WIZARD
   
@@ -57,7 +24,7 @@ void wiz_create_named_art()
 	object_type forge;
 	object_type *q_ptr;
         object_kind *k_ptr;
-        int i,a_idx;
+        int i,a_idx,x;
         cptr p="Number of the artifact :";
         char out_val[80];
         artifact_type *a_ptr;
@@ -117,6 +84,7 @@ void wiz_create_named_art()
         {
                 q_ptr->level = 1;
                 q_ptr->kills = 0;
+		q_ptr->tweakpoints = 2;
         }
 
 	/* Artifact Brand! */
@@ -133,22 +101,56 @@ void wiz_create_named_art()
 		q_ptr->brandrad = 0;
 	}
 
-	q_ptr->fireres = a_ptr->fireres;
-	q_ptr->coldres = a_ptr->coldres;
-	q_ptr->elecres = a_ptr->elecres;
-	q_ptr->acidres = a_ptr->acidres;
-	q_ptr->poisres = a_ptr->poisres;
-	q_ptr->lightres = a_ptr->lightres;
-	q_ptr->darkres = a_ptr->darkres;
-	q_ptr->warpres = a_ptr->warpres;
-	q_ptr->waterres = a_ptr->waterres;
-	q_ptr->windres = a_ptr->windres;
-	q_ptr->earthres = a_ptr->earthres;
-	q_ptr->soundres = a_ptr->soundres;
-	q_ptr->radiores = a_ptr->radiores;
-	q_ptr->chaosres = a_ptr->chaosres;
-	q_ptr->physres = a_ptr->physres;
-	q_ptr->manares = a_ptr->manares;
+	for (x = 0; x < MAX_RESIST; x++)
+	{
+		q_ptr->resistances[x] = a_ptr->resistances[x];
+	}
+
+	/* Default stats bonus. */
+	for (i = 0; i < 6; i++)
+	{
+		q_ptr->statsbonus[i] = a_ptr->statsbonus[i];
+	}
+
+	/* Default skills bonus. */
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		q_ptr->skillsbonus[i] = a_ptr->skillsbonus[i];
+	}
+
+	/* Spells(if any) */
+	for (i = 0; i < 20; i++)
+	{
+		strcpy(q_ptr->spell[i].name, a_ptr->spell[i].name);
+                strcpy(q_ptr->spell[i].act, "");
+		q_ptr->spell[i].type = a_ptr->spell[i].type;
+		q_ptr->spell[i].power = a_ptr->spell[i].power;
+		q_ptr->spell[i].special1 = a_ptr->spell[i].special1;
+		q_ptr->spell[i].special2 = a_ptr->spell[i].special2;
+		q_ptr->spell[i].special3 = a_ptr->spell[i].special3;
+		q_ptr->spell[i].summchar = a_ptr->spell[i].summchar;
+		q_ptr->spell[i].cost = a_ptr->spell[i].cost;
+	}
+
+	/* Other bonuses. */
+	q_ptr->itemtype = a_ptr->itemtype;
+	q_ptr->itemskill = a_ptr->itemskill;
+	q_ptr->extrablows = a_ptr->extrablows;
+	q_ptr->extrashots = a_ptr->extrashots;
+	q_ptr->speedbonus = a_ptr->speedbonus;
+	q_ptr->lifebonus = a_ptr->lifebonus;
+	q_ptr->manabonus = a_ptr->manabonus;
+	q_ptr->infravision = a_ptr->infravision;
+	q_ptr->spellbonus = a_ptr->spellbonus;
+	q_ptr->invisibility = a_ptr->invisibility;
+	q_ptr->light = a_ptr->light;
+	q_ptr->extra1 = a_ptr->extra1;
+	q_ptr->extra2 = a_ptr->extra2;
+	q_ptr->extra3 = a_ptr->extra3;
+	q_ptr->extra4 = a_ptr->extra4;
+	q_ptr->extra5 = a_ptr->extra5;
+	q_ptr->reflect = a_ptr->reflect;
+	q_ptr->cursed = a_ptr->cursed;
 
         a_ptr->cur_num = 1;
 
@@ -508,16 +510,10 @@ typedef struct tval_desc
  */
 static tval_desc tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_AXE,               "Axe"                  },
-	{ TV_DAGGER,            "Dagger"               },
-	{ TV_BOW,               "Bow"                  },
-        { TV_BOOMERANG,         "Boomerang"            },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
+	{ TV_WEAPON,            "Weapon"               },
+	{ TV_RANGED,            "Ranged Weapon"        },
+        { TV_THROWING,          "Throwing Weapon"      },
+	{ TV_AMMO,              "Ammo"                 },
 	{ TV_SHIELD,            "Shield"               },
 	{ TV_CROWN,             "Crown"                },
 	{ TV_HELM,              "Helm"                 },
@@ -531,26 +527,25 @@ static tval_desc tvals[] =
 	{ TV_AMULET,            "Amulet"               },
 	{ TV_LITE,              "Lite"                 },
 	{ TV_POTION,            "Potion"               },
-        { TV_POTION2,           "Potion2"              },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
 	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
         { TV_MSTAFF,            "Mage Staff"           },
-        { TV_BATERIE,           "Essence"              },
+        { TV_BATERIE,           "Ingredient"           },
         { TV_PARCHEMENT,        "Parchement"           },
         { TV_INSTRUMENT,        "Musical Instrument"   },
-        { TV_HELL_STAFF,        "Hell Staff"           },
-        { TV_SWORD_DEVASTATION, "Sword Of Devastation" },
         { TV_CRYSTAL,           "Magic Crystal"        },
-        { TV_VALKYRIE_SPEAR,    "Valkyrie Spear"       },
-        { TV_ZELAR_WEAPON,      "Zelar Weapon"         },
+	{ TV_SOUL   ,           "Soul"                 },
+	{ TV_ESSENCE,           "Essence"              },
+	{ TV_MELODY,            "Melody"               },
+	{ TV_HARMONY,           "Harmony"              },
+	{ TV_RHYTHM,            "Rhythm"               },
         { TV_BOOK_ELEMENTAL,    "Elemental Books"      },
         { TV_BOOK_ALTERATION,   "Alteration Books"     },
-        { TV_BOOK_HEALING,      "Healing Books"        },
+        { TV_BOOK_MYSTICISM,    "Mysticism Books"      },
         { TV_BOOK_CONJURATION,  "Conjuration Books"    },
         { TV_BOOK_DIVINATION,   "Divination Books"     },
         { TV_JUNK,              "Junk"                 },
@@ -796,6 +791,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 {
 	object_type forge;
 	object_type *q_ptr;
+	int ilev;
 
 	char ch;
 
@@ -811,6 +807,9 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 	/* Copy the object */
 	object_copy(q_ptr, o_ptr);
+
+	/* Choose item's level. */
+	ilev = get_quantity("Enter item's level you want.", ilev);
 
 
 	/* Main loop. Ask for magification and artifactification */
@@ -837,21 +836,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
-                        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
+                        apply_magic(q_ptr, ilev, FALSE, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
-                        apply_magic(q_ptr, dun_level, FALSE, TRUE, FALSE, FALSE);
+                        apply_magic(q_ptr, ilev, FALSE, TRUE, FALSE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
-                        apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE, FALSE);
+                        apply_magic(q_ptr, ilev, FALSE, TRUE, TRUE, FALSE);
 		}
 	}
 
@@ -1359,9 +1358,6 @@ void do_cmd_wiz_cure_all(void)
 	(void)set_cut(0);
 	(void)set_slow(0);
 
-	/* No longer hungry */
-	(void)set_food(PY_FOOD_MAX - 1);
-
 	/* Redraw everything */
 	do_cmd_redraw();
 }
@@ -1414,14 +1410,6 @@ static void do_cmd_wiz_jump(void)
 	dun_level = command_arg;
 
 	leaving_quest = p_ptr->inside_quest;
-
-	/* Leaving an 'only once' quest marks it as failed */
-	if (leaving_quest &&
-		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-	{
-		quest[leaving_quest].status = QUEST_STATUS_FAILED;
-	}
 
 	p_ptr->inside_quest = 0;
 
@@ -1755,16 +1743,37 @@ void do_cmd_debug(void)
 			teleport_player(10);
 			break;
 
-		/* Complete a Quest -KMW- */
+		/* Init shops. */
 		case 'q':
+			init_stores_inven(p_ptr->town_num);
+			break;
+
+		/* Level up an item. */
+		case 'Q':
 		{
-                        if (quest[command_arg].status == QUEST_STATUS_TAKEN)
-                        {
-                                quest[command_arg].status = QUEST_STATUS_COMPLETED;
-                                msg_print("Completed Quest");
-                                msg_print(NULL);
-                                break;
-                        }
+                        int item;
+			object_type *o_ptr;
+			cptr q, s;
+
+			/* Choose an original item. */
+			q = "Level up which item? ";
+			s = "You have no items.";
+			if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+			/* Get the item (in the pack) */
+			if (item >= 0)
+			{
+				o_ptr = &inventory[item];
+			}
+
+			/* Get the item (on the floor) */
+			else
+			{
+				o_ptr = &o_list[0 - item];
+			}
+
+			object_gain_level(o_ptr);
+
 			break;
 		}
 
@@ -1791,11 +1800,6 @@ void do_cmd_debug(void)
 		/* Teleport */
 		case 't':
 			teleport_player(100);
-			break;
-
-                /* Teleport to a town */
-                case 'T':
-                        teleport_player_town(command_arg);
 			break;
 
 		/* Very Good Objects */

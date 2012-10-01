@@ -1,0 +1,83 @@
+ARMORER'S GUIDE
+---------------
+
+Written by Sebek Ironbeard, Ivhalian Dwarven Defender.
+
+We dwarves are known as the best craftsmen in Portralis! Humans are
+great and all, but it takes a true mountain man to fully understand
+everything there is to understand about metals!
+
+So today, this old dwarf is going to teach you how to craft your
+own personnal armor. We'll go step by step!
+
+LEATHER ARMOR
+Components type: Crafting
+Skill required: 5
+How to create: Leather Hide + Clothes Pattern
+
+Well, first, you'll need a leather "armor", if you can call it that.
+Looks more like a coat if you ask me, not the kind of thing that will
+prevent a blade from cutting your flesh. Still, this is the first
+step, so don't screw it up!
+
+HEAVY LEATHER ARMOR
+Components type: Crafting
+Skill required: 10
+How to create: Leather Hide + Leather Armor
+
+What do you get if you put more leather on a leather armor? You get a
+heavy leather armor! Didn't expect that, huh? Pfft, it's just a bigger
+coat. It's warm though, so wear one if you want to visit Rhyzendal or
+something. Or for your own sake, stay away from Rhyzendal, and read
+further to learn how to turn this thing into a REAL armor!
+
+
+All right, so you've got some basic armor, huh? Now, time to turn it
+into REAL armor! For this guide, we'll use an easy metal: bronze.
+But it will work with any metals. Just practice using bronze, and when
+you become more skilled, try a different metal!
+
+
+BRONZE MAIL
+Components type: Crafting
+Skill required: 5
+How to create: Leather Armor + Ingot of Bronze
+
+What, you were expecting this part to be difficult? Making a nice chain
+mail seems like a difficult task, but I'm ready to share some advice
+with you on how to make it.
+
+(He gives several tips and tricks on how to make a nice bronze chain
+mail.)
+
+There you go, wasn't hard heh? Kinda makes you wonder why peoples still
+bother with the leather "armor" and similar crap. This thing's easy to
+make, and will actually protect you!
+
+BRONZE PLATE MAIL
+Components type: Crafting
+Skill required: 15
+How to create: Heavy Leather Armor + Ingot of Bronze
+
+Now you're talking! This is what I call a REAL armor! Once you manage to
+create that, you can call yourself a smith. Of course, this is only the
+beginning. Now you have to do the same thing with iron, and even steel!
+But...are you up for the ultimate challenge?
+
+BRONZE FULL PLATE
+Components type: Crafting
+Skill required: 35
+How to create: Bronze Plate Mail + Ingot of Bronze
+
+Heh heh, it's getting tougher heh? This is the best type of armor you
+can create. Can't really call yourself a Defender if you don't wear
+a full plate armor. You have to be pretty strong to wear that though,
+but then, weak Defenders don't exist.
+
+
+Well, that's about it! All that's left for you to do is to find some
+ingots, and start crafting. Start with bronze, then iron and then steel.
+And once you can make a nice Steel Full Plate, you can call yourself
+a master smith! Heh heh...well, unless you happen to come across
+some rare mirhtil ingots, heh heh...good luck with that though! It's
+even tougher to craft than steel, and it's pretty rare!

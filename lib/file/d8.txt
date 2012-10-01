@@ -261,7 +261,7 @@ N:26:0:0:0:0:0
 I:Mayor Princeton;
 T:So, <NAME>, your next task will be to meet Clara, and question her about;
 T:her orc sightings. She lives in a small house, near the house you rented;
-T:while you stay here. I do not know if she is involved in this, or is she's;
+T:while you stay here. I do not know if she is involved in this, or if she's;
 T:just raving, but we have nothing to lose. Ask her about the orcs, and try;
 T:to retreive any valuable information. Then, come back here, and we shall;
 T:discuss what to do next.;

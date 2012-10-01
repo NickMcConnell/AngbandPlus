@@ -223,9 +223,11 @@ static void prt_ac(void)
 {
 	char tmp[32];
 
-	put_str("Cur AC ", ROW_AC, COL_AC);
-	sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
-	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
+	put_str("AC ", ROW_AC, COL_AC);
+	sprintf(tmp, "%9ld", (long)(p_ptr->dis_ac + p_ptr->dis_to_a));
+
+	/* Actually use the same column as gold. */
+	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_GOLD + 3);
 }
 
 
@@ -243,7 +245,7 @@ static void prt_hp(void)
                 put_str("HP ", ROW_HP, COL_HP);
 		if (p_ptr->mhp > 99999)
 		{
-                	sprintf(tmp, "%5ld", p_ptr->chp);
+                	sprintf(tmp, "%10ld", p_ptr->chp);
                 	if (p_ptr->chp >= p_ptr->mhp)
                 	{
                         	color = TERM_L_GREEN;
@@ -256,7 +258,7 @@ static void prt_hp(void)
                 	{
                         	color = TERM_RED;
                 	}
-                	c_put_str(color, tmp, ROW_HP, COL_HP + 2);
+                	c_put_str(color, tmp, ROW_HP, COL_HP + 3);
 		}
 		else
 		{
@@ -284,10 +286,6 @@ static void prt_sp(void)
 {
 	char tmp[32];
 	byte color;
-
-
-	/* Do not show mana unless it matters */
-        if (!mp_ptr->spell_book) return;
 
 
         put_str("SP ", ROW_SP, COL_SP);
@@ -343,49 +341,6 @@ static void prt_depth(void)
 
 	/* Right-Adjust the "depth", and clear old values */
 	prt(format("%7s", depths), 23, COL_DEPTH);
-}
-
-
-/*
- * Prints status of hunger
- */
-static void prt_hunger(void)
-{
-	/* Fainting / Starving */
-	if (p_ptr->food < PY_FOOD_FAINT)
-	{
-		c_put_str(TERM_RED, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
-	}
-
-	/* Weak */
-	else if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		c_put_str(TERM_ORANGE, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
-	}
-
-	/* Hungry */
-	else if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		c_put_str(TERM_YELLOW, "Hungry", ROW_HUNGRY, COL_HUNGRY);
-	}
-
-	/* Normal */
-	else if (p_ptr->food < PY_FOOD_FULL)
-	{
-		c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
-	}
-
-	/* Full */
-	else if (p_ptr->food < PY_FOOD_MAX)
-	{
-		c_put_str(TERM_L_GREEN, "Full  ", ROW_HUNGRY, COL_HUNGRY);
-	}
-
-	/* Gorged */
-	else
-	{
-		c_put_str(TERM_GREEN, "Gorged", ROW_HUNGRY, COL_HUNGRY);
-	}
 }
 
 
@@ -669,6 +624,31 @@ static void prt_stun(void)
 	}
 }
 
+/* Uses the same column as Stun. */
+static void prt_powerattack(void)
+{
+
+	if (p_ptr->powerattack > 0)
+	{
+		if (p_ptr->powerlevel == 3)
+		{
+			c_put_str(TERM_L_GREEN, "Power Lvl. 3", ROW_STUN, COL_STUN);
+		}
+		else if (p_ptr->powerlevel == 2)
+		{
+			c_put_str(TERM_L_GREEN, "Power Lvl. 2", ROW_STUN, COL_STUN);
+		}
+		else
+		{
+			c_put_str(TERM_L_GREEN, "Power Lvl. 1", ROW_STUN, COL_STUN);
+		}
+	}
+	else
+	{
+		put_str("            ", ROW_STUN, COL_STUN);
+	}
+}
+
 
 
 /*
@@ -729,7 +709,8 @@ static void health_redraw(void)
 	/* Tracking a visible monster */
 	else
 	{
-		int pct, len;
+		int len;
+		s32b pct;
                 char thehealth[20], thelevel[20], thelives[20];
 
 		monster_type *m_ptr = &m_list[health_who];
@@ -739,7 +720,14 @@ static void health_redraw(void)
 		byte attr = TERM_RED;
 
 		/* Extract the "percent" of health */
-		pct = 100L * m_ptr->hp / m_ptr->maxhp;
+		if (m_ptr->maxhp > 10000)
+		{
+			pct = multiply_divide((m_ptr->hp / 100), 100, (m_ptr->maxhp / 100));
+		}
+		else
+		{
+			pct = multiply_divide(m_ptr->hp, 100, m_ptr->maxhp);
+		}
 
 		/* Badly wounded */
 		if (pct >= 10) attr = TERM_L_RED;
@@ -765,6 +753,9 @@ static void health_redraw(void)
                 /* BOSS */
                 if (m_ptr->boss == 2) attr = 17;
 
+		/* Cursed monsters! */
+		if (r_ptr->cursed > 0) attr = TERM_L_RED;
+
 		/* Questors */
 		if (r_ptr->flags1 & (RF1_QUESTOR)) attr = TERM_L_BLUE;
 
@@ -778,6 +769,7 @@ static void health_redraw(void)
 
 		/* Dump the current "health" (use '*' symbols) */
 		if (r_ptr->flags1 & (RF1_QUESTOR)) sprintf(thelevel, "??????????");
+		else if (r_ptr->cursed > 0) sprintf(thelevel, "NIGHTMARE");
                 else if (m_ptr->boss == 1) sprintf(thelevel, "ELITE");
                 else if (m_ptr->boss == 2) sprintf(thelevel, "**BOSS**");
                 else sprintf(thelevel, "Level %d", m_ptr->level);
@@ -785,7 +777,7 @@ static void health_redraw(void)
                 sprintf(thehealth, "Hp: %ld", m_ptr->hp);
 		sprintf(thelives, "Lives: %ld", m_ptr->lives);
                 /* Don't display the hp if it's a boss */
-                if (m_ptr->boss != 2 && !(r_ptr->flags1 & (RF1_QUESTOR)))
+                if (m_ptr->boss != 2 && !(r_ptr->flags1 & (RF1_QUESTOR)) && (r_ptr->cursed == 0))
 		{
 			Term_putstr(COL_INFO, ROW_MH + 1, 12, attr, thehealth);
 			if (m_ptr->lives > 0) Term_putstr(COL_INFO, ROW_MH + 2, 12, attr, thelives);
@@ -861,10 +853,8 @@ static void prt_frame_extra(void)
 {
 	/* Cut/Stun */
 	/*prt_cut();*/
-	prt_stun();
-
-	/* Food */
-	prt_hunger();
+	/*prt_stun();*/
+	prt_powerattack();
 
 	/* Various */
 	prt_blind();
@@ -879,7 +869,7 @@ static void prt_frame_extra(void)
 	prt_speed();
 
 	/* Study spells */
-	prt_study();
+	/*prt_study();*/
 }
 
 
@@ -1193,33 +1183,21 @@ static void calc_torch(void)
 			/* Torches (with fuel) provide some lite */
 			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
 			{
-                                if (p_ptr->pclass != CLASS_JUSTICE_WARRIOR)
-                                {
 				p_ptr->cur_lite += 1;
-                                }
-                                else p_ptr->cur_lite += 3;
 				continue;
 			}
 
 			/* Lanterns (with fuel) provide more lite */
 			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
 			{
-                                if (p_ptr->pclass != CLASS_JUSTICE_WARRIOR)
-                                {
                                 p_ptr->cur_lite += 2;
-                                }
-                                else p_ptr->cur_lite += 6;
 				continue;
 			}
 
 			/* Artifact Lites provide permanent, bright, lite */
-			if (artifact_p(o_ptr))
+			if (o_ptr->sval > SV_LITE_LANTERN)
 			{
-                                if (p_ptr->pclass != CLASS_JUSTICE_WARRIOR)
-                                {
                                 p_ptr->cur_lite += 3;
-                                }
-                                else p_ptr->cur_lite += 10;
 				continue;
 			}
 
@@ -1230,28 +1208,8 @@ static void calc_torch(void)
 			/* Skip empty slots */
 			if (!o_ptr->k_idx) continue;
 
-			/* Extract the flags */
-                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
 			/* does this item glow? */
-                        if (f3 & TR3_LITE) p_ptr->cur_lite += o_ptr->pval;
-                        if (f3 & TR3_LITE && p_ptr->pclass == CLASS_DARK_LORD)
-                        {
-                             msg_print("AAAARRRRGGGGHHHH!!!! The light of this item kills you!");
-                             take_hit(20000, "a glowing item");
-                        }
-                        if (f3 & (TR3_BLESSED) && p_ptr->pclass == CLASS_DARK_LORD)
-                        {
-                             msg_print("AAAARRRRGGGGHHHH!!!! The blessing of this weapon destroyed you!");
-                             take_hit(20000, "a blessed weapon");
-                        }
-                        if (f4 & (TR4_BRAND_LIGHT) && p_ptr->pclass == CLASS_DARK_LORD)
-                        {
-                             msg_print("AAAARRRRGGGGHHHH!!!! The light brand of this weapon killed you!");
-                             take_hit(20000, "a light brand weapon");
-                        }
-
-
+                        p_ptr->cur_lite += o_ptr->light;
                              
 		}
 
@@ -1317,6 +1275,7 @@ void calc_body()
 {
         monster_race *r_ptr = &r_info[p_ptr->body_monster];
         int i;
+	int essenceslots = 13;
 
         for (i = 0; i < INVEN_TOTAL - INVEN_WIELD; i++)
                 p_ptr->body_parts[i] = 0;
@@ -1325,9 +1284,11 @@ void calc_body()
                 p_ptr->body_parts[INVEN_WIELD - INVEN_WIELD + i] = INVEN_WIELD;*/
         if (r_ptr->body_parts[BODY_WEAPON])
 	{
-                p_ptr->body_parts[INVEN_BOW - INVEN_WIELD] = INVEN_BOW;
+                /* p_ptr->body_parts[INVEN_BOW - INVEN_WIELD] = INVEN_BOW; */
 		p_ptr->body_parts[INVEN_WIELD - INVEN_WIELD] = INVEN_WIELD;
 		p_ptr->body_parts[INVEN_WIELD - INVEN_WIELD + 1] = INVEN_WIELD;
+
+		essenceslots -= 2;
 	}
 
         for (i = 0; i < r_ptr->body_parts[BODY_TORSO]; i++)
@@ -1335,36 +1296,58 @@ void calc_body()
                 p_ptr->body_parts[INVEN_BODY - INVEN_WIELD + i] = INVEN_BODY;
                 p_ptr->body_parts[INVEN_OUTER - INVEN_WIELD + i] = INVEN_OUTER;
                 p_ptr->body_parts[INVEN_LITE - INVEN_WIELD + i] = INVEN_LITE;
-                p_ptr->body_parts[INVEN_AMMO - INVEN_WIELD + i] = INVEN_AMMO;                
+                p_ptr->body_parts[INVEN_AMMO - INVEN_WIELD + i] = INVEN_AMMO;
+
+		if (i == 0) essenceslots -= 4;                
         }
 
         for (i = 0; i < r_ptr->body_parts[BODY_FINGER]; i++)
+	{
                 p_ptr->body_parts[INVEN_RING - INVEN_WIELD + i] = INVEN_RING;
+		if (i == 0 || i == 1) essenceslots -= 1;
+	}
 
         for (i = 0; i < r_ptr->body_parts[BODY_HEAD]; i++)
         {
                 p_ptr->body_parts[INVEN_HEAD - INVEN_WIELD + i] = INVEN_HEAD;
                 p_ptr->body_parts[INVEN_NECK - INVEN_WIELD + i] = INVEN_NECK;
+
+		if (i == 0) essenceslots -= 2;
         }
 
         for (i = 0; i < r_ptr->body_parts[BODY_ARMS]; i++)
         {
                 p_ptr->body_parts[INVEN_ARM - INVEN_WIELD + i] = INVEN_ARM;
                 p_ptr->body_parts[INVEN_HANDS - INVEN_WIELD + i] = INVEN_HANDS;
+
+		if (i == 0) essenceslots -= 2;
         }
 	if (r_ptr->body_parts[BODY_ARMS])
                 p_ptr->body_parts[INVEN_TOOL - INVEN_WIELD] = INVEN_TOOL;
 
         for (i = 0; i < r_ptr->body_parts[BODY_LEGS]; i++)
+	{
                 p_ptr->body_parts[INVEN_FEET - INVEN_WIELD + i] = INVEN_FEET;
+		if (i == 0) essenceslots -= 1;
+	}
+
+	/* Monster race without equipment slots gets Essence slots. */
+	/* How much they get depends on the monster. */
+	if (essenceslots > 0 && p_ptr->prace == RACE_MONSTER)
+	{
+		for (i = 0; i < essenceslots; i++)
+		{
+                	p_ptr->body_parts[INVEN_ESSENCE - INVEN_WIELD + i] = INVEN_ESSENCE;
+		}
+	}
 
         /* Ok now if the player lost a body part, he must drop the object he had on it */
         for (i = 0; i < INVEN_TOTAL - INVEN_WIELD; i++)
         {
                 if ((!p_ptr->body_parts[i]) && (inventory[i + INVEN_WIELD].k_idx))
                 {
-                        /* Drop it NOW ! */
-                        inven_takeoff(i + INVEN_WIELD, 255, TRUE);
+                        /* Unequip it. */
+                        inven_takeoff(i + INVEN_WIELD, 255, FALSE);
                 }
         }
 }
@@ -1556,7 +1539,7 @@ void redraw_stuff(void)
                         sprintf(f, "%s %s", s, e);
                         prt_field(f, ROW_CLASS, COL_CLASS);
                 }
-                else prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);                
+                else prt_field(classes_def[p_ptr->pclass].name, ROW_CLASS, COL_CLASS);                
 	}
 
 	if (p_ptr->redraw & (PR_TITLE))
@@ -1639,6 +1622,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_BLIND | PR_CONFUSED);
 		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
                 p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
+		c_put_str(TERM_L_GREEN, "                          ", 23, 0);
 		prt_frame_extra();
 	}
 
@@ -1648,16 +1632,12 @@ void redraw_stuff(void)
 		prt_cut();
 	}
 
+	/* Now used for Power Attack */
 	if (p_ptr->redraw & (PR_STUN))
 	{
 		p_ptr->redraw &= ~(PR_STUN);
-		prt_stun();
-	}
-
-	if (p_ptr->redraw & (PR_HUNGER))
-	{
-		p_ptr->redraw &= ~(PR_HUNGER);
-		prt_hunger();
+		/*prt_stun();*/
+		prt_powerattack();
 	}
 
 	if (p_ptr->redraw & (PR_BLIND))
@@ -1696,10 +1676,19 @@ void redraw_stuff(void)
 		prt_speed();
 	}
 
-	if (p_ptr->redraw & (PR_STUDY))
+	/*if (p_ptr->redraw & (PR_STUDY))
 	{
 		p_ptr->redraw &= ~(PR_STUDY);
 		prt_study();
+	}*/
+
+	if (damages_counter_duration > 0)
+	{
+		char total_damages[80];
+		c_put_str(TERM_L_GREEN, "                          ", 23, 64);
+		sprintf(total_damages, "Dam: %ld", damages_counter);
+		if (damages_counter_player_damages) c_put_str(TERM_L_GREEN, total_damages, 23, 64);
+		else c_put_str(TERM_L_RED, total_damages, 23, 64);
 	}
 }
 
@@ -1842,7 +1831,7 @@ bool safety_check()
         object_type *o_ptr;
 
         i = 24;
-        while (i <= 52)
+        while (i < INVEN_TOTAL)
         {
                 /* Get the item */
                 o_ptr = &inventory[i];
@@ -1863,7 +1852,7 @@ bool safety_check()
 }        
 
 /* Set the skills, used by lua. */
-/* Putting this code in a script causes serious performance issues. */
+/* Once a lua code, it caused major performance issues. This one's much faster. */
 void calc_skills(int mode)
 {	
 	int i;
@@ -1896,7 +1885,7 @@ void calc_skills(int mode)
 	}
 }
 
-/* Again, putting this code directly in a script causes performance issues. */
+/* Again, once a lua script, it was too slow. */
 void calc_stats(int mode)
 {
 	int i;
@@ -1913,7 +1902,7 @@ void calc_stats(int mode)
 		case 1:
 		{
 			/* Calculate stats */
-			for (i = 0; i <= 6; i++)
+			for (i = 0; i < 6; i++)
 			{
 				int top, use, ind;
 
@@ -2020,28 +2009,7 @@ void calc_stats(int mode)
 					/* Change in INT may affect Mana/Spells */
 					else if (i == A_INT)
 					{
-						if (mp_ptr->spell_stat == A_INT)
-						{
-							p_ptr->update |= (PU_MANA | PU_SPELLS);
-						}
-					}
-
-					/* Change in WIS may affect Mana/Spells */
-					else if (i == A_WIS)
-					{
-						if (mp_ptr->spell_stat == A_WIS)
-						{
-                                        		p_ptr->update |= (PU_MANA | PU_SPELLS);
-						}
-					}
-
-                        		/* Change in CHR may affect Mana/Spells */
-                        		else if (i == A_CHR)
-					{
-                                		if (mp_ptr->spell_stat == A_CHR)
-						{
-                                        		p_ptr->update |= (PU_MANA | PU_SPELLS);
-						}
+						p_ptr->update |= (PU_MANA | PU_SPELLS);
 					}
 
 					/* Window stuff */
@@ -2051,4 +2019,237 @@ void calc_stats(int mode)
 			break;
 		}
 	}
+}
+
+/* Slowness is rarely appreciated... */
+void calc_equipment()
+{
+	int i, w;
+	object_type *o_ptr;
+	u32b f1, f2, f3, f4;
+
+	/* Reset two global variables. */
+	exblows = 0;
+	exshots = 0;
+
+	/* Scan the usable inventory */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		
+		/* Stats bonus/penalities. */
+		p_ptr->stat_add[A_STR] += o_ptr->statsbonus[A_STR];
+		p_ptr->stat_add[A_INT] += o_ptr->statsbonus[A_INT];
+		p_ptr->stat_add[A_WIS] += o_ptr->statsbonus[A_WIS];
+		p_ptr->stat_add[A_DEX] += o_ptr->statsbonus[A_DEX];
+		p_ptr->stat_add[A_CON] += o_ptr->statsbonus[A_CON];
+		p_ptr->stat_add[A_CHR] += o_ptr->statsbonus[A_CHR];
+
+		/* Skills bonus/penalities. */
+		for (w = 0; w < SKILL_MAX; w++)
+		{
+			p_ptr->skill_bonus[w] += o_ptr->skillsbonus[w];
+		}
+
+		/* Various bonus. */
+		p_ptr->to_s += o_ptr->spellbonus;
+		p_ptr->see_infra += o_ptr->infravision;
+		p_ptr->pspeed += o_ptr->speedbonus;
+		exblows += o_ptr->extrablows;
+		p_ptr->invis += o_ptr->invisibility;
+		exshots += o_ptr->extrashots;
+
+		/* Various flags */
+		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might = TRUE;
+		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
+		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+		if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = 20;
+		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+		if (f4 & (TR4_FLY)) p_ptr->fly = TRUE;
+		if (f4 & (TR4_CLIMB)) p_ptr->climb = TRUE;
+
+		/* Resistance flags */
+		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+		if (f2 & (TR2_RES_CONF)) p_ptr->resist_conf = TRUE;
+		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+		if (o_ptr->reflect > 0) p_ptr->reflect = TRUE;
+		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
+		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+
+		/* Sustain flags */
+		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+		if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+		/* Defender's Heavy Armored Defense */
+		if ((o_ptr->tval == TV_HARD_ARMOR || o_ptr->tval == TV_DRAG_ARMOR) && (p_ptr->abilities[(CLASS_DEFENDER * 10)] >= 1))
+		{
+			s32b acbonus;
+
+			acbonus = o_ptr->ac + multiply_divide(o_ptr->ac, p_ptr->abilities[(CLASS_DEFENDER * 10)] * 2, 100);
+
+			/* Modify the base armor class */
+			p_ptr->ac += acbonus + ((acbonus / 3) * p_ptr->skill[4]);
+
+			/* The base armor class is always known */
+			p_ptr->dis_ac += acbonus + ((acbonus / 3) * p_ptr->skill[4]);
+		}
+		else
+		{
+			/* Modify the base armor class */
+			p_ptr->ac += o_ptr->ac + ((o_ptr->ac / 3) * p_ptr->skill[4]);
+
+			/* The base armor class is always known */
+			p_ptr->dis_ac += o_ptr->ac + ((o_ptr->ac / 3) * p_ptr->skill[4]);
+		}
+
+		/* Apply the bonuses to armor class */
+		p_ptr->to_a += o_ptr->to_a;
+
+		/* Apply the mental bonuses to armor class */
+		p_ptr->dis_to_a += o_ptr->to_a;
+
+		/* Do not apply shooter bonuses */
+		if (i != INVEN_BOW)
+		{
+			/* Apply the bonuses to hit/damage */
+			p_ptr->to_h += o_ptr->to_h;
+			p_ptr->to_d += o_ptr->to_d;
+
+			/* Apply the mental bonuses tp hit/damage, if known */
+			p_ptr->dis_to_h += o_ptr->to_h;
+			p_ptr->dis_to_d += o_ptr->to_d;
+		}
+
+	}
+
+}
+
+/* Calc resistances. */
+void calc_resistances(int mode)
+{
+	int i;
+	int j;
+
+	object_type *o_ptr;
+	monster_race *r_ptr;
+
+	switch (mode)
+	{
+		case 0:
+		{
+			for (i = 0; i < MAX_RESIST; i++)
+			{
+				p_ptr->resistances[i] = 0;
+			}
+			break;
+		}
+		case 1:
+		{
+			/* Resistances from items. */
+        		i = 24;
+        		while (i < INVEN_TOTAL)
+			{
+				o_ptr = &inventory[i];
+
+                		/* Augment resistances! */
+				if (o_ptr->k_idx > 0)
+				{
+					for (j = 0; j < MAX_RESIST; j++)
+					{
+						p_ptr->resistances[j] += o_ptr->resistances[j];
+					}
+				}
+                		i += 1;
+        		}
+
+			/* Resistances from monster body. */
+			if (p_ptr->body_monster != 0)
+			{
+				r_ptr = &r_info[p_ptr->body_monster];
+				for (j = 0; j < MAX_RESIST; j++)
+				{
+					p_ptr->resistances[j] += r_ptr->resistances[j];
+				}
+			}
+
+			/* Cannot exceed 100. */
+			for (j = 0; j < MAX_RESIST; j++)
+			{
+				if (p_ptr->resistances[j] > 100) p_ptr->resistances[j] = 100;
+			}
+
+			break;
+		}
+	}
+}
+
+/* Customized update function. */
+void update_and_handle(void)
+{
+        cptr str;
+	rp_ptr = &race_info[p_ptr->prace];
+	str = rp_ptr->title;
+	cp_ptr = &class_info[p_ptr->pclass];
+	str = classes_def[p_ptr->pclass].name;
+        p_ptr->update |= (PU_BONUS);
+        p_ptr->update |= (PU_TORCH);
+        p_ptr->update |= (PU_HP);
+        p_ptr->update |= (PU_MANA);
+        p_ptr->update |= (PU_SPELLS);
+        p_ptr->update |= (PU_VIEW);
+        p_ptr->update |= (PU_LITE);
+        p_ptr->update |= (PU_FLOW);
+        p_ptr->update |= (PU_BODY);
+        p_ptr->redraw |= (PR_MANA);
+        p_ptr->redraw |= (PR_HP);
+        p_ptr->redraw |= (PR_GOLD);
+        p_ptr->redraw |= (PR_STATS);
+        p_ptr->redraw |= (PR_BASIC);
+        p_ptr->redraw |= (PR_EXTRA);
+	p_ptr->window |= (PW_PLAYER);
+        handle_stuff();
+        update_stuff();
+        redraw_stuff();
+}
+
+/* Just how cursed you are? */
+void calc_cursed()
+{
+	int i;
+	object_type *o_ptr;
+
+	p_ptr->cursed = 0;
+
+	/* Scan the usable inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Adds the total curse. */
+		p_ptr->cursed += o_ptr->cursed;
+	}
+
 }

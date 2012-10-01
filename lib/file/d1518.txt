@@ -1,0 +1,17 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter an underground arena room, and you see a brown-haired woman in;
+T:full plate armor practicing some Earth-based sword techniques. She also;
+T:wields a shield in her off-hand, and you notice that her equipment seems;
+T:to be made of a rare and powerful metal. Finally, she wears a strange;
+T:amulet around her neck. It looks like a golden eye with an heart-shaped;
+T:iris... After performing one last move, she turns her attention to you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Woman;
+T:Ah, you must be <NAME>. I've heard of you, and I knew you would come.;
+T:Come on, let's talk about the...situation.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

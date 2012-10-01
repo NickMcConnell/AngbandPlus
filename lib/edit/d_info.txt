@@ -73,35 +73,35 @@ A:56:50:187:25:84:25:57:58
 
 N:4:Jindar Sewers
 D:an entrance to Jindar's sewers
-W:4:4:1:1001:0:14:160
+W:4:4:1:101:0:14:160
 L:84:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:BIG | PRINCIPAL
 
 N:5:Underground Cave
 D:an entrance to an underground cave
-W:5:15:1:1006:0:14:160
+W:5:15:1:106:0:14:160
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
 
 N:6:Palace Secret Cave
 D:an entrance to a secret cave beneath the Palace
-W:10:20:1:1007:0:14:160
+W:10:20:1:107:0:14:160
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
 
 N:7:Graveyard's Cave
 D:a secret cave in the graveyard
-W:12:18:1:1008:0:14:160
+W:12:18:1:108:0:14:160
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:UNDEAD | PRINCIPAL
 
 N:8:Quazar's Temple
 D:the entrance to Quazar's Temple
-W:15:30:1:1010:0:14:160
+W:15:30:1:110:0:14:160
 L:1:100:1:0:1:0
 A:87:100:51:0:50:0:57:58
 F:BIG | PRINCIPAL
@@ -111,7 +111,7 @@ D:an entrance to dark tunnels
 W:20:30:1:14:0:14:160
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
-F:UNDEAD | DEMON
+F:UNDEAD
 
 N:10:Watery Cave
 D:an entrance to a cave in the water
@@ -125,6 +125,110 @@ W:7:12:1:16:0:14:160
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 
+N:12:Delvan's Lair
+D:an entrance to a cave
+W:15:20:1:116:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+
+N:13:Cave
+D:an entrance to a cave
+W:17:22:1:121:0:14:160
+L:88:75:84:25:1:0
+A:56:80:97:20:50:0:57:58
+
+N:14:Ancient Mines
+D:an entrance to abandonned mines
+W:10:20:1:17:0:14:160
+L:88:50:1:50:1:0
+A:56:40:97:60:50:0:57:58
+
+N:15:Ancient Mines Secret Tunnels
+D:an entrance to secret tunnels
+W:20:25:1:18:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+
+N:16:Cave
+D:an entrance to a cave
+W:18:23:1:125:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+
+# 17 and 18 are the same dungeon, but they lead to a different version
+# of the quest level.
+N:17:Cave
+D:an entrance to a cave
+W:25:30:1:200:0:14:160
+L:88:75:84:25:1:0
+A:56:80:97:20:50:0:57:58
+
+N:18:Cave
+D:an entrance to a cave
+W:25:30:1:132:0:14:160
+L:88:75:84:25:1:0
+A:56:80:97:20:50:0:57:58
+
+N:19:Cockatrices Sanctuary
+D:an entrance to the Cockatrices Sanctuary
+W:30:35:1:501:0:14:160
+L:88:100:1:0:1:0
+A:97:100:51:0:50:0:57:58
+
+N:20:Cave Northeast of Ivhala
+D:an entrance to a deep cave
+W:30:45:1:507:0:14:160
+L:88:100:1:0:1:0
+A:97:100:51:0:50:0:57:58
+F:PRINCIPAL
+
+N:21:Cave West of Ivhala
+D:an entrance to a deep cave
+W:40:50:1:510:0:14:160
+L:88:100:1:0:1:0
+A:97:100:51:0:50:0:57:58
+F:PRINCIPAL
+
+N:22:Cult of Ryoon
+D:an entrance to a Cult of Ryoon
+W:40:43:1:511:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:NO_GENERIC | SMALLEST | PRINCIPAL
+
+N:23:Secret Cave
+D:an entrance to a secret cave
+W:40:50:1:512:0:14:160
+L:88:100:1:0:1:0
+A:97:100:51:0:50:0:57:58
+
+N:24:Underground Cave
+D:an entrance to an underground cave
+W:15:20:1:20:0:14:160
+L:84:50:1:40:187:10
+A:56:70:51:15:50:15:57:58
+
+N:25:Graveyard Dungeon
+D:an entrance to a secret dungeon in the graveyard
+W:30:45:1:28:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:UNDEAD
+
+N:26:Altered Tomb
+D:the entrance to Ophelia's Tomb
+W:30:45:1:31:0:14:160
+L:1:100:1:0:1:0
+A:87:100:51:0:50:0:57:58
+
+N:27:Altered Tomb
+D:an entrance to Ophelia's Tomb
+W:30:45:1:32:0:14:160
+L:86:90:85:10:1:0
+A:56:70:51:15:50:15:57:58
+F:DEMON
+
+
 # Dungeon #200 is the random dungeon. Do not use it!
 # Setting parameters for this dungeon is useless, because they are randomly
 # set when the dungeon is generated.
@@ -133,3 +237,12 @@ A:56:70:51:15:50:15:57:58
 # W:1:1:1:0:0:14:160
 # L:0:0:0:0:0:0
 # A:0:0:0:0:0:0:0:0
+
+# Dungeon #201 is also reserved.
+# It's a very special dungeon. Don't use dungeon 201!
+
+N:300:Lava Cave
+D:an entrance to a cave
+W:35:45:1:300:0:14:160
+L:86:50:85:50:1:0
+A:97:90:56:10:56:0:57:58

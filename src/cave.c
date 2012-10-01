@@ -1157,6 +1157,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
 
+		/* Monsters with Paragon Elder Monster may become elite/boss, in which case */
+		/* the elite/boss color should be used! */
+		if (p_ptr->abilities[(CLASS_MONSTER * 10) + 9] >= 20) a = 17;
+		else if (p_ptr->abilities[(CLASS_MONSTER * 10) + 9] >= 10) a = 16;
+
 		/* Get the "player" char */
 		c = r_ptr->x_char;
 
@@ -1179,108 +1184,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 				if (use_graphics && player_symbols)
 				{
 					if (p_ptr->psex == SEX_FEMALE) c = (char)242;
-	                		switch(p_ptr->pclass)
-					{
-						case CLASS_PALADIN:
-							if (p_ptr->lev < 20)
-								a = TERM_L_WHITE;
-							else
-								a = TERM_WHITE;
-							c = 253;
-	                        	   		break;
-						case CLASS_WARRIOR_MAGE:
-							if (p_ptr->lev < 20)
-								a = TERM_L_RED;
-							else
-								a = TERM_VIOLET;
-							break;
-						case CLASS_MAGE:
-                                                case CLASS_ALCHEMIST:
-						case CLASS_HIGH_MAGE:
-							if (p_ptr->lev < 20)
-								a = TERM_L_RED;
-							else
-								a = TERM_RED;
-							c = 248;
-							break;
-						case CLASS_PRIEST:
-							if (p_ptr->lev < 20)
-								a = TERM_L_BLUE;
-							else
-								a = TERM_BLUE;
-							c = 248;
-							break;
-						case CLASS_RANGER:
-							if (p_ptr->lev < 20)
-								a = TERM_L_GREEN;
-							else
-								a = TERM_GREEN;
-							break;
-						case CLASS_ROGUE:
-							if (p_ptr->lev < 20)
-								a = TERM_SLATE;
-							else
-								a = TERM_L_DARK;
-							break;
-						case CLASS_WARRIOR:
-							if (p_ptr->lev < 20)
-								a = TERM_L_UMBER;
-							else
-								a = TERM_UMBER;
-							break;
-						case CLASS_MONK:
-							if (p_ptr->lev < 20)
-								a = TERM_L_UMBER;
-							else
-								a = TERM_UMBER;
-							c = 248;
-							break;
-						default: /* Unknown */
-							a = TERM_WHITE;
-					}
-
-					switch (p_ptr->prace)
-					{
-						case RACE_GNOME:
-						case RACE_HOBBIT:
-							c = 144;
-							break;
-						case RACE_DWARF:
-							c = 236;
-							break;
-						case RACE_HALF_ORC:
-							c = 243;
-							break;
-						case RACE_HALF_TROLL:
-							c = 184;
-							break;
-						case RACE_ELF:
-						case RACE_HALF_ELF:
-						case RACE_HIGH_ELF:
-							c = 223;
-							break;
-						case RACE_HALF_OGRE:
-							c = 168;
-							break;
-						case RACE_HALF_GIANT:
-							c = 145;
-							break;
-						case RACE_KOBOLD:
-							c = 204;
-							break;
-						case RACE_NIBELUNG:
-							c = 144;
-							break;
-						case RACE_DARK_ELF:
-							c = 223;
-							break;
-                                                case RACE_ENT:
-							c = 6;
-							break;
-						case RACE_VAMPIRE:
-							c = 217;
-							break;
-					}
+	            
+					a = TERM_WHITE;
 				}
 			}
 		}
@@ -1528,6 +1433,8 @@ void prt_map(void)
 	/* Hide the cursor */
 	(void)Term_set_cursor(0);
 
+	/*msg_format("Panel y min: %d  Panel y max: %d  Panel x min: %d  Panel x max: %d", panel_row_min, panel_row_max, panel_col_min, panel_col_max);*/
+
 	/* Dump the map */
 	for (y = panel_row_min; y <= panel_row_max; y++)
 	{
@@ -1608,6 +1515,7 @@ static byte priority_table[][2] =
 
 	/* Walls */
 	{ FEAT_SECRET, 10 },
+	{ FEAT_ICE_WALL, 10 },
 
 	/* Quartz */
 	{ FEAT_QUARTZ, 11 },
@@ -1621,9 +1529,12 @@ static byte priority_table[][2] =
 	/* Open doors */
 	{ FEAT_OPEN, 15 },
 	{ FEAT_BROKEN, 15 },
+	{ FEAT_ICE_OPEN, 15 },
+	{ FEAT_ICE_BROKEN, 15 },
 
 	/* Closed doors */
 	{ FEAT_DOOR_HEAD + 0x00, 17 },
+	{ FEAT_ICE_DOOR_HEAD + 0x00, 17 },
 
 	/* Hidden gold */
 	{ FEAT_QUARTZ_K, 19 },
@@ -1639,6 +1550,9 @@ static byte priority_table[][2] =
 	{ FEAT_DARK_PIT, 20 },
 	{ FEAT_TREES, 20 },
 	{ FEAT_MOUNTAIN, 20 },
+	{ FEAT_SNOW, 20 },
+	{ FEAT_SNOW_TREES, 20 },
+	{ FEAT_GLACIER, 20 },
 
 	/* Stairs */
 	{ FEAT_LESS, 25 },
@@ -3311,31 +3225,35 @@ void map_area(void)
 		{
 			c_ptr = &cave[y][x];
 
-			/* All non-walls are "checked" */
-                        if ((c_ptr->feat < FEAT_SECRET) || (c_ptr->feat == FEAT_GRASS) ||
-                            (c_ptr->feat == FEAT_SHAL_WATER) || (c_ptr->feat == FEAT_SHAL_LAVA) ||
-                            (c_ptr->feat == FEAT_DIRT))
+			if (!(c_ptr->info & (CAVE_ICKY)))
 			{
-				/* Memorize normal features */
-                                if (!((f_info[c_ptr->feat].flags1 & FF1_FLOOR) && !(f_info[c_ptr->feat].flags1 & FF1_REMEMBER)))
+
+				/* All non-walls are "checked" */
+                        	if ((c_ptr->feat < FEAT_SECRET) || (c_ptr->feat == FEAT_GRASS) ||
+                        	    (c_ptr->feat == FEAT_SHAL_WATER) || (c_ptr->feat == FEAT_SHAL_LAVA) ||
+                        	    (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_SNOW))
 				{
-					/* Memorize the object */
-					c_ptr->info |= (CAVE_MARK);
-				}
-
-				/* Memorize known walls */
-				for (i = 0; i < 8; i++)
-				{
-					c_ptr = &cave[y+ddy_ddd[i]][x+ddx_ddd[i]];
-
-					/* Memorize walls (etc) */
-                                        if ((c_ptr->feat >= FEAT_SECRET) && (c_ptr->feat != FEAT_GRASS) && 
-                                            (c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_SHAL_LAVA) &&
-                                            (c_ptr->feat != FEAT_DIRT))
-
+					/* Memorize normal features */
+                                	if (!((f_info[c_ptr->feat].flags1 & FF1_FLOOR) && !(f_info[c_ptr->feat].flags1 & FF1_REMEMBER)))
 					{
-						/* Memorize the walls */
+						/* Memorize the object */
 						c_ptr->info |= (CAVE_MARK);
+					}
+
+					/* Memorize known walls */
+					for (i = 0; i < 8; i++)
+					{
+						c_ptr = &cave[y+ddy_ddd[i]][x+ddx_ddd[i]];
+
+						/* Memorize walls (etc) */
+                                        	if ((c_ptr->feat >= FEAT_SECRET) && (c_ptr->feat != FEAT_GRASS) && 
+                                            	(c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_SHAL_LAVA) &&
+                                            	(c_ptr->feat != FEAT_DIRT) && (c_ptr->feat != FEAT_SNOW))
+
+						{
+							/* Memorize the walls */
+							c_ptr->info |= (CAVE_MARK);
+						}
 					}
 				}
 			}
@@ -3871,50 +3789,11 @@ void disturb(int stop_search, int unused_flag)
  */
 bool is_quest(int level)
 {
-	int i;
-
 	/* Check quests */
-	if (p_ptr->inside_quest)
-		return (TRUE);
-
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-                    (quest[i].status == QUEST_STATUS_TAKEN) &&
-                    (quest[i].level == level) &&
-                    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
-			return (TRUE);
-	}
-
-	/* Check for random quest */
-	if (random_quest_number(level)) return (TRUE);
+	if (p_ptr->inside_quest) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
-}
-
-
-/*
- * Return the index of the random quest on this level
- * (or zero)
- */
-int random_quest_number(int level)
-{
-	int i;
-
-	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-			(quest[i].status == QUEST_STATUS_TAKEN) &&
-                    (quest[i].level == level) &&
-                    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
-		{
-			return i;
-		}
-	}
-
-	/* Nope */
-	return 0;
 }
 
 /* NEWANGBAND: Reveal function, used by the Reveal spells! */
@@ -3927,7 +3806,6 @@ void reveal_spell(int x, int y, byte rad)
 
 	if (p_ptr->inside_quest)
 	{
-		msg_print("You cannot use this here.");
 		return;
 	}
 
@@ -3935,11 +3813,25 @@ void reveal_spell(int x, int y, byte rad)
         for(i = x - rad; i < x + rad + 1; i++)
         if((distance(y, x, j, i) <= rad) && in_bounds(j,i))
         {
-                c_ptr = &cave[j][i];       
-                c_ptr->info |= (CAVE_LITE);
-                c_ptr->info |= (CAVE_MARK);
-                c_ptr->info |= (CAVE_VIEW);
-                c_ptr->info |= (CAVE_GLOW);
-                lite_spot(j, i);
+                c_ptr = &cave[j][i];
+
+		if (!(c_ptr->info & (CAVE_ICKY)))
+		{
+			if (f_info[c_ptr->feat].flags1 & FF1_WALL)
+			{
+				
+c_ptr->info |= (CAVE_LITE);
+                		c_ptr->info |= (CAVE_MARK);
+                		c_ptr->info |= (CAVE_VIEW);
+                		c_ptr->info |= (CAVE_GLOW);
+                		lite_spot(j, i);
+			}
+			else
+			{
+                		c_ptr->info |= (CAVE_VIEW);
+                		c_ptr->info |= (CAVE_GLOW);
+                		lite_spot(j, i);
+			}
+		}
         }
 }

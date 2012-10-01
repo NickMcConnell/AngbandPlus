@@ -531,6 +531,21 @@ object_type *lua_inven(int slot)
 	return (&(inventory[slot]));
 }
 
+object_kind *lua_kind(object_type *o_ptr)
+{
+	return (&(k_info[o_ptr->k_idx]));
+}
+
+object_type *lua_object(int oidx)
+{
+	return (&(o_list[oidx]));
+}
+
+dungeon_info_type *lua_dungeon(int which)
+{
+	return (&(d_info[which]));
+}
+
 bool get_monster_flag1(int r_idx, u32b flag)
 {
 	monster_race *r_ptr = &r_info[r_idx];
@@ -844,4 +859,255 @@ bool lua_tgt_pt()
 	global_y = y;
 	global_x = x;
 	return (TRUE);
+}
+
+bool lua_in_bounds(int y, int x)
+{
+	if (in_bounds(y, x)) return (TRUE);
+	return (FALSE);
+}
+
+bool lua_in_bounds2(int y, int x)
+{
+	if (in_bounds2(y, x)) return (TRUE);
+	return (FALSE);
+}
+
+bool lua_player_has_los_bold(int y, int x)
+{
+	if (lua_player_has_los_bold(y, x)) return (TRUE);
+	return (FALSE);
+}
+
+void lua_project(int who, int rad, int y, int x, s32b dam, int typ, int mode)
+{
+	int flg;
+	if (mode == 1) flg = (PROJECT_STOP | PROJECT_KILL);
+	else if (mode == 2) flg = (PROJECT_JUMP | PROJECT_GRID | PROJECT_KILL);
+	project(who, rad, y, x, dam, typ, flg);
+}
+
+void memorize_race_flag1(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags1 |= flag;
+}
+
+
+void memorize_race_flag2(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags2 |= flag;
+}
+
+
+void memorize_race_flag3(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags3 |= flag;
+}
+
+void memorize_race_flag4(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags4 |= flag;
+}
+
+void memorize_race_flag5(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags5 |= flag;
+}
+
+void memorize_race_flag6(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags6 |= flag;
+}
+
+void memorize_race_flag7(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags7 |= flag;
+}
+
+void memorize_race_flag8(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags8 |= flag;
+}
+
+void memorize_race_flag9(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	r_ptr->r_flags9 |= flag;
+}
+
+void give_monster_ability(monster_type *m_ptr, u32b flag)
+{
+	m_ptr->abilities |= flag;
+}
+
+void remove_monster_ability(monster_type *m_ptr, u32b flag)
+{
+	m_ptr->abilities &= flag;
+}
+
+void give_object_flag1(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags1 |= flag;
+}
+
+void give_object_flag2(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags2 |= flag;
+}
+
+void give_object_flag3(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags3 |= flag;
+}
+
+void give_object_flag4(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags4 |= flag;
+}
+
+void remove_object_flag1(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags1 &= flag;
+}
+
+void remove_object_flag2(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags2 &= flag;
+}
+
+void remove_object_flag3(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags3 &= flag;
+}
+
+void remove_object_flag4(object_type *o_ptr, u32b flag)
+{
+	o_ptr->art_flags4 &= flag;
+}
+
+bool lua_mod(int moddedint, int modint)
+{
+	if ((moddedint % modint) == 0) return (TRUE);
+
+	return (FALSE);
+}
+
+bool get_player_monster_ability(u32b flag)
+{
+	if (p_ptr->boss_abilities & (flag)) return (TRUE);
+	return (FALSE);
+}
+
+void give_monster_race_flag1(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags1 |= flag;
+}
+
+void give_monster_race_flag2(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags2 |= flag;
+}
+
+void give_monster_race_flag3(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags3 |= flag;
+}
+
+void give_monster_race_flag4(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags4 |= flag;
+}
+
+void give_monster_race_flag5(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags5 |= flag;
+}
+
+void give_monster_race_flag6(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags6 |= flag;
+}
+
+void give_monster_race_flag7(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags7 |= flag;
+}
+
+void give_monster_race_flag8(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags8 |= flag;
+}
+
+void give_monster_race_flag9(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags9 |= flag;
+}
+
+void give_dungeon_flag1(int dinfo, u32b flag)
+{
+	dungeon_info_type *d_ptr;
+	d_ptr = &d_info[dinfo];
+
+	d_ptr->flags1 |= flag;
+}
+
+void remove_dungeon_flag1(int dinfo, u32b flag)
+{
+	dungeon_info_type *d_ptr;
+	d_ptr = &d_info[dinfo];
+
+	d_ptr->flags1 &= flag;
+}
+
+void lua_cave_mark(int y, int x, u32b flag)
+{
+	cave_type *c_ptr = &cave[y][x];
+
+	c_ptr->info |= flag;
+}
+
+void lua_get_string(int len)
+{
+	char *luastring;
+
+	sprintf(tmpluastring, "");
+
+	if (!(askfor_aux(tmpluastring, len))) sprintf(tmpluastring, "");
+}
+
+bool get_feat_flag1(int feat, u32b flag)
+{
+	if (f_info[feat].flags1 & flag) return (TRUE);
+	return (FALSE);
+}
+
+void give_object_ident(object_type *o_ptr, u32b flag)
+{
+	o_ptr->ident |= flag;
 }

@@ -9,17 +9,18 @@ the first to arrive in Portralis milleniums ago, and ever since
 they built the first kingdom of Jindar, they have been the most 
 widespread and possibly the most powerful of the races.
 
-Physically, humans are pretty average, and have no particular strength
+Physically, humans are pretty average, and have no particular strengths
 or weaknesses. However, they tend to learn easily and quickly, and will 
 generally become very skilled at whatever profession they choose. Also, 
 humans are known to be creative, and are known to make good scientists, 
 crafters and alchemists. This ability to create and adapt makes humans
 known to be a very intelligent race. They are also very diplomatic, and
 know how to persuade and rule their peoples, as well as all other races.
+Human wizards tend to favor the Conjuration school of magic.
 
 HUMAN FEATURES:
 
-- +1 skill point every 3 levels.
 - +25% bonus to Intelligence.
 - +25% bonus to Charisma.
-- +25% bonus to Alchemy, Crafting and Leadership skills.
+- +25% bonus to Fighting, Shooting, Spellcraft, Alchemy, Crafting,
+Leadership, Conjuration and Music skills.

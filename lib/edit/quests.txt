@@ -1,0 +1,280 @@
+EVENTS AND WHAT THEY MEAN:
+
+29000: Influence on monsters level.
+29001: Influence on depth.
+29002: Percentage of Elite monsters.
+29003: Twist Monsters active.
+29004: Items level modifier.
+29005: Normal, Magic, Levelable, Special.
+29006: Item twist active?
+29007: Ench. quality modifier.
+29008: Min Depth modifier.
+29009: Max Depth modifier.
+29010: Boss modifier.
+29011: Random Dungeons Twist.
+29012: Blessed Meditation Event Variable.
+29013: Wished item.
+29014: Command Element's effect.
+
+-- Monster Race
+29015: Essence capturing. 1 = On, 0 = off.
+29016: Used for base attack damages bonus of Monster race.
+29017: Used for success rate bonus of Monster race spells.
+29018: 1 = special attack used. 0 = normal attack.
+29019: Default melee atack.
+
+
+--Kensai Class--
+29020: Lion's Roar Bravery 
+
+-- More "system" events.
+29021: Used to place a specific kind of enmies in vaults/quests. 1 = Undead, 2 = Demon, 3 = Dragon
+29022: 1. Next item generated as levelable.
+29023: 1. Next item generated as cursed.
+29024: 1. Next item generated as special.
+29025: Level modifier when spawning monsters.
+29026: 1. Elite 2. Boss
+29027: 0. No main essence. 1. Main essence.
+29030: Default ranged attack.
+29031: Selected ranged attack.
+29032: Power Portal count.
+29033: Last dungeon level.
+29034: Beat a flow dungeon.
+29035-29039: Random townsfolks conversations.
+29040: Current song.
+29041: 1. Singing. 0. No singing.
+29042: 1. War Songs On.  0. War Songs Off.
+29043: 1. Enthrall Songs On.  0. Enthrall Songs Off.
+29044: 1. Using a throwing weapon with 'f'.
+29045: 0. Counter Shot off. 1. Counter Shot On.
+29046: Target of the Counter Shot ability.
+
+29998: Revive marker.
+
+-- Udor --
+1,4. Rats problem
+2. Old Richard's dialog
+3. Princeton's dialog
+5. North gate quest.
+6,7. 6: Orc talk. 7: Orcs and goblins!
+8. Clara conversation.
+9. Go speak to Clara...
+10. Kobold is behind that?
+11. Prisons are under attack!
+12. Old Richard's quest given... or given up?
+13. Don't kill the guards!
+14 - 31. Various treasures.
+32. Prison dialog.
+33. Kobold is dead, no more monsters!
+34. Dialog.
+35-37. Treasure!
+38. Balgam's first dialog.
+39. Near end of prologue.
+40. End of prologue, start of main quest.
+41. Udor's invasion!
+42. Clara's dialog, first time.
+
+-- Fidac --
+(ruins)
+43. Walmus, first time.
+44. Jordan, first time.
+45. Evolia, first time.
+46. Ruins completed.
+47. Guardian mummy dead.
+(aria's quest)
+48. Aria first.
+49. Aria still there.
+50. Lake dungeon open!
+51. Shaugma's death.
+52. Shaugma's first time.
+
+-- Fallen clan --
+53. Fallen Clan beaten.
+
+-- Children of the Planes --
+54. Children beaten.
+
+-- Cave in the plain --
+55. Restless Monk beaten.
+
+-- Fidac Mines.
+56-84. Metals and licialhyds!
+85. Secret locked door.
+** 86 unused **
+87. Golems.
+88. Rugar defeated.
+89. A new quest?
+
+90. Theodore's device off.
+91. Theodore's journal taken.
+92. One shot dialog.
+
+-- Ophelia.
+93. Tia's first dialogue. 1. You gave the bad answer. 2. First encounter. 3. Quest accepted. 4. Quest failed. 5. Success!
+94. 1. Gloves have been lost.
+95. 0. Imbue has failed. 1. Imbue has succeeded.
+96. Jeffrey told you Ophelia's story.
+97. Ophelia's Key given.
+98. 1. Voice has spoken.
+99. Ophelia's quest continue.
+100. Altered tomb first time.
+101. Influenzos level completed.
+102. House locked door.
+103. House first dialog.
+104. Ophelia is dead.
+105. Maelan is dead.
+106. Ophelia AND Maelan are both dead.
+107. Can open door.
+108. Path. 1. Ophelia dead path. 2. Maelan dead path. 3. Both path.
+109. Altered tomb completed.
+110. Locked door in altered tomb.
+111. Path 1 start.
+112. Belric's Tomb completed.
+113. Jeffrey is dead.
+114. The voice's game.
+115. Tomb Dialog.
+116. Cleo.
+117. Ophelia path completed.
+118. Path 2 start.
+119. Ghost of Maelan slain.
+120. Path 2 or 3 completed.
+121. Path 3 start.
+122. Bottom floor.
+123. 2nd Cleo first.
+124. 2nd Cleo slain.
+
+-- Lava Cave --
+
+300. Dialog.
+301. The note.
+302. Grey Wight's attack.
+303. Grey Wight defeated.
+
+-- Jindar --
+1000. Rolf's state. 0: never spoke. 1: Talked your way inside palace. 2. Let you enter.
+Also used by the palace doors. They can be unlocked by speaking with the king,
+talking your way with Rolf, or killing Rolf and take the key.
+1001. The southwest slums locked sewers door. A thief will unlock it for you... if you
+have started the main quest.
+1002. The sewers guy opened the door.
+1003. Quylthulg dead.
+1004. Throne room first time.
+1005. King Julian's dialog.
+1006. High Priest's dialog.
+1007. Priest quest #1 started.
+1008. Dialog in Avemorsh.
+1009. Avemorsh quest completed.
+1010. Prayer Room Key taken.
+1011. Cloaked Figure beaten.
+1012. Ready to start priest quest #2.
+1013. Priest quest #2 started.
+1014. Knight of Balance defeated.
+1015. Red Licialhyd taken.
+1016. Red Licialhyd lost!
+1017. Jindar is under attack!
+1018. Jindar quest #3 is started!
+1019. First time we see twisted temple.
+1020. Orb of Death Light taken!
+1021. Temple returned to normal, Quazar beaten!!
+1022. Inside Twisted Temple, first time.
+1023. Jindar Quest #4: Defeat Quazar!
+1024. No more orcs on first Quazar quest level.
+1025. Dialog.
+1026. No more orcs on second Quazar quest level.
+1027. End of Chapter 1! :)  2. After talking to Emma.
+-- More fun in Jindar!
+-- Kobold/Devlings?
+1028. Kobold and Devlings! 1 = Kobolds joined! 2 = Devlings joined!
+1029. Krind is dead. Set to 1 if you kill Krind.
+1030. Kobold quest #1: Kill Delzo!
+1031. Delzo is slain!
+1032. Kobold quest #2: Kill Denevar!
+1033. Denevar dead.
+1034. Denevar is now friendly.
+1035. Denevar's quest accepted. Set to 2 if Delvan is slain.
+1036. Delvan's Lair guard dead.
+1037. D-Rank member.
+1038. Belgim first.
+1039. Kobold quest #3: Find a building!
+1040. Murderer!! You killed the owner!
+1041. Asking for 100000 golds.
+1042. Bought the vase shop!
+1043. Donoriel first.
+1044. Donoriel enter first.
+1045. A basement?
+1046-1051. Junk.
+1052. A note?
+1053. Another note!
+1054. Eloriel slain.
+1055-1057. Gold piles.
+1058. Got oddity shop!
+1059. Dingus first.
+1060. Dingus quest. 1: Mentionned. 2. Accepted.
+1061. Dingus quest completed.
+1062. Got Dingus partnership!
+1063. Kobold quest #4: James Harris Contract.
+1064. Killed james a bit too quickly...
+1065. James first.
+1066. James quest started.
+1067. Ghost met.
+1068. Silverware returned, quest completed!
+1069. Promoted to Stalker!
+1070. Vase Shop.
+1071. Donoriel Shop.
+1072. Dingus Shop.
+1073. Killing Nilgam is a bad idea.
+1074. Nilgam first.
+1075. Kobold quest #5: Harrington Assassination!
+1076. Harrington can enter.
+1077. You killed the maid.
+1078. Harrington is dead.
+1079 - 1090. Harrington's gold!
+1091. Bertram dead.
+1092. Ring taken.
+1093. Harrington first. 2. Spoke with Nilgam.
+1094. Harrington forgot?
+1095. Find the dwarf! 2. Spoke to Randar.
+1096. Randar first.
+1097. Randar will sell you stuff.
+1098. Spoke with Adrianna.
+1099. Tom first.
+1100. Tom's treasure!
+1101. Namira first.
+1102. Namira dead./curse broken.
+1103. Namira is friendly!
+1104. Harrington quest completed!
+1105. Kobold quest #6: They Haven't Returned...
+1106. Kobold quest 6 started.
+1107. Entering Lancers HQ...
+1108. Quest completed.
+1109. Book.
+1110. A note...
+1111. Namira's reward.
+1112-1125. Jindar palace treasures!
+
+-- Chapter 2: Ivhala!
+1500. Locked palace doors.
+1501. Emma first.
+1502. Cockatrice sub-quest. 2. Accepted quest.
+1503. Free Ring of Flying!
+1504. Diary.
+1505. Cockatrices defeated on floor 1.
+1506. Locked door.
+1507. Floor 2 monsters. 1. End of quest. 2. End of quest, but you didn't actually receive it from Emma. 3. Completed.
+1508. Cockatrices quest completed, rewarded.
+1509. Emma is dead.
+1510. Golem is destroyed.
+1511. Closed door dialog. 1. Simon appears(but will be reset to 0 if you leave) 2. Set after Simon is beaten the first time.
+1512. Defeated Simon the first time.
+1513. No more orcs on Tunnels.
+1514. Simon 2nd time.
+1515. Gorath slain.
+1516. Simon defeated.
+1517. Simon is now REALLY dead.
+1518. Depressed minister!
+1519. Entering palace's underground.
+1520. Met Christina, Ivhala quest 2: The Amulet.
+1521. Defeat cultists of Ryoon.
+1522. Door Keeper Wight
+1523. Cult defeated.
+1524. Meeting with Korthrax.

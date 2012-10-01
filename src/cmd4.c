@@ -102,11 +102,12 @@ static void check_skill_feats(int skillnum)
 		goon = TRUE;
 		if (feats_def[i].skill == skillnum)
 		{
-			if (p_ptr->skill[skillnum] >= feats_def[i].reqskill)
+			if (p_ptr->skill_base[skillnum] >= feats_def[i].reqskill)
 			{
 				for (x = 0; x < 36; x++)
 				{
 					if (p_ptr->abilities_powers[x] == -(i)) goon = FALSE;
+					if (feats_def[-(p_ptr->abilities_powers[x])].powerid == feats_def[i].powerid) goon = FALSE;
 				}
 				if (goon)
 				{
@@ -133,8 +134,29 @@ void do_cmd_change_name(void)
         char    c,d;
 
 	int		mode = 0;
+	int i, j;
 
 	char	tmp[160];
+
+	/* Save some "old" stuff for future resetting! */
+	s16b oldstatpoints = p_ptr->statpoints;
+	s16b oldskillpoints = p_ptr->skillpoints;
+	s16b old_skill_base[SKILL_MAX];
+	s16b old_stat_max[6];
+	s16b old_stat_use[6];
+	s16b old_stat_cur[6];
+
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		old_skill_base[i] = p_ptr->skill_base[i];
+	}
+
+	for (i = 0; i < 6; i++)
+	{
+		old_stat_max[i] = p_ptr->stat_max[i];
+                old_stat_use[i] = p_ptr->stat_use[i];
+                old_stat_cur[i] = p_ptr->stat_cur[i];
+	}
 
 
 	/* Enter "icky" mode */
@@ -155,7 +177,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-                if (mode == 4)
+                if (mode == 5)
 		{
 			mode = 0;
 			display_player(mode);
@@ -165,12 +187,12 @@ void do_cmd_change_name(void)
                 if (mode == 0)
                 {
                         Term_putstr(6, 22, -1, TERM_WHITE,
-                                "['c' to change name, 'f' to file, 'z' to change mode, or ESC]");
+                                "['c' to rename, 'f' to file, 'r' to undo, 'z' to change mode, or ESC]");
                         Term_putstr(6, 23, -1, TERM_WHITE,
                                 "['s' to improve stats, 't' for toggle skill/main window.]");
                 }else{
                         Term_putstr(6, 23, -1, TERM_WHITE,
-                                "['c' to change name, 'f' to file, 'z' to change mode, or ESC]");
+                                "['c' to rename, 'f' to file, 'r' to undo, 'z' to change mode, or ESC]");
                 }
 
 		/* Query */
@@ -215,7 +237,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[0 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(0 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -226,7 +247,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[1 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(1 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -237,7 +257,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[2 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(2 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -248,7 +267,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[3 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(3 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -259,7 +277,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[4 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(4 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -270,7 +287,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[5 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(5 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -281,7 +297,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[6 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(6 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -292,7 +307,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[7 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(7 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -303,7 +317,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[8 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(8 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -314,7 +327,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[9 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(9 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -325,7 +337,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[10 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(10 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -336,7 +347,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[11 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(11 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -347,7 +357,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[12 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(12 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -358,7 +367,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[13 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(13 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -369,7 +377,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[14 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(14 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -380,7 +387,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[15 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(15 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -391,7 +397,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[16 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(16 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -402,7 +407,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[17 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(17 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -413,7 +417,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[18 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(18 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -424,7 +427,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[19 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(19 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -435,7 +437,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[20 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(20 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -446,7 +447,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[21 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(21 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -457,7 +457,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[22 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(22 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -468,7 +467,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[23 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(23 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -479,7 +477,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[24 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(24 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -490,7 +487,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[25 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(25 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -501,7 +497,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[26 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(26 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -512,7 +507,6 @@ void do_cmd_change_name(void)
 			{
 				p_ptr->skill_base[27 + (28 * skillspage)] += 1;
 				p_ptr->skillpoints -= 1;
-				check_skill_feats(27 + (28 * skillspage));
                         	update_and_handle();
                         	display_player(mode);
 			}
@@ -521,6 +515,37 @@ void do_cmd_change_name(void)
 		{
 			skillspage += 1;
 			if ((28 * skillspage) >= num_skills) skillspage = 0;
+			display_player(mode);
+		}
+		/* Reset(skills) */
+		else if ((c == 'r' || c == 'R') && mode == 2)
+		{
+			/* Reset everything. */
+			for (i = 0; i < SKILL_MAX; i++)
+			{
+				p_ptr->skill_base[i] = old_skill_base[i];
+			}
+			p_ptr->skillpoints = oldskillpoints;
+			
+			display_player(mode);
+		}
+		else if ((c == 'r' || c == 'R') && (mode == 0 || mode == 1))
+		{
+			/* Reset everything. */
+			for (i = 0; i < 6; i++)
+			{
+				p_ptr->stat_max[i] = old_stat_max[i];
+                		p_ptr->stat_use[i] = old_stat_use[i];
+                		p_ptr->stat_cur[i] = old_stat_cur[i];
+			}
+			p_ptr->statpoints = oldstatpoints;
+			
+			display_player(mode);
+		}
+		else if (c == 'u' || c == 'U')
+		{
+			if (p_ptr->dualwield == 0) p_ptr->dualwield = 1;
+			else p_ptr->dualwield = 0;
 			display_player(mode);
 		}
 
@@ -538,8 +563,6 @@ void do_cmd_change_name(void)
                         if (p_ptr->statpoints <= 0) msg_print("You have no stat points left!");
                         else
                         {
-                                if (p_ptr->prace != RACE_MONSTER)
-                                {
 
                                 msg_print("Which stat? [S]tr, [I]nt, [W]is, [D]ex, [C]on, C[h]r?");
                                 d = inkey();
@@ -591,45 +614,7 @@ void do_cmd_change_name(void)
                                         p_ptr->statpoints -= 1;
 					msg_print("Charisma increased.");
                                 }
-                                }
-                                else
-                                {
-                                msg_print("Which stat? [S]tr, [I]nt, [D]ex, C[h]r?");
-                                d = inkey();
-                                if (d == 'S' || d == 's')
-                                {                                        
-                                        p_ptr->stat_max[A_STR]++;
-                                        p_ptr->stat_use[A_STR]++;
-                                        p_ptr->stat_cur[A_STR]++;
-                                        p_ptr->statpoints -= 1;
-					msg_print("Strength increased.");
-                                }
-                                if (d == 'I' || d == 'i')
-                                {
-                                        p_ptr->stat_max[A_INT]++;
-                                        p_ptr->stat_use[A_INT]++;
-                                        p_ptr->stat_cur[A_INT]++;
-                                        p_ptr->statpoints -= 1;
-					msg_print("Intelligence increased.");
-                                }
-                                if (d == 'D' || d == 'd')
-                                {
-                                        p_ptr->stat_max[A_DEX]++;
-                                        p_ptr->stat_use[A_DEX]++;
-                                        p_ptr->stat_cur[A_DEX]++;
-                                        p_ptr->statpoints -= 1;
-					msg_print("Dexterity increased.");
-                                }
-                                if (d == 'H' || d == 'h')
-                                {
-                                        p_ptr->stat_max[A_CHR]++;
-                                        p_ptr->stat_use[A_CHR]++;
-                                        p_ptr->stat_cur[A_CHR]++;
-                                        p_ptr->statpoints -= 1;
-					msg_print("Charisma increased.");
-                                }
 
-                                }
                                 /* update... */
                                 update_and_handle();
 
@@ -649,6 +634,13 @@ void do_cmd_change_name(void)
 
 		/* Flush messages */
 		msg_print(NULL);
+	}
+
+	/* Learn feats related to skills. */
+	/* Do it 3 times. */
+	for (j = 0; j < 3; j++)
+	{
+		for (i = 0; i < SKILL_MAX; i++) check_skill_feats(i);
 	}
 
 	/* Restore the screen */
@@ -3936,120 +3928,6 @@ void do_cmd_knowledge_mutations(void)
 	fd_kill(file_name);
 }
 
-
-/*
- * Print quest status of all active quests
- */
-static void do_cmd_knowledge_quests(void)
-{
-	FILE *fff;
-	char file_name[1024];
-	char tmp_str[80];
-	char rand_tmp_str[80] = "\0";
-	char name[80];
-	monster_race *r_ptr;
-	int i;
-	int rand_level = 100;
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	for (i = 1; i < max_quests; i++)
-	{
-		/* No info from "silent" quests */
-                if (quest[i].flags & QUEST_FLAG_SILENT) continue;
-
-		if (quest[i].status == QUEST_STATUS_TAKEN)
-		{
-			int ystart = 0;
-			int xstart = 0;
-			int old_quest;
-			int j;
-
-			/* Clear the text */
-			for (j = 0; j < 10; j++)
-			{
-				quest_text[j][0] = '\0';
-			}
-
-			quest_text_line = 0;
-
-			/* Set the quest number temporary */
-			old_quest = p_ptr->inside_quest;
-			p_ptr->inside_quest = i;
-
-			/* Get the quest text */
-			init_flags = INIT_SHOW_TEXT;
-			process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-
-			/* Reset the old quest number */
-			p_ptr->inside_quest = old_quest;
-
-			if (quest[i].type != QUEST_TYPE_RANDOM)
-			{
-				/* Print the quest info */
-				sprintf(tmp_str, "%s (Danger level: %d)\n", quest[i].name, quest[i].level);
-
-				fprintf(fff, tmp_str);
-
-				j = 0;
-
-				while (quest_text[j][0])
-				{
-					fprintf(fff, "  %s\n", quest_text[j]);
-					j++;
-				}
-			}
-			else if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-			         (quest[i].level < rand_level))
-			{
-				/* New random */
-				rand_level = quest[i].level;
-
-                                if (max_dlv[dungeon_type] >= rand_level)
-				{
-					/* Print the quest info */
-					r_ptr = &r_info[quest[i].r_idx];
-					strcpy(name, r_name + r_ptr->name);
-
-					if (quest[i].max_num > 1)
-					{
-						plural_aux(name);
-
-						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %d %s, have killed %d.\n",
-							quest[i].name, quest[i].level, quest[i].max_num, name, quest[i].cur_num);
-					}
-					else
-					{
-						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %s.\n", quest[i].name, quest[i].level, name);
-					}
-				}
-			}
-		}
-		else if (quest[i].status == 2)
-		{
-			sprintf(tmp_str,"Quest Completed - Unrewarded\n");
-
-			fprintf(fff, tmp_str);
-		}
-	}
-
-	/* Print the current random quest  */
-	fprintf(fff, rand_tmp_str);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Quest status", 0, 0);
-
-	/* Remove the file */
-        fd_kill(file_name);
-}
-
 /* Show the notefile */
 void do_cmd_knowledge_notes(void)
 {
@@ -4092,8 +3970,7 @@ void do_cmd_knowledge(void)
 		prt("(4) Display kill count", 7, 5);
 		prt("(5) Display mutations", 8, 5);
 		prt("(6) Display current pets", 9, 5);
-		prt("(7) Display current quests", 10, 5);
-                prt("(8) Display known traps", 11, 5);
+                prt("(7) Display known traps", 10, 5);
 
 		/* Prompt */
                 prt("Command: ", 14, 0);
@@ -4124,10 +4001,7 @@ void do_cmd_knowledge(void)
 		case '6': /* Pets */
 			do_cmd_knowledge_pets();
 			break;
-		case '7': /* Quests */
-			do_cmd_knowledge_quests();
-			break;
-                case '8': /* Traps */
+                case '7': /* Traps */
                         do_cmd_knowledge_traps();
 			break;
 		default: /* Unknown option */
@@ -4137,32 +4011,6 @@ void do_cmd_knowledge(void)
 		/* Flush messages */
 		msg_print(NULL);
 	}
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
-}
-
-
-/*
- * Check on the status of an active quest -KMW-
- * TODO: Spill out status when not a simple kill # monster.
- */
-void do_cmd_checkquest(void)
-{
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
-
-	/* Quest info */
-	do_cmd_knowledge_quests();
 
 	/* Restore the screen */
 	Term_load();

@@ -4,35 +4,68 @@
 
 V:2.8.1
 
+# Template.
+
+# N:(number):(name)
+# I:(tval):(sval):(pval)
+# W:(depth):0:(weight):(value)
+# P:(Base AC):(damages dice)d(damage side):(to hit):(to dam):(to ac)
+# B:(brand element):(brand dam):(brand radius)
+# R:(element):(resistance)   -- Can have many resistances lines.
+# F:(flags)
+# T:(stat):(bonus)   -- Can have many stats lines.
+# K:(skill):(bonus)  -- Can have many skills lines.
+# U:(itemtype):(itemskill):(extrablows):(extrashots):(speedbonus):(lifebonus):(manabonus):(infra):(spellbonus):(invis):(light):(extra1):(extra2):(extra3):(extra4):(extra5)
+
+# Note: stats and skills numbers starts at 0.
+# STATS:
+
+# 0: Strength
+# 1: Intelligence
+# 2: Wisdom
+# 3: Dexterity
+# 4: Constitution
+# 5: Charisma
+
 # Bronze Dagger 'Bee Sting'. Can be found randomly in the dungeon.
 N:1:'Bee Sting'
-I:25:1:1
+I:21:52:1
 W:1:1:10:200
 P:0:1d3:10:10:0
 B:5:50:0
-F:BLOWS | LEVELS
+F:LEVELS | ETERNAL
+U:0:15:1:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:A very small dagger, coated with venom and enchanted with magical speed.
 
 # Steel Mace of Dalunia
 N:2:of Dalunia
-I:21:19:5
+I:21:89:5
 W:30:45:120:60000
 P:0:6d8:60:60:0
 B:11:700:0
-R:0:0:0:0:0:10:0:0:10:0:50:0:0:0:0:0
-F:STR | CON | LIFE | SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+R:6:10
+R:9:10
+R:11:50
+T:0:5
+T:4:5
+U:0:13:0:0:0:50:0:0:0:0:0:0:0:0:0:0:0:0
+F:SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
 D:A steel mace blessed with the power of the goddess of earth, Dalunia. 
 D:Earth shall empower the wielder of this weapon, and the wrath of Dalunia 
 D:shall strike evil with the wrath of the earth.
 
 # Masterwork Short Sword 'Aria's Soul'
 N:3:'Aria's Soul'
-I:23:42:3
+I:21:137:3
 W:25:40:40:50000
 P:0:3d7:40:40:0
 B:6:500:0
-R:0:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0
-F:LITE | WIS | CHR | BLOWS | SLAY_DEMON | SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+R:6:25
+T:2:3
+T:5:3
+U:0:12:3:0:0:0:0:0:0:0:5:0:0:0:0:0:0:0
+F:ACTIVATE | SLAY_DEMON | SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+S:Glowing Bolt:1:50:6:0:0:0:0
 D:After you defeated the demon Shaugma, Aria binded her own soul to this blade, 
 D:imbuing it with the power of holy light. The blade that was once a sword 
 D:of superior quality is now a divinely fine edge of the heavens.
@@ -42,7 +75,10 @@ N:4:'Red Guard'
 I:34:3:3
 W:10:10:120:3000
 P:10:1d3:0:0:30
-R:100:-100:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+R:1:100
+R:2:-100
+F:ACTIVATE | ETERNAL
+S:Heat Bolt:1:50:1:0:0:0:5
 D:A red-colored magical shield that will stop any flames, but will make the 
 D:wearer susceptible to cold.
 
@@ -51,7 +87,10 @@ N:5:'Blue Guard'
 I:34:3:3
 W:10:10:120:3000
 P:10:1d3:0:0:30
-R:-100:100:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+R:1:-100
+R:2:100
+F:ACTIVATE | ETERNAL
+S:Chill Bolt:1:50:2:0:0:0:5
 D:A blue-colored magical shield that stops the cold, but makes the 
 D:wearer susceptible to fire.
 
@@ -60,31 +99,37 @@ N:6:'Windstrider'
 I:30:2:5
 W:15:20:10:20000
 P:5:1d1:0:0:15
-R:0:0:0:0:0:0:0:0:0:25:0:0:0:0:0:0
-F:SPEED
+R:10:25
+F:ACTIVATE | ETERNAL
+U:0:0:0:0:5:0:0:0:0:0:0:0:0:0:0:0:0:0
+S:Haste:4:10:0:0:0:0:100
 D:A pair of leather boots enchanted with the wind. It will let it's wearer 
 D:run at the speed of the wind.
 
 # Pair of Iron Boots 'Ironfoot'
 N:7:'Ironfoot'
-I:30:12:-3
+I:30:12:1
 W:30:45:200:10000
 P:30:1d1:75:75:50
-R:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0:0
-F:SPEED | ETERNAL
+R:11:25
+F:ETERNAL
+U:0:0:0:0:-3:0:0:0:0:0:0:0:0:0:0:0:0:0
 D:These iron boots are extremely heavy to a point that they will greatly 
 D:slow down the wearer. However, their magic makes them extremely protective, 
 D:and they will also enhance the combat abilities of the wearer.
 
 # Iron Pike 'Flame Impaler'
 N:8:'Flame Impaler'
-I:22:18:2
+I:21:81:2
 W:10:15:160:10000
-P:0:3d6:30:30:0
-B:1:500:0
-R:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:STR | BLOWS
-D:A red pike imbued with the power of fire. The wielder of this beautiful
+P:0:4d8:30:30:0
+B:1:2000:0
+R:1:25
+T:0:2
+F:ACTIVATE | MUST2H | LEVELS | ETERNAL
+U:0:14:2:0:0:0:0:0:0:0:0:1:0:0:0:0:0:0
+S:Heat Spark:1:30:1:0:0:0:3
+D:A red pike imbued with the power of fire. The wielder of this beautiful 
 D:weapon shall gain the might of the flames.
 
 # Orb of Death Light
@@ -92,8 +137,13 @@ N:9:of Death Light
 I:39:4:5
 W:20:30:2:30000
 P:0:1d1:25:25:0
-R:0:0:0:0:0:-25:25:0:0:0:0:0:0:0:0:0
-F:STR | CON | SEE_INVIS | LITE | ETERNAL | SPECIAL_GENE
+R:6:-25
+R:7:25
+T:0:5
+T:4:5
+U:0:0:0:0:0:0:0:0:0:0:5:0:0:0:0:0:0:0
+F:ACTIVATE | SEE_INVIS | ETERNAL | SPECIAL_GENE
+S:Dark Bolt:1:100:7:0:0:0:5
 D:A golden orb that actually emits darkness, but allows it's wearer to 
 D:see everything hidden in the dark. Imbuing the wearer with dark powers, 
 D:it makes him/her resistant to darkness, and tougher. It does, however, 
@@ -104,8 +154,10 @@ N:10:'Lightbane'
 I:35:1:3
 W:30:35:10:20000
 P:15:1d1:30:30:20
-R:0:0:0:0:0:50:0:0:0:0:0:0:0:0:0:0
-F:CHR | SUST_CHR | LIFE | SPECIAL_GENE | ETERNAL
+R:6:50
+T:5:5
+U:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0
+F:SUST_CHR | SPECIAL_GENE | ETERNAL | LEVELS
 D:This is the magical cloak that Cedric was wearing. It has the power 
 D:to devour the light that strikes it, thus giving it's wearer a 
 D:good protection against light. The cloak itself is also made of 
@@ -114,11 +166,13 @@ D:as enhancing the life force and appearence of the wearer.
 
 # Golden Crown of the Spiritualist
 N:11:of the Spiritualist
-I:33:11:6
+I:33:11:8
 W:35:40:30:40000
 P:0:1d1:25:25:0
-R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:WIS | INT | MANA | SUST_WIS | SUST_INT | SPECIAL_GENE | ETERNAL
+T:1:8
+T:2:8
+U:0:0:0:0:0:0:60:0:0:0:0:0:0:0:0:0:0:0
+F:SUST_WIS | SUST_INT | SPECIAL_GENE | ETERNAL | LEVELS
 D:A beautiful, licialhyd-incrusted golden crown, this magic relic 
 D:will make it's wearer much more enlighted, knowledgeable and 
 D:wise. The magical licialhyd on it also makes it much easier to 
@@ -126,11 +180,13 @@ D:channel a lot of magical energy.
 
 # Iron Long Sword 'Orcbane'
 N:12:'Orcbane'
-I:23:2:2
+I:21:30:2
 W:8:10:130:10000
 P:0:3d8:15:15:0
-R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:STR | CON | SLAY_ORC | LEVELS | ETERNAL
+T:0:2
+T:4:2
+U:0:12:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SLAY_ORC | LEVELS | ETERNAL
 D:A relic from ages ago, this old sword was once used by a hero during 
 D:the wars against the orcs, and was especially enchanted to slay them 
 D:easily. Because it has not been used for centuries, this sword's 
@@ -139,12 +195,15 @@ D:be possible to return this sword to it's former glory.
 
 # Adamantium Gauntlets 'Fists of the Titan'
 N:13:'Fists of the Titan'
-I:31:6:8
+I:31:6:10
 W:50:60:62:100000
 P:30:1d2:200:200:100
 B:11:1000:2
-R:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0:0
-F:STR | BLOWS | CHARGEABLE
+R:11:25
+T:0:10
+F:LEVELS | ETERNAL | ACTIVATE
+U:0:0:8:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+S:Sandstorm:2:100:11:3:0:0:10
 D:These magical gauntlets of steel allow their wearer to deliver powerful 
 D:earth shaking punches, as well as providing great strength. 
 D:These gloves are the dream of every martial artists.
@@ -154,31 +213,41 @@ N:14:'Hands of Ki'
 I:31:3:3
 W:20:30:50:30000
 P:15:1d2:20:20:10
-B:17:500:0
-R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:10:0
-F:STR | DEX | ETERNAL | SPECIAL_GENE
+B:17:1500:0
+R:15:10
+T:0:3
+T:3:3
+F:ETERNAL | SPECIAL_GENE
 D:After defeating the Restless Monk, and making him realize he had forgotten 
 D:his secret technique, he claimed you've taught him a valuable lesson. 
 D:To show his gratitude, he gave you this pair of enchanted steel gauntlets.
 
-# Steel Dagger 'Ice Shard'.
+# Ice Dagger 'Ice Shard'.
 N:15:'Ice Shard'
-I:25:3:2
-W:5:10:10:2000
+I:21:147:2
+W:5:5:10:2000
 P:0:1d5:15:15:0
-B:2:200:0
-R:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:DEX
-D:A frost-covered dagger that can deliver a chilling blow to whatever it strikes.
+B:2:500:0
+R:2:25
+T:3:2
+U:0:15:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
+F:ETERNAL | ACTIVATE
+S:Type change, Physical:9:3:0:0:0:0:0
+S:Type change, Cold:9:4:0:0:0:0:0
+S:Type change, Ice:9:5:0:0:0:0:0
+D:The blade of this dagger is actually solid ice that deals chilling blows 
+D:to enemies.
 
 # Steel Flail 'Chain of Thunder'
 N:16:'Chain of Thunder'
-I:21:3:3
-W:20:30:150:25000
+I:21:3:5
+W:20:30:150:30000
 P:0:5d8:25:25:0
-B:3:800:0
-R:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:STR | SPEED | BLOWS | LEVELS
+B:3:2500:0
+R:3:25
+T:0:5
+U:0:13:5:0:5:0:0:0:0:0:0:3:0:0:0:0:0:0
+F:ETERNAL
 D:A finely crafted flail enchanted with the power of lightning, the ball attached 
 D:to the chain is not made of metal, but rather of pure lightning. Delivers shocking 
 D:blows to the wielder's enemies, while providing the wielder greater strength, 
@@ -187,50 +256,296 @@ D:as well as the speed of lightning.
 # Bronze Mail of the Healthy
 N:17:of the Healthy
 I:37:16:1
-W:5:10:250:5000
+W:5:5:250:5000
 P:25:1d1:10:10:20
-R:0:0:0:0:25:0:0:0:0:0:0:0:25:0:0:0
-F:CON | LIFE
+R:5:25
+R:13:25
+T:4:1
+U:0:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0
+F:ACTIVATE | ETERNAL | ACTIVATE
+S:Healing:3:100:0:0:0:0:20
 D:A simple bronze mail enchanted with curative magic. It will increase it's 
 D:wearer's health and life force, as well as protecting against the effects 
 D:of poison and radiations.
 
 # Iron Battle Axe 'Barbarian's Viper'
 N:18:'Barbarian's Viper'
-I:26:2:2
-W:15:15:160:12000
+I:21:60:2
+W:15:10:160:12000
 P:0:4d10:20:20:0
-B:5:500:0
-R:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0
-F:DEX | SPEED | LEVELS
+B:5:1500:0
+R:5:25
+T:3:2
+U:0:16:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:ETERNAL | ACTIVATE
+S:Type change, Poison:9:6:0:0:0:0:0
+S:Type change, Physical:9:3:0:0:0:0:0
 D:A posion-covered battle axe that delivers quick, painful and poisonous 
 D:blows, hence it's name Barbarian Viper.
 
-# Blue Steel-Plated Rod of the Archmage
-# Probably one of the most powerful weapons in the game.
-N:19:of the Archmage
-I:66:8:1
-W:120:200:30:2000000
-P:0:10d12:500:500:0
-B:16:50000:0
-R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:MANA | SPELL | ETERNAL
-D:Probably one of the greatest and rarest treasure to exist in all Portralis, 
-D:this most precious rod will double the power of it's wielder's spells. 
-D:Enemies hit by this rod will be struck by powerful, pure magical energy.
+# Staff 'Tempest'
+N:19:'Tempest'
+I:66:10:1
+W:20:10:100:30000
+P:20:4d8:40:40:0
+B:10:2000:0
+R:10:25
+T:1:5
+T:3:5
+U:0:17:0:0:0:0:30:0:15:0:0:10:0:0:0:0:0:0
+F:ETERNAL | MUST2H | ACTIVATE
+S:Wind Gust:1:40:10:0:0:0:0
+S:Storm:2:100:10:3:0:0:10
+D:A powerful staff enchanted with the elemental essence of Wind. When the wielder 
+D:spins the staff, it creates a powerful shield of wind, giving the wielder the 
+D:ability to parry blows and projectiles.
 
 # Steel Plate Mail of Stability
 N:20:of Stability
 I:37:6:5
-W:35:50:320:40000
-P:120:1d2:30:30:50
-R:0:0:0:0:0:0:0:0:0:0:0:0:0:25:0:0
-F:CON | RES_CONF | RES_FEAR | HOLD_LIFE | SAFETY | CHARGEABLE | ETERNAL
+W:35:15:320:40000
+P:120:1d2:50:50:80
+R:14:33
+T:4:15
+F:RES_CONF | RES_FEAR | HOLD_LIFE | RES_BLIND | SAFETY | LEVELS | ETERNAL
 D:A valuable and magical plate mail armor, this treasure will protect you 
 D:from many abnomalies and will allow you to remain stable when struck 
 D:with paralyzing attacks. It will also stabilize any chaotic forces that 
 D:would harm you.
 
+# Amulet of Golden Truth 'ThunderStorm'
+N:21:of Golden Truth 'ThunderStorm'
+I:40:29:5
+W:20:30:2:40000
+P:0:1d1:40:40:0
+R:3:50
+R:10:25
+U:0:0:0:0:5:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:ETERNAL | LEVELS | ACTIVATE | SPECIAL_GENE
+S:Lightning Ball:2:100:3:3:0:0:5
+D:When the lightning struck the amulet of Golden Truth, it gained magical 
+D:powers of the electrical element. This amulet will not only ward you 
+D:against electricity, but it can also unleash powerful electrical attacks 
+D:at your enemies, and will also make you as fast as the wind!
+
+# Bone Shield of the Skull Legion
+N:22:of the Skull Legion
+I:34:8:5
+W:35:50:80:75000
+P:30:1d1:25:25:40
+R:7:25
+K:9:5
+F:SPECIAL_GENE | ETERNAL | LEVELS | ACTIVATE
+S:Summon Skeleton:6:40:1:15:0:s:15
+S:Skeleton Legion:6:20:15:5:0:s:100
+D:A shield entirely made of bones, and imbued with necromantic powers. 
+D:It was worn by Rugar in his cursed skeleton form, and has the power 
+D:to animate skeletons using necromantic powers.
+
+# Ring of Mithril 'Harrington Heirloom'
+N:23:'Harrington Heirloom'
+I:45:72:0
+W:30:40:2:80000
+P:0:1d1:0:0:0
+T:1:10
+T:5:10
+K:1:10
+U:0:0:0:0:0:0:30:0:0:0:0:0:0:0:0:0:100:0
+F:SPECIAL_GENE | ETERNAL | LEVELS
+D:An heirloom of the Harrington family, this ring's powers 
+D:will enhance the wearer's charisma and spellcasting abilities, as well as reflect 
+D:enemy magics back at their casters, thus protecting the wearer.
+
+# Pair of Mithril Gauntlets 'Namira's Arcana'
+N:24:'Namira's Arcana'
+I:31:5:5
+W:30:30:38:90000
+P:16:1d1:30:30:20
+R:16:10
+R:17:25
+T:1:5
+T:2:5
+K:1:15
+U:0:0:0:0:0:0:50:0:0:0:0:0:0:0:0:0:0:0
+F:SPECIAL_GENE | FREE_ACT | ETERNAL | LEVELS | ACTIVATE
+S:Ball Missile:2:100:17:2:0:0:10
+S:Mana Bolt:1:100:16:0:0:0:5
+D:Namira gave you this pair of magical mithril gauntlets as a reward 
+D:for helping her see the truth about the Archfiends. These gauntlets 
+D:will greatly enhance your spellcasting abilities, as well as providing 
+D:resistances against magical energies.
+
+# Cloak 'Abjurer's Cloak'
+N:25:'Abjurer's Cloak'
+I:35:1:0
+W:5:5:10:3000
+P:5:1d1:10:10:5
+R:112:10
+T:1:5
+K:23:5
+U:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0
+F:ETERNAL | ACTIVATE
+S:Life Blast 10%:1:10:112:0:1:0:3
+D:A magical cloak that can enhance it's wearer's skill with Alteration magic.
+
+# Steel Shield 'Mirror of Steel'
+N:26:'Mirror of steel'
+I:34:3:0
+W:15:10:120:10000
+P:30:1d1:25:25:50
+K:27:5
+U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:50:0
+F:ETERNAL
+D:An extremely well crafted steel shield that has the power to reflect magical 
+D:attacks back at their caster.
+
+# Bronze Shield 'Waterwall'
+N:27:'Water Wall'
+I:34:1:0
+W:3:5:150:5000
+P:10:1d1:10:10:5
+R:9:25
+B:9:1000:0
+U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:ETERNAL | ACTIVATE
+S:Lesser Water Ball:2:30:9:2:0:0:8
+D:A bronze shield enchanted with water magic. It protects it's wielder against 
+D:Water-based attacks, and can be activated to cast balls of magical water 
+D:at enemies.
+
+# Steel Gauntlets 'Dragon's Fists'
+N:28:'Dragon's Fists'
+I:31:3:0
+W:20:15:50:30000
+P:20:1d1:40:40:15
+R:1:25
+K:18:10
+B:1:2500:0
+U:0:0:0:0:0:0:0:0:0:0:0:1:0:0:0:0:0:0
+F:ETERNAL | ACTIVATE | LEVELS
+S:Dragon Wave(Fire-elemental chain attack based on unarmed damages):9:2:0:0:0:0:10
+D:A pair of red colored, gold ornated gauntlets that will turn one's fists into 
+D:raging flames.
+
+# Steel Long Bow 'Solar Beam'
+N:29:'Solar Beam'
+I:19:33:0
+W:50:10:120:100000
+P:10:1d2:125:125:0
+R:6:25
+T:3:20
+K:19:20
+U:1:19:0:0:0:0:0:0:0:0:5:6:1:99:7:0:0:0
+F:ETERNAL | ACTIVATE | LEVELS
+S:Glowing Comet(Light, rad 10, consumes no ammos. Dam x2.):9:7:0:0:0:0:20
+D:A golden, glowing bow that contains pure Light elemental essence inside of it. 
+D:Any arrows shot from it will turn into a ray of light that will take down any 
+D:creatures of the dark.
+
+# Mithril Pickaxe 'Volcanic Digger'
+N:30:'Volcanic Digger'
+I:21:48:0
+W:40:20:170:100000
+P:0:10d13:100:100:0
+B:1:50000:0
+R:1:50
+T:0:15
+T:4:15
+K:29:20
+U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:LEVELS | ETERNAL | ACTIVATE
+S:Type change, Physical:9:3:0:0:0:0:0
+S:Type change, Fire:9:8:0:0:0:0:0
+D:A Mithril pickaxe with an handle made of runed volcanic rock. The runic scripture 
+D:seems to be of dwarven origin, although it is not contemporary dwarven tongue. 
+D:It could be that this pickaxe was crafted by an ancient dwarven clan who used to 
+D:live in a volcano or deep, magma-filled caverns, and it was made to give the wielder 
+D:the strength and toughness needed to survive in such an environment. The clan's 
+D:whereabouts, however, remains unknown.
+
+# The Horn of Unhealth
+N:31:of Unhealth
+I:93:9:0
+W:10:5:15:2500
+P:0:3d8:30:30:0
+K:28:10
+U:0:0:0:0:0:0:0:0:0:0:0:53:5:0:0:0:0:0
+F:ETERNAL
+D:A magical horn that is surprisingly powerful for lower class instrument. However, 
+D:the source of this power is actually a curse that turns any healing songs into 
+D:a deadly poison, hence it's name, the Horn of Unhealth.
+
+# The Pair of Alchemy Gloves 'Oddity'
+N:32:'Oddity'
+I:31:15:0
+W:20:10:10:5000
+P:15:1d1:25:25:20
+B:11:1000:2
+R:9:25
+T:3:5
+K:13:5
+K:10:1
+U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:FREE_ACT | ETERNAL | SPECIAL_GENE
+D:These gloves are the Alchemy Gloves Tia gave you in order to alter them. 
+D:Although they have indeed been altered, their new powers doesn't seem to 
+D:have anything to do with alchemy.
+
+### The next three artifacts are possible rewards for Ophelia quest line.
+
+# Mithril Katana 'Blood Blade'
+N:33:'Blood Blade'
+I:21:104:0
+W:45:30:80:300000
+P:20:10d14:150:150:0
+T:0:20
+T:3:20
+K:5:20
+K:12:30
+U:0:12:5:0:20:0:0:0:0:0:0:0:0:0:0:0:0:120
+F:LEVELS | ETERNAL | COULD2H | SPECIAL_GENE | ACTIVATE
+S:Type change, Physical:9:3:0:0:0:0:0
+S:Type change, Fire:9:8:0:0:0:0:0
+S:Type change, Darkness:9:9:0:0:0:0:0
+D:This mithril katana has a dark red blade. As battles intensifies, blood will spill from the blade 
+D:itself, and this cursed blood will awaken the killing instincts of it's wielder.
+
+# Mithril Gauntlets 'Ophelia's Hands'
+N:34:'Ophelia's Hands'
+I:31:5:0
+W:45:30:10:300000
+P:15:1d1:60:60:40
+R:162:25
+T:2:15
+K:24:15
+F:LEVELS | ETERNAL | FREE_ACT | SPECIAL_GENE | ACTIVATE
+U:0:0:0:0:0:0:0:0:10:0:0:53:0:0:0:0:0:0
+S:Healing:3:100:0:0:0:0:10
+S:Full Restoration(heals all ailments, stats drains and mutations):9:10:0:0:0:0:50
+D:A pair of magical gauntlets that contains the essence of Ophelia's powers. They have the power 
+D:to heal the wounds of anything they touch, as well as cure any ailments or diseases. Even for 
+D:mithril, they are unusually light, and will not hinder spellcasting.
+
+# Mithril Bracers 'Grey Conjurer'
+N:35:'Grey Conjurer'
+I:41:2:0
+W:45:30:20:300000
+P:10:1d1:50:50:15
+R:6:25
+R:7:25
+R:19:50
+T:1:10
+T:2:10
+T:5:10
+K:9:20
+K:25:20
+F:LEVELS | ETERNAL | FREE_ACT | SPECIAL_GENE | ACTIVATE
+U:0:0:0:0:0:0:50:0:0:0:0:0:0:0:0:0:0:0
+S:Summon Celestials:6:50:10:20:0:A:100
+S:Summon Demons:6:50:10:20:0:u:100
+D:A pair of magical bracers enchanted with both light and darkness. They allow the wearer 
+D:to summon both celestials and demons, and make him or her much more apt at controlling 
+D:them effectively.
 
 # The template for artifacts corpses
 

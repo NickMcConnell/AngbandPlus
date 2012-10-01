@@ -7,7 +7,7 @@ BASIC CLASSES
 WARRIOR:
         Strength: +25%
         Constitution: +25%
-        -20% to maximum mana.
+	All specialized weapon skills: +25%
 
 The warrior is an adept of melee combat. Swords, axes, spears, maces,
 warriors use different kind of weapons, and can perform various combat
@@ -19,7 +19,7 @@ FIGHTER:
         Strength: +33%
         Constitution: +25%
         Wisdom: -25%
-        -50% to maximum mana.
+        Fighting: +25%
 
 The fighter is also an adept of melee combat, but he is very different
 from the warrior. While the warrior is a disciplined soldier who uses
@@ -35,6 +35,8 @@ rather fight than read a book.
 MAGE:
         Strength: -25%
         Intelligence: +25%
+        Spellcraft: +25%
+        All specialized magic skills: +10%
 
 The mage is a smart individual, who is skilled in the art of spellcasting.
 They spend their life studying magic, and learn to create many powerful
@@ -46,6 +48,7 @@ detect creatures, see hidden areas, and much more.
 
 PRIEST:
         Wisdom: +25%
+	Mysticism: +25%
 
 The priest is a wise and pious character who prays to his or her god or
 goddess. The priest is both a spellcaster and a warrior, and their
@@ -65,12 +68,14 @@ enemies in their sleep. A rogue learn to setup multiple kind of traps to
 defeat their unsuspecting opponents. Dexterity, stealth and agility is the
 rogue's trademark, making them good melee fighters even if they don't have
 the warrior's strength. And the rogue also has more brain than a warrior,
-and make a better magic user.
+and makes a better magic user.
 
 RANGER:
-        Strength: +17%
+        Strength: +20%
+	Wisdom: +20%
         Dexterity: +25%
-        Constitution: +17%
+        Constitution: +20%
+	Fighting, Shooting and Spellcraft: +10%
 
 The ranger is a protector of nature and balance. He/she lives in the forest,
 and is in perfect symbiosis with plants and animals. Almost as good at
@@ -111,15 +116,30 @@ due to their intense focus on martial arts, as well as their oath to renounce
 to using weapons, makes them less skilled with melee weapons than the average
 warrior.
 
-ARCHER:
+MARKSMAN:
         Dexterity: +25%
+	Shooting: +25%
+	All specialized ranged weapon skills: +10%
 
-The archer is a master of the bow and arrows(or crossbow and bolts).
-Considered cowardly by the warriors, archers prefers to strike their
-opponents from a safe distance. They learn various techniques, some of
-consisting in shooting flaming arrows, armor-piercing shots or disable
-legs or arms from a safe distance. Their dexterity is very high, as
-they need a lot of it to make good shots from a great distance.
+The marksman specializes in ranged weapons. Rather that wielding a powerful
+sword and charging in a group of enemies, the marksman prefers to shoot
+and kill enemies from a safe distance. Marksmen learns various abilities
+that makes their shots more powerful, accurate or have special effects
+such as hitting multiple enemies, or paralyzing shots.
+
+BARD:
+	Charisma: +25%
+	Music: +25%
+
+The bard is a musician who's music carries magical powers. By travelling the
+land and constantly meeting new peoples, the Bard has an unmatched lore
+and therefore great inspiration for his or her songs. Bards have a great
+Charisma to captivate their audience, and are the best musicians available
+in Portralis. Bardic songs are best known for their power to heal and
+strengthen allies, and cause fear and other effect to enemies, although
+Sound-based direct damages songs do exists. While most bards dedicates
+themselves solely to their art, many are known to also dabble in the art
+of combat or spells, and have developped appropriate songs to suit their style.
 
 
 ADVANCED CLASSES
@@ -130,6 +150,8 @@ Requirements: Mage level 5, Intelligence: 40
 
         Intelligence: +50%
         Strength: -25%
+        Spellcraft: +33%
+        All specialized schools skills: +25%
 
 The high mage is a more experienced and more skilled mage. Having
 dedicated a good portion of his/her life to create powerful spells,
@@ -145,6 +167,8 @@ Requirements: Warrior level 3, Strength: 20, Intelligence: 10
         Strength: +25%
         Constitution: +25%
         Intelligence: +25%
+        Elemental: +25%
+        All specialized weapon skills: +10%
 
 Elemental Lords are mysterious warriors of superior skill who imbued
 their bodies with elemental energy. The Elemental Lord chooses one
@@ -172,37 +196,20 @@ Requirements: Warrior level 3, Strength: 20, Constitution: 20
 
         Strength: +33%
         Constitution: +33%
+        Defense: +33%
+        All specialized weapon skills: +10%
         Bonus to_ac: experience level * 2
         Resistant to fear.
         Resistant to confusion.
         Immune to paralysis.
 
 Defenders are warriors who lives by the principle that the best offense
-lies in the best defense. The defender is adept at fighting in heavy
-armor and using a shield. They learn to fight better using their shield,
+lies in the best defense, and they are the pride of the Ivhalian
+kingdom. The Defender is adept at fighting in heavy armor and using a
+shield. They learn to fight better using their shield,
 learn to wear their armor in an efficient way, and learn other combat
-techniques centered around their great defense. That makes the defender
+techniques centered around their great defense. That makes the Defender
 not only a strong warrior, but also extremely hard to kill.
-
-JUSTICE WARRIOR:
-Requirements: Paladin level 5, Strength: 20, Wisdom: 20, Charisma: 20
-
-        Strength: +25%
-        Constitution: +25%
-        Wisdom: +25%
-        Charisma: +33%
-        Resistant to light.
-        Resistant to experience draining.
-        Resistant to fear.
-        Sustained wisdom.
-        Sustained charisma.
-        Emits light without light source.
-
-Justice Warriors are the supreme defenders of good and justice. They
-hate evil beyond anything else, and dedicate their life to the killing
-of demons, undeads and other evil creatures. Even more virtuous and
-blessed than the paladin, the Justice Warrior is greatly respected by
-his/her friends, and greatly feared by his/her foes.
 
 HIGH MONK:
 Requirements: Monk level 10, Strength: 40, Wisdom: 40, Constitution: 40
@@ -233,7 +240,8 @@ Requirements: Wisdom: 20, Charisma: 10
         Wisdom: +33%
         Charisma: +33%
 	Strength: -33%
-	Constitution: -25%
+        Spellcraft: +25%
+        Leadership: +25%
 	Resistant to confusion.
 	Resistant to fear.
 	Immune to experience draining.
@@ -274,3 +282,79 @@ from mundane assassins. They learn to control and shape the shadows,
 using them to create illusions, hide and deceive their foes. Some
 even draw magical darkness from the shades, and use it to combat their
 enemies.
+
+GUNNER:
+Requirements: Marksman level 6, Dexterity: 30, Firearms skill: 40
+
+	Dexterity: +33%
+	Firearms skill: +25%
+
+The Gunner is a master of guns. Most Gunners are found in the kingdom
+of Karingen, the most technologically advanced kingdom in all Portralis.
+The gun is Karingen's most prized weapon, and Gunners trains
+hard to master them, and use them to their full potential. A gunner can
+fire a gun with deadly power, high speed and perfect accuracy, making
+them greatly feared by their enemies, and especially by the Nimbrayan
+elves, who still favor the old bow and arrows.
+
+ENCHANTER:
+Requirements: Intelligence: 20, Alchemy skill: 20, Crafting skill: 20
+
+	Intelligence: +33%
+	Alchemy skill: +25%
+	Crafting skill: +25%
+
+The Enchanter is a special caste of wizards that specializes in creating
+and enchanting magical items and potions. Unlike mages, the Enchanter does
+not draw power from raw magical energy, but from the inner energies
+contained inside the items he/she enchants. The Enchanter creates
+items that are specially made to be compatible with their own bodies,
+their own strength and weaknesses, thus creating a special bond from which
+the Enchanter draw power. Most enchanters are powerful fighters, and while
+their natural skills are no match for a skilled warrior, their magical
+items and the bond they share with them makes them both deadly warriors and
+powerful mages.
+
+DIVINER:
+Requirements: Mage level 3, Intelligence: 20, Divination skill: 40
+
+	Intelligence: +33%
+	Divination skill: +25%
+
+The Diviner is a mage that specializes in the school of Divination.
+Diviners can sense their surroundings better than anyone else, and are
+good at predicting and understanding what happens around them, or even
+understand things about the living peoples and creatures they encounter.
+The most powerful Diviners have such a high understanding of everything
+that they have developped magical abilities to alter these realities,
+and make up their own destiny, as opposed to mere fortune tellers who
+predicts a destiny that may or may not happen. Diviners can also be
+good fighters, as they can predict the moves of their opponents, and
+can use this ability to dodge and strike enemies with great accuracy.
+
+KENSAI:
+Requirements: Monk level 3, Strength: 20, Wisdom: 20, Swords skill: 20, 
+	Martial Arts skill: 20, Agility skill: 20
+
+	+25% Strength
+	+25% Wisdom 
+	+25% Dexterity
+	+25% Swords 
+	+25% Martial Arts 
+	+25% Agility
+	Resist Fear
+	Resist Confusion
+	Free Action
+	Sustained wisdom
+
+The kensai is a warrior of ancient legend. Relying exclusively on one 
+handed swords for their combat techniques, they train their bodies and 
+their minds to work as one. While they are masters of the sword by any 
+standard of physical proficiency, they do not stop there, but use mental 
+disciplines to further enhance their combat prowess with their weapon, 
+even to the point of amazing, seemingly supernatural feats of combat. 
+Striking so fast that they don't even seem to move, putting all their 
+physical and mental strength into an attack that can kill even the 
+strongest of enemies with a single blow, and focusing their ki energy 
+to cause a magic surge with each strike of their sword are just some 
+of the abilities that the Kensai posess.

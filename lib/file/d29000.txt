@@ -1,0 +1,14 @@
+N:1:29035:2:0:0:0
+I:Townsfolk;
+T:The Flow is an everchanging place. You may not realize it, but this town;
+T:is only three days old. And in a few days, it may not exist anymore.;
+T:Such is the nature of the Flow: an everchanging gathering of all the;
+T:world's essences...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:29035:1:0:0:0
+I:Townsfolk;
+T:Welcome to this little town. Hope you enjoy your stay.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -35,7 +35,7 @@ A:[CONTINUE]:0:0:0:1:5:0:0:0:0
 
 N:5:0:0:0:0:0
 I:Julian;
-T:Remove the soldiers?? But the Ivhalian mountains are full of dangerous;
+T:Remove the soldiers?? But the Agharias mountains are full of dangerous;
 T:wild beasts! These soldiers are there to help the Ivhalian peoples!;
 T:If we remove our soldiers, the beasts will grow stronger, and the;
 T:peoples will be in danger!!;

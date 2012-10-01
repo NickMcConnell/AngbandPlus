@@ -1,0 +1,9 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter an odd shop. The inventory consists in an unusual assortment;
+T:of crystal balls, statuettes of various creatures and persons, weird; 
+T:paintings, amulets, rings, magic wands and a wide selection of odd items.;
+T:However, you don't sense any magical powers from any of those items,;
+T:so this stuff could very well be fake and useless.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

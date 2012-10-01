@@ -25,12 +25,16 @@ lightning and wind based attacks, as living high in the heavens have
 made them resistant to the forces of the sky. Celestials are wise and 
 charismatic beings, preferring wise advices and diplomatic solutions 
 over warfare, but they are capable fighters when the need arise.
+They are very good at using Mysticism and Divination magic, as their
+divine nature gives them a better connection to the spiritual world
+and a better control over the fate of other beings.
 
 CELESTIAL FEATURES:
 
 - +25% to Wisdom.
 - +25% to Charisma.
 - +25% damages to Light-based attacks and spells.
+- +25% to Mysticism and Divination skills.
 - 25% resistance to electricity and wind.
 - 100% resistance to Light.
 - Starts the game with the elemental effect 'Light' learned.

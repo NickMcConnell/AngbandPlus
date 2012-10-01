@@ -1,0 +1,349 @@
+  [Portralis 0.3.0 Character Dump]
+
+ Name        : Natalia          Age                 18       STR:     109      
+ Sex         : Female           Alignment            0       INT:      24      
+ Race        : Fang Naga        Death Count          1       WIS:      24      
+ Class       : Monster                                       DEX:      84      
+ Element     : Poison                                        CON:      42      
+                                                             CHR:       5      
+                                                                               
+                            Level             25    Max Hit Points     29934   
+                            Experience     13381    Cur Hit Points     29934   
+ + To Hit         9627      Max Exp        13381    Max SP (Mana)        231   
+ + %To Damage      701      Exp to Adv.    17500    Cur SP (Mana)        231   
+ + To AC          2294      Gold           13657                               
+   Ability P         0      Stat Points         0      Blows/Round:  14        
+                            Skill Points        0      Blows/Round(2):  14     
+                            Class Level        10      Shots/Round:  1         
+                            Class Kills       878      Wpn.dmg: 2711-16273     
+                                                       Wpn2.dmg: 2711-16273    
+                                                       Sht.dmg: n/a            
+                                                       Sht2.dmg: n/a           
+                                                       Infra-Vision: 0 feet    
+                         (Character Background) 0                              
+          Natalia is a naga born with short fangs, thus making her             
+          a Fang Naga. Considered weak amongst her kind, she sets out          
+          on a journey to become stronger, and prove that even a               
+          lowly Fang Naga can become a great power.                            
+ ----------    CHARACTER'S SKILLS    ----------    --- MISC. INFO ---          
+                                                                               
+ a) Fighting:       0   A) Polearms:       0       Wpn.dmg:  2711-16273        
+ b) Spellcraft:     0   B) Daggers:        0       Wpn2.dmg: 2711-16273        
+ c) Shooting:       0   C) Axes:           0       Sht.dmg:  n/a               
+ d) Throwing:       2   D) Rods:           0       Sht2.dmg: n/a               
+ e) Defense:        16  E) Martial Arts:   0       To_h   :  9627              
+ f) Agility:        16  F) Bow:            0       To_d   :  701               
+ g) Stealth:        0   G) Crossbow:       0       To_a   :  2294              
+ h) Combat Feats:   25  H) Firearms:       0       AC     :  1333              
+ i) Dual Wield:     20  I) Elemental:      0                                   
+ j) Leadership:     0   J) Alteration:     0                                   
+ k) Alchemy:        0   K) Mysticism:      0       Dual Wield: Yes             
+ l) Crafting:       0   L) Conjuration:    0       Press 'u' to toggle.        
+ m) Swords:         55  M) Divination:     0                                   
+ n) Blunt:          0   N) Magic Defense:  5                                   
+                                                                               
+                                                                               
+ Remaining skill points: 0   Press one of the letters to increase the skill.   
+               Press 'x' to view next skills page(if any).                     
+ --------------    ABILITIES    --------------                                 
+                                                                               
+ Small but Deadly [10]                                                         
+ Inner Elemental Mastery [5]                                                   
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+ --------------    RESISTANCES    --------------                               
+                                                                               
+ Fire:      5                                                                  
+ Cold:      0                                                                  
+ Electric:  0                                                                  
+ Acid:      0                                                                  
+ Poison:    56                                                                 
+ Light:     -25                                                                
+ Darkness:  31                                                                 
+ Warp:      6                                                                  
+ Water:     0                                                                  
+ Wind:      3                                                                  
+ Earth:     0                                                                  
+ Sound:     0                                                                  
+ Radio:     3                                                                  
+ Chaos:     0                                                                  
+ Physical:  6                                                                  
+ Mana:      0                                                                  
+                                                                               
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Maximize Mode:      OFF
+ Preserve Mode:      OFF
+ Autoscum:           ON
+ Small Levels:       ALWAYS
+ Arena Levels:       ON
+ Persistent Dungeons:       OFF
+
+ Your body was a Fang Naga.
+
+         ----------    CHARACTER'S SKILLS    ---
+                                                
+         a) Fighting:       0   A) Polearms:    
+         b) Spellcraft:     0   B) Daggers:     
+         c) Shooting:       0   C) Axes:        
+         d) Throwing:       2   D) Rods:        
+         e) Defense:        16  E) Martial Arts:
+         f) Agility:        16  F) Bow:         
+         g) Stealth:        0   G) Crossbow:    
+         h) Combat Feats:   25  H) Firearms:    
+         i) Dual Wield:     20  I) Elemental:   
+         j) Leadership:     0   J) Alteration:  
+         k) Alchemy:        0   K) Mysticism:   
+         l) Crafting:       0   L) Conjuration: 
+         m) Swords:         55  M) Divination:  
+         n) Blunt:          0   N) Magic Defense
+                                                
+                                                
+         Remaining skill points: 0   Press one o
+                       Press 'x' to view next sk
+                                                
+        -------    --- MISC. INFO ---           
+                                                
+           0       Wpn.dmg:  2711-16273         
+           0       Wpn2.dmg: 2711-16273         
+           0       Sht.dmg:  n/a                
+           0       Sht2.dmg: n/a                
+           0       To_h   :  9627               
+           0       To_d   :  701                
+           0       To_a   :  2294               
+           0       AC     :  1333               
+           0                                    
+           0                                    
+           0       Dual Wield: Yes              
+           0       Press 'u' to toggle.         
+           0                                    
+        :  5                                    
+                                                
+                                                
+        f the letters to increase the skill.    
+        ills page(if any).                      
+                                                
+         --------------    ABILITIES    --------
+                                                
+         Small but Deadly [10]                  
+         Inner Elemental Mastery [5]            
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+        ------                                  
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+         --------------    RESISTANCES    ------
+                                                
+         Fire:      5                           
+         Cold:      0                           
+         Electric:  0                           
+         Acid:      0                           
+         Poison:    56                          
+         Light:     -25                         
+         Darkness:  31                          
+         Warp:      6                           
+         Water:     0                           
+         Wind:      3                           
+         Earth:     0                           
+         Sound:     0                           
+         Radio:     3                           
+         Chaos:     0                           
+         Physical:  6                           
+         Mana:      0                           
+                                                
+                                                
+                                                
+        --------                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+         --------------    RESISTANCES    ------
+                                                
+         Fire:      5                           
+         Cold:      0                           
+         Electric:  0                           
+         Acid:      0                           
+         Poison:    56                          
+         Light:     -25                         
+         Darkness:  31                          
+         Warp:      6                           
+         Water:     0                           
+         Wind:      3                           
+         Earth:     0                           
+         Sound:     0                           
+         Radio:     3                           
+         Chaos:     0                           
+         Physical:  6                           
+         Mana:      0                           
+                                                
+                                                
+                                                
+        --------                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+
+ You have defeated 2185 enemies.
+
+
+  [Character Equipment]
+
+a) a Steel Rapier (2d6) (+0,+0) [1,+0]
+b) a Steel Rapier (2d6) (+0,+0) [1,+0]
+e) a Ring of Resist Poison
+f) (nothing)
+k) an Amulet of Adornment (+42,+16) {25% off}
+m) The Orb of Death Light (+25,+25)
+n) Green Dragon Scale Mail (L:6, K:3/30) (+19,+18) [191,+16] {50% off}
+o) (nothing)
+p) (nothing)
+s) (nothing)
+u) (nothing)
+{) a Bronze Tipped Bolt (1d5) (+6,+3) (+444 Earth)
+|) (nothing)
+A) an Essence (+119,+119) [12,+63] (Dungeon Boss)
+
+
+  [Character Inventory]
+
+a) 8 Rations of Food
+b) 20 Scrolls of Identify
+c) 6 Scrolls of Word of Recall
+d) 10 Scrolls of Teleportation
+e) (nothing)
+f) (nothing)
+g) (nothing)
+h) (nothing)
+i) (nothing)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+m) (nothing)
+n) (nothing)
+o) (nothing)
+p) (nothing)
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory (page 1)]
+
+a) an Essence (+52,+52) [4,+21] (Dungeon Boss)
+b) an Essence (+52,+52) [3,+19] (Dungeon Boss)
+c) an Essence (+12,+12) [+3] (Electric Ray)
+d) a Bronze Plate Mail [40,+0]
+e) 20 Bronze Tipped Bolts (1d5) (+6,+3) (+444 Earth)
+f) a Tavern Basement Key
+g) a Monstrous Rat's Head
+h) a Gorg's Head
+i) (nothing)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+
+
+  [Home Inventory (page 2)]
+
+a) (nothing)
+b) (nothing)
+c) (nothing)
+d) (nothing)
+e) (nothing)
+f) (nothing)
+g) (nothing)
+h) (nothing)
+i) (nothing)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+
+

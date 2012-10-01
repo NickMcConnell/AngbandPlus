@@ -755,28 +755,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
  */
 static void get_stats(void)
 {
-        int             i;
-
-	/* Acquire the stats */
-	for (i = 0; i < 6; i++)
-	{
-                /* Stat is 5. A standard starting stat. */
-                p_ptr->stat_max[i] = 5;
-
-		/* No mutations. */
-		p_ptr->stat_mut[i] = 0;
-
-                stat_use[i] = 5;
-
-                /* Save the resulting stat maximum */
-                p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
-		
-		p_ptr->stat_cnt[i] = 0;
-		p_ptr->stat_los[i] = 0;
-	}
-        /* Give the player 1 ability points */
-        p_ptr->ability_points = 1;
-
+        call_lua("starting_stats", "", "");
 }
 
 
@@ -844,27 +823,6 @@ static void get_extra(void)
         /*msg_format("Current Life Rating is %d/100.", percent);*/
 	msg_print(NULL);
 #endif /* SHOW_LIFE_RATE */
-
-        /* NEWANGBAND: If you're a monster, actually be one! :) */
-        /* if (p_ptr->prace == RACE_MONSTER)
-        {
-                int chosenbody = 0;
-                bool okaysignal = FALSE;
-                monster_race *r_ptr;
-
-                while (!okaysignal)
-                {
-                        chosenbody = randint(1074);
-                        chosenbody += 19;
-                        r_ptr = &r_info[chosenbody];
-                        
-                        if (!(r_ptr->flags1 & (RF1_UNIQUE)) && !(r_ptr->flags9 & (RF9_SPECIAL_GENE))) 
-                        {                                    
-                                if (r_ptr->level <= 14) okaysignal = TRUE;
-                        }                                    
-                }
-                p_ptr->body_monster = chosenbody;
-        } */
 
 }
 
@@ -1098,38 +1056,6 @@ static void get_ahw(void)
 	}
 }
 
-
-
-
-/*
- * Get the player's starting money
- */
-static void get_money(void)
-{
-	int i, gold;
-
-	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
-
-	/* Process the stats */
-	for (i = 0; i < 6; i++)
-	{
-		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18+50) gold -= 300;
-		else if (stat_use[i] >= 18+20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
-		else gold -= (stat_use[i] - 8) * 10;
-	}
-
-        /* The hell with that, gold is 1000 */
-        gold = 1000;
-
-	/* Save the gold */
-	p_ptr->au = gold;
-}
-
-
-
 /*
  * Display stat values, subset of "put_stats()"
  *
@@ -1185,18 +1111,6 @@ static void player_wipe(void)
 	for (i = 0; i < 4; i++)
 	{
 		strcpy(history[i], "");
-	}
-
-	/* Wipe the quests */
-	for (i = 0; i < max_quests; i++)
-	{
-		quest[i].status = QUEST_STATUS_UNTAKEN;
-
-		quest[i].cur_num = 0;
-		quest[i].max_num = 0;
-		quest[i].type = 0;
-		quest[i].level = 0;
-		quest[i].r_idx = 0;
 	}
 
 	/* No weight */
@@ -1263,22 +1177,6 @@ static void player_wipe(void)
         {
                 for(j = 0; j < 120; j++)
                         ghost_file[i][j] = 0;
-        }        
-
-	/* Hack -- Well fed player */
-	p_ptr->food = PY_FOOD_FULL - 1;
-
-	/* Wipe the spells */
-        for (i = 0; i < MAX_REALM; i++)
-        {
-                spell_learned[i][0] = spell_learned[i][1] = 0L;
-                spell_worked[i][0] = spell_worked[i][1] = 0L;
-                spell_forgotten[i][0] = spell_forgotten[i][1] = 0L;
-        }
-        for (i = 0; i < 64; i++)
-        {
-                realm_order[i] = 99;
-                spell_order[i] = 99;
         }
 
 	/* Clear "cheat" options */
@@ -1334,41 +1232,6 @@ static void player_wipe(void)
         p_ptr->wild_mode = FALSE;
 }
 
-/* Old command, now used by a Battle spell! ;) */
-void do_cmd_create_sword(void)
-{
-       /* int i, tv, sv; */
-        u32b f1, f2, f3, f4;
-	object_type	forge;
-	object_type	*q_ptr;
-	
-
-	/* Get local object */
-	q_ptr = &forge;
-
-        
-        object_prep(q_ptr, lookup_kind(TV_SWORD, 43));
-        q_ptr->number = (byte)rand_range(1,1);
-        q_ptr->dd += p_ptr->lev / 5;
-        q_ptr->ds += p_ptr->lev / 5;
-        q_ptr->to_h += p_ptr->lev;
-        q_ptr->to_d += p_ptr->lev;
-        object_flags(q_ptr, &f1, &f2, &f3, &f4);
-        q_ptr->art_flags4 |= TR4_INDESTRUCTIBLE;
-        q_ptr->art_flags4 |= TR4_LOWER_DEF;
-        object_aware(q_ptr);
-        object_known(q_ptr);
-
-        /* These objects are "storebought" */
-        q_ptr->ident |= IDENT_STOREB;
-        q_ptr->ident |= IDENT_MENTAL;
-        q_ptr->ident |= IDENT_BROKEN;
-
-        msg_print("You shape a sword from mana!");
-
-        (void)inven_carry(q_ptr, FALSE);
-}
-
 /*
  * Init players with some belongings
  *
@@ -1384,7 +1247,7 @@ static void player_outfit()
 	/* Get local object */
         q_ptr = &forge;
 
-        object_prep(q_ptr, lookup_kind(TV_DAGGER, 2));
+        object_prep(q_ptr, lookup_kind(TV_WEAPON, 52));
         q_ptr->number = 1;
         object_aware(q_ptr);
         object_known(q_ptr);
@@ -1403,7 +1266,7 @@ static void player_outfit()
         q_ptr = &forge;
 
         /* Hack -- Give the player some scrolls of Identify */
-        object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
+        object_prep(q_ptr, lookup_kind(TV_SCROLL, 4));
         q_ptr->number = (byte)rand_range(10,15);
         object_aware(q_ptr);
         object_known(q_ptr);
@@ -1413,18 +1276,8 @@ static void player_outfit()
         q_ptr = &forge;
 
         /* Hack -- Give the player some scrolls of Recall */
-        object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL));
+        object_prep(q_ptr, lookup_kind(TV_SCROLL, 11));
         q_ptr->number = (byte)rand_range(4,8);
-        object_aware(q_ptr);
-        object_known(q_ptr);
-        (void)inven_carry(q_ptr, FALSE);
-
-	/* Get local object */
-	q_ptr = &forge;
-
-        /* Hack -- Give the player some food */
-        object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-        q_ptr->number = (byte)rand_range(3, 7);
         object_aware(q_ptr);
         object_known(q_ptr);
         (void)inven_carry(q_ptr, FALSE);
@@ -1445,7 +1298,7 @@ static void player_outfit()
 
 	object_prep(q_ptr, lookup_kind(TV_LICIALHYD, 1));
 	q_ptr->number = 1;
-	q_ptr->pval2 = LICIAL_HEALING;
+	q_ptr->pval2 = 1;
 	q_ptr->pval3 = 100;
 	object_aware(q_ptr);
 	object_known(q_ptr);
@@ -1466,7 +1319,6 @@ static bool player_birth_aux()
         int i, j, k, m, n, v, x, w;
 
 	int mode = 0;
-        int avariable;
 
 	bool flag = FALSE;
 	bool prev = FALSE;
@@ -1584,19 +1436,17 @@ static bool player_birth_aux()
 		p_ptr->prace = n;
 		rp_ptr = &race_info[p_ptr->prace];
 		str = rp_ptr->title;
-		
+
 		/* Display */
-                /* sprintf(buf, "%c%c %s", I2A(n), p2, str);*/
-                sprintf(buf, "%c%c %s", (n <= 25)?I2A(n):I2D(n-26), p2, str);
-                put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
+		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+		put_str(buf, 20 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
-        while (b != 'y')
+	while (1)
 	{
-        marker:
-        sprintf(buf, "Choose a race (%c-%c), * for a random choice: ", I2A(0), (n <= 25)?I2A(n)-1:I2D(n-26));
-        put_str(buf, 17, 2);
+                sprintf(buf, "Choose a race (%c-%c), * for random: ", I2A(0), I2A(n-1));
+		put_str(buf, 19, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -1605,26 +1455,27 @@ static bool player_birth_aux()
                         k = rand_int(MAX_RACES);
 			break;
 		}
-            sprintf(buf,"%c.txt",c);
-            display_help_file(buf);
-            msg_print("Keep this race? y/n");
-            b = inkey();
-            /* GASP!!! Could it be....a GOTO?? :| */
-            if (b == 'n' || b == 'N') goto marker; 
+		
+		k = (islower(c) ? A2I(c) : -1);
+		if ((k >= 0) && (k < n))
+		{
+			sprintf(buf,"%c.txt",c);
+            		display_help_file(buf);
 
-            /* k = (islower(c) ? A2I(c) : -1); */
-            k = (islower(c) ? A2I(c) : (D2I(c) + 26));
-            if ((k >= 0) && (k < n)) break;
+			msg_print("Keep this race? [y/n]");
+			b = inkey();
+			if (b != 'y' && b != 'Y')
+			{
+				c = 'z';
+				msg_print(NULL);
+			}
+			else break;
+		}
 			if (c == '?') do_cmd_help();
-            else bell();
+		else bell();
 	}
 
 	/* Set race */
-        if (k < RACE_HUMAN || k > RACE_MONSTER)
-        {
-                msg_print("Invalid race choice.");
-                goto marker;
-        }
 	p_ptr->prace = k;
 	rp_ptr = &race_info[p_ptr->prace];
 	str = rp_ptr->title;
@@ -1638,89 +1489,21 @@ static bool player_birth_aux()
         /* Just get a body for monsters... */
         if (p_ptr->prace == RACE_MONSTER) get_a_monster_body();
 
-	/* Display */
-	c_put_str(TERM_L_BLUE, player_name, 2, 15);
-
 	/* Clean up */
 	clear_from(15);
 
-
-	/*** Player class ***/
-
-        avariable = 6;
-        if (avariable != 6)
-        {
-	/* Extra info */
-        Term_putstr(5, 13, -1, TERM_WHITE,
-		"Your 'class' determines various intrinsic abilities and bonuses.");
-
-	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
+        if (p_ptr->prace == RACE_MONSTER)
 	{
-		cptr mod = "";
-
-		/* Analyze */
-		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
-
-#if 0
-                /* Verify legality */
-                if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
-#endif
-
-                if (!(rp_ptr->choice & (1L << n )))
-                        sprintf(buf, "%c%c (%s)%s", (n <= 25)?I2A(n):I2D(n-26), p2, str, mod);
-                else
-                        /* Display */
-                        sprintf(buf, "%c%c %s%s", (n <= 25)?I2A(n):I2D(n-26), p2, str, mod);
-
-                put_str(buf, 15 + (n/4), 2 + 17 * (n%4));
+		p_ptr->pclass = CLASS_MONSTER;
+		p_ptr->abilities_powers[0] = ((CLASS_APPRENTICE * 10) + 1);
+		p_ptr->abilities_powers[1] = ((CLASS_APPRENTICE * 10) + 2);
 	}
-
-	/* Get a class */
-	while (1)
-	{
-                sprintf(buf, "Choose a class (%c-%c), * for random: ", I2A(0), (n <= 25)?I2A(n-1):I2D(n-26));
-                put_str(buf, 14, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == '*')
-		{
-                        k = randint(n) - 1;
-			break;
-		}
-                k = (islower(c) ? A2I(c) : (D2I(c) + 26));
-		if ((k >= 0) && (k < n)) break;
-			if (c == '?') do_cmd_help();
-		else bell();
-	}
-
-	/* Set class */
-#ifdef FORBID_BAD_COMBINAISON
-        if (!(rp_ptr->choice & (1L << k )))
-        {
-                noscore |= 0x0020;
-                message_add(" ");
-                message_add(" ");
-                message_add(" ");
-                message_add("***************************");
-                message_add("***************************");
-                message_add("********* Cheater *********");
-                message_add("***************************");
-                message_add("***************************");
-        }
-#endif
-        }
-        p_ptr->pclass = CLASS_APPRENTICE;
+	else p_ptr->pclass = CLASS_APPRENTICE;
 	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
-	str = cp_ptr->title;
+	str = classes_def[p_ptr->pclass].name;
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
+	c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 5, 15);
 
 	/* Clear */
 	clear_from(15);
@@ -1887,50 +1670,6 @@ static bool player_birth_aux()
 	/* Prepare allocation table */
 	get_mon_num_prep();
 
-	/* Generate quests */
-	for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
-	{
-		quest_type *q_ptr = &quest[i];
-
-		monster_race *r_ptr;		
-
-		q_ptr->status = QUEST_STATUS_TAKEN;
-
-		for (j = 0; j < MAX_TRIES; j++)
-		{
-			/* Random monster 5 - 10 levels out of depth */
-			q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint(6));
-
-			r_ptr = &r_info[q_ptr->r_idx];
-
-                        /* Accept only monsters that are not breeders */
-                        if (r_ptr->flags2 & RF2_MULTIPLY) continue;
-
-                        /* Accept only monsters that are not friends */
-                        if (r_ptr->flags7 & RF7_PET) continue;
-
-			/* Accept only monsters that are out of depth */
-			if (r_ptr->level > q_ptr->level) break;
-		}
-
-		/* Get the number of monsters */
-		if (r_ptr->flags1 & RF1_UNIQUE)
-		{
-			/* Mark uniques */
-			r_ptr->flags1 |= RF1_QUESTOR;
-
-			q_ptr->max_num = 1;
-		}
-		else
-		{
-			q_ptr->max_num = 5 + (s16b)rand_int(q_ptr->level/3 + 5);
-		}
-	}
-
-        /* Init the two main quests (Sauron + Morgoth) */
-        /* init_flags = INIT_ASSIGN; */
-
-
         p_ptr->inside_quest = 0;
 
 
@@ -1952,7 +1691,7 @@ static bool player_birth_aux()
 			c_put_str(TERM_L_BLUE, player_name, 2, 15);
 			c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
 			c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
-			c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
+			c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 5, 15);
 
 			/* Label stats */
 			put_str("STR:", 2 + A_STR, 61);
@@ -2056,11 +1795,8 @@ static bool player_birth_aux()
 		/* Roll for social class */
 		get_history();
 
-		/* Roll for gold */
-		get_money();
-
-                /* Start with no stats points */
-                p_ptr->statpoints = 0;
+		/* Start with 1000 golds. */
+		p_ptr->au = 1000;
 
                 /* Reset death count. */
                 p_ptr->deathcount = 0;
@@ -2076,6 +1812,12 @@ static bool player_birth_aux()
 		{
 			p_ptr->events[w] = 0;
 			p_ptr->towns[w] = 0;
+		}
+
+		if (p_ptr->prace == RACE_MONSTER)
+		{
+			p_ptr->events[29015] = 1;
+			p_ptr->events[29027] = 1;
 		}
 
                 p_ptr->muta1 = 0;
@@ -2096,6 +1838,9 @@ static bool player_birth_aux()
 
 			/* Fully rested */
 			p_ptr->csp = p_ptr->msp;
+
+			/* No dual wield at birth. */
+			p_ptr->dualwield = 0;
 
 			/* Display the player */
 			display_player(mode);
@@ -2177,7 +1922,7 @@ static bool player_birth_aux()
 
 	get_name();
         /* NewAngband: You can change your age! */
-        change_age();
+        /*change_age();*/
 
         p_ptr->town_num = 1;
 	p_ptr->startx = 0;
@@ -2204,7 +1949,8 @@ static bool player_birth_aux()
         /* Set the lord's element to 0 */
         p_ptr->elemlord = 0;
         /* Set the magic mode to 0(spells) */
-        p_ptr->magic_mode = 0;
+	if (p_ptr->prace == RACE_MONSTER) p_ptr->magic_mode = 1;
+        else p_ptr->magic_mode = 0;
         /* Set the aura to off */
         p_ptr->auraon = FALSE;
 	/* Set current weapon... */
@@ -2227,6 +1973,7 @@ static bool player_birth_aux()
 	if (p_ptr->prace == RACE_CELESTIAL) p_ptr->elemental_effects |= ELEM_LITE;
 	if (p_ptr->prace == RACE_DEMON) p_ptr->elemental_effects |= ELEM_DARK;
 	if (p_ptr->prace == RACE_ZULGOR) p_ptr->elemental_effects |= ELEM_CHAOS;
+
 	return (TRUE);
 }
 
@@ -2373,13 +2120,10 @@ void player_birth(void)
         load_options();
 
 	/* Init the shops */
-	for (i = 1; i < max_towns; i++)
+	for (i = 0; i < MAX_STORES; i++)
 	{
-		for (j = 0; j < MAX_STORES; j++)
-		{
-			/* Initialize */
-			store_init(i, j);
-		}
+		/* Initialize */
+		store_init(i);
 	}
 
 	/* special levels */
@@ -2459,6 +2203,11 @@ void do_cmd_change_class(void)
                 msg_print("You must be at least level 3 in your current class before you can perform a class change!");
                 return;
         }
+	if (p_ptr->str_boost_dur > 0 || p_ptr->int_boost_dur > 0 || p_ptr->wis_boost_dur > 0 || p_ptr->dex_boost_dur > 0 || p_ptr->con_boost_dur > 0 || p_ptr->chr_boost_dur > 0)
+	{
+		msg_print("You cannot change class while under the effect of a stats boosting spell or ability.");
+		return;
+	}
 
         /* List the powers */
         strcpy(power_desc[num],"Basic Classes");powers[num++]=1;
@@ -2623,136 +2372,6 @@ void do_cmd_change_class(void)
 
 }
 
-void get_hellqueen_history()
-{
-	int i, n, chart, roll, social_class;
-
-	char *s, *t;
-
-	char buf[240];
-
-        p_ptr->expfact = 200;
-
-	/* Clear the previous history strings */
-	for (i = 0; i < 4; i++) history[i][0] = '\0';
-
-	/* Clear the history text */
-	buf[0] = '\0';
-
-	/* Initial social class */
-	social_class = randint(4);
-
-        chart = 215;
-
-
-	/* Process the history */
-	while (chart)
-	{
-		/* Start over */
-		i = 0;
-
-		/* Roll for nobility */
-		roll = randint(100);
-
-
-		/* Access the proper entry in the table */
-		while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
-
-		/* Acquire the textual history */
-		(void)strcat(buf, bg[i].info);
-
-		/* Add in the social class */
-		social_class += (int)(bg[i].bonus) - 50;
-
-		/* Enter the next chart */
-		chart = bg[i].next;
-	}
-
-
-
-	/* Verify social class */
-	if (social_class > 100) social_class = 100;
-	else if (social_class < 1) social_class = 1;
-
-	/* Save the social class */
-	p_ptr->sc = social_class;
-
-
-	/* Skip leading spaces */
-	for (s = buf; *s == ' '; s++) /* loop */;
-
-	/* Get apparent length */
-	n = strlen(s);
-
-	/* Kill trailing spaces */
-	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-
-	/* Start at first line */
-	i = 0;
-
-	/* Collect the history */
-	while (TRUE)
-	{
-		/* Extract remaining length */
-		n = strlen(s);
-
-		/* All done */
-		if (n < 60)
-		{
-			/* Save one line of history */
-			strcpy(history[i++], s);
-
-			/* All done */
-			break;
-		}
-
-		/* Find a reasonable break-point */
-		for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
-
-		/* Save next location */
-		t = s + n;
-
-		/* Wipe trailing spaces */
-		while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-		/* Save one line of history */
-		strcpy(history[i++], s);
-
-		/* Start next line */
-		for (s = t; *s == ' '; s++) /* loop */;
-	}
-}
-
-void update_and_handle(void)
-{
-        cptr str;
-	rp_ptr = &race_info[p_ptr->prace];
-	str = rp_ptr->title;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
-	str = cp_ptr->title;
-        p_ptr->update |= (PU_BONUS);
-        p_ptr->update |= (PU_TORCH);
-        p_ptr->update |= (PU_HP);
-        p_ptr->update |= (PU_MANA);
-        p_ptr->update |= (PU_SPELLS);
-        p_ptr->update |= (PU_VIEW);
-        p_ptr->update |= (PU_LITE);
-        p_ptr->update |= (PU_FLOW);
-        p_ptr->update |= (PU_BODY);
-        p_ptr->redraw |= (PR_MANA);
-        p_ptr->redraw |= (PR_HP);
-        p_ptr->redraw |= (PR_GOLD);
-        p_ptr->redraw |= (PR_STATS);
-        p_ptr->redraw |= (PR_BASIC);
-        p_ptr->redraw |= (PR_EXTRA);
-	p_ptr->window |= (PW_PLAYER);
-        handle_stuff();
-        update_stuff();
-        redraw_stuff();
-}
-
 void change_back_to_apprentice(void)
 {
      cptr str;
@@ -2765,51 +2384,13 @@ void change_back_to_apprentice(void)
      check_experience();
      p_ptr->pclass = CLASS_APPRENTICE;
      cp_ptr = &class_info[p_ptr->pclass];
-     mp_ptr = &magic_info[p_ptr->pclass];
-     str = cp_ptr->title;
-     c_put_str(TERM_L_BLUE, cp_ptr->title, 2, 0);
+     str = classes_def[p_ptr->pclass].name;
+     c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 2, 0);
      p_ptr->update |= (PU_BONUS);
      p_ptr->update |= (PU_TORCH);
      p_ptr->update |= (PU_HP);
      p_ptr->update |= (PU_MANA);
 }        
-
-void apply_skatter_quiver_magic()
-{
-        object_type     *o_ptr;
-	
-        o_ptr = &inventory[INVEN_AMMO];
-
-        if (p_ptr->pclass == CLASS_SKATTER && o_ptr->tval == TV_ARROW && o_ptr->sval == 3)
-        {
-                msg_print("The skatter arrows in your quiver are upgraded!");
-                o_ptr->dd = 1;
-                o_ptr->dd *= p_ptr->lev / 5;
-                o_ptr->ds = 4;
-                o_ptr->ds += p_ptr->lev / 10;
-                if (o_ptr->ds < 4) o_ptr->ds = 4;
-        }
-}
-
-void apply_valkyrie_weapon_magic()
-{
-        object_type     *o_ptr;
-	
-        o_ptr = &inventory[INVEN_WIELD];
-
-        if (o_ptr->tval == TV_VALKYRIE_SPEAR)
-        {
-                msg_print("Your valkyrie spear is upgraded!");
-                o_ptr->dd = 2;
-                o_ptr->dd += p_ptr->lev / 5;
-                o_ptr->ds = 8;
-                o_ptr->ds += p_ptr->lev / 20;
-                /* Paranoia */
-                if (o_ptr->ds < 8) o_ptr->ds = 8;
-                o_ptr->pval = p_ptr->lev / 5;
-                if (o_ptr->pval > 5) o_ptr->pval = 5;
-        }
-}
 
 /* Remove *ALL* items of player(except those in the home) */
 void no_more_items(void)
@@ -2851,35 +2432,31 @@ void no_more_kills(void)
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
 	}
-}        
-
-/* Redo a quest (???) */
-void quest_again(int questnum)
-{
-        int xstart = 0;
-        int ystart = 0;
-	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-        quest[questnum].status = QUEST_STATUS_TAKEN;
 }
 
 /* Save your gold from death! */
 void make_gold_pile(void)
 {
         int goldamount;
+	char goldstr[80];
 
 	object_type	forge;
 	object_type	*q_ptr;
-	
 
 	/* Get local object */
 	q_ptr = &forge;
 
         /* How much gold ? */
-        if (p_ptr->au >= 30000)
+        if (p_ptr->au >= 100000)
         {
-                goldamount = get_quantity("How much gold in your pile(max 30000)? ", 30000);
+		sprintf(goldstr, "How much gold in your pile(max 100000)? ");
+                goldamount = get_quantity_s32b(goldstr, 100000);
         }
-        else goldamount = get_quantity("How much gold in your pile(max 30000)? ", p_ptr->au);
+        else
+	{
+		sprintf(goldstr, "How much gold in your pile(max %ld)? ", p_ptr->au);
+		goldamount = get_quantity_s32b(goldstr, p_ptr->au);
+	}
         if (goldamount <= 0) return;
         
         object_prep(q_ptr, lookup_kind(TV_GOLD, 9));
@@ -2919,15 +2496,12 @@ void do_cmd_evolve()
         b_ptr = &r_info[p_ptr->body_monster];
         /* Note here that max_r_idx is not used. That's because you */
         /* cannot choose monsters from the generator! */
-        for (x = 1; x < (1199 - 19); x++)
+        for (x = 1; x < max_r_idx; x++)
         {
                 r_ptr = &r_info[x];
 		reqlev = r_ptr->level;
 
-		/* Dragons and demons are tough to evolve. */
-		if ((r_ptr->flags3 & (RF3_DRAGON)) || (r_ptr->flags3 & (RF3_DEMON))) reqlev += (reqlev / 2);
-
-                if (r_ptr->level <= p_ptr->lev && r_ptr->level > b_ptr->level && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags9 & RF9_SPECIAL_GENE))
+                if ((r_ptr->level - essence_evolution_reduction(x)) <= p_ptr->lev && r_ptr->level > b_ptr->level && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags9 & RF9_SPECIAL_GENE) && !(r_ptr->flags7 & RF7_UNPLAYABLE) && (r_ptr->cursed == 0))
                 {
                         /* Special code for lesser dragons... */
                         if (b_ptr->d_char == 'd')
@@ -2942,6 +2516,40 @@ void do_cmd_evolve()
                         else if (b_ptr->d_char == 'u')
                         {
                                 if (r_ptr->d_char == 'u' || r_ptr->d_char == 'U')
+                                {
+                                        monsters_choice[y] = x;
+                                        if (y < 35) y++;
+                                }
+                        }
+			/* Special code for vampires... */
+                        else if (b_ptr->d_char == 'v')
+                        {
+                                if (r_ptr->d_char == 'v' || r_ptr->d_char == 'V')
+                                {
+                                        monsters_choice[y] = x;
+                                        if (y < 35) y++;
+                                }
+                        }
+			/* Special code for skeletons... */
+                        else if (b_ptr->d_char == 's')
+                        {
+                                if (r_ptr->d_char == 's' || r_ptr->d_char == 'L')
+                                {
+                                        monsters_choice[y] = x;
+                                        if (y < 35) y++;
+                                }
+                        }
+			else if (b_ptr->d_char == 'C')
+                        {
+                                if (r_ptr->d_char == 'C' || r_ptr->d_char == 'Z')
+                                {
+                                        monsters_choice[y] = x;
+                                        if (y < 35) y++;
+                                }
+                        }
+			else if (b_ptr->d_char == 'p')
+                        {
+                                if (r_ptr->d_char == 'p' || r_ptr->d_char == 'P')
                                 {
                                         monsters_choice[y] = x;
                                         if (y < 35) y++;
@@ -2962,7 +2570,7 @@ void do_cmd_evolve()
                 strcpy(power_desc[num],monstername);powers[num++] = monsters_choice[x];
         }
 
-        if(!num) {msg_print("You cannot evolve anymore...");return;}
+        if(!num) {msg_print("No evolutions available.");return;}
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -3108,18 +2716,30 @@ void do_cmd_evolve()
                 return;
 	}
         oldbody = p_ptr->body_monster;
-        p_ptr->body_monster = Power;
-        know_body_monster();
+	evolution_compare(Power, TRUE, FALSE);
         if (!get_com("Evolve into this monster? [y/n]", &choice)) return;
         if (choice == 'y' || choice == 'Y')
         {
-                msg_print("You evolved into a more powerful monster!");
+		int i;
+		int apregain = 0;
+		p_ptr->body_monster = Power;
+                msg_print("You evolved into a new monster!");
                 r_ptr = &r_info[p_ptr->body_monster];
-                /*p_ptr->expfact = r_ptr->level * 10;*/
-                /* Make sure expfact is at least 100, to avoid quick level up! */
-                /*if (p_ptr->expfact < 100) p_ptr->expfact = 100;*/
-                /* Gain 1 experience when you evolve... */
-                /*gain_exp(1);*/
+		for (i = 0; i < 20; i ++)
+		{
+			if (p_ptr->abilities_monster_attacks[i] > 0)
+			{
+				apregain += p_ptr->abilities_monster_attacks[i];
+				p_ptr->abilities_monster_attacks[i] = 0;
+			}
+			if (p_ptr->abilities_monster_spells[i] > 0)
+			{
+				apregain += p_ptr->abilities_monster_spells[i];
+				p_ptr->abilities_monster_spells[i] = 0;
+			}
+		}
+		if (apregain > 0) p_ptr->ability_points += apregain;
+                
                 update_and_handle();
         }
         else
@@ -3319,8 +2939,7 @@ void change_class_basic()
 	  c_put_str(TERM_L_BLUE, "             ", 3, 0);
         p_ptr->pclass = Power;
         cp_ptr = &class_info[p_ptr->pclass];
-        mp_ptr = &magic_info[p_ptr->pclass];
-        c_put_str(TERM_L_BLUE, cp_ptr->title, 2, 0);
+        c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 2, 0);
         p_ptr->update |= (PU_BONUS);
         p_ptr->update |= (PU_TORCH);
         p_ptr->update |= (PU_HP);
@@ -3561,8 +3180,7 @@ void change_class_advanced()
 	}
         p_ptr->pclass = Power;
         cp_ptr = &class_info[p_ptr->pclass];
-        mp_ptr = &magic_info[p_ptr->pclass];
-        c_put_str(TERM_L_BLUE, cp_ptr->title, 2, 0);
+        c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 2, 0);
         p_ptr->update |= (PU_BONUS);
         p_ptr->update |= (PU_TORCH);
         p_ptr->update |= (PU_HP);
@@ -3608,8 +3226,6 @@ void pick_lord_element()
         strcpy(power_desc[num],"Wind");powers[num++]=GF_WIND;
         strcpy(power_desc[num],"Earth");powers[num++]=GF_EARTH;
         strcpy(power_desc[num],"Sound");powers[num++]=GF_SOUND;
-        strcpy(power_desc[num],"Radio");powers[num++]=GF_RADIO;
-        strcpy(power_desc[num],"Chaos");powers[num++]=GF_CHAOS;
 
 
         if(!num) {msg_print("There are no available elements!");return;}
@@ -3773,7 +3389,7 @@ void get_a_monster_body()
         int x = 0;
         int y = 0;
         int oldbody = 0;
-        int monsters_choice[1200];
+        int monsters_choice[3000];
         int             Power = -1;
         int             num = 0, i;
 	int             powers[36];
@@ -3791,18 +3407,16 @@ void get_a_monster_body()
         x = 0;
         y = 0;
 
-        for (x = 0; x < 1200; x++) monsters_choice[x] = 0;
+        for (x = 0; x < max_r_idx; x++) monsters_choice[x] = 0;
         Term_erase(0, 0, 255);
         put_str("Choose a monster kind(enter a character): ", 0, 0);
         mchar = inkey();
         Term_erase(0, 0, 255);
 
-        /* Note here that max_r_idx is not used. That's because you */
-        /* cannot choose monsters from the generator! */
-        for (x = 1; x < (1199 - 19); x++)
+        for (x = 1; x < max_r_idx; x++)
         {
                 r_ptr = &r_info[x];
-                if (r_ptr->level <= 14 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags9 & RF9_SPECIAL_GENE))
+                if (r_ptr->level <= 15 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags9 & RF9_SPECIAL_GENE) && !(r_ptr->flags7 & RF7_UNPLAYABLE) && (r_ptr->cursed == 0) && (r_ptr->level > 0))
                 {
                         if (r_ptr->d_char == mchar)
                         {
@@ -3958,19 +3572,229 @@ void get_a_monster_body()
 	/* Restore the screen */
 	if (redraw) Term_load();
 
+	if (Power == -1) goto gotovar;
+        oldbody = p_ptr->body_monster;
+        p_ptr->body_monster = Power;
+	evolution_compare(0, FALSE, FALSE);
+
+        /* know_body_monster(); */
+        if (!get_com("Are you sure? [y/n]", &choice))
+	{
+		p_ptr->body_monster = oldbody;
+                goto gotovar;
+	}
+        if (choice != 'y' && choice != 'Y')
+        {
+                p_ptr->body_monster = oldbody;
+                goto gotovar;
+        }
+}
+
+/* Pick an element for Monsters Inner Elemental Mastery. */
+void pick_monster_element()
+{
+	int                     Power = -1;
+        int                     num = 0, i;
+
+	int             powers[36];
+	char            power_desc[36][80];
+
+        bool            flag, redraw;
+        bool            endloop = FALSE;
+
+        int             ask;
+
+        char            choice;
+
+	char            out_val[160];
+	monster_race	*r_ptr = &r_info[p_ptr->body_monster];
+        
+        /* List the powers */
+	for (i = 1; i < MAX_RESIST; i++)
+	{
+		if ((i <= 12 || i == GF_PHYSICAL) || (r_ptr->resistances[i] > 0 && i != GF_DIVINATION && i != GF_LIFE_BLAST))
+		{
+        		strcpy(power_desc[num],get_element_name(i));powers[num++]=i;
+		}
+	}
+
+
+        if(!num) {msg_print("There are no available elements!");return;}
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+        while (!endloop)
+        {
+
+	/* Build a prompt (accept all spells) */
+	if (num <= 26)
+	{
+		/* Build a prompt (accept all spells) */
+                strnfmt(out_val, 78, "(Elements %c-%c, *=List, ESC=exit) Choose your element... ",
+			I2A(0), I2A(num - 1));
+	}
+	else
+	{
+                strnfmt(out_val, 78, "(Elements %c-%c, *=List, ESC=exit) Choose your element... ",
+			I2A(0), '0' + num - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				byte y = 1, x = 0;
+				int ctr = 0;
+				char dummy[80];
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+				prt ("", y++, x);
+
+                                while (ctr < num && ctr < 19)
+				{
+					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
+					prt(dummy, y + ctr, x);
+					ctr++;
+				}
+				while (ctr < num)
+				{
+					if (ctr < 26)
+					{
+						sprintf(dummy, " %c) %s", I2A(ctr), power_desc[ctr]);
+					}
+					else
+					{
+						sprintf(dummy, " %c) %s", '0' + ctr - 26, power_desc[ctr]);
+					}
+                                        prt(dummy, y + ctr - 19, x + 40);
+					ctr++;
+				}
+                                if (ctr < 19)
+				{
+					prt ("", y + ctr, x);
+				}
+				else
+				{
+                                        prt ("", y + 19, x);
+				}
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		if (choice == '\r' && num == 1)
+		{
+			choice = 'a';
+		}
+
+		if (isalpha(choice))
+		{
+			/* Note verify */
+			ask = (isupper(choice));
+
+			/* Lowercase */
+			if (ask) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			ask = FALSE; /* Can't uppercase digits */
+
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell();
+			continue;
+		}
+
+		/* Save the spell index */
+		Power = powers[i];
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+                        strnfmt(tmp_val, 78, "Pick %s? ", power_desc[i]);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+        if (Power != 0) endloop = TRUE;
+        }
+
+	/* Restore the screen */
+	if (redraw) Term_load();
+
 	/* Abort if needed */
 	if (!flag) 
 	{
 		energy_use = 0;
                 return;
 	}
-        oldbody = p_ptr->body_monster;
-        p_ptr->body_monster = Power;
-        /* know_body_monster(); */
-        if (!get_com("Are you sure? [y/n]", &choice)) return;
-        if (choice != 'y' && choice != 'Y')
-        {
-                p_ptr->body_monster = oldbody;
-                goto gotovar;
-        }                
+
+        /* Pick the selected element */
+        p_ptr->elemlord = Power;
+}
+
+int essence_evolution_reduction(int r_idx)
+{
+	int i;
+	int reduction = 0;
+	object_type *o_ptr;
+
+	p_ptr->cursed = 0;
+
+	/* Scan the inventory */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		if (o_ptr->tval == TV_ESSENCE && o_ptr->pval == r_idx) reduction += 1;
+	}
+
+	if (reduction > 20) reduction = 20;
+
+	return (reduction);
 }

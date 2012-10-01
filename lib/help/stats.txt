@@ -76,8 +76,8 @@ So if you plan on focusing on dexterity, this ability can help you get
 a high hit rate AND damages!
 
 Effects of Dexterity:
-        - +10 to_hit per points.
-	- +5% to_hit per points.
+        - +10 to_hit per points above 5.
+	- +5% to_hit per points above 5.
 	- +5 to_d to ranged attacks.
         - +1% to ranged damages for every points.
         - +1 to AC for every two points.
@@ -112,8 +112,14 @@ Finally, characters with high charisma may sometimes be able to get
 better dialog answers when speaking with other characters!
 
 Effects of Charisma:
-        - Increase monsters's damages of all attacks and spells. 
-        - +5 bonus to_hit for friendly monsters for every points
+        - Increase monsters's damages of all attacks and spells.
+	It works exactly like Strength, Dexterity and Intelligence
+	for melee, ranged and magic attacks. It also provides a 3%
+	damages increase to magic attacks per points above 5, apllied
+	after the bonus from Leadership.
+        - +10 bonus to_hit for friendly monsters for every points
           above 5.
-        - Reduce the prices in stores.
-	- May give you better dialog answers.
+	- +5% bonus to_hit for friendly monsters for every points
+          above 5.
+        - Reduce the prices of items in stores.
+	- May give you better/more dialog answers.

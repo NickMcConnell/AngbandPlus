@@ -1,0 +1,24 @@
+N:1:90:1:0:0:0
+I: ;
+T:The machine is powered on, and working fine. You should now be able to;
+T:use it, if you have figured out a way to do so.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:90:0:0:0:0
+I: ;
+T:You find a large control panel, on which there is a switch that seems;
+T:to handle the machine's power. Do you want to press the switch?;
+A:[Press it]:0:0:0:1:2:0:0:90:1
+A:[Leave]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You press the switch, and the machine's engines starts warming up.;
+T:The machine is now turned on, and it seems to generate a huge amount;
+T:of magical energy. It doesn't seem to be a common type of magical;
+T:energy, and you are not sure what it does. But whatever it is meant;
+T:for, it should now be able to operate properly.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

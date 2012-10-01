@@ -54,7 +54,7 @@ A:[CONTINUE]:0:0:0:1:5:0:0:0:0
 
 N:5:0:0:0:0:0
 I:Quazar;
-T:But since you're still skeptical... let me demonstrate my powers!;
+T:But since you're still skeptical... let me demonstrate my powers to you!;
 T:Let me twist your body and your soul! Let me show you TRUE chaos!!;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %
@@ -88,12 +88,12 @@ T:Quazar's body begins disintegrating itself! Beams of red light emerges;
 T:from the disintegrating body... and suddently, an explosion of energy;
 T:completely turns the body to dust! The wounded body of Quazar could;
 T:no longer hold the stone's energy, and has exploded.;
-A:[CONTINUE]:0:0:0:7:1002:1002:10:0:0
+A:[CONTINUE]:0:0:0:7:102:102:10:0:0
 %
 
 N:10:0:0:0:0:0
 I: ;
-T:There is nothing but some ashes left. The red licialhyd is nowhere to;
+T:There is nothing left but some ashes. The red licialhyd is nowhere to;
 T:be found... Now that Quazar and the stone are destroyed, hopefully;
 T:the temple will return to normal...;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
@@ -104,7 +104,7 @@ I:Quazar;
 T:Welcome to my Temple, fellow zulgor <NAME>! I see you managed to come;
 T:here all by yourself. That is impressive, you are very strong, I will;
 T:give you that. After all, aren't we zulgors the mightiest race in Portralis?;
-T:But your powers are limited to strength and chaos magic... mine are;
+T:But your powers are limited to strength and chaos magic... mines are;
 T:even greater! They go beyond the boundaries of reality!!;
 A:[CONTINUE]:0:0:0:1:3:0:0:0:0
 %

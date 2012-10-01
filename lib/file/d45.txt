@@ -1,0 +1,396 @@
+N:1:113:1:0:0:0
+I:Jeffrey;
+T:Ack...w...why??;
+A:[CONTINUE]:1:112:1:7:18:0:24:0:0
+A:[END DIALOG]:1:112:0:7:18:0:0:0:0
+%
+
+N:1:120:1:0:0:0
+I:Jeffrey;
+T:Hello <NAME>. What can I do for you?;
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Can you tell me Ophelia's story again?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:121:1:0:0:0
+I:Jeffrey;
+T:Hello <NAME>. Were you able to find that voice?;
+A:[Tell him about the voice and the demonic dungeon]:1:122:1:1:31:0:0:0:0
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Can you tell me Ophelia's story again?:0:0:0:1:3:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:118:1:0:0:0
+I:Jeffrey;
+T:Hello <NAME>. Were you able to find that voice?;
+A:[Tell him about Maelan's ghost and the spirit.]:1:119:1:1:27:0:0:0:0
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Can you tell me Ophelia's story again?:0:0:0:1:3:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:114:1:0:0:0
+I:Jeffrey;
+T:Were you able to stop the 'voice'?;
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:111:1:0:0:0
+I:Jeffrey;
+T:Hello <NAME>. Did you find anything yet?;
+A:Belric isn't inside, and the voice spoke to me again!:1:112:1:1:22:0:0:0:0
+A:Nothing yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:99:1:0:0:0
+I:Jeffrey;
+T:Hello <NAME>. What have you found?;
+A:[Tell him what happened in the tomb]:1:109:1:1:17:0:0:0:0
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Can you tell me Ophelia's story again?:0:0:0:1:3:0:0:0:0
+A:Nothing yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:97:1:0:0:0
+I:Jeffrey;
+T:Hello there! Have you found anything in Ophelia's Tomb?;
+A:There was a voice... [Tell him about the voice.]:1:98:1:1:13:0:0:0:0
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Can you tell me Ophelia's story again?:0:0:0:1:3:0:0:0:0
+A:Nothing in particular. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:96:1:0:0:0
+I:Jeffrey;
+T:Oh, it's you again. What can I do for you?;
+A:Can I visit Ophelia's Tomb?:1:97:0:1:11:0:0:0:0
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Can you tell me Ophelia's story again?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Jeffrey;
+T:Greetings. I am mayor Jeffrey, and also an historian who has studied;
+T:this town's history quite a bit. So, how may I assist you?;
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Jeffrey;
+T:This is a small but peaceful town. Although we are on Jindar territory,;
+T:we don't interfere with the big city's politics. We don't have much;
+T:here in this town, but our alchemy shop offers things that you won't;
+T:find elsewhere. Plus, a brilliant young lady works there, you may want;
+T:to pay her a visit. But the real place of interest here is Ophelia's Tomb,;
+T:straight north of the town. This is where Ophelia was buried. What a sad;
+T:story... I can tell you about it, if you have the time.;
+A:Yes, please tell me more.:0:0:0:1:3:0:0:0:0
+A:Maybe another time. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Jeffrey;
+T:About 500 years ago, there was a young woman name Ophelia. She was born;
+T:in this very town. She wasn't an ordinary however. She was born with the;
+T:natural ability to foresee the future, to make accurate predictions.;
+T:Furthermore, she had the natural ability to heal peoples of their wounds;
+T:and diseases. Due to this natural talent, some peoples thought she wasn't;
+T:really a human, but a divine envoy, a celestial being. Her ability was;
+T:soon put to good use, and she saved the life of many peoples. She was;
+T:also passionate with nature, and would often comment on how beautiful;
+T:the trees and plants were.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Jeffrey;
+T:Everything was fine until she reached her 16th birthday. That day;
+T:coincided with the death of the king at that time. The successor was;
+T:none other than the tyrant Belric, surely you must have heard of him.;
+T:King Belric was the only son of the previous king, and the queen was;
+T:gone as well, so there was no choice but to let him ascend to the throne.;
+T:The corrupt king destroyed much of the previous king's preaceful;
+T:politics and imposed a serie of cruel laws everywhere in the country.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Jeffrey;
+T:This town was one such places. The mayor back then was executed for;
+T:'treason', even though he had done nothing wrong. The king appointed;
+T:a cruel official, Maelan, to take his place. Maelan was as cruel as the;
+T:king. As soon as he learned about Ophelia, he was fascinated by the girl's;
+T:natural beauty, and claimed her as his wife, regardless of her consent.;
+T:This is when Ophelia's nightmare began...;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Jeffrey;
+T:As you can probably guess, Maelan wasn't a good husband at all.;
+T:At first, he was a typical violent husband, and inflicted painful beatings;
+T:to the poor Ophelia everytime she refused to satisfy his desires.;
+T:One day, her father tried to intervene, but he failed, and was arrested,;
+T:tortured in front of his daughter's eyes, and finally, publicly executed.;
+T:The same thing happened to her mother. Poor Ophelia was crying, helplessly;
+T:suffering in the hands of this cruel man. But this was only the beginning...;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Jeffrey;
+T:One day, he learned about Ophelia's talent. Realizing she could see the;
+T:future, he forced her to use her ability to serve his own interest.;
+T:He started by forcing her to tell him about anyone who had plans to;
+T:organize revolts or to assassinate him. She did that, and Maelan had these;
+T:men executed. Then he forced her to reveal the location of valuable;
+T:treasures, so he could become richer and more powerful. She did that, and;
+T:he sent his men to retrieve the treasures for him. He continued to exploit;
+T:her talent for several months.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Jeffrey;
+T:But one day, he woke up and found Ophelia dead in her room. She had commited;
+T:suicide. Furious, Maelan screamed in anger, and ordered his men to burn her;
+T:dead body to ashes, and throw them in the wilderness. Maelan's madness;
+T:escalated to a new level, and he ordered his men to capture every girl;
+T:children to find another one with the same talent, and execute them if they;
+T:didn't have it. Fortunately, this order was never carried out. On this day,;
+T:a group of adventurers arrived, and killed Maelan, and defeated evert of his;
+T:guards.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Jeffrey;
+T:These adventurers were part of a group of Nimbrayans and Ivhalians working;
+T:together to liberate Jindar from oppression. The tyrant Belric was;
+T:assassinated two days later by another group. As for Ophelia, the entire;
+T:town was saddened by her death. She was a local heroine for them. Since;
+T:they did not have her body, they decided to honor her death by building;
+T:a monument in her honor to the north of the town, and to rename the town;
+T:in her name, Ophelia. And ever since, the town has adopted some peaceful;
+T:policies. That's why we don't have a weapon store here, or armed guards.;
+A:[CONTINUE]:0:0:0:1:10:0:0:96:1
+%
+
+N:10:0:0:0:0:0
+I:Jeffrey;
+T:Well, that's it. This is the sad story of a young woman who had an innate;
+T:talent, yet was never able to gain the respect she deserved. But at least,;
+T:the monument will always stand to honor her death, and to make sure peoples;
+T:will never forget the dark days that the country endured under Belric's rule.;
+A:Can I visit Ophelia's Tomb?:1:97:0:1:11:0:0:0:0
+A:Thanks for the story. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Jeffrey;
+T:Enter Ophelia's Tomb? Well...I don't know. As I told you, her body was;
+T:burned to ashes, she's not buried inside or anything. It's more a monument;
+T:in her honor than a real tomb actually. So I don't know what you're;
+T:expecting to find inside. And it's not open for visits either actually...;
+A:I'm just really curious about the monument.:0:0:0:3:1242:0:12:97:1
+A:I see. I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Jeffrey;
+T:Hmmm... come to think of it, it has never been open ever since it was built.;
+T:It's centuries old and has never been checked, so there may be repairs and;
+T:other maintenances to be done... All right, I've made up my mind. I'll give;
+T:you the key to open it. Check what's inside, and report to me if you see;
+T:anything special inside of it.;
+A:Thanks, I'll go see it right away.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Jeffrey;
+T:*He thinks for a moment*;
+T:Hmmm...interesting. Could it have been Ophelia's ghost or spirit? Although;
+T:the way she spoke to you, she was referring to Ophelia as third person,;
+T:so maybe she's not Ophelia. But she is definitely connected to Ophelia;
+T:in some way, that I am sure. However, I'm not sure what to do at this;
+T:point. She wants to make Ophelia smile? But Ophelia has been killed ages ago.;
+T:We must investigate this further. But I'm not sure where to begin...;
+A:[CONTINUE]:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Jeffrey;
+T:Another thing that puzzles me is the actual secret passage you found in;
+T:Ophelia's tomb. Since her body was turned into ashes and thrown in the;
+T:wilderness, and no treasures were placed in the tomb, then why the need;
+T:for a secret passage that leads to an empty room? This is all very;
+T:mysterious.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Jeffrey;
+T:You must investigate this tomb further. Something's definitely going on;
+T:there, and we must find out what it is. Hmmm, by the way, I still don't;
+T:know who you are... What's your name, <sirmadam>?;
+A:My name is <NAME>. I'm a <CLASS>.:0:0:0:7:18:19:16:99:1
+%
+
+N:16:0:0:0:0:0
+I:Jeffrey;
+T:All right, <NAME>, you must go back to Ophelia's Tomb, and seek this voice,;
+T:so that she can give you more information. If you found one secret passage,;
+T:there might be another one, and there may be more secrets. Search every;
+T:places, look for anything unusual. And if you find anything, report to me.;
+T:I'm counting on you, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Jeffrey;
+T:Hmmm... so, you've found yourself in some kind of... "alternate world";
+T:or something like that, a nightmare as they described it. And there you;
+T:met Ophelia and Maelan. And you had to kill one of them. Hmmm... very;
+T:mysterious indeed. And who did you choose?;
+A:I killed Ophelia.:1:108:1:1:18:0:0:0:0
+A:I killed Maelan.:1:108:2:1:25:0:0:0:0
+A:I killed both of them.:1:108:3:1:29:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Jeffrey;
+T:Ophelia?? But why? According to what I've learned, Ophelia was a peaceful,;
+T:nature-loving woman with the power to heal peoples. I know what you;
+T:saw may not have been the real thing, but... why?;
+A:It turns out she poisoned an innocent servant.:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Jeffrey;
+T:Poisoned? You sure? The Ophelia I studied wouldn't even know how to make;
+T:a poison! But you saw it... could it be that my books were wrong?;
+A:And Maelan didn't know about Belric.:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Jeffrey;
+T:Hmmm...but history books are pretty clear on the subject! Belric definitely;
+T:existed! But then again, it's been a long time ago, I suppose we don't;
+T:have any proofs. We need to find a proof of some sort.;
+A:[CONTINUE]:0:0:0:1:21:0:0:111:1
+%
+
+N:21:0:0:0:0:0
+I:Jeffrey;
+T:Let's see... If Belric really existed, he would have been buried somewhere;
+T:in Jindar. Perhaps you could search the graveyard near the temple for;
+T:potential clues? Check the graves, try digging some. I know it sounds;
+T:creepy, but the town's entire history is a stake here! Try to find;
+T:Belric's tomb. You should definitely find something inside. Investigate,;
+T:then return to me and let me know what you've found!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Jeffrey;
+T:I see. So Belric wasn't there after all! This means that what you thought;
+T:may be right. And that 'voice' probably don't want me to figure out;
+T:the truth. But I'm sure of one thing: that voice is up to no good, and you;
+T:must find her, and put an end to her little game!;
+A:[CONTINUE]:0:0:0:1:23:0:0:114:1
+%
+
+N:23:0:0:0:0:0
+I:Jeffrey;
+T:I suggest you go back to Ophelia's Tomb. She might show up there. But beware,;
+T:I have a bad feeling about this. Who knows who or what she is, and it might be;
+T:dangerous. Make sure you prepare yourself well before you go there. Good luck!;
+A:[END DIALOG]:0:0:0:7:18:20:0:0:0
+%
+
+N:24:0:0:0:0:0
+I: ;
+T:You've killed mayor Jeffrey, like the voice asked. What is strange is that his;
+T:death doesn't seem to alarm the peoples in the town hall. You wonder if you;
+T:did the right thing by doing this. In any cases, you might want to return to;
+T:Ophelia's Tomb, and see if anything has changed.;
+A:[END DIALOG]:0:0:0:0:0:0:0:113:2
+%
+
+N:25:0:0:0:0:0
+I:Jeffrey;
+T:Well, who wouldn't kill a man like him? So he was trying to play the nice;
+T:guy, and called Ophelia a 'witch'. Well, you know the truth anyway, and made;
+T:the right decision. But still... What was that all about?;
+A:I don't know. The voice never revealed herself in person.:0:0:0:1:26:0:0:118:1
+%
+
+N:26:0:0:0:0:0
+I:Jeffrey;
+T:We should try to solve that mystery. That voice must live somewhere in that;
+T:tomb. I'd say you should return there, and try to meet her again. Who knows,;
+T:perhaps she'll reveal more this time around? This scene from the past was;
+T:very mysterious. We need to discover it's true nature and purpose.;
+A:[END DIALOG]:0:0:0:7:18:21:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Jeffrey;
+T:I see. So a part of Ophelia's soul was still alive, and tormented by that;
+T:evil ghost? Hmmm... I'm still unsure about the whole event. This strange;
+T:'spiritual world' was a strange place for a ghost to be, and why didn't the;
+T:spirit appears right from the start? This is all very mysterious. But I guess;
+T:the spirit is gone now, and everything returned to normal. So, I'd say the;
+T:tomb is safe for now. You did well, <NAME>! Here's a 5000 golds reward;
+T:for your trouble.;
+A:Thanks.:0:0:0:3:488:5000:28:120:1
+%
+
+N:28:0:0:0:0:0
+I:Jeffrey;
+T:Well, good luck in your adventures, <NAME>! You will always be welcome;
+T:in this town!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Jeffrey;
+T:Both? Given the context, I guess you can't trust anyone in an;
+T:'alternate world'. The whole event might have been created from pieces;
+T:by some kind of monster. We should look for that voice, as she may be;
+T:a threat.;
+A:[CONTINUE]:0:0:0:7:18:22:30:121:1
+%
+
+N:30:0:0:0:0:0
+I:Jeffrey;
+T:I'd say you should return to Ophelia's Tomb, and see if the voice is still;
+T:there. She might be surprised that you've killed both persons in that;
+T:place. Go there, and see what you can find. Return to me if you find;
+T:her!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Jeffrey;
+T:A demonic dungeon... Hmmm... I wonder if that voice herself was a demon.;
+T:If she really was a benevolent spirit who wanted to help Ophelia, she wouldn't;
+T:have remained hidden. Demons are masters of deception, they enjoy;
+T:manipulating peoples while they hide in the dark. The fact that she was able;
+T:to have you enter a world of demons is yet another clue to her demonic nature.;
+T:Could she have been an Archfiend? Or a powerful servant of one? I guess;
+T:we'll never know...;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I:Jeffrey;
+T:But in any cases, I thanks you for investigating the matter for us. Here's;
+T:5000 golds as your reward. It's probably not much compared to the value of;
+T:those bracers the voice gave you, but I think you'll put it to good use.;
+A:Thanks.:0:0:0:3:488:5000:28:120:1
+%

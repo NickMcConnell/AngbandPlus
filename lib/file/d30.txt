@@ -1,0 +1,6 @@
+N:1:0:0:0:0:0
+I: ;
+T:Suddently, the ceiling crumbles on the door you came from, blocking any;
+T:ways out! But a secret door opens on the other side...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

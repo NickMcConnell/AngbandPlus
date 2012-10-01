@@ -110,7 +110,7 @@ static void roff_aux(int r_idx, int remem)
 	bool            old = FALSE;
 	bool            sin = FALSE;
 
-	int             m, n, r;
+	int             m, n, r, w;
 
 	cptr            p, q;
 
@@ -158,10 +158,13 @@ static void roff_aux(int r_idx, int remem)
 	/* Access the race and lore */
 	r_ptr = &r_info[r_idx];
 
+	/* Special text if the monster is cursed! */
+	if (r_ptr->cursed > 0) red_roff = TRUE;
+	else red_roff = FALSE;
+
 
 	/* Cheat -- Know everything */
-        if (cheat_know || p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_LEADER ||
-         p_ptr->pclass == CLASS_COMMANDER || p_ptr->prace == RACE_MONSTER)
+        if (cheat_know)
 	{
 		/* XXX XXX XXX */
 
@@ -257,7 +260,7 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
-                if (r_ptr->flags3 & (RF3_DRAGONRIDER)) flags3 |= (RF3_DRAGONRIDER);
+		if (r_ptr->flags7 & (RF7_IMMORTAL)) flags7 |= (RF7_IMMORTAL);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -458,6 +461,14 @@ static void roff_aux(int r_idx, int remem)
 		old = TRUE;
 	}
 
+	/* Cursed... */
+        else if (r_ptr->cursed > 0)
+	{
+                roff(format("%^s is a nightmare horror of rank %d",
+			            wd_he[msex], r_ptr->cursed));
+		old = TRUE;
+	}
+
 	else if (r_ptr->r_tkills)
 	{
 		if (depth_in_feet)
@@ -583,7 +594,6 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & (RF3_GIANT))      roff(" giant");
 		else if (flags3 & (RF3_TROLL))      roff(" troll");
 		else if (flags3 & (RF3_ORC))        roff(" orc");
-                else if (flags3 & (RF3_DRAGONRIDER))roff(" DragonRider");
 		else                                roff(" creature");
 
 		/* Group some variables */
@@ -714,7 +724,7 @@ static void roff_aux(int r_idx, int remem)
 	}
 	if (flags2 & (RF2_REGENERATE))
 	{
-                c_roff(TERM_L_WHITE, format("%^s regenerates quickly.  ", wd_he[msex]));
+                roff(format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
         if (r_ptr->flags7 & (RF7_SEDUCE_MALES))
 	{
@@ -728,22 +738,10 @@ static void roff_aux(int r_idx, int remem)
 
 	/* Collect resistances */
 	vn = 0;
-        if (r_ptr->fireres > 0 && r_ptr->r_resist[GF_FIRE] == 1) {vp[vn++] = "fire"; ramt[vn - 1] = r_ptr->fireres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->coldres > 0 && r_ptr->r_resist[GF_COLD] == 1) {vp[vn++] = "cold"; ramt[vn - 1] = r_ptr->coldres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->elecres > 0 && r_ptr->r_resist[GF_ELEC] == 1) {vp[vn++] = "electricity"; ramt[vn - 1] = r_ptr->elecres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->acidres > 0 && r_ptr->r_resist[GF_ACID] == 1) {vp[vn++] = "acid"; ramt[vn - 1] = r_ptr->acidres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->poisres > 0 && r_ptr->r_resist[GF_POIS] == 1) {vp[vn++] = "poison"; ramt[vn - 1] = r_ptr->poisres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->lightres > 0 && r_ptr->r_resist[GF_LITE] == 1) {vp[vn++] = "light"; ramt[vn - 1] = r_ptr->lightres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->darkres > 0 && r_ptr->r_resist[GF_DARK] == 1) {vp[vn++] = "darkness"; ramt[vn - 1] = r_ptr->darkres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->warpres > 0 && r_ptr->r_resist[GF_WARP] == 1) {vp[vn++] = "warp"; ramt[vn - 1] = r_ptr->warpres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->waterres > 0 && r_ptr->r_resist[GF_WATER] == 1) {vp[vn++] = "water"; ramt[vn - 1] = r_ptr->waterres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->windres > 0 && r_ptr->r_resist[GF_WIND] == 1) {vp[vn++] = "wind"; ramt[vn - 1] = r_ptr->windres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->earthres > 0 && r_ptr->r_resist[GF_EARTH] == 1) {vp[vn++] = "earth"; ramt[vn - 1] = r_ptr->earthres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->soundres > 0 && r_ptr->r_resist[GF_SOUND] == 1) {vp[vn++] = "sound"; ramt[vn - 1] = r_ptr->soundres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->radiores > 0 && r_ptr->r_resist[GF_RADIO] == 1) {vp[vn++] = "radioactivity"; ramt[vn - 1] = r_ptr->radiores; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->chaosres > 0 && r_ptr->r_resist[GF_CHAOS] == 1) {vp[vn++] = "chaos"; ramt[vn - 1] = r_ptr->chaosres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->physres > 0 && r_ptr->r_resist[GF_PHYSICAL] == 1) {vp[vn++] = "physical"; ramt[vn - 1] = r_ptr->physres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->manares > 0 && r_ptr->r_resist[GF_MANA] == 1) {vp[vn++] = "mana"; ramt[vn - 1] = r_ptr->manares; color[vn - 1] = TERM_WHITE;}
+	for (w = 0; w < MAX_RESIST; w++)
+	{
+		if (r_ptr->resistances[w] > 0 && r_ptr->r_resist[w] == 1) {vp[vn++] = get_element_name(w); ramt[vn - 1] = r_ptr->resistances[w]; color[vn - 1] = TERM_WHITE;}
+        }
 
 	/* Describe resistances */
 	if (vn)
@@ -763,7 +761,8 @@ static void roff_aux(int r_idx, int remem)
 
 			sprintf(str, "%s(%d%)", vp[n], ramt[n]);
 			/* Dump */
-                        c_roff(color[n], str);
+			if (red_roff) c_roff(TERM_L_RED, str);
+                        else c_roff(color[n], str);
 		}
 
 		/* End */
@@ -772,22 +771,10 @@ static void roff_aux(int r_idx, int remem)
 
 	/* Collect weaknesses */
 	vn = 0;
-        if (r_ptr->fireres < 0 && r_ptr->r_resist[GF_FIRE] == 1) {vp[vn++] = "fire"; ramt[vn - 1] = r_ptr->fireres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->coldres < 0 && r_ptr->r_resist[GF_COLD] == 1) {vp[vn++] = "cold"; ramt[vn - 1] = r_ptr->coldres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->elecres < 0 && r_ptr->r_resist[GF_ELEC] == 1) {vp[vn++] = "electricity"; ramt[vn - 1] = r_ptr->elecres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->acidres < 0 && r_ptr->r_resist[GF_ACID] == 1) {vp[vn++] = "acid"; ramt[vn - 1] = r_ptr->acidres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->poisres < 0 && r_ptr->r_resist[GF_POIS] == 1) {vp[vn++] = "poison"; ramt[vn - 1] = r_ptr->poisres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->lightres < 0 && r_ptr->r_resist[GF_LITE] == 1) {vp[vn++] = "light"; ramt[vn - 1] = r_ptr->lightres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->darkres < 0 && r_ptr->r_resist[GF_DARK] == 1) {vp[vn++] = "darkness"; ramt[vn - 1] = r_ptr->darkres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->warpres < 0 && r_ptr->r_resist[GF_WARP] == 1) {vp[vn++] = "warp"; ramt[vn - 1] = r_ptr->warpres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->waterres < 0 && r_ptr->r_resist[GF_WATER] == 1) {vp[vn++] = "water"; ramt[vn - 1] = r_ptr->waterres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->windres < 0 && r_ptr->r_resist[GF_WIND] == 1) {vp[vn++] = "wind"; ramt[vn - 1] = r_ptr->windres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->earthres < 0 && r_ptr->r_resist[GF_EARTH] == 1) {vp[vn++] = "earth"; ramt[vn - 1] = r_ptr->earthres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->soundres < 0 && r_ptr->r_resist[GF_SOUND] == 1) {vp[vn++] = "sound"; ramt[vn - 1] = r_ptr->soundres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->radiores < 0 && r_ptr->r_resist[GF_RADIO] == 1) {vp[vn++] = "radioactivity"; ramt[vn - 1] = r_ptr->radiores; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->chaosres < 0 && r_ptr->r_resist[GF_CHAOS] == 1) {vp[vn++] = "chaos"; ramt[vn - 1] = r_ptr->chaosres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->physres < 0 && r_ptr->r_resist[GF_PHYSICAL] == 1) {vp[vn++] = "physical"; ramt[vn - 1] = r_ptr->physres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->manares < 0 && r_ptr->r_resist[GF_MANA] == 1) {vp[vn++] = "mana"; ramt[vn - 1] = r_ptr->manares; color[vn - 1] = TERM_WHITE;}
+	for (w = 0; w < MAX_RESIST; w++)
+	{
+		if (r_ptr->resistances[w] < 0 && r_ptr->r_resist[w] == 1) {vp[vn++] = get_element_name(w); ramt[vn - 1] = r_ptr->resistances[w]; color[vn - 1] = TERM_WHITE;}
+        }
 
 	/* Describe resistances */
 	if (vn)
@@ -807,7 +794,8 @@ static void roff_aux(int r_idx, int remem)
 
 			sprintf(str, "%s(%d%)", vp[n], (ramt[n] * (-1)));
 			/* Dump */
-                        c_roff(color[n], str);
+			if (red_roff) c_roff(TERM_L_RED, str);
+                        else c_roff(color[n], str);
 		}
 
 		/* End */
@@ -990,10 +978,22 @@ static void roff_aux(int r_idx, int remem)
 		roff(".  ");
 	}
 
+	/* Notice "Immortal" monsters */
+	if (flags7 & RF7_IMMORTAL)
+	{
+                c_roff(TERM_YELLOW, "It is an immortal creature.  ");
+	}
+
 	/* Notice "Quest" monsters */
 	if (flags1 & RF1_QUESTOR)
 	{
-                c_roff(TERM_VIOLET, "You feel an intense desire to kill this monster...  ");
+                c_roff(TERM_VIOLET, "It is a main quest boss.  ");
+	}
+
+	/* Notice "Powerful" monsters */
+	if (flags2 & RF2_POWERFUL)
+	{
+                c_roff(TERM_L_GREEN, "This creature is extremely dangerous. It may be best to run away from it.  ");
 	}
 
 	/* All done */
@@ -1047,6 +1047,8 @@ static void roff_aux(int r_idx, int remem)
 		/* Hack -- restore memory */
 		COPY(r_ptr, &save_mem, monster_race);
 	}
+
+	red_roff = FALSE;
 }
 
 
@@ -1073,8 +1075,16 @@ static void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
+	if (r_ptr->cursed > 0)
+	{
+		if (!use_color) a1 = TERM_L_RED;
+		if (!use_color) a2 = TERM_L_RED;
+	}
+	else
+	{
+		if (!use_color) a1 = TERM_WHITE;
+		if (!use_color) a2 = TERM_WHITE;
+	}
 
 
 	/* Clear the top line */
@@ -1086,21 +1096,41 @@ static void roff_top(int r_idx)
 	/* A title (use "The" for non-uniques) */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
 	{
-		Term_addstr(-1, TERM_WHITE, "The ");
+		if (r_ptr->cursed > 0) Term_addstr(-1, TERM_L_RED, "The ");
+		else Term_addstr(-1, TERM_WHITE, "The ");
 	}
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	if (r_ptr->cursed > 0)
+	{
+		/*Term_addstr(-1, TERM_L_RED, (r_name + r_ptr->name));*/
+		Term_addstr(-1, TERM_L_RED, r_ptr->name_char);
 
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_L_RED, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_L_RED, "')");
 
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
+		/* Append the "optional" attr/char info */
+		Term_addstr(-1, TERM_L_RED, "/('");
+		Term_addch(a2, c2);
+		Term_addstr(-1, TERM_L_RED, "'):");
+	}
+	else
+	{ 
+		/*Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));*/
+		Term_addstr(-1, TERM_WHITE, r_ptr->name_char);
+
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
+
+		/* Append the "optional" attr/char info */
+		Term_addstr(-1, TERM_WHITE, "/('");
+		Term_addch(a2, c2);
+		Term_addstr(-1, TERM_WHITE, "'):");
+	}
 }
 
 
@@ -1303,8 +1333,8 @@ bool monster_lava(int r_idx)
 
 	if (!monster_dungeon(r_idx)) return FALSE;
 
-	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
-	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
+	if (((r_ptr->resistances[GF_FIRE] >= 1) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY) || (r_ptr->flags1 & RF1_UNIQUE)) &&
 	    !(r_ptr->flags3 & RF3_AURA_COLD))
 		return TRUE;
 	else
@@ -1538,6 +1568,16 @@ void info_boss_abilities(monster_type *m_ptr)
                         c_roff(TERM_ORANGE, "Blinded by fearful illusions.");
                         roff("\n");
                 }
+		if (m_ptr->abilities & (TAUNTED))
+                {
+                        c_roff(TERM_ORANGE, "Taunted.");
+                        roff("\n");
+                }
+		if (m_ptr->abilities & (PIERCING_SPELLS))
+                {
+                        c_roff(TERM_ORANGE, "Vulnerable to your chosen element.");
+                        roff("\n");
+                }
                 if (m_ptr->abilities & (WAR_BLESSED))
                 {
                         c_roff(TERM_YELLOW, "Blessed with War Blessing.");
@@ -1574,7 +1614,7 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 	bool            old = FALSE;
 	bool            sin = FALSE;
 
-	int             m, n, r;
+	int             m, n, r, w;
 
 	cptr            p, q;
 
@@ -1622,10 +1662,12 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 	/* Access the race and lore */
 	r_ptr = &r_info[r_idx];
 
+	/* Special text if the monster is cursed! */
+	if (r_ptr->cursed > 0) red_roff = TRUE;
+	else red_roff = FALSE;
 
 	/* Cheat -- Know everything */
-        if (cheat_know || p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_LEADER ||
-         p_ptr->pclass == CLASS_COMMANDER || p_ptr->prace == RACE_MONSTER)
+        if (cheat_know)
 	{
 		/* XXX XXX XXX */
 
@@ -1721,7 +1763,7 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
-                if (r_ptr->flags3 & (RF3_DRAGONRIDER)) flags3 |= (RF3_DRAGONRIDER);
+                if (r_ptr->flags7 & (RF7_IMMORTAL)) flags7 |= (RF7_IMMORTAL);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -1921,6 +1963,13 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
                 roff(format("This creature normally never appear"));
 		old = TRUE;
 	}
+	/* Cursed... */
+        else if (r_ptr->cursed > 0)
+	{
+                roff(format("%^s is a nightmare horror of rank %d",
+			            wd_he[msex], r_ptr->cursed));
+		old = TRUE;
+	}
 
 	else if (r_ptr->r_tkills)
 	{
@@ -2047,7 +2096,6 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 		else if (flags3 & (RF3_GIANT))      roff(" giant");
 		else if (flags3 & (RF3_TROLL))      roff(" troll");
 		else if (flags3 & (RF3_ORC))        roff(" orc");
-                else if (flags3 & (RF3_DRAGONRIDER))roff(" DragonRider");
 		else                                roff(" creature");
 
 		/* Group some variables */
@@ -2192,22 +2240,10 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 
 	/* Collect resistances */
 	vn = 0;
-        if (r_ptr->fireres > 0 && r_ptr->r_resist[GF_FIRE] == 1) {vp[vn++] = "fire"; ramt[vn - 1] = r_ptr->fireres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->coldres > 0 && r_ptr->r_resist[GF_COLD] == 1) {vp[vn++] = "cold"; ramt[vn - 1] = r_ptr->coldres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->elecres > 0 && r_ptr->r_resist[GF_ELEC] == 1) {vp[vn++] = "electricity"; ramt[vn - 1] = r_ptr->elecres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->acidres > 0 && r_ptr->r_resist[GF_ACID] == 1) {vp[vn++] = "acid"; ramt[vn - 1] = r_ptr->acidres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->poisres > 0 && r_ptr->r_resist[GF_POIS] == 1) {vp[vn++] = "poison"; ramt[vn - 1] = r_ptr->poisres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->lightres > 0 && r_ptr->r_resist[GF_LITE] == 1) {vp[vn++] = "light"; ramt[vn - 1] = r_ptr->lightres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->darkres > 0 && r_ptr->r_resist[GF_DARK] == 1) {vp[vn++] = "darkness"; ramt[vn - 1] = r_ptr->darkres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->warpres > 0 && r_ptr->r_resist[GF_WARP] == 1) {vp[vn++] = "warp"; ramt[vn - 1] = r_ptr->warpres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->waterres > 0 && r_ptr->r_resist[GF_WATER] == 1) {vp[vn++] = "water"; ramt[vn - 1] = r_ptr->waterres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->windres > 0 && r_ptr->r_resist[GF_WIND] == 1) {vp[vn++] = "wind"; ramt[vn - 1] = r_ptr->windres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->earthres > 0 && r_ptr->r_resist[GF_EARTH] == 1) {vp[vn++] = "earth"; ramt[vn - 1] = r_ptr->earthres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->soundres > 0 && r_ptr->r_resist[GF_SOUND] == 1) {vp[vn++] = "sound"; ramt[vn - 1] = r_ptr->soundres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->radiores > 0 && r_ptr->r_resist[GF_RADIO] == 1) {vp[vn++] = "radioactivity"; ramt[vn - 1] = r_ptr->radiores; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->chaosres > 0 && r_ptr->r_resist[GF_CHAOS] == 1) {vp[vn++] = "chaos"; ramt[vn - 1] = r_ptr->chaosres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->physres > 0 && r_ptr->r_resist[GF_PHYSICAL] == 1) {vp[vn++] = "physical"; ramt[vn - 1] = r_ptr->physres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->manares > 0 && r_ptr->r_resist[GF_MANA] == 1) {vp[vn++] = "mana"; ramt[vn - 1] = r_ptr->manares; color[vn - 1] = TERM_WHITE;}
+	for (w = 0; w < MAX_RESIST; w++)
+	{
+		if (r_ptr->resistances[w] > 0 && r_ptr->r_resist[w] == 1) {vp[vn++] = get_element_name(w); ramt[vn - 1] = r_ptr->resistances[w]; color[vn - 1] = TERM_WHITE;}
+        }
 
 	/* Describe resistances */
 	if (vn)
@@ -2227,7 +2263,8 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 
 			sprintf(str, "%s(%d%)", vp[n], ramt[n]);
 			/* Dump */
-                        c_roff(color[n], str);
+			if (red_roff) c_roff(TERM_L_RED, str);
+                        else c_roff(color[n], str);
 		}
 
 		/* End */
@@ -2236,22 +2273,10 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 
 	/* Collect weaknesses */
 	vn = 0;
-        if (r_ptr->fireres < 0 && r_ptr->r_resist[GF_FIRE] == 1) {vp[vn++] = "fire"; ramt[vn - 1] = r_ptr->fireres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->coldres < 0 && r_ptr->r_resist[GF_COLD] == 1) {vp[vn++] = "cold"; ramt[vn - 1] = r_ptr->coldres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->elecres < 0 && r_ptr->r_resist[GF_ELEC] == 1) {vp[vn++] = "electricity"; ramt[vn - 1] = r_ptr->elecres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->acidres < 0 && r_ptr->r_resist[GF_ACID] == 1) {vp[vn++] = "acid"; ramt[vn - 1] = r_ptr->acidres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->poisres < 0 && r_ptr->r_resist[GF_POIS] == 1) {vp[vn++] = "poison"; ramt[vn - 1] = r_ptr->poisres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->lightres < 0 && r_ptr->r_resist[GF_LITE] == 1) {vp[vn++] = "light"; ramt[vn - 1] = r_ptr->lightres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->darkres < 0 && r_ptr->r_resist[GF_DARK] == 1) {vp[vn++] = "darkness"; ramt[vn - 1] = r_ptr->darkres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->warpres < 0 && r_ptr->r_resist[GF_WARP] == 1) {vp[vn++] = "warp"; ramt[vn - 1] = r_ptr->warpres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->waterres < 0 && r_ptr->r_resist[GF_WATER] == 1) {vp[vn++] = "water"; ramt[vn - 1] = r_ptr->waterres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->windres < 0 && r_ptr->r_resist[GF_WIND] == 1) {vp[vn++] = "wind"; ramt[vn - 1] = r_ptr->windres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->earthres < 0 && r_ptr->r_resist[GF_EARTH] == 1) {vp[vn++] = "earth"; ramt[vn - 1] = r_ptr->earthres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->soundres < 0 && r_ptr->r_resist[GF_SOUND] == 1) {vp[vn++] = "sound"; ramt[vn - 1] = r_ptr->soundres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->radiores < 0 && r_ptr->r_resist[GF_RADIO] == 1) {vp[vn++] = "radioactivity"; ramt[vn - 1] = r_ptr->radiores; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->chaosres < 0 && r_ptr->r_resist[GF_CHAOS] == 1) {vp[vn++] = "chaos"; ramt[vn - 1] = r_ptr->chaosres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->physres < 0 && r_ptr->r_resist[GF_PHYSICAL] == 1) {vp[vn++] = "physical"; ramt[vn - 1] = r_ptr->physres; color[vn - 1] = TERM_WHITE;}
-	if (r_ptr->manares < 0 && r_ptr->r_resist[GF_MANA] == 1) {vp[vn++] = "mana"; ramt[vn - 1] = r_ptr->manares; color[vn - 1] = TERM_WHITE;}
+	for (w = 0; w < MAX_RESIST; w++)
+	{
+		if (r_ptr->resistances[w] < 0 && r_ptr->r_resist[w] == 1) {vp[vn++] = get_element_name(w); ramt[vn - 1] = r_ptr->resistances[w]; color[vn - 1] = TERM_WHITE;}
+        }
 
 	/* Describe resistances */
 	if (vn)
@@ -2271,7 +2296,8 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 
 			sprintf(str, "%s(%d%)", vp[n], (ramt[n] * (-1)));
 			/* Dump */
-                        c_roff(color[n], str);
+			if (red_roff) c_roff(TERM_L_RED, str);
+                        else c_roff(color[n], str);
 		}
 
 		/* End */
@@ -2454,10 +2480,22 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 		roff(".  ");
 	}
 
+	/* Notice "Immortal" monsters */
+	if (flags7 & RF7_IMMORTAL)
+	{
+                c_roff(TERM_YELLOW, "It is an immortal creature.  ");
+	}
+
 	/* Notice "Quest" monsters */
 	if (flags1 & RF1_QUESTOR)
 	{
-                c_roff(TERM_VIOLET, "You feel an intense desire to kill this monster...  ");
+                c_roff(TERM_VIOLET, "It is a main quest boss.  ");
+	}
+
+	/* Notice "Powerful" monsters */
+	if (flags2 & RF2_POWERFUL)
+	{
+                c_roff(TERM_L_GREEN, "This creature is extremely dangerous. It may be best to run away from it.  ");
 	}
 
 
@@ -2637,6 +2675,16 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
                         c_roff(TERM_ORANGE, "Blinded by fearful illusions.");
                         roff("\n");
                 }
+		if (m_ptr->abilities & (TAUNTED))
+                {
+                        c_roff(TERM_ORANGE, "Taunted.");
+                        roff("\n");
+                }
+		if (m_ptr->abilities & (PIERCING_SPELLS))
+                {
+                        c_roff(TERM_ORANGE, "Vulnerable to your chosen element.");
+                        roff("\n");
+                }
                 if (m_ptr->abilities & (WAR_BLESSED))
                 {
                         c_roff(TERM_YELLOW, "Blessed with War Blessing.");
@@ -2649,177 +2697,6 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
                 }
 
         }
+
+	red_roff = FALSE;
 }
-
-void vision_scan_monster(monster_type *m_ptr)
-{
-        char query;
-        char mtype[30];
-        monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-        /* Save what's on screen */
-        Term_save();
-
-	/* Flush messages */
-	msg_print(NULL);
-
-        /* Begin... */
-	Term_erase(0, 1, 255);
-
-        /* Now, let's scan the monster! */
-        roff(format("Name: %s", (r_name + r_ptr->name)));
-        roff("\n");
-
-        /* Let's check the monster's type now... */
-        if (r_ptr->d_char == 'a') strcpy(mtype, "Ant");
-        else if (r_ptr->d_char == 'b') strcpy(mtype, "Bat");
-        else if (r_ptr->d_char == 'c') strcpy(mtype, "Centipede");
-        else if (r_ptr->d_char == 'd') strcpy(mtype, "Small Dragon");
-        else if (r_ptr->d_char == 'e') strcpy(mtype, "Eye");
-        else if (r_ptr->d_char == 'f') strcpy(mtype, "Feline");
-        else if (r_ptr->d_char == 'g') strcpy(mtype, "Golem");
-        else if (r_ptr->d_char == 'h') strcpy(mtype, "Humanoid");
-        else if (r_ptr->d_char == 'i') strcpy(mtype, "Icky Thing");
-        else if (r_ptr->d_char == 'j') strcpy(mtype, "Jelly");
-        else if (r_ptr->d_char == 'k') strcpy(mtype, "Kobold");
-        else if (r_ptr->d_char == 'l') strcpy(mtype, "Louse");
-        else if (r_ptr->d_char == 'm') strcpy(mtype, "Plant/Mold");
-        else if (r_ptr->d_char == 'n') strcpy(mtype, "Naga");
-        else if (r_ptr->d_char == 'o') strcpy(mtype, "Orc");
-        else if (r_ptr->d_char == 'p') strcpy(mtype, "Human");
-        else if (r_ptr->d_char == 'q') strcpy(mtype, "Quadroped");
-        else if (r_ptr->d_char == 'r') strcpy(mtype, "Rodent");
-        else if (r_ptr->d_char == 's') strcpy(mtype, "Skeleton");
-        else if (r_ptr->d_char == 't') strcpy(mtype, "Townsfolk");
-        else if (r_ptr->d_char == 'u') strcpy(mtype, "Lesser Demon");
-        else if (r_ptr->d_char == 'v') strcpy(mtype, "Vortex");
-        else if (r_ptr->d_char == 'w') strcpy(mtype, "Worm");
-        else if (r_ptr->d_char == 'x' || r_ptr->d_char == '~') strcpy(mtype, "Fish/Sea Monster");
-        else if (r_ptr->d_char == 'y') strcpy(mtype, "Yeek");
-        else if (r_ptr->d_char == 'z') strcpy(mtype, "Zombie");
-        else if (r_ptr->d_char == 'A') strcpy(mtype, "Angel");
-        else if (r_ptr->d_char == 'B') strcpy(mtype, "Bird");
-        else if (r_ptr->d_char == 'C') strcpy(mtype, "Canine");
-        else if (r_ptr->d_char == 'D') strcpy(mtype, "Great Dragon");
-        else if (r_ptr->d_char == 'E') strcpy(mtype, "Spirit/Elemental");
-        else if (r_ptr->d_char == 'F') strcpy(mtype, "Dragon Fly");
-        else if (r_ptr->d_char == 'G') strcpy(mtype, "Ghost");
-        else if (r_ptr->d_char == 'H') strcpy(mtype, "Hybrid");
-        else if (r_ptr->d_char == 'I') strcpy(mtype, "Insect");
-        else if (r_ptr->d_char == 'J') strcpy(mtype, "Snake");
-        else if (r_ptr->d_char == 'K') strcpy(mtype, "Killer Beetle");
-        else if (r_ptr->d_char == 'L') strcpy(mtype, "Lich");
-        else if (r_ptr->d_char == 'M') strcpy(mtype, "Hydra");
-        else if (r_ptr->d_char == 'N') strcpy(mtype, "????");
-        else if (r_ptr->d_char == 'O') strcpy(mtype, "Ogre");
-        else if (r_ptr->d_char == 'P') strcpy(mtype, "Giant/Special");
-        else if (r_ptr->d_char == 'Q') strcpy(mtype, "Quylthulg");
-        else if (r_ptr->d_char == 'R') strcpy(mtype, "Reptile");
-        else if (r_ptr->d_char == 'S') strcpy(mtype, "Spider");
-        else if (r_ptr->d_char == 'T') strcpy(mtype, "Troll");
-        else if (r_ptr->d_char == 'U') strcpy(mtype, "Greater Demon");
-        else if (r_ptr->d_char == 'V') strcpy(mtype, "Vampire");
-        else if (r_ptr->d_char == 'W') strcpy(mtype, "Wraith");
-        else if (r_ptr->d_char == 'X') strcpy(mtype, "Xorn/Xaren/Umber Hulk");
-        else if (r_ptr->d_char == 'Y') strcpy(mtype, "Yeti");
-        else if (r_ptr->d_char == 'Z') strcpy(mtype, "Hound");
-        else if (r_ptr->d_char == ',') strcpy(mtype, "Mushroom");
-        else if (r_ptr->d_char == '$') strcpy(mtype, "Creeping Coin");
-        else if (r_ptr->d_char == '#') strcpy(mtype, "Wall");
-        else if (r_ptr->d_char == '&') strcpy(mtype, "Devling");
-        else if (r_ptr->d_char == '*') strcpy(mtype, "Sphere");
-        else strcpy(mtype, "????");
-        roff(format("Kind: %s", mtype));
-        roff("\n");
-        roff("Type: ");
-        if (r_ptr->flags3 & (RF3_EVIL)) c_roff(TERM_VIOLET, "Evil ");
-        if (r_ptr->flags3 & (RF3_GOOD)) c_roff(TERM_VIOLET, "Good ");
-        if (r_ptr->flags3 & (RF3_UNDEAD)) c_roff(TERM_VIOLET, "Undead ");
-        if (r_ptr->flags3 & (RF3_ORC)) c_roff(TERM_VIOLET, "Orc ");
-        if (r_ptr->flags3 & (RF3_TROLL)) c_roff(TERM_VIOLET, "Troll ");
-        if (r_ptr->flags3 & (RF3_GIANT)) c_roff(TERM_VIOLET, "Giant ");
-        if (r_ptr->flags3 & (RF3_DRAGON)) c_roff(TERM_VIOLET, "Dragon ");
-        if (r_ptr->flags3 & (RF3_DEMON)) c_roff(TERM_VIOLET, "Demon ");
-        if (r_ptr->flags3 & (RF3_ANIMAL)) c_roff(TERM_VIOLET, "Animal ");
-
-        roff("\n");
-        roff("\n");
-        roff(format("Level: %d", m_ptr->level));
-        roff("\n");
-        roff(format("Hp: %ld/%ld", m_ptr->hp, m_ptr->maxhp));
-        roff("\n");
-        roff(format("Hit Rate: %d", m_ptr->hitrate));
-        roff("\n");
-        roff(format("Defense: %d", m_ptr->defense));
-        roff("\n");
-	roff(format("Strength: %d", m_ptr->str));
-        roff("\n");
-	roff(format("Dexterity: %d", m_ptr->dex));
-        roff("\n");
-	roff(format("Mind: %d", m_ptr->mind));
-        roff("\n");
-	roff(format("Attack Skill: %d", m_ptr->skill_attack));
-        roff("\n");
-	roff(format("Magic Skill: %d", m_ptr->skill_magic));
-        roff("\n");
-	
-        
-        roff("\n");
-        roff("\n");
-        roff("Relation: ");
-        if (is_pet(m_ptr))
-        {
-                if (m_ptr->friend == 1) c_roff(TERM_L_GREEN, "Friend");
-                else if (m_ptr->imprinted) c_roff(TERM_L_GREEN, "Pet");
-                else c_roff(TERM_YELLOW, "Ally");
-        }
-        else c_roff(TERM_RED, "Enemy");
-        roff("\n");
-
-        /* End of scanning */
-        query = inkey();
-
-        /* Load term */
-        Term_load();
-}
-
-void open_monster_generator()
-{
-        char query;
-
-        /* Save what's on screen */
-        Term_save();
-
-	/* Flush messages */
-	msg_print(NULL);
-
-        /* Begin... */
-	Term_erase(0, 1, 255);
-
-        /* Now, let's scan the monster! */
-        roff("----- NEWANGBAND MONSTER GENERATOR -----\n");
-        roff("-----        Version: 1.0.1        -----\n");
-        roff("\n");
-        roff("\n");
-        roff("Before using, please, consult the Newbies Guide!\n");
-        roff("This is the first version, and the generator currently\n");
-        roff("isen't very 'smart', so use it at your own risks!\n");
-        roff("Remember to backup r_info.txt in the lib/edit directory!\n");
-        roff("\n");
-        roff("Press 'g' to generate the monsters. Press any keys to exit.\n");
-        roff("\n");
-
-        /* End of scanning */
-        query = inkey();
-
-        if (query == 'g' || query == 'G')
-        {
-                monster_generator();
-                msg_print("Monster generation completed!");
-                query = inkey();
-        }
-
-        /* Load term */
-        Term_load();
-}
-

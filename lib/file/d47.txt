@@ -1,0 +1,39 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you inspect the area, you suddently hear a feminine voice in your head...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:...humans are cruel, aren't they?;
+A:Huh? Who are you?:0:0:0:1:3:0:0:0:0
+A:Get out of my head, now!:0:0:0:1:3:0:0:0:0
+A:[Say nothing.]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:...was it because she had power? Or because she was too soft? Why was she;
+T:mistreated? Why were Belric and Maelan such evil men?;
+A:Who are you?:0:0:0:1:4:0:0:0:0
+A:Show yourself!:0:0:0:1:4:0:0:0:0
+A:[Say nothing.]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Voice;
+T:...I'd like to see her smile. Don't you want to see her smile as well?;
+T:How about... we try making her smile?;
+A:I can't see you! Who are you??:0:0:0:1:5:0:0:0:0
+A:Last warning. Show yourself, or you'll regret it!:0:0:0:1:5:0:0:0:0
+A:[Say nothing.]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:The voice fades, without telling you who she is or what she means by;
+T:'making her smile'. It may be a good idea to report this strange;
+T:encounter to Jeffrey.;
+A:[END DIALOG]:0:0:0:0:0:0:0:98:1
+%

@@ -1,6 +1,6 @@
 # Portralis skills definitions.
 # Skills needs to be coded in the scripts if you add one.
-# Because theremay be some hard-coded parts, it's better to not
+# Because there may be some hard-coded parts, it's better to not
 # delete the default skills. You can rename them if you wish though.
 # Maximum skills is 50.
 
@@ -9,35 +9,37 @@
 # For example, Fighting is skill number 1 in the scripts, even if it
 # is defined as 0 here.
 
-# A skill's name should be 14 characters long. Add spaces if needed.
+# A skill's name should be max 14 characters long. Add spaces if needed.
 # Also, the skills id should be in sequencial order, from 0 to whatever
 # number of skills you want.
 
-N:Fighting      :0
-N:Spellcraft    :1
-N:Shooting      :2
-N:Throwing      :3
-N:Defense       :4
-N:Agility       :5
-N:Stealth       :6
-N:Combat Feats  :7
-N:Dual Wield    :8
-N:Leadership    :9
-N:Alchemy       :10
-N:Crafting      :11
-N:Swords        :12
-N:Blunt         :13
-N:Polearms      :14
-N:Daggers       :15
-N:Axes          :16
-N:Rods          :17
-N:Martial Arts  :18
-N:Bow           :19
-N:Crossbow      :20
-N:Sling         :21
-N:Elemental     :22
-N:Alteration    :23
-N:Healing       :24
-N:Conjuration   :25
-N:Divination    :26
-N:Magic Defense :27
+N:Fighting:0
+N:Spellcraft:1
+N:Shooting:2
+N:Throwing:3
+N:Defense:4
+N:Agility:5
+N:Stealth:6
+N:Combat Feats:7
+N:Dual Wield:8
+N:Leadership:9
+N:Alchemy:10
+N:Crafting:11
+N:Swords:12
+N:Blunt:13
+N:Polearms:14
+N:Daggers:15
+N:Axes:16
+N:Rods:17
+N:Martial Arts:18
+N:Bow:19
+N:Crossbow:20
+N:Firearms:21
+N:Elemental:22
+N:Alteration:23
+N:Mysticism:24
+N:Conjuration:25
+N:Divination:26
+N:Magic Defense:27
+N:Music:28
+N:Mining:29

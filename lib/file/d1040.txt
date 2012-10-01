@@ -1,0 +1,347 @@
+N:1:1033:1:0:0:0
+I:Denevar;
+T:...you did a terrible mistake...but I accept my death. Such is the;
+T:fate of all mortals...;
+A:[END DIALOG]:0:0:0:5:-1:0:0:0:0
+%
+
+N:1:1035:2:0:0:0
+I:Denevar;
+T:Welcome back, <CLASS>. Have you found the amulet yet?;
+A:Is this the one?:2:40:28:6:1213:16:0:0:0
+A:I'd like to learn more about Shan.:0:0:0:3:49:0:4:0:0
+A:No. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1035:1:0:0:0
+I:Denevar;
+T:Welcome back, <CLASS>. Have you found the amulet yet?;
+A:Is this the one?:2:40:28:6:1213:16:0:0:0
+A:I'd like to learn more about Shan.:0:0:0:3:49:0:4:0:0
+A:No. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1034:1:0:0:0
+I:Denevar;
+T:Welcome back, <CLASS>. Have you reconsidered hearing my offer?;
+A:Yes, I have reconsidered. Please tell me more.:0:0:0:1:10:0:0:0:0
+A:No. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1032:1:0:0:0
+I:Denevar;
+T:...say nothing. I know why you are here. I can sense the intent of;
+T:people who comes here, and I sense that you have come to put an end;
+T:to my life. But I'd like to solve this matter in a peaceful way. I do;
+T:not wish to fight. Though I can sense your intents, I cannot sense the;
+T:motive. Why do you want to kill an humble priest of Shan?;
+A:I work with the Stealthy Vipers, and you are a demon worshipper!:0:0:0:1:7:0:0:0:0
+A:Silence! I'm here to kill you, Devling!:0:0:0:1:6:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Denevar;
+T:Blessings of Shan upon you, traveller!;
+A:Who are you?:0:0:0:1:2:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:4:0:0
+A:Thanks you.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Denevar;
+T:I am Denevar, a priest of Shan. Yes, a Devling priest. I know there;
+T:aren't many faithfuls within my kind, especially deities like Shan. It is;
+T:safe to assume that I am amongst the only Devlings who prays the;
+T:Golden Sul-Rin. Most of her followers are Demons from Rhyzendal.;
+T:Being of demonic origins ourselves, it's a wonder there aren't more;
+T:devlings who worship Shan. Well...considering our history, it's not;
+T:that surprising actually...;
+A:Tell me more of the history of the Devlings.:0:0:0:1:3:0:0:0:0
+A:Tell me more about Shan.:0:0:0:3:49:0:4:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Denevar;
+T:Well...I don't know too much about the Devling War. All I know is that;
+T:we were once the slaves of the greater demons, and after a great war 700;
+T:years ago, we moved out of the planes of hell, and established ourselves;
+T:in Portralis. Did we win or lose the war? I do not know. And not many;
+T:peoples do. I'm afraid this is the extent of my knowledge on the subject.;
+T:Not even we Devlings know much about our past. A shame really...;
+A:Tell me more about Shan.:0:0:0:3:49:0:4:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Denevar;
+T:Ah, lady Shan! The Golden Sul-Rin! There is a lot to tell about her...;
+T:She is the one who brought the Gifts of the Sul-Rin to the peoples;
+T:of Rhyzendal, long ago. Daylight, knowledge and toughness...hmm...;
+T:here. Let me give you this. Read it. This will give you a lot of;
+T:information about Shan and her followers.;
+A:...a Sul-Rin?:0:0:0:3:51:0:5:0:0
+A:Tell me more of the history of the Devlings.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Denevar;
+T:Never studied demonology I see... Well, a Sul-Rin is an Archfiend. Nothing;
+T:like the little imps and minor demons that lives in dark caves. Archfiends;
+T:are more like deities. Evil ones, yes, but deities nonetheless. Here...;
+T:let me give you this. It contains some demonologic lore about Archfiends.;
+T:But remember, only Shan is an Archfiend worth worshipping. Other demons;
+T:will simply trick you, and take your soul once you die.;
+A:Tell me more of the history of the Devlings.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Denevar;
+T:....very well. But I will not attack you unless you do. Attack me if;
+T:you wish... but please, I would advice you ro reconsider your actions...;
+T:Such a murder will only bring you misfortune in your future...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Denevar;
+T:Ah yes, the Kobolds mercenary guild. I see... and they told you I am;
+T:a demon worshipper, right? I guess you could say that, but the one;
+T:I worship is none other than Shan, the Golden Sul-Rin. An Archfiend she;
+T:is, but different than the others. I can assure you she is a being of;
+T:good. She is greatly worshipped in Rhyzendal, and the faith is starting;
+T:to spread in other kingdoms as well.;
+A:[CONTINUE]:0:0:0:3:49:0:8:1034:1
+%
+
+N:8:0:0:0:0:0
+I:Denevar;
+T:Shan saved the people of Rhyzendal from madness and despair, by chasing;
+T:the evil cults that summoned them to Portralis. Then, she gave them;
+T:daylight, toughness and knowledge, three gifts that allowed the demons;
+T:to become a strong and proud nation. Here, let me give you this text...;
+T:It will give you more information about Shan...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Denevar;
+T:Now, I know that your brothers and sisters are expecting you to kill me...;
+T:But I have an alternative to propose, that will help both of us. Will;
+T:you listen to my offer?;
+A:Yes, I'm listening.:0:0:0:1:10:0:0:0:0
+A:No. I'm here to kill you, and you will die!:0:0:0:1:6:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Denevar;
+T:First of all, your guild must have mentionned to you some Dragon Lancers;
+T:members who came here not long ago. They came during the night, asking;
+T:for my help, saying they were attacked by a ghost, and could not defend;
+T:themselves against it. Being a priest, it is my task to fight and repulse;
+T:the undead, so I went outside, and used my telepathic powers to locate the;
+T:ghost. It was not too far from the shrine, so I ran there, and confronted;
+T:the unholy creature.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Denevar;
+T:By chance, it was only a lesser ghost, so it wasn't difficult to destroy;
+T:it. But even a lesser ghost can be dangerous if you're not prepared for;
+T:it. Normal weapons will not hurt it, so you have to use magic, or;
+T:enchanted weapons. In any cases, I was able to defeat the ghost, so I;
+T:returned to the shrine. The leader, who introduced himself as Delvan The;
+T:Swift, thanked me for my help, and they spent the night at my shrine.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Denevar;
+T:The next morning, they left the shrine, so I resumed my prayers. But then,;
+T:I found out that one of the relics I needed for a prayer was missing!;
+T:I searched everywhere, but couldn't find it. This can only mean one thing.;
+T:Delvan and his men must have stolen my relic! In fact, Delvan is probably;
+T:the one who summoned the ghost in order to trick me! I can't understand why;
+T:they would steal it though. It's a precious Amulet of Golden Truth. When;
+T:you become a priest of Shan, one of such amulets is given to you.;
+T:Itsymbolizes your acceptance of the Sul-Rin's teachings as the Truth, and;
+T:it allows her to watch over you through the powers of the amulet. You could;
+T:say that the amulets of Golden Truth are like the eyes and ears of Shan...;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Denevar;
+T:What I would like you to do is to find Delvan, and bring me back the amulet;
+T:he stole. I am not strong enough to do that myself, so I need your help.;
+T:In return, once I get the amulet, I will use it's powers to help you;
+T:persuade your employer that you have defeated me. We'll alter his memory,;
+T:so that he thinks that Delvan was the one you had to slay. So this way,;
+T:we both win. What do you think?;
+A:That sounds like a good plan. I'll do it.:0:0:0:1:15:0:0:1035:1
+A:Isn't altering one's memory a bit...twisted?:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Denevar;
+T:We are doing this for a good cause, so I do not see what's wrong.;
+T:I understand that most religions would forbid this though. I guess an;
+T:Archfiend is a little more permissive as far as problem-solving methods;
+T:goes. But do not worry, it will do your employer no harm. And in the end,;
+T:we will both win.;
+A:I see. I'll do it then.:0:0:0:1:15:0:0:1035:1
+A:I do not trust you. Maybe I'll just kill you instead.:0:0:0:1:6:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Denevar;
+T:Thanks you my friend. Now, I do not know where Delvan is, but I remember;
+T:him going east as he left the shrine...hmmm... I remember an old cave;
+T:to the east. It's a bit north east actually... I don't remember the exact;
+T:location, but I wonder if he could be hiding there? That would be the;
+T:perfect hideout for a group of thieves. Perhaps's that's where you should;
+T:start searching. Find Delvan, and bring me back the amulet. Good luck to;
+T:you <CLASS>. And may Shan's will be on your side!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Denevar;
+T:Yes it is! Thanks you my friend, I am most pleased. This relic is very;
+T:important for me, as it is needed to serve as a priest of Shan.;
+A:Actually...the amulet doesn't seem magical.:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Denevar;
+T:My friend, do you really think just anybody can use the amulet? Of course;
+T:not. Shan only grants her powers to those who worships her. This Delvan;
+T:wasn't a priest of Shan, so he couldn't draw any powers from it. And;
+T:you're not a follower of Shan either, so you can't gain any powers from;
+T:it either. The amulet only gives power to it's owner, and no one else.;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Denevar;
+T:Well... now's the time to actually put that amulet to good use I guess.;
+T:As promised, I will now help you by altering your employer's memory,;
+T:so that he forgets about me, and believe you had to kill Delvan instead.;
+T:Let's see...;
+A:[CONTINUE]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I: ;
+T:Denevar starts chanting a prayer while holding the amulet in his hands.;
+T:Then, the amulet begins to glow...;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I: ;
+T:But suddently, a lightning bolt falls right on the amulet, piercing the;
+T:ceiling! The amulet is hit, the chain breaks, and it falls on the ground,;
+T:right at the feet of a most terrified Denevar!;
+A:[CONTINUE]:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Denevar;
+T:W...what? What's happening? You did bring me the right amulet, that I know!;
+T:What's going on??;
+A:[CONTINUE]:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Manly voice;
+T:Once again, you have been tricked, Denevar.;
+A:[CONTINUE]:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Denevar;
+T:M...master Ludgar?? But how...;
+A:[CONTINUE]:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Ludgar Zos;
+T:As you have explained to this brave <CLASS>, the amulet acts like the eyes;
+T:and ears of Shan. I have seen everything. And I am disappointed. It's the;
+T:fifth time you get tricked like this. I'm afraid your faith has made you;
+T:blind to the tricks of thieves, and Shan doesn't need blind servants.;
+T:You are no longer worthy of wearing this amulet, Denevar! This <CLASS>,;
+T:on the other hand, rightfully deserves it. I must say I am impressed,;
+T:<CLASS>. Who knows, perhaps you even have the potential of becoming;
+T:one of Shan's Golden Knights! As for you, Denevar, you are no longer;
+T:needed. You have failed one time too many. I have nothing more to say to;
+T:you. Farewell, Denevar.;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Denevar;
+T:No, Master Ludgar! I can still be of use! I...;
+A:[CONTINUE]:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I: ;
+T:The voice goes away, and the amulet magically appears in your hands, fully;
+T:repaired. It stops glowing, and you can now feel a strong power coming;
+T:from it.;
+A:[CONTINUE]:0:0:0:3:21:4:27:0:0
+%
+
+N:27:0:0:0:0:0
+I:Denevar;
+T:No...this cannot be! Shan has...abandonned me...;
+A:[CONTINUE]:0:0:0:1:28:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Denevar;
+T:...I've failed. Maybe I shouldn't have become a priest of Shan after all.;
+T:I just wanted to help peoples in need, and prove that devlings can;
+T:be kind-hearted peoples too, not just some worthless dungeon dwellers!;
+T:But I was naive to think that peoples would respect me as a priest,;
+T:let alone a priest of Shan. Peoples abused my generosity and my;
+T:naivety, and they stole from me, and tricked me into dishonoring the;
+T:teachings I believe in! And now, even my order rejects me. I have nothing;
+T:left but this shrine...;
+A:What about me? You were supposed to help me out!:0:0:0:1:29:0:0:0:0
+A:I guess Krind was right about devlings being worthless.:0:0:0:1:30:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Denevar;
+T:Well, I don't want to be a priest anymore. I will leave this place, and;
+T:never return. So you can just tell your employer that you have killed me.;
+T:But thanks you for trying to help me. You have earned your amulet, may;
+T:it protects you well in your future. And I wish you more luck with your;
+T:guild than I had with the order of Shan. Farewell, <CLASS>... I don't;
+T:think we'll ever meet again.;
+A:[CONTINUE]:0:0:0:9:1606:31:0:1033:1
+%
+
+N:30:0:0:0:0:0
+I:Denevar;
+T:Hmph. Go ahead and laugh, I don't care anymore. You must be proud of you,;
+T:being powerful and all, and earning the right to wear a sacred amulet.;
+T:But me, my life is finished. I will leave this place, so you can just tell;
+T:your 'Krind' that you have killed me, and you'll probably get your reward.;
+T:I'm leaving now. I don't think we'll meet again. So... good bye, <CLASS>.;
+A:[CONTINUE]:0:0:0:9:1606:31:0:1033:1
+%
+
+N:31:0:0:0:0:0
+I: ;
+T:Denevar packs a few belongings, and leaves his shrine. The shrine is now;
+T:empty, and there is nothing left for you to do here. You should now;
+T:return to Krind, and tell him that you completed your task.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

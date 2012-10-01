@@ -130,6 +130,7 @@ bool make_attack_normal(int m_idx, byte divis)
 	int i, j, k, tmp, ac, rlev, flg;
 	int do_cut, do_stun;
         int mon_att_bonus = 0;
+	int oldmx, oldmy;
 
 	s32b gold;
 
@@ -178,6 +179,9 @@ bool make_attack_normal(int m_idx, byte divis)
 	/* Assume no blink */
 	blinked = FALSE;
 
+	oldmx = m_ptr->fx;
+	oldmy = m_ptr->fy;
+
 	/* Attack until we have no more blows! */
 	for (i = 0; i < r_ptr->attacks; i++)
 	{
@@ -200,6 +204,9 @@ bool make_attack_normal(int m_idx, byte divis)
 
 		/* Make sure the monster is still alive */
 		if (!m_ptr) break;
+
+		/* If the monster moved somehow, cancel attack. */
+		if (m_ptr->fx != oldmx || m_ptr->fy != oldmy) break;
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
@@ -225,6 +232,12 @@ bool make_attack_normal(int m_idx, byte divis)
 			/* Normal attack */
 			case 1:
 			{
+				/* Call a lua script. */
+				if (r_ptr->event_before_melee > 0)
+				{
+					call_lua("monster_before_melee", "(dd)", "", m_idx, r_ptr->event_before_melee);
+				}
+
 				/* Monk's grappling throw! */
                 		if (p_ptr->abilities[(CLASS_MONK * 10) + 3] >= 1 && unarmed())
                 		{
@@ -266,7 +279,8 @@ bool make_attack_normal(int m_idx, byte divis)
 					call_lua("player_hit_monster", "(Md)", "d", m_ptr, bonus, &hit);
                         		if ((hit == 1) && m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
                         		{
-                                		s32b dam = monk_damages();
+                                		s32b dam = 0;
+						call_lua("monk_damages", "", "l", &dam);
 						dam += ((dam * ((p_ptr->abilities[(CLASS_ZELAR * 10) + 2] - 1) * 5)) / 100);
                                 		msg_print("You grab your foes's arms(or means of attack), and crush them!");
                                 		m_ptr->abilities |= (MUTILATE_ARMS);
@@ -286,7 +300,6 @@ bool make_attack_normal(int m_idx, byte divis)
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
                         		else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
 					
-					if (seduction(m_ptr) == TRUE) damage += (damage / 2);
 					if (strstr(r_ptr->attack[chosen].name, "!")) msg_format("%^s %s you!", m_name, r_ptr->attack[chosen].act);
 					else msg_format("%^s %s you with %s!", m_name, r_ptr->attack[chosen].act, r_ptr->attack[chosen].name);
 					
@@ -294,13 +307,6 @@ bool make_attack_normal(int m_idx, byte divis)
                         		if (m_ptr->abilities & (CURSE_DAMAGES_CURSE))
                         		{
                                 		m_ptr->hp -= damage * p_ptr->abilities[(CLASS_MAGE * 10) + 6];
-                        		}
-
-                        		/* Defender's Iron Skin applies BEFORE resistance */
-                        		if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] >= 1)
-                        		{
-                                		damage -= p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] * 100;
-                                		if (damage < 0) damage = 0;
                         		}
 
                         		/* Justice Warrior's protection from evil! */
@@ -318,123 +324,63 @@ bool make_attack_normal(int m_idx, byte divis)
                                 		s32b damagepercent;
                                 		damagepercent = (damage * p_ptr->pres) / 100;
                                 		damage -= damagepercent; 
-                        		}
-
-                        		else if (unarmed() && p_ptr->skill[18] >= 40 && !heavy_armor())
-                        		{
-                                		int blockchance = 0;
-
-                                		/* Block chance is 25%...or is it? */
-                                		blockchance = 25 + p_ptr->abilities[(CLASS_ZELAR * 10) + 9];
-
-                                		/* Max is 75% */
-                                		if (blockchance > 75) blockchance = 75;
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You avoid the hit!");
-							nothurt = TRUE;
-						}
                         		}                
 
-                        		else if (polearm_has() && p_ptr->skill[14] >= 25 && !shield_has())
+                        		/* Attempt to block the attack. */
                         		{
-                                		int blockchance = 0;
+                                		int block = 0;
+						int x;
 
-                                		/* Block chance is 20%. */
-                                		blockchance = 20;
-
-                                		/* If a Polearm has PARRY, add the bonus! */
-                                		if (f4 & (TR4_PARRY)) blockchance = blockchance + (10 + (o_ptr->pval * 2));
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
-						{ 
-							msg_print("You parry!");
-							nothurt = TRUE;
-						}
-                        		}                
-
-                        		/* Check for a shield... */
-                        		else if (shield_has() || p_ptr->skill[12] >= 10)
-                        		{
-                                		int blockchance = 0;
-                                		o_ptr = &inventory[INVEN_ARM];
-
-                                		if (o_ptr)
-                                		{
-                                        		/* Calculate the blocking chances */
-                                        		blockchance = ((o_ptr->sval * 10) / 2);
-
-                                        		/* Magic Shields are better at blocking... */
-                                        		blockchance += (o_ptr->pval * 2);
-
-                                        		/* Defender is the master of shields! */
-                                        		if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 2);
-                                		}
-                                		if (sword_has() && p_ptr->skill[12] >= 10) blockchance += 10;
-						
-                                		/* Maximum blocking chance is 75% */
-                                		if (blockchance > 75) blockchance = 75;
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
+						/* Try to block with each of your weapons. */
+						for (x = 0; x < 2; x++)
 						{
-							msg_print("You block!");
-							nothurt = TRUE;
+							o_ptr = &inventory[INVEN_WIELD + x];
+
+                                			if (o_ptr->tval != 0)
+                                			{
+                                        			/* Basic block chance is equal to item's base AC */
+                                        			block += o_ptr->ac;
+
+								/* Swords skill allows you to parry with a sword. */
+								if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12 && p_ptr->skill[12] >= 10) block += 10;
+
+								/* Polearm skill allows you to parry with a spear. */
+								if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) block += 20;
+
+                                        			/* Defender is the master of shields! */
+                                        			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) block += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
+                                			}
+                                			else if (unarmed() && p_ptr->skill[18] >= 40 && x == 0 && !heavy_armor() && p_ptr->prace != RACE_MONSTER)
+							{
+								/* If unarmed, and not wearing heavy armor, you may get a block chance. */
+								/* Gloves are used as the "shield". */
+								object_type *g_ptr;
+								g_ptr = &inventory[INVEN_HANDS];
+								block += 10;
+								if (g_ptr)
+								{
+									block += g_ptr->ac;
+								}
+							}
+						}
+
+						if (block > 0)
+						{
+							int mblock;
+							block = block * 3;
+							block += (p_ptr->stat_ind[A_STR] + p_ptr->stat_ind[A_DEX]);
+
+							mblock = m_ptr->str + m_ptr->dex;
+
+							/* Now, try to block */
+                                			if (randint(block) >= randint(mblock))
+							{
+								msg_print("You block!");
+								nothurt = TRUE;
+							}
 						}
                         		}
-					else if (two_weapon_wield() && p_ptr->skill[8] >= 70)
-					{
-						int blockchance = 20;                                                                 
-                                                
-						if (f4 & (TR4_PARRY))
-						{                                                                     
-                                			/* Block chance is 10% + pval * 2. */                                                
-                                			blockchance += 10 + (o_ptr->pval * 2);
-						}
-
-						/* Two weapons with parry makes it better! */
-						if (ff4 & (TR4_PARRY))
-						{
-							blockchance += 10 + (j_ptr->pval * 2);
-						}                                                
-                                                                                                                     
-                                		/* Maximum blocking chance is 75% */                                                 
-                                		if (blockchance > 75) blockchance = 75;                                              
-                                                                                                                       
-                                		/* Now, try to block */                                                              
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You dual block!");
-							nothurt = TRUE;
-						}
-					}
-                        		/* Last ressort, the PARRY flag! */
-                        		else if (f4 & (TR4_PARRY))                                                   
-                        		{                                                                                           
-                                		int blockchance = 0;                                                                 
-                                                                                                                     
-                                		/* Block chance is 10% + pval * 2. */                                                
-                                		blockchance = 10 + (o_ptr->pval * 2);
-
-						/* Two weapons with parry makes it better! */
-						if (ff4 & (TR4_PARRY))
-						{
-							blockchance += 10 + (j_ptr->pval * 2);
-						}                                                
-                                                                                                                     
-                                		/* Maximum blocking chance is 75% */                                                 
-                                		if (blockchance > 75) blockchance = 75;                                              
-                                                                                                                       
-                                		/* Now, try to block */                                                              
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You parry!");
-							nothurt = TRUE;
-						}
-                        		}
+					
 
 					if (!nothurt)
 					{
@@ -448,9 +394,9 @@ bool make_attack_normal(int m_idx, byte divis)
                         			if ((m_ptr->abilities & (BOSS_CURSED_HITS)) && randint(100) >= 50 && damage > 0)
                         			{
                                 			msg_print("The monster cursed you!");
-                                			set_confused(10);
-                                			set_afraid(10);
-                                			set_blind(10);
+                                			if (!(p_ptr->resist_conf)) set_confused(10);
+                                			if (!(p_ptr->resist_fear)) set_afraid(10);
+                                			if (!(p_ptr->resist_blind)) set_blind(10);
                         			}
 						/* Some monsters have some special side effects. */
 						
@@ -594,11 +540,24 @@ bool make_attack_normal(int m_idx, byte divis)
                         		(void)project(0, 0, m_ptr->fy, m_ptr->fx, dam, p_ptr->elemlord, PROJECT_GRID | PROJECT_KILL);
                         		no_magic_return = FALSE;
                 		}
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_melee > 0)
+				{
+					call_lua("monster_after_melee", "(dd)", "", m_idx, r_ptr->event_after_melee);
+				}
+
 				break;
 			}
 			/* Animated monster damages */
 			case 2:
 			{
+				/* Call a lua script. */
+				if (r_ptr->event_before_melee > 0)
+				{
+					call_lua("monster_before_melee", "(dd)", "", m_idx, r_ptr->event_before_melee);
+				}
+
 				/* Monk's grappling throw! */
                 		if (p_ptr->abilities[(CLASS_MONK * 10) + 3] >= 1 && unarmed())
                 		{
@@ -657,20 +616,11 @@ bool make_attack_normal(int m_idx, byte divis)
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
                         		else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
-
-					if (seduction(m_ptr) == TRUE) damage += (damage / 2);
 					
 					/* Oh! We have been hit, but the monster was cursed! */
                         		if (m_ptr->abilities & (CURSE_DAMAGES_CURSE))
                         		{
                                 		m_ptr->hp -= damage * p_ptr->abilities[(CLASS_MAGE * 10) + 6];
-                        		}
-
-                        		/* Defender's Iron Skin applies BEFORE resistance */
-                        		if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] >= 1)
-                        		{
-                                		damage -= p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] * 100;
-                                		if (damage < 0) damage = 0;
                         		}
 
                         		/* Justice Warrior's protection from evil! */
@@ -690,119 +640,58 @@ bool make_attack_normal(int m_idx, byte divis)
                                 		damage -= damagepercent; 
                         		}
 
-                        		else if (unarmed() && p_ptr->skill[18] >= 40 && !heavy_armor())
+                        		/* Attempt to block the attack. */
                         		{
-                                		int blockchance = 0;
+                                		int block = 0;
+						int x;
 
-                                		/* Block chance is 25%...or is it? */
-                                		blockchance = 25 + p_ptr->abilities[(CLASS_ZELAR * 10) + 9];
-
-                                		/* Max is 75% */
-                                		if (blockchance > 75) blockchance = 75;
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
+						/* Try to block with each of your weapons. */
+						for (x = 0; x < 2; x++)
 						{
-							msg_print("You avoid the hit!");
-							nothurt = TRUE;
-						}
-                        		}                
+							o_ptr = &inventory[INVEN_WIELD + x];
 
-                        		else if (polearm_has() && p_ptr->skill[14] >= 25 && !shield_has())
-                        		{
-                                		int blockchance = 0;
+                                			if (o_ptr->tval != 0)
+                                			{
+                                        			/* Basic block chance is equal to item's base AC */
+                                        			block += o_ptr->ac;
 
-                                		/* Block chance is 20%. */
-                                		blockchance = 20;
+								/* Swords skill allows you to parry with a sword. */
+								if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12 && p_ptr->skill[12] >= 10) block += 10;
 
-                                		/* If a Polearm has PARRY, add the bonus! */
-                                		if (f4 & (TR4_PARRY)) blockchance = blockchance + (10 + (o_ptr->pval * 2));
+								/* Polearm skill allows you to parry with a spear. */
+								if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) block += 20;
 
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
-						{ 
-							msg_print("You parry!");
-							nothurt = TRUE;
-						}
-                        		}                
-
-                        		/* Check for a shield... */
-                        		else if (shield_has() || p_ptr->skill[12] >= 10)
-                        		{
-                                		int blockchance = 0;
-                                		o_ptr = &inventory[INVEN_ARM];
-
-                                		if (o_ptr)
-                                		{
-                                        		/* Calculate the blocking chances */
-                                        		blockchance = ((o_ptr->sval * 10) / 2);
-
-                                        		/* Magic Shields are better at blocking... */
-                                        		blockchance += (o_ptr->pval * 2);
-
-                                        		/* Defender is the master of shields! */
-                                        		if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 2);
-                                		}
-                                		if (sword_has() && p_ptr->skill[12] >= 10) blockchance += 10;
-						
-                                		/* Maximum blocking chance is 75% */
-                                		if (blockchance > 75) blockchance = 75;
-
-                                		/* Now, try to block */
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You block!");
-							nothurt = TRUE;
-						}
-                        		}
-                        		else if (two_weapon_wield() && p_ptr->skill[8] >= 70)
-					{
-						int blockchance = 20;                                                                 
-                                                
-						if (f4 & (TR4_PARRY))
-						{                                                                     
-                                			/* Block chance is 10% + pval * 2. */                                                
-                                			blockchance += 10 + (o_ptr->pval * 2);
+                                        			/* Defender is the master of shields! */
+                                        			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) block += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
+                                			}
+                                			else if (unarmed() && p_ptr->skill[18] >= 40 && x == 0 && !heavy_armor() && p_ptr->prace != RACE_MONSTER)
+							{
+								/* If unarmed, and not wearing heavy armor, you may get a block chance. */
+								/* Gloves are used as the "shield". */
+								object_type *g_ptr;
+								g_ptr = &inventory[INVEN_HANDS];
+								block += 10;
+								if (g_ptr)
+								{
+									block += g_ptr->ac;
+								}
+							}
 						}
 
-						/* Two weapons with parry makes it better! */
-						if (ff4 & (TR4_PARRY))
+						if (block > 0)
 						{
-							blockchance += 10 + (j_ptr->pval * 2);
-						}                                                
-                                                                                                                     
-                                		/* Maximum blocking chance is 75% */                                                 
-                                		if (blockchance > 75) blockchance = 75;                                              
-                                                                                                                       
-                                		/* Now, try to block */                                                              
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You dual block!");
-							nothurt = TRUE;
-						}
-					}
-                        		/* Last ressort, the PARRY flag! */
-                        		else if (f4 & (TR4_PARRY))                                                   
-                        		{                                                                                           
-                                		int blockchance = 0;                                                                 
-                                                                                                                     
-                                		/* Block chance is 10% + pval * 2. */                                                
-                                		blockchance = 10 + (o_ptr->pval * 2);
+							int mblock;
+							block = block * 3;
+							block += (p_ptr->stat_ind[A_STR] + p_ptr->stat_ind[A_DEX]);
 
-						/* Two weapons with parry makes it better! */
-						if (ff4 & (TR4_PARRY))
-						{
-							blockchance += 10 + (j_ptr->pval * 2);
-						}                                                
-                                                                                                                     
-                                		/* Maximum blocking chance is 75% */                                                 
-                                		if (blockchance > 75) blockchance = 75;                                              
-                                                                                                                       
-                                		/* Now, try to block */                                                              
-                                		if (randint(100) < blockchance)
-						{
-							msg_print("You parry!");
-							nothurt = TRUE;
+							mblock = m_ptr->str + m_ptr->dex;
+
+							/* Now, try to block */
+                                			if (randint(block) >= randint(mblock))
+							{
+								msg_print("You block!");
+								nothurt = TRUE;
+							}
 						}
                         		}
 
@@ -845,11 +734,29 @@ bool make_attack_normal(int m_idx, byte divis)
                         		(void)project(0, 0, m_ptr->fy, m_ptr->fx, dam, p_ptr->elemlord, PROJECT_GRID | PROJECT_KILL);
                         		no_magic_return = FALSE;
                 		}
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_melee > 0)
+				{
+					call_lua("monster_after_melee", "(dd)", "", m_idx, r_ptr->event_after_melee);
+				}
 				break;
 			}
 			case 999:
 			{
+				/* Call a lua script. */
+				if (r_ptr->event_before_melee > 0)
+				{
+					call_lua("monster_before_melee", "(dd)", "", m_idx, r_ptr->event_before_melee);
+				}
+
 				call_lua(r_ptr->attack[chosen].name, "(d)", "", m_idx);
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_melee > 0)
+				{
+					call_lua("monster_after_melee", "(dd)", "", m_idx, r_ptr->event_after_melee);
+				}
 				break;
 			}
 		}        
@@ -866,14 +773,19 @@ bool make_attack_normal(int m_idx, byte divis)
 }
 
 /* Check if the player has a shield. */
-/* You can only block with Shields, not arm bands... */
 bool shield_has()
 {
         object_type *o_ptr;
-        o_ptr = &inventory[INVEN_ARM];
 
-        if (o_ptr->tval == TV_SHIELD) return (TRUE);
-        else return (FALSE);
+        o_ptr = &inventory[INVEN_WIELD];
+        if (o_ptr->tval != TV_SHIELD) 
+	{
+		o_ptr = &inventory[INVEN_WIELD+1];
+		if (o_ptr->tval == TV_SHIELD) return (TRUE);
+	}
+	else return (TRUE);
+
+        return (FALSE);
 }
 
 /* Check if the player has a sword. */
@@ -882,10 +794,10 @@ bool sword_has()
         object_type *o_ptr;
 
         o_ptr = &inventory[INVEN_WIELD];
-        if (o_ptr->tval != TV_SWORD && o_ptr->tval != TV_SWORD_DEVASTATION) 
+        if (!(o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12)) 
 	{
 		o_ptr = &inventory[INVEN_WIELD+1];
-		if (o_ptr->tval == TV_SWORD) return (TRUE);
+		if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12) return (TRUE);
 	}
 	else return (TRUE);
 
@@ -898,10 +810,10 @@ bool hafted_has()
         object_type *o_ptr;
 
         o_ptr = &inventory[INVEN_WIELD];
-        if ((o_ptr->tval != TV_HAFTED) && (o_ptr->tval != TV_MSTAFF)) 
+        if (!(o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 13)) 
 	{
 		o_ptr = &inventory[INVEN_WIELD+1];
-		if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF)) return (TRUE);
+		if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 13) return (TRUE);
 	}
 	else return (TRUE);
 
@@ -914,10 +826,10 @@ bool polearm_has()
         object_type *o_ptr;
 
         o_ptr = &inventory[INVEN_WIELD];
-        if (o_ptr->tval != TV_POLEARM) 
+        if (!(o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14)) 
 	{
 		o_ptr = &inventory[INVEN_WIELD+1];
-		if (o_ptr->tval == TV_POLEARM) return (TRUE);
+		if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14) return (TRUE);
 	}
 	else return (TRUE);
 
@@ -961,6 +873,6 @@ bool heavy_armor()
         object_type *o_ptr;
         o_ptr = &inventory[INVEN_BODY];
 
-        if (o_ptr->tval != TV_HARD_ARMOR && o_ptr->tval != TV_DRAG_ARMOR) return (TRUE);
-        else return (FALSE);
+        if (o_ptr->tval != TV_HARD_ARMOR && o_ptr->tval != TV_DRAG_ARMOR) return (FALSE);
+        else return (TRUE);
 }

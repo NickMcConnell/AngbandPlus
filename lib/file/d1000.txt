@@ -7,6 +7,7 @@ A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 N:1:0:0:0:0:0
 I:Jindar Soldier;
 T:Hail, citizen! How may I be of assistance?;
+A:I have some questions...:0:0:0:1:9:0:0:0:0
 A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
 A:Where should I look for work?:0:0:0:1:6:0:0:0:0
 A:Any rumors?:0:0:0:4:7:8:0:0:0
@@ -48,6 +49,7 @@ T:Other than that, everywhere else in the city is safe. You will find;
 T:various shops and services all over the city. Have a good time exploring;
 T:the city! Just avoid the southwest and northeast, and everything will;
 T:be fine!;
+A:I have some questions...:0:0:0:1:9:0:0:0:0
 A:Where should I look for work?:0:0:0:1:6:0:0:0:0
 A:Any rumors?:0:0:0:1:2:0:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
@@ -58,6 +60,7 @@ I:Jindar Soldier;
 T:Where should you look for work?? This is Jindar, my friend! There's;
 T:work EVERYWHERE!! Just look around, speak with a few peoples, and I'm;
 T:sure you'll find something that suits you!;
+A:I have some questions...:0:0:0:1:9:0:0:0:0
 A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
 A:Any rumors?:0:0:0:4:7:8:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
@@ -70,6 +73,7 @@ T:made of metal without any form of magic! I don't really believe it...;
 T:but then, I never visiter Karingen. If that was true... that would be;
 T:bad. They would make stronger, cheaper soldiers than we do, and I would;
 T:lose my job...;
+A:I have some questions...:0:0:0:1:9:0:0:0:0
 A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
 A:Where should I look for work?:0:0:0:1:6:0:0:0:0
 A:Any other rumors?:0:0:0:4:7:8:0:0:0
@@ -81,8 +85,63 @@ I:Jindar Soldier;
 T:The other day, I was patrolling near the temple's cemetary...;
 T:I heard some strange noises... it seems it came from below the earth...;
 T:Didn't stay there for long, but I wonder what it was...;
+A:I have some questions...:0:0:0:1:9:0:0:0:0
 A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
 A:Where should I look for work?:0:0:0:1:6:0:0:0:0
 A:Any other rumors?:0:0:0:4:7:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Jindar Soldier;
+T:Yes?;
+A:Have you seen an elf named Donoriel? [Describe Donoriel to the guard]:1:1052:2:1:11:0:0:0:0
+A:Nevermind.:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Jindar Soldier;
+T:Anything else?;
+A:I have some questions...:0:0:0:1:9:0:0:0:0
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any rumors?:0:0:0:4:7:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Jindar Soldier;
+T:Donoriel? Oh, isn't he that weird elven shopkeeper? I find it strange;
+T:than an elf would own a shop like that. But I haven't been there lately,;
+T:Why, did something happen to him?;
+A:Actually, he is involved in a shady business...[Tell him the story]:0:0:0:1:12:0:0:0:0
+A:No, nevermind.:0:0:0:1:10:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Jindar Soldier;
+T:Well, that doesn't surprise me. I suspected that all that junk was just;
+T:that: junk. I feel sorry for that young apprentice who has been killed;
+T:by the assassin he hired. Donoriel must be arrested!;
+A:Any ideas where he could be hiding?:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Jindar Soldier;
+T:Hmmm... If he ran away, some peoples could have recognised him, so I'd say;
+T:he's probably not very far from his store. Have you searched the various;
+T:alleys near his store? Or the houses? He could hiding in one of them.;
+T:That's where you should start.;
+A:Thanks for the help.:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Jindar Soldier;
+T:I wish you good luck, <CLASS>! Once you find him, bring him to me or another;
+T:guard. But if he resists... you know what to do.;
+A:I have some more questions...:0:0:0:1:9:0:0:0:0
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any rumors?:0:0:0:4:7:8:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %

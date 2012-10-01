@@ -1,0 +1,105 @@
+N:1:1102:1:0:0:0
+I:Maid;
+T:Hello again!;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1093:2:0:0:0
+I:Maid;
+T:Yes? May I help you?;
+A:Have you learned anything new about the assassination attempts?:0:0:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1093:1:0:0:0
+I:Maid;
+T:Hello again.;
+A:What do you know about the assassination attempts?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1076:1:0:0:0
+I:Maid;
+T:Mr. Harrington is waiting for you.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Maid;
+T:Yes? May I help you?;
+A:I'm with the Stealthy Vipers. I came here to meet with Mr. Harrington.:1:1075:1:1:5:0:0:0:0
+A:What is this place?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Maid;
+T:What is this place? You don't know? This is Mr. Harrington's mansion!;
+T:Mr. Geoffrey Harrington lives here. Surely you've heard of him before,;
+T:right? The HTC? Harrington Trades Company? Never heard of it?;
+A:Actually, I haven't. Tell me more.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Maid;
+T:Mr. Harrington is the owner of the Harrington Trades Company, or HTC for;
+T:short. One of the biggest company in Jindar! They are providers for;
+T:the various stores of Jindar. Food, weapons, armors, potions, you name it,;
+T:they provide it! As you can probably guess, Mr. Harrington is a very;
+T:wealthy man, and is very respected in the trades business. However,;
+T:being wealthy isn't all that great, as recently, there has been attempts;
+T:on his life. His guards have done a good job stopping the assassins;
+T:so far, but they haven't found where they come from, nor why.;
+A:Maybe I can help.:1:1075:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Maid;
+T:Unfortunately, Mr. Harrington will not meet with any adventurers or;
+T:mercenaries for the moment. The last person who came here pretending;
+T:to offer help turned out to be an assassin! Three guards had to team;
+T:up to kill him, and one of them died. So now we are very careful;
+T:about who we let in. Mr. Harrington will probably hire peoples from;
+T:an organization or something, and not random adventurers. I apologize,;
+T:but I cannot let you meet Mr. Harrington. Sorry.;
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Maid;
+T:Oh yes, Mr. Harrington is waiting for you. I'll unlock the door, and let;
+T:you in right away!;
+A:Thanks you.:0:0:0:0:0:0:0:1076:1
+%
+
+N:6:0:0:0:0:0
+I:Maid;
+T:Nothing. The only thing I know is that these assassins are very scary!;
+T:I've seen one burn our guards to ashes, and the other one chopped one;
+T:into pieces with his axe! I'm scared... I'm thinking about quitting this;
+T:job. I don't want to have anything to do with these psychopaths!;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Maid;
+T:Huh? Assassination attempts? How did you know about that?;
+A:What? But, you're the one who gave me access to Mr. Harrington's quarters!:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Maid;
+T:I did? Oh, the doors are unlocked all right... Seems I forgot about it.;
+T:My apologies.;
+A:...are you okay?:0:0:0:1:9:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Maid;
+T:Yes, of course! Go see Mr. Harrington. I hope you have luck finding these;
+T:assassins!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

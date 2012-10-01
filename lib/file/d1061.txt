@@ -1,0 +1,93 @@
+N:1:0:0:0:0:0
+I:Olaf;
+T:Hi there, <CLASS>. The name's Olaf. Olaf the Beast Tamer! Welcome to;
+T:the Storm Wyvern Travel Agency! So, what can I do for you?;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Olaf;
+T:The Storm Wyvern Travel Agency, or SWTA for short, is a travel agency;
+T:that offers trips to the other big cities in Portralis. Want to go to;
+T:Ivhala or Nimbraya, but don't feel like walking through mountains or;
+T:forests? Well, the SWTA is here, offering trips to these places for;
+T:a measly 500 golds per trips! Let me know if you're interested!;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Olaf;
+T:Though our name is the Storm Wyvern Travel Agency, the wyverns you;
+T:see here aren't Storm Wyverns. Don't even know if those things;
+T:actually exists. Anyway, these are a breed of domestic wyverns.;
+T:They're weaker than a wild wyvern, and their shorter wings prevents;
+T:them from flying. But they're docile, and much stronger than any;
+T:horses would ever be! In fact, ever since we started raising those;
+T:beasts, horses have become obsolete. An endangered specie, in fact.;
+T:They will soon become completely replaced by the tougher, stronger;
+T:wyverns. And that will be very good for our business!;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Olaf;
+T:Me? Well, I'm just a dwarf who knows how to fight, and who's capable;
+T:of taming those beasts. That's why they hired me! Guess there's not;
+T:much more to say about me, really.;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Olaf;
+T:It's 500 golds per trips. Where do you want to travel?;
+A:Ivhala. [Pay 500 golds.]:0:0:0:8:500:8:7:0:0
+A:Nevermind.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Olaf;
+T:Suit yourself. Anything else I can do for you?;
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Olaf;
+T:Sorry, but the prices do not go lower than 500 golds. Come back when;
+T:you've got the money.;
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Olaf;
+T:Ivhala? Be careful if you venture in the Agharias mountains. It's full;
+T:of dangerous creatures. And make sure you try the "Defender's Beer"!;
+T:Now THAT'll knock you out, hehe! Anyway, get your stuff ready, I'll have;
+T:a wagon prepared for you right away!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:You hop into a wagon pulled by one of the agency's wyverns. And then;
+T:you head toward the kingdom of Ivhala...;
+A:[END DIALOG]:0:0:0:2:504:87:37:0:0
+%

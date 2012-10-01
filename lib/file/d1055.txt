@@ -1,0 +1,190 @@
+N:1:1096:1:0:0:0
+I:Randar Rockbeard;
+T:Hi there, <NAME>! How can I help you?;
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:I want to buy a Pyrotechnic Axe.:1:1097:1:1:13:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:So you work for the weapon shop?:1:1097:0:1:6:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1096:0:0:0:0
+I:Randar Rockbeard;
+T:Hey there, <borgirl>! What brings you here?;
+A:Who are you?:0:0:0:1:2:0:0:1096:1
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Randar Rockbeard;
+T:My name's Randar. Randar Rockbeard! Adventurer, mercenary and smith;
+T:for the local weapon shop. And what about you?;
+A:My name is <NAME>. I am a <CLASS>.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Randar Rockbeard;
+T:Well then, <NAME>, what can I do for you?;
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:I want to buy a Pyrotechnic Axe.:1:1097:1:1:13:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:So you work for the weapon shop?:1:1097:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Randar Rockbeard;
+T:Me? Well, I was born in Ivhala, but I've decided to move here. I don't;
+T:miss that place. Pfff... my parents stills worship Agharias. You know,;
+T:that legendary titan who apparently created the whole dwarven race?;
+T:So we, a race of short peoples, would have been created by a giant?;
+T:Ridiculous! I don't believe in that Agharias crap. Actually, I don't;
+T:believe in the Creator either, but at least peoples here aren't acting;
+T:like religious fanatics. They won't call you a blasphemer or anything;
+T:if you don't believe in their god!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Randar Rockbeard;
+T:And I guess I like living in a big city like Jindar. Lots of taverns,;
+T:lots of adventuring jobs, lots of peoples to trade life stories...;
+T:Jindar is really awesome, I tell ya! Well, you can do that in Ivhala too,;
+T:but it's all humans and dwarves... Here, you have everything: humans,;
+T:elves, half-elves, dwarves, gnomes, kobolds, devlings... everything!;
+T:Much more fun than my relatives and their stone giant, heh heh heh...;
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:So you work for the weapon shop?:1:1097:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Randar Rockbeard;
+T:Yeah, though I've only started working as a smith a few months ago.;
+T:I've been adventuring in Portralis for years, and after seeing a lot;
+T:of the world, I felt it was time for me to settle down, and live a;
+T:less adventurous life. Don't get me wrong, I still take a lot of;
+T:adventuring jobs. Just less than I used to. Plus, I like crafting;
+T:weapons. I even invented a new kind of axe: the Pyrotechnic Axe!;
+A:The 'Pyrotechnic Axe'?:0:0:0:1:7:0:0:0:0
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Randar Rockbeard;
+T:Yeah, that's how I called it. A red-colored axe that causes deep burns;
+T:to whatever it strikes, in addition to causing a blaze to all enemies;
+T:around the wielder! I haven't done any Pyrotechnic Axes for the shops;
+T:though, it could be dangerous if it fell in the wrong hands.;
+A:Can I buy one?:0:0:0:1:8:0:0:1097:1
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Randar Rockbeard;
+T:Hmmm... well, why not? You look trustworthy enough. I have two versions;
+T:of the axe. The Pyrotechnic Battle Axe, or the two-handed and more powerful;
+T:Pyrotechnic Great Axe. The battle axe will cost you 5000 golds.;
+T:The great axe will cost you 10000 golds. Which one do you want?;
+A:I want a battle axe. [Pay 5000 golds.]:0:0:0:8:5000:9:11:0:0
+A:I want a great axe. [Pay 10000 golds.]:0:0:0:8:10000:10:11:0:0
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Randar Rockbeard;
+T:Thanks a lot, <NAME>! Here's the axe!;
+A:Thanks.:0:0:0:3:1232:0:12:0:0
+%
+
+N:10:0:0:0:0:0
+I:Randar Rockbeard;
+T:Thanks a lot, <NAME>! Here's the axe!;
+A:Thanks.:0:0:0:3:1233:0:12:0:0
+%
+
+N:11:0:0:0:0:0
+I:Randar Rockbeard;
+T:Hmmm, a bit short on golds, eh? Unfortunately, my axes are difficult to;
+T:craft, so I can't just give them away for free. But feel free to;
+T:come back when you have the golds.;
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:I want to buy a Pyrotechnic Axe.:1:1097:1:1:13:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Randar Rockbeard;
+T:Anything else?;
+A:Have you visited Mr. Geoffrey Harrington recently?:1:1095:1:1:14:0:0:0:0
+A:I want to buy a Pyrotechnic Axe.:1:1097:1:1:13:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:So you work for the weapon shop?:1:1097:0:1:6:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Randar Rockbeard;
+T:Sure! Which one do you want?;
+A:I want a battle axe. [Pay 5000 golds.]:0:0:0:8:5000:9:11:0:0
+A:I want a great axe. [Pay 10000 golds.]:0:0:0:8:10000:10:11:0:0
+A:Nevermind.:0:0:0:1:12:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Randar Rockbeard;
+T:Oh, so you're investigating that case, huh? Aye, I did visit him. He was;
+T:looking for mercenaries to hire, so I answered the call. A first, he told;
+T:me about three assassins, which he described as an half-elf, a gnome and;
+T:a Rhyzendalian. He didn't know anything else though, not even a clue where;
+T:we should start searching. So I called two of my friends, a rogue and a;
+T:sorceress, and we searched for the three assassins but found nothing.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Randar Rockbeard;
+T:So I returned to Mr. Harrington's mansion to see if he found out anything;
+T:new. And then, something really freaky happened: he completely forgot;
+T:about me! I told him my name, but that didn't work, he just said that;
+T:he was waiting for a mercenary to come visit him. I tried to refresh;
+T:his memory by describing the assassins, but that just made things worse!;
+T:He said I was wrong and that the assassins were, get this: a cloaked;
+T:assassin, a witch and a dwarf! That's me and my two friends!! And he didn't;
+T:seem to be surprised to see me at all, he just said that I looked like;
+T:one of the assassins, but I can't be him, because his guards killed him.;
+A:Actually, the same thing happened to me as well!:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Randar Rockbeard;
+T:If I didn't know better, I'd say Mr. Harrington is just trying to make fun;
+T:of us, the poor, little peoples. He must think he's so great, living in;
+T:a mansion and all! Pah! Money is nothing in this world when you got power!;
+T:Who cares if he's rich? Both you and I are better warriors than he is!;
+T:Oooh, guards are coming my way? Hmph! Bring'em on!;
+A:He didn't seem to fake it though...:0:0:0:1:17:0:0:1095:2
+%
+
+N:17:0:0:0:0:0
+I:Randar Rockbeard;
+T:Yeah, you're probably right. *sigh*...To tell you the truth, I've given;
+T:up that case. I'm a warrior and a smith, not some kind of detective.;
+T:You might want to speak with my friends though. You know, the rogue;
+T:and the sorceress? They live in this district nearby. Their names are;
+T:Tom and Adrianna. Adrianna lives right behind the alchemy shop, while;
+T:Tom's house is in the southeast of the district. Go speak with them, tell;
+T:them Randar sent you and they'll answer your questions. Perhaps they'll;
+T:know more than I do. Sorry I couldn't have been more helpful.;
+A:I want to buy a Pyrotechnic Axe.:1:1097:1:1:13:0:0:0:0
+A:Tell me more about you.:0:0:0:1:4:0:0:0:0
+A:So you work for the weapon shop?:1:1097:0:1:6:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%

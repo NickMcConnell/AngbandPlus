@@ -1,0 +1,42 @@
+N:1:0:0:0:0:0
+I: ;
+T:It seems like Simon has been slain. But then, his body recovers, and he;
+T:stands up.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1511:2
+%
+
+N:2:0:0:0:0:0
+I:Simon;
+T:Surely your last attack would have killed me, but I've decided otherwise.;
+T:That's right, <NAME>. My powers even allows me to alter reality;
+T:in order to save me from death. The red licialhyds have awakened our;
+T:true powers. And now, we are practically immortal, me and the rest;
+T:of my order.;
+A:The red licialhyds? So you...:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Simon;
+T:...took it already? Yes. And we already got the ones from Nimbraya;
+T:and Karingen as well. It wasn't very difficult. The Knights of Balance;
+T:have lost their powers after years of being near the red licialhyds.;
+T:Don't feel bad, <NAME>. You did well, considering you work alone;
+T:and all. But there's only so much one <manwoman> can do.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Simon;
+T:Well, it's time for me to go. You DID wear me down a bit, so I'll go;
+T:regain some strength. But you'll never be able to enter the palace!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:Before you can react, he is gone, as if he disappeared using yet another;
+T:twist of reality. You try opening the door again, but it still doesn't;
+T:work. Perhaps you should continue exploring the tunnels, and try to find;
+T:where Simon is hiding.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,66 @@
+N:1:116:1:0:0:0
+I:Nightmare Shadow Mistress;
+T:Tehehehe! You're really strong, <NAME>! To think someone would be;
+T:strong enough to hold <hisher> own against a Nightmare!;
+T:Congratulations! A truly magnificient performance! I, Cleo the;
+T:Shadow Mistress, salute your skill!;
+A:Since you've lost, you've got to talk! What's this all about?:0:0:0:1:2:0:0:116:2
+%
+
+N:1:0:0:0:0:0
+I:Nightmare Shadow Mistress;
+T:Well well, if it isn't <NAME> the <CLASS>! Tehehehe... You've made;
+T:it here after all! And all of this while Ophelia wasn't smiling!;
+T:Tehehe... You may call me Cleo.;
+A:Ok, enough talk. Tell me what this is all about.:0:0:0:1:2:0:0:116:2
+%
+
+N:2:0:0:0:0:0
+I:Cleo;
+T:An experiment, basically. You see, the REAL story is that Ophelia;
+T:was the assassin, and the healer with curative powers was Maelan!;
+T:That's right. He was no mean-looking warrior, he was a priest!;
+T:Ophelia was an evil assassin who carried misfortune. She was not;
+T:content with simply killing her victims. She enjoyed condemning them;
+T:to eternal suffering!;
+A:[CONTINUE]:0:0:0:7:18:0:3:0:0
+%
+
+N:3:0:0:0:0:0
+I:Cleo;
+T:After the murder, she coerced historians and book writers into writing;
+T:a deformed version of the real story, where Maelan would be the bad;
+T:guy, and she would be the good healer. Therefore, she would be remembered;
+T:as an heroine, while he would be remembered as an evil man.;
+T:And her plan worked! What she didn't know, however, is that the misfortune;
+T:she carried would spread over the false books. And over the years, they;
+T:became cursed books, containing a fake history. These cursed books allowed;
+T:me to travel to this plane. And for my own amusement, I've decided to;
+T:create an alternate world where the false story would become reality!;
+A:So this house with Ophelia and Maelan was your creation.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Cleo;
+T:Exactly. And I wanted to enjoy seeing you killing Maelan, as the books;
+T:suggested. But it seems you saw through my game, somehow. Or maybe it;
+T:was just luck? Anyway, you have won. You have discovered the truth,;
+T:and you were able to find me. Congratulations!;
+A:So...now what?:0:0:0:1:5:0:0:117:1
+%
+
+N:5:0:0:0:0:0
+I:Cleo;
+T:Now what? Well, I'll go some place else I guess. As long as the books;
+T:exists, I'll be able to stay in this world for as long as I want!;
+T:So, good bye, <NAME>! Hope you've enjoyed playing with me!;
+A:[CONTINUE]:0:0:0:9:1224:6:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:She disappears in the shadows. It seems like the whole story of;
+T:Ophelia was fake, and she was actually an evil assassin. You should;
+T:return to the town, and inform mayor Jeffrey of your discovery.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

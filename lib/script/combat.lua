@@ -22,6 +22,19 @@ function py_attack_execute (y, x, max_blow)
         local           usedcombo = FALSE
 	local           blocked = FALSE
 	local		tmp_r_idx = 0
+	local		meleex = 0
+	local		meleey = 0
+	local		mtype = 0
+	local		dam = 0
+
+	-- Don't attack if using dashing shot
+	if (dashingshot == 1) then return end
+
+	-- Reset crushing blows.
+	crushingblows = 0
+
+	-- Reset normal attacks.
+	normalattack = 0
 
         -- First and foremost, determine the maximum combos the
         -- player can do(if any)
@@ -44,12 +57,7 @@ function py_attack_execute (y, x, max_blow)
 	-- Disturb the player
 	disturb(0, 0)
 
-        if (get_monster_flag1(p_ptr.body_monster, RF1_NEVER_BLOW) == TRUE) then
-                msg_print("You cannot attack in this form!")
-                canattack = FALSE
-        end
-
-        if (p_ptr.skill[7] >= 30) then
+        if (p_ptr.skill_base[7] >= 30) then
 
 		if ((monster(cave(y, x).m_idx).csleep > 0) and (monster(cave(y, x).m_idx).ml)) then
 
@@ -102,15 +110,10 @@ function py_attack_execute (y, x, max_blow)
 		canattack = FALSE
 	end
 	
-        -- Monsters that can dont use weapons, us etheir natural attacks
-        if ((p_ptr.body_monster > 0) and (m_race(p_ptr.body_monster).body_parts[BODY_WEAPON+1] == 0)) then
-
-                incarnate_monster_attack(cave(y, x).m_idx, y, x)
-     
-        elseif (canattack == TRUE) then
+        if (canattack == TRUE) then
         -- Attack with first weapon, then with second weapon
 
-        for weap = 0, 1 do
+        for weap = 0, p_ptr.dualwield do
 
         -- Monster is already dead ? oh :(
         if (mdeath) then break end
@@ -120,13 +123,6 @@ function py_attack_execute (y, x, max_blow)
 
 	-- Access the weapon
 	current_weapon = inven(INVEN_WIELD + weap)
-
-        -- No weapon found? Go for natural attacks then...
-        if (inven(INVEN_WIELD + weap).tval == 0 and not (p_ptr.body_monster == 0) and unarmed() == TRUE) then
-
-                incarnate_monster_attack(cave(y, x).m_idx, y, x)
-                return
-        end
 
 	-- Break if no second weapons!
 	if (weap == 1) then
@@ -153,16 +149,22 @@ function py_attack_execute (y, x, max_blow)
 		blocked = FALSE
 
 		num = num + 1
+		current_weapon = inven(INVEN_WIELD + weap) -- This is from Adelie.
+
+		-- Run a script?
+		player_before_melee()
 
                 -- Maybe the player want to use a special move instead...
                 -- Offer the choice...if possible.
                 if (totalcombo < maxcombo and mdeath == FALSE) then
 
-			msg_print(NULL)  
-			if (unarmed() == TRUE) then msg_print("Use a special ability? [y/n/no[t] this turn]")
-			elseif (weap == 0) then msg_print("Use a special ability? [y/n/no[t] this turn]")
-                        else msg_print("Use a special ability? [y/n/no[t] this turn]")
-			end
+			local comboleft
+
+			comboleft = string.format('Use an ability? (%d feats left, attack %d/%d.) [y/n/no[t] this turn]', maxcombo - totalcombo, num + (p_ptr.num_blow * weap), p_ptr.num_blow + (p_ptr.num_blow2 * p_ptr.dualwield))
+
+			msg_print(NULL)
+
+  			msg_print(comboleft)
 
 			ch = inkey()
 
@@ -184,242 +186,79 @@ function py_attack_execute (y, x, max_blow)
 
                 end
 
-                -- Piercing Stab passive feat
-                if (dagger_check() and p_ptr.skill[16] >= 5) then daggerbonus = p_ptr.to_h / 4 end
 
                 if (usedcombo == 0) then
 
-                -- Test for hit
-                if (player_hit_monster(monster(cave(y, x).m_idx), daggerbonus) == 1) then
+			meleex = monster(cave(y, x).m_idx).fx
+			meleey = monster(cave(y, x).m_idx).fy
+			melee_attack = TRUE
 
-			local critical_hit = 0
-			local pcrit = p_ptr.abilities[(CLASS_FIGHTER * 10) + 4] * 5
-			local mcritres = monster(cave(y, x).m_idx).level + monster(cave(y, x).m_idx).str
+			-- This is a normal attack.
+			normalattack = 1
 
-			-- Check for Fighter's critical hits!
-			if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 4] >= 1) then
+			if (unarmed()) then
 
-				if (lua_randint(pcrit) >= lua_randint(mcritres)) then
+				if (inven(INVEN_HANDS).extra1 == 0) then
 
-					critical_hit = 1
-				end
-			end
+					if (p_ptr.prace == RACE_MONSTER) then
 
-			-- Sound
-			sound(SOUND_HIT)
+						if (p_ptr.events[29028] == 1 and inven(INVEN_ESSENCE).tval > 0) then
 
-			-- Hack -- bare hands do one damage
-			k = 1
-                        if (inven(INVEN_WIELD + weap).k_idx == 0) then
+							mtype = inven(INVEN_ESSENCE).extra1
+						else
 
-				-- If we have nothing in this slots, but we have in another one */
-				-- We're not unarmed. Skip attack phase. */
-				if (unarmed()) then
-
-                                	k = monk_damages()
-				
-					if (backstab) then
-
-						backstab = FALSE
-                                        	k = k * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2])
-					elseif (stab_fleeing) then
-
-                                        	k = k * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2]) / 2
+							mtype = m_race(p_ptr.body_monster).attack[p_ptr.events[29020]+1].element
+						end
+					else
+						mtype = GF_PHYSICAL
 					end
+				else
+					mtype = inven(INVEN_HANDS).extra1
+				end
 
-                                	-- No negative damage
-                                	if (k < 0) then k = 0 end
-
-				else 
-					noweapon = TRUE
-				end                              
-                        else
-                                k = weapon_damages()
-                                k = tot_dam_aux(inven(INVEN_WIELD + weap), k, monster(cave(y, x).m_idx))
-
-                                if (backstab) then
+				dam = monk_damages()
+				if (backstab) then
 
 					backstab = FALSE
-                                        k = k * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2])
-
+                                        dam = dam * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2])
 				elseif (stab_fleeing) then
 
-                                        k = k * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2]) / 2
-				end
-                                --do_cmd_damage_weapon()
-			end
-
-			tmp_r_idx = monster(cave(y, x).m_idx).r_idx
-			if (noweapon == FALSE) then
-			-- Physical resistance of monsters...
-			k = k - ((k * m_race(tmp_r_idx).physres) / 100)
-			m_race(monster(cave(y, x).m_idx).r_idx).r_resist[GF_PHYSICAL+1] = 1
-
-                                -- Bosses/Elites can be immune to weapons...
-				if (get_monster_ability(monster(cave(y, x).m_idx), BOSS_RETURNING)) then
-
-                                        local returndamages
-                                        returndamages = k / 2
-                                        msg_print("You hurt yourself!")
-                                        take_hit(returndamages, "A monster ability")
-                                end
-				-- Returning counter!
-				if ((m_race(monster(cave(y, x).m_idx).r_idx).countertype == 7 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 9) and lua_randint(100) <= m_race(monster(cave(y, x).m_idx).r_idx).counterchance) then
-
-                                        msg_print("Damages are reflected to you!")
-                                        take_hit(k, "Melee returning counter")
-				end
-				-- Block & Return counter!
-				if ((m_race(monster(cave(y, x).m_idx).r_idx).countertype == 10 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 12) and lua_randint(100) <= m_race(monster(cave(y, x).m_idx).r_idx).counterchance) then
-
-					if (monster_hit_player(monster(cave(y, x).m_idx), 0) == TRUE) then
-
-						msg_print(string.format('%s blocked your atack!', m_name))
-						msg_print("Damages are reflected to you!")
-                                        	take_hit(k, "Melee returning counter")
-						k = 0
-						blocked = TRUE
-					end
-				end
-				if ((m_race(monster(cave(y, x).m_idx).r_idx).countertype == 13 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 15) and lua_randint(100) <= m_race(monster(cave(y, x).m_idx).r_idx).counterchance) then
-
-					msg_print(string.format('%s blocked your atack!', m_name))
-					msg_print("Damages are reflected to you!")
-                                        take_hit(k, "Melee returning counter")
-					k = 0
-					blocked = TRUE
+                                        dam = dam * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2]) / 2
 				end
 
-                                if (get_monster_ability(monster(cave(y, x).m_idx), BOSS_HALVE_DAMAGES)) then
- 
-                                        k = k / 2
-                                end
-                                if (get_monster_ability(monster(cave(y, x).m_idx), BOSS_IMMUNE_WEAPONS)) then
-                                        k = 0
-                                        msg_print("The monster seems to be immune...")
-                                end
-                                
-				-- Some counters...
-				if ((m_race(monster(cave(y, x).m_idx).r_idx).countertype == 1 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 3 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 17 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 19) and lua_randint(100) <= m_race(monster(cave(y, x).m_idx).r_idx).counterchance) then
-
-					if (monster_hit_player(monster(cave(y, x).m_idx), 0) == TRUE) then
-
-						msg_print(string.format('%s blocked your atack!', m_name))
-						k = 0
-						blocked = TRUE
-					end
-				end
-				if ((m_race(monster(cave(y, x).m_idx).r_idx).countertype == 4 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 6 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 21 or m_race(monster(cave(y, x).m_idx).r_idx).countertype == 23) and lua_randint(100) <= m_race(monster(cave(y, x).m_idx).r_idx).counterchance) then
-
-					msg_print(string.format('%s blocked your atack!', m_name))
-					k = 0
-					blocked = TRUE
-				end
-
-			-- No negative damage
-			if (k < 0) then k = 0 end
-
-			-- Lower defense?
-                        if (get_object_flag4(inven(INVEN_WIELD + weap), TR4_LOWER_DEF) and (blocked == FALSE)) then
-
-                                local defamount
-
-                                defamount = (damroll(inven(INVEN_WIELD + weap).dd, inven(INVEN_WIELD + weap).ds) * 3) / 10
-                                if (monster(cave(y, x).m_idx).defense <= 0) then defamount = 0 end
-				msg_print(string.format('%s loses %d defense!', m_name, defamount))
-                                monster(cave(y, x).m_idx).defense = monster(cave(y, x).m_idx).defense - defamount
-                                if (monster(cave(y, x).m_idx).defense <= 0) then m_ptr.defense = 0 end
-                        end
-                        -- Lower hit rate?
-                        if (get_object_flag4(inven(INVEN_WIELD + weap), TR4_LOWER_HIT) and (blocked == FALSE)) then
-
-                                local hitamount
-
-                                hitamount = (damroll(inven(INVEN_WIELD + weap).dd, inven(INVEN_WIELD + weap).ds) * 3) / 10
-                                if (monster(cave(y, x).m_idx).hitrate <= 0) then hitamount = 0 end
-				msg_print(string.format('%s loses %d hit rate!', m_name, hitamount))
-                                monster(cave(y, x).m_idx).hitrate = monster(cave(y, x).m_idx).hitrate - hitamount
-                                if (monster(cave(y, x).m_idx).hitrate <= 0) then m_ptr.hitrate = 0 end
-                        end
-			-- High Monk's Disabling Blows!
-                        if (unarmed() == TRUE and p_ptr.abilities[(CLASS_ZELAR * 10) + 6] >= 1 and blocked == FALSE) then
-
-                                local defreduction = (p_ptr.abilities[(CLASS_ZELAR * 10) + 6] * 15)
-                                local speedreduction = 1 + (p_ptr.abilities[(CLASS_ZELAR * 10) + 6] / 2)
-
-                                if (not (get_monster_ability(monster(cave(y, x).m_idx), BOSS_IMMUNE_WEAPONS)) and not (get_monster_flag1(monster(cave(y, x).m_idx).r_idx, RF1_UNIQUE))) then
-
-                                        monster(cave(y, x).m_idx).hitrate = monster(cave(y, x).m_idx).hitrate - defreduction
-                                        monster(cave(y, x).m_idx).defense = monster(cave(y, x).m_idx).hitrate - defreduction
-                                        monster(cave(y, x).m_idx).mspeed = monster(cave(y, x).m_idx).hitrate - speedreduction
-					msg_print(string.format('Def/Hit loss: %d, Speed loss: %d.', defreduction, speedreduction))
-                                end
-                        end
-
-			-- Message
-			if ((backstab == FALSE or stab_fleeing == FALSE) and (blocked == FALSE)) then
-
-                        	msg_print(string.format('You hit %s!', m_name))
-			elseif (blocked == FALSE) then
-				msg_print(string.format('You backstab %s!', m_name))
-			end
-
-			-- Fighter's critical hits!
-			if ((k > 0) and (critical_hit == 1)) then
-
-				msg_print(string.format('%s receives critical hit!', m_name))
-				k = k * 2
-				if (not (get_monster_flag1(monster(cave(y, x).m_idx).r_idx, RF1_UNIQUE)) and not (get_monster_flag3(monster(cave(y, x).m_idx).r_idx, RF3_NO_STUN))) then
-
-                                        monster(cave(y, x).m_idx).seallight = 2 + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 4] / 20)
-                                end
-			end
-			
-			-- Damage, check for fear and death
-			if (mon_take_hit(cave(y, x).m_idx, k, fear, nil) == TRUE) then
-
-				mdeath = TRUE
-				break
-			end
-			
-			if (is_pet(monster(cave(y, x).m_idx)) == TRUE) then
-
-				msg_print(string.format('%s gets angry!', m_name))
-				set_pet(monster(cave(y, x).m_idx), FALSE)
-			end
-			if (unarmed() == TRUE) then
-				if (inven(INVEN_HANDS).brandtype > 0 and (blocked == FALSE) and (mdeath == FALSE)) then
-
-					no_magic_return = TRUE
-					fire_jump_ball(inven(INVEN_HANDS).brandtype, (inven(INVEN_HANDS).branddam * (inven(INVEN_HANDS).pval + 1)), inven(INVEN_HANDS).brandrad, monster(cave(y, x).m_idx).fx, monster(cave(y, x).m_idx).fy, TRUE)
-					no_magic_return = FALSE
-				end
+                                -- No negative damage
+                                if (dam < 0) then dam = 0 end
 			else
-				if (inven(INVEN_WIELD + weap).brandtype > 0 and (blocked == FALSE) and (mdeath == FALSE)) then
-
-					no_magic_return = TRUE
-					fire_jump_ball(inven(INVEN_WIELD + weap).brandtype, (inven(INVEN_WIELD + weap).branddam * (inven(INVEN_WIELD + weap).pval + 1)), inven(INVEN_WIELD + weap).brandrad, monster(cave(y, x).m_idx).fx, monster(cave(y, x).m_idx).fy, TRUE)
-					no_magic_return = FALSE
+				if (inven(INVEN_WIELD + weap).extra1 == 0) then mtype = GF_PHYSICAL
+				else mtype = inven(INVEN_WIELD + weap).extra1
 				end
+				dam = weapon_damages()
+				if (backstab) then
+
+					backstab = FALSE
+                                        dam = dam * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2])
+				elseif (stab_fleeing) then
+
+                                        dam = dam * (3 + p_ptr.abilities[(CLASS_ROGUE * 10) + 2]) / 2
+				end
+
+                                -- No negative damage
+                                if (dam < 0) then dam = 0 end
 			end
-			-- End of weapons check
-			end
+			
+			no_magic_return = FALSE
+			nevermiss = FALSE
+			fire_jump_ball(mtype, dam, 0, meleex, meleey, FALSE)
+			melee_attack = FALSE
 
-		-- Player misses
-		else
+			-- Run a script?
+			player_after_melee(dam)
 
-			-- Sound
-			sound(SOUND_MISS)
+			update_and_handle()
 
-			backstab = FALSE
-
-			-- Message
-			msg_print(string.format('You miss %s!', m_name))
-
-		end
 		-- End of combo checks
                 end
-		update_and_handle()
+		
 	end
 
         else
@@ -429,13 +268,13 @@ function py_attack_execute (y, x, max_blow)
         end
         end
 	
-	if (fear and monster(cave(y, x).m_idx).ml) then
+	--if (fear and monster(cave(y, x).m_idx).ml) then
 		-- Sound
-		sound(SOUND_FLEE);
+		--sound(SOUND_FLEE);
 
 		-- Message
-		msg_print(string.format('%s flees in terror!', m_name))
-	end
+		--msg_print(string.format('%s flees in terror!', m_name))
+	--end
 
 end
 
@@ -443,22 +282,74 @@ end
 function weapon_damages()
         local k = 0
 	local tskill = 0
+	local craftbonus = 0
+	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
+	local intfight = 0
+	local usedstat = 0
 
-	tskill = p_ptr.skill[1]
-	if (current_weapon.tval == TV_SWORD or current_weapon.tval == TV_SWORD_DEVASTATION) then tskill = tskill + (p_ptr.skill[13] + (p_ptr.skill[13] / 2)) end
-        if (current_weapon.tval == TV_HAFTED or current_weapon.tval == TV_MSTAFF or current_weapon.tval == TV_HELL_STAFF) then tskill = tskill + (p_ptr.skill[14] + (p_ptr.skill[14] / 2)) end
-        if (current_weapon.tval == TV_POLEARM) then tskill = tskill + (p_ptr.skill[15] + (p_ptr.skill[15] / 2)) end
-        if (current_weapon.tval == TV_DAGGER) then tskill = tskill + (p_ptr.skill[16] + (p_ptr.skill[16] / 2)) end
-        if (current_weapon.tval == TV_AXE) then tskill = tskill + (p_ptr.skill[17] + (p_ptr.skill[17] / 2)) end
-        if (current_weapon.tval == TV_ROD) then tskill = tskill + (p_ptr.skill[18] + (p_ptr.skill[18] / 2)) end
-        if (current_weapon.tval == TV_ZELAR_WEAPON) then tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2)) end
+	craftbonus = p_ptr.skill[12]
+	if (craftbonus > craftmax) then craftbonus = craftmax end
+
+	if (not(get_object_flag4(current_weapon, TR4_CRAFTED))) then craftbonus = 0 end
+
+	tskill = p_ptr.skill[1] + craftbonus
+
+	-- Defensive Strike!
+	if (defensive_strike == 1) then tskill = tskill + p_ptr.skill[5] end
+
+	-- Stealth Attack!
+	if (stealth_attack == 1) then tskill = tskill + p_ptr.skill[7] end
+
+	if ((current_weapon.tval == TV_WEAPON or current_weapon.tval == TV_ROD) and not(current_weapon.itemskill == 0)) then
+
+		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
+	end
 
         k = damroll(current_weapon.dd, current_weapon.ds)
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
-	if (current_weapon.tval == TV_POLEARM and (p_ptr.skill[15] >= 90)) then k = k * 2 end
+
+	-- Ranger's Forestry ability!
+        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+
+                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
+        end
+
+	if (current_weapon.itemskill == 14 and (p_ptr.skill_base[15] >= 90)) then k = k * 2 end
+
+	-- Bonus damages.
+	if (p_ptr.events[29017] > 0) then
+
+		k = k + p_ptr.events[29017]
+		p_ptr.events[29017] = 0
+	end
+
         k = k * (tskill + 1)
-        k = k + ((k * p_ptr.dis_to_d) / 100)
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
+	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
+	if (get_object_flag4(current_weapon, TR4_COULD2H) and ((inven(INVEN_WIELD).tval == 0) or (inven(INVEN_WIELD+1).tval == 0))) then k = k + (k / 3) end
+
+	-- An additional boost from strength.
+	usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+
+	-- We might use another stat instead.
+	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
+
+		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
+		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
+		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
+
+			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
+		end
+		if (usedint > strbonus) then
+
+			usedstat = (p_ptr.stat_ind[A_INT+1] - 5)
+			intfight = 1
+		else
+
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+		end
+	end
+
+        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1 and intfight == 0) then
 
 		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
 		local useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
@@ -468,14 +359,14 @@ function weapon_damages()
 		end
 		if (useddex > strbonus) then
 
-			k = k + ((k * useddex) / 100)
+			usedstat = (p_ptr.stat_ind[A_DEX+1] - 5)
 		else
 
-			k = k + ((k * strbonus) / 100)
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
 		end
-        else
-		k = k + ((k * p_ptr.stat_ind[A_STR+1]) / 100)
 	end
+
+	k = k + multiply_divide(k, usedstat, 100)
 
 	if (p_ptr.powerattack > 0) then
 
@@ -483,10 +374,38 @@ function weapon_damages()
 		elseif (p_ptr.powerlevel == 2) then k = k * (3 + ((3 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		elseif (p_ptr.powerlevel == 3) then k = k * (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		end
+		if (p_ptr.prace == RACE_MONSTER and k > 0 and get_player_monster_ability(BOSS_CURSED_HITS)) then
+
+			if (p_ptr.powerlevel == 1) then crushingblows = 2 end
+			if (p_ptr.powerlevel == 2) then crushingblows = 3 end
+			if (p_ptr.powerlevel == 3) then crushingblows = 4 end
+		end
+		if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 4] > 0) then
+
+			if (p_ptr.powerlevel == 1) then critmod = (2 + ((2 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
+			elseif (p_ptr.powerlevel == 2) then critmod = (3 + ((3 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
+			elseif (p_ptr.powerlevel == 3) then critmod = (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
+			end
+		end
 		set_powerattack(0)
 		p_ptr.str_boost = 0
 		p_ptr.str_boost_dur = 0
 		update_and_handle()
+	end
+
+	-- Bard's War Songs ability.
+	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
+
+		local chrbonus
+
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
+		k = k + multiply_divide(k, chrbonus, 100)
+	end
+
+	-- Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] > 0) then
+
+		k = k + multiply_divide(k, p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
 	end
 
         return k
@@ -500,6 +419,8 @@ function monk_damages()
 	local mside
 	local tskill
 	local glovebonus
+	local intfight = 0
+	local usedstat = 0
 
         mdice = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 1
         mside = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 3
@@ -509,16 +430,74 @@ function monk_damages()
 	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0) then
 		glovebonus = lua_randint(inven(INVEN_HANDS).ac)
 	end
+	
+        -- For Monsters, it's different.
+	if (p_ptr.prace == RACE_MONSTER) then
 
-        k = damroll(mdice, mside)
+		-- Use the main essence if enabled.
+		if (p_ptr.events[29028] == 1 and inven(INVEN_ESSENCE).tval > 0) then
+
+			k = damroll(inven(INVEN_ESSENCE).dd, inven(INVEN_ESSENCE).ds)
+			if (k <= 0) then k = 1 end
+		else
+
+			k = damroll(m_race(p_ptr.body_monster).attack[p_ptr.events[29020]+1].ddice, m_race(p_ptr.body_monster).attack[p_ptr.events[29020]+1].dside)
+			if (k <= 0) then k = 1 end
+		end
+
+		-- 1% increase per MArtial Arts points.
+		k = k + multiply_divide(k, p_ptr.skill[19], 100)
+		
+	else
+
+        	k = damroll(mdice, mside)
+	end
+
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
-	k = k + ((p_ptr.skill[1] * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 5)) / 100)
+
+	-- Ranger's Forestry ability!
+        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+
+                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
+        end
+
+	-- Bonus damages.
+	if (p_ptr.events[29017] > 0) then
+
+		k = k + p_ptr.events[29017]
+		p_ptr.events[29017] = 0
+	end
+
+	k = k + ((p_ptr.skill[1] * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 10)) / 100)
 	k = k + glovebonus
 	tskill = p_ptr.skill[1]
 	tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
         k = k * (tskill + 1)
-        k = k + ((k * p_ptr.dis_to_d) / 100)
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
+	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
+
+	-- An additional boost from strength.
+	usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+
+	-- We might use another stat instead.
+	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(inven(INVEN_HANDS), TR4_CRAFTED)) then
+
+		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
+		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
+		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
+
+			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
+		end
+		if (usedint > strbonus) then
+
+			usedstat = (p_ptr.stat_ind[A_INT+1] - 5)
+			intfight = 1
+		else
+
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+		end
+	end
+
+        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1 and intfight == 0) then
 
 		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
 		local useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
@@ -528,26 +507,58 @@ function monk_damages()
 		end
 		if (useddex > strbonus) then
 
-			k = k + ((k * useddex) / 100)
+			usedstat = (p_ptr.stat_ind[A_DEX+1] - 5)
 		else
 
-			k = k + ((k * strbonus) / 100)
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
 		end
-        else 
-		k = k + ((k * p_ptr.stat_ind[A_STR+1]) / 100)
 	end
+
+	k = k + multiply_divide(k, usedstat, 100)
+
 	if (p_ptr.powerattack > 0) then
+
+		local chance_no_end
+
+		chance_no_end = 0
 
 		if (p_ptr.powerlevel == 1) then k = k * (2 + ((2 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		elseif (p_ptr.powerlevel == 2) then k = k * (3 + ((3 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		elseif (p_ptr.powerlevel == 3) then k = k * (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		end
-		set_powerattack(0)
-		p_ptr.str_boost = 0
-		p_ptr.str_boost_dur = 0
+
+		if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 10] > 0) then
+
+			if (p_ptr.powerlevel == 1) then chance_no_end = p_ptr.abilities[(CLASS_FIGHTER * 10) + 10] * 5
+			elseif (p_ptr.powerlevel == 2) then chance_no_end = p_ptr.abilities[(CLASS_FIGHTER * 10) + 10] * 3
+			elseif (p_ptr.powerlevel == 3) then chance_no_end = p_ptr.abilities[(CLASS_FIGHTER * 10) + 10]
+			end
+		end
+
+		if (p_ptr.prace == RACE_MONSTER and k > 0 and get_player_monster_ability(BOSS_CURSED_HITS)) then
+
+			if (p_ptr.powerlevel == 1) then crushingblows = 2 end
+			if (p_ptr.powerlevel == 2) then crushingblows = 3 end
+			if (p_ptr.powerlevel == 3) then crushingblows = 4 end
+		end
+		if (lua_randint(100) > chance_no_end) then
+			set_powerattack(0)
+			p_ptr.str_boost = 0
+			p_ptr.str_boost_dur = 0
+		end
 		update_and_handle()
 	end
-        return k
+
+	-- Bard's War Songs ability.
+	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
+
+		local chrbonus
+
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
+		k = k + multiply_divide(k, chrbonus, 100)
+	end
+
+	return k
 end
 
 -- Return minimum weapon damages. Used by files.c to display damages.
@@ -556,22 +567,74 @@ function min_weapon_damages()
 
         local k
 	local tskill
+	local craftbonus = 0
+	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
+	local intfight = 0
+	local usedstat = 0
 
-	tskill = p_ptr.skill[1]
-	if (current_weapon.tval == TV_SWORD or current_weapon.tval == TV_SWORD_DEVASTATION) then tskill = tskill + (p_ptr.skill[13] + (p_ptr.skill[13] / 2)) end
-        if (current_weapon.tval == TV_HAFTED or current_weapon.tval == TV_MSTAFF or current_weapon.tval == TV_HELL_STAFF) then tskill = tskill + (p_ptr.skill[14] + (p_ptr.skill[14] / 2)) end
-        if (current_weapon.tval == TV_POLEARM) then tskill = tskill + (p_ptr.skill[15] + (p_ptr.skill[15] / 2)) end
-        if (current_weapon.tval == TV_DAGGER) then tskill = tskill + (p_ptr.skill[16] + (p_ptr.skill[16] / 2)) end
-        if (current_weapon.tval == TV_AXE) then tskill = tskill + (p_ptr.skill[17] + (p_ptr.skill[17] / 2)) end
-        if (current_weapon.tval == TV_ROD) then tskill = tskill + (p_ptr.skill[18] + (p_ptr.skill[18] / 2)) end
-        if (current_weapon.tval == TV_ZELAR_WEAPON) then tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2)) end
+	craftbonus = p_ptr.skill[12]
+	if (craftbonus > craftmax) then craftbonus = craftmax end
+
+	if (not(get_object_flag4(current_weapon, TR4_CRAFTED))) then craftbonus = 0 end
+
+	tskill = p_ptr.skill[1] + craftbonus
+
+	-- Defensive Strike!
+	if (defensive_strike == 1) then tskill = tskill + p_ptr.skill[5] end
+
+	-- Stealth Attack!
+	if (stealth_attack == 1) then tskill = tskill + p_ptr.skill[7] end
+
+	if ((current_weapon.tval == TV_WEAPON or current_weapon.tval == TV_ROD) and not(current_weapon.itemskill == 0)) then
+
+		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
+	end
 
         k = damroll(current_weapon.dd, 1)
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
-	if (current_weapon.tval == TV_POLEARM and (p_ptr.skill[15] >= 90)) then k = k * 2 end
+
+	-- Ranger's Forestry ability!
+        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+
+                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
+        end
+
+	if (current_weapon.itemskill == 14 and (p_ptr.skill_base[15] >= 90)) then k = k * 2 end
+
+	-- Bonus damages.
+	if (p_ptr.events[29017] > 0) then
+
+		k = k + p_ptr.events[29017]
+		p_ptr.events[29017] = 0
+	end
+
         k = k * (tskill + 1)
-        k = k + ((k * p_ptr.dis_to_d) / 100)
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
+	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
+	if (get_object_flag4(current_weapon, TR4_COULD2H) and ((inven(INVEN_WIELD).tval == 0) or (inven(INVEN_WIELD+1).tval == 0))) then k = k + (k / 3) end
+
+	-- An additional boost from strength.
+	usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+
+	-- We might use another stat instead.
+	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
+
+		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
+		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
+		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
+
+			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
+		end
+		if (usedint > strbonus) then
+
+			usedstat = (p_ptr.stat_ind[A_INT+1] - 5)
+			intfight = 1
+		else
+
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+		end
+	end
+
+        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1 and intfight == 0) then
 
 		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
 		local useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
@@ -581,14 +644,15 @@ function min_weapon_damages()
 		end
 		if (useddex > strbonus) then
 
-			k = k + ((k * useddex) / 100)
+			usedstat = (p_ptr.stat_ind[A_DEX+1] - 5)
 		else
 
-			k = k + ((k * strbonus) / 100)
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
 		end
-        else 
-		k = k + ((k * p_ptr.stat_ind[A_STR+1]) / 100)
 	end
+
+	k = k + multiply_divide(k, usedstat, 100)
+
 	if (p_ptr.powerattack > 0) then
 
 		if (p_ptr.powerlevel == 1) then k = k * (2 + ((2 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
@@ -596,6 +660,22 @@ function min_weapon_damages()
 		elseif (p_ptr.powerlevel == 3) then k = k * (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		end
 	end
+
+	-- Bard's War Songs ability.
+	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
+
+		local chrbonus
+
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
+		k = k + multiply_divide(k, chrbonus, 100)
+	end
+
+	-- Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] > 0) then
+
+		k = k + multiply_divide(k, p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+	end
+
         return k
 end
 
@@ -605,22 +685,74 @@ function max_weapon_damages()
 
         local k
 	local tskill
+	local craftbonus = 0
+	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
+	local intfight = 0
+	local usedstat = 0
 
-	tskill = p_ptr.skill[1]
-	if (current_weapon.tval == TV_SWORD or current_weapon.tval == TV_SWORD_DEVASTATION) then tskill = tskill + (p_ptr.skill[13] + (p_ptr.skill[13] / 2)) end
-        if (current_weapon.tval == TV_HAFTED or current_weapon.tval == TV_MSTAFF or current_weapon.tval == TV_HELL_STAFF) then tskill = tskill + (p_ptr.skill[14] + (p_ptr.skill[14] / 2)) end
-        if (current_weapon.tval == TV_POLEARM) then tskill = tskill + (p_ptr.skill[15] + (p_ptr.skill[15] / 2)) end
-        if (current_weapon.tval == TV_DAGGER) then tskill = tskill + (p_ptr.skill[16] + (p_ptr.skill[16] / 2)) end
-        if (current_weapon.tval == TV_AXE) then tskill = tskill + (p_ptr.skill[17] + (p_ptr.skill[17] / 2)) end
-        if (current_weapon.tval == TV_ROD) then tskill = tskill + (p_ptr.skill[18] + (p_ptr.skill[18] / 2)) end
-        if (current_weapon.tval == TV_ZELAR_WEAPON) then tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2)) end
+	craftbonus = p_ptr.skill[12]
+	if (craftbonus > craftmax) then craftbonus = craftmax end
+
+	if (not(get_object_flag4(current_weapon, TR4_CRAFTED))) then craftbonus = 0 end
+
+	tskill = p_ptr.skill[1] + craftbonus
+
+	-- Defensive Strike!
+	if (defensive_strike == 1) then tskill = tskill + p_ptr.skill[5] end
+
+	-- Stealth Attack!
+	if (stealth_attack == 1) then tskill = tskill + p_ptr.skill[7] end
+
+	if ((current_weapon.tval == TV_WEAPON or current_weapon.tval == TV_ROD) and not(current_weapon.itemskill == 0)) then
+
+		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
+	end
 
         k = maxroll(current_weapon.dd, current_weapon.ds)
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
-	if (current_weapon.tval == TV_POLEARM and (p_ptr.skill[15] >= 90)) then k = k * 2 end
+
+	-- Ranger's Forestry ability!
+        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+
+                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
+        end
+
+	if (current_weapon.itemskill == 14 and (p_ptr.skill_base[15] >= 90)) then k = k * 2 end
+
+	-- Bonus damages.
+	if (p_ptr.events[29017] > 0) then
+
+		k = k + p_ptr.events[29017]
+		p_ptr.events[29017] = 0
+	end
+
         k = k * (tskill + 1)
-        k = k + ((k * p_ptr.dis_to_d) / 100)
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
+	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
+	if (get_object_flag4(current_weapon, TR4_COULD2H) and ((inven(INVEN_WIELD).tval == 0) or (inven(INVEN_WIELD+1).tval == 0))) then k = k + (k / 3) end
+
+	-- An additional boost from strength.
+	usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+
+	-- We might use another stat instead.
+	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
+
+		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
+		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
+		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
+
+			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
+		end
+		if (usedint > strbonus) then
+
+			usedstat = (p_ptr.stat_ind[A_INT+1] - 5)
+			intfight = 1
+		else
+
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+		end
+	end
+
+        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1 and intfight == 0) then
 
 		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
 		local useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
@@ -630,14 +762,15 @@ function max_weapon_damages()
 		end
 		if (useddex > strbonus) then
 
-			k = k + ((k * useddex) / 100)
+			usedstat = (p_ptr.stat_ind[A_DEX+1] - 5)
 		else
 
-			k = k + ((k * strbonus) / 100)
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
 		end
-        else 
-		k = k + ((k * p_ptr.stat_ind[A_STR+1]) / 100)
 	end
+
+	k = k + multiply_divide(k, usedstat, 100)
+
 	if (p_ptr.powerattack > 0) then
 
 		if (p_ptr.powerlevel == 1) then k = k * (2 + ((2 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
@@ -645,6 +778,22 @@ function max_weapon_damages()
 		elseif (p_ptr.powerlevel == 3) then k = k * (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		end
 	end
+
+	-- Bard's War Songs ability.
+	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
+
+		local chrbonus
+
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
+		k = k + multiply_divide(k, chrbonus, 100)
+	end
+
+	-- Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] > 0) then
+
+		k = k + multiply_divide(k, p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10, 100)
+	end
+
         return k
 end
 
@@ -656,6 +805,8 @@ function min_monk_damages()
 	local mside
 	local tskill
 	local glovebonus
+	local intfight = 0
+	local usedstat = 0
 
         mdice = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 1
         mside = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 3
@@ -666,15 +817,73 @@ function min_monk_damages()
 		glovebonus = 1
 	end
 
-        k = damroll(mdice, 1)
+	-- For Monsters, it's different.
+	if (p_ptr.prace == RACE_MONSTER) then
+
+		-- Use the main essence if enabled.
+		if (p_ptr.events[29028] == 1 and inven(INVEN_ESSENCE).tval > 0) then
+
+			k = damroll(inven(INVEN_ESSENCE).dd, 1)
+			if (k <= 0) then k = 1 end
+		else
+
+			k = damroll(m_race(p_ptr.body_monster).attack[p_ptr.events[29020]+1].ddice, 1)
+			if (k <= 0) then k = 1 end
+		end
+
+		-- 1% increase per MArtial Arts points.
+		k = k + multiply_divide(k, p_ptr.skill[19], 100)
+		
+	else
+
+        	k = damroll(mdice, 1)
+	end
+
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
-	k = k + ((p_ptr.skill[1] * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 5)) / 100)
+
+	-- Ranger's Forestry ability!
+        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+
+                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
+        end
+
+	-- Bonus damages.
+	if (p_ptr.events[29017] > 0) then
+
+		k = k + p_ptr.events[29017]
+		p_ptr.events[29017] = 0
+	end
+
+	k = k + ((p_ptr.skill[1] * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 10)) / 100)
 	k = k + glovebonus
 	tskill = p_ptr.skill[1]
 	tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
         k = k * (tskill + 1)
-        k = k + ((k * p_ptr.dis_to_d) / 100)
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
+	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
+
+	-- An additional boost from strength.
+	usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+
+	-- We might use another stat instead.
+	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(inven(INVEN_HANDS), TR4_CRAFTED)) then
+
+		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
+		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
+		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
+
+			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
+		end
+		if (usedint > strbonus) then
+
+			usedstat = (p_ptr.stat_ind[A_INT+1] - 5)
+			intfight = 1
+		else
+
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+		end
+	end
+
+        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1 and intfight == 0) then
 
 		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
 		local useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
@@ -684,14 +893,15 @@ function min_monk_damages()
 		end
 		if (useddex > strbonus) then
 
-			k = k + ((k * useddex) / 100)
+			usedstat = (p_ptr.stat_ind[A_DEX+1] - 5)
 		else
 
-			k = k + ((k * strbonus) / 100)
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
 		end
-        else 
-		k = k + ((k * p_ptr.stat_ind[A_STR+1]) / 100)
 	end
+
+	k = k + multiply_divide(k, usedstat, 100)
+
 	if (p_ptr.powerattack > 0) then
 
 		if (p_ptr.powerlevel == 1) then k = k * (2 + ((2 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
@@ -699,6 +909,16 @@ function min_monk_damages()
 		elseif (p_ptr.powerlevel == 3) then k = k * (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		end
 	end
+
+	-- Bard's War Songs ability.
+	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
+
+		local chrbonus
+
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
+		k = k + multiply_divide(k, chrbonus, 100)
+	end
+
         return k
 end
 
@@ -710,8 +930,10 @@ function max_monk_damages()
 	local mside
 	local tskill
 	local glovebonus
+	local intfight = 0
+	local usedstat = 0
 
-        mdice = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 1
+	mdice = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 1
         mside = (p_ptr.skill[19] / 15) + (p_ptr.skill[1] / 40) + 3
 
 	-- Damages bonus from gloves!
@@ -720,15 +942,73 @@ function max_monk_damages()
 		glovebonus = inven(INVEN_HANDS).ac
 	end
 
-        k = maxroll(mdice, mside)
+	-- For Monsters, it's different.
+	if (p_ptr.prace == RACE_MONSTER) then
+
+		-- Use the main essence if enabled.
+		if (p_ptr.events[29028] == 1 and inven(INVEN_ESSENCE).tval > 0) then
+
+			k = maxroll(inven(INVEN_ESSENCE).dd, inven(INVEN_ESSENCE).ds)
+			if (k <= 0) then k = 1 end
+		else
+
+			k = maxroll(m_race(p_ptr.body_monster).attack[p_ptr.events[29020]+1].ddice, m_race(p_ptr.body_monster).attack[p_ptr.events[29020]+1].dside)
+			if (k <= 0) then k = 1 end
+		end
+
+		-- 1% increase per MArtial Arts points.
+		k = k + multiply_divide(k, p_ptr.skill[19], 100)
+		
+	else
+
+        	k = maxroll(mdice, mside)
+	end
+
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
-	k = k + ((p_ptr.skill[1] * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 5)) / 100)
+
+	-- Ranger's Forestry ability!
+        if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
+
+                k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
+        end
+
+	-- Bonus damages.
+	if (p_ptr.events[29017] > 0) then
+
+		k = k + p_ptr.events[29017]
+		p_ptr.events[29017] = 0
+	end
+
+	k = k + ((p_ptr.skill[1] * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 5] * 10)) / 100)
 	k = k + glovebonus
 	tskill = p_ptr.skill[1]
 	tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
         k = k * (tskill + 1)
-        k = k + ((k * p_ptr.dis_to_d) / 100)
-        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1) then
+	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
+
+	-- An additional boost from strength.
+	usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+
+	-- We might use another stat instead.
+	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(inven(INVEN_HANDS), TR4_CRAFTED)) then
+
+		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
+		local usedint = (p_ptr.stat_ind[A_INT+1] - 5)
+		if (usedint > (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)) then
+
+			usedint = (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] * 5)
+		end
+		if (usedint > strbonus) then
+
+			usedstat = (p_ptr.stat_ind[A_INT+1] - 5)
+			intfight = 1
+		else
+
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
+		end
+	end
+
+        if (p_ptr.abilities[(CLASS_RANGER * 10) + 7] >= 1 and intfight == 0) then
 
 		local strbonus = (p_ptr.stat_ind[A_STR+1] - 5)
 		local useddex = (p_ptr.stat_ind[A_DEX+1] - 5)
@@ -738,14 +1018,15 @@ function max_monk_damages()
 		end
 		if (useddex > strbonus) then
 
-			k = k + ((k * useddex) / 100)
+			usedstat = (p_ptr.stat_ind[A_DEX+1] - 5)
 		else
 
-			k = k + ((k * strbonus) / 100)
+			usedstat = (p_ptr.stat_ind[A_STR+1] - 5)
 		end
-        else 
-		k = k + ((k * p_ptr.stat_ind[A_STR+1]) / 100)
 	end
+
+	k = k + multiply_divide(k, usedstat, 100)
+
 	if (p_ptr.powerattack > 0) then
 
 		if (p_ptr.powerlevel == 1) then k = k * (2 + ((2 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
@@ -753,6 +1034,16 @@ function max_monk_damages()
 		elseif (p_ptr.powerlevel == 3) then k = k * (4 + ((4 * (p_ptr.abilities[(CLASS_FIGHTER * 10)+1] * 5)) / 100))
 		end
 	end
+
+	-- Bard's War Songs ability.
+	if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 8] > 0) then
+
+		local chrbonus
+
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 8] * 10, 100)
+		k = k + multiply_divide(k, chrbonus, 100)
+	end
+
         return k
 end
 
@@ -769,6 +1060,24 @@ function player_hit_monster(monster, bonus)
 
         -- Somehow, we should not miss this attack...
         if (nevermiss == TRUE) then return 1 end
+
+	-- Diviner's Accuracy!
+	if (p_ptr.abilities[(CLASS_DIVINER * 10) + 5] >= 1) then
+
+		local ppower
+		local mpower
+
+		ppower = (p_ptr.skill[27] / 5) * p_ptr.abilities[(CLASS_DIVINER * 10) + 5]
+		mpower = monster.level + monster.mind
+
+		if (lua_randint(ppower) >= lua_randint(mpower)) then return 1 end
+	end
+
+	-- Monster race attacks have accuracy bonus.
+	if (p_ptr.prace == RACE_MONSTER and p_ptr.events[29019] > 0) then
+
+		phit = phit + multiply_divide(phit, p_ptr.abilities_monster_attacks[p_ptr.events[29019]] * 20, 100)
+	end
 
         -- If the hit rate is negative or 0, well, give up, you can't hit! ;)
         if (phit <= 0) then return 0 end
@@ -799,6 +1108,39 @@ function monster_hit_player(monster, bonus)
 	local mroll
         local mistpenalities = 25 + (p_ptr.abilities[(CLASS_SHADOW * 10) + 7] / 2)
 
+	-- Kensai's Iajutsu!
+	if (p_ptr.abilities[(CLASS_KENSAI * 10) + 2] >= 1 and (monster_physical) and (kensai_equip())) then
+		msg_print("In Iajutsu")
+		if (inven(INVEN_WIELD).itemskill == 12) then
+			current_weapon = inven(INVEN_WIELD)
+		else
+			current_weapon = inven(INVEN_WIELD+1)
+		end
+		local hitbonus = (p_ptr.to_h * p_ptr.stat_ind[A_WIS+1] * 3 / 100)
+		local iajutsudam = weapon_damages()
+		iajutsudam = iajutsudam + (iajutsudam * p_ptr.stat_ind[A_WIS+1] * 3 / 100)
+		iajutsudam = iajutsudam + (iajutsudam * p_ptr.abilities[(CLASS_KENSAI * 10) + 2] * 10 / 100)
+		local damtype = current_weapon.extra1
+		if (damtype == 0) then damtype = 15 end
+		if (player_hit_monster(monster, hitbonus)) then
+			melee_attack = TRUE
+			no_magic_return = TRUE
+			nevermiss = TRUE
+			fire_ball_specific_grid(iajutsudam, monster.fx, monster.fy, 0, damtype)
+			melee_attack = FALSE
+			no_magic_return = FALSE
+			nevermiss = FALSE
+			if (monster_died) then
+
+				monster_died = FALSE
+				return 0
+			end
+		else
+			msg_print(string.format('Your iajutsu misses %s!', m_race(monster.r_idx).name_char))
+		end
+
+	end
+
         -- First, let's calculate the player's defense!
         pdef = p_ptr.ac + p_ptr.to_a
 
@@ -819,10 +1161,13 @@ function monster_hit_player(monster, bonus)
         -- Do we have the Displacement ability?
         if (p_ptr.abilities[(CLASS_SHADOW * 10) + 2] >= 1) then
 
-                local disroll = lua_randint((p_ptr.abilities[(CLASS_SHADOW * 10) + 2] * 10))
-                local dismroll = lua_randint(((monster.hitrate + bonus) / 2))
+                local disroll
+                local dismroll
 
-                if (disroll >= dismroll) then return 0 end
+		disroll = (p_ptr.skill[7] / 4) * p_ptr.abilities[(CLASS_SHADOW * 10) + 2]
+                dismroll = monster.dex + monster.level
+
+                if (lua_randint(disroll) >= lua_randint(dismroll)) then return 0 end
         end
 
         if (mroll >= proll) then return 1
@@ -844,8 +1189,11 @@ function monster_hit_monster(monster, target)
         -- Calculate hitbonus...if any
         if (is_pet(monster)) then
 
-                hitbonus = hitbonus + p_ptr.skill[10] * 2
-                hitbonus = hitbonus + (p_ptr.stat_ind[A_CHR+1] - 5) * 5
+		if (p_ptr.stat_ind[A_CHR+1] > 5) then
+                	hitbonus = hitbonus + (p_ptr.stat_ind[A_CHR+1] - 5) * 10
+			hitbonus = hitbonus + ((hitbonus * ((p_ptr.stat_ind[A_CHR+1] - 5) * 5)) / 100)
+		end
+		hitbonus = hitbonus + (p_ptr.skill[10] * p_ptr.skill[10])
                 if (hitbonus < 0) then hitbonus = 0 end
         end
 
@@ -887,3 +1235,5 @@ add_event_handler("min_monk_damages", min_monk_damages)
 add_event_handler("max_weapon_damages", max_weapon_damages)
 add_event_handler("max_monk_damages", max_monk_damages)
 add_event_handler("player_hit_monster", player_hit_monster)
+add_event_handler("monster_hit_player", monster_hit_player)
+add_event_handler("monster_hit_monster", monster_hit_monster)

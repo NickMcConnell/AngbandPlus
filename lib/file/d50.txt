@@ -1,0 +1,92 @@
+N:1:105:1:0:0:0
+I:Maelan;
+T:Arg!! You...I will...;
+A:[END DIALOG]:0:0:0:0:0:0:0:107:1
+%
+
+N:1:104:1:0:0:0
+I:Maelan;
+T:I see you've made the right choice, <CLASS>. She may have been;
+T:a beautiful young lady, but her beauty and curative powers were hiding;
+T:her true nature. Guess you can't trust anyone these days, heh?;
+T:Anyway, you should be able to get out of here now. Good bye, <CLASS>.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Maelan;
+T:This woman is a witch! She uses deadly poisons and stuff to kill innocent;
+T:peoples! I don't know what stories you've heard. As I said, I don't know;
+T:any Belric or any other evil tyrants. I hope you'll do the right thing,;
+T:and kill that witch!;
+A:I didn't explicitely called him a 'tyrant'. Perhaps you know something?:0:0:0:1:2:0:0:0:0
+A:Can you tell me more about the servant that Ophelia killed?:0:0:0:1:3:0:0:0:0
+A:I could also kill both of you. Right?:0:0:0:1:4:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Maelan;
+T:Arg, don't give me that crap! It was very clear from the way you were talking;
+T:that this 'Belric' was some kind of evil tyrant. An imaginary tyrant though.;
+T:I don't know anyone called 'Belric', and I became the mayor of this town;
+T:legitimately! Now, if you want to leave this place, kill that witch, and put;
+T:her blood on that door!;
+A:Kill that witch... Is that all you've got to say?:0:0:0:1:5:0:0:0:0
+A:Can you tell me more about the servant that Ophelia killed?:0:0:0:1:3:0:0:0:0
+A:I could also kill both of you. Right?:0:0:0:1:4:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Maelan;
+T:Well, he was one of my men. Not very old. A young man who had potential,;
+T:but was poisoned by that witch, thus ending his existance.;
+A:...that's it? You can't tell anything else? His name, appearence, nothing?:0:0:0:1:6:0:0:0:0
+A:I didn't explicitely called Belric a 'tyrant'. Perhaps you know something?:0:0:0:1:2:0:0:0:0
+A:I could also kill both of you. Right?:0:0:0:1:4:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Maelan;
+T:Can't find the culprit, so kill'em both to be safe, heh? Hmph... What a lack;
+T:of judgement, coming from a <CLASS>. But still... At least the witch;
+T:would be dead. It's still better than letting her live.;
+A:I didn't explicitely called Belric a 'tyrant'. Perhaps you know something?:0:0:0:1:2:0:0:0:0
+A:Can you tell me more about the servant that Ophelia killed?:0:0:0:1:3:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Maelan;
+T:Pah! If you absolutely want to kill me instead, then go ahead! Because of;
+T:course, the scarred tough-looking guy HAS to be the bad guy, there's no;
+T:way a beautiful blond lady would be evil. Right? Wrong! Don't let her;
+T:appearence fool you! She's evil, and she needs to die!;
+A:Can you tell me more about the servant that Ophelia killed?:0:0:0:1:3:0:0:0:0
+A:I could also kill both of you. Right?:0:0:0:1:4:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Maelan;
+T:Hmph! What else is there to tell? I only saw his dead body, I didn't know him;
+T:personally! I don't remember his name either. He was killed by that witch,;
+T:and that's really all that matters to me.;
+A:Which means Ophelia is right. You don't care about your servants.:5:20:0:1:7:0:0:0:0
+A:I didn't explicitely called Belric a 'tyrant'. Perhaps you know something?:0:0:0:1:2:0:0:0:0
+A:I could also kill both of you. Right?:0:0:0:1:4:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Maelan;
+T:*Your words seems to anger him*;
+T:Arg!! Well, all right then, I didn't care about him! Happy? It doesn't;
+T:change the fact that the witch murdered him, and she needs to pay;
+T:for her crime with her life!;
+A:I didn't explicitely called Belric a 'tyrant'. Perhaps you know something?:0:0:0:1:2:0:0:0:0
+A:I could also kill both of you. Right?:0:0:0:1:4:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

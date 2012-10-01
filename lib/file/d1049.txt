@@ -1,0 +1,132 @@
+N:1:1068:1:0:0:0
+I:James Harris;
+T:Good day, <NAME>! Thanks again for your help!;
+A:No problems. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1066:3:0:0:0
+I:James Harris;
+T:Hello, <NAME>. Any luck finding my mother's silverware?;
+A:Yes, I found your family heritage.:2:1:32:6:1229:9:0:0:0
+A:No. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1066:2:0:0:0
+I:James Harris;
+T:Hello, <NAME>. Any luck finding my mother's silverware?;
+A:Yes, I found your family heritage.:2:1:32:6:1229:9:0:0:0
+A:No. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1066:1:0:0:0
+I:James Harris;
+T:Hello, <NAME>. Any luck finding my mother's silverware?;
+A:Yes, I found your family heritage.:2:1:32:6:1229:9:0:0:0
+A:No. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1065:1:0:0:0
+I:James Harris;
+T:Hello, <NAME>.;
+A:I'm with the Stealthy Vipers...:1:1063:1:1:4:0:0:0:0
+A:Anything interesting happening around here?:0:0:0:1:3:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:James Harris;
+T:Hummm...hello? Who are you?;
+A:My name's <NAME>. I'm with the Stealthy Vipers...:1:1063:1:1:4:0:0:1065:1
+A:My name's <NAME>. And you are?:0:0:0:1:2:0:0:1065:1
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:James Harris;
+T:My name's James Harris. So, huh...how can I help you?;
+A:Anything interesting going on around here?:0:0:0:1:3:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:James Harris;
+T:Not much, except rumors of voices and strange noises in the temple's;
+T:graveyard. Some says that there are things hidden under the graves.;
+T:But I sure won't be the one to go check it out though. If there are;
+T:really undead monsters beneath the graves, I sure don't want to become;
+T:one of them!;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:James Harris;
+T:Oh yes, so you're here for the contract. Very well, I will explain;
+T:what this is all about. I'm not a wealthy man you see. I have this;
+T:house, and some family heritage, but that's about it. At least;
+T:I HAD family heritage, but it has been stolen! As I was drinking a cup;
+T:of tea, a small group of devlings entered into my house, and started;
+T:stealing every valuable possessions they could find, including;
+T:my late mother's silverware! These devlings threatened to kill me;
+T:if I screamed for help, so I remained silent, helplessly watching;
+T:them rob me of all my valuable goods!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:James Harris;
+T:Before leaving, they told me that they were members of the Dragon Lancers,;
+T:and that no one can stop them. When I spoke to the guards about this,;
+T:they said that the Dragon Lancers had apparently disbanded after one of;
+T:their representatives had been found dead. They said it was probably;
+T:the work of some of the southwest kobold guilds, and that they prefer;
+T:to say out of this conflict. Pfft...what a bunch of cowards...;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:James Harris;
+T:So anyway, I've finally found out about your guild, so I sent a request for;
+T:help, along with some golds. They sent me a reply, saying they accepted;
+T:the offer, and one of their agents would visit me soon. Guess that agent;
+T:is you, <NAME>. What I need is for you to find the silverware they stole;
+T:from me. I don't care about the gold, it has probably been spent anyway.;
+T:But I would really appreciate if you could bring me back the heritage;
+T:my mother gave me.;
+A:Do you know where they went?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:James Harris;
+T:I don't know, but I saw them flee towards the temple. But I doubt they would;
+T:hide in the great temple of the Creator...;
+A:Any ideas where they could be hiding then?:0:0:0:1:8:0:0:1066:1
+%
+
+N:8:0:0:0:0:0
+I:James Harris;
+T:Let me think....hmmm...the graveyard perhaps? I have heard rumors about;
+T:noises and voices being heard in the graveyard. Who knows? Perhaps they;
+T:have a secret hideout there or something. Perhaps searching the graves,;
+T:or even doing some gravedigging could reveal their hiding place. In any;
+T:cases, please find my heritage as soon as possible. It's about the only;
+T:thing I have that's really precious to me, and I don't want to lose it.;
+T:Good luck, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:James Harris;
+T:Oh! You've found it! Thanks you very much, <NAME>. This is my most;
+T:precious treasure, in fact, the only thing I have that could ever be;
+T:considered a treasure. Thanks you. Thanks you so much!;
+A:[CONTINUE]:0:0:0:3:488:200:10:1068:1
+%
+
+N:10:0:0:0:0:0
+I:James Harris;
+T:You can return to your guild, and tell them you've fulfilled the contract;
+T:I paid for. Though I'm sure you'll get rewarded, here's a little bonus;
+T:for you. It's not much, but it's the least I can do to say thanks you.;
+T:I wish you good luck in your future contracts, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

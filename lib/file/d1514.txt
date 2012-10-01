@@ -1,0 +1,131 @@
+N:1:1517:1:0:0:0
+I: ;
+T:You give the final blow to Simon's newly empowered body. His body is fatally;
+T:wounded, and cannot function anymore. Beams of colored light starts;
+T:emanating from Simon, as if he was disintegrating, much like what;
+T:happened to Quazar when you defeated him.;
+A:[CONTINUE]:0:0:0:1:10:0:0:1516:2
+%
+
+N:1:1516:1:0:0:0
+I: ;
+T:Simon has lost to you for the third time. He use his powers once again to;
+T:revive himself. However, it took a bit more time before taking effect,;
+T:as if his powers were starting to weaken.;
+A:[CONTINUE]:0:0:0:1:3:0:0:1515:2
+%
+
+N:1:1516:0:0:0:0
+I:Simon;
+T:You just won't give up, won't you? How many times will I have to tell you?;
+T:You cannot kill me, because I can always use my powers to save me,;
+T:and since you do not understand them, you cannot stop them. You are;
+T:powerless, yet you keep coming back for more.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Simon;
+T:Well, I'll just have to give you more, then. I'll attempt to destroy;
+T:you once again. I guess I will eventually succeed, and since you can't,;
+T:it's only a matter of time, and tries.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Simon;
+T:After losing to you many times, it seems it's starting to affect;
+T:my powers... Maybe I cannot keep up with you eternally after all.;
+T:I guess it's time to finish this once and for all...;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Simon takes a small shard of a red licialhyd, and activates it!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Simon;
+T:You are really asking for it, <NAME>. Remember how much Quazar's powers;
+T:were enhanced by the red licialhyd? Well, my own powers surpass Quazar's;
+T:even without the stone. So can you imagine how powerful I will become now,;
+T:with the red licialhyd?;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:A multicolored light surrounds Simon, and the stone disappears. It seems;
+T:he has become one with the shard of red licialhyd, and his powers are now;
+T:greatly enhanced! The light goes away, and Simon's entire body has taken;
+T:an orange tint, not just his hairs and eyes anymore. His body still emits;
+T:a dim multicolored light.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Simon;
+T:Behold my new magnificient body, <NAME>. Can you feel the power;
+T:I now possess?;
+A:Stop this! You won't be able to control this power!:0:0:0:1:8:0:0:0:0
+A:Bring it on, Simon!:0:0:0:1:9:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Simon;
+T:Of course I can control this power! Quazar may have failed because;
+T:he used an entire red licialhyd for the fusion. That was too much for him.;
+T:Me, I am stronger than Quazar, and I used a smaller shard, so I will;
+T:be able to use these new powers to their full potential.;
+T:Well, enough talk, <NAME>. Let's finish this!;
+A:[END DIALOG]:0:0:0:11:2:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Simon;
+T:Eager to die, <NAME>? Very well. I will destroy you once and for all!;
+A:[END DIALOG]:0:0:0:11:2:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Simon;
+T:*pant*, *pant*...even with this powerful body, I still lose? Incredible...;
+T:..but...but I will just revive, once again.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I: ;
+T:Simon tries to twist reality to save his life once again. However, it seems;
+T:like he has no power left, and it doesn't work anymore.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Simon;
+T:...I see. So it is the end for me. *pant*...you won this round, <NAME>.;
+T:But don't celebrate just yet. I was only one of the zulgors who are trying;
+T:to take over Ivhala. There are others....ack....others, who are even;
+T:stronger than I am... You will not live much longer, <NAME>... you...;
+T:the....the Children.....;
+A:The Children?:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I: ;
+T:A bright colored light glows from Simon's body, as it disintegrates and;
+T:turns to dust before he could answer your question. Could these Children;
+T:be the same that king Julian told you about when he spoke about the;
+T:history of the Red Licialhyd?;
+A:[CONTINUE]:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I: ;
+T:In any cases, Simon is now truly defeated, and the sealed door can probably;
+T:be opened. You should now return there, and enter the palace, so you can;
+T:at last meet the queen.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

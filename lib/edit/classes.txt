@@ -34,7 +34,7 @@
 # Note that class 0 should NEVER be removed!
 # The Apprentice class is hard-coded to NOT have abilities, no matter what you put!
 
-# Some abilities are hard-coded to use Apprentice's abilities 7, 8, 9 and 10.
+# Some abilities are hard-coded to use Apprentice's abilities 1, 2, 7, 8, 9 and 10.
 # Do not change them for the moment.
 
 N:Apprentice:0:0
@@ -50,8 +50,8 @@ K:Unranked:Unranked;
 K:Unranked:Unranked;
 K:Unranked:Unranked;
 A:0:0:0:0:0
-A:0:0:0:0:0
-A:0:0:0:0:0
+A:Special Attacks:1:1:20000:1
+A:Turn Essences Capturing On/Off:1:1:20001:0
 A:0:0:0:0:0
 A:0:0:0:0:0
 A:0:0:0:0:0
@@ -65,6 +65,11 @@ A:0:1:1:10003:0
 N:Warrior:1:0
 Q:0:0:0:0:0:0
 S:25:0:0:0:25:0
+B:12:25
+B:13:25
+B:14:25
+B:15:25
+B:16:25
 K:Rookie:Rookie;
 K:Mercenary:Mercenary;
 K:Soldier:Soldier;
@@ -84,12 +89,13 @@ A:Hardiness:0:0:0:0
 A:War Cry:1:0:3:0
 A:Counter Attack:0:1:0:0
 A:Leaping Spin:1:0:4:1
-A:Weapon Mastery:0:0:0:0
+A:Weapons Mastery:0:0:0:0
 
 N:Fighter:2:0
 Q:0:0:0:0:0:0
 S:33:0:-25:0:25:0
-K:Thug:Thug;
+B:0:25
+K:Amateur:Amateur;
 K:Low Fighter:Low Fighter;
 K:Fighter:Fighter;
 K:Fighter:Fighter;
@@ -105,7 +111,7 @@ A:Taunt:1:0:5:0
 A:Critical Hits:0:0:0:0
 A:Unarmed Fighting:0:0:0:0
 A:Fighter's Accuracy:0:0:0:0
-A:Defensive Power Attacks:0:0:0:0
+A:Defensive Power Attacks:0:1:0:0
 A:Throw:1:0:6:1
 A:Extreme Strike:1:0:7:0
 A:Fighting Mastery:0:0:0:0
@@ -113,6 +119,12 @@ A:Fighting Mastery:0:0:0:0
 N:Mage:3:0
 Q:0:0:0:0:0:0
 S:-25:25:0:0:0:0
+B:1:25
+B:22:10
+B:23:10
+B:24:10
+B:25:10
+B:26:10
 K:Apprentice:Apprentice;
 K:Trickster:Trickster;
 K:Illusionist:Illusionist;
@@ -130,13 +142,14 @@ A:Spell Absorbtion:0:0:0:0
 A:Slow Down:1:0:10:0
 A:Mirror Images:1:0:11:0
 A:Damages Curse:1:0:12:0
-A:Drain Object:1:1:13:0
+A:Improved Activation:0:1:0:0
 A:Stone To Gold:1:1:14:0
 A:Animated Knight:1:1:15:0
 
 N:Priest:4:0
 Q:0:0:0:0:0:0
 S:0:0:25:0:0:0
+B:24:25
 K:Believer:Believer;
 K:Acolyte:Acolyte;
 K:Adept:Adept;
@@ -147,16 +160,16 @@ K:High Priest:HighPriestess;
 K:Cardinal:Cardinal;
 K:Inquisitor:Inquisitor;
 K:Pope:Pope;
-A:Heal:1:0:16:0
-A:Turn Undeads:1:1:17:0
+A:Channeling:0:1:0:0
+A:Turn Undeads:1:0:15:0
 A:Divine Blood:0:1:0:0
-A:Mace Of Heaven:1:1:18:0
-A:Dark Prayer:1:1:19:0
+A:Blessed Meditation:1:0:16:0
+A:Dark Prayer:1:0:19:0
 A:Holy Might:1:1:20:0
-A:Harm:1:1:21:0
+A:School Focus, Mysticism:0:1:0:0
 A:Improved Wisdom Casting:0:1:0:0
-A:Divine Armor:1:1:22:0
-A:Godly Wrath:1:1:23:0
+A:Retrograde Darkness:1:0:18:0
+A:Light Of Life:1:0:17:0
 
 N:Rogue:5:0
 Q:0:0:0:0:0:0
@@ -186,7 +199,10 @@ A:Rogue Mastery:0:0:0:0
 
 N:Ranger:6:0
 Q:0:0:0:0:0:0
-S:17:0:0:25:17:0
+S:20:0:20:25:20:0
+B:0:10
+B:1:10
+B:2:10
 K:Runner:Runner;
 K:Strider:Strider;
 K:Scout:Scout;
@@ -200,9 +216,9 @@ K:Ranger Lord:Ranger Lady;
 A:Wilderness Lore:0:0:0:0
 A:Forestry:0:1:0:0
 A:Entangle:1:1:29:0
-A:Animal Empathy:1:1:30:0
-A:Call Animal:1:1:31:0
-A:Warp On Trees:1:1:32:0
+A:Animal Empathy:1:0:30:0
+A:Call Animals:1:1:31:0
+A:Warp On Trees:1:1:32:1
 A:Weapon Finesse:0:0:0:0
 A:Thorned Vines:1:1:33:0
 A:Sleep Pollen:1:1:34:0
@@ -211,6 +227,12 @@ A:Force Of Nature:1:1:35:0
 N:Paladin:7:0
 Q:0:0:0:0:0:0
 S:20:0:20:0:20:25
+B:12:10
+B:13:10
+B:14:10
+B:15:10
+B:16:10
+B:24:10
 K:Gallant:Gallant;
 K:Keeper:Keeper;
 K:Protector:Protector;
@@ -221,16 +243,16 @@ K:Guardian:Guardian;
 K:Low Paladin:Low Paladin;
 K:High Paladin:High Paladin;
 K:Paladin Lord:Paladin Lady;
-A:Divine Strength:1:1:36:0
-A:Holy Bolt:1:1:37:0
+A:Divine Strength:1:0:36:0
+A:Holy Bolts:1:0:37:0
 A:Aura of Life:0:1:0:0
-A:Smite Evil:1:1:38:1
+A:Evil Slayer:1:0:38:1
 A:Blade Of Purity:1:1:39:0
 A:Resist Impure:0:1:0:0
 A:Feat Of Faith:1:1:40:0
-A:Retrograde Darkness:1:1:41:0
+A:Bless Weapon:1:1:66:0
 A:Shining Armor:1:1:42:0
-A:Word Of Peace:1:1:43:0
+A:Champion of Good:0:0:0:0
 
 N:Monk:8:0
 Q:0:0:0:0:0:0
@@ -264,29 +286,33 @@ A:Monk Speed:0:0:0:0
 A:High Somersault:1:1:47:1
 A:Martial Arts Mastery:0:0:0:0
 
-N:Archer:9:0
+N:Marksman:9:0
 Q:0:0:0:0:0:0
 S:0:0:0:25:0:0
-K:Rookie:Rookie;
-K:Fletcher:Fletcher;
-K:GreatFletcher:GreatFletcher;
-K:Lesser Archer:Lesser Archer;
-K:Lesser Archer:Lesser Archer;
-K:Archer:Archer;
-K:Archer:Archer;
-K:Great Archer:Great Archer;
-K:Great Archer:Great Archer;
-K:MasterArcher:Mistres Ar.;
-A:Accurate Shots:0:1:0:0
-A:Called Shot:1:1:48:0
-A:Piercing Shots:0:1:0:0
-A:Chain Shot:1:1:49:0
-A:Burning Shots:0:1:0:0
-A:Venomous Shots:0:1:0:0
-A:Multiple Arrows:1:1:50:0
-A:Charged Bolt:1:1:51:0
-A:Knocking Pebbles:0:1:0:0
-A:Marksmanship:0:0:0:0
+B:2:25
+B:19:10
+B:20:10
+B:21:10
+K:Trainee:Trainee;
+K:Novice:Novice;
+K:Shooter:Shooter;
+K:Marksman:Marksman;
+K:Marksman:Marksman;
+K:High Marksman:High Marksman;
+K:High Marksman:High Marksman;
+K:Elite Marks.:Elite Marks.;
+K:Elite Marks.:Elite Marks.;
+K:Master Marks.:Master Marks.;
+A:Power Shot:1:0:117:0
+A:Paralyzing Shot:1:0:118:0
+A:Ricochet Shot:1:0:119:0
+A:Counter Shot:0:1:0:0
+A:Rapid Shot:1:0:121:0
+A:Spinning Storm Shot:1:0:122:0
+A:Enhance Ranged Weapon:1:0:123:0
+A:Aim:1:0:124:0
+A:Piercing Shot:1:0:125:0
+A:Accurate Shots:0:0:0:0
 
 # Advanced Classes
 # As of the current release, many of the advanced classes may have some hardcoded abilities, such
@@ -298,6 +324,12 @@ N:High Mage:10:1
 Q:0:40:0:0:0:0
 R:3:5
 S:-25:50:0:0:0:0
+B:1:33
+B:22:25
+B:23:25
+B:24:25
+B:25:25
+B:26:25
 K:Apprentice:Apprentice;
 K:Trickster:Trickster;
 K:Illusionist:Illusionist;
@@ -310,7 +342,7 @@ K:Ipsissimus:Ipsissimus;
 K:Archimage:Archwitch;
 A:Increased Mana:0:0:0:0
 A:Magic Blood:0:1:0:0
-A:Return Magic:0:1:0:0
+A:Reflect Magic:0:0:0:0
 A:Archmage Spirit:0:1:0:0
 A:Counter Spell:0:1:0:0
 A:Empower Spells:0:1:0:0
@@ -327,6 +359,12 @@ N:Elemental Lord:11:1
 Q:20:10:0:0:0:0
 R:1:3
 S:25:25:0:0:25:0
+B:12:10
+B:13:10
+B:14:10
+B:15:10
+B:16:10
+B:22:25
 K:Lesser:Lesser;
 K:Lesser:Lesser;
 K:Adept:Adept;
@@ -341,10 +379,10 @@ A:Element Ball:1:1:52:0
 A:Element Strike:1:1:53:1
 A:Shield of Element:1:1:54:0
 A:Fist of Element:1:1:55:1
-A:Piercing Spells:0:1:0:0
+A:Piercing Spells:1:0:13:0
 A:Aura of Element:0:1:0:0
-A:Explosive Throw:1:1:56:0
-A:Wave of Element:1:1:57:0
+A:Command Element:1:1:56:0
+A:Wave of Element:1:0:57:0
 A:Absorb Elemental Energy:0:1:0:0
 A:Mastery Of Element:0:1:0:0
 
@@ -370,7 +408,7 @@ A:Morphing Abilities:1:1:58:0
 A:Constitution:0:0:0:0
 A:Monstrous Leadership:0:0:0:0
 A:Monstrous Martial Arts:0:0:0:0
-A:Dominate Monster:1:1:59:0
+A:Dominate Monster:1:0:59:0
 A:Monstrous Defense:0:0:0:0
 A:Monstrous Wave:1:1:60:0
 A:Monstrous Brutality:0:1:0:0
@@ -380,6 +418,12 @@ N:Defender:13:1
 Q:20:0:0:0:20:0
 R:1:3
 S:33:0:0:0:33:0
+B:4:33
+B:12:10
+B:13:10
+B:14:10
+B:15:10
+B:16:10
 K:Buckler:Buckler;
 K:Small Shield:Small Shield;
 K:Medium Shield:Medium Shield;
@@ -390,41 +434,19 @@ K:Stone Wall:Stone Wall;
 K:Fortress:Fortress;
 K:Castle:Castle;
 K:Mountain:Mountain;
-A:Heavy Armored Defense:0:0:0:0
-A:Iron Skin:0:1:0:0
+A:Heavy Armored Defense:0:1:0:0
+A:Armored Spellcasting:0:0:0:0
 A:Shield Bash:1:1:61:1
-A:Shield Fighting:0:1:0:0
-A:Block Magic:0:1:0:0
+A:Shield Mastery:0:1:0:0
+A:Defensive Evasion:0:0:0:0
 A:Great Guard:0:1:0:0
 A:Armored Health:0:0:0:0
-A:Defensive Strike:1:1:62:1
+A:Defensive Strike:1:0:62:1
 A:Boomerang Shield:1:1:63:0
-A:Murderous Defense:0:1:0:0
+A:Armored Might:0:0:0:0
 
-N:J. Warrior:14:1
-Q:20:0:20:0:0:20
-R:7:5
-S:25:0:25:0:25:33
-K:Good:Good;
-K:Just:Just;
-K:Generous:Generous;
-K:Brave:Brave;
-K:Hope Bringer:Hope Bringer;
-K:Blessed:Blessed;
-K:Justice Lord:Justice Lady;
-K:Angel:Angel;
-K:GuardianAngel:GuardianAngel;
-K:Archangel:Archangel;
-A:Shatter Evil:1:1:64:0
-A:Angelic Voice:1:1:65:0
-A:Aura Of Evil Repulsing:0:1:0:0
-A:Bless Weapon:1:1:66:0
-A:School Focus, Healing:0:1:0:0
-A:Sacred Light:1:1:67:0
-A:Slay Evil:1:1:68:0
-A:Angelic Call:1:1:69:0
-A:Protection From Evil:0:1:0:0
-A:Light Of Life:1:1:70:0
+# Was Justice Warrior. There are still hard-coded values for now,
+# so don't use class 14 yet.
 
 N:High Monk:15:1
 Q:40:0:40:0:40:0
@@ -463,7 +485,9 @@ A:Legendary Agility:0:0:0:0
 
 N:Soul Guardian:16:1
 Q:0:0:20:0:0:10
-S:-33:0:33:0:-25:33
+S:-33:0:33:0:0:33
+B:1:25
+B:9:25
 K:Wise:Wise;
 K:Sage:Sage;
 K:Great Sage:Great Sage;
@@ -478,7 +502,7 @@ A:Soul Power:1:1:78:0
 A:Simulacrum:1:1:79:0
 A:Soul Bind:1:1:80:0
 A:Sealing Light:1:1:81:0
-A:Soul Energize:1:1:82:1
+A:Soul Boost:1:1:82:1
 A:Soul Guide:0:0:0:0
 A:Soul Strike:1:1:83:1
 A:Soul Shield:1:1:84:0
@@ -502,13 +526,209 @@ K:Shadow Blade:Shadow Blade;
 K:Shadow Slayer:Shadow Slayer;
 K:Shadow Lord:Shadow Lady;
 K:Shadow King:Shadow Queen;
-A:Stealth Attack:1:1:86:1
-A:Displacement:0:1:0:0
+A:Stealth Attack:1:0:86:1
+A:Displacement:0:0:0:0
 A:Shadow Cloak:1:1:87:0
 A:Shadow Ball:1:1:88:0
 A:Shadow Run:0:0:0:0
-A:Shadow Phase:1:1:89:0
+A:Shadow Phase:1:1:89:1
 A:Dark Mist:1:1:90:0
 A:One With Shadows:0:0:0:0
 A:Shadow Magic:0:1:0:0
 A:Storm Of Shadow Edges:1:1:91:0
+
+N:Gunner:18:1
+Q:0:0:0:30:0:0
+R:9:6
+L:21:40
+S:0:0:0:33:0:0
+B:21:25
+K:Untrained:Untrained;
+K:Bulletmaker:Bulletmaker;
+K:Low Gunman:Low Gunlady;
+K:Gunman:Gunlady;
+K:High Gunman:High Gunlady;
+K:Sharpshooter:Sharpshooter;
+K:Sniper:Sniper;
+K:Great Sniper:Great Sniper;
+K:Sniper Champ:Sniper Champ;
+K:Gun Master:Gun Mistress;
+A:High-Velocity Fanning:1:0:92:0
+A:Improved Stun Shots:0:0:0:0
+A:Rifle Impact:1:0:93:0
+A:Point-Blank Shot:1:0:94:0
+A:True Shot:1:0:95:0
+A:Dashing Shot:1:0:96:0
+A:Firearms Specialization, Pistols:0:0:0:0
+A:Firearms Specialization, Rifles:0:0:0:0
+A:Magic Bullets:1:0:97:0
+A:Immolating Shot:1:0:98:0
+
+N:Enchanter:19:1
+Q:0:20:0:0:0:0
+L:10:20
+L:11:20
+S:0:33:0:0:0:0
+B:10:25
+B:11:25
+K:Apprentice:Apprentice;
+K:Potionmaker:Potionmaker;
+K:Itemmaker:Itemmaker;
+K:Alchemist:Alchemist;
+K:L.Enchanter:L.Enchantress;
+K:L.Enchanter:L.Enchantress;
+K:Enchanter:Enchantress;
+K:Enchanter:Enchantress;
+K:H.Enchanter:H.Enchantress;
+K:M.Enchanter:M.Enchantress;
+A:Craft Fighting:0:0:0:0
+A:Brandcasting:1:0:99:0
+A:Essence Transfer:1:1:100:0
+A:Defense Transfer:1:1:101:0
+A:Enchanter's Mana:0:0:0:0
+A:Intelligent Fighting:0:0:0:0
+A:Etch Runes:1:1:102:0
+A:Essence Fusion:1:1:103:0
+A:Batch Brew:1:1:104:0
+A:Improved Enchanting:0:0:0:0
+
+N:Diviner:20:1
+Q:0:20:0:0:0:0
+R:3:3
+L:26:40
+S:0:33:0:0:0:0
+B:26:25
+K:Neophyte:Neophyte;
+K:F. Teller:F. Teller;
+K:Clairvoyant:Clairvoyant;
+K:Low Diviner:Low Diviner;
+K:Diviner:Diviner;
+K:High Diviner:High Diviner;
+K:Fate Twister:Fate Twister;
+K:High Twister:High Twister;
+K:Grand Twister:Grand Twister;
+K:Fate Master:Fate Mistress;
+A:Divine Items:1:0:105:0
+A:Divine Chaos:0:0:0:0
+A:Divine Dungeon:0:1:0:0
+A:Diviner's Dodge:0:0:0:0
+A:Diviner's Accuracy:0:0:0:0
+A:Nightmares:1:0:106:0
+A:School Focus, Divination:0:1:0:0
+A:Improved Fate Twisting:0:1:0:0
+A:Improved Divination:0:0:0:0
+A:Wish:1:1:107:0
+
+# Thanks to Sekira for creating this one! :)
+N:Kensai:21:1
+Q:20:0:20:0:0:0
+R:8:3
+L:5:20
+L:12:20
+L:18:20
+S:25:0:25:25:0:0
+B:5:25
+B:12:25
+B:18:25
+K:Sword Student:Sword Student;
+K:Sword Adept:Sword Adept;
+K:Swordsman:Swordswoman;
+K:Sword Expert:Sword Expert;
+K:Sword Master:Sword Mistress;
+K:Honorable:Honorable;
+K:Samurai:Samurai;
+K:Samurai Lord:Samurai Lady;
+K:Sword Saint:Sword Saint;
+K:Kensai:Kensai;
+A:Focus:0:0:0:0
+A:Iajutsu:0:0:0:0
+A:Honorable Warrior:0:0:0:0
+A:Finish Him!:1:0:108:0
+A:Lightning Strike:1:0:109:1
+A:Arrow Cutting:0:0:0:0
+A:The Lion's Roar:1:0:110:0
+A:The Scorpions Tail:1:0:111:1
+A:The Dragons Fury:0:0:0:0
+A:Whirlwind:1:0:112:0
+
+# The class used by Monsters.
+# Unavailable for class change, but Monsters starts as this class.
+# Do not delete this class.
+N:Monster:22:1
+Q:0:0:0:0:0:0
+R:22:100
+S:0:0:0:0:0:0
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+K:Monster:Monster;
+A:Greater Evolution:0:0:0:0
+A:Small but Deadly:0:0:0:0
+A:Improved Magics:0:1:0:0
+A:Inner Elemental Mastery:1:0:13:0
+A:Improved Essences Activation:0:1:0:0
+A:Improved Defense:0:0:0:0
+A:Improved Counters:0:0:0:0
+A:Improved Passive Powers:0:0:0:0
+A:Racial Champion:1:0:113:0
+A:Paragon Elder Monster:0:1:0:0
+
+# The Bard class!
+# Actually a basic class.
+N:Bard:23:0
+Q:0:0:0:0:0:0
+S:0:0:0:0:0:25
+B:28:25
+K:Trainee:Trainee;
+K:Singer:Singer;
+K:Vocalist:Vocalist;
+K:Divo:Diva;
+K:Conductor:Conductor;
+K:Storyteller:Storyteller;
+K:Artiste:Artista;
+K:Minstrel:Minstrel;
+K:Bard:Bardess;
+K:Master Bard:Lady Bardess;
+A:Improved Songs:0:0:0:0
+A:Create Songs:1:0:114:0
+A:Inspire Courage:1:0:115:0
+A:Charming Demeanor:0:0:0:0
+A:Sotto Voce:1:0:116:0
+A:Lore of the Bard:0:0:0:0
+A:Bardic Reputation:0:1:0:0
+A:War Songs:0:0:0:0
+A:Enthralling Songs:0:0:0:0
+A:Bardic Grandeur:0:0:0:0
+
+
+# Template classes for Nightmare abilities.
+N:Template:40:1
+Q:0:0:0:0:0:0
+R:40:100
+S:0:0:0:0:0:0
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+K:Template:Template;
+A:Eyes of Misfortune:0:0:0:0
+A:Ghostly Misfortune:0:0:0:0
+A:Hexblaze Strike:1:0:2302:1
+A:Shadow of Misfortune:0:0:0:0
+A:Improved Essences Activation:0:1:0:0
+A:Improved Defense:0:0:0:0
+A:Improved Counters:0:0:0:0
+A:Improved Passive Powers:0:0:0:0
+A:Racial Champion:1:0:113:0
+A:Paragon Elder Monster:0:1:0:0

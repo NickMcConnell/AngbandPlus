@@ -8,51 +8,40 @@ great drinks... And what's more beautiful than healing
 potions? Here are my discoveries:
 
 POTION OF CURE LIGHT WOUNDS
-Component type: Alchemy
-Skills required: Alchemy(1)
-How to create: Potion Of Water + Medical Herbs
+Components type: Alchemy
+Skill required: 1
+How to create: Potion of Water + Medical Herbs
 
 Your basic healing potion. Can cure some small wounds, but
 don't expect miracles. You should try to transform it into
 something better.
 
-POTION OF CURE SERIOUS WOUNDS
-Component type: Alchemy
-Skills required: Alchemy(1)
-How to create: Potion Of Cure Light Wounds + Medical Herbs
+POTION OF CURE MEDIUM WOUNDS
+Components type: Alchemy
+Skill required: 10
+How to create: Potion of Cure Light Wounds + Medical Herbs
 
-Take your basic potion of cure light wounds, add some more
-medical herbs and you get something a lot better. Good
-to heal some wounds, and to stop them from bleeding!
+More powerful than the one above. Seems like it's just a matter
+of combining medical herbs with potions.
+
+POTION OF CURE SERIOUS WOUNDS
+Components type: Alchemy
+Skill required: 15
+How to create: Potion of Cure Medium Wounds + Medical Herbs
+
+Even better, and still the same process of adding more herbs.
+These herbs sure are potent.
 
 POTION OF CURE CRITICAL WOUNDS
-Component type: Alchemy
-Skills required: Alchemy(2)
-How to create: Potion Of Cure Serious Wounds + Medical Herbs
+Components type: Alchemy
+Skill required: 20
+How to create: Potion of Cure Serious Wounds + Medical Herbs
 
-If you happen to have a lot of medical herbs, you can mix
-them with potions of cure serious wounds to create this most
-useful potion. This one will get rid of any bleeding wounds
-you might have!
+Who would have guessed? Adding more herbs makes an even better
+potion! And it's easy to make too! Unfortunately, this is as far as
+it gets. These herbs do have their limits, and it's impossible to
+add more to the mix. Still, I think this potion is quite powerful
+as it is. Who would have thought it was so easy to heal wounds?
+Doesn't revive the dead though... so don't get too confident just
+because you create this.
 
-POTION OF HEALING
-Component type: Alchemy
-Skills required: Alchemy(7)
-How to create: Potion Of Cure Critical Wounds + Drops Of Blessed Water
-
-If you get your hands on sacred drops of blessed water, you can
-mix them with a potion of cure critical wounds to create an
-extremely strong curative mixture! Should you find yourself
-near dead, a drink of this wonder and you will once again stand
-up to your foes!
-
-POTION OF *HEALING*
-Component type: Alchemy
-Skills required: Alchemy(20)
-How to create: Potion Of Healing + Drops Of Blessed Water
-
-I recently discovered a way to add more blessed water to an
-already blessed potion of healing. I was amazed! I finally
-created an unbelievably powerful healing potion! With this,
-you won't even have to worry about getting hurt! Heh heh,
-this jewel of a potion will finally earn me a doctorate!

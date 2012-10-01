@@ -1,0 +1,31 @@
+N:1:0:0:0:0:0
+I:Door Keeper;
+T:Greetings, <CLASS>. Have you come to offer your soul to the Ghostfather,;
+T:and give up that fleshy body of yours? Your soul is strong... Yes. Yes, you;
+T:would make a fine ghost or wight, <CLASS>!;
+A:You want my soul? Come get it.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Ghostfather.:0:0:0:1:3:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Door Keeper;
+T:Heh heh heh... Die, <CLASS>!;
+A:[END DIALOG]:0:0:0:10:1361:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Door Keeper;
+T:The Ghostfather is the salvation! The one and only! The one who will;
+T:turn your soul into pure undeath! The one who will rid you of your;
+T:useless body! Make you a ghost! A wight! A being of pure death!;
+T:Who needs a living body? Truth lies in ghosts and wights!;
+A:I think you've lost your mind.:0:0:0:1:2:0:0:0:0
+A:Ironically, you're still a normal, living human.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Door Keeper;
+T:Are you questioning my faith, <CLASS>? You think I am unworthy of the;
+T:Ghostfather's dark blessing?? I will not tolerate this! Die!;
+A:[END DIALOG]:0:0:0:10:1361:0:0:0:0
+%

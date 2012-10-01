@@ -1,0 +1,11 @@
+N:1:1031:1:0:0:0
+I:Delzo;
+T:Arrr....I can't...die...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Delzo;
+T:Heh? My quests are not ready yet... come back in next beta!; 
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

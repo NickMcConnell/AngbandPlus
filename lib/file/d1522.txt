@@ -1,0 +1,66 @@
+N:1:1523:1:0:0:0
+I:Hervaas;
+T:Arrrghhh! Erf...you may have won this battle...but one day, the Ghostfather;
+T:shall have your soul!!;
+A:[CONTINUE]:1:1521:1:1:6:0:0:0:0
+A:[END DIALOG]:1:1521:0:0:0:0:0:0:0
+%
+
+N:1:0:0:9:0:0
+I:Hervaas;
+T:Aaahh, welcome, human. Heh heh heh, what an odd hair and eye color you have!;
+T:But I can sense an unusual type of magic inside of you... Something;
+T:both powerful and unstable. A most destructive force! I am sure;
+T:the Ghostfather would be happy to have your soul! And I, Hervaas,;
+T:Demon Wight Priest, shall be the one to offer him that soul!;
+A:You won't get my soul that easily.:0:0:0:1:5:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Hervaas;
+T:Aaahh, welcome, <RACE>. My name is Hervaas, I am a Demon Wight Priest;
+T:of Ryoon, the Ghostfather. Have you come to offer your soul, and join;
+T:us as a newborn undead in the Ghostfather's legion?;
+A:Actually, I've come to destroy you to get an amulet of Golden Truth.:1:1521:1:1:2:0:0:0:0
+A:You like Archfiends? You're lucky. I'm sending you to Hell!:0:0:0:1:3:0:0:0:0
+A:This is quite a creepy place.:0:0:0:1:4:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Hervaas;
+T:W...WHAT??? How dare you serve one who betrayed the Archfiends??;
+T:She who brought light to a nation... she is a disgrace to the planes;
+T:of Hell!! One of the Ghostfather's most dreadful foe!!! This is;
+T:unforgivable, <RACE>! Prepare to be destroyed!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Hervaas;
+T:You talk tough, <RACE>, but do you have the power to back your words?;
+T:We shall see that. YOU will be the one to visit Hell, <RACE>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Hervaas;
+T:Creepy? Quite the opposite, <RACE>. A den of ghosts and wights...;
+T:what's better than that to honor the Ghostfather? Heh heh heh... I know;
+T:how we can make it better. How about we turn you into a ghost too?;
+T:Gyehehehe... Die, foolish <RACE>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Hervaas;
+T:We shall see about that. Prepare to die!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:With their leader slain, the evil cult will soon disband and disappear.;
+T:It looks like you've accomplished your task. You should return to the;
+T:Gold Soldiers, and announce your victory.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

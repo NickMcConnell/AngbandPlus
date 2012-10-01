@@ -2,7 +2,7 @@
 // N:Name of town;
 // I:width:height
 // S:start position x:start position y (when starting the game)
-// T:(Town's x pos):(Town's y pos):(town num)
+// T:(Town's x pos):(Town's y pos):(town num):(0. Won't revive. 1. can revive there)
 // D:town definition, use the following characters for features:
 //
 // #: Permanent wall
@@ -29,55 +29,112 @@ I:100:100
 S:48:55
 
 // The small town of Udor, where the adventure starts.
-T:48:55:1
+T:48:55:1:1
 
 // Small town of Fidac
-T:48:47:3
+T:48:47:3:1
 
 // Ruins of Fidac
-T:47:46:4
+T:47:46:4:0
 
 // Lake
-T:52:45:5
+T:52:45:5:0
 
 // Avemorsh clan
-T:44:45:6
+T:44:45:6:0
 
 // Clan: The Fallens
-T:37:30:7
+T:37:30:7:0
 
 // Clan: Children of the Planes
-T:58:35:8
+T:58:35:8:0
 
 // Cave in the plains.
-T:51:58:9
+T:51:58:9:0
+
+// Denevar's Shrine
+T:50:44:10:0
+
+// Delvan's Lair
+T:53:43:11:0
+
+// Cave
+T:43:40:12:0
+
+// Fidac Mine
+T:46:49:13:0
+
+// Cave
+T:45:37:14:0
+
+// Lancers HQ.
+T:56:39:15:0
+
+// ?????
+T:48:51:16:1
+
+// Ophelia.
+T:48:36:17:1
+
+// Ophelia's Tomb.
+T:48:35:18:1
 
 // JINDAR
 // *THE* biggest city in Portralis!
 // 20 cells city! Uses 1000-1019 town templates!
-T:46:38:1000
-T:47:38:1001
-T:48:38:1002
-T:49:38:1003
-T:50:38:1004
-T:46:39:1005
-T:47:39:1006
-T:48:39:1007
-T:49:39:1008
-T:50:39:1009
-T:46:40:1010
-T:47:40:1011
-T:48:40:1012
-T:49:40:1013
-T:50:40:1014
-T:46:41:1015
-T:47:41:1016
+T:46:38:100:1
+T:47:38:101:1
+T:48:38:102:1
+T:49:38:103:1
+T:50:38:104:1
+T:46:39:105:1
+T:47:39:106:1
+T:48:39:107:1
+T:49:39:108:1
+T:50:39:109:1
+T:46:40:110:1
+T:47:40:111:1
+T:48:40:112:1
+T:49:40:113:1
+T:50:40:114:1
+T:46:41:115:1
+T:47:41:116:1
 
 // Main entrance.
-T:48:41:1017
+T:48:41:117:1
 
-T:49:41:1018
-T:50:41:1019
+T:49:41:118:1
+T:50:41:119:1
+
+// Grand Palace of the Sul-Rin
+T:41:8:200:0
+
+T:61:44:300:0
+
+// IVHALA
+// The home of the Defenders! :)
+// 6 cells city.
+T:84:46:500:1
+T:85:46:501:1
+T:86:46:502:1
+T:84:47:503:1
+T:85:47:504:1
+T:86:47:505:1
+
+// Agharias mountains region.
+T:85:48:506:0
+
+// This is where Simon is hiding.
+T:87:43:507:0
+
+// Followers of Shan in Ivhala.
+T:80:46:508:0
+
+// Ryoon Cult.
+T:79:46:509:0
+
+// Old Ruins.
+T:82:49:510:0
 
 D:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 D:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
@@ -87,7 +144,7 @@ D:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 D:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 D:WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 D:WWWWWWWWWWWWWWWWWWWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-D:WWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+D:WWWWWWWWGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.GGGGGGGGGGGGGGGGGGGGGGGGGGWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 D:WWWWWWGGGGGGGGGGGGGGGGGGGGsssssssssssssssssssssssssssssssssssssssGGGGGWWWWWWWWWWWWWWWWWGGGGGGWWWWWWW
 D:WWWWWGGGttttttttttttttssssssssssssssssssssssssssss...ssssssssssssssGGGGGGWWWWWWWGGGGGGGGGGGGGGWWWWWW
 D:WWWWGGGttttttttttttttttssssstttsssssssssssssssssss...sssssssssssssssssGGGGGGGGGGGGGGGGssssssGGGWWWWW
@@ -115,49 +172,49 @@ D:WWWWWWTTT,,,,,,,,,MMMMMMMMMMMM,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,TTTTTTT
 D:WWWWWWWTTT,,,,,,,,MMMMMMMMMMMM,,,,,,,,,,,,,,,,,,,,,,,,,,,,www,,,,,,,,,TTTTTTMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWWWWWTTT,,,,,,,MMMMMMMMMMMM,,,,,,,,,,,,,,,,,,,,,,,,,,,wwwww,,,,,,,TTTTMMMMMMMMMMMMMMMMMMMMMMMMMWW
 D:WWWWWWWWWWW,,,,,,,,MMMMMMMMMM,,,,,,,,,,,,,,,,,,,,,,,,,,,ww.Www,,,,,,,TTMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
-D:WWWWWWWWWWwww,,,,,,,MMMMMMMMM,,,,,,,,,,,,,,T,,,,,,,,,,,,,wwww,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWWWWWWWwww,,,,,,,MMMMMMMMM,,,,,,,,,,,,,,T,,,,.,,,,,,,,wwww,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
 D:WWWWWWWWWWwwwww,,,,,,,MMMMMMMM,,,,,,,,,,,,,,,,,,,,,,,,,,,Tww,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
 D:WWWWWWWWWwwwwwwww,,,,,,MMMMMMMM,,,,,,,,,,,,,,,.....,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
-D:WWWWWWWWWWWwwwwwww,,,,,,MMMMMMMM,,,,,,,,,,,,,,.....,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
-D:WWWWWWWW...,wwwwwww,,,,,,MMMMMMM,,,,,,,,,,,,,,.....,,,,,,,,,,,,,,MMMMMMMMMMMMMM;;;;;;;;;;;;;;MMMMMMW
-D:WWWWWWW,...,wwwwwwww,,,,,,MMMMM,,,,,,,,,,,,,,,.....,,,,,,,,,,,,MMMMMMMMMMMMMM;;;MMMMM;;;;;;;;;MMMMMM
-D:WWWWWWW,,,,,,wwwwwww,,,,,,,MMM,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMM;;;MMMMM;;;MMMMMM;;;MMMMM
-D:WWWWWW,,,,,,,,wwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMM;;;;;;;;;;;MMMMMMMMM;;MMMMM
-D:WWWWW,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,MMMMMMMMMMM;;;;;MMM;;MMMMMMMMMMM;;MMMMM
-D:WWWWW,,,,,,,,,,,,wwwwwwwwwww,,,,,T,,,,,,,,TT.,,,,,,,.,,,,,,,,,MMMMMMMMM;;;;;MMMMMMMMMMMMMMM;;;;MMMMM
-D:WWWWW,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,TTT,,.,,,,,,,,,,,,,,,MMMMMMM;;;;;;MMMMMMM;...MMM;;;;;MMMMM
-D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,.,,,,,T,,,,,,,,;;;;;;;;;;;;;;MMMMM;;...;;;;;;;MMMMMM
-D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMM;;;MMM;;;;;;;;;;;;;;;;;;MMMMMW
-D:WWWWW,,,,,,,,,,,,,,,wwwwTTTwwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMM;;MMMMM;;;;;;;;;;MMMMM;;MMMMMW
-D:WWWWW,,,,,,,,,,,,wwwwwwTTTTTTTwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMM;;MMM;;;MMMM;;;MMMMMM;MMMMMWW
-D:WWWWW,,,,,,,,,,,wwwwwwTTTTTTTTTwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMM;;M;;;MMMMMM;;;MMMM;;MMMMMWW
-D:WWWWW,,,,,,,,,wwwwww,,TTTTTTTT,,,wwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMMM;;;;;;MMMMMMMM;;;;;;;MMMMMWW
-D:WWWWW,,,,,,,,wwwwww,,,,,TTTT,,,,,wwww,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMM;;MMM;;MMMMMMM;;MMM;;MMMMMMW
-D:WWWWW,,,,,,,,wwwwww,,,,,,,,,,,,,,wwww,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMM;MMMMM;;MMMMM;;MMMMM;MMMMMWW
-D:WWWWW,,,,,,,,wwwwww,,TT,TTTTT,,,wwww,,,,,,,,,,,,.,,,,TTT,,,,MMMMMMMMMMMM;;MMMM;;;;;;;;;;MM;;;;MMMMWW
-D:WWWWW,,,,,,,,wwww,,,TT,,,TTTT,,wwww,,,,,,,,,,,,,,,,,TTTTT,,,MMMMMMMMMMMM;;;;;;;;;MMMMMM;;;;MM;MMMMMW
-D:WWWWW,,,,,,,wwwww,,TT,,,,,TT,,,wwww,,,,,,,TTTT,,,,,,TTTTTT,,,MMMMMMMMMMMM;;;;;;MMMMMMMMM;;MMM;;MMMMW
-D:WWWWW,,,,,,,wwww,,,,,,,,,,,,,,,wwww,,,,,,TTTTTT,,,,.,TTTTTT,,,MMMMMMMMMMMMM;;;;;MMMMMMM;;;;MM;;;MMMW
-D:WWWWW,,,,,,wwwww,,,,,TTT,,,,,,wwww,,,,,,TTTTTTTT,,,,,,TTTTTT,,,MMMMMMMMMMMM;;;;;;;;;;;;;;;;;;;MMMMMW
-D:WWWWW,,,,,,wwww,,,,,TTTTT,,,,,wwww,,,,,,TTTTTTTTT,,,,,,TTTTT,,,MMMMMMMMMMMM;;;;MMMMMMMMMMMM;;;MMMMMW
-D:WWWWWWwwwwwwwww,,,,TTTTT,,,,,wwww,,,,,TTTTTTTTTT,,,,,,,,TTTTT,,,MMMMMMMMMMMM;;MMMMMMMMMMMMMMM;MMMMMW
-D:WWWWwwwwwwwwww,,,,,,TTT,,,,,wwww,,,,,TTTTTTT,,,,,,,,,,,,,TTTT,,,MMMMMMMMMMMM;;MMMMMMMMMMMMMMM;MMMMMW
-D:WWWWWwwwwwwww,,,,,,,,,,,,,,,wwww,,,,,TTTTTT,,,,,TTT,,,,,,,TT,,,,MMMMMMMMMMMM;;;MMMMMMMMMMMMMM;;MMMMW
-D:WWWWWWwwww,,,,TTTT,,,,,,,,,,wwww,,,,,,TTT,,,,,,TTTTTTT,,,,,,,,,,,MMMMMMMMMMMM;;;MMMMMMMMMMM;;;MMMMWW
-D:WWWWW,,,,,,,,,,TTTTT,,,,,,,,wwww,,,,,,,,,,,,,,,,TTTTTTT,,,,,,,,,,,MMMMMMMMMMMM;;;MMMMMMMMM;;;MMMMMWW
-D:WWWWTTTTTT,,,,,,TTT,,,,TTT,,,wwww,,,,,,,,,,,,,,TTTTTTTTTT,,,,,,,,,,MMMMMMMMMMMM;;;;;;;;;;;;;;MMMMMWW
-D:WWWTTTTTTTT,,,,,,,,,,,TTTTTT,,wwww,,,,,,,TT,,,,,TTTTTTTT,,,TTTTT,,,MMMMMMMMMMMM;;;;;;;;;;;;;;MMMMMWW
-D:WWWTTTTTTTTT,,,,,,,,,,,TTTTTT,wwww,,,,,,TTTT,,,,TTTTTTTT,,TTTTTTT,,MMMMMMMMMMMM;;;;;;MMMM;;;;MMMMMWW
-D:WWWTTTTTTTTTT,,,,,,,,,,,,TT,,,,wwww,,,,,,TTTTT,,,TTTTTT,,TTTTTTTTT,,MMMMMMMMMMMM;;;MMMMMMMM;;;MMMMMW
-D:WWWWTTTTTTTTTT,,,,,,,,,,,,,,wwwwwwwwww,,,,,TT,,,,,,,,,,,,TTTTTTTTT,,,MMMMMMMMMMMM;;;MMMMM;;;;;MMMMMW
-D:WWWWTTTTTTTTTTT,,,,T,,,,,,wwwwwwwwwwwwww,,,,,,,,,,,,,,,,,,TTTTTTT,,,,,MMMMMMMMMMMM;;;;;;;;;MMMMMMMWW
-D:WWWWTTTTTTTTTTT,,,,,,,,,,,wwwwwwWWWwwwww,,,,,TTTTT,,,,,,,TTTTTT,,,,,,,MMMMMMMMMMMM;;;;;MMMMMMMMMMWWW
-D:WWWWTTTTTTTTTTT,,,,,,,,,,,wwwwwwWWWwwwww,,,,TTTTTTT,,,,,TTTTTT,,,,,,,,,MMMMMMMMMMMM;;MMMMMMMMMMMWWWW
-D:WWWWWTTTTTTTTTTT,,,,,,,,,,wwwwwwWWWwwwww,,,TTTTTTTTT,,,,TTTTTT,,,,,,,,,,MMMMMMMMMM;;MMMMMMMMMMMWWWWW
-D:WWWWTTTTTTTTTTTTT,,,,,,,,,,wwwwwwwwwwww,,,,TTTTTTTTT,,,,,TTTT,,,,,,,,,,,,MMMMMMMM;;MMMMMMMMMMMMWWWWW
-D:WWWTTTTTTTTTTTTTTT,,,,,,,,,,wwwwwwwwww,,,,,,TTTTTTTTT,,,,,,,,,,TT,,,,,,,,,MMMMMM;;;;MMMMMMMMMMTWWWWW
-D:WWWTTTTTTTTTTTTTTT,,,,,,T,,,,,,,,,,,,,,,,,,,,TTTTTTTTT,,,,,,,,,,,,,,T,,,,,,MMMM;;MM;;MMMMMMMMTTTWWWW
-D:WWWWTTTTTTTTTTTTTT,,,,,,,,,,,,,,,,,,,,,,,T,,,,TTTTTTT,,,,,,TT,,,,,,,,,,,,,,,MM;;MMMM;;MMMMMMTTTTTWWW
+D:WWWWWWWWWWWwwwwwww,,,,,,MMMMMMMM,,,,,,,,,,,,,,.....,,,,,.,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWWWWW...,wwwwwww,,,,,,MMMMMMM,,,,,,,,,,,.,,.....,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWWWW,...,wwwwwwww,,,,,,MMMMM,,,,,,,,,,,,,,,.....,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+D:WWWWWWW,,,,,,wwwwwww,,,,,,,MMM,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+D:WWWWWW,,,,,,,,wwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,,T,,,,,,.,,,,,,,,,,.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,,,wwwwwwwwwww,,,,,T,,,,,,,,TT.,,,,,,,.,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,TTT,,.,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMM..MMM...MMMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,.,,,,,T,,,,,,,,MMMMMMMMMMMMMMMMMMMMM...MMMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,,,,,,,,,,wwwwTTTwwwwwww,,,,,,,,,,,,.,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,,,,,,,wwwwwwTTTTTTTwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,,,,wwwwwwTTTTTTTTTwwwwwwwwwwwwwwwww.wwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,,wwwwww,,TTTTTTTT,,,wwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,wwwwww,,,,,TTTT,,,,,wwww,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,,,wwwwww,,,,,,,,,,,,,,wwww,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,wwwwww,,TT,TTTTT,,,wwww,,,,,,,,,,,,.,,,,TTT,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,wwww,,,TT,,,TTTT,,wwww,,,,,,,,,,,,,,,,,TTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,,wwwww,,TT,,,,,TT,,,wwww,,,,,,,TTTT,,,,,,TTTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,,wwww,,,,,,,,,,,,,,,wwww,,,,,,TTTTTT,,,,.,TTTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,wwwww,,,,,TTT,,,,,,wwww,,,,,,TTTTTTTT,,,,,,TTTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWW,,,,,,wwww,,,,,TTTTT,,,,,wwww,,,,,,TTTTTTTTT,,,,,,TTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWWWwwwwwwwww,,,,TTTTT,,,,,wwww,,,,,TTTTTTTTTT,,,,,,,,TTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWwwwwwwwwww,,,,,,TTT,,,,,wwww,,,,,TTTTTTT,,,,,,,,,,,,,TTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWWwwwwwwww,,,,,,,,,,,,,,,wwww,,,,,TTTTTT,,,,,TTT,,,,,,,TT,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWWWwwww,,,,TTTT,,,,,,,,,,wwww,,,,,,TTT,,,,,,TTTTTTT,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,,,TTTTT,,,,,,,,wwww,,,,,,,,,,,,,,,,TTTTTTT,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWTTTTTT,,,,,,TTT,,,,TTT,,,wwww,,,,,,,,,,,,,,TTTTTTTTTT,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWTTTTTTTT,,,,,,,,,,,TTTTTT,,wwww,,,,,,,TT,,,,,TTTTTTTT,,,TTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWTTTTTTTTT,,,,,,,,,,,TTTTTT,wwww,,,,,,TTTT,,,,TTTTTTTT,,TTTTTTT,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWTTTTTTTTTT,,,,,,,,,,,,TT,,,,wwww,,,,,,TTTTT,,,TTTTTT,,TTTTTTTTT,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWTTTTTTTTTT,,,,,,,,,,,,,,wwwwwwwwww,,,,,TT,,,,,,,,,,,,TTTTTTTTT,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
+D:WWWWTTTTTTTTTTT,,,,T,,,,,,wwwwwwwwwwwwww,,,,,,,,,,,,,,,,,,TTTTTTT,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWTTTTTTTTTTT,,,,,,,,,,,wwwwwwWWWwwwww,,,,,TTTTT,,,,,,,TTTTTT,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMWWW
+D:WWWWTTTTTTTTTTT,,,,,,,,,,,wwwwwwWWWwwwww,,,,TTTTTTT,,,,,TTTTTT,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMWWWW
+D:WWWWWTTTTTTTTTTT,,,,,,,,,,wwwwwwWWWwwwww,,,TTTTTTTTT,,,,TTTTTT,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMWWWWW
+D:WWWWTTTTTTTTTTTTT,,,,,,,,,,wwwwwwwwwwww,,,,TTTTTTTTT,,,,,TTTT,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMWWWWW
+D:WWWTTTTTTTTTTTTTTT,,,,,,,,,,wwwwwwwwww,,,,,,TTTTTTTTT,,,,,,,,,,TT,,,,,,,,,MMMMMMMMMMMMMMMMMMMMTWWWWW
+D:WWWTTTTTTTTTTTTTTT,,,,,,T,,,,,,,,,,,,,,,,,,,,TTTTTTTTT,,,,,,,,,,,,,,T,,,,,,MMMMMMMMMMMMMMMMMMTTTWWWW
+D:WWWWTTTTTTTTTTTTTT,,,,,,,,,,,,,,,,,,,,,,,T,,,,TTTTTTT,,,,,,TT,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMTTTTTWWW
 D:WWWWWTTTTTTTTTTTTTT,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,TTTT,,,,,,,,,TTTTTTTTTTMMTTTTTTTTTTTTTTTWW
 D:WWWWWTTTTTTTTTTTTTTT,,,,,,,,,,,,,,,,,,,,,,,,,,,,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWW
 D:WWWWWTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTWWW

@@ -2575,7 +2575,8 @@ void c_roff(byte a, cptr str)
 void roff(cptr str)
 {
 	/* Spawn */
-	c_roff(TERM_WHITE, str);
+	if (red_roff) c_roff(TERM_L_RED, str);
+	else c_roff(TERM_WHITE, str);
 }
 
 
@@ -3576,50 +3577,12 @@ int test_monster_name (cptr name)
 /* New function to get the name of a specific element/type! */
 char *get_element_name(int element)
 {
-        if (element == GF_FIRE) return("Fire");
-        if (element == GF_COLD) return("Cold");
-        if (element == GF_ELEC) return("Electric");
-        if (element == GF_ACID) return("Acid");
-        if (element == GF_POIS) return("Poison");
-        if (element == GF_RADIO) return("Radio");
-        if (element == GF_WATER) return("Water");
-        if (element == GF_CHAOS) return("Chaos");
-        if (element == GF_DARK) return("Darkness");
-        if (element == GF_LITE) return("Light");
-        if (element == GF_EARTH) return("Earth");
-        if (element == GF_SOUND) return("Sound");
-        if (element == GF_WIND) return("Wind");
-	if (element == GF_WARP) return("Warp");
-        if (element == GF_MISSILE) return("Missile");
-        if (element == GF_PHYSICAL) return("Physical");
-        if (element == GF_MANA) return("Mana");
-	if (element == GF_FROSTFIRE) return("FrostFire");
-	if (element == GF_GREY) return("Grey");
-	if (element == GF_TOXIC) return("Toxic");
-        if (element == GF_REDUCE_HIT) return("Reduce Hit Rate");
-        if (element == GF_REDUCE_DEF) return("Reduce Defense");
-        if (element == GF_WEAKEN) return("Weaken");
-        if (element == GF_REDUCE_SPEED) return("Reduce Speed");
-        if (element == GF_RETROGRADE) return("Retrograde");
-        if (element == GF_LOCK) return("Lock");
-        if (element == GF_EVOLVE) return("Evolve");
-        if (element == GF_UNEVOLVE) return("Unevolve");
-        if (element == GF_FEAR_CURSE) return("Demoralize");
-	if (element == GF_PARALYZE) return("Paralyze");
-	if (element == GF_CONFUSION) return("Confusion");
-	if (element == GF_OLD_CONF) return("Confuse");
-	if (element == GF_FEAR) return("Fear");
-	if (element == GF_LOSE_STR) return("Reduce Strength");
-	if (element == GF_LOSE_INT) return("Reduce Intelligence");
-	if (element == GF_LOSE_WIS) return("Reduce Wisdom");
-	if (element == GF_LOSE_DEX) return("Reduce Dexterity");
-	if (element == GF_LOSE_CON) return("Reduce Constitution");
-	if (element == GF_LOSE_CHR) return("Reduce Charisma");
-	if (element == GF_LOSE_ALL) return("Reduce Stats");
-	if (element == GF_LOSE_EXP) return("Reduce Experience");
+	char *elemname;
 
-        /* Default */
-        return("Unknown");
+	/* Calls lua! */
+	call_lua("get_element_name", "(d)", "s", element, &elemname);
+
+        return(elemname);
 }
 
 /* Get a town's starting position! */
@@ -3723,4 +3686,198 @@ int get_town_starty(int townnum)
 	my_fclose(fp);
 
 	return (starty);
+}
+
+s32b get_quantity_s32b(cptr prompt, s32b max)
+{
+	s32b amt;
+	
+	char tmp[80];
+	
+	char buf[80];
+	
+	
+	/* Use "command_arg" */
+	if (command_arg)
+	{
+		/* Extract a number */
+		amt = command_arg;
+		
+		/* Clear "command_arg" */
+		command_arg = 0;
+		
+		/* Enforce the maximum */
+		if (amt > max) amt = max;
+		
+		/* Use it */
+		return (amt);
+	}
+	
+#ifdef ALLOW_REPEAT /* TNB */
+	
+	/* Get the item index */
+	if ((max != 1) && repeat_pull(&amt))
+	{
+		/* Enforce the maximum */
+		if (amt > max) amt = max;
+		
+		/* Enforce the minimum */
+		if (amt < 0) amt = 0;
+		
+		/* Use it */
+		return (amt);
+	}
+	
+#endif /* ALLOW_REPEAT -- TNB */
+	
+	/* Build a prompt if needed */
+	if (!prompt)
+	{
+		/* Build a prompt */
+		sprintf(tmp, "Quantity (1-%ld): ", max);
+		
+		/* Use that prompt */
+		prompt = tmp;
+	}
+	
+	
+	/* Default to one */
+	amt = 1;
+	
+	/* Build the default */
+	sprintf(buf, "%ld", amt);
+	
+	/* Ask for a quantity */
+	if (!get_string(prompt, buf, 6)) return (0);
+	
+	/* Extract a number */
+	amt = atoi(buf);
+	
+	/* A letter means "all" */
+	if (isalpha(buf[0])) amt = max;
+	
+	/* Enforce the maximum */
+	if (amt > max) amt = max;
+	
+	/* Enforce the minimum */
+	if (amt < 0) amt = 0;
+	
+#ifdef ALLOW_REPEAT /* TNB */
+	
+	if (amt) repeat_push(amt);
+	
+#endif /* ALLOW_REPEAT -- TNB */
+	
+	/* Return the result */
+	return (amt);
+}
+
+/* Thanks to Sekira for coming up with this one! */
+s32b multiply_divide(s32b value, s32b mult, s32b div)
+{
+	s32b retval = 0;
+
+	retval = (value * (mult / div)) + (value * (mult - (mult / div * div)) / div);
+
+	return (retval);
+}
+
+/* Get a town's "x" position in the world. */
+int get_town_overworldx(int townnum)
+{
+	int worldx, worldy, tnum, revive;
+	int retval = 0;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+	bool found = FALSE;
+
+	sprintf(filename, "w_info.txt");
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(quitmessage, "Cannot open 'w_info.txt' file.", townnum);
+	if (!fp) quit(quitmessage);
+
+	/* Parse the file */
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		if (buf[0] == 'T' && !(found))
+		{
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+                                &worldx, &worldy, &tnum, &revive)) return (1);
+
+			if (tnum == townnum)
+			{
+				retval = worldx;
+				found = TRUE;
+			}
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+	return (retval);
+}
+
+/* Get a town's "y" position in the world. */
+int get_town_overworldy(int townnum)
+{
+	int worldx, worldy, tnum, revive;
+	int retval = 0;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+	bool found = FALSE;
+
+	sprintf(filename, "w_info.txt");
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(quitmessage, "Cannot open 'w_info.txt' file.", townnum);
+	if (!fp) quit(quitmessage);
+
+	/* Parse the file */
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		if (buf[0] == 'T' && !(found))
+		{
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+                                &worldx, &worldy, &tnum, &revive)) return (1);
+
+			if (tnum == townnum)
+			{
+				retval = worldy;
+				found = TRUE;
+			}
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+	return (retval);
 }

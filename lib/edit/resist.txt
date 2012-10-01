@@ -1,0 +1,24 @@
+# Name of the elements displayed in the resistance screen.
+# Not all elements needs to be defines here. Only those which
+# you want to see in the resistances screen.
+
+# R:(Name):(Element's id):(1 = can be on random magic items)
+
+# Names should be 10 characters.
+
+R:Fire        :1:1
+R:Cold        :2:1
+R:Electricity :3:1
+R:Acid        :4:1
+R:Poison      :5:1
+R:Light       :6:1
+R:Dark        :7:1
+R:Warp        :8:1
+R:Water       :9:1
+R:Wind        :10:1
+R:Earth       :11:1
+R:Sound       :12:1
+R:Radio       :13:1
+R:Chaos       :14:1
+R:Physical    :15:1
+R:Mana        :16:0

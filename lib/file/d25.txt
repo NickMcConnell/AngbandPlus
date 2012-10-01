@@ -48,7 +48,7 @@ N:1:48:1:0:0:0
 I:Aria;
 T:Hello again... Please, you should leave me now... I'm just a failure...;
 T:I can't do anything for you. Sorry.;
-A:Could this be your sword? [Show her the Masterwork Short Sword]:2:23:52:1:13:0:0:0:0
+A:Could this be your sword? [Show her the Masterwork Short Sword]:2:21:137:1:13:0:0:0:0
 A:I am a <CLASS>. If you unseal the doors, I will defeat Shaugma.:0:0:0:1:12:0:0:0:0
 A:Perhaps I can look for your sword? What does it looks like?:0:0:0:1:10:0:0:0:0
 A:Farewell.:0:0:0:0:0:0:0:0:0
@@ -139,7 +139,7 @@ I:Aria;
 T:...well, that's it. That's the story of my failure... My sword has been;
 T:stolen, the demon is free... and I cannot do anything about it. I will;
 T:never return to heavens... I will stay here in the mortal realm forever...;
-A:Could this be your sword? [Show her the Masterwork Short Sword]:2:23:52:1:13:0:0:0:0
+A:Could this be your sword? [Show her the Masterwork Short Sword]:2:21:137:1:13:0:0:0:0
 A:I am a <CLASS>. If you unseal the doors, I will defeat Shaugma.:0:0:0:1:12:0:0:0:0
 A:Perhaps I can look for your sword? What does it looks like?:0:0:0:1:10:0:0:0:0
 A:Farewell.:0:0:0:0:0:0:0:0:0
@@ -236,7 +236,7 @@ I:Aria;
 T:I had some doubts in your skill at first...but now, you have shown me;
 T:what courage is all about. By the way, do you still carry my blade;
 T:with you?;
-A:Yes, I still carry it.:2:23:52:6:1205:21:0:0:0
+A:Yes, I still carry it.:2:21:137:6:1205:21:0:0:0
 A:No, I don't have it.:0:0:0:1:25:0:0:0:0
 %
 

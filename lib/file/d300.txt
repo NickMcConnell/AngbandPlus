@@ -1,0 +1,8 @@
+N:1:0:0:0:0:0
+I: ;
+T:You suddently start trembling as you walk down the corridor. It's as if;
+T:a dark chill was running through your body, as if pure fear was possessing;
+T:you. For now, you find the courage to move on. But you don't know how;
+T:long it'll last...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -2,75 +2,490 @@ MONSTER
 ---------
 
 One of the numerous monsters that lives in dungeons, caves, etc...
-Playing this race is a completely different gameplay experience from
-the regular races, and it may not be a good choice if you are a
-beginner and it's your first time trough the game.
+Descriptions and traits varies from monsters to monsters.
 
 THE MONSTER RACE
 ------------------
 
-The 'Monster' race lets you incarnate a monster, but you do not get to
-change your class. Instead, you use the creature's natural abilities
-instead of learning abilities or creating spells. When using a monster's 
-natural attacks, your Martial Arts skill is used to improve the damages.
-Pay attention to your attacks strength, they make a huge difference.
-There are hundreds, perhaps thousands of creatures to choose from.
-Some are stronger, some are weaker. Note that unlike the Monster Mage's 
-morphing abilities, you will NEVER get returned damages if you use an 
-elemental natural melee attack on a magic returning boss.
+The 'Monster' race lets you incarnate a monster. During character creation,
+you will be asked to choose a letter that will represent the monster kind
+you will play as. (refer to the list of commands to see the meaning of
+every letters). Then, once you choose a kind, you'll be able to select
+a particular specie within that kind. Some kinds have more choices than
+others. You'll be able to select a creature of up to level 15 in terms
+on dungeon depth level.
 
-Many monsters also offers spells, such as bolts, balls,
-summon spells and support magic. Spellcraft skill will improve
-the damages of these magical attacks.
+After that, you will automatically be assigned the class "Monster", which
+is the special class that Monsters uses. Unlike regular races, you do not
+get to change your class. Instead, the class has it's own abilities to
+improve various monster features. And monsters get the option to evolve into
+stronger ones during the game. One of the main challenge of the Monster race
+is choosing the right creature amongst the right kind. While a particular
+kind may seem more appealing at first, you will soon discover that many
+individual monsters have abilities or features that makes them powerful in
+their own right, and that built in particular ways, can become very powerful.
 
-Monsters also have access to three passive abilities where you can
-spend your earned abilities points. Here are the benefits of the
-abilities for every points you place in them.
+BENEFITS OF THE MONSTER RACE
+------------------------------
 
-IMPROVED ATTACK: +2 to Martial Arts skill
-		 +5 to_hit
+Monsters receive natural bonus to their strength, dexterity, intelligence
+and wisdom. How much you get depends on your level and on the monster you
+are playing. In addition, you get the following benefits:
 
-IMPROVED DEFENSE: +10% natural AC to base AC(based on monster's natural AC)
-		  +2 to base AC
-		  +10 to_ac
+- Bonus hp per levels. Higher level monsters tend to receive more that
+lower ones.
+- Permanent radius 5 light(it is assumed that monsters came from dungeons
+and caves, and therefore sees well in the dark).
+- Innate elemental resistances. What you get depends on the monster you play.
+Beware, if your monster has weaknesses, you will also get them!
+- Innate status resistances to either fear, sleep/paralysis or confusion.
+Again, what you get depends on which monster you play.
+- Speed increase by 1 every 5 levels.
+- You can get extra attacks if your monster has two or more melee per turns.
+- Innate mountain-climbing ability.
 
-IMPROVED MAGIC: +10% spells damages.
+EQUIPMENT AND ESSENCES
+------------------------
 
+Unlike normal races, many monsters cannot equip the same items as human and
+humanoid races do. Instead, Monsters gets the ability to capture an enemy
+monster's essence upon defeating it. Whenever you defeat an enemy as a
+monster, an essence will be dropped, and you will be able to equip it in
+one of your monster's Essence slots. This essence may contains bonus to
+stats, base AC, a resistance or even customizable points that you can
+assign at will using the 'N' command, as you would with a levelable or
+crafted item. The bonus of the essence are heavily influenced by the
+original creature that dropped it. Though all bonus are random, they
+are influenced by the creature's aptitudes. Therefore, a monster with
+a high natural AC has more chances of giving a big base AC bonus. A monster
+with high strength has more chance of giving high strength than other stats.
+And a monster with overall low stats and base AC has more chance of giving
+more customizable points to make up for it. The amount of bonus you get
+is based on the creature's depth and level. Defeating an elite, boss or
+unique monster also result in a better essence. And finally, if the defeated
+monster had any spells, the essence will contain them all, and you'll be
+able to activate it to cast the spells of the defeated creature!
 
-Monsters can be hard to play, and how you build your character will
-greatly depend on the kind of monster you chose. If you have chosen
-to play a weaker monster kind, It's up to you to choose what works 
-best for you, and it all depends on the monster you incarnate.
+You'll notice that the first essence in your list of Essence slots is
+called the "Main Essence". If you are unarmed(or cannot wield weapons), the
+essence in that slot has additional effects. By default, it will replace
+your natural attack, and instead, you'll deal damages based on that
+equipped essence's damages and elemental type, rather than your natural
+attacks. You can use the 'K' command and turn off that feature if you don't
+want to replace your natural attacks. Also, this essence will provide
+a bonus to spells, essence activations and innate magic attacks of your
+monster. Again, note that you will not benefit from any of this if you
+wield weapons.
+
+Finally, not all monsters have the same number of essences slots available.
+Standard races have standard equipment slots, and for every equipment slots
+that are missing, your monster will gain one Essence slot. Therefore, a
+monster that is missing the boots and amulet slots will gain two Essence
+slots. A monster that cannot equip regular items at all will have 13 slots
+for equippable essences! And some monsters have no essence slots at all,
+in which case they will have the same equipment slots as other races.
+Generally, humanoid enemies such as 'p' or 'h' have no essence slots and
+have the same equipment as regular races, while monstrous or animalistic
+creatures will have all 13 slots. Demihumans or monsters with humanoid
+shape or human features will often have both essence slots and some regular
+slots, numbers varying from monsters to monsters.
+
+UNARMED COMBAT
+----------------
+
+Monsters that cannot equip weapons should use the Martial Arts skill to
+enhance their melee attacks. However, for Monsters, the skill works differently
+than for normal players. It has the following differences:
+
+- The base unarmed damages are equal to your natural attack's base damages,
+or equipped main essence. The elemental type is also determined by your
+natural attacks or your main essence.
+- Every points in the skill boosts your base damages by 1%.
+- The skill doesn't provide any extra blows.
+- Unarmed blows are treated as weight 40 instead of 10.
+- You will not gain the "unarmed blocking" feat.
+
+Otherwise, it's the exact same thing. You can use all the skill's feats, and
+fully benefit from other bonuses.
+
+SPELLCASTING
+--------------
+
+Monsters uses intelligence-based spellcasting for their spells and innate
+magical abilities. If you use the 'm' command, you'll be able to use one
+of your monster's innate magical abilities, if any. Various monsters can
+have many spells of various types, such as offensive spells, summoning,
+healing or stats boosting. Occasionally, some enemies may have unique
+special spells. These spells are affected by your spellcraft skill. As for
+the specialized schools skills, they will not improve offensive spells
+damages or summons, although they can sometimes affect the success of some
+types of powers. (such as Alteration affecting the success rate of
+Life Blast type abilities)
+
+If you use 'p', you'll be able to access the standard spellcasting menu,
+allowing you to create regular spells. Standard spellcasting rules apply.
+Note that monsters uses intelligence and mana to improve spells, they
+do not use wisdom.
+
+Finally, note that both innate magic abilities and regular spells have
+their power increased by wielding a rod, like other races. In the case
+of essence-based monsters, the Main Essence acts like a rod or staff for
+the purpose of increasing base spells damages.
 
 EVOLVING
 ----------
 
-Once you fight a few fights, you will notice that your monster
-probably isen't a match for the stronger monsters anymore. You can
-then use the Monster's Evolve ability, which allow you to turn into
-a more powerful monster of the same kind. To evolve, use the 'Y'
-command like you would to change your class normally.
-That way, you could rise from a Baby Red Dragon to a Young Red Dragon.
-You will never be able to change your basic kind, so if you start as
-a giant('P'), you will always be a giant. There are two exceptions
-however. A lesser dragon('d') can turn into an ancient dragon('D'),
-while a lesser demon('u') can turn into a greater demon('U'). When
-using the Evolve ability, you will be able to select a monster with
-a depth equal or lower than your current level that is the same kind
-of you.
+After gaining some levels, your will be able to evolve to a stronger monster
+kind by using the 'Y' command. Once your level reaches the depth of a higher
+monster of the kind you chose, you may evolve as it. For example, if you
+play a Skeleton, once you reach level 10, you'll be able to play as a
+Skeleton Warrior, Skeleton Archer or Skeleton Mage. These evolutions
+usually offers more powers and better stats, although you have to be careful.
+Just because a monster is a higher evolution doesn't mean it will fit your
+character's build, so keep that in mind! A spellcaster monster won't help
+you if you built your character for melee! Sometimes, a lesser monster
+might have special attacks that suits your strategy more. Make sure you
+consider the "Small but Deadly" ability, which empowers weaker monsters,
+before deciding if you should evolve or not. A good tactic is to wait
+until you actually encounter and fight the monster, so you know what it
+is capable of.
 
-TIPS
-------
+Another thing to know about evolution is that it is possible to evolve
+prematurely by carrying essences. For each essences of a specific monster
+of your chosen kind that you carry in your inventory, the level requirement
+for that evolution will be reduced by 1. For example, you normally need
+to be level 10 to evolve into a Skeleton Warrior. However, if you carry
+2 essences of Skeleton Warriors in your inventory, you'll be able to
+evolve into it at level 8. You can obtain up to 20 in terms of reduction.
+Note that equipped essences do not count. You need to carry them in your
+inventory.
 
-When first playing as a monster, choose your kind wisely. For
-beginners, lesser dragon('d') is an obvious choice, as it will
-offer you a great mix of melee and magic power, and a good amount
-of hp. Later, you will be able to evolve into the more powerful
-Ancient Dragons('D'), which stands amongst the strongest monsters
-in the game. More experienced players might like the physically
-oriented golems('g'), or the physical immune ghost('G'). Humans('p')
-will offer a good, varied choice too.
+Also, while it is possible to evolve into a higher level monster, it is
+not possible to regress to a previous, lower level monster. So consider
+this when deciding if you should evolve or not. If you are having an easy
+time dealing with the monsters, and you are unsure about the evolution,
+perhaps it is best to keep improving your current form rather than risking
+an evolution to something that might end up ruining your strategy.
 
-Choosing a good monster race at the beginning is crucial to your
-success, and therefore a first run with another race is recommanded
-to learn more about the various races of monsters.
+Finally, the general rule is that you can only evolve into a monster of the
+same kind(same letter) as you. However, there are exceptions:
+
+Lesser Dragons(d) can evolve into Ancient Dragons(D).
+Skeletons(s) can evolve into Lich(L).
+Canines(C) can evolve into Hounds(Z).
+Humans(p) can evolve into Giants(P).
+
+But remember that once you evolve into these "superior" forms, they cannot
+return to the "lesser" forms, and sometimes the "superior" form isn't always
+better. For example, while Lichs(L) makes good spellcasters, a melee monster
+is much better with the standard Skeleton(s).
+
+If you decide to evolve, abilities spent into specific monster attacks and
+spells will be returned to you, and these abilities will be reset. The
+main abilities, however, will not, so plan your character carefully!
+
+ABILITIES
+-----------
+
+1. Greater Evolution(Passive, level 1)
+
+Effect: Increase your strength, dexterity, intelligence and wisdom by
+        (chosen monster's depth)%.
+Extra points: +(chosen monster's depth)% to stats.
+
+This passive ability increases your main offensive base stats by an amount
+based on the depth level of the monster you're playing. The more powerful
+your monster is, the higher the bonus will be. If you want to aim for high
+base stats, consider placing points in this ability, especially if your
+monster kind has powerful evolutions.
+
+2. Small but Deadly(Passive, level 1)
+
+Effect: Increase your strength, dexterity, intelligence and wisdom by
+        1% + 1% for every experience levels above your monster's depth.
+Extra points: +1 multiplier to bonus.
+
+This passive ability increases your main offensive base stats by an amount
+based on how much higher your level is compared to your monster's depth.
+The opposite of Greater Evolution, this ability is meant for players who
+plays with weaker monster kinds, or prefer to stick to a lower monster
+for personnal preference or because that particular monster has a particular
+attack that is part of the player's strategy. With this, even a lower
+monster can still get high stats later on.
+
+3. Improved Magics(Passive, level 1)
+
+Effect: Increase damages and success rate of your spells.
+Bonus: +50% to offensive and healing spells damages/power.
+       +10 to spell's power for overcoming resistance rolls(if any).
+       +10% to stats boosters power.
+       +1 to maximum summoning depth for summoning spells.
+Extra points: +50% to spells damages.
+              +10 to spell's power for overcoming resistance rolls(if any).
+              +1 to maximum summoning depth for summoning spells.
+
+This passive ability increases the damages of all your monster's spells.
+While you can invest your ability points in a specific spell for twice
+the effect, if the monster you're playing has several diverse spells,
+then this ability might be a worthy option because it will improve all
+of them as opposed to just one. Also, if your spell needs to win a
+resistance roll to work(such as status ailment spells), it will improve
+the success rate of these spells.
+
+4. Inner Elemental Mastery(Active/Passive, level 1)
+
+Effect: Increase damages of a chosen element by 10% of your resistance to it.
+        Can also be activated for a "Piercing Spells" effect.
+Damages bonus: +(10% of resistance)% to specific element damages.
+Piercing power for activated effect: 15
+Extra points: +(10% of resistance)% to specific element damages.
+              +15 to piercing power.
+
+When you increase this ability for the first time, you will be asked to
+choose between 12 of the 16 main elements, and you might also get some other
+choices if your monster has a specific resistance to something else. Once you
+choose the element, this ability will increase the damages of any attacks
+of the chosen element by 10% of your resistance to it. This ability is
+obsiously meant for monsters with natural immunities, of which many have,
+but you can still benefit from it even if you don't have one by equipping
+essences or items that gives you resistances.
+
+5. Improved Essence Activations(Passive, level 1)
+
+Effect: Increase damages and success rate of activated essences.
+Bonus: +50% to offensive and healing spells damages/power.
+       +10 to spell's power for overcoming resistance rolls(if any).
+       +10% to stats boosters power.
+       +1 to maximum summoning depth for summoning spells.
+Extra points: +50% to spells damages.
+              +10 to spell's power for overcoming resistance rolls(if any).
+              +1 to maximum summoning depth for summoning spells.
+
+This passive ability increases the damages and success rate of the activation
+of Essences. This is basically just like Improved Magics, but for activations.
+If your monster cannot inherently cast spells, equipped essences with spells
+and raising this ability is a way of getting the magical attacks you normally
+wouldn't have access to. Keep in mind that most of them will require the
+essence to recharge, so it's a good idea to equip more than one essence with
+spells if you plan on using this ability.
+
+6. Improved Defense(Passive, level 1)
+
+Effect: Increase your base AC based on your monster's base AC.
+Bonus: 25% of chosen monster's base AC.
+Extra points: +25% of chosen monster's base AC to base AC.
+
+This passive ability increases your base AC based on how much the monster you
+chose has as innate base AC. Depending on the chosen monster, this ability
+can provide a significant bonus, which is further improved greatly by
+Agility. However, note that lower depth monsters have very low base AC and
+if you play as one, you might not get much out of this ability, which is
+meant to be used by monsters with high AC.
+
+7. Improved Counters(Passive, level 6)
+
+Effect: Improve your chance of blocking with blocking counters, and improves
+        damages of returning counters.
+Base blocking chance bonus: +5
+Extra points: +5 to base blocking chance.
+              +1 multiplier to returned damages for returning counters.
+
+This passive ability makes your chosen monster's special counters more
+effective. Many monsters have the ability to block or even reflect an
+incoming attack, and if you have such an ability, this will improve it. Note
+that in some cases, there may not be a blocking test and it's just a static
+percentile chance to block the attack. In this case, this ability has
+no effects on it.
+
+8. Improved Passive Powers(Passive, level 6)
+
+Effect: Improve special passive abilities your monster may have.
+Extra points: Improves powers further.
+
+Some monsters have special passive powers unique to them. If they do,
+this ability will make them more powerful in various ways(increased damages,
+success rate, healing, etc...), based on the nature of the power.
+
+Note that by default, these powers are off. Use the 'K' command to toggle
+them On and Off.
+
+9. Racial Champion(Active/Passive, level 6)
+
+Effect: Increase your charisma. Can also be activated to rally monsters of
+        the same kind to your cause.
+Charisma bonus: +(monster's depth)%.
+Activated Effect's Power: 40
+Radius: 3
+Can be resisted: Yes(mind).
+Extra points: +(monster's depth)% to charisma.
+              +40 to activated effect's power.
+              +1 to radius every 20 points.
+
+This ability has two effects. The first one is a passive bonus to your
+Charisma, which can be very useful if you have summoning spells. The
+second one is a charm-type effect that affects monsters of the same
+kind as yours(has the same letter). The power is high, though it will
+not work on elites, bosses and uniques. Monsters of a different kind
+will be unaffected.
+
+Note that this ability doesn't take into account "greater" evolutions.
+For example, a lesser dragon('d') cannot persuade an ancient dragon('D').
+
+10. Paragon Elder Monster(Passive, level 10)
+
+Effect: Become an upper class and respected monster. Improves all your
+        abilities and may give you a special rank.
+Bonus to all stats: 5%.
+Extra points: +5% to all stats.
+              At level 10 and higher, you become an Elite monster, and
+              may pick a special ability. At level 20, you become a Boss
+              monster, and you may pick a second ability. You may then
+              pick one every 10 points, until you learn them all.
+
+This passive ability will improve all your stats based on your base
+stats. However, it's true power is to give you access to some of the
+elite and boss monsters powers. Your color will also change to the elite
+or boss color! Here are the abilities you can choose:
+
+Halve Damages:
+Damages you take are reduced by 50%. This apply to all forms of damages,
+both physical and magical. This can be especially powerful if you play
+as a monster that has a high hp and defense.
+
+Double Weapon Damages:
+Melee and ranged attacks will do double damages. If you use a lot of these,
+this ability will make them much more powerful. This works with not just
+your special attacks, but any normal attacks and with any weapons or
+unarmed attacks.
+
+Double Magic Damages:
+Your monster's special magic attacks will do double damages. If you use spells
+a lot, this will make them stronger. This will also double any magical attacks
+from essences activation. However, it does not improve regular spells or other
+magic attacks.
+
+Crushing Blows:
+Your melee attacks have a chance to cause paralysis, confusion and a 25%
+hit rate reduction. The monsters will attempt a strength-based resistance
+roll to avoid the effect. The power of this ability depends on how you use
+it:
+- Normal weapon/unarmed attack or special in a combat feat: power of 5/points.
+- Special melee attack outside of combat feat: power of 20/points + strength.
+- Special melee attack outside of combat feat,
+  and with Power Attack: power of (20/points + strength) * (Power Attack mod)
+
+The power is low with normal attacks, but keep in mind that with martial arts,
+you will get a lot of blows. The paralysis and confusion will not work if the
+enemy is resistant to those effects, but otherwise will last for 5 turns.
+The hit rate reduction is permanent and will work on any enemies.
+
+Return 50% Melee damages:
+Enemies that attacks you in melee combat will have 50% of damages
+returned to them. Even if they miss you, they still take damages.
+Note that they are still typed damages, so the monster could be
+immune. The returned damages receives a multiplier for every points
+in this ability.
+
+Return 50% Magic damages:
+Enemies that cast an offensive spell at you will be returned 50% of
+the spell's damages. Even if you avoid the spell, the spell will
+still be returned, although like the melee returning ability, they
+are typed damages. The returned damages receives a multiplier for
+every points in this ability.
+
+
+MONSTER INNATE ATTACKS AND SPELLS:
+
+As a monster, you can also choose to place points in any of your innate
+melee attacks, ranged attacks or spells. That has the following benefits:
+
+Melee:
+
+Most monsters have melee innate melee attacks. As a monster player, you
+can use any of these moves as special attacks and even as combat feats.
+Special melee attacks works with both martial arts and weapons, meaning
+that both humanoid and non-humanoid monsters can fully benefit from
+them. Special melee attacks will add their innate damage rolls to the
+base damages of your melee attacks.
+
+You can choose to places ability points in these attacks, and it will
+have the following benefits:
+
+- If used as a combat feat, the attacks gain 10% extra damages per points.
+If used outside of a combat feat combo, it will be 20% extra damages
+per points. This apply to the final damages, not just the innate damages
+bonus, so this can become very powerful for any monsters!
+- The attack gains a radius of 1 every 10 points.
+- +20% bonus to hit rate per points.
+
+Note: These special attacks are treated as melee attacks for the purpose
+of counters and hit rate tests. However, non-physical special attacks will
+hurt elites/bosses immune to physical attacks. Of course, elemental special
+attacks will not hurt magic immunes. Also, the special attacks damages
+are never returned through standard returning abilities.
+
+Ranged:
+
+Innate ranged attacks are often used by humanoid monsters. As a result,
+they can be combined with ranged weapons for maximum effectiveness.
+If used without a ranged weapon, it will be treated as a magic attack,
+but will use the innate attack damages and will use dex-based ranged
+damages calculation. Like melee attacks, the attack's innate damages
+roll will be added to the normal base ammo damages.
+
+Note that using a special ranged attack with a ranged weapon still
+consumes ammos like a normal ranged attack would. Also, the attack's
+elemental type will be the one used by your attack, regardless of
+shooter or ammo.
+
+Innate ranged attacks without weapons are treated as magical attacks,
+and therefore do not have hit rate test. However, you'll need
+intelligence and wisdom to bypass magic counters of enemies, not
+dexterity.
+
+Placing points in these attacks have the following benefits:
+
+Ranged weapons:
+- +20% additional damages per points.
+- +1 radius every 10 points.
+- +20% bonus to hit rate per points.
+- Every 3 points, you can use the attack with another of your extra
+shots, if any. So if you have two extra shots in one hand, you
+need 3 points in the ability to use it twice in a row. Note that
+each ranged weapons is treated separately, so if you wield two
+ranged weapons, and have 2 shots in each hands, 3 points in this
+ability will allow you to use the ability twice in a row for each
+weapons, so a total of 4 times.
+
+Without ranged weapons:
+- +1 multiplier to damages per points.
+- +1 radius every 10 points.
+
+Magic:
+
+Monsters innate spells are casted using either intelligence or wisdom,
+whichever is the highest, though they consume mana, so intelligence
+is generally the better choice. Placing points in a specific spell
+has twice the benefits of the general Improved Magics ability, with
+some extras. Here's the benefits:
+
++1 multiplier to offensive and healing spells damages/power.
++20 to spell's power for overcoming resistance rolls(if any).
++20% to stats boosters power.
++2 to maximum summoning depth for summoning spells.
++1 extra summon for every 5 points with summoning spells.
++1 to duration of stats boosters and hasting spells.
+
+If the monster has any unique special powers, placing points in them
+will improve them in various ways, depending on the nature of that power.
+
+Note: The Improved Magics ability and specific powers are additive in
+terms of bonus. Placing one points in a specific power and one point
+in Improved Magics results in a bonus of 150% to damages.
+
+
+Final note: You may notice that the names of the attacks might not
+always match the type of weapons you are using them with. However,
+the name of the attacks do not affect the usability of the attacks
+in any way, so just because the attack is named "Sword" or "Arrow"
+doesn't mean you can't use it with a mace or a gun.

@@ -28,6 +28,16 @@ static cptr favor_text[11] = {
   "certain beyond any doubt"
 };
 
+/* Always return FALSE at the moment. Won't delete it since it's technically implemented... */
+static bool too_weak(monster_type *m_ptr)
+{
+	/*monster_race *r_ptr = &r_info[m_ptr->r_idx];*/
+	
+	/*if (p_ptr->lev > (r_ptr->level * 4)) return (TRUE);*/
+
+	return (FALSE);
+}
+
 
 /*
  * Set "p_ptr->tim_invis", and "p_ptr->tim_inv_pow",
@@ -49,7 +59,7 @@ bool set_invis(int v, int p)
                         /* Shadow Stalker's Shadow Magic! */
                         if (p_ptr->abilities[(CLASS_SHADOW * 10) + 8] >= 1)
                         {
-                                p_ptr->csp += (p_ptr->skill[6] + (p_ptr->skill[6] * ((p_ptr->abilities[(CLASS_SHADOW * 10) + 8] * 20) / 100)));
+                                p_ptr->csp += ((p_ptr->skill[6] * 5) + ((p_ptr->skill[6] * 5) * ((p_ptr->abilities[(CLASS_SHADOW * 10) + 8] * 20) / 100)));
                         }
 			notice = TRUE;
                         update_and_handle();
@@ -742,7 +752,6 @@ bool set_shero(int v)
 	{
 		if (p_ptr->shero)
 		{
-                        if (p_ptr->pclass != CLASS_BERSERKER && p_ptr->pclass != CLASS_MASTER)
 			msg_print("You feel less Berserk.");
 			notice = TRUE;
 
@@ -1377,205 +1386,6 @@ bool set_cut(int v)
 	return (TRUE);
 }
 
-
-/*
- * Set "p_ptr->food", notice observable changes
- *
- * The "p_ptr->food" variable can get as large as 20000, allowing the
- * addition of the most "filling" item, Elvish Waybread, which adds
- * 7500 food units, without overflowing the 32767 maximum limit.
- *
- * Perhaps we should disturb the player with various messages,
- * especially messages about hunger status changes.  XXX XXX XXX
- *
- * Digestion of food is handled in "dungeon.c", in which, normally,
- * the player digests about 20 food units per 100 game turns, more
- * when "fast", more when "regenerating", less with "slow digestion",
- * but when the player is "gorged", he digests 100 food units per 10
- * game turns, or a full 1000 food units per 100 game turns.
- *
- * Note that the player's speed is reduced by 10 units while gorged,
- * so if the player eats a single food ration (5000 food units) when
- * full (15000 food units), he will be gorged for (5000/100)*10 = 500
- * game turns, or 500/(100/5) = 25 player turns (if nothing else is
- * affecting the player speed).
- */
-bool set_food(int v)
-{
-	int old_aux, new_aux;
-
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
-
-	/* Fainting / Starving */
-	if (p_ptr->food < PY_FOOD_FAINT)
-	{
-		old_aux = 0;
-	}
-
-	/* Weak */
-	else if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		old_aux = 1;
-	}
-
-	/* Hungry */
-	else if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		old_aux = 2;
-	}
-
-	/* Normal */
-	else if (p_ptr->food < PY_FOOD_FULL)
-	{
-		old_aux = 3;
-	}
-
-	/* Full */
-	else if (p_ptr->food < PY_FOOD_MAX)
-	{
-		old_aux = 4;
-	}
-
-	/* Gorged */
-	else
-	{
-		old_aux = 5;
-	}
-
-	/* Fainting / Starving */
-	if (v < PY_FOOD_FAINT)
-	{
-		new_aux = 0;
-	}
-
-	/* Weak */
-	else if (v < PY_FOOD_WEAK)
-	{
-		new_aux = 1;
-	}
-
-	/* Hungry */
-	else if (v < PY_FOOD_ALERT)
-	{
-		new_aux = 2;
-	}
-
-	/* Normal */
-	else if (v < PY_FOOD_FULL)
-	{
-		new_aux = 3;
-	}
-
-	/* Full */
-	else if (v < PY_FOOD_MAX)
-	{
-		new_aux = 4;
-	}
-
-	/* Gorged */
-	else
-	{
-		new_aux = 5;
-	}
-
-	/* Food increase */
-	if (new_aux > old_aux)
-	{
-		/* Describe the state */
-		switch (new_aux)
-		{
-			/* Weak */
-			case 1:
-			msg_print("You are still weak.");
-			break;
-
-			/* Hungry */
-			case 2:
-			msg_print("You are still hungry.");
-			break;
-
-			/* Normal */
-			case 3:
-			msg_print("You are no longer hungry.");
-			break;
-
-			/* Full */
-			case 4:
-			msg_print("You are full!");
-			break;
-
-			/* Bloated */
-			case 5:
-			msg_print("You have gorged yourself!");
-			break;
-		}
-
-		/* Change */
-		notice = TRUE;
-	}
-
-	/* Food decrease */
-	else if (new_aux < old_aux)
-	{
-		/* Describe the state */
-		switch (new_aux)
-		{
-			/* Fainting / Starving */
-			case 0:
-			msg_print("You are getting faint from hunger!");
-			break;
-
-			/* Weak */
-			case 1:
-			msg_print("You are getting weak from hunger!");
-			break;
-
-			/* Hungry */
-			case 2:
-			msg_print("You are getting hungry.");
-			break;
-
-			/* Normal */
-			case 3:
-			msg_print("You are no longer full.");
-			break;
-
-			/* Full */
-			case 4:
-			msg_print("You are no longer gorged.");
-			break;
-		}
-
-		/* Change */
-		notice = TRUE;
-	}
-
-	/* Use the value */
-	p_ptr->food = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Redraw hunger */
-	p_ptr->redraw |= (PR_HUNGER);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
 /*
  * Advance experience levels and print experience
  */
@@ -1612,7 +1422,7 @@ void check_experience(void)
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L)))
+	       (p_ptr->exp < multiply_divide(player_exp[p_ptr->lev-2], p_ptr->expfact, 100L)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -1634,7 +1444,7 @@ void check_experience(void)
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
+	       (p_ptr->exp >= multiply_divide(player_exp[p_ptr->lev-1], p_ptr->expfact, 100L)))
 	{
                 bool nostats = FALSE;
 		/* Gain a level */
@@ -1653,13 +1463,15 @@ void check_experience(void)
                 /* skill point, maybe more if you have a high wisdom/intelligence. */
                 if (p_ptr->lev >= p_ptr->max_plv && nostats == FALSE)
                 {
-                        int statavg;
-                        p_ptr->statpoints += 2;
-                        statavg = (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;
-                        p_ptr->skillpoints += 2 + (statavg / 12);
-			/* Humans gains an extra skill point every 3 levels. */
-			if (p_ptr->prace == RACE_HUMAN && ((p_ptr->lev % 3) == 0)) p_ptr->skillpoints += 1;
-                        p_ptr->ability_points += 1; 
+                        int statamt, skillamt, apamt;
+			call_lua("stat_points_per_levels", "", "d", &statamt);
+                        p_ptr->statpoints += statamt;
+                        
+			call_lua("skill_points_per_levels", "", "d", &skillamt);
+                        p_ptr->skillpoints += skillamt;
+			
+			call_lua("ability_points_per_levels", "", "d", &apamt);
+                        p_ptr->ability_points += apamt; 
                 }
 
 		/* Sound */
@@ -1790,6 +1602,9 @@ void place_corpse(monster_type *m_ptr)
    bool decapitate = ((rand_int(m_ptr->maxhp) <= -(m_ptr->hp)) &&
                        (w_ptr->tval != TV_HAFTED) && crit);
 #endif
+
+   /* An Essence capturing monster will not get corpses. */
+   if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29015] == 1) return;
 	
   	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1964,6 +1779,12 @@ void monster_death(int m_idx)
 	if (m_ptr->smart &(SM_CLONED))
 		cloned = TRUE;
 
+	/* Call a lua script. */
+	if (r_ptr->event_death > 0)
+	{
+		call_lua("monster_dies", "(dd)", "", m_idx, r_ptr->event_death);
+	}
+
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -2001,7 +1822,7 @@ void monster_death(int m_idx)
 	object_level = (dun_level + r_ptr->level) / 2;
 
         /* Handle the special treasure a monster may carry */
-        if (r_ptr->treasuretval > 0 && randint(100) <= r_ptr->treasurechance && !is_pet(m_ptr) && m_ptr->angered_pet == 0)
+        if (r_ptr->treasuretval > 0 && (randint(100) <= r_ptr->treasurechance || r_ptr->treasuremagic == 4) && ((!is_pet(m_ptr) && m_ptr->angered_pet == 0 && m_ptr->summoned == 0 && !(m_ptr->no_experience)) || (r_ptr->flags9 & (RF9_SPECIAL_GENE))))
 	{
 		q_ptr = &forge;
 
@@ -2013,10 +1834,63 @@ void monster_death(int m_idx)
                         apply_magic(q_ptr, object_level, TRUE, TRUE, TRUE, FALSE);
                 if (r_ptr->treasuremagic == 3)
                         apply_magic(q_ptr, object_level, TRUE, TRUE, TRUE, TRUE);
+		if (r_ptr->treasuremagic == 4)
+		{
+			q_ptr->name1 = r_ptr->treasurechance;
+                        apply_magic(q_ptr, object_level, TRUE, TRUE, TRUE, TRUE);
+		}
 
 
                 drop_near(q_ptr, -1, y, x);
 	}
+
+	/* A defeated Nightmare Horror always drops this. */
+        if (r_ptr->cursed > 0 && ((!is_pet(m_ptr) && m_ptr->angered_pet == 0 && m_ptr->summoned == 0 && !(m_ptr->no_experience))))
+	{
+		q_ptr = &forge;
+
+                object_prep(q_ptr, lookup_kind(TV_LICIALHYD, 2));
+
+                q_ptr->pval = m_ptr->r_idx;
+		q_ptr->pval2 = -1;
+		q_ptr->pval3 = r_ptr->level;
+
+		q_ptr->cursed = r_ptr->level;
+
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		q_ptr->ident |= (IDENT_MENTAL);
+
+                drop_near(q_ptr, -1, y, x);
+	}
+
+	/* Monsters can capture essences. */
+        if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29015] == 1 && ((!is_pet(m_ptr) && m_ptr->angered_pet == 0 && m_ptr->summoned == 0 && !(m_ptr->no_experience))))
+	{
+		int mtype;
+		q_ptr = &forge;
+
+                object_prep(q_ptr, lookup_kind(TV_ESSENCE, 1));
+
+		if (r_ptr->cursed > 0) mtype = 4;
+		else if (r_ptr->flags1 & (RF1_UNIQUE)) mtype = 3;
+		else if (m_ptr->boss == 2) mtype = 2;
+		else if (m_ptr->boss == 1) mtype = 1;
+		else mtype = 0;
+
+                prepare_essence(q_ptr, m_ptr->r_idx, m_ptr->level, mtype);
+		q_ptr->pval = m_ptr->r_idx;
+		q_ptr->pval2 = m_ptr->level;
+
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		q_ptr->ident |= (IDENT_MENTAL);
+
+                drop_near(q_ptr, -1, y, x);
+	}
+
+	/* Reset */
+	object_level = dun_level;
 
 	/* Set an event associated with the death of this monster */
         if (r_ptr->event > 0)
@@ -2024,60 +1898,10 @@ void monster_death(int m_idx)
 		p_ptr->events[r_ptr->event] = r_ptr->extra1;
 	}
         /* Hostile monster is killed, show dialog(if any) */
-        if (r_ptr->extra2 > 0 && !is_pet(m_ptr) && m_ptr->angered_pet == 0)
+	/* But only if there's a CAN_SPEAK or DEATH_DIALOG flag!! */
+        if (r_ptr->extra2 > 0 && ((r_ptr->flags2 & (RF2_CAN_SPEAK)) || (r_ptr->flags7 & (RF7_DEATH_DIALOG))))
 	{
 		show_dialog(r_ptr->extra2);
-	}
-
-	/* Let monsters explode! */
-	for (i = 0; i < 4; i++)
-	{
-		if (r_ptr->blow[i].method == RBM_EXPLODE)
-		{
-			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-			int typ = GF_MISSILE;
-			int d_dice = r_ptr->blow[i].d_dice;
-			int d_side = r_ptr->blow[i].d_side;
-                        s32b damage = damroll(d_dice, d_side);
-
-			switch (r_ptr->blow[i].effect)
-			{
-				case RBE_HURT:      typ = GF_MISSILE; break;
-				case RBE_POISON:    typ = GF_POIS; break;
-				case RBE_UN_BONUS:  typ = GF_DISENCHANT; break;
-				case RBE_UN_POWER:  typ = GF_MISSILE; break; /* ToDo: Apply the correct effects */
-				case RBE_EAT_GOLD:  typ = GF_MISSILE; break;
-				case RBE_EAT_ITEM:  typ = GF_MISSILE; break;
-				case RBE_EAT_FOOD:  typ = GF_MISSILE; break;
-				case RBE_EAT_LITE:  typ = GF_MISSILE; break;
-				case RBE_ACID:      typ = GF_ACID; break;
-				case RBE_ELEC:      typ = GF_ELEC; break;
-				case RBE_FIRE:      typ = GF_FIRE; break;
-				case RBE_COLD:      typ = GF_COLD; break;
-				case RBE_BLIND:     typ = GF_MISSILE; break;
-				case RBE_CONFUSE:   typ = GF_CONFUSION; break;
-				case RBE_TERRIFY:   typ = GF_MISSILE; break;
-				case RBE_PARALYZE:  typ = GF_MISSILE; break;
-				case RBE_LOSE_STR:  typ = GF_MISSILE; break;
-				case RBE_LOSE_DEX:  typ = GF_MISSILE; break;
-				case RBE_LOSE_CON:  typ = GF_MISSILE; break;
-				case RBE_LOSE_INT:  typ = GF_MISSILE; break;
-				case RBE_LOSE_WIS:  typ = GF_MISSILE; break;
-				case RBE_LOSE_CHR:  typ = GF_MISSILE; break;
-				case RBE_LOSE_ALL:  typ = GF_MISSILE; break;
-				case RBE_SHATTER:   typ = GF_ROCKET; break;
-				case RBE_EXP_10:    typ = GF_MISSILE; break;
-				case RBE_EXP_20:    typ = GF_MISSILE; break;
-				case RBE_EXP_40:    typ = GF_MISSILE; break;
-				case RBE_EXP_80:    typ = GF_MISSILE; break;
-				case RBE_DISEASE:   typ = GF_POIS; break;
-				case RBE_TIME:      typ = GF_TIME; break;
-                                case RBE_SANITY:    typ = GF_MISSILE; break;
-			}
-
-			project(m_idx, 3, y, x, damage, typ, flg);
-			break;
-		}
 	}
 
         if((!force_coin)&&(randint(100)<50)) place_corpse(m_ptr);
@@ -2087,119 +1911,6 @@ void monster_death(int m_idx)
 	{
 		/* Take notes on treasure */
 		lore_treasure(m_idx, dump_item, dump_gold);
-	}
-
-	/* Process "any level" quest monster completion */
-	for (i = 0; i < max_quests; i++)
-	{
-		if (quest[i].status != QUEST_STATUS_TAKEN)
-			continue;
-
-		if (quest[i].level != dun_level)
-			continue;
-
-		if (((quest[i].type == QUEST_TYPE_KILL_LEVEL) ||
-		     (quest[i].type == QUEST_TYPE_RANDOM)) &&
-		     (quest[i].r_idx == m_ptr->r_idx))
-		{
-			quest[i].cur_num++;
-
-			if (quest[i].cur_num >= quest[i].max_num)
-			{
-				/* completed quest */
-				quest[i].status = QUEST_STATUS_COMPLETED;
-				if (!p_ptr->inside_quest)
-					create_stairs = TRUE;
-
-                                if (!quest[i].flags & QUEST_FLAG_SILENT)
-				{
-					msg_print("You just completed your quest!");
-					msg_print(NULL);
-				}
-
-				/* Finish the two main quests without rewarding */
-                                if ((i == QUEST_SHELOB) || (i == QUEST_SAURON) || (i == QUEST_MORGOTH))
-				{
-					quest[i].status = QUEST_STATUS_FINISHED;
-				}
-
-				if (quest[i].type == QUEST_TYPE_RANDOM)
-				{
-					reward = TRUE;
-					quest[i].status = QUEST_STATUS_FINISHED;
-				}
-
-				break;
-			}
-		}
-		else if ((quest[i].type == QUEST_TYPE_KILL_ANY_LEVEL) &&
-			     (quest[i].r_idx == m_ptr->r_idx))
-		{
-			quest[i].cur_num++;
-			if (quest[i].cur_num >= quest[i].max_num)
-			{
-				 /* completed quest */
-				quest[i].status = QUEST_STATUS_COMPLETED;
-
-                                if (!quest[i].flags & QUEST_FLAG_SILENT)
-				{
-					msg_print("You just completed your quest!");
-					msg_print(NULL);
-				}
-				quest[i].cur_num = 0;
-			}
-			break;
-		}
-	}
-
-	/* Current quest */
-	i = p_ptr->inside_quest;
-
-	if (quest[i].type == QUEST_TYPE_KILL_NUMBER)
-	{
-		quest[i].cur_num++;
-		if (quest[i].cur_num >= quest[i].num_mon)
-		{
-			/* completed quest */
-			quest[i].status = 2;
-
-                        if (!quest[i].flags & QUEST_FLAG_SILENT)
-			{
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-			}
-			quest[i].cur_num = 0;
-		}
-	}
-	else if ((quest[i].type == QUEST_TYPE_KILL_ALL) &&
-		     (p_ptr->inside_quest))
-	{
-                monster_type * mt_ptr;
-		number_mon = 0;
-
-		for (i2 = 0; i2 < cur_wid; ++i2)
-			for (j2 = 0; j2 < cur_hgt; j2++)
-				if (cave[j2][i2].m_idx > 0)
-                                {
-                                        mt_ptr = &m_list[cave[j2][i2].m_idx];
-                                        if(!(mt_ptr->smart & SM_FRIEND))
-                                                number_mon++;
-                                }
-
-		if ((number_mon - 1) == 0)
-		{
-			/* completed */
-                        if (quest[i].flags & QUEST_FLAG_SILENT)
-			{
-				quest[i].status = QUEST_STATUS_FINISHED;
-			}
-			else
-			{
-				quest[i].status = QUEST_STATUS_COMPLETED;
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-			}
-		}
 	}
 
 	/* Create a magical staircase */
@@ -2254,28 +1965,7 @@ void monster_death(int m_idx)
 		drop_near(q_ptr, -1, y, x);
 	}
 
-
-	/* Only process "Quest Monsters" */
-	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
-
-	/* Winner? */
-        if (strstr((r_name + r_ptr->name),"Variaz, God Of The Void"))
-	{
-		/* Total winner */
-		total_winner = TRUE;
-
-                /* Kill all enemies, Variaz is dead... */
-                anihilate_monsters();
-
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
-
-		/* Congratulations */
-		msg_print("*** CONGRATULATIONS ***");
-                msg_print("After a long and difficult battle, Variaz has finally been defeated. ");
-                msg_print("You saved every peoples. The monsters will no longer come to destroy the cities. Everyone will live in peace now... ");
-                msg_print("And if you're goal was to take the throne, well you did! Congratulations again, you won tha game!");
-	}
+	return;
 
 #ifdef USE_PYTHON
         perform_event(EVENT_MONSTER_DEATH, Py_BuildValue("(iii)", m_idx, m_ptr->r_idx, 1));
@@ -2330,6 +2020,12 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 	/* Hurt it */
 	m_ptr->hp -= dam;
 
+	/* Call a lua script. */
+	if (r_ptr->event_take_damages > 0)
+	{
+		call_lua("monster_take_damages", "(dd)", "", m_idx, r_ptr->event_take_damages);
+	}	
+
         /* It is dead now */
 	if (m_ptr->hp < 0)
 	{
@@ -2344,6 +2040,15 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 			m_ptr->lives -= 1;
 			msg_format("%^s has lost a life point.", m_name);
 			m_ptr->hp = m_ptr->maxhp;
+			return (FALSE);
+		}
+
+		/* Immortality. */
+		if ((r_ptr->flags7 & (RF7_IMMORTAL)) && (enemy_immortality))
+		{
+			msg_format("%^s has been knocked out.", m_name);
+			m_ptr->hp = 1;
+			m_ptr->seallight = 5;
 			return (FALSE);
 		}
 
@@ -2383,7 +2088,7 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 
                 /* You killed something! Now, check if you should */
                 /* advance your class level... */
-                add_class_kill(m_ptr);
+		if (!(((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) add_class_kill(m_ptr);
 
 		/* Give some experience for the kill */
                 new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
@@ -2430,19 +2135,25 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
                 new_exp = new_exp / 10;
 
 		/* Killing guards/townsfolk will make you EVIL!! */
-		if (((r_ptr->r_flags7 & (RF7_TOWNSFOLK)) || (r_ptr->r_flags7 & (RF7_GUARD))) && m_ptr->angered_pet)
+		if (((r_ptr->flags7 & (RF7_TOWNSFOLK)) || (r_ptr->flags7 & (RF7_GUARD))) && m_ptr->angered_pet)
 		{
 			/* Killing innocents will make us evil. However, */
-			/* we won't go lower than -10. */
-			if (p_ptr->alignment > -10) p_ptr->alignment -= 1;
+			/* we won't go lower than -5. */
+			if (p_ptr->alignment > -5) p_ptr->alignment -= 1;
 		}
+
+		/* Do not gain experience in quests. */
+		/* if (p_ptr->inside_quest) new_exp = 0; */
+		if ((((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) new_exp = 0;
 
                 /* Do not gain any exp for killing friends! */
                 if (is_pet(m_ptr) || m_ptr->angered_pet == 1)
                 {
                         msg_print("No experience for killing a friend!");
+			new_exp = 0;
+
 			/* Also, if we kill a townsfolk or a guard, guards gets angry! */
-			if ((r_ptr->r_flags7 & (RF7_TOWNSFOLK)) || (r_ptr->r_flags7 & (RF7_GUARD)))
+			if ((r_ptr->flags7 & (RF7_TOWNSFOLK)) || (r_ptr->flags7 & (RF7_GUARD)))
 			{
 				int i;
 				/* Delete the monsters of that "type" */
@@ -2461,57 +2172,51 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 						m_ptr->angered_pet = 1;
 					}
 
-					/* While other townsfolk will get panicked! */
-					if (r_ptr->flags7 & RF7_TOWNSFOLK)
+					/* While other non-unique townsfolk will get panicked! */
+					if ((r_ptr->flags7 & (RF7_TOWNSFOLK)) && !(r_ptr->flags1 & (RF1_UNIQUE)))
 					{
-						set_pet(m_ptr, FALSE);
-						m_ptr->angered_pet = 1;
-						m_ptr->monfear = 30000;
+						m_ptr->monfear = 30;
 					}
 				}
 			}                       
                 }
                 else {
                         gain_exp_kill(new_exp, m_ptr);
-                        /* Defender's Murderous Defense */
-                        if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 9] >= 1)
-                        {
-                                p_ptr->ac_boost = p_ptr->ac_boost + (m_ptr->level * p_ptr->abilities[(CLASS_DEFENDER * 10) + 9]);
-                                if (p_ptr->ac_boost > 30000) p_ptr->ac_boost = 30000;
-                                p_ptr->pres = 1 + (p_ptr->abilities[(CLASS_DEFENDER * 10) + 9] / 4);
-                                (void)set_ac_boost(20);
-                                (void)set_pres(20);
-                        }
                 }
 
-                if(!note)
+                /*if(!note)*/
                 {
+			int x;
                         object_type *o_ptr;
                         object_kind *k_ptr;
                         u32b f1, f2, f3, f4;
                         char buf[128];
 
-                        /* Access the weapon */
-                        o_ptr = &inventory[INVEN_WIELD];
-                        k_ptr = &k_info[o_ptr->k_idx];
-                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+			for (x = INVEN_WIELD; x < INVEN_TOTAL; x++)
+			{
 
-                        /* Can the weapon gain levels ? */
-                        if((o_ptr->k_idx) && (f4 & TR4_LEVELS))
-                        {
-                                /* Gain a kill, buy only if the enemy is equal or higher level */
-				/* than we are. The depth must also be higher than the weapon's level. */
-				if ((m_ptr->level >= p_ptr->lev) && (m_ptr->level >= o_ptr->level) && (r_ptr->level >= o_ptr->level)) o_ptr->kills += 1;
-                                if((o_ptr->kills >= (o_ptr->level * 15)) && (o_ptr->level < 100))
-                                {
-                                        /* Get object name */
-                                        object_desc(buf, o_ptr, 1, 0);
-                                        msg_format("%s gains a level!", buf);
+                        	/* Access the item */
+                        	o_ptr = &inventory[x];
+                        	k_ptr = &k_info[o_ptr->k_idx];
+                        	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-                                        /* What does it gains ? */
-                                        object_gain_level(o_ptr);
-                                }
-                        }
+                        	/* Can the item gain levels ? */
+                        	if((o_ptr->k_idx) && (f4 & TR4_LEVELS) && !(((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE))))
+                        	{
+                                	/* Gain a kill, buy only if the enemy is equal or higher level */
+					/* than we are. The depth must also be higher than the weapon's level. */
+					if ((m_ptr->level >= p_ptr->lev) && (o_ptr->level < p_ptr->lev)) o_ptr->kills += 1;
+                                	if((o_ptr->kills >= (o_ptr->level * 5)) && (o_ptr->level < 200))
+                                	{
+                                        	/* Get object name */
+                                        	object_desc(buf, o_ptr, 1, 0);
+                                        	msg_format("%s gains a level!", buf);
+
+                                        	/* What does it gains ? */
+                                        	object_gain_level(o_ptr);
+                                	}
+                        	}
+			}
                 }
                 
 		/* Generate treasure */
@@ -2573,7 +2278,7 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && m_ptr->lives == 0)
 	{
 		int percentage;
 
@@ -2612,15 +2317,77 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
  */
 void panel_bounds(void)
 {
-	panel_row_min = panel_row * (SCREEN_HGT / 2);
-	panel_row_max = panel_row_min + SCREEN_HGT - 1;
-	panel_row_prt = panel_row_min - 1;
-	panel_col_min = panel_col * (SCREEN_WID / 2);
-	panel_col_max = panel_col_min + SCREEN_WID - 1;
-	panel_col_prt = panel_col_min - 13;
+	if (!center_player)
+	{
+		panel_row_min = panel_row * (SCREEN_HGT / 2);
+		panel_row_max = panel_row_min + SCREEN_HGT - 1;
+		panel_row_prt = panel_row_min - 1;
+		panel_col_min = panel_col * (SCREEN_WID / 2);
+		panel_col_max = panel_col_min + SCREEN_WID - 1;
+		panel_col_prt = panel_col_min - 13;
+	}
+	else
+	{
+		panel_row_min = py - (SCREEN_HGT / 2);
+		panel_row_max = py + ((SCREEN_HGT / 2) - 1);
+		if (panel_row_min < 0)
+		{
+			panel_row_min = 0;
+			panel_row_max = SCREEN_HGT-1;
+		}
+		if (panel_row_max > (MAX_HGT - 1))
+		{
+			panel_row_min = (MAX_HGT - 1) - (SCREEN_HGT - 1);
+			panel_row_max = (MAX_HGT - 1);
+		}
+		panel_row_prt = panel_row_min - 1;
+
+		panel_col_min = px - (SCREEN_WID / 2);
+		panel_col_max = px + ((SCREEN_WID / 2) - 1);
+		if (panel_col_min < 0)
+		{
+			panel_col_min = 0;
+			panel_col_max = SCREEN_WID-1;
+		}
+		if (panel_col_max > (MAX_WID - 1))
+		{
+			panel_col_min = (MAX_WID - 1) - (SCREEN_WID - 1);
+			panel_col_max = (MAX_WID - 1);
+		}
+		panel_col_prt = panel_col_min - 13;
+	}
 }
 
+void panel_bounds_center(int y, int x)
+{
+	panel_row_min = y - (SCREEN_HGT / 2);
+	panel_row_max = y + ((SCREEN_HGT / 2) - 1);
+	if (panel_row_min < 0)
+	{
+		panel_row_min = 0;
+		panel_row_max = SCREEN_HGT-1;
+	}
+	if (panel_row_max > (MAX_HGT - 1))
+	{
+		panel_row_min = (MAX_HGT - 1) - (SCREEN_HGT - 1);
+		panel_row_max = (MAX_HGT - 1);
+	}
+	panel_row_prt = panel_row_min - 1;
 
+	panel_col_min = x - (SCREEN_WID / 2);
+	panel_col_max = x + ((SCREEN_WID / 2) - 1);
+	if (panel_col_min < 0)
+	{
+		panel_col_min = 0;
+		panel_col_max = SCREEN_WID-1;
+	}
+	if (panel_col_max > (MAX_WID - 1))
+	{
+		panel_col_min = (MAX_WID - 1) - (SCREEN_WID - 1);
+		panel_col_max = (MAX_WID - 1);
+	}
+	panel_col_prt = panel_col_min - 13;
+}
 
 /*
  * Given an row (y) and col (x), this routine detects when a move
@@ -2638,43 +2405,60 @@ void verify_panel(void)
 	int prow = panel_row;
 	int pcol = panel_col;
 
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((y < panel_row_min + 2) || (y > panel_row_max - 2))
+	if (!center_player)
 	{
-		prow = ((y - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-		if (prow > max_panel_rows) prow = max_panel_rows;
-		else if (prow < 0) prow = 0;
-	}
+		/* Scroll screen when 2 grids from top/bottom edge */
+		if ((y < panel_row_min + 2) || (y > panel_row_max - 2))
+		{
+			prow = ((y - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
+			if (prow > max_panel_rows) prow = max_panel_rows;
+			else if (prow < 0) prow = 0;
+		}
 
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((x < panel_col_min + 4) || (x > panel_col_max - 4))
+		/* Scroll screen when 4 grids from left/right edge */
+		if ((x < panel_col_min + 4) || (x > panel_col_max - 4))
+		{
+			pcol = ((x - SCREEN_WID / 4) / (SCREEN_WID / 2));
+			if (pcol > max_panel_cols) pcol = max_panel_cols;
+			else if (pcol < 0) pcol = 0;
+		}
+
+		/* Check for "no change" */
+		if ((prow == panel_row) && (pcol == panel_col)) return;
+
+		/* Hack -- optional disturb on "panel change" */
+		if (disturb_panel) disturb(0, 0);
+
+		/* Save the new panel info */
+		panel_row = prow;
+		panel_col = pcol;
+
+		/* Recalculate the boundaries */
+		panel_bounds();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+	}
+	else
 	{
-		pcol = ((x - SCREEN_WID / 4) / (SCREEN_WID / 2));
-		if (pcol > max_panel_cols) pcol = max_panel_cols;
-		else if (pcol < 0) pcol = 0;
+		/* Recalculate the boundaries */
+		panel_bounds();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
 	}
-
-	/* Check for "no change" */
-	if ((prow == panel_row) && (pcol == panel_col)) return;
-
-	/* Hack -- optional disturb on "panel change" */
-	if (disturb_panel) disturb(0, 0);
-
-	/* Save the new panel info */
-	panel_row = prow;
-	panel_col = pcol;
-
-	/* Recalculate the boundaries */
-	panel_bounds();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
 }
 
 
@@ -2688,7 +2472,7 @@ cptr look_mon_desc(int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool          living = TRUE;
-	int           perc;
+	s32b           perc;
 
 
 	/* Determine if the monster is "living" (vs "undead") */
@@ -2707,7 +2491,14 @@ cptr look_mon_desc(int m_idx)
 
 
 	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
+	if (m_ptr->maxhp > 10000)
+	{
+		perc = multiply_divide((m_ptr->hp / 100), 100, (m_ptr->maxhp / 100));
+	}
+	else
+	{
+		perc = multiply_divide(m_ptr->hp, 100, m_ptr->maxhp);
+	}
 
 	if (perc >= 60)
 	{
@@ -3208,7 +2999,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
                                                 screen_roff_boss(m_ptr->r_idx, 0, m_ptr);
 
 						/* Hack -- Complete the prompt (again) */
-						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+						Term_addstr(-1, TERM_WHITE, format("  [r,R,%s]", info));
 					
 						/* Command */
 						query = inkey();
@@ -3221,7 +3012,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					else
 					{
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s)%s%s[r,%s]",
+						sprintf(out_val, "%s%s%s%s (%s)%s%s[r,R,%s]",
 						    s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
 						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
 						    (is_pet(m_ptr) ? " (friendly) " : " "), info);
@@ -3236,7 +3027,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					}
 
 					/* Normal commands */
-					if (query != 'r') break;
+					if (query != 'r')
+					{
+						if (query == 'R') evolution_compare(m_ptr->r_idx, FALSE, TRUE);
+						else break;
+					}
 
 					/* Toggle recall */
 					recall = !recall;
@@ -3788,6 +3583,7 @@ bool get_aim_dir(int *dp)
 	if (use_old_target && target_okay()) dir = 5;
 
 	/* Ask until satisfied */
+	dir = 0;
 	while (!dir)
 	{
 		/* Choose a prompt */
@@ -3912,6 +3708,7 @@ bool get_rep_dir(int *dp)
 	dir = command_dir;
 
 	/* Get a direction */
+	dir = 0;
 	while (!dir)
 	{
 		char ch;
@@ -4249,6 +4046,12 @@ void make_wish(void)
                 /* Nor quest monsters */
                 if(r_info[i].flags1 & RF1_QUESTOR) continue;
 
+		/* Nor SPECIAL_GENE */
+                if(r_info[i].flags9 & RF9_SPECIAL_GENE) continue;
+
+		/* Nor cursed. */
+		if(r_info[i].cursed > 0) continue;
+
                 /* Lowercase the name */
                 strlower(name);
 
@@ -4266,31 +4069,6 @@ void make_wish(void)
                         return;
                 }
         }       
-
-        /* Try all the realms */
-        for(i = 0; i < MAX_REALM; i++)
-        {
-                /* Hack -- forbig MUSIC and SYMBIOTIC */
-                if(i == REALM_SYMBIOTIC) continue;
-                if(i == REALM_MUSIC) continue;
-
-                /* Try all the spells */
-                for(j = 0; j < 64; j++)
-                {
-                        sprintf(name, "%s", spell_names[i][j]);
-
-                        /* Lowercase the name */
-                        strlower(name);
-
-                        if(strstr(name, buf))
-                        {
-                                msg_print("Your wish become truth!");
-
-                                /* Don't search any more */
-                                return;
-                        }
-                }
-        }
 }
 
 /* Know what kind of monster you are... */
@@ -4320,6 +4098,7 @@ void know_body_monster()
 void gain_exp_kill(s32b amount, monster_type *m_ptr)
 {
         int minimumexp;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
         /* Do not gain experience in town. */
         if (dun_level == 0) amount = 0;
@@ -4330,6 +4109,8 @@ void gain_exp_kill(s32b amount, monster_type *m_ptr)
         /* The amount must be AT LEAST the minimum! */
         if (amount < minimumexp) amount = minimumexp;
         if (amount < 0) amount = 0;
+
+	if (((p_ptr->inside_quest != 0 && p_ptr->inside_quest != 9000) || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE))) amount = 0;
 
 	/* Gain some experience */
 	p_ptr->exp += amount;
@@ -4343,28 +4124,7 @@ void gain_exp_kill(s32b amount, monster_type *m_ptr)
 
 	/* Check Experience */
 	check_experience();
-}
-
-/* Info about a soul */
-void describe_soul(object_type *o_ptr)
-{
-        int query;
-
-        /* Save */
-        Term_save();
-
-        /* Recall on screen */
-        screen_roff(o_ptr->pval, 0);
-
-        /* Hack -- Complete the prompt (again) */
-        Term_addstr(-1, TERM_WHITE, format("  [r,%s]", ""));
-					
-        /* Command */
-        query = inkey();
-
-        /* Restore */
-        Term_load();
-}        
+}  
 
 /* New functions to check stats boosts! */
 /* Before calling those, the value of the */
@@ -5020,4 +4780,78 @@ void verify_panel_always_update(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
+}
+
+bool get_rep_dir_repeat(int *dp)
+{
+	int dir;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
+
+#endif /* ALLOW_REPEAT -- TNB */
+
+	/* Initialize */
+	(*dp) = 0;
+
+	/* Global direction */
+	dir = command_dir;
+
+	/* Get a direction */
+	while (!dir)
+	{
+		char ch;
+
+		/* Get a command (or Cancel) */
+		if (!get_com("Direction (Escape to cancel)? ", &ch)) break;
+
+		/* Look up the direction */
+		dir = get_keymap_dir(ch);
+
+		/* Oops */
+		if (!dir) bell();
+	}
+
+	/* Prevent weirdness */
+	if (dir == 5) dir = 0;
+
+	/* Aborted */
+	if (!dir) return (FALSE);
+
+	/* Save desired direction */
+	command_dir = dir;
+
+	/* Apply "confusion" */
+	if (p_ptr->confused)
+	{
+		/* Standard confusion */
+		if (rand_int(100) < 75)
+		{
+			/* Random direction */
+			dir = ddd[rand_int(8)];
+		}
+	}
+	
+	/* Notice confusion */
+	if (command_dir != dir)
+	{
+		/* Warn the user */
+		msg_print("You are confused.");
+	}
+
+	/* Save direction */
+	(*dp) = dir;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT -- TNB */
+
+	/* Success */
+	return (TRUE);
 }

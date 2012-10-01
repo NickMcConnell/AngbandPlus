@@ -24,10 +24,9 @@ HALF-ELF FEATURES:
 
 - +10% to Dexterity.
 - +10% to Wisdom.
-- +10% to Bow, Agility and Spellcraft skills.
+- +10% to Intelligence.
+- +10% to Charisma.
+- +10% to Fighting, Shooting, Bow, Agility, Mysticism, Crafting,
+Alchemy and Leadership.
+- +25% to Spellcraft skill.
 - +25% to Martial Arts skill.
-
-HALF-ELF PENALITIES:
-
-- -10% to Strength.
-- -10% to Constitution.

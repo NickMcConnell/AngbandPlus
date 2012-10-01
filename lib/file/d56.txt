@@ -1,0 +1,106 @@
+N:1:119:1:0:0:0
+I:Maelan;
+T:GRAAAHH!! No! It...it can't be! For centuries, my history has been cursed!;
+T:And I couldn't even....I couldn't even.....;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:As you reach the last floor of this strange place, you encounter a ghostly;
+T:humanoid form. A closer look reveals that it is in fact the ghost of Maelan!;
+T:Filled with a terrible anger that gives him immense power, he begins talking;
+T:to you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Maelan;
+T:Fool! Do you realize what you've done?? You let that witch escape, and you;
+T:killed me instead! No! I will not accept this! This suffering will end today!!;
+A:Suffering? You're the one who makes others suffer!:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Maelan;
+T:For the last time, I never made anyone suffer! The witch did it! Or maybe;
+T:she was an assassin? In any cases, Ophelia is the culprit here. But no!;
+T:You had to kill ME instead! Everytime this nightmare appears, I take;
+T:a different form, but never my original form! This time, my form was that;
+T:of a mean-looking warrior, but it was by no means my real form! I was a;
+T:priest during my life! I...I....;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:He stops for a moment. And then, you can see a glowing red light shining;
+T:around him, as if a deep anger was just awakened inside of him.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Maelan;
+T:GRRAAAAAHH!! BUT YOU COULDN'T UNDERSTAND MY PAIN!! I AM TIRED OF THIS!;
+T:I WILL KILL YOU! YOU AND EVERYONE WHO HAS CURSED MY HISTORY!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The evil ghost of Maelan has been destroyed. Suddently, another ghostly;
+T:form appears, who looks like Ophelia. She begins to speak, and her voice;
+T:is the same as the one you've been hearing all along.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Ghostly Form;
+T:Thanks you, <CLASS>. You have defeated the evil ghost of Maelan, who was;
+T:holding her prisoner even in the afterlife. I thanks you for your efforts.;
+A:Are you Ophelia?:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Spirit of Ophelia;
+T:No. I am a remnant of her deceased spirit. I am the one who recreated the;
+T:scene, so that her form in the afterlife could rest in peace. It may be;
+T:difficult to understand. After all, we live in two different places, and;
+T:the laws of our planes are different. But you did well, and for that, you;
+T:deserve to be rewarded.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:She begins casting some magic spell. Suddently, a pair or magical mithril;
+T:gauntlets appears in your hands!;
+A:[CONTINUE]:0:0:0:3:34:4:10:0:0
+%
+
+N:10:0:0:0:0:0
+I:Spirit of Ophelia;
+T:These gauntlets bears the same powers that Ophelia once had during her life.;
+T:With these, you will be able to heal anyone you touch, including yourself.;
+T:They will also cure any diseases or ailments you may be afflicted by. I hope;
+T:you put them to good use.;
+A:[CONTINUE]:0:0:0:7:18:0:11:0:0
+%
+
+N:11:0:0:0:0:0
+I:Spirit of Ophelia;
+T:Now...it is time for me to go. The stairs behind that door will lead you;
+T:out of here. Farewell, <CLASS>.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I: ;
+T:The spirit disappears, and you are now alone in this strange place. You are;
+T:still not sure about what happened exactly. Were you in some sort of spiritual;
+T:realm, some sort of alternate world? And why exactly did the spirit choose;
+T:this method to have you work for her? These questions remains unanswered.;
+T:You may now leave this place. It may be a good idea to go see Jeffrey, and see;
+T:what he thinks.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

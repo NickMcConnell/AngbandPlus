@@ -1,0 +1,33 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you enter the tomb, you realize that the place is completely different;
+T:than before. Furthermore, the stair behind you is gone, and there is no;
+T:way out! Suddently, you hear the voice again...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:So you want to make Ophelia smile...don't you? Are you here to fight the;
+T:evil of humanity?;
+A:Yes, I am here for that!:0:0:0:1:3:0:0:0:0
+A:Will you ever show yourself??:0:0:0:1:3:0:0:0:0
+A:[Say nothing.]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:This place is the beginning of the nightmare. You will encounter spirits;
+T:of nightmare. Spirits that haunts me. Spirits that haunts her. Spirits;
+T:that haunts us all. Fight them... defeat the spirits of nightmares.;
+T:Fight your way... make us both smile!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:The voice fades, and you are left alone in this strange place. Suddently,;
+T:you sense several evil presences nearby. It looks like the evil spirits;
+T:the voice spoke about are there, and you'll have to fight them.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

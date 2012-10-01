@@ -36,7 +36,7 @@
 // Town Hall's Basement
 N:Basement;
 
-I:41:15:0:0:0:0:0
+I:41:15:0:1:0:0:0
 S:38:7
 
 // Return to town hall.

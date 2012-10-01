@@ -28,6 +28,7 @@ DWARVES FEATURES:
 - +33% to Constitution.
 - +25% to Axe and Defense skills.
 - +50% to Crafting skill.
+- +25% to Mining skill.
 
 DWARVES PENALITIES:
 

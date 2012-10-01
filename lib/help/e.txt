@@ -9,9 +9,10 @@ dwarves, Gnomes have almost all migrated to the kingdom of
 Karingen, because this is where their skills are used the most.
 
 Gnomes are intelligent, and also fairly tough, being cousins of the
-dwarves. Unlike dwarves, however, gnomes are rather weak physically,
-and lack the dexterity to become skilled in combat. On the other hand, 
-being very intelligent, they make very skilled wizards.
+dwarves. Their dexterity and agility, like dwarves, is pretty low, but
+they make up for it by being very intelligent and good at casting
+spells. They have also retained some skill in the art of Mining, though
+they are no longer on par with dwarves.
 
 GNOMES FEATURES:
 
@@ -19,9 +20,9 @@ GNOMES FEATURES:
 - +10% to Constitution.
 - +25% to Spellcraft skill.
 - +50% to Alchemy skill.
+- +10% to Mining skill.
 
 GNOMES PENALITIES:
 
-- -25% to Strength.
 - -25% to Dexterity.
 - -25% to Agility skill.

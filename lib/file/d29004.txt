@@ -1,0 +1,16 @@
+N:1:29039:1:0:0:0
+I:Townsfolk;
+T:If you encounter a seemingly immortal enemy, one that you cannot finish,;
+T:perhaps you should try attacking it with something it's weak against.;
+T:Who knows, perhaps it might work!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:29039:1:0:0:0
+I:Townsfolk;
+T:If you enter an entity's plane, depending on what you do and the path;
+T:you choose, you can end up altering it. Portals, for example, have;
+T:different properties, and depending on which one you choose, it will;
+T:affect the entity in a different way.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

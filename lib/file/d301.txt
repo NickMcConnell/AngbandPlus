@@ -1,0 +1,19 @@
+N:1:303:1:0:0:0
+I: ;
+T:The glowing red eye of the creature suddently stops glowing, and becomes;
+T:black... Then entire body of the creature darkens, untils it becomes;
+T:coal-like. And then it crumbles into dust. It seems you are victorious,;
+T:and have defeated this most terrifying monster. On the ground, you notice;
+T:a licialhyd that seems to be filled with a strange, dark energy. It must;
+T:have been this that kept the monster animated, and gave it much power.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:As the Grey Wight gazes you, nightmarish visions appears in front of you!;
+T:As if all your worst nightmares came true, you are afflicted by a fear;
+T:like none you've ever experienced before. You are confused by the visions,;
+T:and think of nothing but flee as quickly as possible!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

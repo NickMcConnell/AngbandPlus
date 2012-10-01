@@ -1,0 +1,74 @@
+N:1:88:1:0:0:0
+I: ;
+T:The mighty skeleton knight crumbles on the floor, and the dark energy that;
+T:animated it escapes from it's remains. The bones and the cursed blade;
+T:turns to ashes. And then, a voice is heard...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+
+N:1:88:0:0:0:0
+I:Rugar;
+T:....kill...you...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Rugar;
+T:My name is Rugar... Thanks you <CLASS> for putting an end to my curse.;
+T:I can finally rest in peace. But before I leave, let me tell you my;
+T:story...;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Rugar;
+T:A long time ago, this land was a kingdom. It was long before the five;
+T:great kingdoms existed. I served as king Zailab's highest general, and;
+T:I led the king's army to many victories in battle. But one day, a;
+T:strange disease started killing the peoples of our kingdom. Many of my;
+T:soldiers were afflicted, and few survived this terrible illness.;
+T:The king called upon his priest, Jezovhan, to bless the kingdom's river,;
+T:in the hope that sick peoples would gather near it, drink the water,;
+T:and get cured.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Rugar;
+T:But it turned out that the one responsible for spreading the disease;
+T:was the priest himself! He laughed, and claimed that he already blessed;
+T:the river with the "Light of Vaharoh", the god of treachery and corruption.;
+T:Fueled by anger, I challenged the priest to a duel, but I was no match;
+T:for his great powers. He killed me, but instead of letting me rest in peace,;
+T:he revived me as a cursed skeleton knight! I do not know what happened;
+T:to my king afterwards...but he probably turned the king into an undead;
+T:monster as well.;
+A:He was turned into a Lich, which I defeated...[tell him the story]:1:46:1:1:7:0:0:89:1
+A:[CONTINUE]:1:46:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Rugar;
+T:I apologize for the trouble I've caused you. But I thanks you for what;
+T:you did. I shall now move on to the afterlife... Farewell, <CLASS>.;
+A:[CONTINUE]:0:0:0:3:22:4:6:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The voice goes away, and the room becomes silent. On the ground, you notice;
+T:that the bone shield Rugar was wearing did not turn to ashes like the rest;
+T:of the bones. You decide to take it with you, as your reward for defeating;
+T:the skeleton.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Rugar;
+T:So he was turned into an undead being after all... I thanks you for;
+T:putting an end to his curse. Now we can both rest in peace. I apologize;
+T:for the trouble I've caused you. But I thanks you for what you did.;
+T:I shall now move on to the afterlife... Farewell, <CLASS>.;
+A:[CONTINUE]:0:0:0:3:22:4:6:0:0
+%

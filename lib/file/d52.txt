@@ -1,0 +1,6 @@
+N:1:0:0:0:0:0
+I: ;
+T:The name on this grave reads 'Belric'. It seems to be the grave you;
+T:are looking for.;
+A:[END DIALOG]:0:0:0:0:0:0:0:111:2
+%

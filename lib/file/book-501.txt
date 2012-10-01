@@ -1,0 +1,2 @@
+This is a small map that points the location of Simon's hideout. It's located
+at (87,43).

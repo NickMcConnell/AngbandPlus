@@ -1,0 +1,22 @@
+Shadow of Misfortune(Passive)
+
+Effect: When invisible through a special ability, gain a bonus to Dexterity,
+        and a chance to dodge any attacks based on Dexterity.
+Bonus to dexterity: 33% of Misfortune(minimum 5)
+Dodge power: (Misfortune / 5)% of Dexterity(minimum 5)
+Extra points: +33% of Misfortune to Dexterity.
+              +1 multiplier to Dodge power.
+
+When invisible through a special ability, you will gain a passive chance to
+dodge any kind of attacks based solely on your Dexterity. Your Dexterity
+itself will also be greatly improved, with all associated benefits of having
+a high dexterity.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

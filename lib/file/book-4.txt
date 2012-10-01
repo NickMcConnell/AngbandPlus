@@ -1,64 +1,78 @@
-HUNTING WEAPONS
----------------
+**********************************
+*      SHAN, GOLDEN SUL-RIN      *
+**********************************
 
-Written by Shayla The Huntress
+Written by a Rhyzendalian priest of the Golden Sul-Rin.
 
-As a hunter, I generally like to use weapons that allow me
-to strike down my preys from a safe distance. There are
-various of those weapons, and you can easily create them
-if you have some skill in the art of weapon crafting. They
-are simple and very effective!
 
-SPEAR
-Component type: Crafting
-Skills required: Crafting(2)
-How to create: Iron Spike + Wood Pole
 
-The spear, a great weapon for hunting! Allow you to trust
-your foes from a short distance, so you can easily finish
-them off in close combat afterwards. Unlike most polearms,
-the simple spear is one-handed, and can be used with some
-sort of shield.
+Before Rhyzendal became populated with the demonic race, it was only a
+large, barren wasteland of ice and snow. But many demon worshippers were
+hiding there, hoping no one would dare to brave the cold and the glaciers
+to come and find them. Only a few powerful adventurers ever dared to go
+after the evil cultists. The cultists then used their new land to summon
+lesser demons, and bound them to themselves, forcing them to become their
+slaves. The demons they summoned were mostly humanoid in appearance, much like
+today's Rhyzendalians. They made excellent slaves, and allowed the cultists
+to conquer the cold wastelands with their demonic servants. They started
+summoning more and more of these tormented demons, eventually hoping to
+create powerful armies, so they could wage war against the other kingdoms.
 
-FINE STEEL SPEAR
-Component type: Crafting
-Skills required: Crafting(5)
-How to create: Spear + Steel Ore
+But one day, a summoner performed a ritual to summon more slaves. A portal
+opened, but no lesser demons came out. Instead came out an extremely
+seductive woman, with golden hairs and eyes, and a fair skin. At that time,
+they thought they summoned a celestial by mistake, but it was actually much
+worse than that. The woman was a Sul-Rin, a kind of greater Archfiends.
+Normally, the hairs and eyes of a Sul-Rin are blue, not golden, but this
+particular Sul-Rin was born from the hope of freedom the demonic
+slaves. A feeling never felt before by demons, but having spent a long
+time outside of hell, the evil inside their hearts eventually started to fade.
 
-Steel is a fine metal, and I found a way to combine the
-simple one-handed spear into this fine piece of crafting.
-Much better than the common spear, and still one-handed,
-this weapon is my favorite of all!
+The cultists united their clans, and tried to fight the Archfiend. It was
+a futile battle. Even though they had been capable of enslaving thousands
+of lesser demons, a single Archfiend proved to be enough to defeat them all.
+The cultists were not able to resist to the incredibly seductive appearance
+of the Sul-Rin. All she had to do then is make them disappear in a flash
+of blinding light. The cultists defeated, the demons were finally free.
+However, the evil of hell had already left their bodies, and they couldn't
+return there. They had no choice but to start a new life in the cold lands
+of Rhyzendal.
 
-This is for the melee weapons I use. Now, of course, I am
-trained with ranged weapons. Here's how you can create
-them in a most simple way:
+The Sul-Rin introduced herself as Shan. She explained to the demons that
+she was born from their hope, and was ready to guide them, and help them
+start a new life here. And thus, she gave the peoples of Rhyzendal three
+blessings known as the Gifts of the Sul-Rin:
 
-SHORT BOW
-Component type: Crafting
-Skills required: Crafting(1)
-How to create: Wooden Parts + Rope
+1. Daylight. With the eternal nights of Rhyzendal, the demons could never
+sleep, and without the ability to rest, they would eventually become insane.
+Thus, the Sul-Rin blessed Rhyzendal with a short period of daylight everyday,
+so that the demons could rest and avoid insanity.
 
-The most basic bow you could ever create. A simple bow,
-with fairly good range, good for anyone who starts learning
-how to shoot. You may wish to upgrade to the long bow
-though...
+2. Knowledge. As an Archdemon, she had milleniums of knowledge within her
+soul, and she shared this knowledge with all her peoples. This allowed
+them to become craftsmen and carpenters, and build cities.
 
-LONG BOW
-Component type: Crafting
-Skills required: Crafting(5)
-How to create: Short Bow + Short Bow
+3. Toughness. The demons coming from a plane of flames, they could hardly
+bear the coldness of Rhyzendal. But the Sul-Rin gave them the toughness,
+endurance and constitution needed to resist the cold. Centuried later,
+this toughness has grown, and the demons of Rhyzendal became the most
+cold-resistant of the civilized races.
 
-You just made two nice short bows. Now, unmake them, and
-use their combined parts to make one, bigger bow. You get
-the long bow! Fires faster, stronger and better! Any
-serious marksman should get this!
+With her people blessed, the Sul-Rin's mission was accomplished. To thanks
+her, the demons of Rhyzendal built a grand palace of ice for their new
+goddess. Shan accepted the gift, and also accepted to become the goddess
+of Rhyzendal. Temples and churches devoted to Shan are now numerous in
+Rhyzendal, and her followers can be found in every Rhyzendalian cities.
 
-SLING
-Component type: Crafting
-Skills required: Crafting(0)
-How to create: Leather + Rope
+When we speak of religious peoples, we always think of the Nimbrayans, or
+the priests of the Creator in Jindar. But what most peoples don't realize
+is that the population of Rhyzendal is at least as large as the population
+of Nimbraya, and most of the Rhyzendalians are followers of Shan. Plus,
+Shan worshippers are starting to spread outside of Rhyzendal as well,
+making the Sul-Rin even more powerful than ever before.
 
-The sling is not the best ranged weapon, but some hunters
-like it. I guess it has it's uses to one skilled with such
-a weapon... It can also be used as a toy for kids!
+Finally, I would invite every followers of Shan to go on a journey of
+pilgrimage to Shan's palace. The Grand Palace of the Sul-Rin is located
+in northern Rhyzendal at coordinates (41,8). There, you can meet the
+grand priest of Shan, Ludgar Zos, who will bless you with the gifts of
+the Sul-Rin.

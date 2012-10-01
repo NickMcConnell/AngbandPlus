@@ -1,0 +1,279 @@
+N:1:1073:1:0:0:0
+I:Nilgam;
+T:Argh...t...traitor!!;
+A:[END DIALOG]:0:0:0:10:1602:0:0:0:0
+%
+
+N:1:1105:1:0:0:0
+I:Nilgam;
+T:Greetings, <NAME>! What brings you here today?;
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1102:1:0:0:0
+I:Nilgam;
+T:So, what's happening with the contract with Mr. Harrington?;
+A:It has been ressolved. [Tell him the story.]:1:1104:1:1:23:0:0:0:0
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:I must speak with him. I'll be going...:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1095:1:0:0:0
+I:Nilgam;
+T:So, have you found the dwarf yet?;
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:Not yet. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1075:1:0:0:0
+I:Nilgam;
+T:Greetings, <NAME>. So, did you put an end to the assassins, and save;
+T:Mr. Harrington?;
+A:Mr. Harrington seems to have forgotten about me!:1:1094:1:1:18:0:0:0:0
+A:No. In fact, we're clueless about what to do now...:1:1093:1:1:14:0:0:0:0
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:Not yet. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1074:1:0:0:0
+I:Nilgam;
+T:Hello again, <NAME>. So, have you changed your mind regarding the new;
+T:contract?;
+A:Yes, I'm interested. What's the job?:0:0:0:1:3:0:0:0:0
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1074:0:0:0:0
+I:Nilgam;
+T:Ah, <NAME>, I was expecting you! Welcome to our new offices! I won't;
+T:make you visit the place since you already know it. After all, you're;
+T:the one who obtained it for us, and for that we thanks you. Allow me;
+T:to introduce myself. I am Nilgam, representative of the Stealthy Vipers;
+T:for this new offices, and also a wizard skilled in the arts of;
+T:Poison magic.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1074:1
+%
+
+N:2:0:0:0:0:0
+I:Nilgam;
+T:Things just started, and they're already going pretty well. Guess what?;
+T:We just got one good contract that will pay us a total of 50000 golds;
+T:once accomplished! Since this is our very first job we get here,;
+T:and you're the one who got us this place, I was thinking you might be;
+T:interested in getting this contract.;
+A:Maybe. What is it?:0:0:0:1:3:0:0:0:0
+A:Not right now actually.:0:0:0:1:7:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Nilgam;
+T:Have you visited the so-called "Mansions District" yet? This is in the;
+T:northwest of Jindar. All of Jindar's wealthiest families lives there;
+T:Rich merchants, royal ministers, all kind of artistocrats who possess;
+T:way more money than their big mansions can hold! But one of them has;
+T:decided to hire us, the lowly kobolds from the slums, to accomplish;
+T:an important job.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Nilgam;
+T:Recently, Mr. Geoffrey Harrington, owner of the Harrington Trades Company,;
+T:has been the target of attacks from unknown assassins. Of course,;
+T:assassination attempts on the artistocrats of the Mansions District are;
+T:nothing new, but there has been a total of three so far, since the;
+T:beginning of the month. His personnal guards have been able to stop them;
+T:for the moment, but he wants someone to go investigate, find out where;
+T:the assassins comes from, and put an end to their scheme.;
+A:[CONTINUE]:0:0:0:1:5:0:0:1075:1
+%
+
+N:5:0:0:0:0:0
+I:Nilgam;
+T:We have been paid 50000 golds for this job, and should you complete it,;
+T:you'll get 20% of it, that is, 10000 golds. Your task is to go in the;
+T:Mansions District and speak with Mr. Harrington. His mansion is the;
+T:only one surrounded by water, so you'll easily recognize it. He should;
+T:be able to give you more details, and perhaps he already found some;
+T:clues regarding the assassins whereabouts.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Nilgam;
+T:Well then, good luck <NAME>! You've done great work so far, and I am;
+T:confident that you'll be able to do this job. Return to me once you're;
+T:done, and you'll get your reward!;
+A:I'll return once it's done.:0:0:0:0:0:0:0:0:0
+A:I have some questions first.:0:0:0:1:8:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Nilgam;
+T:Too bad. Well, if you ever change your mind, feel free to come back.;
+T:I haven't found anyone to give the job to yet, so there is still time;
+T:for you to change your mind.;
+A:I have some questions...:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Nilgam;
+T:Yes? What do you want to know?;
+A:Tell me more about you.:0:0:0:1:9:0:0:0:0
+A:Besides the Lancers, are there any other rival guilds?:0:0:0:1:12:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Nilgam;
+T:About me? Well, I was actually born in a cave, along with 10 brothers;
+T:and sisters. We were raised as fighters, but unfortunately, I was;
+T:never able to acquire the skills necessary to wield a sword properly.;
+T:Lack of dexterity and skill, and then I had a body weaker than average.;
+T:I was considered a weakling amongst my kind. I was the family's black;
+T:sheep, and in wild kobold tribes, such individuals are often killed;
+T:by their own families, as there is no places for weaklings.;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Nilgam;
+T:So in order to avoid persecution, I fled the caves, and came to live;
+T:here in Jindar. I had to live in the slums for a while, until I came;
+T:across a kobold wizard by the name of Gurgam. An educated wizard, far;
+T:from being the stereotypical filthy, aggressive cave kobold, he took;
+T:me under his protection, and raised me as his son and apprentice.;
+T:He taught me how to read and write, and eventually how to use magic.;
+T:And thus, I became a wizard.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Nilgam;
+T:A couple of years later, Gurgam told me he entered a mercenary guild;
+T:known as the Stealthy Vipers, and offered me to join him in his cause,;
+T:and put my magic powers to the service of our kind. And so, I accepted.;
+T:This is how I became a member of the Stealthy Vipers. Today, Gurgam;
+T:is one of the highest ranked members of the Stealthy Vipers.;
+T:Who knows, if you continue to do good work, maybe you'll get to meet him!;
+A:Besides the Lancers, are there any other rival guilds?:0:0:0:1:12:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Nilgam;
+T:...not really. We're pretty much the only ones.;
+A:...you sure? You don't look convinced...:0:0:0:1:13:0:0:0:0
+A:Tell me more about you.:0:0:0:1:9:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Nilgam;
+T:...well, there is 'that' group too...y'know... those who works for the;
+T:so called 'Blood Queen'? Well, I've said enough. I won't talk about;
+T:that any longer. Way too risky. Besides, they haven't caused us any;
+T:trouble, so let's focus our attention on the Dragon Lancers instead.;
+A:Tell me more about you.:0:0:0:1:9:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Nilgam;
+T:Clueless? He didn't tell you anything about the whole thing?;
+A:Yes, but that doesn't tell us much. [You tell Nilgam what Geoffrey told you]:0:0:0:1:15:0:0:1093:2
+%
+
+N:15:0:0:0:0:0
+I:Nilgam;
+T:Hmmm, that's strange. The three assassination attempts he mentionned;
+T:have nothing in common, except the target. We need more clues, but where;
+T:to search? That's the problem. I'm as puzzled as you are, <NAME>...;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Nilgam;
+T:You know what? I'd say you go back there, and ask him more information about;
+T:the three assassins. Have him describe them to you in details. He couldn't;
+T:spontaneously think of anything similar between the three, but by having;
+T:him describe them to you, perhaps he'll remember something he didn't pay;
+T:attention to at first.;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Nilgam;
+T:At this point, this is all I can suggest. Good luck, <NAME>, and feel free;
+T:to come back here if you find anything new.;
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Nilgam;
+T:What? What do you mean he forgot about you?;
+A:[Tell him what happened]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Nilgam;
+T:Wow, this is quite freaky, <NAME>! Somehow, he now thinks that the last;
+T:assassin was you! And those two kobolds must have been me and Krind.;
+T:But the guards never killed us! And it didn't seem to bother him that;
+T:you looked identical to the last assassin. He didn't even think you;
+T:were <himher>! Just someone who looked like <himher>.;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Nilgam;
+T:This also means that the supposed dwarf assassin might not have been;
+T:killed either, in fact, he was probably a real mercenary who wanted to;
+T:help. The cloaked man and the witch must have been peoples the;
+T:dwarf knew, and not assassins. In that case, perhaps it would be a good;
+T:idea to find that dwarf, and question him about what happened when he;
+T:met Mr. Harrington. Perhaps he knows things we don't know.;
+A:Any ideas where he could be?:0:0:0:1:21:0:0:1095:1
+%
+
+N:21:0:0:0:0:0
+I:Nilgam;
+T:Well, I don't know for sure, but being a dwarf, I wouldn't be surprised;
+T:if in addition to being a mercenary, he also worked as a smith for an;
+T:armor or weapon shop. And if that was the case, he would surely live;
+T:near the shop. So I'd say to look around the various weapon and armor;
+T:shops in the city, and see if you can't find his home. Once you've found;
+T:him ask him what happened when he met Mr. Harrington.; 
+A:I shall do that then.:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Nilgam;
+T:Good luck finding the dwarf, <NAME>. Return here when you've spoken to;
+T:him, and we'll go from there.;
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Nilgam;
+T:I see. Hmmm, it's the second time demon worshipping is involved in one;
+T:of the tasks assigned to you. I hope this won't bring you bad luck;
+T:in the future... Well, in any cases, here's the 10000 golds promised.;
+T:Congratulations <NAME>, and thanks you for solving this matter!;
+A:[CONTINUE]:0:0:0:3:488:10000:24:1105:1
+%
+
+N:24:0:0:0:0:0
+I:Nilgam;
+T:Krind came to see me, and he wants you to go back to our guild hall;
+T:in the slums. I believe he wants to speak to you about the previous;
+T:contract you had, and your encounter with one of the Lancers high-rank;
+T:members. You should go see him as soon as possible!;
+A:I have some questions first.:0:0:0:1:8:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%

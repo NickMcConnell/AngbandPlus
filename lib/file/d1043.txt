@@ -1,0 +1,141 @@
+N:1:1038:1:0:0:0
+I:Belgim;
+T:Welcome back, <NAME>! What can I do for you today?;
+A:I want to get an item.:0:0:0:1:4:0:0:0:0
+A:I want information about the items.:0:0:0:1:6:0:0:0:0
+A:Good day.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:5:0:0
+I:Belgim;
+T:Ah, welcome <NAME>. Krind spoke to me about you. He sees great potential;
+T:in you. I'm sure you'll be a great asset to us!; 
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Belgim;
+T:Ah, welcome <NAME>. The <RACE> who joined us. I'm still a little surprised;
+T:that a <RACE> would want to help us. After all, it's supposed to be a guild;
+T:of kobolds, and we're at war with the devlings. By working for us, you're;
+T:making yourself an enemy of the devlings. But seeing that you've been;
+T:promoted in rank, I guess the devlings aren't a problem for you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Belgim;
+T:My name is Belgim, and I am the smith here. I craft the special items;
+T:we Vipers uses. Starting from common equipment you can buy at any good;
+T:shops, we enhance the items with our spells and technology.;
+T:The result? We have some really powerful and unique items that aren't;
+T:available anywhere else, not even in Karingen! And best of all? It's;
+T:completely FREE for any members of the Stealthy Vipers!...well, provided;
+T:you have the rank for it, that is. The higher the rank, the more stuff;
+T:you can get. It's as simple as that.;
+A:[CONTINUE]:0:0:0:1:3:0:0:1038:1
+%
+
+N:3:0:0:0:0:0
+I:Belgim;
+T:But enough with the greetings, let's get to the point. How may I help you?;
+A:I want to get an item.:0:0:0:1:4:0:0:0:0
+A:I want information about the items.:0:0:0:1:6:0:0:0:0
+A:Good day.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Belgim;
+T:With your current rank, you can get the following items. Which one;
+T:would you like?;
+A:I'd like a Viper Crossbow.:0:0:0:3:1215:0:11:0:0
+A:I'd like a pair of Viper Boots.:1:1069:1:3:1216:0:11:0:0
+A:Nevermind.:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Belgim;
+T:No problems. Anything else I can do for you?;
+A:I want to get an item.:0:0:0:1:4:0:0:0:0
+A:I want information about the items.:0:0:0:1:6:0:0:0:0
+A:Good day.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Belgim;
+T:We have several unique items you won't find anywhere else. Here is the;
+T:list. Which one do you want to know about?;
+A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
+A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
+A:What is the Viper Cloak?:0:0:0:1:9:0:0:0:0
+A:What is the Viper Bow-Pistol?:0:0:0:1:10:0:0:0:0
+A:Nevermind.:0:0:0:1:5:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Belgim;
+T:The Viper Crossbow is a fine piece of craftsmanship, if I do say so myself.;
+T:In terms of technology, it's an enhanced light crossbow that even lighter,;
+T:yet is much more powerful. But the real strength of the Viper Crossbow;
+T:lies in it's special power. Once you activate it's magical ability, it will;
+T:turn the bolt you shoot into a bolt of magical poison! So if an enemy you;
+T:are facing is difficult to harm with a normal physical attack, activate;
+T:the crossbow, and try an attack of pure poison. It might work better!;
+T:The crossbow is the first of our unique items, available to Agent-Rank
+T:members and higher.;
+A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
+A:What is the Viper Cloak?:0:0:0:1:9:0:0:0:0
+A:What is the Viper Mail?:0:0:0:1:10:0:0:0:0
+A:Nevermind.:0:0:0:1:5:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Belgim;
+T:The Viper Boots are green leather boots, but they protect as much as;
+T:Iron Boots, thanks to their unique design. They will protect you against;
+T:poison, will enhance your speed, agility and make you more stealthy.;
+T:Finally they will also improve your melee combat aptitudes. Not bad for;
+T:a pair of boots, huh? They're available to all the Stalker-Rank members and;
+T:higher. Imagine if you were to enchant them with a scroll! They would;
+T:be really powerful!;
+A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
+A:What is the Viper Cloak?:0:0:0:1:9:0:0:0:0
+A:What is the Viper Mail?:0:0:0:1:10:0:0:0:0
+A:Nevermind.:0:0:0:1:5:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Belgim;
+T:The Viper Cloak is a dark green cloak that not only provides good;
+T:protection for a cloak, but it will also enhance your dexterity and;
+T:make you stealthier. But it's greatest power is that it will make you;
+T:unseen by your enemies, so avoiding them while wearing this cloak will;
+T:be much easier! This item is available to Shadow-Rank members.;
+A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
+A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
+A:What is the Viper Mail?:0:0:0:1:10:0:0:0:0
+A:Nevermind.:0:0:0:1:5:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Belgim;
+T:The Viper Mail is the best armor in the world, no kidding! Not even;
+T:the best Ivhalian Dwarven Smith could make something like that! In;
+T:appearence, it's a greenish suit of chain mail, made from fine steel.;
+T:But it gives an unequalled amount of protection, and improves it's;
+T:wearer's dexterity, agility and stealth. This fine piece of armor is;
+T:only available to Wraith-Rank members though, as it's the most difficult;
+T:piece of equipment to produce. But it's definitly worth it!;
+A:What is the Viper Crossbow?:0:0:0:1:7:0:0:0:0
+A:What is the Viper Boots?:0:0:0:1:8:0:0:0:0
+A:What is the Viper Cloak?:0:0:0:1:9:0:0:0:0
+A:Nevermind.:0:0:0:1:5:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Belgim;
+T:Here you go, <NAME>. Make good use of it! Anything else I can do for you?;
+A:I want to get an item.:0:0:0:1:4:0:0:0:0
+A:I want information about the items.:0:0:0:1:6:0:0:0:0
+A:Good day.:0:0:0:0:0:0:0:0:0
+%

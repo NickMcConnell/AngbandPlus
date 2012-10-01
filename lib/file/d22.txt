@@ -48,7 +48,7 @@ A:Good bye.:0:0:0:0:0:0:0:0:0
 
 N:4:0:0:0:0:0
 I:Evolia;
-T:I'm afraid there is so much to tell... The origin of life, the appearance;
+T:There is so much to tell... The origin of life, the appearance;
 T:of the goddess, some controversed theories and the code of the;
 T:Dalunian Priest. Here, let me give you this parchement. It contains some;
 T:general informations about our religion, and all important subjects.;

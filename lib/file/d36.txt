@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:You press the switch...and nothing happens. The machine doesn't appear;
+T:to be broken, so perhaps you did not use it properly. You should try again;
+T:once you figure out a way to use it properly.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -86,7 +86,6 @@ SRCS = \
 	init1.c \
 	init2.c \
 	learn.c \
-	mongen.c \
 	script.c \
 	l-init.c \
 	l-types.c \

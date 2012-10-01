@@ -1,0 +1,127 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+
+N: ;
+
+I:31:21:0:21:0:0:0
+S:9:15
+
+// Quest exit.
+E:17:7:5:99:36:0:0:0:0:0
+
+// Some ingots.
+
+// Bronze
+E:4:16:6:78:0:0:56:0:56:1
+E:4:17:6:78:0:0:57:0:57:1
+E:3:12:6:78:0:0:58:0:58:1
+E:4:12:6:78:0:0:59:0:59:1
+E:18:11:6:78:0:0:65:0:65:1
+E:24:17:6:78:0:0:68:0:68:1
+E:25:17:6:78:0:0:69:0:69:1
+
+// Iron
+E:13:19:6:79:0:0:60:0:60:1
+E:14:19:6:79:0:0:61:0:61:1
+E:15:19:6:79:0:0:62:0:62:1
+E:16:11:6:79:0:0:63:0:63:1
+E:17:11:6:79:0:0:64:0:64:1
+E:8:5:6:79:0:0:70:0:70:1
+E:9:5:6:79:0:0:71:0:71:1
+E:10:5:6:79:0:0:72:0:72:1
+
+// Steel
+E:27:15:6:80:0:0:66:0:66:1
+E:28:15:6:80:0:0:67:0:67:1
+E:4:10:6:80:0:0:73:0:73:1
+E:5:10:6:80:0:0:74:0:74:1
+
+// Licialhyds
+E:4:8:6:1185:0:0:75:0:75:1
+E:5:8:6:1185:0:0:76:0:76:1
+E:4:9:6:1185:0:0:77:0:77:1
+E:24:11:6:1185:0:0:79:0:79:1
+E:25:11:6:1185:0:0:80:0:80:1
+E:26:11:6:1185:0:0:81:0:81:1
+E:8:2:6:1185:0:0:83:0:83:1
+E:10:2:6:1185:0:0:84:0:84:1
+
+// And even Mithril!
+E:22:19:6:81:0:0:78:0:78:1
+E:9:2:6:81:0:0:82:0:82:1
+
+// ...but there's more...
+E:2:14:9:9:4:88:0:0:0:0
+E:7:2:9:12:2:88:0:0:0:0
+E:22:7:9:25:4:1:0:0:0:0
+E:28:7:9:25:5:1:0:0:0:0
+
+// The door is locked...
+E:13:2:3:1:999:0:85:0:0:0
+
+// Some Ancient Bone Golems are waiting!
+E:23:7:7:1044:0:30:87:0:0:0
+E:27:7:7:1044:0:30:87:0:0:0
+
+// Proceed to quest 19.
+E:25:7:4:19:25:27:0:0:87:1
+
+D:###############################
+D:#MMMMMMMMMMMM#########.......##
+D:#MMMMMM;;;;;M+...............##
+D:#MMMMMM;;;;;M#########.......##
+D:#MMMMMMMMMMMM##########X###X###
+D:#MMMMMMM;;;MMMMMMMMMM##.###.###
+D:#MMMMMM;;;;;MMMMMMMMM##.#.#.###
+D:#MMMMMMM;;;MMMM;;<MMM#..#>#..##
+D:#MMM;;;MM;MMMMM;MMMMM##########
+D:#MMM;;;;;;;;;;;;MMMMMMMMMMMMMM#
+D:#MMM;;;MM;MMMMMM::MMMMMMMMMMMM#
+D:#MMMMMMMM;MMMMMM;;;MM;::;;;MMM#
+D:#MM;;MMMM;MMMMMM;;;MMM::;;;MMM#
+D:#MM::MMMM;MMMMMMM;MMMMMMM;MMMM#
+D:#M:::;;;;;;;;MMMM;MMMMMMM;MMMM#
+D:#MM::MMM;;;MM;M::MMMMMMM;;;;;M#
+D:#MMM;MMMM<MMMM;;;;;;;;;;;;;;;M#
+D:#MMM;MMMMMMMMMMMM:MMMMMM;;;;ww#
+D:#MMMMMMMMMMMMMMM:MMMMMMMwwwwww#
+D:#MMMMMMMMMMMM;;;MMMMMM;wwwwwww#
+D:###############################

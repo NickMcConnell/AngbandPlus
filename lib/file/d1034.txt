@@ -1,0 +1,43 @@
+N:1:1017:1:0:0:0
+I:Jindar Soldier;
+T:Normally, I would say that the slums are dangerous, but right now,;
+T:they're quite safe compared to the horrors around the temple!!;
+T:I'm glad I'm not stuck fighting those green-skinned monsters!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Jindar Soldier;
+T:Beware, <sirmadam>. This area is not safe. You should leave this place...;
+A:Why is it dangerous?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Jindar Soldier;
+T:This is the northeastern slums of Jindar. This a place of vermins and;
+T:thieves of all sorts. But more importantly, all the important devling;
+T:guilds are here. And they are at war with the kobolds from the southwestern;
+T:slums. So as you can probably guess, this is not a safe place for;
+T:citizens. You should leave.;
+A:Don't worry. I can hold my own in a fight.:0:0:0:1:3:0:0:0:0
+A:Why don't you send guards to restore order in the slums?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Jindar Soldier;
+T:Well, it's your life, not mine. But don't say I didn't warn you!;
+A:Why don't you send guards to restore order in the slums?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Jindar Soldier;
+T:...it's not that easy. Some of the rogues there are more than simple;
+T:thugs. They are actually capable fighters, and they can use all sort of;
+T:dirty tricks to fight us. We do our best to arrest them, but sometimes,;
+T:they give us as much trouble as we give them. This is really bad...;
+A:I see. Good bye.:0:0:0:0:0:0:0:0:0
+%
+

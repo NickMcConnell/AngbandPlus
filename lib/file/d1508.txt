@@ -1,0 +1,36 @@
+N:1:1502:2:0:0:0
+I: ;
+T:There are tables with alchemical equipment in this room, so you figure;
+T:that it must have been some kind of laboratory room. As you search it;
+T:for anything valuable, you notice something strange on the wall in front;
+T:of you. Engraved down the wall is a strange symbol, which looks like;
+T:a fissured sun. It doesn't seem to be any kind of magical runes, and;
+T:it doesn't looks like any familiar symbols.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1507:1
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:There are tables with alchemical equipment in this room, so you figure;
+T:that it must have been some kind of laboratory room. As you search it;
+T:for anything valuable, you notice something strange on the wall in front;
+T:of you. Engraved down the wall is a strange symbol, which looks like;
+T:a fissured sun. It doesn't seem to be any kind of magical runes, and;
+T:it doesn't looks like any familiar symbols.;
+A:[CONTINUE]:0:0:0:1:3:0:0:1507:2
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You should now return to Ivhala, and report your findings to Emma.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:There is nothing else of interest here. However, you feel that these;
+T:strange cockatrices were a threat to the Ivhalian peoples. Perhaps;
+T:you could get a reward for defeating them if you speak to a guards;
+T:captain...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

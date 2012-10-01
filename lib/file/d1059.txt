@@ -1,0 +1,6 @@
+N:1:0:0:0:0:0
+I: ;
+T:You look around, and there doesn't seem to be any devlings in sight.;
+T:However, there is an unpleasant smell of decay in the air...;
+A:[END DIALOG]:0:0:0:0:0:0:0:1107:1
+%

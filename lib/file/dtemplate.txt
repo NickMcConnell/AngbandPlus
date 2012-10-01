@@ -1,4 +1,4 @@
-// Template for dialogs in NewAngband 1.8.0.
+// Template for dialogs in Portralis.
 // The game will always look for the first dialog block
 // that has a valid condition.
 
@@ -67,6 +67,7 @@ answer, the events will be set to the specified values.
 8. Pay gold. Param 1 is the amount.  Param 2 is dialog if enough money. Param 3 is dialog if not enough money.
 9. Remove all monsters of a given race. Param 1 is the race index. Param 2 is next dialog.
 10. Make all monsters of a given race friendly or hostile. Param 1 is the race index. Set param 2 to 0 for hostile, or to 1 for friendly. Param 3 is next dialog.
+11. Run a script. It calls "dialog_script", and param 1 is script's id. Param 2 is next dialog.
 
 VARIOUS TEXT CODES:
 
@@ -89,3 +90,5 @@ VARIOUS TEXT CODES:
 <hisher> his/her
 <HeroHeroine> Hero/Heroine
 <heroheroine> hero/heroine
+<MrMiss> Mr/Miss
+<MrMrs> Mr/Mrs

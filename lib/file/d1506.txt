@@ -1,0 +1,75 @@
+N:1:0:0:0:0:0
+I:Ivhalian Defender;
+T:This is the palace, but the queen isn't allowing anyone inside at the moment.;
+T:So you won't be able to enter.;
+A:Let me in. I have some very important things to discuss with the queen.:1:1027:1:1:3:0:0:0:0
+A:Why is that so?:0:0:0:1:2:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Ivhalian Defender;
+T:I don't know. Something about Jindar I believe. From what I hear, it seems;
+T:that relations between Ivhala and Jindar have been deteriorating lately.;
+T:Well, can't say I like them too much, with them thinking they're the most;
+T:powerful country and all... The largest? Maybe. But large doesn't mean;
+T:powerful. But in any cases, the queen's palace is closed to visitors at;
+T:the moment, so you'll have to come back later.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Ivhalian Defender;
+T:What do you need to discuss?;
+A:King Julian sent me. I need to discuss important matters with the queen.:0:0:0:1:4:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Ivhalian Defender;
+T:Ah, I see. Yes, I have heard that the relations between our two countries;
+T:have been deteriorating lately, something about problems with merchants;
+T:and annoying soldiers I believe. Still, as much as I'd like to let you in,;
+T:I can't. The doors are locked from the other side, and cannot be opened;
+T:from this side. You'd have to use...err, nevermind. I can't let;
+T:you in. Sorry.;
+A:You were going to say something.:0:0:0:1:5:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Ivhalian Defender;
+T:As I said, the doors are locked from the inside, I can't open them. Sorry.;
+A:[Charisma] Don't worry, I won't tell anyone. What were you going to say?:5:40:0:1:7:0:0:0:0
+A:Say what you were going to say!:0:0:0:1:6:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Ivhalian Defender;
+T:I have nothing else to say. Now, please leave the palace. Come back another;
+T:time when visitors are allowed in.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Ivhalian Defender;
+T:...somehow, I feel like you really have something important to discuss with;
+T:the queen, so I'm gonna tell you a secret... Below the palace is an ancient;
+T:labyrinth of tunnels, a place said to have been built long ago during the;
+T:early days of Ivhala. There is a secret passage below the western barracks;
+T:that leads to it, and the switch to open it is behind the eastern barracks;
+T:main building. Be careful though, as it is guarded by a golem specially built;
+T:to protect this secret route, and since you're not one of us, it'll likely;
+T:attack you. After that, you'll just have to head through the east tunnels,;
+T:and you'll find your way in the palace.;
+A:Thanks for the information!:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Ivhalian Defender;
+T:No problems, but don't tell anyone about this, all right? If the captain;
+T:hears about this, I'll lose my job for sure. So just do what you've got;
+T:to do, and forget about me!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

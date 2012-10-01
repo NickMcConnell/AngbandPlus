@@ -1,0 +1,15 @@
+N:1:0:0:0:0:0
+I:Smith;
+T:Err, sorry <sirmadam>, but this is the back of the store. Please use;
+T:the front doors.;
+A:Does a dwarf lives nearby?:1:1095:1:1:2:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Smith;
+T:A dwarf? Not that I know of. Now if you'll excuse me, I have work to do.;
+T:Please use the front doors, this is the back of the store, and it's for;
+T:employees only.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

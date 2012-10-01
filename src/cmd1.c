@@ -37,20 +37,10 @@ s32b tot_dam_aux(object_type *o_ptr, s32b tdam, monster_type *m_ptr)
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
 	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-                case TV_DAGGER:
-                case TV_AXE:
+		case TV_AMMO:
+		case TV_WEAPON:
 		case TV_ROD:
 		case TV_DIGGING:
-                case TV_HELL_STAFF:
-                case TV_SWORD_DEVASTATION:
-                case TV_VALKYRIE_SPEAR:
-                case TV_ZELAR_WEAPON:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
@@ -185,17 +175,6 @@ s32b tot_dam_aux(object_type *o_ptr, s32b tdam, monster_type *m_ptr)
 
                                 if (mult < 6) mult = 6;
 			}
-                        
-                        /* Sword Of Devastation */
-                        if (o_ptr->tval == TV_SWORD_DEVASTATION)
-			{
-                                msg_print("Devastation!");
-                                if (mult != 0)
-                                {
-                                mult += 2;
-                                }
-                                else mult = 2;
-			}
 
 			break;
 		}
@@ -266,6 +245,19 @@ void search(void)
 					disturb(0, 0);
 				}
 
+				/* Secret ice door */
+				if (c_ptr->feat == FEAT_ICE_SECRET)
+				{
+					/* Message */
+					msg_print("You have found a secret door.");
+
+					/* Pick a door XXX XXX XXX */
+					cave_set_feat(y, x, FEAT_ICE_DOOR_HEAD + 0x00);
+
+					/* Disturb */
+					disturb(0, 0);
+				}
+
 				/* Scan all objects in the grid */
 				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 				{
@@ -319,6 +311,8 @@ void search(void)
 					/* Set events */
 					p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
 
+					lite_spot(c_ptr->eventextra, c_ptr->eventtype);
+
 					msg_print("You press the switch...");
 					update_and_handle();
 				}
@@ -334,6 +328,8 @@ void search(void)
 
 				/* Set events */
 				p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
+
+				lite_spot(c_ptr->eventextra, c_ptr->eventtype);
 
 				msg_print("You press the switch...");
 				update_and_handle();
@@ -361,6 +357,8 @@ void search(void)
 						/* Set events */
 						p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
 
+						lite_spot(c_ptr->eventextra, c_ptr->eventtype);
+
 						msg_print("You press the switch...");
 						update_and_handle();
 					}
@@ -379,6 +377,8 @@ void search(void)
 
 					/* Set events */
 					p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
+
+					lite_spot(c_ptr->eventextra, c_ptr->eventtype);
 
 					msg_print("You press the switch...");
 					update_and_handle();
@@ -769,7 +769,9 @@ void incarnate_monster_attack(s16b m_idx, int x, int y)
                                         	(void)project(m_idx, 0, py, px, damage, r_ptr->attack[Power].element, flg);
 						damage = 0;
 					}
+					melee_attack = TRUE;
 					(void)project(0, 0, t_ptr->fy, t_ptr->fx, damage, r_ptr->attack[Power].element, flg);
+					melee_attack = FALSE;
 					nevermiss = FALSE;
 				}
 				else msg_format("You miss %s", t_name);
@@ -921,7 +923,7 @@ void py_attack(int y, int x, int max_blow)
 
 	/* Stop if friendly */
 	if (is_pet(m_ptr) &&
-	    !(p_ptr->stun || p_ptr->confused || p_ptr->image || !(m_ptr->ml)))
+	    !(p_ptr->stun || p_ptr->confused || p_ptr->image))
 	{
 		if (!(inventory[INVEN_WIELD].art_name))
 		{
@@ -1057,7 +1059,7 @@ void py_attack(int y, int x, int max_blow)
 				/* We're not unarmed. Skip attack phase. */
 				if (unarmed())
 				{
-                                	k = monk_damages();
+					call_lua("monk_damages", "", "l", &k);
 				
 					if (backstab)
 					{
@@ -1076,7 +1078,7 @@ void py_attack(int y, int x, int max_blow)
                         }
                         else
 			{
-                                k = weapon_damages();
+				call_lua("weapon_damages", "", "l", &k);
                                 k = tot_dam_aux(o_ptr, k, m_ptr);
 
                                 if (backstab)
@@ -1091,13 +1093,6 @@ void py_attack(int y, int x, int max_blow)
 
                         	/*k = critical_norm(o_ptr->weight, o_ptr->to_h, k);*/
 
-                                /* Hitting Variaz with a weapon...GREAT idea!         */
-                                /* if (m_ptr->r_idx == 1030)                          */
-                                /* {                                                  */
-                                /*        take_hit((k / 25), "Variaz's deadly aura"); */
-                                /*        update_and_handle();                        */
-                                /* }                                                  */
-                                do_cmd_damage_weapon();
 			}
 
                         /* May it clone the monster ? */
@@ -1110,12 +1105,9 @@ void py_attack(int y, int x, int max_blow)
                         /* Penalty for could-2H when having a shield */
                         if ((f4 & TR4_COULD2H) && inventory[INVEN_ARM].k_idx)
                              k /= 2;
-
-                        /* Monster's level reduce damages! */
-                        /*k = monster_damage_reduction(k, m_ptr, FALSE);*/
 	
 			/* Physical resistance of monsters... */
-			k -= ((k * r_ptr->physres) / 100);
+			k -= ((k * r_ptr->resistances[GF_PHYSICAL]) / 100);
 			r_ptr->r_resist[GF_PHYSICAL] = 1;
 
                                 /* Bosses/Elites can be immune to weapons... */
@@ -1162,18 +1154,7 @@ void py_attack(int y, int x, int max_blow)
                                         k = 0;
                                         msg_print("The monster seems to be immune...");
                                 }
-                                /* Arakzatrys is very resistant... */
-                                if (m_ptr->r_idx == 982)
-                                {
-                                        k = (k / 3);
-                                }
 
-                                /* Variaz is REALLY resistant, but not immune anymore... */
-                                if (m_ptr->r_idx == 1030)
-                                {
-                                        k = (k / 5);
-                                        /* if (k >= 5000) k = 5000; */
-                                }
 				/* Some counters... */
 				if ((r_ptr->countertype == 1 || r_ptr->countertype == 3 || r_ptr->countertype == 17 || r_ptr->countertype == 19) && randint(100) <= r_ptr->counterchance)
 				{
@@ -1502,6 +1483,7 @@ bool player_can_enter(byte feature)
 			}
 
 		case FEAT_TREES:
+		case FEAT_SNOW_TREES:
 			{
                                 if ((p_ptr->ffall) || (p_ptr->pclass==CLASS_RANGER)|| (p_ptr->abilities[(CLASS_RANGER * 10) + 1] >= 1))
 					return (TRUE);
@@ -1575,6 +1557,9 @@ void move_player_aux(int dir, int do_pickup, int run)
 	/* Race info. */
 	r_ptr = &r_info[m_ptr->r_idx];
 
+	/* Run a script? */
+	call_lua("before_player_move", "(dd)", "", x, y);
+
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
         if (p_ptr->wraith_form)
@@ -1592,7 +1577,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if (is_pet(m_ptr) &&
-		    !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun) &&
+		    !(p_ptr->confused || p_ptr->image || p_ptr->stun) &&
 		    (pattern_seq(py, px, y, x)) &&
 		    ((cave_floor_bold(y, x)) || (p_can_pass_walls)))
 		{
@@ -1708,14 +1693,14 @@ void move_player_aux(int dir, int do_pickup, int run)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DARK_PIT) && !p_ptr->ffall)
+	else if ((c_ptr->feat == FEAT_DARK_PIT) && (!p_ptr->ffall && !p_ptr->fly))
 	{
 		msg_print("You can't cross the chasm.");
 		running = 0;
 		oktomove = FALSE;
 	}
 
-        else if ((c_ptr->feat == FEAT_MOUNTAIN) && !p_ptr->climb && !p_can_pass_walls)
+        else if ((c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER) && !p_ptr->climb && !p_can_pass_walls)
 	{
 		msg_print("You can't climb the mountains!");
 		running = 0;
@@ -1726,7 +1711,7 @@ void move_player_aux(int dir, int do_pickup, int run)
          * 
          * Rangers and Ents can move
 	 */
-        else if (c_ptr->feat == FEAT_TREES)
+        else if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_SNOW_TREES)
 	{
                 oktomove = FALSE;
                 if ((p_ptr->pclass == CLASS_RANGER) || p_ptr->fly || p_can_pass_walls || p_ptr->abilities[(CLASS_RANGER * 10) + 1] >= 1) oktomove=TRUE;
@@ -1787,7 +1772,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 			}
 
                         /* Mountain and levitation */
-                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->climb)
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER) && p_ptr->climb)
 			{
                                 oktomove=TRUE;
                         }
@@ -1832,7 +1817,7 @@ void move_player_aux(int dir, int do_pickup, int run)
                                 }
 			}
 			/* Closed doors */
-			else if (c_ptr->feat < FEAT_SECRET)
+			else if (c_ptr->feat < FEAT_SECRET || (c_ptr->feat >= FEAT_ICE_DOOR_HEAD && c_ptr->feat < FEAT_ICE_SECRET))
 			{
 #ifdef ALLOW_EASY_OPEN
 
@@ -1853,7 +1838,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 			}
 
                         /* Mountain and levitation */
-                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->climb)
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER) && (p_ptr->climb || p_ptr->fly))
 			{
                                 oktomove=TRUE;
 			}
@@ -1927,6 +1912,9 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 		/* Check for new panel (redraw map) */
 		verify_panel();
+
+		/* Run a script? */
+		call_lua("after_player_move", "(dd)", "", x, y);
 
 		/* Auras! */
 		/* The Paladin's Aura Of Life! :) */
@@ -2026,7 +2014,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 					p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
 
 					/* Set dun level to 0. It may change when quest is generated. */
-					dun_level = 0;
+					/*dun_level = 0;*/
 
 					p_ptr->questx = c_ptr->eventextra;
 					p_ptr->questy = c_ptr->eventextra2;
@@ -2051,7 +2039,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 				p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
 
 				/* Set dun level to 0. It may change when quest is generated. */
-				dun_level = 0;
+				/*dun_level = 0;*/
 
 				p_ptr->questx = c_ptr->eventextra;
 				p_ptr->questy = c_ptr->eventextra2;
@@ -2216,42 +2204,6 @@ void move_player_aux(int dir, int do_pickup, int run)
 			command_new = ']';
 		}
 
-		/* Handle quest areas -KMW- */
-		else if (cave[y][x].feat == FEAT_QUEST_ENTER) 
-		{
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Hack -- Enter quest level */
-			command_new = '[';
-		}
-
-		else if (cave[y][x].feat == FEAT_QUEST_EXIT)
-		{
-			if (quest[p_ptr->inside_quest].type == 4)
-			{
-				quest[p_ptr->inside_quest].status = QUEST_STATUS_COMPLETED;
-				msg_print("You accomplished your quest!");
-				msg_print(NULL);
-			}
-
-			leaving_quest = p_ptr->inside_quest;
-
-			/* Leaving an 'only once' quest marks it as failed */
-			if (leaving_quest &&
-				(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-				(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-			{
-				quest[leaving_quest].status = QUEST_STATUS_FAILED;
-			}
-
-			p_ptr->inside_quest = cave[y][x].special;
-			dun_level = 0;
-			p_ptr->oldpx = 0;
-			p_ptr->oldpy = 0;
-			p_ptr->leaving = TRUE;
-		}
-
                 else if (cave[y][x].feat >= FEAT_ALTAR_HEAD &&
                          cave[y][x].feat <= FEAT_ALTAR_TAIL)
                          {
@@ -2307,7 +2259,7 @@ static int see_wall(int dir, int y, int x)
 
         if ((cave[y][x].feat == FEAT_DEEP_WATER) ||
            ((cave[y][x].feat >= FEAT_SHAL_WATER) &&
-            (cave[y][x].feat <= FEAT_GRASS))) return (FALSE);
+            (cave[y][x].feat <= FEAT_GRASS)) || (cave[y][x].feat == FEAT_SNOW)) return (FALSE);
 
 	if ((cave[y][x].feat >= FEAT_SHOP_HEAD) &&
 	    (cave[y][x].feat <= FEAT_SHOP_TAIL)) return (FALSE);
@@ -2726,6 +2678,11 @@ static bool run_test(void)
 				case FEAT_DARK_PIT:
 				case FEAT_TREES:
 				case FEAT_MOUNTAIN:
+				case FEAT_SNOW:
+				case FEAT_SNOW_TREES:
+				case FEAT_GLACIER:
+				case FEAT_ICE_WALL:
+				case FEAT_PERM_ICE_WALL:
 				{
 					/* Ignore */
 					notice = FALSE;
@@ -2765,6 +2722,8 @@ static bool run_test(void)
 				/* Open doors */
 				case FEAT_OPEN:
 				case FEAT_BROKEN:
+				case FEAT_ICE_OPEN:
+				case FEAT_ICE_BROKEN:
 				{
 					/* Option -- ignore */
 					if (find_ignore_doors) notice = FALSE;
@@ -2875,7 +2834,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
 			if (!(c_ptr->info & (CAVE_MARK)) ||
 			    ((c_ptr->feat < FEAT_SECRET) ||
-                            (c_ptr->feat == FEAT_DEEP_WATER) ||
+                            (c_ptr->feat == FEAT_DEEP_WATER) || (c_ptr->feat == FEAT_SNOW) ||
                             ((c_ptr->feat >= FEAT_SHAL_WATER) &&
 				 (c_ptr->feat <= FEAT_GRASS))))
 
@@ -2912,7 +2871,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
 			if (!(c_ptr->info & (CAVE_MARK)) ||
 			    ((c_ptr->feat < FEAT_SECRET) ||
-                            (c_ptr->feat == FEAT_DEEP_WATER) ||
+                            (c_ptr->feat == FEAT_DEEP_WATER) || (c_ptr->feat == FEAT_SNOW) ||
                             ((c_ptr->feat >= FEAT_SHAL_WATER) &&
 				 (c_ptr->feat <= FEAT_GRASS))))
 
@@ -3036,7 +2995,7 @@ void run_step(int dir)
 	{
 		/* Hack -- do not start silly run */
 		if (see_wall(dir, py, px) &&
-		   (cave[py+ddy[dir]][px+ddx[dir]].feat != FEAT_TREES))
+		   (cave[py+ddy[dir]][px+ddx[dir]].feat != FEAT_TREES) && (cave[py+ddy[dir]][px+ddx[dir]].feat != FEAT_SNOW_TREES))
 		{
 			/* Message */
 			msg_print("You cannot run in that direction.");
@@ -3050,6 +3009,9 @@ void run_step(int dir)
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
+
+		/* Recenter the player view */
+		if (center_player) verify_panel();
 
 		/* Initialize */
 		run_init(dir);
@@ -3144,6 +3106,7 @@ void do_cmd_pet(void)
 	int             pets = 0, pet_ctr = 0;
 	bool            all_pets = FALSE;
 	monster_type    *m_ptr;
+	monster_race	*r_ptr;
 
 
 	for (num = 0; num < 36; num++)
@@ -3168,7 +3131,9 @@ void do_cmd_pet(void)
 		/* Access the monster */
 		m_ptr = &m_list[pet_ctr];
 
-		if (is_pet(m_ptr)) pets++;
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		if (is_pet(m_ptr) && !(r_ptr->flags7 & RF7_TOWNSFOLK) && !(r_ptr->flags7 & RF7_GUARD) && (r_ptr->extra2 == 0)) pets++;
 	}
 
 	if (pets == 0)
@@ -3342,7 +3307,9 @@ void do_cmd_pet(void)
 				/* Access the monster */
 				m_ptr = &m_list[pet_ctr];
 
-				if (is_pet(m_ptr)) /* Get rid of it! */
+				r_ptr = &r_info[m_ptr->r_idx];
+
+				if (is_pet(m_ptr) && !(r_ptr->flags7 & RF7_TOWNSFOLK) && !(r_ptr->flags7 & RF7_GUARD) && (r_ptr->extra2 == 0)) /* Get rid of it! */
 				{
 					bool delete_this = FALSE;
 
@@ -3419,69 +3386,6 @@ void do_cmd_pet(void)
 	}
 }
 
-
-/* New NASTY feature...to prevent peoples from easily finish the game */
-/* with one powerful weapon. */
-void do_cmd_damage_weapon(void)
-{
-        object_type     *o_ptr;
-        u32b f1, f2, f3, f4;
-        o_ptr = &inventory[INVEN_WIELD];
-
-	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-	if (p_ptr->prace != RACE_ZULGOR)
-	{
-        	if (randint(100) >= 95 && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
-        	{
-                	o_ptr->pval3 -= 1;
-                	msg_print("The weapon was damaged.");
-        	}
-	}
-	else
-	{
-		if (randint(100) >= 70 && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
-        	{
-                	if (randint(100) <= 75) o_ptr->pval3 -= 1;
-			else o_ptr->pval3 -= 2;
-                	msg_print("The weapon was damaged.");
-        	}
-	}
-        if (o_ptr->pval3 <= 0 && !(f4 & TR4_INDESTRUCTIBLE))
-        {
-                msg_print("YOUR WEAPON IS DESTROYED!!!");
-                inven_item_increase(INVEN_WIELD, -1);
-                inven_item_optimize(INVEN_WIELD);
-        }
-}
-
-/* High level monsters take less damages... */
-s32b monster_damage_reduction(s32b damages, monster_type *m_ptr, bool magicattack)
-{
-        s32b modifier, modifierb, finalresult;
-
-        if (m_ptr->level >= 20)
-        {
-                modifier = (m_ptr->level / 20);
-                if (modifier < 1) modifier = 0;
-                /* 80% damages reduction is enough... */
-                if (modifier > 8) modifier = 8;
-        }
-        else modifier = 0;
-
-        /* Check the amount of damages we have... */
-        if (damages <= 0 || modifier == 0)
-        {
-                finalresult = damages;
-                return finalresult;
-        }
-        modifierb = ((damages * modifier) / 10);
-        finalresult = (damages - modifierb);
-
-        return finalresult;
-}
-
 /* A very simple hit rate system...yet, it's effective! */
 bool player_hit_monster(monster_type *m_ptr, int bonus)
 {
@@ -3519,63 +3423,23 @@ bool player_hit_monster(monster_type *m_ptr, int bonus)
 /* How a monster hit you is not much more complicated... */
 bool monster_hit_player(monster_type *m_ptr, int bonus)
 {
-        int pdef, proll, mroll;
-        int mistpenalities = 25 + (p_ptr->abilities[(CLASS_SHADOW * 10) + 6] / 2);
-        cave_type *c_ptr;
+	int hit;
+	call_lua("monster_hit_player", "(Md)", "d", m_ptr, bonus, &hit);
 
-        /* First, let's calculate the player's defense! */
-        pdef = p_ptr->ac + p_ptr->to_a;
+	if (hit == 1) return (TRUE);
 
-        /* Now, let's roll the dices! Player's def VS monster's hit rate */
-        proll = randint(pdef);
-	if ((m_ptr->hitrate + bonus) <= 0) mroll = 0;
-        else mroll = randint((m_ptr->hitrate + bonus));
-
-        /* Enemies in the dark mist fight less well. */
-        c_ptr = &cave[m_ptr->fy][m_ptr->fx];
-        if (c_ptr->feat == FEAT_DARK_MIST)
-        {
-                int rollpenality;
-                rollpenality = mroll * (mistpenalities / 100);
-                mroll -= rollpenality;
-        }
-
-        /* Do we have the Displacement ability? */
-        if (p_ptr->abilities[(CLASS_SHADOW * 10) + 1] >= 1)
-        {
-                int disroll = randint((p_ptr->abilities[(CLASS_SHADOW * 10) + 1] * 10));
-                int dismroll = randint(((m_ptr->hitrate + bonus) / 2));
-
-                if (disroll >= dismroll) return (FALSE);
-        }
-
-        if (mroll >= proll) return (TRUE);
-        else return (FALSE);
+	return (FALSE);
 }
 
 /* And a monster hitting another monster... */
 bool monster_hit_monster(monster_type *m_ptr, monster_type *t_ptr)
 {
-        int tdef, mroll, troll;
-        int hitbonus = 0;
+	int hit;
+	call_lua("monster_hit_monster", "(MM)", "d", m_ptr, t_ptr, &hit);
 
-        /* First, let's calculate the target's defense! */
-        tdef = t_ptr->defense;
+	if (hit == 1) return (TRUE);
 
-        /* Calculate hitbonus...if any */
-        if (is_pet(m_ptr))
-        {
-                hitbonus += p_ptr->skill[9] * 2;
-                hitbonus += (p_ptr->stat_ind[A_CHR] - 5) * 5;
-                if (hitbonus < 0) hitbonus = 0;
-        }
-
-        /* Now, let's roll the dices! Attacker's hit rate VS target's def */
-	if ((m_ptr->hitrate + hitbonus) <= 0) mroll = 0;
-        else mroll = randint((m_ptr->hitrate + hitbonus));
-        troll = randint(tdef);
-        if (mroll >= troll) return (TRUE);
-        else return (FALSE);
+	return (FALSE);
 }
 
 bool always_hit_check()
@@ -3636,7 +3500,7 @@ bool standing_on_forest()
 {
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
-        if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_GRASS) return (TRUE);
+        if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_SNOW_TREES || c_ptr->feat == FEAT_GRASS) return (TRUE);
 
         /* Default */
         return (FALSE);
@@ -3839,319 +3703,6 @@ void monstrous_wave()
         if (!get_rep_dir(&dir)) return; 
         chain_attack(dir, typ, dam, 0, 5);
         energy_use = 100;
-}
-
-/* A function used to calculate base weapons damages(not counting brands) */
-s32b weapon_damages()
-{
-        s32b k;
-	int tskill;
-        object_type *o_ptr = current_weapon;
-
-	tskill = p_ptr->skill[0];
-	if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_SWORD_DEVASTATION) tskill += (p_ptr->skill[12] + (p_ptr->skill[12] / 2));
-        if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_HELL_STAFF) tskill += (p_ptr->skill[13] + (p_ptr->skill[13] / 2));
-        if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_VALKYRIE_SPEAR) tskill += (p_ptr->skill[14] + (p_ptr->skill[14] / 2));
-        if (o_ptr->tval == TV_DAGGER) tskill += (p_ptr->skill[15] + (p_ptr->skill[15] / 2));
-        if (o_ptr->tval == TV_AXE) tskill += (p_ptr->skill[16] + (p_ptr->skill[16] / 2));
-        if (o_ptr->tval == TV_ROD) tskill += (p_ptr->skill[17] + (p_ptr->skill[17] / 2));
-        if (o_ptr->tval == TV_ZELAR_WEAPON) tskill += (p_ptr->skill[18] + (p_ptr->skill[18] / 2));
-
-        k = damroll(o_ptr->dd, o_ptr->ds);
-	k += (k * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 10)) / 100;
-	if (o_ptr->tval == TV_POLEARM && (p_ptr->skill[14] >= 90)) k *= 2;
-        k *= (tskill + 1);
-        k += ((k * p_ptr->dis_to_d) / 100);
-        if (p_ptr->abilities[(CLASS_RANGER * 10) + 6] >= 1)
-	{
-		s32b strbonus = (p_ptr->stat_ind[A_STR] - 5);
-		s32b useddex = (p_ptr->stat_ind[A_DEX] - 5);
-		if (useddex > (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5))
-		{
-			useddex = (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5);
-		}
-		if (useddex > strbonus)
-		{
-			k += ((k * useddex) / 100);
-		}
-		else
-		{
-			k += ((k * strbonus) / 100);
-		}
-	}
-        else k += ((k * p_ptr->stat_ind[A_STR]) / 100);
-	if (p_ptr->powerattack > 0)
-	{
-		if (p_ptr->powerlevel == 1) k *= 2 + ((2 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 2) k *= 3 + ((3 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 3) k *= 4 + ((4 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		set_powerattack(0);
-		p_ptr->str_boost = 0;
-		p_ptr->str_boost_dur = 0;
-		update_and_handle();
-	}
-        return (k);
-}
-
-/* A function used to calculate monk damages */
-s32b monk_damages()
-{
-        s32b k;
-        int mdice, mside, tskill, glovebonus;
-        object_type *o_ptr = &inventory[INVEN_WIELD];
-	object_type *g_ptr = &inventory[INVEN_HANDS];
-
-        mdice = (p_ptr->skill[18] / 20) + (p_ptr->skill[0] / 40) + 1;
-        mside = (p_ptr->skill[18] / 20) + (p_ptr->skill[0] / 40) + 3;
-
-	/* Bonus from gloves */
-	glovebonus = 0;
-	if (g_ptr->tval != 0 && g_ptr->ac > 0)
-	{
-		glovebonus = randint(g_ptr->ac);
-	}
-
-        k = damroll(mdice, mside);
-	k += (k * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 10)) / 100;
-	k += ((p_ptr->skill[0] * (p_ptr->abilities[(CLASS_FIGHTER * 10) + 4] * 5)) / 100);
-	k += glovebonus;
-	tskill = p_ptr->skill[0];
-	tskill += (p_ptr->skill[18] + (p_ptr->skill[18] / 2));
-        k *= (tskill + 1);
-        k += ((k * p_ptr->dis_to_d) / 100);
-        if (p_ptr->abilities[(CLASS_RANGER * 10) + 6] >= 1)
-	{
-		s32b strbonus = (p_ptr->stat_ind[A_STR] - 5);
-		s32b useddex = (p_ptr->stat_ind[A_DEX] - 5);
-		if (useddex > (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5))
-		{
-			useddex = (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5);
-		}
-		if (useddex > strbonus)
-		{
-			k += ((k * useddex) / 100);
-		}
-		else
-		{
-			k += ((k * strbonus) / 100);
-		}
-	}
-        else k += ((k * p_ptr->stat_ind[A_STR]) / 100);
-	if (p_ptr->powerattack > 0)
-	{
-		if (p_ptr->powerlevel == 1) k *= 2 + ((2 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 2) k *= 3 + ((3 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 3) k *= 4 + ((4 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		set_powerattack(0);
-		p_ptr->str_boost = 0;
-		p_ptr->str_boost_dur = 0;
-		update_and_handle();
-	}
-        return (k);
-}
-
-/* Return minimum weapon damages. Used by files.c to display damages. */
-/* Could be used for abilities as well. */
-s32b min_weapon_damages()
-{
-        s32b k;
-	int tskill;
-        object_type *o_ptr = current_weapon;
-	
-	tskill = p_ptr->skill[0];
-	if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_SWORD_DEVASTATION) tskill += (p_ptr->skill[12] + (p_ptr->skill[12] / 2));
-        if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_HELL_STAFF) tskill += (p_ptr->skill[13] + (p_ptr->skill[13] / 2));
-        if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_VALKYRIE_SPEAR) tskill += (p_ptr->skill[14] + (p_ptr->skill[14] / 2));
-        if (o_ptr->tval == TV_DAGGER) tskill += (p_ptr->skill[15] + (p_ptr->skill[15] / 2));
-        if (o_ptr->tval == TV_AXE) tskill += (p_ptr->skill[16] + (p_ptr->skill[16] / 2));
-        if (o_ptr->tval == TV_ROD) tskill += (p_ptr->skill[17] + (p_ptr->skill[17] / 2));
-        if (o_ptr->tval == TV_ZELAR_WEAPON) tskill += (p_ptr->skill[18] + (p_ptr->skill[18] / 2));
-
-        k = damroll(o_ptr->dd, 1);
-	k += (k * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 10)) / 100;
-	if (o_ptr->tval == TV_POLEARM && (p_ptr->skill[14] >= 90)) k *= 2;
-        k *= (tskill + 1);
-        k += ((k * p_ptr->dis_to_d) / 100);
-        if (p_ptr->abilities[(CLASS_RANGER * 10) + 6] >= 1)
-	{
-		s32b strbonus = (p_ptr->stat_ind[A_STR] - 5);
-		s32b useddex = (p_ptr->stat_ind[A_DEX] - 5);
-		if (useddex > (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5))
-		{
-			useddex = (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5);
-		}
-		if (useddex > strbonus)
-		{
-			k += ((k * useddex) / 100);
-		}
-		else
-		{
-			k += ((k * strbonus) / 100);
-		}
-	}
-        else k += ((k * p_ptr->stat_ind[A_STR]) / 100);
-	if (p_ptr->powerattack > 0)
-	{
-		if (p_ptr->powerlevel == 1) k *= 2 + ((2 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 2) k *= 3 + ((3 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 3) k *= 4 + ((4 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-	}
-        return (k);
-}
-
-/* Return maximum weapon damages. Used by files.c to display damages. */
-/* Could be used for abilities as well. */
-s32b max_weapon_damages()
-{
-        s32b k;
-	int tskill;
-        object_type *o_ptr = current_weapon;
-
-	tskill = p_ptr->skill[0];
-	if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_SWORD_DEVASTATION) tskill += (p_ptr->skill[12] + (p_ptr->skill[12] / 2));
-        if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_HELL_STAFF) tskill += (p_ptr->skill[13] + (p_ptr->skill[13] / 2));
-        if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_VALKYRIE_SPEAR) tskill += (p_ptr->skill[14] + (p_ptr->skill[14] / 2));
-        if (o_ptr->tval == TV_DAGGER) tskill += (p_ptr->skill[15] + (p_ptr->skill[15] / 2));
-        if (o_ptr->tval == TV_AXE) tskill += (p_ptr->skill[16] + (p_ptr->skill[16] / 2));
-        if (o_ptr->tval == TV_ROD) tskill += (p_ptr->skill[17] + (p_ptr->skill[17] / 2));
-        if (o_ptr->tval == TV_ZELAR_WEAPON) tskill += (p_ptr->skill[18] + (p_ptr->skill[18] / 2));
-
-        k = maxroll(o_ptr->dd, o_ptr->ds);
-	k += (k * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 10)) / 100;
-	if (o_ptr->tval == TV_POLEARM && (p_ptr->skill[14] >= 90)) k *= 2;
-        k *= (tskill + 1);
-        k += ((k * p_ptr->dis_to_d) / 100);
-	if (p_ptr->abilities[(CLASS_RANGER * 10) + 6] >= 1)
-	{
-		s32b strbonus = (p_ptr->stat_ind[A_STR] - 5);
-		s32b useddex = (p_ptr->stat_ind[A_DEX] - 5);
-		if (useddex > (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5))
-		{
-			useddex = (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5);
-		}
-		if (useddex > strbonus)
-		{
-			k += ((k * useddex) / 100);
-		}
-		else
-		{
-			k += ((k * strbonus) / 100);
-		}
-	}
-        else k += ((k * p_ptr->stat_ind[A_STR]) / 100);
-	if (p_ptr->powerattack > 0)
-	{
-		if (p_ptr->powerlevel == 1) k *= 2 + ((2 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 2) k *= 3 + ((3 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 3) k *= 4 + ((4 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-	}
-        return (k);
-}
-
-/* A function used to calculate minimum monk damages */
-s32b min_monk_damages()
-{
-        s32b k;
-        int mdice, mside, tskill, glovebonus;
-        object_type *o_ptr = &inventory[INVEN_WIELD];
-	object_type *g_ptr = &inventory[INVEN_HANDS];
-
-        mdice = (p_ptr->skill[18] / 20) + (p_ptr->skill[0] / 40) + 1;
-        mside = (p_ptr->skill[18] / 20) + (p_ptr->skill[0] / 40) + 3;
-
-	/* Bonus from gloves */
-	glovebonus = 0;
-	if (g_ptr->tval != 0 && g_ptr->ac > 0)
-	{
-		glovebonus = 1;
-	}
-
-        k = damroll(mdice, 1);
-	k += (k * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 10)) / 100;
-	k += ((p_ptr->skill[0] * (p_ptr->abilities[(CLASS_FIGHTER * 10) + 4] * 5)) / 100);
-	k += glovebonus;
-	tskill = p_ptr->skill[0];
-	tskill += (p_ptr->skill[18] + (p_ptr->skill[18] / 2));
-        k *= (tskill + 1);
-        k += ((k * p_ptr->dis_to_d) / 100);
-        if (p_ptr->abilities[(CLASS_RANGER * 10) + 6] >= 1)
-	{
-		s32b strbonus = (p_ptr->stat_ind[A_STR] - 5);
-		s32b useddex = (p_ptr->stat_ind[A_DEX] - 5);
-		if (useddex > (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5))
-		{
-			useddex = (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5);
-		}
-		if (useddex > strbonus)
-		{
-			k += ((k * useddex) / 100);
-		}
-		else
-		{
-			k += ((k * strbonus) / 100);
-		}
-	}
-        else k += ((k * p_ptr->stat_ind[A_STR]) / 100);
-	if (p_ptr->powerattack > 0)
-	{
-		if (p_ptr->powerlevel == 1) k *= 2 + ((2 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 2) k *= 3 + ((3 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 3) k *= 4 + ((4 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-	}
-        return (k);
-}
-
-/* A function used to calculate maximum monk damages */
-s32b max_monk_damages()
-{
-        s32b k;
-        int mdice, mside, tskill, glovebonus;
-        object_type *o_ptr = &inventory[INVEN_WIELD];
-	object_type *g_ptr = &inventory[INVEN_HANDS];
-
-        mdice = (p_ptr->skill[18] / 20) + (p_ptr->skill[0] / 40) + 1;
-        mside = (p_ptr->skill[18] / 20) + (p_ptr->skill[0] / 40) + 3;
-
-	/* Bonus from gloves */
-	glovebonus = 0;
-	if (g_ptr->tval != 0 && g_ptr->ac > 0)
-	{
-		glovebonus = g_ptr->ac;
-	}
-
-        k = maxroll(mdice, mside);
-	k += (k * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 10)) / 100;
-	k += ((p_ptr->skill[0] * (p_ptr->abilities[(CLASS_FIGHTER * 10) + 4] * 5)) / 100);
-	k += glovebonus;
-	tskill = p_ptr->skill[0];
-	tskill += (p_ptr->skill[18] + (p_ptr->skill[18] / 2));
-        k *= (tskill + 1);
-        k += ((k * p_ptr->dis_to_d) / 100);
-        if (p_ptr->abilities[(CLASS_RANGER * 10) + 6] >= 1)
-	{
-		s32b strbonus = (p_ptr->stat_ind[A_STR] - 5);
-		s32b useddex = (p_ptr->stat_ind[A_DEX] - 5);
-		if (useddex > (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5))
-		{
-			useddex = (p_ptr->abilities[(CLASS_RANGER * 10) + 6] * 5);
-		}
-		if (useddex > strbonus)
-		{
-			k += ((k * useddex) / 100);
-		}
-		else
-		{
-			k += ((k * strbonus) / 100);
-		}
-	}
-        else k += ((k * p_ptr->stat_ind[A_STR]) / 100);
-	if (p_ptr->powerattack > 0)
-	{
-		if (p_ptr->powerlevel == 1) k *= 2 + ((2 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 2) k *= 3 + ((3 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-		else if (p_ptr->powerlevel == 3) k *= 4 + ((4 * (p_ptr->abilities[(CLASS_FIGHTER * 10)] * 5)) / 100);
-	}
-        return (k);
 }
 
 /* Critical Hits ability! */

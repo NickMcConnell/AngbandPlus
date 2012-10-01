@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:The machine starts, but the object doesn't seem to react. It seems that;
+T:since the object has already been altered by the Flow, it cannot be;
+T:altered further.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

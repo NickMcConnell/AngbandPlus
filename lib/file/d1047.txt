@@ -1,0 +1,85 @@
+N:1:1054:1:0:0:0
+I:Eloriel;
+T:Urgh...no... I'm a wizard of the Earth! I can't die...!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1052:2:9:0:0
+I:Eloriel;
+T:You must be the odd human with colored hairs Donoriel was talking about.;
+T:I was expecting your visit sooner or later. Unfortunately, this is where;
+T:your path ends. Now that you have discovered our secret, I'm afraid I cannot;
+T:let you live.;
+A:Why are you running this illegal business?:0:0:0:1:2:0:0:0:0
+A:Fine, let's settle this!:0:0:0:1:4:0:0:0:0
+%
+
+N:1:1052:2:0:0:0
+I:Eloriel;
+T:You must be the <RACE> Donoriel was talking about. I was expecting;
+T:your visit sooner or later. Unfortunately, this is where your path;
+T:ends. Now that you have discovered our secret, I'm afraid I cannot;
+T:let you live.;
+A:Why are you running this illegal business?:0:0:0:1:2:0:0:0:0
+A:Fine, let's settle this!:0:0:0:1:4:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Elven Wizard;
+T:Huh? Who are you?? What are you doing here?;
+A:I could ask you the same thing.:0:0:1:5:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Eloriel;
+T:Why? Because it's extremely profitable. Humans aren't the wisest of races,;
+T:you see. They are easily fooled. My business aims to exploit this flaw;
+T:of the human race. With my powers, I shape objects from nothing but earth,;
+T:and I put lowly enchantments on them. And then Donoriel convinces peoples;
+T:that the items are worth buying. To the humans, we elves are a race of wise;
+T:peoples, and they would never expect us to be thieves. That reputation made;
+T:things much easier for us.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Eloriel;
+T:We made a great amount of profits already from the lowly stuff I've created.;
+T:But now, our secret has been discovered, and I'm afraid I can't let you get;
+T:away with this. There's too much money at stakes, and we don't want to lose;
+T:it. Time to put an end to your life!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:9:0:0
+I:Eloriel;
+T:I possess magical powers of the Earth element. I am much stronger than;
+T:your average elven wizard! Do not underestimate me, my color-haired friend.;
+T:Today shall be your last day on Portralis!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Eloriel;
+T:I possess magical powers of the Earth element. I am much stronger than;
+T:your average elven wizard! Do not underestimate me, <RACE>.;
+T:Today shall be your last day on Portralis!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Eloriel;
+T:Hmph. My name's Eloriel, and this is my hideout. It was supposed to be;
+T:secret, until you've decided to come. Unfortunately, I cannot let you;
+T:leave, now that you've found this place. I'm sorry, but your life will;
+T:end here.;
+A:Wait, I...:0:0:0:1:6:0:0:0:0
+A:You're the one who's gonna die.:0:0:0:1:4:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Eloriel;
+T:No more words. I am earning too much with my business to risk losing it.;
+T:I cannot take chances. I will kill you, and save my business!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

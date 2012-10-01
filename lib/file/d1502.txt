@@ -1,0 +1,64 @@
+N:1:0:0:0:0:0
+I:Ivhalian Enchantress;
+T:Greetings, <CLASS>.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Ivhalian Enchantress;
+T:When talking about Ivhala, most people think only of the Defenders, but;
+T:they often forget about us enchantresses. Our enchanting and alchemic;
+T:skills are amongst the best in Portralis, and only the Nimbrayans wield;
+T:the bow with more skill than we do. Combine both together, along with;
+T:finely crafted suits of chain mail, and that makes us quite dangerous;
+T:in a fight. We are the best support soldiers the Defenders could ever get!;
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Ivhalian Enchantress;
+T:Adventurers are always sought after to do some monster hunting or to;
+T:search for ores. Of course, more often than not, searching for ores;
+T:means fighting monsters, so if you're not good at fighting, you may;
+T:not find much here in Ivhala. If you're good though, you'll find work;
+T:everywhere. Just visit some taverns, shops or other places, and I'm;
+T:sure you'll find something.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Ivhalian Enchantress;
+T:There are many rumors about the true nature of the Spheres. From the;
+T:attacks-reflecting Mirror Balls to the mysterious Glowing Spheres,;
+T:there are many theories about what they really are. One thing that seems;
+T:common to all spheres, however, is their ability to absorb magical;
+T:attacks. But because they are so fast, they can be difficult to;
+T:engage in melee combat, so I recommend using ranged weapons if you want;
+T:to battle them. As you can probably guess, I don't really fear Spheres;
+T:all that much. But they are a mage's bane.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Ivhalian Enchantress;
+T:If you ever visit Jindar, beware of the north and south slums. I've heard;
+T:that two powerful guilds of devlings and kobolds are fighting each others;
+T:there, so it's not safe to go there. Here in Ivhala, we don't have this;
+T:problem. No one is very rich other than the royal family, but no one is;
+T:very poor either. Since almost everyone here receives some combat training,;
+T:we tend to believe more in skill than money.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

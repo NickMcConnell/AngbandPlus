@@ -1,0 +1,298 @@
+N:1:1102:1:0:0:0
+I:Namira;
+T:...ack...Lord Zekis...please save me...!;
+A:[CONTINUE]:0:0:0:1:15:0:0:1075:2
+%
+
+N:1:1101:1:0:0:0
+I:Namira;
+T:Back for more, hmm? Looks like you didn't have enough the first time.;
+T:You won't escape this time though! I'll finish you off for good, and;
+T:offer your soul as a tribute to Lord Zekis!;
+A:[END DIALOG]:0:0:0:10:1631:0:0:0:0
+%
+
+N:1:1101:0:9:0:0
+I:Nymph;
+T:Well well, what do we have here? A little human with a..."colorful";
+T:sense of style. A clown perhaps? Working for a circus? Oh no, I get;
+T:it. You're here to save that "poor" Mr. Harrington, am I right?;
+A:What did you do to Harrington?:0:0:0:1:2:0:0:0:0
+A:Actually, I couldn't care less about him. I work only for the money.:0:0:0:1:9:0:0:0:0
+A:How dare you call me clown?? Prepare to die!:0:0:0:1:10:0:0:0:0
+%
+
+N:1:1101:0:0:0:0
+I:Nymph;
+T:Well well, what do we have here? A little <RACE> who wants to free a;
+T:rich, egoistical man from a fun little curse? That is not very fun,;
+T:<RACE>. Not very fun at all.;
+A:What did you do to Harrington?:0:0:0:1:2:0:0:0:0
+A:Actually, I couldn't care less about him. I work only for the money.:0:0:0:1:9:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Namira;
+T:First of all, allow me to introduce myself. I am Namira. I am a wealthy;
+T:and beautiful nymph! But more importantly, I am a servant of my;
+T:Lord Zekis, Kur-Yun of Gems, also known as the Prince of Greed, or the;
+T:Diamond of the Netherworld! A being that feeds on mortals greed and passion;
+T:for material goods and gold! And this Mr. Harrigton is greedy enough;
+T:to be the perfect victim for the curse!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Namira;
+T:As a worshipper of the Diamond, I thought Jindar's Mansions District;
+T:would be a good place to spread my master's curse. And I was right!;
+T:One night, I sent one of my imps to spy the mansions. By chance, that;
+T:imp found this old, secret basement! Must have been a secret treasure;
+T:cave built by one of Harrington's ancestors or something. In any cases,;
+T:it was the perfect hiding place for me. And I decided to put the curse;
+T:on the mansion's owner, Mr. Harrington, as well as all his servants!;
+A:What will happen now?:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Namira;
+T:As long as Mr. Harrington possesses all his wealth and his big mansion,;
+T:his memory will be twisted by the curse. The longer he will be exposed;
+T:to the curse, the more forgetful he'll become. Eventually, he'll forget;
+T:his name, he'll forget how to speak, how to walk...and how to eat.;
+T:And then he'll die, litteraly consumed by his greed, and his soul will;
+T:be offered to my master, Lord Zekis! And all his servants will share;
+T:the same fate!;
+A:That's insane!:0:0:0:1:5:0:0:0:0
+A:I've heard enough. Time for you to die!:0:0:0:1:14:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Namira;
+T:Insane? No, that is beautiful! My master will reward me for my offering!;
+T:And then I will move on to the next mansion, and eventually, get rid of;
+T:all the aristocracy and rich nobles who inherited all their wealth, and;
+T:never worked for it! You think it's fair that the poor have to work so;
+T:hard, and get almost nothing in return, while these nobles spends all;
+T:their days sleeping, eating and enjoying their wealth? I don't think so.;
+A:Why have you turned to demon worshipping?:0:0:0:1:6:0:0:0:0
+A:I've heard enough. Time for you to die!:0:0:0:1:14:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Namira;
+T:Because the gods betrayed me. Nymphs lives in the Nimbrayan forests,;
+T:and we are known as protectors of nature and animals. But me, I was;
+T:kidnapped by bandits, and brought to Jindar's slums years ago when;
+T:I was a little girl. There, I was beaten, I had to endure hardships;
+T:like you wouldn't imagine, and as soon as I became a teenager, I was;
+T:sold to a pimp, and I was forced to do prostitution.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Namira;
+T:I suffered. I cried. I missed my homeland. I missed the trees, the birds,;
+T:the wild life of the Nimbrayan forests. But I had faith. Every days,;
+T:I prayed the gods. I made prayers to Dalunia, the goddess of nature.;
+T:I prayed the Creator at a local chapel here in Jindar. I prayed the;
+T:Nimbrayan god Daldumaar. But no help ever came. Only more perverted men;
+T:who paid money to abuse my body. And then, I started losing faith in;
+T:the gods. They never sent anyone, and their priests were no better.;
+T:Priests of the Creator told me to never lose hope, to always stay strong,;
+T:and to have faith. But they had no actions to accompany their words.;
+T:They didn't want to help. They were just like everyone else.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Namira;
+T:But one day, I found a strange ring in an alley. There was nobody;
+T:around, so I took it, and putted it on my finger. And then, I heard His;
+T:voice in my head. It was the Prince of Greed. It was the Diamond of the;
+T:Netherworld. It was...Lord Zekis. He said that he could free me from my;
+T:misery, should I accept to become one of his followers. He promised;
+T:me power, wealth, and revenge against those who hurted me. So I accepted.;
+T:The criminals who were owning me are now dead, so I am now free. I have;
+T:gained power and wealth! And I am now helping the poor in my own;
+T:way, by making the nobles suffer as much as they do. If the gods will;
+T:not help them, then the Archfiends will.;
+A:What you are doing is wrong. Perhaps I can help you?:0:0:0:1:11:0:0:0:0
+A:Then, I have no choice but to kill you.:0:0:0:1:13:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Namira;
+T:Is that so? Huh huh huh...be careful. If you become greedy, the curse;
+T:might affect you...;
+A:What curse are you talking about?:0:0:0:1:2:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Namira;
+T:Couldn't take a joke, hmm? I know exactly what you are, zulgor!;
+T:And I really don't trust your kind. So I think I'll just kill you,;
+T:and then offer your soul to Lord Zekis!;
+A:[END DIALOG]:0:0:0:10:1631:0:0:1101:1
+%
+
+N:11:0:0:0:0:0
+I:Namira;
+T:Help me? You want to help me, after you just killed all my imps??;
+T:And how could you possibly help me? I have no need of help. Lord Zekis;
+T:gave me everything I need!;
+A:But how can an Archfiend of Greed "give" you something?:0:0:0:1:16:0:0:0:0
+A:Perhaps I could help you return to the forest?:0:0:0:1:12:0:0:0:0
+A:Then, I have no choice but to kill you.:0:0:0:1:13:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Namira;
+T:Help me return to the forest? No, I've spent too much time here in;
+T:the city. Believe it or not, but I now consider Jindar to be my home,;
+T:and have no wish to return to Nimbraya.;
+A:Tell me...how can an Archfiend of Greed "give" you something?:0:0:0:1:16:0:0:0:0
+A:Then, I have no choice but to kill you.:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Namira;
+T:Don't feel so bad, that's why you came here for, right? Too bad you;
+T:won't succeed. You will die, and your soul will be offered to Lord Zekis!;
+A:[END DIALOG]:0:0:0:10:1631:0:0:1101:1
+%
+
+N:14:0:0:0:0:0
+I:Namira;
+T:huh huh huh... seems like you're eager to die. Very well. I shall make;
+T:your wish come true, and your soul will be offered to Lord Zekis!; 
+A:[END DIALOG]:0:0:0:10:1631:0:0:1101:1
+%
+
+N:15:0:0:0:0:0
+I: ;
+T:You have defeated Namira, who was a demon worshipper of the Archfiend;
+T:Zekis. You should now return to Mr. Harrington, and see if the curse;
+T:has been broken.;
+A:[END DIALOG]:0:0:0:0:0:0:0:1095:0
+%
+
+N:16:0:0:0:0:0
+I:Namira;
+T:Huh? What do you mean? As you can see, I am very powerful! This is all;
+T:thanks to my loyalty to my master, the Prince of Greed!;
+A:[Charisma] No, these are only your own, natural powers!:5:40:0:1:18:0:0:0:0
+A:You do not need the help of an Archfiend to live!:0:0:0:1:17:0:0:0:0
+A:Then, I have no choice but to kill you.:0:0:0:1:13:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Namira;
+T:Enough of this. You're only a mere mortal, and you'll never be able to;
+T:help me more than the Prince of Greed. Now, prepare to die!;
+A:[END DIALOG]:0:0:0:10:1631:0:0:1101:1
+%
+
+N:18:0:0:0:0:0
+I:Namira;
+T:What?;
+A:Your powers comes from yourself. The Archfiend is only using you!:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Namira;
+T:N...no! My powers are the powers of my master, Lord Zekis! What are you;
+T:talking about??;
+A:He may have granted you a bit of power, but it comes mostly from you.:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Namira;
+T:E..enough!! I will not tolerate this any longer! Prepare to die, <RACE>!;
+T:*she is about to cast a spell at you, but then she stops.*;
+A:[CONTINUE]:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Namira;
+T:...what...what's this? The...the energy came from myself. The magical;
+T:power came from my own body!;
+A:That's right, you used your own, innate powers.:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Namira;
+T:You....you are right...no...this cannot be! This is a lie!! Greed protects;
+T:me! Lord Zekis has granted me his protection!!;
+A:But you do not control this protection. It's not really yours.:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I: ;
+T:She remains silent a moment, shocked after discovering that she, in fact,;
+T:never received anything from the archfiend.;
+A:[CONTINUE]:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Namira;
+T:...I am such a fool... all this time, I was using my own powers!;
+T:Lord Zekis only granted me some protection, and allowed me to summon;
+T:some of his lesser servants, the Imps of Greed... but the power to;
+T:summon...the power to use offensive magic...it was my own powers all;
+T:along. Lord Zek...no...the Prince of Greed. The Prince of Greed never;
+T:gave me anything. After all, it would go against his nature...right?;
+A:Right.:0:0:0:1:25:0:0:1075:2
+%
+
+N:25:0:0:0:0:0
+I:Namira;
+T:...I understand now. *she removed the ring around her finger*... so;
+T:the priests were right. It is possible to be strong by yourself...;
+T:to never give up. And still be powerful. That...that's why the gods;
+T:do not manifest themselves. They want the mortals to become strong.;
+T:Maybe they did not betray me after all.;
+A:[CONTINUE]:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Namira;
+T:I removed the ring that I have worn ever since I found it in an alley.;
+T:That is the ring that Zekis used as bait to lure me into serving him.;
+T:And now, I shall make this ring shatter!;
+A:[CONTINUE]:0:0:0:1:27:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I: ;
+T:She uses a bit of her magic powers to break the ring, which turns;
+T:into dust.;
+A:[CONTINUE]:0:0:0:1:28:0:0:1095:0
+%
+
+N:28:0:0:0:0:0
+I:Namira;
+T:It's done. I thank you for helping me see the truth. I shall never;
+T:serve an Archfiend again. I will learn to become stronger by myself,;
+T:and master my own powers as opposed to relying on someone else's.;
+T:You never told me your name...who are you?;
+A:My name is <NAME>.:0:0:0:5:1:29:0:1103:1
+%
+
+N:29:0:0:0:0:0
+I:Namira;
+T:Well, <NAME>, the curse on Mr. Harrington has been broken. I will now;
+T:leave. But I'd like you to visit me at my home in the southwest slums.;
+T:It's the house right next to the black market. Visit me whenever you;
+T:get the chance, I shall give you a reward for helping me out. I thanks;
+T:you... a new life is awaiting me now. A life of true freedom!;
+A:[CONTINUE]:0:0:0:9:1631:30:0:1102:1
+%
+
+N:30:0:0:0:0:0
+I: ;
+T:Namira leaves the mansion's basement. Because the evil ring has been;
+T:shattered, the curse on Mr. Harrington has been broken. You should now;
+T:return to him, and talk about what happened.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

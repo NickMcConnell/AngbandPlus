@@ -3,7 +3,7 @@ DEVLINGS
 
 Devlings are descendants of imps and various lesser demons. 
 Like the kobolds, these minor demons were often used as slaves 
-and minions by more powerful archfiends. But about 700 years ago, 
+and minions by more powerful demons. But about 700 years ago, 
 a great revolt known as the Devling War erupted in the planes 
 of hell, and a battle between the devlings and the greater 
 demons raged. Details of the Devling War are rare, as not many 
@@ -14,10 +14,9 @@ Devlings are generally red skinned, though there are also green,
 black, purple and orange ones, about three feet tall, and have 
 short pointed ears, a tail and strong, powerful legs. Devlings 
 are known to fight in large, organized groups, and are known 
-rivals to the kobolds, although devlings can be seen in cities, 
-and are generally less aggressive than kobolds, despites their 
-demonic origins. They generally fight with long weapons like 
-spears and polearms.
+rivals to the kobolds. Despite being descendants of demons, they
+have adapted rather easily to the city life. They generally fight
+with long weapons like spears and polearms.
 
 Though devlings are small and physically weak, they are dextrous 
 and are extremely agile and quick due to their powerful legs. In 
@@ -38,6 +37,4 @@ DEVLING FEATURES:
 
 DEVLING PENALITIES:
 
-- -33% to Strength.
-- -33% to Constitution.
 - 25% weakness to Light.

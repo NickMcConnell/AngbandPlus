@@ -12,29 +12,30 @@ widespread in the wilderness and filthy areas such as sewers and
 the like, as well as caves and dungeons. Having lived in filthy 
 areas during most of their history, and having used all kind of 
 poisons on their weapons to make up for their small size, Kobolds 
-are the vicious masters of poison, and are nearly immune to it. 
-Not all kobolds are evil, but they are generally impatient and 
-aggressive, especially toward Devlings, which they consider 
-rivals.
+are the vicious masters of poison, and are nearly immune to it.
 
-Kobolds are short, frail and weak, but they are dextrous, agile, 
+Today, however, many of them have adapted to a more civilized
+life style, and are trying to gain better acceptance in society,
+although they do not get along with devlings, the two having fought
+many territorial battles in underground dungeons, which have left
+the kobold-devling relations scarred. But overall, they have regained
+health and self-confidence, and are slowly rising to be a respected
+race in Portralis. But there is still much to do.
+
+Kobolds are short, but they are dextrous, agile, 
 stealthy and more importantly, the masters of poisoning. They 
 use poison spells and attacks better than any other races, and 
 are also highly resistant to it. A favorite weapon amongst the
 Kobolds is the crossbow, as it allows them to attack from a
-distance safely, without exposing their frailer bodies to stronger
-races. Kobolds are considered repulsive by most races, although 
-they do have the skills to unite together in large, organized groups.
+distance safely, and make up for the crossbow's slower speed by hiding
+using their natural aptitude at hiding. Melee-oriented kobolds
+tends to favor bladed weapons of all kind, generally the one-handed
+ones.
 
 KOBOLD FEATURES:
 
 - +25% to Dexterity.
-- +25% to Crossbow, Agility, Stealth and Leadership skills.
-- +50% to Poison-based attack and spells.
+- +25% to Daggers, Crossbow, Agility, Stealth and Leadership skills.
+- +25% to Swords if they are one-handed.
+- +50% to Poison-based attacks and spells.
 - +75% resistance to poison.
-
-KOBOLD PENALITIES:
-
-- -33% to Strength.
-- -33% to Constitution.
-- -33% to Charisma.

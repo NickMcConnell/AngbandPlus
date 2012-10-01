@@ -1,0 +1,52 @@
+N:1:1514:1:0:0:0
+I: ;
+T:Once again, you defeat Simon, but he uses his reality twisting powers;
+T:to save himself from death.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:1:1514:0:0:0:0
+I:Simon;
+T:I see you are quite persistent, <NAME>. Even though you don't;
+T:understand anything about my powers, you still chased me down here.;
+T:You know that it is futile to fight me, right? Even if you defeat;
+T:me again, I will just stand up. Because I will twist reality to save;
+T:me from death.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Simon;
+T:Just go ahead and try, <NAME>. This time, as you can see, I am not;
+T:alone. I have some orcs to back me up while I ruin your body with;
+T:my reality twisting powers!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Simon;
+T:Even with my orcs, I can't defeat you. You are an impressive <CLASS>,;
+T:<NAME>. Nevertheless, you cannot defeat me either, for you can't;
+T:do anything against my powers. As you can see, I have once again saved;
+T:myself from death. And I could fight you over and over, and revive;
+T:every times.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Simon;
+T:But that would be a waste of time. So I will simply disappear, and;
+T:go somewhere else for now. And you are powerless to prevent that, since;
+T:my teleportation is also a twist of reality. It must feel bad to just;
+T:stand there, powerless, in the face of a reality-defying entity like me...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:Simon disappears, and you cannot sense his presence anymore. However,;
+T:it seems like you haven't reached the end of the tunnels yet, so perhaps;
+T:you should continue your exploration. Perhaps you'll find a clue on;
+T:Simon's whereabouts.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

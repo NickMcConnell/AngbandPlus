@@ -1,0 +1,271 @@
+N:1:1077:1:0:0:0
+I:Geoffrey Harrington;
+T:H...help me!! GUARDS!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1104:1:0:0:0
+I:Geoffrey Harrington;
+T:Hell again, <NAME>! It's always a pleasure to see you!;
+A:I have some questions.:0:0:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1102:1:0:0:0
+I:Geoffrey Harrington;
+T:Oh, you are... Oh yes, you're <NAME>, right? You know, that's strange...;
+T:Soon after you left to investigate, I felt like I was dreaming...and;
+T:then I think I forgot about you...but now I remember. I'm a little;
+T:confused...not sure what happened to me.;
+A:[Tell him the whole story.]:0:0:0:1:17:0:0:0:0
+%
+
+N:1:1094:1:0:0:0
+I:Geoffrey Harrington;
+T:Leave, or I call the guards!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1093:2:5:0:0
+I:Geoffrey Harrington;
+T:Ah, you must be from the Stealthy Vipers. Welcome to my mansion. I am;
+T:Geoffrey Harrington, owner of the Harrington Trades Company. Surely you;
+T:must have been briefed on your mission already, but just to be sure, I;
+T:will explain the situation to you. But first, what is your name?;
+A:Huh? It's me <NAME>...did you forget about me??:0:0:0:1:12:0:0:1094:1
+%
+
+N:1:1093:2:0:0:0
+I:Geoffrey Harrington;
+T:Ah, you must be from the Stealthy Vipers. Strange, I was expecting a;
+T:Kobold. How did my maid knew for sure that you were with the;
+T:Stealthy Vipers? hmmm...I'll have to speak to her. Anyway, welcome to;
+T:my mansion. I am Geoffrey Harrington, owner of the;
+T:Harrington Trades Company. Surely you must have been briefed on your;
+T:mission already, but just to be sure, I will explain the situation to you.;
+T:But first, what is your name?;
+A:Huh? It's me <NAME>...did you forget about me??:0:0:0:1:12:0:0:1094:1
+%
+
+N:1:1093:1:0:0:0
+I:Geoffrey Harrington;
+T:Welcome back, <NAME>. So, have you learned anything about the assassins?;
+A:I have some questions.:0:0:0:1:7:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1093:0:5:0:0
+I:Geoffrey Harrington;
+T:Ah, you must be from the Stealthy Vipers. Welcome to my mansion. I am;
+T:Geoffrey Harrington, owner of the Harrington Trades Company. Surely you;
+T:must have been briefed on your mission already, but just to be sure, I;
+T:will explain the situation to you. But first, what is your name?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:1093:1
+%
+
+N:1:1093:0:0:0:0
+I:Geoffrey Harrington;
+T:Ah, you must be from the Stealthy Vipers. Strange, I was expecting a;
+T:Kobold. How did my maid knew for sure that you were with the;
+T:Stealthy Vipers? hmmm...I'll have to speak to her. Anyway, welcome to;
+T:my mansion. I am Geoffrey Harrington, owner of the;
+T:Harrington Trades Company. Surely you must have been briefed on your;
+T:mission already, but just to be sure, I will explain the situation to you.;
+T:But first, what is your name?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:1093:1
+%
+
+N:2:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Glad to meet you, <NAME>. Recently, I have been the target of mysterious;
+T:assassins. And to be honest, I have no idea why they suddently decided;
+T:to attack me! I haven't made any important deals, I didn't meet with any;
+T:suspicious persons, nothing. Everything has been going on normally. I mean,;
+T:I do live in a mansion, and I do have some treasures, but Bertram, my most;
+T:trusted treasure guard, didn't report anyone trying to steal my treasures.;
+T:It almost seems like they're not coming here for the treasures...but for me;
+T:personally!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Geoffrey Harrington;
+T:And there's no way to recognise them easily either. The first one who came;
+T:here was wearing a black cloak and attacked me with a poisoned short sword.;
+T:But the second assassin was a beautiful woman, who was passing for a simple;
+T:lady who wanted to become my new maid. Turns out she was a witch, and she;
+T:burned two of my guards with her fireballs! I would have been burned as well;
+T:if Bertram didn't cover me. He was able to kill her, thanks the Creator.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Geoffrey Harrington;
+T:The last assassin who came was a dwarf! He was pretending to be a mercenary;
+T:who wanted to help me find the assassins. So I had him come in my room, and;
+T:then, he took his axe, and charged toward me! Fortunately, my guards were;
+T:nearby, and they killed him, but that dwarf was still able to kill one;
+T:of them. This is really bad! None of these attacks have anything in common,;
+T:so it doesn't point to any specific guilds or clans. But there has been many;
+T:attempts, so they must all be working for the same person, or group.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Geoffrey Harrington;
+T:So I have hired your guild to help me find the ones who are after my life.;
+T:I chose to hire your guild, because it's young, and I don't trust the older;
+T:ones. One of them is most likely the one who's after my life!;
+A:Do you have any ideas where I should start searching?:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Geoffrey Harrington;
+T:No! That's the problem, I have no ideas! None of these assassins had;
+T:anything in common, except a desire to kill me. That doesn't point toward;
+T:any directions, doesn't give us any hints of who they might be!;
+T:That's why I hired you, so you could investigate this matter. I'm sorry,;
+T:but I can't give you any more advices. All I can say is good luck, and if;
+T:you learn anything, let me know!;
+A:I have some questions.:0:0:0:1:7:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Yes?;
+A:You mentionned a guard named 'Bertram'...:0:0:0:1:8:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:11:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Ah yes, Bertram, my most trusted guard. Very powerful warrior, I tell you!;
+T:Even if all my other guards teamed up against him, I'm not sure they;
+T:would be able to defeat him. He personally guard my most precious treasure,;
+T:a family heirloom passed from generations to generations to the eldest;
+T:sons and daughters of the Harrington family. So this ring means a lot;
+T:to me, and because it has magical powers, it could become dangerous should;
+T:it fall in the wrong hands. But with Bretram around, I don't think any;
+T:thieves will ever be able to take it.;
+A:But don't you think that Bertram could be the one after your life?:1:1104:0:1:9:0:0:0:0
+A:Where can I find that Bertram?:1:1104:0:1:10:0:0:0:0
+A:I have another question.:0:0:0:1:7:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Geoffrey Harrington;
+T:No. Why? Because with the power he has, if he wanted to take my ring,;
+T:kill me and run away, he would have done it a long time ago. And I don't;
+T:even think the regular city guards could have stopped him. He has been;
+T:around for about 10 years now, so I trust him.;
+A:Where can I find that Bertram?:1:1104:0:1:10:0:0:0:0
+A:I have another question.:0:0:0:1:7:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Geoffrey Harrington;
+T:He guards my treasure room, and I apologize, but I cannot allow you to meet;
+T:him. I don't let anyone but my most trusted guards get near my treasure,;
+T:and since I really don't think Bertram is the one behind the assassination;
+T:attempts, I am not sending you there.;
+A:But don't you think that Bertram could be the one after your life?:1:1104:0:1:9:0:0:0:0
+A:I have another question.:0:0:0:1:7:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Me? Well, as you already know, I own the Harrington Trades Company, one of;
+T:the biggest trades companies in Jindar. Other than that, my parents are dead,;
+T:I have no brother and sisters, and I don't have a wife or children. So I am;
+T:the last living member of the Harrington family. I have no idea who will;
+T:inherit my business and my fortune when I'm gone. Perhaps I'll give;
+T:everything to charity. After all, once I'm dead, I won't need it anymore.;
+A:I have another question.:0:0:0:1:7:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Geoffrey Harrington;
+T:What do you mean "did you forget about me"? I don't think we've met before.;
+T:I'm waiting for a mercenary of the Stealthy Vipers, but they didn't give;
+T:me any details about your name, or what you looks like.;
+T:.....you ARE the mercenary from the Stealthy Vipers, right?;
+A:Of course I am! We already spoke about the assassins!:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Really? Then, what did I say?;
+A:[Tell him about the cloaked assassin, the witch and the dwarf]:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Pardon me? No! Not at all! There was never a dwarf charging me with an axe!;
+T:No, the latest assassin was a <RACE> <CLASS>!;
+T:<HeShe> entered my office, offering help catching the assassins. And then;
+T:<heshe> attacked me! My guards were able to put <himher> down, thanks;
+T:the Creator, but it was a close one!;
+A:A <RACE> <CLASS>? But...that's me you're describing!!:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Yes, <heshe> looked a bit like you. But <heshe>'s dead, so it's definitly;
+T:not you. Also, for your information, the two other assassins were kobolds.;
+T:A skilled kobold adventurer and a kobold wizard. Now, I don't know what;
+T:you're doing here, but I don't trust you. I never spoke about cloaked;
+T:assassins, witches and dwarves. I suggest you leave this place now,;
+T:before I call my guards!;
+A:But...:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Geoffrey Harrington;
+T:I said leave, or I call the guards!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Geoffrey Harrington;
+T:What? So, I was cursed by an Archfiend's minion? And my memories were being;
+T:affected by the curse? So...this means there never was any assassins;
+T:at all! I must have invented all of this! Oh, by the Creator, what have;
+T:I done??;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Me, the victim of a curse from the Prince of Greed... Am I really that;
+T:much of a greedy person? Was it really the reason why the curse worked;
+T:so well on me? I mean, I do have a lot of money, but I gave more to;
+T:charity than most other nobles! But I guess just giving away some money;
+T:isn't enough...perhaps I should do more to help the peoples in need...;
+A:[CONTINUE]:0:0:0:1:19:0:0:1104:1
+%
+
+N:19:0:0:0:0:0
+I:Geoffrey Harrington;
+T:In any cases, thanks you for everything you did, <NAME>. If all members;
+T:of your guild are as effective as you are, then you can be sure I'll;
+T:hire the Stealthy Vipers again if I ever need another mercenary. Now, before;
+T:you return to your guild and receive the reward that was promised, let;
+T:me give you a little bonus. Take this scroll. By reading it, you'll be;
+T:in control of a magical energy that you can bind to any items of your;
+T:choosing. It will enchant it with magical powers!;
+A:[CONTINUE]:0:0:0:3:607:0:20:0:0
+%
+
+N:20:0:0:0:0:0
+I:Geoffrey Harrington;
+T:Thanks again for helping me, <NAME>, I will not forget that. I will try;
+T:to be a more generous person from now on, and do more to help the poor;
+T:in Jindar's slums. I will never let the Prince of Greed curse me ever again!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

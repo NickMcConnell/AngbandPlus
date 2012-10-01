@@ -1,0 +1,12 @@
+N:1:0:0:0:0:0
+I:Town Hall Worker;
+T:Yes? May I help you?;
+A:Where can I find the mayor?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Town Hall Worker;
+T:From the entrance, go straight forward and you'll reach the mayor's office.;
+A:Thanks. Good bye.:0:0:0:0:0:0:0:0:0
+%

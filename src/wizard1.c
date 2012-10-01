@@ -38,6 +38,7 @@ static cptr attr_to_text(byte a)
 		case TERM_L_GREEN: return ("L.Green");
 		case TERM_L_BLUE:  return ("L.Blue");
 		case TERM_L_UMBER: return ("L.Umber");
+		case TERM_INDIGO:  return ("Indigo");
 	}
 
 	/* Oops */
@@ -67,21 +68,16 @@ typedef struct
  */
 static grouper group_item[] =
 {
-	{ TV_SHOT,          "Ammo" },
-	{ TV_ARROW,         NULL },
-	{ TV_BOLT,          NULL },
+	{ TV_AMMO,          "Ammo" },
 
-	{ TV_BOW,           "Bows" },
+	{ TV_RANGED,           "Bows" },
 
-        { TV_BOOMERANG,     "Boomerangs" },
+        { TV_THROWING,     "Throwing Weapons" },
 
         { TV_INSTRUMENT,    "Instruments" },
 
-	{ TV_SWORD,         "Weapons" },
-	{ TV_POLEARM,       NULL },
-	{ TV_HAFTED,        NULL },
+	{ TV_WEAPON,         "Weapons" },
 	{ TV_DIGGING,       NULL },
-        { TV_MSTAFF,        NULL },
 
 	{ TV_SOFT_ARMOR,    "Armour (Body)" },
 	{ TV_HARD_ARMOR,    NULL },
@@ -99,27 +95,10 @@ static grouper group_item[] =
 
 	{ TV_SCROLL,        "Scrolls" },
 	{ TV_POTION,        "Potions" },
-        { TV_POTION2,       NULL },
-	{ TV_FOOD,          "Food" },
 
 	{ TV_ROD,           "Rods" },
 	{ TV_WAND,          "Wands" },
 	{ TV_STAFF,         "Staffs" },
-
-        { TV_VALARIN_BOOK,  "Books (Valarin)" },
-        { TV_MAGERY_BOOK,   "Books (Magery)" },
-        { TV_SHADOW_BOOK,   "Books (Shadow)" },
-	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
-        { TV_NETHER_BOOK,   "Books (Nether)"},
-        { TV_CRUSADE_BOOK,  "Books (Crusade)" },
-        { TV_SIGALDRY_BOOK, "Books (Sigaldry)" },
-        { TV_SYMBIOTIC_BOOK,"Books (Symbiotic)" },
-        { TV_TRIBAL_BOOK,   "Books (Tribal)"},
-        { TV_DRUID_BOOK,    "Books (Druid)"},
-        { TV_MUSIC_BOOK,    "Books (Music)" },
-        { TV_MIMIC_BOOK,    "Books (Mimic)" },
-        { TV_MAGIC_BOOK,    "Books (Magic)" },
-        { TV_PRAYER_BOOK,   "Books (Prayer)" },
 
 	{ TV_CHEST,         "Chests" },
 
@@ -185,24 +164,20 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	switch (q_ptr->tval)
 	{
 		/* Bows */
-		case TV_BOW:
+		case TV_RANGED:
 		{
 			break;
 		}
 
 		/* Ammo */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
+		case TV_AMMO:
 		{
 			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
 			break;
 		}
 
 		/* Weapons */
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
+		case TV_WEAPON:
 		case TV_DIGGING:
 		{
 			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
@@ -393,19 +368,15 @@ static void spoil_obj_desc(cptr fname)
  */
 static grouper group_artifact[] =
 {
-	{ TV_SWORD,             "Edged Weapons" },
-	{ TV_POLEARM,           "Polearms" },
-	{ TV_HAFTED,            "Hafted Weapons" },
+	{ TV_WEAPON,            "Weapons" },
 
         { TV_MSTAFF,            "Mage Staffs" },
 
-	{ TV_BOW,               "Bows" },
+	{ TV_RANGED,               "Bows" },
 
-        { TV_SHOT,              "Ammo" },
-        { TV_ARROW,             NULL },
-        { TV_BOLT,              NULL },
+        { TV_AMMO,              "Ammo" },
 
-        { TV_BOOMERANG,         "Boomerangs" },
+        { TV_THROWING,         "Boomerangs" },
 
         { TV_INSTRUMENT,        "Instruments" },
 
@@ -927,10 +898,6 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 
 	if (cursed_p(o_ptr))
 	{
-		if (f3 & (TR3_TY_CURSE))
-		{
-			*misc_list++ = "Ancient Curse";
-		}
 		if (f3 & (TR3_PERMA_CURSE))
 		{
 			*misc_list++ = "Permanently Cursed";
@@ -988,8 +955,6 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 	analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
 
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
-
-        desc_ptr->activation = item_activation(o_ptr,0);
 }
 
 
@@ -1698,7 +1663,6 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-                else if (flags3 & (RF3_DRAGONRIDER)) spoil_out (" DragonRider");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1884,7 +1848,6 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "raise dead";
-                if (flags6 & (RF6_S_DRAGONRIDER))     vp[vn++] = "summon a dragonrider";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
@@ -2305,12 +2268,8 @@ static char* get_tval_name(int tval)
 {
         switch(tval)
         {
-                case TV_SWORD:
-                        return "Sword";
-                case TV_POLEARM:
-                        return "Polearm";
-                case TV_HAFTED:
-                        return "Hafted";
+                case TV_WEAPON:
+                        return "Weapon";
                 case TV_CROWN:
                         return "Crown";
                 case TV_HELM:

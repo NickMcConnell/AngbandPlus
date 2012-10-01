@@ -1,0 +1,24 @@
+Hexblaze Strike(Active, combat feat)
+
+Effect: A strong fire-based melee attack. Has a chance to never miss
+        and bypass counters based on your Misfortune level.
+Damages: Base weapon damages.
+Never miss power: 33% of Misfortune.
+Element: Fire
+Extra points: +20% to damages.
+              +33% of Misfortune to never miss power.
+
+This ability allows you to perform a strong fire-based melee attack.
+If you have Misfortune, you will get a roll between this ability's
+power versus the monster's level and the average of all their stats.
+If you win the roll, the attack will not miss, and will also bypass
+any counters.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

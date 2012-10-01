@@ -13,19 +13,22 @@ widespread as humans, elves have significant power and influence
 in Portralis,  especially in the magical lore. Elves are also known 
 to be the finest archers in the world.
 
-Elves are physically weaker than humans, and are also frailer. However,
-they are dextrous and agile. Also, elves are wise peoples, and have a great
-bond with nature and magic. Elvish spellcasters are greatly respected by
-their allies, and feared by their enemies. Due to their natural dexterity,
-elves also makes the finest archers in Portralis.
+Elves are physically weaker than humans. However, they are dextrous
+and agile. Also, elves are wise peoples, and have a great bond with
+nature and magic. Elvish spellcasters are greatly respected by
+their allies, and feared by their enemies. Nimbraya being a highly
+religious kingdom, Mysticism magic tend to be one of the most practiced
+and widely used school of magic amongst it's population. Due to their
+natural dexterity, elves also makes the finest archers in Portralis.
+Being more agile and nimble also makes them better at becoming
+ambidextrous, and fighting with two weapons.
 
 ELVES FEATURES:
 
 - +25% to Dexterity.
 - +25% to Wisdom.
-- +25% to Bow, Agility and Spellcraft skills.
+- +25% to Bow, Agility, Dual Wield, Spellcraft and Mysticism skills.
 
 ELVES PENALITIES:
 
 - -25% to Strength.
-- -25% to Constitution.

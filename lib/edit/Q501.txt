@@ -1,0 +1,124 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster.
+
+N:Cockatrices Sanctuary;
+
+I:51:28:0:36:0:0:0
+S:3:13
+
+// Quest exit.
+E:3:17:5:124:19:0:0:0:0:0
+
+// Human Skeleton.
+E:6:12:6:8:0:0:0:0:0:0
+
+// Ring of Flying.
+E:5:12:6:439:0:0:1503:0:1503:1
+
+// Journal.
+E:6:13:6:1236:0:0:1504:0:1504:1
+
+// Crystalline Cockatrices!
+E:11:8:7:1340:0:30:1505:0:0:0
+E:14:11:7:1340:0:30:1505:0:0:0
+E:12:15:7:1340:0:30:1505:0:0:0
+E:3:21:7:1340:0:30:1505:0:0:0
+
+E:25:4:7:1340:0:40:1505:0:0:0
+E:32:10:7:1340:0:40:1505:0:0:0
+E:32:16:7:1340:0:40:1505:0:0:0
+E:24:21:7:1340:0:40:1505:0:0:0
+E:17:2:7:1340:0:40:1505:0:0:0
+E:14:25:7:1340:0:40:1505:0:0:0
+E:45:7:7:1340:0:40:1505:0:0:0
+E:45:14:7:1340:0:40:1505:0:0:0
+
+E:43:23:7:1340:0:40:1505:0:0:0
+E:44:23:7:1340:0:40:1505:0:0:0
+E:45:23:7:1340:0:40:1505:0:0:0
+E:46:23:7:1340:0:40:1505:0:0:0
+E:47:23:7:1340:0:40:1505:0:0:0
+
+// Iron Golem
+E:38:3:7:212:0:50:1505:0:0:0
+
+// Locked door.
+E:39:3:3:1:999:0:1506:0:0:0
+
+// Switch.
+E:45:24:9:39:3:4:0:0:1506:1
+
+// Next floor.
+E:43:3:4:502:44:3:0:0:1505:1
+
+D:###################################################
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMM;MMMMMMMMMMMMMMMM;;;;M######MMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM;;;;;;+...>#MMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMM;MMMMMMM;;;MMM######MMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM;MMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM;MMMM#
+D:#MMMMMMMMMM;MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM;MMMMMMMMMMMMMMMMM#
+D:#MMM;;;MMMMMMM;MMMMM;;;;MMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MM;;;;;MMMMMMMMMMM;;;;;;MMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#M<;;;;;MMMMMMMMMMMM;;;;;;MMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MM;;;;MMMMMMMMMMMMMM;;;;;;MMMMMMMMMMMMMMMMMM;MMMM#
+D:#MM;;MMMMMMM;MMMMMMMMM;;;;MMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MM;MMMMMMMMMMMMMMMMMMMMMMMMMMMM;MMMMMMMMMMMMMMMMM#
+D:#MM<MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM;;;MMM#
+D:#MM;MMMMMMMMMMMMMMMMMMMM;MMMMMMMMMMMMMMMMM###+###M#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#.....#M#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#.....#M#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#.#.#.#M#
+D:#MMMMMMMMMMMMM;MMMMMMMMMMMMMMMMMMMMMMMMMMM#######M#
+D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
+D:###################################################

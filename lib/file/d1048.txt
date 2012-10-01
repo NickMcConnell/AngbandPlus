@@ -1,0 +1,329 @@
+N:1:1040:1:0:0:0
+I:Dingus;
+T:No...have mercy...please...;
+A:[END DIALOG]:0:0:0:5:-1:0:0:0:0
+%
+
+N:1:1072:1:0:0:0
+I:Dingus;
+T:Hey there, <NAME>! It's great to be with the Stealthy Vipers!;
+T:I finally have descent protection for my store, heh heh! Anyway,;
+T:what can I do for you today?;
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1062:1:0:0:0
+I:Dingus;
+T:Welcome back, <NAME>! What can I do for you today?;
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1061:1:0:0:0
+I:Dingus;
+T:Welcome back, <NAME>! It's good to see you again!;
+A:I'm interested in buying your shop. [Tell him the story]:1:1039:1:1:22:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1060:2:0:0:0
+I:Dingus;
+T:Welcome back, <NAME>! So, did you find some mithril for me?;
+A:Yes, here is an ingot of Mithril. [Give him the mithril]:2:11:16:6:81:19:0:1061:1
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:About your offer...I've changed my mind.:1:1060:1:1:15:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1059:1:0:0:0
+I:Dingus;
+T:Welcome back, <NAME>!;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:About your offer...I've changed my mind.:1:1060:1:1:15:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Dingus;
+T:Welcome to Dingus Fireworks, the one and only Firearms-specialized store;
+T:in all Jindar! It's good to see a new customer, there haven't been many;
+T:lately. To tell you the truth, firearms aren't a big seller here...;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Dingus;
+T:I used to live in Karingen. Thinking firearms would sell well in Jindar,;
+T:I've decided to come live here. I was expecting lots of peoples would;
+T:come to buy some firearms, seeing as they are the most advanced and powerful;
+T:weaponry in all Portralis! But the truth is, peoples outside of Karingen;
+T:are scared of firearms! Here in Jindar, you need to pay extremely expensive;
+T:licenses to have the right to sell firearms, and then only the most basic;
+T:types. And they do mean 'basic'. Have you seen the crap they sell in the;
+T:local weapon shops? And the ridiculous price they charge for it?;
+T:This is outrageous!;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:What will you do?:0:0:0:1:3:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Dingus;
+T:Well, I haven't given up just yet. I've already paid a huge amount of;
+T:money for the rights to sell firearms, so I'm not ready to quit.;
+T:I'm sure there's still money to be made here, even if it's just a;
+T:little. I won't surrender to bows and arrows, that's for sure!;
+A:I'm interested in buying a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Dingus;
+T:Well, that's good to hear! I don't have a large selection yet, and I;
+T:certainly won't sell the crap they sell in weapon shops. Even rare;
+T:items shops sells simple, basic revolvers at an outrageous price!;
+T:Me, on the other hand, offer good guns, for a good price. I can sell;
+T:you a Karingen 6-Shots Copper Revolver for only 1000 golds. Right now,;
+T:that's the best model I got. I can also sell you 20 copper-plater bullets;
+T:for 200 golds. Both my items are much better than whatever you'll find;
+T:in local stores. Why? Because unlike them, I know about guns, and I'm;
+T:not afraid of them! So, interested in buying something?;
+A:I'll take the Copper Revolver. [Pay 1000 golds.]:0:0:0:8:1000:5:7:0:0
+A:I'll take the Copper Bullets. [Pay 200 golds.]:0:0:0:8:200:6:7:0:0
+A:Nevermind.:0:0:0:1:8:0:0:0:0
+%
+
+N:5:1059:1:0:0:0
+I:Dingus;
+T:Here you go, <NAME>! Make good use of it!;
+A:Thanks.:0:0:0:3:1223:0:8:0:0
+%
+
+N:5:1059:0:0:0:0
+I:Dingus;
+T:Here you go, friend! Hmmm...you seem to be quite an interesting customer.;
+T:Let me guess, you're an adventurer right? What's your name?;
+A:My name's <NAME>.:0:0:0:3:1223:0:10:1059:1
+A:None of your business.:0:0:0:3:1223:0:9:0:0
+%
+
+N:6:1059:1:0:0:0
+I:Dingus;
+T:Here you go, <NAME>! Make good use of them!;
+A:Thanks.:0:0:0:3:1224:0:8:0:0
+%
+
+N:6:1059:0:0:0:0
+I:Dingus;
+T:Here you go, friend! Hmmm...you seem to be quite an interesting customer.;
+T:Let me guess, you're an adventurer right? What's your name?;
+A:My name's <NAME>.:0:0:0:3:1224:0:10:1059:1
+A:None of your business.:0:0:0:3:1224:0:9:0:0
+%
+
+N:7:0:0:0:0:0
+I:Dingus;
+T:Sorry, but you seem to be short on money. Come back when you have the;
+T:money, and you'll get what you want.;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Dingus;
+T:Anything else?;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Dingus;
+T:Oh all right. I was just curious. Nevermind then. Can I do anything;
+T:else for you?;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Dingus;
+T:Well, <NAME>, I'm glad you're interested in firearms. It's annoying that;
+T:so many peoples are afraid of them! I mean, I'm more scared of a sword;
+T:than I am of a gun. Have you seen what some skilled swordsman are able;
+T:to do with a simple blade?? Yet peoples admire these guys, and fear us;
+T:instead. Even with the strongest gun, I wouldn't want to face Rolf, the;
+T:royal palace guard! Damn, now THAT'S a powerful swordsman!;
+A:[CONTINUE]:0:0:0:1:13:0:0:1060:1
+%
+
+N:11:0:0:0:0:0
+I:Dingus;
+T:I see. So you need a new guild hall. However, even though things are;
+T:not going very well here, I haven't given up yet. I haven't paid all;
+T:these expensive licenses for nothing. I'm not interested in selling;
+T:this place at the moment. Sorry.;
+A:We can offer you 30000 golds. Perhaps even higher...:0:0:0:1:12:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Dingus;
+T:I'm sorry. As I've said, I have no intentions of selling this place.;
+T:It's not just for money. I want peoples to respect firearms, and help;
+T:them learn how they work, so they can stop being scared of them! I'm not;
+T:leaving this place, and that's final.;
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Dingus;
+T:But anyway, there's something I want to ask you. Would you be interested;
+T:in doing some adventuring for me? Of course, you'll get good money for it,;
+T:as well as a free gun of the finest quality. Interested?;
+A:Maybe. What do I have to do?:0:0:0:1:15:0:0:1060:2
+A:No, not right now.:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Dingus;
+T:Oh, I see. Well, if you change your mind, let me know!;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:Your business doesn't work very well?:1:1061:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Dingus;
+T:I'm always looking for new materials to create new models of firearms.;
+T:For my current project, I plan on creating a unique model of;
+T:Mithril Rifle! As you may already know, mithril is one of the lightest;
+T:metal in Portralis, yet it is much harder than steel. A rifle made;
+T:of mithril would be very light, yet capable of firing very powerful;
+T:rounds with maximum velocity and accuracy!;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Dingus;
+T:However, mithril is rare, and is only found in deep underground caverns.;
+T:Miners will never go into these caverns, unless escorted by several;
+T:soldiers and mercenaries, who are extremely costly to hire. And most;
+T:of the time, they never return. But you, <NAME>, you seem to be quite;
+T:a ressourceful <CLASS>. That's why I need your help finding an ingot;
+T:of mithril!;
+A:And where should I look for it?:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Dingus;
+T:Well, it's possible you might come across one during your adventures,;
+T:but...there may be specific places where you can look. One place that;
+T:comes to my mind would be the abandonned mine southwest of Fidac.;
+T:In case you don't know, Fidac is a small town south of Jindar.;
+T:This mine was used a long time ago to mine precious ores, but now,;
+T:it has become a place infested with monsters and bandits. Not a place;
+T:I would want to go, but you seem to be capable of handling that.;
+T:Who knows, perhaps you'll find a nice collection of ancient ores?;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Dingus;
+T:In any cases, let me know once you find the mithril ore, and you will;
+T:receive your reward. Good luck, <NAME>!;
+A:I've come to buy your shop. [Tell him the story]:1:1039:1:1:11:0:0:0:0
+A:About your offer...I've changed my mind.:1:1060:1:1:15:0:0:0:0
+A:Your business doesn't work very well?:0:0:0:1:2:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Dingus;
+T:Excellent! Yes, that's it! An ingot of Mithril, one of the lightest and;
+T:finest metal in all Portralis! Thanks you, <NAME>! Thanks you very much!;
+T:Now I can finally start crafting my mithril rifle! As promised, here's;
+T:some gold for your trouble. (he hands you a purse containing 10000 golds); 
+A:[CONTINUE]:0:0:0:3:488:10000:20:0:0
+%
+
+N:20:0:0:0:0:0
+I:Dingus;
+T:And I believe I also promised to give you one of my finest guns, right?;
+T:Well, here's a pistol of the finest quality for you. Not only is it;
+T:more powerful than my regular pistols, I've also used a magic scroll;
+T:to enchant it with magical powers. So I believe it will be quite useful;
+T:to you!;
+A:[CONTINUE]:0:0:0:3:1228:2:21:0:0
+%
+
+N:21:0:0:0:0:0
+I:Dingus;
+T:Well, it was nice doing business with you. If you ever need another gun,;
+T:or some ammos, come back anytimes!;
+A:I'm interested in buying your shop. [Tell him the story]:1:1039:1:1:22:0:0:0:0
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Dingus;
+T:I see. So you need a new guild hall. Hmmm... Well, you've already proven;
+T:yourself quite ressourceful, being able to find me some mithril of fine;
+T:quality. If all your guild's members are that good, I believe supporting;
+T:you would be benefical to all peoples of Jindar. But I can't just sell;
+T:you my shop, I do need to make more money before even considering this;
+T:However, I do have a proposal for you.;
+A:[CONTINUE]:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Dingus;
+T:How about sharing this building? This way, I can keep my job as a firearms;
+T:dealer, and you can get a better spot in the city. And of course, this;
+T:means I'll be producing weapons for your guild as well. Your guild's;
+T:presence here will attract more customers for me, and in return, I'll be;
+T:outfitting your members with better equipment! This way, we both win!;
+T:I know Kobolds are more skilled with crossbows than guns, but I'm sure;
+T:a lot of them will be interested to upgrade to firearms. And of course,;
+T:I can always craft crossbows too! So, what do you think?;
+A:Yes, I agree, and I'm sure Krind will too. Yes, I accept!:0:0:0:1:24:0:0:1062:1
+A:I'll have to think about it.:0:0:0:1:25:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Dingus;
+T:Very good, <NAME>! We are now partners! I guess you'll now go report;
+T:to this Krind guy, and let him know about our deal. I'll be ready to meet;
+T:with him as soon as he's ready. Until then, if you need anything, just let;
+T:me know!;
+A:[END DIALOG]:0:0:0:0:0:0:0:1039:0
+%
+
+N:25:0:0:0:0:0
+I:Dingus;
+T:Very well. Come back once you've made your decision. But I believe it would;
+T:be very benefical to both of us.;
+A:I'd like to buy a gun.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

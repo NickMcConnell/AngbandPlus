@@ -1,0 +1,17 @@
+N:1:29037:2:0:0:0
+I:Townsfolk;
+T:I've heard there's a very dangerous sphere-type enemy that absorbs damages;
+T:based on the attacker's resistances to elemental forces. Apparently, even;
+T:if you're immune to only one force, it will absorb any forms of attacks.;
+T:Having several resistances will also allow it to absorb attacks if you have;
+T:too many of them. And don't waste your time with magical attacks, it will;
+T:not work. I hope I never encounter this monster...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:29037:1:0:0:0
+I:Townsfolk;
+T:Don't you think this town has a...hmm, how can I say.... 'Vanilla' feel;
+T:to it?;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

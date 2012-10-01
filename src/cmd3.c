@@ -216,7 +216,7 @@ void do_cmd_wield(void)
 	slot = wield_slot(o_ptr);
 
 	/* Prevent wielding into a cursed slot */
-        if (cursed_p(&inventory[slot]) && p_ptr->pclass != CLASS_DARK_LORD)
+        if (cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[slot], FALSE, 0);
@@ -244,7 +244,7 @@ void do_cmd_wield(void)
         }
 
     if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE)) && (p_ptr->pclass != CLASS_DARK_LORD)))
+        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
     {
         char dummy[512];
 
@@ -261,20 +261,6 @@ void do_cmd_wield(void)
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	/* Two handed weapons can't be wielded with a shield */
-        if (is_weapon(o_ptr) && (inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H) && (b_ptr->tval != TV_ARM_BAND))
-	{
-           object_desc(o_name, o_ptr, FALSE, 0);
-           msg_format("You cannot wield your %s with a shield or another weapon.", o_name);
-	   return;
-	}
-	/* If we already have one weapon and a shield, we must not allow it. */
-        if (is_weapon(o_ptr) && (inventory[INVEN_ARM].k_idx != 0) && one_weapon_wield() && (b_ptr->tval != TV_ARM_BAND))
-	{
-        	object_desc(o_name, o_ptr, FALSE, 0);
-        	msg_format("You cannot wield a second weapon with a shield.", o_name);
-		return;
-	}
 	/* If we have one weapon, make sure it's not two-handed. */
         if (is_weapon(o_ptr) && one_weapon_wield())
 	{
@@ -283,13 +269,21 @@ void do_cmd_wield(void)
 		{
 			object_type *o2_ptr = &inventory[INVEN_WIELD];
 			object_flags(o2_ptr, &ff1, &ff2, &ff3, &ff4);
-			if (ff4 & TR4_MUST2H) (void)inven_takeoff(INVEN_WIELD, 255, FALSE);
+			if (ff4 & TR4_MUST2H)
+			{
+				(void)inven_takeoff(INVEN_WIELD, 255, FALSE);
+				slot = INVEN_WIELD;
+			}
 		}
 		if (inventory[INVEN_WIELD+1].k_idx)
 		{
 			object_type *o2_ptr = &inventory[INVEN_WIELD+1];
 			object_flags(o2_ptr, &ff1, &ff2, &ff3, &ff4);
-			if (ff4 & TR4_MUST2H) (void)inven_takeoff(INVEN_WIELD+1, 255, FALSE);
+			if (ff4 & TR4_MUST2H)
+			{
+				(void)inven_takeoff(INVEN_WIELD+1, 255, FALSE);
+				slot = INVEN_WIELD;
+			}
 		}
 	}
 	/* We already have one weapon, trying to wield a 2-handed one. */
@@ -320,32 +314,8 @@ void do_cmd_wield(void)
 		return;
 	}
 
-        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
-	{
-	   if (!get_check("Are you sure you want to restrict your fighting? "))
-            return;
-	}
-
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
-	{
-           if (!get_check("Are you sure you want to use this weapon with a shield?"))
-            return;
-	}
-
-	/* Check if completed a quest */
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == 3) && (quest[i].status == 1) &&
-			(quest[i].k_idx == o_ptr->name1))
-		{
-			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
-			msg_print(NULL);
-		}
-	}
 
 	/* Take a turn */
         /* Or not? Depends on agility! ;) */
@@ -454,8 +424,7 @@ void do_cmd_wield(void)
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-                if (p_ptr->pclass == CLASS_DARK_LORD) msg_print("The curse does not affect you!");
-                else msg_print("Oops! It feels deathly cold!");
+                msg_print("Oops! It feels deathly cold!");
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -511,7 +480,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Item is cursed */
-        if (cursed_p(o_ptr) && p_ptr->pclass != CLASS_DARK_LORD)
+        if (cursed_p(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -568,7 +537,7 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-        if ((item >= INVEN_WIELD) && cursed_p(o_ptr) && p_ptr->pclass != CLASS_DARK_LORD)
+        if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -607,25 +576,6 @@ void do_cmd_drop(void)
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
 }
-
-
-static bool high_level_book(object_type * o_ptr)
-{
-    if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK) ||
-        (o_ptr->tval == TV_SHADOW_BOOK) || (o_ptr->tval == TV_NETHER_BOOK))
-        {
-            if (o_ptr->sval>3) return TRUE;
-            else return FALSE;
-        }
-    if ((o_ptr->tval == TV_CHAOS_BOOK) || (o_ptr->tval == TV_CRUSADE_BOOK) ||
-        (o_ptr->tval == TV_SYMBIOTIC_BOOK) || (o_ptr->tval == TV_MUSIC_BOOK))
-        {
-            if (o_ptr->sval>3) return TRUE;
-            else return FALSE;
-        }
-        return FALSE;
-}
-
 
 /*
  * Destroy an item
@@ -790,7 +740,10 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-        if (o_ptr->tval == TV_SOUL) describe_soul(o_ptr);
+        if (o_ptr->tval == TV_SOUL)
+	{
+		evolution_compare(o_ptr->pval, FALSE, TRUE);
+	}
         else
         {
                 /* Require full knowledge */
@@ -1287,7 +1240,74 @@ void do_cmd_locate(void)
 	handle_stuff();
 }
 
+/* Locate commande, player center version. */
+void do_cmd_locate_center(int y, int x)
+{
+	int		dir;
 
+	char	tmp_val[80];
+
+	char	out_val[160];
+
+	sprintf(out_val, "Navigate using arrow keys or numeric keypad.");
+
+	/* Show panels until done */
+	while (1)
+	{
+		/* Assume no direction */
+		dir = 0;
+
+		/* Get a direction */
+		while (!dir)
+		{
+			char command;
+
+			/* Get a command (or Cancel) */
+			if (!get_com(out_val, &command)) break;
+
+			/* Extract the action (if any) */
+			dir = get_keymap_dir(command);
+
+			/* Error */
+			if (!dir) bell();
+		}
+
+		/* No direction */
+		if (!dir) break;
+
+		/* Apply the motion */
+		y += ddy[dir];
+		x += ddx[dir];
+
+		/* Recalculate the boundaries */
+		panel_bounds_center(y, x);
+
+		/* Update stuff */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+
+
+	/* Recenter the map around the player */
+	verify_panel();
+
+	/* Update stuff */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Handle stuff */
+	handle_stuff();
+}
 
 
 
@@ -1310,7 +1330,7 @@ static cptr ident_info[] =
 	"):A shield",
 	"*:A vein with treasure",
 	"+:A closed door",
-	",:Food (or mushroom patch)",
+	",:Mushrooms",
 	"-:A wand (or rod)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
@@ -2017,7 +2037,7 @@ void do_cmd_auto_wield(object_type *o_ptr)
 	slot = wield_slot(o_ptr);
 
 	/* Prevent wielding into a cursed slot */
-        if (cursed_p(&inventory[slot]) && p_ptr->pclass != CLASS_DARK_LORD)
+        if (cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[slot], FALSE, 0);
@@ -2045,7 +2065,7 @@ void do_cmd_auto_wield(object_type *o_ptr)
 
 
     if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE)) && (p_ptr->pclass != CLASS_DARK_LORD)))
+        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
     {
         char dummy[512];
 
@@ -2083,32 +2103,8 @@ void do_cmd_auto_wield(object_type *o_ptr)
 	   return;
 	}
 
-        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
-	{
-	   if (!get_check("Are you sure you want to restrict your fighting? "))
-            return;
-	}
-
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
-	{
-           if (!get_check("Are you sure you want to use this weapon with a shield?"))
-            return;
-	}
-
-	/* Check if completed a quest */
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == 3) && (quest[i].status == 1) &&
-			(quest[i].k_idx == o_ptr->name1))
-		{
-			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
-			msg_print(NULL);
-		}
-	}
 
 	/* Take a turn */
 	energy_use = 100;
@@ -2211,8 +2207,7 @@ void do_cmd_auto_wield(object_type *o_ptr)
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-                if (p_ptr->pclass == CLASS_DARK_LORD) msg_print("The curse does not affect you!");
-                else msg_print("Oops! It feels deathly cold!");
+                msg_print("Oops! It feels deathly cold!");
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);

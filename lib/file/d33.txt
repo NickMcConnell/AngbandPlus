@@ -1,0 +1,16 @@
+N:1:90:1:0:0:0
+I: ;
+T:The underground machine is working, and the control panel is turned on.;
+T:There is a switch on it. You could try pressing it, and see what happens.;
+A:[Press the switch]:0:0:0:11:3:0:0:0:0
+A:[Leave]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:90:0:0:0:0
+I: ;
+T:There is a strange device, it looks like some sort of control panel for;
+T:some sort of machinery. There is also a switch. However, the machine;
+T:seems to be inactive. You should return once you find a way to turn;
+T:it back on.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

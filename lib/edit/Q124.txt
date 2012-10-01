@@ -1,0 +1,114 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+
+N: ;
+
+I:31:21:0:20:0:0:0
+S:2:17
+
+// Quest exit.
+E:2:18:5:50:26:0:0:0:0:0
+
+// Some Undead Vipers (only if the related quest is started)
+E:2:12:7:1617:0:25:1066:1:0:0
+E:2:8:7:1617:0:25:1066:1:0:0
+E:2:4:7:1617:0:25:1066:1:0:0
+E:6:4:7:1617:0:25:1066:1:0:0
+E:10:12:7:1617:0:25:1066:1:0:0
+
+E:8:18:7:1617:0:25:1066:1:0:0
+E:13:18:7:1617:0:25:1066:1:0:0
+E:13:15:7:1617:0:25:1066:1:0:0
+E:17:15:7:1617:0:25:1066:1:0:0
+E:17:18:7:1617:0:25:1066:1:0:0
+E:22:18:7:1617:0:25:1066:1:0:0
+E:26:18:7:1617:0:25:1066:1:0:0
+E:26:15:7:1617:0:25:1066:1:0:0
+E:26:12:7:1617:0:25:1066:1:0:0
+
+E:10:10:7:1617:0:30:1066:1:0:0
+E:11:10:7:1617:0:30:1066:1:0:0
+E:12:10:7:1617:0:30:1066:1:0:0
+E:10:11:7:1617:0:30:1066:1:0:0
+E:11:11:7:1617:0:30:1066:1:0:0
+E:12:11:7:1617:0:30:1066:1:0:0
+E:10:12:7:1617:0:30:1066:1:0:0
+E:11:12:7:1617:0:30:1066:1:0:0
+E:12:12:7:1617:0:30:1066:1:0:0
+
+E:25:9:7:1617:0:30:1066:1:0:0
+E:26:9:7:1617:0:30:1066:1:0:0
+E:27:9:7:1617:0:30:1066:1:0:0
+E:25:10:7:1617:0:30:1066:1:0:0
+E:26:10:7:1617:0:30:1066:1:0:0
+E:27:10:7:1617:0:30:1066:1:0:0
+
+E:22:3:7:1617:0:40:1066:1:0:0
+E:22:4:7:1617:0:40:1066:1:0:0
+E:22:5:7:1617:0:40:1066:1:0:0
+
+// Kobold ghost.
+E:23:4:7:1618:0:30:1066:1:0:0
+
+// Switch.
+E:26:8:9:13:4:1:0:0:0:0
+
+D:###############################
+D:###############################
+D:##############..........#######
+D:##############..........#######
+D:##...........#..........#######
+D:##.###########..........#######
+D:##.###########..........#######
+D:##.############################
+D:##.#######################.####
+D:##.######################...###
+D:##.#######...############...###
+D:##.#######...X........####X####
+D:##.#######...########.####.####
+D:##.##################.####.####
+D:##.##################.####.####
+D:##.##########.........####.####
+D:##+##########.###.########.####
+D:#...#########.###.########.####
+D:#.<.+.........###..........####
+D:#...###########################
+D:###############################

@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:The machine starts...and stops. It seems that it lacks the power to;
+T:operate properly. Perhaps if you used stronger licialhyds, it would;
+T:work better.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

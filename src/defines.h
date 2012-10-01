@@ -42,8 +42,8 @@
 /* Added for NewAngband(code from old Pern) */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 0
-#define FAKE_VER_MINOR 2
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_MINOR 3
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 
@@ -166,7 +166,7 @@
 #define STORE_MAGIC     5
 #define STORE_BLACK     6
 #define STORE_HOME      7
-#define STORE_BOOK      8
+#define STORE_DUNGEON   8
 #define STORE_LICIAL    9
 #define STORE_RARE      10
 #define STORE_RODS      11
@@ -194,10 +194,13 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            34
+#define MAX_CLASS            50
 
 /* Maximum number of abilities. Should theorically be MAX_CLASS * 10 */
-#define MAX_ABILITIES        340
+#define MAX_ABILITIES        500
+
+/* Maximum vaults. */
+#define MAX_VAULTS	200
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -219,7 +222,6 @@
 #define REW_CHAOS_WP    5
 #define REW_GOOD_OBS    6
 #define REW_GREA_OBS    7
-#define REW_TY_CURSE    8
 #define REW_SUMMON_M    9
 #define REW_H_SUMMON    10
 #define REW_DO_HAVOC    11
@@ -282,7 +284,7 @@
  * involving object and monster creation.  It must be at least 100.
  * Setting it below 128 may prevent the creation of some objects.
  */
-#define MAX_DEPTH       128
+#define MAX_DEPTH       1024
 
 
 /*
@@ -376,6 +378,8 @@
 #define STORE_SHUFFLE   21              /* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS             1000    /* Number of turns between turnovers */
 
+/* Home max constant. */
+#define HOME_INVEN_MAX 600
 
 /*
  * Misc constants
@@ -466,30 +470,7 @@
  */
 #define PY_MAX_EXP      999999999L       /* Maximum exp */
 #define PY_MAX_GOLD     999999999L      /* Maximum gold */
-#define PY_MAX_LEVEL    100              /* Maximum level */
-
-/*
- * Player "food" crucial values
- */
-#define PY_FOOD_MAX             15000   /* Food value (Bloated) */
-#define PY_FOOD_FULL    10000   /* Food value (Normal) */
-#define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
-#define PY_FOOD_WEAK    1000    /* Food value (Weak) */
-#define PY_FOOD_FAINT   500             /* Food value (Fainting) */
-#define PY_FOOD_STARVE  100             /* Food value (Starving) */
-
-/* Food values used by the food meter */
-#define PY_FOOD_100     10000
-#define PY_FOOD_90       9000
-#define PY_FOOD_80       8000
-#define PY_FOOD_70       7000
-#define PY_FOOD_60       6000
-#define PY_FOOD_50       5000
-#define PY_FOOD_40       4000
-#define PY_FOOD_30       3000
-#define PY_FOOD_20       2000
-#define PY_FOOD_10       1000
-#define PY_FOOD_0           0
+#define PY_MAX_LEVEL    200              /* Maximum level */
 
 /*
  * Player regeneration constants
@@ -499,43 +480,6 @@
 #define PY_REGEN_FAINT          33              /* Regen factor*2^16 when fainting */
 #define PY_REGEN_HPBASE         1442    /* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE         524             /* Min amount mana regen*2^16 */
-
-/* Possible realms that can be chosen; currently used only by birth.c
-and tables.c --TY */
-#define CH_NONE         0x00000000
-#define CH_VALARIN      0x00000001
-#define CH_MAGERY       0x00000002
-#define CH_SHADOW       0x00000004
-#define CH_CHAOS        0x00000008
-#define CH_NETHER       0x00000010
-#define CH_CRUSADE      0x00000020
-#define CH_SIGALDRY     0x00000040
-#define CH_SYMBIOTIC    0x00000080
-#define CH_MUSIC        0x00000100
-#define CH_MAGIC        0x00000200
-#define CH_PRAYER       0x00000400
-#define CH_ILLUSION     0x00000800
-#define CH_TRIBAL       0x00001000
-#define CH_DRUID        0x00002000
-#define CH_BATTLE       0x00004000
-
-#define REALM_NONE         0
-#define REALM_VALARIN      1
-#define REALM_MAGERY       2
-#define REALM_SHADOW       3
-#define REALM_CHAOS        4
-#define REALM_NETHER       5
-#define REALM_CRUSADE      6
-#define REALM_SIGALDRY     7
-#define REALM_SYMBIOTIC    8
-#define REALM_MUSIC        9
-#define REALM_MAGIC        10
-#define REALM_PRAYER       11
-#define REALM_ILLUSION     12
-#define REALM_TRIBAL       13
-#define REALM_DRUID        14
-#define REALM_BATTLE       15
-#define MAX_REALM          16
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -574,11 +518,12 @@ and tables.c --TY */
 #define INVEN_FEET      47 /* 2 feets --LEGS */
 #define INVEN_AMMO      50 /* 1 quiver -- TORSO */
 #define INVEN_TOOL      51 /* 1 tool -- ARMS */
+#define INVEN_ESSENCE   52 /* Essence slots for Monster race. */
 
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL     54
+#define INVEN_TOTAL     65
 
 /*
  * A "stack" of items is limited to less than 100 items (hard-coded).
@@ -599,6 +544,9 @@ and tables.c --TY */
 
 /* Skills constants! */
 #define SKILL_MAX 50
+
+/* Resistances constant. */
+#define MAX_RESIST 200
 
 
 /*
@@ -654,7 +602,7 @@ and tables.c --TY */
 #define CLASS_RANGER            6
 #define CLASS_PALADIN           7
 #define CLASS_MONK              8
-#define CLASS_ARCHER            9
+#define CLASS_MARKSMAN            9
 
 /* Advanced Classes */
 #define CLASS_HIGH_MAGE         10
@@ -665,29 +613,10 @@ and tables.c --TY */
 #define CLASS_ZELAR             15
 #define CLASS_SOUL_GUARDIAN     16
 #define CLASS_SHADOW            17
-
-/* Old, obsolete classes, with constants */
-/* still there due to laziness! ;) */
-
-#define CLASS_HUNTER            70
-#define CLASS_WARRIOR_MAGE      50
-#define CLASS_ALCHEMIST         51
-#define CLASS_POSSESSOR         52
-#define CLASS_SORCERER          53
-#define CLASS_NECRO             54
-#define CLASS_MAGIWARRIOR       55
-#define CLASS_BERSERKER         56
-#define CLASS_DARK_LORD         57 
-#define CLASS_HELLQUEEN         59
-#define CLASS_MASTER            60     
-#define CLASS_SKATTER           62
-#define CLASS_FIRE_LORD         64
-#define CLASS_VALKYRIE          65
-#define CLASS_COMMANDER         66
-#define CLASS_SAMURAI           68
-#define CLASS_ICE_LORD          69
-#define CLASS_PSYCHIC           71
-#define CLASS_LEADER            72
+#define CLASS_ENCHANTER         19
+#define CLASS_DIVINER           20
+#define CLASS_MONSTER           22
+#define CLASS_BARD              23
 
 /*** Screen Locations ***/
 
@@ -798,15 +727,23 @@ and tables.c --TY */
 #define FEAT_SHAFT_DOWN         0x0D
 #define FEAT_SHAFT_UP           0x0E
 
-/* Feature 0x0F - 01F unused */
+/* Open Ice door */
+#define FEAT_ICE_OPEN           0x0F
+
+/* Broken Ice Door */
+#define FEAT_ICE_BROKEN         0x10
 
 /* Doors */
 #define FEAT_DOOR_HEAD  0x20
 #define FEAT_DOOR_TAIL  0x2F
 
+#define FEAT_ICE_DOOR_HEAD 0x67
+#define FEAT_ICE_DOOR_TAIL 0x76
+
 /* Extra */
 #define FEAT_SECRET             0x30
 #define FEAT_RUBBLE             0x31
+#define FEAT_ICE_SECRET         0x77
 
 /* Seams */
 #define FEAT_MAGMA              0x32
@@ -862,6 +799,7 @@ and tables.c --TY */
 #define FEAT_SNOW_TREES		0x63
 #define FEAT_GLACIER		0x64
 #define FEAT_ICE_WALL		0x65
+#define FEAT_PERM_ICE_WALL	0x66
 
 /* Feature 0x62 - 0x7F unused */
 
@@ -913,305 +851,6 @@ and tables.c --TY */
 
 #define MAX_WILD_TERRAIN        18
 
-/*** Artifact indexes (see "lib/edit/a_info.txt") ***/
-
-/* Spell for various object */
-#define SPELL_ID_PLAIN          1
-#define SPELL_BO_FIRE           2
-#define SPELL_BO_COLD           3
-#define SPELL_BO_ELEC           4
-#define SPELL_BO_POIS           5
-#define SPELL_BO_ACID           6
-#define SPELL_MAPPING           7
-#define SPELL_CURE              8
-#define SPELL_ID_FULL           9
-#define SPELL_WRAITH            10
-#define SPELL_INVIS             11
-
-
-/*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
-
-
-/* Mage Staff */
-#define EGO_MANA                1
-#define EGO_SPELL               2
-#define EGO_MANA_SPELL          3
-#define EGO_MSTAFF_POWER        10
-
-/* Body Armor */
-#define EGO_RESIST_ACID         4
-#define EGO_RESIST_ELEC         5
-#define EGO_RESIST_FIRE         6
-#define EGO_RESIST_COLD         7
-#define EGO_RESISTANCE          8
-#define EGO_ELVENKIND           9
-/* used for the Mage Staff - see above */
-#define EGO_PERMANENCE          11
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-
-/* Shields */
-#define EGO_ENDURE_ACID         16
-#define EGO_ENDURE_ELEC         17
-#define EGO_ENDURE_FIRE         18
-#define EGO_ENDURE_COLD         19
-#define EGO_ENDURANCE           20
-#define EGO_REFLECTION          21
-
-/* Crowns and Helms */
-#define EGO_DWARVES                     22
-#define EGO_NOLDOR                      23
-#define EGO_INTELLIGENCE        24
-#define EGO_WISDOM                      25
-#define EGO_BEAUTY                      26
-#define EGO_MAGI                        27
-#define EGO_MIGHT                       28
-#define EGO_LORDLINESS          29
-#define EGO_SEEING                      30
-#define EGO_INFRAVISION         31
-#define EGO_LITE                        32
-#define EGO_TELEPATHY           33
-#define EGO_REGENERATION        34
-#define EGO_TELEPORTATION       35
-#define EGO_STUPIDITY           36
-#define EGO_NAIVETY                     37
-#define EGO_UGLINESS            38
-#define EGO_SICKLINESS          39
-
-/* Cloaks */
-#define EGO_PROTECTION          40
-#define EGO_STEALTH                     41
-#define EGO_AMAN                        42
-#define EGO_AURA_FIRE                   43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
-#define EGO_AURA_ELEC               47
-
-/* Gloves */
-#define EGO_FREE_ACTION         48
-#define EGO_SLAYING                     49
-#define EGO_AGILITY                     50
-#define EGO_POWER                       51
-/* xxx */
-/* xxx */
-#define EGO_WEAKNESS            54
-#define EGO_CLUMSINESS          55
-
-/* Boots */
-#define EGO_SLOW_DESCENT        56
-#define EGO_QUIET                       57
-#define EGO_MOTION                      58
-#define EGO_SPEED                       59
-#define EGO_JUMP                        60
-#define EGO_NOISE                       61
-#define EGO_SLOWNESS            62
-#define EGO_ANNOYANCE           63
-
-/* Weapons */
-#define EGO_HA                          64
-#define EGO_DF                          65
-#define EGO_BLESS_BLADE         66
-#define EGO_LIFE                        67
-#define EGO_WEST                        68
-#define EGO_ATTACKS                     69
-#define EGO_SLAYING_WEAPON              70
-#define EGO_SPINING                     71
-#define EGO_BRAND_ACID          72
-#define EGO_BRAND_ELEC          73
-#define EGO_BRAND_FIRE          74
-#define EGO_BRAND_COLD          75
-#define EGO_BRAND_POIS          76
-#define EGO_CHAOTIC             77
-#define EGO_SHARPNESS           78
-#define EGO_EARTHQUAKES         79
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
-#define EGO_KILL_ANIMAL         88
-#define EGO_KILL_EVIL           89
-#define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          83
-#define EGO_KILL_ORC            84
-#define EGO_KILL_TROLL          85
-#define EGO_KILL_GIANT          86
-#define EGO_KILL_DRAGON         95
-#define EGO_VAMPIRIC            96
-#define EGO_SUPER_DEFENDER      97
-#define EGO_TRUMP               98
-#define EGO_PATTERN             99
-#define EGO_DIGGING                     100
-#define EGO_SPECTRAL                    101
-#define EGO_MORGUL                      102
-#define EGO_NOTHING                     103
-
-/* Bows */
-#define EGO_ACCURACY            104
-#define EGO_VELOCITY            105
-
-/* xxx */
-/* xxx */
-#define EGO_EXTRA_MIGHT         108
-#define EGO_EXTRA_SHOTS         109
-/* xxx */
-/* xxx */
-
-/* Ammo */
-#define EGO_HURT_ANIMAL         112
-#define EGO_HURT_EVIL           113
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-#define EGO_HURT_DRAGON         119
-#define EGO_SLAYING_BOLT        120
-#define EGO_LIGHTNING_BOLT      121
-#define EGO_FLAME                       122
-#define EGO_FROST                       123
-#define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
-#define EGO_SHATTERED           126
-#define EGO_BLASTED                     127
-
-/* Instruments */
-#define EGO_INST_ELDAR          128
-#define EGO_INST_POWER          129
-#define EGO_INST_DRAGONKIND     130
-
-/* Activation effects for random artifacts */
-#define ACT_SUNLIGHT            1
-#define ACT_BO_MISS_1           2
-#define ACT_BA_POIS_1           3
-#define ACT_BO_ELEC_1           4
-#define ACT_BO_ACID_1           5
-#define ACT_BO_COLD_1           6
-#define ACT_BO_FIRE_1           7
-#define ACT_BA_COLD_1           8
-#define ACT_BA_FIRE_1           9
-#define ACT_DRAIN_1             10
-#define ACT_BA_COLD_2           11
-#define ACT_BA_ELEC_2           12
-#define ACT_DRAIN_2             13
-#define ACT_VAMPIRE_1           14
-#define ACT_BO_MISS_2           15
-#define ACT_BA_FIRE_2           16
-#define ACT_BA_COLD_3           17
-#define ACT_BA_ELEC_3           18
-#define ACT_WHIRLWIND           19
-#define ACT_VAMPIRE_2           20
-#define ACT_CALL_CHAOS          21
-#define ACT_ROCKET              22
-#define ACT_DISP_EVIL           23
-#define ACT_BA_MISS_3           24
-#define ACT_DISP_GOOD           25
-/* 26 - 50 unused */
-#define ACT_CONFUSE             51
-#define ACT_SLEEP               52
-#define ACT_QUAKE               53
-#define ACT_TERROR              54
-#define ACT_TELE_AWAY           55
-#define ACT_BANISH_EVIL         56
-#define ACT_GENOCIDE            57
-#define ACT_MASS_GENO           58
-/* 59 - 64 unused */
-#define ACT_CHARM_ANIMAL        65
-#define ACT_CHARM_UNDEAD        66
-#define ACT_CHARM_OTHER         67
-#define ACT_CHARM_ANIMALS       68
-#define ACT_CHARM_OTHERS        69
-#define ACT_SUMMON_ANIMAL       70
-#define ACT_SUMMON_PHANTOM      71
-#define ACT_SUMMON_ELEMENTAL    72
-#define ACT_SUMMON_DEMON        73
-#define ACT_SUMMON_UNDEAD       74
-/* 75 - 80 unused */
-#define ACT_CURE_LW             81
-#define ACT_CURE_MW             82
-#define ACT_CURE_POISON         83
-#define ACT_REST_LIFE           84
-#define ACT_REST_ALL            85
-#define ACT_CURE_700            86
-#define ACT_CURE_1000           87
-/* 88 - 90 unused */
-#define ACT_ESP                 91
-#define ACT_BERSERK             92
-#define ACT_PROT_EVIL           93
-#define ACT_RESIST_ALL          94
-#define ACT_SPEED               95
-#define ACT_XTRA_SPEED          96
-#define ACT_WRAITH              97
-#define ACT_INVULN              98
-/* 99 - 110 unused */
-#define ACT_LIGHT               111
-#define ACT_MAP_LIGHT           112
-#define ACT_DETECT_ALL          113
-#define ACT_DETECT_XTRA         114
-#define ACT_ID_FULL             115
-#define ACT_ID_PLAIN            116
-#define ACT_RUNE_EXPLO          117
-#define ACT_RUNE_PROT           118
-#define ACT_SATIATE             119
-#define ACT_DEST_DOOR          120
-#define ACT_STONE_MUD           121
-#define ACT_RECHARGE            122
-#define ACT_ALCHEMY             123
-#define ACT_DIM_DOOR            124
-#define ACT_TELEPORT            125
-#define ACT_RECALL              126
-
-#define ACT_DEATH               127
-#define ACT_RUINATION           128
-#define ACT_DESTRUC             129
-#define ACT_UNINT               130
-#define ACT_UNSTR               131
-#define ACT_UNCON               132
-#define ACT_UNCHR               133
-#define ACT_UNDEX               134
-#define ACT_UNWIS               135
-#define ACT_STATLOSS            136
-#define ACT_HISTATLOSS          137
-#define ACT_EXPLOSS             138
-#define ACT_HIEXPLOSS           139
-#define ACT_SUMMON_MONST        140
-#define ACT_PARALYZE            141
-#define ACT_HALLU               142
-#define ACT_POISON              143
-#define ACT_HUNGER              144
-#define ACT_STUN                145
-#define ACT_CUTS                146
-#define ACT_PARANO              147
-#define ACT_CONFUSION           148
-#define ACT_BLIND               149
-#define ACT_PET_SUMMON          150
-#define ACT_CURE_PARA           151
-#define ACT_CURE_HALLU          152
-#define ACT_CURE_POIS           153
-#define ACT_CURE_HUNGER         154
-#define ACT_CURE_STUN           155
-#define ACT_CURE_CUTS           156
-#define ACT_CURE_FEAR           157
-#define ACT_CURE_CONF           158
-#define ACT_CURE_BLIND          159
-#define ACT_CURING              160
-#define ACT_DARKNESS            161
-#define ACT_LEV_TELE            162
-#define ACT_ACQUIREMENT         163
-#define ACT_WEIRD               164
-#define ACT_AGGRAVATE           165
-#define ACT_MUT                 166
-#define ACT_CURE_INSANITY       167
-#define ACT_CURE_MUT            168
-#define ACT_LIGHT_ABSORBTION    169
-/* 170 -> unused */
-
 /*** Object "tval" and "sval" codes ***/
 
 
@@ -1240,19 +879,11 @@ and tables.c --TY */
 #define TV_EGG          10      /* Monster Eggs */
 #define TV_JUNK         11      /* Sticks, Pottery, etc ('~') */
 #define TV_TOOL         12      /* Tools */
-#define TV_INSTRUMENT   14      /* Musical instruments */
-#define TV_BOOMERANG    15      /* Boomerangs */
-#define TV_SHOT         16      /* Ammo for slings */
-#define TV_ARROW        17      /* Ammo for bows */
-#define TV_BOLT         18      /* Ammo for x-bows */
-#define TV_BOW          19      /* Slings/Bows/Xbows */
+#define TV_THROWING     15      /* Throwing weapons */
+#define TV_AMMO         16
+#define TV_RANGED       19      /* Ranged weapon. */
 #define TV_DIGGING      20      /* Shovels/Picks */
-#define TV_HAFTED       21      /* Priest Weapons */
-#define TV_POLEARM      22      /* Axes and Pikes */
-#define TV_SWORD        23      /* Edged Weapons */
-#define TV_ZELAR_WEAPON 24      /* Weapons for Zelars! */
-#define TV_DAGGER       25      /* Daggers */
-#define TV_AXE          26      /* Axes */
+#define TV_WEAPON       21      /* A weapon. */
 #define TV_BOOTS        30      /* Boots */
 #define TV_GLOVES       31      /* Gloves */
 #define TV_HELM         32      /* Helms */
@@ -1270,43 +901,28 @@ and tables.c --TY */
 #define TV_WAND         65
 #define TV_ROD          66
 #define TV_SOUL         67
+#define TV_ESSENCE      68
 #define TV_SCROLL       70
 #define TV_POTION       71
-#define TV_POTION2      72      /* Second set of potion */
 #define TV_FLASK        77
 #define TV_LICIALHYD    78	/* Here's the newcomer in NewAngband 1.8.0! :) */
-#define TV_FOOD         80
 /* New tvals for effects books! :) */
 #define TV_BOOK_ELEMENTAL 81
 #define TV_BOOK_ALTERATION 82
-#define TV_BOOK_HEALING 83
+#define TV_BOOK_MYSTICISM 83
 #define TV_BOOK_CONJURATION 84
 #define TV_BOOK_DIVINATION 85
+
+/* Songs components */
+#define TV_RHYTHM       90
+#define TV_HARMONY      91
+#define TV_MELODY       92
+#define TV_INSTRUMENT   93
 
 #define TV_HYPNOS       99      /* To wield monsters !:) */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 #define TV_RANDART      102     /* Random Artifacts */
 #define TV_CRYSTAL      106     /* NEW: Magic crystals to use with rods */
-#define TV_VALKYRIE_SPEAR 107   /* Valkyrie Spears, created by Valkyries */
-#define TV_WORLD_BOOK   109
-#define TV_MIMIC_BOOK   110
-#define TV_VALARIN_BOOK 111
-#define TV_MAGERY_BOOK  112
-#define TV_SHADOW_BOOK  113
-#define TV_CHAOS_BOOK   114
-#define TV_NETHER_BOOK  115
-#define TV_CRUSADE_BOOK 116
-#define TV_SIGALDRY_BOOK 117
-#define TV_SYMBIOTIC_BOOK 118
-#define TV_MUSIC_BOOK   119
-#define TV_MAGIC_BOOK   120
-#define TV_PRAYER_BOOK  121
-#define TV_ILLUSION_BOOK 122
-#define TV_TRIBAL_BOOK  123
-#define TV_DRUID_BOOK   124
-#define TV_BATTLE_BOOK  125
-#define TV_HELL_STAFF   126
-#define TV_SWORD_DEVASTATION 127
 
 /* The "sval" codes for TV_TOOL */
 #define SV_TOOL_CLIMB 0
@@ -1318,213 +934,6 @@ and tables.c --TY */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
 #define SV_AMMO_NORMAL                   1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY                    2	/* seeker arrows and bolts, mithril shots */
-
-/* The "sval" codes for TV_INSTRUMENT */
-#define SV_FLUTE                         1
-#define SV_BANJO                         2
-#define SV_LUTE                          3
-#define SV_MANDOLIN                      4
-#define SV_DRUM                          5
-#define SV_HARP                          6
-#define SV_HORN                          7
-
-/* The "sval" codes for TV_BOOMERANG */
-#define SV_BOOM_S_WOOD                   1      /* 1d4  */
-#define SV_BOOM_WOOD                     2      /* 1d9  */
-#define SV_BOOM_S_METAL                  3      /* 1d8  */
-#define SV_BOOM_METAL                    4      /* 2d4  */
-
-/* The "sval" codes for TV_BOW (note information in "sval") */
-#define SV_SLING                         2	/* (x2) */
-#define SV_SHORT_BOW                    12	/* (x2) */
-#define SV_LONG_BOW                     13	/* (x3) */
-#define SV_ELVEN_BOW                    14      /* (x4) */
-#define SV_HIELF_BOW                    15      /* (x5) */
-#define SV_LIGHT_XBOW                   23	/* (x3) */
-#define SV_HEAVY_XBOW                   24	/* (x4) */
-
-/* The "sval" codes for TV_DIGGING */
-#define SV_SHOVEL                        1
-#define SV_GNOMISH_SHOVEL                2
-#define SV_DWARVEN_SHOVEL                3
-#define SV_PICK                          4
-#define SV_ORCISH_PICK                   5
-#define SV_DWARVEN_PICK                  6
-#define SV_MATTOCK                       7
-
-/* The "sval" values for TV_HAFTED */
-#define SV_CLUB                          1	/* 1d4  */
-#define SV_WHIP                          2	/* 1d6  */
-#define SV_QUARTERSTAFF                  3	/* 1d9  */
-#define SV_NUNCHAKU                      4	/* 2d3  */
-#define SV_MACE                          5	/* 2d4  */
-#define SV_BALL_AND_CHAIN                6	/* 2d4  */
-#define SV_JO_STAFF                      7	/* 1d7  */
-#define SV_WAR_HAMMER                    8	/* 3d3  */
-#define SV_LUCERN_HAMMER                10	/* 2d5  */
-#define SV_THREE_PIECE_ROD              11	/* 3d3  */
-#define SV_MORNING_STAR                 12	/* 2d6  */
-#define SV_FLAIL                        13	/* 2d6  */
-#define SV_BO_STAFF                     14	/* 1d11 */
-#define SV_LEAD_FILLED_MACE             15	/* 3d4  */
-#define SV_TETSUBO                      16	/* 2d7  */
-#define SV_TWO_HANDED_FLAIL             18	/* 3d6  */
-#define SV_GREAT_HAMMER                 19	/* 4d6  */
-#define SV_MACE_OF_DISRUPTION           20	/* 5d8  */
-#define SV_GROND                        50	/* 3d4  */
-
-/* The "sval" values for TV_POLEARM */
-#define SV_HATCHET                       1	/* 1d5 */
-#define SV_SPEAR                         2	/* 1d6 */
-#define SV_SICKLE                        3	/* 2d3 */
-#define SV_AWL_PIKE                      4	/* 1d8 */
-#define SV_TRIDENT                       5	/* 1d9 */
-#define SV_FAUCHARD                      6  /* 1d10 */
-#define SV_BROAD_SPEAR                   7	/* 1d9 */
-#define SV_PIKE                          8	/* 2d5 */
-#define SV_NAGINATA                      9  /* 2d6 */
-#define SV_BEAKED_AXE                   10	/* 2d6 */
-#define SV_BROAD_AXE                    11	/* 2d6 */
-#define SV_GLAIVE                       13	/* 2d6 */
-#define SV_LAJATANG                     14	/* 2d7 */
-#define SV_HALBERD                      15	/* 3d4 */
-#define SV_GUISARME                     16  /* 2d5 */
-#define SV_SCYTHE                       17	/* 5d3 */
-#define SV_LANCE                        20	/* 2d8 */
-#define SV_BATTLE_AXE                   22	/* 2d8 */
-#define SV_GREAT_AXE                    25	/* 4d4 */
-#define SV_TRIFURCATE_SPEAR             26	/* 2d9 */
-#define SV_LOCHABER_AXE                 28	/* 3d8 */
-#define SV_HEAVY_LANCE                  29  /* 4d8 */
-#define SV_SCYTHE_OF_SLICING            30	/* 8d4 */
-#define SV_SPECIAL_SPEAR                31  /* 3d6 */
-#define SV_HEAVY_SPEAR                  32
-#define SV_ADAMANTIUM_SPEAR             33
-#define SV_PLATINUM_SPEAR               34
-#define SV_HEAVY_PLATINUM_SPEAR         35
-#define SV_PERFECT_SPEAR                36
-#define SV_VALKYRIAN_SPEAR              37
-
-/* The "sval" codes for TV_SWORD */
-#define SV_BROKEN_DAGGER                 1  /* 1d1 */
-#define SV_BROKEN_SWORD                  2  /* 1d2 */
-#define SV_DAGGER                        4  /* 1d4 */
-#define SV_MAIN_GAUCHE                   5  /* 1d5 */
-#define SV_TANTO                         6  /* 1d5 */
-#define SV_RAPIER                        7  /* 1d6 */
-#define SV_SMALL_SWORD                   8  /* 1d6 */
-#define SV_BASILLARD                     9  /* 1d8 */
-#define SV_SHORT_SWORD                  10  /* 1d7 */
-#define SV_SABRE                        11  /* 1d7 */
-#define SV_CUTLASS                      12  /* 1d7 */
-#define SV_WAKIZASHI                    13  /* 2d4 */
-#define SV_KHOPESH                      14  /* 2d4 */
-#define SV_TULWAR                       15  /* 2d4 */
-#define SV_BROAD_SWORD                  16  /* 2d5 */
-#define SV_LONG_SWORD                   17  /* 2d5 */
-#define SV_SCIMITAR                     18  /* 2d5 */
-#define SV_NINJATO                      19  /* 1d9 */
-#define SV_KATANA                       20  /* 3d4 */
-#define SV_BASTARD_SWORD                21  /* 3d4 */
-#define SV_GREAT_SCIMITAR               22  /* 4d5 */
-#define SV_CLAYMORE                     23  /* 2d8 */
-#define SV_ESPADON                      24  /* 2d9 */
-#define SV_TWO_HANDED_SWORD             25  /* 3d6 */
-#define SV_FLAMBERGE                    26  /* 3d7 */
-#define SV_NO_DACHI                     27  /* 5d4 */
-#define SV_EXECUTIONERS_SWORD           28  /* 4d5 */
-#define SV_ZWEIHANDER                   29  /* 4d6 */
-#define SV_BLADE_OF_CHAOS               30  /* 6d5 */
-#define SV_SHADOW_BLADE                 31  /* 4d4 */
-#define SV_BLUESTEEL_BLADE              32  /* 3d9 */
-#define SV_TIN_SWORD                    33  /* 2d4 */
-#define SV_LIGHT_SWORD                     34
-#define SV_DARK_SWORD                      35
-#define SV_MAGIC_SWORD                     36
-#define SV_WARRIOR_SWORD                   37
-#define SV_PALADIN_SWORD                   38
-#define SV_WARLORD_SWORD                   39
-#define SV_KING_SWORD                      40
-
-/* The "sval" codes for TV_SHIELD */
-#define SV_SMALL_LEATHER_SHIELD          2
-#define SV_SMALL_METAL_SHIELD            3
-#define SV_LARGE_LEATHER_SHIELD          4
-#define SV_LARGE_METAL_SHIELD            5
-#define SV_DRAGON_SHIELD                 6
-#define SV_SHIELD_OF_DEFLECTION         10
-
-/* The "sval" codes for TV_HELM */
-#define SV_HARD_LEATHER_CAP              2
-#define SV_METAL_CAP                     3
-#define SV_JINGASA                       4  /* 4 */
-#define SV_IRON_HELM                     5
-#define SV_STEEL_HELM                    6
-#define SV_DRAGON_HELM                   7
-#define SV_KABUTO                        8  /* 7 */
-#define SV_VALKYRIAN_HELM                9
-#define SV_IRON_CROWN                   10
-#define SV_GOLDEN_CROWN                 11
-#define SV_JEWELED_CROWN                12
-#define SV_PROMOTION_CROWN              13
-#define SV_MORGOTH                      50
-
-/* The "sval" codes for TV_BOOTS */
-#define SV_PAIR_OF_SOFT_LEATHER_BOOTS    2
-#define SV_PAIR_OF_HARD_LEATHER_BOOTS    3
-#define SV_PAIR_OF_METAL_SHOD_BOOTS      6
-
-/* The "sval" codes for TV_CLOAK */
-#define SV_CLOAK                         1
-#define SV_ELVEN_CLOAK                   2
-#define SV_FUR_CLOAK                     3
-#define SV_SHADOW_CLOAK                  6
-
-/* The "sval" codes for TV_GLOVES */
-#define SV_SET_OF_LEATHER_GLOVES         1
-#define SV_SET_OF_GAUNTLETS              2
-#define SV_SET_OF_CESTI                  5
-
-/* The "sval" codes for TV_SOFT_ARMOR */
-#define SV_FILTHY_RAG                    1
-#define SV_ROBE                          2
-#define SV_PAPER_ARMOR                   3  /* 4 */
-#define SV_SOFT_LEATHER_ARMOR            4
-#define SV_SOFT_STUDDED_LEATHER          5
-#define SV_HARD_LEATHER_ARMOR            6
-#define SV_HARD_STUDDED_LEATHER          7
-#define SV_RHINO_HIDE_ARMOR              8
-#define SV_CORD_ARMOR                    9  /*  6 */
-#define SV_PADDED_ARMOR                 10  /*  4 */
-#define SV_LEATHER_SCALE_MAIL           11
-#define SV_LEATHER_JACK                 12
-#define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
-#define SV_DRAGONRIDER_SUIT             16
-
-/* The "sval" codes for TV_HARD_ARMOR */
-#define SV_RUSTY_CHAIN_MAIL              1  /* 14- */
-#define SV_RING_MAIL                     2  /* 12  */
-#define SV_METAL_SCALE_MAIL              3  /* 13  */
-#define SV_CHAIN_MAIL                    4  /* 14  */
-#define SV_DOUBLE_RING_MAIL              5  /* 15  */
-#define SV_AUGMENTED_CHAIN_MAIL          6  /* 16  */
-#define SV_DOUBLE_CHAIN_MAIL             7  /* 16  */
-#define SV_BAR_CHAIN_MAIL                8  /* 18  */
-#define SV_METAL_BRIGANDINE_ARMOUR       9  /* 19  */
-#define SV_SPLINT_MAIL                  10  /* 19  */
-#define SV_DO_MARU                      11  /* 20  */
-#define SV_PARTIAL_PLATE_ARMOUR         12  /* 22  */
-#define SV_METAL_LAMELLAR_ARMOUR        13  /* 23  */
-#define SV_HARAMAKIDO                   14  /* 17  */
-#define SV_FULL_PLATE_ARMOUR            15  /* 25  */
-#define SV_O_YOROI                      16  /* 24  */
-#define SV_RIBBED_PLATE_ARMOUR          18  /* 28  */
-#define SV_MITHRIL_CHAIN_MAIL           20  /* 28+ */
-#define SV_MITHRIL_PLATE_MAIL           25  /* 35+ */
-#define SV_ADAMANTITE_PLATE_MAIL        30  /* 40+ */
-#define SV_LIGHT_MAIL                   31
-#define SV_LIGHT_PLATE                  32
-#define HELLQUEEN_PLATE                 34
 
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH                    0
@@ -1694,211 +1103,6 @@ and tables.c --TY */
 /* jk - the first valuable wand */
 #define SV_WAND_NASTY_WAND               3
 
-/* The "sval" codes for TV_ROD */
-#define SV_ROD_BEAM                      0
-#define SV_ROD_BALL                      1
-#define SV_ROD_POWER                     2
-
-/* The "sval" codes for TV_SCROLL */
-
-#define SV_SCROLL_DARKNESS               0
-#define SV_SCROLL_AGGRAVATE_MONSTER      1
-#define SV_SCROLL_CURSE_ARMOR            2
-#define SV_SCROLL_CURSE_WEAPON           3
-#define SV_SCROLL_SUMMON_MONSTER         4
-#define SV_SCROLL_SUMMON_UNDEAD          5
-#define SV_SCROLL_SUMMON_MINE            6
-#define SV_SCROLL_TRAP_CREATION          7
-#define SV_SCROLL_PHASE_DOOR             8
-#define SV_SCROLL_TELEPORT               9
-#define SV_SCROLL_TELEPORT_LEVEL        10
-#define SV_SCROLL_WORD_OF_RECALL        11
-#define SV_SCROLL_IDENTIFY              12
-#define SV_SCROLL_STAR_IDENTIFY         13
-#define SV_SCROLL_REMOVE_CURSE          14
-#define SV_SCROLL_STAR_REMOVE_CURSE     15
-#define SV_SCROLL_ENCHANT_ARMOR         16
-#define SV_SCROLL_ENCHANT_WEAPON_TO_HIT 17
-#define SV_SCROLL_ENCHANT_WEAPON_TO_DAM 18
-#define SV_SCROLL_ENCHANT_WEAPON_PVAL   19
-#define SV_SCROLL_STAR_ENCHANT_ARMOR    20
-#define SV_SCROLL_STAR_ENCHANT_WEAPON   21
-#define SV_SCROLL_RECHARGING            22
-#define SV_SCROLL_RESET_RECALL          23
-#define SV_SCROLL_LIGHT                 24
-#define SV_SCROLL_MAPPING               25
-#define SV_SCROLL_DETECT_GOLD           26
-#define SV_SCROLL_DETECT_ITEM           27
-#define SV_SCROLL_DETECT_TRAP           28
-#define SV_SCROLL_DETECT_DOOR           29
-#define SV_SCROLL_DETECT_INVIS          30
-#define SV_SCROLL_DIVINATION            31
-#define SV_SCROLL_SATISFY_HUNGER        32
-#define SV_SCROLL_BLESSING              33
-#define SV_SCROLL_HOLY_CHANT            34
-#define SV_SCROLL_HOLY_PRAYER           35
-#define SV_SCROLL_MONSTER_CONFUSION     36
-#define SV_SCROLL_PROTECTION_FROM_EVIL  37
-#define SV_SCROLL_RUNE_OF_PROTECTION    38
-#define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
-#define SV_SCROLL_DEINCARNATION         40
-#define SV_SCROLL_STAR_DESTRUCTION      41
-#define SV_SCROLL_DISPEL_UNDEAD         42
-#define SV_SCROLL_INCARNATION           43
-#define SV_SCROLL_GENOCIDE              44
-#define SV_SCROLL_MASS_GENOCIDE         45
-#define SV_SCROLL_ACQUIREMENT           46
-#define SV_SCROLL_STAR_ACQUIREMENT      47
-#define SV_SCROLL_FIRE                  48
-#define SV_SCROLL_ICE                   49
-#define SV_SCROLL_CHAOS                 50
-#define SV_SCROLL_RUMOR                 51
-#define SV_SCROLL_ARTIFACT              52
-#define SV_SCROLL_NOTHING               53
-#define SV_SCROLL_SPELL                 54
-#define SV_SCROLL_REPAIR                55
-#define SV_SCROLL_ETERNALITY            56
-
-/* The "sval" codes for TV_POTION */
-#define SV_POTION_WATER                  0
-#define SV_POTION_APPLE_JUICE            1
-#define SV_POTION_SLIME_MOLD             2
-#define SV_POTION_FULL_RESTORE           3
-#define SV_POTION_SLOWNESS               4
-#define SV_POTION_SALT_WATER             5
-#define SV_POTION_POISON                 6
-#define SV_POTION_BLINDNESS              7
-#define SV_POTION_INVIS                  8
-#define SV_POTION_CONFUSION              9
-#define SV_POTION_MUTATION              10
-#define SV_POTION_SLEEP                 11
-#define SV_POTION_LEARNING              12
-#define SV_POTION_LOSE_MEMORIES         13
-/* xxx */
-#define SV_POTION_RUINATION             15
-#define SV_POTION_DEC_STR               16
-#define SV_POTION_DEC_INT               17
-#define SV_POTION_DEC_WIS               18
-#define SV_POTION_DEC_DEX               19
-#define SV_POTION_DEC_CON               20
-#define SV_POTION_DEC_CHR               21
-#define SV_POTION_DETONATIONS           22
-#define SV_POTION_DEATH                 23
-#define SV_POTION_INFRAVISION           24
-#define SV_POTION_DETECT_INVIS          25
-#define SV_POTION_SLOW_POISON           26
-#define SV_POTION_CURE_POISON           27
-#define SV_POTION_BOLDNESS              28
-#define SV_POTION_SPEED                 29
-#define SV_POTION_RESIST_HEAT           30
-#define SV_POTION_RESIST_COLD           31
-#define SV_POTION_HEROISM               32
-#define SV_POTION_BESERK_STRENGTH       33
-#define SV_POTION_CURE_LIGHT            34
-#define SV_POTION_CURE_SERIOUS          35
-#define SV_POTION_CURE_CRITICAL         36
-#define SV_POTION_HEALING               37
-#define SV_POTION_STAR_HEALING          38
-#define SV_POTION_LIFE                  39
-#define SV_POTION_RESTORE_MANA          40
-#define SV_POTION_RESTORE_EXP           41
-#define SV_POTION_RES_STR               42
-#define SV_POTION_RES_INT               43
-#define SV_POTION_RES_WIS               44
-#define SV_POTION_RES_DEX               45
-#define SV_POTION_RES_CON               46
-#define SV_POTION_RES_CHR               47
-#define SV_POTION_INC_STR               48
-#define SV_POTION_INC_INT               49
-#define SV_POTION_INC_WIS               50
-#define SV_POTION_INC_DEX               51
-#define SV_POTION_INC_CON               52
-#define SV_POTION_INC_CHR               53
-#define SV_POTION_CURE_MUTATIONS        54
-#define SV_POTION_AUGMENTATION          55
-#define SV_POTION_ENLIGHTENMENT         56
-#define SV_POTION_STAR_ENLIGHTENMENT    57
-#define SV_POTION_SELF_KNOWLEDGE        58
-#define SV_POTION_EXPERIENCE            59
-#define SV_POTION_RESISTANCE            60
-#define SV_POTION_CURING                61
-#define SV_POTION_INVULNERABILITY       62
-#define SV_POTION_STONESKIN             63
-#define SV_POTION_STAR_MUTATION         64
-#define SV_POTION_SEX_CHANGING          65
-#define SV_POTION_POWER                 66
-#define SV_POTION_MOLOTOV               68
-
-/* The "sval" codes for TV_POTION2 */
-#define SV_POTION2_MIMIC_ABOMINATION     1
-#define SV_POTION2_MIMIC_WOLF            2
-#define SV_POTION2_MIMIC_APE             3
-#define SV_POTION2_MIMIC_GOAT            4
-#define SV_POTION2_MIMIC_INSECT          5
-#define SV_POTION2_MIMIC_SPARROW         6
-#define SV_POTION2_MIMIC_STATUE          7
-#define SV_POTION2_MIMIC_VAMPIRE         8
-#define SV_POTION2_MIMIC_SPIDER          9
-#define SV_POTION2_MIMIC_MANA_BALL       10
-#define SV_POTION2_MIMIC_FIRE_CLOUD      11
-#define SV_POTION2_MIMIC_COLD_CLOUD      12
-#define SV_POTION2_MIMIC_CHAOS_CLOUD     13
-#define SV_POTION2_CURE_LIGHT_SANITY     14
-#define SV_POTION2_CURE_SERIOUS_SANITY   15
-#define SV_POTION2_CURE_CRITICAL_SANITY  16
-#define SV_POTION2_CURE_SANITY           17
-
-/* The "sval" codes for TV_FOOD */
-#define SV_FOOD_POISON                   0
-#define SV_FOOD_BLINDNESS                1
-#define SV_FOOD_PARANOIA                 2
-#define SV_FOOD_CONFUSION                3
-#define SV_FOOD_HALLUCINATION            4
-#define SV_FOOD_PARALYSIS                5
-#define SV_FOOD_WEAKNESS                 6
-#define SV_FOOD_SICKNESS                 7
-#define SV_FOOD_STUPIDITY                8
-#define SV_FOOD_NAIVETY                  9
-#define SV_FOOD_UNHEALTH                10
-#define SV_FOOD_DISEASE                 11
-#define SV_FOOD_CURE_POISON             12
-#define SV_FOOD_CURE_BLINDNESS          13
-#define SV_FOOD_CURE_PARANOIA           14
-#define SV_FOOD_CURE_CONFUSION          15
-#define SV_FOOD_CURE_SERIOUS            16
-#define SV_FOOD_RESTORE_STR             17
-#define SV_FOOD_RESTORE_CON             18
-#define SV_FOOD_RESTORING               19
-/* many missing mushrooms */
-#define SV_FOOD_BISCUIT                 32
-#define SV_FOOD_JERKY                   33
-#define SV_FOOD_RATION                  35
-#define SV_FOOD_SLIME_MOLD              36
-#define SV_FOOD_WAYBREAD                37
-#define SV_FOOD_PINT_OF_ALE             38
-#define SV_FOOD_PINT_OF_WINE            39
-#define SV_FOOD_ATHELAS                 40
-
-/* The "sval" codes for TV_BATERIE */
-#define SV_BATERIE_POISON    1
-#define SV_BATERIE_EXPLOSION 2
-#define SV_BATERIE_TELEPORT  3
-#define SV_BATERIE_COLD      4
-#define SV_BATERIE_FIRE      5
-#define SV_BATERIE_ACID      6
-#define SV_BATERIE_LIFE      7
-#define SV_BATERIE_CONFUSION 8
-#define SV_BATERIE_LITE      9
-#define SV_BATERIE_CHAOS     10
-#define SV_BATERIE_TIME      11
-#define SV_BATERIE_MAGIC     12
-#define SV_BATERIE_XTRA_LIFE 13
-#define SV_BATERIE_DARKNESS  14
-#define SV_BATERIE_KNOWLEDGE 15
-#define SV_BATERIE_FORCE     16
-#define SV_BATERIE_LIGHTNING 17
-#define SV_BATERIE_MANA      18
-
 /* The "sval" codes for TV_CORPSE */
 #define SV_CORPSE_CORPSE     1
 #define SV_CORPSE_SKELETON   2
@@ -1916,11 +1120,6 @@ and tables.c --TY */
 #define SV_CRYSTAL_PHASING   7
 #define SV_CRYSTAL_RECALL    8
 #define SV_CRYSTAL_HEALING   9
-
-/*
- * Special "sval" limit -- first "normal" food
- */
-#define SV_FOOD_MIN_FOOD                32
 
 /*
  * Special "sval" limit -- first "aimed" rod
@@ -2343,55 +1542,6 @@ and tables.c --TY */
 
 /*** General index values ***/
 
-
-/*
- * Legal restrictions for "summon_specific()"
- */
-#define SUMMON_ANT                  11
-#define SUMMON_SPIDER               12
-#define SUMMON_HOUND                13
-#define SUMMON_HYDRA                14
-#define SUMMON_ANGEL                15
-#define SUMMON_DEMON                16
-#define SUMMON_UNDEAD               17
-#define SUMMON_DRAGON               18
-#define SUMMON_HI_UNDEAD            21
-#define SUMMON_HI_DRAGON            22
-#define SUMMON_WRAITH               31
-#define SUMMON_UNIQUE               32
-#define SUMMON_BIZARRE1             33
-#define SUMMON_BIZARRE2             34
-#define SUMMON_BIZARRE3             35
-#define SUMMON_BIZARRE4             36
-#define SUMMON_BIZARRE5             37
-#define SUMMON_BIZARRE6             38
-#define SUMMON_CYBER                39
-#define SUMMON_KIN                  40
-#define SUMMON_DAWN                 41
-#define SUMMON_ANIMAL               42
-#define SUMMON_ANIMAL_RANGER        43
-#define SUMMON_HI_UNDEAD_NO_UNIQUES 44
-#define SUMMON_HI_DRAGON_NO_UNIQUES 45
-#define SUMMON_NO_UNIQUES           46
-#define SUMMON_PHANTOM              47
-#define SUMMON_ELEMENTAL            48
-#define SUMMON_DRAGONRIDER          49
-#define SUMMON_BLUE_HORROR          50
-#define SUMMON_BUG                  51
-#define SUMMON_RNG                  52
-#define SUMMON_MINE                 53
-#define SUMMON_HUMAN                54
-#define SUMMON_SHADOWS              55
-#define SUMMON_GHOST                56
-#define SUMMON_QUYLTHULG            57
-#define SUMMON_MIND_SPIRIT          58
-#define SUMMON_ILLUSION             59
-#define SUMMON_DRAGON_PRINCE        60
-#define SUMMON_SKY_SORCERESS        61
-#define SUMMON_VALHALA_MAIDEN       62
-#define SUMMON_WOMAN                63 /* ??? :) */
-#define SUMMON_DARKNESS             64
-
 /*
  * Spell types used by project(), and related functions.
  */
@@ -2415,30 +1565,19 @@ and tables.c --TY */
 #define GF_FROSTFIRE    18 /* Dual type: Fire and Cold! */
 #define GF_GREY         19 /* Dual type: Light and Darkness! */
 #define GF_TOXIC        20 /* Tri type: Acid, Poison and Radio! */
+#define GF_MUD          21 /* Dual type: Water and Earth! */
 
-
-#define GF_ARROW        37
-#define GF_PLASMA       38
 /* Replaced with GF_HOLY_FIRE and GF_HELL_FIRE */
 /* #define GF_HOLY_ORB     13 */
-#define GF_LITE_WEAK    36
-#define GF_DARK_WEAK    39
 #define GF_CONFUSION    22
-#define GF_FORCE        23
-#define GF_INERTIA      24
-#define GF_METEOR       27
-#define GF_ICE          28
-#define GF_NETHER       31
-#define GF_DISENCHANT   32
-#define GF_NEXUS        33
-#define GF_TIME         34
-#define GF_GRAVITY      35
+#define GF_ICE          23
 #define GF_KILL_WALL    40
 #define GF_KILL_DOOR    41
 #define GF_KILL_TRAP    42
 #define GF_MAKE_WALL    45
 #define GF_MAKE_DOOR    46
 #define GF_MAKE_TRAP    47
+#define GF_STONE_TO_MUD 48
 #define GF_OLD_CLONE    51
 #define GF_OLD_POLY             52
 #define GF_OLD_HEAL             53
@@ -2459,18 +1598,11 @@ and tables.c --TY */
 #define GF_DISP_LIVING  71
 #define GF_ROCKET       72
 #define GF_MAKE_GLYPH   74
-#define GF_STASIS       75
 #define GF_STONE_WALL   76
 #define GF_DEATH_RAY    77
 #define GF_STUN         78
-#define GF_HOLY_FIRE    79
-#define GF_HELL_FIRE    80
-#define GF_DISINTEGRATE 81
-#define GF_CHARM        82
 #define GF_CONTROL_UNDEAD   83
 #define GF_CONTROL_ANIMAL   84
-#define GF_PSI         85
-#define GF_PSI_DRAIN   86
 #define GF_TELEKINESIS  87
 #define GF_JAM_DOOR     88
 #define GF_DOMINATION   89
@@ -2482,15 +1614,13 @@ and tables.c --TY */
 #define GF_STUN_CONF    95
 #define GF_STUN_DAM     96
 #define GF_CONF_DAM     98
-#define GF_STAR_CHARM   99
 #define GF_IMPLOSION    100
 #define GF_LAVA_FLOW    101
 #define GF_FEAR         102
 #define GF_BETWEEN_GATE 103
 #define GF_WINDS_MANA   104
 #define GF_DEATH        105
-#define GF_LITE_CONTROL 106
-#define GF_DRAGON_CONTROL 107
+
 /* New ones used for Curses */
 #define GF_WEAKEN 108
 #define GF_LOWER_POWER 109
@@ -2545,6 +1675,14 @@ and tables.c --TY */
 #define GF_LOSE_EXP 158
 
 #define GF_TAUNT 159
+#define GF_DIVINATION 161
+#define GF_HARM 162
+#define GF_UNDEAD_SMITE 163
+#define GF_DEMON_SMITE 164
+#define GF_EVIL_SMITE 165
+#define GF_GOOD_SMITE 166
+#define GF_COMMAND_ELEMENT 168
+
 
 /*
  * Some things which induce learning
@@ -2719,7 +1857,6 @@ and tables.c --TY */
 #define TR3_NO_TELE                     0x00000010L     /* Anti-teleportation */
 #define TR3_NO_MAGIC                    0x00000020L     /* Anti-magic */
 #define TR3_WRAITH                      0x00000040L     /* Wraithform */
-#define TR3_TY_CURSE                    0x00000080L     /* The Ancient Curse */
 #define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
 #define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
 #define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
@@ -2748,24 +1885,21 @@ and tables.c --TY */
 
 
 #define TR4_NEVER_BLOW          0x00000001L     /* Weapon can't attack */
-/* Free slot! */
+#define TR4_ICE                 0x00000002L     /* Appears in Ice dungeons only. */
 /* Free slot! */
 #define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
 #define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
-#define TR4_DG_CURSE            0x00000020L     /* The Ancient Morgothian Curse */
 #define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
 #define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
 #define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
 #define TR4_CLONE               0x00000200L     /* Can clone monsters */
 #define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
 #define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
-#define TR4_ONLY_WARRIOR        0x00001000L     /* Only warrior classes can use */
-#define TR4_ONLY_MAGE           0x00002000L     /* Only mage classes can use */
+#define TR4_CRAFTED             0x00001000L     /* Item is enchanted through crafting. */
+#define TR4_MODERATE_POWER      0x00002000L     /* For potions. */
 #define TR4_ONLY_MALE           0x00004000L     /* Only usable to males */
 #define TR4_ONLY_FEMALE         0x00008000L     /* Only usable to females */
-#define TR4_BRAND_LIGHT         0x00010000L     /* Light Brand */
-#define TR4_BRAND_DARK          0x00020000L     /* Dark Brand */
-#define TR4_BRAND_MAGIC         0x00040000L     /* Magic brand */
+#define TR4_ENHANCED            0x00010000L     /* Enhanced ranged weapon */
 #define TR4_CHARGEABLE          0x00080000L     /* Weapon is chargeable */
 #define TR4_INDESTRUCTIBLE      0x00100000L     /* Weapon is indestructible */
 #define TR4_ETERNAL             0x00200000L     /* Item is eternal */
@@ -2777,7 +1911,7 @@ and tables.c --TY */
 #define TR4_RETURNING           0x08000000L     /* Returning ammos */
 #define TR4_SAFETY              0x10000000L     /* Prevent stuns */
 #define TR4_PROTECTION          0x20000000L     /* Reduce damages 50% */
-#define TR4_ORIENTAL            0x40000000L     /* Oriental Weapon */
+#define TR4_ENCHANTED           0x40000000L     /* Does nothing. */
 #define TR4_PARRY               0x80000000L     /* Allow blocking on certain weapons */
 #define TR4_NULL_MASK           0xFFFFFFFCL
 
@@ -2831,6 +1965,9 @@ and tables.c --TY */
 #define DF1_DEMON               0x00040000L
 #define DF1_DRAGON              0x00080000L
 #define DF1_NO_GENERIC          0x00100000L
+#define DF1_ICE                 0x00200000L
+#define DF1_WEIRD               0x00400000L
+#define DF1_RANDOM_ONLY         0x00800000L
 
 /*** Monster blow constants ***/
 
@@ -2986,7 +2123,6 @@ and tables.c --TY */
 #define RF3_UNDEAD                      0x00000020      /* Undead */
 #define RF3_EVIL                        0x00000040      /* Evil */
 #define RF3_ANIMAL                      0x00000080      /* Animal */
-#define RF3_DRAGONRIDER            0x00000100  /* DG: DragonRider */
 #define RF3_GOOD                        0x00000200      /* Good */
 #define RF3_AURA_COLD                        0x00000400      /* Freezes in melee */
 #define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
@@ -3101,7 +2237,6 @@ and tables.c --TY */
 #define RF6_RAISE_DEAD                  0x00001000      /* Raise Dead */
 #define RF6_S_BUG                       0x00002000      /* Summon Software bug */
 #define RF6_S_RNG                       0x00004000      /* Summon RNG */
-#define RF6_S_DRAGONRIDER               0x00008000      /* Summon DragonRiders */
 #define RF6_S_KIN                       0x00010000      /* Summon "kin" */
 #define RF6_S_CYBER                     0x00020000      /* Summon Cyberdemons! */
 #define RF6_S_MONSTER                   0x00040000      /* Summon Monster */
@@ -3130,7 +2265,6 @@ and tables.c --TY */
 #define RF7_MORTAL              0x00000020  /* Monster is a mortal being */
 #define RF7_PLAYER_MONSTER      0x00000040  /* Monster is an old player */
 #define RF7_NAZGUL              0x00000080  /* Monster is a Nazgul */
-#define RF7_DG_CURSE            0x00000080  /* If killed the monster grant a DG Curse to the player */
 #define RF7_LEVEL_30            0x00000100  /* Monster is always level 30 */
 #define RF7_LEVEL_60            0x00000200  /* Monster is always level 60 */
 #define RF7_LEVEL_100           0x00000400  /* Monster is always level 100 */
@@ -3142,6 +2276,12 @@ and tables.c --TY */
 #define RF7_GUARD               0x00020000  /* Monster is a town guard. */
 #define RF7_NEVER_BOSS          0x00040000  /* Monster is never a boss. */
 #define RF7_NEVER_ATTACKED      0x00080000  /* Enemy monsters will not attack this creature. */
+#define RF7_DEATH_DIALOG        0x00100000  /* Speak on death. */
+#define RF7_ICE                 0x00200000  /* An "Ice" monster. */
+#define RF7_IMMORTAL            0x00400000  /* Immortal enemy. */
+#define RF7_RANDOM              0x00800000  /* Random monster. */
+#define RF7_UNPLAYABLE          0x01000000  /* Unplayable with Monster race. */
+
 
 /*
  * Monster race flags
@@ -3204,7 +2344,7 @@ and tables.c --TY */
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE | \
-    RF6_S_DRAGONRIDER | RF6_S_BUG | RF6_S_RNG)
+    RF6_S_BUG | RF6_S_RNG)
 
  
 /*
@@ -3234,7 +2374,7 @@ and tables.c --TY */
     (RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
      RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRAGONRIDER | RF6_S_BUG | RF6_S_RNG)
+     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_BUG | RF6_S_RNG)
 
 
 /*** Macro Definitions ***/
@@ -3559,6 +2699,7 @@ extern int PlayerUID;
 #define TERM_L_GREEN            13  /* 'G' */   /* 0,4,0 */
 #define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
 #define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
+#define TERM_INDIGO             18
 
 
 /*** Sound constants ***/
@@ -3746,7 +2887,7 @@ extern int PlayerUID;
 #define DUNGEON_VANILLA         8
 
 /* Max depth of each dungeon(max_depth - min_depth) */
-#define MAX_DUNGEON_DEPTH       128
+#define MAX_DUNGEON_DEPTH       1024
 
 #define DUNGEON_MODE_NONE       0
 #define DUNGEON_MODE_AND        1
@@ -3844,6 +2985,7 @@ extern int PlayerUID;
 #define MORALE_BOOST         0x08000000L
 #define BOSS_MAGIC_RETURNING 0x10000000L
 #define TAUNTED              0x20000000L
+#define PIERCING_SPELLS      0x40000000L
 
 /* Constants for Called Shots! */
 #define CALLED_NONE 0 /* Probably won't be used */
@@ -3879,7 +3021,7 @@ extern int PlayerUID;
 #define ALTER_LOCK          0x00000020L
 #define ALTER_HALVE_POWER   0x00000040L
 #define ALTER_HALVE_MAGIC   0x00000080L
-#define ALTER_WAR_BLESSING  0x00000100L
+#define ALTER_STONE_TO_MUD  0x00000100L
 #define ALTER_DEMORALIZE    0x00000200L
 #define ALTER_RETROGRADE    0x00000400L
 #define ALTER_EVOLVE        0x00000800L
@@ -3891,22 +3033,27 @@ extern int PlayerUID;
 #define ALTER_RAISE_DEX     0x00020000L
 #define ALTER_RAISE_CON     0x00040000L
 #define ALTER_RAISE_CHR     0x00080000L
-#define ALTER_BLESSING      0x00100000L
+#define ALTER_POSITION      0x00100000L
 #define ALTER_HASTE_OTHER   0x00200000L
 #define ALTER_PHYS_RESIST   0x00400000L
 #define ALTER_MAGIC_RESIST  0x00800000L
 #define ALTER_STONESKIN     0x01000000L
 #define ALTER_PARALYZE      0x02000000L
 
-/* Constants for Healing spells */
-#define HEAL_HEAL               0x00000001L
-#define HEAL_RESTORE_STATS      0x00000002L
-#define HEAL_RESTORE_STATUS     0x00000004L
-#define HEAL_CURE_BLEEDING      0x00000008L
-#define HEAL_HEAL_OTHERS        0x00000010L
-#define HEAL_REVIVE_MONSTER     0x00000020L
-#define HEAL_RESTORE_MANA       0x00000040L
-#define HEAL_SATISFY_HUNGER     0x00000080L
+/* Constants for Mysticism spells */
+#define MYST_HEAL               0x00000001L
+#define MYST_RESTORE_STATS      0x00000002L
+#define MYST_RESTORE_STATUS     0x00000004L
+#define MYST_HARM               0x00000008L
+#define MYST_HEAL_OTHERS        0x00000010L
+#define MYST_REVIVE_MONSTER     0x00000020L
+#define MYST_RESTORE_MANA       0x00000040L
+#define MYST_WAR_BLESSING       0x00000080L
+#define MYST_SMITE_UNDEADS      0x00000100L
+#define MYST_SMITE_DEMONS       0x00000200L
+#define MYST_SMITE_EVIL         0x00000400L
+#define MYST_SMITE_GOOD         0x00000800L
+#define MYST_BLESSING           0x00001000L
 
 /* Constants for Conjuration spells */
 #define CONJ_SUMMON_KIND        0x00000001L
@@ -3932,17 +3079,8 @@ extern int PlayerUID;
 #define DIVI_IDENTIFY           0x00000040L
 #define DIVI_SCAN_MONSTER       0x00000080L
 #define DIVI_REVEAL             0x00000100L
-
-/* Constants for licialhyds */
-#define LICIAL_MAX         11
-#define LICIAL_HEALING     1
-#define LICIAL_MANA        2
-#define LICIAL_STR         3
-#define LICIAL_INT         4
-#define LICIAL_WIS         5
-#define LICIAL_DEX         6
-#define LICIAL_CON         7
-#define LICIAL_CHR         8
-#define LICIAL_RESTORE     9
-#define LICIAL_PRES        10
-#define LICIAL_MRES        11
+#define DIVI_DIVINATION         0x00000200L
+#define DIVI_RESTORE_FATE       0x00000400L
+#define DIVI_FATE_MONSTERS      0x00000800L
+#define DIVI_FATE_ITEMS         0x00001000L
+#define DIVI_FATE_DUNGEONS      0x00002000L

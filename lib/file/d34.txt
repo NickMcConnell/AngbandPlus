@@ -1,0 +1,9 @@
+N:1:0:0:0:0:0
+I: ;
+T:In this room is a large device that seems to be connected to the surface.;
+T:There are several control panels, and you can sense some strange magical;
+T:energy emanating from it as well. Your guess is that this machine is;
+T:capable of generating a very strong energy, which was probably needed to;
+T:accomplish whatever task this machine was built for.; 
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

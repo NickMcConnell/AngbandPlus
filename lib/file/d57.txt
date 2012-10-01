@@ -1,0 +1,46 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you go down the stairs, the voice is heard again.;
+A:[CONTINUE]:0:0:0:1:2:0:0:113:3
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:Althought you've made Ophelia cry, you've atoned by killing the man;
+T:who was tainted by lies. Thanks you, <CLASS>. I'm sure Ophelia;
+T:will forgive you now.;
+A:The whole thing doesn't make sense! Why don't you show up??:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:There is no need for that. You've accomplished your task. I will, however,;
+T:reward you with something. It's a blade of unusual power. A blade that;
+T:carries rage and anger. A blade tainted by Ophelia's restless soul.;
+A:[CONTINUE]:0:0:0:3:33:4:4:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:A magical katana appears in your hands. Your hands starts itching as you;
+T:hold it, and you suddently feel an urge to go in battle to use it.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Voice;
+T:Though the blade is foul, it's power largely makes up for it. Put Ophelia's;
+T:anger to good use, <CLASS>. Farewell.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The voice fades, and you feel that this time, she will not come back.;
+T:There are still a lot of things you do not understand. What was this;
+T:whole event all about? Was Jeffrey really a threat? And why were you;
+T:rewarded with a cursed blade? You are unsure if you took the right;
+T:decisions. But it seems there is nothing else to do here. You may;
+T:now leave this place, and continue your adventure.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

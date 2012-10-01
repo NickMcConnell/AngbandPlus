@@ -1,0 +1,26 @@
+N:1:1111:1:0:0:0
+I:Namira;
+T:I will never serve Archfiends again. From now on, I will be an honest;
+T:citizen, and I will put my powers to good use. Thanks you, <NAME>,;
+T:for helping me. I will never forget that day!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1111:0:0:0:0
+I:Namira;
+T:Oh, <NAME>, thanks you for visiting me. I apologize once again for all;
+T:the trouble I've caused you. I promised I would give you a reward, so;
+T:let me give you these magical gauntlets. Unlike most gauntlets, these;
+T:will not hinder your spellcasting abilities. In fact, they will greatly;
+T:improve it. A useful spell has been imbued in them too, so I'm sure;
+T:you will find them most useful.;
+A:[CONTINUE]:0:0:0:3:24:4:2:1111:1
+%
+
+N:2:0:0:0:0:0
+I:Namira;
+T:I worked on these gauntlets for many years, using some of the Archfiend's;
+T:knowledge to create the enchantment. But don't worry, no evil powers;
+T:have been placed in them. Wear them proudly, <NAME>!;
+A:Thanks you, Namira. [END DIALOG]:0:0:0:0:0:0:0:0:0
+%

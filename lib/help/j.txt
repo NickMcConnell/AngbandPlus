@@ -21,21 +21,23 @@ Whether they are real zulgors, or aren't related to the zulgors at all,
 these peoples are unbelievably strong, and have great mastery of the element 
 of Chaos, as well as complete immunity to it, something extremely unusual, 
 even amongst magical beings of any kind. But having legendary strength does 
-have it's drawbacks. Normal weapons just aren't made for them, as they aren't 
-strong enough to resist the tremendous impact the blows of a zulgor delivers. 
-As a result, they tend to break very easily. Also, due to their body being 
-impregnated with chaos, possibly even made of pure chaos, it seems no matter 
-what element they try to invoke, it turns out into a chaotic force...
+have it's drawbacks. Due to their body being impregnated with chaos, possibly
+even made of pure chaos, it seems no matter what element they try to invoke,
+it turns into a chaotic force...
+
+Compared to humans, Zulgors' intelligence is just as good, although they
+are more reclusive and not very sociable. They also do not practice many
+skills other than Fighting, but they do master it better than other peoples
+due to their supernatural strength.
 
 ZULGOR FEATURES:
 
 - +100% Strength.
+- +25% to Intelligence.
+- +33% to Fighting skill.
 - +25% damages to Chaos-based attacks and spells.
 - 100% resistance to Chaos.
 - Starts the game with the elemental effect 'Chaos' learned.
 
-ZULGOR PENALITIES:
-
-- Non-indestructible weapons will lose durability very quickly.
-- All non-physical attacks, spells and abilities will turn into Chaos. This includes
-branded weapons, rods, spells, abilities, etc...
+- All non-physical attacks, spells and abilities will turn into Chaos. 
+This includes branded weapons, rods, spells, abilities, etc...

@@ -1,0 +1,35 @@
+N:1:1035:2:0:0:0
+I:Delvan The Swift;
+T:No! I am Delvan The Swift, the most powerful and notorious devling bandit!;
+T:I cannot be defeated like this!!;
+A:[CONTINUE]:0:0:0:3:1213:0:3:0:0
+%
+
+N:1:0:0:0:0:0
+I:Delvan The Swift;
+T:What are you doing here, <CLASS>? This is no place for you. I suggest you;
+T:get out of here now, or else we'll kill you!;
+A:I came here for the amulet of Golden Truth:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Delvan The Swift;
+T:The what? Oh, you must mean that junk we stole from that demon worshipper.;
+T:Haha, what a naive fool! Dragon Lancers? Haha! We're not Dragon Lancers,;
+T:we're the Delvan Gang! Well, it was disappointing though.;
+T:This thing doesn't even have any powers! That's just a worthless piece;
+T:of metal! But still, I can't just let you have it back, as it would be;
+T:against my principles. I never give back what I steal, no matter how;
+T:worthless it is! If you want it back, you'll have to take it from my dead;
+T:body! All right boys, let's give <himher> a good trashing!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:You search Delvan's body, and you are able to find the amulet. It's a;
+T:gold amulet that looks like an eye, but instead of a circular iris,;
+T:it's a golden heart. A rather odd shape for a religious relic, especially;
+T:one that worship a supposed Archfiend...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

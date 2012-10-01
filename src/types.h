@@ -101,7 +101,20 @@ struct header
 	u32b	text_size;		/* Size of the "text" array in bytes */
 };
 
+typedef struct monster_attack monster_attack;
 
+struct monster_attack
+{
+	char name[80];
+	char act[80];
+	s16b type;
+	s16b effect;
+	s16b ddice;
+	s16b dside;
+	s16b element;
+	s16b special1;
+	s16b special2;
+};
 
 /*
  * Information about terrain "features"
@@ -130,6 +143,84 @@ struct feature_type
 	char x_char;		/* Desired feature character */
 };
 
+/* A randomly generated room */
+typedef struct random_room random_room;
+
+struct random_room
+{
+	s16b top;
+	s16b left;
+	s16b right;
+	s16b bottom;
+	s16b centerx;
+	s16b centery;
+	bool connectedto[20];
+	s16b connectx[20];
+	s16b connecty[20];
+	bool pickeddir[10];
+	bool created;
+};
+
+/* NewAngband 1.8.0 */
+/* A spell of a monster! */
+typedef struct monster_spell monster_spell;
+
+struct monster_spell
+{
+	char name[80];
+	char act[80];
+	s16b type;
+	s16b power;
+	s16b special1;
+	s16b special2;
+	s16b special3;
+	char summchar;
+	s16b cost;
+};
+
+/* A structure made for our spells! :) */
+typedef struct magic_spells magic_spells;
+
+struct magic_spells
+{
+    char    name[80];
+    s16b    school[5];
+    s16b    effect[5];
+    s16b    shape[5];
+    s32b    power[5];
+    s16b    radius[5];
+    s16b    type[5];
+    s32b    manacost[5];
+    /* Very, very, very ugly piece of code... */
+    /* But it's simpler and it works! */
+    char    schar1;
+    char    schar2;
+    char    schar3;
+    char    schar4;
+    char    schar5;
+    char    sspeci1[80];
+    char    sspeci2[80];
+    char    sspeci3[80];
+    char    sspeci4[80];
+    char    sspeci5[80];
+    s32b    finalcost;
+    bool    created;
+};
+
+/* The songs structure. */
+typedef struct music_songs music_songs;
+
+struct music_songs
+{
+	char name[80];
+	s16b type;
+	s16b power;
+	s16b element;
+	s16b radius;
+	s16b cost;
+	bool created;
+};
+
 
 /*
  * Information about object "kinds", including player knowledge.
@@ -145,17 +236,17 @@ struct object_kind
 	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Object type */
-	byte sval;			/* Object sub type */
+	s16b sval;			/* Object sub type */
 
         s32b pval;                      /* Object extra info */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
+	s32b to_h;			/* Bonus to hit */
+	s32b to_d;			/* Bonus to damage */
+	s32b to_a;			/* Bonus to armor */
 
-	s16b ac;			/* Base armor */
+	s32b ac;			/* Base armor */
 
-	byte dd, ds;		/* Damage dice/sides */
+	s16b dd, ds;		/* Damage dice/sides */
 
         s32b weight;            /* Weight */
 
@@ -166,11 +257,11 @@ struct object_kind
 	u32b flags3;		/* Flags, set 3 */
         u32b flags4;            /* Flags, set 4 */
 
-	byte locale[4];		/* Allocation level(s) */
-	byte chance[4];		/* Allocation chance(s) */
+	s16b locale[4];		/* Allocation level(s) */
+	s16b chance[4];		/* Allocation chance(s) */
 
-	byte level;			/* Level */
-	byte extra;			/* Something */
+	s16b level;			/* Level */
+	s16b extra;			/* Something */
 
 
 	byte d_attr;		/* Default object attribute */
@@ -199,25 +290,34 @@ struct object_kind
 	s32b branddam;
 	s16b brandrad;
 
-	s16b fireres;
-	s16b coldres;
-	s16b elecres;
-	s16b acidres;
-	s16b poisres;
-	s16b lightres;
-	s16b darkres;
-	s16b warpres;
-	s16b waterres;
-	s16b windres;
-	s16b earthres;
-	s16b soundres;
-	s16b radiores;
-	s16b chaosres;
-	s16b physres;
-	s16b manares;
+	/* A better resistance variable. */
+	s16b resistances[MAX_RESIST];
+
+	/* New variables for yet MORE customization! */
+	s16b itemtype;
+	s16b itemskill;
+	s16b statsbonus[6];
+	s16b skillsbonus[SKILL_MAX];
+	s16b extrablows;
+	s16b extrashots;
+	s16b speedbonus;
+	s16b lifebonus;
+	s16b manabonus;
+	s16b infravision;
+	s16b spellbonus;
+	s16b invisibility;
+	s16b light;
+	s16b extra1;
+	s16b extra2;
+	s16b extra3;
+	s16b extra4;
+	s16b extra5;
+	s16b reflect;
+	s16b cursed;
+
+	monster_spell spell[20];
+
 };
-
-
 
 /*
  * Information about "artifacts".
@@ -235,17 +335,17 @@ struct artifact_type
 	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Artifact type */
-	byte sval;			/* Artifact sub type */
+	s16b sval;			/* Artifact sub type */
 
 	s16b pval;			/* Artifact extra info */
 
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
+	s32b to_h;			/* Bonus to hit */
+	s32b to_d;			/* Bonus to damage */
+	s32b to_a;			/* Bonus to armor */
 
-	s16b ac;			/* Base armor */
+	s32b ac;			/* Base armor */
 
-	byte dd, ds;		/* Damage when hits */
+	s16b dd, ds;		/* Damage when hits */
 
 	s16b weight;		/* Weight */
 
@@ -269,22 +369,30 @@ struct artifact_type
 	s32b branddam;
 	s16b brandrad;
 
-	s16b fireres;
-	s16b coldres;
-	s16b elecres;
-	s16b acidres;
-	s16b poisres;
-	s16b lightres;
-	s16b darkres;
-	s16b warpres;
-	s16b waterres;
-	s16b windres;
-	s16b earthres;
-	s16b soundres;
-	s16b radiores;
-	s16b chaosres;
-	s16b physres;
-	s16b manares;
+	s16b resistances[MAX_RESIST];
+
+	s16b itemtype;
+	s16b itemskill;
+	s16b statsbonus[6];
+	s16b skillsbonus[SKILL_MAX];
+	s16b extrablows;
+	s16b extrashots;
+	s16b speedbonus;
+	s16b lifebonus;
+	s16b manabonus;
+	s16b infravision;
+	s16b spellbonus;
+	s16b invisibility;
+	s16b light;
+	s16b extra1;
+	s16b extra2;
+	s16b extra3;
+	s16b extra4;
+	s16b extra5;
+	s16b reflect;
+	s16b cursed;
+
+	monster_spell spell[20];
 };
 
 
@@ -341,40 +449,6 @@ struct monster_blow
 	byte d_side;
 };
 
-/* NewAngband 1.8.0 */
-/* An attack of a monster! */
-typedef struct monster_attack monster_attack;
-
-struct monster_attack
-{
-	char name[80];
-	char act[80];
-	s16b type;
-	s16b effect;
-	s16b ddice;
-	s16b dside;
-	s16b element;
-	s16b special1;
-	s16b special2;
-};
-
-/* NewAngband 1.8.0 */
-/* A spell of a monster! */
-typedef struct monster_spell monster_spell;
-
-struct monster_spell
-{
-	char name[80];
-	char act[80];
-	s16b type;
-	s16b power;
-	s16b special1;
-	s16b special2;
-	s16b special3;
-	char summchar;
-	s16b cost;
-};
-
 
 
 /*
@@ -406,10 +480,10 @@ struct monster_race
 	u32b text;				/* Text (offset) */
 	char name_char[200];
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+	s16b hdice;				/* Creatures hit dice count */
+	s16b hside;				/* Creatures hit dice sides */
 
-	s16b ac;				/* Armour Class */
+	s32b ac;				/* Armour Class */
 
 	s16b sleep;				/* Inactive counter (base) */
 	byte aaf;				/* Area affect radius (1-100) */
@@ -472,7 +546,7 @@ struct monster_race
 	byte r_cast_spell;		/* Max number of other spells seen */
 
 	byte r_blows[20];		/* Number of times each blow type was seen */
-	byte r_resist[20];		/* Various resistances observed... */
+	byte r_resist[MAX_RESIST];		/* Various resistances observed... */
 	byte r_spells[20];		/* Known monster spells */
 
 	u32b r_flags1;			/* Observed racial flags */
@@ -489,31 +563,17 @@ struct monster_race
 
 	/* New stuff for 1.8.0! */
 	
-	s16b str;
-	s16b dex;
-	s16b mind;
-	s16b skill_attack;
-	s16b skill_magic;
+	s32b str;
+	s32b dex;
+	s32b mind;
+	s32b skill_attack;
+	s32b skill_ranged;
+	s32b skill_magic;
 	
 	s16b countertype;
 	s16b counterchance;
 
-	s16b fireres;
-	s16b coldres;
-	s16b elecres;
-	s16b acidres;
-	s16b poisres;
-	s16b lightres;
-	s16b darkres;
-	s16b warpres;
-	s16b waterres;
-	s16b windres;
-	s16b earthres;
-	s16b soundres;
-	s16b radiores;
-	s16b chaosres;
-	s16b physres;
-	s16b manares;
+	s16b resistances[MAX_RESIST];
 
 	s16b spellchance; /* Chance to cast a spell. 0 = no spell */
 
@@ -533,6 +593,22 @@ struct monster_race
 	s16b townnum; /* Which town is associated with this monster! */
 	s16b dunnum; /* Which dungeon is associated with this monster! */
 	s16b lives; /* How many lives the monster have! */
+	s16b cursed; /* The 'cursed' level of the monster! */
+
+	/* New parameters */
+	s16b event_before_melee;
+	s16b event_after_melee;
+	s16b event_before_ranged;
+	s16b event_after_ranged;
+	s16b event_before_magic;
+	s16b event_after_magic;
+	s16b event_before_move;
+	s16b event_after_move;
+	s16b event_passive;
+	s16b event_take_damages;
+	s16b event_death;
+	s16b event_spawn;
+	s16b event_misc;
 };
 
 
@@ -649,6 +725,8 @@ struct cave_type
 	s16b eventsetval;
 	s16b script;
 
+	s16b owner;
+
 	char script_name[120];
 };
 
@@ -692,7 +770,7 @@ struct object_type
 	byte ix;			/* X-position on map, or zero */
 
 	byte tval;			/* Item type (from kind) */
-	byte sval;			/* Item sub-type (from kind) */
+	s16b sval;			/* Item sub-type (from kind) */
 
         s32b pval;                      /* Item extra-parameter */
         s32b pval2;                     /* Item extra-parameter for some special
@@ -700,30 +778,41 @@ struct object_type
         s32b pval3;                     /* Item extra-parameter for some special
                                            items*/
 
-	/* Resistances! */
-	s16b fireres;
-	s16b coldres;
-	s16b elecres;
-	s16b acidres;
-	s16b poisres;
-	s16b lightres;
-	s16b darkres;
-	s16b warpres;
-	s16b waterres;
-	s16b windres;
-	s16b earthres;
-	s16b soundres;
-	s16b chaosres;
-	s16b radiores;
-	s16b physres;
-	s16b manares;
-
 	/* Brands! */
 	/* As of NewAngband 1.8.0, a new branded weapons */
 	/* code will be used! :) */
 	s16b brandtype;
 	s32b branddam;
 	s16b brandrad;
+
+	/* A better resistance variable. */
+	s16b resistances[MAX_RESIST];
+
+	/* New variables for yet MORE customization! */
+	s16b itemtype;
+	s16b itemskill;
+	s16b statsbonus[6];
+	s16b skillsbonus[SKILL_MAX];
+	s16b extrablows;
+	s16b extrashots;
+	s16b speedbonus;
+	s16b lifebonus;
+	s16b manabonus;
+	s16b infravision;
+	s16b spellbonus;
+	s16b invisibility;
+	s16b light;
+	s16b extra1;
+	s16b extra2;
+	s16b extra3;
+	s16b extra4;
+	s16b extra5;
+	s16b reflect;
+	s16b cursed;
+
+	s16b tweakpoints;
+
+	s16b disabled;
 
 	byte discount;		/* Discount (if any) */
 
@@ -734,19 +823,19 @@ struct object_type
         s16b level;            /* Item exp level */
         s32b kills;               /* Item exp */
 
-	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
+	s16b name1;			/* Artifact type, if any */
+	s16b name2;			/* Ego-Item type, if any */
 
         s32b xtra1;                     /* Extra info type */
 	byte xtra2;			/* Extra info index */
 
-	s16b to_h;			/* Plusses to hit */
-	s16b to_d;			/* Plusses to damage */
-	s16b to_a;			/* Plusses to AC */
+	s32b to_h;			/* Plusses to hit */
+	s32b to_d;			/* Plusses to damage */
+	s32b to_a;			/* Plusses to AC */
 
-	s16b ac;			/* Normal AC */
+	s32b ac;			/* Normal AC */
 
-	byte dd, ds;		/* Damage dice/sides */
+	s16b dd, ds;		/* Damage dice/sides */
 
 	s16b timeout;		/* Timeout Counter */
 
@@ -766,6 +855,8 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+
+	monster_spell spell[20];
 };
 
 
@@ -831,24 +922,26 @@ struct monster_type
         s16b boss;                       /* 0=Normal, 1=Elite, 2=Boss */
         u32b abilities;                  /* The monster's special ability(ies) */
         s16b friend;                     /* The monster is your friend! */
-        s16b hitrate;                    /* The monster's hit rate! */
-        s16b defense;                    /* The monster's defense! */
+        s32b hitrate;                    /* The monster's hit rate! */
+        s32b defense;                    /* The monster's defense! */
         bool animated;                   /* Monster is animated. */
         s16b animdam_d;                  /* Animated monster's dice damages. */
         s16b animdam_s;                  /* Animated monster's side damages. */
         s16b seallight;                  /* Hit by Sealing Light */
 
-	s16b str;
-	s16b dex;
-	s16b mind;
-	s16b skill_attack;
-	s16b skill_magic;
+	s32b str;
+	s32b dex;
+	s32b mind;
+	s32b skill_attack;
+	s32b skill_ranged;
+	s32b skill_magic;
 	s32b mana;
 	s16b hasted;
 	s16b boosted;
 	s16b spoke;
 	s16b lives;
 	s16b summoned;
+	bool no_experience;
 };
 
 
@@ -987,7 +1080,7 @@ struct store_type
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
 
-	byte stock_num;			/* Stock -- Number of entries */
+	s16b stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
@@ -1303,7 +1396,7 @@ struct player_type
         s32b dis_to_d;          /* Known bonus to dam */
 	s32b dis_to_a;		/* Known bonus to ac */
 
-	s16b dis_ac;		/* Known base ac */
+	s32b dis_ac;		/* Known base ac */
 
         s16b to_m;                      /* Bonus to mana */
         s16b to_s;                      /* Bonus to spell */
@@ -1366,8 +1459,8 @@ struct player_type
         s16b pres_dur;
         s16b mres;
         s16b mres_dur;
-        s16b ac_boost;
-        s16b ac_boost_dur;
+        s32b ac_boost;
+        s32b ac_boost_dur;
         s16b elem_shield;
 
         /* Schools used for spellmaking! */
@@ -1393,6 +1486,11 @@ struct player_type
         s16b abilities[MAX_ABILITIES];
 	s16b num_abilities; /* Number of learned abilities */
 	s16b abilities_powers[36]; /* Used with "U" command. */
+	s16b abilities_monster_attacks[20];
+	s16b abilities_monster_spells[20];
+
+	/* Player's boss abilities. */
+	u32b boss_abilities;
 
         /* Magic mode. 0 = normal spells. 1 = monster magics */
         s16b magic_mode;
@@ -1417,23 +1515,7 @@ struct player_type
 	/* Events */
 	s16b events[30000];
 
-	/* Resistances! */
-	s16b fireres;
-	s16b coldres;
-	s16b elecres;
-	s16b acidres;
-	s16b poisres;
-	s16b lightres;
-	s16b darkres;
-	s16b warpres;
-	s16b waterres;
-	s16b windres;
-	s16b earthres;
-	s16b soundres;
-	s16b chaosres;
-	s16b radiores;
-	s16b physres;
-	s16b manares;
+	s16b resistances[MAX_RESIST];
 
 	/* Current width/height */
 	s16b cur_wid;
@@ -1451,10 +1533,15 @@ struct player_type
 	s16b powerattack;
         s16b powerlevel;
 	s16b num_blow2;		/* Number of blows with second weapon */
+	s16b num_fire2;		/* Number of shots with second weapon */
+	s16b dualwield;		/* Are we dual wielding? */
 
 	/* Alignment! */
 	/* Are you good or evil? ;) */
 	s16b alignment;
+
+	/* How cursed you are. */
+	s16b cursed;
 
 	/* Have the towns changed? */
 	s16b towns[30000];
@@ -1509,7 +1596,6 @@ struct building_type
 	
 	s16b member_class[MAX_CLASS];   /* which classes are part of guild */
 	s16b member_race[MAX_RACES];    /* which classes are part of guild */
-	s16b member_realm[MAX_REALM+1]; /* which realms are part of guild */
 };
 
 
@@ -1733,35 +1819,6 @@ struct inscription_info_type {
         byte mana;                      /* Grid mana needed */
 };
 
-/* A structure made for our spells! :) */
-typedef struct magic_spells magic_spells;
-
-struct magic_spells
-{
-    char    name[80];
-    s16b    school[5];
-    s16b    effect[5];
-    s16b    shape[5];
-    s32b    power[5];
-    s16b    radius[5];
-    s16b    type[5];
-    s16b    manacost[5];
-    /* Very, very, very ugly piece of code... */
-    /* But it's simpler and it works! */
-    char    schar1;
-    char    schar2;
-    char    schar3;
-    char    schar4;
-    char    schar5;
-    char    sspeci1[80];
-    char    sspeci2[80];
-    char    sspeci3[80];
-    char    sspeci4[80];
-    char    sspeci5[80];
-    s16b    finalcost;
-    bool    created;
-};
-
 /* NewAngband 1.8.0 */
 /* Monster Magics structure! */
 /* Pretty much the same as the above monster_spell. */
@@ -1786,16 +1843,16 @@ typedef struct dialog_answers dialog_answers;
 struct dialog_answers
 {
 	char name[80];
-	s16b ctype;
-	s16b cparam1;
-	s16b cparam2;
-	s16b effect;
-	s16b eparam1;
-	s16b eparam2;
-	s16b eparam3;
-	s16b eparam4;
-	s16b eparam5;
-	s16b valid;
+	s32b ctype;
+	s32b cparam1;
+	s32b cparam2;
+	s32b effect;
+	s32b eparam1;
+	s32b eparam2;
+	s32b eparam3;
+	s32b eparam4;
+	s32b eparam5;
+	s32b valid;
 };
 
 typedef struct wild_info wild_info;
@@ -1803,6 +1860,7 @@ struct wild_info
 {
         s16b town;
 	s16b feat;
+	bool revive;
 };
 
 /* Classes definitions */
@@ -1844,4 +1902,29 @@ struct ability_def
 	s16b combatfeat;
 	s16b skill;
 	s16b reqskill;
+};
+
+/* A resistance's definition. */
+typedef struct resist_def resist_def;
+struct resist_def
+{
+	char name[80];
+	s16b element;
+	bool magicitem;
+};
+
+/* Portralis: new Vaults definiton! */
+typedef struct vault_def vault_def;
+
+struct vault_def
+{
+	bool created;
+	s16b num;
+	s16b width;
+	s16b height;
+	s16b mindlv;
+	s16b maxdlv;
+	s16b teleport;
+	s16b type;
+	s16b rarity;
 };

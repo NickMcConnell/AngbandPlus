@@ -2413,9 +2413,7 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		}
 		/* Mage */
 		case 1:
-                case CLASS_ALCHEMIST:
                 case CLASS_HIGH_MAGE:
-                case CLASS_POSSESSOR:
 		{
 			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
 			else r_ptr->freq_spell += 10;
@@ -2536,66 +2534,6 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
 
-			break;
-		}
-                case CLASS_SORCERER:
-                case CLASS_HELLQUEEN:
-		{
-                        if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 32;
-                        else r_ptr->freq_spell += 30;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
-                        if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
-                        if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
-                        if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
-                        if (r_ptr->level >= 75) r_ptr->flags4 |= (RF4_ROCKET);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_CONF);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BLIND);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_SCARE);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_SLOW);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_HOLD);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_TELE_TO);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_TELE_AWAY);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_S_DRAGONRIDER);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_S_CYBER);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_NETH);
-
-                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
-                        if (r_ptr->level > 40) r_ptr->speed += 5;
-                        if (r_ptr->speed > 150) r_ptr->speed = 150;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
-
-			r_ptr->hdice = 2 * r_ptr->hdice / 3;
-
-			for (n = 0; n < 4; n++)
-			{
-                                if (randint(3) == 1) r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 7;
-			}
-			
-			break;
-		}
-		/* Mage */
-                case CLASS_WARRIOR_MAGE:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
-                        if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
-                        else if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
-                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
-
-                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
-                        if (r_ptr->level > 40) r_ptr->speed += 5;
-                        if (r_ptr->speed > 150) r_ptr->speed = 150;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
 			break;
 		}
 	}
@@ -3006,764 +2944,6 @@ errr init_v_info(void)
 
 /*** Initialize others ***/
 
-/*
- * Hack -- Objects sold in the stores -- by tval/sval pair.
- */
-static byte store_table[MAX_STORES][STORE_CHOICES][2] =
-{
-	{
-		/* General Store */
-
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_JERKY },
-		{ TV_FOOD, SV_FOOD_JERKY },
-
-		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
-
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
-
-		{ TV_SHOT, 1 },
-		{ TV_ARROW, 1 },
-		{ TV_BOLT, 1 },
-		{ 0, 0 },
-
-		{ TV_DIGGING, SV_PICK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
-
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
-
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-                { TV_SOFT_ARMOR, 1 },
-                { TV_SOFT_ARMOR, 1 },
-
-		{ TV_SHOT, 1 },
-		{ TV_ARROW, 1 },
-		{ TV_BOLT, 1 },
-                { 0, 0 },
-
-                { TV_SOFT_ARMOR, 1 },
-                { TV_SOFT_ARMOR, 1 },
-                { TV_BOOTS, 1 },
-                { TV_BOOTS, 1 }
-
-	},
-
-	{
-		/* Armoury */
-
-		{ TV_BOOTS, 2 },
-		{ TV_BOOTS, 2 },
-		{ TV_BOOTS, 10 },
-		{ TV_BOOTS, 10 },
-
-		{ TV_GLOVES, 2 },
-		{ TV_GLOVES, 2 },
-		{ TV_GLOVES, 10 },
-		{ TV_GLOVES, 10 },
-
-		{ TV_HELM, 2 },
-		{ TV_HELM, 2 },
-		{ TV_HELM, 3 },
-		{ TV_HELM, 3 },
-
-		{ TV_SHIELD, 1 },
-		{ TV_SHIELD, 1 },
-		{ TV_SHIELD, 2 },
-		{ TV_SHIELD, 2 },
-
-		{ TV_SOFT_ARMOR, 2 },
-		{ TV_SOFT_ARMOR, 2 },
-		{ TV_SOFT_ARMOR, 2 },
-		{ TV_SOFT_ARMOR, 2 },
-
-		{ TV_SOFT_ARMOR, 4 },
-		{ TV_SOFT_ARMOR, 4 },
-		{ TV_SOFT_ARMOR, 12 },
-		{ TV_SOFT_ARMOR, 12 },
-
-		{ TV_HARD_ARMOR, 16 },
-		{ TV_HARD_ARMOR, 16 },
-		{ TV_HARD_ARMOR, 17 },
-		{ TV_HARD_ARMOR, 17 },
-
-		{ TV_HARD_ARMOR, 1 },
-		{ TV_GLOVES, 3 },
-		{ TV_SHIELD, 3 },
-		{ TV_BOOTS, 3 },
-
-		{ TV_HELM, 4 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-
-
-	},
-
-	{
-		/* Weaponsmith */
-
-                { TV_DAGGER, 1 },
-                { TV_DAGGER, 1 },
-		{ TV_DAGGER, 2 },
-		{ TV_DAGGER, 2 },
-
-		{ TV_SWORD, 1 },
-		{ TV_SWORD, 1 },
-		{ TV_SWORD, 2 },
-		{ TV_SWORD, 2 },
-
-		{ TV_SWORD, 10 },
-		{ TV_SWORD, 10 },
-		{ TV_SWORD, 11 },
-		{ TV_SWORD, 11 },
-
-		{ TV_AXE, 1 },
-		{ TV_AXE, 1 },
-		{ TV_AXE, 2 },
-		{ TV_AXE, 2 },
-
-		{ TV_AXE, 10 },
-		{ TV_AXE, 10 },
-		{ TV_AXE, 11 },
-		{ TV_AXE, 11 },
-
-		{ TV_POLEARM, 1 },
-		{ TV_POLEARM, 1 },
-		{ TV_POLEARM, 2 },
-		{ TV_POLEARM, 2 },
-
-		{ TV_POLEARM, 10 },
-		{ TV_POLEARM, 10 },
-		{ TV_POLEARM, 11 },
-		{ TV_POLEARM, 11 },
-
-		{ TV_POLEARM, 17 },
-		{ TV_POLEARM, 17 },
-		{ TV_POLEARM, 18 },
-		{ TV_POLEARM, 18 },
-
-		{ TV_SWORD, 17 },
-		{ TV_SWORD, 17 },
-		{ TV_SWORD, 18 },
-		{ TV_SWORD, 18 },
-
-		{ TV_HAFTED, 1 },
-		{ TV_HAFTED, 1 },
-		{ TV_HAFTED, 2 },
-		{ TV_HAFTED, 2 },
-
-		{ TV_HAFTED, 10 },
-		{ TV_HAFTED, 10 },
-		{ TV_HAFTED, 11 },
-		{ TV_HAFTED, 11 },
-
-		{ TV_HAFTED, 17 },
-		{ TV_HAFTED, 17 },
-		{ TV_HAFTED, 18 },
-		{ TV_HAFTED, 18 },
-
-		{ TV_HAFTED, 24 },
-		{ TV_HAFTED, 24 },
-		{ TV_HAFTED, 25 },
-		{ TV_HAFTED, 25 },
-
-		{ TV_ARROW, 1 },
-		{ TV_ARROW, 1 },
-		{ TV_ARROW, 2 },
-		{ TV_ARROW, 2 },
-
-		{ TV_BOLT, 1 },
-		{ TV_BOLT, 1 },
-		{ TV_BOLT, 2 },
-		{ TV_BOLT, 2 },
-
-		{ TV_SHOT, 1 },
-		{ TV_SHOT, 1 },
-		{ TV_SHOT, 2 },
-		{ TV_SHOT, 2 },
-	
-		{ 19, 12 },
-		{ 19, 12 },
-		{ 19, 13 },
-		{ 19, 13 },
-
-		{ 19, 23 },
-		{ 19, 23 },
-		{ 19, 2 },
-		{ 19, 2 },
-
-		{ 15, 1 },
-		{ 15, 1 },
-		{ 15, 2 },
-		{ 15, 2 },
-
-		{ TV_SWORD, 24 },
-		{ TV_SWORD, 24 },
-		{ TV_SWORD, 25 },
-		{ TV_SWORD, 25 },
-
-		{ TV_SWORD, 31 },
-		{ TV_SWORD, 31 },
-		{ TV_SWORD, 32 },
-		{ TV_SWORD, 32 },
-
-		{ TV_SWORD, 38 },
-		{ TV_SWORD, 38 },
-		{ TV_SWORD, 39 },
-		{ TV_SWORD, 39 },
-
-		{ TV_AXE, 17 },
-		{ TV_AXE, 17 },
-		{ TV_AXE, 18 },
-		{ TV_AXE, 18 }
-
-		
-        },
-
-	{
-		/* Temple */
-
-		{ TV_HAFTED, 1 },
-		{ TV_HAFTED, 1 },
-		{ TV_HAFTED, 2 },
-		{ TV_HAFTED, 2 },
-
-		{ TV_HAFTED, 17 },
-		{ TV_HAFTED, 17 },
-		{ TV_HAFTED, 18 },
-		{ TV_HAFTED, 18 },
-
-		{ 0, 0 },
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-                { TV_POTION, SV_POTION_CURE_LIGHT },
-                { TV_POTION, SV_POTION_CURE_LIGHT },
-
-		{ TV_POTION, SV_POTION_HEROISM },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-
-		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-
-                { TV_BOOK_HEALING, 0 },
-                { TV_BOOK_HEALING, 0 },
-                { TV_BOOK_HEALING, 0 },
-                { TV_BOOK_HEALING, 0 },
-
-                { 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
-                { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-        },
-
-	{
-		/* Alchemy shop */
-
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-                { TV_SCROLL, SV_SCROLL_REPAIR },
-
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
-
-		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
-		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
-
-		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-
-                { TV_SCROLL, SV_SCROLL_REPAIR },
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_INT },
-		{ TV_POTION, SV_POTION_RES_WIS },
-
-		{ TV_POTION, SV_POTION_RES_DEX },
-		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },  /* Yep, occasionally! */
-		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_LIGHT },
-
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_INT },
-		{ TV_POTION, SV_POTION_RES_WIS },
-		{ TV_POTION, SV_POTION_RES_DEX },
-
-		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-                { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-
-                { TV_SCROLL, SV_SCROLL_REPAIR },
-                { TV_SCROLL, SV_SCROLL_REPAIR },
-		{ TV_SCROLL, SV_SCROLL_BLESSING },
-                { TV_SCROLL, SV_SCROLL_HOLY_CHANT }
-
-
-	},
-
-	{
-		/* Magic-User store */
-
-		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_FEATHER_FALL },
-		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_RESIST_FIRE },
-
-		{ TV_RING, SV_RING_RESIST_COLD },
-		{ TV_AMULET, SV_AMULET_CHARISMA },
-		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
-		{ TV_AMULET, SV_AMULET_RESIST_ACID },
-
-		{ TV_AMULET, SV_AMULET_SEARCHING },
-		{ TV_WAND, SV_WAND_SLOW_MONSTER },
-		{ TV_WAND, SV_WAND_CONFUSE_MONSTER },
-		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
-
-		{ TV_BOOK_ALTERATION, 1 },
-		{ TV_BOOK_ALTERATION, 1 },
-		{ TV_BOOK_ALTERATION, 0 },
-		{ TV_BOOK_ALTERATION, 0 },
-
-		{ TV_STAFF, SV_STAFF_LITE },
-		{ TV_STAFF, SV_STAFF_MAPPING },
-		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
-		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
-
-		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
-		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
-		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
-		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
-
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-                { TV_BOOK_ALTERATION, 4 },
-                { TV_CRYSTAL, 1 },
-
-                { TV_BOOK_ELEMENTAL, 0 },
-                { TV_BOOK_ELEMENTAL, 0 },
-                { TV_BOOK_ELEMENTAL, 0 },
-                { TV_BOOK_ELEMENTAL, 0 },
-
-                { TV_BOOK_ELEMENTAL, 1 },
-                { TV_BOOK_ELEMENTAL, 1 },
-                { TV_BOOK_ELEMENTAL, 2 },
-                { TV_BOOK_ELEMENTAL, 2 },
-
-                { TV_BOOK_ELEMENTAL, 3 },
-                { TV_BOOK_ELEMENTAL, 3 },
-                { TV_BOOK_ELEMENTAL, 4 },
-                { TV_BOOK_ELEMENTAL, 4 },
-
-                { TV_AMULET, SV_AMULET_INTELLIGENCE },
-                { TV_AMULET, SV_AMULET_WISDOM },
-                { TV_AMULET, SV_AMULET_HOLD_LIFE },
-                { TV_AMULET, SV_AMULET_LITE },
-
-                { TV_BOOK_ALTERATION, 4 },
-                { TV_AMULET, SV_AMULET_LITE },
-                { TV_AMULET, SV_AMULET_HOLD_LIFE },
-                { TV_AMULET, SV_AMULET_LITE },
-
-                { TV_BOOK_ELEMENTAL, 5 },
-                { TV_BOOK_ELEMENTAL, 5 },
-                { TV_BOOK_CONJURATION, 0 },
-                { TV_BOOK_CONJURATION, 0 }
-
-	},
-
-	{
-		/* Black Market (unused) */
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-	},
-
-	{
-		/* Home (unused) */
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-	},
-
-	{
-		/* Bookstore */
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },           /* +16 */
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-                { 0, 0 },
-
-        },
-
-	{
-                /* Licialhyd Shop */
-                { 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-                { 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-	},
-	{
-                /* Rare Items Shop */
-
-                { TV_BOOK_CONJURATION, 10 },
-                { TV_POTION, SV_POTION_CURE_MUTATIONS },
-                { TV_RING, SV_RING_SPEED },
-                { TV_RING, SV_RING_LORDLY },
-
-                { TV_SCROLL, 57 },
-                { TV_AMULET, SV_AMULET_REFLECTION },
-                { TV_SCROLL, SV_SCROLL_ETERNALITY },
-                { TV_RING, SV_RING_ATTACKS },
-
-                { TV_DRAG_ARMOR, 1 },
-                { TV_DRAG_ARMOR, 2 },
-                { TV_DRAG_ARMOR, 3 },
-                { TV_DRAG_ARMOR, 4 },
-
-                { TV_SCROLL, 57 },
-                { TV_SCROLL, 57 },
-                { TV_BOOK_ALTERATION, 2 },
-                { TV_BOOK_ALTERATION, 14 },
-
-                { TV_BOOK_ALTERATION, 15 },
-                { TV_RING, SV_RING_SAFETY },
-                { TV_SCROLL, 57 },
-                { TV_BOOK_ALTERATION, 16 },
-
-                { TV_DRAG_ARMOR, 5 },
-                { TV_BOOK_ALTERATION, 17 },
-                { 0, 0 },
-                { 0, 0 },
-
-                { TV_BOOK_ALTERATION, 18 },
-                { TV_BOOK_ALTERATION, 19 },
-                { TV_HARD_ARMOR, 7 },
-                { TV_SCROLL, 57 },
-
-                { TV_POTION, SV_POTION_CURE_MUTATIONS },
-                { TV_BOOK_HEALING, 6 },
-                { TV_DRAG_ARMOR, 16 },
-                { 0, 0 },
-
-
-	},
-	{
-                /* Rods/Crystals shop */
-
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-                { TV_ROD, 1 },
-
-                { TV_CRYSTAL, 1 },
-                { TV_CRYSTAL, 1 },
-                { TV_CRYSTAL, 2 },
-                { TV_CRYSTAL, 2 },
-
-                { TV_CRYSTAL, 3 },
-                { TV_CRYSTAL, 3 },
-                { TV_CRYSTAL, 4 },
-                { TV_CRYSTAL, 4 },
-
-                { TV_CRYSTAL, 5 },
-                { TV_CRYSTAL, 5 },
-                { TV_CRYSTAL, 6 },
-                { TV_CRYSTAL, 6 },
-
-                { TV_CRYSTAL, 7 },
-                { TV_CRYSTAL, 8 },
-                { TV_SCROLL, 58 },
-                { TV_SCROLL, 58 },
-
-                { TV_SCROLL, 58 },
-                { TV_SCROLL, 58 },
-                { TV_CRYSTAL, 9 },
-                { TV_CRYSTAL, 10 },
-
-                { TV_CRYSTAL, 11 },
-                { TV_CRYSTAL, 12 },
-                { TV_ROD, 2 },
-                { TV_ROD, 2 }
-	},
-
-};
-
 
 /*
  * Initialize misc. values
@@ -3790,62 +2970,38 @@ static errr init_towns(void)
 	/*** Prepare the Towns ***/
 
 	/* Allocate the towns */
-	C_MAKE(town, max_towns, town_type);
+	/*C_MAKE(town, max_towns, town_type);*/
 
-	for (i = 1; i < max_towns; i++)
+	/*** Prepare the Stores ***/
+
+	/* Allocate the stores */
+	/*C_MAKE(stores, MAX_STORES, store_type);*/
+
+	/* Fill in each store */
+	for (j = 0; j < MAX_STORES; j++)
 	{
-		/*** Prepare the Stores ***/
+		/* Access the store */
+		store_type *st_ptr = &stores[j];
 
-		/* Allocate the stores */
-		C_MAKE(town[i].store, MAX_STORES, store_type);
+		/* Assume full stock */
+		if (j == STORE_HOME) st_ptr->stock_size = HOME_INVEN_MAX;
+		else st_ptr->stock_size = STORE_INVEN_MAX;
 
-		/* Fill in each store */
-		for (j = 0; j < MAX_STORES; j++)
-		{
-			/* Access the store */
-			store_type *st_ptr = &town[i].store[j];
+		/* Allocate the stock */
+		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
 
-			/* Assume full stock */
-			st_ptr->stock_size = STORE_INVEN_MAX;
+		/* No table for the black market or home */
+		if ((j == STORE_BLACK) || (j == STORE_HOME)) continue;
 
-			/* Allocate the stock */
-			C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+		/* Assume full table */
+		st_ptr->table_size = STORE_CHOICES;
 
-			/* No table for the black market or home */
-			if ((j == STORE_BLACK) || (j == STORE_HOME)) continue;
-
-			/* Assume full table */
-			st_ptr->table_size = STORE_CHOICES;
-
-			/* Allocate the stock */
-			C_MAKE(st_ptr->table, st_ptr->table_size, s16b);
-
-			/* Scan the choices */
-			for (k = 0; k < STORE_CHOICES; k++)
-			{
-				int k_idx;
-
-				/* Extract the tval/sval codes */
-				int tv = store_table[j][k][0];
-				int sv = store_table[j][k][1];
-
-				/* Look for it */
-				for (k_idx = 1; k_idx < max_k_idx; k_idx++)
-				{
-					object_kind *k_ptr = &k_info[k_idx];
-
-					/* Found a match */
-					if ((k_ptr->tval == tv) && (k_ptr->sval == sv)) break;
-				}
-
-				/* Catch errors */
-				if (k_idx == max_k_idx) continue;
-
-				/* Add that item index to the table */
-				st_ptr->table[st_ptr->table_num++] = k_idx;
-			}
-		}
+		/* Allocate the stock */
+		C_MAKE(st_ptr->table, st_ptr->table_size, s16b);
 	}
+
+	/* Init the stores inventory using the default list. */
+	init_stores_inven(0);
 
 	return 0;
 }
@@ -3882,36 +3038,9 @@ errr init_buildings(void)
 		{
 			building[i].member_race[j] = 0;
 		}
-
-		for (j = 0; j < MAX_REALM+1; j++)
-		{
-			building[i].member_realm[j] = 0;
-		}
 	}
 
 	return (0);
-}
-
-
-/*
- * Initialize quest array
- */
-static errr init_quests(void)
-{
-	int i;
-	
-	/*** Prepare the quests ***/
-
-	/* Allocate the quests */
-	C_MAKE(quest, max_quests, quest_type);
-
-	/* Set all quest to "untaken" */
-	for (i = 0; i < max_quests; i++)
-	{
-		quest[i].status = 0;
-	}
-
-	return 0;
 }
 
 
@@ -4063,11 +3192,13 @@ static errr init_other(void)
 		}
 	}
 
+	load_options();
+
 
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-        (void)format("%s (%s).", "Dark God <dark.god@infonie.fr>", MAINTAINER);
+        (void)format("%s (%s).", "Variaz <variaz@hotmail.com>", MAINTAINER);
 
 	/* Success */
 	return (0);
@@ -4501,6 +3632,10 @@ void init_angband(void)
         if (init_python()) quit("Cannot initialize Python scripts");
 #endif
 
+	/* Initialize scripting */
+	note("[Initializing scripts... (scripts)]");
+	if (script_init()) quit("Cannot initialize scripts");
+
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -4537,10 +3672,6 @@ void init_angband(void)
 	note("[Initializing arrays... (buildings)]");
 	if (init_buildings()) quit("Cannot initialize buildings");
 
-	/* Initialize quest array */
-	note("[Initializing arrays... (quests)]");
-	if (init_quests()) quit("Cannot initialize quests");
-
 	/* Initialize trap info */
 	note("[Initializing arrays... (traps)]");
 	if (init_t_info()) quit("Cannot initialize traps");
@@ -4561,13 +3692,17 @@ void init_angband(void)
         note("[Initializing arrays... (feats)]");
         if (init_feats() != 0) quit("Cannot initialize feats");
 
+	/* Initialize resistances */
+        note("[Initializing arrays... (resistances)]");
+        if (init_resistances() != 0) quit("Cannot initialize resistances");
+
+	/* Initialize vaults */
+	note("[Initializing arrays... (vaults)]");
+	if (init_vaults() != 0) quit("Cannot initialize vaults");
+
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
-
-	/* Initialize scripting */
-	note("[Initializing scripts... (scripts)]");
-	if (script_init()) quit("Cannot initialize scripts");
 
 
 	/*** Load default user pref files ***/

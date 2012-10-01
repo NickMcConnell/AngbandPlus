@@ -1,0 +1,176 @@
+N:1:124:1:0:0:0
+I:Cleo;
+T:Tehehehe! You're strong, but you know that this is not the full extent of my;
+T:powers, right? Well, too bad. Not only will I now leave alive, you will;
+T:no longer have power exchange service! Serves you right, <NAME>!;
+T:Tehehehe!;
+A:[CONTINUE]:0:0:0:1:14:0:0:0:0
+%
+
+N:1:123:1:0:0:0
+I:Cleo;
+T:Oh, hi there <NAME>! You're coming here to make a new cursed object?;
+T:Tehehehe!;
+A:Yes, I'm here for that. Let's proceed.:0:0:0:11:6:12:0:0:0
+A:How does it work again?:0:0:0:1:5:0:0:0:0
+A:I just have some questions.:0:0:0:1:6:0:0:0:0
+A:Just passing by. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:123:0:0:0:0
+I: ;
+T:This woman looks a lot like Cleo, except with brown hairs, pale skin;
+T:and blue eyes...;
+A:[CONTINUE]:0:0:0:1:2:0:0:123:1
+%
+
+N:2:0:0:0:0:0
+I:Cleo;
+T:Greetings, <NAME>. I'm sorry, but the mayor is unavailable at the moment,;
+T:due to a heart condition. I am replacing him for the job until he gets better.;
+T:It may take a long time, you see... Tehehehe!;
+A:And what's that condition? A blade through the heart?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Cleo;
+T:Something like that. After all, I couldn't let him know the truth behind;
+T:Ophelia's story. He would have destroyed the cursed books, forcing me to;
+T:return to the Flow! To be honest, I'm growing quite fond of this world.;
+T:It's at least more predictable than the Flow is. Oh, and mortals are so;
+T:easily manipulated! So easily tempted by the power of cursed items!;
+T:Lots of fun to have here! Tehehehe!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Cleo;
+T:Now! Shall we start having a bit of fun? How about making some cursed;
+T:items? Sure, I could just curse any objects, but that would be boring.;
+T:Instead, I'm proposing something different!; 
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Cleo;
+T:You'll bring me two items. The first one must be mundane. The second;
+T:one can be magical! What will happen? I will transfer the properties;
+T:of the magical item on the mundane one! But the power level will not;
+T:be transferred, meaning you can restart making it grow, but with much;
+T:better starting attributes! Of course, the new item will be cursed;
+T:once the process is completed. Oh, and the magical item cannot be cursed.;
+T:Too bad, heh? And the second item will be destroyed. So! Do you want;
+T:to try it out?;
+A:All right, let's try it.:0:0:0:11:6:12:0:0:0
+A:I have some questions.:0:0:0:1:6:0:0:0:0
+A:No. I'll be leaving. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Cleo;
+T:Hmmm? What do you want to know?;
+A:So...What are you, exactly?:0:0:0:1:7:0:0:0:0
+A:Know that I oppose your actions.:0:0:0:1:10:0:0:0:0
+A:Nevermind. Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Nevermind. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Cleo;
+T:Ever heard of the Flow? It's the gathering of all energies, all thoughts,;
+T:all souls... everything. Nightmares, evil thoughts, evil souls... they all;
+T:converge into powerful beings. Beings you could call 'Nightmare Horrors'.;
+T:Some of them are simply horrible creatures, but others like me are sentient.;
+T:Doesn't mean we're less dangerous. Quite the opposite in fact. Tehehehe!;
+A:So you're kind of like demons?:0:0:0:1:8:0:0:0:0
+A:Know that I oppose your actions.:0:0:0:1:10:0:0:0:0
+A:Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Cleo;
+T:We're much more powerful than demons! Demons are made of the evil essences;
+T:of the mortal planes, while we are made from the evil of EVERY planes!;
+T:Gods, Archfiends, demons... Their anger and evil all gives us power!;
+T:Because of that, we have virtually no weaknesses. The only thing is that;
+T:in order to materialize in a plane like this, we need a large concentration;
+T:of evil energy. Like the ones found in cursed items, for example. Carrying;
+T:them will make Nightmares appear around the one who carries them. This means;
+T:death, basically. We are walking death sentences! Tehehehe!;
+A:Better than even Archfiends?:0:0:0:1:9:0:0:0:0
+A:Know that I oppose your actions.:0:0:0:1:10:0:0:0:0
+A:Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Cleo;
+T:Well, to be honest, I've never challenged an Archfiend. This is one thing;
+T:I look forward to do in this plane! I've heard an Archdemoness lives in;
+T:the northern country of Rhyzendal. Maybe I'll go pay her a 'visit'! Tehehehe!;
+T:Archfiend vs Nightmare! The ultimate showdown! A battle like this is sure;
+T:to cause thousands of deaths and miles of destruction! Tehehehe!;
+A:You don't seem THAT bad tough. At least by Nightmare Horror standards...:0:0:0:1:13:0:0:0:0
+A:Know that I oppose your actions.:0:0:0:1:10:0:0:0:0
+A:Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Cleo;
+T:Tehehehe! How righteous! But don't you kill for a living? Amongst the;
+T:things you kill in dungeons are sentient beings. You killed many, even;
+T:though you could have tried to make peace. So you're no better than I am,;
+T:<NAME>! Tehehehe!;
+A:I fight for the cause of good. These peoples were a threat to peace.:0:0:0:1:11:0:0:0:0
+A:So...What are you, exactly?:0:0:0:1:7:0:0:0:0
+A:Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Cleo;
+T:Or so you say. They may have had their reasons to fight too. And in any;
+T:cases, you kill peoples and animals. You can't really call yourself "good",;
+T:can't you? You should take some time to review your code of ethics! Tehehehe!;
+A:So...What are you, exactly?:0:0:0:1:7:0:0:0:0
+A:Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:95:1:0:0:0
+I:Cleo;
+T:Tehehehe! Looks like it worked! Hope you enjoy your new object! Just don't;
+T:get killed carrying it!;
+A:Let's do it again.:0:0:0:11:6:12:0:0:0
+A:I have some questions.:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:95:0:0:0:0
+I:Cleo;
+T:Oh? It didn't work. Perhaps you need me to rexplain to you how it works?;
+A:No need for that. Let's try it again.:0:0:0:11:6:12:0:0:0
+A:Yes, explain it to me again.:0:0:0:1:5:0:0:0:0
+A:I have some questions.:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Cleo;
+T:Well, for some reasons, I grew fond of this world. The Flow is too;
+T:unpredictable for my tastes. Guess I'll stay here, and act as the new;
+T:mayor. Not that they seem to care. And even if they did, I could always;
+T:just control their mind! Tehehehe!;
+A:Know that I oppose your actions.:0:0:0:1:10:0:0:0:0
+A:Let's do the powers exchange.:0:0:0:11:6:12:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I: ;
+T:Cleo teleports away, wounded but still alive. You doubt she will return;
+T:here, and wonder if there was really any point in defeating her...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

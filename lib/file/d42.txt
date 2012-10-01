@@ -1,0 +1,46 @@
+N:1:0:0:0:0:0
+I:Townsfolk;
+T:Hello.;
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:3:4:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Townsfolk;
+T:This is the town of Ophelia. It's named about the woman of the same name;
+T:who lived here ages ago. She was a passionate and kind lady who,;
+T:unfortunately, never got the respect she deserved. Poor woman... she;
+T:endured so much pain, for nothing. A sad example of how cruel peoples;
+T:can be. You might want to speak with Mr. Jeffrey, the town's mayor.;
+T:He is also an historian, and knows much about Ophelia's story. You can;
+T:find him in the town hall, the large building to the north of the town.;
+A:Any rumors?:0:0:0:4:3:4:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Townsfolk;
+T:There's a young woman who used to work for the alchemy store who has now;
+T:opened her own little shop next to it. She just completed her studies,;
+T:and claims to be an 'Imbuer' or something. Not sure if she's all that great;
+T:though, she sounds quite inexperienced. But perhaps she's better than;
+T:she seems.;
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:3:4:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Townsfolk;
+T:There are many myths and legends about vampires. Tales of seductive;
+T:undead lords and beautiful vampire princesses. But I've heard that real;
+T:vampires are actually little more than blood drinking zombies, according;
+T:to some so-called 'vampire hunters'. They're nothing like the immortal;
+T:dark lords that the legends describes. A good thing if you ask me. There's;
+T:enough scary creatures that lives in underground caves already, we don't;
+T:need more of them.;
+A:Tell me more about this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:3:4:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

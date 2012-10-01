@@ -1,0 +1,9 @@
+N:1:0:0:0:0:0
+I: ;
+T:By defeating this creature, you have destroyed the core of this zone;
+T:of the Flow that maintained balance and control inside of your object.;
+T:The whole place starts shaking, as if it was about to collapse. And then,;
+T:there is a flash of blinding light, and you feel yourself transported;
+T:to another place...;
+A:[END DIALOG]:0:0:0:11:4:0:0:0:0
+%

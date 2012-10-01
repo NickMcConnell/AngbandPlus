@@ -1,0 +1,6 @@
+N:1:0:0:0:0:0
+I:Visitor;
+T:Poor Ophelia... Such a promising youth who's life was ruined by some;
+T:evil tyrant. May her soul rest in peace.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

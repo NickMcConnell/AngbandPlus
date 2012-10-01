@@ -8,7 +8,7 @@ A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 N:1:43:4:0:0:0
 I:Walmus;
 T:Oh, it's you! Have you found my sword yet? I can't wait to have it back!!;
-A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:I've found it. Here it is!:2:21:137:6:1205:10:0:0:0
 A:What exactly will you give me in return?:0:0:0:1:9:0:0:0:0
 A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
 %
@@ -16,7 +16,7 @@ A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
 N:1:43:3:0:0:0
 I:Walmus;
 T:Oh, it's you! Have you found my sword yet? I can't wait to have it back!!;
-A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:I've found it. Here it is!:2:21:137:6:1205:10:0:0:0
 A:What exactly will you give me in return?:0:0:0:1:9:0:0:0:0
 A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
 %
@@ -24,7 +24,7 @@ A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
 N:1:43:2:0:0:0
 I:Walmus;
 T:Oh, it's you! Have you found my sword yet? I can't wait to have it back!!;
-A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:I've found it. Here it is!:2:21:137:6:1205:10:0:0:0
 A:What exactly will you give me in return?:0:0:0:1:9:0:0:0:0
 A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
 %
@@ -122,7 +122,7 @@ T:In addition to Walmus's eternal gratitude, Walmus will give you a;
 T:ring that allows you to see the unseen! A ring that will make;
 T:invisible creatures appear before your eyes! A most valuable;
 T:piece of jewelry, isen't it?;
-A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:I've found it. Here it is!:2:21:137:6:1205:10:0:0:0
 A:I'll be going now...:0:0:0:0:0:0:0:0:0
 %
 

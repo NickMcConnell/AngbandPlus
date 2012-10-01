@@ -1,0 +1,26 @@
+Ghostly Misfortune(Passive)
+
+Effect: Your body becomes ghostlike, allowing you to pass through walls and
+        gain resistance to physical attacks. Also allows you to use your
+        Misfortune to get a chance to cancel out any attacks.
+Physical resistance bonus: +10%
+Attack cancelling power: 33% of Misfortune.
+Extra points: +10% resistance to Physical.
+              +33% of Misfortune to cancelling power.
+
+This passive ability will give you resistance to Physical attacks,
+and if your Misfortune is at least as high as the dungeon level you're in,
+you will gain the ability to move through walls. Also, you will get a chance
+to counter any attacks that enemies uses on you, based on your Misfortune
+level, this ability's level and the monster's level + stat, which can be
+strength for melee attacks, dexterity for ranged attacks or mind for
+magic attacks.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

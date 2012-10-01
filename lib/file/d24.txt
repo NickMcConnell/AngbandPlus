@@ -16,7 +16,7 @@ A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 N:2:0:0:0:0:0
 I:Zailab;
 T:Thanks you, brave <CLASS>. By destroying my cursed body, you have freed;
-T:my soul, and I will finally rest in peace. You see, ages ago,; 
+T:my soul, and I can finally rest in peace. You see, ages ago,; 
 T:I was a king, and these ruins were my castle. I was loved by my; 
 T:peoples, and I lived a very good life... But one day, a mysterious man;
 T:came into my castle. He looked like a priest, judging by his glowing; 
@@ -33,9 +33,9 @@ T:and adviser... But one day, my peoples became sick. A strange sickness;
 T:that turned their skins pale, and made them act strangely. It did not;
 T:take long before my entire kingdom got afflicted with the disease.;
 T:I summoned Jezovhan to my throne room, and asked him to put a blessing;
-T:on the river, to that peoples could drink the water and be healed.;
-T:But then, he said: "But my king, I already blessed the river! As we;
-T:speak, all these villagers are now drinking the water that I blessed...;
+T:on the river, so that peoples could drink the water and be healed.;
+T:But then, he said: "But my king, I've already blessed the river! As we;
+T:speak, all these villagers are now drinking the water that I've blessed...;
 T:with the light of Vaharoh!!";
 A:[CONTINUE]:0:0:0:1:4:0:0:0:0
 %
@@ -72,11 +72,21 @@ T:within the darkness, and evil within the light. I do not know if Jezovhan;
 T:is still alive or not... but be careful. Do not fall in the same trap as;
 T:I did. Do not let the priests of Vaharoh fool you with their light and;
 T:their lies!;
-A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+A:By the way, I've encountered Rugar, your general... [tell him the story]:1:88:1:1:8:0:0:89:1
+A:[CONTINUE]:1:88:0:1:7:0:0:0:0
 %
 
 N:7:0:0:0:0:0
 I:Zailab;
 T:... farewell, <CLASS>. And remember my words!;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Zailab;
+T:...I see. I know Jezovhan turned Rugar into a skeleton ages ago, but I never;
+T:imagined he would still exists today. But thanks you for putting an end to;
+T:his curse. Now both me and Rugar can rest in peace, and move on to the;
+T:afterlife.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
 %

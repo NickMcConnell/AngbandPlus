@@ -1,0 +1,849 @@
+N:1:1029:1:0:0:0
+I:Krind;
+T:You will...pay...for that!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1073:1:0:0:0
+I:Krind;
+T:You traitor!! You killed Nilgam, one of our finest wizards!! Why? WHY??;
+T:You were one of my most trusted agents, <NAME>, and now you've ruined it;
+T:all! Get out of my face! I never want to see you again!;
+A:You know, there's another person I want to kill... *evil grin*:0:0:0:5:-1:44:0:0:0
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1108:1:0:0:0
+I:Krind;
+T:I know you completed the quest, but the next one isn't ready yet.;
+T:Come back in the next beta.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1106:1:0:0:0
+I:Krind;
+T:I still have no words from our agents. Proceed to the Lancers Headquarters;
+T:as soon as you can, <NAME>!;
+A:Can you remind me where they are located?:0:0:0:1:66:0:0:0:0
+A:I have some questions.:0:0:0:1:54:0:0:0:0
+A:I'll do that then.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1105:1:0:0:0
+I:Krind;
+T:Ah, there you are <NAME>! As you know, while you were working on the;
+T:Harrington case, I sent some of my agents to try obtaining more;
+T:informations on the whereabouts of the devling that attacked you;
+T:in the temple's graveyard. It's been a little while already, and they;
+T:still haven't contacted me to give me any news. I'm starting to worry;
+T:about them, and I'd like you to go out looking for them.;
+A:[CONTINUE]:0:0:0:1:62:0:0:0:0
+%
+
+N:1:1069:1:0:0:0
+I:Krind;
+T:Good day, <NAME>. What's bringing you here?;
+A:Did you figure out where that Lancer is hiding?:0:0:0:1:61:0:0:0:0
+A:I have some questions.:0:0:0:1:54:0:0:0:0
+A:Nothing yet. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1063:1:0:0:0
+I:Krind;
+T:Good day, <NAME>. So, what about this contract from that 'James Harris'?;
+A:Yes. However...[Tell him the story]:1:1068:1:1:57:0:0:0:0
+A:I have some questions.:0:0:0:1:54:0:0:0:0
+A:Nothing yet. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1040:1:0:0:0
+I:Krind;
+T:You idiot!! I told you to NOT kill the owners!! Now, the crime investigators;
+T:will come, and do you have any ideas how bad it'll be on our reputation?;
+T:You could have made lots of money, and obtain unique weaponry. But instead,;
+T:you just killed the guild. Now, get lost, I never want to see your face;
+T:again!!;
+A:You know, there's another person I want to kill... *evil grin*:0:0:0:5:-1:44:0:0:0
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1062:1:0:0:0
+I:Krind;
+T:Good day, <NAME>. So, what about the building?;
+A:I've concluded a partnership with Dingus...[Tell him the whole story]:0:0:0:1:49:0:0:0:0
+A:I'm still working on that. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1058:1:0:0:0
+I:Krind;
+T:Good day, <NAME>. So, what about the building?;
+A:I got Eloriel's shop...[Tell him the whole story]:0:0:0:1:49:0:0:0:0
+A:I'm still working on that. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1042:1:0:0:0
+I:Krind;
+T:Good day, <NAME>. So, what about the building?;
+A:I bought the vase shop from Alberto.:0:0:0:1:49:0:0:0:0
+A:I'm still working on that. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1039:1:0:0:0
+I:Krind;
+T:Good day, <NAME>. So, what about the building?;
+A:I may have found a place, but I need extra funding.:1:1041:1:1:45:0:0:0:0
+A:Can you remind me what I must do?:0:0:0:1:43:0:0:0:0
+A:I'm still working on that. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1037:1:0:0:0
+I:Krind;
+T:Ah, greetings <NAME>. Have you outfitted yourself properly? Because;
+T:your next mission will be a bit more difficult. You'll need to be;
+T:well prepared!;
+A:I'm ready to begin.:0:0:0:1:36:0:0:0:0
+A:I still have some preparations to make. I'll be back later.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1032:1:0:0:0
+I:Krind;
+T:Ah, you're back! So, did you kill Denevar?;
+A:Yes, everything has been taken care of.:1:1033:1:1:34:0:0:0:0
+A:Can you remind me where I can find his shrine?:0:0:0:1:33:0:0:0:0
+A:No, not yet. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1030:1:0:0:0
+I:Krind;
+T:Welcome back, <NAME>! Have you slain Delzo yet?;
+A:Yes, he's dead.:1:1031:1:1:26:0:0:0:0
+A:No, not yet. I'll be leaving now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:6:0:0
+I:Krind;
+T:Well, well well! What have we got here? A rotten devling in our headquarters!;
+A:[CONTINUE]:0:0:0:10:1602:0:2:0:0
+%
+
+N:1:1028:1:0:0:0
+I:Krind;
+T:Greetings, <NAME>! How may I help you?;
+A:Nothing. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:5:0:0
+I:Krind;
+T:Ah! A Kobold! Welcome to our guild, the Stealthy Vipers! The best guild;
+T:of Kobold mercenaries in Portralis! I assume you're here to join us?;
+A:Maybe... tell me more about the Stealthy Vipers.:0:0:0:1:3:0:0:0:0
+A:No, I'm just visiting.:0:0:0:1:8:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Krind;
+T:The Stealthy Vipers greets you, <CLASS>! Need a job done? You've come to the;
+T:right place!;
+A:The Stealthy Vipers?:0:0:0:1:18:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Krind;
+T:Get <himher>, boys!;
+A:[END DIALOG]:0:0:0:10:1601:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Krind;
+T:We are a guild of Kobold mercenaries and adventurers. Using our wide array;
+T:of expertises, we get jobs from customers, we do the jobs, and we get paid.;
+T:But we do not take any kind of jobs, of course. For example, despite our;
+T:name, we do not do sneaky stuff for just anybody. We are not thieves or;
+T:criminals. We are honest peoples, who do honest jobs. And when sneaky;
+T:stuff is involved, it's for a good cause!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Krind;
+T:You see, when it comes to Kobolds, people gets all kind of wrong ideas.;
+T:They think we are filthy thieves, assassins, bandits... And even monsters,;
+T:thanks to our scaly skin. And I guess I cannot blame them, dungeons;
+T:and caves are filled with all sort of kobold tribes which are often;
+T:hostile to intruders. But our goal is to give our race a better name!;
+T:Prove to the people that Kobolds are good and helpful citizens!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Krind;
+T:But unfortunately, right now, this is not possible, and we are trapped;
+T:here in the slums, thanks to a serious threat to our guild: Devlings.;
+T:They formed their own guild in the northeast slums, the Dragon Lancers,;
+T:to compete with us. They keep ambushing our mercenaries, and they steal our;
+T:jobs and bounties! So we are now at war with the Dragon Lancers. Before;
+T:we can think of expanding our guild, they must be eliminated!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Krind;
+T:So, in short, your job as a Stealthy Viper will be to fulfill the contracts;
+T:given to you, help us expand, and of course, fight the devlings. Of course,;
+T:this is a risky job, but I'm sure a strong <CLASS> like you can handle it.;
+T:So, what do you say? Will you become a new member of the Stealthy Vipers?;
+A:Yes, sign me in!:0:0:0:1:7:0:0:1028:1
+A:Not yet. I'll think about it.:0:0:0:1:8:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Krind;
+T:Great! Welcome to the Stealthy Vipers! You are now a member of the;
+T:guild, and your rank is Viper Scout. This means that you can get contracts;
+T:from us, and get good payment. Of course, as you go up in ranks, you will;
+T:get more privileges, better contracts, and better rewards. But first of all,;
+T:I'd like to know your name. I prefer calling peoples by their names, and I;
+T:have a few papers to fill too!;
+A:My name is <NAME>.:0:0:0:1:9:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Krind;
+T:I see. Well, if you change your mind, let me know!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Krind;
+T:All right, <NAME>. As I explained, our ultimate goal is to form a powerful;
+T:guild, the most powerful guild of mercenaries and adventurers in Jindar!;
+T:This will greatly help in giving the Kobolds a better name, and maybe;
+T:people will forget about our dungeon-dwelling kin. But as I said, right now,;
+T:this is not possible, because of the Dragon Lancers. So our first goal;
+T:will be to defeat the devlings, and put an end to their guild.;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Krind;
+T:Their guild is growing as we speak... our first objective is to prevent;
+T:the Lancers from recruiting any new members. And the only way to do that;
+T:would be to kill Delzo, the Lancers representative. And of course, that;
+T:will be your first mission, <NAME>.;
+A:Isn't killing against our principles?:0:0:0:1:11:0:0:0:0
+A:I'm listening...:0:0:0:1:13:0:0:0:0
+A:I always wanted to kill a Devling leader!:0:0:0:1:12:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Krind;
+T:It would be a crime if they didn't start it all! But they are the ones who;
+T:started killing our members, and stealing our jobs. We're the victims;
+T:here, <NAME>. When an assassin attacks you, you have the right to defend;
+T:yourself, right? This is the same thing here. They're the assassins;
+T:trying to kill us, so we defend ourselves!;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Krind;
+T:I can understand that. The Dragon Lancers claims that they serve the;
+T:people of Jindar. But guess what? We are of the Jindar people too!;
+T:So why do they kill us then, those hypocritical bastards? You really;
+T:can't trust a devling. You never know when he's going to sneak behind you,;
+T:and impale you with his spear! That's why we must eliminate them!!;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Krind;
+T:The Dragon Lancers have their main office in the northeast slums. You'll;
+T:recognize the place, as it is always guarded by a few devling guards.;
+T:Go there, kill all devlings who attacks you, and then kill Delzo.;
+T:You looks like a competent <CLASS>, I'm sure you can do it. Once you;
+T:return here, you shall have your pay, and we'll discuss the second mission.;
+A:[CONTINUE]:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Krind;
+T:Anything you'd like to know before you go?;
+A:How should I kill Delzo?:0:0:0:1:15:0:0:0:0
+A:Am I going inside their big headquarters?:0:0:0:1:16:0:0:0:0
+A:I'm ready to go!:0:0:0:1:17:0:0:1030:1
+%
+
+N:15:0:0:0:0:0
+I:Krind;
+T:As much as I hate to admit it, Delzo is a good warrior. A very good one.;
+T:He combines some very strong spear-fighting techniques with great speed,;
+T:reflexes and accuracy. Unless you're very powerful, he will probably block;
+T:all your attacks. But Delzo is not too bright, and doesn't know much besides;
+T:fighting. So I suggest you use magic against him. I would personally use;
+T:some good poison magic, but you could also use light magic. Thanks to their;
+T:demonic origins, Devlings are vulnerable to light.;
+A:Am I going inside their big headquarters?:0:0:0:1:16:0:0:0:0
+A:I'm ready to go!:0:0:0:1:17:0:0:1030:1
+%
+
+N:16:0:0:0:0:0
+I:Krind;
+T:No, this is not their big headquarters. This is where they recruit most of;
+T:their new members, but the leader of the Lancers is well hidden, and we;
+T:do not know where he is. We are actively searching him though. Hopefully;
+T:we'll find him soon. Then we will launch a major attack on the Lancers!;
+A:How should I kill Delzo?:0:0:0:1:15:0:0:0:0
+A:I'm ready to go!:0:0:0:1:17:0:0:1030:1
+%
+
+N:17:0:0:0:0:0
+I:Krind;
+T:Good! I'm counting on you, <NAME>. Go teach these Devlings a good lesson!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Krind;
+T:Yes, that's us! We're a guild of mercenaries and adventurers. As you;
+T:probably know, we kobolds are the masters of poison, and are also;
+T:adepts of stealth. Hence our name, the Stealthy Vipers. But do not think;
+T:that we are limited to the sneaky stuff. We are great warrior and mages;
+T:too! No matter what needs to be done, we can do it! We are the best;
+T:guild of mercenaries available in Jindar!;
+A:Really? But why stay in the slums then?:0:0:0:1:19:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Krind;
+T:Good question. As much as we'd like to expand, it is currently impossible,;
+T:due to a rival devling guild, the Dragon Lancers. As long as they exist,;
+T:we cannot expand. You see, they ambush our members and kill them, and;
+T:then steal our bounties and our contracts. Things have been very bad for;
+T:us ever since they decided to start their own guild. While we only do honest;
+T:jobs, they will do anything, from stealing to killing. And so far, their;
+T:favorite targets seems to be our members. They are up to no good.;
+A:Maybe I can help you out?:0:0:0:1:21:0:0:0:0
+A:Ah...the old Kobold and Devling rivalry...:0:0:0:1:20:0:0:0:0
+A:Good Bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Krind;
+T:Hmmm... I guess you could say that. However, is has become more than a;
+T:rivalry now. They kill our members, steal our stuff... they are not;
+T:rivals. They are enemies. It's now an open war. The southwest versus;
+T:the northeast. And until they are eliminated, we can forget about;
+T:expanding outside the slums.;
+A:Maybe I can help you out?:0:0:0:1:21:0:0:0:0
+A:Good Bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:21:0:0:9:0:0
+I:Krind;
+T:Help? Why would a...err...Human want to help? (he is clearly confused by;
+T:your odd hair and eyes color)... this is a Kobold problem. If you're;
+T:just looking for gold, there are safer places to go. Just look around;
+T:the city. If you get involved in our things, you'll have the devlings;
+T:against you. Which is not a good thing.;
+A:This is the guild that I chose. I would really like to join.:0:0:0:1:22:0:0:0:0
+A:I don't like devlings. And I want to help you beat them.:0:0:0:1:22:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Krind;
+T:Help? Why would a <RACE> want to help? This is a Kobold problem. If you're;
+T:just looking for gold, there are safer places to go. Just look around;
+T:the city. If you get involved in our things, you'll have the devlings;
+T:against you. Which is not a good thing.;
+A:This is the guild that I chose. I would really like to join.:0:0:0:1:22:0:0:0:0
+A:I don't like devlings. And I want to help you beat them.:0:0:0:1:22:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Krind;
+T:hmmm... never before have we received help from other races. After all,;
+T:we're doing all this to help our kind. But on the other hand, if you;
+T:were to help us fight the devlings, that would save the lives of other;
+T:kobolds. We do not wish to have many non-kobold members, but for you,;
+T:I'm ready to make an exception. However, once you join, there will;
+T:be no turning back. The devlings will hate you, and will become your;
+T:enemies. Are you sure you still want to join?; 
+A:Yes. I wish to join the Stealthy Vipers.:0:0:0:1:23:0:0:1028:1
+A:Actually, I've changed my mind.:0:0:0:1:24:0:0:0:0
+%
+
+N:23:0:0:9:0:0
+I:Krind;
+T:*smile*...well, that's good to hear! Welcome to the Stealthy Vipers,;
+T:....human...right? Oh, huh... and what would be your name?;
+A:My name is <NAME>. And I am a Zulgor.:0:0:0:1:25:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Krind;
+T:*smile*...well, that's good to hear! Welcome to the Stealthy Vipers,;
+T:<RACE>! I'm glad you have you on our side! And what is your name?;
+A:My name is <NAME>.:0:0:0:1:25:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Krind;
+T:I guess you'll stay on the safe side, heh? Can't blame you though.;
+T:Devlings can get really nasty at times. It's definitly better for;
+T:you to stay out of this. Go look around the city if you need coins.;
+T:You'll find much safer opportunities!; 
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Krind;
+T:You know, I'm actually happy that you joined us. One of the reasons we;
+T:founded our guild was to give our race a better reputation. Many peoples;
+T:thinks we're just aggressive dungeon dwellers, but that is not true.;
+T:And I am happy to see that I was wrong, and there are still peoples who;
+T:see our kind as equal individuals! You are now a member of the guild,;
+T:and your rank is Viper Scout. This means that you can get contracts from us,;
+T:and get good payment. Of course, as you go up in ranks, you will get more;
+T:privileges, better contracts, and better rewards.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Krind;
+T:Good job, <NAME>! I knew you could do it! Thanks to your efforts, the;
+T:Dragon Lancers recruitment has been stopped for now. Here's your payment;
+T:for the job. You earned it!;
+A:[He hands you a purse of 2000 golds.]:0:0:0:3:488:2000:27:0:0
+%
+
+N:27:0:0:0:0:0
+I:Krind;
+T:All right, so they won't be able to recruit much help for the moment, but;
+T:it's only a matter of time before they put another representative.;
+T:But of course, they won't be able to do that if we kill them all first,;
+T:right? They won't put a rookie as their guild's representative. So we;
+T:have to find and kill all their potential candidates before they start;
+T:recruiting members again!;
+A:[CONTINUE]:0:0:0:1:28:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Krind;
+T:The first potential candidate I see would be Denevar, the devling priest.;
+T:Our spies reported members of the Dragon Lancers visiting his small;
+T:shrine. Further investigation confirmed that the so-called 'priest' is;
+T:actually a demon worshipper! That confirms his evil intents, and also;
+T:confirms that the Dragon Lancers cannot be trusted. Your mission will;
+T:be to go to his shrine, and kill him.;
+A:[CONTINUE]:0:0:0:1:29:0:0:1032:1
+%
+
+N:29:0:0:0:0:0
+I:Krind;
+T:His shrine is located outside of the city. On the world map, it would be;
+T:at coordinates (50,44). Go there, find the priest, and kill him. Maybe;
+T:he won't expect you, so he won't attack you. You'll get the first strike,;
+T:so this should be easy enough.;
+A:Killing a priest? This sounds wrong to me.:0:0:0:1:30:0:0:0:0
+A:How should I kill him?:0:0:0:1:31:0:0:0:0
+A:I'll be going then.:0:0:0:1:32:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I:Krind;
+T:A priest? No. We're talking about a Devling demon worshipper here, <NAME>.;
+T:A serious threat to us, or anyone for that matter, including his;
+T:own kind. Killing this evil priest will do good to all the peoples;
+T:of Portralis! And with a bit of luck, we'll earn a reputation as;
+T:demon worshippers inquisitors. Not a bad reputation to have when you;
+T:want to get contracts!;
+A:How should I kill him?:0:0:0:1:31:0:0:0:0
+A:I'll be going then.:0:0:0:1:32:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Krind;
+T:Well, he's a demon worshipper, so expect dark magic and demonic conjurations.;
+T:But being disguised as a priest, healing magic is not impossible.;
+T:I bet he knows how to defend himself against magic spells too. So I suggest;
+T:you try to shoot him with a crossbow! Or, just get close to him, and slash;
+T:him to death. Should be easy enough.;
+A:But...what if he's a real priest? Killing him would be wrong.:0:0:0:1:30:0:0:0:0
+A:I'll be going then.:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I:Krind;
+T:That's the spirit! Devlings claims to have renounced to their demonic;
+T:origins. Seems like this is a lie after all. Let's get rid of that;
+T:fake priest once and for all!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Krind;
+T:Sure. It's at coordinates (50,44). A small, humble place. Don't be fooled;
+T:though, as it's really a place of demon worshipping. Good luck, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Krind;
+T:Well done, <NAME>! I knew I could count on you. Here, take these 3000;
+T:gold pieces for your trouble. Also, I am promoting you to the rank of;
+T:Viper Agent. As a Agent-Rank member, you have gained access to the;
+T:Viper Armory, where you can get weapons and items not available anywhere;
+T:else in Portralis!; 
+A:[CONTINUE]:0:0:0:3:488:3000:35:1037:1
+%
+
+N:35:0:0:0:0:0
+I:Krind;
+T:Well, <NAME>, you should visit our armory right away. It's to the right.;
+T:Belgim, our smith, will give you more information about the items you can;
+T:get. Since you're now Agent-Rank, the contracts you will get will be more;
+T:difficult, so you'd better outfit yourself properly. Come back to me;
+T:when you're ready, and we'll discuss your next contract.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:36:0:0:0:0:0
+I:Krind;
+T:Very good. While we are still eliminating the potential candidates for;
+T:Dragon Lancers representatives, there is another matter that must be taken;
+T:care of. Since it involves more than just fighting, I cannot send an;
+T:inexperienced recruit. So that's why I chose you, <NAME>. As our newest;
+T:Agent-Rank member, I think you are well suited for the task.;
+A:[CONTINUE]:0:0:0:1:37:0:0:0:0
+%
+
+N:37:0:0:0:0:0
+I:Krind;
+T:As I've told you before, we need to expand the guild. We can't just stay;
+T:in the slums forever. While we plan on keeping this place up and running,;
+T:we also want a new one. A place near the city's gate would be perfect.;
+T:If I recall correctly, near the gates, there's some shops and the;
+T:Dragon's Head inn, but there are also three other buildings. Any of them;
+T:would be perfectly suited for a new office. Problem is, we don't own them.;
+T:And that's where you come in.;
+A:You want me to gain control of the buildings?:0:0:0:1:38:0:0:1039:1
+%
+
+N:38:0:0:0:0:0
+I:Krind;
+T:Well, one of the three buildings would be enough for now. But they're;
+T:already owned, so your task will be to gain ownership of one of the three;
+T:buildings in the name of the Stealthy Vipers. Of course, the owners;
+T:won't give up their places easily, so you'll need to persuade them.;
+T:This means either pay them good money, or give them anything they want;
+T:in exchange.;
+A:[CONTINUE]:0:0:0:1:39:0:0:0:0
+%
+
+N:39:0:0:0:0:0
+I:Krind;
+T:And listen, <NAME>, and this is very important. We are not a guild of;
+T:murderers. You must NOT hurt or even kill the owners. If you do that,;
+T:our guild is doomed. So even if things get a little hot, do not lose;
+T:your temper, and do not kill the owners. Understood?;
+A:Yes, I understand.:0:0:0:1:41:0:0:0:0
+A:I can kill the owners. And then the guards.:0:0:0:1:40:0:0:0:0
+%
+
+N:40:0:0:0:0:0
+I:Krind;
+T:And then destroy the city, and maybe conquer Portralis too? Look,;
+T:if you want to fight stuff, go in a dungeon or something. There'll be;
+T:plenty of monsters for you to kill. But this is the Stealthy Vipers,;
+T:not a dungeon. So you'll have to follow the Viper way of working.;
+T:And this means no murder. Is that clear?;
+A:All right, all right.:0:0:0:1:41:0:0:0:0
+%
+
+N:41:0:0:0:0:0
+I:Krind;
+T:Good. Here, I'm going to give you 30000 gold pieces for bribes and other;
+T:expenses for the mission. You can keep whatever you don't need for;
+T:yourself. Oh, and once you succeed, you will get no less than 30000 more;
+T:golds as a reward, so think twice before just running away with that;
+T:money. Not that I don't trust you, but I prefer to be careful. I wouldn't;
+T:want greed to take away one of our most promising members!;
+A:[CONTINUE]:0:0:0:3:488:30000:42:0:0
+%
+
+N:42:0:0:0:0:0
+I:Krind;
+T:So, go to the city's gates, and visit the three buildings. See which one;
+T:you think you can get us, negociate with the owners, use money and;
+T:diplomacy as you see fit. But be prepared to perform tasks for them.;
+T:I'm counting on you, <NAME>! Good luck!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:43:0:0:0:0:0
+I:Krind;
+T:What? You already forgot? Well, near the city's gates are three buildings.;
+T:They're close to the general store, alchemy shop, and the Dragon's Head inn.;
+T:Visit any three of them, see which one you can get us. Do whatever it takes,;
+T:but do not kill anyone in there!! Well, that's it. Let me know once you;
+T:gain control of one of the buildings. Good luck, <NAME>!; 
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:44:0:0:5:0:0
+I:Krind;
+T:Hmph! You are a disgrace to the Kobold race!;
+A:[CONTINUE]:0:0:0:10:1602:0:2:0:0
+%
+
+N:44:0:0:0:0:0
+I:Krind;
+T:I guess I should never have trusted a <RACE> in the first place. You planned;
+T:this all along, you racist kobold hater!!;
+A:[CONTINUE]:0:0:0:10:1602:0:2:0:0
+%
+
+N:45:0:0:0:0:0
+I:Krind;
+T:Extra funding? What do you mean?;
+A:I'll need 70000 more golds to buy a place I found.:0:0:0:1:46:0:0:0:0
+%
+
+N:46:0:0:0:0:0
+I:Krind;
+T:So that means we'll pay a total of 100000 golds for a shop?? That's a lot!;
+T:Are you sure there aren't any other ways?;
+A:[Charisma] That may be our only chance. We can't turn down that offer.:5:50:0:1:47:0:0:0:0
+A:That seems to be his final offer.:0:0:0:1:48:0:0:0:0
+%
+
+N:47:0:0:0:0:0
+I:Krind;
+T:Urgh... 100000 is a lot, but...I guess you're right. All right, here's;
+T:an extra 70000 golds. That makes a total of 100000 at your disposal. This;
+T:is a lot of money, so don't lose it!;
+A:Thanks. I'll go buy that place.:0:0:0:3:488:70000:0:1041:2
+%
+
+N:48:0:0:0:0:0
+I:Krind;
+T:...well, 100000 is more than we can afford. There were three buildings,;
+T:right? Perhaps you should check the other two, and see if you can get;
+T:any of them without paying that much. I'm sorry, but 100000 is just too;
+T:much for us to pay right now.;
+A:I understand. I'll look at the other places then.:0:0:0:0:0:0:0:0:0
+%
+
+N:49:0:0:0:0:0
+I:Krind;
+T:Perfect! This is just what we needed! You have done great, <NAME>.;
+T:As promised, here's the 30000 golds reward!;
+A:[CONTINUE]:0:0:0:3:488:30000:50:0:0
+%
+
+N:50:0:0:0:0:0
+I:Krind;
+T:I'm so glad you've succeeded in gaining control of one of the buildings!;
+T:Finally we are gaining a serious advantage over the Dragon Lancers, who;
+T:are still stuck in the slums and haven't been able to expand yet.;
+T:And thanks to you, their representative has been taken care of, as well;
+T:as one of his potential successor. So the Dragon Lancers won't be;
+T:expanding anytime soon!;
+A:[CONTINUE]:0:0:0:1:51:0:0:0:0
+%
+
+N:51:0:0:0:0:0
+I:Krind;
+T:All right, time for me to inform the Leaders about the building, so we;
+T:can organize things, and start running the place. It might take some;
+T:time however. So, in the meantime, we have received a contract, and I'd;
+T:like you to take care of it.;
+A:[CONTINUE]:0:0:0:1:52:0:0:0:0
+%
+
+N:52:0:0:0:0:0
+I:Krind;
+T:The contract is from a person named 'James Harris', a human who lives;
+T:near the great temple of the Creator. I don't know anything about him.;
+T:All I know is that he'll be waiting for you in an house right behind;
+T:the alchemy shop. Apparently, it's something about a devling thief who;
+T:stole something important to him, and he wants us to get this thing;
+T:back from the devlings.;
+A:[CONTINUE]:0:0:0:1:53:0:0:1063:1
+%
+
+N:53:0:0:0:0:0
+I:Krind;
+T:So, go there, and see what this is all about. Be careful though. I smell;
+T:something fishy about this contract. He really didn't give us much;
+T:details, and it could be very well be a trap.;
+A:I'll go find him then.:0:0:0:0:0:0:0:0:0
+A:I have some questions first.:0:0:0:1:54:0:0:0:0
+%
+
+N:54:0:0:0:0:0
+I:Krind;
+T:Sure, go ahead. What do you want to know?;
+A:I find it strange that I get to go to the Lancers HQ before visiting ours...:1:1106:1:1:67:0:0:0:0
+A:You mentionned something about the 'Leaders'. Who are they?:1:1106:0:1:55:0:0:0:0
+A:Nevermind.:0:0:0:0:0:0:0:0:0
+%
+
+N:55:0:0:0:0:0
+I:Krind;
+T:Well, they are the leaders of the Stealthy Vipers of course! Why, did you;
+T:think this place was our big headquarter? Of course not! And I'm not the;
+T:guildmaster either, I'm only one of his representatives.;
+A:Where can I meet the leaders?:0:0:0:1:56:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:56:0:0:0:0:0
+I:Krind;
+T:I'm sorry, <NAME>, but I can't answer that question at the moment.;
+T:Our leaders are well hidden, and so are our headquarter, and only;
+T:top-ranked members and representatives gets to meet the leaders in person.;
+T:Continue to do good work though, and you might eventually get to meet;
+T:them too!;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:57:0:0:0:0:0
+I:Krind;
+T:So that's why they did it. I did find it a bit strange that the;
+T:Dragon Lancers would start stealing from random peoples like this,;
+T:but it seems it was all part of their plan to lure you into a trap,;
+T:so they could try to kill you. Stealing from an innocent man, then;
+T:the man go see the guards... Of course, the guards do not want to;
+T:get involved, but mention our name. I bet the Lancers bribed;
+T:the guards so that they don't involve themselves in this, and instead;
+T:have the man get a contract from us. They must have been observing you,;
+T:and they knew you would be selected for this contract!;
+A:[CONTINUE]:0:0:0:1:58:0:0:0:0
+%
+
+N:58:1042:1:0:0:0
+I:Krind;
+T:And to make things worse, you are telling me that they revived our fallen;
+T:members as undead warriors?? This is unacceptable! I swear the Lancers;
+T:are going to pay for tricking us like that, and insulting our guild!!;
+A:[CONTINUE]:0:0:0:1:59:0:0:1070:1
+%
+
+N:58:1058:1:0:0:0
+I:Krind;
+T:And to make things worse, you are telling me that they revived our fallen;
+T:members as undead warriors?? This is unacceptable! I swear the Lancers;
+T:are going to pay for tricking us like that, and insulting our guild!!;
+A:[CONTINUE]:0:0:0:1:59:0:0:1071:1
+%
+
+N:58:1062:1:0:0:0
+I:Krind;
+T:And to make things worse, you are telling me that they revived our fallen;
+T:members as undead warriors?? This is unacceptable! I swear the Lancers;
+T:are going to pay for tricking us like that, and insulting our guild!!;
+A:[CONTINUE]:0:0:0:1:59:0:0:1072:1
+%
+
+N:59:0:0:0:0:0
+I:Krind;
+T:*sigh*...but anyway. You have done well in completing this contract, and;
+T:the Leaders were quite pleased by your success in gaining control of the;
+T:building. Here's 3000 golds for this contract. Also, I am now promoting;
+T:you to the rank of Viper Stalker. You will now be able to get a new item;
+T:from the armory. Congratulations, <NAME>!;
+A:[CONTINUE]:0:0:0:3:488:3000:60:1069:1
+%
+
+N:60:0:0:0:0:0
+I:Krind;
+T:I will now have to send some of my agents in order to find out who was;
+T:responsible for tricking you. He has comitted a serious crime against;
+T:our guild, and must pay for it! But it will take time. In the meantime,;
+T:the building you obtained is now open, and we have moved some of our;
+T:members there. So we now have a second office! While my agents are;
+T:looking for that devling bastard, why don't you go visit our new;
+T:place? I'm sure you'll like it. Plus, they might have a few things;
+T:for you to accomplish before we discover where this Lancer is hiding!;
+A:I shall go there then.:0:0:0:0:0:0:0:0:0
+A:I have some questions first.:0:0:0:1:54:0:0:0:0
+%
+
+N:61:0:0:0:0:0
+I:Krind;
+T:Not yet. But since he's apparently a high-ranked member, it wouldn't;
+T:surprise me if he was hiding in the Dragon Lancers headquarter.;
+T:Unfortunately, we still don't know where it is. But we won't give up.;
+T:Sooner or later, we will find them, and then we'll put an end to them;
+T:once and for all!;
+A:I have some questions.:0:0:0:1:54:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:62:0:0:0:0:0
+I:Krind;
+T:However...this mission will be tricky. You will be sent to the Lancers;
+T:Headquarters, <NAME>!;
+A:The Lancers Headquarters?:0:0:0:1:63:0:0:0:0
+%
+
+N:63:0:0:0:0:0
+I:Krind;
+T:Yes, that's right. The agents were sent there to infiltrate their base,;
+T:to obtain more information about the one responsible for the attack;
+T:in the graveyard. My suspicions are that they were caught, and are now;
+T:prisoners of the Lancers. It wouldn't surprise me if the Lancers would;
+T:soon ask for a ransom in exchange for their freedom. So your mission;
+T:is to go there, find them, and free them.;
+A:[CONTINUE]:0:0:0:7:15:9000:64:0:0
+%
+
+N:64:0:0:0:0:0
+I:Krind;
+T:However, you'll have to proceed with caution. This is where the elites;
+T:of the Dragon Lancers are, and considering their strength and number,;
+T:you would be overpowered quickly should they discover you. I suggest;
+T:you take a more stealthy approach, avoiding fights if possible.;
+T:Infiltrate their base, find our friends, free them and escape. Do not;
+T:take any unecessary risks.;
+A:All right. And where are they located?:0:0:0:1:65:0:0:1106:1
+%
+
+N:65:0:0:0:0:0
+I:Krind;
+T:The Lancers headquarters is to the east of Jindar, at the bottom of;
+T:a cave located at (56,39) on your map. It will be dangerous, but;
+T:considering what you've done so far, I'm sure you can handle it.;
+T:Once you return with our comrades, you will be well rewarded, and;
+T:promoted to the next rank. Good luck, <NAME>, I'm counting on you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:66:0:0:0:0:0
+I:Krind;
+T:The Lancers base is hidden at the bottom of a cave located at (56,39);
+T:on your map. Go there as soon as you can, but remember, this is very;
+T:dangerous, and I suggest you go the stealthy route. Do not try to;
+T:fight your way through their headquarters, or you'll be outnumbered.;
+A:I have some questions.:0:0:0:1:54:0:0:0:0
+A:I'll do that then.:0:0:0:0:0:0:0:0:0
+%
+
+N:67:0:0:0:0:0
+I:Krind;
+T:Hmmm...you're right. I did send good words about you, and how it was;
+T:you that gained control of our new guild hall. But despite this, they;
+T:still haven't requested your presence in the main Viper Headquarters.;
+T:In fact, I haven't heard from them for a little while already. I did not;
+T:get any feedback on the latest report I sent them. I hope nothing's;
+T:wrong there... But anyway, it's important that you focus on the current;
+T:mission. Surely they'll want to meet you after this one, because they'll;
+T:want as much information as possible on the Lancers Headquarters.;
+A:Can you remind me where they are located?:0:0:0:1:66:0:0:0:0
+A:I'll do that then.:0:0:0:0:0:0:0:0:0
+%

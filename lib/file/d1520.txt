@@ -1,0 +1,178 @@
+N:1:1524:1:0:0:0
+I:Gold Soldier;
+T:Korthrax should be waiting for you at (82,49). You should go there as soon;
+T:as possible. Please do not keep him waiting.;
+A:Who is this Ludgar Zos you mentionned before?:0:0:0:1:16:0:0:0:0
+A:I have some questions.:0:0:0:1:9:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1521:1:0:0:0
+I:Gold Soldier;
+T:Have you accomplished the task yet?;
+A:Yes, I have slain their leader.:1:1523:1:1:13:0:0:0:0
+A:I have some questions.:0:0:0:1:9:0:0:0:0
+A:No. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Gold Soldier;
+T:Hmm? Who are you? What do you want?;
+A:My name is <NAME>. Christina sent me.:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Gold Soldier;
+T:I see. And what does she wants?;
+A:[Tell him the story.]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Gold Soldier;
+T:I understand. Obtaining an amulet of Golden Truth is no small honor;
+T:however. It is only given to those who proves their loyalty and;
+T:devotion to Shan. So in order to earn the amulet, you will have to;
+T:accomplish a task in the name of the Sul-Rin. Are you prepared for this?;
+A:Yes.:0:0:0:1:5:0:0:0:0
+A:No.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Gold Soldier;
+T:Then we have nothing else to say to you. No matter how dire your situation;
+T:is, amulets of Golden Truth will never be given without accomplishing;
+T:a task first. Come back when you're ready to earn it.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Gold Soldier;
+T:Not very far to the west of this place is a small cult devoted to Ryoon,;
+T:the Ghostfather. The Ghostfather despises Shan, and lately, the cult's;
+T:activities have been increasing. They are becoming a threat to us, and;
+T:therefore, they need to be eliminated. Defeating them will be your task.;
+T:I can sense a great power inside of you, I'm sure you'll be able to do it.;
+A:And where exactly is this cult?:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Gold Soldier;
+T:To the west, not too far. That would be (79,46), right next to our sector.;
+T:Like us, they are hidden in a deep cave. But unlike us, they have several;
+T:priests and monsters within their ranks, and not just two soldiers.;
+T:We aren't even a threat to them. You, on the other hand, may be. Once you;
+T:heave defeated their leader, come back here, and we shall begin the;
+T:preparations to get you your amulet.;
+A:So you do not actually have one?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Gold Soldier;
+T:We do have amulets, like any followers of Shan. But their powers are;
+T:weak, since we are only low rank servants. The one you'll need has to;
+T:be much more powerful, and it isn't something we Gold Soldiers can;
+T:give you. Only a high priest or high ranked Golden Knight could give;
+T:you this kind of treasure. So once you have accomplished your task,;
+T:we will contact the necessary peoples. But it will not be us who will;
+T:give it to you.;
+A:[CONTINUE]:0:0:0:1:8:0:0:1521:1
+%
+
+N:8:0:0:0:0:0
+I:Gold Soldier;
+T:Go now, <NAME>, take care of these worshippers of Ryoon, and you shall;
+T:obtain the blessing of the Golden Sul-Rin!;
+A:I have some questions first.:0:0:0:1:9:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Gold Soldier;
+T:Yes?;
+A:You don't seem too talkative.:0:0:0:1:10:0:0:0:0
+A:Tell me more about the Golden Knights.:0:0:0:1:11:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Gold Soldier;
+T:*He looks a bit embarassed by your remark*;
+T:Err...well, that may be. I guess I don't have much to say. I'm a low rank;
+T:soldier. I observe what's going on around here, and send reports to;
+T:my superiors. That's pretty much all what I do. I apologize if I'm a bit;
+T:direct and cold, but I don't have any interesting stories to tell.;
+T:I don't fight much, I stay here most of the time, so it's pretty ordinary.;
+T:Just what you'd expect from a simple soldier.;
+A:Tell me more about the Golden Knights.:0:0:0:1:11:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Gold Soldier;
+T:The Golden Knights are kind of like the paladins of Shan. They help the;
+T:peoples of Rhyzendal, and fight evil creatures and minions of other;
+T:Archfiends. And sometimes, Shan's own creatures.;
+A:Shan's own creatures?:0:0:0:1:12:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Gold Soldier;
+T:An Archfiend's an Archfiend. She has monsters associated to her like any;
+T:others, and they are no less dangerous. Visit a Rhyzendalian dungeon and;
+T:you'll see what I mean.;
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Gold Soldier;
+T:Yes, we've seen that. We were observing their place while you were inside,;
+T:and we saw some of the priests fleeing in terror, speaking of a <CLASS>;
+T:who had unbelievable powers. So it seems you were successful in giving them;
+T:a good blow, and I don't think we'll be hearing from them for a while.;
+T:Good job, <NAME>!;
+A:[CONTINUE]:0:0:0:1:14:0:0:1524:1
+%
+
+N:14:0:0:0:0:0
+I:Gold Soldier;
+T:As promised, we have made the arrangements for you to get the amulet you;
+T:need. You'll need to meet with Korthrax, a high priest of Shan, and one;
+T:of Ludgar Zos' closest advisors. He will give you further instructions on;
+T:obtaining the amulet. The meeting will take place at (82,49), the site;
+T:of some old ruins, and will be waiting for you outside.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Gold Soldier;
+T:Well...I guess that's your next step, <NAME>. Good luck getting the amulet.;
+T:And may Shan's magic shine on you!.;
+A:Wait...you mentionned Ludgar Zos? Who is he?:0:0:0:1:16:0:0:0:0
+A:I have some questions.:0:0:0:1:9:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Gold Soldier;
+T:Master Ludgar is the most powerful priest of Shan in Rhyzendal. Highly devoted;
+T:to server the Golden Sul-Rin, he is a highly respected figure in the northern;
+T:lands. Much more that the "official" leader, Soroth Zenras.;
+A:Tell me more about Soroth Zenras.:0:0:0:1:17:0:0:0:0
+A:I have some other questions.:0:0:0:1:9:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Gold Soldier;
+T:Soroth Zenras is...how to say...more like a political decoy, if you ask me.;
+T:Technically, he is the leader of Rhyzendal, and lives in the city's palace,;
+T:like the other leaders. But everyone in Rhyzendal, including himself, knows;
+T:that Shan is the one and only true leader. After all, politics pale in;
+T:comparison to an Archfiend's powers. But other nations would be too scared;
+T:of dealing with one such as Shan directly, so we prefer to have someone;
+T:of lesser power to facilitate communications and trades.;
+A:Tell me more of Soroth Zenras.:0:0:0:1:17:0:0:0:0
+A:I have some other questions.:0:0:0:1:9:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%

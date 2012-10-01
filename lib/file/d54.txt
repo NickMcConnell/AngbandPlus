@@ -1,0 +1,29 @@
+N:1:0:0:0:0:0
+I:Voice;
+T:You came. Yet you did not kill the man who knows the truth. You are;
+T:not making her smile, <CLASS>. No. You are not.;
+A:Enough of your little games. I'm coming for you!:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:Ophelia's nightmare has reached full maturity. Not even the spirits;
+T:of nightmare will come here anymore, for they too are now in danger.;
+T:Dreadful horrors awaits you, because you refused to make her smile.;
+T:And now, you shall pay the price. Farewell, <CLASS>.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:The voice fades once again. As you decide to move on, you stop.;
+T:There are fearsome creatures nearby, and your instinct tells you;
+T:that you are in great peril. Moving forward may be very dangerous.;
+T:You are not sure whether or not you should continue.;
+T: ;
+T:(WARNING: The creatures you are about to face may be far more than;
+T:you can handle. There may be some ways to avoid fighting them.;
+T:If you are not sure, it may be best to leave, and return once you;
+T:are fully prepared.);
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

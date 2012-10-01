@@ -1,0 +1,116 @@
+MAGIC ITEMS TYPES/COLORS DESCRIPTIONS
+---------------------------------------
+
+When you pickup items in your inventory, some of them may appear with a name
+colored differently that the usual color of the item. For example, weapons
+usually are white, but you will soon come across purple colored ones, meaning
+it's a magic item. Here are the colors explained:
+
+PURPLE: Magic Item
+
+A magic item. Purple items carry enchantments that can give you various bonus,
+which you can learn about by using the 'I' command, assuming the item is
+identified. They may also have enhanced base values, such as increased damages
+or AC. Purple items can sometimes be found randomly in dungeons, but are mostly
+dropped by elite and boss monsters, as well as powerful Uniques. You will find
+a lot of magic items if you defeat elites and bosses! They can also be found
+in the black market. If you find one that you don't want, try selling it, as
+they sell for a better price than regular items. As you explore deeper levels,
+magic items will become progressively better, so you should look for them!
+
+BLUE: Levelable Item
+
+Blue items are similar to purples, except for one significant advantage: they
+can gain levels. Blue items have some customizable "tweak" points that you
+can use to increase the item's abilities. A blue item will start with 2 tweak
+points, and will gain 2 extra ones for every levels. It's base damages and
+base AC, as well as to_hit and to_dam bonus will increase as well.
+You can level up a blue item by defeating enemies, but they must have a level
+equal or higher than yours, and their depth level must be equal or higher to
+the current item's level. You will see a "kills" property on levelable items,
+showing the number of enemies you need to kill before gaining a level.
+You will quickly find out that levelable items are much, much, much more
+powerful than regular magic items, and as you progress in the game, you will
+most likely want to wear a full set of these levelable items. Of course,
+obtaining them may not be easy, but it's well worth it. Leveling up your
+items is the key to creating an extremely powerful character!
+
+Blue items are rarer than normal magic items, and are not found until around
+dungeon levels 20 and lower, although it is possible to find one early if you
+are very lucky, or use a scroll of item leveling. Some special vaults may also
+hide some levelable items.
+
+YELLOW: Artifact
+
+These are artifacts. Artifacts ranges from uncommon to very rare, and many
+are obtained after completing quests or are hidden in dungeon vaults.
+Needless to say, rare artifacts tends to have unique properties not found
+on any other kind of items, and many can gain experience levels. All artifacts
+are eternal, meaning you will not lose them if you die. They are generally
+a lot more powerful than regular magic items, and often have a theme that
+suits particular characters very well. Always be on the look for artifacts!
+
+Tip: The rare item shops sells scrolls of Item Leveling. Use these scrolls
+to make any artifacts into a levelable one!
+
+ORANGE: Enchanted Crafted Item
+
+Orange items are created using the Crafting skill. Initially, crafted items
+will be normal items, but as soon as you increase their abilities, they
+will become orange, meaning it's an enchanted crafted item. The Enchanter
+class has many ways to put these items to good use! Note that these items
+can never become levelables, and that scrolls of Item Leveling will not
+work on them.
+
+GREEN: Special Item
+
+Special items are incredibly powerful magic items. They are always eternal,
+always levelable, and boast powers unlike any other kind of items. The only
+problem is that they are incredibly rare, and it may take a very long time
+before you find one, if ever. If you DO find one, it will most likely outclass
+most of your other items, and you will definitely want to put it to good use.
+
+Notes:
+
+Specials will usually not appear before at least dungeon level 40 and
+deeper. Even then, they are incredibly rare, and it may take a very long
+time before you ever see one, if you ever do. It is best not to spend too
+much time killing enemies over and over looking for them, as they might
+not appear, and you'll get bored. Just play, and rejoice if one shows up! :)
+
+RED: Cursed Item
+
+"Nightmares and misfortune sleep within..."
+
+This is probably the ability you've noticed after identifying a red item.
+You probably also noticed that it is very powerful. Indeed, cursed items
+are very powerful, however, the curse they carry will bring bad luck to you.
+Using or even just carrying a cursed item is enough to trigger it's side
+effects, and the higher the misfortune level, the worst they are.
+Each cursed item you carry increase your misfortune level, so the more you
+carry, the worse it gets!
+
+The side effects are the following:
+- An increase of Elite and Boss monsters.
+- A decrease in the quality of non-cursed magic items.
+
+However:
+- Cursed items are very powerful. The higher the misfortune level, the more
+power they have. They are also always eternal.
+- No side effects in special quest levels, meaning they are good to use to
+complete quests.
+- Cursed items can usually sell for a very nice price.
+
+So consider all this before you decide whether or not you want to use cursed
+items. They have great power, but there is a price to pay.
+
+If it's not already levelable, use a Scroll of Item Leveling on them.
+You'll find that levelable cursed items can become *VERY* powerful.
+
+Notes:
+
+Cursed items usually do not appear before depths 10 and lower, and even then
+you probably won't find them before 20. Carrying cursed items increases the
+chance of finding more of them.
+
+It is possible that cursed items might have another side effect...

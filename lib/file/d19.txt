@@ -1,26 +1,26 @@
 N:1:46:2:0:0:0
 I:Innkeeper;
 T:Welcome to my inn, <NAME>, savior of Fidac! How may I help you?;
-A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
 A:An ale, please!:0:0:0:1:2:0:0:0:0
-A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:3:6:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
 N:1:0:0:0:0:0
 I:Innkeeper;
 T:Welcome to Fidac's Inn. How may I help you?;
-A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
 A:An ale, please!:0:0:0:1:2:0:0:0:0
-A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:3:6:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
 N:2:0:0:0:0:0
 I:Innkeeper;
 T:Here you go! (you drink your ale);
-A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
-A:Any rumors?:0:0:0:4:3:5:0:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
+A:Any rumors?:0:0:0:4:3:6:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
@@ -31,9 +31,9 @@ T:himself 'Jordan Shade'. Apparently he is some kind of agent working;
 T:for the Black Market... could the Black Market have a shop around;
 T:here, near the town? I never dared to approach this man though...;
 T:He's the kind of man who could backstab you at anytime...;
-A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
 A:An ale, please!:0:0:0:1:2:0:0:0:0
-A:Any other rumors?:0:0:0:4:3:5:0:0:0
+A:Any other rumors?:0:0:0:4:3:6:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
@@ -45,9 +45,9 @@ T:old ruins... and walking corpses. If you want my opinion, this place;
 T:is nothing more than a haunted temple... and the treasures rumor only;
 T:serve to attract careless adventurers there, so the undeads can devour;
 T:them!;
-A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
 A:An ale, please!:0:0:0:1:2:0:0:0:0
-A:Any other rumors?:0:0:0:4:3:5:0:0:0
+A:Any other rumors?:0:0:0:4:3:6:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
@@ -60,10 +60,23 @@ T:worship Daldumaar, the legendary founder of the forest kingdom of;
 T:Nimbraya. From what I know, Daldumaar was a demigod born from an elf mother;
 T:and a divine father. He founded Nimbraya, played a major in the orcish;
 T:wars, and defeated Dumos Arikyenzal, the legendary destroyer of Nimbraya.;
-A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
 %
 
 N:6:0:0:0:0:0
+I:Innkeeper;
+T:Everyone's scared of those ancient ruins to the northwest, but to the;
+T:southwest is an ancient mine. I think the mine's just as scary as the;
+T:ruins! That place is full of monsters. I wonder if there are still;
+T:ancient ores to be found in it though... But to tell you the truth,;
+T:I'm sure there's more than just ores at the bottom...;
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
+A:An ale, please!:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:3:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
 I:Innkeeper;
 T:As Nimbraya is growing in power, their religion is also spreading across;
 T:Portralis. We meet more and more Daldumaarian priests and priestesses.;
@@ -71,23 +84,23 @@ T:Even the worshippers of the Allmighty Creator have started losing faithfuls;
 T:to the Daldumaarians! Right now, it is the second most powerful religious;
 T:organization in Portralis, right after the priests of The Creator. It seems;
 T:like Dalunia will be completely forgotten before long...;
-A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
 %
 
-N:7:0:0:0:0:0
+N:8:0:0:0:0:0
 I:Innkeeper;
 T:But fortunately, here, we all worship Dalunia. You should pay a visit;
 T:to our priestess, Evolia. Please, support us! Dalunia is the goddess of;
 T:nature, and a protector of the land and the living. And if you have true;
 T:faith in nature, life and purity... you too will become a follower of;
 T:Dalunia!;
-A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
 A:An ale, please!:0:0:0:1:2:0:0:0:0
 A:Any other rumors?:0:0:0:4:3:5:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
-N:8:0:0:0:0:0
+N:9:0:0:0:0:0
 I:Innkeeper;
 T:Let me guess: he sent you to look for his sword? If I were you, I would;
 T:not lose my time with this guy. He claims that he is a great warrior;

@@ -1,0 +1,91 @@
+N:1:0:0:0:0:0
+I: ;
+T:You open the door in front of you... but it's still closed. You could;
+T:swear you opened it, yet it seems to have magically closed itself instantly.;
+T:As you wonder what exactly is happening, you hear a voice behind you...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Man's Voice;
+T:So you came, <NAME>. I expected you would find your way down here.;
+T:Curious about this door? You opened it, yet it's still closed. Doesn't;
+T:make much sense, right? But then, it wouldn't be chaos if it did make;
+T:sense...;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:You turn around, and see a full plate clad man, who's hairs and eyes;
+T:are a bright orange, an unnatural color. You can sense similar powers;
+T:in him than what Quazar had, so he is most likely a zulgor.;
+A:Who are you?:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:9:0:0
+I:Simon;
+T:You may call me Simon. And like our fallen brother Quazar, I am a zulgor.;
+T:Hmph... Looking at you, I wonder how you managed to defeat him. You are;
+T:a zulgor too, yet you are clueless in the face of reality twisting. The fact;
+T:that you cannot understand this door's nature proves that you are weak,;
+T:and unworthy of our race! Our order has no place for a weakling like you!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Simon;
+T:You may call me Simon. And like our fallen brother Quazar, I am a zulgor.;
+T:I still don't understand how a <RACE>, who knows nothing of the power of;
+T:chaos, could have defeated a zulgor who fused with a red licialhyd. He must;
+T:have been overconfident and let his guard down. Otherwise, you would;
+T:have never defeated him.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Simon;
+T:But enough with introductions. You're here to see the queen, right?;
+T:As you know, she has important matters to take care of, and cannot meet;
+T:you right now. So I'm afraid you'll have to turn back and leave.;
+T:*He smiles with an evil grin*;
+A:What did you do to the queen?:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Simon;
+T:Me? Nothing. Nothing at all. The queen is perfectly healthy, and everything;
+T:is going all right in the palace. What makes you think something's wrong;
+T:with the queen?;
+A:She has ordered to not let anyone inside the palace.:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Simon;
+T:...or did she? *smiles*;
+A:What do you mean?:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Simon;
+T:Hahaha! Again, you are completely clueless! I'm starting to wonder if you;
+T:really are a threat at all. Perhaps we've overestimated your abilities...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Simon;
+T:Well, I've said what I had to say. I know you won't leave, so it looks;
+T:like I'll have to eliminate you. You could have retired and live a;
+T:peaceful life as a hero for defeating Quazar, but no, you chose to;
+T:continue meddling with our order's plans. A choice that will now cost;
+T:you your life!;
+A:You are the one who will lose his life, Simon!:0:0:0:1:10:0:0:0:0
+A:Bring it on!:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Simon;
+T:Rest in peace, <NAME>!;
+A:[END DIALOG]:0:0:0:11:1:0:0:1511:1
+%

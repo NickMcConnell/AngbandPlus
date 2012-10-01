@@ -1,3 +1,17 @@
+N:1:1027:2:0:0:0
+I:Rolf;
+T:Looks like you beat'em all after all! Haha! I suppose I underestimated you.;
+T:Congratulations, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1027:1:0:0:0
+I:Rolf;
+T:Looks like you beat'em all after all! Haha! I suppose I underestimated you.;
+T:Congratulations, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
 N:1:1017:1:0:0:0
 I:Rolf;
 T:You're still there? What are you waiting for? Go smash these bastards!!;

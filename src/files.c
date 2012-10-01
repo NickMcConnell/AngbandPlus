@@ -1100,7 +1100,7 @@ static void display_player_middle(void)
 	else
 	{
 		prt_lnum("Exp to Adv.",
-		         (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
+		         (s32b)(multiply_divide(player_exp[p_ptr->lev - 1], p_ptr->expfact, 100L)),
                          12, 28, TERM_L_GREEN);
 	}
 
@@ -1263,31 +1263,22 @@ static void display_player_various(void)
         else
                 put_str(format("%d+%d", p_ptr->num_blow, muta_att), 14, 69);
         o_ptr = &inventory[INVEN_WIELD];
-        if (p_ptr->prace == RACE_MONSTER && o_ptr->tval == 0) put_str(format("n/a"), 14, 69);
 
 	put_str("Blows/Round(2):", 15, 55);
-        if (!muta_att)
+	if (!unarmed() && p_ptr->dualwield == 0)
+		put_str(format("n/a", p_ptr->num_blow2), 15, 72);
+        else if (!muta_att)
                 put_str(format("%d", p_ptr->num_blow2), 15, 72);
         else
                 put_str(format("%d+%d", p_ptr->num_blow2, muta_att), 15, 72);
+
         o_ptr = &inventory[INVEN_WIELD];
-        if (p_ptr->prace == RACE_MONSTER && o_ptr->tval == 0) put_str(format("n/a"), 15, 72);
 
 	put_str("Shots/Round:", 16, 55);
 	put_str(format("%d", p_ptr->num_fire), 16, 69);
 
         put_str("Wpn.dmg:", 17, 55);
 
-        if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON] || (p_ptr->body_monster > 0 && unarmed()))
-        {
-                if (r_info[p_ptr->body_monster].flags1 & RF1_NEVER_BLOW)
-                        desc = "nil!";
-                else
-                {
-			/* Until I actually decide to do some math... */
-			desc = "n/a";
-                }
-        }else
 	{
 		s32b showdmg_min = 0;
 		s32b showdmg_max = 0;
@@ -1311,12 +1302,13 @@ static void display_player_various(void)
 				desc = format("%ld-%ld", showdmg_min, showdmg_max);
 			}
 		}
+
         }
         put_str(desc, 17, 64);
 	put_str("Wpn2.dmg:", 18, 55);
 
 	current_weapon = &inventory[INVEN_WIELD+1];
-	if (!(current_weapon->tval) && !(unarmed())) desc = format("n/a"); 
+	if ((!(current_weapon->tval) && !(unarmed())) || p_ptr->dualwield == 0) desc = format("n/a"); 
 	else if (unarmed()) desc = format("n/a");
 	else
 	{
@@ -1331,18 +1323,49 @@ static void display_player_various(void)
 	put_str(desc, 18, 65);
 
 	put_str("Sht.dmg:", 19, 55);
-	q_ptr = &inventory[INVEN_AMMO];
-	j_ptr = &inventory[INVEN_BOW];
-	if ((j_ptr->tval > 0) && (q_ptr->tval > 0))
+	current_weapon = &inventory[INVEN_WIELD];
+	if (current_weapon->tval == TV_RANGED)
 	{
-		desc = format("%ld-%ld", bow_damages(damroll(q_ptr->dd, 1), j_ptr->to_d, q_ptr->to_d), bow_damages(maxroll(q_ptr->dd, q_ptr->ds), j_ptr->to_d, q_ptr->to_d));
+		s32b showdmg_min = 0;
+		s32b showdmg_max = 0;
+
+		call_lua("min_ranged_damages", "", "l", &showdmg_min);
+		call_lua("max_ranged_damages", "", "l", &showdmg_max);
+		desc = format("%ld-%ld", showdmg_min, showdmg_max);
+	}
+	else
+	{
+		if (inventory[INVEN_AMMO].tval == TV_THROWING && inventory[INVEN_WIELD].tval != TV_RANGED && inventory[INVEN_WIELD+1].tval != TV_RANGED)
+		{
+			s32b showdmg_min = 0;
+			s32b showdmg_max = 0;
+
+			drop_ranged = &inventory[INVEN_AMMO];
+			call_lua("min_throw_damages", "", "l", &showdmg_min);
+			call_lua("max_throw_damages", "", "l", &showdmg_max);
+			desc = format("%ld-%ld", showdmg_min, showdmg_max);
+		}
+		else desc = "n/a";
+	}
+	put_str(desc, 19, 64);
+
+	put_str("Sht2.dmg:", 20, 55);
+	current_weapon = &inventory[INVEN_WIELD+1];
+	if (current_weapon->tval == TV_RANGED)
+	{
+		s32b showdmg_min = 0;
+		s32b showdmg_max = 0;
+
+		call_lua("min_ranged_damages", "", "l", &showdmg_min);
+		call_lua("max_ranged_damages", "", "l", &showdmg_max);
+		desc = format("%ld-%ld", showdmg_min, showdmg_max);
 	}
 	else desc = "n/a";
-	put_str(desc, 19, 64);
+	put_str(desc, 20, 65);
 	
 
-	put_str("Infra-Vision:", 20, 55);
-        put_str(format("%d feet", p_ptr->see_infra * 10), 20, 69);
+	put_str("Infra-Vision:", 21, 55);
+        put_str(format("%d feet", p_ptr->see_infra * 10), 21, 69);
 }
 
 
@@ -1669,6 +1692,7 @@ static void display_player_misc_info(void)
 	put_str("Sex       :", 3, 1);
 	put_str("Race      :", 4, 1);
 	put_str("Class     :", 5, 1);
+	put_str("Element   :", 6, 1);
 
 	c_put_str(TERM_L_BLUE, player_name, 2, 13);
 	if (p_ptr->body_monster != 0)
@@ -1688,6 +1712,8 @@ static void display_player_misc_info(void)
                 c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 13);
 	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 13);
 	c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 5, 13);
+	if (p_ptr->elemlord == 0) c_put_str(TERM_L_BLUE, "n/a", 6, 13);
+	else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 6, 13);
 
 	/* Display extras */
 	put_str("Level     :", 6, 1);
@@ -2353,6 +2379,7 @@ void display_player(int mode)
                 put_str("Sex         :", 3, 1);
                 put_str("Race        :", 4, 1);
                 put_str("Class       :", 5, 1);
+		put_str("Element     :", 6, 1);
                 /*put_str("Body        :", 6, 1);*/
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
@@ -2385,22 +2412,27 @@ void display_player(int mode)
                 	c_put_str(TERM_L_BLUE, f, 5, 15);
         	}
         
-                else if (p_ptr->prace == RACE_MONSTER) c_put_str(TERM_L_BLUE, "Monster", 5, 15);
                 else c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 5, 15);
                 if (p_ptr->body_monster != 0)
                 {
                         c_put_str(TERM_L_BLUE, "           ", 4, 15);
                         c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 4, 15);
 		}
+		if (p_ptr->elemlord == 0) c_put_str(TERM_L_BLUE, "n/a", 6, 15);
+		else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 6, 15);
                 
 
 		/* Age, Height, Weight, Social */
-		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);
-		prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);
-		prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);
+		/*prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);*/
+		/*prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);*/
+		/*prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);*/
                 /*prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);*/
-		prt_num("Alignment    ", p_ptr->alignment, 5, 32, TERM_L_BLUE);
-                prt_num("Death Count  ", p_ptr->deathcount, 6, 32, TERM_L_BLUE);
+		prt_num("Alignment  ", p_ptr->alignment, 2, 28, TERM_L_BLUE);
+		prt_num("Misfortune ", p_ptr->cursed, 3, 28, TERM_L_BLUE);
+                prt_num("Death Count", p_ptr->deathcount, 4, 28, TERM_L_BLUE);
+
+		/* Base, Mod, Cur */
+		c_put_str(TERM_WHITE, "BASE   MOD   MUT   CUR ", 1, 53);
 
 		/* Display the stats */
 		for (i = 0; i < 6; i++)
@@ -2417,7 +2449,7 @@ void display_player(int mode)
 					colour=TERM_YELLOW;
 
 				/* Use lowercase stat name */
-				put_str(stat_names_reduced[i], 2 + i, 61);
+				put_str(stat_names_reduced[i], 2 + i, 49);
 
 				/* Get the current stat */
 				/* Formerly stat_use */
@@ -2427,7 +2459,7 @@ void display_player(int mode)
                                 cnv_stat(value, buf);
 
 				/* Display the current stat (modified) */
-				c_put_str(colour, buf, 2 + i, 66);
+				c_put_str(colour, buf, 2 + i, 63);
 
 				/* Acquire the max stat */
 				value = p_ptr->stat_top[i];
@@ -2436,21 +2468,32 @@ void display_player(int mode)
                                 cnv_stat(value, buf);
 
 				/* Display the maximum stat (modified) */
-				c_put_str(TERM_L_GREEN, buf, 2 + i, 73);
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 72);
 			}
 
 			/* Normal treatment of "normal" stats */
 			else
 			{
 				/* Assume uppercase stat name */
-				put_str(stat_names[i], 2 + i, 61);
+				put_str(stat_names[i], 2 + i, 49);
+
+				/* Display base, mod and cur stat. */
+				sprintf(buf, "%d", p_ptr->stat_max[i]);
+				/*cnv_stat(p_ptr->stat_cur[i], buf);*/
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 54);
+				sprintf(buf, "%d", p_ptr->stat_add[i]);
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 60);
+				sprintf(buf, "%d", p_ptr->stat_mut[i]);
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
+				sprintf(buf, "%d", p_ptr->stat_ind[i]);
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 72);
 
 				/* Obtain the current stat (modified) */
 				/* Formerly stat_use */
-                                cnv_stat(p_ptr->stat_ind[i], buf);
+                                /*cnv_stat(p_ptr->stat_ind[i], buf);*/
 
 				/* Display the current stat (modified) */
-				c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
+				/*c_put_str(TERM_L_GREEN, buf, 2 + i, 63);*/
 			}
 		}
 
@@ -2477,6 +2520,10 @@ void display_player(int mode)
  	else if (mode == 2)
 	{
 		display_player_skills();
+	}
+	else if (mode == 3)
+	{
+		display_player_abilities();
 	}
 	/* Special */
 	else
@@ -2634,8 +2681,31 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
-	/* Display resistances */
+	/* Display abilities */
 	display_player(3);
+
+	/* Dump part of the screen */
+	for (y = 2; y < 22; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Display resistances */
+	display_player(4);
 
 	/* Dump part of the screen */
 	for (y = 2; y < 22; y++)
@@ -2948,7 +3018,7 @@ errr file_character(cptr name, bool full)
 
 	if (p_ptr->town_num)
 	{
-		st_ptr = &town[p_ptr->town_num].store[7];
+		st_ptr = &stores[7];
 
 		/* Dump the Home (page 1) */
 		fprintf(fff, "  [Home Inventory (page 1)]\n\n");
@@ -3691,16 +3761,6 @@ long total_points(void)
 	
         temp = (temp * mult / 100);
 
-        /* Completing quest increase score */
-        for (i = 0; i < max_quests; i++)
-        {
-                if (quest[i].status >= QUEST_STATUS_COMPLETED)
-                {
-                        temp += 2000;
-                        temp += quest[i].level * 100;
-                }
-        }
-
         /* The know objects increase the score */
 	/* Scan the object kinds */
 	for (k = 1; k < max_k_idx; k++)
@@ -4031,7 +4091,7 @@ static void print_tomb(void)
 		put_str(buf, 8, 11);
 
 
-		center_string(buf, cp_ptr->title);
+		center_string(buf, classes_def[p_ptr->pclass].name);
 		put_str(buf, 10, 11);
 
 		(void)sprintf(tmp, "Level: %d", (int)p_ptr->lev);
@@ -4095,9 +4155,9 @@ static void show_info(void)
 		object_known(o_ptr);
 	}
 
-	for (i = 1; i < max_towns; i++)
+	/* Home inventory */
 	{
-		st_ptr = &town[i].store[7];
+		st_ptr = &stores[7];
 
 		/* Hack -- Know everything in the home */
 		for (j = 0; j < st_ptr->stock_num; j++)
@@ -4190,10 +4250,9 @@ static void show_info(void)
 		if (inkey() == ESCAPE) return;
 	}
 
-	/* Homes in the different towns */
-	for (k = 1; k < max_towns; k++)
+	/* Home */
 	{
-		st_ptr = &town[k].store[7];
+		st_ptr = &stores[7];
 
 		/* Home -- if anything there */
 		if (st_ptr->stock_num)
@@ -4506,7 +4565,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
-			        race_info[pr].title, class_info[pc].title,
+			        race_info[pr].title, classes_def[pc].name,
 			        clev);
 
 			/* Append a "maximum level" */
@@ -4596,119 +4655,6 @@ void display_scores(int from, int to)
 
 	/* Quit */
 	quit(NULL);
-}
-
-
-/*
- * show_highclass - selectively list highscores based on class
- * -KMW-
- */
-void show_highclass(int building)
-{
-
-	register int i = 0, j, m = 0;
-	int pr, pc, clev, al;
-	high_score the_score;
-	char buf[1024], out_val[256];
-
-	switch(building)
-	{
-		case 1:
-			prt("               Busts of Greatest Kings", 5, 0);
-			break;
-		case 2:
-			prt("               Plaque - Greatest Arena Champions", 5, 0);
-			break;
-		case 10:
-			prt("               Plaque - Greatest Fighters", 5, 0);
-			break;
-		case 11:
-			prt("               Spires of the Greatest Magic-Users", 5, 0);
-			break;
-		case 12:
-			prt("               Busts of Greatest Priests", 5, 0);
-			break;
-		case 13:
-			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
-			break;
-		case 14:
-			prt("               Plaque - Greatest Rangers", 5, 0);
-			break;
-		case 15:
-			prt("               Plaque - Greatest Paladins", 5, 0);
-			break;
-		case 16:
-			prt("               Spires of the Greatest Illusionists", 5, 0);
-			break;
-		default: 
-			bell();
-			break;
-	}
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-	highscore_fd = fd_open(buf, O_RDONLY);
-
-	if (highscore_fd < 0)
-	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
-		return;
-	}
-
-	if (highscore_seek(0)) return;
-
-	for (i = 0; i < MAX_HISCORES; i++)
-		if (highscore_read(&the_score)) break;
-
-	m=0;
-	j=0;
-	clev = 0;
-
-	while ((m < 9) || (j < MAX_HISCORES))
-	{
-		if (highscore_seek(j)) break;
-		if (highscore_read(&the_score)) break;
-		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		clev = atoi(the_score.cur_lev);
-		al = atoi(the_score.arena_number);
-		if (((pc == (building - 10)) && (building != 1) && (building != 2)) ||
-		    ((building == 1) && (clev >= PY_MAX_LEVEL)) ||
-		    ((building == 2) && (al > MAX_ARENA_MONS)))
-		{
-			sprintf(out_val, "%3d) %s the %s (Level %2d)",
-			    (m + 1), the_score.who,race_info[pr].title, clev);
-			prt(out_val, (m + 7), 0);
-			m++;
-		}
-		j++;
-	}
-
-	/* Now, list the active player if they qualify */
-	if ((building == 1) && (p_ptr->lev >= PY_MAX_LEVEL))
-	{
-		sprintf(out_val, "You) %s the %s (Level %2d)",
-		    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
-		prt(out_val, (m + 8), 0);
-	}
-	else if ((building != 1) && (building != 2))
-	{
-		if ((p_ptr->lev > clev) && (p_ptr->pclass == (building - 10)))
-		{
-			sprintf(out_val, "You) %s the %s (Level %2d)",
-			    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
-			prt(out_val, (m + 8), 0);
-		}
-	}
-
-	(void)fd_close(highscore_fd);
-	highscore_fd = -1;
-	msg_print("Hit any key to continue");
-	msg_print(NULL);
-	for (j=5;j<18;j++)
-		prt("",j,0);
 }
 
 
@@ -5803,103 +5749,34 @@ void display_player_misc()
 {
 	int row;
 	int col;
+	int i;
 	char str[80];
 
 
 	/*** Set 1 ***/
 
-	row = 12;
+	row = 4;
 	col = 1;
 	
-	c_put_str(TERM_WHITE, "--- RESISTANCES ---", 2, 1);
+	c_put_str(TERM_WHITE, "--------------    RESISTANCES    --------------", 2, 1);
 
-	c_put_str(TERM_WHITE, "Fire     :", 4, 1);
-	sprintf(str, "%d", p_ptr->fireres);
-        c_put_str(TERM_L_GREEN, str, 4, 12);
-
-	c_put_str(TERM_WHITE, "Cold     :", 5, 1);
-	sprintf(str, "%d", p_ptr->coldres);
-        c_put_str(TERM_L_GREEN, str, 5, 12);
-
-	c_put_str(TERM_WHITE, "Elec     :", 6, 1);
-	sprintf(str, "%d", p_ptr->elecres);
-        c_put_str(TERM_L_GREEN, str, 6, 12);
-
-	c_put_str(TERM_WHITE, "Acid     :", 7, 1);
-	sprintf(str, "%d", p_ptr->acidres);
-        c_put_str(TERM_L_GREEN, str, 7, 12);
-
-	c_put_str(TERM_WHITE, "Poison   :", 8, 1);
-	sprintf(str, "%d", p_ptr->poisres);
-        c_put_str(TERM_L_GREEN, str, 8, 12);
-
-	c_put_str(TERM_WHITE, "Light    :", 9, 1);
-	sprintf(str, "%d", p_ptr->lightres);
-        c_put_str(TERM_L_GREEN, str, 9, 12);
-
-	c_put_str(TERM_WHITE, "Dark     :", 10, 1);
-	sprintf(str, "%d", p_ptr->darkres);
-        c_put_str(TERM_L_GREEN, str, 10, 12);
-
-	c_put_str(TERM_WHITE, "Warp     :", 11, 1);
-	sprintf(str, "%d", p_ptr->warpres);
-        c_put_str(TERM_L_GREEN, str, 11, 12);
-
-	c_put_str(TERM_WHITE, "Water    :", 12, 1);
-	sprintf(str, "%d", p_ptr->waterres);
-        c_put_str(TERM_L_GREEN, str, 12, 12);
-
-	c_put_str(TERM_WHITE, "Wind     :", 13, 1);
-	sprintf(str, "%d", p_ptr->windres);
-        c_put_str(TERM_L_GREEN, str, 13, 12);
-
-	c_put_str(TERM_WHITE, "Earth    :", 14, 1);
-	sprintf(str, "%d", p_ptr->earthres);
-        c_put_str(TERM_L_GREEN, str, 14, 12);
-
-	c_put_str(TERM_WHITE, "Sound    :", 15, 1);
-	sprintf(str, "%d", p_ptr->soundres);
-        c_put_str(TERM_L_GREEN, str, 15, 12);
-
-	c_put_str(TERM_WHITE, "Chaos    :", 16, 1);
-	sprintf(str, "%d", p_ptr->chaosres);
-        c_put_str(TERM_L_GREEN, str, 16, 12);
-
-	c_put_str(TERM_WHITE, "Radio    :", 17, 1);
-	sprintf(str, "%d", p_ptr->radiores);
-        c_put_str(TERM_L_GREEN, str, 17, 12);
-
-	c_put_str(TERM_WHITE, "Physical :", 18, 1);
-	sprintf(str, "%d", p_ptr->physres);
-        c_put_str(TERM_L_GREEN, str, 18, 12);
-
-	c_put_str(TERM_WHITE, "Mana     :", 19, 1);
-	sprintf(str, "%d", p_ptr->manares);
-        c_put_str(TERM_L_GREEN, str, 19, 12);
-
-	/*** Set 2 ***/
-
-	c_put_str(TERM_WHITE, "--- MISC ---", 2, 22);
-
-	c_put_str(TERM_WHITE, "Afraid    :", 4, 22);
-        if (p_ptr->afraid > 0) c_put_str(TERM_L_RED, "Yes", 4, 34);
-	else c_put_str(TERM_WHITE, "No", 4, 34);
-
-	c_put_str(TERM_WHITE, "Confused  :", 5, 22);
-        if (p_ptr->confused > 0) c_put_str(TERM_L_RED, "Yes", 5, 34);
-	else c_put_str(TERM_WHITE, "No", 5, 34);
-
-	c_put_str(TERM_WHITE, "Paralyzed :", 6, 22);
-        if (p_ptr->paralyzed > 0) c_put_str(TERM_L_RED, "Yes", 6, 34);
-	else c_put_str(TERM_WHITE, "No", 6, 34);
-
-	c_put_str(TERM_WHITE, "Blind     :", 7, 22);
-        if (p_ptr->blind > 0) c_put_str(TERM_L_RED, "Yes", 7, 34);
-	else c_put_str(TERM_WHITE, "No", 7, 34);
-
-	c_put_str(TERM_WHITE, "Poisoned  :", 8, 22);
-        if (p_ptr->poisoned > 0) c_put_str(TERM_L_RED, "Yes", 8, 34);
-	else c_put_str(TERM_WHITE, "No", 8, 34);
+	/* Beta system, until I make something better. */
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		if (resistances_def[i].element != 0)
+		{
+			sprintf(str, "%s:", get_element_name(i));
+			c_put_str(TERM_WHITE, str, row, col);
+			sprintf(str, "%d", p_ptr->resistances[i]);
+        		c_put_str(TERM_L_GREEN, str, row, (col + 11));
+			row++;
+			if (row > 19)
+			{
+				row = 1;
+				col = col + 18;
+			}
+		}
+	}
 }
 
 /* The player's skills! */
@@ -5986,16 +5863,6 @@ void display_player_skills()
 
 	put_str("Wpn.dmg:", 4, 51);
 
-        if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON] || (p_ptr->body_monster > 0 && unarmed()))
-        {
-                if (r_info[p_ptr->body_monster].flags1 & RF1_NEVER_BLOW)
-                        desc = "nil!";
-                else
-                {
-			/* Until I actually decide to do some math... */
-			desc = "n/a";
-                }
-        }else
 	{
 		s32b showdmg_min = 0;
 		s32b showdmg_max = 0;
@@ -6018,38 +5885,119 @@ void display_player_skills()
 			}
 		}
         }
-        put_str(desc, 4, 61);
+        c_put_str(TERM_L_GREEN, desc, 4, 61);
 	put_str("Wpn2.dmg:", 5, 51);
 
 	current_weapon = &inventory[INVEN_WIELD+1];
-	if (!(current_weapon->tval) && !(unarmed())) desc = format("n/a"); 
+	if ((!(current_weapon->tval) && !(unarmed())) || p_ptr->dualwield == 0) desc = format("n/a"); 
 	else if (unarmed()) desc = format("n/a");
-	else desc = format("%ld-%ld", min_weapon_damages(), max_weapon_damages());
-	put_str(desc, 5, 62);
+	else
+	{
+		s32b showdmg_min = 0;
+		s32b showdmg_max = 0;
+
+		call_lua("min_weapon_damages", "", "l", &showdmg_min);
+		call_lua("max_weapon_damages", "", "l", &showdmg_max);
+		desc = format("%ld-%ld", showdmg_min, showdmg_max);
+	}
+	c_put_str(TERM_L_GREEN, desc, 5, 61);
 
 	put_str("Sht.dmg:", 6, 51);
-	q_ptr = &inventory[INVEN_AMMO];
-	j_ptr = &inventory[INVEN_BOW];
-	if ((j_ptr->tval > 0) && (q_ptr->tval > 0))
+	current_weapon = &inventory[INVEN_WIELD];
+	if (current_weapon->tval == TV_RANGED)
 	{
-		desc = format("%ld-%ld", bow_damages(damroll(q_ptr->dd, 1), j_ptr->to_d, q_ptr->to_d), bow_damages(maxroll(q_ptr->dd, q_ptr->ds), j_ptr->to_d, q_ptr->to_d));
+		s32b showdmg_min = 0;
+		s32b showdmg_max = 0;
+
+		call_lua("min_ranged_damages", "", "l", &showdmg_min);
+		call_lua("max_ranged_damages", "", "l", &showdmg_max);
+		desc = format("%ld-%ld", showdmg_min, showdmg_max);
 	}
-	else desc = "n/a";
+	else
+	{
+		if (inventory[INVEN_AMMO].tval == TV_THROWING && inventory[INVEN_WIELD].tval != TV_RANGED && inventory[INVEN_WIELD+1].tval != TV_RANGED)
+		{
+			s32b showdmg_min = 0;
+			s32b showdmg_max = 0;
+
+			drop_ranged = &inventory[INVEN_AMMO];
+			call_lua("min_throw_damages", "", "l", &showdmg_min);
+			call_lua("max_throw_damages", "", "l", &showdmg_max);
+			desc = format("%ld-%ld", showdmg_min, showdmg_max);
+		}
+		else desc = "n/a";
+	}
 	c_put_str(TERM_L_GREEN, desc, 6, 61);
 
-	c_put_str(TERM_WHITE, "To_h   :", 7, 51);
-	sprintf(str, "%d", p_ptr->dis_to_h);
-        c_put_str(TERM_L_GREEN, str, 7, 61);
+	put_str("Sht2.dmg:", 7, 51);
+	current_weapon = &inventory[INVEN_WIELD+1];
+	if (current_weapon->tval == TV_RANGED)
+	{
+		s32b showdmg_min = 0;
+		s32b showdmg_max = 0;
 
-	c_put_str(TERM_WHITE, "To_d   :", 8, 51);
-	sprintf(str, "%d", p_ptr->dis_to_d);
+		call_lua("min_ranged_damages", "", "l", &showdmg_min);
+		call_lua("max_ranged_damages", "", "l", &showdmg_max);
+		desc = format("%ld-%ld", showdmg_min, showdmg_max);
+	}
+	else desc = "n/a";
+	c_put_str(TERM_L_GREEN, desc, 7, 61);
+
+	c_put_str(TERM_WHITE, "To_h   :", 8, 51);
+	sprintf(str, "%d", p_ptr->dis_to_h);
         c_put_str(TERM_L_GREEN, str, 8, 61);
 
-	c_put_str(TERM_WHITE, "To_a   :", 9, 51);
-	sprintf(str, "%d", p_ptr->dis_to_a);
+	c_put_str(TERM_WHITE, "To_d   :", 9, 51);
+	sprintf(str, "%d", p_ptr->dis_to_d);
         c_put_str(TERM_L_GREEN, str, 9, 61);
 
-	c_put_str(TERM_WHITE, "AC     :", 10, 51);
-	sprintf(str, "%d", p_ptr->ac);
+	c_put_str(TERM_WHITE, "To_a   :", 10, 51);
+	sprintf(str, "%d", p_ptr->dis_to_a);
         c_put_str(TERM_L_GREEN, str, 10, 61);
+
+	c_put_str(TERM_WHITE, "AC     :", 11, 51);
+	sprintf(str, "%d", p_ptr->ac);
+        c_put_str(TERM_L_GREEN, str, 11, 61);
+
+	c_put_str(TERM_WHITE, "Dual Wield:", 14, 51);
+	if (p_ptr->dualwield == 1) sprintf(str, "Yes");
+	else sprintf(str, "No");
+        c_put_str(TERM_L_GREEN, str, 14, 63);
+	c_put_str(TERM_WHITE, "Press 'u' to toggle.", 15, 51);
+}
+
+/* Display player's abilities! */
+void display_player_abilities()
+{
+	int row;
+	int col;
+	int i, j;
+	char str[80];
+
+
+	/*** Set 1 ***/
+
+	row = 4;
+	col = 1;
+	
+	c_put_str(TERM_WHITE, "--------------    ABILITIES    --------------", 2, 1);
+
+	/* Beta system, until I make something better. */
+	for (i = 1; i < MAX_CLASS; i++)
+	{
+		for (j = 0; j < 10; j++)
+		{
+			if (p_ptr->abilities[(i * 10) + j] >= 1)
+			{
+				sprintf(str, "%s [%d]", abilities_def[(i * 10) + j].name, p_ptr->abilities[(i * 10) + j]);
+				c_put_str(TERM_WHITE, str, row, col);
+				row++;
+				if (row > 13)
+				{
+					row = 4;
+					col = col + 40;
+				}
+			}
+		}
+	}
 }

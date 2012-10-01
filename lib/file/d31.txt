@@ -1,0 +1,13 @@
+N:1:0:0:0:0:0
+I: ;
+T:There is a switch on the wall. Press it?;
+A:[Press the switch]:0:0:0:1:2:0:0:85:1
+A:[Leave]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You press the switch...but nothing seems to happen. The switch remains;
+T:pressed though. Perhaps something, somewhere, was activated by it...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

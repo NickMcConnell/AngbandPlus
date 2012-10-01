@@ -1,0 +1,16 @@
+N:1:29036:2:0:0:0
+I:Townsfolk;
+T:I've heard rumors about a unique store that sells all sorts of objects;
+T:proportional to the plane's level in the Flow. There's no such shops in;
+T:this town though, so I wonder where it could be...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:29036:1:0:0:0
+I:Townsfolk;
+T:All entities have their own space in the Flow. Objects, living beings,;
+T:thoughts... It seems like you somehow found your way inside the plane;
+T:of one of such entities. This means you can do that with anything you;
+T:come across.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

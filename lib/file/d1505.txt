@@ -1,0 +1,92 @@
+N:1:0:0:0:0:0
+I:Bertha;
+T:Ya?;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Bertha;
+T:Well, we're a travel agency. And we got wyverns. What else is there;
+T:to talk about?;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Bertha;
+T:They're weaklings! Just look at'em! I could kill'em with one blow!;
+T:pah... at least they're better than horses. But not much.;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:2:0
+I:Bertha;
+T:Huh? Ya lookin for a date or sometin? Ye have the wrong girl. Me, I hit;
+T:wyverns and lecherous men like you with my axe. Want a date? Go see;
+T:those skinny, pointy eared, blond haired Nimbrayan girls instead.;
+T:And stop wasting my time.;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Bertha;
+T:I was once an adventurer, and I've slayed my share of wild beasts in the;
+T:various caverns of Agharias. But it got boring, so I settled in the city.;
+T:Actually, it might be more boring here than it was in the caves. Maybe;
+T:I should become a Defender or something. Maybe it will be more fun.;
+T:Then again, maybe not.;
+A:I wish to travel.:0:0:0:1:5:0:0:0:0
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Bertha;
+T:It's 500 golds, and not a coin less. Where do you want to go?;
+A:Jindar. [Pay 500 golds.]:0:0:0:8:500:8:7:0:0
+A:Nevermind.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Bertha;
+T:Then get outta here.;
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Bertha;
+T:Ya deaf or what? I said 500! Get lost!;
+A:Tell me more about the Storm Wyvern Travel Agency.:0:0:0:1:2:0:0:0:0
+A:Tell me more about the Wyverns.:0:0:0:1:3:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Bertha;
+T:Jindar? Okay then, hop into the wagon!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:You hop into a wagon pulled by one of the agency's wyverns. And then;
+T:you head toward the kingdom of Jindar...;
+A:[END DIALOG]:0:0:0:2:117:117:32:0:0
+%

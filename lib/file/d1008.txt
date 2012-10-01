@@ -1,3 +1,11 @@
+N:1:0:0:5:0:0
+I:Slums Kobold;
+T:Greetings fellow Kobold! How can I help you?;
+A:Tell me more of the slums.:0:0:0:1:4:0:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
 N:1:0:0:6:0:0
 I:Slums Kobold;
 T:Get out of my way, Devling!;
@@ -15,7 +23,7 @@ N:1:0:0:0:0:0
 I:Slums Kobold;
 T:Hmmm? What do you want?;
 A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
-A:Any rumors?:0:0:0:4:3:5:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
@@ -27,7 +35,7 @@ T:good place here! We the Kobolds are good guys. Not like those dumb;
 T:Devlings to the north. If only there were not so many guards around;
 T:here! We could easily kill them all!;
 A:Why do you want to kill the devlings so badly?:0:0:0:1:3:0:0:0:0
-A:Any rumors?:0:0:0:4:3:5:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 
@@ -40,7 +48,63 @@ T:So it's only natural that we are rivals and enemies. Yes, some says;
 T:that we could be friends. But there's more to this conflict than;
 T:you can understand. The devlings did things to us, and they will;
 T:pay for it! But that doesn't concern you... better for you not to;
-T:get involved in this.;
-A:Any rumors?:0:0:0:4:3:5:0:0:0
+T:get involved in this. The Stealthy Vipers will get rid of the for;
+T:us anyway.;
+A:The Stealthy Vipers?:0:0:0:1:8:0:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Slums Kobold;
+T:This is the southwest slums, and a Kobold territory. To the northeast;
+T:are the rotten devlings. Blasted devlings! Don't you just hate them?;
+A:Yes!! Death to Devlings!!:0:0:0:1:5:0:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Slums Kobold;
+T:Well said, my friend! Hmmm...you look quite a powerful <CLASS>. Want to;
+T:help in the fight against devlings? In that case, I suggest you go;
+T:to the southeastern parts of the slums here. You'll find a building;
+T:guarded by kobolds. This is the Kobold guild of the Stealthy Vipers.;
+T:A group of kobold mercenaries, or at least they're trying to be. But they;
+T:can't have their guild until the devlings disappear. You should speak;
+T:with the representative there. He will fill you in.;
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Slums Kobold;
+T:I've heard stories from the dungeon kobolds about some spirits known;
+T:as Xythanos... Their ethereal nature allow them to pass trough walls,;
+T:and they are impervious to normal weapons. Furthermore, they attack;
+T:with ethereal, planar blades that not only causes terrible wounds, but;
+T:can teleport you far away! Finally, they are extremely fast and extremely;
+T:powerful. If you ever meet one, you should definitly run away!;
+A:Any other rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Slums Kobold;
+T:Have you heard the rumors about the Blood Queen? I've heard she's some;
+T:sort of thieves queen or something. Nobody knows where she hides though.;
+T:The guards are completely clueless! If only they had more of our kind;
+T:in their ranks... we do stealthy stuff much better than humans!;
+A:Any other rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Slums Kobold;
+T:Yeah! A guild of kobold mercenaries! They are the best mercenary guild;
+T:in all Jindar! No, in all Portralis I'd say! If you need a job done,;
+T:go see them. It's to the souht-east part of the slums. Always guarded;
+T:by two viper mercenaries. You can't miss it.;
+A:Any other rumors?:0:0:0:4:6:7:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %

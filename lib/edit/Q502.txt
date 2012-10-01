@@ -1,0 +1,123 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster.
+
+N: ;
+
+I:51:14:0:37:0:0:0
+S:44:3
+
+// Previous floor.
+E:43:3:4:501:42:3:0:0:0:0
+
+// Crystalline Cockatrices!
+E:45:8:7:1340:0:40:1507:0:0:0
+E:46:8:7:1340:0:40:1507:0:0:0
+E:47:8:7:1340:0:40:1507:0:0:0
+E:48:8:7:1340:0:40:1507:0:0:0
+E:49:8:7:1340:0:40:1507:0:0:0
+
+E:37:3:7:1340:0:50:1507:0:0:0
+E:38:3:7:1340:0:50:1507:0:0:0
+E:39:3:7:1340:0:50:1507:0:0:0
+E:40:3:7:1340:0:50:1507:0:0:0
+E:41:3:7:1340:0:50:1507:0:0:0
+E:31:3:7:1340:0:50:1507:0:0:0
+E:32:3:7:1340:0:50:1507:0:0:0
+E:33:3:7:1340:0:50:1507:0:0:0
+E:34:3:7:1340:0:50:1507:0:0:0
+E:35:3:7:1340:0:50:1507:0:0:0
+E:19:3:7:1340:0:50:1507:0:0:0
+E:20:3:7:1340:0:50:1507:0:0:0
+E:21:3:7:1340:0:50:1507:0:0:0
+E:22:3:7:1340:0:50:1507:0:0:0
+E:23:3:7:1340:0:50:1507:0:0:0
+E:37:11:7:1340:0:50:1507:0:0:0
+E:38:11:7:1340:0:50:1507:0:0:0
+E:39:11:7:1340:0:50:1507:0:0:0
+E:40:11:7:1340:0:50:1507:0:0:0
+E:41:11:7:1340:0:50:1507:0:0:0
+E:31:11:7:1340:0:50:1507:0:0:0
+E:32:11:7:1340:0:50:1507:0:0:0
+E:33:11:7:1340:0:50:1507:0:0:0
+E:34:11:7:1340:0:50:1507:0:0:0
+E:35:11:7:1340:0:50:1507:0:0:0
+E:25:11:7:1340:0:50:1507:0:0:0
+E:26:11:7:1340:0:50:1507:0:0:0
+E:27:11:7:1340:0:50:1507:0:0:0
+E:28:11:7:1340:0:50:1507:0:0:0
+E:29:11:7:1340:0:50:1507:0:0:0
+E:19:11:7:1340:0:50:1507:0:0:0
+E:20:11:7:1340:0:50:1507:0:0:0
+E:21:11:7:1340:0:50:1507:0:0:0
+E:22:11:7:1340:0:50:1507:0:0:0
+E:23:11:7:1340:0:50:1507:0:0:0
+
+// Iron Golems
+E:5:6:7:212:0:50:1507:0:0:0
+E:11:6:7:212:0:50:1507:0:0:0
+
+// No real "Boss", but two level 70 Crystallines can be tough.
+E:7:9:7:1340:0:70:1507:0:0:0
+E:9:9:7:1340:0:70:1507:0:0:0
+
+// Dialog.
+E:8:8:1:1508:0:0:1507:0:0:0
+
+
+D:###################################################
+D:########....................#######################
+D:########.##################+#######################
+D:########.##########.....#.....#.....#.....#<....###
+D:########.##########.....#.....#.....#.....#####.###
+D:########.##########.....#.....#.....#.....#####+###
+D:#####.......#########+#####+#####+#####+#####.....#
+D:####.#######.######.........................+.....#
+D:###.##--.--##.#######+#####+#####+#####+#####.....#
+D:###.#.......#.#####.....#.....#.....#.....#########
+D:###.##.....##.#####.....#.....#.....#.....#########
+D:####.###+###.######.....#.....#.....#.....#########
+D:#####.......#######################################
+D:###################################################

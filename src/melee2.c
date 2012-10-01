@@ -25,6 +25,14 @@
 
 #define SURROUND_MAX 80
 
+static bool too_weak(monster_type *m_ptr)
+{
+	/*monster_race *r_ptr = &r_info[m_ptr->r_idx];*/
+	
+	/*if (p_ptr->lev > (r_ptr->level * 4)) return (TRUE);*/
+
+	return (FALSE);
+}
 
 static int check_monsters[SURROUND_MAX][2] =
 {
@@ -157,13 +165,29 @@ static void get_enemy_dir(monster_type *m_ptr, int *mm)
 			if (cave[y][x].m_idx)
 			{
 				monster_race *enemyr_ptr;
+				monster_race *r_ptr;
+				bool dontattack = FALSE;
 				enemy_ptr = &m_list[cave[y][x].m_idx];
 
 				enemyr_ptr = &r_info[enemy_ptr->r_idx];
+				r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Guards don't attack friendly monsters */
+				if (r_ptr->flags7 & (RF7_GUARD))
+				{
+					/* Don't attack if it's friendly, and not summoned. */
+					if (is_pet(enemy_ptr) && (enemy_ptr->summoned == 0)) dontattack = TRUE;
+				}
+
+				/* Friendly monsters won't attack guards if they aren't summoned. */
+				if (enemyr_ptr->flags7 & (RF7_GUARD))
+				{
+					if (is_pet(m_ptr) && (m_ptr->summoned == 0 && !(m_ptr->friend))) dontattack = TRUE;
+				}
 
 				/* Valid target if enemy and not asleep */
 				if ((is_pet(enemy_ptr) != is_pet(m_ptr)) &&
-					!enemy_ptr->csleep && !(enemyr_ptr->flags7 & (RF7_NEVER_ATTACKED)))
+					!enemy_ptr->csleep && !(enemyr_ptr->flags7 & (RF7_NEVER_ATTACKED)) && !(dontattack))
 				{
 					/* Extract the direction */
 					x -= m_ptr->fx;
@@ -280,6 +304,15 @@ static void mon_take_hit_mon(int m_idx, s32b dam, bool *fear, cptr note)
 				return;
 			}
 
+			/* Immortality. */
+			if ((r_ptr->flags7 & (RF7_IMMORTAL)) && (enemy_immortality))
+			{
+				msg_format("%^s has been knocked out.", m_name);
+				m_ptr->hp = 1;
+				m_ptr->seallight = 5;
+				return;
+			}
+
 			/* Make a sound */
 			if ((r_ptr->flags3 & RF3_DEMON) ||
 			    (r_ptr->flags3 & RF3_UNDEAD) ||
@@ -349,6 +382,12 @@ static void mon_take_hit_mon(int m_idx, s32b dam, bool *fear, cptr note)
                 {
                         new_exp = 0;
                 }
+
+		if (p_ptr->inside_quest || too_weak(m_ptr) || (m_ptr->no_experience)) new_exp = 0;
+
+		/* You killed something! Now, check if you should */
+                /* advance your class level... */
+		if (!((p_ptr->inside_quest || too_weak(m_ptr) || (m_ptr->no_experience)) && !(r_ptr->flags1 & (RF1_UNIQUE)))) add_class_kill(m_ptr);
 
 		/* Gain experience */
                 gain_exp_kill(new_exp, m_ptr);
@@ -776,7 +815,8 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 	for (dist = 0; dist <= MAX_RANGE; dist++)
 	{
 		/* Never pass through walls */
-		if (dist && !cave_floor_bold_project(y, x)) break;
+		/* Although it can hit a player on a wall. */
+		if (dist && (!cave_floor_bold_project(y, x) && py != y && px != x)) break;
 		
 		/* Never pass through monsters */
 		if (dist && cave[y][x].m_idx > 0)
@@ -832,15 +872,6 @@ static void bolt(int m_idx, int typ, s32b dam_hp)
 	/* Target the player with a bolt attack */
         if (!absorb) (void)project(m_idx, 0, py, px, dam_hp, typ, flg);
 
-        /* Haha..now, let's return the damages!! */
-        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2] >= 1)
-        {
-                flg = PROJECT_GRID | PROJECT_KILL;
-                msg_print("You return the damages!");
-                no_magic_return = TRUE;
-                (void)project(0, 0, m_ptr->fy, m_ptr->fx, (dam_hp * p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2]), GF_MANA, flg);
-                no_magic_return = FALSE;
-        }
         no_magic_return = FALSE;
 }
 
@@ -1161,16 +1192,6 @@ static void breath(int m_idx, int typ, s32b dam_hp, int rad)
 	/* Target the player with a ball attack */
         if (absorb != TRUE) (void)project(m_idx, rad, py, px, dam_hp, typ, flg);
 
-        /* Haha..now, let's return the damages!! */
-        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2] >= 1)
-        {
-                flg = PROJECT_GRID | PROJECT_KILL;
-                msg_print("You return the damages!");
-                no_magic_return = TRUE;
-                (void)project(0, 0, m_ptr->fy, m_ptr->fx, (dam_hp * p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2]), GF_MANA, flg);
-                no_magic_return = FALSE;
-        }
-
         no_magic_return = FALSE;
 }
 
@@ -1256,7 +1277,23 @@ static bool monst_spell_monst(int m_idx)
         if (m_ptr->abilities & (CURSE_LOCK)) return (FALSE);
 
 	/* Taunted monsters cast spells only 50% of the time. */
-        if ((m_ptr->abilities & (TAUNTED)) && randint(100) >= 50) return (FALSE);
+        if (m_ptr->abilities & (TAUNTED))
+	{
+		int proll;
+		int mroll;
+		int chrbonus;
+
+		proll = (p_ptr->abilities[(CLASS_FIGHTER * 10) + 2] * 20);
+		mroll = m_ptr->level + m_ptr->mind;
+		chrbonus = (p_ptr->stat_ind[A_CHR] - 5) * 5;
+
+		if (chrbonus < 0) chrbonus = 0;
+		if (chrbonus > (proll * 2)) chrbonus = proll;
+
+		proll += chrbonus;
+
+		if (lua_randint(proll) >= lua_randint(mroll)) return (FALSE);
+	}
 	
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -1288,6 +1325,19 @@ static bool monst_spell_monst(int m_idx)
 
 		/* Can we attack the target? */
 		if (tr_ptr->flags7 & (RF7_NEVER_ATTACKED)) continue;
+
+		/* Guards don't attack friendly monsters */
+		if (r_ptr->flags7 & (RF7_GUARD))
+		{
+			/* Don't attack if it's friendly, and not summoned. */
+			if (is_pet(t_ptr) && (t_ptr->summoned == 0)) continue;
+		}
+
+		/* Friendly monsters won't attack guards if they aren't summoned. */
+		if (tr_ptr->flags7 & (RF7_GUARD))
+		{
+			if (is_pet(m_ptr) && (m_ptr->summoned == 0 && !(m_ptr->friend))) continue;
+		}
 		
 		/* Hack -- no fighting >100 squares from player */
 		if (t_ptr->cdis > MAX_RANGE) continue;
@@ -1552,7 +1602,6 @@ void curse_equipment_dg(int chance, int heavy_chance)
 			changed = TRUE;
 		o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
 		o_ptr->art_flags3 |= TR3_CURSED;
-                o_ptr->art_flags4 |= TR4_DG_CURSE;
 		o_ptr->ident |= IDENT_CURSED;
 	}
 	else
@@ -1560,7 +1609,6 @@ void curse_equipment_dg(int chance, int heavy_chance)
 		if (!(o_ptr->ident & (IDENT_CURSED)))
 			changed = TRUE;
 		o_ptr->art_flags3 |= TR3_CURSED;
-                o_ptr->art_flags4 |= TR4_DG_CURSE;
 		o_ptr->ident |= IDENT_CURSED;
 	}
 
@@ -1685,16 +1733,8 @@ bool make_attack_spell(int m_idx)
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
 
-	
-	if (stupid_monsters)
-	{
-                /* Stupid monsters have less chance to cast spells */
-                if (rand_int(100) > (chance / 2)) return (FALSE);
-	}
-	else
-	{
-                if (rand_int(100) >  chance) return (FALSE);
-	}
+	/* We don't necessarely ALWAYS cast a spell. */
+        if (rand_int(100) >  chance) return (FALSE);
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 	 
@@ -1709,6 +1749,9 @@ bool make_attack_spell(int m_idx)
 		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
 
 		if (!clean_shot(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
+
+		/* Is the player invisible? */
+		if (player_invis(m_ptr)) return (FALSE);
 	}
 
 	/* Extract the monster level */
@@ -2613,6 +2656,19 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & RF1_NEVER_BLOW) return FALSE;
 
+	/* Guards don't attack friendly monsters */
+	if (r_ptr->flags7 & (RF7_GUARD))
+	{
+		/* Don't attack if it's friendly, and not summoned. */
+		if (is_pet(t_ptr) && (t_ptr->summoned == 0)) return FALSE;
+	}
+
+	/* Friendly monsters won't attack guards if they aren't summoned. */
+	if (tr_ptr->flags7 & (RF7_GUARD))
+	{
+		if (is_pet(m_ptr) && (m_ptr->summoned == 0 && !(m_ptr->friend))) return FALSE;
+	}
+
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -2674,18 +2730,27 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		/* What type of attack did the monster do? */
 		switch (r_ptr->attack[chosen].type)
 		{
+
 			/* Normal attack */
 			case 1:
 			{
-				
+				/* Call a lua script. */
+				if (r_ptr->event_before_melee > 0)
+				{
+					call_lua("monster_before_melee", "(dd)", "", m_idx, r_ptr->event_before_melee);
+				}
+
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
 					damage = damroll(r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside);
 					if (is_pet(m_ptr)) damage *= ((m_ptr->skill_attack + p_ptr->skill[9]) + 1);
 					else damage *= (m_ptr->skill_attack + 1);
-					if (is_pet(m_ptr)) damage += ((damage * (((m_ptr->str - 5) + (p_ptr->stat_ind[A_CHR] - 5)) * 5)) / 100);
-					else damage += ((damage * ((m_ptr->str - 5) * 5)) / 100);
-					damage += ((damage * m_ptr->str) / 100);
+					if (is_pet(m_ptr))
+					{
+						damage += multiply_divide(damage, ((m_ptr->str - 5) + (p_ptr->stat_ind[A_CHR] - 5)) * 5, 100);
+					}
+					else damage += multiply_divide(damage, (m_ptr->str - 5) * 5, 100);
+					damage += multiply_divide(damage, m_ptr->str, 100);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -2702,20 +2767,34 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 					}
 				}
 				else msg_format("%^s misses.", m_name);
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_melee > 0)
+				{
+					call_lua("monster_after_melee", "(dd)", "", m_idx, r_ptr->event_after_melee);
+				}
 				break;
 			}
 			/* Animated monster attack */
 			case 2:
 			{
-				
+				/* Call a lua script. */
+				if (r_ptr->event_before_melee > 0)
+				{
+					call_lua("monster_before_melee", "(dd)", "", m_idx, r_ptr->event_before_melee);
+				}
+
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
 					damage = damroll(m_ptr->animdam_d, m_ptr->animdam_s);
 					if (is_pet(m_ptr)) damage *= ((m_ptr->skill_attack + p_ptr->skill[9]) + 1);
 					else damage *= (m_ptr->skill_attack + 1);
-					if (is_pet(m_ptr)) damage += ((damage * (((m_ptr->str - 5) + (p_ptr->stat_ind[A_CHR] - 5)) * 5)) / 100);
-					else damage += ((damage * ((m_ptr->str - 5) * 5)) / 100);
-					damage += ((damage * m_ptr->str) / 100);
+					if (is_pet(m_ptr))
+					{
+						damage += multiply_divide(damage, ((m_ptr->str - 5) + (p_ptr->stat_ind[A_CHR] - 5)) * 5, 100);
+					}
+					else damage += multiply_divide(damage, (m_ptr->str - 5) * 5, 100);
+					damage += multiply_divide(damage, m_ptr->str, 100);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -2732,6 +2811,13 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 					}
 				}
 				else msg_format("%^s misses.", m_name);
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_melee > 0)
+				{
+					call_lua("monster_after_melee", "(dd)", "", m_idx, r_ptr->event_after_melee);
+				}
+
 				break;
 			}
 		}        
@@ -2780,41 +2866,34 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 static u32b noise = 0L;
 
 /* Determine whether the player is invisible to a monster */
-static bool player_invis(monster_type * m_ptr)
+bool player_invis(monster_type * m_ptr)
 {
-	s16b inv, mlv;
+	s16b inv;
+	int ppower;
+	int mpower;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-        inv = p_ptr->invis + (p_ptr->skill[6] / 5);
+        ppower = p_ptr->invis + (p_ptr->skill[6] * 3);
+	mpower = m_ptr->level + m_ptr->mind;
 
-        mlv = (s16b) r_ptr->level + (m_ptr->level);
-        mlv -= (p_ptr->skill[6] / 2);
+	/* Stealth doesn't work against Questors and Invisible enemies. */
+	if ((r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->flags2 & RF2_INVISIBLE)) return (FALSE);
 
-	if (r_ptr->flags3 & RF3_NO_SLEEP)
-		mlv += 10;
-	if (r_ptr->flags3 & RF3_DRAGON)
-		mlv += 20;
-	if (r_ptr->flags3 & RF3_UNDEAD)
-		mlv += 15;
-	if (r_ptr->flags3 & RF3_DEMON)
-		mlv += 15;
-	if (r_ptr->flags3 & RF3_ANIMAL)
-		mlv += 15;
-	if (r_ptr->flags3 & RF3_ORC)
-		mlv -= 15;
-	if (r_ptr->flags3 & RF3_TROLL)
-		mlv -= 10;
-	if (r_ptr->flags2 & RF2_STUPID)
-		mlv /= 2;
-	if (r_ptr->flags2 & RF2_SMART)
-		mlv = (mlv * 5) / 4;
-	if (r_ptr->flags1 & RF1_QUESTOR)
-		inv = 0;
-	if (r_ptr->flags2 & RF2_INVISIBLE)
-                inv = 0;
-        if (mlv < 1)
-                mlv = 1;
-        return (inv >= randint(mlv*2));
+	/* Your friends knows where you are! */
+	if (is_pet(m_ptr)) return (FALSE);
+
+	/* Don't bother rolling if power is 0. */
+	if (ppower == 0) return (FALSE);
+
+	/* Elites and Bosses gets double rolls. */
+	if (m_ptr->boss >= 1) mpower *= 2;
+
+	/* Uniques have much more power. */
+	if (r_ptr->flags1 & RF1_UNIQUE) mpower *= 5;
+
+	if (randint(ppower) >= randint(mpower)) return (TRUE);
+
+	return (FALSE);
 }
 
 /*
@@ -2877,6 +2956,12 @@ static void process_monster(int m_idx, bool is_friend)
 	bool inv;
 
 	inv = player_invis(m_ptr);
+
+	/* Call a lua script. */
+	if (r_ptr->event_passive > 0)
+	{
+		call_lua("monster_passive", "(dd)", "", m_idx, r_ptr->event_passive);
+	}
 
 	/* Monster is summoned. It will eventually fade... */
 	if (m_ptr->summoned > 0)
@@ -3056,7 +3141,7 @@ static void process_monster(int m_idx, bool is_friend)
                 (r_ptr->flags1 & (RF1_QUESTOR)) && !(r_ptr->flags7 & RF7_PET))
 		gets_angry = TRUE;
 	
-        if ((gets_angry && p_ptr->pclass != CLASS_LEADER && p_ptr->pclass != CLASS_COMMANDER && p_ptr->pclass != CLASS_VALKYRIE && p_ptr->pclass != CLASS_DARK_LORD && p_ptr->pclass != CLASS_HELLQUEEN && p_ptr->pclass != CLASS_MASTER && p_ptr->prace != RACE_MONSTER && m_ptr->friend == 0 && !(p_ptr->pclass == CLASS_NECRO && r_ptr->flags3 & RF3_UNDEAD))
+        if ((gets_angry && m_ptr->friend == 0)
         || (gets_angry && r_ptr->flags1 & (RF1_QUESTOR)))
 	{
 		char m_name[80];
@@ -3149,33 +3234,17 @@ static void process_monster(int m_idx, bool is_friend)
 		}
 	}
 	
-	
-	
-	
-	/* Hack! "Cyber" monster makes noise... */
-	if (strstr((r_name + r_ptr->name),"Cyber"))
-	{
-		if (randint(CYBERNOISE) == 1)
-		{
-			if (!m_ptr->ml)
-			{
-				disturb(FALSE, FALSE);
-				msg_print("You hear heavy steps.");
-			}
-		}
-	}
-	
 	/* The CAN_SPEAK flag has changed. */
 	/* Monster will first initiate the dialog with the player, then attack. */
 	/* If the monster is defeated, dialog will pop-up again. */
-	if (player_has_los_bold(oy, ox) && (r_ptr->flags2 & RF2_CAN_SPEAK))
+	/*if (player_has_los_bold(oy, ox) && (r_ptr->flags2 & RF2_CAN_SPEAK))
 	{
 		if (m_ptr->spoke == 0)
 		{
 			show_dialog(r_ptr->extra2);
 			m_ptr->spoke = 1;
 		}
-	}
+	}*/
 	
 	
 	/* Attempt to cast a spell */
@@ -3200,7 +3269,7 @@ static void process_monster(int m_idx, bool is_friend)
         c_ptr = &cave[m_ptr->fy][m_ptr->fx];
 
 	/* Confused -- 100% random */
-        if ((m_ptr->confused || (inv==TRUE)) && !leader_class())
+        if ((m_ptr->confused || (inv==TRUE)))
 	{
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
@@ -3222,7 +3291,7 @@ static void process_monster(int m_idx, bool is_friend)
 	/* 75% random movement */
 	else if ((r_ptr->flags1 & (RF1_RAND_50)) &&
 		(r_ptr->flags1 & (RF1_RAND_25)) &&
-                (rand_int(100) < 75) && !leader_class())
+                (rand_int(100) < 75))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -3234,7 +3303,7 @@ static void process_monster(int m_idx, bool is_friend)
 	
 	/* 50% random movement */
 	else if ((r_ptr->flags1 & (RF1_RAND_50)) &&
-                (rand_int(100) < 50) && !leader_class())
+                (rand_int(100) < 50))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -3245,7 +3314,7 @@ static void process_monster(int m_idx, bool is_friend)
 	
 	/* 25% random movement */
 	else if ((r_ptr->flags1 & (RF1_RAND_25)) &&
-                (rand_int(100) < 25) && !leader_class())
+                (rand_int(100) < 25))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
@@ -3387,7 +3456,7 @@ static void process_monster(int m_idx, bool is_friend)
 
                 /* NEWANGBAND: FIELDS!!! */
                 /* Are every monsters stupid enough to cross them or what? */
-                else if ((cave[ny][nx].feat == FEAT_FIRE_FIELD))
+                else if ((cave[ny][nx].feat == FEAT_FIRE_FIELD) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3400,8 +3469,15 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 /* How much damages will the monster take? */
                                 field_dam_amount = c_ptr->field_damage;
+
+				/* Fields have 50% chance of disappearing. */
+				if (randint(100) >= 50)
+				{
+					cave[ny][nx].feat = FEAT_FLOOR;
+					update_and_handle();
+				}
 		}
-                else if ((cave[ny][nx].feat == FEAT_COLD_FIELD))
+                else if ((cave[ny][nx].feat == FEAT_COLD_FIELD) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3414,8 +3490,15 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 /* How much damages will the monster take? */
                                 field_dam_amount = c_ptr->field_damage;
+
+				/* Fields have 50% chance of disappearing. */
+				if (randint(100) >= 50)
+				{
+					cave[ny][nx].feat = FEAT_FLOOR;
+					update_and_handle();
+				}
 		}
-                else if ((cave[ny][nx].feat == FEAT_ELEC_FIELD))
+                else if ((cave[ny][nx].feat == FEAT_ELEC_FIELD) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3428,8 +3511,15 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 /* How much damages will the monster take? */
                                 field_dam_amount = c_ptr->field_damage;
+
+				/* Fields have 50% chance of disappearing. */
+				if (randint(100) >= 50)
+				{
+					cave[ny][nx].feat = FEAT_FLOOR;
+					update_and_handle();
+				}
 		}
-                else if ((cave[ny][nx].feat == FEAT_SPIKE_TRAP))
+                else if ((cave[ny][nx].feat == FEAT_SPIKE_TRAP) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3448,7 +3538,7 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 update_and_handle();
 		}
-                else if ((cave[ny][nx].feat == FEAT_GAS_TRAP))
+                else if ((cave[ny][nx].feat == FEAT_GAS_TRAP) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3467,7 +3557,7 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 update_and_handle();
 		}
-                else if ((cave[ny][nx].feat == FEAT_POISON_TRAP))
+                else if ((cave[ny][nx].feat == FEAT_POISON_TRAP) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3487,7 +3577,7 @@ static void process_monster(int m_idx, bool is_friend)
                                 update_and_handle();
 		}
 
-                else if ((cave[ny][nx].feat == FEAT_WEBS))
+                else if ((cave[ny][nx].feat == FEAT_WEBS) && cave[ny][nx].owner != 1)
 		{
                                 /* The monster is stupid, and will walk trough! */
                                 do_move = TRUE;
@@ -3508,7 +3598,7 @@ static void process_monster(int m_idx, bool is_friend)
                                 /* Update */
                                 update_and_handle();
 		}
-                else if ((cave[ny][nx].feat == FEAT_THORNED_VINES))
+                else if ((cave[ny][nx].feat == FEAT_THORNED_VINES) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3521,8 +3611,15 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 /* How much damages will the monster take? */
                                 field_dam_amount = c_ptr->field_damage;
+
+				/* Fields have 50% chance of disappearing. */
+				if (randint(100) >= 50)
+				{
+					cave[ny][nx].feat = FEAT_FLOOR;
+					update_and_handle();
+				}
 		}
-                else if ((cave[ny][nx].feat == FEAT_STORMS))
+                else if ((cave[ny][nx].feat == FEAT_STORMS) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3535,8 +3632,15 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 /* How much damages will the monster take? */
                                 field_dam_amount = c_ptr->field_damage;
+
+				/* Fields have 50% chance of disappearing. */
+				if (randint(100) >= 50)
+				{
+					cave[ny][nx].feat = FEAT_FLOOR;
+					update_and_handle();
+				}
 		}
-                else if ((cave[ny][nx].feat == FEAT_DARK_MIST))
+                else if ((cave[ny][nx].feat == FEAT_DARK_MIST) && cave[ny][nx].owner != 1)
 		{
                                 /* Cross the field... */
                                 do_move = TRUE;
@@ -3615,8 +3719,9 @@ static void process_monster(int m_idx, bool is_friend)
 		
 		/* Handle doors and secret doors */
 		else if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		          (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-		          (c_ptr->feat == FEAT_SECRET))
+		          (c_ptr->feat <= FEAT_DOOR_TAIL)) || ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) &&
+		          (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) ||
+		          (c_ptr->feat == FEAT_SECRET) || (c_ptr->feat == FEAT_ICE_SECRET))
 		{
 			bool may_bash = TRUE;
 
@@ -3632,8 +3737,8 @@ static void process_monster(int m_idx, bool is_friend)
                             (!is_pet(m_ptr) || p_ptr->pet_open_doors))
 				{
 					/* Closed doors and secret doors */
-					if ((c_ptr->feat == FEAT_DOOR_HEAD) ||
-						(c_ptr->feat == FEAT_SECRET))
+					if ((c_ptr->feat == FEAT_DOOR_HEAD) || (c_ptr->feat == FEAT_ICE_DOOR_HEAD) ||
+						(c_ptr->feat == FEAT_SECRET) || (c_ptr->feat == FEAT_ICE_SECRET))
 					{
 						/* The door is open */
 						did_open_door = TRUE;
@@ -3643,12 +3748,13 @@ static void process_monster(int m_idx, bool is_friend)
 					}
 					
 					/* Locked doors (not jammed) */
-					else if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08)
+					else if ((((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_DOOR_TAIL)) && (c_ptr->feat < FEAT_DOOR_HEAD + 0x08)) || (((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) && (c_ptr->feat < FEAT_ICE_DOOR_HEAD + 0x08)))
 					{
 						int k;
 						
 						/* Door power */
-						k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
+						if (((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL))) k = ((c_ptr->feat - FEAT_ICE_DOOR_HEAD) & 0x07);
+						else k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
 						
 #if 0
 						/* XXX XXX XXX Old test (pval 10 to 20) */
@@ -3660,7 +3766,8 @@ static void process_monster(int m_idx, bool is_friend)
 						if (rand_int(m_ptr->hp / 10) > k)
 						{
 							/* Unlock the door */
-							cave_set_feat(ny, nx, FEAT_DOOR_HEAD + 0x00);
+							if ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) cave_set_feat(ny, nx, FEAT_ICE_DOOR_HEAD + 0x00);
+							else cave_set_feat(ny, nx, FEAT_DOOR_HEAD + 0x00);
 							
 							/* Do not bash the door */
 							may_bash = FALSE;
@@ -3676,7 +3783,8 @@ static void process_monster(int m_idx, bool is_friend)
 					int k;
 					
 					/* Door power */
-					k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
+					if (((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL))) k = ((c_ptr->feat - FEAT_ICE_DOOR_HEAD) & 0x07);
+					else k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
 					
 #if 0
 					/* XXX XXX XXX Old test (pval 10 to 20) */
@@ -3708,13 +3816,15 @@ static void process_monster(int m_idx, bool is_friend)
 					/* Break down the door */
 					if (did_bash_door && (rand_int(100) < 50))
 					{
-						cave_set_feat(ny, nx, FEAT_BROKEN);
+						if ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) cave_set_feat(ny, nx, FEAT_ICE_BROKEN);
+						else cave_set_feat(ny, nx, FEAT_BROKEN);
 					}
 					
 					/* Open the door */
 					else
 					{
-						cave_set_feat(ny, nx, FEAT_OPEN);
+						if ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) cave_set_feat(ny, nx, FEAT_ICE_OPEN);
+						else cave_set_feat(ny, nx, FEAT_OPEN);
 					}
 					
 					/* Handle viewable doors */
@@ -3918,6 +4028,12 @@ static void process_monster(int m_idx, bool is_friend)
 		if (do_move)
 		{
 			s16b this_o_idx, next_o_idx = 0;
+
+			/* Call a lua script. */
+			if (r_ptr->event_before_move > 0)
+			{
+				call_lua("monster_before_move", "(dd)", "", m_idx, r_ptr->event_before_move);
+			}
 			
 			/* Take a turn */
 			do_turn = TRUE;
@@ -4106,6 +4222,12 @@ static void process_monster(int m_idx, bool is_friend)
 					}
 				}
 			}
+
+			/* Call a lua script. */
+			if (r_ptr->event_after_move > 0)
+			{
+				call_lua("monster_after_move", "(dd)", "", m_idx, r_ptr->event_after_move);
+			}
 		}
 		
 		/* Stop when done */
@@ -4114,7 +4236,7 @@ static void process_monster(int m_idx, bool is_friend)
 	
 	
 	/* If we haven't done anything, try casting a spell again */
-	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters &&
+	if (!do_turn && !do_move && !m_ptr->monfear &&
 		!is_pet(m_ptr))
 	{
 		/* Cast spell */
@@ -4156,6 +4278,23 @@ static void process_monster(int m_idx, bool is_friend)
 		
 		/* Monster destroyed a wall */
 		if (did_kill_wall) r_ptr->r_flags2 |= (RF2_KILL_WALL);
+
+		/* The CAN_SPEAK flag has changed. */
+		/* Monster will first initiate the dialog with the player, then attack. */
+		/* If the monster is defeated, dialog will pop-up again. */
+		if (player_has_los_bold(oy, ox) && (r_ptr->flags2 & RF2_CAN_SPEAK))
+		{
+			if (m_ptr->spoke == 0)
+			{
+				int tmpx, tmpy;
+				tmpy = m_ptr->fy;
+				tmpx = m_ptr->fx;
+				show_dialog(r_ptr->extra2);
+				m_ptr->spoke = 1;
+				lite_spot(tmpy, tmpx);
+				update_and_handle();
+			}
+		}
 	}
 	
 	
@@ -4415,188 +4554,26 @@ void process_monsters(void)
 	}
 }
 
-bool leader_class()
-{
-        if (p_ptr->pclass == CLASS_LEADER || p_ptr->pclass == CLASS_COMMANDER || p_ptr->pclass == CLASS_VALKYRIE || p_ptr->pclass == CLASS_DARK_LORD || p_ptr->prace == RACE_MONSTER) return (TRUE);
-        else return (FALSE);
-}
-
-/* Level up a friend! */
-void levelup_friend(monster_type *m_ptr)
-{
-        int apamount = 0;
-        char ch;
-        apamount = m_ptr->level * 100;
-        msg_format("You will need %d golds to raise the level...", apamount);
-        get_com("Level Up? [y/n]", &ch);
-        if (ch == 'y' || ch == 'Y')
-        {
-                if (p_ptr->au >= apamount)
-                {
-                        msg_print("Your friend gained a level!");
-                        m_ptr->level += 1;
-                        apply_monster_level_hp(m_ptr);
-                        p_ptr->au -= apamount;
-                        update_and_handle();
-                }
-                else msg_print("You need more money...");
-        }
-}
-
-/* Speak with your friends! :) */
-void monster_speak(monster_type *m_ptr)
-{
-        int thespeech = 0;
-        monster_race    *r_ptr = &r_info[m_ptr->r_idx];        
-        if (r_ptr->flags3 & (RF3_DRAGON))
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("I never tought smaller beings could be so nice!");
-                else if (thespeech >= 80) msg_print("Let me crush our foes!");
-                else if (thespeech >= 70) msg_print("Don't you have a few FireStones for me?");
-                else if (thespeech >= 60) msg_print("We dragons generally don't like lesser beings, but...you're the exception!");
-                else if (thespeech >= 50) msg_print("The last foe I ate tasted really bad you know!");
-                else if (thespeech >= 40) msg_print("I have heard that Variaz can summon dragons at will...");
-                else if (thespeech >= 30) msg_print("I am hungry...Those orcs are too small as preys!");
-                else if (thespeech >= 20) msg_print("Some peoples like to kill us for fun...Hope you're not like that!");
-                else if (thespeech >= 10) msg_print("Have you heard of Mana Maidens? Very powerful sorceresses...");
-                else msg_print("I hope I'm not too big for you...");
-        }
-        else if (r_ptr->flags3 & (RF3_DEMON))
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("So that's what friendship is all about...Nice!");
-                else if (thespeech >= 80) msg_print("You're the first one I meet who cares about us...");
-                else if (thespeech >= 70) msg_print("Demons aren't truly evil...they kill because they must.");
-                else if (thespeech >= 60) msg_print("Never let Devlings outnumber you!");
-                else if (thespeech >= 50) msg_print("Hell? Where is that?");
-                else if (thespeech >= 40) msg_print("Mana Maidens used to use the Demon's Ring for something...");
-                else if (thespeech >= 30) msg_print("Heard about The Executioner? He is very powerful, but dislike cold.");
-                else if (thespeech >= 20) msg_print("Darkness doesn't always mean 'Evil'!");
-                else if (thespeech >= 10) msg_print("Demons and angels...The eternal war...");
-                else msg_print("I finally discovered the meaning of 'Friend'!");
-        }
-        else if (r_ptr->flags3 & (RF3_UNDEAD))
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("I died once, but you won't let me die twice! I know that!");
-                else if (thespeech >= 80) msg_print("You know what? I was wearing a Demon's Ring when I died!");
-                else if (thespeech >= 70) msg_print("My biggest dream? To be as powerful as Dracula!");
-                else if (thespeech >= 60) msg_print("Watch out, undeads like myself may carry the Black Breath!");
-                else if (thespeech >= 50) msg_print("What I was? I was an adventurer, just like you!");
-                else if (thespeech >= 40) msg_print("Being dead isen't that scary you know!");
-                else if (thespeech >= 30) msg_print("Pain? Why, we undeads do not feel pain!");
-                else if (thespeech >= 20) msg_print("Use an Amulet Of Undead! Then, we'll be like brothers!");
-                else if (thespeech >= 10) msg_print("Not all of us are stupid, you know!");
-                else msg_print("My grave was made of nice stone...You don't care, huh?");
-        }
-        else if (r_ptr->flags3 & (RF3_TROLL))
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("Me...want....kill...");
-                else if (thespeech >= 80) msg_print("Trolls...................smart!");
-                else if (thespeech >= 70) msg_print("Stone Trolls...........nice.");
-                else if (thespeech >= 60) msg_print("Mana Maidens....so smart...so cute...but less than trolls.");
-                else if (thespeech >= 50) msg_print("Me.....hungry.....Wanna eat.........Sauron.");
-                else if (thespeech >= 40) msg_print("I regenerate!! I know that!! But....what does it mean?");
-                else if (thespeech >= 30) msg_print("Me strong!!!");
-                else if (thespeech >= 20) msg_print("Me............huh..........forgot.");
-                else if (thespeech >= 10) msg_print("I don't understand......You say you're not a monster?");
-                else msg_print("Trolls have gods.......but gods don't have trolls, so gods no smart.");
-        }
-        else if (r_ptr->flags3 & (RF3_ORC))
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("The best way to make friends? Combat of course!");
-                else if (thespeech >= 80) msg_print("Trap Weapons...How can you be cruel enough to use that skill?");
-                else if (thespeech >= 70) msg_print("Swords, axes, maces, polearms...I want them all!!");
-                else if (thespeech >= 60) msg_print("No offense, but I think you're not strong enough...");
-                else if (thespeech >= 50) msg_print("Those Mana Maidens girls don't even know how to use a weapon!");
-                else if (thespeech >= 40) msg_print("Our Shamans are wise, but cowards.");
-                else if (thespeech >= 30) msg_print("A friend of the orcs is a powerful warrior!");
-                else if (thespeech >= 20) msg_print("Variaz? I have heard he has a very cheap close combat ability...");
-                else if (thespeech >= 10) msg_print("Rings Of Safety...pfff, only cowards needs that!");
-                else msg_print("Amulets Of Golem...Golems have the strength, not the skill. I have both!");
-        }
-        else if (r_ptr->flags3 & (RF3_ORC))
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("The best way to make friends? Combat of course!");
-                else if (thespeech >= 80) msg_print("Trap Weapons...How can you be cruel enough to use that skill?");
-                else if (thespeech >= 70) msg_print("Swords, axes, maces, polearms...I want them all!!");
-                else if (thespeech >= 60) msg_print("No offense, but I think you're not strong enough...");
-                else if (thespeech >= 50) msg_print("Those Mana Maidens girls don't even know how to use a weapon!");
-                else if (thespeech >= 40) msg_print("Our Shamans are wise, but cowards.");
-                else if (thespeech >= 30) msg_print("A friend of the orcs is a powerful warrior!");
-                else if (thespeech >= 20) msg_print("Variaz? I have heard he has a very cheap close combat ability...");
-                else if (thespeech >= 10) msg_print("Rings Of Safety...pfff, only cowards needs that!");
-                else msg_print("Amulets Of Golem...Golems have the strength, not the skill. I have both!");
-        }
-        /* Cheater! */
-        else if (m_ptr->r_idx == 1030)
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("So...you managed to get me in your team. Nice work, cheater!");
-                else if (thespeech >= 80) msg_print("The God Of The Void helping a mortal...what am I doing?");
-                else if (thespeech >= 70) msg_print("WHAT? ToME IS BETTER THAN NEWANG??? WATCH YOUR TONGUE!!!");
-                else if (thespeech >= 60) msg_print("NewAngband is the greatest variant!");
-                else if (thespeech >= 50) msg_print("Utumno...Wow, nice...and boring too! No wonder why it's dead.");
-                else if (thespeech >= 40) msg_print("A bug? No, you must be dreaming.");
-                else if (thespeech >= 30) msg_print("Don't forget to visit the official web page!");
-                else if (thespeech >= 20) msg_print("Well, how about fighting against each others?");
-                else if (thespeech >= 10) msg_print("You know, if you don't defeat me, you can't win...");
-                else msg_print("e_info? Don't you know it's still used???");
-        }
-        else
-        {
-                thespeech = randint(100);
-                if (thespeech >= 90) msg_print("Hey, you're a good pal after all!");
-                else if (thespeech >= 80) msg_print("Mana Maidens were once simple Mages or Sorceresses...");
-                else if (thespeech >= 70) msg_print("Why are you crying? Because you can't turn me into a crystal?");
-                else if (thespeech >= 60) msg_print("Let's kill all those pesky little monsters...Why are you looking at me like that?");
-                else if (thespeech >= 50) msg_print("We're the best friends in the world!");
-                else if (thespeech >= 40) msg_print("A good Class/Ability combo is the key to winning!");
-                else if (thespeech >= 30) msg_print("You REALLY wanted me in your team, didn't you?");
-                else if (thespeech >= 20) msg_print("Let's take a little break, ok?");
-                else if (thespeech >= 10) msg_print("You're my best friend so far!");
-                else msg_print("Huh? Didn't hear you... What were you saying?");
-        }
-}
-
-/* Are we seduced by the monster? */
-bool seduction(monster_type *m_ptr)
-{
-        monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-        if (p_ptr->psex == SEX_MALE && (r_ptr->flags7 & (RF7_SEDUCE_MALES))) return (TRUE);
-        else if (p_ptr->psex == SEX_FEMALE && (r_ptr->flags7 & (RF7_SEDUCE_FEMALES))) return (TRUE);
-        else if (p_ptr->psex == SEX_NEUTER && ((r_ptr->flags7 & (RF7_SEDUCE_MALES)) || (r_ptr->flags7 & (RF7_SEDUCE_MALES)))) return (TRUE);
-        else return (FALSE);
-}
-
 bool counterspell(monster_type *m_ptr)
 {
         char ch;
         if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4] >= 1)
         {
 
-        get_com("Attempt to counter spell? [y/n]", &ch);
-        if (ch == 'y' || ch == 'Y')
-        {
-                if (randint((p_ptr->lev + p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4])) >= randint(m_ptr->level + m_ptr->mind))
-                {
-                        msg_print("You successfully countered the spell!");
-                        return (TRUE);
-                }
-                else
-                {
-                        msg_print("You failed to counter the spell.");
-                        p_ptr->csp -= (p_ptr->msp / 5);
-                        if (p_ptr->csp < 0) p_ptr->csp = 0;
-                        update_and_handle();
-                        return (FALSE);
-                }
-        }
+        	get_com("Attempt to counter spell? [y/n]", &ch);
+        	if (ch == 'y' || ch == 'Y')
+        	{
+                	if (randint(p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4] * 20) >= randint(m_ptr->level + m_ptr->mind))
+                	{
+                        	msg_print("You successfully countered the spell!");
+                        	return (TRUE);
+                	}
+                	else
+                	{
+                        	msg_print("You failed to counter the spell.");
+                        	return (FALSE);
+                	}
+        	}
         
         }
         return (FALSE);
@@ -4620,8 +4597,18 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 	mindstat = (m_ptr->mind - 5);
 	if (mindstat < 0) mindstat = 0;
 
+	/* Call a lua script. */
+	if (r_ptr->event_before_magic > 0)
+	{
+		call_lua("monster_before_magic", "(dd)", "", m_idx, r_ptr->event_before_magic);
+	}
+
 	/* Let's cast the spell! :) */
 	if (r_ptr->spell[spellnum].type != 999) msg_format("%^s %s %s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name);
+
+	/* Counter Spell can even counter scripted attacks! */
+	if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4] >= 1 && r_ptr->spell[spellnum].type == 999) msg_format("%^s attempts a strange power...", m_name);
+	if (counterspell(m_ptr)) return;
 
 	/* Let's see what type of spell it was... */
 	switch (r_ptr->spell[spellnum].type)
@@ -4634,7 +4621,7 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 			else
 			{
 				dam = (r_ptr->spell[spellnum].power * mindstat);
-				dambonus = (dam * (m_ptr->skill_magic * 10)) / 100;
+				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 			}
@@ -4657,7 +4644,7 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 			else
 			{
 				dam = (r_ptr->spell[spellnum].power * mindstat);
-				dambonus = (dam * (m_ptr->skill_magic * 10)) / 100;
+				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 			}
@@ -4678,9 +4665,10 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 		case 3:
 		{
 			dam = (r_ptr->spell[spellnum].power * mindstat);
-			dambonus = (dam * (m_ptr->skill_magic * 20)) / 100;
+			dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 			dam = dam + dambonus;
 			m_ptr->hp += dam;
+			if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 			msg_format("%^s looks healtier.", m_name);
 			break;
@@ -4721,6 +4709,7 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 			if (r_ptr->spell[spellnum].special1 == 7) 
 			{
 				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
+				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
 				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
 				canlearn = FALSE;
 			}
@@ -4730,8 +4719,10 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 				m_ptr->dex += r_ptr->spell[spellnum].power;
 				m_ptr->mind += r_ptr->spell[spellnum].power;
 				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
+				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
 				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
 			}
+			if (r_ptr->spell[spellnum].special1 == 9) m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
 			m_ptr->boosted = 1;
 			break;
 		}
@@ -4767,11 +4758,28 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 		{
 			call_lua(r_ptr->spell[spellnum].name, "(d)", "", m_idx);
 			canlearn = FALSE;
-			return;
+			break;
 		}
 	}
 	/* The spell costs some mana. */
-	m_ptr->mana -= r_ptr->spell[spellnum].cost;
+	if (r_ptr->spell[spellnum].cost > 0) m_ptr->mana -= r_ptr->spell[spellnum].cost;
+
+	/* Spells with negative costs cannot be learned. */
+	if (r_ptr->spell[spellnum].cost < 0) canlearn = FALSE;
+
+	/* Call a lua script. */
+	if (r_ptr->event_after_magic > 0)
+	{
+		call_lua("monster_after_magic", "(dd)", "", m_idx, r_ptr->event_after_magic);
+	}
+
+	/* Counter Shot ability. */
+	if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+	{
+		p_ptr->events[29046] = m_idx;
+		call_lua("use_ability", "(d)", "", 120);
+		p_ptr->events[29046] = 0;
+	}
 	
 	/* So, we're alive and learning? */
 	/* Let's learn the monster magic then! :) */
@@ -4828,6 +4836,12 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 	mindstat = (m_ptr->mind - 5);
 	if (mindstat < 0) mindstat = 0;
 
+	/* Call a lua script. */
+	if (r_ptr->event_before_magic > 0)
+	{
+		call_lua("monster_before_magic", "(dd)", "", m_idx, r_ptr->event_before_magic);
+	}
+
 	/* Let's see what type of spell it was... */
 	switch (r_ptr->spell[spellnum].type)
 	{
@@ -4840,13 +4854,13 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			else
 			{
 				dam = (r_ptr->spell[spellnum].power * mindstat);
-				dambonus = (dam * (m_ptr->skill_magic * 10)) / 100;
+				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 				if (is_pet(m_ptr))
 				{
 					dam += ((dam * 10) * p_ptr->skill[9]) / 100;
-					dam += ((dam * 3) * p_ptr->stat_ind[A_CHR]) / 100;
+					if (p_ptr->stat_ind[A_CHR] > 5) dam += ((dam * 3) * (p_ptr->stat_ind[A_CHR] - 5)) / 100;
 				}
 			}
 			monst_bolt_monst(m_idx, y, x, r_ptr->spell[spellnum].special1, dam);
@@ -4861,13 +4875,13 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			else
 			{
 				dam = (r_ptr->spell[spellnum].power * mindstat);
-				dambonus = (dam * (m_ptr->skill_magic * 10)) / 100;
+				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 				if (is_pet(m_ptr))
 				{
 					dam += ((dam * 10) * p_ptr->skill[9]) / 100;
-					dam += ((dam * 3) * p_ptr->stat_ind[A_CHR]) / 100;
+					if (p_ptr->stat_ind[A_CHR] > 5) dam += ((dam * 3) * (p_ptr->stat_ind[A_CHR] - 5)) / 100;
 				}
 			}
 			rad = r_ptr->spell[spellnum].special2;
@@ -4880,8 +4894,9 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 		{
 			msg_format("%^s %s %s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name);
 			dam = (r_ptr->spell[spellnum].power * mindstat);
-			dambonus = (dam * (m_ptr->skill_magic * 20)) / 100;
+			dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 			dam = dam + dambonus;
+			if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
 			m_ptr->hp += dam;
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 			msg_format("%^s looks healtier.", m_name);
@@ -4925,6 +4940,7 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			if (r_ptr->spell[spellnum].special1 == 7) 
 			{
 				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
+				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
 				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
 			}
 			if (r_ptr->spell[spellnum].special1 == 8) 
@@ -4933,8 +4949,10 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 				m_ptr->dex += r_ptr->spell[spellnum].power;
 				m_ptr->mind += r_ptr->spell[spellnum].power;
 				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
+				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
 				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
 			}
+			if (r_ptr->spell[spellnum].special1 == 9) m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
 			m_ptr->boosted = 1;
 			break;
 		}
@@ -4971,12 +4989,18 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 		case 999:
 		{
 			call_lua(r_ptr->spell[spellnum].name, "(d)", "", m_idx);
-			return;
+			break;
 		}
 	}
 	
 	/* The spell costs some mana. */
 	m_ptr->mana -= r_ptr->spell[spellnum].cost;
+
+	/* Call a lua script. */
+	if (r_ptr->event_after_magic > 0)
+	{
+		call_lua("monster_after_magic", "(dd)", "", m_idx, r_ptr->event_after_magic);
+	}
 }
 
 /* Similar to make_attack_spell, but for ranged attacks! */
@@ -5041,6 +5065,9 @@ bool make_ranged_attack(int m_idx)
 		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
 
 		if (!clean_shot(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
+
+		/* Player is invisible? */
+		if (player_invis(m_ptr)) return (FALSE);
 	}
 
 	/* Extract the monster level */
@@ -5084,7 +5111,27 @@ bool make_ranged_attack(int m_idx)
 
 	if (r_ptr->attack[chosenattack].type == 1000)
 	{
+		/* Call a lua script. */
+		if (r_ptr->event_before_ranged > 0)
+		{
+			call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
+		}
+
 		call_lua(r_ptr->attack[chosenattack].name, "(d)", "", m_idx);
+
+		/* Call a lua script. */
+		if (r_ptr->event_after_ranged > 0)
+		{
+			call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
+		}
+
+		/* Counter Shot ability. */
+		if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+		{
+			p_ptr->events[29046] = m_idx;
+			call_lua("use_ability", "(d)", "", 120);
+			p_ptr->events[29046] = 0;
+		}
 		return;
 	}
 
@@ -5095,36 +5142,26 @@ bool make_ranged_attack(int m_idx)
 		/* We don't ALWAYS fire... */
 		if (randint(100) <= r_ptr->attack[chosenattack].special2)
 		{
+			/* Call a lua script. */
+			if (r_ptr->event_before_ranged > 0)
+			{
+				call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
+			}
+
 			if (monster_hit_player(m_ptr, 0))
 			{
 				damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-				damage *= (m_ptr->skill_attack + 1);
-				damage += ((damage * ((m_ptr->dex - 5) * 5)) / 100);
-				damage += ((damage * m_ptr->dex) / 100);
+				damage *= (m_ptr->skill_ranged + 1);
+				damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
+				damage += multiply_divide(damage, m_ptr->dex, 100);
+
 				/* Bosses may get higher damages! */
 				if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         	if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
                         	else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
 
-				if (seduction(m_ptr) == TRUE) damage += (damage / 2);
 				if (strstr(r_ptr->attack[chosenattack].name, "!")) msg_format("%^s %s you!", m_name, r_ptr->attack[chosenattack].act);
 				else msg_format("%^s %s %s!", m_name, r_ptr->attack[chosenattack].act, r_ptr->attack[chosenattack].name);
-
-                        	/* Defender's Iron Skin applies BEFORE resistance */
-                        	if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] >= 1)
-                        	{
-                                	damage -= p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] * 100;
-                                	if (damage < 0) damage = 0;
-                        	}
-
-                        	/* Justice Warrior's protection from evil! */
-                        	if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
-                        	{
-                                	int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
-                                	if (reduction > 75) reduction = 75;
-                                	damage -= ((damage * reduction) / 100);
-                                	damage -= (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5);
-                        	}
 
                         	/* Resistances...and it apply AFTER the Damages Curse! :) */
 				if (r_ptr->attack[chosenattack].element == GF_MISSILE)
@@ -5132,13 +5169,13 @@ bool make_ranged_attack(int m_idx)
 					if (p_ptr->pres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->pres) / 100;
+						damagepercent = multiply_divide(damage, p_ptr->pres, 100);
                                 		damage -= damagepercent; 
                         		}
 					if (p_ptr->mres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->mres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
                                 		damage -= damagepercent; 
                         		}
 				}
@@ -5147,7 +5184,7 @@ bool make_ranged_attack(int m_idx)
                         		if (p_ptr->mres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->mres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
                                 		damage -= damagepercent; 
                         		}
 				}
@@ -5156,92 +5193,69 @@ bool make_ranged_attack(int m_idx)
 					if (p_ptr->pres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->pres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
                                 		damage -= damagepercent; 
                         		}
 				}
 
-                        	if (unarmed() && p_ptr->skill[18] >= 40 && !heavy_armor())
+                        	/* Attempt to block the attack. */
                         	{
                                 	int blockchance = 0;
+					int x;
 
-                                	/* Block chance is 25%...or is it? */
-                                	blockchance = 25 + p_ptr->abilities[(CLASS_ZELAR * 10) + 9];
-
-                                	/* Max is 75% */
-                                	if (blockchance > 75) blockchance = 75;
-
-                                	/* Now, try to block */
-                                	if (randint(100) < blockchance)
+					/* Try to block with each of your weapons. */
+					for (x = 0; x < 2; x++)
 					{
-						msg_print("You avoid the hit!");
-						nothurt = TRUE;
-					}
-                        	}                
+						o_ptr = &inventory[INVEN_WIELD + x];
+						blockchance = 0;
 
-                        	else if (polearm_has() && p_ptr->skill[14] >= 25 && !shield_has())
-                        	{
-                                	int blockchance = 0;
+                                		if (o_ptr->tval != 0)
+                                		{
+                                        		/* Basic block chance is equal to item's base AC */
+                                        		blockchance = o_ptr->ac;
 
-                                	/* Block chance is 20%. */
-                                	blockchance = 20;
+							/* Swords skill allows you to parry with a sword. */
+							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12 && p_ptr->skill[12] >= 10) blockchance += 10;
 
-                                	/* If a Polearm has PARRY, add the bonus! */
-                                	if (f4 & (TR4_PARRY)) blockchance = blockchance + (10 + (o_ptr->pval * 2));
+							/* Polearm skill allows you to parry with a spear. */
+							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) blockchance += 20;
 
-                                	/* Now, try to block */
-                                	if (randint(100) < blockchance)
-					{ 
-						msg_print("You parry!");
-						nothurt = TRUE;
-					}
-                        	}                
+							/* If AC is 0, cannot block with this item. */
+							if (blockchance > 0)
+							{
+                                        			/* Then, it's increased by dexterity and item's to_a */
+                                        			blockchance += (p_ptr->stat_ind[A_DEX] + o_ptr->to_a);
 
-                        	/* Check for a shield... */
-                        	else if (shield_has() || p_ptr->skill[12] >= 10)
-                        	{
-                                	int blockchance = 0;
-                                	o_ptr = &inventory[INVEN_ARM];
+								/* But is reduced by monster's dex. */
+								blockchance -= m_ptr->dex;
 
-                                	if (o_ptr)
-                                	{
-                                        	/* Calculate the blocking chances */
-                                        	blockchance = ((o_ptr->sval * 10) / 2);
-
-                                        	/* Magic Shields are better at blocking... */
-                                        	blockchance += (o_ptr->pval * 2);
-
-                                        	/* Defender is the master of shields! */
-                                        	if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 2);
-                                	}
-                                	if (sword_has() && p_ptr->skill[12] >= 10) blockchance += 10;
+                                        			/* Defender is the master of shields! */
+                                        			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
+							}
+                                		}
+                                		else if (unarmed() && p_ptr->skill[18] >= 40 && x == 0 && !heavy_armor())
+						{
+							/* If unarmed, and not wearing heavy armor, you may get a block chance. */
+							/* Gloves are used as the "shield". */
+							object_type *g_ptr;
+							g_ptr = &inventory[INVEN_HANDS];
+							blockchance += 10 + p_ptr->stat_ind[A_DEX];
+							if (g_ptr)
+							{
+								blockchance += g_ptr->ac;
+								blockchance += g_ptr->to_a;
+							}
+						}
 						
-                                	/* Maximum blocking chance is 75% */
-                                	if (blockchance > 75) blockchance = 75;
+                                		/* Maximum blocking chance is 75% */
+                                		if (blockchance > 75) blockchance = 75;
 
-                                	/* Now, try to block */
-                                	if (randint(100) < blockchance)
-					{
-						msg_print("You block!");
-						nothurt = TRUE;
-					}
-                        	}
-                        	/* Last ressort, the PARRY flag! */
-                        	else if (f4 & (TR4_PARRY))                                                   
-                        	{                                                                                           
-                                	int blockchance = 0;                                                                 
-                                                                                                                     
-                                	/* Block chance is 10% + pval * 2. */                                                
-                                	blockchance = 10 + (o_ptr->pval * 2);                                                
-                                                                                                                     
-                                	/* Maximum blocking chance is 75% */                                                 
-                                	if (blockchance > 75) blockchance = 75;                                              
-                                                                                                                       
-                                	/* Now, try to block */                                                              
-                                	if (randint(100) < blockchance)
-					{
-						msg_print("You parry!");
-						nothurt = TRUE;
+                                		/* Now, try to block */
+                                		if (randint(100) < blockchance)
+						{
+							msg_print("You block!");
+							nothurt = TRUE;
+						}
 					}
                         	}
 
@@ -5256,6 +5270,20 @@ bool make_ranged_attack(int m_idx)
 				}
 			}
 			else msg_format("%^s %s at you, but miss.", m_name, r_ptr->attack[chosenattack].act);
+
+			/* Call a lua script. */
+			if (r_ptr->event_after_ranged > 0)
+			{
+				call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
+			}
+
+			/* Counter Shot ability. */
+			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+			{
+				p_ptr->events[29046] = m_idx;
+				call_lua("use_ability", "(d)", "", 120);
+				p_ptr->events[29046] = 0;
+			}
 		}
 		else return (FALSE);
 	}
@@ -5264,36 +5292,25 @@ bool make_ranged_attack(int m_idx)
 		/* We don't ALWAYS fire... */
 		if (randint(100) <= r_ptr->attack[chosenattack].special2)
 		{
+			/* Call a lua script. */
+			if (r_ptr->event_before_ranged > 0)
+			{
+				call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
+			}
+
 			if (monster_hit_player(m_ptr, 0))
 			{
 				damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-				damage *= (m_ptr->skill_attack + 1);
-				damage += ((damage * ((m_ptr->dex - 5) * 5)) / 100);
-				damage += ((damage * m_ptr->dex) / 100);
+				damage *= (m_ptr->skill_ranged + 1);
+				damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
+				damage += multiply_divide(damage, m_ptr->dex, 100);
 				/* Bosses may get higher damages! */
 				if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         	if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
                         	else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
 
-				if (seduction(m_ptr) == TRUE) damage += (damage / 2);
 				if (strstr(r_ptr->attack[chosenattack].name, "!")) msg_format("%^s %s you!", m_name, r_ptr->attack[chosenattack].act);
 				else msg_format("%^s %s %s!", m_name, r_ptr->attack[chosenattack].act, r_ptr->attack[chosenattack].name);
-
-                        	/* Defender's Iron Skin applies BEFORE resistance */
-                        	if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] >= 1)
-                        	{
-                                	damage -= p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] * 100;
-                                	if (damage < 0) damage = 0;
-                        	}
-
-                        	/* Justice Warrior's protection from evil! */
-                        	if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
-                        	{
-                                	int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
-                                	if (reduction > 75) reduction = 75;
-                                	damage -= ((damage * reduction) / 100);
-                                	damage -= (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5);
-                        	}
 
                         	/* Resistances...and it apply AFTER the Damages Curse! :) */
 				if (r_ptr->attack[chosenattack].element == GF_MISSILE)
@@ -5301,13 +5318,13 @@ bool make_ranged_attack(int m_idx)
 					if (p_ptr->pres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->pres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
                                 		damage -= damagepercent; 
                         		}
 					if (p_ptr->mres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->mres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
                                 		damage -= damagepercent; 
                         		}
 				}
@@ -5316,7 +5333,7 @@ bool make_ranged_attack(int m_idx)
                         		if (p_ptr->mres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->mres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->mres, 100);
                                 		damage -= damagepercent; 
                         		}
 				}
@@ -5325,92 +5342,69 @@ bool make_ranged_attack(int m_idx)
 					if (p_ptr->pres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->pres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
                                 		damage -= damagepercent; 
                         		}
 				}
 
-                        	if (unarmed() && p_ptr->skill[18] >= 40 && !heavy_armor())
+                        	/* Attempt to block the attack. */
                         	{
                                 	int blockchance = 0;
+					int x;
 
-                                	/* Block chance is 25%...or is it? */
-                                	blockchance = 25 + p_ptr->abilities[(CLASS_ZELAR * 10) + 9];
-
-                                	/* Max is 75% */
-                                	if (blockchance > 75) blockchance = 75;
-
-                                	/* Now, try to block */
-                                	if (randint(100) < blockchance)
+					/* Try to block with each of your weapons. */
+					for (x = 0; x < 2; x++)
 					{
-						msg_print("You avoid the hit!");
-						nothurt = TRUE;
-					}
-                        	}                
+						o_ptr = &inventory[INVEN_WIELD + x];
+						blockchance = 0;
 
-                        	else if (polearm_has() && p_ptr->skill[14] >= 25 && !shield_has())
-                        	{
-                                	int blockchance = 0;
+                                		if (o_ptr->tval != 0)
+                                		{
+                                        		/* Basic block chance is equal to item's base AC */
+                                        		blockchance = o_ptr->ac;
 
-                                	/* Block chance is 20%. */
-                                	blockchance = 20;
+							/* Swords skill allows you to parry with a sword. */
+							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 12 && p_ptr->skill[12] >= 10) blockchance += 10;
 
-                                	/* If a Polearm has PARRY, add the bonus! */
-                                	if (f4 & (TR4_PARRY)) blockchance = blockchance + (10 + (o_ptr->pval * 2));
+							/* Polearm skill allows you to parry with a spear. */
+							if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) blockchance += 20;
 
-                                	/* Now, try to block */
-                                	if (randint(100) < blockchance)
-					{ 
-						msg_print("You parry!");
-						nothurt = TRUE;
-					}
-                        	}                
+							/* If AC is 0, cannot block with this item. */
+							if (blockchance > 0)
+							{
+                                        			/* Then, it's increased by dexterity and item's to_a */
+                                        			blockchance += (p_ptr->stat_ind[A_DEX] + o_ptr->to_a);
 
-                        	/* Check for a shield... */
-                        	else if (shield_has() || p_ptr->skill[12] >= 10)
-                        	{
-                                	int blockchance = 0;
-                                	o_ptr = &inventory[INVEN_ARM];
+								/* But is reduced by monster's dex. */
+								blockchance -= m_ptr->dex;
 
-                                	if (o_ptr)
-                                	{
-                                        	/* Calculate the blocking chances */
-                                        	blockchance = ((o_ptr->sval * 10) / 2);
-
-                                        	/* Magic Shields are better at blocking... */
-                                        	blockchance += (o_ptr->pval * 2);
-
-                                        	/* Defender is the master of shields! */
-                                        	if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 2);
-                                	}
-                                	if (sword_has() && p_ptr->skill[12] >= 10) blockchance += 10;
+                                        			/* Defender is the master of shields! */
+                                        			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
+							}
+                                		}
+                                		else if (unarmed() && p_ptr->skill[18] >= 40 && x == 0 && !heavy_armor())
+						{
+							/* If unarmed, and not wearing heavy armor, you may get a block chance. */
+							/* Gloves are used as the "shield". */
+							object_type *g_ptr;
+							g_ptr = &inventory[INVEN_HANDS];
+							blockchance += 10 + p_ptr->stat_ind[A_DEX];
+							if (g_ptr)
+							{
+								blockchance += g_ptr->ac;
+								blockchance += g_ptr->to_a;
+							}
+						}
 						
-                                	/* Maximum blocking chance is 75% */
-                                	if (blockchance > 75) blockchance = 75;
+                                		/* Maximum blocking chance is 75% */
+                                		if (blockchance > 75) blockchance = 75;
 
-                                	/* Now, try to block */
-                                	if (randint(100) < blockchance)
-					{
-						msg_print("You block!");
-						nothurt = TRUE;
-					}
-                        	}
-                        	/* Last ressort, the PARRY flag! */
-                        	else if (f4 & (TR4_PARRY))                                                   
-                        	{                                                                                           
-                                	int blockchance = 0;                                                                 
-                                                                                                                     
-                                	/* Block chance is 10% + pval * 2. */                                                
-                                	blockchance = 10 + (o_ptr->pval * 2);                                                
-                                                                                                                     
-                                	/* Maximum blocking chance is 75% */                                                 
-                                	if (blockchance > 75) blockchance = 75;                                              
-                                                                                                                       
-                                	/* Now, try to block */                                                              
-                                	if (randint(100) < blockchance)
-					{
-						msg_print("You parry!");
-						nothurt = TRUE;
+                                		/* Now, try to block */
+                                		if (randint(100) < blockchance)
+						{
+							msg_print("You block!");
+							nothurt = TRUE;
+						}
 					}
                         	}
 
@@ -5424,7 +5418,21 @@ bool make_ranged_attack(int m_idx)
                 			no_magic_return = FALSE;
 				}
 			}
-			else msg_format("%^s misses you.", m_name);
+			else msg_format("%^s %s at you, but miss.", m_name, r_ptr->attack[chosenattack].act);
+
+			/* Call a lua script. */
+			if (r_ptr->event_after_ranged > 0)
+			{
+				call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
+			}
+
+			/* Counter Shot ability. */
+			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+			{
+				p_ptr->events[29046] = m_idx;
+				call_lua("use_ability", "(d)", "", 120);
+				p_ptr->events[29046] = 0;
+			}
 		}
 		else return (FALSE);
 	}
@@ -5521,6 +5529,19 @@ bool make_ranged_attack_monst(int m_idx)
 
 		/* Can we attack the target? */
 		if (tr_ptr->flags7 & (RF7_NEVER_ATTACKED)) continue;
+
+		/* Guards don't attack friendly monsters */
+		if (r_ptr->flags7 & (RF7_GUARD))
+		{
+			/* Don't attack if it's friendly, and not summoned. */
+			if (is_pet(t_ptr) && (t_ptr->summoned == 0)) continue;
+		}
+
+		/* Friendly monsters won't attack guards if they aren't summoned. */
+		if (tr_ptr->flags7 & (RF7_GUARD))
+		{
+			if (is_pet(m_ptr) && (m_ptr->summoned == 0 && !(m_ptr->friend))) continue;
+		}
 		
 		/* Hack -- no fighting >100 squares from player */
 		if (t_ptr->cdis > MAX_RANGE) continue;
@@ -5592,12 +5613,18 @@ bool make_ranged_attack_monst(int m_idx)
 			/* We don't ALWAYS fire... */
 			if (randint(100) <= r_ptr->attack[chosenattack].special2)
 			{
+				/* Call a lua script. */
+				if (r_ptr->event_before_ranged > 0)
+				{
+					call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
+				}
+
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
 					damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-					damage *= (m_ptr->skill_attack + 1);
-					damage += ((damage * ((m_ptr->dex - 5) * 5)) / 100);
-					damage += ((damage * m_ptr->dex) / 100);
+					damage *= (m_ptr->skill_ranged + 1);
+					damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
+					damage += multiply_divide(damage, m_ptr->dex, 100);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -5615,6 +5642,12 @@ bool make_ranged_attack_monst(int m_idx)
 					ammo_shot = TRUE;
 				}
 				else msg_format("%^s %s at %^s, but miss.", m_name, r_ptr->attack[chosenattack].act, t_name);
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_ranged > 0)
+				{
+					call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
+				}
 			}
 			else return (FALSE);
 		}
@@ -5623,12 +5656,18 @@ bool make_ranged_attack_monst(int m_idx)
 			/* We don't ALWAYS fire... */
 			if (randint(100) <= r_ptr->attack[chosenattack].special2)
 			{
+				/* Call a lua script. */
+				if (r_ptr->event_before_ranged > 0)
+				{
+					call_lua("monster_before_ranged", "(dd)", "", m_idx, r_ptr->event_before_ranged);
+				}
+
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
 					damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
-					damage *= (m_ptr->skill_attack + 1);
-					damage += ((damage * ((m_ptr->dex - 5) * 5)) / 100);
-					damage += ((damage * m_ptr->dex) / 100);
+					damage *= (m_ptr->skill_ranged + 1);
+					damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
+					damage += multiply_divide(damage, m_ptr->dex, 100);
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -5645,7 +5684,13 @@ bool make_ranged_attack_monst(int m_idx)
                 			no_magic_return = FALSE;
 					ammo_shot = TRUE;
 				}
-				else msg_format("%^s misses %^s.", m_name, t_name);
+				else msg_format("%^s %s at %^s, but miss.", m_name, r_ptr->attack[chosenattack].act, t_name);
+
+				/* Call a lua script. */
+				if (r_ptr->event_after_ranged > 0)
+				{
+					call_lua("monster_after_ranged", "(dd)", "", m_idx, r_ptr->event_after_ranged);
+				}
 			}
 			else return (FALSE);
 		}
@@ -5665,4 +5710,16 @@ bool make_ranged_attack_monst(int m_idx)
 	/* A missile was shot */
 	if (ammo_shot) return (TRUE);
 	else return (FALSE);
+}
+
+/* Calls the "bolt" function from a script. */
+void lua_bolt(int m_idx, int typ, s32b dam_hp)
+{
+	bolt(m_idx, typ, dam_hp);
+}
+
+/* Same, but for balls. */
+void lua_ball(int m_idx, int typ, s32b dam_hp, int rad)
+{
+	breath(m_idx, typ, dam_hp, rad);
 }

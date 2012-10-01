@@ -25,6 +25,8 @@
 // t: Snow-tree
 // G: Glacier
 // p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
 
 // E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
 	Type 1: Dialog	Detail: Which dialog.

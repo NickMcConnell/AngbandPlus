@@ -357,13 +357,32 @@ s16b px;
 s16b global_x;
 s16b global_y;
 
-/* NEWANGBAND Variables! */
+/* Portralis Variables! */
 bool nevermiss;
 bool no_magic_return;
 bool monster_physical;
 bool monster_ranged;
+bool ranged_attack;
+bool melee_attack;
+bool throw_attack;
+bool monster_died;
+bool ignore_spellcraft;
+s32b damages_counter;
+bool damages_counter_player_damages;
+s16b damages_counter_duration;
+bool stormshadow;
+bool enemy_immortality;
+char tmpluastring[80];
+bool red_roff;
+bool ignorephysimmunity;
 bool term_saved;
 bool dying;
+s16b exblows;
+s16b exshots;
+bool dropshots;
+s16b dropnum;
+s16b throw_item;
+s16b throw_floorpack;
 char testop[80];
 
 /*
@@ -577,6 +596,7 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
 	{0x00, 247, 194, 236},	        /* ELITE PINK!! */
 	{0x00, 251, 0, 150},	        /* BOSS PINK!! */
+	{0x00, 75, 0, 130},             /* TERM_INDIGO */
 };
 
 
@@ -672,17 +692,6 @@ monster_type *m_list;
 
 
 /*
- * Maximum number of towns
- */
-u16b max_towns;
-
-/*
- * The towns [max_towns]
- */
-town_type *town;
-
-
-/*
  * The player's inventory [INVEN_TOTAL]
  */
 object_type *inventory;
@@ -752,17 +761,6 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_magic *mp_ptr;
-
-
-/*
- * More spell info
- */
-u32b spell_learned[MAX_REALM][2];   /* bit mask of spells learned */
-u32b spell_worked[MAX_REALM][2];    /* bit mask of spells tried and worked */
-u32b spell_forgotten[MAX_REALM][2]; /* bit mask of spells learned but forgotten */
-byte spell_order[64];               /* order spells learned/remembered/forgotten */
-byte realm_order[64];               /* order realms learned/remembered/forgotten */
 
 
 /*
@@ -1013,28 +1011,10 @@ bool easy_disarm = TRUE;
 
 bool easy_tunnel = FALSE;
 
-
-/*
- * Maximum size of the wilderness map
- */
-u16b max_wild_x;
-u16b max_wild_y;
-
-/*
- * Wilderness map
- */
-wilderness_map **wild_map;
-
 /*
  * Buildings
  */
 building_type building[MAX_BLDG];
-
-
-/*
- * Maximum number of quests
- */
-u16b max_quests;
 
 /*
  * Maximum number of monsters in r_info.txt
@@ -1092,21 +1072,6 @@ u16b max_t_idx;
 u16b max_wf_idx;
 
 /*
- * Quest info
- */
-quest_type *quest;
-
-/*
- * Quest text
- */
-char quest_text[10][80];
-
-/*
- * Current line of the quest text
- */
-int quest_text_line;
-
-/*
  * Flags for initialization
  */
 int init_flags;
@@ -1158,7 +1123,7 @@ byte vanilla_town;
  * 5 = Volcano
  * 6 = Hell
  */
-byte dungeon_type;
+s16b dungeon_type;
 
 
 /*
@@ -1174,9 +1139,6 @@ s16b *max_dlv;
  * Number of total bounties the player had had.
  */
 u32b total_bounties;
-
-/* The real realm array */
-magic_type realm_info[MAX_REALM][64];
 
 /* To allow wilderness encounters */
 bool generate_encounter;
@@ -1216,21 +1178,42 @@ bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
 /*
  * Our spells! :)
  */
-magic_spells magic_spell[30];
+magic_spells magic_spell[31];
 
 /*
  * Our Monster Magics! :)
  */
 monster_magics monster_magic[15];
 
+/* Music songs. */
+music_songs music_song[15];
+
 /* Wilderness! */
 wild_info wild[MAX_WILD_X][MAX_WILD_Y];
+
+/* Stores */
+store_type stores[MAX_STORES];
 
 /* Current weapon. Needed for dual wielding code! ;) */
 object_type *current_weapon;
 
+/* Object dropped when shooting/throwing. */
+object_type *drop_ranged;
+
+/* Activated object. */
+object_type *current_item;
+
 /* Doing a combatfeat */
 bool combatfeat;
+
+/* New option */
+bool center_player;
+
+/* Modifier for items quality. */
+int fate_item_modifier = 0;
+
+/* A global object to be used. */
+object_type global_object;
 
 /* Wilderness variables. */
 s16b wild_max_x;
@@ -1247,3 +1230,7 @@ s16b skillspage;
 class_def classes_def[MAX_CLASS];
 ability_def abilities_def[MAX_CLASS * 10];
 ability_def feats_def[SKILL_MAX * 10];
+resist_def resistances_def[MAX_RESIST];
+
+/* Vaults definition! */
+vault_def vaults_def[MAX_VAULTS];

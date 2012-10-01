@@ -1,0 +1,128 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// T:(script function's name. It will be run when entering the quest/town.);
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+
+// R:(script function's name):x:y
+
+
+N:Sewers;
+
+I:81:41:0:6:0:0:0
+S:2:38
+
+// Quest exit.
+R:sewers_exit_to_slums:2:39
+
+// Go to quest 102: Palace Jails
+E:53:23:4:102:47:4:0:0:0:0
+
+// Vapor Rats
+E:3:19:7:60:0:8:1003:0:0:0
+E:32:23:7:60:0:8:1003:0:0:0
+E:32:24:7:60:0:8:1003:0:0:0
+E:35:27:7:60:0:8:1003:0:0:0
+E:35:20:7:60:0:8:1003:0:0:0
+
+// Sewers Jelly
+E:9:13:7:1522:0:15:1003:0:0:0
+E:7:12:7:1522:0:15:1003:0:0:0
+E:6:10:7:1522:0:15:1003:0:0:0
+E:4:9:7:1522:0:15:1003:0:0:0
+E:2:6:7:1522:0:15:1003:0:0:0
+E:4:4:7:1522:0:15:1003:0:0:0
+
+E:18:29:7:1522:0:15:1003:0:0:0
+E:17:25:7:1522:0:15:1003:0:0:0
+E:22:23:7:1522:0:15:1003:0:0:0
+E:28:21:7:1522:0:15:1003:0:0:0
+E:28:26:7:1522:0:15:1003:0:0:0
+
+// Sewers Quylthulg
+E:70:23:7:1523:0:0:1003:0:0:0
+
+// Bert the Sewers Guy
+E:3:1:7:1524:0:0:0:0:0:0
+
+// Locked doors. They are unlocked when you beat the Quylthulg.
+E:44:23:3:1:999:0:1003:0:0:0
+E:44:24:3:1:999:0:1003:0:0:0
+
+D:#################################################################################
+D:##...############################################################################
+D:##...############################################################################
+D:###+#############################################################################
+D:##www############################################################################
+D:##www############################################################################
+D:##www############################################################################
+D:##www############################################################################
+D:##wwww###########################################################################
+D:###wwww##########################################################################
+D:####wwww#########################################################################
+D:#w###wwww########################################################################
+D:#ww###wwww#######################################################################
+D:#www###wwww######################################################################
+D:#www####wwww##################################wwwwwwwwwwwwwwwwwwwww##############
+D:#wwwwwwwwwww#################################wwwwwwwwwwwwwwwwwwwwwww#############
+D:#www####wwww################################wwwwwwwwwwwwwwwwwwwwwwwww############
+D:#ww####wwww################################wwwww#############wwwwwwwww###########
+D:#w##wwwwww################################wwwww###############wwwwwwwww##########
+D:###wwwwww#####################wwwwwwwwww#wwwww#################wwwwwwwww#########
+D:##www#########################wwwwwwwwww+wwww###################wwwwwwwww########
+D:##www#######################wwwwwwwwwwww#www######wwww###########wwwwwwwww#######
+D:##www######################wwwwww########www#####wwwwww##########wwwwwwwww#######
+D:##www###############wwwwwwwwwwwww########www+wwwwwwww<ww#########wwwwwwwww#######
+D:##www##############wwwwwwwwwwwwww########www+wwwwwwwwwww#########wwwwwwwww#######
+D:##www############wwww######wwwwww########www#####wwwwww##########wwwwwwwww#######
+D:##www############www########wwwwwwwwwwww#www######wwww###########wwwwwwwww#######
+D:##www############www##########wwwwwwwwww+wwww###################wwwwwwwww########
+D:##www############www##########wwwwwwwwww#wwwww#################wwwwwwwww#########
+D:##www#####...####www######################wwwww###############wwwwwwwww##########
+D:##wwwwwwwwwwwwwwwwww#######################wwwww#############wwwwwwwww###########
+D:##wwwwwwwwwwwwwwwwww########################wwwwwwwwwwwwwwwwwwwwwwwww############
+D:##wwwwwwwwwwwwwwwwww#########################wwwwwwwwwwwwwwwwwwwwwww#############
+D:#www##########################################wwwwwwwwwwwwwwwwwwwww##############
+D:#www#############################################################################
+D:#www#############################################################################
+D:#www#############################################################################
+D:#www#############################################################################
+D:#...#############################################################################
+D:#.<.#############################################################################
+D:#################################################################################

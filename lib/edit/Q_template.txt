@@ -1,7 +1,7 @@
 // This is a quest template.
 // Very similar to town template.
 // N:Name of town;
-// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// I:width:height:(0: dark 1: lite):(dungeon level, set to -1 to use current level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
 // S:start position x:start position y
 // F: Feature definition
 // T:(script function's name. It will be run when entering the quest/town.);
@@ -27,6 +27,9 @@
 // t: Snow-tree
 // G: Glacier
 // p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
+// =: Ice Door
 
 // E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
 	Type 1: Dialog	Detail: Which dialog.
@@ -39,6 +42,14 @@
 	Type 8: Change town.	Detail: Town's id.
 	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
 	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster. Extra: 0. Normal 1. Elite 2. Boss
+	Type 14: Random Monster of type. Detail: Monster's depth adjustement. Extra: 1. Undead 2. Demon 3. Dragon Extra2: 0. Normal 1. Elite 2. Boss
+	Type 15: Random Item of tval. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. Extra2: Item's tval
+	Type 16: Random Nightmare Horror. Detail: Misfortune adjustment. (by default, it's the current monster level.)
+
+// NOTE: Do not use events 29000 to 29999. They are reserved for various things.
 
 // R:(script function's name):x:y
 

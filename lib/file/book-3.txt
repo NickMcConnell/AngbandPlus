@@ -1,66 +1,70 @@
 POISONOUS POTIONS
 -----------------
 
-Written by an anonymous person...
+Written by an anonymous Kobold.
 
-I like alchemy for one thing: poisons. Toxic potions, mixing
-unhealthy mushrooms to taint fresh water... Who am I?
-None of your business...but if you're interested in my
-findings, read further!
+I like alchemy for one thing: poisons. Toxic potions, coating weapons
+with poison, using venom and mushrooms to poison water...
 
-POTION OF POISON
-Component type: Alchemy
-Skills required: Alchemy(1)
-How to create: Potion Of Water + Mushroom Of Poison
+For many years, I strived to create the strongest and most
+deadly poison ever. And I finally succeeded, although it was
+no simple task. Thanks goodness we Kobolds are naturally resistant
+to poison, because I ended up poisoning myself quite a few times! So
+I wrote this guide to help future fans of poisoning how to create
+the best and most deadly poison!
 
-This potion will cause pain and aches to anyone who drink
-it. Poor it into someone's glass of water or wine, and see
-the result! Or throw it in the face of your enemies, and
-have some fun!
+WEAK POISON
+Components type: Alchemy
+Skill required: 5
+How to create: Potion Of Water + Drops of Venom
 
-POTION OF BOOZE
-Component type: Alchemy
-Skills required: Alchemy(0)
-How to create: Potion Of Water + Mushroom Of Confusion
+Pretty much the most basic poison you could ever think of: water
+with drops of venom. It looks like edible water in appearence, yet
+will cause poisoning to anyone who drinks it. While anyone can drop
+venom in water, only a trained alchemist will know how to maximise
+the poison's potency through various chemical processes and some
+magic. Still, in the end, it still remains a weak, basic poison.
 
-The wonderful potion of booze if a funny thing indeed! I
-once used it on a serious scholar, and guess what? He
-started to dance, tell jokes and do tons of gross stuff
-in his confusion! Have fun with this one! Oh, and did
-I mention you can also throw it for some interesting
-effects?
+MILD POISON
+Components type: Alchemy
+Skill required: 15
+How to create: Potion of Weak Poison + Drops of Venom
 
+So how do you create a stronger poison? Well, you add more venom!
+Sounds simple, but if you limit yourself to that, you're going to be
+disappointed. That's why you need to be a trained alchemist in order
+to create a perfect chemistry combining water, venom and some magic.
+Mixing the three together is no simple task, let me tell you! But
+this Mild Poison is much more potent than the simple, weak poison
+mentionned above. Still, I wasn't satisfied yet. It still wasn't strong
+enough for me. But I found out that venom has it's limits. Adding
+more of it had little effect on the poison's potency, so I had to
+find something else.
 
-Heh heh, hope you have some fun...but maybe you need some ideas
-as to what to do with your poison? Heh heh, here's an idea,
-my favorite weapon!
+STRONG POISON
+Components type: Alchemy
+Skill required: 30
+How to create: Potion of Mild Poison + Green Dragon Amanita
 
-POISON DAGGER
-Component type: Crafting
-Skills required: Crafting(2), Alchemy(2)
-How to create: Dagger + Potion Of Poison
+So I came across this mushroom called the Green Dragon Amanita, a highly
+toxic mushroom. I alchemically mixed it with my Mild Potion,
+and boy was I surprised! It produced a chemical reaction that tripled
+the potency of my poison! Things keeps getting better! Now I bet even a
+dragon could be killed by such a potent poison. Hmmm...speaking of
+dragons, I always heard that green dragons are the most poisonous
+creatures in Portralis(soon, that honor will belong to me!). I wonder
+what would happen if I were to combine a green dragon scale with this
+new poison...
 
-Well, it's a dagger coated in poison. What's more lovable than
-that anyway? Easy to hide, and attack quickly with a venomous
-sting! Kinda make you snake-like, heh?
+DEADLY POISON
+Components type: Alchemy
+Skill required: 50
+How to create: Potion of Strong Poison + Lesser Green Dragon Scale
 
-
-Okay, so you accidentaly poisoned yourself, and now you want an
-antidote. Fear not! Just use the blessed water on the mushrooms!
-
-MUSHROOM OF CURE POISON
-Component type: Alchemy
-Skills required: Alchemy(5)
-How to create: Mushroom Of Poison + Drops Of Blessed Water
-
-An antidote mushroom. Of course, I don't have a use for it, as
-I never poison myself, but for neophyte...it could be useful.
-
-MUSHROOM OF CURE CONFUSION
-Component type: Alchemy
-Skills required: Alchemy(5)
-How to create: Mushroom Of Confusion + Drops Of Blessed Water
-
-(sigh)...I just found out that there is a way to stop the
-confusing fun of the mushroom of confusion and the potion
-of booze. Oh, boy do I hate that blessed water!!
+Yes! YES!!! It worked!!! Mixing that poison with the scale of a green
+dragon created the most potent poison I've ever seen! This poison is so
+deadly just breathing the vapors it emits makes me sick, and I'm a kobold!
+I should buy a ring of resist poison or something... Anyway, I've finally
+reached my goal of creating the best poison ever. Now, all I need to get
+is a pair of draggers, and coat them with this. And then try them out
+on some devlings. hehehe...

@@ -14,6 +14,29 @@
 
 void do_cmd_immovable_special(void);
 
+static bool item_tester_hook_brandable(object_type *o_ptr)
+{
+        if ((o_ptr->tval == TV_WEAPON) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_AMMO) || (o_ptr->tval == TV_GLOVES) || (o_ptr->tval == TV_THROWING)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+}
+
+static bool item_tester_hook_efusion(object_type *o_ptr)
+{
+        if ((o_ptr->tval == TV_WEAPON) || (o_ptr->tval == TV_RANGED) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_AMMO) || (o_ptr->tval == TV_GLOVES) || (o_ptr->tval == TV_THROWING)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+}
+
+static bool item_tester_hook_brandable_potions(object_type *o_ptr)
+{
+        if ((o_ptr->tval == TV_WEAPON) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_AMMO) || (o_ptr->tval == TV_GLOVES) || (o_ptr->tval == TV_POTION) || (o_ptr->tval == TV_THROWING) || (o_ptr->tval == TV_CRYSTAL)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+}
 
 /*
  * Go up one level
@@ -42,43 +65,8 @@ void do_cmd_go_up(void)
                 if (i != 'y') return;
         }
   
-        /* Quest up stairs */
-        if (c_ptr->feat == FEAT_QUEST_UP)
-        {
-                /* Success */
-                msg_print("You enter the up staircase.");
-  
-                leaving_quest = p_ptr->inside_quest;
-                p_ptr->inside_quest = c_ptr->special;
-  
-                /* Leaving an 'only once' quest marks it as failed */
-                if (leaving_quest &&
-                        (quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-                        (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-                {
-                        quest[leaving_quest].status = QUEST_STATUS_FAILED;
-                }
-  
-                /* Activate the quest */
-                if (!quest[p_ptr->inside_quest].status)
-                {
-                        quest[p_ptr->inside_quest].status = QUEST_STATUS_TAKEN;
-                }
-  
-                /* Leaving a quest */
-                if (!p_ptr->inside_quest)
-                {
-                        dun_level = 0;
-                }
-  
-                /* Leaving */
-                p_ptr->leaving = TRUE;
-  
-                p_ptr->oldpx = 0;
-                p_ptr->oldpy = 0;
-        }
         /* Normal up stairs */
-        else if (c_ptr->feat == FEAT_LESS)
+        if (c_ptr->feat == FEAT_LESS)
         {
                 if (!dun_level)
                 {
@@ -284,21 +272,6 @@ void do_cmd_go_down(void)
                 leaving_quest = p_ptr->inside_quest;
                 p_ptr->inside_quest = c_ptr->special;
   
-                /* Leaving an 'only once' quest marks it as failed */
-                if (leaving_quest &&
-                        (quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-                        (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-                {
-                        quest[leaving_quest].status = QUEST_STATUS_FAILED;
-                }
-  
-  
-                /* Activate the quest */
-                if (!quest[p_ptr->inside_quest].status)
-                {
-                        quest[p_ptr->inside_quest].status = 1;
-                }
-  
                 /* Leaving a quest */
                 if (!p_ptr->inside_quest)
                 {
@@ -314,6 +287,15 @@ void do_cmd_go_down(void)
         /* Normal up stairs */
         else if (c_ptr->feat == FEAT_SHAFT_DOWN)
         {
+		if (dungeon_type == 200 && dun_level >= d_info[dungeon_type].maxdepth)
+		{
+			char k;
+			msg_print("You are about to enter the last level. Proceed? [y/n]");
+			k = inkey();
+			if (k != 'y' && k != 'y') return;
+			else msg_print(NULL);
+		}
+
                 if (!dun_level)
                 {
                         go_down = TRUE;
@@ -338,6 +320,15 @@ void do_cmd_go_down(void)
         /* Normal stairs */
         else if (c_ptr->feat == FEAT_MORE)
         {
+		if (dungeon_type == 200 && dun_level >= d_info[dungeon_type].maxdepth)
+		{
+			char k;
+			msg_print("You are about to enter the last level. Proceed? [y/n]");
+			k = inkey();
+			if (k != 'y' && k != 'y') return;
+			else msg_print(NULL);
+		}
+
                 if (!dun_level)
                 {
                         go_down = TRUE;
@@ -440,6 +431,9 @@ void do_cmd_go_down(void)
 					if (c_ptr->eventextra2 != 0) p_ptr->starty = c_ptr->eventextra2;
 					/* Set events */
 					p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
+
+					/* Trigger an event */
+					call_lua("player_enter_dungeon", "(d)", "", dungeon_type);
 				}
 				else
 				{
@@ -463,6 +457,9 @@ void do_cmd_go_down(void)
 				if (c_ptr->eventextra2 != 0) p_ptr->starty = c_ptr->eventextra2;
 				/* Set events */
 				p_ptr->events[c_ptr->eventset] = c_ptr->eventsetval;
+
+				/* Trigger an event */
+				call_lua("player_enter_dungeon", "(d)", "", dungeon_type);
 			}
 		}
   
@@ -985,8 +982,86 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 		}
 	}
 
+	/* Jammed ice door */
+	if (c_ptr->feat >= FEAT_ICE_DOOR_HEAD + 0x08)
+	{
+		/* Stuck */
+		msg_print("The door appears to be stuck.");
+	}
+
+	/* Locked ice door */
+	else if (c_ptr->feat >= FEAT_ICE_DOOR_HEAD + 0x01)
+	{
+		/* Disarm factor */
+                i = p_ptr->stat_ind[A_DEX];
+
+		/* Penalize some conditions */
+		if (p_ptr->blind || no_lite()) i = i / 10;
+		if (p_ptr->confused || p_ptr->image) i = i / 10;
+
+		/* Extract the lock power */
+		j = c_ptr->feat - FEAT_ICE_DOOR_HEAD;
+
+		/* Extract the difficulty XXX XXX XXX */
+		j = i - (j * 4);
+
+		/* Always have a small chance of success */
+		if (j < 2) j = 2;
+
+		/* Success */
+		if (rand_int(100) < j)
+		{
+			/* Message */
+			msg_print("You have picked the lock.");
+		
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+			/* Open the door */
+			cave_set_feat(y, x, FEAT_ICE_OPEN);
+
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+
+			/* Sound */
+			sound(SOUND_OPENDOOR);
+
+			/* Experience */
+			gain_exp(1);
+		}
+
+		/* Failure */
+		else
+		{
+			/* Failure */
+			if (flush_failure) flush();
+
+			/* Message */
+			msg_print("You failed to pick the lock.");
+
+			/* We may keep trying */
+			more = TRUE;
+		}
+	}
+
+	/* Closed ice door */
+	else if (c_ptr->feat == FEAT_ICE_DOOR_HEAD)
+	{
+		/* Set off trap */
+		if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+		/* Open the door */
+		cave_set_feat(y, x, FEAT_ICE_OPEN);
+
+		/* Update some things */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		
+		/* Sound */
+		sound(SOUND_OPENDOOR);
+	}
+
 	/* Jammed door */
-	if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
+	else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
 	{
 		/* Stuck */
 		msg_print("The door appears to be stuck.");
@@ -1094,6 +1169,7 @@ void do_cmd_open(void)
 	
 	    /* Count closed doors (locked or jammed) */
 	    num_doors = count_dt(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL);
+	    num_doors += count_dt(&y, &x, FEAT_ICE_DOOR_HEAD, FEAT_ICE_DOOR_TAIL);
 	    
 	    /* Count chests (locked) */
 	    num_chests = count_chests(&y, &x, FALSE);
@@ -1123,7 +1199,7 @@ void do_cmd_open(void)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Get requested location */
 		y = py + ddy[dir];
@@ -1137,7 +1213,8 @@ void do_cmd_open(void)
 
 		/* Nothing useful */
 		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		      (c_ptr->feat <= FEAT_DOOR_TAIL)) &&
+		      (c_ptr->feat <= FEAT_DOOR_TAIL)) && !((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) &&
+		      (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) &&
 		    !o_idx)
 		{
 			/* Message */
@@ -1195,13 +1272,6 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 	bool		more = FALSE;
 
         monster_race *r_ptr = &r_info[p_ptr->body_monster];
-   
-        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_OPEN_DOOR))
-        {
-                msg_print("You cannot close doors.");
-         
-                return(FALSE);
-        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1213,11 +1283,24 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 	if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
 
 	/* Broken door */
-	if (c_ptr->feat == FEAT_BROKEN)
+	if (c_ptr->feat == FEAT_BROKEN || c_ptr->feat == FEAT_ICE_BROKEN)
 	{
 
 		/* Message */
 		msg_print("The door appears to be broken.");
+	}
+
+	/* Open ice door */
+	else if (c_ptr->feat == FEAT_ICE_OPEN)
+	{
+		/* Close the door */
+		cave_set_feat(y, x, FEAT_ICE_DOOR_HEAD + 0x00);
+
+		/* Update some things */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+
+		/* Sound */
+		sound(SOUND_SHUTDOOR);
 	}
 
 	/* Open door */
@@ -1255,7 +1338,7 @@ void do_cmd_close(void)
 	if (easy_open)
 	{
 		/* Count open doors */
-		if (count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
+		if ((count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1) || (count_dt(&y, &x, FEAT_ICE_OPEN, FEAT_ICE_OPEN) == 1))
 		{
 			command_dir = coords_to_dir(y, x);
 		}
@@ -1277,7 +1360,7 @@ void do_cmd_close(void)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Get requested location */
 		y = py + ddy[dir];
@@ -1287,7 +1370,7 @@ void do_cmd_close(void)
 		c_ptr = &cave[y][x];
 
 		/* Require open/broken door */
-		if ((c_ptr->feat != FEAT_OPEN) && (c_ptr->feat != FEAT_BROKEN))
+		if ((c_ptr->feat != FEAT_OPEN) && (c_ptr->feat != FEAT_BROKEN) && (c_ptr->feat != FEAT_ICE_OPEN) && (c_ptr->feat != FEAT_ICE_BROKEN))
 		{
 			/* Message */
 			msg_print("You see nothing there to close.");
@@ -1397,15 +1480,6 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	cave_type *c_ptr;
 
 	bool more = FALSE;
-       /* This rule was stupid, so it has been removed. */
-        /* Must be have something to dig with */
-        /*if(!inventory[INVEN_TOOL].k_idx || (inventory[INVEN_TOOL].tval != TV_DIGGING))
-       * {
-       *         msg_print("You have to use a shovel or a pick in your tool slot.");
-       *
-       *         return FALSE;
-       * }
-       */
 
 	/* Verify legality */
 	if (!do_cmd_tunnel_test(y, x)) return (FALSE);
@@ -1426,17 +1500,42 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	}
 
 	/* No tunnelling through mountains */
-	else if (c_ptr->feat == FEAT_MOUNTAIN)
+	else if (c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER)
 	{
 		msg_print("You can't tunnel through that!");
 	}
 
-	else if (c_ptr->feat == FEAT_TREES) /* -KMW- */
+	else if (c_ptr->feat == FEAT_TREES)
 	{
 		/* Chop Down */
                 if ((randint(digging_ability()) > rand_int(200)) && twall(y, x, FEAT_GRASS))
 		{
 			msg_print("You have cleared away the trees.");
+
+			/* Call lua. */
+			call_lua("mining_treasures", "(ddd)", "", x, y, c_ptr->feat);
+		}
+
+		/* Keep trying */
+		else
+		{
+			/* We may continue chopping */
+			msg_print("You chop away at the tree.");
+			more = TRUE;
+
+			/* Occasional Search XXX XXX */
+			if (rand_int(100) < 25) search();
+		}
+	}
+	else if (c_ptr->feat == FEAT_SNOW_TREES)
+	{
+		/* Chop Down */
+                if ((randint(digging_ability()) > rand_int(200)) && twall(y, x, FEAT_SNOW))
+		{
+			msg_print("You have cleared away the trees.");
+
+			/* Call lua. */
+			call_lua("mining_treasures", "(ddd)", "", x, y, c_ptr->feat);
 		}
 
 		/* Keep trying */
@@ -1460,6 +1559,9 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
                 if ((randint(digging_ability()) > rand_int(4000)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
+
+			/* Call lua. */
+			call_lua("mining_treasures", "(ddd)", "", x, y, c_ptr->feat);
 		}
 
 		/* Keep trying */
@@ -1470,6 +1572,11 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 			more = TRUE;
 		}
 	}
+	/* Ice Wall */
+	else if (c_ptr->feat == FEAT_ICE_WALL)
+	{
+		msg_print("Ice walls are too hard to tunnel.");
+	}
 
 
 	/* Quartz / Magma */
@@ -1477,11 +1584,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	    (c_ptr->feat <= FEAT_QUARTZ_K))
 	{
 		bool okay = FALSE;
-		bool gold = FALSE;
 		bool hard = FALSE;
-
-		/* Found gold */
-		if (c_ptr->feat >= FEAT_MAGMA_H) gold = TRUE;
 
 		/* Extract "quartz" flag XXX XXX XXX */
 		if ((c_ptr->feat - FEAT_MAGMA) & 0x01) hard = TRUE;
@@ -1501,22 +1604,11 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		/* Success */
 		if (okay && twall(y, x, FEAT_FLOOR))
 		{
-			/* Found treasure */
-			if (gold)
-			{
-				/* Place some gold */
-				place_gold(y, x);
+			/* Message */
+			msg_print("You have finished the tunnel.");
 
-				/* Message */
-				msg_print("You have found something!");
-			}
-
-			/* Found nothing */
-			else
-			{
-				/* Message */
-				msg_print("You have finished the tunnel.");
-			}
+			/* Call lua. */
+			call_lua("mining_treasures", "(ddd)", "", x, y, c_ptr->feat);
 		}
 
 		/* Failure (quartz) */
@@ -1545,18 +1637,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 			/* Message */
 			msg_print("You have removed the rubble.");
 
-			/* Hack -- place an object */
-			if (rand_int(100) < 10)
-			{
-				/* Create a simple object */
-				place_object(y, x, FALSE, FALSE);
-
-				/* Observe new object */
-				if (player_can_see_bold(y, x))
-				{
-					msg_print("You have found something!");
-				}
-			}
+			/* Call lua. */
+			call_lua("mining_treasures", "(ddd)", "", x, y, c_ptr->feat);
 		}
 
 		else
@@ -1653,7 +1735,7 @@ void do_cmd_tunnel(void)
 	}
 
 	/* Get a direction to tunnel, or Abort */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -1664,6 +1746,7 @@ void do_cmd_tunnel(void)
 
 		/* No tunnelling through doors */
 		if (((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+		    ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)) ||
 		    ((c_ptr->feat >= FEAT_BLDG_HEAD) && (c_ptr->feat <= FEAT_BLDG_TAIL)) ||
 		    ((c_ptr->feat >= FEAT_SHOP_HEAD) && (c_ptr->feat <= FEAT_SHOP_TAIL)))
 		{
@@ -1680,7 +1763,7 @@ void do_cmd_tunnel(void)
 		}
 
 		/* No tunnelling through mountains */
-		else if (c_ptr->feat == FEAT_MOUNTAIN)
+		else if (c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER)
 		{
 			msg_print("You can't tunnel through that!");
 		}
@@ -1733,7 +1816,8 @@ bool easy_open_door(int y, int x)
    
 	/* Must be a closed door */
 	if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-	      (c_ptr->feat <= FEAT_DOOR_TAIL)))
+	      (c_ptr->feat <= FEAT_DOOR_TAIL)) && !((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) &&
+	      (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)))
 	{
 		/* Nope */
 		return (FALSE);
@@ -1802,8 +1886,83 @@ bool easy_open_door(int y, int x)
 		}
 	}
 
+	/* Jammed ice door */
+	if (c_ptr->feat >= FEAT_ICE_DOOR_HEAD + 0x08)
+	{
+		/* Stuck */
+		msg_print("The door appears to be stuck.");
+	}
+
+	/* Locked ice door */
+	else if (c_ptr->feat >= FEAT_ICE_DOOR_HEAD + 0x01)
+	{
+		/* Disarm factor */
+                i = p_ptr->stat_ind[A_DEX];
+
+		/* Penalize some conditions */
+		if (p_ptr->blind || no_lite()) i = i / 10;
+		if (p_ptr->confused || p_ptr->image) i = i / 10;
+
+		/* Extract the lock power */
+		j = c_ptr->feat - FEAT_ICE_DOOR_HEAD;
+
+		/* Extract the difficulty XXX XXX XXX */
+		j = i - (j * 4);
+
+		/* Always have a small chance of success */
+		if (j < 2) j = 2;
+
+		/* Success */
+		if (rand_int(100) < j)
+		{
+			/* Message */
+			msg_print("You have picked the lock.");
+		
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+			/* Open the door */
+			cave_set_feat(y, x, FEAT_ICE_OPEN);
+
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+
+			/* Sound */
+			sound(SOUND_OPENDOOR);
+
+			/* Experience */
+			gain_exp(1);
+		}
+
+		/* Failure */
+		else
+		{
+			/* Failure */
+			if (flush_failure) flush();
+
+			/* Message */
+			msg_print("You failed to pick the lock.");
+		}
+	}
+
+	/* Closed ice door */
+	else if (c_ptr->feat == FEAT_ICE_DOOR_HEAD)
+	{
+		/* Set off trap */
+		if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+		/* Open the door */
+		cave_set_feat(y, x, FEAT_ICE_OPEN);
+
+		/* Update some things */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		
+		/* Sound */
+		sound(SOUND_OPENDOOR);
+	}
+
 	/* Jammed door */
-	if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
+	else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
 	{
 		/* Stuck */
 		msg_print("The door appears to be stuck.");
@@ -1833,7 +1992,7 @@ bool easy_open_door(int y, int x)
 		{
 			/* Message */
 			msg_print("You have picked the lock.");
-
+		
 			/* Set off trap */
 			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
 
@@ -1872,7 +2031,7 @@ bool easy_open_door(int y, int x)
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
-
+		
 		/* Sound */
 		sound(SOUND_OPENDOOR);
 	}
@@ -2144,7 +2303,7 @@ void do_cmd_disarm(void)
 	}
 
 	/* Get a direction (or abort) */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -2294,71 +2453,120 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 	/* Hack -- Bash power based on strength */
 	/* (Ranges from 3 to 20 to 100 to 200) */
-	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
+	if (p_ptr->stat_ind[A_STR] <= 5) bash = 3;
+	else bash = (p_ptr->stat_ind[A_STR] - 5) * 5;
 
-	/* Extract door power */
-	temp = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
-
-	/* Compare bash power to door power XXX XXX XXX */
-	temp = (bash - (temp * 10));
-
-	/* Hack -- always have a chance */
-	if (temp < 1) temp = 1;
-
-	/* Hack -- attempt to bash down the door */
-	if (rand_int(100) < temp)
+	/* Check if it's really a door and not an ice door */
+	if (c_ptr->feat >= FEAT_DOOR_HEAD && c_ptr->feat <= FEAT_DOOR_TAIL)
 	{
-		/* Message */
-		msg_print("The door crashes open!");
+		/* Extract door power */
+		temp = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
 
-		/* Break down the door */
-		if (rand_int(100) < 50)
+		/* Compare bash power to door power XXX XXX XXX */
+		temp = (bash - (temp * 10));
+
+		/* Hack -- always have a chance */
+		if (temp < 1) temp = 1;
+
+		/* Hack -- attempt to bash down the door */
+		if (rand_int(100) < temp)
 		{
-			/* Set off trap */
-			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+			/* Message */
+			msg_print("The door crashes open!");
 
-			cave_set_feat(y, x, FEAT_BROKEN);
+			/* Break down the door */
+			if (rand_int(100) < 50)
+			{
+				/* Set off trap */
+				if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+				cave_set_feat(y, x, FEAT_BROKEN);
+			}
+
+			/* Open the door */
+			else
+			{
+				/* Set off trap */
+				if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+				cave_set_feat(y, x, FEAT_OPEN);
+			}
+
+			/* Sound */
+			sound(SOUND_OPENDOOR);
+
+			/* Hack -- Fall through the door */
+			move_player(dir, FALSE);
+
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE);
+			p_ptr->update |= (PU_DISTANCE);
 		}
 
-		/* Open the door */
 		else
 		{
-			/* Set off trap */
-			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+			/* Message */
+			msg_print("The door holds firm.");
 
-			cave_set_feat(y, x, FEAT_OPEN);
+			/* Allow repeated bashing */
+			more = TRUE;
 		}
-
-		/* Sound */
-		sound(SOUND_OPENDOOR);
-
-		/* Hack -- Fall through the door */
-		move_player(dir, FALSE);
-
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE);
-		p_ptr->update |= (PU_DISTANCE);
 	}
-
-	/* Saving throw against stun */
-	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
-	{
-		/* Message */
-		msg_print("The door holds firm.");
-
-		/* Allow repeated bashing */
-		more = TRUE;
-	}
-
-	/* High dexterity yields coolness */
 	else
 	{
-		/* Message */
-		msg_print("You are off-balance.");
+		/* Extract door power */
+		temp = ((c_ptr->feat - FEAT_ICE_DOOR_HEAD) & 0x07);
 
-		/* Hack -- Lose balance ala paralysis */
-		(void)set_paralyzed(p_ptr->paralyzed + 2 + rand_int(2));
+		/* Compare bash power to door power XXX XXX XXX */
+		temp = (bash - (temp * 10));
+
+		/* Hack -- always have a chance */
+		if (temp < 1) temp = 1;
+
+		/* Hack -- attempt to bash down the door */
+		if (rand_int(100) < temp)
+		{
+			/* Message */
+			msg_print("The door crashes open!");
+
+			/* Break down the door */
+			if (rand_int(100) < 50)
+			{
+				/* Set off trap */
+				if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+				cave_set_feat(y, x, FEAT_ICE_BROKEN);
+			}
+
+			/* Open the door */
+			else
+			{
+				/* Set off trap */
+				if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
+				cave_set_feat(y, x, FEAT_ICE_OPEN);
+			}
+
+			/* Sound */
+			sound(SOUND_OPENDOOR);
+
+			/* Hack -- Fall through the door */
+			move_player(dir, FALSE);
+
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE);
+			p_ptr->update |= (PU_DISTANCE);
+		}
+
+		/* Saving throw against stun */
+		else
+		{
+			/* Message */
+			msg_print("The door holds firm.");
+
+			/* Allow repeated bashing */
+			more = TRUE;
+		}
 	}
 
 	/* Result */
@@ -2411,7 +2619,7 @@ void do_cmd_bash(void)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Bash location */
 		y = py + ddy[dir];
@@ -2424,7 +2632,8 @@ void do_cmd_bash(void)
                 if  ((c_ptr->feat < FEAT_DOOR_HEAD ||
                       c_ptr->feat > FEAT_DOOR_TAIL) &&
                       (c_ptr->feat < FEAT_ALTAR_HEAD ||
-                       c_ptr->feat > FEAT_ALTAR_TAIL))
+                       c_ptr->feat > FEAT_ALTAR_TAIL) && (c_ptr->feat < FEAT_ICE_DOOR_HEAD ||
+                      c_ptr->feat > FEAT_ICE_DOOR_TAIL))
 		{
 			/* Message */
 			msg_print("You see nothing there to bash.");
@@ -2491,7 +2700,7 @@ void do_cmd_alter(void)
 	}
 
 	/* Get a direction */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -2515,23 +2724,23 @@ void do_cmd_alter(void)
 		else if (((c_ptr->feat >= FEAT_SECRET) &&
 		    (c_ptr->feat < FEAT_MINOR_GLYPH)) ||
 			((c_ptr->feat == FEAT_TREES) ||
-			(c_ptr->feat == FEAT_MOUNTAIN)))
+			(c_ptr->feat == FEAT_MOUNTAIN) || (c_ptr->feat == FEAT_SNOW_TREES) || (c_ptr->feat == FEAT_ICE_WALL) || (c_ptr->feat == FEAT_PERM_ICE_WALL) || (c_ptr->feat == FEAT_GLACIER)))
 		{
 			/* Tunnel */
 			more = do_cmd_tunnel_aux(y, x, dir);
 		}
 
 		/* Bash jammed doors */
-		else if ((c_ptr->feat >= FEAT_DOOR_HEAD + 0x08) &&
-		    (c_ptr->feat < FEAT_MINOR_GLYPH))
+		else if (((c_ptr->feat >= FEAT_DOOR_HEAD + 0x08) &&
+		    (c_ptr->feat < FEAT_MINOR_GLYPH)) || ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD + 0x08) && (c_ptr->feat < 120)))
 		{
 			/* Tunnel */
 			more = do_cmd_bash_aux(y, x, dir);
 		}
 
 		/* Open closed doors */
-		else if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		    (c_ptr->feat < FEAT_MINOR_GLYPH))
+		else if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+		    (c_ptr->feat < FEAT_MINOR_GLYPH)) || ((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) && (c_ptr->feat < 120)))
 		{
 			/* Tunnel */
 			more = do_cmd_open_aux(y, x, dir);
@@ -2615,7 +2824,8 @@ void do_cmd_spike(void)
 
 		/* Require closed door */
 		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		      (c_ptr->feat <= FEAT_DOOR_TAIL)))
+		      (c_ptr->feat <= FEAT_DOOR_TAIL)) && !((c_ptr->feat >= FEAT_ICE_DOOR_HEAD) &&
+		      (c_ptr->feat <= FEAT_ICE_DOOR_TAIL)))
 		{
 			/* Message */
 			msg_print("You see nothing there to spike.");
@@ -2651,11 +2861,22 @@ void do_cmd_spike(void)
 			/* Successful jamming */
 			msg_print("You jam the door with a spike.");
 
-			/* Convert "locked" to "stuck" XXX XXX XXX */
-			if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08) c_ptr->feat += 0x08;
+			if (c_ptr->feat >= FEAT_ICE_DOOR_HEAD && c_ptr->feat <= FEAT_ICE_DOOR_TAIL)
+			{
+				/* Convert "locked" to "stuck" XXX XXX XXX */
+				if (c_ptr->feat < FEAT_ICE_DOOR_HEAD + 0x08) c_ptr->feat += 0x08;
 
-			/* Add one spike to the door */
-			if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
+				/* Add one spike to the door */
+				if (c_ptr->feat < FEAT_ICE_DOOR_TAIL) c_ptr->feat++;
+			}
+			else
+			{
+				/* Convert "locked" to "stuck" XXX XXX XXX */
+				if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08) c_ptr->feat += 0x08;
+
+				/* Add one spike to the door */
+				if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
+			}
 
 			/* Use up, and describe, a single spike, from the bottom */
 			inven_item_increase(item, -1);
@@ -2663,20 +2884,6 @@ void do_cmd_spike(void)
 			inven_item_optimize(item);
 		}
 	}
-}
-
-/* Know about your Dark Aura(Dark Lords) */
-void do_cmd_dark_aura_info(void)
-{
-     if (p_ptr->pclass == CLASS_DARK_LORD)
-     {
-     msg_format("Your aura can inflict maximal damages of %d on a radius of %d", 5 * p_ptr->lev * 2, p_ptr->lev /8 + 3);
-     }
-     else if (p_ptr->pclass == CLASS_VALKYRIE)
-     {
-     msg_format("Your aura can inflict maximal damages of %d on a radius of %d", 5 * p_ptr->lev, 2);
-     }
-     else msg_print("This command is reserved to Dark Lords and Valkyries!");
 }
 
 void do_cmd_walk_jump(int pickup)
@@ -2700,7 +2907,7 @@ void do_cmd_walk_jump(int pickup)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir))
+	if (get_rep_dir_repeat(&dir))
 	{
 		/* Take a turn */
 		energy_use = 100;
@@ -2708,12 +2915,11 @@ void do_cmd_walk_jump(int pickup)
 		/* Actually move the character */
                 move_player(dir, pickup);
 
-                /* Ranger's Wilderness Lore! */
-                if (p_ptr->abilities[(CLASS_RANGER * 10)] >= 1) wilderness_lore();
-
 		/* Allow more walking */
 		more = TRUE;
 	}
+
+	if (p_ptr->leaving) energy_use = 0;
 
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0, 0);
@@ -2784,6 +2990,8 @@ void do_cmd_stay(int pickup)
 		command_arg = 0;
 	}
 
+	/* Call a lua event. */
+	call_lua("player_skip_turn", "", "");
 
 	/* Take a turn */
 	energy_use = 100;
@@ -2826,34 +3034,6 @@ void do_cmd_stay(int pickup)
 
 		/* Hack -- enter building */
 		command_new = ']';
-	}
-
-	/* Exit a quest if reach the quest exit */
-	else if (c_ptr->feat == FEAT_QUEST_EXIT)
-	{
-		int q_index = p_ptr->inside_quest;
-
-		/* Was quest completed? */
-		if (quest[q_index].type == 4)
-		{
-			quest[q_index].status = 2;
-			msg_print("You accomplished your quest!");
-			msg_print(NULL);
-		}
-		
-		leaving_quest = p_ptr->inside_quest;
-
-		/* Leaving an 'only once' quest marks it as failed */
-		if (leaving_quest &&
-			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-		{
-			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-		}
-
-		p_ptr->inside_quest = cave[py][px].special;
-		dun_level = 0;
-		p_ptr->leaving = TRUE;
 	}
 }
 
@@ -2935,7 +3115,7 @@ void do_cmd_rest(void)
  */
 static int breakage_chance(object_type *o_ptr)
 {
-        int reducer = 1 + ((p_ptr->pclass == CLASS_ARCHER)?(p_ptr->lev / 10):0);
+        int reducer = 1 + ((p_ptr->pclass == CLASS_MARKSMAN)?(p_ptr->lev / 10):0);
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -2943,9 +3123,7 @@ static int breakage_chance(object_type *o_ptr)
 		/* Always break */
 		case TV_FLASK:
 		case TV_POTION:
-                case TV_POTION2:
 		case TV_BOTTLE:
-		case TV_FOOD:
 		{
 			return (100);
 		}
@@ -2958,11 +3136,6 @@ static int breakage_chance(object_type *o_ptr)
 			return (50);
 		}
 
-		case TV_ARROW:
-		{
-                        return (50 / reducer);
-		}
-
 		/* Sometimes break */
 		case TV_WAND:
 		case TV_SPIKE:
@@ -2970,8 +3143,7 @@ static int breakage_chance(object_type *o_ptr)
 			return (25);
 		}
 
-		case TV_SHOT:
-		case TV_BOLT:
+		case TV_AMMO:
 		{
                         return (25 / reducer);
 		}
@@ -2982,1495 +3154,10 @@ static int breakage_chance(object_type *o_ptr)
 }
 
 
-/*
- * Fire an object from the pack or floor.
- *
- * You may only fire items that "match" your missile launcher.
- *
- * You must use slings + pebbles/shots, bows + arrows, xbows + bolts.
- *
- * See "calc_bonuses()" for more calculations and such.
- *
- * Note that "firing" a missile is MUCH better than "throwing" it.
- *
- * Note: "unseen" monsters are very hard to hit.
- *
- * Objects are more likely to break if they "attempt" to hit a monster.
- *
- * Rangers (with Bows) and Anyone (with "Extra Shots") get extra shots.
- *
- * The "extra shot" code works by decreasing the amount of energy
- * required to make each shot, spreading the shots out over time.
- *
- * Note that when firing missiles, the launcher multiplier is applied
- * after all the bonuses are added in, making multipliers very useful.
- *
- * Note that Bows of "Extra Might" get extra range and an extra bonus
- * for the damage multiplier.
- *
- * Note that Bows of "Extra Shots" give an extra shot.
- */
-void do_cmd_fire(int calledshot, bool multishot)
+/* No more code here, it serves only to call the lua code. */
+void do_cmd_fire()
 {
-	int dir, item;
-        int j, y, x, ny, nx, ty, tx, by, bx;
-        int tdis, thits, tmul;
-        s32b tdam;
-	int cur_dis, visible;
-        int breakage = -1, num_ricochet = 0;
-        int hitbonus = 0;
-        int hitpenality = 0;
-        int ammoqty = 1;
-	bool shoot_bow = FALSE;
-	bool shoot_crossbow = FALSE;
-	bool shoot_sling = FALSE;
-
-	object_type forge;
-	object_type *q_ptr;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	bool hit_body = FALSE;
-	bool blocked = FALSE;
-
-	byte missile_attr;
-	char missile_char;
-
-	char o_name[80];
-
-        cptr q, s;
-
-	int msec = delay_factor * delay_factor * delay_factor;
-
-	/* Get the "bow" (if any) */
-	j_ptr = &inventory[INVEN_BOW];
-
-	/* Require a launcher */
-	if (!j_ptr->tval)
-	{
-		if (p_ptr->body_monster > 0)
-		{
-			use_monster_ranged_attack(p_ptr->body_monster);
-			return;
-		}
-		else
-		{
-			msg_print("You have nothing to fire with.");
-			return;
-		}
-	}
-
-#if 0   /* Old code without the quiver slot */
-	/* Require proper missile */
-	item_tester_tval = p_ptr->tval_ammo;
-
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-#else   /* New code with the quiver slot */
-
-        /* Get the "ammo" (if any) */
-        o_ptr = &inventory[INVEN_AMMO];
-
-        item = INVEN_AMMO;
-
-        /* If nothing correct try to choose from the backpack */
-        if ((p_ptr->tval_ammo != o_ptr->tval) || (!o_ptr->k_idx))
-	{
-		msg_print("You have nothing to fire with.");
-
-                /* Require proper missile */
-                item_tester_tval = p_ptr->tval_ammo;
-
-                /* Get an item */
-                q = "Fire which item? ";
-                s = "You have nothing to fire.";
-                if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-
-                /* Access the item (if in the pack) */
-                if (item >= 0)
-                {
-                        o_ptr = &inventory[item];
-                }
-                else
-                {
-                        o_ptr = &o_list[0 - item];
-                }
-	}
-#endif
-
-	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Single object */
-        if (p_ptr->abilities[(CLASS_ARCHER * 10) + 6] >= 1 && o_ptr->tval == TV_ARROW && multishot)
-        {
-                char tmpstring[80];
-                int maxarrows = (p_ptr->abilities[(CLASS_ARCHER * 10) + 6] / 5) + 2;
-                if (maxarrows > o_ptr->number) maxarrows = o_ptr->number;
-                sprintf(tmpstring, "Shoot how many arrows?(Max: %d) ", maxarrows);
-                ammoqty = get_quantity(tmpstring, maxarrows);
-                if (ammoqty <= 0) ammoqty = 1;
-        }
-        q_ptr->number = ammoqty;
-        
-	/* Reduce and describe inventory */
-        if (item >= 0 && !(q_ptr->art_flags4 & (TR4_RETURNING)) && (p_ptr->skill[2] < 70 || ammoqty > 1))
-	{
-                inven_item_increase(item, -ammoqty);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-                floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
-
-	/* Sound */
-	sound(SOUND_SHOOT);
-
-
-	/* Describe the object */
-	object_desc(o_name, q_ptr, FALSE, 3);
-
-	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(q_ptr);
-	missile_char = object_char(q_ptr);
-
-
-	/* Use the proper number of shots */
-	thits = p_ptr->num_fire;
-
-	/* Use a base distance */
-	tdis = 10;
-
-	/* Base damage from thrown object plus launcher bonus */
-	tdam = damroll(q_ptr->dd, q_ptr->ds);
-
-	/* Assume a base multiplier */
-	tmul = 1;
-
-	shoot_bow = FALSE;
-	/* Analyze the launcher */
-	switch (j_ptr->sval)
-	{
-		/* Sling and ammo */
-		case SV_SLING:
-		{
-			tmul = 2;
-			shoot_sling = TRUE;
-			break;
-		}
-
-		/* Short Bow and Arrow */
-		case SV_SHORT_BOW:
-		{
-			tmul = 2;
-			shoot_bow = TRUE;
-			break;
-		}
-
-		/* Long Bow and Arrow */
-		case SV_LONG_BOW:
-		{
-			tmul = 3;
-			shoot_bow = TRUE;
-			break;
-		}
-                /* Elven Bow and Arrow */
-                case SV_ELVEN_BOW:
-		{
-                        tmul = 4;
-			shoot_bow = TRUE;
-			break;
-		}
-                /* High Elf Bow and Arrow */
-                case SV_HIELF_BOW:
-		{
-                        tmul = 5;
-			shoot_bow = TRUE;
-			break;
-		}
-                /* Hunter's Bow and Arrow */
-                case 16:
-		{
-                        tmul = 6;
-			shoot_bow = TRUE;
-			break;
-		}
-
-
-		/* Light Crossbow and Bolt */
-		case SV_LIGHT_XBOW:
-		{
-			tmul = 3;
-			shoot_crossbow = TRUE;
-			break;
-		}
-
-		/* Heavy Crossbow and Bolt */
-		case SV_HEAVY_XBOW:
-		{
-			tmul = 4;
-			shoot_crossbow = TRUE;
-			break;
-		}
-
-                /* Masterwork Crossbow and Bolt */
-                case 25:
-		{
-                        tmul = 5;
-			shoot_crossbow = TRUE;
-			break;
-		}
-                /* Mighty Crossbow and Bolt */
-                case 26:
-		{
-                        tmul = 6;
-			shoot_crossbow = TRUE;
-			break;
-		}
-
-	}
-
-	/* Get extra "power" from "extra might" */
-	if (p_ptr->xtra_might) tmul++;
-
-        tdam = bow_damages(tdam, j_ptr->to_d, q_ptr->to_d);
-
-	/* Base range */
-	tdis = 10 + 5 * tmul;
-
-        /* No negative dams */
-        if (tdam < 0) tdam = 0;
-
-	/* Take a (partial) turn */
-	if (shoot_bow && (p_ptr->skill[19] >= 80) && (randint(100) <= 25))
-	{
-		msg_print("You fire at the speed of light!");
-	}
-	else energy_use = (100 / thits);
-        
-        /* Ricochets ? */
-        /*if(p_ptr->pclass == CLASS_ARCHER)
-        {
-                num_ricochet = (p_ptr->lev / 10) - 1;
-                num_ricochet = (num_ricochet < 0)?0:num_ricochet;
-        }*/
-	num_ricochet = 0;
-        
-	/* Start at the player */
-        by = py;
-        bx = px;
-	y = py;
-	x = px;
-
-	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
-	{
-		tx = target_col;
-		ty = target_row;
-	}
-
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-        while(TRUE)
-        {
-                /* Travel until stopped */
-                for (cur_dis = 0; cur_dis <= tdis; )
-                {
-                        /* Hack -- Stop at the target */
-                        if ((y == ty) && (x == tx)) break;
-
-                        /* Calculate the new location (see "project()") */
-                        ny = y;
-                        nx = x;
-                        mmove2(&ny, &nx, by, bx, ty, tx);
-
-                        /* Stopped by walls/doors */
-                        if (!cave_floor_bold_project(ny, nx)) break;
-
-                        /* Advance the distance */
-                        cur_dis++;
-
-                        /* Save the new location */
-                        x = nx;
-                        y = ny;
-
-
-                        /* The player can see the (on screen) missile */
-                        if (panel_contains(y, x) && player_can_see_bold(y, x))
-                        {
-                                /* Draw, Hilite, Fresh, Pause, Erase */
-                                print_rel(missile_char, missile_attr, y, x);
-                                move_cursor_relative(y, x);
-                                Term_fresh();
-                                Term_xtra(TERM_XTRA_DELAY, msec);
-                                lite_spot(y, x);
-                                Term_fresh();
-                        }
-
-                        /* The player cannot see the missile */
-                        else
-                        {
-                                /* Pause anyway, for consistancy */
-                                Term_xtra(TERM_XTRA_DELAY, msec);
-                        }
-
-
-                        /* Monster here, Try to hit it */
-                        if (cave[y][x].m_idx)
-                        {
-				int hit = 0;
-                                int penalitypercent = 76 - p_ptr->abilities[(CLASS_ARCHER * 10) + 1];
-                                cave_type *c_ptr = &cave[y][x];
-
-                                monster_type *m_ptr = &m_list[c_ptr->m_idx];
-                                monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-                                /* Check the visibility */
-                                visible = m_ptr->ml;
-
-                                /* Note the collision */
-                                hit_body = TRUE;
-
-                                /* Accurate Shots ability */
-                                hitbonus += (p_ptr->abilities[(CLASS_ARCHER)] * 20);
-
-				/* Crossbow users can get a bonus! */
-				if (shoot_crossbow && p_ptr->skill[20] >= 30) hitbonus += (p_ptr->dis_to_h / 2);
-
-                                /* Called shots actually LOWERS hit rate! */
-                                if (penalitypercent < 0) penalitypercent = 0;
-                                if (calledshot > 0) hitpenality = ((p_ptr->to_h + hitbonus) * penalitypercent) / 100;
-
-                                /* Did we hit it (penalize range) */
-				call_lua("player_hit_monster", "(Md)", "d", m_ptr, j_ptr->to_h + hitbonus - hitpenality, &hit);
-                                if (hit == 1)
-                                {
-                                        bool fear = FALSE;
-
-                                        /* Assume a default death */
-                                        cptr note_dies = " dies.";
-
-                                        /* Some monsters get "destroyed" */
-                                        if ((r_ptr->flags3 & (RF3_DEMON)) ||
-                                            (r_ptr->flags3 & (RF3_UNDEAD)) ||
-                                            (r_ptr->flags2 & (RF2_STUPID)) ||
-                                            (strchr("Evg", r_ptr->d_char)))
-                                        {
-                                                /* Special note at death */
-                                                note_dies = " is destroyed.";
-                                        }
-
-
-                                        /* Handle unseen monster */
-                                        if (!visible)
-                                        {
-                                                /* Invisible monster */
-                                                msg_format("The %s finds a mark.", o_name);
-                                        }
-
-                                        /* Handle visible monster */
-                                        else
-                                        {
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-                                                /* Message */
-                                                msg_format("The %s hits %s.", o_name, m_name);
-
-                                                /* Hack -- Track this monster race */
-                                                if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-                                                /* Hack -- Track this monster */
-                                                if (m_ptr->ml) health_track(c_ptr->m_idx);
-                                                
-                                                /* Anger friends */
-                                                if (is_pet(m_ptr))
-                                                {
-                                                        char m_name[80];
-                                                        monster_desc(m_name, m_ptr, 0);
-                                                        msg_format("%s gets angry!", m_name);
-                                                        set_pet(m_ptr, FALSE);
-                                                }
-                                        }
-					/* First, check for ranged counters */
-					if ((r_ptr->countertype == 16 || r_ptr->countertype == 17 || r_ptr->countertype == 18 || r_ptr->countertype == 19) && randint(100) <= r_ptr->counterchance)
-					{
-						if (randint(m_ptr->dex) >= randint(p_ptr->stat_ind[A_DEX]))
-						{
-							char m_name[80];
-                                                        monster_desc(m_name, m_ptr, 0);
-                                                        msg_format("%s blocked your ammo!", m_name);
-                                                        tdam = 0;
-							blocked = TRUE;
-						}
-					}
-					if ((r_ptr->countertype == 20 || r_ptr->countertype == 21 || r_ptr->countertype == 22 || r_ptr->countertype == 23) && randint(100) <= r_ptr->counterchance)
-					{
-						char m_name[80];
-                                                monster_desc(m_name, m_ptr, 0);
-                                                msg_format("%s blocked your ammo!", m_name);
-                                                tdam = 0;
-						blocked = TRUE;
-					}
-
-					if (!(blocked))
-					{
-                                        /* Check for the Piercing Shots ability! */
-                                        if (p_ptr->abilities[(CLASS_ARCHER * 10) + 2] >= 1 || (q_ptr->art_flags4 & (TR4_LOWER_DEF)))
-                                        {
-                                                int defamount = 0;
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-                                                if (q_ptr->art_flags4 & (TR4_LOWER_DEF))
-                                                {
-                                                        defamount = (damroll(q_ptr->dd, q_ptr->ds) * 3) / 10;
-                                                }
-                                                defamount += (p_ptr->abilities[(CLASS_ARCHER * 10) + 2] * 2);
-                                                msg_format("%s loses %d defense!", m_name, defamount);
-                                                m_ptr->defense -= defamount;
-                                                if (m_ptr->defense <= 0) m_ptr->defense = 0;
-                                        }
-                                        /* Lower hit rate? */
-                                        if ((q_ptr->art_flags4 & (TR4_LOWER_HIT)))
-                                        {
-                                                int hitamount;
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-                                                hitamount = (damroll(q_ptr->dd, q_ptr->ds) * 3) / 10;
-                                                if (m_ptr->hitrate <= 0) hitamount = 0;
-                                                msg_format("%s loses %d hit rate!", m_name, hitamount);
-                                                m_ptr->hitrate -= hitamount;
-                                                if (m_ptr->hitrate <= 0) m_ptr->hitrate = 0;
-                                        }
-                                        /* Called shot! */
-                                        if (calledshot == CALLED_LEGS)
-                                        {
-                                                int hitamount;
-						int bowskill = 0;
-						int xbowskill = 0;
-						int slingskill = 0;
-						int totskill;
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-						if (shoot_bow) bowskill = p_ptr->skill[19] / 3;
-						if (shoot_crossbow) xbowskill = p_ptr->skill[20] / 3;
-						if (shoot_sling) slingskill = p_ptr->skill[21] / 3;
-
-						totskill = (p_ptr->skill[2] / 3) + bowskill + xbowskill + slingskill;
-
-                                                hitamount = totskill + (totskill * (p_ptr->abilities[(CLASS_ARCHER * 10) + 1] / 4) / 100);
-                                                if (hitamount > 50) hitamount = 50;
-
-                                                if (m_ptr->mspeed == 0) hitamount = 0;
-                                                if (hitamount > m_ptr->mspeed)
-                                                {
-                                                        m_ptr->mspeed = 0;
-                                                }
-                                                else m_ptr->mspeed -= hitamount;
-                                                msg_format("%s loses %d speed!", m_name, hitamount);
-                                        }
-                                        if (calledshot == CALLED_ARMS)
-                                        {
-                                                int hitamount;
-						int bowskill = 0;
-						int xbowskill = 0;
-						int slingskill = 0;
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-						if (shoot_bow) bowskill = p_ptr->skill[19] / 4;
-						if (shoot_crossbow) xbowskill = p_ptr->skill[20] / 4;
-						if (shoot_sling) slingskill = p_ptr->skill[21] / 4;
-
-                                                hitamount = ((p_ptr->skill[2] / 4) + bowskill + xbowskill + slingskill) * (p_ptr->abilities[(CLASS_ARCHER * 10) + 1]);
-
-                                                m_ptr->hitrate -= hitamount;
-                                                if (m_ptr->hitrate < 0) m_ptr->hitrate = 0;
-                                                msg_format("%s loses %d hit rate!", m_name, hitamount);
-                                        }
-                                        if (q_ptr->tval == TV_SHOT && p_ptr->abilities[(CLASS_ARCHER * 10) + 8] >= 1)
-                                        {
-                                                int confpower = p_ptr->skill[2] + p_ptr->skill[21] + (p_ptr->abilities[(CLASS_ARCHER * 10) + 8] * 2);
-                                                int mresconf = m_ptr->level + m_ptr->str;
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-                                                if ((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) mresconf *= 5;
-                                                if (randint(confpower) >= randint(mresconf))
-                                                {
-                                                        if (!(r_ptr->flags1 & (RF1_QUESTOR)) && !(r_ptr->flags3 & (RF3_NO_CONF)) && !(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)) && (!(r_ptr->physres >= 100)))
-                                                        {
-                                                                msg_format("%s is confused!", m_name);
-                                                                m_ptr->confused = 5;
-                                                        }
-                                                }
-                                        }
-					if (q_ptr->tval == TV_SHOT && p_ptr->skill[21] >= 40)
-					{
-						int stunpower = p_ptr->skill[21] + p_ptr->stat_ind[A_DEX];
-                                                int mresconf = m_ptr->level + m_ptr->str;
-                                                char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-                                                if (!((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_NO_STUN)) || m_ptr->boss >= 1))
-						{
-                                                	if (randint(stunpower) >= randint(mresconf))
-                                                	{
-                                                                msg_format("%s is stunned!", m_name);
-                                                                m_ptr->seallight = 3;
-                                                	}
-						}
-					}
-					if (q_ptr->tval == TV_SHOT && p_ptr->skill[21] >= 70)
-					{
-						char m_name[80];
-
-                                                /* Get "the monster" or "it" */
-                                                monster_desc(m_name, m_ptr, 0);
-
-						if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)) && (!(r_ptr->physres >= 100)))
-						{
-							if (randint(p_ptr->skill[21] + p_ptr->stat_ind[A_DEX]) >= randint(m_ptr->level + r_ptr->ac))
-							{
-								msg_format("%s's defense has been shattered!", m_name);
-								m_ptr->defense = 0;
-							}
-							else
-							{
-								int tdef = (m_ptr->defense / 5);
-								msg_format("%s has lost %d defense!", tdef);
-								m_ptr->defense -= tdef;
-							}
-						}
-					}
-
-					} /* End of blocked check. */
-                                        
-                                        /* Apply special damage XXX XXX XXX */                                        
-                                        tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-
-                                        /* Head called shot */
-                                        if (calledshot == CALLED_HEAD) tdam *= 5;
-
-					/* Physical resistance of monsters... */
-					tdam -= ((tdam * r_ptr->physres) / 100);
-					r_ptr->r_resist[GF_PHYSICAL] = 1;
-
-                                        /* No negative damage */
-                                        if (tdam < 0) tdam = 0;
-
-                                        /* Archers shoots multiple arrows at once! */
-                                        tdam *= ammoqty;
-
-                                        /* Another bad new: Elites/Bosses can be immune... */
-                                        if (m_ptr->abilities & (BOSS_HALVE_DAMAGES))
-                                        {
-                                                tdam = tdam / 2;
-                                        }
-                                        if (m_ptr->abilities & (BOSS_IMMUNE_WEAPONS))
-                                        {
-                                                msg_print("The monster is immune!");
-                                                tdam = 0;
-                                        }
-
-                                        /* Complex message */
-                                        if (wizard)
-                                        {
-                                                msg_format("You do %d (out of %d) damage.",
-                                                           tdam, m_ptr->hp);
-                                        }
-                                        
-                                        /* Hit the monster, check for death */
-                                        if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
-                                        {
-                                                /* Dead monster */
-                                        }
-
-                                        /* No death */
-                                        else
-                                        {
-						int spellstat;
-
-						spellstat = (p_ptr->stat_ind[A_DEX] - 5);
-						if (spellstat < 0) spellstat = 0;
-
-                                                /* Message */
-                                                message_pain(c_ptr->m_idx, tdam);
-
-						/* Ranged ammos brand! */
-                                                if (q_ptr->brandtype > 0 && !(blocked))
-                                                {
-                                                        no_magic_return = TRUE;
-                                                        corpse_explode(q_ptr->branddam * (q_ptr->pval + 1), m_ptr->fx, m_ptr->fy, q_ptr->brandrad, q_ptr->brandtype);
-                                                        no_magic_return = FALSE;
-                                                }
-
-                                                /* Burning shots ability! :) */
-                                                if (p_ptr->abilities[(CLASS_ARCHER * 10) + 4] >= 1 && !(blocked))
-                                                {
-                                                        no_magic_return = TRUE;
-                                                        corpse_explode(((p_ptr->abilities[(CLASS_ARCHER * 10) + 4] * 20) * spellstat), m_ptr->fx, m_ptr->fy, 0, GF_FIRE);
-                                                        no_magic_return = FALSE;
-                                                }
-                                                /* Venomous shots ability! :) */
-                                                /* Basically the same as burning shots */
-                                                if (p_ptr->abilities[(CLASS_ARCHER * 10) + 5] >= 1 && !(blocked))
-                                                {
-                                                        no_magic_return = TRUE;
-                                                        corpse_explode(((p_ptr->abilities[(CLASS_ARCHER * 10) + 5] * 20) * spellstat), m_ptr->fx, m_ptr->fy, 0, GF_POIS);
-                                                        no_magic_return = FALSE;
-                                                }
-
-                                                /* Take note */
-                                                if (fear && m_ptr->ml)
-                                                {
-                                                        char m_name[80];
-
-                                                        /* Sound */
-                                                        sound(SOUND_FLEE);
-
-                                                        /* Get the monster name (or "it") */
-                                                        monster_desc(m_name, m_ptr, 0);
-
-                                                        /* Message */
-                                                        msg_format("%^s flees in terror!", m_name);
-                                                }
-                                        }
-                                }
-                        
-                                /* Stop looking */
-                                break;
-                        }
-                }
-
-                /* Chance of breakage (during attacks) */
-                j = (hit_body ? breakage_chance(q_ptr) : 0);
-
-                /* Break ? */
-                if(rand_int(100) < j)
-                {
-                        breakage = 100;
-                        break;
-                }
-
-                /* If no break and if Archer, the ammo can ricochets */
-                if((num_ricochet) && (hit_body) && (magik(45 + p_ptr->lev)))
-                {
-                        byte d;
-
-                        num_ricochet--;
-                        hit_body = FALSE;
-
-                        /* New base location */
-                        by = y;
-                        bx = x;
-
-                        /* New target location */
-                        while(TRUE)
-                        {
-                                d = rand_int(10);
-                                if(d != 5) break;
-                        }
-                        tx = px + 99 * ddx[d];
-                        ty = py + 99 * ddy[d];
-
-                        msg_format("The %s ricochets!", o_name);
-                }
-                else
-                        break;
-        }
-
-	/* Drop (or break) near that location */
-        if (p_ptr->skill[2] < 70 && ammoqty <= 1)
-        {
-                drop_near(q_ptr, breakage, y, x);
-        }
-}
-
-
-static int throw_mult = 1;
-
-/*
- * Throw an object from the pack or floor.
- *
- * Note: "unseen" monsters are very hard to hit.
- *
- * Should throwing a weapon do full damage?  Should it allow the magic
- * to hit bonus of the weapon to have an effect?  Should it ever cause
- * the item to be destroyed?  Should it do any damage at all?
- */
-void do_cmd_throw(void)
-{
-	int dir, item;
-	int j, y, x, ny, nx, ty, tx;
-        int tdis;
-        s32b tdam;
-	int mul, div;
-	int cur_dis, visible;
-
-	object_type forge;
-	object_type *q_ptr;
-
-	object_type *o_ptr;
-
-	bool hit_body = FALSE;
-	bool hit_wall = FALSE;
-	bool blocked = FALSE;
-
-	byte missile_attr;
-	char missile_char;
-
-	char o_name[80];
-
-	int msec = delay_factor * delay_factor * delay_factor;
-
-	cptr q, s;
-
-
-	/* Get an item */
-	q = "Throw which item? ";
-	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-       
-	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/*
-	 * Hack -- If rods or wands are thrown, the total maximum timeout or
-	 * charges need to be allocated between the two stacks.
-	 */
-        if (o_ptr->tval == TV_WAND)
-	{
-		q_ptr->pval = o_ptr->pval / o_ptr->number;
-
-		if (o_ptr->number > 1) o_ptr->pval -= q_ptr->pval;
-
-		/* Hack -- Rods also need to have their timeouts distributed.  The
-		 * thrown rod will accept all time remaining to charge up to its
-		 * maximum.
-	         */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-		{
-			if (q_ptr->pval > o_ptr->timeout) q_ptr->timeout = o_ptr->timeout;
-			else q_ptr->timeout = q_ptr->pval;
-
-			if (o_ptr->number > 1) o_ptr->timeout -= q_ptr->timeout;
-		}
-	}
-
-	/* Single object */
-	q_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-        if (item >= 0 && !(q_ptr->art_flags4 & (TR4_RETURNING)))
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-        else if (!(q_ptr->art_flags4 & (TR4_RETURNING)))
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
-
-	/* Description */
-	object_desc(o_name, q_ptr, FALSE, 3);
-
-	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(q_ptr);
-	missile_char = object_char(q_ptr);
-
-	/* Extract a "distance multiplier" */
-	/* Changed for 'launcher' mutation */
-	mul = 10 + 2 * (throw_mult - 1);
-
-	/* Enforce a minimum "weight" of one pound */
-	div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
-
-	/* Hack -- Distance -- Reward strength, penalize weight */
-        tdis = (max_carry() + 20) * mul / div;
-
-	/* Max distance of 10-18 */
-	if (tdis > mul) tdis = mul;
-
-	/* Hack -- Base damage from thrown object */
-	tdam = damroll(q_ptr->dd, q_ptr->ds);
-        tdam *= (p_ptr->skill[3] + 1);
-        tdam += ((tdam * p_ptr->dis_to_d) / 100);
-        tdam += ((tdam * p_ptr->stat_ind[A_STR]) / 100);
-
-        /* Throwing an ammo!?? This is ridiculous... */
-        if (is_ammo(q_ptr)) tdam = tdam / 10;
-
-        /* Power Throw feat! */
-        if (p_ptr->skill[3] >= 25) tdam += tdam / 2;
-
-	/* Take a turn */
-        if (p_ptr->skill[3] >= 50) energy_use = 50;
-        else energy_use = 100;
-
-	/* Start at the player */
-	y = py;
-	x = px;
-
-	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
-	{
-		tx = target_col;
-		ty = target_row;
-	}
-
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis; )
-	{
-		/* Hack -- Stop at the target */
-		if ((y == ty) && (x == tx)) break;
-
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
-
-		/* Stopped by walls/doors */
-		if (!cave_floor_bold_project(ny, nx))
-		{
-			hit_wall = TRUE;
-			break;
-		}
-
-		/* Advance the distance */
-		cur_dis++;
-
-		/* Save the new location */
-		x = nx;
-		y = ny;
-
-
-		/* The player can see the (on screen) missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
-		{
-			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
-			Term_fresh();
-			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
-			Term_fresh();
-		}
-
-		/* The player cannot see the missile */
-		else
-		{
-			/* Pause anyway, for consistancy */
-			Term_xtra(TERM_XTRA_DELAY, msec);
-		}
-
-
-		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
-		{
-			int hit = 0;
-			cave_type *c_ptr = &cave[y][x];
-
-			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			/* Check the visibility */
-			visible = m_ptr->ml;
-
-			/* Note the collision */
-			hit_body = TRUE;
-
-			/* Did we hit it (penalize range) */
-			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
-                        if (hit == 1)
-			{
-				bool fear = FALSE;
-
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
-
-				/* Handle unseen monster */
-				if (!visible)
-				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
-
-				/* Handle visible monster */
-				else
-				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(c_ptr->m_idx);
-				}
-
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-
-				/* First, check for ranged counters */
-				if (r_ptr->countertype == 16 || r_ptr->countertype == 17 || r_ptr->countertype == 18 || r_ptr->countertype == 19)
-				{
-					if (randint(m_ptr->dex) >= randint(p_ptr->stat_ind[A_DEX]))
-					{
-						char m_name[80];
-                                                monster_desc(m_name, m_ptr, 0);
-                                                msg_format("%s blocked your object!", m_name);
-                                                tdam = 0;
-						blocked = TRUE;
-					}
-				}
-				if (r_ptr->countertype == 20 || r_ptr->countertype == 21 || r_ptr->countertype == 22 || r_ptr->countertype == 23)
-				{
-					char m_name[80];
-                                        monster_desc(m_name, m_ptr, 0);
-                                        msg_format("%s blocked your object!", m_name);
-                                        tdam = 0;
-					blocked = TRUE;
-				}
-
-				/* Physical resistance of monsters... */
-				tdam -= ((tdam * r_ptr->physres) / 100);
-				r_ptr->r_resist[GF_PHYSICAL] = 1;
-
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
-
-				/* Complex message */
-				if (wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
-				}
-
-				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(c_ptr->m_idx, tdam);
-
-					/* Anger friends */
-					if (is_pet(m_ptr) &&
-					    (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
-					{
-						char m_name[80];
-						monster_desc(m_name, m_ptr, 0);
-						msg_format("%s gets angry!", m_name);
-						set_pet(m_ptr, FALSE);
-					}
-
-					/* Ranged ammos brand! */
-                                        if (q_ptr->brandtype > 0 && !(blocked))
-                                        {
-                                                no_magic_return = TRUE;
-                                                corpse_explode(q_ptr->branddam * (q_ptr->pval + 1), m_ptr->fx, m_ptr->fy, q_ptr->brandrad, q_ptr->brandtype);
-                                                no_magic_return = FALSE;
-                                        }
-
-                                        /* Throwing skill high enough to reduce defense? */
-                                        if (p_ptr->skill[3] >= 70 && !(blocked))
-                                        {
-                                                m_ptr->defense = m_ptr->defense / 2;
-                                        }
-
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
-
-						/* Sound */
-						sound(SOUND_FLEE);
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
-
-						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-					}
-				}
-			}
-                        else
-                        {
-                                char m_name[80];
-
-                                /* Get the monster name (or "it") */
-                                monster_desc(m_name, m_ptr, 0);
-                                
-                                msg_format("You miss %^s.", m_name);
-                        }
-
-			/* Stop looking */
-			break;
-		}
-	}
-
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(q_ptr) : 0);
-
-         /* Potions smash open */
-	if (k_info[q_ptr->k_idx].tval == TV_POTION)
-	{
-		if ((hit_body) || (hit_wall) || (randint(100) < j))
-		{
-			/* Message */
-			msg_format("The %s shatters!", o_name);
-
-			if (potion_smash_effect(1, y, x, q_ptr->sval))
-			{
-				if (cave[y][x].m_idx && is_pet(&m_list[cave[y][x].m_idx]))
-				{
-					char m_name[80];
-					monster_desc(m_name, &m_list[cave[y][x].m_idx], 0);
-					msg_format("%s gets angry!", m_name);
-					set_pet(&m_list[cave[y][x].m_idx], FALSE);
-				}
-			}
-
-			return;
-		}
-		else
-		{
-			j = 0;
-		}
-	}
-
-	/* Drop (or break) near that location */
-	drop_near(q_ptr, j, y, x);
-}
-
-/*
- * Throw a boomerang object from the equipement(bow).
- *
- * Note: "unseen" monsters are very hard to hit.
- *
- * Should throwing a weapon do full damage?  Should it allow the magic
- * to hit bonus of the weapon to have an effect?  Should it ever cause
- * the item to be destroyed?  Should it do any damage at all?
- */
-void do_cmd_boomerang(void)
-{
-        int dir;
-        int y, x, ny, nx, ty, tx;
-        int tdis;
-        s32b tdam;
-	int mul, div;
-	int cur_dis, visible;
-
-	object_type forge;
-	object_type *q_ptr;
-
-	object_type *o_ptr;
-
-	bool hit_body = FALSE;
-	bool hit_wall = FALSE;
-
-	byte missile_attr;
-	char missile_char;
-
-	char o_name[80];
-
-	int msec = delay_factor * delay_factor * delay_factor;
-
-
-	/* Get the "bow" (if any) */
-        o_ptr = &inventory[INVEN_BOW];
-
-
-	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Single object */
-	q_ptr->number = 1;
-
-	/* Description */
-	object_desc(o_name, q_ptr, FALSE, 3);
-
-	/* Find the color and symbol for the object for throwing */
-	missile_attr = object_attr(q_ptr);
-	missile_char = object_char(q_ptr);
-
-	/* Extract a "distance multiplier" */
-	/* Changed for 'launcher' mutation */
-	mul = 10 + 2 * (throw_mult - 1);
-
-	/* Enforce a minimum "weight" of one pound */
-	div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
-
-	/* Hack -- Distance -- Reward strength, penalize weight */
-        tdis = (max_carry() + 20) * mul / div;
-
-	/* Max distance of 10-18 */
-	if (tdis > mul) tdis = mul;
-
-	/* Hack -- Base damage from thrown object */
-	tdam = damroll(q_ptr->dd, q_ptr->ds);
-	tdam *= (p_ptr->skill[3] + 1);
-	tdam += ((tdam * (q_ptr->to_d + (p_ptr->stat_ind[A_STR] * 5))) / 100);
-	tdam += ((tdam * p_ptr->stat_ind[A_STR]) / 100);
-
-        /* Power Throw feat! */
-        if (p_ptr->skill[3] >= 25) tdam += tdam / 2;
-
-	/* Take a turn */
-        if (p_ptr->skill[3] >= 50) energy_use = 50;
-        else energy_use = 100;
-
-
-	/* Start at the player */
-	y = py;
-	x = px;
-
-	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
-
-	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
-	{
-		tx = target_col;
-		ty = target_row;
-	}
-
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis; )
-	{
-		/* Hack -- Stop at the target */
-		if ((y == ty) && (x == tx)) break;
-
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
-
-		/* Stopped by walls/doors */
-		if (!cave_floor_bold_project(ny, nx))
-		{
-			hit_wall = TRUE;
-			break;
-		}
-
-		/* Advance the distance */
-		cur_dis++;
-
-		/* Save the new location */
-		x = nx;
-		y = ny;
-
-
-		/* The player can see the (on screen) missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
-		{
-			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
-			Term_fresh();
-			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
-			Term_fresh();
-		}
-
-		/* The player cannot see the missile */
-		else
-		{
-			/* Pause anyway, for consistancy */
-			Term_xtra(TERM_XTRA_DELAY, msec);
-		}
-
-
-		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
-		{
-			int hit = 0;
-			cave_type *c_ptr = &cave[y][x];
-
-			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			/* Check the visibility */
-			visible = m_ptr->ml;
-
-			/* Note the collision */
-			hit_body = TRUE;
-
-			/* Did we hit it (penalize range) */
-			call_lua("player_hit_monster", "(Md)", "d", m_ptr, q_ptr->to_h, &hit);
-                        if (hit == 1)
-			{
-				bool fear = FALSE;
-
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
-
-
-				/* Handle unseen monster */
-				if (!visible)
-				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
-
-				/* Handle visible monster */
-				else
-				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(c_ptr->m_idx);
-				}
-
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-
-				/* Physical resistance of monsters... */
-				tdam -= ((tdam * r_ptr->physres) / 100);
-				r_ptr->r_resist[GF_PHYSICAL] = 1;
-
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
-
-				/* Complex message */
-				if (wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
-				}
-
-				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(c_ptr->m_idx, tdam);
-
-					/* Anger friends */
-					if (is_pet(m_ptr) &&
-					    (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
-					{
-						char m_name[80];
-						monster_desc(m_name, m_ptr, 0);
-						msg_format("%s gets angry!", m_name);
-						set_pet(m_ptr, FALSE);
-					}
-
-                                        /* Throwing skill high enough to reduce defense? */
-                                        if (p_ptr->skill[3] >= 70)
-                                        {
-                                                m_ptr->defense = m_ptr->defense / 2;
-                                        }
-
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
-
-						/* Sound */
-						sound(SOUND_FLEE);
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
-
-						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-					}
-				}
-                        }
-                        else
-                        {
-                                char m_name[80];
-
-                                /* Get the monster name (or "it") */
-                                monster_desc(m_name, m_ptr, 0);
-                                
-                                msg_format("You miss %^s.", m_name);
-                        }
-
-			/* Stop looking */
-			break;
-                }
-	}
-
-        /* Travel back to the player */
-	for (cur_dis = 0; cur_dis <= tdis; )
-	{
-		/* Hack -- Stop at the target */
-                if ((y == py) && (x == px)) break;
-
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-                mmove2(&ny, &nx, ty, tx, py, px);
-
-		/* Advance the distance */
-		cur_dis++;
-
-		/* Save the new location */
-		x = nx;
-		y = ny;
-
-
-		/* The player can see the (on screen) missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
-		{
-			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
-			Term_fresh();
-			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
-			Term_fresh();
-		}
-
-		/* The player cannot see the missile */
-		else
-		{
-			/* Pause anyway, for consistancy */
-			Term_xtra(TERM_XTRA_DELAY, msec);
-		}
-	}
+	call_lua("ranged_shoot", "", "");
 }
 
 
@@ -4568,12 +3255,6 @@ static void cmd_racial_power_aux (void)
         if((!p_ptr->body_monster))
         switch(p_ptr->prace)
 	{
-
-
-		case RACE_VAMPIRE:
-                        if (!get_rep_dir(&dir)) break;
-                        vampire_drain(dir);
-			break;
 
 
 		    case RACE_DEMON:
@@ -5035,7 +3716,6 @@ flag flags3_level[17]=
         {TR3_NO_TELE,29,"Anti Teleportaton"},
         {TR3_NO_MAGIC,34,"Anti Magic"},
         {TR3_WRAITH,50,"Wraith Form"},
-        {TR3_TY_CURSE,1,"Ancient Curse"},
         {TR3_FEATHER,15,"Levitation"},
         {TR3_LITE,8,"Lite"},
         {TR3_SEE_INVIS,20,"See Invisible"},
@@ -5402,60 +4082,6 @@ void change_age(void)
         }
 }
 
-void turn_in_crystal(monster_type *m_ptr)
-{
-                        int x,y;
-                        cave_type *c_ptr;
-                        monster_race *r_ptr;
-                        object_type     *q_ptr;
-                        object_type     forge;
-
-                        y = m_ptr->fy;
-                        x = m_ptr->fx;
-                        c_ptr = &cave[y][x];
-                        if(c_ptr->m_idx)
-                        {
-                                m_ptr = &m_list[c_ptr->m_idx];
-                                r_ptr = &r_info[m_ptr->r_idx];
-                                if (is_pet(m_ptr))
-                                {
-                                        q_ptr=&forge;
-                                        object_prep(q_ptr, lookup_kind(TV_HYPNOS, 1));
-                                        q_ptr->number = 1;
-                                        q_ptr->pval = m_ptr->r_idx;
-                                        q_ptr->pval2 = m_ptr->hp;
-                                        q_ptr->pval3 = m_ptr->level;
-                                        q_ptr->xtra1 = m_ptr->maxhp;
-                                        object_aware(q_ptr);
-                                        object_known(q_ptr);
-
-                                        q_ptr->ident |= IDENT_STOREB;
-                        
-                                        drop_near(q_ptr, 0,y,x);
-
-                                        delete_monster(y,x);
-                                        health_who = 0;
-                                }
-                                else
-                                        msg_print("The monster must be in your gang!");
-                        }
-}
-
-void accurate_teleport()
-{
-                        int ii, ij;
-                        msg_print("You teleport...");
-                        if (!tgt_pt(&ii,&ij)) return;
-                        if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY))
-                        {
-                                msg_print("Target obstructed.");
-                        }
-                        else
-                        {
-                                teleport_player_to(ij, ii);
-                        }        
-}        
-
 /* Let's face it... reviving dead monsters is fun! */
 void revive_monster()
 {
@@ -5514,6 +4140,15 @@ int digging_ability()
         abil = p_ptr->stat_ind[A_STR];
         /* Your digging ability is better if you have a good digger! */
         if (o_ptr->tval == TV_DIGGING) abil *= (o_ptr->pval + 2);
+
+	/* Mining skill */
+	if (p_ptr->skill[29] >= 1)
+	{
+		if (randint(100) <= p_ptr->skill[29])
+		{
+			abil = 30000;
+		}
+	}
 
         return (abil);
 }
@@ -5587,7 +4222,11 @@ void simulacrum()
         {
                 msg_print("Place where?");
                 if (!tgt_pt(&x,&y)) msg_print("Summon failed.");
-                if((m_idx=place_monster_one_simulacrum(y, x, o_ptr->pval, FALSE, TRUE, monlvl, monhp, mondur))==0) msg_print("Summon failed.");
+		if (cave[y][x].info & CAVE_LITE)
+		{
+                	if((m_idx=place_monster_one_simulacrum(y, x, o_ptr->pval, FALSE, TRUE, monlvl, monhp, mondur))==0) msg_print("Summon failed.");
+		}
+		else msg_print("You can only use simulacrum on lit grids.");
         }
 
         o_ptr->timeout = 10;
@@ -5605,187 +4244,17 @@ void warp_on_trees()
           int     ii = 0, ij = 0;
           msg_print("Teleport to which tree?");
           if (!tgt_pt(&ii,&ij)) return;
-          if ((cave[ij][ii].feat != FEAT_TREES) || (distance(ij,ii,py,px) > 5 + (p_ptr->abilities[(CLASS_RANGER * 10) + 5] / 2)))
+          if (((cave[ij][ii].feat != FEAT_TREES) && (cave[ij][ii].feat != FEAT_SNOW_TREES)) || (distance(ij,ii,py,px) > 5 + (p_ptr->abilities[(CLASS_RANGER * 10) + 5])))
           {
                 msg_print("You can't teleport there...");
           }
           else teleport_player_to(ij,ii);
 }
 
-/* Called Shots! :) */
-void called_shots()
-{
-	int                     Power = -1;
-        int                     num = 0, i;
-
-	int             powers[36];
-	char            power_desc[36][80];
-
-	bool            flag, redraw;
-        int             ask;
-
-        char            choice;
-
-	char            out_val[160];
-
-        /* List the powers */
-        strcpy(power_desc[num],"Legs");powers[num++]=CALLED_LEGS;
-        strcpy(power_desc[num],"Arms");powers[num++]=CALLED_ARMS;
-        strcpy(power_desc[num],"Head");powers[num++]=CALLED_HEAD;
-
-        if(!num) {msg_print("No available called shots.");return;}
-
-	/* Nothing chosen yet */
-	flag = FALSE;
-
-	/* No redraw yet */
-	redraw = FALSE;
-
-	/* Build a prompt (accept all spells) */
-	if (num <= 26)
-	{
-		/* Build a prompt (accept all spells) */
-                strnfmt(out_val, 78, "(Called Shots %c-%c, *=List, ESC=exit) Which body part? ",
-			I2A(0), I2A(num - 1));
-	}
-	else
-	{
-                strnfmt(out_val, 78, "(Called Shots %c-%c, *=List, ESC=exit) Which body part? ",
-			I2A(0), '0' + num - 27);
-	}
-
-	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
-	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Show the list */
-			if (!redraw)
-			{
-				byte y = 1, x = 0;
-				int ctr = 0;
-				char dummy[80];
-
-				strcpy(dummy, "");
-
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save the screen */
-				Term_save();
-
-				prt ("", y++, x);
-
-                                while (ctr < num && ctr < 19)
-				{
-					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
-					prt(dummy, y + ctr, x);
-					ctr++;
-				}
-				while (ctr < num)
-				{
-					if (ctr < 26)
-					{
-						sprintf(dummy, " %c) %s", I2A(ctr), power_desc[ctr]);
-					}
-					else
-					{
-						sprintf(dummy, " %c) %s", '0' + ctr - 26, power_desc[ctr]);
-					}
-                                        prt(dummy, y + ctr - 19, x + 40);
-					ctr++;
-				}
-                                if (ctr < 19)
-				{
-					prt ("", y + ctr, x);
-				}
-				else
-				{
-                                        prt ("", y + 19, x);
-				}
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				Term_load();
-			}
-
-			/* Redo asking */
-			continue;
-		}
-
-		if (choice == '\r' && num == 1)
-		{
-			choice = 'a';
-		}
-
-		if (isalpha(choice))
-		{
-			/* Note verify */
-			ask = (isupper(choice));
-
-			/* Lowercase */
-			if (ask) choice = tolower(choice);
-
-			/* Extract request */
-			i = (islower(choice) ? A2I(choice) : -1);
-		}
-		else
-		{
-			ask = FALSE; /* Can't uppercase digits */
-
-			i = choice - '0' + 26;
-		}
-
-		/* Totally Illegal */
-		if ((i < 0) || (i >= num))
-		{
-			bell();
-			continue;
-		}
-
-		/* Save the spell index */
-		Power = powers[i];
-
-		/* Verify it */
-		if (ask)
-		{
-			char tmp_val[160];
-
-			/* Prompt */
-			strnfmt(tmp_val, 78, "Use %s? ", power_desc[i]);
-
-			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
-		}
-
-		/* Stop the loop */
-		flag = TRUE;
-	}
-
-	/* Restore the screen */
-	if (redraw) Term_load();
-
-	/* Abort if needed */
-	if (!flag) 
-	{
-		energy_use = 0;
-                return;
-	}
-
-        /* Called shot! */
-        do_cmd_fire(Power, FALSE);
-}
-
 int get_a_dir()
 {
-        char ch;        
+        char ch; 
+	cptr p;      
         if (!get_com("Direction? (USE NUMERICAL KEYPAD)", &ch)) return(5);
         else
         {
@@ -5805,9 +4274,9 @@ int get_a_dir()
                 {
                         return(4);
                 }
-                if (ch == '4')
+                if (ch == '5')
                 {
-                        return(4);
+                        return(5);
                 }
                 if (ch == '6')
                 {
@@ -5860,7 +4329,7 @@ void sealing_light()
 
         if (!get_aim_dir(&dir)) return;
         no_magic_return = TRUE;
-        fire_ball(GF_LITE_WEAK, dir, 0, 5 + p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 3]);
+        fire_ball(GF_LITE, dir, 0, 5 + p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 3]);
         fire_ball(GF_SEAL_LIGHT, dir, r_ptr->level, 5 + p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 3]);
         no_magic_return = FALSE;
         energy_use = 100;
@@ -5893,125 +4362,14 @@ void soul_energize()
 
         /* Get the monster */
         r_ptr = &r_info[o_ptr->pval];
-        amt = maxroll(r_ptr->hdice, r_ptr->hside) / 3;
+        amt = r_ptr->mind;
         amt = amt + ((amt * (p_ptr->abilities[(CLASS_SOUL_GUARDIAN * 10) + 4] * 10)) / 100);
-        p_ptr->csp += amt;
-        if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
-        msg_print("You recover your mana!");
+        p_ptr->wis_boost = amt;
+	set_wis_boost(2);
 
         o_ptr->timeout = 15;
         update_and_handle();
         energy_use = 100;
-}
-
-s32b bow_damages(s32b dam, int lbonus, int abonus)
-{
-	s32b k;
-	s32b tot_to_d;
-	int tmul, tskill;
-	bool is_crossbow = FALSE;
-        object_type *o_ptr = &inventory[INVEN_BOW];
-
-	/* Assume a base multiplier */
-	tmul = 1;
-
-	/* Base Shooting skill */
-	tskill = p_ptr->skill[2];
-
-	/* Analyze the launcher */
-	switch (o_ptr->sval)
-	{
-		/* Sling and ammo */
-		case SV_SLING:
-		{
-			tmul = 2;
-			tskill += (p_ptr->skill[21] + (p_ptr->skill[21] / 2));
-			break;
-		}
-
-		/* Short Bow and Arrow */
-		case SV_SHORT_BOW:
-		{
-			tmul = 2;
-			tskill += (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
-			break;
-		}
-
-		/* Long Bow and Arrow */
-		case SV_LONG_BOW:
-		{
-			tmul = 3;
-			tskill += (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
-			break;
-		}
-                /* Elven Bow and Arrow */
-                case SV_ELVEN_BOW:
-		{
-                        tmul = 4;
-			tskill += (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
-			break;
-		}
-                /* High Elf Bow and Arrow */
-                case SV_HIELF_BOW:
-		{
-                        tmul = 5;
-			tskill += (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
-			break;
-		}
-                /* Hunter's Bow and Arrow */
-                case 16:
-		{
-                        tmul = 6;
-			tskill += (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
-			break;
-		}
-
-		/* Light Crossbow and Bolt */
-		case SV_LIGHT_XBOW:
-		{
-			tmul = 3;
-			tskill += (p_ptr->skill[20] + (p_ptr->skill[20] / 2));
-			is_crossbow = TRUE;
-			break;
-		}
-
-		/* Heavy Crossbow and Bolt */
-		case SV_HEAVY_XBOW:
-		{
-			tmul = 4;
-			tskill += (p_ptr->skill[20] + (p_ptr->skill[20] / 2));
-			is_crossbow = TRUE;
-			break;
-		}
-
-                /* Masterwork Crossbow and Bolt */
-                case 25:
-		{
-                        tmul = 5;
-			tskill += (p_ptr->skill[20] + (p_ptr->skill[20] / 2));
-			is_crossbow = TRUE;
-			break;
-		}
-
-                /* Mighty Crossbow and Bolt */
-                case 26:
-		{
-                        tmul = 6;
-			tskill += (p_ptr->skill[20] + (p_ptr->skill[20] / 2));
-			is_crossbow = TRUE;
-			break;
-		}
-
-	}
-        if (p_ptr->xtra_might) tmul++;
-
-	if (is_crossbow && p_ptr->skill[20] >= 60) dam *= 2;
-        k = dam * tmul;
-	k *= (tskill + 1);
-	tot_to_d = lbonus + abonus + (p_ptr->stat_ind[A_DEX] * 5);    
-        k += ((k * tot_to_d) / 100);
-        k += ((k * p_ptr->stat_ind[A_DEX]) / 100);
-        return (k);        
 }
 
 void use_monster_ranged_attack(int r_idx)
@@ -6202,8 +4560,8 @@ void use_monster_ranged_attack(int r_idx)
 			{
 				damage = damroll(r_ptr->attack[Power].ddice, r_ptr->attack[Power].dside);
         			damage *= (p_ptr->skill[2] + 1);
-        			damage += ((damage * (p_ptr->stat_ind[A_DEX] * 5)) / 100);
-        			damage += ((damage * p_ptr->stat_ind[A_DEX]) / 100);
+				damage += multiply_divide(damage, (p_ptr->stat_ind[A_DEX] * 5), 100);
+				damage += multiply_divide(damage, p_ptr->stat_ind[A_DEX], 100);
 				monster_ranged = TRUE;
 				if (!get_aim_dir(&dir)) return;
                         	fire_bolt(r_ptr->attack[Power].element, dir, damage);
@@ -6224,7 +4582,7 @@ void use_monster_ranged_attack(int r_idx)
 void choose_current_weapon()
 {
 	char ch;
-	if (two_weapon_wield())
+	if (two_weapon_wield() && p_ptr->dualwield == 1)
 	{
 		get_com("Use which weapon? (1 or 2) ", &ch);
 
@@ -6236,6 +4594,7 @@ void choose_current_weapon()
 		if (inventory[INVEN_WIELD].k_idx) current_weapon = &inventory[INVEN_WIELD];
 		else current_weapon = &inventory[INVEN_WIELD+1];
 	}
+	else current_weapon = &inventory[INVEN_WIELD]; /* <- Thanks Adelie. :) */
 }
 
 /* Use an hard-coded ability */
@@ -6343,8 +4702,8 @@ void use_hardcode_ability(int powernum)
 			int a = 0;
                         msg_print("You create illusions of yourself!");
                         for (a = 0; a < ((p_ptr->abilities[(CLASS_MAGE * 10) + 5] / 5) + 3); a++)
-                        {                        
-                                summon_specific_friendly(py, px, 127, SUMMON_ILLUSION, FALSE, p_ptr->abilities[(CLASS_MAGE * 10) + 5] + 10);
+                        {
+				summon_specific_kind(py, px, 1, 33, FALSE, TRUE, p_ptr->abilities[(CLASS_MAGE * 10) + 5] + 10);
                         }
                         energy_use = 100;
 			break;
@@ -6358,8 +4717,7 @@ void use_hardcode_ability(int powernum)
 		}
 		case 13:
 		{
-			drain_object();
-                        energy_use = 100;
+			msg_print("Ability 13 has no effects.");
 			break;
 		}
 		case 14:
@@ -6393,19 +4751,7 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 17:
-		{
-			s32b turn_damages;
-			/* This determines casting power */
-			spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-
-			/* No lower than 0. */
-			if (spellstat < 0) spellstat = 0;
-                        turn_damages = (spellstat * 20) * p_ptr->abilities[(CLASS_PRIEST * 10) + 1];
-                        attack_aura(GF_TURN_UNDEAD, turn_damages, 10);
-                        energy_use = 100;
-			break;
-		}
+		/* 17 is free! */
 		case 18:
 		{
 			mace_of_heaven();
@@ -6433,9 +4779,10 @@ void use_hardcode_ability(int powernum)
 		case 20:
 		{
 			msg_print("You feel empowered...");
-                        (void)set_fast(4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5]));
+                        (void)set_fast((4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5])) / 2);
                         (void)set_blessed(4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5]));
-                        p_ptr->pres = 20 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5] / 3);
+                        p_ptr->pres = p_ptr->abilities[(CLASS_PRIEST * 10) + 5];
+			if (p_ptr->pres > 75) p_ptr->pres = 75;
                         (void)set_pres(4 + (p_ptr->abilities[(CLASS_PRIEST * 10) + 5]));
                         energy_use = 100;
 			break;
@@ -6454,22 +4801,17 @@ void use_hardcode_ability(int powernum)
 		}
 		case 22:
 		{
-			p_ptr->ac_boost = p_ptr->abilities[(CLASS_PRIEST * 10) + 8] * 30;
+			p_ptr->ac_boost = p_ptr->stat_ind[A_WIS] * p_ptr->abilities[(CLASS_PRIEST * 10) + 8];
                         (void)set_ac_boost(p_ptr->abilities[(CLASS_PRIEST * 10) + 8] + 5);
                         energy_use = 100;
 			break;
 		}
-		case 23:
-		{
-			godly_wrath();
-                        energy_use = 100;
-			break;
-		}
+		
 		case 24:
 		{
 			int invpower = p_ptr->abilities[(CLASS_ROGUE * 10)] + 10;
                         (void)set_invis(invpower, invpower);
-                        p_ptr->ac_boost = p_ptr->abilities[(CLASS_ROGUE * 10)] * 10;
+                        p_ptr->ac_boost = p_ptr->abilities[(CLASS_ROGUE * 10)] * 25;
                         (void)set_ac_boost(invpower);
                         energy_use = 100;
 			break;
@@ -6504,17 +4846,14 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 30:
-		{
-			attack_aura(GF_ANIMAL_EMPATHY, 0, (p_ptr->abilities[(CLASS_RANGER * 10) + 3] / 10) + 5);
-                        update_and_handle();
-                        energy_use = 100;
-			break;
-		}
 		case 31:
 		{
-			msg_print("You call an animal to your aid!");
-                        summon_specific_friendly(py, px, p_ptr->abilities[(CLASS_RANGER * 10) + 4], SUMMON_ANIMAL, FALSE, (p_ptr->abilities[(CLASS_RANGER * 10) + 4] / 2) + 10);
+			int animalsnum;
+			msg_print("You call animals to your aid!");
+			for (animalsnum = 0; animalsnum < p_ptr->abilities[(CLASS_RANGER * 10) + 4]; animalsnum++)
+			{
+				summon_specific_rflag(py, px, p_ptr->abilities[(CLASS_RANGER * 10) + 4], RF3_ANIMAL, FALSE, TRUE, (p_ptr->abilities[(CLASS_RANGER * 10) + 4]) + 10);
+			}
                         energy_use = 100;
 			break;
 		}
@@ -6577,11 +4916,10 @@ void use_hardcode_ability(int powernum)
 		}
 		case 40:
 		{
-			p_ptr->str_boost = (p_ptr->abilities[(CLASS_PALADIN * 10) + 6] * 5);
-                        p_ptr->dex_boost = (p_ptr->abilities[(CLASS_PALADIN * 10) + 6] * 5);
-                        p_ptr->ac_boost = p_ptr->abilities[(CLASS_PALADIN * 10) + 6] * 100;
+			p_ptr->str_boost = (p_ptr->abilities[(CLASS_PALADIN * 10) + 6] * 20);
+                        p_ptr->dex_boost = (p_ptr->abilities[(CLASS_PALADIN * 10) + 6] * 20);
+                        p_ptr->ac_boost = multiply_divide(p_ptr->dis_ac, p_ptr->abilities[(CLASS_PALADIN * 10) + 6] * 10, 100);
                         (void)set_ac_boost(2);
-                        (void)set_blessed(2);
                         (void)set_str_boost(2);
                         (void)set_dex_boost(2);
                         energy_use = 100;
@@ -6610,7 +4948,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b mdam;
 			call_lua("monk_damages", "", "l", &mdam);
-			mdam += ((mdam * ((p_ptr->abilities[(CLASS_MONK * 10) + 1] - 1) * 20)) / 100);
+			mdam += multiply_divide(mdam, ((p_ptr->abilities[(CLASS_MONK * 10) + 1] - 1) * 20), 100);
                         spin_kick(mdam, 1);
                         energy_use = 100;
 			break;
@@ -6619,7 +4957,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b mdam;
 			call_lua("monk_damages", "", "l", &mdam);
-			mdam += ((mdam * ((p_ptr->abilities[(CLASS_MONK * 10) + 2] - 1) * 10)) / 100);
+			mdam += multiply_divide(mdam, ((p_ptr->abilities[(CLASS_MONK * 10) + 2] - 1) * 10), 100);
                         if (!get_rep_dir(&dir)) return;
                         hard_kick(dir, mdam, 3 + (p_ptr->abilities[(CLASS_MONK * 10) + 2] / 10));
                         energy_use = 100;
@@ -6629,7 +4967,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b mdam;
 			call_lua("monk_damages", "", "l", &mdam);
-			mdam += ((mdam * ((p_ptr->abilities[(CLASS_MONK * 10) + 5] - 1) * 10)) / 100);
+			mdam += multiply_divide(mdam, ((p_ptr->abilities[(CLASS_MONK * 10) + 5] - 1) * 10), 100);
                         if (!get_rep_dir(&dir)) return;
                         chain_attack(dir, GF_MISSILE, mdam, 0, 1);
                         energy_use = 100;
@@ -6640,12 +4978,12 @@ void use_hardcode_ability(int powernum)
 			int x, y;
 			s32b mdam;
 			call_lua("monk_damages", "", "l", &mdam);
-			mdam += ((mdam * ((p_ptr->abilities[(CLASS_MONK * 10) + 8] - 1) * 20)) / 100);
+			multiply_divide(mdam, ((p_ptr->abilities[(CLASS_MONK * 10) + 8] - 1) * 20), 100);
                         if (!get_rep_dir(&dir)) return;
                         chain_attack(dir, GF_PHYSICAL, mdam, 0, 1);
                         msg_print("Jump where? ");
                         if (!tgt_pt(&x,&y)) return;
-                        if (!cave_empty_bold(y,x) || (cave[y][x].info & CAVE_ICKY) || (distance(y,x,py,px) > 3))
+                        if (!cave_empty_bold(y,x) || (distance(y,x,py,px) > 3))
                         {
                                 msg_print("You can't jump there...");
                         }
@@ -6661,11 +4999,7 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 48:
-		{
-			called_shots();
-			break;
-		}
+		
 		case 49:
 		{
 			s32b dam;
@@ -6674,19 +5008,20 @@ void use_hardcode_ability(int powernum)
                         if (!q_ptr) {msg_print("You need a shooter!"); return;}
                         if (!o_ptr) {msg_print("You need ammos!"); return;}
                         dam = damroll(o_ptr->dd, o_ptr->ds);
-			dam = bow_damages(dam, q_ptr->to_d, o_ptr->to_d);
-                        dam += ((dam * (p_ptr->abilities[(CLASS_ARCHER * 10) + 3] * 10)) / 100);
+			/*dam = bow_damages(dam, q_ptr->to_d, o_ptr->to_d);*/
+			dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] * 10), 100);
                         if (!get_rep_dir(&dir)) return;
-                        chain_attack(dir, GF_PHYSICAL, dam, 0, (p_ptr->abilities[(CLASS_ARCHER * 10) + 3] + 4));
+                        chain_attack(dir, GF_PHYSICAL, dam, 0, (p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] + 4));
                         inven_item_increase(INVEN_AMMO, -1);
                         inven_item_describe(INVEN_AMMO);
                         inven_item_optimize(INVEN_AMMO);
                         energy_use = 100;
+			
 			break;
 		}
 		case 50:
 		{
-			do_cmd_fire(0, TRUE);
+			do_cmd_fire(TRUE);
 			break;
 		}
 		case 51:
@@ -6694,13 +5029,13 @@ void use_hardcode_ability(int powernum)
 			s32b dam;
                         object_type *o_ptr = &inventory[INVEN_AMMO];
                         object_type *q_ptr = &inventory[INVEN_BOW];
-                        if (!q_ptr || (q_ptr->sval != SV_LIGHT_XBOW && q_ptr->sval != SV_HEAVY_XBOW)) {msg_print("You need a crossbow!"); return;}
-                        if (o_ptr->tval != TV_BOLT) {msg_print("You need bolts!"); return;}
+                        if (!q_ptr) {msg_print("You need a crossbow!"); return;}
+                        if (o_ptr->itemskill != 20) {msg_print("You need bolts!"); return;}
                         dam = damroll(o_ptr->dd, o_ptr->ds);
-			dam = bow_damages(dam, q_ptr->to_d, o_ptr->to_d);
-			dam += ((dam * ((p_ptr->abilities[(CLASS_ARCHER * 10) + 7] - 1) * 10)) / 100);
+			/*dam = bow_damages(dam, q_ptr->to_d, o_ptr->to_d);*/
+			dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_MARKSMAN * 10) + 7] - 1) * 10), 100);
                         if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_FIRE, dir, dam, (p_ptr->abilities[(CLASS_ARCHER * 10) + 7] / 30)+1);
+                        fire_ball(GF_FIRE, dir, dam, (p_ptr->abilities[(CLASS_MARKSMAN * 10) + 7] / 30)+1);
                         inven_item_increase(INVEN_AMMO, -1);
                         inven_item_describe(INVEN_AMMO);
                         inven_item_optimize(INVEN_AMMO);
@@ -6739,7 +5074,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b mdam;
 			call_lua("monk_damages", "", "l", &mdam);
-			mdam += ((mdam * ((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] - 1) * 10)) / 100);
+			mdam += multiply_divide(mdam, ((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] - 1) * 10), 100);
                         if (!get_rep_dir(&dir)) return;
                         chain_attack(dir, p_ptr->elemlord, mdam, p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] / 30, 1);
                         energy_use = 100;
@@ -6747,17 +5082,14 @@ void use_hardcode_ability(int powernum)
 		}
 		case 56:
 		{
-			explosive_throw();
+			if (!(choose_command_element_status())) return;
+
+                        if (!get_aim_dir(&dir)) return;
+                        fire_ball(GF_COMMAND_ELEMENT, dir, 100, (p_ptr->abilities[(CLASS_ELEM_LORD * 10)] / 20)+3);                                                
                         energy_use = 100;
 			break;
 		}
-		case 57:
-		{
-			if (!combatfeat) choose_current_weapon();
-                        elem_wave();
-                        energy_use = 100;
-			break;
-		}
+		
 		/* Power 58 is split into 10000, 10001 and 10002 */
 		case 10000:
 		{
@@ -6781,14 +5113,6 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		
-		case 59:
-		{
-			if (!get_aim_dir(&dir)) return;
-                        fire_bolt(GF_DOMINATE_MONSTER, dir, 0);
-                        energy_use = 100;
-			break;
-		}
 		case 60:
 		{
 			monstrous_wave();
@@ -6798,122 +5122,79 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
                         int dis;
-                        object_type *o_ptr = &inventory[INVEN_ARM];
+			object_type *q_ptr = &inventory[INVEN_WIELD];
+			object_type *q2_ptr = &inventory[INVEN_WIELD+1];
+
 			/* This determines casting power */
 			spellstat = (p_ptr->stat_ind[A_STR] - 5);
 
+			/* Choose a shield. */
+			if (q_ptr->tval == TV_SHIELD && q2_ptr->tval == TV_SHIELD) choose_current_weapon();
+			else
+			{
+				if (q_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD];
+				else if (q2_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD+1];
+				else
+				{
+					msg_print("You must wield a shield.");
+					return;
+				}
+			}
+
 			/* No lower than 0. */
 			if (spellstat < 0) spellstat = 0;
-                        dam = ((o_ptr->ac * p_ptr->abilities[(CLASS_DEFENDER * 10) + 2]) * spellstat);
-                        dam += ((dam * p_ptr->dis_to_d) / 100);
-			dam += ((dam * p_ptr->stat_ind[A_STR]) / 100);
+                        dam = ((current_weapon->ac * p_ptr->abilities[(CLASS_DEFENDER * 10) + 2]) * spellstat);
+			dam += multiply_divide(dam, p_ptr->dis_to_d, 100);
+			dam += multiply_divide(dam, p_ptr->stat_ind[A_STR], 100);
                         dis = 2 + (p_ptr->abilities[(CLASS_DEFENDER * 10) + 2] / 20);
                         if (!get_rep_dir(&dir)) return;
                         smash(dir, dam, dis);
                         energy_use = 100;
 			break;
 		}
-		case 62:
-		{
-			s32b dam;
-                        if (!combatfeat) choose_current_weapon();
-                        dam = damroll(current_weapon->dd, current_weapon->ds);
-                        dam *= (p_ptr->skill[4] + 1);
-                        dam += ((dam * p_ptr->dis_to_d) / 100);
-			dam += ((dam * p_ptr->stat_ind[A_STR]) / 100);
-                        dam += ((dam * ((p_ptr->abilities[(CLASS_DEFENDER * 10) + 7] - 1) * 20)) / 100);
-                        if (!get_rep_dir(&dir)) return;
-                        chain_attack(dir, GF_PHYSICAL, dam, 0, 1);
-                        energy_use = 100;
-			break;
-		}
 		case 63:
 		{
 			s32b dam;
-                        object_type *o_ptr = &inventory[INVEN_ARM];
-                        dam = ((o_ptr->ac + o_ptr->to_a) * p_ptr->skill[3]) * p_ptr->abilities[(CLASS_DEFENDER * 10) + 8];
-                        dam += ((dam * p_ptr->dis_to_d) / 100);
-			dam += ((dam * p_ptr->stat_ind[A_STR]) / 100);
+
+			object_type *q_ptr = &inventory[INVEN_WIELD];
+			object_type *q2_ptr = &inventory[INVEN_WIELD+1];
+
+			/* Choose a shield. */
+			if (q_ptr->tval == TV_SHIELD && q2_ptr->tval == TV_SHIELD) choose_current_weapon();
+			else
+			{
+				if (q_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD];
+				else if (q2_ptr->tval == TV_SHIELD) current_weapon = &inventory[INVEN_WIELD+1];
+				else
+				{
+					msg_print("You must wield a shield.");
+					return;
+				}
+			}
+
+                        dam = ((current_weapon->ac + current_weapon->to_a) * p_ptr->skill[3]) * p_ptr->abilities[(CLASS_DEFENDER * 10) + 8];
+			dam += multiply_divide(dam, p_ptr->dis_to_d, 100);
+			dam += multiply_divide(dam, p_ptr->stat_ind[A_STR], 100);
                         if (!get_aim_dir(&dir)) return;
                         fire_bolt(GF_PHYSICAL, dir, dam);
                         energy_use = 100;
 			break;
 		}
-		case 64:
-		{
-			s32b dam;
-			/* This determines casting power */
-			spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-
-			/* No lower than 0. */
-			if (spellstat < 0) spellstat = 0;
-			dam = (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10)] * 20) * spellstat;
-                        if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_SHATTER_EVIL, dir, dam, (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10)] / 30)+2);                                                
-                        energy_use = 100;
-			break;
-		}
-		case 65:
-		{
-			attack_aura(GF_ANGELIC_VOICE, 0, 15);
-                        energy_use = 100;
-			break;
-		}
+		
 		case 66:
 		{
 			justice_bless_weapon();
                         energy_use = 100;
 			break;
 		}
-		case 67:
-		{
-			s32b dam;
-                        dam = (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 5] * 10) * p_ptr->lev;
-                        attack_aura(GF_LITE, dam, 3 + (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 5] / 20));
-                        energy_use = 100;
-			break;
-		}
-		case 68:
-		{
-			s32b dam;
-			/* This determines casting power */
-			spellstat = (p_ptr->stat_ind[A_WIS] - 5);
-
-			/* No lower than 0. */
-			if (spellstat < 0) spellstat = 0;
-                        dam = (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 6] * 30) * spellstat;
-                        if (!get_aim_dir(&dir)) return;
-                        no_magic_return = TRUE;
-                        fire_bolt(GF_SLAY_EVIL, dir, dam);
-                        no_magic_return = FALSE;
-                        update_and_handle();
-                        energy_use = 100;
-			break;
-		}
-		case 69:
-		{
-			int x;
-                        msg_print("You call angels to your aid!");
-                        for (x = 0; x < ((p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 7] / 5) + 1); x++)
-                        {
-                                summon_specific_friendly(py, px, p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 7], SUMMON_ANGEL, FALSE, (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 7] / 5) + 5);
-                        }
-                        energy_use = 100;
-			break;
-		}
-		case 70:
-		{
-			s32b dam;
-                        dam = (p_ptr->chp * p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 9]);
-                        attack_aura(GF_LITE, dam, 5 + (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 9] / 30));
-                        energy_use = 100;
-			break;
-		}
+		
+		
+		/* 70 is free */
 		case 71:
 		{
 			s32b dam;
 			call_lua("monk_damages", "", "l", &dam);
-			dam += ((dam * ((p_ptr->abilities[(CLASS_ZELAR * 10)] - 1) * 40)) / 100);
+			dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_ZELAR * 10)] - 1) * 40), 100);
                         attack_aura(GF_MANA, dam, 2 + (p_ptr->abilities[(CLASS_ZELAR * 10)] / 20));
                         energy_use = 100;
 			break;
@@ -6923,7 +5204,7 @@ void use_hardcode_ability(int powernum)
 			s32b dam;
                         int range = 10 + (p_ptr->abilities[(CLASS_ZELAR * 10) + 1] / 2);
 			call_lua("monk_damages", "", "l", &dam);
-			dam += ((dam * ((p_ptr->abilities[(CLASS_ZELAR * 10) + 1] - 1) * 50)) / 100);
+			dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_ZELAR * 10) + 1] - 1) * 50), 100);
                         if (!get_rep_dir(&dir)) return;
                         chain_attack(dir, GF_MANA, dam, 0, range);
                         energy_use = 100;
@@ -6933,7 +5214,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
 			call_lua("monk_damages", "", "l", &dam);
-			dam += ((dam * ((p_ptr->abilities[(CLASS_ZELAR * 10) + 3] - 1) * 20)) / 100);
+			dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_ZELAR * 10) + 3] - 1) * 20), 100);
                         if (!get_rep_dir(&dir)) return;
                         chain_attack(dir, GF_MANA, dam, 0, 1);
                         energy_use = 100;
@@ -6967,14 +5248,14 @@ void use_hardcode_ability(int powernum)
 			{
                                 s32b dam;
 				call_lua("monk_damages", "", "l", &dam);
-				dam += ((dam * ((p_ptr->abilities[(CLASS_ZELAR * 10) + 7] - 1) * 5)) / 100);
+				dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_ZELAR * 10) + 7] - 1) * 5), 100);
                                 dir = get_a_dir();
                                 chain_attack(dir, GF_MANA, dam, 0, 10);
                         }
                         {
                                 s32b dam;
 				call_lua("monk_damages", "", "l", &dam);
-				dam += ((dam * ((p_ptr->abilities[(CLASS_ZELAR * 10) + 7] - 1) * 5)) / 100);
+				dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_ZELAR * 10) + 7] - 1) * 5), 100);
                                 dir = get_a_dir();
                                 chain_attack(dir, GF_MANA, dam, 0, 10);
                         }
@@ -6993,7 +5274,6 @@ void use_hardcode_ability(int powernum)
 			int x, y;
                         if (!tgt_pt(&x,&y)) return;
                         capture_soul(x, y);
-                        energy_use = 100;
 			break;
 		}
 		case 78:
@@ -7136,24 +5416,7 @@ void use_hardcode_ability(int powernum)
                         energy_use = 100;
 			break;
 		}
-		case 86:
-		{
-			if (p_ptr->tim_invisible >= 1)
-                        {
-                                s32b dam;
-                                object_type *o_ptr = &inventory[INVEN_WIELD];
-                                dam = damroll(o_ptr->dd, o_ptr->ds);
-                                dam *= (p_ptr->skill[6] + 1);
-                                dam += ((dam * p_ptr->dis_to_d) / 100);
-				dam += ((dam * p_ptr->stat_ind[A_STR]) / 100);
-				dam += ((dam * ((p_ptr->abilities[(CLASS_SHADOW * 10)] - 1) * 20)) / 100);
-                                if (!get_rep_dir(&dir)) return;
-                                chain_attack(dir, GF_STEALTH_ATTACK, dam, 0, 1);
-                        }
-                        else msg_print("You can only use this if you are using a temporary invisibility ability!");
-			energy_use = 100;
-			break;
-		}
+		
 		case 87:
 		{
 			int invpower = (p_ptr->abilities[(CLASS_SHADOW * 10) + 2] * 3) + 20;
@@ -7172,7 +5435,8 @@ void use_hardcode_ability(int powernum)
 			if (spellstat < 0) spellstat = 0;
 			if (p_ptr->tim_invisible >= 1)
                         {
-                                s32b dam = (p_ptr->skill[6] * spellstat) + (((p_ptr->skill[6] * p_ptr->lev) * (p_ptr->abilities[(CLASS_SHADOW * 10) + 3] * 20)) / 100);
+                                s32b dam = (p_ptr->skill[6] * spellstat);
+				dam += multiply_divide(dam, (p_ptr->abilities[(CLASS_SHADOW * 10) + 3] * 20), 100);
                                 if (!get_aim_dir(&dir)) return;
                                 fire_ball(GF_DARK, dir, dam, (p_ptr->abilities[(CLASS_SHADOW * 10) + 3] / 30)+2);                                                
                                 energy_use = 100;
@@ -7185,7 +5449,7 @@ void use_hardcode_ability(int powernum)
 			if (!(p_ptr->inside_quest))
 			{
 				int x, y, rad;
-                        	rad = 3 + (p_ptr->abilities[(CLASS_SHADOW * 10) + 5] / 2);
+                        	rad = 5 + (p_ptr->abilities[(CLASS_SHADOW * 10) + 5]);
                         	msg_print("Phase where? ");
                         	if (!tgt_pt(&x,&y)) return;
                         	if (!cave_empty_bold(y,x) || (cave[y][x].info & CAVE_ICKY) || (distance(y,x,py,px) > rad))
@@ -7200,8 +5464,7 @@ void use_hardcode_ability(int powernum)
                                         	else
                                         	{
                                                 	teleport_player_to(y,x);
-                                                	msg_print("You phase in shadows, at the price of your life...");
-                                                	take_hit(p_ptr->mhp / 4, "Shadow Phase ability");
+                                                	msg_print("You phase in shadows!");
                                         	}
                                 	}
                                 	else msg_print("You can't warp there...");
@@ -7214,6 +5477,7 @@ void use_hardcode_ability(int powernum)
 		case 90:
 		{
 			dark_mist_ability();
+			energy_use = 100;
 			break;
 		}
 		case 91:
@@ -7222,90 +5486,77 @@ void use_hardcode_ability(int powernum)
                         {
                         
                         s32b dam;
-                        int x, y, flg;
+                        int x, y, flg, rad;
 
                         flg = PROJECT_GRID | PROJECT_KILL;
 
 			if (!combatfeat) choose_current_weapon();
 			call_lua("weapon_damages", "", "l", &dam);
-			dam += ((dam * ((p_ptr->abilities[(CLASS_SHADOW * 10) + 9] - 1) * 20)) / 100);
+			dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_SHADOW * 10) + 9]) * 20), 100);
+
+			rad = 1 + (p_ptr->abilities[(CLASS_SHADOW * 10) + 9] / 10);
                         if (!tgt_pt(&x,&y)) return;
-                        if (distance(y,x,py,px) > 3)
+                        if (distance(y,x,py,px) > 5)
                         {
                                 msg_print("You can't target that far.");
                                 return;
                         }
                         else
                         {
-                                project(0, 1, y, x, dam, GF_DARK, flg);
+				stormshadow = TRUE;
+                                project(0, rad, y, x, dam, GF_DARK, flg);
+				stormshadow = FALSE;
                                 energy_use = 100;
                         }
                         }
                         else msg_print("You can only use this ability while under temporary invisibility!");
 			break;
 		}
+		case 100:
+		{
+			essence_transfer();
+			update_and_handle();
+			energy_use = 100;
+			break;
+		}
+		case 101:
+		{
+			defense_transfer();
+			update_and_handle();
+			energy_use = 100;
+			break;
+		}
+		case 102:
+		{
+			etch_runes();
+			update_and_handle();
+			energy_use = 100;
+			break;
+		}
+		case 103:
+		{
+			essence_fusion();
+			update_and_handle();
+			energy_use = 100;
+			break;
+		}
+		case 104:
+		{
+			combine_items(TRUE);
+			update_and_handle();
+			energy_use = 100;
+			break;
+		}
+
+		case 107:
+		{
+			diviner_wish();
+			update_and_handle();
+			energy_use = 100;
+			break;
+		}
 
 		/* Feats */
-		case 1000:
-		{
-			p_ptr->powerlevel = 1;
-			p_ptr->str_boost = p_ptr->stat_cur[A_STR];
-			if (p_ptr->abilities[(CLASS_FIGHTER * 10) + 6] >= 1)
-			{
-				p_ptr->pres = 15 + p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				p_ptr->mres = 15 + p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				p_ptr->ac_boost = 100 * p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				if (p_ptr->pres > 75) p_ptr->pres = 75;
-				if (p_ptr->mres > 75) p_ptr->mres = 75;
-				set_pres(3);
-				set_mres(3);
-				set_ac_boost(3);
-			}
-			set_powerattack(3);
-			set_str_boost(3);
-                        energy_use = 200;
-			break;
-		}
-		case 1001:
-		{
-			p_ptr->powerlevel = 2;
-			p_ptr->str_boost = p_ptr->stat_cur[A_STR] * 5;
-			if (p_ptr->abilities[(CLASS_FIGHTER * 10) + 6] >= 1)
-			{
-				p_ptr->pres = 15 + p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				p_ptr->mres = 15 + p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				p_ptr->ac_boost = 100 * p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				if (p_ptr->pres > 75) p_ptr->pres = 75;
-				if (p_ptr->mres > 75) p_ptr->mres = 75;
-				set_pres(4);
-				set_mres(4);
-				set_ac_boost(4);
-			}
-			set_powerattack(4);
-			set_str_boost(4);
-                        energy_use = 300;
-			break;
-		}
-		case 1002:
-		{
-			p_ptr->powerlevel = 3;
-			p_ptr->str_boost = p_ptr->stat_cur[A_STR] * 9;
-			if (p_ptr->abilities[(CLASS_FIGHTER * 10) + 6] >= 1)
-			{
-				p_ptr->pres = 15 + p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				p_ptr->mres = 15 + p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				p_ptr->ac_boost = 100 * p_ptr->abilities[(CLASS_FIGHTER * 10) + 6];
-				if (p_ptr->pres > 75) p_ptr->pres = 75;
-				if (p_ptr->mres > 75) p_ptr->mres = 75;
-				set_pres(5);
-				set_mres(5);
-				set_ac_boost(5);
-			}
-			set_powerattack(5);
-			set_str_boost(5);
-                        energy_use = 400;
-			break;
-		}
 		case 1003:
 		{
 			enchanted_blood();
@@ -7354,20 +5605,24 @@ void use_hardcode_ability(int powernum)
 			dam += dam2;
 			dam *= 2;
                         if (!get_rep_dir(&dir)) return;
+			melee_attack = TRUE;
+			no_magic_return = TRUE;
                         chain_attack(dir, GF_PHYSICAL, dam, 0, 1);
+			melee_attack = FALSE;
+			no_magic_return = FALSE;
                         energy_use = 100;
 			break;
 		}
 		case 1010:
 		{
 			if (!get_aim_dir(&dir)) return;
-                        fire_bolt(GF_OLD_HEAL, dir, (p_ptr->lev * 10));
+			fire_ball(GF_OLD_HEAL, dir, 1000 * p_ptr->skill[9], 3);
                         energy_use = 100;
 			break;
 		}
 		case 1011:
 		{
-			attack_aura(GF_MORALE_BOOST, 0, 3);
+			attack_aura(GF_MORALE_BOOST, 0, 5);
                         energy_use = 100;
 			break;
 		}
@@ -7379,14 +5634,14 @@ void use_hardcode_ability(int powernum)
 		}
 		case 1013:
 		{
-			combine_items();
+			combine_items(FALSE);
                         energy_use = 100;
 			break;
 		}
 		case 1014:
 		{
 			if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_SWORD) return;
+			if (current_weapon->itemskill != 12) return;
                         sword_spin();
                         energy_use = 100;
 			break;
@@ -7395,7 +5650,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
 			if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_HAFTED) return;
+			if (current_weapon->itemskill != 13) return;
                         call_lua("weapon_damages", "", "l", &dam);                                
                         dam += (dam / 2);
                         if (!get_rep_dir(&dir)) return;
@@ -7407,7 +5662,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
 			if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_HAFTED) return;
+			if (current_weapon->itemskill != 13) return;
 			call_lua("weapon_damages", "", "l", &dam);
                         dam *= 2;
                         if (!get_rep_dir(&dir)) return;
@@ -7418,7 +5673,7 @@ void use_hardcode_ability(int powernum)
 		case 1017:
 		{
 			if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_HAFTED && current_weapon->tval != TV_MSTAFF) return;
+			if (current_weapon->itemskill != 13) return;
                         if (!get_rep_dir(&dir)) return;
                         shattering_blow(dir);
                         energy_use = 100;
@@ -7428,18 +5683,22 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
 			if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_POLEARM) return;
+			if (current_weapon->itemskill != 14) return;
 			call_lua("weapon_damages", "", "l", &dam);
                         dam *= 2;
                         if (!get_rep_dir(&dir)) return;
+			melee_attack = TRUE;
+			no_magic_return = TRUE;
                         chain_attack(dir, GF_PHYSICAL, dam, 0, 2);
+			melee_attack = FALSE;
+			no_magic_return = FALSE;
                         energy_use = 100;
 			break;
 		}
 		case 1019:
 		{
 			if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_DAGGER) return;
+			if (current_weapon->itemskill != 15) return;
                         if (!get_rep_dir(&dir)) return;
                         eye_stab(dir);
                         energy_use = 100;
@@ -7455,7 +5714,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
                         if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_AXE) return;
+			if (current_weapon->itemskill != 16) return;
                         call_lua("weapon_damages", "", "l", &dam);
                         dam *= 2;
                         if (!get_aim_dir(&dir)) return;
@@ -7467,7 +5726,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
                         if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_AXE) return;
+			if (current_weapon->itemskill != 16) return;
                         call_lua("weapon_damages", "", "l", &dam);
                         dam += (dam / 2);
                         if (!get_aim_dir(&dir)) return;
@@ -7479,7 +5738,7 @@ void use_hardcode_ability(int powernum)
 		{
 			s32b dam;
                         if (!combatfeat) choose_current_weapon();
-			if (current_weapon->tval != TV_AXE) return;
+			if (current_weapon->itemskill != 16) return;
                         call_lua("weapon_damages", "", "l", &dam);
                         dam += (dam / 2);
                         if (!get_aim_dir(&dir)) return;
@@ -7510,182 +5769,102 @@ void use_hardcode_ability(int powernum)
 		case 1027:
 		{
 			int item;
-        			int y, x;
-        			int tdis, tmul;
-				int flg;
-        			s32b tdam;
-				s32b tot_to_d;
-        			int ammoqty = 1;
-				int tskill;
+        		int y, x;
+			int flg;
+        		s32b tdam;
+        		int ammoqty = 1;
+			int tskill;
 
-				object_type forge;
-				object_type *q_ptr;
+			object_type *o_ptr;
+			object_type *j_ptr;
 
-				object_type *o_ptr;
-				object_type *j_ptr;
+			u32b            f1, f2, f3, f4;
 
-				bool hit_body = FALSE;
+			char o_name[80];
 
-				char o_name[80];
+        		cptr q, s;
 
-        			cptr q, s;
+			/* Total skill */
+			tskill = p_ptr->skill[2] + (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
 
-				int msec = delay_factor * delay_factor * delay_factor;
+			/* Get the "bow" (if any) */
+			j_ptr = &inventory[INVEN_WIELD];
+			current_weapon = &inventory[INVEN_WIELD];
+			if ((j_ptr->tval != TV_RANGED) || (j_ptr->itemtype != 1))
+			{
+				j_ptr = &inventory[INVEN_WIELD+1];
+				current_weapon = &inventory[INVEN_WIELD+1];
+			}
 
-				/* Total skill */
-				tskill = p_ptr->skill[2] + (p_ptr->skill[19] + (p_ptr->skill[19] / 2));
+			/* Require a launcher */
+			if ((j_ptr->tval != TV_RANGED) || (j_ptr->itemtype != 1))
+			{
+				msg_print("You must wield a bow to use this ability.");
+				return;
+			}
 
-				/* Get the "bow" (if any) */
-				j_ptr = &inventory[INVEN_BOW];
+        		/* Get the "ammo" (if any) */
+        		o_ptr = &inventory[INVEN_AMMO];
 
-				/* Require a launcher */
-				if (!j_ptr->tval)
-				{
-					msg_print("You have nothing to fire with.");
-					return;
-				}
-				/* Must be a bow. */
-				if (!(j_ptr->sval == SV_SHORT_BOW || j_ptr->sval == SV_LONG_BOW || j_ptr->sval == SV_ELVEN_BOW
-				|| j_ptr->sval == SV_HIELF_BOW || j_ptr->sval == 16))
-				{
-					msg_print("You must be shooting with a bow.");
-					return;
-				}
+        		item = INVEN_AMMO;
 
-        			/* Get the "ammo" (if any) */
-        			o_ptr = &inventory[INVEN_AMMO];
+        		/* Check ammo type. */
+        		if ((o_ptr->itemtype != j_ptr->itemtype) || (!o_ptr->k_idx))
+			{
+				msg_print("You must use arrows.");
+				return;
+			}
 
-        			item = INVEN_AMMO;
+			/* Damages. */
+			call_lua("ranged_damages", "", "l", &tdam);
 
-        			/* If nothing correct try to choose from the backpack */
-        			if ((p_ptr->tval_ammo != o_ptr->tval) || (!o_ptr->k_idx))
-				{
-					msg_print("You have nothing to fire with.");
+                        flg = PROJECT_GRID | PROJECT_KILL;
 
-                			/* Require proper missile */
-                			item_tester_tval = p_ptr->tval_ammo;
+                        if (!tgt_pt(&x,&y)) return;
+                        if (distance(y,x,py,px) > 5)
+                        {
+                                msg_print("You can't target that far.");
+                                return;
+                        }
+                        else
+                        {
+				int elem;
 
-                			/* Get an item */
-                			q = "Fire which item? ";
-                			s = "You have nothing to fire.";
-                			if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+				if (j_ptr->extra1 != 0) elem = j_ptr->extra1;
+				else if (o_ptr->extra1 != 0) elem = o_ptr->extra1;
+				else elem = GF_PHYSICAL;
 
+                                project(0, 0, y, x, tdam, elem, flg);
 
-                			/* Access the item (if in the pack) */
-                			if (item >= 0)
-                			{
-                        			o_ptr = &inventory[item];
-                			}
-                			else
-                			{
-                        			o_ptr = &o_list[0 - item];
-                			}
-				}
-
-				/* Get local object */
-				q_ptr = &forge;
-
-				/* Obtain a local object */
-				object_copy(q_ptr, o_ptr);
-
-				/* Single object */
-        			/*if (p_ptr->abilities[(CLASS_ARCHER * 10) + 6] >= 1 && o_ptr->tval == TV_ARROW && multishot)
-        			{
-                			char tmpstring[80];
-                			int maxarrows = (p_ptr->abilities[(CLASS_ARCHER * 10) + 6] / 5) + 2;
-                			if (maxarrows > o_ptr->number) maxarrows = o_ptr->number;
-                			sprintf(tmpstring, "Shoot how many arrows?(Max: %d) ", maxarrows);
-                			ammoqty = get_quantity(tmpstring, maxarrows);
-                			if (ammoqty <= 0) ammoqty = 1;
-        			}*/
-        			q_ptr->number = ammoqty;
-        
 				/* Reduce and describe inventory */
-        			if (item >= 0 && !(q_ptr->art_flags4 & (TR4_RETURNING)) && (p_ptr->skill[2] < 70 || ammoqty > 1))
+				object_flags(o_ptr, &f1, &f2, &f3, &f4);
+				
+				if (!(f4 & (TR4_RETURNING)) && !(p_ptr->skill[2] >= 70))
 				{
-                			inven_item_increase(item, -ammoqty);
-					inven_item_describe(item);
-					inven_item_optimize(item);
-				}
 
-				/* Reduce and describe floor item */
-				else
-				{
-                			floor_item_increase(0 - item, -1);
-					floor_item_optimize(0 - item);
-				}
-
-
-				/* Sound */
-				sound(SOUND_SHOOT);
-
-				/* Describe the object */
-				object_desc(o_name, q_ptr, FALSE, 3);
-
-				/* Base damage from thrown object plus launcher bonus */
-				tdam = damroll(q_ptr->dd, q_ptr->ds);
-
-				/* Assume a base multiplier */
-				tmul = 1;
-
-				/* Analyze the launcher */
-				switch (j_ptr->sval)
-				{
-					/* Short Bow and Arrow */
-					case SV_SHORT_BOW:
+					if (randint(100) > o_ptr->extra2)
 					{
-						tmul = 2;
-						break;
+						drop_ranged = o_ptr;
+						dropnum = 1;
+						drop_near_ammo(drop_ranged, dropnum, y, x);
 					}
 
-					/* Long Bow and Arrow */
-					case SV_LONG_BOW:
+					if (item >= 0)
 					{
-						tmul = 3;
-						break;
+                				inven_item_increase(item, -ammoqty);
+						inven_item_describe(item);
+						inven_item_optimize(item);
 					}
-                			/* Elven Bow and Arrow */
-                			case SV_ELVEN_BOW:
+
+					/* Reduce and describe floor item */
+					else
 					{
-                        			tmul = 4;
-						break;
-					}
-                			/* High Elf Bow and Arrow */
-                			case SV_HIELF_BOW:
-					{
-                        			tmul = 5;
-						break;
-					}
-                			/* Hunter's Bow and Arrow */
-                			case 16:
-					{
-                        			tmul = 6;
-						break;
+                				floor_item_increase(0 - item, -1);
+						floor_item_optimize(0 - item);
 					}
 				}
-
-				/* Get extra "power" from "extra might" */
-				if (p_ptr->xtra_might) tmul++;
-
-				tdam = tdam * tmul;
-				tdam *= (tskill + 1);
-				tot_to_d = j_ptr->to_d + q_ptr->to_d + (p_ptr->stat_ind[A_DEX] * 5);    
-        			tdam += ((tdam * tot_to_d) / 100);
-        			tdam += ((tdam * p_ptr->stat_ind[A_DEX]) / 100);
-
-                        	flg = PROJECT_GRID | PROJECT_KILL;
-
-                        	if (!tgt_pt(&x,&y)) return;
-                        	if (distance(y,x,py,px) > 5)
-                        	{
-                                	msg_print("You can't target that far.");
-                                	return;
-                        	}
-                        	else
-                        	{
-                                	project(0, 0, y, x, tdam, GF_PHYSICAL, flg);
-                                	energy_use = 100;
-                        	}
+                                energy_use = 100;
+                        }
 			break;
 		}
 		case 1028:
@@ -7698,6 +5877,37 @@ void use_hardcode_ability(int powernum)
 		{
 			sharpen_shots();
                         energy_use = 100;
+			break;
+		}
+		case 1030:
+		{
+			alchemy_brand();
+                        energy_use = 100;
+			break;
+		}
+		case 1031:
+		{
+			alchemy_resist();
+                        energy_use = 100;
+			break;
+		}
+		case 20000:
+		{
+			use_monster_special_attack(p_ptr->body_monster);
+			break;
+		}
+		case 20001:
+		{
+			if (p_ptr->events[29015] == 0)
+			{
+				p_ptr->events[29015] = 1;
+				msg_print("Essences capturing is now On.");
+			}
+			else
+			{
+				p_ptr->events[29015] = 0;
+				msg_print("Essences capturing is now Off.");
+			}
 			break;
 		}
 	}
@@ -7762,6 +5972,102 @@ void do_cmd_turn_on_off_misc()
                 strcpy(power_desc[num], "Switch magic/monster magics");
                 powers[num] = 5;
 		num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER)
+        {
+                powers[num] = 8;
+                strcpy(power_desc[num], "Switch unarmed melee attack.");
+                num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29030] == 0)
+        {
+                powers[num] = 11;
+                strcpy(power_desc[num], "Turn On auto ranged weapon special attack(if any).");
+                num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29030] == 1)
+        {
+                powers[num] = 11;
+                strcpy(power_desc[num], "Turn Off auto ranged weapon special attack(if any).");
+                num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER && !(p_ptr->auraon))
+        {
+                powers[num] = 6;
+                strcpy(power_desc[num], "Turn On passive abilities(if any).");
+                num++;
+        }        
+        if (p_ptr->prace == RACE_MONSTER && p_ptr->auraon)
+        {
+                powers[num] = 7;
+                strcpy(power_desc[num], "Turn Off passive abilities(if any).");
+                num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29027] == 1)
+        {
+                powers[num] = 10;
+                strcpy(power_desc[num], "Turn Off main essence unarmed bonus.");
+                num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29027] == 0)
+        {
+                powers[num] = 10;
+                strcpy(power_desc[num], "Turn On main essence unarmed bonus.");
+                num++;
+        }
+	if (p_ptr->prace == RACE_MONSTER && p_ptr->events[29030] == 1)
+        {
+                powers[num] = 12;
+                strcpy(power_desc[num], "Switch auto ranged special attack.");
+                num++;
+        }
+	if (p_ptr->skill[28] > 0 && p_ptr->events[29040] != 0 && p_ptr->events[29041] == 0)
+        {
+                powers[num] = 13;
+                strcpy(power_desc[num], "Turn On Song.");
+                num++;
+        }
+	if (p_ptr->skill[28] > 0 && p_ptr->events[29040] != 0 && p_ptr->events[29041] == 1)
+        {
+                powers[num] = 13;
+                strcpy(power_desc[num], "Turn Off Song.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 7] > 0 && p_ptr->events[29042] == 1)
+        {
+                powers[num] = 14;
+                strcpy(power_desc[num], "Turn Off War Songs.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 7] > 0 && p_ptr->events[29042] == 0)
+        {
+                powers[num] = 14;
+                strcpy(power_desc[num], "Turn On War Songs.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 8] > 0 && p_ptr->events[29043] == 1)
+        {
+                powers[num] = 15;
+                strcpy(power_desc[num], "Turn Off Enthralling Songs.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_BARD * 10) + 8] > 0 && p_ptr->events[29043] == 0)
+        {
+                powers[num] = 15;
+                strcpy(power_desc[num], "Turn On Enthralling Songs.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+        {
+                powers[num] = 16;
+                strcpy(power_desc[num], "Turn Off Counter Shot.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 0)
+        {
+                powers[num] = 16;
+                strcpy(power_desc[num], "Turn On Counter Shot.");
+                num++;
         }
 	
 	if (num == 0)
@@ -7948,7 +6254,1328 @@ void do_cmd_turn_on_off_misc()
                         msg_print("You are now in Monster Magics mode.");
                 }
 	}
+	if (Power == 6)
+	{
+		msg_format("You turn on your special powers.");
+                p_ptr->auraon = TRUE;
+	}
+	if (Power == 7)
+	{
+		msg_format("You turn off your special powers.");
+                p_ptr->auraon = FALSE;
+	}
+	if (Power == 8)
+	{
+		select_monster_melee();
+	}
+	if (Power == 11)
+	{
+		if (p_ptr->events[29030] == 1)
+                {
+                        p_ptr->events[29030] = 0;
+                        msg_print("Auto ranged special turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29030] = 1;
+                        msg_print("Auto ranged special turned On.");
+                }
+	}
+	if (Power == 12)
+	{
+		select_monster_ranged();
+	}
+	if (Power == 13)
+	{
+		if (p_ptr->events[29041] == 1)
+                {
+                        p_ptr->events[29041] = 0;
+                        msg_print("Song turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29041] = 1;
+                        msg_print("Song turned On.");
+                }
+	}
+	if (Power == 14)
+	{
+		if (p_ptr->events[29042] == 1)
+                {
+                        p_ptr->events[29042] = 0;
+                        msg_print("War Songs turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29042] = 1;
+                        msg_print("War Songs turned On.");
+                }
+	}
+	if (Power == 15)
+	{
+		if (p_ptr->events[29043] == 1)
+                {
+                        p_ptr->events[29043] = 0;
+                        msg_print("Enthralling Songs turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29043] = 1;
+                        msg_print("Enthralling Songs turned On.");
+                }
+	}
+	if (Power == 16)
+	{
+		if (p_ptr->events[29045] == 1)
+                {
+                        p_ptr->events[29045] = 0;
+                        msg_print("Counter Shot turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29045] = 1;
+                        msg_print("Counter Shot turned On.");
+                }
+	}
 
 	/* Success */
 	return;
+}
+
+/* Reload a ranged weapon. */
+void reload_ranged()
+{
+	int             item;
+	object_type     *o_ptr;
+        u32b            f1, f2, f3, f4;
+	char            o_name[80];
+	char            buf[128];
+	cptr            q, s;
+
+	/* First, look at the wielded weapons. */
+	o_ptr = &inventory[INVEN_WIELD];
+
+	if ((o_ptr->tval == TV_RANGED) && (o_ptr->pval2 < o_ptr->extra3))
+	{
+		object_desc(buf, o_ptr, 1, 0);
+                msg_format("%s has been reloaded!", buf);
+		o_ptr->pval2 = o_ptr->extra3;
+		energy_use = 100;
+		update_and_handle();
+		return;
+	}
+
+	o_ptr = &inventory[INVEN_WIELD+1];
+
+	if ((o_ptr->tval == TV_RANGED) && (o_ptr->pval2 < o_ptr->extra3))
+	{
+		object_desc(buf, o_ptr, 1, 0);
+                msg_format("%s has been reloaded!", buf);
+		o_ptr->pval2 = o_ptr->extra3;
+		energy_use = 100;
+		update_and_handle();
+		return;
+	}
+
+	/* Otherwise, reload a selected weapon in inventory. */
+	item_tester_tval = TV_RANGED;
+
+	/* Get an item */
+	q = "Reload which weapon? ";
+	s = "You have weapons to reload.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	o_ptr->pval2 = o_ptr->extra3;
+	msg_print("The weapon has been reloaded!");
+
+	energy_use = 100;
+	update_and_handle();
+}
+
+/* Choose an item to throw. */
+bool throw_select()
+{
+	int item;
+	bool force = FALSE;
+	object_type *o_ptr;
+	object_type forge;
+	u32b f1, f2, f3, f4;
+
+	cptr q, s;
+
+	/* Get an item */
+	if (p_ptr->events[29044] == 1)
+	{
+		item = INVEN_AMMO;
+		o_ptr = &inventory[item];
+	}
+	else
+	{
+		q = "Throw which item? ";
+		s = "You have no items to throw.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
+	}
+
+	/* Object selected. */
+	/*drop_ranged = &forge;
+	object_prep(drop_ranged, o_ptr->tval);
+	object_copy(drop_ranged, o_ptr);*/
+
+	drop_ranged = o_ptr;
+	throw_item = item;
+	if (item >= 0) throw_floorpack = 0;
+	else throw_floorpack = 1;
+
+	/* Destroy item...or not? */
+	/*object_flags(o_ptr, &f1, &f2, &f3, &f4);*/
+
+	/*if (!(f4 & (TR4_RETURNING)))
+	{
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+	}*/
+
+	return (TRUE);
+}
+
+/* Alchemic branding of an item. */
+void alchemy_brand()
+{
+	int item, weapon;
+	s32b maxbranddam;
+	s32b potionpower;
+	object_type *o_ptr;
+	object_type *pot_ptr;
+
+	cptr q, s;
+
+	item_tester_tval = TV_POTION;
+
+	/* Choose a potion. */
+	q = "Use which potion? ";
+	s = "You have no potions.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		pot_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		pot_ptr = &o_list[0 - item];
+	}
+
+	item_tester_tval = 0;
+	item_tester_hook = item_tester_hook_brandable;
+
+	/* Choose a weapon. */
+	q = "Brand which weapon? ";
+	s = "You have no weapons.";
+	if (!get_item(&weapon, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (weapon >= 0)
+	{
+		o_ptr = &inventory[weapon];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - weapon];
+	}
+
+	/* Brand the weapon. */
+	maxbranddam = p_ptr->skill[10] * 100;
+	call_lua("potion_power", "(O)", "d", pot_ptr, &potionpower);
+	potionpower = potionpower / 4;
+	if (potionpower > maxbranddam) potionpower = maxbranddam;
+	
+	o_ptr->branddam = potionpower;
+	o_ptr->brandtype = pot_ptr->brandtype;
+	o_ptr->brandrad = 0;
+
+	msg_print("Your weapon has been branded!");
+
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	return;
+}
+
+/* Use Alchemy to add resistances to items. */
+void alchemy_resist()
+{
+	int item, item2, i;
+	s16b resistsum, maxresist, resamount;
+	object_type *o_ptr;
+	object_type *pot_ptr;
+
+	cptr q, s;
+
+	item_tester_tval = TV_POTION;
+
+	/* Choose a potion. */
+	q = "Use which potion? ";
+	s = "You have no potions.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		pot_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		pot_ptr = &o_list[0 - item];
+	}
+
+	item_tester_tval = 0;
+
+	/* Choose an item. */
+	q = "Apply to which item? ";
+	s = "You have no items.";
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item2 >= 0)
+	{
+		o_ptr = &inventory[item2];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item2];
+	}
+
+	/* Apply resistances(if possible) */
+	maxresist = p_ptr->skill[10] / 4;
+	
+	resistsum = 0;
+	for (i = 0; i < MAX_RESIST; i++)
+	{
+		resistsum += o_ptr->resistances[i];
+	}
+
+	if (resistsum >= maxresist)
+	{
+		msg_print("This item's total resistances exceeds the maximum you can apply for now.");
+		return;
+	}
+
+	resamount = pot_ptr->branddam / 10;
+	if ((maxresist - resistsum) > 0) maxresist = maxresist - resistsum;
+	else maxresist = 0;
+	if (resamount > maxresist) resamount = maxresist;
+	
+	o_ptr->resistances[pot_ptr->brandtype] += resamount;
+	if (o_ptr->resistances[pot_ptr->brandtype] > 100) o_ptr->resistances[pot_ptr->brandtype] = 100;
+
+	if (resamount > 0) msg_print("Resistances were added to the item.");
+	else msg_print("No additional resistances were added to this item.");
+
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	return;
+}
+
+/* Essence Transfer ability. */
+void essence_transfer()
+{
+	int item, item2;
+	s32b maxbranddam;
+	s32b maxpotionpower;
+	s32b newbranddam;
+	object_type *o_ptr;
+	object_type *q_ptr;
+	u32b f1, f2, f3, f4;
+	u32b f11, f22, f33, f44;
+
+	cptr q, s;
+
+	item_tester_hook = item_tester_hook_brandable_potions;
+
+	/* Choose a potion. */
+	q = "Transfer from? ";
+	s = "You have no valid items.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Is it branded? */
+	if (o_ptr->branddam == 0)
+	{
+		msg_print("This item has no brands.");
+		return;
+	}
+
+	object_flags(o_ptr, &f11, &f22, &f33, &f44);
+
+	item_tester_hook = item_tester_hook_brandable_potions;
+
+	/* Choose a weapon. */
+	q = "Transfer to which item? ";
+	s = "You have no valid items.";
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item2 >= 0)
+	{
+		q_ptr = &inventory[item2];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		q_ptr = &o_list[0 - item2];
+	}
+
+	object_flags(q_ptr, &f1, &f2, &f3, &f4);
+
+	if (!(f4 & (TR4_CRAFTED)) && q_ptr->tval != TV_POTION && q_ptr->tval != TV_CRYSTAL)
+	{
+		msg_print("The item must be an enchanted crafted item, a potion or a crystal.");
+		return;
+	}
+
+	/* Begin the transfer. */
+	maxbranddam = p_ptr->abilities[(CLASS_ENCHANTER * 10) + 2] * 1000;
+	maxpotionpower = p_ptr->abilities[(CLASS_ENCHANTER * 10) + 2] * 10;
+
+	newbranddam = o_ptr->branddam;
+	if (newbranddam > maxbranddam) newbranddam = maxbranddam;
+
+	if (q_ptr->tval == TV_POTION || q_ptr->tval == TV_CRYSTAL)
+	{
+		if (newbranddam > maxpotionpower) newbranddam = maxpotionpower;
+		q_ptr->branddam = newbranddam;
+		q_ptr->brandtype = o_ptr->brandtype;
+
+		/* If the original item had "MODERATE_POWER", give it to the target. */
+		if (f44 & (TR4_MODERATE_POWER))
+		{
+			q_ptr->art_flags4 |= (TR4_MODERATE_POWER);
+		}
+	}
+	else
+	{
+		q_ptr->branddam = newbranddam;
+		q_ptr->brandtype = o_ptr->brandtype;
+		q_ptr->brandrad = o_ptr->brandrad;
+	}
+
+	msg_print("The essences were transferred!");
+
+	/* Remove the brand from the first item. */
+	/* If it's a potion, destroy it instead. */
+	if (o_ptr->tval == TV_POTION)
+	{
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+	}
+	else
+	{
+		o_ptr->branddam = 0;
+		o_ptr->brandtype = 0;
+		o_ptr->brandrad = 0;
+	}
+
+	return;
+}
+
+/* Defense Transfer ability. */
+void defense_transfer()
+{
+	int item, item2;
+	s32b maxbranddam;
+	s32b maxpotionpower;
+	s32b newbranddam;
+	object_type *o_ptr;
+	object_type *q_ptr;
+	object_kind *k_ptr;
+	u32b f1, f2, f3, f4;
+
+	cptr q, s;
+
+	/* Choose an original item. */
+	q = "Transfer from? ";
+	s = "You have no items.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Does it has base AC? */
+	if (o_ptr->ac <= 0)
+	{
+		msg_print("This item provides no base AC.");
+		return;
+	}
+
+	/* Do we have the proper ability level? */
+	k_ptr = &k_info[o_ptr->k_idx];
+	if (k_ptr->level > (p_ptr->abilities[(CLASS_ENCHANTER * 10) + 3] * 4))
+	{
+		msg_print("You cannot transfer from this item yet.");
+		return;
+	}
+
+	/* Choose a target. */
+	q = "Transfer to which item? ";
+	s = "You have no valid items.";
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item2 >= 0)
+	{
+		q_ptr = &inventory[item2];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		q_ptr = &o_list[0 - item2];
+	}
+
+	object_flags(q_ptr, &f1, &f2, &f3, &f4);
+
+	if (!(f4 & (TR4_CRAFTED)))
+	{
+		msg_print("The item must be an enchanted crafted item.");
+		return;
+	}
+
+	/* Begin the transfer. */
+	if (q_ptr->tval == TV_SOFT_ARMOR || q_ptr->tval == TV_HARD_ARMOR || q_ptr->tval == TV_DRAG_ARMOR)
+	{
+		q_ptr->ac = o_ptr->ac;
+	}
+	else
+	{
+		q_ptr->ac = o_ptr->ac / 4;
+	}
+
+	msg_print("The base AC transfer was successful!");
+
+	o_ptr->ac = 0;
+
+	return;
+}
+
+/* Etch Runes ability. */
+void etch_runes()
+{
+	int item;
+	int spellnum;
+	int ispellnum;
+	int i;
+	object_type *o_ptr;
+	object_kind *k_ptr;
+	u32b f1, f2, f3, f4;
+	magic_spells *spell_ptr;
+
+	cptr q, s;
+
+	/* First we needs to pick a spell. */
+	spellnum = pick_spell();
+
+	if (spellnum <= 0) return;
+
+	spell_ptr = &magic_spell[spellnum];
+
+	/* What kind of spell did we pick? Not all are valid. */
+	if (!(spell_ptr->effect[0] == 1 && (spell_ptr->shape[0] == 1 || spell_ptr->shape[0] == 2))
+	&& !(spell_ptr->effect[0] == 2 && (spell_ptr->shape[0] == 1 || spell_ptr->shape[0] == 2))
+	&& !(spell_ptr->effect[0] == 3)
+	&& !(spell_ptr->effect[0] == 6)
+	&& !(spell_ptr->effect[0] == 13)
+	&& !(spell_ptr->effect[0] == 14))
+	{
+		msg_print("You cannot enchant your item with that spell.");
+		return;
+	}
+
+	/* Choose an original item. */
+	q = "Add the spell to which item? ";
+	s = "You have no items.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	if (!(f4 & (TR4_CRAFTED)))
+	{
+		msg_print("The item must be an enchanted crafted item.");
+		return;
+	}
+
+	/* Determine which slot of the item is free. */
+	for (i = 0; i < 20; i++)
+	{
+		if (o_ptr->spell[i].type == 0) break;
+	}
+
+	/* Shouldn't happen, but who knows? */
+	if (i >= 20)
+	{
+		msg_print("All slots of this item have been taken.");
+		return;
+	}
+
+	/* Do we have enough points to use an extra slot? */
+	if (i > (p_ptr->abilities[(CLASS_ENCHANTER * 10) + 6] / 10))
+	{
+		msg_print("You cannot use an extra slot with your current ability level.");
+		return;
+	}
+
+	/* Spell's cost check. */
+	if (spell_ptr->finalcost > (p_ptr->abilities[(CLASS_ENCHANTER * 10) + 6] * 30))
+	{
+		msg_print("This spell is too costly for your ability level.");
+		return;
+	}
+
+	/* Finally, let's start enchanting! */
+	if (spell_ptr->effect[0] == 1)
+	{
+		strcpy(o_ptr->spell[i].name, spell_ptr->name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = spell_ptr->shape[0];
+		o_ptr->spell[i].power = spell_ptr->power[0];
+		o_ptr->spell[i].special1 = spell_ptr->type[0];
+		o_ptr->spell[i].special2 = spell_ptr->radius[0];
+		o_ptr->spell[i].special3 = 0;
+		o_ptr->spell[i].summchar = '0';
+		o_ptr->spell[i].cost = spell_ptr->finalcost / 4;
+	}
+	if (spell_ptr->effect[0] == 2)
+	{
+		strcpy(o_ptr->spell[i].name, spell_ptr->name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = spell_ptr->shape[0];
+		o_ptr->spell[i].power = spell_ptr->power[0];
+		o_ptr->spell[i].special1 = spell_ptr->type[0];
+		o_ptr->spell[i].special2 = spell_ptr->radius[0];
+		o_ptr->spell[i].special3 = 1;
+		o_ptr->spell[i].summchar = '0';
+		o_ptr->spell[i].cost = spell_ptr->finalcost / 4;
+	}
+	if (spell_ptr->effect[0] == 3)
+	{
+		strcpy(o_ptr->spell[i].name, spell_ptr->name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = 4;
+		o_ptr->spell[i].power = spell_ptr->power[0];
+		o_ptr->spell[i].special1 = 0;
+		o_ptr->spell[i].special2 = 0;
+		o_ptr->spell[i].special3 = 0;
+		o_ptr->spell[i].summchar = '0';
+		o_ptr->spell[i].cost = spell_ptr->finalcost / 4;
+	}
+	if (spell_ptr->effect[0] == 6)
+	{
+		strcpy(o_ptr->spell[i].name, spell_ptr->name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = 3;
+		o_ptr->spell[i].power = spell_ptr->power[0];
+		o_ptr->spell[i].special1 = 0;
+		o_ptr->spell[i].special2 = 0;
+		o_ptr->spell[i].special3 = 0;
+		o_ptr->spell[i].summchar = '0';
+		o_ptr->spell[i].cost = spell_ptr->finalcost / 4;
+	}
+	if (spell_ptr->effect[0] == 13)
+	{
+		strcpy(o_ptr->spell[i].name, spell_ptr->name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = 6;
+		o_ptr->spell[i].power = spell_ptr->power[0];
+		o_ptr->spell[i].special1 = spell_ptr->shape[0];
+		o_ptr->spell[i].special2 = spell_ptr->type[0];
+		o_ptr->spell[i].special3 = 0;
+		o_ptr->spell[i].summchar = spell_ptr->schar1;
+		o_ptr->spell[i].cost = spell_ptr->finalcost / 4;
+	}
+	if (spell_ptr->effect[0] == 14)
+	{
+		strcpy(o_ptr->spell[i].name, spell_ptr->name);
+                strcpy(o_ptr->spell[i].act, "");
+		o_ptr->spell[i].type = 7;
+		o_ptr->spell[i].power = get_mon_num_name(spell_ptr->sspeci1);
+		o_ptr->spell[i].special1 = spell_ptr->shape[0];
+		o_ptr->spell[i].special2 = spell_ptr->type[0];
+		o_ptr->spell[i].special3 = 0;
+		o_ptr->spell[i].summchar = '0';
+		o_ptr->spell[i].cost = spell_ptr->finalcost / 4;
+	}
+
+	if (!(f3 & (TR3_ACTIVATE))) o_ptr->art_flags3 |= (TR3_ACTIVATE);
+
+	msg_print("Magical runes have been etched on your item!");
+
+	return;
+}
+
+/* Essence Fusion ability. */
+void essence_fusion()
+{
+	int item, item2, i;
+	object_type *o_ptr;
+	object_type *pot_ptr;
+	object_kind *k_ptr;
+	int istr, fstr;
+	u32b f1, f2, f3, f4;
+
+	cptr q, s;
+
+	item_tester_tval = TV_POTION;
+
+	/* Choose a potion. */
+	q = "Use which potion? ";
+	s = "You have no potions.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		pot_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		pot_ptr = &o_list[0 - item];
+	}
+
+	item_tester_tval = 0;
+	item_tester_hook = item_tester_hook_efusion;
+
+	/* Choose an item. */
+	q = "Fuse to which item? ";
+	s = "You have no items.";
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item2 >= 0)
+	{
+		o_ptr = &inventory[item2];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item2];
+	}
+
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	if (!(f4 & (TR4_CRAFTED)))
+	{
+		msg_print("The item must be an enchanted crafted item.");
+		return;
+	}
+
+	if (k_ptr->level > (p_ptr->abilities[(CLASS_ENCHANTER * 10) + 7] * 5))
+	{
+		msg_print("This item is too complicated for your current ability level.");
+		return;
+	}
+
+	if (k_ptr->level > (pot_ptr->branddam / 5))
+	{
+		msg_print("You must a potion with a stronger base power.");
+		return;
+	}
+
+	fstr = p_ptr->abilities[(CLASS_ENCHANTER * 10) + 7] * 20;
+	istr = k_ptr->level * 5;
+
+	if (randint(fstr) >= randint(istr))
+	{
+		msg_print("The fusion was successful!");
+		o_ptr->extra1 = pot_ptr->brandtype;
+
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+	}
+	else
+	{
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+
+		do_cmd_save_game();
+		msg_print("The fusion has failed.");
+	}
+
+	return;
+}
+
+/* Diviner's Wish ability! */
+void diviner_wish()
+{
+        char name[80];
+        int x;
+
+	/* Only in towns. */
+	if (dun_level != 0 || (p_ptr->inside_quest))
+	{
+		msg_print("You cannot use this ability here.");
+		return;
+	}
+
+        /* Make an empty string */
+        name[0] = 0;
+
+	/* Reset the previous wish. */
+	p_ptr->events[29013] = 0;
+
+        /* Ask for the wish */
+        if(!get_string("Wish for what item? ", name, 80)) return;
+
+	/* You WANT a twisted boss, hmmm? */
+	if (strstr("Twisted Boss", name))
+	{
+		msg_print("You make the wish to fight a powerful enemy.");
+		p_ptr->events[29013] = -1;
+		return;
+	}
+
+        /* Try all objects, make sure it exists. */
+        for (x = 1; x <= max_k_idx; x++)
+        {
+                object_kind *k_ptr = &k_info[x];
+                if (strstr((k_name + k_ptr->name), name) && !(k_ptr->flags4 & (TR4_SPECIAL_GENE)) && !(k_ptr->flags3 & (TR3_INSTA_ART)))
+                {
+                        p_ptr->events[29013] = x;
+			msg_print("You wish for the item. Now you must reach the end of a random dungeon.");
+                        return;
+                }
+        }
+
+	/* No items was found. */
+	msg_print("You cannot wish for this item.");
+}
+
+/* Select the Monster race default melee attack */
+void select_monster_melee()
+{
+        monster_race    *r_ptr;
+	int             i;
+	int		num = 0;
+	int             ac,pt;
+	int		powers[36];
+
+	char		powdesc[160];
+	char            power_desc[36][160];
+	bool            blinked = FALSE, touched = FALSE;
+
+	int Power = -1;
+	bool            flag, redraw;
+        int             ask;
+	char            choice;
+	char            out_val[160];
+
+        r_ptr = &r_info[p_ptr->body_monster];
+		
+	/* List the powers */
+	i = 0;
+	while (i < 20 && r_ptr->attack[i].type > 0) 
+	{
+		if (r_ptr->attack[i].type == 1 || r_ptr->attack[i].type == 3)
+		{
+			sprintf(powdesc, "%s", get_monster_attack_name_no_type(p_ptr->body_monster, i));
+			strcpy(power_desc[num],powdesc);
+			powers[num++]=i;
+		}
+		i++;
+	}
+
+        if(!num) {msg_print("No attacks available.");return;}
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Build a prompt (accept all spells) */
+	if (num <= 26)
+	{
+		/* Build a prompt (accept all spells) */
+        	strnfmt(out_val, 78, "(Attacks %c-%c, *=List, ESC=exit) Use which attack? ",
+		I2A(0), I2A(num - 1));
+	}
+	else
+	{
+        	strnfmt(out_val, 78, "(Attacks %c-%c, *=List, ESC=exit) Use which attack? ",
+		I2A(0), '0' + num - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				byte y = 1, x = 0;
+				int ctr = 0;
+				char dummy[80];
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+				prt ("", y++, x);
+
+				while (ctr < num && ctr < 17)
+				{
+					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
+					prt(dummy, y + ctr, x);
+					ctr++;
+				}
+				while (ctr < num)
+				{
+					if (ctr < 26)
+					{
+						sprintf(dummy, " %c) %s", I2A(ctr), power_desc[ctr]);
+					}
+					else
+					{
+						sprintf(dummy, " %c) %s", '0' + ctr - 26, power_desc[ctr]);
+					}
+					prt(dummy, y + ctr - 17, x + 40);
+					ctr++;
+				}
+				if (ctr < 17)
+				{
+					prt ("", y + ctr, x);
+				}
+				else
+				{
+					prt ("", y + 17, x);
+				}
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		if (choice == '\r' && num == 1)
+		{
+			choice = 'a';
+		}
+
+		if (isalpha(choice))
+		{
+			/* Note verify */
+			ask = (isupper(choice));
+
+			/* Lowercase */
+			if (ask) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			ask = FALSE; /* Can't uppercase digits */
+
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell();
+			continue;
+		}
+
+		/* Save the spell index */
+		Power = powers[i];
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+			strnfmt(tmp_val, 78, "Use %s? ", power_desc[i]);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) Term_load();
+
+	/* Abort if needed */
+	if (!flag) 
+	{
+		energy_use = 0;
+                return;
+	}
+
+	p_ptr->events[29019] = i;
+	msg_print("Attack selected.");
+}
+
+char *get_monster_attack_name_no_type(int m_idx, int num)
+{
+	char attackname[160];
+	char aname[80];
+	char extra[80];
+	monster_race *r_ptr = &r_info[m_idx];
+
+	/*plog(r_ptr->attack[num].name[0]);*/
+
+	/* Generate the name. */
+	/* If it's just "!", let's make a NICE name! ;) */
+	if (r_ptr->attack[num].name[0] != '!') sprintf(aname, "%s", r_ptr->attack[num].name);
+	else
+	{
+		char aact[80];
+		sprintf(aact, "%s", r_ptr->attack[num].act);
+		aact[0] = toupper(aact[0]);
+		sprintf(aname, "%s %s", get_element_name(r_ptr->attack[num].element), aact);
+	}
+
+	if (r_ptr->attack[num].type == 1 || r_ptr->attack[num].type == 3) sprintf(extra, "(%s, base dam: %dd%d)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+	else sprintf(extra, "(Special attack)");
+
+	sprintf(attackname, "%s %s", aname, extra);
+
+        return(attackname);
+}
+
+/* Select the Monster race default ranged attack */
+void select_monster_ranged()
+{
+        monster_race    *r_ptr;
+	int             i;
+	int		num = 0;
+	int             ac,pt;
+	int		powers[36];
+
+	char		powdesc[160];
+	char            power_desc[36][160];
+	bool            blinked = FALSE, touched = FALSE;
+
+	int Power = -1;
+	bool            flag, redraw;
+        int             ask;
+	char            choice;
+	char            out_val[160];
+
+        r_ptr = &r_info[p_ptr->body_monster];
+		
+	/* List the powers */
+	i = 0;
+	while (i < 20 && r_ptr->attack[i].type > 0) 
+	{
+		if (r_ptr->attack[i].type == 3)
+		{
+			sprintf(powdesc, "%s", get_monster_attack_name_no_type(p_ptr->body_monster, i));
+			strcpy(power_desc[num],powdesc);
+			powers[num++]=i;
+		}
+		i++;
+	}
+
+        if(!num) {msg_print("No attacks available.");return;}
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Build a prompt (accept all spells) */
+	if (num <= 26)
+	{
+		/* Build a prompt (accept all spells) */
+        	strnfmt(out_val, 78, "(Attacks %c-%c, *=List, ESC=exit) Use which attack? ",
+		I2A(0), I2A(num - 1));
+	}
+	else
+	{
+        	strnfmt(out_val, 78, "(Attacks %c-%c, *=List, ESC=exit) Use which attack? ",
+		I2A(0), '0' + num - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				byte y = 1, x = 0;
+				int ctr = 0;
+				char dummy[80];
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+				prt ("", y++, x);
+
+				while (ctr < num && ctr < 17)
+				{
+					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
+					prt(dummy, y + ctr, x);
+					ctr++;
+				}
+				while (ctr < num)
+				{
+					if (ctr < 26)
+					{
+						sprintf(dummy, " %c) %s", I2A(ctr), power_desc[ctr]);
+					}
+					else
+					{
+						sprintf(dummy, " %c) %s", '0' + ctr - 26, power_desc[ctr]);
+					}
+					prt(dummy, y + ctr - 17, x + 40);
+					ctr++;
+				}
+				if (ctr < 17)
+				{
+					prt ("", y + ctr, x);
+				}
+				else
+				{
+					prt ("", y + 17, x);
+				}
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		if (choice == '\r' && num == 1)
+		{
+			choice = 'a';
+		}
+
+		if (isalpha(choice))
+		{
+			/* Note verify */
+			ask = (isupper(choice));
+
+			/* Lowercase */
+			if (ask) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			ask = FALSE; /* Can't uppercase digits */
+
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell();
+			continue;
+		}
+
+		/* Save the spell index */
+		Power = powers[i];
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+			strnfmt(tmp_val, 78, "Use %s? ", power_desc[i]);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) Term_load();
+
+	/* Abort if needed */
+	if (!flag) 
+	{
+		energy_use = 0;
+                return;
+	}
+
+	p_ptr->events[29031] = Power;
+	msg_print("Attack selected.");
 }

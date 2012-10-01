@@ -1,3 +1,15 @@
+N:1:1027:2:0:0:0
+I:Treasury Guard;
+T:We unlocked the doors for you. Thanks for saving our city!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1027:1:0:0:0
+I:Treasury Guard;
+T:We unlocked the doors for you. Thanks for saving our city!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
 N:1:1017:1:0:0:0
 I:Treasury Guard;
 T:Bah! The orcs can come if they want. We won't let them get our treasures!;

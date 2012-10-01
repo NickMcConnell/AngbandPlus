@@ -1,0 +1,56 @@
+N:1:0:0:0:0:0
+I:Minister;
+T:May I help you?;
+A:Who are you?:0:0:0:1:2:0:0:0:0
+A:Where can I find the queen?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Minister;
+T:Me? I am one of Ivhala's ministers, who helps the queen with the;
+T:administrative tasks. Of course, the truth is that we do all the work;
+T:for her. She's so irresponsible! Adventuring and slaying monsters has;
+T:it's merits, but a queen should think about economy, trades and stuff;
+T:like that.;
+A:But slaying monsters is a honorable deed.:0:0:0:1:3:0:0:0:0
+A:I need to meet her anyway. Where is she?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Minister;
+T:Hmph...let me guess. A <CLASS>, right? Yeah, you adventurers are all;
+T:the same with your monster slaying nonsense. But go ahead and see;
+T:her majesty. She'll be more than happy to see you. Or perhaps I should;
+T:call her 'Christie'? Pfff... I wish she was more like Julian.;
+A:You don't seem to like the queen at all.:0:0:0:1:5:0:0:0:0
+A:Where can I find her?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Minister;
+T:From the entrance, go straight to the north. You'll find her in the;
+T:underground training room. That's where she spends most of her time.;
+T:There or in the barracks speaking with captain Emma. Unless, of course,;
+T:she went out adventuring to avoid paperwork. Sheesh...;
+A:You don't seem to like the queen at all.:0:0:0:1:5:0:0:0:0
+A:Who are you?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Minister;
+T:Hmph. Well, she's Ivhala's greatest warrior. I suppose that makes her;
+T:quite admirable in her own right. She has an army, but don't really need;
+T:it. Not only is she a powerful Defender, but she's an Elemental Lady of;
+T:Earth too! But a country cannot be ruled by a person like that. We need;
+T:a person who will take care of politics, economics, and relations with;
+T:other countries. You know king Julian of Jindar? Now THAT's what a ruler;
+T:should be. Intelligent, responsible and with political charisma. And he;
+T:is pretty skilled in the way of magic too! Christina is powerful. But she;
+T:should work for a ruler, not be a ruler herself.;
+A:Where can I find her?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

@@ -24,13 +24,14 @@ once immune to the effects of fire, but after living for centuries in
 the frozen kingdom of Rhyzendal, they have lost some of their resistance 
 to fire, while gaining some resistance to cold. Demons are intelligent 
 and persuasive, and these are the main reasons why they are not trusted 
-by anyone.
+by anyone. Demon wizards favor Elemental and Alteration magics.
 
 DEMON FEATURES:
 
 - +25% to Intelligence.
 - +25% to Charisma.
 - +25% damages to Darkness-based attacks and spells.
+- +25% to Elemental and Alteration skills.
 - 25% resistance to fire and cold.
 - 100% resistance to Darkness.
 - Starts the game with the elemental effect 'Darkness' learned.

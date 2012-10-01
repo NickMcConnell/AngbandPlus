@@ -1,0 +1,131 @@
+N:1:1099:1:0:0:0
+I:Tom;
+T:Hi there, <NAME>!;
+A:I've heard you investigated the Harrington case with Randar...:1:1095:2:1:5:0:0:0:0
+A:Can you remind me where's the secret switch?:1:1095:3:1:13:0:0:0:0
+A:Tell me about yourself.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Tom;
+T:Teehehe... I see you found my little trick! I guess it was a little too;
+T:obvious. I'll try to hide the switch better next time I setup a mechanism;
+T:like that! Anyway, who are you, and what's your name?;
+A:My name is <NAME>. I am a <CLASS>.:0:0:0:1:2:0:0:1099:1
+%
+
+N:2:0:0:0:0:0
+I:Tom;
+T:Nice to meet you, <NAME>! So, what can I do for you?;
+A:I've heard you investigated the Harrington case with Randar...:1:1095:2:1:5:0:0:0:0
+A:Tell me about yourself.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Tom;
+T:You want to know about me? Why? No offense, but my personnal life isn't;
+T:something I want to talk about with just anybody. It's...you know,;
+T:personnal stuff! Hehehe...;
+A:[Charisma] Oh come on, you're a typical rogue!:5:20:0:1:4:0:0:0:0
+A:I've heard you investigated the Harrington case with Randar...:1:1095:2:1:5:0:0:0:0
+A:Can you remind me where's the secret switch?:1:1095:3:1:13:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Tom;
+T:Me? A Rogue?? ...hehehe...yeah, I guess you could say that. I do like;
+T:entering forbidden places, 'borrowing' treasures from other, more;
+T:fortunate peoples... But don't get me wrong, I would never steal from;
+T:the poor! My targets are all rich snobs from the Mansions District!;
+T:Most of them inherited all their wealth, they didn't even earn it!;
+T:So it's my job to make sure they are kept 'busy', hehehe...;
+A:I've heard you investigated the Harrington case with Randar...:1:1095:2:1:5:0:0:0:0
+A:Can you remind me where's the secret switch?:1:1095:3:1:13:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Tom;
+T:Harrington? Oh yeah, that weird snob from the Mandions District! Yeah,;
+T:me, Randar and Adrianna went there. I assume Randar already told you;
+T:what happened there, right?;
+A:Yes. And the same thing happened to me.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Tom;
+T:Good. So you know there's something wrong going on in the Harrington;
+T:Mansion, and I believe I may have found something that could help;
+T:us ressolve that case.; 
+A:And what is it?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Tom;
+T:Hmmm, so I've picked your curiosity, heh? But me being the professional;
+T:that I am, I do not share my information for free. If you wish to know;
+T:more, you'll have to pay me 2000 golds first. After all, Harrington;
+T:promised a reward, and if I am to help you get it, then I want a part;
+T:of it. How does that sounds?;
+A:All right, here's the gold. [Pay 2000 golds.]:0:0:0:8:2000:8:9:0:0
+A:Forget it.:0:0:0:1:10:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Tom;
+T:Thanks you, <NAME>. All right, I'll tell you what I've found. As you've;
+T:probably guessed, the mansion is full of treasures! Lots of expensive;
+T:furniture, and apparently a valuable family heirloom hidden somewhere;
+T:in a treasure room guarded by an elite warrior Harrington hired.;
+T:But that's not that's not the only thing hidden in the mansion. There's;
+T:also a secret basement!;
+A:[CONTINUE]:0:0:0:1:11:0:0:1095:3
+%
+
+N:9:0:0:0:0:0
+I:Tom;
+T:Err, did you hear me correctly? I said 2000 golds. Seems like you don't;
+T:have enough. I like you and all, but I don't give discounts to anyone.;
+T:Come back when you have the money, and then I'll talk.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Tom;
+T:Suit yourself. Come back if you change your mind.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Tom;
+T:Behind the mansion is a secret stairway. The switch is hidden at the;
+T:very bottom-left corner of the mansion, right in a pool of water.;
+T:You may have to search carefully in order to find it. It will open the;
+T:stairway, and then you can enter that basement. So I went there, looking;
+T:for treasures...and then I met some kind of imps. You know, those little;
+T:flying and annoying demonic creatures? However, they weren't ordinary;
+T:imps. I tried to fight them, but I couldn't, and I had to flee. I don't;
+T:know what kind of monsters they are, but I'm not returning there anytime;
+T:soon! Demons don't just appear like that, so I'm sure they are related;
+T:to the events of the Harrington Mansion.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Tom;
+T:Well, I've told you all that I know, <NAME>. If you decide to fight those;
+T:imps...well, good luck. You'll need it.;
+A:Thanks. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Tom;
+T:Well, you'll have to pay me again if you want to know! Hehehe, just kidding.;
+T:Look at the bottom-left corner of the mansion, right in the pool of water.;
+T:That's where you'll find the switch to open the stairway.;
+A:Tell me about yourself.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

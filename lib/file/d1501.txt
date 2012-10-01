@@ -1,0 +1,72 @@
+N:1:0:0:0:0:0
+I:Dwarven Defender;
+T:Hi there! How can I be of assistance?;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Dwarven Defender;
+T:Ivhala's the best and greatest kingdom in Portralis! Much better than;
+T:those forest dwelling Nimbrayans if you ask me. Here, we have a powerful;
+T:army, mountains offering natural protection, weapons and armors of;
+T:dwarven steel. We just cannot be defeated!; 
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Dwarven Defender;
+T:Are you a skilled monster slayer? Or perhaps you're skilled in crafting?;
+T:If you have either or both, then you'll find plenty of stuff everywhere.;
+T:If not...well, I suggest you go to Jindar instead, because you won't find;
+T:much work here.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Dwarven Defender;
+T:Beware the Cockatrices. There are quite a few in the Agharias mountains, and;
+T:their petrifying breath keeps taking away the life of many explorers.;
+T:If you do any mountain exploring, I'd advise taking some equipment to;
+T:protect yourself against earth elemental attacks, or you may fall prey;
+T:to these beasts.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Dwarven Defender;
+T:We Defenders are masters of the shield! We learn to be one with our shield,;
+T:and it becomes both a weapon and an armor for us. That said, there are many;
+T:alternatives to wielding a shield. Skilled swordsmen and spearmen uses;
+T:their respective weapons to block incoming attacks, and I have heard;
+T:rumors that some powerful Nimbrayan Monks can block using their bare hands;
+T:and arms! But no matter what you choose, remember that you need dexterity;
+T:and reflexes to block accurately, so it may be a good idea to train;
+T:your reflexes a bit if you want to be a master of blocking.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Dwarven Defender;
+T:I have heard rumors about a dwarven smith in Jindar who crafts some unique;
+T:axes enchanted with fire magic. I don't understand why he's wasting his time;
+T:in Jindar when he could make a fortune here. But if you want to look for;
+T:him next time you visit Jindar, I've heard he lives near a weapon shop.;
+T:But you'll probably find everything you need here.;
+A:Tell me more of Ivhala.:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

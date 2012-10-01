@@ -1,0 +1,87 @@
+N:1:1098:1:0:0:0
+I:Adrianna;
+T:Hello again.;
+A:Randar sent me to you. What do you know of the Harrington case?:1:1095:2:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Adrianna;
+T:Hmmm? May I help you?;
+A:Randar sent me to you. What do you know of the Harrington case?:1:1095:2:1:3:0:0:0:0
+A:Who are you?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Adrianna;
+T:I am Adrianna, and I'm a sorceress. Now, if you'll excuse me, I'd like;
+T:to continue my studies in peace. I'm quite busy you see...;
+A:Randar sent me to you. What do you know of the Harrington case?:1:1095:2:1:3:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Adrianna;
+T:Awww, why did he refers you to me? I told him I'm busy and do not want;
+T:to be disturbed! I'm trying to create some new spells, and I have no time;
+T:to discuss that weird case at the moment.;
+A:Can't you just take a few minutes?:0:0:0:1:4:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Adrianna;
+T:Hmmm...you're right, I suppose I can take a moment to talk about it.;
+T:Sorry, that spell just doesn't work, and I've already spent a week;
+T:working on it nonstop! It's driving me insane!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Adrianna;
+T:Anyway... As Randar probably told you, we went to visit Mr. Harrington,;
+T:as he was looking for mercenaries to track assassins. We couldn't find;
+T:them, and when we returned, he forgot about us, and now he thinks that;
+T:the assassins were peoples that looks exactly like me, Randar and Tom.;
+T:What about you, how did he describe the assassins to you?;
+A:At first it was you three, but then it was me and two of my contacts.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Adrianna;
+T:I see. So the same thing happened to you. This is very strange...;
+T:Randar suggested that perhaps Mr. Harrington was just playing tricks;
+T:on us, but I disagree. He really didn't seem to be kidding when he;
+T:says he doesn't remember us. I think there's something else going on.;
+A:Do you have any ideas?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Adrianna;
+T:Not sure if you've noticed, but Harrington's maid was also affected;
+T:by the loss of memory. So I don't think Mr. Harrington is the only;
+T:victim here. I think something is affecting the entire place.;
+T:Perhaps everything is not as it seems in the mansion. Perhaps there;
+T:is a force at work that we do not see, but that's affecting the;
+T:memories of the peoples in the mansion.;
+A:[CONTINUE]:0:0:0:1:8:0:0:1098:1
+%
+
+N:8:0:0:0:0:0
+I:Adrianna;
+T:Hmmm... to solve this case, you will have to find out exactly what's;
+T:causing the force to be active. I know Mr. Harrington has a family;
+T:heirloom, but I don't think that's the problem. It would be way too;
+T:obvious. It's probably something else. Perhaps you should speak to;
+T:Tom. With a bit of luck, perhaps he found something inside or around;
+T:the mansion that would point to the source of the invisible force.;
+T:He lives in a house southeast of the district.;
+A:Thanks, I'll go see him then.:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Adrianna;
+T:Good luck finding out what's behind all of this!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,157 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+
+N:Ancient Temple;
+
+I:51:30:0:30:0:0:0
+S:25:27
+
+// Quest exit.
+E:45:1:5:99:36:0:0:0:0:0
+
+// Skeleton Elite Archers
+E:12:18:7:128:0:40:88:0:0:0
+E:12:24:7:128:0:40:88:0:0:0
+E:5:21:7:128:0:40:88:0:0:0
+E:12:26:7:128:0:40:88:0:0:0
+E:12:28:7:128:0:40:88:0:0:0
+
+E:14:6:7:128:0:40:88:0:0:0
+E:14:7:7:128:0:40:88:0:0:0
+E:14:8:7:128:0:40:88:0:0:0
+
+// Ancient Bone Golem.
+E:25:19:7:1044:0:40:88:0:0:0
+E:23:15:7:1044:0:20:88:0:0:0
+E:25:15:7:1044:0:20:88:0:0:0
+E:27:15:7:1044:0:20:88:0:0:0
+E:25:14:7:1045:0:40:88:0:0:0
+
+// Switch
+E:14:27:9:5:16:1:0:0:0:0
+
+// Old Scroll
+E:37:22:6:1225:0:0:0:0:0:0
+E:37:15:6:1226:0:0:0:0:0:0
+
+// More switches.
+E:34:19:9:41:21:1:0:0:0:0
+E:37:19:9:37:18:1:0:0:0:0
+E:40:19:9:41:21:1:0:0:0:0
+E:34:24:9:41:21:1:0:0:0:0
+E:37:24:9:41:21:1:0:0:0:0
+E:40:24:9:41:21:1:0:0:0:0
+
+E:35:13:9:40:14:1:0:0:0:0
+E:39:13:9:40:14:1:0:0:0:0
+E:37:14:9:40:14:1:0:0:0:0
+E:35:15:9:40:14:1:0:0:0:0
+E:39:15:9:37:12:1:0:0:0:0
+
+E:16:5:9:25:6:1:0:0:0:0
+
+// Skeleton Heroes
+E:42:21:7:190:0:40:88:0:0:0
+E:43:21:7:190:0:40:88:0:0:0
+E:44:21:7:190:0:40:88:0:0:0
+E:45:21:7:190:0:40:88:0:0:0
+E:42:22:7:190:0:40:88:0:0:0
+E:43:22:7:190:0:40:88:0:0:0
+E:44:22:7:190:0:40:88:0:0:0
+E:45:22:7:190:0:40:88:0:0:0
+
+E:41:13:7:190:0:40:88:0:0:0
+E:42:13:7:190:0:40:88:0:0:0
+E:43:13:7:190:0:40:88:0:0:0
+E:41:14:7:190:0:40:88:0:0:0
+E:42:14:7:190:0:40:88:0:0:0
+E:43:14:7:190:0:40:88:0:0:0
+E:41:15:7:190:0:40:88:0:0:0
+E:42:15:7:190:0:40:88:0:0:0
+E:43:15:7:190:0:40:88:0:0:0
+
+E:21:5:7:190:0:30:88:0:0:0
+E:25:5:7:190:0:30:88:0:0:0
+E:29:5:7:190:0:30:88:0:0:0
+
+// Skeleton Knights
+E:24:24:7:127:0:40:88:0:0:0
+E:26:24:7:127:0:40:88:0:0:0
+
+// Rugar
+E:39:5:7:1215:0:50:88:0:0:0
+
+// Locked Door.
+E:41:5:3:1:999:0:88:0:0:0
+
+// Back to quest 17.
+E:25:28:4:17:25:6:0:0:0:0
+
+D:###################################################
+D:#############################################<#####
+D:#############################################.#####
+D:###############################..........####.#####
+D:###############################..........####.#####
+D:################.####.........X..........+....#####
+D:##############.p.####ppppppppp#..........##########
+D:##############.p....+.........#..........##########
+D:##############.p.####.........#####################
+D:#########################+#########################
+D:#####.................................#############
+D:#####.###################.###########.#############
+D:#####.###################.#########################
+D:#####.###################+#########.....#...#######
+D:#####.#################.....#######.....#...#######
+D:#####.#################.....#######.....#...#######
+D:#######################.....#########.#############
+D:####...##################+###########.#############
+D:###pppppp.pp.pp.pp#####.....#######################
+D:###ppppppppppppppp#####.....######.##.##.##########
+D:###ppppppppppppppp#####.....######+##+##+##########
+D:###pp.ppp.pp.pp.pp+...###+###...+........#....#####
+D:###ppppppppppppppp###.###.###.###........#....#####
+D:###ppppppppppppppp###.###.###.####+##+##+##########
+D:###pppppp.pp.pp.pp##...........###.##.##.##########
+D:####...############....#...#....###################
+D:#####+#####...#####.............###################
+D:#####..ppp.....####....#...#....###################
+D:###########...######.....<.....####################
+D:###################################################

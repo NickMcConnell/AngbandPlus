@@ -1,0 +1,122 @@
+N:1:1040:1:0:0:0
+I:Alberto;
+T:...w...why?;
+A:[END DIALOG]:0:0:0:5:-1:0:0:0:0
+%
+
+N:1:1042:1:0:0:0
+I:Alberto;
+T:A pleasure doing business with you!; 
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1041:2:0:0:0
+I:Alberto;
+T:Oh hi, it's you again. So huh, you've reconsider my offer?;
+A:Yes. Here's the money. [Pay 100000 golds]:0:0:0:8:100000:9:10:0:0
+A:No, I still need more time. I'll come back later.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1041:1:0:0:0
+I:Alberto;
+T:Oh hi, it's you again. So huh, you've reconsider my offer?;
+A:Yes. Here's the money. [Pay 100000 golds]:0:0:0:8:100000:9:10:0:0
+A:No, I still need more time. I'll come back later.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Alberto;
+T:Hello. You've come to buy one of my fine vases? Perhaps you need an urn;
+T:for a funeral? If you need a pot, vase, urn or jar, I'm sure I have;
+T:something that suits your needs.;
+A:Actually, I've come to buy your shop.:1:1039:1:1:3:0:0:0:0
+A:You have anything magical?:0:0:0:1:2:0:0:0:0
+A:No thanks, I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Alberto;
+T:I wish I had, but enchanting isn't exactly my specialty. I'm just a simple;
+T:vases seller you know, I'm no mage or anything.;
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Alberto;
+T:Huh? You want to buy my shop? You mean, the building, and all my business?;
+T:My business is not for sale! I need it to earn my living!;
+A:Actually, it's mostly the building I'm interested in.:0:0:0:1:4:0:0:0:0
+A:Perhaps I can offer you a price? How about 30000 golds?:0:0:0:1:5:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Alberto;
+T:Oh? And why is that?;
+A:I'm with the Stealthy Vipers... [Tell him the story]:0:0:0:1:6:0:0:0:0
+A:Nevermind. I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Alberto;
+T:What nonsense is this? This place is NOT for sale!! Now, if you don't want;
+T:to buy one of my vases, please leave.;
+A:But I'm really interested in owning this building!!:0:0:0:1:4:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Alberto;
+T:I see. It makes more sense now. But I still can't sell you this place.;
+T:I live well at the moment, and selling my place would be too risky.;
+T:You're probably going to offer me a price, but I won't accept any money.;
+T:I'm a careful person, and I prefer to stick to what's working for me.;
+T:You'll have to go find another place. I'm sorry.;
+A:[Charisma] I insist. I offer 30000 golds for the building.:5:30:0:1:7:0:0:0:0
+A:I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Alberto;
+T:By all jars and pots, you just won't give up, won't you?? Hmph... Well,;
+T:30000 golds sure isn't bad, but... that's not enough for me to sell you;
+T:my place. With that money, I'll live well for a while, but that's not;
+T:enough to live the rest of my life.;
+A:What price would ask for then?:0:0:0:1:8:0:0:1041:1
+A:I see. I'll go look elsewhere then.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Alberto;
+T:Hmmm... In order for me to live a full life, finish paying my house and all,;
+T:I'd need at least 100000 golds. Which is a bit more than three times your;
+T:offer. But I can't go any lower than that. If you want to purchase this;
+T:building, you'll have to buy it for 100000 golds. How does that sounds?;
+A:That's fine with me. [Pay 100000 golds]:0:0:0:8:100000:9:10:0:0
+A:I'll need to think about it. I'll come back later:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Alberto;
+T:Oh! You've actually brought the money? Well, your guild sure has a lot of;
+T:ressources! It's hard to believe a guild of kobolds living in the slums;
+T:would be able to pay that much... But that's none of my business. The;
+T:building's yours now. And as for me, I will retire earlier than I expected!;
+A:[CONTINUE]:0:0:0:1:11:0:0:1042:1
+%
+
+N:10:0:0:0:0:0
+I:Alberto;
+T:You'll actually have to bring me the money here. This is a lot of money, and;
+T:I want to see it first before giving you the place. Come back once you;
+T:have it with you.;
+A:I'll come back with it then.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Alberto;
+T:Well, so long Viper! It was nice doing business with you. I'll pack up;
+T:a few things, fill in a few papers, and then I'll leave this place in your;
+T:care. Farewell, and good luck!;
+A:[END DIALOG]:0:0:0:0:0:0:0:1039:0
+%

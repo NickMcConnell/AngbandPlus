@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:The golem crumbles on the floor. It seems like it was connected to the;
+T:closed door, which was magically locked. Now that it's guardian is;
+T:destroyed, the door is now unlocked.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,73 @@
+N:1:0:0:5:0:0
+I:Dragon Lancers Mercenary;
+T:Filthy Kobold! How dare you stand before me??;
+A:[CONTINUE]:0:0:0:10:1603:0:5:0:0
+%
+
+N:1:1028:2:0:0:0
+I:Dragon Lancers Mercenary;
+T:Hello, fellow Lancer! What can I do for you?;
+A:Nothing. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:6:0:0
+I:Dragon Lancers Mercenary;
+T:Hello, fellow Devling! What can the Dragon Lancers do for you?;
+A:The Dragon Lancers?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Dragon Lancers Mercenary;
+T:Hello! I am a proud member of the Dragon Lancers guild! Can I help you?;
+A:The Dragon Lancers?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Dragon Lancers Mercenary;
+T:Haven't you heard of us? If not, then you must not live here in the;
+T:northeast slums. Anyway, we're a guild of mercenaries and we basically;
+T:accept any contracts. We always get the job done. We're all devlings,;
+T:so we're fast, stealthy, agile and of course, the masters of polearms!;
+T:In fact, in the guild, we especially value spear fighters. Hence our;
+T:name, the Dragon Lancers. Because we have the might of the dragons!;
+A:And you're popular in Jindar?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Dragon Lancers Mercenary;
+T:Well, we are here, in the northeast slums. But not in the southwest.;
+T:The kobolds rule over that territory with their amateur guild, the;
+T:Stealthy Vipers. A major annoyance, though not a serious threat.;
+T:They are in our way though, so we'll beat them sooner or later. But;
+T:overall, we don't fear them all that much. All they have is some;
+T:poison. We have agility. And polearm mastery. And speed. And more;
+T:support from other races too!;
+A:Sounds interesting. Can I join the Lancers?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:6:0:0
+I:Dragon Lancers Mercenary;
+T:Devlings are always welcome in our guild! You want to find our recruitment;
+T:office, and speak with Delzo, our leader's representative. He handles;
+T:the recruitment of new members. Go speak with him, and I'm sure we'll;
+T:have a place for you.;
+A:I'll seek him out then.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Dragon Lancers Mercenary;
+T:Well... I don't know. You're not a devling, and this is supposed to be;
+T:a devling guild. But maybe they would allow some exceptions. You should;
+T:enter, and speak with Delzo. He will tell you whether or not you can join.;
+A:I'll seek him out then.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Dragon Lancers Mercenary;
+T:Hey everyone! Let's give that Kobold a good beating!;
+A:[END DIALOG]:0:0:0:10:1604:0:0:0:0
+%

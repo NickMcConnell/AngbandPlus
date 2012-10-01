@@ -3318,11 +3318,12 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		{
 			if (game_in_progress && character_generated)
 			{
+
 				/* Hack -- Forget messages */
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game();
+				/*do_cmd_save_game();*/
 			}
 			quit(NULL);
 			return 0;

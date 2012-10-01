@@ -1,0 +1,382 @@
+N:1:1509:1:0:0:0
+I: ;
+T:The brave Emma, one of Ivhala's few female Defenders, falls under your;
+T:blows. You have just killed a proud woman who a lawful guards captain,;
+T:a strong role model for women, and an innocent who was just doing her job...;
+A:[END DIALOG]:0:0:0:5:-2:0:0:0:0
+%
+
+N:1:1501:0:0:0:0
+I: ;
+T:You meet a battle-hardened, steel armor clad woman who is practicing sword;
+T:and shield techniques. Judging from her moves, she seems to be a very;
+T:experienced and powerful Defender, and also one of the few female;
+T:Defenders in Ivhala's army, were most women are rather trained as;
+T:battle enchantresses who use bows. After performing a few attacks,;
+T:she notices you and turns her attention to you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1501:1
+%
+
+N:1:1508:1:0:0:0
+I:Emma;
+T:Hello, <NAME>. It's good to see you again! How may I help you?;
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1502:2:0:0:0
+I:Emma;
+T:Hello there, <NAME>. Learned anything about those Cockatrices?;
+A:Yes. [Tell her about what you fought]:1:1507:1:1:15:0:0:0:0
+A:Can you remind me where I must go?:0:0:0:1:14:0:0:0:0
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Emma;
+T:Hello there, <NAME>. What brings you here?;
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:I defeated some strange, dangerous Cockatrices...:1:1507:2:1:18:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:I'm looking for work.:1:1502:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:1:0
+I:Emma;
+T:Greetings, <CLASS>! I am Emma, captain of the guards, elite;
+T:Defender, and Elemental Lady of Wind. It's good to see another powerful;
+T:woman around here! Many men seems to think we need their protection;
+T:and can't handle ourselves alone in the front row. Hah! If I relied;
+T:on them to protect me, I would have died a thousand times by now!;
+T:*She laugh, while the men around are slightly offended by her remark*;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Emma;
+T:Greetings, <CLASS>! I am Emma, captain of the guards, elite;
+T:Defender, and Elemental Lady of Wind. And who might you be?;
+A:My name is <NAME>.:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Emma;
+T:Haha, just kidding boys! You all do a very good job!;
+T:Anyway, who do I have the honor to speak with?;
+A:My name is <NAME>.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Emma;
+T:Well then, <NAME>, how may I assist you?;
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:I defeated some strange, dangerous Cockatrices...:1:1507:2:1:18:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:I'm looking for work.:1:1502:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Emma;
+T:Me? Well, I am captain of the guards. My job is to train Defenders and;
+T:Enchantresses, and make them ready for battle. And trust me, the Agharias;
+T:mountains aren't lacking in wild beasts and monsters. But we Defenders;
+T:are the masters of defense and toughness. No matter how powerful the enemy;
+T:is, we can always take the hit, and retaliate with even more power!;
+A:There aren't many other female Defenders around here...:0:0:0:1:6:0:0:0:0
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:I defeated some strange, dangerous Cockatrices...:1:1507:2:1:18:0:0:0:0
+A:I'm looking for work.:1:1502:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Emma;
+T:No kidding. Many peoples think women should not fight in the front row,;
+T:and they think we're failer and weaker and that we lack the 'aggressivity';
+T:to make good front row fighters. Pah, nonsense! Being a good warrior is about;
+T:skill, abilities and fighting intelligently. You can do that? You can be;
+T:a great warrior. Physical strength can be made up for by using some enchanted;
+T:pieces of equipment. Besides, you'd be surprised how many strong women;
+T:there are out there. Often, they are just raised in a way that doesn't;
+T:promote that strength. But when given the chance to prove themselves, the;
+T:results can be surprising. Just look at me! *laugh*;
+A:I defeated some strange, dangerous Cockatrices...:1:1507:2:1:18:0:0:0:0
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:I'm looking for work.:1:1502:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Emma;
+T:You're looking for work, hmmm? Some work involving adventure, exploration;
+T:and monster slaying I presume? Well, in that case, I might have something;
+T:for you. Would you be interested in doing some Cockatrice-slaying?;
+A:I might be. Tell me more about it.:0:0:0:1:10:0:0:1502:2
+A:What's a cockatrice?:0:0:0:1:9:0:0:0:0
+A:No, I'm not really interested.:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Emma;
+T:Ah, too bad. Well then, look around the city then, there's always someone;
+T:in need of some materials gathering or monster slaying. I'm sure you'll find;
+T:something that suits yourself.;
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Emma;
+T:A cockatrice is a big, rooster-like creature with a lizard's tail.;
+T:It possesses a breath attack that petrifies it's foes, but it really;
+T:isn't much different than any Earth-elemental spells casted by mages;
+T:and Elemental Lords. Our soldiers can usually handle them, but;
+T:there have been reports of a new specie of large, aggressive, and;
+T:powerful cockatrices. That is what needs to be investigated.;
+T:Interested?;
+A:Yes, I am.:0:0:0:1:10:0:0:1502:2
+A:No, I'm not interested.:0:0:0:1:8:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Emma;
+T:Normally, we can handle a cockatrice attack with a few soldiers.;
+T:They might be a challenge to weaker adventurers and rookies, but;
+T:a few Defenders can beat them. However, there have been reports of a new;
+T:specie of very large cockatrices, which are not only much more powerful,;
+T:but also very aggressive. This has been confirmed by a small team I sent;
+T:a few days ago. One of these new species attacked savagely, brutally slaying;
+T:three of the team's ten Defenders, while petrifying five others. Only two;
+T:came back. Right now, they are still located in the Cockatrices Sanctuary,;
+T:a small cave outside the city, they haven't come out of the cave, but we;
+T:won't wait until they do. And this is where you come in.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Emma;
+T:First, you need to fight your way through the Cockatrices Sanctuary. It's a;
+T:cave outside the city, not too far away from the entrance where cockatrices;
+T:lives. You can't really miss it. There are often Cockatrices Hunters around;
+T:it as well. Amateurish adventurers for the most part... Anyway, know that the;
+T:cockatrices are actually the lesser threat in there, and it is filled with;
+T:all kind of much more powerful monsters. To tell you the truth, the soldiers;
+T:I sent actually tried to avoid fighting as much as possible. Try to not get;
+T:lost either. This cave is as big and dangerous as any other caves of the;
+T:Agharias mountains!;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Emma;
+T:Second, look for any clues that might point out to why these new species;
+T:started appearing. And finally, should you find the source of the problem,;
+T:try to stop it. It is important that these new species be exterminated;
+T:before they become too dangerous. The Agharias mountains are dangerous;
+T:enough already, we don't need more powerful monsters. Once you've;
+T:accomplished all that, you will be greatly rewarded for your effort.;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Emma;
+T:Good luck then, <NAME>. Hopefully you'll have more than our late soldiers...;
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Emma;
+T:The cockatrices lives in a cave called the Cockatrices Sanctuary. It's a cave;
+T:outside the city, near the entrance. There are sometimes some cockatrices and;
+T:Cockatrice Hunters around it. You can't miss it. Go there, and try to;
+T:figure out why the new species have appeared, and try to stop them.;
+T:Good luck!;
+A:I need to enter the palace and see the queen.:1:1027:1:1:19:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Emma;
+T:Crystal feathers? Runes? Hmmm...this is hardly a cockatrice anymore.;
+T:More like an abomination. Did you find any clues about what might have;
+T:caused them to appear?;
+A:All I found was a strange symbol on a wall. It looked like a fissured sun.:0:0:0:3:488:10000:16:1507:3
+%
+
+N:16:0:0:0:0:0
+I:Emma;
+T:A fissured sun? That's strange, not something I am familiar with. Hmmm...;
+T:I suppose this will remain a mystery for now. But at least, the threat is;
+T:gone, and I thanks you for what you've done. Here, take this gold, and;
+T:also this scroll. It will enchant an object with magical powers.;
+T:The Agharias mountains are very dangerous, so additional magical equipment;
+T:will more than helpful!;
+A:Thanks you.:0:0:0:3:607:0:17:1508:1
+%
+
+N:17:0:0:0:0:0
+I:Emma;
+T:Thanks again for your efforts. Good luck in your adventures! And if you;
+T:find anything about the fissured sun symbol, please let me know!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Emma;
+T:You did? So, you encountered the rumored new specie, and you defeated them?;
+T:What did they look like?;
+A:[Tell her about the cockatrices]:0:0:0:1:15:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Emma;
+T:See the queen? What for?;
+A:I came on behalf of King Julian of Jindar... [Tell her the story]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Emma;
+T:So the rumors were true. A couple of Jindar citizens came here with the;
+T:travel agency, claiming Jindar was under attack by orcs, no less. Well, not;
+T:sure I believe the 'orcs' part, but an attack on Jindar seems likely, what;
+T:with their arrogant mercantile attitudes and their outdated beliefs.;
+T:Surprised it didn't happen any sooner!;
+A:What's wrong with Jindar?:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Emma;
+T:Wake up! You think the Creator really exists? He doesn't. He CAN'T exist.;
+T:Even the Nimbrayans agrees with that! As if some guy woke up and created;
+T:everything for fun. Nonsense! And Jindar peoples believes this stuff!;
+T:No wonder why peoples hates them that much. Yet they think they rule;
+T:Portralis. Pah! The only thing that keeps Jindar alive is the myriad;
+T:of adventurers and mercenaries that lives there, that are often much;
+T:tougher than the official guards and soldiers. Jindar soldiers are just;
+T:weaklings.;
+A:I think you don't understand their religion. It's more complex than that.:0:0:0:1:22:0:0:0:0
+A:I think Jindar's army is very powerful.:0:0:0:1:23:0:0:0:0
+A:I agree with you.:0:0:0:1:24:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Emma;
+T:Believe what you want. Though you should definitely make a little trip to;
+T:Nimbraya, so you can learn about the more modern religious beliefs.;
+T:But Creator or not, unfortunately, I cannot let you inside the palace at;
+T:the moment. The queen ordered that no one enters the palace until some;
+T:important matters are ressolved.;
+A:What important matters?:0:0:0:1:26:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Emma;
+T:*She laughs*;
+T:Hahaha... powerful... If your story is true, then how can you even say;
+T:something like that? The soldiers struggled to fight the orcs. However,;
+T:YOU beat all of them! Alone! You are stronger than all of Jindar's forces;
+T:reunited! How can you even consider them powerful??;
+A:You have a point.:0:0:0:1:25:0:0:0:0
+A:Well...compared to other nations, they are powerful...:0:0:0:1:25:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Emma;
+T:Just know that Jindar exists only because the other nations wants it that;
+T:way. We could easily wipe them out, and so does Nimbraya and Karingen.;
+T:And I won't even talk about Rhyzendal...;
+T:Well, that said, I cannot let you enter the palace at the moment.;
+T:There are important matters for the queen to take care of, and she has;
+T:ordered the palace to be closed to visitors.;
+A:What important matters?:0:0:0:1:26:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Emma;
+T:Anyway, powerful or not, I cannot let anyone enter the palace at the moment.;
+T:The queen has ordered the palace to be closed until some important matters;
+T:are ressolved.;
+A:What important matters?:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Emma;
+T:I'd like to know that myself. She simply ordered the palace to be closed;
+T:until she ressolves these matters, but didn't give me more details. To be;
+T:honest, I have a bad feeling about this, but I trust the queen. So I will;
+T:comply to her request. Besides, the palace's gates are closed from the;
+T:inside, so I couldn't open them even if I wanted.;
+A:You know what I'm capable of, Emma. And the queen may be in danger.:1:1508:1:1:28:0:0:0:0
+A:Isn't there another way inside?:0:0:0:1:27:0:0:0:0
+A:Guess I'll leave then...:0:0:0:0:0:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Emma;
+T:*She laughs*;
+T:That's a good one! If there was a secret entrance or something like that,;
+T:I certainly wouldn't tell you. It wouldn't be much of a secret anymore,;
+T:right?;
+A:[Charisma] And I'm sure there IS a secret entrance, am I right?:5:60:0:1:30:0:0:0:0
+A:You know what I'm capable of, Emma. And the queen may be in danger.:1:1508:1:1:28:0:0:0:0
+A:I guess you're right. I'll be leaving then.:0:0:0:0:0:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Emma;
+T:Hmmm... well, you DID defeat the cockatrices, but...;
+A:You said you have a bad feeling about this. Someone needs to investigate.:0:0:0:1:29:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Emma;
+T:...I suppose you're right. All right then... I trust you. Though the main;
+T:gate is closed from the inside, there may be another way to get inside...;
+A:[CONTINUE]:0:0:0:1:31:0:0:1027:2
+%
+
+N:30:0:0:0:0:0
+I:Emma;
+T:Err...well... *she pauses a moment*;
+T:...all right, you got me. Hmmm... normally, I wouldn't let anyone inside,;
+T:but you look trustworthy... So I'll tell you about that secret entrance.;
+A:[CONTINUE]:0:0:0:1:31:0:0:1027:2
+%
+
+N:31:0:0:0:0:0
+I:Emma;
+T:Under this place is a labyrinth of ancient tunnels that leads inside;
+T:the palace. We can use them as an escape route or alternate entrance;
+T:in case of an emergency, although they haven't been used for years.;
+T:Normally, there is a secret switch outside the barracks that leads;
+T:inside, but that will lead to a guardian golem that will attack;
+T:anyone unless the queen gives her okay. Which she didn't. But fortunately,;
+T:there is a second way to access the tunnels. See the doors behind me?;
+T:They lead straight to them, and you won't have to face the golem.;
+A:[CONTINUE]:0:0:0:3:1237:0:32:0:0
+%
+
+N:32:0:0:0:0:0
+I:Emma;
+T:Take this key. It will allow you to unlock the doors, and proceed inside;
+T:the tunnels. Be careful though. As I've said, they haven't been used;
+T:for years, so I can't guarantee that they're still safe. Especially with;
+T:the current situation being what it is.;
+A:Thanks you.:0:0:0:1:33:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Emma;
+T:No problems. Good luck down there, <NAME>! I hope the queen is all right.;
+T:She is Ivhala's most powerful warrior, but you never know...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
