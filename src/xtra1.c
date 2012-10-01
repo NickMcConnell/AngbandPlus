@@ -1751,53 +1751,6 @@ static int weight_limit(void)
 }
 
 
-/*return the number of blows a player gets with a weapon*/
-int get_num_blows(const object_type *o_ptr, u32b f1)
-{
-
-	int str_index, dex_index, blows;
-
-	int div;
-
-	/* Enforce a minimum "weight" (tenth pounds) */
-	div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-	/* Get the strength vs weight */
-	str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
-
-	/* Maximal value */
-	if (str_index > 11) str_index = 11;
-
-	/* Index by dexterity */
-	dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-	/* Maximal value */
-	if (dex_index > 11) dex_index = 11;
-
-	/* Use the blows table */
-	blows = blows_table[str_index][dex_index];
-
-	/* Maximal value */
-	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
-
-	/* Add in the "bonus blows", but only if the weapon is known */
-	if ((f1 & (TR1_BLOWS)) && (o_ptr->ident & (IDENT_KNOWN)))
-	{
-		blows += o_ptr->pval;
-	}
-
-	/* Require at least one blow */
-	if (blows < 1) blows = 1;
-
-	/*add extra attack for those who have the flag*/
-	if ((p_ptr->lev > 25) && (cp_ptr->flags & CF_EXTRA_ATTACK))
-		blows += 1;
-
-	return(blows);
-
-}
-
-
 /*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -1948,7 +1901,7 @@ static void calc_bonuses(void)
 
 	/*** Extract race/class info ***/
 
-	/* Base infravision (purely racial) */
+	/* Base infravision plus current lite radius */
 	p_ptr->see_infra = rp_ptr->infra;
 
 	/* Base skill -- disarming */
@@ -2163,6 +2116,8 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
+	/*finally, add infravision to lite radius*/
+	if (p_ptr->see_infra) p_ptr->see_infra += p_ptr->cur_lite;
 
 	/*** Handle stats ***/
 
@@ -2772,17 +2727,16 @@ void update_stuff(void)
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
+	if (p_ptr->update & (PU_TORCH))
+	{
+		p_ptr->update &= ~(PU_TORCH);
+		calc_torch();
+	}
 
 	if (p_ptr->update & (PU_BONUS))
 	{
 		p_ptr->update &= ~(PU_BONUS);
 		calc_bonuses();
-	}
-
-	if (p_ptr->update & (PU_TORCH))
-	{
-		p_ptr->update &= ~(PU_TORCH);
-		calc_torch();
 	}
 
 	if (p_ptr->update & (PU_HP))

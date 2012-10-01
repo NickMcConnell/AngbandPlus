@@ -147,21 +147,20 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	i_ptr->to_h = 0;
 	i_ptr->to_d = 0;
 
-
 	/* Level */
 	(*lev) = k_ptr->level;
+
+	/* Make known */
+	i_ptr->ident |= (IDENT_KNOWN);
 
 	/* Value */
 	(*val) = object_value(i_ptr);
 
-
 	/* Hack */
 	if (!buf || !dam || !wgt) return;
 
-
 	/* Description (too brief) */
 	object_desc_spoil(buf, 80, i_ptr, FALSE, 0);
-
 
 	/* Misc info */
 	strcpy(dam, "");

@@ -2483,7 +2483,7 @@ bool recharge(int num)
 			int counter = o_ptr->number;
 
 			/*get the number of wands/staffs to be destroyed*/
-			while ((counter > 1) && (!one_in_(counter)));
+			while ((counter > 1) && (!one_in_(counter)))
 			{
 				/*reduce by one*/
 				counter --;
@@ -2818,7 +2818,7 @@ bool project_los_not_player(int y1, int x1, int dam, int typ)
 		if (distance(y1, x1, y, x) > MAX_RANGE) continue;
 
 		/* Require line of sight or the monster being right on the square */
-		if ((y != y1) && (x != x1))
+		if ((y != y1) || (x != x1))
 		{
 
 			if (!los(y1, x1, y, x)) continue;
@@ -4152,12 +4152,8 @@ bool destroy_door(int dir)
 
 bool disarm_trap(int dir)
 {
-	/* Use the given direction */
-	int ty = p_ptr->py + ddy[dir];
-	int tx = p_ptr->px + ddx[dir];
-
-	u32b flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM;
-	return (project(-1, 0, ty, tx, ty, tx, 0, GF_KILL_TRAP, flg, 0, 0));
+	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
+	return (fire_bolt_beam_special(GF_KILL_TRAP, dir, 0, MAX_RANGE, flg));
 }
 
 bool heal_monster(int dir, int dam)

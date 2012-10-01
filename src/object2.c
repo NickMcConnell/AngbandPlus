@@ -2294,6 +2294,16 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				/* Searching */
+				case SV_RING_AGGRAVATION:
+				{
+					/* Cursed */
+					o_ptr->ident |= (IDENT_CURSED);
+
+					break;
+				}
+
+
 				/* Flames, Acid, Ice, Lightning */
 				case SV_RING_FLAMES:
 				case SV_RING_ACID:

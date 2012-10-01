@@ -1211,7 +1211,7 @@ bool set_stun(int v)
 		new_aux = 0;
 	}
 
-	/* Increase cut */
+	/* Increase stun */
 	if (new_aux > old_aux)
 	{
 		/* Describe the state */

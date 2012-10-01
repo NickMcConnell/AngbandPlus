@@ -33,12 +33,12 @@
 #    * - treasure or trap
 #    + - secret door
 #    ^ - trap
-#    & - monster up to 5 levels out of depth (OOD)
-#    @ - monster up to 11 levels OOD
-#    9 - monster up to 9 levels OOD and treasure up to 7 levels OOD
-#    8 - monster up to 40 levels OOD and treasure up to 20 levels OOD
+#    & - monster up to 4 levels out of depth (OOD)
+#    @ - monster up to 8 levels OOD
+#    9 - monster up to 7 levels OOD and treasure up to 7 levels OOD
+#    8 - monster up to 20 levels OOD and treasure up to 20 levels OOD
 #    , - monster up to 3 levels OOD and/or treasure up to 7 levels OOD
-#    ~ - monster up to 40 levels OOD and a chest with objects 20 levels OOD
+#    ~ - monster up to 20 levels OOD and a chest with objects 20 levels OOD
 #    Q - Quest item (for quest vaults).
 
 # Use this to measure columns                                                                        1

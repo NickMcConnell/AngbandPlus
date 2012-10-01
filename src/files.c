@@ -1517,7 +1517,7 @@ static void display_player_xtra_info(void)
 	if (p_ptr->fast) i -= 10;
 
 	/* Hack -- Visually "undo" temp slowing */
-	if (p_ptr->slow) p_ptr->pspeed -= 10;
+	if (p_ptr->slow) i += 10;
 
 	/* Fast */
 	if (i > 110)
@@ -3120,7 +3120,7 @@ errr file_character(cptr name, bool full)
 	{
 		char buff[1024];
  	  	char fname[80];
-		char holder;
+		int holder;
 
 		/*close the notes file for writing*/
 		my_fclose(notes_file);

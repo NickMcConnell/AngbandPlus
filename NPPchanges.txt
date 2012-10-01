@@ -1,3 +1,40 @@
+Version 0.3.?
+
+New features:
+In addition to '+' & '-', using 'h' & 'l' can navigate through the character screens.
+Pressing ? during chracter race/class selection takes you to information about the specific race/class 
+ 	in the helpfile.
+Evasive Monsters can no longer dodge magical spells and attacks.
+Infravision now starts beyond the player's current lite radius.
+Double resistance helps protect inventory from damage.
+changed rogue dispel monsters trap to Line-of-site damage from an explosion. 
+Made Anssi Ramela's first winner of NPP 0.3.x, Brother Steadfast, a temple shopkeeper.
+When Rods/Wands/Staffs are drained by monster melee attack, they are usually only partially drained.
+Monsters can also heal their mana when draining Rods/Wands/Staffs by monster melee attack
+
+Bugfixes:
+
+Bugfix: Fixed an inconsistency in the quest generation code when making a unique quest (code fix provided by KUSUNOSE Toru)
+Bugfix: Fixed a typo in makefile.BCC (code fix provided by KUSUNOSE Toru)
+Bugfix: Monsters were getting a free haste spell after they casted orb of draining (code fix provided by KUSUNOSE Toru)
+Bugfix: Fix an error in the new project_los_not_player function that allowed monsters
+	not in LOS to be affected.
+Bugfix: fixed a bug in wizard mode where all rods, staves and wands are listed with the
+price of an unidentified rod, stave of wand (patch by Robert Ruehlmann)
+Bugfix: Wands of disarming work properly again.
+Bugfix: Monster attacks stop after earthquake moves player to a non-adjascent square from monster.
+Bugfix: (OS Port only) doing a character dump with note taking option on no longer causes game to lock up.
+Bugfix: Pressing ? in the options menu takes you to the specific option in the "options" help file again.
+Bugfix: In monster description, "seeker shots" is properly pluralized.
+Bugfix: There is proper spacing after describing number of player attacks.
+Bugfix: Failed unique quests are now described properly.
+Bugfix: When examing a weapon, the number of attacks was occasionally incorrect.
+Bugfix:  When accessing the character screen, player speed was being unfairly reduced by 10 if 
+they were slowed at the time.  This meant instadeath to anyone with a window open permanently 
+displaying the character screen.
+Bugfix: Wand and Rod mimics now hide properly.
+
+
 Version 0.3.1
 
 New features:
@@ -15,7 +52,7 @@ Failing to steal too much only makes newly generated monsters slightly hasted (s
 	character would get with that weapon.
 Made potions of augmentation and dungeon spellbooks slightly more
 	probable as tailored quest rewards.
-Added new icon, made by John Tannert.
+Added new icon, made by Kurt Tannert.
 Using '~' to view home inventory gives object description as well.
 
 
@@ -27,8 +64,8 @@ Bugfix: Boosted damage sides no longer get erased when a savefile is loaded.
 Bugfix: Monsters killed by other monsters don't count towards quest tallys.
 Bugfix: Monsters no longer fire arrows at player if not a clear path.
 Bugfix: Looking at a monster shows messages like ("Asleep", "stunned") again.
-Bugfix: A rogue can no longer modify a player trap if a monster is on it.
-Bugfix: Monsters were getting occastional double moves on faster players
+Bugfix: A rogue can no longer modify a monster trap if a monster is on it.
+Bugfix: Monsters were getting occasional double moves on faster players
 Bugfix:	Monster hit points were getting regenerated twice per turn.
 
 

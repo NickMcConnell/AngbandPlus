@@ -459,9 +459,7 @@ extern void cloud_surround(int r_idx, int *typ, int *dam, int *rad);
 /* melee2.c */
 extern int get_scent(int y, int x);
 extern bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok, bool can_dig);
-extern void process_monsters(byte minimum_energy);
-extern void reset_monsters(void);
-
+extern void process_monsters(s16b minimum_energy);
 
 /* monster1.c */
 extern void describe_monster(int r_idx, bool spoilers);
@@ -809,7 +807,6 @@ extern void update_stuff(void);
 extern void redraw_stuff(void);
 extern void window_stuff(void);
 extern void handle_stuff(void);
-extern int  get_num_blows(const object_type *o_ptr, u32b f1);
 
 /* xtra2.c */
 extern bool set_blind(int v);

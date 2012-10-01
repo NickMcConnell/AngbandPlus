@@ -31,7 +31,8 @@ special "pref" files.  And the character name is used on the high score list.
 Each character has three primary attributes, sex, race, and class, that
 are chosen before the character is generated, and which will stay fixed
 for the entire life of that character.  These attributes have many effects,
-which will be mentioned as they come up.
+which will be mentioned as they come up.  Character gender does not have
+any significant gameplay effects.
 
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected

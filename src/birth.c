@@ -688,7 +688,7 @@ static void clear_question(void)
  * Generic "get choice from menu" function
  */
 static int get_player_choice(birth_menu *choices, int num, int col, int wid,
-                             void (*hook)(birth_menu))
+                             cptr helpfile, void (*hook)(birth_menu))
 {
 	int top = 0, cur = 0;
 	int i, dir;
@@ -826,7 +826,11 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		/* Help */
 		else if (c == '?')
 		{
-			do_cmd_help();
+			strnfmt(buf, sizeof(buf), "%s#%s", helpfile, choices[cur].name);
+
+			screen_save();
+			(void)show_file(buf, NULL, 0, 0);
+			screen_load();
 		}
 
 		/* Options */
@@ -904,7 +908,7 @@ static bool get_player_race(void)
 	}
 
 	p_ptr->prace = get_player_choice(races, z_info->p_max, RACE_COL, 15,
-		race_aux_hook);
+		"raceclas.txt", race_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->prace == INVALID_CHOICE)
@@ -1000,7 +1004,7 @@ static bool get_player_class(void)
 	}
 
 	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 20,
-		class_aux_hook);
+		"raceclas.txt", class_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->pclass == INVALID_CHOICE)
@@ -1038,7 +1042,7 @@ static bool get_player_sex(void)
 		genders[i].ghost = FALSE;
 	}
 
-	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15, NULL);
+	p_ptr->psex = get_player_choice(genders, MAX_SEXES, SEX_COL, 15, "birth.txt", NULL);
 
 	/* No selection? */
 	if (p_ptr->psex == INVALID_CHOICE)

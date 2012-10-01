@@ -173,7 +173,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	{
 		if (spower < 4) vp[vn++] = "sling pebbles";
 		else if (spower < 10) vp[vn++] = "sling leaden pellets";
-		else vp[vn++] = "sling seeker shot";
+		else vp[vn++] = "sling seeker shots";
 	}
 
 	if (l_ptr->flags4 & (RF4_ARROW))

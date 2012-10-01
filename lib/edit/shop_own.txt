@@ -55,7 +55,7 @@ N:3:1:Gunnar the Paladin
 I:0:20000:185:110:5:23
 N:3:2:Delilah the Pure
 I:2:25000:180:107:6:20
-N:3:3:Bosk the Wise
+N:3:3:Brother Steadfast
 I:5:30000:185:109:5:15
 
 # Alchemist

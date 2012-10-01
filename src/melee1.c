@@ -189,6 +189,7 @@ bool make_attack_normal(monster_type *m_ptr)
 		bool visible = FALSE;
 		bool obvious = FALSE;
 		bool no_effect = FALSE;
+		bool do_break = FALSE;
 
 		int power = 0;
 		int dam = 0;
@@ -543,7 +544,14 @@ bool make_attack_normal(monster_type *m_ptr)
 
 					/* Radius 6 earthquake centered on the monster */
 					if (dam > rand_int(60))
+					{
 						earthquake(m_ptr->fy, m_ptr->fx, 6);
+
+						/*check if the monster & player are still next to each other*/
+						if (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) > 1)
+							do_break = TRUE;
+
+					}
 
 					/* Player armour reduces total damage */
 					ac_dam(&dam, ac);
@@ -613,11 +621,14 @@ bool make_attack_normal(monster_type *m_ptr)
 								(o_ptr->pval)) tmp = 1;
 
 							/* case of (at least partially) charged rods. */
-							if ((o_ptr->tval == TV_ROD) &&
+							else if ((o_ptr->tval == TV_ROD) &&
 								(o_ptr->timeout < o_ptr->pval)) tmp = 1;
 
 							if (tmp)
 							{
+
+								int counter, old_charges;
+
 								heal = rlev;
 
 								/* Message */
@@ -626,40 +637,100 @@ bool make_attack_normal(monster_type *m_ptr)
 								/* Obvious */
 								obvious = TRUE;
 
-								/* Handle new-style wands & staffs correctly. */
+								/*get the number of rods/wands/staffs to be drained*/
 								if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
 								{
-									heal *= o_ptr->pval;
-								}
-								/* Handle new-style rods correctly. */
-								else if (o_ptr->tval == TV_ROD)
-								{
-									heal *= (o_ptr->pval - o_ptr->timeout) / 30;
+									counter = o_ptr->number;
+
+									/*get the number of wands/staffs to be drained*/
+									while ((counter > 1) && (!one_in_(counter)))
+									{
+										/*reduce by one*/
+										counter --;
+									}
+
+									/*before draining, get the old pval*/
+									old_charges = o_ptr->pval;
+
+									/*drain the wands/staffs*/
+									reduce_charges(o_ptr, counter);
+
+									/*factor healing times the difference*/
+									heal*= (old_charges - o_ptr->pval);
 								}
 
+								/*rods*/
 								else
 								{
-									heal *= o_ptr->pval * o_ptr->number;
+
+									/* Determine how much if left to drain. */
+									old_charges = (o_ptr->pval - o_ptr->timeout);
+
+									/*hack - efficiency*/
+									counter = old_charges / 10;
+
+									/*get the number of wands/staffs to be drained*/
+									while ((counter > 1) && (!one_in_(counter)))
+									{
+										/*reduce by one*/
+										counter --;
+									}
+
+									/*undo the efficiency hack*/
+									counter *= 10;
+
+									/*see how much timeout to add*/
+									old_charges -= counter;
+
+									/*drain the rod(s)*/
+									o_ptr->timeout += old_charges;
+
+									/*factor healing times the drained amount*/
+									heal *= MAX((old_charges / 30), 1);
 								}
 
-								/* Don't heal more than max hp */
-								heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
+								/* Message */
+								if ((m_ptr->hp < m_ptr->maxhp) && (heal))
+								{
+									if (m_ptr->ml) msg_format("%^s looks healthier.",  m_name);
+									else msg_format("%^s sounds healthier.", m_name);
+								}
 
-								/* Heal */
-								m_ptr->hp += heal;
+								/*heal is greater than monster wounds, restore mana too*/
+								if (heal > (m_ptr->maxhp - m_ptr->hp))
+								{
+
+									/*leave some left over for mana*/
+									heal -= (m_ptr->maxhp - m_ptr->hp);
+
+									/*fully heal the monster*/
+									m_ptr->hp = m_ptr->maxhp;
+
+									/*mana is more powerful than HP*/
+									heal /= 10;
+
+									/* if heal was less than 10, make it 1*/
+									if (heal < 1) heal = 1;
+
+									/*give message if anything left over*/
+									if (m_ptr->mana < r_ptr->mana)
+									{
+										if (m_ptr->ml) msg_format("%^s looks refreshed.", m_name);
+										else msg_format("%^s sounds refreshed.", m_name);
+									}
+
+									/*add mana*/
+									m_ptr->mana += heal;
+
+									if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
+								}
+
+								/* Simple Heal */
+								else m_ptr->hp += heal;
 
 								/* Redraw (later) if needed */
 								if (p_ptr->health_who == m_idx)
-									p_ptr->redraw |= (PR_HEALTH);
-
-								/* Uncharge */
-								if ((o_ptr->tval == TV_STAFF) ||
-									(o_ptr->tval == TV_WAND))
-									o_ptr->pval = 0;
-
-								/* New-style rods. */
-								if (o_ptr->tval == TV_ROD)
-									o_ptr->timeout = o_ptr->pval;
+									p_ptr->redraw |= (PR_HEALTH|PR_MON_MANA);
 
 								/* Combine / Reorder the pack */
 								p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1526,6 +1597,10 @@ bool make_attack_normal(monster_type *m_ptr)
 				}
 			}
 		}
+
+		/*hack - stop attacks if monster and player are no longer next to each other*/
+		if (do_break) break;
+
 	}
 
 
@@ -2327,7 +2402,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			else msg_format("%^s breathes gravity.", m_name);
 			mon_arc(m_idx, GF_GRAVITY, TRUE,
 			       MIN(m_ptr->hp / (r_ptr->flags2 & (RF2_POWERFUL) ? 4 : 8),
-				   (r_ptr->flags2 & (RF2_POWERFUL) ? 400 : 150)), 0,
+				   (r_ptr->flags2 & (RF2_POWERFUL) ? 200 : 100)), 0,
 				   (r_ptr->flags2 & (RF2_POWERFUL) ? 40 : 20));
 			break;
 		}
@@ -3080,6 +3155,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		/* RF5_RF5_XXX3 */
 		case 128+26:
 		{
+			break;
 		}
 
 		/* RF5_BEAM_ELEC */
@@ -3137,6 +3213,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		/* RF5_RF5XXX4 */
 		case 128+30:
 		{
+			break;
 		}
 
 		/* RF5_HOLY_ORB */
@@ -3162,6 +3239,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				rad = 3;
 			}
 			mon_ball(m_idx, GF_HOLY_ORB, get_dam(5 * spower / 2, 8), rad);
+
+			break;
 		}
 
 
@@ -3169,7 +3248,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		case 160+0:
 		{
 			disturb(1, 0);
-		if (seen)
+			if (seen)
 			{
 				if (blind)
 				{
@@ -4388,9 +4467,9 @@ void cloud_surround(int r_idx, int *typ, int *dam, int *rad)
 				 (r_ptr->flags4 & (RF4_BRTH_ELEC)) &&
 				 (r_ptr->flags4 & (RF4_BRTH_COLD)))
 				{
-					int rand = randint (5);
+					int rand_num = randint (5);
 
-					switch (rand)
+					switch (rand_num)
 					{
 						case 1: *typ = GF_POIS;
 						case 2: *typ = GF_ELEC;

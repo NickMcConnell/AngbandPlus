@@ -1624,7 +1624,7 @@ static s16b get_mimic_k_idx(const monster_race *r_ptr)
 		{
 			cptr name = (r_name + r_ptr->name);
 
-			if (strstr(name, "wand "))
+			if (strstr(name, "Wand mimic"))
 			{
 				/* Analyze every object */
 				for (i = 1; i < z_info->k_max; i++)
@@ -1651,7 +1651,7 @@ static s16b get_mimic_k_idx(const monster_race *r_ptr)
 				return(final_value);
 			}
 
-			if (strstr(name, "rod "))
+			if (strstr(name, "Rod mimic"))
 			{
 				/* Analyze every object */
 				for (i = 1; i < z_info->k_max; i++)

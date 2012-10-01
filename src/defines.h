@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.1"
+#define VERSION_STRING	"0.3.2"
 
 
 /*
@@ -2257,21 +2257,21 @@
 /*
  * Special Monster Flags
  */
-#define MFLAG_VIEW         0x00000001L  /* Monster is in line of sight */
-#define MFLAG_DLIM		   0x00000002L	/* Knowledge of monster is limited */
-#define MFLAG_MIMIC        0x00000004L /* A mimic detected as an object */
-#define MFLAG_ACTV         0x00000008L  /* Monster is in active mode */
-#define MFLAG_MOVE         0x00000010L  /* Monster has moved */
-#define MFLAG_TOWN         0x00000020L  /* Monster is using "townsman" AI */
-#define MFLAG_SHOW	       0x00000040L	/* Monster is recently memorized */
-#define MFLAG_MARK	       0x00000080L	/* Monster is currently memorized */
-#define MFLAG_WARY         0x00000100L  /* Monster is wary (used for traps)*/
-#define MFLAG_TEMP         0x00000200L  /* Monster is temporarily marked */
-#define MFLAG_FULL         0x00000400L  /* Monster has full required visibility */
-#define MFLAG_X800         0x00000800L  /* Unused */
-#define MFLAG_UNUSED       0x00001000L	/* Unused */
-#define MFLAG_DOOM         0x00002000L  /* Monster is doomed */
-#define MFLAG_X200		   0x00004000L  /* many unused*/
+#define MFLAG_VIEW          0x00000001  /* Monster is in line of sight */
+#define MFLAG_DLIM		    0x00000002	/* Knowledge of monster is limited */
+#define MFLAG_MIMIC         0x00000004 /* A mimic detected as an object */
+#define MFLAG_ACTV          0x00000008  /* Monster is in active mode */
+#define MFLAG_X100          0x00000010  /* Monster has moved */
+#define MFLAG_TOWN          0x00000020  /* Monster is using "townsman" AI */
+#define MFLAG_SHOW	        0x00000040	/* Monster is recently memorized */
+#define MFLAG_MARK	        0x00000080	/* Monster is currently memorized */
+#define MFLAG_WARY          0x00000100  /* Monster is wary (used for traps)*/
+#define MFLAG_TEMP          0x00000200  /* Monster is temporarily marked */
+#define MFLAG_FULL          0x00000400  /* Monster has full required visibility */
+#define MFLAG_X800          0x00000800  /* Unused */
+#define MFLAG_UNUSED        0x00001000	/* Unused */
+#define MFLAG_DOOM          0x00002000  /* Monster is doomed */
+#define MFLAG_X200		    0x00004000  /* many unused*/
 
 
 /*

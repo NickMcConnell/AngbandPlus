@@ -839,7 +839,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	/*assumes lev is always greater than 0*/
 	min_depth = difficulty + lev;
 
-	/* Try to place a unique quest, maybe (only after 250')*/
+	/* Try to place a unique quest*/
 	if ((rand_int(100)) < (2 + (2 * (difficulty + (lev / 5)))))
 
 	{
@@ -891,16 +891,17 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			total += table[i].prob3;
 		}
 
+		/*reverse the depth adjustment above*/
+		min_depth -= 2;
+		max_depth -= 2;
+
 	}
 
 	/*no eligible uniques*/
-	if(!total)
+	if (!total)
 	{
     	unique = FALSE;
 
-		/*reverse the depth adjustment above*/
-		min_depth -=2;
-		max_depth -=2;
 	}
 
 	/* Mark as a unique quest */
@@ -938,7 +939,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			number -= ((d < 5) ? d : 5);
 		}
 
-		/* More likely chance of climbing up */
+		/* More likely chance of climbing down, but adding more monstersp */
 		else if (rand_int(100) < (difficulty * 10))
 		{
 			number += (damroll(2,2) - 1);
@@ -1599,7 +1600,7 @@ void quest_fail(void)
 				plural_aux(race_name, sizeof(race_name));
 			}
 
-			if (quest == QUEST_UNIQUE)
+			if (q_ptr->type == QUEST_UNIQUE)
 			{
 				/*write note*/
 				if monster_nonliving(r_ptr)

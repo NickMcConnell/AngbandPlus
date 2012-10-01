@@ -470,7 +470,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 				int dam = (trap_power + randint (trap_power));
 
 				/* Damage the target monster */
-				(void)explosion(-1, 4, y, x, dam, GF_DISP_ALL);
+				(void)project_los_not_player(y, x, dam, GF_DISP_ALL);
 
 				/*note if monster died*/
 				if (!(m_ptr->r_idx)) mon_dies = TRUE;
@@ -4479,7 +4479,7 @@ static void process_monster(monster_type *m_ptr)
 
 
 /*
- * Monster regeneration of HPs and mana, and recovery from all temporary
+ * Monster regeneration of recovery from all temporary
  * conditions.
  *
  * This function is called a lot, and is therefore fairly expensive.
@@ -4834,7 +4834,7 @@ static void recover_monster(monster_type *m_ptr)
  * the processor time in normal situations.  If the character is resting,
  * this may rise substantially.
  */
-void process_monsters(byte minimum_energy)
+void process_monsters(s16b minimum_energy)
 {
 	int i;
 	monster_type *m_ptr;
@@ -4851,21 +4851,11 @@ void process_monsters(byte minimum_energy)
 		/* Ignore dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Ignore monsters that have already been handled */
-		if (m_ptr->mflag & (MFLAG_MOVE)) continue;
-
 		/* Leave monsters without enough energy for later */
 		if (m_ptr->energy < minimum_energy) continue;
 
-		/* Prevent reprocessing */
-		m_ptr->mflag |= (MFLAG_MOVE);
-
-		/* At the moment, this function is not called
-		 * with less than 100 energy points.
-		 * Since this function is in a tight bottleneck, I am commenting
-		 * it out
-		 * End the turn of monsters without enough energy to move
-		if (m_ptr->energy < 100) continue;*/
+		/* End the turn of monsters without enough energy to move*/
+		if (m_ptr->energy < 100) continue;
 
 		/* Handle temporary monster attributes */
 		recover_monster(m_ptr);
@@ -4883,23 +4873,4 @@ void process_monsters(byte minimum_energy)
 }
 
 
-/*
- * Clear 'moved' status from all monsters.
- *
- * Clear noise if appropriate.
- */
-void reset_monsters(void)
-{
-	int i;
-	monster_type *m_ptr;
 
-	/* Process the monsters (backwards) */
-	for (i = mon_max - 1; i >= 1; i--)
-	{
-		/* Access the monster */
-		m_ptr = &mon_list[i];
-
-		/* Monster is ready to go again */
-		m_ptr->mflag &= ~(MFLAG_MOVE);
-	}
-}

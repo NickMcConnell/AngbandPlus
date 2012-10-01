@@ -3260,7 +3260,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
 					msg_format("%^s gains back all %s mana!", m_name, m_poss);
 				}
 
-				/*reduce mana by about 11%*/
+				/*restore mana%*/
 				m_ptr->mana = r_ptr->mana;
 			}
 

@@ -9,6 +9,7 @@ at others.
 at gaining levels), and Elves and Dwarves (good abilities, not too slow at
 gaining levels).
 
+***** <Human>
 Human:
      A flexible and adaptive race, humans are found all over Middle-Earth, from
 desert Harad to icy Horodwaith.  They have no special adjustments to stats, and
@@ -16,12 +17,14 @@ no special strengths or weaknesses.  This, combined with their solid hitpoints,
 makes them flexible but not powerful adventurers.  They probably get the best
 prices in stores, on average.  Humans may choose any class.
 
+***** <Half-Elf>
 Half-Elf:
      The descendants of Elves and Humans, Half-elves are more intelligent and
 dexterous than humans, and are slightly better at many abilities, but are not so
 strong, tough, or good at melee.  Half-elves sustain dexterity inherently, and
 have some infravision.
 
+***** <Elf>
 Elf:
      Known as the Elder Race, and as the First-Born, Elves are famed for their
 knowledge and craftsmanship.  They are somewhat weaker, less wise, and less
@@ -29,6 +32,7 @@ robust than humans, but have superior intelligence and strong magical abilities.
 They are fond of bows, somewhat weak in melee, and have some infravision.  They
 sustain dexterity and resist light inherently.  
 
+***** <Hobbit>
 Hobbit:
      Hobbits are shy, retiring folk with enough good sense to share.  They live
 in homes with circular entranceways built partially underground, and are the
@@ -37,6 +41,7 @@ hitpoints, and are very poor at melee, all of their other abilities are
 extraordinary.  Hobbits are highly intelligent, dexterous, and hardy, have
 innate infravision, and resist attacks on their life force.  
 
+***** <Gnome>
 Gnome:
      Gnomes are the pudgy pranksters of the dungeon; if they can kill something
 in a humorous way, so much the better.  They may be small and ugly, but can
@@ -45,6 +50,7 @@ not powerful in combat, but have solid basic abilities, are highly intelligent
 and dexterous, have innate infravision, and -- most importantly -- are immune to
 paralyzation.
 
+***** <Dwarf>
 Dwarf:
      Dwarves are the headstrong miners and fighters of legend.  They are strong,
 wise, tough, and have pretty good basic skills; although not very good at
@@ -55,6 +61,7 @@ proud, singing in loud voices, arguing with themselves for no good reason,
 screaming out challenges at imagined foes.  In other words, dwarves have a
 miserable stealth.
 
+***** <Half-Orc>
 Half-Orc:
      The bastard offspring of humans and orcs, half-orcs are ugly, strong, and
 have very bad attitudes.  Their magic is a little suspect, as are most of their
@@ -63,6 +70,7 @@ Most other races dislike them and so they have a hard time in stores.  Half-orcs
 have innate infravision and, like orcs themselves, resist darkness and its
 effects.
 
+***** <Half-Troll>
 Half-Troll:
      Half-trolls are built like blocks of granite; no other race can match their
 strength or recover hitpoints as quickly.  Their hand-to-hand combat prowess is
@@ -71,12 +79,14 @@ everything else, are very noisy, need to eat a lot, and have a hard time in
 stores.  Half-trolls will be bad at anything that requires heavy thinking.  They
 have innate infravision and always have their strength sustained.  
 
+***** <Dunadan>
 Dunadan:
      Dunedain are a race of hardy men from the West.  This elder race surpasses
 the abilities of other humans in every field and has superior vital statistics.
 However, being men of the world, very little is new to them, and levels are very
 hard to gain.  Their constitution cannot be reduced.
 
+***** <High-Elf>
 High-Elf:
       High-Elves are descended from those among the Elves who heard and answered
 the call from the Valar at the very beginning of time, before the sun and moon
@@ -88,6 +98,7 @@ the unseen, have good infravision, and have innate resistance to light.
 However, having lived so long and learnt so much, it is very hard for them to
 advance further.  
 
+***** <Kobold>
 Kobold:
      Kobolds are a race of small dog-headed humanoids that dwell underground.
 They are dexterous and tough, but ugly, and have relatively few hitpoints.
@@ -103,6 +114,7 @@ vary greatly in toughness, combat and magic power, and ability to notice,
 detect, and avoid things.  Some suggested classes for new players are warriors
 and paladins.
 
+***** <Warrior>
 Warrior:
      A hack-and-slash character who solves most of his problems by cutting them
 to pieces.  He is unchallengeable with melee weapons, and is also good with all
@@ -112,6 +124,7 @@ poor at the dungeon survival skills, vulnerable to magic, and suffers greatly
 from his ignorance of spells and many magical devices.  He gets fast, detailed 
 feelings on weapons and armour (pseudo-ID).
 
+***** <Mage>
 Mage:
      A Mage must live by his wits.  He cannot hope to simply hack his way
 through the dungeon, and so must therefore use his magic to defeat, deceive,
@@ -121,6 +134,7 @@ dangerously poor physical ones.  He has almost no chance of sensing wargear.
 There is no rule that says a mage cannot become a good fighter, but spells are
 his true realm.  Intelligence is his spell stat.
 
+***** <Priest>
 Priest:
      Covenanted with a mighty and generous god.  He explores the dungeon only to
 cleanse the evil that lurks within, and if treasure just happens to fall into
@@ -132,6 +146,7 @@ weapons (swords and polearms) violate the Church's strictures about shedding
 blood, and wielding one will hurt his ability to pray successfully.  A Priest
 has fast but weak pseudo-ID.  Wisdom is his prayer stat.
 
+***** <Rogue>
 Rogue:
      A Rogue is a character that prefers to live by his cunning, but is capable
 of fighting his way out of a tight spot.  He is a master of traps and locks, no
@@ -146,6 +161,7 @@ an increasing variety of traps by using the + command on an existing monster
 trap.  He is excpetionally gifted with a sling, and gets an extra slot with
 a sling when he reaches level 26.
 
+***** <Ranger>
 Ranger:
      The greatest of bowsmen, capable of eventually firing a bow three times
 faster than normal.  He can also hold his own in melee, and has some useful
@@ -154,6 +170,7 @@ skills are better than average.  A ranger has average-speed, weak pseudo-ID.
 Intelligence is his spell stat.  He gets an extra show with a bow at level
 26.
 
+***** <Paladin>
 Paladin:
      A champion of the Faith.  He is second only to the warrior in melee, can
 use all weapons comfortably, and has some useful prayers to enhance his powers.

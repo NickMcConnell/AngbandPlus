@@ -1188,8 +1188,6 @@ static void process_world(void)
 
 }
 
-
-
 /*
  * Verify use of "wizard" mode
  */
@@ -2615,10 +2613,10 @@ static void dungeon(void)
 		}
 
 		/* Can the player move? */
-		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
+		while ((p_ptr->energy >= 100) && (!p_ptr->leaving))
 		{
 			/* Process monster with even more energy first */
-			process_monsters((byte)(p_ptr->energy + 1));
+			process_monsters(p_ptr->energy + 1);
 
 			/* If still alive */
 			if (!p_ptr->leaving)
@@ -2626,6 +2624,7 @@ static void dungeon(void)
 				/* Process the player */
 				process_player();
 			}
+
 		}
 
 		/* Notice stuff */
@@ -2651,9 +2650,6 @@ static void dungeon(void)
 
 		/* Process monsters (any that haven't had a chance to move yet) */
 		process_monsters(100);
-
-		/* Reset monsters */
-		reset_monsters();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2699,7 +2695,6 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Count game turns */
 		turn++;

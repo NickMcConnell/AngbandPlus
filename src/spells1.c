@@ -649,14 +649,9 @@ static bool hates_elec(const object_type *o_ptr)
 	{
 		case TV_RING:
 		case TV_WAND:
-		{
-			return (TRUE);
-		}
-
-
 		case TV_ROD:
 		{
-			if (one_in_(4)) return (TRUE);
+			return (TRUE);
 		}
 	}
 
@@ -847,7 +842,7 @@ typedef int (*inven_func)(const object_type *);
  *
  * Returns number of items destroyed.
  */
-static int inven_damage(inven_func typ, int perc)
+static int inven_damage(inven_func typ, int perc, bool protected)
 {
 	int i, j, k, amt;
 
@@ -872,11 +867,25 @@ static int inven_damage(inven_func typ, int perc)
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
 		{
+			int percent = 100;
+
+			/* Rods are tough. */
+			if (o_ptr->tval == TV_ROD)
+			{
+				percent *= 5;
+				percent /= 3;
+			}
+
+			if (protected)
+			{
+				percent *= 5;
+				percent /= 3;
+			}
 
 			/* Count the casualties */
 			for (amt = j = 0; j < o_ptr->number; ++j)
 			{
-				if (rand_int(130) < perc) amt++;
+				if (rand_int(percent) < perc) amt++;
 			}
 
 			/* Some casualities */
@@ -1012,9 +1021,13 @@ static int minus_ac(void)
 void acid_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	bool double_resist = FALSE;
 
 	/* Total Immunity */
 	if (p_ptr->immune_acid || (dam <= 0)) return;
+
+	/*inventory  gets protected better with double resistance*/
+	if ((p_ptr->resist_acid) && (p_ptr->oppose_acid)) double_resist = TRUE;
 
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
@@ -1027,7 +1040,7 @@ void acid_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	inven_damage(set_acid_destroy, inv);
+	inven_damage(set_acid_destroy, inv, double_resist);
 }
 
 
@@ -1037,9 +1050,13 @@ void acid_dam(int dam, cptr kb_str)
 void elec_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	bool double_resist = FALSE;
 
 	/* Total immunity */
 	if (p_ptr->immune_elec || (dam <= 0)) return;
+
+	/*inventory gets protected better with double resistance*/
+	if ((p_ptr->resist_elec) && (p_ptr->oppose_elec)) double_resist = TRUE;
 
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
@@ -1049,7 +1066,7 @@ void elec_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	inven_damage(set_elec_destroy, inv);
+	inven_damage(set_elec_destroy, inv, double_resist);
 }
 
 
@@ -1061,9 +1078,13 @@ void elec_dam(int dam, cptr kb_str)
 void fire_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	bool double_resist = FALSE;
 
 	/* Totally immune */
 	if (p_ptr->immune_fire || (dam <= 0)) return;
+
+	/*inventory  gets protected better with double resistance*/
+	if ((p_ptr->resist_fire) && (p_ptr->oppose_fire)) double_resist = TRUE;
 
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
@@ -1073,7 +1094,7 @@ void fire_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	inven_damage(set_fire_destroy, inv);
+	inven_damage(set_fire_destroy, inv, double_resist);
 }
 
 
@@ -1083,9 +1104,13 @@ void fire_dam(int dam, cptr kb_str)
 void cold_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	bool double_resist = FALSE;
 
 	/* Total immunity */
 	if (p_ptr->immune_cold || (dam <= 0)) return;
+
+	/*inventory  gets protected better with double resistance*/
+	if ((p_ptr->resist_cold) && (p_ptr->oppose_cold)) double_resist = TRUE;
 
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
@@ -1095,7 +1120,7 @@ void cold_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	inven_damage(set_cold_destroy, inv);
+	inven_damage(set_cold_destroy, inv, double_resist);
 }
 
 
@@ -2277,34 +2302,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	l_ptr = &l_list[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
-
-	/* Some monsters are great at dodging  -EZ- */
-	if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
-	    (!m_ptr->confused))
-	{
-		/* Area-effect and jumping spells cannot be dodged */
-		if (!(flg & (PROJECT_ARC | PROJECT_STAR | PROJECT_JUMP |
-		             PROJECT_BOOM)))
-		{
-			/* Allow dodging */
-			if (rand_int(5 + m_ptr->cdis) >= (2 + m_ptr->stunned / 10))
-			{
-				if (seen)
-				{
-					/* Get the monster name */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-					msg_format("%^s dodges!", name);
-
-					/* Learn that monster can dodge */
-					l_ptr->flags2 |= (RF2_EVASIVE);
-				}
-
-				/* Missed! */
-				return (TRUE);
-			}
-		}
-	}
 
 	/* Get the monster name*/
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);

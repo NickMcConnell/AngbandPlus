@@ -105,7 +105,7 @@ void do_cmd_change_name(void)
 	store_type *st_ptr = &store[STORE_HOME];
 
 	/* Prompt */
-	p = "['c' - change name, f - file, '(+/-)' toggle display modes, or ESC]";
+	p = "[(c)hange name, (f)ile, (h/+)prev display mode, (-/l)next display mode, or ESC]";
 
 	/* Save screen */
 	screen_save();
@@ -117,7 +117,7 @@ void do_cmd_change_name(void)
 		display_player(mode);
 
 		/* Prompt */
-		Term_putstr(2, 23, -1, TERM_WHITE, p);
+		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
 		ch = inkey();
@@ -155,7 +155,7 @@ void do_cmd_change_name(void)
 		}
 
 		/* Toggle mode */
-		else if (ch == '+')
+		else if ((ch == '+') || (ch == 'l'))
 		{
 			mode += 1;
 
@@ -166,7 +166,7 @@ void do_cmd_change_name(void)
 		}
 
 		/* Toggle mode */
-		else if (ch == '-')
+		else if ((ch == '-') || (ch == 'h'))
 		{
 			/*loop through the four screens*/
 			if (mode == 0)

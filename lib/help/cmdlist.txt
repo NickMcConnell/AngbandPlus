@@ -48,7 +48,7 @@ Command Summary -- Original keyset
      {  Inscribe an object                  ^K  (unused)
      }  Uninscribe an object                ^L  (unused)
      [  Use talents                         ^M  (special - return)
-     ]  end shapechange                     ^N  (unused)
+     ]  (unused)                            ^N  (unused)
      -  Walk (flip pickup)                  ^O  (unused)
      _  Enter store                         ^P  Show previous messages
      +  Alter grid                          ^Q  Display current quest

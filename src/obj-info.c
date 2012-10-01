@@ -292,6 +292,91 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	return (vn ? TRUE : FALSE);
 }
 
+/*return the number of blows a player gets with a weapon*/
+static int get_num_blows(const object_type *o_ptr, u32b f1)
+{
+
+	/*i_ptr is actual wielded weapon*/
+	/*o_ptr is weapon being examined*/
+
+	object_type *i_ptr = &inventory[INVEN_WIELD];
+
+	int str_index, dex_index, blows, adj_stat, div_weight;
+
+	u32b wf1 = 0;
+	u32b wf2 = 0;
+	u32b wf3 = 0;
+
+	/* Extract the wielded item flags */
+	if (i_ptr->k_idx) object_flags(i_ptr, &wf1, &wf2, &wf3);
+
+	/* Enforce a minimum "weight" (tenth pounds) */
+	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+
+	/*get the player strength*/
+	adj_stat = p_ptr->stat_ind[A_STR];
+
+	/*first take out the strength adjustment for the wielded weapon*/
+	if (wf1 & (TR1_STR)) adj_stat -= i_ptr->pval;
+
+	/*next add in the strength of the potential weapon but only if the weapon is ID'ed*/
+	if ((o_ptr->ident & (IDENT_KNOWN)) && (f1 & (TR1_STR)))
+	    adj_stat += o_ptr->pval;
+
+	/* Maximal value */
+	if (adj_stat > 37) adj_stat = 37;
+	if (adj_stat < 0) adj_stat = 0;
+
+	/* Get the strength vs weight */
+	str_index = (adj_str_blow[adj_stat] * cp_ptr->att_multiply / div_weight);
+
+	/* Maximal value */
+	if (str_index > 11) str_index = 11;
+	if (str_index < 0) str_index = 0;
+
+	/*get the player dex*/
+	adj_stat = p_ptr->stat_ind[A_DEX];
+
+	/*first take out the dex adjustment for the wielded weapon*/
+	if (wf1 & (TR1_DEX)) adj_stat -= i_ptr->pval;
+
+	/*next add in the dex of the potential weapon but only if the weapon is ID'ed*/
+	if ((o_ptr->ident & (IDENT_KNOWN)) && (f1 & (TR1_DEX)))
+	    adj_stat += o_ptr->pval;
+
+	/* Maximal value */
+	if (adj_stat > 37) adj_stat = 37;
+	if (adj_stat < 0) adj_stat = 0;
+
+	/* Index by dexterity */
+	dex_index = (adj_dex_blow[adj_stat]);
+
+	/* Maximal value */
+	if (dex_index > 11) dex_index = 11;
+	if (dex_index < 0) dex_index = 0;
+
+	/* Use the blows table */
+	blows = blows_table[str_index][dex_index];
+
+	/* Maximal value */
+	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
+
+	/* Add in the "bonus blows", but only if the weapon is known */
+	if ((f1 & (TR1_BLOWS)) && (o_ptr->ident & (IDENT_KNOWN)))
+	{
+		blows += o_ptr->pval;
+	}
+
+	/* Require at least one blow */
+	if (blows < 1) blows = 1;
+
+	/*add extra attack for those who have the flag*/
+	if ((p_ptr->lev > 25) && (cp_ptr->flags & CF_EXTRA_ATTACK))
+		blows += 1;
+
+	return(blows);
+}
+
 /*
  * Describe 'number of attacks recieved with a weapon
  */
@@ -306,8 +391,8 @@ static bool describe_attacks (const object_type *o_ptr, u32b f1)
 		n = get_num_blows(o_ptr, f1);
 
 		/*print out the number of attacks*/
-		if (n == 1) text_out("It gives you one attack per turn.");
-		else text_out(format("It gives you %d attacks per turn.", n));
+		if (n == 1) text_out("It gives you one attack per turn.  ");
+		else text_out(format("It gives you %d attacks per turn.  ", n));
 
 		return (TRUE);
 	}

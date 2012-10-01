@@ -406,6 +406,9 @@ static int do_cmd_squelch_aux(void)
 					/*skip empty objects*/
 					if (!k_ptr->name) continue;
 
+					/*hack - sometimes gold shows up*/
+					if (k_ptr->tval == TV_GOLD) continue;
+
 					/*haven't seen the item yet*/
 					if (!k_ptr->aware) continue;
 
@@ -845,37 +848,44 @@ void do_cmd_squelch(void)
 
 int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 {
-  int i, num, result;
-  byte feel;
+  	int i, num, result;
+  	byte feel;
 
-  /* default */
-  result = SQUELCH_NO;
+  	/* default */
+  	result = SQUELCH_NO;
 
-  /*never squelch quest items*/
-  if (o_ptr->ident & IDENT_QUEST) return result;
+  	/*never squelch quest items*/
+  	if (o_ptr->ident & IDENT_QUEST) return result;
 
-  /* Check to see if the object is eligible for squelching on id. */
-  num=-1;
-  for (i=0; tvals[i].tval; i++)
-  {
-  	if (tvals[i].tval==o_ptr->tval)
-	{
-      	num=i;
-    }
-  }
-  if (num==-1) return result;
+  	/* Check to see if the object is eligible for squelching on id. */
+  	num = -1;
 
-  /*
-   * Get the "feeling" of the object.  If the object is being identified
-   * get the feeling returned by a heavy pseudoid.
-   */
-  feel = feeling;
-  if (fullid==1)  feel = value_check_aux1(o_ptr);
+	/*find the appropriate squelch group*/
+  	for (i=0; tvals[i].tval; i++)
+  	{
+  		if (tvals[i].tval == o_ptr->tval)
+		{
 
+      		num = i;
 
-  /* Get result based on the feeling and the squelch_level */
-  switch (squelch_level[num])
-  {
+    	}
+
+  	}
+
+	/*never squelched*/
+  	if (num == -1) return result;
+
+  	/*
+   	 * Get the "feeling" of the object.  If the object is being identified
+   	 * get the feeling returned by a heavy pseudoid.
+   	 */
+  	feel = feeling;
+
+  	if (fullid == 1)  feel = value_check_aux1(o_ptr);
+
+  	/* Get result based on the feeling and the squelch_level */
+  	switch (squelch_level[num])
+  	{
    		case SQUELCH_NONE:
 		{
       		return result;
