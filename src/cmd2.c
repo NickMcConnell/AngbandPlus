@@ -322,7 +322,7 @@ static void chest_death(int y, int x, s16b o_idx)
 				good = FALSE;
 				great = FALSE;
 			}
-		   	else if (quality < 51)
+		    else if (quality < 51)
 			{
 				good = TRUE;
 			 	great = FALSE;
@@ -350,6 +350,7 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	/* No longer opening a chest */
 	chest_or_quest = FALSE;
+
 
 	/* Empty */
 	o_ptr->pval = 0;
@@ -609,14 +610,12 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 }
 
 
-#if defined(ALLOW_EASY_OPEN)
-
 /*
- * Return TRUE if the given feature is an open (or broken) door
+ * Return TRUE if the given feature is an open door
  */
 static bool is_open(int feat)
 {
-	return ((feat == FEAT_OPEN) || (feat == FEAT_BROKEN));
+	return (feat == FEAT_OPEN);
 }
 
 
@@ -747,9 +746,6 @@ static int coords_to_dir(int y, int x)
 {
 	return (motion_dir(p_ptr->py, p_ptr->px, y, x));
 }
-
-#endif /* ALLOW_EASY_OPEN */
-
 
 /*
  * Determine if a given grid may be "opened"
@@ -888,8 +884,6 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN
-
 	/* Easy Open */
 	if (easy_open)
 	{
@@ -907,8 +901,6 @@ void do_cmd_open(void)
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1063,8 +1055,6 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN
-
 	/* Easy Close */
 	if (easy_open)
 	{
@@ -1074,8 +1064,6 @@ void do_cmd_close(void)
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1099,7 +1087,6 @@ void do_cmd_close(void)
 		y = p_ptr->py + ddy[dir];
 		x = p_ptr->px + ddx[dir];
 	}
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1601,8 +1588,6 @@ void do_cmd_disarm(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN
-
 	/* Easy Disarm */
 	if (easy_open)
 	{
@@ -1621,8 +1606,6 @@ void do_cmd_disarm(void)
 				p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -2079,7 +2062,6 @@ void do_cmd_alter(void)
 	/*Is there a monster on the space?*/
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Attack */
 		py_attack(y, x);
 	}
 
@@ -2293,6 +2275,12 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
+	/* Allow attack on visible monsters */
+	if ((cave_m_idx[y][x] > 0) && (mon_list[cave_m_idx[y][x]].ml))
+	{
+		return TRUE;
+	}
+
 	/* can walk over own trap */
 	if (cave_mon_trap_bold(y,x)) return (TRUE);
 
@@ -2310,12 +2298,8 @@ static bool do_cmd_walk_test(int y, int x)
 		else if (cave_feat[y][x] < FEAT_SECRET)
 		{
 
-#ifdef ALLOW_EASY_ALTER
-
 			/* Hack -- Handle "easy_alter" */
 			if (easy_alter) return (TRUE);
-
-#endif /* ALLOW_EASY_ALTER */
 
 			/* Message */
 			msg_print("There is a door in the way!");

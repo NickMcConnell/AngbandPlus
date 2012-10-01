@@ -1,7 +1,7 @@
 
 ====== The Dungeon ======
 
-     All levels other than 0 (or zero feet) lie within the dungeon.  Each level
+     All levels other than 0 (the town) lie within the dungeon.  Each level
 of the dungeon is fifty feet high, and is divided into large rectangular regions
 (several times larger than the screen) by impenetrable walls.  Once you leave a
 level, you will never again find your way back to that region of that level, but
@@ -102,8 +102,8 @@ Level Feelings:
 when you enter another one.  The more interesting the choice of adjectives, the
 more dangerous and lucrative the level is likely to be.
      Things that boost level feelings include:  out of depth monsters, out of
-depth uniques, out of depth objects, certain powerful object kinds, and very
-special rooms.
+depth uniques, out of depth objects, certain powerful object kinds, very
+special rooms, and chests.
 
 Preserve Mode:
      If you do not have preserve mode on, you will occasionally get the message

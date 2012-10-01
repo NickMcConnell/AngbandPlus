@@ -8,7 +8,6 @@
  * are included in all such copies.
  */
 
-
 /*
  * This file helps Angband work with UNIX/X11 computers.
  *
@@ -1368,7 +1367,7 @@ static errr Term_xtra_xaw(int n, int v)
 
 		/* Delay */
 		case TERM_XTRA_DELAY:
-		usleep(1000 * v);
+		if (v > 0) usleep(1000 * v);
 		return (0);
 
 		case TERM_XTRA_REACT:
@@ -1679,7 +1678,7 @@ errr init_xaw(int argc, char **argv)
 
 #ifdef USE_GRAPHICS
 
-	cptr bitmap_file;
+	cptr bitmap_file = "";
 	char filename[1024];
 
 	int pict_wid = 0;
@@ -1802,7 +1801,7 @@ errr init_xaw(int argc, char **argv)
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
 			/* Use graphics */
-			use_graphics = TRUE;
+			use_graphics = GRAPHICS_ADAM_BOLT;
 			use_transparency = TRUE;
 
 			pict_wid = pict_hgt = 16;
@@ -1824,7 +1823,7 @@ errr init_xaw(int argc, char **argv)
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
 			/* Use graphics */
-			use_graphics = TRUE;
+			use_graphics = GRAPHICS_ORIGINAL;
 
 			pict_wid = pict_hgt = 8;
 
@@ -1838,7 +1837,7 @@ errr init_xaw(int argc, char **argv)
 		bitmap_file = "32x32.bmp";
 
 		/* Use graphics */
-		use_graphics = TRUE;
+		use_graphics = GRAPHICS_DAVID_GERVAIS;
 		use_transparency = TRUE;
 
 		pict_wid = pict_hgt = 32;
@@ -1877,7 +1876,7 @@ errr init_xaw(int argc, char **argv)
 				bool same = FALSE;
 
 				term_data *td = &data[i];
-				term_data *o_td;
+				term_data *o_td = NULL;
 
 				term *t = &td->t;
 

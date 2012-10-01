@@ -1871,1528 +1871,1528 @@ K:514:0x8E:0x9F
 # player
 R:0:0x92/0x80
 
-# filthy street urchin
+# Filthy street urchin
 R:1:0xAA/0x80
 
-# scrawny cat
+# Scrawny cat
 R:2:0xA7/0x82
 
-# scruffy little dog
+# Scruffy little dog
 R:3:0x9D/0x9A
 
 # Lotho Pimple
 R:4:0xAA/0x81
 
-# blubbering idiot
+# Blubbering idiot
 R:5:0xAA/0x82
 
-# boil-covered wretch
+# Boil-covered wretch
 R:6:0xAA/0x83
 
-# village idiot
+# Village idiot
 R:7:0xAA/0x84
 
-# pitiful-looking beggar
+# Pitiful-looking beggar
 R:8:0xAA/0x85
 
-# mangy-looking leper
+# Mangy-looking leper
 R:9:0xAA/0x86
 
-# squint-eyed rogue
+# Squint-eyed rogue
 R:10:0xAA/0x87
 
-# singing, happy drunk
+# Singing, happy drunk
 R:11:0xAA/0x88
 
-# aimless-looking merchant
+# Aimless-looking merchant
 R:12:0xAA/0x89
 
-# mean-looking mercenary
+# Mean-looking mercenary
 R:13:0xAA/0x8A
 
-# battle-scarred veteran
+# Battle-scarred veteran
 R:14:0xAA/0x8B
 
-# grey mold
+# Grey mold
 R:15:0xA8/0x9F
 
-# grey mushroom patch
+# Grey mushroom patch
 R:16:0x9D/0x85
 
-# giant yellow centipede
+# Giant yellow centipede
 R:17:0xA5/0x94
 
-# giant white centipede
+# Giant white centipede
 R:18:0xA5/0x95
 
-# white icky thing
+# White icky thing
 R:19:0xA8/0x83
 
-# clear icky thing
+# Clear icky thing
 R:20:0xA8/0x84
 
-# giant white mouse
+# Giant white mouse
 R:21:0xAC/0x85
 
-# large brown snake
+# Large brown snake
 R:22:0xA2/0x84
 
-# large white snake
+# Large white snake
 R:23:0xA2/0x85
 
-# small kobold
+# Small kobold
 R:24:0xA8/0x99
 
-# kobold
+# Kobold
 R:25:0xA8/0x9A
 
-# white worm mass
+# White worm mass
 R:26:0xAC/0x9D
 
-# floating eye
+# Floating eye
 R:27:0xA6/0x9B
 
-# rock lizard
+# Rock lizard
 R:28:0xA2/0x86
 
-# jackal
+# Jackal
 R:29:0x9D/0x9B
 
-# soldier ant
+# Soldier ant
 R:30:0xA5/0x87
 
-# fruit bat
+# Fruit bat
 R:31:0xA5/0x8F
 
-# shrieker mushroom patch
+# Shrieker mushroom patch
 R:32:0x9D/0x86
 
-# blubbering icky thing
+# Blubbering icky thing
 R:33:0xA8/0x85
 
-# metallic green centipede
+# Metallic green centipede
 R:34:0xA5/0x96
 
-# novice warrior
+# Novice warrior
 R:35:0xAA/0x8C
 
-# novice rogue
+# Novice rogue
 R:36:0xAA/0x8D
 
-# novice priest
+# Novice priest
 R:37:0xAA/0x8E
 
-# novice mage
+# Novice mage
 R:38:0xAA/0x8F
 
-# yellow mushroom patch
+# Yellow mushroom patch
 R:39:0x9D/0x87
 
-# white jelly
+# White jelly
 R:40:0xA8/0x8A
 
-# giant green frog
+# Giant green frog
 R:41:0xA2/0x87
 
-# giant black ant
+# Giant black ant
 R:42:0xA5/0x88
 
-# salamander
+# Salamander
 R:43:0xA2/0x88
 
-# white harpy
+# White harpy
 R:44:0xA0/0x88
 
-# blue yeek
+# Blue yeek
 R:45:0xAD/0x87
 
-# grip, farmer maggot's dog
+# Grip, Farmer Maggot's dog
 R:46:0x9D/0x9C
 
-# fang, farmer maggot's dog
+# Fang, Farmer Maggot's dog
 R:47:0x9D/0x9D
 
-# green worm mass
+# Green worm mass
 R:48:0xAC/0x9E
 
-# large yellow snake
+# Large yellow snake
 R:49:0xA2/0x89
 
-# cave spider
+# Cave spider
 R:50:0xA2/0x9D
 
-# wild cat
+# Wild cat
 R:51:0xA7/0x83
 
-# smeagol
+# Smeagol
 R:52:0xAA/0x90
 
-# green ooze
+# Green ooze
 R:53:0xA8/0x8B
 
-# poltergeist
+# Poltergeist
 R:54:0x9F/0x99
 
-# metallic blue centipede
+# Metallic blue centipede
 R:55:0xA5/0x97
 
-# giant white louse
+# Giant white louse
 R:56:0xA8/0x9D
 
-# black naga
+# Black naga
 R:57:0xA9/0x88
 
-# spotted mushroom patch
+# Spotted mushroom patch
 R:58:0x9D/0x88
 
-# silver jelly
+# Silver jelly
 R:59:0xA8/0x8C
 
-# yellow jelly
+# Yellow jelly
 R:60:0xA8/0x8D
 
-# scruffy looking hobbit
+# Scruffy looking hobbit
 R:61:0xA7/0x93
 
-# giant white ant
+# Giant white ant
 R:62:0xA5/0x89
 
-# yellow mold
+# Yellow mold
 R:63:0xA9/0x80
 
-# metallic red centipede
+# Metallic red centipede
 R:64:0xA5/0x98
 
-# yellow worm mass
+# Yellow worm mass
 R:65:0xAC/0x9F
 
-# clear worm mass
+# Clear worm mass
 R:66:0xAD/0x80
 
-# radiation eye
+# Radiation eye
 R:67:0xA6/0x9C
 
-# cave lizard
+# Cave lizard
 R:68:0xA2/0x8A
 
-# novice ranger
+# Novice ranger
 R:69:0xAA/0x91
 
-# novice paladin
+# Novice paladin
 R:70:0xAA/0x92
 
-# blue jelly
+# Blue jelly
 R:71:0xA8/0x8E
 
-# creeping copper coins
+# Creeping copper coins
 R:72:0x9D/0x80
 
-# giant white rat
+# Giant white rat
 R:73:0xAC/0x86
 
-# blue worm mass
+# Blue worm mass
 R:74:0xAD/0x81
 
-# large grey snake
+# Large grey snake
 R:75:0xA2/0x8B
 
-# bullroarer the hobbit
+# Bullroarer the Hobbit
 R:76:0xA7/0x94
 
-# novice mage
+# Novice mage
 R:77:0xAA/0x8F
 
-# green naga
+# Green naga
 R:78:0xA9/0x89
 
-# blue ooze
+# Blue ooze
 R:79:0xA8/0x8F
 
-# green glutton ghost
+# Green glutton ghost
 R:80:0x9F/0x9A
 
-# green jelly
+# Green jelly
 R:81:0xA8/0x90
 
-# large kobold
+# Large kobold
 R:82:0xA8/0x9B
 
-# skeleton kobold
+# Skeleton kobold
 R:83:0xAC/0x89
 
-# grey icky thing
+# Grey icky thing
 R:84:0xA8/0x86
 
-# disenchanter eye
+# Disenchanter eye
 R:85:0xA6/0x9D
 
-# red worm mass
+# Red worm mass
 R:86:0xAD/0x82
 
-# copperhead snake
+# Copperhead snake
 R:87:0xA2/0x8C
 
-# purple mushroom patch
+# Purple mushroom patch
 R:88:0x9D/0x89
 
-# novice priest
+# Novice priest
 R:89:0xAA/0x8E
 
-# novice warrior
+# Novice warrior
 R:90:0xAA/0x8C
 
-# novice rogue
+# Novice rogue
 R:91:0xAA/0x8D
 
-# brown mold
+# Brown mold
 R:92:0xA9/0x81
 
-# giant brown bat
+# Giant brown bat
 R:93:0xA5/0x90
 
-# novice archer
+# Kobold archer
 R:94:0xAA/0x97
 
-# creeping silver coins
+# Creeping silver coins
 R:95:0x9D/0x81
 
-# snaga
+# Snaga
 R:96:0xA9/0x8E
 
-# rattlesnake
+# Rattlesnake
 R:97:0xA2/0x8D
 
-# cave orc
+# Cave orc
 R:98:0xA9/0x8F
 
-# wood spider
+# Wood spider
 R:99:0xA2/0x9E
 
-# manes
+# Manes
 R:100:0xA0/0x91
 
-# bloodshot eye
+# Bloodshot eye
 R:101:0xA6/0x9E
 
-# red naga
+# Red naga
 R:102:0xA9/0x8A
 
-# red jelly
+# Red jelly
 R:103:0xA8/0x91
 
-# giant red frog
+# Giant red frog
 R:104:0xA2/0x8E
 
-# green icky thing
+# Green icky thing
 R:105:0xA8/0x87
 
-# zombified kobold
+# Zombified kobold
 R:106:0xAD/0x8C
 
-# lost soul
+# Lost soul
 R:107:0x9F/0x9B
 
-# dark elf
+# Dark elf
 R:108:0xA7/0x95
 
-# night lizard
+# Night lizard
 R:109:0xA2/0x8F
 
-# mughash the kobold lord
+# Mughash the Kobold Lord
 R:110:0xA8/0x9C
 
-# wormtongue, agent of saruman
+# Wormtongue, Agent of Saruman
 R:111:0xAA/0x98
 
-# lagduf, the snaga
+# Lagduf, the Snaga
 R:112:0xA9/0x90
 
-# brown yeek
+# Brown yeek
 R:113:0xAD/0x88
 
-# novice ranger
+# Novice ranger
 R:114:0xAA/0x91
 
-# giant salamander
+# Giant salamander
 R:115:0xA2/0x90
 
-# green mold
+# Green mold
 R:116:0xA9/0x82
 
-# skeleton orc
+# Skeleton orc
 R:117:0xAC/0x8A
 
-# novice paladin
+# Novice paladin
 R:118:0xAA/0x92
 
-# lemure
+# Lemure
 R:119:0xA0/0x92
 
-# hill orc
+# Hill orc
 R:120:0xA9/0x91
 
-# bandit
+# Bandit
 R:121:0xAA/0x9B
 
-# yeti
+# Yeti
 R:122:0xA4/0x91
 
-# bloodshot icky thing
+# Bloodshot icky thing
 R:123:0xA8/0x88
 
-# giant grey rat
-R:124:0xAC/0x87
+# Giant grey rat
+R:124:0x91/0x87
 
-# black harpy
+# Black harpy
 R:125:0xA0/0x89
 
-# orc shaman
+# Orc shaman
 R:126:0xA9/0x92
 
-# baby blue dragon
+# Baby blue dragon
 R:127:0xA5/0x9D
 
-# baby white dragon
+# Baby white dragon
 R:128:0xA5/0x9E
 
-# baby green dragon
+# Baby green dragon
 R:129:0xA5/0x9F
 
-# baby black dragon
+# Baby black dragon
 R:130:0xA6/0x80
 
-# baby red dragon
+# Baby red dragon
 R:131:0xA6/0x81
 
-# giant fire ant
+# Giant red ant
 R:132:0xA5/0x8D
 
-# brodda, the easterling
+# Brodda, the Easterling
 R:133:0xAA/0x9C
 
-# king cobra
+# King cobra
 R:134:0xA2/0x91
 
-# giant spider
+# Giant spider
 R:135:0xA2/0x9F
 
-# dark elven mage
+# Dark elven mage
 R:136:0xA7/0x96
 
-# orfax, son of boldor
+# Orfax, Son of Boldor
 R:137:0xAD/0x89
 
-# dark elven warrior
+# Dark elven warrior
 R:138:0xA7/0x97
 
-# clear mushroom patch
+# Clear mushroom patch
 R:139:0x9D/0x8A
 
-# grishnakh, the hill orc
+# Grishnakh, the Hill Orc
 R:140:0xA9/0x93
 
-# giant white tick
+# Giant white tick
 R:141:0xAC/0x92
 
-# hairy mold
+# Hairy mold
 R:142:0xA9/0x83
 
-# disenchanter mold
+# Disenchanter mold
 R:143:0xA9/0x84
 
-# pseudo-dragon
+# Pseudo-dragon
 R:144:0xA6/0x82
 
-# tengu
+# Tengu
 R:145:0xA0/0x93
 
-# creeping gold coins
+# Creeping gold coins
 R:146:0x9D/0x82
 
-# wolf
+# Wolf
 R:147:0x9D/0x9E
 
-# giant fruit fly
+# Giant fruit fly
 R:148:0x9F/0x91
 
-# panther
+# Panther
 R:149:0xA7/0x84
 
-# brigand
+# Brigand
 R:150:0xAA/0x9B
 
-# baby multi-hued dragon
+# Baby chromatic dragon
 R:151:0xA6/0x83
 
-# hippogriff
+# Hippogriff
 R:152:0xA0/0x8A
 
-# zombified orc
+# Zombified orc
 R:153:0xAD/0x8D
 
-# gnome mage
+# Gnome mage
 R:154:0xA7/0x98
 
-# black mamba
+# Black mamba
 R:155:0xA2/0x92
 
-# white wolf
+# White wolf
 R:156:0x9D/0x9F
 
-# grape jelly
+# Grape jelly
 R:157:0xA8/0x92
 
-# nether worm mass
+# Nether worm mass
 R:158:0xAD/0x83
 
-# golfimbul, the hill orc chief
+# Golfimbul, the Hill Orc Chief
 R:159:0xA9/0x94
 
-# master yeek
+# Master yeek
 R:160:0xAD/0x8A
 
-# priest
+# Priest
 R:161:0xAA/0x9E
 
-# dark elven priest
+# Dark elven priest
 R:162:0xA7/0x99
 
-# air spirit
+# Air spirit
 R:163:0x9E/0x9F
 
-# skeleton human
+# Skeleton human
 R:164:0xAC/0x8B
 
-# zombified human
+# Zombified human
 R:165:0xAD/0x8E
 
-# tiger
+# Tiger
 R:166:0xA7/0x85
 
-# moaning spirit
+# Moaning spirit
 R:167:0x9F/0x9C
 
-# swordsman
+# Swordsman
 R:168:0xAA/0x9F
 
-# stegocentipede
+# Stegocentipede
 R:169:0xA5/0x99
 
-# spotted jelly
+# Spotted jelly
 R:170:0xA8/0x93
 
-# drider
+# Drider
 R:171:0xA3/0x80
 
-# killer brown beetle
+# Killer brown beetle
 R:172:0xA0/0x9B
 
-# boldor, king of the yeeks
+# Boldor, King of the Yeeks
 R:173:0xAD/0x8B
 
-# ogre
+# Ogre
 R:174:0xA1/0x8B
 
-# creeping mithril coins
+# Creeping mithril coins
 R:175:0x9D/0x83
 
-# illusionist
+# Illusionist
 R:176:0xAB/0x80
 
-# druid
+# Druid
 R:177:0xAB/0x81
 
-# black orc
+# Black orc
 R:178:0xA9/0x95
 
-# ochre jelly
+# Ochre jelly
 R:179:0xA8/0x94
 
-# giant flea
+# Giant flea
 R:180:0x9F/0x92
 
-# ufthak of cirith ungol
+# Ufthak of Cirith Ungol
 R:181:0xA9/0x96
 
-# giant white dragon fly
+# Giant white dragon fly
 R:182:0x9F/0x93
 
-# blue icky thing
+# Blue icky thing
 R:183:0xA8/0x89
 
-# hill giant
+# Hill giant
 R:184:0xA1/0x91
 
-# flesh golem
+# Flesh golem
 R:185:0xA7/0x89
 
-# warg
+# Warg
 R:186:0x9E/0x80
 
-# giant black louse
+# Giant black louse
 R:187:0xA8/0x9E
 
-# lurker
+# Lurker
 R:188:0xAD/0x9F
 
-# wererat
+# Wererat
 R:189:0xAC/0x88
 
-# black ogre
+# Black ogre
 R:190:0xA1/0x8C
 
-# magic mushroom patch
+# Magic mushroom patch
 R:191:0x9D/0x8B
 
-# guardian naga
+# Guardian naga
 R:192:0xA9/0x8B
 
-# light hound
+# Light hound
 R:193:0xA4/0x93
 
-# dark hound
+# Dark hound
 R:194:0xA4/0x94
 
-# half-orc
+# Half-orc
 R:195:0xA9/0x97
 
-# giant tarantula
+# Giant tarantula
 R:196:0xA3/0x81
 
-# giant clear centipede
+# Giant clear centipede
 R:197:0xA5/0x9A
 
-# mirkwood spider
+# Mirkwood spider
 R:198:0xA3/0x82
 
-# frost giant
+# Frost giant
 R:199:0xA1/0x92
 
-# griffon
+# Griffon
 R:200:0xA0/0x8B
 
-# homunculus
+# Homunculus
 R:201:0xA0/0x94
 
-# gnome mage
+# Gnome mage
 R:202:0xA7/0x98
 
-# clear hound
+# Clear hound
 R:203:0xA4/0x95
 
-# clay golem
+# Clay golem
 R:204:0xA7/0x8A
 
-# umber hulk
+# Umber hulk
 R:205:0xA3/0x99
 
-# orc captain
+# Orc captain
 R:206:0xA9/0x98
 
-# gelatinous cube
+# Gelatinous cube
 R:207:0xA8/0x95
 
-# giant green dragon fly
+# Giant green dragon fly
 R:208:0x9F/0x94
 
-# fire giant
+# Fire giant
 R:209:0xA1/0x93
 
-# hummerhorn
+# Hummerhorn
 R:210:0x9F/0x96
 
-# ulfast, son of ulfang
+# Ulfast, Son of Ulfang
 R:211:0xAB/0x82
 
-# quasit
+# Quasit
 R:212:0xA0/0x95
 
-# imp
+# Imp
 R:213:0xA0/0x96
 
-# forest troll
+# Forest troll
 R:214:0xA3/0x89
 
-# nar, the dwarf
+# Nar, the Dwarf
 R:215:0xA7/0x99
 
 # 2-headed hydra
 R:216:0xA2/0x93
 
-# water spirit
+# Water spirit
 R:217:0x9F/0x80
 
-# giant red scorpion
+# Giant red scorpion
 R:218:0xA3/0x83
 
-# earth spirit
+# Earth spirit
 R:219:0x9F/0x81
 
-# fire spirit
+# Fire spirit
 R:220:0x9F/0x82
 
-# fire hound
+# Fire hound
 R:221:0xA4/0x96
 
-# cold hound
+# Cold hound
 R:222:0xA4/0x97
 
-# energy hound
+# Energy hound
 R:223:0xA4/0x98
 
-# potion mimic
+# Potion mimic
 R:224:0x9D/0x8E
 
-# blink dog
+# Blink dog
 R:225:0x9E/0x81
 
-# uruk
+# Uruk
 R:226:0xA9/0x99
 
-# shagrat, the orc captain
+# Shagrat, the Orc Captain
 R:227:0xA9/0x9A
 
-# gorbag, the orc captain
+# Gorbag, the Orc Captain
 R:228:0xA9/0x9B
 
-# shambling mound
+# Shambling mound
 R:229:0x9D/0x8C
 
-# stone giant
+# Stone giant
 R:230:0xA1/0x94
 
-# giant black dragon fly
+# Giant black dragon fly
 R:231:0x9F/0x96
 
-# stone golem
+# Stone golem
 R:232:0xA7/0x8B
 
-# red mold
+# Red mold
 R:233:0xA9/0x85
 
-# giant gold dragon fly
+# Giant gold dragon fly
 R:234:0x9F/0x97
 
-# bolg, son of azog
+# Bolg, Son of Azog
 R:235:0xA9/0x9C
 
-# phase spider
+# Phase spider
 R:236:0xA3/0x84
 
 # 3-headed hydra
 R:237:0xA2/0x94
 
-# earth hound
+# Earth hound
 R:238:0xA4/0x99
 
-# air hound
+# Air hound
 R:239:0xA4/0x9A
 
-# sabre-tooth tiger
+# Sabre-tooth tiger
 R:240:0xA7/0x86
 
-# water hound
+# Water hound
 R:241:0xA4/0x9B
 
-# chimaera
+# Chimaera
 R:242:0xA0/0x8C
 
-# quylthulg
+# Quylthulg
 R:243:0xA1/0x9A
 
-# sasquatch
+# Sasquatch
 R:244:0xA4/0x92
 
-# werewolf
+# Werewolf
 R:245:0x9E/0x82
 
-# dark elven lord
+# Dark elven lord
 R:246:0xA7/0x9C
 
-# cloud giant
+# Cloud giant
 R:247:0xA1/0x96
 
-# lugdush, the uruk
+# Lugdush, the Uruk
 R:248:0xA9/0x9E
 
-# ugluk, the uruk
+# Ugluk, the Uruk
 R:249:0xA9/0x9D
 
-# blue dragon bat
+# Blue dragon bat
 R:250:0xA5/0x91
 
-# scroll mimic
+# Scroll mimic
 R:251:0x9D/0x8D
 
-# fire vortex
+# Fire vortex
 R:252:0xAC/0x94
 
-# water vortex
+# Water vortex
 R:253:0xAC/0x95
 
-# cold vortex
+# Cold vortex
 R:254:0xAC/0x96
 
-# energy vortex
+# Energy vortex
 R:255:0xAC/0x97
 
-# mummified orc
+# Mummified orc
 R:256:0xA1/0x88
 
-# killer stag beetle
+# Killer stag beetle
 R:257:0xA0/0x9D
 
-# iron golem
+# Iron golem
 R:258:0xA7/0x8C
 
-# giant yellow scorpion
+# Giant yellow scorpion
 R:259:0xA3/0x85
 
-# black ooze
+# Black ooze
 R:260:0xA8/0x96
 
-# hardened warrior
+# Hardened warrior
 R:261:0xAB/0x83
 
-# azog, king of the uruk-hai
+# Azog, King of the Uruk-Hai
 R:262:0xA9/0x9F
 
-# master rogue
+# Master rogue
 R:263:0xAB/0x84
 
-# red dragon bat
+# Red dragon bat
 R:264:0xA5/0x92
 
-# killer white beetle
+# Killer white beetle
 R:265:0xA0/0x9C
 
-# giant bronze dragon fly
+# Giant bronze dragon fly
 R:266:0x9F/0x98
 
-# forest wight
+# Forest wight
 R:267:0xA3/0x9E
 
-# ibun, son of mim
+# Ibun, Son of Mim
 R:268:0xA7/0x9B
 
-# khim, son of mim
+# Khim, Son of Mim
 R:269:0xA7/0x9C
 
 # 4-headed hydra
 R:270:0xA2/0x95
 
-# mummified human
+# Mummified human
 R:271:0xA1/0x89
 
-# vampire bat
+# Vampire bat
 R:272:0xA5/0x93
 
-# sangahyando of umbar
+# Sangahyando of Umbar
 R:273:0xAB/0x85
 
-# angamaite of umbar
+# Angamaite of Umbar
 R:274:0xAB/0x86
 
-# banshee
+# Banshee
 R:275:0x9F/0x9D
 
-# pukelman
+# Pukelman
 R:276:0xA7/0x8D
 
-# dark elven druid
+# Dark elven druid
 R:277:0xA7/0x9F
 
-# stone troll
+# Stone troll
 R:278:0xA3/0x8A
 
-# troll priest
+# Troll priest
 R:279:0xA3/0x8B
 
-# wereworm
+# Wereworm
 R:280:0xAD/0x84
 
-# carrion crawler
+# Carrion crawler
 R:281:0xA5/0x9C
 
-# killer red beetle
+# Killer red beetle
 R:282:0xA0/0x9F
 
-# giant grey ant
+# Giant grey ant
 R:283:0xA5/0x8C
 
-# ulwarth, son of ulfang
+# Ulwarth, Son of Ulfang
 R:284:0xAB/0x87
 
-# displacer beast
+# Displacer beast
 R:285:0xA7/0x87
 
-# giant fire tick
+# Giant fire tick
 R:286:0xAC/0x93
 
-# cave ogre
+# Cave ogre
 R:287:0xA1/0x8D
 
-# white wraith
+# White wraith
 R:288:0xA3/0x9F
 
 # Maia
 R:289:0x9D/0x8F
 
-# mim, betrayer of turin
+# Mim, Betrayer of Turin
 R:290:0xA8/0x80
 
-# killer fire beetle
+# Killer fire beetle
 R:291:0xA1/0x80
 
-# creeping adamantite coins
+# Creeping adamantite coins
 R:292:0x9D/0x84
 
-# algroth
+# Algroth
 R:293:0xA3/0x8C
 
-# vibration hound
+# Vibration hound
 R:294:0xA4/0x9C
 
-# nexus hound
+# Nexus hound
 R:295:0xA4/0x9D
 
-# ogre mage
+# Ogre mage
 R:296:0xA1/0x8E
 
-# lokkak, the ogre chieftain
+# Lokkak, the Ogre Chieftain
 R:297:0xA1/0x90
 
-# vampire
+# Vampire
 R:298:0xA3/0x9A
 
-# gorgimaera
+# Gorgimaera
 R:299:0xA0/0x8D
 
-# colbran
+# Colbran
 R:300:0xA7/0x8E
 
-# spirit naga
+# Spirit naga
 R:301:0xA9/0x8C
 
 # 5-headed hydra
 R:302:0xA2/0x96
 
-# black knight
+# Black knight
 R:303:0xAB/0x88
 
-# uldor the accursed
+# Uldor the Accursed
 R:304:0xAB/0x89
 
-# mage
+# Mage
 R:305:0xAB/0x8A
 
-# mind flayer
+# Mind flayer
 R:306:0xAB/0x8B
 
-# draebor, the imp
+# Draebor, the Imp
 R:307:0xA0/0x97
 
-# basilisk
+# Basilisk
 R:308:0xA2/0x97
 
-# ice troll
+# Ice troll
 R:309:0xA3/0x8D
 
-# purple worm
+# Purple worm
 R:310:0xAD/0x85
 
 # Maglor, Son of Feanor
 R:311:0xA7/0x9B
 
-# catoblepas
+# Catoblepas
 R:312:0xAC/0x81
 
-# ring mimic
+# Ring mimic
 R:313:0xAD/0x9E
 
-# young blue dragon
+# Young blue dragon
 R:314:0xA6/0x84
 
-# young white dragon
+# Young white dragon
 R:315:0xA6/0x85
 
-# young green dragon
+# Young green dragon
 R:316:0xA6/0x86
 
-# young bronze dragon
+# Young bronze dragon
 R:317:0xA6/0x87
 
-# mithril golem
+# Mithril golem
 R:318:0xA7/0x8F
 
-# shadow drake
+# Shadow drake
 R:319:0xA6/0x88
 
-# skeleton troll
+# Skeleton troll
 R:320:0xAC/0x8C
 
-# manticore
+# Manticore
 R:321:0xA0/0x8E
 
-# giant blue ant
+# Giant blue ant
 R:322:0xA5/0x8B
 
-# giant army ant
+# Giant army ant
 R:323:0xAE/0x81
 
-# grave wight
+# Grave wight
 R:324:0xA4/0x80
 
-# killer slicer beetle
+# Killer slicer beetle
 R:325:0xA1/0x81
 
-# ghost
+# Ghost
 R:326:0x9F/0x9E
 
-# death watch beetle
+# Death watch beetle
 R:327:0xA1/0x82
 
-# ogre shaman
+# Ogre shaman
 R:328:0xA1/0x8F
 
-# nexus quylthulg
+# Nexus quylthulg
 R:329:0xA1/0x9B
 
-# shelob, spider of darkness
+# Shelob, Spider of Darkness
 R:330:0xA3/0x86
 
-# ninja
+# Ninja
 R:331:0xAB/0x8C
 
-# memory moss
+# Memory moss
 R:332:0xA9/0x86
 
-# storm giant
+# Storm giant
 R:333:0xA1/0x95
 
-# cave troll
+# Cave troll
 R:334:0xA3/0x8E
 
-# half-troll
+# Half-troll
 R:335:0xA3/0x8F
 
-# mystic
+# Mystic
 R:336:0xAB/0x8D
 
-# barrow wight
+# Barrow wight
 R:337:0xA4/0x81
 
-# giant skeleton troll
+# Skeleton ettin
 R:338:0xAC/0x8D
 
-# chaos drake
+# Chaos drake
 R:339:0xA6/0x89
 
-# law drake
+# Law drake
 R:340:0xA6/0x8A
 
-# balance drake
+# Balance drake
 R:341:0xA6/0x8B
 
-# ethereal drake
+# Ethereal drake
 R:342:0xA6/0x8C
 
-# bert the stone troll
+# Bert the Stone Troll
 R:343:0xA3/0x90
 
-# bill the stone troll
+# Bill the Stone Troll
 R:344:0xA3/0x91
 
-# tom the stone troll
+# Tom the Stone Troll
 R:345:0xA3/0x92
 
-# shade
+# Shade
 R:346:0x9F/0x9F
 
-# spectre
+# Spectre
 R:347:0xA0/0x80
 
-# water troll
+# Water troll
 R:348:0xA3/0x93
 
-# fire elemental
+# Fire elemental
 R:349:0x9F/0x83
 
 # Greater Maia
 R:350:0x9D/0x91
 
-# water elemental
+# Water elemental
 R:351:0x9F/0x84
 
-# invisible stalker
+# Invisible stalker
 R:352:0x9F/0x85
 
-# carrion crawler
+# Carrion crawler
 R:353:0xA5/0x9C
 
-# master thief
+# Master thief
 R:354:0xAB/0x8E
 
-# ulfang the black
+# Ulfang the Black
 R:355:0xAB/0x8F
 
-# lich
+# Lich
 R:356:0xA1/0x83
 
-# master vampire
+# Master vampire
 R:357:0xA3/0x9B
 
-# giant grey scorpion
+# Giant grey scorpion
 R:358:0xA3/0x87
 
-# earth elemental
+# Earth elemental
 R:359:0x9F/0x86
 
-# air elemental
+# Air elemental
 R:360:0x9F/0x87
 
-# hell hound
+# Hellhound
 R:361:0x9E/0x83
 
-# eog golem
+# Eog golem
 R:362:0xA7/0x90
 
-# olog
+# Olog
 R:363:0xA3/0x94
 
-# dagashi
+# Dagashi
 R:364:0xAB/0x90
 
-# gravity hound
+# Gravity hound
 R:365:0xA4/0x9E
 
-# acidic cytoplasm
+# Acidic cytoplasm
 R:366:0xA8/0x97
 
-# inertia hound
+# Inertia hound
 R:367:0xA4/0x9F
 
-# impact hound
+# Impact hound
 R:368:0xA5/0x80
 
-# dread
+# Dread
 R:369:0xA0/0x81
 
-# ooze elemental
+# Ooze elemental
 R:370:0x9F/0x88
 
-# smoke elemental
+# Smoke elemental
 R:371:0x9F/0x89
 
-# young black dragon
+# Young black dragon
 R:372:0xA6/0x8D
 
-# mumak
+# Mumak
 R:373:0xAC/0x82
 
-# giant fire ant
+# Giant fire ant
 R:374:0xA5/0x8D
 
-# mature white dragon
+# Mature white dragon
 R:375:0xA6/0x8E
 
-# xorn
+# Xorn
 R:376:0xA4/0x8F
 
-# shadow
+# Shadow
 R:377:0xA0/0x82
 
-# phantom
+# Phantom
 R:378:0xA0/0x83
 
-# grey wraith
+# Grey wraith
 R:379:0xA4/0x82
 
-# young multi-hued dragon
+# Young chromatic dragon
 R:380:0xA6/0x8F
 
-# colossus
+# Colossus
 R:381:0xB2/0x89
 
-# young gold dragon
+# Young gold dragon
 R:382:0xA6/0x90
 
-# rogrog the black troll
+# Rogrog the Black Troll
 R:383:0xA3/0x95
 
-# mature blue dragon
+# Mature blue dragon
 R:384:0xA6/0x91
 
-# mature green dragon
+# Mature green dragon
 R:385:0xA6/0x92
 
-# mature bronze dragon
+# Mature bronze dragon
 R:386:0xA6/0x93
 
-# young red dragon
+# Young red dragon
 R:387:0xA6/0x94
 
-# trapper
+# Trapper
 R:388:0xAD/0x9F
 
-# bodak
+# Bodak
 R:389:0xA0/0x98
 
-# ice elemental
+# Ice elemental
 R:390:0x9F/0x8A
 
-# necromancer
+# Necromancer
 R:391:0xAB/0x91
 
-# lorgan, chief of the easterlings
+# Lorgan, Chief of the Easterlings
 R:392:0xAB/0x92
 
-# demonologist
+# Demonologist
 R:393:0xAB/0x93
 
-# mummified troll
+# Mummified troll
 R:394:0xA1/0x8A
 
-# the queen ant
+# The Queen Ant
 R:395:0xA5/0x8E
 
-# will o' the wisp
+# Will o' the wisp
 R:396:0x9F/0x8B
 
-# magma elemental
+# Magma elemental
 R:397:0x9F/0x8C
 
-# black pudding
+# Black pudding
 R:398:0xA8/0x98
 
-# killer blue beetle
+# Killer iridescent beetle
 R:399:0xA0/0x9E
 
-# nexus vortex
+# Nexus vortex
 R:400:0xAE/0x80
 
-# plasma vortex
+# Plasma vortex
 R:401:0xAC/0x98
 
-# mature red dragon
+# Mature red dragon
 R:402:0xA6/0x95
 
-# mature gold dragon
+# Mature gold dragon
 R:403:0xA6/0x96
 
-# crystal drake
+# Crystal drake
 R:404:0xA6/0x97
 
-# mature black dragon
+# Mature black dragon
 R:405:0xA6/0x98
 
-# mature multi-hued dragon
+# Mature chromatic dragon
 R:406:0xA6/0x99
 
-# death knight
+# Death knight
 R:407:0xAB/0x94
 
-# castamir the usurper
+# Castamir the Usurper
 R:408:0xAB/0x95
 
-# time vortex
+# Time vortex
 R:409:0xAC/0x99
 
-# shimmering vortex
+# Shimmering vortex
 R:410:0xAC/0x9A
 
-# ancient blue dragon
+# Ancient blue dragon
 R:411:0x9E/0x88
 
-# ancient bronze dragon
+# Ancient bronze dragon
 R:412:0x9E/0x89
 
-# beholder
+# Beholder
 R:413:0xA6/0x9F
 
-# emperor wight
+# Emperor wight
 R:414:0xA4/0x83
 
 # Blue Wizard
 R:415:0x9D/0x92
 
-# vargo, tyrant of fire
+# Vargo, Tyrant of Fire
 R:416:0x9F/0x8D
 
-# black wraith
+# Black wraith
 R:417:0xA4/0x84
 
-# erinyes
+# Erinyes
 R:418:0xAD/0x8F
 
-# nether wraith
+# Nether wraith
 R:419:0xA4/0x85
 
-# eldrak
+# Eldrak
 R:420:0xA3/0x96
 
-# ettin
+# Ettin
 R:421:0xA3/0x97
 
-# waldern, king of water
+# Waldern, King of Water
 R:422:0x9F/0x8E
 
-# kavlax the many-headed
+# Kavlax the Many-Headed
 R:423:0xA6/0x9A
 
-# ancient white dragon
+# Ancient white dragon
 R:424:0x9E/0x8A
 
-# ancient green dragon
+# Ancient green dragon
 R:425:0x9E/0x8B
 
 # 7-headed hydra
 R:426:0xA2/0x98
 
-# night mare
+# Night mare
 R:427:0xAC/0x83
 
-# vampire lord
+# Vampire lord
 R:428:0xA3/0x9C
 
-# ancient black dragon
+# Ancient black dragon
 R:429:0x9E/0x8C
 
-# disenchanter worm mass
+# Disenchanter worm mass
 R:430:0xAD/0x86
 
-# rotting quylthulg
+# Rotting quylthulg
 R:431:0xA1/0x9C
 
-# spirit troll
+# Spirit troll
 R:432:0xA3/0x98
 
-# lesser titan
+# Lesser titan
 R:433:0xA1/0x97
 
 # 9-headed hydra
 R:434:0xA2/0x99
 
-# enchantress
+# Enchantress
 R:435:0xAB/0x96
 
 # Maedhros, Son of Feanor
 R:436:0xA7/0x9B
 
-# sorcerer
+# Sorcerer
 R:437:0xAB/0x98
 
-# xaren
+# Xaren
 R:438:0xA4/0x90
 
-# giant roc
+# Giant roc
 R:439:0x9D/0x97
 
-# uvatha the horseman
+# Uvatha the Horseman
 R:440:0xA4/0x86
 
-# minotaur
+# Minotaur
 R:441:0xA0/0x8F
 
-# medusa, the gorgon
+# Medusa, the Gorgon
 R:442:0xA9/0x8D
 
-# death drake
+# Death drake
 R:443:0x9E/0x8D
 
-# ancient red dragon
+# Ancient red dragon
 R:444:0x9E/0x8E
 
-# ancient gold dragon
+# Ancient gold dragon
 R:445:0x9E/0x8F
 
-# great crystal drake
+# Great crystal drake
 R:446:0x9E/0x90
 
-# vrock
+# Vrock
 R:447:0xAD/0x90
 
-# death quasit
+# Death quasit
 R:448:0xA0/0x99
 
-# adunaphel the quiet
+# Adunaphel the Quiet
 R:449:0xA4/0x87
 
-# dark elven sorcerer
+# Dark elven sorcerer
 R:450:0xA8/0x81
 
-# master lich
+# Master lich
 R:451:0xA1/0x84
 
-# hezrou
+# Hezrou
 R:452:0xAD/0x91
 
-# akhorahil the blind
+# Akhorahil the Blind
 R:453:0xA4/0x88
 
-# gorlim, betrayer of barahir
+# Gorlim, Betrayer of Barahir
 R:454:0xAB/0x99
 
 # Istar
 R:455:0x9D/0x93
 
-# glabrezu
+# Glabrezu
 R:456:0xAD/0x92
 
-# ren the unclean
+# Ren the Unclean
 R:457:0xAD/0x9D
 
-# nalfeshnee
+# Nalfeshnee
 R:458:0xAD/0x93
 
-# undead beholder
+# Undead beholder
 R:459:0xA7/0x80
 
-# dread
+# Dread
 R:460:0xA0/0x81
 
-# mumak
+# Mumak
 R:461:0xAC/0x82
 
-# ancient multi-hued dragon
+# Ancient chromatic dragon
 R:462:0x9E/0x91
 
-# ethereal dragon
+# Ethereal dragon
 R:463:0x9E/0x92
 
-# ji indur dawndeath
+# Ji Indur Dawndeath
 R:464:0xAD/0x9C
 
-# marilith
+# Marilith
 R:465:0xAD/0x94
 
-# quaker, master of earth
+# Quaker, Master of Earth
 R:466:0x9F/0x8F
 
-# lesser balrog
+# Lesser Balrog
 R:467:0xAD/0x95
 
-# ariel, queen of air
+# Ariel, Queen of Air
 R:468:0x9F/0x91
 
 # 11-headed hydra
 R:469:0xA2/0x9A
 
-# patriarch
+# Patriarch
 R:470:0xAB/0x9A
 
-# dreadmaster
+# Dreadmaster
 R:471:0xA0/0x85
 
-# drolem
+# Drolem
 R:472:0xA7/0x92
 
-# scatha the worm
+# Scatha the Worm
 R:473:0xAD/0x9B
 
-# dwar, dog lord of waw
+# Dwar, Dog Lord of Waw
 R:474:0xA4/0x89
 
-# smaug the golden
+# Smaug the Golden
 R:475:0x9E/0x93
 
-# dracolich
+# Dracolich
 R:476:0x9E/0x95
 
-# greater titan
+# Greater titan
 R:477:0xA1/0x98
 
-# dracolisk
+# Dracolisk
 R:478:0x9E/0x94
 
-# death mold
+# Death mold
 R:479:0xA9/0x87
 
-# itangast the fire drake
+# Itangast the Fire Drake
 R:480:0x9E/0x96
 
-# glaurung, father of the dragons
+# Glaurung, Father of the Dragons
 R:481:0xAD/0x9A
 
-# master mystic
+# Master mystic
 R:482:0xAB/0x9B
 
-# the balrog of moria
+# The Balrog of Moria
 R:483:0xAD/0x96
 
-# nightwing
+# Nightwing
 R:484:0xAD/0x9D
 
-# nether hound
+# Nether hound
 R:485:0xA5/0x81
 
-# time hound
+# Time hound
 R:486:0xA5/0x82
 
-# plasma hound
+# Plasma hound
 R:487:0xA5/0x83
 
-# demonic quylthulg
+# Demonic quylthulg
 R:488:0xA1/0x9D
 
-# great storm wyrm
+# Great Storm Wyrm
 R:489:0x9E/0x97
 
-# baphomet the minotaur lord
+# Baphomet the Minotaur Lord
 R:490:0xA0/0x90
 
-# harowen the black hand
+# Harowen the Black Hand
 R:491:0xAB/0x9C
 
-# hoarmurath of dir
+# Hoarmurath of Dir
 R:492:0xA4/0x8A
 
-# grand master mystic
+# Grand master mystic
 R:493:0xAB/0x9D
 
-# khamul, the black easterling
+# Khamul, the Black Easterling
 R:494:0xA4/0x8B
 
-# ethereal hound
+# Ethereal hound
 R:495:0xA5/0x84
 
-# great ice wyrm
+# Great Ice Wyrm
 R:496:0x9E/0x98
 
-# the phoenix
+# The Phoenix
 R:497:0x9D/0x98
 
-# nightcrawler
+# Nightcrawler
 R:498:0xA4/0x8C
 
-# hand druj
+# Hand druj
 R:499:0xAC/0x8E
 
-# eye druj
+# Eye druj
 R:500:0xAC/0x8F
 
-# skull druj
+# Skull druj
 R:501:0xAC/0x90
 
-# chaos vortex
+# Chaos vortex
 R:502:0xAC/0x9B
 
-# aether vortex
+# Aether vortex
 R:503:0xAC/0x9C
 
-# the lernaean hydra
+# The Lernaean Hydra
 R:504:0xA2/0x9B
 
-# thuringwethil, the vampire messenger
+# Thuringwethil, the Vampire Messenger
 R:505:0xA3/0x9D
 
-# great hell wyrm
+# Great Hell Wyrm
 R:506:0x9E/0x99
 
-# draconic quylthulg
+# Draconic quylthulg
 R:507:0xA1/0x9E
 
-# fundin bluecloak
+# Fundin Bluecloak
 R:508:0xA8/0x82
 
 # Arien, Maia of the Sun
@@ -3401,336 +3401,170 @@ R:509:0x9D/0x94
 # Azathoth, Master of Darkness
 R:510:0xAD/0x98
 
-# ancalagon the black
+# Ancalagon the Black
 R:511:0x9E/0x9A
 
-# nightwalker
+# Nightwalker
 R:512:0xA4/0x8D
 
 # Evil Iggy
 R:513:0xAB/0x9C
 
-# saruman of many colours
+# Saruman of Many Colours
 R:514:0xAB/0x9E
 
-# dreadlord
+# Dreadlord
 R:515:0xA0/0x86
 
-# the cat lord
+# The Cat Lord
 R:516:0xA7/0x88
 
-# chaos beetle
+# Jabberwock
 R:517:0xA0/0x9A
 
-# chaos hound
+# Chaos hound
 R:518:0xA5/0x85
 
-# great wyrm of chaos
+# Great Chaos Wyrm
 R:519:0x9E/0x9B
 
-# great wyrm of law
+# Great Law Wyrm
 R:520:0x9E/0x9C
 
-# great wyrm of balance
+# Great Balance Wyrm
 R:521:0x9E/0x9D
 
-# tselakus, the dreadlord
+# Tselakus, the Dreadlord
 R:522:0xA0/0x87
 
-# tiamat, celestial dragon of evil
+# Great Chromatic Wyrm
 R:523:0x9E/0x9E
 
-# black reaver
+# Black reaver
 R:524:0xA1/0x85
 
-# master quylthulg
+# Greater demonic quylthulg
 R:525:0xA1/0x9F
 
-# greater draconic quylthulg
+# Greater draconic quylthulg
 R:526:0xA2/0x80
 
-# greater rotting quylthulg
+# Greater rotting quylthulg
 R:527:0xA2/0x81
 
-# vecna, the emperor lich
+# Feagwath, the Undead Sorcerer
 R:528:0xA1/0x86
 
-# omarax, the eye tyrant
+# Omarax, the Eye Tyrant
 R:529:0xA7/0x81
 
-# ungoliant, the unlight
+# Ungoliant, the Unlight
 R:530:0xA3/0x88
 
-# aether hound
+# Aether hound
 R:531:0xA5/0x86
 
-# the mouth of sauron
+# The Mouth of Sauron
 R:532:0xAB/0x9F
 
-# the emperor quylthulg
+# Master quylthulg
 R:533:0xA2/0x82
 
-# qlzqqlzuup, the emperor quylthulg
+# Qlzqqlzuup, the Emperor Quylthulg
 R:534:0xA2/0x83
 
-# the witch-king of angmar
+# The Witch-King of Angmar
 R:535:0xA4/0x8E
 
-# pazuzu, lord of air
+# Pazuzu, Lord of Air
 R:536:0x9D/0x98
 
-# hell hound
+# Hellhound
 R:537:0x9E/0x83
 
-# cantoras, the skeletal lord
+# Cantoras, the Skeletal Lord
 R:538:0xAC/0x91
 
-# the tarrasque
+# The Tarrasque
 R:539:0xA2/0x9C
 
-# lungorthin, the balrog of white fire
+# Lungorthin, the Balrog of White Fire
 R:540:0xAD/0x97
 
-# draugluin, sire of all werewolves
+# Draugluin, Sire of All Werewolves
 R:541:0x9E/0x85
 
-# feagwath the undead sorceror
+# Vecna, the Emperor Lich
 R:542:0xA1/0x87
 
-# huan, wolfhound of the valar
-# R:543:ToDo (cerberus, guardian of hades)
+# Huan, Wolfhound of the Valar
 R:543:0x9E/0x87
 
-# carcharoth, the jaws of thirst
+# Carcharoth, the Jaws of Thirst
 R:544:0x9E/0x86
 
-# gothmog, the high captain of balrogs
+# Gothmog, the High Captain of Balrogs
 R:545:0xAD/0x98
 
-# sauron, the sorcerer
+# Sauron, the Sorcerer
 R:546:0xAC/0x80
 
-# morgoth, lord of darkness
+# Morgoth, Lord of Darkness
 R:547:0xA1/0x99
 
-# silver mouse
-# R:548:ToDo
-
-# rot jelly
-# R:549:ToDo
-
-# giant tan bat
-# R:550:ToDo
-
-# giant silver ant
-# R:551:ToDo
-
-# giant brown tick
-# R:552:ToDo
-
-# disenchanter bat
-# R:553:ToDo
-
-# shimmering mold
-# R:554:ToDo
-
-# wyvern
+# Wyvern
 R:555:0xB1/0x83
 
-# chest mimic
+# Chest mimic
 R:556:0xB9/0x88
 
-# demilich
-# R:557:ToDo
-
-# archlich
-# R:558:ToDo
-
-# crow
+# Crow
 R:559:0xB7/0x86
 
-# raven
+# Raven
 R:560:0xB7/0x87
 
-# crebain
-# R:561:ToDo
-
-# winged horror
-# R:562:ToDo
-
-# cave bear
-# R:563:ToDo
-
-# grizzly bear
+# Grizzly bear
 R:564:0xB8/0x81
 
-# werebear
-# R:565:ToDo
-
-# beorn, the shape-changer
-# R:566:ToDo
-
-# barbazu
-# R:567:ToDo
-
-# bile demon
-# R:568:ToDo
-
-# osyluth
-# R:569:ToDo
-
-# gelugon
-# R:570:ToDo
-
-# horned reaper
-# R:571:ToDo
-
-# pit fiend
-# R:572:ToDo
-
-# greater balrog
-# R:573:ToDo
-
-# baby bronze dragon
-# R:574:ToDo
-
-# baby gold dragon
-# R:575:ToDo
-
-# great swamp wyrm
-# R:576:ToDo
-
-# great wyrm of perplexity
-# R:577:ToDo
-
-# great bile wyrm
-# R:578:ToDo
-
-# great wyrm of thunder
-# R:579:ToDo
-
-# ranger
-# R:580:ToDo
-
-# paladin
-# R:581:ToDo
-
-# ranger chieftain
-# R:582:ToDo
-
-# berserker
+# Berserker
 R:583:0xB8/0x95
 
-# cyclops
+# Cyclops
 R:584:0xBA/0x81
 
-# polyphemus, the blind cyclops
-# R:585:ToDo
-
-# atlas, the titan
-# R:586:ToDo
-
-# kronos, lord of the titans
-# R:587:ToDo
-
-# evil eye
-# R:588:ToDo
-
-# spectator
+# Spectator
 R:589:0xB1/0x9B
 
-# gauth
-# R:590:ToDo
-
-# beholder hive-mother
-# R:591:ToDo
-
-# neekerbreeker
-# R:592:ToDo
-
-# giant firefly
-# R:593:ToDo
-
-# eol, the dark elf
-# R:594:ToDo
-
-# maeglin, the traitor of gondolin
-# R:595:ToDo
-
-# elder vampire
-# R:596:ToDo
-
-# silent watcher
+# Silent watcher
 R:597:0xB1/0x8E
 
-# nighthawk
-# R:598:ToDo
-
-# ghoul
+# Ghoul
 R:599:0xB4/0x8F
 
-# ghast
+# Ghast
 R:600:0xB9/0x80
 
-# greater basilisk
-# R:601:ToDo
-
-# aranea
-# R:602:ToDo
-
-# elder aranea
-# R:603:ToDo
-
-# kobold shaman
-# R:604:ToDo
-
-# bat of gorgoroth
-# R:605:ToDo
-
-# doombat
+# Doombat
 R:606:0xBA/0x8C
 
-# wolf chieftain
-# R:607:ToDo
-
-# bone golem
-# R:608:ToDo
-
-# bronze golem
-# R:609:ToDo
-
-# ogre chieftain
-# R:610:ToDo
-
-# ar-pharazon the golden
-# R:611:ToDo
-
-# troll chieftain
-# R:612:ToDo
-
-# shardstorm
-# R:613:ToDo
-
-# storm of unmagic
-# R:614:ToDo
-
-# greater mummy
+# Greater mummy
 R:615:0xBA/0x91
 
-# multi-hued hound
+# Chromatic hound
 R:616:0xB2/0x81
 
 # Ice ogre
-R:617:0xA1/0x8D 
+R:617:0xA1/0x8D
 
 # Two headed ogre
-R:618:0xA1/0x8D 
+R:618:0xA1/0x8D
 
 # Great Crystal Wyrm
 R:619:0x9E/0x90
 
 # Great Time Wyrm
-R:620:0x9E/0x9B 
+R:620:0x9E/0x9B
 
 # Great Inertia Wyrm
 R:621:0x9E/0x92
@@ -3739,9 +3573,9 @@ R:621:0x9E/0x92
 R:622:0xA6/0x89
 
 # Great Power Wyrm
-R:623:0x9E/0x9D 
+R:623:0x9E/0x9D
 
-# Power Drake
+# Power drake
 R:624:0xA6/0x89
 
 # Great Aether Wyrm
@@ -3750,7 +3584,7 @@ R:625:0x9E/0x92
 # Great Ethereal Wyrm
 R:626:0x9E/0x92
 
-# Great Thunder drake
+# Thunder drake
 R:627:0xA6/0x91
 
 # Half ogre

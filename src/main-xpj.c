@@ -8,7 +8,6 @@
  * are included in all such copies.
  */
 
-
 /*
  * This file helps Angband work with UNIX/X11 computers.
  *
@@ -2027,7 +2026,7 @@ static void draw_block16(void *tiles[PJ_MAX],
 }
 
 
-/* 
+/*
  * Draw a block with 32bit pixels
  */
 static void draw_block32(void *tiles[PJ_MAX],
@@ -2709,14 +2708,14 @@ static errr Term_pict_xpj(int x, int y, int n, const byte *ap, const char *cp, c
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * wid;
+		x1 = (c&0x3F) * wid;
 		y1 = (a&0x7F) * hgt;
 
 		ta = *tap++;
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * wid;
+		x2 = (tc&0x3F) * wid;
 		y2 = (ta&0x7F) * hgt;
 
 		/* Optimise the common case */
@@ -3093,7 +3092,7 @@ static errr term_data_init(term_data *td, int i)
 	if (ch == NULL) quit("XAllocClassHint failed");
 
 	my_strcpy(res_name, name, sizeof(res_name));
-	res_name[0] = FORCELOWER(res_name[0]);
+	res_name[0] = tolower((unsigned char)res_name[0]);
 	ch->res_name = res_name;
 
 	strcpy(res_class, "Angband");
@@ -3317,7 +3316,7 @@ errr init_xpj(int argc, char **argv)
 		if (arg_graphics)
 		{
 			/* Use graphics */
-			use_graphics = TRUE;
+			use_graphics = GRAPHICS_ADAM_BOLT;
 
 			/* And use tiles */
 			ANGBAND_GRAF = "new";
@@ -3325,8 +3324,8 @@ errr init_xpj(int argc, char **argv)
 		else
 		{
 			/* Use graphics */
-			use_graphics = TRUE;
-			arg_graphics = TRUE;
+			use_graphics = GRAPHICS_ADAM_BOLT;
+			arg_graphics = GRAPHICS_ADAM_BOLT;
 
 			/* But not for monsters / items */
 			ANGBAND_GRAF = "none";

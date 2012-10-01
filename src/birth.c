@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 /*
  * Forward declare
  */
@@ -444,9 +442,18 @@ static void player_wipe(void)
 {
 	int i;
 
+	/* Backup the player choices */
+	byte psex = p_ptr->psex;
+	byte prace = p_ptr->prace;
+	byte pclass = p_ptr->pclass;
 
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
+
+	/* Restore the choices */
+	p_ptr->psex = psex;
+	p_ptr->prace = prace;
+	p_ptr->pclass = pclass;
 
 
 	/* Clear the inventory */
@@ -526,7 +533,6 @@ static void player_wipe(void)
 	/* Hack -- no ghosts */
 	r_info[z_info->r_max-1].max_num = 0;
 
-
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -542,7 +548,7 @@ static void player_wipe(void)
 /*
  * Init players with some belongings
  *
- * Having an item makes the player "aware" of its purpose.
+ * Having an item identifies it and makes the player "aware" of its purpose.
  */
 static void player_outfit(void)
 {
@@ -1723,13 +1729,44 @@ static bool player_birth_aux(void)
 	ch = inkey();
 
 	/* Quit */
-	if (ch == 'Q') quit(NULL);
+	if ((ch == 'Q') || (ch == 'q')) quit(NULL);
 
 	/* Start over */
-	if (ch == 'S') return (FALSE);
+	if ((ch == 'S') || (ch == 's'))return (FALSE);
 
 	/* Accept */
 	return (TRUE);
+}
+
+/*outfit the player with food and torches*/
+
+static void player_birth_done_hook(void)
+{
+
+	object_type object_type_body;
+	object_type *i_ptr;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Hack -- Give the player some food */
+	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+	i_ptr->number = (byte)rand_range(3, 7);
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Hack -- Give the player some torches */
+	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+	i_ptr->number = (byte)rand_range(3, 7);
+	i_ptr->pval = rand_range(3, 7) * 500;
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
 }
 
 

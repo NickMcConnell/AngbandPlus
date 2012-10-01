@@ -1,0 +1,59 @@
+# File: Makefile.osx
+# This is a Makefile for the Mac OS X Carbon port of NPPAngband. This port does
+# not support graphic tiles or sound.
+
+###################### DEFINES ######################
+
+CC = gcc
+CFLAGS = -Wall -O2 -fpascal-strings -DMACH_O_CARBON
+LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
+APPNAME = NPPAngband.app
+APPBNDL = ../$(APPNAME)
+APPCONT = $(APPBNDL)/Contents
+APPBIN = $(APPCONT)/MacOS
+APPRES = $(APPCONT)/Resources
+PLIST = NPPAngband.xml
+RESSRCS = NPPAngband.icns Save.icns Edit.icns Data.icns
+REZ = NPPAngband.r
+
+# object files and headers
+OBJS = \
+  birth.o cave.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o dungeon.o files.o generate.o \
+  init1.o init2.o load.o main-crb.o \
+  melee1.o melee2.o monster1.o monster2.o object1.o object2.o obj-info.o quest.o randart.o \
+  save.o spells1.o spells2.o squelch.o store.o tables.o use-obj.o util.o variable.o \
+  wizard1.o wizard2.o xtra1.o xtra2.o z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+ HEADERS = \
+  angband.h config.h defines.h externs.h init.h main.h types.h \
+  h-basic.h h-define.h h-type.h h-system.h h-config.h \
+  z-term.h z-rand.h z-util.h z-virt.h z-form.h
+
+###################### TARGETS ######################
+
+# Install the game as an application bundle.
+install: nppangband $(RESSRCS) $(PLIST)
+	echo $(APPBNDL)
+	echo $(APPCONT)
+	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
+	[ -d $(APPCONT) ] || mkdir $(APPCONT)
+	[ -d $(APPBIN) ] || mkdir $(APPBIN)
+	[ -d $(APPRES) ] || mkdir $(APPRES)
+	install -m 755 NPPAngband $(APPBIN)
+	install -m 644 $(RESSRCS) $(APPRES)
+	install -m 644 $(PLIST) $(APPCONT)/Info.plist
+	/Developer/Tools/Rez -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON -o $(APPRES)/NPPAngband.rsrc $(REZ)
+	/Developer/Tools/SetFile -a B $(APPBNDL)
+
+# Build the "NPPAngband" program
+nppangband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o NPPAngband $(OBJS) $(LIBS)
+
+# Clean up old junk
+clean:
+	-rm -f *.o NPPAngband
+
+
+###################### RULES ######################
+
+%.o: %.c $(HEADERS)
+

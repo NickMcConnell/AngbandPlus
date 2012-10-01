@@ -238,6 +238,8 @@ static void grant_reward(byte type)
 
 	bool got_item = FALSE;
 
+	int repeats;
+
 	object_type *i_ptr, *j_ptr;
  	object_type object_type_body;
 	store_type *st_ptr = &store[STORE_HOME];
@@ -255,7 +257,7 @@ static void grant_reward(byte type)
 	if (type == REWARD_GOLD)
 	{
 		/*base amount of gold on fame*/
-		int repeats = p_ptr->fame / 4;
+		repeats = p_ptr->fame / 4;
 
 		/*but put in a minimum*/
 		if (repeats < 3) repeats = 3;
@@ -309,10 +311,10 @@ static void grant_reward(byte type)
 		 * Hack - greater chance if a "pure" spellcaster.
 		 */
 		if ((cp_ptr->spell_book) &&
-			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 20 : 10)))
+			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 40 : 25)))
 		{
-			/*50 tries at a book*/
-			for (i = 0; i < 50; i++)
+			/*200 tries at a book*/
+			for (i = 0; i < 200; i++)
 			{
 				bool already_own = FALSE;
 
@@ -326,17 +328,14 @@ static void grant_reward(byte type)
 				if (cp_ptr->spell_book == TV_MAGIC_BOOK)
 				{
 					/*try to make a spellbook, frequently returns nothing*/
-					(void)make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_MAGIC_BOOK);
+					if (!make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_MAGIC_BOOK)) continue;
 
-					if (!i_ptr->k_idx) continue;
 				}
 
 				if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 				{
 					/*try to make a spellbook, frequently returns nothing*/
-					(void)make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_PRAYER_BOOK);
-
-					if (!i_ptr->k_idx) continue;
+					if (!make_object(i_ptr, TRUE, TRUE, DROP_TYPE_DUNGEON_PRAYER_BOOK)) continue;
 				}
 
 				/* Was this already a reward (marked tried) */
@@ -386,29 +385,31 @@ static void grant_reward(byte type)
 
 
 		/* Maybe we want to give a potion of augmentation */
-
-		/*clear the counter*/
-		x = 0;
-
-		/* Add up the base stats */
-		for (i = 0; i < A_MAX; i++)
+		if (!got_item)
 		{
-			x += p_ptr->stat_max[i];
-		}
+			/*clear the counter*/
+			x = 0;
 
-		/*greater chance of augmentation if stats are lower.*/
-		if ((!got_item) && (rand_int(200) > (x-50)))
-		{
-			/* Get local object */
-			i_ptr = &object_type_body;
+			/* Add up the stats indexes over 13*/
+			for (i = 0; i < A_MAX; i++)
+			{
+				x += (MIN(0, p_ptr->stat_ind[i] - 10));
+			}
 
-			/* Wipe the object */
-			object_wipe(i_ptr);
+			/*We only want to give potion if stats are low.*/
+			if ((rand_int(42) + 42) < x)
+			{
+				/* Get local object */
+				i_ptr = &object_type_body;
 
-			/* Make a potion of augmentation */
-			object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
+				/* Wipe the object */
+				object_wipe(i_ptr);
 
-			got_item = TRUE;
+				/* Make a potion of augmentation */
+				object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
+
+				got_item = TRUE;
+			}
 		}
 
 		/* We didn't find anything else, so lets find something to wear */
@@ -495,9 +496,14 @@ static void grant_reward(byte type)
  				}
 			}
 
-			/* attempts at an item based on p_ptr fame, but fame is a minimum of 20*/
-			for (x = 0; x < (p_ptr->fame / 5); x++)
+			/*base number fo loops on fame, but put in a minimum of 4*/
+			repeats = p_ptr->fame / 5;
+			if (repeats < 4) repeats = 4;
+
+			/* attempts at an item based on p_ptr fame, but fame is a minimum of 10*/
+			for (x = 0; x < repeats; x++)
 			{
+				bool do_great = FALSE;
 
 				/*create the items in the guild....*/
 				store_type *st_ptr = &store[STORE_GUILD];
@@ -580,11 +586,11 @@ static void grant_reward(byte type)
 				/* Wipe the object */
 				object_wipe(j_ptr);
 
-				/* Valid item exists?  If not, don't count it*/
-				(void)make_object(j_ptr, FALSE, TRUE, droptype);
+				/*sometimes make good counter true to give 4 artifact rarity rolls*/
+				if (randint(200) < p_ptr->fame) do_great = TRUE;
 
-				/* hopefully eliminate the &nothing bug*/
-				if (!j_ptr->k_idx)
+				/* Valid item exists?  If not, don't count it*/
+				if (!make_object(j_ptr, do_great, TRUE, droptype))
 				{
 					x--;
 					continue;
@@ -970,7 +976,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 			/*no quests for certain kinds of animals the guild wouldn't care about*/
-			if ((strchr("BFIJKSXabcejlrmwj,", r_ptr->d_char)) &&
+			if ((strchr("BFIJKSabcejlrmw,", r_ptr->d_char)) &&
 				(!(r_ptr->flags2 & (RF2_SMART)))) continue;
 
 			/* Hack -- No town monsters in quests */
@@ -1087,7 +1093,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 		else
 		{
 			/* Maybe a tailored reward */
-			if (20 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
+			if (10 + rand_int(50) < p_ptr->fame) q_info[q].reward = REWARD_TAILORED;
 			else q_info[q].reward = REWARD_GREAT_ITEM;
 		}
 	}

@@ -40,7 +40,6 @@ void do_cmd_inven(void)
 	/* Load screen */
 	screen_load();
 
-
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
@@ -534,7 +533,7 @@ void do_cmd_destroy(void)
 
 
 /*
- * Observe an item which has been *identify*-ed
+ * Observe an item, displaying what is known about it
  */
 void do_cmd_observe(void)
 {
@@ -718,7 +717,6 @@ static void do_cmd_refill_lamp(void)
 
 	cptr q, s;
 
-
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
 
@@ -758,11 +756,45 @@ static void do_cmd_refill_lamp(void)
 		msg_print("Your lamp is full.");
 	}
 
-	/* Use fuel from a lantern */
+	/* Refilled from a latern */
 	if (o_ptr->sval == SV_LITE_LANTERN)
 	{
-		/* No more fuel */
-		o_ptr->pval = 0;
+		/* Unstack if necessary */
+		if (o_ptr->number > 1)
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Obtain a local object */
+			object_copy(i_ptr, o_ptr);
+
+			/* Modify quantity */
+			i_ptr->number = 1;
+
+			/* Remove fuel */
+			i_ptr->pval = 0;
+
+			/* Unstack the used item */
+			o_ptr->number--;
+			p_ptr->total_weight -= i_ptr->weight;
+
+			/* Carry or drop */
+			if (item >= 0)
+				item = inven_carry(i_ptr);
+			else
+				drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
+		}
+
+		/* Empty a single latern */
+		else
+		{
+			/* No more fuel */
+			o_ptr->pval = 0;
+		}
+
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -771,20 +803,25 @@ static void do_cmd_refill_lamp(void)
 		p_ptr->window |= (PW_INVEN);
 	}
 
-	/* Decrease the item (from the pack) */
-	else if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
+	/* Refilled from a flask */
 	else
 	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
+		/* Decrease the item (from the pack) */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+
 	}
 
 	/* Recalculate torch */

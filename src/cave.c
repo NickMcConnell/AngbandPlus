@@ -550,9 +550,9 @@ static u16b image_random(void)
 /*
  * The 16x16 tile of the terrain supports lighting
  */
-bool feat_supports_lighting(byte feat)
+bool feat_supports_lighting(int feat)
 {
-	if 	((arg_graphics != GRAPHICS_DAVID_GERVAIS) &&
+	if 	((use_graphics != GRAPHICS_DAVID_GERVAIS) &&
 	    (((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)) ||
 		 ((feat >= FEAT_MTRAP_HEAD) && (feat <= FEAT_MTRAP_TAIL))))
 	{
@@ -581,6 +581,121 @@ bool feat_supports_lighting(byte feat)
 			return FALSE;
 	}
 }
+
+static void special_lighting_floor(byte *a, char *c, int info)
+{
+	/* Handle "seen" grids */
+	if (info & (CAVE_SEEN))
+	{
+		/* Only lit by "torch" lite */
+		if (view_yellow_lite && !(info & (CAVE_GLOW)))
+		{
+			/* Use a brightly lit tile */
+			switch (use_graphics)
+			{
+				case GRAPHICS_NONE:
+					/* Use "yellow" */
+					if (*a == TERM_WHITE) *a = TERM_YELLOW;
+					break;
+				case GRAPHICS_ADAM_BOLT:
+					*c += 2;
+					break;
+				case GRAPHICS_DAVID_GERVAIS:
+					*c -= 1;
+					break;
+			}
+		}
+	}
+
+	/* Handle "dark" grids and "blindness" */
+	else if ((p_ptr->blind) || (!(info & CAVE_GLOW)))
+	{
+		/* Use a dark tile */
+		switch (use_graphics)
+		{
+			case GRAPHICS_NONE:
+				/* Use "dark gray" */
+				if (*a == TERM_WHITE) *a = TERM_L_DARK;
+				break;
+			case GRAPHICS_ADAM_BOLT:
+			case GRAPHICS_DAVID_GERVAIS:
+				*c += 1;
+				break;
+		}
+	}
+
+	/* Handle "view_bright_lite" */
+	else if (view_bright_lite)
+	{
+		switch (use_graphics)
+		{
+			case GRAPHICS_NONE:
+				/* Use "gray" */
+				if (*a == TERM_WHITE) *a = TERM_SLATE;
+				break;
+			case GRAPHICS_ADAM_BOLT:
+			case GRAPHICS_DAVID_GERVAIS:
+				*c += 1;
+				break;
+		}
+	}
+}
+
+
+static void special_lighting_wall(byte *a, char *c, int feat, int info)
+{
+	/* Handle "seen" grids */
+	if (info & (CAVE_SEEN))
+	{
+		/* Do nothing */
+	}
+
+	/* Handle "blind" */
+	else if (p_ptr->blind)
+	{
+		switch (use_graphics)
+		{
+			case GRAPHICS_NONE:
+				/* Use "dark gray" */
+				if (*a == TERM_WHITE) *a = TERM_L_DARK;
+				break;
+			case GRAPHICS_ADAM_BOLT:
+			case GRAPHICS_DAVID_GERVAIS:
+				if (feat_supports_lighting(feat)) *c += 1;
+				break;
+		}
+	}
+
+	/* Handle "view_bright_lite" */
+	else if (view_bright_lite)
+	{
+		switch (use_graphics)
+		{
+			case GRAPHICS_NONE:
+				/* Use "gray" */
+				if (*a == TERM_WHITE) *a = TERM_SLATE;
+				break;
+			case GRAPHICS_ADAM_BOLT:
+			case GRAPHICS_DAVID_GERVAIS:
+				if (feat_supports_lighting(feat)) *c += 1;
+				break;
+		}
+	}
+	else
+	{
+		/* Use a brightly lit tile */
+		switch (use_graphics)
+		{
+			case GRAPHICS_ADAM_BOLT:
+				if (feat_supports_lighting(feat)) *c += 2;
+				break;
+			case GRAPHICS_DAVID_GERVAIS:
+				if (feat_supports_lighting(feat)) *c -= 1;
+				break;
+		}
+	}
+}
+
 
 
 /*
@@ -769,10 +884,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 	int floor_num = 0;
 
-	/* Hack -- the old tiles don't support the new lighting effects */
-	bool graf_new = (use_graphics && !streq(ANGBAND_GRAF, "old"));
-
 	bool sq_flag = FALSE;
+	bool do_purple_dot = TRUE;
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -813,75 +926,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects */
-			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
-			{
-				/* Handle "seen" grids */
-				if (info & (CAVE_SEEN))
-				{
-					/* Only lit by "torch" lite */
-					if (view_yellow_lite && !(info & (CAVE_GLOW)))
-					{
-						if (graf_new)
-						{
-							/* Use a brightly lit tile */
-							if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
-								c -= 1;
-							else
-								c += 2;
-						}
-						else
-						{
-							/* Use "yellow" */
-							a = TERM_YELLOW;
-						}
-					}
-				}
+			if (view_special_lite) special_lighting_floor(&a, &c, info);
 
-				/* Handle "blind" */
-				else if (p_ptr->blind)
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
-				}
-
-				/* Handle "dark" grids */
-				else if (!(info & (CAVE_GLOW)))
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
-				}
-
-				/* Handle "view_bright_lite" */
-				else if (view_bright_lite)
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "gray" */
-						a = TERM_SLATE;
-					}
-				}
-			}
 		}
 
 		/* Unknown */
@@ -917,68 +963,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			c = f_ptr->x_char;
 
 			/* Special lighting effects (walls only) */
-			if (view_granite_lite &&
-			    (((a == TERM_WHITE) && !use_transparency && (cave_wall_bold(y,x))) ||
-			     (use_transparency && feat_supports_lighting(feat))))
-			{
-				/* Handle "seen" grids */
-				if (info & (CAVE_SEEN))
-				{
-					if (graf_new)
-					{
-						/* Use a lit tile */
-					}
-					else
-					{
-						/* Use "white" */
-					}
-				}
-
-				/* Handle "blind" */
-				else if (p_ptr->blind)
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
-				}
-
-				/* Handle "view_bright_lite" */
-				else if (view_bright_lite)
-				{
-					if (graf_new)
-					{
-						/* Use a lit tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "gray" */
-						a = TERM_SLATE;
-					}
-				}
-				else
-				{
-					if (graf_new)
-					{
-						/* Use a brightly lit tile */
-						if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
-							c -= 1;
-						else
-							c += 2;
-					}
-					else
-					{
-						/* Use "white" */
-					}
-				}
-			}
+			if (view_granite_lite) special_lighting_wall(&a, &c, feat, info);
 		}
 
 		/* Unknown */
@@ -1002,9 +987,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	/* Objects */
 	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
+
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
+
 			/* Hack -- object hallucination */
 			if (image)
 			{
@@ -1028,8 +1015,15 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 
 				/* Normal char */
 				c = object_char(o_ptr);
+
+				/*found a non-squelchable item, unless showing piles, display this one*/
+				if (!show_piles) break;
+
+				/*if only one item in a pile is not squelchable, show that one*/
+				do_purple_dot = FALSE;
+
 			}
-			else
+			else if (do_purple_dot)
 			{
 				/* Special squelch character HACK */
 				/* Colour of Blade of Chaos */
@@ -1038,11 +1032,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				c = f_info[1].x_char;
 			}
 
-			/* First marked object, only show squelch dot if all objects are squelchable */
-			if ((!show_piles) || (!sq_flag) || (o_ptr->ident & IDENT_QUEST)) break;
-
-			/* Special stack symbol */
-			if (++floor_num > 1)
+			/* Special stack symbol, unless everything in the pile is squelchable */
+			if ((++floor_num > 1) && (a != k_info[36].x_attr) &&
+				(c != f_info[1].x_char))
 			{
 				object_kind *k_ptr;
 
@@ -1269,6 +1261,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	int floor_num = 0;
 
 	bool sq_flag = FALSE;
+	bool do_purple_dot = TRUE;
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -1444,12 +1437,19 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			if ((!sq_flag) || (o_ptr->ident & IDENT_QUEST))
 			{
 				/* Normal attr */
-				a = object_attr(o_ptr);
+				a = object_attr_default(o_ptr);
 
 				/* Normal char */
-				c = object_char(o_ptr);
+				c = object_attr_default(o_ptr);
+
+				/*found a non-squelchable item, unless showing piles, display this one*/
+				if (!show_piles) break;
+
+				/*if only one item in a pile is not squelchable, show that one*/
+				do_purple_dot = FALSE;
+
 			}
-			else
+			else if (do_purple_dot)
 			{
 				/* Special squelch character HACK */
 				/* Colour of Blade of Chaos */
@@ -1458,12 +1458,9 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 				c = f_info[1].x_char;
 			}
 
-
-			/* First marked object, only show squelch dot if all objects are squelchable */
-			if ((!show_piles) || (!sq_flag) || (o_ptr->ident & IDENT_QUEST)) break;
-
-			/* Special stack symbol */
-			if (++floor_num > 1)
+			/* Special stack symbol, unless everything in the pile is squelchable */
+			if ((++floor_num > 1) && (a != k_info[36].x_attr) &&
+				(c != f_info[1].x_char))
 			{
 				object_kind *k_ptr;
 
@@ -1601,7 +1598,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 				}
 		}
 
-		else a = r_ptr->x_attr;
+		else a = r_ptr->d_attr;
 
 		/* Get the "player" char */
         c = r_ptr->d_char;
@@ -3927,7 +3924,7 @@ void wiz_dark(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
 }
 
 
@@ -4017,7 +4014,7 @@ void town_illuminate(bool daytime)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
 }
 
 

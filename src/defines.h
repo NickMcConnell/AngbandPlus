@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.3"
+#define VERSION_STRING	"0.3.4"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	3
 #define VERSION_MINOR	0
-#define VERSION_PATCH	8
+#define VERSION_PATCH	9
 #define VERSION_EXTRA	0
 
 
@@ -347,7 +347,7 @@
  * More maximum values
  */
 #define MAX_SIGHT	20	/* Maximum view distance */
-#define MAX_RANGE	29	/* Maximum range (spells, etc) */
+#define MAX_RANGE	20	/* Maximum range (spells, etc) */
 
 
 
@@ -413,6 +413,178 @@
  */
 #define PY_MAX_SPELLS 64
 
+/*Magic for Beginners*/
+#define SPELL_MAGIC_MISSILE             0
+#define SPELL_DETECT_MONSTERS           1
+#define SPELL_PHASE_DOOR                2
+#define SPELL_LIGHT_AREA                3
+#define SPELL_TREASURE_DETECTION        4
+#define SPELL_CURE_LIGHT_WOUNDS         5
+#define SPELL_OBJECT_DETECTION          6
+#define SPELL_FIND_TRAPS_DOORS          7
+#define SPELL_STINKING_CLOUD            8
+
+/* Conjurings and Tricks */
+#define SPELL_CONFUSE_MONSTER           9
+#define SPELL_LIGHTNING_BOLT            10
+#define SPELL_TRAP_DOOR_DESTRUCTION     11
+#define SPELL_CURE_POISON               12
+#define SPELL_SLEEP_MONSTER             13
+#define SPELL_TELEPORT_SELF             14
+#define SPELL_SPEAR_OF_LIGHT            15
+#define SPELL_FROST_BOLT                16
+#define SPELL_WONDER                    17
+
+/* Incantations and Illusions */
+#define SPELL_SATISFY_HUNGER            18
+#define SPELL_RECHARGE_ITEM_I           19
+#define SPELL_TURN_STONE_TO_MUD         20
+#define SPELL_FIRE_BOLT                 21
+#define SPELL_POLYMORPH_OTHER           22
+#define SPELL_IDENTIFY                  23
+#define SPELL_DETECT_INVISIBLE          24
+#define SPELL_ACID_BOLT                 25
+#define SPELL_SLOW_MONSTER              26
+
+/* Sorcery and Evocations */
+#define SPELL_FROST_BALL                27
+#define SPELL_TELEPORT_OTHER            28
+#define SPELL_HASTE_SELF                29
+#define SPELL_MASS_SLEEP                30
+#define SPELL_FIRE_BALL                 31
+#define SPELL_DETECT_ENCHANTMENT        32
+
+
+/* Resistances of Scarabtarices */
+#define SPELL_RESIST_COLD               33
+#define SPELL_RESIST_FIRE               34
+#define SPELL_RESIST_POISON             35
+#define SPELL_RESISTANCE                36
+#define SPELL_SHIELD                    37
+
+/* Raal's Tome of Destruction */
+#define SPELL_SHOCK_WAVE                38
+#define SPELL_EXPLOSION                 39
+#define SPELL_CLOUD_KILL                40
+#define SPELL_ACID_BALL                 41
+#define SPELL_ICE_STORM                 42
+#define SPELL_METEOR_SWARM              43
+#define SPELL_RIFT                      44
+
+/* Mordenkainen's Escapes */
+#define SPELL_DOOR_CREATION             45
+#define SPELL_STAIR_CREATION            46
+#define SPELL_TELEPORT_LEVEL            47
+#define SPELL_WORD_OF_RECALL            48
+#define SPELL_RUNE_OF_PROTECTION        49
+
+
+/* Tenser's transformations */
+#define SPELL_HEROISM                   50
+#define SPELL_BERSERKER                 51
+#define SPELL_ENCHANT_ARMOR             52
+#define SPELL_ENCHANT_WEAPON            53
+#define SPELL_RECHARGE_ITEM_II          54
+#define SPELL_ELEMENTAL_BRAND           55
+
+
+/* Kelek's Grimoire of Power */
+#define SPELL_EARTHQUAKE                56
+#define SPELL_BEDLAM                    57
+#define SPELL_REND_SOUL                 58
+#define SPELL_BANISHMENT                59
+#define SPELL_WORD_OF_DESTRUCTION       60
+#define SPELL_MASS_BANISHMENT           61
+#define SPELL_CHAOS_STRIKE              62
+#define SPELL_MANA_STORM                63
+
+/* Beginners Handbook */
+#define PRAYER_DETECT_EVIL              0
+#define PRAYER_CURE_LIGHT_WOUNDS        1
+#define PRAYER_BLESS                    2
+#define PRAYER_REMOVE_FEAR              3
+#define PRAYER_CALL_LIGHT               4
+#define PRAYER_FIND_TRAPS_DOORS_STAIRS  5
+#define PRAYER_BOLT_OF_DRAINING	        6
+#define PRAYER_SLOW_POISON              7
+
+/* Words of Wisdom */
+#define PRAYER_SCARE_MONSTER            8
+#define PRAYER_PORTAL                   9
+#define PRAYER_CURE_SERIOUS_WOUNDS     10
+#define PRAYER_CHANT                   11
+#define PRAYER_SANCTUARY               12
+#define PRAYER_SATISFY_HUNGER          13
+#define PRAYER_REMOVE_CURSE            14
+#define PRAYER_RESIST_HEAT_COLD        15
+
+/* Chants and Blessings */
+#define PRAYER_NEUTRALIZE_POISON       16
+#define PRAYER_ORB_OF_DRAINING         17
+#define PRAYER_CURE_CRITICAL_WOUNDS    18
+#define PRAYER_SENSE_INVISIBLE         19
+#define PRAYER_PROTECTION_FROM_EVIL    20
+#define PRAYER_EARTHQUAKE              21
+#define PRAYER_SENSE_SURROUNDINGS      22
+#define PRAYER_CURE_MORTAL_WOUNDS      23
+#define PRAYER_TURN_UNDEAD             24
+
+/* Exorcism and Dispelling */
+#define PRAYER_PRAYER                  25
+#define PRAYER_DISPEL_UNDEAD           26
+#define PRAYER_HEAL                    27
+#define PRAYER_DISPEL_EVIL             28
+#define PRAYER_GLYPH_OF_WARDING        29
+#define PRAYER_HOLY_WORD               30
+
+/* Godly Insights */
+#define PRAYER_DETECT_MONSTERS         31
+#define PRAYER_DETECTION               32
+#define PRAYER_PERCEPTION              33
+#define PRAYER_PROBING                 34
+#define PRAYER_CLAIRVOYANCE            35
+
+/* Purifications and Healing */
+#define PRAYER_CURE_SERIOUS_WOUNDS2    36
+#define PRAYER_CURE_MORTAL_WOUNDS2     37
+#define PRAYER_HEALING                 38
+#define PRAYER_RESTORATION             39
+#define PRAYER_REMEMBRANCE             40
+
+/* Wrath of God */
+#define PRAYER_DISPEL_UNDEAD2          41
+#define PRAYER_DISPEL_EVIL2            42
+#define PRAYER_BANISH_EVIL             43
+#define PRAYER_WORD_OF_DESTRUCTION     44
+#define PRAYER_ANNIHILATION            45
+
+/* Holy Infusions */
+#define PRAYER_UNBARRING_WAYS          46
+#define PRAYER_RECHARGING              47
+#define PRAYER_DISPEL_CURSE            48
+#define PRAYER_ENCHANT_WEAPON          49
+#define PRAYER_ENCHANT_ARMOUR          50
+#define PRAYER_ELEMENTAL_BRAND         51
+
+/* Ethereal openings */
+#define PRAYER_BLINK                   52
+#define PRAYER_TELEPORT_SELF           53
+#define PRAYER_TELEPORT_OTHER          54
+#define PRAYER_TELEPORT_LEVEL          55
+#define PRAYER_WORD_OF_RECALL          56
+#define PRAYER_ALTER_REALITY           57
+
+
+#define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
+#define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
+
+#define BOOK(a, b, c, d, e, f, g, h, i) \
+{ \
+	(BOOK1(a) | BOOK1(b) | BOOK1(c) | BOOK1(d) | BOOK1(e) | \
+	 BOOK1(f) | BOOK1(g) | BOOK1(h) | BOOK1(i)), \
+	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
+	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
+}
 
 /*
  * Flags for player_type.spell_flags[]
@@ -669,7 +841,7 @@
 #define GF_NETHER       29
 #define GF_CHAOS        30
 #define GF_DISENCHANT   31
-#define GF_WIND			32
+#define GF_XXX4			32
 #define GF_KILL_WALL	33
 #define GF_KILL_DOOR	34
 #define GF_KILL_TRAP	35
@@ -1815,7 +1987,7 @@
 #define PW_OVERHEAD         0x00000080L /* Display overhead view */
 #define PW_MONSTER          0x00000100L /* Display monster recall */
 #define PW_OBJECT           0x00000200L /* Display object recall */
-/* xxx */
+#define PW_MONLIST          0x00000400L /* Display monster list */
 #define PW_SNAPSHOT         0x00000800L /* Display snap-shot */
 #define PW_SCRIPT_VARS      0x00001000L /* Display script variables */
 #define PW_SCRIPT_SOURCE    0x00002000L /* Display script source */
@@ -2423,7 +2595,7 @@
 #define RF4_BRTH_SHARD     0x00040000  /* Breathe Shards */
 #define RF4_BRTH_INER      0x00080000  /* Breathe Inertia */
 #define RF4_BRTH_GRAV      0x00100000  /* Breathe Gravity */
-#define RF4_BRTH_WIND      0x00200000  /* Breathe Wind */
+#define RF4_RF4XX1X		   0x00200000  /* Unused */
 #define RF4_BRTH_FORCE     0x00400000  /* Breathe Force */
 #define RF4_BRTH_NEXUS     0x00800000  /* Breathe Nexus */
 #define RF4_BRTH_NETHR     0x01000000  /* Breathe Nether */
@@ -2443,8 +2615,7 @@
 						 RF4_BRTH_CONFU | RF4_BRTH_SOUND | RF4_BRTH_CHAOS | RF4_BRTH_DISEN | \
 						 RF4_BRTH_NEXUS)
 #define RF4_BRTH_ALL	(RF4_BRTH_POWER | RF4_BRTH_TIME | RF4_BRTH_INER | RF4_BRTH_GRAV | \
-						 RF4_BRTH_SHARD | RF4_BRTH_PLAS | RF4_BRTH_FORCE | RF4_BRTH_WIND | \
-						 RF4_BRTH_MANA)
+						 RF4_BRTH_SHARD | RF4_BRTH_PLAS | RF4_BRTH_FORCE | RF4_BRTH_MANA)
 
 /*
  * Monster racial flags - defined-area projection spells
@@ -2459,7 +2630,7 @@
 #define RF5_BALL_CONFU     0x00000080  /* Confusion Ball -> Conf Storm */
 #define RF5_BALL_SOUND     0x00000100  /* Sound Ball -> Sound Storm */
 #define RF5_BALL_SHARD     0x00000200  /* Shard Ball -> Shard Storm */
-#define RF5_BALL_WIND      0x00000400  /* Wind Ball -> Cyclone */
+#define RF5_RF5_XXX2       0x00000400  /* Unused */
 #define RF5_BALL_STORM     0x00000800  /* Storm Ball -> Tempest */
 #define RF5_BALL_NETHR     0x00001000  /* Nether Ball -> Nether Storm */
 #define RF5_BALL_CHAOS     0x00002000  /* Chaos Ball -> Chaos Storm */
@@ -2593,7 +2764,7 @@
 #define RF5_ATTACK_MASK \
 	(RF5_BALL_ACID | RF5_BALL_ELEC | RF5_BALL_FIRE | RF5_BALL_COLD | \
 	 RF5_BALL_POIS | RF5_BALL_LITE | RF5_BALL_DARK | RF5_BALL_CONFU | \
-	 RF5_BALL_SOUND | RF5_BALL_SHARD | RF5_BALL_WIND | RF5_BALL_STORM | RF5_BALL_NETHR | \
+	 RF5_BALL_SOUND | RF5_BALL_SHARD | RF5_BALL_STORM | RF5_BALL_NETHR | \
 	 RF5_BALL_CHAOS | RF5_BALL_MANA | RF5_BALL_WATER | RF5_BOLT_ACID | RF5_BOLT_ELEC | \
 	 RF5_BOLT_FIRE | RF5_BOLT_COLD | RF5_BOLT_POIS | RF5_BOLT_PLAS | \
 	 RF5_BOLT_ICE | RF5_BOLT_WATER | RF5_BOLT_NETHR | RF5_BOLT_MANA | \
@@ -2614,8 +2785,7 @@
          RF4_BRTH_POIS | RF4_BRTH_PLAS | RF4_BRTH_LITE | RF4_BRTH_DARK | \
          RF4_BRTH_CONFU | RF4_BRTH_SOUND | RF4_BRTH_SHARD | RF4_BRTH_INER | \
          RF4_BRTH_GRAV | RF4_BRTH_FORCE | RF4_BRTH_NEXUS | RF4_BRTH_NETHR | \
-         RF4_BRTH_CHAOS | RF4_BRTH_DISEN | RF4_BRTH_TIME | RF4_BRTH_WIND | \
-         RF4_BRTH_MANA)
+         RF4_BRTH_CHAOS | RF4_BRTH_DISEN | RF4_BRTH_TIME | RF4_BRTH_MANA)
 
 #define RF5_BREATH_MASK \
  	(0L)
@@ -2666,7 +2836,7 @@
 #define RF7_BOLT_MASK \
    0L
 
- /*
+/*
  * Archery attacks
  * Need special treatment in AI.
   */
@@ -2681,6 +2851,26 @@
 
 #define RF7_ARCHERY_MASK \
 	(0L)
+
+/*
+ * Summoning Spells
+ * Need special treatment in AI.
+  */
+#define RF4_SUMMON_MASK \
+        (0L)
+
+#define RF5_SUMMON_MASK \
+	(0L)
+
+#define RF6_SUMMON_MASK \
+	(0L)
+
+#define RF7_SUMMON_MASK \
+	(RF7_S_KIN |  RF7_S_MONSTER | RF7_S_MONSTERS | RF7_S_ANT | RF7_S_SPIDER | \
+	 RF7_S_HOUND | RF7_S_ANIMAL | RF7_S_HYDRA | RF7_S_THIEF | RF7_S_BERTBILLTOM | \
+	 RF7_S_AINU | RF7_S_DRAGON | RF7_S_HI_DRAGON | RF7_S_DEMON | RF7_S_HI_DEMON | \
+	 RF7_S_UNDEAD | RF7_S_HI_UNDEAD | RF7_S_WRAITH | RF7_S_UNIQUE)
+
 
 /*
  * Spells that can be can cast without a player in sight
@@ -3170,6 +3360,26 @@
 	 (k_info[(T)->k_idx].x_char))
 
 /*
+ * Return the "attr" for a given item.
+ * Use "flavor" if available.
+ * Use default definitions.
+ */
+#define object_attr_default(T) \
+	((k_info[(T)->k_idx].flavor) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].d_attr) : \
+	 (k_info[(T)->k_idx].d_attr))
+
+/*
+ * Return the "char" for a given item.
+ * Use "flavor" if available.
+ * Use default definitions.
+ */
+#define object_char_default(T) \
+	((k_info[(T)->k_idx].flavor) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].d_char) : \
+	 (k_info[(T)->k_idx].d_char))
+
+/*
  * Return the "char" for a k_idx.
  * Use "flavor" if available.
  * Default to user definitions.
@@ -3424,17 +3634,6 @@
 	(cave_info[Y][X] & (CAVE_FIRE))
 
 
-/*
- * Hack -- Prepare to use the "Secure" routines
- */
-#if defined(SET_UID) && defined(SECURE)
-extern int PlayerUID;
-# define getuid() PlayerUID
-# define geteuid() PlayerUID
-#endif
-
-
-
 /*** Color constants ***/
 
 
@@ -3534,6 +3733,12 @@ extern int PlayerUID;
  * Should be the same as MSG_MAX for compatibility reasons.
  */
 #define SOUND_MAX MSG_MAX
+
+/*
+ * Maximum number of macro trigger names
+ */
+#define MAX_MACRO_TRIGGER 200
+#define MAX_MACRO_MOD 12
 
 
 

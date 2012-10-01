@@ -1693,19 +1693,6 @@ bool save_player(void)
 
 	char safe[1024];
 
-
-#ifdef SET_UID
-
-# ifdef SECURE
-
-	/* Get "games" permissions */
-	beGames();
-
-# endif
-
-#endif
-
-
 	/* New savefile */
 	my_strcpy(safe, savefile, sizeof(safe));
 	strcat(safe, ".new");
@@ -1781,18 +1768,6 @@ bool save_player(void)
 		/* Success */
 		result = TRUE;
 	}
-
-
-#ifdef SET_UID
-
-# ifdef SECURE
-
-	/* Drop "games" permissions */
-	bePlayer();
-
-# endif /* SECURE */
-
-#endif /* SET_UID */
 
 
 	/* Return the result */

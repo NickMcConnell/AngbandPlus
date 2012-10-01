@@ -1394,7 +1394,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
 	{
 		/* Hack -- Turns of light for normal lites */
 		object_desc_str_macro(t, " (with ");
@@ -2649,8 +2649,6 @@ void show_equip(void)
 }
 
 
-#ifdef ALLOW_EASY_FLOOR
-
 /*
  * Display a list of the items on the floor at the given location.
  */
@@ -2751,9 +2749,6 @@ void show_floor(const int *floor_list, int floor_num)
 	/* Make a "shadow" below the list (only if needed) */
 	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
 }
-
-#endif /* ALLOW_EASY_FLOOR */
-
 
 
 /*
@@ -3180,15 +3175,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Use floor if allowed */
 		else if (easy_floor)
 		{
 			p_ptr->command_wrk = (USE_FLOOR);
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Hack -- Use (empty) inventory */
 		else
@@ -3306,8 +3297,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (allow_floor) strcat(out_val, " - for floor,");
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Viewing floor */
 		else
 		{
@@ -3336,8 +3325,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Append */
 			else if (use_equip) strcat(out_val, " / for Equip,");
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -3432,8 +3419,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				if (easy_floor)
 				{
 					/* There is only one item */
@@ -3476,8 +3461,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					break;
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Check each legal object */
 				for (i = 0; i < floor_num; ++i)
@@ -3571,8 +3554,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					k = e1;
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				/* Choose "default" floor item */
 				else
 				{
@@ -3584,8 +3565,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					k = 0 - floor_list[f1];
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Validate the item */
 				if (!get_item_okay(k))
@@ -3642,8 +3621,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					}
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				/* Convert letter to floor index */
 				else
 				{
@@ -3658,8 +3635,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					/* Special index */
 					k = 0 - floor_list[k];
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Validate the item */
 				if (!get_item_okay(k))

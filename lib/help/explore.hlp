@@ -1,11 +1,11 @@
                              The World of Angband
 
 
-    (1) Symbols on your Map                               (symbols.txt)
-    (2) The Town                                          (town.txt)
-    (3) The Dungeon                                       (dungeon.txt)
-    (4) Objects and Monsters                              (objs-mon.txt)
-    (5) Quests                                            (quests.txt)		
+    (a) Symbols on your Map                               (symbols.txt)
+    (b) The Town                                          (town.txt)
+    (c) The Dungeon                                       (dungeon.txt)
+    (d) Objects and Monsters                              (objs-mon.txt)
+    (e) Quests                                            (quests.txt)		
 
 
 
@@ -14,13 +14,13 @@
 
 
 Help Commands:
-       ESC   : leave the online help
-       ?     : return to previous document or menu
-       space : advance one page
-       -     : back up one half page
-       /     : search (not case-sensitive)
-***** [1] symbols.txt
-***** [2] town.txt
-***** [3] dungeon.txt
-***** [4] objs-mon.txt
-***** [5] quests.txt
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity 
+
+***** [a] symbols.txt
+***** [b] town.txt
+***** [c] dungeon.txt
+***** [d] objs-mon.txt
+***** [e] quests.txt

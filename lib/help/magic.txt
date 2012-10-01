@@ -58,9 +58,8 @@ Recharging wands and staffs is very risky.
 
 --- Hindering your foes ---
 
-     If it looks too tough to kill, perhaps you can knock it down a bit.  Many
-low-level, non-unique monsters can be hindered in some way if you work hard
-enough at it.
+     If it looks too tough to kill, perhaps you can knock it down a bit.  Monsters 
+can be hindered in some way if you work hard enough at it.
 
      - Sleep : Sleeping monsters can't hurt you - until they wake up again.
      - Slow : If you can slow a monster, you are well on the way to killing it.

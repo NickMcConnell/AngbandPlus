@@ -10,9 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
-
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -1918,10 +1915,10 @@ static void build_type5(int y0, int x0)
 	whatnest = randint(nestchooser) + mindepth;
 
 
-	if (whatnest <= 25)
+	if ((whatnest <= 25)  && (p_ptr->depth <= 30))
 	{
 
-		if (randint (10) <= 5)
+		if (one_in_(2))
 
 		/* Monster nest (jelly) */
 		{
@@ -1959,7 +1956,7 @@ static void build_type5(int y0, int x0)
 
 	else if (whatnest <=75)
 	{
-		if (randint (10) <= 5)
+		if (one_in_(2))
 		/*animal pit*/
 		{
 
@@ -1973,24 +1970,33 @@ static void build_type5(int y0, int x0)
 		else
 		/* Monster nest (humanoid) */
 		{
-		/* Describe */
-		name = "humaniod";
+			/* Describe */
+			name = "humaniod";
 
-		/* Restrict to humanoids */
-		get_mon_num_hook = vault_aux_humanoids;
+			/* Restrict to humanoids */
+			get_mon_num_hook = vault_aux_humanoids;
 		}
 
 	}
 
-
-	else
-		/* Monster nest (undead) */
+	/*Monster nest (undead) */
+	else if (whatnest <=95)
 	{
-		/* Describe */
+
 		name = "undead";
 
 		/* Restrict to undead */
 		get_mon_num_hook = vault_aux_undead;
+	}
+
+	/*Ancient Dragon Next*/
+	else
+	{
+		/* Message */
+		name = "ancient dragons";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_ancdragon;
 	}
 
 
@@ -2191,7 +2197,7 @@ static void build_type6(int y0, int x0)
 	whatpit = randint(pitchooser) + mindepth;
 
 	/* Orc pit */
-	if (whatpit <= 20)
+	if ((whatpit <= 20) && (p_ptr->depth <= 30))
 	{
 		/* Message */
 		name = "orc";
@@ -2201,9 +2207,9 @@ static void build_type6(int y0, int x0)
 	}
 
 
-	else if (whatpit <= 40)
+	else if ((whatpit <= 35)  && (p_ptr->depth <= 40))
 	{
-		if (randint (10) <= 5)
+		if (one_in_(2))
 		{
 			/* Message */
 			name = "troll";
@@ -2222,18 +2228,34 @@ static void build_type6(int y0, int x0)
 		}
 	}
 
-	/* Hound pit */
-	else if (whatpit <= 50)
-	{
-		/* Message */
-		name = "hound";
 
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_hounds;
+	else if ((whatpit <= 50) && (p_ptr->depth <= 60))
+	{
+		/* Hound pit */
+		if (one_in_(3))
+		{
+			/* Message */
+			name = "hound";
+
+			/* Restrict monster selection */
+			get_mon_num_hook = vault_aux_hounds;
+		}
+
+		/*young dragon_pit*/
+		else
+		{
+			/* Describe */
+			name = "young dragon";
+
+			/* Restrict to young dragons */
+			get_mon_num_hook = vault_aux_youngdragon;
+		}
+
+
 	}
 
 	/* Giant pit */
-	else if (whatpit <= 60)
+	else if ((whatpit <= 60) && (p_ptr->depth <= 80))
 	{
 		/* Message */
 		name = "giant";
@@ -2313,11 +2335,11 @@ static void build_type6(int y0, int x0)
 				break;
 			}
 
-			/* Multi-hued */
+			/* Chromatic */
 			default:
 			{
 				/* Message */
-				name = "multi-hued dragon";
+				name = "chromatic dragon";
 
 				/* Restrict dragon breath type */
 				vault_aux_dragon_mask4 = (RF4_BRTH_ACID | RF4_BRTH_ELEC |
@@ -3970,25 +3992,21 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-		/* Event -- generate level */
-		if (!generate_level_hook(p_ptr->depth))
+		/* Build the town */
+		if (!p_ptr->depth)
 		{
-			/* Build the town */
-			if (!p_ptr->depth)
-			{
-				/* Make a town */
-				town_gen();
+			/* Make a town */
+			town_gen();
 
-				/* Hack -- Clear stairs request */
-				p_ptr->create_stair = 0;
-			}
+			/* Hack -- Clear stairs request */
+			p_ptr->create_stair = 0;
+		}
 
-			/* Build a real level */
-			else
-			{
-				/* Make a dungeon, or report the failure to make one*/
-				okay = (cave_gen());
-			}
+		/* Build a real level */
+		else
+		{
+			/* Make a dungeon, or report the failure to make one*/
+			okay = (cave_gen());
 		}
 
 		/*message*/
@@ -4013,7 +4031,7 @@ void generate_cave(void)
 			if (good_item_flag && !adult_preserve) feeling = 1;
 
 			/* It takes 1000 game turns for "feelings" to recharge */
-			if ((turn - old_turn) < 1000) feeling = 0;
+			if (((turn - old_turn) < 1000) && (old_turn > 1)) feeling = 0;
 
 			/* Hack -- no feeling in the town */
 			if (!p_ptr->depth) feeling = 0;

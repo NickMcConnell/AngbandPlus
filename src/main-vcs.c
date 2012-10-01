@@ -75,7 +75,7 @@ static void set_colors(void)
 {
 	int i;
 
-	for (i = 0; i < (int)N_ELEMENTS(reverse_linux_color_table); i++)	
+	for (i = 0; i < (int)N_ELEMENTS(reverse_linux_color_table); i++)
 	{
 		/* Set palette color */
 		printf("\033]P%c%02x%02x%02x",
@@ -234,7 +234,7 @@ static errr Term_xtra_vcs(int n, int v)
 		case TERM_XTRA_DELAY:
 		{
 			/* Delay for some milliseconds */
-			usleep(v * 1000);
+			if (v > 0) usleep(v * 1000);
 			return (0);
 		}
 
@@ -366,7 +366,7 @@ static void leave_vcs(void)
 	cursor[0] = 0;
 	cursor[1] = s_height - 1;
 	write(fd_vcsa, cursor, sizeof(cursor));
-	
+
 	/* Reset terminal */
 	reset_terminal();
 }

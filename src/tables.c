@@ -52,92 +52,92 @@ const char hexsym[16] =
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
  */
-const byte adj_mag_study[] =
+const int adj_mag_study[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	3	/* 18/80-18/89 */,
-	4	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	4	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
-	5	/* 18/130-18/139 */,
-	5	/* 18/140-18/149 */,
-	5	/* 18/150-18/159 */,
-	5	/* 18/160-18/169 */,
-	5	/* 18/170-18/179 */,
-	5	/* 18/180-18/189 */,
-	5	/* 18/190-18/199 */,
-	5	/* 18/200-18/209 */,
-	5	/* 18/210-18/219 */,
-	5	/* 18/220+ */
+	  0	/* 3 */,
+	  0	/* 4 */,
+	 10	/* 5 */,
+	 20	/* 6 */,
+	 30	/* 7 */,
+	 40	/* 8 */,
+	 50	/* 9 */,
+	 60	/* 10 */,
+	 70	/* 11 */,
+	 80	/* 12 */,
+	 85	/* 13 */,
+	 90	/* 14 */,
+	 95	/* 15 */,
+	100	/* 16 */,
+	105	/* 17 */,
+	110	/* 18/00-18/09 */,
+	115	/* 18/10-18/19 */,
+	120	/* 18/20-18/29 */,
+	130	/* 18/30-18/39 */,
+	140	/* 18/40-18/49 */,
+	150	/* 18/50-18/59 */,
+	160	/* 18/60-18/69 */,
+	170	/* 18/70-18/79 */,
+	180	/* 18/80-18/89 */,
+	190	/* 18/90-18/99 */,
+	200	/* 18/100-18/109 */,
+	210	/* 18/110-18/119 */,
+	220	/* 18/120-18/129 */,
+	230	/* 18/130-18/139 */,
+	240	/* 18/140-18/149 */,
+	250	/* 18/150-18/159 */,
+	250	/* 18/160-18/169 */,
+	250	/* 18/170-18/179 */,
+	250	/* 18/180-18/189 */,
+	250	/* 18/190-18/199 */,
+	250	/* 18/200-18/209 */,
+	250	/* 18/210-18/219 */,
+	250	/* 18/220+ */
 };
 
 
 /*
  * Stat Table (INT/WIS) -- extra half-mana-points per level
  */
-const byte adj_mag_mana[] =
+const int adj_mag_mana[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	2	/* 9 */,
-	2	/* 10 */,
-	2	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	16	/* 18/190-18/199 */,
-	16	/* 18/200-18/209 */,
-	16	/* 18/210-18/219 */,
-	16	/* 18/220+ */
+	  0	/* 3 */,
+	 10	/* 4 */,
+	 20	/* 5 */,
+	 30	/* 6 */,
+	 40	/* 7 */,
+	 50	/* 8 */,
+	 60	/* 9 */,
+	 70	/* 10 */,
+	 80	/* 11 */,
+	 90	/* 12 */,
+	100	/* 13 */,
+	110	/* 14 */,
+	120	/* 15 */,
+	130	/* 16 */,
+	140	/* 17 */,
+	150	/* 18/00-18/09 */,
+	160	/* 18/10-18/19 */,
+	170	/* 18/20-18/29 */,
+	180	/* 18/30-18/39 */,
+	190	/* 18/40-18/49 */,
+	200	/* 18/50-18/59 */,
+	225	/* 18/60-18/69 */,
+	250	/* 18/70-18/79 */,
+	300	/* 18/80-18/89 */,
+	350	/* 18/90-18/99 */,
+	400	/* 18/100-18/109 */,
+	450	/* 18/110-18/119 */,
+	500	/* 18/120-18/129 */,
+	550	/* 18/130-18/139 */,
+	600	/* 18/140-18/149 */,
+	650	/* 18/150-18/159 */,
+	700	/* 18/160-18/169 */,
+	750	/* 18/170-18/179 */,
+	800	/* 18/180-18/189 */,
+	800	/* 18/190-18/199 */,
+	800	/* 18/200-18/209 */,
+	800	/* 18/210-18/219 */,
+	800	/* 18/220+ */
 };
 
 
@@ -188,48 +188,48 @@ const byte adj_mag_fail[] =
 
 
 /*
- * Stat Table (INT/WIS) -- Various things
+ * Stat Table (INT/WIS) -- failure rate adjustment
  */
-const byte adj_mag_stat[] =
+const int adj_mag_stat[] =
 {
-	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	3	/* 18/00-18/09 */,
-	3	/* 18/10-18/19 */,
-	3	/* 18/20-18/29 */,
-	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
-	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
-	5	/* 18/70-18/79 */,
-	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	17	/* 18/190-18/199 */,
-	18	/* 18/200-18/209 */,
-	19	/* 18/210-18/219 */,
-	20	/* 18/220+ */
+	-5	/* 3 */,
+	-4	/* 4 */,
+	-3	/* 5 */,
+	-3	/* 6 */,
+	-2	/* 7 */,
+	-1	/* 8 */,
+	 0	/* 9 */,
+	 0	/* 10 */,
+	 0	/* 11 */,
+	 0	/* 12 */,
+	 0	/* 13 */,
+	 1	/* 14 */,
+	 2	/* 15 */,
+	 3	/* 16 */,
+	 4	/* 17 */,
+	 5	/* 18/00-18/09 */,
+	 6	/* 18/10-18/19 */,
+	 7	/* 18/20-18/29 */,
+	 8	/* 18/30-18/39 */,
+	 9	/* 18/40-18/49 */,
+	10	/* 18/50-18/59 */,
+	11	/* 18/60-18/69 */,
+	12	/* 18/70-18/79 */,
+	15	/* 18/80-18/89 */,
+	18	/* 18/90-18/99 */,
+	21	/* 18/100-18/109 */,
+	24	/* 18/110-18/119 */,
+	27	/* 18/120-18/129 */,
+	30	/* 18/130-18/139 */,
+	33	/* 18/140-18/149 */,
+	36	/* 18/150-18/159 */,
+	39	/* 18/160-18/169 */,
+	42	/* 18/170-18/179 */,
+	45	/* 18/180-18/189 */,
+	48	/* 18/190-18/199 */,
+	51	/* 18/200-18/209 */,
+	54	/* 18/210-18/219 */,
+	57	/* 18/220+ */
 };
 
 
@@ -1018,46 +1018,47 @@ const byte adj_con_fix[] =
 /*
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
  */
-const byte adj_con_mhp[] =
+const int adj_con_mhp[] =
 {
-	128 + -5	/* 3 */,
-	128 + -3	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
-	128 + 0	/* 9 */,
-	128 + 0	/* 10 */,
-	128 + 0	/* 11 */,
-	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
-	128 + 4	/* 18/20-18/29 */,
-	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
-	128 + 5	/* 18/50-18/59 */,
-	128 + 6	/* 18/60-18/69 */,
-	128 + 7	/* 18/70-18/79 */,
-	128 + 8	/* 18/80-18/89 */,
-	128 + 9	/* 18/90-18/99 */,
-	128 + 10	/* 18/100-18/109 */,
-	128 + 11	/* 18/110-18/119 */,
-	128 + 12	/* 18/120-18/129 */,
-	128 + 13	/* 18/130-18/139 */,
-	128 + 14	/* 18/140-18/149 */,
-	128 + 15	/* 18/150-18/159 */,
-	128 + 16	/* 18/160-18/169 */,
-	128 + 18	/* 18/170-18/179 */,
-	128 + 20	/* 18/180-18/189 */,
-	128 + 22	/* 18/190-18/199 */,
-	128 + 25	/* 18/200-18/209 */,
-	128 + 25	/* 18/210-18/219 */,
-	128 + 25	/* 18/220+ */
+	-250	/* 3 */,
+	-150	/* 4 */,
+	-100	/* 5 */,
+	 -75	/* 6 */,
+	 -50	/* 7 */,
+	 -25	/* 8 */,
+	 -10	/* 9 */,
+	  -5	/* 10 */,
+	   0	/* 11 */,
+	   5	/* 12 */,
+	  10	/* 13 */,
+	  25	/* 14 */,
+	  50	/* 15 */,
+	  75	/* 16 */,
+	 100	/* 17 */,
+	 150	/* 18/00-18/09 */,
+	 175	/* 18/10-18/19 */,
+	 200	/* 18/20-18/29 */,
+	 225	/* 18/30-18/39 */,
+	 250	/* 18/40-18/49 */,
+	 275	/* 18/50-18/59 */,
+	 300	/* 18/60-18/69 */,
+	 350	/* 18/70-18/79 */,
+	 400	/* 18/80-18/89 */,
+	 450	/* 18/90-18/99 */,
+	 500	/* 18/100-18/109 */,
+	 550	/* 18/110-18/119 */,
+	 600	/* 18/120-18/129 */,
+	 650	/* 18/130-18/139 */,
+	 700	/* 18/140-18/149 */,
+	 750	/* 18/150-18/159 */,
+	 800	/* 18/160-18/169 */,
+	 900	/* 18/170-18/179 */,
+	1000	/* 18/180-18/189 */,
+	1100	/* 18/190-18/199 */,
+	1250	/* 18/200-18/209 */,
+	1250	/* 18/210-18/219 */,
+	1250	/* 18/220+ */
+
 };
 
 
@@ -1256,6 +1257,399 @@ const player_sex sex_info[MAX_SEXES] =
 	}
 };
 
+/*
+ * Spells in each book (mage spells then priest spells)
+ */
+const u32b spell_table[2][9][2] =
+{
+	{
+	/* Magic for Beginners */
+	BOOK(SPELL_MAGIC_MISSILE,
+	     SPELL_DETECT_MONSTERS,
+	     SPELL_PHASE_DOOR,
+	     SPELL_LIGHT_AREA,
+	     SPELL_TREASURE_DETECTION,
+	     SPELL_CURE_LIGHT_WOUNDS,
+	     SPELL_OBJECT_DETECTION,
+	     SPELL_FIND_TRAPS_DOORS,
+	     SPELL_STINKING_CLOUD),
+
+	/* Conjurings and Tricks */
+	BOOK(SPELL_CONFUSE_MONSTER,
+	     SPELL_LIGHTNING_BOLT,
+	     SPELL_TRAP_DOOR_DESTRUCTION,
+	     SPELL_CURE_POISON,
+	     SPELL_SLEEP_MONSTER,
+	     SPELL_TELEPORT_SELF,
+	     SPELL_SPEAR_OF_LIGHT,
+	     SPELL_FROST_BOLT,
+	     SPELL_WONDER),
+
+	/* Incantations and Illusions */
+	BOOK(SPELL_SATISFY_HUNGER,
+	     SPELL_RECHARGE_ITEM_I,
+	     SPELL_TURN_STONE_TO_MUD,
+	     SPELL_FIRE_BOLT,
+	     SPELL_POLYMORPH_OTHER,
+	     SPELL_IDENTIFY,
+	     SPELL_DETECT_INVISIBLE,
+	     SPELL_ACID_BOLT,
+	     SPELL_SLOW_MONSTER),
+
+	/* Sorcery and Evocations */
+	BOOK(SPELL_FROST_BALL,
+	     SPELL_TELEPORT_OTHER,
+	     SPELL_HASTE_SELF,
+	     SPELL_MASS_SLEEP,
+	     SPELL_FIRE_BALL,
+	     SPELL_DETECT_ENCHANTMENT,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Resistances of Scarabtarices */
+	BOOK(SPELL_RESIST_COLD,
+	     SPELL_RESIST_FIRE,
+	     SPELL_RESIST_POISON,
+	     SPELL_RESISTANCE,
+	     SPELL_SHIELD,
+	     -1,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Raal's Tome of Destruction */
+	BOOK(SPELL_SHOCK_WAVE,
+	     SPELL_EXPLOSION,
+	     SPELL_CLOUD_KILL,
+	     SPELL_ACID_BALL,
+	     SPELL_ICE_STORM,
+	     SPELL_METEOR_SWARM,
+	     SPELL_RIFT,
+	     -1,
+	     -1),
+
+	/* Mordenkainen's Escapes */
+	BOOK(SPELL_DOOR_CREATION,
+	     SPELL_STAIR_CREATION,
+	     SPELL_TELEPORT_LEVEL,
+	     SPELL_WORD_OF_RECALL,
+	     SPELL_RUNE_OF_PROTECTION,
+	     -1,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Tenser's transformations */
+	BOOK(SPELL_HEROISM,
+	     SPELL_BERSERKER,
+	     SPELL_ENCHANT_ARMOR,
+	     SPELL_ENCHANT_WEAPON,
+	     SPELL_RECHARGE_ITEM_II,
+	     SPELL_ELEMENTAL_BRAND,
+	     -1,
+	     -1,
+	     -1),
+
+	/* Kelek's Grimoire of Power */
+	BOOK(SPELL_EARTHQUAKE,
+	     SPELL_BEDLAM,
+	     SPELL_REND_SOUL,
+	     SPELL_BANISHMENT,
+	     SPELL_WORD_OF_DESTRUCTION,
+	     SPELL_MASS_BANISHMENT,
+	     SPELL_CHAOS_STRIKE,
+	     SPELL_MANA_STORM,
+	     -1),
+	},
+
+	{
+		/*** Priest spell books ***/
+
+		/*Beginner's Handbook*/
+		BOOK(PRAYER_DETECT_EVIL,
+			 PRAYER_CURE_LIGHT_WOUNDS,
+			 PRAYER_BLESS,
+			 PRAYER_REMOVE_FEAR,
+			 PRAYER_CALL_LIGHT,
+			 PRAYER_FIND_TRAPS_DOORS_STAIRS,
+			 PRAYER_BOLT_OF_DRAINING,
+			 PRAYER_SLOW_POISON,
+			 -1),
+
+		/*Words of Wisdom*/
+		BOOK(PRAYER_SCARE_MONSTER,
+			 PRAYER_PORTAL,
+			 PRAYER_CURE_SERIOUS_WOUNDS,
+			 PRAYER_CHANT,
+			 PRAYER_SANCTUARY,
+			 PRAYER_SATISFY_HUNGER,
+			 PRAYER_REMOVE_CURSE,
+			 PRAYER_RESIST_HEAT_COLD,
+			 -1),
+
+		/*Chants and Blessings*/
+		BOOK(PRAYER_NEUTRALIZE_POISON,
+			 PRAYER_ORB_OF_DRAINING,
+			 PRAYER_CURE_CRITICAL_WOUNDS,
+			 PRAYER_SENSE_INVISIBLE,
+			 PRAYER_PROTECTION_FROM_EVIL,
+			 PRAYER_EARTHQUAKE,
+			 PRAYER_SENSE_SURROUNDINGS,
+			 PRAYER_CURE_MORTAL_WOUNDS,
+			 PRAYER_TURN_UNDEAD),
+
+		/*Exorcism and Dispelling*/
+		BOOK(PRAYER_PRAYER,
+			 PRAYER_DISPEL_UNDEAD,
+			 PRAYER_HEAL,
+			 PRAYER_DISPEL_EVIL,
+			 PRAYER_GLYPH_OF_WARDING,
+			 PRAYER_HOLY_WORD,
+			 -1,
+			 -1,
+			 -1),
+
+		/*Ethereal Openings*/
+		BOOK(PRAYER_BLINK,
+			 PRAYER_TELEPORT_SELF,
+			 PRAYER_TELEPORT_OTHER,
+			 PRAYER_TELEPORT_LEVEL,
+			 PRAYER_WORD_OF_RECALL,
+			 PRAYER_ALTER_REALITY,
+			 -1,
+			 -1,
+			 -1),
+
+		/*Godly Insights*/
+		BOOK(PRAYER_DETECT_MONSTERS,
+			 PRAYER_DETECTION,
+			 PRAYER_PERCEPTION,
+			 PRAYER_PROBING,
+			 PRAYER_CLAIRVOYANCE,
+			 -1,
+			 -1,
+			 -1,
+			 -1),
+
+		/*Purifications and Healing*/
+		BOOK(PRAYER_CURE_SERIOUS_WOUNDS2,
+			 PRAYER_CURE_MORTAL_WOUNDS2,
+			 PRAYER_HEALING,
+			 PRAYER_RESTORATION,
+			 PRAYER_REMEMBRANCE,
+			 -1,
+			 -1,
+			 -1,
+			 -1),
+
+		/*Holy Infusions*/
+		BOOK(PRAYER_UNBARRING_WAYS,
+			 PRAYER_RECHARGING,
+			 PRAYER_DISPEL_CURSE,
+			 PRAYER_ENCHANT_WEAPON,
+			 PRAYER_ENCHANT_ARMOUR,
+			 PRAYER_ELEMENTAL_BRAND,
+			 -1,
+			 -1,
+			 -1),
+
+		/*Wrath of God*/
+		BOOK(PRAYER_DISPEL_UNDEAD2,
+			 PRAYER_DISPEL_EVIL2,
+			 PRAYER_BANISH_EVIL,
+			 PRAYER_WORD_OF_DESTRUCTION,
+			 PRAYER_ANNIHILATION,
+			 -1,
+			 -1,
+			 -1,
+			 -1)
+	}
+};
+
+
+/*
+ * Names of the spells (mage spells then priest spells)
+ */
+cptr spell_names[2][PY_MAX_SPELLS] =
+{
+	/*** Mage Spells ***/
+
+	{
+		/*Magic for Beginners*/
+		"Magic Missile",
+		"Detect Monsters",
+		"Phase Door",
+		"Light Area",
+		"Detect Treasure",
+		"Cure Light Wounds",
+		"Detect Objects",
+		"Find Hidden Traps/Doors",
+		"Stinking Cloud",
+
+		/* Conjurings and Tricks */
+		"Confuse Monster",
+		"Lightning Bolt",
+		"Trap/Door Destruction",
+		"Cure Poison",
+		"Sleep Monster",
+		"Teleport Self",
+		"Spear of Light",
+		"Frost Bolt",
+		"Wonder",
+
+		/* Incantations and Illusions */
+		"Satisfy Hunger",
+		"Lesser Recharging",
+		"Turn Stone to Mud",
+		"Fire Bolt",
+		"Polymorph Other",
+		"Identify",
+		"Detect Invisible",
+		"Acid Bolt",
+		"Slow Monster",
+
+		/* Sorcery and Evocations */
+		"Frost Ball",
+		"Teleport Other",
+		"Haste Self",
+		"Mass Sleep",
+		"Fire Ball",
+		"Detect Enchantment",
+
+		/* Resistances of Scarabtarices */
+		"Resist Cold",
+		"Resist Fire",
+		"Resist Poison",
+		"Resistance",
+		"Shield",
+
+		/* Raal's Tome of Destruction */
+		"Shock Wave",
+		"Explosion",
+		"Cloudkill",
+		"Acid Ball",
+		"Ice Storm",
+		"Meteor Swarm",
+		"Rift",
+
+		/* Mordenkainen's Escapes */
+		"Door Creation",
+		"Stair Creation",
+		"Teleport Level",
+		"Word of Recall",
+		"Rune of Protection",
+
+		/* Tenser's transformations */
+		"Heroism",
+		"Berserker",
+		"Enchant Armor",
+		"Enchant Weapon",
+		"Greater Recharging",
+		"Elemental Brand",
+
+
+		/* Kelek's Grimoire of Power */
+		"Earthquake",
+		"Bedlam",
+		"Rend Soul",
+		"Banishment",
+		"Word of Destruction",
+		"Mass Banishment",
+		"Chaos Strike",
+		"Mana Storm"
+	},
+
+
+	/*** Priest Spells ***/
+
+	{
+		/* Beginners Handbook (sval 0) */
+		"Detect Evil",
+		"Cure Light Wounds",
+		"Bless",
+		"Remove Fear",
+		"Call Light",
+		"Find Doors/Stairs/Traps",
+		"Bolt of Draining",
+		"Slow Poison",
+
+		/* Words of Wisdom (sval 1) */
+		"Scare Monster",
+		"Portal",
+		"Cure Serious Wounds",
+		"Chant",
+		"Sanctuary",
+		"Satisfy Hunger",
+		"Remove Curse",
+		"Resist Heat and Cold",
+
+		/* Chants and Blessings (sval 2) */
+		"Neutralize Poison",
+		"Orb of Draining",
+		"Cure Critical Wounds",
+		"Sense Invisible",
+		"Protection from Evil",
+		"Earthquake",
+		"Sense Surroundings",
+		"Cure Mortal Wounds",
+		"Turn Undead",
+
+		/* Exorcism and Dispelling (sval 3) */
+		"Prayer",
+		"Dispel Undead",
+		"Heal",
+		"Dispel Evil",
+		"Glyph of Warding",
+		"Holy Word",
+
+		/* Godly Insights... (sval 5) */
+		"Detect Monsters",
+		"Detection",
+		"Perception",
+		"Probing",
+		"Clairvoyance",
+
+		/* Purifications and Healing (sval 6) */
+		"Cure Serious Wounds",
+		"Cure Mortal Wounds",
+		"Healing",
+		"Restoration",
+		"Remembrance",
+
+		/* Wrath of God (sval 8) */
+		"Dispel Undead",
+		"Dispel Evil",
+		"Banish Evil",
+		"Word of Destruction",
+		"Annihilation",
+
+		/* Holy Infusions (sval 7) */
+		"Unbarring Ways",
+		"Recharging",
+		"Dispel Curse",
+		"Enchant Weapon",
+		"Enchant Armour",
+		"Elemental Brand",
+
+		/* Ethereal openings (sval 4) */
+		"Blink",
+		"Teleport Self",
+		"Teleport Other",
+		"Teleport Level",
+		"Word of Recall",
+		"Alter Reality",
+
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	}
+};
+
+
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -1407,7 +1801,7 @@ cptr window_flag_desc[32] =
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
-	NULL,
+	"Display monster list",
 	"Display snap-shot",
 	"Display script variables",
 	"Display script source",
@@ -2471,7 +2865,7 @@ byte mana_cost_RF5[32]=
 	6, 			/* RF5_BALL_CONFU */
 	4, 			/* RF5_BALL_SOUND */
 	4, 			/* RF5_BALL_SHARD */
-	5, 			/* RF5_BALL_WIND */
+	0, 			/* RF5_XXX2 */
 	5, 			/* RF5_BALL_STORM */
 	6, 			/* RF5_BALL_NETHR */
 	7, 			/* RF5_BALL_CHAOS */
@@ -2609,7 +3003,7 @@ byte spell_desire_RF4[32][8] =
 	{ 65,  0,   0,   5,	0,   0, LRN_SHARD ,   90}, /* RF4_BRTH_SHARD*/
 	{ 65,  0,   0,   5,	0,   0,	   0	  ,   90}, /* RF4_BRTH_INER */
 	{ 65,  0,   0,   5,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_GRAV */
-	{ 65,  0,   0,   5,	0,   0,	   0	  ,   90}, /* RF4_BRTH_WIND */
+	{  0,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XX1X */
 	{ 65,  0,   0,   5,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_FORCE*/
 	{ 65,  0,   0,   5,	0,   0, LRN_NEXUS ,   90}, /* RF4_BRTH_NEXUS*/
 	{ 65,  0,   0,   5,	0,   0, LRN_NETHR ,   90}, /* RF4_BRTH_NETHR*/

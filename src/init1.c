@@ -317,7 +317,7 @@ static flag_name info_flags[] =
 	{"BRTH_SHARD", RF4, RF4_BRTH_SHARD},
 	{"BRTH_INER", RF4, RF4_BRTH_INER},
 	{"BRTH_GRAV", RF4, RF4_BRTH_GRAV},
-	{"BRTH_WIND", RF4, RF4_BRTH_WIND},
+	{"RF4_XX1X", RF4, RF4_RF4XX1X},
 	{"BRTH_FORCE", RF4, RF4_BRTH_FORCE},
 	{"BRTH_NEXUS", RF4, RF4_BRTH_NEXUS},
 	{"BRTH_NETHR", RF4, RF4_BRTH_NETHR},
@@ -350,7 +350,7 @@ static flag_name info_flags[] =
 	{"BALL_CONFU", RF5, RF5_BALL_CONFU},
 	{"BALL_SOUND", RF5, RF5_BALL_SOUND},
 	{"BALL_SHARD", RF5, RF5_BALL_SHARD},
-	{"BALL_WIND", RF5, RF5_BALL_WIND},
+	{"RF5XXX2", RF5, RF5_RF5_XXX2},
 	{"BALL_STORM", RF5, RF5_BALL_STORM},
 	{"BALL_NETHR", RF5, RF5_BALL_NETHR},
 	{"BALL_CHAOS", RF5, RF5_BALL_CHAOS},
@@ -1729,6 +1729,21 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr->time = ptime;
 		a_ptr->randtime = prand;
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&a_ptr->text, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -1915,6 +1930,21 @@ errr parse_e_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&e_ptr->text, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */

@@ -1260,7 +1260,7 @@ static int choose_ranged_attack(int m_idx)
 	}
 
 	/*remove bolts and archery shots*/
-	else if (path==PROJECT_NOT_CLEAR)
+	else if (path == PROJECT_NOT_CLEAR)
 	{
 		f4 &= ~(RF4_BOLT_MASK);
 		f4 &= ~(RF4_ARCHERY_MASK);
@@ -1332,10 +1332,20 @@ static int choose_ranged_attack(int m_idx)
 	if (want_tactic > 3) want_tactic=3;
 
 	/* Check terrain for purposes of summoning spells */
-	spaces=summon_possible(py,px);
+	spaces = summon_possible(py,px);
 	if (spaces > 10) want_summon=3;
 	else if (spaces > 3) want_summon=2;
 	else if (spaces > 0) want_summon=1;
+	else /*no spaces to summon*/
+	{
+		f4 &= ~(RF4_SUMMON_MASK);
+		f5 &= ~(RF5_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK);
+		f7 &= ~(RF7_SUMMON_MASK);
+
+		/* Check if no spells left */
+		if (!f4 && !f5 && !f6 && !f7) return (0);
+	}
 
 	/* Find monster properties; Add an offset so that things are OK near zero */
 	breath_hp = (m_ptr->hp > 2000 ? m_ptr->hp : 2000);

@@ -289,14 +289,15 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 /*
  * Teleport the player one level up or down (random when legal)
  */
-void teleport_player_level(void)
+void teleport_player_level(int who)
 {
+	byte kind_of_quest = quest_check(p_ptr->depth);
+
 	if (adult_ironman)
 	{
 		msg_print("Nothing happens.");
 		return;
 	}
-
 
 	if (!p_ptr->depth)
 	{
@@ -309,10 +310,28 @@ void teleport_player_level(void)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
+	else if ((kind_of_quest == QUEST_FIXED) ||
+			 (kind_of_quest == QUEST_FIXED_U) ||
 			 (p_ptr->depth >= MAX_DEPTH-1))
 	{
+		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+
+		/* New depth */
+		p_ptr->depth--;
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+	}
+
+	/*Not fair to fail the quest if the monster teleports player off*/
+	else if ((who >= 1) &&
+		((kind_of_quest == QUEST_GUILD) ||
+		 (kind_of_quest == QUEST_UNIQUE) ||
+		 (kind_of_quest == QUEST_VAULT)))
+	{
+		/*de-activate the quest*/
+		p_ptr->cur_quest = 0;
+
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
 		/* New depth */
@@ -343,6 +362,7 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
+
 }
 
 
@@ -491,11 +511,6 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Paranoia */
 	if (p_ptr->is_dead) return;
-
-#ifdef ALLOW_BORG
-	/* Mega-Hack -- Borg can't be hurt. */
-	if (count_stop) return;
-#endif  /* ALLOW_BORG */
 
 	/* Disturb */
 	disturb(1, 0);
@@ -867,7 +882,7 @@ static int inven_damage(inven_func typ, int perc, bool protected)
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
 		{
-			int percent = 100;
+			int percent = 125;
 
 			/* Rods are tough. */
 			if (o_ptr->tval == TV_ROD)
@@ -1185,6 +1200,9 @@ bool inc_stat(int stat)
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
+		/* Redisplay the stats later */
+		p_ptr->redraw |= (PR_STATS);
+
 		/* Success */
 		return (TRUE);
 	}
@@ -1204,7 +1222,7 @@ bool inc_stat(int stat)
  * if your stat is already drained, the "max" value will not drop all
  * the way down to the "cur" value.
  */
-bool dec_stat(int stat, int amount, int permanent)
+bool dec_stat(int stat, int amount,bool permanent)
 {
 	int cur, max, loss, same, res = FALSE;
 
@@ -1214,7 +1232,7 @@ bool dec_stat(int stat, int amount, int permanent)
 	max = p_ptr->stat_max[stat];
 
 	/* Note when the values are identical */
-	same = (cur == max);
+ 	same = (cur == max);
 
 	/* Damage "current" value */
 	if (cur > 3)
@@ -1305,6 +1323,9 @@ bool dec_stat(int stat, int amount, int permanent)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Redisplay the stats later */
+		p_ptr->redraw |= (PR_STATS);
 	}
 
 	/* Done */
@@ -1325,6 +1346,9 @@ bool res_stat(int stat)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Redisplay the stats later */
+		p_ptr->redraw |= (PR_STATS);
 
 		/* Success */
 		return (TRUE);
@@ -1497,7 +1521,7 @@ bool apply_disenchant(int mode)
 /*
  * Apply Nexus
  */
-static void apply_nexus(const monster_type *m_ptr)
+static void apply_nexus(const monster_type *m_ptr, int who)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 
@@ -1524,7 +1548,7 @@ static void apply_nexus(const monster_type *m_ptr)
 			}
 
 			/* Teleport Level */
-			teleport_player_level();
+			teleport_player_level(who);
 			break;
 		}
 
@@ -1885,8 +1909,11 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			/* Grid is in line of sight */
 			if (player_has_los_bold(y, x))
 			{
-				/* Observe */
-				obvious = TRUE;
+				if (!p_ptr->blind)
+				{
+					/* Observe */
+					obvious = TRUE;
+				}
 
 				/* Fully update the visuals */
 				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
@@ -2478,35 +2505,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			break;
 		}
 
-		/* Wind -- Hurts most monsters */
-		case GF_WIND:
-		{
-
-			if (seen) obvious = TRUE;
-
-			/* Wind-breathers and "air" monsters love wind */
-			if ((r_ptr->flags4 & (RF4_BRTH_WIND)) || prefix(name, "Air"))
-			{
-				note = " is unaffected!";
-				dam = 0;
-
-				if (seen) l_ptr->flags4 |= (RF4_BRTH_WIND);
-
-				break;
-			}
-
-			/* Wind doesn't affect ghosts very much */
-			if (strchr("G", r_ptr->d_char))
-			{
-				note = " resists.";
-				dam = div_round(dam, 3);
-				break;
-			}
-
-			break;
-		}
-
-
 		/* Chaos -- Chaos breathers resist */
 		case GF_CHAOS:
 		{
@@ -2672,7 +2670,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		case GF_GRAVITY:
 		{
 			if (seen) obvious = TRUE;
-			do_dist = 10;
+
+			/* Higher level monsters can resist the teleportation better */
+			if (randint(127) > r_ptr->level) do_dist = 10;
+
 			if (r_ptr->flags4 & (RF4_BRTH_GRAV))
 			{
 				note = " resists.";
@@ -3716,9 +3717,6 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 	/* Player blind-ness */
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
 
-	/* Player needs a "description" (he is blind) */
-	bool fuzzy = FALSE;
-
 	/* Source monster */
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -3741,9 +3739,6 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 	/* Limit maximum damage XXX XXX XXX */
 	if (dam > 1600) dam = 1600;
 
-	/* If the player is blind, be more descriptive */
-	if (blind) fuzzy = TRUE;
-
 	/* Get the source monster */
 	m_ptr = &mon_list[who];
 
@@ -3763,7 +3758,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{
-			if (fuzzy) msg_print("You are hit by acid!");
+			if (blind) msg_print("You are hit by acid!");
 			acid_dam(dam, killer);
 			break;
 		}
@@ -3771,7 +3766,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_FIRE:
 		{
-			if (fuzzy) msg_print("You are hit by fire!");
+			if (blind) msg_print("You are hit by fire!");
 			fire_dam(dam, killer);
 			break;
 		}
@@ -3779,7 +3774,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_COLD:
 		{
-			if (fuzzy) msg_print("You are hit by cold!");
+			if (blind) msg_print("You are hit by cold!");
 			cold_dam(dam, killer);
 			break;
 		}
@@ -3787,7 +3782,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ELEC:
 		{
-			if (fuzzy) msg_print("You are hit by lightning!");
+			if (blind) msg_print("You are hit by lightning!");
 			elec_dam(dam, killer);
 			break;
 		}
@@ -3795,7 +3790,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage -- also poisons player */
 		case GF_POIS:
 		{
-			if (fuzzy) msg_print("You are hit by poison!");
+			if (blind) msg_print("You are hit by poison!");
 			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
 			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
 			take_hit(dam, killer);
@@ -3809,7 +3804,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage */
 		case GF_MISSILE:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			break;
 		}
@@ -3817,7 +3812,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Holy Orb -- Player only takes partial damage */
 		case GF_HOLY_ORB:
 		{
-			if (fuzzy) msg_print("You are hit by a holy force!");
+			if (blind) msg_print("You are hit by a holy force!");
 			take_hit(dam, killer);
 			holy_orb_destroy(dam);
 			break;
@@ -3826,7 +3821,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Arrow -- no dodging XXX */
 		case GF_ARROW:
 		{
-			if (fuzzy) msg_print("You are hit by something sharp!");
+			if (blind) msg_print("You are hit by something sharp!");
 			take_hit(dam, killer);
 			break;
 		}
@@ -3834,7 +3829,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Plasma -- No resist XXX */
 		case GF_PLASMA:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			if (!p_ptr->resist_sound)
 			{
@@ -3847,7 +3842,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Nether -- drain experience */
 		case GF_NETHER:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_nethr)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
@@ -3876,7 +3871,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Water -- stun/confuse */
 		case GF_WATER:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
@@ -3892,12 +3887,12 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Chaos -- many effects */
 		case GF_CHAOS:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_chaos)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -3929,7 +3924,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Shards -- mostly cutting */
 		case GF_SHARD:
 		{
-			if (fuzzy) msg_print("You are hit by something sharp!");
+			if (blind) msg_print("You are hit by something sharp!");
 			if (p_ptr->resist_shard)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
@@ -3942,29 +3937,10 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Wind -- confusion, but rarely if res_confu */
-		case GF_WIND:
-		{
-			if (fuzzy) msg_print("You are buffeted by winds!");
-			if (dam > randint(200))
-			{
-				if ((!p_ptr->resist_confu) || (one_in_(6)))
-				{
-					msg_print("You are spun until dizzy!");
-					(void)set_confused(p_ptr->confused + rand_range(2, 3));
-				}
-			}
-
-			/* Take damage */
-			take_hit(dam, killer);
-
-			break;
-		}
-
 		/* Sound -- mostly stunning */
 		case GF_SOUND:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			if (p_ptr->resist_sound)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
@@ -3981,7 +3957,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Pure confusion */
 		case GF_CONFUSION:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			if (p_ptr->resist_confu)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
@@ -3997,7 +3973,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Disenchantment -- see above */
 		case GF_DISENCHANT:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_disen)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
@@ -4013,14 +3989,14 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Nexus -- see above */
 		case GF_NEXUS:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_nexus)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
 			{
-				apply_nexus(m_ptr);
+				apply_nexus(m_ptr, who);
 			}
 			take_hit(dam, killer);
 			break;
@@ -4029,7 +4005,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Force -- mostly stun */
 		case GF_FORCE:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
 				(void)set_stun(p_ptr->stun + randint(20));
@@ -4041,7 +4017,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Inertia -- slowness */
 		case GF_INERTIA:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
 			take_hit(dam, killer);
 			break;
@@ -4050,7 +4026,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Lite -- blinding */
 		case GF_LITE:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			if (p_ptr->resist_lite)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
@@ -4066,7 +4042,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Dark -- blinding */
 		case GF_DARK:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			if (p_ptr->resist_dark)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
@@ -4082,7 +4058,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Time -- bolt fewer effects XXX */
 		case GF_TIME:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 
 			switch (randint(10))
 			{
@@ -4133,23 +4109,28 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Gravity -- stun plus slowness plus teleport */
 		case GF_GRAVITY:
 		{
-			if (fuzzy) msg_print("You are hit by something strange!");
+			if (blind) msg_print("You are hit by something strange!");
 			msg_print("Gravity warps around you.");
-			teleport_player(5);
+
+			/* Higher level players can resist the teleportation better */
+			if (randint(127) > p_ptr->lev) teleport_player(5);
+
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k);
 			}
+
 			take_hit(dam, killer);
+
 			break;
 		}
 
 		/* Pure damage */
 		case GF_MANA:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			break;
 		}
@@ -4157,7 +4138,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Pure damage */
 		case GF_METEOR:
 		{
-			if (fuzzy) msg_print("You are hit by something!");
+			if (blind) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			break;
 		}
@@ -4165,7 +4146,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Ice -- cold plus stun plus cuts */
 		case GF_ICE:
 		{
-			if (fuzzy) msg_print("You are hit by something sharp!");
+			if (blind) msg_print("You are hit by something sharp!");
 			cold_dam(dam, killer);
 			if (!p_ptr->resist_shard)
 			{
@@ -4183,7 +4164,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		{
 			int power = (who > 0 ? r_ptr->level : p_ptr->depth);
 
-			if (fuzzy) msg_print("You feel spores all around you...");
+			if (blind) msg_print("You feel spores all around you...");
 
 			take_hit(dam, killer);
 
@@ -4885,7 +4866,6 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 		dam_at_dist[i] = dam_temp;
 	}
 
-
 	/* Sort the blast grids by distance, starting at the origin. */
 	for (i = 0, k = 0; i < rad; i++)
 	{
@@ -5109,9 +5089,16 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			/* Player is in this grid */
 			if (cave_m_idx[y][x] < 0)
 			{
+
 				/* Affect the player */
 				if (project_p(who, y, x, dam_at_dist[gd[i]], typ))
+				{
 					notice = TRUE;
+
+					/* Only affect the player once */
+					break;
+				}
+
 			}
 		}
 	}

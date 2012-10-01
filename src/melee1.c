@@ -2143,7 +2143,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			if (blind) msg_print("You hear something grunt with exertion.");
 			else if (spower < 8) msg_format("%^s hurls a rock at you.", m_name);
 			else msg_format("%^s hurls a boulder at you.", m_name);
-			mon_bolt(m_idx, GF_ARROW, get_dam(spower * 4, 4));
+			mon_bolt(m_idx, GF_ARROW, get_dam(spower * 3, 4));
 			break;
 		}
 
@@ -2403,21 +2403,14 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			else msg_format("%^s breathes gravity.", m_name);
 			mon_arc(m_idx, GF_GRAVITY, TRUE,
 			       MIN(m_ptr->hp / (r_ptr->flags2 & (RF2_POWERFUL) ? 4 : 8),
-				   (r_ptr->flags2 & (RF2_POWERFUL) ? 200 : 100)), 0,
+				   (r_ptr->flags2 & (RF2_POWERFUL) ? 300 : 150)), 0,
 				   (r_ptr->flags2 & (RF2_POWERFUL) ? 40 : 20));
 			break;
 		}
 
-		/* RF4_BRTH_WIND */
+		/* Unused */
 		case 96+21:
 		{
-			disturb(1, 0);
-			if (blind) msg_format("%^s breathes.", m_name);
-			else msg_format("%^s breathes winds.", m_name);
-			mon_arc(m_idx, GF_WIND, TRUE,
-			       MIN((m_ptr->hp / (r_ptr->flags2 & (RF2_POWERFUL) ? 3 : 6)),
-				   (r_ptr->flags2 & (RF2_POWERFUL) ? 400 : 150)), 0,
-				   (r_ptr->flags2 & (RF2_POWERFUL) ? 40 : 20));
 			break;
 		}
 
@@ -2809,31 +2802,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			break;
 		}
 
-		/* RF5_BALL_WIND */
+		/* RF5_Unused */
 		case 128+10:
 		{
-			disturb(1, 0);
-			if (spower < 10)
-			{
-				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s calls up a little blast of wind.", m_name);
-				rad = 3;
-			}
-			else if (spower < 50)
-			{
-				if (blind) msg_format("%^s calls out.", m_name);
-				else msg_format("%^s calls forth a whirlwind.", m_name);
-				rad = 4;
-			}
-			else
-			{
-				if (blind) msg_format("%^s calls out powerfully.", m_name);
-				else msg_format("%^s gestures wildly.", m_name);
-				msg_print("You are enveloped in a cyclone!");
-				rad = 5;
-			}
-
-			mon_ball(m_idx, GF_WIND, get_dam(5 * spower / 2, 4), rad);
 			break;
 		}
 
@@ -3557,7 +3528,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			}
 			else
 			{
-				teleport_player_level();
+				teleport_player_level(m_idx);
 			}
 			break;
 		}

@@ -10,9 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
-
 /*
  * This file includes code for eating food, drinking potions,
  * reading scrolls, aiming wands, using staffs, zapping rods,
@@ -581,7 +578,7 @@ void do_cmd_aim_wand(void)
  *
  * Unstack fully charged rods as needed.
  *
- * Hack -- rods of perception/banishment can be "cancelled"
+ * Hack -- rods of perception can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  */
 void do_cmd_zap_rod(void)

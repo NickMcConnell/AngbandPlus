@@ -733,9 +733,6 @@ void self_knowledge(void)
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
 
-
-
-
 	/* Get the current weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
@@ -2054,7 +2051,7 @@ bool ident_spell(void)
 	}
 
 
-	/* Identify it fully */
+	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
@@ -2168,7 +2165,7 @@ bool identify_fully(void)
 	}
 
 
-	/* Identify it fully */
+	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
@@ -2299,7 +2296,7 @@ static bool item_tester_hook_recharge(const object_type *o_ptr)
  * Should probably not "destroy" over-charged items, unless we
  * "replace" them by, say, a broken stick or some such.  The only
  * reason this is okay is because "scrolls of recharging" appear
- * BEFORE all staffs/wands/rods in the inventory.  Note that the
+ * BEFORE all staves/wands/rods in the inventory.  Note that the
  * new "auto_sort_pack" option would correctly handle replacing
  * the "broken" wand with any other item (i.e. a broken stick).
  *
@@ -3051,11 +3048,9 @@ bool banishment(void)
 
 	char typ;
 
-	bool result = FALSE;
-
-
 	/* Mega-Hack -- Get a monster symbol */
-	(void)get_com("Choose a monster race (by symbol) to banish: ", &typ);
+	if (!get_com("Choose a monster race (by symbol) to banish: ", &typ))
+		return FALSE;
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < mon_max; i++)
@@ -3078,11 +3073,11 @@ bool banishment(void)
 		/* Take some damage */
 		take_hit(randint(4), "the strain of casting Banishment");
 
-		/* Take note */
-		result = TRUE;
 	}
 
-	return (result);
+	/* Success */
+	return TRUE;
+
 }
 
 
@@ -3200,9 +3195,15 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	bool flag = FALSE;
 
-
 	/* Unused parameter */
 	(void)full;
+
+	/* No effect in town */
+	if (!p_ptr->depth)
+	{
+		msg_print("The ground shakes for a moment.");
+		return;
+	}
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
@@ -3337,6 +3338,12 @@ void earthquake(int cy, int cx, int r)
 
 	bool map[32][32];
 
+	/* No effect in town */
+	if (!p_ptr->depth)
+	{
+		msg_print("The ground shakes for a moment.");
+		return;
+	}
 
 	/* Paranoia -- Enforce maximum range */
 	if (r > 12) r = 12;
@@ -4424,6 +4431,12 @@ void brand_object(object_type *o_ptr, byte brand_type)
 
 		/* Brand the object */
 		o_ptr->name2 = brand_type;
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Enchant */
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);

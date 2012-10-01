@@ -1,23 +1,20 @@
                                 Your Character
 
 
-    (1) Races and Classes                                 (raceclas.txt)
-    (2) Attributes, Stats, Abilities                      (attribut.txt)
-    (3) The Character Screen                              (charscrn.txt)
-
-
-
+    (a) Races and Classes                                 (raceclas.txt)
+    (b) Attributes, Stats, Abilities                      (attribut.txt)
+    (c) The Character Screen                              (charscrn.txt)
 
 
 
 
 
 Help Commands:
-       ESC   : leave the online help
-       ?     : return to previous document or menu
-       space : advance one page
-       -     : back up one half page
-       /     : search (not case-sensitive)
-***** [1] raceclas.txt
-***** [2] attribut.txt
-***** [3] charscrn.txt
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity 
+
+***** [a] raceclas.txt
+***** [b] attribut.txt
+***** [c] charscrn.txt

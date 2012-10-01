@@ -74,7 +74,7 @@ objects or piles of objects may stack in a single floor grid.
 --- Object types ---
 
 Magical devices:
-     In NPPAngband, wands and staffs and rods all stack, and don't unstack 
+     In NPPAngband, wands, staves and rods all stack, and don't unstack 
 when used.
 
 Chests:

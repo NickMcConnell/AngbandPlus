@@ -2078,6 +2078,7 @@ void monster_death(int m_idx, int who)
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{
+
 		/* Get local object */
 		i_ptr = &object_type_body;
 
@@ -2125,6 +2126,9 @@ void monster_death(int m_idx, int who)
 		/* Take notes on treasure */
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
+
+	/* Update monster list window */
+	p_ptr->window |= PW_MONLIST;
 
 	/* Only process dungeon kills */
 	if (!p_ptr->depth) return;
@@ -3535,8 +3539,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Assume not floored */
 		floored = FALSE;
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Scan all objects in the grid */
 		if (easy_floor)
 		{
@@ -3613,8 +3615,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				s2 = "on ";
 			}
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Scan all objects in the grid */
 		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)

@@ -97,7 +97,7 @@
 
 # Version stamp (required)
 
-V:3.0.8
+V:3.0.9
 
 
 ##### Non-race (contains the player picture) #####
@@ -613,7 +613,7 @@ W:2:2:0:8
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 F:BASH_DOOR | ANIMAL
-D:A larger than normal feline, hissing loudly.  Its velvet claws conceal
+D:A larger than normal feline, hissing loudly.  Its velvet paws conceal
 D: a fistful of needles.
 
 
@@ -624,7 +624,7 @@ W:3:2:0:50
 B:TOUCH:EAT_GOLD:1d4
 F:UNIQUE | MALE | FORCE_MAXHP | RAND_25 | RAND_50
 F:DROP_90 | DROP_GOOD | DROP_GREAT | INVISIBLE | OPEN_DOOR
-F:BASH_DOOR | TAKE_ITEM | EVIL
+F:BASH_DOOR | TAKE_ITEM | EVIL | RES_DISEN
 D:Usually known as Gollum.  He's been sneaking, and he wants his
 D: 'precious.'
 
@@ -1659,7 +1659,7 @@ I:110:16d8:2:20:70
 W:10:1:0:40
 B:SPORE:UN_BONUS:1d6
 F:ATTR_MULTI | NEVER_MOVE | STUPID | EMPTY_MIND | IM_POIS
-F:NO_SLOW | NO_FEAR | NO_CONF | NO_SLEEP
+F:RES_DISEN | NO_SLOW | NO_FEAR | NO_CONF | NO_SLEEP
 S:SPELL_PCT_9 | POW_0
 S:DRAIN_MANA
 D:It is a strange glowing growth on the dungeon floor.
@@ -2077,9 +2077,9 @@ B:HIT:HURT:2d4
 F:MALE | FORCE_SLEEP | DROP_1D2 | SMART | HAS_LITE
 F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN | EVIL
 S:SPELL_PCT_40 | POW_4
-S:BALL_WIND | BOLT_ELEC | BOLT_FIRE | HASTE | ADD_MANA
-S:CURE | BLINK | BLIND | SLOW | HOLD
-S:S_ANT | S_ANIMAL
+S:BOLT_ELEC | BOLT_FIRE | HASTE | ADD_MANA | CURE
+S:BLINK | BLIND | SLOW | HOLD | S_ANT
+S:S_ANIMAL
 D:A priest devoted to Nature.
 
 
@@ -4145,8 +4145,8 @@ G:Q:v
 I:110:10d12:10:1:0
 W:32:1:78:300
 F:FORCE_SLEEP | NEVER_BLOW | NEVER_MOVE | INVISIBLE | EMPTY_MIND
-F:ANIMAL | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
-F:NO_SLEEP
+F:ANIMAL | RES_NEXUS | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
 S:SPELL_PCT_100 | POW_0
 S:BLINK | TELE_AWAY
 D:It is a very unstable, strange pulsing mound of flesh.
@@ -7026,9 +7026,8 @@ F:NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_18 | POW_1
 S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
 S:BRTH_PLAS | BRTH_LITE | BRTH_DARK | BRTH_CONFU | BRTH_SOUND
-S:BRTH_SHARD | BRTH_INER | BRTH_GRAV | BRTH_WIND | BRTH_FORCE
-S:BRTH_NEXUS | BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN | BRTH_TIME
-S:BRTH_MANA
+S:BRTH_SHARD | BRTH_INER | BRTH_GRAV | BRTH_FORCE | BRTH_NEXUS
+S:BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN | BRTH_TIME | BRTH_MANA
 D:An awesome vortex of pure magic, power radiates from its frame.
 
 
@@ -7257,11 +7256,11 @@ F:DROP_GREAT | SMART | HAS_LITE | OPEN_DOOR | BASH_DOOR
 F:LOW_MANA_RUN | EVIL | IM_ELEC | IM_FIRE | IM_COLD
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:SPELL_PCT_65 | POW_80
-S:BALL_ACID | BALL_FIRE | BALL_COLD | BALL_DARK | BALL_WIND
-S:BALL_WATER | BOLT_ICE | HASTE | ADD_MANA | HEAL
-S:CURE | TPORT | TELE_AWAY | TRAPS | FORGET
-S:MIND_BLAST | SCARE | BLIND | S_MONSTERS | S_ANIMAL
-S:S_HI_DRAGON | S_DEMON | S_UNDEAD
+S:BALL_ACID | BALL_FIRE | BALL_COLD | BALL_DARK | BALL_WATER
+S:BOLT_ICE | HASTE | ADD_MANA | HEAL | CURE
+S:TPORT | TELE_AWAY | TRAPS | FORGET | MIND_BLAST
+S:SCARE | BLIND | S_MONSTERS | S_ANIMAL | S_HI_DRAGON
+S:S_DEMON | S_UNDEAD
 D:Originally known as the White, Saruman fell prey to Sauron's wiles. 
 D: He seeks to emulate him and breeds orcs and trolls to fight for him. 
 D: He searches forever for the One Ring, to become a mighty
@@ -7582,9 +7581,8 @@ F:RES_DISEN | NO_SLOW | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_20 | POW_1
 S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
 S:BRTH_PLAS | BRTH_LITE | BRTH_DARK | BRTH_CONFU | BRTH_SOUND
-S:BRTH_SHARD | BRTH_INER | BRTH_GRAV | BRTH_WIND | BRTH_FORCE
-S:BRTH_NEXUS | BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN | BRTH_TIME
-S:BRTH_MANA
+S:BRTH_SHARD | BRTH_INER | BRTH_GRAV | BRTH_FORCE | BRTH_NEXUS
+S:BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN | BRTH_TIME | BRTH_MANA
 D:A shifting, swirling form.  It seems to be all colours and sizes and
 D: shapes, though the dominant form is that of a huge dog.  You feel
 D: very uncertain all of a sudden.
@@ -7681,8 +7679,7 @@ F:DEMON | EVIL | IM_ACID | IM_ELEC | IM_FIRE
 F:IM_COLD | IM_POIS | NO_SLOW | NO_STUN | NO_CONF
 F:NO_SLEEP
 S:SPELL_PCT_40 | POW_125
-S:BALL_ELEC | BALL_WIND | BOLT_ELEC | BOLT_MANA | MIND_BLAST
-S:S_HI_DEMON
+S:BALL_ELEC | BOLT_ELEC | BOLT_MANA | MIND_BLAST | S_HI_DEMON
 D:A winged humanoid demon from the Planes of Hell, Pazuzu grins
 D: inhumanely at you as he decides your fate.
 
@@ -7715,9 +7712,9 @@ F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN
 F:UNDEAD | EVIL | IM_FIRE | IM_COLD | IM_POIS
 F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_60 | POW_120
-S:BALL_WIND | BALL_NETHR | BALL_WATER | BOLT_ICE | BOLT_MANA
-S:BEAM_NETHR | ADD_MANA | TELE_TO | BRAIN_SMASH | SCARE
-S:SLOW | S_HI_UNDEAD
+S:BALL_NETHR | BALL_WATER | BOLT_ICE | BOLT_MANA | BEAM_NETHR
+S:ADD_MANA | TELE_TO | BRAIN_SMASH | SCARE | SLOW
+S:S_HI_UNDEAD
 D:A legion of evil undead druj animating the skeleton of a once mighty
 D: sorcerer.  His power is devastating and his speed unmatched in the
 D: underworld.  Flee his wrath!
@@ -9196,9 +9193,9 @@ F:NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_30 | POW_32
 S:BRTH_ACID | BRTH_ELEC | BRTH_FIRE | BRTH_COLD | BRTH_POIS
 S:BRTH_PLAS | BRTH_LITE | BRTH_DARK | BRTH_CONFU | BRTH_SOUND
-S:BRTH_SHARD | BRTH_INER | BRTH_GRAV | BRTH_WIND | BRTH_FORCE
-S:BRTH_NEXUS | BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN | BRTH_TIME
-S:BRTH_MANA | SCARE | BLIND | CONF
+S:BRTH_SHARD | BRTH_INER | BRTH_GRAV | BRTH_FORCE | BRTH_NEXUS
+S:BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN | BRTH_TIME | BRTH_MANA
+S:SCARE | BLIND | CONF
 D:An awesome wyrm of pure magic.  It seems to be all colours and sizes
 D: and shapes, though the dominant form is that of a great dragon.
 

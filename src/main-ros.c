@@ -242,7 +242,7 @@ enum
 #include "Desklib:Icon.h"
 #include "Desklib:Resource.h"
 #include "Desklib:SWI.h"
-#include "DeskLib:Str.h"    
+#include "DeskLib:Str.h"
 #include "Desklib:Time.h"
 #include "Desklib:Sound.h"
 #include "Desklib:KeyCodes.h"
@@ -257,7 +257,7 @@ enum
 #include "Desklib:KernelSWIs.h"
 #include "DeskLib:File.h"
 #include "DeskLib:Filing.h"
-        
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -563,24 +563,24 @@ static void set_keys(int claim);
 static void initialise_sound(void);
 static void play_sound(int event);
 
-/* Forward declarations of Term hooks, etc. */ 
-static void Term_init_acn(term *t);   
+/* Forward declarations of Term hooks, etc. */
+static void Term_init_acn(term *t);
 static errr Term_user_acn(int n);
-           
+
 #ifndef FULLSCREEN_ONLY
 static errr Term_curs_acn(int x, int y);
 static errr Term_text_acn(int x, int y, int n, byte a, cptr s);
-static errr Term_xtra_acn(int n, int v);  
+static errr Term_xtra_acn(int n, int v);
 static errr Term_wipe_acn(int x, int y, int n);
 static errr Term_xtra_acn_check(void);
 static errr Term_xtra_acn_event(void);
-static errr Term_xtra_acn_react(void);  
+static errr Term_xtra_acn_react(void);
 #endif /* FULLSCREEN_ONLY */
 
-static errr Term_curs_acnFS(int x, int y);  
-static errr Term_text_acnFS(int x, int y, int n, byte a, cptr s); 
-static errr Term_wipe_acnFS(int x, int y, int n);  
-static errr Term_xtra_acn_clearFS(void);  
+static errr Term_curs_acnFS(int x, int y);
+static errr Term_text_acnFS(int x, int y, int n, byte a, cptr s);
+static errr Term_wipe_acnFS(int x, int y, int n);
+static errr Term_xtra_acn_clearFS(void);
 static errr Term_xtra_acn_eventFS(int);
 static errr Term_xtra_acn_reactFS(int force);
 static void bored(void);
@@ -619,11 +619,11 @@ errr cached_fgets(FILE *fch, char *buffer, int max_len);
  | in the 'Game' Dynamic Area created by init_memory()
  | We attach these functions to the ralloc_aux and rnfree_aux hooks
  | that z-virt.c provides.
- */     
+ */
 #ifdef USE_DA
 static void* g_malloc(size_t size);
-static void* g_free(void *blk);  
-#else  
+static void* g_free(void *blk);
+#else
   #define g_malloc(size) malloc(size);
   #define g_free(block) free(block);
 #endif
@@ -802,7 +802,7 @@ static void f2printf(FILE *a, FILE *b, const char *fmt, ...)
 
 	if (a) fprintf(a, buffer);
 	if (b) fprintf(b, buffer);
-	
+
 	va_end(ap);
 }
 
@@ -833,7 +833,7 @@ static void final_acn(void)
 		char tmp[512];
 		strcpy(tmp, scrap_path);
 		tmp[strlen(tmp) - 1] = 0;	/* Remove trailing dot */
-		
+
 		/* ie. "*Wipe <scrapdir> r~c~v~f" */
 		SWI(4, 0, SWI_OS_FSControl, 27, tmp, 0, 1);
 	}
@@ -1030,7 +1030,7 @@ int fd_make(cptr file, int mode)
 
 	/* We keep track of up to 16 open files at any given time */
 	if (openfiles < 16) filehandle[openfiles++] = handle;
-                                                                                
+
 	return (int) handle;
 }
 
@@ -1131,7 +1131,7 @@ errr fd_write(int handle, const char *buf, size_t nbytes)
 
 	/* Check the handle is legal */
 	if (handle <= 0) return -1;
-	
+
 	unwritten = myFile_WriteBytes(handle, buf, (int)nbytes);
 
 	return unwritten ? 1 : 0;
@@ -1217,21 +1217,21 @@ errr path_build(char *buf, size_t max, cptr path, cptr file)
 	if (file[0] == '~')
 	{
 		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
+		my_strcpy(buf, file, max);
 	}
 
 	/* Absolute file, on "normal" systems */
 	else if (prefix(file, PATH_SEP) && !streq(PATH_SEP, ""))
 	{
 		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
+		my_strcpy(buf, file, max);
 	}
 
 	/* No path given */
 	else if (!path[0])
 	{
 		/* Use the file itself */
-		strnfmt(buf, max, "%s", file);
+		my_strcpy(buf, file, max);
 	}
 
 	/* Path and File */
@@ -1698,7 +1698,7 @@ static menu_ptr make_zfont_menu(const char *dir)
 					}
 					break;
 				}
-				
+
 				case filing_DIRECTORY:
 				case filing_IMAGEFILE:
 				{
@@ -1722,7 +1722,7 @@ static menu_ptr make_zfont_menu(const char *dir)
 							max_width = strlen(mi[entry].icondata.text);
 						entry++;
 					}
-					
+
 					break;
 				}
 			}
@@ -1818,7 +1818,7 @@ static void cache_palette(void)
 	/* Cache the ZapRedraw palette for it */
 	b.r_workarea = workspace;
 
-	if (b.r_mode != screen_mode.screen_mode) 
+	if (b.r_mode != screen_mode.screen_mode)
 		SWI(2, 0, SWI_ZapRedraw_ReadVduVars, 0, &b);
 
 	SWI(5, 0, SWI_ZapRedraw_CreatePalette, 2, &b, palette, zpalette, 256);
@@ -1914,7 +1914,7 @@ static void init_save_window(void)
 
 	/* Set the file icon */
 	Icon_printf(save_box, SAVE_ICON, "file_%03x", vfiletype);
-                                                         
+
 	saveblk = Save_InitSaveWindowHandler(save_box,	/* Window handle */
 										 TRUE,	/* it's part of a menu */
 										 FALSE,	/* not a window */
@@ -1955,7 +1955,7 @@ static BOOL Hnd_MenuWarning(event_pollblock * pb, void *ref)
 		}
 	}
 	else
-	{		
+	{
 		return FALSE;
 	}
 
@@ -2027,14 +2027,14 @@ static void initialise_r_data(void)
 		}
 
 		r_data = new_r_data;
-		zrb.r_data = r_data;		
+		zrb.r_data = r_data;
 
 		r_maxwid = maxwid;
 		r_maxhgt = maxhgt;
 	}
 
 	lo = (int *) r_data;
-                         
+
 
 	/* Make a dummy block where all lines point to the same empty line */
 	ld = r_data + (maxhgt + 1) * 4;
@@ -2346,7 +2346,7 @@ static void set_window_size(window_handle w, int width, int height)
 static void force_term_resize(term_data *t)
 {
 	int fw, fh;
-	set_up_zrb(t); 
+	set_up_zrb(t);
 
 	fw = zrb.r_charw << screen_eig.x;
 	fh = zrb.r_charh << screen_eig.y;
@@ -2399,7 +2399,7 @@ static BOOL Hnd_Caret(event_pollblock * pb, void *ref)
 {
 	if (ref) got_caret = 1;
 	else got_caret = 0;
-	
+
 	return TRUE;
 }
 
@@ -2634,10 +2634,10 @@ static BOOL Hnd_ResizeSet(event_pollblock *pb, void *ref)
 		return TRUE;
 	}
 
-	term_change_size(menu_term, newwid, newhgt); 
+	term_change_size(menu_term, newwid, newhgt);
 
 	return TRUE;
-}     
+}
 
 
 static BOOL Hnd_ResizeCancel(event_pollblock *pb, void *ref)
@@ -2722,7 +2722,7 @@ static void init_menus(void)
 
 	Menu_AddSubMenu(term_menu, TERM_MENU_INFO, (menu_ptr) info_box);
 	Menu_AddSubMenu(term_menu, TERM_MENU_WINDOWS, wind_menu);
-	
+
 	/* Add the handler for menu warnings */
 	EventMsg_Claim(message_MENUWARN, event_ANY, Hnd_MenuWarning, NULL);
 
@@ -2767,7 +2767,7 @@ static void clear_all_menu_ticks(menu_ptr mp)
 		if (mi->menuflags.data.ticked) mi->menuflags.data.ticked = 0;
 
 		if (mi->submenu.value != -1) clear_all_menu_ticks(mi->submenu.menu);
-		
+
 		mi++;
 	}
 	while (mi[-1].menuflags.data.last != 1);
@@ -3054,13 +3054,13 @@ static errr Term_xtra_acn(int n, int v)
 		{
 #ifndef FULLSCREEN_ONLY
 			if (fullscreen_font)
-			{    
+			{
 #endif
 				Term_xtra_acn_eventFS(v);
 #ifndef FULLSCREEN_ONLY
 			}
 			else
-			{              
+			{
 				if (v) return Term_xtra_acn_event();
 				else return Term_xtra_acn_check();
 			}
@@ -3080,7 +3080,7 @@ static errr Term_xtra_acn(int n, int v)
 		}
 
 		/* Flush input */
-		case TERM_XTRA_FLUSH:	
+		case TERM_XTRA_FLUSH:
 		{
 #ifndef FULLSCREEN_ONLY
 			if (fullscreen_font || got_caret)
@@ -3092,12 +3092,12 @@ static errr Term_xtra_acn(int n, int v)
 					v = 0;
 					while (v != 0xff) SWI(1, 2, SWI_OS_Byte, 122, 0, &v);
 				}
-				
+
                 /* Flush Kbd buffer */
 				SWI(3, 0, SWI_OS_Byte, 21, 0, 0);
 #ifndef FULLSCREEN_ONLY
 			}
-#endif			
+#endif
 			return 0;
 		}
 
@@ -3142,7 +3142,7 @@ static errr Term_xtra_acn(int n, int v)
 
 				refresh_window(t);	/* needed? */
 			}
-#endif			
+#endif
 			return 0;
 		}
 
@@ -3191,7 +3191,7 @@ static errr Term_xtra_acn(int n, int v)
 		case TERM_XTRA_SOUND:
 		{
 			if (enable_sound) play_sound(v);
-			
+
 			return 0;
 		}
 
@@ -3276,8 +3276,8 @@ static void term_data_link(term_data *td, int k)
 	t->always_text = TRUE;
 	t->never_frosh = TRUE;
 	/* Experiment (FS mode requires them) */
-              
-#ifdef FULLSCREEN_ONLY  
+
+#ifdef FULLSCREEN_ONLY
 	t->wipe_hook  = Term_wipe_acnFS;
 	t->xtra_hook  = Term_xtra_acnFS;
 	t->curs_hook  = Term_curs_acnFS;
@@ -3416,7 +3416,7 @@ static BOOL Hnd_Keypress(event_pollblock * pb, void *ref)
 				}
 
 			/* Send everything else onto the Term package */
-			default:  
+			default:
 				/* Take care of "special" keypresses */
 				switch (c)
 				{
@@ -3425,7 +3425,7 @@ static BOOL Hnd_Keypress(event_pollblock * pb, void *ref)
 						c = '\t';
 						break;
 					}
-                   
+
 					case keycode_PAGEUP:
 					{
 						c = '9';
@@ -3436,13 +3436,13 @@ static BOOL Hnd_Keypress(event_pollblock * pb, void *ref)
 					{
 						c = '3';
 						break;
-					}         
+					}
 
 					case keycode_COPY:
 					{
 						c = '1';
 						break;
-					}          
+					}
 
 					case keycode_HOME:
 					{
@@ -3607,9 +3607,9 @@ static void set_gamma_window_state(void)
 
 
 static void init_gamma_window(void)
-{                                 
+{
 	if (minimise_memory) return;
-	
+
 	gamma_win = Window_Create("gamma", template_TITLEMIN);
 	Event_Claim(event_REDRAW, gamma_win, event_ANY, Hnd_RedrawGamma, 0);
 	Event_Claim(event_CLICK, gamma_win, GAMMA_DOWN, Hnd_GammaClick, (void *)1);
@@ -3631,7 +3631,7 @@ static slider_info volume_slider;
 static void set_sound_window_state(void)
 {
 	if (minimise_memory) return;
-	
+
 	Icon_SetSelect(sound_win, SND_ENABLE, enable_sound);
 	Slider_SetValue(&volume_slider, sound_volume, NULL, NULL);
 
@@ -3886,7 +3886,7 @@ static void load_choices(void)
 		}
 
 		if (choices_version == 0)
-		{    
+		{
 			fclose(fp);
 			return;
 		}
@@ -4447,7 +4447,7 @@ static void initialise_terms(void)
 		Event_Claim(event_CLICK, data[0].w, event_ANY, Hnd_TermClick,
 					(void *)&(data[0]));
 		Event_Claim(event_CLOSE, data[0].w, event_ANY, Hnd_MainClose, NULL);
-	
+
 		for (i = 1; i < MAX_TERM_DATA; i++)
 		{
 			data[i].w = Window_Create("term", template_TITLEMIN);
@@ -4540,7 +4540,7 @@ static int ensure_path(char *p)
 		if (*p == '.')
 		{
 			*l = 0;
-			if (SWI(5, 0, SWI_OS_File, 8, tmp, 0, 0, 77)) 
+			if (SWI(5, 0, SWI_OS_File, 8, tmp, 0, 0, 77))
 				return 0;		/* Eeek! */
 		}
 		*l++ = *p++;
@@ -4802,7 +4802,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-          
+
 	/* 1.27 - new handling of -minimise-memory: */
 #ifndef FULLSCREEN_ONLY
 	if (minimise_memory)
@@ -4852,7 +4852,7 @@ int main(int argc, char *argv[])
 	if (!minimise_memory)
 	{
 		Event_Initialise(RISCOS_VARIANT);
-	
+
 		/* Load Templates */
 		Template_Initialise();
 		Template_LoadFile("Templates");
@@ -4901,7 +4901,7 @@ int main(int argc, char *argv[])
 
 	load_choices();
 	read_alarm_choices();
-	
+
 	init_file_paths(unixify_name(resource_path));
 
 	Start_Hourglass();			/* Paranoia */
@@ -4927,7 +4927,7 @@ int main(int argc, char *argv[])
 	if (start_fullscreen)
 	{
 #endif /* FULLSCREEN_ONLY */
-		enter_fullscreen_mode();   
+		enter_fullscreen_mode();
 #ifndef FULLSCREEN_ONLY
 	}
 	else
@@ -4964,7 +4964,7 @@ int main(int argc, char *argv[])
 	play_game(FALSE);
 
 	if (fullscreen_mode) leave_fullscreen_mode();
-    
+
 	Stop_Hourglass();
 
 	quit(NULL);
@@ -5117,7 +5117,7 @@ static void constrain_pointer(void)
 	/* Retrieve and store old (wimp) pointer position */
 	Wimp_GetPointerInfo(&ptr);
 	old_mouse_posn = ptr.pos;
-	
+
 	Pointer_RestrictToRect(r);
 
 	/* Turn the pointer off also */
@@ -5125,16 +5125,16 @@ static void constrain_pointer(void)
 }
 
 static void release_pointer(void)
-{             
+{
 	wimp_rect r;
 
 	r.min.x = r.max.x = old_mouse_posn.x;
 	r.min.y = r.max.y = old_mouse_posn.y;
 
 	Pointer_RestrictToRect(r);
-	
+
 	Pointer_Unrestrict();
-	 
+
 	/* Turn the pointer back on also */
 	SWI(2, 0, SWI_OS_Byte, 106, 1);
 }
@@ -5534,7 +5534,7 @@ static void leave_fullscreen_mode(void)
 
 	/* Restore the screen mode */
 	Wimp_SetMode(old_screenmode);
-	
+
 	/* Restore the Term interface */
 	term_change_size(&data[0], main_wid, main_hgt);
 
@@ -5545,7 +5545,7 @@ static void leave_fullscreen_mode(void)
 		t->wipe_hook = Term_wipe_acn;
 		t->curs_hook = Term_curs_acn;
 		t->text_hook = Term_text_acn;
-#endif		
+#endif
 		mark_ood(&(data[i]), 0, 0, data[i].t.wid, data[i].t.hgt);
 	}
 
@@ -5772,7 +5772,7 @@ static errr Term_xtra_acn_eventFS(int valid)
 		/* Check if there are keypresses in the buffer */
 		SWI(3, 3, SWI_OS_Byte, 128, 255, 0, NULL, &bl, &bh);
 		bl = (bl & 0xff) | (bh << 8);
-	
+
 		if (bl)
 		{
 			/* Read a keypress */
@@ -6086,9 +6086,9 @@ static void cleanup_memory(void)
  | If 'dag' is TRUE, an area is created for the game.
  */
 static void init_memory(int daf, int dag)
-{       
+{
 	os_error *e = NULL;
-	
+
 	if (!daf)
 	{
 		/* Paranoia */
@@ -6339,7 +6339,7 @@ static void* g_free(void *blk)
 	/* Shrink the heap as far as possible */
 	game_heap_size -=
 		Heap_ChangeHeapSize((heap) game_area_base, -MAX_G_DA_SIZE);
-		
+
 	/* Shrink the dynamic area if necessary */
 	s = game_area_size - game_heap_size;
 	if (s >= SHRINK_GRAN)
@@ -6813,7 +6813,7 @@ static errr Term_user_acn(int n)
 		display_line(2, 4, TERM_WHITE, "Use cursor up/down to select an option then cursor left/right to alter it.");
 		display_line(2, 5, TERM_WHITE, "Hit 'S' to save these settings (alarm settings are saved automatically).");
 		display_line(2, 6, TERM_WHITE, "Hit ESC to return to the game.");
-                        
+
 		for (k = 0; k < 32; k++) Term_putch(31 + k + (k / 2), 8, k / 2, '#');
 
 		do
@@ -7960,7 +7960,7 @@ static void check_alarm()
 #ifndef FULLSCREEN_ONLY
 	if (!fullscreen_font && alarm_disp)
 		trigger_alarm_desktop();
-#endif /* FULLSCREEN_ONLY */		
+#endif /* FULLSCREEN_ONLY */
 }
 
 

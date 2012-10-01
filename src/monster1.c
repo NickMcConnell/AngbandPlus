@@ -244,7 +244,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags4 & (RF4_BRTH_SHARD))      vp[vn++] = "shards";
 	if (l_ptr->flags4 & (RF4_BRTH_INER))       vp[vn++] = "inertia";
 	if (l_ptr->flags4 & (RF4_BRTH_GRAV))       vp[vn++] = "gravity";
-	if (l_ptr->flags4 & (RF4_BRTH_WIND))       vp[vn++] = "winds";
 	if (l_ptr->flags4 & (RF4_BRTH_FORCE))      vp[vn++] = "force";
 
 	if (l_ptr->flags4 & (RF4_BRTH_NEXUS))      vp[vn++] = "nexus";
@@ -350,13 +349,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (spower < 10) vp[vn++] = "produce blasts of shards";
 		else if (spower < 50) vp[vn++] = "produce whirlwinds of shards";
 		else vp[vn++] = "call up storms of knives";
-	}
-
-	if (l_ptr->flags5 & (RF5_BALL_WIND))
-	{
-		if (spower < 10) vp[vn++] = "produce blasts of wind";
-		else if (spower < 50) vp[vn++] = "produce whirlwinds";
-		else vp[vn++] = "call up cyclones";
 	}
 
 	if (l_ptr->flags5 & (RF5_BALL_STORM))
@@ -1488,8 +1480,7 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		else if (r_ptr->speed > 134) text_out_c(TERM_GREEN, " extremely");
 		else if (r_ptr->speed > 129) text_out_c(TERM_GREEN, " very");
 		else if (r_ptr->speed > 124) text_out_c(TERM_GREEN, " exceedingly");
-		else if (r_ptr->speed > 119) text_out_c(TERM_GREEN, "");
-		else if (r_ptr->speed > 114) text_out_c(TERM_GREEN, " somewhat");
+		else if (r_ptr->speed < 120) text_out_c(TERM_GREEN, " somewhat");
 		text_out_c(TERM_GREEN, " quickly");
 
 	}

@@ -1049,9 +1049,12 @@ void do_squelch_pile(int y, int x)
 
     	next_o_idx = o_ptr->next_o_idx;
 
-    	sq_flag=(k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
+    	sq_flag = (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
 
     	sq_flag &= !artifact_p(o_ptr);
+
+		/*always squelch "&nothing*/
+		if (!o_ptr->k_idx) sq_flag = TRUE;
 
 		/*never delete quest items*/
     	if ((sq_flag) && (!(o_ptr->ident & IDENT_QUEST)))

@@ -296,60 +296,94 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 static int get_num_blows(const object_type *o_ptr, u32b f1)
 {
 
-	/*i_ptr is actual wielded weapon*/
-	/*o_ptr is weapon being examined*/
+	int i, str_index, dex_index, blows, div_weight;
 
-	object_type *i_ptr = &inventory[INVEN_WIELD];
+	int str = 0;
+	int dex = 0;
 
-	int str_index, dex_index, blows, adj_stat, div_weight;
+	/* Calculate stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		int add, use, ind;
 
-	u32b wf1 = 0;
-	u32b wf2 = 0;
-	u32b wf3 = 0;
+		/*only do dex and strength*/
+		if ((i != A_STR) && (i != A_DEX)) continue;
 
-	/* Extract the wielded item flags */
-	if (i_ptr->k_idx) object_flags(i_ptr, &wf1, &wf2, &wf3);
+		/*stats from equipment to be added in later*/
+		add = 0;
+
+		/* Maximize mode */
+		if (adult_maximize)
+		{
+			/* Modify the stats for race/class */
+			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+		}
+
+		/* Extract the new "stat_use" value for the stat */
+		use = modify_stat_value(p_ptr->stat_cur[i], add);
+
+		/* Values: 3, 4, ..., 17 */
+		if (use <= 18) ind = (use - 3);
+
+		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
+		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
+
+		/* Range: 18/220+ */
+		else ind = (37);
+
+		/*record the values*/
+		if (i == A_STR) str = ind;
+		else dex = ind;
+	}
+
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+
+		u32b wf1, wf2, wf3;
+		object_type *i_ptr = &inventory[i];
+
+		/* Hack -- do not apply wielded "weapon" bonuses */
+		if (i == INVEN_WIELD) continue;
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags_known(i_ptr, &wf1, &wf2, &wf3);
+
+		/* Affect stats */
+		if (wf1 & (TR1_STR)) str += i_ptr->pval;
+		if (wf1 & (TR1_DEX)) dex += i_ptr->pval;
+
+	}
 
 	/* Enforce a minimum "weight" (tenth pounds) */
 	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 
-	/*get the player strength*/
-	adj_stat = p_ptr->stat_ind[A_STR];
+	/* add in the strength of the examined weapon*/
+	if (f1 & (TR1_STR)) str += o_ptr->pval;
 
-	/*first take out the strength adjustment for the wielded weapon*/
-	if (wf1 & (TR1_STR)) adj_stat -= i_ptr->pval;
-
-	/*next add in the strength of the potential weapon but only if the weapon is ID'ed*/
-	if ((o_ptr->ident & (IDENT_KNOWN)) && (f1 & (TR1_STR)))
-	    adj_stat += o_ptr->pval;
-
-	/* Maximal value */
-	if (adj_stat > 37) adj_stat = 37;
-	if (adj_stat < 0) adj_stat = 0;
+	/* Maximal and maximal value */
+	if (str > 37) str = 37;
+	if (str < 0) str = 0;
 
 	/* Get the strength vs weight */
-	str_index = (adj_str_blow[adj_stat] * cp_ptr->att_multiply / div_weight);
+	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
 
 	/* Maximal value */
 	if (str_index > 11) str_index = 11;
 	if (str_index < 0) str_index = 0;
 
-	/*get the player dex*/
-	adj_stat = p_ptr->stat_ind[A_DEX];
+	/* add in the dex of the examined weapon*/
+	if (f1 & (TR1_DEX)) dex += o_ptr->pval;
 
-	/*first take out the dex adjustment for the wielded weapon*/
-	if (wf1 & (TR1_DEX)) adj_stat -= i_ptr->pval;
-
-	/*next add in the dex of the potential weapon but only if the weapon is ID'ed*/
-	if ((o_ptr->ident & (IDENT_KNOWN)) && (f1 & (TR1_DEX)))
-	    adj_stat += o_ptr->pval;
-
-	/* Maximal value */
-	if (adj_stat > 37) adj_stat = 37;
-	if (adj_stat < 0) adj_stat = 0;
+	/* Maximal and maximal value */
+	if (dex > 37) dex = 37;
+	if (dex < 0) dex = 0;
 
 	/* Index by dexterity */
-	dex_index = (adj_dex_blow[adj_stat]);
+	dex_index = (adj_dex_blow[dex]);
 
 	/* Maximal value */
 	if (dex_index > 11) dex_index = 11;
@@ -361,11 +395,8 @@ static int get_num_blows(const object_type *o_ptr, u32b f1)
 	/* Maximal value */
 	if (blows > cp_ptr->max_attacks) blows = cp_ptr->max_attacks;
 
-	/* Add in the "bonus blows", but only if the weapon is known */
-	if ((f1 & (TR1_BLOWS)) && (o_ptr->ident & (IDENT_KNOWN)))
-	{
-		blows += o_ptr->pval;
-	}
+	/* Add in the "bonus blows"*/
+	if (f1 & (TR1_BLOWS)) blows += o_ptr->pval;
 
 	/* Require at least one blow */
 	if (blows < 1) blows = 1;
@@ -595,8 +626,13 @@ bool object_info_out(const object_type *o_ptr)
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
 	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
 	{
-		text_out("It might have hidden powers.  ");
-		something = TRUE;
+		/* Hack -- Put this in a separate paragraph if screen dump */
+		if (something && text_out_hook == text_out_to_screen)
+			text_out("\n\n   ");
+
+		text_out("It might have hidden powers.");
+ 		something = TRUE;
+
 	}
 
 	/* We are done. */
@@ -606,11 +642,15 @@ bool object_info_out(const object_type *o_ptr)
 
 /*
  * Header for additional information when printing to screen.
+ *
+ * Header for additional information when printing to screen.
  */
-static void screen_out_head(const object_type *o_ptr)
+static bool screen_out_head(const object_type *o_ptr)
 {
 	char *o_name;
 	int name_size = Term->wid;
+
+	bool has_description = FALSE;
 
 	/* Allocate memory to the size of the screen */
 	o_name = C_RNEW(name_size, char);
@@ -622,14 +662,37 @@ static void screen_out_head(const object_type *o_ptr)
 	text_out_c(TERM_YELLOW, format("%^s\n\n   ", o_name));
 
 	/* Free up the memory */
-	KILL(o_name);
+	FREE(o_name);
 
-	/* Display the object description */
-	if (k_info[o_ptr->k_idx].text)
+	/* Display the known artifact description */
+	if (!adult_rand_artifacts && o_ptr->name1 &&
+	    object_known_p(o_ptr) && a_info[o_ptr->name1].text)
+
 	{
-		text_out(k_text + k_info[o_ptr->k_idx].text);
-		text_out("\n\n");
+		text_out(a_text + a_info[o_ptr->name1].text);
+		text_out("\n\n   ");
+		has_description = TRUE;
 	}
+	/* Display the known object description */
+	else if (object_aware_p(o_ptr) || object_known_p(o_ptr))
+	{
+		if (k_info[o_ptr->k_idx].text)
+		{
+			text_out(k_text + k_info[o_ptr->k_idx].text);
+			text_out("\n\n   ");
+			has_description = TRUE;
+		}
+
+		/* Display an additional ego-item description */
+		if (o_ptr->name2 && object_known_p(o_ptr) && e_info[o_ptr->name2].text)
+		{
+			text_out(e_text + e_info[o_ptr->name2].text);
+			text_out("\n\n   ");
+			has_description = TRUE;
+		}
+	}
+
+	return (has_description);
 }
 
 
@@ -638,37 +701,63 @@ static void screen_out_head(const object_type *o_ptr)
  */
 void object_info_screen(const object_type *o_ptr)
 {
+	bool has_description, has_info;
+
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
 
-	/* Hack -- Browse books */
+	/* Save the screen */
+	screen_save();
+
+	has_description = screen_out_head(o_ptr);
+
+	object_info_out_flags = object_flags_known;
+
+	/* Dump the info */
+	has_info = object_info_out(o_ptr);
+
+	if (!object_known_p(o_ptr))
+	{
+		if (has_info)
+			text_out("\n\n   ");
+		text_out("This item has not been identified.");
+		has_info = TRUE;
+
+	}
+	else if ((!has_description) && (!has_info) && (o_ptr->tval != cp_ptr->spell_book))
+	{
+		text_out("This item does not seem to possess any special abilities.");
+	}
+
+	/* Descriptions end with "\n\n   ", other info does not */
+	if (has_description && !has_info)
+	{
+		/* Back up over the "   " at the beginning of the line */
+		int x, y;
+		Term_locate(&x, &y);
+		Term_gotoxy(0, y);
+	}
+	else
+	{
+		text_out("\n\n");
+	}
+
+	if (o_ptr->tval != cp_ptr->spell_book)
+	{
+		text_out_c(TERM_L_BLUE, "[Press any key to continue]\n");
+
+		/* Wait for input */
+		(void)inkey();
+	}
+
+	/* Load the screen */
+	screen_load();
+
+	/* Hack -- Browse book, then prompt for a command */
 	if (o_ptr->tval == cp_ptr->spell_book)
 	{
 		/* Call the aux function */
 		do_cmd_browse_aux(o_ptr);
-	}
-	else
-	{
-		/* Save the screen */
-		screen_save();
-
-		screen_out_head(o_ptr);
-
-		object_info_out_flags = object_flags_known;
-
-		/* Dump the info */
-		if (!object_info_out(o_ptr))
-		{
-			text_out("This item does not seem to possess any special abilities.  ");
-		}
-
-		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
-
-		/* Wait for input */
-		(void)inkey();
-
-		/* Load the screen */
-		screen_load();
 	}
 
 	return;

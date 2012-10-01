@@ -10,11 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
-void recharged_notice(object_type *o_ptr); /*prototype for recharged_notice*/
-
-
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
@@ -171,7 +166,7 @@ static void sense_inventory(void)
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
 
-		/* It is fully known, no information needed */
+		/* It is known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
 		/* Occasional failure on inventory items */
@@ -407,6 +402,54 @@ static void regen_monsters(void)
 
 
 
+/*
+ * If player has inscribed the object with "!!", let him know when it's
+ * recharged. -LM-
+ */
+static void recharged_notice(object_type *o_ptr)
+{
+	char o_name[120];
+
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return;
+
+	/* Find a '!' */
+	s = strchr(quark_str(o_ptr->note), '!');
+
+	/* Process notification request. */
+	while (s)
+	{
+		/* Find another '!' */
+		if (s[1] == '!')
+		{
+			/* Describe (briefly) */
+			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
+
+			/* Notify the player */
+			if (o_ptr->number > 1)
+				msg_format("Your %s are all recharged.", o_name);
+
+			/*artifacts*/
+			else if (o_ptr->name1)
+			{
+				msg_format("The %s has recharged.", o_name);
+			}
+
+			/*single, non-artifact items*/
+			else msg_format("Your %s has recharged.", o_name);
+
+			/* Done. */
+			return;
+		}
+
+		/* Keep looking for '!'s */
+		s = strchr(s + 1, '!');
+	}
+}
+
+
 
 /*
  * Handle certain things once every 10 game turns
@@ -438,7 +481,7 @@ static void process_world(void)
 	if (!(turn % 1000))
 	{
 		/* Check time and load */
-		if ((0 != check_time()) || (0 != check_load()))
+		if (0 != check_time())
 		{
 			/* Warning */
 			if (closing_flag <= 2)
@@ -1147,45 +1190,6 @@ static void process_world(void)
 		}
 	}
 
-#ifdef ALLOW_BORG
-	if (count_stop)
-	{
-		/* The borg is always in perfect health */
-
-		/* Remove curses */
-		(void)remove_all_curse();
-
-		/* Restore stats */
-		(void)res_stat(A_STR);
-		(void)res_stat(A_INT);
-		(void)res_stat(A_WIS);
-		(void)res_stat(A_CON);
-		(void)res_stat(A_DEX);
-		(void)res_stat(A_CHR);
-
-		/* Restore experience. */
-		p_ptr->exp = p_ptr->max_exp;
-
-		/* No maladies */
-		p_ptr->blind = 0;
-		p_ptr->confused = 0;
-		p_ptr->poisoned = 0;
-		p_ptr->afraid = 0;
-		p_ptr->paralyzed = 0;
-		p_ptr->image = 0;
-		p_ptr->slow = 0;
-		p_ptr->stun = 0;
-		p_ptr->cut = 0;
-
-		/* Fully healed */
-		p_ptr->chp = p_ptr->mhp;
-		p_ptr->chp_frac = 0;
-
-		/* No longer hungry */
-		p_ptr->food = PY_FOOD_MAX - 1;
-	}
-#endif  /* ALLOW_BORG */
-
 }
 
 /*
@@ -1296,9 +1300,6 @@ static void process_command(void)
 	repeat_check();
 
 #endif /* ALLOW_REPEAT */
-
-	/* Event -- process command */
-	if (process_command_hook(p_ptr->command_cmd)) return;
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -2208,8 +2209,6 @@ static void process_player(void)
 				/* Redraw the state */
 				p_ptr->redraw |= (PR_STATE);
 
-				/* Redraw stuff */
-				/* redraw_stuff(); */
 			}
 		}
 
@@ -2507,7 +2506,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_MONLIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
@@ -2942,16 +2941,6 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
-	/* Call "start game" event handler */
-	if (new_game)
-	{
-		/* Event -- start game */
-		start_game_hook();
-
-		/* Event -- enter level */
-		enter_level_hook();
-	}
-
 	/* Process */
 	while (TRUE)
 	{
@@ -3086,65 +3075,12 @@ void play_game(bool new_game)
 		/* Handle "death" */
 		if (p_ptr->is_dead) break;
 
-		/* "Leaving level" event */
-		leave_level_hook();
-
 		/* Make a new level */
 		generate_cave();
 
-		/* "Entering level" event */
-		enter_level_hook();
 	}
 
 	/* Close stuff */
 	close_game();
-}
-
-
-/*
- * If player has inscribed the object with "!!", let him know when it's
- * recharged. -LM-
- */
-void recharged_notice(object_type *o_ptr)
-{
-	char o_name[120];
-
-	cptr s;
-
-	/* No inscription */
-	if (!o_ptr->note) return;
-
-	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
-
-	/* Process notification request. */
-	while (s)
-	{
-		/* Find another '!' */
-		if (s[1] == '!')
-		{
-			/* Describe (briefly) */
-			object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
-
-			/* Notify the player */
-			if (o_ptr->number > 1)
-				msg_format("Your %s are all recharged.", o_name);
-
-			/*artifacts*/
-			else if (o_ptr->name1)
-			{
-				msg_format("The %s has recharged.", o_name);
-			}
-
-			/*single, non-artifact items*/
-			else msg_format("Your %s has recharged.", o_name);
-
-			/* Done. */
-			return;
-		}
-
-		/* Keep looking for '!'s */
-		s = strchr(s + 1, '!');
-	}
 }
 

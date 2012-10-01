@@ -1589,6 +1589,7 @@ K:511:11/-109
 # Player
 R:0:1/-5
 
+
 # Filthy street urchin
 R:1:8/-12
 
@@ -1610,25 +1611,25 @@ R:6:5/-12
 # Village idiot
 R:7:13/-12
 
-# Pitiful looking beggar
+# Pitiful-looking beggar
 R:8:15/-12
 
-# Mangy looking leper
+# Mangy-looking leper
 R:9:7/-12
 
-# Squint eyed rogue
+# Squint-eyed rogue
 R:10:6/-12
 
 # Singing, happy drunk
 R:11:11/-12
 
-# Aimless looking merchant
+# Aimless-looking merchant
 R:12:3/-12
 
-# Mean looking mercenary
+# Mean-looking mercenary
 R:13:4/-12
 
-# Battle scarred veteran
+# Battle-scarred veteran
 R:14:14/-12
 
 # Grey mold
@@ -1868,7 +1869,7 @@ R:92:7/-19
 # Giant brown bat
 R:93:7/-30
 
-# Novice archer
+# Kobold archer
 R:94:9/-16
 
 # Creeping silver coins
@@ -1892,13 +1893,13 @@ R:100:7/-11
 # Bloodshot eye
 R:101:4/-27
 
-# Pink naga
+# Red naga
 R:102:12/-18
 
-# Pink jelly
+# Red jelly
 R:103:12/-22
 
-# Giant pink frog
+# Giant red frog
 R:104:12/-74
 
 # Green icky thing
@@ -1982,7 +1983,7 @@ R:130:2/-28
 # Baby red dragon
 R:131:4/-28
 
-# Giant pink ant
+# Giant red ant
 R:132:12/-31
 
 # Brodda, the Easterling
@@ -2018,7 +2019,7 @@ R:142:3/-19
 # Disenchanter mold
 R:143:10/-19
 
-# Pseudo dragon
+# Pseudo-dragon
 R:144:3/-28
 
 # Tengu
@@ -2039,7 +2040,7 @@ R:149:7/-26
 # Brigand
 R:150:6/-16
 
-# Baby multi-hued dragon
+# Baby chromatic dragon
 R:151:10/-28
 
 # Hippogriff
@@ -2189,7 +2190,7 @@ R:199:1/-76
 # Griffon
 R:200:7/-84
 
-# Homonculous
+# Homunculus
 R:201:11/-11
 
 # Gnome mage
@@ -2240,7 +2241,7 @@ R:216:7/-79
 # Water spirit
 R:217:2/-87
 
-# Giant pink scorpion
+# Giant red scorpion
 R:218:12/-73
 
 # Earth spirit
@@ -2258,7 +2259,7 @@ R:222:1/-66
 # Energy hound
 R:223:6/-66
 
-# Mimic (potion)
+# Potion mimic
 R:224:1/-110
 
 # Blink dog
@@ -2312,7 +2313,7 @@ R:240:11/-26
 # Water hound
 R:241:2/-66
 
-# Chimera
+# Chimaera
 R:242:4/-84
 
 # Quylthulg
@@ -2330,16 +2331,16 @@ R:246:8/-24
 # Cloud giant
 R:247:6/-76
 
-# Ugluk, the Uruk
+# Lugdush, the Uruk
 R:248:6/-17
 
-# Lugdush, the Uruk
+# Ugluk, the Uruk
 R:249:6/-17
 
 # Blue dragon bat
 R:250:6/-30
 
-# Mimic (scroll)
+# Scroll mimic
 R:251:1/-107
 
 # Fire vortex
@@ -2432,7 +2433,7 @@ R:280:8/-9
 # Carrion crawler
 R:281:3/-29
 
-# Killer pink beetle
+# Killer red beetle
 R:282:12/-81
 
 # Giant grey ant
@@ -2444,7 +2445,7 @@ R:284:15/-16
 # Displacer beast
 R:285:8/-26
 
-# Giant red tick
+# Giant fire tick
 R:286:4/-73
 
 # Cave ogre
@@ -2459,7 +2460,7 @@ R:289:3/-91
 # Mim, Betrayer of Turin
 R:290:3/-24
 
-# Killer red beetle
+# Killer fire beetle
 R:291:4/-81
 
 # Creeping adamantite coins
@@ -2483,7 +2484,7 @@ R:297:5/-77
 # Vampire
 R:298:10/-70
 
-# Gorgimera
+# Gorgimaera
 R:299:3/-84
 
 # Colbran
@@ -2516,7 +2517,7 @@ R:308:6/-74
 # Ice troll
 R:309:1/-72
 
-# Giant purple worm
+# Purple worm
 R:310:10/-9
 
 # Maglor, Son of Feanor
@@ -2525,7 +2526,7 @@ R:311:3/-24
 # Catoblepas
 R:312:5/-15
 
-# Mimic (ring)
+# Ring mimic
 R:313:1/-109
 
 # Young blue dragon
@@ -2600,7 +2601,7 @@ R:336:3/-16
 # Barrow wight
 R:337:10/-69
 
-# Giant skeleton troll
+# Skeleton ettin
 R:338:1/-13
 
 # Chaos drake
@@ -2669,7 +2670,7 @@ R:359:7/-87
 # Air elemental
 R:360:14/-87
 
-# Hell hound
+# Hellhound
 R:361:4/-89
 
 # Eog golem
@@ -2708,7 +2709,7 @@ R:372:2/-28
 # Mumak
 R:373:2/-15
 
-# Giant red ant
+# Giant fire ant
 R:374:4/-31
 
 # Mature white dragon
@@ -2726,7 +2727,7 @@ R:378:10/-85
 # Grey wraith
 R:379:2/-69
 
-# Young multi-hued dragon
+# Young chromatic dragon
 R:380:10/-28
 
 # Colossus
@@ -2783,7 +2784,7 @@ R:397:4/-87
 # Black pudding
 R:398:8/-22
 
-# Killer blue beetle
+# Killer iridescent beetle
 R:399:6/-81
 
 # Nexus vortex
@@ -2804,7 +2805,7 @@ R:404:10/-28
 # Mature black dragon
 R:405:2/-28
 
-# Mature multi-hued dragon
+# Mature chromatic dragon
 R:406:10/-28
 
 # Death knight
@@ -2894,7 +2895,7 @@ R:434:4/-79
 # Enchantress
 R:435:12/-16
 
-# Maedhros, Son of Feanor 
+# Maedhros, Son of Feanor
 R:436:3/-24
 
 # Sorcerer
@@ -2936,7 +2937,7 @@ R:448:8/-11
 # Adunaphel the Quiet
 R:449:8/-69
 
-# Dark elven sorceror
+# Dark elven sorcerer
 R:450:10/-24
 
 # Master lich
@@ -2972,7 +2973,7 @@ R:460:3/-85
 # Mumak
 R:461:2/-15
 
-# Ancient multi-hued dragon
+# Ancient chromatic dragon
 R:462:10/-88
 
 # Ethereal dragon
@@ -3035,7 +3036,7 @@ R:481:4/-88
 # Master mystic
 R:482:3/-16
 
-# Muar, the Balrog
+# The Balrog of Moria
 R:483:3/-71
 
 # Nightwing
@@ -3053,7 +3054,7 @@ R:487:4/-66
 # Demonic quylthulg
 R:488:4/-75
 
-# Great storm wyrm
+# Great Storm Wyrm
 R:489:6/-88
 
 # Baphomet the Minotaur Lord
@@ -3068,13 +3069,13 @@ R:492:8/-69
 # Grand master mystic
 R:493:3/-16
 
-# Khamul the Easterling
+# Khamul, the Black Easterling
 R:494:8/-69
 
 # Ethereal hound
 R:495:13/-66
 
-# Great ice wyrm
+# Great Ice Wyrm
 R:496:1/-88
 
 # The Phoenix
@@ -3098,13 +3099,13 @@ R:502:10/-10
 # Aether vortex
 R:503:10/-10
 
-# The Lernean Hydra
+# The Lernaean Hydra
 R:504:1/-79
 
-# Thuringwethil
+# Thuringwethil, the Vampire Messenger
 R:505:8/-70
 
-# Great hell wyrm
+# Great Hell Wyrm
 R:506:4/-88
 
 # Draconic quylthulg
@@ -3113,10 +3114,10 @@ R:507:5/-75
 # Fundin Bluecloak
 R:508:13/-24
 
-# Arien, Maia of the Sun 
+# Arien, Maia of the Sun
 R:509:4/-91
 
-# Azathoth, Master of Darkness 
+# Azathoth, Master of Darkness
 R:510:12/-71
 
 # Ancalagon the Black
@@ -3137,31 +3138,31 @@ R:515:4/-85
 # The Cat Lord
 R:516:4/-26
 
-# Chaos beetle
+# Jabberwock
 R:517:10/-81
 
 # Chaos hound
 R:518:10/-66
 
-# Great Wyrm of Chaos
+# Great Chaos Wyrm
 R:519:10/-88
 
-# Great Wyrm of Law
+# Great Law Wyrm
 R:520:14/-88
 
-# Great Wyrm of Balance
+# Great Balance Wyrm
 R:521:10/-88
 
 # Tselakus, the Dreadlord
 R:522:4/-85
 
-# Tiamat, Celestial Dragon of Evil
+# Great Chromatic Wyrm
 R:523:10/-88
 
 # Black reaver
 R:524:8/-80
 
-# Master quylthulg
+# Greater demonic quylthulg
 R:525:14/-75
 
 # Greater draconic quylthulg
@@ -3170,10 +3171,10 @@ R:526:13/-75
 # Greater rotting quylthulg
 R:527:15/-75
 
-# Vecna, the Emperor Lich
+# Feagwath, the Undead Sorcerer
 R:528:12/-80
 
-# Omarax the Eye Tyrant
+# Omarax, the Eye Tyrant
 R:529:10/-27
 
 # Ungoliant, the Unlight
@@ -3185,19 +3186,19 @@ R:531:10/-66
 # The Mouth of Sauron
 R:532:10/-16
 
-# The Emperor Quylthulg
+# Master quylthulg
 R:533:1/-75
 
-# Qlzqqlzuup, the Lord of Flesh
+# Qlzqqlzuup, the Emperor Quylthulg
 R:534:3/-75
 
-# Murazor, the Witch-King of Angmar
+# The Witch-King of Angmar
 R:535:8/-69
 
 # Pazuzu, Lord of Air
 R:536:1/-90
 
-# Hell hound
+# Hellhound
 R:537:4/-89
 
 # Cantoras, the Skeletal Lord
@@ -3212,13 +3213,13 @@ R:540:1/-71
 # Draugluin, Sire of All Werewolves
 R:541:7/-89
 
-# Feagwath the Undead Sorceror
+# Vecna, the Emperor Lich
 R:542:12/-80
 
-# Carcharoth, the Jaws of Thirst
+# Huan, Wolfhound of the Valar
 R:543:8/-89
 
-# Cerberus, Guardian of Hades
+# Carcharoth, the Jaws of Thirst
 R:544:4/-89
 
 # Gothmog, the High Captain of Balrogs
@@ -3251,7 +3252,7 @@ R:622:10/-28
 # Great Power Wyrm
 R:623:10/-88
 
-# Power Drake
+# Power drake
 R:624:10/-28
 
 # Great Aether Wyrm
@@ -3260,7 +3261,7 @@ R:625:3/-88
 # Great Ethereal Wyrm
 R:626:3/-88
 
-# Great Thunder drake
+# Thunder drake
 R:627:6/-28
 
 # Half ogre
@@ -3277,4 +3278,3 @@ R:631:0/-99
 
 # vorpal bunny
 R:632:2/-14
-

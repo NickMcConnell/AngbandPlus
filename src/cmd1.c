@@ -542,7 +542,6 @@ static void py_pickup_aux(int o_idx)
 
 		/* Message */
 		msg_format("You have %s (%c).", o_name, index_to_label(slot));
-	
 	}
 
 	/* Delete the object */
@@ -566,14 +565,10 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
-#ifdef ALLOW_EASY_FLOOR
-
 	int last_o_idx = 0;
 
 	int can_pickup = 0;
 	int not_pickup = 0;
-
-#endif /* ALLOW_EASY_FLOOR */
 
  	/* Automatically destroy squelched items in pile if necessary */
  	if (auto_destroy == 1)
@@ -637,8 +632,6 @@ void py_pickup(int pickup)
 			continue;
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Easy Floor */
 		if (easy_floor)
 		{
@@ -677,8 +670,6 @@ void py_pickup(int pickup)
 			continue;
 		}
 
-#endif /* ALLOW_EASY_FLOOR */
-
 		/* Describe the object */
 		if (!pickup)
 		{
@@ -691,7 +682,7 @@ void py_pickup(int pickup)
 		/* Note that the pack is too full */
 		if (!inven_carry_okay(o_ptr))
 		{
-			msg_format("You have no room for %s.", o_name);
+			if (o_ptr->k_idx) msg_format("You have no room for %s.", o_name);
 
 			/* Check the next object */
 			continue;
@@ -708,8 +699,6 @@ void py_pickup(int pickup)
 		/* Pick up the object */
 		py_pickup_aux(this_o_idx);
 	}
-
-#ifdef ALLOW_EASY_FLOOR
 
 	/* Easy floor, objects left */
 	if (easy_floor && (can_pickup + not_pickup > 0))
@@ -754,7 +743,7 @@ void py_pickup(int pickup)
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Message */
-				msg_format("You have no room for %s.", o_name);
+				if (o_ptr->k_idx) msg_format("You have no room for %s.", o_name);
 			}
 
 			/* Multiple objects */
@@ -787,9 +776,6 @@ void py_pickup(int pickup)
 			py_pickup_aux(0 - item);
 		}
 	}
-
-#endif /* ALLOW_EASY_FLOOR */
-
 }
 
 
@@ -1385,8 +1371,6 @@ void move_player(int dir, int jumping)
 		py_attack(y, x);
 	}
 
-#ifdef ALLOW_EASY_ALTER
-
 	/* Optionally alter known traps/doors on (non-jumping) movement */
 	else if ((easy_alter) && (!jumping) &&
 	         (cave_info[y][x] & (CAVE_MARK)) &&
@@ -1411,8 +1395,6 @@ void move_player(int dir, int jumping)
 		do_cmd_alter();
 
 	}
-
-#endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls", but can go through traps */
 	else if (!cave_floor_bold(y, x))

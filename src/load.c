@@ -348,6 +348,15 @@ static errr rd_item(object_type *o_ptr)
 
 	}
 
+	if (older_than(3, 0, 4))
+	{
+		/* Recalculate charges of stacked wands and staves */
+		if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+		{
+			o_ptr->pval = o_ptr->pval * o_ptr->number;
+		}
+	}
+
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
 	{
@@ -957,8 +966,39 @@ static errr rd_player_spells(void)
 			}
 		}
 	}
+
+	/* The magic spells were re-ordered in NPPAngband 0.3.4 */
+	else if (older_than(3, 0, 9) &&
+		    (c_info[p_ptr->pclass].spell_book == TV_MAGIC_BOOK))
+	{
+		/* Read the number of spells */
+		rd_u16b(&tmp16u);
+
+		if (tmp16u > PY_MAX_SPELLS)
+		{
+			note(format("Too many player spells (%d).", tmp16u));
+			return (-1);
+		}
+
+		/* Read the spell flags */
+		for (i = 0; i < tmp16u; i++)
+		{
+			rd_byte(&p_ptr->spell_flags[i]);
+			/*unlearn it*/
+			p_ptr->spell_flags[i] = 0;
+
+			/* Read the spell order */
+			rd_byte(&p_ptr->spell_order[i]);
+
+			/*now erase it*/
+			p_ptr->spell_order[i] = 99;
+		}
+
+	}
 	else
 	{
+
+
 		/* Read the number of spells */
 		rd_u16b(&tmp16u);
 		if (tmp16u > PY_MAX_SPELLS)
@@ -1826,12 +1866,8 @@ static errr rd_savefile_new_aux(void)
 	u16b tmp16u;
 	u32b tmp32u;
 
-
-#ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
 	u32b o_x_check, o_v_check;
-#endif
-
 
 	/* Mention the savefile version */
 	note(format("Loading a %d.%d.%d savefile...",
@@ -2120,8 +2156,6 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
-#ifdef VERIFY_CHECKSUMS
-
 	/* Save the checksum */
 	n_v_check = v_check;
 
@@ -2147,8 +2181,6 @@ static errr rd_savefile_new_aux(void)
 		note("Invalid encoded checksum");
 		return (-1);
 	}
-
-#endif
 
 
 	/* Hack -- no ghosts */

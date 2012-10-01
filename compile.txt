@@ -45,19 +45,12 @@ button and answer the question about using the wizard to generate the
 application skeleton with "no". We want to use the existing NPPAngband source 
 code, so we don't need the skeleton code. 
 4.	Adding the NPPAngband source files to the project: 
-Add all files from birth.c to l-ui.c to the project, then add the "main-win.c" 
+Add all files from birth.c to load.c to the project, then add the "main-win.c" 
 file with the "Add new file..." option and finally the files from melee1.c to z-
 virt.c. Select "Add new file..." again, and this time select the "Resources" 
-filetype and select the "angband.rc" file. "Add new file..." yet again, set the 
-filetype back to "C sources" and select all files in the lua directory except 
-for tolua.c and tolualua.c. Now we are done on that page and can press the 'ok' 
-button. 
+filetype and select the "angband.rc" file. 
 5.	Setting various project options: 
-On the 'Compiler settings' page append ";c:\NPPangband*\src\lua" (modify the 
-path to match your own NPPAngband source installation of course) to the include 
-path. On the 'Linker settings' page change the output filename to 
-"C:\NPPangband*" (again - use you own NPPAngband path). Then type "winmm.lib" in 
-the 'Additional files to be included in the link' field. In the 'Debugger 
+Type "winmm.lib" in the 'Additional files to be included in the link' field. In the 'Debugger 
 settings' you should change the start directory to "C:\NPPAngband*" (or again 
 use your own path to the NPPAngband directory). The 'Executable to start' should 
 be "C:\NPPAngband*\NPPangband.exe" (did I already mention change it to your path 
@@ -69,31 +62,84 @@ select 'Compiler/Make' and NPPAngband should be compiled.
 7.	Run NPPAngband: 
 Go back to the NPPAngband* folder and run the NPPAngband.exe. 
 
-Note on LCC-WIN32 - this compiler does not handle the Lua files correctly.  
-It does not re-compile the lua files when a .pkg file is updated.  
-Since the makefiles are generated automatically, I don't know how to change 
-this, and compile with Cygwin whenever I change a Lua .pkg file.
-
 All other Compilers and Operating Systems
 ===============================================
 
 The Angband source code contains many other makefiles and has been ported to 
 many other different platforms besides Windows. I took my best guess at
-updating them  If there are any problems, here is a list
-of changes I made that may affect compiling on other platforms:
-1) Add the file "squelch.o" for compiling (all versions of NPPAngband). For 
-versions 0.2.0 and above, the file "quest.o" should also be added. 
-2) Change the name of the executable file to NPPAngband (if it was obvious).
+updating them  If there are any problems, here is a list of things that may
+affect compiling on other platforms:
 
-3) version 3.0.0 and above gets rid of the monster.pkg and associated lua file
+Files added and deleted:
 
-As for porting to other operating systems, only one change has been made to two 
+NPP 0.1.0:
+
+Added squelch.c file
+
+NPP 0.2.0:
+
+added quest.c file
+
+Made one change to two 
 of the main.* files (main-win and main-ami), changing the name of the 2 defined 
-constants (DUNGEON_HGT to MAX_DUNGEON_HGT and DUNGEON_WID to MAX_DUNGEON_WID), 
-so at least in theory the NPPAngband source code should compile and work on any 
-system where Angband -3.0.3 works. 
+constants (DUNGEON_HGT to MAX_DUNGEON_HGT and DUNGEON_WID to MAX_DUNGEON_WID).
 
+NPP 0.3.0
+Deleted monster.pkg and l-monst.c file.
 
+NPP 0.3.4
+
+I incorporated all changes from Angband 3.0.4, wich included many changes to the main.* files.
+I assume they have all been tested in Angband and are correct.
+
+In short, I deleted the lua files, which deleted the following files from the makefiles:
+
+*The entire src\lua subdirectory.
+*All files ending in *.pkg in the \src directory.
+*A files starting in "L-" (the lua "C" files)
+*x-spell.c
+*script.c
+*script.h
+*The entire lib\script directory
+
+Here is a complete list of the lua related files I deleted (I think)
+
+(from src\lua)
+
+LUAOBJS = \
+  lua\lapi.o lua\ldebug.o lua\lmem.o lua\lstrlib.o lua\lvm.o \
+  lua\tolua_lb.o lua\lauxlib.o lua\ldo.o lua\lobject.o lua\ltable.o \
+  lua\lzio.o lua\tolua_rg.o lua\lbaselib.o lua\lfunc.o lua\lparser.o \
+  lua\tolua_bd.o lua\tolua_tm.o lua\lcode.o lua\lgc.o \
+  lua\lstate.o lua\ltm.o lua\tolua_eh.o lua\tolua_tt.o lua\ldblib.o \
+  lua\llex.o lua\lstring.o lua\lundump.o lua\tolua_gp.o
+
+TOLUAOBJS = \
+  lua\tolua.o lua\tolualua.o lua\liolib.o \
+  $(LUAOBJS)
+
+(from the \src subdirectory)
+
+script.h 
+script.c 
+x-spell.c 
+l-object.c
+l-object.pkg
+l-player.c
+l-player.pkg
+l-random.c: 
+l-random.pkg
+l-ui.c
+l-ui.pkg
+l-misc.c
+l-misc.pkg
+l-spell.c
+l-spell.pkg
+
+I updated the makefiles as best as I could, but I am sure it is inevitable that
+I didn't do some of them correctly.  The makefile.cyg has been tested.
+
+-Jeff Greene
 
 ======================
 

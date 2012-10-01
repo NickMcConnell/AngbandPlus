@@ -11,8 +11,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 #ifdef ALLOW_DEBUG
 
@@ -934,10 +932,8 @@ static void wiz_statistics(object_type *o_ptr)
 			/* Create an object */
 			make_object(i_ptr, good, great, DROP_TYPE_UNTHEMED);
 
-
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
 			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
-
 
 			/* Test for the same tval and sval. */
 			if ((o_ptr->tval) != (i_ptr->tval)) continue;
@@ -1023,6 +1019,12 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 
 			/* Add the weight of the new number of objects */
 			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+		}
+
+		/* Adjust charge for rods */
+		if (o_ptr->tval == TV_ROD)
+		{
+			o_ptr->pval = (o_ptr->pval / o_ptr->number) * tmp_int;
 		}
 
 		/* Accept modifications */
@@ -1841,13 +1843,6 @@ void do_cmd_debug(void)
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
 			do_cmd_wiz_zap(p_ptr->command_arg);
-			break;
-		}
-
-		/* Execute script */
-		case '@':
-		{
-			do_cmd_script();
 			break;
 		}
 
