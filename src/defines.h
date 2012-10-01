@@ -46,9 +46,15 @@
 
 
 /*
+ * Name of the version/variant
+ */
+#define VERSION_NAME "OAngband"
+
+
+/*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.7.0"
+#define VERSION_STRING	"1.1.0"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -65,12 +71,20 @@
 /*
  * Current Oangband version numbers.
  */
-#define O_VERSION_MAJOR	0
-#define O_VERSION_MINOR	7
+#define O_VERSION_MAJOR	1
+#define O_VERSION_MINOR	1
 #define O_VERSION_PATCH	0
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
+
+/*
+ * Number of variant savefile names to try
+ * (to avoid overwriting existing files).
+ *
+ * Hack - there is current a hardcoded maximum of 1000.
+ */
+#define SAVEFILE_MAX_PERMUTATIONS 1000
 
 /*
  * Number of grids in each block (vertically)
@@ -169,7 +183,14 @@
 #define MAX_REALM            4
 
 /*
+ * Define the maximum possible tvals that a given class may
+ * find in chests.
+ */
+#define MAX_CHEST_CHOICES    25
+
+/*
  * Maximum number of specialty abilities for a single character
+ * (hard-coded by savefiles)
  */
 #define MAX_SPECIALTIES      10
 
@@ -190,6 +211,7 @@
 #define MAX_H_IDX	223	/* Max size for "h_info[]" */
 #define MAX_B_IDX	6	/* Max size for "b_info[]" */
 #define MAX_P_IDX	14	/* Max size for "p_info[]" */
+#define MAX_CP_IDX	9	/* Max size for "p_info[]" */
 #define MAX_S_IDX	6	/* Max size for "s_info[]" */
 
 /*
@@ -207,9 +229,9 @@
 
 
 /*
- * Hack -- first normal and random artifact in the artifact list.  
- * All of the artifacts with indexes from 1 to 22 are special (lights, 
- * rings, amulets), the ones from 23 to 209 are normal, and the ones from 
+ * Hack -- first normal and random artifact in the artifact list.
+ * All of the artifacts with indexes from 1 to 22 are special (lights,
+ * rings, amulets), the ones from 23 to 209 are normal, and the ones from
  * 210 to 249 are random.
  */
 #define ART_MIN_NORMAL		23
@@ -236,6 +258,11 @@
  */
 #define MAX_HISCORES	100
 
+
+/*
+ * Maximum number of lingering spell effects
+ */
+#define MAX_EFFECTS 50
 
 /*
  * Maximum dungeon level.  The player can never reach this level
@@ -275,7 +302,7 @@
 
 /*
  * OPTION: Maximum number of macros (see "io.c")
- * Default: assume at most 256 macros 
+ * Default: assume at most 256 macros
  */
 #define MACRO_MAX	256
 
@@ -319,7 +346,7 @@
 #define THEME_NONE		0
 
 /*
- * Themed level indices.  Used to activate any theme-specific code. 
+ * Themed level indices.  Used to activate any theme-specific code.
  * See generate.c for the table of themed level information.
  */
 #define THEME_ELEMENTAL		1
@@ -402,6 +429,11 @@
 #define BASE_MANA_BURN          20
 
 /*
+ * 1/(the chance of becoming attuned to a rod/wand/staff) with the ATTUNEMENT specialty.
+ */
+#define ATTUNE_CHANCE           3
+
+/*
  * Refueling constants
  */
 #define FUEL_TORCH	5000	/* Maximum amount of fuel in a torch */
@@ -469,8 +501,8 @@
 #define PY_REGEN_NORMAL		197		/* Regen factor*2^16 when full */
 #define PY_REGEN_WEAK		98		/* Regen factor*2^16 when weak */
 #define PY_REGEN_FAINT		33		/* Regen factor*2^16 when fainting */
-#define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
-#define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
+#define PY_REGEN_HPBASE		1966	/* Min amount hp regen*2^16 */
+#define PY_REGEN_MNBASE		1048		/* Min amount mana regen*2^16 */
 
 
 /* Maximum number of blow types available to Druids. -LM- */
@@ -519,6 +551,12 @@
 #define INVEN_Q9        46
 
 /*
+ * Each throwing weapon in the "quiver" takes up the space of this
+ * many pieces of ammo.
+ */
+#define THROWER_AMMO_FACTOR 5
+
+/*
  * Total number of inventory slots (hard-coded to be <= 47).
  */
 #define INVEN_TOTAL	47
@@ -547,7 +585,7 @@
 #define A_CHR	5
 
 /*
- * Total number of stats.
+ * Total number of stats. (hard-coded by savefiles)
  */
 #define A_MAX   6
 
@@ -556,19 +594,6 @@
  */
 #define SEX_FEMALE	0
 #define SEX_MALE		1
-
-/*
- * Player class constants (hard-coded by save-files, arrays, etc)
- */
-#define CLASS_WARRIOR	0
-#define CLASS_MAGE	1
-#define CLASS_PRIEST	2
-#define CLASS_ROGUE	3
-#define CLASS_RANGER	4
-#define CLASS_PALADIN	5
-#define CLASS_DRUID	6
-#define CLASS_NECRO	7
-#define CLASS_ASSASSIN	8
 
 /* Different realms here.  From Sangband */
 #define REALM_NONE		0
@@ -710,6 +735,7 @@
  * Incremental resistance modifiers and caps.
  */
 #define RES_BOOST_NORMAL	2
+#define RES_BOOST_GOOD		3
 #define RES_BOOST_GREAT		4
 #define RES_BOOST_IMMUNE	10
 #define RES_BOOST_MINOR		1
@@ -1263,6 +1289,15 @@
 #define EGO_BACKBITING		125
 #define EGO_SHATTERED		126
 #define EGO_BLASTED			127
+
+/*
+ * Available graphic modes
+ */
+#define GRAPHICS_NONE           0
+#define GRAPHICS_ORIGINAL       1
+#define GRAPHICS_ADAM_BOLT      2
+#define GRAPHICS_DAVID_GERVAIS  3
+#define GRAPHICS_PSEUDO         4
 
 /*** Activation Indexes.  Max is 255. -LM- ***/
 /* Special Artifact activations. */
@@ -2020,6 +2055,8 @@
 #define SV_MITHRIL			10
 #define SV_ADAMANTITE			11
 
+#define MONEY_TYPES                     12
+
 /*
  * Special "sval" limit -- first "normal" food (no longer requires a flavor)
  */
@@ -2047,7 +2084,7 @@
 #define SV_BOOK_MIN_GOOD	4
 
 /*
- * Special "sval" limit -- maximum allowed spellbook sval (used to prevent 
+ * Special "sval" limit -- maximum allowed spellbook sval (used to prevent
  * illegal access to tables)
  */
 #define SV_BOOK_MAX		8
@@ -2207,14 +2244,28 @@
 #define USE_FLOOR	0x04	/* Allow floor items */
 #define CAN_SQUELCH	0x10	/* Allow selection of all squelched items */
 
-/*** Player flags ***/
+/*
+ * Effect index defines.
+ */
+#define EFFECT_EXPLOSION         1      /* A radiating explosion */
 
+#define EFFECT_IRREGULAR_CLOUD   4      /* A standard lingering cloud */
+#define EFFECT_DEATH_CLOUD       6      /* A cloud of death */
+#define EFFECT_WALL              8      /* An advancing wall */
+#define EFFECT_SEEKER_VORTEX     9      /* A seeking vortex */
+#define EFFECT_RANDOM_DOTS      10      /* Lots of random dots */
+
+
+/*** Player flags ***/
 
 /*
  * Bit flags for the "p_ptr->notice" variable
  */
 #define PN_COMBINE	0x00000001L	/* Combine the pack */
 #define PN_REORDER	0x00000002L	/* Reorder the pack */
+#define PN_PICKUP0	0x00000004L	/* Notice stuff (allow pickup) */
+#define PN_PICKUP1	0x00000008L	/* Pick up stuff */
+
 /* xxx (many) */
 
 
@@ -2226,7 +2277,7 @@
 /* xxx (many) */
 #define PU_HP		0x00000010L	/* Calculate chp and mhp */
 #define PU_MANA		0x00000020L	/* Calculate csp and msp */
-#define PU_SPELLS	0x00000040L	/* Calculate spells */
+/* xxx */
 #define PU_SPECIALTY	0x00000080L	/* Calculate spells */
 /* xxx (many) */
 #define PU_FORGET_VIEW	0x00010000L	/* Forget field of view */
@@ -2296,9 +2347,20 @@
 
 
 /*
+ * Codes for spell casting speed.
+ */
+#define CAST_TIME_NORMAL	0
+#define CAST_TIME_SHOOT		1
+#define CAST_TIME_SHOOT_FAST	2
+#define CAST_TIME_SHOOT_SLOW	3
+#define CAST_TIME_THROW		4
+#define CAST_TIME_THROW_FAST	5
+#define CAST_TIME_THROW_SLOW	6
+
+/*
  * Bit flags for the "p_ptr->special_attack" variable. -LM-
  *
- * Note:  The elemental and poison attacks should be managed using the 
+ * Note:  The elemental and poison attacks should be managed using the
  * function "set_ele_attack", in spell2.c.  This provides for timeouts and
  * prevents the player from getting more than one at a time.
  */
@@ -2318,6 +2380,19 @@
 
 /* Special attack states that may be displayed on screen */
 #define ATTACK_NOTICE		0x000003ff
+
+
+/* Player Ranged Attack Modes */
+#define FIRE_MODE_NORMAL	0
+#define FIRE_MODE_DEADEYE	1
+#define FIRE_MODE_POISON	2
+#define FIRE_MODE_SLAY_DRAGON	3
+#define FIRE_MODE_MULTI		4
+#define FIRE_MODE_STORM		5
+#define FIRE_MODE_SCOURGE	6
+
+#define THROW_MODE_NORMAL	0
+#define THROW_MODE_BLKBRTH	1
 
 /*
  * Values for shapechanges.  From Sangband.
@@ -2443,7 +2518,7 @@
 #define SM_RES_DISEN	0x80000000
 
 
-/*   
+/*
  * As of 2.7.8, the "object flags" are valid for all objects, and as
  * of 2.7.9, these flags are not actually stored with the object, but
  * rather in the object_kind, ego_item, and artifact structures.
@@ -2503,10 +2578,10 @@
 #define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
 #define TR2_XXX1			0x00000040L	/* (reserved) */
 #define TR2_XXX2			0x00000080L	/* (reserved) */
-#define TR2_XXX3			0x00001000L	/* (reserved) */
-#define TR2_XXX4			0x00002000L	/* (reserved) */
-#define TR2_XXX5			0x00004000L	/* (reserved) */
-#define TR2_XXX6		 	0x00008000L	/* (reserved) */
+#define TR2_XXX3			0x00000100L	/* (reserved) */
+#define TR2_XXX4			0x00000200L	/* (reserved) */
+#define TR2_XXX5			0x00000400L	/* (reserved) */
+#define TR2_RES_BASE_MINOR		0x00000800L	/* Half level of Resistance to acid/elec/fire/cold */
 #define TR2_IM_ACID			0x00001000L	/* Immunity to acid */
 #define TR2_IM_ELEC			0x00002000L	/* Immunity to elec */
 #define TR2_IM_FIRE			0x00004000L	/* Immunity to fire */
@@ -2539,7 +2614,7 @@
 #define TR3_XXX1			0x00000100L
 #define TR3_XXX2			0x00000200L
 #define TR3_XXX3			0x00000400L
-#define TR3_XXX4			0x00000800L 
+#define TR3_EASY_ACT			0x00000800L
 #define TR3_IMPACT			0x00001000L	/* Earthquake blows */
 #define TR3_TELEPORT		0x00002000L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x00004000L	/* Aggravate monsters */
@@ -2654,12 +2729,12 @@
 #define RF1_RAND_50			0x00080000	/* Moves randomly (50%) */
 #define RF1_ONLY_GOLD		0x00100000	/* Drop only gold */
 #define RF1_ONLY_ITEM		0x00200000	/* Drop only items */
-#define RF1_DROP_60			0x00400000	/* Drop an item/gold (60%) */
-#define RF1_DROP_90			0x00800000	/* Drop an item/gold (90%) */
-#define RF1_DROP_1D2		0x01000000	/* Drop 1d2 items/gold */
-#define RF1_DROP_2D2		0x02000000	/* Drop 2d2 items/gold */
-#define RF1_DROP_3D2		0x04000000	/* Drop 3d2 items/gold */
-#define RF1_DROP_4D2		0x08000000	/* Drop 4d2 items/gold */
+#define RF1_DROP_40			0x00400000	/* Drop an item/gold (40%) */
+#define RF1_DROP_60			0x00800000	/* Drop an item/gold (60%) */
+#define RF1_DROP_ONE		0x01000000	/* Drop one item/gold */
+#define RF1_DROP_TWO		0x02000000	/* Drop two items/gold */
+#define RF1_DROP_PLUS_5		0x04000000	/* Drop items at +5 depth */
+#define RF1_DROP_PLUS_10		0x08000000	/* Drop items at +10 depth */
 #define RF1_DROP_GOOD		0x10000000	/* Drop good items */
 #define RF1_DROP_GREAT		0x20000000	/* Drop great items */
 #define RF1_DROP_CHEST		0x40000000	/* Drop "useful" items */
@@ -2732,7 +2807,7 @@
 #define RF3_RES_PLAS		0x01000000	/* Resist plasma */
 #define RF3_RES_NEXU		0x02000000	/* Resist nexus */
 #define RF3_RES_DISE		0x04000000	/* Resist disenchantment */
-#define RF3_XXX6			0x08000000	
+#define RF3_XXX6			0x08000000
 #define RF3_NO_FEAR			0x10000000	/* Cannot be scared */
 #define RF3_NO_STUN			0x20000000	/* Cannot be stunned */
 #define RF3_NO_CONF			0x40000000	/* Cannot be confused */
@@ -3010,8 +3085,8 @@
  */
 #define OPT_rogue_like_commands		0
 #define OPT_quick_messages			1
-#define OPT_floor_query_flag		2
-#define OPT_carry_query_flag		3
+
+#define OPT_query_floor		3
 #define OPT_use_old_target			4
 #define OPT_always_pickup			5
 #define OPT_always_repeat			6
@@ -3052,8 +3127,8 @@
 #define OPT_view_torch_grids		39
 #define OPT_auto_more			40
 #define OPT_dungeon_stair			41
-/* xxx */
-/* xxx */
+#define OPT_strong_squelch			42
+#define OPT_reuse_savefile			43
 /* xxx */
 /* xxx */
 /* xxx */
@@ -3080,6 +3155,8 @@
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
 #define OPT_show_piles                  67
+
+#define OPT_hp_changes_color         68
 
 #define OPT_show_detect         69 /*This is really quite out of order -BR-*/
 #define OPT_disturb_trap_detect         70 /*This is really quite out of order -BR-*/
@@ -3115,8 +3192,7 @@
  */
 #define rogue_like_commands		op_ptr->opt[OPT_rogue_like_commands]
 #define quick_messages			op_ptr->opt[OPT_quick_messages]
-#define floor_query_flag		op_ptr->opt[OPT_floor_query_flag]
-#define carry_query_flag		op_ptr->opt[OPT_carry_query_flag]
+#define query_floor		op_ptr->opt[OPT_query_floor]
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
@@ -3129,6 +3205,7 @@
 #define show_details			op_ptr->opt[OPT_show_details]
 #define use_metric				op_ptr->opt[OPT_metric]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
+#define hp_changes_color    		op_ptr->opt[OPT_hp_changes_color]
 #define show_detect    		op_ptr->opt[OPT_show_detect]
 
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
@@ -3159,8 +3236,8 @@
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 #define auto_more			op_ptr->opt[OPT_auto_more]
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
-/* xxx */
-/* xxx */
+#define strong_squelch			op_ptr->opt[OPT_strong_squelch]
+#define reuse_savefile			op_ptr->opt[OPT_reuse_savefile]
 /* xxx */
 /* xxx */
 /* xxx */
@@ -3189,27 +3266,27 @@
 #define show_piles                              op_ptr->opt[OPT_show_piles]
 
 
-#define birth_point_based               op_ptr->opt[OPT_birth_point_based]          
-#define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]          
-#define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
+#define birth_point_based               op_ptr->opt[OPT_birth_point_based]
+#define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]
+#define birth_preserve                  op_ptr->opt[OPT_birth_preserve]
 
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
-#define cheat_hear				op_ptr->opt[OPT_cheat_hear]		
-#define cheat_room				op_ptr->opt[OPT_cheat_room]	
-#define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]	
-#define cheat_know				op_ptr->opt[OPT_cheat_know]	
-#define cheat_live				op_ptr->opt[OPT_cheat_live]	
+#define cheat_hear				op_ptr->opt[OPT_cheat_hear]
+#define cheat_room				op_ptr->opt[OPT_cheat_room]
+#define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]
+#define cheat_know				op_ptr->opt[OPT_cheat_know]
+#define cheat_live				op_ptr->opt[OPT_cheat_live]
 
-#define adult_point_based               op_ptr->opt[OPT_adult_point_based]          
-#define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]          
-#define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
+#define adult_point_based               op_ptr->opt[OPT_adult_point_based]
+#define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]
+#define adult_preserve                  op_ptr->opt[OPT_adult_preserve]
 
 #define score_peek				op_ptr->opt[OPT_score_peek]
-#define score_hear				op_ptr->opt[OPT_score_hear]		
-#define score_room				op_ptr->opt[OPT_score_room]	
-#define score_xtra				op_ptr->opt[OPT_score_xtra]	
-#define score_know				op_ptr->opt[OPT_score_know]	
-#define score_live				op_ptr->opt[OPT_score_live]	
+#define score_hear				op_ptr->opt[OPT_score_hear]
+#define score_room				op_ptr->opt[OPT_score_room]
+#define score_xtra				op_ptr->opt[OPT_score_xtra]
+#define score_know				op_ptr->opt[OPT_score_know]
+#define score_live				op_ptr->opt[OPT_score_live]
 
 
 /*** Macro Definitions ***/
@@ -3248,6 +3325,110 @@
 #define object_known_p(T) \
 	(((T)->ident & (IDENT_KNOWN)) || \
 	 (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
+
+
+/*
+ * Object is a melee weapon
+ */
+#define is_melee_weapon(T) \
+	(((T)->tval == TV_SWORD)   || \
+	 ((T)->tval == TV_HAFTED)  || \
+	 ((T)->tval == TV_POLEARM) || \
+	 ((T)->tval == TV_DIGGING))
+
+/*
+ * Object is any weapon
+ */
+#define is_any_weapon(T) \
+	(((T)->tval == TV_SWORD)   || \
+	 ((T)->tval == TV_HAFTED)  || \
+	 ((T)->tval == TV_POLEARM) || \
+	 ((T)->tval == TV_DIGGING) || \
+	 ((T)->tval == TV_BOW))
+
+/*
+ * Object is a missile
+ */
+#define is_missile(T) \
+	(((T)->tval == TV_SHOT)   || \
+	 ((T)->tval == TV_ARROW)  || \
+	 ((T)->tval == TV_BOLT))
+
+/*
+ * Object is a crossbow
+ */
+#define is_crossbow(S) \
+	(((S) == SV_HAND_XBOW)   || \
+	 ((S) == SV_LIGHT_XBOW)  || \
+	 ((S) == SV_HEAVY_XBOW)  || \
+	 ((S) == SV_TRIPLE_XBOW))
+
+/*
+ * Object is a bow
+ */
+#define is_bow(S) \
+	(((S) == SV_SHORT_BOW) || \
+	 ((S) == SV_LONG_BOW))
+
+/*
+ * Object is a sling
+ */
+#define is_sling(S) \
+	 ((S) == SV_SLING)
+
+
+/*
+ * Object is any armour
+ */
+#define is_any_armour(T) \
+	(((T)->tval == TV_BOOTS)      || \
+	 ((T)->tval == TV_GLOVES)     || \
+	 ((T)->tval == TV_HELM)       || \
+	 ((T)->tval == TV_CROWN)      || \
+	 ((T)->tval == TV_SHIELD)     || \
+	 ((T)->tval == TV_CLOAK)      || \
+	 ((T)->tval == TV_SOFT_ARMOR) || \
+	 ((T)->tval == TV_HARD_ARMOR) || \
+	 ((T)->tval == TV_DRAG_ARMOR))
+
+/*
+ * Object is body armour
+ */
+#define is_body_armour(T) \
+	(((T)->tval == TV_SOFT_ARMOR) || \
+	 ((T)->tval == TV_HARD_ARMOR) || \
+	 ((T)->tval == TV_DRAG_ARMOR))
+
+/*
+ * Object is wargear
+ */
+#define is_wargear(T) \
+	(is_any_armour(T) || is_any_weapon(T) || is_missile(T))
+
+/*
+ * Object is wearable
+ */
+#define is_wearable(T) \
+	(is_any_armour(T) || is_any_weapon(T) || is_missile(T) || \
+	 ((T)->tval == TV_RING) || ((T)->tval == TV_AMULET) || \
+	 ((T)->tval == TV_LITE))
+
+/*
+ * Object is a magical device
+ */
+#define is_magical_device(T) \
+	(((T)->tval == TV_WAND)      || \
+	 ((T)->tval == TV_STAFF)     || \
+	 ((T)->tval == TV_ROD))
+
+/*
+ * Object is a magic book
+ */
+#define is_magic_book(T) \
+	(((T)->tval == TV_MAGIC_BOOK)      || \
+	 ((T)->tval == TV_PRAYER_BOOK)     || \
+	 ((T)->tval == TV_NATURE_BOOK)     || \
+	 ((T)->tval == TV_DARK_BOOK))
 
 
 /*
@@ -3390,8 +3571,8 @@
 
 
 /*
- * Determine if a "legal" grid is able to be passed through by creatures 
- * that cannot bore or pass through walls.  This new definition is needed, 
+ * Determine if a "legal" grid is able to be passed through by creatures
+ * that cannot bore or pass through walls.  This new definition is needed,
  * because some terrain can now be traversed,  but ends LOS.  It is also
  * used in the projectable function. -LM-
  *
@@ -3624,7 +3805,7 @@ extern int PlayerUID;
  * Total number of specialties -CN-
  */
 #define TOTAL_SPECIALTIES 255
- 
+
 /*
  * Specialty Abilities -BR-
  */
@@ -3656,6 +3837,7 @@ extern int PlayerUID;
 #define SP_SOUL_SIPHON		45	/* Gain mana when taking damage */
 #define SP_HARMONY		46	/* Gain hp when casting spells */
 #define SP_CHANNELING		48	/* Spell heightening when close to full mana */
+#define SP_ATTUNEMENT		49	/* Increased ability with "attuned" devices */
 
 /* Other */
 #define SP_ATHLETICS		60	/* Increase and Partial Sustain Dex/Con */
@@ -3729,4 +3911,10 @@ extern int PlayerUID;
  * Max number of terminal windows -CN-
  */
 #define TERM_WIN_MAX 8
+
+
+/*
+ * Given an array, determine how many elements are in the array.
+ */
+#define N_ELEMENTS(a) (int)(sizeof(a) / sizeof((a)[0]))
 

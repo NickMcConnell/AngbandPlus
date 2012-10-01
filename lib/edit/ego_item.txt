@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:1.1.0
 
 #N: ego-item index: name (appended to base object description)
 #X: amount the level feeling is increased by: xtra 
@@ -77,9 +77,9 @@ T:37:0:99
 F:RES_COLD | IGNORE_COLD
 D:It grants resistance to cold.
 
-N:8:of Resistance
+N:8:of Greater Resistance
 X:20:0
-W:0:12:0:12500
+W:20:12:0:14000
 C:0:0:10:0
 T:36:0:99
 T:37:0:99
@@ -92,7 +92,7 @@ D:by elemental attacks.
 
 N:9:of Elvenkind
 X:25:2
-W:0:24:0:15000
+W:20:24:0:18000
 C:0:0:10:3
 T:36:0:99
 T:37:0:99
@@ -127,7 +127,16 @@ D:The great sorcerers of old wore light mantles that protected against the
 D:elements and one other attack, stat-draining, and experience loss.  
 D:Fortunate indeed are you to discover one.
 
-# 12 (unused)
+N:12:of Lesser Resistance
+X:20:0
+W:0:15:0:8000
+C:0:0:10:0
+T:36:0:99
+T:37:0:99
+F:RES_BASE_MINOR | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:It grants a degree of resistance to all four basic elements, and 
+D:cannot be harmed by elemental attacks.
 
 # 13 (unused)
 
@@ -171,7 +180,7 @@ X:20:0
 W:0:6:0:12500
 C:0:0:10:0
 T:34:0:99
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_BASE_MINOR | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:It grants resistance to all four basic elements, and cannot be harmed 
 D:by elemental attacks.
@@ -223,7 +232,7 @@ W:0:24:0:7500
 C:0:0:0:3
 T:33:0:99
 F:INT | SUST_INT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_BASE_MINOR | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:It increases and sustains your intelligence, resists the four basic 
 D:elements, and cannot be harmed by elemental attacks.  You may benefit 
@@ -541,7 +550,7 @@ D:foes.
 
 N:64:(Holy Avenger)
 X:30:1
-W:0:20:0:20000
+W:20:20:0:20000
 C:6:6:4:4
 T:21:0:99
 T:22:0:99
@@ -565,7 +574,7 @@ T:22:0:99
 T:23:0:99
 F:STEALTH | 
 F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_BASE_MINOR | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:Strong friend in peril, this weapon enhances stealth, resists all four 
 D:basic elements and cannot be damaged by them, grants see invisible and 
@@ -665,7 +674,7 @@ T:21:2:2
 W:0:5:0:12000
 C:-20:10:0:-4
 F:STEALTH | BRAND_FIRE | RES_FIRE | LITE | ACTIVATE
-F:IGNORE_FIRE | ACTIVATE
+F:IGNORE_FIRE | EASY_ACT
 D:This perilous demon's lash burns redly with the dread fires of Udun, 
 D:doing triple damage to all monsters not resitant to fire, and 
 D:blazing so brightly as to light your path and disturb nearby foes.
@@ -801,7 +810,7 @@ T:23:0:99
 W:0:60:0:4000
 C:0:0:0:2
 F:DEX | SLAY_ORC | SLAY_KILL
-D:This weapon wreaks orcish armies and increases dexterity.
+D:This weapon wreaks havoc upon orcish armies and increases dexterity.
 
 N:93:of *Slay* Troll
 X:15:0

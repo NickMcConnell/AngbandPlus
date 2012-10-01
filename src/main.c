@@ -349,6 +349,13 @@ int main(int argc, char *argv[])
 		quit("The gates to Angband are closed (bad load).");
 	}
 
+#ifdef PRIVATE_USER_PATH
+
+	/* Create directories for the users files */
+	create_user_dirs();
+
+#endif /* PRIVATE_USER_PATH */
+
 	/* Acquire the "user name" as a default player name */
 #ifdef ANGBAND_2_8_1
 	user_name(player_name, player_uid);
@@ -426,8 +433,8 @@ int main(int argc, char *argv[])
 				strncpy(player_name, &argv[i][2], 32);
 				player_name[31] = '\0';
 #else /* ANGBAND_2_8_1 */
-				strncpy(op_ptr->full_name, &argv[i][2], 32);
-				op_ptr->full_name[31] = '\0';
+				strncpy(op_ptr->base_name, &argv[i][2], 32);
+				op_ptr->base_name[31] = '\0';
 #endif /* ANGBAND_2_8_1 */
 				break;
 			}
@@ -477,7 +484,7 @@ int main(int argc, char *argv[])
 				puts("  -s<num>  Show <num> high scores");
 				puts("  -u<who>  Use your <who> savefile");
 				puts("  -d<def>  Define a 'lib' dir sub-path");
-				
+
 #ifdef USE_XAW
 				puts("  -mxaw    To use XAW");
 				puts("  --       Sub options");
@@ -485,7 +492,7 @@ int main(int argc, char *argv[])
 				puts("  -- -s    Turn off smoothscaling graphics");
 				puts("  -- -n#   Number of terms to use");
 #endif /* USE_XAW */
-				
+
 #ifdef USE_X11
 				puts("  -mx11    To use X11");
 				puts("  --       Sub options");
@@ -527,12 +534,15 @@ int main(int argc, char *argv[])
 #ifdef USE_VME
 				puts("  -mvme    To use VME (VAX/ESA)");
 #endif /* USE_VME */
-				
+
 				/* Actually abort the process */
 				quit(NULL);
 			}
 		}
 	}
+
+	/* Process the player name (but only if one is specified) */
+	if (strlen(op_ptr->base_name)) process_player_name(FALSE);
 
 	/* Hack -- Forget standard args */
 	if (args)
@@ -540,11 +550,6 @@ int main(int argc, char *argv[])
 		argc = 1;
 		argv[1] = NULL;
 	}
-
-
-	/* Process the player name */
-	process_player_name(TRUE);
-
 
 
 	/* Install "quit" hook */

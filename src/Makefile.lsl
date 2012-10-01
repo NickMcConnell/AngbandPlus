@@ -10,7 +10,7 @@ SRCS = \
   monmove.c monattk.c save.c files.c randart.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load1.c load2.c \
-  attack.c wizard1.c wizard2.c squlech.c \
+  attack.c wizard1.c wizard2.c squelch.c \
   generate.c dungeon.c init1.c init2.c \
   main-ami.c main.c
 

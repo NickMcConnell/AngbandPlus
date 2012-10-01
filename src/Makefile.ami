@@ -13,7 +13,7 @@ OBJS = \
   monmove.o monattk.o save.o files.o randart.o \
   attack.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
-  wizard1.o wizard2.o squelch.o\
+  wizard1.o wizard2.o squelch.o \
   generate.o dungeon.o init1.o init2.o \
   main-ami.o sound-ami.o main.o
 

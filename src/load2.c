@@ -13,7 +13,7 @@
 
 
 /*
- * This file loads savefiles from Angband 2.7.X and 2.8.X, and from all 
+ * This file loads savefiles from Angband 2.7.X and 2.8.X, and from all
  * (non-beta) versions of Oangband.
  *
  * Ancient savefiles (pre-2.7.0) are loaded by another file.
@@ -89,7 +89,7 @@ static bool older_than(byte x, byte y, byte z)
 /*
  * This function determines if the version of the savefile
  * currently being read is older than Oangband version "x.y.z".
- * Note that savefiles from both Oangband version 0.1.0 and 
+ * Note that savefiles from both Oangband version 0.1.0 and
  * 0.2.0 are treated as 0.2.0.
  */
 static bool o_older_than(byte x, byte y, byte z)
@@ -275,61 +275,61 @@ static byte convert_owner[24] =
 
 
 /*
- * Monster conversion -- pre-Oangband 0.5.1 to Oangband 0.5.1. 
+ * Monster conversion -- pre-Oangband 0.5.1 to Oangband 0.5.1.
  *
- * The figure "-1" means that an old monster has no new counterpart, or one 
+ * The figure "-1" means that an old monster has no new counterpart, or one
  * that is so much more dangerous as to be an insta-kill risk.
  */
-static int mon_index_conv[] = 
+static int mon_index_conv[] =
 {
-	  0,   1,  12,  13,  14,   2,   3,   4,   5,   6,   7,   8,   9,  10, 
-	 11,  30,  31,  23,  24,  32,  33,  28,  78,  26,  20,  40,  29,  34, 
-	 25,  27,  21,  22,  52,  54,  45,  37,  38,  60,  39,  53,  55,  46, 
-	 43,  47,  56,  41, 664, 666,  51,  50,  49,  42, 665,  67,  72,  61, 
-	 63,  71,  66,  68,  69,  59,  44,  65,  77,  64,  80,  70,  48,  76, 
-	 75,  81,  82,  79, 104,  62, 667,  39,  92,  88,  94,  89,  85,  93, 
-	 87, 119, 131,  86, 106,  60,  37,  38, 105, 101, 139, 108, 107, 103, 
-	121, 116, 124,  91, 120, 118, 115, 117, 145, 123, 111, 114, 668, 669, 
-	670, 129,  76, 130, 152, 122,  75, 134, 133,  -1, 137, 142, 141,  90, 
-	144, 146, 147, 149, 148, 175, 113, 671, 140, 156, 153, 672, 154, 162, 
-	673, 157, 160, 161, 164, 165, 166, 158, 159, 155, 335, 193, 172,  -1, 
-	169, 189, 182, 183, 234, 676, 179, 207, 288, 185, 163, 215, 209, 174, 
-	178, 180, 184, 211, 181, 677, 201, 250, 319, 208, 192, 191, 246, 678, 
-	197, 199, 202, 173, 196, 198, 204, 213, 243, 214, 226, 221, 222, 228, 
-	190, 219, 220, 229, 225, 276, 169, 223, 236, 313, 237, 235, 233, 244, 
-	241, 679, 249, 262, 258, 680, 453, 200, 256, 227, 257, 268, 269, 270, 
-	277, 266, 272, 683, 684, 280, 283, 255, 292, 291, 282, 685, 300, 299, 
-	301, 302, 297, 303, 304, 306, 305, 267, 296, 328, 687, 686, 265, 332, 
-	323, 324, 325, 364, 342, 281, 340, 212, 158, 346, 690, 422, 298, 345, 
-	347, 248, 688, 689, 352, 355, 353, 691, 692, 330, 354, 358, 327, 341, 
-	410, 359, 311, 253, 695,  -1, 254, 307, 293, 374, 698, 337, 375, 360, 
-	372, 373, 201, 706, 361, 378, 380, 390, 389, 386, 696, 387, 393, 697, 
-	395, 381, 379, 404, 402, 406, 273, 274, 284, 308, 432, 314, 203, 411, 
-	320, 336, 349, 388, 398, 417, 201, 425, 710, 421, 431, 423, 405, 433, 
-	441, 382, 203, 440, 490, 506, 383, 701, 702, 703, 435, 436, 447, 434, 
-	479, 446, 403, 359, 529, 704, 458, 459, 321, 454, 472, 466, 471, 473, 
-	465, 467, 470, 468, 262, 482, 480, 434, 275, 478, 401, 427, 551, 530, 
-	489, 418, 368, 487, 315, 707, 426, 437, 443, 316, 492, 460, 488, 562, 
-	718, 409, 414, 705, 499, 510, 312, 442, 497, 498, 455, 448, 474, 428, 
-	475, 502, 708, 503, 504, 531, 552, 716, 496, 709, 711, 505, 491, 547, 
-	481, 523, 712, 713, 532, 537, 512, 509, 361, 533, 517, 520, 524, 589, 
-	540, 515, 486, 495, 519, 516, 725, 518, 717, 555, 553, 560, 571, 511, 
-	525, 728, 528, 567, 543, 731, 719, 542, 548, 734, 556, 563, 482, 478, 
-	572, 579, 737, 568, 720, 602, 721, 545, 578, 482, 605, 732, 745, 738, 
-	591, 614, 592, 559, 722, 748, 570, 739, 590, 535, 574, 575, 521, 593, 
-	726, 727, 747, 634, 754, 535, 594, 735, 596, 576, 632, 586, 588, 608, 
-	729, 730, 601, 522, 733, 744, 751, 736, 639, 740, 749, 482, 750, 619, 
-	600, 615, 616, 620, 760, 761, 627, 622, 626, 648, 766, 758, 757, 630, 
-	762, 759, 770, 764, 763, 652, 769, 765, 752, 743, 746, 753,  -1, 771, 
+	  0,   1,  12,  13,  14,   2,   3,   4,   5,   6,   7,   8,   9,  10,
+	 11,  30,  31,  23,  24,  32,  33,  28,  78,  26,  20,  40,  29,  34,
+	 25,  27,  21,  22,  52,  54,  45,  37,  38,  60,  39,  53,  55,  46,
+	 43,  47,  56,  41, 664, 666,  51,  50,  49,  42, 665,  67,  72,  61,
+	 63,  71,  66,  68,  69,  59,  44,  65,  77,  64,  80,  70,  48,  76,
+	 75,  81,  82,  79, 104,  62, 667,  39,  92,  88,  94,  89,  85,  93,
+	 87, 119, 131,  86, 106,  60,  37,  38, 105, 101, 139, 108, 107, 103,
+	121, 116, 124,  91, 120, 118, 115, 117, 145, 123, 111, 114, 668, 669,
+	670, 129,  76, 130, 152, 122,  75, 134, 133,  -1, 137, 142, 141,  90,
+	144, 146, 147, 149, 148, 175, 113, 671, 140, 156, 153, 672, 154, 162,
+	673, 157, 160, 161, 164, 165, 166, 158, 159, 155, 335, 193, 172,  -1,
+	169, 189, 182, 183, 234, 676, 179, 207, 288, 185, 163, 215, 209, 174,
+	178, 180, 184, 211, 181, 677, 201, 250, 319, 208, 192, 191, 246, 678,
+	197, 199, 202, 173, 196, 198, 204, 213, 243, 214, 226, 221, 222, 228,
+	190, 219, 220, 229, 225, 276, 169, 223, 236, 313, 237, 235, 233, 244,
+	241, 679, 249, 262, 258, 680, 453, 200, 256, 227, 257, 268, 269, 270,
+	277, 266, 272, 683, 684, 280, 283, 255, 292, 291, 282, 685, 300, 299,
+	301, 302, 297, 303, 304, 306, 305, 267, 296, 328, 687, 686, 265, 332,
+	323, 324, 325, 364, 342, 281, 340, 212, 158, 346, 690, 422, 298, 345,
+	347, 248, 688, 689, 352, 355, 353, 691, 692, 330, 354, 358, 327, 341,
+	410, 359, 311, 253, 695,  -1, 254, 307, 293, 374, 698, 337, 375, 360,
+	372, 373, 201, 706, 361, 378, 380, 390, 389, 386, 696, 387, 393, 697,
+	395, 381, 379, 404, 402, 406, 273, 274, 284, 308, 432, 314, 203, 411,
+	320, 336, 349, 388, 398, 417, 201, 425, 710, 421, 431, 423, 405, 433,
+	441, 382, 203, 440, 490, 506, 383, 701, 702, 703, 435, 436, 447, 434,
+	479, 446, 403, 359, 529, 704, 458, 459, 321, 454, 472, 466, 471, 473,
+	465, 467, 470, 468, 262, 482, 480, 434, 275, 478, 401, 427, 551, 530,
+	489, 418, 368, 487, 315, 707, 426, 437, 443, 316, 492, 460, 488, 562,
+	718, 409, 414, 705, 499, 510, 312, 442, 497, 498, 455, 448, 474, 428,
+	475, 502, 708, 503, 504, 531, 552, 716, 496, 709, 711, 505, 491, 547,
+	481, 523, 712, 713, 532, 537, 512, 509, 361, 533, 517, 520, 524, 589,
+	540, 515, 486, 495, 519, 516, 725, 518, 717, 555, 553, 560, 571, 511,
+	525, 728, 528, 567, 543, 731, 719, 542, 548, 734, 556, 563, 482, 478,
+	572, 579, 737, 568, 720, 602, 721, 545, 578, 482, 605, 732, 745, 738,
+	591, 614, 592, 559, 722, 748, 570, 739, 590, 535, 574, 575, 521, 593,
+	726, 727, 747, 634, 754, 535, 594, 735, 596, 576, 632, 586, 588, 608,
+	729, 730, 601, 522, 733, 744, 751, 736, 639, 740, 749, 482, 750, 619,
+	600, 615, 616, 620, 760, 761, 627, 622, 626, 648, 766, 758, 757, 630,
+	762, 759, 770, 764, 763, 652, 769, 765, 752, 743, 746, 753,  -1, 771,
 	775, 776, 777, 778, 779, 780, 781, 782, 783, 784, 785, 786, 787,   0,
 	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
 	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
 };
 
 /*
- * Artifact conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6 
+ * Artifact conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6
  */
-static byte conv_arti[128] = 
+static byte conv_arti[128] =
 {
 	0,
 	ART_GALADRIEL,
@@ -472,61 +472,61 @@ static byte conv_arti[128] =
 };
 
 /*
- * Object conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6. 
+ * Object conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6.
  */
-static int obj_index_conv[] = 
+static int obj_index_conv[] =
 {
-	  0,   1,   2,   3,   4,   5,   6,   7,   8,   9, 
-	 10,  11,  12,  13,  14,  15,  16,  17,  18,  19, 
-	 20,  29,  30,  31,  32,  33,  34,  35,  36,  37, 
-	  0,  61,  58,   0,  56,  50,  70,  65,  45,  52, 
-	 68,  60,  57,  44,  47,  51,  48,  42,  78,  72, 
-	 83,  88,  82,  75,  73,  78,  85,  90,   0, 105, 
-	108, 110, 109, 103,  97, 100, 115, 120, 117,   0, 
-	106, 112, 125, 130, 131, 134, 135, 127, 142, 143, 
-	146, 147, 138, 139, 150, 151, 152, 153, 154, 155, 
-	  0, 159, 160, 161, 167, 168, 170, 171, 175, 176, 
-	177, 181, 180, 182, 183, 184, 185, 188, 192, 193, 
-	190, 195, 197, 198, 200, 201, 203, 205, 211, 209, 
-	207, 196, 253, 230, 233, 237, 238, 240, 245, 247, 
-	246, 248, 284, 286, 287, 273, 291, 283, 264, 266, 
-	268, 269, 267, 280, 281, 262, 278, 277, 279, 260, 
-	263, 289, 288, 276, 261, 282, 270, 271, 272, 274, 
-	275, 265, 290, 308, 309, 307, 303, 305, 306, 304, 
-	311, 310, 302, 337, 338, 336, 332, 333, 343, 360, 
-	334, 344,   0,   0, 324, 328, 329, 330, 356, 345, 
-	358, 335, 346, 347, 348,   0,   0, 349, 366, 367, 
-	365, 350, 321, 327, 359, 339, 342, 364, 320, 357, 
-	352, 362, 341, 323, 340, 322, 325, 353, 353, 355, 
-	331, 361, 382, 381, 380, 428, 396, 422, 429, 397, 
-	423, 430, 398, 324, 433, 401, 427, 414, 419, 400, 
-	415, 416, 417, 432, 439, 391, 387, 389, 386, 409, 
-	384, 431, 425, 426, 393, 385, 436, 412, 413, 408, 
+	  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+	 10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
+	 20,  29,  30,  31,  32,  33,  34,  35,  36,  37,
+	  0,  61,  58,   0,  56,  50,  70,  65,  45,  52,
+	 68,  60,  57,  44,  47,  51,  48,  42,  78,  72,
+	 83,  88,  82,  75,  73,  78,  85,  90,   0, 105,
+	108, 110, 109, 103,  97, 100, 115, 120, 117,   0,
+	106, 112, 125, 130, 131, 134, 135, 127, 142, 143,
+	146, 147, 138, 139, 150, 151, 152, 153, 154, 155,
+	  0, 159, 160, 161, 167, 168, 170, 171, 175, 176,
+	177, 181, 180, 182, 183, 184, 185, 188, 192, 193,
+	190, 195, 197, 198, 200, 201, 203, 205, 211, 209,
+	207, 196, 253, 230, 233, 237, 238, 240, 245, 247,
+	246, 248, 284, 286, 287, 273, 291, 283, 264, 266,
+	268, 269, 267, 280, 281, 262, 278, 277, 279, 260,
+	263, 289, 288, 276, 261, 282, 270, 271, 272, 274,
+	275, 265, 290, 308, 309, 307, 303, 305, 306, 304,
+	311, 310, 302, 337, 338, 336, 332, 333, 343, 360,
+	334, 344,   0,   0, 324, 328, 329, 330, 356, 345,
+	358, 335, 346, 347, 348,   0,   0, 349, 366, 367,
+	365, 350, 321, 327, 359, 339, 342, 364, 320, 357,
+	352, 362, 341, 323, 340, 322, 325, 353, 353, 355,
+	331, 361, 382, 381, 380, 428, 396, 422, 429, 397,
+	423, 430, 398, 324, 433, 401, 427, 414, 419, 400,
+	415, 416, 417, 432, 439, 391, 387, 389, 386, 409,
+	384, 431, 425, 426, 393, 385, 436, 412, 413, 408,
 	421, 410, 411, 405, 406, 407, 420, 404, 434, 462,
-	472, 474, 473, 461, 468, 455, 456, 464, 465, 463, 
-	467, 460, 470, 457, 466, 458, 459, 476, 478, 477, 
-	469, 475, 479,   0, 471,   0,   0,   0, 480, 484, 
-	512, 510, 511, 504, 528, 503, 508, 529, 507, 502, 
-	521, 520, 516, 514, 522, 501, 513, 506, 515, 517, 
-	524, 523, 500, 527, 525, 519, 505, 526, 509, 518, 
+	472, 474, 473, 461, 468, 455, 456, 464, 465, 463,
+	467, 460, 470, 457, 466, 458, 459, 476, 478, 477,
+	469, 475, 479,   0, 471,   0,   0,   0, 480, 484,
+	512, 510, 511, 504, 528, 503, 508, 529, 507, 502,
+	521, 520, 516, 514, 522, 501, 513, 506, 515, 517,
+	524, 523, 500, 527, 525, 519, 505, 526, 509, 518,
 	530, 531, 532, 533, 485, 481, 482, 483, 616, 617,
-	618, 619, 620, 621, 622, 623, 626, 627, 628, 629, 
-	630, 569, 568, 575, 571, 572, 583, 589, 591, 590, 
-	587, 585, 584, 586, 581, 582, 593, 595, 594, 592, 
-	588, 573, 570, 576, 577, 578, 579, 596, 597, 598, 
-	599,   0,   0,   0,   0,   0,   0,   0,   0, 638, 
-	639, 641, 642, 644, 643, 648, 647, 646, 645,   0, 
-	213, 214, 215, 216, 217, 218, 220, 222, 224, 225, 
-	227, 228, 229,   0,   0, 403, 395, 402, 435, 418, 
-	419, 438, 437,   0,   0,   0,   0,   0,   0,   0, 
-	650, 651, 652, 653, 654, 655, 656, 657, 658, 660, 
-	661, 662, 663, 664, 665, 666, 667, 668, 670, 671, 
-	672, 673, 674, 675, 676, 677, 678, 680, 681, 682, 
-	683, 684, 685, 686, 687, 688,   0,   0,   0,   0, 
-	  0,   0,   0,   0,   0,   0,   0, 747, 739, 740, 
-	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
-	  0,   0,   0,   0,   0,   0,   0,   0, 731, 732, 
-	733, 734, 735, 736, 737, 738, 741, 742, 743, 744, 
+	618, 619, 620, 621, 622, 623, 626, 627, 628, 629,
+	630, 569, 568, 575, 571, 572, 583, 589, 591, 590,
+	587, 585, 584, 586, 581, 582, 593, 595, 594, 592,
+	588, 573, 570, 576, 577, 578, 579, 596, 597, 598,
+	599,   0,   0,   0,   0,   0,   0,   0,   0, 638,
+	639, 641, 642, 644, 643, 648, 647, 646, 645,   0,
+	213, 214, 215, 216, 217, 218, 220, 222, 224, 225,
+	227, 228, 229,   0,   0, 403, 395, 402, 435, 418,
+	419, 438, 437,   0,   0,   0,   0,   0,   0,   0,
+	650, 651, 652, 653, 654, 655, 656, 657, 658, 660,
+	661, 662, 663, 664, 665, 666, 667, 668, 670, 671,
+	672, 673, 674, 675, 676, 677, 678, 680, 681, 682,
+	683, 684, 685, 686, 687, 688,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0, 747, 739, 740,
+	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0, 731, 732,
+	733, 734, 735, 736, 737, 738, 741, 742, 743, 744,
 	745, 746
 };
 
@@ -732,12 +732,12 @@ static byte convert_ego_item[128] =
  * a complete hack, items which are inscribed with "uncursed" will be
  * "uncursed" when imported from pre-2.7.9 savefiles.
  *
- * Oangband 0.3.0 changed how rods and wands work, so old-style pvals 
- * are converted.  It also changed how artifact and object activations 
- * work, so code is included to properly translate old-style activatable 
+ * Oangband 0.3.0 changed how rods and wands work, so old-style pvals
+ * are converted.  It also changed how artifact and object activations
+ * work, so code is included to properly translate old-style activatable
  * items. -LM-
  *
- * Oangband 0.3.6 changed the object and artifact indexes, so old items 
+ * Oangband 0.3.6 changed the object and artifact indexes, so old items
  * must be converted to new. -LM-
  *
  * Change extra might to non-pval form if needed -LM-
@@ -845,7 +845,7 @@ static void rd_item(object_type *o_ptr)
 		/* Old special powers */
 		strip_bytes(2);
 	}
-	
+
 	else
 	{
 		/* Special powers */
@@ -893,7 +893,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((older_than(2, 8, 3)) && (o_ptr->k_idx >= 445) && 
+	if ((older_than(2, 8, 3)) && (o_ptr->k_idx >= 445) &&
 		(o_ptr->k_idx <= 479)) return;
 
 
@@ -919,7 +919,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Object indexes changed in Oangband 0.3.6.  Convert old to new. */
-	if (o_older_than(0, 3, 6)) 
+	if (o_older_than(0, 3, 6))
 		o_ptr->k_idx = lookup_kind(o_ptr->tval, o_ptr->sval);
 
 
@@ -946,7 +946,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Convert launchers with +2 or more to might, if not artifacts. */
-	if ((o_ptr->name2 == EGO_EXTRA_MIGHT1) && (o_ptr->pval > 1) && 
+	if ((o_ptr->name2 == EGO_EXTRA_MIGHT1) && (o_ptr->pval > 1) &&
 		(!(o_ptr->name1))) o_ptr->name2 = EGO_EXTRA_MIGHT2;
 
 	/* Ensure that old-style rods and wands obtain appropriate pvals. */
@@ -1099,11 +1099,11 @@ static void rd_item(object_type *o_ptr)
 		artifact_type *a_ptr;
 
 		/* Hack -- shift a few old artifact indexes. */
-		if ((o_older_than(0, 2, 0)) && (o_ptr->name1 < 14) && 
+		if ((o_older_than(0, 2, 0)) && (o_ptr->name1 < 14) &&
 			(o_ptr->name1 > 7)) o_ptr->name1++;
 
 		/* Artifact indexes changed in Oangband 0.3.6. Convert old to new. */
-		if (o_older_than(0, 3, 6)) 
+		if (o_older_than(0, 3, 6))
 		{
 			if (o_ptr->name1 < 128)
 			{
@@ -1150,8 +1150,8 @@ static void rd_item(object_type *o_ptr)
 	/* Acquire standard weight, unless an ego-item. */
 	if (!o_ptr->name2) o_ptr->weight = k_ptr->weight;
 
-	/* Starting with Oangband 0.3.0, dragon scale mail activations are assigned 
-	 * to the object like any other quality.  Perform this task for old dragon 
+	/* Starting with Oangband 0.3.0, dragon scale mail activations are assigned
+	 * to the object like any other quality.  Perform this task for old dragon
 	 * scale mails. -LM-
 	 */
 	if ((o_older_than(0, 3, 0)) && (o_ptr->tval == TV_DRAG_ARMOR))
@@ -1164,7 +1164,7 @@ static void rd_item(object_type *o_ptr)
 			case SV_DRAGON_WHITE: o_ptr->xtra2 = ACT_DRAGON_WHITE; break;
 			case SV_DRAGON_RED: o_ptr->xtra2 = ACT_DRAGON_RED; break;
 			case SV_DRAGON_GREEN: o_ptr->xtra2 = ACT_DRAGON_GREEN; break;
-			case SV_DRAGON_MULTIHUED: o_ptr->xtra2 = ACT_DRAGON_MULTIHUED; 
+			case SV_DRAGON_MULTIHUED: o_ptr->xtra2 = ACT_DRAGON_MULTIHUED;
 				break;
 			case SV_DRAGON_SHINING: o_ptr->xtra2 = ACT_DRAGON_SHINING; break;
 			case SV_DRAGON_LAW: o_ptr->xtra2 = ACT_DRAGON_LAW; break;
@@ -1328,7 +1328,7 @@ static void rd_monster(monster_type *m_ptr)
 		rd_byte(&m_ptr->harass);
 	}
 
-	/* 
+	/*
 	 * Monster mana.
 	 * 0.5.0 saves a placeholder.
 	 * 0.5.1 saves real data.
@@ -1437,7 +1437,7 @@ static void rd_lore(int r_idx)
 		rd_u32b(&l_ptr->flags4);
 		rd_u32b(&l_ptr->flags5);
 		rd_u32b(&l_ptr->flags6);
-
+		if (!o_older_than(1, 1, 0)) rd_u32b(&l_ptr->flags7);
 
 		/* Read the "Racial" monster limit per level */
 		rd_byte(&r_ptr->max_num);
@@ -1455,6 +1455,7 @@ static void rd_lore(int r_idx)
 	l_ptr->flags4 &= r_ptr->flags4;
 	l_ptr->flags5 &= r_ptr->flags5;
 	l_ptr->flags6 &= r_ptr->flags6;
+	if (!o_older_than(1, 1, 0)) l_ptr->flags7 &= r_ptr->flags7;
 }
 
 
@@ -1716,8 +1717,8 @@ static char *my_strdup (const char *s)
 
 
 /*
- * Read the saved random artifacts from a savefile, and add them to the 
- * a_name structure.  This code is adopted from Greg Wooledge's random 
+ * Read the saved random artifacts from a savefile, and add them to the
+ * a_name structure.  This code is adopted from Greg Wooledge's random
  * artifacts.
  */
 static int convert_saved_names(void)
@@ -1822,8 +1823,8 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->wt);
 
 	/* Read the stat info */
-	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
-	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
+	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
 
 	strip_bytes(24);	/* oops */
 
@@ -1858,7 +1859,13 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->heighten_power);
 	}
 	else strip_bytes(4);
-	strip_bytes(4);
+	if (!o_older_than(1, 1, 0))
+	{
+		rd_byte(&p_ptr->attune_tval);
+		rd_byte(&p_ptr->attune_sval);
+	}
+	else strip_bytes(2);
+	strip_bytes(2);
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 
@@ -1887,7 +1894,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->shield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->tim_invis);
-	if (!o_older_than(0, 3, 5)) 
+	if (!o_older_than(0, 3, 5))
 	{
 		rd_s16b(&p_ptr->tim_esp);
 		rd_s16b(&p_ptr->superstealth);
@@ -1939,7 +1946,7 @@ static errr rd_extra(void)
 	 * in some versions of Standard Angband */
 	rd_byte(&p_ptr->schange);
 
-	/* The number of the bone file (if any) that player ghosts should use to 
+	/* The number of the bone file (if any) that player ghosts should use to
 	 * reacquire a name, sex, class, and race.
 	 */
 	rd_byte(&bones_selector);
@@ -1966,11 +1973,11 @@ static errr rd_extra(void)
 	/* Specialty Abilities -BR- */
         if (!o_older_than(0, 5, 3))
 	{
-		for (i = 0; i < 10; i++) rd_byte(&p_ptr->specialty_order[i]);
+		for (i = 0; i < MAX_SPECIALTIES; i++) rd_byte(&p_ptr->specialty_order[i]);
 	}
 	else
 	{
-		for (i = 0; i < 10; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
+		for (i = 0; i < MAX_SPECIALTIES; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
 		strip_bytes(10);
 	}
 
@@ -2020,17 +2027,10 @@ static errr rd_extra(void)
 
 
 	/* Read spell info */
-	rd_u32b(&p_ptr->spell_learned1);
-	rd_u32b(&p_ptr->spell_learned2);
+	strip_bytes(8);
 	rd_u32b(&p_ptr->spell_worked1);
 	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_forgotten2);
-
-	for (i = 0; i < 64; i++)
-	{
-		rd_byte(&p_ptr->spell_order[i]);
-	}
+	strip_bytes(72);
 
 	return (0);
 }
@@ -2428,7 +2428,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 
 
 		/* Hack -- convert old "dungeon" objects */
-		if ((older_than(2,8,3)) && (i_ptr->k_idx >= 445) && 
+		if ((older_than(2,8,3)) && (i_ptr->k_idx >= 445) &&
 			(i_ptr->k_idx <= 479))
 		{
 			byte feat = FEAT_FLOOR;
@@ -3172,7 +3172,7 @@ static errr rd_savefile_new_aux(void)
 		monster_lore *l_ptr;
 
 		/* Calculate or accept the monster race. */
-		if (o_older_than(0, 5, 1)) 
+		if (o_older_than(0, 5, 1))
 		{
 			j = mon_index_conv[i];
 
@@ -3235,11 +3235,11 @@ static errr rd_savefile_new_aux(void)
 		object_kind *k_ptr;
 
 		/* Object indexes changed in Oangband 0.3.6.  Convert old to new. */
-		if (o_older_than(0, 3, 6)) 
+		if (o_older_than(0, 3, 6))
 		{
 			obj_index = obj_index_conv[i];
 		}
-		else 
+		else
 		{
 			obj_index = i;
 		}
@@ -3283,7 +3283,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 	total_artifacts = tmp16u;
 
-	/* If an Oangband 0.3.0 savefile or newer, load the random artifacts. 
+	/* If an Oangband 0.3.0 savefile or newer, load the random artifacts.
 	 * Although this value is not currently used, it may be useful someday.
 	 */
 	if (!(o_older_than(0,3,0)))
@@ -3313,7 +3313,7 @@ static errr rd_savefile_new_aux(void)
 			rd_byte(&tmp8u);
 		}
 
-		/* Later, we need to create the random artifacts, just as if 
+		/* Later, we need to create the random artifacts, just as if
 		 * the player were being born.
 		 */
 		need_random_artifacts = TRUE;
@@ -3329,15 +3329,15 @@ static errr rd_savefile_new_aux(void)
 		{
 			int j;
 
-			/* Most regular artifact info is stored in a_info.raw.  0.3.X 
-			 * savefiles have 127 regular artifacts, with indexes that need 
-			 * converting, and newer savefiles have 209, with up-to-date 
+			/* Most regular artifact info is stored in a_info.raw.  0.3.X
+			 * savefiles have 127 regular artifacts, with indexes that need
+			 * converting, and newer savefiles have 209, with up-to-date
 			 * indexes.
 			 */
 			if (i < (o_older_than(0,3,6) ? 128 : ART_MIN_RANDOM))
 			{
 				rd_byte(&tmp8u);
-				if (o_older_than(0,3,6)) 
+				if (o_older_than(0,3,6))
 					a_info[conv_arti[i]].creat_stat = tmp8u;
 				else a_info[i].creat_stat = tmp8u;
 				rd_byte(&tmp8u);
@@ -3409,7 +3409,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
-	/* If random artifacts do not need to be generated, read the 
+	/* If random artifacts do not need to be generated, read the
 	 * random artifact names, and add them to the a_name array.
 	 */
 	if (!need_random_artifacts)
@@ -3419,7 +3419,7 @@ static errr rd_savefile_new_aux(void)
 		/* Find out how many random artifacts have stored names. */
 		rd_u16b(&num_of_random_arts);
 
-		/* Verify that number, and warn the chap who modified the game that 
+		/* Verify that number, and warn the chap who modified the game that
 		 * he still has work to do on failure.
 		 */
 		if (num_of_random_arts != (MAX_A_IDX - ART_MIN_RANDOM))
@@ -3452,9 +3452,12 @@ static errr rd_savefile_new_aux(void)
 	cp_ptr = &cp_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &mp_info[p_ptr->pclass];
 
-	/* Now that the player information is known, we can generate a set 
+	/* Important -- Initialize the chest_drops */
+	ch_ptr = &ch_info[p_ptr->pclass];
+
+	/* Now that the player information is known, we can generate a set
 	 * of random artifacts, if needed.
 	 */
 	if (need_random_artifacts)
@@ -3567,8 +3570,8 @@ errr rd_savefile_new(void)
 
 
 /*
- * Open the savefile chosen earlier, and read and save Angband and 
- * Oangband version information.  This code is awfully hackish, but it 
+ * Open the savefile chosen earlier, and read and save Angband and
+ * Oangband version information.  This code is awfully hackish, but it
  * can be adopted for any additional variant version information. -LM-
  */
 errr rd_version_info(void)
@@ -3606,7 +3609,7 @@ errr rd_version_info(void)
 	rd_byte(&o_sf_patch);
 	rd_byte(&o_sf_extra);
 
-	/* Assign a version number of 0.2.0 to savefiles from Angband or 
+	/* Assign a version number of 0.2.0 to savefiles from Angband or
 	 * before Oangband 0.3.0.
 	 */
 	if ((o_sf_major == 0) && (o_sf_minor == 0)) o_sf_minor = 2;

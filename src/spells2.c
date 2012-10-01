@@ -1,11 +1,11 @@
 /* File: spells2.c */
 
-/* Healing spells, glyphs of warding, reducing or sustaining a stat, ID 
- * everything, chance for enchant spells to fail, remove curses, regain 
- * exp, detection spells, create stairs.  Definitions of armour & weapons, 
- * enchantment, branding, temporary branding, cursing, and ID code, what 
- * items are rechargable and the recharging code.  Various special object 
- * spells.  Spells that effect an area or LOS, lighten & darken rooms and 
+/* Healing spells, glyphs of warding, reducing or sustaining a stat, ID
+ * everything, chance for enchant spells to fail, remove curses, regain
+ * exp, detection spells, create stairs.  Definitions of armour & weapons,
+ * enchantment, branding, temporary branding, cursing, and ID code, what
+ * items are rechargable and the recharging code.  Various special object
+ * spells.  Spells that effect an area or LOS, lighten & darken rooms and
  * areas, casting ball, projection, beam, and bolt spells.  Some miscel-
  * lanious non-damage spell functions.
  *
@@ -75,7 +75,7 @@ bool hp_player(int num)
 }
 
 /*
- * Jam a closed door with a magical spike.  
+ * Jam a closed door with a magical spike.
  * Code is taken from do_cmd_spike. -LM-
  */
 void magic_spiking(void)
@@ -136,8 +136,8 @@ void magic_spiking(void)
 
 
 /*
- * Leave a "glyph of warding" which prevents monster movement.  Glyphs of 
- * warding are now rationed because priests are otherwise too easy to win 
+ * Leave a "glyph of warding" which prevents monster movement.  Glyphs of
+ * warding are now rationed because priests are otherwise too easy to win
  * with. -LM-
  */
 bool warding_glyph(void)
@@ -217,21 +217,21 @@ bool do_dec_stat(int stat)
 	{
 		case A_STR: if (p_ptr->sustain_str)
 				sust = TRUE; break;
-		case A_INT: if ((p_ptr->sustain_int) || 
+		case A_INT: if ((p_ptr->sustain_int) ||
 		     (clarity && (rand_int(2) != 0)))
 				sust = TRUE; break;
-		case A_WIS: if ((p_ptr->sustain_wis) || 
+		case A_WIS: if ((p_ptr->sustain_wis) ||
 		     (clarity && (rand_int(2) != 0)))
 				sust = TRUE; break;
-		case A_DEX: if ((p_ptr->sustain_dex) || 
+		case A_DEX: if ((p_ptr->sustain_dex) ||
 		     (athletics && (rand_int(2) != 0)))
 				sust = TRUE; break;
-		case A_CON: if ((p_ptr->sustain_con) || 
+		case A_CON: if ((p_ptr->sustain_con) ||
 		     (athletics && (rand_int(2) != 0)))
 				sust = TRUE; break;
 		case A_CHR: if (p_ptr->sustain_chr)
 				sust = TRUE; break;}
-			
+
 
 	/* Sustain */
 	if (sust)
@@ -704,17 +704,17 @@ static void animate_detect(int rad)
 
 	/* Hack -- center the cursor */
 	move_cursor_relative(py, px);
-	
+
 	/* Flush screen back to normal */
 	if (fresh_before) Term_fresh();
 
 	/* Exit */
 	return;
-	
+
 }
 
 /*
- * Detect all traps within range 
+ * Detect all traps within range
  */
 bool detect_traps(int range, bool show)
 {
@@ -790,7 +790,7 @@ bool detect_traps(int range, bool show)
 
 
 /*
- * Detect all doors within range 
+ * Detect all doors within range
  */
 bool detect_doors(int range, bool show)
 {
@@ -821,7 +821,7 @@ bool detect_doors(int range, bool show)
 					/* Pick a door */
 					place_closed_door(y, x);
 				}
-			
+
 				/* Detect doors */
 				if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
 				     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
@@ -859,7 +859,7 @@ bool detect_doors(int range, bool show)
 
 
 /*
- * Detect all stairs within range 
+ * Detect all stairs within range
  */
 bool detect_stairs(int range, bool show)
 {
@@ -967,7 +967,7 @@ bool detect_treasure(int range, bool show)
 			}
 		}
 	}
-	
+
 	/* Found some */
 	if (num > 0)
 	{
@@ -1194,7 +1194,7 @@ bool detect_objects_magic(int range, bool show)
 		msg_print("You detect magic objects.");
 
 	}
-	
+
 	/* Return result */
 	return (detect);
 }
@@ -1267,7 +1267,7 @@ bool detect_monsters_normal(int range, bool show)
 					    num_off);
 		else msg_print("You detect monsters.");
 	}
-	
+
 	/* Result */
 	return (flag);
 }
@@ -1351,7 +1351,7 @@ bool detect_monsters_invis(int range, bool show)
 					    num_off);
 		else msg_print("You detect invisible creatures.");
 	}
-	
+
 	/* Result */
 	return (flag);
 }
@@ -1441,7 +1441,7 @@ bool detect_monsters_evil(int range, bool show)
 	/* Result */
 	return (flag);
 
-	
+
 }
 
 
@@ -1480,7 +1480,7 @@ bool detect_monsters_living(int range, bool show)
 		if (distance(py, px, y, x) > range) continue;
 
 		/* Hack -- Detect all living monsters. */
-		if ((!strchr("Egv", r_ptr->d_char)) && 
+		if ((!strchr("Egv", r_ptr->d_char)) &&
 			(!(r_ptr->flags3 & (RF3_UNDEAD))))
 		{
 			/* Optimize -- Repair flags */
@@ -1513,7 +1513,7 @@ bool detect_monsters_living(int range, bool show)
 		else msg_print("You detect living creatures.");
 
 	}
-	
+
 	/* Result */
 	return (flag);
 }
@@ -1532,7 +1532,7 @@ bool detect_all(int range, bool show)
 
 	/* Detect everything */
 	/* Do not 'show' the affected region for each
-	 * detect individually 
+	 * detect individually
 	 */
 	if (detect_traps(range, FALSE)) detect = TRUE;
 	if (detect_doors(range, FALSE)) detect = TRUE;
@@ -1895,7 +1895,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
  *
  * Combines the old brand_bolts and brand_missiles routines.
  *
- * ammo_type is the tval of the relevant ammunition.  
+ * ammo_type is the tval of the relevant ammunition.
  * If set to 0, any ammunition is enchantable.
  *
  * Brand type is the EGO flag for the relevant type element.
@@ -1911,7 +1911,7 @@ bool brand_missile(int ammo_type, int brand_type)
 
 	/* Restrict choices
 	 * Hack - check for restricted choice */
-	if ((ammo_type >= TV_SHOT) && (ammo_type <= TV_BOLT)) 
+	if ((ammo_type >= TV_SHOT) && (ammo_type <= TV_BOLT))
 		item_tester_tval = ammo_type;
 
 	/* Otherwise any ammo will do */
@@ -2017,7 +2017,7 @@ bool brand_missile(int ammo_type, int brand_type)
 }
 
 /*
- * Set a temporary elemental brand.  Clear all other brands.  Print status 
+ * Set a temporary elemental brand.  Clear all other brands.  Print status
  * messages. -LM-
  */
 void set_ele_attack(u32b attack_type, int duration)
@@ -2061,9 +2061,9 @@ void set_ele_attack(u32b attack_type, int duration)
 		msg_format("For a while, the blows you deal will %s",
 			     ((attack_type == ATTACK_ACID) ? "melt with acid!" :
 			      ((attack_type == ATTACK_ELEC) ? "shock your foes!" :
-			       ((attack_type == ATTACK_FIRE) ? "burn with fire!" : 
-				((attack_type == ATTACK_COLD) ? "chill to the bone!" : 
-				 ((attack_type == ATTACK_POIS) ? "poison your enemies!" : 
+			       ((attack_type == ATTACK_FIRE) ? "burn with fire!" :
+				((attack_type == ATTACK_COLD) ? "chill to the bone!" :
+				 ((attack_type == ATTACK_POIS) ? "poison your enemies!" :
 					"do nothing special."))))));
 	}
 
@@ -2248,7 +2248,7 @@ bool ident_spell(void)
 	object_known(o_ptr);
 
 	/* Squelch it? */
-	if (item<INVEN_WIELD) 
+	if (item<INVEN_WIELD)
 	  squelch=squelch_itemp(o_ptr, 0, 1);
 
 
@@ -2283,7 +2283,7 @@ bool ident_spell(void)
 			   o_name,
 			   ((squelch==1) ? "(Squelch)" :
 			    ((squelch==-1) ? "(Squelch Failed)" : "")));
-		
+
 	}
 
 	/* If artifact, check for Set Item */
@@ -2296,9 +2296,9 @@ bool ident_spell(void)
 		}
 	}
 
- 
+
 	/* Now squelch it if needed */
-	if (squelch == 1) do_squelch_item(o_ptr);
+	if (squelch == 1) do_squelch_item(item, o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -2354,16 +2354,16 @@ bool identify_fully(void)
 	o_ptr->ident |= (IDENT_MENTAL);
 
 	/* Squelch it? */
-	if (item<INVEN_WIELD) 
+	if (item<INVEN_WIELD)
 	  squelch=squelch_itemp(o_ptr, 0, 1);
 
 	/* If the object is flavored, also make all items of that type, except for variable rings and amulets, fully known. */
 	if (k_ptr->flavor)
 	{
-		if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && 
+		if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
 			(k_ptr->flags3 & (TR3_EASY_KNOW))) k_ptr->known_effect = TRUE;
-		else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) || 
-			(o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+		else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) ||
+			(o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
 			k_ptr->known_effect = TRUE;
 	}
 
@@ -2403,7 +2403,7 @@ bool identify_fully(void)
 			   o_name,
 			   ((squelch==1) ? "(Squelch)" :
 			    ((squelch==-1) ? "(Squelch Failed)" : "")));
-		
+
 	}
 
 	/* If artifact, check for Set Item */
@@ -2417,7 +2417,7 @@ bool identify_fully(void)
 	}
 
  	/* Now squelch it if needed */
-	if (squelch == 1) do_squelch_item(o_ptr);
+	if (squelch == 1) do_squelch_item(item, o_ptr);
 
 	do_cmd_observe(o_ptr, FALSE);
 
@@ -2459,9 +2459,9 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
  * Scroll of recharging --> recharge(130)
  * Scroll of *recharging* --> recharge(200)
  *
- * It is harder to recharge high level, and highly charged wands, 
- * staffs, and rods.  The more wands in a stack, the more easily and 
- * strongly they recharge.  Staffs, however, each get fewer charges if 
+ * It is harder to recharge high level, and highly charged wands,
+ * staffs, and rods.  The more wands in a stack, the more easily and
+ * strongly they recharge.  Staffs, however, each get fewer charges if
  * stacked.
  *
  * XXX XXX XXX Beware of "sliding index errors".
@@ -2540,15 +2540,15 @@ bool recharge(int power)
 	/* Recharge wand/staff */
 	else
 	{
-		/* Extract a recharge strength by comparing object level to power. 
+		/* Extract a recharge strength by comparing object level to power.
 		 * Divide up a stack of wands' charges to calculate charge penalty.
 		 */
 		if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
-			recharge_strength = (100 + power - lev - 
+			recharge_strength = (100 + power - lev -
 			(8 * o_ptr->pval / o_ptr->number)) / 15;
 
 		/* All staffs, unstacked wands. */
-		else recharge_strength = (100 + power - lev - 
+		else recharge_strength = (100 + power - lev -
 			(8 * o_ptr->pval)) / 15;
 
 
@@ -2568,13 +2568,13 @@ bool recharge(int power)
 			/* Multiple wands in a stack increase recharging somewhat. */
 			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
 			{
-				recharge_amount += 
+				recharge_amount +=
 					(randint(recharge_amount * (o_ptr->number - 1))) / 2;
 				if (recharge_amount < 1) recharge_amount = 1;
 				if (recharge_amount > 12) recharge_amount = 12;
 			}
 
-			/* But each staff in a stack gets fewer additional charges, 
+			/* But each staff in a stack gets fewer additional charges,
 			 * although always at least one.
 			 */
 			if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
@@ -2587,7 +2587,7 @@ bool recharge(int power)
 			o_ptr->pval += recharge_amount;
 
 			/* Hack - Artifacts have a maximum # of charges. */
-			if (artifact_p(o_ptr) && (o_ptr->pval > k_ptr->pval)) 
+			if (artifact_p(o_ptr) && (o_ptr->pval > k_ptr->pval))
 				o_ptr->pval = k_ptr->pval;
 
 			/* Hack -- we no longer "know" the item */
@@ -2609,14 +2609,14 @@ bool recharge(int power)
 			msg_format("The recharging backfires - %s is completely drained!", o_name);
 
 			/* Artifact rods. */
-			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout < 10000)) 
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout < 10000))
 				o_ptr->timeout = (o_ptr->timeout + 100) * 2;
 
 			/* Artifact wands and staffs. */
-			else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) 
+			else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
 				o_ptr->pval = 0;
 		}
-		else 
+		else
 		{
 			/* Get the object description */
 			object_desc(o_name, o_ptr, FALSE, 0);
@@ -2676,7 +2676,7 @@ bool recharge(int power)
 				if (o_ptr->tval == TV_ROD)
 				{
 					msg_print("The recharge backfires, draining the rod further!");
-					if (o_ptr->timeout < 10000) 
+					if (o_ptr->timeout < 10000)
 						o_ptr->timeout = (o_ptr->timeout + 100) * 2;
 				}
 				else if (o_ptr->tval == TV_WAND)
@@ -2757,8 +2757,10 @@ bool recharge(int power)
 
 /*
  * Mages can get mana from magical objects at need. -LM-
+ *
+ * Returns true if tapped, false if cancelled.
  */
-void tap_magical_energy(void)
+bool tap_magical_energy(void)
 {
 	int item, lev;
 	int energy = 0;
@@ -2775,7 +2777,7 @@ void tap_magical_energy(void)
 	/* Get an item */
 	q = "Drain charges from which item? ";
 	s = "You have nothing to drain charges from.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return(FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2793,7 +2795,7 @@ void tap_magical_energy(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Extract the object's energy and get its generic name. */
-	if (o_ptr->tval == TV_ROD) 
+	if (o_ptr->tval == TV_ROD)
 	{
 		/* Rods have little usable energy, for obvious balance reasons... */
 		energy = (lev * o_ptr->number * 2)/3;
@@ -2801,7 +2803,7 @@ void tap_magical_energy(void)
 		/* No tapping rods with instant recharge */
 		if (!(o_ptr->pval)) energy = 0;
 
-		/* Modify Based on charged-ness */ 
+		/* Modify Based on charged-ness */
 		if (o_ptr->pval)
 		  energy = (energy * (o_ptr->pval-o_ptr->timeout))/ o_ptr->pval;
 		item_name = "rod";
@@ -2857,12 +2859,14 @@ void tap_magical_energy(void)
 		/* Player is a smart cookie. */
 		else msg_format("Your mana was already at its maximum.  %^s not drained.", item_name);
 	}
+
+	return(TRUE);
 }
 
 
 /*
- * Special code for staff of starlight and the Staff of Gandalf.  Most 
- * effective against monsters that start out in darkness, and against 
+ * Special code for staff of starlight and the Staff of Gandalf.  Most
+ * effective against monsters that start out in darkness, and against
  * those who hate light. -LM-
  */
 void do_starlight(int burst_number, int dam, bool strong)
@@ -2904,7 +2908,7 @@ void do_starlight(int burst_number, int dam, bool strong)
 		/* Then we hit the spot. */
 
 		/* Confusing to be suddenly lit up. */
-		if (!(cave_info[y][x] & (CAVE_GLOW))) 
+		if (!(cave_info[y][x] & (CAVE_GLOW)))
 			fire_meteor(-1, GF_CONFUSION, y, x, dam, strong ? 1 : 0, FALSE);
 
 		/* The actual burst of light. */
@@ -2912,11 +2916,11 @@ void do_starlight(int burst_number, int dam, bool strong)
 		fire_meteor(-1, GF_LITE, y, x, dam, strong ? 1 : 0, FALSE);
 
 
-		/* Hack - assume that the player's square is typical of the area, 
-		 * and only light those squares that weren't already magically lit 
+		/* Hack - assume that the player's square is typical of the area,
+		 * and only light those squares that weren't already magically lit
 		 * temporarily.
 		 */
-		if (!player_lit) 
+		if (!player_lit)
 			fire_meteor(-1, GF_DARK_WEAK, y, x, 0, strong ? 2 : 1, FALSE);
 	}
 
@@ -2926,8 +2930,8 @@ void do_starlight(int burst_number, int dam, bool strong)
 
 
 /*
- * Find some animals on the current dungeon level, and magic map the dungeon 
- * near them.  Learn about traps on the entire level if at least one natural 
+ * Find some animals on the current dungeon level, and magic map the dungeon
+ * near them.  Learn about traps on the entire level if at least one natural
  * creature is found. -LM-
  */
 bool listen_to_natural_creatures(void)
@@ -3031,7 +3035,7 @@ void unmake(int dir)
 			/* Chaos cloud right on top of the poor caster. */
 			case 11:
 			{
-				fire_cloud(GF_CHAOS, 0, randint(400), 6);	
+				fire_cloud(GF_CHAOS, 0, randint(400), 6);
 				break;
 			}
 			/* Chaos spray. */
@@ -3049,7 +3053,7 @@ void unmake(int dir)
 				(void)dec_stat(A_DEX, 20, (rand_int(3) == 0));
 				(void)dec_stat(A_CON, 20, (rand_int(3) == 0));
 				(void)dec_stat(A_CHR, 20, (rand_int(3) == 0));
-				break;	
+				break;
 			}
 		}
 
@@ -3103,7 +3107,7 @@ void ele_air_smite(void)
 			else if (j > 3) break;
 		}
 
-		if (rand_int(3) == 0) 
+		if (rand_int(3) == 0)
 			(void)fire_meteor(-1, GF_GRAVITY, y, x, 100, 1, FALSE);
 		else if (rand_int(2) == 0)
 			(void)fire_meteor(-1, GF_LITE, y, x, 100, 1, FALSE);
@@ -3379,15 +3383,15 @@ void aggravate_monsters(int who, bool the_entire_level)
 			m_ptr->mflag |= (MFLAG_ACTV);
 
 			/* Get mad. */
-			if (m_ptr->mspeed < r_ptr->speed + 10) 
+			if (m_ptr->mspeed < r_ptr->speed + 10)
 				m_ptr->mspeed = r_ptr->speed + 10;
 		}
 
 		/* Standard aggravation */
-		else 
+		else
 		{
 			/* Wake up nearby sleeping monsters */
-			if (m_ptr->cdis < (p_ptr->themed_level ? 
+			if (m_ptr->cdis < (p_ptr->themed_level ?
 				MAX_SIGHT : MAX_SIGHT * 2))
 			{
 				/* Wake up */
@@ -3589,7 +3593,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 			/* Stay in the circle of death */
 			if (k > r) continue;
-			
+
 			/* Ignore icky squares */
 			if ((cave_info[y][x] & CAVE_ICKY) == CAVE_ICKY) continue;
 
@@ -4013,10 +4017,10 @@ void earthquake(int cy, int cx, int r, bool volcano)
 					/* Dump rubble on top of monsters. */
 					if (cave_m_idx[yy][xx] > 0) feat = FEAT_RUBBLE;
 
-					/* If this was a volcanic eruption, create lava near 
+					/* If this was a volcanic eruption, create lava near
 					 * center. -LM-
 					 */
-					else if ((volcano) && (distance(cy, cx, yy, xx) < 3)) 
+					else if ((volcano) && (distance(cy, cx, yy, xx) < 3))
 						feat = FEAT_LAVA;
 
 					/* Otherwise, create quartz vein */
@@ -4029,10 +4033,10 @@ void earthquake(int cy, int cx, int r, bool volcano)
 					/* Dump rubble on top of monsters. */
 					if (cave_m_idx[yy][xx] > 0) feat = FEAT_RUBBLE;
 
-					/* If this was a volcanic eruption, create lava near 
+					/* If this was a volcanic eruption, create lava near
 					 * center. -LM-
 					 */
-					else if ((volcano) && (distance(cy, cx, yy, xx) < 3)) 
+					else if ((volcano) && (distance(cy, cx, yy, xx) < 3))
 						feat = FEAT_LAVA;
 
 					/* Otherwise, create magma vein */
@@ -4374,7 +4378,7 @@ bool unlite_area(int dam, int rad)
  * Cast a ball spell
  * Stop if we hit a monster, act as a "ball"
  * Allow "target" mode to pass over monsters
- * Allow "jump" option to remove the standard "trail" from the caster to 
+ * Allow "jump" option to remove the standard "trail" from the caster to
  * the target. -LM-
  * Affect grids, objects, and monsters
  */
@@ -4408,12 +4412,12 @@ bool fire_ball(int typ, int dir, int dam, int rad, bool jump)
 
 
 /*
- * Fire a sphere, defined as a ball spell that does not lose strength with 
- * distance from the center, up to a given diameter.  This spell is most 
- * often used to cast balls centered on the player with diameter 20, because 
+ * Fire a sphere, defined as a ball spell that does not lose strength with
+ * distance from the center, up to a given diameter.  This spell is most
+ * often used to cast balls centered on the player with diameter 20, because
  * it then offers "what you see is what you get" damage to adjacent monsters.
- * It could also be used to cast pinpoints of extremely intense energy (use 
- * a diameter of 5 or even less) more "realistically" than ball spells of 
+ * It could also be used to cast pinpoints of extremely intense energy (use
+ * a diameter of 5 or even less) more "realistically" than ball spells of
  * radius 0. -LM-
  */
 bool fire_sphere(int typ, int dir, int dam, int rad, byte diameter_of_source)
@@ -4453,7 +4457,7 @@ bool fire_cloud(int typ, int dir, int dam, int rad)
 
 	int ty, tx;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | 
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
 		PROJECT_PLAY;
 
 	/* Use the given direction */
@@ -4474,9 +4478,9 @@ bool fire_cloud(int typ, int dir, int dam, int rad)
 }
 
 /*
- * Cast a meteor spell, defined as a ball spell cast by an arbitary monster, 
- * player, or outside source, that starts out at an arbitrary location, and 
- * that leaves no trail from the "caster" to the target.  This function is 
+ * Cast a meteor spell, defined as a ball spell cast by an arbitary monster,
+ * player, or outside source, that starts out at an arbitrary location, and
+ * that leaves no trail from the "caster" to the target.  This function is
  * especially useful for bombardments and similar. -LM-
  *
  * Option to hurt the player.
@@ -4494,16 +4498,16 @@ bool fire_meteor(int who, int typ, int y, int x, int dam, int rad, bool hurt_pla
 
 
 /*
- * Cast an arc-shaped spell.  This is nothing more than a sphere spell 
- * centered on the caster with a value for degrees_of_arc (how many degrees 
- * wide the the arc is) that is not 360.  The direction given will be the 
- * center of the arc, which travels outwards from the caster to a distance 
+ * Cast an arc-shaped spell.  This is nothing more than a sphere spell
+ * centered on the caster with a value for degrees_of_arc (how many degrees
+ * wide the the arc is) that is not 360.  The direction given will be the
+ * center of the arc, which travels outwards from the caster to a distance
  * given by rad. -LM-
  *
- * Because all arcs start out as being one grid wide, arc spells with a 
- * value for degrees_of_arc less than (roughly) 60 do not dissipate as 
- * quickly.  In the extreme case where degrees_of_arc is 0, the arc is 
- * actually a defined length beam, and loses no strength at all over the 
+ * Because all arcs start out as being one grid wide, arc spells with a
+ * value for degrees_of_arc less than (roughly) 60 do not dissipate as
+ * quickly.  In the extreme case where degrees_of_arc is 0, the arc is
+ * actually a defined length beam, and loses no strength at all over the
  * ranges found in the game.
  */
 bool fire_arc(int typ, int dir, int dam, int rad, int degrees_of_arc)
@@ -4546,10 +4550,10 @@ bool fire_arc(int typ, int dir, int dam, int rad, int degrees_of_arc)
 	/* Max */
 	if (diameter_of_source > 250) diameter_of_source = 250;
 
-	/* Analyze the "dir" and the "target".  Use the given degrees of arc, 
+	/* Analyze the "dir" and the "target".  Use the given degrees of arc,
 	 * and the calculated source diameter.
 	 */
-	return (project(-1, rad, ty, tx, dam, typ, flg, degrees_of_arc, 
+	return (project(-1, rad, ty, tx, dam, typ, flg, degrees_of_arc,
 		(byte)diameter_of_source));
 }
 
@@ -4656,7 +4660,7 @@ bool destroy_door(int dir)
 	return (project_hook(GF_KILL_DOOR, dir, 0, flg));
 }
 
-/* This function now casts a radius 0 ball spell on the adjacent square 
+/* This function now casts a radius 0 ball spell on the adjacent square
  * in whatever direction has been chosen. -LM-
  */
 bool disarm_trap(int dir)
@@ -4739,7 +4743,7 @@ bool dispel_a_dragon(int dir, int dam)
 
 bool teleport_monster(int dir, int dist)
 {
-	int flg = PROJECT_BEAM | PROJECT_KILL;
+	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_AWAY_ALL, dir, dist, flg));
 }
 

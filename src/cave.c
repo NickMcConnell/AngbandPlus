@@ -46,10 +46,10 @@ sint distance(int y1, int x1, int y2, int x2)
  * This function returns TRUE if a "line of sight" can be traced from the
  * center of the grid (x1,y1) to the center of the grid (x2,y2), with all
  * of the grids along this path (except for the endpoints) being non-wall
- * grids, that are also not trees or rubble.  Actually, the "chess knight 
- * move" situation is handled by some special case code which allows the 
- * grid diagonally next to the player to be obstructed, because this 
- * yields better gameplay semantics.  This algorithm is totally reflexive, 
+ * grids, that are also not trees or rubble.  Actually, the "chess knight
+ * move" situation is handled by some special case code which allows the
+ * grid diagonally next to the player to be obstructed, because this
+ * yields better gameplay semantics.  This algorithm is totally reflexive,
  * except for "knight move" situations.
  *
  * Because this function uses (short) ints for all calculations, overflow
@@ -347,14 +347,14 @@ bool cave_valid_bold(int y, int x)
 }
 
 
-/* 
- * Table of breath colors.  Must match listings in a single set of 
+/*
+ * Table of breath colors.  Must match listings in a single set of
  * monster spell flags.
  *
- * The value "255" is special.  Monsters with that kind of breath 
+ * The value "255" is special.  Monsters with that kind of breath
  * may be any color.
  */
-static byte breath_to_attr[32][2] = 
+static byte breath_to_attr[32][2] =
 {
 	{  0,  0 },
 	{  0,  0 },
@@ -394,8 +394,8 @@ static byte breath_to_attr[32][2] =
 /*
  * Multi-hued monsters shimmer acording to their breaths.
  *
- * If a monster has only one kind of breath, it uses both colors 
- * associated with that breath.  Otherwise, it just uses the first 
+ * If a monster has only one kind of breath, it uses both colors
+ * associated with that breath.  Otherwise, it just uses the first
  * color for any of its breaths.
  *
  * If a monster does not breath anything, it can be any color.
@@ -452,8 +452,8 @@ static byte multi_hued_attr(monster_race *r_ptr)
 			stored_colors++;
 		}
 
-		/* 
-		 * Remember (but do not immediately store) the second color 
+		/*
+		 * Remember (but do not immediately store) the second color
 		 * of the first breath.
 		 */
 		if (breaths == 1)
@@ -1148,8 +1148,27 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		monster_race *r_ptr = &r_info[0];
 
-		/* Get the "player" attr */
-		a = r_ptr->x_attr;
+		/* Color changing code from NPPAngband */
+		if (hp_changes_color)
+		{
+			switch(p_ptr->chp * 10 / p_ptr->mhp)
+			{
+				case 10:
+				case  9:	a = TERM_WHITE  ;	break;
+				case  8:
+				case  7:	a = TERM_YELLOW ;	break;
+				case  6:
+				case  5:	a = TERM_ORANGE ;	break;
+				case  4:
+				case  3:	a = TERM_L_RED  ;	break;
+				case  2:
+				case  1:
+				case  0:	a = TERM_RED    ;	break;
+				default:	a = TERM_WHITE  ;	break;
+			}
+		}
+
+		else a = r_ptr->x_attr;
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
@@ -1678,11 +1697,11 @@ void display_map(int *cy, int *cx)
 
 	yrat = (DUNGEON_HGT * yfactor + hgt - 1) / hgt;
 	xrat = (DUNGEON_WID * xfactor + wid - 1) / wid;
-	
+
 	/* Player location in dungeon */
 	(*cy) = py * yfactor / yrat + ROW_MAP;
 	(*cx) = px * xfactor / xrat + COL_MAP;
-	
+
 	/* Fill in the map of dungeon */
 	for (i = 0; i < DUNGEON_WID; ++i)
 	{
@@ -1691,37 +1710,37 @@ void display_map(int *cy, int *cx)
 			/* Location */
 			x = i * xfactor / xrat + 1;
 			y = j * yfactor / yrat + 1;
-			
+
 			/* Priority zero */
 			tp = 0;
 
 #if 0
-			
+
 			if (cave_feat[j][i] == FEAT_FLOOR)
 			{
 				/* Corridors are important */
 				tp = priority_tunnel(j, i);
 			}
-#endif			
+#endif
 			/* Extract the current attr/char at that map location */
-#ifdef USE_TRANSPARENCY	
+#ifdef USE_TRANSPARENCY
 			map_info(j, i, &ta, &tc, &ta, &tc);
 #else /* USE_TRANSPARENC*/
 			map_info(j, i, &ta, &tc);
 #endif /* USE_TRANSPAREN */
-			
+
 			/* Extract the priority of that attr/char */
 			tp += priority(ta, tc);
-			
+
 			/* Save "best" */
 			if (mp[y][x] < tp)
 			{
 				  /* Save the char */
 				  mc[y][x] = tc;
-			
+
 				  /* Save the attr */
 				  ma[y][x] = ta;
-			
+
 				  /* Save priority */
 				  mp[y][x] = tp;
 			}
@@ -1930,7 +1949,7 @@ void do_cmd_view_map(void)
  * which grids have been "memorized" by the player.  This flag is used by
  * the "map_info()" function to determine if a grid should be displayed.
  * This flag is used in a few other places to determine if the player can
- * "know" about a given grid.  This flag must be very fast. 
+ * "know" about a given grid.  This flag must be very fast.
  *
  * The "CAVE_GLOW" flag is saved in the savefile and is used to determine
  * which grids are "permanently illuminated".  This flag is used by the
@@ -2082,7 +2101,7 @@ void do_cmd_view_map(void)
  * two wall grids which form the "entrance" to the room would not be marked
  * as "CAVE_SEEN", since of the three "touching" grids nearer to the player
  * than each wall grid, only the farthest of these grids is itself marked
- * "CAVE_GLOW". 
+ * "CAVE_GLOW".
  *
  *
  * Here are some pictures of the legal "light source" radius values, in
@@ -2093,7 +2112,7 @@ void do_cmd_view_map(void)
  *
  *	 Rad=0	   Rad=1      Rad=2	   Rad=3
  *	No-Lite	 Torch,etc   Lantern	 Artifacts
- *    
+ *
  *					    333
  *			       333	   43334
  *		    212	      32123	  3321233
@@ -3164,26 +3183,26 @@ void update_view(void)
 
 
 /*
- * Every so often, the character makes enough noise that nearby 
+ * Every so often, the character makes enough noise that nearby
  * monsters can use it to home in on him.
  *
- * Fill in the "cave_cost" field of every grid that the player can 
- * reach with the number of steps needed to reach that grid.  This 
+ * Fill in the "cave_cost" field of every grid that the player can
+ * reach with the number of steps needed to reach that grid.  This
  * also yields the route distance of the player from every grid.
  *
- * Monsters use this information by moving to adjacent grids with 
- * lower flow costs, thereby homing in on the player even though 
- * twisty tunnels and mazes.  Monsters can also run away from loud 
+ * Monsters use this information by moving to adjacent grids with
+ * lower flow costs, thereby homing in on the player even though
+ * twisty tunnels and mazes.  Monsters can also run away from loud
  * noises.
  *
- * The biggest limitation of this code is that it does not easily 
- * allow for alternate ways around doors (not all monsters can handle 
- * doors) and lava/water (many monsters are not allowed to enter 
+ * The biggest limitation of this code is that it does not easily
+ * allow for alternate ways around doors (not all monsters can handle
+ * doors) and lava/water (many monsters are not allowed to enter
  * water, lava, or both).
  *
- * The flow table is three-dimensional.  The first dimension allows the 
- * table to both store and overwrite grids safely.  The second indicates 
- * whether this value is that for x or for y.  The third is the number 
+ * The flow table is three-dimensional.  The first dimension allows the
+ * table to both store and overwrite grids safely.  The second indicates
+ * whether this value is that for x or for y.  The third is the number
  * of grids able to be stored at any flow distance.
  */
 void update_noise(void)
@@ -3217,7 +3236,7 @@ void update_noise(void)
 			dist = ABS(p_ptr->px - flow_center_x);
 
 		/*
-		 * Character is far enough away from the previous flow center - 
+		 * Character is far enough away from the previous flow center -
 		 * do a full rebuild.
 		 */
 		if (dist >= 15) full = TRUE;
@@ -3240,7 +3259,7 @@ void update_noise(void)
 			else if (dist < 5)
 			{
 				/* We're in LOS of the last update - don't update again */
-				if (los(p_ptr->py, p_ptr->px, update_center_y, 
+				if (los(p_ptr->py, p_ptr->px, update_center_y,
 		 		    update_center_x)) return;
 
 				/* We're not in LOS - update */
@@ -3266,7 +3285,7 @@ void update_noise(void)
 		for (cost = 0; cost <= NOISE_STRENGTH; cost++)
 		{
 			/*
-			 * Keep track of the route distance to the previous 
+			 * Keep track of the route distance to the previous
 			 * update center.
 			 */
 			route_distance++;
@@ -3312,7 +3331,7 @@ void update_noise(void)
 					grid_count++;
 
 					/* If this is the previous update center, we can stop */
-					if ((y2 == update_center_y) && 
+					if ((y2 == update_center_y) &&
 						(x2 == update_center_x)) found = TRUE;
 				}
 			}
@@ -3335,8 +3354,8 @@ void update_noise(void)
 		}
 
 		/*
-		 * Reduce the flow cost assigned to the new center grid by 
-		 * enough to maintain the correct cost slope out to the range 
+		 * Reduce the flow cost assigned to the new center grid by
+		 * enough to maintain the correct cost slope out to the range
 		 * we have to update the flow.
 		 */
 		cost_at_center -= route_distance;
@@ -3357,8 +3376,8 @@ void update_noise(void)
 	if (full)
 	{
 		/*
-		 * Set the initial cost to 100; updates will progressively 
-		 * lower this value.  When it reaches zero, another full 
+		 * Set the initial cost to 100; updates will progressively
+		 * lower this value.  When it reaches zero, another full
 		 * rebuild has to be done.
 		 */
 		cost_at_center = 100;
@@ -3428,8 +3447,8 @@ void update_noise(void)
 					if (cave_cost[y2][x2]) continue;
 
 					/* Ignore walls.  Do not ignore rubble. */
-					if ((cave_feat[y2][x2] > FEAT_RUBBLE) && 
-					    (cave_feat[y2][x2] < FEAT_SHOP_HEAD)) 
+					if ((cave_feat[y2][x2] > FEAT_RUBBLE) &&
+					    (cave_feat[y2][x2] < FEAT_SHOP_HEAD))
 					{
 						continue;
 					}
@@ -3474,17 +3493,17 @@ void update_noise(void)
 /*
  * Characters leave scent trails for perceptive monsters to track.
  *
- * Smell is rather more limited than sound.  Many creatures cannot use 
- * it at all, it doesn't extend very far outwards from the character's 
- * current position, and monsters can use it to home in the character, 
+ * Smell is rather more limited than sound.  Many creatures cannot use
+ * it at all, it doesn't extend very far outwards from the character's
+ * current position, and monsters can use it to home in the character,
  * but not to run away from him.
  *
- * Smell is valued according to age.  When a character takes his turn, 
- * scent is aged by one, and new scent of the current age is laid down.  
- * Speedy characters leave more scent, true, but it also ages faster, 
+ * Smell is valued according to age.  When a character takes his turn,
+ * scent is aged by one, and new scent of the current age is laid down.
+ * Speedy characters leave more scent, true, but it also ages faster,
  * which makes it harder to hunt them down.
  *
- * Whenever the age count loops, most of the scent trail is erased and 
+ * Whenever the age count loops, most of the scent trail is erased and
  * the age of the remainder is recalculated.
  */
 void update_smell(void)
@@ -3499,7 +3518,7 @@ void update_smell(void)
 
 
 	/* Create a table that controls the spread of scent */
-	int scent_adjust[5][5] = 
+	int scent_adjust[5][5] =
 	{
 		{ 250,  2,  2,  2, 250 },
 		{   2,  1,  1,  1,   2 },
@@ -3548,8 +3567,8 @@ void update_smell(void)
 			if (!in_bounds(y, x)) continue;
 
 			/* Walls, water, and lava cannot hold scent. */
-			if ((cave_feat[y][x] > FEAT_RUBBLE) || 
-			    (cave_feat[y][x] == FEAT_WATER) || 
+			if ((cave_feat[y][x] > FEAT_RUBBLE) ||
+			    (cave_feat[y][x] == FEAT_WATER) ||
 			    (cave_feat[y][x] == FEAT_LAVA))
 			{
 				continue;
@@ -3570,8 +3589,8 @@ void update_smell(void)
 }
 
 /*
- * Map around a given point, or the current panel (plus some) 
- * ala "magic mapping".   Staffs of magic mapping map more than 
+ * Map around a given point, or the current panel (plus some)
+ * ala "magic mapping".   Staffs of magic mapping map more than
  * rods do, because staffs affect larger areas in general.
  *
  * We must never attempt to map the outer dungeon walls, or we
@@ -3627,7 +3646,7 @@ void map_area(int y, int x, bool extended)
 					int xx = x + ddx_ddd[i];
 
 					/* All non-walls are "checked" */
-					if ((cave_feat[y][x] < FEAT_SECRET) || 
+					if ((cave_feat[y][x] < FEAT_SECRET) ||
 						(cave_feat[y][x] == FEAT_RUBBLE))
 					{
 						/* Memorize the walls */
@@ -3655,8 +3674,8 @@ void map_area(int y, int x, bool extended)
  * standard option settings (view_perma_grids but not view_torch_grids)
  * memorizes all floor grids too.
  *
- * In Oangband, greater and lesser vaults only become fully known if the 
- * player has accessed this function from the debug commands.  Otherwise, 
+ * In Oangband, greater and lesser vaults only become fully known if the
+ * player has accessed this function from the debug commands.  Otherwise,
  * they act like magically mapped permenantly lit rooms.
  *
  * Note that if "view_perma_grids" is not set, we do not memorize floor
@@ -3684,7 +3703,7 @@ void wiz_lite(bool wizard)
 		if (o_ptr->held_m_idx) continue;
 
 		/* Skip objects in vaults, if not a wizard. */
-		if ((wizard == FALSE) && 
+		if ((wizard == FALSE) &&
 			(cave_info[o_ptr->iy][o_ptr->ix] & (CAVE_ICKY))) continue;
 
 		/* Memorize */
@@ -3698,7 +3717,7 @@ void wiz_lite(bool wizard)
 		for (x = 1; x < DUNGEON_WID-1; x++)
 		{
 			/* Process all non-walls, trees, and rubble. */
-			if ((cave_feat[y][x] < FEAT_SECRET) || 
+			if ((cave_feat[y][x] < FEAT_SECRET) ||
 				(cave_feat[y][x] == FEAT_RUBBLE))
 			{
 				/* Scan all neighbors */
@@ -3711,9 +3730,9 @@ void wiz_lite(bool wizard)
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
 					/* Skip non-wall vault features if not a wizard. */
-					if ((wizard == FALSE) && 
-						(cave_info[yy][xx] & (CAVE_ICKY)) && 
-						(cave_feat[yy][xx] < FEAT_SECRET) && 
+					if ((wizard == FALSE) &&
+						(cave_info[yy][xx] & (CAVE_ICKY)) &&
+						(cave_feat[yy][xx] < FEAT_SECRET) &&
 						(cave_feat[yy][xx] != FEAT_RUBBLE)) continue;
 
 					/* Memorize normal features */
@@ -3753,7 +3772,7 @@ void wiz_dark(void)
 {
 	int i, y, x;
 
-	
+
 	/* Forget every grid */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
@@ -3872,7 +3891,7 @@ void town_illuminate(bool daytime)
 
 					/* Illuminate the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
-	
+
 					/* Hack -- Memorize grids */
 					if (view_perma_grids)
 					{
@@ -3897,7 +3916,7 @@ void town_illuminate(bool daytime)
 
 
 /*
- * Change the "feat" flag for a grid, and notice/redraw the grid. 
+ * Change the "feat" flag for a grid, and notice/redraw the grid.
  */
 void cave_set_feat(int y, int x, int feat)
 {
@@ -4071,7 +4090,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			{
 				if ((n > 0) && (cave_m_idx[y][x] != 0)) blocked = TRUE;
 			}
-			
+
 			/* Slant */
 			if (m)
 			{
@@ -4139,7 +4158,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			{
 				if ((n > 0) && (cave_m_idx[y][x] != 0)) blocked = TRUE;
 			}
-		      
+
 			/* Slant */
 			if (m)
 			{
@@ -4219,7 +4238,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 
 /*
  * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
- * at the final destination, using the "project_path()" function to check 
+ * at the final destination, using the "project_path()" function to check
  * the projection path.
  *
  * Accept projection flags, and pass them onto "project_path()".
@@ -4227,7 +4246,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
  * Note that no grid is ever "projectable()" from itself.
  *
  * This function is used to determine if the player can (easily) target
- * a given grid, if a monster can target the player, and if a clear shot 
+ * a given grid, if a monster can target the player, and if a clear shot
  * exists from monster to player.
  */
 byte projectable(int y1, int x1, int y2, int x2, int flg)
@@ -4361,10 +4380,13 @@ void object_kind_track(int k_idx)
  *
  * All disturbance cancels repeated commands, resting, and running.
  */
-void disturb(int stop_search, int unused_flag)
+void disturb(int seriousness, int unused_flag)
 {
 	/* Cancel auto-commands */
 	/* p_ptr->command_new = 0; */
+
+	/* Cancel auto-commands on a major disturb (when hurt, for example) */
+	if (seriousness > 1) p_ptr->command_new = 0;
 
 	/* Cancel repeated commands */
 	if (p_ptr->command_rep)
@@ -4410,7 +4432,7 @@ void disturb(int stop_search, int unused_flag)
 	}
 
 	/* Cancel searching if requested */
-	if (stop_search && p_ptr->searching)
+	if ((seriousness > 0) && p_ptr->searching)
 	{
 		/* Cancel */
 		p_ptr->searching = FALSE;
@@ -4420,6 +4442,14 @@ void disturb(int stop_search, int unused_flag)
 
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/* Cancel auto-pickup if serious and badly wounded */
+	if ((seriousness > 0) &&
+	    (p_ptr->notice & (PN_PICKUP0 | PN_PICKUP1)) &&
+	    (p_ptr->chp < (p_ptr->mhp * op_ptr->hitpoint_warn / 10)))
+	{
+		p_ptr->auto_pickup_okay = FALSE;
 	}
 
 	/* Flush the input if requested */

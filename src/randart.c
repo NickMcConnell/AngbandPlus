@@ -1,16 +1,16 @@
 /* File: randart.c */
 
-/* Random artifacts.  Selling and providing qualities.  Choosing a object 
- * type and kind, determining the potential, depth and rarity of the 
- * artifact.  Selecting a theme, and the properties of all possible themes.  
- * Adding semi-random qualities until potential is all used up.  Cursing 
- * an artifact.  Removing contradictory flags.  Naming an artifact, using 
- * either of two methods.  Initializing one random artifact.  Adding new 
+/* Random artifacts.  Selling and providing qualities.  Choosing a object
+ * type and kind, determining the potential, depth and rarity of the
+ * artifact.  Selecting a theme, and the properties of all possible themes.
+ * Adding semi-random qualities until potential is all used up.  Cursing
+ * an artifact.  Removing contradictory flags.  Naming an artifact, using
+ * either of two methods.  Initializing one random artifact.  Adding new
  * names to the a_name array.  Initializing all random artifacts.
  *
  * Copyright (c) 1998 Leon Marrick
  *
- * I owe thanks to Greg Wooledge for his support and string-handling code 
+ * I owe thanks to Greg Wooledge for his support and string-handling code
  * and to W. Sheldon Simms for his Tolkienesque random name generator.
  *
  * This software may be copied and distributed for educational, research,
@@ -141,7 +141,7 @@ static char *names[500];
 
 
 
-/* 
+/*
  * Debit an artifact's account.
  */
 static bool take_money(bool on_credit, int cost)
@@ -166,7 +166,7 @@ static bool take_money(bool on_credit, int cost)
 
 
 
-/* 
+/*
  * Grant the quality asked for, if the artifact can afford it.
  */
 static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
@@ -190,7 +190,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		{
 			if (mp_ptr->spell_stat == A_WIS)
 			{
-				if (take_money(on_credit, (150 * pval) + (pval * pval * 8))) 
+				if (take_money(on_credit, (150 * pval) + (pval * pval * 8)))
 				{
 					a_ptr->flags1 |= TR1_WIS;
 					return(TRUE);
@@ -198,7 +198,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 			}
 			else
 			{
-				if (take_money(on_credit, (100 * pval) + (pval * pval * 5))) 
+				if (take_money(on_credit, (100 * pval) + (pval * pval * 5)))
 				{
 					a_ptr->flags1 |= TR1_WIS;
 					return(TRUE);
@@ -210,7 +210,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		{
 			if (mp_ptr->spell_stat == A_INT)
 			{
-				if (take_money(on_credit, (150 * pval) + (pval * pval * 8))) 
+				if (take_money(on_credit, (150 * pval) + (pval * pval * 8)))
 				{
 					a_ptr->flags1 |= TR1_INT;
 					return(TRUE);
@@ -218,7 +218,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 			}
 			else
 			{
-				if (take_money(on_credit, (100 * pval) + (pval * pval * 5))) 
+				if (take_money(on_credit, (100 * pval) + (pval * pval * 5)))
 				{
 					a_ptr->flags1 |= TR1_INT;
 					return(TRUE);
@@ -228,7 +228,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case ADD_DEX:
 		{
-			if (take_money(on_credit, (130 * pval) + (pval * pval * 7))) 
+			if (take_money(on_credit, (130 * pval) + (pval * pval * 7)))
 			{
 				a_ptr->flags1 |= TR1_DEX;
 				return(TRUE);
@@ -237,7 +237,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case ADD_CON:
 		{
-			if (take_money(on_credit, (130 * pval) + (pval * pval * 7))) 
+			if (take_money(on_credit, (130 * pval) + (pval * pval * 7)))
 			{
 				a_ptr->flags1 |= TR1_CON;
 				return(TRUE);
@@ -246,7 +246,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case ADD_CHR:
 		{
-			if (take_money(on_credit, (40 * pval) + (pval * pval * 2))) 
+			if (take_money(on_credit, (40 * pval) + (pval * pval * 2)))
 			{
 				a_ptr->flags1 |= TR1_CHR;
 				return(TRUE);
@@ -255,7 +255,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case MAGIC_MASTERY:
 		{
-			if (take_money(on_credit, (20 * pval) + (pval * pval * 1))) 
+			if (take_money(on_credit, (20 * pval) + (pval * pval * 1)))
 			{
 				a_ptr->flags1 |= TR1_MAGIC_MASTERY;
 				return(TRUE);
@@ -264,7 +264,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case STEALTH:
 		{
-			if (take_money(on_credit, (100 * pval) + (pval * pval * 5))) 
+			if (take_money(on_credit, (100 * pval) + (pval * pval * 5)))
 			{
 				a_ptr->flags1 |= TR1_STEALTH;
 				return(TRUE);
@@ -273,7 +273,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SEARCH:
 		{
-			if (take_money(on_credit, (20 * pval) + (pval * pval * 1))) 
+			if (take_money(on_credit, (20 * pval) + (pval * pval * 1)))
 			{
 				a_ptr->flags1 |= TR1_SEARCH;
 				return(TRUE);
@@ -282,7 +282,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case INFRA:
 		{
-			if (take_money(on_credit, (15 * pval) + (pval * pval * 1))) 
+			if (take_money(on_credit, (15 * pval) + (pval * pval * 1)))
 			{
 				a_ptr->flags1 |= TR1_INFRA;
 				return(TRUE);
@@ -291,7 +291,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case TUNNEL:
 		{
-			if (take_money(on_credit, (25 * pval) + (pval * pval * 1))) 
+			if (take_money(on_credit, (25 * pval) + (pval * pval * 1)))
 			{
 				a_ptr->flags1 |= TR1_TUNNEL;
 				return(TRUE);
@@ -300,7 +300,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SPEED:
 		{
-			if (take_money(on_credit, (360 * pval) + (pval * pval * 18))) 
+			if (take_money(on_credit, (360 * pval) + (pval * pval * 18)))
 			{
 				a_ptr->flags1 |= TR1_SPEED;
 				return(TRUE);
@@ -309,7 +309,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case MIGHT2:
 		{
-			if (take_money(on_credit, 2500)) 
+			if (take_money(on_credit, 2500))
 			{
 				a_ptr->flags1 |= TR1_MIGHT2;
 				return(TRUE);
@@ -318,7 +318,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SHOTS:
 		{
-			if (take_money(on_credit, 1500)) 
+			if (take_money(on_credit, 1500))
 			{
 				a_ptr->flags1 |= TR1_SHOTS;
 				return(TRUE);
@@ -327,7 +327,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case MIGHT1:
 		{
-			if (take_money(on_credit, 1250)) 
+			if (take_money(on_credit, 1250))
 			{
 				a_ptr->flags1 |= TR1_MIGHT1;
 				return(TRUE);
@@ -336,7 +336,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_ANIMAL:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_SLAY_ANIMAL;
 				return(TRUE);
@@ -345,7 +345,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_EVIL:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_SLAY_EVIL;
 				return(TRUE);
@@ -354,7 +354,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_UNDEAD:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_SLAY_UNDEAD;
 				return(TRUE);
@@ -363,7 +363,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_DEMON:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags1 |= TR1_SLAY_DEMON;
 				return(TRUE);
@@ -372,7 +372,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_ORC:
 		{
-			if (take_money(on_credit, 400)) 
+			if (take_money(on_credit, 400))
 			{
 				a_ptr->flags1 |= TR1_SLAY_ORC;
 				return(TRUE);
@@ -381,7 +381,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_TROLL:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags1 |= TR1_SLAY_TROLL;
 				return(TRUE);
@@ -390,7 +390,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_GIANT:
 		{
-			if (take_money(on_credit, 400)) 
+			if (take_money(on_credit, 400))
 			{
 				a_ptr->flags1 |= TR1_SLAY_GIANT;
 				return(TRUE);
@@ -399,7 +399,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLAY_DRAGON:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_SLAY_DRAGON;
 				return(TRUE);
@@ -408,7 +408,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case PERFECT_BALANCE:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags1 |= TR1_PERFECT_BALANCE;
 				return(TRUE);
@@ -417,7 +417,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case BRAND_POIS:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_BRAND_POIS;
 				return(TRUE);
@@ -426,7 +426,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case BRAND_ACID:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_BRAND_ACID;
 				return(TRUE);
@@ -435,7 +435,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case BRAND_ELEC:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_BRAND_ELEC;
 				return(TRUE);
@@ -444,7 +444,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case BRAND_FIRE:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_BRAND_FIRE;
 				return(TRUE);
@@ -453,7 +453,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case BRAND_COLD:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags1 |= TR1_BRAND_COLD;
 				return(TRUE);
@@ -462,7 +462,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SUST_STR:
 		{
-			if (take_money(on_credit, 550)) 
+			if (take_money(on_credit, 550))
 			{
 				a_ptr->flags2 |= TR2_SUST_STR;
 				return(TRUE);
@@ -471,7 +471,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SUST_WIS:
 		{
-			if (take_money(on_credit, 350)) 
+			if (take_money(on_credit, 350))
 			{
 				a_ptr->flags2 |= TR2_SUST_WIS;
 				return(TRUE);
@@ -480,7 +480,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SUST_INT:
 		{
-			if (take_money(on_credit, 350)) 
+			if (take_money(on_credit, 350))
 			{
 				a_ptr->flags2 |= TR2_SUST_INT;
 				return(TRUE);
@@ -489,7 +489,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SUST_DEX:
 		{
-			if (take_money(on_credit, 350)) 
+			if (take_money(on_credit, 350))
 			{
 				a_ptr->flags2 |= TR2_SUST_DEX;
 				return(TRUE);
@@ -498,7 +498,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SUST_CON:
 		{
-			if (take_money(on_credit, 350)) 
+			if (take_money(on_credit, 350))
 			{
 				a_ptr->flags2 |= TR2_SUST_CON;
 				return(TRUE);
@@ -507,7 +507,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SUST_CHR:
 		{
-			if (take_money(on_credit, 50)) 
+			if (take_money(on_credit, 50))
 			{
 				a_ptr->flags2 |= TR2_SUST_CHR;
 				return(TRUE);
@@ -516,7 +516,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case IM_ACID:
 		{
-			if (take_money(on_credit, 3500)) 
+			if (take_money(on_credit, 3500))
 			{
 				a_ptr->flags2 |= TR2_IM_ACID;
 				return(TRUE);
@@ -525,7 +525,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case IM_ELEC:
 		{
-			if (take_money(on_credit, 2750)) 
+			if (take_money(on_credit, 2750))
 			{
 				a_ptr->flags2 |= TR2_IM_ELEC;
 				return(TRUE);
@@ -534,7 +534,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case IM_FIRE:
 		{
-			if (take_money(on_credit, 3250)) 
+			if (take_money(on_credit, 3250))
 			{
 				a_ptr->flags2 |= TR2_IM_FIRE;
 				return(TRUE);
@@ -543,7 +543,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case IM_COLD:
 		{
-			if (take_money(on_credit, 2750)) 
+			if (take_money(on_credit, 2750))
 			{
 				a_ptr->flags2 |= TR2_IM_COLD;
 				return(TRUE);
@@ -552,7 +552,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_ACID:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_ACID;
 				return(TRUE);
@@ -561,7 +561,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_ELEC:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_ELEC;
 				return(TRUE);
@@ -570,7 +570,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_FIRE:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_FIRE;
 				return(TRUE);
@@ -579,7 +579,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_COLD:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_COLD;
 				return(TRUE);
@@ -588,7 +588,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_POIS:
 		{
-			if (take_money(on_credit, 1000)) 
+			if (take_money(on_credit, 1000))
 			{
 				a_ptr->flags2 |= TR2_RES_POIS;
 				return(TRUE);
@@ -597,7 +597,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_FEAR:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_FEAR;
 				return(TRUE);
@@ -606,7 +606,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_LITE:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags2 |= TR2_RES_LITE;
 				return(TRUE);
@@ -615,7 +615,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_DARK:
 		{
-			if (take_money(on_credit, 600)) 
+			if (take_money(on_credit, 600))
 			{
 				a_ptr->flags2 |= TR2_RES_DARK;
 				return(TRUE);
@@ -624,7 +624,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_BLIND:
 		{
-			if (take_money(on_credit, 650)) 
+			if (take_money(on_credit, 650))
 			{
 				a_ptr->flags2 |= TR2_RES_BLIND;
 				return(TRUE);
@@ -633,7 +633,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_CONFU:
 		{
-			if (take_money(on_credit, 750)) 
+			if (take_money(on_credit, 750))
 			{
 				a_ptr->flags2 |= TR2_RES_CONFU;
 				return(TRUE);
@@ -642,7 +642,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_SOUND:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_SOUND;
 				return(TRUE);
@@ -651,7 +651,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_SHARD:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_SHARD;
 				return(TRUE);
@@ -660,7 +660,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_NEXUS:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags2 |= TR2_RES_NEXUS;
 				return(TRUE);
@@ -669,7 +669,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_NETHR:
 		{
-			if (take_money(on_credit, 800)) 
+			if (take_money(on_credit, 800))
 			{
 				a_ptr->flags2 |= TR2_RES_NETHR;
 				return(TRUE);
@@ -678,7 +678,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_CHAOS:
 		{
-			if (take_money(on_credit, 800)) 
+			if (take_money(on_credit, 800))
 			{
 				a_ptr->flags2 |= TR2_RES_CHAOS;
 				return(TRUE);
@@ -687,7 +687,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case RES_DISEN:
 		{
-			if (take_money(on_credit, 1000)) 
+			if (take_money(on_credit, 1000))
 			{
 				a_ptr->flags2 |= TR2_RES_DISEN;
 				return(TRUE);
@@ -696,7 +696,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SLOW_DIGEST:
 		{
-			if (take_money(on_credit, 300)) 
+			if (take_money(on_credit, 300))
 			{
 				a_ptr->flags3 |= TR3_SLOW_DIGEST;
 				return(TRUE);
@@ -705,7 +705,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case FEATHER:
 		{
-			if (take_money(on_credit, 300)) 
+			if (take_money(on_credit, 300))
 			{
 				a_ptr->flags3 |= TR3_FEATHER;
 				return(TRUE);
@@ -714,7 +714,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case LITE:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags3 |= TR3_LITE;
 				return(TRUE);
@@ -723,7 +723,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case REGEN:
 		{
-			if (take_money(on_credit, 500)) 
+			if (take_money(on_credit, 500))
 			{
 				a_ptr->flags3 |= TR3_REGEN;
 				return(TRUE);
@@ -732,7 +732,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case TELEPATHY:
 		{
-			if (take_money(on_credit, 2500)) 
+			if (take_money(on_credit, 2500))
 			{
 				a_ptr->flags3 |= TR3_TELEPATHY;
 				return(TRUE);
@@ -741,7 +741,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case SEE_INVIS:
 		{
-			if (take_money(on_credit, 700)) 
+			if (take_money(on_credit, 700))
 			{
 				a_ptr->flags3 |= TR3_SEE_INVIS;
 				return(TRUE);
@@ -750,7 +750,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case FREE_ACT:
 		{
-			if (take_money(on_credit, 700)) 
+			if (take_money(on_credit, 700))
 			{
 				a_ptr->flags3 |= TR3_FREE_ACT;
 				return(TRUE);
@@ -759,7 +759,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case HOLD_LIFE:
 		{
-			if (take_money(on_credit, 1400)) 
+			if (take_money(on_credit, 1400))
 			{
 				a_ptr->flags3 |= TR3_HOLD_LIFE;
 				return(TRUE);
@@ -768,7 +768,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case IMPACT:
 		{
-			if (take_money(on_credit, 0)) 
+			if (take_money(on_credit, 0))
 			{
 				a_ptr->flags3 |= TR3_IMPACT;
 				return(TRUE);
@@ -780,7 +780,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 			if ((check_ability(SP_BLESS_WEAPON))
 			    & ((a_ptr->tval == TV_POLEARM) || (a_ptr->tval == TV_SWORD)))
 			{
-				if (take_money(on_credit, 400)) 
+				if (take_money(on_credit, 400))
 				{
 					a_ptr->flags3 |= TR3_BLESSED;
 					return(TRUE);
@@ -788,7 +788,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 			}
 			else
 			{
-				if (take_money(on_credit, 0)) 
+				if (take_money(on_credit, 0))
 				{
 					a_ptr->flags3 |= TR3_BLESSED;
 					return(TRUE);
@@ -816,7 +816,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case ENHANCE_DICE:
 		{
-			/* Allow a portion of the budget for improvements. 
+			/* Allow a portion of the budget for improvements.
 			 * Use "pval" to control fraction.
 			 */
 			temp = potential / pval;
@@ -830,7 +830,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 				if (potential > temp) potential -= temp;
 				else potential = 0;
 			}
-			/* Otherwise, subtract whatever portion is alloted from the 
+			/* Otherwise, subtract whatever portion is alloted from the
 			 * main budget. */
 			else potential -= temp;
 
@@ -889,8 +889,8 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 
 
 
-/* 
- * Assign a tval and sval, grant a certain amount of potential to be used 
+/*
+ * Assign a tval and sval, grant a certain amount of potential to be used
  * for acquiring powers, and determine rarity and native depth.
  */
 static void initialize_artifact(int a_idx)
@@ -933,7 +933,7 @@ static void initialize_artifact(int a_idx)
 	a_ptr->activation = 0;
 
 
-	/* Assign a tval and sval.  If the base object is powerful, an amount to 
+	/* Assign a tval and sval.  If the base object is powerful, an amount to
 	 * reduce artifact power by will be calculated.  If the base object has
 	 * an activation, it will be preserved (at least initially).
 	 */
@@ -947,12 +947,12 @@ static void initialize_artifact(int a_idx)
 		if (!k_ptr->name) continue;
 
 		/* Skip objects that are not weapons or armour. */
-		if ((k_ptr->tval != TV_BOW) && (k_ptr->tval != TV_HAFTED) && 
-			(k_ptr->tval != TV_POLEARM) && (k_ptr->tval != TV_SWORD) && 
-			(k_ptr->tval != TV_BOOTS) && (k_ptr->tval != TV_GLOVES) && 
-			(k_ptr->tval != TV_HELM) && (k_ptr->tval != TV_CROWN)&& 
-			(k_ptr->tval != TV_SHIELD) && (k_ptr->tval != TV_CLOAK) && 
-			(k_ptr->tval != TV_SOFT_ARMOR) && (k_ptr->tval != TV_HARD_ARMOR) 
+		if ((k_ptr->tval != TV_BOW) && (k_ptr->tval != TV_HAFTED) &&
+			(k_ptr->tval != TV_POLEARM) && (k_ptr->tval != TV_SWORD) &&
+			(k_ptr->tval != TV_BOOTS) && (k_ptr->tval != TV_GLOVES) &&
+			(k_ptr->tval != TV_HELM) && (k_ptr->tval != TV_CROWN)&&
+			(k_ptr->tval != TV_SHIELD) && (k_ptr->tval != TV_CLOAK) &&
+			(k_ptr->tval != TV_SOFT_ARMOR) && (k_ptr->tval != TV_HARD_ARMOR)
 			&& (k_ptr->tval != TV_DRAG_ARMOR))
 		{
 			continue;
@@ -963,7 +963,7 @@ static void initialize_artifact(int a_idx)
 		freq = 0;
 
 		/* Scan all four allocation chance values */
-		for (i = 0; i < 4; i++) 
+		for (i = 0; i < 4; i++)
 		{
 			/* Skip empty values. */
 			if (k_ptr->chance[i] == 0) continue;
@@ -990,45 +990,45 @@ static void initialize_artifact(int a_idx)
 
 		case TV_HAFTED:
 		{
-			if (k_ptr->sval == SV_THROWING_HAMMER) 
+			if (k_ptr->sval == SV_THROWING_HAMMER)
 				power_of_base_object = 1000;
-			if (k_ptr->sval == SV_MACE_OF_DISRUPTION) 
+			if (k_ptr->sval == SV_MACE_OF_DISRUPTION)
 				power_of_base_object = 500;
 			break;
 		}
 
 		case TV_POLEARM:
 		{
-			if (k_ptr->sval == SV_THROWING_AXE) 
+			if (k_ptr->sval == SV_THROWING_AXE)
 				power_of_base_object = 1000;
-			if (k_ptr->sval == SV_SCYTHE_OF_SLICING) 
+			if (k_ptr->sval == SV_SCYTHE_OF_SLICING)
 				power_of_base_object = 750;
 			break;
 		}
 
 		case TV_SWORD:
 		{
-			if (k_ptr->sval == SV_EXECUTIONERS_SWORD) 
+			if (k_ptr->sval == SV_EXECUTIONERS_SWORD)
 				power_of_base_object = 500;
-			if (k_ptr->sval == SV_BLADE_OF_CHAOS) 
+			if (k_ptr->sval == SV_BLADE_OF_CHAOS)
 				power_of_base_object = 1000;
 			break;
 		}
 
 		case TV_SHIELD:
 		{
-			if (k_ptr->sval == SV_SHIELD_OF_DEFLECTION) 
+			if (k_ptr->sval == SV_SHIELD_OF_DEFLECTION)
 				power_of_base_object = 500;
 			break;
 		}
 
 		case TV_HARD_ARMOR:
 		{
-			if (k_ptr->sval == SV_MITHRIL_CHAIN_MAIL) 
+			if (k_ptr->sval == SV_MITHRIL_CHAIN_MAIL)
 				power_of_base_object = 500;
-			if (k_ptr->sval == SV_MITHRIL_PLATE_MAIL) 
+			if (k_ptr->sval == SV_MITHRIL_PLATE_MAIL)
 				power_of_base_object = 700;
-			if (k_ptr->sval == SV_ADAMANTITE_PLATE_MAIL) 
+			if (k_ptr->sval == SV_ADAMANTITE_PLATE_MAIL)
 				power_of_base_object = 500;
 			break;
 		}
@@ -1105,9 +1105,9 @@ static void initialize_artifact(int a_idx)
 	}
 
 
-	/* Store the base values of a bunch of data.  To avoid unbalancing the 
-	 * game, bonuses to Skill, Deadliness, and Armour Class are cut in half.  
-	 * Dragon scale mail activations are preserved.  Base object cost is 
+	/* Store the base values of a bunch of data.  To avoid unbalancing the
+	 * game, bonuses to Skill, Deadliness, and Armour Class are cut in half.
+	 * Dragon scale mail activations are preserved.  Base object cost is
 	 * preserved if sufficiently high.
 	 */
 	a_ptr->tval = k_ptr->tval;
@@ -1127,7 +1127,7 @@ static void initialize_artifact(int a_idx)
 			   TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 	a_ptr->activation = base_object_activation;
 
-	/* The total potential of an artifact ranges from 1750 to 7750, 
+	/* The total potential of an artifact ranges from 1750 to 7750,
 	 * biased towards the lesser figure. */
 	potential = 1750;
 	for (i = 0; i < 12; i++)
@@ -1140,12 +1140,12 @@ static void initialize_artifact(int a_idx)
 	max_potential = 7750;
 
 
-	/* Preserve balance by not allowing powerful base objects to get very 
+	/* Preserve balance by not allowing powerful base objects to get very
 	 * many extra powers.
 	 */
 	potential -= power_of_base_object;
 
-	/* Many equipment types include no truly powerful artifacts.  Maximum 
+	/* Many equipment types include no truly powerful artifacts.  Maximum
 	 * and actual potential is limited.
 	 */
 	if (a_ptr->tval == TV_CLOAK)
@@ -1190,7 +1190,7 @@ static void initialize_artifact(int a_idx)
 	/* Remember how much potential was allowed. */
 	initial_potential = potential;
 
-	/* The cost of the artifact depends solely on its potential (allowing 
+	/* The cost of the artifact depends solely on its potential (allowing
 	 * for valuable base object kinds).
 	 */
 	a_ptr->cost += (potential * 10L);
@@ -1206,13 +1206,13 @@ static void initialize_artifact(int a_idx)
 
 	/* Calculate artifact depth.  This is fairly simple. */
 	artifact_depth = (potential / 100) - 5;
-	if (artifact_depth < base_object_depth - 10) 
+	if (artifact_depth < base_object_depth - 10)
 		artifact_depth = base_object_depth - 10;
 	if (artifact_depth < 5) artifact_depth = 5;
 
 
 	/* Calculate artifact rarity.  This requires handling some special cases. */
-	artifact_rarity = (((potential + power_of_base_object) / 200) 
+	artifact_rarity = (((potential + power_of_base_object) / 200)
 		 / base_object_rarity);
 
 	/* Modify artifact rarity to handle some special cases. */
@@ -1220,7 +1220,7 @@ static void initialize_artifact(int a_idx)
 	if ((a_ptr->tval == TV_SOFT_ARMOR) || (a_ptr->tval == TV_HARD_ARMOR))
 		artifact_rarity /= 2;
 	if (a_ptr->tval == TV_CLOAK) artifact_rarity *= 2;
-	if ((a_ptr->tval == TV_HELM) || (a_ptr->tval == TV_CROWN)) 
+	if ((a_ptr->tval == TV_HELM) || (a_ptr->tval == TV_CROWN))
 		artifact_rarity = 2 * artifact_rarity / 3;
 	if (a_ptr->tval == TV_BOOTS) artifact_rarity += 5;
 
@@ -1232,8 +1232,8 @@ static void initialize_artifact(int a_idx)
 	a_ptr->rarity = artifact_rarity;
 }
 
-/* 
- * Pick an initial set of qualities, based on a theme.  Also add a bonus to 
+/*
+ * Pick an initial set of qualities, based on a theme.  Also add a bonus to
  * armour class, Skill, and Deadliness.
  */
 static void choose_basic_theme(int a_idx)
@@ -1267,18 +1267,18 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if (potential >= 6000) 
+					if (potential >= 6000)
 						a_ptr->activation = ACT_RANDOM_FIRE3;
 					else if (potential >= 3000)
 						a_ptr->activation = ACT_RANDOM_FIRE2;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_FIRE1;
 				}
 				/* Brand the weapon with fire. */
 				get_quality(TRUE, BRAND_FIRE, 0, a_idx);
 
 				/* Grant either a resist or immunity to fire. */
-				if ((potential >= 4500) && (randint(3) == 1)) 
+				if ((potential >= 4500) && (randint(3) == 1))
 					get_quality(FALSE, IM_FIRE, 0, a_idx);
 				else get_quality(TRUE, RES_FIRE, 0, a_idx);
 			}
@@ -1288,18 +1288,18 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if (potential >= 6000) 
+					if (potential >= 6000)
 						a_ptr->activation = ACT_RANDOM_COLD3;
 					else if (potential >= 3000)
 						a_ptr->activation = ACT_RANDOM_COLD2;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_COLD1;
 				}
 				/* Brand the weapon with frost. */
 				get_quality(TRUE, BRAND_COLD, 0, a_idx);
 
 				/* Grant either a resist or immunity to frost. */
-				if ((potential >= 4500) && (randint(3) == 1)) 
+				if ((potential >= 4500) && (randint(3) == 1))
 					get_quality(FALSE, IM_COLD, 0, a_idx);
 				else get_quality(TRUE, RES_COLD, 0, a_idx);
 			}
@@ -1309,18 +1309,18 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if (potential >= 6000) 
+					if (potential >= 6000)
 						a_ptr->activation = ACT_RANDOM_ACID3;
 					else if (potential >= 3000)
 						a_ptr->activation = ACT_RANDOM_ACID2;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_ACID1;
 				}
 				/* Brand the weapon with acid. */
 				get_quality(TRUE, BRAND_ACID, 0, a_idx);
 
 				/* Grant either a resist or immunity to acid. */
-				if ((potential >= 4500) && (randint(3) == 1)) 
+				if ((potential >= 4500) && (randint(3) == 1))
 					get_quality(FALSE, IM_ACID, 0, a_idx);
 				else get_quality(TRUE, RES_ACID, 0, a_idx);
 			}
@@ -1330,18 +1330,18 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if (potential >= 6000) 
+					if (potential >= 6000)
 						a_ptr->activation = ACT_RANDOM_ELEC3;
 					else if (potential >= 3000)
 						a_ptr->activation = ACT_RANDOM_ELEC2;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_ELEC1;
 				}
 				/* Brand the weapon with electricity. */
 				get_quality(TRUE, BRAND_ELEC, 0, a_idx);
 
 				/* Grant either a resist or immunity to electricity.*/
-				if ((potential >= 4500) && (randint(3) == 1)) 
+				if ((potential >= 4500) && (randint(3) == 1))
 					get_quality(FALSE, IM_ELEC, 0, a_idx);
 				else get_quality(TRUE, RES_ELEC, 0, a_idx);
 			}
@@ -1353,10 +1353,10 @@ static void choose_basic_theme(int a_idx)
 
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
-				{	
-					if (potential >= 4500) 
+				{
+					if (potential >= 4500)
 						a_ptr->activation = ACT_RANDOM_POIS2;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_POIS1;
 				}
 				/* Brand the weapon with poison. */
@@ -1416,17 +1416,17 @@ static void choose_basic_theme(int a_idx)
 					get_quality(FALSE, RES_DISEN, 0, a_idx);
 
 				/* And some sustains. */
-				if ((mp_ptr->spell_stat == A_STR) || (randint(2) == 1)) 
+				if ((mp_ptr->spell_stat == A_STR) || (randint(2) == 1))
 					get_quality(FALSE, SUST_STR, 0, a_idx);
 				if ((mp_ptr->spell_stat == A_WIS) || (randint(2) == 1))
 					get_quality(FALSE, SUST_WIS, 0, a_idx);
-				if ((mp_ptr->spell_stat == A_INT) || (randint(2) == 1)) 
+				if ((mp_ptr->spell_stat == A_INT) || (randint(2) == 1))
 					get_quality(FALSE, SUST_INT, 0, a_idx);
-				if ((mp_ptr->spell_stat == A_DEX) || (randint(2) == 1)) 
+				if ((mp_ptr->spell_stat == A_DEX) || (randint(2) == 1))
 					get_quality(FALSE, SUST_DEX, 0, a_idx);
-				if ((mp_ptr->spell_stat == A_CON) || (randint(2) == 1)) 
+				if ((mp_ptr->spell_stat == A_CON) || (randint(2) == 1))
 					get_quality(FALSE, SUST_CON, 0, a_idx);
-				if ((mp_ptr->spell_stat == A_CHR) || (randint(2) == 1)) 
+				if ((mp_ptr->spell_stat == A_CHR) || (randint(2) == 1))
 					get_quality(FALSE, SUST_CHR, 0, a_idx);
 			}
 			/* ...that shines with holy light. */
@@ -1435,7 +1435,7 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if (potential < 4500) 
+					if (potential < 4500)
 						a_ptr->activation = ACT_RANDOM_LIGHT1;
 					else
 						a_ptr->activation = ACT_RANDOM_LIGHT2;
@@ -1490,7 +1490,7 @@ static void choose_basic_theme(int a_idx)
 				/* This is an exclusive club. */
 				if (potential < 2000) break;
 
-				/* Use up to a third of the budget for enhancing the 
+				/* Use up to a third of the budget for enhancing the
 				 * damage dice.
 				 */
 				get_quality(FALSE, ENHANCE_DICE, 3, a_idx);
@@ -1600,7 +1600,7 @@ static void choose_basic_theme(int a_idx)
 				get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
 
 				/* Grant either resistance or immunity to acid. */
-				if ((potential >= 3500) && (randint(3) == 1)) 
+				if ((potential >= 3500) && (randint(3) == 1))
 					get_quality(FALSE, IM_ACID, 0, a_idx);
 				else get_quality(TRUE, RES_ACID, 0, a_idx);
 
@@ -1650,7 +1650,7 @@ static void choose_basic_theme(int a_idx)
 
 				/* Often, grant a bonus to ac. */
 				if (randint(2) == 1)
-					get_quality(FALSE, ADD_AC, 
+					get_quality(FALSE, ADD_AC,
 						randint(4) + potential / 1000, a_idx);
 
 				/* Sometimes, slay giant. */
@@ -1666,7 +1666,7 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if ((randint(3) != 1) && (potential > 2500))
 				{
-					if (potential < 5000) 
+					if (potential < 5000)
 						a_ptr->activation = ACT_RANDOM_SMITE_UNDEAD;
 					else
 						a_ptr->activation = ACT_RANDOM_DISPEL_UNDEAD;
@@ -1777,12 +1777,12 @@ static void choose_basic_theme(int a_idx)
 				{
 					if (potential >= 5000)
 						a_ptr->activation = ACT_RANDOM_SHIELD;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_BLESS;
 				}
 
 				/* Grant a bonus to armour class. */
-				get_quality(TRUE, ADD_AC, 
+				get_quality(TRUE, ADD_AC,
 					randint(6) + potential / 800, a_idx);
 
 				/* And the four basic resists. */
@@ -1837,9 +1837,9 @@ static void choose_basic_theme(int a_idx)
 			/* Sometimes, assign an activation. */
 			if (potential > randint(5000))
 			{
-				if (randint(2) == 1) 
+				if (randint(2) == 1)
 					a_ptr->activation = ACT_RANDOM_SUPER_SHOOTING;
-				else 
+				else
 					a_ptr->activation = ACT_RANDOM_BRAND_MISSILE;
 			}
 
@@ -1941,9 +1941,9 @@ static void choose_basic_theme(int a_idx)
 				}
 
 				/* Increase both base and magical ac. */
-				get_quality(TRUE, ADD_AC, 
+				get_quality(TRUE, ADD_AC,
 					randint(3) + potential / 1600, a_idx);
-				get_quality(TRUE, IMPROVE_BASE_AC, 
+				get_quality(TRUE, IMPROVE_BASE_AC,
 					randint(3) + potential / 1600, a_idx);
 
 				/* Collect a suite of basic resists. */
@@ -2022,7 +2022,7 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if (potential < 4500) 
+					if (potential < 4500)
 						a_ptr->activation = ACT_RANDOM_LIGHT1;
 					else
 						a_ptr->activation = ACT_RANDOM_LIGHT2;
@@ -2156,7 +2156,7 @@ static void choose_basic_theme(int a_idx)
 			{
 				/* Resist shards and increase base ac. */
 				get_quality(TRUE, RES_SHARD, 0, a_idx);
-				get_quality(TRUE, IMPROVE_BASE_AC, 
+				get_quality(TRUE, IMPROVE_BASE_AC,
 					randint(3) + potential / 1200, a_idx);
 			}
 			/* ...that resists light and dark. */
@@ -2176,7 +2176,7 @@ static void choose_basic_theme(int a_idx)
 				}
 
 				/* Increase magical ac. */
-				get_quality(TRUE, ADD_AC, 
+				get_quality(TRUE, ADD_AC,
 					randint(6) + potential / 2000, a_idx);
 
 				/* Randomly add some survival-enhancing magics. */
@@ -2298,7 +2298,7 @@ static void choose_basic_theme(int a_idx)
 			}
 
 			/* Possibly assign a speed activation for free. */
-			if ((randint(4) == 1) && (a_ptr->activation == 0) && 
+			if ((randint(4) == 1) && (a_ptr->activation == 0) &&
 				(potential >= 2000))
 			{
 				a_ptr->activation = ACT_RANDOM_SPEED;
@@ -2347,9 +2347,9 @@ static void choose_basic_theme(int a_idx)
 				}
 
 				/* Increase both base and magical ac. */
-				get_quality(TRUE, ADD_AC, 
+				get_quality(TRUE, ADD_AC,
 					randint(3) + potential / 1600, a_idx);
-				get_quality(TRUE, IMPROVE_BASE_AC, 
+				get_quality(TRUE, IMPROVE_BASE_AC,
 					randint(3) + potential / 1600, a_idx);
 			}
 			/* ...that unmasks the locations of foes. */
@@ -2367,11 +2367,11 @@ static void choose_basic_theme(int a_idx)
 				/* Possibly assign an activation for free. */
 				if (randint(3) != 1)
 				{
-					if ((potential >= 4000) && (randint(3) != 1)) 
+					if ((potential >= 4000) && (randint(3) != 1))
 						a_ptr->activation = ACT_RANDOM_DETECT_ALL;
-					else if (potential >= 3000) 
+					else if (potential >= 3000)
 						a_ptr->activation = ACT_RANDOM_MAGIC_MAP;
-					else 
+					else
 						a_ptr->activation = ACT_RANDOM_DETECT_D_S_T;
 				}
 
@@ -2449,7 +2449,7 @@ static void choose_basic_theme(int a_idx)
 				get_quality(FALSE, SEE_INVIS, 0, a_idx);
 
 				/* Mark the headpiece for a later bonus to searching. */
-				add_pval_later1 = SEARCH;	
+				add_pval_later1 = SEARCH;
 			}
 			/* ...whose wearer stands taller in the eyes of men. */
 			else if (selection < 57)
@@ -2666,9 +2666,9 @@ static void choose_basic_theme(int a_idx)
 
 
 
-/* 
- * Grant extra abilities, until object's units of exchange are all used up.  
- * This function can be quite random - indeed needs to be - because of all 
+/*
+ * Grant extra abilities, until object's units of exchange are all used up.
+ * This function can be quite random - indeed needs to be - because of all
  * the possible themed random artifacts.
  */
 static void haggle_till_done(int a_idx)
@@ -2680,9 +2680,9 @@ static void haggle_till_done(int a_idx)
 	int choice = 0;
 
 
-	/* Firstly, determine pval, add some pval-dependant qualities, and 
-	 * charge the account.  We assume that no pval-dependant qualities 
-	 * have been added yet. 
+	/* Firstly, determine pval, add some pval-dependant qualities, and
+	 * charge the account.  We assume that no pval-dependant qualities
+	 * have been added yet.
 	 */
 
 	/* If qualities that depend on pval have been promised, add them. */
@@ -2702,7 +2702,7 @@ static void haggle_till_done(int a_idx)
 	}
 	else
 	{
-		/* Rarely, and only if the artifact has a lot of potential, 
+		/* Rarely, and only if the artifact has a lot of potential,
 		 * add all the stats. */
 		if ((randint(6) == 1) && (potential >= 4500))
 		{
@@ -2716,7 +2716,7 @@ static void haggle_till_done(int a_idx)
 			a_ptr->pval = 1;
 		}
 
-		/* Otherwise, if at least some potential remains, add a 
+		/* Otherwise, if at least some potential remains, add a
 		 * pval-dependant quality or two with 67% probability. */
 		else if ((randint(3) != 1) && (potential >= 750))
 		{
@@ -2731,8 +2731,8 @@ static void haggle_till_done(int a_idx)
 			{
 
 				/* Only melee weapons can get a bonus to tunnelling. */
-				if ((a_ptr->tval == TV_SWORD) || 
-					(a_ptr->tval == TV_POLEARM) || 
+				if ((a_ptr->tval == TV_SWORD) ||
+					(a_ptr->tval == TV_POLEARM) ||
 						(a_ptr->tval == TV_HAFTED))
 					choice = randint(11);
 				else
@@ -2803,11 +2803,11 @@ static void haggle_till_done(int a_idx)
 		{
 			if (randint(2) == 1)
 			{
-				if (a_ptr->pval > 0) 
+				if (a_ptr->pval > 0)
 					get_quality(FALSE, SPEED, a_ptr->pval, a_idx);
 
 				/* Go for a +10 bonus to speed. */
-				else if (get_quality(FALSE, SPEED, 10, a_idx)) 
+				else if (get_quality(FALSE, SPEED, 10, a_idx))
 					a_ptr->pval = 10;
 			}
 			else
@@ -2821,7 +2821,7 @@ static void haggle_till_done(int a_idx)
 			}
 		}
 
-		/* Sometimes, also add a new pval-dependant quality.  Infravision, 
+		/* Sometimes, also add a new pval-dependant quality.  Infravision,
 		 * speed, and magical item mastery are not on offer.  Only melee
 		 * weapons can get a bonus to tunnelling.
 		 */
@@ -2829,8 +2829,8 @@ static void haggle_till_done(int a_idx)
 		{
 			pval = a_ptr->pval;
 
-			if ((a_ptr->tval == TV_SWORD) || 
-				(a_ptr->tval == TV_POLEARM) || 
+			if ((a_ptr->tval == TV_SWORD) ||
+				(a_ptr->tval == TV_POLEARM) ||
 					(a_ptr->tval == TV_HAFTED))
 				choice = randint(9);
 			else
@@ -2865,7 +2865,7 @@ static void haggle_till_done(int a_idx)
 	while (potential >= 300)
 	{
 		/* I'm a melee weapon. */
-		if ((a_ptr->tval == TV_SWORD) || (a_ptr->tval == TV_POLEARM) || 
+		if ((a_ptr->tval == TV_SWORD) || (a_ptr->tval == TV_POLEARM) ||
 			(a_ptr->tval == TV_HAFTED))
 		{
 			/* Some throwing weapons can be thrown hard and fast. */
@@ -2892,7 +2892,7 @@ static void haggle_till_done(int a_idx)
 						potential -= 500;
 					}
 
-					/* Sometimes spend everything to enhance 
+					/* Sometimes spend everything to enhance
 					 * the damage dice.
 					 */
 					if (randint(3) == 1)
@@ -2918,7 +2918,7 @@ static void haggle_till_done(int a_idx)
 				}
 			}
 
-			/* Other weapons have enhanced damage dice in addition 
+			/* Other weapons have enhanced damage dice in addition
 			 * to other qualities. */
 			else if (randint(a_ptr->dd * a_ptr->ds) == 1)
 			{
@@ -3153,10 +3153,10 @@ static void haggle_till_done(int a_idx)
 	else if ((choice == 6) && (a_ptr->flags1 & TR1_CHR))
 		a_ptr->flags2 |= TR2_SUST_CHR;
 
-	/* Armour gets a basic resist or low-level ability with 50% 
+	/* Armour gets a basic resist or low-level ability with 50%
 	 * probability, and weapons with 25% probability.
 	 */
-	if (((a_ptr->tval >= TV_BOOTS) && (randint(2) == 1)) || 
+	if (((a_ptr->tval >= TV_BOOTS) && (randint(2) == 1)) ||
 		(randint(4) == 1))
 	{
 		choice = randint(6);
@@ -3193,8 +3193,8 @@ static void haggle_till_done(int a_idx)
 
 
 
-/* 
- * Envoke perilous magics, and curse the artifact beyound redemption!  I 
+/*
+ * Envoke perilous magics, and curse the artifact beyound redemption!  I
  * had such fun coding this...
  */
 static void make_terrible(int a_idx)
@@ -3207,7 +3207,7 @@ static void make_terrible(int a_idx)
 	bool aggravation = FALSE;
 
 
-	/* Determine whether the artifact's magics are perilous enough to warrant 
+	/* Determine whether the artifact's magics are perilous enough to warrant
 	 * a heavy curse or an aggravation.
 	 */
 	if (potential >= 3000) heavy_curse = TRUE;
@@ -3224,7 +3224,7 @@ static void make_terrible(int a_idx)
 	for (i = 0; i < gauntlet_runs; i++)
 	{
 		/* Choose a curse, biased towards penalties to_a, to_d, and to_h. */
-		if ((a_ptr->tval < TV_BOOTS) && (a_ptr->to_h > 0) && 
+		if ((a_ptr->tval < TV_BOOTS) && (a_ptr->to_h > 0) &&
 			(randint(2) == 1)) wheel_of_doom = 2;
 		else if ((a_ptr->to_a > 0) && (randint(2) == 1))  wheel_of_doom = 1;
 		else wheel_of_doom = 2 + randint(2);
@@ -3236,7 +3236,7 @@ static void make_terrible(int a_idx)
 		{
 			/* Blast armour and twist magics. */
 			if ((a_ptr->ac) && (randint(6) == 1))
-			{ 
+			{
 				a_ptr->cost -= 500L * a_ptr->ac;
 				a_ptr->ac = 0;
 			}
@@ -3281,7 +3281,7 @@ static void make_terrible(int a_idx)
 					a_ptr->to_d = -a_ptr->to_d;
 
 				/* Sometimes, blast even items without bonuses. */
-				else if ((a_ptr->to_d == 0) && (a_ptr->to_h == 0) && 
+				else if ((a_ptr->to_d == 0) && (a_ptr->to_h == 0) &&
 					(randint (5) == 1))
 				{
 					penalty = randint(4) + 1;
@@ -3305,8 +3305,8 @@ static void make_terrible(int a_idx)
 
 		}
 
-		/* Make any positive pval negative, or strip all pval_dependant 
-		 * values, add a random stat or three, and infict a large negative 
+		/* Make any positive pval negative, or strip all pval_dependant
+		 * values, add a random stat or three, and infict a large negative
 		 * pval. */
 		if (wheel_of_doom == 3)
 		{
@@ -3314,7 +3314,7 @@ static void make_terrible(int a_idx)
 			{
 				penalty = -(a_ptr->pval);
 				a_ptr->pval = penalty;
-				
+
 				/* Artifact is highly unlikely to have any value. */
 				a_ptr->cost -= 30000L;
 				if (a_ptr->cost < 0) a_ptr->cost = 0;
@@ -3437,8 +3437,8 @@ static void make_terrible(int a_idx)
 
 
 
-/* 
- * Clean up the artifact by removing illogical combinations of powers.  
+/*
+ * Clean up the artifact by removing illogical combinations of powers.
  * Adopted from Greg Wooledge's random artifact creation code.
  */
 static void remove_contradictory(int a_idx)
@@ -3467,7 +3467,7 @@ static void remove_contradictory(int a_idx)
 
 
 
-/* 
+/*
  * String-handling function from Greg Wooledge's random artifact generator.
  */
 static char *my_strdup (const char *s)
@@ -3478,7 +3478,7 @@ static char *my_strdup (const char *s)
 }
 
 
-/* 
+/*
  * Use W. Sheldon Simms' random name generator.  This function builds
  * probability tables which are used later on for letter selection.  It
  * relies on the ASCII character set.
@@ -3489,7 +3489,7 @@ static void build_prob(void)
 	FILE *f;
 	char buf [BUFLEN];
 
-	/* Open the file containing our lexicon, and read from it.  Warn the 
+	/* Open the file containing our lexicon, and read from it.  Warn the
 	 * rest of the code that random names are unavailable on failure.
 	 */
 	path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
@@ -3531,9 +3531,9 @@ static void build_prob(void)
 
 
 
-/* Use W. Sheldon Simms' random name generator.  Generate a random word 
- * using the probability tables we built earlier.  Relies on the ASCII 
- * character set.  Relies on European vowels (a, e, i, o, u).  The generated 
+/* Use W. Sheldon Simms' random name generator.  Generate a random word
+ * using the probability tables we built earlier.  Relies on the ASCII
+ * character set.  Relies on European vowels (a, e, i, o, u).  The generated
  * name should be copied/used before calling this function again.
  */
 static char *make_word(void)
@@ -3594,7 +3594,7 @@ static char *make_word(void)
 }
 
 
-/* 
+/*
  * Find a name from any of various text files.
  */
 static char *find_word(int a_idx)
@@ -3603,20 +3603,20 @@ static char *find_word(int a_idx)
 	artifact_type *a_ptr = &a_info[a_idx];
 	art_name[0] = '\0';
 
-	/* Select a file, depending on whether the artifact is a weapon or 
-	 * armour, and whether or not it is cursed.  Get a random line from 
+	/* Select a file, depending on whether the artifact is a weapon or
+	 * armour, and whether or not it is cursed.  Get a random line from
 	 * that file.
 	 */
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE)
 	{
-		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) || 
+		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
 			(a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
 			get_rnd_line("w_cursed.txt", art_name);
 		else get_rnd_line("a_cursed.txt", art_name);
 	}
 	else
 	{
-		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) || 
+		if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) ||
 			(a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
 			get_rnd_line("w_normal.txt", art_name);
 
@@ -3624,7 +3624,7 @@ static char *find_word(int a_idx)
 	}
 
 
-	/* Secretly call the make_word function in case of failure.  If it is 
+	/* Secretly call the make_word function in case of failure.  If it is
 	 * unavailable, complain loudly.
 	 */
 	if (!art_name[0])
@@ -3644,11 +3644,11 @@ static char *find_word(int a_idx)
 	}
 
 	/* Return the name. */
-	return art_name;	
+	return art_name;
 }
 
 
-/* 
+/*
  * Name an artifact, using one of two methods.
  */
 static void name_artifact(int a_idx)
@@ -3657,11 +3657,11 @@ static void name_artifact(int a_idx)
 	char buf [BUFLEN];
 
 
-	/* Use W. Sheldon Simms' random name generator most of the time, 
-	 * generally for the less powerful artifacts, if not out of commision.  
+	/* Use W. Sheldon Simms' random name generator most of the time,
+	 * generally for the less powerful artifacts, if not out of commision.
 	 * Otherwise, find a name from a text file.
 	 */
-	if (((randint(max_potential) > initial_potential) || (randint(2) == 1)) && 
+	if (((randint(max_potential) > initial_potential) || (randint(2) == 1)) &&
 		(find_all_names == FALSE))
 	{
 		word = make_word();
@@ -3684,7 +3684,7 @@ static void name_artifact(int a_idx)
 }
 
 
-/* 
+/*
  * Design a random artifact.
  */
 static void design_random_artifact(int a_idx)
@@ -3715,7 +3715,7 @@ static void design_random_artifact(int a_idx)
 
 
 /*
- * Fill in the temporary array of artifact names, and then convert it into 
+ * Fill in the temporary array of artifact names, and then convert it into
  * an a_name structure.  Adapted from Greg Wooledge's random artifacts.
  */
 static int convert_names(void)
@@ -3769,10 +3769,10 @@ static int convert_names(void)
 }
 
 
-/* 
- * Initialize all the random artifacts in the artifact array.  This function 
- * is only called when a player is born.  Because various sub-functions use 
- * player information, it must be called after the player has been generated 
+/*
+ * Initialize all the random artifacts in the artifact array.  This function
+ * is only called when a player is born.  Because various sub-functions use
+ * player information, it must be called after the player has been generated
  * and player information has been loaded.
  */
 void initialize_random_artifacts(void)
@@ -3787,7 +3787,7 @@ void initialize_random_artifacts(void)
 	build_prob();
 
 
-	/* Go from beginning to end of the random section of the 
+	/* Go from beginning to end of the random section of the
 	 * artifact array, initializing and naming as we go.
 	 */
 	for (a_idx = ART_MIN_RANDOM; a_idx < MAX_A_IDX; a_idx++)
@@ -3797,7 +3797,7 @@ void initialize_random_artifacts(void)
 	}
 
 
-	/* The new names we created while artifacts were being rolled up need to 
+	/* The new names we created while artifacts were being rolled up need to
 	 * be added to the a_name structure.
 	 */
 	err = convert_names();

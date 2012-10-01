@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.7.0
+V:1.1.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -413,7 +413,7 @@ G:|:W
 I:23:20:0
 W:35:0:120:400
 A:35/2
-P:0:3d4:0:0:0
+P:0:3d5:0:0:0
 F:SHOW_MODS
 D:A slightly curved long-handled slashing sword with a single-edged 
 D:blade and a chisel tip.
@@ -452,7 +452,7 @@ G:|:r
 I:23:28:0
 W:50:0:210:1250
 A:50/1
-P:0:4d5:0:0:0
+P:0:4d6:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A giant, curved blade designed to cleave the head cleanly from the 
 D:body.
@@ -529,7 +529,7 @@ G:\:D
 I:21:8:0
 W:20:0:110:225
 A:20/1
-P:0:3d3:0:0:0
+P:0:4d3:0:0:0
 F:SHOW_MODS
 D:A mallet with a tapered head and a long handle.
 
@@ -574,7 +574,7 @@ G:\:D
 I:21:15:0
 W:25:0:180:500
 A:25/1
-P:0:3d4:0:0:0
+P:0:4d4:0:0:0
 F:SHOW_MODS
 D:A heavy war club topped with a mass of lead-filled steel, capable of 
 D:landing crushing blows.
@@ -596,7 +596,7 @@ G:\:y
 I:21:18:0
 W:55:0:220:600
 A:55/1
-P:0:3d6:0:0:0
+P:0:3d7:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:Two great bars of wood connected by a massive chain, needing two hands 
 D:to properly wield.
@@ -670,7 +670,7 @@ G:/:s
 I:22:8:0
 W:35:0:160:300
 A:35/2
-P:6:1d11:0:0:0
+P:6:1d13:0:0:0
 F:SHOW_MODS | TWO_HANDED_REQ
 D:A fifteen foot spear, requiring two hands to wield, principally used in 
 D:infantry formations.
@@ -703,7 +703,7 @@ G:/:s
 I:22:13:0
 W:35:0:190:550
 A:35/1
-P:8:3d4:0:0:0
+P:8:3d5:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:A reinforced wooden pole eight feet long, topped by a massive knife blade that 
 D:can can be used to thrust or chop.
@@ -722,7 +722,7 @@ G:/:s
 I:22:15:0
 W:45:0:190:750
 A:45/1
-P:8:3d5:0:0:0
+P:8:3d6:0:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:The most successful of the polearms, the halberd has a long haft mounted 
 D:with a heavy axe blade and opposing spike, and topped by a thrusting spine.
@@ -748,7 +748,7 @@ G:/:s
 I:22:20:0
 W:15:0:300:230
 A:15/3
-P:0:3d8:0:0:0
+P:0:2d12:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A massive, tapered spear used primarily from horseback.
 
@@ -772,7 +772,7 @@ G:/:s
 I:22:25:0
 W:50:0:200:1000
 A:50/1
-P:0:4d4:0:0:0
+P:0:5d4:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:An enormous two-handed battle axe, carried by Dwarven champions, who 
 D:compete to see who can cleave the most orc heads.
@@ -880,7 +880,7 @@ G:{:s
 I:16:1:0
 W:1:0:1:1
 A:1/1:30/2
-P:0:1d3:0:0:0
+P:0:1d5:0:0:0
 F:SHOW_MODS
 D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.
 
@@ -902,7 +902,7 @@ G:{:U
 I:17:1:0
 W:3:0:1:2
 A:3/1:15/1:55/2
-P:0:1d4:0:0:0
+P:0:1d6:0:0:0
 F:SHOW_MODS
 D:A standard clothyard arrow, straight and cleanly fletched.
 
@@ -925,7 +925,7 @@ G:{:s
 I:18:1:0
 W:3:0:2:3
 A:3/1:25/1:65/2
-P:0:1d5:0:0:0
+P:0:1d7:0:0:0
 F:SHOW_MODS
 D:A short, heavy arrow shot from a crossbow.
 
@@ -1382,7 +1382,8 @@ W:50:0:200:30000
 A:50/8
 P:30:2d4:-2:0:10
 F:RES_ACID | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of utterly black scales, against which no metal or wood can rest.  ~
 
 N:214:Blue Dragon Scale Mail~
@@ -1392,7 +1393,8 @@ W:50:0:200:30000
 A:50/8
 P:30:2d4:-2:0:10
 F:RES_ELEC | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales as blue as sapphires, emitting eerie sparks and coronas as 
 D:you move about in it.  ~
 
@@ -1403,7 +1405,8 @@ W:50:0:200:30000
 A:50/8
 P:30:2d4:-2:0:10
 F:RES_COLD | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, coldly gleaming in frosty white.  A shiver runs down through 
 D:your spine even as you look at it.  ~
 
@@ -1414,7 +1417,8 @@ W:50:0:200:70000
 A:50/8
 P:30:2d4:-2:0:10
 F:RES_FIRE | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, with all the reds of every fire ever lit.  The scar tissue 
 D:from an old burn aches as you put this armour on.  ~
 
@@ -1425,7 +1429,8 @@ W:60:0:200:80000
 A:60/8
 P:30:2d4:-2:0:10
 F:RES_POIS | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, glistening in sickly green, out from which falls the 
 D:skeleton of a rat who touched it and died in agony.  ~
 
@@ -1436,7 +1441,8 @@ W:75:0:200:120000
 A:75/16
 P:30:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales that throbs with angry energies; it takes all your energy 
 D:to master the Elements fighting an endless war trapped inside.  ~
 
@@ -1449,7 +1455,8 @@ W:65:0:200:45000
 A:65/12
 P:30:2d4:-2:0:10
 F:RES_LITE | RES_DARK |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales shining like a beacon of Light even as it greedily sucks 
 D:the energy away from everything that glows into Dark insatiate.  ~
 
@@ -1462,7 +1469,8 @@ W:80:0:200:55000
 A:80/12
 P:30:2d4:-2:0:10
 F:RES_SOUND | RES_SHARD | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in stern blue and silver.  You feel the slightest tremor 
 D:as you touch it, like massed trumpets heard and cyclones felt from afar.  ~
 
@@ -1475,7 +1483,8 @@ W:55:0:200:30000
 A:55/8
 P:30:2d4:-2:0:10
 F:RES_CONFU | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales, gleaming in rich engraved bronze.  The more you look at the 
 D:the maze of whorls and lines that close inspection reveal on its surface, 
 D:the less sense you are able to make of them.  ~
@@ -1487,7 +1496,8 @@ W:60:0:200:30000
 A:60/8
 P:30:2d4:-2:0:10
 F:RES_SOUND | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales in mirror-like gold.  You hear nothing unusual as you 
 D:wear this armour, yet your ears ache as though in the midst of a 
 D:cacophony.  ~
@@ -1501,7 +1511,8 @@ W:75:0:200:70000
 A:75/14
 P:30:2d4:-2:0:10
 F:RES_CHAOS | RES_DISEN | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales.  Every shape, in every color imaginable, riot and 
 D:contend upon its surface as you stare in fascination.  ~
 
@@ -1512,7 +1523,8 @@ W:90:0:200:100000
 A:90/14
 P:30:2d4:-2:0:10
 F:RES_SOUND | RES_SHARD | RES_CHAOS | RES_DISEN | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of scales.  Featureless grey to casual inspection, yet a closer look 
 D:reveals patterns within patterns of iridescence that throb with leashed 
 D:energies bound as though by chains of adamant.  ~
@@ -1523,10 +1535,11 @@ I:38:30:0
 W:105:0:200:300000
 A:105/36
 P:40:2d4:-3:0:15
-F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_BASE_MINOR | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
 F:RES_SOUND | RES_SHARD | 
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:ACTIVATE | EASY_ACT | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit with scales of every color, surrounded in a nimbus of perfectly 
 D:untramelled yet inextricably intermingled and utterly mastered powers 
 D:elemental and ethereal.  ~
@@ -2091,7 +2104,7 @@ G:":d
 I:40:9:0
 W:65:0:3:10000
 A:65/4
-F:ACTIVATE | EASY_KNOW
+F:ACTIVATE | EASY_ACT | EASY_KNOW
 D:that allows quick escapes from tight spots.
 
 N:312:the Lion
@@ -2099,7 +2112,7 @@ G:":d
 I:40:15:0
 W:80:0:3:25000
 A:80/5
-F:ACTIVATE | EASY_KNOW
+F:ACTIVATE | EASY_ACT | EASY_KNOW
 D:that can turn you into the king of beasts.
 
 ## XXX 313 XXX ##
@@ -3011,7 +3024,7 @@ I:65:3:8
 W:35:0:10:1750
 A:35/3
 P:0:1d1:0:0:0
-D:that teleports foes away.
+D:that teleports a foe away.
 
 N:459:Disarming
 G:-:d
@@ -3364,6 +3377,7 @@ I:55:5:20
 W:10:0:50:350
 A:10/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that provides basic information about any object.
 
 N:506:Remove Curse
@@ -3389,6 +3403,7 @@ I:55:8:32
 W:5:0:50:250
 A:5/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that magically illuminates a room or a torch-lit area.
 
 N:509:Dungeon Mapping
@@ -3397,6 +3412,7 @@ I:55:9:18
 W:20:0:50:900
 A:20/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals the walls and terrain of the local area.
 
 N:510:Treasure Location
@@ -3405,6 +3421,7 @@ I:55:10:36
 W:5:0:50:200
 A:5/2
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that makes mining very profitable.
 
 N:511:Object Location
@@ -3413,6 +3430,7 @@ I:55:11:36
 W:5:0:50:200
 A:5/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals objects nearby.
 
 N:512:Trap Location
@@ -3421,6 +3439,7 @@ I:55:12:36
 W:8:0:50:200
 A:8/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals traps nearby.
 
 N:513:Door/Stair Location
@@ -3429,6 +3448,7 @@ I:55:13:36
 W:8:0:50:300
 A:8/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals doors and stairs nearby.
 
 N:514:Detect Invisible
@@ -3437,6 +3457,7 @@ I:55:14:36
 W:5:0:50:200
 A:5/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals monsters unseen by ordinary sight.
 
 N:515:Detect Evil
@@ -3445,6 +3466,7 @@ I:55:15:36
 W:20:0:50:350
 A:20/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals evil creatures nearby.
 
 N:516:Cure Medium Wounds
@@ -3501,6 +3523,7 @@ I:55:22:8
 W:48:0:50:2000
 A:48/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that hastens you for a time.
 
 N:523:Probing
@@ -3560,6 +3583,7 @@ I:55:30:24
 W:45:0:50:2500
 A:45/1
 P:0:1d2:0:0:0
+F:EASY_ACT
 D:that reveals objects, monsters, and special features.
 
 N:531:Mana Storm
@@ -3663,6 +3687,7 @@ I:66:0:40
 W:10:0:15:700
 A:10/2:20/2
 P:0:1d1:0:0:0
+F:EASY_ACT
 D:that reveals traps.
 
 N:569:Door/Stair Location
@@ -3671,6 +3696,7 @@ I:66:1:40
 W:10:0:15:700
 A:10/2:20/2
 P:0:1d1:0:0:0
+F:EASY_ACT
 D:that reveals doors and stairs.
 
 N:570:Perception
@@ -3679,6 +3705,7 @@ I:66:2:10
 W:55:0:15:13000
 A:55/6
 P:0:1d1:0:0:0
+F:EASY_ACT
 D:that provides basic information about any object.
 
 N:571:Recall
@@ -3695,6 +3722,7 @@ I:66:4:20
 W:10:0:15:800
 A:10/1
 P:0:1d1:0:0:0
+F:EASY_ACT
 D:that magically lights up a room or your immediate surroundings.
 
 N:573:Sense Surroundings
@@ -3703,6 +3731,7 @@ I:66:5:80
 W:40:0:15:3000
 A:40/2
 P:0:1d1:0:0:0
+F:EASY_ACT
 D:that reveals the local terrain.
 
 ## XXX 574 XXX (only available non-aimed rod svals are 6 and 12) ##
@@ -3745,6 +3774,7 @@ I:66:11:120
 W:90:0:15:50000
 A:90/8
 P:0:1d1:0:0:0
+F:EASY_ACT
 D:that wonderfully hastens you.
 
 ## XXX 580 XXX (only available non-aimed rod svals are 6 and 12) ##
@@ -4291,7 +4321,7 @@ N:658:[Raal's Tome of Destruction]
 G:?:r
 I:90:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A spellbook of destructive power for Mages.
@@ -4374,7 +4404,7 @@ N:668:[Wrath of God]
 G:?:b
 I:91:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A holy book of fearsome wrath for Priests and Paladins.
@@ -4456,7 +4486,7 @@ N:678:[Spirit of Yavanna]
 G:?:g
 I:92:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A stone of the greatest natural lore for Druids.
@@ -4538,7 +4568,7 @@ N:688:[Necronomicon]
 G:?:v
 I:93:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A tome of untold evil for Necromancers.

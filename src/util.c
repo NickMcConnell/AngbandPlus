@@ -1,6 +1,6 @@
 /* File: util.c */
 
-/* Functions, etc. for various machines that need them.  Basic text-handing 
+/* Functions, etc. for various machines that need them.  Basic text-handing
  * functions.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -11,6 +11,62 @@
  */
 
 #include "angband.h"
+
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+#ifdef USE_PRIVATE_PATHS
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+#endif /* USE_PRIVATE_PATHS */
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+}
+
+#endif /* PRIVATE_USER_PATH */
 
 
 
@@ -72,29 +128,15 @@ int usleep(huge usecs)
 {
 	struct timeval      Timer;
 
-	int nfds = 0;
-
-#ifdef FD_SET
-	fd_set *no_fds = NULL;
-#else
-	int *no_fds = NULL;
-#endif
-
-
-	/* Was: int readfds, writefds, exceptfds; */
-	/* Was: readfds = writefds = exceptfds = 0; */
-
-
 	/* Paranoia -- No excessive sleeping */
 	if (usecs > 4000000L) core("Illegal usleep() call");
-
 
 	/* Wait for it */
 	Timer.tv_sec = (usecs / 1000000L);
 	Timer.tv_usec = (usecs % 1000000L);
 
 	/* Wait for it */
-	if (select(nfds, no_fds, no_fds, no_fds, &Timer) < 0)
+	if (select(0, NULL, NULL, NULL, &Timer) < 0)
 	{
 		/* Hack -- ignore interrupts */
 		if (errno != EINTR) return -1;
@@ -352,12 +394,23 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 FILE *my_fopen(cptr file, cptr mode)
 {
 	char buf[1024];
+	FILE *fff;
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (NULL);
+	if (path_parse(buf, sizeof(buf), file)) return (NULL);
 
 	/* Attempt to fopen the file anyway */
-	return (fopen(buf, mode));
+	fff = fopen(buf, mode);
+
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+	/* Set file creator and type */
+	if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	/* Return open file or NULL */
+	return (fff);
 }
 
 
@@ -378,6 +431,39 @@ errr my_fclose(FILE *fff)
 
 
 #endif /* ACORN */
+
+
+#ifdef HAVE_MKSTEMP
+
+FILE *my_fopen_temp(char *buf, size_t max)
+{
+	int fd;
+
+	/* Prepare the buffer for mkstemp */
+	my_strcpy(buf, "/tmp/anXXXXXX", max);
+
+	/* Secure creation of a temporary file */
+	fd = mkstemp(buf);
+
+	/* Check the file-descriptor */
+	if (fd < 0) return (NULL);
+
+	/* Return a file stream */
+	return (fdopen(fd, "w"));
+}
+
+#else /* HAVE_MKSTEMP */
+
+FILE *my_fopen_temp(char *buf, size_t max)
+{
+	/* Generate a temporary filename */
+	if (path_temp(buf, max)) return (NULL);
+
+	/* Open the file */
+	return (my_fopen(buf, "w"));
+}
+
+#endif /* HAVE_MKSTEMP */
 
 
 /*
@@ -491,13 +577,10 @@ errr fd_kill(cptr file)
 	char buf[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
-	/* Remove */
-	(void)remove(buf);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
+	/* Remove, return 0 on success, non-zero on failure */
+	return (remove(buf));
 }
 
 
@@ -510,19 +593,17 @@ errr fd_move(cptr file, cptr what)
 	char aux[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
+	if (path_parse(aux, sizeof(aux), what)) return (-1);
 
-	/* Rename */
-	(void)rename(buf, aux);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
+	/* Rename, return 0 on success, non-zero on failure */
+	return (rename(buf, aux));
 }
 
 
+#if 0   /* Broken! XXX XXX */
 /*
  * Hack -- attempt to copy a file
  */
@@ -532,10 +613,10 @@ errr fd_copy(cptr file, cptr what)
 	char aux[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
+	if (path_parse(aux, sizeof(aux), what)) return (-1);
 
 	/* Copy XXX XXX XXX */
 	/* (void)rename(buf, aux); */
@@ -543,7 +624,7 @@ errr fd_copy(cptr file, cptr what)
 	/* Assume success XXX XXX XXX */
 	return (1);
 }
-
+#endif
 
 /*
  * Hack -- attempt to open a file descriptor (create file)
@@ -555,24 +636,32 @@ errr fd_copy(cptr file, cptr what)
 int fd_make(cptr file, int mode)
 {
 	char buf[1024];
+	int fd;
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
-#if defined(MACINTOSH) || defined(WINDOWS)
+#if defined(MACINTOSH)
 
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode /* TNB */));
-
-
+	fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY);
 
 #else
 
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+	fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
 
 #endif
 
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+	/* Set file creator and type */
+	if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	/* Return descriptor */
+	return (fd);
 }
 
 
@@ -586,7 +675,7 @@ int fd_open(cptr file, int flags)
 	char buf[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
 #if defined(MACINTOSH) || defined(WINDOWS)
 
@@ -615,49 +704,27 @@ errr fd_lock(int fd, int what)
 
 #ifdef SET_UID
 
-# ifdef USG
+	struct flock lock;
 
-#  if defined(F_ULOCK) && defined(F_LOCK)
+	lock.l_type = what;
+	lock.l_start = 0; /* Lock the entire file */
+	lock.l_whence = SEEK_SET; /* Lock the entire file */
+	lock.l_len = 0; /* Lock the entire file */
 
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		lockf(fd, F_ULOCK, 0);
-	}
+	/* Wait for access and set lock status */
+	/*
+	 * Change F_SETLKW to F_SETLK if it's perferable to return
+	 * without locking and reporting an error instead of waiting.
+	 */
+	return(fcntl(fd, F_SETLKW, &lock));
 
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (lockf(fd, F_LOCK, 0) != 0) return (1);
-	}
 
-#  endif
+#else /* SET_UID */
 
-# else
+	/* Unused parameter */
+	(void)what;
 
-#  if defined(LOCK_UN) && defined(LOCK_EX)
-
-	/* Un-Lock */
-	if (what == F_UNLCK)
-	{
-		/* Unlock it, Ignore errors */
-		(void)flock(fd, LOCK_UN);
-	}
-
-	/* Lock */
-	else
-	{
-		/* Lock the score file */
-		if (flock(fd, LOCK_EX) != 0) return (1);
-	}
-
-#  endif
-
-# endif
-
-#endif
+#endif /* SET_UID */
 
 	/* Success */
 	return (0);
@@ -705,6 +772,11 @@ errr fd_chop(int fd, huge n)
 	return (0);
 }
 
+
+#ifndef SET_UID
+#define FILE_BUF_SIZE 16384
+#endif
+
 /*
  * Hack -- attempt to read data from a file descriptor
  */
@@ -716,16 +788,16 @@ errr fd_read(int fd, char *buf, huge n)
 #ifndef SET_UID
 
 	/* Read pieces */
-	while (n >= 16384)
+	while (n >= FILE_BUF_SIZE)
 	{
 		/* Read a piece */
-		if (read(fd, buf, 16384) != 16384) return (1);
+		if (read(fd, buf, FILE_BUF_SIZE) != FILE_BUF_SIZE) return (1);
 
 		/* Shorten the task */
-		buf += 16384;
+		buf += FILE_BUF_SIZE;
 
 		/* Shorten the task */
-		n -= 16384;
+		n -= FILE_BUF_SIZE;
 	}
 
 #endif
@@ -749,16 +821,16 @@ errr fd_write(int fd, cptr buf, huge n)
 #ifndef SET_UID
 
 	/* Write pieces */
-	while (n >= 16384)
+	while (n >= FILE_BUF_SIZE)
 	{
 		/* Write a piece */
-		if (write(fd, (void *)buf, 16384) != 16384) return (1);
+		if (write(fd, (void *)buf, FILE_BUF_SIZE) != FILE_BUF_SIZE) return (1);
 
 		/* Shorten the task */
-		buf += 16384;
+		buf += FILE_BUF_SIZE;
 
 		/* Shorten the task */
-		n -= 16384;
+		n -= FILE_BUF_SIZE;
 	}
 
 #endif
@@ -779,12 +851,8 @@ errr fd_close(int fd)
 	/* Verify the fd */
 	if (fd < 0) return (-1);
 
-	/* Close */
-	/* fclose(file_descriptors[fd]); */
-	(void)close(fd);
-
-	/* Assume success XXX XXX XXX */
-	return (0);
+	/* Close, return 0 on sucess, -1 on failure */
+	return (close(fd));
 }
 
 
@@ -804,7 +872,7 @@ errr check_modification_date(int fd, cptr template_file)
 	struct stat txt_stat, raw_stat;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
 
 	/* Access stats on text file */
 	if (stat(buf, &txt_stat))
@@ -1614,7 +1682,7 @@ char inkey(void)
 
 			/* Flush output */
 			Term_fresh();
-			
+
 			/* Hack -- activate main screen */
 			Term_activate(angband_term[0]);
 
@@ -1665,7 +1733,7 @@ char inkey(void)
 
 					/* Excessive delay */
 					if (w >= 100) break;
-		
+
 					/* Delay */
 					Term_xtra(TERM_XTRA_DELAY, w);
 				}
@@ -2249,13 +2317,16 @@ static void msg_flush(int x)
 	Term_putstr(x, 0, -1, a, "-more-");
 
 	/* Get an acceptable keypress */
-	while (1)
+	if (!auto_more)
 	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell("Illegal response to a 'more' prompt!");
+		while (1)
+		{
+			int cmd = inkey();
+			if (quick_messages) break;
+			if ((cmd == ESCAPE) || (cmd == ' ')) break;
+			if ((cmd == '\n') || (cmd == '\r')) break;
+			bell("Illegal response to a 'more' prompt!");
+		}
 	}
 
 	/* Clear the line */
@@ -2330,17 +2401,6 @@ static void msg_print_aux(u16b type, cptr msg)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE);
-
-	/* Handle "auto_more" */
-	if (auto_more)
-	{
-		/* Force window update */
-		window_stuff();
-
-		/* Done */
-		return;
-	}
-
 
 	/* Copy it */
 	strcpy(buf, msg);
@@ -2627,7 +2687,7 @@ void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 	(void)Term_locate(&x, &y);
 
 	/* If cursor is left of the left margin,... */
-	if ((l_margin) && (x < l_margin)) 
+	if ((l_margin) && (x < l_margin))
 	{
 		/* ...move it to the left margin. */
 		move_cursor(y, l_margin);
@@ -3559,7 +3619,7 @@ void repeat_check(void)
 }
 
 
-/* 
+/*
  * Convert an input from tenths of a pound to tenths of a kilogram. -LM-
  */
 int make_metric(int wgt)
@@ -3575,27 +3635,27 @@ int make_metric(int wgt)
 
 
 /*
- * Accept values for y and x (considered as the endpoints of lines) between 
+ * Accept values for y and x (considered as the endpoints of lines) between
  * 0 and 40, and return an angle in degrees (divided by two). -LM-
  *
  * This table's input and output needs some processing:
  *
- * Because this table gives degrees for a whole circle, up to radius 20, its 
- * origin is at (x,y) = (20, 20).  Therefore, the input code needs to find 
- * the origin grid (where the lines being compared come from), and then map 
- * it to table grid 20,20.  Do not, however, actually try to compare the 
- * angle of a line that begins and ends at the origin with any other line - 
+ * Because this table gives degrees for a whole circle, up to radius 20, its
+ * origin is at (x,y) = (20, 20).  Therefore, the input code needs to find
+ * the origin grid (where the lines being compared come from), and then map
+ * it to table grid 20,20.  Do not, however, actually try to compare the
+ * angle of a line that begins and ends at the origin with any other line -
  * it is impossible mathematically, and the table will return the value "255".
  *
- * The output of this table also needs to be massaged, in order to avoid the 
+ * The output of this table also needs to be massaged, in order to avoid the
  * discontinuity at 0/180 degrees.  This can be done by:
- *   rotate = 90 - first value 
+ *   rotate = 90 - first value
  *   this rotates the first input to the 90 degree line)
  *   tmp = ABS(second value + rotate) % 180
- *   diff = ABS(90 - tmp) = the angular difference (divided by two) between 
+ *   diff = ABS(90 - tmp) = the angular difference (divided by two) between
  *   the first and second values.
  */
-byte get_angle_to_grid[41][41] = 
+byte get_angle_to_grid[41][41] =
 {
 	{  67,  66,  66,  66,  66,  66,  66,  65,  63,  62,  61,  60,  58,  57,  55,  54,  52,  50,  48,  46,  45,  44,  41,  40,  38,  36,  35,  33,  32,  30,  29,  28,  27,  25,  24,  24,  23,  23,  23,  23,  22 },
 	{  68,  67,  66,  66,  66,  66,  66,  65,  63,  62,  61,  60,  58,  57,  55,  54,  52,  50,  49,  47,  45,  43,  41,  40,  38,  36,  35,  33,  32,  30,  29,  28,  27,  25,  24,  24,  23,  23,  23,  22,  21 },

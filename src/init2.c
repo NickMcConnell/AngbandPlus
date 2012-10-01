@@ -1,7 +1,7 @@
 /* File: init2.c */
 
-/* Paths, initializiation of *_info arrays from the binary files, control 
- * of what items are sold in the stores, prepare stores, inventory, and 
+/* Paths, initializiation of *_info arrays from the binary files, control
+ * of what items are sold in the stores, prepare stores, inventory, and
  * many other things, some error text, startup initializations.
  *
  * Copyright (c) 1997 Ben Harrison
@@ -76,6 +76,9 @@ void init_file_paths(char *path)
 {
 	char *tail;
 
+#ifdef PRIVATE_USER_PATH
+	char buf[1024];
+#endif /* PRIVATE_USER_PATH */
 
 	/*** Free everything ***/
 
@@ -91,6 +94,7 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
 	string_free(ANGBAND_DIR_SAVE);
+	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
 
@@ -118,6 +122,7 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_HELP = string_make("");
 	ANGBAND_DIR_INFO = string_make("");
 	ANGBAND_DIR_SAVE = string_make("");
+	ANGBAND_DIR_PREF = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
 
@@ -126,18 +131,6 @@ void init_file_paths(char *path)
 
 
 	/*** Build the sub-directory names ***/
-
-	/* Build a path name */
-	strcpy(tail, "apex");
-	ANGBAND_DIR_APEX = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "data");
-	ANGBAND_DIR_DATA = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "edit");
@@ -156,16 +149,74 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_INFO = string_make(path);
 
 	/* Build a path name */
-	strcpy(tail, "save");
-	ANGBAND_DIR_SAVE = string_make(path);
+	strcpy(tail, "pref");
+	ANGBAND_DIR_PREF = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "xtra");
+	ANGBAND_DIR_XTRA = string_make(path);
+
+#ifdef PRIVATE_USER_PATH
+
+	/* Build the path to the user specific directory */
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
+
+	/* Build a relative path name */
+	ANGBAND_DIR_USER = string_make(buf);
+
+#else /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
 
+#endif /* PRIVATE_USER_PATH */
+
+#ifdef USE_PRIVATE_PATHS
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_APEX = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_BONE = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_DATA = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_SAVE = string_make(buf);
+
+#else /* USE_PRIVATE_PATHS */
+
 	/* Build a path name */
-	strcpy(tail, "xtra");
-	ANGBAND_DIR_XTRA = string_make(path);
+	strcpy(tail, "apex");
+	ANGBAND_DIR_APEX = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "data");
+	ANGBAND_DIR_DATA = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "save");
+	ANGBAND_DIR_SAVE = string_make(path);
+
+#endif /* USE_PRIVATE_PATHS */
 
 #endif /* VM */
 
@@ -801,12 +852,12 @@ static errr init_h_info(void)
 	int mode = 0644;
 
 	errr err = 0;
-	
+
 	FILE *fp;
-  
+
 	/* General buffer */
 	char buf[1024];
-	
+
 
 	/*** Make the header ***/
 
@@ -830,7 +881,7 @@ static errr init_h_info(void)
 #ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
-	
+
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_hist.raw");
 
@@ -868,7 +919,7 @@ static errr init_h_info(void)
 
 
 	/*** Load the ascii template file ***/
-	
+
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_hist.txt");
 
@@ -916,7 +967,7 @@ static errr init_h_info(void)
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
-	
+
 	/* Dump to the file */
 	if (fd >= 0)
 	{
@@ -935,10 +986,10 @@ static errr init_h_info(void)
 
 
 	/*** Kill the fake arrays ***/
-	
+
 	/* Free the "h_info" array */
 	C_KILL(h_info, h_head->info_num, hist_type);
-	
+
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(h_text, FAKE_TEXT_SIZE, char);
 
@@ -1000,7 +1051,7 @@ static errr init_b_info_raw(int fd)
 
 	/* Allocate the "b_info" array */
 	C_MAKE(b_info, b_head->info_num, owner_type);
-	
+
 	/* Read the "b_info" array */
 	fd_read(fd, (char*)(b_info), b_head->info_size);
 
@@ -1080,7 +1131,7 @@ static errr init_b_info(void)
 
 	      /* Close it */
 	      fd_close(fd);
-	      
+
 	      /* Success */
 	      if (!err) return (0);
 	}
@@ -1111,7 +1162,7 @@ static errr init_b_info(void)
 
 	/* Close it */
 	my_fclose(fp);
-	
+
 	/* Errors */
 	if (err)
 	{
@@ -1247,9 +1298,9 @@ static errr init_g_info(void)
 	int fd;
 
 	int mode = 0644;
-	
+
 	errr err = 0;
-  
+
 	FILE *fp;
 
 
@@ -1258,7 +1309,7 @@ static errr init_g_info(void)
 
 
 	/*** Make the header ***/
-	
+
 	/* Allocate the "header" */
 	MAKE(g_head, header);
 
@@ -1280,7 +1331,7 @@ static errr init_g_info(void)
 #ifdef ALLOW_TEMPLATES
 
 	/*** Load the binary image file ***/
-	
+
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "shop_own.raw");
 
@@ -1377,7 +1428,7 @@ static errr init_g_info(void)
 
 
 	/*** Kill the fake arrays ***/
-	
+
 	/* Free the "g_info" array */
 	C_KILL(g_info, g_head->info_num, byte);
 
@@ -2871,7 +2922,7 @@ static errr init_rp_info(void)
 	      /* Attempt to parse the "raw" file */
 	      if (!err)
 		     err = init_rp_info_raw(fd);
-	      
+
 	      /* Close it */
 	      fd_close(fd);
 
@@ -2968,7 +3019,7 @@ static errr init_rp_info(void)
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(rp_name, FAKE_NAME_SIZE, char);
 	C_KILL(rp_text, FAKE_TEXT_SIZE, char);
-  
+
 
 #endif	/* ALLOW_TEMPLATES */
 
@@ -3088,7 +3139,7 @@ static errr init_cp_info(void)
 	cp_head->v_extra = O_VERSION_EXTRA;
 
 	/* Save the "record" information */
-	cp_head->info_num = MAX_P_IDX;
+	cp_head->info_num = MAX_CP_IDX;
 	cp_head->info_len = sizeof(player_class);
 
 	/* Save the size of "p_head" and "cp_info" */
@@ -3118,7 +3169,7 @@ static errr init_cp_info(void)
 	      /* Attempt to parse the "raw" file */
 	      if (!err)
 		     err = init_cp_info_raw(fd);
-	      
+
 	      /* Close it */
 	      fd_close(fd);
 
@@ -3215,7 +3266,7 @@ static errr init_cp_info(void)
 	/* Hack -- Free the "fake" arrays */
 	C_KILL(cp_name, FAKE_NAME_SIZE, char);
 	C_KILL(cp_text, FAKE_TEXT_SIZE, char);
-  
+
 
 #endif	/* ALLOW_TEMPLATES */
 
@@ -3247,10 +3298,436 @@ static errr init_cp_info(void)
 
 
 /*
+ * Initialize the "ch_info" array, by parsing a binary "image" file
+ */
+static errr init_ch_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	   (test.v_major != ch_head->v_major) ||
+	   (test.v_minor != ch_head->v_minor) ||
+	   (test.v_patch != ch_head->v_patch) ||
+	   (test.v_extra != ch_head->v_extra) ||
+	   (test.info_num != ch_head->info_num) ||
+	   (test.info_len != ch_head->info_len) ||
+	   (test.head_size != ch_head->head_size) ||
+	   (test.info_size != ch_head->info_size))
+	{
+	      /* Error */
+	      return (-1);
+	}
+
+
+	/* Accept the header */
+	(*ch_head) = test;
+
+
+	/* Allocate the "ch_info" array */
+	C_MAKE(ch_info, ch_head->info_num, chest_drops);
+
+	/* Read the "ch_info" array */
+	fd_read(fd, (char*)(ch_info), ch_head->info_size);
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "ch_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_ch_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(ch_head, header);
+
+	/* Save the "version" */
+	ch_head->v_major = O_VERSION_MAJOR;
+	ch_head->v_minor = O_VERSION_MINOR;
+	ch_head->v_patch = O_VERSION_PATCH;
+	ch_head->v_extra = O_VERSION_EXTRA;
+
+	/* Save the "record" information */
+	ch_head->info_num = MAX_CP_IDX;
+	ch_head->info_len = sizeof(chest_drops);
+
+	/* Save the size of "p_head" and "ch_info" */
+	ch_head->head_size = sizeof(header);
+	ch_head->info_size = ch_head->info_num * ch_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_chest.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+	      err = check_modification_date(fd, "p_chest.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+	      /* Attempt to parse the "raw" file */
+	      if (!err)
+		     err = init_ch_info_raw(fd);
+
+	      /* Close it */
+	      fd_close(fd);
+
+	      /* Success */
+	      if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "ch_info" array */
+	C_MAKE(ch_info, ch_head->info_num, chest_drops);
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_chest.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'p_chest.txt' file.");
+
+	/* Parse the file */
+	err = init_ch_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+	      cptr oops;
+
+	      /* Error string */
+	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+	      /* Oops */
+	      msg_format("Error %d at line %d of 'p_chest.txt'.", err, error_line);
+	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
+	      msg_format("Parsing '%s'.", buf);
+	      msg_print(NULL);
+
+	      /* Quit */
+	      quit("Error in 'p_chest.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_chest.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+	      /* Dump it */
+	      fd_write(fd, (char*)(ch_head), ch_head->head_size);
+
+	      /* Dump the "ch_info" array */
+	      fd_write(fd, (char*)(ch_info), ch_head->info_size);
+
+	      /* Close */
+	      fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "ch_info" array */
+	C_KILL(ch_info, ch_head->info_num, chest_drops);
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_chest.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'p_chest.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_ch_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'p_chest.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "mp_info" array, by parsing a binary "image" file
+ */
+static errr init_mp_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	   (test.v_major != mp_head->v_major) ||
+	   (test.v_minor != mp_head->v_minor) ||
+	   (test.v_patch != mp_head->v_patch) ||
+	   (test.v_extra != mp_head->v_extra) ||
+	   (test.info_num != mp_head->info_num) ||
+	   (test.info_len != mp_head->info_len) ||
+	   (test.head_size != mp_head->head_size) ||
+	   (test.info_size != mp_head->info_size))
+	{
+	      /* Error */
+	      return (-1);
+	}
+
+
+	/* Accept the header */
+	(*mp_head) = test;
+
+
+	/* Allocate the "mp_info" array */
+	C_MAKE(mp_info, mp_head->info_num, player_magic);
+
+	/* Read the "mp_info" array */
+	fd_read(fd, (char*)(mp_info), mp_head->info_size);
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "mp_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_mp_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(mp_head, header);
+
+	/* Save the "version" */
+	mp_head->v_major = O_VERSION_MAJOR;
+	mp_head->v_minor = O_VERSION_MINOR;
+	mp_head->v_patch = O_VERSION_PATCH;
+	mp_head->v_extra = O_VERSION_EXTRA;
+
+	/* Save the "record" information */
+	mp_head->info_num = MAX_CP_IDX;
+	mp_head->info_len = sizeof(player_magic);
+
+	/* Save the size of "p_head" and "mp_info" */
+	mp_head->head_size = sizeof(header);
+	mp_head->info_size = mp_head->info_num * mp_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_magic.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+	      err = check_modification_date(fd, "p_magic.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+	      /* Attempt to parse the "raw" file */
+	      if (!err)
+		     err = init_mp_info_raw(fd);
+
+	      /* Close it */
+	      fd_close(fd);
+
+	      /* Success */
+	      if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "mp_info" array */
+	C_MAKE(mp_info, mp_head->info_num, player_magic);
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_magic.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'p_magic.txt' file.");
+
+	/* Parse the file */
+	err = init_mp_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+	      cptr oops;
+
+	      /* Error string */
+	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+	      /* Oops */
+	      msg_format("Error %d at line %d of 'p_magic.txt'.", err, error_line);
+	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
+	      msg_format("Parsing '%s'.", buf);
+	      msg_print(NULL);
+
+	      /* Quit */
+	      quit("Error in 'p_magic.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_magic.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+	      /* Dump it */
+	      fd_write(fd, (char*)(mp_head), mp_head->head_size);
+
+	      /* Dump the "mp_info" array */
+	      fd_write(fd, (char*)(mp_info), mp_head->info_size);
+
+	      /* Close */
+	      fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "mp_info" array */
+	C_KILL(mp_info, mp_head->info_num, player_magic);
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_magic.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'p_magic.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_mp_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'p_magic.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
  * Initialize the "t_info" array.  Code from "init_v_info". -LM-
- * Unlike other, similar arrays, that for themed levels is not written to a 
- * binary file, since themed levels are neither important enough to warrant 
- * the use of extra space, nor used often enough to worry excessively about 
+ * Unlike other, similar arrays, that for themed levels is not written to a
+ * binary file, since themed levels are neither important enough to warrant
+ * the use of extra space, nor used often enough to worry excessively about
  * speed.
  *
  * Note that we let each entry have a unique "name" and "text" string,
@@ -4429,6 +4906,14 @@ void init_angband(void)
 	/* Initialize class info */
 	note("[Initializing arrays... (classes)]");
 	if (init_cp_info()) quit("Cannot initialize classes");
+
+	/* Initialize chest info */
+	note("[Initializing arrays... (chests)]");
+	if (init_ch_info()) quit("Cannot initialize chests");
+
+	/* Initialize magic info */
+	note("[Initializing arrays... (magic)]");
+	if (init_mp_info()) quit("Cannot initialize magic");
 
 	/* Initialize price info */
 	note("[Initializing arrays... (prices)]");

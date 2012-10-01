@@ -854,13 +854,13 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 		/* Special characters? */
 		if (use_blocks)
 		{
-			
+
 			/* Determine picture to use */
 			if (s[i] == '#')
 			{
 				/* Walls */
 				pic = ACS_CKBOARD;
-				
+
 				/*
 				 *  Note that veins are '#' as well now.
 				 *  Trees are '%' now - and this looks bad when redefined.
@@ -1130,25 +1130,25 @@ errr init_gcu(int argc, char *argv[])
 				break;
 
 			/* Lower left */
-			case 1:				
+			case 1:
 				y = rows + 1;
 				x = 0;
 				rows = LINES - (rows + 1);
 				break;
 
 			/* Upper right */
-			case 2:				
+			case 2:
 				y = 0;
 				x = cols + 1;
 				cols = COLS - (cols + 1);
 				break;
 
 			/* Lower right */
-			case 3:				
+			case 3:
 				y = rows + 1;
 				x = cols + 1;
 				rows = LINES - (rows + 1);
-				cols = COLS - (cols + 1);				
+				cols = COLS - (cols + 1);
 				break;
 
 			/* XXX */

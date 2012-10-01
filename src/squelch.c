@@ -1,6 +1,6 @@
 /* File: squelch.c */
 
-/* Item squelching support.  Setting squelch parameters for both squelch 
+/* Item squelching support.  Setting squelch parameters for both squelch
  * on generate and squelch on identify.   Handling squelching menus.
  * Determining if items should be squelched.  Actually squelching items.
  *
@@ -17,16 +17,16 @@
 static int do_qual_squelch(void);
 
 
-/* 
+/*
  * This stores the various squelch levels for the secondary squelching.
  * It is currently hardcoded at 24 bytes, but since there are only 16
- * applicable tvals there shouldn't be a problem.  
+ * applicable tvals there shouldn't be a problem.
  */
 
 byte squelch_level[24];
 
 /*
- * These are the various levels of squelching supported by the game.  
+ * These are the various levels of squelching supported by the game.
  * Less concisely:
  * 0 ---> No squelching
  * 1 ---> Squelch cursed items
@@ -62,13 +62,13 @@ byte squelch_level[24];
 
 /*
  * This (admittedly hacky) stores the mapping from tval to typeval
- * and is reinitialized every time do_cmd_squelch is called.  This 
+ * and is reinitialized every time do_cmd_squelch is called.  This
  * can certainly be done more cleanly.
  */
 static int tv_to_type[100];
 
 /*
- * These structures are lifted from wizard2.c where they were used in 
+ * These structures are lifted from wizard2.c where they were used in
  * the 'create item' command.  I have adapted them for my code.
  */
 
@@ -84,26 +84,26 @@ static char head[4] =
 /*
  * Here are the categories for squelch-on-creation.
  */
-static tval_desc typevals[] = 
+static tval_desc typevals[] =
 {
 
-	{TYPE_AMULET, "Amulets"},  
-	{TYPE_RING, "Rings"}, 
+	{TYPE_AMULET, "Amulets"},
+	{TYPE_RING, "Rings"},
 	{TYPE_STAFF, "Staves"},
-	{TYPE_WAND, "Wands"}, 
+	{TYPE_WAND, "Wands"},
 	{TYPE_ROD, "Rods"},
-	{TYPE_SCROLL, "Scrolls"},  
-	{TYPE_POTION, "Potions"},  
+	{TYPE_SCROLL, "Scrolls"},
+	{TYPE_POTION, "Potions"},
 	{TYPE_BOOK, "Magic Books"},
 	{TYPE_FOOD, "Food Items"},
-	{TYPE_MISC, "Miscellaneous"}, 
+	{TYPE_MISC, "Miscellaneous"},
 	{0, NULL}
-  
+
 };
 
 /*
  * Here are the categories for squelch-on-identification.
- * This array is lifted (and edited) from wizard2.c, hence 
+ * This array is lifted (and edited) from wizard2.c, hence
  * the spacy formatting.
  */
 
@@ -130,7 +130,7 @@ static tval_desc tvals[] =
 };
 
 /*
- * This code is the heavy pseudoidentify code.  I lifted it 
+ * This code is the heavy pseudoidentify code.  I lifted it
  * from dungeon.c.  It is used in the quality squelching code.
  */
 
@@ -176,32 +176,6 @@ static int value_check_aux1(object_type *o_ptr)
 }
 
 /*
- * Strip an "object name" into a buffer.  Lifted from wizard2.c.
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
-
-/*
  * This subroutine actually handles the squelching menus.
  */
 
@@ -221,10 +195,10 @@ static int do_cmd_squelch_aux(void)
 	/* Clear screen */
 	Term_clear();
 
-	/* 
-	 * Print all typeval's and their descriptions 
+	/*
+	 * Print all typeval's and their descriptions
 	 *
-	 * This uses the above arrays.  I combined a few of the 
+	 * This uses the above arrays.  I combined a few of the
 	 * tvals into single typevals.
 	 */
 
@@ -234,21 +208,20 @@ static int do_cmd_squelch_aux(void)
 		col = 30 * (num / 20);
 		ch = head[num/26] +num%26;
 		prt(format("[%c] %s", ch, typevals[num].desc), row, col);
-		
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
 	if (!get_com("Squelch what type of object? (Q: Secondary Menu for Weapons and Armour) ", &ch)) return (0);
 
-	if (ch=='Q') 
+	if (ch=='Q')
 	{
 		/* Switch to secondary squelching menu */
 		do_qual_squelch();
-	} 
-	else 
+	}
+	else
 	{
 
 		/* Analyze choice */
@@ -263,10 +236,10 @@ static int do_cmd_squelch_aux(void)
 
 
 		/*** And now we go for k_idx ***/
-	  
+
 		/* Clear screen */
 
-		while (1) 
+		while (1)
 		{
 			Term_clear();
 
@@ -276,8 +249,8 @@ static int do_cmd_squelch_aux(void)
 			for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
 			{
 				object_kind *k_ptr = &k_info[i];
-		
-				if (tv_to_type[k_ptr->tval] == typeval) 
+
+				if (tv_to_type[k_ptr->tval] == typeval)
 				{
 					if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 					if (!(k_ptr->aware)) continue;
@@ -289,12 +262,12 @@ static int do_cmd_squelch_aux(void)
 
 			/* Step 2: Simple bubble sort */
 			for (i=0; i<max_num; i++)
-			{ 
-				for (j=i; j<max_num; j++) 
+			{
+				for (j=i; j<max_num; j++)
 				{
 					if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
 					    ((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
-					     (k_info[choice[i]].cost>k_info[choice[j]].cost))) 
+					     (k_info[choice[i]].cost>k_info[choice[j]].cost)))
 					{
 						temp = choice[i];
 						choice[i] = choice[j];
@@ -338,23 +311,23 @@ static int do_cmd_squelch_aux(void)
 			/* Choose! */
 			if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
 
-			if (ch==KTRL('A')) 
+			if (ch==KTRL('A'))
 			{
 				/* ^A --> Squelch all items */
-				for (i=0; i<max_num; i++) 
+				for (i=0; i<max_num; i++)
 				{
 					k_info[choice[i]].squelch = TRUE;
 				}
-			} 
-			else if (ch==KTRL('U')) 
+			}
+			else if (ch==KTRL('U'))
 			{
 				/* ^U --> Unsquelch all items */
-				for (i=0; i<max_num; i++) 
+				for (i=0; i<max_num; i++)
 				{
 					k_info[choice[i]].squelch = FALSE;
 				}
-			} 
-			else 
+			}
+			else
 			{
 				/* Analyze choice */
 				num = -1;
@@ -376,7 +349,7 @@ static int do_cmd_squelch_aux(void)
 }
 
 /*
- * This command handles the secondary squelch menu. 
+ * This command handles the secondary squelch menu.
  */
 
 static int do_qual_squelch(void)
@@ -392,11 +365,11 @@ static int do_qual_squelch(void)
 
 	index = 0;
 
-	while (1) 
+	while (1)
 	{
 		/* Clear screen */
 		Term_clear();
-	  
+
 		/* Print all tval's and their descriptions */
 		for (num = 0; (num<60) && tvals[num].tval; num++)
 		{
@@ -445,7 +418,7 @@ static int do_qual_squelch(void)
 
 			case 'N':
 			{
-				for (i=0; i<24; i++) 
+				for (i=0; i<24; i++)
 				{
 					squelch_level[i] = SQUELCH_NONE;
 				}
@@ -460,13 +433,13 @@ static int do_qual_squelch(void)
 
 			case 'C':
 			{
-				for (i=0; i<24; i++) 
+				for (i=0; i<24; i++)
 				{
 					squelch_level[i] = SQUELCH_CURSED;
 				}
 				break;
 			}
-				  
+
 			case 'v':
 			{
 				squelch_level[index] = SQUELCH_AVERAGE;
@@ -475,7 +448,7 @@ static int do_qual_squelch(void)
 
 			case 'V':
 			{
-				for (i=0; i<24; i++) 
+				for (i=0; i<24; i++)
 				{
 					squelch_level[i] = SQUELCH_AVERAGE;
 				}
@@ -490,7 +463,7 @@ static int do_qual_squelch(void)
 
 			case 'G':
 			{
-				for (i=0; i<24; i++) 
+				for (i=0; i<24; i++)
 				{
 					squelch_level[i] = SQUELCH_GOOD;
 				}
@@ -505,7 +478,7 @@ static int do_qual_squelch(void)
 
 			case 'A':
 			{
-				for (i=0; i<24; i++) 
+				for (i=0; i<24; i++)
 				{
 					squelch_level[i] = SQUELCH_ALL;
 				}
@@ -553,11 +526,11 @@ static int do_qual_squelch(void)
 
 /*
  * Hack -- initialize the mapping from tvals to typevals.
- * This is currently called every time the squelch menus are 
+ * This is currently called every time the squelch menus are
  * accessed.  This can certainly be improved.
  */
 
-void init_tv_to_type(void) 
+void init_tv_to_type(void)
 {
 	tv_to_type[TV_SKELETON]=TYPE_MISC;
 	tv_to_type[TV_BOTTLE]=TYPE_MISC;
@@ -588,9 +561,9 @@ void do_cmd_squelch(void)
 
 
 	flag=1;
-	
+
 	/* Simple loop */
-	while (flag)  
+	while (flag)
 	{
 		flag = do_cmd_squelch_aux();
 	}
@@ -613,10 +586,10 @@ void do_cmd_squelch(void)
  * Determines if an object is going to be squelched on identification.
  * Input:
  *  o_ptr   : This is a pointer to the object type being identified.
- *  feeling : This is the feeling of the object if it is being 
+ *  feeling : This is the feeling of the object if it is being
  *	      pseudoidentified or 0 if the object is being identified.
  *  fullid  : This is 1 if the object is being identified and 0 otherwise.
- * 
+ *
  * Output: One of the three above values.
  */
 
@@ -631,25 +604,25 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 
 	/* Check to see if the object is eligible for squelching on id. */
 	num=-1;
-	for (i=0; tvals[i].tval; i++) 
+	for (i=0; tvals[i].tval; i++)
 	{
-		if (tvals[i].tval==o_ptr->tval) 
+		if (tvals[i].tval==o_ptr->tval)
 		{
 			num=i;
 		}
 	}
 	if (num==-1) return result;
- 
-	/* 
+
+	/*
 	 * Get the "feeling" of the object.  If the object is being identified
 	 * get the feeling returned by a heavy pseudoid.
 	 */
 	feel = feeling;
-	if (fullid==1) 
+	if (fullid==1)
 	  feel = value_check_aux1(o_ptr);
 
 	/* Get result based on the feeling and the squelch_level */
-	switch (squelch_level[num]) 
+	switch (squelch_level[num])
 	{
 		case SQUELCH_NONE:
 		{
@@ -710,20 +683,75 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 		        if ((s[1] == 'k') || (s[1] == '*')) result = SQUELCH_FAILED;
 			s = strchr(s + 1, '!');
 		}
-		
 	}
 
 	return result;
 }
 
 /*
- * Marks the 'squelched' item for player removal.
+ * The "Squelch on walk-on" function.
  */
-void do_squelch_item(object_type *o_ptr)
+void do_squelch_pile(int y, int x)
 {
-	o_ptr->note = 0;
+	s16b o_idx, next_o_idx;
+	object_type *o_ptr;
+	bool sq_flag = FALSE;
 
-	o_ptr->note = quark_add("SQUELCH");
+	for (o_idx = cave_o_idx[y][x]; o_idx; o_idx = next_o_idx)
+	{
+
+		o_ptr = &(o_list[o_idx]);
+
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Always squelch "&nothing" */
+		if (!o_ptr->k_idx) sq_flag = TRUE;
+
+		/* Hack - never squelch artifacts */
+		else if (artifact_p(o_ptr)) sq_flag = FALSE;
+
+		/* Squelch it? */
+		else sq_flag = (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
+
+		/* Unwanted and unloved */
+		if (sq_flag)
+		{
+
+			/* Actual Squelch */
+			if (strong_squelch) delete_object_idx(o_idx);
+
+			/* Or inscription */
+			else o_ptr->note = quark_add("SQUELCH");
+		}
+	}
+}
+
+/*
+ * Squelch on identify function
+ */
+void do_squelch_item(int item, object_type *o_ptr)
+{
+	/* Either delete the item... */
+	if (strong_squelch)
+	{
+		if (item >= 0)
+		{
+			inven_item_increase(item, -o_ptr->number);
+			inven_item_optimize(item);
+		}
+		else
+		{
+			floor_item_increase(0 - item, -o_ptr->number);
+			floor_item_optimize(0 - item);
+		}
+	}
+
+	/* ...or mark it for manual deletion. */
+	else
+	{
+		o_ptr->note = 0;
+		o_ptr->note = quark_add("SQUELCH");
+	}
 
 	return;
 }

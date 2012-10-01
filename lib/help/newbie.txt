@@ -57,15 +57,15 @@ dungeon.  Head down (Once on top of the staircase, type '>').
 dors.  Since you have already wielded a light source, you can see, even if you
 are not in a magically lit room.
 
-     If you are a warrior, check to make certain everything you can wear is on 
-you, and go monster-hunting.  If you are any other class, see if you can learn 
-any spells (if "study" is visible on the bottom of your screen, you can).  If 
-you can, 'G'ain them, and either 'p'ray or use 'm'agic to use them.  Be very 
-careful when experimenting with spells, because you haven't many hit points.  
-If you can't learn spells, or find that they aren't doing enough damage, 'v' 
-(throw) your flasks of oil and 'f'ire your ammo at monsters (make certain you
-have a wielded shooter that fires whatever you have).  When you get hungry, 
-'E'at some of the food your character started out with.  And one last note:  Buy 
-a scroll of Recall.  Find out what it does.
+     If you are a warrior, check to make certain everything you can wear is
+on  you, and go monster-hunting.  If you are a spell caster you can
+'b'rowse a suitable magic book for a list of spells you can cast.  Cast spells
+using either 'p'ray or 'm'agic.  Be very careful when experimenting with
+spells, because you haven't many hit points.  If you can't learn spells, or find 
+that they aren't doing enough damage, 'v' (throw) your flasks of oil and 'f'ire 
+your ammo at monsters (make certain you have a wielded shooter that fires 
+whatever you have).  When you get hungry, 'E'at some of the food your character 
+started out with.  And one last note:  Buy a scroll of Recall.  Find out what it
+does.
 
 Have fun, and keep your eyes peeled for a Phial...

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: bahman $ on $Date: 2001/10/10 17:12:30 $ */
+/* CVS: Last edit by $Author: bahman $ on $Date: 2006/01/19 22:38:47 $ */
 /* File: h-type.h */
 
 #ifndef INCLUDED_H_TYPE_H
@@ -161,27 +161,6 @@ typedef uint	(*func_uint)();
 typedef real	(*func_real)();
 typedef vptr	(*func_vptr)();
 typedef cptr	(*func_cptr)();
-
-
-
-/*** Pointers to Functions of special types (for various purposes) ***/
-
-/* A generic function takes a user data and a special data */
-typedef errr	(*func_gen)(vptr, vptr);
-
-/* An equality testing function takes two things to compare (bool) */
-typedef bool	(*func_eql)(vptr, vptr);
-
-/* A comparison function takes two things and to compare (-1,0,+1) */
-typedef sint	(*func_cmp)(vptr, vptr);
-
-/* A hasher takes a thing (and a max hash size) to hash (0 to siz - 1) */
-typedef uint	(*func_hsh)(vptr, uint);
-
-/* A key extractor takes a thing and returns (a pointer to) some key */
-typedef vptr	(*func_key)(vptr);
-
-
 
 #endif
 

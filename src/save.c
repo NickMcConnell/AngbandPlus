@@ -370,17 +370,17 @@ static errr wr_savefile(void)
 
 
 	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
+	wr_u32b(0);
+	wr_u32b(0);
 	wr_u32b(spell_worked1);
 	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
+	wr_u32b(0);
+	wr_u32b(0);
 
-	/* Dump the ordered spells */
+	/* Was: Dump the ordered spells */
 	for (i = 0; i < 64; i++)
 	{
-		wr_byte(spell_order[i]);
+		wr_byte(0);
 	}
 
 
@@ -767,19 +767,19 @@ static void wr_monster(monster_type *m_ptr)
 	wr_u32b(m_ptr->smart); /* Flags for 'smart-learn' */
 
 	/* Dummy writes for features soon to be implemented */
-	wr_byte(0);      
-	wr_byte(0);      
-	wr_byte(0);	 
+	wr_byte(0);
+	wr_byte(0);
+	wr_byte(0);
 	wr_byte(0);
 
 	/* Extra desire to cast harassment spells */
 	wr_byte(m_ptr->harass);
 
-	/* Current Mana */   
-	wr_byte(m_ptr->mana);    
+	/* Current Mana */
+	wr_byte(m_ptr->mana);
 
 	/* Spare */
-	wr_s16b(0); 
+	wr_s16b(0);
 }
 
 
@@ -826,7 +826,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->flags4);
 	wr_u32b(l_ptr->flags5);
 	wr_u32b(l_ptr->flags6);
-
+	wr_u32b(l_ptr->flags7);
 
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
@@ -923,7 +923,7 @@ static void wr_options(void)
 
 	/*** Oops ***/
 
-	/* Once contained options.  Reduced from four to three and 1/4 
+	/* Once contained options.  Reduced from four to three and 1/4
 	 * longints in Oangband. */
 	for (i = 0; i < 3; i++) wr_u32b(0L);
 	wr_byte(0);
@@ -1057,8 +1057,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->wt);
 
 	/* Dump the stats (maximum and current) */
-	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_max[i]);
-	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -1085,7 +1085,8 @@ static void wr_extra(void)
 	/* More info */
 	wr_s16b(p_ptr->speed_boost);	/* Specialty Fury */
 	wr_s16b(p_ptr->heighten_power);	/* Specialty Heighten Magic */
-	wr_s16b(0);	/* oops */
+	wr_byte(p_ptr->attune_tval);	/* Specialty Attunement */
+	wr_byte(p_ptr->attune_sval);	/* Specialty Attunement */
 	wr_s16b(0);	/* oops */
 	wr_s16b(p_ptr->sc);
 	wr_s16b(0);	/* oops */
@@ -1156,7 +1157,7 @@ static void wr_extra(void)
 	for (i = 0; i < 15; i++) wr_byte(0);
 
 	/* Specialty abilties */
-	for (i = 0; i < 10; i++) wr_byte(p_ptr->specialty_order[i]);
+	for (i = 0; i < MAX_SPECIALTIES; i++) wr_byte(p_ptr->specialty_order[i]);
 
 	/* Ignore some flags */
 	wr_s16b(0L);	/* oops */
@@ -1459,10 +1460,10 @@ static bool wr_savefile_new(void)
 	/* Record the number of random artifacts. */
 	tmp16u = MAX_A_IDX - ART_MIN_RANDOM;
 	wr_u16b(tmp16u);
-	
 
-	/* As the least bad of various possible options considered, Oangband now 
-	 * saves all random artifact data in savefiles.  This requires (44 * 40) 
+
+	/* As the least bad of various possible options considered, Oangband now
+	 * saves all random artifact data in savefiles.  This requires (44 * 40)
 	 * = 1760 extra bytes in the savefile, which does not seem unreasonable.
 	 */
 	/* Write the artifact info. */
@@ -1515,7 +1516,7 @@ static bool wr_savefile_new(void)
 		}
 	}
 
-	/* Note down how many random artifacts have names.  In Oangband 0.5.0 
+	/* Note down how many random artifacts have names.  In Oangband 0.5.0
 	 * there are 40 random artifact names.
 	 */
 	wr_u16b(MAX_A_IDX - ART_MIN_RANDOM);
@@ -1542,17 +1543,17 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
+	wr_u32b(0);
+	wr_u32b(0);
 	wr_u32b(p_ptr->spell_worked1);
 	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
+	wr_u32b(0);
+	wr_u32b(0);
 
-	/* Dump the ordered spells */
+	/* Was: Dump the ordered spells */
 	for (i = 0; i < 64; i++)
 	{
-		wr_byte(p_ptr->spell_order[i]);
+		wr_byte(0);
 	}
 
 
@@ -1761,6 +1762,8 @@ bool save_player(void)
 
 #endif
 
+	/* Write to the savefile list */
+	save_savefile_names();
 
 	/* Return the result */
 	return (result);
@@ -1791,7 +1794,7 @@ void check_item_sets(void)
 			{
 
 				/* Check for complete set. */
-				if (check_set(a_ptr->set_no)) 
+				if (check_set(a_ptr->set_no))
 				{
 
 					/* Apply set bonuses */
@@ -1825,10 +1828,17 @@ void check_item_sets(void)
  * Note that we always try to load the "current" savefile, even if
  * there is no such file, so we must check for "empty" savefile names.
  */
-bool load_player(void)
+bool load_player(bool silent)
 {
 	errr err = 0;
 
+	cptr i = NULL;
+	cptr j = NULL;
+
+
+#ifdef SAVEFILE_USE_UID
+	char base_name_temp[1024];
+#endif
 
 #ifdef VERIFY_TIMESTAMP
 	struct stat	statbuf;
@@ -1847,6 +1857,31 @@ bool load_player(void)
 	/* Allow empty savefile name */
 	if (!savefile[0]) return (TRUE);
 
+	/* Build base name */
+	i = savefile;
+
+	/* Strip path */
+	while (TRUE)
+	{
+		j = strstr(i, PATH_SEP);
+		if (j != NULL) i = j + 1;
+		else break;
+	}
+
+	strcpy(op_ptr->base_name, i);
+
+#ifdef SAVEFILE_USE_UID
+	strcpy(base_name_temp, i);
+
+	/* Strip UID */
+	i = strstr(base_name_temp, ".");
+
+	if (i != NULL)
+	{
+		strcpy(op_ptr->base_name, i + 1);
+	}
+
+#endif
 
 #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(VM)
 
@@ -1856,8 +1891,11 @@ bool load_player(void)
 	if (access(savefile, 0) < 0)
 	{
 		/* Give a message */
-		msg_print("Savefile does not exist.");
-		msg_print(NULL);
+		if (!silent)
+		{
+			msg_print("Savefile does not exist.");
+			msg_print(NULL);
+		}
 
 		/* Allow this */
 		return (TRUE);
@@ -2114,3 +2152,621 @@ bool load_player(void)
 }
 
 
+
+/**************************************************************/
+/*                                                            */
+/*                  Savefile Management Code                  */
+/*                                                            */
+/**************************************************************/
+
+#define SAVE_MENU_HEADER_ROW 1
+#define SAVE_MENU_INSTRUCTIONS_ROW 3
+#define SAVE_MENU_DESC_ROW 7
+#define SAVE_MENU_DISPLAY_ROW 9
+
+#define SAVE_MENU_SCROLL_GUARD 4
+
+#define SAVE_MENU_MAX_DISPLAY_NITEMS 9
+#define SAVE_MENU_INTERACTIVE_NROW 1
+
+/*
+ * Temporary storage of savefile paths, descriptions, and dead/alive status.
+ */
+char savefile_names[46][40];
+char savefile_character_names[46][40];
+char savefile_desc[46][80];
+bool savefile_alive[46];
+
+/*
+ * Read the savefile record.  -DG-
+ */
+static int load_savefile_names(void)
+{
+	char buf[1024];
+	char tmp[50];
+	int max = 0;
+	int fd;
+
+	/* Build the filename */
+#ifdef SAVEFILE_USE_UID
+	sprintf(tmp,"user.%d.svg", player_uid);
+#else
+	sprintf(tmp, "global.svg");
+#endif /* SAVEFILE_USE_UID */
+
+	/* Attempt to load the savefile record */
+	if (path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, tmp)) return (0);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	/* Read the file */
+	fff = my_fopen(buf, "r");
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	/* Failure */
+	if (!fff) return (0);
+
+	/* Parse the savefile record */
+	while (0 == my_fgets(fff, buf, sizeof(buf)))
+	{
+		int i = 1;
+		int j;
+
+		/* Read "dead/alive" */
+		if      (buf[0] == '0') savefile_alive[max] = FALSE;
+		else if (buf[0] == '1') savefile_alive[max] = TRUE;
+
+		/* Read the savefile name */
+		while (TRUE)
+		{
+			/* Build path */
+			if (buf[i] != '#') savefile_names[max][i - 1] = buf[i];
+			else
+			{
+				/* Terminate */
+				savefile_names[max][i - 1] = '\0';
+				break;
+			}
+
+			i++;
+		}
+
+		/* Skip the '#' */
+		i++;
+
+		/* Mark start of character name */
+		j = i;
+
+		/* Read the character name */
+		while (TRUE)
+		{
+			/* Build path */
+			if (buf[i] != '#') savefile_character_names[max][i - j] = buf[i];
+			else
+			{
+				/* Terminate */
+				savefile_character_names[max][i - j] = '\0';
+				break;
+			}
+
+			i++;
+		}
+
+		/* Skip the '#' */
+		i++;
+
+		/* Read the character description */
+		sprintf(savefile_desc[max], buf + i);
+
+		/* Append user ID to filename if necessary */
+#ifdef SAVEFILE_USE_UID
+		sprintf(tmp,"%d.%s", player_uid, savefile_names[max]);
+#else
+		sprintf(tmp, "%s", savefile_names[max]);
+#endif
+
+		/* Confirm that file still exists */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, tmp);
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* File type is "SAVE" */
+		FILE_TYPE(FILE_TYPE_SAVE);
+
+		/* Check for file */
+		fd = fd_open(buf, O_RDONLY);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* File exists */
+		if (fd >= 0)
+		{
+			fd_close(fd);
+
+			/* Increment file count, go to next record */
+			max++;
+		}
+	}
+
+	/* Close the savefile record */
+	my_fclose(fff);
+
+	/* Return number of valid savefiles */
+	return (max);
+}
+
+
+/*
+ * Write the savefile record.  -DG-
+ */
+void save_savefile_names()
+{
+	char buf[1024];
+	char tmp[50];
+
+	/* Load existing savefile records */
+	int max = load_savefile_names(), i;
+
+	/* Build the filename - use user index if necessary */
+#ifdef SAVEFILE_USE_UID
+	sprintf(tmp,"user.%d.svg", player_uid);
+#else
+	sprintf(tmp, "global.svg");
+#endif /* SAVEFILE_USE_UID */
+
+	(void)path_build(buf, sizeof(buf), ANGBAND_DIR_SAVE, tmp);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Read the file */
+	fff = my_fopen(buf, "w");
+
+	/* Failure */
+	if (!fff) return;
+
+	/* Save information about the current character savefile */
+	fprintf(fff, "%c%s#%s#the %s (level %d %s %s) is %s\n", ((p_ptr->is_dead)? '0' : '1'),
+		op_ptr->base_name,
+		op_ptr->full_name,
+		cp_text + cp_ptr->title[(p_ptr->lev - 1) / 5],
+		p_ptr->lev,
+		rp_name + rp_info[p_ptr->prace].name,
+		cp_name + cp_info[p_ptr->pclass].name,
+		(!p_ptr->is_dead) ? "alive" : "dead");
+
+	/* Rewrite all other savefile records - do not exceed 46 records */
+	for (i = 0; i < MIN(max, 45); i++)
+	{
+		/* Do not record the current savefile more than once */
+		if (!strcmp(savefile_names[i], op_ptr->base_name)) continue;
+
+		/* Write a savefile record */
+		fprintf(fff, "%c%s#%s#%s\n", (savefile_alive[i])?'1':'0',
+			savefile_names[i], savefile_character_names[i], savefile_desc[i]);
+	}
+
+	/* Close */
+	my_fclose(fff);
+}
+
+/*
+ * Update limits on menu display based on current position.
+ */
+static void savefile_menu_aux(int sel, int max, int* menu_start)
+{
+	int start_crowding, end_crowding;
+	int sel_display_position;
+
+	if (max <= (Term->hgt - SAVE_MENU_MAX_DISPLAY_NITEMS)) return;
+
+	sel_display_position = sel - *menu_start;
+	start_crowding = SAVE_MENU_SCROLL_GUARD - sel_display_position;
+	end_crowding = SAVE_MENU_SCROLL_GUARD -
+	  (Term->hgt - SAVE_MENU_MAX_DISPLAY_NITEMS - sel_display_position);
+
+	if (start_crowding > 0)
+	{
+		*menu_start -= start_crowding;
+	}
+	if (end_crowding > 0) {
+		*menu_start += end_crowding;
+	}
+
+	*menu_start = MIN((MAX(*menu_start, 0)), (max - (Term->hgt - SAVE_MENU_MAX_DISPLAY_NITEMS)));
+}
+
+/*
+ * Interact with the savefile management screen.  -DG-
+ * Changed menu format  BR
+ */
+static void savefile_menu(bool *new_game, bool *reload_menu)
+{
+	int k, sel, max;
+
+	int i;
+
+	int x, y;
+
+	int y_desc;
+	int y_menu;
+
+	char buf[256];
+
+	char ind;
+
+	int menu_start, display_items;
+
+	/* Default outputs */
+	*new_game = FALSE;
+	*reload_menu = FALSE;
+
+	/* No savefile has been loaded yet */
+	character_loaded = FALSE;
+
+	/* Wipe the player */
+	player_clear(TRUE);
+
+	/* Load savefile records, leave room for two miscellaneous menu choices */
+	max = load_savefile_names() + 2;
+
+	/* Highlight the most recent savefile, or "create new character" */
+	if (max > 2) sel = 2;
+	else         sel = 0;
+
+	/* Clear screen */
+	(void)Term_clear();
+
+	/* Display the header */
+	c_put_str(TERM_L_BLUE,
+	          format("Welcome to %s.  To play you will need a character.", VERSION_NAME),
+	          SAVE_MENU_HEADER_ROW, 2);
+
+	/* Show available commands */
+	Term_gotoxy(2, SAVE_MENU_INSTRUCTIONS_ROW);
+	roff("Use the ", 2, 78);
+	c_roff(TERM_L_GREEN, "movement keys", 2, 78);
+	roff(" to scroll the menu, ", 2, 78);
+	c_roff(TERM_L_GREEN, "Enter", 2, 78);
+	roff(" to select the current menu item, ", 2, 78);
+	c_roff(TERM_L_GREEN, "backspace", 2, 78);
+	roff(" to delete the currently selected savefile, or ", 2, 78);
+	c_roff(TERM_L_GREEN, "ESCAPE", 2, 78);
+	roff(" to quit.  ", 2, 78);
+
+	/* Display system-specific comments */
+
+	/* The windows menus are not currently usable once play_game
+	 * has been called.  This may be changed later.  BR
+	 */
+/* 	if (strstr(ANGBAND_SYS, "win")) */
+/* 		roff("You may also use the menu commands to handle savefiles.", 2, 0); */
+
+	/*
+	 * y_desc is where the description is placed ("PLAYER is alive").
+	 * y_menu is where the menu starts.
+	 *
+	 * A padding of two lines between each looks uncluttered.
+	 */
+	Term_locate(&x, &y);
+
+	y_desc = SAVE_MENU_DESC_ROW;
+	y_menu = SAVE_MENU_DISPLAY_ROW;
+
+
+	display_items = MIN((Term->hgt - SAVE_MENU_MAX_DISPLAY_NITEMS), max);
+	menu_start = 0;
+
+	/* Interact with the menu */
+	while (TRUE)
+	{
+		int x;
+
+		/* Display the menu choices */
+		for (i = menu_start; i < menu_start + display_items; i++)
+		{
+			ind = I2A(i % 26);
+			if (i >= 26) ind = toupper(ind);
+
+			/* Save the y co-ordinate */
+			y = y_menu + i - menu_start;
+
+			/* Get text for this menu option */
+			if (i == 0)      sprintf(buf, "%c) New Character", ind);
+			else if (i == 1) sprintf(buf, "%c) Load Savefile", ind);
+			else sprintf(buf, "%c) %s", ind, savefile_character_names[i - 2]);
+
+			/* Display this menu option */
+			Term_erase(0, y_menu + i - menu_start, Term->wid);
+			c_put_str(((sel == i) ?
+				   TERM_L_BLUE :
+				   (((savefile_alive[i - 2]) || (i < 2)) ?
+				    TERM_WHITE :
+				    TERM_L_RED)),
+				  buf, y, 2);
+
+			/* This menu choice is selected */
+			if (sel == i)
+			{
+				Term_erase(0, y_desc, Term->wid);
+
+				/* Load an existing savefile in the list */
+				if (i >= 2)
+				{
+					/* Color depending on dead or alive */
+					int attr = ((savefile_alive[i - 2]) ? TERM_L_GREEN : TERM_L_RED);
+					c_put_str(attr, format("%s, %s.", savefile_character_names[i - 2],
+							       savefile_desc[i - 2]), y_desc, 2);
+				}
+
+				/* Load an existing savefile not in the list */
+				else if (i == 1)
+				{
+					c_put_str(TERM_YELLOW, "Load an existing savefile that is not in the list.",
+						  y_desc, 2);
+				}
+
+				/* Create a new character */
+				else
+				{
+					c_put_str(TERM_YELLOW, "Create a new character.", y_desc, 2);
+				}
+			}
+		}
+
+		/* Move the cursor to the letter of the selection */
+		(void)Term_gotoxy(2, y_menu + sel - menu_start);
+
+		/* Get response */
+		k = inkey();
+
+		/* Process commands */
+		if (k == ESCAPE)
+		{
+			quit(NULL);
+		}
+		else if (k == '2')
+		{
+			/* Go down one line of the menu */
+			sel++;
+			if (sel >= max) sel = max - 1;
+			savefile_menu_aux(sel, max, &menu_start);
+			continue;
+		}
+		else if (k == '8')
+		{
+			/* Go up one line of the menu */
+			sel--;
+			if (sel < 0) sel = 0;
+			savefile_menu_aux(sel, max, &menu_start);
+			continue;
+		}
+		else if ((k == '\r') || (k == '\n'))
+		{
+			/* Choose this menu option */
+			if (sel < 26) k = I2A(sel);
+			else k = toupper(I2A(sel - 26));
+		}
+
+		/* Delete savefile */
+		if (((k == 0x7F) || (k == '\010')) && (sel >= 2))
+		{
+			char filename[1024];
+			char tmp[50];
+
+			if (!get_check(format("Really delete '%s'? ", savefile_character_names[sel - 2]))) continue;
+
+			/* Append user ID to filename if necessary */
+#ifdef SAVEFILE_USE_UID
+			sprintf(tmp,"%d.%s", player_uid, savefile_names[sel - 2]);
+#else
+			sprintf(tmp, "%s", savefile_names[sel - 2]);
+#endif
+
+			/* Build the file name */
+			path_build(filename, sizeof(filename), ANGBAND_DIR_SAVE, tmp);
+
+			/* Delete this file */
+			fd_kill(filename);
+
+			/* Reload the savefile record */
+			max = load_savefile_names() + 2;
+			if (max > 2) sel = 2;
+			else         sel = 0;
+			menu_start = 0;
+
+			*reload_menu = TRUE;
+			return;
+		}
+
+		/* Create new character */
+		else if (k == 'a')
+		{
+			/* Move current selection */
+			sel = 0;
+			savefile_menu_aux(sel, max, &menu_start);
+
+			if (get_check("Create new character? "))
+			{
+				*new_game = TRUE;
+				return;
+			}
+		}
+
+		/* Find new savefile */
+		else if (k == 'b')
+		{
+			/* Move current selection */
+			sel = 1;
+			savefile_menu_aux(sel, max, &menu_start);
+
+			/* Display prompt */
+			Term_erase(0, Term->hgt - SAVE_MENU_INTERACTIVE_NROW, Term->wid);
+			prt("Enter the name of a savefile: ", Term->hgt - SAVE_MENU_INTERACTIVE_NROW, 0);
+
+			/* Ask the user for a string */
+			if (!askfor_aux(op_ptr->base_name, 30))
+			{
+				Term_erase(0, Term->hgt - SAVE_MENU_INTERACTIVE_NROW, Term->wid);
+				continue;
+			}
+
+			/* Process the player name, change savefile name */
+			process_player_name(FALSE);
+
+			return;
+		}
+
+		/* Fall through for character loading */
+
+		/* Process command */
+		if (islower(k)) x = A2I(k);
+		else x = A2I(tolower(k)) + 26;
+
+		/* Stay legal */
+		if ((x < 2) || (x >= max)) continue;
+
+		sel = x;
+		savefile_menu_aux(sel, max, &menu_start);
+
+		if (get_check(format("Load character '%s'? ", savefile_character_names[sel - 2])))
+		{
+			/* Get player name */
+			sprintf(op_ptr->base_name, "%s", savefile_names[sel - 2]);
+
+			/* Process the player name, change savefile name */
+			process_player_name(FALSE);
+
+			return;
+		}
+	}
+
+	/* Return */
+	return;
+}
+
+
+/*
+ * Load a character.
+ *
+ * When the game starts, this function is called to handle savefile loading.
+ * We automatically load the most recent savefile recorded in our savefile
+ * record.  If this fails, we load any savefile named "player" (this
+ * replicates the old behavior).  Otherwise we load nothing and show the
+ * savefile management screen.  -LM-
+ *
+ * An option exists to go directly to the savefile management menu.  This is
+ * used if the player deliberately calls this function.
+ *
+ * As has traditionally been the case, we use "PLAYER" as a default savefile
+ * name.
+ *
+ * This function must cooperate with the menu commands offered by various
+ * ports.  XXX XXX XXX
+ */
+void savefile_load(bool force_menu)
+{
+	bool new_game;
+
+	/* Load the savefile record */
+	int max = load_savefile_names();
+
+
+	/* No savefile has been loaded yet */
+	character_loaded = FALSE;
+
+	/* We're not forcing menus */
+	if (!force_menu)
+	{
+		/* Non-empty savefile record, most recent char is alive */
+		if ((max > 0) && (savefile_alive[0]))
+		{
+			/* Store the base name of the most recent savefile entry */
+			strcpy(op_ptr->base_name, savefile_names[0]);
+
+			/* Process this base name, change savefile name */
+			process_player_name(FALSE);
+
+			/* Try to load this savefile */
+			if (load_player(TRUE)) return;
+		}
+
+		/* We'll always load a savefile named "PLAYER" */
+
+		/* Hack -- Default base_name */
+#ifdef SAVEFILE_USE_UID
+		user_name(op_ptr->full_name, player_uid);
+#else
+		strcpy(op_ptr->full_name, "PLAYER");
+#endif
+
+		/* Process this base name, change savefile name */
+		process_player_name(FALSE);
+
+		/* Try to load the file "PLAYER" */
+		if (load_player(TRUE)) return;
+	}
+
+	/* We're forcing a menu, or haven't found an obvious savefile */
+	if (TRUE)
+	{
+		/* Repeat until satisfied */
+		while (TRUE)
+		{
+			int error;
+			bool reload_menu = TRUE;
+
+			/* Show the menu immediately, store chosen name */
+			while (reload_menu) savefile_menu(&new_game, &reload_menu);
+
+			/* We want to start a new game (not using any previous savefile) */
+			if (new_game)
+			{
+				/* Hack -- Default base_name */
+#ifdef SAVEFILE_USE_UID
+				user_name(op_ptr->full_name, player_uid);
+#else
+				strcpy(op_ptr->full_name, "PLAYER");
+#endif
+
+				/* Return */
+				return;
+			}
+
+			/* Try to load this character */
+			error = (load_player(FALSE) ? 0 : -1);
+
+			/* File is unreadable */
+			if (error)
+			{
+				/* Oops */
+				if (error > 0)
+				{
+					msg_format("Sorry, this savefile cannot be read by %s %s.",
+					VERSION_NAME, VERSION_STRING);
+				}
+
+				/* Oops */
+				msg_print("Please choose another file or start a new game.");
+
+				/* Wait for it */
+				(void)inkey();
+			}
+
+			/* Successfully loaded an old character (alive or dead) */
+			else
+			{
+				/* Return */
+				return;
+			}
+		}
+	}
+}

@@ -1,8 +1,8 @@
 /* File: object2.c */
 
-/* Object stacks, compaction, generation, IDing, "trying", pricing, 
- * stacking.  Creating special artifacts, Adding charges to wands and 
- * staffs, bonuses to weapons and armour, powers and higher pvals to 
+/* Object stacks, compaction, generation, IDing, "trying", pricing,
+ * stacking.  Creating special artifacts, Adding charges to wands and
+ * staffs, bonuses to weapons and armour, powers and higher pvals to
  * amulets and rings, fuel to lights, trap difficulty to chests, creating
  * ego items, what consititutes "cursed", "good", and "great" items,
  * generate objects (inc. Acquirement code) and treasures, object &
@@ -299,9 +299,9 @@ static void compact_objects_aux(int i1, int i2)
  *
  * When actually "compacting" objects, we base the saving throw on a
  * combination of object level, distance from player, and current
- * "desperation".  
+ * "desperation".
  *
- * Worthless, aware objects are always deleted in the 
+ * Worthless, aware objects are always deleted in the
  * first round. -LM-
  *
  * After "compacting" (if needed), we "reorder" the objects into a more
@@ -350,11 +350,11 @@ void compact_objects(int size)
 			/* Skip dead objects */
 			if (!o_ptr->k_idx) continue;
 
-			/* Hack -- immediately delete all intrinsically worthless (or 
-			 * almost worthless) objects that the player is already aware 
+			/* Hack -- immediately delete all intrinsically worthless (or
+			 * almost worthless) objects that the player is already aware
 			 * of.  This statement emphasizes speed over smarts. -LM-
 			 */
-			if ((cnt == 1) && (object_aware_p(o_ptr)) && (k_ptr->cost < 3)) 
+			if ((cnt == 1) && (object_aware_p(o_ptr)) && (k_ptr->cost < 3))
 			{
 				/* Delete the object. */
 				delete_object_idx(i);
@@ -631,8 +631,11 @@ s16b get_obj_num(int level)
 	/* Process probabilities */
 	for (i = 0; i < alloc_kind_size; i++)
 	{
+		/* Calculate how "out of depth" the item is */
+		int level_diff = level - table[i].level;
+
 		/* Objects are sorted by depth */
-		if (table[i].level > level) break;
+		if (level_diff < 0) break;
 
 		/* Default */
 		table[i].prob3 = 0;
@@ -646,8 +649,9 @@ s16b get_obj_num(int level)
 		/* Hack -- prevent embedded chests */
 		if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
-		/* Accept */
-		table[i].prob3 = table[i].prob2;
+		/* Accept the item */
+		/* Hack -- reduce the probability of lower level items */
+		table[i].prob3 = (table[i].prob2 * (200 - level_diff)) / 200;
 
 		/* Total */
 		total += table[i].prob3;
@@ -674,7 +678,7 @@ s16b get_obj_num(int level)
 	/* Power boost */
 	p = rand_int(100);
 
-	/* Hack -- chests should have decent stuff, and chests should themselves 
+	/* Hack -- chests should have decent stuff, and chests should themselves
 	 * be decent, so we guarantee two more tries for better objects. -LM-
 	 */
 	if ((opening_chest) || (required_tval == TV_CHEST))  p = 0;
@@ -803,7 +807,7 @@ static s32b object_value_base(object_type *o_ptr)
 	/* For most items, the "aware" value is simply that of the object kind. */
 	s32b aware_cost = k_ptr->cost;
 
-	/* Because weapons and ammo may have enhanced damage dice, 
+	/* Because weapons and ammo may have enhanced damage dice,
 	 * their aware value may vary. -LM-
 	 */
 	switch (o_ptr->tval)
@@ -814,7 +818,7 @@ static s32b object_value_base(object_type *o_ptr)
 		{
 			if (o_ptr->ds > k_ptr->ds)
 			{
-				aware_cost += (1 + o_ptr->ds - k_ptr->ds) * 
+				aware_cost += (1 + o_ptr->ds - k_ptr->ds) *
 					(2 + o_ptr->ds - k_ptr->ds) * 1L;
 			}
 			break;
@@ -826,8 +830,8 @@ static s32b object_value_base(object_type *o_ptr)
 		{
 			if (o_ptr->ds > k_ptr->ds)
 			{
-				aware_cost += (o_ptr->ds - k_ptr->ds) * 
-					(o_ptr->ds - k_ptr->ds) * 
+				aware_cost += (o_ptr->ds - k_ptr->ds) *
+					(o_ptr->ds - k_ptr->ds) *
 					o_ptr->dd * o_ptr->dd * 16L;
 			}
 			break;
@@ -988,11 +992,11 @@ static s32b object_value_real(object_type *o_ptr)
 
 			if (f1 & (TR1_TUNNEL))
 			{
-				/* Give credit for tunneling bonus above that which a	
+				/* Give credit for tunneling bonus above that which a
 				 * digger possesses intrinsically.
 				 */
-				if ((o_ptr->tval != TV_DIGGING) || 
-					(o_ptr->pval > k_ptr->pval)) 
+				if ((o_ptr->tval != TV_DIGGING) ||
+					(o_ptr->pval > k_ptr->pval))
 				value += (o_ptr->pval * 50L);
 			}
 
@@ -1012,7 +1016,7 @@ static s32b object_value_real(object_type *o_ptr)
 		/* Wands/Staffs */
 		case TV_WAND:
 		{
-			/* Pay extra for charges, depending on standard number of 
+			/* Pay extra for charges, depending on standard number of
 			 * charges.  Handle new-style wands correctly.
 			 */
 			value += (value * o_ptr->pval / o_ptr->number / (k_ptr->pval * 2));
@@ -1022,8 +1026,8 @@ static s32b object_value_real(object_type *o_ptr)
 		}
 		case TV_STAFF:
 		{
-			/* Pay extra for charges, depending on standard number of 
-			 * charges. 
+			/* Pay extra for charges, depending on standard number of
+			 * charges.
 			 */
 			value += (value * o_ptr->pval / (k_ptr->pval * 2));
 
@@ -1061,11 +1065,11 @@ static s32b object_value_real(object_type *o_ptr)
 			/* Hack -- negative armor bonus */
 			if (o_ptr->to_a < 0) return (0L);
 
-			/* If it differs from the object kind's base armour Skill penalty 
-			 * (this penalty must be in the range +0 to -12), give a debit or 
+			/* If it differs from the object kind's base armour Skill penalty
+			 * (this penalty must be in the range +0 to -12), give a debit or
 			 * credit for any modification to Skill. -LM-
 			 */
-			if ((o_ptr->to_h != k_ptr->to_h) || (o_ptr->to_h < -12) || 
+			if ((o_ptr->to_h != k_ptr->to_h) || (o_ptr->to_h < -12) ||
 				(o_ptr->to_h > 0)) value += (o_ptr->to_h * 100L);
 
 			/* Standard debit or credit for to_d and to_a bonuses. */
@@ -1101,7 +1105,7 @@ static s32b object_value_real(object_type *o_ptr)
 			 */
 			if ((o_ptr->ds > k_ptr->ds) && (o_ptr->dd == k_ptr->dd))
 			{
-				value += (o_ptr->ds - k_ptr->ds) * (o_ptr->ds - k_ptr->ds) 
+				value += (o_ptr->ds - k_ptr->ds) * (o_ptr->ds - k_ptr->ds)
 					* o_ptr->dd * o_ptr->dd * 16L;
 
 			/* Naturally, ego-items with high base dice should be very expensive. */
@@ -1133,7 +1137,7 @@ static s32b object_value_real(object_type *o_ptr)
 			/* Hack -- Factor in improved damage dice. -LM- */
 			if (o_ptr->ds > k_ptr->ds)
 			{
-				value += (1 + o_ptr->ds - k_ptr->ds) * 
+				value += (1 + o_ptr->ds - k_ptr->ds) *
 					(2 + o_ptr->ds - k_ptr->ds) * 1L;
 
 			/* Naturally, ego-items with high base dice should be expensive. */
@@ -1275,16 +1279,16 @@ s32b object_value(object_type *o_ptr)
  *
  * See "object_absorb()" for the actual "absorption" code.
  *
- * If permitted, we allow staffs (if they are known to have equal charges 
- * and both are either known or confirmed empty) and wands (if both are 
- * either known or confirmed empty) and rods (in all cases) to combine. 
- * Staffs will unstack (if necessary) when they are used, but wands and 
+ * If permitted, we allow staffs (if they are known to have equal charges
+ * and both are either known or confirmed empty) and wands (if both are
+ * either known or confirmed empty) and rods (in all cases) to combine.
+ * Staffs will unstack (if necessary) when they are used, but wands and
  * rods will only unstack if one is dropped. -LM-
  *
  * If permitted, we allow weapons/armor to stack, if fully "known".
  *
- * Missiles combine if both stacks have the same "known" status.  This 
- * helps make unidentified stacks of missiles useful.  Stacks of missiles 
+ * Missiles combine if both stacks have the same "known" status.  This
+ * helps make unidentified stacks of missiles useful.  Stacks of missiles
  * without plusses will combine if both are at least sensed. -LM-
  *
  * Food, potions, scrolls, rods, and "easy know" items always stack.
@@ -1323,9 +1327,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_STAFF:
 		{
 			/* Require either knowledge or known empty for both staffs. */
-			if ((!(o_ptr->ident & (IDENT_EMPTY)) && 
-				!object_known_p(o_ptr)) || 
-				(!(j_ptr->ident & (IDENT_EMPTY)) && 
+			if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
+				!object_known_p(o_ptr)) ||
+				(!(j_ptr->ident & (IDENT_EMPTY)) &&
 				!object_known_p(j_ptr))) return(0);
 
 			/* Require identical charges, since staffs are bulky. */
@@ -1338,9 +1342,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_WAND:
 		{
 			/* Require either knowledge or known empty for both wands. */
-			if ((!(o_ptr->ident & (IDENT_EMPTY)) && 
-				!object_known_p(o_ptr)) || 
-				(!(j_ptr->ident & (IDENT_EMPTY)) && 
+			if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
+				!object_known_p(o_ptr)) ||
+				(!(j_ptr->ident & (IDENT_EMPTY)) &&
 				!object_known_p(j_ptr))) return(0);
 
 			/* Wand charges combine in Oangband.  */
@@ -1392,19 +1396,19 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_SHOT:
 		{
 			/* Normally, require identical knowledge of both items */
-			if (object_known_p(o_ptr) != object_known_p(j_ptr)) 
+			if (object_known_p(o_ptr) != object_known_p(j_ptr))
 			{
 				/*
-				 * Hack - Allow pseudo and fully-IDed ammo without 
+				 * Hack - Allow pseudo and fully-IDed ammo without
 				 * plusses to stack together.
 				 */
-				if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || 
+				if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) ||
 					(o_ptr->tval == TV_SHOT))
 				{
-					if (((o_ptr->ident & (IDENT_SENSE) && 
+					if (((o_ptr->ident & (IDENT_SENSE) &&
 						object_known_p(j_ptr)) ||
-						(j_ptr->ident & (IDENT_SENSE) && 
-						object_known_p(o_ptr))) && 
+						(j_ptr->ident & (IDENT_SENSE) &&
+						object_known_p(o_ptr))) &&
 						o_ptr->to_h == 0 && o_ptr->to_d == 0 &&
 						j_ptr->to_h == 0 && j_ptr->to_d == 0)
 					{
@@ -1440,7 +1444,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if ((o_ptr->xtra1 != j_ptr->xtra1) || (o_ptr->xtra2 != j_ptr->xtra2))
 				return (FALSE);
 
-			/* Hack -- Never stack powerful items except throwing weapons */ 
+			/* Hack -- Never stack powerful items except throwing weapons */
 			if (o_ptr->xtra1)
 			{
 				object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -1813,7 +1817,7 @@ static int make_ego_item(object_type *o_ptr, int power)
 		if ((power > 0) && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 
 		/* If we force cursed, don't create good */
-		if ((power < 0) && ~(e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
+		if ((power < 0) && !(e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 
 		/* Test if this is a legal ego-item type for this object */
 		for (j = 0; j < EGO_TVALS_MAX; j++)
@@ -1865,8 +1869,8 @@ static int make_ego_item(object_type *o_ptr, int power)
 /*
  * Mega-Hack -- Attempt to create one of the "Special Objects".
  *
- * This function now does not run down the list sequentially, which 
- * favored some artifacts at the expense of others, but starts at 
+ * This function now does not run down the list sequentially, which
+ * favored some artifacts at the expense of others, but starts at
  * a random index, and then wraps around.
  *
  * We are only called from "make_object()", and we assume that
@@ -2078,7 +2082,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very cursed */
 			if (power < -1)
 			{
-				if (o_ptr->to_d < 0) o_ptr->to_d -= o_ptr->to_d;
+				if (o_ptr->to_d < 0) o_ptr->to_d *= 2;
 			}
 
 			break;
@@ -2364,7 +2368,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
 					break;
 				}
-				case SV_RING_ELEC:	
+				case SV_RING_ELEC:
 				{
 					/* Assign an activation. */
 					o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
@@ -2640,7 +2644,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		case TV_WAND:
 		case TV_STAFF:
 		{
-			/* The wand or staff gets a number of initial charges equal 
+			/* The wand or staff gets a number of initial charges equal
 			 * to between 1/2 (+1) and the full object kind's pval.
 			 */
 			o_ptr->pval = k_ptr->pval / 2 + randint((k_ptr->pval + 1) / 2);
@@ -2718,11 +2722,11 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-	/* Base chance of being "good".  Reduced in Oangband. */
-	good_percent = 4 * lev / 5 + 10;
+	/* Base chance of being "good". */
+	good_percent = lev + 15;
 
-	/* Maximal chance of being "good".  Reduced in Oangband. */
-	if (good_percent > 65) good_percent = 65;
+	/* Maximal chance of being "good". */
+	if (good_percent > 80) good_percent = 80;
 
 	/* Base chance of being "great".  Increased in Oangband. */
 	great_percent = (good_percent / 2) + 5;
@@ -2831,20 +2835,19 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_SWORD:
 		{
 			/* All melee weapons get a chance to improve their base
-			 * damage dice.   Note the maximum value for dd*ds of 40.
+			 * damage dice.
 			 */
+			/* Reduced values and removed hard limit on (ds*dd) -BR- */
 			int newdicesides = 0;
 
-			if ((rand_int(3 * (o_ptr->dd + 1) * (o_ptr->ds + 1)) == 0) && 
-				((o_ptr->dd * 3 * o_ptr->ds / 2) < 41))
+			if (rand_int(3 * (o_ptr->dd + 1) * (o_ptr->ds + 1)) == 0)
 			{
-				newdicesides = 3 * o_ptr->ds / 2;
-	
-				if ((rand_int((o_ptr->dd + 2) * 
-					(o_ptr->ds + 2) / 4) == 0) && 
-					((o_ptr->dd * (11 * o_ptr->ds / 6)) < 41))
+				newdicesides = 4 * o_ptr->ds / 3;
+
+				if (rand_int((o_ptr->dd + 2) *
+					(o_ptr->ds + 2) / 4) == 0)
 				{
-					newdicesides = 11 * o_ptr->ds / 6;
+					newdicesides = 3 * o_ptr->ds / 2;
 				}
 				/* If at least the first test succeeded, improve
 				 * the damage dice.
@@ -2860,15 +2863,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_BOLT:
 		{
 			/* Up to three chances to enhance damage dice. */
-			if (randint(8) == 1) 
+			if (randint(8) == 1)
 			{
-				o_ptr->ds += 2;
+				o_ptr->ds += 1;
 				if (randint(6) == 1)
 				{
-					o_ptr->ds += 2;
+					o_ptr->ds += 1;
 					if (randint(6) == 1)
 					{
-						 o_ptr->ds += 2;
+						 o_ptr->ds += 1;
 					}
 				}
 			}
@@ -3100,28 +3103,28 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 		/* Apply extra bonuses or penalties. */
-		if ((e_ptr->max_to_h > 0) && (e_ptr->max_to_h < 129)) 
+		if ((e_ptr->max_to_h > 0) && (e_ptr->max_to_h < 129))
 			o_ptr->to_h += randint(e_ptr->max_to_h);
 		else if (e_ptr->max_to_h > 128)
 			o_ptr->to_h -= randint(e_ptr->max_to_h - 128);
 
-		if ((e_ptr->max_to_d > 0) && (e_ptr->max_to_d < 129)) 
+		if ((e_ptr->max_to_d > 0) && (e_ptr->max_to_d < 129))
 			o_ptr->to_d += randint(e_ptr->max_to_d);
 		else if (e_ptr->max_to_d > 128)
 			o_ptr->to_d -= randint(e_ptr->max_to_d - 128);
 
-		if ((e_ptr->max_to_a > 0) && (e_ptr->max_to_a < 129)) 
+		if ((e_ptr->max_to_a > 0) && (e_ptr->max_to_a < 129))
 			o_ptr->to_a += randint(e_ptr->max_to_a);
 		else if (e_ptr->max_to_a > 128)
 			o_ptr->to_a -= randint(e_ptr->max_to_a - 128);
 
-		if ((e_ptr->max_pval > 0) && (e_ptr->max_pval < 129)) 
+		if ((e_ptr->max_pval > 0) && (e_ptr->max_pval < 129))
 			o_ptr->pval += randint(e_ptr->max_pval);
 		else if (e_ptr->max_pval > 128)
 			o_ptr->pval -= randint(e_ptr->max_pval - 128);
 
 
-		/* Hack -- Frequently neaten missile to_h and to_d, for improved 
+		/* Hack -- Frequently neaten missile to_h and to_d, for improved
 		 * stacking qualities.
 		 */
 		{
@@ -3234,7 +3237,7 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Amulets -- Amulets of the Magi, of Escaping and of the Lion are 
+		/* Amulets -- Amulets of the Magi, of Escaping and of the Lion are
 		 * good, as are any with a high enough value.
 		 */
 		case TV_AMULET:
@@ -3269,7 +3272,7 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Staffs of Power, Holiness, Mana Storm, and Starburst are good, 
+		/* Staffs of Power, Holiness, Mana Storm, and Starburst are good,
 		 * as are any with a high enough value.
 		 */
 		case TV_STAFF:
@@ -3336,8 +3339,6 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 
 	object_kind *k_ptr;
 
-	bool sq_flag = FALSE;
-
 	/* Chance of "special object" - now depth dependant */
 	prob = (1000 - (6 * object_level));
 
@@ -3347,15 +3348,15 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 	/* Increase chance of "special object" for good items */
 	if (good) prob = 10;
 
-	/* Base level for the object.  Only "great" objects get this bonus 
+	/* Base level for the object.  Only "great" objects get this bonus
 	 * in Oangband.
 	 */
 	base = (great ? (object_level + 10) : object_level);
 
 
-	/* If an object is rejected because it is sufficiently low-level and 
+	/* If an object is rejected because it is sufficiently low-level and
 	 * cheap to be of little possible interest, try again.
-	 */ 
+	 */
 	try_again:
 	;
 
@@ -3377,7 +3378,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 			get_obj_num_prep();
 		}
 
-		/* Objects with a particular tval.  Only activate if there is a 
+		/* Objects with a particular tval.  Only activate if there is a
 		 * valid tval to restrict to. */
 		if (exact_kind && required_tval)
 		{
@@ -3413,21 +3414,21 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		/* Get the object kind. */
 		k_ptr = &k_info[k_idx];
 
-		/* Usually (67% chance) forbid very low-level objects that are 
+		/* Usually (67% chance) forbid very low-level objects that are
 		 * intrinsically worthless.
 		 */
-		if ((k_ptr->level < object_level / 4) && 
-			(k_ptr->cost < 1) && 
+		if ((k_ptr->level < object_level / 4) &&
+			(k_ptr->cost < 1) &&
 			(randint(3) != 1)) goto try_again;
 
-		/* Sometimes (33% chance) forbid very low-level objects that aren't 
+		/* Sometimes (33% chance) forbid very low-level objects that aren't
 		 * worth very much.
 		 */
-		else if ((k_ptr->level < object_level / 4) && 
-			(k_ptr->cost < object_level - 20) && 
+		else if ((k_ptr->level < object_level / 4) &&
+			(k_ptr->cost < object_level - 20) &&
 			(randint(3) == 1)) goto try_again;
 
-		/* Hack -- If a chest is specifically asked for, almost always 
+		/* Hack -- If a chest is specifically asked for, almost always
 		 * winnow out any not sufficiently high-level.
 		 */
 		if (required_tval == TV_CHEST)
@@ -3435,11 +3436,11 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 			/* Need to avoid asking for the impossible. */
 			int tmp = object_level > 100 ? 100 : object_level;
 
-			if ((k_ptr->level < 2 * (tmp + 3) / 4 + randint(tmp / 4)) && 
+			if ((k_ptr->level < 2 * (tmp + 3) / 4 + randint(tmp / 4)) &&
 				(randint(10) != 1)) goto try_again;
 		}
 
-		/* Clear any special object restriction, and prepare the standard 
+		/* Clear any special object restriction, and prepare the standard
 		 * object allocation table.
 		 */
 		if (get_obj_num_hook)
@@ -3450,13 +3451,6 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 			/* Prepare allocation table */
 			get_obj_num_prep();
 		}
-
-		/* Squelch it? */
-		/* Extra Paranoia about squelch non-'squelch on creation'
-		 * type items.  -BR-
-		 */
-		if ((k_info[k_idx].tval < 16) || (k_info[k_idx].tval > 38)) 
-		  sq_flag = (k_info[k_idx].squelch & k_info[k_idx].aware);
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
@@ -3485,7 +3479,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		}
 		case TV_FOOD:
 		{
-			if ((k_ptr->cost < 150) && (randint(2) == 1)) 
+			if ((k_ptr->cost < 150) && (randint(2) == 1))
 				j_ptr->number = damroll(2, 3);
 			break;
 		}
@@ -3493,7 +3487,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
-			if ((k_ptr->flags1 & (TR1_THROWING)) && (!j_ptr->name1) && 
+			if ((k_ptr->flags1 & (TR1_THROWING)) && (!j_ptr->name1) &&
 				(randint(2) == 1)) j_ptr->number = damroll(2, 2);
 			break;
 		}
@@ -3514,11 +3508,6 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		if (cheat_peek) object_mention(j_ptr);
 	}
 
-	/* Do not squelch artifacts */
-	if(j_ptr->name1) sq_flag=FALSE;
-
-	if (sq_flag) do_squelch_item(j_ptr);
-
 	/* Return */
 	return(TRUE);
 }
@@ -3526,7 +3515,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 
 
 /*
- * Make a treasure object.  This function has been reworked in Oangband, 
+ * Make a treasure object.  This function has been reworked in Oangband,
  * but is still a bit of a hack.
  */
 bool make_gold(object_type *j_ptr)
@@ -3572,7 +3561,7 @@ bool make_gold(object_type *j_ptr)
 	object_prep(j_ptr, treasure);
 
 	/* Treasure can be worth between 1/2 and the full maximal value. */
-	j_ptr->pval = k_info[treasure].cost / 2 + 
+	j_ptr->pval = k_info[treasure].cost / 2 +
 			randint((k_info[treasure].cost + 1) / 2);
 
 	/* Success */
@@ -3777,15 +3766,15 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Paranoia */
 			if (k > 99) continue;
 
-			/* Calculate goodness of location, given distance from source of 
-			 * drop and number of objects.  Hack - If the player is dropping 
+			/* Calculate goodness of location, given distance from source of
+			 * drop and number of objects.  Hack - If the player is dropping
 			 * the item, encourage it to pile with up to 19 other items.
 			 */
 			if (cave_m_idx[y][x] < 0)
 			{
 				s = 1000 - (d + (k > 20 ? k * 5 : 0));
 			}
-			else 
+			else
 			{
 				s = 1000 - (d + k * 5);
 			}
@@ -3911,7 +3900,7 @@ void acquirement(int y1, int x1, int num, bool great)
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
- 
+
 	}
 }
 
@@ -3983,7 +3972,7 @@ void place_gold(int y, int x)
 /*
  * Hack -- instantiate a trap
  *
- * This function has been altered in Oangband to (in a hard-coded fashion) 
+ * This function has been altered in Oangband to (in a hard-coded fashion)
  * control trap level. -LM-
  */
 void pick_trap(int y, int x)
@@ -3995,8 +3984,8 @@ void pick_trap(int y, int x)
 	/* Paranoia */
 	if (cave_feat[y][x] != FEAT_INVIS) return;
 
-	/* Try to create a trap appropriate to the level.  Make certain 
-	 * that at least one trap type can be made on any possible level.  
+	/* Try to create a trap appropriate to the level.  Make certain
+	 * that at least one trap type can be made on any possible level.
 	 * -LM- */
 	while (!(trap_is_okay))
 	{
@@ -4272,7 +4261,7 @@ void inven_item_describe(int item)
 
 	if (artifact_p(o_ptr) && object_known_p(o_ptr))
 	{
-	  
+
 		/* Get a description */
 		object_desc(o_name, o_ptr, FALSE, 3);
 
@@ -4716,7 +4705,7 @@ s16b inven_takeoff(int item, int amt)
 	if (amt > o_ptr->number) amt = o_ptr->number;
 
 	/* Check to see if a Set Item is being removed */
-	if (o_ptr->name1) 
+	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 		if (a_ptr->set_no!=0)
@@ -4724,11 +4713,11 @@ s16b inven_takeoff(int item, int amt)
 			/* The object is part of a set. Check to see if rest of set
 			 * is equiped and if so remove bonuses -GS-
 			 */
-			if (check_set(a_ptr->set_no)) 
+			if (check_set(a_ptr->set_no))
 			{
 				remove_set(a_ptr->set_no);
 			}
-		}				
+		}
 	}
 
 	/* Get local object */
@@ -5036,7 +5025,7 @@ void reorder_pack(void)
 
 
 /*
- * Copy of "get_tag" (in object1.c) that looks only at the given 
+ * Copy of "get_tag" (in object1.c) that looks only at the given
  * inventory slot, and accepts any letter between '@' and the number.
  * Stores the number found.
  */
@@ -5078,42 +5067,58 @@ static bool get_tag_num(int i, int *tag_num)
 }
 
 /*
- * Calculate and apply the reduction in pack size due to use of the
- * Quiver.
+ * Count number of missiles in the quiver slots.
  */
-void find_quiver_size(void)
+int quiver_count(void)
 {
-	int ammo_num, i;
-	object_type *i_ptr;
+	int i;
+	int ammo_num = 0;
+	u32b f1, f2, f3;
 
-	/*
-	 * Items in the quiver take up space which needs to be subtracted 
-	 * from space available elsewhere.
-	 */
-	ammo_num = 0;
-
+	/* Scan the slots */
 	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
 	{
 		/* Get the item */
-		i_ptr = &inventory[i];
+		object_type *i_ptr = &inventory[i];
 
 		/* Ignore empty. */
 		if (!i_ptr->k_idx) continue;
 
-		/* Tally up missiles. */
-		ammo_num += i_ptr->number;
+		/* Extract the flags */
+		object_flags(i_ptr, &f1, &f2, &f3);
+
+		/* Tally up thrown weapons and missiles. */
+		if ((f1 & (TR1_THROWING)) && (!is_missile(i_ptr)))
+			ammo_num += i_ptr->number * THROWER_AMMO_FACTOR;
+		else
+			ammo_num += i_ptr->number;
 	}
 
-	/* Every 99 missiles in the quiver takes up one backpack slot. */
-	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
+	/* Return */
+	return (ammo_num);
 }
 
+
 /*
- * Update (combine and sort ammo in) the quiver.  If requested, find 
+ * Calculate and apply the reduction in pack size due to use of the
+ * quiver.
+ */
+void find_quiver_size(void)
+{
+	int ammo_num = quiver_count();
+
+	/* Every 99 missile-equivalents in the quiver takes up one backpack slot. */
+	p_ptr->pack_size_reduce =
+		(ammo_num + MAX_STACK_SIZE - 2) / (MAX_STACK_SIZE - 1);
+}
+
+
+/*
+ * Update (combine and sort ammo in) the quiver.  If requested, find
  * the right slot to put new ammo in, make it available, and return it.
  *
- * Items marked with inscriptions of the form "@ [any letter or none] 
- * [any digit]" ("@f4", "@4", etc.) will be placed in the slot the 
+ * Items marked with inscriptions of the form "@ [any letter or none]
+ * [any digit]" ("@f4", "@4", etc.) will be placed in the slot the
  * digit corresponds to.  Everything else will be sorted around them.
  */
 int process_quiver(int num_new, object_type *o_ptr)
@@ -5140,7 +5145,7 @@ int process_quiver(int num_new, object_type *o_ptr)
 	bool untouchable[1 + INVEN_Q9 - INVEN_Q0];
 
 	/* All slots start out being alterable. */
-	for (i = 0; i < 1 + INVEN_Q9 - INVEN_Q0; i++) 
+	for (i = 0; i < 1 + INVEN_Q9 - INVEN_Q0; i++)
 		untouchable[i] = FALSE;
 
 	/* Combine the quiver (backwards) */
@@ -5237,7 +5242,7 @@ int process_quiver(int num_new, object_type *o_ptr)
 		if (!i_ptr->k_idx) continue;
 
 		/*
-		 * put items inscribed "@#" into the quiver corresponding 
+		 * put items inscribed "@#" into the quiver corresponding
 		 * to their number.
 		 */
 		/* Get the inscription of the item. */

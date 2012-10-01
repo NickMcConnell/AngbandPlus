@@ -43,25 +43,33 @@ Activate quick messages    [quick_messages]
      (useful for monster farming).  Allows most keys to mean "no" to any
      "[y/n]" prompt.
 
-Prompt for floor item selection    [floor_query_flag]
-     Makes the player explicitly select objects on the floor instead of using 
-     the only logical floor choice.  This makes you type an extra keypress, 
-     but increases safety.
+Activate auto-more    [auto_more]
+     With this option "-more-" prompts need no response.  There is no effect
+     on other prompts.  Avoid this option when not using an extra angband
+     window to display messages.
 
-Prompt before picking things up    [carry_query_flag]
-     Forces the game to ask your permission before allowing you to pick up any 
-     single object or stack.  This is most often desired when the auto-pickup 
-     option is on.
+Display things before picking them up	[query_floor]
+     (See combined description under "always_pickup" below.)
+
+Pick things up by default    [always_pickup]
+     When "always_pickup" is on, the game assumes you want to pick up any
+     object you encounter.  If "query_floor" is off, you pick up objects 
+     automatically.  Otherwise, you are shown a list, and prompted to pick up.
+
+     When "always_pickup" is off, the game assumes you want to pick things up
+     selectively.  If "query_floor" is off, you get a one-line description of
+     the object or pile.  If "query_floor" is on, you see a full list, 
+     including weights.  In either case, you can start picking things up by 
+     typing "g".
+
+     When standing still, you are never charged extra time for picking up
+     objects.  When walking, you always take a second partial turn to pick up
+     objects; each object picked up takes 1/10th of a turn.
 
 Use old target by default    [use_old_target]
      Forces all commands which normally ask for a "direction" to use the
      current "target" if there is one.  Use of this option can be dangerous
      if you target locations on the ground, unless you clear them when done.
-
-Pick things up by default    [always_pickup]
-     Tells the game that walking onto an item should attempt to pick it up.
-     Picking up objects this way takes no additional energy.  Note the "-" 
-     command, which can be used to reverse this option for a single turn.
 
 Repeat obvious commands    [always_repeat]
      Tells the game that when you attempt to open a door or chest, bash
@@ -116,6 +124,8 @@ Show region affected by using detection spells   [show_detect]
      Display a circular flash on the screen that helps show where the 
      detection radius ends.
 
+Player symbol color shows damage    [hp_changes_color]
+     Change the color of the player symbol on the map as damage is taken.
 
 
 === Option Set 2 -- Disturbance ===
@@ -246,6 +256,17 @@ Generate dungeons with connected stairs    [dungeon_stair]
      Always generate a staircase back to the level you came from, if you used
      a staircase to get to the level.  This is more "realistic", and "safer",
      but less of a "challenge" for some people.
+
+Auto-squelched items are immediately destroyed    [strong_squelch]
+     Squelched items are simply destroyed. With this option not set,
+     squelched items are inscribed with the word SQUELCH and can be
+     destroyed in bulk with the "!" option to the destroy command.
+
+Always reuse this savefile after death    [reuse_savefile]
+     If this character dies and a descendant is created from this savefile,
+     save the descendant in the same savefile.  With this option not set,
+     you will be asked whether the savefile should be reused before character
+     creation.
 
 Monsters exploit players weaknesses    [smart_cheat]
      Allow monsters to know what spell attacks you are resistant to,

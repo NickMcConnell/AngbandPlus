@@ -1,7 +1,7 @@
 
 /* File: xtra1.c */
 
-/* Display of stats to the user from internal figures, char info shown on 
+/* Display of stats to the user from internal figures, char info shown on
  * main screen and status displays, monster health bar, display various
  * things in sub-windows, spell management, calculation of max mana, max
  * HP, light radius, and weight limit.  Apply and display all modifiers,
@@ -295,9 +295,9 @@ static void prt_shape(void)
 	}
 
 	/* Display (or write over) the shapechange with pretty colors. */
-	if (mp_ptr->spell_book == TV_DRUID_BOOK) c_put_str(TERM_GREEN, shapedesc, 
+	if (mp_ptr->spell_book == TV_DRUID_BOOK) c_put_str(TERM_GREEN, shapedesc,
 		ROW_SHAPE, COL_SHAPE);
-	else if (mp_ptr->spell_book == TV_NECRO_BOOK) c_put_str(TERM_VIOLET, shapedesc, 
+	else if (mp_ptr->spell_book == TV_NECRO_BOOK) c_put_str(TERM_VIOLET, shapedesc,
 		ROW_SHAPE, COL_SHAPE);
 	else c_put_str(TERM_RED, shapedesc, ROW_SHAPE, COL_SHAPE);
 
@@ -360,20 +360,43 @@ static void prt_sp(void)
 	byte color;
 	int len;
 
+	int spell_level_boost;
+
 	/* Do not show mana unless it matters */
 	if (!mp_ptr->spell_book) return;
 
+	/* Display reflect temporary spell level boost */
+	spell_level_boost = get_spell_level_boost();
 
 	put_str("SP          ", ROW_SP, COL_SP);
 
+	if (spell_level_boost > 16)
+	{
+		color = TERM_VIOLET;
+	}
+	else if (spell_level_boost > 10)
+	{
+		color = TERM_L_WHITE;
+	}
+	else if (spell_level_boost > 5)
+	{
+		color = TERM_L_BLUE;
+	}
+	else
+	{
+		color = TERM_L_GREEN;
+	}
+
 	len = sprintf(tmp, "%d:%d", p_ptr->csp, p_ptr->msp);
 
-	c_put_str(TERM_L_GREEN, tmp, ROW_SP, COL_SP + 12 - len);
+	c_put_str(color, tmp, ROW_SP, COL_SP + 12 - len);
 
 	/* Done? */
-	if (p_ptr->csp >= p_ptr->msp) return;
-
-	if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+	if (p_ptr->csp >= p_ptr->msp)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
 	{
 		color = TERM_YELLOW;
 	}
@@ -867,16 +890,13 @@ static void health_redraw(void)
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
 		/* Dump the current "health" (handle monster stunning, confusion) */
-		if (m_ptr->confused) 
+		if (m_ptr->confused)
 			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "cccccccccc");
-		else if (m_ptr->stunned) 
+		else if (m_ptr->stunned)
 			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "ssssssssss");
 		else
 			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
-
-
-	
 }
 
 
@@ -1654,283 +1674,6 @@ static void fix_object(void)
 
 
 /*
- * Calculate number of spells player should have, and forget,
- * or remember, spells until that number is properly reflected.
- *
- * Note that this function induces various "status" messages,
- * which must be bypassed until the character is created.
- */
-static void calc_spells(void)
-{
-	int i, j, k, levels;
-	int num_allowed, num_known;
-
-	magic_type *s_ptr;
-
-	cptr p = "";
-
-
-	/* Hack -- must be literate */
-	if (!mp_ptr->spell_book) return;
-
-	/* Hack -- wait for creation */
-	if (!character_generated) return;
-
-	/* Hack -- handle "xtra" mode */
-	if (character_xtra) return;
-
-	/* Determine magic description. */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK) p = "spell";
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK) p = "prayer";
-	if (mp_ptr->spell_book == TV_DRUID_BOOK) p = "druidic lore";
-	if (mp_ptr->spell_book == TV_NECRO_BOOK) p = "ritual";
-
-	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - mp_ptr->spell_first + 1;
-
-	/* Hack -- no negative spells */
-	if (levels < 0) levels = 0;
-
-
-	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
-		       levels / 2);
-
-	/* Boundary control. */
-	if (num_allowed > mp_ptr->spell_number) num_allowed = mp_ptr->spell_number;
-
-
-	/* Assume none known */
-	num_known = 0;
-
-	/* Count the number of spells we know */
-	for (j = 0; j < mp_ptr->spell_number; j++)
-	{
-		/* Count known spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			num_known++;
-		}
-	}
-
-	/* See how many spells we must forget or may learn */
-	p_ptr->new_spells = num_allowed - num_known;
-
-
-
-	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
-	{
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-
-		/* Access the spell */
-		j = p_ptr->spell_order[i];
-
-		/* Skip non-spells */
-		if (j >= 99) continue;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we are allowed to know */
-		if (s_ptr->slevel <= p_ptr->lev) continue;
-
-		/* Is it known? */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			/* Mark as forgotten */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 |= (1L << j);
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 |= (1L << (j - 32));
-			}
-
-			/* No longer known */
-			if (j < 32)
-			{
-				p_ptr->spell_learned1 &= ~(1L << j);
-			}
-			else
-			{
-				p_ptr->spell_learned2 &= ~(1L << (j - 32));
-			}
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				   spell_names[s_ptr->index]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-
-	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
-	{
-		/* Stop when possible */
-		if (p_ptr->new_spells >= 0) break;
-
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
-
-		/* Get the (i+1)th spell learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) continue;
-
-		/* Get the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Forget it (if learned) */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			/* Mark as forgotten */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 |= (1L << j);
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 |= (1L << (j - 32));
-			}
-
-			/* No longer known */
-			if (j < 32)
-			{
-				p_ptr->spell_learned1 &= ~(1L << j);
-			}
-			else
-			{
-				p_ptr->spell_learned2 &= ~(1L << (j - 32));
-			}
-
-			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-				   spell_names[s_ptr->index]);
-
-			/* One more can be learned */
-			p_ptr->new_spells++;
-		}
-	}
-
-
-	/* Check for spells to remember */
-	for (i = 0; i < 64; i++)
-	{
-		/* None left to remember */
-		if (p_ptr->new_spells <= 0) break;
-
-		/* Efficiency -- all done */
-		if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
-
-		/* Get the next spell we learned */
-		j = p_ptr->spell_order[i];
-
-		/* Skip unknown spells */
-		if (j >= 99) break;
-
-		/* Access the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* First set of spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_forgotten1 & (1L << j)) :
-		    (p_ptr->spell_forgotten2 & (1L << (j - 32))))
-		{
-			/* No longer forgotten */
-			if (j < 32)
-			{
-				p_ptr->spell_forgotten1 &= ~(1L << j);
-			}
-			else
-			{
-				p_ptr->spell_forgotten2 &= ~(1L << (j - 32));
-			}
-
-			/* Known once more */
-			if (j < 32)
-			{
-				p_ptr->spell_learned1 |= (1L << j);
-			}
-			else
-			{
-				p_ptr->spell_learned2 |= (1L << (j - 32));
-			}
-
-			/* Message */
-			msg_format("You have remembered the %s of %s.",
-				   p, spell_names[s_ptr->index]);
-
-			/* One less can be learned */
-			p_ptr->new_spells--;
-		}
-	}
-
-
-	/* Assume no spells available */
-	k = 0;
-
-	/* Count spells that can be learned */
-	for (j = 0; j < mp_ptr->spell_number; j++)
-	{
-		/* Access the spell */
-		s_ptr = &mp_ptr->info[j];
-
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
-
-		/* Skip spells we already know */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
-		{
-			continue;
-		}
-
-		/* Count it */
-		k++;
-	}
-
-	/* Cannot learn more spells than exist */
-	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
-	/* Spell count changed */
-	if (p_ptr->old_spells != p_ptr->new_spells)
-	{
-		/* Message if needed */
-		if (p_ptr->new_spells)
-		{
-			/* Message */
-			msg_format("You can learn %d more %s%s.", p_ptr->new_spells, p, 
-				((p_ptr->new_spells != 1) && 
-				(mp_ptr->spell_book != TV_DRUID_BOOK)) ? "s" : "");
-		}
-
-		/* Save the new_spells value */
-		p_ptr->old_spells = p_ptr->new_spells;
-
-		/* Redraw Study Status */
-		p_ptr->redraw |= (PR_STUDY);
-	}
-}
-
-
-/*
  * Calculate number of specialties player should have. -BR-
  */
 static void calc_specialty(void)
@@ -2018,9 +1761,12 @@ static void calc_mana(void)
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
+	/* Modest boost for Clarity ability */
+	if (check_ability(SP_CLARITY)) msp += msp / 20;
+
 
 	/* Only mage and Necromancer-type spellcasters are affected by gloves. */
-	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) || 
+	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
 		(mp_ptr->spell_book == TV_NECRO_BOOK))
 	{
 		u32b f1, f2, f3;
@@ -2034,7 +1780,7 @@ static void calc_mana(void)
 		/* Examine the gloves */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
-		/* Normal gloves hurt mage or necro-type spells.  Now, only 
+		/* Normal gloves hurt mage or necro-type spells.  Now, only
 		 * Free Action or magic mastery stops this effect.
 		 */
 		if (o_ptr->k_idx &&
@@ -2179,6 +1925,9 @@ static void calc_hitpoints(void)
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
+	/* Modest boost for Athletics ability */
+	if (check_ability(SP_ATHLETICS)) mhp += mhp / 20;
+
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
@@ -2245,7 +1994,6 @@ static void calc_torch(void)
 			p_ptr->cur_lite += 1;
 		}
 	}
-		
 
 	/* Special ability Holy Light */
 	if (check_ability(SP_HOLY_LIGHT)) p_ptr->cur_lite++;
@@ -2294,7 +2042,7 @@ static int weight_limit(void)
 /* Calculate all class-based bonuses and penalties to melee Skill.  Oangband
  * recognizes that it takes a great deal of training to get critical hits with
  * a large, heavy weapon - training that many classes simply do not have the
- * time or inclination for.  -LM- 
+ * time or inclination for.  -LM-
  */
 sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
@@ -2334,7 +2082,7 @@ sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 	}
 
 	/* Priest/Paladin penalty for non-blessed edged weapons. */
-	if ((check_ability(SP_BLESS_WEAPON)) && ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) && 
+	if ((check_ability(SP_BLESS_WEAPON)) && ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) &&
 			       (!p_ptr->bless_blade))
 	{
 		add_skill -= 10 + p_ptr->lev / 2;
@@ -2343,8 +2091,8 @@ sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 		p_ptr->icky_wield = TRUE;
 	}
 
-	/* Now, special racial abilities and limitations are 
-	 * considered.  Most modifiers are relatively small, to 
+	/* Now, special racial abilities and limitations are
+	 * considered.  Most modifiers are relatively small, to
 	 * keep options open to the player. */
 	if (o_ptr->tval == TV_SWORD)
 	{
@@ -2367,8 +2115,9 @@ sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 	return (add_skill);
 }
 
-/* Calculate all class and race-based bonuses and 
- * penalties to missile Skill 
+/*
+ * Calculate all class and race-based bonuses and
+ * penalties to missile Skill
  */
 sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
@@ -2389,11 +2138,10 @@ sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 		add_skill = p_ptr->lev / 7;
 	}
 
-	/* Now, special racial abilities and limitations 
-	 * are considered.  The choice of race can be of 
+	/* Now, special racial abilities and limitations
+	 * are considered.  The choice of race can be of
 	 * some significance.
 	 */
-	
 	if (p_ptr->ammo_tval == TV_BOLT)
 	{
 		if (check_ability(SP_XBOW_SKILL)) add_skill += 3 + p_ptr->lev / 7;
@@ -2434,7 +2182,7 @@ static void resistance_limits(void)
 }
 
 
-/* Applies vital statistic changes from a shapeshift 
+/* Applies vital statistic changes from a shapeshift
  * to the player.
 */
 static void shape_change_stat(void)
@@ -2536,10 +2284,10 @@ static void shape_change_stat(void)
 	}
 }
 
-/* A Sangband-derived function to apply all non-stat changes from a shapeshift 
- * to the player.  Any alterations also need to be added to the character screen 
- * (files.c, function "player_flags"), and all timed states (opposition to the 
- * elements for example) must be hacked into the timing of player states in 
+/* A Sangband-derived function to apply all non-stat changes from a shapeshift
+ * to the player.  Any alterations also need to be added to the character screen
+ * (files.c, function "player_flags"), and all timed states (opposition to the
+ * elements for example) must be hacked into the timing of player states in
  * dungeon.c.  -LM-
  */
 static void shape_change_main(void)
@@ -2666,7 +2414,7 @@ static void shape_change_main(void)
 			p_ptr->skill_dev /= 2;
 			p_ptr->skill_thb -= 30;
 			p_ptr->skill_tht -= 30;
-			break;	
+			break;
 		}
 		case SHAPE_VAMPIRE:
 		{
@@ -2705,9 +2453,9 @@ static void shape_change_main(void)
 			p_ptr->skill_thb -= 30;
 			p_ptr->skill_tht -= 30;
 
-			/* 
+			/*
 			 * Apply an extra bonus power depending on the type
-			 * of DSM when in WYRM form 
+			 * of DSM when in WYRM form
 			 */
 			if (o_ptr->tval == TV_DRAG_ARMOR)
 			{
@@ -2717,41 +2465,41 @@ static void shape_change_main(void)
 					p_ptr->res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
 					p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
 				}
-				else if (o_ptr->sval == SV_DRAGON_BLUE) 
+				else if (o_ptr->sval == SV_DRAGON_BLUE)
 				{
 					p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
 					p_ptr->dis_res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
 				}
-				else if (o_ptr->sval == SV_DRAGON_WHITE) 
+				else if (o_ptr->sval == SV_DRAGON_WHITE)
 				{
 					p_ptr->res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
 					p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
 				}
-				else if (o_ptr->sval == SV_DRAGON_RED) 
+				else if (o_ptr->sval == SV_DRAGON_RED)
 				{
 					p_ptr->res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
 					p_ptr->dis_res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
 				}
-				else if (o_ptr->sval == SV_DRAGON_GREEN) 
+				else if (o_ptr->sval == SV_DRAGON_GREEN)
 				{
 					p_ptr->res_list[P_RES_POIS] += RES_BOOST_IMMUNE;
 					p_ptr->dis_res_list[P_RES_POIS] += RES_BOOST_IMMUNE;
 				}
 
 				/* Shining DSM -> SI */
-				else if (o_ptr->sval == SV_DRAGON_SHINING) 
+				else if (o_ptr->sval == SV_DRAGON_SHINING)
 					p_ptr->see_inv = TRUE;
 
 				/* Law/Chaos DSM -> hold life */
-				else if (o_ptr->sval == SV_DRAGON_LAW) 
+				else if (o_ptr->sval == SV_DRAGON_LAW)
 					p_ptr->hold_life = TRUE;
-				else if (o_ptr->sval == SV_DRAGON_CHAOS) 
+				else if (o_ptr->sval == SV_DRAGON_CHAOS)
 					p_ptr->hold_life = TRUE;
 
 				/* Bronze/Gold DSM -> FA */
-				else if (o_ptr->sval == SV_DRAGON_BRONZE) 
+				else if (o_ptr->sval == SV_DRAGON_BRONZE)
 					p_ptr->free_act = TRUE;
-				else if (o_ptr->sval == SV_DRAGON_GOLD) 
+				else if (o_ptr->sval == SV_DRAGON_GOLD)
 					p_ptr->free_act = TRUE;
 
 				/* Multihued, Balance and Power don't need any help */
@@ -2764,22 +2512,22 @@ static void shape_change_main(void)
 			p_ptr->dis_to_a += 5;
 			p_ptr->to_h += 5;
 			p_ptr->dis_to_h += 5;
-			if (p_ptr->lev >= 10) 
+			if (p_ptr->lev >= 10)
 			{
 				p_ptr->to_d += 5;
 				p_ptr->dis_to_d += 5;
 			}
-			if (p_ptr->lev >= 20) 
+			if (p_ptr->lev >= 20)
 			{
 				p_ptr->to_d += 5;
 				p_ptr->dis_to_d += 5;
 			}
-			if (p_ptr->lev >= 30) 
+			if (p_ptr->lev >= 30)
 			{
 				p_ptr->to_a += 10;
 				p_ptr->dis_to_a += 10;
 			}
-			if (p_ptr->lev >= 40) 
+			if (p_ptr->lev >= 40)
 			{
 				p_ptr->to_h += 5;
 				p_ptr->dis_to_h += 5;
@@ -2802,7 +2550,7 @@ static void shape_change_main(void)
  * not only race/class intrinsics, but also objects being worn
  * and temporary spell effects.
  *
- * This is the "kitchen sink" function!	 I may get around to 
+ * This is the "kitchen sink" function!	 I may get around to
  * segmenting it, simply to make it more readable...  -LM-
  *
  * I have added class-specific modifiers to Skill and enforced a max
@@ -3008,6 +2756,13 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
 
 	/* Resistance flags */
+	if (f2 & (TR2_RES_BASE_MINOR))
+	{
+		p_ptr->res_list[P_RES_ACID] += RES_BOOST_MINOR;
+		p_ptr->res_list[P_RES_ELEC] += RES_BOOST_MINOR;
+		p_ptr->res_list[P_RES_FIRE] += RES_BOOST_MINOR;
+		p_ptr->res_list[P_RES_COLD] += RES_BOOST_MINOR;
+	}
 	if (f2 & (TR2_IM_ACID)) p_ptr->res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
 	else if (f2 & (TR2_RES_ACID)) p_ptr->res_list[P_RES_ACID] += RES_BOOST_NORMAL;
 	if (f2 & (TR2_IM_ELEC)) p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
@@ -3027,6 +2782,10 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_RES_CHAOS)) p_ptr->res_list[P_RES_CHAOS] += RES_BOOST_NORMAL;
 	if (f2 & (TR2_RES_DISEN)) p_ptr->res_list[P_RES_DISEN] += RES_BOOST_NORMAL;
 
+	/* Hack - Direct vulnerabilities from player races */
+	if (check_ability(SP_WOODEN)) p_ptr->res_list[P_RES_FIRE] -= RES_BOOST_MINOR;
+	if (check_ability(SP_SHADOW)) p_ptr->res_list[P_RES_LITE] -= RES_BOOST_MINOR;
+
 	/* All inherent bonuses should be known */
 	for (i = 0; i < MAX_P_RES; i++)
 	{
@@ -3045,10 +2804,10 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 	/* Ent */
-	if (check_ability(SP_WOODEN)) 
+	if (check_ability(SP_WOODEN))
 	{
 		/* Ents dig like maniacs, but only with their hands. */
-		if (!inventory[INVEN_WIELD].k_idx) 
+		if (!inventory[INVEN_WIELD].k_idx)
 			p_ptr->skill_dig += p_ptr->lev * 10;
 
 		/* Ents get tougher and stronger as they age, but lose dexterity. */
@@ -3134,7 +2893,7 @@ static void calc_bonuses(void)
 		/* The new code implementing Tolkien's concept of "Black Breath"
 		 * takes advantage of the existing drain_exp character flag, renamed
 		 * "black_breath". This flag can also be set by a unlucky blow from
-		 * an undead.  -LM- 
+		 * an undead.  -LM-
 		 */
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
 
@@ -3143,6 +2902,13 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
 
 		/* Resistance and immunity flags */
+		if (f2 & (TR2_RES_BASE_MINOR))
+		{
+			p_ptr->res_list[P_RES_ACID] += RES_BOOST_MINOR;
+			p_ptr->res_list[P_RES_ELEC] += RES_BOOST_MINOR;
+			p_ptr->res_list[P_RES_FIRE] += RES_BOOST_MINOR;
+			p_ptr->res_list[P_RES_COLD] += RES_BOOST_MINOR;
+		}
 		if (f2 & (TR2_IM_ACID)) p_ptr->res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
 		else if (f2 & (TR2_RES_ACID)) p_ptr->res_list[P_RES_ACID] += RES_BOOST_NORMAL;
 		if (f2 & (TR2_IM_ELEC)) p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
@@ -3168,6 +2934,13 @@ static void calc_bonuses(void)
 			u32b ff1, ff2, ff3;
 			object_flags_known(o_ptr, &ff1, &ff2, &ff3);
 
+			if (f2 & (TR2_RES_BASE_MINOR))
+			{
+				p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_MINOR;
+				p_ptr->dis_res_list[P_RES_ELEC] += RES_BOOST_MINOR;
+				p_ptr->dis_res_list[P_RES_FIRE] += RES_BOOST_MINOR;
+				p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_MINOR;
+			}
 			if (ff2 & (TR2_IM_ACID)) p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
 			else if (ff2 & (TR2_RES_ACID)) p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_NORMAL;
 			if (ff2 & (TR2_IM_ELEC)) p_ptr->dis_res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
@@ -3200,8 +2973,8 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 
-		/* 
-		 * Modify the base armor class.   Shields worn on back are penalized. 
+		/*
+		 * Modify the base armor class.   Shields worn on back are penalized.
 		 * Shield and Armor masters benefit.
 		 */
 		if ((i == INVEN_ARM) && (p_ptr->shield_on_back)) temp_armour = o_ptr->ac / 3;
@@ -3214,10 +2987,10 @@ static void calc_bonuses(void)
 		/* The base armor class is always known */
 		p_ptr->dis_ac += temp_armour;
 
-		/* Apply the bonuses to armor class.  Shields worn on back are 
+		/* Apply the bonuses to armor class.  Shields worn on back are
 		 * penalized.
 		 */
-		if ((p_ptr->shield_on_back) && (i == INVEN_ARM)) 
+		if ((p_ptr->shield_on_back) && (i == INVEN_ARM))
 			temp_armour = o_ptr->to_a / 2;
 		else temp_armour = o_ptr->to_a;
 
@@ -3245,7 +3018,7 @@ static void calc_bonuses(void)
 	/* Hack -- clear a few flags for certain races. */
 
 	/* The Shadow Fairy's saving grace */
-	if ((check_ability(SP_SHADOW)) && (p_ptr->aggravate)) 
+	if ((check_ability(SP_SHADOW)) && (p_ptr->aggravate))
 	{
 		p_ptr->skill_stl -= 3;
 		p_ptr->aggravate = FALSE;
@@ -3376,31 +3149,31 @@ static void calc_bonuses(void)
 	/* Temporary resists */
 	if (p_ptr->oppose_acid)
 	{
-		int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
+		int bonus = RES_BOOST_GOOD + (enhance ? RES_BOOST_MINOR : 0);
 		p_ptr->res_list[P_RES_ACID] += bonus;
 		p_ptr->dis_res_list[P_RES_ACID] += bonus;
 	}
 	if (p_ptr->oppose_fire)
 	{
-		int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
+		int bonus = RES_BOOST_GOOD + (enhance ? RES_BOOST_MINOR : 0);
 		p_ptr->res_list[P_RES_FIRE] += bonus;
 		p_ptr->dis_res_list[P_RES_FIRE] += bonus;
 	}
 	if (p_ptr->oppose_cold)
 	{
-		int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
+		int bonus = RES_BOOST_GOOD + (enhance ? RES_BOOST_MINOR : 0);
 		p_ptr->res_list[P_RES_COLD] += bonus;
 		p_ptr->dis_res_list[P_RES_COLD] += bonus;
 	}
 	if (p_ptr->oppose_elec)
 	{
-		int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
+		int bonus = RES_BOOST_GOOD + (enhance ? RES_BOOST_MINOR : 0);
 		p_ptr->res_list[P_RES_ELEC] += bonus;
 		p_ptr->dis_res_list[P_RES_ELEC] += bonus;
 	}
 	if (p_ptr->oppose_pois)
 	{
-		int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
+		int bonus = RES_BOOST_GOOD + (enhance ? RES_BOOST_MINOR : 0);
 		p_ptr->res_list[P_RES_POIS] += bonus;
 		p_ptr->dis_res_list[P_RES_POIS] += bonus;
 	}
@@ -3637,10 +3410,10 @@ static void calc_bonuses(void)
 	if (check_ability(SP_MAGIC_RESIST))
 	{
 		if (p_ptr->skill_sav <= 80) p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
-		else p_ptr->skill_sav += 10;		
+		else p_ptr->skill_sav += 10;
 	}
 
-	/* Heightened magical defenses.   Halves the difference between saving 
+	/* Heightened magical defenses.   Halves the difference between saving
 	 * throw and 100.  */
 	if (p_ptr->magicdef)
 	{
@@ -3809,7 +3582,7 @@ static void calc_bonuses(void)
 
 
 		/* Compare strength and weapon weight. */
-		str_index = mul * adj_str_blow[p_ptr->stat_ind[A_STR]] / 
+		str_index = mul * adj_str_blow[p_ptr->stat_ind[A_STR]] /
 			effective_weight;
 
 		/* Maximal value */
@@ -3839,7 +3612,7 @@ static void calc_bonuses(void)
 
 
 	/* Add all other class and race-specific adjustments to melee Skill. */
-	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, 
+	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass,
 		o_ptr->weight, o_ptr);
 
 
@@ -3881,10 +3654,10 @@ static void calc_bonuses(void)
 				object_flags(o_ptr, &f1, &f2, &f3);
 
 				/* Analyze weapon for two-handed-use. */
-				if (f3 & (TR3_TWO_HANDED_REQ) || 
-					(f3 & (TR3_TWO_HANDED_DES) && 
-					(p_ptr->stat_ind[A_STR] < 
-					29 + (o_ptr->weight / 50 > 8 ? 
+				if (f3 & (TR3_TWO_HANDED_REQ) ||
+					(f3 & (TR3_TWO_HANDED_DES) &&
+					(p_ptr->stat_ind[A_STR] <
+					29 + (o_ptr->weight / 50 > 8 ?
 					8 : o_ptr->weight / 50))))
 				{
 					p_ptr->shield_on_back = TRUE;
@@ -3893,7 +3666,7 @@ static void calc_bonuses(void)
 				else p_ptr->shield_on_back = FALSE;
 
 				/* Hack - recalculate bonuses again. */
-				if (p_ptr->old_shield_on_back != 
+				if (p_ptr->old_shield_on_back !=
 					p_ptr->shield_on_back)
 				{
 					/* do not check strength again */
@@ -3913,7 +3686,7 @@ static void calc_bonuses(void)
 			{
 				if (mp_ptr->spell_stat == A_INT)
 				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
+					p_ptr->update |= (PU_MANA);
 				}
 			}
 
@@ -3922,7 +3695,7 @@ static void calc_bonuses(void)
 			{
 				if (mp_ptr->spell_stat == A_WIS)
 				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
+					p_ptr->update |= (PU_MANA);
 				}
 			}
 		}
@@ -4162,12 +3935,6 @@ void update_stuff(void)
 		calc_mana();
 	}
 
-	if (p_ptr->update & (PU_SPELLS))
-	{
-		p_ptr->update &= ~(PU_SPELLS);
-		calc_spells();
-	}
-
 	if (p_ptr->update & (PU_SPECIALTY))
 	{
 		p_ptr->update &= ~(PU_SPECIALTY);
@@ -4298,6 +4065,17 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_HP);
 		prt_hp();
+
+		/*
+		 * hack:  redraw player, since the player's color
+		 * now indicates approximate health.  Note that
+		 * using this command when graphics mode is on
+		 * causes the character to be a black square.
+		 */
+		if (hp_changes_color)
+		{
+		 	lite_spot(p_ptr->py, p_ptr->px);
+		}
 	}
 
 	if (p_ptr->redraw & (PR_MANA))

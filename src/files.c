@@ -1,10 +1,10 @@
 /* File: files.c */
 
 /* Code for multiuser machines, Colors for skill descriptions, the char-
- * acter screens (inc. resistance flags for races, etc.), equippy chars, 
- * online-help, extraction of base name (for savefiles), saving, death 
- * (with inventory, equip, etc. display), calculating and displaying 
- * scores, creating tombstones, winners, panic saves, reading a random 
+ * acter screens (inc. resistance flags for races, etc.), equippy chars,
+ * online-help, extraction of base name (for savefiles), saving, death
+ * (with inventory, equip, etc. display), calculating and displaying
+ * scores, creating tombstones, winners, panic saves, reading a random
  * line from a file, and signal handling.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -295,7 +295,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  * Specify visual information, given an index, and some data
  *   V:<num>:<kv>:<rv>:<gv>:<bv>
  */
-errr process_pref_file_aux(char *buf)
+errr process_pref_file_command(char *buf)
 {
 	int i, j, n1, n2;
 
@@ -776,15 +776,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 }
 
 
-/*
- * Process the "user pref file" with the given name
- *
- * See the function above for a list of legal "commands".
- *
- * We also accept the special "?" and "%" directives, which
- * allow conditional evaluation and filename inclusion.
- */
-errr process_pref_file(cptr name)
+static errr process_pref_file_aux(cptr name)
 {
 	FILE *fp;
 
@@ -799,11 +791,8 @@ errr process_pref_file(cptr name)
 	bool bypass = FALSE;
 
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
-
 	/* Open the file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen(name, "r");
 
 	/* No such file */
 	if (!fp) return (-1);
@@ -866,7 +855,7 @@ errr process_pref_file(cptr name)
 
 
 		/* Process the line */
-		err = process_pref_file_aux(buf);
+		err = process_pref_file_command(buf);
 
 		/* Oops */
 		if (err) break;
@@ -888,6 +877,43 @@ errr process_pref_file(cptr name)
 	/* Result */
 	return (err);
 }
+
+
+/*
+ * Process the "user pref file" with the given name
+ *
+ * See the function above for a list of legal "commands".
+ *
+ * We also accept the special "?" and "%" directives, which
+ * allow conditional evaluation and filename inclusion.
+ */
+errr process_pref_file(cptr name)
+{
+	char buf[1024];
+
+	errr err = 0;
+
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
+
+	/* Process the pref file */
+	err = process_pref_file_aux(buf);
+
+	/* Stop at parser errors, but not at non-existing file */
+	if (err < 1)
+	{
+		/* Build the filename */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+
+		/* Process the pref file */
+		err = process_pref_file_aux(buf);
+	}
+
+	/* Result */
+	return (err);
+}
+
 
 
 #ifdef CHECK_TIME
@@ -1569,14 +1595,14 @@ static void display_player_various(void)
 
 
 /*
- * Obtain the "flags" for the player as if he was an item.  Currently includes 
+ * Obtain the "flags" for the player as if he was an item.  Currently includes
  * race, class, and shapechange (optionally). -LM-
  *
  * Mega - Hack
- * 'shape' should be set on when calling this function for display purposes, 
+ * 'shape' should be set on when calling this function for display purposes,
  * but off when actually applying 'intrinsic flags' in xtra1.c.
  *
- * Shapeshift flags are displayed like race/class flags, but actually 
+ * Shapeshift flags are displayed like race/class flags, but actually
  * applied differently.
  */
 
@@ -1676,7 +1702,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 				(*f1) |= (TR1_INFRA);
 				(*f3) |= (TR3_REGEN);
 				(*f3) |= (TR3_AGGRAVATE);
-				break;	
+				break;
 			}
 			case SHAPE_VAMPIRE:
 			{
@@ -1771,9 +1797,15 @@ void player_weakness_dis(u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = (*f2) = (*f3) = 0L;
 
 	/* HACK - add weakness of some races */
-	if (check_ability(SP_WOODEN)) 
-	{	
+	if (check_ability(SP_WOODEN))
+	{
 		(*f3) |= (TR3_FEATHER);
+		(*f2) |= (TR2_RES_FIRE);
+	}
+
+	if (check_ability(SP_SHADOW))
+	{
+		(*f2) |= (TR2_RES_LITE);
 	}
 
 	/* Shapechange, if any. */
@@ -2000,6 +2032,13 @@ static void display_player_flag_info(void)
 					c_put_str(TERM_WHITE, "+", row, col+n);
 				}
 
+				/* Hack -- Check minor resist to low elements */
+				else if ((x == 0) && (y < 4) &&
+				    (f[set] & TR2_RES_BASE_MINOR))
+				{
+					c_put_str(TERM_SLATE, "+", row, col+n);
+				}
+
 				/* Default */
 				else
 				{
@@ -2009,9 +2048,9 @@ static void display_player_flag_info(void)
 				/* Hack -- "Might" covers both might1 and might2. */
 				if ((y == 6) && (x == 3))
 				{
-					if (f[set] & TR1_MIGHT2) 
+					if (f[set] & TR1_MIGHT2)
 						c_put_str(TERM_WHITE, "*", row, col+n);
-					else if (f[set] & TR1_MIGHT1) 
+					else if (f[set] & TR1_MIGHT1)
 						c_put_str(TERM_WHITE, "+", row, col+n);
 				}
 
@@ -2525,12 +2564,12 @@ errr file_character(cptr name, bool full)
 	if (p_ptr->specialty_order[0] != SP_NO_SPECIALTY)
 	{
 		fprintf(fff, "  [Specialty Abilities]\n\n");
-		for (i = 0; i < 10; i++)
+		for (i = 0; i < MAX_SPECIALTIES; i++)
 		{
 			if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY)
 			{
 				fprintf(fff, "%s %s\n", specialty_names[p_ptr->specialty_order[i]],
-					(i >= p_ptr->specialties_allowed) ? "(forgotten)" : ""); 
+					(i >= p_ptr->specialties_allowed) ? "(forgotten)" : "");
 			}
 		}
 		fprintf(fff, "\n\n");
@@ -3041,6 +3080,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 }
 
 
+
 /*
  * Peruse the On-Line-Help
  */
@@ -3058,14 +3098,116 @@ void do_cmd_help(void)
 
 
 /*
+ * Generate savefile name and path from base_name.
+ */
+void build_savefile_path(void)
+{
+	char temp[128];
+
+#ifdef SAVEFILE_USE_UID
+	/* Rename the savefile, using the player_uid and base_name */
+	sprintf(temp, "%d.%s", player_uid, op_ptr->base_name);
+#else
+	/* Rename the savefile, using the base name */
+	sprintf(temp, "%s", op_ptr->base_name);
+#endif
+
+#ifdef VM
+	/* Hack -- support "flat directory" usage on VM/ESA */
+	sprintf(temp, "%s.sv", op_ptr->base_name);
+#endif /* VM */
+
+	/* Build the filename */
+	path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
+}
+
+
+/*
+ * Find a variation on the player name which is not taken.
+ *
+ * k is the length of the unpermuted filename.
+ */
+void generate_unused_filename(int k)
+{
+	int permutations = 0;
+
+	while (TRUE)
+	{
+		int fd;
+		int digits = 1;
+
+		/* Calculate how many digits are needed */
+		/* Do silly things to avoid needing math libs */
+		if (permutations > 9) digits++;
+		if (permutations > 99) digits++;
+
+		/* Check for space in filename */
+		if (digits >= k) break;
+
+		/* Generate full path */
+		build_savefile_path();
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* File type is "SAVE" */
+		FILE_TYPE(FILE_TYPE_SAVE);
+
+		/* Check for file */
+		fd = fd_open(savefile, O_RDONLY);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* File exists */
+		if (fd >= 0)
+		{
+			fd_close(fd);
+
+			/* Only allow 1000 file name variations per character name */
+			if (permutations >= SAVEFILE_MAX_PERMUTATIONS)
+			{
+				quit_fmt("File name space full for character name '%s'.", op_ptr->full_name);
+			}
+
+			/* Generate new name */
+			if (k > 5)
+			{
+				/* long names - replace up to three characters */
+				sprintf(&op_ptr->base_name[k-digits], "%d", permutations);
+			}
+			else
+			{
+				/* short names - append exactly three characters */
+				sprintf(&op_ptr->base_name[k], "%03d", permutations);
+			}
+
+			/* Increment count */
+			permutations++;
+		}
+
+		/* File does not exist - available for new character */
+		else
+		{
+			return;
+		}
+	}
+}
+
+
+/*
  * Process the player name.
  * Extract a clean "base name".
- * Build the savefile name if needed.
+ *
+ * In Oangband 1.1.0 the meaning of "sf" changes.  If "sf" is true,
+ * generate a new base name from the character name.  Otherwise keep
+ * the old base name.  Either way, sync the savefile name to the base
+ * name.  (Base name now mean the base savefile name, and need not
+ * match the character name. -BR-
  */
 void process_player_name(bool sf)
 {
 	int i, k = 0;
-
 
 	/* Cannot be too long */
 	if (strlen(op_ptr->full_name) > 15)
@@ -3083,52 +3225,14 @@ void process_player_name(bool sf)
 			/* Illegal characters */
 			quit_fmt("The name '%s' contains control chars!", op_ptr->full_name);
 		}
+
+		/* Character '#' is reserved */
+		if (op_ptr->full_name[i] == '#')
+		{
+			/* Illegal characters */
+			quit_fmt("The name '%s' contains illegal char '#'", op_ptr->full_name);
+		}
 	}
-
-
-#ifdef MACINTOSH
-
-	/* Extract "useful" letters */
-	for (i = 0; op_ptr->full_name[i]; i++)
-	{
-		char c = op_ptr->full_name[i];
-
-		/* Convert "colon" and "period" */
-		if ((c == ':') || (c == '.')) c = '_';
-
-		/* Accept all the letters */
-		op_ptr->base_name[k++] = c;
-	}
-
-#else
-
-	/* Extract "useful" letters */
-	for (i = 0; op_ptr->full_name[i]; i++)
-	{
-		char c = op_ptr->full_name[i];
-
-		/* Accept some letters */
-		if (isalpha(c) || isdigit(c)) op_ptr->base_name[k++] = c;
-
-		/* Convert space, dot, and underscore to underscore */
-		else if (strchr(". _", c)) op_ptr->base_name[k++] = '_';
-	}
-
-#endif
-
-
-#if defined(WINDOWS) || defined(MSDOS)
-
-	/* Hack -- max length */
-	if (k > 8) k = 8;
-
-#endif
-
-	/* Terminate */
-	op_ptr->base_name[k] = '\0';
-
-	/* Require a "base" name */
-	if (!op_ptr->base_name[0]) strcpy(op_ptr->base_name, "PLAYER");
 
 
 #ifdef SAVEFILE_MUTABLE
@@ -3138,26 +3242,62 @@ void process_player_name(bool sf)
 
 #endif
 
-	/* Change the savefile name */
+	/* Change the savefile and base name */
 	if (sf)
 	{
-		char temp[128];
 
-#ifdef SAVEFILE_USE_UID
-		/* Rename the savefile, using the player_uid and base_name */
-		sprintf(temp, "%d.%s", player_uid, op_ptr->base_name);
+#ifdef MACINTOSH
+
+		/* Extract "useful" letters */
+		for (i = 0; op_ptr->full_name[i]; i++)
+		{
+			char c = op_ptr->full_name[i];
+
+			/* Convert "colon" and "period" */
+			if ((c == ':') || (c == '.')) c = '_';
+
+			/* Accept all the letters */
+			op_ptr->base_name[k++] = c;
+		}
+
 #else
-		/* Rename the savefile, using the base name */
-		sprintf(temp, "%s", op_ptr->base_name);
+
+		/* Extract "useful" letters */
+		for (i = 0; op_ptr->full_name[i]; i++)
+		{
+			char c = op_ptr->full_name[i];
+
+			/* Accept some letters */
+			if (isalpha(c) || isdigit(c)) op_ptr->base_name[k++] = c;
+
+			/* Convert space, dot, and underscore to underscore */
+			else if (strchr(". _", c)) op_ptr->base_name[k++] = '_';
+		}
+
 #endif
 
-#ifdef VM
-		/* Hack -- support "flat directory" usage on VM/ESA */
-		sprintf(temp, "%s.sv", op_ptr->base_name);
-#endif /* VM */
 
-		/* Build the filename */
-		path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
+#if defined(WINDOWS) || defined(MSDOS)
+
+		/* Hack -- max length */
+		if (k > 8) k = 8;
+
+#endif
+
+		/* Terminate */
+		op_ptr->base_name[k] = '\0';
+
+		/* Require a "base" name */
+		if (!op_ptr->base_name[0]) strcpy(op_ptr->base_name, "PLAYER");
+
+		/* Find a variation on the player name which is not taken. */
+		generate_unused_filename(k);
+	}
+
+	else
+	{
+		/* Generate full path */
+		build_savefile_path();
 	}
 }
 
@@ -3185,6 +3325,8 @@ void get_name(void)
 	/* Ask until happy */
 	while (1)
 	{
+		int i;
+
 		/* Go to the "name" field */
 		move_cursor(2, 11);
 
@@ -3193,6 +3335,12 @@ void get_name(void)
 
 		/* Get an input, ignore "Escape" */
 		if (askfor_aux(tmp, 15)) strcpy(op_ptr->full_name, tmp);
+
+		/* Character name ends at '#' for savefile management reasons */
+		for (i = 0; i < 32; i++)
+		{
+			if (op_ptr->full_name[i] == '#') op_ptr->full_name[i] = '\0';
+		}
 
 		/* Process the player name */
 		process_player_name(FALSE);
@@ -3367,7 +3515,7 @@ static char *get_personalized_string(byte choice)
 				for (i = n + 2; i < 80; i++) tmp[i] = '\0';
 				break;
 			}
-			else 
+			else
 			{
 				tmp[n + 1] = '.';
 				tmp[n + 2] = '\0';
@@ -3386,8 +3534,8 @@ static char *get_personalized_string(byte choice)
 }
 
 /*
- * Save a "bones" file for a dead character.  Now activated and (slightly) 
- * altered.  Allows the inclusion of personalized strings. 
+ * Save a "bones" file for a dead character.  Now activated and (slightly)
+ * altered.  Allows the inclusion of personalized strings.
  */
 static void make_bones(void)
 {
@@ -3450,8 +3598,6 @@ static void make_bones(void)
 			/* Save the info */
 			if (op_ptr->full_name[0] != '\0') fprintf(fp, "%s\n", op_ptr->full_name);
 			else fprintf(fp, "Anonymous\n");
-				
-
 
 			fprintf(fp, "%d\n", p_ptr->psex);
 			fprintf(fp, "%d\n", p_ptr->prace);
@@ -3462,8 +3608,8 @@ static void make_bones(void)
 
 			while(1)
 			{
-				/* Ask the player if he wants to 
-				 * add a personalized string. 
+				/* Ask the player if he wants to
+				 * add a personalized string.
 				 */
 				prt("Information about your character has been saved in a bones file.", 15, 7);
 
@@ -3509,25 +3655,25 @@ static void make_bones(void)
 							choice = 0;
 							break;
 						}
-						else 
+						else
 						{
 							prt("Please press 'm' to include a message, 'd' to include", 15, 13);
 							prt("a description, or the Escape key to cancel.", 16, 18);
 						}
 					}
 				}
-				else if ((answer == 'N') || (answer == 'n') || (answer == ESCAPE)) 
+				else if ((answer == 'N') || (answer == 'n') || (answer == ESCAPE))
 				{
 					choice = 0;
 					break;
 				}
 
 
-				/* If requested, get the personalized string, and write it and 
-				 * info on how it should be used in the bones file.  Otherwise, 
+				/* If requested, get the personalized string, and write it and
+				 * info on how it should be used in the bones file.  Otherwise,
 				 * indicate the absence of such a string.
 				 */
-				if (choice) fprintf(fp, "%d:%s\n", 
+				if (choice) fprintf(fp, "%d:%s\n",
 				       choice, get_personalized_string(choice));
 				else fprintf(fp, "0: \n");
 
@@ -3544,7 +3690,7 @@ static void make_bones(void)
 /*
  * Centers a string within a 31 character string
  */
-static void center_string(char *buf, cptr str)
+void center_string(char *buf, cptr str)
 {
 	int i, j;
 
@@ -3725,7 +3871,7 @@ static void show_info(void)
 
 	/* Prompt for inventory */
 	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
-	
+
 	/* Allow abort at this point */
 	if (inkey() == ESCAPE) return;
 
@@ -3769,7 +3915,7 @@ static void show_info(void)
 
 			    char o_name[80];
 			    char tmp_val[80];
-			    
+
 			    /* Get the object */
 			    o_ptr = &st_ptr->stock[i];
 
@@ -3837,7 +3983,7 @@ static void death_examine(void)
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
-	
+
 	/* Describe */
 	msg_format("Examining %s...", o_name);
 
@@ -4247,7 +4393,7 @@ static errr enter_score(void)
 
 	/* Clear the record */
 	(void)WIPE(&the_score, high_score);
-  
+
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
 	      O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
@@ -4255,7 +4401,7 @@ static errr enter_score(void)
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
 	the_score.pts[9] = '\0';
-	
+
 	/* Save the current gold */
 	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
 	the_score.gold[9] = '\0';

@@ -6922,7 +6922,7 @@ fi
 done
 
 
-                                                                                                                                            ac_config_files="$ac_config_files Makefile src/Makefile lib/Makefile A-readmes/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/save/Makefile lib/user/Makefile lib/xtra/Makefile"
+                                                                                                                                            ac_config_files="$ac_config_files Makefile src/Makefile lib/Makefile A-readmes/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/save/Makefile lib/user/Makefile lib/xtra/Makefile lib/pref/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure

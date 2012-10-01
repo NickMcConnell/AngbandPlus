@@ -1,7 +1,7 @@
 /* File: cmd1.c */
 
-/* Searching, pickup, effects of traps, move one square (including special 
- * terrain effects), and the running algorithm.   
+/* Searching, pickup, effects of traps, move one square (including special
+ * terrain effects), and the running algorithm.
  *
  * Tim Baker's easy patch installed.
  *
@@ -107,83 +107,178 @@ void search(void)
 
 
 /*
- * Objects that combine with items already in the quiver get picked
- * up, placed in the quiver, and combined automatically.
+ * Return TRUE if the given object is inscribed with "=g".
+ *
+ * Alternatively, also return TRUE if any similar item in the
+ * backpack is marked "=g".
  */
-static bool quiver_carry(object_type *o_ptr, int o_idx)
+static bool auto_pickup_check(object_type *o_ptr, bool check_pack)
+{
+	cptr s;
+
+	/* Check inscription */
+	if (o_ptr->note)
+	{
+		/* Find a '=' */
+		s = strchr(quark_str(o_ptr->note), '=');
+
+		/* Process preventions */
+		while (s)
+		{
+			/* =g ('g'et) means auto pickup */
+			if (s[1] == 'g') return (TRUE);
+
+			/* Find another '=' */
+			s = strchr(s + 1, '=');
+		}
+	}
+
+	/* Optionally, check the backpack */
+	if (check_pack)
+	{
+		int j;
+
+		/* Look for similar and inscribed */
+		for (j = 0; j < INVEN_PACK - p_ptr->pack_size_reduce; j++)
+		{
+			object_type *j_ptr = &inventory[j];
+
+			/* Skip non-objects */
+			if (!j_ptr->k_idx) continue;
+
+			/* The two items must be able to combine */
+			if (!object_similar(j_ptr, o_ptr)) continue;
+
+			/* The backpack item must be inscribed */
+			if (!j_ptr->note) continue;
+
+			/* Find a '=' */
+			s = strchr(quark_str(j_ptr->note), '=');
+
+			/* Process preventions */
+			while (s)
+			{
+				/* =g ('g'et) means auto pickup */
+				if (s[1] == 'g') return (TRUE);
+
+				/* Find another '=' */
+				s = strchr(s + 1, '=');
+			}
+		}
+	}
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
+
+
+/*
+ * Automatically carry ammunition and throwing weapons in the quiver,
+ * if it is inscribed with "=g", or it matches something already in
+ * the quiver.
+ */
+bool quiver_carry(object_type *o_ptr, int o_idx)
 {
 	int i;
-	int ammo_num = 0;
+	u32b f1, f2, f3;
 
+	bool throwing;
+
+	int ammo_num, added_ammo_num;
+	int attempted_quiver_slots;
+
+	bool blind = ((p_ptr->blind) || (no_lite()));
+	bool autop;
 	int old_num;
 
 	object_type *i_ptr;
 
 
-	/* Must be ammo. */
-	if ((o_ptr->tval != TV_BOLT) && (o_ptr->tval != TV_ARROW) &&
-	    (o_ptr->tval != TV_SHOT)) return (FALSE);
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Must be ammo or throwing weapon. */
+	if ((!is_missile(o_ptr)) && (!(f1 & (TR1_THROWING))))
+	{
+		return (FALSE);
+	}
+
+	/* Throwing weapon? */
+	throwing = (((f1 & (TR1_THROWING)) && (!is_missile(o_ptr))) ? TRUE : FALSE);
 
 	/* Count number of missiles in the quiver slots. */
-	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+	ammo_num = quiver_count();
+
+	/* Check for autopickup */
+	autop = auto_pickup_check(o_ptr, FALSE);
+
+	/* No missiles to combine with and no autopickup. */
+	if (!ammo_num && !autop) return (FALSE);
+
+	/* Effective added count */
+	added_ammo_num = (throwing ?
+		o_ptr->number * THROWER_AMMO_FACTOR : o_ptr->number);
+
+	/* How many quiver slots would be needed */
+	attempted_quiver_slots = ((ammo_num + added_ammo_num + 98) / 99);
+
+	/* Is there room, given normal inventory? */
+	if (attempted_quiver_slots + p_ptr->inven_cnt > INVEN_PACK)
 	{
-		/* Get the item */
-		i_ptr = &inventory[i];
-
-		/* Ignore empty. */
-		if (!i_ptr->k_idx) continue;
-
-		/* Tally up missiles. */
-		ammo_num += i_ptr->number;
-	}
-
-	/* No missiles to combine with. */
-	if (!ammo_num) return (FALSE);
-
-	/*
-	 * If the ammo now being added will make the quiver take up another
-	 * backpack slot, verify that we have one available.  We will mark it
-	 * as used later.
-	 */
-	if ((ammo_num + o_ptr->number) > 99 * p_ptr->pack_size_reduce)
-	{
-		/* We have no more space. */
-		if (p_ptr->inven_cnt >= INVEN_PACK - p_ptr->pack_size_reduce)
-		{
-			return (FALSE);
-		}
+		return (FALSE);
 	}
 
 
-	/* Check quiver for similar objects. */
+	/* Check quiver for similar objects or empty space. */
 	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
 	{
+		/* Assume no carry */
+		bool flag = FALSE;
+
 		/* Get object in that slot. */
 		i_ptr = &inventory[i];
 
-		/* Look for similar. */
-		if (object_similar(i_ptr, o_ptr))
+		/* Allow auto-pickup to empty slots */
+		if ((!i_ptr->k_idx) && (autop))
 		{
-			char o_name[120];
+			/* Nothing there */
+			old_num = 0;
 
+			/* Wield it */
+			object_copy(i_ptr, o_ptr);
+
+			flag = TRUE;
+		}
+
+		/* Look for similar */
+		else if (object_similar(i_ptr, o_ptr))
+		{
 			/* How many did we have before? */
 			old_num = i_ptr->number;
 
 			/* Don't absorb unless there is space for all of it */
-			if ((old_num + o_ptr->number) > 99) return FALSE;
+			if ((old_num + o_ptr->number) > 99) return (FALSE);
 
 			/* Absorb floor object. */
 			object_absorb(i_ptr, o_ptr);
 
+			flag = TRUE;
+		}
+
+		/* We want to carry it */
+		if (flag)
+		{
+			char o_name[120];
+
+			/* Increase carried weight */
+			p_ptr->total_weight += i_ptr->weight * (i_ptr->number - old_num);
+
 			/* Get the object again */
 			o_ptr = &inventory[i];
 
-			/* Increase carried weight */
-			p_ptr->total_weight += o_ptr->weight * (o_ptr->number - old_num);
-
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			if (blind) object_desc(o_name, o_ptr, TRUE, 0);
+			else       object_desc(o_name, o_ptr, TRUE, 3);
 
 			/* Message */
 			msg_format("You have %s (%c).", o_name, index_to_label(i));
@@ -191,40 +286,26 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 			/* Delete the object */
 			delete_object_idx(o_idx);
 
+			/* Recalculate quiver size */
+			find_quiver_size();
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Reorder the quiver */
+			p_ptr->notice |= (PN_COMBINE);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+			/* Redraw equippy chars */
+			p_ptr->redraw |= (PR_EQUIPPY);
+
 			return (TRUE);
 		}
 	}
 
-	/* Didn't find a slot with similar objects. */
-	return (FALSE);
-}
-
-
-/*
- * Return TRUE if the given object is inscribed with "=g".
- */
-static bool auto_pickup_okay(object_type *o_ptr)
-{
-	cptr s;
-	
-	/* No inscription */
-	if (!o_ptr->note)
-		return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
-
-	/* Process preventions */
-	while (s)
-	{
-		/* =g ('g'et) means auto pickup */
-		if (s[1] == 'g') return (TRUE);
-
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
-	}
-
-	/* Don't auto pickup */
+	/* Didn't find a slot with similar objects, or an empty slot. */
 	return (FALSE);
 }
 
@@ -235,13 +316,12 @@ static bool auto_pickup_okay(object_type *o_ptr)
 static void py_pickup_aux(int o_idx)
 {
 	int slot;
-	
+
 	char o_name[120];
 	object_type *o_ptr;
 
-
 	o_ptr = &o_list[o_idx];
-	
+
 	/* Carry the object */
 	slot = inven_carry(o_ptr);
 
@@ -260,252 +340,429 @@ static void py_pickup_aux(int o_idx)
 
 
 /*
- * Pick up objects and treasure on the floor.
+ * Pick up objects and treasure on the floor.  -LM-
  *
  * Called with pickup:
  * 0 to grab gold and describe non-gold objects.
  * 1 to pick up objects either with or without displaying a menu.
- * 2 to pick up objects, forcing a menu for multiple objects.
+ * 2 to pick up objects, allowing cancel and quick pickup of single objects.
  * 3 to pick up objects, forcing a menu for any number of objects.
  *
+ * Use the "p_ptr->auto_pickup_okay" variable to allow or dis-allow
+ * automatically picking things up that take time.
+ *
  * Scan the list of objects in that floor grid.   Pick up gold automatically.
- * Pick up objects automatically until pile or backpack space is full if 
- * auto-pickup option is on, carry_query_floor option is not, and menus are 
- * not forced (which the "get" command does). Otherwise, store objects on 
+ * Pick up objects automatically until pile or backpack space is full if
+ * auto-pickup option is on, carry_query_floor option is not, and menus are
+ * not forced (which the "get" command does). Otherwise, store objects on
  * floor in an array, and tally both how many there are and can be picked up.
  *
- * If the player is not picking up objects, describe a single object or 
- * indicate the presence of a floor stack.  If player is picking up objects, 
- * name a single object, or indicate a stack of objects, that cannot go in 
- * the backpack.
+ * If not picking up anything, indicate objects on the floor.  Show more
+ * details if the "query_floor" option is set.  Do the same thing if we
+ * don't have room for anything.
  *
- * Pick up a single object without menus, unless menus for single items are 
- * forced.  Confirm pickup if that option is on.
+ * If we are picking up objects automatically, and have room for at least
+ * one, allow the "query_floor" option to display information about objects
+ * and prompt the player.  Otherwise, automatically pick up a single object
+ * or use a menu for more than one (this "blind" autopickup option is
+ * deprecated).
  *
- * Pick up multiple objects (unless using autopickup, no confirm) using Tim
- * Baker's menu system.   Recursively call this function (forcing menus for any 
- * number of objects) until objects are gone, backpack is full, or player is 
- * satisfied.
+ * Pick up multiple objects using Tim Baker's menu system.   Recursively
+ * call this function (forcing menus for any number of objects) until
+ * objects are gone, backpack is full, or player is satisfied.
  *
- * Keep track of number of objects picked up (to calculate time spent).
+ * We keep track of number of objects picked up to calculate time spent.
+ * This tally is incremented even for automatic pickup, so we are careful
+ * (in "dungeon.c" and elsewhere) to handle pickup as either a separate
+ * automated move or a no-cost part of the stay still or 'g'et command.
+ *
+ * Note the lack of chance for the character to be disturbed by unmarked
+ * objects.  They are truly "unknown".
  */
 byte py_pickup(int pickup)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	char o_name[120];
+	char ch;
+
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[120];
 	object_type *o_ptr;
 
 	/* Objects picked up.  Used to determine time cost of command. */
 	byte objs_picked_up = 0;
-   
-	int floor_num = 0, floor_list[23], floor_o_idx = 0;
+
+	int floor_num = 0, floor_list[24], floor_o_idx = 0;
 
 	int can_pickup = 0;
 	bool call_function_again = FALSE;
-	bool do_ask = TRUE;
+
+	bool blind = ((p_ptr->blind) || (no_lite()));
+
+	bool force_display_list = FALSE;
+
+	s32b total_gold = 0L;
+	byte *treasure;
 
 
-	/* Scan the pile of objects */
+	/* Nothing to pick up -- return */
+	if (!cave_o_idx[py][px]) return (0);
+
+
+
+	/* Allocate and wipe an array of ordinary gold objects */
+	C_MAKE(treasure, MONEY_TYPES, byte);
+	C_WIPE(treasure, MONEY_TYPES, byte);
+
+	/* Pick up all the ordinary gold objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
-
-		/* Access the object */
+		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
-		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
-
-		/* Access the next object */
+		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
+
+		/* Ignore all hidden objects */
+		if (!o_ptr->marked) continue;
+
+		/* Ignore if not ordinary treasure */
+		if ((o_ptr->tval != TV_GOLD) ||
+		    (o_ptr->sval >= MONEY_TYPES)) continue;
+
+		/* Note that we have this kind of treasure */
+		treasure[o_ptr->sval]++;
+
+		/* Increment total value */
+		total_gold += (s32b)o_ptr->pval;
+
+		/* Delete the gold */
+		delete_object_idx(this_o_idx);
+	}
+
+	/* Pick up the gold, if present */
+	if (total_gold)
+	{
+		char buf[240];
+		char tmp[80];
+		int i, count, total, k_idx;
+
+		/* Build a message */
+		sprintf(buf, "You have found %ld gold pieces worth of ", total_gold);
+
+		/* Count the types of treasure present */
+		for (total = 0, i = 0; i < MONEY_TYPES; i++)
+		{
+			if (treasure[i]) total++;
+		}
+
+		/* List the treasure types */
+		for (count = 0, i = 0; i < MONEY_TYPES; i++)
+		{
+			/* Skip if no treasure of this type */
+			if (!treasure[i]) continue;
+
+			/* Get this object index */
+			k_idx = lookup_kind(TV_GOLD, i);
+
+			/* Skip past errors  XXX */
+			if (k_idx <= 0) continue;
+
+			/* Get the object name */
+			strip_name(tmp, k_idx);
+
+			/* Build up the pickup string */
+			strcat(buf, tmp);
+
+			/* Added another kind of treasure */
+			count++;
+
+			/* Add a comma if necessary */
+			if ((total > 2) && (count < total)) strcat(buf, ",");
+
+			/* Add an "and" if necessary */
+			if ((total >= 2) && (count == total-1)) strcat(buf, " and");
+
+			/* Add a space or period if necessary */
+			if (count < total) strcat(buf, " ");
+			else               strcat(buf, ".");
+		}
+
+		/* Display the message */
+		msg_format("%s", buf);
+
+		/* Add gold to purse */
+		p_ptr->au += total_gold;
+
+		/* Redraw gold */
+		p_ptr->redraw |= (PR_GOLD);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	/* Free the gold array */
+	C_FREE(treasure, MONEY_TYPES, byte);
+
+
+	/* Scan the remaining objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Ignore all hidden objects */
+		if (!o_ptr->marked) continue;
+
+		/* Paranoia -- ignore all dead objects  XXX */
+		if (!o_ptr->k_idx) continue;
 
 		/* Hack -- disturb */
 		disturb(0, 0);
 
-		/* Pick up gold */
-		if (o_ptr->tval == TV_GOLD)
+		/* Automatically pick up objects into the quiver */
+		if ((p_ptr->auto_pickup_okay) && (quiver_carry(o_ptr, this_o_idx)))
 		{
-			/* Message */
-			msg_format("You have found %ld gold pieces worth of %s.",
-				(long)o_ptr->pval, o_name);
-
-			/* Collect the gold */
-			p_ptr->au += o_ptr->pval;
-
-			/* Redraw gold */
-			p_ptr->redraw |= (PR_GOLD);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
-			/* Delete the gold */
-			delete_object_idx(this_o_idx);
-
-			/* Check the next object */
+			objs_picked_up++;
 			continue;
 		}
 
-		/* Automatically pick up objects like those in the quiver. */
-		if (quiver_carry(o_ptr, this_o_idx)) continue;
-
-		/* Automatically pick up some items */
-		if (inven_carry_okay(o_ptr) && auto_pickup_okay(o_ptr))
+		/* Automatically pick up some items into the backpack */
+		if ((p_ptr->auto_pickup_okay) && (inven_carry_okay(o_ptr)) &&
+		    (auto_pickup_check(o_ptr, TRUE)))
 		{
 			/* Pick up the object */
 			py_pickup_aux(this_o_idx);
-			
-			/* Check the next object */
+
+			/* Take a small amount of time */
+			objs_picked_up++;
 			continue;
 		}
 
-		/* Pick up objects automatically, without menus, if pickup is 
-		 * allowed and menus are not forced, auto-pickup is on, and 
-		 * query_floor is off.
-		 */
-		else if ((pickup == 1) && (always_pickup) && (!carry_query_flag))
+		/* Tally objects and store them in an array. */
+
+		/* Remember this object index */
+		floor_list[floor_num] = this_o_idx;
+
+		/* Count non-gold objects that remain on the floor. */
+		floor_num++;
+
+		/* Remember this index */
+		floor_o_idx = this_o_idx;
+
+		/* Tally objects that can be picked up.*/
+		if (inven_carry_okay(o_ptr))
 		{
-			/* If backpack is not full, carry the item. */
-			if (inven_carry_okay(o_ptr))
-			{
-				/* Pick up the object */
-				py_pickup_aux(this_o_idx);
-			}
-
-			/* Otherwise, add one to the number of floor objects. */
-			else
-			{
-				/* Count non-gold objects that remain on the floor. */
-				floor_num++;
-
-				/* Remember this index */
-				floor_o_idx = this_o_idx;
-			}
+			can_pickup++;
 		}
 
-		/* Otherwise, activate the menu system.   Tally objects and store 
-		 * them in an array.
-		 */
-		else
-		{
-			/* Remember this object index */
-			floor_list[floor_num] = this_o_idx;
-
-			/* Count non-gold objects that remain on the floor. */
-			floor_num++;
-
-			/* Remember this index */
-			floor_o_idx = this_o_idx;
-
-			/* Tally objects that can be picked up.*/
-			if (inven_carry_okay(o_ptr))
-			{
-				can_pickup++;
-			}
-		}
+		/* XXX Hack -- Enforce limit */
+		if (floor_num == 23) break;
 	}
 
-	/* There are no non-gold objects */
+	/* There are no objects left */
 	if (!floor_num) return (objs_picked_up);
 
 
-	/* Mention the objects or stack, if player is not picking them up. */
+	/* Mention the objects if player is not picking them up. */
 	if (!pickup)
 	{
-		/* One object */
-		if (floor_num == 1)
+		/* Optionally, display more information about floor items */
+		if (query_floor)
 		{
-			/* Access the object */
-			o_ptr = &o_list[floor_o_idx];
+			/* Scan all marked objects in the grid */
+			(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
 
-			/* Describe the object.   Less detail if blind. */
-			if (p_ptr->blind) object_desc(o_name, o_ptr, TRUE, 0);
-			else object_desc(o_name, o_ptr, TRUE, 3);
+			/* Save screen */
+			screen_save();
 
-			/* Message */
-			msg_format("You %s %s.", (p_ptr->blind ? "feel" : "see"), o_name);
+			/* Display objects on the floor */
+			show_floor(floor_list, floor_num, FALSE);
+
+			/* Display prompt */
+			prt(format("You %s: ",
+			    (blind ? "feel something on the floor" : "see")), 0, 0);
+			(void)Term_fresh();
+
+			/* Wait for it.  Use key as next command. */
+			p_ptr->command_new = inkey();
+
+			/* Restore screen */
+			screen_load();
 		}
 
-		/* Multiple objects */
+		/* Display compact information */
 		else
 		{
-			/* Message */
-			msg_format("You %s a pile of %d items.", 
-				(p_ptr->blind ? "feel" : "see"), floor_num);
+			/* One object */
+			if (floor_num == 1)
+			{
+				/* Get the object */
+				o_ptr = &o_list[floor_o_idx];
+
+				/* Describe the object.  Less detail if blind. */
+				if (blind) object_desc(o_name, o_ptr, TRUE, 0);
+				else       object_desc(o_name, o_ptr, TRUE, 3);
+
+				msg_print(NULL);
+
+				/* Message */
+				msg_format("You %s %s.", (blind ? "feel" : "see"),
+					o_name);
+			}
+
+			/* Several objects */
+			else
+			{
+				msg_print(NULL);
+
+				/* Message */
+				msg_format("You %s a pile of %d items.",
+					(blind ? "feel" : "see"), floor_num);
+			}
 		}
 
 		/* Done */
 		return (objs_picked_up);
 	}
 
+
 	/* The player has no room for anything on the floor. */
-	else if (!can_pickup)
+	if (!can_pickup)
 	{
-		/* One object */
+		/*
+		 * One object -- Always display compact information.  This
+		 * should change if more information would actually be helpful.
+		 */
 		if (floor_num == 1)
 		{
-			/* Access the object */
+			/* Get the object */
 			o_ptr = &o_list[floor_o_idx];
-	
-			/* Describe the object.   Less detail if blind. */
-			if (p_ptr->blind) object_desc(o_name, o_ptr, TRUE, 0);
-			else object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Describe the object.  Less detail if blind. */
+			if (blind) object_desc(o_name, o_ptr, TRUE, 0);
+			else       object_desc(o_name, o_ptr, TRUE, 3);
 
 			/* Message */
+			msg_print(NULL);
 			msg_format("You have no room for %s.", o_name);
 		}
 
-		/* Multiple objects */
+		/* Several items */
 		else
 		{
-			/* Message */
-			msg_print("You have no room for any of the objects on the floor.");
+			/* Optionally, display more information about floor items */
+			if ((query_floor) || (force_display_list))
+			{
+				/* Scan all marked objects in the grid */
+				(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
+
+				/* Save screen */
+				screen_save();
+
+				/* Display objects on the floor */
+				show_floor(floor_list, floor_num, FALSE);
+
+				/* Display prompt */
+				prt("You have no room for the following objects: ", 0, 0);
+				(void)Term_fresh();
+
+				/* Wait for it.  Use key as next command. */
+				p_ptr->command_new = inkey();
+
+				/* Restore screen */
+				screen_load();
+			}
+
+			/* Display compact information */
+			else
+			{
+				/* Message -- not very informative */
+				msg_print(NULL);
+				msg_print("You have no room for any of the items on the floor.");
+			}
 		}
-		
+
 		/* Done */
 		return (objs_picked_up);
 	}
 
-	/* Simple display of a single object, if menus for single objects are 
-	 * not forced.
-	 */
-	else if ((floor_num == 1) && (pickup != 3))
+
+	/* We can pick up objects.  Menus are not requested (yet). */
+	if (pickup != 3)
 	{
-		/* Hack -- query every object */
-		if (carry_query_flag)
+		/* Scan all marked objects in the grid (again) */
+		(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
+
+		/*
+		 * If not deliberately picking up objects, and if requested or
+		 * potentially unsafe, ask the player to confirm all pickups.
+		 */
+		if (((query_floor) || (!p_ptr->auto_pickup_okay)) && (pickup <= 1))
 		{
-			char out_val[160];
+			/* Save screen */
+			screen_save();
 
-			/* Access the object */
-			o_ptr = &o_list[floor_o_idx];
+			/* Display objects on the floor */
+			show_floor(floor_list, floor_num, FALSE);
 
-			/* Describe the object.   Less detail if blind. */
-			if (p_ptr->blind) object_desc(o_name, o_ptr, TRUE, 0);
-			else object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Build a prompt */
-			(void) sprintf(out_val, "Pick up %s? ", o_name);
-
-			/* Ask the user to confirm */
-			if (!get_check(out_val))
+			/* Display prompt */
+			if (floor_num == 1)
 			{
+				prt("Press Return to pick up this object: ", 0, 0);
+			}
+			else
+			{
+				prt("Press Return to pick up any of the following objects: ",
+					0, 0);
+			}
+			(void)Term_fresh();
+
+			/* Get response */
+			ch = inkey();
+
+			/* Restore screen */
+			screen_load();
+
+			/* We don't want to pick up this item */
+			if ((ch != '\r') && (ch != '\n') && (ch != 'g'))
+			{
+				/* Attempt to turn this command into a direction */
+				int dir = target_dir(ch);
+
+				/* We used a movement command */
+				if (dir)
+				{
+					/* Save as a new command; move later */
+					p_ptr->command_new = ch;
+				}
+
 				/* Done */
 				return (objs_picked_up);
 			}
 		}
 
-		/* Don't ask */
-		do_ask = FALSE;
+		/* Use a menu interface for multiple objects */
+		if (floor_num > 1)
+		{
+			pickup = 3;
+		}
 
-		/* Remember the object to pick up */
-		this_o_idx = floor_o_idx;
+		/* Automatically pick up a single object */
+		else
+		{
+			/* Remember the object to pick up */
+			this_o_idx = floor_o_idx;
+		}
 	}
 
-	/* Display a list if no other query took precedence. */
-	else
+	/* Display a list if requested. */
+	if (pickup == 3)
 	{
 		cptr q, s;
 
@@ -515,7 +772,7 @@ byte py_pickup(int pickup)
 		item_tester_hook = inven_carry_okay;
 
 		/* Get an object or exit. */
-		q = "Get which item? ";
+		q = "Get which item?";
 		s = "You see nothing there.";
 		if (get_item(&item, q, s, (USE_FLOOR)))
 		{
@@ -528,13 +785,18 @@ byte py_pickup(int pickup)
 		}
 	}
 
-	/* Pick up the object */
-	py_pickup_aux(this_o_idx);
+	/* Pick up object, if legal */
+	if (this_o_idx)
+	{
+		/* Pick up the object */
+		py_pickup_aux(this_o_idx);
 
-	/* Indicate an object picked up. */
-	objs_picked_up = 1;
+		/* Indicate an object picked up. */
+		objs_picked_up = 1;
+	}
 
-	/* If requested, call this function recursively.  Count objects picked 
+	/*
+	 * If requested, call this function recursively.  Count objects picked
 	 * up.  Force the display of a menu in all cases.
 	 */
 	if (call_function_again) objs_picked_up += py_pickup(3);
@@ -555,7 +817,7 @@ static int check_trap_hit(int power)
 	bool hit = FALSE;
 
 	/* This function is called from the trap attack code, which generally
-	 * uses the simple RNG.   We temporarily switch over to the complex 
+	 * uses the simple RNG.   We temporarily switch over to the complex
 	 * RNG for true randomness. - LM-
 	 */
 	Rand_quick = FALSE;
@@ -583,10 +845,10 @@ static int check_trap_hit(int power)
 
 
 /*
- * Handle player hitting a real trap.  Rewritten in Oangband to allow a 
- * greater variety of traps, with effects controlled by dungeon level.  
- * To allow a trap to choose one of a variety of effects consistantly, 
- * the quick RNG is often used, and xy coordinates input as a seed value. 
+ * Handle player hitting a real trap.  Rewritten in Oangband to allow a
+ * greater variety of traps, with effects controlled by dungeon level.
+ * To allow a trap to choose one of a variety of effects consistantly,
+ * the quick RNG is often used, and xy coordinates input as a seed value.
  */
 void hit_trap(int y, int x)
 {
@@ -686,10 +948,8 @@ void hit_trap(int y, int x)
 							msg_print("Undead suddenly appear and call you to them!");
 
 							k = randint(3) + 2;
-							for (i = 0; i < k; i++)
-							{
-								summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_UNDEAD);
-							}
+							(void) summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_UNDEAD, k);
+
 						}
 
 						/* morgul-traps are one-time only. */
@@ -1047,10 +1307,7 @@ void hit_trap(int y, int x)
 				Rand_quick = FALSE;
 
 				num = 2 + randint(3);
-				for (i = 0; i < num; i++)
-				{
-					(void)summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_THIEF);
-				}
+				(void)summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_THIEF, num);
 
 				Rand_quick = TRUE;
 			}
@@ -1062,23 +1319,20 @@ void hit_trap(int y, int x)
 
 				Rand_quick = FALSE;
 
-				(void)summon_specific(y, x, FALSE, p_ptr->depth + 5, SUMMON_UNIQUE);
+				(void)summon_specific(y, x, FALSE, p_ptr->depth + 5, SUMMON_UNIQUE, 1);
 
 				Rand_quick = TRUE;
 			}
 
 			/* otherwise, the ordinary summon monsters. */
-			else 
+			else
 			{
 				msg_print("You are enveloped in a cloud of smoke!");
 
 				Rand_quick = FALSE;
 
 				num = 2 + randint(3);
-				for (i = 0; i < num; i++)
-				{
-					(void)summon_specific(y, x, FALSE, p_ptr->depth, 0);
-				}
+				(void)summon_specific(y, x, FALSE, p_ptr->depth, 0, num);
 
 				Rand_quick = TRUE;
 			}
@@ -1108,7 +1362,7 @@ void hit_trap(int y, int x)
 			if ((nastyness > 60) && (randint(12) == 1))
 			{
 				msg_print("A ear-splitting howl shatters your mind as the dungeon is smashed by hammer blows!");
-				
+
 				(void)destroy_level(FALSE);
 
 				/* the player is hard-hit. */
@@ -1149,8 +1403,8 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		/* various char and equipment-alteration traps, lumped together 
-		 * to avoid any one effect being too common (some of them can be 
+		/* various char and equipment-alteration traps, lumped together
+		 * to avoid any one effect being too common (some of them can be
 		 * rather nasty).
 		 */
 		case FEAT_TRAP_HEAD + 0x07:
@@ -1209,21 +1463,21 @@ void hit_trap(int y, int x)
 
 							/* Uncharge */
 							if ((o_ptr->tval == TV_STAFF) ||
-								(o_ptr->tval == TV_WAND)) 
+								(o_ptr->tval == TV_WAND))
 								o_ptr->pval = 0;
 
-							if (o_ptr->tval == TV_ROD) 
+							if (o_ptr->tval == TV_ROD)
 								o_ptr->timeout = o_ptr->pval * o_ptr->number * 2;
 
 
 							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE | 
+							p_ptr->notice |= (PN_COMBINE |
 							PN_REORDER);
 
 							/* Window stuff */
 							p_ptr->window |= (PW_INVEN);
 
-							/* not more than one inventory 
+							/* not more than one inventory
 							 * slot effected. */
 							break;
 						}
@@ -1293,7 +1547,7 @@ void hit_trap(int y, int x)
 				msg_print("You feel time itself assault you!");
 
 				/* Target the player with a radius 0 ball attack. */
-				fire_meteor(0, GF_TIME, p_ptr->py, p_ptr->px, 
+				fire_meteor(0, GF_TIME, p_ptr->py, p_ptr->px,
 					75, 0, TRUE);
 			}
 
@@ -1575,7 +1829,7 @@ void move_player(int dir, int do_pickup)
 
 	else
 	{
-		/* It takes some dexterity, or failing that, strength, to get out of 
+		/* It takes some dexterity, or failing that, strength, to get out of
 		 * pits.
 		 */
 		if (cave_feat[p_ptr->py][p_ptr->px] == (FEAT_TRAP_HEAD + 0x01))
@@ -1601,7 +1855,7 @@ void move_player(int dir, int do_pickup)
 
 		/* Option to disarm a visible trap. -TNB- */
 		/* Hack - Rogues can walk over their own trap - BR */
-		if ((easy_disarm) && 
+		if ((easy_disarm) &&
 			(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 			(cave_feat[y][x] <= FEAT_TRAP_TAIL))
 		{
@@ -1688,9 +1942,9 @@ void move_player(int dir, int do_pickup)
 			{
 				case FEAT_RUBBLE:
 				{
-					if (player_is_crossing == dir) 
+					if (player_is_crossing == dir)
 						can_move = TRUE;
-					else 
+					else
 					{
 						player_is_crossing = dir;
 
@@ -1708,9 +1962,9 @@ void move_player(int dir, int do_pickup)
 					if ((check_ability(SP_WOODSMAN))) can_move = TRUE;
 
 					/* Allow movement only if partway through already. */
-					else if (player_is_crossing == dir) 
+					else if (player_is_crossing == dir)
 						can_move = TRUE;
-					else 
+					else
 					{
 						player_is_crossing = dir;
 
@@ -1725,8 +1979,8 @@ void move_player(int dir, int do_pickup)
 				case FEAT_WATER:
 				{
 					/* Cannot cross with an over-heavy burden. */
-					if (p_ptr->total_weight < 
-						adj_str_wgt[p_ptr->stat_ind[A_STR]] * 50) 
+					if (p_ptr->total_weight <
+						adj_str_wgt[p_ptr->stat_ind[A_STR]] * 50)
 						can_move = TRUE;
 					else can_move = FALSE;
 
@@ -1734,7 +1988,7 @@ void move_player(int dir, int do_pickup)
 					disturb(0,0);
 
 					/* Explain why the horse won't cross the water. */
-					if (can_move == FALSE) 
+					if (can_move == FALSE)
 						msg_print("You dare not cross carrying so much weight.");
 
 					break;
@@ -1745,7 +1999,7 @@ void move_player(int dir, int do_pickup)
 					temp = TRUE;
 
 					/* Smart enough to stop running. */
-					if (p_ptr->running) 
+					if (p_ptr->running)
 					{
 						if (!get_check("Lava blocks your path.  Step into it? "))
 						{
@@ -1796,7 +2050,7 @@ void move_player(int dir, int do_pickup)
 				/* New location */
 				y = py = p_ptr->py;
 				x = px = p_ptr->px;
-	
+
 				/* No longer traversing. */
 				player_is_crossing = 0;
 
@@ -1813,10 +2067,11 @@ void move_player(int dir, int do_pickup)
 					search();
 				}
 
-				/* Handle "objects".  Do not use extra energy for 
+				/* Handle "objects".  Do not use extra energy for
 				 * objects picked up.
 				 */
-				(void)py_pickup(do_pickup);
+				if (do_pickup) p_ptr->notice |= (PN_PICKUP1);
+				else p_ptr->notice |= (PN_PICKUP0);
 
 				/* Handle "store doors" */
 				if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&

@@ -398,7 +398,7 @@ static const u16b convert_old_names[180] =
 	EGO_WOUNDING,			/* 77 = SN_WOUNDING */
 	ART_ORCRIST + 256,		/* 78 = SN_ORCRIST */
 	ART_GLAMDRING + 256,		/* 79 = SN_GLAMDRING */
-					
+
 	ART_STING + 256,		/* 80 = SN_STING */
 	EGO_LITE,			/* 81 = SN_LITE */
 	EGO_AGILITY,			/* 82 = SN_AGILITY */
@@ -429,27 +429,27 @@ static const u16b convert_old_names[180] =
 	ART_CAMBELEG + 256,		/* 107 = SN_CAMBELEG */
 	ART_HOLHENNETH + 256,		/* 108 = SN_HOLHENNETH */
 	ART_PAURNEN + 256,		/* 109 = SN_PAURNEN */
-					
+
 	ART_AEGLIN + 256,		/* 110 = SN_AEGLIN */
 	ART_CAMLOST + 256,		/* 111 = SN_CAMLOST */
 	ART_NIMLOTH + 256,		/* 112 = SN_NIMLOTH */
 	ART_NAR + 256,			/* 113 = SN_NAR */
 	ART_BERUTHIEL + 256,		/* 114 = SN_BERUTHIEL */
-					
+
 	ART_GORLIM + 256,		/* 115 = SN_GORLIM */
 	ART_NARTHANC + 256,		/* 116 = SN_NARTHANC */
 	ART_NIMTHANC + 256,		/* 117 = SN_NIMTHANC */
 	ART_DETHANC + 256,		/* 118 = SN_DETHANC */
 	ART_GILETTAR + 256,		/* 119 = SN_GILETTAR */
-				
-				
+
+
 	ART_RILIA + 256,		/* 120 = SN_RILIA */
 	ART_BELANGIL + 256,		/* 121 = SN_BELANGIL */
 	ART_BALLI + 256,		/* 122 = SN_BALLI */
 	ART_LOTHARANG + 256,		/* 123 = SN_LOTHARANG */
 	ART_FIRESTAR + 256,		/* 124 = SN_FIRESTAR */
 	ART_ERIRIL + 256,		/* 125 = SN_ERIRIL */
-				
+
 	ART_CUBRAGOL + 256,		/* 126 = SN_CUBRAGOL */
 	ART_BARD + 256,			/* 127 = SN_BARD */
 	ART_VALINOR + 256,		/* 128 = SN_COLLUIN */
@@ -1743,7 +1743,7 @@ static void rd_extra_old(void)
 	}
 
 	/* Read the "maximum" stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Read the maximal stat */
 		rd_s16b(&p_ptr->stat_max[i]);
@@ -2739,7 +2739,10 @@ static errr rd_savefile_old_aux(void)
 	cp_ptr = &cp_info[p_ptr->pclass];
 
 	/* Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &mp_info[p_ptr->pclass];
+
+	/* Initialize the chest_drops */
+	ch_ptr = &ch_info[p_ptr->pclass];
 
 
 	/* Fake some "item awareness" */
@@ -2757,18 +2760,11 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Read spell flags */
-	rd_u32b(&p_ptr->spell_learned1);
+	strip_bytes(4);
 	rd_u32b(&p_ptr->spell_worked1);
-	rd_u32b(&p_ptr->spell_forgotten1);
-	rd_u32b(&p_ptr->spell_learned2);
+	strip_bytes(8);
 	rd_u32b(&p_ptr->spell_worked2);
-	rd_u32b(&p_ptr->spell_forgotten2);
-
-	/* Read spell order */
-	for (i = 0; i < 64; i++)
-	{
-		rd_byte(&p_ptr->spell_order[i]);
-	}
+	strip_bytes(68);
 
 	note("Loaded spell information");
 
@@ -2795,7 +2791,7 @@ static errr rd_savefile_old_aux(void)
 	if (!older_than(2, 6, 2)) strip_bytes(98);
 
 	/* Clear specialty abilities */
-	for (i = 0; i < 10; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
+	for (i = 0; i < MAX_SPECIALTIES; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
 
 	note("Loaded some more information");
 

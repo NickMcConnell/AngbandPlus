@@ -1,10 +1,10 @@
 /* File: cmd3.c */
 
-/* Inventory and equipment display and management interface, observing an 
- * object, inscribing, refuelling, (l)ooking around the screen and 
- * Looking around the dungeon, help info on textual chars ("8" is the home, 
+/* Inventory and equipment display and management interface, observing an
+ * object, inscribing, refuelling, (l)ooking around the screen and
+ * Looking around the dungeon, help info on textual chars ("8" is the home,
  * etc.), monster memory interface, stealing and setting monster traps.
- * 
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -39,14 +39,14 @@ void do_cmd_inven(void)
 	item_tester_full = FALSE;
 
 	/* Insert the total burden and character capacity into a string. */
-	if (use_metric) sprintf(string, 
+	if (use_metric) sprintf(string,
 		"(Inventory) burden %d.%d kg (%d%% of capacity). Command: ",
-		make_metric(p_ptr->total_weight) / 10, 
-		make_metric(p_ptr->total_weight) % 10, 
+		make_metric(p_ptr->total_weight) / 10,
+		make_metric(p_ptr->total_weight) % 10,
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
-	else sprintf(string, 
+	else sprintf(string,
 		"(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
-		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10,
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
 
 
@@ -101,14 +101,14 @@ void do_cmd_equip(void)
 
 
 	/* Insert the total burden and character capacity into a string. */
-	if (use_metric) sprintf(string, 
+	if (use_metric) sprintf(string,
 		"(Equipment) burden %d.%d kg (%d%% of capacity). Command: ",
-		make_metric(p_ptr->total_weight) / 10, 
-		make_metric(p_ptr->total_weight) % 10, 
+		make_metric(p_ptr->total_weight) / 10,
+		make_metric(p_ptr->total_weight) % 10,
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
-	else sprintf(string, 
+	else sprintf(string,
 		"(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
-		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10,
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
 
 
@@ -169,6 +169,8 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
+	bool throwing;
+
 	char o_name[120];
 
         if (SCHANGE)
@@ -202,6 +204,8 @@ void do_cmd_wield(void)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/* Throwing weapon or ammo? */
+	throwing = (f1 & TR1_THROWING ? TRUE : FALSE);
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
@@ -213,11 +217,24 @@ void do_cmd_wield(void)
 	{
 		/* Restrict the choices */
 		item_tester_tval = TV_RING;
-	
+
 		/* Choose a ring from the equipment only */
 		q = "Replace which ring? ";
 		s = "Oops.";
 		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+	}
+
+	/* Ask where to put a throwing weapon */
+	if (((o_ptr->tval == TV_DIGGING) || (o_ptr->tval == TV_HAFTED) ||
+	     (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) &&
+	    (f1 & TR1_THROWING))
+	{
+		char answer;
+
+		/* Stick it in the belt? */
+		msg_print("Equip in throwing belt? (y/n)");
+		answer = inkey();
+		if ((answer == 'Y') || (answer == 'y')) slot = INVEN_Q0;
 	}
 
 	/* Prevent wielding into a cursed slot */
@@ -250,10 +267,9 @@ void do_cmd_wield(void)
 	/* Ammo goes in quiver slots, which have special rules. */
 	if (slot == INVEN_Q0)
 	{
-		int i;
 		int ammo_num = 0;
-
-		object_type *ammo_ptr;
+		int added_ammo_num;
+		int attempted_quiver_slots;
 
 		/* Get a quantity */
 		num = get_quantity(NULL, o_ptr->number);
@@ -262,35 +278,27 @@ void do_cmd_wield(void)
 		if (!num) return;
 
 		/* Count number of missiles in the quiver slots. */
-		for (i = INVEN_Q0; i <= INVEN_Q9; i++)
-		{
-			/* Get the item */
-			ammo_ptr = &inventory[i];
+		ammo_num = quiver_count();
 
-			/* Ignore empty. */
-			if (!ammo_ptr->k_idx) continue;
-
-			/* Tally up missiles. */
-			ammo_num += ammo_ptr->number;
-		}
+		/* Effective added count */
+		added_ammo_num = (throwing ? num * THROWER_AMMO_FACTOR : num);
 
 		/*
 		 * If the ammo now being added will make the quiver take up another
 		 * backpack slot, and there are none available, refuse to wield
 		 * the new ammo.
 		 */
-		if ((ammo_num + num) > 99 * p_ptr->pack_size_reduce)
+
+		/* How many quiver slots would be needed */
+		/* Rebate one if the equip action would free a space */
+		attempted_quiver_slots = ((ammo_num + added_ammo_num + 98) / 99) -
+		  (((item >= 0) && (num == o_ptr->number)) ? 1 : 0);
+
+		/* Is there room, given normal inventory? */
+		if ((attempted_quiver_slots + p_ptr->inven_cnt) > INVEN_PACK)
 		{
-			/* We have no more space. */
-			if (p_ptr->inven_cnt >= INVEN_PACK - p_ptr->pack_size_reduce)
-			{
-				/* Unless we are emptying a slot in the process, we can't fit it*/
-				if (!((item >= 0) && (num == o_ptr->number)))
-				{
-					msg_print("Your quiver needs more backpack space.");
-					return;
-				}
-			}
+			msg_print("Your quiver needs more backpack space.");
+			return;
 		}
 
 		/* Find a slot that can hold more ammo. */
@@ -357,15 +365,15 @@ void do_cmd_wield(void)
 	p_ptr->equip_cnt++;
 
 
-	/* If he wields a weapon that requires two hands, or hasn't the 
+	/* If he wields a weapon that requires two hands, or hasn't the
 	 * strength to wield a weapon that is usually wielded with both hands
-	 * one-handed (normally requires 18/140 to 18/160 STR), the 
+	 * one-handed (normally requires 18/140 to 18/160 STR), the
 	 * character will automatically carry any equipped shield on his back. -LM-
 	 */
 	if ((slot == INVEN_WIELD) && (inventory[INVEN_ARM].k_idx))
 	{
-		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) && 
-			(p_ptr->stat_ind[A_STR] < 
+		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) &&
+			(p_ptr->stat_ind[A_STR] <
 			29 + ((o_ptr->weight / 50 > 8) ? 8 : (o_ptr->weight / 50)))))
 		{
 			p_ptr->shield_on_back = TRUE;
@@ -373,7 +381,7 @@ void do_cmd_wield(void)
 		else p_ptr->shield_on_back = FALSE;
 	}
 
-	/* A character using both hands to wield his melee weapon will use his 
+	/* A character using both hands to wield his melee weapon will use his
 	 * back to carry an equipped shield. -LM-
 	 */
 	if ((slot == INVEN_ARM) && (inventory[INVEN_WIELD].k_idx))
@@ -385,8 +393,8 @@ void do_cmd_wield(void)
 		object_flags(i_ptr, &f1, &f2, &f3);
 
 
-		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) && 
-			(p_ptr->stat_ind[A_STR] < 
+		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) &&
+			(p_ptr->stat_ind[A_STR] <
 			29 + (i_ptr->weight / 50 > 8 ? 8 : i_ptr->weight / 50))))
 		{
 			p_ptr->shield_on_back = TRUE;
@@ -424,7 +432,7 @@ void do_cmd_wield(void)
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Set item handling -GS- */
-	if (o_ptr->name1) 
+	if (o_ptr->name1)
 	{
 
 		/* Is the artifact a set item? */
@@ -435,12 +443,12 @@ void do_cmd_wield(void)
 			 * The object is part of a set. Check to see if rest of
 			 * set is equiped.
 			 */
-			if (check_set(a_ptr->set_no)) 
+			if (check_set(a_ptr->set_no))
 			{
 				/* add bonuses */
 				apply_set(a_ptr->set_no);
 			}
-		}				
+		}
 	}
 
 	/* Cursed! */
@@ -709,20 +717,20 @@ void do_cmd_destroy(void)
  * Display specialized object information.  -LM-
  *
  * Unidentified:
- *	Weapons and armour -> description of specific object type (dagger, 
+ *	Weapons and armour -> description of specific object type (dagger,
  *	  etc.).
  *	Others -> descrtiption only of general object kind (scroll, etc.)
  * Identified or aware:
  *	Artifacts -> artifact-specific description.
  *	Most objects -> description of specific object type.
- *	Scrolls, potions, spellbooks, rings, and amulets -> description	 
+ *	Scrolls, potions, spellbooks, rings, and amulets -> description
  *	  only of general object kind.
  * *Identified*:
- *	All -> description of object type or artifact description, 
+ *	All -> description of object type or artifact description,
  *	  complete listing of attributes and flags.
  *
- * Objects may also be members of a class with known effects.  If so, 
- * extra information about effects when used will appear if the effects 
+ * Objects may also be members of a class with known effects.  If so,
+ * extra information about effects when used will appear if the effects
  * can be quantified.
  *
  * Boolean value "in_store" only takes effect if player is in some store.
@@ -788,10 +796,10 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	known_effects = k_ptr->known_effect;
 	mental = o_ptr->ident & (IDENT_MENTAL);
 
-	/* Hack - Avoid giving away too much info in normal stores about objects 
+	/* Hack - Avoid giving away too much info in normal stores about objects
 	 * other than weapons and armour (no sneaky learning about wand damages!).
 	 */
-	if ((in_store) && ((!k_ptr->known_effect) && 
+	if ((in_store) && ((!k_ptr->known_effect) &&
 		((o_ptr->tval < TV_SHOT) || (o_ptr->tval > TV_DRAG_ARMOR))))
 	{
 		known = TRUE;
@@ -819,7 +827,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	}
 
 
-	/* Nothing is known about the object or object type - show only 
+	/* Nothing is known about the object or object type - show only
 	 * information about the general object kind.
 	 */
 	else
@@ -843,7 +851,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 	/* Object type or artifact information. */
 	c_roff(TERM_L_BLUE, info_text, 3, 77);
 
-	/* 
+	/*
 	 * If it is a set item, describe it as such.
 	 */
 	if ((known) && (o_ptr->name1))
@@ -861,7 +869,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 			c_roff(TERM_GREEN,"Set Item: ",3,77);
 
 			/* Fully ID describtion? */
-			if (mental) 
+			if (mental)
 			{
 				set_type *s_ptr = &s_info[a_ptr->set_no];
 				strcpy(info_text, s_text + s_ptr->text);
@@ -1328,7 +1336,7 @@ void do_cmd_locate(void)
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Offset */
 	wid -= COL_MAP + 1;
 	hgt -= ROW_MAP + 1;
@@ -1640,7 +1648,7 @@ static void roff_top(int r_idx)
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
-  
+
 	/* Special title for Player ghosts. */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
@@ -1747,12 +1755,12 @@ void do_cmd_query_symbol(void)
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
-		/* Nothing to recall 
+		/* Nothing to recall
 		 * Even cheat_know does not allow viewing non-existant
 		 * player ghosts.
 		 */
-		if ((!cheat_know || (r_ptr->flags2 & (RF2_PLAYER_GHOST))) 
-		    && !l_ptr->sights) 
+		if ((!cheat_know || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
+		    && !l_ptr->sights)
 			 continue;
 
 		/* Require non-unique monsters if needed */
@@ -1820,8 +1828,8 @@ void do_cmd_query_symbol(void)
 	/* Start at the current level */
 	i = 0;
 
-	/* 
-	 * Find the monster whose level is the closest to the 
+	/*
+	 * Find the monster whose level is the closest to the
 	 * current depth, without being greater than it.
 	 */
 	for (j = 0; j < n; j++)
@@ -1949,11 +1957,11 @@ static cptr desc_victim_outcry[] =
 
 
 /*
- * Rogues may steal gold from monsters.  The monster needs to have 
- * something to steal (it must drop some form of loot), and should 
+ * Rogues may steal gold from monsters.  The monster needs to have
+ * something to steal (it must drop some form of loot), and should
  * preferably be asleep.  Humanoids and dragons are a rogue's favorite
- * targets.  Steal too often on a level, and monsters will be more wary, 
- * and the hue and cry will be eventually be raised.  Having every 
+ * targets.  Steal too often on a level, and monsters will be more wary,
+ * and the hue and cry will be eventually be raised.  Having every
  * monster on the level awake and aggravated is not pleasant. -LM-
  */
 void py_steal(int y, int x)
@@ -2027,22 +2035,20 @@ void py_steal(int y, int x)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) purse *= 3;
 
 		/* But some monsters are dirt poor. */
-		if (!((r_ptr->flags1 & (RF1_DROP_60)) || 
-			(r_ptr->flags1 & (RF1_DROP_90)) || 
-			(r_ptr->flags1 & (RF1_DROP_1D2)) || 
-			(r_ptr->flags1 & (RF1_DROP_2D2)) || 
-			(r_ptr->flags1 & (RF1_DROP_3D2)) || 
-			(r_ptr->flags1 & (RF1_DROP_4D2)))) purse = 0;
+		if (!((r_ptr->flags1 & (RF1_DROP_40)) ||
+			(r_ptr->flags1 & (RF1_DROP_60)) ||
+			(r_ptr->flags1 & (RF1_DROP_ONE)) ||
+			(r_ptr->flags1 & (RF1_DROP_TWO)))) purse = 0;
 
 		/* Some monster races are far better to steal from than others. */
-		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') || 
-			(r_ptr->d_char == 'p') || (r_ptr->d_char == 'h')) 
+		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') ||
+			(r_ptr->d_char == 'p') || (r_ptr->d_char == 'h'))
 			purse *= 2 + randint(3) + randint(r_ptr->level / 20);
-		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') || 
+		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') ||
 			(r_ptr->d_char == 'O') || (r_ptr->d_char == 'T') ||
 			(r_ptr->d_char == 'n') || (r_ptr->d_char == 'W') ||
 			(r_ptr->d_char == 'k') || (r_ptr->d_char == 'L') ||
-			(r_ptr->d_char == 'V') || (r_ptr->d_char == 'y')) 
+			(r_ptr->d_char == 'V') || (r_ptr->d_char == 'y'))
 			purse *= 1 + randint(3) + randint(r_ptr->level / 30);
 
 		/* Pickings are scarce in a land of many thieves. */
@@ -2077,7 +2083,7 @@ void py_steal(int y, int x)
 			msg_format("%^s cries out %s", m_name, act);
 		}
 		/* Otherwise, simply explain what happened. */
-		else 
+		else
 		{
 			monster_desc(m_name, m_ptr, 0);
 			msg_format("You have aroused %s.", m_name);
@@ -2109,7 +2115,7 @@ void py_steal(int y, int x)
 	else if ((number_of_thefts_on_level > 2) || (randint(8) == 1))
 	{
 		msg_print("You hear hunting parties scouring the area for a notorious burgler.");
-		
+
 		/* Aggravate monsters nearby. */
 		aggravate_monsters(1, FALSE);
 	}
@@ -2132,8 +2138,8 @@ void py_steal(int y, int x)
 }
 
 
-/* 
- * Rogues may set traps.  Only one such trap may exist at any one time, 
+/*
+ * Rogues may set traps.  Only one such trap may exist at any one time,
  * but an old trap can be disarmed to free up equipment for a new trap.
  * -LM-
  */
@@ -2229,7 +2235,7 @@ bool choose_mtrap(byte *choice)
 			{
 				temp = c - 'A' + 26;
 			}
-	      
+
 			/* Validate input */
 			if ((temp > -1) && (temp < num))
 			{
@@ -2237,7 +2243,7 @@ bool choose_mtrap(byte *choice)
 				*choice = (byte) temp;
 				chosen = TRUE;
 			}
-	      
+
 			else
 			{
 				bell("Illegal response to question!");
@@ -2262,7 +2268,7 @@ bool choose_mtrap(byte *choice)
 	return (chosen);
 }
 
-/* 
+/*
  * Turn a basic monster trap into an advanced one -BR-
  */
 void py_modify_trap(int y, int x)

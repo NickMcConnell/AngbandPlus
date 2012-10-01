@@ -168,7 +168,7 @@ static void load_prev_data(void)
  * This just uses "modify_stat_value()".
  *
  * The "auto_roll" flag selects "maximal" changes for use with the
- * auto-roller initialization code.  Otherwise, the changes are 
+ * auto-roller initialization code.  Otherwise, the changes are
  * fixed.
  */
 static int adjust_stat(int value, int amount, int auto_roll)
@@ -187,13 +187,16 @@ static void get_stats(void)
 	int i, j;
 	int bonus;
 
-	int dice[18];
+	int dice[3 * A_MAX];
+
+	int min = 7 * A_MAX;
+	int max = 9 * A_MAX;
 
 	/* Roll and verify some stats */
 	while (TRUE)
 	{
 		/* Roll some dice */
-		for (j = i = 0; i < 18; i++)
+		for (j = i = 0; i < 3 * A_MAX; i++)
 		{
 			/* Roll the dice */
 			dice[i] = randint(3 + i % 3);
@@ -203,7 +206,7 @@ static void get_stats(void)
 		}
 
 		/* Verify totals */
-		if ((j > 42) && (j < 54)) break;
+		if ((j > min) && (j < max)) break;
 	}
 
 	/* Roll the stats */
@@ -303,8 +306,8 @@ static void get_extra(void)
 		p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
 	}
 
-	/* 
-	 * Final HPs are always constant. 
+	/*
+	 * Final HPs are always constant.
 	 */
 	p_ptr->player_hp[PY_MAX_LEVEL-1] = final_hps;
 }
@@ -552,10 +555,7 @@ static void player_wipe(void)
 	p_ptr->food = PY_FOOD_FULL - 1;
 
 	/* Clear Specialty Abilities */
-	for (i = 0; i < 10; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
-
-	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < MAX_SPECIALTIES; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
 }
 
 
@@ -946,7 +946,7 @@ static void class_aux_hook(birth_menu c_str)
 	int class, i;
 	char s[128];
 
-	
+
 	/* Extract the proper class index from the string. */
 	for (class = 0; class < MAX_CLASS; class++)
 	{
@@ -962,7 +962,7 @@ static void class_aux_hook(birth_menu c_str)
 		cp_info[class].c_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
-	
+
 	sprintf(s, "Hit die: %d ", cp_info[class].c_mhp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 }
@@ -995,7 +995,7 @@ static bool get_player_class(void)
 	if (p_ptr->pclass == INVALID_CHOICE)
 	{
 		p_ptr->pclass = 0;
-	
+
 		return (FALSE);
 	}
 
@@ -1003,7 +1003,8 @@ static bool get_player_class(void)
 	cp_ptr = &cp_info[p_ptr->pclass];
 
 	/* Set class */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &mp_info[p_ptr->pclass];
+	ch_ptr = &ch_info[p_ptr->pclass];
 
 	return (TRUE);
 }
@@ -1041,6 +1042,100 @@ static bool get_player_sex(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	return (TRUE);
+}
+
+
+/*
+ * Clear all the global "character" data
+ */
+void player_clear(bool full)
+{
+	int i;
+	int y, x;
+
+	/* Hack -- no player in dungeon */
+	if (full) cave_m_idx[p_ptr->py][p_ptr->px] = 0;
+
+	/* Wipe the player */
+	WIPE(p_ptr, player_type);
+
+	/* Clear the inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_wipe(&inventory[i]);
+	}
+
+
+	/* Start with no artifacts made yet */
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		a_ptr->creat_stat = 0;
+	}
+
+	/* Reset the quests */
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		quest *q_ptr = &q_list[i];
+
+		q_ptr->level = 0;
+		q_ptr->r_idx = 0;
+		q_ptr->cur_num = 0;
+		q_ptr->max_num = 0;
+	}
+
+
+	/* Reset the "monsters" */
+	for (i = 1; i < MAX_R_IDX; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
+
+		/* Hack -- Reset the counter */
+		r_ptr->cur_num = 0;
+
+		/* Hack -- Reset the max counter */
+		r_ptr->max_num = 100;
+
+		/* Hack -- Reset the max counter */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
+
+		/* Clear monster memory */
+		if (!character_existed) WIPE(l_ptr, monster_lore);
+		else                    l_ptr->pkills = 0;
+	}
+
+	/* The below is only done when needed */
+	if (!full) return;
+
+	/* Clear flags and flow information. */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* No flags */
+			cave_info[y][x] = 0;
+
+			cave_m_idx[y][x] = 0;
+			cave_o_idx[y][x] = 0;
+
+			/* No flow */
+			cave_cost[y][x] = 0;
+			cave_when[y][x] = 0;
+		}
+	}
+
+	/* Hack -- seed for flavors */
+	seed_flavor = rand_int(0x10000000);
+
+	/* Hack -- seed for town layout */
+	seed_town = rand_int(0x10000000);
+
+	/* Wipe the objects */
+	wipe_o_list();
+
+	/* Wipe the monsters */
+	wipe_m_list();
 }
 
 
@@ -1714,13 +1809,13 @@ void player_birth(void)
 	}
 
 	/* Create a new character */
-	while (1)
+	while (TRUE)
 	{
 		/* Roll up a new character */
 		if (player_birth_aux()) break;
 	}
 
-	/* Now that the player information is available, we are able to generate 
+	/* Now that the player information is available, we are able to generate
 	 * random artifacts.
 	 */
 	initialize_random_artifacts();

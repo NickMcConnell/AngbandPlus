@@ -1639,7 +1639,7 @@ errr init_xaw(int argc, char *argv[])
 		               TERM_FALLBACKS, i);
 
 		angband_term[i] = Term;
-	}	
+	}
 
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);

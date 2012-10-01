@@ -119,15 +119,25 @@ CC = gcc
 #LIBS = -lX11 -lcurses -ltermcap
 
 ##
+## Variation -- compile for Linux
+##
+## Allows the use in the console using ncurses, as well as under X11.
+##
+CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
+         -O2 -fno-strength-reduce \
+         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES" -g
+LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+
+##
 ## Compile for Red Hat Linux with X11 and Console support
 ##
-CFLAGS = -Wall -O2 -m486 -pipe -g -D"USE_GCU" -D"USE_X11" -I/usr/X11R6/include/ -D"USG"
-LIBS = -L/usr/X11R6/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -ltermcap
+#CFLAGS = -Wall -O2 -pipe -g -D"USE_GCU" -D"USE_X11" -I/usr/X11R6/include/ -D"USG"
+#LIBS = -L/usr/X11R6/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -ltermcap
 
 ##
 ## NetBSD w/ X11 support
 ##
-#CFLAGS = -Wall -O2 -m486 -pipe -g -D"USE_GCU" -D"SPECIAL_BSD" -D"USE_X11" -I/usr/X11/include/
+#CFLAGS = -Wall -O2 -pipe -g -D"USE_GCU" -D"SPECIAL_BSD" -D"USE_X11" -I/usr/X11/include/
 #LIBS = -L/usr/X11/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -ltermcap
 
 ##
@@ -168,7 +178,7 @@ LIBS = -L/usr/X11R6/lib -lX11 -lXaw -lXext -lSM -lICE -lXmu -lXt -lcurses -lterm
 ## Variation -- this might work for Linux 1.1.93 using ncurses-1.8.7.
 ##
 #CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer -m486 \
+#         -Wall -O2 -fomit-frame-pointer \
 #         -D"USE_X11" -D"USE_GCU"
 #LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap
 
@@ -243,7 +253,7 @@ oangband: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+	-rm -f *.bak *.o oangband
 
 
 #

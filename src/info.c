@@ -3,13 +3,13 @@
 /* File: info.c */
 
 /*
- * Tables containing object kind descriptions, extra numerical info.  
- * Detailed info on spells.  Text for extended object descriptions of 
- * various kinds, artifact and DSM activation and flag descriptions.  Self 
- * Knowledge.  Spell failure chance, if is OK to cast, extra info shown in 
+ * Tables containing object kind descriptions, extra numerical info.
+ * Detailed info on spells.  Text for extended object descriptions of
+ * various kinds, artifact and DSM activation and flag descriptions.  Self
+ * Knowledge.  Spell failure chance, if is OK to cast, extra info shown in
  * books, and print spells of a given spellbook.
  *
- * Copyright (c) 1999 Leon Marrick, Ben Harrison, James E. Wilson, 
+ * Copyright (c) 1999 Leon Marrick, Ben Harrison, James E. Wilson,
  * Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -23,10 +23,10 @@
 
 /*
  * General information about classes of objects. -LM-
- * 
+ *
  * Index is tval.
  */
-cptr obj_class_info[101] = 
+cptr obj_class_info[101] =
 {
 	"",	"",	"",	"",	"",
 	"",	"",	"Chests may have some really good treasures hidden inside, but can be perilous to open...",	"",	"",
@@ -64,8 +64,8 @@ cptr obj_class_info[101] =
 
 /*
  * Extra numerical information about magical devices. -LM-
- * 
- * Y-coordinate:  Dragon Scale Mails = 0, Amulets = 1, Rings = 2, 
+ *
+ * Y-coordinate:  Dragon Scale Mails = 0, Amulets = 1, Rings = 2,
  *                Staffs = 3, Wands = 4, Rods = 5.
  * X-coordinate:  object's sval (can currently accept an sval of up to 49)
  */
@@ -182,7 +182,7 @@ cptr obj_special_info[6][50] =
 		"",					/* Teleportation */
 		"",					/* Perception */
 		"",					/* Remove Curse */
-		"(damage: 20 - 60+)",		/* Starlight */
+		"(damage: 12 - 60+)",		/* Starlight */
 		"",					/* Light */
 		"",					/* Magic Mapping */
 		"",					/* Treasure Location */
@@ -199,15 +199,15 @@ cptr obj_special_info[6][50] =
 		"",					/* Slow Monsters */
 		"",					/* Speed */
 		"",					/* Probing */
-		"(damage: 60)",			/* Dispel Evil */
-		"(damage: 100)",			/* Power */
-		"(damage: 120)",			/* Holiness */
+		"(damage: 55)",			/* Dispel Evil */
+		"(damage: 90)",			/* Power */
+		"(damage: 110)",			/* Holiness */
 		"",					/* Genocide */
 		"",					/* Earthquakes */
 		"",					/* *Destruction* */
 		"",					/* Detection */
-		"(damage: 125 - 200)",		/* Mana Storm */
-		"(damage: 100 - 167)",		/* Starburst */
+		"(damage: 110 - 180)",		/* Mana Storm */
+		"(damage: 90 - 150)",		/* Starburst */
 		"",					/* Mass Confusion */
 		"",		/*  */
 		"",		/*  */
@@ -236,35 +236,35 @@ cptr obj_special_info[6][50] =
 		"",		/* Slow Monster */
 		"",		/* Confuse Monster */
 		"",		/* Scare Monster */
-		"(damage: 50 - 100)",		/* Drain Life */
+		"(damage: 45 - 90)",		/* Drain Life */
 		"",		/* Polymorph */
 		"(damage: 12)",		/* Stinking Cloud */
 		"(damage: 2 - 12)",		/* Magic Missile */
-		"(damage: 5 - 80)",		/* Acid Bolts */
-		"(damage: 3 - 48)",		/* Lightning Bolts */
-		"(damage: 6 - 98)",		/* Fire Bolts */
-		"(damage: 4 - 64)",		/* Cold Bolts */
-		"(damage: 60 - 90)",		/* Acid Balls */
-		"(damage: 40 - 70)",		/* Lightning Balls */
-		"(damage: 70 - 100)",		/* Fire Balls */
-		"(damage: 50 - 80)",		/* Cold Balls */
+		"(damage: 5 - 70)",		/* Acid Bolts */
+		"(damage: 3 - 42)",		/* Lightning Bolts */
+		"(damage: 6 - 84)",		/* Fire Bolts */
+		"(damage: 4 - 56)",		/* Cold Bolts */
+		"(damage: 55 - 80)",		/* Acid Balls */
+		"(damage: 35 - 60)",		/* Lightning Balls */
+		"(damage: 60 - 85)",		/* Fire Balls */
+		"(damage: 45 - 70)",		/* Cold Balls */
 		"",					/* Wonder */
-		"(damage: 100 - 300)",		/* Annihilation */
-		"(damage: 160)",			/* Dragon's Flame */
-		"(damage: 160)",			/* Dragon's Frost */
-		"(damage: 180 - 210)",		/* Dragon's Breath */
-		"(damage: 10 - 234)",		/* Striking */
-		"(damage: 35 - 140)",		/* Storms */
-		"(damage: 4 - 56)",		/* Shrapnel */
+		"(damage: 90 - 265)",		/* Annihilation */
+		"(damage: 145)",			/* Dragon's Flame */
+		"(damage: 145)",			/* Dragon's Frost */
+		"(damage: 160 - 190)",		/* Dragon's Breath */
+		"(damage: 10 - 208)",		/* Striking */
+		"(damage: 23 - 124)",		/* Storms */
+		"(damage: 4 - 49)",		/* Shrapnel */
 		"",		/*  */
 		"",		/*  */
 		"",		/*  */	"",		/*  */	"",		/*  */
 		"",		/*  */	"",		/*  */	"",		/*  */
 		"",		/*  */
-		"(damage ~30 - 310.  hurt 30.)",/* Ilkorin */
+		"(damage ~55 - 280.  hurt 30.)",/* Ilkorin */
 		"",	/* Saruman */
 		"(various chaotic effects)",	/* Unmaking */
-		"((damage: 3 * plev + d100)",	/* Ulpion */
+		"((damage: 3 * plev + d80)",	/* Ulpion */
 		"",		/*  */
 		"",		/*  */	"",		/*  */	"",		/*  */
 		""		/*  */
@@ -290,20 +290,20 @@ cptr obj_special_info[6][50] =
 		"(damage: 4 - 20)",	/* Light */
 		"",				/* Sleep Monster */
 		"",				/* Slow Monster */
-		"(damage: 45 - 120)",	/* Drain Life */
+		"(damage: 45 - 107)",	/* Drain Life */
 		"",				/* Polymorph */
-		"(damage: 6 - 88)",	/* Acid Bolts */
-		"(damage: 4 - 56)",	/* Lightning Bolts */
-		"(damage: 7 - 104)",	/* Fire Bolts */
-		"(damage: 5 - 72)",	/* Frost Bolts */
-		"(damage: 60 - 100)",	/* Acid Balls */
-		"(damage: 40 - 80)",	/* Lightning Balls */
-		"(damage: 70 - 110)",	/* Fire Balls */
-		"(damage: 50 - 90)",	/* Cold Balls */
-		"(damage: 18 - 272)",	/* Lightning Strike */
-		"(damage: 21 - 296)",	/* Northwinds */
-		"(damage: 24 - 320)",	/* Dragonfire */
-		"(damage: 27 - 344)",	/* Glaurung's Blood */
+		"(damage: 6 - 77)",	/* Acid Bolts */
+		"(damage: 4 - 49)",	/* Lightning Bolts */
+		"(damage: 7 - 91)",	/* Fire Bolts */
+		"(damage: 5 - 63)",	/* Frost Bolts */
+		"(damage: 55 - 92)",	/* Acid Balls */
+		"(damage: 35 - 72)",	/* Lightning Balls */
+		"(damage: 60 - 97)",	/* Fire Balls */
+		"(damage: 45 - 82)",	/* Cold Balls */
+		"(damage: 18 - 238)",	/* Lightning Strike */
+		"(damage: 21 - 259)",	/* Northwinds */
+		"(damage: 24 - 280)",	/* Dragonfire */
+		"(damage: 27 - 301)",	/* Glaurung's Blood */
 		"",				/* Aggravate Level */
 		"",		/*  */	"",		/*  */	"",		/*  */
 		"",		/*  */	"",		/*  */	"",		/*  */
@@ -321,10 +321,10 @@ cptr obj_special_info[6][50] =
 
 
 /*
- * Prints "User's tips" for various spells.  User's tips only appear after 
+ * Prints "User's tips" for various spells.  User's tips only appear after
  * a learnt spell is browsed. -LM-
  */
-cptr spell_tips[255] = 
+cptr spell_tips[287] =
 {
 	"Fires a bolt of mana.",	/* 0 - Magic Missile */
 	"Detects nearby monsters that are not invisible.",
@@ -354,7 +354,7 @@ cptr spell_tips[255] =
 	"Turns rod, wand, or staff energy into mana.  Rods have little energy.",
 	"Fires a ball of frost.",
 	"Medium-strength recharging spell.",
-	"Teleports a line of opponents away.",
+	"Teleports an opponent away.",
 	"Temporarily hasten yourself.",
 	"Fires a ball of fire.",		/* 30 - Fire Ball */
 	"Puts target creatures in Stasis.  They are completely paralyzed and invulnerable.",
@@ -374,7 +374,7 @@ cptr spell_tips[255] =
 	"Shakes the nearby dungeon, randomly swapping walls and floors.",
 	"Very powerful attempt to confuse, slow, and then sleep all monsters.",
 	"Fires a ball of light centered on you.",
-	"Recovers mana much more rapidly than normal resting.  Put this spell in a keymap for best results.",
+	"Recovers mana much more rapidly than normal resting.  Assign this spell to a key for best results.",
 	"Temporarily increases armour class by 50.",
 	"Powerful recharging spell.",		/* 50 - Recharge Item III */
 	"Long-duration haste spell.",
@@ -423,7 +423,7 @@ cptr spell_tips[255] =
 	"Strong dispel evil, healing, and remove poisoning, fear, stunning, and cuts.",
 	"Minor random displacement.",
 	"Long-range random displacement.",
-	"Teleports a line of opponents away.",
+	"Teleports an opponent away.",
 	"Immediately takes you to the next level up or down.",
 	"Recalls you to the town, or as deep in the dungeon as you have ever gone.",
 	"Regenerates the dungeon level.",	/* 100 - Alter Reality */
@@ -451,7 +451,7 @@ cptr spell_tips[255] =
 	"Select a temporary elemental brand.  More brands become available as you gain levels.  Only one brand is available at a time.  For Paladins, only works on melee weapons.",
 	"Temporary Slay Evil.  Acts like (and can replace) a standard Slay evil weapon.",
 	"Heroism, frightens monsters, also a little healing and recovery of courage.",
-	"",
+	"Smites a foe with a divine blast.",
 	"",
 	"",
 	"Detects all nearby living monsters, even invisible ones.",
@@ -473,13 +473,13 @@ cptr spell_tips[255] =
 	"Temporary heroism.",
 	"Breaks ordinary curses.",
 	"Fires a bolt or beam of acid.",
-	"Teleports a line of monsters away.",
+	"Teleports a monster away.",
 	"Fires a bolt or beam of poison.",
 	"Temporary opposition to poison.  Cumulative with equipment resistances.",
 	"Shakes the nearby dungeon, randomly swapping walls and floors.",	/* 150 - earthquake */
 	"Temporary opposition to fire and cold.  Cumulative with equipment resistances.",
 	"Detects all nearby monsters, traps, doors, stairs, gold seams, and objects.",
-	"Recovers from wounds, poison and physical damage far more rapidly than normal resting.  This is a good spell to assign to a keymap.",
+	"Recovers from wounds, poison and physical damage far more rapidly than normal resting.  This is a good spell to assign to a key.",
 	"Temporary opposition to acid and electricity.  Cumulative with equipment resistances.",
 	"Hurts a monster, then attempts to slow and confuse it.",
 	"Attempts to disarm an adjacent trap.",
@@ -516,7 +516,7 @@ cptr spell_tips[255] =
 	"Low-level probing spell that lets you learn about racial type and basic resistances.",
 	"",
 	"",
-	"",	/* 190 - (none) */
+	"",	/* 190 */
 	"",
 	"Fires a mana bolt.",
 	"Detects all nearby evil monsters, even invisible ones.",
@@ -553,7 +553,7 @@ cptr spell_tips[255] =
 	"Maps the immediate area.",
 	"Normal identify spell.",
 	"Random large-range displacement.",
-	"Coats any non-ego missile or stack of missiles in deadly poison.",
+	"",
 	"Temporary opposition to cold and acid.  Cumulative with equipment resistances.",
 	"Removes all cuts and stunning.",
 	"Grants temporary protection from evil.",	/* 230 - protection from evil */
@@ -572,14 +572,47 @@ cptr spell_tips[255] =
 	"Hastens you temporarily.",
 	"Allows you to infect a monster with the Black Breath, which prevents regeneration.",
 	"Destroys almost all objects nearby, deletes ordinary monsters, and banishes uniques from the level.",
-	"Teleports a line of monsters away.",
+	"Teleports a monster away.",
 	"Attacks all undead in line of sight.",
 	"Places all undead in a powerful Statis.",
 	"Fires a large darkness ball.",
 	"Grants temporary telepathy.",	/* 250 - timed ESP */
 	"Renders you almost imperceptible to sleeping monsters and those not normally found deeper than twice your depth.  You become fully visible as soon as you inflict any damage on or steal from a monster.",
 	"Hastens you and drives you into a berserk rage.",
-	"Grants any non-artifact throwing weapon perfect balance.  Be careful about using this spell on weapons that have a hidden quality (use the 'I'nspect command)."
+	"Grants any non-artifact throwing weapon perfect balance.  Be careful about using this spell on weapons that have a hidden quality (use the 'I'nspect command).",
+	"",
+	"Magically splits your shot.",
+	"",
+	"",
+	"",
+	"",
+	"",							/* 260 */
+	"",
+	"",
+	"A more accurate shot with a ranged weapon.  Normal shooting speed and damage.",
+	"Magically splits your arrow.",
+	"A lightning empowered shot that causes a thunderclap on impact.",      /* 265 - storm shot */
+	"A shot which deals extra damage to dragons.",
+	"A shot which deals extra damage to orcs and trolls.",
+	"",
+	"",
+	"",							/* 270 */
+	"A throwing attack which may inflict the Black Breath on your victim.",
+	"Fires a venomous shot.",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",							/* 280 */
+	"",
+	"",
+	"",
+	"",
+	"",
+	""
 };
 
 /*
@@ -607,22 +640,23 @@ cptr specialty_tips[TOTAL_SPECIALTIES]=
 	"Enhances your power to slow, sleep, confuse, or turn your enemies.",
 	"Increases the effects and durations of beneficial magical effects.",
 	"Increases spell casting speed, especially for low level spells from high level casters.",
-	"Gives you mana when monsters cast spells.",
+	"Steals mana from monsters after they cast spells.",
 	"Causes spells cast in rapid succession to become increasingly powerful.",
 	"Gives you mana when you slay monsters.  May cause damage when overloaded.",
 	"Causes you to gain hit points when casting spells.",
 	"",
 	"Makes your spells stronger when your mana level is high.",
-	"","","","","","","","","","","",
-	"Increases and partially sustains Dexterity and Constitution.",
-	"Increases and partially sustains Intelligence and Wisdom.",
+	"Allows you to become 'attuned' to one type of rod, wand, or staff at a time.  Attuned items are easier to activate and more likely to have critical effects.",
+	"","","","","","","","","","",
+	"Increases and partially sustains Dexterity and Constitution and provides a 5% hitpoint boost.",
+	"Increases and partially sustains Intelligence and Wisdom and provides a 5% mana boost.",
 	"",
 	"Allows you to move faster after attacking or being damaged.",
 	"Improves mana regeneration; cumulative with other forms of regeneration.",
 	"Improves hit point regeneration; cumulative with other forms of regeneration.",
 	"Allows you to set an additional monster trap, and to learn to set more advanced types of traps.",
 	"Increases light radius.  Causes undead, evil, and light-sensitive creatures to take extra melee damage and makes them fear your light-based spells.  Grants resistance to light.",
-	"","","","","","","","","","","","", 
+	"","","","","","","","","","","","",
 	"","","","","","","","","","","","","","","","","","","","", /* 80 - 99 */
 	"","","","","","","","","","","","","","","","","","","","", /* 100 - 119 */
 	"","","","","","","","",                   /* 120 - 127 */
@@ -670,7 +704,7 @@ cptr specialty_tips[TOTAL_SPECIALTIES]=
 	"Your spells are more likely to 'beam', striking multiple targets.",
 	"",
 	"You learn quickly about monster abilities.",
-	"You carry a pious authority.  You glow with an inner light at level 35 (Priest) or level 45 (Paladin).",
+	"You carry a pious authority.  You glow with an inner light at level 35 (Priest) or level 45 (Paladin).  You are protected from evil at level 50 (Priest).",
 	"You resist fear intrinsically at level 30.  You regenerate hitpoints intrinsically at level 40.",
 	"You can learn details of monster attributes at level 35.",
 	"You deal with dark forces.  Beware!",
@@ -684,9 +718,9 @@ cptr specialty_tips[TOTAL_SPECIALTIES]=
 };
 
 /*
- * Output numerical values for magical device damages, healing, etc., for 
- * an item belonging to an object class whose effects are fully known.  The 
- * only way this information can appear is through *identifying*, or by 
+ * Output numerical values for magical device damages, healing, etc., for
+ * an item belonging to an object class whose effects are fully known.  The
+ * only way this information can appear is through *identifying*, or by
  * eventual learning through use. -LM-
  */
 static cptr extra_data(object_type *o_ptr)
@@ -726,8 +760,8 @@ static cptr extra_data(object_type *o_ptr)
 
 
 /*
- * Extract and return extended information about an object, including 
- * (usually) flavor, (sometimes) damage information for magical items, 
+ * Extract and return extended information about an object, including
+ * (usually) flavor, (sometimes) damage information for magical items,
  * and (if appropriate) ego and artifact lore. -LM-
  *
  * Code mostly from object_desc and roff_aux.
@@ -749,7 +783,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 	cptr baseinfo = "";
 
 
-	
+
 	/* Standard artifacts have unique descriptions. */
 	if ((artifact_p(o_ptr)) && (o_ptr->name1 < ART_MIN_RANDOM) && (object_known_p(o_ptr)))
 	{
@@ -998,7 +1032,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
 			char ebuf[2048];
 
-			/* First, find the information in memory, or get it from 
+			/* First, find the information in memory, or get it from
 			 * the binary file.
 			 */
 #ifdef DELAY_LOAD_E_TEXT
@@ -1065,7 +1099,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 			/* Flavor starts with a non-vowel */
 			else w = "A ";
 		}
-		else 
+		else
 		{
 			w = "";
 
@@ -1775,7 +1809,7 @@ cptr item_activation(object_type *o_ptr)
 
 
 /*
- * Describe a "fully identified" item.  Rewritten to use "roff" and to 
+ * Describe a "fully identified" item.  Rewritten to use "roff" and to
  * harmonize with other description code. -LM-
  */
 void identify_fully_aux(object_type *o_ptr)
@@ -1818,8 +1852,8 @@ void identify_fully_aux(object_type *o_ptr)
 	/* And then describe it fully */
 
 	/* Affects stats. */
-	if ((o_ptr->pval) && ((f1 & (TR1_STR)) || (f1 & (TR1_INT)) || 
-		(f1 & (TR1_WIS)) || (f1 & (TR1_DEX)) || (f1 & (TR1_CON)) || 
+	if ((o_ptr->pval) && ((f1 & (TR1_STR)) || (f1 & (TR1_INT)) ||
+		(f1 & (TR1_WIS)) || (f1 & (TR1_DEX)) || (f1 & (TR1_CON)) ||
 		(f1 & (TR1_CHR))))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -1890,8 +1924,8 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Sustain stats. */
-	if ((f2 & (TR2_SUST_STR)) || (f2 & (TR2_SUST_INT)) || (f2 & (TR2_SUST_WIS)) 
-		|| (f2 & (TR2_SUST_DEX)) || (f2 & (TR2_SUST_CON)) || 
+	if ((f2 & (TR2_SUST_STR)) || (f2 & (TR2_SUST_INT)) || (f2 & (TR2_SUST_WIS))
+		|| (f2 & (TR2_SUST_DEX)) || (f2 & (TR2_SUST_CON)) ||
 		(f2 & (TR2_SUST_CHR)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -1957,8 +1991,8 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Affects other pval-dependant qualities. */
-	if ((o_ptr->pval) && ((f1 & (TR1_MAGIC_MASTERY)) || (f1 & (TR1_STEALTH)) || 
-		(f1 & (TR1_SEARCH)) || (f1 & (TR1_INFRA)) || (f1 & (TR1_TUNNEL)) || 
+	if ((o_ptr->pval) && ((f1 & (TR1_MAGIC_MASTERY)) || (f1 & (TR1_STEALTH)) ||
+		(f1 & (TR1_SEARCH)) || (f1 & (TR1_INFRA)) || (f1 & (TR1_TUNNEL)) ||
 		(f1 & (TR1_SPEED))))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2042,9 +2076,9 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Slays. */
-	if ((f1 & (TR1_SLAY_ANIMAL)) || (f1 & (TR1_SLAY_EVIL)) || 
-		(f1 & (TR1_SLAY_UNDEAD)) || (f1 & (TR1_SLAY_DEMON)) || 
-		(f1 & (TR1_SLAY_ORC)) || (f1 & (TR1_SLAY_TROLL)) || 
+	if ((f1 & (TR1_SLAY_ANIMAL)) || (f1 & (TR1_SLAY_EVIL)) ||
+		(f1 & (TR1_SLAY_UNDEAD)) || (f1 & (TR1_SLAY_DEMON)) ||
+		(f1 & (TR1_SLAY_ORC)) || (f1 & (TR1_SLAY_TROLL)) ||
 		(f1 & (TR1_SLAY_GIANT)) || (f1 & (TR1_SLAY_DRAGON)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2118,8 +2152,8 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Elemental and poison brands. */
-	if ((f1 & (TR1_BRAND_ACID)) || (f1 & (TR1_BRAND_ELEC)) || 
-		(f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_COLD)) || 
+	if ((f1 & (TR1_BRAND_ACID)) || (f1 & (TR1_BRAND_ELEC)) ||
+		(f1 & (TR1_BRAND_FIRE)) || (f1 & (TR1_BRAND_COLD)) ||
 		(f1 & (TR1_BRAND_POIS)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2185,7 +2219,7 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Elemental immunities. */
-	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) || 
+	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) ||
 		(f2 & (TR2_IM_FIRE)) || (f2 & (TR2_IM_COLD)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2236,13 +2270,19 @@ void identify_fully_aux(object_type *o_ptr)
 	}
 
 
+	/* Broad minor resistance. */
+	if (f2 & (TR2_RES_BASE_MINOR))
+	{
+		roff("It provides minor resistance to acid, electricity, fire, and frost. \n", 3, 77);
+	}
+
 	/* Resistances. */
-	if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) || 
-		(f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) || 
-		(f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) || 
-		(f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) || 
-		(f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) || 
-		(f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) || 
+	if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) ||
+		(f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) ||
+		(f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) ||
+		(f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) ||
+		(f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) ||
+		(f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) ||
 		(f2 & (TR2_RES_DISEN)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2337,7 +2377,7 @@ void identify_fully_aux(object_type *o_ptr)
 
 	if (f2 & (TR2_RES_BLIND))
 	{
-		if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+		if ((attr_num > 1) && (f2 & (TR2_RES_FEAR)))
 			roff(" provides resistance to blindness", 3, 77);
 		else roff("It provides resistance to blindness", 3, 77);
 
@@ -2355,10 +2395,10 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Miscellanious abilities. */
-	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) || 
-		(f3 & (TR3_LITE)) || (f3 & (TR3_REGEN)) || 
-		(f3 & (TR3_TELEPATHY)) || (f3 & (TR3_SEE_INVIS)) || 
-		(f3 & (TR3_FREE_ACT)) || (f3 & (TR3_HOLD_LIFE)) || 
+	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) ||
+		(f3 & (TR3_LITE)) || (f3 & (TR3_REGEN)) ||
+		(f3 & (TR3_TELEPATHY)) || (f3 & (TR3_SEE_INVIS)) ||
+		(f3 & (TR3_FREE_ACT)) || (f3 & (TR3_HOLD_LIFE)) ||
 		(f3 & (TR3_IMPACT)) || (f3 & (TR3_BLESSED)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2428,7 +2468,7 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Nastyness. */
-	if ((f3 & (TR3_TELEPORT)) || (f3 & (TR3_AGGRAVATE)) || 
+	if ((f3 & (TR3_TELEPORT)) || (f3 & (TR3_AGGRAVATE)) ||
 		(f3 & (TR3_DRAIN_EXP)) || (cursed_p(o_ptr)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2457,10 +2497,10 @@ void identify_fully_aux(object_type *o_ptr)
 			{
 				if ((j == 3) && (f3 & (TR3_PERMA_CURSE))) list_ok = TRUE;
 				if ((j == 4) && (f3 & (TR3_HEAVY_CURSE))) list_ok = TRUE;
-				/* Hack - some items (ammunition) can be 
+				/* Hack - some items (ammunition) can be
 				 * 'cursed' but have no particular flags
 				 */
-				if ((j == 5) && ((f3 & (TR3_LIGHT_CURSE)) 
+				if ((j == 5) && ((f3 & (TR3_LIGHT_CURSE))
 				       || (attr_listed == 0))) list_ok = TRUE;
 			}
 
@@ -2505,7 +2545,7 @@ void identify_fully_aux(object_type *o_ptr)
 
 
 	/* Ignore various elements. */
-	if ((f3 & (TR3_IGNORE_ACID)) || (f3 & (TR3_IGNORE_ELEC)) || 
+	if ((f3 & (TR3_IGNORE_ACID)) || (f3 & (TR3_IGNORE_ELEC)) ||
 		(f3 & (TR3_IGNORE_FIRE)) || (f3 & (TR3_IGNORE_COLD)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -2624,7 +2664,7 @@ void self_knowledge(void)
 			break;
 		case SHAPE_WEREWOLF:
 			info[i++] = "You are wearing the body of a werewolf.";
-			break;	
+			break;
 		case SHAPE_VAMPIRE:
 			info[i++] = "You are wearing the body of a vampire.";
 			break;
@@ -2706,7 +2746,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You can learn some spells/prayers.";
 	}
-	if (p_ptr->new_specialties)
+	if (p_ptr->new_specialties > 0)
 	{
 		info[i++] = "You can learn some specialty abilities.";
 	}
@@ -3092,7 +3132,7 @@ s16b spell_chance(int spell)
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
  */
-bool spell_okay(int spell, bool known)
+bool spell_okay(int spell)
 {
 	magic_type *s_ptr;
 
@@ -3102,27 +3142,8 @@ bool spell_okay(int spell, bool known)
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
-	/* Spell is forgotten */
-	if ((spell < 32) ?
-	    (p_ptr->spell_forgotten1 & (1L << spell)) :
-	    (p_ptr->spell_forgotten2 & (1L << (spell - 32))))
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is learned */
-	if ((spell < 32) ?
-	    (p_ptr->spell_learned1 & (1L << spell)) :
-	    (p_ptr->spell_learned2 & (1L << (spell - 32))))
-	{
-		/* Okay to cast, not to study */
-
-		return (known);
-	}
-
-	/* Okay to study, not to cast */
-	return (!known);
+	/* Okay to cast */
+	return (TRUE);
 }
 
 
@@ -3133,7 +3154,7 @@ bool spell_okay(int spell, bool known)
  * We can use up to 20 characters of the buffer 'p'
  *
  * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and are up to date 
+ * functions "do_cmd_cast()" and "do_cmd_pray()" and are up to date
  * (as of 0.4.0). -LM-
  */
 void spell_info(char *p, int spell_index)
@@ -3143,11 +3164,10 @@ void spell_info(char *p, int spell_index)
 	int beam, beam_low;
 
         /* Specialty Ability */
-	if (check_ability(SP_HEIGHTEN_MAGIC)) plev += 1 + ((p_ptr->heighten_power + 5)/ 10);
-	if (check_ability(SP_CHANNELING)) plev += get_channeling_boost();
+	plev += get_spell_level_boost();
 
 	/* Beaming chance */
-	beam = (((check_ability(SP_BEAM))) 
+	beam = (((check_ability(SP_BEAM)))
 		? plev : (plev / 2));
 	beam_low = (beam - 10 > 0 ? beam - 10 : 0);
 
@@ -3161,18 +3181,17 @@ void spell_info(char *p, int spell_index)
 
 		case 0: sprintf(p, " dam 2d%d", 4 + plev / 10); break;
 		case 2: strcpy(p, " range 10"); break;
-		case 3: sprintf(p, " dam 2d%d, rad %d", 
+		case 3: sprintf(p, " dam 2d%d, rad %d",
 			1 + (plev / 5), ( plev / 10) + 1); break;
 		case 5: sprintf(p, " heal 2d%d", plev / 4 + 5); break;
 		case 8: sprintf(p, " dam %d, rad 2", 5 + (plev / 3)); break;
-		case 10: sprintf(p, " dam %dd8, beam %d%%", (2+((plev-5)/5)), beam); 
+		case 10: sprintf(p, " dam %dd8, beam %d%%", (2+((plev-5)/5)), beam);
 			break;
 		case 14: sprintf(p, " range %d", 50 + plev * 2); break;
 		case 15: strcpy(p, " dam 4d5"); break;
 		case 17: sprintf(p, " dam %d, range %d", 20+plev, 3+plev/10); break;
-		case 23: sprintf(p, " dam %dd8, beam %d%%", (7+((plev-5)/5)), beam); 
+		case 23: sprintf(p, " dam %dd8, beam %d%%", (7+((plev-5)/5)), beam);
 			break;
-		case 25: strcpy(p, " dam 20+d30"); break;
 		case 26: sprintf(p, " dam %d, rad 2", 30 + plev); break;
 		case 28: sprintf(p, " dist %d", 45 + (plev/2)); break;
 		case 29: sprintf(p, " dur %d+d20", plev); break;
@@ -3191,7 +3210,7 @@ void spell_info(char *p, int spell_index)
 		case 49: strcpy(p, " dur 30+d20"); break;
 		case 51: sprintf(p, " dur %d+d30", 10+plev); break;
 		case 52: strcpy(p, " dur 30"); break;
-		case 53: sprintf(p, " dam %dd8, beam %d%%", (5+((plev-5)/5)), beam); 
+		case 53: sprintf(p, " dam %dd8, beam %d%%", (5+((plev-5)/5)), beam);
 			break;
 		case 54: sprintf(p, " dam %d, rad 3", 10 + plev); break;
 		case 55: sprintf(p, " dam %d, rad 2", 2 * plev); break;
@@ -3209,8 +3228,8 @@ void spell_info(char *p, int spell_index)
 		case 74: sprintf(p, " range %d", 2 * plev); break;
 		case 75: strcpy(p, " dur 24+d24"); break;
 		case 79: sprintf(p, " dur %d+d10", plev / 2); break;
-		case 81: sprintf(p, " dam %d+3d6, rad %d", plev / 4 + 
-			(plev / ((check_ability(SP_STRONG_MAGIC)) ? 2 : 4)), 
+		case 81: sprintf(p, " dam %d+3d6, rad %d", plev / 4 +
+			(plev / ((check_ability(SP_STRONG_MAGIC)) ? 2 : 4)),
 			(plev < 30) ? 1 : 2); break;
 		case 82: sprintf(p, " dur %d+d24", plev); break;
 		case 83: sprintf(p, " dur %d+d24", 3 * plev / 2); break;
@@ -3230,6 +3249,7 @@ void spell_info(char *p, int spell_index)
 		case 118: sprintf(p, " dam %d", 3 * plev / 2); break;
 		case 120: sprintf(p, " dam %d+d100", plev * 3); break;
 		case 121: sprintf(p, " dam %d, heal 500", plev * 5); break;
+		case 125: sprintf(p, " dam %d+d%d", 25 + plev, plev); break;
 
 
 		/* Nature Magics */
@@ -3242,32 +3262,32 @@ void spell_info(char *p, int spell_index)
 		case 136: strcpy(p, " dam 4d5"); break;
 		case 138: sprintf(p, " dam %dd8, beam %d%%", 2+plev/5, beam_low); break;
 		case 142: sprintf(p, " dam %d", 2 + plev / 5); break;
-		case 143: sprintf(p, " dam %dd8, beam %d%%", 3 + plev / 5, beam_low); 
+		case 143: sprintf(p, " dam %dd8, beam %d%%", 3 + plev / 5, beam_low);
 			break;
 		case 144: strcpy(p, " dur 20+d20"); break;
 		case 146: sprintf(p, " dam %dd8, beam %d%%", 5+plev/5, beam_low); break;
 		case 147: sprintf(p, " dist %d", 45 + (plev/3)); break;
-		case 148: sprintf(p, " dam %dd8, beam %d%%", 5+plev/4, beam_low); break;
+		case 148: sprintf(p, " dam %dd8, beam %d%%", 7+plev/4, beam_low); break;
 		case 149: strcpy(p, " dur 20+d20"); break;
 		case 150: strcpy(p, " radius 10"); break;
 		case 151: strcpy(p, " dur 20+d20"); break;
 		case 153: sprintf(p, " heal 2d%d, pois/cut", plev / 5); break;
 		case 154: strcpy(p, " dur 20+d20"); break;
 		case 155: sprintf(p, " dam %dd8, conf/slow", plev / 7); break;
-		case 159: sprintf(p, " dam %d+d%d, rad %d", plev, 60 + plev * 2, 
+		case 159: sprintf(p, " dam %d+d%d, rad %d", plev, 60 + plev * 2,
 			1 + plev / 15); break;
-		case 160: sprintf(p, " dam %d+d%d, rad %d", plev, 40 + plev * 2, 
+		case 160: sprintf(p, " dam %d+d%d, rad %d", plev, 40 + plev * 2,
 			plev / 8); break;
 		case 169: strcpy(p, " dur 24+d24"); break;
 		case 170: sprintf(p, " heal %dd12, any cut", 25 + plev / 2); break;
-		case 171: sprintf(p, " dam %d+d%d, rad %d", plev, 50 + plev * 2, 
+		case 171: sprintf(p, " dam %d+d%d, rad %d", plev, 50 + plev * 2,
 			1 + plev / 12); break;
-		case 172: sprintf(p, " dam %d+d%d, rad %d", 30 + ((4 * plev) / 5), 
+		case 172: sprintf(p, " dam %d+d%d, rad %d", 30 + ((4 * plev) / 5),
 			30 + plev * 2, plev / 7); break;
-		case 173: sprintf(p, " dam %d+d%d, rad %d", 3 * plev / 2, 50 + plev * 3, 
+		case 173: sprintf(p, " dam %d+d%d, rad %d", 3 * plev / 2, 50 + plev * 3,
 			1 + plev / 15); break;
 		case 174: sprintf(p, " dam %d+d%d, rad 1", 35+(2*plev), 90+plev*4); break;
-		case 175: sprintf(p, " dam %d+d%d, rad %d", 40 + (3 * plev / 2), plev * 3, 
+		case 175: sprintf(p, " dam %d+d%d, rad %d", 40 + (3 * plev / 2), plev * 3,
 			plev / 10); break;
 		case 177: sprintf(p, " dur %d+d30", plev / 2); break;
 		case 178: sprintf(p, " dam d%d", plev * 2); break;
@@ -3313,6 +3333,14 @@ void spell_info(char *p, int spell_index)
 		case 250: sprintf(p, " dur 30+d40"); break;
 		case 251: sprintf(p, " dur 40"); break;
 		case 252: sprintf(p, " dur 40"); break;
+
+
+		/* Archery Spells */
+
+		case 255: strcpy(p, " 3-5 @ 50% dam"); break;
+		case 263: strcpy(p, " +15 skill"); break;
+		case 264: strcpy(p, " 3-5 @ 50% dam"); break;
+		case 265: sprintf(p, " rad 1, %d dam", p_ptr->lev); break;
 	}
 }
 
@@ -3321,8 +3349,8 @@ void spell_info(char *p, int spell_index)
  * Print out a list of available spells for any spellbook given.
  * Revised by -LM-
  *
- * Input y controls lines from top for list, and input x controls columns 
- * from left. 
+ * Input y controls lines from top for list, and input x controls columns
+ * from left.
  */
 void print_spells(int tval, int sval, int y, int x)
 {
@@ -3347,22 +3375,22 @@ void print_spells(int tval, int sval, int y, int x)
 
 
 	/* Choose appropriate spellbook color. */
-	if (tval == TV_MAGIC_BOOK) 
+	if (tval == TV_MAGIC_BOOK)
 	{
 		if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_RED;
 		else attr_book = TERM_RED;
 	}
-	else if (tval == TV_PRAYER_BOOK) 
+	else if (tval == TV_PRAYER_BOOK)
 	{
 		if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_BLUE;
 		else attr_book = TERM_BLUE;
 	}
-	else if (tval == TV_DRUID_BOOK) 
+	else if (tval == TV_DRUID_BOOK)
 	{
 		if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_GREEN;
 		else attr_book = TERM_GREEN;
 	}
-	else if (tval == TV_NECRO_BOOK) 
+	else if (tval == TV_NECRO_BOOK)
 	{
 		if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_DARK;
 		else attr_book = TERM_VIOLET;
@@ -3401,7 +3429,7 @@ void print_spells(int tval, int sval, int y, int x)
 		/* Skip illegible spells.  This should actually never appear. */
 		if (s_ptr->slevel >= 99)
 		{
-			sprintf(out_val, "  %c) %-30s", I2A(i - first_spell), 
+			sprintf(out_val, "  %c) %-30s", I2A(i - first_spell),
 				"(illegible)");
 			c_prt(TERM_SLATE, out_val, y + j + 1, x);
 			continue;
@@ -3414,26 +3442,12 @@ void print_spells(int tval, int sval, int y, int x)
 		comment = info;
 
 		/* Analyze the spell */
-		if ((i < 32) ?
-		    ((p_ptr->spell_forgotten1 & (1L << i))) :
-		    ((p_ptr->spell_forgotten2 & (1L << (i - 32)))))
+		if (!spell_okay(i))
 		{
-			comment = " forgotten";
-			attr_name = TERM_L_WHITE;
-			attr_extra = TERM_L_WHITE;
-		}
-		else if (!((i < 32) ?
-		           (p_ptr->spell_learned1 & (1L << i)) :
-		           (p_ptr->spell_learned2 & (1L << (i - 32)))))
-		{
-			comment = " unknown";
+			comment = " too difficult";
 
 			/* Spells above the player's level are colored light gray. */
-			if (s_ptr->slevel > p_ptr->lev) attr_name = TERM_L_WHITE;
-
-			/* If at or below the player's level, color in white. */
-			else attr_name = TERM_WHITE;
-
+			attr_name = TERM_L_WHITE;
 			attr_extra = TERM_L_WHITE;
 		}
 		else if (!((i < 32) ?
@@ -3444,7 +3458,7 @@ void print_spells(int tval, int sval, int y, int x)
 			attr_name = TERM_WHITE;
 			attr_extra = TERM_WHITE;
 		}
-		else 
+		else
 		{
 			/* Vivid color for known, cast spells */
 			attr_name = attr_book;
@@ -3456,9 +3470,9 @@ void print_spells(int tval, int sval, int y, int x)
 
 		/* Print out (colored) information about a single spell. */
 		put_str(format("  %c) ", I2A(i - first_spell)), y + j + 1, x);
-		c_put_str(attr_name, format("%-30s", spell_names[s_ptr->index]), 
+		c_put_str(attr_name, format("%-30s", spell_names[s_ptr->index]),
 			y + j + 1, x + 5);
-		put_str(format("%2d %4d %3d%%", s_ptr->slevel, 
+		put_str(format("%2d %4d %3d%%", s_ptr->slevel,
 			s_ptr->smana, spell_chance(i)), y + j + 1, x + 35);
 		c_put_str(attr_extra, format("%s", comment), y + j + 1, x + 47);
 	}
@@ -3480,8 +3494,8 @@ static cptr view_abilities_aux(char *desc)
 	int attr_num, attr_listed, j;
 
 	/* Sustain stats. */
-	if ((f2 & (TR2_SUST_STR)) || (f2 & (TR2_SUST_INT)) || (f2 & (TR2_SUST_WIS)) 
-		|| (f2 & (TR2_SUST_DEX)) || (f2 & (TR2_SUST_CON)) || 
+	if ((f2 & (TR2_SUST_STR)) || (f2 & (TR2_SUST_INT)) || (f2 & (TR2_SUST_WIS))
+		|| (f2 & (TR2_SUST_DEX)) || (f2 & (TR2_SUST_CON)) ||
 		(f2 & (TR2_SUST_CHR)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -3550,7 +3564,7 @@ static cptr view_abilities_aux(char *desc)
 	}
 
 	/* Elemental immunities. */
-	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) || 
+	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) ||
 		(f2 & (TR2_IM_FIRE)) || (f2 & (TR2_IM_COLD)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -3602,12 +3616,12 @@ static cptr view_abilities_aux(char *desc)
 
 
 	/* Resistances. */
-	if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) || 
-		(f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) || 
-		(f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) || 
-		(f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) || 
-		(f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) || 
-		(f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) || 
+	if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) ||
+		(f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) ||
+		(f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) ||
+		(f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) ||
+		(f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) ||
+		(f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) ||
 		(f2 & (TR2_RES_DISEN)) || (f2 & (TR2_RES_CONFU)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -3704,15 +3718,15 @@ static cptr view_abilities_aux(char *desc)
 
 	if (f2 & (TR2_RES_BLIND))
 	{
-		if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+		if ((attr_num > 1) && (f2 & (TR2_RES_FEAR)))
 			strcat(desc, " can not be blinded.  ");
 		else strcat(desc, "You can not be blinded.  ");
 	}
 
 	/* Miscellanious abilities. */
-	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) || 
-		(f3 & (TR3_LITE)) || (f3 & (TR3_REGEN)) || 
-		(f3 & (TR3_TELEPATHY)) || (f3 & (TR3_SEE_INVIS)) || 
+	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) ||
+		(f3 & (TR3_LITE)) || (f3 & (TR3_REGEN)) ||
+		(f3 & (TR3_TELEPATHY)) || (f3 & (TR3_SEE_INVIS)) ||
 		(f3 & (TR3_FREE_ACT)) || (f3 & (TR3_HOLD_LIFE)))
 	{
 		/* Clear number of items to list, and items listed. */
@@ -3890,7 +3904,7 @@ void do_cmd_view_abilities(void)
 
 			/* Clear */
 			Term_erase(5, i + 2, 66);
-		
+
 			/* Display */
 			Term_putstr(5, i + 2, 66, color, buf);
 		}

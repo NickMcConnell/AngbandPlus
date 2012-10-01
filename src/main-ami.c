@@ -5326,7 +5326,7 @@ void amiga_hs_to_ascii(void)
 }
 
 /* Provides name of the last used save file in 'buf', by reading
-   'user/data-ami.prf'. This is a hack, but works for most player names. 
+   'user/data-ami.prf'. This is a hack, but works for most player names.
    Insert in main.c */
 void amiga_user_name( char *buf )
 {

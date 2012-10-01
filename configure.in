@@ -195,5 +195,5 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(gethostname mkdir select strstr strtol usleep mkstemp setegid can_change_color)
 
-AC_CONFIG_FILES([Makefile src/Makefile lib/Makefile A-readmes/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/save/Makefile lib/user/Makefile lib/xtra/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile lib/Makefile A-readmes/Makefile lib/apex/Makefile lib/bone/Makefile lib/data/Makefile lib/edit/Makefile lib/file/Makefile lib/help/Makefile lib/info/Makefile lib/save/Makefile lib/user/Makefile lib/xtra/Makefile lib/pref/Makefile])
 AC_OUTPUT

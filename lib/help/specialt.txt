@@ -1,14 +1,14 @@
 
 ============================= Specialty Abilities =============================
 
-Specialty abilities are a way of ehancing and customizing characters.  Each
+Specialty abilities are a way of enhancing and customizing characters.  Each
 character will gain only a few specialties, so choose the ones that are the
 most fun for you and best complement your playing style.
 
 By choosing specialties, you can make your Warrior a melee machine, an archer, 
 or high-AC  tank.  You can increase the mana and magical abilities of your 
 spellcasters or improve their normally weak defenses.  Classes with unique 
-abilites such as the Rogue's monster trap and the Druid's unarmed combat can
+abilities such as the Rogue's monster trap and the Druid's unarmed combat can
 choose specialties to further improve these abilities.
 
 Each character can gain a specialty ability at first level, and additional 
@@ -22,7 +22,7 @@ Armor Mastery: Increase body armor base AC.  Most effective with heavy body
 armor.  Available to Warriors, and Paladins.
 
 Armor Proficiency: Reduced mana penalties for heavy armor.  Allows more armor 
-to be worn without penatly, and reduces the penalty per pound of additional 
+to be worn without penalty, and reduces the penalty per pound of additional 
 armor.  Available to Mages, Necromancers, and Druids.
 
 Armsman: More critical hits with melee weapons.  Reduces reliance on high
@@ -30,8 +30,14 @@ combat skill for criticals.  Available to Warriors, Paladins, Assassins,
 Rogues, Priests, and Rangers.
 
 Athletics: Increases Dexterity and Constitution and often prevents them from 
-being reduced.  Available to Warriors, Rogues, Paladins, Assassins, and
-Rangers.
+being reduced.  Increases hitpoints by 5%.  Available to Warriors, Rogues,
+Paladins, Assassins, and Rangers.
+
+Attunement: You may become attuned to rods, wands, and staves when you use
+them.  When attuned, items are much easier to activate and yield more critical
+activations.  Only one type of rod, wand, or staff may be attuned at a time.
+Easily activated items are not subject to attunement.  Available to Mages,
+Priests, Necromancers, and Druids.
 
 Beguile: Increases effectiveness of confusion, slow, sleep, fear, and turning
 attacks.  Works with spells and devices.  Available to Mages, Necromancers, 
@@ -41,8 +47,9 @@ Channeling: Increases the effects of caster-level dependent spells.  The bonus
 is strongly dependant on the casters current mana - full mana yields the
 maximum bonus.  Available to Mages, Priests, Necromancers, and Druids.
 
-Clarity: Increases Intellegence and Wisdom and often prevents them from being 
-reduced.  Available Mages, Priests, Necromancers, and Druids.
+Clarity: Increases Intelligence and Wisdom and often prevents them from being
+reduced.  Increases mana by 5%.  Available Mages, Priests, Necromancers, and
+Druids.
 
 Evasion: Gives a good chance to avoid melee attacks and great chance to avoid
 missile weapons such as arrows, darts, and boulders.  The chance depends on 
@@ -53,7 +60,7 @@ Enhance Magic: Beneficial magics become stronger and last longer.  Includes
 all powerups from spells and items (haste, elemental resistance, blessing,
 etc).  Available to Mages, Priests, Paladins, Druids, and Necromancers.
 
-Extra Trap: Allows a rogue to have two monster traps at once.  Available 
+Extra Trap: Allows a rogue to have an additional monster trap set.  Available 
 only to Rogues.
 
 Fast Attacking: Gives a chance of an extra melee strike each round.  The
@@ -109,8 +116,8 @@ successful hit, an arrow or crossbow bolt will sometimes continue on; targets
 behind the original are very like to be hit.  Multiple pierces are possible.
 Available to Available to Warriors, Assassins, and Rangers.
 
-Power Siphon: Gain mana when monsters in line of sight cast spells.  Available
-only to Mages.
+Power Siphon: May steal mana from monsters in line of sight when they cast
+spells.  Available only to Mages.
 
 Power Strike: Gives an empty handed druid a chance of an unusually strong
 attack followed by an attempt to confuse the target.  Available only to Druids.
@@ -124,7 +131,7 @@ damage.  Best with a large shield.  Ineffective when wielding a two-handed
 weapon.  Available to Warriors, Rangers, and Paladins.
 
 Soul Siphon: Grants mana whenever a living monster is slain.  There is a chance
-of taking damage when aborbing too many souls at once.  Available only to
+of taking damage when absorbing too many souls at once.  Available only to
 Necromancers.
 
 Trap Setting: Grants the ability to set monster traps similar to those set by
@@ -146,6 +153,7 @@ Armour Mastery   Yes   No    No    No    No    Yes   No    No    No
 Armour Profiency No    Yes   No    No    No    No    Yes   Yes   No
 Armsman          Yes   No    Yes   Yes   Yes   Yes   No    No    Yes
 Athletics        Yes   No    No    Yes   Yes   Yes   No    No    Yes
+Attunement       No    Yes   Yes   No    No    No    Yes   Yes   No
 Beguile          No    Yes   No    No    No    No    Yes   Yes   No
 Channeling       No    Yes   Yes   No    No    No    Yes   Yes   No
 Clarity          No    Yes   Yes   No    No    No    Yes   Yes   No

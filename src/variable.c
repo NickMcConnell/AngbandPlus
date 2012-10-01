@@ -1,7 +1,7 @@
 /* File: variable.c */
 
 /* The copyright.  Definitions for a large number of variables, arrays,
- * and pointers, plus the color table and sound names. 
+ * and pointers, plus the color table and sound names.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -84,6 +84,7 @@ bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
+bool character_existed;			/* A character once existed on this savefile */
 
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
@@ -165,7 +166,7 @@ bool panel_extra_rows=FALSE;
 
 byte *mp_a = NULL;
 char *mp_c = NULL;
-	
+
 #ifdef USE_TRANSPARENCY
 byte *mp_ta = NULL;
 char *mp_tc = NULL;
@@ -265,7 +266,7 @@ term *angband_term[TERM_WIN_MAX];
  */
 char angband_term_name[TERM_WIN_MAX][16] =
 {
-	"Angband",
+	"OAngband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -434,6 +435,11 @@ object_type *o_list;
 monster_type *m_list;
 
 /*
+ * Array[MAX_EFFECTS] of dungeon effects
+ */
+effect_type *x_list;
+
+/*
  * Array[MAX_M_IDX] of monster lore
  */
 monster_lore *l_list;
@@ -486,7 +492,7 @@ s16b alloc_race_size;
 alloc_entry *alloc_race_table;
 
 /*
- * The total of all final monster generation probabilities 
+ * The total of all final monster generation probabilities
  */
 u32b alloc_race_total;
 
@@ -521,12 +527,13 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*** Player information ***/
 
 /*
- * Pointer to the player tables (sex, race, class, magic)
+ * Pointer to the player tables (sex, race, class, magic, chest drops)
  */
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
 player_magic *mp_ptr;
+chest_drops *ch_ptr;
 
 /*
  * The player other record (static)
@@ -549,13 +556,13 @@ static player_type player_type_body;
 player_type *p_ptr = &player_type_body;
 
 /*
- * The character generates both directed (extra) noise (by doing noisy 
- * things) and ambiant noise (the combination of directed and innate 
- * noise).  Directed noise can immediately wake up monsters in LOS. 
- * Ambient noise determines how quickly monsters wake up and how often 
+ * The character generates both directed (extra) noise (by doing noisy
+ * things) and ambiant noise (the combination of directed and innate
+ * noise).  Directed noise can immediately wake up monsters in LOS.
+ * Ambient noise determines how quickly monsters wake up and how often
  * they get new information on the current character position.
  *
- * Each player turn, more noise accumulates.  Every time monster 
+ * Each player turn, more noise accumulates.  Every time monster
  * temporary conditions are processed, all non-innate noise is cleared.
  */
 int add_wakeup_chance = 0;
@@ -641,6 +648,20 @@ header *cp_head;
 player_class *cp_info;
 char *cp_name;
 char *cp_text;
+
+
+/*
+ * The player magic arrays
+ */
+header *mp_head;
+player_magic *mp_info;
+
+
+/*
+ * The chest drop arrays
+ */
+header *ch_head;
+chest_drops *ch_info;
 
 
 /*
@@ -737,6 +758,12 @@ cptr ANGBAND_DIR_INFO;
 cptr ANGBAND_DIR_SAVE;
 
 /*
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
@@ -807,8 +834,8 @@ char themed_feeling[80];
  */
 byte required_tval = 0;
 
-/* The bones file a restored player ghost should use to collect extra 
- * flags, a sex, and a unique name.  This also indicates that there is 
+/* The bones file a restored player ghost should use to collect extra
+ * flags, a sex, and a unique name.  This also indicates that there is
  * a ghost active.  -LM-
  */
 byte bones_selector;
@@ -818,29 +845,29 @@ byte bones_selector;
  */
 int r_ghost;
 
-/* 
- * The player ghost name is stored here for quick reference by the 
+/*
+ * The player ghost name is stored here for quick reference by the
  * description function.  -LM-
  */
 char ghost_name[80];
 
 /*
- * The type (if any) of the player ghost's personalized string, and 
+ * The type (if any) of the player ghost's personalized string, and
  * the string itself. -LM-
  */
 int ghost_string_type = 0;
 char ghost_string[80];
 
 /*
- * Variable to insure that ghosts say their special message only once.  
- * This variable is deliberately not saved, so reloaded ghosts may speak 
+ * Variable to insure that ghosts say their special message only once.
+ * This variable is deliberately not saved, so reloaded ghosts may speak
  * again. -LM-
  */
 bool ghost_has_spoken = FALSE;
 
 
 /*
- * Autosave-related global variables adopted from Zangband. -LM- 
+ * Autosave-related global variables adopted from Zangband. -LM-
  */
 bool is_autosave = FALSE;		/* Is the save an autosave */
 bool autosave;				/* Timed autosave */
@@ -848,16 +875,16 @@ s16b autosave_freq;			/* Autosave frequency */
 
 
 /*
- * Is the player partly through trees or rubble and, if so, in which 
- * direction is he headed?  Monsters are handled more simply:  They have 
+ * Is the player partly through trees or rubble and, if so, in which
+ * direction is he headed?  Monsters are handled more simply:  They have
  * a 33% or 50% chance of walking through. -LM-
  */
 byte player_is_crossing;
 
 
 /*
- * Two variables that limit rogue stealing and creation of traps.  The 
- * third prevents Priests from using the "sea of runes" trick.  
+ * Two variables that limit rogue stealing and creation of traps.  The
+ * third prevents Priests from using the "sea of runes" trick.
  * Cleared when a level is created. -LM-
  */
 byte number_of_thefts_on_level;

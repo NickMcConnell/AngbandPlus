@@ -1,6 +1,6 @@
 /* File: cmd5.c */
 
-/* Warrior probing.  Selection, browsing, learning, and casting of spells 
+/* Warrior probing.  Selection, browsing, learning, and casting of spells
  * and prayers.  Includes definitions of all spells and prayers.  Shape-
  * shifting and making Athelas.
  *
@@ -15,7 +15,7 @@
 
 
 /*
- * Warriors will eventually learn to pseudo-probe monsters.  If they use 
+ * Warriors will eventually learn to pseudo-probe monsters.  If they use
  * the browse command, give ability information. -LM-
  */
 static void warrior_probe_desc(void)
@@ -45,10 +45,10 @@ static void warrior_probe_desc(void)
 	screen_load();
 }
 
-/* 
- * Warriors will eventually learn to pseudo-probe monsters.  This allows 
- * them to better choose between slays and brands.  They select a target, 
- * and receive (slightly incomplete) infomation about racial type, 
+/*
+ * Warriors will eventually learn to pseudo-probe monsters.  This allows
+ * them to better choose between slays and brands.  They select a target,
+ * and receive (slightly incomplete) infomation about racial type,
  * basic resistances, and HPs. -LM-
  */
 static void pseudo_probe(void)
@@ -66,7 +66,7 @@ static void pseudo_probe(void)
 
 
 	/* If no target monster, fail. */
-	if (p_ptr->target_who < 1) 
+	if (p_ptr->target_who < 1)
 	{
 		msg_print("You must actually target a monster.");
 		return;
@@ -76,14 +76,14 @@ static void pseudo_probe(void)
 	{
 		/* Get "the monster" or "something" */
 		monster_desc(m_name, m_ptr, 0x04);
-	
+
 		/* Approximate monster HPs */
-		approx_hp = m_ptr->hp - rand_int(m_ptr->hp / 4) + 
+		approx_hp = m_ptr->hp - rand_int(m_ptr->hp / 4) +
 			rand_int(m_ptr->hp / 4);
 
 		/* Approximate monster HPs */
 		if (r_ptr->mana)
-			approx_mana = m_ptr->mana - rand_int(m_ptr->mana / 4) + 
+			approx_mana = m_ptr->mana - rand_int(m_ptr->mana / 4) +
 			  rand_int(m_ptr->mana / 4);
 
 		/* Describe the monster */
@@ -134,7 +134,7 @@ static void pseudo_probe(void)
 
 
 
-/* 
+/*
  * Alter player's shape.  Taken from Sangband.
  */
 void shapechange(s16b shape)
@@ -234,7 +234,7 @@ static void choose_ele_attack(void)
 
 	choice = inkey();
 
-	if ((choice == 'a') || (choice == 'A')) 
+	if ((choice == 'a') || (choice == 'A'))
 		set_ele_attack(ATTACK_FIRE, 200);
 	else if (((choice == 'b') || (choice == 'B')) && (num >= 2))
 		set_ele_attack(ATTACK_COLD, 200);
@@ -249,7 +249,7 @@ static void choose_ele_attack(void)
 }
 
 
-/* 
+/*
  * Hack -- The Athelas-creation code. -LM-
  */
 void create_athelas(void)
@@ -277,8 +277,10 @@ void create_athelas(void)
 /*
  * Controlled teleportation.  -LM-
  * Idea from PsiAngband, through Zangband.
+ *
+ * Return true if teleport occurred, false if canceled.
  */
-void dimen_door(void)
+bool dimen_door(void)
 {
 	int ny;
 	int nx;
@@ -288,7 +290,7 @@ void dimen_door(void)
 	expand_look = TRUE;
 	okay = target_set_interactive(TARGET_LOOK | TARGET_GRID);
 	expand_look = old_expand_look;
-	if (!okay) return;
+	if (!okay) return(FALSE);
 
 	/* grab the target coords. */
 	ny = p_ptr->target_row;
@@ -298,7 +300,7 @@ void dimen_door(void)
 	 * distance, and insure that this spell is never certain.
 	 */
 	if (!cave_empty_bold(ny,nx) || (cave_info[ny][nx] & CAVE_ICKY) ||
-		(distance(ny,nx,p_ptr->py,p_ptr->px) > 25) || 
+		(distance(ny,nx,p_ptr->py,p_ptr->px) > 25) ||
 		(rand_int(p_ptr->lev) == 0))
 	{
 		msg_print("You fail to exit the astral plane correctly!");
@@ -309,12 +311,14 @@ void dimen_door(void)
 
 	/* Controlled teleport. */
 	else teleport_player_to(ny,nx,TRUE);
+
+	return(TRUE);
 }
 
 
 /*
- * Rebalance Weapon.  This is a rather powerful spell, because it can be 
- * used with any non-artifact throwing weapon, including ego-items.  It is 
+ * Rebalance Weapon.  This is a rather powerful spell, because it can be
+ * used with any non-artifact throwing weapon, including ego-items.  It is
  * therefore high-level, and curses weapons on failure.  Do not give Assas-
  * sins "Break Curse". -LM-
  */
@@ -329,7 +333,7 @@ static void rebalance_weapon(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Nothing to rebalance */
-	if (!o_ptr->k_idx) 
+	if (!o_ptr->k_idx)
 	{
 		msg_print("You are not wielding any melee weapon.");
 		return;
@@ -345,7 +349,7 @@ static void rebalance_weapon(void)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Not a throwing weapon. */
-	if (!(f1 & (TR1_THROWING))) 
+	if (!(f1 & (TR1_THROWING)))
 	{
 		msg_print("The melee weapon you are wielding is not designed for throwing.");
 		return;
@@ -358,7 +362,6 @@ static void rebalance_weapon(void)
 		object_desc(o_name, o_ptr, FALSE, 0);
 
 		/* Light curse and lower to_h and to_d by 2 to 5 each. */
-		
 		o_ptr->ident |= (IDENT_CURSED);
 		o_ptr->to_h -= (s16b) (2 + rand_int(4));
 		o_ptr->to_d -= (s16b) (2 + rand_int(4));
@@ -371,7 +374,7 @@ static void rebalance_weapon(void)
 	}
 
 	/* Rebalance. */
-	else 
+	else
 	{
 		/* Grant perfect balance. */
 		o_ptr->xtra1 = OBJECT_XTRA_TYPE_BALANCE;
@@ -388,7 +391,6 @@ static void rebalance_weapon(void)
 	}
 }
 
-
 /*
  * Calculate level boost for Channeling ability.
  */
@@ -398,10 +400,24 @@ int get_channeling_boost(void)
 	long channeling = 0L;
 	int boost;
 
+	if (!(check_ability(SP_CHANNELING))) return 0;
+
 	if (p_ptr->msp > 0) channeling = (max_channeling * p_ptr->csp * p_ptr->csp) / (p_ptr->msp * p_ptr->msp);
 	boost = ((int) channeling + 5) / 10;
 
-	return(boost);
+	return (boost);
+}
+
+/*
+ * Calculate the total current spell level boost.
+ */
+int get_spell_level_boost(void)
+{
+	int boost = 0;
+	if (check_ability(SP_HEIGHTEN_MAGIC)) boost += 1 + ((p_ptr->heighten_power + 5)/ 10);
+	if (check_ability(SP_CHANNELING)) boost += get_channeling_boost();
+
+	return boost;
 }
 
 
@@ -415,7 +431,7 @@ int get_channeling_boost(void)
  * The "prompt" should be "cast", "recite", "study", or "browse".
  * The "known" should be TRUE for cast/pray, FALSE for study
  */
-static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
+static int get_spell(int *sn, cptr prompt, int tval, int sval)
 {
 	int i;
 
@@ -425,7 +441,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 
 	int ver;
 
-	int total_heighten;
+	int spell_level_boost;
 
 	bool flag, redraw, okay;
 	char choice;
@@ -442,11 +458,11 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 #ifdef ALLOW_REPEAT /* TNB */
 
 	/* Get the spell, if available */
-	if (repeat_pull(sn)) 
+	if (repeat_pull(sn))
 	{
 		/* Find the array index of the spellbook's first spell. */
 		first_spell = mp_ptr->book_start_index[sval];
-	
+
 		/* Find the first spell in the next book. */
 		after_last_spell = mp_ptr->book_start_index[sval+1];
 
@@ -454,7 +470,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 		if (((*sn) >= first_spell) && ((*sn) < after_last_spell))
 		{
 			/* Verify the spell is okay */
-			if (spell_okay(*sn, known)) 
+			if (spell_okay(*sn))
 			{
 				/* Success */
 				return (TRUE);
@@ -468,8 +484,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 #endif /* ALLOW_REPEAT */
 
 	/* Calculate effective level boost */
-	total_heighten = p_ptr->heighten_power;
-	if (check_ability(SP_CHANNELING)) total_heighten += (10 * get_channeling_boost());
+	spell_level_boost = get_spell_level_boost();
 
 	/* Determine the magic description, for color. */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK) p = "spell";
@@ -478,9 +493,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	if (mp_ptr->spell_book == TV_NECRO_BOOK) p = "ritual";
 
 	/* Power enhancement. */
-	if (total_heighten > 145) h = "(**Empowered**) ";
-	else if (total_heighten > 85) h = "(Empowered!!) ";
-	else if (total_heighten > 35) h = "(Empowered) ";
+	if (spell_level_boost > 16) h = "(**Empowered**) ";
+	else if (spell_level_boost > 10) h = "(Empowered!!) ";
+	else if (spell_level_boost > 5) h = "(Empowered) ";
 	else h = "";
 
 	/* Assume no usable spells */
@@ -500,7 +515,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	for (i = first_spell; i < after_last_spell; i++)
 	{
 		/* Look for "okay" spells */
-		if (spell_okay(i, known)) okay = TRUE;
+		if (spell_okay(i)) okay = TRUE;
 	}
 
 	/* No "okay" spells */
@@ -574,7 +589,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 		spell = i + first_spell;
 
 		/* Require "okay" spells */
-		if (!spell_okay(spell, known))
+		if (!spell_okay(spell))
 		{
 			bell("Illegal spell choice!");
 			msg_format("You may not %s that %s.", prompt, p);
@@ -628,7 +643,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 
 
 /*
- * Peruse the spells/prayers in a Book, showing "spell tips" as 
+ * Peruse the spells/prayers in a Book, showing "spell tips" as
  * requested. -LM-
  *
  * Note that browsing is allowed while confused or blind,
@@ -659,7 +674,7 @@ void do_cmd_browse(void)
 	item_tester_tval = mp_ptr->spell_book;
 
 	/* Get a realm-flavored description. */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
 		q = "Browse which magic book? ";
 		s = "You have no magic books that you can read.";
@@ -712,10 +727,10 @@ void do_cmd_browse(void)
 	put_str("(Browsing) Choose a spell, or ESC: ", 0, 0);
 
 
-	/* Hack - Determine how far from the top of the screen the spell list 
+	/* Hack - Determine how far from the top of the screen the spell list
 	 * extends by counting spells, and adding space for name, etc.
 	 */
-	lines = mp_ptr->book_start_index[o_ptr->sval + 1] - 
+	lines = mp_ptr->book_start_index[o_ptr->sval + 1] -
 		mp_ptr->book_start_index[o_ptr->sval] + 3;
 
 
@@ -723,7 +738,7 @@ void do_cmd_browse(void)
 	while(TRUE)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, TRUE))
+		if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval))
 		{
 			/* If cancelled, leave immediately. */
 			if (spell == -1) break;
@@ -751,218 +766,6 @@ void do_cmd_browse(void)
 	screen_load();
 }
 
-
-
-
-/*
- * Study a book to gain a new spell/prayer
- */
-void do_cmd_study(void)
-{
-	int i, item;
-
-	int first_spell, after_last_spell;
-
-	magic_type *s_ptr;
-
-	int spell = -1;
-
-	cptr p = "";
-	cptr r = "";
-
-	cptr q = "";
-	cptr s = "";
-
-	object_type *o_ptr;
-
-	if (!mp_ptr->spell_book)
-	{
-		msg_print("You cannot read books!");
-		return;
-	}
-
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-	/* Determine magic description. */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK) p = "spell";
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK) p = "prayer";
-	if (mp_ptr->spell_book == TV_DRUID_BOOK) p = "druidic lore";
-	if (mp_ptr->spell_book == TV_NECRO_BOOK) p = "ritual";
-
-	/* Determine spellbook description. */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK) r = "magic book";
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK) r = "holy book";
-	if (mp_ptr->spell_book == TV_DRUID_BOOK) r = "stone";
-	if (mp_ptr->spell_book == TV_NECRO_BOOK) r = "tome";
-
-
-	if (!(p_ptr->new_spells))
-	{
-		msg_format("You cannot learn any new %ss.", p, 
-			(mp_ptr->spell_book == TV_DRUID_BOOK) ? "" : "s");
-		return;
-	}
-
-	/* Restrict choices to "useful" books */
-	item_tester_tval = mp_ptr->spell_book;
-
-	/* Get a realm-flavored description. */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
-	{
-		q = "Study which magic book? ";
-		s = "You have no magic books that you can read.";
-	}
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-	{
-		q = "Study which holy book? ";
-		s = "You have no holy books that you can read.";
-	}
-	if (mp_ptr->spell_book == TV_DRUID_BOOK)
-	{
-		q = "Study which stone of lore? ";
-		s = "You have no stones that you can read.";
-	}
-	if (mp_ptr->spell_book == TV_NECRO_BOOK)
-	{
-		q = "Study which tome? ";
-		s = "You have no tomes that you can read.";
-	}
-
-	/* Get an item */
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* All but Priests -- Learn a selected spell */
-	if (mp_ptr->spell_book != TV_PRAYER_BOOK)
-	{
-		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", o_ptr->tval, o_ptr->sval, FALSE) && 
-			(spell == -1)) return;
-	}
-
-	/* Priest -- Learn a random prayer */
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-	{
-		int k = 0;
-
-		int gift = -1;
-
-		/* Find the array index of the spellbook's first prayer. */
-		first_spell = mp_ptr->book_start_index[o_ptr->sval];
-
-		/* Find the first prayer in the next book. */
-		after_last_spell = mp_ptr->book_start_index[o_ptr->sval+1];
-
-		/* Pick an legal, unknown prayer at random. */
-		for (spell = first_spell; spell < after_last_spell; spell++)
-		{
-			/* Skip non "okay" prayers */
-			if (!spell_okay(spell, FALSE)) continue;
-
-			/* Apply the randomizer */
-			if ((++k > 1) && (rand_int(k) != 0)) continue;
-
-			/* Track it */
-			gift = spell;
-		}
-
-		/* Accept gift */
-		spell = gift;
-	}
-
-	/* Nothing to study */
-	if (spell < 0)
-	{
-		/* Message */
-		msg_format("You cannot learn any %s%s that %s.", p, 
-			(mp_ptr->spell_book == TV_DRUID_BOOK) ? " from" : "s in", r);
-
-		/* Abort */
-		return;
-	}
-
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Learn the spell */
-	if (spell < 32)
-	{
-		p_ptr->spell_learned1 |= (1L << spell);
-	}
-	else
-	{
-		p_ptr->spell_learned2 |= (1L << (spell - 32));
-	}
-
-	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < 64; i++)
-	{
-		/* Stop at the first empty space */
-		if (p_ptr->spell_order[i] == 99) break;
-	}
-
-	/* Add the spell to the known list */
-	p_ptr->spell_order[i++] = spell;
-
-	/* Access the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-	/* Mention the result */
-	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
-		   p, spell_names[s_ptr->index]);
-
-	/* Sound */
-	sound(SOUND_STUDY);
-
-	/* One less spell available */
-	p_ptr->new_spells--;
-
-	/* Message if needed */
-	if (p_ptr->new_spells)
-	{
-		/* Message */
-		msg_format("You can learn %d more %s%s.", p_ptr->new_spells, p, 
-			((p_ptr->new_spells != 1) && 
-			(!mp_ptr->spell_book != TV_DRUID_BOOK)) ? "s" : "");
-	}
-
-	/* Save the new_spells value */
-	p_ptr->old_spells = p_ptr->new_spells;
-
-	/* Redraw Study Status */
-	p_ptr->redraw |= (PR_STUDY);
-
-}
 
 
 
@@ -998,13 +801,13 @@ void do_cmd_cast_or_pray(void)
 	if (!mp_ptr->spell_book)
 	{
 		/* Warriors will eventually learn to pseudo-probe monsters. */
-		if (check_ability(SP_PROBE)) 
+		if (check_ability(SP_PROBE))
 		{
-			if (p_ptr->lev < 35) 
+			if (p_ptr->lev < 35)
 				msg_print("You do not know how to probe monsters yet.");
 			else if ((p_ptr->confused) || (p_ptr->image))
 				msg_print("You feel awfully confused.");
-			else 
+			else
 			{
 				/* Get a target. */
 				msg_print("Target a monster to probe.");
@@ -1060,7 +863,7 @@ void do_cmd_cast_or_pray(void)
 
 
 	/* Get a realm-flavored description. */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
 		q = "Use which magic book? ";
 		s = "You have no magic books that you can use.";
@@ -1104,11 +907,11 @@ void do_cmd_cast_or_pray(void)
 
 
 	/* Ask for a spell */
-	if (!get_spell(&spell, t, o_ptr->tval, o_ptr->sval, TRUE))
+	if (!get_spell(&spell, t, o_ptr->tval, o_ptr->sval))
 	{
-		if (spell == -2) 
+		if (spell == -2)
 		{
-			msg_format("You don't know any %s%s in that %s.", p, 
+			msg_format("You don't know any %s%s in that %s.", p,
 				(mp_ptr->spell_book == TV_DRUID_BOOK) ? "" : "s", r);
 		}
 		return;
@@ -1123,7 +926,7 @@ void do_cmd_cast_or_pray(void)
 	if (s_ptr->smana > p_ptr->csp)
 	{
 		/* Warning */
-		msg_format("You do not have enough mana to %s this %s.", 
+		msg_format("You do not have enough mana to %s this %s.",
 			t, p);
 
 		/* Verify */
@@ -1135,8 +938,7 @@ void do_cmd_cast_or_pray(void)
 	chance = spell_chance(spell);
 
 	/* Specialty Ability */
-	if (check_ability(SP_HEIGHTEN_MAGIC)) plev += 1 + ((p_ptr->heighten_power + 5)/ 10);
-	if (check_ability(SP_CHANNELING)) plev += get_channeling_boost();
+	plev += get_spell_level_boost();
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -1144,9 +946,9 @@ void do_cmd_cast_or_pray(void)
 		failed = TRUE;
 
 		if (flush_failure) flush();
-		if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+		if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 			msg_print("You failed to get the spell off!");
-		if (mp_ptr->spell_book == TV_PRAYER_BOOK) 
+		if (mp_ptr->spell_book == TV_PRAYER_BOOK)
 			msg_print("You lost your concentration!");
 		if (mp_ptr->spell_book == TV_DRUID_BOOK)
 			msg_print("You lost your concentration!");
@@ -1157,15 +959,15 @@ void do_cmd_cast_or_pray(void)
 	/* Process spell */
 	else
 	{
-		/* Hack -- higher chance of "beam" instead of "bolt" for mages 
+		/* Hack -- higher chance of "beam" instead of "bolt" for mages
 		 * and necros.
 		 */
 		beam = ((check_ability(SP_BEAM)) ? plev : (plev / 2));
 
 
 
-		/* Spell Effects.  Spells are mostly listed by realm, each using a 
-		 * block of 64 spell slots, but there are a certain number of spells 
+		/* Spell Effects.  Spells are mostly listed by realm, each using a
+		 * block of 64 spell slots, but there are a certain number of spells
 		 * that are used by more than one realm (this allows more neat class-
 		 * specific magics)
 		 */
@@ -1319,7 +1121,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 25:	/* Tap magical energy */
 			{
-				tap_magical_energy();
+				if (!tap_magical_energy()) return;
 				break;
 			}
 			case 26:	/* Frost Ball */
@@ -1436,7 +1238,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				msg_print("Choose a location to teleport to.");
 				msg_print(NULL);
-				dimen_door();
+				if (!dimen_door()) return;
 				break;
 			}
 			case 43:	/* Detect Evil */
@@ -1703,7 +1505,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!p_ptr->protevil)
 				{
-					(void)set_protevil(p_ptr->protevil + 
+					(void)set_protevil(p_ptr->protevil +
 						randint(24) + 3 * plev / 2);
 				}
 				else
@@ -1770,12 +1572,12 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!p_ptr->shield)
 				{
-					(void)set_shield(p_ptr->shield + randint(20) + 
+					(void)set_shield(p_ptr->shield + randint(20) +
 						plev / 2);
 				}
 				else
 				{
-					(void)set_shield(p_ptr->shield + randint(10) + 
+					(void)set_shield(p_ptr->shield + randint(10) +
 						plev / 4);
 				}
 				break;
@@ -1876,10 +1678,10 @@ void do_cmd_cast_or_pray(void)
 					msg_print("The power of your god banishes evil!");
 				}
 				break;
-			} 
+			}
 			case 107: /* Healing */
 			{
-				(void)hp_player(700);
+				(void)hp_player(500);
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -1916,7 +1718,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 113: /* Dispel Curse */
 			{
-				if (remove_all_curse()) 
+				if (remove_all_curse())
 				msg_print("A beneficent force surrounds you for a moment.");
 				break;
 			}
@@ -1948,7 +1750,7 @@ void do_cmd_cast_or_pray(void)
 					answer = inkey();
 					if ((answer == 'W') || (answer == 'w'))
 					{
-						(void)enchant_spell(rand_int(4) + 1, 
+						(void)enchant_spell(rand_int(4) + 1,
 						rand_int(4) + 1, 0);
 						break;
 					}
@@ -2032,6 +1834,19 @@ void do_cmd_cast_or_pray(void)
 				(void)fear_monsters(plev);
 				break;
 			}
+			case 125: /* Purifying Strike */
+			{
+				int type;
+				if (!get_aim_dir(&dir)) return;
+
+				if (rand_int(4) == 0) type = GF_LITE;
+				else if (rand_int(3) == 0) type = GF_HOLY_ORB;
+				else if (rand_int(2) == 0) type = GF_FIRE;
+				else type = GF_MANA;
+
+				fire_ball(type, dir, 25 + plev + randint(plev), 0, FALSE);
+				break;
+			}
 
 
 			/* Nature Magics */
@@ -2064,7 +1879,7 @@ void do_cmd_cast_or_pray(void)
 			case 133:  /* lightning spark */
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_arc(GF_ELEC, dir, damroll(2 + (plev/8), 6), 
+				fire_arc(GF_ELEC, dir, damroll(2 + (plev/8), 6),
 					(1 + plev / 5), 0);
 				break;
 			}
@@ -2165,7 +1980,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam - 10, GF_POIS, dir,
-						  damroll(5 + (plev/4), 8));
+						  damroll(7 + (plev/4), 8));
 				break;
 			}
 			case 149:  /* resist poison */
@@ -2206,7 +2021,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MANA, dir,
-					damroll(plev / 7, 8));			
+					damroll(plev / 7, 8));
 				(void)confuse_monster(dir, plev + 10);
 				(void)slow_monster(dir, plev + 10);
 
@@ -2231,7 +2046,7 @@ void do_cmd_cast_or_pray(void)
 			case 159:  /* raging storm */
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, plev + randint(60 + plev * 2), 
+				fire_ball(GF_ELEC, dir, plev + randint(60 + plev * 2),
 					(1 + plev / 15), FALSE);
 				break;
 			}
@@ -2293,12 +2108,12 @@ void do_cmd_cast_or_pray(void)
 				(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
 				if (!p_ptr->tim_invis)
 				{
-					(void)set_tim_invis(p_ptr->tim_invis + 
+					(void)set_tim_invis(p_ptr->tim_invis +
 						randint(24) + 24);
 				}
 				else
 				{
-					(void)set_tim_invis(p_ptr->tim_invis + 
+					(void)set_tim_invis(p_ptr->tim_invis +
 						randint(12) + 12);
 				}
 				break;
@@ -2313,7 +2128,7 @@ void do_cmd_cast_or_pray(void)
 			case 171:  /* blizzard */
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, plev + randint(50 + plev * 2), 
+				fire_ball(GF_COLD, dir, plev + randint(50 + plev * 2),
 					1 + plev / 12, FALSE);
 				break;
 			}
@@ -2334,7 +2149,7 @@ void do_cmd_cast_or_pray(void)
 			case 174:  /* molten lightning */
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_PLASMA, dir, 
+				fire_ball(GF_PLASMA, dir,
 					35 + (2 * plev) + randint(90 + plev * 4), 1, FALSE);
 				break;
 			}
@@ -2358,12 +2173,12 @@ void do_cmd_cast_or_pray(void)
 				msg_print("Your song creates a mystic shield.");
 				if (!p_ptr->shield)
 				{
-					(void)set_shield(p_ptr->shield + randint(30) + 
+					(void)set_shield(p_ptr->shield + randint(30) +
 						plev / 2);
 				}
 				else
 				{
-					(void)set_shield(p_ptr->shield + randint(15) + 
+					(void)set_shield(p_ptr->shield + randint(15) +
 						plev / 4);
 				}
 				break;
@@ -2470,7 +2285,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 195: /* break curse */
 			{
-				if (remove_curse()) 
+				if (remove_curse())
 					msg_print("You feel mighty hands aiding you.");
 				break;
 			}
@@ -2546,12 +2361,12 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!p_ptr->tim_invis)
 				{
-					set_tim_invis(p_ptr->tim_invis + 20 + 
+					set_tim_invis(p_ptr->tim_invis + 20 +
 						randint(plev / 2));
 				}
 				else
 				{
-					set_tim_invis(p_ptr->tim_invis + 10 + 
+					set_tim_invis(p_ptr->tim_invis + 10 +
 						randint(plev / 4));
 				}
 				break;
@@ -2662,11 +2477,6 @@ void do_cmd_cast_or_pray(void)
 			{
 				take_hit(damroll(2, 6), "shadow dislocation");
 				teleport_player(plev * 3, TRUE);
-				break;
-			}
-			case 227: /* poison ammo - for assassins only */
-			{
-				(void)brand_missile(0, EGO_POISON);
 				break;
 			}
 			case 228: /* resist acid and cold */
@@ -2784,7 +2594,7 @@ void do_cmd_cast_or_pray(void)
 				if (p_ptr->special_attack & ATTACK_HOLY) p_ptr->special_attack &= ~ ATTACK_HOLY;
 
 				if (!(p_ptr->special_attack & ATTACK_BLKBRTH))
-				   msg_print("Your hands start to radiate Night.");				
+				   msg_print("Your hands start to radiate Night.");
 				p_ptr->special_attack |= (ATTACK_BLKBRTH);
 
 				/* Redraw the state */
@@ -2864,6 +2674,158 @@ void do_cmd_cast_or_pray(void)
 				break;
 			}
 
+
+
+			/* Archery Spells */
+			case 255:  /* Rogue Spell: Stone Volley */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval || (p_ptr->ammo_tval != TV_SHOT))
+				{
+					msg_print("You must equip a sling to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_MULTI)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 263:  /* Ranger Spell:  Deadeye Shot */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval || !p_ptr->ammo_tval)
+				{
+					msg_print("You must equip a missile weapon to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_DEADEYE)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 264:  /* Ranger Spell:  Rain of Arrows */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval || (p_ptr->ammo_tval != TV_ARROW))
+				{
+					msg_print("You must equip a bow to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_MULTI)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 265:  /* Ranger Spell:  Storm Shot */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval ||
+				    !((p_ptr->ammo_tval == TV_ARROW) ||
+				      (p_ptr->ammo_tval == TV_BOLT)))
+				{
+					msg_print("You must equip a bow or crossbow to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_STORM)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 266:  /* Ranger Spell:  Dragonslayer */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval ||
+				    !((p_ptr->ammo_tval == TV_ARROW) ||
+				      (p_ptr->ammo_tval == TV_BOLT)))
+				{
+					msg_print("You must equip a bow or crossbow to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_SLAY_DRAGON)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 267:  /* Ranger Spell:  Scourging Shot */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval || !p_ptr->ammo_tval)
+				{
+					msg_print("You must equip a missile weapon to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_SCOURGE)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 271:  /* Assassin Spell:  Vile Dart */
+			{
+				msg_print("You channel the power of Night.");
+
+				if (!do_cmd_throw(THROW_MODE_BLKBRTH)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+			case 272: /* poison ammo - for assassins only */
+			{
+				/* Get the "bow" (if any) */
+				o_ptr = &inventory[INVEN_BOW];
+
+				/* Require a usable launcher */
+				if (!o_ptr->tval || !p_ptr->ammo_tval)
+				{
+					msg_print("You must equip a missile weapon to use this spell.");
+					return;
+				}
+
+				if (!do_cmd_fire(FIRE_MODE_POISON)) return;
+
+				/* recalculate energy cost later */
+				p_ptr->energy_use = 0;
+
+				break;
+			}
+
 			default:	/* No Spell */
 			{
 				msg_print("Undefined Spell");
@@ -2893,25 +2855,46 @@ void do_cmd_cast_or_pray(void)
 		}
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/*
+	 * Energy usage
+	 */
 
-	/* Reduced for fast casters */
-	if (check_ability(SP_FAST_CAST))
+	/* Normal spell - 100 energy modified by Fast Casting specialty */
+	if (s_ptr->stimecode == CAST_TIME_NORMAL)
 	{
-		int level_difference = p_ptr->lev - s_ptr->slevel;
+		/* Take a turn */
+		p_ptr->energy_use = 100;
 
-		p_ptr->energy_use -= 5 + (level_difference / 2);
+		/* Reduced for fast casters */
+		if (check_ability(SP_FAST_CAST))
+		{
+			int level_difference = p_ptr->lev - s_ptr->slevel;
 
-		/* Increased bonus for really easy spells */
-		if (level_difference > 25) p_ptr->energy_use -= (level_difference - 25);
+			p_ptr->energy_use -= 5 + (level_difference / 2);
+
+			/* Increased bonus for really easy spells */
+			if (level_difference > 25) p_ptr->energy_use -= (level_difference - 25);
+		}
+
+		/* Give Credit for Heighten Magic */
+		if (check_ability(SP_HEIGHTEN_MAGIC)) add_heighten_power(20);
+
+		/* Paranioa */
+		if (p_ptr->energy_use < 50) p_ptr->energy_use = 50;
 	}
 
-	/* Give Credit for Heighten Magic */
-	if (check_ability(SP_HEIGHTEN_MAGIC)) add_heighten_power(20);
+	/* Archery type spells */
+	else if (s_ptr->stimecode == CAST_TIME_SHOOT) p_ptr->energy_use = (1000 / p_ptr->num_fire);
+	else if (s_ptr->stimecode == CAST_TIME_SHOOT_FAST) p_ptr->energy_use = (500 / p_ptr->num_fire);
+	else if (s_ptr->stimecode == CAST_TIME_SHOOT_SLOW) p_ptr->energy_use = (1500 / p_ptr->num_fire);
 
-	/* Paranioa */
-	if (p_ptr->energy_use < 50) p_ptr->energy_use = 50;
+	/* Throwing type spells */
+	else if (s_ptr->stimecode == CAST_TIME_THROW) p_ptr->energy_use = 100;
+	else if (s_ptr->stimecode == CAST_TIME_THROW_FAST) p_ptr->energy_use = 50;
+	else if (s_ptr->stimecode == CAST_TIME_THROW_SLOW) p_ptr->energy_use = 150;
+
+	/* Unknown casting speed code */
+	else p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -2993,17 +2976,17 @@ bool check_ability(int ability)
 		int offset = ability - SP_RACIAL_START;
 		if (rp_ptr->flags_special & (0x00000001 << offset)) return(TRUE);
 	}
-	
+
 	/* Check for innate class ability */
 	if ((ability >= SP_CLASS_START) && (ability <= SP_CLASS_END))
 	{
 		int offset = ability - SP_CLASS_START;
 		if (cp_ptr->flags_special & (0x00000001 << offset)) return(TRUE);
 	}
-	
-	/* 
+
+	/*
 	 * Check to see if the queried specialty is
-	 * on the allowed part of the list 
+	 * on the allowed part of the list
 	 */
 	for (i = 0; i < p_ptr->specialties_allowed; i++)
 	{
@@ -3021,9 +3004,9 @@ bool check_ability_specialty(int ability)
 {
 	int i;
 
-	/* 
+	/*
 	 * Check to see if the queried specialty is
-	 * on the allowed part of the list 
+	 * on the allowed part of the list
 	 */
 	for (i = 0; i < p_ptr->specialties_allowed; i++)
 	{
@@ -3130,7 +3113,7 @@ void do_cmd_gain_specialty(void)
 		/* No valid selection yet */
 		use_cur = FALSE;
 
-		/* Make one choice; loop until done */		
+		/* Make one choice; loop until done */
 		done_one = FALSE;
 		while (!done_one)
 		{
@@ -3149,7 +3132,7 @@ void do_cmd_gain_specialty(void)
 
 				/* Clear */
 				Term_erase(5, i + 2, 66);
-			
+
 				/* Display */
 				Term_putstr(5, i + 2, 66, TERM_GREEN, buf);
 			}
@@ -3278,10 +3261,10 @@ void do_cmd_gain_specialty(void)
 				cur = 0;
 
 				/* Update some stuff */
-				p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY | PU_TORCH);
+				p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPECIALTY | PU_TORCH);
 
-				/* Redraw Study Status */
-				p_ptr->redraw |= (PR_STUDY);
+				/* Redraw Status */
+				p_ptr->redraw |= (PR_BASIC | PR_STUDY);
 			}
 
 			/* Check if we are completely done */

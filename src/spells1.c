@@ -1,13 +1,13 @@
 /* File: spells1.c */
 
-/* Polymorph, teleport monster, teleport player, colors and ascii 
+/* Polymorph, teleport monster, teleport player, colors and ascii
  * graphics for spells, hurt and kill player, melting/burning/freezing/
- * electrocuting items, effects of these attacks on the player and his 
- * stuff, spells that increase, decrease, and restore stats, disenchant, 
+ * electrocuting items, effects of these attacks on the player and his
+ * stuff, spells that increase, decrease, and restore stats, disenchant,
  * nexus, destroy and create terrain features, light+dark, destroy ob-
- * jects.  handlers for beam/bolt/ball spells that do damage to a monster, 
- * other player combat spells, special effects of monster and player 
- * breaths and spells to the player, monsters, and dungeon terrain.  The 
+ * jects.  handlers for beam/bolt/ball spells that do damage to a monster,
+ * other player combat spells, special effects of monster and player
+ * breaths and spells to the player, monsters, and dungeon terrain.  The
  * projection code.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -213,11 +213,11 @@ void teleport_away(int m_idx, int dis)
 
 
 /*
- * Thrust the player or a monster away from the source of a projection.   
- * Used for GF_FORCE only (GF_STORM and GF_GRAVITY blink the player in 
+ * Thrust the player or a monster away from the source of a projection.
+ * Used for GF_FORCE only (GF_STORM and GF_GRAVITY blink the player in
  * a random direction).  -LM-
  *
- * Monsters and players can be pushed past monsters or players weaker than 
+ * Monsters and players can be pushed past monsters or players weaker than
  * they are.
  */
 static void thrust_away(int who, int t_y, int t_x, int grids_away)
@@ -256,7 +256,7 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
 	y = t_y;
 	x = t_x;
 
-	/* Up to the number of grids requested, force the target away from the 
+	/* Up to the number of grids requested, force the target away from the
 	 * source of the projection, until it hits something it can't travel around.
 	 */
 	for (i = 0; i < grids_away; i++)
@@ -411,33 +411,33 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
 
 		if (cave_feat[y][x] == FEAT_WATER)
 		{
-			if ((strchr("uU", r_ptr->d_char)) || 
-				((r_ptr->flags4 & (RF4_BRTH_FIRE)) && 
+			if ((strchr("uU", r_ptr->d_char)) ||
+				((r_ptr->flags4 & (RF4_BRTH_FIRE)) &&
 				(!r_ptr->flags2 & (RF2_FLYING))))
 			{
 				note_dies = " is drowned.";
 
 				/* Hurt the monster.  No fear. */
-				mon_take_hit(cave_m_idx[y][x], 
+				mon_take_hit(cave_m_idx[y][x],
 					damroll(2, 18 + m_ptr->maxhp / 12), FALSE, note_dies);
 
 				/* XXX - If still alive, monster escapes. */
-				teleport_away(cave_m_idx[y][x], 3);	
+				teleport_away(cave_m_idx[y][x], 3);
 			}
 		}
 		if (cave_feat[y][x] == FEAT_LAVA)
 		{
-			if ((!r_ptr->flags3 & (RF3_IM_FIRE)) && 
+			if ((!r_ptr->flags3 & (RF3_IM_FIRE)) &&
 				(!r_ptr->flags2 & (RF2_FLYING)))
 			{
 				note_dies = " is burnt up.";
 
 				/* Hurt the monster.  No fear. */
-				mon_take_hit(cave_m_idx[y][x], 
+				mon_take_hit(cave_m_idx[y][x],
 					damroll(2, 18 + m_ptr->maxhp / 12), FALSE, note_dies);
 
 				/* XXX - If still alive, monster escapes. */
-				teleport_away(cave_m_idx[y][x], 3);	
+				teleport_away(cave_m_idx[y][x], 3);
 			}
 		}
 	}
@@ -452,7 +452,7 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
  * If no such spaces are readily available, the distance may increase.
  * Try very hard to move the player at least a quarter that distance.
  *
- * If "unsafe" is TRUE, then feel free to slam the player into trees, 
+ * If "unsafe" is TRUE, then feel free to slam the player into trees,
  * dunk him in water, or burn him in lava.
  */
 void teleport_player(int dis, bool safe)
@@ -900,6 +900,9 @@ void add_heighten_power(int value)
 		/* Apply Cap */
 		p_ptr->heighten_power = (p_ptr->heighten_power > max_heighten_power ? max_heighten_power : p_ptr->heighten_power);
 	}
+
+	/* Redraw mana display */
+	p_ptr->redraw |= (PR_MANA);
 }
 
 /*
@@ -975,7 +978,8 @@ void take_hit(int dam, cptr kb_str)
 	if (p_ptr->is_dead) return;
 
 	/* Disturb */
-	disturb(1, 0);
+	if (dam > 0) disturb(2, 0);
+	else disturb(1, 0);
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
@@ -1305,11 +1309,11 @@ static int inven_damage(inven_func typ, int perc)
 					   o_name, index_to_label(i),
 					   ((amt > 1) ? "were" : "was"));
 
-				/* Hack -- If rods or wand are destroyed, the total maximum 
-				 * timeout or charges of the stack needs to be reduced, 
+				/* Hack -- If rods or wand are destroyed, the total maximum
+				 * timeout or charges of the stack needs to be reduced,
 				 * unless all the items are being destroyed. -LM-
 				 */
-				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
 					&& (amt < o_ptr->number))
 				{
 					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
@@ -1432,7 +1436,7 @@ void acid_dam(int dam, cptr kb_str)
 	/* If any armor gets hit, defend the player and his backpack */
 	if (minus_ac(dam)) dam = 2 * dam / 3;
 
-	/* Determine the chance in 1000 of an inventory item being lost (note 
+	/* Determine the chance in 1000 of an inventory item being lost (note
 	 * that scrolls and potions have a +50% extra chance to be lost).
 	 */
 	inv = 3 + dam / 15;
@@ -1458,7 +1462,7 @@ void acid_dam(int dam, cptr kb_str)
 
 /*
  * Hurt the player with electricity.  Resistances now reduce inventory
- * destruction.   Electricity can reduce DEX, as in Zangband.  Electricity can 
+ * destruction.   Electricity can reduce DEX, as in Zangband.  Electricity can
  * stun the player. -LM-
  */
 void elec_dam(int dam, cptr kb_str)
@@ -1469,7 +1473,7 @@ void elec_dam(int dam, cptr kb_str)
 	if (dam <= 0) return;
 
 
-	/* Determine the chance in 1000 of an inventory item being lost (note 
+	/* Determine the chance in 1000 of an inventory item being lost (note
 	 * that scrolls and potions have a +50% extra chance to be lost).
 	 */
 	inv = 3 + dam / 15;
@@ -1512,7 +1516,7 @@ void fire_dam(int dam, cptr kb_str)
 	if (dam <= 0) return;
 
 
-	/* Determine the chance in 1000 of an inventory item being lost (note 
+	/* Determine the chance in 1000 of an inventory item being lost (note
 	 * that scrolls and potions have a 50% chance to be lost).
 	 */
 	inv = 3 + dam / 15;
@@ -1548,7 +1552,7 @@ void cold_dam(int dam, cptr kb_str)
 	if (dam <= 0) return;
 
 
-	/* Determine the chance in 1000 of an inventory item being lost (note 
+	/* Determine the chance in 1000 of an inventory item being lost (note
 	 * that scrolls and potions have a +50% extra chance to be lost).
 	 */
 	inv = 3 + dam / 15;
@@ -1615,15 +1619,15 @@ bool pois_hit(int pois_inc)
 		/* Poison is not fully cumulative. */
 		if (p_ptr->poisoned)
 		{
-			/* 1/3 to 2/3 pois_inc. */
-			if (set_poisoned(p_ptr->poisoned + randint((pois_inc + 2) / 3) + 
+			/* 1/3 to 2/3 pois_inc + 2. */
+			if (set_poisoned(p_ptr->poisoned + 2 + randint((pois_inc + 2) / 3) +
 				(pois_inc / 3)))
 				did_harm = TRUE;
 		}
-		else 
+		else
 		{
-			/* 1/2 to whole pois_inc, plus 4. */
-			if (set_poisoned(p_ptr->poisoned + 4 + randint((pois_inc + 1) / 2) + 
+			/* 1/2 to whole pois_inc, plus 8. */
+			if (set_poisoned(p_ptr->poisoned + 8 + randint((pois_inc + 1) / 2) +
 				(pois_inc / 2)))
 				did_harm = TRUE;
 		}
@@ -2036,10 +2040,10 @@ bool apply_disenchant(int dam)
 		shapechange(SHAPE_NORMAL);
 	}
 
-	/* If the player retains his shapeshift, his equipment cannot be harmed 
+	/* If the player retains his shapeshift, his equipment cannot be harmed
 	 * by disenchantment.
 	 */
-	if (SCHANGE) 
+	if (SCHANGE)
 	{
 		return (FALSE);
 	}
@@ -2213,10 +2217,10 @@ static int project_m_y;
  *
  * Perhaps we should affect doors and/or walls.
  *
- * Handle Oangband terrain.  Some terrain types that change the damage 
- * done by various projections are marked (using the CAVE_TEMP flag) for 
- * later processing.  This prevents a fire breath, for example, changing 
- * floor to lava and then getting the damage bonuses that accrue to fire 
+ * Handle Oangband terrain.  Some terrain types that change the damage
+ * done by various projections are marked (using the CAVE_TEMP flag) for
+ * later processing.  This prevents a fire breath, for example, changing
+ * floor to lava and then getting the damage bonuses that accrue to fire
  * spells on lava.  We use "dist" to keep terrain alteration under control.
  */
 static bool project_f(int who, int y, int x, int dist, int dam, int typ)
@@ -2269,7 +2273,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			if (dist <= 1)
 			{
 				/* Mark the floor grid for (possible) later alteration. */
-				if (cave_feat[y][x] == FEAT_FLOOR) 
+				if (cave_feat[y][x] == FEAT_FLOOR)
 					cave_info[y][x] |= (CAVE_TEMP);
 			}
 			break;
@@ -2304,7 +2308,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 				{
 					msg_print("Your magic was too weak!");
 					(void)hit_trap(y, x);
-				} 
+				}
 			}
 
 			/* Secret / Locked doors are (always) found and unlocked */
@@ -2863,7 +2867,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
  * We assume "Nether" is an evil, necromantic force, so it doesn't hurt undead,
  * and hurts evil less.   If can breath nether, then it resists it as well.
  *
- * XXX XXX - For monsters, hellfire is the same as fire, and morgul-dark the 
+ * XXX XXX - For monsters, hellfire is the same as fire, and morgul-dark the
  * same as darkness.
  *
  * Variable damage reductions for monster resistances use the following formulas:
@@ -3010,9 +3014,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		/* Fire-based spells suffer, but water spells come into their own. */
 		case FEAT_WATER:
 		{
-			if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
+			if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) ||
 				(typ == GF_PLASMA)) terrain_adjustment -= dam / 2;
-			else if ((typ == GF_WATER) || (typ == GF_STORM)) 
+			else if ((typ == GF_WATER) || (typ == GF_STORM))
 				terrain_adjustment = dam / 3;
 			break;
 		}
@@ -3020,10 +3024,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		/* Cold and water-based spells suffer, and fire-based spells benefit. */
 		case FEAT_LAVA:
 		{
-			if ((typ == GF_COLD) || (typ == GF_ICE) || 
-				(typ == GF_WATER) || (typ == GF_STORM)) 
+			if ((typ == GF_COLD) || (typ == GF_ICE) ||
+				(typ == GF_WATER) || (typ == GF_STORM))
 				terrain_adjustment -= dam / 3;
-			else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
+			else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) ||
 				(typ == GF_PLASMA)) terrain_adjustment = dam / 5;
 			break;
 		}
@@ -3062,14 +3066,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			dam += terrain_adjustment;
 
 			/* XXX - Crude formula to determine hit. */
-			if (rand_int(200) < r_ptr->ac) 
+			if (rand_int(200) < r_ptr->ac)
 			{
 				msg_print("The boulder misses.");
 				dam = 0;
 			}
 
 			/* Can stun monsters. */
-			if ((dam > 15) && rand_int(2) == 0) 
+			if ((dam > 15) && rand_int(2) == 0)
 				do_stun = randint(dam > 240 ? 32 : dam / 8);
 
 			if (seen) obvious = TRUE;
@@ -3086,7 +3090,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			dam += terrain_adjustment;
 
 			/* XXX - Crude formula to determine hit. */
-			if (rand_int(200) < r_ptr->ac) 
+			if (rand_int(200) < r_ptr->ac)
 			{
 				msg_print("The missile misses.");
 				dam = 0;
@@ -3127,7 +3131,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				if (seen) l_ptr->flags3 |= (RF3_IM_ELEC);
 			}
 			/* Can stun, if enough damage is done. */
-			else if ((dam > 10) && (rand_int(2) == 0)) 
+			else if ((dam > 10) && (rand_int(2) == 0))
 				do_stun = randint(dam > 240 ? 32 : dam / 8);
 
 			break;
@@ -3210,7 +3214,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 			if (seen) obvious = TRUE;
 			if (prefix(name, "Plasma") ||
-				(r_ptr->flags4 & (RF4_BRTH_PLAS)) || 
+				(r_ptr->flags4 & (RF4_BRTH_PLAS)) ||
 				(r_ptr->flags3 & (RF3_RES_PLAS)))
 			{
 				note = " resists a lot.";
@@ -3234,11 +3238,11 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 					if (seen)
 					{
-						if ((r_ptr->flags3 & (RF3_IM_FIRE)) && 
-							(rand_int(2) == 0)) 
+						if ((r_ptr->flags3 & (RF3_IM_FIRE)) &&
+							(rand_int(2) == 0))
 							l_ptr->flags3 |= (RF3_IM_FIRE);
-						if ((r_ptr->flags3 & (RF3_IM_ELEC)) && 
-							(rand_int(2) == 0)) 
+						if ((r_ptr->flags3 & (RF3_IM_ELEC)) &&
+							(rand_int(2) == 0))
 							l_ptr->flags3 |= (RF3_IM_ELEC);
 					}
 				}
@@ -3275,10 +3279,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 			/* Holy Light gives a chance to scare targets */
 			if ((who < 0) &&
-			    ((r_ptr->flags3 & (RF3_UNDEAD)) || 
-			     (r_ptr->flags3 & (RF3_HURT_LITE)) || 
-			     (r_ptr->flags3 & (RF3_EVIL))) && 
-			    (check_ability(SP_HOLY_LIGHT)) & 
+			    ((r_ptr->flags3 & (RF3_UNDEAD)) ||
+			     (r_ptr->flags3 & (RF3_HURT_LITE)) ||
+			     (r_ptr->flags3 & (RF3_EVIL))) &&
+			    (check_ability(SP_HOLY_LIGHT)) &
 			    (randint(5) == 1))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3321,10 +3325,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 			/* Holy Light gives a chance to scare targets */
 			if ((who < 0) &&
-			    ((r_ptr->flags3 & (RF3_UNDEAD)) || 
-			     (r_ptr->flags3 & (RF3_HURT_LITE)) || 
-			     (r_ptr->flags3 & (RF3_EVIL))) && 
-			    (check_ability(SP_HOLY_LIGHT)) & 
+			    ((r_ptr->flags3 & (RF3_UNDEAD)) ||
+			     (r_ptr->flags3 & (RF3_HURT_LITE)) ||
+			     (r_ptr->flags3 & (RF3_EVIL))) &&
+			    (check_ability(SP_HOLY_LIGHT)) &
 			    (randint(3) == 1))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3526,7 +3530,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 			/* Can stun, if enough damage is done. */
-			if ((dam > 50) && (rand_int(2) == 0)) 
+			if ((dam > 50) && (rand_int(2) == 0))
 				do_stun = randint(dam > 240 ? 20 : dam / 12);
 
 			/* Can confuse, if monster can be confused. */
@@ -3552,7 +3556,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		case GF_NEXUS:
 		{
 			if (seen) obvious = TRUE;
-			if ((r_ptr->flags3 & (RF3_RES_NEXU)) || 
+			if ((r_ptr->flags3 & (RF3_RES_NEXU)) ||
 				(r_ptr->flags4 & (RF4_BRTH_NEXUS)) || prefix(name, "Nexus"))
 			{
 				note = " resists.";
@@ -3578,7 +3582,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				dam = 0;
 				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 			}
-			else if ((r_ptr->flags3 & (RF3_RES_NETH)) || 
+			else if ((r_ptr->flags3 & (RF3_RES_NETH)) ||
 				(r_ptr->flags4 & (RF4_BRTH_NETHR)))
 			{
 				note = " resists.";
@@ -3615,7 +3619,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		case GF_DISENCHANT:
 		{
 			if (seen) obvious = TRUE;
-			if ((r_ptr->flags3 & (RF3_RES_DISE)) || 
+			if ((r_ptr->flags3 & (RF3_RES_DISE)) ||
 				(r_ptr->flags4 & (RF4_BRTH_DISEN)) || prefix(name, "Disen"))
 			{
 				note = " resists.";
@@ -3848,7 +3852,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			{
 				if (m_ptr->mspeed > 60)
 				{
-					if (r_ptr->speed - m_ptr->mspeed <= 10) 
+					if (r_ptr->speed - m_ptr->mspeed <= 10)
 					{
 						m_ptr->mspeed -= 10;
 						note = " starts moving slower.";
@@ -3961,9 +3965,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		case GF_HOLD:
 		{
 			/* Attempt a saving throw. */
-			if ((randint(3 * r_ptr->level / 2) > p_ptr->lev * 2) || 
+			if ((randint(3 * r_ptr->level / 2) > p_ptr->lev * 2) ||
 				rand_int(4) == 0) note = " fights off your spell.";
-			else 
+			else
 			{
 				m_ptr->stasis = (byte)(5 + rand_int(6));
 				note = " is Held within your magics!";
@@ -3983,9 +3987,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* Attempt a saving throw. */
-				if ((randint(r_ptr->level) > p_ptr->lev * 2) || 
+				if ((randint(r_ptr->level) > p_ptr->lev * 2) ||
 					rand_int(5) == 0) note = " fights off your spell.";
-				else 
+				else
 				{
 					m_ptr->stasis = (byte)(6 + rand_int(7));
 					note = " is Held within your magics!";
@@ -4204,7 +4208,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 			/* Sometimes super-charge the spell. */
 
-			if ((turn_all_boost > 0) && 
+			if ((turn_all_boost > 0) &&
 				(randint(3) == 1))
 			{
 				dam += dam / 3;
@@ -4414,7 +4418,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			if (seen) obvious = TRUE;
 
 			/* Only effect the weakest creatures. */
-			if (m_ptr->hp >= dam) 
+			if (m_ptr->hp >= dam)
 			{
 				dam = 0;
 				note = " is unaffected.";
@@ -4567,7 +4571,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	{
 		/* Increase fear */
 		tmp = m_ptr->monfear + do_fear;
-		
+
 		/* Set fear */
 		m_ptr->monfear = (tmp < 200) ? tmp : 200;
 
@@ -4691,14 +4695,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 	/* Hack -- Sound attacks are extremely noisy. */
-	if (typ == GF_SOUND) 
+	if (typ == GF_SOUND)
 		add_wakeup_chance = 10000;
 
-	/* Otherwise, if this is the first monster hit, the spell was capable 
-	 * of causing damage, and the player was the source of the spell, 
+	/* Otherwise, if this is the first monster hit, the spell was capable
+	 * of causing damage, and the player was the source of the spell,
 	 * make noise. -LM-
 	 */
-	else if ((project_m_n == 1) && (who <= 0) && (dam)) 
+	else if ((project_m_n == 1) && (who <= 0) && (dam))
 		add_wakeup_chance = p_ptr->base_wakeup_chance / 2 + 2500;
 
 	/* Return "Anything seen?" */
@@ -4767,10 +4771,6 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Check for self inflicted damage */
 	if (!(who > 0)) self = TRUE;
 
-	/* Hacks -- Adjust damages for certain races. */
-	if ((check_ability(SP_SHADOW)) && (typ == GF_LITE)) dam += dam / 3;
-	if ((check_ability(SP_WOODEN)) && (typ == GF_FIRE)) dam += dam / 3;
-
 	/* Limit maximum damage XXX XXX XXX */
 	if (dam > 1600) dam = 1600;
 
@@ -4780,7 +4780,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		/* A player behind rubble takes less damage. */
 		case FEAT_RUBBLE:
 		{
-			if (randint(10) == 1) 
+			if (randint(10) == 1)
 			{
 				msg_print("You duck behind a boulder!");
 				return (FALSE);
@@ -4789,14 +4789,14 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Fire-based spells suffer, but other spells benefit slightly 
+		/* Fire-based spells suffer, but other spells benefit slightly
 		 * (player is easier to hit).  Water spells come into their own.
 		 */
 		case FEAT_WATER:
 		{
-			if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
+			if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) ||
 				(typ == GF_PLASMA)) terrain_adjustment -= dam / 4;
-			else if ((typ == GF_WATER) || (typ == GF_STORM)) 
+			else if ((typ == GF_WATER) || (typ == GF_STORM))
 				terrain_adjustment = dam / 2;
 			else terrain_adjustment = dam / 10;
 			break;
@@ -4805,10 +4805,10 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		/* Cold and water-based spells suffer, and fire-based spells benefit. */
 		case FEAT_LAVA:
 		{
-			if ((typ == GF_COLD) || (typ == GF_ICE) || 
-				(typ == GF_WATER) || (typ == GF_STORM)) 
+			if ((typ == GF_COLD) || (typ == GF_ICE) ||
+				(typ == GF_WATER) || (typ == GF_STORM))
 				terrain_adjustment -= dam / 4;
-			else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
+			else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) ||
 				(typ == GF_PLASMA)) terrain_adjustment = dam / 4;
 			break;
 		}
@@ -4828,8 +4828,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Hack -
 	 * Darkness protects those who serve it.
 	 */
-	if (((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) == 0) && 
-	    (p_ptr->cur_lite <= 0) && 
+	if (((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) == 0) &&
+	    (p_ptr->cur_lite <= 0) &&
 	    check_ability(SP_UNLIGHT)) terrain_adjustment -= dam / 4;
 
 	/* If the player is blind, be more descriptive */
@@ -4874,9 +4874,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			else if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->paralyzed))
 			{
 				/* Value for dodging should normally be between 18 and 75. */
-				dodging = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 124) + 
-					extract_energy[p_ptr->pspeed] + 
-					5 * adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100 / 
+				dodging = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 124) +
+					extract_energy[p_ptr->pspeed] +
+					5 * adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100 /
 					(p_ptr->total_weight > 300 ? p_ptr->total_weight : 300);
 
 				/* Do we dodge the boulder? */
@@ -4894,7 +4894,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				dam += terrain_adjustment;
 
 				/* Player armor reduces total damage (a little) */
-				dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ? 
+				dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ?
 					p_ptr->ac + p_ptr->to_a : 150) / 300);
 
 				/* Player can be crushed. */
@@ -4942,7 +4942,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Reduce damage if missile did not get deflected. */
-			else dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ? 
+			else dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ?
 				p_ptr->ac + p_ptr->to_a : 150) / 250);
 
 			/* We've been hit - check for stunning, wounding. */
@@ -4993,10 +4993,10 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Test for a miss or armour deflection. */
-			else if ((!self) && ((p_ptr->ac + p_ptr->to_a < 150 ? p_ptr->ac + p_ptr->to_a : 
+			else if ((!self) && ((p_ptr->ac + p_ptr->to_a < 150 ? p_ptr->ac + p_ptr->to_a :
 				150) > randint((10 + r_ptr->level) * 5)))
 			{
-				if ((p_ptr->ac > 9) && (rand_int(2) == 0)) 
+				if ((p_ptr->ac > 9) && (rand_int(2) == 0))
 					msg_print("The missile glances off your armour.");
 				else msg_print("The missile misses.");
 
@@ -5005,9 +5005,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Test for a deflection. */
-			else if ((inventory[INVEN_ARM].k_idx) && 
+			else if ((inventory[INVEN_ARM].k_idx) &&
 				(!p_ptr->shield_on_back) &&
-				(inventory[INVEN_ARM].ac  + (check_ability(SP_SHIELD_MAST) ? 3 : 0) > 
+				(inventory[INVEN_ARM].ac  + (check_ability(SP_SHIELD_MAST) ? 3 : 0) >
 				 rand_int(MAX_SHIELD_BASE_AC * 4)))
 			{
 				msg_print("The missile ricochets off your shield.");
@@ -5017,7 +5017,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Reduce damage if missile did not get deflected. */
-			else dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ? 
+			else dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ?
 				p_ptr->ac + p_ptr->to_a : 150) / 250);
 
 			if (dam)
@@ -5062,9 +5062,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			else if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->paralyzed))
 			{
 				/* Value for dodging should normally be between 18 and 75. */
-				dodging = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 124) + 
-					extract_energy[p_ptr->pspeed] + 
-					5 * adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100 / 
+				dodging = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 124) +
+					extract_energy[p_ptr->pspeed] +
+					5 * adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100 /
 					(p_ptr->total_weight > 300 ? p_ptr->total_weight : 300);
 
 				/* Do we dodge the missile (not an easy thing to do)? */
@@ -5085,21 +5085,21 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)))
 					{
 						/* Hack - cannot rapid-fire morgul missiles. */
-							if ((r_ptr->flags2 & (RF2_ARCHER)) && (m_ptr->cdis > 1) && 
+							if ((r_ptr->flags2 & (RF2_ARCHER)) && (m_ptr->cdis > 1) &&
 							(randint(100) > r_ptr->freq_ranged))
 						{
 							k = 1;
 						}
 
 						/* Hack - The Ringwraiths and Sauron are very dangerous. */
-						else if ((prefix(m_name, "Sauron, the Sorcerer")) || 
+						else if ((prefix(m_name, "Sauron, the Sorcerer")) ||
 							((r_ptr->d_char == 'W') && (r_ptr->flags1 & (RF1_UNIQUE))))
 						{
 							/* 40% chance of Black Breath. */
 							k = randint(5);
 						}
 						/* Other monsters with Morgul-magic. */
-						else 
+						else
 						{
 							/* 17% chance of Black Breath. */
 							k = randint(2);
@@ -5119,24 +5119,24 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				if (fuzzy) msg_print("You are hit by a missile.");
 				else msg_print("You are hit.");
 
-				/* Armour reduces damage, if missile does not carry 
+				/* Armour reduces damage, if missile does not carry
 				 * the Black Breath.
 				 */
 				if (k < 4)
 				{
-					dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ? 
+					dam -= (dam * ((p_ptr->ac + p_ptr->to_a < 150) ?
 						p_ptr->ac + p_ptr->to_a : 150) / 250);
 				}
 
 				/* Ordinary missile. */
-				if (k == 0) 
+				if (k == 0)
 				{
 					/* No special damage. */
 					take_hit(dam, killer);
 				}
 
 				/* Standard poisonous missile. */
-				if (k == 1) 
+				if (k == 1)
 				{
 					/* Damage is not affected by poison. */
 					take_hit(dam, killer);
@@ -5146,7 +5146,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				}
 
 				/* Drain life . */
-				if (k == 2) 
+				if (k == 2)
 				{
 					/* First the raw damage, */
 					take_hit(dam, killer);
@@ -5168,7 +5168,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				}
 
 				/* Reduce stats. */
-				if (k == 3) 
+				if (k == 3)
 				{
 					/* Oh no. */
 					msg_print("Foul magics assault body and mind!");
@@ -5189,7 +5189,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				}
 
 				/* Inflict the Black Breath. */
-				if (k >= 4) 
+				if (k >= 4)
 				{
 					/* First the raw damage, */
 					take_hit(dam, killer);
@@ -5337,7 +5337,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			/* Morgul-poison is also acidic. */
-			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC))) 
+			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)))
 			{
 				if (fuzzy) msg_print("You are hit by acidic venom.");
 				acid_dam(dam / 3, killer);
@@ -5347,14 +5347,14 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Poison Damage and Add Posion */
 			pois_dam(dam, killer);
 
-			/* Some nasty possible side-effects of Morgul-poison.  Poison 
-			 * resistance (but not acid resistance) reduces the damage 
+			/* Some nasty possible side-effects of Morgul-poison.  Poison
+			 * resistance (but not acid resistance) reduces the damage
 			 * counted when determining effects.
 			 */
 			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)))
 			{
 				/* Paralyzation. */
-				if ((!p_ptr->free_act) && (!check_save(dam / 2 + 20))) 
+				if ((!p_ptr->free_act) && (!check_save(dam / 2 + 20)))
 				{
 					msg_print("The deadly vapor overwhelms you, and you faint away!");
 					(void)set_paralyzed(p_ptr->paralyzed + rand_int(3) + 2);
@@ -5505,7 +5505,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			else k = 0;
 
 			/* Hack - The Ringwraiths and Sauron are very dangerous. */
-			if ((!self) && ((prefix(m_name, "Sauron, the Sorcerer")) || 
+			if ((!self) && ((prefix(m_name, "Sauron, the Sorcerer")) ||
 				((r_ptr->d_char == 'W') && (r_ptr->flags1 & (RF1_UNIQUE)))))
 			{
 				if (k < 175) k = 175;
@@ -5520,7 +5520,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					/* Paralyze.  If has free action, max of 1 turn. */
 					if ((!p_ptr->free_act) || rand_int(3) == 0)
 					{
-						(void)set_paralyzed(p_ptr->paralyzed + 
+						(void)set_paralyzed(p_ptr->paralyzed +
 						(p_ptr->free_act ? 1 : rand_int(3) + 2));
 
 						msg_print("You are paralyzed with fear!");
@@ -5672,7 +5672,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			else k = dam;
 
 			/* Blow up flasks and potions sometimes. */
-			if (k > 12) inven_damage(set_cold_destroy, 
+			if (k > 12) inven_damage(set_cold_destroy,
 				((k / 13 > 30) ? 30 : k / 13));
 
 			break;
@@ -5685,9 +5685,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			/* Test for partial shield protection. */
-			if ((inventory[INVEN_ARM].k_idx) && 
-				(!p_ptr->shield_on_back) && 
-				(inventory[INVEN_ARM].ac + (check_ability(SP_SHIELD_MAST) ? 3 : 0) > 
+			if ((inventory[INVEN_ARM].k_idx) &&
+				(!p_ptr->shield_on_back) &&
+				(inventory[INVEN_ARM].ac + (check_ability(SP_SHIELD_MAST) ? 3 : 0) >
 				 rand_int(MAX_SHIELD_BASE_AC * 2)))
 			{
 				dam *= 6; dam /= (randint(6) + 6);
@@ -5710,7 +5710,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			else k = dam;
 
 			/* Blow up flasks and potions on rare occasions. */
-			if (k > 19) inven_damage(set_cold_destroy, 
+			if (k > 19) inven_damage(set_cold_destroy,
 				((k / 20 > 20) ? 20 : k / 20));
 
 			take_hit(dam, killer);
@@ -5897,7 +5897,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 			if (!p_resist_pos(P_RES_CHAOS))
 			{
-				if (!p_resist_pos(P_RES_CONFU)) 
+				if (!p_resist_pos(P_RES_CONFU))
 					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 				(void)set_image(p_ptr->image + randint(10));
 			}
@@ -6049,21 +6049,21 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 /*
  * Helper function for "project()" below.
  *
- * Handle movement of monsters and the player.  Handle the alteration of 
+ * Handle movement of monsters and the player.  Handle the alteration of
  * grids that affect damage.  -LM-
  *
- * This function only checks grids marked with the CAVE_TEMP flag, and 
- * always clears this flag.  To help creatures get out of each other's 
+ * This function only checks grids marked with the CAVE_TEMP flag, and
+ * always clears this flag.  To help creatures get out of each other's
  * way, this function processes from outside in.
  *
- * This accomplishes two things:  A creature now cannot be damaged/blinked 
- * more than once in a single projection, if all teleport functions also 
- * clear the CAVE_TEMP flag.  Terrain now affects damage taken, and 
+ * This accomplishes two things:  A creature now cannot be damaged/blinked
+ * more than once in a single projection, if all teleport functions also
+ * clear the CAVE_TEMP flag.  Terrain now affects damage taken, and
  * only then gets altered.
  *
- * XXX XXX -- Hack -- because the CAVE_TEMP flag may be erased by certain 
- * updates, we must be careful not to allow any of the teleport functions 
- * called by this function to ask for one.  This work well in practice, but 
+ * XXX XXX -- Hack -- because the CAVE_TEMP flag may be erased by certain
+ * updates, we must be careful not to allow any of the teleport functions
+ * called by this function to ask for one.  This work well in practice, but
  * is a definite hack.
  *
  * This function assumes that most messages have already been shown.
@@ -6098,7 +6098,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 
 
 	/* Projection will be affecting a player. */
-	if ((flg & (PROJECT_PLAY)) && (cave_m_idx[y][x] < 0)) 
+	if ((flg & (PROJECT_PLAY)) && (cave_m_idx[y][x] < 0))
 		affect_player = TRUE;
 
 	/* Projection will be affecting a monster. */
@@ -6144,7 +6144,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 
 					/* Forget the lava */
 					cave_info[y][x] &= ~(CAVE_MARK);
-	
+
 					/* Destroy the lava */
 					if (randint(3) != 1) cave_set_feat(y, x, FEAT_FLOOR);
 					else cave_set_feat(y, x, FEAT_RUBBLE);
@@ -6162,7 +6162,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 			/* Can create lava if extremely powerful. */
 			if (dam > randint(1800) + 600)
 			{
-				if ((cave_feat[y][x] == FEAT_FLOOR) || 
+				if ((cave_feat[y][x] == FEAT_FLOOR) ||
 					(cave_feat[y][x] == FEAT_RUBBLE))
 				{
 
@@ -6190,7 +6190,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 					if (cave_feat[yy][xx] == FEAT_WATER) k++;
 				}
 
-				/* Is the fire strong enough? Large ponds are difficult 
+				/* Is the fire strong enough? Large ponds are difficult
 				 * to evaporate, as Smaug found out the hard way.
 				 */
 				if (dam > randint(600 + k * 300) + 200)
@@ -6221,7 +6221,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		{
 			if (affect_player)
 			{
-				if (((p_resist_pos(P_RES_NEXUS)) || (p_ptr->ffall)) && 
+				if (((p_resist_pos(P_RES_NEXUS)) || (p_ptr->ffall)) &&
 					(rand_int(2) == 0))
 				{
 					msg_print("You barely hold your ground.");
@@ -6247,7 +6247,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		case GF_FORCE:
 		{
 			/* Force breathers are immune. */
-			if ((affect_monster) && 
+			if ((affect_monster) &&
 				(r_ptr->flags4 & (RF4_BRTH_FORCE))) break;
 
 			if ((affect_monster) || (affect_player))
@@ -6274,7 +6274,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 			if ((typ == GF_STORM) && (affect_player))
 			{
 				/* Sometimes, if no feather fall, throw the player around. */
-				if ((!p_ptr->ffall) && (rand_int(3) != 0) && 
+				if ((!p_ptr->ffall) && (rand_int(3) != 0) &&
 					(rand_int(dam / 2) > p_ptr->lev))
 				{
 					msg_print("The wind grabs you, and whirls you around!");
@@ -6288,7 +6288,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 				if (r_ptr->flags4 & (RF4_BRTH_GRAV)) do_dist = 0;
 
 				/* Big monsters are immune, if the caster is a monster. */
-				else if ((who > 0) && (m_ptr->maxhp) < rand_int(dam * 3)) 
+				else if ((who > 0) && (m_ptr->maxhp) < rand_int(dam * 3))
 				{
 					do_dist = 10;
 					if (seen) obvious = TRUE;
@@ -6455,7 +6455,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 
 
 /*
- * Generic "beam"/"bolt"/"ball" projection routine.  
+ * Generic "beam"/"bolt"/"ball" projection routine.
  *   -BEN-, some changes by -LM-
  *
  * Input:
@@ -6475,65 +6475,65 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
  *
  * At present, there are five major types of projections:
  *
- * Point-effect projection:  (no PROJECT_BEAM flag, radius of zero, and either 
+ * Point-effect projection:  (no PROJECT_BEAM flag, radius of zero, and either
  *   jumps directly to target or has a single source and target grid)
- * A point-effect projection has no line of projection, and only affects one 
- *   grid.  It is used for most area-effect spells (like dispel evil) and 
+ * A point-effect projection has no line of projection, and only affects one
+ *   grid.  It is used for most area-effect spells (like dispel evil) and
  *   pinpoint strikes like the monster Holding prayer.
- * 
- * Bolt:  (no PROJECT_BEAM flag, radius of zero, has to travel from source to 
+ *
+ * Bolt:  (no PROJECT_BEAM flag, radius of zero, has to travel from source to
  *   target)
- * A bolt travels from source to target and affects only the final grid in its 
- *   projection path.  If given the PROJECT_STOP flag, it is stopped by any 
+ * A bolt travels from source to target and affects only the final grid in its
+ *   projection path.  If given the PROJECT_STOP flag, it is stopped by any
  *   monster or character in its path (at present, all bolts use this flag).
  *
  * Beam:  (PROJECT_BEAM)
- * A beam travels from source to target, affecting all grids passed through 
- *   with full damage.  It is never stopped by monsters in its path.  Beams 
+ * A beam travels from source to target, affecting all grids passed through
+ *   with full damage.  It is never stopped by monsters in its path.  Beams
  *   may never be combined with any other projection type.
  *
  * Ball:  (positive radius, unless the PROJECT_ARC flag is set)
- * A ball travels from source towards the target, and always explodes.  Unless 
- *   specified, it does not affect wall grids, but otherwise affects any grids 
+ * A ball travels from source towards the target, and always explodes.  Unless
+ *   specified, it does not affect wall grids, but otherwise affects any grids
  *   in LOS from the center of the explosion.
- * If used with a direction, a ball will explode on the first occupied grid in 
- *   its path.  If given a target, it will explode on that target.  If a 
- *   wall is in the way, it will explode against the wall.  If a ball reaches 
- *   MAX_RANGE without hitting anything or reaching its target, it will 
+ * If used with a direction, a ball will explode on the first occupied grid in
+ *   its path.  If given a target, it will explode on that target.  If a
+ *   wall is in the way, it will explode against the wall.  If a ball reaches
+ *   MAX_RANGE without hitting anything or reaching its target, it will
  *   explode at that point.
  *
  * Arc:  (positive radius, with the PROJECT_ARC flag set)
- * An arc is a portion of a source-centered ball that explodes outwards 
- *   towards the target grid.  Like a ball, it affects all non-wall grids in 
+ * An arc is a portion of a source-centered ball that explodes outwards
+ *   towards the target grid.  Like a ball, it affects all non-wall grids in
  *   LOS of the source in the explosion area.  The width of arc spells is con-
  *   trolled by degrees_of_arc.
- * An arc is created by rejecting all grids that form the endpoints of lines 
- *   whose angular difference (in degrees) from the centerline of the arc is 
+ * An arc is created by rejecting all grids that form the endpoints of lines
+ *   whose angular difference (in degrees) from the centerline of the arc is
  *   greater than one-half the input "degrees_of_arc".  See the table "get_
  *   angle_to_grid" in "util.c" for more information.
  * Note:  An arc with a value for degrees_of_arc of zero is actually a beam of
  *   defined length.
  *
- * Projections that effect all monsters in LOS are handled through the use 
- *   of "project_hack()", which applies a single-grid projection to individual 
- *   monsters.  Projections that light up rooms or effect all monsters on the 
+ * Projections that effect all monsters in LOS are handled through the use
+ *   of "project_hack()", which applies a single-grid projection to individual
+ *   monsters.  Projections that light up rooms or effect all monsters on the
  *   level are more efficiently handled through special functions.
  *
  *
  * Variations:
  *
- * PROJECT_STOP forces a path of projection to stop at the first occupied grid 
- *   it hits.  This is used with bolts, and also by ball spells travelling in 
+ * PROJECT_STOP forces a path of projection to stop at the first occupied grid
+ *   it hits.  This is used with bolts, and also by ball spells travelling in
  *   a specific direction rather than towards a target.
  *
- * PROJECT_THRU allows a path of projection towards a target to continue 
- *   past that target.  It also allows a spell to affect wall grids adjacent 
+ * PROJECT_THRU allows a path of projection towards a target to continue
+ *   past that target.  It also allows a spell to affect wall grids adjacent
  *   to a grid in LOS of the center of the explosion.
- * 
+ *
  * PROJECT_JUMP allows a projection to immediately set the source of the pro-
- *   jection to the target.  This is used for all area effect spells (like 
+ *   jection to the target.  This is used for all area effect spells (like
  *   dispel evil), and can also be used for bombardments.
- * 
+ *
  * PROJECT_HIDE erases all graphical effects, making the projection invisible.
  *
  * PROJECT_GRID allows projections to affect terrain features.
@@ -6544,51 +6544,51 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
  *
  * PROJECT_PLAY allows projections to affect the player.
  *
- * degrees_of_arc controls the width of arc spells.  With a value for 
+ * degrees_of_arc controls the width of arc spells.  With a value for
  *   degrees_of_arc of zero, arcs act like beams of defined length.
  *
  * diameter_of_source controls how quickly explosions lose strength with dis-
- *   tance from the target.  Most ball spells have a source diameter of 10, 
- *   which means that they do 1/2 damage at range 1, 1/3 damage at range 2, 
- *   and so on.   Caster-centered balls usually have a source diameter of 20, 
- *   which allows them to do full damage to all adjacent grids.   Arcs have 
- *   source diameters ranging up to 20, which allows the spell designer to 
+ *   tance from the target.  Most ball spells have a source diameter of 10,
+ *   which means that they do 1/2 damage at range 1, 1/3 damage at range 2,
+ *   and so on.   Caster-centered balls usually have a source diameter of 20,
+ *   which allows them to do full damage to all adjacent grids.   Arcs have
+ *   source diameters ranging up to 20, which allows the spell designer to
  *   fine-tune how quickly a breath loses strength outwards from the breather.
- *   It is expected, but not required, that wide arcs lose strength more 
+ *   It is expected, but not required, that wide arcs lose strength more
  *   quickly over distance.
  *
  *
  * Implementation notes:
  *
- * If the source grid is not the same as the target, we project along the path 
- *   between them.  Bolts stop if they hit anything, beams stop if they hit a 
- *   wall, and balls and arcs may exhibit either bahavior.  When they reach 
- *   the final grid in the path, balls and arcs explode.  We do not allow beams 
+ * If the source grid is not the same as the target, we project along the path
+ *   between them.  Bolts stop if they hit anything, beams stop if they hit a
+ *   wall, and balls and arcs may exhibit either bahavior.  When they reach
+ *   the final grid in the path, balls and arcs explode.  We do not allow beams
  *   to be combined with explosions.
- * Balls affect all floor grids in LOS (optionally, also wall grids adjacent 
- *   to a grid in LOS) within their radius.  Arcs do the same, but only within 
+ * Balls affect all floor grids in LOS (optionally, also wall grids adjacent
+ *   to a grid in LOS) within their radius.  Arcs do the same, but only within
  *   their cone of projection.
- * Because affected grids are only scanned once, and it is really helpful to 
- *   have explosions that travel outwards from the source, they are sorted by 
+ * Because affected grids are only scanned once, and it is really helpful to
+ *   have explosions that travel outwards from the source, they are sorted by
  *   distance.  For each distance, an adjusted damage is calculated.
- * In successive passes, the code then displays explosion graphics, erases 
- *   these graphics, marks terrain for possible later changes, affects 
- *   objects, monsters, the character, and finally changes features and 
+ * In successive passes, the code then displays explosion graphics, erases
+ *   these graphics, marks terrain for possible later changes, affects
+ *   objects, monsters, the character, and finally changes features and
  *   teleports monsters and characters in marked grids.
- * 
+ *
  *
  * Usage and graphics notes:
  *
- * If the option "fresh_before" is on, or the delay factor is anything other 
+ * If the option "fresh_before" is on, or the delay factor is anything other
  * than zero, bolt and explosion pictures will be momentarily shown on screen.
  *
- * Only 256 grids can be affected per projection, limiting the effective 
- * radius of standard ball attacks to nine units (diameter nineteen).  Arcs 
- * can have larger radii; an arc capable of going out to range 20 should not 
+ * Only 256 grids can be affected per projection, limiting the effective
+ * radius of standard ball attacks to nine units (diameter nineteen).  Arcs
+ * can have larger radii; an arc capable of going out to range 20 should not
  * be wider than 70 degrees.
  *
- * Balls must explode BEFORE hitting walls, or they would affect monsters on 
- * both sides of a wall. 
+ * Balls must explode BEFORE hitting walls, or they would affect monsters on
+ * both sides of a wall.
  *
  * Note that for consistency, we pretend that the bolt actually takes time
  * to move from point A to point B, even if the player cannot see part of the
@@ -6604,7 +6604,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
  * in the blast radius, in case the illumination of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(int who, int rad, int y, int x, int dam, int typ, int flg, 
+bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	int degrees_of_arc, byte diameter_of_source)
 {
 	int py = p_ptr->py;
@@ -6696,7 +6696,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	x0 = x1;
 
 	/*
-	 * An arc spell with no width and a non-zero radius is actually a 
+	 * An arc spell with no width and a non-zero radius is actually a
 	 * beam of defined length.  Mark it as such.
 	 */
 	if ((flg & (PROJECT_ARC)) && (degrees_of_arc == 0) && (rad != 0))
@@ -6735,7 +6735,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			/* Use length limit, if any is given. */
 			if ((rad > 0) && (rad < path_n)) path_n = rad;
 		}
-  
+
 
 		/* Project along the path (except for arcs) */
 		if (!(flg & (PROJECT_ARC))) for (i = 0; i < path_n; ++i)
@@ -6838,7 +6838,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		/* No special actions */
 	}
 
-	/* 
+	/*
 	 * All non-beam projections with a positive radius explode in some way.
 	 */
 	else if (rad > 0)
@@ -6869,9 +6869,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			n1x = GRID_X(path_g[i]) - x0 + 20;
 		}
 
-		/* 
-		 * If the center of the explosion hasn't been 
-		 * saved already, save it now. 
+		/*
+		 * If the center of the explosion hasn't been
+		 * saved already, save it now.
 		 */
 		if (grids == 0)
 		{
@@ -6881,10 +6881,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			grids++;
 		}
 
-		/* 
-		 * Scan every grid that might possibly 
-		 * be in the blast radius. 
-		 */	
+		/*
+		 * Scan every grid that might possibly
+		 * be in the blast radius.
+		 */
 		for (y = y0 - rad; y <= y0 + rad; y++)
 		{
 			for (x = x0 - rad; x <= x0 + rad; x++)
@@ -6953,18 +6953,18 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 					n2x = x - x1 + 20;
 
 					/*
-					 * Find the angular difference (/2) between 
+					 * Find the angular difference (/2) between
 					 * the lines to the end of the arc's center-
 					 * line and to the current grid.
 					 */
-					rotate = 90 - 
+					rotate = 90 -
 						get_angle_to_grid[n1y][n1x];
-					tmp = ABS(get_angle_to_grid[n2y][n2x] + 
+					tmp = ABS(get_angle_to_grid[n2y][n2x] +
 						rotate) % 180;
 					diff = ABS(90 - tmp);
 
 					/*
-					 * If difference is not greater then that 
+					 * If difference is not greater then that
 					 * allowed, and the grid is in LOS, accept it.
 					 */
 					if (diff < (degrees_of_arc + 6) / 4)
@@ -6994,7 +6994,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			dam_temp = (dam + i) / (i + 1);
 		}
 
-		/* If a particular diameter for the source of the explosion's 
+		/* If a particular diameter for the source of the explosion's
 		 * energy is given, calculate an adjusted damage.
 		 */
 		else
@@ -7121,7 +7121,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			x = gx[i];
 
 			/* Affect the feature in that grid */
-			if (project_f(who, y, x, gd[i], dam_at_dist[gd[i]], typ)) 
+			if (project_f(who, y, x, gd[i], dam_at_dist[gd[i]], typ))
 				notice = TRUE;
 		}
 	}
@@ -7137,7 +7137,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			x = gx[i];
 
 			/* Affect the object in the grid */
-			if (project_o(who, y, x, dam_at_dist[gd[i]], typ)) 
+			if (project_o(who, y, x, dam_at_dist[gd[i]], typ))
 				notice = TRUE;
 		}
 	}
@@ -7158,7 +7158,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			x = gx[i];
 
 			/* Affect the monster in the grid */
-			if (project_m(who, y, x, dam_at_dist[gd[i]], typ, flg)) 
+			if (project_m(who, y, x, dam_at_dist[gd[i]], typ, flg))
 				notice = TRUE;
 		}
 
@@ -7194,7 +7194,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 			x = gx[i];
 
 			/* Affect the player */
-			if (project_p(who, rad, y, x, dam_at_dist[gd[i]], typ)) 
+			if (project_p(who, rad, y, x, dam_at_dist[gd[i]], typ))
 				notice = TRUE;
 		}
 	}
@@ -7210,7 +7210,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		if (!(cave_info[y][x] & (CAVE_TEMP))) continue;
 
 		/* Affect marked grid */
-		if (project_t(who, y, x, dam_at_dist[gd[i]], typ, flg)) 
+		if (project_t(who, y, x, dam_at_dist[gd[i]], typ, flg))
 			notice = TRUE;
 	}
 

@@ -304,19 +304,6 @@ Browse a book (b) or Peruse a book (P)
      realm with this command.  Warriors get a special information screen giving 
      information about their pseudo-probing ability.
 
-Gain new spells or prayers (G)
-     Use this command to actually learn new spells or prayers.  When you are 
-     able to learn new spells or prayers, the word "Study" will appear on the 
-     status line at the bottom of the screen.  If you have a book in your 
-     possession, containing spells or prayers which you may learn, then you may 
-     choose to study that book.  If you are a mage, rogue, druid, ranger, necro-
-     mancer, or assassin, you may actually choose which spell to study.  If you 
-     are a priest or paladin, your gods will choose a prayer for you.  This 
-     command takes some energy.
-     If you can learn new spells and you can also learn new specialty abilities
-     the "Study" notification will be replaced by the "Spec." notification.  You
-     can still gain spells, even if you choose not to specialize.
-
 Cast a spell or Pray a Prayer (m and p)
      To cast a spell, you must have previously learned the spell and must have 
      in your inventory a book from which the spell can be read.  Each spell has 

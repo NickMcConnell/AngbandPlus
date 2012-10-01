@@ -676,13 +676,13 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	/* Queue the attr/chars */
 	for ( ; n; x++, s++, n--)
 	{
-		int oa = scr_aa[x];
-		int oc = scr_cc[x];
+		byte oa = scr_aa[x];
+		char oc = scr_cc[x];
 
 #ifdef USE_TRANSPARENCY
 
-		int ota = scr_taa[x];
-		int otc = scr_tcc[x];
+		byte ota = scr_taa[x];
+		char otc = scr_tcc[x];
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;

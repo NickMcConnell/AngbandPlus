@@ -1,6 +1,6 @@
 /* File: monster1.c */
 
-/* how the char gains new monster info and the monster recall, including 
+/* how the char gains new monster info and the monster recall, including
  * all descriptions.  The player ghost code.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -136,7 +136,7 @@ static bool know_damage(int r_idx, int i)
 
 	s32b d = d1 * d2;
 
-	/* Hack - keep the target number reasonable */ 
+	/* Hack - keep the target number reasonable */
 	if (d > 100) d = 100;
 
 	/* Hack -- Rangers learn quickly. */
@@ -253,16 +253,29 @@ static void roff_aux(int r_idx)
 
 		/* Hack -- maximal drops */
 		l_ptr->drop_gold = l_ptr->drop_item =
-		(((r_ptr->flags1 & (RF1_DROP_4D2)) ? 8 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_3D2)) ? 6 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_2D2)) ? 4 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_1D2)) ? 2 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_90))  ? 1 : 0) +
-		 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0));
+		(((r_ptr->flags1 & (RF1_DROP_TWO)) ? 2 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_ONE)) ? 1 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0) +
+		 ((r_ptr->flags1 & (RF1_DROP_40))  ? 1 : 0));
+
+		/* Decode level boost */
+		l_ptr->drop_boost += (r_ptr->flags1 & (RF1_DROP_PLUS_5)) ? 5 : 0;
+		l_ptr->drop_boost += (r_ptr->flags1 & (RF1_DROP_PLUS_10)) ? 10 : 0;
 
 		/* Hack -- but only "valid" drops */
 		if (r_ptr->flags1 & (RF1_ONLY_GOLD)) l_ptr->drop_item = 0;
 		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) l_ptr->drop_gold = 0;
+
+		/*
+		 * Mega-Hack - the Living Dungeon hack
+		 * Creatures with enhanced drop depth and only gold,
+		 * actually get more drops as well.
+		 */
+		if (r_ptr->flags1 & (RF1_ONLY_GOLD))
+		{
+			l_ptr->drop_gold += (r_ptr->flags1 & (RF1_DROP_PLUS_5)) ? 3 : 0;
+			l_ptr->drop_gold += (r_ptr->flags1 & (RF1_DROP_PLUS_10)) ? 6 : 0;
+		}
 
 		/* Hack -- observe many spells */
 		l_ptr->cast_inate = MAX_UCHAR;
@@ -459,7 +472,6 @@ static void roff_aux(int r_idx)
 		{
 			roff("You have slain this foe.  ", 0, 0);
 		}
-		
 	}
 
 	/* Not unique, but killed us */
@@ -563,16 +575,16 @@ static void roff_aux(int r_idx)
 
 		else if (r_ptr->flags1 & (RF1_FORCE_DEPTH))
 		{
-			roff(format("%^s is %s, always found ", wd_he[msex], 
+			roff(format("%^s is %s, always found ", wd_he[msex],
 				wd_rarity(r_ptr->rarity, unique)), 0, 0);
-			c_roff(con_color, format("%s", 
+			c_roff(con_color, format("%s",
 				depth_desc), 0, 0);
 		}
 		else
 		{
-			roff(format("%^s is %s, normally found ", wd_he[msex], 
+			roff(format("%^s is %s, normally found ", wd_he[msex],
 				wd_rarity(r_ptr->rarity, unique)), 0, 0);
-			c_roff(con_color, format("%s", 
+			c_roff(con_color, format("%s",
 				depth_desc), 0, 0);
 		}
 
@@ -732,31 +744,31 @@ static void roff_aux(int r_idx)
 		}
 	}
 	/* If no kills, known racial information should still be displayed. */
-	else if ((flags3 & (RF3_ANIMAL)) || (flags3 & (RF3_EVIL)) || 
-		(flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_DRAGON)) || 
-		(flags3 & (RF3_DEMON)) || (flags3 & (RF3_GIANT)) || 
+	else if ((flags3 & (RF3_ANIMAL)) || (flags3 & (RF3_EVIL)) ||
+		(flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_DRAGON)) ||
+		(flags3 & (RF3_DEMON)) || (flags3 & (RF3_GIANT)) ||
 		(flags3 & (RF3_TROLL)) || (flags3 & (RF3_ORC)))
 	{
 		bool add = FALSE;
 
 		/* Pronoun. */
-		if (flags1 & (RF1_UNIQUE)) 
+		if (flags1 & (RF1_UNIQUE))
 			roff(format("%^s is a", wd_he[msex]), 0, 0);
 		else roff("It is a", 0, 0);
 
 		/* Describe the "quality" */
-		if (flags3 & (RF3_ANIMAL)) 
+		if (flags3 & (RF3_ANIMAL))
 		{
 			roff(" natural", 0, 0);
 			add = TRUE;
 		}
-		if (flags3 & (RF3_EVIL))	
+		if (flags3 & (RF3_EVIL))
 		{
 			if (add) roff(" evil", 0, 0);
 			else roff("n evil", 0, 0);
 			add = TRUE;
 		}
-		if (flags3 & (RF3_UNDEAD)) 
+		if (flags3 & (RF3_UNDEAD))
 		{
 			if (add) roff(" undead", 0, 0);
 			else roff("n undead", 0, 0);
@@ -768,7 +780,7 @@ static void roff_aux(int r_idx)
 		else if (flags3 & (RF3_DEMON)) roff(" demon", 0, 0);
 		else if (flags3 & (RF3_GIANT)) roff(" giant", 0, 0);
 		else if (flags3 & (RF3_TROLL)) roff(" troll", 0, 0);
-		else if (flags3 & (RF3_ORC)) 
+		else if (flags3 & (RF3_ORC))
 		{
 			if (add) roff(" orc", 0, 0);
 			else roff("n orc", 0, 0);
@@ -802,7 +814,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
 	if (flags4 & (RF4_LASH))
 	{
-		if (flags3 & (RF3_ANIMAL) || (r_ptr->blow[0].effect == RBE_ACID)) 
+		if (flags3 & (RF3_ANIMAL) || (r_ptr->blow[0].effect == RBE_ACID))
 			vp[vn++] = "spit at you from a distance";
 		else
 			vp[vn++] = "lash you if nearby";
@@ -852,7 +864,7 @@ static void roff_aux(int r_idx)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) 
+			if (n == 0)
 			{
 				roff(" may ", 0, 0);
 				if (flags2 & (RF2_ARCHER)) roff("frequently ", 0, 0);
@@ -940,7 +952,7 @@ static void roff_aux(int r_idx)
 		if (spower < 70) vp[vn++] = "produce lightning balls";
 		else vp[vn++] = "produce lightning storms";
 	}
-	if (flags5 & (RF5_BALL_FIRE))	
+	if (flags5 & (RF5_BALL_FIRE))
 	{
 		if (flags2 & (RF2_UDUN_MAGIC))
 		{
@@ -1182,7 +1194,7 @@ static void roff_aux(int r_idx)
 		if (flags2 & (RF2_SMART))
 		{
 			/* Suppress text if monster has both Udun and Morgul-magic. */
-			if (!((flags2 & (RF2_UDUN_MAGIC)) && 
+			if (!((flags2 & (RF2_UDUN_MAGIC)) &&
 				(flags2 & (RF2_MORGUL_MAGIC))))
 			{
 				roff(" intelligently", 0, 0);
@@ -1202,7 +1214,7 @@ static void roff_aux(int r_idx)
 			else if (n == 0) roff(" which ", 0, 0);
 			else if (n < vn-1) roff(", ", 0, 0);
 			else if (n == 1) roff(" or ", 0, 0);
-			else 
+			else
 			{
 				if ((vn > m) && (m == vn - 2)) roff(" or ", 0, 0);
 				else roff(", or ", 0, 0);
@@ -1229,7 +1241,7 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe the spell frequency */
-		else if (m)
+		if (m)
 		{
 			roff("; ", 0, 0);
 			c_roff(TERM_L_GREEN, "1 ", 0, 0);
@@ -1244,7 +1256,6 @@ static void roff_aux(int r_idx)
 			roff(" with a mana rating of ", 0, 0);
 			c_roff(TERM_L_GREEN, format("%d",
 				    r_ptr->mana), 0, 0);
-			
 		}
 
 		/* End this sentence */
@@ -1409,7 +1420,7 @@ static void roff_aux(int r_idx)
 	/* Neatness: mention some borderline high-level resistances only if others have already been. */
 	vn = 0;
 	if (flags4 & (RF4_BRTH_LITE)) vp[vn++] = "light";
-	if ((flags4 & (RF4_BRTH_DARK)) || (flags2 & (RF2_MORGUL_MAGIC)) 
+	if ((flags4 & (RF4_BRTH_DARK)) || (flags2 & (RF2_MORGUL_MAGIC))
 		|| (flags3 & (RF3_ORC))) vp[vn++] = "darkness";
 
 	if (flags4 & (RF4_BRTH_CONFU)) vp[vn++] = "confusion";
@@ -1418,16 +1429,16 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_BRTH_INER)) vp[vn++] = "inertia";
 	if (flags4 & (RF4_BRTH_GRAV)) vp[vn++] = "gravity";
 	if (flags4 & (RF4_BRTH_FORCE)) vp[vn++] = "force";
-	if ((flags3 & (RF3_RES_WATE)) || (prefix(name, "Water"))) 
+	if ((flags3 & (RF3_RES_WATE)) || (prefix(name, "Water")))
 		vp[vn++] = "water";
 
-	if ((flags4 & (RF4_BRTH_PLAS)) || (flags3 & (RF3_RES_PLAS)) || 
-		((vn) && ((flags3 & (RF3_IM_ELEC)) || (flags3 & (RF3_IM_FIRE)))) || 
+	if ((flags4 & (RF4_BRTH_PLAS)) || (flags3 & (RF3_RES_PLAS)) ||
+		((vn) && ((flags3 & (RF3_IM_ELEC)) || (flags3 & (RF3_IM_FIRE)))) ||
 		prefix(name, "Plasma")) vp[vn++] = "plasma";
 
-	if ((flags3 & (RF3_RES_NEXU)) || prefix(name, "Nexus") || 
+	if ((flags3 & (RF3_RES_NEXU)) || prefix(name, "Nexus") ||
 		(flags4 & (RF4_BRTH_NEXUS))) vp[vn++] = "nexus";
-	if ((flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_RES_NETH)) || 
+	if ((flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_RES_NETH)) ||
 		(flags4 & (RF4_BRTH_NETHR))) vp[vn++] = "nether";
 	if ((flags3 & (RF3_RES_DISE)) || (flags4 & (RF4_BRTH_DISEN)) ||
 		prefix(name, "Disen")) vp[vn++] = "disenchantment";
@@ -1463,7 +1474,7 @@ static void roff_aux(int r_idx)
 	if ((flags3 & (RF3_NO_STUN)) || (flags4 & (RF4_BRTH_SOUND)) ||
 		(flags4 & (RF4_BRTH_FORCE))) vp[vn++] = "stunned";
 	if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
-	if ((flags3 & (RF3_NO_CONF)) || (flags4 & (RF4_BRTH_CONFU)) || 
+	if ((flags3 & (RF3_NO_CONF)) || (flags4 & (RF4_BRTH_CONFU)) ||
 		(flags4 & (RF4_BRTH_CHAOS))) vp[vn++] = "confused";
 	if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
 
@@ -1585,14 +1596,20 @@ static void roff_aux(int r_idx)
 		/* Great */
 		if (flags1 & (RF1_DROP_GREAT))
 		{
-			p = " exceptional";
+			p = (l_ptr->drop_boost > 0) ? " extraordinary" : " exceptional";
 		}
 
 		/* Good (no "n" needed) */
 		else if (flags1 & (RF1_DROP_GOOD))
 		{
-			p = " good";
+			p = (l_ptr->drop_boost > 0) ? " very good" : " good";
 			sin = FALSE;
+		}
+
+		/* Decent */
+		else if (l_ptr->drop_boost > 0)
+		{
+			p = " above average";
 		}
 
 		/* Okay */
@@ -1916,7 +1933,7 @@ void display_roff(int r_idx)
 }
 
 
-/* 
+/*
  * Add various player ghost attributes depending on race. -LM-
  */
 static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
@@ -1946,13 +1963,13 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
 			r_ptr->aaf += 4;
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+			if (r_ptr->flags3 & (RF3_HURT_LITE))
 				r_ptr->flags3 &= ~(RF3_HURT_LITE);
 			break;
 		}
 		/* Hobbit */
 		case 3:
-		{	
+		{
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
 
 			for (n = 1; n < 3; n++)
@@ -1960,9 +1977,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 				if (r_ptr->blow[n].effect == RBE_HURT)
 				{
 					if (n == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
-
 					if (n == 2) r_ptr->blow[n].effect = RBE_EAT_ITEM;
-	
 					break;
 				}
 			}
@@ -1997,7 +2012,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		case 7:
 		{
 			if (!r_ptr->freq_ranged) r_ptr->freq_ranged = 5;
-			if (r_ptr->freq_ranged > 5) 
+			if (r_ptr->freq_ranged > 5)
 				r_ptr->freq_ranged = 2 * r_ptr->freq_ranged / 3;
 
 			r_ptr->flags4 |= (RF4_BOULDER);
@@ -2024,7 +2039,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 
 			for (n = 0; n < 4; n++)
 			{
-				if ((n == 1) || (n == 3)) 
+				if ((n == 1) || (n == 3))
 					r_ptr->blow[n].d_side = 6 * r_ptr->blow[n].d_side / 5;
 			}
 			break;
@@ -2036,7 +2051,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 
 			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 8;
 			r_ptr->aaf += 5;
-			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+			if (r_ptr->flags3 & (RF3_HURT_LITE))
 				r_ptr->flags3 &= ~(RF3_HURT_LITE);
 			break;
 		}
@@ -2066,15 +2081,15 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		{
 			r_ptr->flags3 |= (RF3_ANIMAL);
 			r_ptr->hdice = 4 * r_ptr->hdice / 3;
-			if (r_ptr->flags3 & (RF3_IM_FIRE)) 
+			if (r_ptr->flags3 & (RF3_IM_FIRE))
 				r_ptr->flags3 &= ~(RF3_IM_FIRE);
 			break;
 		}
 	}
 }
 
-/* 
- * Add various player ghost attributes depending on class. -LM- 
+/*
+ * Add various player ghost attributes depending on class. -LM-
  */
 static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 {
@@ -2082,7 +2097,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 	int dun_level = r_ptr->level;
 	byte n, k;
 
-	/* Note the care taken to make sure that all monsters that get spells 
+	/* Note the care taken to make sure that all monsters that get spells
 	 * can also cast them, since not all racial templates include spells.
 	 */
 	switch(ghost_class)
@@ -2093,9 +2108,9 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			if (r_ptr->freq_ranged <= 10) r_ptr->freq_ranged = 5;
 			else r_ptr->freq_ranged -= 5;
 
-			if ((dun_level > 24) && (r_ptr->freq_ranged)) 
+			if ((dun_level > 24) && (r_ptr->freq_ranged))
 				r_ptr->flags4 |= (RF4_BOLT);
-			if ((dun_level > 54) && (r_ptr->freq_ranged)) 
+			if ((dun_level > 54) && (r_ptr->freq_ranged))
 				r_ptr->flags2 |= (RF2_ARCHER);
 
 			r_ptr->spell_power = 2 * r_ptr->spell_power / 3;
@@ -2123,9 +2138,9 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			r_ptr->flags5 |= (RF5_BOLT_MANA);
 
 			if (dun_level > 11) r_ptr->flags5 |= (RF5_BALL_POIS);
-			if ((dun_level > 13) && (dun_level < 25)) 
+			if ((dun_level > 13) && (dun_level < 25))
 				r_ptr->flags5 |= (RF5_BOLT_ELEC);
-			if ((dun_level > 16) && (dun_level < 35)) 
+			if ((dun_level > 16) && (dun_level < 35))
 				r_ptr->flags5 |= (RF5_BEAM_ICE);
 			if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_ELEC);
 			if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_COLD);
@@ -2152,7 +2167,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			}
 
 			r_ptr->mana = 3*(r_ptr->mana/2);
-			
+
 			break;
 		}
 		/* Priest */
@@ -2195,7 +2210,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
 
 			if (dun_level > 11) r_ptr->flags4 |= (RF4_SHOT);
-			if ((dun_level > 44) && (r_ptr->freq_ranged)) 
+			if ((dun_level > 44) && (r_ptr->freq_ranged))
 				r_ptr->flags2 |= (RF2_ARCHER);
 
 			if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_POIS);
@@ -2207,7 +2222,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			if (dun_level > 24) r_ptr->flags6 |= (RF6_BLIND);
 
 			if (dun_level > 39) r_ptr->flags2 |= (RF2_EMPTY_MIND);
-			else if (dun_level > 19) 
+			else if (dun_level > 19)
 				r_ptr->flags2 |= (RF2_WEIRD_MIND);
 
 			if (dun_level > 39) r_ptr->flags2 |= (RF2_INVISIBLE);
@@ -2234,7 +2249,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			r_ptr->aaf += 5;
 
 			r_ptr->flags4 |= (RF4_ARROW);
-			if ((dun_level > 24) && (r_ptr->freq_ranged)) 
+			if ((dun_level > 24) && (r_ptr->freq_ranged))
 				r_ptr->flags2 |= (RF2_ARCHER);
 
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -2265,7 +2280,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			if (dun_level > 34) r_ptr->flags6 |= (RF6_BLINK);
 			if (dun_level > 44) r_ptr->flags6 |= (RF6_HOLD);
 
-			r_ptr->flags3 |= (RF3_IM_FIRE | 
+			r_ptr->flags3 |= (RF3_IM_FIRE |
 					RF3_IM_COLD | RF3_IM_ELEC | RF3_IM_ACID);
 
 			r_ptr->mana = 5*(r_ptr->mana/4);
@@ -2363,11 +2378,11 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Assassin */
 		case 8:
 		{
-			if ((dun_level > 9) && (r_ptr->freq_ranged == 0)) 
+			if ((dun_level > 9) && (r_ptr->freq_ranged == 0))
 				r_ptr->freq_ranged = 6;
 			else r_ptr->freq_ranged = 3 * r_ptr->freq_ranged / 4;
 
-			if ((dun_level > 11) && (dun_level < 45)) 
+			if ((dun_level > 11) && (dun_level < 45))
 				r_ptr->flags4 |= (RF4_MISSL);
 			if (dun_level > 44) r_ptr->flags4 |= (RF4_PMISSL);
 
@@ -2416,10 +2431,10 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 }
 
 /*
- * Once a monster with the flag "PLAYER_GHOST" is generated, it needs 
- * to have a little color added, if it hasn't been prepared before.  
- * This function uses a bones file to get a name, give the ghost a 
- * gender, and add flags depending on the race and class of the slain 
+ * Once a monster with the flag "PLAYER_GHOST" is generated, it needs
+ * to have a little color added, if it hasn't been prepared before.
+ * This function uses a bones file to get a name, give the ghost a
+ * gender, and add flags depending on the race and class of the slain
  * adventurer.  -LM-
  */
 bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
@@ -2448,26 +2463,26 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 		return (TRUE);
 	}
 
-	/* Hack -- No easy player ghosts, unless the ghost is from a savefile.  
-	 * This also makes player ghosts much rarer, and effectively (almost) 
+	/* Hack -- No easy player ghosts, unless the ghost is from a savefile.
+	 * This also makes player ghosts much rarer, and effectively (almost)
 	 * prevents more than one from being on a level.
-	 * From 0.5.1, other code makes it is formally impossible to have more 
+	 * From 0.5.1, other code makes it is formally impossible to have more
 	 * than one ghost at a time. -BR-
 	 */
-	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE)) 
+	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE))
 		return (FALSE);
 
 	/* Store the index of the base race. */
 	r_ghost = r_idx;
 
-	/* Choose a bones file.  Use the variable bones_selector if it has any 
-	 * information in it (this allows saved ghosts to reacquire all special 
+	/* Choose a bones file.  Use the variable bones_selector if it has any
+	 * information in it (this allows saved ghosts to reacquire all special
 	 * features), then use the current depth, and finally pick at random.
 	 */
 	for (try = 0; try < 40; ++try)
 	{
 		/* Prepare a path, and store the file number for future reference. */
-		if (try == 0) 
+		if (try == 0)
 		{
 			if (bones_selector)
 			{
@@ -2505,7 +2520,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 
 
 	/* XXX XXX XXX Scan the file (new style) */
-	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d\n%d:%[^\n]", ghost_name, 
+	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d\n%d:%[^\n]", ghost_name,
 		&ghost_sex, &ghost_race, &ghost_class, &ghost_string_type, ghost_string) != 6);
 
 	if (err)
@@ -2515,7 +2530,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 		/* Close, open, and reread the file (old style). */
 		my_fclose(fp);
 		fp = my_fopen(path, "r");
-		err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name, 
+		err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name,
 			&ghost_sex, &ghost_race, &ghost_class) != 4);
 	}
 
@@ -2543,7 +2558,6 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/* Capitalize the name */
 	if (islower(ghost_name[0])) ghost_name[0] = toupper(ghost_name[0]);
 
-	
 	/*** Process sex. ***/
 
 	/* Sanity check. */
@@ -2580,7 +2594,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/* A ghost makes the level special */
 	good_item_flag = TRUE;
 
-	/* Hack - Player ghosts are "seen" whenever generated, to conform with	
+	/* Hack - Player ghosts are "seen" whenever generated, to conform with
 	 * previous practice.
 	 */
 	l_ptr->sights = 1;

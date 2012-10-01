@@ -1,9 +1,9 @@
 /* File: cmd2.c */
 
-/* Going up and down stairs, items that a chest may contain, opening 
- * chests, tunnelling, disarming, opening doors, alter adjacent grid, 
+/* Going up and down stairs, items that a chest may contain, opening
+ * chests, tunnelling, disarming, opening doors, alter adjacent grid,
  * spiking, starting various movement and resting routines.
- * 
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -59,10 +59,10 @@ void do_cmd_go_up(void)
 	/* Use the coordinates of the staircase to seed the RNG. */
 	Rand_value = py * px;
 
-	/* If the new level is not a quest level, or the town, there is a 33% 
+	/* If the new level is not a quest level, or the town, there is a 33%
 	 * chance of going up another level. -LM-
 	 */
-	if ((is_quest(p_ptr->depth) == FALSE) && 
+	if ((is_quest(p_ptr->depth) == FALSE) &&
 		(p_ptr->depth != 0) && (randint(3) == 1))
 	{
 		msg_print("The stairs continue up.  Go up another level? (y/n)");
@@ -124,10 +124,10 @@ void do_cmd_go_down(void)
 	/* Use the coordinates of the staircase to seed the RNG. */
 	Rand_value = py * px;
 
-	/* If the new level is not a quest level, or the bottom of the dungeon, 
+	/* If the new level is not a quest level, or the bottom of the dungeon,
 	 * there is a 50% chance of descending another level. -LM-
 	 */
-	if ((is_quest(p_ptr->depth) == FALSE) && (p_ptr->depth < MAX_DEPTH -1) && 
+	if ((is_quest(p_ptr->depth) == FALSE) && (p_ptr->depth < MAX_DEPTH -1) &&
 		(randint(2) == 1))
 	{
 		msg_print("The stairs continue down.  Go down another level? (y/n)");
@@ -239,209 +239,39 @@ static s16b chest_check(int y, int x)
  */
 static byte get_choice(void)
 {
-	byte choice;
+	int choice;
+	int chances_total = 0;
 
-	choice = randint(100);
+	int i;
 
-	switch (p_ptr->pclass)
+	/* Total up weighting factors for each possibility */
+	for (i = 0; i < ch_ptr->choices; i++)
 	{
-		case CLASS_WARRIOR:
-		{
-			if (choice < 2) return (TV_SHOT);
-			if (choice < 5) return (TV_ARROW);
-			if (choice < 9) return (TV_BOLT);
-			if (choice < 13) return (TV_BOW);
-			if (choice < 25) return (TV_HAFTED);
-			if (choice < 37) return (TV_POLEARM);
-			if (choice < 49) return (TV_SWORD);
-			if (choice < 54) return (TV_BOOTS);
-			if (choice < 59) return (TV_GLOVES);
-			if (choice < 64) return (TV_HELM);
-			if (choice < 67) return (TV_CROWN);
-			if (choice < 72) return (TV_SHIELD);
-			if (choice < 76) return (TV_CLOAK);
-			if (choice < 79) return (TV_SOFT_ARMOR);
-			if (choice < 89) return (TV_HARD_ARMOR);
-			if (choice < 95) return (TV_SCROLL);
-			if (choice < 101) return (TV_POTION);
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			if (choice < 4) return (TV_BOOTS);
-			if (choice < 7) return (TV_HELM);
-			if (choice < 11) return (TV_CROWN);
-			if (choice < 16) return (TV_SHIELD);
-			if (choice < 22) return (TV_CLOAK);
-			if (choice < 28) return (TV_SOFT_ARMOR);
-			if (choice < 34) return (TV_SCROLL);
-			if (choice < 40) return (TV_POTION);
-			if (choice < 46) return (TV_RING);
-			if (choice < 52) return (TV_AMULET);
-			if (choice < 64) return (TV_WAND);
-			if (choice < 76) return (TV_STAFF);
-			if (choice < 88) return (TV_ROD);
-			if (choice < 101) return (TV_MAGIC_BOOK);
-			break;
-		}
-
-		case CLASS_PRIEST:
-		{
-			if (choice < 4) return (TV_BOOTS);
-			if (choice < 7) return (TV_HELM);
-			if (choice < 12) return (TV_CROWN);
-			if (choice < 16) return (TV_SHIELD);
-			if (choice < 21) return (TV_GLOVES);
-			if (choice < 27) return (TV_CLOAK);
-			if (choice < 33) return (TV_SOFT_ARMOR);
-			if (choice < 39) return (TV_SCROLL);
-			if (choice < 46) return (TV_POTION);
-			if (choice < 53) return (TV_RING);
-			if (choice < 60) return (TV_AMULET);
-			if (choice < 69) return (TV_HAFTED);
-			if (choice < 76) return (TV_WAND);
-			if (choice < 81) return (TV_STAFF);
-			if (choice < 86) return (TV_ROD);
-			if (choice < 101) return (TV_PRAYER_BOOK);
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			if (choice < 11) return (TV_SHOT);
-			if (choice < 17) return (TV_ARROW);
-			if (choice < 20) return (TV_BOLT);
-			if (choice < 29) return (TV_BOW);
-			if (choice < 33) return (TV_HAFTED);
-			if (choice < 37) return (TV_POLEARM);
-			if (choice < 44) return (TV_SWORD);
-			if (choice < 48) return (TV_BOOTS);
-			if (choice < 50) return (TV_GLOVES);
-			if (choice < 54) return (TV_HELM);
-			if (choice < 58) return (TV_CROWN);
-			if (choice < 62) return (TV_SHIELD);
-			if (choice < 68) return (TV_CLOAK);
-			if (choice < 71) return (TV_SOFT_ARMOR);
-			if (choice < 74) return (TV_HARD_ARMOR);
-			if (choice < 80) return (TV_SCROLL);
-			if (choice < 86) return (TV_POTION);
-			if (choice < 92) return (TV_STAFF);
-			if (choice < 101) return (TV_MAGIC_BOOK);
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			if (choice < 15) return (TV_ARROW);
-			if (choice < 21) return (TV_BOLT);
-			if (choice < 31) return (TV_BOW);
-			if (choice < 34) return (TV_HAFTED);
-			if (choice < 37) return (TV_POLEARM);
-			if (choice < 40) return (TV_SWORD);
-			if (choice < 45) return (TV_RING);
-			if (choice < 50) return (TV_AMULET);
-			if (choice < 54) return (TV_BOOTS);
-			if (choice < 58) return (TV_GLOVES);
-			if (choice < 62) return (TV_HELM);
-			if (choice < 66) return (TV_CROWN);
-			if (choice < 70) return (TV_SHIELD);
-			if (choice < 74) return (TV_CLOAK);
-			if (choice < 78) return (TV_SOFT_ARMOR);
-			if (choice < 82) return (TV_ROD);
-			if (choice < 87) return (TV_WAND);
-			if (choice < 92) return (TV_STAFF);
-			if (choice < 101) return (TV_DRUID_BOOK);
-			break;
-		}
-
-		case CLASS_PALADIN:
-		{
-			if (choice < 4) return (TV_BOOTS);
-			if (choice < 8) return (TV_HELM);
-			if (choice < 12) return (TV_CROWN);
-			if (choice < 19) return (TV_SHIELD);
-			if (choice < 23) return (TV_GLOVES);
-			if (choice < 28) return (TV_CLOAK);
-			if (choice < 35) return (TV_HARD_ARMOR);
-			if (choice < 40) return (TV_SCROLL);
-			if (choice < 45) return (TV_POTION);
-			if (choice < 52) return (TV_RING);
-			if (choice < 59) return (TV_AMULET);
-			if (choice < 77) return (TV_HAFTED);
-			if (choice < 82) return (TV_ROD);
-			if (choice < 87) return (TV_WAND);
-			if (choice < 92) return (TV_STAFF);
-			if (choice < 101) return (TV_PRAYER_BOOK);
-			break;
-		}
-
-
-		case CLASS_DRUID:
-		{
-			if (choice < 3) return (TV_BOOTS);
-			if (choice < 5) return (TV_HELM);
-			if (choice < 11) return (TV_CROWN);
-			if (choice < 14) return (TV_SHIELD);
-			if (choice < 24) return (TV_CLOAK);
-			if (choice < 27) return (TV_SOFT_ARMOR);
-			if (choice < 37) return (TV_SCROLL);
-			if (choice < 48) return (TV_POTION);
-			if (choice < 58) return (TV_RING);
-			if (choice < 68) return (TV_AMULET);
-			if (choice < 74) return (TV_WAND);
-			if (choice < 80) return (TV_STAFF);
-			if (choice < 86) return (TV_ROD);
-			if (choice < 101) return (TV_DRUID_BOOK);
-			break;
-		}
-
-
-		case CLASS_NECRO:
-		{
-			if (choice < 3) return (TV_BOOTS);
-			if (choice < 5) return (TV_HELM);
-			if (choice < 11) return (TV_CROWN);
-			if (choice < 14) return (TV_SHIELD);
-			if (choice < 24) return (TV_CLOAK);
-			if (choice < 27) return (TV_SOFT_ARMOR);
-			if (choice < 37) return (TV_SCROLL);
-			if (choice < 48) return (TV_POTION);
-			if (choice < 58) return (TV_RING);
-			if (choice < 68) return (TV_AMULET);
-			if (choice < 74) return (TV_WAND);
-			if (choice < 80) return (TV_STAFF);
-			if (choice < 86) return (TV_ROD);
-			if (choice < 101) return (TV_NECRO_BOOK);
-			break;
-		}
-
-		case CLASS_ASSASSIN:
-		{
-			if (choice < 11) return (TV_SHOT);
-			if (choice < 17) return (TV_ARROW);
-			if (choice < 20) return (TV_BOLT);
-			if (choice < 29) return (TV_BOW);
-			if (choice < 33) return (TV_HAFTED);
-			if (choice < 37) return (TV_POLEARM);
-			if (choice < 44) return (TV_SWORD);
-			if (choice < 48) return (TV_BOOTS);
-			if (choice < 50) return (TV_GLOVES);
-			if (choice < 54) return (TV_HELM);
-			if (choice < 58) return (TV_CROWN);
-			if (choice < 62) return (TV_SHIELD);
-			if (choice < 68) return (TV_CLOAK);
-			if (choice < 71) return (TV_SOFT_ARMOR);
-			if (choice < 74) return (TV_HARD_ARMOR);
-			if (choice < 80) return (TV_SCROLL);
-			if (choice < 86) return (TV_POTION);
-			if (choice < 92) return (TV_STAFF);
-			if (choice < 101) return (TV_NECRO_BOOK);
-			break;
-		}
+		chances_total += ch_ptr->chance[i];
 	}
-	/* If the function fails, do not specify a tval */
-	return (0);
+
+	/* Sanity check - return an innocuous choice */
+	if (chances_total < 1) return (TV_CLOAK);
+
+	/* Now pick over the ranges of choices */
+	choice = randint(chances_total);
+
+	/* Start from the beginning */
+	i = 0;
+
+	/* Scan for corresponding tval */
+	while (choice > 0)
+	{
+		/* Return a match */
+		if (choice <= ch_ptr->chance[i]) return(ch_ptr->tval[i]);
+
+		/* Move on */
+		choice -= ch_ptr->chance[i];
+		i++;
+	}
+
+	/* Failure - return an innocuous choice */
+	return (TV_CLOAK);
 }
 
 /*
@@ -451,7 +281,7 @@ static byte get_choice(void)
  *
  * In Oangband, chests are nice finds.  Small chests distribute 3-5 items,
  * while large chests can distribute 5-7.  Item types are biased to be
- * useful for the character, and they can frequently be of good quality 
+ * useful for the character, and they can frequently be of good quality
  * (or better).   Code in object2.c helps these items be even better. -LM-
  *
  * The "value" of the items in a chest is based on the "power" of the chest,
@@ -494,8 +324,8 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make an object with a specified tval.  Grant a possibility for 
-		 * items to be forced good, or even great.  With the new definitions 
+		/* Make an object with a specified tval.  Grant a possibility for
+		 * items to be forced good, or even great.  With the new definitions
 		 * of goodness, this can make for quite interesting loot.  -LM-
 		 */
 		switch (required_tval)
@@ -608,7 +438,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			}
 		}
 		/* Normally, drop object near the chest. */
-		else 
+		else
 		  if (obj_success)
 		    drop_near(i_ptr, -1, y, x);
 	}
@@ -631,7 +461,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 
 
 /*
- * Chests have traps too.  High-level chests can be very dangerous, no 
+ * Chests have traps too.  High-level chests can be very dangerous, no
  * matter what level they are opened at.  Various traps added in Oangband. -LM-
  *
  * Exploding chest destroys contents (and traps).
@@ -691,10 +521,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		int num = 2 + randint(3);
 		msg_print("You are enveloped in a cloud of smoke!");
-		for (i = 0; i < num; i++)
-		{
-			(void)summon_specific(y, x, FALSE, summon_level, 0);
-		}
+		(void)summon_specific(y, x, FALSE, summon_level, 0, num);
 	}
 
 	/* Explode */
@@ -719,10 +546,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		j = randint(3) + 5;
 		msg_print("Elemental beings appear to protect their treasures!");
-		for (i = 0; i < j; i++)
-		{
-			summon_specific(y, x, FALSE, summon_level, SUMMON_ELEMENTAL);
-		}
+		(void) summon_specific(y, x, FALSE, summon_level, SUMMON_ELEMENTAL, j);
 	}
 
 	/* Force clouds, then summon birds. */
@@ -735,10 +559,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			(void)fire_meteor(0, GF_FORCE, y, x, o_ptr->pval / 5, 7, TRUE);
 
 		j = randint(5) + o_ptr->pval /5;
-		for (i = 0; i < j; i++)
-		{
-			summon_specific(y, x, TRUE, summon_level, SUMMON_BIRD);
-		}
+		(void)summon_specific(y, x, TRUE, summon_level, SUMMON_BIRD, j);
 	}
 
 	/* Various colorful summonings. */
@@ -753,7 +574,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			for (i = 0; i < j; i++)
 			{
 				(void)fire_meteor(0, GF_FIRE, y, x, 10, 5, TRUE);
-				summon_specific(y, x, FALSE, summon_level, SUMMON_DEMON);
+				(void)summon_specific(y, x, FALSE, summon_level, SUMMON_DEMON, 1);
 			}
 		}
 
@@ -763,10 +584,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			msg_print("Draconic forms loom out of the darkness!");
 
 			j = randint(3) + 2;
-			for (i = 0; i < j; i++)
-			{
-				summon_specific(y, x, FALSE, summon_level, SUMMON_DRAGON);
-			}
+			(void)summon_specific(y, x, FALSE, summon_level, SUMMON_DRAGON, j);
 		}
 
 		/* Summon hybrids. */
@@ -775,10 +593,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			msg_print("Creatures strange and twisted assault you!");
 
 			j = randint(5) + 3;
-			for (i = 0; i < j; i++)
-			{
-				summon_specific(y, x, FALSE, summon_level, SUMMON_HYBRID);
-			}
+			(void)summon_specific(y, x, FALSE, summon_level, SUMMON_HYBRID, j);
 		}
 
 		/* Summon vortices (scattered) */
@@ -787,10 +602,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			msg_print("Vortices coalesce and wreak destruction!");
 
 			j = randint(3) + 2;
-			for (i = 0; i < j; i++)
-			{
-				summon_specific(y, x, TRUE, summon_level, SUMMON_VORTEX);
-			}
+			(void)summon_specific(y, x, TRUE, summon_level, SUMMON_VORTEX, j);
 		}
 	}
 
@@ -813,11 +625,11 @@ static void chest_trap(int y, int x, s16b o_idx)
 				else if (rand_int(5) == 0) (void)set_cut(p_ptr->cut + 200);
 				else if (rand_int(4) == 0)
 				{
-					if (!p_ptr->free_act) 
-						(void)set_paralyzed(p_ptr->paralyzed + 2 + 
+					if (!p_ptr->free_act)
+						(void)set_paralyzed(p_ptr->paralyzed + 2 +
 						rand_int(6));
-					else 
-						(void)set_stun(p_ptr->stun + 10 + 
+					else
+						(void)set_stun(p_ptr->stun + 10 +
 						rand_int(100));
 				}
 				else if (rand_int(3) == 0) apply_disenchant(0);
@@ -932,7 +744,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 
 	/* Difficulty rating. */
 	j = i - (5 + o_ptr->pval / 2);
-	
+
 	/* Always have a small chance of success */
 	if (j < 2) j = 2;
 
@@ -1020,10 +832,10 @@ static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
 	int d;
 	int xx, yy;
 	int count;
-	
+
 	/* Count how many matches */
 	count = 0;
-	
+
 	/* Check around (and under) the character */
 	for (d = 0; d < 9; d++)
 	{
@@ -1039,18 +851,18 @@ static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
 
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
-				
+
 		/* Not looking for this feature */
 		if (!(*test)(cave_feat[yy][xx])) continue;
-			
+
 		/* Count it */
 		++count;
-			
+
 		/* Remember the location of the last door found */
 		*y = yy;
 		*x = xx;
 	}
-	
+
 	/* All done */
 	return count;
 }
@@ -1069,7 +881,7 @@ static int count_chests(int *y, int *x, bool trapped)
 	count = 0;
 
 	/* Check around (and under) the character */
-	for (d = 0; d < 9; d++) 
+	for (d = 0; d < 9; d++)
 	{
 		/* Extract adjacent (legal) location */
 		int yy = p_ptr->py + ddy_ddd[d];
@@ -1107,8 +919,8 @@ static int count_chests(int *y, int *x, bool trapped)
  */
 static int coords_to_dir(int y, int x)
 {
-	int d[3][3] = 
-	{ 
+	int d[3][3] =
+	{
 		{ 7, 4, 1 },
 		{ 8, 5, 2 },
 		{ 9, 6, 3 }
@@ -1269,7 +1081,7 @@ void do_cmd_open(void)
 	bool more = FALSE;
 
 	/* Option: Pick a direction -TNB- */
-	if (easy_open) 
+	if (easy_open)
 	{
 		int num_doors, num_chests;
 
@@ -1852,8 +1664,8 @@ static bool do_cmd_disarm_test(int y, int x)
 	}
 
 	/* Require an actual trap or glyph */
-	if (!((cave_feat[y][x] >= FEAT_TRAP_HEAD) && 
-	      (cave_feat[y][x] <= FEAT_TRAP_TAIL)) && 
+	if (!((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+	      (cave_feat[y][x] <= FEAT_TRAP_TAIL)) &&
 		cave_feat[y][x] != FEAT_GLYPH &&
 	    !((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
               (cave_feat[y][x] <= FEAT_MTRAP_TAIL)))
@@ -1873,7 +1685,7 @@ static bool do_cmd_disarm_test(int y, int x)
 /*
  * Perform the basic "disarm" command on a trap or glyph.
  *
- * Assume there is no monster blocking the destination (tested by 
+ * Assume there is no monster blocking the destination (tested by
  * do_cmd_disarm).  Traps now have level-dependent power.
  * Decrement Rogue traps and glyphs of warding. -LM-
  *
@@ -1988,7 +1800,7 @@ void do_cmd_disarm(void)
 	bool more = FALSE;
 
 	/* Option: Pick a direction -TNB- */
-	if (easy_disarm) 
+	if (easy_disarm)
 	{
 		int num_traps, num_chests;
 
@@ -2288,7 +2100,7 @@ void do_cmd_bash(void)
 /*
  * Manipulate an adjacent grid in some way
  *
- * Attack monsters, tunnel through walls, disarm traps, open doors, 
+ * Attack monsters, tunnel through walls, disarm traps, open doors,
  * or, for rogues, set traps and steal money.
  *
  * This command must always take energy, to prevent free detection
@@ -2351,7 +2163,7 @@ void do_cmd_alter(void)
 		p_ptr->command_arg = 0;
 	}
 
-	/* If a monster is present, and visible, Rogues may steal from it.  
+	/* If a monster is present, and visible, Rogues may steal from it.
 	 * Otherwise, the player will simply attack. -LM-
 	 */
 	if (cave_m_idx[y][x] > 0)
@@ -2595,7 +2407,7 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Access the monster, if any is present. */
 	if (cave_m_idx[y][x] != 0) m_ptr = &m_list[cave_m_idx[y][x]];
 
-	/* If a monster can be seen, it can be attacked normally.  Code in cmd1.c 
+	/* If a monster can be seen, it can be attacked normally.  Code in cmd1.c
 	 * controls whether a player can actually move to the destination grid.
 	 */
 	if ((m_ptr) && (m_ptr->ml)) return (TRUE);

@@ -1,0 +1,649 @@
+# R:   Spell Book Tval, Spell Stat, Spell Realm, Level of first spell, 
+#    Max armour weight that avoids mana penalties, Additional armour
+#    weight to eliminate all mana.
+#
+# M:   Number of spells (max is 64), array (not spell) index of first 
+#    spell in each of the nine books, listed by sval.
+#
+# S:   Index, Lev, Mana, Fail, Exp/Lev, Casting Time Code
+
+# File: p_magic.txt
+V:1.1.0
+
+# Warrior
+N:0
+R:0:0:0:99:0:1
+# Zero spells.  Spellbooks contain 0 spells each.
+M:0:0:0:0:0:0:0:0:0:0:0:0
+
+
+# Mage
+N:1
+R:90:1:1:1:250:600
+# 59 spells in nine books.
+M:59:0:9:18:26:33:38:43:48:53:59:59 
+
+# Magic for Beginners (sval 0)
+
+S:0:1:1:22:2:0	# Magic Missile
+S:1:1:1:23:2:0	# Detect Monsters
+S:2:2:1:24:2:0	# Phase Door
+S:3:3:2:25:2:0	# Light Area
+S:4:3:1:25:2:0	# Combat Poison
+S:5:4:2:25:3:0	# Cure Light Wounds
+S:69:5:3:25:3:0	# Find Traps
+S:70:5:3:25:3:0	# Detect Doors/Stairs
+S:8:6:3:27:4:0	# Stinking Cloud
+
+# Conjurings and Tricks (sval 1)
+
+S:9:7:3:30:5:0	# Confuse Monster
+S:10:7:3:30:6:0	# Lightning Bolt
+S:11:9:3:30:6:0	# Door Destruction
+S:12:9:4:30:6:0	# Sleep Monster
+S:13:11:5:35:6:0	# Cure Poison
+S:14:11:5:35:6:0	# Teleport Self
+S:15:12:5:30:7:0	# Spear of Light
+S:16:13:5:40:9:0	# Recharge Item I
+S:17:13:5:44:7:0	# Cone of Cold
+
+# Incantations and Illusions (sval 2)
+
+S:18:14:8:45:7:0	# Satisfy Hunger
+S:19:15:7:45:7:0	# Magic Disarm
+S:20:15:7:45:7:0	# Polymorph Other
+S:21:17:12:75:8:0	# Identify
+S:22:17:7:50:8:0	# Sleep Monsters
+S:23:19:7:50:8:0	# Fire Bolt
+S:24:19:7:50:8:0	# Slow Monster
+S:25:20:2:50:8:0	# Tap magical energy
+
+# Sorcery and Evocations (sval 3)
+
+S:26:22:12:75:9:0	# Frost Ball
+S:27:23:10:75:11:0	# Recharge Item II
+S:28:25:12:60:11:0	# Teleport Other
+S:29:25:12:65:11:0	# Haste Self
+S:30:29:16:65:12:0	# Fire Ball
+S:31:35:30:80:15:0	# Hold Monsters
+S:32:37:30:80:15:0	# Word of Destruction
+
+# Resistance of Scarabtarices (sval 4)
+
+S:33:21:5:50:20:0	# Resist Fire
+S:34:21:5:50:20:0	# Resist Cold
+S:35:21:5:50:20:0	# Resist Acid
+S:36:27:11:75:30:0	# Resist Poison
+S:37:35:22:85:50:0	# Resistance
+
+# Mordenkainen's Escapes (sval 5)
+
+S:38:12:4:20:16:0	# Door Creation
+S:39:16:8:40:20:0	# Stair Creation
+S:40:20:11:60:20:0	# Teleport Level
+S:41:25:15:60:25:0	# Word of Recall
+S:42:43:20:65:75:0	# Dimension Door
+
+# Kelek's Grimoire of Power (sval 6)
+
+S:43:5:2:50:10:0	# Detect Evil
+S:44:15:6:70:12:0	# Detect Enchantment
+S:45:25:10:85:20:0	# Earthquake
+S:46:35:25:65:50:0	# Beguiling
+S:47:37:21:70:55:0	# Starburst
+
+# Tenser's transformations... (sval 7)
+
+S:48:18:0:50:22:0	# Clear Mind
+S:49:30:8:75:30:0	# Shield
+S:50:38:15:85:50:0	# Recharge Item III
+S:51:40:18:50:55:0	# Essence of Speed
+S:52:44:24:75:90:0	# Strengthen Defenses
+
+# Raal's Tome of Destruction (sval 8)
+
+S:53:16:6:55:20:0	# Acid Bolt
+S:54:21:10:65:17:0	# Cloud Kill
+S:55:27:15:70:22:0	# Acid Ball
+S:56:33:23:70:35:0	# Ice Storm
+S:57:39:33:70:60:0	# Meteor Swarm
+S:58:46:42:60:120:0	# Mana Storm
+
+
+# Priest
+N:2
+R:91:2:2:1:350:800
+# 59 prayers in 9 books.
+M:59:0:8:16:25:31:37:42:48:54:59:59 
+
+# Novice's Handbook (sval 0)
+
+S:64:1:1:10:2:0	# Detect Evil
+S:65:1:1:15:2:0	# Cure Light Wounds
+S:66:3:2:20:2:0	# Bless
+S:67:3:2:25:2:0	# Remove Fear
+S:68:3:2:25:2:0	# Call Light
+S:69:5:4:25:3:0	# Find Traps
+S:70:5:4:25:3:0	# Detect Doors/Stairs
+S:71:6:1:30:3:0	# Slow Poison
+
+# Words of Wisdom (sval 1)
+
+S:72:7:4:28:4:0	# Cure Serious Wounds
+S:73:7:2:29:4:0	# Scare Monster
+S:74:8:5:32:4:0	# Portal
+S:75:9:4:34:5:0	# Chant
+S:76:9:4:36:5:0	# Sanctuary
+S:77:11:4:38:5:0	# Satisfy Hunger
+S:78:13:5:38:5:0	# Remove Curse
+S:79:13:6:38:5:0	# Resist Heat and Cold
+
+# Chants and Blessings (sval 2)
+
+S:80:14:6:38:5:0	# Neutralize Poison
+S:81:15:7:38:6:0	# Orb of Draining
+S:82:15:7:40:6:0	# Sense Invisible
+S:83:17:7:42:6:0	# Protection from Evil
+S:84:17:8:42:7:0	# Cure Mortal Wounds
+S:85:19:8:55:7:0	# Earthquake
+S:86:19:9:45:7:0	# Sense Surroundings
+S:87:21:9:45:7:0	# Turn Undead
+S:88:21:9:50:8:0	# Prayer
+
+# Exorcism and Dispelling (sval 3)
+
+S:89:23:11:50:8:0	# Dispel Undead
+S:90:25:16:60:11:0	# Heal
+S:91:27:18:70:15:0	# Dispel Evil
+S:92:32:22:75:20:0	# Sacred Shield
+S:93:37:40:90:29:0	# Glyph of Warding
+S:94:40:40:90:35:0	# Holy Word
+
+# Ethereal openings (sval 4)
+
+S:95:3:2:50:15:0	# Blink
+S:96:10:7:50:20:0	# Teleport Self
+S:97:20:20:80:25:0	# Teleport Other
+S:98:30:30:75:40:0	# Teleport Level
+S:99:35:40:75:65:0	# Word of Recall
+S:100:40:40:75:90:0	# Alter Reality
+
+# Godly Insights... (sval 5)
+
+S:101:2:2:50:12:0	# Detect Monsters
+S:102:10:8:80:16:0	# Detection
+S:104:28:20:80:30:0	# Perception
+S:103:38:20:80:40:0	# Probing
+S:105:42:50:80:70:0	# Clairvoyance
+
+# Purifications and Healing (sval 6)
+
+S:125:34:23:40:50:0	# Purifying Strike
+S:106:36:30:50:65:0	# Banishment
+S:107:38:50:60:70:0	# Healing
+S:108:38:50:80:70:0	# Sacred Knowledge
+S:109:40:60:90:90:0	# Restoration
+S:110:40:60:90:90:0	# Remembrance
+
+# Holy Infusions (sval 7)
+
+S:111:5:2:40:20:0	# Unbarring Ways
+S:112:15:30:80:25:0	# Recharging
+S:113:25:30:80:40:0	# Dispel Curse
+S:114:31:18:70:55:0	# Disarm Trap
+S:115:35:22:80:70:0	# Holding
+S:116:39:40:85:80:0	# Enchant Weapon or Armour
+
+# Wrath of God (sval 8)
+
+S:117:17:14:70:25:0	# Ball of Light
+S:118:21:16:75:30:0	# Holy Lance
+S:119:29:25:80:40:0	# Word of Destruction
+S:120:40:30:80:65:0	# Annihilation
+S:121:48:45:70:150:0	# Call on Varda
+
+
+# Rogue
+N:3
+R:90:1:1:5:300:1000
+# 35 spells in five books
+M:35:0:8:15:22:22:22:28:28:35:35:35
+
+# Magic for Beginners (sval 0)
+
+S:1:5:1:40:1:0	# Detect Monsters
+S:2:6:1:45:1:0	# Phase Door
+S:141:6:2:50:1:0	# Detect Trap/Doors
+S:3:7:3:65:1:0	# Light Area
+S:4:7:1:60:1:0	# Combat Poison
+S:5:9:2:65:2:0	# Cure Light Wounds
+S:6:9:2:65:2:0	# Detect Treasure
+S:7:10:2:70:2:0	# Detect Objects
+
+# Conjurings and Tricks (sval 1)
+
+S:11:13:2:40:2:0	# Door Destruction
+S:12:15:5:70:2:0	# Sleep Monster
+S:13:16:5:70:2:0	# Cure Poison
+S:14:17:4:50:2:0	# Teleport Self
+S:59:19:3:60:2:0	# Hit and Run
+S:19:21:2:40:2:0	# Magic Disarm
+S:8:23:4:70:3:0	# Stinking Cloud
+
+# Incantations and Illusions (sval 2)
+
+S:44:25:2:50:3:0	# Detect Enchantment
+S:20:27:7:50:3:0	# Polymorph Other
+S:21:28:7:50:4:0	# Identify
+S:16:32:7:50:4:0	# Recharge Item I
+S:24:34:7:60:4:0	# Slow Monster
+S:18:37:9:60:5:0	# Satisfy Hunger
+S:29:39:12:60:5:0	# Haste Self
+
+# Sorcery and Evocations (sval 3)
+
+# Resistance of Scarabtarices (sval 4)
+
+# Mordenkainen's Escapes (sval 5)
+
+S:38:26:7:20:6:0	# Door Creation
+S:39:30:8:40:6:0	# Stair Creation
+S:40:34:11:60:6:0	# Teleport Level
+S:251:36:12:70:7:0	# Slip into the Shadows
+S:41:40:15:60:10:0	# Word of Recall
+S:28:42:16:85:3:0	# Teleport Other
+
+# Kelek's Grimoire of Power (sval 6)
+
+# Tenser's Transformations... (sval 7)
+
+S:82:30:4:40:10:0	# Sense Invisible
+S:255:32:7:40:12:1	# Stone Volley
+S:86:35:15:50:15:0	# Probing
+S:49:37:15:60:16:0	# Shield
+S:27:40:22:60:20:0	# Recharge Item II
+S:37:42:25:60:21:0	# Resistance
+S:60:47:25:50:25:0	# Day of Misrule
+
+# Raal's Tome of Destruction (sval 8)
+
+
+# Ranger
+N:4
+R:92:2:3:3:300:1000
+# 36 techniques in 5 books.
+M:36:0:8:16:24:24:24:31:31:36:36:36
+
+# Call of the Wild (sval 0)
+
+S:128:3:1:30:1:0	# detect life
+S:130:3:1:35:1:0	# foraging
+S:129:5:2:35:1:0	# call light
+S:141:5:4:45:1:0	# detect trap/doors
+S:263:7:1:20:1:1	# deadeye shot
+S:134:7:2:30:2:0	# door destruction
+S:131:9:4:60:2:0	# blink
+S:156:9:6:60:1:0	# disarm trap
+
+# Communion with Nature (sval 1)
+
+S:137:10:5:40:2:0	# Cure poison
+S:267:11:3:30:1:1	# scourging shot
+S:140:13:5:40:3:0	# frighten creature
+S:187:13:3:40:3:0	# Creature Knowledge
+S:86:15:5:45:3:0	# sense surroundings
+S:142:16:5:60:3:0	# snuff small life
+S:144:18:8:70:4:0	# heroism
+S:264:19:6:35:4:1	# rain of arrows
+
+# Gifts of Nature (sval 2)
+
+S:149:21:6:50:4:0	# resist poison
+S:151:23:7:50:5:0	# resist fire & cold
+S:152:25:7:50:6:0	# detect all
+S:154:27:8:55:8:0	# resist acid & lightning
+S:265:31:8:40:9:1	# storm shot
+S:157:35:15:70:13:0	# identify
+S:158:41:45:75:16:0	# create athelas
+S:153:46:1:70:24:0	# natural vitality
+
+# Book of Combat (sval 3)
+
+# Radagast's Shapeshifts (sval 4)
+
+# Melian's Lore (sval 5)
+
+S:166:22:1:25:6:0	# detect evil
+S:135:25:10:40:10:0	# turn stone to mud
+S:266:29:4:40:12:1	# dragonslayer
+S:223:31:6:50:13:0	# probing
+S:169:32:5:65:15:0	# sight beyond sight
+S:147:35:15:70:19:0	# teleport monster
+S:170:45:20:70:34:0	# herbal healing
+
+# Primal Forces (sval 6)
+
+# Bombadil's Songs (sval 7)
+
+S:167:27:10:40:25:0	# song of frightening
+S:176:27:10:40:25:0	# song of lulling
+S:177:30:15:55:30:0	# song of protection
+S:178:35:20:60:35:0	# song of dispelling
+S:180:48:60:60:40:0	# song of renewal
+
+# Spirit of Yavanna (sval 8)
+
+
+# Paladin
+N:5
+R:91:2:2:3:400:1200
+# 40 prayers in 6 books.
+M:40:0:8:16:16:25:25:30:35:35:40:40 
+
+# Novice's Handbook (sval 0)
+
+S:64:3:1:30:1:0	# Detect Evil
+S:66:4:1:35:1:0	# Bless
+S:67:5:1:35:1:0	# Remove Fear
+S:68:7:2:35:1:0	# Call Light
+S:65:8:2:35:2:0	# Cure Light Wounds
+S:71:9:2:40:2:0	# Slow Poison
+S:151:10:4:45:2:0	# Resist Heat and Cold
+S:73:11:4:40:2:0	# Scare Monster
+
+# Words of Wisdom (sval 1)
+
+S:75:11:4:45:2:0	# Chant
+S:95:13:4:50:3:0	# Blink
+S:154:13:4:40:3:0	# Resist Acid & Lightning
+S:80:15:6:50:3:0	# Neutralize Poison
+S:83:17:6:50:3:0	# Protection from Evil
+S:69:18:6:70:3:0	# Find Traps
+S:70:18:6:70:3:0	# Detect Doors/Stairs
+S:84:20:9:50:4:0	# Cure Mortal Wounds
+
+# Chants and Blessings (sval 2)
+
+# Exorcism and Dispelling (sval 3)
+
+S:77:21:8:45:4:0	# Satisfy Hunger
+S:81:22:6:45:4:0	# Orb of Draining
+S:78:23:11:45:4:0	# Remove Curse
+S:74:23:6:50:4:0	# Portal
+S:82:25:8:50:5:0	# Sense Invisible
+S:88:27:6:50:6:0	# Prayer
+S:92:30:10:80:7:0	# Sacred Shield
+S:122:36:10:50:10:0	# Elemental Infusion
+S:90:41:10:60:16:0	# Heal
+
+# Ethereal openings (sval 4)
+
+# Godly Insights... (sval 5)
+
+S:101:30:3:50:12:0	# Detect Monsters
+S:102:35:9:70:20:0	# Detection
+S:86:37:9:50:24:0	# Sense Surroundings
+S:104:43:20:70:26:0	# Perception
+S:103:45:20:70:41:0	# Probing
+
+# Purifications and Healing (sval 6)
+
+S:114:28:4:50:10:0	# Disarm Trap
+S:123:36:7:50:23:0	# Sanctify for Battle
+S:107:41:19:65:34:0	# Healing
+S:109:46:40:70:45:0	# Restoration
+S:110:46:40:70:45:0	# Remembrance
+
+# Holy Infusions (sval 7)
+
+# Wrath of God (sval 8)
+
+S:117:37:10:70:20:0	# Ball of Light
+S:124:40:10:50:29:0	# Horn of Wrath
+S:118:42:12:75:37:0	# Holy Lance
+S:119:45:45:70:40:0	# Word of Destruction
+S:120:49:25:60:70:0	# Annihilation
+
+
+# Druid
+N:6
+R:92:2:3:1:250:600
+# 58 techniques in 9 books.
+M:58:0:9:17:25:32:37:42:47:52:58:58 
+
+# Call of the Wild (sval 0)
+
+S:128:1:1:22:2:0	# detect life
+S:129:1:1:23:2:0	# call light
+S:130:2:1:24:2:0	# foraging
+S:132:3:1:25:2:0	# combat poison
+S:131:3:2:25:2:0	# blink
+S:133:4:2:25:3:0	# lightning spark
+S:134:5:3:25:3:0	# door destruction
+S:135:5:3:25:3:0	# turn stone to mud
+S:136:6:4:27:4:0	# ray of sunlight
+
+# Communion with Nature (sval 1)
+
+S:137:7:4:30:5:0	# Cure poison
+S:138:7:5:30:5:0	# frost bolt
+S:139:9:5:30:5:0	# sleep creature
+S:140:9:5:30:6:0	# frighten creature
+S:141:11:5:30:6:0	# detect trap/doors
+S:142:11:6:35:6:0	# cease small life
+S:143:13:6:35:6:0	# fire bolt
+S:145:13:9:44:7:0	# remove curse
+
+# Gifts of Nature (sval 2)
+
+S:146:15:8:45:7:0	# acid bolt
+S:147:15:8:75:8:0	# teleport monster
+S:148:17:10:45:8:0	# poison bolt
+S:149:17:5:45:8:0	# resist poison
+S:150:19:8:75:8:0	# earthquake
+S:151:19:7:50:8:0	# resist fire & cold
+S:152:21:14:50:8:0	# detect all
+S:153:21:1:50:8:0	# natural vitality
+
+# Book of Combat (sval 3)
+
+S:154:22:9:55:9:0	# resist acid & lightning
+S:155:23:13:90:11:0	# wither foe
+S:156:23:14:60:9:0	# disarm trap
+S:157:25:20:85:11:0	# identify
+S:158:29:50:65:12:0	# create athelas
+S:159:33:20:80:15:0	# raging storm
+S:160:37:22:80:26:0	# thunderclap
+
+# Radagast's Shapeshifts (sval 4)
+
+S:161:15:4:50:15:0	# become mouse
+S:162:15:7:50:15:0	# become ferret
+S:163:18:9:50:20:0	# become hound
+S:164:20:16:75:25:0	# become gazelle
+S:165:25:20:85:32:0	# become lion
+
+# Melian's Lore (sval 5)
+
+S:166:20:2:20:16:0	# detect evil
+S:167:24:8:40:20:0	# song of frightening
+S:168:20:10:60:20:0	# sense surroundings
+S:169:25:16:60:25:0	# sight beyond sight
+S:170:39:28:60:60:0	# herbal healing
+
+# Primal Forces (sval 6)
+
+S:171:26:12:50:40:0	# blizzard
+S:172:35:15:70:50:0	# trigger tsunami
+S:173:38:20:85:60:0	# volcanic eruption
+S:174:40:22:60:70:0	# molten lightning
+S:175:45:26:60:80:0	# starburst.
+
+# Bombadil's Songs (sval 7)
+
+S:176:18:9:20:35:0	# song of lulling
+S:177:30:9:35:50:0	# song of protection
+S:178:30:24:40:50:0	# song of dispelling
+S:179:45:40:55:80:0	# song of warding
+S:180:45:70:65:80:0	# song of renewal
+
+# Spirit of Yavanna (sval 8)
+
+S:181:21:9:50:20:0	# time blast
+S:182:25:18:60:17:0	# essence of speed
+S:183:25:20:70:22:0	# infusion
+S:184:34:25:70:27:0	# become elder ent
+S:185:39:28:70:40:0	# regain life
+S:186:49:40:60:140:0	# intervention of Yavanna
+
+
+# Necromancer
+N:7
+R:93:1:4:1:200:600
+# 58 rituals in 9 books.
+M:58:0:8:16:24:30:36:42:47:53:58:58
+
+# Beginner's Curses (sval 0)
+
+S:192:1:1:22:2:0	# magic bolt
+S:193:1:1:23:2:0	# detect evil
+S:194:3:1:24:2:0	# enhanced infravision
+S:195:3:2:25:2:0	# break curse
+S:196:4:3:25:3:0	# slow monster
+S:197:5:3:25:3:0	# sleep monster
+S:198:5:3:25:3:0	# horrify
+S:199:6:3:85:5:0	# become bat
+
+# Dark Initiation (sval 1)
+
+S:200:7:3:27:4:0	# door destruction
+S:201:8:3:30:4:0	# dark bolt
+S:202:9:6:30:4:0	# noxious fumes
+S:203:9:3:20:4:0	# turn undead
+S:204:11:5:30:4:0	# turn evil
+S:205:11:4:35:5:0	# cure poison
+S:206:12:6:45:5:0	# dispel undead
+S:207:14:8:50:5:0	# dispel evil
+
+# Blood Novitiate (sval 2)
+
+S:208:14:5:40:6:0	# see invisible
+S:209:15:5:75:7:0	# shadow shifting
+S:210:17:8:75:6:0	# detect traps
+S:211:17:8:75:6:0	# detect doors/stairs
+S:212:17:8:45:6:0	# sleep monsters
+S:213:19:8:45:7:0	# slow monsters
+S:215:21:7:50:7:0	# death bolt
+S:216:21:6:50:8:0	# resist poison
+
+# Frightful Realms (sval 3)
+
+S:217:23:11:50:8:0	# Dispel Demons
+S:218:23:11:55:9:0	# dark spear
+S:219:24:11:60:10:0	# mana bolt
+S:221:28:16:65:12:0	# dark ball
+S:222:33:21:70:16:0	# stench of death
+S:220:43:25:70:21:0	# genocide
+
+# Mysteries of Angmar (sval 4)
+
+S:214:19:5:50:15:0	# detect magic
+S:223:19:10:40:15:0	# probing
+S:224:19:10:40:15:0	# shadow mapping
+S:250:21:10:55:23:0	# Mental Awareness
+S:225:23:18:80:28:0	# identify
+S:226:27:18:50:31:0	# shadow warping
+
+# Unholy Protection (sval 5)
+
+S:229:25:6:40:30:0	# heal any wound
+S:228:30:12:50:25:0	# resist acid and cold
+S:230:36:12:60:40:0	# protection from evil
+S:231:38:12:60:60:0	# black blessing
+S:232:43:20:70:90:0	# banish evil
+S:233:47:35:70:140:0	# shadow barrier
+
+# Life Force Mastery (sval 6)
+
+S:234:31:12:75:30:0	# detect all monsters
+S:235:36:15:50:35:0	# strike at life
+S:236:38:22:60:40:0	# orb of death
+S:237:43:25:70:75:0	# dispel life
+S:238:46:36:70:120:0	# vampiric drain
+
+# Metamorphoses(sval 7)
+
+S:239:18:9:40:20:0	# recharging
+S:240:32:12:50:35:0	# become werewolf
+S:241:34:12:50:40:0	# dispel curse
+S:242:40:16:50:60:0	# become vampire
+S:243:40:22:50:60:0	# haste self
+S:244:44:40:70:90:0	# prepare black breath
+
+# Necronomicon(sval 8)
+
+S:245:31:24:45:30:0	# word of destruction
+S:246:36:30:50:35:0	# teleport other
+S:247:38:32:60:40:0	# smash undead
+S:248:42:40:70:75:0	# bind undead
+S:249:47:40:70:120:0	# darkness storm
+
+
+# Assassin
+N:8
+R:93:1:4:3:300:1000
+# 30 rituals in 4 books.
+M:30:0:9:9:17:17:24:24:24:30:30:30
+
+# Beginner's Curses (sval 0)
+
+S:193:3:1:23:1:0	# detect evil
+S:210:3:1:25:1:0	# detect traps
+S:211:3:1:25:1:0	# detect doors/stairs
+S:194:5:1:25:1:0	# enhanced infravision
+S:192:5:1:65:1:0	# magic bolt
+S:196:7:4:25:2:0	# slow monster
+S:197:7:4:25:2:0	# sleep monster
+S:198:9:4:25:2:0	# horrify
+S:200:11:2:25:2:0	# door destruction
+
+# Dark Initiation (sval 1)
+
+# Blood Novitiate (sval 2)
+
+S:202:13:5:30:3:0	# noxious fumes
+S:205:15:3:35:3:0	# cure poison
+S:208:17:3:40:4:0	# see invisible
+S:209:20:4:65:4:0	# shadow shifting
+S:214:23:4:50:5:0	# detect magic
+S:216:27:7:50:5:0	# resist poison
+S:251:33:9:60:7:0	# slip into the shadows
+S:199:38:9:65:9:0	# become bat
+
+# Frightful Realms (sval 3)
+
+# Mysteries of Angmar (sval 4)
+
+S:234:14:4:45:7:0	# detect all monsters
+S:231:18:4:45:11:0	# black blessing
+S:223:25:8:55:14:0	# probing
+S:224:29:9:60:21:0	# shadow mapping
+S:272:35:5:45:27:1	# poison ammo
+S:225:40:25:70:25:0	# identify
+S:271:42:20:55:30:4	# vile dart
+
+# Unholy Protection (sval 5)
+
+# Life Force Mastery (sval 6)
+
+# Metamorphoses(sval 7)
+
+S:84:26:3:50:19:0	# Cure Mortal Wounds
+S:226:33:8:50:23:0	# shadow warping
+S:239:36:14:50:26:0	# recharging
+S:240:40:18:50:30:0	# become werewolf
+S:253:44:25:60:35:0	# rebalance weapon
+S:252:48:30:60:40:0	# bloodwrath
+
+# Necronomicon(sval 8)
+

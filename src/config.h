@@ -81,8 +81,9 @@
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
+ * But it *will* work on Linux, which is not System V. -uav
  */
-#ifdef SYS_V
+#if defined (SYS_V) || defined(linux)
 # define USE_CURS_SET
 #endif
 
@@ -288,8 +289,8 @@
 
 
 /*
- * OPTION: Allow monsters to use noise and scent information to better 
- * track the character.  This feature requires a significant amount of 
+ * OPTION: Allow monsters to use noise and scent information to better
+ * track the character.  This feature requires a significant amount of
  * memory.
  */
 #define MONSTER_FLOW
@@ -299,12 +300,6 @@
  * OPTION: Support multiple "player" grids in "map_info()"
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
-
-
-/*
- * OPTION: Use the new "update_view()" algorithm
- */
-#define UPDATE_VIEW_NEW
 
 
 /*
@@ -367,10 +362,14 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.  If this value is used,
- * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final slash is
- * optional, but it may eventually be required.
+ * certain machines, primarily Unix machines.
+ *
+ * The configure script overrides this value.  Check the "--prefix=<dir>"
+ * option of the configure script.
+ *
+ * This value will be over-ridden by the "ANGBAND_PATH" environment
+ * variable, if that variable is defined and accessable.  The final
+ * "slash" is required if the value supplied is in fact a directory.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -382,7 +381,27 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif
+#endif /* DEFAULT_PATH */
+
+
+/*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+# ifndef PRIVATE_USER_PATH
+/* #  define PRIVATE_USER_PATH "~/.angband" */
+# endif /* PRIVATE_USER_PATH */
+#endif /* SET_UID */
+
+
+/*
+ * OPTION: Create and use hidden directories in the users home directory
+ * for storing save files, data files, and high-scores
+ */
+#ifdef PRIVATE_USER_PATH
+/* # define USE_PRIVATE_PATHS */
+#endif /* PRIVATE_USER_PATH */
 
 
 /*
@@ -390,7 +409,31 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif
+#endif /* SET_UID */
+
+
+/*
+ * Allow the user to execute his own scripts in debug mode.
+ *
+ * The user-script code has not been checked for security issues yet,
+ * so the user shouldn't be allowed to execute his own scripts from
+ * a setgid executable.
+ */
+#ifndef SET_UID
+# define ALLOW_USER_SCRIPTS
+#endif /* SET_UID */
+
+
+/*
+ * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
+ * the '-d<what>=<path>' command line option (except for '-du=<path>').
+ *
+ * This prevents cheating in multi-user installs as well as possible
+ * security problems when running setgid.
+ */
+#ifdef SET_UID
+#define FIXED_PATHS
+#endif /* SET_UID */
 
 
 /*
@@ -404,7 +447,7 @@
  * player's name, it will then save the savefile elsewhere.  Note that
  * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
  */
-#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
+#if defined(MACINTOSH) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
 #endif
 
@@ -538,3 +581,12 @@
  */
 #define ALLOW_EASY_DISARM
 
+/*
+ * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
+ * but has Mac OS/Windows-like user interface
+ */
+#ifdef MACH_O_CARBON
+# ifdef SAVEFILE_USE_UID
+#  undef SAVEFILE_USE_UID
+# endif
+#endif

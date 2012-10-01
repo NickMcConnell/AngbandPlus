@@ -1,9 +1,9 @@
 /* File: dungeon.c */
 
 /* Pseusdo-ID, char & monster regeneration, town and dungeon management,
- * all timed character, monster, and object states, entry into Wizard, 
- * debug, and borg mode, definitions of user commands, process player, 
- * the basic function for interacting with the dungeon (including what 
+ * all timed character, monster, and object states, entry into Wizard,
+ * debug, and borg mode, definitions of user commands, process player,
+ * the basic function for interacting with the dungeon (including what
  * happens when a wizard cheats death).
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -225,7 +225,7 @@ static void sense_inventory(void)
 		o_ptr->feel = feel;
 
 		/* Squelch it if necessary */
-		if (squelch == 1) do_squelch_item(o_ptr);
+		if (squelch == 1) do_squelch_item(i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -330,7 +330,7 @@ static void regenmana(int percent)
 }
 
 /*
- * If player has inscribed the object with "!!", let him know when it's 
+ * If player has inscribed the object with "!!", let him know when it's
  * recharged. -LM-
  */
 static void recharged_notice(object_type *o_ptr)
@@ -355,7 +355,7 @@ static void recharged_notice(object_type *o_ptr)
 			object_desc(o_name, o_ptr, FALSE, 0);
 
 			/* Notify the player */
-			if (o_ptr->number > 1) 
+			if (o_ptr->number > 1)
 				msg_format("Your %s are recharged.", o_name);
 			else msg_format("Your %s is recharged.", o_name);
 
@@ -539,7 +539,7 @@ static void process_world(void)
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE, FALSE);
 	}
 
-	/* Hack - if there is a ghost now, and there was not before, 
+	/* Hack - if there is a ghost now, and there was not before,
 	 * give a challenge */
 	if ((bones_selector) && (!(was_ghost))) ghost_challenge();
 
@@ -738,7 +738,7 @@ static void process_world(void)
 		(void)set_superstealth(p_ptr->superstealth - 1);
 
 		/* Warn the player that he's going to be revealed soon. */
-		if (p_ptr->superstealth == 5) 
+		if (p_ptr->superstealth == 5)
 			msg_print("You sense your mantle of shadow fading...");
 	}
 
@@ -923,7 +923,7 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
-	/* Every 500 turns, warn about any Black Breath not gotten from an equipped 
+	/* Every 500 turns, warn about any Black Breath not gotten from an equipped
 	 * object, and stop any resting. -LM-
 	 */
 	if (!(turn % 5000) && (p_ptr->black_breath))
@@ -961,8 +961,8 @@ static void process_world(void)
 	{
 		int decrement;
 
-		/* 
-		 * Mega-Hack - To keep it from being a free ride for high speed characters, 
+		/*
+		 * Mega-Hack - To keep it from being a free ride for high speed characters,
 		 * Heighten Power decays quickly when highly charged
 		 */
 		decrement = 10 + (p_ptr->heighten_power / 55);
@@ -972,6 +972,9 @@ static void process_world(void)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Redraw mana display */
+		p_ptr->redraw |= (PR_MANA);
 	}
 
 	/* Decay special speed boost */
@@ -1034,8 +1037,8 @@ static void process_world(void)
 
 	/*** Process Inventory ***/
 
-	/* Handle experience draining.  In Oangband, the effect is worse, 
-	 * especially for high-level characters.  As per Tolkein, hobbits 
+	/* Handle experience draining.  In Oangband, the effect is worse,
+	 * especially for high-level characters.  As per Tolkein, hobbits
 	 * are resistant.
 	 */
 	if (p_ptr->black_breath)
@@ -1067,7 +1070,7 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes, provide message if object is inscribed. */
-			if (!(o_ptr->timeout)) 
+			if (!(o_ptr->timeout))
 			{
 				recharged_notice(o_ptr);
 				j++;
@@ -1082,8 +1085,8 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 	}
 
-	/* Recharge rods.  Rods now use timeout to control charging status, 
-	 * and each charging rod in a stack decreases the stack's timeout by 
+	/* Recharge rods.  Rods now use timeout to control charging status,
+	 * and each charging rod in a stack decreases the stack's timeout by
 	 * one per turn. -LM-
 	 */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
@@ -1100,7 +1103,7 @@ static void process_world(void)
 
 			/* Some rods should never get discharged at all */
 			if (!k_ptr->pval) temp = o_ptr->timeout;
-			
+
 			/* Determine how many rods are charging. */
 			else
 			{
@@ -1609,13 +1612,6 @@ static void process_command(void)
 
 		/*** Magic and Prayers ***/
 
-		/* Gain new spells/prayers */
-		case 'G':
-		{
-			do_cmd_study();
-			break;
-		}
-
 		/* Browse a book */
 		case 'b':
 		{
@@ -1686,14 +1682,14 @@ static void process_command(void)
 		/* Fire an item */
 		case 'f':
 		{
-			do_cmd_fire();
+			do_cmd_fire(FIRE_MODE_NORMAL);
 			break;
 		}
 
 		/* Throw an item */
 		case 'v':
 		{
-			do_cmd_throw();
+			do_cmd_throw(THROW_MODE_NORMAL);
 			break;
 		}
 
@@ -2050,7 +2046,7 @@ static void special_mana_gain(void)
 	{
 		/* Message */
 		if (p_ptr->csp < p_ptr->msp) msg_print("You gain mana.");
-	
+
 		/* Partial fill */
 		if (p_ptr->mana_gain < p_ptr->msp - p_ptr->csp)
 		{
@@ -2063,7 +2059,7 @@ static void special_mana_gain(void)
                         p_ptr->mana_gain -= p_ptr->msp - p_ptr->csp;
 			p_ptr->csp = p_ptr->msp;
 		}
-	
+
 		/*
 		 * Hack - If there is a lot of mana left, it can do damage
 		 * Mega-Hack - Restrict to Necromancers to make it affect Soul Siphon
@@ -2077,10 +2073,10 @@ static void special_mana_gain(void)
 
 		/* Paranioa */
 		if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
-	
+
 		/* Clear mana gain */
        		p_ptr->mana_gain = 0;
-	
+
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
 	}
@@ -2274,6 +2270,20 @@ static void process_player(void)
 			p_ptr->energy_use = 100;
 		}
 
+		/* Picking up objects */
+		else if (p_ptr->notice & (PN_PICKUP1))
+		{
+			p_ptr->energy_use = py_pickup(1) * 10;
+			p_ptr->notice &= ~(PN_PICKUP0 | PN_PICKUP1);
+		}
+
+		/* Noticing objects (allow pickup) */
+		else if (p_ptr->notice & (PN_PICKUP0))
+		{
+			p_ptr->energy_use = py_pickup(0) * 10;
+			p_ptr->notice &= ~(PN_PICKUP0 | PN_PICKUP1);
+		}
+
 		/* Resting */
 		else if (p_ptr->resting)
 		{
@@ -2335,6 +2345,9 @@ static void process_player(void)
 			/* Process the command */
 			process_command();
 		}
+
+		/*** Hack - squelching ***/
+		do_squelch_pile(p_ptr->py, p_ptr->px);
 
 		/*** Hack - handle special mana gain ***/
 		special_mana_gain();
@@ -2448,9 +2461,13 @@ static void process_player(void)
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 
+
+	/* Allowed to automatically pick up things again */
+	p_ptr->auto_pickup_okay = TRUE;
+
 	/*
 	 * Characters are noisy.
-	 * Use the amount of extra (directed) noise the player has made 
+	 * Use the amount of extra (directed) noise the player has made
 	 * this turn to calculate the total amount of ambiant noise.
 	 */
 	temp_wakeup_chance = p_ptr->base_wakeup_chance + add_wakeup_chance;
@@ -2466,7 +2483,7 @@ static void process_player(void)
 
 
 	/* Increase noise level if necessary. */
-	if (temp_wakeup_chance > total_wakeup_chance) 
+	if (temp_wakeup_chance > total_wakeup_chance)
 		total_wakeup_chance = temp_wakeup_chance;
 
 
@@ -2477,14 +2494,47 @@ static void process_player(void)
 	update_smell();
 
 
-	/* 
-	 * Reset character vulnerability.  Will be calculated by 
+	/*
+	 * Reset character vulnerability.  Will be calculated by
 	 * the first member of an animal pack that has a use for it.
 	 */
 	p_ptr->vulnerability = 0;
 
 }
 
+
+
+/*
+ * Handle a standard set of dungeon maintenance tasks:
+ *   notice, update, redraw stuff as needed
+ *   hilite the player
+ *   optional Term_fresh
+ *
+ * Return true if done with this level.
+ */
+static bool dungeon_maintenance(bool force_fresh, bool hilite)
+{
+	/* Notice stuff */
+	if (p_ptr->notice) notice_stuff();
+
+	/* Update stuff */
+	if (p_ptr->update) update_stuff();
+
+	/* Redraw stuff */
+	if (p_ptr->redraw) redraw_stuff();
+
+	/* Redraw stuff */
+	if (p_ptr->window) window_stuff();
+
+	/* Hack -- Hilite the player */
+	if (hilite) move_cursor_relative(p_ptr->py, p_ptr->px);
+
+	/* Optional fresh */
+	if (force_fresh || fresh_after) Term_fresh();
+
+	/* leaving signal */
+	return p_ptr->leaving;
+}
 
 
 /*
@@ -2600,13 +2650,13 @@ static void dungeon(void)
 
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPECIALTY);
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
 
-	/* Update stuff */
-	update_stuff();
+	/* Handle maintenance of the dungeon screen. */
+	(void) dungeon_maintenance(FALSE, FALSE);
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
@@ -2615,22 +2665,10 @@ static void dungeon(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_MONSTER | PW_OVERHEAD);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
+	/* Handle maintenance of the dungeon screen. */
+	(void) dungeon_maintenance(FALSE, FALSE);
 
 
 	/* Hack -- Decrease "xtra" depth */
@@ -2638,30 +2676,16 @@ static void dungeon(void)
 
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPECIALTY);
 
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	/* Notice stuff */
-	notice_stuff();
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Window stuff */
-	window_stuff();
-
-	/* Refresh */
-	Term_fresh();
-
+	/* Handle maintenance of the dungeon screen. */
+	(void) dungeon_maintenance(TRUE, FALSE);
 
 	/* Handle delayed death */
 	if (p_ptr->is_dead) return;
-
 
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
@@ -2717,26 +2741,8 @@ static void dungeon(void)
 			}
 		}
 
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		/* Handle maintenance of the dungeon screen. */
+		if (dungeon_maintenance(FALSE, TRUE)) break;
 
 		/* Process monsters */
 		process_monsters(0);
@@ -2744,50 +2750,14 @@ static void dungeon(void)
 		/* Reset Monsters */
 		reset_monsters();
 
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		/* Handle maintenance of the dungeon screen. */
+		if (dungeon_maintenance(FALSE, TRUE)) break;
 
 		/* Process the world */
 		process_world();
 
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
-
-		/* Hack -- Hilite the player */
-		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
+		/* Handle maintenance of the dungeon screen. */
+		if (dungeon_maintenance(FALSE, TRUE)) break;
 
 		/* Count game turns */
 		turn++;
@@ -2858,7 +2828,7 @@ void play_game(bool new_game)
 
 	/* Initialise the resize hooks */
 	angband_term[0]->resize_hook = resize_map;
-	
+
 	for (i = 1; i < TERM_WIN_MAX; i++)
 	{
 		/* Does the term exist? */
@@ -2878,31 +2848,6 @@ void play_game(bool new_game)
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
 
-
-	/* Attempt to load */
-	if (!load_player())
-	{
-		/* Oops */
-		quit("broken savefile");
-	}
-
-	/* Nothing loaded */
-	if (!character_loaded)
-	{
-		/* Reset RNG when dead-character savefile is loaded */
-		Rand_quick = TRUE;
-
-		/* Make new player */
-		new_game = TRUE;
-
-		/* The dungeon is not ready */
-		character_dungeon = FALSE;
-	}
-
-	/* Process old character */
-	if (!new_game)
-	{
-	}
 
 	/* Init RNG */
 	if (Rand_quick)
@@ -2927,42 +2872,147 @@ void play_game(bool new_game)
 	}
 
 	/* Roll new character */
-	if (new_game)
+
+	/* We have not already loaded a savefile, and do not require a new game */
+	if ((!character_loaded) && (!new_game))
 	{
-		/* The dungeon is not ready */
-		character_dungeon = FALSE;
+		/* We have a specific savefile we want to load */
+		if (savefile[0])
+		{
+			/* Blank the screen */
+			(void)Term_clear();
 
-		/* Start in town */
-		p_ptr->depth = 0;
+			/* Load savefile, note any errors */
+			if (!load_player(FALSE))
+			{
+				/* Load character (use a menu) */
+				savefile_load(TRUE);
+			}
+		}
 
-		/* Hack -- seed for flavors */
-		seed_flavor = rand_int(0x10000000);
-
-		/* Hack -- seed for town layout */
-		seed_town = rand_int(0x10000000);
-
-		/* Roll up a new character */
-		player_birth();
-
-		/* Hack -- enter the world */
-		turn = 1;
-
-		/* Read the default options */
-		process_pref_file("birth.prf");
-
+		/* We haven't specified a savefile (usual case) */
+		else
+		{
+			/* Load character (do not force menus/autoload obvious savefiles) */
+			savefile_load(TRUE);
+		}
 	}
 
-	/* Normal machine (process player name) */
-	if (savefile[0])
+	/* We want a new game, but have also specified a savefile */
+	else if ((savefile[0]) && (new_game))
 	{
-		process_player_name(FALSE);
+		/* Load savefile and note any errors, but don't go to the menu */
+		(void)load_player(FALSE);
 	}
 
-	/* Weird machine (process player name, pick savefile name) */
-	else
+
+	/* Repeat until satisfied */
+	while (TRUE)
 	{
-		process_player_name(TRUE);
+		/* Character is alive - display, allow player to start over */
+		if ((character_loaded) && (!new_game))
+		{
+			char ch;
+
+			/* Update the character  XXX XXX */
+			p_ptr->update |= (PU_BONUS | PU_TORCH | PU_HP | PU_MANA);
+			update_stuff();
+
+			/* Display the character */
+			display_player(0);
+
+			/* Prompt for it */
+			prt("['Q' to quit, 'L' to load another savefile, or any other key to continue]", 23, 3);
+
+			/* Get response */
+			ch = inkey();
+
+			/* Quit */
+			if ((ch == 'Q') || (ch == KTRL('X')))
+			{
+				quit(NULL);
+			}
+
+			/* Load another savefile */
+			else if ((ch == 'L') || (ch == 'l') || (ch == ESCAPE))
+			{
+				/* Continue */
+			}
+
+			/* Play a game with this character */
+			else
+			{
+				break;
+			}
+		}
+
+		/* Roll new character */
+		else
+		{
+			/* Assume we are using a new savefile */
+			bool new_savefile = TRUE;
+
+			/* Cancel request for new game */
+			new_game = FALSE;
+
+			/* Flash a comforting message */
+			if ((sf_lives) && (character_existed))
+			{
+				prt("Using ancestor's monster memory...", 0, 0);
+
+				/* Wait for it */
+				(void)inkey();
+			}
+
+			/* The dungeon is not ready */
+			character_dungeon = FALSE;
+
+			/* Start in town */
+			p_ptr->depth = 0;
+
+			/* Hack -- seed for flavors */
+			seed_flavor = rand_int(0x10000000);
+
+			/* Hack -- seed for town layout */
+			seed_town = rand_int(0x10000000);
+
+			/* See if we can reuse a savefile */
+			if (sf_lives &&
+			    (reuse_savefile ||
+			     get_check("Use existing savefile? ")))
+			{
+				new_savefile = FALSE;
+			}
+
+			/* Roll up a new character */
+			player_birth();
+
+			/* Use given name for savefile */
+			process_player_name(new_savefile);
+
+			/* Hack -- enter the world */
+			turn = 1;
+
+			/* Read the default options */
+			process_pref_file("birth.prf");
+
+			break;
+		}
+
+
+		/* Hack -- avoid strange messages */
+		character_existed = FALSE;
+
+		/* Show available savefiles, get a choice */
+		savefile_load(TRUE);
 	}
+
+	/* Character has been loaded; process name, don't change savename */
+	process_player_name(FALSE);
+
+	/* A character has now been loaded */
+	character_loaded = TRUE;
+
 
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
@@ -3025,13 +3075,13 @@ void play_game(bool new_game)
 
 	/* Verify the (possibly resized) panel */
 	verify_panel();
-	
+
 	/* Update some stuff not stored in the savefile any more */
 	p_ptr->update |= (PU_UPDATE_VIEW);
 
 	/* Update stuff */
 	update_stuff();
-	
+
 	/* Process */
 	while (TRUE)
 	{

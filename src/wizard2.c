@@ -71,7 +71,7 @@ static void do_cmd_wiz_hack_ben(void)
 					{
 						print_rel('@', a, y, x);
 					}
-					else 
+					else
 					{
 						print_rel('0' + (age % 10), a, y, x);
 					}
@@ -275,7 +275,7 @@ static void do_cmd_wiz_bamf(void)
 {
 	/* target starts at player. */
 	int ny = 0;
-	int nx = 0; 
+	int nx = 0;
 
 	/* Use the targeting function. */
 	if (!target_set_interactive(TARGET_LOOK)) return;
@@ -525,7 +525,7 @@ static void wiz_display_item(object_type *o_ptr)
 
 
 /*
- * A structure to hold a tval, its description and its possibility 
+ * A structure to hold a tval, its description and its possibility
 <  * for becoming an artifact.
  */
 typedef struct tval_desc
@@ -581,31 +581,6 @@ static tval_desc tvals[] =
 
 
 /*
- * Strip an object or artifact name into a buffer
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
-/*
  * Build an "artifact name" and transfer it into a buffer.
  */
 static void get_art_name(char *buf, int a_idx)
@@ -656,7 +631,7 @@ static char head[3] =
 
 
 /*
- * Acquire an object or artifact for creation by selecting first a tval 
+ * Acquire an object or artifact for creation by selecting first a tval
  * and then a specific object or artifact from successive menus.
  *
  * Can list up to 57 choices in three columns.
@@ -771,12 +746,12 @@ static int wiz_create_itemtype(bool artifact)
 	/* If choosing an object... */
 	else
 	{
-	  
+
 	  /* We have to search the whole itemlist. */
 	  for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
 	    {
 	      object_kind *k_ptr = &k_info[i];
-	      
+
 	      /* Analyze matching items */
 	      if (k_ptr->tval == tval)
 		{
@@ -806,12 +781,12 @@ static int wiz_create_itemtype(bool artifact)
 	/* Choose! */
 	if (artifact)
 	{
-		if (!get_com(format("Which artifact %s? ", tval_desc), &ch)) 
+		if (!get_com(format("Which artifact %s? ", tval_desc), &ch))
 			return (0);
 	}
 	else
 	{
-		if (!get_com(format("What kind of %s? ", tval_desc), &ch)) 
+		if (!get_com(format("What kind of %s? ", tval_desc), &ch))
 			return (0);
 	}
 
@@ -1330,10 +1305,10 @@ static void wiz_create_item(void)
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
-	/* Hack -- Since treasure objects are not effected by apply_magic, 
+	/* Hack -- Since treasure objects are not effected by apply_magic,
 	 * they need special processing.
 	 */
-	if (i_ptr->tval == TV_GOLD) 
+	if (i_ptr->tval == TV_GOLD)
 	{
 		k_ptr = &k_info[i_ptr->k_idx];
 		i_ptr->pval = k_ptr->cost / 2 + randint((k_ptr->cost + 1) / 2);
@@ -1526,12 +1501,7 @@ static void do_cmd_wiz_summon(int num)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i;
-
-	for (i = 0; i < num; i++)
-	{
-		(void)summon_specific(py, px, FALSE, p_ptr->depth, 0);
-	}
+	(void)summon_specific(py, px, FALSE, p_ptr->depth, 0, num);
 }
 
 

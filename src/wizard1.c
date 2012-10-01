@@ -54,82 +54,6 @@ static cptr attr_to_text(byte a)
 }
 
 
-
-/*
- * A tval grouper
- */
-typedef struct
-{
-	byte tval;
-	cptr name;
-} grouper;
-
-
-
-/*
- * Item Spoilers by Ben Harrison (benh@phial.com)
- */
-
-
-/*
- * The basic items categorized by type
- */
-static grouper group_item[] =
-{
-	{ TV_SHOT,		"Ammo" },
-	{ TV_ARROW,		  NULL },
-	{ TV_BOLT,		  NULL },
-
-	{ TV_BOW,		"Bows" },
-
-	{ TV_SWORD,		"Weapons" },
-	{ TV_POLEARM,	  NULL },
-	{ TV_HAFTED,	  NULL },
-	{ TV_DIGGING,	  NULL },
-
-	{ TV_SOFT_ARMOR,	"Armour (Body)" },
-	{ TV_HARD_ARMOR,	  NULL },
-	{ TV_DRAG_ARMOR,	  NULL },
-
-	{ TV_CLOAK,		"Armour (Misc)" },
-	{ TV_SHIELD,	  NULL },
-	{ TV_HELM,		  NULL },
-	{ TV_CROWN,		  NULL },
-	{ TV_GLOVES,	  NULL },
-	{ TV_BOOTS,		  NULL },
-
-	{ TV_AMULET,	"Amulets" },
-	{ TV_RING,		"Rings" },
-
-	{ TV_SCROLL,	"Scrolls" },
-	{ TV_POTION,	"Potions" },
-	{ TV_FOOD,		"Food" },
-
-	{ TV_ROD,		"Rods" },
-	{ TV_WAND,		"Wands" },
-	{ TV_STAFF,		"Staffs" },
-
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
-	{ TV_DRUID_BOOK,	"Stones (Druid)" },
-	{ TV_NECRO_BOOK,	"Books (Necro)" },
-
-	{ TV_CHEST,		"Chests" },
-
-	{ TV_SPIKE,		"Various" },
-	{ TV_LITE,		  NULL },
-	{ TV_FLASK,		  NULL },
-	{ TV_JUNK,		  NULL },
-	{ TV_BOTTLE,	  NULL },
-	{ TV_SKELETON,	  NULL },
-
-	{ 0, "" }
-};
-
-
-
-
-
 /*
  * Describe the kind
  */
@@ -224,7 +148,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Weight */
-	if (use_metric) sprintf(wgt, "%3d.%d", make_metric(i_ptr->weight) / 10, 
+	if (use_metric) sprintf(wgt, "%3d.%d", make_metric(i_ptr->weight) / 10,
 		make_metric(i_ptr->weight) % 10);
 	else sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
 
@@ -384,11 +308,6 @@ static void spoil_obj_desc(cptr fname)
 #define MAX_LINE_LEN 75
 
 /*
- * Given an array, determine how many elements are in the array
- */
-#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
-
-/*
  * The artifacts categorized by type
  */
 static grouper group_artifact[] =
@@ -473,7 +392,7 @@ static flag_desc pval_flags1_desc[] =
 /*
  * Missile weapon attributes.
  */
-static flag_desc launcher_flags_desc[] = 
+static flag_desc launcher_flags_desc[] =
 {
 	{ TR1_MIGHT2,	     "+2 Extra Might" },
 	{ TR1_SHOTS,	     "Extra Shots" },
@@ -946,7 +865,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 
 	if (use_metric) sprintf(misc_desc, "Level %u, Rarity %u, %d.%d kgs, "
 		"%ld Gold", a_ptr->level, a_ptr->rarity,
-		make_metric(a_ptr->weight) / 10, make_metric(a_ptr->weight) % 10, 
+		make_metric(a_ptr->weight) / 10, make_metric(a_ptr->weight) % 10,
 		a_ptr->cost);
 
 	else sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, "
@@ -961,7 +880,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
-	
+
 	/* Oangband requires that activations be transferred to the object. */
 	if (a_ptr->activation)
 	{
@@ -1284,7 +1203,7 @@ static void spoil_obj_gen(cptr fname)
 	/* Make a lot of objects, and print their names out. */
 	for (i = 0L; i < 1000000L; i++)
 	{
-		if (i % 10000 == 0) 
+		if (i % 10000 == 0)
 		{
 			prt(format("%ld objects created", (long)i), 0, 0);
 			if (!fresh_after) Term_fresh();
@@ -1459,7 +1378,7 @@ static void spoil_mon_gen(cptr fname)
 	/* Make a lot of monsters, and print their names out. */
 	for (i = 0L; i < 1000000L; i++)
 	{
-		if (i % 10000 == 0) 
+		if (i % 10000 == 0)
 		{
 			prt(format("%ld monsters created", (long)i), 0, 0);
 			if (!fresh_after) Term_fresh();
@@ -2170,7 +2089,7 @@ static void spoil_mon_info(cptr fname)
 			if (spower < 70) vp[vn++] = "produce lightning balls";
 			else vp[vn++] = "produce lightning storms";
 		}
-		if (flags5 & (RF5_BALL_FIRE))	
+		if (flags5 & (RF5_BALL_FIRE))
 		{
 			if (flags2 & (RF2_UDUN_MAGIC))
 			{
@@ -2371,11 +2290,11 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(" magical, casting ");
 
 			/* Describe magic */
-			if ((flags2 & (RF2_UDUN_MAGIC)) && (flags2 & (RF2_MORGUL_MAGIC))) 
+			if ((flags2 & (RF2_UDUN_MAGIC)) && (flags2 & (RF2_MORGUL_MAGIC)))
 				spoil_out(" perilous spells of Udun and of Morgul");
-			if (flags2 & (RF2_MORGUL_MAGIC)) 
+			if (flags2 & (RF2_MORGUL_MAGIC))
 				spoil_out(" Morgul-spells");
-			else if (flags2 & (RF2_UDUN_MAGIC)) 
+			else if (flags2 & (RF2_UDUN_MAGIC))
 				spoil_out(" spells of Udun");
 
 			else spoil_out(" spells");
@@ -2502,8 +2421,8 @@ static void spoil_mon_info(cptr fname)
 		/* Collect resistances */
 		vn = 0;
 		if (r_ptr->flags4 & (RF4_BRTH_LITE)) vp[vn++] = "light";
-		if ((r_ptr->flags4 & (RF4_BRTH_DARK)) || 
-			(r_ptr->flags2 & (RF2_MORGUL_MAGIC)) || 
+		if ((r_ptr->flags4 & (RF4_BRTH_DARK)) ||
+			(r_ptr->flags2 & (RF2_MORGUL_MAGIC)) ||
 			(r_ptr->flags3 & (RF3_ORC))) vp[vn++] = "darkness";
 
 		if (flags4 & (RF4_BRTH_CONFU)) vp[vn++] = "confusion";
@@ -2512,16 +2431,16 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BRTH_INER)) vp[vn++] = "inertia";
 		if (flags4 & (RF4_BRTH_GRAV)) vp[vn++] = "gravity";
 		if (flags4 & (RF4_BRTH_FORCE)) vp[vn++] = "force";
-		if ((flags3 & (RF3_RES_WATE)) || (prefix(name, "Water"))) 
+		if ((flags3 & (RF3_RES_WATE)) || (prefix(name, "Water")))
 			vp[vn++] = "water";
 
-		if ((r_ptr->flags4 & (RF4_BRTH_PLAS)) || (r_ptr->flags3 & (RF3_RES_PLAS)) || 
-			((vn) && ((flags3 & (RF3_IM_ELEC)) || (flags3 & (RF3_IM_FIRE)))) || 
+		if ((r_ptr->flags4 & (RF4_BRTH_PLAS)) || (r_ptr->flags3 & (RF3_RES_PLAS)) ||
+			((vn) && ((flags3 & (RF3_IM_ELEC)) || (flags3 & (RF3_IM_FIRE)))) ||
 			prefix(name, "Plasma")) vp[vn++] = "plasma";
 
-		if ((r_ptr->flags3 & (RF3_RES_NEXU)) || prefix(name, "Nexus") || 
+		if ((r_ptr->flags3 & (RF3_RES_NEXU)) || prefix(name, "Nexus") ||
 			(r_ptr->flags4 & (RF4_BRTH_NEXUS))) vp[vn++] = "nexus";
-		if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_RES_NETH)) || 
+		if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_RES_NETH)) ||
 			(r_ptr->flags4 & (RF4_BRTH_NETHR))) vp[vn++] = "nether";
 		if ((flags3 & (RF3_RES_DISE)) || (r_ptr->flags4 & (RF4_BRTH_DISEN)) ||
 			prefix(name, "Disen")) vp[vn++] = "disenchantment";
@@ -2545,7 +2464,7 @@ static void spoil_mon_info(cptr fname)
 		if ((flags3 & (RF3_NO_STUN)) || (r_ptr->flags4 & (RF4_BRTH_SOUND)) ||
 			(r_ptr->flags4 & (RF4_BRTH_FORCE))) vp[vn++] = "stunned";
 		if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
-		if ((flags3 & (RF3_NO_CONF)) || (r_ptr->flags4 & (RF4_BRTH_CONFU)) || 
+		if ((flags3 & (RF3_NO_CONF)) || (r_ptr->flags4 & (RF4_BRTH_CONFU)) ||
 			(r_ptr->flags4 & (RF4_BRTH_CHAOS))) vp[vn++] = "confused";
 		if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
 
@@ -2580,12 +2499,24 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		i = 0;
+		j = 0;
+		if (flags1 & (RF1_DROP_40)) i += 1;
 		if (flags1 & (RF1_DROP_60)) i += 1;
-		if (flags1 & (RF1_DROP_90)) i += 2;
-		if (flags1 & (RF1_DROP_1D2)) i += 2;
-		if (flags1 & (RF1_DROP_2D2)) i += 4;
-		if (flags1 & (RF1_DROP_3D2)) i += 6;
-		if (flags1 & (RF1_DROP_4D2)) i += 8;
+		if (flags1 & (RF1_DROP_ONE)) i += 1;
+		if (flags1 & (RF1_DROP_TWO)) i += 2;
+		if (flags1 & (RF1_DROP_PLUS_5)) j += 5;
+		if (flags1 & (RF1_DROP_PLUS_10)) j += 10;
+
+		/*
+		 * Mega-Hack - the Living Dungeon hack
+		 * Creatures with enhanced drop depth and only gold,
+		 * actually get more drops as well.
+		 */
+		if (flags1 & (RF1_ONLY_GOLD))
+		{
+			if (flags1 & (RF1_DROP_PLUS_5)) i += 3;
+			if (flags1 & (RF1_DROP_PLUS_10)) i += 6;
+		}
 
 		/* Drops gold and/or items */
 		if (i)
@@ -2639,6 +2570,12 @@ static void spoil_mon_info(cptr fname)
 				spoil_out(" or treasure");
 			}
 			if (i > 1) spoil_out("s");
+
+			if (j > 0)
+			{
+				sprintf(buf, " %u levels out of depth", i);
+				spoil_out(buf);
+			}
 
 			if (flags1 & (RF1_DROP_CHOSEN))
 			{

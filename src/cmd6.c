@@ -1,8 +1,8 @@
 /* File: cmd6.c */
 
-/* Code for eating food, drinking potions, reading scrolls, aiming wands, 
- * using staffs, zapping rods, and activating anything that can be 
- * activated.  Also defines all effects of the items listed, and all 
+/* Code for eating food, drinking potions, reading scrolls, aiming wands,
+ * using staffs, zapping rods, and activating anything that can be
+ * activated.  Also defines all effects of the items listed, and all
  * activations.  Ending a druid shapechange.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -41,7 +41,7 @@
  *     TARGET_RESTORE
  *     fire_cloud(GF_POIS, dir, 30, 6);
  */
- 
+
 #define TARGET_DECLARE \
 	int save_target_y = 0, save_target_x = 0; \
 	bool save_target_set;
@@ -964,8 +964,10 @@ void do_cmd_quaff_potion(void)
 			/* Already a Vampire */
 			if (p_ptr->schange == SHAPE_VAMPIRE) break;
 
+			ident = TRUE;
+
 			/* Priests/Paladins can't be Vampires */
-			if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+			if (check_ability(SP_HOLY))
 			{
 				msg_print("You reject the unholy serum.");
 				take_hit(damroll(10, 6), "dark forces");
@@ -973,7 +975,7 @@ void do_cmd_quaff_potion(void)
 			}
 
 			/* Druids/Rangers can't be Vampires */
-			if (mp_ptr->spell_book == TV_DRUID_BOOK)
+			if (check_ability(SP_WOODSMAN))
 			{
 				msg_print("You reject the unnatural serum.");
 				take_hit(damroll(10, 6), "dark forces");
@@ -986,7 +988,6 @@ void do_cmd_quaff_potion(void)
 			/* But it hurts */
 			take_hit(damroll(3, 6), "shapeshifting stress");
 			shapechange(SHAPE_VAMPIRE);
-			ident = TRUE;
 			break;
 		}
 
@@ -1137,24 +1138,22 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_SUMMON_MONSTER:
 		{
-			for (k = 0; k < randint(3); k++)
+			int num = randint(3);
+
+			if ((summon_specific(py, px, FALSE, p_ptr->depth, 0, num)) > 0)
 			{
-				if (summon_specific(py, px, FALSE, p_ptr->depth, 0))
-				{
-					ident = TRUE;
-				}
+				ident = TRUE;
 			}
 			break;
 		}
 
 		case SV_SCROLL_SUMMON_UNDEAD:
 		{
-			for (k = 0; k < randint(3); k++)
+			int num = randint(3);
+
+			if ((summon_specific(py, px, FALSE, p_ptr->depth, SUMMON_UNDEAD, num)) > 0)
 			{
-				if (summon_specific(py, px, FALSE, p_ptr->depth, SUMMON_UNDEAD))
-				{
-					ident = TRUE;
-				}
+				ident = TRUE;
 			}
 			break;
 		}
@@ -1181,7 +1180,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level(FALSE);
+			(void)teleport_player_level(TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1505,6 +1504,65 @@ void do_cmd_read_scroll(void)
 
 
 /*
+ * Test for player attunement to this object type.
+ *
+ * Return true if the player is already attuned.
+ */
+bool get_attune(object_type *o_ptr)
+{
+	if (!(check_ability(SP_ATTUNEMENT))) return (FALSE);
+	else if ((p_ptr->attune_tval == o_ptr->tval) && (p_ptr->attune_sval == o_ptr->sval)) return (TRUE);
+	return (FALSE);
+}
+
+
+/*
+ * Attempt to attune the player to this type of object.
+ */
+void do_attune(object_type *o_ptr)
+{
+	char buf[80];
+	u32b f1, f2, f3;
+
+	/* Extract some flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Must be able to attune */
+	if (!(check_ability(SP_ATTUNEMENT))) return;
+
+	/* Don't bother attuning to easily activated items */
+	else if (f3 & TR3_EASY_ACT) return;
+
+	/* Chance of attunement. */
+	else if (randint(ATTUNE_CHANCE) == 1)
+	{
+		p_ptr->attune_tval = o_ptr->tval;
+		p_ptr->attune_sval = o_ptr->sval;
+		object_desc(buf, o_ptr, FALSE, 0);
+		msg_format("You become attuned to the %s.", buf);
+	}
+
+}
+
+
+/*
+ * Test for a "critical" use of a rod, wand, or staff.
+ *
+ * Based on device skill, possibly modified by confusion or specialty
+ * abilities, and the type of device.
+ */
+bool critical_device(int chance)
+{
+	bool result;
+
+	/* Roll for critical */
+	result = (randint(chance + 800) <= chance);
+
+	return(result);
+}
+
+
+/*
  * Use a staff.  Staffs may be fully identified through use.
  *
  * One charge of one staff disappears.
@@ -1516,7 +1574,12 @@ void do_cmd_use_staff(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, ident, chance, k, lev;
+	int item, ident, chance, chance2, dam, k, lev;
+
+	bool critical = FALSE;
+	bool attuned = FALSE;
+
+	u32b f1, f2, f3;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
@@ -1557,11 +1620,17 @@ void do_cmd_use_staff(void)
 
 	k_ptr = &k_info[o_ptr->k_idx];
 
+	/* Extract some flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	/* Take a turn. */
 	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
+
+	/* Test for attunement */
+	attuned = get_attune(o_ptr);
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
@@ -1572,17 +1641,26 @@ void do_cmd_use_staff(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
+	/* Attunement gives a massive bonus - double then add 50 */
+	if (attuned)
+	{
+		chance *= 2;
+		chance += 50;
+	}
+
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* Some items are easier to activate -BR- */
+	if (f3 & TR3_EASY_ACT) chance2 = chance - ((lev > 70) ? 35 : (lev / 2));
+	else chance2 = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	if ((chance2 < USE_DEVICE) && (rand_int(USE_DEVICE - chance2 + 1) == 0))
 	{
-		chance = USE_DEVICE;
+		chance2 = USE_DEVICE;
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((chance2 < USE_DEVICE) || (randint(chance2) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
@@ -1606,6 +1684,11 @@ void do_cmd_use_staff(void)
 	/* Sound */
 	sound(SOUND_ZAP);
 
+	/* Attempt to attune the player */
+	if (!attuned) do_attune(o_ptr);
+
+	/* Check for "critical" activation.  Mostly for offense activations. */
+	critical = critical_device(chance);
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -1634,12 +1717,11 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_SUMMONING:
 		{
-			for (k = 0; k < randint(4); k++)
+			int num = randint(4);
+
+			if ((summon_specific(py, px, FALSE, p_ptr->depth, 0, num)) > 0)
 			{
-				if (summon_specific(py, px, FALSE, p_ptr->depth, 0))
-				{
-					ident = TRUE;
-				}
+				ident = TRUE;
 			}
 			break;
 		}
@@ -1673,14 +1755,19 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_STARLIGHT:
 		{
+			/* Find damage */
+			dam = 12;
+			if (critical) dam += (dam / 2);
+
 			/* Message. */
 			if (!p_ptr->blind)
 			{
-				msg_print("The staff glitters with unearthly light.");
+				if (critical) msg_print("The staff shines with intense light.");
+				else msg_print("The staff glitters with unearthly light.");
 			}
 
 			/* Starbursts everywhere. */
-			do_starlight(rand_int(8) + 7, 12, FALSE);
+			do_starlight(rand_int(8) + 7, dam, FALSE);
 
 			/* Hard not to identify. */
 			ident = TRUE;
@@ -1689,7 +1776,13 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_LITE:
 		{
-			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
+			/* Find damage */
+			dam = damroll(2, 8);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The staff throbs.");
+
+			if (lite_area(dam, 2)) ident = TRUE;
 			break;
 		}
 
@@ -1744,7 +1837,13 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_CURE_MEDIUM:
 		{
-			if (hp_player(randint(20) + 10)) ident = TRUE;
+			/* Find healing */
+			dam = randint(20) + 10;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The staff throbs.");
+
+			if (hp_player(dam)) ident = TRUE;
 			(void)set_cut(p_ptr->cut - 10);
 			break;
 		}
@@ -1761,7 +1860,13 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			/* Find healing */
+			dam = 300;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The staff hums with power.");
+
+			if (hp_player(dam)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -1769,8 +1874,11 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_BANISHMENT:
 		{
-			if (banish_evil(80)) ident = TRUE;
-			msg_print("A mighty force drives away evil!");
+			if (banish_evil(80))
+			{
+				ident = TRUE;
+				msg_print("A mighty force drives away evil!");
+			}
 			break;
 		}
 
@@ -1808,19 +1916,37 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+			/* Find damage */
+			dam = 55;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The staff hums with power.");
+
+			if (dispel_evil(dam)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(100)) ident = TRUE;
+			/* Find damage */
+			dam = 90;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The staff hums with power.");
+
+			if (dispel_monsters(dam)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(120)) ident = TRUE;
+			/* Find damage */
+			dam = 110;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The staff hums with power.");
+
+			if (dispel_evil(dam)) ident = TRUE;
 			k = 2 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			if (set_poisoned((p_ptr->poisoned / 2)-10)) ident = TRUE;
@@ -1854,10 +1980,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_MSTORM:
 		{
-			
-			msg_print("Mighty magics rend your enemies!");
-			fire_sphere(GF_MANA, 0,
-			       randint(75) + 125, 5, 20);
+			/* Find damage */
+			dam = randint(70) + 110;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("Immense power rends your enemies!");
+			else msg_print("Mighty magics rend your enemies!");
+
+			fire_sphere(GF_MANA, 0, dam, 5, 20);
 			if (!(check_ability(SP_DEVICE_EXPERT)))
 			{
 				(void)take_hit(20, "unleashing magics too mighty to control");
@@ -1868,9 +1998,13 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_STARBURST:
 		{
-			msg_print("Light bright beyond enduring dazzles your foes!");
-			fire_sphere(GF_LITE, 0,
-			       randint(67) + 100, 5, 20);
+			/* Find damage */
+			dam = randint(60) + 90;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The blazing light of Anor blasts your foes!");
+			else msg_print("Light bright beyond enduring dazzles your foes!");
+			fire_sphere(GF_LITE, 0, dam, 5, 20);
 			ident = TRUE;
 			break;
 		}
@@ -1884,14 +2018,19 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_GANDALF:
 		{
+			/* Find damage */
+			dam = 30;
+			if (critical) dam *= 2;
+
 			/* Message. */
 			if (!p_ptr->blind)
 			{
-				msg_print("The staff blazes with unearthly light.");
+				if (critical) msg_print("The staff flares with the light of the West.");
+				else msg_print("The staff blazes with unearthly light.");
 			}
 
 			/* (large) Starbursts everywhere. */
-			do_starlight(rand_int(8) + 7, 30, TRUE);
+			do_starlight(rand_int(8) + 7, dam, TRUE);
 
 			/* Hard not to identify. */
 			ident = TRUE;
@@ -1900,12 +2039,16 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_WINDS:
 		{
-			/* Raise a storm. */
-			msg_print("A howling whirlwind rises in wrath around you.");
-			fire_sphere(GF_FORCE, 0,
-			  randint(100) + 100, 6, 20);
+			/* Find damage */
+			dam = randint(100) + 100;
+			if (critical) dam *= 2;
 
-			/* Whisk around the player and nearby monsters.  This is 
+			/* Raise a storm. */
+			if (critical) msg_print("A whirlwind of incredible ferocity rises around you.");
+			else msg_print("A howling whirlwind rises in wrath around you.");
+			fire_sphere(GF_FORCE, 0, dam, 6, 20);
+
+			/* Whisk around the player and nearby monsters.  This is
 			 * actually kinda amusing to see...
 			 */
 			fire_ball(GF_AWAY_ALL, 0, 12, 6, FALSE);
@@ -2030,7 +2173,7 @@ void do_cmd_use_staff(void)
 
 
 /*
- * Aim a wand (from the pack or floor).  Wands may be fully identified 
+ * Aim a wand (from the pack or floor).  Wands may be fully identified
  * through use.
  *
  * Use a single charge from an item or stack.
@@ -2048,11 +2191,16 @@ void do_cmd_use_staff(void)
  */
 void do_cmd_aim_wand(void)
 {
-	int item, lev, ident, chance, dir, sval;
+	int item, lev, ident, chance, chance2, dam, dir, sval;
 	int plev = p_ptr->lev;
+
+	u32b f1, f2, f3;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
+
+	bool critical = FALSE;
+	bool attuned = FALSE;
 
 	cptr q, s;
 
@@ -2082,6 +2230,9 @@ void do_cmd_aim_wand(void)
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
 
+	/* Extract some flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Take a turn. */
@@ -2089,6 +2240,9 @@ void do_cmd_aim_wand(void)
 
 	/* Not identified yet */
 	ident = FALSE;
+
+	/* Test for attunement */
+	attuned = get_attune(o_ptr);
 
 	/* Get the level */
 	lev = k_info[o_ptr->k_idx].level;
@@ -2099,17 +2253,26 @@ void do_cmd_aim_wand(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
+	/* Attunement gives a massive bonus - double then add 50 */
+	if (attuned)
+	{
+		chance *= 2;
+		chance += 50;
+	}
+
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* Some items are easier to activate -BR- */
+	if (f3 & TR3_EASY_ACT) chance2 = chance - ((lev > 70) ? 35 : (lev / 2));
+	else chance2 = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	if ((chance2 < USE_DEVICE) && (rand_int(USE_DEVICE - chance2 + 1) == 0))
 	{
-		chance = USE_DEVICE;
+		chance2 = USE_DEVICE;
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((chance2 < USE_DEVICE) || (randint(chance2) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
@@ -2132,7 +2295,11 @@ void do_cmd_aim_wand(void)
 	/* Sound */
 	sound(SOUND_ZAP);
 
+	/* Attempt to attune the player */
+	if (!attuned) do_attune(o_ptr);
 
+	/* Check for "critical" activation.  Mostly for offense activations. */
+	critical = critical_device(chance);
 
 	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
@@ -2220,7 +2387,13 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 50 + plev)) ident = TRUE;
+			/* Find damage */
+			dam = 45 + (9 * plev / 10);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			if (drain_life(dir, dam)) ident = TRUE;
 			break;
 		}
 
@@ -2232,74 +2405,134 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2, FALSE);
+			/* Find damage */
+			dam = 12;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_ball(GF_POIS, dir, dam, 2, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MANA, dir, damroll(2, 6));
+			/* Find damage */
+			dam = damroll(2, 6);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt_or_beam(20, GF_MANA, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(plev, GF_ACID, 
-				dir, damroll(5 + plev / 10, 8));
+			/* Find damage */
+			dam = damroll(5 + plev / 10, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt_or_beam(plev, GF_ACID,
+				dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(plev, GF_ELEC, 
-				dir, damroll(3 + plev / 14, 8));
+			/* Find damage */
+			dam = damroll(3 + plev / 14, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt_or_beam(plev, GF_ELEC,
+				dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(plev, GF_FIRE, 
-				dir, damroll(6 + plev / 8, 8));
+			/* Find damage */
+			dam = damroll(6 + plev / 8, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt_or_beam(plev, GF_FIRE,
+				dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(plev, GF_COLD, 
-				dir, damroll(4 + plev / 12, 8));
+			/* Find damage */
+			dam = damroll(4 + plev / 12, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt_or_beam(plev, GF_COLD,
+				dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60 + 3 * plev / 5, 3, FALSE);
+			/* Find damage */
+			dam = 55 + (plev / 2);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_ball(GF_ACID, dir, dam, 3, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 40 + 3 * plev / 5, 3, FALSE);
+			/* Find damage */
+			dam = 35 + (plev / 2);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_ball(GF_ELEC, dir, dam, 3, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 70 + 3 * plev / 5, 3, FALSE);
+			/* Find damage */
+			dam = 60 + (plev / 2);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_ball(GF_FIRE, dir, dam, 3, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 50 + 3 * plev / 5, 3, FALSE);
+			/* Find damage */
+			dam = 45 + (plev / 2);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_ball(GF_COLD, dir, dam, 3, FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -2312,14 +2545,26 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_arc(GF_FIRE, dir, 160, 7, 90);
+			/* Find damage */
+			dam = 145;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_arc(GF_FIRE, dir, dam, 7, 90);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_arc(GF_COLD, dir, 160, 7, 90);
+			/* Find damage */
+			dam = 145;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_arc(GF_COLD, dir, dam, 7, 90);
 			ident = TRUE;
 			break;
 		}
@@ -2328,11 +2573,17 @@ void do_cmd_aim_wand(void)
 		{
 			int tmp = randint(5);
 
-			if (tmp == 1) fire_arc(GF_ACID, dir, 200, 9, 90);
-			if (tmp == 2) fire_arc(GF_ELEC, dir, 180, 9, 90);
-			if (tmp == 3) fire_arc(GF_COLD, dir, 190, 9, 90);
-			if (tmp == 4) fire_arc(GF_FIRE, dir, 210, 9, 90);
-			if (tmp == 5) fire_arc(GF_POIS, dir, 200, 7, 120);
+			/* Find damage (to be modified) */
+			dam = 180;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			if (tmp == 1) fire_arc(GF_ACID, dir, dam, 9, 90);
+			if (tmp == 2) fire_arc(GF_ELEC, dir, dam-20, 9, 90);
+			if (tmp == 3) fire_arc(GF_COLD, dir, dam-10, 9, 90);
+			if (tmp == 4) fire_arc(GF_FIRE, dir, dam+10, 9, 90);
+			if (tmp == 5) fire_arc(GF_POIS, dir, dam, 7, 120);
 
 			ident = TRUE;
 			break;
@@ -2340,20 +2591,38 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 100 + randint(plev * 4))) ident = TRUE;
+			/* Find damage */
+			dam = 90 + randint(7 * plev / 2);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			if (drain_life(dir, dam)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_STRIKING:
 		{
-			fire_bolt(GF_METEOR, dir, damroll(10 + plev / 3, 9));
+			/* Find damage */
+			dam = damroll(10 + plev / 3, 8);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt(GF_METEOR, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_STORMS:
 		{
-			fire_bolt(GF_STORM, dir, damroll(25 + plev / 5, 4));
+			/* Find damage */
+			dam = damroll(23 + plev / 6, 4);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt(GF_STORM, dir, dam);
 			ident = TRUE;
 			break;
 		}
@@ -2361,16 +2630,28 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_SHARD_BOLT:
 		{
-			fire_bolt(GF_SHARD, dir, damroll(4 + plev / 14, 8));
+			/* Find damage */
+			dam = damroll(4 + plev / 14, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The wand pulses with power!");
+
+			fire_bolt(GF_SHARD, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ILKORIN:
 		{
-			msg_print("Deadly venom spurts and steams from your wand.");
+			/* Find damage */
+			dam = damroll(plev / 2, 10);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("Overwhelming toxin pours from your wand!");
+			else msg_print("Deadly venom spurts and steams from your wand.");
+
 			TARGET_PRESERVE
-			fire_bolt(GF_POIS, dir, damroll(plev / 2, 11));
+			fire_bolt(GF_POIS, dir, dam);
 			TARGET_RESTORE
 			fire_cloud(GF_POIS, dir, 30, 6);
 			ident = TRUE;
@@ -2381,11 +2662,11 @@ void do_cmd_aim_wand(void)
 		{
 			msg_print("You speak soft, beguiling words.");
 
-			if (rand_int(2) == 0) 
+			if (rand_int(2) == 0)
 			{
 				if (slow_monster(dir, plev * 2)) ident = TRUE;
 			}
-			if (rand_int(2) == 0) 
+			if (rand_int(2) == 0)
 			{
 				if (confuse_monster(dir, plev * 2)) ident = TRUE;
 			}
@@ -2408,8 +2689,13 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ULPION:
 		{
-			msg_print("You raise a foam-crested tidal wave."); 
-			fire_arc(GF_WATER, dir, 3 * plev + randint(100), 14, 90);
+			/* Find damage */
+			dam = 3 * plev + randint(80);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("You summon an overpowering tidal wave!");
+			else msg_print("You raise a foam-crested tidal wave.");
+			fire_arc(GF_WATER, dir, dam, 14, 90);
 			ident = TRUE;
 			break;
 		}
@@ -2472,9 +2758,9 @@ void do_cmd_aim_wand(void)
 
 
 /*
- * Activate (zap) a Rod.    Rods may be fully identified through use 
- * (although it's not easy).  Rods now use timeouts to determine charging 
- * status, and pvals have become the cost of zapping a rod (how long it 
+ * Activate (zap) a Rod.    Rods may be fully identified through use
+ * (although it's not easy).  Rods now use timeouts to determine charging
+ * status, and pvals have become the cost of zapping a rod (how long it
  * takes between zaps).  Pvals are defined for each rod in k_info. -LM-
  *
  * Hack -- rods of perception/genocide can be "cancelled"
@@ -2482,11 +2768,16 @@ void do_cmd_aim_wand(void)
  */
 void do_cmd_zap_rod(void)
 {
-	int item, ident, chance, dir, lev;
+	int item, ident, chance, chance2, dam, dir, lev;
 	int plev = p_ptr->lev;
+
+	u32b f1, f2, f3;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
+
+	bool critical = FALSE;
+	bool attuned = FALSE;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
@@ -2513,9 +2804,12 @@ void do_cmd_zap_rod(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Extract some flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	/* Get the object kind. */
 	k_ptr = &k_info[o_ptr->k_idx];
-
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) &&
@@ -2534,6 +2828,9 @@ void do_cmd_zap_rod(void)
 	/* Not identified yet */
 	ident = FALSE;
 
+	/* Test for attunement */
+	attuned = get_attune(o_ptr);
+
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 
@@ -2543,17 +2840,26 @@ void do_cmd_zap_rod(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
+	/* Attunement gives a massive bonus - double then add 50 */
+	if (attuned)
+	{
+		chance *= 2;
+		chance += 50;
+	}
+
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* Some items are easier to activate -BR- */
+	if (f3 & TR3_EASY_ACT) chance2 = chance - ((lev > 70) ? 35 : (lev / 2));
+	else chance2 = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	if ((chance2 < USE_DEVICE) && (rand_int(USE_DEVICE - chance2 + 1) == 0))
 	{
-		chance = USE_DEVICE;
+		chance2 = USE_DEVICE;
 	}
 
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if ((chance2 < USE_DEVICE) || (randint(chance2) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the rod properly.");
@@ -2579,6 +2885,12 @@ void do_cmd_zap_rod(void)
 
 	/* Sound */
 	sound(SOUND_ZAP);
+
+	/* Attempt to attune the player */
+	if (!attuned) do_attune(o_ptr);
+
+	/* Check for "critical" activation.  Mostly for offense activations. */
+	critical = critical_device(chance);
 
 	/* Increase the timeout by the rod kind's pval. */
 	o_ptr->timeout += k_ptr->pval;
@@ -2661,7 +2973,13 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_HEALING:
 		{
-			if (hp_player(500)) ident = TRUE;
+			/* Find healing */
+			dam = 500;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			if (hp_player(dam)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -2726,7 +3044,13 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 45 + 3 * plev / 2)) ident = TRUE;
+			/* Find damage */
+			dam = 45 + 5 * plev / 4;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			if (drain_life(dir, dam)) ident = TRUE;
 			break;
 		}
 
@@ -2738,88 +3062,160 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt(GF_ACID, dir, damroll(6 + plev / 10, 8));
+			/* Find damage */
+			dam = damroll(6 + plev / 10, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt(GF_ACID, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt(GF_ELEC, dir, damroll(4 + plev / 14, 8));
+			/* Find damage */
+			dam = damroll(4 + plev / 14, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt(GF_ELEC, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt(GF_FIRE, dir, damroll(7 + plev / 8, 8));
+			/* Find damage */
+			dam = damroll(7 + plev / 8, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt(GF_FIRE, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt(GF_COLD, dir, damroll(5 + plev / 12, 8));
+			/* Find damage */
+			dam = damroll(5 + plev / 12, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt(GF_COLD, dir, dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60 + 4 * plev / 5, 1, FALSE);
+			/* Find damage */
+			dam = 55 + 3 * plev / 4;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_ball(GF_ACID, dir, dam, 1, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 40 + 4 * plev / 5, 1, FALSE);
+			/* Find damage */
+			dam = 35 + 3 * plev / 4;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_ball(GF_ELEC, dir, dam, 1, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 70 + 4 * plev / 5, 1, FALSE);
+			/* Find damage */
+			dam = 60 + 3 * plev / 4;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_ball(GF_FIRE, dir, dam, 1, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 50 + 4 * plev / 5, 1, FALSE);
+			/* Find damage */
+			dam = 45 + 3 * plev / 4;
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_ball(GF_COLD, dir, dam, 1, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_LIGHTINGSTRIKE:
 		{
-			fire_bolt_or_beam(plev / 2 - 10, GF_ELEC, dir, 
-				damroll(18 + plev / 3, 8));
+			/* Find damage */
+			dam = damroll(18 + plev / 3, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt_or_beam(plev / 2 - 10, GF_ELEC, dir,
+				dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_NORTHWINDS:
 		{
-			fire_bolt_or_beam(plev / 2 - 10, GF_COLD, dir, 
-				damroll(21 + plev / 3, 8));
+			/* Find damage */
+			dam = damroll(21 + plev / 3, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt_or_beam(plev / 2 - 10, GF_COLD, dir,
+				dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DRAGONFIRE:
 		{
-			fire_bolt_or_beam(plev/2 - 10, GF_FIRE, dir, 
-				damroll(24 + plev / 3, 8));
+			/* Find damage */
+			dam = damroll(24 + plev / 3, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt_or_beam(plev/2 - 10, GF_FIRE, dir,
+				dam);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_GLAURUNGS:
 		{
-			fire_bolt_or_beam(plev / 2 - 10, GF_ACID, dir, 
-				damroll(27 + plev / 3, 8));
+			/* Find damage */
+			dam = damroll(27 + plev / 3, 7);
+			if (critical) dam *= 2;
+
+			if (critical) msg_print("The rod hums with power!");
+
+			fire_bolt_or_beam(plev / 2 - 10, GF_ACID, dir,
+				dam);
 			ident = TRUE;
 			break;
 		}
@@ -2836,7 +3232,7 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_DELVING:
 		{
 			/* Aimed at oneself, this rod creates a room. */
-			if ((dir == 5) && (p_ptr->target_row == p_ptr->py) && 
+			if ((dir == 5) && (p_ptr->target_row == p_ptr->py) &&
 				(p_ptr->target_col == p_ptr->px))
 			{
 				/* Lots of damage to creatures of stone. */
@@ -2858,13 +3254,13 @@ void do_cmd_zap_rod(void)
 			/* Hack - Extra good for those who backstab. */
 			if (check_ability(SP_BACKSTAB))
 			{
-				if (p_ptr->superstealth) 
+				if (p_ptr->superstealth)
 					(void)set_superstealth(p_ptr->superstealth + 30);
 				else (void)set_superstealth(p_ptr->superstealth + 75);
 			}
 			else
 			{
-				if (p_ptr->superstealth) 
+				if (p_ptr->superstealth)
 					(void)set_superstealth(p_ptr->superstealth + 20);
 				else (void)set_superstealth(p_ptr->superstealth + 50);
 			}
@@ -2884,7 +3280,7 @@ void do_cmd_zap_rod(void)
 		{
 			msg_print("Choose a location to teleport to.");
 			msg_print(NULL);
-			dimen_door();
+			if (!dimen_door()) use_charge = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -3023,11 +3419,11 @@ static void ring_of_power(int dir)
  * Activate a wielded object.  Wielded objects never stack.
  * And even if they did, activatable objects never stack.
  *
- * Any object given a xtra2 from a *_info file will perform the 
+ * Any object given a xtra2 from a *_info file will perform the
  * activation corresponding to that index when used. -LM-
  *
- * The player has a (4%) chance to learn more about any dragon armour 
- * activation.  If he does, detailed information about it will appear 
+ * The player has a (4%) chance to learn more about any dragon armour
+ * activation.  If he does, detailed information about it will appear
  * when the item is 'I'nspected. -LM-
  *
  * Note that it always takes a turn to activate an artifact, even if
@@ -3037,6 +3433,8 @@ void do_cmd_activate(void)
 {
 	int item, i, k, dir, lev, chance;
 	int plev = p_ptr->lev;
+
+	u32b f1, f2, f3;
 
 	object_type *o_ptr;
 
@@ -3069,6 +3467,9 @@ void do_cmd_activate(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Extract some flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 
@@ -3082,18 +3483,19 @@ void do_cmd_activate(void)
 	if (p_ptr->confused) chance = chance / 2;
 
 	/* High level objects are harder.  Altered in Oangband. */
-	chance = chance - (((2 * lev / 3) > 75) ? 75 : 2 * lev / 3);
-
+	/* Some items are easier to activate -BR- */
+	if (f3 & TR3_EASY_ACT) chance = chance - ((lev > 120) ? 40 : lev / 3);
+	else chance = chance - (((2 * lev / 3) > 75) ? 75 : 2 * lev / 3);
 
 	/* Give everyone a (slight) chance, more for ordinary rings, amulets. */
 	if ((chance < USE_DEVICE))
 	{
-		if ((!(o_ptr->name1)) && ((o_ptr->tval == TV_RING) || 
+		if ((!(o_ptr->name1)) && ((o_ptr->tval == TV_RING) ||
 			(o_ptr->tval == TV_AMULET)))
 		{
 			if (randint(3) >= 2) chance = USE_DEVICE * 2;
 		}
-		else if ((chance < USE_DEVICE) && 
+		else if ((chance < USE_DEVICE) &&
 			(rand_int(USE_DEVICE - chance + 1) == 0))
 		{
 			chance = USE_DEVICE;
@@ -3155,7 +3557,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("The amulet lets out a shrill wail...");
 			k = 3 * p_ptr->lev;
-			if (banish_evil(60)) 
+			if (banish_evil(60))
 				msg_print("You thrust your evil enemies back!");
 			(void)set_protevil(p_ptr->protevil + randint(25) + k);
 			o_ptr->timeout = rand_int(225) + 225;
@@ -3256,11 +3658,11 @@ void do_cmd_activate(void)
 					msg_print("You are too weak to control the stone!");
 
 					/* Hack -- Bypass free action */
-					(void)set_paralyzed(p_ptr->paralyzed + 
+					(void)set_paralyzed(p_ptr->paralyzed +
 						randint(5 * oops + 1));
 
 					/* Confusing. */
-					(void)set_confused(p_ptr->confused + 
+					(void)set_confused(p_ptr->confused +
 						randint(5 * oops + 1));
 				}
 
@@ -3271,7 +3673,7 @@ void do_cmd_activate(void)
 			take_hit(damroll(1, 12), "perilous secrets");
 
 			/* Confusing. */
-			if (rand_int(5) == 0) (void)set_confused(p_ptr->confused + 
+			if (rand_int(5) == 0) (void)set_confused(p_ptr->confused +
 				randint(10));
 
 			/* Exercise a little care... */
@@ -3351,7 +3753,7 @@ void do_cmd_activate(void)
 		case ACT_HIMRING:
 		{
 			msg_print("A shrill wailing sound surrounds you.");
-			(void)set_protevil(p_ptr->protevil + 
+			(void)set_protevil(p_ptr->protevil +
 				randint(25) + plev);
 			o_ptr->timeout = rand_int(200) + 200;
 			break;
@@ -3721,13 +4123,6 @@ void do_cmd_activate(void)
 
 			break;
 		}
-		case ACT_CUBRAGOL:
-		{
-			msg_print("Your crossbow glows deep red...");
-			(void)brand_missile(TV_BOLT, EGO_FLAME);
-			o_ptr->timeout = 999;
-			break;
-		}
 		case ACT_BUCKLAND:
 		{
 			msg_print("Your sling glows with power...");
@@ -3852,7 +4247,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("You throw a radiant sphere...");
 			if (!get_aim_dir(&dir)) return;
-			TARGET_PRESERVE 
+			TARGET_PRESERVE
 			fire_ball(GF_LITE, dir, 50, 0, FALSE);
 			TARGET_RESTORE
 			fire_ball(GF_CONFUSION, dir, 10, 0, FALSE);
@@ -4093,7 +4488,7 @@ void do_cmd_activate(void)
 			fire_sphere(GF_SHARD, 0, 32, 8, 20);
 			fire_sphere(GF_CONFUSION, 0, 8, 8, 20);
 
-			if (randint(2) == 1) 
+			if (randint(2) == 1)
 			{
 				msg_print("Your wild movements exhaust you!");
 				take_hit(damroll(1, 12), "danced to death");
@@ -4203,10 +4598,10 @@ void do_cmd_activate(void)
 		{
 			/* Get the correct name for the missile, if possible. */
 			missile_name = "missile";
-			if ((o_ptr->sval == SV_LIGHT_XBOW) || 
+			if ((o_ptr->sval == SV_LIGHT_XBOW) ||
 				(o_ptr->sval == SV_HEAVY_XBOW))
 				missile_name = "bolt";
-			if ((o_ptr->sval == SV_LONG_BOW) || 
+			if ((o_ptr->sval == SV_LONG_BOW) ||
 				(o_ptr->sval == SV_LONG_BOW))
 				missile_name = "arrow";
 			if (o_ptr->sval == SV_SLING) missile_name = "shot";
@@ -4263,7 +4658,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("You chant runes of confusing...");
 			if (!get_aim_dir(&dir)) return;
-			if (confuse_monster(dir, 5 * plev / 3))	
+			if (confuse_monster(dir, 5 * plev / 3))
 				msg_print("...which utterly baffle your foe!");
 			o_ptr->timeout = 250;
 			break;
@@ -4272,7 +4667,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("A fine dust appears in your hand, and you throw it...");
 			if (!get_aim_dir(&dir)) return;
-			if (sleep_monster(dir, 5 * plev / 3)) 
+			if (sleep_monster(dir, 5 * plev / 3))
 				msg_print("...sending a foe to the realm of dreams!");
 			o_ptr->timeout = 250;
 			break;
@@ -4281,7 +4676,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("You lock eyes with an enemy...");
 			if (!get_aim_dir(&dir)) return;
-			if (fear_monster(dir, 5 * plev / 3)) 
+			if (fear_monster(dir, 5 * plev / 3))
 				msg_print("...and break his courage!");
 			o_ptr->timeout = 250;
 			break;
@@ -4290,7 +4685,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("You focus on the mind of an opponent...");
 			if (!get_aim_dir(&dir)) return;
-			if (slow_monster(dir, 5 * plev / 3)) 
+			if (slow_monster(dir, 5 * plev / 3))
 				msg_print("...and sap his strength!");
 			o_ptr->timeout = 250;
 			break;
@@ -4313,7 +4708,7 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_CONFU_FOES:
 		{
 			msg_print("You intone a bewildering hex...");
-			if (confu_monsters(3 * plev / 2))	
+			if (confu_monsters(3 * plev / 2))
 				msg_print("...which utterly baffles your foes!");
 			o_ptr->timeout = 300;
 			break;
@@ -4321,7 +4716,7 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_SLEEP_FOES:
 		{
 			msg_print("Soft, soothing music washes over you..");
-			if (sleep_monsters(3 * plev / 2)) 
+			if (sleep_monsters(3 * plev / 2))
 				msg_print("...and sends your enemies to sleep!");
 			o_ptr->timeout = 300;
 			break;
@@ -4336,7 +4731,7 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_SLOW_FOES:
 		{
 			msg_print("A opaque cloud blankets the area...");
-			if (slow_monsters(3 * plev / 2)) 
+			if (slow_monsters(3 * plev / 2))
 				msg_print("...and dissipates, along with your opponents' strength!");
 			else msg_print("...and dissipates without effect.");
 			o_ptr->timeout = 300;
@@ -4464,9 +4859,9 @@ void do_cmd_activate(void)
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
 				      ((chance == 0 ? "light" : "darkness")));
-				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 
+				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir,
 				      160, 10, 40);
-			}			
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}

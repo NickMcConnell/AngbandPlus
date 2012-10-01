@@ -1897,7 +1897,7 @@ void check_experience(void)
 		p_ptr->lev--;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPECIALTY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_EXP | PR_LEV | PR_TITLE);
@@ -1927,7 +1927,7 @@ void check_experience(void)
 		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPECIALTY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_EXP | PR_LEV | PR_TITLE);
@@ -1939,7 +1939,7 @@ void check_experience(void)
 		handle_stuff();
 	}
 
-	/* Gain max levels while possible 
+	/* Gain max levels while possible
 	 * Called rarely - only when leveling while experience is drained.  */
 	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
 	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1])))
@@ -1948,7 +1948,7 @@ void check_experience(void)
 		p_ptr->max_lev++;
 
 		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPECIALTY);
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
@@ -2017,18 +2017,18 @@ static int get_coin_type(monster_race *r_ptr)
 		if (strstr(name, " copper ")) return (lookup_kind(TV_GOLD, SV_COPPER));
 		if (strstr(name, " silver ")) return (lookup_kind(TV_GOLD, SV_SILVER));
 		if (strstr(name, " gold ")) return (lookup_kind(TV_GOLD, SV_GOLD));
-		if (strstr(name, " mithril ")) 
+		if (strstr(name, " mithril "))
 			return (lookup_kind(TV_GOLD, SV_MITHRIL));
-		if (strstr(name, " adamantite ")) 
+		if (strstr(name, " adamantite "))
 			return (lookup_kind(TV_GOLD, SV_ADAMANTITE));
 
 		/* Look for textual clues */
 		if (strstr(name, "Copper ")) return (lookup_kind(TV_GOLD, SV_COPPER));
 		if (strstr(name, "Silver ")) return (lookup_kind(TV_GOLD, SV_SILVER));
 		if (strstr(name, "Gold ")) return (lookup_kind(TV_GOLD, SV_GOLD));
-		if (strstr(name, "Mithril ")) 
+		if (strstr(name, "Mithril "))
 			return (lookup_kind(TV_GOLD, SV_MITHRIL));
-		if (strstr(name, "Adamantite ")) 
+		if (strstr(name, "Adamantite "))
 			return (lookup_kind(TV_GOLD, SV_ADAMANTITE));
 	}
 
@@ -2061,6 +2061,11 @@ void monster_death(int m_idx)
 	int number = 0;
 	int total = 0;
 
+	int level_boost = 0;
+
+	int deeper_chance = 0;
+	int gold_chance = 0;
+
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -2074,12 +2079,12 @@ void monster_death(int m_idx)
 
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+	bool do_chest = (r_ptr->flags1 & (RF1_DROP_CHEST));
 
 	int force_coin = get_coin_type(r_ptr);
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -2153,22 +2158,68 @@ void monster_death(int m_idx)
 
 
 	/* Determine how much we can drop */
+	if ((r_ptr->flags1 & (RF1_DROP_40)) && (rand_int(100) < 40)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
+	if (r_ptr->flags1 & (RF1_DROP_ONE)) number += 1;
+	if (r_ptr->flags1 & (RF1_DROP_TWO)) number += 2;
 
-	/* Hack -- nothing's more annoying than a chest that doesn't appear. */
-	if ((r_ptr->flags1 & (RF1_DROP_CHEST)) && (r_ptr->flags1 & (RF1_DROP_90))) number = 1;
+	/* Decode level boost */
+	level_boost += (r_ptr->flags1 & (RF1_DROP_PLUS_5)) ? 5 : 0;
+	level_boost += (r_ptr->flags1 & (RF1_DROP_PLUS_10)) ? 10 : 0;
 
-	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-	if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+	/*
+	 * Mega-Hack - the Living Dungeon hack
+	 * Creatures with enhanced drop depth and only gold,
+	 * actually get more drops as well.
+	 */
+	if (!do_item)
+	{
+		number += (r_ptr->flags1 & (RF1_DROP_PLUS_5)) ? 3 : 0;
+		number += (r_ptr->flags1 & (RF1_DROP_PLUS_10)) ? 6 : 0;
+	}
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
 
-	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	/*
+	 * Hack -- Low level creatures may drop better than expected.
+	 * Compensates for increased chance of gold drops.
+	 */
+	if (p_ptr->depth > r_ptr->level)
+	{
+		/* May drop better */
+		deeper_chance = MIN(((p_ptr->depth - r_ptr->level) * 2), 40);
+	}
+
+	/* Normally Average dungeon and monster levels */
+	if (!(rand_int(100) < deeper_chance)) object_level = ((p_ptr->depth + r_ptr->level) / 2);
+
+	/* Otherwise just base from dungeon level */
+	else object_level = p_ptr->depth;
+
+	/* Boost for criters with higher quality drops */
+	object_level += level_boost;
+
+	/* Chance of gold */
+	/* 100% if only gold */
+	if (!do_item) gold_chance = 100;
+
+	/* 0% if only items */
+	else if (!do_gold) gold_chance = 0;
+
+	/* 30% Normally */
+	else gold_chance = 30;
+
+	/* Hack -- Low-level monsters drop gold much more often */
+	if (!great && !do_chest)
+	{
+		/* Increase gold chance */
+		if (MIN(85, p_ptr->depth) > r_ptr->level + 5)
+			gold_chance += 3 * (MIN(85, p_ptr->depth) - r_ptr->level - 5);
+
+		/* Always have some chance of generating items */
+		if (do_item && (gold_chance > 90)) gold_chance = 90;
+	}
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -2179,12 +2230,12 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make Gold.  Reduced to 30% chance instead of 50%. */
-		if (do_gold && (!do_item || (rand_int(100) < 30)))
+		/* Make gold when allowed */
+		if (rand_int(100) < gold_chance)
 		{
 
 			/* Make some gold */
-			if (make_gold(i_ptr)) 
+			if (make_gold(i_ptr))
 			{
 
 				/* Assume seen XXX XXX XXX */
@@ -2196,10 +2247,10 @@ void monster_death(int m_idx)
 		}
 
 		/* Make chest. */
-		else if (r_ptr->flags1 & (RF1_DROP_CHEST))
+		else if (do_chest)
 		{
 			required_tval = TV_CHEST;
-			if (make_object(i_ptr, FALSE, FALSE, TRUE)) 
+			if (make_object(i_ptr, FALSE, FALSE, TRUE))
 			{
 
 				/* Assume seen XXX XXX XXX */
@@ -2210,7 +2261,7 @@ void monster_death(int m_idx)
 			}
 			required_tval = 0;
 		}
-		
+
 		/* Make Object */
 		else
 		{
@@ -2347,13 +2398,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Always go active */
 	m_ptr->mflag |= (MFLAG_ACTV);
 
+	/* Black Breath causes minor damage amplification */
+	if (m_ptr->black_breath)
+	{
+		dam += dam / 20;
+	}
+
 	/* Hack - Cancel any special player stealth magics. */
 	if (p_ptr->superstealth)
 	{
 		set_superstealth(0);
 	}
 
-	/* Complex message. Moved from melee and archery, now allows spell and 
+	/* Complex message. Moved from melee and archery, now allows spell and
 	 * magical items damage to be debugged by wizards.  -LM-
 	 */
 	if (p_ptr->wizard)
@@ -2376,10 +2433,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		sound(SOUND_KILL);
 
 		/* Specialty Ability SOUL_SIPHON */
-		if ((check_ability(SP_SOUL_SIPHON)) && 
-		    (p_ptr->csp < p_ptr->msp) && 
-		    (!((r_ptr->flags3 & (RF3_DEMON)) || 
-		       (r_ptr->flags3 & (RF3_UNDEAD)) || 
+		if ((check_ability(SP_SOUL_SIPHON)) &&
+		    (p_ptr->csp < p_ptr->msp) &&
+		    (!((r_ptr->flags3 & (RF3_DEMON)) ||
+		       (r_ptr->flags3 & (RF3_UNDEAD)) ||
 		       (r_ptr->flags2 & (RF2_STUPID)))))
 		{
 			p_ptr->mana_gain += 2 + (m_ptr->maxhp / 30);
@@ -2445,14 +2502,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num--;
 
-		/* When the player kills a player ghost, the bones file that 
+		/* When the player kills a player ghost, the bones file that
 		 * it used is (often) deleted.
 		 */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
 			if (randint(3) != 1)
 			{
-				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, 
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE,
 					bones_selector);
 				remove(path);
 			}
@@ -2520,7 +2577,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if ((dam > 0) && ((randint(10) >= percentage) || 
+		if ((dam > 0) && ((randint(10) >= percentage) ||
 		    ((dam >= m_ptr->hp) && (rand_int(100) < 80))))
 		{
 			/* Hack -- note fear */
@@ -2559,7 +2616,7 @@ void panel_recalc_bounds(void)
 	panel_col_max = panel_col_min + wid - COL_MAP - 2;
 	panel_col_prt = panel_col_min - 13;
 
-	if (hgt > 25) 
+	if (hgt > 25)
 	{
 		panel_row_max -= 2;
 		panel_extra_rows = TRUE;
@@ -2582,7 +2639,7 @@ bool change_panel(int dy, int dx)
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Offset */
 	hgt -= ROW_MAP + 1;
 	wid -= COL_MAP + 1;
@@ -2598,7 +2655,7 @@ bool change_panel(int dy, int dx)
 	if (y < 0) y = 0;
 	if (x > DUNGEON_WID - wid) x = DUNGEON_WID - wid;
 	if (x < 0) x = 0;
-	
+
 	if (!p_ptr->depth)
 	{
 		x = 65 - wid / 2;
@@ -2652,7 +2709,7 @@ void verify_panel(void)
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-	
+
 	/* Offset */
 	hgt -= ROW_MAP + 1;
 	wid -= COL_MAP + 1;
@@ -2725,10 +2782,10 @@ void verify_panel(void)
 				{
 					pcol_min += (wid / 2);
 				}
-				
+
 				if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
 			}
-		
+
 			if (x < panel_col_min + 4)
 			{
 				while (x < pcol_min + 4)
@@ -2754,13 +2811,13 @@ void verify_panel(void)
 
 	/* Recalculate the boundaries */
 	panel_recalc_bounds();
-	
+
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
-	
+
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 }
@@ -2780,14 +2837,14 @@ void panel_center(void)
 		(void)change_panel(0, 0);
 		return;
 	}
-	
+
 	/* Get the screen size */
 	Term_get_size(&wid, &hgt);
 
 	/* Calculate the dimensions of the displayed map */
 	hgt -= ROW_MAP + 1;
 	wid -= COL_MAP + 1;
-	
+
 	if (panel_extra_rows) hgt -= 2;
 
 	/* Center the map around the player */
@@ -2815,7 +2872,7 @@ void panel_center(void)
 
 	/* Recalculate the boundaries */
 	panel_recalc_bounds();
-	
+
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
 
@@ -3606,7 +3663,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 		/* Scan all objects in the grid */
 		if (scan_floor(floor_list, &floor_num, y, x, 0x02))
-		{				
+		{
 			/* Not boring */
 			boring = FALSE;
 
@@ -3631,10 +3688,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				else
 				{
 					/* Message */
-					if (rogue_like_commands) sprintf(out_val, 
+					if (rogue_like_commands) sprintf(out_val,
 						"%s%s%sa pile of %d items [x,%s]",
 						s1, s2, s3, floor_num, info);
-					else sprintf(out_val, 
+					else sprintf(out_val,
 						"%s%s%sa pile of %d items [l,%s]",
 						s1, s2, s3, floor_num, info);
 				}
@@ -3646,8 +3703,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				query = inkey();
 
 				/* Display list of items (query == "el", not "won") */
-				if ((floor_num > 1) && 
-					((rogue_like_commands ? (query == 'x') : (query == 'l')) || 
+				if ((floor_num > 1) &&
+					((rogue_like_commands ? (query == 'x') : (query == 'l')) ||
 					(query == ' ') || (query == '*') || (query == '?')))
 
 				{
@@ -3655,7 +3712,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					screen_save();
 
 					/* Display */
-					show_floor(floor_list, floor_num);
+					show_floor(floor_list, floor_num, TRUE);
 
 					/* Prompt */
 					prt("Hit any key to continue", 0, 0);
@@ -3785,6 +3842,125 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 
 /*
+ * Draw a visible path over the squares between (x1,y1) and (x2,y2).
+ * The path consists of "*", which are white except where there is a
+ * monster, object or feature in the grid.
+ *
+ * This routine has (at least) three weaknesses:
+ * - remembered objects/walls which are no longer present are not shown,
+ * - squares which (e.g.) the player has walked through in the dark are
+ *   treated as unknown space.
+ * - walls which appear strange due to hallucination aren't treated correctly.
+ *
+ * The first two result from information being lost from the dungeon arrays,
+ * which requires changes elsewhere
+ *
+ * From NPPangband
+ */
+static int draw_path(u16b *path, char *c, byte *a,
+    int y1, int x1, int y2, int x2)
+{
+	int i;
+	int max;
+	bool on_screen;
+
+	/* Find the path. */
+	max = project_path(path, MAX_RANGE, y1, x1, y2, x2, PROJECT_THRU);
+
+	/* No path, so do nothing. */
+	if (max < 1) return 0;
+
+	/* The starting square is never drawn, but notice if it is being
+	 * displayed. In theory, it could be the last such square.
+	 */
+	on_screen = panel_contains(y1, x1);
+
+	/* Draw the path. */
+	for (i = 0; i < max; i++)
+	{
+		byte colour;
+
+		/* Find the co-ordinates on the level. */
+		int y = GRID_Y(path[i]);
+		int x = GRID_X(path[i]);
+		/*
+		 * As path[] is a straight line and the screen is oblong,
+		 * there is only section of path[] on-screen.
+		 * If the square being drawn is visible, this is part of it.
+		 * If none of it has been drawn, continue until some of it
+		 * is found or the last square is reached.
+		 * If some of it has been drawn, finish now as there are no
+		 * more visible squares to draw.
+		 *
+		 */
+		if (panel_contains(y,x)) on_screen = TRUE;
+		else if (on_screen) break;
+		else continue;
+
+	 	/* Find the position on-screen */
+		move_cursor_relative(y,x);
+
+		/* This square is being overwritten, so save the original. */
+		Term_what(Term->scr->cx, Term->scr->cy, a+i, c+i);
+
+		/* Choose a colour. */
+		/* Visible monsters are red. */
+		if (cave_m_idx[y][x] && m_list[cave_m_idx[y][x]].ml)
+		{
+			colour = TERM_L_RED;
+		}
+
+		/* Known objects are yellow. */
+		else if (cave_o_idx[y][x] && o_list[cave_o_idx[y][x]].marked)
+		{
+			colour = TERM_YELLOW;
+		}
+
+		/* Known walls are blue. */
+		else if (!cave_floor_bold(y,x) && (cave_info[y][x] & (CAVE_MARK) ||
+					player_can_see_bold(y,x)))
+		{
+			colour = TERM_BLUE;
+		}
+		/* Unknown squares are grey. */
+		else if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y,x))
+		{
+			colour = TERM_L_DARK;
+		}
+		/* Unoccupied squares are white. */
+		else
+		{
+			colour = TERM_WHITE;
+		}
+
+		/* Draw the path segment */
+		(void)Term_addch(colour, '*');
+	}
+	return i;
+}
+
+/*
+ * Load the attr/char at each point along "path" which is on screen from
+ * "a" and "c". This was saved in draw_path().
+ *
+ * From NPPangband
+ */
+static void load_path(int max, u16b *path, char *c, byte *a)
+{
+	int i;
+	for (i = 0; i < max; i++)
+	{
+		if (!panel_contains(GRID_Y(path[i]), GRID_X(path[i]))) continue;
+
+		move_cursor_relative(GRID_Y(path[i]), GRID_X(path[i]));
+
+		(void)Term_addch(a[i], c[i]);
+	}
+
+	Term_fresh();
+}
+
+/*
  * Handle "target" and "look".
  *
  * Note that this code can be called from "get_aim_dir()".
@@ -3841,6 +4017,12 @@ bool target_set_interactive(int mode)
 
 	char info[80];
 
+	/* These are used for displaying the path to the target */
+	u16b path[MAX_RANGE];
+	char path_char[MAX_RANGE];
+	byte path_attr[MAX_RANGE];
+	int max = 0;
+
 	int wid, hgt;
 
 	/* Get size */
@@ -3890,8 +4072,15 @@ bool target_set_interactive(int mode)
 				strcpy(info, "q,p,o,+,-,<dir>");
 			}
 
+			/* Draw the path in "target" mode. If there is one */
+			if (mode & (TARGET_KILL))
+				max = draw_path (path, path_char, path_attr, py, px, y, x);
+
 			/* Describe and Prompt */
 			query = target_set_interactive_aux(y, x, mode, info);
+
+			/* Remove the path */
+			if (max > 0) load_path (max, path, path_char, path_attr);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -3951,6 +4140,7 @@ bool target_set_interactive(int mode)
 				case 't':
 				case '5':
 				case '0':
+				case '.':
 				{
 					int m_idx = cave_m_idx[y][x];
 
@@ -4018,19 +4208,19 @@ bool target_set_interactive(int mode)
 						panel_row_min = y2;
 						panel_col_min = x2;
 						panel_recalc_bounds();
-	
+
 						/* Update stuff */
 						p_ptr->update |= (PU_MONSTERS);
-	
+
 						/* Redraw map */
 						p_ptr->redraw |= (PR_MAP);
-	
+
 						/* Window stuff */
 						p_ptr->window |= (PW_OVERHEAD);
-							
+
 						/* Handle stuff */
 						handle_stuff();
-	
+
 						/* Recalculate interesting grids */
 						target_set_interactive_prepare(mode);
 
@@ -4050,8 +4240,15 @@ bool target_set_interactive(int mode)
 			/* Default prompt */
 			strcpy(info, "q,t,p,m,+,-,<dir>");
 
+			/* Draw the path in "target" mode. If there is one */
+			if (mode & (TARGET_KILL))
+				max = draw_path (path, path_char, path_attr, py, px, y, x);
+
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, info);
+
+			/* Remove the path */
+			if (max > 0) load_path (max, path, path_char, path_attr);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -4138,7 +4335,7 @@ bool target_set_interactive(int mode)
 				{
 					dy = 0;
 				}
-				
+
 				/* Apply the motion */
 				if ((y >= panel_row_min + hgt - 2) || (y < panel_row_min) ||
 				    (x >= panel_col_min + wid - 14) || (x < panel_col_min))
@@ -4185,6 +4382,138 @@ bool target_set_interactive(int mode)
 	/* Success */
 	return (TRUE);
 }
+
+
+
+/*
+ * Given a starting position, find the 'n'th closest monster.
+ *
+ * Note:  "require_visible" only works when this function is looking around
+ * the character.
+ *
+ * Set ty and tx to zero on failure.
+ */
+void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
+   bool require_visible)
+{
+	monster_type *m_ptr;
+
+	int i, j;
+	int r_idx;
+	int dist = 100;
+
+	int *monster_dist;
+	int *monster_index;
+	int monster_count = 0;
+
+	bool use_view = FALSE;
+
+	/* Allocate some arrays */
+	C_MAKE(monster_dist, m_max, int);
+	C_MAKE(monster_index, m_max, int);
+
+	/* Note that we're looking from the character's grid */
+	if ((y0 == p_ptr->py) && (x0 == p_ptr->px)) use_view = TRUE;
+
+	/* Reset target grids */
+	*ty = 0;  *tx = 0;
+
+	/* N, as input, goes from 1+.  Map it to 0+ for table access */
+	if (n > 0) n--;
+
+
+	/* Check all the monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		/* Get the monster */
+		m_ptr = &m_list[i];
+
+		/* Paranoia -- skip "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Check for visibility */
+		if (require_visible)
+		{
+			if (!m_ptr->ml) continue;
+		}
+
+		/* Use CAVE_VIEW information (fast way) */
+		if (use_view)
+		{
+			if (!(cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_VIEW))) continue;
+
+			/* Get stored distance */
+			dist = m_ptr->cdis;
+		}
+
+		/* Monster must be in los from the starting position (slower way) */
+		else
+		{
+			/* Get distance from starting position */
+			dist = distance(y0, x0, m_ptr->fy, m_ptr->fx);
+
+			/* Monster location must be within range */
+			if (dist > MAX_SIGHT) continue;
+
+			/* Require line of sight */
+			if (!los(y0, x0, m_ptr->fy, m_ptr->fx)) continue;
+		}
+
+		/* Remember this monster */
+		monster_dist[monster_count] = dist;
+		monster_index[monster_count++] = i;
+	}
+
+	/* Not enough monsters found */
+	if (monster_count <= n)
+	{
+		/* Free some arrays */
+		C_KILL(monster_dist, m_max, int);
+		C_KILL(monster_index, m_max, int);
+
+		return;
+	}
+
+
+	/* Sort the monsters in ascending order of distance */
+	for (i = 0; i < monster_count - 1; i++)
+	{
+		for (j = 0; j < monster_count - 1; j++)
+		{
+			int this_dist = monster_dist[j];
+			int next_dist = monster_dist[j + 1];
+
+			/* Bubble sort */
+			if (this_dist > next_dist)
+			{
+				int tmp_dist  = monster_dist[j];
+				int tmp_index = monster_index[j];
+
+				monster_dist[j] = monster_dist[j + 1];
+				monster_dist[j + 1] = tmp_dist;
+
+				monster_index[j] = monster_index[j + 1];
+				monster_index[j + 1] = tmp_index;
+			}
+		}
+	}
+
+
+	/* Get the nth closest monster's index */
+	r_idx = monster_index[n];
+
+	/* Get the monster */
+	m_ptr = &m_list[r_idx];
+
+	/* Set the target to its location */
+	*ty = m_ptr->fy;
+	*tx = m_ptr->fx;
+
+	/* Free some arrays */
+	C_KILL(monster_dist, m_max, int);
+	C_KILL(monster_index, m_max, int);
+}
+
 
 
 
@@ -4242,11 +4571,11 @@ bool get_aim_dir(int *dp)
 		/* Choose a prompt */
 		if (!target_okay())
 		{
-			p = "Direction ('*' to choose a target, Escape to cancel)? ";
+			p = "Direction ('*' choose target; '.' closest; Esc cancel)?";
 		}
 		else
 		{
-			p = "Direction ('5' for target, '*' to re-target, Escape to cancel)? ";
+			p = "Direction ('5' target; '*' re-target; '.' closest; Esc cancel)? ";
 		}
 
 		/* Get a command (or Cancel) */
@@ -4259,6 +4588,48 @@ bool get_aim_dir(int *dp)
 			case '*':
 			{
 				if (target_set_interactive(TARGET_KILL)) dir = 5;
+				break;
+			}
+
+			/* Target the closest visible monster in line of fire */
+			case '.':
+			{
+				int n = 0;
+
+				/* Check closest monsters */
+				while (TRUE)
+				{
+					int y = 0, x = 0;
+
+					/* Get next monster */
+					n++;
+
+					/* Find the 'n'th closest viewable, visible monster */
+					get_closest_los_monster(n, p_ptr->py, p_ptr->px, &y, &x, TRUE);
+
+					/* We have a valid target */
+					if ((y) && (x) && (cave_m_idx[y][x] > 0))
+					{
+						/* Get monster index */
+						int m_idx = cave_m_idx[y][x];
+
+						/* Monster must be in line of fire */
+						if (target_able(m_idx))
+						{
+							health_track(m_idx);
+							target_set_monster(m_idx);
+							dir = 5;
+							break;
+						}
+					}
+
+					/* We've run out of targetable monsters */
+					else
+					{
+						bell("No targetable monsters!");
+						break;
+					}
+				}
 				break;
 			}
 

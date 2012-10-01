@@ -23,7 +23,7 @@ mation about any command, consult the help file "cmddesc.txt".
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fuel your lantern/torch
- g  Get objects on floor                 G  Gain new spells/prayers
+ g  Get objects on floor                 G  (unused)
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
@@ -84,7 +84,7 @@ mation about any command, consult the help file "cmddesc.txt".
  d  Drop an item                         D  Disarm a trap/Desanctify a glyph
  e  Equipment list                       E  Eat some food
  f  Bash a door (force)                  F  Fuel your lantern/torch
- g  Get object on floor                  G  Gain new spells/prayers
+ g  Get object on floor                  G  (unused)
  h  (walk - west)                        H  (run - west)
  i  Inventory list                       I  Observe an item
  j  (walk - south)                       J  (run - south)

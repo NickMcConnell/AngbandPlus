@@ -1,0 +1,258 @@
+Changes:
+
+Preserve mode:
+- Now on by default.
+
+Specialty changes:
+- Specialty Power Siphon reworked: Does not always take effect (1
+  chance in 3), mana stolen is based on spell cost and player level,
+  mana stolen is drained removed from the monster (beyond the original
+  casting cost).
+- Specialties Altheletics and Clarity give an 5% boost to hitpoints
+  and mana respectively (to improve their late game utility).
+
+New specialty Attunement:
+- You may become attuned to rods, wands, and staves when you use them 
+  (1 chance in 3).
+- When attuned, your skill with that device is doubled and increased
+  by 50; this gives much easier activation and more criticals.
+- Only one type of rod, wand, or staff may be attuned at a time.
+- Easily activated items are never attuned.
+- Available to all full spellcasters.
+
+Magic item criticals:
+- Added critical activations based on device skill to rods, wands, and
+  staves.  Criticals cause double damage/healing.  Reduced most
+  offensive rod/wand/staff damage by about 10%.  Criticals included,
+  average damage is about the same as before with "Superb" device
+  skill.  Worst case averages 90% of old damage; best case (L50 Gnome
+  Mage, with max Int, and Attunement) averages 25% more than the old
+  damage.
+
+Bebalancing items for the incremental resistance system:
+- The following items which previous provided resistance to all four
+  of fire/cold/elec/acid, now provide only 1/2 level of resistance to
+  those elements:
+    Power Dragon Scale Mail
+    Shields of Resistance
+    Crowns of the Magi
+    The Iron Helm of Dor-Lomin
+    The Battle Axe of Balli Stonehand
+    The War Hammer of Aule
+    The Cloak of Valinor
+    The Small Leather Shield of the Elements
+    The Large Leather Shield of Celegorm
+    The Large Metal Shield of Anarion
+    Defender weapons
+    The Cutlass 'Gondricam'
+  The following items have lost one type of resistance:
+    The Cloak of Thingol (Acid)
+    The Short Bow of Amrod (Cold)
+    The Short Bow of Amras (Cold)
+    The Amulet of Ingwe (Acid)
+    The Shadow Cloak of Luthien (Fire)
+  Armor of Resistance is now Armor of Greater Resistance now has a
+  native depth of 1000'.  Armor of Lesser Resistance occurs earlier
+  but provides only half the protection.
+  Armor of Elvenkind is now also native to 1000'.
+- Temporary resistance now provides 1.5X the bonus of normal
+  resistance items (or 2.0X with Enhance Magic).  This is down from
+  2.0X (or 2.5X with Enhance Magic).
+
+Dungeon item quantity reduction:
+- Reduced all drops by 1/3.
+- Reduced big drops by up to another 3X, but gave them a object
+  generation level boost.
+- Changed some drop flags to accomodate this all.
+- Monsters with are native to shallower levels have an increased
+  chance of dropping gold, even if they normally drop only items.
+  [Similar to Sangband].
+- To to compensate for the increased gold chance, shallow monsters may
+  sometimes get a boost to item generation level.
+- Increased the chances of "good" item enchantments my 5%.
+- Reduced the chances of items being dropped below thier native depth.
+  This is gradual effect.
+
+Other item changes:
+- Added "strong squelch" option under the gameplay menu.  Causes
+  squelched items to be quietly destroyed rather than tagged for user
+  destruction.
+- The following now have the EASY_ACT flag making them much easier to
+  activate with lower magic device skill:
+    Weapons: Whip of the Balrog, Taratol, Eriril
+    Missile Weapons: Harad, Buckland
+    Armor: Soulkeeper, Belegennon, Caspanion
+    Dragon Scale Mail: All (including artifacts)
+    Shields: Earendil
+    Helms: Holhenneth
+    Boots: Feanor, Gimli
+    Lights: All artifacts (including Stone of Lore)
+    Amulets: Escaping, the Lion, Boromir, Faramir
+    Rings: Tulkas
+    Staves: Perception, Light, Dungeon Mapping, Treasure Location
+        Object Location, Trap Location, Door/Stain Location,
+        Detect Invisible, Detect Evil, Speed, Detection
+    Rods: Trap Location, Door/Stair Location, Perception,
+        Illumination, Sense Surroundings, Speed
+- Fake artifact names now override the standard names more fully,
+  including artifact and ego names (Sangband).
+- Reduced the rarity of Raal's Tome of Destruction, Spirit of Yavanna,
+  Wrath of God, and Necronomicon from 4 to 2.
+- "Holy Avenger" Ego items now have a native depth of 1000'.
+- Powered up many melee weapons, particular heavy ones (based on
+  suggestions from Atriel).
+- Melee weapons with randomly increased damage nice are generally less
+  powerful.
+
+Ranged combat changes:
+- Missile launcher flags now apply to ranged combat [Steamband].
+- Replaced Cubragol activation with Fire Brand.
+- Infrastructure changes for special shot/throw modes [Steamband
+  inspired], and for spells with casting time based on
+  shooting/throwing speed.
+- Added Archery spells:
+  Ranger: Deadeye Shot (Call of the Wild)
+    Added accuracy
+  Ranger: Scourging Shot (Communion with Nature)
+    Slay Orc and Troll
+  Ranger: Rain of Arrows (Communion with Nature)
+    Arrow splits 3-5 times for 50% damage each, may spread at distance
+  Ranger: Storm Shot (Gifts of Nature)
+    Lightning Brand + Thunderclap on impact
+  Ranger: Dragonslayer (Melian's Lore)
+    Slay Dragon
+  Assassin: Vile Dart (Mysteries of Angmar)
+    Black Breath
+  Assassin: Poison Shot (Mysteries of Angmar)
+    Poison Brand
+  Rogue: Stone Volley (Tensers Transformations)
+    Shot splits 3-5 times for 50% damage each, may spread at distance
+- Boosted the damage of basic shots, arrows, and bolts.  Reduced the
+  bonus from enhanced damage dice on all ammo.
+- Thrown items other than throwing weapons may break on a missed attack.
+- Changed the quiver to "ready missile weapons" - throwing weapons may
+  now be quivered.  Throwing weapons each take the quiver space of 5
+  units of ammunition.  Throwing weapons with activation WILL recharge
+  in the quiver, but will not provide other bonuses such as resists.
+
+Player magic changes:
+- Removed the "spells learned" mechanic completely.  All spells up to
+  the player's level are castable.  There is still an experience bonus
+  for the first casting of any spell.
+- Spell level boosts from various specialties are reflected in the
+  color of the max mana display.
+- Added two dice to the Druid Poison Bolt spell.
+- Weakened the Priest's big "Healing" spell (500 points, was 700; 50
+  mana was 40).
+- Added "Purifying Strike" to the Priest spellbook Purifications and
+  Healing.  This is a a reliable, moderate damage, single target
+  attack at a fairly high mana cost.
+
+Added savefile handling patch adapted from Darkgod by Leon Marrick
+with the following changes:
+- Cleaned up UI to make it more "Angbandy" - names are displayed in a
+  vertical scrolling list.
+- Character names are displayed now rather than savefile names.
+- Savefile names need not match character names for the UI to work properly.
+- When creating new characters, savefile names are altered if needed
+  to avoid overwriting an existing savefile.  It is impossible to
+  overwrite an existing savefile by creating a characer with a similar
+  name.
+- Any number of characters may have the same name.
+- Massive numbers of unneeded refreshes are removed.
+- The menu is used by default.
+- Some code cleanup.
+- When creating a character from a dead savefile, an option is
+  provided to reuse the savefile or generate a new one.  There is an
+  in-game option to override this behavior and always reuse the
+  savefile.
+
+Other UI changes:
+- Added targetting path display from NPPangband.
+- Added the '.' option to target closest monster in interactive
+  targetting [Sangband].
+- Items with the autopickup inscription (=g) will now be equiped to
+  the quiver automatically if possible.
+- Adopted Sangband pickup code, and some related disturbance code.
+- Added a new choice in the item selection interface: '#' now selects
+  the first eligible item, prioritizing equipment, then inventory,
+  then floor.  This is primarily itended to make identifying multiple
+  items faster, especially with macros.
+- Player symbol changes color with damage take (from NPP).
+- Partially switched to EyAngband style "~" info screens.
+
+Monster changes:
+- Monster Black Breath: Easier to inflict (with Prepare Black Breath
+  and Vile Dart), causes a small increase damage taken and mana used
+  by the monster.  Still inhibits monster healing of damage and status
+  effects.
+- Monster "ADD_MANA" spell ("gathers its power") is more effective
+  when the monster is at less than 10% of max mana.  This prevents
+  some wierdness in late game monsters vs the Mana Burn specialty
+  which made regaining mana a strictly bad thing to do.
+- Gothmog gained the tunneling ability.
+
+Miscellaneous balance changes:
+- Greatly improved mana regen and slighly improved health regen for
+  low level character only.
+- Sightly increased poison effect from low level poison attacks.
+- Teleport away effects are now "bolts" rather than "beams" - they
+  affect only one target.
+
+Code cleanup:
+- Moved chest drop information p_chest.txt
+- Moved magic information p_magic.txt
+- Changed some checks on TV_DRUID_BOOK to SP_WOODSMAN
+- Various code cleanup changes by Christer Nyfalt
+
+Bugs fixed (partial list):
+- Item letters in the home do not color code.
+- Vulnerability of Shadow Fairies to light and Ents to fire is not
+  merged with the new resistance systems yet (gives a fixed 1/3 damage
+  increase, not displayed).
+- Grammatical error in weapons of *Slay* Orc.
+- No cursed ego items are generated.
+- Dimension Door and Tap Magical Energy should not use mana/time if
+  cancelled.  Rod of Portals should not discharge if cancelled.
+- Starting priests get a Potion of Naivety rather than Healing.
+- Memory of monster summoning spells is not saved.
+- Priests do no get their intrinsic Protection from Evil at level 50.
+- Holy Light melee attacks do not update monster memory.
+- Melee bonuses/penalties based on weapon weight are corrupted for
+  many classes.
+- Scrolls of teleport level do not work for characters with Phasewalking.
+
+List of changes submitted by RR:
+
+src/Makefile.std:
+- added a new default target for Linux/Unix with X11 and ncurses
+- removed the -m486 flags since newer gcc versions don't like it
+- fixed the "make clean" target
+
+src/cmd4.c:
+src/files.c:
+src/variable.c:
+src/externs.h:
+- made the process_pref_file() function look in lib/pref/ as well as lib/user/
+
+src/config.h:
+- the OS X port is a unix system but shouldn't use the user-id in the savefile 
+name for aesthetical reasons
+
+src/defines.h:
+- added the VERSION_NAME constant with the name of the variant
+
+src/h-config.h:
+src/externs.h:
+src/util.c:
+- allow files to be saved with the Mac specific filetype
+
+src/init2.c:
+src/util.c:
+src/main.c:
+src/externs.h:
+- allow user specific files to be stored outside of the lib/ subfolder
+
+src/z-util.h:
+src/z-util.c:
+- added some tool functions

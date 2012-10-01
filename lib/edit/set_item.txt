@@ -8,7 +8,7 @@
 
 # Version stamp required
 
-V:0.7.0
+V:1.1.0
 
 #N: set index:name
 #C: number of items to gain bonus

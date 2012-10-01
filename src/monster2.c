@@ -1,8 +1,8 @@
 /* File: monster2.c */
 
-/* Monster processing, compacting, generation, goody drops, deletion, 
- * place the player, monsters, and their escorts at a given location, 
- * generation of monsters, summoning, monster reaction to pain 
+/* Monster processing, compacting, generation, goody drops, deletion,
+ * place the player, monsters, and their escorts at a given location,
+ * generation of monsters, summoning, monster reaction to pain
  * levels, monster learning.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -55,8 +55,8 @@ void delete_monster_idx(int i)
 	/* Monster is gone */
 	cave_m_idx[y][x] = 0;
 
-	/* Total Hack -- If the monster was a player ghost, remove it from 
-	 * the monster memory, ensure that it never appears again, clear 
+	/* Total Hack -- If the monster was a player ghost, remove it from
+	 * the monster memory, ensure that it never appears again, clear
 	 * its bones file selector and allow the next ghost to speak.
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
@@ -209,7 +209,7 @@ void compact_monsters(int size)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Paranoia -- skip "dead" monsters */
-			if (!m_ptr->r_idx) 
+			if (!m_ptr->r_idx)
 			{
 				if (j++ >= size) return;
 				else continue;
@@ -413,9 +413,9 @@ errr get_mon_num_prep(void)
 /*
  * Choose a monster race that seems "appropriate" to the given level
  *
- * We use this function, not only to pick a monster but to build a 
- * table of probabilities.  This table can be used again and again, if 
- * certain conditions (generation level being the most important) don't 
+ * We use this function, not only to pick a monster but to build a
+ * table of probabilities.  This table can be used again and again, if
+ * certain conditions (generation level being the most important) don't
  * change.
  *
  * This function uses the "prob2" field of the "monster allocation table",
@@ -509,11 +509,11 @@ s16b get_mon_num(int level)
 			r_ptr = &r_info[r_idx];
 
 			/* Hack -- some monsters are unique */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
 			    (r_ptr->cur_num >= r_ptr->max_num)) continue;
 
 			/* Forced-depth monsters only appear at their level. */
-			if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && 
+			if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) &&
 			    (r_ptr->level != p_ptr->depth)) continue;
 
 			/* Accept */
@@ -528,7 +528,7 @@ s16b get_mon_num(int level)
 		}
 
 		/* No legal monsters */
-		if (alloc_race_total == 0) 
+		if (alloc_race_total == 0)
 		{
 			failure++;
 
@@ -569,13 +569,13 @@ s16b get_mon_num(int level)
 
 
 /*
- * A replacement for "get_mon_num()", for use when that function has 
- * built up a suitable table of monster probabilities, and all we want 
+ * A replacement for "get_mon_num()", for use when that function has
+ * built up a suitable table of monster probabilities, and all we want
  * to do is pull another monster from it.
  *
- * Usage of this function has a curious and quite intentional effect:  
- * on rare occasion, 1 in NASTY_MON times, the effective generation level 
- * is raised somewhat.  Most monsters will actually end up being in depth, 
+ * Usage of this function has a curious and quite intentional effect:
+ * on rare occasion, 1 in NASTY_MON times, the effective generation level
+ * is raised somewhat.  Most monsters will actually end up being in depth,
  * but not all...
  */
 s16b get_mon_num_quick(int level)
@@ -584,8 +584,8 @@ s16b get_mon_num_quick(int level)
 	long value;
 	alloc_entry *table = alloc_race_table;
 
-	/* 
-	 * No monsters available.  XXX XXX - try using the standard 
+	/*
+	 * No monsters available.  XXX XXX - try using the standard
 	 * function again, although it probably failed the first time.
 	 */
 	if (!alloc_race_total) return (get_mon_num(level));
@@ -836,6 +836,8 @@ void lore_do_probe(int m_idx)
  * about the treasure (even when the monster is killed for the first
  * time, such as uniques, and the treasure has not been examined yet).
  *
+ * Also about the PLUS_5/PLUS_10 flags.
+ *
  * This "indirect" method is used to prevent the player from learning
  * exactly how much treasure a monster can drop from observing only
  * a single example of a drop.  This method actually observes how much
@@ -856,6 +858,8 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 	if (r_ptr->flags1 & (RF1_DROP_GOOD)) l_ptr->flags1 |= (RF1_DROP_GOOD);
 	if (r_ptr->flags1 & (RF1_DROP_GREAT)) l_ptr->flags1 |= (RF1_DROP_GREAT);
 	if (r_ptr->flags1 & (RF1_DROP_CHEST)) l_ptr->flags1 |= (RF1_DROP_CHEST);
+	if (r_ptr->flags1 & (RF1_DROP_PLUS_5)) l_ptr->flags1 |= (RF1_DROP_PLUS_5);
+	if (r_ptr->flags1 & (RF1_DROP_PLUS_10)) l_ptr->flags1 |= (RF1_DROP_PLUS_10);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1330,7 +1334,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Warn when leaving trap detected region */
 		if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
 		{
-			if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= (p_ptr->dtrap_rad - 1)) 
+			if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= (p_ptr->dtrap_rad - 1))
 			{
 				p_ptr->dtrap_x=0;
 				p_ptr->dtrap_y=0;
@@ -1510,8 +1514,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->r_idx = r_idx;
 
 
-	/* 
-	 * If the monster is a player ghost, perform various manipulations 
+	/*
+	 * If the monster is a player ghost, perform various manipulations
 	 * on it, and forbid ghost creation if something goes wrong.
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
@@ -1579,7 +1583,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		/* Give a random starting energy */
 		n_ptr->energy = rand_int(50);
   	}
-  
+
   	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
 
@@ -1587,7 +1591,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	if (cheat_hear)
 	{
 		/* Deep unique monsters */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
 		   (r_ptr->level > p_ptr->depth))
 		{
 			/* Message */
@@ -1629,7 +1633,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 /*
  * Attempt to place a group of monsters around the given location.
  *
- * Hack -- A group of monsters counts as a single individual for the 
+ * Hack -- A group of monsters counts as a single individual for the
  * level rating.
  */
 static bool place_monster_group(int y, int x, int r_idx, bool slp, s16b group_size)
@@ -1853,7 +1857,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 /*
  * Attempt to place a monster of the given race at the given location
  *
- * Monsters may have some friends, or lots of friends.  They may also 
+ * Monsters may have some friends, or lots of friends.  They may also
  * have a few escorts, or lots of escorts.
  *
  * Note the use of the new "monster allocation table" code to restrict
@@ -1928,7 +1932,7 @@ bool place_monster(int y, int x, bool slp, bool grp, bool quick)
  *
  * Use "monster_level" for the monster level
  *
- * Use "quick" to either rebuild the monster generation table, or 
+ * Use "quick" to either rebuild the monster generation table, or
  * just draw another monster from it.
  */
 bool alloc_monster(int dis, bool slp, bool quick)
@@ -1965,7 +1969,7 @@ bool alloc_monster(int dis, bool slp, bool quick)
 		if (!cave_exist_mon(r_ptr, y, x, FALSE)) continue;
 
 		/* Do not put random monsters in marked rooms. */
-		if ((!character_dungeon) && (cave_info[y][x] & (CAVE_TEMP))) 
+		if ((!character_dungeon) && (cave_info[y][x] & (CAVE_TEMP)))
 			continue;
 
 		/* Accept far away grids */
@@ -2139,8 +2143,8 @@ static bool summon_specific_okay(int r_idx)
 		{
 			okay = ((r_ptr->d_char == 'T') &&
 				(r_ptr->flags1 & (RF1_UNIQUE)) &&
-				  ((strstr((r_name + r_ptr->name), "Bert")) || 
-				   (strstr((r_name + r_ptr->name), "Bill")) || 
+				  ((strstr((r_name + r_ptr->name), "Bert")) ||
+				   (strstr((r_name + r_ptr->name), "Bill")) ||
 				   (strstr((r_name + r_ptr->name), "Tom" ))));
 			break;
 		}
@@ -2152,22 +2156,8 @@ static bool summon_specific_okay(int r_idx)
 
 
 /*
- * Place a monster (of the specified "type") near the given
+ * Place 'num' monsters (of the specified "type") near the given
  * location.  Return TRUE if a monster was actually summoned.
- *
- * We will attempt to place the monster up to 10 times before giving up.
- *
- * Note: SUMMON_UNIQUE and SUMMON_WRAITH (XXX) will summon Uniques
- * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Uniques
- * Note: None of the other summon codes will ever summon Uniques.
- *
- * This function has been changed.  We now take the "monster level"
- * of the summoning monster as a parameter, and use that, along with
- * the current dungeon level, to help determine the level of the
- * desired monster.  Note that this is an upper bound, and also
- * tends to "prefer" monsters of that level.  Currently, we use
- * the average of the dungeon and monster levels, and then add
- * five to allow slight increases in monster power.
  *
  * Note that we use the new "monster allocation table" creation code
  * to restrict the "get_mon_num()" function to the set of "legal"
@@ -2175,67 +2165,85 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
+int summon_specific(int y1, int x1, bool scattered, int lev, int type, int num)
 {
-	int i, x, y, d, r_idx;
+	int m, i, x, y, d, r_idx;
 
+	/* Allow groups in most cases */
+	/* (May adopt Orc-hack from Sangband later) */
+	bool grp = TRUE;
 
-	/* Look for a location */
-	for (i = 0; i < (scattered ? 40 : 20); ++i)
+	int count = 0;
+
+	/* Legal Number */
+	if (num < 1) return (0);
+
+	/* Paranoia -- require a legal grid */
+	if (!in_bounds_fully(y1, x1)) return (0);
+
+	/* Attempt to summon the requested number of monsters */
+	for (m = 0; m < num; m++)
 	{
-		/* Pick a distance */
-		if (scattered) d = rand_int(6) + 1;
-		else d = (i / 10) + 1;
+		bool spot_found = FALSE;
 
-		/* Pick a location */
-		scatter(&y, &x, y1, x1, d, 0);
+		/* Look for a location */
+		for (i = 0; i < (scattered ? 40 : 20); ++i)
+		{
+			/* Pick a distance */
+			if (scattered) d = rand_int(6) + 1;
+			else d = (i / 10) + 1;
 
-		/* Require passable terrain, with no other creature or player. */
-		if (!cave_passable_bold(y, x)) continue;
-		if (cave_m_idx[y][x] != 0) continue;
+			/* Pick a location (in line of sight) */
+			scatter(&y, &x, y1, x1, d, 0);
 
-		/* Hack -- no summon on glyph of warding */
-		if (cave_feat[y][x] == FEAT_GLYPH) continue;
+			/* Require passable terrain, with no other creature or player */
+			if (!cave_passable_bold(y, x)) continue;
+			if (cave_m_idx[y][x] != 0) continue;
 
-		/* Okay */
-		break;
+			/* Hack -- no summon on glyph of warding */
+			if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
+			/* Success */
+			spot_found = TRUE;
+
+			/* Okay */
+			break;
+		}
+
+		/* Failure */
+		if (!spot_found) continue;
+
+
+		/* Save the "summon" type */
+		summon_specific_type = type;
+
+		/* Require "okay" monsters */
+		get_mon_num_hook = summon_specific_okay;
+
+		/* Apply monster restrictions */
+		get_mon_num_prep();
+
+		/* Pick a monster.  Usually do not exceed maximum level. */
+		r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 1 +
+			(p_ptr->depth >= 20 ? 4 : p_ptr->depth / 5));
+
+		/* Attempt to place the monster (awake, usually allow groups) */
+		if (r_idx)
+		{
+			if (place_monster_aux(y, x, r_idx, FALSE, grp)) count++;
+		}
 	}
 
-	/* Failure */
-	if (i == 20) return (FALSE);
 
-
-	/* Save the "summon" type */
-	summon_specific_type = type;
-
-
-	/* Require "okay" monsters */
-	get_mon_num_hook = summon_specific_okay;
-
-	/* Prepare allocation table */
-	get_mon_num_prep();
-
-
-	/* Pick a monster, using the level calculation */
-	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 1 + 
-		(p_ptr->depth >= 20 ? 4 : p_ptr->depth / 5));
-
-
-	/* Remove restriction */
+	/* No monster restrictions */
 	get_mon_num_hook = NULL;
+	summon_specific_type = 0;
 
-	/* Prepare allocation table */
+	/* Un-apply monster restrictions */
 	get_mon_num_prep();
 
-
-	/* Handle failure */
-	if (!r_idx) return (FALSE);
-
-	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
-
-	/* Success */
-	return (TRUE);
+	/* Return number of monsters summoned */
+	return (count);
 }
 
 
@@ -2528,7 +2536,7 @@ void update_smart_learn(int m_idx, int what)
 		}
 
 		/*
-		 * Some Blindness attacks learn about blindness resistance 
+		 * Some Blindness attacks learn about blindness resistance
 		 * Others (below) do more
 		 */
 		case LRN_BLIND:
@@ -2538,7 +2546,7 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 
-		/* 
+		/*
 		 * Some Confusion attacks learn about confusion resistance
 		 * Others (below) do more
 		 */
@@ -2549,8 +2557,8 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 
-		/* 
-		 * Some sound attacks learn about sound and confusion resistance, and saving throws 
+		/*
+		 * Some sound attacks learn about sound and confusion resistance, and saving throws
 		 * Others (below) do less.
 		 */
 		case LRN_SOUND:
@@ -2668,7 +2676,7 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 
-		/* 
+		/*
 		 * Some sounds attacks learna about sound resistance only
 		 * Others (above) do more
 		 */
@@ -2679,7 +2687,7 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 
-		/* 
+		/*
 		 * Storm attacks learn about Electrical/Cold/Acid resists/immunities,
 		 * and about confusion resist
 		 */
@@ -2715,7 +2723,7 @@ void update_smart_learn(int m_idx, int what)
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 		}
 
-		/* 
+		/*
 		 * Some nexus attacks learn about Nexus resist and saving throws
 		 * Others (above) do more
 		 */
@@ -2743,7 +2751,7 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 
-		/* 
+		/*
 		 * Some Confusion attacks learn about confusion resistance and saving throws
 		 * Others (above) do less
 		 */

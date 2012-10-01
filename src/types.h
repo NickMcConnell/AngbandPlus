@@ -75,12 +75,14 @@ typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct set_type set_type;
+typedef struct grouper grouper;
 typedef struct set_element set_element;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
 typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
+typedef struct effect_type effect_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
@@ -270,7 +272,7 @@ struct artifact_type
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
-	byte creat_stat;		/* Was cur_num.  0 or 1.  
+	byte creat_stat;		/* Was cur_num.  0 or 1.
 					 * Possible future expanded functionality. */
 	byte activation;		/* Temporary activation index. -LM- */
 
@@ -279,10 +281,20 @@ struct artifact_type
 };
 
 
+/*
+ *
+ */
+struct grouper
+{
+	byte tval;
+	cptr name;
+};
+
+
 /* Item sets */
 
 /* Information about an item in a set -GS- */
-struct set_element  
+struct set_element
 {
 	byte a_idx;			/* the artifact ID */
 	u32b flags1;			/* Artifact Flags, set 1 */
@@ -292,12 +304,12 @@ struct set_element
 };
 
 /* Information about items sets -GS- */
-struct set_type 
+struct set_type
 {
 	u16b name;			/* Name (offset) */
 	u16b text;			/* Text (offset) */
 	byte no_of_items;		/* The number of items in the set */
-	set_element set_items[6];	/* the artifact no and extra powers. */	
+	set_element set_items[6];	/* the artifact no and extra powers. */
 };
 
 
@@ -424,6 +436,8 @@ struct monster_race
 
 };
 
+
+
 /*
  * Monster "lore" information
  *
@@ -436,24 +450,25 @@ struct monster_lore
 {
          s16b sights;                  /* Count sightings of this monster */
          s16b deaths;                  /* Count deaths from this monster */
-       
+
          s16b pkills;                  /* Count monsters killed in this life */
          s16b tkills;                  /* Count monsters killed in all lives */
-       
+
          byte wake;                    /* Number of times woken up (?) */
          byte ignore;                  /* Number of times ignored (?) */
-       
+
          byte xtra1;                   /* Something (unused) */
          byte xtra2;                   /* Something (unused) */
-       
+
          byte drop_gold;               /* Max number of gold dropped at once */
          byte drop_item;               /* Max number of item dropped at once */
-       
+         byte drop_boost;              /* Level boost to dropped loot */
+
          byte cast_inate;              /* Max number of inate spells seen */
          byte cast_spell;              /* Max number of other spells seen */
-       
+
          byte blows[4];                /* Number of times each blow type was seen */
-       
+
          u32b flags1;                  /* Observed racial flags */
          u32b flags2;                  /* Observed racial flags */
          u32b flags3;                  /* Observed racial flags */
@@ -604,14 +619,14 @@ struct monster_type
 	u32b smart;			/* Field for "smart_learn" */  /* Now saved */
 
         byte ty;			/* Monster target */
-	byte tx;			
+	byte tx;
 
-	byte harass;                    /* 
+	byte harass;                    /*
 					 * Mega Hack
-					 * An AI variable making harassment spells 
-					 * more likely early in a battle 
+					 * An AI variable making harassment spells
+					 * more likely early in a battle
 					 */
-  
+
 	byte min_range;			/* What is the closest we want to be? */  /* Not saved */
 	byte best_range;		/* How close do we want to be? */  /* Not saved */
 
@@ -728,16 +743,17 @@ struct store_type
 
 
 /*
- * Spell information.  Index only controls effects; position in spellbook 
+ * Spell information.  Index only controls effects; position in spellbook
  * is controlled by values in the array "book_start_index".
  */
 struct magic_type
 {
-	byte index;			/* The internal spell index. */
+	u16b index;			/* The internal spell index. */
 	byte slevel;		/* Required level (to learn) */
 	byte smana;			/* Required mana (to cast) */
 	byte sfail;			/* Base chance of failure */
 	byte sexp;			/* Encoded experience bonus */
+	byte stimecode;			/* Code for casting time */
 };
 
 
@@ -781,7 +797,7 @@ struct player_race
         u32b name;                      /* Name (offset) */
         u32b text;                      /* Text (offset) */
 
-	s16b r_adj[6];		/* Racial stat modifiers */
+	s16b r_adj[A_MAX];		/* Racial stat modifiers */
 
 	s16b r_dis;			/* base disarming */
 	s16b r_dev;			/* base magic devices */
@@ -881,7 +897,7 @@ struct player_class
 
 	start_item start_items[MAX_START_ITEMS];   /* The starting inventory */
 
-	byte specialties[MAX_SPECIALTIES];   /* Available Specialty Abilities */
+	byte specialties[CLASS_SPECIALTIES];   /* Available Specialty Abilities */
 
 	/* Weapon Info */
 	u16b max_1;		/* Max Weight (decipounds) at level 1 */
@@ -935,7 +951,7 @@ struct player_other
 
 	bool opt[OPT_MAX];		/* Options */
 
-	u32b window_flag[8];	/* Window flags */
+	u32b window_flag[TERM_WIN_MAX];	/* Window flags */
 
 	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
@@ -1003,8 +1019,8 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-	s16b stat_max[6];	/* Current "maximal" stat values */
-	s16b stat_cur[6];	/* Current "natural" stat values */
+	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
+	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -1054,8 +1070,6 @@ struct player_type
 	u32b spell_worked2;		/* Spell flags */
 	u32b spell_forgotten1;	/* Spell flags */
 	u32b spell_forgotten2;	/* Spell flags */
-
-	byte spell_order[64];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
@@ -1109,6 +1123,8 @@ struct player_type
 	bool run_break_right;	/* Looking for a break (right) */
 	bool run_break_left;	/* Looking for a break (left) */
 
+	bool auto_pickup_okay;      /* Allow automatic pickup */
+
 	s16b command_cmd;		/* Gives identity of current command */
 	s16b command_arg;		/* Gives argument of current command */
 	s16b command_rep;		/* Gives repetition of current command */
@@ -1150,13 +1166,13 @@ struct player_type
 	u32b redraw;		/* Normal Redraws (bit flags) */
 	u32b window;		/* Window Redraws (bit flags) */
 
-	s16b stat_use[6];	/* Current modified stats */
-	s16b stat_top[6];	/* Maximal modified stats */
+	s16b stat_use[A_MAX];	/* Current modified stats */
+	s16b stat_top[A_MAX];	/* Maximal modified stats */
 
 	/*** Extracted fields ***/
 
-	s16b stat_add[6];	/* Equipment stat bonuses */
-	s16b stat_ind[6];	/* Indexes into stat tables */
+	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
+	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
 	byte res_list[MAX_P_RES]; /* Resistances and immunities */
 	byte dis_res_list[MAX_P_RES]; /* Known resistances and immunities */
@@ -1225,7 +1241,7 @@ struct player_type
 
 	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
-	byte specialty_order[CLASS_SPECIALTIES]; /* Order of specialty abilities */
+	byte specialty_order[MAX_SPECIALTIES]; /* Order of specialty abilities */
 	s16b new_specialties;		/* Number of specialties available */
 	s16b old_specialties;
 	s16b specialties_allowed;	/* Number we can use right now */
@@ -1241,6 +1257,8 @@ struct player_type
 	s16b mana_gain;			/* Mana gained by special means this turn */
 	byte evasion_chance;		/* Percentage to avoid attacks with evasion */
 	byte old_evasion_chance;		/* Old percentage to avoid attacks with evasion */
+	byte attune_tval;		/* Currently attuned tval */
+	byte attune_sval;		/* Currently attuned sval */
 };
 
 /*
@@ -1284,3 +1302,17 @@ struct high_score
 	char how[32];		/* Method of death (string) */
 };
 
+typedef struct chest_drops chest_drops;
+
+/*
+ * Information about possible chest drops.
+ *
+ * For each class, there is a list of possible tvals and an associated probability.
+ */
+struct chest_drops
+{
+	char tval[MAX_CHEST_CHOICES];		/* Tval possibilities */
+	char chance[MAX_CHEST_CHOICES];	/* Chances of corresponding tval */
+
+	char choices;		/* Number of distinct possibilities */
+};
