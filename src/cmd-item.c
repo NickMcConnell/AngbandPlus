@@ -2101,6 +2101,8 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
+	if (k_info[o_ptr->k_idx].tval == TV_DRAG_ARMOR) return (TRUE);
+
 	/* Check activation flag */
 	if (a_info[o_ptr->a_idx].activation) return (TRUE);
 

@@ -61,6 +61,7 @@ bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
+bool character_existed;	
 
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
@@ -229,6 +230,7 @@ char angband_sound_name[MSG_MAX][16] =
 	"dsm",
 	"teleport",
 	"tplevel",
+	"spell_fail",
 	"tpother",
 	"hitwall",
 	"store",

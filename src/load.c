@@ -779,16 +779,23 @@ static errr rd_extra(void)
 			p_ptr->stat_max[i] = fix_stat(temp_max);
 			p_ptr->stat_cur[i] = fix_stat(temp_max);
 		}
+		else if (older_than(0,3,5))
+		{
+			rd_byte(&p_ptr->stat_max[i]);
+			rd_byte(&p_ptr->stat_cur[i]);
+		}
 		else
 		{
 			rd_byte(&p_ptr->stat_max[i]);
 			rd_byte(&p_ptr->stat_cur[i]);
+			rd_byte(&p_ptr->stat_birth[i]);
 		}
 	}
 
 	if (!older_than(0,3,4)) rd_u16b(&p_ptr->fame);
 
 	rd_s32b(&p_ptr->au);
+	if (!older_than(0,3,5)) rd_s32b(&p_ptr->au_birth);
 
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);

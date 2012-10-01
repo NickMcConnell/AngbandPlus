@@ -5,6 +5,7 @@ adventures  it is suggested that you  run a warrior.  Spell casting generally
 requires a more experienced player that is familiar with survival techniques.
 Note that the class stat bonuses only affect character generation.
  
+***** <Warrior>
           Warrior
                A Warrior is a hack-and-slash character, who solves most  of
                his  problems  by cutting them to pieces, but will occasion-
@@ -13,6 +14,7 @@ Note that the class stat bonuses only affect character generation.
                can really help at times.  A Warrior will be good at  Fight-
                ing and Throwing/Bows, but bad at most other skills.
  
+***** <Mage>
           Mage
                A Mage must live by his wits.  He cannot hope to simply hack
                his  way  through the dungeon, and so must therefore use his
@@ -27,6 +29,7 @@ Note that the class stat bonuses only affect character generation.
                While there is no rule that says a mage cannot become a good 
                fighter, most mages will prefer to rely on their spells.
  
+***** <Priest>
           Priest
                A Priest is a character of holy devotion.  They explore  the
                dungeon  only  to destroy the evil that lurks within, and if
@@ -40,6 +43,7 @@ Note that the class stat bonuses only affect character generation.
                weapons  over  edged  ones.  Wisdom  is the priest's primary
                stat, determining spellcasting ability.
  
+***** <Ranger>
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
                best  of  the  classes  with a missile weapon such as a bow.
@@ -52,6 +56,7 @@ Note that the class stat bonuses only affect character generation.
                are Intelligence (which determines his spellcasting ability)
                and Dexterity.
  
+***** <Paladin>
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
                second  only to the warrior class, but not very good at mis-
@@ -66,6 +71,7 @@ Note that the class stat bonuses only affect character generation.
                which he uses for melee.
  
 
+***** <Mystic>
           Mystic
                A Mystic  learns both  the holy  prayers of priests  and the 
                magic of mages.  While he is the  weakest fighter of all the 
@@ -78,6 +84,7 @@ Note that the class stat bonuses only affect character generation.
                primary stats are Wisdom and Intelligence,  which combine to 
                determine his spellcasting power.
 
+***** <Bard>
           Bard
                A bard is an artist. He adventures neither for gold nor fame
                but for the value of the experience. His fighting skills are
@@ -91,6 +98,7 @@ Note that the class stat bonuses only affect character generation.
                primary stat is Charisma, which his musical abilities depend
                on, and he can also use good Dexterity and Intelligence.
 
+***** <Spellsword>
          Spellsword
                As indicated by his name,  the spellsword can both fight and
                cast mage spells.  He has similar (though slightly inferior)

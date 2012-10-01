@@ -93,6 +93,7 @@ extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
 extern bool character_saved;
+extern bool character_existed;	
 extern s16b character_icky;
 extern s16b character_xtra;
 extern u32b seed_randart;

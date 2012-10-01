@@ -1,8 +1,8 @@
 
 
-                          ************************
-                          **  EyAngband 0.3.4b  **
-                          ************************
+                          ***********************
+                          **  EyAngband 0.3.5  **
+                          ***********************
                                By Eytan Zweig
 
             Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke

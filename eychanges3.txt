@@ -1,3 +1,33 @@
+Changes from 0.3.4b to 0.3.5:
+
+## Gamplay Changes ##
+
+# Characer Creation #
+
+- New character creation screen modified from Zangband 2.6.2.
+
+- When you die, you now have the option to "quick-start" a character from the same 
+  savefile. This creates a character identical to the previous one (as he or she was at 
+  the time of creation). Note that if you changed birth options during the previous 
+  character's game, the new options will take effect. 
+
+# Random Artifacts #
+
+- Undid the activation randomization from 0.3.4 - randarts will have fixed activations
+  as in earlier versions.
+
+# Items #
+
+- Made rings of elemental immunity much rarer.
+
+## Bug fixes ##
+
+- Fixed bug allowing monsters to pick up quest items.
+
+- Fixed mixed-up sounds in the platforms that support them.
+
+- Fixed bug preventing 'A'ctivation of DSMs unless unified_use is turned on.
+
 Changes from 0.3.4 to 0.3.4b:
 
 ## Bug fixes ##

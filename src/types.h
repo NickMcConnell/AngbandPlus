@@ -1209,6 +1209,10 @@ struct player_type
 
 	u16b cur_quest;		/* Current quest */
 
+	/* Generation fields (for quick start) */
+	s32b au_birth;			/* Current Gold */
+	byte stat_birth[A_MAX];	/* Current "natural" stat values */
+
 	/* Other fields */
 	s16b obj_depth;		/* Depth for object generation purposes*/
 

@@ -64,7 +64,7 @@
 
 # Version stamp (required)
 
-V:0.3.4
+V:0.3.5
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -1624,7 +1624,7 @@ N:199:Lightning
 G:=:d
 I:45:18:0
 W:70:0:2:65000
-A:70/4
+A:85/16
 X:13:1d1:10
 P:0:0d0:0:0:15
 F:IM_ELEC | IGNORE_ELEM
@@ -1634,7 +1634,7 @@ G:=:d
 I:45:19:0
 W:70:0:2:65000
 X:13:1d1:10
-A:70/4
+A:85/16
 P:0:0d0:0:0:15
 F:IM_ACID | IGNORE_ELEM
 
@@ -1643,7 +1643,7 @@ G:=:d
 I:45:20:0
 W:70:0:2:65000
 X:13:1d1:10
-A:70/4
+A:85/16
 P:0:0d0:0:0:15
 F:IM_FIRE | IGNORE_ELEM
 
@@ -1652,7 +1652,7 @@ G:=:d
 I:45:21:0
 W:70:0:2:65000
 X:13:1d1:10
-A:70/4
+A:85/16
 P:0:0d0:0:0:15
 F:IM_COLD | IGNORE_ELEM
 

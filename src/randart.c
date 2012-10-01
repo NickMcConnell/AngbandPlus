@@ -1662,6 +1662,7 @@ static void scramble_artifact(int a_idx)
 		}
 	}
 
+#if 0
 	/* XXX XXX XXX Try to give an activation */
 	if (rand_int(100) < ((a_idx >= z_info->a_min_normal) ? 45 : 80))
 	{
@@ -1673,6 +1674,7 @@ static void scramble_artifact(int a_idx)
 		a_ptr->time = 0;
 		a_ptr->randtime = 0;
 	}
+#endif
 
 	if (a_idx >= z_info->a_min_normal)
 	{

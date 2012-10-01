@@ -4079,7 +4079,8 @@ static void process_monster(int m_idx)
 					if (f4 & (TR4_SLAY_CHAOS))		flg2 |= (RF2_CHAOTIC);
 
 					/* The object cannot be picked up by the monster */
-					if (artifact_p(o_ptr) || (r_ptr->flags2 & flg2))
+					/* The object cannot be picked up by the monster */
+					if (artifact_p(o_ptr) || (o_ptr->tval == TV_QUEST) || (r_ptr->flags2 & flg2))
 					{
 						/* Only give a message for "take_item" */
 						if (r_ptr->flags2 & (RF2_TAKE_ITEM))

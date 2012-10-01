@@ -453,11 +453,13 @@ static void wr_extra(void)
 	{
 		wr_byte(p_ptr->stat_max[i]);
 		wr_byte(p_ptr->stat_cur[i]);
+		wr_byte(p_ptr->stat_birth[i]);
 	}
 
 	wr_u16b(p_ptr->fame);
 
 	wr_u32b(p_ptr->au);
+	wr_u32b(p_ptr->au_birth);
 
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
@@ -1296,6 +1298,9 @@ bool load_player(void)
 			
 			/* Reset feeling counter */
 			p_ptr->feeling_cnt = 0;
+
+			/* A character once existed on this savefile */
+			character_existed = TRUE;
 
 			/* Done */
 			return (TRUE);
