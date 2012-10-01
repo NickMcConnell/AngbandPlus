@@ -292,6 +292,30 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 	return (vn ? TRUE : FALSE);
 }
 
+/*
+ * Describe 'number of attacks recieved with a weapon
+ */
+static bool describe_attacks (const object_type *o_ptr, u32b f1)
+{
+	int n = o_ptr->tval;
+
+	if ((n == TV_DIGGING) || (n == TV_HAFTED) ||
+		(n == TV_POLEARM) || (n == TV_SWORD))
+	{
+		/*get the number of attacks*/
+		n = get_num_blows(o_ptr, f1);
+
+		/*print out the number of attacks*/
+		if (n == 1) text_out("It gives you one attack per turn.");
+		else text_out(format("It gives you %d attacks per turn.", n));
+
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
 
 /*
  * Describe 'ignores' of an object.
@@ -480,6 +504,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_misc_magic(o_ptr, f3)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
+	if (describe_attacks(o_ptr, f1)) something = TRUE;
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -548,7 +573,9 @@ void object_info_screen(const object_type *o_ptr)
 
 		/* Dump the info */
 		if (!object_info_out(o_ptr))
+		{
 			text_out("This item does not seem to possess any special abilities.  ");
+		}
 
 		text_out_c(TERM_L_BLUE, "\n\n[Press any key to continue]\n");
 

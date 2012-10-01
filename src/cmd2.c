@@ -2943,7 +2943,7 @@ void do_cmd_fire(void)
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies, -1))
 				{
 					/* Dead monster */
 				}
@@ -3087,7 +3087,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
 			ident = TRUE;
 
 			/*slight damage to monster*/
-			mon_take_hit(cave_m_idx[y][x], damroll(10, 10), fear, NULL);
+			mon_take_hit(cave_m_idx[y][x], damroll(10, 10), fear, NULL, -1);
 
 			break;
 		}
@@ -3098,7 +3098,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
 			ident = TRUE;
 
 			/*slight damage to monster*/
-			mon_take_hit(cave_m_idx[y][x], damroll(25, 25), fear, NULL);
+			mon_take_hit(cave_m_idx[y][x], damroll(25, 25), fear, NULL, -1);
 
 			/*set the stun counter*/
 			do_stun = TRUE;
@@ -3740,7 +3740,7 @@ void do_cmd_throw(void)
 				/* Hit the monster, unless a potion effect has already been done */
 				if (!potion_effect)
 				{
-					 is_dead = (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies));
+					 is_dead = (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies, -1));
 				}
 
 				/* Still alive */

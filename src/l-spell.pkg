@@ -183,6 +183,7 @@ extern bool project_arc(int who, int rad, int y0, int x0, int y1, int x1,
 	int dam, int typ, u32b flg, int degrees);
 extern bool project_star(int who, int rad, int y0, int x0, int dam, int typ,
 	u32b flg);
+extern bool project_los_not_player(int y1, int x1, int dam, int typ);
 extern bool project_los(int typ, int dam);
 extern bool explosion(int who, int rad, int y0, int x0, int dam, int typ);
 extern bool lite_line(int dir);
@@ -256,6 +257,4 @@ extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
 
-extern void monster_death(int m_idx);
-extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
 

@@ -335,7 +335,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 			case FEAT_MTRAP_STURDY:
 			{
 
-				mon_take_hit(cave_m_idx[y][x], (trap_power / 3), &fear, note_dies);
+				mon_take_hit(cave_m_idx[y][x], (trap_power / 3), &fear, note_dies, -1);
 
 			   /*note if monster died*/
 				if (!(m_ptr->r_idx)) mon_dies = TRUE;
@@ -481,7 +481,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 			/* Default to the basic trap - half damage */
 			default:
 			{
-				if (mon_take_hit(cave_m_idx[y][x], trap_power / 2, &fear, note_dies)) mon_dies = TRUE;
+				if (mon_take_hit(cave_m_idx[y][x], trap_power / 2, &fear, note_dies, -1)) mon_dies = TRUE;
 
 				break;
 			}
@@ -491,8 +491,8 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 		/* Take note if monster afraid*/
 		if (!mon_dies && fear && m_ptr->ml) msg_format("%^s flees in terror!", m_name);
 
-		/*mark the creatures who saw*/
-		(void) make_monsters_wary(y, x, 8);
+		/*make the monsters who saw wary*/
+		(void)project_los_not_player(y, x, 0, GF_MAKE_WARY);
 
 	}
 
@@ -1202,7 +1202,7 @@ static int choose_attack_spell_fast(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, 
  *
  *-BR-
  */
-static int choose_ranged_attack(int m_idx, bool archery_only)
+static int choose_ranged_attack(int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1249,25 +1249,6 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		require_los=FALSE;
 	}
 
-	/* Are we restricted to archery? */
-	/* Note - we have assumed for speed that no archery attacks
-	 * cost mana, all are 'bolt' like, and that the player can not
-	 * be highly resistant to them. */
-	if (archery_only)
-	{
-		/* check for a clean shot */
-		if (!(path == PROJECT_CLEAR)) return (0);
-
-		/* restrict to archery */
-		f4 &= (RF4_ARCHERY_MASK);
-		f5 &= (RF5_ARCHERY_MASK);
-		f6 &= (RF6_ARCHERY_MASK);
-		f7 &= (RF7_ARCHERY_MASK);
-
-		/* choose at random from restricted list */
-		return (choose_attack_spell_fast(m_idx, &f4, &f5, &f6, &f7, TRUE));
-	}
-
 	/* Remove spells the 'no-brainers'*/
 	/* Spells that require LOS */
 	if (!require_los)
@@ -1277,12 +1258,18 @@ static int choose_ranged_attack(int m_idx, bool archery_only)
 		f6 &= (RF6_NO_PLAYER_MASK);
 		f7 &= (RF7_NO_PLAYER_MASK);
 	}
+
+	/*remove bolts and archery shots*/
 	else if (path==PROJECT_NOT_CLEAR)
 	{
 		f4 &= ~(RF4_BOLT_MASK);
+		f4 &= ~(RF4_ARCHERY_MASK);
 		f5 &= ~(RF5_BOLT_MASK);
+		f5 &= ~(RF5_ARCHERY_MASK);
 		f6 &= ~(RF6_BOLT_MASK);
+		f6 &= ~(RF6_ARCHERY_MASK);
 		f7 &= ~(RF7_BOLT_MASK);
+		f7 &= ~(RF7_ARCHERY_MASK);
 	}
 
 	/* No spells left */
@@ -4237,8 +4224,9 @@ static void process_monster(monster_type *m_ptr)
 	/* Will the monster move randomly? */
 	bool random_move = FALSE;
 
-	/* If monster is sleeping, it loses its turn. */
-	if (m_ptr->csleep) return;
+	/* Now checked before the function is called
+	 * If monster is sleeping, it loses its turn.
+	if (m_ptr->csleep) return;*/
 
 	/* Calculate the monster's preferred combat range when needed */
 	if (m_ptr->min_range == 0) find_range(m_ptr);
@@ -4337,7 +4325,7 @@ static void process_monster(monster_type *m_ptr)
 	if ((chance) && (rand_int(100) < chance))
 	{
 		/* Pick a ranged attack */
-		choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx], FALSE);
+		choice = choose_ranged_attack(cave_m_idx[m_ptr->fy][m_ptr->fx]);
 	}
 
 	/* Selected a ranged attack? */
@@ -4496,15 +4484,12 @@ static void process_monster(monster_type *m_ptr)
  *
  * This function is called a lot, and is therefore fairly expensive.
  */
-static void recover_monster(monster_type *m_ptr, bool regen)
+static void recover_monster(monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	int frac;
-
 	bool visible = FALSE;
-
 
 	/* Visible monsters must be both seen and noticed */
 	if (m_ptr->ml)
@@ -4557,55 +4542,6 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 		}
 	}
 
-
-	/* Every 100 game turns, regenerate monsters */
-	if (regen)
-	{
-		/*
-		 * Hack -- in order to avoid a monster of 200 hitpoints having twice
-		 * the regeneration of one with 199, and because we shouldn't randomize
-		 * things (since we don't randomize character regeneration), we use
-		 * current turn to smooth things out.
-		 */
-		int smooth = (turn / 100) % 100;
-
-		/* Regenerate mana, if needed */
-		if (m_ptr->mana < r_ptr->mana)
-		{
-			frac = (r_ptr->mana + smooth) / 100;
-
-			/* Regenerate */
-			m_ptr->mana += frac;
-
-			/* Do not over-regenerate */
-			if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
-
-			/* Fully healed -> flag minimum range for recalculation */
-			if (m_ptr->mana == r_ptr->mana) m_ptr->min_range = 0;
-
-		}
-
-		/* Allow hp regeneration, if needed. */
-		if (m_ptr->hp < m_ptr->maxhp)
-		{
-			frac = (m_ptr->maxhp + smooth) / 100;
-
-			/* Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
-
-			/* Minimal regeneration rate */
-			if (!frac) frac = 1;
-
-			/* Regenerate */
-			m_ptr->hp += frac;
-
-			/* Do not over-regenerate */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			/* Fully healed -> flag minimum range for recalculation */
-			if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
-		}
-	}
 
 
 	/* Monster is sleeping, but character is within detection range */
@@ -4892,10 +4828,8 @@ static void recover_monster(monster_type *m_ptr, bool regen)
  * Scan through the list of all living monsters, (backwards, so we can
  * excise any "freshly dead" monsters).
  *
- * Every ten game turns, allow monsters to recover from temporary con-
- * ditions.  Every 100 game turns, regenerate monsters.  Give energy to
- * each monster, and allow fully energized monsters to take their turns.
- *
+ * Regenerate monsters when it is thier turn to move.
+ * Allow fully energized monsters to take their turns.*
  * This function and its children are responsible for at least a third of
  * the processor time in normal situations.  If the character is resting,
  * this may rise substantially.
@@ -4904,19 +4838,6 @@ void process_monsters(byte minimum_energy)
 {
 	int i;
 	monster_type *m_ptr;
-
-	/* Only process some things every so often */
-	bool recover = FALSE;
-	bool regen = FALSE;
-
-	/* Time out temporary conditions every ten game turns */
-	if (turn % 10 == 0)
-	{
-		recover = TRUE;
-
-		/* Regenerate hitpoints and mana every 100 game turns */
-		if (turn % 100 == 0) regen = TRUE;
-	}
 
 	/* Process the monsters (backwards) */
 	for (i = mon_max - 1; i >= 1; i--)
@@ -4939,17 +4860,21 @@ void process_monsters(byte minimum_energy)
 		/* Prevent reprocessing */
 		m_ptr->mflag |= (MFLAG_MOVE);
 
-		/* Handle temporary monster attributes every ten game turns */
-		if (recover) recover_monster(m_ptr, regen);
+		/* At the moment, this function is not called
+		 * with less than 100 energy points.
+		 * Since this function is in a tight bottleneck, I am commenting
+		 * it out
+		 * End the turn of monsters without enough energy to move
+		if (m_ptr->energy < 100) continue;*/
 
-		/* Give this monster some energy */
-		m_ptr->energy += extract_energy[m_ptr->mspeed];
-
-		/* End the turn of monsters without enough energy to move */
-		if (m_ptr->energy < 100) continue;
+		/* Handle temporary monster attributes */
+		recover_monster(m_ptr);
 
 		/* Use up some energy */
 		m_ptr->energy -= 100;
+
+		/*sleeping monsters don't get a move*/
+		if (m_ptr->csleep) continue;
 
 		/* Let the monster take its turn */
 		process_monster(m_ptr);

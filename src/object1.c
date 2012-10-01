@@ -3091,13 +3091,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Paranoia XXX XXX XXX */
 	message_flush();
 
-
 	/* Not done */
 	done = FALSE;
 
 	/* No item selected */
 	item = FALSE;
-
 
 	/* Full inventory */
 	i1 = 0;
@@ -3112,7 +3110,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Accept inventory */
 	if (i1 <= i2) allow_inven = TRUE;
-
 
 	/* Full equipment */
 	e1 = INVEN_WIELD;

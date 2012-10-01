@@ -556,10 +556,23 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		/* Average frequency */
 		n = (r_ptr->freq_ranged);
 
+		/*players don't hone in on spell frequency right away*/
+		if (m < 75)
+		{
+			/*sometimes minus, sometimes plus*/
+			if (n % 2) n -= ((100 - m) / 10);
+			else n += ((100 - m) / 10);
+
+			/*boundry control*/
+			if (n > 100) n = 100;
+			if (n < 1) n = 1;
+
+		}
+
 		/* Describe the spell frequency */
 		if (m > 30)
 		{
-			text_out(format("; about %d percent of the time", n));
+			text_out(format(" about %d percent of the time", n));
 		}
 
 		/* Describe monster mana */

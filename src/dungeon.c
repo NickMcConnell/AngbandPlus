@@ -337,12 +337,13 @@ static void regenmana(int percent)
 
 /*
  * Regenerate the monsters (once per 100 game turns)
- *
- * XXX XXX XXX Should probably be done during monster turns.
  */
+
 static void regen_monsters(void)
 {
 	int i, frac;
+
+	int smooth = (turn / 100) % 100;
 
 	/* Regenerate everyone */
 	for (i = 1; i < mon_max; i++)
@@ -354,29 +355,56 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Allow regeneration (if needed) */
-		if (m_ptr->hp < m_ptr->maxhp)
-		{
-			/* Hack -- Base regeneration */
-			frac = m_ptr->maxhp / 100;
+		/*
+		 * Hack -- in order to avoid a monster of 200 hitpoints having twice
+		 * the regeneration of one with 199, and because we shouldn't randomize
+		 * things (since we don't randomize character regeneration), we use
+		 * current turn to smooth things out.
+		 */
 
-			/* Hack -- Minimal regeneration rate */
+		/* Regenerate mana, if needed */
+		if (m_ptr->mana != r_ptr->mana)
+		{
+			frac = (r_ptr->mana + smooth) / 100;
+
+			/* Minimal regeneration rate */
 			if (!frac) frac = 1;
 
-			/* Hack -- Some monsters regenerate quickly */
+			/* Regenerate */
+			m_ptr->mana += frac;
+
+			/* Do not over-regenerate */
+			if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
+
+			/* Fully healed -> flag minimum range for recalculation */
+			if (m_ptr->mana == r_ptr->mana) m_ptr->min_range = 0;
+
+		}
+
+		/* Allow hp regeneration, if needed. */
+		if (m_ptr->hp != m_ptr->maxhp)
+		{
+			frac = (m_ptr->maxhp + smooth) / 100;
+
+			/* Some monsters regenerate quickly */
 			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
 
-			/* Hack -- Regenerate */
+			/* Minimal regeneration rate */
+			if (!frac) frac = 1;
+
+			/* Regenerate */
 			m_ptr->hp += frac;
 
 			/* Do not over-regenerate */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+			/* Fully healed -> flag minimum range for recalculation */
+			if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
 		}
+
 	}
 }
+
 
 
 
@@ -447,7 +475,7 @@ static void process_world(void)
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 
 		/* Check for failure */
-		if ((p_ptr->cur_quest != p_ptr->depth) && (rand_int(2) == 0))
+		if ((p_ptr->cur_quest != p_ptr->depth) && (one_in_(2)))
 		{
 			/* Check if quest is in progress */
 			if (q_ptr->started && q_ptr->active_level &&
@@ -2363,6 +2391,8 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
+	monster_type *m_ptr;
+	int i;
 
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = p_ptr->cur_map_hgt;
@@ -2551,6 +2581,7 @@ static void dungeon(void)
 	/* Main loop */
 	while (TRUE)
 	{
+
 		/* Hack -- Compact the monster list occasionally */
 		if (mon_cnt + 32 > z_info->m_max) compact_monsters(64);
 
@@ -2569,6 +2600,19 @@ static void dungeon(void)
 
 		/* Give the player some energy */
 		p_ptr->energy += extract_energy[p_ptr->pspeed];
+
+		/* Give energy to all monsters */
+		for (i = mon_max - 1; i >= 1; i--)
+		{
+			/* Access the monster */
+			m_ptr = &mon_list[i];
+
+			/* Ignore "dead" monsters */
+			if (!m_ptr->r_idx) continue;
+
+			/* Give this monster some energy */
+			m_ptr->energy += extract_energy[m_ptr->mspeed];
+		}
 
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
@@ -2606,7 +2650,7 @@ static void dungeon(void)
 		if (p_ptr->leaving) break;
 
 		/* Process monsters (any that haven't had a chance to move yet) */
-		process_monsters(0);
+		process_monsters(100);
 
 		/* Reset monsters */
 		reset_monsters();

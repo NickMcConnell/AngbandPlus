@@ -739,7 +739,6 @@ static void do_cmd_refill_lamp(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
@@ -1526,8 +1525,9 @@ void py_steal(int y, int x)
 	int i;
 	int effect, theft_protection;
 	bool teststeal = FALSE;
-	bool observed;
 	int filching_power = 0;
+	int counter = 0;
+	int counter2 = 0;
 
 	bool thief = FALSE;
 
@@ -1680,11 +1680,33 @@ void py_steal(int y, int x)
 				p_ptr->redraw |= (PR_HEALTH);
 	}
 
+	/* Hack - count all the wary monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		if (m_ptr->mflag & (MFLAG_WARY)) counter += 1;
+	}
+
 	/*make the monsters who saw wary*/
-	observed = make_monsters_wary_los();
+	(void) project_los_not_player(y, x, 0, GF_MAKE_WARY);
+
+	/* Hack - count all the wary monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		if (m_ptr->mflag & (MFLAG_WARY)) counter2 += 1;
+	}
 
 	/*let the player know who saw, and aggravate the monsters*/
-	if ((m_ptr->csleep == 0) || (observed))
+	if ((m_ptr->csleep == 0) || (counter2 > counter))
 	{
 		/*dungeon gets different treatment than town*/
 		if (p_ptr->depth)
@@ -1811,7 +1833,7 @@ void py_set_trap(int y, int x)
 	msg_print("You set a monster trap.");
 
 	/*make the monsters who saw wary*/
-	(void)make_monsters_wary_los();
+	(void)project_los_not_player(y, x, 0, GF_MAKE_WARY);
 
 	/* Increment the number of monster traps. */
 	num_trap_on_level++;
@@ -1906,6 +1928,13 @@ bool py_modify_trap(int y, int x)
 		return (FALSE);
 	}
 
+	/*no modifying traps on top of monsters*/
+	if (cave_m_idx[y][x] > 0)
+	{
+		msg_print("There is a creature in the way.");
+		return (FALSE);
+	}
+
 	if (!(choose_mtrap(&trap_choice))) return (FALSE);
 
 	/* Set the trap, and draw it. */
@@ -1918,7 +1947,7 @@ bool py_modify_trap(int y, int x)
 	msg_print("You modify the monster trap.");
 
 	/*make the monsters who saw wary*/
-	(void)make_monsters_wary_los();
+	(void)project_los_not_player(y, x, 0, GF_MAKE_WARY);
 
 	return (TRUE);
 }

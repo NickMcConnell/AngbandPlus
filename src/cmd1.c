@@ -1220,7 +1220,7 @@ void py_attack(int y, int x)
 		message_flush();
 
 		/* Some monsters are great at dodging  -EZ- */
-		if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!m_ptr->csleep) &&
+		if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!was_asleep) &&
 			(!m_ptr->stunned) && (!m_ptr->confused) && (!m_ptr->monfear)
 			&& (one_in_(2)))
 		{
@@ -1288,7 +1288,7 @@ void py_attack(int y, int x)
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL, -1))
 			{
 				/*return energy from unused attacks*/
 				if (num < p_ptr->num_blow)

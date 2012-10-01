@@ -3147,13 +3147,15 @@ static void do_cmd_knowledge_home(void)
 
 	FILE *fp;
 
-	object_type *o_ptr;
 	char o_name[120];
 
 	char file_name[1024];
 
 	/* Temporary file */
 	fp = my_fopen_temp(file_name, sizeof(file_name));
+
+	text_out_hook = text_out_to_file;
+	text_out_file = fp;
 
 	/* Failure */
 	if (!fp)
@@ -3170,16 +3172,16 @@ static void do_cmd_knowledge_home(void)
 		for (k = 0; k < st_ptr->stock_num; k++)
 		{
 
-			/* Acquire item */
-			o_ptr = &st_ptr->stock[k];
+			object_desc(o_name, sizeof(o_name), &st_ptr->stock[k], TRUE, 3);
+			fprintf(fp, "%c) %s\n", I2A(k), o_name);
 
-			/* Acquire object description */
-			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+			/* Describe random object attributes*/
+			identify_random_gen(&st_ptr->stock[k]);
 
-			/* Print a message */
-			fprintf(fp, "     %s\n", o_name);
 		}
 	}
+
+	else fprintf(fp, "[Your Home Is Empty]\n\n");
 
 	/* Close the file */
 	my_fclose(fp);

@@ -1715,7 +1715,8 @@ void stair_creation(void)
 	else if (one_in_(2))
 	{
 		if ((quest_check(p_ptr->depth + 1) == QUEST_FIXED) ||
-			 (quest_check(p_ptr->depth + 1) == QUEST_FIXED_U))
+			 (quest_check(p_ptr->depth + 1) == QUEST_FIXED_U) ||
+		 	(p_ptr->depth <= 1))
 			cave_set_feat(py, px, FEAT_MORE);
 		else if (one_in_(2)) cave_set_feat(py, px, FEAT_MORE);
 		else cave_set_feat(py, px, FEAT_MORE_SHAFT);
@@ -1824,7 +1825,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -2421,8 +2421,6 @@ bool recharge(int num)
 			else
 				o_ptr->timeout = 0;
 		}
-
-
 	}
 
 	/* Attempt to Recharge wand/staff, or handle failure to recharge . */
@@ -2440,7 +2438,7 @@ bool recharge(int num)
 		else i = (100 + num - lev - (10 * o_ptr->pval)) / 15;
 
 		/* Back-fire XXX XXX XXX */
-		if ((i <= 1) || (rand_int(i) == 0))
+		if ((i <= 1) || (one_in_(i)))
 		{
 			/* 25% chance of the entire stack, 5% more for each wand/staff in the stack
 			 * else destroy one wand/staff. */
@@ -2448,6 +2446,9 @@ bool recharge(int num)
 			chance = 20 + (o_ptr->number * 5);
 			if (randint(100) <= chance) fail_type = 2;
 			else fail_type = 1;
+
+			/*hack - single wands don't need failtype2*/
+			if (o_ptr->number == 1) fail_type = 1;
 
 		}
 
@@ -2476,10 +2477,23 @@ bool recharge(int num)
 			}
 		}
 
-		/* Destroy all members of a stack of wands/staffs. */
+		/* Potentially destroy all members of a stack of wands/staffs one-by-one. */
 		else if (fail_type == 2)
 		{
-			if (o_ptr->number > 1)
+			int counter = o_ptr->number;
+
+			/*get the number of wands/staffs to be destroyed*/
+			while ((counter > 1) && (!one_in_(counter)));
+			{
+				/*reduce by one*/
+				counter --;
+
+			}
+
+			/* Drain wands and staffs. */
+			o_ptr->pval = 0;
+
+			if ((o_ptr->number - counter) > 1)
 				msg_format("There are several bright flashes of light");
 			else
 				msg_format("There is a bright flash of light");
@@ -2487,7 +2501,7 @@ bool recharge(int num)
 			/* Reduce and describe inventory */
 			if (item >= 0)
 			{
-				inven_item_increase(item, -999);
+				inven_item_increase(item, -counter);
 				inven_item_describe(item);
 				inven_item_optimize(item);
 			}
@@ -2495,7 +2509,7 @@ bool recharge(int num)
 			/* Reduce and describe floor item */
 			else
 			{
-				floor_item_increase(0 - item, -999);
+				floor_item_increase(0 - item, -counter);
 				floor_item_describe(0 - item);
 				floor_item_optimize(0 - item);
 			}
@@ -2662,92 +2676,6 @@ bool mon_explode(int who, int rad, int y0, int x0, int dam, int typ)
 	return (project_ball(who, rad, y0, x0, y0, x0, dam, typ, 0L, 20));
 }
 
-/*
- * Apply a "project()" directly to all viewable monsters
- *
- * Note that affected monsters are NOT auto-tracked by this usage.
- */
-bool make_monsters_wary_los(void)
-{
-	int i, x, y;
-
-	bool observed = FALSE;
-
-	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
-
-	/* Affect all (los) monsters */
-	for (i = 1; i < mon_max; i++)
-	{
-		monster_type *m_ptr = &mon_list[i];
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		if (m_ptr->mflag & (MFLAG_WARY)) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Require line of fire */
-		if (!player_can_fire_bold(y, x)) continue;
-
-		/* Jump directly to the target monster */
-		if (project(-1, 0, y, x, y, x, 0, GF_MAKE_WARY, flg,0 ,0)) observed = TRUE;
-	}
-
-	/* Result */
-	return (observed);
-}
-
-
-/*
- * Make monsters wary from an evernt (a ball of "wariness").
- * return true of a monster was made wary of something.
- * No damage.
- */
-bool make_monsters_wary(int y, int x, int rad)
-{
-	int i;
-	int counter= 0;
-    int counter2 = 0;
-	u32b flg;
-
-	/* Hack - count all the wary monsters */
-	for (i = 1; i < mon_max; i++)
-	{
-		monster_type *m_ptr = &mon_list[i];
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		if (m_ptr->mflag & (MFLAG_WARY)) counter += 1;
-
-	}
-
-	/* Add the explosion bitflags */
-	flg = PROJECT_BOOM | PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
-
-	/* Warn everybody */
-	if (project(-1, rad, y, x, y, x, 0, GF_MAKE_WARY, flg, 0,0))
-	{
-		/* Hack - count all the wary monsters */
-		for (i = 1; i < mon_max; i++)
-		{
-			monster_type *m_ptr = &mon_list[i];
-
-			/* Paranoia -- Skip dead monsters */
-			if (!m_ptr->r_idx) continue;
-
-			if (m_ptr->mflag & (MFLAG_WARY)) counter2 += 1;
-		}
-	}
-
-	/*was there monsters made wary?*/
-	if (counter2 > counter) return(TRUE);
-
-	return (FALSE);
-}
 
 /*
  * Handle arc spells.
@@ -2856,6 +2784,55 @@ static void adjust_target(int dir, int y0, int x0, int *y1, int *x1)
 		*x1 = x0 + MAX_RANGE * ddx[dir];
 	}
 }
+
+/*
+ * Apply a "project()" directly to all monsters in view of a certain spot.
+ *
+ * Note that affected monsters are NOT auto-tracked by this usage.
+ *
+ * This function is not optimized for efficieny.  It should only be used
+ * in non-bottleneck functions such as spells. It should not be used in functions
+ * that are major code bottlenecks such as process monster or update_view. -JG
+ */
+bool project_los_not_player(int y1, int x1, int dam, int typ)
+{
+	int i, x, y;
+
+	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+
+	bool obvious = FALSE;
+
+	/* Affect all (nearby) monsters */
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/*The LOS function doesn't do well with long distances*/
+		if (distance(y1, x1, y, x) > MAX_RANGE) continue;
+
+		/* Require line of sight or the monster being right on the square */
+		if ((y != y1) && (x != x1))
+		{
+
+			if (!los(y1, x1, y, x)) continue;
+
+		}
+
+		/* Jump directly to the target monster */
+		if (project(-1, 0, y, x, y, x, dam, typ, flg,0 ,0)) obvious = TRUE;
+	}
+
+	/* Result */
+	return (obvious);
+}
+
 
 /*
  * Apply a "project()" directly to all viewable monsters
@@ -3002,11 +2979,11 @@ void aggravate_monsters(int who)
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
-			/* Speed up (instantly) to racial base + 10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			/* Speed up (instantly) to racial base + 4 */
+			if (m_ptr->mspeed < r_ptr->speed + 4)
 			{
 				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 10;
+				m_ptr->mspeed = r_ptr->speed + 4;
 				speed = TRUE;
 			}
 		}
@@ -3048,11 +3025,11 @@ void mass_aggravate_monsters(int who)
 			m_ptr->csleep = 0;
 		}
 
-		/* Speed up (instantly) to racial base + 10 */
-		if (m_ptr->mspeed < r_ptr->speed + 10)
+		/* Speed up (instantly) to racial base + 4 */
+		if (m_ptr->mspeed < r_ptr->speed + 4)
 		{
 			/* Speed up */
-			m_ptr->mspeed = r_ptr->speed + 10;
+			m_ptr->mspeed = r_ptr->speed + 4;
 
 		}
 

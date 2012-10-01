@@ -1957,7 +1957,7 @@ static void build_quest_stairs(int y, int x)
  * Note that monsters can now carry objects, and when a monster dies,
  * it drops all of its objects, which may disappear in crowded rooms.
  */
-void monster_death(int m_idx)
+void monster_death(int m_idx, int who)
 {
 	int i, j, y, x;
 
@@ -2133,6 +2133,12 @@ void monster_death(int m_idx)
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		quest_type *q_ptr = &q_info[i];
+
+		/*hack - don't count if player didn't kill
+		 *this assumes only player can kill uniques!!!!!
+		 * This line is also ugly codeing. :)
+		 */
+		if (who != -1) continue;
 
 		/* Quest level? */
 		if (q_ptr->active_level == p_ptr->depth)
@@ -2323,7 +2329,7 @@ void monster_death(int m_idx)
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
+bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
@@ -2420,7 +2426,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		gain_exp(new_exp);
 
 		/* Generate treasure */
-		monster_death(m_idx);
+		monster_death(m_idx, who);
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -2471,6 +2477,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			/* Cure fear */
 			m_ptr->monfear = 0;
+
+			/* Flag minimum range for recalculation */
+			m_ptr->min_range = 0;
 
 			/* No more fear */
 			(*fear) = FALSE;
@@ -3396,7 +3405,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					{
 
 						/* Describe the monster, unless a mimic */
-						if (!m_ptr->mflag & (MFLAG_MIMIC))
+						if (!(m_ptr->mflag & (MFLAG_MIMIC)))
 						{
 							char buf[80];
 

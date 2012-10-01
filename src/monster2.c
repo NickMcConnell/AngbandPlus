@@ -2132,8 +2132,15 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		/*make them all awake.....*/
 		n_ptr->csleep = 0;
 
-		/*and hasted*/
-		n_ptr->mspeed = r_ptr->speed + 10;
+		/*and wary*/
+		n_ptr->mflag |= (MFLAG_WARY);
+
+		/*Everybody but uniques is slightly hasted*/
+		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+		{
+			n_ptr->mspeed = r_ptr->speed + 4;
+		}
+
 	}
 
 	/* Mimics (sexcept lurkers, trappers) start out hidden.*/

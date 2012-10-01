@@ -3705,6 +3705,18 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
+		/*the very powerful healing potions can be good*/
+		case TV_POTION:
+		{
+			if ((k_ptr->sval == SV_POTION_STAR_HEALING) ||
+				(k_ptr->sval == SV_POTION_LIFE))
+		   	{
+			    if ((object_level > 80) || (one_in_(15)))
+
+				return (TRUE);
+			}
+			return (FALSE);
+		}
 
 		/* Chests -- Chests are good. */
 		case TV_CHEST:
@@ -4358,9 +4370,8 @@ void pick_trap(int y, int x)
 		/* Hack -- pick a trap */
 		feat = FEAT_TRAP_HEAD + rand_int(17);
 
-		/* HACK - no trap doors on a fixed quest level  */
-		if ((feat == FEAT_TRAP_HEAD + 0x01) && ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-			(quest_check(p_ptr->depth) == QUEST_FIXED_U))) continue;
+		/* HACK - no trap doors on quest levels  */
+		if ((feat == FEAT_TRAP_HEAD + 0x01) && (quest_check(p_ptr->depth))) continue;
 
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x01) && (p_ptr->depth >= MAX_DEPTH-1)) continue;

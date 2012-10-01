@@ -1,3 +1,39 @@
+Version 0.3.1
+
+New features:
+Notices of failed quests are written to the notes file.
+Potions of life and *healing* can occasionally be good items if the 
+	object level is greater than 80.
+Made objects in inventory slightly harder to destroy, to compensate
+	for all the extra chances they have to get 
+	destroyed with the 4gai changes.
+Changed the probability of monster description displaying spell frequency.
+Re-charging a stack of wands doesn't destroy the whole stack as frequently.
+Failing to steal too much only makes newly generated monsters slightly hasted (since
+4gai has code to slow down completely hasted monsters).  It also now makes them wary.
+(I)nspecting a weapon now also reveals how many attacks per round the 
+	character would get with that weapon.
+Made potions of augmentation and dungeon spellbooks slightly more
+	probable as tailored quest rewards.
+Added new icon, made by John Tannert.
+Using '~' to view home inventory gives object description as well.
+
+
+Fixed Bugs:
+
+Bugfix: Sleeping, evasive monsters no longer get a chance to evade a blow.
+Bugfix: Shafts can appear above level 5 now.
+Bugfix: Boosted damage sides no longer get erased when a savefile is loaded.
+Bugfix: Monsters killed by other monsters don't count towards quest tallys.
+Bugfix: Monsters no longer fire arrows at player if not a clear path.
+Bugfix: Looking at a monster shows messages like ("Asleep", "stunned") again.
+Bugfix: A rogue can no longer modify a player trap if a monster is on it.
+Bugfix: Monsters were getting occastional double moves on faster players
+Bugfix:	Monster hit points were getting regenerated twice per turn.
+
+
+
+
 Version 0.3.0
 
 New features:

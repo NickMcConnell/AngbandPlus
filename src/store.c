@@ -363,7 +363,6 @@ static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-
 	/* Shop is buying */
 	if (flip)
 	{

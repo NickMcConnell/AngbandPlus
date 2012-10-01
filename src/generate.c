@@ -422,7 +422,7 @@ static void place_rubble(int y, int x)
  */
 static int pick_up_stairs(void)
 {
-	if ((p_ptr->depth >= 5) && (!quest_check(p_ptr->depth - 1)))
+	if ((p_ptr->depth >= 2) && (!quest_check(p_ptr->depth - 1)))
 	{
 		if (one_in_(2)) return (FEAT_LESS_SHAFT);
 	}
@@ -436,7 +436,7 @@ static int pick_up_stairs(void)
  */
 static int pick_down_stairs(void)
 {
-	if ((p_ptr->depth >= 5) && (p_ptr->depth < MAX_DEPTH - 2) &&
+	if ((p_ptr->depth < MAX_DEPTH - 2) &&
 	    (!quest_check(p_ptr->depth + 1)))
 	{
 		if (one_in_(2)) return (FEAT_MORE_SHAFT);
@@ -469,7 +469,8 @@ static void place_random_stairs(int y, int x)
 	else if (one_in_(2))
 	{
 		if ((quest_check(p_ptr->depth + 1) == QUEST_FIXED) ||
-			 (quest_check(p_ptr->depth + 1) == QUEST_FIXED_U))
+			(quest_check(p_ptr->depth + 1) == QUEST_FIXED_U) ||
+		 	(p_ptr->depth <= 1))
 			cave_set_feat(y, x, FEAT_MORE);
 		else if (one_in_(2)) cave_set_feat(y, x, FEAT_MORE);
 		else cave_set_feat(y, x, FEAT_MORE_SHAFT);

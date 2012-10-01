@@ -649,9 +649,14 @@ static bool hates_elec(const object_type *o_ptr)
 	{
 		case TV_RING:
 		case TV_WAND:
-		case TV_ROD:
 		{
 			return (TRUE);
+		}
+
+
+		case TV_ROD:
+		{
+			if (one_in_(4)) return (TRUE);
 		}
 	}
 
@@ -850,7 +855,6 @@ static int inven_damage(inven_func typ, int perc)
 
 	char o_name[80];
 
-
 	/* Count the casualties */
 	k = 0;
 
@@ -868,13 +872,11 @@ static int inven_damage(inven_func typ, int perc)
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
 		{
-			/* Rods are tough. */
-			if (o_ptr->tval == TV_ROD) perc = (perc / 4);
 
 			/* Count the casualties */
 			for (amt = j = 0; j < o_ptr->number; ++j)
 			{
-				if (rand_int(100) < perc) amt++;
+				if (rand_int(130) < perc) amt++;
 			}
 
 			/* Some casualities */
@@ -883,7 +885,9 @@ static int inven_damage(inven_func typ, int perc)
 				int old_charges = 0;
 
 				/*hack, make sure the proper number of charges is displayed in the message*/
-				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF) || o_ptr->tval == TV_ROD)
+				if (((o_ptr->tval == TV_WAND) ||
+					(o_ptr->tval == TV_STAFF) ||
+					(o_ptr->tval == TV_ROD))
 	    			&& (amt < o_ptr->number))
 				{
 					/*save the number of charges*/
@@ -2856,7 +2860,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			/* Powerful monsters can resist */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
 				(r_ptr->flags3 & (RF3_NO_SLOW)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
 				 (randint(dam) + charisma_adjustment(y, x))))
@@ -2886,7 +2890,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
 			    (r_ptr->flags3 & (RF3_NO_SLEEP)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
 				 (randint(dam) + charisma_adjustment(y, x))))
@@ -2923,7 +2927,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			do_conf = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
 			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
 				 (randint(dam) + charisma_adjustment(y, x))))
@@ -3190,7 +3194,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			do_fear = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			if (((r_ptr->flags1 & (RF1_UNIQUE)) && (one_in_(2))) ||
 			    (r_ptr->flags3 & (RF3_NO_FEAR)) ||
 			    ((r_ptr->level + randint(MAX(4, r_ptr->level / 2))) >
 				 (randint(dam) + charisma_adjustment(y, x))))
@@ -3503,7 +3507,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 	}
 
-
 	/* If another monster did the damage, hurt the monster by hand */
 	if (who > 0)
 	{
@@ -3523,7 +3526,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		if (m_ptr->hp < 0)
 		{
 			/* Generate treasure, etc */
-			monster_death(cave_m_idx[y][x]);
+			monster_death(cave_m_idx[y][x], who);
 
 			/* Delete the monster */
 			delete_monster_idx(cave_m_idx[y][x]);
@@ -3605,7 +3608,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		if (!seen) note_dies = "";
 
 		/* Hurt the monster, check for fear and death */
-		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies))
+		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies, who))
 		{
 			/* Note death */
 			if (!seen) death_count++;
@@ -4581,7 +4584,6 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 
 			int ny = GRID_Y(path_g[i]);
 			int nx = GRID_X(path_g[i]);
-
 
 			/* Hack -- Balls explode before reaching walls. */
 			if ((flg & (PROJECT_BOOM)) && (!cave_floor_bold(ny, nx)))

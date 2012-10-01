@@ -281,7 +281,7 @@ const byte adj_chr_gold[] =
 /*
  * Stat Table (CHR) -- bonus to charm
  */
-const byte adj_chr_charm[] =
+const s16b adj_chr_charm[] =
 {
 	- 5	/* 3 */,
 	- 4	/* 4 */,

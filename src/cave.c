@@ -96,7 +96,6 @@ bool los(int y1, int x1, int y2, int x2)
 	/* Slope, or 1/Slope, of LOS */
 	int m;
 
-
 	/* Extract the offset */
 	dy = y2 - y1;
 	dx = x2 - x1;

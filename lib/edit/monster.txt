@@ -2830,6 +2830,8 @@ B:HIT:HURT:3d6
 F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ONLY_ITEM
 F:DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR | ORC
 F:EVIL | IM_POIS
+S:SPELL_PCT_20 | POW_6
+S:ARROW
 D:A large and powerful orc, he looks just like his father.  He is tall
 D: and fast, but fortunately blessed with orcish brains.
 
@@ -2943,7 +2945,7 @@ W:20:1:78:250
 F:FORCE_SLEEP | NEVER_BLOW | NEVER_MOVE | INVISIBLE | EMPTY_MIND
 F:ANIMAL | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
 F:NO_SLEEP
-S:SPELL_PCT_30 | POW_0
+S:SPELL_PCT_55 | POW_0
 S:BLINK | S_MONSTER
 D:It is a strange pulsing mound of flesh.
 
@@ -3189,6 +3191,8 @@ B:HIT:HURT:5d5
 F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR
 F:ORC | EVIL | IM_POIS
+S:SPELL_PCT_25 | POW_11
+S:ARROW
 D:He is also known as the King of Khazad-dum.  His ego is renowned to be
 D: bigger than his head.
 

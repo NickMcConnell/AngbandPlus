@@ -371,10 +371,8 @@ static errr rd_item(object_type *o_ptr)
 		return (0);
 	}
 
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* Paranoia */
 	if (o_ptr->name1)
@@ -406,7 +404,6 @@ static errr rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
 	/* Get the standard fields */
 	o_ptr->ac = k_ptr->ac;
 	o_ptr->dd = k_ptr->dd;
@@ -417,7 +414,6 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Hack -- extract the "broken" flag */
 	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -450,12 +446,9 @@ static errr rd_item(object_type *o_ptr)
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
 
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
+		/* Hack -- keep boosted damage dice and sides */
+		if (o_ptr->dd < old_dd) o_ptr->dd = old_dd;
+		if (o_ptr->ds < old_ds) o_ptr->ds = old_ds;
 
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);

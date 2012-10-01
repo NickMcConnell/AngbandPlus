@@ -309,7 +309,7 @@ static void grant_reward(byte type)
 		 * Hack - greater chance if a "pure" spellcaster.
 		 */
 		if ((cp_ptr->spell_book) &&
-			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 10 : 5)))
+			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 20 : 10)))
 		{
 			/*50 tries at a book*/
 			for (i = 0; i < 50; i++)
@@ -397,7 +397,7 @@ static void grant_reward(byte type)
 		}
 
 		/*greater chance of augmentation if stats are lower.*/
-		if ((!got_item) && (rand_int(150) > (x-50)))
+		if ((!got_item) && (rand_int(200) > (x-50)))
 		{
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -970,7 +970,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 
 			/*no quests for certain kinds of animals the guild wouldn't care about*/
 			if ((strchr("BFIJKSXabcejlrmwj,", r_ptr->d_char)) &&
-				(!r_ptr->flags2 & (RF2_SMART))) continue;
+				(!(r_ptr->flags2 & (RF2_SMART)))) continue;
 
 			/* Hack -- No town monsters in quests */
 			if (table[i].level <= 0) continue;
@@ -1562,19 +1562,72 @@ int quest_item_slot(void)
 void quest_fail(void)
 {
 	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
-
-	/* Mark quest as completed */
-	q_ptr->active_level = 0;
-	p_ptr->cur_quest = 0;
-
-	/* No reward for failed quest */
-	q_ptr->reward = 0;
+	monster_race *r_ptr = &r_info[q_ptr->mon_idx];
 
 	/* Message */
 	msg_print("You have failed in your quest!");
 
 	/* Reputation penalty */
 	if (p_ptr->fame) p_ptr->fame /= 2;
+
+	/*make a note of the failed quest */
+	if (adult_take_notes)
+	{
+		byte quest;
+
+		char note[120];
+
+		/*find out the type of quest*/
+		quest = quest_check(p_ptr->depth);
+
+		if (quest == QUEST_VAULT)
+		{
+			sprintf(note,
+			 "Failed a quest to return a large, sealed jeweled chest to the guild");
+		}
+
+		else
+		{
+			char race_name[80];
+
+			/* Get the monster race name (singular)*/
+			monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
+
+			/* Multiple quest monsters */
+			if (q_ptr->max_num > 1)
+			{
+				plural_aux(race_name, sizeof(race_name));
+			}
+
+			if (quest == QUEST_UNIQUE)
+			{
+				/*write note*/
+				if monster_nonliving(r_ptr)
+				sprintf(note, "Failed a quest to destroy %s", race_name);
+				else sprintf(note, "Failed a quest to kill %s", race_name);
+			}
+
+			else
+			{
+				/* Write note */
+				if monster_nonliving(r_ptr)
+            		sprintf(note, "Failed a quest to destroy %d %s", q_ptr->max_num, race_name);
+				else sprintf(note, "Failed a quest to kill %d %s", q_ptr->max_num, race_name);
+			}
+
+ 		}
+
+		/*write the note*/
+		do_cmd_note(note, q_ptr->active_level);
+
+	}
+
+	/* Mark quest as done */
+	q_ptr->active_level = 0;
+	p_ptr->cur_quest = 0;
+
+	/* No reward for failed quest */
+	q_ptr->reward = 0;
 
 	/* Disturb */
 	if (disturb_minor) disturb(0,0);

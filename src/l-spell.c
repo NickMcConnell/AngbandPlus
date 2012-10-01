@@ -1669,6 +1669,34 @@ tolua_lerror:
  return 0;
 }
 
+/* function: project_los_not_player */
+static int toluaI_spell_project_los_not_player00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,5)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y1 = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x1 = ((int)  tolua_getnumber(tolua_S,2,0));
+  int dam = ((int)  tolua_getnumber(tolua_S,3,0));
+  int typ = ((int)  tolua_getnumber(tolua_S,4,0));
+ {
+  bool toluaI_ret = (bool)  project_los_not_player(y1,x1,dam,typ);
+ tolua_pushbool(tolua_S,(int)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'project_los_not_player'.");
+ return 0;
+}
+
 /* function: project_los */
 static int toluaI_spell_project_los00(lua_State* tolua_S)
 {
@@ -3001,56 +3029,6 @@ tolua_lerror:
  return 0;
 }
 
-/* function: monster_death */
-static int toluaI_spell_monster_death00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,2)
- )
- goto tolua_lerror;
- else
- {
-  int m_idx = ((int)  tolua_getnumber(tolua_S,1,0));
- {
-  monster_death(m_idx);
- }
- }
- return 0;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'monster_death'.");
- return 0;
-}
-
-/* function: mon_take_hit */
-static int toluaI_spell_mon_take_hit00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,3,tolua_tag(tolua_S,"bool"),0) ||
- !tolua_istype(tolua_S,4,LUA_TSTRING,0) ||
- !tolua_isnoobj(tolua_S,5)
- )
- goto tolua_lerror;
- else
- {
-  int m_idx = ((int)  tolua_getnumber(tolua_S,1,0));
-  int dam = ((int)  tolua_getnumber(tolua_S,2,0));
-  bool fear = ((bool)  tolua_getbool(tolua_S,3,0));
-  cptr note = ((cptr)  tolua_getstring(tolua_S,4,0));
- {
-  bool toluaI_ret = (bool)  mon_take_hit(m_idx,dam,&fear,note);
- tolua_pushbool(tolua_S,(int)toluaI_ret);
- tolua_pushbool(tolua_S,(int)fear);
- }
- }
- return 2;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'mon_take_hit'.");
- return 0;
-}
-
 /* Open function */
 int tolua_spell_open (lua_State* tolua_S)
 {
@@ -3204,6 +3182,7 @@ int tolua_spell_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"fire_bolt_or_beam",toluaI_spell_fire_bolt_or_beam01);
  tolua_function(tolua_S,NULL,"project_arc",toluaI_spell_project_arc00);
  tolua_function(tolua_S,NULL,"project_star",toluaI_spell_project_star00);
+ tolua_function(tolua_S,NULL,"project_los_not_player",toluaI_spell_project_los_not_player00);
  tolua_function(tolua_S,NULL,"project_los",toluaI_spell_project_los00);
  tolua_function(tolua_S,NULL,"explosion",toluaI_spell_explosion00);
  tolua_function(tolua_S,NULL,"lite_line",toluaI_spell_lite_line00);
@@ -3264,8 +3243,6 @@ int tolua_spell_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"multiply_monster",toluaI_spell_multiply_monster00);
  tolua_function(tolua_S,NULL,"message_pain",toluaI_spell_message_pain00);
  tolua_function(tolua_S,NULL,"update_smart_learn",toluaI_spell_update_smart_learn00);
- tolua_function(tolua_S,NULL,"monster_death",toluaI_spell_monster_death00);
- tolua_function(tolua_S,NULL,"mon_take_hit",toluaI_spell_mon_take_hit00);
  return 1;
 }
 /* Close function */
@@ -3419,6 +3396,7 @@ void tolua_spell_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"fire_bolt_or_beam");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project_arc");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project_star");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project_los_not_player");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project_los");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"explosion");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lite_line");
@@ -3483,6 +3461,4 @@ void tolua_spell_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"multiply_monster");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"message_pain");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"update_smart_learn");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"monster_death");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"mon_take_hit");
 }

@@ -32,7 +32,7 @@ extern const byte adj_mag_mana[];
 extern const byte adj_mag_fail[];
 extern const byte adj_mag_stat[];
 extern const byte adj_chr_gold[];
-extern const byte adj_chr_charm[];
+extern const s16b adj_chr_charm[];
 extern const byte adj_int_dev[];
 extern const byte adj_wis_sav[];
 extern const byte adj_dex_dis[];
@@ -264,7 +264,7 @@ extern int text_out_wrap;
 extern int text_out_indent;
 extern int highscore_fd;
 extern bool use_transparency;
-FILE *notes_file;
+extern FILE *notes_file;
 extern byte recent_failed_thefts;
 extern byte num_trap_on_level;
 
@@ -684,10 +684,9 @@ extern bool project_arc(int who, int rad, int y0, int x0, int y1, int x1,
 	int dam, int typ, u32b flg, int degrees);
 extern bool project_star(int who, int rad, int y0, int x0, int dam, int typ,
 	u32b flg);
+extern bool project_los_not_player(int y1, int x1, int dam, int typ);
 extern bool project_los(int typ, int dam);
 extern bool explosion(int who, int rad, int y0, int x0, int dam, int typ);
-extern bool make_monsters_wary_los(void);
-extern bool make_monsters_wary(int y, int x, int rad);
 extern bool lite_line(int dir);
 extern bool strong_lite_line(int dir);
 extern bool drain_life(int dir, int dam);
@@ -810,6 +809,7 @@ extern void update_stuff(void);
 extern void redraw_stuff(void);
 extern void window_stuff(void);
 extern void handle_stuff(void);
+extern int  get_num_blows(const object_type *o_ptr, u32b f1);
 
 /* xtra2.c */
 extern bool set_blind(int v);
@@ -840,8 +840,8 @@ extern void check_experience(void);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern int  get_coin_type(const monster_race *r_ptr);
-extern void monster_death(int m_idx);
-extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
+extern void monster_death(int m_idx, int who);
+extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who);
 extern bool modify_panel(int wy, int wx);
 extern bool adjust_panel(int y, int x);
 extern bool change_panel(int dir);
