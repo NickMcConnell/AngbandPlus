@@ -328,7 +328,7 @@ static int get_first_item_for_pickup(void)
  * any energy because it costs a player no extra energy
  * to walk into a grid and automatically pick up items
  */
-void do_cmd_pickup_from_pile(bool message)
+void do_cmd_pickup_from_pile(bool pickup, bool message)
 {
 	byte objs_picked_up = 0;
 	object_type *o_ptr;
@@ -352,6 +352,7 @@ void do_cmd_pickup_from_pile(bool message)
 
 		int floor_num;
 		int pickup_num;
+		int want_pickup_num;
 
 		if (cycles < 2) cycles++;
 
@@ -372,6 +373,12 @@ void do_cmd_pickup_from_pile(bool message)
 
 		pickup_num = count_possible_pickups();
 
+		/* Filter out items you don't want to pickup */
+		want_pickup_num = count_floor_items(py, px, TRUE);
+
+		/* Nothing the player wants */
+		if ((!want_pickup_num) && (!pickup)) break;
+
 		/* Can't pick anything up */
 		if(!pickup_num)
 		{
@@ -383,9 +390,8 @@ void do_cmd_pickup_from_pile(bool message)
 
 		/* Auto-pickup if only one item */
 		else if ((!floor_query_flag) && (cycles < 2) &&
-				 (count_floor_items(py, px) == 1))
+				(want_pickup_num == 1))
 		{
-
 			item = get_first_item_for_pickup();
 
 			/* paranoia */
@@ -455,7 +461,6 @@ void do_cmd_pickup_from_pile(bool message)
 
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
-
 	p_ptr->redraw |= (PR_ITEMLIST | PR_INVEN | PR_EQUIP);
 
 	/* Just be sure all inventory management is done. */
@@ -464,41 +469,13 @@ void do_cmd_pickup_from_pile(bool message)
 
 }
 
-/*
- * Handle picking up objects from a given square.
- * First anything marked always squelch is destroyed.
- * Next Several items are picked up automatically.
- * Gold, items marked "always pickup", items that go
- * in the quiver, and objects marked "always pickup".
- *
- * The function stops at that point if pickup is false.
- *
- * This function has been re-writtten to be more linear,
- * and it sacrifices efficiency for clarity and flexability.
- *
- *
- */
-void py_pickup(bool pickup)
+void py_pickup_gold(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-
 	s16b this_o_idx, next_o_idx = 0;
-
 	object_type *o_ptr;
-
-	int objects_left = 0;
-
 	char o_name[80];
-
-	/* Are we allowed to pick up anything here? */
-	if (!(f_info[cave_feat[py][px]].f_flags1 & (FF1_DROP))) return;
-
- 	/* Automatically destroy squelched items in pile if necessary */
-	do_squelch_pile(py, px);
-
-	/* Nothing left */
-	if (!cave_o_idx[py][px]) return;
 
 	/* First, pick up the gold automatically */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -538,8 +515,49 @@ void py_pickup(bool pickup)
 
 		/* Check the next object */
 		continue;
-
 	}
+
+	return;
+}
+
+/*
+ * Handle picking up objects from a given square.
+ * First anything marked always squelch is destroyed.
+ * Next Several items are picked up automatically.
+ * Gold, items marked "always pickup", items that go
+ * in the quiver, and objects marked "always pickup".
+ *
+ * The function stops at that point if pickup is false.
+ *
+ * This function has been re-writtten to be more linear,
+ * and it sacrifices efficiency for clarity and flexability.
+ *
+ *
+ */
+void py_pickup(bool pickup)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	s16b this_o_idx, next_o_idx = 0;
+
+	object_type *o_ptr;
+
+	int objects_left = 0;
+
+	char o_name[80];
+
+	/* Are we allowed to pick up anything here? */
+	if (!(f_info[cave_feat[py][px]].f_flags1 & (FF1_DROP))) return;
+
+ 	/* Automatically destroy squelched items in pile if necessary */
+	do_squelch_pile(py, px);
+
+	/* Nothing left */
+	if (!cave_o_idx[py][px]) return;
+
+	/* First, pick up gold */
+	py_pickup_gold();
 
 	/* Nothing left */
 	if (!cave_o_idx[py][px]) return;
@@ -625,7 +643,8 @@ void py_pickup(bool pickup)
 		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/* Object is marked to always pickup */
-		if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) do_continue = FALSE;
+		if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP)  &&
+			(k_info[o_ptr->k_idx].aware)) do_continue = FALSE;
 
 		/* Item is marked for auto-pickup with =g */
 		if (auto_pickup_inscrip(o_ptr)) do_continue = FALSE;
@@ -637,7 +656,6 @@ void py_pickup(bool pickup)
 			/* Delete the object */
 			delete_object_idx(this_o_idx);
 		}
-
 	}
 
 	/* Nothing left */
@@ -681,7 +699,7 @@ void py_pickup(bool pickup)
 
 	if ((carry_query_flag) && (!pack_is_full()))
 	{
-		do_cmd_pickup_from_pile(FALSE);
+		do_cmd_pickup_from_pile(pickup, FALSE);
 		return;
 	}
 

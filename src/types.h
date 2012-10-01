@@ -661,7 +661,7 @@ struct monster_type
 	byte cdis;			/* Current dis from player */
 
 	u32b mflag;			/* Extra monster flags */
-
+	byte m_attr;			/* used only for shimmering monsters - current color */
 	bool ml;			/* Monster is "visible" */
 	bool project;		/* Player projectables can hit the monster (not quite the same as
 				   	   	    being visible. */
@@ -714,7 +714,7 @@ struct alloc_entry
 struct quest_type
 {
 	u32b name;			/* Name (offset) */
-	byte type;			/* Quest Type */
+	byte q_type;		/* Quest Type */
 	byte reward;		/* Quest Reward */
 	byte theme;			/* Monster Theme for themed levels and nests/pits*/
 
@@ -1038,6 +1038,7 @@ struct player_type
 
 	s32b au;			/* Current Gold */
 
+	s16b quest_depth;	/* Max depth */
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
 	s16b recall_depth;		/* recall depth*/
@@ -1466,6 +1467,8 @@ typedef struct
 	u16b los;		/* number in LOS */
 	u16b los_asleep;	/* number asleep and in LOS */
 	u16b hidden;    /* Monster visible, but hidden */
+	byte s_attr;		/* attr to use for drawing */
+
 } monster_vis;
 
 

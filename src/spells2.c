@@ -133,6 +133,115 @@ bool warding_glyph(void)
 }
 
 /*
+ * Place elemental features around the given grid and range
+ * Most elemental features are forest grids.
+ * Sometimes we can place other elemental grids
+ * Return TRUE if it succeeds
+ * -DiegoGonzalez-
+ */
+bool create_elements(int cy, int cx, int range)
+{
+    int y, x, k;
+	u16b feat, feat2 = FEAT_TREE;
+    u16b elements[1024];
+	u16b n = 0;
+	/* Trees are rare */
+	bool trees_enabled = one_in_(30);
+
+	/* Process chance to place other features than forest */
+	if (one_in_(2))
+	{
+		/* Traverse dungeon */
+		for (y = 1; y <= p_ptr->cur_map_hgt; y++)
+		{
+			for (x = 1; x <= p_ptr->cur_map_wid; x++)
+			{
+				/* Must be passable */
+				if (!cave_passable_bold(y, x)) continue;
+
+				/* Must be an elemental feature */
+				if (!cave_ff3_match(y, x, TERRAIN_MASK)) continue;
+
+				/* Ignore forest */
+				if (cave_ff3_match(y, x, ELEMENT_FOREST)) continue;
+
+				/* Ignore non-lake features */
+				if (!cave_ff2_match(y, x, (FF2_LAKE | FF2_RIVER))) continue;
+
+				/* Player must be native */
+				/* if (!is_player_native(y, x)) continue; */
+
+				/* Array is full? */
+				if (n >= N_ELEMENTS(elements))
+				{
+					/* Replace features sometimes */
+					if (one_in_(2)) elements[rand_int(n)] = cave_feat[y][x];
+				}
+				else
+				{
+					/* Save the feature */
+					elements[n++] = cave_feat[y][x];
+				}
+			}
+		}
+		/* Pick a random feature */
+		if (n > 0) feat2 = elements[rand_int(n)];
+	}
+
+	/* Traverse grids */
+    for (y = cy - range; y <= cy + range; y++)
+    {
+        for (x = cx - range; x <= cx + range; x++)
+        {
+			/* Ignore out of range grids */
+            if (distance(y, x, cy, cx) > range) continue;
+
+			/* Ignore invalid grids */
+            if (!in_bounds(y, x)) continue;
+
+			/* Ignore perma-walls, stairs, etc. */
+            if (cave_ff1_match(y, x, FF1_PERMANENT)) continue;
+
+			/* Ignore vaults/pits */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+
+			/* Ignore walls, doors, etc. */
+			if (!cave_passable_bold(y, x)) continue;
+
+			/* Ignore grids with monsters/player */
+			if (cave_m_idx[y][x] != 0) continue;
+
+			/* Ignore grids with objects */
+			if (cave_o_idx[y][x] != 0) continue;
+
+			/* Reset feature */
+			feat = feat2;
+
+			/* Forest grids */
+			if (feat == FEAT_TREE)
+			{
+				/* Roll */
+				k = rand_int(100);
+
+				/* Choose forest features. Trees are rare */
+				if (trees_enabled && (k < 2)) feat = FEAT_TREE;
+				else if (k < 20) feat = FEAT_BUSH;
+				else if (k < 30) feat = FEAT_BRAMBLES;
+				else if (k < 35) feat = FEAT_FSOIL_D;
+				else feat = FEAT_FSOIL;
+			}
+
+			/* Put the feature */
+            cave_set_feat(y, x, feat);
+        }
+    }
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
  * Create a "glacier" that allows LOS but prevents movement and projections
  * Return TRUE on success
  */
@@ -421,6 +530,7 @@ static int remove_curse_aux(bool heavy)
 		u32b f1, f2, f3, fn;
 
 		object_type *o_ptr = &inventory[i];
+		char o_name[80];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -440,6 +550,10 @@ static int remove_curse_aux(bool heavy)
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
 
+		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_BASE);
+
+		msg_format("The curse on your %s is broken!", o_name);
+
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -449,10 +563,11 @@ static int remove_curse_aux(bool heavy)
 	/* Combine and re-order the pack - and redraw stuff */
 	if (cnt)
 	{
-
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 		p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
 	}
+
+	else msg_print("Nothing happens.");
 
 	/* Return "something uncursed" */
 	return (cnt);
@@ -1655,7 +1770,7 @@ static bool detect_monsters_evil(int y, int x)
 	}
 
 	/* Result */
-	return (TRUE);
+	return (FALSE);
 }
 
 /*
@@ -4071,7 +4186,7 @@ void light_room(int y1, int x1)
 	cave_temp_room_light();
 
 	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP | PW_OVERHEAD | PW_MONLIST | PR_ITEMLIST);
+	p_ptr->redraw |= (PR_MAP | PR_MONLIST | PR_ITEMLIST);
 
 }
 
@@ -5401,7 +5516,7 @@ int do_ident_item(int item, object_type *o_ptr)
 		char shorter_desc[120];
 
 		/* Get a shorter description to fit the notes file */
-		object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, ODESC_BASE);
+		object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, ODESC_PREFIX | ODESC_BASE);
 
 		/* Build note and write */
         	sprintf(note, "Found %s", shorter_desc);

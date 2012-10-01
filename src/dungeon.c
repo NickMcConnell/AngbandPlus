@@ -20,10 +20,28 @@
 #include "game-event.h"
 
 /*
- * Change dungeon level
+ * Change dungeon level.
+ * Aside from setting the player depth at the beginning of the game,
+ * this should be the only place where a player depth is actually
+ * changed.
  */
 void dungeon_change_level(int dlev)
 {
+	/* Handle lost greater vaults */
+	if (g_vault_name[0] != '\0')
+	{
+		if (adult_take_notes)
+		{
+	    	char note[120];
+			char *fmt = "Left the level without entering the %s";
+
+			strnfmt(note, sizeof(note), fmt, g_vault_name);
+			do_cmd_note(note, p_ptr->depth);
+	 	}
+
+	  	g_vault_name[0] = '\0';
+	}
+
 	/* New depth */
 	p_ptr->depth = dlev;
 
@@ -603,25 +621,25 @@ static void play_ambient_sound(void)
 	}
 
 	/* Dungeon level 1-20 */
-	else if (p_ptr->depth <= 20)
+	else if (effective_depth(p_ptr->depth) <= 20)
 	{
 		sound(MSG_AMBIENT_DNG1);
 	}
 
 	/* Dungeon level 21-40 */
-	else if (p_ptr->depth <= 40)
+	else if (effective_depth(p_ptr->depth) <= 40)
 	{
 		sound(MSG_AMBIENT_DNG2);
 	}
 
 	/* Dungeon level 41-60 */
-	else if (p_ptr->depth <= 60)
+	else if (effective_depth(p_ptr->depth) <= 60)
 	{
 		sound(MSG_AMBIENT_DNG3);
 	}
 
 	/* Dungeon level 61-80 */
-	else if (p_ptr->depth <= 80)
+	else if (effective_depth(p_ptr->depth) <= 80)
 	{
 		sound(MSG_AMBIENT_DNG4);
 	}
@@ -752,7 +770,7 @@ static void process_world(void)
 	if (turn % 10) return;
 
 	/*** Update quests ***/
-	if (p_ptr->cur_quest) /* playtesting && !(turn % QUEST_TURNS)) */
+	if ((p_ptr->cur_quest) && !(turn % QUEST_TURNS))
 	{
 
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
@@ -762,12 +780,13 @@ static void process_world(void)
 		{
 			/* Check if quest is in progress */
 			if ((q_ptr->q_flags & (QFLAG_STARTED)) && q_ptr->active_level &&
-				((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_UNIQUE)))
+				((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_UNIQUE)))
 				quest_fail();
 		}
 
 		/* hack - make sure there are enough monsters */
-		if (q_ptr->type == QUEST_THEMED_LEVEL)
+		if ((q_ptr->q_type == QUEST_THEMED_LEVEL) ||
+			(q_ptr->q_type == PIT_NEST_QUEST_BOOST))
 		{
 			if ((q_ptr->max_num - q_ptr->cur_num) > mon_cnt)
 			{
@@ -776,7 +795,11 @@ static void process_world(void)
 				int best_r_idx, r_idx;
 				int attempts_left = 10000;
 
-				monster_level = p_ptr->depth + THEMED_LEVEL_QUEST_BOOST;
+				if (q_ptr->q_type == QUEST_THEMED_LEVEL)
+				{
+					monster_level = effective_depth(p_ptr->depth) + THEMED_LEVEL_QUEST_BOOST;
+				}
+				else  monster_level = effective_depth(p_ptr->depth) + PIT_NEST_QUEST_BOOST;
 
 				/* make a monster */
 				get_mon_hook(q_ptr->theme);
@@ -824,6 +847,9 @@ static void process_world(void)
 
 						r_ptr = &r_info[r_idx];
 
+						/* Don't use a unique as a replacement */
+						if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
 						/* Weaker monster.  Don't use it */
 						if (r_ptr->mon_power < r2_ptr->mon_power) continue;
 
@@ -831,7 +857,6 @@ static void process_world(void)
 						r2_ptr = &r_info[best_r_idx];
 
 					}
-
 
 					if (place_monster_aux(y, x, best_r_idx, TRUE, FALSE))
 					{
@@ -851,7 +876,7 @@ static void process_world(void)
 
 				feeling = old_feeling;
 
-				monster_level = p_ptr->depth;
+				monster_level = effective_depth(p_ptr->depth);
 
 				/* Remove restriction */
 				get_mon_num_hook = NULL;
@@ -1455,40 +1480,6 @@ static bool enter_wizard_mode(void)
 }
 
 
-
-#ifdef ALLOW_BORG
-
-/*
- * Verify use of "borg" mode
- */
-static bool verify_borg_mode(void)
-{
-	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0010))
-	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		message_flush();
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use the borg commands? "))
-		{
-			return (FALSE);
-		}
-	}
-
-	/* Mark savefile */
-	p_ptr->noscore |= 0x0010;
-
-	/* Okay */
-	return (TRUE);
-}
-
-#endif /* ALLOW_BORG */
-
-
-
 /*
  * Hack -- helper function for "process_player()"
  *
@@ -1805,7 +1796,6 @@ void process_player(void)
 		/* Normal command */
 		else
 		{
-
 			/* Check monster recall */
 			process_player_aux();
 
@@ -1815,6 +1805,7 @@ void process_player(void)
 			/* Get and process a command */
 			process_command(CMD_GAME, FALSE);
 
+			py_pickup_gold();
 		}
 
 		/*** Clean up ***/
@@ -2052,6 +2043,47 @@ void process_player(void)
 
 }
 
+/*
+ * Checks if multi-color monsters onscreen.
+ */
+void do_animation(void)
+{
+	int i;
+
+	for (i = 1; i < mon_max; i++)
+	{
+		monster_type *m_ptr = &mon_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		if (!m_ptr->r_idx) continue;
+		if (!m_ptr->ml) continue;
+		if (!(r_ptr->flags1 & (RF1_ATTR_MULTI))) continue;
+
+		m_ptr->m_attr = multi_hued_attr(r_ptr);
+
+		p_ptr->redraw |= (PR_MAP | PR_MONLIST);
+	}
+}
+
+
+/*
+ * This is used when the user is idle to allow for simple animations.
+ * Currently the only thing it really does is animate shimmering monsters.
+ */
+void idle_update(void)
+{
+	if (!character_dungeon) return;
+
+	if (!animate_flicker) return;
+
+	/* Animate and redraw if necessary */
+	do_animation();
+	redraw_stuff();
+
+	/* Refresh the main screen */
+	Term_fresh();
+}
+
 
 /*
  * Interact with the current dungeon level.
@@ -2110,6 +2142,13 @@ static void dungeon(void)
 		p_ptr->max_depth = p_ptr->depth;
 	}
 
+	/* Track maximum quest level */
+	if ((p_ptr->max_depth > 1) &&
+		(p_ptr->max_depth > p_ptr->quest_depth))
+	{
+		p_ptr->quest_depth = p_ptr->max_depth;
+	}
+
 	/* Track recall dungeon level */
 	if (p_ptr->recall_depth < p_ptr->depth)
 	{
@@ -2125,7 +2164,8 @@ static void dungeon(void)
 
 	/* No stairs down from fixed quests */
 	if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-		(quest_check(p_ptr->depth) == QUEST_FIXED_U))
+		(quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
+		(quest_check(p_ptr->depth) == QUEST_FIXED_MON))
 	{
 		if ((p_ptr->create_stair == FEAT_MORE) ||
 			(p_ptr->create_stair == FEAT_MORE_SHAFT))
@@ -2246,7 +2286,7 @@ static void dungeon(void)
 	}
 
 	/* Announce (or repeat) the feeling */
-	if ((p_ptr->depth) && (do_feeling)) do_cmd_feeling();
+	if ((effective_depth(p_ptr->depth)) && (do_feeling)) do_cmd_feeling();
 
 
 	/* Announce a player ghost challenge. -LM- */
@@ -2255,10 +2295,10 @@ static void dungeon(void)
 	/*** Process this dungeon level ***/
 
 	/* Reset the monster generation level */
-	monster_level = p_ptr->depth;
+	monster_level = effective_depth(p_ptr->depth);
 
 	/* Reset the object generation level */
-	object_level = p_ptr->depth;
+	object_level = effective_depth(p_ptr->depth);
 
 	/* Main loop */
 	while (TRUE)
@@ -2275,6 +2315,9 @@ static void dungeon(void)
 
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
+
+		/* Do any necessary animations */
+		do_animation();
 
 		/* Update terrain damage every game turn */
 		if ((!is_player_native(p_ptr->py, p_ptr->px)) && (!p_ptr->timed[TMD_FLYING]))
@@ -2592,21 +2635,6 @@ void play_game(void)
 
 		/* Handle "quit and save" */
 		if (!p_ptr->playing && !p_ptr->is_dead) break;
-
-		/* Handle lost greater vaults */
-		if (g_vault_name[0] != '\0')
-		{
-			if (adult_take_notes)
-			{
-		    	char note[120];
-				char *fmt = "Left the level without entering the %s";
-
-		   		strnfmt(note, sizeof(note), fmt, g_vault_name);
-				do_cmd_note(note, p_ptr->depth);
-		  	}
-
-		  	g_vault_name[0] = '\0';
-		}
 
 		/* Erase the old cave */
 		wipe_o_list();

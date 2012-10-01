@@ -56,15 +56,6 @@ ppc: CFLAGS = \
 
 
 
-# Borg.  To build the borg, type:
-# $ make -f Makefile.osx clean borg all
-BOBJS = borg1.o borg2.o borg3.o borg4.o borg5.o borg6.o borg7.o \
-			borg8.o borg9.o
- 
-# -DALLOW_BORG is required for all .o files in a borg build 
-ifneq (,$(findstring borg, $(MAKECMDGOALS)))
-CFLAGS += -DALLOW_BORG
-endif
 
 # Check for autoconfig.h; warn on nonexistence
 autoconf= $(shell ls autoconf.h)
@@ -93,8 +84,6 @@ $(EXE): $(OBJS)
 ppc: $(OBJS) 
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(LIBS) 
 
-borg: $(OBJS) $(BOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS) $(BOBJS) $(LIBS) 
 
 #
 # Clean up old junk

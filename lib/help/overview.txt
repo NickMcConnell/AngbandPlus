@@ -11,7 +11,7 @@ Angband resources:
 current source and executables, special files, helpful comments, hints, and
 links, and the latest Angband news.  The NPPAngband home page is 
 "http://forum.nppangband.org/"
-     The current maintainers of NPPAngband are  Jeff Greene and Gonz['a]lez.  
+     The current maintainers of NPPAngband are Jeff Greene and Gonz['a]lez.  
 If you want to send comments, or make sure your bug report gets heard, email 
 "nppangbanddev@verizon.net".
      The Angband newsgroup is at "http://angband.oook.cz/"; it's filled
@@ -68,7 +68,8 @@ slain character one last time.  Here you can:
      - display the character screen and see your possessions,
      - review the final messages,
      - save information in a character dump,
-     - see the high score table, 
+     - see the high score table,
      - fully identify individual items, and
      - make final notes to the character dump.
+     - create spoilers
 

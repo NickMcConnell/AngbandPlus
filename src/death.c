@@ -107,7 +107,7 @@ static void make_bones(void)
 
 	int i;
 
-	/* Ignore wizards and borgs */
+	/* Ignore wizards */
 	if (!(p_ptr->noscore & 0x00FF))
 	{
 		/* Ignore people who die in town */

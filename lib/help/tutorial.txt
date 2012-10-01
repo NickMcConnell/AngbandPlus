@@ -18,7 +18,7 @@ Armour class shields you from direct damage.  Hitpoints are your life wrapped up
 in a number, so run from anything that drops them too low, too fast.
 
      Get familiar with some of the commands you have available to you, either by
-reading the help, or by experimenting, whichever you prefer.
+reading the help, hitting CTRL-H, or by experimenting, whichever you prefer.
      To exit this tutorial, hit escape.  When ready to continue, type '?' to
 open up help, then press '1', then '2'.
 

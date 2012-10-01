@@ -385,6 +385,50 @@ static byte breath_to_attr[32][2] =
 	{  0,  0 }      /*  */
 };
 
+#define MAX_FLICKER_COLORS 38
+
+static byte flicker_colors[MAX_FLICKER_COLORS] =
+{
+	TERM_DARK,
+	TERM_WHITE,
+	TERM_SLATE,
+	TERM_ORANGE,
+	TERM_RED,
+	TERM_GREEN,
+	TERM_BLUE,
+	TERM_UMBER,
+	TERM_L_DARK,
+	TERM_L_WHITE,
+	TERM_VIOLET,
+	TERM_YELLOW,
+	TERM_L_RED,
+	TERM_L_GREEN,
+	TERM_L_BLUE,
+	TERM_L_UMBER,
+	TERM_SNOW_WHITE,
+	TERM_SLATE_GRAY,
+	TERM_ORANGE_PEEL,
+	TERM_RED_LAVA,
+	TERM_JUNGLE_GREEN,
+	TERM_NAVY_BLUE,
+	TERM_AUBURN,
+	TERM_TAUPE,
+	TERM_L_WHITE_2,
+	TERM_D_PURPLE,
+	TERM_MAIZE,
+	TERM_RASPBERRY,
+	TERM_LIME_GREEN,
+	TERM_SKY_BLUE,
+	TERM_L_BROWN,
+	TERM_SILVER,
+	TERM_MAHAGONY,
+	TERM_RED_RUST,
+	TERM_COPPER,
+	TERM_GOLD,
+	TERM_PINK,
+	TERM_EARTH_YELLOW,
+};
+
 
 /*
  * Multi-hued monsters shimmer according to their default attr or to their
@@ -398,7 +442,7 @@ static byte breath_to_attr[32][2] =
  *
  * If a monster does not breath anything, it can be any color.
  */
-static byte multi_hued_attr(monster_race *r_ptr)
+byte multi_hued_attr(monster_race *r_ptr)
 {
 	byte allowed_attrs[15];
 
@@ -411,26 +455,101 @@ static byte multi_hued_attr(monster_race *r_ptr)
 
 
 	/* Monsters with an attr other than 'v' choose colors according to attr */
-	if (r_ptr->d_attr != TERM_VIOLET)
+	if ((r_ptr->x_attr != TERM_VIOLET) && (r_ptr->x_attr != TERM_D_PURPLE))
 	{
-		if ((r_ptr->d_attr == TERM_RED) || (r_ptr->d_attr == TERM_L_RED))
-			return ((one_in_(2)) ? TERM_RED : TERM_L_RED);
-		if ((r_ptr->d_attr == TERM_BLUE) || (r_ptr->d_attr == TERM_L_BLUE))
-			return ((one_in_(2)) ? TERM_BLUE : TERM_L_BLUE);
-		if ((r_ptr->d_attr == TERM_WHITE) || (r_ptr->d_attr == TERM_L_WHITE))
-			return ((one_in_(2)) ? TERM_WHITE : TERM_L_WHITE);
-		if ((r_ptr->d_attr == TERM_GREEN) || (r_ptr->d_attr == TERM_L_GREEN))
-			return ((one_in_(2)) ? TERM_GREEN : TERM_L_GREEN);
-		if ((r_ptr->d_attr == TERM_UMBER) || (r_ptr->d_attr == TERM_L_UMBER))
-			return ((one_in_(2)) ? TERM_UMBER : TERM_L_UMBER);
-		if ((r_ptr->d_attr == TERM_ORANGE) || (r_ptr->d_attr == TERM_YELLOW))
-			return ((one_in_(2)) ? TERM_ORANGE : TERM_YELLOW);
-		if ((r_ptr->d_attr == TERM_L_DARK) || (r_ptr->d_attr == TERM_SLATE))
-			return ((one_in_(2)) ? TERM_L_DARK : TERM_SLATE);
+		switch (r_ptr->x_attr)
+		{
+			case TERM_RED:
+			case TERM_L_RED:
+			case TERM_RED_LAVA:
+			case TERM_RED_RUST:
+			case TERM_RASPBERRY:
+			{
+				int x = randint0(5);
+				if (x == 1) return TERM_RED;
+				if (x == 2) return TERM_L_RED;
+				if (x == 3) return TERM_RED_LAVA;
+				if (x == 4)	return TERM_RASPBERRY;
+				return TERM_RED_RUST;
+			}
+			case TERM_BLUE:
+			case TERM_L_BLUE:
+			case TERM_NAVY_BLUE:
+			case TERM_SKY_BLUE:
+			{
+				int x = randint0(5);
+				if (x == 1) return TERM_BLUE;
+				if (x == 2) return TERM_L_BLUE;
+				if (x == 3) return TERM_NAVY_BLUE;
+				return TERM_SKY_BLUE;
+			}
+			case TERM_WHITE:
+			case TERM_L_WHITE:
+			case TERM_SNOW_WHITE:
+			case TERM_L_WHITE_2:
+			{
+				int x = randint0(4);
+				if (x == 1) return TERM_WHITE;
+				if (x == 2) return TERM_L_WHITE;
+				if (x == 3) return TERM_SNOW_WHITE;
+				return TERM_L_WHITE_2;
+			}
+			case TERM_GREEN:
+			case TERM_L_GREEN:
+			case TERM_JUNGLE_GREEN:
+			case TERM_LIME_GREEN:
+			{
+				int x = randint0(4);
+				if (x == 1) return TERM_GREEN;
+				if (x == 2) return TERM_L_GREEN;
+				if (x == 3) return TERM_JUNGLE_GREEN;
+				return TERM_LIME_GREEN;
+			}
+			case TERM_UMBER:
+			case TERM_L_UMBER:
+			case TERM_AUBURN:
+			case TERM_L_BROWN:
+			{
+				int x = randint0(4);
+				if (x == 1) return TERM_UMBER;
+				if (x == 2) return TERM_L_UMBER;
+				if (x == 3) return TERM_AUBURN;
+				return TERM_L_BROWN;
+			}
+			case TERM_ORANGE:
+			case TERM_ORANGE_PEEL:
+			case TERM_MAHAGONY:
+			{
+				int x = randint0(3);
+				if (x == 1) return TERM_ORANGE;
+				if (x == 2) return TERM_ORANGE_PEEL;
+				return TERM_MAHAGONY;
+			}
+			case TERM_YELLOW:
+			case TERM_MAIZE:
+			case TERM_EARTH_YELLOW:
+			{
+				int x = randint0(3);
+				if (x == 1) return TERM_YELLOW;
+				if (x == 2) return TERM_MAIZE;
+				return TERM_EARTH_YELLOW;
+			}
+			case TERM_SLATE:
+			case TERM_L_DARK:
+			case TERM_SLATE_GRAY:
+			case TERM_TAUPE:
+			{
+				int x = randint0(4);
+				if (x == 1) return TERM_SLATE;
+				if (x == 2) return TERM_L_DARK;
+				if (x == 3) return TERM_SLATE_GRAY;
+				return TERM_TAUPE;
+			}
+		}
 	}
 
 	/* Monsters with no ranged attacks can be any color */
-	if (!r_ptr->freq_ranged) return (randint(15));
+	if (!r_ptr->freq_ranged) return (flicker_colors[randint0(MAX_FLICKER_COLORS)]);
 
 	/* Check breaths */
 	for (i = 0; i < 32; i++)
@@ -447,15 +566,13 @@ static byte multi_hued_attr(monster_race *r_ptr)
 		if (first_color == 0) continue;
 
 		/* Monster can be of any color */
-		if (first_color == 255) return (randint(15));
-
+		if (first_color == 255) return (flicker_colors[randint0(MAX_FLICKER_COLORS)]);
 
 		/* Increment the number of breaths */
 		breaths++;
 
 		/* Monsters with lots of breaths may be any color. */
-		if (breaths == 6) return (randint(15));
-
+		if (breaths == 6) return (flicker_colors[randint0(MAX_FLICKER_COLORS)]);
 
 		/* Always store the first color */
 		for (j = 0; j < stored_colors; j++)
@@ -480,7 +597,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 	}
 
 	/* Monsters with no breaths may be of any color. */
-	if (breaths == 0) return (randint(15));
+	if (breaths == 0) return (flicker_colors[randint0(MAX_FLICKER_COLORS)]);
 
 	/* If monster has one breath, store the second color too. */
 	if (breaths == 1)
@@ -841,7 +958,7 @@ static void map_hidden_monster(monster_type *m_ptr, byte *ap, char *cp)
 		level = 9;
 	}
 	/* First attempt. Compare monster power with the average power at that depth */
-	else if ((div = mon_power_ave[p_ptr->depth][CREATURE_NON_UNIQUE]) > 0)
+	else if ((div = mon_power_ave[effective_depth(p_ptr->depth)][CREATURE_NON_UNIQUE]) > 0)
 	{
 		level = (r_ptr->mon_power * 9) / div + 1;
 	}
@@ -1464,7 +1581,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
 				/* Multi-hued attr */
-				a = multi_hued_attr(r_ptr);
+				a = m_ptr->m_attr ? m_ptr->m_attr : 1;
 
 				/* Normal char */
 				c = dc;
@@ -4650,7 +4767,7 @@ void wiz_light(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP | PW_OVERHEAD | PW_MONLIST | PR_ITEMLIST);
+	p_ptr->redraw |= (PR_MAP | PR_MONLIST | PR_ITEMLIST);
 
 }
 

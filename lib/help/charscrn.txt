@@ -30,6 +30,7 @@ First row:
 
 Second row:
      - Game turn - note there are 10 game turns in one player turn at normal speed
+     - Player Turn - number of player turns in the current game
      - Max Exp : maximum experience (undrained value)
      - Cur Exp : current experience (is different from maximum only if drained)
      - Adv Exp : total experience needed to advance to the next level.  With the 
@@ -67,8 +68,9 @@ Second row:
      - Searching : your ability to find traps and hidden doors by searching for
        them
 
-     Descriptions of abilities go from very bad -> bad -> poor -> fair -> good
--> very good -> excellent -> superb -> heroic -> legendary.
+     Descriptions of abilities can be quantified in numbers, or can go from 
+very bad -> bad -> poor -> fair -> good -> very good -> excellent -> superb ->
+heroic -> legendary.
 
 
 --- Attributes screen ---
@@ -89,11 +91,11 @@ in a separated chart from the modifiers.
 Attributes:
      The bottom of the screen displays most other non-combat attributes.  Blue
 '+' and green '*'s indicate the presence of the attribute.
+     - Acid  : plus = resist acid, star = immunity to acid
+     - Elec  : plus = resist electricity, star = immunity to electricity
      - Fire  : plus = resist fire, star = immunity to fire
      - Cold  : plus = resist cold, star = immunity to cold
-     - Elec  : plus = resist electricity, star = immunity to electricity
-     - Acid  : plus = resist acid, star = immunity to acid
-     - Pois  : plus = resist poison
+     - Pois  : plus = resist poison, star = immunity to poison
      - Fear  : plus = resist fear
      - Light : plus = resist bright light
      - Dark  : plus = resist darkness

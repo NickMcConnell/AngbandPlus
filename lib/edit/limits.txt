@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 
@@ -47,7 +47,7 @@ M:X:750
 M:G:21
 
 # Maximum number of vaults
-M:V:61
+M:V:69
 
 # Maximum number of player races
 M:P:11

@@ -29,7 +29,8 @@ Cuts, poison, and stunning:
      Many monsters can inflict special kinds of physical damage on you, such as
 opening wounds, poisoning, or stunning.  After you start earning a little money,
 plow some of it back into potions of cure wounds, and keep them handy at all
-times.  If a monster manages to heavily stun you, get away fast!
+times.  If a monster manages to heavily stun you, use magical healing or get 
+away fast!
 
 Character-hindrance:
      There are many monsters capable of casting spells to blind, confuse, slow,
@@ -68,5 +69,4 @@ Theft:
      Nobody is more annoying than a thief.  You've just found that cool
 spellbook or nifty weapon, and now it's gone.  You can gain a significant degree
 of protection from theft by increasing your armour class and your dexterity, and
-can always collect your stuff from the thief's corpse.  Unfortunately, thieves
-are smart enough to stash away the money they take from you.
+can always collect your stuff from the thief's corpse after you kill them.  

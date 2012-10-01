@@ -496,12 +496,14 @@ static void activate(WindowRef w)
 		m = CGAffineTransformMake(1, 0, 0, -1, 0, 0);
 		CGContextSetTextMatrix(focus.ctx, m);
 
-		/* I don't know why this doesn't work. */
-		/* CGContextSetFont(focus.ctx, td->ginfo->fontRef); */
-		/* CGContextSetFontSize(focus.ctx, td->font_size); */
-		/* HACK: use full postscript name. */
-		CGContextSelectFont(focus.ctx, td->ginfo->psname, td->font_size,
-														kCGEncodingMacRoman);
+		CFStringRef font_name = CFStringCreateWithCString(
+		    kCFAllocatorDefault,
+		    td->ginfo->psname,
+		    kCFStringEncodingISOLatin1);
+		td->ginfo->fontRef = CGFontCreateWithFontName(font_name);
+		CGContextSetFont(focus.ctx, td->ginfo->fontRef);
+		CGContextSetFontSize(focus.ctx, td->font_size);
+		CFRelease(font_name);
 
 		if(td->ginfo->monospace) {
 			CGContextSetCharacterSpacing(focus.ctx,
@@ -541,7 +543,7 @@ static void hibernate()
 static void mac_warning(cptr warning)
 {
 	CFStringRef msg;
-	msg = CFStringCreateWithCString(NULL, warning, kTextEncodingUS_ASCII);
+	msg = CFStringCreateWithCString(NULL, warning, kCFStringEncodingISOLatin1);
 
 	DialogRef dlg = 0;
 	CreateStandardAlert(kAlertCautionAlert, msg, CFSTR(""), NULL, &dlg);
@@ -1160,7 +1162,31 @@ static void ShowTextAt(int x, int y, int color, int n, const char *text )
 	term_data_color(color);
 	/* Monospace; use preset text spacing when tiling is wider than text */
 	if(n == 1 || info->monospace) {
-		CGContextShowTextAtPoint ( focus.ctx, xp, yp, text, n );
+		/* See the Accessing Font Metrics section of Apple's Core Text
+		 * Programming Guide for the sample code that inspired this
+		 * block. */
+		UniChar *characters;
+		CGGlyph *glyphs;
+		CTFontRef font = CTFontCreateWithGraphicsFont(
+		td->ginfo->fontRef, (CGFloat)td->font_size,
+		NULL, NULL);
+		CFStringRef text_str = CFStringCreateWithCString(
+		kCFAllocatorDefault, text,
+		kCFStringEncodingISOLatin1);
+
+		characters = (UniChar *)mem_alloc(sizeof(UniChar) * n);
+		assert(characters != NULL);
+		glyphs = (CGGlyph *)mem_alloc(sizeof(CGGlyph) * n);
+		assert(glyphs != NULL);
+
+		CFStringGetCharacters(text_str, CFRangeMake(0, n), characters);
+		CFRelease(text_str);
+		CTFontGetGlyphsForCharacters(font, characters, glyphs, n);
+		CGContextShowGlyphsAtPoint(focus.ctx,
+		(CGFloat)xp, (CGFloat)yp, glyphs, n);
+		mem_free(characters);
+		mem_free(glyphs);
+
 		if(use_clip_hack)
 			CGContextRestoreGState(focus.ctx);
 		return;
@@ -2014,7 +2040,7 @@ static bool load_preference(const char *key, type_union *vptr, size_t maxlen )
 		CFNumberGetValue( cf_value, kCFNumberIntType, &vptr->u.i);
 	else if(vptr->t == T_STRING) {
 		CFRange range = { 0, 200};
-		(void) CFStringGetBytes (cf_value, range, kCGEncodingMacRoman, 0, 0, (UInt8*)vptr->u.s, maxlen, 0);
+		(void) CFStringGetBytes (cf_value, range, kCFStringEncodingISOLatin1, 0, 0, (UInt8*)vptr->u.s, maxlen, 0);
 	}
 
 	/* Free CF data */
@@ -3739,10 +3765,8 @@ static void quit_calmly(void)
  * optimize non-blocking calls to "CheckEvents()"
  * idea from "maarten hazewinkel <mmhazewi@cs.ruu.nl>"
  *
- * was: 6. the value of one (~ 60 fps) seems to work better with the borg,
- * and so should be for other cpu-intensive features like the autoroller.
  */
-#define event_ticks 1
+#define event_ticks 6
 
 
 /*

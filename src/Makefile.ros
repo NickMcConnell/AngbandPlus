@@ -16,10 +16,6 @@ default: standard
 # The standard object files:
 OBJS := $(BASEOBJS) main.o main-ros.o
 
-# Borg object files:
-BOBJS := borg1.o borg2.o borg3.o borg4.o borg5.o borg6.o borg7.o \
-	borg8.o borg9.o
-
 
 # Defaults for norcy
 ifeq (norcroft, $(COMPILER))  
@@ -52,10 +48,7 @@ endif
 
 main-ros.o: CCFLAGS += -DHAS_MY_STRCPY -DHAS_MY_STRCAT -DHAS_MY_STRNICMP -DBIGSCREEN=TRUE
 
-#
-# Rules to make the various targets
-#
-ALL_TARGETS := standard fullscreen borg
+
 
 standard: CCFLAGS := $(CCFLAGS_BASIC)
 standard: $(OBJS) $(LIBS)
@@ -65,9 +58,7 @@ fullscreen: CCFLAGS := -DFULLSCREEN_ONLY $(CCFLAGS_BASIC)
 fullscreen: $(OBJS) $(LIBS)
 	$(LD) $(LDFLAGS) -o !RunImageF $(OBJS) $(LIBS)
 
-borg: CCFLAGS := $(CCFLAGS_BASIC)
-borg: $(OBJS) $(BOBJS) $(LIBS)
-	$(LD) $(LDFLAGS) -o !RunImageB $(BOBJS) $(LIBS)
+
 
 # Suffix rules
 .SUFFIXES: .o .c

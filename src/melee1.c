@@ -3814,7 +3814,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			teleport_player_to(m_ptr->fy, m_ptr->fx);
 
 			/* Use up a little bit more energy than a standard move */
-			m_ptr->m_energy -= BASE_ENERGY_MOVE / 2;
+			m_ptr->m_energy -= BASE_ENERGY_MOVE * 3 / 4;
 			break;
 		}
 

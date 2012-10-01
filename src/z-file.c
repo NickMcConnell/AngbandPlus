@@ -111,18 +111,8 @@ void safe_setuid_grab(void)
  */
 static void path_parse(char *buf, size_t max, cptr file)
 {
-#ifndef RISCOS
-
 	/* Accept the filename */
 	my_strcpy(buf, file, max);
-
-#else /* RISCOS */
-
-	/* Defined in main-ros.c */
-	char *riscosify_name(const char *path);
-	my_strcpy(buf, riscosify_name(path), max);
-
-#endif /* !RISCOS */
 }
 
 
@@ -302,6 +292,24 @@ bool file_exists(const char *fname)
 }
 
 
+
+#elif defined(WINDOWS)
+
+bool file_exists(const char *fname)
+{
+	char path[MAX_PATH];
+	DWORD attrib;
+
+	/* API says we mustn't pass anything larger than MAX_PATH */
+	my_strcpy(path, s, sizeof(path));
+
+	attrib = GetFileAttributes(path);
+	if (attrib == INVALID_FILE_NAME) return FALSE;
+	if (attrib & FILE_ATTRIBUTE_DIRECTORY) return FALSE;
+
+	return TRUE;
+}
+
 #else
 
 bool file_exists(const char *fname)
@@ -314,7 +322,6 @@ bool file_exists(const char *fname)
 
 #endif
 
-#ifndef RISCOS
 
 /*
  * Return TRUE if first is newer than second, FALSE otherwise.
@@ -337,12 +344,9 @@ bool file_newer(const char *first, const char *second)
 #endif /* !HAVE_STAT */
 }
 
-#endif /* RISCOS */
-
-
-
-
 /** File-handle functions **/
+
+void (*file_open_hook)(const char *path, file_type ftype);
 
 /*
  * Open file 'fname', in mode 'mode', with filetype 'ftype'.
@@ -375,29 +379,13 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 	f->fname = string_make(buf);
 	f->mode = mode;
 
-#ifdef MACH_O_CARBON
-	extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
-
-	/* OS X uses its own kind of filetypes */
-	if (mode != MODE_READ)
-	{
-		u32b mac_type = 'TEXT';
-
-		if (ftype == FTYPE_RAW) mac_type = 'DATA';
-		else if (ftype == FTYPE_SAVE) mac_type = 'SAVE';
-
-		fsetfileinfo(buf, 'A271', mac_type);
-	}
-#endif /* MACH_O_CARBON */
-
-#if defined(RISCOS) && 0
-	/* do something for RISC OS here? */
-	if (mode != MODE_READ)
-		File_SetType(n, ftype);
-#endif
+	if (mode != MODE_READ && file_open_hook)
+		file_open_hook(buf, ftype);
 
 	return f;
 }
+
+
 
 
 /*
@@ -486,48 +474,6 @@ bool file_writec(ang_file *f, byte b)
 /*
  * Read 'n' bytes from file 'f' into array 'buf'.
  */
-
-#ifdef HAVE_READ
-
-#ifndef SET_UID
-# define READ_BUF_SIZE 16384
-#endif
-
-int file_read(ang_file *f, char *buf, size_t n)
-{
-	int fd = fileno(f->fh);
-	int ret;
-	int n_read = 0;
-
-#ifndef SET_UID
-
-	while (n >= READ_BUF_SIZE)
-	{
-		ret = read(fd, buf, READ_BUF_SIZE);
-		n_read += ret;
-
-		if (ret == -1)
-			return -1;
-		else if (ret != READ_BUF_SIZE)
-			return n_read;
-
-		buf += READ_BUF_SIZE;
-		n -= READ_BUF_SIZE;
-	}
-
-#endif /* !SET_UID */
-
-	ret = read(fd, buf, n);
-	n_read += ret;
-
-	if (ret == -1)
-		return -1;
-	else
-		return n_read;
-}
-
-#else
-
 int file_read(ang_file *f, char *buf, size_t n)
 {
 	size_t read = fread(buf, 1, n, f->fh);
@@ -538,50 +484,13 @@ int file_read(ang_file *f, char *buf, size_t n)
 		return read;
 }
 
-#endif
-
-
 /*
  * Append 'n' bytes of array 'buf' to file 'f'.
  */
-
-#ifdef HAVE_WRITE
-
-#ifndef SET_UID
-# define WRITE_BUF_SIZE 16384
-#endif
-
 bool file_write(ang_file *f, const char *buf, size_t n)
 {
-	int fd = fileno(f->fh);
-
-#ifndef SET_UID
-
-	while (n >= WRITE_BUF_SIZE)
-	{
-		if (write(fd, buf, WRITE_BUF_SIZE) != WRITE_BUF_SIZE)
-			return FALSE;
-
-		buf += WRITE_BUF_SIZE;
-		n -= WRITE_BUF_SIZE;
-	}
-
-#endif /* !SET_UID */
-
-	if (write(fd, buf, n) != (int)n)
-		return FALSE;
-
-	return TRUE;
+	return fwrite(buf, 1, n, f->fh) == n;
 }
-
-#else
-
-bool file_write(ang_file *f, const char *buf, size_t n)
-{
-	return (fwrite(buf, 1, n, f->fh) == n);
-}
-
-#endif
 
 int file_flush(ang_file *f)
 {
@@ -699,6 +608,7 @@ bool file_getl(ang_file *f, char *buf, size_t len)
 	/* Translate encodes if necessary */
  	if (check_encodes) xstr_trans(buf, LATIN1);
 
+ 	buf[i] = '\0';
 	return TRUE;
 }
 

@@ -196,9 +196,9 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_s16b(m_ptr->m_timed[MON_TMD_SLEEP]);
 	wr_byte(m_ptr->mspeed);
 	wr_s16b(m_ptr->m_energy);
-	wr_byte(m_ptr->m_timed[MON_TMD_STUN]);
-	wr_byte(m_ptr->m_timed[MON_TMD_CONF]);
-	wr_byte(m_ptr->m_timed[MON_TMD_FEAR]);
+	wr_s16b(m_ptr->m_timed[MON_TMD_STUN]);
+	wr_s16b(m_ptr->m_timed[MON_TMD_CONF]);
+	wr_s16b(m_ptr->m_timed[MON_TMD_FEAR]);
 	wr_s16b(m_ptr->m_timed[MON_TMD_FAST]);
 	wr_s16b(m_ptr->m_timed[MON_TMD_SLOW]);
 
@@ -596,9 +596,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
 	wr_s16b(p_ptr->recall_depth);
+	wr_s16b(p_ptr->quest_depth);
 
 	/* More info */
-	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
@@ -703,7 +703,7 @@ static void wr_extra(void)
 		/*something would have to be very strange for this not to be true*/
 		if (fp)
 		{
-			int ghost_sex = 0, ghost_race = 0, ghost_class = 0;
+			byte ghost_sex = 0, ghost_race = 0, ghost_class = 0;
 			bool err = FALSE;
 
 			/* Ghost name is a global variable and is not needed */
@@ -1173,46 +1173,15 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte(q_info[i].type);
-
-		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
-		{
-			wr_byte(q_info[i].active_level);
-			wr_s16b(q_info[i].cur_num);
-		}
-
-		else if ((q_info[i].type == QUEST_MONSTER) || (q_info[i].type == QUEST_UNIQUE))
-		{
-			wr_byte(q_info[i].reward);
-			wr_byte(q_info[i].active_level);
-			wr_byte(q_info[i].base_level);
-
-			wr_s16b(q_info[i].mon_idx);
-
-			wr_s16b(q_info[i].cur_num);
-			wr_s16b(q_info[i].max_num);
-			wr_byte(q_info[i].q_flags);
-		}
-		else if (q_info[i].type == QUEST_VAULT)
-		{
-			wr_byte(q_info[i].reward);
-			wr_byte(q_info[i].active_level);
-			wr_byte(q_info[i].base_level);
-			wr_byte(q_info[i].q_flags);
-		}
-		else if ((q_info[i].type == QUEST_THEMED_LEVEL) ||
-			     (q_info[i].type == QUEST_NEST) ||
-			     (q_info[i].type == QUEST_PIT))
-		{
-			wr_byte(q_info[i].reward);
-			wr_byte(q_info[i].active_level);
-			wr_byte(q_info[i].base_level);
-			wr_byte(q_info[i].theme);
-			wr_s16b(q_info[i].cur_num);
-			wr_s16b(q_info[i].max_num);
-			wr_byte(q_info[i].q_flags);
-		}
-
+		wr_byte(q_info[i].q_type);
+		wr_byte(q_info[i].reward);
+		wr_byte(q_info[i].active_level);
+		wr_byte(q_info[i].base_level);
+		wr_byte(q_info[i].theme);
+		wr_s16b(q_info[i].mon_idx);
+		wr_s16b(q_info[i].cur_num);
+		wr_s16b(q_info[i].max_num);
+		wr_byte(q_info[i].q_flags);
 	}
 
 	/* Hack -- Dump the artifacts */

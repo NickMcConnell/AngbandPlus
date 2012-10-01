@@ -27,7 +27,9 @@ Damage Dice:
      All weapons have damage dice displayed after their name (1d4, 2d5, etc.).
 The higher the damage dice, the more damage the weapon does, especially if it
 has brands or slays, or gets lots of critical hits.  In addition, 
-some creatures are succeptable to extra damage from cold or fire. 
+some creatures are succeptable to extra damage from various elements, and 
+the damage from various attacks can be increased or decreased depending up on 
+the terrain. 
 
 Brands and Slays:
      Some remarkable weapons do extra damage to various kinds of monsters; a
@@ -43,8 +45,8 @@ brands are.
 Critical Hits:
      The number of critical hits you get depends on your total bonuses to melee
 skill, your level, and your weapon weight.  Their power depends on weapon
-weight.  A weak critical hit might double base damage and add 5; a powerful one
-might triple it and add 20.
+weight.  A weak critical hit might double damage dice and add 5; a powerful one
+might triple damage dice and add 20.
      For most weapons, critical hits are rare, and make little difference to
 average damage.  For heavy wargear with good base damage dice, however, critical
 hits can be significant.  
@@ -113,7 +115,7 @@ Critical hits:
      The number of critical hits you get depends on your total bonuses to
 missile skill, your level, and your missile weight, but they are always rare.
 Their power depends on missile weight.  Almost all critical hits multiply damage
-by 2 and add 5.
+dice by 2 and add 5.
 
 Number of Shots:
      On your character screen is displayed the number of shots you can get per
@@ -129,7 +131,8 @@ less time, making monsters appear to move in slow motion.
 mushrooms that can be deadly.  There are special throwing weapons that do extra
 damage when thrown.  "Well Balanced" weapons do even more damage and are 
 never destroyed when thrown.  Throwing certain potions will produce special effects
-on a monster if the potion hits them.
+on a monster if the potion hits them.  Rogues and brigands get extra damage
+from thrown weapons.
 
 Basic Calculation:
      1) Roll the object's base damage dice.

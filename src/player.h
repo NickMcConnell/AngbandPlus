@@ -269,6 +269,7 @@
 #define DRUID_DETECT_TERRAIN	      	23
 #define DRUID_EARTHQUAKE 	     		24
 #define DRUID_LIFE_DRAIN_BURST		 	26
+#define DRUID_CREATE_ELEMENTS			27
 
 /* Lore of Engagement */
 #define DRUID_ELEMENTAL_BRAND          	28
@@ -631,11 +632,9 @@ enum
 #define PW_STATUS           0x00000800L /* Display Status */
 #define PW_ITEMLIST	        0x00001000L /* Display item list */
 #define PW_FEATURE		    0x00002000L /* Display feature status */
-#define PW_BORG_1           0x00004000L /* Display borg messages */
-#define PW_BORG_2           0x00008000L /* Display borg status */
 
 
-#define PW_MAX_FLAGS		16
+#define PW_MAX_FLAGS		14
 
 
 /*Player Native Flags*/
@@ -701,12 +700,67 @@ enum
 #define CF_CFXXX31			0x40000000L
 #define CF_CFXXX32			0x80000000L
 
+/* Quest information needed by both quest.c and store.c */
+
+/*slots for the following tables*/
+/*The code assumes QUEST_SLOT_MONSTER is first and always available to the player*/
+#define QUEST_SLOT_MONSTER		0
+#define QUEST_SLOT_PIT_NEST		1
+#define QUEST_SLOT_LEVEL		2
+#define QUEST_SLOT_VAULT		3
+#define QUEST_SLOT_FIXED		4
+#define QUEST_SLOT_MAX			5
+
+/*
+ * Quest types
+ */
+#define QUEST_FIXED			1	/* A fixed quest from quest.txt for a non-unique*/
+#define QUEST_FIXED_U		2	/* A fixed quest from quest.txt for a unique*/
+#define QUEST_MONSTER		3	/* Kill a non-unique*/
+#define QUEST_UNIQUE		4	/* Kill a unique*/
+#define QUEST_VAULT			5	/* retrieve a artifact from a vault and return it to the guild*/
+#define QUEST_PIT			6	/* clear out an entire monster pit*/
+#define QUEST_NEST			7	/* clear out a monster next*/
+#define QUEST_THEMED_LEVEL	8	/* clear out an entire level of creatures*/
+#define QUEST_FIXED_MON		9  	/* A fixed quest from the guild */
+
+#define MON_RARE_FREQ	15
+#define MON_LESS_FREQ	50
+
+#define QUEST_THEMED_LEVEL_NUM  275
+
+#define QUEST_LEVEL_BOOST	2
+
+/*
+ * Quest reward types
+ */
+#define REWARD_GOLD			1
+#define REWARD_GOOD_ITEM	2
+#define REWARD_GREAT_ITEM	3
+#define REWARD_TAILORED		4
+#define REWARD_RANDART		5
+#define REWARD_INC_HP		6
+#define REWARD_INC_SPEED	7
+
+
+/*Quest description Modes*/
+#define QMODE_HALF_1 1
+#define QMODE_HALF_2 2
+#define QMODE_SHORT  3
+#define QMODE_FULL   4
+
+/*artifact slot reserved for vault quest artifact*/
+#define QUEST_ART_SLOT	z_info->art_norm_max
+
+#define GUILD_QUEST_SLOT	0
+
 
 
 
 /* flags for q_flags */
 #define QFLAG_STARTED   	0x01
 #define QFLAG_EXTRA_LEVEL   0x02
+#define QFLAG_VAULT_QUEST   0x04  /* Allow the player to choose a vault quest */
 
 #endif /*INCLUDED_PLAYER_H*/
 

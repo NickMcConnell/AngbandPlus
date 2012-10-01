@@ -71,7 +71,7 @@ Monsters
      z   Zombie/Mummy                     Z   Zephyr Hound
 
      Any of these symbols may be changed using preference files, accessed using
-the command '%'.  You may review what a symbol means by typing '/' or '~'.
+the command '=' followed by 'v'.  You may review what a symbol means by typing '/' or '~'.
 
      Angband can also use graphics instead of text to display your surroundings;
 unfortunately, no convenient listing of them yet exists.

@@ -656,9 +656,9 @@ s16b get_mon_num(int level, int y, int x)
 	/*filter out non-terrain flags*/
 	native_flags &= TERRAIN_MASK;
 
-	if (((q_ptr->type == QUEST_THEMED_LEVEL) ||
-		 (q_ptr->type == QUEST_PIT) ||
-		 (q_ptr->type == QUEST_NEST)) &&
+	if (((q_ptr->q_type == QUEST_THEMED_LEVEL) ||
+		 (q_ptr->q_type == QUEST_PIT) ||
+		 (q_ptr->q_type == QUEST_NEST)) &&
 		(p_ptr->cur_quest == p_ptr->depth)) quest_level = TRUE;
 
 	/* Boost the level, but not for quest levels.  That has already been done */
@@ -746,7 +746,8 @@ s16b get_mon_num(int level, int y, int x)
 				/* Check quests for uniques*/
 				for (k = 0; k < z_info->q_max; k++)
 				{
-					if ((q_info[k].type == QUEST_UNIQUE) || (q_info[k].type == QUEST_FIXED_U))
+					if ((q_info[k].q_type == QUEST_UNIQUE) ||
+						(q_info[k].q_type == QUEST_FIXED_U))
 					{
 						/* Is this unique marked for a quest? */
 						if (q_info[k].mon_idx == table[i].index)
@@ -763,7 +764,7 @@ s16b get_mon_num(int level, int y, int x)
 			}
 
 			/* Depth Monsters never appear out of depth */
-			if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
+			if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > effective_depth(p_ptr->depth)))
 			{
 				continue;
 			}
@@ -940,11 +941,11 @@ static void get_mon_name(char *output_name, size_t max, int r_idx, int in_los)
  */
 void display_monlist(void)
 {
-	size_t i, j, k;
+	u16b i, j, k;
 	int max;
 	int line = 1, x = 0;
 	int cur_x;
-	unsigned total_count = 0, disp_count = 0, type_count = 0, los_count = 0;
+	u16b total_count = 0, disp_count = 0, type_count = 0, los_count = 0;
 
 	byte attr;
 
@@ -989,7 +990,7 @@ void display_monlist(void)
 	list = C_ZNEW(z_info->r_max, monster_vis);
 
 	/* Scan the list of monsters on the level */
-	for (i = 1; i < (size_t)mon_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
 		m_ptr = &mon_list[i];
 
@@ -1004,6 +1005,13 @@ void display_monlist(void)
 
 		/* If this is the first one of this type, count the type */
 		if (!list[m_ptr->r_idx].count) type_count++;
+		if (!list[m_ptr->r_idx].s_attr)
+		{
+			/* Get the monster info */
+			r_ptr = &r_info[m_ptr->r_idx];
+
+			list[m_ptr->r_idx].s_attr = m_ptr->m_attr ? m_ptr->m_attr : r_ptr->x_attr;
+		}
 
 		/* Check for LOS */
 		if (m_ptr->project)
@@ -1122,7 +1130,7 @@ void display_monlist(void)
 		{
 			attr = TERM_VIOLET;
 		}
-		else if (r_ptr->level > p_ptr->depth)
+		else if (r_ptr->level > effective_depth(p_ptr->depth))
 		{
 			attr = TERM_RED;
 		}
@@ -1154,7 +1162,7 @@ void display_monlist(void)
 		}
 
 		/* Display the pict */
-		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		Term_putch(cur_x++, line, list[r_idx].s_attr, r_ptr->x_char);
 		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
 		Term_putch(cur_x++, line, TERM_WHITE, ' ');
 
@@ -1220,7 +1228,7 @@ void display_monlist(void)
 		{
 			attr = TERM_VIOLET;
 		}
-		else if (r_ptr->level > p_ptr->depth)
+		else if (r_ptr->level > effective_depth(p_ptr->depth))
 		{
 			attr = TERM_RED;
 		}
@@ -1248,7 +1256,7 @@ void display_monlist(void)
 		}
 
 		/* Display the pict */
-		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		Term_putch(cur_x++, line, list[r_idx].s_attr, r_ptr->x_char);
 		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
 		Term_putch(cur_x++, line, TERM_WHITE, ' ');
 
@@ -2963,7 +2971,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		/* Check quests for uniques*/
 		for (i = 0; i < z_info->q_max; i++)
 		{
-			if ((q_info[i].type == QUEST_UNIQUE) || (q_info[i].type == QUEST_FIXED_U))
+			if ((q_info[i].q_type == QUEST_UNIQUE) ||
+				(q_info[i].q_type == QUEST_FIXED_U))
 			{
 				/*is this unique marked for a quest?*/
 				if (q_info[i].mon_idx == r_idx)
@@ -2986,7 +2995,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Depth monsters may NOT be created out of depth */
-	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
+	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (effective_depth(p_ptr->depth) < r_ptr->level))
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -3134,7 +3143,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	calc_monster_speed(y, x);
 
 	/* Powerful monster */
-	if (r_ptr->level > p_ptr->depth)
+	if (r_ptr->level > effective_depth(p_ptr->depth))
 	{
 		/* Unique monsters */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -3143,7 +3152,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) * 2;
+			rating += (r_ptr->level - effective_depth(p_ptr->depth)) * 2;
 		}
 
 		/* Normal monsters */
@@ -3152,7 +3161,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			/* Message for cheaters */
 			if (cheat_hear) msg_format("Deep Monster (%s).", name);
 			/* Boost rating by half delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) / 2;
+			rating += (r_ptr->level - effective_depth(p_ptr->depth)) / 2;
 		}
 	}
 
@@ -3193,9 +3202,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, s16b group_si
  	byte hack_x[GROUP_MAX];
 
 	/* Hard monsters, smaller groups */
- 	if (r_ptr->level > p_ptr->depth)
+ 	if (r_ptr->level > effective_depth(p_ptr->depth))
  	{
-		reduce = (r_ptr->level - p_ptr->depth) / 2;
+		reduce = (r_ptr->level - effective_depth(p_ptr->depth)) / 2;
 		group_size -= randint(reduce);
  	}
 

@@ -286,10 +286,6 @@ void flavor_init(void)
 	}
 }
 
-#ifdef ALLOW_BORG_GRAPHICS
-extern void init_translate_visuals(void);
-#endif /* ALLOW_BORG_GRAPHICS */
-
 
 /*
  * Reset the "visual" lists
@@ -375,10 +371,6 @@ void reset_visuals(bool unused)
 		process_pref_file("font.prf");
 	}
 
-#ifdef ALLOW_BORG_GRAPHICS
-	/* Initialize the translation table for the borg */
-	init_translate_visuals();
-#endif /* ALLOW_BORG_GRAPHICS */
 }
 
 
@@ -1698,7 +1690,7 @@ s16b o_pop(void)
 }
 
 /* Returns the number of floor items on a certain grid */
-int count_floor_items(int y, int x)
+int count_floor_items(int y, int x, bool pickup_only)
 {
 	s16b this_o_idx, next_o_idx = 0;
 	int count = 0;
@@ -1718,6 +1710,12 @@ int count_floor_items(int y, int x)
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
+
+		/* Factor in whether the player wants to be prompted first */
+		if (pickup_only)
+		{
+			if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) continue;
+		}
 
 		count++;
 	}
@@ -3502,14 +3500,8 @@ int sort_quiver(int slot)
 		}
 
 		/* Clear unused slots */
-		for (i = QUIVER_START; i < QUIVER_END; i++)
+		for (i = QUIVER_START + quiver_size; i < QUIVER_END; i++)
 		{
-			/* Get the object */
-			i_ptr = &inventory[i];
-
-			/* Ignore full slots */
-			if (i_ptr->k_idx) continue;
-
 			object_wipe(&inventory[i]);
 		}
 

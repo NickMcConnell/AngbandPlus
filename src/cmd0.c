@@ -41,9 +41,6 @@ static do_cmd_type do_cmd_wizard, do_cmd_try_debug,
             do_cmd_mouseclick, do_cmd_port,
 			do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_itemlist;
 
-#ifdef ALLOW_BORG
-static do_cmd_type do_cmd_try_borg;
-#endif
 
 /*
  * Holds a generic command - if cmd is set to other than CMD_NULL
@@ -177,9 +174,6 @@ static command_type cmd_hidden[] =
 #ifdef ALLOW_DEBUG
 	{ "Debug mode commands", KTRL('A'), CMD_NULL, do_cmd_try_debug },
 #endif
-#ifdef ALLOW_BORG
-	{ "Borg commands",       KTRL('Z'), CMD_NULL, do_cmd_try_borg }
-#endif
 };
 
 
@@ -279,38 +273,6 @@ static void do_cmd_try_debug(void)
 }
 
 #endif /* ALLOW_DEBUG */
-
-
-
-#ifdef ALLOW_BORG
-
-/*
- * Verify use of "borg" mode
- */
-static void do_cmd_try_borg(void)
-{
-	/* Ask first time */
-	if (!(p_ptr->noscore & NOSCORE_BORG))
-	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		message_flush();
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use the borg commands? "))
-			return;
-
-		/* Mark savefile */
-		p_ptr->noscore |= NOSCORE_BORG;
-	}
-
-	/* Okay */
-	do_cmd_borg();
-}
-
-#endif /* ALLOW_BORG */
-
 
 /*
  * Quit the game.

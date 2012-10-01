@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 # This slot for the adventurer's guild quests.  This must be 0, as it is hard coded in 
 # the source code

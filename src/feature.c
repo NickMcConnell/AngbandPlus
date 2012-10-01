@@ -1673,7 +1673,8 @@ s16b get_feat_num(int level)
 			{
 				/* We don't allow any down stair in fixed quests */
 				if ((what_quest_type == QUEST_FIXED) ||
-				 	(what_quest_type == QUEST_FIXED_U)) continue;
+				 	(what_quest_type == QUEST_FIXED_U) ||
+				 	(what_quest_type == QUEST_FIXED_MON)) continue;
 
 				/* Shafts shouldn't pierce quest levels */
 				if (is_shaft && quest_check(p_ptr->depth + 1)) continue;
@@ -1783,7 +1784,7 @@ u16b pick_trap(int y, int x, byte mode)
 	while (1)
 	{
 		/* Pick the trap */
-		feat = get_feat_num(p_ptr->depth);
+		feat = get_feat_num(effective_depth(p_ptr->depth));
 
 		/*Special handling of trap doors*/
 		if (feat == FEAT_TRAP_DOOR)
@@ -1823,7 +1824,7 @@ u16b get_secret_door_num(void)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1861,7 +1862,7 @@ void place_closed_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1889,7 +1890,7 @@ void place_boring_closed_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1917,7 +1918,7 @@ void place_open_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1944,7 +1945,7 @@ void place_broken_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -1971,7 +1972,7 @@ void place_locked_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -2000,7 +2001,7 @@ void place_jammed_door(int y, int x)
 	get_feat_num_prep();
 
 	/* Get the door */
-	feat = get_feat_num(p_ptr->depth);
+	feat = get_feat_num(effective_depth(p_ptr->depth));
 
 	/* Clear the hook */
 	get_feat_num_hook = NULL;
@@ -3818,7 +3819,7 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 		disturb(0, 0);
 
 		/* Calculate damage */
-		dam = 2 * p_ptr->depth / 3;
+		dam = 2 * effective_depth(p_ptr->depth) / 3;
 
 		if (dam < 1) dam = 1;
 
@@ -4149,7 +4150,7 @@ s16b select_powerful_race(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) rarities[i] = 5;
 
 		/* Powerful monsters */
-		else if (r_ptr->mon_power > mon_power_ave[p_ptr->depth][CREATURE_NON_UNIQUE]) rarities[i] = 2;
+		else if (r_ptr->mon_power > mon_power_ave[effective_depth(p_ptr->depth)][CREATURE_NON_UNIQUE]) rarities[i] = 2;
 
 		/* Normal monsters */
 		else rarities[i] = 1;
@@ -4297,7 +4298,7 @@ void decipher_strange_inscription(int x_idx)
 	}
 
 	/* Hurt the player in rare occassions */
-	if ((p_ptr->depth > 10) && one_in_(75))
+	if ((effective_depth(p_ptr->depth) > 10) && one_in_(75))
 	{
 		/* Get the feature under the effect */
 		u16b feat = cave_feat[x_ptr->x_cur_y][x_ptr->x_cur_x];
@@ -4382,7 +4383,7 @@ void hit_silent_watcher(int y, int x)
 	u32b flg = PROJECT_PLAY | PROJECT_KILL | PROJECT_STOP;
 
 	/* Calculate damage */
-	int dam = (300 * MAX(1, p_ptr->depth)) / 100;
+	int dam = (300 * MAX(1, effective_depth(p_ptr->depth))) / 100;
 
 	/* Message */
 	msg_c_format(MSG_NOTICE, "The silent watcher screams and curses at you!");
@@ -4468,7 +4469,7 @@ bool hit_wall(int y, int x, bool do_action)
 				PROJECT_ITEM | PROJECT_BOOM | PROJECT_WALL;
 
 			/* Calculate damage (not centered on player) */
-			int dam = (800 * MAX(1, p_ptr->depth)) / 100;
+			int dam = (800 * MAX(1, effective_depth(p_ptr->depth))) / 100;
 
 			/* Message */
 			msg_c_format(MSG_NOTICE, "The wall explodes in a burst of light!");
@@ -4493,7 +4494,7 @@ bool hit_wall(int y, int x, bool do_action)
 			}
 
 			/* Teleport */
-			teleport_player(100 + rand_int(p_ptr->depth));
+			teleport_player(100 + rand_int(effective_depth(p_ptr->depth)));
 		}
 
 		return (TRUE);

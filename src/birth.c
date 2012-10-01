@@ -459,7 +459,7 @@ static void player_wipe(void)
 		quest_type *q_ptr = &q_info[i];
 
 		/* Reset level */
-		if ((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_FIXED_U))
+		if ((q_ptr->q_type == QUEST_FIXED) || (q_ptr->q_type == QUEST_FIXED_U))
 		{
 			q_ptr->active_level = q_ptr->base_level;
 			q_ptr->cur_num = 0;
@@ -498,7 +498,6 @@ static void player_wipe(void)
 		/* Clear player kills */
 		l_ptr->pkills = 0;
 	}
-
 
 	/*No current player ghosts*/
 	bones_selector = 0;
@@ -1261,7 +1260,7 @@ void player_birth(bool quickstart_allowed)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 	}
 
-	/*Re-set teh squelch settings.  Spellbooks are never_pickup by default. */
+	/*Re-set the squelch settings.  Spellbooks are never_pickup by default. */
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		/* Analyze the item type */

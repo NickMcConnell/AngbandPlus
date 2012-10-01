@@ -36,12 +36,12 @@ Command Summary -- Original keyset
      y  (unused)                             Y  (unused)
      z  Zap a rod                            Z  (unused)
      !  Interact with system                ^A  (special - debug command)
-     @  Interact with macros                ^B  (unused)
+     @  (unused)                            ^B  (unused)
      #  (unused)                            ^C  (special - break)
      $  (unused)                            ^D  (unused)
-     %  Interact with visuals               ^E  Toggle choice window
+     %  (unused)                            ^E  Toggle choice window
      ^  (special - control key)             ^F  Repeat level feeling
-     &  Interact with colors                ^G  {reserved}
+     &  (unused)                            ^G  {reserved}
      *  Target monster or location          ^H  Use floating help menu
      (  Unused                              ^I  (special - tab)
      )  Dump HTML screen dump               ^J  (special - linefeed)
@@ -106,10 +106,10 @@ Command Summary -- Roguelike keyset
      y  (walk - north west)                  Y  (run - north west)
      z  Aim a wand (Zap)                     Z  Use a staff (Zap)
      !  Interact with system                ^A  (special - debug command)
-     @  Interact with macros                ^B  (alter - south west)
+     @  (unused)                            ^B  (alter - south west)
      #  Start/stop searching                ^C  (special - break)
      $  (unused)                            ^D  Destroy item
-     %  Interact with visuals               ^E  Toggle choice window
+     %  (unused)                            ^E  Toggle choice window
      ^  (special - control key)             ^F  Repeat level feeling
      &  Interact with colors                ^G  Get objects off the floor
      *  Target monster or location          ^H  (alter - west)
@@ -134,5 +134,48 @@ Command Summary -- Roguelike keyset
      \  (special - bypass keymap)            |  (unused)
      `  (special - escape)                   ~  Check knowledge
      /  Identify symbol                      ?  Help
+
+====== Wizard mode commands ======
+Wizard mode commands are activated by CTRL-A.  They are intended for
+de-bugging and game testing, not for normal game play.  If wizard 
+mode commands are used, the savefile is marked as a cheater and
+the player cannot be credited with winning the game.
+
+
+"    Create spoilers
+?    Help
+a    Heal, cure, and restore the player
+b    Teleport to target
+c    create a specific item
+C    create a specific artifact
+d    wizard light the dungeon, cast detection spell
+D    re-draw the dungeon (priest alter reality spell)
+e    edit the character
+f    *Identify* an item
+F    create a specific feature
+g    create a good item
+h    recalculate hitpoints
+i    mass identify witha  radius of 3
+j    jump to another dungeon level of the players choice
+k    self knowledge
+l    identify and locate all objects in the dungeon
+m    magic map the dungeon
+M    create 15 random normal items
+n    summon a specific monster
+o    edit an object
+p    phase door the player
+q    query the dungeon
+R    create a specific monster
+s    summon a random monster
+t    teleport the player
+u    unhide all monsters
+v    create a very good item
+w    wizard light the dungeon
+x    increate player experience
+z    zap monsters (cast a banishment spell)
+_    look at monster flow
+/    Show all monster flows
+
+
 
 

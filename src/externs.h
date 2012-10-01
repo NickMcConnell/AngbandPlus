@@ -382,6 +382,7 @@ extern int distance(int y1, int x1, int y2, int x2);
 extern bool generic_los(int y1, int x1, int y2, int x2, u16b flg);
 extern bool no_light(void);
 extern bool cave_valid_bold(int y, int x);
+extern byte multi_hued_attr(monster_race *r_ptr);
 extern bool feat_supports_lighting(u16b feat);
 extern bool dtrap_edge(int y, int x);
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
@@ -426,7 +427,8 @@ extern void textui_process_command(bool no_request);
 /* cmd1.c */
 extern void search(void);
 extern bool put_object_in_inventory(object_type *o_ptr);
-extern void do_cmd_pickup_from_pile(bool message);
+extern void do_cmd_pickup_from_pile(bool pickup, bool message);
+extern void py_pickup_gold(void);
 extern void py_pickup(bool pickup);
 extern s16b move_player(int dir, int jumping);
 
@@ -581,6 +583,7 @@ void death_screen(void);
 extern void dungeon_change_level(int dlev);
 extern void process_player_terrain_damage(void);
 extern void process_player(void);
+extern void idle_update(void);
 extern void play_game(void);
 
 
@@ -683,8 +686,8 @@ extern void fill_template(char buf[], int max_buf);
 /* generate.c */
 extern void place_random_stairs(int y, int x);
 extern void get_mon_hook(byte theme);
-extern byte get_nest_theme(int nestlevel);
-extern byte get_pit_theme(int pitlevel);
+extern byte get_nest_theme(int nestlevel, bool quest_theme);
+extern byte get_pit_theme(int pitlevel, bool quest_theme);
 extern void build_terrain(int y, int x, int feat);
 extern byte get_level_theme(s16b orig_theme_num, bool quest_level);
 extern byte max_themed_monsters(const monster_race *r_ptr, u32b max_power);
@@ -865,7 +868,7 @@ extern void delete_object(int y, int x);
 extern void compact_objects(int size);
 extern void wipe_o_list(void);
 extern s16b o_pop(void);
-extern int count_floor_items(int y, int x);
+extern int count_floor_items(int y, int x, bool pickup_only);
 extern object_type* get_first_object(int y, int x);
 extern object_type* get_next_object(const object_type *o_ptr);
 extern errr get_obj_num_prep(void);
@@ -1045,6 +1048,7 @@ extern bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, i
 /* spells2.c */
 extern bool hp_player(int num);
 extern bool warding_glyph(void);
+extern bool create_elements(int cy, int cx, int range);
 extern bool create_glacier(void);
 extern bool do_dec_stat(int stat);
 extern bool do_res_stat(int stat);
@@ -1185,6 +1189,7 @@ extern void do_cmd_squelch_autoinsc(void *unused, cptr title);
 
 /*Store.c*/
 extern s32b price_item(const object_type *o_ptr, bool store_buying);
+extern bool keep_in_stock(const object_type *o_ptr, int which);
 extern void store_shuffle(int which);
 extern void do_cmd_buy(cmd_code code, cmd_arg args[]);
 extern void do_cmd_retrieve(cmd_code code, cmd_arg args[]);
@@ -1277,6 +1282,7 @@ extern bool is_a_vowel(int ch);
 extern int color_char_to_attr(char c);
 extern int color_text_to_attr(cptr name);
 extern cptr attr_to_text(byte a);
+extern int effective_depth(int depth);
 
 #ifdef SUPPORT_GAMMA
 extern void build_gamma_table(int gamma);
@@ -1292,7 +1298,7 @@ extern void grid_queue_destroy(grid_queue_type *q);
 extern bool grid_queue_push(grid_queue_type *q, byte y, byte x);
 extern void grid_queue_pop(grid_queue_type *q);
 extern int pick_random_item(int chance_values[], int max);
-extern errr next_line_to_number(ang_file *fff, int *dest);
+extern errr next_line_to_number(ang_file *fff, byte *dest);
 
 
 
@@ -1384,27 +1390,6 @@ extern void init_display(void);
 
 
 
-
-#ifdef ALLOW_BORG
-
-
-/*
- * Some global variables for the borg.
- */
-
-extern u32b count_stop;
-extern int count_change_level;
-extern int count_teleport;
-extern byte allowed_depth[2];
-extern byte borg_dir;
-
-extern void do_cmd_borg(void);
-
-#endif /* ALLOW_BORG */
-
-
-
-
 #ifdef RISCOS
 /* main-ros.c */
 extern char *riscosify_name(cptr path);
@@ -1425,11 +1410,6 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 
 
 
-#ifdef ALLOW_BORG
-/* borg.h */
-extern void do_cmd_borg(void);
-#endif /* ALLOW_BORG */
-
 
 
 #ifdef ALLOW_DATA_DUMP
@@ -1446,11 +1426,6 @@ extern void dump_artifact_power(void);
 extern void write_mon_power(void);
 
 #endif /*ALLOW_DATA_DUMP*/
-
-/* borg.h */
-#ifdef ALLOW_BORG
-extern void do_cmd_borg(void);
-#endif /* ALLOW_BORG */
 
 
 extern u16b lazymove_delay;

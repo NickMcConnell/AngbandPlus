@@ -28,13 +28,7 @@
 #define INVEN_NOT_EQUIPMENT QUEST_SLOT_NUM + 1
 
 
-/*slots for the following tables*/
-/*The code below assumes QUEST_SLOT_MONSTER is first and always available to the player*/
-#define QUEST_SLOT_MONSTER		0
-#define QUEST_SLOT_PIT_NEST		1
-#define QUEST_SLOT_LEVEL		2
-#define QUEST_SLOT_VAULT		3
-#define QUEST_SLOT_MAX			4
+
 
 /*Monsters only appear so deep*/
 #define MAX_MIN_DEPTH			76
@@ -57,9 +51,9 @@ static int guild_quest_level(void)
 	 * If the player hasn't left town yet, first quest
 	 * is at 50 feet..
 	 */
-	if (!p_ptr->max_depth) return (2);
+	if (!p_ptr->quest_depth) return (2);
 
-	depth = p_ptr->max_depth + QUEST_LEVEL_BOOST;
+	depth = p_ptr->quest_depth + QUEST_LEVEL_BOOST;
 
 	/* Consistently apply either 2 or three levels to the max depth */
 	if (q_ptr->q_flags & (QFLAG_EXTRA_LEVEL)) depth ++;
@@ -331,7 +325,7 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 	}
 
 	/* Vault quests */
-	if (q_ptr->type == QUEST_VAULT)
+	if (q_ptr->q_type == QUEST_VAULT)
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -362,9 +356,9 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 	}
 
 	/* Vault, pit or nest quests */
-	if  ((q_ptr->type == QUEST_THEMED_LEVEL) ||
-		 (q_ptr->type == QUEST_PIT) ||
-		 (q_ptr->type == QUEST_NEST))
+	if  ((q_ptr->q_type == QUEST_THEMED_LEVEL) ||
+		 (q_ptr->q_type == QUEST_PIT) ||
+		 (q_ptr->q_type == QUEST_NEST))
 	{
 		/*print out a message about a themed level*/
 		char mon_theme[80];
@@ -398,15 +392,15 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 		if (my_is_vowel(mon_theme[0])) my_strcat(intro, "an ", sizeof(intro));
 		else my_strcat(intro, "a ", sizeof(intro));
 
-		if (q_ptr->type ==  QUEST_THEMED_LEVEL)
+		if (q_ptr->q_type ==  QUEST_THEMED_LEVEL)
 		{
 			my_strcat(intro, format("%s stronghold", mon_theme), sizeof(intro));
 		}
-		else if (q_ptr->type == QUEST_PIT)
+		else if (q_ptr->q_type == QUEST_PIT)
 		{
 			my_strcat(intro, format("%s pit", mon_theme), sizeof(intro));
 		}
-		else if (q_ptr->type == QUEST_NEST)
+		else if (q_ptr->q_type == QUEST_NEST)
 		{
 			my_strcat(intro, format("%s nest", mon_theme), sizeof(intro));
 		}
@@ -433,7 +427,7 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 	/* Not a vault quest, so get the monster race name (singular)*/
 	monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
 
-	if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
+	if ((q_ptr->q_type == QUEST_UNIQUE) || (q_ptr->q_type == QUEST_FIXED_U))
 	{
 
 		/* Monster quests */
@@ -465,9 +459,17 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 	else my_strcpy(what, "kill", sizeof(what));
 
 	/* The type of the quest */
-	if (q_ptr->type == QUEST_FIXED) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
-	else if (q_ptr->type == QUEST_FIXED_U) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
-	else if (q_ptr->type == QUEST_MONSTER) my_strcpy(intro, "To fulfill your task, ", sizeof(intro));
+	if (q_ptr->q_type == QUEST_FIXED) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
+	else if (q_ptr->q_type == QUEST_FIXED_U) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
+	else if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_FIXED_MON))
+	{
+		my_strcpy(intro, "To complete your ", sizeof(intro));
+		if (q_ptr->q_type == QUEST_FIXED_MON)
+		{
+			my_strcat(intro, "fixed ", sizeof(intro));
+		}
+		my_strcat(intro, "quest.", sizeof(intro));
+	}
 
 	/* The location of the quest */
 	my_strcpy(where, format("at a depth of %d feet.", level * 50), sizeof(where));
@@ -492,7 +494,8 @@ void show_quest_mon(int y, int x)
 
 	/*display the monster character if applicable*/
 	if ((i == QUEST_MONSTER) || (i == QUEST_UNIQUE) ||
-		(i == QUEST_FIXED)   || (i == QUEST_FIXED_U))
+		(i == QUEST_FIXED)   || (i == QUEST_FIXED_U) ||
+		(i == QUEST_FIXED_MON))
 	{
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 		monster_race *r_ptr = &r_info[q_ptr->mon_idx];
@@ -1784,9 +1787,10 @@ static bool custom_randart_reward(int chance, int dice)
 
 
 /*
- * Actually give the character a quest.
+ * Actually give the character a fixed or monster quest.
+ * If bool fixed it true, a fixed quest is placed.
  */
-static bool place_mon_quest(int lev)
+static bool place_mon_quest(int lev, bool fixed)
 {
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 	monster_lore *l_ptr;
@@ -1806,11 +1810,18 @@ static bool place_mon_quest(int lev)
 	int max_depth, min_depth;
 	u32b max_diff, min_diff, max_diff_unique, min_diff_unique;
 
-	/* Monsters can be up to 3 levels out of depth with difficulty 0 */
+	/* Monsters can be up to 3 levels out of depth */
 	max_depth = LEV_BOOST + lev;
 
 	/*assumes lev is always greater than 0*/
 	min_depth = lev;
+
+	/* Fixed quests use deeper monsters */
+	if (fixed)
+	{
+		max_depth += 6;
+		min_depth += 6;
+	}
 
 	/*don't make it too easy if the player isn't diving very fast*/
 	if (lev < p_ptr->max_lev)
@@ -1824,7 +1835,7 @@ static bool place_mon_quest(int lev)
 	if (min_depth < 1) min_depth = 1;
 	if (min_depth > MAX_MIN_DEPTH) min_depth = MAX_MIN_DEPTH;
 
-	/*get the average ddifficulty spanning 5 levele for monsters*/
+	/*get the average difficulty spanning 5 levele for monsters*/
 	max_diff = min_diff = min_diff_unique = max_diff_unique = 0;
 
 	/*first get the total of the 5 levels*/
@@ -1889,6 +1900,9 @@ static bool place_mon_quest(int lev)
 
 			/* no dead ones*/
 			if (r_ptr->cur_num >= r_ptr->max_num) continue;
+
+			/* Not for fixed quests */
+			if (fixed) continue;
 		}
 		/*no uniques for monster quests*/
 		else
@@ -1902,7 +1916,7 @@ static bool place_mon_quest(int lev)
 			if ((strchr("BFIJKSabcejlrmw,", r_ptr->d_char)) &&
 			(!(r_ptr->flags2 & (RF2_SMART)))) continue;*/
 
-			/* Check if a immobile monster can still hurt the player from a distance */
+			/* Check if an immobile monster can still hurt the player from a distance */
 			if (r_ptr->flags1 & RF1_NEVER_MOVE)
 			{
 				bool okay = FALSE;
@@ -1980,7 +1994,7 @@ static bool place_mon_quest(int lev)
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		q_ptr->max_num = 1;
-		q_ptr->type	= QUEST_UNIQUE;
+		q_ptr->q_type	= QUEST_UNIQUE;
 	}
 	else
 	{
@@ -1999,11 +2013,15 @@ static bool place_mon_quest(int lev)
 		/*just a touch of randomness*/
 		num += randint(3);
 
+		/* Fixed have more monsters */
+		if (fixed) num += 3 + randint1(2) + randint1(2);
+
 		/*assign the number*/
 		q_ptr->max_num = num;
 
 		/*assign the quest type*/
-		q_ptr->type	= QUEST_MONSTER;
+		if (fixed) q_ptr->q_type	= QUEST_FIXED_MON;
+		else q_ptr->q_type	= QUEST_MONSTER;
 
 	}
 
@@ -2021,8 +2039,9 @@ static bool place_mon_quest(int lev)
 		/* Chance of good item reward */
 		int chance = 95 - (p_ptr->fame * 2) - (lev *  2);
 
-		/* Better rewards for unique quests */
+		/* Better rewards for unique or fixed quests */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) chance -= 10;
+		if (fixed) chance -= 10;
 
 		if (rand_int(100) > chance)
 		{
@@ -2084,7 +2103,7 @@ static bool check_pit_nest_depth(int lev, byte theme)
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
 
 		/*Pits or nests do not allow uniques*/
-		if ((q_ptr->type == QUEST_NEST) || (q_ptr->type == QUEST_PIT))
+		if ((q_ptr->q_type == QUEST_NEST) || (q_ptr->q_type == QUEST_PIT))
 		{
 			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 		}
@@ -2245,8 +2264,8 @@ static bool place_pit_nest_quest(int lev)
 	for (i = 0; i < LEV_THEME_TAIL; i++) checked_theme_yet[i] = FALSE;
 
 	/*50% chance of a pit or nest*/
-	if one_in_(2) q_ptr->type = QUEST_PIT;
-	else q_ptr->type = QUEST_NEST;
+	if one_in_(2) q_ptr->q_type = QUEST_PIT;
+	else q_ptr->q_type = QUEST_NEST;
 
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
@@ -2268,8 +2287,8 @@ static bool place_pit_nest_quest(int lev)
 		if ((tries++) > 5000) return (FALSE);
 
 		/*Get the actual theme for either the pit or nest*/
-		if (q_ptr->type == QUEST_PIT) q_ptr->theme = get_pit_theme(lev + 3);
-		else q_ptr->theme = get_nest_theme(lev + 3);
+		if (q_ptr->q_type == QUEST_PIT) q_ptr->theme = get_pit_theme(lev + 3, TRUE);
+		else q_ptr->theme = get_nest_theme(lev + 3, TRUE);
 
 		/*hack - never do jelly quests*/
 		if (q_ptr->theme == LEV_THEME_JELLY) continue;
@@ -2335,7 +2354,7 @@ static bool place_level_quest(int lev)
 	for (i = 0; i < LEV_THEME_TAIL; i++) checked_theme_yet[i] = FALSE;
 
 	/* Actually write the quest */
-	q_ptr->type = QUEST_THEMED_LEVEL;
+	q_ptr->q_type = QUEST_THEMED_LEVEL;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
 	if (custom_randart_reward(60, 6))  q_ptr->reward = REWARD_RANDART;
@@ -2392,7 +2411,7 @@ static bool place_vault_quest(int lev)
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 	/* Actually write the quest */
-	q_ptr->type = QUEST_VAULT;
+	q_ptr->q_type = QUEST_VAULT;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
 	if (custom_randart_reward(60, 5)) q_ptr->reward = REWARD_RANDART;
@@ -2419,7 +2438,8 @@ bool quest_allowed(byte j)
 	/*quest vaults not always offered*/
 	if (j == QUEST_SLOT_VAULT)
 	{
-		if ((p_ptr->fame < 10) || ((p_ptr->fame % 5) != 3)) return (FALSE);
+		if (p_ptr->fame < 10)return (FALSE);
+		if (!(q_info[GUILD_QUEST_SLOT].q_flags & (QFLAG_VAULT_QUEST))) return (FALSE);
 	}
 	else if (j == QUEST_SLOT_PIT_NEST)
 	{
@@ -2429,6 +2449,11 @@ bool quest_allowed(byte j)
 	{
 		if (p_ptr->max_depth < 14) return (FALSE);
 		if (!check_level_quest()) return (FALSE);
+	}
+	else if (j == QUEST_SLOT_FIXED)
+	{
+		if (p_ptr->max_depth < 3) return (FALSE);
+		if (p_ptr->quest_depth > MAX_MIN_DEPTH) return (FALSE);
 	}
 
 	/* Allowable */
@@ -2445,13 +2470,13 @@ bool can_quest_at_level(void)
 	if (adult_no_quests) return (FALSE);
 
 	/* No more quests if they are at the bottom of the dungeon. */
-	if ((p_ptr->max_depth + 2) > MAX_DEPTH) return (FALSE);
+	if ((p_ptr->quest_depth + 2) > MAX_DEPTH) return (FALSE);
 
 	/* Make sure there is no fixed quest on the same level of quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* check fixed quests to see that they're not on the same level*/
-		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
+		if ((q_info[i].q_type == QUEST_FIXED) || (q_info[i].q_type == QUEST_FIXED_U))
 		{
 			if (q_info[i].base_level == guild_quest_level())
 			{
@@ -2471,7 +2496,8 @@ bool check_reward(void)
 	/* Check for outstanding rewards */
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
-	if ((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_UNIQUE))
+	if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_UNIQUE) ||
+		(q_ptr->q_type == QUEST_FIXED_MON))
 	{
 		/*We owe the player a reward*/
 		if ((!q_ptr->active_level) && (q_ptr->reward))
@@ -2480,7 +2506,7 @@ bool check_reward(void)
 		}
 	}
 
-	else if (q_ptr->type == QUEST_VAULT)
+	else if (q_ptr->q_type == QUEST_VAULT)
 	{
 		/* Find quest item in the inventory*/
 		if (quest_item_slot() > -1) return (TRUE);
@@ -2488,9 +2514,9 @@ bool check_reward(void)
 
 	}
 
-	else if  ((q_ptr->type ==  QUEST_THEMED_LEVEL) ||
-			  (q_ptr->type == QUEST_PIT) ||
-			  (q_ptr->type == QUEST_NEST))
+	else if  ((q_ptr->q_type ==  QUEST_THEMED_LEVEL) ||
+			  (q_ptr->q_type == QUEST_PIT) ||
+			  (q_ptr->q_type == QUEST_NEST))
 	{
 		/*We owe the player a reward*/
 		if ((!q_ptr->active_level) && (q_ptr->reward))
@@ -2512,16 +2538,23 @@ void do_reward(void)
 	/* Sanity check. */
 	if (!check_reward()) return;
 
-	if ((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_UNIQUE))
+	if ((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_UNIQUE) ||
+		(q_ptr->q_type == QUEST_FIXED_MON))
 	{
 		/* Grant fame bonus */
 		p_ptr->fame += 1;
+
+		/* Fixed quests sometimes get a better fame boost */
+		if (q_ptr->q_type == QUEST_FIXED_MON)
+		{
+			if (one_in_(2)) p_ptr->fame += 1;
+		}
 		altered_inventory_counter += 3;
 
 		/* The note has already been written */
 	}
 
-	else if (q_ptr->type == QUEST_VAULT)
+	else if (q_ptr->q_type == QUEST_VAULT)
 	{
 		char note[120];
 
@@ -2558,13 +2591,13 @@ void do_reward(void)
 		inven_item_optimize(j);
 	}
 
-	else if  ((q_ptr->type ==  QUEST_THEMED_LEVEL) || (q_ptr->type == QUEST_PIT) ||
-			  (q_ptr->type == QUEST_NEST))
+	else if  ((q_ptr->q_type ==  QUEST_THEMED_LEVEL) || (q_ptr->q_type == QUEST_PIT) ||
+			  (q_ptr->q_type == QUEST_NEST))
 	{
 		/*We owe the player a reward*/
 		if ((!q_ptr->active_level) && (q_ptr->reward))
 		{
-			if (q_ptr->type == QUEST_THEMED_LEVEL)	p_ptr->fame += 1;
+			if (q_ptr->q_type == QUEST_THEMED_LEVEL)	p_ptr->fame += 1;
 
 			/* Slightly random fame bonus for these harder quests*/
 			p_ptr->fame += randint(2);
@@ -2613,7 +2646,8 @@ void display_quest(void)
 
 	/*display the monster character if applicable*/
 	if ((quest_check(p_ptr->cur_quest) == QUEST_MONSTER) ||
-		(quest_check(p_ptr->cur_quest) == QUEST_UNIQUE))
+		(quest_check(p_ptr->cur_quest) == QUEST_UNIQUE) ||
+		(quest_check(p_ptr->cur_quest) == QUEST_FIXED_MON))
 	{
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 		monster_race *r_ptr = &r_info[q_ptr->mon_idx];
@@ -2645,12 +2679,13 @@ bool guild_purchase(int choice)
 {
 	int i;
 	int qlev = guild_quest_level();
+	bool quest_placed = TRUE;
 
 	/* Make sure there is no fixed quest on the same level of quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* check fixed quests to see that they're not on the same level*/
-		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
+		if ((q_info[i].q_type == QUEST_FIXED) || (q_info[i].q_type == QUEST_FIXED_U))
 		{
 			if (q_info[i].base_level == qlev)
 			{
@@ -2664,10 +2699,10 @@ bool guild_purchase(int choice)
 	/*place a monster quest*/
 	if (choice == QUEST_SLOT_MONSTER)
 	{
-		if (!place_mon_quest(qlev))
+		if (!place_mon_quest(qlev, FALSE))
 		{
 			guild_quest_wipe();
-			return (FALSE);
+			quest_placed = FALSE;
 		}
 	}
 	/*Place a vault quest*/
@@ -2676,7 +2711,7 @@ bool guild_purchase(int choice)
 		if (!place_vault_quest(qlev))
 		{
 			guild_quest_wipe();
-			return (FALSE);
+			quest_placed = FALSE;
 		}
 	}
 	else if (choice == QUEST_SLOT_LEVEL)
@@ -2684,7 +2719,7 @@ bool guild_purchase(int choice)
 		if (!place_level_quest(qlev))
 		{
 			guild_quest_wipe();
-			return (FALSE);
+			quest_placed = FALSE;
 		}
 	}
 	/*Nest or Pit quests*/
@@ -2693,14 +2728,27 @@ bool guild_purchase(int choice)
 		if (!place_pit_nest_quest(qlev))
 		{
 			guild_quest_wipe();
-			return (FALSE);
+			quest_placed = FALSE;
+		}
+	}
+	/*place a monster quest*/
+	else if (choice == QUEST_SLOT_FIXED)
+	{
+		if (!place_mon_quest(qlev, TRUE))
+		{
+			guild_quest_wipe();
+			quest_placed = FALSE;
 		}
 	}
 
 	/* Set current quest */
-	p_ptr->cur_quest = qlev;
+	if (quest_placed)
+	{
+		p_ptr->quest_depth = qlev;
+		p_ptr->cur_quest = qlev;
+		q_info[GUILD_QUEST_SLOT].q_flags &= ~(QFLAG_STARTED);
+	}
 
-	q_info[GUILD_QUEST_SLOT].q_flags &= ~(QFLAG_STARTED);
 
 	/*
 	 * Have the next quest be either two or three levels above
@@ -2708,6 +2756,10 @@ bool guild_purchase(int choice)
 	 */
 	if (one_in_(2)) q_info[GUILD_QUEST_SLOT].q_flags &= ~(QFLAG_EXTRA_LEVEL);
 	else q_info[GUILD_QUEST_SLOT].q_flags |= (QFLAG_EXTRA_LEVEL);
+
+	/* Vault quest allowed 1/3 of the time */
+	if (one_in_(3)) q_info[GUILD_QUEST_SLOT].q_flags |= (QFLAG_VAULT_QUEST);
+	else q_info[GUILD_QUEST_SLOT].q_flags &= ~(QFLAG_VAULT_QUEST);
 
 	return (TRUE);
 }
@@ -2726,7 +2778,7 @@ byte quest_check(int lev)
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* Check for quest */
-		if (q_info[i].active_level == lev) return (q_info[i].type);
+		if (q_info[i].active_level == lev) return (q_info[i].q_type);
 	}
 
 	p_ptr->redraw |= (PR_QUEST_ST);
@@ -2782,14 +2834,19 @@ void guild_quest_wipe(void)
 {
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 	bool extra_level = FALSE;
+	bool vault_quest = FALSE;
 
-	/* Save if there should be an extra level added to the next quest depth */
+
+	/* Remember if there should be an extra level added to the next quest depth */
 	if (q_ptr->q_flags & (QFLAG_EXTRA_LEVEL)) extra_level = TRUE;
+	/* Remember if we should allow a vault quest */
+	if (q_ptr->q_flags & (QFLAG_VAULT_QUEST)) vault_quest = TRUE;
 
 	/* Wipe the structure */
 	(void)WIPE(q_ptr, quest_type);
 
 	if (extra_level) q_ptr->q_flags |= QFLAG_EXTRA_LEVEL;
+	if (vault_quest) q_ptr->q_flags |= QFLAG_VAULT_QUEST;
 
 	p_ptr->cur_quest = 0;
 
@@ -2898,7 +2955,7 @@ void quest_fail(void)
 				plural_aux(race_name, sizeof(race_name));
 			}
 
-			if (q_ptr->type == QUEST_UNIQUE)
+			if (q_ptr->q_type == QUEST_UNIQUE)
 			{
 				/*write note*/
 				if monster_nonliving(r_ptr)
@@ -2941,7 +2998,7 @@ void format_quest_indicator(char dest[], int max, byte *attr)
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 	/* No quest */
-	if (!q_ptr->type)
+	if (!q_ptr->q_type)
 	{
 		my_strcpy(dest, "Qst: None", max);
 		return;
@@ -2956,7 +3013,7 @@ void format_quest_indicator(char dest[], int max, byte *attr)
 	}
 
  	/* Special case. Vault quests */
-	if (q_ptr->type == QUEST_VAULT)
+	if (q_ptr->q_type == QUEST_VAULT)
 	{
 		/* Get the artifact template */
 		artifact_type *a_ptr = &a_info[QUEST_ART_SLOT];
@@ -3030,9 +3087,9 @@ void quest_monster_update(void)
 	/*nothing left, notification already printed in monster_death */
 	if (!remaining) return;
 
-	if (((q_ptr->type ==  QUEST_THEMED_LEVEL) ||
-         (q_ptr->type == QUEST_PIT) ||
-		 (q_ptr->type == QUEST_NEST)))
+	if (((q_ptr->q_type ==  QUEST_THEMED_LEVEL) ||
+         (q_ptr->q_type == QUEST_PIT) ||
+		 (q_ptr->q_type == QUEST_NEST)))
 	{
 		if (remaining > 1)
 		{
@@ -3041,14 +3098,14 @@ void quest_monster_update(void)
 		else my_strcpy(note, "There is one creature remaining ", sizeof(note));
 		my_strcat(note, format("from the %s", feeling_themed_level[q_ptr->theme]),
 						sizeof(note));
-		if  (q_ptr->type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
-		else if (q_ptr->type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
-		else if (q_ptr->type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
+		if  (q_ptr->q_type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
+		else if (q_ptr->q_type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
+		else if (q_ptr->q_type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
 
 		/*dump the final note*/
 		msg_format(note);
 	}
-	/* Monster quests */
+	/* Monster and fixed monster quests */
 	else
 	{
 		/* Get the monster race name (singular)*/
@@ -3060,8 +3117,20 @@ void quest_monster_update(void)
 			plural_aux(race_name, sizeof(race_name));
 		}
 
-		msg_format("You have %d %s remaining to complete your quest.",
-				remaining, race_name);
+		my_strcpy(note, format("You have %d %s remaining to complete your ",
+				remaining, race_name), sizeof(note));
+
+		if (q_ptr->q_type == QUEST_FIXED_MON)
+		{
+			my_strcat(note, "fixed ", sizeof(note));
+		}
+
+		my_strcat(note, "quest.", sizeof(note));
+
+		/*dump the final note*/
+		msg_format(note);
+
+
 	}
 }
 

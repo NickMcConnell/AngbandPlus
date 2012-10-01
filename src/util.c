@@ -1144,19 +1144,6 @@ static ui_event_data inkey_aux(int scan_cutoff)
 static cptr inkey_next = NULL;
 
 
-#ifdef ALLOW_BORG
-
-/*
- * Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
- *
- * This special function hook allows the "Borg" (see elsewhere) to take
- * control of the "inkey()" function, and substitute in fake keypresses.
- */
-char (*inkey_hack)(int flush_first) = NULL;
-
-#endif /* ALLOW_BORG */
-
-
 /*
  * Get a keypress from the user.
  *
@@ -1250,22 +1237,6 @@ ui_event_data inkey_ex(void)
 
 	/* Forget pointer */
 	inkey_next = NULL;
-
-#ifdef ALLOW_BORG
-
-	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ke.key = (*inkey_hack)(inkey_xtra)) != 0))
-	{
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = FALSE;
-		inkey_scan = 0;
-		ke.type = EVT_KBRD;
-
-		/* Accept result */
-		return (ke);
-	}
-
-#endif /* ALLOW_BORG */
 
 	/* Hack -- handle delayed "flush()" */
 	if (inkey_xtra)
@@ -4096,16 +4067,16 @@ int pick_random_item(int chance_values[], int max)
  * The number is stored in dest.
  * Return FALSE on error.
  */
-errr next_line_to_number(ang_file *fff, int *dest)
+errr next_line_to_number(ang_file *fff, byte *dest)
 {
 	char buf[1024], *end;
-	int number;
+	byte number;
 
 	/* Read the line */
 	if (!file_getl(fff, buf, sizeof(buf))) return (FALSE);
 
 	/* Convert to number */
-	number = (int)strtol(buf, &end, 10);
+	number = (byte)strtol(buf, &end, 10);
 
 	/* Check success */
 	if (end == buf) return (FALSE);
@@ -4115,6 +4086,12 @@ errr next_line_to_number(ang_file *fff, int *dest)
 
 	/* Done */
 	return (TRUE);
+}
+
+int effective_depth(int depth)
+{
+	/* in Quickband this is different */
+	return depth;
 }
 
 

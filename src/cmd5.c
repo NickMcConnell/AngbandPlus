@@ -19,6 +19,8 @@
 #include "angband.h"
 #include "game-cmd.h"
 
+
+
 /*
  * Returns chance of failure for a spell
  */

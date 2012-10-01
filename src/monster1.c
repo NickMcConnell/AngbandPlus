@@ -293,7 +293,10 @@ static bool mon_set_timed(int m_idx, int idx, int v, u16b flag)
 	}
 
 	/* Apply the value, unless they fully resisted */
-	if (resisted != FULL_RESIST)  m_ptr->m_timed[idx] = v;
+	if (resisted != FULL_RESIST)
+	{
+		m_ptr->m_timed[idx] = v;
+	}
 
 	/*possibly update the monster health bar*/
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -301,6 +304,16 @@ static bool mon_set_timed(int m_idx, int idx, int v, u16b flag)
 	if ((idx == MON_TMD_FAST) || (idx == MON_TMD_SLOW))
 	{
 	 	 calc_monster_speed(m_ptr->fy, m_ptr->fx);
+	}
+	/* Just waking up, clear all other effects */
+	else if ((idx == MON_TMD_SLEEP) && (v == 0))
+	{
+		m_ptr->m_timed[MON_TMD_CONF] = 0;
+		m_ptr->m_timed[MON_TMD_STUN] = 0;
+		m_ptr->m_timed[MON_TMD_FEAR] = 0;
+		m_ptr->m_timed[MON_TMD_SLOW] = 0;
+		m_ptr->m_timed[MON_TMD_FAST] = 0;
+		calc_monster_speed(m_ptr->fy, m_ptr->fx);
 	}
 
 	/* Update the visuals, as appropriate. */
@@ -2803,7 +2816,7 @@ static void process_ghost_class(int ghost_class, int r_idx)
  */
 bool prepare_ghost(int r_idx, bool from_savefile)
 {
-	int ghost_sex = 0, ghost_race = 0, ghost_class = 0;
+	byte ghost_sex = 0, ghost_race = 0, ghost_class = 0;
 	byte	try, i, backup_file_selector;
 	bool prepare_new_template = FALSE;
 
@@ -2934,7 +2947,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	/*** Process sex. ***/
 
 	/* Sanity check. */
-	if ((ghost_sex >= MAX_SEXES) || (ghost_class < 0)) ghost_sex = rand_int(MAX_SEXES);
+	if (ghost_sex >= MAX_SEXES) ghost_sex = rand_int(MAX_SEXES);
 
 	/* And use that number to toggle on either the male or the female flag. */
 	if (ghost_sex == 0) r_ptr->flags1 |= (RF1_FEMALE);

@@ -295,7 +295,7 @@ void display_player_xtra_info(void)
 	/* Has he actually left the town? */
 	if (p_ptr->max_depth)
 	{
-		/*express in feet or level*/
+		/*express in feet */
 		strnfmt(buf, sizeof(buf), "%5d ft", p_ptr->max_depth * 50);
 	}
  	/*hasn't left town*/

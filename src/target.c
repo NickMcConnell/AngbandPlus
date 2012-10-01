@@ -85,7 +85,6 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if ((!m_ptr->m_timed[MON_TMD_SLOW]) && (m_ptr->m_timed[MON_TMD_FAST])) my_strcat(buf, ", hasted", max);
 }
 
-
 /*
  * Draw a visible path over the squares between (x1,y1) and (x2,y2).
  * The path consists of "*", which are white except where there is a
@@ -106,7 +105,7 @@ static int draw_path(u16b path_n, u16b *path_g, char *c, byte *a, int y1, int x1
 	bool on_screen;
 
 	/* No path, so do nothing. */
-	if (path_n < 1) return 0;
+	if (path_n < 1) return (FALSE);
 
 	/* The starting square is never drawn, but notice if it is being
      * displayed. In theory, it could be the last such square.
@@ -559,7 +558,7 @@ static void target_set_interactive_prepare(int mode)
 	bool expand_look = (mode & (TARGET_LOOK)) ? TRUE : FALSE;
 
 	/* Reset "temp" array */
-	temp_n = 0;
+	clear_temp_array();
 
 	/* Scan the current panel */
 	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
@@ -780,7 +779,7 @@ static void target_display_help(bool monster, bool free)
  *
  * This function must handle blindness/hallucination.
  */
-static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr info)
+static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr info, bool list_floor_objects)
 {
 	s16b this_o_idx, next_o_idx = 0;
 	s16b this_x_idx, next_x_idx = 0;
@@ -1217,37 +1216,34 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 					}
 
 					prt(out_val, 0, 0);
+
+					if (list_floor_objects)
+					{
+						/* Save screen */
+						screen_save();
+
+						/* Display */
+						show_floor(floor_list, floor_num, (OLIST_WEIGHT | OLIST_GOLD));
+					}
 					move_cursor_relative(y, x);
 					query = inkey_ex();
+
+					if (list_floor_objects)
+					{
+						screen_load();
+					}
 
 					/* Display objects */
 					if (query.key == 'r')
 					{
 						int pos;
 
-						/* Save screen */
-						screen_save();
-
-						/* Display */
-						show_floor(floor_list, floor_num, (OLIST_WEIGHT | OLIST_GOLD));
-
-						/* Describe the pile */
-						prt(out_val, 0, 0);
-						query = inkey_ex();
-
-						/* Load screen */
-						screen_load();
-
 						pos = query.key - 'a';
 						if (0 <= pos && pos < floor_num)
 						{
 							track_object(-floor_list[pos]);
 							handle_stuff();
-							continue;
 						}
-
-						/* Continue on 'r' only */
-						if (query.key == 'r') continue;
 					}
 
 					/* Done */
@@ -1558,6 +1554,7 @@ bool target_set_interactive(int mode, int x, int y)
 	bool done = FALSE;
 	bool flag = TRUE;
 	bool help = FALSE;
+	bool list_floor_objects = auto_display_lists;
 
 	u16b path_n;
 	u16b path_g[PATH_SIZE];
@@ -1579,7 +1576,7 @@ bool target_set_interactive(int mode, int x, int y)
 		y = p_ptr->py;
 	}
     /* If we /have/ been given an initial location, make sure we
-	   honour it by going into "free targetting" mode. */
+	   honour it by going into "free targeting" mode. */
 	else
 	{
 		flag = FALSE;
@@ -1617,12 +1614,10 @@ bool target_set_interactive(int mode, int x, int y)
 	/* Interact */
 	while (!done)
 	{
-		int yy, xx;
-		bool path_drawn = FALSE;
-
 		/* Interesting grids */
 		if (flag && temp_n)
 		{
+			bool path_drawn = FALSE;
 			int yy, xx;
 
 			y = temp_y[m];
@@ -1656,13 +1651,13 @@ bool target_set_interactive(int mode, int x, int y)
 			path_n = project_path(path_g, path_gx, MAX_RANGE, py, px, &yy, &xx, PROJECT_THRU);
 
 			/* Draw the path in "target" mode. If there is one */
-			if (mode & (TARGET_KILL))
+			if ((mode & (TARGET_KILL)) && (projectable(py, px, y, x, PROJECT_THRU)))
 			{
 				path_drawn = draw_path(path_n, path_g, path_char, path_attr, py, px);
 			}
 
 			/* Describe and Prompt */
-			query = target_set_interactive_aux(y, x, mode, info);
+			query = target_set_interactive_aux(y, x, mode, info, list_floor_objects);
 
 			/* Remove the path */
 			if (path_drawn) load_path(path_n, path_g, path_char, path_attr);
@@ -1768,6 +1763,11 @@ bool target_set_interactive(int mode, int x, int y)
 					break;
 				}
 
+				case 'r':
+				{
+					list_floor_objects = (!list_floor_objects);
+				}
+
 				case '?':
 				{
 					help = !help;
@@ -1838,6 +1838,12 @@ bool target_set_interactive(int mode, int x, int y)
 		/* Arbitrary grids */
 		else
 		{
+			bool path_drawn = FALSE;
+
+			/* Dummy pointers to send to project_path */
+			int yy = y;
+			int xx = x;
+
 			/* Update help */
 			if (help)
 			{
@@ -1861,13 +1867,14 @@ bool target_set_interactive(int mode, int x, int y)
 			path_n = project_path(path_g, path_gx, MAX_RANGE, py, px, &yy, &xx, PROJECT_THRU);
 
 			/* Draw the path in "target" mode. If there is one */
-			if (mode & (TARGET_KILL))
+			if ((mode & (TARGET_KILL)) && (projectable(py, px, y, x, PROJECT_THRU)))
 			{
-				path_drawn = draw_path (path_n, path_g, path_char, path_attr, py, px);
+				/* Save target info */
+				path_drawn = draw_path(path_n, path_g, path_char, path_attr, py, px);
 			}
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
-			query = target_set_interactive_aux(y, x, (mode | TARGET_LOOK), info);
+			query = target_set_interactive_aux(y, x, (mode | TARGET_LOOK), info, list_floor_objects);
 
 			/* Remove the path */
 			if (path_drawn)  load_path(path_n, path_g, path_char, path_attr);
@@ -1993,6 +2000,11 @@ bool target_set_interactive(int mode, int x, int y)
 					cmd_insert(CMD_PATHFIND, y, x);
 					done = TRUE;
 					break;
+				}
+
+				case 'r':
+				{
+					list_floor_objects = (!list_floor_objects);
 				}
 
 				case '?':

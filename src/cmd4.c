@@ -84,6 +84,10 @@ static void dump_pref_file(void (*dump)(ang_file *), const char *title, int row)
 #define DUMP_OBJ	113
 #define DUMP_FEAT	114
 #define DUMP_FLAV	115
+#define CHANGE_MON  116
+#define CHANGE_OBJ  117
+#define CHANGE_FEAT 118
+#define CHANGE_FLAV 119
 #define DUMP_COL	120
 #define MOD_COL		121
 #define RESET_VIS	122
@@ -1449,15 +1453,334 @@ void do_cmd_macros(void)
 	screen_load();
 }
 
+#ifdef ALLOW_VISUALS
+
+static void change_monster_visuals(void)
+{
+	static int r = 0;
+	int cx;
+
+	/* Prompt */
+	prt("Command: Change monster attr/chars", 15, 0);
+
+	/* Hack -- query until done */
+	while (1)
+	{
+		monster_race *r_ptr = &r_info[r];
+
+		byte da = (byte)(r_ptr->d_attr);
+		byte dc = (byte)(r_ptr->d_char);
+		byte ca = (byte)(r_ptr->x_attr);
+		byte cc = (byte)(r_ptr->x_char);
+
+		/* Label the object */
+		Term_putstr(5, 17, -1, TERM_WHITE,
+				format("Monster = %d, Name = %-40.40s", r, (r_name + r_ptr->name)));
+
+		/* Label the Default values */
+		Term_putstr(10, 19, -1, TERM_WHITE,
+		             format("Default attr/char = %3u / %3u", da, dc));
+		Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 19, da, dc);
+
+		if (use_bigtile)
+		{
+			if (da & 0x80)
+				Term_putch(44, 19, 255, -1);
+			else
+				Term_putch(44, 19, 0, ' ');
+		}
+
+		/* Label the Current values */
+		Term_putstr(10, 20, -1, TERM_WHITE,
+		            format("Current attr/char = %3u / %3u", ca, cc));
+		Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 20, ca, cc);
+
+		if (use_bigtile)
+		{
+			if (ca & 0x80)
+			{
+				Term_putch(44, 20, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 20, 0, ' ');
+			}
+		}
+
+		/* Prompt */
+		Term_putstr(0, 22, -1, TERM_WHITE, "Command (n/N/a/A/c/C): ");
+
+		/* Get a command */
+		cx = inkey();
+
+		/* All done */
+		if (cx == ESCAPE) break;
+
+		/* Analyze */
+		if (cx == 'n') r = (r + z_info->r_max + 1) % z_info->r_max;
+		if (cx == 'N') r = (r + z_info->r_max - 1) % z_info->r_max;
+		if (cx == 'a') r_ptr->x_attr = (byte)(ca + 1);
+		if (cx == 'A') r_ptr->x_attr = (byte)(ca - 1);
+		if (cx == 'c') r_ptr->x_char = (byte)(cc + 1);
+		if (cx == 'C') r_ptr->x_char = (byte)(cc - 1);
+	}
+}
+
+static void change_object_visuals(void)
+{
+	static int k = 0;
+	int cx;
+
+	/* Prompt */
+	prt("Command: Change object attr/chars", 15, 0);
+
+	/* Hack -- query until done */
+	while (1)
+	{
+		object_kind *k_ptr = &k_info[k];
+
+		byte da = (byte)(k_ptr->d_attr);
+		byte dc = (byte)(k_ptr->d_char);
+		byte ca = (byte)(k_ptr->x_attr);
+		byte cc = (byte)(k_ptr->x_char);
+
+		/* Label the object */
+		Term_putstr(5, 17, -1, TERM_WHITE, format("Object = %d, Name = %-40.40s",
+					    k, (k_name + k_ptr->name)));
+
+		/* Label the Default values */
+		Term_putstr(10, 19, -1, TERM_WHITE, format("Default attr/char = %3d / %3d",
+				da, dc));
+		Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 19, da, dc);
+
+		if (use_bigtile)
+		{
+			if (da & 0x80)
+			{
+				Term_putch(44, 19, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 19, 0, ' ');
+			}
+		}
+
+		/* Label the Current values */
+		Term_putstr(10, 20, -1, TERM_WHITE, format("Current attr/char = %3d / %3d",
+			             ca, cc));
+		Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 20, ca, cc);
+
+		if (use_bigtile)
+		{
+			if (ca & 0x80)
+			{
+				Term_putch(44, 20, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 20, 0, ' ');
+			}
+		}
+
+		/* Prompt */
+		Term_putstr(0, 22, -1, TERM_WHITE, "Command (n/N/a/A/c/C): ");
+
+		/* Get a command */
+		cx = inkey();
+
+		/* All done */
+		if (cx == ESCAPE) break;
+
+		/* Analyze */
+		if (cx == 'n') k = (k + z_info->k_max + 1) % z_info->k_max;
+		if (cx == 'N') k = (k + z_info->k_max - 1) % z_info->k_max;
+		if (cx == 'a') k_info[k].x_attr = (byte)(ca + 1);
+		if (cx == 'A') k_info[k].x_attr = (byte)(ca - 1);
+		if (cx == 'c') k_info[k].x_char = (byte)(cc + 1);
+		if (cx == 'C') k_info[k].x_char = (byte)(cc - 1);
+	}
+}
+
+static void change_feature_visuals(void)
+{
+	static int f = 0;
+	int cx;
+
+	/* Prompt */
+	prt("Command: Change feature attr/chars", 15, 0);
+
+	/* Hack -- query until done */
+	while (1)
+	{
+		feature_type *f_ptr = &f_info[f];
+		char name[80];
+
+		byte da = (byte)(f_ptr->d_attr);
+		byte dc = (byte)(f_ptr->d_char);
+		byte ca = (byte)(f_ptr->x_attr);
+		byte cc = (byte)(f_ptr->x_char);
+
+		/* Get feature name */
+		feature_desc(name, sizeof(name), f, FALSE, FALSE);
+
+		/* Label the object */
+		Term_putstr(5, 17, -1, TERM_WHITE,
+			            format("Terrain = %d, Name = %-40.40s", f, name));
+
+		/* Label the Default values */
+		Term_putstr(10, 19, -1, TERM_WHITE,
+		            format("Default attr/char = %3d / %3d", da, dc));
+		Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 19, da, dc);
+
+		if (use_bigtile)
+		{
+			if (da & 0x80)
+			{
+				Term_putch(44, 19, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 19, 0, ' ');
+			}
+		}
+
+		/* Label the Current values */
+		Term_putstr(10, 20, -1, TERM_WHITE,
+		            format("Current attr/char = %3d / %3d", ca, cc));
+		Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+					Term_putch(43, 20, ca, cc);
+
+		if (use_bigtile)
+		{
+			if (ca & 0x80)
+			{
+				Term_putch(44, 20, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 20, 0, ' ');
+			}
+		}
+
+		/* Prompt */
+		Term_putstr(0, 22, -1, TERM_WHITE, "Command (n/N/a/A/c/C): ");
+
+		/* Get a command */
+		cx = inkey();
+
+		/* All done */
+		if (cx == ESCAPE) break;
+
+		/* Analyze */
+		if (cx == 'n') f = (f + z_info->f_max + 1) % z_info->f_max;
+		if (cx == 'N') f = (f + z_info->f_max - 1) % z_info->f_max;
+		if (cx == 'a') f_info[f].x_attr = (byte)(ca + 1);
+		if (cx == 'A') f_info[f].x_attr = (byte)(ca - 1);
+		if (cx == 'c') f_info[f].x_char = (byte)(cc + 1);
+		if (cx == 'C') f_info[f].x_char = (byte)(cc - 1);
+	}
+}
+
+static void change_flavor_visuals(void)
+{
+	int cx;
+
+	static int f = 0;
+
+	/* Prompt */
+	prt("Command: Change flavor attr/chars", 15, 0);
+
+	/* Hack -- query until done */
+	while (1)
+	{
+		flavor_type *flavor_ptr = &flavor_info[f];
+
+		byte da = (byte)(flavor_ptr->d_attr);
+		byte dc = (byte)(flavor_ptr->d_char);
+		byte ca = (byte)(flavor_ptr->x_attr);
+		byte cc = (byte)(flavor_ptr->x_char);
+
+		/* Label the object */
+		Term_putstr(5, 17, -1, TERM_WHITE,
+		            format("Flavor = %d, Text = %-40.40s",
+		                   f, (flavor_text + flavor_ptr->text)));
+
+		/* Label the Default values */
+		Term_putstr(10, 19, -1, TERM_WHITE,
+			            format("Default attr/char = %3d / %3d", da, dc));
+		Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 19, da, dc);
+		Term_putch(43, 19, da, dc);
+
+		if (use_bigtile)
+		{
+			if (da & 0x80)
+			{
+				Term_putch(44, 19, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 19, 0, ' ');
+			}
+		}
+
+		/* Label the Current values */
+		Term_putstr(10, 20, -1, TERM_WHITE,
+			            format("Current attr/char = %3d / %3d", ca, cc));
+		Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+		Term_putch(43, 20, ca, cc);
+
+		if (use_bigtile)
+		{
+			if (ca & 0x80)
+			{
+				Term_putch(44, 20, 255, -1);
+			}
+			else
+			{
+				Term_putch(44, 20, 0, ' ');
+			}
+		}
+
+		/* Prompt */
+		Term_putstr(0, 22, -1, TERM_WHITE, "Command (n/N/a/A/c/C): ");
+
+		/* Get a command */
+		cx = inkey();
+
+		/* All done */
+		if (cx == ESCAPE) break;
+
+		/* Analyze */
+		if (cx == 'n') f = (f + z_info->flavor_max + 1) % z_info->flavor_max;
+		if (cx == 'N') f = (f + z_info->flavor_max - 1) % z_info->flavor_max;
+		if (cx == 'a') flavor_info[f].x_attr = (byte)(ca + 1);
+		if (cx == 'A') flavor_info[f].x_attr = (byte)(ca - 1);
+		if (cx == 'c') flavor_info[f].x_char = (byte)(cc + 1);
+		if (cx == 'C') flavor_info[f].x_char = (byte)(cc - 1);
+	}
+}
+
+
+#endif /* ALLOW_VISUALS */
 
 menu_action visual_menu_items [] =
 {
-	{ LOAD_PREF, "Load a user pref file", 0, 0},
-	{ DUMP_MON,  "Dump monster attr/chars", 0, 0},
-	{ DUMP_OBJ,  "Dump object attr/chars", 0, 0 },
-	{ DUMP_FEAT, "Dump feature attr/chars", 0, 0 },
-	{ DUMP_FLAV, "Dump flavor attr/chars", 0, 0 },
-	{ RESET_VIS, "Reset visuals", 0, 0 },
+	{ LOAD_PREF, 	"Load a user pref file", 0, 0},
+	{ DUMP_MON,  	"Dump monster attr/chars", 0, 0},
+	{ DUMP_OBJ,  	"Dump object attr/chars", 0, 0 },
+	{ DUMP_FEAT, 	"Dump feature attr/chars", 0, 0 },
+	{ DUMP_FLAV, 	"Dump flavor attr/chars", 0, 0 },
+	{ CHANGE_MON,  	"Change monster attr/chars", 0, 0},
+	{ CHANGE_OBJ,  	"Change object attr/chars", 0, 0 },
+	{ CHANGE_FEAT, 	"Change feature attr/chars", 0, 0 },
+	{ CHANGE_FLAV, 	"Change flavor attr/chars", 0, 0 },
+	{ RESET_VIS, 	"Reset visuals", 0, 0 },
 };
 
 static menu_type visual_menu;
@@ -1518,6 +1841,24 @@ void do_cmd_visuals(void)
 		else if (evt == DUMP_FLAV)
 		{
 			dump_pref_file(dump_flavors, "Dump Flavor attr/chars", 15);
+		}
+
+		else if (evt == CHANGE_MON)
+		{
+			change_monster_visuals();
+		}
+
+		else if (evt == CHANGE_OBJ)
+		{
+			change_object_visuals();
+		}
+		else if (evt == CHANGE_FEAT)
+		{
+			change_feature_visuals();
+		}
+		else if (evt == CHANGE_FLAV)
+		{
+			change_flavor_visuals();
 		}
 
 #endif /* ALLOW_VISUALS */
@@ -2781,6 +3122,7 @@ void do_cmd_quest(void)
 	}
 	/* No quest at all */
 	else msg_print("You are not currently undertaking a quest.");
+
 }
 /*
  * Encode the screen colors

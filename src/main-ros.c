@@ -3302,9 +3302,6 @@ static errr Term_xtra_acn_check(void)
 		START_HOURGLASS;
 	}
 
-	/*
-	   | This allows the user to interrupt the borg.
-	 */
 	if (key_pressed) return key_pressed = 0;
 
 	return 1;

@@ -8,7 +8,8 @@ his chances down in the dungeon.
 --- Saving your Game ---
 
      Saving your game is usually easy.  You can use the save game command, or
-(on some systems) a menu option.  If you cannot save your game, you probably
+(on some systems) a menu option.  The game is auto-saved whenever you enter
+a new level.  If you cannot save your game, you probably
 have one of two problems:
 1) The folder "<<game>>/lib/save" does not exist.  Create this directory and
    any others that are missing.
@@ -30,7 +31,7 @@ birth interface.  The new character inherits the monster knowledge of his
 ancestor.
 
 Savefile compatibility report:
-	NPPAngband 0.4.0 breaks savefile compatability.  NPP 0.5.1 loads 0.4.0 savefiles.
+     NPPAngband 0.4.0 breaks savefile compatability.  NPP 0.5.3 loads 0.4.0 savefiles.
      NPPAngband 0.3.4 and before loads files from Angband 2.9.0 and later.  To use earlier
 savefiles, import it into Angband 2.9.3, resave, and then open it up with the
 current version.
@@ -94,4 +95,3 @@ the game has a few answers for that too.  You may cheat death by:
        to learn the game.
      - Making backup savefiles.
      - Aborting the game just as the tombstone appears or before.
-

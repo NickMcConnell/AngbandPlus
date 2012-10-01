@@ -559,23 +559,24 @@ static int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m
 	/* Return the total damage */
 	return ((tdam * mult) / 100);
 }
-
-
 /*
  * Critical hits (from objects thrown by player)
- * Factor in item weight, total plusses, and player level.
+ * Factor in item weight, total plusses, and player level, bow skill.
  */
-static int critical_shot(int weight, int plus, int dam)
+static int critical_shot(int weight, int plus, int dam, bool throw)
 {
 	int i, k;
 
+	int bonus = (throw ? p_ptr->state.skills[SKILL_TO_HIT_THROW] : p_ptr->state.skills[SKILL_TO_HIT_BOW]);
+
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->state.to_h + plus) * 4) + (p_ptr->lev * 2));
+	i += bonus;
 
 	/* Critical hit */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(500);
+		k = weight + randint(500 + bonus);
 
 		if (k < 500)
 		{
@@ -1307,7 +1308,7 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr, FALSE);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, FALSE);
 
 				/*rogues are deadly with slings*/
 				if ((cp_ptr->flags & CF_ROGUE_COMBAT) && (p_ptr->state.ammo_tval == TV_SHOT))
@@ -2254,7 +2255,7 @@ void do_cmd_throw(cmd_code code, cmd_arg args[])
 					if (i_ptr->ident & IDENT_PERFECT_BALANCE) tdam *= 2;
 
 					/* Critical hits may add damage dice. */
-					tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+					tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam, TRUE);
 
 					/*
 					 * Double the damage for throwing weapons

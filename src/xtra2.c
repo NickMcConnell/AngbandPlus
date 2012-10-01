@@ -232,7 +232,7 @@ static void build_quest_stairs(int y, int x)
 	int ny, nx;
 
 	/* Stagger around */
-	while (!cave_valid_bold(y, x))
+	while (!cave_clean_bold(y, x))
 	{
 
 		/* Pick a location */
@@ -250,6 +250,8 @@ static void build_quest_stairs(int y, int x)
 
 	/* Create stairs down */
 	cave_set_feat(y, x, FEAT_MORE);
+
+	light_spot(y, x);
 
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
@@ -284,6 +286,7 @@ void monster_death(int m_idx, int who)
 	bool completed = FALSE;
 	bool fixedquest = FALSE;
 	bool writenote = TRUE;
+	bool need_stairs = FALSE;
 
 	s16b set_object_level;
 
@@ -397,7 +400,7 @@ void monster_death(int m_idx, int who)
 	coin_type = force_coin;
 
 	/* Average dungeon and monster levels */
-	set_object_level = object_level = (p_ptr->depth + r_ptr->level) / 2;
+	set_object_level = object_level = (effective_depth(p_ptr->depth) + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number_drops; j++)
@@ -508,7 +511,7 @@ void monster_death(int m_idx, int who)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = effective_depth(p_ptr->depth);
 
 	/* Reset "coin" type */
 	coin_type = 0;
@@ -562,8 +565,11 @@ void monster_death(int m_idx, int who)
 					q_ptr->active_level = 0;
 
 					/* Mark fixed quests */
-					if ((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_FIXED_U))
+					if ((q_ptr->q_type == QUEST_FIXED) ||
+						(q_ptr->q_type == QUEST_FIXED_U))
 						fixedquest = TRUE;
+
+					if (q_ptr->q_type == QUEST_FIXED_MON) need_stairs = TRUE;
 
 					/* One complete */
 					completed = TRUE;
@@ -605,13 +611,15 @@ void monster_death(int m_idx, int who)
 				}
 
 				/*let the player know how many left*/
-				else if (q_ptr->type == QUEST_MONSTER) p_ptr->notice |= PN_QUEST_REMAIN;
+				else if ((q_ptr->q_type == QUEST_MONSTER) ||
+						(q_ptr->q_type == QUEST_FIXED_MON)) p_ptr->notice |= PN_QUEST_REMAIN;
+
 			}
 			/*quest monster from a themed level, nest, or pit*/
 			else if ((m_ptr->mflag & (MFLAG_QUEST)) &&
-					 ((q_ptr->type ==  QUEST_THEMED_LEVEL) ||
-			 		  (q_ptr->type == QUEST_PIT) ||
-				  	  (q_ptr->type == QUEST_NEST)))
+					 ((q_ptr->q_type ==  QUEST_THEMED_LEVEL) ||
+			 		  (q_ptr->q_type == QUEST_PIT) ||
+				  	  (q_ptr->q_type == QUEST_NEST)))
 			{
 				char note[120];
 
@@ -646,9 +654,9 @@ void monster_death(int m_idx, int who)
 						my_strcat(note, mon_theme, sizeof(note));
 
 						/*Finish off the line*/
-						if  (q_ptr->type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
-			 			else if (q_ptr->type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
-				  		else if (q_ptr->type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
+						if  (q_ptr->q_type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
+			 			else if (q_ptr->q_type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
+				  		else if (q_ptr->q_type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
 
 						/*write it*/
 						do_cmd_note(note, p_ptr->depth);
@@ -715,6 +723,12 @@ void monster_death(int m_idx, int who)
 
 		/* Redraw the status */
 		p_ptr->redraw |= (PR_QUEST_ST);
+
+		/* If fixed monster quest, build magical stairs */
+		if (need_stairs)
+		{
+			build_quest_stairs(y, x);
+		}
 
 		return;
 	}

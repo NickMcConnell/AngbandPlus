@@ -439,7 +439,7 @@ bool set_effect_trap_smart(int f_idx, byte y, byte x, u16b flags)
 	/*All full*/
 	if (!x_idx) return (FALSE);
 
-	trap_power = (f_ptr->x_damage * (MAX(1, p_ptr->depth)) / 100);
+	trap_power = (f_ptr->x_damage * (MAX(1, effective_depth(p_ptr->depth))) / 100);
 
 	/*
 	 * Avoid unfair instadeaths for the player by creating the trap only partially charged.

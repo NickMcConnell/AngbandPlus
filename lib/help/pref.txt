@@ -174,24 +174,24 @@ H:3              : The hitpoint warning will be at 30%.
 
 ====== Visuals, colors, and multimedia ======
 
-Interact with Visuals:  (command: '%') :
+Interact with Visuals:  (command '=' then 'v') :
      You may adjust the character and attribute (color) used to display objects,
 monsters, and terrain features.
-     1) Update your preferences with a specific user preference file.
-     2) Save your current monster visuals to file.
-     3) Save your current object visuals to file.
-     4) Save your current terrain visuals to file.
-     %) Save your current flavor preferences to file.
-     6) Change monster visuals.
-     7) Change object visuals.
-     8) Change terrain visuals.
-     9) Change the symbol and flavor used for many kinds of objects.
-     0) Reset visuals to their last saved values (undo all changes).
+     a) Update your preferences with a specific user preference file.
+     b) Save your current monster visuals to file.
+     c) Save your current object visuals to file.
+     d) Save your current terrain visuals to file.
+     e) Save your current flavor preferences to file.
+     f) Change monster visuals.
+     g) Change object visuals.
+     h) Change terrain visuals.
+     j) Change the symbol and flavor used for many kinds of objects.
+     j) Reset visuals to their last saved values (undo all changes).
 
      When changing visuals, you may type the following keys:
      n: advance one (wrap around if at the end)
      N: go back one (wrap around if at the beginning)
-     a: change to the next color (wrap around if at color 15)
+     a: change to the next color (wrap around if at the last color)
      A: change to the previous color (wrap around if at color 0)
      c: change to the next character in the ASCII sequence (wrap around at 255)
      C: change to the previous character (wrap around if at 0)
@@ -199,19 +199,19 @@ monsters, and terrain features.
      A good way to get used to the interface is to choose option 6:  change
 monster visuals, note that the first "monster" is your character, and change it
 from a white '@' to something silly.  Leave, see how weird you look, come back,
-and (if you like) press '0' to reset the visuals.
+and (if you like) press 'j' to reset the visuals.
      Remember to type Control-R after making any changes.
 
 
 
-Interact with colors:  (command '&') :
+Interact with colors:  (command '=' then 'c' then '3') :
      In the interact with colors display, you have three options available:
      1) Update your preferences with a specific user preference file.
      2) Save your colors to file.
      3) Modify colors.
 
      When changing colors, you may issue the following commands:
-     n: go to the next color (wraps around at 255)
+     direction keys: navigate to other colors
      N: go back one (wrap around if at 0)
      k: change a value (possibly the gamma correction?)
      K: change a value (possibly the gamma correction?)
@@ -222,9 +222,7 @@ Interact with colors:  (command '&') :
      b: increase the blue in this color (wraps around at hex value 0xff)
      B: decrease the blue in this color (wraps around at hex value 0x00)
 
-     Note that, while the game is theoretically capable of using more than 16
-colors, it is not currently set up to do so.  Also, color 0 should not be
-changed.
+     Note color 0 should not be changed.
 
      Remember to type Control-R after making any changes.
 

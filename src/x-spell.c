@@ -2002,6 +2002,19 @@ cptr do_druid_spell(int mode, int spell, int dir)
 			break;
 		}
 
+		case DRUID_CREATE_ELEMENTS:
+		{
+			rad = 2;
+
+			if (name) return ("Create elements");
+			if (desc) return (format("Creates native terrains in a radius %d area around the player.", rad));
+			if (cast)
+			{
+				if (!create_elements(p_ptr->py, p_ptr->px, rad)) return (NULL);
+			}
+			break;
+		}
+
 		case DRUID_FLICKER:
 		{
 			dam = 10;

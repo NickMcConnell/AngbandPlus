@@ -1051,7 +1051,7 @@ bool object_info_out(const object_type *o_ptr,  bool extra_info)
 	bool something = FALSE;
 
 	/* Grab the object flags */
-	object_info_out_flags(o_ptr, &f1, &f2, &f3, &fn);
+	object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
@@ -1178,6 +1178,7 @@ void object_info_screen(const object_type *o_ptr)
 	{
 		char buf[200];
 		int price;
+		s16b weight;
 
 		/* Show object history if possible */
 		if (format_object_history(buf, sizeof(buf), o_ptr))
@@ -1185,6 +1186,13 @@ void object_info_screen(const object_type *o_ptr)
 			text_out("\n\n   ");
 			text_out_c(TERM_YELLOW, buf);
 		}
+
+		weight = o_ptr->weight * o_ptr->number;
+		if (o_ptr->number > 1)
+		{
+			text_out_c(TERM_YELLOW, "\n\n   They weigh %1d.%1d lb.", weight / 10, weight % 10);
+		}
+		else text_out_c(TERM_YELLOW, "\n\n   It weighs %1d.%1d lb.", weight / 10, weight % 10);
 
 		/* Print resale value */
 		text_out("\n\n   ");

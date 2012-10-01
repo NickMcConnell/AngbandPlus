@@ -27,7 +27,8 @@ Hitpoints:
 below zero, you die.  Resting will restore hitpoints, but you should always have
 some quicker way to heal yourself on hand.  Your maximum hitpoints depends on
 your level, race, and class, plus a constitution bonus (which can be
-considerable).
+considerable).  You can also get an increase in your max hitpoints as a quest
+reward.
 
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
@@ -100,7 +101,7 @@ effectively.
      If you are using spells, intelligence is your primary stat.  It controls
 how many spells you may learn, the amount of mana you have, and your spell
 failure rate.  If you are using prayers, wisdom controls all of these things.
-FOr druids, it is a combination of intelligence and wisdom.
+For druids, it is a combination of intelligence and wisdom.
 
 Wisdom:
      Wise characters have a better chance of resisting magical spells cast upon
@@ -186,17 +187,13 @@ creatures, even when invisible or not lit.
 
      Your character may benefit or suffer from many different conditions.  The
 most important ones are displayed on the bottom row of the main screen and the
-lower part of the left panel.  We describe them as they are displayed, down,
-then from left to right.
+lower part of the left panel.  
 
      Wounds    : Instead of recovering battle damage, you take additional damage
                  every turn.
      Stunning  : Your combat and spellcasting abilities decrease.  If you are
                  too badly stunned, you can be knocked out!
-     Hunger    : You need to eat every so often.  If you eat too much, you
-                 become bloated and slow down.  If you eat too little, you
-                 become hungry (no special effects), weak (reduced recovery),
-                 feel faint (pass out every so often), and finally starve (take
+every so often), and finally starve (take
                  damage every turn).
      Blindness : You cannot see most monsters, it is harder to learn about
                  objects or what's around you, and get only vague information
@@ -226,13 +223,61 @@ third speed ("very slow").
      Permanent speed bonuses add to your base speed.  Temporary effects may
 increase or reduce speed by 10.  
 
-Study:
-     If you know magic, and can learn spells, you will see a "study" indicator
-near the right-bottom of the main screen.  If you have a book available, you can
-learn the spells now.
-
 Depth:
      How deep in the dungeon you are.
 
+Quest status:
+     Shows the status of your active quest.  It could indicate the depth to go to.
+If the quest is active, it will show the current goal.  If you have completed your
+quest, it will tell you to go to the guild to collect your reward.
+
+Recall:
+     There is an active word of recall that will send the player back to the town 
+(if in the dungeon), or back down to the recall depth (if in the town).
 
 
+State:
+     Indicates if you are resting, repeating a command, or searching.
+
+Cut:
+     Indicates if you have a cut.  You will take damage every turn and this 
+prevents you from healing (restoring ing your hp back to max health).  
+
+Stun:  
+     Indicates that you are stunned.  This affects your combat and spellcasting
+ability.  If you are heavily stunned, you are close to being knocked out.  A 
+knocked out character cannot move or attack, and are usually killed before they 
+wake up.  It si important to heal as soon as possible if heavily stunned.
+
+Hunger:
+     You need to eat every so often.  If you eat too much, you become bloated 
+and slow down.  If you eat too little, you become hungry (no special effects), 
+weak (reduced recovery), feel faint (pass out).
+
+Study:
+     If you know magic, and can learn spells, you will see a "study" indicator
+on the bottom row of the main screen.  If you have a book available, you can
+learn the spells now.
+
+Timed effects:
+     Tells which temporary effects you are subject to.  Some are good, and some 
+are bad.  The temporary effects are:  Hasting, slowing, blind, paralyzed, 
+confused, afraid, hallucinating, poisoned, cut, stunned, protected from evil, 
+invulnerability, heroic, super-heroic, shielded, blessed, see invisible, 
+infravision, resisting the elements (acid, fire, cold, poison, electricity), 
+and flying.
+
+Nativity:
+     Whether you are native or non-native to the terrain you are in.  This gives 
+you combat bonuses (or penalty), as well as the ability to move through the 
+terrain with less (or more) energy.  Note the player can take significant damage 
+if standing in dangerous terrain (such as lava or fire) without being native 
+to it.
+
+Call Hourns:
+     A temporary spell that causes the forest to come alive around you and 
+attack your enemies.
+
+Dtrap:
+     The player is in an area where they have detected traps.  If the player 
+is on the edge of the detect area, the text "DTrap" is yellow. 

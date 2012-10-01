@@ -206,7 +206,7 @@ nether.
 Resist Chaos:
      The damage you take from chaos is reduced, and you are immune to all the
 nasty things chaos can do to you.  This resistance does not make you resistant
-to confusion.
+to damage from confusion attacks, but you will resist the confusion side-effect.
 
 Resist Disenchantment:
      Rarest of all the resistances, this reduces damage from disenchantment
@@ -298,4 +298,5 @@ of Remove Cure fails, find and read one of *Remove Curse*.
 
 Permanent Curse:
      There is a great and terrible Ring, seen by perhaps one character in one
-thousand, that can never be removed once put on.
+thousand, that can never be removed once put on.  Morgoth's iron crown is
+also permanently cursed.

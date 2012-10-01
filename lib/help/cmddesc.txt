@@ -358,7 +358,9 @@ Note that dead characters are dead forever.
 --- Preferences Commands ---
 
 Interact with options (=) :
-     Set and review options.  See the options section for more information.
+     Set and review options, window settings, squelch settings, base delay
+factor, hitpoint warning, movement delay, load a user pref file, save a pref
+file.  See the options section for more information.
 
 Interact with macros (@) :
      Create, load, and save macros and keymaps.  See the macro and keymaps

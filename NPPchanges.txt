@@ -1,3 +1,73 @@
+NPP 0.5.3 changes:
+
+
+Reinstated the menus allowing the player to edit visuals and tilesets for monsters, terrain, flavors, and objects.
+Many updates to the help files.
+Bugfix:  The store help file incorrectly indicated you could purchase an item using the enter key.
+Incorporated changes from current Angband that should get the extended characters working on MAC compiles.
+Object weight is shown when an object is examined.
+Vault quests are now available 1/3 of the time.
+Bugfix:  Vault quests were still not working.  This should be fixed.
+Casting mass identify now squelches the whole pile, instead of just items set for a quality squelch.
+Items in a store marked to "keep in stock" now always have a quantity of 99, even when some are purchased.
+In order to trigger a buyout of store inventory, items that are permanently kept in stock don't have to be purchased.
+Fixed a typo in the no_player_ghosts option on the option screen.
+When targeting, the list of floor items displays automatically with the auto_show_lists option on.
+Wizard mode:  Added a command "M" to create 15 random items.
+Wizard mode:  The 'i' command is now mass_identify instead of identify.
+Added descriptions for store services to the help documentation. 
+While in the guild, when the player examines a quest or service, the appropriate section of the help documentation will load onscreen.
+A message now displays when all forms of the remove curse spell is cast. 
+Removed all references and code related to the Angband borg.
+Bugfix:  Sometimes a single object was being picked up regardless of the pickup and quelch settings.
+Bugfix:  The quest status indicator was displaying Morgoth at level 100 as the active quest insteat of the current guild quest.
+Bugfix: the store_no_selling option where gold in the town was incorrectly calculated.
+Added birth_connected_stairs option for people who don't want connected stairs.
+Added store_no_selling option where all items purchased by stores are for 0 gold, and gold drops are 5 times more valuable.
+Rogues no longer have the cure light wounds spell.
+Allows the player to run through more types of terrains without being interrupted.
+Monsters waking up from sleep are also cleared of hasting, slowing, confusion, stunning, and fear.
+Themed levels are limited to 3 uniques per level.
+Added the run command to several more floor terrains.
+Bugfix: birth_no_store_services and birth_no_quests weren't working.
+Bugfix: The flag that marked a quest as active wasn't working properly.
+Bugfix: Some deep pit and nest quests were using easy room themes for their depth.
+Bugfix: The help files gave the wrong command for rogues and brigands setting traps.
+Bugfix: DUring targeting, sometimes a nonsense path was being drawn.
+Bugfix: Fixed a memory leak with the temp_y and temp_x arrays.
+Updated creates elements spell provided (Diego).
+Bugfix: The previous commit corrupted savefiles and made them unplayable after the first use.
+Bugfix: In several instances in the source code, the monster list window wasn't being re-drawn due to a typo.
+Changed the color of monsters who breathe time to pink.
+Added the flicker_monsters option to shimmer monster color with attr_multi when game is idle.
+Bugfix:  Artifacts printed in the notes file did not have the appropriate prefix (ex. "The").
+Added the ATTR_MULTI flag to most of the great wyrms.
+Added some of the new vaults from Angband 3.2.
+Updated a couple of the file handling functions to the new ones in ANgband 3.2 to eliminate a compiler warning.
+Increased the number of shades a monster can flicker with the ATTR_MULTI flag.
+Bugfix:  A mushroom of blindness poisoned instead of blinds.
+Bugfix:  When the player left a monster quest level, quest failure was happening far too frequently.
+Bugfix:  The player could duplicate ammunition with certain inscriptions.
+Bugfix:  The note that a player left a level without entering a greater vault
+         gave the wrong depth (The depth was only correct if the player was using word-of-recall).
+Gave Azathoth the teleport_to and teleport_player_to spells again, changed its color to violet.
+Added fixed monster quests as a guild quest option.
+Vault quests are now available 25% of the time. Previously it was when the player fame is equally divisible by 7.
+Changed p_ptr->depth to a function call effective_depth to help quickband stay current with the NPP codebase.
+Added the druid spell "create elements".
+Added files by Brian Bull that assist in compiling with Visual C++ 2008.
+Bugfix: Savefiles were prevented from loading properly on the Mac OS when a player ghost was active.
+Bugfix: Savefiles did not properly save some of the quest status flags.
+Bugfix: The game could crash if a new character goes into a shop, views an ego-weapon, leaves the shop, 
+        starts the knowledge menu, and looks at the ego. (fixed by Brian BUll)
+Bugfix: The detect_monsters_evil function returned "true" if there isn't a monster on the square. (fixed by Brian BUll)
+Bugfix: The sleep monster spell only worked for one turn.    (fixed by Brian BUll)
+Bugfix:  Squelch settings could be used to identify objects. (fixed by Brian BUll)
+Bugfix: Monster breath damage sometimes incorrectly determined monsters were the same race or similar.
+Bugfix: Monsters in pit/nest quests killed that aren't killed by the player are now replenished somewhere on the level
+        Also, the replacement monster can't be a unique.
+
+
 NPP 0.5.2 changes:
 Added a flag to monster_type "project" to indicate when the monster is in projectable los to the player.
 Fixed a typo in the message when the player gets their constitution drained by a GF_TIME attack.

@@ -1555,7 +1555,7 @@ const s16b spell_list[3][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			DRUID_DETECT_TERRAIN,
 			DRUID_EARTHQUAKE,
 			DRUID_LIFE_DRAIN_BURST,
-			-1,
+			DRUID_CREATE_ELEMENTS,
 		},
 
 		/* Lore of Engagement */
@@ -1831,8 +1831,8 @@ const char *window_flag_desc[32] =
 	"Display status",
 	"Display item list",
 	"Display feature recall",
-	"Display borg messages",
-	"Display borg status",
+	NULL,
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -1926,7 +1926,7 @@ option_entry options[OPT_MAX] =
 	{NULL,				NULL,								FALSE},/* xxx */
 	{"show_piles",			"Show stacks using special attr/char",	FALSE},	/* OPT_show_piles */
 	{"center_player",		"Center map continuously (very slow)",	FALSE},	/* OPT_center_player */
-	{NULL,				NULL,								FALSE},/* xxx */
+	{"animate_flicker",    	"Shimmer multi-colored things",  		FALSE}, /* OPT_animate_flicker */
 	{"xchars_to_file",		"Allow accents in output files",		FALSE},	/* OPT_xchars_to_file */
 	{"auto_more",			"Automatically clear '-more-' prompts",	FALSE},	/* OPT_auto_more */
 	{NULL,				NULL,								FALSE},/* xxx */
@@ -1986,7 +1986,7 @@ option_entry options[OPT_MAX] =
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
-	{NULL,NULL,FALSE},/* xxx */
+	{"birth_no_selling",    	"Birth: Items always sell for 0 gold",          FALSE}, /* OPT_birth_no_selling */
 	{"birth_maximize",			"Birth: Maximize effect of race/class bonuses",	TRUE},	/* OPT_birth_maximize */
 	{"birth_preserve",			"Birth: Preserve artifacts when leaving level",	TRUE},	/* OPT_birth_preserve */
 	{"birth_ironman",			"Birth: Restrict the use of stairs/recall",		FALSE},	/* OPT_birth_ironman */
@@ -1996,7 +1996,7 @@ option_entry options[OPT_MAX] =
 	{"birth_no_stacking",		"Birth: Never stack objects on the floor",		FALSE},	/* OPT_birth_no_stacking */
 	{"birth_take_notes",		"Birth: Have notes written to a file",			TRUE},	/* OPT_birth_auto_notes */
 	{"birth_force_small_lev",	"Birth: All levels will be generated as small",	FALSE},	/* OPT_birth_force_small_lev */
-	{NULL,NULL,FALSE},/* xxx */
+	{"birth_connected_stairs",  "Birth: Generate connected stairs",       		TRUE},	/* OPT_birth_connected_stairs */
 	{"birth_no_quests",			"Birth: Disable quests",						FALSE},	/* OPT_birth_no_quests*/
 	{"birth_no_player ghosts",	"Birth: Disable player ghosts",					FALSE},	/* OPT_birth_no_player ghosts*/
 	{"birth_no_store_services",	"Birth: Disable store services",				FALSE},	/* OPT_birth_no_store_services*/
@@ -2049,8 +2049,8 @@ option_entry options[OPT_MAX] =
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
-	{"adult_point_based",		"Adult: Allow purchase of stats using points",	FALSE},	/* OPT_adult_point_based */
-	{"adult_auto_roller",		"Adult: Allow specification of minimal stats",	FALSE},	/* OPT_adult_auto_roller */
+	{NULL,NULL,FALSE},/* xxx */
+	{"adult_no_selling",    	"Adult: Items always sell for 0 gold",          FALSE}, /* OPT_adult_no_selling */
 	{"adult_maximize",			"Adult: Maximize effect of race/class bonuses",	TRUE},	/* OPT_adult_maximize */
 	{"adult_preserve",			"Adult: Preserve artifacts when leaving level",	TRUE},	/* OPT_adult_preserve */
 	{"adult_ironman",			"Adult: Restrict the use of stairs/recall",		FALSE},	/* OPT_adult_ironman */
@@ -2060,12 +2060,12 @@ option_entry options[OPT_MAX] =
 	{"adult_no_stacking",		"Adult: Never stack objects on the floor",		FALSE},	/* OPT_adult_no_stacking */
 	{"adult_take_notes",		"Adult: Have notes to written to a file",		TRUE},	/* OPT_adult_auto_notes */
 	{"adult_force_small_lev",	"Adult: All levels generated small",			FALSE},	/* OPT_adult_force_small_lev*/
-	{"adult_retain_squelch",	"Adult: Retain squelch settings",				FALSE},	/* OPT_adult_retain_squelch */
+	{"adult_conected_stairs",   "Adult: Generate connected stairs",       		TRUE},	/* OPT_adult_connected_stairs */
 	{"adult_no_quests",			"Adult: Disable quests",						FALSE},	/* OPT_adult_no_quests*/
-	{"adult_no_player ghosts",	"Adult: Disable player ghosts",					FALSE},	/* OPT_adult_no_player ghosts*/
+	{"adult_no_player_ghosts",	"Adult: Disable player ghosts",					FALSE},	/* OPT_adult_no_player ghosts*/
 	{"adult_no_store_services",	"Adult: Disable store services",				FALSE},	/* OPT_adult_no_store_services*/
 	{"adult_no_xtra_artifacts",	"Adult: Disable extra artifacts",				FALSE},	/* OPT_adult_no_xtra_artifacts*/
-	{NULL,NULL,FALSE},/* xxx */
+	{"adult_birth_money",      	"Adult: Start with more money and no equipment",FALSE },/* OPT_adult_birth_money*/
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2160,7 +2160,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
 		OPT_mark_squelch_items,
-		OPT_NONE,
+		OPT_animate_flicker,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2208,12 +2208,12 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_artifacts,
 		OPT_birth_no_stacking,
 		OPT_birth_preserve,
+		OPT_birth_connected_stairs,
 		OPT_birth_no_quests,
 		OPT_birth_no_player_ghosts,
 		OPT_birth_no_store_services,
 		OPT_birth_no_xtra_artifacts,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_birth_no_selling,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

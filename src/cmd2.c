@@ -151,7 +151,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 	message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
 
 	/* Create a way back */
-	p_ptr->create_stair = FEAT_MORE;
+	if (adult_connected_stairs) p_ptr->create_stair = FEAT_MORE;
 
 	/* New depth */
 	decrease++;
@@ -166,7 +166,7 @@ void do_cmd_go_up(cmd_code code, cmd_arg args[])
 		decrease++;
 
 		/* Create a way back (usually) */
-		p_ptr->create_stair = FEAT_MORE_SHAFT;
+		if (adult_connected_stairs) p_ptr->create_stair = FEAT_MORE_SHAFT;
 	}
 
 	/* Change level */
@@ -220,7 +220,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
 	message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
 	/* Create a way back (usually) */
-	p_ptr->create_stair = FEAT_LESS;
+	if (adult_connected_stairs) p_ptr->create_stair = FEAT_LESS;
 
 	/* New level */
 	increase++;
@@ -235,7 +235,7 @@ void do_cmd_go_down(cmd_code code, cmd_arg args[])
 		increase++;
 
 		/* Create a way back (usually) */
-		p_ptr->create_stair = FEAT_LESS_SHAFT;
+		if (adult_connected_stairs) p_ptr->create_stair = FEAT_LESS_SHAFT;
 	}
 
 	/* Change level */
@@ -471,7 +471,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = effective_depth(p_ptr->depth);
 
 	/* No longer opening a chest */
 	object_generation_mode = OB_GEN_MODE_NORMAL;
@@ -1499,7 +1499,7 @@ static bool do_cmd_disarm_aux(int y, int x, bool disarm)
 	/* XXX XXX XXX Variable power? */
 
 	/* Extract trap "power" */
-	power = 5 + p_ptr->depth / 4;
+	power = 5 + effective_depth(p_ptr->depth) / 4;
 
 	/* Prevent the player's own traps granting exp. */
 	if (feat_ff2_match(feat, FF2_TRAP_MON)) power = 0;
@@ -2636,7 +2636,7 @@ void do_cmd_pickup(cmd_code code, cmd_arg args[])
 	(void)code;
 	(void)args[0].choice;
 
-	do_cmd_pickup_from_pile(TRUE);
+	do_cmd_pickup_from_pile(TRUE, TRUE);
 
 	/*
 	 * Intentionally use some energy in case

@@ -54,7 +54,8 @@ Recharging:
      Wands and staffs have to be recharged every so often, and you can also
 recharge rods.  The failure rate of recharging depends on item level, number of
 existing charges, and the power of the recharging spell you are using.
-Recharging wands and staffs is very risky.
+Recharging wands and staffs is very risky.  For a price, the magic shop in town
+will re-charge your wands, staves, and rods safely with 100% success.
 
 
 --- Hindering your foes ---
@@ -83,7 +84,7 @@ about what areas they affect, and what shapes they take.
 stopped by the first monster or wall in their way.  Some also "Beam" upon
 occasion.
 
-"Beam", "Spear", "Lance", "Line", "Spark", "Cone"
+"Beam", "Spear", "Lance", "Line", and "Spark"
      Fires a beam of magic in the direction you choose, or towards your target.
 They are quite useful because they do full damage to every monster in a straight
 line.  Wands and Rods of Light work this way.
@@ -101,4 +102,3 @@ out it goes.  Damage drops
 "Dispel", "Confuse/Slow/Frighten/etc. Monsters"
      A fair number of spells affect all monsters in line of sight (no walls or
 rubble between you and them, up to a range of 20).
-

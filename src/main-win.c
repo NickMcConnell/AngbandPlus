@@ -102,16 +102,6 @@
 
 
 
-#ifdef ALLOW_BORG
-
-/*
- * Hack -- allow use of "screen saver" mode
- */
-#define USE_SAVER
-
-#endif /* ALLOW_BORG */
-
-
 /*
  * Menu constants -- see "ANGBAND.RC"
  */
@@ -1817,12 +1807,17 @@ static errr Term_xtra_win_event(int v)
 	/* Wait for an event */
 	if (v)
 	{
-		/* Block */
-		if (GetMessage(&msg, NULL, 0, 0))
+		int i = 0;
+		while (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			/* Do animation updates (once every ten iterations), then
+			 * sleep 0.02s and try again */
+			if (i == 0) idle_update();
+			Sleep(20);
+			i = (i + 1) % 10;
 		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 
 	/* Check for an event */
@@ -2975,34 +2970,6 @@ static void check_for_save_file(LPSTR cmd_line)
 
 #ifdef USE_SAVER
 
-#ifdef ALLOW_BORG
-
-/*
- * Hook into the inkey() function so that flushing keypresses
- * doesn't affect us.
- *
- * ToDo: Try to implement recording and playing back of games
- * by saving/reading the keypresses to/from a file. Note that
- * interrupting certain actions (resting, running, and other
- * repeated actions) would mess that up, so this would have to
- * be switched off when recording.
- */
-
-extern char (*inkey_hack)(int flush_first);
-
-static char screensaver_inkey_hack_buffer[1024];
-
-static char screensaver_inkey_hack(int flush_first)
-{
-	static int screensaver_inkey_hack_index = 0;
-
-	if (screensaver_inkey_hack_index < sizeof(screensaver_inkey_hack_buffer))
-		return (screensaver_inkey_hack_buffer[screensaver_inkey_hack_index++]);
-	else
-		return ESCAPE;
-}
-
-#endif /* ALLOW_BORG */
 
 
 /*
@@ -3011,10 +2978,6 @@ static char screensaver_inkey_hack(int flush_first)
 static void start_screensaver(void)
 {
 	bool file_exist;
-
-#ifdef ALLOW_BORG
-	int i, j;
-#endif /* ALLOW_BORG */
 
 	/* Set the name for process_player_name() */
 	my_strcpy(op_ptr->full_name, saverfilename, sizeof(op_ptr->full_name));
@@ -3039,72 +3002,6 @@ static void start_screensaver(void)
 	/* Low priority */
 	SendMessage(data[0].w, WM_COMMAND, IDM_OPTIONS_LOW_PRIORITY, 0);
 
-#ifdef ALLOW_BORG
-
-	/*
-	 * MegaHack - Try to start the Borg.
-	 *
-	 * The simulated keypresses will be processed when play_game()
-	 * is called.
-	 */
-
-	inkey_hack = screensaver_inkey_hack;
-	j = 0;
-
-	/*
-	 * If no savefile is present or then go through the steps necessary
-	 * to create a random character.  If a savefile already is present
-	 * then the simulated keypresses will either clean away any [-more-]
-	 * prompts (if the character is alive), or create a new random
-	 * character.
-	 *
-	 * Luckily it's possible to send the same keypresses no matter if
-	 * the character is alive, dead, or not even yet created.
-	 */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Gender */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Race */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Class */
-	screensaver_inkey_hack_buffer[j++] = 'n'; /* Modify options */
-	screensaver_inkey_hack_buffer[j++] = '\r'; /* Reroll */
-
-	if (!file_exists)
-	{
-		/* Savefile name */
-		int n = strlen(saverfilename);
-		for (i = 0; i < n; i++)
-			screensaver_inkey_hack_buffer[j++] = saverfilename[i];
-	}
-
-	screensaver_inkey_hack_buffer[j++] = '\r'; /* Return */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Character info */
-
-	/*
-	 *
-	 * Try just marking the savefile correctly.
-	 */
-	p_ptr->noscore |= (NOSCORE_BORG);
-
-	/*
-	 * Make sure the "OPT(cheat_live)" option is set, so that the Borg can
-	 * automatically restart.
-	 */
-	screensaver_inkey_hack_buffer[j++] = '5'; /* Cheat options */
-
-	/* Cursor down to "cheat live" */
-	for (i = 0; i < OPT_OPT(cheat_live) - OPT_CHEAT; i++)
-		screensaver_inkey_hack_buffer[j++] = '2';
-
-	screensaver_inkey_hack_buffer[j++] = 'y'; /* Switch on "OPT(cheat_live)" */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave cheat options */
-	screensaver_inkey_hack_buffer[j++] = ESCAPE; /* Leave options */
-
-	/*
-	 * Now start the Borg!
-	 */
-
-	screensaver_inkey_hack_buffer[j++] = KTRL('Z'); /* Enter borgmode */
-	screensaver_inkey_hack_buffer[j++] = 'z'; /* Run Borg */
-#endif /* ALLOW_BORG */
 
 	/* Play game */
 	play_game((bool)!file_exist);

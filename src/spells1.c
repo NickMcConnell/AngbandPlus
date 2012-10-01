@@ -2327,7 +2327,7 @@ void disease(int *damage)
  *
  * This function is also called from the "melee" code.
  *
- * The "mode" is currently unused.
+ * The "mode" changes the message for disenchantment vs. damage.
  *
  * Return "TRUE" if the player notices anything.
  *
@@ -3889,6 +3889,9 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 		}
 	}
 
+	/* For mass_identify, squelch the pile to get rid of junk */
+	if (typ == GF_MASS_IDENTIFY) do_squelch_pile(y, x);
+
 	/* Return "Anything seen?" */
 	return (obvious);
 }
@@ -3982,7 +3985,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 	int haste_note = 0;
 
 	/* Sleep amount (amount to sleep) */
-	bool do_sleep = FALSE;
+	int do_sleep = 0;
 	int sleep_note = 0;
 
 	/* Fear amount (amount to fear) */
@@ -4684,7 +4687,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			 * No "real" damage, but damage is
 			 * used to determine the length of the sleep.
 			 */
-			do_sleep = TRUE;
+			do_sleep = damage;
 			damage = 0;
 			break;
 		}
@@ -6298,7 +6301,7 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 				power = r_ptr->level;
 
 			}
-			else power = p_ptr->depth;
+			else power = effective_depth(p_ptr->depth);
 
 			if (blind) msg_print("You feel spores all around you...");
 

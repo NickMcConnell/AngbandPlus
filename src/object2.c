@@ -454,7 +454,7 @@ static bool make_artifact_special(object_type *o_ptr)
 
 	int k_idx;
 
-	int depth_check = ((object_generation_mode) ?  object_level : p_ptr->depth);
+	int depth_check = ((object_generation_mode) ?  object_level : effective_depth(p_ptr->depth));
 
 	/*no artifacts while making items for stores*/
 	if ((object_generation_mode >= OB_GEN_STORE_HEAD) &&
@@ -537,7 +537,7 @@ static bool make_artifact(object_type *o_ptr)
 {
 	int i;
 
-	int depth_check = ((object_generation_mode) ?  object_level : p_ptr->depth);
+	int depth_check = ((object_generation_mode) ?  object_level : effective_depth(p_ptr->depth));
 
 	/*no artifacts while making items for stores, this is a double-precaution*/
 	if ((object_generation_mode >= OB_GEN_MODE_GEN_ST) &&
@@ -3438,10 +3438,10 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
-	    (k_info[j_ptr->k_idx].k_level > p_ptr->depth))
+	    (k_info[j_ptr->k_idx].k_level > effective_depth(p_ptr->depth)))
 	{
 		/* Rating increase */
-		rating += (k_info[j_ptr->k_idx].k_level - p_ptr->depth);
+		rating += (k_info[j_ptr->k_idx].k_level - effective_depth(p_ptr->depth));
 
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
@@ -3624,6 +3624,12 @@ bool make_gold(object_type *j_ptr)
 	int sval;
 	int k_idx;
 	s32b base;
+	s32b value;
+	s32b mult = (birth_no_selling ? object_level : 1);
+
+	/* Boundry control for gold multiplier birth_no_selling option*/
+	if (mult < 1) 		mult = 1;
+	else if (mult > 5) 	mult = 5;
 
 	/* Hack -- Pick a Treasure variety */
 	sval = ((randint(object_level + 2) + 2) / 2);
@@ -3646,16 +3652,21 @@ bool make_gold(object_type *j_ptr)
 	object_prep(j_ptr, k_idx);
 
 	/* Hack -- Base coin cost */
-	base = k_info[k_idx].cost;
+	base = k_info[k_idx].cost * mult;
 
 	/* Determine how much the treasure is "worth" */
-	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
+	value = (base + (8L * randint(base)) + randint((8 * mult)));
 
 	/*chests containing gold are very lucritive*/
 	if (object_generation_mode > 0)
 	{
-		j_ptr->pval += ((randint(4) + randint(4) + object_level / 4 ) * 50);
+		value += ((randint((4 * mult)) + randint((4 * mult)) + object_level / 4 ) * 50);
 	}
+
+	/* Cap gold at max short (or alternatively make pvals s32b) */
+	if (value > MAX_SHORT)	value = MAX_SHORT;
+
+	j_ptr->pval = value;
 
 	/* Success */
 	return (TRUE);
@@ -3815,7 +3826,7 @@ void steal_object_from_monster(int y, int x)
 	object_type object_type_body;
 
 	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	object_level = (effective_depth(p_ptr->depth) + r_ptr->level) / 2;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -3961,7 +3972,7 @@ void steal_object_from_monster(int y, int x)
 	}
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	object_level = effective_depth(p_ptr->depth);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)

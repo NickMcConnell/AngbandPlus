@@ -16,7 +16,7 @@ acquire treasure.
 --- Stores ---
 
      You enter buildings by walking onto their entranceways, which (in text
-mode) are represented by numbers from 1 to 9.
+mode) are represented by numbers from 0 to 9.
      A new display then replaces the old.  You see the name and race of the
 store owner, the name of the store, and the maximum number of gold pieces that
 the store owner will pay for any one item.  Below it is displayed the inventory;
@@ -93,22 +93,6 @@ The Price of Items:
      The price of items that change hands depends on their base cost and 
 your Charisma. 
 
- 
-
-     If you have the "auto_haggle" option set, you simply pay the going rate.
-Otherwise, you haggle for everything that isn't marked as being fixed price.
-
-Haggling:
-Note: Most players choose to play with haggling off.
-
-     If you are selling something, a typical haggling session starts with the
-shopkeeper assuring you that a good price is maybe 1-25% of what the item is
-really worth.  You demand many times this, and the bargaining begins.  You bring
-your price closer to the shopkeeper's offer, and he then does the same for you.
-The best way to change a price is to enter "-20" or "+20", instead of retyping a
-new figure.  After some rounds, you and the shopkeeper will meet somewhere in
-the middle.
- 
 
 Store Stocks:
      Stores never have everything in stock; as time passes, their inventory
@@ -119,3 +103,124 @@ Shopkeepers can retire and be replaced:
      Shopkeepers do retire, but only rarely.  He puts everything in the 
 store on sale.
 
+Store Services
+***** <Enchant armor [price varies]>
+Enchant armor
+Enchant one piece of armor.  The biggest advantage of the store service is
+that it succeeds 100% of the time.  THe biggest drawback is that the greater
+the armor bonus, the greater the price.  The price increases significantly 
+for higher enchantments.
+
+***** <Enchant weapon to-hit [price varies]>
+Enchant weapon to-hit
+Enchant a weapon's to-hit bonus.  The biggest advantage of the store service is
+that it succeeds 100% of the time.  THe biggest drawback is that the greater
+the to-hit bonus, the greater the price.  The price increases significantly 
+for higher enchantments.
+
+***** <Enchant weapon to-dam [price varies]>
+Enchant weapon to-dam
+Enchant a weapon's to-damage bonus.  The biggest advantage of the store service is
+that it succeeds 100% of the time.  THe biggest drawback is that the greater
+the to-damage bonus, the greater the price.  The price increases significantly 
+for higher enchantments.
+
+
+***** <Elemental Brand a weapon [price varies]>
+Elemental Brand a weapon
+Brands a weapon with either flames or frost,  The kind of brand is chosen randomly.
+Please note this service will not work on ego-item weapons or artifacts.  The final 
+price increases with the weapon value.
+
+***** <Elemental brand some ammunition[price varies]>
+Elemental brand some ammunition	
+Brands ammunition with poison, flames or frost.  he kind of brand is chosen randomly.
+Please note this service will not work on ego-item ammunition.  The final price 
+increases with the ammunition's value.	
+	
+***** <Recharge item [price varies]>
+Recharge item
+Recharge wands, staves, or rods.The biggest advantage of the store service is
+that it succeeds 100% of the time. THe biggest drawback is that the greater
+the number on charges, the greater the price.  The price increases significantly 
+for wands/staves with alot of charges, or for a large stack of rods that need
+recharging.
+
+***** <Identify item>
+Identify item
+Identify one item.  This service works exactly the same as the identify spell or scroll.
+
+***** <*Identify* item>
+*Identify* item
+*Identify* one item. This service works exactly the same as the *identify* scroll. 
+
+***** <Cure Critical Wounds>
+Cure Critical Wounds
+This service is identical to the cure critical wounds potion.  It cures 8d10 points
+ of damage, cures all stunning, heals all cuts, damage, neutralizes poison, 
+and cures blindness and confusion.  It also provides nourishment for about 50 
+turns under normal conditions. 
+
+***** <Restore Life Levels>
+Restore Life Levels
+Restores experience to maximum if it is currently below maximum.  This service is
+identical to the restore life levels potion.
+
+***** <Remove curse>
+Remove curse
+Removes ordinary curses from all equipped items.  This service is identical to the
+Remove Curse scroll or spell.
+
+
+***** <Remove *curse*>
+Remove *curse*
+Removes ordinary and heavy curses from all equipped objects.  This service is 
+identical to the *Remove Curse* scroll or spell.
+
+***** <Restore stat>
+Restore stat
+First restores a stat if it is below the current maximum.  The player chooses
+which stat gets restored.
+
+***** <Increase stat>
+Increase stat
+First restores a stat if it is below the current maximum, then permanently 
+increases the same stat.  The player chooses which stat gets increased.
+
+***** <Create Artifact[price varies]>
+Create Artifact
+Turns one weapon or piece of armor into an artifact.  If the player desires a 
+weapon with alot of slays, resists, or orther abilities, it is best to use
+a weapon with low damage dice, as the total damage the weapon can inflict 
+is factored into determining the value of the artifact. 
+
+***** <Probe a Quest Monster[price varies]>
+Probe a Quest Monster
+Probes the quest monster race, revealing many of their characteristics and 
+abilities.  This service is identical to the probing spell.
+
+***** <Purchase Potion of Healing>
+Purchase Potion of Healing
+Provide the player with one Potion of Healing.
+
+***** <Purchase Potion of Life>
+Purchase Potion of Life
+Provide the player with one Potion of Life.
+
+***** <Purchase Scroll of Mass Banishment>
+Purchase Scroll of Mass Banishment
+Provide the player with one Scroll of Mass Banishment.
+
+***** <Abandon Your Quest>
+Abandon Your Quest
+Inform the guild you cannot accomplish their assigned quest.  This will 
+result in a diminished reputation in the guild and a significant 
+decrease in the quality of future quest rewards. 
+
+***** <Make Spell Book Fireproof[price varies]>
+Make one spellbook invulnerable to fire attacks.
+			
+***** <Receive Your Quest Reward!>
+Receive Your Quest Reward!			
+Inform the Guild you completed their assigned quest and receive Your Reward!
+	

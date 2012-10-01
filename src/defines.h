@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.2"
+#define VERSION_STRING	"0.5.3"
 
 
 /*
@@ -61,7 +61,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	2
+#define VERSION_PATCH	4
 #define VERSION_EXTRA	0
 
 
@@ -352,48 +352,6 @@
 #define ROW_STATE		(Term->hgt - 1)
 #define COL_STATE		38	/* <state> */
 
-
-/*
- * Quest types
- */
-#define QUEST_FIXED			1	/* A fixed quest from quest.txt for a non-unique*/
-#define QUEST_FIXED_U		2	/* A fixed quest from quest.txt for a unique*/
-#define QUEST_MONSTER		3	/* Kill a non-unique*/
-#define QUEST_UNIQUE		4	/* Kill a unique*/
-#define QUEST_VAULT			5	/* retrieve a artifact from a vault and return it to the guild*/
-#define QUEST_PIT			6	/* clear out an entire monster pit*/
-#define QUEST_NEST			7	/* clear out a monster next*/
-#define QUEST_THEMED_LEVEL	8	/* clear out an entire level of creatures*/
-
-#define MON_RARE_FREQ	15
-#define MON_LESS_FREQ	50
-
-#define QUEST_THEMED_LEVEL_NUM  275
-
-#define QUEST_LEVEL_BOOST	2
-
-/*
- * Quest reward types
- */
-#define REWARD_GOLD			1
-#define REWARD_GOOD_ITEM	2
-#define REWARD_GREAT_ITEM	3
-#define REWARD_TAILORED		4
-#define REWARD_RANDART		5
-#define REWARD_INC_HP		6
-#define REWARD_INC_SPEED	7
-
-
-/*Quest description Modes*/
-#define QMODE_HALF_1 1
-#define QMODE_HALF_2 2
-#define QMODE_SHORT  3
-#define QMODE_FULL   4
-
-/*artifact slot reserved for vault quest artifact*/
-#define QUEST_ART_SLOT	z_info->art_norm_max
-
-#define GUILD_QUEST_SLOT	0
 
 
 /*
@@ -778,7 +736,7 @@ enum
 /* xxx */
 #define OPT_show_piles				67
 #define OPT_center_player			68
-/* xxx */
+#define OPT_animate_flicker			69
 #define OPT_xchars_to_file			70
 #define OPT_auto_more				71
 /* xxx */
@@ -793,7 +751,7 @@ enum
 /* xxx */
 /* xxx xxx */
 /* xxx xxx */       				/*(OPT_BIRTH+0)*/
-/* xxx xxx */        				/*(OPT_BIRTH+1)*/
+#define OPT_birth_no_selling		(OPT_BIRTH+1)
 #define OPT_birth_maximize          (OPT_BIRTH+2)
 #define OPT_birth_preserve          (OPT_BIRTH+3)
 #define OPT_birth_ironman           (OPT_BIRTH+4)
@@ -803,7 +761,7 @@ enum
 #define OPT_birth_no_stacking       (OPT_BIRTH+8)
 #define OPT_birth_take_notes        (OPT_BIRTH+9)
 #define OPT_birth_force_small_lev	(OPT_BIRTH+10)
-/* xxx */
+#define OPT_birth_connected_stairs	(OPT_BIRTH+11)
 #define OPT_birth_no_quests			(OPT_BIRTH+12)
 #define OPT_birth_no_player_ghosts	(OPT_BIRTH+13)
 #define OPT_birth_no_store_services	(OPT_BIRTH+14)
@@ -819,7 +777,7 @@ enum
 #define OPT_cheat_live				(OPT_CHEAT+5)
 /* xxx xxx */
 /* xxx xxx */       				/*(OPT_ADULT+0)*/
-/* xxx xxx */        				/*(OPT_ADULT+1)*/
+#define OPT_adult_no_selling       	(OPT_ADULT+1)
 #define OPT_adult_maximize			(OPT_ADULT+2)
 #define OPT_adult_preserve			(OPT_ADULT+3)
 #define OPT_adult_ironman			(OPT_ADULT+4)
@@ -829,7 +787,7 @@ enum
 #define OPT_adult_no_stacking		(OPT_ADULT+8)
 #define OPT_adult_take_notes        (OPT_ADULT+9)
 #define OPT_adult_force_small_lev   (OPT_ADULT+10)
-/* xxx */
+#define OPT_adult_connected_stairs	(OPT_ADULT+11)
 #define OPT_adult_no_quests			(OPT_ADULT+12)
 #define OPT_adult_no_player_ghosts	(OPT_ADULT+13)
 #define OPT_adult_no_store_services	(OPT_ADULT+14)
@@ -915,7 +873,7 @@ enum
 /* xxx */
 #define show_piles				op_ptr->opt[OPT_show_piles]
 #define center_player			op_ptr->opt[OPT_center_player]
-/* xxx */
+#define animate_flicker 		op_ptr->opt[OPT_animate_flicker]
 #define xchars_to_file			op_ptr->opt[OPT_xchars_to_file]
 #define auto_more				op_ptr->opt[OPT_auto_more]
 /* xxx */
@@ -924,7 +882,7 @@ enum
 /* xxx */
 /* xxx */
 /* xxx */
-/* xxx xxx */
+#define birth_no_selling		op_ptr->opt[OPT_birth_no_selling]
 #define birth_maximize			op_ptr->opt[OPT_birth_maximize]
 #define birth_preserve			op_ptr->opt[OPT_birth_preserve]
 #define birth_ironman			op_ptr->opt[OPT_birth_ironman]
@@ -934,7 +892,7 @@ enum
 #define birth_no_stacking       op_ptr->opt[OPT_birth_no_stacking]
 #define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
 #define	birth_force_small_lev	op_ptr->opt[OPT_birth_force_small_lev]
-/* xxx */
+#define	birth_connected_stairs	op_ptr->opt[OPT_birth_connected_stairs]
 #define birth_no_quests			op_ptr->opt[OPT_birth_no_quests]
 #define birth_no_player ghosts	op_ptr->opt[OPT_birth_no_player_ghosts]
 #define birth_no_store_services	op_ptr->opt[OPT_birth_no_store_services]
@@ -950,7 +908,7 @@ enum
 #define cheat_live				op_ptr->opt[OPT_cheat_live]
 /* xxx xxx */
 /* xxx xxx */
-/* xxx xxx */
+#define adult_no_selling		op_ptr->opt[OPT_adult_no_selling]
 #define adult_maximize			op_ptr->opt[OPT_adult_maximize]
 #define adult_preserve			op_ptr->opt[OPT_adult_preserve]
 #define adult_ironman			op_ptr->opt[OPT_adult_ironman]
@@ -960,7 +918,7 @@ enum
 #define adult_no_stacking		op_ptr->opt[OPT_adult_no_stacking]
 #define adult_take_notes		op_ptr->opt[OPT_adult_take_notes]
 #define	adult_force_small_lev	op_ptr->opt[OPT_adult_force_small_lev]
-/* xxx xxx */
+#define	adult_connected_stairs	op_ptr->opt[OPT_adult_connected_stairs]
 #define adult_no_quests			op_ptr->opt[OPT_adult_no_quests]
 #define adult_no_player_ghosts	op_ptr->opt[OPT_adult_no_player_ghosts]
 #define adult_no_store_services	op_ptr->opt[OPT_adult_no_store_services]
@@ -1362,7 +1320,7 @@ enum
 /* player_type.noscore flags */
 #define NOSCORE_WIZARD		0x0002
 #define NOSCORE_DEBUG		0x0008
-#define NOSCORE_BORG		0x0010
+
 
 
 #define SCAN_INSTANT ((u32b) -1)

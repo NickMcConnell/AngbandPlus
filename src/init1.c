@@ -3647,11 +3647,11 @@ errr parse_q_info(char *buf, header *head)
 			/*unique quest*/
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				q_ptr->type = QUEST_FIXED_U;
+				q_ptr->q_type = QUEST_FIXED_U;
 			}
 
 			/*fixed quest*/
-			else q_ptr->type = QUEST_FIXED;
+			else q_ptr->q_type = QUEST_FIXED;
 
 			q_ptr->max_num = max;
 		}

@@ -1073,7 +1073,8 @@ bool race_breathes_element(const monster_race *r_ptr, int gf_type)
 }
 
 /*
- * Return true if monster 2 breathes all of the breaths that monster 1 breathes.
+ * Return true if monster race 2 breathes all of the breaths
+ * and ball spells that monster race 1 breathes.
  */
 bool race_similar_breaths(const monster_race *r_ptr, const monster_race *r2_ptr)
 {
@@ -1086,27 +1087,34 @@ bool race_similar_breaths(const monster_race *r_ptr, const monster_race *r2_ptr)
 	u32b f6_2 = r2_ptr->flags6;
 	u32b f7_2 = r2_ptr->flags7;
 
-	/* Limit to the breath masks of each monster.*/
-	f4 &= (RF4_BREATH_MASK);
-	f5 &= (RF5_BREATH_MASK);
-	f6 &= (RF6_BREATH_MASK);
-	f7 &= (RF7_BREATH_MASK);
-	f4_2 &= (RF4_BREATH_MASK);
-	f5_2 &= (RF5_BREATH_MASK);
-	f6_2 &= (RF6_BREATH_MASK);
-	f7_2 &= (RF7_BREATH_MASK);
+	/* Limit to the breath and ball masks for each race.*/
+	f4   &= (RF4_BREATH_MASK | RF4_BALL_MASK);
+	f5   &= (RF5_BREATH_MASK | RF5_BALL_MASK);
+	f6   &= (RF6_BREATH_MASK | RF6_BALL_MASK);
+	f7   &= (RF7_BREATH_MASK | RF7_BALL_MASK);
+	f4_2 &= (RF4_BREATH_MASK | RF4_BALL_MASK);
+	f5_2 &= (RF5_BREATH_MASK | RF5_BALL_MASK);
+	f6_2 &= (RF6_BREATH_MASK | RF6_BALL_MASK);
+	f7_2 &= (RF7_BREATH_MASK | RF7_BALL_MASK);
 
-	/* Now take out everything the second monster breathes */
-	f4 &= ~(f4_2);
-	f5 &= ~(f4_2);
-	f6 &= ~(f4_2);
-	f7 &= ~(f4_2);
+	/* One of the monsters doesn't have any ball or breath spells. */
+	if ((!f4)   && (!f5)   && (!f6)   && (!f7))   return (FALSE);
+	if ((!f4_2) && (!f5_2) && (!f6_2) && (!f7_2)) return (FALSE);
+
+	/* Filter second race breaths and ball spells to only what the first race casts */
+	f4_2 &= (f4);
+	f5_2 &= (f5);
+	f6_2 &= (f6);
+	f7_2 &= (f7);
 
 
-	/* Second monster breathes everything the first one doesn't */
-	if ((f4) || (f5) || (f6) || (f7)) return (FALSE);
+	/* Return false if any of the 4 flag sets don't match */
+	if (f4 != f4_2) return (FALSE);
+	if (f5 != f5_2) return (FALSE);
+	if (f6 != f6_2) return (FALSE);
+	if (f7 != f7_2) return (FALSE);
 
-	/* The second monster is the same type or a subset breather of the first */
+	/* The second monster has all of the breaths/spells of the first */
 	return (TRUE);
 }
 

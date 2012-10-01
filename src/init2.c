@@ -769,13 +769,7 @@ static errr init_other(void)
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
 
 	/* Array of grids */
-	view_g = C_ZNEW(VIEW_MAX, u16b);
-
-	/* Array of grids */
 	fire_g = C_ZNEW(VIEW_MAX, u16b);
-
-	/* Array of grids */
-	temp_g = C_ZNEW(TEMP_MAX, u16b);
 
 	/* has_LIGHT patch causes both temp_g and temp_x/y to be used
 	   in targetting mode: can't use the same memory any more. */
@@ -1533,6 +1527,8 @@ void cleanup_angband(void)
 
 	/* Free the temp array */
 	FREE(temp_g);
+	FREE(temp_y);
+	FREE(temp_x);
 
 	/* Free the dynamic features array */
 	FREE(dyna_g);

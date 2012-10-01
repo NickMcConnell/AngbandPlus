@@ -155,11 +155,11 @@ choose his fights.  A rogue's perception is higher than that of any other class,
 and ofttimes he will notice a trap or secret door without having to search.
 Rogues can also learn a few spells, but not the powerful offensive magic mages
 wield.  A rogue has moderately fast, detailed pseudo-ID.  Intelligence is his
-spell stat.  Using the 'P' command, he can attempt to steal from monsters, and
-set traps for unsuspecting monsters.  As the rogue gains levels, he can create
-an increasing variety of traps by using the + command on an existing monster
-trap.  He is exceptionally gifted with a sling, and gets an extra shot with
-a sling when he reaches level 26.
+spell stat.  The 'P' command allows a brigand can attempt to steal from 
+monsters, and the 'O' command can set traps for unsuspecting monsters.  
+As the brigand gains levels, he can create an increasing variety of traps by 
+using the 'O' command on an existing monster trap.  He is exceptionally gifted 
+with a sling, and gets an extra shot with a sling when he reaches level 26.
 
 ***** <Ranger>
 Ranger:
