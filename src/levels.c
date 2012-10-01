@@ -1,6 +1,6 @@
 /* File: levels.c */
 
-/* Purpose: Levels functions */
+/* Purpose: level subruntimes */
 
 /*
  * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
@@ -78,7 +78,6 @@ int get_branch()
 
         /* Get and return the branch */
         if (get_command(file, 'B', buf)) return (atoi(buf));
-
         /* No branch ? return 0 */
         else return 0;
 }
@@ -94,7 +93,6 @@ int get_fbranch()
 
         /* Get and return the branch */
         if (get_command(file, 'F', buf)) return (atoi(buf));
-
         /* No branch ? return 0 */
         else return 0;
 }

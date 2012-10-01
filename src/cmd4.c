@@ -58,7 +58,7 @@ void do_cmd_redraw(void)
         p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-        p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_M_LIST);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
@@ -112,7 +112,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-                if (mode == 7)
+                if (mode == 6)
 		{
 			mode = 0;
 			display_player(mode);
@@ -123,8 +123,8 @@ void do_cmd_change_name(void)
                 {
                         Term_putstr(6, 22, -1, TERM_WHITE,
                                 "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
-                        Term_putstr(14, 23, -1, TERM_WHITE,
-                                "['t/T' to change tactics, 'e/E' change to movement]");
+                        Term_putstr(16, 23, -1, TERM_WHITE,
+                                "['t' to change tactics, 'e' change to movement]");
                 }else{
                         Term_putstr(6, 23, -1, TERM_WHITE,
                                 "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
@@ -163,21 +163,12 @@ void do_cmd_change_name(void)
 
                 else if (c == 't')
                 {
-                        if (mode == 0) (void)do_cmd_change_tactic(-1);
+                        if (mode==0) (void)do_cmd_change_tactic();
                 }
 
                 else if (c == 'e')
                 {
-                        if (mode == 0) do_cmd_change_movement(-1);
-                }
-                else if (c == 'T')
-                {
-                        if (mode==0) (void)do_cmd_change_tactic(1);
-                }
-
-                else if (c == 'E')
-                {
-                        if (mode==0) do_cmd_change_movement(1);
+                        if (mode==0) do_cmd_change_movement();
                 }
 		/* Oops */
 		else
@@ -1004,7 +995,7 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
-                prt("(P/5) PernAngband Options", 9, 5);
+                prt("(N/5) NewAngband Options", 9, 5);
 		/* Testing */
 		prt("(S) Stacking Options", 10, 5);
 		/* Special choices */
@@ -1012,15 +1003,12 @@ void do_cmd_options(void)
 		prt("(H) Hitpoint Warning", 12, 5);
 		prt("(A) Autosave Options", 13, 5);
 
-                /* Squeltching */
-                prt("(Q) Squelch Stuff", 14, 5);
-
 
 		/* Window flags */
-                prt("(W) Window Flags", 15, 5);
+		prt("(W) Window Flags", 14, 5);
 
 		/* Cheating */
-                prt("(C) Cheating Options", 17, 5);
+		prt("(C) Cheating Options", 16, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -1067,9 +1055,9 @@ void do_cmd_options(void)
 			}
 
                         /* PernAngband Options */
-                        case 'P': case 'p': case '5':
+                        case 'N': case 'n': case '5':
 			{
-                                do_cmd_options_aux(5, "PernAngband Options");
+                                do_cmd_options_aux(5, "NewAngband Options");
 				break;
 			}
 
@@ -1095,15 +1083,6 @@ void do_cmd_options(void)
 			case 'A':
 			{
 				do_cmd_options_autosave("Autosave");
-				break;
-			}
-
-                        /* Suqeltch stuff */
-                        case 'Q':
-                        case 'q':
-			{
-				/* Spawn */
-                                do_cmd_squeltch_options();
 				break;
 			}
 
@@ -2575,7 +2554,7 @@ void do_cmd_version(void)
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    msg_format("You are playing PernAngband %d.%d.%d.",
+    msg_format("You are playing NewAngband %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
                
@@ -2608,6 +2587,10 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_FEELING, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
+#endif
+
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
@@ -2970,38 +2953,6 @@ void do_cmd_knowledge_artifacts(void)
 		}
 	}
 
-	/* Check monsters in the dungeon */
-        for (i = 0; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		s16b this_o_idx, next_o_idx = 0;
-
-		/* Scan all objects the monster carries */
-		for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-		{
-			object_type *o_ptr;
-		
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
-			/* Ignore random artifacts */
-			if (o_ptr->tval == TV_RANDART) continue;
-
-			/* Ignore non-artifacts */
-			if (!artifact_p(o_ptr)) continue;
-
-			/* Ignore known items */
-			if (object_known_p(o_ptr)) continue;
-
-			/* Note the artifact */
-			okay[o_ptr->name1] = FALSE;
-		}
-	}
-
 	/* Check the inventory and equipment */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -3139,6 +3090,9 @@ static void do_cmd_knowledge_uniques(void)
 	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
+
+                /* Ignore the Player Monsters & Ghosts */
+                if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
 
 		/* Only print Uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -3284,10 +3238,8 @@ static void do_cmd_knowledge_pets(void)
 		if (is_pet(m_ptr))
 		{
 			char pet_name[80];
-                        monster_race *r_ptr = race_inf(m_ptr);
-
 			t_friends++;
-                        t_levels += r_ptr->level;
+			t_levels += r_info[m_ptr->r_idx].level;
 			monster_desc(pet_name, m_ptr, 0x88);
 			strcat(pet_name, "\n");
 			fprintf(fff,pet_name);
@@ -3301,6 +3253,7 @@ static void do_cmd_knowledge_pets(void)
 		if (show_upkeep > 100) show_upkeep = 100;
 		else if (show_upkeep < 10) show_upkeep = 10;
 	}
+
 
 
 	fprintf(fff,"----------------------------------------------\n");
@@ -3350,6 +3303,9 @@ static void do_cmd_knowledge_kill_count(void)
 		{
 			monster_race *r_ptr = &r_info[kk];
 
+                        /* Ignore the Player Monsters & Ghosts */
+                        if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
+                
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				bool dead = (r_ptr->max_num == 0);
@@ -3384,6 +3340,9 @@ static void do_cmd_knowledge_kill_count(void)
 	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
+
+                /* Ignore the Player Monsters & Ghosts */
+                if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -3536,7 +3495,7 @@ static void do_cmd_knowledge_quests(void)
 	FILE *fff;
 	char file_name[1024];
 	char tmp_str[80];
-        char rand_tmp_str[110] = "\0";
+	char rand_tmp_str[80] = "\0";
 	char name[80];
 	monster_race *r_ptr;
 	int i;
@@ -3649,6 +3608,7 @@ static void do_cmd_knowledge_fates(void)
 {
 	FILE *fff;
 	char file_name[1024];
+	int i;
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3656,7 +3616,95 @@ static void do_cmd_knowledge_fates(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-	dump_fates(fff);
+        for (i = 0; i < MAX_FATES; i++)
+	{
+                if((fates[i].fate) && (fates[i].know))
+                {
+                        if(fates[i].serious)
+                        {
+                                fprintf(fff, "You are fated to ");
+                        }
+                        else
+                        {
+                                fprintf(fff, "You may ");
+                        }
+                        switch(fates[i].fate)
+                        {
+                                case FATE_FIND_O:
+                                {
+                                        object_type *o_ptr, forge;
+                                        char desc[80];
+
+                                        o_ptr = &forge;
+                                        object_prep(o_ptr, fates[i].o_idx);
+                                        object_desc_store(desc, o_ptr, 1, 0);
+
+                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
+                                        break;
+                                }
+                                case FATE_FIND_A:
+                                {
+                                        object_type *q_ptr, forge;
+                                        char desc[80];
+                                        artifact_type *a_ptr = &a_info[fates[i].a_idx];
+                                        int I_kind;
+
+					/* Get local object */
+					q_ptr = &forge;
+
+					/* Wipe the object */
+					object_wipe(q_ptr);
+
+					/* Acquire the "kind" index */
+					I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+					/* Create the artifact */
+					object_prep(q_ptr, I_kind);
+
+					/* Save the name */
+                                        q_ptr->name1 = fates[i].a_idx;
+
+					/* Extract the fields */
+					q_ptr->pval = a_ptr->pval;
+					q_ptr->ac = a_ptr->ac;
+					q_ptr->dd = a_ptr->dd;
+					q_ptr->ds = a_ptr->ds;
+					q_ptr->to_a = a_ptr->to_a;
+					q_ptr->to_h = a_ptr->to_h;
+					q_ptr->to_d = a_ptr->to_d;
+					q_ptr->weight = a_ptr->weight;
+
+					/* Hack -- acquire "cursed" flag */
+					if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+
+					random_artifact_resistance(q_ptr);
+
+                                        object_desc_store(desc, q_ptr, 1, 0);
+
+                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
+                                        break;
+                                }
+                                case FATE_FIND_R:
+                                {
+                                        char desc[80];
+
+                                        monster_race_desc(desc, fates[i].r_idx);
+                                        fprintf(fff, "meet %s on level %d.\n", desc, fates[i].level);
+                                        break;
+                                }
+                                case FATE_DIE:
+                                {
+                                        fprintf(fff, "die on level %d.\n", fates[i].level);
+                                        break;
+                                }
+                                case FATE_NO_DIE_MORTAL:
+                                {
+                                        fprintf(fff, "never to die by the hand of a mortal being.\n");
+                                        break;
+                                }
+                        }
+                }                        
+	}
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3801,26 +3849,30 @@ void do_cmd_checkquest(void)
 	character_icky = FALSE;
 }
 
-void do_cmd_change_tactic(int i)
+void do_cmd_change_tactic(void)
 {
-        p_ptr->tactic += i;
-        if (p_ptr->tactic > 8) p_ptr->tactic = 0;
-        if (p_ptr->tactic < 0) p_ptr->tactic = 8;
-
-        p_ptr->update |= (PU_BONUS);
-        update_stuff();
-        prt("",0,0);
+   char c;
+   p_ptr->tactic++;
+   if (p_ptr->tactic>8) p_ptr->tactic = 0;
+   prt(format("During your adventures in NewAngband, you behave %s. -- more --",
+       tactic_info[p_ptr->tactic].name),0,0);
+   c = inkey();
+   p_ptr->update |= (PU_BONUS);
+   update_stuff();
+   prt("",0,0);
 }
 
-void do_cmd_change_movement(int i)
+void do_cmd_change_movement(void)
 {
-        p_ptr->movement += i;
-        if (p_ptr->movement > 8) p_ptr->movement = 0;
-        if (p_ptr->movement < 0) p_ptr->movement = 8;
-
-        p_ptr->update |= (PU_BONUS);
-        update_stuff();
-        prt("",0,0);
+   char c;
+   p_ptr->movement++;
+   if (p_ptr->movement>8) p_ptr->movement = 0;
+   prt(format("During your adventures in NewAngband, you explore %s. -- more --",
+              move_info[p_ptr->movement].name),0,0);
+   c = inkey();
+   p_ptr->update |= (PU_BONUS);
+   update_stuff();
+   prt("",0,0);
 }
 
 /*

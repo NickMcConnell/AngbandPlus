@@ -107,6 +107,8 @@ static void roff_aux(int r_idx, int remem)
 {
 	monster_race    *r_ptr;
 
+        monster_type *m_ptr = &m_list[r_idx];
+
 	bool            old = FALSE;
 	bool            sin = FALSE;
 
@@ -159,7 +161,8 @@ static void roff_aux(int r_idx, int remem)
 
 
 	/* Cheat -- Know everything */
-	if (cheat_know)
+        if (cheat_know || p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_LEADER ||
+         p_ptr->pclass == CLASS_COMMANDER)
 	{
 		/* XXX XXX XXX */
 
@@ -167,7 +170,7 @@ static void roff_aux(int r_idx, int remem)
 		save_mem = *r_ptr;
 
 		/* Hack -- Maximal kills */
-		r_ptr->r_tkills = MAX_SHORT;
+                if (cheat_know) r_ptr->r_tkills = MAX_SHORT;
 
 		/* Hack -- Maximal info */
 		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
@@ -256,6 +259,7 @@ static void roff_aux(int r_idx, int remem)
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
                 if (r_ptr->flags3 & (RF3_DRAGONRIDER)) flags3 |= (RF3_DRAGONRIDER);
+                if (r_ptr->flags3 & (RF3_DARKLORD)) flags3 |= (RF3_DARKLORD);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -444,11 +448,18 @@ static void roff_aux(int r_idx, int remem)
 	}
 
 	/* Describe location */
-	if (r_ptr->level == 0)
+        if (r_ptr->level == 0 && !(r_ptr->flags9 & RF9_SPECIAL_GENE))
 	{
 		roff(format("%^s lives in the town", wd_he[msex]));
 		old = TRUE;
 	}
+	/* Describe location */
+        else if (r_ptr->flags9 & RF9_SPECIAL_GENE)
+	{
+                roff(format("This creature normally never appear"));
+		old = TRUE;
+	}
+
 	else if (r_ptr->r_tkills)
 	{
 		if (depth_in_feet)
@@ -576,6 +587,7 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & (RF3_TROLL))      roff(" troll");
 		else if (flags3 & (RF3_ORC))        roff(" orc");
                 else if (flags3 & (RF3_DRAGONRIDER))roff(" DragonRider");
+                else if (flags3 & (RF3_DARKLORD))        roff(" Dark Lord");
 		else                                roff(" creature");
 
 		/* Group some variables */
@@ -896,7 +908,6 @@ static void roff_aux(int r_idx, int remem)
 	if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 	if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 	if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
-        if (flags9 & (RF9_HAS_LITE))  vp[vn++] = "illuminate the dungeon";
 
 	/* Describe special abilities. */
 	if (vn)
@@ -1736,8 +1747,7 @@ void set_mon_num2_hook(int y, int x)
 
 bool is_pet(monster_type *m_ptr)
 {
-#ifdef DRS_SMART_OPTIONS
-        if (m_ptr->smart & (SM_FRIEND))
+	if (m_ptr->smart & (SM_FRIEND))
 	{
 		return (TRUE);
 	}
@@ -1745,14 +1755,10 @@ bool is_pet(monster_type *m_ptr)
 	{
 		return (FALSE);
 	}
-#else
-        return FALSE;
-#endif
 }
 
 void set_pet(monster_type *m_ptr, bool pet)
 {
-#ifdef DRS_SMART_OPTIONS
 	if (pet)
 	{
 		m_ptr->smart |= SM_FRIEND;
@@ -1761,7 +1767,6 @@ void set_pet(monster_type *m_ptr, bool pet)
 	{
 		m_ptr->smart &= ~SM_FRIEND;
 	}
-#endif
 }
 
 /*
@@ -1806,4 +1811,3 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	
 	return TRUE;
 }
-

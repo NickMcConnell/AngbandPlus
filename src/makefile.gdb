@@ -29,20 +29,22 @@ OBJS = \
   load2.o save.o files.o levels.o notes.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o \
-  variable.o tables.o util.o cave.o ghost.o \
+  variable.o tables.o util.o cave.o \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  bldg.o squeltch.o wild.o
+  bldg.o eventmod.o iomod.o cavemod.o monmod.o playmod.o \
+  miscmod.o kindmod.o objmod.o spellmod.o questmod.o racemod.o \
+  dunmod.o
 
 # Compiler
 CC = gcc
 
 # Compiler flags
 CFLAGS = -Wall -g -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY
+-DUSE_TRANSPARENCY -DUSE_PYTHON
 
 
 # Libraries
-LIBS = -lpc -lalleg
+LIBS = -lpc -lalleg -lpython -lparser -lobjects
 
 
 #

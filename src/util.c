@@ -872,7 +872,7 @@ errr fd_close(int fd)
 */
 void move_cursor(int row, int col)
 {
-	Term_gotoxy(col, row);
+        Term_gotoxy(col, row);
 }
 
 
@@ -2231,7 +2231,7 @@ static void msg_flush(int x)
 */
 void msg_print(cptr msg)
 {
-	static int p = 0;
+	static p = 0;
 	
 	int n;
 	
@@ -2648,7 +2648,7 @@ bool askfor_aux(char *buf, int len)
 	while (!done)
 	{
 		/* Place cursor */
-		Term_gotoxy(x + k, y);
+                Term_gotoxy(x + k, y);
 		
 		/* Get a key */
 		i = inkey();
@@ -3154,6 +3154,18 @@ void request_command(int shopping)
 	/* Shopping */
 	if (shopping == 1)
 	{
+		/* Convert */
+		switch (command_cmd)
+		{
+			/* Command "p" -> "purchase" (get) */
+		case 'p': command_cmd = 'g'; break;
+			
+			/* Command "m" -> "purchase" (get) */
+		case 'm': command_cmd = 'g'; break;
+			
+			/* Command "s" -> "sell" (drop) */
+		case 's': command_cmd = 'd'; break;
+		}
 	}
 	
 	/* Hack -- Scan equipment */
@@ -3203,8 +3215,8 @@ void request_command(int shopping)
 
 
 /*
- * Check a char for "vowel-hood"
- */
+* Check a char for "vowel-hood"
+*/
 bool is_a_vowel(int ch)
 {
 	switch (ch)
@@ -3545,7 +3557,7 @@ void strlower(char *buf)
  * returned. Case doesn't matter. -GSN-
  */
 
-int test_monster_name(cptr name)
+int test_monster_name (cptr name)
 {
        int i;
        
@@ -3556,29 +3568,7 @@ int test_monster_name(cptr name)
 		cptr mon_name = r_name + r_ptr->name;
 
 		/* If name matches, give us the number */
-                if (stricmp(name, mon_name) == 0) return (i);
+		if (stricmp (name, mon_name) == 0) return (i);
 	}
 	return (0);
-}
-
-/*
- * Given item name as string, return the index in k_info array. Name
- * must exactly match (look out for commas and the like!), or else 0 is 
- * returned. Case doesn't matter. -DG-
- */
-
-int test_item_name(cptr name)
-{
-       int i;
-       
-       /* Scan the items */
-       for (i = 1; i < max_k_idx; i++)
-       {
-                object_kind *k_ptr = &k_info[i];
-                cptr obj_name = k_name + k_ptr->name;
-
-		/* If name matches, give us the number */
-                if (stricmp(name, obj_name) == 0) return (i);
-       }
-       return (0);
 }

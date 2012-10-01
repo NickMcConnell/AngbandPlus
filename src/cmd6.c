@@ -759,6 +759,10 @@ void do_cmd_eat_food(void)
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_EAT_FOOD, Py_BuildValue("(ii)", o_ptr->tval, o_ptr->sval))) return;
+#endif
+
 	/* Analyze the food */
         if(o_ptr->tval==TV_FOOD){
 	switch (o_ptr->sval)
@@ -1126,22 +1130,20 @@ void do_cmd_eat_food(void)
 
 	/* Destroy a food in the pack */
         if(destroy)
-        {
-                if (item >= 0)
-                {
-                        inven_item_increase(item, -1);
-                        inven_item_describe(item);
-                        inven_item_optimize(item);
-                }
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
 
-                /* Destroy a food on the floor */
-                else
-                {
-                        floor_item_increase(0 - item, -1);
-                        floor_item_describe(0 - item);
-                        floor_item_optimize(0 - item);
-                }
-        }
+	/* Destroy a food on the floor */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
 }
 
 
@@ -1423,20 +1425,66 @@ static bool item_tester_hook_quaffable(object_type *o_ptr)
 	/* Assume not */
 	return (FALSE);
 }
-
-static bool quaff_potion(int tval, int sval, int pval)
+/*
+ * Quaff a potion (from the pack or the floor)
+ */
+void do_cmd_quaff_potion(void)
 {
-	int ident = FALSE;
-	
-        if(tval==TV_POTION)
-	switch (sval)
+	int		item, ident, lev;
+
+	object_type	*o_ptr;
+        object_type     *q_ptr,forge;
+
+	cptr q, s;
+
+	/* Restrict choices to potions */
+        item_tester_hook = item_tester_hook_quaffable;
+
+	/* Get an item */
+	q = "Quaff which potion? ";
+	s = "You have no potions to quaff.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Sound */
+	sound(SOUND_QUAFF);
+
+
+	/* Take a turn */
+	energy_use = 100;
+
+	/* Not identified yet */
+	ident = FALSE;
+
+	/* Object level */
+	lev = k_info[o_ptr->k_idx].level;
+
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_QUAFF_POTION, Py_BuildValue("(ii)", o_ptr->tval, o_ptr->sval))) return;
+#endif
+
+	/* Analyze the potion */
+        if(o_ptr->tval==TV_POTION)
+	switch (o_ptr->sval)
 	{
 		case SV_POTION_WATER:
 		case SV_POTION_APPLE_JUICE:
 		case SV_POTION_SLIME_MOLD:
 		{
 			msg_print("You feel less thirsty.");
-			ident = TRUE;
+                        ident = TRUE;
 			break;
 		}
 
@@ -1606,6 +1654,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			{
 				ident = TRUE;
 			}
+                        
 			break;
 		}
 
@@ -1615,24 +1664,28 @@ static bool quaff_potion(int tval, int sval, int pval)
 			{
 				ident = TRUE;
 			}
+                        
 			break;
 		}
 
 		case SV_POTION_SLOW_POISON:
 		{
 			if (set_poisoned(p_ptr->poisoned / 2)) ident = TRUE;
+                        
 			break;
 		}
 
 		case SV_POTION_CURE_POISON:
 		{
 			if (set_poisoned(0)) ident = TRUE;
+                        
 			break;
 		}
 
 		case SV_POTION_BOLDNESS:
 		{
 			if (set_afraid(0)) ident = TRUE;
+                       
 			break;
 		}
 
@@ -1646,6 +1699,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
+                        
 			break;
 		}
 
@@ -1655,6 +1709,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			{
 				ident = TRUE;
 			}
+                        
 			break;
 		}
 
@@ -1664,6 +1719,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			{
 				ident = TRUE;
 			}
+                        
 			break;
 		}
 
@@ -1672,6 +1728,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_afraid(0)) ident = TRUE;
 			if (set_hero(p_ptr->hero + randint(25) + 25)) ident = TRUE;
 			if (hp_player(10)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1680,6 +1737,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_afraid(0)) ident = TRUE;
 			if (set_shero(p_ptr->shero + randint(25) + 25)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1688,6 +1746,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (hp_player(damroll(2, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1697,6 +1756,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1708,6 +1768,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1719,6 +1780,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1730,6 +1792,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1756,6 +1819,7 @@ static bool quaff_potion(int tval, int sval, int pval)
                         }
                         p_ptr->black_breath = FALSE;
 			ident = TRUE;
+                        
 			break;
 		}
 
@@ -1771,6 +1835,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 				p_ptr->window |= (PW_SPELL);
 				ident = TRUE;
 			}
+                        
 			break;
 		}
 
@@ -1868,6 +1933,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			msg_print("An image of your surroundings forms in your mind...");
 			wiz_lite();
 			ident = TRUE;
+                        
 			break;
 		}
 
@@ -1887,6 +1953,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			identify_pack();
                         self_knowledge(NULL);
 			ident = TRUE;
+                        
 			break;
 		}
 
@@ -1896,6 +1963,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			msg_print(NULL);
                         self_knowledge(NULL);
 			ident = TRUE;
+                        
 			break;
 		}
 
@@ -1909,6 +1977,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 				gain_exp(ee);
 				ident = TRUE;
 			}
+                        
 			break;
 		}
 
@@ -1920,6 +1989,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 			(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 			ident = TRUE;
+                        
 			break;
 		}
 
@@ -1933,6 +2003,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			if (set_cut(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
                         if (heal_insanity(50)) ident = TRUE;
+                        
 			break;
 		}
 
@@ -1940,6 +2011,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 		{
 			(void)set_invuln(p_ptr->invuln + randint(7) + 7);
 			ident = TRUE;
+                        
 			break;
 		}
 
@@ -1954,6 +2026,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 				handle_stuff();
 			}
 			ident = TRUE;
+                        
 			break;
 		}
                 case SV_POTION_BLOOD:
@@ -1961,6 +2034,7 @@ static bool quaff_potion(int tval, int sval, int pval)
                         msg_print("You feel the blood of life running through your veins!");
                         ident = TRUE;
                         p_ptr->allow_one_death++;
+                        
                         break;
                       }
                 case SV_POTION_MUTATION:
@@ -1968,6 +2042,7 @@ static bool quaff_potion(int tval, int sval, int pval)
                         msg_print("You fell a change coming over you !");
                         gain_random_mutation(0);
                         ident = TRUE;
+                        
                         break;
                 }
                 case SV_POTION_INVIS:
@@ -1979,11 +2054,12 @@ static bool quaff_potion(int tval, int sval, int pval)
 				ident = TRUE;
 			}
                         set_tim_invis(p_ptr->tim_invis + t);
+                        
 			break;
 		}
                 case SV_POTION_LEARNING:
                 {
-                        if((p_ptr->realm1) && (p_ptr->pclass != CLASS_SORCERER))
+                        if((p_ptr->realm1) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_HELLQUEEN))
                         {
                                 int i = p_ptr->new_spells;
 
@@ -1997,7 +2073,7 @@ static bool quaff_potion(int tval, int sval, int pval)
                                 /* This indicate the number of extra spell the player has learned */
                                 p_ptr->xtra_spells++;
                         }
-                        else if (p_ptr->pclass != CLASS_SORCERER)
+                        else if (p_ptr->pclass != CLASS_SORCERER || p_ptr->pclass != CLASS_HELLQUEEN)
                         {
                                 msg_print("You don't have to learn spells.");
                         }
@@ -2005,11 +2081,84 @@ static bool quaff_potion(int tval, int sval, int pval)
                         {
                                 msg_print("You can't learn any spell.");
                         }
+                        
                         break;
                 }
+                case SV_POTION_STAR_MUTATION:
+                {
+                        msg_print("You fell a couple of changes coming over you !");
+                        gain_random_mutation(0);
+                        gain_random_mutation(0);
+                        gain_random_mutation(0);
+                        gain_random_mutation(0);
+                        ident = TRUE;
+                        
+                        break;
+                }
+
+                case SV_POTION_SEX_CHANGING:
+                {
+                        if (randint(100) >= 80)
+                        {
+                        msg_print("Your sex changed! You become a NEUTER!! Duh!");
+                        p_ptr->psex = SEX_NEUTER;
+                        }
+                        else if (randint(100) >= 50)
+                        {
+                        msg_print("Your sex changed! You become a FEMALE!! Duh!");
+                        p_ptr->psex = SEX_FEMALE;
+                        }
+                        else
+                        {
+                        msg_print("Your sex changed! You become a MALE!! Duh!");
+                        p_ptr->psex = SEX_MALE;
+                        }                
+                        break;
+                }
+
+                case SV_POTION_POWER:
+                {
+                        
+                        msg_print("You feel that your health greatly improved!");
+                        p_ptr->mhp += 300;
+                        p_ptr->update |= PU_BONUS;
+                        p_ptr->update |= PU_HP;
+                        break;
+                }
+                case SV_POTION_UNCHARISMA:
+                {
+                        
+                        msg_print("YOU BECOME VERY UNCHARISMATIC!!");
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+                        
+                        update_and_handle();
+                        break;
+                }
+
+
+
+
 	}
         else
-	switch (sval)
+	switch (o_ptr->sval)
 	{
                 case SV_POTION2_MIMIC_ABOMINATION:
                 case SV_POTION2_MIMIC_WOLF:
@@ -2026,13 +2175,14 @@ static bool quaff_potion(int tval, int sval, int pval)
                 case SV_POTION2_MIMIC_CHAOS_CLOUD:
                         if(!p_ptr->mimic_form)
                         {
-                                set_mimic(pval,sval);
+                                set_mimic(o_ptr->pval,o_ptr->sval);
                                 /* Redraw title */
                                 p_ptr->redraw |= (PR_TITLE);
                                 /* Recalculate bonuses */
                                 p_ptr->update |= (PU_BONUS);
                                 ident=TRUE;
                         }
+                        
                         break;
                 case SV_POTION2_CURE_LIGHT_SANITY:
                         heal_insanity(damroll(4,8));
@@ -2047,58 +2197,6 @@ static bool quaff_potion(int tval, int sval, int pval)
                         heal_insanity(damroll(10,100));
                         break;
         }
-         
-	return(ident);
-}
-
-/*
- * Quaff a potion (from the pack or the floor)
- */
-void do_cmd_quaff_potion(void)
-{
-	int		item, ident, lev;
-
-	object_type	*o_ptr;
-        object_type     *q_ptr,forge;
-
-	cptr q, s;
-
-	/* Restrict choices to potions */
-        item_tester_hook = item_tester_hook_quaffable;
-
-	/* Get an item */
-	q = "Quaff which potion? ";
-	s = "You have no potions to quaff.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Sound */
-	sound(SOUND_QUAFF);
-
-
-	/* Take a turn */
-	energy_use = 100;
-
-	/* Not identified yet */
-	ident = FALSE;
-
-	/* Object level */
-	lev = k_info[o_ptr->k_idx].level;
-
-	/* Analyze the potion */
-	ident = quaff_potion(o_ptr->tval, o_ptr->sval, o_ptr->pval);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2113,18 +2211,17 @@ void do_cmd_quaff_potion(void)
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
-        if (p_ptr->pclass ==  CLASS_ALCHEMIST)
-        {
+        if(p_ptr->pclass==CLASS_ALCHEMIST){
                 if (item >= 0)
                 {
-                        q_ptr = &forge;
+                        q_ptr=&forge;
                         object_prep(q_ptr, lookup_kind(TV_BOTTLE, 1));
                         q_ptr->number = 1;
                         object_aware(q_ptr);
                         object_known(q_ptr);
-		
+
                         q_ptr->ident |= IDENT_STOREB;
-		
+
                         (void)inven_carry(q_ptr, FALSE);
                 }
         }
@@ -2151,135 +2248,6 @@ void do_cmd_quaff_potion(void)
 		floor_item_increase(0 - item, -1);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
-	}
-	
-	
-}
-
-/*
- * Drink from a fountain
- */
-void do_cmd_drink_fountain(void)
-{
-	cave_type *c_ptr = &cave[py][px];
-	bool ident;
-	int tval, sval, pval = 0;
-
-        /* We quaff or we fill ? */
-        if (!get_check("Do you want to quaff from the fountain ?"))
-        {
-                do_cmd_fill_bottle();
-                return;
-        }
-
-	if (c_ptr->special2 <= 0)
-	{
-              msg_print("The fountain is dried out.");
-		return;
-	}
-	
-	if (c_ptr->special <= SV_POTION_LAST) {
-		tval = TV_POTION;
-		sval = c_ptr->special;
-	}
-	else {
-		tval = TV_POTION2;
-		sval = c_ptr->special - SV_POTION_LAST;
-	}
-	
-	ident = quaff_potion(tval, sval, pval);
-	
-	c_ptr->special2--;
-	
-	if (c_ptr->special2 == 0)
-	{
-		cave_set_feat(py, px, FEAT_EMPTY_FOUNTAIN);
-	}
-	
-	if (ident) c_ptr->info |= CAVE_IDNT;
-}
-
-/*
- * Hook to determine if an object is fillable
- */
-static bool item_tester_hook_fillable(object_type *o_ptr)
-{
-        if (o_ptr->tval==TV_BOTTLE) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
-}
-
-
-/*
- * Fill an empty bottle
- */
-void do_cmd_fill_bottle(void)
-{
-	cave_type *c_ptr = &cave[py][px];
-	int tval, sval, item;
-	object_type *q_ptr, forge;
-	cptr q, s;
-	
-	/* Is the fountain empty? */
-	if (c_ptr->special2 <= 0)
-	{
-		msg_print("The fountain is dried out");
-		return;
-	}
-	
-	/* Determine the tval/sval of the potion */
-	if (c_ptr->special <= SV_POTION_LAST) {
-		tval = TV_POTION;
-		sval = c_ptr->special;
-	}
-	else {
-		tval = TV_POTION2;
-		sval = c_ptr->special - SV_POTION_LAST;
-	}
-	
-	/* Restrict choices to bottles */
-        item_tester_hook = item_tester_hook_fillable;
-
-	/* Get an item */
-	q = "Fill which bottle? ";
-	s = "You have no bottles to fill.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Destroy a bottle in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a potion on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-	
-	/* Create the potion */
-	q_ptr = &forge;
-	object_prep(q_ptr, lookup_kind(tval, sval));
-	q_ptr->number = 1;
-	
-	if (c_ptr->info & CAVE_IDNT)
-	{
-		object_aware(q_ptr);
-		object_known(q_ptr);
-	}
-	
-	inven_carry(q_ptr, FALSE);
-	
-	c_ptr->special2--;
-	
-	if (c_ptr->special2 == 0)
-	{
-		cave_set_feat(py, px, FEAT_EMPTY_FOUNTAIN);
 	}
 }
 
@@ -2334,6 +2302,9 @@ bool curse_armor(void)
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2401,6 +2372,9 @@ bool curse_weapon(void)
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
 
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -2421,7 +2395,7 @@ bool curse_weapon(void)
  */
 static bool item_tester_hook_readable(object_type *o_ptr)
 {
-        if ((o_ptr->tval == TV_SCROLL) || (o_ptr->tval == TV_PARCHEMENT)) return (TRUE);
+        if ((o_ptr->tval==TV_SCROLL)||(o_ptr->tval==TV_PARCHEMENT)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -2435,6 +2409,14 @@ static bool item_tester_hook_readable(object_type *o_ptr)
  */
 void do_cmd_read_scroll(void)
 {
+	/* Berserkers can't use staves/wands/rods/scrolls */
+        if (p_ptr->pclass == CLASS_BERSERKER)
+        {
+           msg_print("You can't read a scroll!");
+        }
+        else
+        {
+
         int                     item, k, used_up, ident, lev;
 
 	object_type		*o_ptr;
@@ -2495,15 +2477,17 @@ void do_cmd_read_scroll(void)
 	/* Assume the scroll will get used up */
 	used_up = TRUE;
 
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_READ_SCROLL, Py_BuildValue("(ii)", o_ptr->tval, o_ptr->sval))) return;
+#endif
+
 	/* Analyze the scroll */
-        if (o_ptr->tval == TV_SCROLL)
-        {
+        if(o_ptr->tval==TV_SCROLL){
 	switch (o_ptr->sval)
 	{
                 case SV_SCROLL_SPELL:
                         cast_spell(o_ptr->pval, o_ptr->pval2);
                 break;
-
                 case SV_SCROLL_DEINCARNATION:
                 {
                         if(!get_check("Do you realy want to leave your body(beware, it'll be destroyed) ?"))
@@ -2515,21 +2499,65 @@ void do_cmd_read_scroll(void)
                         do_cmd_leave_body(FALSE);
                         ident = TRUE;
 
-                        used_up = TRUE;
+                        used_up = FALSE;
+                        o_ptr->k_idx = 721;
+                        o_ptr->sval = SV_SCROLL_INCARNATION;
+
+                        if(item >= 0)
+                        {
+                                inven_item_describe(item);
+                                inven_item_optimize(item);
+                        }
+                        else
+                        {
+                                floor_item_describe(0 - item);
+                                floor_item_optimize(0 - item);
+                        }
+                        break;
+                }
+                case SV_SCROLL_INCARNATION:
+                {
+                        if(!do_cmd_integrate_body()) used_up = FALSE;
+                        ident = TRUE;
                         break;
                 }
                 case SV_SCROLL_RESET_RECALL:
                 {
-                        if (reset_recall())
-                                msg_format("Recall reset to %s at level %d.", 
-                                           d_info[p_ptr->recall_dungeon].name + d_name, max_dlv[p_ptr->recall_dungeon]);
-                        ident = TRUE;
-                        break;
+                        char buf[80], buf2[80];
+                        int i, amt;
+
+                        if(!get_string("Reset to which dungeon? ", buf, 80)) break;
+
+                        /* Find the index corresponding to the name */
+                        for(i = 1; i < max_d_idx; i++)
+                        {
+                                sprintf(buf2, "%s", d_info[i].name + d_name);
+
+                                /* Lowercase the name */
+                                strlower(buf);
+                                strlower(buf2);
+
+                                if(strstr(buf2, buf)) break;
+                        }
+
+                        amt = get_quantity(format("Reset to which level(%d-%d)? ", d_info[i].mindepth, d_info[i].maxdepth) , d_info[i].maxdepth);
+
+                        /* Mega hack -- Forbid levels 99 and 100 */
+                        if((amt == 99) || (amt == 100)) amt = 98;
+
+                        if ((amt > d_info[i].mindepth) && (i < max_d_idx))
+			{
+                                p_ptr->recall_dungeon = i;
+                                max_dlv[p_ptr->recall_dungeon] = amt;
+                                msg_format("Recall reseted to %s at level %d.", d_info[i].name + d_name, amt);
+			}
+                        else
+                                msg_print("Recall NOT reseted(bad dungeon or level).");
+			break;
                 }
                 case SV_SCROLL_DIVINATION:
                 {
                         int i, count = 0;
-			char buf[120];
 
                         while(count < 1000)
                         {
@@ -2537,15 +2565,7 @@ void do_cmd_read_scroll(void)
                                 i = rand_int(MAX_FATES);
                                 if(!fates[i].fate) continue;
                                 if(fates[i].know) continue;
-
-				msg_print("A massage appeared on the scroll. It says:");
-				msg_print(NULL);
-
-				fate_desc(buf, i);
-				msg_format("%s", buf);
-
-				msg_print(NULL);
-				msg_print("The scroll disappears in a puff of smoke!");
+                                msg_print("You know a little more of your fate.");
 
                                 fates[i].know = TRUE;
                                 ident = TRUE;
@@ -2645,7 +2665,11 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
-			recall_player();
+                        if (p_ptr->pclass == CLASS_DARK_LORD)
+                        {
+                                msg_print("You are banished! You can't recall!");
+                        }
+                        else recall_player();
 			ident = TRUE;
 			break;
 		}
@@ -2938,42 +2962,19 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
+                case SV_SCROLL_REPAIR:
+		{
+                        (void) repair_weapon();
+			ident = TRUE;
+			break;
+		}
+
 	}
-        }
-        else
-        {
-                /* Maps */
-                if (o_ptr->sval >= 200)
-                {
-                        int i, n;
-                        char path[1024], fil[20];
-
-                        sprintf(path, "%s", ANGBAND_DIR_FILE);                        
-                        sprintf(fil, "book-%d.txt",o_ptr->sval);                        
-
-                        n = atoi(get_line(fil, path, -1));
-
-                        /* Parse all the fields */
-                        for (i = 0; i < n; i += 4)
-                        {
-                                /* Grab the fields */
-                                int x = atoi(get_line(fil, path, i + 0));
-                                int y = atoi(get_line(fil, path, i + 1));
-                                int w = atoi(get_line(fil, path, i + 2));
-                                int h = atoi(get_line(fil, path, i + 3));
-
-                                msg_format("y:%d, x:%d, h:%d, w:%d", y, x, h,w);
-                                reveal_wilderness_around_player(y, x, h, w);
-                        }
-                }
-                /* Normal parchements */
-                else
-                {
+        }else{
 			/* Save screen */
 			screen_save();
 
-                        /* Get the filename */
-                        q = format("book-%d.txt",o_ptr->sval);
+                        q=format("book-%d.txt",o_ptr->sval);
 
                         /* Peruse the help file */
                         (void)show_file(q, NULL, 0, 0);
@@ -2986,8 +2987,7 @@ void do_cmd_read_scroll(void)
                                 inscription_info[o_ptr->sval - 100].know = TRUE;
                         }
 
-                        used_up = FALSE;
-                }
+                        used_up=FALSE;
         }
 
 
@@ -3042,6 +3042,7 @@ void do_cmd_read_scroll(void)
                         (void)inven_carry(q_ptr, FALSE);
                 }
         }
+	  }
 }
 
 
@@ -3059,6 +3060,14 @@ void do_cmd_read_scroll(void)
  */
 void do_cmd_use_staff(void)
 {
+	/* Berserkers can't use staves/wands/rods/scrolls */
+        if (p_ptr->pclass == CLASS_BERSERKER)
+        {
+           msg_print("You can't use a staff!");
+        }
+        else
+        {
+
 	int			item, ident, chance, k, lev;
 
 	object_type		*o_ptr;
@@ -3099,7 +3108,7 @@ void do_cmd_use_staff(void)
 
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HELLQUEEN))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -3150,6 +3159,10 @@ void do_cmd_use_staff(void)
 	/* Sound */
 	sound(SOUND_ZAP);
 
+
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_USE_STAFF, Py_BuildValue("(ii)", o_ptr->tval, o_ptr->sval))) return;
+#endif
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -3475,6 +3488,7 @@ void do_cmd_use_staff(void)
 	{
 		floor_item_charges(0 - item);
 	}
+	}
 }
 
 
@@ -3500,6 +3514,14 @@ void do_cmd_use_staff(void)
  */
 void do_cmd_aim_wand(void)
 {
+	/* Berserkers can't use staves/wands/rods/scrolls */
+        if (p_ptr->pclass == CLASS_BERSERKER)
+        {
+           msg_print("You can't use a wand!");
+        }
+        else
+        {
+
 	int			item, lev, ident, chance, dir, sval;
 
 	object_type		*o_ptr;
@@ -3540,7 +3562,7 @@ void do_cmd_aim_wand(void)
 
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HELLQUEEN))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -3599,6 +3621,9 @@ void do_cmd_aim_wand(void)
 	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
 
 
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_AIM_WAND, Py_BuildValue("(ii)", o_ptr->tval, o_ptr->sval))) return;
+#endif
 	/* Analyze the wand */
 	switch (sval)
 	{
@@ -3837,6 +3862,14 @@ void do_cmd_aim_wand(void)
 			ident = TRUE;
 			break;
 		}
+
+                case SV_WAND_DUNGEON_GENERATION:
+		{
+                        msg_print("The dungeon is changing!");
+                        generate_cave();
+                        break;         
+		}
+
 	}
 
 
@@ -3871,6 +3904,7 @@ void do_cmd_aim_wand(void)
 	{
 		floor_item_charges(0 - item);
 	}
+	}
 }
 
 
@@ -3885,463 +3919,195 @@ void do_cmd_aim_wand(void)
  * Hack -- rods of perception/genocide can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
  */
-
-/*
- * Hook to determine if an object is zapable
- */
-static bool item_tester_hook_zapable(object_type *o_ptr)
-{
-        if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_ROD_MAIN)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
-}
-
-/*
- * Hook to determine if an object is attachable
- */
-static bool item_tester_hook_attachable(object_type *o_ptr)
-{
-        if ((o_ptr->tval == TV_ROD_MAIN) && (o_ptr->pval == SV_ROD_NOTHING)) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
-}
-
-/* Combine a rod and a rod tip */
-void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
-{
-        int item;
-        object_type *o_ptr;
-        object_kind *k_ptr;
-	cptr q, s;
-
-	/* Restrict choices to rods */
-        item_tester_hook = item_tester_hook_attachable;
-
-	/* Get an item */
-        q = "Attach the rod tip with which rod? ";
-        s = "You have no rod to attach to.";
-        if (!get_item(&item, q, s, (USE_INVEN))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-                k_ptr = &k_info[o_ptr->k_idx];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-                k_ptr = &k_info[o_ptr->k_idx];
-	}
-
-        /*
-         * The rod must have at least the same mana capacity as the
-         * rod tip spell needs
-         */
-        if (o_ptr->pval2 < q_ptr->pval)
-        {
-                msg_print("This rod doesn't have enough mana for the rod tip.");
-                return;
-        }
-
-        /* Attach the tip to the rod */
-        o_ptr->pval = q_ptr->sval;
-
-        /* Destroy a rod tip in the pack */
-        if (tip_item >= 0)
-	{
-                inven_item_increase(tip_item, -1);
-                inven_item_describe(tip_item);
-                inven_item_optimize(tip_item);
-	}
-        /* Destroy a rod tip on the floor */
-	else
-	{
-                floor_item_increase(0 - tip_item, -1);
-                floor_item_describe(0 - tip_item);
-                floor_item_optimize(0 - tip_item);
-	}
-}
-
 void do_cmd_zap_rod(void)
 {
-	int                 item, ident, chance, dir, lev;
+	/* Berserkers can't use staves/wands/rods/scrolls */
+        if (p_ptr->pclass == CLASS_BERSERKER)
+        {
+           msg_print("You can't use a rod!");
+        }
+        else
+        {
+
+        int                 dir, rodtype;
 
 	object_type		*o_ptr;
-        object_kind *k_ptr;
-        object_kind *tip_ptr;
-        u32b f1, f2, f3, f4, esp;
 
-	cptr q, s;
-
-	/* Hack -- let perception get aborted */
-	bool use_charge = TRUE;
-
-
-	/* Restrict choices to rods */
-        item_tester_hook = item_tester_hook_zapable;
-
-	/* Get an item */
-        q = "Zap which rod? ";
-	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-                k_ptr = &k_info[o_ptr->k_idx];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-                k_ptr = &k_info[o_ptr->k_idx];
-	}
-
-        /* "Zapping" a Rod Tip on rod of nothing will attach it */
-        if (o_ptr->tval == TV_ROD)
+        /* First, let's check if the player is wearing a rod */
+        o_ptr = &inventory[INVEN_WIELD];
+        if (o_ptr->tval != TV_ROD)
         {
-                if (item >= 0)
+                msg_print("You must wear a rod first!");
+        }
+        else
+        {
+                if (o_ptr->sval == SV_ROD_BEAM) rodtype = 0;
+                else if (o_ptr->sval == SV_ROD_BALL) rodtype = 1;
+                else if (o_ptr->sval == SV_ROD_POWER) rodtype = 2;
+                /* Now, check for a crystal */
+                o_ptr = &inventory[INVEN_TOOL];
+                if (o_ptr->tval != TV_CRYSTAL || o_ptr->pval <= 0)
                 {
-                        zap_combine_rod_tip(o_ptr, item);
-                        return;
+                        msg_print("You must wear a charged crystal!");
                 }
                 else
                 {
-                        msg_print("You acn't attach from the floor.");
-                        return;
+                        if (o_ptr->sval == SV_CRYSTAL_MISSILE && rodtype == 0)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 4));
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_MISSILE && rodtype == 1)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_MISSILE, dir, 5, 2);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_MISSILE && rodtype == 2)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_ENERGY && rodtype == 0)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(6, 8));
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_ENERGY && rodtype == 1)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_MISSILE, dir, 30, 2);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_ENERGY && rodtype == 2)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_FIRE && rodtype == 0)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt_or_beam(20, GF_FIRE, dir, damroll(8, 8));
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_FIRE && rodtype == 1)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_FIRE, dir, 45, 2);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_FIRE && rodtype == 2)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_COLD && rodtype == 0)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt_or_beam(20, GF_COLD, dir, damroll(8, 8));
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_COLD && rodtype == 1)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_COLD, dir, 45, 2);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_COLD && rodtype == 2)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_ELEC && rodtype == 0)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt_or_beam(20, GF_ELEC, dir, damroll(8, 8));
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_ELEC && rodtype == 1)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_ELEC, dir, 45, 2);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_ELEC && rodtype == 2)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_MAGIC && rodtype == 0)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt_or_beam(20, GF_MANA, dir, damroll(20, 10));
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_MAGIC && rodtype == 1)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_MANA, dir, 120, 2);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_MAGIC && rodtype == 2)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_RECALL && rodtype == 0)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_RECALL && rodtype == 1)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_RECALL && rodtype == 2)
+                        {
+                                msg_print("You use your rod to return to the town!");
+                                p_ptr->word_recall = 1;
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_PHASING && rodtype == 0)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_PHASING && rodtype == 1)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_PHASING && rodtype == 2)
+                        {
+                                teleport_player(10);
+                                o_ptr->pval -= 1;
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_HEALING && rodtype == 0)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_HEALING && rodtype == 1)
+                        {
+                                msg_print("You can't use this crystal with this rod!");
+                        }
+                        if (o_ptr->sval == SV_CRYSTAL_HEALING && rodtype == 2)
+                        {
+                                msg_print("You heal yourself!");
+                                (void)hp_player(300);
+                                o_ptr->pval -= 1;
+                        }
+                        energy_use = 100;
+
                 }
         }
-
-	/* Get a direction (unless KNOWN not to need it) */
-        if (((o_ptr->pval >= SV_ROD_MIN_DIRECTION) && !(o_ptr->pval == SV_ROD_DETECT_TRAP) && !(o_ptr->pval == SV_ROD_HAVOC) && !(o_ptr->sval == SV_ROD_HOME)) ||
-	     !object_aware_p(o_ptr))
-	{
-		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir)) return;
-	}
-
-	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_ALCHEMIST) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
-        {
-                energy_use = 75;
-                if (p_ptr->lev>=35) energy_use = 33;
-                else if (p_ptr->lev>=15) energy_use = 50;
-        }
-        else energy_use = 100;
-
-        /* Examine the rod */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
-
-        if (f4 & TR4_FAST_CAST) energy_use /= 2;
-
-	/* Not identified yet */
-	ident = FALSE;
-
-	/* Extract the item level */
-        tip_ptr = &k_info[lookup_kind(TV_ROD, o_ptr->pval)];
-        lev = k_info[lookup_kind(TV_ROD, o_ptr->pval)].level;
-
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* Hight level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
-	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to use the rod properly.");
-		sound(SOUND_FAIL);
-		return;
-	}
-
-	/* A single rod is still charging */
-        if (o_ptr->timeout < ((f4 & TR4_CHEAPNESS)?tip_ptr->pval / 2:tip_ptr->pval))
-	{
-		if (flush_failure) flush();
-                msg_print("The rod does not have enough mana yet.");
-		return;
-	}
-
-        /* Increase the timeout by the rod kind's pval. */
-        o_ptr->timeout -= (f4 & TR4_CHEAPNESS)?tip_ptr->pval / 2:tip_ptr->pval;
-
-	/* Sound */
-	sound(SOUND_ZAP);
-
-	/* Analyze the rod */
-        switch (o_ptr->pval)
-	{
-                case SV_ROD_HOME:
-		{
-                        ident = TRUE;
-                        do_cmd_home_trump();
-			break;
-		}
-
-		case SV_ROD_DETECT_TRAP:
-		{
-			if (detect_traps()) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DETECT_DOOR:
-		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_IDENTIFY:
-		{
-			ident = TRUE;
-			if (!ident_spell()) use_charge = FALSE;
-			break;
-		}
-
-		case SV_ROD_RECALL:
-		{
-			recall_player();
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ILLUMINATION:
-		{
-			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_MAPPING:
-		{
-			map_area();
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DETECTION:
-		{
-			detect_all();
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_PROBING:
-		{
-			probing();
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_CURING:
-		{
-			if (set_blind(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
-			if (set_image(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_HEALING:
-		{
-			if (hp_player(500)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_RESTORATION:
-		{
-			if (restore_level()) ident = TRUE;
-			if (do_res_stat(A_STR)) ident = TRUE;
-			if (do_res_stat(A_INT)) ident = TRUE;
-			if (do_res_stat(A_WIS)) ident = TRUE;
-			if (do_res_stat(A_DEX)) ident = TRUE;
-			if (do_res_stat(A_CON)) ident = TRUE;
-			if (do_res_stat(A_CHR)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_SPEED:
-		{
-			if (!p_ptr->fast)
-			{
-				if (set_fast(randint(30) + 15)) ident = TRUE;
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + 5);
-			}
-			break;
-		}
-
-		case SV_ROD_TELEPORT_AWAY:
-		{
-			if (teleport_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DISARMING:
-		{
-			if (disarm_trap(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_LITE:
-		{
-			msg_print("A line of blue shimmering light appears.");
-			lite_line(dir);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_SLEEP_MONSTER:
-		{
-			if (sleep_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_SLOW_MONSTER:
-		{
-			if (slow_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DRAIN_LIFE:
-		{
-			if (drain_life(dir, 75)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_POLYMORPH:
-		{
-			if (poly_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ACID_BOLT:
-		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ELEC_BOLT:
-		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_FIRE_BOLT:
-		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_COLD_BOLT:
-		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ACID_BALL:
-		{
-			fire_ball(GF_ACID, dir, 60, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ELEC_BALL:
-		{
-			fire_ball(GF_ELEC, dir, 32, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_FIRE_BALL:
-		{
-			fire_ball(GF_FIRE, dir, 72, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_COLD_BALL:
-		{
-			fire_ball(GF_COLD, dir, 48, 2);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_HAVOC:
-		{
-			call_chaos();
-			ident = TRUE;
-			break;
-		}
-	}
-
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Tried the object */
-	object_tried(o_ptr);
-
-	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-
-	/* Hack -- deal with cancelled zap */
-	if (!use_charge)
-	{
-                o_ptr->timeout += (f4 & TR4_CHEAPNESS)?tip_ptr->pval / 2:tip_ptr->pval;
-		return;
-	}
 }
-
-
-
+}
 
 /*
  * Hook to determine if an object is activatable
  */
 static bool item_tester_hook_activate(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
 
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -4452,7 +4218,7 @@ bool brand_bolts(void)
 			continue;
 
 		/* Skip cursed/broken items */
-                if (cursed_p(o_ptr)) continue;
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
 
 		/* Randomize */
 		if (rand_int(100) < 75) continue;
@@ -4522,6 +4288,9 @@ void do_cmd_activate(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_ACTIVATE_ART, Py_BuildValue("(iiiii)", o_ptr->tval, o_ptr->sval, o_ptr->name1, o_ptr->name2, o_ptr->xtra2))) return;
+#endif
 
         if((o_ptr->tval != TV_RANDART)&&(o_ptr->tval != TV_EGG))
                 if(item < INVEN_WIELD){msg_print("You must wear it to activate it.");return;}
@@ -4635,7 +4404,8 @@ void do_cmd_activate(void)
 		return;
         }
 
-        else if ((o_ptr->art_name) || (o_ptr->tval == TV_RANDART))
+        /* Hack to allow wands to use random activation codes */
+        else if ((o_ptr->art_name) || (o_ptr->tval == TV_RANDART) || (o_ptr->tval == TV_WAND))
 	{
 		(void) activate_random_artifact(o_ptr);
 
@@ -4657,6 +4427,46 @@ void do_cmd_activate(void)
 		/* Success */
 		return;
 	}
+
+        else if (o_ptr->tval == TV_AMULET && o_ptr->sval == 18)
+	{
+                cptr str;
+                msg_print("Your skin become very pale...You no longer have blood...YOU TURNED INTO A VAMPIRE!!");
+                p_ptr->prace = RACE_VAMPIRE;
+                rp_ptr = &race_info[p_ptr->prace];
+                str = rp_ptr->title;
+                c_put_str(TERM_L_BLUE, str, 1, 0);
+                get_history();
+        }
+
+        else if (o_ptr->tval == TV_CROWN && o_ptr->sval == SV_PROMOTION_CROWN)
+	{
+                if (p_ptr->psex == SEX_MALE && p_ptr->stat_ind[A_STR] >= 23 && p_ptr->stat_ind[A_CON] >= 23 && p_ptr->stat_ind[A_DEX] >= 19)
+                {
+                cptr str;
+                msg_print("You are promoted to a Battle Master!");
+                p_ptr->pclass = CLASS_MASTER;
+                cp_ptr = &class_info[p_ptr->pclass];
+                str = cp_ptr->title;
+                update_and_handle();
+                msg_print("Your crown become a normal crown...You can no longer use it!");
+                o_ptr->sval = 10;
+                }
+                else msg_print("You activate it...no effects! At least for now...");
+        }
+        else if (o_ptr->tval == TV_HELM && o_ptr->sval == SV_VALKYRIAN_HELM)
+	{
+                if (p_ptr->psex == SEX_FEMALE && p_ptr->stat_ind[A_STR] >= 18 && p_ptr->pclass == CLASS_WARRIOR)
+                {
+                cptr str;
+                msg_print("You just became a Valkyrie!");
+                p_ptr->pclass = CLASS_VALKYRIE;
+                cp_ptr = &class_info[p_ptr->pclass];
+                str = cp_ptr->title;
+                update_and_handle();
+                }
+                else msg_print("The Helm didn't have any effects on you! Maybe is you try again with different stats...");
+        }                  
 
 	/* Artifacts */
 	else if (o_ptr->name1)
@@ -4776,13 +4586,9 @@ void do_cmd_activate(void)
 			case ART_NARYA:
 			{
 				msg_print("The ring glows deep red...");
-                                hp_player(500);
-                                set_blind(0);
-                                set_confused(0);
-                                set_poisoned(0);
-                                set_stun(0);
-                                set_cut(0);
-                                o_ptr->timeout = rand_int(100) + 200;
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir, 120, 3);
+				o_ptr->timeout = rand_int(225) + 225;
 				break;
 			}
 
@@ -4790,13 +4596,8 @@ void do_cmd_activate(void)
 			{
 				msg_print("The ring glows bright white...");
 				if (!get_aim_dir(&dir)) return;
-                                hp_player(800);
-                                set_blind(0);
-                                set_confused(0);
-                                set_poisoned(0);
-                                set_stun(0);
-                                set_cut(0);
-                                o_ptr->timeout = rand_int(200) + 100;
+				fire_ball(GF_COLD, dir, 200, 3);
+				o_ptr->timeout = rand_int(325) + 325;
 				break;
 			}
 
@@ -4804,17 +4605,8 @@ void do_cmd_activate(void)
 			{
 				msg_print("The ring glows deep blue...");
 				if (!get_aim_dir(&dir)) return;
-                                hp_player(900);
-                                set_blind(0);
-                                set_confused(0);
-                                set_poisoned(0);
-                                set_stun(0);
-                                set_cut(0);
-                                if (p_ptr->black_breath)
-                                {
-                                        msg_print("The hold of the Black Breath on you is broken!");
-                                }
-                                o_ptr->timeout = rand_int(200) + 200;
+				fire_ball(GF_ELEC, dir, 250, 3);
+				o_ptr->timeout = rand_int(425) + 425;
 				break;
 			}
 
@@ -5283,7 +5075,7 @@ void do_cmd_activate(void)
 				}
                 
 				msg_print("Your scythe glows soft white...");
-				if (!p_ptr->word_recall)
+                                if (!p_ptr->word_recall && p_ptr->pclass != CLASS_DARK_LORD)
 				{
 					p_ptr->word_recall = randint(20) + 15;
 					msg_print("The air about you becomes charged...");
@@ -5424,7 +5216,7 @@ void do_cmd_activate(void)
                                         /* Ignore "dead" monsters */
                                         if (!m_ptr->r_idx) continue;
 
-                                        r_ptr = race_inf(m_ptr);
+                                        r_ptr = &r_info[m_ptr->r_idx];
 
                                         if(r_ptr->flags1 & RF1_UNIQUE)
                                         {
@@ -5446,7 +5238,7 @@ void do_cmd_activate(void)
                                                         /* Ignore "dead" monsters */
                                                         if (!m_ptr->r_idx) continue;
 
-                                                        r_ptr = race_inf(m_ptr);
+                                                        r_ptr = &r_info[m_ptr->r_idx];
 
                                                         if(r_ptr->flags1 & RF1_QUESTOR)
                                                         {
@@ -5569,6 +5361,61 @@ void do_cmd_activate(void)
                                 o_ptr->timeout = 100;
                                 break;
                         }
+                        case ART_BALANCE:
+                        {
+                                msg_print("You invoke greater elementals and Balance powers...");
+                                do_cmd_staff_balance();
+                                o_ptr->timeout = 100;
+                                break;
+                        }
+                        case ART_ASMODIS:
+			{
+                                do_cmd_asmodis(o_ptr);                                
+                                o_ptr->timeout = 0;
+				break;
+			}
+                        case ART_DRAGOS:
+			{
+                                summon_specific_friendly(py,px,60,SUMMON_DRAGON,FALSE);;                                
+                                o_ptr->timeout = 10;
+				break;
+			}
+                        case ART_UNDEAD_RING:
+                        {
+                                cptr str;
+                                msg_print("Your skin become very pale...You no longer have blood...YOU TURNED INTO A SPECTRE!!");
+                                p_ptr->prace = RACE_SPECTRE;
+                                rp_ptr = &race_info[p_ptr->prace];
+                                str = rp_ptr->title;
+                                c_put_str(TERM_L_BLUE, str, 1, 0);
+                                get_history();
+                        }
+                        case ART_DEMON_RING:
+                        {
+                                if (p_ptr->prace == RACE_BENEMAL)
+                                {
+                                        cptr str;
+                                        msg_print("Your skin become redder...YOU BECAME A BALROG!!");
+                                        p_ptr->prace = RACE_DEMON;
+                                        rp_ptr = &race_info[p_ptr->prace];
+                                        str = rp_ptr->title;
+                                        c_put_str(TERM_L_BLUE, str, 1, 0);
+                                        p_ptr->expfact = 1000;
+                                        get_history();
+                                }
+                                else
+                                {
+                                        cptr str;
+                                        msg_print("You feel your body transforming...you became a Benemal!!");
+                                        p_ptr->prace = RACE_BENEMAL;
+                                        rp_ptr = &race_info[p_ptr->prace];
+                                        str = rp_ptr->title;
+                                        c_put_str(TERM_L_BLUE, str, 1, 0);
+                                        p_ptr->expfact = 600;
+                                        get_history();
+                                }        
+                        }
+                                
 		}
 
 		/* Window stuff */
@@ -5877,13 +5724,8 @@ void do_cmd_activate(void)
                                 {
                                         msg_print("The ring explode into a space distorsion.");
                                         teleport_player(200);
-
-                                        /* It explodes, doesnt it ? */
-                                        take_hit(damroll(2, 10), "an exploding ring");
-
                                         o_ptr->k_idx = 0;
-                                        o_ptr->number = 0;
-                                        inven_item_optimize(item);
+                                        inven_item_optimize(INVEN_WIELD + item);
                                 }
 				break;
 			}
@@ -6667,7 +6509,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 			}
 
 			msg_print("It glows soft white...");
-			if (!p_ptr->word_recall)
+                        if (!p_ptr->word_recall && p_ptr->pclass != CLASS_DARK_LORD)
 			{
 				p_ptr->word_recall = randint(20) + 15;
 				msg_print("The air about you becomes charged...");
@@ -7015,4 +6857,36 @@ static bool activate_spell(object_type * o_ptr,byte spell,byte choice)
         if(choice==2) o_ptr->pval=timeout;
 
 	return TRUE;
+}
+
+void do_cmd_asmodis(object_type *o_ptr)
+{
+        char ch = 0;
+        int energy_amount = 0;
+        int dir;
+        while (TRUE)
+        {
+                 if (!get_com("[R]elease for dsamages, [C]onvert into AP  ?", &ch))
+                 {
+                          break;
+                 }
+
+                 if (ch == 'R' || ch == 'r')
+                 {
+                          energy_amount = get_quantity("Use how much energy(energy = damages)? ", o_ptr->asmodis_energy);
+                          if (!get_aim_dir(&dir)) return;
+                          fire_beam(GF_MANA, dir, energy_amount);
+                          o_ptr->asmodis_energy -= energy_amount;
+                          break;
+                 }
+
+                 if (ch == 'C' || ch == 'c')
+                 {
+                          energy_amount = get_quantity("Use how much energy? ", o_ptr->asmodis_energy);
+                          msg_format("You converted %d energy points into %d ability points!", energy_amount, energy_amount / 10);
+                          p_ptr->ability_points += energy_amount / 10;
+                          o_ptr->asmodis_energy -= energy_amount;
+                          break;
+                 }
+        }
 }

@@ -176,11 +176,6 @@ bool carried_make_attack_normal(int r_idx)
 		/* Extract visibility (before blink) */
                 visible = TRUE;
 
-#ifdef MONSTER_LITE
-                /* Extract visibility from carrying lite */
-                if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-#endif /* MONSTER_LITE */
-
 		/* Extract the attack "power" */
 		switch (effect)
 		{
@@ -241,21 +236,6 @@ bool carried_make_attack_normal(int r_idx)
 				continue;
 			}
 
-			/* Hack -- Apply "protection from good" */
-			if ((p_ptr->protgood > 0) &&
-			    (r_ptr->flags3 & (RF3_GOOD)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
-			{
-				/* Remember the Good-ness */
-                                r_ptr->r_flags3 |= (RF3_GOOD);
-
-				/* Message */
-                                msg_format("Your monster is repelled.");
-
-				/* Hack -- Next attack */
-				continue;
-			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -459,7 +439,7 @@ bool carried_make_attack_normal(int r_idx)
 			obvious = TRUE;
 
 			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
+                        damage = damroll(d_dice, d_side);
 
 			/* Apply appropriate damage */
 			switch (effect)
@@ -486,6 +466,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
                                         take_hit(damage, ddesc);
+                                        damage_armor();
 
 					break;
 				}
@@ -503,6 +484,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -512,6 +494,7 @@ bool carried_make_attack_normal(int r_idx)
 							obvious = TRUE;
 						}
 					}
+                                        
 
 					break;
 				}
@@ -521,6 +504,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Allow complete resist */
 					if (!p_ptr->resist_disen)
@@ -528,6 +512,7 @@ bool carried_make_attack_normal(int r_idx)
 						/* Apply disenchantment */
 						if (apply_disenchant(0)) obvious = TRUE;
 					}
+                                        
 
 					break;
 				}
@@ -537,6 +522,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
+                                        
 					break;
 				}
 
@@ -545,6 +532,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
+                                        
 					break;
 				}
 
@@ -553,6 +542,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
+                                        
 					break;
 				}
 
@@ -561,6 +552,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
+                                        
 					break;
 				}
 
@@ -569,6 +562,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
+                                        
 					break;
 				}
 
@@ -583,6 +578,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Special damage */
                                         carried_monster_hit = TRUE;
 					acid_dam(damage, ddesc);
+                                        damage_armor();
+                                        
 
 					break;
 				}
@@ -598,7 +595,8 @@ bool carried_make_attack_normal(int r_idx)
 					/* Special damage */
                                         carried_monster_hit = TRUE;
 					elec_dam(damage, ddesc);
-
+                                        damage_armor();
+                                        
 
 					break;
 				}
@@ -614,6 +612,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Special damage */
                                         carried_monster_hit = TRUE;
 					fire_dam(damage, ddesc);
+                                        damage_armor();
 
 
 					break;
@@ -630,6 +629,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Special damage */
                                         carried_monster_hit = TRUE;
 					cold_dam(damage, ddesc);
+                                        damage_armor();
 
 
 					break;
@@ -640,6 +640,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
@@ -659,6 +660,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "confused" */
 					if (!p_ptr->resist_conf)
@@ -668,6 +670,7 @@ bool carried_make_attack_normal(int r_idx)
 							obvious = TRUE;
 						}
 					}
+                                        
 
 
 					break;
@@ -678,6 +681,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "afraid" */
 					if (p_ptr->resist_fear)
@@ -710,6 +714,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
@@ -739,6 +744,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -751,6 +757,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -763,10 +770,10 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
-
 					break;
 				}
 
@@ -775,10 +782,10 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) obvious = TRUE;
-
 					break;
 				}
 
@@ -787,10 +794,11 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) obvious = TRUE;
-
+                                        
 					break;
 				}
 
@@ -799,10 +807,11 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
-
+                                        
 					break;
 				}
 
@@ -811,6 +820,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Damage (physical) */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stats) */
 					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -819,7 +829,7 @@ bool carried_make_attack_normal(int r_idx)
 					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
 					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
 					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
-
+                                        
 					break;
 				}
 
@@ -834,6 +844,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Radius 8 earthquake centered at the monster */
 					if (damage > 23)
@@ -842,7 +853,7 @@ bool carried_make_attack_normal(int r_idx)
 						if (!is_quest(dun_level) && dun_level)
                                                         earthquake(py, px, 8);
 					}
-
+                                        
 					break;
 				}
 
@@ -854,6 +865,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 95))
 					{
@@ -873,6 +885,7 @@ bool carried_make_attack_normal(int r_idx)
 							lose_exp(d);
 						}
 					}
+                                        
 					break;
 				}
 
@@ -884,6 +897,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 90))
 					{
@@ -903,6 +917,7 @@ bool carried_make_attack_normal(int r_idx)
 							lose_exp(d);
 						}
 					}
+                                        
 					break;
 				}
 
@@ -914,6 +929,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 75))
 					{
@@ -933,6 +949,7 @@ bool carried_make_attack_normal(int r_idx)
 							lose_exp(d);
 						}
 					}
+                                        
 					break;
 				}
 
@@ -944,6 +961,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 50))
 					{
@@ -963,6 +981,7 @@ bool carried_make_attack_normal(int r_idx)
 							lose_exp(d);
 						}
 					}
+                                        
 					break;
 				}
 
@@ -971,6 +990,7 @@ bool carried_make_attack_normal(int r_idx)
 					/* Take some damage */
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -988,7 +1008,7 @@ bool carried_make_attack_normal(int r_idx)
 						bool perm = (randint(10) == 1);
 						if (dec_stat(A_CON, randint(10), perm)) obvious = TRUE;
 					}
-
+                                        
 					break;
 				}
 				case RBE_TIME:
@@ -1034,11 +1054,13 @@ bool carried_make_attack_normal(int r_idx)
 								if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
 							}
 							p_ptr->update |= (PU_BONUS);
+                                                        
 							break;
 						}
 					}
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        damage_armor();
 				}
 			}
 
@@ -1181,7 +1203,7 @@ bool make_attack_normal(int m_idx, byte divis)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
-        monster_race *r_ptr = race_inf(m_ptr);
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int ap_cnt;
 
@@ -1259,11 +1281,6 @@ bool make_attack_normal(int m_idx, byte divis)
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
-#ifdef MONSTER_LITE
-                /* Extract visibility from carrying lite */
-                if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-#endif /* MONSTER_LITE */
-
 		/* Extract the attack "power" */
 		switch (effect)
 		{
@@ -1327,24 +1344,6 @@ bool make_attack_normal(int m_idx, byte divis)
 				continue;
 			}
 
-			/* Hack -- Apply "protection from good" */
-			if ((p_ptr->protgood > 0) &&
-			    (r_ptr->flags3 & (RF3_GOOD)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
-			{
-				/* Remember the Good-ness */
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_GOOD);
-				}
-
-				/* Message */
-				msg_format("%^s is repelled.", m_name);
-
-				/* Hack -- Next attack */
-				continue;
-			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -1581,7 +1580,17 @@ bool make_attack_normal(int m_idx, byte divis)
 			obvious = TRUE;
 
 			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
+                        if ((p_ptr->pclass == CLASS_ZELAR || ability(82)) && randint(100) >= 50)
+                        {
+                                if (randint(200) >= 100) msg_print("You block! No damages!");
+                                else msg_print("You dodge! No damages!");
+                        }
+                        else if ((p_ptr->pclass == CLASS_VALKYRIE || p_ptr->pclass == CLASS_DARK_LORD) && randint(100) >= 50)
+                        {
+                                msg_print("You absord the damages!");
+                        }
+
+                        else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));
 
                         /* Sometime reduce the damage */
                         damage /= divis;
@@ -1610,6 +1619,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					break;
 				}
@@ -1626,6 +1636,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -1646,6 +1657,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Allow complete resist */
 					if (!p_ptr->resist_disen)
@@ -1664,6 +1676,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Find an item */
 					for (k = 0; k < 10; k++)
@@ -1717,6 +1730,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Obvious */
 					obvious = TRUE;
@@ -1773,6 +1787,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
@@ -1837,11 +1852,11 @@ bool make_attack_normal(int m_idx, byte divis)
 								/* Modify number */
 								j_ptr->number = 1;
 
-                                                                /* Hack -- If a wand, allocate total 
+								/* Hack -- If a rod or wand, allocate total 
 								 * maximum timeouts or charges between those 
 								 * stolen and those missed. -LM-
 								 */
-                                                                if (o_ptr->tval == TV_WAND)
+								if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 								{
 									j_ptr->pval = o_ptr->pval / o_ptr->number;
 									o_ptr->pval -= j_ptr->pval;
@@ -1915,6 +1930,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Steal some food */
 					for (k = 0; k < 10; k++)
@@ -1957,6 +1973,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Access the lite */
 					o_ptr = &inventory[INVEN_LITE];
@@ -1992,6 +2009,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Special damage */
 					acid_dam(damage, ddesc);
+                                        damage_armor();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ACID);
@@ -2009,6 +2027,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Special damage */
 					elec_dam(damage, ddesc);
+                                        damage_armor();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ELEC);
@@ -2026,6 +2045,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Special damage */
 					fire_dam(damage, ddesc);
+                                        damage_armor();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_FIRE);
@@ -2043,6 +2063,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Special damage */
 					cold_dam(damage, ddesc);
+                                        damage_armor();
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_COLD);
@@ -2054,6 +2075,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
@@ -2074,6 +2096,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "confused" */
 					if (!p_ptr->resist_conf)
@@ -2094,6 +2117,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "afraid" */
 					if (p_ptr->resist_fear)
@@ -2127,6 +2151,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
@@ -2157,6 +2182,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2168,6 +2194,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2179,6 +2206,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2190,6 +2218,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2201,6 +2230,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2212,6 +2242,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2223,6 +2254,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Damage (physical) */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Damage (stats) */
 					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
@@ -2245,6 +2277,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Radius 8 earthquake centered at the monster */
 					if (damage > 23)
@@ -2264,6 +2297,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 95))
 					{
@@ -2293,6 +2327,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 90))
 					{
@@ -2322,6 +2357,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 75))
 					{
@@ -2351,6 +2387,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Take damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					if (p_ptr->hold_life && (rand_int(100) < 50))
 					{
@@ -2377,6 +2414,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					/* Take some damage */
 					take_hit(damage, ddesc);
+                                        damage_armor();
 
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -2444,6 +2482,7 @@ bool make_attack_normal(int m_idx, byte divis)
 						}
 					}
 					take_hit(damage, ddesc);
+                                        damage_armor();
 				}
 			}
 
@@ -2641,4 +2680,24 @@ bool make_attack_normal(int m_idx, byte divis)
 	return (TRUE);
 }
 
-
+void damage_armor()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_BODY];
+        if (o_ptr && randint(100) >= 90)
+        {
+                /* Artifacts and special items cannot be damaged */
+                if (!o_ptr->name1 && o_ptr->name2 != 131)
+                {
+                msg_print("Your armor was damaged!");
+                o_ptr->ac -= 1;
+                if (o_ptr->ac < 0)
+                {
+                        msg_print("YOUR ARMOR IS DESTROYED!!");
+                        inven_item_increase(INVEN_BODY, -1);
+                }
+                inven_item_optimize(INVEN_BODY);
+                }
+        }
+        handle_stuff();
+}

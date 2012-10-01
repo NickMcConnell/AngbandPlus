@@ -154,7 +154,7 @@ s32b Rand_mod(s32b m)
  * This method has no bias, and is much less affected by patterns
  * in the "low" bits of the underlying RNG's.
  */
-s32b Rand_div(s32b m)
+s32b Rand_div(u32b m)
 {
 	u32b r, n;
 

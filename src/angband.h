@@ -21,7 +21,6 @@
  */
 #include "h-basic.h"
 
-
 /*
  * Then, include the header files for the low-level code
  */
@@ -45,6 +44,10 @@
 #include "types.h"
 #include "externs.h"
 
+/*
+ * Now, include some other stuff
+ */
+#include "new.h"
 
 /***** Some copyright messages follow below *****/
 
@@ -97,5 +100,6 @@
 
 #endif
 
+int avariable, zelartype;
 
 

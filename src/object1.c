@@ -27,13 +27,13 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      56       /* Used with rings (min 38) */
-#define MAX_AMULETS    18       /* Used with amulets (min 13) */
+#define MAX_ROCKS      59       /* Used with rings (min 38) */
+#define MAX_AMULETS    29       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     39       /* Used with wands/rods (min 29/28) */
+#define MAX_METALS     40       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     66       /* Used with potions (min 60) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     55       /* Used with scrolls (min 48) */
+#define MAX_TITLES     54       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
 
 
@@ -55,7 +55,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Wire", "Dilithium", "Bone", "Wooden",
 	"Spikard", "Serpent",   "Wedding", "Double",
 	"Plain", "Brass",  "Scarab","Shining",
-	"Rusty","Transparent"
+        "Rusty","Transparent", "Steel", "Iron", "Polished"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -72,7 +72,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_UMBER, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
 	TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
 	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
-	TERM_RED, TERM_WHITE
+        TERM_RED, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW, TERM_ORANGE 
 };
 
 
@@ -85,7 +85,9 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-        "Copper", "Swastika", "Mithril"
+        "Copper", "Swastika", "Mithril", "Topaz", "Stone",
+        "Saphire", "Ruby", "Diamond", "Adamantite", "Iron",
+        "Steel", "Nickel", "Emerald", "Quartz"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -93,7 +95,9 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-        TERM_L_UMBER, TERM_VIOLET, TERM_L_WHITE
+        TERM_L_UMBER, TERM_VIOLET, TERM_L_WHITE, TERM_YELLOW, TERM_WHITE,
+        TERM_ORANGE, TERM_L_DARK, TERM_GREEN, TERM_VIOLET, TERM_L_UMBER,
+        TERM_L_BLUE, TERM_ORANGE, TERM_SLATE, TERM_SLATE
 };
 
 
@@ -137,7 +141,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
 	"Platinum", "Lead","Lead-Plated", "Ivory" , "Adamantite",
-	"Uridium", "Long", "Short", "Hexagonal"
+        "Uridium", "Long", "Short", "Hexagonal", "Blue Steel"
 };
 
 static byte wand_col[MAX_METALS] =
@@ -149,7 +153,7 @@ static byte wand_col[MAX_METALS] =
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
 	TERM_WHITE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_VIOLET,
-	TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED
+        TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED, TERM_GREEN
 };
 
 
@@ -251,7 +255,7 @@ static cptr syllables[MAX_SYLLABLES] =
 	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
 	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
 	"yerg", "yp", "zun", "tri", "blaa", "jah", "bul", "on",
-        "foo", "ju", "xuxu"
+	"foo", "ju", "xuxu"
 };
 
 
@@ -294,11 +298,6 @@ static bool object_flavor(int k_idx)
 		case TV_WAND:
 		{
 			return (0xB0 + wand_col[k_ptr->sval]);
-		}
-
-                case TV_ROD:
-		{
-			return (0xC0 + rod_col[k_ptr->sval]);
 		}
 
 		case TV_SCROLL:
@@ -387,10 +386,11 @@ static bool object_easy_know(int i)
                 case TV_NETHER_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
-		case TV_DAEMON_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_MIMIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
+                case TV_BATTLE_BOOK:
+                case TV_WORLD_BOOK:
 		{
 			return (TRUE);
 		}
@@ -405,6 +405,7 @@ static bool object_easy_know(int i)
                 case TV_CORPSE:
                 case TV_HYPNOS:
 		case TV_SPIKE:
+                case TV_ABILITY:
 		{
 			return (TRUE);
 		}
@@ -414,8 +415,6 @@ static bool object_easy_know(int i)
 		case TV_POTION:
                 case TV_POTION2:
 		case TV_SCROLL:
-		case TV_ROD:
-                case TV_ROD_MAIN:
                 case TV_BATERIE:
 		{
 			return (TRUE);
@@ -666,7 +665,7 @@ void flavor_init(void)
 		k_ptr->flavor = object_flavor(i);
 
 		/* No flavor yields aware */
-                if ((!k_ptr->flavor) && (k_ptr->tval != TV_ROD_MAIN)) k_ptr->aware = TRUE;
+		if (!k_ptr->flavor) k_ptr->aware = TRUE;
 
 		/* Check for "easily known" */
 		k_ptr->easy_know = object_easy_know(i);
@@ -747,7 +746,7 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
+void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -756,7 +755,6 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
         (*f4) = k_ptr->flags4;
-        (*esp) = k_ptr->esp;
 
 	/* Artifact */
 	if (o_ptr->name1)
@@ -767,7 +765,6 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 		(*f2) = a_ptr->flags2;
 		(*f3) = a_ptr->flags3;
                 (*f4) = a_ptr->flags4;
-                (*esp) = a_ptr->esp;
 	}
 
 	/* Ego-item */
@@ -779,17 +776,15 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 		(*f2) |= e_ptr->flags2;
 		(*f3) |= e_ptr->flags3;
                 (*f4) |= e_ptr->flags4;
-                (*esp) |= e_ptr->esp;
 	}
 
 	/* Random artifact ! */
-        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4 || o_ptr->art_esp)
+        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4)
 	{
 		(*f1) |= o_ptr->art_flags1;
 		(*f2) |= o_ptr->art_flags2;
 		(*f3) |= o_ptr->art_flags3;
                 (*f4) |= o_ptr->art_flags4;
-                (*esp) |= o_ptr->art_esp;
 	}
 
 	/* Extra powers */
@@ -842,7 +837,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 					case 0: (*f3) |= (TR3_FEATHER);     break;
 					case 1: (*f3) |= (TR3_LITE);        break;
 					case 2: (*f3) |= (TR3_SEE_INVIS);   break;
-                                        case 3: (*esp) |= (ESP_ALL);   break;
+					case 3: (*f3) |= (TR3_TELEPATHY);   break;
 					case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
 					case 5: (*f3) |= (TR3_REGEN);       break;
 					case 6: (*f2) |= (TR2_FREE_ACT);    break;
@@ -860,14 +855,14 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
+void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	bool spoil = FALSE;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Clear */
-        (*f1) = (*f2) = (*f3) = (*f4) = (*esp) = 0L;
+        (*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 	/* Must be identified */
 	if (!object_known_p(o_ptr)) return;
@@ -877,7 +872,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
         (*f4) = k_ptr->flags4;
-        (*f4) = k_ptr->esp;
 
 	/* Ego-item (known basic flags) */
 	if (o_ptr->name2)
@@ -888,7 +882,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 		(*f2) |= e_ptr->flags2;
 		(*f3) |= e_ptr->flags3;
                 (*f4) |= e_ptr->flags4;
-                (*esp) |= e_ptr->esp;
 	}
 
 
@@ -914,7 +907,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 		(*f2) = a_ptr->flags2;
 		(*f3) = a_ptr->flags3;
                 (*f4) = a_ptr->flags4;
-                (*esp) = a_ptr->esp;
 	}
 
 	/* Ego-item */
@@ -935,7 +927,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 		(*f2) |= o_ptr->art_flags2;
 		(*f3) |= o_ptr->art_flags3;
                 (*f4) |= o_ptr->art_flags4;
-                (*esp) |= o_ptr->art_esp;
 	}
 
 	/* Full knowledge for *identified* objects */
@@ -992,7 +983,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 					case 0: (*f3) |= (TR3_FEATHER);     break;
 					case 1: (*f3) |= (TR3_LITE);        break;
 					case 2: (*f3) |= (TR3_SEE_INVIS);   break;
-                                        case 3: (*esp) |= (ESP_ALL);   break;
+					case 3: (*f3) |= (TR3_TELEPATHY);   break;
 					case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
 					case 5: (*f3) |= (TR3_REGEN);       break;
 					case 6: (*f2) |= (TR2_FREE_ACT);    break;
@@ -1200,14 +1191,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char            tmp_val[160];
 	char            tmp_val2[90];
 
-        u32b            f1, f2, f3, f4, esp;
+        u32b            f1, f2, f3, f4;
 
 	object_kind             *k_ptr = &k_info[o_ptr->k_idx];
 
         cptr str;
 
 	/* Extract some flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* See if the object is "aware" */
@@ -1253,7 +1244,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_ROD:
 		case TV_DIGGING:
+                case TV_HELL_STAFF:
+                case TV_SWORD_DEVASTATION:
+                case TV_VALKYRIE_SPEAR:
 		{
 			show_weapon = TRUE;
 			break;
@@ -1281,6 +1276,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			break;
 		}
+                case TV_ABILITY:
+		{
+			break;
+		}
+
 
 		/* Amulets (including a few "Specials") */
 		case TV_AMULET:
@@ -1344,26 +1344,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = rod_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-                                basenm = "& Rod Tip~";
-			else
-                                basenm = aware ? "& # Rod Tip~" : "& # Rod Tip~";
-			break;
-		}
-
-                case TV_ROD_MAIN:
-		{
-                        object_kind *tip_ptr = &k_info[lookup_kind(TV_ROD, o_ptr->pval)];
-
-                        modstr = k_name + tip_ptr->name;
-			break;
-		}
-
 		case TV_SCROLL:
 		{
 			/* Color the object */
@@ -1403,6 +1383,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
 			break;
 		}
+
+        case TV_CRYSTAL:
+                {
+                        if (known) append_name = TRUE;
+			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
+                                basenm = "& Crystal~";
+			else
+                                basenm = aware ? "& Crystal~" : "& Crystal~";
+			break;
+                }
 
 
 			/* Magic Books */
@@ -1524,15 +1514,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-                /* Daemon Books */
-                case TV_DAEMON_BOOK:
-		{
-			modstr = basenm;
-                        basenm = "& Daemon Blade~ #";
-                        show_weapon = TRUE;
-			break;
-		}
-		
                 /* Druid Books */
                 case TV_DRUID_BOOK:
 		{
@@ -1540,6 +1521,26 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                         basenm = "& Elemental Stone~ #";
 			break;
 		}
+
+		case TV_BATTLE_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book of Battle Magic #";
+            else
+                basenm = "& Battle Spellbook~ #";
+			break;
+		}
+                case TV_WORLD_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book of World Magic #";
+            else
+                basenm = "& World Spellbook~ #";
+			break;
+		}
+
 
             case TV_MIMIC_BOOK:
 		{
@@ -1558,7 +1559,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
             case TV_PARCHEMENT:
 		{
 			modstr = basenm;
-                        basenm = "& Parchment~ - #";
+                        basenm = "& Parchement~ - #";
 			break;
 		}
 
@@ -1759,19 +1760,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Modifier */
 		else if (*s == '#')
 		{
-                        /* Grab any ego-item name */
-                        if (o_ptr->tval == TV_ROD_MAIN)
-                        {
-                                t = object_desc_chr(t, ' ');
-
-                                if (known && o_ptr->name2)
-                                {
-                                        ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-                                        t = object_desc_str(t, (e_name + e_ptr->name));
-                                }
-                        }
-
 			/* Insert the modifier */
 			for (u = modstr; *u; u++) *t++ = *u;
 		}
@@ -1789,7 +1777,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Append the "kind name" to the "base name" */
-        if ((append_name) && (!o_ptr->art_name))
+	if (append_name)
 	{
 		t = object_desc_str(t, " of ");
 		t = object_desc_str(t, (k_name + k_ptr->name));
@@ -1819,26 +1807,36 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                         }
                 }
 
-                /* Is it a new random artifact ? */
-                if (o_ptr->art_name)
-                {
-                        t = object_desc_chr(t, ' ');
+	/* Is it a new random artifact ? */
+	if (o_ptr->art_name)
+    {
+#if 0
+        if (o_ptr->ident & IDENT_STOREB)
+            t = object_desc_str(t, " called '");
+        else
+#endif
+			t = object_desc_chr(t, ' ');
 
-                        t = object_desc_str(t, quark_str(o_ptr->art_name));
-                }
+        t = object_desc_str(t, quark_str(o_ptr->art_name));
+
+#if 0
+        if (o_ptr->ident & IDENT_STOREB)
+            t = object_desc_chr(t, '\'');
+#endif
+	}
 	
 
 		/* Grab any artifact name */
-                else if (o_ptr->name1)
-                {
-                        artifact_type *a_ptr = &a_info[o_ptr->name1];
+	else if (o_ptr->name1)
+		{
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-                        t = object_desc_chr(t, ' ');
-                        t = object_desc_str(t, (a_name + a_ptr->name));
-                }
+			t = object_desc_chr(t, ' ');
+			t = object_desc_str(t, (a_name + a_ptr->name));
+		}
 
 		/* Grab any ego-item name */
-                else if (o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+		else if (o_ptr->name2)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
@@ -1910,28 +1908,26 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	switch (o_ptr->tval)
 	{
 		/* Missiles and Weapons */
+                case TV_BOOMERANG:
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
-	        /* Exploding arrow? */
-                if (o_ptr->pval2 != 0)
-                        t = object_desc_str(t, " (exploding)");
-                /* No break, we want to continue the description */
-
-                case TV_BOOMERANG:
 		case TV_HAFTED:
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_ROD:
 		case TV_DIGGING:
-                case TV_DAEMON_BOOK:
-               
+                case TV_HELL_STAFF:
+                case TV_SWORD_DEVASTATION:
+                case TV_VALKYRIE_SPEAR:
+
 		/* Append a "damage" string */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, o_ptr->dd);
-		t = object_desc_chr(t, 'd');
-		t = object_desc_num(t, o_ptr->ds);
+                t = object_desc_num(t, o_ptr->dd);
+                t = object_desc_chr(t, 'd');
+                t = object_desc_num(t, (o_ptr->ds));
 		t = object_desc_chr(t, p2);
 
 		/* All done */
@@ -2026,31 +2022,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, b2);
 	}
 
-        if ((f1 & TR1_MANA) && (known) && (o_ptr->pval > 0))
-        {
+        if((f1 & TR1_MANA)&&(known)){
                 t = object_desc_chr(t, '(');
-                if (munchkin_multipliers)
-                {
-                        t = object_desc_num(t, 100 * o_ptr->pval / 5);
-                }
-                else
-                {
-                        t = object_desc_num(t, 100 * o_ptr->pval / 10);
-                }
+                t = object_desc_num(t, 100 * o_ptr->pval / 5);
                 t = object_desc_str(t, "%)");
         }
 
-        if ((known) && (f2 & TR2_LIFE) && (o_ptr->pval > 0))
-        {
+        if((known)&&(f2 & TR2_LIFE)){
                 t = object_desc_chr(t, '(');
-                if (munchkin_multipliers)
-                {
-                        t = object_desc_num(t, 100 * o_ptr->pval / 5);
-                }
-                else
-                {
-                        t = object_desc_num(t, 100 * o_ptr->pval / 10);
-                }
+                t = object_desc_num(t, 100 * o_ptr->pval / 5);
                 t = object_desc_str(t, "%)");
         }
 
@@ -2072,31 +2052,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, p2);
 	}
 
-        /*
-         * Hack -- Rods have a "charging" indicator.
-	 */
-        else if (known && (o_ptr->tval == TV_ROD_MAIN))
-	{
-                /* Display prettily. */
-                t = object_desc_str(t, " (");
-                t = object_desc_num(t, o_ptr->timeout);
-                t = object_desc_chr(t, '/');
-                t = object_desc_num(t, o_ptr->pval2);
-                t = object_desc_chr(t, ')');
-	}
-
-        /*
-         * Hack -- Rods have a "charging" indicator.
-	 */
-        else if (known && (o_ptr->tval == TV_ROD))
-	{
-                /* Display prettily. */
-                t = object_desc_str(t, " (");
-                t = object_desc_num(t, o_ptr->pval);
-                t = object_desc_str(t, " Mana to cast");
-                t = object_desc_chr(t, ')');
-	}
-
 	/* Hack -- Process Lanterns/Torches */
 	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
 	{
@@ -2105,6 +2060,31 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_num(t, o_ptr->pval);
 		t = object_desc_str(t, " turns of light)");
 	}
+
+        /* NEWANGBAND: Process Magic Crystals */
+        else if (o_ptr->tval == TV_CRYSTAL)
+	{
+                t = object_desc_str(t, " (");
+		t = object_desc_num(t, o_ptr->pval);
+                t = object_desc_str(t, " charges)");
+	}
+        else if (o_ptr->name1 == ART_ASMODIS)
+	{
+                t = object_desc_str(t, " (Energy: ");
+                t = object_desc_num(t, o_ptr->asmodis_energy);
+                t = object_desc_str(t, ")");
+	}
+
+
+        /* Another hack for NewAngband... */
+        else if ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_SWORD_DEVASTATION || o_ptr->tval == TV_VALKYRIE_SPEAR || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_ROD || o_ptr->tval == TV_HELL_STAFF) && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
+	{
+                t = object_desc_str(t, " (Dur: ");
+                t = object_desc_num(t, o_ptr->pval3);
+                t = object_desc_str(t, ")");
+	}
+
+
 
 
 	/* Dump "pval" flags for wearable items */
@@ -2173,7 +2153,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Indicate "charging" artifacts XXX XXX XXX */
-        if (known && o_ptr->timeout && (o_ptr->name2!=EGO_MSTAFF_POWER) && (o_ptr->tval!=TV_EGG) && (o_ptr->tval != TV_ROD_MAIN))
+        if (known && o_ptr->timeout && (o_ptr->name2!=EGO_MSTAFF_POWER) && (o_ptr->tval!=TV_EGG))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
@@ -2206,68 +2186,57 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No inscription yet */
 	tmp_val2[0] = '\0';
 	
-	/* Sensed stuff */
-	if (o_ptr->ident & (IDENT_SENSE))
-	{
-		strcpy(tmp_val2,sense_desc[o_ptr->sense]);
-	}
-	
-	/* Hack - Note "cursed" if the item is 'known' and cursed */
-	if (cursed_p(o_ptr) && (known) && (!tmp_val2[0]))
-	{
-		if (tmp_val2[0]) strcat(tmp_val2,", ");
-		strcat(tmp_val2, "cursed");
-	}
-	
 	/* Use the standard inscription if available */
 	if (o_ptr->note)
 	{
 		char *u = tmp_val2;
-	
-		if (tmp_val2[0]) strcat(tmp_val2,", ");
-	
-	       strcat(tmp_val2, quark_str(o_ptr->note));
-	
+
+                strcpy(tmp_val2, quark_str(o_ptr->note));
+
 		for (; *u && (*u != '#'); u++);
-	
+
 		*u = '\0';
 	}
-	
-	/* Mega-Hack -- note empty wands/staffs */
-	if (!known && (o_ptr->ident & (IDENT_EMPTY)))
+
+	/* Note "cursed" if the item is known to be cursed */
+	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
 	{
-		if (tmp_val2[0]) strcat(tmp_val2,", ");
-		strcat(tmp_val2, "empty");
+		strcpy(tmp_val2, "cursed");
 	}
-	
-	/* Note "tried" if the object has been tested unsuccessfully */
-	if (!aware && object_tried_p(o_ptr))
+
+	/* Mega-Hack -- note empty wands/staffs */
+	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
-		if (tmp_val2[0]) strcat(tmp_val2,", ");
+		strcpy(tmp_val2, "empty");
+	}
+
+	/* Note "tried" if the object has been tested unsuccessfully */
+	else if (!aware && object_tried_p(o_ptr))
+	{
 		strcpy(tmp_val2, "tried");
 	}
-	
+
 	/* Note the discount, if any */
-	if ((o_ptr->discount) && (!tmp_val2[0]))
+	else if (o_ptr->discount)
 	{
 		object_desc_num(tmp_val2, o_ptr->discount);
 		strcat(tmp_val2, "% off");
 	}
-	
+
 	/* Append the inscription, if any */
 	if (tmp_val2[0])
 	{
 		int n;
-	
+
 		/* Hack -- How much so far */
 		n = (t - tmp_val);
-	
+
 		/* Paranoia -- do not be stupid */
 		if (n > 75) n = 75;
-	
+
 		/* Hack -- shrink the inscription */
 		tmp_val2[75 - n] = '\0';
-	
+
 		/* Append the inscription */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, c1);
@@ -2322,11 +2291,11 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
  */
 cptr item_activation(object_type *o_ptr,byte num)
 {
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
         byte spell = 0;
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
@@ -2927,15 +2896,15 @@ cptr item_activation(object_type *o_ptr,byte num)
 		}
 		case ART_NARYA:
 		{
-                        return "healing (500) every 200+d100 turns";
+			return "large fire ball (120) every 225+d225 turns";
 		}
 		case ART_NENYA:
 		{
-                        return "healing (800) every 100+d200 turns";
+			return "large frost ball (200) every 325+d325 turns";
 		}
 		case ART_VILYA:
 		{
-                        return "greater healing (900) every 200+d200 turns";
+			return "large lightning ball (250) every 425+d425 turns";
 		}
 		case ART_POWER:
 		{
@@ -3009,6 +2978,29 @@ cptr item_activation(object_type *o_ptr,byte num)
 		{
                         return "alter reality every 100 turns";
 		}
+                case ART_BALANCE:
+		{
+                        return "use *Special* powers";
+		}
+                case ART_ASMODIS:
+		{
+                        return "release Asmodis energy";
+		}
+                case ART_DRAGOS:
+		{
+                        return "summon dragons";
+		}
+                case ART_UNDEAD_RING:
+		{
+                        return "???";
+		}
+                case ART_DEMON_RING:
+		{
+                        return "???";
+		}
+
+
+
 	}
 
         if(o_ptr->tval == TV_EGG)
@@ -3091,10 +3083,36 @@ cptr item_activation(object_type *o_ptr,byte num)
 		{
                         case SV_AMULET_SERPENT:
                                 return "vemon breathing every 40+d60 turns";
+                        case SV_AMULET_UNDEAD:
+                                return "???";
+
 			default:
 				return NULL;
 		}
 	}
+
+        if (o_ptr->tval == TV_CROWN)
+	{
+		switch(o_ptr->sval)
+		{
+                        case SV_PROMOTION_CROWN:
+                                return "???";
+			default:
+				return NULL;
+		}
+	}
+        if (o_ptr->tval == TV_HELM)
+	{
+		switch(o_ptr->sval)
+		{
+                        case SV_VALKYRIAN_HELM:
+                                return "???";
+			default:
+				return NULL;
+		}
+	}
+
+
 
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
@@ -3168,16 +3186,16 @@ bool identify_fully_aux(object_type *o_ptr)
 {
 	int                     i = 0, j, k;
 
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
 
 	cptr            info[128];
 
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	if (o_ptr->name1)
-	{
+        if (o_ptr->name1)
+        {                
 	
                 char buff2[400], *s, *t;
 		int n;
@@ -3222,7 +3240,7 @@ bool identify_fully_aux(object_type *o_ptr)
 
                 /* Add a blank line */
                 info[i++] = "";
-	}
+        }
 
         if (f4 & TR4_COULD2H) info[i++] = "It can be wielded two-handed.";
         if (f4 & TR4_MUST2H) info[i++] = "It must be wielded two-handed.";
@@ -3265,6 +3283,21 @@ bool identify_fully_aux(object_type *o_ptr)
         if (o_ptr->name1 == ART_ANCHOR)
         {
                 info[i++] = "It prevents the space-time continuum from being disrupted.";
+        }
+
+        if (o_ptr->name1 == ART_BALANCE)
+        {
+                info[i++] = "It reduce your life by 25%.";
+        }
+
+        if (o_ptr->xtra1 == 1 || f4 & (TR4_INDESTRUCTIBLE))
+        {
+                info[i++] = "It is indestructible.";
+        }
+        if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SAFETY)
+        {
+                info[i++] = "It prevent 'Stun', 'Heavy Stun' and 'Knock Out'.";
+                info[i++] = "It cannot be used with an HP boosting ability.";
         }
 
 
@@ -3557,24 +3590,9 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It allows you to see invisible monsters.";
 	}
-        if (esp)
+	if (f3 & (TR3_TELEPATHY))
 	{
-                if (p_ptr->telepathy & ESP_ALL) info[i++] = "It gives telepathic powers.";
-                else
-                {
-                        if (p_ptr->telepathy & ESP_ORC) info[i++] = "It allaows you to sense the presence of orcs.";
-                        if (p_ptr->telepathy & ESP_TROLL) info[i++] = "It allaows you to sense the presence of trolls.";
-                        if (p_ptr->telepathy & ESP_DRAGON) info[i++] = "It allaows you to sense the presence of dragons.";
-                        if (p_ptr->telepathy & ESP_GIANT) info[i++] = "It allaows you to sense the presence of giants.";
-                        if (p_ptr->telepathy & ESP_DEMON) info[i++] = "It allaows you to sense the presence of demons.";
-                        if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "It allaows you to sense presence of undeads.";
-                        if (p_ptr->telepathy & ESP_EVIL) info[i++] = "It allaows you to sense the presence of evil beings.";
-                        if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "It allaows you to sense the presence of animals.";
-                        if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "It allaows you to sense the presence of dragonriders.";
-                        if (p_ptr->telepathy & ESP_GOOD) info[i++] = "It allaows you to sense the presence of good beings.";
-                        if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "It allaows you to sense the presence of non-living things.";
-                        if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "It allaows you to sense the presence of Unique beings.";
-                }
+		info[i++] = "It gives telepathic powers.";
 	}
 	if (f3 & (TR3_SLOW_DIGEST))
 	{
@@ -3641,6 +3659,51 @@ bool identify_fully_aux(object_type *o_ptr)
                 info[i++] = "It fills you with the Black Breath.";
         }
 
+        if (f4 & (TR4_LEVELS))
+        {
+                info[i++] = "It can gain experience levels.";
+        }
+
+        if (f4 & (TR4_ONLY_WARRIOR))
+        {
+                info[i++] = "It is only usable by warrior classes.";
+        }
+
+        if (f4 & (TR4_ONLY_MAGE))
+        {
+                info[i++] = "It is only usable by mage classes.";
+        }
+
+        if (f4 & (TR4_ONLY_MALE))
+        {
+                info[i++] = "It is only usable to males.";
+        }
+
+        if (f4 & (TR4_ONLY_FEMALE))
+        {
+                info[i++] = "It is only usable to females.";
+        }
+
+        if (f4 & (TR4_BRAND_LIGHT))
+        {
+                info[i++] = "It does extra damages from light.";
+        }
+
+        if (f4 & (TR4_BRAND_DARK))
+        {
+                info[i++] = "It does extra damages from darkness.";
+        }
+
+        if (f4 & (TR4_BRAND_MAGIC))
+        {
+                info[i++] = "It does extra damages from pure magic.";
+        }
+
+        if (f4 & (TR4_CHARGEABLE))
+        {
+                info[i++] = "You can tweak it. To do, use the 'N' command.";
+        }
+
 	if (cursed_p(o_ptr))
 	{
 		if (f3 & (TR3_PERMA_CURSE))
@@ -3685,22 +3748,6 @@ bool identify_fully_aux(object_type *o_ptr)
         if (f4 & (TR4_CLONE))
 	{
                 info[i++] = "It can clone monsters.";
-	}
-        if (f4 & (TR4_CAPACITY))
-	{
-                info[i++] = "It can hold more mana.";
-	}
-        if (f4 & (TR4_CHEAPNESS))
-	{
-                info[i++] = "It can cast spells for a lesser mana cost.";
-	}
-        if (f4 & (TR4_FAST_CAST))
-	{
-                info[i++] = "It can cast spells faster.";
-	}
-        if (f4 & (TR4_CHARGING))
-	{
-                info[i++] = "It regenerates its mana faster.";
 	}
 
 
@@ -3843,6 +3890,7 @@ s16b wield_slot(object_type *o_ptr)
 	{
 		case TV_DIGGING:
                 case TV_TOOL:
+                case TV_CRYSTAL:
 		{
                         return get_slot(INVEN_TOOL);
 		}
@@ -3851,7 +3899,10 @@ s16b wield_slot(object_type *o_ptr)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
-                case TV_DAEMON_BOOK:
+                case TV_ROD:
+                case TV_HELL_STAFF:
+                case TV_SWORD_DEVASTATION:
+                case TV_VALKYRIE_SPEAR:
 		{
                         return get_slot(INVEN_WIELD);
 		}
@@ -3915,6 +3966,11 @@ s16b wield_slot(object_type *o_ptr)
 		{
                         return get_slot(INVEN_CARRY);
 		}
+                case TV_ABILITY:
+		{
+                        return get_slot(INVEN_ABILITY);
+		}
+
 
                 case TV_SHOT:
 		{
@@ -3988,6 +4044,7 @@ cptr mention_use(int i)
                 case INVEN_CARRY: p = "Carrying"; break;
                 case INVEN_AMMO:  p = "Quiver"; break;
                 case INVEN_TOOL:  p = "Using"; break;
+                case INVEN_ABILITY:  p = "Ability"; break;
 		default:          p = "In pack"; break;
 	}
 
@@ -4087,9 +4144,7 @@ cptr describe_use(int i)
 
 bool check_book_realm(const int book_tval)
 {
-        if (book_tval == TV_MIMIC_BOOK) return FALSE;
-
-        if (p_ptr->pclass != CLASS_SORCERER)
+        if(p_ptr->pclass != CLASS_SORCERER || p_ptr->pclass != CLASS_HELLQUEEN || !ability(43))
         {
                 return ((p_ptr->realm1 == book_tval - TV_VALARIN_BOOK + 1) ||
                         (p_ptr->realm2 == book_tval - TV_VALARIN_BOOK + 1));
@@ -4111,7 +4166,7 @@ bool check_book_realm(const int book_tval)
 bool item_tester_okay(object_type *o_ptr)
 {
 	/* Hack -- allow listing empty slots */
-        if (item_tester_full) return (TRUE);
+	if (item_tester_full) return (TRUE);
 
 	/* Require an item */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -4152,6 +4207,7 @@ void display_inven(void)
 	byte            attr = TERM_WHITE;
 	char            tmp_val[80];
 	char            o_name[80];
+        u32b f1, f2, f3, f4;
 
 
 	/* Find the "final" slot */
@@ -4194,8 +4250,15 @@ void display_inven(void)
 		/* Obtain the length of the description */
 		n = strlen(o_name);
 
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 		/* Get a color */
-		attr = tval_to_attr[o_ptr->tval % 128];
+                if (o_ptr->name1 == 203 || o_ptr->name1 == 204 || o_ptr->name1 == 205) attr = TERM_RED;
+                else if (o_ptr->name1 != 0 || o_ptr->tval == TV_RANDART) attr = TERM_YELLOW;
+                else if (o_ptr->name2 == 131) attr = TERM_L_GREEN;
+                else if (f4 & (TR4_CHARGEABLE)) attr = TERM_BLUE;
+                else if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4) attr = TERM_VIOLET;
+                else attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Hack -- fake monochrome */
 		if (!use_color) attr = TERM_WHITE;
@@ -4223,8 +4286,6 @@ void display_inven(void)
 	}
 }
 
-
-
 /*
  * Choice window "shadow" of the "show_equip()" function
  */
@@ -4235,6 +4296,7 @@ void display_equip(void)
 	byte            attr = TERM_WHITE;
 	char            tmp_val[80];
 	char            o_name[80];
+        u32b f1, f2, f3, f4;
 
 
 	/* Display the equipment */
@@ -4269,8 +4331,15 @@ void display_equip(void)
 		/* Obtain the length of the description */
 		n = strlen(o_name);
 
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
 		/* Get the color */
-		attr = tval_to_attr[o_ptr->tval % 128];
+                if (o_ptr->name1 == 203 || o_ptr->name1 == 204 || o_ptr->name1 == 205) attr = TERM_RED;
+                else if (o_ptr->name1 != 0 || o_ptr->tval == TV_RANDART) attr = TERM_YELLOW;
+                else if (o_ptr->name2 == 131) attr = TERM_L_GREEN;
+                else if (f4 & (TR4_CHARGEABLE)) attr = TERM_BLUE;
+                else if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4) attr = TERM_VIOLET;
+                else attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Hack -- fake monochrome */
 		if (!use_color) attr = TERM_WHITE;
@@ -4328,6 +4397,7 @@ void show_inven(void)
         int             out_index[23];
 	byte            out_color[23];
 	char            out_desc[23][80];
+        u32b f1, f2, f3, f4;
 
 
 	/* Starting column */
@@ -4374,8 +4444,15 @@ void show_inven(void)
                 /* Save the object index */
                 out_index[k] = i;
 
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
                 /* Save the object color, and description */
-		out_color[k] = tval_to_attr[o_ptr->tval % 128];
+                if (o_ptr->name1 == 203 || o_ptr->name1 == 204 || o_ptr->name1 == 205) out_color[k] = TERM_RED;
+                else if (o_ptr->name1 != 0 || o_ptr->tval == TV_RANDART) out_color[k] = TERM_YELLOW;
+                else if (o_ptr->name2 == 131) out_color[k] = TERM_L_GREEN;
+                else if (f4 & (TR4_CHARGEABLE)) out_color[k] = TERM_BLUE;
+                else if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4) out_color[k] = TERM_VIOLET;
+                else out_color[k] = tval_to_attr[o_ptr->tval % 128];
 		(void)strcpy(out_desc[k], o_name);
 
 		/* Find the predicted "line length" */
@@ -4460,10 +4537,11 @@ void show_equip(void)
 	object_type     *o_ptr;
 	char            tmp_val[80];
 	char            o_name[80];
-        int             out_index[INVEN_TOOL - INVEN_WIELD],
-                        out_rindex[INVEN_TOOL - INVEN_WIELD];
-        byte            out_color[INVEN_TOOL - INVEN_WIELD];
-        char            out_desc[INVEN_TOOL - INVEN_WIELD][80];
+        int             out_index[INVEN_ABILITY - INVEN_WIELD],
+                        out_rindex[INVEN_ABILITY - INVEN_WIELD];
+        byte            out_color[INVEN_ABILITY - INVEN_WIELD];
+        char            out_desc[INVEN_ABILITY - INVEN_WIELD][81];
+        u32b f1, f2, f3, f4;
 
 
 	/* Starting column */
@@ -4492,63 +4570,30 @@ void show_equip(void)
 
 		o_ptr = &inventory[i];
 
-                /* Inform the player that he/she can't use a shield */
-                if ((p_ptr->body_parts[i - INVEN_WIELD] == INVEN_ARM) && (!o_ptr->k_idx) && (inventory[i - INVEN_ARM + INVEN_WIELD].k_idx))
-                {
-                        u32b f1, f2, f3, f4, esp;
-                        object_type *q_ptr = &inventory[i - INVEN_ARM + INVEN_WIELD];
-                        char q_name[80];
+		/* Is this item acceptable? */
+		if (!item_tester_okay(o_ptr)) continue;
 
-                        /* Is this item acceptable? */
-                        if (!item_tester_okay(q_ptr)) continue;
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
 
-                        /* Description */
-                        object_desc(q_name, q_ptr, TRUE, 3);
+		/* Truncate the description */
+		o_name[lim] = 0;
 
-                        /* Get weapon flags */
-                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &esp);
+                /* Save the index */
+                out_index[k] = idx;
+                out_rindex[k] = i;
+                idx++;
 
-                        if (f4 & TR4_MUST2H)
-                        {
-                                sprintf(o_name, "(two handed) %s", q_name);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-                                /* Truncate the description */
-                                o_name[lim] = 0;
-
-                                /* Save the index */
-                                out_index[k] = idx;
-                                out_rindex[k] = i;
-                                idx++;
-
-                                /* Save the color */
-                                out_color[k] = TERM_L_RED;
-                                (void)strcpy(out_desc[k], o_name);
-                        }
-                        else
-                        {
-                                continue;
-                        }
-                }
-                else
-                {
-                        /* Is this item acceptable? */
-                        if (!item_tester_okay(o_ptr)) continue;
-
-                        /* Description */
-                        object_desc(o_name, o_ptr, TRUE, 3);
-
-                        /* Truncate the description */
-                        o_name[lim] = 0;
-
-                        /* Save the index */
-                        out_index[k] = idx;
-                        out_rindex[k] = i;
-                        idx++;
-
-                        /* Save the color */
-                        out_color[k] = tval_to_attr[o_ptr->tval % 128];
-                        (void)strcpy(out_desc[k], o_name);
-                }
+		/* Save the color */
+                if (o_ptr->name1 == 203 || o_ptr->name1 == 204 || o_ptr->name1 == 205) out_color[k] = TERM_RED;
+                else if (o_ptr->name1 != 0 || o_ptr->tval == TV_RANDART) out_color[k] = TERM_YELLOW;
+                else if (o_ptr->name2 == 131) out_color[k] = TERM_L_GREEN;
+                else if (f4 & (TR4_CHARGEABLE)) out_color[k] = TERM_BLUE;
+                else if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4) out_color[k] = TERM_VIOLET;
+                else out_color[k] = tval_to_attr[o_ptr->tval % 128];
+		(void)strcpy(out_desc[k], o_name);
 
 		/* Extract the maximal length (see below) */
 		l = strlen(out_desc[k]) + (2 + 3);
@@ -5753,8 +5798,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
  */
 static bool item_tester_hook_getable(object_type *o_ptr)
 {
-        if ((o_ptr->tval == TV_HYPNOS)&&(p_ptr->pclass != CLASS_SYMBIANT))
-                return FALSE;
 
         if ((no_pickup_corpse == TRUE) && (o_ptr->tval == TV_CORPSE))
                 return FALSE;
@@ -5802,14 +5845,13 @@ int wear_ammo(object_type *o_ptr)
 	equip_cnt++;
 
 	/* Cursed! */
-        if (cursed_p(o_ptr))
+	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
-		o_ptr->sense = SENSE_CURSED;
 	}
 
 	/* Recalculate bonuses */
@@ -5853,9 +5895,6 @@ void py_pickup_floor(int pickup)
         bool do_pickup = TRUE;
   
         bool do_ask = TRUE;
-
-        /* Squeltch the floor */
-        squeltch_grid();
   
         /* Scan the pile of objects */
         for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -5947,9 +5986,9 @@ void py_pickup_floor(int pickup)
                 /* Don't ask */
                 do_ask = FALSE;
 
-                if ((o_list[floor_o_idx].tval == TV_HYPNOS)&&(p_ptr->pclass != CLASS_SYMBIANT))
-                        do_pickup = FALSE;
-                else if ((no_pickup_corpse == TRUE) && (o_list[floor_o_idx].tval == TV_CORPSE))
+                /* if ((o_list[floor_o_idx].tval == TV_HYPNOS)) */
+                      /*  do_pickup = FLASE; */
+                if ((no_pickup_corpse == TRUE) && (o_list[floor_o_idx].tval == TV_CORPSE))
                         do_pickup = FALSE;
                 else
                         this_o_idx = floor_o_idx;
@@ -6044,44 +6083,37 @@ void py_pickup_floor(int pickup)
  */
 void object_gain_level(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
 
 	/* Extract some flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
         /* First it can gain some tohit and todam */
         if((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) ||
-           (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF))
+           (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF) || (o_ptr->tval == TV_HELL_STAFF) || (o_ptr->tval == TV_SWORD_DEVASTATION) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_VALKYRIE_SPEAR))
         {
-                int m = rand_int(100);
-
-                /* No more +80+80 artifacts */
-                if (m < 45)
-                {
-                        o_ptr->to_h += 1;
-                }
-                else if (m < 90)
-                {
-                        o_ptr->to_d += 1;
-                }
-                else
-                {
-                        o_ptr->to_h += 1;
-                        o_ptr->to_d += 1;
-                }
+                o_ptr->to_h += randint((o_ptr->elevel / 13) + 1);
+                o_ptr->to_d += randint((o_ptr->elevel / 13) + 1);
         }
 
         /* Can gain resistance */
-        if(rand_int(100) < 7)
+        if(rand_int(100) < 15)
         {
                 artifact_bias = 0;
-		random_resistance(o_ptr, FALSE, ((randint(22))+16));
+                if (o_ptr->tval != TV_SWORD_DEVASTATION)
+                {
+                        random_resistance(o_ptr, FALSE, ((randint(22))+16));
+                }
         }
 
+
         /* Can gain some plus */
-        if(rand_int(100) < 4)
+        if(rand_int(100) < 8)
         {
-                random_plus(o_ptr, FALSE);
+                if (o_ptr->tval != TV_SWORD_DEVASTATION)
+                {
+                        random_plus(o_ptr, FALSE);
+                }
 
                 if(!o_ptr->pval)
                 {
@@ -6096,23 +6128,539 @@ void object_gain_level(object_type *o_ptr)
                                 while (o_ptr->pval<randint(5) || randint(o_ptr->pval)==1);
                         }
 
-                        /* Restrict blows to avoid siliness */
-                        if ((o_ptr->art_flags1 & TR1_BLOWS) && (o_ptr->pval >= 3 + rand_int(2)))
-                        {
-                                o_ptr->pval = 3;
-                        }
+
                 }
         }
 
         /* Extremely rare -- it can gain some pval */
-        if(((o_ptr->pval) || f1) && (rand_int(300) < 2))
+        if(((o_ptr->pval) || f1) && (rand_int(100) < 2))
         {
                 o_ptr->pval++;
         }
 
         /* Can gain something */
-        if(rand_int(100) < 4)
+        if(rand_int(100) < 9)
         {
-                random_misc(o_ptr, FALSE);
+                if (o_ptr->tval != TV_SWORD_DEVASTATION)
+                {
+                        random_misc(o_ptr, FALSE);
+                }
         }
+}
+
+void do_cmd_enchant_levels()
+{
+      object_type *o_ptr;
+      u32b f1, f2, f3, f4;
+
+      o_ptr = &inventory[INVEN_WIELD];
+
+      /* Extract some flags */
+      object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+      o_ptr->art_flags4 = TR4_LEVELS;
+      msg_print("Your weapon can now gain levels!");
+      if (o_ptr->pval < 1) o_ptr->pval += 1;
+}
+
+void do_cmd_more_pval(void)
+{
+	object_type     *o_ptr;
+	char            o_name[80];
+        int item;
+
+    cptr q, s;
+
+	/* Get an item */
+        q = "Which item? ";
+        s = "You have no items!";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)));
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+        if (o_ptr->pval >= 5)
+        {
+        msg_print("Sorry, I can't enchant this weapon anymore! Here's your money back!");
+        p_ptr->au += 30000;
+        }
+        else
+        {
+        o_ptr->pval += 1;
+        msg_print("Your item start to glow! It's power just increased!");
+        }
+}
+        
+void do_cmd_make_item(object_type *o_ptr)
+{
+        int whichpower;
+	char            o_name[80];
+
+        u32b f1, f2, f3, f4;
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+        /* Give the item a pval */
+        if (o_ptr->pval <= 0) o_ptr->pval += 1;
+
+        if (o_ptr->tval != TV_LITE)
+        {
+        whichpower = get_quantity("Which ability do you want to have?", 58);
+        if (whichpower == 1 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_FIRE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 2 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_COLD;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 3 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_ELEC;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 4 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_ACID;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 5 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_POIS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 6 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_LITE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 7 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_DARK;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 8 && p_ptr->au >= 5000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_CHAOS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 5000;
+        }
+        if (whichpower == 9 && p_ptr->au >= 5000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_NETHER;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 5000;
+        }
+        if (whichpower == 10 && p_ptr->au >= 5000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_NEXUS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 5000;
+        }
+        if (whichpower == 11 && p_ptr->au >= 4000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_DISEN;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 4000;
+        }
+        if (whichpower == 12 && p_ptr->au >= 200000)
+        {
+             o_ptr->art_flags2 |= TR2_IM_FIRE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 200000;
+        }
+        if (whichpower == 13 && p_ptr->au >= 200000)
+        {
+             o_ptr->art_flags2 |= TR2_IM_COLD;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 200000;
+        }
+        if (whichpower == 14 && p_ptr->au >= 200000)
+        {
+             o_ptr->art_flags2 |= TR2_IM_ELEC;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 200000;
+        }
+        if (whichpower == 15 && p_ptr->au >= 200000)
+        {
+             o_ptr->art_flags2 |= TR2_IM_ACID;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 200000;
+        }
+        if (whichpower == 16 && p_ptr->au >= 22000)
+        {
+             o_ptr->art_flags2 |= TR2_LIFE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 22000;
+        }
+        if (whichpower == 17 && p_ptr->au >= 22000)
+        {
+             o_ptr->art_flags1 |= TR1_SPEED;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 22000;
+        }
+        if (whichpower == 18 && p_ptr->au >= 40000)
+        {
+             o_ptr->art_flags1 |= TR1_BLOWS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 40000;
+        }
+        if (whichpower == 19 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags1 |= TR1_STR;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 20 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags1 |= TR1_INT;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 21 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags1 |= TR1_WIS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 22 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags1 |= TR1_DEX;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 23 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags1 |= TR1_CON;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 24 && p_ptr->au >= 2000)
+        {
+             o_ptr->art_flags1 |= TR1_CHR;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 2000;
+        }
+        if (whichpower == 25 && p_ptr->au >= 2500)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_ORC;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 2500;
+        }
+        if (whichpower == 26 && p_ptr->au >= 2500)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_TROLL;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 2500;
+        }
+        if (whichpower == 27 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_EVIL;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 28 && p_ptr->au >= 4000)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_UNDEAD;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 4000;
+        }
+        if (whichpower == 29 && p_ptr->au >= 1000)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_ANIMAL;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 1000;
+        }
+        if (whichpower == 30 && p_ptr->au >= 8000)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_DEMON;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 8000;
+        }
+        if (whichpower == 31 && p_ptr->au >= 3000)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_GIANT;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 3000;
+        }
+        if (whichpower == 32 && p_ptr->au >= 6000)
+        {
+             o_ptr->art_flags1 |= TR1_SLAY_DRAGON;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 6000;
+        }
+        if (whichpower == 33 && p_ptr->au >= 20000)
+        {
+             o_ptr->art_flags1 |= TR1_KILL_DRAGON;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 20000;
+        }
+        if (whichpower == 34 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_STEALTH;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 35 && p_ptr->au >= 5000)
+        {
+             o_ptr->art_flags1 |= TR1_SEARCH;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 5000;
+        }
+        if (whichpower == 36 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags1 |= TR1_TUNNEL;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 37 && p_ptr->au >= 6000)
+        {
+             o_ptr->art_flags3 |= TR3_LITE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 6000;
+        }
+        if (whichpower == 38 && p_ptr->au >= 500)
+        {
+             o_ptr->art_flags3 |= TR3_IGNORE_FIRE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 500;
+        }
+        if (whichpower == 39 && p_ptr->au >= 500)
+        {
+             o_ptr->art_flags3 |= TR3_IGNORE_COLD;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 500;
+        }
+        if (whichpower == 40 && p_ptr->au >= 500)
+        {
+             o_ptr->art_flags3 |= TR3_IGNORE_ELEC;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 500;
+        }
+        if (whichpower == 41 && p_ptr->au >= 500)
+        {
+             o_ptr->art_flags3 |= TR3_IGNORE_ACID;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 500;
+        }
+        if (whichpower == 42 && p_ptr->au >= 500000)
+        {
+             o_ptr->art_flags3 |= TR3_WRAITH;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 500000;
+        }
+        if (whichpower == 43 && p_ptr->au >= 500000)
+        {
+             o_ptr->art_flags4 |= TR4_PRECOGNITION;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 500000;
+        }
+        if (whichpower == 44 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_BRAND_FIRE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 45 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_BRAND_COLD;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 46 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_BRAND_ELEC;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 47 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_BRAND_ACID;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 48 && p_ptr->au >= 10000)
+        {
+             o_ptr->art_flags1 |= TR1_BRAND_POIS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 10000;
+        }
+        if (whichpower == 49 && p_ptr->au >= 7500)
+        {
+             o_ptr->art_flags3 |= TR3_SEE_INVIS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 7500;
+        }
+        if (whichpower == 50 && p_ptr->au >= 40000)
+        {
+             o_ptr->art_flags2 |= TR2_INVIS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 40000;
+        }
+        if (whichpower == 51 && p_ptr->au >= 23000)
+        {
+             o_ptr->art_flags3 |= TR3_TELEPATHY;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 23000;
+        }
+        if (whichpower == 52 && p_ptr->au >= 15000)
+        {
+             o_ptr->art_flags4 |= TR4_LEVELS;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 15000;
+        }
+        if (whichpower == 53 && p_ptr->au >= 5000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_CONF;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 5000;
+        }
+        if (whichpower == 54 && p_ptr->au >= 2000)
+        {
+             o_ptr->art_flags2 |= TR2_RES_FEAR;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 2000;
+        }
+        if (whichpower == 55 && p_ptr->au >= 2000)
+        {
+             o_ptr->art_flags2 |= TR2_FREE_ACT;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 2000;
+        }
+        if (whichpower == 56 && p_ptr->au >= 17000)
+        {
+             o_ptr->art_flags3 |= TR3_SH_FIRE;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 17000;
+        }
+        if (whichpower == 57 && p_ptr->au >= 17000)
+        {
+             o_ptr->art_flags3 |= TR3_SH_ELEC;
+             msg_print("Your item just gained a new ability!");
+             p_ptr->au -= 17000;
+        }
+        }
+        else msg_print("You cannot enchant a light source!");
+
+}
+
+/* NEW! You can now breed monsters! For leaders! */
+void do_cmd_breed(void)
+{
+        int finalbreed, breed1, breed2, bonus1, bonus2, finalbonus;
+        int item;
+	object_type     *o_ptr;
+        object_kind *k_ptr = &k_info[o_ptr->k_idx];
+        object_type   forge;
+        object_type   *q_ptr;
+
+	char            o_name[80];
+
+     
+        cptr q, s;
+
+        breed1 = 0;
+        breed2 = 0;
+
+        item_tester_tval = TV_HYPNOS;
+
+	/* Get an item */
+        q = "Who will be the first parent? ";
+        s = "You don't have any monsters to breed!";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+        breed1 = o_ptr->pval;
+        bonus1 = o_ptr->pval3;
+        inven_item_increase(item, -1);
+        inven_item_optimize(item);
+        msg_print("The first parent is gone!");
+
+        item_tester_tval = TV_HYPNOS;
+
+	/* Get an item */
+        q = "Who will be the second parent? ";
+        s = "You don't have any more monsters to breed!";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+        breed2 = o_ptr->pval;
+        bonus2 = o_ptr->pval3;
+        finalbonus = ((bonus1 + bonus2) / 2);
+        /* Cannot breed without two parents! */
+        if (breed1 == 0 || breed2 == 0)
+        {
+                breed1 = 1;
+                breed2 = 1;
+        }
+        inven_item_increase(item, -1);
+        inven_item_optimize(item);
+        msg_print("The second parent is gone!");
+        finalbreed = ((breed1 + breed2) / 2);
+
+        /* Get local object */
+        q_ptr = &forge;
+
+        
+        object_prep(q_ptr, lookup_kind(TV_EGG, 1));
+        q_ptr->number = (byte)rand_range(1,1);
+        object_aware(q_ptr);
+        object_known(q_ptr);
+        q_ptr->pval = 10;
+        q_ptr->pval2 = finalbreed;
+        q_ptr->pval3 = finalbonus;
+        /* Devaluate the egg */
+        k_ptr->cost = 0;
+
+        /* These objects are "storebought" */
+        q_ptr->ident |= IDENT_STOREB;
+
+        (void)inven_carry(q_ptr, FALSE);
+        object_desc(o_name, q_ptr, TRUE, 3);
+        msg_format("The monsters layed %s!", o_name);
 }

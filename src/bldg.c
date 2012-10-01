@@ -10,7 +10,7 @@
  *
  * Changed for ZAngband by Robert Ruehlmann
  *
- * Heavily modified for PernAngband by DarkGod
+ * Changed for PernAngband by Dark God
  */
 
 #include "angband.h"
@@ -22,24 +22,48 @@ static bool leave_bldg = FALSE;
 static int building_loc = 0;
 
 
-bool is_state(store_type *s_ptr, int state)
+static bool is_owner(building_type *bldg)
 {
-        owner_type *ow_ptr = &ow_info[s_ptr->owner];
+	if (bldg->member_class[p_ptr->pclass] == BUILDING_OWNER)
+	{
+		return (TRUE);	
+	}
 
-        if (state == STORE_NORMAL)
-        {
-                return (!is_state(s_ptr, STORE_LIKED)) && (!is_state(s_ptr, STORE_HATED));
-        }
-        else
-        {
-                if ((ow_ptr->races[state] & (1 << p_ptr->prace)) || (ow_ptr->classes[state] & (1 << p_ptr->prace)) ||
-                    (ow_ptr->realms[state] & (1 << p_ptr->realm1)) || (ow_ptr->realms[state] & (1 << p_ptr->realm2)))
-                {
-                        return (TRUE); 
-                }
-        }
+	if (bldg->member_race[p_ptr->prace] == BUILDING_OWNER)
+	{
+		return (TRUE);	
+	}
+
+	if ((bldg->member_realm[p_ptr->realm1] == BUILDING_OWNER) ||
+		(bldg->member_realm[p_ptr->realm2] == BUILDING_OWNER))
+	{
+		return (TRUE);
+	}
+
 	return (FALSE);
 }
+
+
+static bool is_member(building_type *bldg)
+{
+	if (bldg->member_class[p_ptr->pclass])
+	{
+		return (TRUE);	
+	}
+
+	if (bldg->member_race[p_ptr->prace])
+	{
+		return (TRUE);	
+	}
+
+	if ((bldg->member_realm[p_ptr->realm1]) || (bldg->member_realm[p_ptr->realm2]))
+	{
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
+
 
 /*
  * Clear the building information
@@ -53,96 +77,125 @@ static void clear_bldg(int min_row, int max_row)
 }
 
 
+#if 0
+
+/*
+ * Places a building reward at the doorstep for the player -KMW-
+ */
+static void put_reward(byte thetval, byte thesval, int dunlevel)
+{
+	object_type *q_ptr, forge;
+	int         i, choice;
+
+	choice = 0;
+
+	for(i = 1; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+		if ((k_ptr->tval == thetval) && (k_ptr->sval == thesval))
+		{
+			choice = i;
+			break;
+		}
+	}
+	q_ptr = &forge;
+	object_prep(q_ptr, choice);
+	apply_magic(q_ptr, dunlevel, TRUE, TRUE, TRUE);
+	object_aware(q_ptr);
+	object_known(q_ptr);
+	drop_near(q_ptr, -1, py, px);
+}
+
+#endif
+
+
 /*
  * Display a building.
  */
-void show_building(store_type *s_ptr)
+static void show_building(building_type* bldg)
 {
 	char buff[20];
 	int i;
 	byte action_color;
 	char tmp_str[80];
-        store_info_type *st_ptr = &st_info[s_ptr->st_idx];
-        store_action_type *ba_ptr;
+
+	Term_clear();
+	sprintf(tmp_str, "%s (%s) %35s", bldg->owner_name, bldg->owner_race, bldg->name);
+	prt(tmp_str, 2, 1);
+	prt("You may:", 19, 0);
 
 	for (i = 0; i < 6; i++)
 	{
-                ba_ptr = &ba_info[st_ptr->actions[i]];
-
-                if (ba_ptr->letter != '.')
+		if (bldg->letters[i])
 		{
-                        if (ba_ptr->action_restr == 0)
+			if (bldg->action_restr[i] == 0)
 			{
-                                if ((is_state(s_ptr, STORE_LIKED) && (ba_ptr->costs[STORE_LIKED] == 0)) ||
-                                    (is_state(s_ptr, STORE_HATED) && (ba_ptr->costs[STORE_HATED] == 0)) ||
-                                    (is_state(s_ptr, STORE_NORMAL) && (ba_ptr->costs[STORE_NORMAL] == 0)))
+				if ((is_owner(bldg) && (bldg->member_costs[i] == 0)) ||
+					(!is_owner(bldg) && (bldg->other_costs[i] == 0)))
 				{
 					action_color = TERM_WHITE;
 					buff[0] = '\0';
 				}
-                                else if (is_state(s_ptr, STORE_LIKED))
+				else if (is_owner(bldg))
 				{
-                                        action_color = TERM_L_GREEN;
-                                        sprintf(buff, "(%dgp)", ba_ptr->costs[STORE_LIKED]);
+					action_color = TERM_YELLOW;
+					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
 				}
-                                else if (is_state(s_ptr, STORE_HATED))
+				else
 				{
-                                        action_color = TERM_RED;
-                                        sprintf(buff, "(%dgp)", ba_ptr->costs[STORE_HATED]);
-				}
-                                else
-				{
-                                        action_color = TERM_YELLOW;
-                                        sprintf(buff, "(%dgp)", ba_ptr->costs[STORE_NORMAL]);
+					action_color = TERM_YELLOW;
+					sprintf(buff, "(%dgp)", bldg->other_costs[i]);
 				}
 			}
-                        else if (ba_ptr->action_restr == 1)
+			else if (bldg->action_restr[i] == 1)
 			{
-                                if ((is_state(s_ptr, STORE_LIKED) && (ba_ptr->costs[STORE_LIKED] == 0)) ||
-                                    (is_state(s_ptr, STORE_NORMAL) && (ba_ptr->costs[STORE_NORMAL] == 0)))
+				if (!is_member(bldg))
+				{
+					action_color = TERM_L_DARK;
+					strcpy(buff, "(closed)");
+				}
+				else if ((is_owner(bldg) && (bldg->member_costs[i] == 0)) ||
+					(is_member(bldg) && (bldg->other_costs[i] == 0)))
 				{
 					action_color = TERM_WHITE;
 					buff[0] = '\0';
 				}
-                                else if (is_state(s_ptr, STORE_LIKED))
+				else if (is_owner(bldg))
 				{
-                                        action_color = TERM_L_GREEN;
-                                        sprintf(buff, "(%dgp)", ba_ptr->costs[STORE_LIKED]);
+					action_color = TERM_YELLOW;
+					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
 				}
-                                else if (is_state(s_ptr, STORE_HATED))
+				else
 				{
-                                        action_color = TERM_L_DARK;
-                                        sprintf(buff, "(closed)");
-				}
-                                else
-				{
-                                        action_color = TERM_YELLOW;
-                                        sprintf(buff, "(%dgp)", ba_ptr->costs[STORE_NORMAL]);
+					action_color = TERM_YELLOW;
+					sprintf(buff, "(%dgp)", bldg->other_costs[i]);
 				}
 			}
 			else
 			{
-                                if (is_state(s_ptr, STORE_LIKED) && (ba_ptr->costs[STORE_LIKED] == 0))
+				if (!is_owner(bldg))
+				{
+					action_color = TERM_L_DARK;
+					strcpy(buff, "(closed)");
+				}
+				else if (bldg->member_costs[i] != 0)
+				{
+					action_color = TERM_YELLOW;
+					sprintf(buff, "(%dgp)", bldg->member_costs[i]);
+				}
+				else
 				{
 					action_color = TERM_WHITE;
 					buff[0] = '\0';
 				}
-                                else if (is_state(s_ptr, STORE_LIKED))
-				{
-                                        action_color = TERM_L_GREEN;
-                                        sprintf(buff, "(%dgp)", ba_ptr->costs[STORE_LIKED]);
-				}
-                                else
-				{
-                                        action_color = TERM_L_DARK;
-                                        sprintf(buff, "(closed)");
-				}
 			}
 
-                        sprintf(tmp_str," %c) %s %s", ba_ptr->letter, ba_ptr->name + ba_name, buff);
-                        c_put_str(action_color, tmp_str, 21 + (i / 2), 17 + (30 * (i % 2)));
+			sprintf(tmp_str," %c) %s %s", bldg->letters[i], bldg->act_names[i], buff);
+			c_put_str(action_color, tmp_str, 19+(i/2), 35*(i%2));
 		}
 	}
+
+	prt(" ESC) Exit building", 23, 0);
 }
 
 
@@ -161,7 +214,6 @@ static void reset_tim_flags()
 	p_ptr->stun = 0;            /* Timed -- Stun */
 
 	p_ptr->protevil = 0;        /* Timed -- Protection */
-	p_ptr->protgood = 0;        /* Timed -- Protection */	
 	p_ptr->invuln = 0;          /* Timed -- Invulnerable */
 	p_ptr->hero = 0;            /* Timed -- Heroism */
 	p_ptr->shero = 0;           /* Timed -- Super Heroism */
@@ -212,6 +264,7 @@ static void arena_comm(int cmd)
 			}
 			else
 			{
+				p_ptr->leftbldg = TRUE;
 				p_ptr->inside_arena = TRUE;
 				p_ptr->exit_bldg = FALSE;
 				reset_tim_flags();
@@ -596,6 +649,7 @@ static bool inn_comm(int cmd)
 					set_confused(0);
 					p_ptr->stun = 0;
                                         msg_print("You awake refreshed for the new night.");
+					p_ptr->leftbldg = TRUE;
 					p_ptr->leaving = TRUE;
 
                                         /* Select new bounties. */
@@ -625,6 +679,7 @@ static bool inn_comm(int cmd)
 					set_confused(0);
 					p_ptr->stun = 0;
 					msg_print("You awake refreshed for the new day.");
+					p_ptr->leftbldg = TRUE;
 					p_ptr->leaving = TRUE;
 
                                         /* Select new bounties. */
@@ -716,7 +771,7 @@ static void get_questinfo(int questnum)
 /*
  * Request a quest from the Lord.
  */
-static void castle_quest(int y, int x)
+static void castle_quest(void)
 {
 	char            tmp_str[80];
 	int             q_index = 0;
@@ -728,7 +783,7 @@ static void castle_quest(int y, int x)
 	clear_bldg(7,18);
 
 	/* Current quest of the building */
-        q_index = cave[y][x].special;
+	q_index = cave[py][px].special;
 
 	/* Is there a quest available at the building? */
 	if (!q_index)
@@ -809,6 +864,209 @@ static void castle_quest(int y, int x)
 	}
 }
 
+
+/*
+ * Greet the lord of the castle
+ */
+static void castle_greet(void)
+{
+#if 0
+	int increment, j, oldlevel;
+	char tmp_str[80];
+
+	increment = ((p_ptr->lev - 1) / 5);
+	if (increment < 1)
+	{
+		(void) sprintf(tmp_str,"Ah, a young adventurer, return when: %s (Level %d)",
+		player_title[p_ptr->pclass][1], 6);
+		msg_print(tmp_str);
+		msg_print(NULL);
+	}
+	else if ((increment >= 5) && (p_ptr->rewards[BACT_GREET]))
+	{
+		msg_print("Your greeting is returned with reverance and respect");
+	}
+	else if (p_ptr->rewards[increment + 9])
+	{
+		(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
+		player_title[p_ptr->pclass][increment+1], ((increment*5)+6));
+		msg_print(tmp_str);
+		msg_print(NULL);
+	}
+	else
+	{ /* set last reward that hasn't been given to TRUE */
+		for (j=10;j<20;j++)
+		{
+			if (p_ptr->rewards[j] == 0)
+			{
+				p_ptr->rewards[j] = 1;
+				break;
+			}
+		}
+
+		if (j == 10)
+		{
+			msg_print("Well done! Please take up residence in the house down the street.");
+			msg_print(NULL);
+		}
+		else if (j == 11)
+		{
+			msg_print("Very good! The weaponsmaster will be able to help you now.");
+			msg_print(NULL);
+		}
+		else if (j == 12)
+		{
+			msg_print("You are proving yourself worthy. You may visit the Beastmaster.");
+			msg_print(NULL);
+		}
+		else
+		{
+			msg_print("An excellent gift awaits you outside!");
+			msg_print(NULL);
+			oldlevel = object_level;
+			object_level = p_ptr->lev * 4;
+			acquirement(py,px,1,0,1);
+			object_level = oldlevel;
+		}
+	}
+#endif
+}
+
+
+# if 0
+
+/*
+ * greet_reward
+ */
+static void greet_reward(int gclass)
+{
+	byte tval, sval;
+	int randitem = randint(5);
+
+	tval = 0;
+	sval = 0;
+
+	switch(gclass)
+	{
+		case CLASS_ROGUE:
+		case CLASS_WARRIOR:
+		case CLASS_PALADIN:
+		case CLASS_RANGER:
+			switch(randitem)
+			{
+				case 1:
+					tval = TV_BOW;
+					sval = SV_LONG_BOW;
+					break;
+				case 2:
+					tval = TV_BOOTS;
+					sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
+					break;
+				case 3:
+					tval = TV_HARD_ARMOR;
+					sval = SV_MITHRIL_CHAIN_MAIL;
+					break;
+				case 4:
+					tval = TV_HELM;
+					sval = SV_STEEL_HELM;
+					break;
+				case 5:
+					tval = TV_SWORD;
+					sval = SV_BROAD_SWORD;
+					break;
+			}
+			break;
+
+		case CLASS_MAGE:
+		case CLASS_PRIEST:
+			switch(randitem)
+			{
+				case 1:
+					tval = TV_ROD;
+					sval = 23 + randint(4);
+					break;
+				case 2:
+					tval = TV_RING;
+					sval = SV_RING_PROTECTION;
+					break;
+				case 3:
+					tval = TV_AMULET;
+					sval = SV_AMULET_THE_MAGI;
+					break;
+				case 4:
+					tval = TV_CLOAK;
+					sval = SV_SHADOW_CLOAK;
+					break;
+				case 5:
+                                        tval = TV_MSTAFF;
+                                        sval = 1;
+					break;
+			}
+	}
+
+	put_reward(tval,sval,(p_ptr->lev*2));
+}
+
+#endif
+
+
+/*
+ * greet_char
+ */
+static void greet_char(void)
+{
+#if 0
+	int increment, j;
+	char tmp_str[80];
+
+	increment = (((p_ptr->lev - 1) / 5)/2);
+	if (p_ptr->lev == 50)
+		increment = 5;
+
+	if (increment < 1)
+	{
+		(void) sprintf(tmp_str,"You are young yet, return when: %s (Level %d)",
+		    player_title[p_ptr->pclass][2], 11);
+		msg_print(tmp_str);
+		msg_print(NULL);
+	}
+	else if ((increment == 5) && (p_ptr->rewards[increment - 1]))
+	{
+		msg_print("Your greeting is returned with reverence and respect");
+	}
+	else if (p_ptr->rewards[increment - 1])
+	{
+		if (increment == 4)
+		{
+			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
+			    player_title[p_ptr->pclass][9], 50);
+		}
+		else
+		{
+			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
+			    player_title[p_ptr->pclass][(increment+1) * 2], (((increment+1)*10)+1));
+			msg_print(tmp_str);
+			msg_print(NULL);
+		}
+	}
+	else
+	{
+		for (j=0;j<10;j++)
+		{
+			if (p_ptr->rewards[j] == FALSE)
+			{
+				p_ptr->rewards[j] = TRUE;
+				break;
+			}
+		}
+		msg_print("Take this gift as a reward for your diligence");
+		msg_print(NULL);
+		greet_reward(p_ptr->pclass);
+	}
+#endif
+}
+
+
 /*
  * Displaying town history -KMW-
  */
@@ -846,9 +1104,9 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
  */
 static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	if (f1 & (TR1_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Animals:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & (TR1_SLAY_EVIL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Evil:", f1, f2, f3, TERM_YELLOW);
@@ -1427,45 +1685,36 @@ void select_bounties(void) {
 /*
  * Execute a building command
  */
-bool bldg_process_command(store_type *s_ptr, int i)
+static void bldg_process_command(building_type *bldg, int i)
 {
 	object_type *q_ptr, forge;
-        store_action_type *ba_ptr = &ba_info[st_info[s_ptr->st_idx].actions[i]];
-        int bact = ba_ptr->action;
+	int bact = bldg->actions[i];
 	int bcost;
 	bool paid = FALSE;
 	bool set_reward = FALSE;
-        bool recreate = FALSE;
 	int amt;
 
-        if (is_state(s_ptr, STORE_LIKED))
-        {
-                bcost = ba_ptr->costs[STORE_LIKED];
-        }
-        else if (is_state(s_ptr, STORE_HATED))
-        {
-                bcost = ba_ptr->costs[STORE_HATED];
-        }
-        else
-        {
-                bcost = ba_ptr->costs[STORE_NORMAL];
-        }
+	if (is_owner(bldg))
+		bcost = bldg->member_costs[i];
+	else
+		bcost = bldg->other_costs[i];
 
 	/* action restrictions */
-        if (((ba_ptr->action_restr == 1) && (!is_state(s_ptr, STORE_LIKED) || !is_state(s_ptr, STORE_NORMAL))) ||
-            ((ba_ptr->action_restr == 2) && (!is_state(s_ptr, STORE_LIKED))))
+	if (((bldg->action_restr[i] == 1) && (!is_member(bldg))) ||
+	    ((bldg->action_restr[i] == 2) && (!is_owner(bldg))))
 	{
 		msg_print("You have no right to choose that!");
 		msg_print(NULL);
-                return FALSE;
+		return;
 	}
 
 	/* check gold */
-        if (bcost > p_ptr->au)
+	if (((bldg->member_costs[i] > p_ptr->au) && (is_owner(bldg))) ||
+	    ((bldg->other_costs[i] > p_ptr->au) && (!is_owner(bldg))))
 	{
 		msg_print("You do not have the gold!");
 		msg_print(NULL);
-                return FALSE;
+		return;
 	}
 
 	if (!bcost) set_reward = TRUE;
@@ -1483,46 +1732,14 @@ bool bldg_process_command(store_type *s_ptr, int i)
 		case BACT_RACE_LEGENDS:
 			race_legends();
 			break;
-#if 0
+
 		case BACT_GREET_KING:
 			castle_greet();
 			break;
-#endif
-                case BACT_QUEST1:
-                case BACT_QUEST2:
-                case BACT_QUEST3:
-                case BACT_QUEST4:
-                {
-                        int y = 1, x = 1;
-                        bool ok = FALSE;
 
-                        while ((x < cur_wid - 1) && !ok)
-                        {
-                                y = 1;
-                                while ((y < cur_hgt - 1) && !ok)
-                                {
-                                        /* Found the location of the quest info ? */
-                                        if (bact - BACT_QUEST1 + FEAT_QUEST1 == cave[y][x].feat)
-                                        {
-                                                /* Stop the loop */
-                                                ok = TRUE;
-                                        }
-                                        y++;
-                                }
-                                x++;
-                        }
-
-                        if (ok)
-                        {
-                                castle_quest(y - 1, x - 1);
-                                recreate = TRUE;
-                        }
-                        else
-                        {
-                                msg_format("ERROR: no quest info feature found: %d", bact - BACT_QUEST1 + FEAT_QUEST1);
-                        }
-                        break;
-                }
+		case BACT_QUEST:
+			castle_quest();
+			break;
 
 		case BACT_KING_LEGENDS:
 		case BACT_ARENA_LEGENDS:
@@ -1557,11 +1774,11 @@ bool bldg_process_command(store_type *s_ptr, int i)
 		case BACT_COMPARE_WEAPONS:
 			paid = compare_weapons();
 			break;
-#if 0
+
 		case BACT_GREET:
 			greet_char();
 			break;
-#endif
+
 		case BACT_ENCHANT_WEAPON:
 			paid = fix_item(INVEN_WIELD, INVEN_WIELD, 0, FALSE, BACT_ENCHANT_WEAPON, set_reward);
 			break;
@@ -1634,14 +1851,40 @@ bool bldg_process_command(store_type *s_ptr, int i)
 			msg_print("The air about you becomes charged...");
 			paid = TRUE;
 			break;
-                case BACT_TELEPORT_LEVEL:
-                        if (reset_recall())
+		case BACT_TELEPORT_LEVEL:
+                {
+                        char buf[80], buf2[80];
+                        int i;
+
+                        if(!get_string("Teleport to which dungeon? ", buf, 80)) break;
+
+                        /* Find the index corresponding to the name */
+                        for(i = 1; i < max_d_idx; i++)
                         {
-                                p_ptr->word_recall = 1;
-                                msg_print("The air about you becomes charged...");
-                                paid = TRUE;
+                                sprintf(buf2, "%s", d_info[i].name + d_name);
+
+                                /* Lowercase the name */
+                                strlower(buf);
+                                strlower(buf2);
+
+                                if(strstr(buf2, buf)) break;
                         }
-                        break;
+
+                        amt = get_quantity("Teleport to which level? ", d_info[i].maxdepth);
+
+                        /* Mega hack -- Forbid levels 99 and 100 */
+                        if((amt == 99) || (amt == 100)) amt = 98;
+
+                        if ((amt > 0) && (i < max_d_idx))
+			{
+				p_ptr->word_recall = 1;
+                                p_ptr->recall_dungeon = i;
+                                max_dlv[p_ptr->recall_dungeon] = amt;
+				msg_print("The air about you becomes charged...");
+				paid = TRUE;
+			}
+			break;
+                }
                 case BACT_BUYFIRESTONE:
                         amt = get_quantity("How many firestones (10 gold each)? ", 1000);
 			if (amt > 0)
@@ -1694,6 +1937,68 @@ bool bldg_process_command(store_type *s_ptr, int i)
                         sell_corpses();
                         break;
 
+                case BACT_LEVELS:
+                        if(p_ptr->au>=bcost){
+                        paid=TRUE;
+                        change_back_to_apprentice();
+                        }
+                        else msg_print("You do not have enough gold!");
+                        break;
+
+                case BACT_MAKE_ITEM:
+                        /* do_cmd_make_item(); */
+                        break;
+
+                case BACT_VIEW_MAKE_PRICE:
+			/* Save screen */
+			screen_save();
+
+                case BACT_BREEDING:
+                        do_cmd_breed();
+                        break;
+
+                case BACT_BREEDING_BONUSES:
+                        msg_print("When you cross two monsters togheter, half of the parents hp will be added togheter.");
+                        msg_print("For example, a monster with 10 hp with a monster with 8 hp will give a 9 hp bonus to the baby.");
+                        break;
+
+                         
+			/* Peruse the arena help file */
+                        (void)show_file("itemmake.txt", NULL, 0, 0);
+
+			/* Load screen */
+			screen_load();
+                        break;
+
+                case 50:
+                        bcost = 30000;
+                        if(p_ptr->au>=bcost){
+                        paid=TRUE;
+                        do_cmd_more_pval();
+                        }
+                        else msg_print("You do not have enough gold!");
+
+                        break;
+                case 51:
+                        msg_print("So you found my home!");
+                        if (p_ptr->psex == SEX_MALE)
+                        {
+                                msg_print("You know, I know all about ladies!");
+                                msg_print("Yup! Everything!");
+                                msg_print("Here! Take this! This will help you getting them to come to you!!");
+                                create_ability(150);
+                                msg_print("If you need another one, come back again!");
+                        }
+                        else
+                        {
+                                msg_print("WOW! You sure are a pretty lady!");
+                                msg_print("How about a date with me?");
+                                msg_print("What? You'd rather have Variaz kill you than getting out with me??");
+                                msg_print("Ah then, forget it...");
+                        }
+                        break;
+
+
                 case BACT_DIVINATION:
                 {
                         int i, count = 0;
@@ -1716,32 +2021,13 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
                         paid = TRUE;
                         break;
-
                 }
-
-                case BACT_BUY:
-			store_purchase();
-                        break;
-                case BACT_SELL:
-			store_sell();
-                        break;
-                case BACT_EXAMINE:
-                        store_examine();
-                        break;
-                case BACT_STEAL:
-                        store_stole();
-                        break;
 	}
 
 	if (paid)
 	{
 		p_ptr->au -= bcost;
-
-                /* Display the current gold */
-                store_prt_gold();
 	}
-
-        return recreate;
 }
 
 
@@ -1773,6 +2059,7 @@ void do_cmd_quest(void)
 
 		p_ptr->inside_quest = cave[py][px].special;
 		dun_level = 1;
+		p_ptr->leftbldg = TRUE;
 		p_ptr->leaving = TRUE;
 	}
 }
@@ -1786,24 +2073,36 @@ void do_cmd_bldg(void)
         int             i,which, x = px, y = py;
 	char            command;
 	bool            validcmd;
-        store_type      *s_ptr;
-        store_info_type *st_ptr;
-        store_action_type *ba_ptr;
+	building_type   *bldg;
 
-        if (cave[py][px].feat != FEAT_SHOP)
+	if (!((cave[py][px].feat >= FEAT_BLDG_HEAD) &&
+		  (cave[py][px].feat <= FEAT_BLDG_TAIL)))
 	{
+
 		msg_print("You see no building here.");
 		return;
 	}
 
-        which = cave[py][px].special;
+	which = (cave[py][px].feat - FEAT_BLDG_HEAD);
 	building_loc = which;
 
-        s_ptr = &town[p_ptr->town_num].store[which];
-        st_ptr = &st_info[which];
+	bldg = &building[which];
 	
-        p_ptr->oldpy = py;
-        p_ptr->oldpx = px;
+	if ((which == 2) && (p_ptr->inside_arena) && (!p_ptr->exit_bldg))
+	{
+		prt("The gates are closed.  The monster awaits!",0,0);
+		return;
+	}
+	else if ((which == 2) && (p_ptr->inside_arena))
+	{
+		p_ptr->leaving = TRUE;
+		p_ptr->inside_arena = FALSE;
+	}
+	else
+	{
+		p_ptr->oldpy = py;
+		p_ptr->oldpx = px;
+	}
 
 	/* Forget the lite */
 	forget_lite();
@@ -1818,7 +2117,7 @@ void do_cmd_bldg(void)
 	command_rep = 0;
 	command_new = 0;
 
-        show_building(s_ptr);
+	show_building(bldg);
 	leave_bldg = FALSE;
 
 	while (!leave_bldg)
@@ -1836,11 +2135,9 @@ void do_cmd_bldg(void)
 
 		for (i = 0; i < 6; i++)
 		{
-                        ba_ptr = &ba_info[st_info->actions[i]];
-
-                        if (ba_ptr->letter)
+			if (bldg->letters[i])
 			{
-                                if (ba_ptr->letter == command)
+				if (bldg->letters[i] == command)
 				{
 					validcmd = TRUE;
 					break;
@@ -1849,7 +2146,7 @@ void do_cmd_bldg(void)
 		}
 
 		if (validcmd)
-                        bldg_process_command(s_ptr, i);
+			bldg_process_command(bldg, i);
 
 		/* Notice stuff */
 		notice_stuff();

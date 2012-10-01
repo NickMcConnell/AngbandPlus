@@ -2485,7 +2485,7 @@ errr term_init(term *t, int w, int h, int k)
 
 
 	/* Wipe it */
-	t=WIPE(t, term);
+	WIPE(t, term);
 
 
 	/* Prepare the input queue */

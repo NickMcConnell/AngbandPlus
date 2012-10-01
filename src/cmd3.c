@@ -175,7 +175,7 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -202,7 +202,7 @@ void do_cmd_wield(void)
 	slot = wield_slot(o_ptr);
 
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+        if (cursed_p(&inventory[slot]) && p_ptr->pclass != CLASS_DARK_LORD)
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[slot], FALSE, 0);
@@ -216,7 +216,7 @@ void do_cmd_wield(void)
 	}
 
     if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
+        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE)) && (p_ptr->pclass != CLASS_DARK_LORD)))
     {
         char dummy[512];
 
@@ -229,39 +229,39 @@ void do_cmd_wield(void)
     }
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Two handed weapons can't be wielded with a shield */
-        if ((f4 & TR4_MUST2H) && (inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0))
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H))
 	{
-                object_desc(o_name, o_ptr, FALSE, 0);
-                msg_format("You cannot wield your %s with a shield.", o_name);
-                return;
+           object_desc(o_name, o_ptr, FALSE, 0);
+	   msg_format("You cannot wield your %s with a shield.", o_name);
+	   return;
 	}
 
-        i_ptr = &inventory[slot - INVEN_ARM + INVEN_WIELD];
+	i_ptr = &inventory[INVEN_WIELD];
 	
 	/* Extract the flags */
-        object_flags(i_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(i_ptr, &f1, &f2, &f3, &f4);
 
 	/* Prevent shield from being put on if wielding 2H */
-        if ((f4 & TR4_MUST2H) && (i_ptr->k_idx))
+        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
 	   return;
 	}
 
-        if ((p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM) && (f4 & TR4_COULD2H))
+        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H))
 	{
 	   if (!get_check("Are you sure you want to restrict your fighting? "))
             return;
 	}
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-        if ((inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
 	{
            if (!get_check("Are you sure you want to use this weapon with a shield?"))
             return;
@@ -361,7 +361,7 @@ void do_cmd_wield(void)
 	{
                 act = "In your quiver you have";
 	}
-        else if (slot == INVEN_TOOL)
+        else if (slot == INVEN_AMMO)
 	{
                 act = "You are using";
 	}
@@ -377,14 +377,14 @@ void do_cmd_wield(void)
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Cursed! */
-        if (cursed_p(o_ptr))
+	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-		msg_print("Oops! It feels deathly cold!");
+                if (p_ptr->pclass == CLASS_DARK_LORD) msg_print("The curse does not affect you!");
+                else msg_print("Oops! It feels deathly cold!");
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
-		o_ptr->sense = SENSE_CURSED;
 	}
 
 	/* Recalculate bonuses */
@@ -438,7 +438,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Item is cursed */
-	if (cursed_p(o_ptr))
+        if (cursed_p(o_ptr) && p_ptr->pclass != CLASS_DARK_LORD)
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -491,7 +491,7 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+        if ((item >= INVEN_WIELD) && cursed_p(o_ptr) && p_ptr->pclass != CLASS_DARK_LORD)
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
@@ -513,7 +513,10 @@ void do_cmd_drop(void)
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+        if (o_ptr->tval != TV_HYPNOS)
+        {
+                energy_use = 50;
+        }
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
@@ -609,21 +612,21 @@ void do_cmd_destroy(void)
 	/* Take a turn */
 	energy_use = 100;
 
-        /* Artifacts cannot be destroyed */
+	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
-		byte feel = SENSE_SPECIAL;
+		cptr feel = "special";
 
-                energy_use = 0;
+        energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Hack -- Handle icky artifacts */
-                if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
 
 		/* Hack -- inscribe the artifact */
-		o_ptr->sense = feel;
+		o_ptr->note = quark_add(feel);
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -646,7 +649,7 @@ void do_cmd_destroy(void)
     {
         bool gain_expr = FALSE;
 
-        if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_UNBELIEVER))
+        if ((p_ptr->pclass == CLASS_WARRIOR))
 		{
 			gain_expr = TRUE;
 		}
@@ -680,7 +683,8 @@ void do_cmd_destroy(void)
 	 * charges of the stack needs to be reduced, unless all the items are 
 	 * being destroyed. -LM-
 	 */
-        if ((o_ptr->tval == TV_WAND) && (amt < o_ptr->number))
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) &&
+		(amt < o_ptr->number))
 	{
 		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
 	}
@@ -1778,11 +1782,7 @@ bool research_mon()
 	}
 
 	/* Nothing to recall */
-	if (!n)
-	{
-		cheat_know = oldcheat;
-		return (TRUE);
-	}
+	if (!n) return (TRUE);
 
 
 	/* Sort by level */
@@ -1950,3 +1950,224 @@ void do_cmd_sense_grid_mana()
         }
 }
 
+void do_cmd_auto_wield(object_type *o_ptr)
+{
+    int i, item, slot, num = 1;
+
+	object_type forge;
+	object_type *q_ptr;
+    object_type *i_ptr;
+
+	cptr act;
+
+	char o_name[80];
+
+    u32b f1, f2, f3, f4;
+
+	/* Check the slot */
+	slot = wield_slot(o_ptr);
+
+	/* Prevent wielding into a cursed slot */
+        if (cursed_p(&inventory[slot]) && p_ptr->pclass != CLASS_DARK_LORD)
+	{
+		/* Describe it */
+		object_desc(o_name, &inventory[slot], FALSE, 0);
+
+		/* Message */
+		msg_format("The %s you are %s appears to be cursed.",
+		           o_name, describe_use(slot));
+
+		/* Cancel the command */
+		return;
+	}
+
+    if ((cursed_p(o_ptr)) && (wear_confirm)
+        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE)) && (p_ptr->pclass != CLASS_DARK_LORD)))
+    {
+        char dummy[512];
+
+		/* Describe it */
+        object_desc(o_name, o_ptr, FALSE, 0);
+
+        sprintf(dummy, "Really use the %s {cursed}? ", o_name);
+        if (!(get_check(dummy)))
+            return;
+    }
+
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Two handed weapons can't be wielded with a shield */
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H))
+	{
+           object_desc(o_name, o_ptr, FALSE, 0);
+	   msg_format("You cannot wield your %s with a shield.", o_name);
+	   return;
+	}
+
+	i_ptr = &inventory[INVEN_WIELD];
+	
+	/* Extract the flags */
+        object_flags(i_ptr, &f1, &f2, &f3, &f4);
+
+	/* Prevent shield from being put on if wielding 2H */
+        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H))
+	{
+           object_desc(o_name, o_ptr, FALSE, 0);
+	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
+	   return;
+	}
+
+        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H))
+	{
+	   if (!get_check("Are you sure you want to restrict your fighting? "))
+            return;
+	}
+
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
+	{
+           if (!get_check("Are you sure you want to use this weapon with a shield?"))
+            return;
+	}
+
+	/* Check if completed a quest */
+	for (i = 0; i < max_quests; i++)
+	{
+		if ((quest[i].type == 3) && (quest[i].status == 1) &&
+			(quest[i].k_idx == o_ptr->name1))
+		{
+			quest[i].status = QUEST_STATUS_COMPLETED;
+			msg_print("You completed your quest!");
+			msg_print(NULL);
+		}
+	}
+
+	/* Take a turn */
+	energy_use = 100;
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Obtain local object */
+	object_copy(q_ptr, o_ptr);
+
+        if(slot == INVEN_AMMO) num = o_ptr->number; 
+
+	/* Modify quantity */
+        q_ptr->number = num;
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+                inven_item_increase(item, -num);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+                floor_item_increase(0 - item, -num);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Access the wield slot */
+	o_ptr = &inventory[slot];
+
+	/* Take off existing item */
+        if(slot != INVEN_AMMO)
+        {
+                if (o_ptr->k_idx)
+                {
+                        /* Take off existing item */
+                        (void)inven_takeoff(slot, 255, FALSE);
+                }
+        }
+        else
+        {
+                if (o_ptr->k_idx)
+                {
+                        if (!object_similar(o_ptr, q_ptr))
+                        {
+                                /* Take off existing item */
+                                (void)inven_takeoff(slot, 255, FALSE);
+                        }
+                        else
+                        {
+                                q_ptr->number += o_ptr->number;
+                        }
+                }                
+        }
+
+	/* Wear the new stuff */
+	object_copy(o_ptr, q_ptr);
+
+	/* Increase the weight */
+	total_weight += q_ptr->weight;
+
+	/* Increment the equip counter by hand */
+	equip_cnt++;
+
+	/* Where is the item now */
+	if (slot == INVEN_WIELD)
+	{
+		act = "You are wielding";
+	}
+	else if (slot == INVEN_BOW)
+	{
+		act = "You are shooting with";
+	}
+	else if (slot == INVEN_LITE)
+	{
+		act = "Your light source is";
+	}
+        else if (slot == INVEN_AMMO)
+	{
+                act = "In your quiver you have";
+	}
+        else if (slot == INVEN_AMMO)
+	{
+                act = "You are using";
+	}
+	else
+	{
+		act = "You are wearing";
+	}
+
+	/* Describe the result */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+	/* Cursed! */
+	if (cursed_p(o_ptr))
+	{
+		/* Warn the player */
+                if (p_ptr->pclass == CLASS_DARK_LORD) msg_print("The curse does not affect you!");
+                else msg_print("Oops! It feels deathly cold!");
+
+		/* Note the curse */
+		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+        /* Recalculate hitpoint */
+        p_ptr->update |= (PU_HP);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+        /* Redraw monster hitpoint */
+        p_ptr->redraw |= (PR_MH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+}

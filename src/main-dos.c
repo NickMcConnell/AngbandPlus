@@ -45,7 +45,7 @@
  * they modify the underlying "ascii" value of the key.  You must use the
  * new "user pref files" to be able to interact with the keypad and such.
  *
- * Note that "Term_xtra_dos_react()" allows runtime color, graphics, 
+ * Note that "Term_xtra_dos_react()" allows runtime color, graphics,
  * screen resolution, and sound modification.
  *
  *
@@ -78,20 +78,11 @@
 #include <jgmod.h>
 #endif /* USE_MOD_FILES */
 
-#include "load_gif.c"
-
-
 #include <bios.h>
 #include <dos.h>
 #include <keys.h>
 #include <unistd.h>
 #include <dir.h>
-
-/*
- * ZAngband remapping for race and class in the enhanced bitmap
- */
-/* #define PLAYER_REMAP */
-
 
 /*
  * Index of the first standard Angband color.
@@ -260,32 +251,25 @@ static char xtra_graf_dir[1024];
 static char xtra_sound_dir[1024];
 static char xtra_music_dir[1024];
 
-
 /*
- * List of the available videomodes to reduce executable size
+ * List of used videomodes to reduce executable size
  */
-DECLARE_GFX_DRIVER_LIST(
+BEGIN_GFX_DRIVER_LIST
 	GFX_DRIVER_VBEAF
+	GFX_DRIVER_VGA
+	GFX_DRIVER_VESA3
 	GFX_DRIVER_VESA2L
 	GFX_DRIVER_VESA2B
-	GFX_DRIVER_ATI
-	GFX_DRIVER_MACH64
-	GFX_DRIVER_CIRRUS64
-	GFX_DRIVER_CIRRUS54
-	GFX_DRIVER_PARADISE
-	GFX_DRIVER_S3
-	GFX_DRIVER_TRIDENT
-	GFX_DRIVER_ET3000
-	GFX_DRIVER_ET4000
-	GFX_DRIVER_VIDEO7
 	GFX_DRIVER_VESA1
-)
+END_GFX_DRIVER_LIST
 
 
 /*
- * Declare the videomode list
+ * List of used color depths to reduce executeable size
  */
-DECLARE_COLOR_DEPTH_LIST(COLOR_DEPTH_8)
+BEGIN_COLOR_DEPTH_LIST
+	COLOR_DEPTH_8
+END_COLOR_DEPTH_LIST
 
 
 /*
@@ -473,7 +457,7 @@ static errr Term_xtra_dos_event(int v)
 
 
 /*
- * React to global changes in the colors, graphics, and sound settings. 
+ * React to global changes in the colors, graphics, and sound settings.
  */
 static void Term_xtra_dos_react(void)
 {
@@ -492,12 +476,17 @@ static void Term_xtra_dos_react(void)
 	 */
 	for (i = 0; i < 16; i++)
 	{
+		RGB color;
+
 		/* Extract desired values */
 		char rv = angband_color_table[i][1] >> 2;
 		char gv = angband_color_table[i][2] >> 2;
 		char bv = angband_color_table[i][3] >> 2;
 
-		RGB color = { rv,  gv,  bv  };
+		/* Set the colors */
+		color.r = rv;
+		color.g = gv;
+		color.b = bv;
 
 		set_color(COLOR_OFFSET + i, &color);
 	}
@@ -516,7 +505,7 @@ static void Term_xtra_dos_react(void)
 			plog("Cannot initialize graphics!");
 
 			/* Cannot enable */
-			arg_graphics = FALSE;
+			arg_graphics = GRAPHICS_NONE;
 		}
 
 		/* Change setting */
@@ -534,13 +523,13 @@ static void Term_xtra_dos_react(void)
 	{
 		/* Clear the old song */
 		if (midi_song) destroy_midi(midi_song);
-		midi_song =NULL;
+		midi_song = NULL;
+
 #ifdef USE_MOD_FILES
 		if (mod_file_initialized)
 		{
 			stop_mod();
-			if (mod_song) destroy_mod(mod_song);
-			mod_song = NULL;
+			destroy_mod(mod_song);
 		}
 #endif /* USE_MOD_FILES */
 
@@ -549,7 +538,7 @@ static void Term_xtra_dos_react(void)
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
-			
+
 			/* Cannot enable */
 			arg_sound = FALSE;
 		}
@@ -688,7 +677,6 @@ static errr Term_xtra_dos(int n, int v)
 		/* Do something useful if bored */
 		case TERM_XTRA_BORED:
 		{
-
 #ifdef USE_SOUND
 			/*
 			 * Check for end of song and start a new one
@@ -696,7 +684,7 @@ static errr Term_xtra_dos(int n, int v)
 			if (!use_sound) return (0);
 
 #ifdef USE_MOD_FILES
-			if (song_number && ((midi_pos == -1) && !is_mod_playing()))
+			if (song_number && (midi_pos == -1) && !is_mod_playing())
 #else /* USE_MOD_FILES */
 			if (song_number && (midi_pos == -1))
 #endif /* USE_MOD_FILES */
@@ -916,7 +904,7 @@ static errr Term_user_dos(int n)
 				break;
 			}
 
-#endif /*USE_SOUND */
+#endif /* USE_SOUND */
 
 #ifdef USE_GRAPHICS
 
@@ -1137,7 +1125,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 	int x1, y1;
 
-	char text[257];
+	unsigned char text[257];
 
 	/* Location */
 	x1 = x * td->tile_wid + td->x;
@@ -1166,7 +1154,6 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 		textout(screen, td->font, text, x1, y1,
 		       	COLOR_OFFSET + (a & 0x0F));
 	}
-
 	/* Stretch needed */
 	else
 	{
@@ -1178,7 +1165,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 		{
 			/* Build a one character string */
 			text[0] = cp[i];
-	
+
 			/* Dump some text */
 			textout(screen, td->font, text, x1, y1,
 		        	COLOR_OFFSET + (a & 0x0F));
@@ -1401,8 +1388,7 @@ static void dos_quit_hook(cptr str)
 	if (mod_file_initialized)
 	{
 		stop_mod();
-		if (mod_song) destroy_mod(mod_song);
-		mod_song = NULL;
+		destroy_mod(mod_song);
 	}
 # endif /* USE_MOD_FILES */
 
@@ -1444,38 +1430,23 @@ static void dos_dump_screen(void)
 }
 
 
-/*
- * GRX font file reader by Mark Wodrich.
+/* GRX font file reader by Mark Wodrich.
  *
  * GRX FNT files consist of the header data (see struct below). If the font
- * is proportional, followed by a table of widths per character (unsigned 
+ * is proportional, followed by a table of widths per character (unsigned
  * shorts). Then, the data for each character follows. 1 bit/pixel is used,
  * with each line of the character stored in contiguous bytes. High bit of
  * first byte is leftmost pixel of line.
  *
- * Note that GRX FNT files can have a variable number of characters, so you
- * must verify that any "necessary" characters exist before using them.
- *
- * The GRX FNT files were developed by ???.
+ * Note : FNT files can have a variable number of characters, so we must
+ *        check that the chars 32..127 exist.
  */
 
-
-/*
- * Magic value
- */
-#define FONTMAGIC	0x19590214L
+#define FONTMAGIC       0x19590214L
 
 
-/*
- * Forward declare
- */
-typedef struct FNTfile_header FNTfile_header;
-
-
-/*
- * .FNT file header
- */
-struct FNTfile_header
+/* .FNT file header */
+typedef struct
 {
 	unsigned long  magic;
 	unsigned long  bmpsize;
@@ -1489,55 +1460,43 @@ struct FNTfile_header
 	unsigned short undwidth;
 	char           fname[16];
 	char           family[16];
-};
+} FNTfile_header;
 
 
-/*
- * A "bitmap" is simply an array of bytes
- */
-typedef byte *GRX_BITMAP;
-
-
-/*
- * Temporary space to store font bitmap
- */
 #define GRX_TMP_SIZE    4096
 
 
-/*
- * ???
- */
-void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest) 
+
+/* converts images from bit to byte format */
+static void convert_grx_bitmap(int width, int height, unsigned char *src, unsigned char *dest)
 {
 	unsigned short x, y, bytes_per_line;
 	unsigned char bitpos, bitset;
 
-	bytes_per_line = (width+7) >> 3;
+	bytes_per_line = (width + 7) >> 3;
 
-	for (y=0; y<height; y++)
+	for (y = 0; y < height; y++)
 	{
-		for (x=0; x<width; x++)
+		for (x = 0; x < width; x++)
 		{
 			bitpos = 7-(x&7);
-			bitset = !!(src[(bytes_per_line*y) + (x>>3)] & (1<<bitpos));
-			dest[y*width+x] = bitset;
+			bitset = !!(src[(bytes_per_line * y) + (x >> 3)] & (1 << bitpos));
+			dest[y * width + x] = bitset;
 		}
 	}
 }
 
 
-/*
- * ???
- */
-GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
-	int numchar, unsigned short *wtable) 
+
+/* reads GRX format images from disk */
+static unsigned char **load_grx_bmps(PACKFILE *f, FNTfile_header *hdr, int numchar, unsigned short *wtable)
 {
 	int t, width, bmp_size;
-	GRX_BITMAP temp;
-	GRX_BITMAP *bmp;
+	unsigned char *temp;
+	unsigned char **bmp;
 
 	/* alloc array of bitmap pointers */
-	bmp = malloc(sizeof(GRX_BITMAP) * numchar);
+	bmp = malloc(sizeof(unsigned char *) * numchar);
 
 	/* assume it's fixed width for now */
 	width = hdr->width;
@@ -1545,25 +1504,27 @@ GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 	/* temporary working area to store FNT bitmap */
 	temp = malloc(GRX_TMP_SIZE);
 
-	for (t=0; t<numchar; t++)
+	for (t = 0; t < numchar; t++)
 	{
 		/* if prop. get character width */
-		if (!hdr->isfixed) width = wtable[t];
+		if (!hdr->isfixed)
+			width = wtable[t];
 
 		/* work out how many bytes to read */
-		bmp_size = ((width+7) >> 3) * hdr->height;
+		bmp_size = ((width + 7) >> 3) * hdr->height;
 
 		/* oops, out of space! */
 		if (bmp_size > GRX_TMP_SIZE)
 		{
-	 		free(temp);
-	 		for (t--; t>=0; t--) free(bmp[t]);
-	 		free(bmp);
-	 		return NULL;
+			free(temp);
+			for (t--; t >= 0; t--)
+			free(bmp[t]);
+			free(bmp);
+			return NULL;
 		}
 
 		/* alloc space for converted bitmap */
-		bmp[t] = malloc(width*hdr->height);
+		bmp[t] = malloc(width * hdr->height);
 
 		/* read data */
 		pack_fread(temp, bmp_size, f);
@@ -1577,78 +1538,65 @@ GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 }
 
 
-/*
- * ???
- */
-FONT *import_grx_font(char *fname)
+
+/* main import routine for the GRX font format */
+static FONT *import_grx_font(char *fname)
 {
 	PACKFILE *f;
-
-	/* GRX font header */
-	FNTfile_header hdr;
-
-	/* number of characters in the font */
-	int numchar;
-
-	/* table of widths for each character */
-	unsigned short *wtable = NULL;
-
-	/* array of font bitmaps */
-	GRX_BITMAP *bmp;
-
-	/* the Allegro font */
-	FONT *font = NULL;
-
+	FNTfile_header hdr;              /* GRX font header */
+	int numchar;                     /* number of characters in the font */
+	unsigned short *wtable = NULL;   /* table of widths for each character */
+	unsigned char **bmp;             /* array of font bitmaps */
+	FONT *font = NULL;               /* the Allegro font */
 	FONT_PROP *font_prop;
 	int c, c2, start, width;
 
-
 	f = pack_fopen(fname, F_READ);
+	if (!f)
+		return NULL;
 
-	if (!f) return NULL;
+	pack_fread(&hdr, sizeof(hdr), f);      /* read the header structure */
 
-	/* read the header structure */
-	pack_fread(&hdr, sizeof(hdr), f);
-
-	/* check magic number */
-	if (hdr.magic != FONTMAGIC)
+	if (hdr.magic != FONTMAGIC)		/* check magic number */
 	{
 		pack_fclose(f);
 		return NULL;
 	}
 
-	numchar = hdr.maxchar-hdr.minchar+1;
+	numchar = hdr.maxchar - hdr.minchar + 1;
 
-	/* proportional font */
-	if (!hdr.isfixed)
+	if (!hdr.isfixed)                    /* proportional font */
 	{
 		wtable = malloc(sizeof(unsigned short) * numchar);
 		pack_fread(wtable, sizeof(unsigned short) * numchar, f);
 	}
 
 	bmp = load_grx_bmps(f, &hdr, numchar, wtable);
+	if (!bmp)
+		goto get_out;
 
-	if (!bmp) goto get_out;
-
-	if (pack_ferror(f)) goto get_out;
+	if (pack_ferror(f))
+		goto get_out;
 
 	font = malloc(sizeof(FONT));
 	font->height = -1;
 	font->dat.dat_prop = font_prop = malloc(sizeof(FONT_PROP));
+	font_prop->render = NULL;
 
 	start = 32 - hdr.minchar;
 	width = hdr.width;
 
-	for (c=0; c<FONT_SIZE; c++)
+	for (c = 0; c  <FONT_SIZE; c++)
 	{
 		c2 = c+start;
 
 		if ((c2 >= 0) && (c2 < numchar))
 		{
-			if (!hdr.isfixed) width = wtable[c2];
+			if (!hdr.isfixed)
+				width = wtable[c2];
 
 			font_prop->dat[c] = create_bitmap_ex(8, width, hdr.height);
-			memcpy(font_prop->dat[c]->dat, bmp[c2], width*hdr.height);
+			memcpy(font_prop->dat[c]->dat, bmp[c2], width * hdr.height);
 		}
 		else
 		{
@@ -1657,15 +1605,17 @@ FONT *import_grx_font(char *fname)
 		}
 	}
 
-get_out:
+	get_out:
 
 	pack_fclose(f);
 
-	if (wtable) free(wtable);
+	if (wtable)
+	free(wtable);
 
 	if (bmp)
 	{
-		for (c=0; c<numchar; c++) free(bmp[c]);
+		for (c = 0; c < numchar; c++)
+			free(bmp[c]);
 
 		free(bmp);
 	}
@@ -1868,6 +1818,10 @@ static bool init_graphics(void)
 			 */
 			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
 
+			/* Use transparent blits */
+                       /* if (streq(ANGBAND_GRAF, "new"))  */
+                       /*         use_transparency = TRUE; */
+
 			/* Select the bitmap pallete */
 			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);
 
@@ -1953,6 +1907,8 @@ static bool init_sound(void)
 
 	if (sound_initialized) return (TRUE);
 
+	reserve_voices(16, -1);
+
 	/* Initialize Allegro sound */
 	if (!install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL))
 	{
@@ -1962,7 +1918,7 @@ static bool init_sound(void)
 		 * The parameter for install_mod() is the number
 		 * of channels reserved for the MOD/S3M-file.
 		 */
-		if (install_mod(16) > 0) mod_file_initialized = TRUE;
+		if (install_mod(8) > 0) mod_file_initialized = TRUE;
 #endif /* USE_MOD_FILES */
 
 		/* Access the new sample */
@@ -1975,7 +1931,7 @@ static bool init_sound(void)
 		strcpy(section, "Sound");
 
 		/* Prepare the sounds */
-		for (i = 1; i < SOUND_MAX + 1; i++)
+		for (i = 1; i < SOUND_MAX; i++)
 		{
 			/* Get the sample names */
 			argv = get_config_argv(section, angband_sound_name[i], &sample_count[i]);
@@ -1999,11 +1955,11 @@ static bool init_sound(void)
 #ifdef USE_MOD_FILES
 		if (mod_file_initialized)
 		{
-			done = findfirst(format("%s/*.*",xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
+			done = findfirst(format("%s/*.*", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
 		}
 		else
 #endif /* USE_MOD_FILES */
-		done = findfirst(format("%s/*.mid",xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
+		done = findfirst(format("%s/*.mid", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
 
 
 		while (!done && (song_number <= MAX_SONGS))
@@ -2075,13 +2031,13 @@ static void play_song(void)
 
 	/* Clear the old song */
 	if (midi_song) destroy_midi(midi_song);
-	midi_song =NULL;
+	midi_song = NULL;
+
 #ifdef USE_MOD_FILES
 	if (mod_file_initialized)
 	{
 		stop_mod();
-		if (mod_song) destroy_mod(mod_song);
-		mod_song = NULL;
+		destroy_mod(mod_song);
 	}
 #endif /* USE_MOD_FILES */
 
@@ -2089,11 +2045,18 @@ static void play_song(void)
 	path_build(filename, 1024, xtra_music_dir, music_files[current_song - 1]);
 
 	/* Load and play the new song */
-	if ((midi_song = load_midi(filename))) play_midi(midi_song, 0);
+	midi_song = load_midi(filename);
+
+	if (midi_song)
+	{
+		play_midi(midi_song, 0);
+	}
 #ifdef USE_MOD_FILES
 	else if (mod_file_initialized)
 	{
-		if ((mod_song = load_mod(filename))) play_mod(mod_song, FALSE);
+		mod_song = load_mod(filename);
+
+		if (mod_song) play_mod(mod_song, FALSE);
 	}
 #endif /* USE_MOD_FILES */
 }
@@ -2128,9 +2091,6 @@ errr init_dos(void)
 
 	/* Install timer support for music and sound */
 	install_timer();
-
-	/* Enable the gif-loading function */
-	register_bitmap_file_type("GIF", load_gif, NULL);
 
 	/* Read config info from filename */
 	set_config_file("angdos.cfg");
@@ -2211,7 +2171,7 @@ errr init_dos(void)
 	/* Look for the graphic preferences in "angdos.cfg" */
 	if (!arg_graphics)
 	{
-		arg_graphics = get_config_int("Angband", "Graphics", TRUE);
+		arg_graphics = get_config_int("Angband", "Graphics", GRAPHICS_ORIGINAL);
 	}
 
 #endif /* USE_GRAPHICS */

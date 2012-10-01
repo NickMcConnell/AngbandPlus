@@ -911,7 +911,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	Window xid;
 
 	/* Wipe it clean */
-	Infowin=WIPE(Infowin, infowin);
+	WIPE(Infowin, infowin);
 
 
 	/*** Error Check XXX ***/
@@ -1401,7 +1401,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	/*** Initialize ***/
 
 	/* Wipe the iclr clean */
-	iclr=WIPE(iclr, infoclr);
+	WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1557,7 +1557,7 @@ static errr Infofnt_init_data(cptr name)
 	/*** Init the font ***/
 
 	/* Wipe the thing */
-	Infofnt=WIPE(Infofnt, infofnt);
+	WIPE(Infofnt, infofnt);
 
 	/* Attempt to prepare it */
 	if (Infofnt_prepare(info))

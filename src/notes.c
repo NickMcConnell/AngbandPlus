@@ -26,10 +26,10 @@ cptr notes_file(void)
 	/* Hack -- extract first 8 characters of name */
 	strncpy(base_name, player_name, 8);
 
-        base_name[8] = '\0';
+        base_name[9] = '\0';
 
 	/* Create the file name from the character's name plus .txt */
-        sprintf(fname, "%s.nte", base_name);
+	sprintf(fname, "%s.txt", base_name);
 	path_build(buf, 500, ANGBAND_DIR_USER, fname);
 
 	/* return the filename */
@@ -70,15 +70,14 @@ void output_note(char *final_note)
  */
 void add_note(char *note, char code)
 {
-        char buf[100];
-        char final_note[100];
+	char buf[80];
+	char final_note[80];
 	char long_day[25];
 	time_t ct = time((time_t*)NULL);
 	char depths[32];
-        char *tmp;
 	
 	/* Get the first 60 chars - so do not have an overflow */
-        tmp = C_WIPE(buf, 100, char);
+	strcpy(buf, "");
 	strncpy(buf, note, 60);
 
 	/* Get depth  */
@@ -101,7 +100,7 @@ void add_note(char *note, char code)
   
 	/* Make note */
 	sprintf(final_note, "%s %9ld %s %c: %s\n", long_day, turn,
-                 depths, code, buf);
+		 depths, code, note);
       
 	/* Output to the notes file */
 	output_note(final_note);

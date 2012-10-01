@@ -173,12 +173,12 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 1;
 
-        monster_race *r_ptr = race_inf(m_ptr);
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -190,6 +190,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
+                case TV_HELL_STAFF:
+                case TV_SWORD_DEVASTATION:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
@@ -450,6 +452,74 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					if (mult < 3) mult = 3;
 				}
 			}
+                        /* Brand (Light) */
+                        if (f4 & (TR4_BRAND_LIGHT))
+			{
+                                /* Notice susceptibility */
+                                if (r_ptr->flags3 & (RF3_HURT_LITE))
+				{
+					if (m_ptr->ml)
+					{
+                                                r_ptr->r_flags3 |= (RF3_SUSCEP_COLD);
+					}
+                                        if (mult < 6) mult = 6;
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+                        /* Brand (Darkness) */
+                        if (f4 & (TR4_BRAND_DARK))
+			{
+				/* Notice immunity */
+                                if (r_ptr->flags3 & (RF3_RES_NETH) || r_ptr->flags3 & (RF3_DEMON) || r_ptr->flags3 & (RF3_UNDEAD))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_COLD);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+                        /* Brand (Magic) */
+                        if (f4 & (TR4_BRAND_MAGIC))
+			{
+                                if (mult < 4) mult = 4;      
+			}
+                        
+
+                        /* Assassination for Assassins */
+                        if (p_ptr->pclass == CLASS_ASSASSIN || ability(72))
+			{
+                                mult += 4;
+			}
+                        if (ability(51))
+                        {
+                                if (p_ptr->csp >= 50)
+                                {
+                                        mult *= 4;
+                                }
+                        }
+
+                        /* Sword Of Devastation */
+                        if (o_ptr->tval == TV_SWORD_DEVASTATION)
+			{
+                                msg_print("Devastation!");
+                                if (mult != 0)
+                                {
+                                mult += 2;
+                                }
+                                else mult = 2;
+			}
+
 			break;
 		}
 	}
@@ -486,6 +556,9 @@ void search(void)
 			/* Sometimes, notice things */
 			if (rand_int(100) < chance)
 			{
+#ifdef USE_PYTHON
+                                if (perform_event(EVENT_SEARCH, Py_BuildValue("(ii)", y, x))) return;
+#endif
 				/* Access the grid */
 				c_ptr = &cave[y][x];
 
@@ -595,7 +668,7 @@ static void hit_trap(void)
 void touch_zap_player(monster_type *m_ptr)
 {
 	int aura_damage = 0;
-        monster_race *r_ptr = race_inf(m_ptr);
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	if (r_ptr->flags2 & (RF2_AURA_FIRE))
 	{
@@ -649,7 +722,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	int             k, bonus, chance;
 	int             n_weight = 0;
 	monster_type    *m_ptr = &m_list[m_idx];
-        monster_race    *r_ptr = race_inf(m_ptr);
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 	char            m_name[80];
 
 	int             dss, ddd;
@@ -713,7 +786,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		k = critical_norm(n_weight, p_ptr->to_h, k);
 
 		/* Apply the player damage bonuses */
-		k += p_ptr->to_d;   
+		k += p_ptr->to_d;
 
 		/* No negative damage */
 		if (k < 0) k = 0;
@@ -773,7 +846,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, 
 {
         monster_type    *t_ptr = &m_list[m_idx];
         monster_race    *r_ptr;
-        monster_race    *tr_ptr = race_inf(t_ptr);
+        monster_race    *tr_ptr = &r_info[t_ptr->r_idx];
         cave_type       *c_ptr;
 	int             ap_cnt;
 	int             ac, rlev,pt;
@@ -844,11 +917,6 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, 
 
 		/* Extract visibility (before blink) */
                 visible = TRUE;
-
-#ifdef MONSTER_LITE
-                /* Extract visibility from carrying lite */
-                if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-#endif /* MONSTER_LITE */
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -1318,7 +1386,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 {
         monster_type    *t_ptr = &m_list[m_idx];
         monster_race    *r_ptr;
-        monster_race    *tr_ptr = race_inf(t_ptr);
+        monster_race    *tr_ptr = &r_info[t_ptr->r_idx];
         cave_type       *c_ptr;
 	int             ap_cnt;
 	int             ac, rlev,pt;
@@ -1333,7 +1401,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 
         c_ptr = &cave[y][x];
 
-        r_ptr = race_info_idx(p_ptr->body_monster, 0);
+        r_ptr = &r_info[p_ptr->body_monster];
 
 	/* Not allowed to attack */
         if (r_ptr->flags1 & RF1_NEVER_BLOW) return;
@@ -1386,11 +1454,6 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 
 		/* Extract visibility (before blink) */
                 visible = TRUE;
-
-#ifdef MONSTER_LITE
-                /* Extract visibility from carrying lite */
-                if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
-#endif /* MONSTER_LITE */
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -1893,7 +1956,7 @@ void py_attack(int y, int x, int max_blow)
 	cave_type       *c_ptr = &cave[y][x];
 
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-        monster_race    *r_ptr = race_inf(m_ptr);
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 	object_type     *o_ptr;
 
@@ -1911,7 +1974,7 @@ void py_attack(int y, int x, int max_blow)
 	bool            drain_msg = TRUE;
 	int             drain_result = 0, drain_heal = 0;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
-        u32b            f1, f2, f3, f4, esp; /* A massive hack -- life-draining weapons */
+        u32b            f1, f2, f3, f4; /* A massive hack -- life-draining weapons */
 	bool            no_extra = FALSE;
         int             weap;
 
@@ -1924,6 +1987,10 @@ void py_attack(int y, int x, int max_blow)
                 msg_print("You cannot attack in this form!");
                 return;
         }
+
+#ifdef USE_PYTHON
+        if (perform_event(EVENT_ATTACK, Py_BuildValue("()"))) return;
+#endif
 
 	if (p_ptr->pclass == CLASS_ROGUE)
 	{
@@ -2011,7 +2078,7 @@ void py_attack(int y, int x, int max_blow)
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
         if(!(f4 & TR4_NEVER_BLOW))
         {
@@ -2075,7 +2142,7 @@ void py_attack(int y, int x, int max_blow)
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
-			if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
+                        if ((p_ptr->pclass == CLASS_MONK || ability(27)) && monk_empty_hands())
 			{
 				int special_effect = 0, stun_effect = 0, times = 0;
 				martial_arts * ma_ptr = &ma_blows[0], * old_ptr = &ma_blows[0];
@@ -2114,6 +2181,19 @@ void py_attack(int y, int x, int max_blow)
 				}
 
 				k = damroll(ma_ptr->dd, ma_ptr->ds);
+                                /* Hitting Variaz with a weapon...GREAT idea! */
+                                if (m_ptr->r_idx == 1030 && randint(100) >= 50)
+                                {
+                                        no_more_items();
+                                        p_ptr->chp -= k;
+                                        update_and_handle();
+                                }
+                                else if (m_ptr->r_idx == 1030)
+                                {
+                                        p_ptr->chp -= k;
+                                        update_and_handle();
+                                }
+
 
 				if (ma_ptr->effect == MA_KNEE)
 				{
@@ -2185,6 +2265,7 @@ void py_attack(int y, int x, int max_blow)
 			else if (o_ptr->k_idx)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
+                                k *= p_ptr->multiplier;
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 
 				if (backstab)
@@ -2228,6 +2309,18 @@ void py_attack(int y, int x, int max_blow)
 				}
 
 				k += o_ptr->to_d;
+                                /* Hitting Variaz with a weapon...GREAT idea! */
+                                if (m_ptr->r_idx == 1030 && randint(100) >= 50)
+                                {
+                                        no_more_items();
+                                        p_ptr->chp -= k;
+                                        update_and_handle();
+                                }
+                                else if (m_ptr->r_idx == 1030)
+                                {
+                                        p_ptr->chp -= k;
+                                        update_and_handle();
+                                }
 
                                 /* Mega Hack -- Hitting Nazgul is REALY dangerous(ideas from Akhronath) */
                                 if(r_ptr->flags7 & RF7_NAZGUL)
@@ -2293,7 +2386,9 @@ void py_attack(int y, int x, int max_blow)
                                                         p_ptr->black_breath = TRUE;
                                                 }
                                         }
+
                                 }
+                                do_cmd_damage_weapon();
 			}
 
                         /* May it clone the monster ? */
@@ -2304,7 +2399,9 @@ void py_attack(int y, int x, int max_blow)
 			}
 
 			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;   
+			k += p_ptr->to_d;
+                        /* Special Astra sword... */
+                        if (o_ptr->name1 == ART_ASTRA) k += p_ptr->chp;
 
                         /* Penalty for could-2H when having a shield */
                         if ((f4 & TR4_COULD2H) && inventory[INVEN_ARM].k_idx)
@@ -2312,6 +2409,12 @@ void py_attack(int y, int x, int max_blow)
 
 			/* No negative damage */
 			if (k < 0) k = 0;
+
+                        /* Asmodis Sword... */
+                        if (o_ptr->name1 == ART_ASMODIS)
+                        {
+                                o_ptr->asmodis_energy += k;
+                        }
 
 			/* Message */
 			if (!(backstab || stab_fleeing))
@@ -2329,23 +2432,11 @@ void py_attack(int y, int x, int max_blow)
                                 }
 			}
 			else if (backstab)
-                        {
-                                char buf[80];
-
-                                monster_race_desc(buf, m_ptr->r_idx, m_ptr->ego);
-
 				msg_format("You cruelly stab the helpless, sleeping %s!",
-                                    buf);
-                        }
-                        else
-                        {
-                                char buf[80];
-
-                                monster_race_desc(buf, m_ptr->r_idx, m_ptr->ego);
-
+				    (r_name + r_info[m_ptr->r_idx].name));
+			else
 				msg_format("You backstab the fleeing %s!",
-                                    buf);
-                        }
+				    (r_name + r_info[m_ptr->r_idx].name));
 
 			/* Complex message */
 			if (wizard)
@@ -2487,7 +2578,7 @@ void py_attack(int y, int x, int max_blow)
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Hack -- Get new race */
-                                                r_ptr = race_inf(m_ptr);
+						r_ptr = &r_info[m_ptr->r_idx];
 
 						fear = FALSE;
 
@@ -2677,7 +2768,6 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 bool player_can_enter(byte feature)
 {
 	bool pass_wall;
-        bool only_wall = FALSE;
 
 	/* Player can not walk through "walls" unless in Shadow Form */
 	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
@@ -2685,15 +2775,9 @@ bool player_can_enter(byte feature)
 	else
 		pass_wall = FALSE;
 
-        /* Wall mimicry force the player to stay in walls */
-        if ((p_ptr->pclass == CLASS_MIMIC) && (p_ptr->class_extra6 & CLASS_WALL))
-        {
-                only_wall = TRUE;
-        }
 	
 	switch (feature)
 	{
-#if 0  /* DGDGDGDG -- Test !! */
 		case FEAT_DEEP_WATER:
 			{
 				int wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
@@ -2710,8 +2794,6 @@ bool player_can_enter(byte feature)
 					(p_ptr->oppose_fire) ||
 					(p_ptr->ffall))
 					return (TRUE);
-				else if (p_ptr->pclass == CLASS_DAEMONOLOGIST)
-					return (TRUE);
 				else
 					return (FALSE);
 			}
@@ -2723,12 +2805,10 @@ bool player_can_enter(byte feature)
 				   (p_ptr->oppose_fire) ||
 				   (p_ptr->immune_fire)))
 					return (TRUE);
-				else if (p_ptr->pclass == CLASS_DAEMONOLOGIST)
-					return (TRUE);
 				else
 					return (FALSE);
 			}
-#endif
+
 		case FEAT_TREES:
 			{
                                 if ((p_ptr->ffall)||(p_ptr->prace==RACE_ENT)||(p_ptr->mimic_form==MIMIC_ENT)||(p_ptr->pclass==CLASS_RANGER)||(p_ptr->pclass==CLASS_DRUID))
@@ -2741,13 +2821,11 @@ bool player_can_enter(byte feature)
 			{
                                 if ((p_ptr->climb) && (f_info[feature].flags1 & FF1_CAN_CLIMB))
 					return (TRUE);
-                                if ((p_ptr->fly) && ((f_info[feature].flags1 & FF1_CAN_FLY) || (f_info[feature].flags1 & FF1_CAN_LEVITATE)))
+                                if ((p_ptr->fly) && (f_info[feature].flags1 & FF1_CAN_FLY))
 					return (TRUE);
-                                else if (only_wall && (f_info[feature].flags1 & FF1_FLOOR))
-                                        return (FALSE);
-                                else if ((p_ptr->ffall) && (f_info[feature].flags1 & FF1_CAN_LEVITATE))
+                                else if ((p_ptr->ffall) && ((f_info[feature].flags1 & FF1_CAN_FLY) || (f_info[feature].flags1 & FF1_CAN_LEVITATE)))
 					return (TRUE);
-                                else if ((pass_wall || only_wall) && (f_info[feature].flags1 & FF1_CAN_PASS))
+                                else if ((pass_wall) && (f_info[feature].flags1 & FF1_CAN_PASS))
 					return (TRUE);
                                 else if (f_info[feature].flags1 & FF1_NO_WALK)
                                         return (FALSE);
@@ -2771,12 +2849,13 @@ void move_player_aux(int dir, int do_pickup, int run)
 {
         int y, x, tmp;
 
-	cave_type *c_ptr = &cave[py][px];
+	cave_type *c_ptr;
 	monster_type *m_ptr;
-        monster_race *r_ptr = &r_info[p_ptr->body_monster], *mr_ptr;
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 	char m_name[80];
 
+	bool p_can_pass_walls = FALSE;
 	bool stormbringer = FALSE;
 
 	bool oktomove = TRUE;
@@ -2784,7 +2863,8 @@ void move_player_aux(int dir, int do_pickup, int run)
         /* Hack - random movement */
         if (p_ptr->disembodied)
                 tmp = dir;
-        else if ((r_ptr->flags1 & RF1_RAND_25) && (r_ptr->flags1 & RF1_RAND_50))
+        else
+        if ((r_ptr->flags1 & RF1_RAND_25) && (r_ptr->flags1 & RF1_RAND_50))
         {
                 if (randint(100) < 75)
                         tmp = randint(9);
@@ -2806,21 +2886,8 @@ void move_player_aux(int dir, int do_pickup, int run)
                         tmp = dir;
         }
         else
-        {
                 tmp = dir;
-        }
-
-        if ((c_ptr->feat == FEAT_ICE) && (!p_ptr->ffall && !p_ptr->fly))
-	{
-                if (magik(70 - p_ptr->lev))
-                {
-			tmp = randint(9);
-                        msg_print("You slip on the icy floor.");
-                }
-		else
-			tmp = dir;
-	}
-
+  
         /* Find the result of moving */
         y = py + ddy[tmp];
         x = px + ddx[tmp];
@@ -2916,6 +2983,7 @@ void move_player_aux(int dir, int do_pickup, int run)
                                 ambush_flag = FALSE;
 			}
 
+			p_ptr->leftbldg = TRUE;
 			p_ptr->leaving = TRUE;
 
 			return;
@@ -2924,7 +2992,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 	/* Get the monster */
 	m_ptr = &m_list[c_ptr->m_idx];
-        mr_ptr = race_inf(m_ptr);
+
 
 	if (inventory[INVEN_WIELD].art_name)
 	{
@@ -2932,8 +3000,19 @@ void move_player_aux(int dir, int do_pickup, int run)
 			stormbringer = TRUE;
 	}
 
+	/* Player can not walk through "walls"... */
+	/* unless in Shadow Form */
+	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+		p_can_pass_walls = TRUE;
+
+	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
+	    (cave[y][x].feat <= FEAT_PERM_SOLID))
+	{
+		p_can_pass_walls = FALSE;
+	}
+
 	/* Hack -- attack monsters */
-        if (c_ptr->m_idx && (m_ptr->ml || player_can_enter(c_ptr->feat)))
+	if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y,x) || p_can_pass_walls))
 	{
 
 		/* Attack -- only if we can see it OR it is not in a wall */
@@ -2941,7 +3020,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 		    !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun ||
 		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
 		    (pattern_seq(py, px, y, x)) &&
-                    ((player_can_enter(cave[y][x].feat))))
+		    ((cave_floor_bold(y, x)) || (p_can_pass_walls)))
 		{
 			m_ptr->csleep = 0;
 
@@ -2960,7 +3039,7 @@ void move_player_aux(int dir, int do_pickup, int run)
                                 py_attack(y,x,-1);
 			}
 			else if (cave_floor_bold(py, px) ||
-                            (mr_ptr->flags2 & RF2_PASS_WALL))
+			    (r_info[m_ptr->r_idx].flags2 & RF2_PASS_WALL))
 			{
 				msg_format("You push past %s.", m_name);
 				m_ptr->fy = py;
@@ -2992,6 +3071,35 @@ void move_player_aux(int dir, int do_pickup, int run)
 		oktomove = FALSE;
 	}
 
+        else if ((c_ptr->feat == FEAT_MOUNTAIN) && !p_ptr->climb && !p_can_pass_walls)
+	{
+		msg_print("You can't climb the mountains!");
+		running = 0;
+		oktomove = FALSE;
+	}
+	/*
+         * Player can't move through trees
+         * 
+         * Rangers and Ents can move
+	 */
+        else if (c_ptr->feat == FEAT_TREES)
+	{
+                oktomove = FALSE;
+                if ((p_ptr->pclass == CLASS_DRUID) || (p_ptr->pclass == CLASS_RANGER) || (p_ptr->mimic_form == MIMIC_ENT) || (p_ptr->prace == RACE_ENT) || p_ptr->fly || p_can_pass_walls) oktomove=TRUE;
+	}
+
+	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
+		(c_ptr->feat <= FEAT_QUEST_EXIT))
+	{
+		oktomove = TRUE;
+	}
+
+        else if ((c_ptr->feat >= FEAT_ALTAR_HEAD) &&
+                (c_ptr->feat <= FEAT_ALTAR_TAIL))
+        {
+                oktomove = TRUE;
+        }
+
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 	/* Disarm a visible trap */
@@ -3004,8 +3112,10 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
-        /* Player can't enter ? soo bad for him/her ... */
-        else if (!player_can_enter(c_ptr->feat))
+	/* Player can not walk through "walls" unless in wraith form...*/
+        else if ((f_info[c_ptr->feat].flags1 & FF1_WALL) &&
+                (!(f_info[c_ptr->feat].flags1 & FF1_CAN_PASS) ||
+                 (!p_can_pass_walls)))
 	{
 		oktomove = FALSE;
 
@@ -3030,6 +3140,18 @@ void move_player_aux(int dir, int do_pickup, int run)
 				msg_print("You feel a closed door blocking your way.");
 				c_ptr->info |= (CAVE_MARK);
 				lite_spot(y, x);
+			}
+
+                        /* Mountain and levitation */
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->climb)
+			{
+                                oktomove=TRUE;
+                        }
+
+                        /* Between */
+                        else if (c_ptr->feat == FEAT_BETWEEN)
+			{
+                                oktomove=TRUE;
 			}
 
 			/* Wall (or secret door) */
@@ -3086,6 +3208,18 @@ void move_player_aux(int dir, int do_pickup, int run)
 				}
 			}
 
+                        /* Mountain and levitation */
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->climb)
+			{
+                                oktomove=TRUE;
+			}
+
+                        /* Between */
+                        else if (c_ptr->feat == FEAT_BETWEEN)
+			{
+                                oktomove=TRUE;
+			}
+
 			/* Wall (or secret door) */
                         else
 			{
@@ -3126,6 +3260,9 @@ void move_player_aux(int dir, int do_pickup, int run)
 	{
                 int oy, ox;
 
+#ifdef USE_PYTHON
+                if (perform_event(EVENT_MOVE, Py_BuildValue("(iiii)", y, x, py, px))) return;
+#endif
 
 		/* Save old location */
 		oy = py;
@@ -3188,13 +3325,25 @@ void move_player_aux(int dir, int do_pickup, int run)
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Handle "store doors" */
-                if (c_ptr->feat == FEAT_SHOP)
+		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
+		    (c_ptr->feat <= FEAT_SHOP_TAIL))
 		{
 			/* Disturb */
 			disturb(0, 0);
 
 			/* Hack -- Enter store */
 			command_new = '_';
+		}
+
+		/* Handle "building doors" -KMW- */
+		else if ((c_ptr->feat >= FEAT_BLDG_HEAD) &&
+		    (c_ptr->feat <= FEAT_BLDG_TAIL))
+		{
+			/* Disturb */
+			disturb(0, 0);
+
+			/* Hack -- Enter building */
+			command_new = ']';
 		}
 
 		/* Handle quest areas -KMW- */
@@ -3271,15 +3420,6 @@ void move_player_aux(int dir, int do_pickup, int run)
                         }
                 }
 	}
-
-        /* Update wilderness knowledge */
-        if (p_ptr->wild_mode)
-        {
-                if (wizard) msg_format("y:%d, x:%d", py, px);
-
-                /* Update the known wilderness */
-                reveal_wilderness_around_player(py, px, 0, WILDERNESS_SEE_RADIUS);
-        }
 }
 
 void move_player(int dir, int do_pickup)
@@ -3307,7 +3447,11 @@ static int see_wall(int dir, int y, int x)
            ((cave[y][x].feat >= FEAT_SHAL_WATER) &&
             (cave[y][x].feat <= FEAT_GRASS))) return (FALSE);
 
-        if (cave[y][x].feat == FEAT_SHOP) return (FALSE);
+	if ((cave[y][x].feat >= FEAT_SHOP_HEAD) &&
+	    (cave[y][x].feat <= FEAT_SHOP_TAIL)) return (FALSE);
+
+	if ((cave[y][x].feat >= FEAT_BLDG_HEAD) &&
+	    (cave[y][x].feat <= FEAT_BLDG_TAIL)) return (FALSE);
 
         if ((f_info[cave[y][x].feat].flags1 & FF1_CAN_RUN)) return (FALSE);
 
@@ -3699,12 +3843,10 @@ static bool run_test(void)
 				/* Normal veins */
 				case FEAT_MAGMA:
 				case FEAT_QUARTZ:
-				case FEAT_SANDWALL:
 
 				/* Hidden treasure */
 				case FEAT_MAGMA_H:
 				case FEAT_QUARTZ_H:
-				case FEAT_SANDWALL_H:
 
 				/* Walls */
 				case FEAT_WALL_EXTRA:
@@ -3722,10 +3864,6 @@ static bool run_test(void)
 				case FEAT_DARK_PIT:
 				case FEAT_TREES:
 				case FEAT_MOUNTAIN:
-				case FEAT_SAND:
-				case FEAT_DEAD_TREE:
-				case FEAT_ASH:
-				case FEAT_MUD:
 				{
 					/* Ignore */
 					notice = FALSE;
@@ -3750,14 +3888,12 @@ static bool run_test(void)
 				{
 					/* Ignore */
 					if (p_ptr->invuln || p_ptr->immune_fire) notice = FALSE;
-					if (p_ptr->pclass == CLASS_DAEMONOLOGIST) notice = FALSE;
 
 					/* Done */
 					break;
 				}
 
 				case FEAT_DEEP_WATER:
-				case FEAT_ICE:
 				{
 					/* Ignore */
 					if (p_ptr->ffall) notice = FALSE;
@@ -4102,7 +4238,8 @@ void step_effects(int y, int x, int do_pickup)
         py_pickup_floor(do_pickup);
 
 	/* Handle "store doors" */
-        if (cave[y][x].feat == FEAT_SHOP)
+        if ((cave[y][x].feat >= FEAT_SHOP_HEAD) &&
+                (cave[y][x].feat <= FEAT_SHOP_TAIL))
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -4471,22 +4608,11 @@ void do_cmd_leave_body(bool drop_body)
 {
         object_type *o_ptr, forge;
         monster_race *r_ptr = &r_info[p_ptr->body_monster];
-        int i;
 
         if(p_ptr->disembodied)
         {
-                msg_print("You are already disembodied.");
+                msg_print("You are already disembodied");
                 return;
-        }
-
-        for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-        {
-                if (p_ptr->body_parts[i - INVEN_WIELD] && inventory[i].k_idx &&
-                    cursed_p(&inventory[i]))
-                {
-                        msg_print("A cursed object is preventing you from leaving your body.");
-                        return;
-                }
         }
 
         if(drop_body)
@@ -4557,7 +4683,7 @@ bool execute_inscription(byte i, byte y, byte x)
                                 int yy = y, xx = x;
 
                                 scatter(&yy, &xx, y, x, 3, 0);
-                                place_monster_one(yy, xx, test_monster_name("Dwarven Warrior"), 0, FALSE, TRUE);
+                                place_monster_one(yy, xx, test_monster_name("Dwarven Warrior"), FALSE, TRUE);
                                 break;
                         }
                         case INSCRIP_CHASM:
@@ -4573,7 +4699,7 @@ bool execute_inscription(byte i, byte y, byte x)
                 if(cave[ij][ii].m_idx)
                 {
                         m_ptr = &m_list[cave[ij][ii].m_idx];
-                        r_ptr = race_inf(m_ptr);
+                        r_ptr = &r_info[m_ptr->r_idx];
 
                         if(r_ptr->flags7 & RF7_CAN_FLY)
                         {
@@ -4704,3 +4830,29 @@ void do_spin()
                                 py_attack(j, i, 1);
                 }
 }
+
+/* New NASTY feature...to prevent peoples from easily finish the game */
+/* with one powerful weapon. */
+void do_cmd_damage_weapon(void)
+{
+        object_type     *o_ptr;
+        u32b f1, f2, f3, f4;
+        o_ptr = &inventory[INVEN_WIELD];
+
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+
+        if (randint(100) >= 85 && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
+        {
+                o_ptr->pval3 -= 1;
+                msg_print("The weapon was damaged.");
+        }
+        if (o_ptr->pval3 <= 0 && !(f4 & TR4_INDESTRUCTIBLE))
+        {
+                msg_print("YOUR WEAPON IS DESTROYED!!!");
+                inven_item_increase(INVEN_WIELD, -1);
+                inven_item_optimize(INVEN_WIELD);
+        }
+}
+
