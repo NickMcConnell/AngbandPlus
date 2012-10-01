@@ -1072,7 +1072,7 @@ Effects: When you fire with a gun, you have a chance to stun the enemy
 for 3 turns. Whether you succeed or not depends on your Firearms skill and
 your dexterity versus the monster's level and strength, stronger enemies
 being able to take impact more easily. Enemies that cannot be stunned
-are not affected by this ability. Elites, Bosses and Uniques are immune.
+are not affected by this ability.
 
 - Shattering Shots(Passive, 70 points): A master gunner can use the great
 impact of gun shots to completely shatter the enemy's armor, no matter how

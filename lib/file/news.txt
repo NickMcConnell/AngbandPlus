@@ -11,7 +11,7 @@
                              With gracious help from all testers
                              and members of the forum! :)
 
-                     Version: 0.3.0 build 008.1 (beta)
+                     Version: 0.3.0 build 008.2 (beta)
 
 
                      Questions/comments? Send them to:

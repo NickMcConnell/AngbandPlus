@@ -1068,7 +1068,7 @@ function use_licialhyd ()
 
 				if (p_ptr.abilities[i + 1] > 0) then
 
-					learned = learned + 1
+					learned = learned + p_ptr.abilities[i + 1]
 				end
 				if (learned >= maxabilities) then
 
@@ -1085,7 +1085,7 @@ function use_licialhyd ()
 			else
 				Term_save()
 				show_file(string.format('n%d.txt', inven(item).pval), NULL, 0, 0)
-				msg_print(string.format('Learn/improve the ability? [y/n] (Remaining: %d/%d)', learned, maxabilities))
+				msg_print(string.format('Learn/improve the ability? [y/n] (Learned: %d/%d)', learned, maxabilities))
 
 				ch2 = inkey()
 
@@ -1099,7 +1099,7 @@ function use_licialhyd ()
 							local j
 							j = 0
 							while (not(p_ptr.abilities_powers[j+1] == 0)) do j = j + 1 end
-							p_ptr.abilities_powers[j+1] = (CLASS_NIGHT1 * 10) + (inven(item).pval - 2300) + 1
+							p_ptr.abilities_powers[j+1] = (CLASS_NIGHT1 * 10) + (inven(item).pval - 2300)
 						end
 					end
 					p_ptr.abilities[(CLASS_NIGHT1 * 10) + (inven(item).pval - 2300) + 1] = p_ptr.abilities[(CLASS_NIGHT1 * 10) + (inven(item).pval - 2300) + 1] + 1;

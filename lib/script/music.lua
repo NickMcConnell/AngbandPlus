@@ -218,6 +218,13 @@ function execute_song (num)
 		dam = ((music_song[num+1].power + instrumentbonus) * (stat))
 		dam = dam + multiply_divide(dam, bonus, 100)
 		dam = dam + multiply_divide(dam, p_ptr.to_s, 100)
+	elseif (music_song[num+1].element > 30) then
+		bonus = (p_ptr.skill[29])
+		stat = p_ptr.stat_ind[A_CHR+1] - 5
+		if (stat <= 0) then stat = 0 end
+		bonus = bonus + multiply_divide(bonus, stat, 100)
+		dam = music_song[num+1].power + (instrumentbonus / 5)
+		dam = dam + multiply_divide(dam, bonus, 100)
 	else
 		bonus = (p_ptr.skill[29] * 20) + (p_ptr.skill[2] * 10)
 		stat = p_ptr.stat_ind[A_CHR+1] - 5

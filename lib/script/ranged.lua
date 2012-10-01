@@ -478,11 +478,13 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 	local rad
 	local totalammos
 	local returning
+	local movedir
 
 	-- Reset some variables.
 	dropshots = FALSE
 	dropnum = 0
 	ranged_attack = FALSE
+	movedir = 5
 
 	-- First, check if we actually use this function.
 	if (not(inven(INVEN_WIELD).tval == TV_RANGED) and not(inven(INVEN_WIELD+1).tval == TV_RANGED)) then
@@ -518,6 +520,16 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 			-- Look for a ranged weapon.
 			if (inven(INVEN_WIELD + weap).tval == TV_RANGED) then
 
+				-- Some abilities requires a firearm.
+				if (need_gun == 1) then
+
+					if (not(inven(INVEN_WIELD + weap).itemtype == 3 or inven(INVEN_WIELD + weap).itemtype == 4)) then
+
+						msg_print("This ability requires a firearm.")
+						break
+					end
+				end
+
 				-- Look if we have the proper ammos.
 				if (inven(INVEN_WIELD + weap).itemtype == inven(INVEN_AMMO).itemtype) then
 
@@ -543,7 +555,9 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 									target_who = p_ptr.events[29047]
 									dir = 5
 								else
-									dir = lua_get_aim_dir()
+									if (pointblankshot == 1) then dir = lua_get_rep_dir()
+									else dir = lua_get_aim_dir()
+									end
 								end
 
 								-- Return if we abort this step.
@@ -606,6 +620,7 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 							shoot_type = inven(INVEN_WIELD + weap).itemtype
 							ranged_attack = TRUE
 							if (storm_shot == 1) then attack_aura(element, dam, rad)
+							elseif (pointblankshot == 1) then chain_attack(dir, element, dam, rad, 1)
 							else fire_ball(element, dir, dam, rad) end
 							ranged_attack = FALSE
 
@@ -635,6 +650,13 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 							if (storm_shot == 1 and p_ptr.abilities[(CLASS_MARKSMAN * 10) + 6] >= 10) then
 
 								place_field(FEAT_STORMS, rad, px, py, dam / 5)
+							end
+
+							-- Move.
+							if (dashingshot == 1) then
+
+								movedir = lua_get_rep_dir()
+								move_player(movedir, 0)
 							end
 
 							-- Take a turn.
@@ -694,16 +716,6 @@ function ranged_damages ()
 		p_ptr.events[29017] = 0
 	end
 
-	-- Pistols Specialization.
-	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] / 5) + 1
-	end
-
-	-- Rifles Specialization.
-	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] / 5) + 1
-	end
-
 	-- Ranger's Forestry ability!
         if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
 
@@ -740,12 +752,12 @@ function ranged_damages ()
 
 	-- Pistols Specialization.
 	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 5), 100)
+		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10), 100)
 	end
 
 	-- Rifles Specialization.
 	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 5), 100)
+		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10), 100)
 	end
 
 	-- Bard's War Songs ability.
@@ -802,16 +814,6 @@ function max_ranged_damages ()
 		p_ptr.events[29017] = 0
 	end
 
-	-- Pistols Specialization.
-	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] / 5) + 1
-	end
-
-	-- Rifles Specialization.
-	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] / 5) + 1
-	end
-
 	-- Ranger's Forestry ability!
         if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
 
@@ -848,12 +850,12 @@ function max_ranged_damages ()
 
 	-- Pistols Specialization.
 	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 5), 100)
+		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10), 100)
 	end
 
 	-- Rifles Specialization.
 	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 5), 100)
+		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10), 100)
 	end
 
 	-- Bard's War Songs ability.
@@ -910,16 +912,6 @@ function min_ranged_damages ()
 		p_ptr.events[29017] = 0
 	end
 
-	-- Pistols Specialization.
-	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] / 5) + 1
-	end
-
-	-- Rifles Specialization.
-	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] / 5) + 1
-	end
-
 	-- Ranger's Forestry ability!
         if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
 
@@ -956,12 +948,12 @@ function min_ranged_damages ()
 
 	-- Pistols Specialization.
 	if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 5), 100)
+		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10), 100)
 	end
 
 	-- Rifles Specialization.
 	if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 5), 100)
+		k = k + multiply_divide(k, (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10), 100)
 	end
 
 	-- Bard's War Songs ability.

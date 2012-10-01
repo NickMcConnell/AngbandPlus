@@ -51,6 +51,7 @@ rapid_shot = 0
 storm_shot = 0
 piercing_shot = 0
 evil_slayer = 0
+need_gun = 0
 
 -- Redirect error messages to Angband's msg_print()
 _ALERT = function(text)

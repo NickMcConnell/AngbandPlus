@@ -114,7 +114,7 @@ A:Fighter's Accuracy:0:0:0:0
 A:Defensive Power Attacks:0:1:0:0
 A:Throw:1:0:6:1
 A:Extreme Strike:1:0:7:0
-A:Fighting Mastery:0:0:0:0
+A:Ultimate Power Fighter:0:0:0:0
 
 N:Mage:3:0
 Q:0:0:0:0:0:0

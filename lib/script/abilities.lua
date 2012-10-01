@@ -402,6 +402,7 @@ function use_ability (powernum)
 	if (spellstat < 0) then spellstat = 0 end
 
 	-- Bonus from rods.
+	rodbonus = 0
 	if (inven(INVEN_WIELD).tval == TV_ROD) then
 
 		rodbonus = rodbonus + damroll(inven(INVEN_WIELD).dd, inven(INVEN_WIELD).ds)
@@ -498,6 +499,7 @@ function use_ability (powernum)
 	if (spellstat < 0) then spellstat = 0 end
 
 	-- Bonus from rods.
+	rodbonus = 0
 	if (inven(INVEN_WIELD).tval == TV_ROD) then
 
 		rodbonus = rodbonus + damroll(inven(INVEN_WIELD).dd, inven(INVEN_WIELD).ds)
@@ -881,399 +883,48 @@ function use_ability (powernum)
   -- Rifle Impact
   if (powernum == 93) then
 
-  	local dam
-	local dir
-	local rad
-	local totalammos
-	local returning
-	local element
-	local shooting
+	-- Make sure we use a rifle.
+	if (not(inven(INVEN_WIELD).tval == TV_RANGED and inven(INVEN_WIELD).itemtype == 4) and not(inven(INVEN_WIELD+1).tval == TV_RANGED and inven(INVEN_WIELD+1).itemtype == 4)) then
 
-	shooting = 1
-	dropshots = FALSE
-	dropnum = 0
-	shoot_type = 4
-
-	-- If we have two ranged weapons, then choose which one we're gonna use.
-	-- It shouldn't happen though.
-	if ((inven(INVEN_WIELD).tval == TV_RANGED and inven(INVEN_WIELD).itemtype == 4 and (get_object_flag4(inven(INVEN_WIELD), TR4_MUST2H))) and (inven(INVEN_WIELD+1).tval == TV_RANGED and inven(INVEN_WIELD+1).itemtype == 4) and (get_object_flag4(inven(INVEN_WIELD+1), TR4_MUST2H))) then
-		choose_current_weapon()
-	else
-		if (inven(INVEN_WIELD).tval == TV_RANGED and inven(INVEN_WIELD).itemtype == 4 and (get_object_flag4(inven(INVEN_WIELD), TR4_MUST2H))) then
-			current_weapon = inven(INVEN_WIELD)
-		else
-			current_weapon = inven(INVEN_WIELD+1)
-		end
-	end
-
-	-- Make sure we wield a ranged weapon.
-	if (not(current_weapon.tval == TV_RANGED and current_weapon.itemtype == 4 and (get_object_flag4(inven(INVEN_WIELD), TR4_MUST2H)))) then
-
-                msg_print("You must wield a two-handed rifle.")
+                msg_print("You must wield a rifle.")
                 return
         end
 
-	-- Make sure we have the proper type and number of ammos.
-	if (not(current_weapon.itemtype == inven(INVEN_AMMO).itemtype)) then
-		
-		msg_print("You must use the proper type of ammos.")
-		return
-	end
-
-	-- We need to choose a direction to attack.
-	dir = lua_get_aim_dir()
-
-	totalammos = current_weapon.extra2
-	drop_ranged = inven(INVEN_AMMO)
-	if (inven(INVEN_AMMO).number < totalammos) then
-
-		msg_print("You need more ammos!")
-		return
-	end
-
-	if (current_weapon.pval2 < totalammos) then
-
-		msg_print("This weapon needs to be reloaded!")
-		return
-	end
-
-	dam = ranged_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_GUNNER * 10) + 3]) * 20), 100)
-
-	-- Determine the element.
-	-- The shooter has priority over the ammo.
-	if (current_weapon.extra1 == 0) then
-		element = inven(INVEN_AMMO).extra1
-	else
-		element = current_weapon.extra1
-	end
-
-	-- 0 defaults to physical.
-	if (element == 0) then element = 15 end
-
-	-- Determine radius
-	-- Again, shooter has priority.
-	if (current_weapon.extra5 >= inven(INVEN_AMMO).extra3) then
-		rad = current_weapon.extra5 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 3] / 10) + 2
-	else
-		rad = inven(INVEN_AMMO).extra3 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 3] / 10) + 2
-	end
-
-	-- Shoot!
-	ranged_attack = TRUE
-	fire_ball(element, dir, dam, rad)
-	ranged_attack = FALSE
-
-	-- Shooter loses some ammos.
-	current_weapon.pval2 = current_weapon.pval2 - totalammos
-
-	-- Reduce ammos in inventory.
-	inven_item_increase(INVEN_AMMO, -totalammos)
-        inven_item_describe(INVEN_AMMO)
-        inven_item_optimize(INVEN_AMMO)
-
-    	energy_use = 100
+	special_ranged_attacks(0, 1 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 3] / 5), p_ptr.abilities[(CLASS_GUNNER * 10) + 3] * 30, 2 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 3] / 10))
+	energy_use = 100
   end
 
   -- Point-Blank Shot
   if (powernum == 94) then
 
-  	local dam
-	local dir
-	local rad
-	local totalammos
-	local returning
-	local element
-	local shooting
-
-	shooting = 1
-	dropshots = FALSE
-	dropnum = 0
-
-	-- If we have two ranged weapons, then choose which one we're gonna use.
-	-- It shouldn't happen though.
-	if ((inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) and (inven(INVEN_WIELD+1).tval == TV_RANGED and (inven(INVEN_WIELD+1).itemtype == 3 or inven(INVEN_WIELD+1).itemtype == 4))) then
-		choose_current_weapon()
-	else
-		if (inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) then
-			current_weapon = inven(INVEN_WIELD)
-		else
-			current_weapon = inven(INVEN_WIELD+1)
-		end
-	end
-
-	-- Make sure we wield a ranged weapon.
-	if (not(current_weapon.tval == TV_RANGED and (current_weapon.itemtype == 3 or current_weapon.itemtype == 4))) then
-
-                msg_print("You must wield a gun.")
-                return
-        end
-
-	-- Make sure we have the proper type and number of ammos.
-	if (not(current_weapon.itemtype == inven(INVEN_AMMO).itemtype)) then
-		
-		msg_print("You must use the proper type of ammos.")
-		return
-	end
-
-	-- We need to choose a direction to attack.
-	dir = lua_get_rep_dir()
-
-	totalammos = current_weapon.extra2
-	drop_ranged = inven(INVEN_AMMO)
-	if (inven(INVEN_AMMO).number < totalammos) then
-
-		msg_print("You need more ammos!")
-		return
-	end
-
-	if (current_weapon.pval2 < totalammos) then
-
-		msg_print("This weapon needs to be reloaded!")
-		return
-	end
-
-	dam = ranged_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_GUNNER * 10) + 4]) * 50), 100)
-
-	-- Determine the element.
-	-- The shooter has priority over the ammo.
-	if (current_weapon.extra1 == 0) then
-		element = inven(INVEN_AMMO).extra1
-	else
-		element = current_weapon.extra1
-	end
-
-	-- 0 defaults to physical.
-	if (element == 0) then element = 15 end
-
-	-- Determine radius
-	-- Again, shooter has priority.
-	if (current_weapon.extra5 >= inven(INVEN_AMMO).extra3) then
-		rad = current_weapon.extra5
-	else
-		rad = inven(INVEN_AMMO).extra3
-	end
-
-	-- Shoot!
-	ranged_attack = TRUE
 	pointblankshot = 1
-	chain_attack(dir, element, dam, rad, 1)
+	need_gun = 1
+	special_ranged_attacks(0, 1 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 4] / 4), p_ptr.abilities[(CLASS_GUNNER * 10) + 4] * 50, 0)
+	need_gun = 0
 	pointblankshot = 0
-	ranged_attack = FALSE
-
-	-- Shooter loses some ammos.
-	current_weapon.pval2 = current_weapon.pval2 - totalammos
-
-	-- Reduce ammos in inventory.
-	inven_item_increase(INVEN_AMMO, -totalammos)
-        inven_item_describe(INVEN_AMMO)
-        inven_item_optimize(INVEN_AMMO)
-
-    	energy_use = 100
+	energy_use = 100
   end
 
   -- True Shot
   if (powernum == 95) then
 
-  	local dam
-	local dir
-	local rad
-	local totalammos
-	local returning
-	local element
-	local shooting
-
-	shooting = 1
-	dropshots = FALSE
-	dropnum = 0
-
-	-- If we have two ranged weapons, then choose which one we're gonna use.
-	-- It shouldn't happen though.
-	if ((inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) and (inven(INVEN_WIELD+1).tval == TV_RANGED and (inven(INVEN_WIELD+1).itemtype == 3 or inven(INVEN_WIELD+1).itemtype == 4))) then
-		choose_current_weapon()
-	else
-		if (inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) then
-			current_weapon = inven(INVEN_WIELD)
-		else
-			current_weapon = inven(INVEN_WIELD+1)
-		end
-	end
-
-	-- Make sure we wield a ranged weapon.
-	if (not(current_weapon.tval == TV_RANGED and (current_weapon.itemtype == 3 or current_weapon.itemtype == 4))) then
-
-                msg_print("You must wield a gun.")
-                return
-        end
-
-	-- Make sure we have the proper type and number of ammos.
-	if (not(current_weapon.itemtype == inven(INVEN_AMMO).itemtype)) then
-		
-		msg_print("You must use the proper type of ammos.")
-		return
-	end
-
-	-- We need to choose a direction to attack.
-	dir = lua_get_aim_dir()
-
-	totalammos = current_weapon.extra2
-	drop_ranged = inven(INVEN_AMMO)
-	if (inven(INVEN_AMMO).number < totalammos) then
-
-		msg_print("You need more ammos!")
-		return
-	end
-
-	if (current_weapon.pval2 < totalammos) then
-
-		msg_print("This weapon needs to be reloaded!")
-		return
-	end
-
-	dam = ranged_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_GUNNER * 10) + 5]) * 10), 100)
-
-	-- Determine the element.
-	-- The shooter has priority over the ammo.
-	if (current_weapon.extra1 == 0) then
-		element = inven(INVEN_AMMO).extra1
-	else
-		element = current_weapon.extra1
-	end
-
-	-- 0 defaults to physical.
-	if (element == 0) then element = 15 end
-
-	-- Determine radius
-	-- Again, shooter has priority.
-	if (current_weapon.extra5 >= inven(INVEN_AMMO).extra3) then
-		rad = current_weapon.extra5
-	else
-		rad = inven(INVEN_AMMO).extra3
-	end
-
-	-- Shoot!
-	ranged_attack = TRUE
+  	need_gun = 1
 	nevermiss = TRUE
-	fire_ball(element, dir, dam, rad)
+	special_ranged_attacks(0, 1 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 5] / 10), p_ptr.abilities[(CLASS_GUNNER * 10) + 5] * 10, 0)
 	nevermiss = FALSE
-	ranged_attack = FALSE
-
-	-- Shooter loses some ammos.
-	current_weapon.pval2 = current_weapon.pval2 - totalammos
-
-	-- Reduce ammos in inventory.
-	inven_item_increase(INVEN_AMMO, -totalammos)
-        inven_item_describe(INVEN_AMMO)
-        inven_item_optimize(INVEN_AMMO)
-
-    	energy_use = 100
+	need_gun = 0
+	energy_use = 100
   end
 
   -- Dashing Shot
   if (powernum == 96) then
 
-  	local dam
-	local dir
-	local rad
-	local totalammos
-	local returning
-	local element
-	local shooting
-	local movedir
-
-	shooting = 1
-	dropshots = FALSE
-	dropnum = 0
-
-	-- If we have two ranged weapons, then choose which one we're gonna use.
-	-- It shouldn't happen though.
-	if ((inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) and (inven(INVEN_WIELD+1).tval == TV_RANGED and (inven(INVEN_WIELD+1).itemtype == 3 or inven(INVEN_WIELD+1).itemtype == 4))) then
-		choose_current_weapon()
-	else
-		if (inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) then
-			current_weapon = inven(INVEN_WIELD)
-		else
-			current_weapon = inven(INVEN_WIELD+1)
-		end
-	end
-
-	-- Make sure we wield a ranged weapon.
-	if (not(current_weapon.tval == TV_RANGED and (current_weapon.itemtype == 3 or current_weapon.itemtype == 4))) then
-
-                msg_print("You must wield a gun.")
-                return
-        end
-
-	-- Make sure we have the proper type and number of ammos.
-	if (not(current_weapon.itemtype == inven(INVEN_AMMO).itemtype)) then
-		
-		msg_print("You must use the proper type of ammos.")
-		return
-	end
-
-	-- We need to choose a direction to attack.
-	dir = lua_get_aim_dir()
-
-	totalammos = current_weapon.extra2
-	drop_ranged = inven(INVEN_AMMO)
-	if (inven(INVEN_AMMO).number < totalammos) then
-
-		msg_print("You need more ammos!")
-		return
-	end
-
-	if (current_weapon.pval2 < totalammos) then
-
-		msg_print("This weapon needs to be reloaded!")
-		return
-	end
-
-	dam = ranged_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_GUNNER * 10) + 6]) * 10), 100)
-
-	-- Determine the element.
-	-- The shooter has priority over the ammo.
-	if (current_weapon.extra1 == 0) then
-		element = inven(INVEN_AMMO).extra1
-	else
-		element = current_weapon.extra1
-	end
-
-	-- 0 defaults to physical.
-	if (element == 0) then element = 15 end
-
-	-- Determine radius
-	-- Again, shooter has priority.
-	if (current_weapon.extra5 >= inven(INVEN_AMMO).extra3) then
-		rad = current_weapon.extra5
-	else
-		rad = inven(INVEN_AMMO).extra3
-	end
-
-	-- Shoot!
-	ranged_attack = TRUE
+	need_gun = 1
 	dashingshot = 1
-	fire_ball(element, dir, dam, rad)
+	special_ranged_attacks(0, 1 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 6] / 10), p_ptr.abilities[(CLASS_GUNNER * 10) + 6] * 10, 0)
 	dashingshot = 0
-	ranged_attack = FALSE
-
-	-- Shooter loses some ammos.
-	current_weapon.pval2 = current_weapon.pval2 - totalammos
-
-	-- Reduce ammos in inventory.
-	inven_item_increase(INVEN_AMMO, -totalammos)
-        inven_item_describe(INVEN_AMMO)
-        inven_item_optimize(INVEN_AMMO)
-
-	-- Move.
-	movedir = lua_get_rep_dir()
-	dashingshot = 1
-	move_player(movedir, 0)
-	dashingshot = 0
-
-    	energy_use = 100
+	need_gun = 0
+	energy_use = 100
   end
 
   -- Magic Bullets
@@ -1300,9 +951,9 @@ function use_ability (powernum)
 	if (bulnum <= 0) then bulnum = 1 end
 	if (bulnum > 99) then bulnum = 99 end
 
-        if (p_ptr.csp >= (bulnum * 30)) then
+        if (p_ptr.csp >= (bulnum * 5)) then
 
-		dur = 5 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 9] / 2)
+		dur = 10 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 9] * 2)
 
 		if (current_weapon.itemtype == 3) then
 			conjure_item_any(TV_AMMO, 43, dur, bulnum, FALSE, FALSE)
@@ -1311,12 +962,12 @@ function use_ability (powernum)
 		end
 
 		-- Once conjured, we'll improve them a bit!
-		inven(INVEN_AMMO).to_h = p_ptr.abilities[(CLASS_GUNNER * 10) + 9]
-		inven(INVEN_AMMO).to_d = p_ptr.abilities[(CLASS_GUNNER * 10) + 9]
-		inven(INVEN_AMMO).dd = inven(INVEN_AMMO).dd + (p_ptr.abilities[(CLASS_GUNNER * 10) + 9] / 5)
-		inven(INVEN_AMMO).ds = inven(INVEN_AMMO).ds + (p_ptr.abilities[(CLASS_GUNNER * 10) + 9] / 5)
+		inven(INVEN_AMMO).to_h = p_ptr.abilities[(CLASS_GUNNER * 10) + 9] * 5
+		inven(INVEN_AMMO).to_d = p_ptr.abilities[(CLASS_GUNNER * 10) + 9] * 5
+		inven(INVEN_AMMO).dd = inven(INVEN_AMMO).dd + (p_ptr.abilities[(CLASS_GUNNER * 10) + 9] / 3)
+		inven(INVEN_AMMO).ds = inven(INVEN_AMMO).ds + (p_ptr.abilities[(CLASS_GUNNER * 10) + 9] / 3)
 
-		p_ptr.csp = p_ptr.csp - (bulnum * 30)
+		p_ptr.csp = p_ptr.csp - (bulnum * 5)
 		update_and_handle()
 	else
 		msg_print("You do not have enough mana.")
@@ -1329,93 +980,12 @@ function use_ability (powernum)
   -- Immolating Shot
   if (powernum == 98) then
 
-  	local dam
-	local dir
-	local rad
-	local totalammos
-	local returning
-	local element
-	local shooting
-
-	shooting = 1
-	dropshots = FALSE
-	dropnum = 0
-
-	-- If we have two ranged weapons, then choose which one we're gonna use.
-	-- It shouldn't happen though.
-	if ((inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) and (inven(INVEN_WIELD+1).tval == TV_RANGED and (inven(INVEN_WIELD+1).itemtype == 3 or inven(INVEN_WIELD+1).itemtype == 4))) then
-		choose_current_weapon()
-	else
-		if (inven(INVEN_WIELD).tval == TV_RANGED and (inven(INVEN_WIELD).itemtype == 3 or inven(INVEN_WIELD).itemtype == 4)) then
-			current_weapon = inven(INVEN_WIELD)
-		else
-			current_weapon = inven(INVEN_WIELD+1)
-		end
-	end
-
-	-- Make sure we wield a ranged weapon.
-	if (not(current_weapon.tval == TV_RANGED and (current_weapon.itemtype == 3 or current_weapon.itemtype == 4))) then
-
-                msg_print("You must wield a gun.")
-                return
-        end
-
-	-- Make sure we have the proper type and number of ammos.
-	if (not(current_weapon.itemtype == inven(INVEN_AMMO).itemtype)) then
-		
-		msg_print("You must use the proper type of ammos.")
-		return
-	end
-
-	-- We need to choose a direction to attack.
-	dir = lua_get_aim_dir()
-
-	totalammos = current_weapon.extra2
-	drop_ranged = inven(INVEN_AMMO)
-	if (inven(INVEN_AMMO).number < totalammos) then
-
-		msg_print("You need more ammos!")
-		return
-	end
-
-	if (current_weapon.pval2 < totalammos) then
-
-		msg_print("This weapon needs to be reloaded!")
-		return
-	end
-
-	dam = ranged_damages()
-	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_GUNNER * 10) + 10]) * 10), 100)
-
-	-- In this case, the element is always fire.
-	element = GF_FIRE
-
-	-- Determine radius
-	-- Again, shooter has priority.
-	if (current_weapon.extra5 >= inven(INVEN_AMMO).extra3) then
-		rad = current_weapon.extra5
-	else
-		rad = inven(INVEN_AMMO).extra3
-	end
-
-	rad = rad + 3 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 10] / 10)
-
-	-- Shoot!
-	ranged_attack = TRUE
+  	need_gun = 1
 	immolating = 1
-	fire_ball(element, dir, dam, rad)
+	special_ranged_attacks(GF_FIRE, 1 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 10] / 5), p_ptr.abilities[(CLASS_GUNNER * 10) + 10] * 20, 3 + (p_ptr.abilities[(CLASS_GUNNER * 10) + 10] / 10))
 	immolating = 0
-	ranged_attack = FALSE
-
-	-- Shooter loses some ammos.
-	current_weapon.pval2 = current_weapon.pval2 - totalammos
-
-	-- Reduce ammos in inventory.
-	inven_item_increase(INVEN_AMMO, -totalammos)
-        inven_item_describe(INVEN_AMMO)
-        inven_item_optimize(INVEN_AMMO)
-
-    	energy_use = 100
+	need_gun = 0
+	energy_use = 100
   end
 
   -- Brandcasting

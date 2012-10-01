@@ -401,7 +401,7 @@ function element_hit_monster (who, m_idx, element, dam)
 		blocked = 0
 
 		-- If we're using Point-Blank Shot ability, give a hit bonus.
-		if (pointblankshot == 1) then hitbonus = hitbonus + multiply_divide(p_ptr.to_h, (p_ptr.abilities[(CLASS_GUNNER * 10) + 4]) * 25, 100) end
+		if (pointblankshot == 1) then hitbonus = hitbonus + multiply_divide(p_ptr.dis_to_h, (p_ptr.abilities[(CLASS_GUNNER * 10) + 4]) * 25, 100) end
 
 		-- Crossbow users can get a bonus!
 		if ((current_weapon.itemtype == 2) and p_ptr.skill_base[21] >= 30) then hitbonus = hitbonus + (p_ptr.dis_to_h / 2) end
@@ -414,20 +414,12 @@ function element_hit_monster (who, m_idx, element, dam)
 
 		-- Pistols Specialization.
 		if (current_weapon.itemtype == 3 and p_ptr.abilities[(CLASS_GUNNER * 10) + 7] >= 1) then
-			hitbonus = hitbonus + (p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 50)
+			hitbonus = hitbonus + multiply_divide(p_ptr.dis_to_h, p_ptr.abilities[(CLASS_GUNNER * 10) + 7] * 10, 100)
 		end
 
 		-- Rifles Specialization.
 		if (current_weapon.itemtype == 4 and p_ptr.abilities[(CLASS_GUNNER * 10) + 8] >= 1) then
-			hitbonus = hitbonus + (p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 50)
-		end
-
-		-- Dashing Shot is less accurate.
-		if (dashingshot == 1) then
-			local dashpenality
-			dashpenality = 55 - (p_ptr.abilities[(CLASS_GUNNER * 10) + 6] * 5)
-			if (dashpenality < 0) then dashpenality = 0 end
-			hitpenality = hitpenality + multiply_divide(p_ptr.to_h, dashpenality, 100)
+			hitbonus = hitbonus + multiply_divide(p_ptr.dis_to_h, p_ptr.abilities[(CLASS_GUNNER * 10) + 8] * 10, 100)
 		end
 
 		-- May drop ammos on the ground.
@@ -609,7 +601,7 @@ function element_hit_monster (who, m_idx, element, dam)
 					stunpower = p_ptr.skill[22] + p_ptr.stat_ind[A_DEX+1] + (p_ptr.abilities[(CLASS_GUNNER * 10) + 2] * 20)
 					mresstun = monster(m_idx).level + monster(m_idx).str
 
-                                        if (not(get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) and not(get_monster_flag3(monster(m_idx).r_idx, RF3_NO_STUN)) and not(get_monster_ability(monster(m_idx), BOSS_IMMUNE_WEAPONS)) and not(m_race(monster(m_idx).r_idx).resistances[GF_PHYSICAL+1] >= 100)) then
+                                        if (not(get_monster_flag3(monster(m_idx).r_idx, RF3_NO_STUN))) then
 
                                                 if (lua_randint(stunpower) >= lua_randint(mresstun)) then
 
@@ -3887,7 +3879,7 @@ function element_hit_player (who, element, dam, rad)
         end
 
 	-- Bardic Grandeur.
-        if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 10] >= 1) then
+        if (p_ptr.events[29042] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 10] >= 1 and not(who == -2)) then
 
 		local cursong
 		cursong = p_ptr.events[29041]

@@ -760,6 +760,7 @@ function calc_bonuses ()
 	if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 2] > 0) then
 
 		p_ptr.resistances[GF_PHYSICAL+1] = p_ptr.resistances[GF_PHYSICAL+1] + (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 2] * 10)
+		if (p_ptr.resistances[GF_PHYSICAL+1] > 100) then p_ptr.resistances[GF_PHYSICAL+1] = 100 end
 		if (p_ptr.cursed >= dun_level) then p_ptr.wraith_form = 20 end
 	end
 

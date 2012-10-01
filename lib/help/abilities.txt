@@ -2898,9 +2898,11 @@ chance to stun enemies with your shots, this ability can help a lot.
 Effect: Shoot your rifle with such an impact that all in an area of effect
         will be affected.
 Damages: Base rifle damages.
+Maximum shots: 1
 Radius: 2
-Extra points: +20% to damages.
-		+1 to radius for every 10 points.
+Extra points: +30% to damages.
+              +1 maximum shots every 5 points.
+              +1 to radius every 10 points.
 
 This ability allows you to maximize the great impact of a rifle's fire, and use
 it to create a powerful area of effect attack. This can be very useful to
@@ -2915,9 +2917,11 @@ pistols.
 
 Effect: A close range gun shot that is hard to avoid, and does lots of damages.
 Damages: Base gun damages.
+Maximum shots: 1
 Bonus to_hit: +25%
 Extra points: +50% to damages.
-		+25% to bonus to_hit.
+              +25% to bonus to_hit.
+              +1 to maximum shots every 4 points.
 
 This ability allows you to fire your gun at close combat range. Thanks to the
 great speed of a gun's shots, a point-blank shot is much harder to avoid, and
@@ -2929,75 +2933,73 @@ not want to use melee attacks, this can be a good alternative.
 
 Effect: A shot that never miss.
 Damages: Base gun damages.
+Maximum shots: 1
 Extra points: +10% to damages.
+              +1 to maximum shots every 10 points.
 
-This ability allows you to fire a shot that will never miss the target. While
-weaker than a regular gun shot, if you are having trouble hitting a particular
-enemy, it can be very useful. Note that all passive abilities of your shot
-will apply, so if you also place points in passive Marksman abilities,
-Improved Stun Shots or other ranged passive abilities, this can become an
-extremely useful ability to hinder your foes before killing them. Note that
-the 5% bonus damages per points apply to the base damages of True Shot, it
-does not reduce the base 50% damages penality you get.
+This ability allows you to fire a shot that will never miss the target.
+This will also bypass any counters the enemy may have. While the maximum
+shots of this ability is lower than the other abilities, it can be very
+useful if you want a guaranteed hit against an enemy that is hard to hit.
 
 6. Dashing Shot(Active, level 1)
 
 Effect: Shoot, then move in a direction.
 Damages: Base gun damages.
-Penality to hit: 50% of your regular hit rate.
+Maximum shots: 1
 Extra points: +10% to damages.
-		-5% to penality to hit.
+              +1 maximum shot every 10 points.
 
-This ability allows you to shoot, then move in any directions. It's inaccurate
-if you don't place many points, but it allows for hit and run tactics and can
-be useful against a fast enemy, or to shoot an enemy while you are running
-away. Note that if you shoot, then run into an enemy, you will not perform
-a melee attack.
+This ability allows you to shoot, then move in any directions. This can
+be useful if you want to keep a safe distance from your foes while doing
+damages at the same time. If you place enough points and gain additional
+maximum shots, you will also be allowed to move more than once.
 
 7. Firearms Specialization: Pistols(Passive, level 6)
 
 Effect: Receive bonus when using pistols.
-Bonus to_hit: +50
-Bonus damages: 5%
+Bonus to_hit: +10%
+Bonus damages: 10%
 Bonus to base damages: 1
-Extra points: +50 to_hit.
-              +5% to bonus damages.
-              +1 to base damages for every 5 points.
+Extra points: +10% to_hit.
+              +10% to bonus damages.
 
 This passive ability makes you better at shooting with pistols. Should you
 place a couple of points in this ability, all your shots, and all gun
 abilities will become much stronger. Compared to rifles, pistols can be
 dual-wielded, or you can wield a melee weapon and a pistol, or even a pistol
 with a shield for extra defense. They are, however, weaker than the two-handed
-rifles.
+rifles. Note that the hit rate bonus is only applied when you actually shoot,
+and will not appear on your character's status screen.
 
 8. Firearms Specialization: Rifles(Passive, level 6)
 
 Effect: Receive bonus when using rifles.
-Bonus to_hit: +50
-Bonus damages: 5%
+Bonus to_hit: +10%
+Bonus damages: 10%
 Bonus to base damages: 1
-Extra points: +50 to_hit.
-              +5% to bonus damages.
-              +1 to base damages for every 5 points.
+Extra points: +10% to_hit.
+              +10% to bonus damages.
 
 This passive ability makes you better at shooting with rifles. Should you
 place a couple of points in this ability, all your shots, and all gun
 abilities will become much stronger. Compared to pistols, rifles are
 two-handed, and therefore cannot be wielded in combination with a melee
 weapon or a shield. They are, however, much stronger than pistols.
+Note that the hit rate bonus is only applied when you actually shoot,
+and will not appear on your character's status screen.
 
 9. Magic Bullets(Active, level 6)
 
 Effect: Create some magical bullets.
-Duration: 5
+Duration: 10
 Base damages: 3d3(bullets) or 3d5(rounds)
-Bonus to_h: +1
-Bonus to_d: +1
-Mana cost: 30/bullets
-Extra points: +1d1 to base damages for every 5 points.
-              +1 to duration for every 2 points.
-              +1 to_d/to_h.
+Bonus to_h: +5
+Bonus to_d: +5
+Mana cost: 5/bullets
+Extra points: +1d1 to base damages for every 3 points.
+              +2 to duration for every points.
+              +5 to_d/to_h.
 
 This ability allows you to create magical bullets to shoot at your enemies.
 Since ammos for guns are rare, this ability can make up for it by providing
@@ -3015,9 +3017,11 @@ Effect: Shoots a fiery shot that will surround the enemy with flames.
 Damages: Base gun damages.
 Damages Type: Fire
 Fire Fields Damages: 25% of damages.
+Maximum shots: 1
 Radius: 3
-Extra points: +10% to damages.
-		+1 to radius for every 20 points.
+Extra points: +20% to damages.
+              +1 maximum shots every 5 points.
+              +1 to radius for every 10 points.
 
 This ability allows you to shoot a shot that does fire damages to the target.
 However, upon impact, it will also cause fire fields to appear around the
