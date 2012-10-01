@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.1"
+#define VERSION_STRING	"0.5.2"
 
 
 /*
@@ -572,7 +572,7 @@ enum
 #define PROJECT_WALL         0x00000080
 #define PROJECT_PASS         0x00000100  /*Ignore walls*/
 #define PROJECT_ROOM         0x00000200  /* Create a room as you kill_wall */
-#define PROJECT_XXX5         0x00000400
+#define PROJECT_SAME         0x00000400  /* Don't damage similar monsters */
 
 /* What projections affect */
 #define PROJECT_GRID         0x00000800
@@ -639,6 +639,7 @@ enum
  *	LOOK: Describe grid fully
  *	XTRA: Currently unused flag
  *	GRID: Select from all grids
+ *	PROBE: - Terrain can be targeted as well as a monster (for probing)
  */
 #define TARGET_KILL		0x01
 #define TARGET_LOOK		0x02
@@ -646,6 +647,7 @@ enum
 #define TARGET_GRID		0x08
 #define TARGET_QUIET	0x08
 #define TARGET_TRAP		0x20
+#define TARGET_PROBE	0x40
 
 
 

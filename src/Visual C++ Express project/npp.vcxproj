@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\angband.h" />
+    <ClInclude Include="..\cmds.h" />
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\defines.h" />
+    <ClInclude Include="..\externs.h" />
+    <ClInclude Include="..\game-cmd.h" />
+    <ClInclude Include="..\game-event.h" />
+    <ClInclude Include="..\h-basic.h" />
+    <ClInclude Include="..\init.h" />
+    <ClInclude Include="..\main.h" />
+    <ClInclude Include="..\monster.h" />
+    <ClInclude Include="..\object.h" />
+    <ClInclude Include="..\player.h" />
+    <ClInclude Include="..\readdib.h" />
+    <ClInclude Include="..\store.h" />
+    <ClInclude Include="..\terrain.h" />
+    <ClInclude Include="..\textui.h" />
+    <ClInclude Include="..\types.h" />
+    <ClInclude Include="..\ui-birth.h" />
+    <ClInclude Include="..\ui-event.h" />
+    <ClInclude Include="..\ui-menu.h" />
+    <ClInclude Include="..\ui.h" />
+    <ClInclude Include="..\x-char.h" />
+    <ClInclude Include="..\z-file.h" />
+    <ClInclude Include="..\z-form.h" />
+    <ClInclude Include="..\z-msg.h" />
+    <ClInclude Include="..\z-quark.h" />
+    <ClInclude Include="..\z-rand.h" />
+    <ClInclude Include="..\z-term.h" />
+    <ClInclude Include="..\z-type.h" />
+    <ClInclude Include="..\z-util.h" />
+    <ClInclude Include="..\z-virt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\angband.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\attack.c" />
+    <ClCompile Include="..\birth.c" />
+    <ClCompile Include="..\button.c" />
+    <ClCompile Include="..\calcs.c" />
+    <ClCompile Include="..\cave.c" />
+    <ClCompile Include="..\cmd-know.c" />
+    <ClCompile Include="..\cmd-obj.c" />
+    <ClCompile Include="..\cmd0.c" />
+    <ClCompile Include="..\cmd1.c" />
+    <ClCompile Include="..\cmd2.c" />
+    <ClCompile Include="..\cmd3.c" />
+    <ClCompile Include="..\cmd4.c" />
+    <ClCompile Include="..\cmd5.c" />
+    <ClCompile Include="..\death.c" />
+    <ClCompile Include="..\dump_items.c" />
+    <ClCompile Include="..\dungeon.c" />
+    <ClCompile Include="..\effect.c" />
+    <ClCompile Include="..\feature.c" />
+    <ClCompile Include="..\files.c" />
+    <ClCompile Include="..\game-cmd.c" />
+    <ClCompile Include="..\game-event.c" />
+    <ClCompile Include="..\generate.c" />
+    <ClCompile Include="..\identify.c" />
+    <ClCompile Include="..\init1.c" />
+    <ClCompile Include="..\init2.c" />
+    <ClCompile Include="..\load.c" />
+    <ClCompile Include="..\main-win.c" />
+    <ClCompile Include="..\melee1.c" />
+    <ClCompile Include="..\melee2.c" />
+    <ClCompile Include="..\monster1.c" />
+    <ClCompile Include="..\monster2.c" />
+    <ClCompile Include="..\obj-info.c" />
+    <ClCompile Include="..\obj-ui.c" />
+    <ClCompile Include="..\obj-util.c" />
+    <ClCompile Include="..\object1.c" />
+    <ClCompile Include="..\object2.c" />
+    <ClCompile Include="..\pathfind.c" />
+    <ClCompile Include="..\prefs.c" />
+    <ClCompile Include="..\quest.c" />
+    <ClCompile Include="..\randart.c" />
+    <ClCompile Include="..\readdib.c" />
+    <ClCompile Include="..\save.c" />
+    <ClCompile Include="..\score.c" />
+    <ClCompile Include="..\signals.c" />
+    <ClCompile Include="..\spells1.c" />
+    <ClCompile Include="..\spells2.c" />
+    <ClCompile Include="..\squelch.c" />
+    <ClCompile Include="..\store.c" />
+    <ClCompile Include="..\tables.c" />
+    <ClCompile Include="..\target.c" />
+    <ClCompile Include="..\timed.c" />
+    <ClCompile Include="..\ui-birth.c" />
+    <ClCompile Include="..\ui-event.c" />
+    <ClCompile Include="..\ui-menu.c" />
+    <ClCompile Include="..\ui.c" />
+    <ClCompile Include="..\use-obj.c" />
+    <ClCompile Include="..\util.c" />
+    <ClCompile Include="..\variable.c" />
+    <ClCompile Include="..\wizard1.c" />
+    <ClCompile Include="..\wizard2.c" />
+    <ClCompile Include="..\x-char.c" />
+    <ClCompile Include="..\x-spell.c" />
+    <ClCompile Include="..\xtra1.c" />
+    <ClCompile Include="..\xtra2.c" />
+    <ClCompile Include="..\xtra3.c" />
+    <ClCompile Include="..\z-file.c" />
+    <ClCompile Include="..\z-form.c" />
+    <ClCompile Include="..\z-msg.c" />
+    <ClCompile Include="..\z-quark.c" />
+    <ClCompile Include="..\z-rand.c" />
+    <ClCompile Include="..\z-term.c" />
+    <ClCompile Include="..\z-type.c" />
+    <ClCompile Include="..\z-util.c" />
+    <ClCompile Include="..\z-virt.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>angband</TargetName>
+    <OutDir>$(SolutionDir)\..\..\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>Angband</TargetName>
+    <OutDir>$(SolutionDir)\..\..\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Gdi32.lib;User32.lib;Comdlg32.lib;Shell32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Gdi32.lib;User32.lib;Comdlg32.lib;Shell32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

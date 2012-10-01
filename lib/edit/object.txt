@@ -2031,7 +2031,7 @@ P:0:1d2:0:0:0
 A:30/1
 D:It probes a selected monster within line of sight, giving information
 D: both on the current hit points of the monsters and many of their
-D: characteristics and abilities.
+D: characteristics and abilities.  Can also probe any feature on the map.
 
 
 N:204:Dispel Evil
@@ -2491,7 +2491,7 @@ A:40/4
 F:EASY_KNOW
 D:It probes a selected monster within line of sight,  giving information
 D: both on the current hit points of the monsters and many of their
-D: characteristics and abilities.
+D: characteristics and abilities, or any feature on the map.
 
 
 N:247:Curing

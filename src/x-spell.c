@@ -214,6 +214,7 @@ bool spell_needs_aim(int tval, int spell)
 			case SPELL_REND_SOUL:
 			case SPELL_RIFT:
 			case SPELL_DARKNESS_STORM:
+			case SPELL_METEOR_STORM:
 			case SPELL_MANA_BOLT:
 			case SPELL_WAIL_OF_THE_BANSHEE:
 			{
@@ -2887,7 +2888,7 @@ cptr do_priest_prayer(int mode, int spell, int dir)
 		case PRAYER_PROBING:
 		{
 			if (name) return ("Probing");
-			if (desc) return ("Learns many attributes of a monster or feature in sight.");
+			if (desc) return ("Learns many attributes of a monster or feature in sight, or any feature on the map.");
 			if (cast)
 			{
 				(void)probing();

@@ -3291,7 +3291,7 @@ bool probing(void)
 {
 
 	/*let the player select one monster or feature*/
-	if (!(target_set_interactive(TARGET_GRID, -1, -1)))
+	if (!(target_set_interactive(TARGET_PROBE, -1, -1)))
 	{
 		return(FALSE);
 	}
@@ -6165,7 +6165,7 @@ bool beam_chain(int gf_type, int dam, int max_hits, int decrement)
 			xx = m_ptr->fx;
 
 			/* It must be in the line of fire of the player */
-			if(!projectable(py, px, yy, xx, PROJECT_NONE)) continue;
+			if(!m_ptr->project) continue;
 
 			/* It must be in the line of fire of the previous location */
 			if(!projectable(y, x, yy, xx, PROJECT_NONE)) continue;

@@ -1911,9 +1911,10 @@ static bool place_mon_quest(int lev)
 				if (r_ptr->flags7)	okay = TRUE;
 
 				/* Allow if the monster can attack */
-				if ((r_ptr->flags4 & (RF4_ATTACK_MASK)) ||
-					(r_ptr->flags5 & (RF5_ATTACK_MASK)) ||
-					(r_ptr->flags6 & (RF6_ATTACK_MASK)))
+				if ((r_ptr->flags4 & (RF4_ATTACK_MASK | RF4_BREATH_MASK)) ||
+					(r_ptr->flags5 & (RF5_ATTACK_MASK | RF5_BREATH_MASK)) ||
+					(r_ptr->flags5 & (RF6_ATTACK_MASK | RF6_BREATH_MASK)) ||
+					(r_ptr->flags6 & (RF7_ATTACK_MASK | RF7_BREATH_MASK)))
 					okay = TRUE;
 
 				/* Allow if the monster can bring the player to itself */
@@ -3010,7 +3011,7 @@ void format_quest_indicator(char dest[], int max, byte *attr)
 	else
 	{
 		/* Show the remaining number of monsters */
-		strnfmt(dest, max, "Qst:%d", q_ptr->max_num - q_ptr->cur_num);
+		strnfmt(dest, max, "Qst:%d" , q_ptr->max_num - q_ptr->cur_num);
 		*attr = TERM_L_RED;
 	}
 

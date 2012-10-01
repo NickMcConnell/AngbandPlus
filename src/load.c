@@ -2609,7 +2609,7 @@ bool load_player(void)
 	{
 
 		/* Read the first four bytes */
-		if (!file_read(fff, (char*)(vvv), 8)) err = -1;
+		if (!file_read(fff, (char*)(vvv), 4)) err = -1;
 
 		/* What */
 		if (err) what = "Cannot read savefile";

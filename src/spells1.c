@@ -1606,7 +1606,6 @@ static bool drain_activation(object_type *o_ptr, int time)
 	return (FALSE);
 }
 
-
 /*
  * This seems like a pretty standard "typedef"
  */
@@ -4008,7 +4007,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 	if ((who != SOURCE_OTHER) && !cave_project_bold(y, x) && !cave_passable_bold(y, x)) return (FALSE);
 
 	/* No monster here */
-	if (mon_idx == 0) return (FALSE);
+	if (!mon_idx) return (FALSE);
 
 	/* Never affect projector */
 	if (mon_idx == who) return (FALSE);
@@ -4021,6 +4020,46 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 	l_ptr = &l_list[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
+
+	/*
+	 * Hack - place some limitations on monsters hurting other monsters.
+	 *
+	 * This is mostly to allow breathers to breathe without
+	 */
+	if ((flg & (PROJECT_SAME)) && (who >= SOURCE_MONSTER_START))
+	{
+		monster_type *m2_ptr = &mon_list[who];
+		monster_race *r2_ptr = &r_info[m2_ptr->r_idx];
+
+		/* Reveal if a mimic */
+		if ((m_ptr->mimic_k_idx) && (seen))
+		{
+			/* Reveal it */
+			reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
+		}
+
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+
+		/* Monsters are same race, or uniques suffer no damage */
+		if ((m_ptr->r_idx == m2_ptr->r_idx) || (r_ptr->flags1 & (RF1_UNIQUE)) ||
+			(race_similar_breaths(r_ptr, r2_ptr)) || (m_ptr->mflag & (MFLAG_QUEST)))
+		{
+			if (seen) add_monster_message(m_name, mon_idx, MON_MSG_UNAFFECTED);
+			return(FALSE);
+		}
+
+		/*
+		 * Damage greatly reduced for similar monsters and similar breathers.
+		 *
+		 * (Such as, an ancient blue dragon getting caught in the breath
+		 *  of a medium red dragon.
+		 */
+		if ((race_similar_monsters(who, y, x)) || race_breathes_element(r_ptr, typ))
+		{
+			damage /= 3;
+		}
+	}
 
 	/* If we need a monster to track, use this one. */
 	if ((!p_ptr->health_who) && (who != SOURCE_OTHER) && (seen)) health_track(mon_idx);
@@ -5137,20 +5176,6 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 	/* "Unique" monsters or quest monsters cannot be polymorphed */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) || (m_ptr->mflag & (MFLAG_QUEST))) do_poly = FALSE;
 
-	/* "Unique" monsters can only be "killed" by the player */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		/* Uniques may only be killed by the player */
-		if ((who != SOURCE_PLAYER) && (damage > m_ptr->hp)) damage = m_ptr->hp;
-	}
-
-	/* Hack - "Quest" monsters can only be hurt by the player */
-	if (m_ptr->mflag & (MFLAG_QUEST))
-	{
-		/* Questors may only be killed by the player, or player trap. */
-		if (who != SOURCE_PLAYER) damage = 0;
-	}
-
 	/* Reveal mimics */
 	if (m_ptr->mimic_k_idx)
 	{
@@ -6165,7 +6190,7 @@ bool project_p(int who, int y, int x, int dam, int typ, cptr msg)
 						case 2: k = A_INT; act = "bright"; break;
 						case 3: k = A_WIS; act = "wise"; break;
 						case 4: k = A_DEX; act = "agile"; break;
-						case 5: k = A_CON; act = "hale"; break;
+						case 5: k = A_CON; act = "healthy"; break;
 						case 6: k = A_CHR; act = "beautiful"; break;
 					}
 

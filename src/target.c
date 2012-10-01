@@ -237,7 +237,7 @@ bool target_able(int m_idx)
 	if (m_ptr->mimic_k_idx) return (FALSE);
 
 	/* Monster must be projectable */
-	if (!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) return (FALSE);
+	if (!m_ptr->project) return (FALSE);
 
 	/* Walls protect monsters */
 	if (!cave_project_bold(m_ptr->fy, m_ptr->fx) &&
@@ -590,8 +590,9 @@ static void target_set_interactive_prepare(int mode)
 			 	if (!target_able(cave_m_idx[y][x])) do_continue = TRUE;
 			}
 
-			/* Don't continue on the trap exception*/
+			/* Don't continue on the trap exception, or if probing. */
 			if ((mode & (TARGET_TRAP)) && target_able_trap(y, x)) do_continue = FALSE;
+			else if (mode & (TARGET_PROBE)) do_continue = FALSE;
 
 			if (do_continue) continue;
 
@@ -1748,6 +1749,11 @@ bool target_set_interactive(int mode, int x, int y)
  						target_set_location(y, x);
  						done = TRUE;
  					}
+					else if (mode & (TARGET_PROBE))
+					{
+					 	target_set_location(y, x);
+					 	done = TRUE;
+					}
 					else
 					{
 						bell("Illegal target!");

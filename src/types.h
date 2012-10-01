@@ -663,6 +663,8 @@ struct monster_type
 	u32b mflag;			/* Extra monster flags */
 
 	bool ml;			/* Monster is "visible" */
+	bool project;		/* Player projectables can hit the monster (not quite the same as
+				   	   	    being visible. */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 

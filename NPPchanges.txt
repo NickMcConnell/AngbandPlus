@@ -1,3 +1,21 @@
+NPP 0.5.2 changes:
+Added a flag to monster_type "project" to indicate when the monster is in projectable los to the player.
+Fixed a typo in the message when the player gets their constitution drained by a GF_TIME attack.
+Fixed a bug causing memory leak when a savefile is loaded.
+Fixed a bug that caused probing not to work.
+Fixed a bug that prevented the disturb_near option from working.
+Changed monster AI so monsters will have the option to breathe when the player is in line of sight.  Previously they
+only breathed with clear LOS and with no other monsters in the way.
+Reduced the amount monster breaths dissipate with distance.  100% damage now goes out about 8 squares (instead of 5), 
+and it dissipates at a lower rate.  20 squares away, the damage is around 40% and was previously around 25%.
+Added checks to reduce or eliminate splash damage from monster breaths and ball spells for uniques, quest monsters,
+monsters of the same race, or of the similar race, or for monsters who breathe the same types of breaths.
+Slightly changed how monsters handle being attacked when damaged by the player when the 
+player is out of LOS.
+Made changes to the makefiles to make it easier to compile for MAC.
+Added a routine that ensures there are always enough monsters on a themed level quest.
+Added project files for MS Visual C++ Express (Created by Brian Bull)
+
 
 NPPAngband 0.5.1 changes:
 

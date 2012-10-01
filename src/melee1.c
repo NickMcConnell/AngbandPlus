@@ -2025,8 +2025,8 @@ static void mon_beam(int m_idx, int typ, int dam, int range)
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
-	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
-				PROJECT_PLAY;
+	u32b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
+				PROJECT_PLAY | PROJECT_SAME ;
 
 	/* Target the player with a beam attack */
 	(void)project(m_idx, range, fy, fx, py, px, dam, typ, flg ,0 ,0);
@@ -2045,8 +2045,8 @@ static void mon_ball(int m_idx, int typ, int dam, int rad, int py, int px)
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
-	u32b flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
-				PROJECT_PLAY | PROJECT_WALL | PROJECT_EFCT);
+	u32b flg = (PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | \
+				PROJECT_PLAY | PROJECT_WALL | PROJECT_EFCT | PROJECT_SAME);
 
 	/* Target the player with a ball attack */
 	(void)project(m_idx, rad, fy, fx, py, px, dam, typ, flg, 0, 0);
@@ -2098,14 +2098,14 @@ static void mon_arc(int m_idx, int typ, bool noharm, int dam, int rad, int degre
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
-	u32b flg = (PROJECT_ARC | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM |
+	u32b flg = (PROJECT_ARC | PROJECT_BOOM | PROJECT_GRID | PROJECT_ITEM | PROJECT_SAME | \
 	           PROJECT_KILL | PROJECT_PLAY | PROJECT_WALL | PROJECT_EFCT);
 
 	/* Diameter of source of energy is at least 20. */
 	int diameter_of_source = 20;
 
 	/* XXX XXX -- POWERFUL monster breaths lose less damage with range. */
-	int degree_factor = (r_ptr->flags2 & (RF2_POWERFUL)) ? 120 : 60;
+	int degree_factor = (r_ptr->flags2 & (RF2_POWERFUL)) ? 180 : 90;
 
 	/*unused variable*/
 	(void)noharm;

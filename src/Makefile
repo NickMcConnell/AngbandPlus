@@ -7,7 +7,7 @@ INCLUDE = $(HDRS) $(INCS)
 OBJECTS = $(ANGFILES) $(MAINFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c}
 SUBDIRS = gtk monster object player
-PROG    = angband
+PROG    = NPPangband
 CFLAGS += -I.
 
 angband: $(OBJECTS)

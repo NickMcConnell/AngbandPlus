@@ -19,9 +19,9 @@ CC = gcc
 OPT ?= -O2
 
 # Name of the game
-NAME =Angband
+NAME =NPPAngband
 APPNAME =$(NAME).app
-EXE =angband
+EXE =NPPangband
 
 # Some Developer CD tools we need - the standard installation location
 TOOLDIR = /Developer/Tools
@@ -208,7 +208,7 @@ PACKAGE_NAME = $(NAME)-$(VERSION)
 dist: install
 	@rm -rf disttemp*
 	mkdir -p disttemp/Docs
-	cp ../readme.txt ../changes.txt disttemp/Docs
+	cp ../readme.txt ../NPPchanges.txt disttemp/Docs
 	cp -R -p "$(APPBNDL)" disttemp
 	$(SETFILE) -a B disttemp/$(APPNAME)
 

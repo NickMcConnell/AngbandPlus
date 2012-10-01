@@ -109,25 +109,21 @@ static void find_range(monster_type *m_ptr)
 		/* Spellcasters that don't strike never like to get too close */
 		else if (r_ptr->flags1 & (RF1_NEVER_BLOW)) m_ptr->best_range = 8;
 
-		/*Monsters who have had dangerous attacks happen to them are more extreme*/
+		/*Monsters who have had unfair attacks happen to them charge or cast */
 		else if (m_ptr->mflag & (MFLAG_ATTACKED_BAD))
 		{
-			/*spellcasters want to sit back*/
-			if (r_ptr->freq_ranged) m_ptr->best_range = 8;
-
-			/*those who can't will close immediately*/
-			else m_ptr->min_range = 1;
+			m_ptr->min_range = 1;
 		}
 
 		/* Breathers like point blank range */
-		if (((r_ptr->flags4 & (RF4_BREATH_MASK)) ||
+		else if (((r_ptr->flags4 & (RF4_BREATH_MASK)) ||
 		     (r_ptr->flags5 & (RF5_BREATH_MASK)) ||
 		     (r_ptr->flags6 & (RF6_BREATH_MASK)) ||
 		     (r_ptr->flags7 & (RF7_BREATH_MASK))) &&
 		    (m_ptr->best_range < 6) &&
 		    (m_ptr->hp > m_ptr->maxhp / 2))
 		{
-			m_ptr->best_range = 6;
+			m_ptr->best_range = 7;
 		}
 	}
 
@@ -990,47 +986,156 @@ static int summon_possible(int y1, int x1)
 	return (num_clear);
 }
 
-/*states if monsters on two separate coordinates are similar or not*/
-static bool similar_monsters(int m1y, int m1x, int m2y, int m2x)
+struct gf_type_match_flags
 {
-	monster_type *m_ptr;
-	monster_race *r_ptr;
-	monster_type *n_ptr;
-	monster_race *nr_ptr;
+	int gf_type;	/* The GF type */
+	u32b gf_spell;		/* The monster flag */
+	byte flag_set;	/* Which monster flag set */
+};
 
-	/*first check if there are monsters on both coordinates*/
-	if (!(cave_m_idx[m1y][m1x] > 0)) return(FALSE);
+
+/*
+ * Events triggered by the various flags.
+ */
+static const struct gf_type_match_flags gf_and_flags[] =
+{
+	/* Ball spells */
+	{GF_ACID, 		RF5_BALL_ACID, 		5},
+	{GF_ELEC, 		RF5_BALL_ELEC, 		5},
+	{GF_FIRE, 		RF5_BALL_FIRE, 		5},
+	{GF_COLD, 		RF5_BALL_COLD, 		5},
+	{GF_POIS, 		RF5_BALL_POIS, 		5},
+	{GF_LIGHT, 		RF5_BALL_LIGHT, 	5},
+	{GF_DARK, 		RF5_BALL_DARK, 		5},
+	{GF_CONFUSION, 	RF5_BALL_CONFU, 	5},
+	{GF_SOUND, 		RF5_BALL_SOUND, 	5},
+	{GF_SHARD, 		RF5_BALL_SHARD, 	5},
+	{GF_WATER, 		RF5_BALL_STORM, 	5},
+	{GF_NETHER, 	RF5_BALL_NETHR, 	5},
+	{GF_CHAOS, 		RF5_BALL_CHAOS, 	5},
+	{GF_MANA, 		RF5_BALL_MANA, 		5},
+	{GF_WATER, 		RF5_BALL_WATER, 	5},
+
+	{GF_ACID, 		RF4_BRTH_ACID, 		4},
+	{GF_ELEC, 		RF4_BRTH_ELEC, 		4},
+	{GF_FIRE, 		RF4_BRTH_FIRE, 		4},
+	{GF_COLD, 		RF4_BRTH_COLD, 		4},
+	{GF_POIS, 		RF4_BRTH_POIS, 		4},
+	{GF_LIGHT, 		RF4_BRTH_LIGHT, 	4},
+	{GF_DARK, 		RF4_BRTH_DARK , 	4},
+	{GF_CONFUSION, 	RF4_BRTH_CONFU, 	4},
+	{GF_SOUND, 		RF4_BRTH_SOUND, 	4},
+	{GF_SHARD, 		RF4_BRTH_SHARD, 	4},
+	{GF_NETHER, 	RF4_BRTH_NETHR, 	4},
+	{GF_CHAOS, 		RF4_BRTH_CHAOS, 	4},
+	{GF_MANA, 		RF4_BRTH_MANA, 		4},
+	{GF_DISENCHANT,	RF4_BRTH_DISEN, 	4},
+	{GF_NEXUS, 		RF4_BRTH_NEXUS, 	4},
+	{GF_TIME, 		RF4_BRTH_TIME, 		4},
+	{GF_INERTIA,	RF4_BRTH_INER, 		4},
+	{GF_GRAVITY,	RF4_BRTH_GRAV, 		4},
+	{GF_SHARD, 		RF4_BRTH_SHARD, 	4},
+	{GF_PLASMA,		RF4_BRTH_PLAS, 		4},
+	{GF_FORCE, 		RF4_BRTH_FORCE, 	4},
+	{GF_MANA, 		RF4_BRTH_MANA, 		4},
+
+};
+
+
+/*
+ * Determines if the monster breathes the element, either by
+ * a ball spell, or by a breath spell.
+ */
+bool race_breathes_element(const monster_race *r_ptr, int gf_type)
+{
+	u16b i;
+
+	/* Search through the list for breaths that match the right GF*/
+	for (i = 0; i < N_ELEMENTS(gf_and_flags); i++)
+	{
+		const struct gf_type_match_flags *gff = &gf_and_flags[i];
+
+		/* Find the right GF_TYPE */
+		if (gf_type != gf_and_flags->gf_type) continue;
+
+		/* Return true if the monster race has the right flag */
+		if ((gff->flag_set == 4) &&
+			(r_ptr->flags4 & (gf_and_flags->gf_spell))) return (TRUE);
+		if ((gff->flag_set == 5) &&
+			(r_ptr->flags5 & (gf_and_flags->gf_spell))) return (TRUE);
+		if ((gff->flag_set == 6) &&
+			(r_ptr->flags6 & (gf_and_flags->gf_spell))) return (TRUE);
+		if ((gff->flag_set == 7) &&
+			(r_ptr->flags7 & (gf_and_flags->gf_spell))) return (TRUE);
+	}
+
+	return FALSE;
+}
+
+/*
+ * Return true if monster 2 breathes all of the breaths that monster 1 breathes.
+ */
+bool race_similar_breaths(const monster_race *r_ptr, const monster_race *r2_ptr)
+{
+	u32b f4 = r_ptr->flags4;
+	u32b f5 = r_ptr->flags5;
+	u32b f6 = r_ptr->flags6;
+	u32b f7 = r_ptr->flags7;
+	u32b f4_2 = r2_ptr->flags4;
+	u32b f5_2 = r2_ptr->flags5;
+	u32b f6_2 = r2_ptr->flags6;
+	u32b f7_2 = r2_ptr->flags7;
+
+	/* Limit to the breath masks of each monster.*/
+	f4 &= (RF4_BREATH_MASK);
+	f5 &= (RF5_BREATH_MASK);
+	f6 &= (RF6_BREATH_MASK);
+	f7 &= (RF7_BREATH_MASK);
+	f4_2 &= (RF4_BREATH_MASK);
+	f5_2 &= (RF5_BREATH_MASK);
+	f6_2 &= (RF6_BREATH_MASK);
+	f7_2 &= (RF7_BREATH_MASK);
+
+	/* Now take out everything the second monster breathes */
+	f4 &= ~(f4_2);
+	f5 &= ~(f4_2);
+	f6 &= ~(f4_2);
+	f7 &= ~(f4_2);
+
+
+	/* Second monster breathes everything the first one doesn't */
+	if ((f4) || (f5) || (f6) || (f7)) return (FALSE);
+
+	/* The second monster is the same type or a subset breather of the first */
+	return (TRUE);
+}
+
+/* States if monsters on two separate coordinates are similar or not*/
+bool race_similar_monsters(int m_idx, int m2y, int m2x)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_type *m2_ptr;
+	monster_race *r2_ptr;
+
+	/* First check if there are monsters on the target coordinates. */
 	if (!(cave_m_idx[m2y][m2x] > 0)) return(FALSE);
 
-	/* Access monster 1*/
-	m_ptr = &mon_list[cave_m_idx[m1y][m1x]];
-	r_ptr = &r_info[m_ptr->r_idx];
-
 	/* Access monster 2*/
-	n_ptr = &mon_list[cave_m_idx[m2y][m2x]];
-	nr_ptr = &r_info[n_ptr->r_idx];
+	m2_ptr = &mon_list[cave_m_idx[m2y][m2x]];
+	r2_ptr = &r_info[m2_ptr->r_idx];
 
-	/* Monsters have the same symbol */
-	if (r_ptr->d_char == nr_ptr->d_char) return(TRUE);
-
-	/* Professional courtesy */
-	if ((r_ptr->flags3 & (RF3_EVIL)) && (nr_ptr->flags3 & (RF3_EVIL))) return(TRUE);
+	/* the same character */
+	if (r_ptr->d_char == r2_ptr->d_char) return (TRUE);
 
 	/*
 	 * Same race (we are not checking orcs, giants, or
 	 * trolls because that would be true at
 	 * the symbol check
-	 * Evil probobly covers this as well, but you never know
 	 */
-	if ((r_ptr->flags3 & (RF3_DRAGON)) && (nr_ptr->flags3 & (RF3_DRAGON))) return(TRUE);
-
-	/*
-	 * Same race (we are not checking orcs, giants or
-	 * trolls because that would be true at
-	 * the symbol check
-	 * Evil probobly covers this as well, but you never know
-	 */
-	if ((r_ptr->flags3 & (RF3_DEMON)) && (nr_ptr->flags3 & (RF3_DEMON))) return(TRUE);
+	if ((r_ptr->flags3 & (RF3_DRAGON)) && (r2_ptr->flags3 & (RF3_DRAGON))) return(TRUE);
+	if ((r_ptr->flags3 & (RF3_DEMON)) && (r2_ptr->flags3 & (RF3_DEMON))) return(TRUE);
+	if ((r_ptr->flags3 & (RF3_UNDEAD)) && (r2_ptr->flags3 & (RF3_UNDEAD))) return(TRUE);
 
 	/*We are not checking for animal*/
 
@@ -1583,6 +1688,9 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	int fy = m_ptr->fy;
+	int fx = m_ptr->fx;
+
 	byte *spell_desire;
 
 	u32b f4, f5, f6, f7;
@@ -1592,7 +1700,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	bool do_random = FALSE;
 
 	bool require_los = TRUE;
-
+	bool monster_blocking = FALSE;
 	bool is_breath = FALSE;
 
 	int i;
@@ -1603,6 +1711,10 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 
 	int best_spell=0, best_spell_rating=0;
 	int cur_spell_rating;
+
+	char m_name[80];
+	/* Get the monster name (or "it") */
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
 
 	/* Extract the racial spell flags */
 	f4 = r_ptr->flags4;
@@ -1622,17 +1734,22 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	}
 
 	/* Check what kinds of spells can hit player */
-	path = projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
+	path = projectable(fy, fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
 
 	/* do we have the player in sight at all? */
 	if (path == PROJECT_NO)
 	{
-
 		bool clear_ball_spell = TRUE;
 
-		/*are we in range smart or annoyed (and not stupid), and have access to ball spells?*/
-		if ((m_ptr->cdis < MAX_RANGE) && ((r_ptr->flags2 & (RF2_SMART)) ||
-			 ((m_ptr->mflag & (MFLAG_AGGRESSIVE)) && (!(r_ptr->flags2 & (RF2_STUPID))))) &&
+		/* Note if LOS is blocked by a monster instead of a wall */
+		if (projectable(fy, fx, p_ptr->py, p_ptr->px, PROJECT_NONE))
+		{
+			clear_ball_spell = FALSE;
+			monster_blocking = TRUE;
+		}
+
+		/*are we in range (and not stupid), and have access to ball spells?*/
+		else if ((m_ptr->cdis < MAX_RANGE) && (!(r_ptr->flags2 & (RF2_STUPID))) &&
 			 ((r_ptr->flags4 & (RF4_BALL_MASK)) ||
 			  (r_ptr->flags5 & (RF5_BALL_MASK)) ||
 			  (r_ptr->flags6 & (RF6_BALL_MASK)) ||
@@ -1656,8 +1773,14 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 
 				if (alt_path == PROJECT_NOT_CLEAR)
 				{
-					if (!similar_monsters(m_ptr->fy, m_ptr->fx, alt_y, alt_x)) continue;
+					if (cave_m_idx[alt_y][alt_x])
+					{
+						monster_type *m2_ptr = &mon_list[cave_m_idx[alt_y][alt_x]];
+						monster_race *r2_ptr = &r_info[m2_ptr->r_idx];
 
+						if (!race_similar_monsters(m_idx, alt_y, alt_x)) continue;
+						if (!race_similar_breaths(r_ptr, r2_ptr)) continue;
+					}
 
 					/*we already have a NOT_CLEAR path*/
 					if ((best_path == PROJECT_NOT_CLEAR) && (one_in_(2))) continue;
@@ -1665,7 +1788,8 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 
 				/*
 			 	 * PROJECT_CLEAR, or monster has an
-			 	 * empty square to lob a ball spell at player
+			 	 * empty square or a square with a safe monster
+			 	 *  to lob a ball spell at player
 			  	 */
 				best_y = alt_y;
 				best_x = alt_x;
@@ -1682,7 +1806,16 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 				*tar_y = best_y;
 				*tar_x = best_x;
 			}
+		}
 
+		/* Don't allow breathing if player is not in a projectable path */
+		if (!monster_blocking)
+		{
+			f4 &= ~(RF4_BREATH_MASK);
+			f5 &= ~(RF5_BREATH_MASK);
+			f6 &= ~(RF6_BREATH_MASK);
+			f7 &= ~(RF7_BREATH_MASK);
+			require_los = FALSE;
 		}
 
 		/*We don't have a reason to try a ball spell*/
@@ -1694,11 +1827,6 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 			f7 &= ~(RF7_BALL_MASK);
 		}
 
-		/* Flat out 75% chance of not casting if the player is not in sight */
-		/* In addition, most spells don't work without a player around */
-		if (!one_in_(4)) return (0);
-
-		require_los = FALSE;
 	}
 
 	/* Remove spells the 'no-brainers'*/
@@ -1713,7 +1841,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	}
 
 	/*remove bolts and archery shots*/
-	else if (path == PROJECT_NOT_CLEAR)
+	else if ((path == PROJECT_NOT_CLEAR) || (monster_blocking))
 	{
 		f4 &= ~(RF4_BOLT_MASK);
 		f4 &= ~(RF4_ARCHERY_MASK);
@@ -1723,6 +1851,15 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 		f6 &= ~(RF6_ARCHERY_MASK);
 		f7 &= ~(RF7_BOLT_MASK);
 		f7 &= ~(RF7_ARCHERY_MASK);
+	}
+
+	/*
+	 * Flat out 75% chance of not casting if the player is not in sight
+	 * In addition, most spells don't work without a player around
+	 */
+	if ((path == PROJECT_NO) && (!monster_blocking))
+	{
+		if (!one_in_(4)) return (0);
 	}
 
 	/* No spells left */
@@ -4928,7 +5065,7 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 			else if ((m_ptr->ml) && (disturb_near))
 			{
 
-				if ((m_ptr->mflag & (MFLAG_VIEW)) &&
+				if ((m_ptr->project) ||
 						(((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))) &&
 								(m_ptr->cdis < 3)))
 				{
@@ -5187,6 +5324,8 @@ static s16b process_monster(monster_type *m_ptr)
 	int choice = 0;
 	int dir;
 
+	char m_name[80];
+
 	bool fear = FALSE;
 
 	bool bash = FALSE;
@@ -5260,7 +5399,7 @@ static s16b process_monster(monster_type *m_ptr)
 				(r_ptr->flags1 & (RF1_ESCORT)) ||
 				(r_ptr->flags1 & (RF1_ESCORTS)))
 			{
-				tell_allies(m_ptr->fy, m_ptr->fx, MFLAG_AGGRESSIVE);
+				tell_allies(m_ptr->fy, m_ptr->fx, MFLAG_AGGRESSIVE | MFLAG_ATTACKED_BAD);
 			}
 
 			/*Monsters with ranged attacks will try to cast a spell*/
@@ -5414,9 +5553,6 @@ static s16b process_monster(monster_type *m_ptr)
 
 		}
 
-		/* Now aggravate really aggravates the monsters*/
-		/*else if (p_ptr->state.aggravate) chance += ((100 - chance) / 10);*/
-
 		/*Monsters marked as aggressive or Desperatedo the same*/
 		else if (m_ptr->mflag & (MFLAG_AGGRESSIVE | MFLAG_DESPERATE))
 		{
@@ -5439,6 +5575,8 @@ static s16b process_monster(monster_type *m_ptr)
 		{
 			chance += ((100 - chance) * 3 / 4);
 		}
+
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 		/* Monster can use ranged attacks */
 		if (rand_int(100) < chance)

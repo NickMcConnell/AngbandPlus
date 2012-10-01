@@ -752,7 +752,7 @@ static void process_world(void)
 	if (turn % 10) return;
 
 	/*** Update quests ***/
-	if ((p_ptr->cur_quest) && !(turn % QUEST_TURNS))
+	if (p_ptr->cur_quest) /* playtesting && !(turn % QUEST_TURNS)) */
 	{
 
 		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
@@ -764,6 +764,102 @@ static void process_world(void)
 			if ((q_ptr->q_flags & (QFLAG_STARTED)) && q_ptr->active_level &&
 				((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_UNIQUE)))
 				quest_fail();
+		}
+
+		/* hack - make sure there are enough monsters */
+		if (q_ptr->type == QUEST_THEMED_LEVEL)
+		{
+			if ((q_ptr->max_num - q_ptr->cur_num) > mon_cnt)
+			{
+				int old_feeling = feeling;
+				int i, y, x;
+				int best_r_idx, r_idx;
+				int attempts_left = 10000;
+
+				monster_level = p_ptr->depth + THEMED_LEVEL_QUEST_BOOST;
+
+				/* make a monster */
+				get_mon_hook(q_ptr->theme);
+
+				/* Prepare allocation table */
+				get_mon_num_prep();
+
+				/* mega-hack - undo feeling so monster can be generated */
+				feeling = 0;
+
+				best_r_idx = 0;
+
+				/* Find a legal, distant, unoccupied, space */
+				while (attempts_left)
+				{
+					--attempts_left;
+
+					/* Pick a location */
+					y = rand_int(p_ptr->cur_map_hgt);
+					x = rand_int(p_ptr->cur_map_wid);
+
+					/* Require a grid that all monsters can exist in. */
+					if (!cave_empty_bold(y, x)) continue;
+
+					/* Accept far away grids */
+					if (distance(y, x, p_ptr->py, p_ptr->px) >  MAX_SIGHT + 5) break;
+				}
+
+				if (attempts_left)
+				{
+					monster_race *r_ptr;
+					monster_race *r2_ptr = &r_info[best_r_idx];
+
+					/* 10 chances to get the strongest monster possible */
+					for (i = 0; i < 10; i++)
+					{
+						r_idx = get_mon_num(monster_level, y, x);
+
+						if (!best_r_idx)
+						{
+							best_r_idx = r_idx;
+							r2_ptr = &r_info[best_r_idx];
+							continue;
+						}
+
+						r_ptr = &r_info[r_idx];
+
+						/* Weaker monster.  Don't use it */
+						if (r_ptr->mon_power < r2_ptr->mon_power) continue;
+
+						best_r_idx = r_idx;
+						r2_ptr = &r_info[best_r_idx];
+
+					}
+
+
+					if (place_monster_aux(y, x, best_r_idx, TRUE, FALSE))
+					{
+						/* Scan the monster list */
+						for (i = 1; i < mon_max; i++)
+						{
+							monster_type *m_ptr = &mon_list[i];
+
+							/* Ignore dead monsters */
+							if (!m_ptr->r_idx) continue;
+
+							/*mark it as a quest monster*/
+							m_ptr->mflag |= (MFLAG_QUEST);
+						}
+					}
+				}
+
+				feeling = old_feeling;
+
+				monster_level = p_ptr->depth;
+
+				/* Remove restriction */
+				get_mon_num_hook = NULL;
+
+				/* Prepare allocation table */
+				get_mon_num_prep();
+
+			}
 		}
 	}
 

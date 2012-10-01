@@ -237,7 +237,7 @@
 #define MFLAG_QUEST_SUMMON  0x00100000L  /* Monster was summoned by a questor */
 #define MFLAG_JUST_SCARED   0x00200000L  /* Monster was scared this turn */
 #define MFLAG_BONUS_ITEM    0x00400000L  /* Monster carries a bonus item, for strongholds */
-#define MFLAG_DESPERATE		0x00800000L
+#define MFLAG_DESPERATE		0x00800000L	 /* Monster is desperate */
 
 
 

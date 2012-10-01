@@ -7755,7 +7755,7 @@ static bool build_themed_level(void)
 		}
 
 		/* Attempt to place the monster, allow sleeping, don't allow groups*/
-		(void)place_monster_aux(y, x, r_idx, TRUE, FALSE);
+		if (!place_monster_aux(y, x, r_idx, TRUE, FALSE)) continue;
 
 		/*Don't bother with mimics, mark 1 in 10 monsters for a bonus item */
 		if (cave_m_idx[y][x] > 0)

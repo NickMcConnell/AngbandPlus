@@ -4,7 +4,7 @@
 # Release build: NMAKE /F Makefile.nmake RELEASE=1
 
 
-EXE = Angband.exe
+EXE = NPPAngband.exe
 default: ..\$(EXE)
 exe: $(EXE)
 

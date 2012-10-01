@@ -1005,15 +1005,9 @@ void display_monlist(void)
 		/* If this is the first one of this type, count the type */
 		if (!list[m_ptr->r_idx].count) type_count++;
 
-		/* Check for LOS
-		 * Hack - we should use (m_ptr->mflag & (MFLAG_VIEW)) here,
-		 * but this does not catch monsters detected by ESP which are
-		 * targetable, so we cheat and use projectable() instead
-		 */
-		if (projectable(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx,
-				PROJECT_NONE))
+		/* Check for LOS */
+		if (m_ptr->project)
 		{
-
 			/* Increment the total number of in-LOS monsters */
 			los_count++;
 
@@ -1798,7 +1792,7 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
 
-	/* Compute distance */
+	/* Compute distance and projection status */
 	if (full)
 	{
 		int py = p_ptr->py;
@@ -1816,6 +1810,18 @@ void update_mon(int m_idx, bool full)
 
 		/* Save the distance */
 		m_ptr->cdis = d;
+
+		/* Update projectable status */
+		m_ptr->project = FALSE;
+
+		if (m_ptr->cdis < MAX_SIGHT)
+		{
+			if(projectable(py, px, fy, fx, PROJECT_NONE))
+			{
+				m_ptr->project = TRUE;
+			}
+		}
+
 	}
 
 	/* Extract distance */
@@ -3115,7 +3121,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	if (summoner && (summoner->mflag & (MFLAG_QUEST)))
 	{
 		/* Only for uniques */
-			if (r_info[summoner->r_idx].flags1 & (RF1_UNIQUE)) n_ptr->mflag |= (MFLAG_QUEST_SUMMON);
+		if (r_info[summoner->r_idx].flags1 & (RF1_UNIQUE)) n_ptr->mflag |= (MFLAG_QUEST_SUMMON);
 	}
 
 	/*mark the using_flow as needing updating*/

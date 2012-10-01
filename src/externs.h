@@ -731,6 +731,11 @@ extern void cloud_surround(int r_idx, int *typ, int *dam, int *rad);
 
 /* melee2.c */
 extern void apply_monster_trap(int f_idx, int y, int x, byte mode);
+extern bool race_breathes_element(const monster_race *r_ptr, int gf_type);
+extern bool race_similar_breaths(const monster_race *r_ptr, const monster_race *r2_ptr);
+extern bool race_similar_monsters(int m_idx, int m2y, int m2x);
+
+
 
 #ifdef MONSTER_SMELL
 extern int get_scent(int y, int x);
