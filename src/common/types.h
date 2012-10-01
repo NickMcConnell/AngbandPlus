@@ -376,7 +376,7 @@ struct monster_race
 	/*byte r_xtra1;			changed to time for japanese patch APD Something (unused)
 	  byte r_xtra2;                    Something (unused) */
 	  
-	u16b time;
+	s32b respawn_timer;			/* The amount of time until the unique respawns */
 
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
@@ -405,7 +405,7 @@ typedef struct vault_type vault_type;
 struct vault_type
 {
 	u16b name;			/* Name (offset) */
-	u16b text;			/* Text (offset) */
+	u32b text;			/* Text (offset) */
 
 	byte typ;			/* Vault type */
 
@@ -489,7 +489,7 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
 
-	s16b pval;			/* Item extra-parameter */
+	s32b pval;			/* Item extra-parameter */
 
 	byte discount;		/* Discount (if any) */
 
@@ -732,7 +732,7 @@ struct owner_type
 {
 	cptr owner_name;	/* Name */
 
-	s16b max_cost;		/* Purse limit */
+	s32b max_cost;		/* Purse limit */
 
 	byte max_inflate;	/* Inflation (max) */
 	byte min_inflate;	/* Inflation (min) */

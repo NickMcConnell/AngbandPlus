@@ -1,4 +1,4 @@
-/* $Id: sched.c,v 1.1.1.1 1999/10/26 19:20:52 root Exp $
+/* $Id: sched.c,v 1.2 2000/04/08 04:46:52 adingle Exp $
  *
  * XPilot, a multiplayer gravity war game.  Copyright (C) 1991-95 by
  *
@@ -155,7 +155,7 @@ static void setup_timer(void)
     /*
      * Install a real-time timer.
      */
-    if (timer_freq <= 0 || timer_freq > 100) {
+    if (timer_freq <= 0) {
 	plog(format("illegal timer frequency: %ld", timer_freq));
 	exit(1);
     }

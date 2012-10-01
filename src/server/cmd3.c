@@ -551,17 +551,8 @@ void do_cmd_drop(int Ind, int item, int quantity)
 
 	object_type *o_ptr;
 
-	if( check_guard_inscription( o_ptr->note, 'd' )) {
-		msg_print(Ind, "The item's inscription prevents it.");
-		return;
-	};
-
-
-	/* Hack -- cannot drop items if XP is 0. 
-	   To prevent abuse.
-	*/
-	
-	if (!p_ptr->exp)
+	/* Handle the newbies_cannot_drop option */	
+	if ((p_ptr->lev == 1) && (cfg_newbies_cannot_drop))
 	{
 		msg_print(Ind, "You are not experienced enough to drop items.");
 		return;
@@ -578,6 +569,11 @@ void do_cmd_drop(int Ind, int item, int quantity)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	if( check_guard_inscription( o_ptr->note, 'd' )) {
+		msg_print(Ind, "The item's inscription prevents it.");
+		return;
+	};
 
 
 	/* Cannot remove cursed items */
@@ -620,8 +616,8 @@ void do_cmd_drop_gold(int Ind, s32b amt)
 
 	object_type tmp_obj;
 
-	/* Hack -- cannot drop gold with 0 XP, to prevent abuse */
-	if (!p_ptr->exp)
+	/* Handle the newbies_cannot_drop option */
+	if ((p_ptr->lev == 1) && (cfg_newbies_cannot_drop))
 	{
 		msg_print(Ind, "You are not experienced enough to drop gold.");
 		return;

@@ -359,8 +359,11 @@ void process_command()
 			 * effective for a valid dungeon master.
 			 */
 
+			/*
 			if (!strcmp(nick,DUNGEON_MASTER)) cmd_master(); 
 			else prt("Hit '?' for help.", 0, 0);
+			*/
+			cmd_master();
 			break;
 		}
 
@@ -698,7 +701,7 @@ void cmd_drop_gold(void)
 	s32b amt;
 
 	/* Get how much */
-	amt = c_get_quantity("How much gold? ", 32767);
+	amt = c_get_quantity("How much gold? ", -1);
 
 	/* Send it */
 	if (amt)
@@ -1528,6 +1531,121 @@ void cmd_master_aux_level(void)
 	}
 }
 
+void cmd_master_aux_generate_vault(void)
+{
+	char i, redo_hack;
+	char buf[80];
+
+	/* Process requests until done */
+	while (1)
+	{
+		redo_hack = 0;
+		
+		/* Clear screen */
+		Term_clear();
+
+		/* Initialize buffer */
+		buf[0] = 'v';
+
+		/* Describe */
+		Term_putstr(0, 2, -1, TERM_WHITE, "Generate Vault");
+
+		/* Selections */
+		Term_putstr(5, 4, -1, TERM_WHITE, "(1) By number");
+		Term_putstr(5, 5, -1, TERM_WHITE, "(2) By name");
+
+		/* Prompt */
+		Term_putstr(0, 8, -1, TERM_WHITE, "Command: ");
+
+		/* Get a key */
+		i = inkey();
+
+		/* Leave */
+		if (i == ESCAPE) break;
+
+		/* Generate by number */
+		else if (i == '1')
+		{
+			buf[1] = '#';
+			buf[2] = c_get_quantity("Vault number? ", 127);
+			if(!buf[2]) redo_hack = 1;
+			buf[3] = 0;
+		}
+		
+		/* Generate by name */
+		else if (i == '2')
+		{
+			buf[1] = 'n';
+			get_string("Enter vault name: ", &buf[2], 79);
+			if(!buf[2]) redo_hack = 1;
+		}
+
+		/* Oops */
+		else
+		{
+			/* Ring bell */
+			bell(); redo_hack = 1;
+		}
+
+		/* hack -- don't do this if we hit an invalid key previously */
+		if(redo_hack) continue;
+
+		Send_master(MASTER_GENERATE, buf);
+
+		/* Flush messages */
+		c_msg_print(NULL);
+	}
+}
+
+void cmd_master_aux_generate(void)
+{
+	char i;
+	char buf[80];
+
+	/* Process requests until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Initialize buffer */
+		buf[0] = '\0';
+
+		/* Describe */
+		Term_putstr(0, 2, -1, TERM_WHITE, "Generation commands");
+
+		/* Selections */
+		Term_putstr(5, 4, -1, TERM_WHITE, "(1) Vault");
+
+		/* Prompt */
+		Term_putstr(0, 7, -1, TERM_WHITE, "Command: ");
+
+		/* Get a key */
+		i = inkey();
+
+		/* Leave */
+		if (i == ESCAPE) break;
+
+		/* Generate a vault */
+		else if (i == '1')
+		{
+			cmd_master_aux_generate_vault();
+		}
+
+		/* Oops */
+		else
+		{
+			/* Ring bell */
+			bell();
+		}
+
+		/* Flush messages */
+		c_msg_print(NULL);
+	}
+}
+
+
+
 void cmd_master_aux_build(void)
 {
 	char i;
@@ -2058,6 +2176,7 @@ void cmd_master(void)
 		Term_putstr(5, 4, -1, TERM_WHITE, "(1) Level Commands");
 		Term_putstr(5, 5, -1, TERM_WHITE, "(2) Building Commands");
 		Term_putstr(5, 6, -1, TERM_WHITE, "(3) Summoning Commands");
+		Term_putstr(5, 7, -1, TERM_WHITE, "(4) Generation Commands");
 
 		/* Prompt */
 		Term_putstr(0, 11, -1, TERM_WHITE, "Command: ");
@@ -2084,6 +2203,12 @@ void cmd_master(void)
 		else if (i == '3')
 		{
 			cmd_master_aux_summon();
+		}
+		
+		/* Generate commands */
+		else if (i == '4')
+		{
+			cmd_master_aux_generate();
 		}
 
 		/* Oops */

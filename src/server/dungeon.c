@@ -16,7 +16,6 @@
 
 
 
-
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
@@ -1286,7 +1285,7 @@ static int auto_retaliate(int Ind)
 	dis = 999;
 
 	/* The dungeon master does not fight his offspring */
-	if (!strcmp(p_ptr->name, DUNGEON_MASTER)) return FALSE;
+	if (!strcmp(p_ptr->name, cfg_dungeon_master)) return FALSE;
 
 	/* Check each monster */
 	for (i = 1; i < m_max; i++)
@@ -1579,44 +1578,11 @@ static void process_player(int Ind)
 */
 static void process_various(void)
 {
-	int i, y, x;
+	int i, j, y, x, num_on_depth;
 	cave_type *c_ptr;
-
+	player_type *p_ptr;
 
 	char buf[1024];
-	if (!(turn % (FPS * 600)))
-	{
-		for (i = 1; i < MAX_R_IDX-1; i++)
-		{
-			monster_race *r_ptr = &r_info[i];
-	                                                
-			/* Check for unique-ness */
-			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-			if (r_ptr->max_num > 0) continue;
-
-   			if (r_ptr->time > COME_BACK_TIME * (r_ptr->level + 1))
-   			{
-    				if (COME_BACK_TIME <= COME_BACK_TIME_MAX)
-   				{
-  					r_ptr->time = COME_BACK_TIME * (r_ptr->level + 1);
-  				}
-  				else 
-  				{
-  					r_ptr->time = COME_BACK_TIME_MAX;
-  					r_ptr->time *= (r_ptr->level + 1);
-  				}
-  			}
-    			if (r_ptr->time) r_ptr->time -= 10;
-    			else 
-    			{
-    				r_ptr->max_num = 1;
-    				sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));
-    				
-    				/* Tell every player */
-    				msg_broadcast(0,buf);    				    				
-    			}	    			
- 		}
-	}
 
 	/* Save the server state occasionally */
 	if (!(turn % (10L * SERVER_SAVE)))
@@ -1630,6 +1596,73 @@ static void process_various(void)
 			save_player(i);
 		}
 	}
+
+	// Once per minute, handle unique and level respawning
+	if (!(turn % (cfg_fps * 60)))
+	{
+		for (i = 1; i < MAX_R_IDX-1; i++)
+		{
+			monster_race *r_ptr = &r_info[i];
+	                                                
+			/* Make sure we are looking at a dead unique */
+			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+			if (r_ptr->max_num > 0) continue;
+
+			/* Hack -- Initially set a newly killed uniques respawn timer */
+			/* -1 denotes that the respawn timer is unset */
+   			if (r_ptr->respawn_timer < 0) 
+   			{
+				r_ptr->respawn_timer = cfg_unique_respawn_time * (r_ptr->level + 1);
+				if (r_ptr->respawn_timer > cfg_unique_max_respawn_time)
+  					r_ptr->respawn_timer = cfg_unique_max_respawn_time;
+  			}
+			// Decrament the counter 
+			else r_ptr->respawn_timer--; 
+			// Once the timer hits 0, ressurect the unique.
+			if (!r_ptr->respawn_timer)
+    			{
+				/* "Ressurect" the unique */
+    				r_ptr->max_num = 1;
+				r_ptr->respawn_timer = -1;
+
+    				/* Tell every player */
+    				sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));
+    				msg_broadcast(0,buf); 
+    			}	    			
+ 		}
+
+		// If the level unstaticer is not disabled
+		if (cfg_level_unstatic_chance > 0)
+		{
+			// For each dungeon level
+			for (i = 1; i < MAX_DEPTH; i++)
+			{
+				// If this depth is static
+				if (players_on_depth[i])
+				{
+					num_on_depth = 0;
+					// Count the number of players actually in game on this depth
+					for (j = 1; j < NumPlayers + 1; j++)
+					{
+						p_ptr = Players[j];
+						if (p_ptr->dun_depth == i) num_on_depth++;
+					}
+					// If this level is static and no one is actually on it
+					if (!num_on_depth)
+					{
+						// random chance of the level unstaticing
+						// the chance is one in (base_chance * depth)/250 feet.
+						if (!rand_int(((cfg_level_unstatic_chance * (i+5))/5)-1))
+						{
+							// unstatic the level
+							players_on_depth[i] = 0;
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 	/* Grow trees very occasionally */
 	if (!(turn % (10L * GROW_TREE)))
@@ -1765,7 +1798,7 @@ static void process_various(void)
  * various inputs and timings.
  */
 
-static void dungeon(void)
+void dungeon(void)
 {
 	int i, d;
 	byte *w_ptr;
@@ -1822,6 +1855,7 @@ static void dungeon(void)
 				if (j)
 					dealloc_dungeon_level(j);
 			}
+
 		}
 
 
@@ -1941,6 +1975,10 @@ static void dungeon(void)
 
 			/* Must have an "empty" grid */
 			if (!cave_empty_bold(Depth, y, x)) continue;
+
+			/* Not allowed to go onto a icky location (house) if Depth <= 0 */
+			if ((Depth <= 0) && (cave[Depth][y][x].info & CAVE_ICKY))
+				continue;
 
 			break;
 		}
@@ -2317,7 +2355,7 @@ void play_game(bool new_game)
 		quit("Couldn't set up net server");
 
 	/* Set up the main loop */
-	install_timer_tick(dungeon, FPS);
+	install_timer_tick(dungeon, cfg_fps);
 
 	/* Loop forever */
 	sched();

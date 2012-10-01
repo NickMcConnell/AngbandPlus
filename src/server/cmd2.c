@@ -34,7 +34,7 @@ void do_cmd_go_up(int Ind)
 	c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
 
 	/* Verify stairs if not a ghost, or admin wizard */
-	if (!p_ptr->ghost && (strcmp(p_ptr->name,ADMIN_WIZARD)) && c_ptr->feat != FEAT_LESS)
+	if (!p_ptr->ghost && (strcmp(p_ptr->name,cfg_admin_wizard)) && c_ptr->feat != FEAT_LESS)
 	{
 		msg_print(Ind, "I see no up staircase here.");
 		return;
@@ -107,7 +107,7 @@ void do_cmd_go_down(int Ind)
 	c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
 
 	/* Verify stairs */
-	if (!p_ptr->ghost && (strcmp(p_ptr->name,ADMIN_WIZARD)) && c_ptr->feat != FEAT_MORE)
+	if (!p_ptr->ghost && (strcmp(p_ptr->name,cfg_admin_wizard)) && c_ptr->feat != FEAT_MORE)
 	{
 		msg_print(Ind, "I see no down staircase here.");
 		return;
@@ -649,7 +649,7 @@ void do_cmd_open(int Ind, int dir)
 				object_type *o_ptr = &p_ptr->inventory[j];
 
 				/* Check for a key */
-				if ( (o_ptr->tval == TV_KEY && o_ptr->pval == i) || (!(strcmp(p_ptr->name,ADMIN_WIZARD))) )
+				if ( (o_ptr->tval == TV_KEY && o_ptr->pval == i) || (!(strcmp(p_ptr->name,cfg_admin_wizard))) )
 				{
 					/* Open the door */
 					c_ptr->feat = FEAT_HOME_OPEN;
@@ -664,7 +664,7 @@ void do_cmd_open(int Ind, int dir)
 					if (!houses[i].owned)
 					{
 						/* Assume one key */
-						if (strcmp(p_ptr->name, ADMIN_WIZARD)) houses[i].owned = 1;
+						if (strcmp(p_ptr->name, cfg_admin_wizard)) houses[i].owned = 1;
 					} 
 
 					/* Update some things */
@@ -1734,7 +1734,7 @@ void do_cmd_run(int Ind, int dir)
 	for (i = 0; i < m_max; i++)
 	{
 		/* Hack -- the dungeon master can always run */
-		if (!strcmp(p_ptr->name,DUNGEON_MASTER)) break;
+		if (!strcmp(p_ptr->name,cfg_dungeon_master)) break;
 
 		/* Check this monster */
 		if (p_ptr->mon_los[i] && !m_list[i].csleep)
@@ -2812,7 +2812,8 @@ void do_cmd_purchase_house(int Ind, int dir)
 	int Depth = p_ptr->dun_depth;
 
 	int y, x, i, j;
-	int price, factor;
+	int factor;
+	long long price; // I'm hoping this will be 64 bits.  I dont know if it will be portable.
 	cave_type *c_ptr;
 	object_type key;
 
@@ -2845,10 +2846,10 @@ void do_cmd_purchase_house(int Ind, int dir)
 
 		/* Take player's CHR into account */
 		factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-		if (houses[i].price < 3000000)
+		//if (houses[i].price < 3000000)
 			price = houses[i].price * factor / 100;
 		/* Hack -- ignore CHR to prevent overflow */
-		else price = houses[i].price;
+		//else price = houses[i].price;
 
 		/* Check for already-owned house */
 		if (houses[i].owned)
@@ -2899,7 +2900,7 @@ void do_cmd_purchase_house(int Ind, int dir)
 				
 			}
 		
-			if (!strcmp(p_ptr->name,ADMIN_WIZARD))
+			if (!strcmp(p_ptr->name,cfg_admin_wizard))
 			{
 				houses[i].owned = 0;
 				

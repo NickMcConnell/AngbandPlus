@@ -37,7 +37,7 @@
  
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * This value specifys the suffix to the version info sent to the metaserver.
@@ -297,6 +297,7 @@
 #define	MASTER_LEVEL	1
 #define MASTER_BUILD	2
 #define	MASTER_SUMMON	3
+#define MASTER_GENERATE	4
 
 #define	MASTER_SUMMON_SPEFIC	0	
 #define	MASTER_SUMMON_
@@ -328,15 +329,16 @@
 /*
  * The commands that can be given to the new console
  */
-#define CONSOLE_STATUS		10
-#define CONSOLE_PLAYER_INFO	11
-#define CONSOLE_ARTIFACT_LIST	12
-#define CONSOLE_UNIQUE_LIST	13
-#define CONSOLE_CHANGE_ARTIFACT	14
-#define CONSOLE_CHANGE_UNIQUE	15
-#define CONSOLE_SHUTDOWN	16
-#define CONSOLE_MESSAGE		17
-#define CONSOLE_KICK_PLAYER	18
+#define CONSOLE_STATUS			  10
+#define CONSOLE_PLAYER_INFO		  11
+#define CONSOLE_ARTIFACT_LIST		  12
+#define CONSOLE_UNIQUE_LIST		  13
+#define CONSOLE_CHANGE_ARTIFACT		  14
+#define CONSOLE_CHANGE_UNIQUE		  15
+#define CONSOLE_SHUTDOWN		  16
+#define CONSOLE_MESSAGE			  17
+#define CONSOLE_KICK_PLAYER		  18
+#define CONSOLE_RELOAD_SERVER_PREFERENCES 19
 
 /*
  * The replies that the new console can send

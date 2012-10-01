@@ -2,6 +2,10 @@
 
 /* Purpose: Angband specific configuration stuff */
 
+/* Note : Much of the functionality of this file is being phased into
+ * mangband.cfg.  This will allow server reconfiguration without recompilation.
+ */
+
 /*
  * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
  *
@@ -196,8 +200,8 @@
  * players on.  Define this to be an empty string if you don't want to
  * report to a metaserver.
  */
-/* #define META_ADDRESS "mangband.mit.edu" */
-#define	META_ADDRESS "mangband.mit.edu" 
+#define	META_ADDRESS "mangband.org"  
+//#define		META_ADDRESS ""
 
 /*
  * OPTION: Set a vhost bind address.  This is only used if you have
@@ -206,9 +210,9 @@
  * Note that this allows multiple servers to run on a single
  * machine as well.
  * Probably almost never used.
-#define	BIND_NAME "mangband.org" 
-#define	BIND_IP "198.252.166.15" 
 */
+//#define	BIND_NAME "mangband.org" 
+//#define	BIND_IP "198.252.166.15" 
 
 
 /* Define the password for the server console, used if NEW_SERVER_CONSOLE
@@ -225,6 +229,14 @@
 
 #define 	ADMIN_WIZARD	"Serverchez"
 #define		DUNGEON_MASTER	"DungeonMaster"
+
+/* for the unique respawn... */
+#define COME_BACK_TIME 480
+
+/* Base probability of a level unstaticing */
+/* Roughly once an hour (10 fps, 3600 seconds in an hour) */
+#define LEVEL_UNSTATIC_PROB 36000
+
 
 /* OPTION : Keep the town backwards compatible with some previous development
  * versions, specifically those that have a broken auction house.  You probably
@@ -513,9 +525,6 @@
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
 #endif
-
-/* for the unique respawn... */
-#define COME_BACK_TIME 480
 
 
 /*

@@ -31,7 +31,7 @@ bool set_blind(int Ind, int v)
 	bool notice = FALSE;
 
 	/* the admin wizard can not be blinded */
-	if (!strcmp(p_ptr->name, ADMIN_WIZARD)) return 1;
+	if (!strcmp(p_ptr->name, cfg_admin_wizard)) return 1;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1160,7 +1160,7 @@ bool set_stun(int Ind, int v)
 
 
 	/* hack -- the admin wizard can not be stunned */
-	if (!strcmp(p_ptr->name, ADMIN_WIZARD)) return TRUE;
+	if (!strcmp(p_ptr->name, cfg_admin_wizard)) return TRUE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2018,11 +2018,6 @@ void monster_death(int Ind, int m_idx)
   
     		/* Tell every player */
     		msg_broadcast(Ind, buf);
-    		
-		/* reset the respawn time */		
-		if (COME_BACK_TIME <= COME_BACK_TIME_MAX) 
-		r_ptr->time = COME_BACK_TIME * (r_ptr->level + 1);
-		else r_ptr->time = COME_BACK_TIME_MAX * (r_ptr->level + 1);		
 	}
 
 	/* Mega-Hack -- drop "winner" treasures */
@@ -2180,7 +2175,7 @@ void player_death(int Ind)
 				/* No more killer */
 				r_ptr->killer = 0;
 				
-				r_ptr->time = 0;
+				r_ptr->respawn_timer = -1;
 				
 				/* Tell every player */ 
 				sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));							
@@ -2221,8 +2216,9 @@ void player_death(int Ind)
 		sprintf(buf, "The unbeatable %s has retired to a warm, sunny climate.", p_ptr->name);
 
 	/* Tell the players */
-	/* Tell about everyone except DungeonMaster's death */
-	if (strcmp(p_ptr->name,DUNGEON_MASTER)) msg_broadcast(Ind, buf);
+	/* handle the secret_dungeon_master option */
+	if ((strcmp(p_ptr->name,cfg_dungeon_master)) || (!cfg_secret_dungeon_master)) 
+		msg_broadcast(Ind, buf);
 
 	/* Drop gold if player has any */
 	if (p_ptr->alive && p_ptr->au)
@@ -2296,7 +2292,7 @@ void player_death(int Ind)
 			/* No more killer */
 			r_ptr->killer = 0;
 			
-			r_ptr->time = 0;
+			r_ptr->respawn_timer = 0;
 			sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));
 				
 			/* Tell every player */
@@ -2372,6 +2368,9 @@ void player_death(int Ind)
 	/* Remove the death flag */
 	p_ptr->death = 0;
 
+	/* Cancel any WOR spells */
+	p_ptr->word_recall = 0;
+
 	/* He is carrying nothing */
 	p_ptr->inven_cnt = 0;
 
@@ -2406,7 +2405,7 @@ void resurrect_player(int Ind)
 	player_type *p_ptr = Players[Ind];
 
 	/* Hack -- the dungeon master can not ressurect */
-	if (!strcmp(p_ptr->name,DUNGEON_MASTER)) return;
+	if (!strcmp(p_ptr->name,cfg_dungeon_master)) return;
 
 	/* Reset ghost flag */
 	p_ptr->ghost = 0;
@@ -4069,3 +4068,50 @@ bool master_summon(int Ind, char * parms)
 
 	return TRUE;
 }
+
+vault_type *get_vault(char *name)
+{
+	int i;
+	
+	for(i=0; i<MAX_V_IDX; i++)
+	{
+		if(strstr(v_name + v_info[i].name, name))
+			return &v_info[i];
+	}
+
+	return NULL;
+}
+
+/* Generate something */
+bool master_generate(int Ind, char * parms)
+{
+	/* get the player pointer */
+	player_type *p_ptr = Players[Ind];
+
+	switch (parms[0])
+	{
+		/* generate a vault */
+		case 'v':
+		{
+			vault_type *v_ptr = NULL;
+			
+			switch(parms[1])
+			{
+				case '#':
+					v_ptr = &v_info[parms[2]];
+					break;
+				case 'n':
+					v_ptr = get_vault(&parms[2]);
+			}
+			
+			if(!v_ptr || !v_ptr->wid) return FALSE;
+
+			build_vault(p_ptr->dun_depth, p_ptr->py, p_ptr->px, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+
+			break;
+		}
+	}
+	return TRUE;
+}
+
+

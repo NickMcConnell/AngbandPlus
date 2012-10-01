@@ -573,7 +573,7 @@ errr check_time_init(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "time.txt");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "time.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -697,7 +697,7 @@ errr check_load_init(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "load.txt");
+	path_build(buf, 1024, ANGBAND_DIR_TEXT, "load.txt");
 
 	/* Open the "load" file */
 	fp = my_fopen(buf, "r");
@@ -1106,20 +1106,7 @@ static bool do_cmd_help_aux(int Ind, cptr name, cptr what, int line, int color)
 		sprintf(caption, "Help file '%s'", name);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_HELP, name);
-
-		/* Open the file */
-		fff = my_fopen(path, "r");
-	}
-
-	/* Look in "info" */
-	if (!fff)
-	{
-		/* Caption */
-		sprintf(caption, "Info file '%s'", name);
-
-		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_INFO, name);
+		path_build(path, 1024, ANGBAND_DIR_TEXT, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -1639,87 +1626,6 @@ long total_points(int Ind)
 }
 
 
-
-/*
- * Centers a string within a 31 character string		-JWT-
- */
-#if 0
-static void center_string(char *buf, cptr str)
-{
-	int i, j;
-
-	/* Total length */
-	i = strlen(str);
-
-	/* Necessary border */
-	j = 15 - i / 2;
-
-	/* Mega-Hack */
-	(void)sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
-}
-#endif
-
-
-/*
- * Save a "bones" file for a dead character
- *
- * Note that we will not use these files until Angband 2.8.0, and
- * then we will only use the name and level on which death occured.
- *
- * Should probably attempt some form of locking...
- */
-static void make_bones(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-
-	FILE                *fp;
-
-	char                str[1024];
-
-
-	/* Ignore wizards and borgs */
-	if (!(p_ptr->noscore & 0x00FF))
-	{
-		/* Ignore people who die in town */
-		if (p_ptr->dun_depth)
-		{
-			char tmp[128];
-
-			/* XXX XXX XXX "Bones" name */
-			sprintf(tmp, "bone.%03d", p_ptr->dun_depth);
-
-			/* Build the filename */
-			path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
-
-			/* Attempt to open the bones file */
-			fp = my_fopen(str, "r");
-
-			/* Close it right away */
-			if (fp) my_fclose(fp);
-
-			/* Do not over-write a previous ghost */
-			if (fp) return;
-
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
-
-			/* Try to write a new "Bones File" */
-			fp = my_fopen(str, "w");
-
-			/* Not allowed to write it?  Weird. */
-			if (!fp) return;
-
-			/* Save the info */
-			fprintf(fp, "%s\n", p_ptr->name);
-			fprintf(fp, "%d\n", p_ptr->mhp);
-			fprintf(fp, "%d\n", p_ptr->prace);
-			fprintf(fp, "%d\n", p_ptr->pclass);
-
-			/* Close and save the Bones file */
-			my_fclose(fp);
-		}
-	}
-}
 
 
 /*
@@ -2442,7 +2348,7 @@ void add_high_score(int Ind)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "scores.raw");
 
 	/* Open the high score file, for reading/writing */
 	highscore_fd = fd_open(buf, O_RDWR);
@@ -2510,8 +2416,9 @@ void close_game(void)
 			/* Save memories */
 			if (!save_player(i)) msg_print(i, "death save failed!");
 
-			/* Dump bones file */
+			/* Dump bones file 
 			make_bones(i);
+			*/
 
 			/* Show more info */
 			show_info(i);
@@ -2560,7 +2467,7 @@ void display_scores(int Ind, int line)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "scores.raw");
 
 	/* Open the binary high score file, for reading */
 	highscore_fd = fd_open(buf, O_RDONLY);

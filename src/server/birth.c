@@ -721,17 +721,17 @@ static void get_money(int Ind)
 	/* Save the gold */
 	p_ptr->au = gold;
 	
-	if (!strcmp(p_ptr->name,ADMIN_WIZARD)) 
+	if (!strcmp(p_ptr->name,cfg_admin_wizard)) 
 	{
 		/* the admin wizard can basically do what he wants */
-		p_ptr->au = 500000;
+		p_ptr->au = 50000000;
 		p_ptr->lev = 50;
 		p_ptr->exp = 15000000;
 		p_ptr->noscore = 1;
 		/* permanent invulnerability */
 		p_ptr->invuln = -1;
 	}
-	if (!strcmp(p_ptr->name,DUNGEON_MASTER))
+	if (!strcmp(p_ptr->name,cfg_dungeon_master))
 	{
 		p_ptr->lev = 50;
 		p_ptr->exp = 15000000;
@@ -909,43 +909,223 @@ static void player_outfit(int Ind)
 	(void)inven_carry(Ind, o_ptr);
 
 	/* 
-	 * Give the ADMIN_WIZARD some interesting stuff.
-	 *
-	 if (!strcmp(p_ptr->name,ADMIN_WIZARD))
-	 {	 
-	 	invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_INT));
-		o_ptr->number = 15;
+	 * Give the cfg_admin_wizard some interesting stuff.
+	 */
+#if 0
+	 if (!strcmp(p_ptr->name,cfg_admin_wizard))
+	{ 
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_EXPERIENCE));
+		o_ptr->number = 99;
 		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-	
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_EXPERIENCE));
-		o_ptr->number = 1;
+
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
+		o_ptr->number = 20;
 		o_ptr->discount = 100;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+/*
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
+		o_ptr->number = 18;
+		o_ptr->discount = 0;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_RESTORE_MANA));
+		o_ptr->number = 22;
+		o_ptr->discount = 0;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
+		o_ptr->number = 33;
+		o_ptr->discount = 0;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL));
+		o_ptr->number = 18;
+		o_ptr->discount = 0;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+		*/
+
+		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
+		o_ptr->number = 99;
+		o_ptr->discount = 100;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+	/*	
+		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 5));
+		o_ptr->number = 1;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 6));
+		o_ptr->number = 1;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 7));
+		o_ptr->number = 1;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_PRAYER_BOOK, 8));
+		o_ptr->number = 1;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+	*/
+
+		invcopy(o_ptr, lookup_kind(TV_BOW, SV_HEAVY_XBOW));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_VELOCITY;
+		o_ptr->to_h = 11;
+		o_ptr->to_d = 28;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_LITE, SV_LITE_FEANOR));
+		o_ptr->number = 1;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 		
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_CON));
-		o_ptr->number = 3;
-		o_ptr->discount = 0;
+
+		invcopy(o_ptr, lookup_kind(TV_SWORD, SV_RAPIER));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_WEST;
+		o_ptr->to_h = 10;
+		o_ptr->to_d = 15;
+		o_ptr->pval = 2; // plus 2
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_SALT_WATER));
-		o_ptr->number = 3;
-		o_ptr->discount = 0;
+		/*
+		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_AMAN;
+		o_ptr->to_a = 25;
+		o_ptr->xtra1 = EGO_XTRA_POWER;
+		o_ptr->xtra2 = 2; // 2 should be resist sound...
+		o_ptr->pval = 3; // plus 3 to stealth (hopefully...)
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+		*/
+
+		invcopy(o_ptr, lookup_kind(TV_CLOAK, SV_CLOAK));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_AMAN;
+		o_ptr->to_a = 24;
+		o_ptr->xtra1 = EGO_XTRA_POWER;
+		o_ptr->xtra2 = 6; // 6 should be chaos
+		o_ptr->pval = 2; // plus 2 to stealth 
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
 
-		a_ptr = &a_info[ART_CALRIS];
+		/*
+		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_SPEED;
+		o_ptr->to_a = 10;
+		o_ptr->pval = 10; // plus 10 to speed (hopefully...)
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+		*/
+
+		invcopy(o_ptr, lookup_kind(TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_SPEED;
+		o_ptr->to_a = 10;
+		o_ptr->pval = 10; // plus 10 to speed (hopefully...)
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_SHIELD, SV_SMALL_METAL_SHIELD));
+		o_ptr->number = 1;
+		o_ptr->name2 = EGO_ENDURANCE; // resistance
+		o_ptr->to_a = 15;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_CROWN, SV_GOLDEN_CROWN));
+		o_ptr->number = 2;
+		o_ptr->name2 = EGO_MAGI;
+		o_ptr->xtra1 = EGO_XTRA_ABILITY;
+		o_ptr->xtra2 = 3; // telepathy...
+		o_ptr->pval = 2; // plus 2 to INT
+		o_ptr->to_a = 10;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_GLOVES, SV_SET_OF_CESTI));
+		o_ptr->number = 2;
+		o_ptr->name2 = EGO_AGILITY;
+		o_ptr->pval = 4; 
+		o_ptr->to_a = 20;
+		//o_ptr->to_h = 5;
+		//o_ptr->to_d = 5;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		/*
+		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_SLAYING));
+		o_ptr->number = 1;
+		o_ptr->to_h = 9;
+		o_ptr->to_d = 15;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_INT));
+		o_ptr->number = 1;
+		o_ptr->pval = 6;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+		*/
+
+		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_SPEED));
+		o_ptr->number = 1;
+		o_ptr->pval = 12;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_RING, SV_RING_DAMAGE));
+		o_ptr->number = 1;
+		o_ptr->to_d = 20;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		invcopy(o_ptr, lookup_kind(TV_AMULET, SV_AMULET_WISDOM));
+		o_ptr->number = 1;
+		o_ptr->pval = 6;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		/*
+		invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_CHAOS));
+		o_ptr->number = 1;
+		o_ptr->to_a = 23;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+		*/
+
+		invcopy(o_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_BALANCE));
+		o_ptr->number = 1;
+		o_ptr->to_a = 17;
+		object_known(o_ptr);
+		(void)inven_carry(Ind, o_ptr);
+
+		a_ptr = &a_info[ART_FINGOLFIN];
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 		invcopy(o_ptr, k_idx);
-		o_ptr->name1 = ART_CALRIS;
+		o_ptr->name1 = ART_FINGOLFIN;
 		o_ptr->number = 1;
-		  hack -- make CALRIS CALRIS 
-		apply_magic(0,o_ptr,0,0,0,1);
+		apply_magic(0,o_ptr,0,0,0,0);
+		object_known(o_ptr);
 		inven_carry(Ind, o_ptr);
-	} */
+	}
+#endif
 	
 	/* Hack -- Give the player three useful objects */
 	for (i = 0; i < 3; i++)
@@ -983,23 +1163,37 @@ static void player_setup(int Ind)
 			count++;
 	}
 
-	/* Make sure he's supposed to be here */
-	if (!cave[Depth] || count == players_on_depth[Depth])
+	/* Make sure he's supposed to be here -- if not, then the level has
+	 * been unstaticed and so he should forget his memory of the old level.
+	 */
+	if (count >= players_on_depth[Depth])
+	{
+		/* Clear the "marked" and "lit" flags for each cave grid */
+		for (y = 0; y < MAX_HGT; y++)
+		{
+			for (x = 0; x < MAX_WID; x++)
+			{
+				p_ptr->cave_flag[y][x] = 0;
+			}
+		}
+		/* He is now on the level, so add him to the player_on_depth list */
+		players_on_depth[Depth]++;
+	}
+
+	/* Rebuild the level if neccecary */
+	if (!cave[Depth]) 
 	{		
-		/* wilderness levels are always valid */
+		/* If a level is unstaticed and a player is on it, he will now
+		 * stay in the dungeon and appear on the new level somewhere.
+		 */
 		if (p_ptr->dun_depth >= 0)
 		{
-			/* Move him to town */
-			p_ptr->dun_depth = 0;
-			p_ptr->py = level_down_y[0];
-			p_ptr->px = level_down_x[0];
-			Depth = 0;
-
-			/* One more player in town */
-			players_on_depth[0]++;
+			/* Build a new level and put him on it */
+			alloc_dungeon_level(Depth);
+			generate_cave(Depth);
 		}
 		else
-		/* hack -- rebuild the wilderness level */
+		/* rebuild the wilderness level */
 		{
 			alloc_dungeon_level(Depth);
 			generate_cave(Depth);
@@ -1042,7 +1236,7 @@ static void player_setup(int Ind)
 	/* Re-Place the player correctly */
 	for (i = 0; i < 3000; i++)
 	{
-		d = (i + 4) / 35;
+		d = (i + 4) / 10;
 
 		/* Pick a location */
 		/* Hack -- ghosts do not scatter, as they may not be in a line of sight
@@ -1269,7 +1463,10 @@ void server_birth(void)
 		r_info[i].max_num = 1;
 		
 		/* Number of minutes until he respawns */
-		r_info[i].time = 0;
+		/* -1 is used to denote an undefined respawn time.  This should
+		 * be set when the unique is killed.
+		 */
+		r_info[i].respawn_timer = -1;
 	}
 
 	/* Set party zero's name to "Neutral" */

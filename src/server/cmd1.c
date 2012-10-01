@@ -724,6 +724,12 @@ static void hit_trap(int Ind)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
+			/* MEGAHACK: Ignore Wilderness trap doors. */
+			if( p_ptr->dun_depth<0) {
+				msg_print(Ind, "You feel quite certain something really awfull just happened..");
+				break;
+			}
+
 			msg_print(Ind, "You fell through a trap door!");
 			if (p_ptr->ffall)
 			{
@@ -1530,7 +1536,7 @@ void move_player(int Ind, int dir, int do_pickup)
 		else if ((!p_ptr->ghost && !q_ptr->ghost &&
 		         (ddy[q_ptr->last_dir] == -(ddy[dir])) &&
 		         (ddx[q_ptr->last_dir] == (-ddx[dir]))) ||
-			(!strcmp(q_ptr->name,DUNGEON_MASTER)))
+			(!strcmp(q_ptr->name,cfg_dungeon_master)))
 		{
 			c_ptr->m_idx = 0 - Ind;
 			cave[Depth][p_ptr->py][p_ptr->px].m_idx = 0 - Ind2;
@@ -1543,7 +1549,7 @@ void move_player(int Ind, int dir, int do_pickup)
 
 			/* Tell both of them */
 			/* Don't tell people they bumped into the Dungeon Master */
-			if (strcmp(q_ptr->name,DUNGEON_MASTER))
+			if (strcmp(q_ptr->name,cfg_dungeon_master))
 			{
 				msg_format(Ind, "You switch places with %s.", q_ptr->name);
 				msg_format(Ind2, "You switch places with %s.", p_ptr->name);
@@ -1559,7 +1565,7 @@ void move_player(int Ind, int dir, int do_pickup)
 		}
 
 		/* Hack -- the Dungeon Master cannot bump people */
-		else if (strcmp(p_ptr->name,DUNGEON_MASTER))
+		else if (strcmp(p_ptr->name,cfg_dungeon_master))
 		{
 			/* Tell both about it */
 			msg_format(Ind, "You bump into %s.", q_ptr->name);
@@ -1575,7 +1581,7 @@ void move_player(int Ind, int dir, int do_pickup)
 	else if (c_ptr->m_idx > 0)
 	{
 		/* Hack -- the dungeon master switches places with his monsters */
-		if (!strcmp(p_ptr->name,DUNGEON_MASTER))
+		if (!strcmp(p_ptr->name,cfg_dungeon_master))
 		{
 			/* save old player location */
 			oldx = p_ptr->px;
@@ -1655,7 +1661,12 @@ void move_player(int Ind, int dir, int do_pickup)
 			else if ((c_ptr->feat < FEAT_SECRET && c_ptr->feat >= FEAT_DOOR_HEAD) || 
 			         (c_ptr->feat >= FEAT_HOME_HEAD && c_ptr->feat <= FEAT_HOME_TAIL))
 			{
-				msg_print(Ind, "There is a closed door blocking your way.");
+				/* auto door open if the option is set */
+				if (cfg_door_bump_open)
+				{
+					do_cmd_open(Ind, dir);
+				}
+				else msg_print(Ind, "There is a closed door blocking your way.");
 			}
 
 			/* Tree */
@@ -1792,7 +1803,7 @@ void move_player(int Ind, int dir, int do_pickup)
 		 * and summoning monster armies easier.
 		 */
 
-		if ((!strcmp(p_ptr->name,DUNGEON_MASTER)) && master_move_hook)
+		if ((!strcmp(p_ptr->name,cfg_dungeon_master)) && master_move_hook)
 			master_move_hook(Ind, NULL);
 	}
 }
@@ -2520,6 +2531,7 @@ static bool run_test(int Ind)
  */
 void run_step(int Ind, int dir)
 {
+	cave_type *c_ptr;
 	player_type *p_ptr = Players[Ind];
 
 	/* Check for just changed level */
@@ -2531,6 +2543,25 @@ void run_step(int Ind, int dir)
 		/* Hack -- do not start silly run */
 		if (see_wall(Ind, dir, p_ptr->py, p_ptr->px))
 		{
+			/* If we are trying to run into a door and bump_open is enabled,
+			 * try to open the door
+			 */
+			if (cfg_door_bump_open)
+			{
+				/* Get requested grid */
+				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddy[dir]];
+
+				/* If a door, open it */
+				if (((c_ptr->feat >= FEAT_DOOR_HEAD) || 
+				      (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+				    ((c_ptr->feat >= FEAT_HOME_HEAD) ||
+				      (c_ptr->feat <= FEAT_HOME_TAIL))) 
+					{
+						do_cmd_open(Ind, dir);
+						return;
+					}
+			}
+
 			/* Message */
 			msg_print(Ind, "You cannot run in that direction.");
 

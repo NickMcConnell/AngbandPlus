@@ -440,7 +440,12 @@ void do_cmd_check_uniques(int Ind, int line)
 					if (killer)
 					{																						
 						fprintf(fff, " (killed by %s,",killer);
-						fprintf(fff, " safe %d min)",r_ptr->time);				
+						/* Hack -- round the displayed
+						 * respawn time off to the
+						 * nearest 10 minutes...
+						 */
+						fprintf(fff, " safe %d min)",
+							((r_ptr->respawn_timer/10)+1)*10);
 					}
 
 				}
@@ -492,8 +497,11 @@ void do_cmd_check_players(int Ind, int line)
 		if (q_ptr->conn == NOT_CONNECTED)
 			continue;
 
-		/* Hack -- don't display the dungeon master */
-		if (!strcmp(q_ptr->name,DUNGEON_MASTER)) continue;
+		/* don't display the dungeon master if the secret_dungeon_master
+		 * option is set 
+		 */
+		if ((!strcmp(q_ptr->name,cfg_dungeon_master)) &&
+		   (cfg_secret_dungeon_master)) continue;
 
 		/*** Determine color ***/
 
@@ -517,7 +525,7 @@ void do_cmd_check_players(int Ind, int line)
 
 		/* Print extra info if these people are in the same party */
 		/* Hack -- always show extra info to dungeon master */
-		if ((p_ptr->party == q_ptr->party && p_ptr->party) || (!strcmp(p_ptr->name,DUNGEON_MASTER)))
+		if ((p_ptr->party == q_ptr->party && p_ptr->party) || (!strcmp(p_ptr->name,cfg_dungeon_master)))
 		{
 			fprintf(fff, " at %d ft", q_ptr->dun_depth * 50);
 		}

@@ -230,11 +230,11 @@ static int Init_setup(void)
 	char buf[1024];
 	FILE *fp;
 
-	Setup.frames_per_second = FPS;
+	Setup.frames_per_second = cfg_fps;
 	Setup.motd_len = 23 * 80;
 	Setup.setup_size = sizeof(setup_t);
 
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, 1024, ANGBAND_DIR_TEXT, "news.txt");
 
 	/* Open the news file */
 	fp = my_fopen(buf, "r");
@@ -268,10 +268,10 @@ bool Report_to_meta(int flag)
 	static int init = 0;
 	int bytes, i;
 	char buf[1024], temp[100];
-	bool dungeon_master = 0;
+	bool hidden_dungeon_master = 0;
 
 	/* Abort if the user doesn't want to report */
-	if (strlen(META_ADDRESS) == 0)
+	if (!cfg_report_to_meta)
 		return FALSE;
 
 	/* If this is the first time called, initialize our hostname */
@@ -322,28 +322,29 @@ bool Report_to_meta(int flag)
 	{
 		strcat(buf, " Number of players: ");
 
-		/* Hack -- determine if the DungeonMaster is playing, if so, reduce the number
-		 * of players reported.  This is to keep the users clueless as to whether or not
-		 * a dungeonmaster is in the game. -APD
+		/* Hack -- If cfg_secret_dungeon_master is enabled, determine
+		 * if the DungeonMaster is playing, and if so, reduce the
+		 * number of players reported.
 		 */
 
 		for (i = 1; i <= NumPlayers; i++)
 		{
-			if (!strcmp(Players[i]->name, DUNGEON_MASTER)) dungeon_master = TRUE;	
+			if (!strcmp(Players[i]->name, cfg_dungeon_master)) hidden_dungeon_master = TRUE;
 		}
 
-		/* tell the metaserver about everyone except the dungeon_master */
-		sprintf(temp, "%d ", NumPlayers - dungeon_master);
+		/* tell the metaserver about everyone except hidden dungeon_masters */
+		sprintf(temp, "%d ", NumPlayers - hidden_dungeon_master);
 		strcat(buf, temp);
 
 		/* if someone other than a dungeon master is playing */
-		if (NumPlayers - dungeon_master)
+		if (NumPlayers - hidden_dungeon_master)
 		{
 			strcat(buf, "Names: ");
 			for (i = 1; i <= NumPlayers; i++)
 			{
-				/* Hack -- DungeonMaster does not appear on metaserver list */
-				if (!strcmp(Players[i]->name, DUNGEON_MASTER)) continue;
+				/* handle the cfg_secret_dungeon_master option */
+				if ((!strcmp(Players[i]->name, cfg_dungeon_master))
+				   && (cfg_secret_dungeon_master)) continue;
 				strcat(buf, Players[i]->basename);
 				strcat(buf, " ");
 			}
@@ -372,7 +373,7 @@ bool Report_to_meta(int flag)
 
 	Packet_printf(&meta_buf, "%S", buf);
 
-	if ((bytes = DgramSend(MetaSocket, META_ADDRESS, 8800, meta_buf.buf, meta_buf.len) == -1))
+	if ((bytes = DgramSend(MetaSocket, cfg_meta_address, 8800, meta_buf.buf, meta_buf.len) == -1))
 	{
 		s_printf("Couldn't send info to meta-server!\n");
 		return FALSE;
@@ -762,8 +763,9 @@ static void Delete_player(int Ind)
 	save_player(Ind);
 
 	/* If he was actively playing, tell everyone that he's left */
-	/* Hack -- don't tell people about DungeonMaster */
-	if (p_ptr->alive && !p_ptr->death && strcmp(p_ptr->name, DUNGEON_MASTER))
+	/* handle the cfg_secret_dungeon_master option */
+	if (p_ptr->alive && !p_ptr->death && 
+	   (strcmp(p_ptr->name, cfg_dungeon_master) || !cfg_secret_dungeon_master))
 	{
 		for (i = 1; i < NumPlayers + 1; i++)
 		{
@@ -1072,7 +1074,7 @@ static int Handle_setup(int ind)
 		}
 		connp->setup += len;
 		if (len >= 512)
-			connp->start += (len * FPS) / (8 * 512) + 1;
+			connp->start += (len * cfg_fps) / (8 * 512) + 1;
 	}
 
 	if (connp->setup >= Setup.setup_size)
@@ -1427,8 +1429,8 @@ static int Handle_login(int ind)
 
 	num_logins++;
 
-	/* If dungeon master, go no further */
-	if (!strcmp(p_ptr->name,DUNGEON_MASTER)) return 0;
+	/* Handle the cfg_secret_dungeon_master option */
+	if ((!strcmp(p_ptr->name,cfg_dungeon_master)) && (cfg_secret_dungeon_master)) return 0;
 
 	/* Tell everyone about our new player */
 	for (i = 1; i < NumPlayers; i++)
@@ -1543,7 +1545,7 @@ int Net_input(void)
 		connp = &Conn[i];
 		if (connp->state == CONN_FREE)
 			continue;
-		if (connp->start + connp->timeout * FPS < turn)
+		if (connp->start + connp->timeout * cfg_fps < turn)
 		{
 			if (connp->state & (CONN_PLAYING | CONN_READY))
 			{
@@ -1655,7 +1657,7 @@ int Net_output(void)
 	}
 
 	/* Every fifteen seconds, update the info sent to the metaserver */
-	if (!(turn % (15 * FPS)))
+	if (!(turn % (15 * cfg_fps)))
 		Report_to_meta(META_UPDATE);
 
 	return 1;
@@ -4652,7 +4654,7 @@ static int Receive_master(int ind)
 	 * authentication schemes will be neccecary. -APD
 	 */
 
-	if (strcmp(Players[player]->name, DUNGEON_MASTER)) return 0;
+	if (strcmp(Players[player]->name, cfg_dungeon_master)) return 0;
 
 	if ((n = Packet_scanf(&connp->r, "%c%hd%s", &ch, &command, buf)) <= 0)
 	{
@@ -4680,6 +4682,12 @@ static int Receive_master(int ind)
 			case MASTER_SUMMON:
 			{
 				master_summon(player, buf);
+				break;
+			}
+		
+			case MASTER_GENERATE:
+			{
+				master_generate(player, buf);
 				break;
 			}
 		}

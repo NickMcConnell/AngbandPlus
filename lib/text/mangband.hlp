@@ -1,21 +1,11 @@
+Note :  This FAQ is really out of date.
+
+
 Mangband newbie FAQ / survival guide
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 Version .35, late april/early may 1999
 By Alex Dingle (Blair, Wortle, Thraxton, etc)
 Macros and revisions added by Conn -- thanks!
-
-*** NOTICE -- This document is currently under construction. If you would 
-like to add/modify/write a section of it, you are more than welcome. 
-Talk to me.***
-
-****************************************************************************
-Before you read this guide, listen to this once bit of advice. Don't get 
-discouraged!! If you are new to mangband, you will die..... a lot. But, 
-as you get more experienced, you will become better at surviving, and may 
-even live to see level 20. Have fun!
-****************************************************************************
-
-
 
 
 Table of Contents
@@ -73,16 +63,9 @@ Part I -- Basic Setup, pre-game questions
        Mangband is an addictive multiplayer real-time adventure game based 
 loosly off Tolkien's "The Lord of the Rings" series, originally written by
 Keldon Jones. The official (although somewhat dated) mangband homepage can 
-be found at http://www.umr.edu/~keldon/MAngband/. A more recent page that I
-recommend is Thorin's mangband page, found at 
-http://members.xoom.com/MAngband/index.html . Mangband is a variant of the
+be found at http://www.mangband.org.  Mangband is a variant of the
 popular game angband, and a lot of useful links and information can be found
 on the angband home, http://www.phial.com. 
-       Since the source code is available, many of the servers 
-(such as fox-099) run versions of mangband with custom modifications. Servers
-using the fox-099 set of modifications are usually denoted by a -D after the 
-version name. These modifications give a number of things, notably affordable 
-houses, enhanced team abilities, and enhanced class skills.
 
 2. How is mangband different from angband?
 

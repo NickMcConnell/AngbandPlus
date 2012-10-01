@@ -1,6 +1,61 @@
+4/27/00:
+	----- MAngband 0.6.1 released -----
+
+4/27/00: Fixed a bug that was causing the game to freeze when trying to generate
+		 a lake adjacent to town.
+
+4/19/00: Fixed a pricing bug that was causing charisma not to be taken into 
+		account when buying very expensive houses.
+	 Patched the client and server to support dropping more than 32767
+		gold in one square.
+	 Added a newbies_cannot_drop option to mangband.cfg which when enabled
+		will prevent level one characters from dropping items or gold.
+	 Added a secret_dungeon_master option to mangband.cfg which when enabled
+		prevents the game from telling the players about the dungeon
+		master, and does not display the dungeon master on the
+		server's metaserver listing.
+	 Added a mangconsole option to reload mangband.cfg.
+
+4/18/00: Finished making it so that if a player logs out on a dungeon level and
+		it unstatics, he will be on the new dungeon level when he comes
+		back in. 
+
+4/8/00:  Added an option door_bump_open to mangband.cfg  When enabled the game
+		 will automatically try to open a door when it is bumped into.  
+
+3/11/00: Cleaned up the unique respawn code a bit.
+	 Added unique respawn time options to mangband.cfg.
+	 Added a level unstaticer, which randomly unstatics levels.
+		 The chance of a level unstaticing is inversly proportional to
+		 its depth.  The base chance of a level unstaticing can be set
+		 in mangband.cfg.
+
+3/5/00:  Added a mangband.cfg file which contains many options formerly
+		located in config.h.  This should be a big help to all
+		those who run mangband servers but can't recompile their
+		binarys.
+
+3/3/00:  Simplified the mangband directory structure to lib/data, lib/game,
+	 	lib/text, lib/save, and lib/user.
+	 Removed the game template binary caches, since parsing the game
+		templates takes a trivial amount of time on any modern
+		processor.
+
+2/5/00:	 Made death terminate WOR spells.
+	 Increased the store max prices by 25x in the BM and 15x everywhere
+	 	else.
+
+2/1/00:  Fixed a bug that allowed people to break into houses by surrounding
+		the target house with doors and entering from an adjacent
+		wilderness level.
+
+1/30/00:  Added Chris Atenasio's vault fixes.  Huge vaults should now
+		be clipped to the edge of the level, instead of crashing the
+		server.
+
 1/11/00: Fixed a nasty bug that allowed people to earthquake in town.
-	 This is too nasty a bug to leave in an 'official' release,
-	 so I am releasing a revision 2 mangband-060-rev2.src.tar.gz.
+		 This is too nasty a bug to leave in an 'official' release, so
+		 I am releasing a revision 2 mangband-060-rev2.src.tar.gz.
 1/9/00:
 	----- MAngband 0.6.0 released -----
 1/9/00:

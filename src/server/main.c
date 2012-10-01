@@ -39,7 +39,7 @@ static bool is_wizard(int uid)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "wizards.txt");
+	path_build(buf, 1024, ANGBAND_DIR_TEXT, "wizards.txt");
 
 	/* Open the wizard file */
 	fp = my_fopen(buf, "r");
@@ -183,7 +183,6 @@ int main(int argc, char *argv[])
 {
 	bool new_game = FALSE;
 	char buf[1024];
-	int show_score = 0;
 	int catch_signals = TRUE;
 
 
@@ -217,7 +216,7 @@ int main(int argc, char *argv[])
 	init_stuff();
 
 	/* Initialize the server log file */
-	path_build(buf, 1024, ANGBAND_DIR_XTRA, "mangband.log");
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "mangband.log");
 
 	/* Open the file */
 	s_setup(buf);
@@ -316,38 +315,12 @@ int main(int argc, char *argv[])
 
 			case 'i':
 			case 'I':
-			ANGBAND_DIR_INFO = &argv[0][2];
+			ANGBAND_DIR_TEXT = &argv[0][2];
 			break;
 
-			case 'N':
-			case 'n':
-			new_game = TRUE;
-			break;
-
-			case 'R':
 			case 'r':
-			arg_force_roguelike = TRUE;
-			break;
-
-			case 'O':
-			case 'o':
-			arg_force_original = TRUE;
-			break;
-
-			case 'V':
-			case 'v':
-			use_sound = TRUE;
-			break;
-
-			case 'G':
-			case 'g':
-			use_graphics = TRUE;
-			break;
-
-			case 'S':
-			case 's':
-			show_score = atoi(&argv[0][2]);
-			if (show_score <= 0) show_score = 10;
+			case 'R':
+			new_game = TRUE;
 			break;
 
 			case 'F':
@@ -390,18 +363,12 @@ int main(int argc, char *argv[])
 			usage:
 
 			/* Note -- the Term is NOT initialized */
-			puts("Usage: angband [options]");
-			puts("  -n       Start a new character");
-			puts("  -o       Use the original keyset");
-			puts("  -r       Use the rogue-like keyset");
-			puts("  -v       Activate the use_sound flag");
-			puts("  -g       Activate the use_graphics flag");
+			puts("Usage: mangband [options]");
+			puts("  -r	 Reset the server");
 			puts("  -f       Activate 'fiddle' mode");
 			puts("  -w       Activate 'wizard' mode");
 			puts("  -z       Don't catch signals");
 			puts("  -p<uid>  Play with the <uid> userid");
-			puts("  -u<name> Play with your <name> savefile");
-			puts("  -s<num>  Show <num> high scores (or top 10).");
 			puts("  -c<path> Look for pref files in the directory <path>");
 			puts("  -d<path> Look for save files in the directory <path>");
 			puts("  -i<path> Look for info files in the directory <path>");
@@ -546,16 +513,15 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-	/* If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
-
-
 	/* Catch nasty signals */
 	if (catch_signals == TRUE)
 		signals_init();
 
 	/* Display the 'news' file */
 	show_news();
+
+	/* Load the mangband.cfg options */
+	load_server_cfg();
 
 	/* Initialize the arrays */
 	init_some_arrays();

@@ -851,7 +851,7 @@ static void wild_add_dwelling(int Depth, int x, int y)
 	int	h_x1,h_y1,h_x2,h_y2, p_x1,p_y1,p_x2,p_y2, 
 		plot_xlen, plot_ylen, house_xlen, house_ylen, 
 		door_x, door_y, drawbridge_x[3], drawbridge_y[3], 
-		tmp, type, area, price;
+		tmp, type, area, price, num_door_attempts;
 	char wall_feature, door_feature, has_moat = 0;
 	cave_type *c_ptr;
 	wilderness_type *w_ptr=&wild_info[Depth];
@@ -1015,9 +1015,10 @@ static void wild_add_dwelling(int Depth, int x, int y)
 
 
 	/* select the door location... done here so we can
-	   prevent it form being put on water. */
+	   try to prevent it form being put on water. */
 
-	/* hack -- no doors in water */
+	/* hack -- avoid doors in water */
+	num_door_attempts = 0;
 	do
 	{
 		/* Pick a door direction (S,N,E,W) */
@@ -1072,11 +1073,11 @@ static void wild_add_dwelling(int Depth, int x, int y)
 					}
 			break;
 		}
-
 		/* Access the grid */
 		c_ptr = &cave[Depth][door_y][door_x];
+		num_door_attempts++;
 	}	
-	while (c_ptr->feat == FEAT_WATER);
+	while ((c_ptr->feat == FEAT_WATER) && (num_door_attempts < 30));
 				
 	/* Build a rectangular building */
 	for (y = h_y1; y <= h_y2; y++)

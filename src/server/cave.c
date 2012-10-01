@@ -643,7 +643,7 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 		        (*w_ptr & CAVE_VIEW)) ||
 		      ((c_ptr->info & CAVE_GLOW) &&
 		       (*w_ptr & CAVE_VIEW))) &&
-		     !p_ptr->blind)) || (!strcmp(p_ptr->name,DUNGEON_MASTER)))
+		     !p_ptr->blind)) || (!strcmp(p_ptr->name,cfg_dungeon_master)))
 		{
 			/* Access floor */
 			f_ptr = &f_info[FEAT_FLOOR];
@@ -718,8 +718,8 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 	else
 	{
 		/* Memorized grids */
-		/* Hack -- everything is visibel to dungeon masters */
-		if ((*w_ptr & CAVE_MARK) || (!strcmp(p_ptr->name, DUNGEON_MASTER)))
+		/* Hack -- everything is visible to dungeon masters */
+		if ((*w_ptr & CAVE_MARK) || (!strcmp(p_ptr->name, cfg_dungeon_master)))
 		{
 			/* Apply "mimic" field */
 			feat = f_info[feat].mimic;
@@ -827,8 +827,8 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 		object_type *o_ptr = &o_list[c_ptr->o_idx];
 
 		/* Memorized objects */
-		/* Hack -- the dungeon master knows where everythign is */
-		if ((p_ptr->obj_vis[c_ptr->o_idx]) || (!strcmp(p_ptr->name,DUNGEON_MASTER)))
+		/* Hack -- the dungeon master knows where everything is */
+		if ((p_ptr->obj_vis[c_ptr->o_idx]) || (!strcmp(p_ptr->name,cfg_dungeon_master)))
 		{
 			/* Normal char */
 			(*cp) = object_char(o_ptr);
@@ -1574,7 +1574,7 @@ void wild_display_map(int Ind)
 			
 			/* if the player hasnt been here, dont show him the terrain */
 			/* Hack -- serverchez has knowledge of the full world */
-			if (strcmp(p_ptr->name,ADMIN_WIZARD))
+			if (strcmp(p_ptr->name,cfg_admin_wizard))
 			if (!(p_ptr->wild_map[-wild_idx / 8] & (1 << (-wild_idx % 8)))) type = -1;
 			/* hack --  the town is always known */
 			if (!wild_idx) type = WILD_TOWN;

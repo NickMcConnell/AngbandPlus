@@ -25,7 +25,7 @@ static bool enter_server_name(void)
 	move_cursor(5, 1);
 
 	/* Default */
-	strcpy(server_name, "keldon.student.umr.edu");
+	strcpy(server_name, "localhost");
 
 
 	/* Ask for server name */
@@ -93,8 +93,9 @@ static void show_menu(void)
 	prt("(f) Get detailed player info", 8, 5);
 	prt("(g) Send a message", 9, 5);
 	prt("(h) Kick a player", 10, 5);
-	prt("(i) Shutdown the server", 11, 5);
-	prt("(j) Quit", 12, 5);
+	prt("(i) Reload the server preferences", 11, 5);
+	prt("(j) Shutdown the server", 12, 5);
+	prt("(k) Quit", 13, 5);
 
 	/* Prompt */
 	prt("Enter an action above: ", 14, 1);

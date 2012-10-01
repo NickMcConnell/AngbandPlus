@@ -2488,7 +2488,7 @@ static void build_type6(int Depth, int yval, int xval)
 /*
  * Hack -- fill in "vault" rooms
  */
-static void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data)
+void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data)
 {
 	int dx, dy, x, y;
 
@@ -2506,6 +2506,10 @@ static void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr 
 			x = xval - (xmax / 2) + dx;
 			y = yval - (ymax / 2) + dy;
 
+			/* FIXME - find a better solution */
+			if(!in_bounds(Depth,y,x))
+				continue;
+			
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
 
@@ -2570,6 +2574,10 @@ static void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr 
 			/* Extract the grid */
 			x = xval - (xmax/2) + dx;
 			y = yval - (ymax/2) + dy;
+
+			/* FIXME - find a better solution */
+			if(!in_bounds(Depth,y,x))
+				continue;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;

@@ -688,7 +688,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
-	wr_s16b(o_ptr->pval);
+	wr_s32b(o_ptr->pval);
 
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
@@ -768,13 +768,8 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_wake);
 	wr_byte(r_ptr->r_ignore);
 
-	/* Extra stuff */
-	/* w/ japanese unique respawn patch, save the time 
-	wr_byte(r_ptr->r_xtra1);
-	wr_byte(r_ptr->r_xtra2);
-	*/
-	
-	wr_s16b(r_ptr->time);
+	/* Save the amount of time until the unique respawns */
+	wr_s32b(r_ptr->respawn_timer);
 
 	/* Count drops */
 	wr_byte(r_ptr->r_drop_gold);

@@ -155,7 +155,7 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -g -pipe -D"USE_X11" -D"USE_GCU" -I/usr/include/ncurses
+CFLAGS = -Wall -pipe -D"USE_X11" -D"USE_GCU" -I/usr/include/ncurses
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 

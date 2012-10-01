@@ -504,7 +504,11 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->sval);
 
 	/* Special pval */
-	rd_s16b(&o_ptr->pval);
+	if (older_than(0,6,1))
+	{
+		rd_s16b(&o_ptr->pval);
+	}
+	else	rd_s32b(&o_ptr->pval);
 
 	rd_byte(&o_ptr->discount);
 	rd_byte(&o_ptr->number);
@@ -711,6 +715,7 @@ static void rd_monster(monster_type *m_ptr)
 static void rd_lore(int r_idx)
 {
 	byte tmp8u;
+	u16b tmp16u;
 
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -724,14 +729,16 @@ static void rd_lore(int r_idx)
 	rd_byte(&r_ptr->r_wake);
 	rd_byte(&r_ptr->r_ignore);
 
-	/* Extra stuff 
-	rd_byte(&r_ptr->r_xtra1);
-	rd_byte(&r_ptr->r_xtra2);
-	
-	japanese patch uses this space for time -APD-
-	*/
-	
-	rd_s16b(&r_ptr->time);
+	/* Load in the amount of time left until the (possobile) unique respawns */
+	if (older_than(0,6,1))
+	{
+		rd_u16b(&tmp16u);
+		r_ptr->respawn_timer = tmp16u;
+	}
+	else
+	{
+		rd_s32b(&r_ptr->respawn_timer);
+	}
 
 	/* Count drops */
 	rd_byte(&r_ptr->r_drop_gold);

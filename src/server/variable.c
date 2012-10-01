@@ -168,6 +168,25 @@ s32b m_top = 0;			/* Monster top size */
 
 
 /*
+ * Server options, set in mangband.cfg
+ */
+
+bool cfg_report_to_meta = 0;
+char * cfg_meta_address;
+char * cfg_console_password = "change_me";
+char * cfg_admin_wizard = "Serverchez";
+char * cfg_dungeon_master = "DungeonMaster";
+bool cfg_secret_dungeon_master = 0;
+s16b cfg_fps = 12;
+bool cfg_mage_hp_bonus = 1;
+bool cfg_newbies_cannot_drop = 0;
+bool cfg_door_bump_open = 1;
+s32b cfg_unique_respawn_time = 300;
+s32b cfg_unique_max_respawn_time = 50000;
+s32b cfg_level_unstatic_chance = 60;
+
+
+/*
  * Software options (set via the '=' command).  See "tables.c"
  */
 
@@ -685,21 +704,10 @@ cptr ANGBAND_SYS = "xxx";
  */
 cptr ANGBAND_DIR;
 
-/*
- * High score files (binary)
- * These files may be portable between platforms
- */
-cptr ANGBAND_DIR_APEX;
 
 /*
- * Bone files for player ghosts (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_BONE;
-
-/*
- * Binary image files for the "*_info" arrays (binary)
- * These files are not portable between platforms
+ * Various data files for the game, such as the high score and
+ * the mangband logs.
  */
 cptr ANGBAND_DIR_DATA;
 
@@ -707,25 +715,13 @@ cptr ANGBAND_DIR_DATA;
  * Textual template files for the "*_info" arrays (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_EDIT;
+cptr ANGBAND_DIR_GAME;
 
 /*
- * Various extra files (ascii)
- * These files may be portable between platforms
+ * Various user editable text files (ascii), such as the help and greeting
+ * screen. These files may be portable between platforms
  */
-cptr ANGBAND_DIR_FILE;
-
-/*
- * Help files (normal) for the online help (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_HELP;
-
-/*
- * Help files (spoilers) for the online help (ascii)
- * These files are portable between platforms
- */
-cptr ANGBAND_DIR_INFO;
+cptr ANGBAND_DIR_TEXT;
 
 /*
  * Savefiles for current characters (binary)
@@ -738,12 +734,6 @@ cptr ANGBAND_DIR_SAVE;
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_USER;
-
-/*
- * Various extra files (binary)
- * These files are rarely portable between platforms
- */
-cptr ANGBAND_DIR_XTRA;
 
 
 /*

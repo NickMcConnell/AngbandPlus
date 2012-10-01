@@ -1712,7 +1712,7 @@ void c_msg_print(cptr msg)
  *
  * Hack -- allow "command_arg" to specify a quantity
  */
-s16b c_get_quantity(cptr prompt, int max)
+s32b c_get_quantity(cptr prompt, int max)
 {
 	int amt;
 
@@ -1739,7 +1739,7 @@ s16b c_get_quantity(cptr prompt, int max)
 	sprintf(buf, "%d", amt);
 
 	/* Ask for a quantity */
-	if (!get_string(prompt, buf, 6)) return (0);
+	if (!get_string(prompt, buf, 8)) return (0);
 
 	/* Extract a number */
 	amt = atoi(buf);
@@ -1747,8 +1747,8 @@ s16b c_get_quantity(cptr prompt, int max)
 	/* A letter means "all" */
 	if (isalpha(buf[0])) amt = max;
 
-	/* Enforce the maximum */
-	if (amt > max) amt = max;
+	/* Enforce the maximum, if maximum is defined */
+	if ((max >= 0) && (amt > max)) amt = max;
 
 	/* Enforce the minimum */
 	if (amt < 0) amt = 0;

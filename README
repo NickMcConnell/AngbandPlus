@@ -1,26 +1,41 @@
-This is the README file for MAngband 0.6.0 (1/9/2000)
+This is the README file for MAngband 0.6.1 (4/27/2000)
 
-	A lot of things have happened since MAngband .0.5.4, the last official
-release.  I have taken over the role of maintainer from Keldon Jones, the
-original MAngband creator.  Many changes have been made, which are documented in
-the ChangeLog.  Most notably, rogues have new skills, the Zangband vaults have
-been added, a wilderness has been added, levels are now saved on a server reset,
-the uniques monsters will automatically respawn given enough time, spell points
-regenerate at 5/3 the old rate, and players can select their recall depths.
-	Be warned that although this version of MAngband is generally stable, it
-ocasionally has segmentation violations and dumps core.  This isn't as bad as it
-sounds since all the levels are saved when this happens and the gameplay isn't
-affected much.  If you plan on running a server, I recomend running a script
-that will restart the MAngband server each time it goes down, such as the
-runserv scrip that has been included.  If you fix any of these segmentation
-violations please mail me a description of the problem and your fix.
-	Send bug reports to me at adingle@crud.net, or to the mangband-d mailing
-list.  Information about and archives of the mailing list can be found on the
-official MAngband site at http://www.mangband.org.
+	New in this version of Mangband are several important features.  One
+is a mangband.cfg server configuration file which lets some server parameters
+be set without recompiling the server.  This file can be dynamically reloaded
+from mangconsole.  Another is an automatic level unstaticer which randomly
+unstatics the levels, more frequently for higher levels and less frequently for
+deeper levels.  
+	Unfortunatly, as in version 0.6.0, the server is still a bit unstable.  
+The game ocasionally gets a segmentation violation.  In the case that this
+happens, the server will try its best to save everything before crashing.
+If you plan on running a 0.6.1 server, I recomend using something such as the
+included runserv script which will immediatly restart the server when it
+crashes. 
 
-These are things that are new or that you should watch out for:
+	Send bug reports or feature requests to adingle@crud.net, or to the
+mangband-d mailing list.  Information about and archives of the mailing list
+can be found on the official MAngband site at http://www.mangband.org.
 
-  * You no longer have to hit '::' to broadcast messages to everyone.
+New in .6.1 :
+
+  * The file mangband.cfg has been added, which defines many game options. 
+    This file can be dynamically reloaded through mangconsole.
+
+  * The MAngband lib directory system has been changed.  It has been simplified
+  to the following directorys : lib/data which holds the high scores and the
+  MAngband log, lib/game which holds the .txt template files, lib/save which
+  holds the save files, lib/text which holds the help and login message files,
+  and lib/user which holds the client configuration files.
+  
+  * Shop maximum selling prices have been increased by 25x in the Black Market,
+    and 15x everywhere else.
+
+  * An automatic level unstaticer has been added.
+
+
+New in .6.0 :
+
   * If you are in the wilderness, and check your map, you get a special
       wilderness map.  Each character on this map represents an entire wilderness
       level.

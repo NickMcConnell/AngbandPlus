@@ -207,6 +207,12 @@ static bool kick_player(void)
 	return TRUE;
 }
 
+bool reload_server_preferences()
+{
+	Packet_printf(&ibuf, "%c", CONSOLE_RELOAD_SERVER_PREFERENCES);
+	return TRUE;
+}
+
 static bool shutdown_server(void)
 {
 	char ch;
@@ -266,9 +272,11 @@ bool process_command(void)
 			  break;
 		case 'h': return kick_player();
 			  break;
-		case 'i': return shutdown_server();
+		case 'i': return reload_server_preferences();
 			  break;
-		case 'j': return quit_console();
+		case 'j': return shutdown_server();
+			  break;
+		case 'k': return quit_console();
 			  break;
 		default: /* Bad command */
 			  return FALSE;

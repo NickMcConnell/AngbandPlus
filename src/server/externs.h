@@ -154,6 +154,22 @@ extern s32b o_max;
 extern s32b m_max;
 extern s32b o_top;
 extern s32b m_top;
+
+extern bool cfg_report_to_meta;
+extern char * cfg_meta_address;
+extern char * cfg_console_password;
+extern char * cfg_admin_wizard;
+extern char * cfg_dungeon_master;
+extern bool cfg_secret_dungeon_master;
+extern s16b cfg_fps;
+extern bool cfg_mage_hp_bonus;
+extern bool cfg_newbies_cannot_drop;
+extern bool cfg_door_bump_open;
+extern s32b cfg_unique_respawn_time;
+extern s32b cfg_unique_max_respawn_time;
+extern s32b cfg_level_unstatic_chance;
+
+
 extern bool rogue_like_commands;
 extern bool quick_messages;
 extern bool other_query_flag;
@@ -345,16 +361,11 @@ extern char *r_name;
 extern char *r_text;
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_DIR;
-extern cptr ANGBAND_DIR_APEX;
-extern cptr ANGBAND_DIR_BONE;
 extern cptr ANGBAND_DIR_DATA;
-extern cptr ANGBAND_DIR_EDIT;
-extern cptr ANGBAND_DIR_FILE;
-extern cptr ANGBAND_DIR_HELP;
-extern cptr ANGBAND_DIR_INFO;
+extern cptr ANGBAND_DIR_GAME;
 extern cptr ANGBAND_DIR_SAVE;
+extern cptr ANGBAND_DIR_TEXT;
 extern cptr ANGBAND_DIR_USER;
-extern cptr ANGBAND_DIR_XTRA;
 extern bool item_tester_full;
 extern byte item_tester_tval;
 extern bool (*item_tester_hook)(object_type *o_ptr);
@@ -513,6 +524,7 @@ extern bool InitNewConsole(int write_fd);
 /* dungeon.c */
 extern void play_game(bool new_game);
 extern void shutdown_server(void);
+extern void dungeon(void);
 
 /* files.c */
 extern void safe_setuid_drop(void);
@@ -569,6 +581,7 @@ extern errr init_r_info_txt(FILE *fp, char *buf);
 /* init.c */
 extern void init_file_paths(char *path);
 extern void init_some_arrays(void);
+extern void load_server_cfg(void);
 
 /* load1.c */
 /*extern errr rd_savefile_old(void);*/
@@ -985,6 +998,7 @@ extern int level_speed(int Ind);
 extern bool master_level(int Ind, char * parms);
 extern bool master_build(int Ind, char * parms);
 extern bool master_summon(int Ind, char * parms);
+extern bool master_generate(int Ind, char * parms);
 
 /*extern bool get_rep_dir(int *dp);*/
 

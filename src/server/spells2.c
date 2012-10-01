@@ -1088,7 +1088,7 @@ bool detect_invisible(int Ind)
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
 
 		/* Skip the dungeon master */
-		if (!strcmp(q_ptr->name, DUNGEON_MASTER)) continue;
+		if (!strcmp(q_ptr->name, cfg_dungeon_master)) continue;
 
 		/* Detect all invisible players but not the dungeon master */
 		if (panel_contains(py, px) && q_ptr->ghost) 
@@ -2491,7 +2491,7 @@ bool mass_genocide(int Ind)
 		/* Hack -- visual feedback */
 		/* does not effect the dungeon master, because it disturbs his movement
 		 */
-		if (strcmp(p_ptr->name,DUNGEON_MASTER))
+		if (strcmp(p_ptr->name,cfg_dungeon_master))
 			take_hit(Ind, randint(3), "the strain of casting Mass Genocide");
 
 		/* Redraw */

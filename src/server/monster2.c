@@ -1044,7 +1044,7 @@ void update_mon(int m_idx, bool dist)
 
 			/* Hack -- Wizards have "perfect telepathy" */
 			/* if (p_ptr->wizard) flag = TRUE; */
-			if (!strcmp(p_ptr->name, DUNGEON_MASTER)) flag = TRUE;
+			if (!strcmp(p_ptr->name, cfg_dungeon_master)) flag = TRUE;
 		}
 
 
@@ -1249,7 +1249,7 @@ void update_player(int Ind)
 				hard = flag = TRUE;
 			}
 		/* hack -- dungeon masters are invisible */
-		if (!strcmp(q_ptr->name,DUNGEON_MASTER)) flag = FALSE;
+		if (!strcmp(q_ptr->name,cfg_dungeon_master)) flag = FALSE;
 		}
 
 		/* Player is now visible */
@@ -1392,6 +1392,8 @@ static bool place_monster_one(int Depth, int y, int x, int r_idx, bool slp)
 
 	/* Hack -- no creation in town inside house */
 	if (!Depth && (cave[Depth][y][x].info & CAVE_ICKY)) return (FALSE);
+	/* Hack -- or close to town in wilderness areas */
+	if ((Depth<0 && Depth >-16) && (cave[Depth][y][x].info & CAVE_ICKY)) return (FALSE);
 
 
 	/* Paranoia */

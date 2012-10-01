@@ -1250,9 +1250,11 @@ static void calc_mana(int Ind)
  * Adjust current hitpoints if necessary
  */
  
- /* -APD- Hacked to give mages a bonus hitpoint, as I didnt think they 
-    were getting enough to make it down to 1500 to get CON potions.   
-  */
+/* An option of giving mages a bonus hitpoint per level has been added,
+ * to hopefully facilitate them making it down to 1500 feet and finding
+ * CON potions.
+ */
+
 static void calc_hitpoints(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
@@ -1270,9 +1272,9 @@ static void calc_hitpoints(int Ind)
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
-	/* Give (most!) mages a bonus hitpoint / lvl */
-	
-	if ((p_ptr->pclass == CLASS_MAGE) && (strcmp(p_ptr->name,"Seth")) && (strcmp(p_ptr->name,"Riak Dok'ath")) )  mhp += p_ptr->lev;
+	/* Option : give (most!) mages a bonus hitpoint / lvl */
+	if (cfg_mage_hp_bonus)
+		if ((p_ptr->pclass == CLASS_MAGE) && (strcmp(p_ptr->name,"Seth"))) mhp += p_ptr->lev;
 
 	/* Factor in the hero / superhero settings */
 	if (p_ptr->hero) mhp += 10;
@@ -1616,7 +1618,7 @@ static void calc_bonuses(int Ind)
 	}
 
 	/* Hack -- the dungeon master gets +50 speed. */
-	if (!strcmp(p_ptr->name,DUNGEON_MASTER)) 
+	if (!strcmp(p_ptr->name,cfg_dungeon_master)) 
 	{
 		p_ptr->pspeed += 50;
 		p_ptr->telepathy = 1;

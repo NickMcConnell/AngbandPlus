@@ -28,9 +28,6 @@ static void console_status()
 		/* Skip disconnected players */
 		if (p_ptr->conn == NOT_CONNECTED) continue;
 
-		/* Hack -- don't display the dungeon master */
-		if (!strcmp(p_ptr->name,DUNGEON_MASTER)) continue;
-
 		/* Add an entry */
 		Packet_printf(&console_buf, "%s%s%s%d%d",
 			p_ptr->name, race_info[p_ptr->prace].title,
@@ -314,6 +311,18 @@ static void console_kick_player(char *name)
 	Packet_printf(&console_buf, "%c%c", CONSOLE_KICK_PLAYER, 0);
 }
 
+static void console_reload_server_preferences(void)
+{
+	/* Reload the server preferences */
+	load_server_cfg();
+
+	/* Let mangconsole know that the command was a success */
+	/* Packet header */
+	Packet_printf(&console_buf, "%c", CONSOLE_RELOAD_SERVER_PREFERENCES);
+
+	/* Write the output */
+	DgramReply(console_buf.sock, console_buf.ptr, console_buf.len);
+}
 static void console_shutdown(void)
 {
 	/* Packet header */
@@ -382,7 +391,7 @@ void NewConsole(int read_fd, int arg)
 
 	/* Check for illegal accesses */
 	//if (console_bad_name(host_name))
-	if (strcmp(passwd, CONSOLE_PASSWORD))
+	if (strcmp(passwd, cfg_console_password))
 	{
 		/* Clear buffer */
 		Sockbuf_clear(&console_buf);
@@ -449,6 +458,11 @@ void NewConsole(int read_fd, int arg)
 		case CONSOLE_KICK_PLAYER:
 			Packet_scanf(&console_buf, "%s", buf);
 			console_kick_player(buf);
+			break;
+
+		/* Wants to reload the server preferences */
+		case CONSOLE_RELOAD_SERVER_PREFERENCES:
+			console_reload_server_preferences();
 			break;
 
 		/* Wants to shut the server down */

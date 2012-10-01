@@ -1,5 +1,5 @@
                          **********************
-                         **  MAngband 0.6.0  **
+                         **  MAngband 0.6.1  **
                          **********************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -17,7 +17,7 @@
 
              MAngband 0.6: Alex Dingle (adingle@crud.net) 	   
 
-       NEW in MAngband 0.6.0 -- Wilderness, level saving, and more.
+  NEW in MAngband 0.6.1 -- Level unstaticer, increased shop prices, bugfixes.
 
        Visit the MAngband Home Page at "http://www.mangband.org/".
    Send all comments, bug reports, patches, etc, to "adingle@crud.net".
