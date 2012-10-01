@@ -91,13 +91,6 @@ Preserve artifacts on leaving level    [birth_preserve]
     the first time (in which case there is no excuse for losing it.) But 
     you don't get the "special" feeling. 
 
-***** <birth_rand_artifacts>
-Randomize some of the artifacts    [birth_rand_artifacts]
-    A different set of artifacts will be created, in place of the standard 
-    ones from a_info.txt/a_info.raw. This is intended primarily for people
-    who have played enough to know what most of the standard artifacts do
-    and have got bored with them. 
-
 ***** <birth_ironman>
 Restrict the use of stairs/recall    [birth_ironman]
     This option, not recommended for non-advanced players, prevents the 

@@ -1,0 +1,50 @@
+#File: ego_mon.txt
+
+# This file is used to initialize the "lib/raw/ego_mon.raw" file, which is
+# used to initialize the "ego monster" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding ego_mon.txt ===
+
+
+#
+V:0.4.0
+#
+N:1:<human>
+W:1
+
+N:2:<elven>
+W:2
+
+N:3:<dwarven>
+W:2
+X:MAGE
+
+N:4:<gnome>
+W:5
+X:WARRIOR
+
+N:5:<grippli>
+W:7
+X:WARRIOR 
+
+N:6:<lizardman>
+W:3
+X:MAGE | PRIEST
+
+N:7:<rattikin>
+W:2
+X:PRIEST
+
+N:8:<felpurr>
+W:4
+X:ROGUE
+
+N:9:<ursa>
+W:6
+X:MAGE | ROGUE
+
+N:10:<vargr>
+W:4

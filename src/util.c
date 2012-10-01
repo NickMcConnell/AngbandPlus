@@ -2584,7 +2584,6 @@ void c_prt(byte attr, cptr str, int row, int col)
 	Term_addstr(-1, attr, str);
 }
 
-
 /*
  * As above, but in "white"
  */
@@ -2593,9 +2592,6 @@ void prt(cptr str, int row, int col)
 	/* Spawn */
 	c_prt(TERM_WHITE, str, row, col);
 }
-
-
-
 
 /*
  * Print some (colored) text to the screen at the current cursor position,
@@ -2606,12 +2602,12 @@ void prt(cptr str, int row, int col)
  * calls to this function will work correctly.
  *
  * Once this function has been called, the cursor should not be moved
- * until all the related "c_roff()" calls to the window are complete.
+ * until all the related "text_out()" calls to the window are complete.
  *
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
  */
-void c_roff(byte a, cptr str)
+void text_out_to_screen(byte a, cptr str)
 {
 	int x, y;
 
@@ -2640,6 +2636,8 @@ void c_roff(byte a, cptr str)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			continue;
 		}
 
 		/* Clean up the char */
@@ -2702,18 +2700,116 @@ void c_roff(byte a, cptr str)
 	}
 }
 
-
 /*
- * As above, but in "white"
+ * Write text to the given file and apply line-wrapping.
+ *
+ * Hook function for text_out(). Make sure that text_out_file points
+ * to an open text-file.
+ *
+ * Long lines will be wrapped on the last space before column 75,
+ * directly at column 75 if the word is *very* long, or when
+ * encountering a newline character.
+ *
+ * Buffers the last line till a wrap occurs.  Flush the buffer with
+ * an explicit newline if necessary.
  */
-void roff(cptr str)
+void text_out_to_file_aux(byte attr, cptr str, bool indent)
 {
-	/* Spawn */
-	c_roff(TERM_WHITE, str);
+	cptr r;
+	int wrap_len = (indent) ? 72 : 75;
+
+	/* Line buffer */
+	static char roff_buf[256];
+
+	/* Current pointer into line roff_buf */
+	static char *roff_p = roff_buf;
+
+	/* Last space saved into roff_buf */
+	static char *roff_s = NULL;
+
+	/* Unused */
+	(void)attr;
+
+	/* Scan the given string, character at a time */
+	for (; *str; str++)
+	{
+		char ch = *str;
+		bool wrap = (ch == '\n');
+
+		if (!isprint(ch)) ch = ' ';
+
+		if (roff_p >= roff_buf + wrap_len) wrap = TRUE;
+
+		if ((ch == ' ') && (roff_p + 2 >= roff_buf + wrap_len)) wrap = TRUE;
+
+		/* Handle line-wrap */
+		if (wrap)
+		{
+			/* Terminate the current line */
+			*roff_p = '\0';
+
+			r = roff_p;
+
+			/* Wrap the line on the last known space */
+			if (roff_s && (ch != ' '))
+			{
+				*roff_s = '\0';
+				r = roff_s + 1;
+			}
+
+			/* Output the line */
+			if (indent) fprintf(text_out_file,"   ");
+			fprintf(text_out_file, "%s\n", roff_buf);
+
+			/* Reset the buffer */
+			roff_s = NULL;
+			roff_p = roff_buf;
+			roff_buf[0] = '\0';
+
+			/* Copy the remaining line into the buffer */
+			while (*r) *roff_p++ = *r++;
+
+			/* Append the last character */
+			if (ch != ' ') *roff_p++ = ch;
+
+			continue;
+		}
+
+		/* Remember the last space character */
+		if (ch == ' ') roff_s = roff_p;
+
+		/* Save the char */
+		*roff_p++ = ch;
+	}
 }
 
+void text_out_to_file(byte attr, cptr str)
+{
+	text_out_to_file_aux(attr, str, FALSE);
+}
 
+void text_out_to_file_indent(byte attr, cptr str)
+{
+	text_out_to_file_aux(attr, str, TRUE);
+}
 
+/*
+ * Output text to the screen or to a file depending on the selected
+ * text_out hook.
+ */
+void text_out(cptr str)
+{
+	text_out_c(TERM_WHITE, str);
+}
+
+/*
+ * Output text to the screen (in color) or to a file depending on the
+ * selected hook.
+ */
+void text_out_c(byte a, cptr str)
+{
+	text_out_hook(a, str);
+}
 
 /*
  * Clear part of the screen
@@ -3073,7 +3169,6 @@ void request_command(bool shopping)
 
 	cptr act;
 
-
 	/* Roguelike */
 	if (rogue_like_commands)
 	{
@@ -3085,7 +3180,6 @@ void request_command(bool shopping)
 	{
 		mode = KEYMAP_MODE_ORIG;
 	}
-
 
 	/* No command yet */
 	p_ptr->command_cmd = 0;
@@ -3285,9 +3379,6 @@ void request_command(bool shopping)
 		{
 			/* Command "p" -> "purchase" (get) */
 			case 'p': p_ptr->command_cmd = 'g'; break;
-
-			/* Command "m" -> "purchase" (get) */
-			case 'm': p_ptr->command_cmd = 'g'; break;
 
 			/* Command "s" -> "sell" (drop) */
 			case 's': p_ptr->command_cmd = 'd'; break;

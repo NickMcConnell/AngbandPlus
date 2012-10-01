@@ -1,0 +1,66 @@
+# File: a_prefix.txt
+
+# This file is used to initialize the "lib/data/a_prefix.raw" file, which is
+# used to initialize the "armor prefix" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Format:
+# N: serial number : prefix name
+# W: rarity : material : weight % : cost % 
+# P: ac : to-hit
+# F: flags 
+
+# Flags - SHOP, GOOD, determine whether the object is legal in stores and 
+# good items respectively.
+
+# Version stamp (required)
+
+V:0.4.0
+
+N:0:<none>
+W:1:0:100:100
+P:0:0
+F:SHOP | GOOD
+
+# Armor prefixes
+
+N:1:Damaged
+W:20:0:90:1
+P:-15:-2
+
+N:2:Rusty
+W:15:12:100:50
+P:-2:-1
+
+N:3:Quality
+W:30:0:90:130
+P:0:1
+F:SHOP | GOOD
+
+N:4:Golden
+W:45:12:120:250
+P:-2:0
+F:GOOD
+
+N:5:Mithril
+W:55:12:75:300
+P:2:1
+F:GOOD
+
+N:6:Adamantite
+W:65:12:130:350
+P:5:0
+F:GOOD
+
+N:7:Silk
+W:55:5:50:300
+P:-1:0
+F:GOOD
+
+N:8:Studded
+W:20:11:115:125
+P:1:0
+F:GOOD | SHOP
+

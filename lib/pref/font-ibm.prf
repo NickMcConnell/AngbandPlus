@@ -12,35 +12,31 @@
 
 F:1:1/-7
 
-# Invis traps (white / centered dot)
-
-F:2:1/-7
-
 # Magma (slate / special solid block)
 
-F:66:2/-80
-F:68:2/-80
+F:18:2/-80
+F:20:2/-80
 
 # Quartz (light slate / special solid block)
 
-F:67:9/-80
-F:69:9/-80
+F:19:9/-80
+F:21:9/-80
 
 # Secret door (white / solid block)
 
-F:64:1/-79
+F:16:1/-79
 
 # Granite walls (white / solid block)
 
-F:72:1/-79
-F:73:1/-79
-F:74:1/-79
-F:75:1/-79
+F:24:1/-79
+F:25:1/-79
+F:26:1/-79
+F:27:1/-79
 
 # Permanent rock (white / solid block)
 
-F:76:1/-79
-F:77:1/-79
-F:78:1/-79
-F:79:1/-79
+F:28:1/-79
+F:29:1/-79
+F:30:1/-79
+F:31:1/-79
 

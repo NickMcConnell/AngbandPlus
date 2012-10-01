@@ -101,7 +101,6 @@
 /*
  * Dungeon generation values
  */
-#define DUN_ROOMS	50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL	200	/* Level/chance of unusual room */
 #define DUN_DEST	35	/* 1/chance of having a destroyed level */
 #define SMALL_LEVEL 10	/* 1/chance of smaller size */
@@ -143,9 +142,9 @@
  * Hack -- Dungeon allocation "types"
  */
 #define ALLOC_TYP_RUBBLE	1	/* Rubble */
-#define ALLOC_TYP_TRAP		3	/* Trap */
-#define ALLOC_TYP_GOLD		4	/* Gold */
-#define ALLOC_TYP_OBJECT	5	/* Object */
+#define ALLOC_TYP_TRAP		2	/* Trap */
+#define ALLOC_TYP_GOLD		3	/* Gold */
+#define ALLOC_TYP_OBJECT	4	/* Object */
 
 /*
  * Maximum numbers of rooms along each axis (currently 6x18)
@@ -250,6 +249,9 @@ static room_data room[ROOM_MAX] =
 	{ -1, 2, -2, 3, 10 },	/* 8 = Greater vault (66x44) */
 	{ 0, 1, -1, 1, 0 }		/* 9 = Quest vault (44x22) */
 };
+
+/* Hack - variables for allocations */
+static s16b mon_gen, obj_gen;
 
 /*
  * Always picks a correct direction
@@ -451,13 +453,13 @@ static void alloc_stairs(int feat, int num, int walls)
  */
 static void alloc_object(int set, int typ, int num)
 {
-	int y, x, k;
+	int y, x, k, i;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
 	{
 		/* Pick a "legal" spot */
-		while (TRUE)
+		for (i = 0; i < 10000; i++)
 		{
 			bool room;
 
@@ -466,7 +468,7 @@ static void alloc_object(int set, int typ, int num)
 			x = rand_int(p_ptr->cur_wid);
 
 			/* Require "naked" floor grid */
-			if (!cave_naked_bold(y, x)) continue;
+			if (!cave_naked_bold(y, x)) continue; 
 
 			/* Check for "room" */
 			room = (cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE;
@@ -481,6 +483,9 @@ static void alloc_object(int set, int typ, int num)
 			break;
 		}
 
+		/* No point found */
+		if (i == 10000) return; 
+
 		/* Place something */
 		switch (typ)
 		{
@@ -492,7 +497,7 @@ static void alloc_object(int set, int typ, int num)
 
 			case ALLOC_TYP_TRAP:
 			{
-				place_trap(y, x);
+				place_trap_dungeon(y, x);
 				break;
 			}
 
@@ -651,6 +656,41 @@ static void destroy_level(void)
 }
 
 /*
+ * Create up to "num" objects excluding gold near the given coordinates
+ * Only really called by the room_info routines
+ */
+static void vault_items(int y, int x, int num)
+{
+	int i, j, k;
+
+	/* Attempt to place 'num' objects */
+	for (; num > 0; --num)
+	{
+		/* Try up to 11 spots looking for empty space */
+		for (i = 0; i < 11; ++i)
+		{
+			/* Pick a random location */
+			while (1)
+			{
+				j = rand_spread(y, 2);
+				k = rand_spread(x, 3);
+				if (!in_bounds(j, k)) continue;
+				break;
+			}
+
+			/* Require "clean" floor space */
+			if (!cave_clean_bold(j, k)) continue;
+
+			/* Place gold */
+			place_object(j, k, FALSE,FALSE);
+
+			/* Placement accomplished */
+			break;
+		}
+	}
+}
+
+/*
  * Create up to "num" objects near the given coordinates
  * Only really called by some of the "vault" routines.
  */
@@ -717,7 +757,7 @@ static void vault_trap_aux(int y, int x, int yd, int xd)
 		if (!cave_naked_bold(y1, x1)) continue;
 
 		/* Place the trap */
-		place_trap(y1, x1);
+		place_trap_dungeon(y1, x1);
 
 		/* Done */
 		break;
@@ -762,6 +802,8 @@ static void vault_monsters(int y1, int x1, int num)
 			monster_level = p_ptr->depth + 2;
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = p_ptr->depth;
+
+			if (++k>=num) break;
 		}
 	}
 }
@@ -866,6 +908,7 @@ static void generate_open(int y1, int x1, int y2, int x2, int feat)
 static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 {
 	int y0, x0;
+	int xx, yy;
 
 	/* Center */
 	y0 = (y1 + y2) / 2;
@@ -876,25 +919,228 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 	{
 		case 0:
 		{
-			cave_set_feat(y1, x0, feat);
+			xx = x0;
+			yy = y1;
 			break;
 		}
 		case 1:
 		{
-			cave_set_feat(y0, x1, feat);
+			xx = x1;
+			yy = y0;
 			break;
 		}
 		case 2:
 		{
-			cave_set_feat(y2, x0, feat);
+			xx = x0;
+			yy = y2;
 			break;
 		}
 		case 3:
 		{
-			cave_set_feat(y0, x2, feat);
+			xx = x2;
+			yy = y0;
 			break;
 		}
 	}
+
+	cave_set_feat(yy, xx, feat);
+	
+	/* Hack - lock closed doors */
+	if (feat == FEAT_CLOSED) place_lock(yy, xx, TRUE, WG_DOOR_LOCK);
+
+	/* Hack - sometimes lock secret doors */
+	if ((feat == FEAT_SECRET) && rand_int(2)) place_lock(yy, xx, FALSE, WG_DOOR_LOCK);
+}
+
+/*
+ * Hack -- flags type for "vault_aux_room_info()"
+ */
+static int room_info_mon_flag;
+static int room_info_mon_s_flag;
+
+/*
+ * Hack -- char type for "vault_aux_room_info()"
+ */
+static byte room_info_mon_char;
+
+/*
+ * Helper function for room info
+ */
+static bool room_info_mon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Hack -- Require matching graphic if set  */
+	if ((room_info_mon_char) &&
+		(room_info_mon_char != r_ptr->d_char)) return (FALSE);
+
+	/* Require matching flag if set */
+	if (room_info_mon_flag >= 0)
+	{
+		if ((room_info_mon_flag < 32) && 
+			!(r_ptr->flags1 & (1L << room_info_mon_flag))) return (FALSE);
+
+		if ((room_info_mon_flag >= 32) && 
+			(room_info_mon_flag < 64) && 
+			!(r_ptr->flags2 & (1L << (room_info_mon_flag -32)))) return (FALSE);
+
+		if ((room_info_mon_flag >= 64) && 
+			(room_info_mon_flag < 96) && 
+			!(r_ptr->flags3 & (1L << (room_info_mon_flag -64)))) return (FALSE);
+
+		if ((room_info_mon_flag >= 96) && 
+			(room_info_mon_flag < 128) && 
+			!(r_ptr->flags4 & (1L << (room_info_mon_flag -96)))) return (FALSE);
+	}
+
+	/* Require matching flag if set */
+	if (room_info_mon_s_flag >= 0)
+	{
+		if ((room_info_mon_s_flag < 32) && 
+			!(r_ptr->s_flags1 & (1L << room_info_mon_s_flag))) return (FALSE);
+
+		if ((room_info_mon_s_flag >= 32) && 
+			(room_info_mon_s_flag < 64) && 
+			!(r_ptr->s_flags2 & (1L << (room_info_mon_s_flag -32)))) return (FALSE);
+
+		if ((room_info_mon_s_flag >= 64) && 
+			(room_info_mon_s_flag < 96) && 
+			!(r_ptr->s_flags3 & (1L << (room_info_mon_s_flag -64)))) return (FALSE);
+	}
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Hack -- flags type for "vault_aux_room_info()"
+ */
+static int room_info_kind_tval;
+
+/*
+ *
+ */
+static bool room_info_kind(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	if (k_ptr->tval == room_info_kind_tval) return (TRUE);
+
+	return(FALSE);
+
+}
+
+/*
+ * Get the room description, and place stuff accordingly.
+ */
+static void get_room_info(int y, int x)
+{
+	int i, j, chart, roll;
+
+	int room = dun->cent_n+1;
+
+	/* Initialise chart */
+	chart = 1;
+	j = 0;
+
+	/* Process the description */
+	while (chart && (j < ROOM_DESC_SECTIONS - 1))
+	{
+		/* Start over */
+		i = 0;
+
+		/* Roll for line */
+		roll = randint(100);
+
+		/* Get the proper entry in the table */
+		while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
+
+		/* If not allowed on this level, drop to maximum result */
+		if (p_ptr->depth < d_info[i].level)
+		{
+			while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
+		}
+
+		/* Save index */
+		room_info[room].section[j++] = i;
+		
+		/* Place monster if needed */
+		if ((d_info[i].r_flag) || (d_info[i].r_s_flag) || (d_info[i].r_char))
+		{
+			room_info_mon_flag = d_info[i].r_flag -1;
+			room_info_mon_s_flag = d_info[i].r_s_flag -1;
+			room_info_mon_char = d_info[i].r_char;
+
+			get_mon_num_hook = room_info_mon;
+
+			/* Prepare allocation table */
+			get_mon_num_prep();
+
+			/* Place the monster */
+			vault_monsters(y,x,1);
+
+			get_mon_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_mon_num_prep();
+
+			/* Lower the level's monster count */
+			if (mon_gen) mon_gen--;
+		}
+
+		/* Place objects if needed */
+		if (d_info[i].tval)
+		{
+			room_info_kind_tval = d_info[i].tval;
+
+			get_obj_num_hook = room_info_kind;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Place the items */
+			vault_items(y, x, randint(6));
+
+			get_obj_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Lower the level's object count */
+			if (obj_gen) obj_gen--;
+		}
+			
+		/* Place features if needed */
+		if (d_info[i].feat)
+		{
+			int ii, y1, x1;
+
+			/* Try nine locations */
+			for (ii = 0; ii < 9; ii++)
+			{
+				int d = 3;
+
+				/* Pick a nearby location */
+				scatter(&y1, &x1, y, x, d);
+
+				/* Require "empty" grid */
+				if (!cave_naked_bold(y1, x1)) continue;
+
+				cave_set_feat(y1,x1,d_info[i].feat);
+			}
+		}
+
+		/* Enter the next chart */
+		chart = d_info[i].next;
+	}
+
+	/* Type */
+	room_info[room].type = ROOM_NORMAL;
+
+	/* Terminate index list */
+	room_info[room].section[j] = -1;
+
+	room_info[room].seen = FALSE;
 }
 
 /*
@@ -967,6 +1213,9 @@ static void build_type1(int y0, int x0)
 			cave_set_feat(y2, x, FEAT_WALL_INNER);
 		}
 	}
+
+	/* Pretty description and maybe more monsters/objects/traps */
+	get_room_info(y0,x0);
 }
 
 /*
@@ -1011,6 +1260,9 @@ static void build_type2(int y0, int x0)
 
 	/* Generate inner floors (b) */
 	generate_fill(y1b, x1b, y2b, x2b, FEAT_FLOOR);
+
+	/* Pretty description and maybe more monsters/objects/traps */
+	get_room_info(y0,x0);
 }
 
 /*
@@ -1158,6 +1410,9 @@ static void build_type3(int y0, int x0)
 			break;
 		}
 	}
+
+	/* Pretty description and maybe more monsters/objects/traps */
+	get_room_info(y0,x0);
 }
 
 /*
@@ -1227,8 +1482,8 @@ static void build_type4(int y0, int x0)
 			/* Place another inner room */
 			generate_draw(y0-1, x0-1, y0+1, x0+1, FEAT_WALL_INNER);
 
-			/* Open the inner room with a locked door */
-			generate_hole(y0-1, x0-1, y0+1, x0+1, FEAT_DOOR_HEAD + randint(7));
+			/* Open the inner room with a closed door */
+			generate_hole(y0-1, x0-1, y0+1, x0+1, FEAT_CLOSED);
 
 			/* Monsters to guard the treasure */
 			vault_monsters(y0, x0, randint(3) + 2);
@@ -1374,6 +1629,10 @@ static void build_type4(int y0, int x0)
 			break;
 		}
 	}
+
+	/* Initialise room description */
+	room_info[dun->cent_n+1].type = ROOM_LARGE;
+	room_info[dun->cent_n+1].seen = FALSE;
 }
 
 /*
@@ -1449,7 +1708,7 @@ static bool vault_aux_animal(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require "animal" flag */
-	if (!(r_ptr->flags2 & (RF2_ANIMAL))) return (FALSE);
+	if (!(r_ptr->flags4 & (RF4_ANIMAL))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1483,7 +1742,7 @@ static bool vault_aux_undead(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require Undead */
-	if (!(r_ptr->flags2 & (RF2_UNDEAD))) return (FALSE);
+	if (!(r_ptr->flags4 & (RF4_UNDEAD))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1534,7 +1793,7 @@ static bool vault_aux_person(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require People */
-	if (!(r_ptr->flags2 & (RF2_PERSON))) return (FALSE);
+	if (!(r_ptr->flags4 & (RF4_PERSON))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1578,7 +1837,7 @@ static bool vault_aux_dragon(int r_idx)
 	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
 
 	/* Hack -- Require correct "breath attack" */
-	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
+	if (r_ptr->s_flags1 != vault_aux_dragon_mask4) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1684,6 +1943,9 @@ static void build_type5(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 15 - p_ptr->depth;
+
+		/* Room info */
+		room_info[dun->cent_n+1].type = ROOM_NEST_RODENT;
 	}
 
 	/* Monster nest (jelly) */
@@ -1697,6 +1959,8 @@ static void build_type5(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 25 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_NEST_JELLY;
 	}
 
 	/* Monster nest (treasure) */
@@ -1710,6 +1974,8 @@ static void build_type5(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 25 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_NEST_TREASURE;
 	}
 
 	/* Monster nest (animal) */
@@ -1723,6 +1989,8 @@ static void build_type5(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 45 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_NEST_ANIMAL;
 	}
 
 	/* Monster nest (horror) */
@@ -1736,6 +2004,8 @@ static void build_type5(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 60 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_NEST_HORROR;
 	}
 	
 	/* Monster nest (undead) */
@@ -1749,7 +2019,13 @@ static void build_type5(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 85 - p_ptr->depth;
+
+		/* Initialise room description */
+		room_info[dun->cent_n+1].type = ROOM_NEST_UNDEAD;
 	}
+
+	/* Initialize room description */
+	room_info[dun->cent_n+1].seen = FALSE;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
@@ -1898,6 +2174,8 @@ static void build_type6(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 30 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_PIT_ORC;
 	}
 
 	/* Troll pit */
@@ -1911,6 +2189,8 @@ static void build_type6(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 35 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_PIT_TROLL;
 	}
 
 	/* Person pit */
@@ -1924,6 +2204,8 @@ static void build_type6(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 50 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_PIT_PERSON;
 	}
 
 	/* Giant pit */
@@ -1937,6 +2219,8 @@ static void build_type6(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 65 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_PIT_GIANT;
 	}
 
 	/* Dragon pit */
@@ -1955,7 +2239,7 @@ static void build_type6(int y0, int x0)
 				name = "acid dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ACID;
+				vault_aux_dragon_mask4 = SRF1_BR_ACID;
 
 				/* Done */
 				break;
@@ -1968,7 +2252,7 @@ static void build_type6(int y0, int x0)
 				name = "electric dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ELEC;
+				vault_aux_dragon_mask4 = SRF1_BR_ELEC;
 
 				/* Done */
 				break;
@@ -1981,7 +2265,7 @@ static void build_type6(int y0, int x0)
 				name = "fire dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_FIRE;
+				vault_aux_dragon_mask4 = SRF1_BR_FIRE;
 
 				/* Done */
 				break;
@@ -1994,7 +2278,7 @@ static void build_type6(int y0, int x0)
 				name = "cold dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_COLD;
+				vault_aux_dragon_mask4 = SRF1_BR_COLD;
 
 				/* Done */
 				break;
@@ -2007,7 +2291,7 @@ static void build_type6(int y0, int x0)
 				name = "poison dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_POIS;
+				vault_aux_dragon_mask4 = SRF1_BR_POIS;
 
 				/* Done */
 				break;
@@ -2020,7 +2304,7 @@ static void build_type6(int y0, int x0)
 				name = "confusion dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_CONF;
+				vault_aux_dragon_mask4 = SRF1_BR_CONF;
 
 				/* Done */
 				break;
@@ -2033,7 +2317,7 @@ static void build_type6(int y0, int x0)
 				name = "sound dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_SOUN;
+				vault_aux_dragon_mask4 = SRF1_BR_SOUN;
 
 				/* Done */
 				break;
@@ -2046,7 +2330,7 @@ static void build_type6(int y0, int x0)
 				name = "shard dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_SHAR;
+				vault_aux_dragon_mask4 = SRF1_BR_SHAR;
 
 				/* Done */
 				break;
@@ -2059,10 +2343,10 @@ static void build_type6(int y0, int x0)
 				name = "multi-hued dragon";
 
 				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-				                          RF4_BR_FIRE | RF4_BR_COLD |
-				                          RF4_BR_POIS | RF4_BR_SHAR |
-										  RF4_BR_SOUN | RF4_BR_CONF);
+				vault_aux_dragon_mask4 = (SRF1_BR_ACID | SRF1_BR_ELEC |
+				                          SRF1_BR_FIRE | SRF1_BR_COLD |
+				                          SRF1_BR_POIS | SRF1_BR_SHAR |
+										  SRF1_BR_SOUN | SRF1_BR_CONF);
 
 				/* Done */
 				break;
@@ -2071,6 +2355,8 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_dragon;
+
+		room_info[dun->cent_n+1].type = ROOM_PIT_DRAGON;
 	}
 
 	/* Demon pit */
@@ -2084,7 +2370,12 @@ static void build_type6(int y0, int x0)
 
 		/* Appropriate rating bonus */
 		rating_bonus = 95 - p_ptr->depth;
+
+		room_info[dun->cent_n+1].type = ROOM_PIT_DEMON;
 	}
+
+	/* Initialize room description */
+	room_info[dun->cent_n+1].seen = FALSE;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
@@ -2273,7 +2564,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					}
 					else
 					{
-						place_trap(y, x);
+						place_trap_dungeon(y, x);
 					}
 					break;
 				}
@@ -2288,7 +2579,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Trap */
 				case '^':
 				{
-					place_trap(y, x);
+					place_trap_dungeon(y, x);
 					break;
 				}
 			}
@@ -2406,6 +2697,10 @@ static void build_type7(int y0, int x0)
 	/* Message */
 	if (cheat_room) message_format(MSG_CHEAT, 0, "Lesser Vault (%s)", v_name + v_ptr->name);
 
+	/* Initialize room description */
+	room_info[dun->cent_n+1].type = ROOM_LESSER_VAULT;
+	room_info[dun->cent_n+1].seen = FALSE;
+
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
@@ -2440,6 +2735,10 @@ static void build_type8(int y0, int x0)
 	/* Message */
 	if (cheat_room) message_format(MSG_CHEAT, 0, "Greater Vault (%s)", v_name + v_ptr->name);
 
+	/* Initialize room description */
+	room_info[dun->cent_n+1].type = ROOM_GREATER_VAULT;
+	room_info[dun->cent_n+1].seen = FALSE;
+
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
@@ -2473,6 +2772,10 @@ static void build_type9(int y0, int x0)
 
 	/* Message */
 	if (cheat_room) message_format(MSG_CHEAT, 0, "Quest Vault (%s)", v_name + v_ptr->name);
+
+	/* Initialize room description */
+	room_info[dun->cent_n+1].type = ROOM_QUEST_VAULT;
+	room_info[dun->cent_n+1].seen = FALSE;
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2889,6 +3192,8 @@ static bool room_build(int by0, int bx0, int typ)
 		for (bx = bx1; bx <= bx2; bx++)
 		{
 			dun->room_map[by][bx] = TRUE;
+
+			dun_room[by][bx] = dun->cent_n;
 		}
 	}
 
@@ -2917,6 +3222,10 @@ static void cave_gen(void)
 
 	/* Global data */
 	dun = &dun_body;
+
+	/* Reset generation variables */
+	mon_gen = MIN_M_ALLOC_LEVEL;
+	obj_gen = (byte)Rand_normal(DUN_AMT_ROOM, 3);
 
 	/* Possible "destroyed" level */
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
@@ -2965,6 +3274,9 @@ static void cave_gen(void)
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = p_ptr->cur_hgt / BLOCK_HGT;
 	dun->col_rooms = p_ptr->cur_wid / BLOCK_WID;
+
+	/* Initialize 'zeroeth' room description */
+	room_info[0].seen = FALSE;
 
 	/* Initialize the room table */
 	for (by = 0; by < dun->row_rooms; by++)
@@ -3168,28 +3480,27 @@ static void cave_gen(void)
 	/* Determine the character location */
 	new_player_spot();
 
-	/* Pick a base number of monsters */
-	i = MIN_M_ALLOC_LEVEL;
-
 	/* To make small levels a bit more playable */
 	if (p_ptr->cur_hgt < MAX_DUNGEON_HGT || p_ptr->cur_wid < MAX_DUNGEON_WID)
 	{
-		int small_tester = i;
+		int small_tester = mon_gen;
 
-		i = ((i * p_ptr->cur_hgt) / MAX_DUNGEON_HGT) +1;
-		i = ((i * p_ptr->cur_wid) / MAX_DUNGEON_WID) +1;
+		mon_gen = ((i * p_ptr->cur_hgt) / MAX_DUNGEON_HGT) +1;
+		mon_gen = ((i * p_ptr->cur_wid) / MAX_DUNGEON_WID) +1;
 
-		if (i > small_tester) i = small_tester;
+		if (mon_gen > small_tester) mon_gen = small_tester;
 		else if (cheat_hear)
 		{
 			message_format(MSG_CHEAT, 0, "Reduced monsters base from %d to %d", small_tester, i);
 		}
 	}
 
-	i += randint(8);
+	if (mon_gen < 0) mon_gen = 0;
+
+	mon_gen += randint(8);
 
 	/* Put some monsters in the dungeon */
-	for (i = i + k; i > 0; i--)
+	for (i = mon_gen + k; i > 0; i--)
 	{
 		(void)alloc_monster(0, TRUE);
 	}
@@ -3229,7 +3540,7 @@ static void cave_gen(void)
 	}
 
 	/* Put some objects in rooms */
-	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
+	if (obj_gen > 0) alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, obj_gen);
 
 	/* Put some objects/gold in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
@@ -3412,6 +3723,20 @@ static void town_gen(void)
 
 	bool daytime;
 
+	int by,bx;
+
+	/* Initialize the room table */
+	for (by = 0; by < MAX_ROOMS_ROW; by++)
+	{
+		for (bx = 0; bx < MAX_ROOMS_COL; bx++)
+		{
+			dun_room[by][bx] = 0;
+		}
+	}
+
+	/* Reset room info */
+	room_info[0].seen = FALSE;
+
 	/* Restrict to single-screen size */
 	p_ptr->cur_hgt = SCREEN_HGT;
 	p_ptr->cur_wid = SCREEN_WID;
@@ -3496,6 +3821,7 @@ void generate_cave(void)
 		/* Reset */
 		o_max = 1;
 		m_max = 1;
+		t_max = 1;
 
 		/* Start with a blank cave */
 		for (y = 0; y < MAX_DUNGEON_HGT; y++)
@@ -3626,6 +3952,9 @@ void generate_cave(void)
 
 		/* Wipe the objects */
 		wipe_o_list();
+
+		/* Wipe the traps */
+		wipe_t_list();
 
 		/* Wipe the monsters */
 		wipe_m_list();

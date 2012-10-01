@@ -173,7 +173,7 @@ cptr describe_quest(s16b level, int mode)
 	else if (q_ptr->type == QUEST_GUILD) strcpy(intro, "To fulfill your task, you must");
 
 	/* Paranoia */
-	else strcpy(intro, "For some bizzare reason, you should");
+	else strcpy(intro, "For some bizarre reason, you should");
 			
 	/* The location of the quest */
 	if (!depth_in_feet) strcpy(where, format("on dungeon level %d.", level));
@@ -196,10 +196,11 @@ static void grant_reward(byte reward_level, byte type)
 {
 	int i, j;
 	bool great = ((type == REWARD_GREAT_ITEM) ? TRUE : FALSE);
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	object_type *i_ptr, *j_ptr;
-	object_type object_type_body;
+ 	object_type object_type_body;
+	store_type *st_ptr = &store[STORE_HOME];
 
 	/* Generate object at quest level */
 	p_ptr->obj_depth = reward_level;
@@ -227,14 +228,20 @@ static void grant_reward(byte reward_level, byte type)
 	{
 		s32b price_threshold = ((p_ptr->au * (10 + p_ptr->fame)) / 100);
 		int force_item = rand_int(p_ptr->fame);
+		int x_fame;
 
 		/* Boundary check */
 		if (price_threshold < p_ptr->au) 
-			price_threshold = (p_ptr->au < 100000 ? 100000 : p_ptr->au);
+			price_threshold = (p_ptr->au < 10000 ? 10000 : p_ptr->au);
+
+		if (price_threshold > 250000) price_threshold = 250000;
 
 		/* 100 attempts at finding a decent item */
 		for (i = 0; i < 100; i++)
 		{
+			/* Temporary fame */
+			x_fame = ((p_ptr->fame - i) < 1) ? 0 : (p_ptr->fame - i);
+
 			/* Wipe the object */
 			object_wipe(i_ptr);
 
@@ -255,11 +262,13 @@ static void grant_reward(byte reward_level, byte type)
 			/* Check for appropriateness */
 			if (i_ptr->tval == TV_MAGIC_BOOK)
 			{
+				bool already_own_book = FALSE;
+
 				/* Spellbooks - first, check if you can use them */
 				if (!cp_ptr->spell_book[i_ptr->sval]) continue;
 
 				/* Sometimes, check if we already have them */
-				if (rand_int(p_ptr->fame) < 7)	break;
+				if (rand_int(p_ptr->fame) < 15)	break;
 
 				/* Look for item in the pack */
 				for (j = 0; j < INVEN_PACK; j++)
@@ -267,9 +276,22 @@ static void grant_reward(byte reward_level, byte type)
 					/* Get the item */
 					j_ptr = &inventory[j];
 
-					/* If we already have this book, don't create another copy */
-					if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval)) continue;
+					if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval)) 
+						already_own_book = TRUE;
 				}
+
+				/* Look for item in home */
+				if (st_ptr->stock_num)
+				{
+					for (j = 0; j < st_ptr->stock_num; j++)
+					{
+						j_ptr = &st_ptr->stock[j];
+						if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval)) 
+							already_own_book = TRUE;
+					}
+ 				}
+
+				if (already_own_book) continue;
 
 				break;
 			}
@@ -283,22 +305,22 @@ static void grant_reward(byte reward_level, byte type)
 				/* Compare value of the item with the old item */
 				if (j_ptr->k_idx)
 				{
-					if (object_value(i_ptr) <= ((object_value(j_ptr) * (90 + p_ptr->fame)) / 100))
+					if (object_value(i_ptr) <= ((object_value(j_ptr) * (90 + x_fame)) / 100))
 						continue;
 				}
 				
 				/* Sometimes, more sophisticated checks */
-				if (rand_int(p_ptr->fame) < 5) break;
+				if (rand_int(p_ptr->fame) < 7) break;
 
 				/* Weapons - additional checks */
 				if (j == INVEN_WIELD)
 				{
-					object_flags(i_ptr, &f1, &f2, &f3, &f4);
+					object_flags(i_ptr, &f1, &f2, &f3);
 
 					if (cp_ptr->flags & CF_BLESS_WEAPON)
 					{
 						/* Limit to legal weapon types */
-						if ((i_ptr->tval != TV_HAFTED) && !(f4 & TR4_BLESSED)) continue;
+						if ((i_ptr->tval != TV_HAFTED) && !(f2 & TR2_BLESSED)) continue;
 					}
 					
 					/* Too heavy */
@@ -308,7 +330,7 @@ static void grant_reward(byte reward_level, byte type)
 				/* Gloves - additional checks */
 				if (j == INVEN_HANDS)
 				{
-					object_flags(i_ptr, &f1, &f2, &f3, &f4);
+					object_flags(i_ptr, &f1, &f2, &f3);
 
 					if (cp_ptr->flags & CF_NO_GLOVE)
 					{
@@ -332,7 +354,7 @@ static void grant_reward(byte reward_level, byte type)
 				if (!j_ptr->k_idx) break;
 
 				/* Compare value of the item with the old item */
-				if (object_value(i_ptr) <= ((object_value(j_ptr) * (90 + p_ptr->fame)) / 100))
+				if (object_value(i_ptr) <= ((object_value(j_ptr) * (90 + x_fame)) / 100))
 					continue;
 				
 				break;
@@ -342,6 +364,9 @@ static void grant_reward(byte reward_level, byte type)
 				/* If you can't use the ammo, inappropriate */
 				if (p_ptr->ammo_tval != i_ptr->tval) continue;
 
+				/* For high fame, ammo rewards are rare */
+				if (randint(p_ptr->fame) > 30) continue;
+
 				/* If you can, appropriate */
 				break;
 			}
@@ -350,15 +375,35 @@ static void grant_reward(byte reward_level, byte type)
 			break;
 		}
 
-		/* Complete identification */
+		/* Identify it */
 		object_aware(i_ptr);
 
+		/* Mark history */
+		i_ptr->origin_nature = ORIGIN_REWARD;
+		i_ptr->origin_dlvl = reward_level;
+
+		/* Handle Artifacts */
 		if (artifact_p(i_ptr))
 		{
 			artifact_type *a_ptr = &a_info[i_ptr->a_idx];
 
+			/* Mark the item as fully known */
+			if (cp_ptr->flags & CF_LORE) artifact_known(&a_info[i_ptr->a_idx]);
+
+			/* Mark the artifact as "aware" */
+			artifact_aware(&a_info[i_ptr->a_idx]);
+
 			/* Describe it fully */
-			if artifact_known_p(a_ptr) identify_fully_aux(i_ptr);
+			if artifact_known_p(a_ptr) 
+			{
+				/* Track the object */
+				object_actual_track(i_ptr);
+
+				/* Hack -- Handle stuff */
+				handle_stuff();
+	
+				screen_object(i_ptr, TRUE);
+			}
 		}
 
 		/* Drop the object */
@@ -415,27 +460,27 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 			if (r_ptr->level != (lev + lev_diff)) continue;
 			
 			/* Never any monster that multiplies */
-			if (r_ptr->flags2 & RF2_MULTIPLY) continue;
+			if (r_ptr->flags1 & RF1_MULTIPLY) continue;
 
 			/* Check if a monster that can't move can still hurt the player from a distance */
-			if (r_ptr->flags1 & RF1_NEVER_MOVE)
+			if (r_ptr->flags2 & RF2_NEVER_MOVE)
 			{
 				bool okay = FALSE;
 
 				/* Allow if the monster can summon */
-				if ((r_ptr->flags4 & (RF4_SUMMON_MASK)) ||
-					(r_ptr->flags5 & (RF5_SUMMON_MASK)) || 
-					(r_ptr->flags6 & (RF6_SUMMON_MASK)))
+				if ((r_ptr->s_flags1 & (SRF1_SUMMON_MASK)) ||
+					(r_ptr->s_flags2 & (SRF2_SUMMON_MASK)) || 
+					(r_ptr->s_flags3 & (SRF3_SUMMON_MASK)))
 					okay = TRUE;
 				/* Allow if the monster can attack */
-				if ((r_ptr->flags4 & (RF4_ATTACK_MASK)) ||
-					(r_ptr->flags5 & (RF5_ATTACK_MASK)) || 
-					(r_ptr->flags6 & (RF6_ATTACK_MASK)))
+				if ((r_ptr->s_flags1 & (SRF1_ATTACK_MASK)) ||
+					(r_ptr->s_flags2 & (SRF2_ATTACK_MASK)) || 
+					(r_ptr->s_flags3 & (SRF3_ATTACK_MASK)))
 					okay = TRUE;
 				/* Allow if the monster can bring the player to itself */
-				if ((r_ptr->flags4 & (RF4_TACTIC_FAR_MASK)) ||
-					(r_ptr->flags5 & (RF5_TACTIC_FAR_MASK)) || 
-					(r_ptr->flags6 & (RF6_TACTIC_FAR_MASK)))
+				if ((r_ptr->s_flags1 & (SRF1_TACTIC_FAR_MASK)) ||
+					(r_ptr->s_flags2 & (SRF2_TACTIC_FAR_MASK)) || 
+					(r_ptr->s_flags3 & (SRF3_TACTIC_FAR_MASK)))
 					okay = TRUE;
 
 				if (!okay) continue;
@@ -549,7 +594,6 @@ void display_guild(void)
 	int i, j;
 	byte attr;
 	cptr p, q_out;
-	int count = 0;
 
 	/* Describe the guild */
 	put_str("The Adventurer's Guild", 3, 30);
@@ -752,7 +796,7 @@ void display_guild(void)
 		if (p_ptr->fame % GUILD_FAME_SPECIAL == 7)
 		{
 			put_str(format("%c)", I2A(avail_quest)), 10 + avail_quest, 0);
-			c_put_str(TERM_VIOLET, "A speical quest.", 10 + avail_quest, 4);
+			c_put_str(TERM_VIOLET, "A special quest.", 10 + avail_quest, 4);
 			avail_quest++;
 		}
 	}

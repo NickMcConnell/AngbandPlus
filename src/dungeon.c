@@ -41,6 +41,9 @@ int value_check_aux1(object_type *o_ptr)
 	/* Broken items */
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
+	/* In most cases, rings and amulets don't get a feeling (for squelching purposes) */
+	if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) return (0);
+
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
 
@@ -67,6 +70,9 @@ int value_check_aux2(object_type *o_ptr)
 
 	/* Ego-Items -- except cursed/broken ones */
 	if (ego_item_p(o_ptr)) return (INSCRIP_GOOD);
+
+	/* In most cases, rings and amulets don't get a feeling (for squelching purposes) */
+	if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) return (0);
 
 	/* Good armor bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
@@ -312,6 +318,10 @@ static void regenmana(int percent)
 
 	old_csp = p_ptr->csp;
 	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+
+	/* Minimum */
+	if (new_mana < (PY_REGEN_MNBASE * 10)) new_mana = PY_REGEN_MNBASE * 10;
+
 	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
 	/* check for overflow */
 	if ((p_ptr->csp < 0) && (old_csp > 0))
@@ -397,7 +407,7 @@ static void regen_monsters(void)
  */
 static void process_world(void)
 {
-	int i, j, temp;
+	int i, j, temp, temp2;
 
 	int regen_amount;
 
@@ -452,23 +462,8 @@ static void process_world(void)
 		if ((p_ptr->cur_quest != p_ptr->depth) && (rand_int(2) == 0))
 		{
 			/* Check if quest is in progress */
-			if (q_ptr->started && q_ptr->active_level)
-			{
-				/* Mark quest as completed */
-				q_ptr->active_level = 0;
-				p_ptr->cur_quest = 0;
-				
-				/* No reward for failed quest */
-				q_ptr->reward = 0;
-
-				/* Message */
-				message(MSG_QUEST_FAIL, 0, "You have failed in your quest!");
-
-				if (p_ptr->fame) p_ptr->fame /= 2;
-	
-				/* Disturb */
-				if (disturb_minor) disturb(0);
-			}
+			if (q_ptr->started && q_ptr->active_level && (q_ptr->type == QUEST_GUILD))
+				quest_fail();
 		}
 	}
 
@@ -736,6 +731,7 @@ static void process_world(void)
 	if (p_ptr->tim_invis > 0)	(void)set_tim_invis(p_ptr->tim_invis - 1);
 	if (p_ptr->tim_invis < 0)	(void)set_tim_invis(p_ptr->tim_invis + 1);
 	if (p_ptr->tim_infra)		(void)set_tim_infra(p_ptr->tim_infra - 1);
+	if (p_ptr->tim_stealth)		(void)set_tim_stealth(p_ptr->tim_stealth - 1);
 	if (p_ptr->paralyzed)		(void)set_paralyzed(p_ptr->paralyzed - 1);
 	if (p_ptr->afraid)			(void)set_afraid(p_ptr->afraid - 1);
 	if (p_ptr->fast)			(void)set_fast(p_ptr->fast - 1);
@@ -753,21 +749,10 @@ static void process_world(void)
 		(void)set_confused(p_ptr->confused - 1);
 
 	/* Timed Resistances */
-	if (p_ptr->oppose_acid)		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
-	if (p_ptr->oppose_elec)		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
-	if (p_ptr->oppose_fire)		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
-	if (p_ptr->oppose_cold)		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
-	if (p_ptr->oppose_pois)		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
-	if (p_ptr->oppose_disease)	(void)set_oppose_disease(p_ptr->oppose_disease - 1);
-	if (p_ptr->tim_res_lite)	(void)set_tim_res_lite(p_ptr->tim_res_lite - 1);
-	if (p_ptr->tim_res_dark)	(void)set_tim_res_dark(p_ptr->tim_res_dark - 1);
-	if (p_ptr->tim_res_confu)	(void)set_tim_res_confu(p_ptr->tim_res_confu - 1);
-	if (p_ptr->tim_res_sound)	(void)set_tim_res_sound(p_ptr->tim_res_sound - 1);
-	if (p_ptr->tim_res_shard)	(void)set_tim_res_shard(p_ptr->tim_res_shard - 1);
-	if (p_ptr->tim_res_nexus)	(void)set_tim_res_nexus(p_ptr->tim_res_nexus - 1);
-	if (p_ptr->tim_res_nethr)	(void)set_tim_res_nethr(p_ptr->tim_res_nethr - 1);
-	if (p_ptr->tim_res_chaos)	(void)set_tim_res_chaos(p_ptr->tim_res_chaos - 1);
-	if (p_ptr->tim_res_water)	(void)set_tim_res_water(p_ptr->tim_res_water - 1);
+	for (i = 0; i < RS_MAX; i++)
+	{
+		if (p_ptr->tim_res[i])	(void)set_tim_res(i, p_ptr->tim_res[i] - 1);
+	}
 
 	/*** Stuff with CON-related healing ***/
 
@@ -859,7 +844,7 @@ static void process_world(void)
 	/* Handle item draining */
 	if (p_ptr->item_drain)
 	{
-		if (rand_int(1000) < ((p_ptr->resist_disen) ? 1 : 50))
+		if (rand_int(1000) < (resist_effect(20, RS_DSN) ? 1 : 50))
 		{
 			/* Ten attempts at disenchanting something */
 			for (i = 0; i<10 ; i++)
@@ -883,6 +868,15 @@ static void process_world(void)
 		{
 			/* Recharge */
 			o_ptr->timeout--;
+
+			/* Notify player when recharged -Behemoth- */
+			if (display_recharge_msg && (o_ptr->timeout == 0))
+			{
+				char o_name[80];
+				object_desc(o_name, o_ptr, FALSE, 0);	
+				message_format(MSG_ITEM_RECHARGE, -1, 
+					"Your %s (%c) is recharged.", o_name, index_to_label(i));
+			}
 
 			/* Notice changes */
 			if (!(o_ptr->timeout)) j++;
@@ -919,6 +913,26 @@ static void process_world(void)
 			/* Decrease timeout by that number. */
 			o_ptr->timeout -= temp;
 
+			/* Notify player when recharged -Behemoth- */
+			temp2 = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+			if (temp2 > o_ptr->number) temp2 = o_ptr->number;
+			
+			if ((display_recharge_msg) && (temp2 < temp))
+			{
+				char o_name[80];
+				object_desc(o_name, o_ptr, FALSE, 0);	
+				if (temp2 == 0)
+				{
+					message_format(MSG_ITEM_RECHARGE, -1, 
+						"Your %s (%c) %s recharged.", o_name, index_to_label(i), 
+						(o_ptr->number > 1 ? "are" : "is" ));
+				}
+				else
+				{
+					message_format(MSG_ITEM_RECHARGE, -1, 
+						"One of your %s (%c) is recharged.", o_name, index_to_label(i));
+				}
+			}
 			/* Boundary control. */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 
@@ -1308,6 +1322,12 @@ static void process_command(void)
 			break;
 		}
 
+		/* Place a trap */
+		case 'p':
+		{
+			do_cmd_place_trap();
+			break;
+		}
 
 		/* Use a racial power */
 		case 'U':
@@ -1541,6 +1561,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Repeat room descriptiong */
+		case KTRL('D'):
+		{
+			do_cmd_room_desc();
+			break;
+		}
+
 		/* Show quest */
 		case KTRL('Q'):
 		{
@@ -1636,12 +1663,13 @@ static void process_player_aux(void)
 	static int old_monster_race_idx = 0;
 	static int old_monster_unique_idx = 0;
 
-	static u32b	old_r_flags1 = 0L;
-	static u32b	old_r_flags2 = 0L;
-	static u32b	old_r_flags3 = 0L;
-	static u32b	old_r_flags4 = 0L;
-	static u32b	old_r_flags5 = 0L;
-	static u32b	old_r_flags6 = 0L;
+	static u32b	old_flags1 = 0L;
+	static u32b	old_flags2 = 0L;
+	static u32b	old_flags3 = 0L;
+	static u32b	old_flags4 = 0L;
+	static u32b	old_s_flags1 = 0L;
+	static u32b	old_s_flags2 = 0L;
+	static u32b	old_s_flags3 = 0L;
 
 	static byte	old_r_blows0 = 0;
 	static byte	old_r_blows1 = 0;
@@ -1651,20 +1679,21 @@ static void process_player_aux(void)
 	static byte	old_r_cast = 0;
 
 	/* Tracking a monster */
-	if (p_ptr->monster_race_idx)
+	if (term_mon_race_idx)
 	{
 		/* Get the monster lore */
-		monster_lore *l_ptr = get_lore_idx(p_ptr->monster_race_idx, p_ptr->monster_unique_idx);
+		monster_lore *l_ptr = get_lore_idx(term_mon_race_idx, term_mon_unique_idx);
 
 		/* Check for change of any kind */
-		if ((old_monster_race_idx != p_ptr->monster_race_idx) ||
-			(old_monster_unique_idx != p_ptr->monster_unique_idx) ||
-		    (old_r_flags1 != l_ptr->r_flags1) ||
-		    (old_r_flags2 != l_ptr->r_flags2) ||
-		    (old_r_flags3 != l_ptr->r_flags3) ||
-		    (old_r_flags4 != l_ptr->r_flags4) ||
-		    (old_r_flags5 != l_ptr->r_flags5) ||
-		    (old_r_flags6 != l_ptr->r_flags6) ||
+		if ((old_monster_race_idx != term_mon_race_idx) ||
+			(old_monster_unique_idx != term_mon_unique_idx) ||
+		    (old_flags1 != l_ptr->flags1) ||
+		    (old_flags2 != l_ptr->flags2) ||
+		    (old_flags3 != l_ptr->flags3) ||
+			(old_flags4 != l_ptr->flags4) ||
+		    (old_s_flags1 != l_ptr->s_flags1) ||
+		    (old_s_flags2 != l_ptr->s_flags2) ||
+		    (old_s_flags3 != l_ptr->s_flags3) ||
 		    (old_r_blows0 != l_ptr->r_blows[0]) ||
 		    (old_r_blows1 != l_ptr->r_blows[1]) ||
 		    (old_r_blows2 != l_ptr->r_blows[2]) ||
@@ -1672,16 +1701,17 @@ static void process_player_aux(void)
 		    (old_r_cast   != l_ptr->r_cast))
 		{
 			/* Memorize old race */
-			old_monster_race_idx = p_ptr->monster_race_idx;
-			old_monster_unique_idx = p_ptr->monster_unique_idx;
+			old_monster_race_idx = term_mon_race_idx;
+			old_monster_unique_idx = term_mon_unique_idx;
 
 			/* Memorize flags */
-			old_r_flags1 = l_ptr->r_flags1;
-			old_r_flags2 = l_ptr->r_flags2;
-			old_r_flags3 = l_ptr->r_flags3;
-			old_r_flags4 = l_ptr->r_flags4;
-			old_r_flags5 = l_ptr->r_flags5;
-			old_r_flags6 = l_ptr->r_flags6;
+			old_flags1 = l_ptr->flags1;
+			old_flags2 = l_ptr->flags2;
+			old_flags3 = l_ptr->flags3;
+			old_flags4 = l_ptr->flags4;
+			old_s_flags1 = l_ptr->s_flags1;
+			old_s_flags2 = l_ptr->s_flags2;
+			old_s_flags3 = l_ptr->s_flags3;
 
 			/* Memorize blows */
 			old_r_blows0 = l_ptr->r_blows[0];
@@ -2177,7 +2207,7 @@ static void dungeon(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_CONDITION);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
@@ -2198,10 +2228,13 @@ static void dungeon(void)
 	character_xtra--;
 
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_ROOM_INFO);
 
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_ROOM_INFO);
 
 	/* Notice stuff */
 	notice_stuff();
@@ -2501,30 +2534,8 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
-#ifdef GJW_RANDART
-
-		/* Hack -- seed for random artifacts */
-		seed_randart = rand_int(0x10000000);
-
-#endif /* GJW_RANDART */
-
 		/* Roll up a new character */
 		player_birth();
-
-#ifdef GJW_RANDART
-
-		/* Randomize the artifacts */
-		if (adult_rand_artifacts)
-		{
-			do_randart(seed_randart, TRUE);
-		}
-
-#else /* GJW_RANDART */
-
-		/* Make sure random artifacts are turned off if not available */
-		adult_rand_artifacts = FALSE;
-
-#endif /* GJW_RANDART */
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -2570,10 +2581,10 @@ void play_game(bool new_game)
 	reset_visuals(TRUE);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_CONDITION);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_MESSAGE | PW_VISIBLE);
+	p_ptr->window |= (PW_MESSAGE | PW_VISIBLE);
 
 	/* Window stuff */
 	window_stuff();
@@ -2635,6 +2646,7 @@ void play_game(bool new_game)
 
 		/* Erase the old cave */
 		wipe_o_list();
+		wipe_t_list();
 		wipe_m_list();
 
 		/* XXX XXX XXX */

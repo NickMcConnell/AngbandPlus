@@ -508,8 +508,6 @@ void do_cmd_observe(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
-
 	cptr q, s;
 
 	/* Get an item */
@@ -529,14 +527,14 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	/* Track the object kind */
+	object_actual_track(o_ptr);
 
-	/* Describe */
-	message_format(MSG_DESCRIBE, 0, "Examining %s...", o_name);
+	/* Hack -- Handle stuff */
+	handle_stuff();
 
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) message(MSG_DESCRIBE, 0, "You see nothing special.");
+	/* Actually display the object */
+	screen_object(o_ptr, TRUE);
 }
 
 /*
@@ -925,6 +923,7 @@ static void do_cmd_eat_food_aux(int item)
 		{
 			case SV_FOOD_RATION:
 			case SV_FOOD_JERKY:
+			case SV_FOOD_APPLE:
 			case SV_FOOD_SLIME_MOLD:
 			{
 				message(MSG_EFFECT, 0, "That tastes good.");
@@ -941,13 +940,23 @@ static void do_cmd_eat_food_aux(int item)
 				break;
 			}
 
-			case SV_FOOD_PINT_OF_NECTAR:
+			case SV_FOOD_AMBROSIA:
 			{
 				message(MSG_EFFECT, 0, "That tastes good.");
 				(void)set_poisoned(0);
 				(void)set_diseased(p_ptr->diseased/2);
 				(void)set_afraid(0);
 				(void)hp_player(damroll(2, 4));
+				ident = TRUE;
+				break;
+			}
+
+			case SV_FOOD_MYSTERY_MEAT:
+			{
+				message(MSG_EFFECT, 0, "You immediately regret eating that.");
+				(void)set_poisoned(100);
+				(void)set_diseased(100);
+				(void)set_blind(100);
 				ident = TRUE;
 				break;
 			}
@@ -1043,6 +1052,9 @@ static void do_cmd_quaff_potion_aux(int item)
 
 	/* Not identified yet */
 	ident = FALSE;
+
+	/* Potions feed the player */
+	(void)set_food(p_ptr->food + 75);
 
 	/* Analyze the potion */
 	switch (o_ptr->sval)
@@ -1143,7 +1155,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval1)) 
 				item_known1 = (k_ptr->tried || k_ptr->aware);
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval2)) 
-				item_known1 = (k_ptr->tried || k_ptr->aware);
+				item_known2 = (k_ptr->tried || k_ptr->aware);
 		}
 
 		/* 
@@ -1172,9 +1184,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-	/* Potions can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
 
 	/* Destroy a potion in the pack */
 	if (item >= 0)
@@ -1941,6 +1950,7 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
+	/* DSM */
 	if (k_info[o_ptr->k_idx].tval == TV_DRAG_ARMOR) return (TRUE);
 
 	/* Check activation flag */
@@ -2078,7 +2088,6 @@ static void do_cmd_activate_aux(int item)
 		return;
 	}
 
-
 	/* Mistake */
 	message(MSG_FAIL, 0, "Oops.  That object cannot be activated.");
 }
@@ -2086,8 +2095,8 @@ static void do_cmd_activate_aux(int item)
 /* Activate something */
 void do_cmd_activate(void)
 {
-	int     item;
-	cptr    q, s;
+	int item;
+	cptr q, s;
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
@@ -2100,7 +2109,6 @@ void do_cmd_activate(void)
 	/* Activate the item */
 	do_cmd_activate_aux(item);
 }
-
 
 /*
  * Hook to determine if an object is useable
@@ -2332,13 +2340,12 @@ void do_cmd_mix(void)
 		/* If there's no potion, always fail */
 		if (k_idx != z_info->k_max) 
 		{
-			int cost_mod = ((k_ptr->cost >= 30000) ? 120 : (k_ptr->cost) / 250);
-			chance = 25 + (p_ptr->skill[SK_ALC]) - cost_mod;
-			penalty = (k_ptr->cost) / 800;
+			chance = 25 + (p_ptr->skill[SK_ALC]) - ((k_ptr->pval * k_ptr->pval * 3)/2);
+			penalty = ((k_ptr->pval * k_ptr->pval) / 2);
 
 			/* Always 5% chance of success or failure*/
 			if (chance < 5) chance = 5;
-			if (chance > 96) chance = 96;
+			if (chance > 95) chance = 95;
 		}
 	}
 

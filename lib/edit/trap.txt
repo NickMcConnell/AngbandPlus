@@ -1,0 +1,227 @@
+# File: trap.txt
+
+# This file is used to initialize the "lib/data/trap.raw" file, which is
+# used to initialize the "trap widget" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Note that actual trap effects are hard-coded into the game. This file only
+# determines various variables about them.
+
+# Format:
+# N: serial number : trap name
+# G: symbol : color
+# W: depth : rarity : type
+# X: disarm difficulty : bypass difficulty : max charges
+# F: flags 
+
+# Version stamp (required)
+
+V:0.4.0
+
+N:0:<None>
+G:^:D
+W:0:0
+X:0:0:0
+
+N:1:a trap door
+G:^:w
+W:1:1
+X:50:20:0
+F:PLAYER | TRAP_DOOR | FLOOR | DISARM | TRAPS2 | TRAPS3 | DETECT
+
+N:2:a pit
+G:^:s
+W:1:1
+X:65:10:0
+F:PLAYER | PIT | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
+
+N:3:a spiked pit
+G:^:s
+W:1:1
+X:65:10:0
+F:PLAYER | PIT | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
+
+N:4:a poison spike pit
+G:^:s
+W:5:1
+X:65:10:0
+F:PLAYER | PIT | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:5:a dagger pit
+G:^:s
+W:20:2
+X:65:10:0
+F:PLAYER | PIT | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:6:a summoning rune
+G:^:o
+W:5:2
+X:50:35:10
+F:PLAYER | RUNE | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:7:a teleport rune
+G:^:o
+W:1:1
+X:50:35:0
+F:PLAYER | RUNE | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:8:an amnesia rune
+G:^:o
+W:20:3
+X:50:35:1
+F:PLAYER | RUNE | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:9:a curse rune
+G:^:o
+W:15:3
+X:50:35:1
+F:PLAYER | RUNE | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:10:a powerful curse rune
+G:^:o
+W:65:5
+X:50:35:1
+F:PLAYER | RUNE | FLOOR | DISARM | DETECT
+
+N:11:an aggravation rune
+G:^:o
+W:10:2
+X:50:35:5
+F:PLAYER | RUNE | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:12:a fire trap
+G:^:u
+W:0:1
+X:50:20:0
+F:PLAYER | SPOT | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:13:an acid trap
+G:^:u
+W:0:1
+X:50:20:0
+F:PLAYER | SPOT | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:14:a lightning trap
+G:^:u
+W:0:1
+X:50:20:0
+F:PLAYER | SPOT | TRAPS1 | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:15:a disenchantment trap
+G:^:u
+W:50:3
+X:50:20:5
+F:PLAYER | SPOT | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:16:a slowness dart trap
+G:^:r
+W:0:1
+X:50:25:0
+F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
+
+N:17:a weakness dart trap
+G:^:r
+W:0:1
+X:50:25:0
+F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
+
+N:18:a clumsiness dart trap
+G:^:r
+W:0:1:5
+X:50:25:0
+F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
+
+N:19:a sickliness dart trap
+G:^:r
+W:0:1
+X:50:25:0
+F:PLAYER | DART | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT
+
+N:20:a blinding gas trap
+G:^:g
+W:0:1
+X:50:20:0
+F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
+
+N:21:a confusing gas trap
+G:^:g
+W:0:1
+X:50:20:0
+F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
+
+N:22:a poison gas trap
+G:^:g
+W:0:1
+X:50:20:0
+F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
+
+N:23:a sleep gas trap
+G:^:g
+W:3:1
+X:50:20:0
+F:PLAYER | GAS | TRAPS1 | TRAPS2 | FLOOR | DISARM | DETECT 
+
+N:24:a hallucination gas trap
+G:^:g
+W:5:2
+X:50:20:0
+F:PLAYER | GAS | TRAPS2 | FLOOR | DISARM | DETECT 
+
+N:25:a blade trap
+G:^:y
+W:5:2
+X:60:15:0
+F:PLAYER | SLOTS | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:26:a spinning disc trap
+G:^:y
+W:5:2
+X:60:15:3
+F:PLAYER | SLOTS | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:27:an earthquake trap
+G:^:U
+W:20:3
+X:50:25:1
+F:PLAYER | ROCKS | TRAPS3 | FLOOR | DISARM | DETECT
+
+N:28:a falling rock trap
+G:^:U
+W:1:1
+X:50:25:3
+F:PLAYER | ROCKS | TRAPS2 | TRAPS3 | FLOOR | DISARM | DETECT
+
+## Here begin the glyphs 
+
+N:29:a glyph of warding
+G:;:y
+F:MONSTER | GLYPH
+
+N:30:a lesser glyph of warding
+G:;:w
+F:MONSTER | GLYPH
+
+N:31:a holy sigil
+G:;:B
+F:MONSTER | GLYPH
+
+## Here begin the locks (charges = lock power)
+
+N:32: (locked)
+G:+:U
+X:0:0:8
+F:MONSTER | PLAYER | LOCK 
+
+N:33: (magic-locked)
+G:+:G
+X:0:0:30
+F:MONSTER | LOCK 
+
+## Player trap ##
+
+N:34:anti-monster trap
+G:^:v
+X:0:0:0
+F:MONSTER | FLOOR | DISARM 

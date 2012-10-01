@@ -503,7 +503,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->fg = m->white;
 
 	/* Calculate the Maximum allowed Pixel value.  */
-	m->zg = ((Pixell)1 << m->depth) - 1;
+	m->zg = (1 << m->depth) - 1;
 
 	/* Save various default Flag Settings */
 	m->color = ((m->depth > 1) ? 1 : 0);
@@ -1792,7 +1792,7 @@ static errr CheckEvent(bool wait)
 			hgt = rows * td->fnt->hgt + (oy + oy);
 
 			/* Resize the Term (if needed) */
-			(void)Term_resize(cols, rows);
+			(void) Term_resize(cols, rows);
 
 			/* Resize the windows if any "change" is needed */
 			if ((Infowin->w != wid) || (Infowin->h != hgt))
@@ -1932,10 +1932,11 @@ static errr Term_xtra_x11(int n, int v)
  */
 static errr Term_curs_x11(int x, int y)
 {
-	XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
-			 x * Infofnt->wid + Infowin->ox,
-			 y * Infofnt->hgt + Infowin->oy,
-			 Infofnt->wid - 1, Infofnt->hgt - 1);
+	/* Draw the cursor */
+	Infoclr_set(xor);
+
+	/* Hilite the cursor character */
+	Infofnt_text_non(x, y, " ", 1);
 
 	/* Success */
 	return (0);
@@ -2128,8 +2129,67 @@ static errr term_data_init(term_data *td, int i)
 
 	XSizeHints *sh;
 
-	/* Get default font for this term */
-	font = get_default_font(i);
+
+	/* Window specific font name */
+	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
+
+	/* Check environment for that font */
+	font = getenv(buf);
+
+	/* Check environment for "base" font */
+	if (!font) font = getenv("ANGBAND_X11_FONT");
+
+	/* No environment variables, use default font */
+	if (!font)
+	{
+		switch (i)
+		{
+			case 0:
+			{
+				font = DEFAULT_X11_FONT_0;
+			}
+			break;
+			case 1:
+			{
+				font = DEFAULT_X11_FONT_1;
+			}
+			break;
+			case 2:
+			{
+				font = DEFAULT_X11_FONT_2;
+			}
+			break;
+			case 3:
+			{
+				font = DEFAULT_X11_FONT_3;
+			}
+			break;
+			case 4:
+			{
+				font = DEFAULT_X11_FONT_4;
+			}
+			break;
+			case 5:
+			{
+				font = DEFAULT_X11_FONT_5;
+			}
+			break;
+			case 6:
+			{
+				font = DEFAULT_X11_FONT_6;
+			}
+			break;
+			case 7:
+			{
+				font = DEFAULT_X11_FONT_7;
+			}
+			break;
+			default:
+			{
+				font = DEFAULT_X11_FONT;
+			}
+		}
+	}
 
 	/* Window specific location (x) */
 	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
@@ -2312,7 +2372,6 @@ errr init_x11(int argc, char *argv[])
 #ifdef USE_TRANSPARENCY
 
 	char *TmpData;
-
 #endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */

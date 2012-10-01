@@ -548,9 +548,16 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Different objects cannot be stacked */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
 
-	/* Different charges (etc) cannot be stacked */
-	if (o_ptr->pval != j_ptr->pval) return (0);
+	/* Some special rules apply to rods and talismans */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN))
+	{
+		/* Hack -- Never stack recharging rods/talismans */
+		if (o_ptr->timeout || j_ptr->timeout) return (0);
+	}
 
+	/* Different charges (etc) cannot be stacked, except for rods and talismans */
+	else if (o_ptr->pval != j_ptr->pval) return (0);
+	
 	/* Require many identical values */
 	if (o_ptr->to_h != j_ptr->to_h) return (0);
 	if (o_ptr->to_d != j_ptr->to_d) return (0);
@@ -568,12 +575,6 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- Never stack "powerful" items */
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
 
-	/* Hack -- Never stack recharging rods */
-	if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout || j_ptr->timeout)) return (0);
-
-	/* Hack -- Never stack recharging talismans */
-	if ((o_ptr->tval == TV_TALISMAN) && (o_ptr->timeout || j_ptr->timeout)) return (0);
-
 	/* Hack -- different light durations cannot be stacked */
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout != j_ptr->timeout)) return (0);
 
@@ -581,9 +582,6 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->ac != j_ptr->ac) return (0);
 	if (o_ptr->dd != j_ptr->dd) return (0);
 	if (o_ptr->ds != j_ptr->ds) return (0);
-
-	/* Hack -- Never stack chests */
-	if (o_ptr->tval == TV_CHEST) return (0);
 
 	/* Require matching "discount" fields */
 	if (o_ptr->discount != j_ptr->discount) return (0);
@@ -595,12 +593,29 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 /*
  * Allow a store object to absorb another object
  */
-static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
+static void store_object_absorb(object_type *o_ptr, object_type *j_ptr, bool player)
 {
 	int total = o_ptr->number + j_ptr->number;
+	int max_num = MAX_STACK_SIZE;
+
+	/* Calculate rods and talismans */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN))
+	{
+		/* Find appropriate stack size */
+		max_num = ((o_ptr->tval == TV_ROD) ? MAX_STACK_ROD : MAX_STACK_TALIS);
+
+		/* Calculate number of charges */
+		o_ptr->pval = k_info[o_ptr->k_idx].pval * ((total >= max_num) ? (max_num - 1) : total);
+	}
 
 	/* Combine quantity, lose excess items */
-	o_ptr->number = (total > 99) ? 99 : total;
+	o_ptr->number = (total >= max_num) ? (max_num - 1) : total;
+
+	/* Try to combine histories */
+	stack_histories(o_ptr, j_ptr);
+
+	if (player && (total >= max_num))
+		message(MSG_STORE, 0, "Can't have too many of these on my shelves...");
 }
 
 /*
@@ -655,13 +670,13 @@ static bool store_check_num(object_type *o_ptr)
  */
 static bool is_blessed(object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	/* Get the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Is the object blessed? */
-	return ((f4 & TR4_BLESSED) ? TRUE : FALSE);
+	return ((f2 & TR2_BLESSED) ? TRUE : FALSE);
 }
 
 /*
@@ -909,6 +924,8 @@ static int home_carry(object_type *o_ptr)
 /*
  * Add an object to a real stores inventory.
  *
+ * The "player" parameter determines whether the player can see this happening.
+ *
  * If the object is "worthless", it is thrown away (except in the home).
  *
  * If the object cannot be combined with an object already in the inventory,
@@ -918,7 +935,7 @@ static int home_carry(object_type *o_ptr)
  *
  * In all cases, return the slot (or -1) where the object was placed
  */
-static int store_carry(object_type *o_ptr)
+static int store_carry(object_type *o_ptr, bool player)
 {
 	int i, slot;
 	s32b value, j_value;
@@ -946,7 +963,7 @@ static int store_carry(object_type *o_ptr)
 		if (store_object_similar(j_ptr, o_ptr))
 		{
 			/* Absorb (some of) the object */
-			store_object_absorb(j_ptr, o_ptr);
+			store_object_absorb(j_ptr, o_ptr, player);
 
 			/* All done */
 			return (slot);
@@ -1178,8 +1195,18 @@ static void store_create(void)
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE, TRUE);
 
 		/* Hack -- some prefixes don't belong in regular stores */
-		if ((store_num != STORE_B_MARKET) && i_ptr->prefix_idx && 
-			!(px_info[i_ptr->prefix_idx].flags & PXF_SHOP)) continue;
+		if ((store_num != STORE_B_MARKET) && i_ptr->prefix_idx)
+		{
+			if ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_HAFTED) || 
+				(i_ptr->tval == TV_POLEARM))
+			{
+				if (!(wpx_info[i_ptr->prefix_idx].flags & PXF_SHOP)) continue;
+			}
+			if (i_ptr->tval == TV_BODY_ARMOR)
+			{
+				if (!(apx_info[i_ptr->prefix_idx].flags & PXF_SHOP)) continue;
+			}
+		}
 
 		/* Restore object creation level */
 		p_ptr->obj_depth = temp;
@@ -1195,8 +1222,8 @@ static void store_create(void)
 		object_known(i_ptr);
 		i_ptr->ident |= (IDENT_MENTAL);
 
-		/* Mega-Hack -- no chests in stores */
-		if (i_ptr->tval == TV_CHEST) continue;
+		/* Object history */
+		i_ptr->origin_nature = ORIGIN_STORE;
 
 		/* Prune the black market */
 		if (store_num == STORE_B_MARKET)
@@ -1220,7 +1247,7 @@ static void store_create(void)
 		mass_produce(i_ptr);
 
 		/* Attempt to carry the (known) object */
-		(void)store_carry(i_ptr);
+		(void)store_carry(i_ptr, FALSE);
 
 		/* Definitely done */
 		break;
@@ -2831,7 +2858,7 @@ static void store_sell(void)
 			handle_stuff();
 
 			/* The store gets that (known) object */
-			item_pos = store_carry(i_ptr);
+			item_pos = store_carry(i_ptr, TRUE);
 
 			/* Update the display */
 			if (item_pos >= 0)
@@ -2878,6 +2905,9 @@ static void store_examine(void)
 	char        o_name[80];
 	char        out_val[160];
 
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
@@ -2904,22 +2934,41 @@ static void store_examine(void)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
-	/* Description */
+	/* save screen */
+	screen_save();
+
+	/* Begin recall */
+	Term_gotoxy(0, 1);
+
+	/* Actually display the item */
+	list_object(o_ptr, OBJECT_INFO_KNOWN);
+
+	/* History and description */
 	if (store_num == STORE_HOME)
 	{
+		display_object_history(o_ptr);
 		object_desc(o_name, o_ptr, TRUE, 3);
 	}
 	else
 	{
+		/* Don't display history for store-generated items */
+		if (o_ptr->origin_nature != ORIGIN_STORE) display_object_history(o_ptr);
 		object_desc_store(o_name, o_ptr, TRUE, 3);
 	}
- 
-	/* Describe */
-	message_format(MSG_STORE, 0, "Examining %s...", o_name);
 
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-		message(MSG_GENERIC, 0, "You see nothing special.");
+	/* Clear the top line */
+	Term_erase(0, 0, 255);
+
+	/* Reset the cursor */
+	Term_gotoxy(0, 0);
+
+	/* Dump the name */
+	Term_addstr(-1, TERM_L_BLUE, o_name);
+
+	(void) inkey();
+	
+	/* Load screen */
+	screen_load();
 
 	return;
 }
@@ -3099,13 +3148,6 @@ static void store_process_command(bool guild_cmd)
 		}
 
 		/*** Use various objects ***/
-
-		/* Browse a book */
-		case 'b':
-		{
-			do_cmd_browse();
-			break;
-		}
 
 		/* Inscribe an object */
 		case '{':

@@ -12,43 +12,43 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:0.4.0
 
 # General Store
-N:0:0:Bilbo the Friendly
-I:3:5000:175:108:4:12
+N:0:0:Squeek the Sly
+I:6:5000:175:109:4:12
 N:0:1:Rincewind the Chicken
 I:0:10000:175:108:4:12
 N:0:2:Old Man Jones
 I:0:15000:180:110:4:15
 N:0:3:Snafu the Midget
-I:4:20000:170:107:5:15
+I:3:20000:170:107:5:15
 N:0:4:Lyar-el the Comely
-I:2:25000:165:107:6:18
+I:1:25000:165:107:6:18
 
 # Armoury
-N:1:0:Kon-Dar the Ugly
-I:6:10000:210:115:5:7
+N:1:0:Ssleeth the Ugly
+I:5:10000:210:115:5:7
 N:1:1:Darg-Low the Grim
 I:0:15000:190:111:4:9
-N:1:2:Decado the Handsome
+N:1:2:Kranan the Large
 I:8:25000:200:112:4:10
 N:1:3:Hephesto the Horrible
-I:11:25000:210:115:4:5
+I:12:25000:210:115:4:5
 N:1:4:Mauglin the Grumpy
-I:5:30000:200:112:4:5
+I:2:30000:200:112:4:5
 
 # Weapon Smith
-N:2:0:Ithyl-Mak the Beastly
+N:2:0:Deena the Sour
 I:7:10000:210:115:6:6
-N:2:1:Arndal Beast-Slayer
-I:1:15000:185:110:5:9
+N:2:1:Kella the Sleek
+I:0:15000:185:110:5:9
 N:2:2:Tarl Beast-Master
-I:3:25000:190:115:5:7
-N:2:3:Har'knor the Hunter
-I:6:25000:200:118:5:5
+I:1:25000:190:115:5:7
+N:2:3:Fang the Hunter
+I:9:25000:200:118:5:5
 N:2:4:Oglign Dragon-Slayer
-I:5:30000:195:112:4:8
+I:2:30000:195:112:4:8
 
 # Temple
 N:3:0:Ludwig the Humble
@@ -56,11 +56,11 @@ I:0:5000:175:109:6:15
 N:3:1:Gunnar the Paladin
 I:0:10000:185:110:5:23
 N:3:2:Delilah the Pure
-I:2:25000:180:107:6:20
+I:1:25000:180:107:6:20
 N:3:3:Raphael the Divine
-I:10:25000:180:110:6:25
+I:11:25000:180:110:6:25
 N:3:4:Bosk the Wise
-I:5:30000:185:109:5:15
+I:2:30000:185:109:5:15
 
 # Alchemist
 N:4:0:Olaf the Apothecary
@@ -68,9 +68,9 @@ I:0:5000:170:106:5:10
 N:4:1:Mauser the Chemist
 I:1:10000:190:111:5:8
 N:4:2:Wizzle the Chaotic
-I:3:10000:190:110:6:8
+I:4:10000:190:110:6:8
 N:4:3:Ga-nat the Greedy
-I:4:15000:200:116:6:9
+I:3:15000:200:116:6:9
 N:4:4:Vella the Slender
 I:0:15000:220:111:4:9
 
@@ -78,25 +78,25 @@ I:0:15000:220:111:4:9
 N:5:0:Ariel the Sorceress
 I:1:20000:200:110:7:8
 N:5:1:Buggerby the Great
-I:4:20000:215:113:6:10
+I:3:20000:215:113:6:10
 N:5:2:Drizzt the Dark
-I:2:25000:210:106:6:9
+I:1:25000:210:106:6:9
 N:5:3:Inglorian the Mage
 I:0:30000:200:110:7:10
 N:5:4:Luthien Starshine
-I:9:30000:175:110:5:11
+I:1:30000:175:110:5:11
 
 # Black Market
-N:6:0:Lo-Hak the Awful
-I:7:20000:250:150:10:5
-N:6:1:Histor the Goblin
-I:6:20000:250:150:10:5
+N:6:0:Fliplip the Annoying
+I:4:20000:250:150:10:5
+N:6:1:Kabal the Dishonest
+I:9:20000:250:150:10:5
 N:6:2:Bazor the Damned
-I:11:25000:250:150:10:5
+I:12:25000:250:150:10:5
 N:6:3:Durwin the Shifty
 I:0:30000:250:150:10:5
-N:6:4:Drago the Fair
-I:2:30000:250:150:10:5
+N:6:4:Liklik the Quick
+I:6:30000:250:150:10:5
 
 # Home
 N:7:0:Your home
@@ -114,13 +114,13 @@ I:99:0:100:100:0:99
 N:8:0:Nastra the Dusty
 I:0:10000:120:105:6:7
 N:8:1:Aziraphale the Caretaker
-I:10:15000:110:105:6:25
+I:11:15000:110:105:6:25
 N:8:2:Gabberam the Sage
-I:9:20000:190:115:5:8
-N:8:3:Silmarien the Joyous
-I:3:25000:150:110:8:20
+I:1:20000:190:115:5:8
+N:8:3:Nobbin the Joyous
+I:0:25000:150:110:8:20
 N:8:4:Hastiel the Encyclopedist
-I:1:30000:160:120:5:7
+I:3:30000:160:120:5:7
 
 # Adventurer's Guild
 N:9:0:The Adventurer's Guild

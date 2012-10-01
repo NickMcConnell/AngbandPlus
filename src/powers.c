@@ -21,17 +21,14 @@
 info_entry power_info[POW_MAX] = 
 {
 	{0, NULL},
-	{POW_HEAL_2D10,			"reduces cuts and heals you a little"},
-	{POW_HEAL_4D10,			"reduces cuts and heals you a moderate amount"},
-	{POW_HEAL_6D10,			"reduces cuts and heals you a large amount"},
-	{POW_HEAL_8D10,			"eliminates cuts and heals you a very large amount"},
-	{POW_HEAL_300,			"heals a large amount, eliminates cuts and stunning"},	
-	{POW_HEAL_500,			"heals a large amount, eliminates cuts and stunning"},	
-	{POW_HEAL_1000,			"heals a very large amount of damage"},
-	{POW_HEAL_2000,			"heals an immense amount of damage"},
-	{POW_HEAL_CURE_6D8,		"heals a large amount, cures negative effects"},	
-	{POW_HEAL_CURE_300,		"heals a large amount, cures negative effects"},	
-	{POW_HEAL_CURE_1200,	"heals a very large amount, cures negative effects"},	
+	{POW_HEAL_1,			"reduces cuts and heals you a little"},
+	{POW_HEAL_2,			"reduces cuts and heals you a moderate amount"},
+	{POW_HEAL_3,			"reduces cuts and heals you a large amount"},
+	{POW_HEAL_4,			"heals you a very large amount, eliminates cuts and stunning"},
+	{POW_HEAL_5,			"heals you fully, eliminates cuts and stunning"},	
+	{POW_HEAL_CURE_1,		"heals a moderate amount, cures negative effects"},	
+	{POW_HEAL_CURE_2,		"heals a large amount, cures negative effects"},	
+	{POW_HEAL_CURE_3,		"heals you a very large amount, cures negative effects"},	
 	{POW_LIFE,				"restores you to perfect health and condition"},	
 	{POW_RESTORE_MANA,		"restores mana to full level"},
 	{POW_RESTORE_MANA_INT,	"restores mana to full level, and also restores intelligence"},
@@ -131,7 +128,7 @@ info_entry power_info[POW_MAX] =
 	{POW_DETECT_TRAP,		"detects all traps on the current panel"},
 	{POW_DETECT_TREASURE,	"detects all treasure on the current panel"},
 	{POW_DETECT_DOOR_STAIR,	"detects all doors and stairs on the current panel"},
-	{POW_DETECT_TRAP_DOOR,	"detects hidden traps and doors on the current screen"},
+	{POW_DETECT_TRAP_DOOR,	"detects hidden traps, stairs and doors on the current screen"},
 	{POW_DETECT_ITEM,		"detects all objects on the current panel"},
 	{POW_DETECT_ENCHANT,	"detects magical objects on the current panel"},
 	{POW_DETECT_ALL,		"detects everything of interest on the panel"},
@@ -148,6 +145,7 @@ info_entry power_info[POW_MAX] =
 	{POW_INVIS_2,			"temporarily turns you invisible"},
 	{POW_RESILIENCE,		"temporarily raises your AC by 100 and reduces all damage by 66%"},
 	{POW_INFRAVISION,		"temporarily increases the range of your infravision"},
+	{POW_STEALTH,			"temporarily increases your stealth"},
 	{POW_SEE_INVIS,			"provides temporary see invisible"},
 	{POW_PROT_EVIL,			"provides temporary protection from lesser evil creatures"},
 	{POW_HASTE_SELF_1,		"temporarily hastes you"},
@@ -160,10 +158,11 @@ info_entry power_info[POW_MAX] =
 	{POW_CREATE_DOOR,		"creates a barrier of doors around you"},
 	{POW_CREATE_STAIR,		"creates a randomly oriented staircase nearby"},
 	{POW_CREATE_TRAP,		"creates traps around you"},
+	{POW_MAGIC_LOCK,		"magically locks all nearby closed doors"},
 	{POW_ACQUIRE_1,			"creates a great item"},
 	{POW_ACQUIRE_2,			"creates several great items"},
 	{POW_AGGRAVATE,			"aggravates nearby monsters"},
-	{POW_AGGRAVATE_SAFE,	"aggravates nearby monsters (asks for confirmation)"},
+	{POW_AGGRAVATE_SAFE,	"aggravates nearby monsters"},
 	{POW_CONFUSE_MONSTER,	"attempts to confuse one monster"},
 	{POW_CONFUSE_ALL,		"attempts to confuse all monsters in line of sight"},
 	{POW_SLEEP_MONSTER,		"attempts to put a monster to sleep"},
@@ -180,7 +179,7 @@ info_entry power_info[POW_MAX] =
 	{POW_SCARE_MONSTER,		"attempts to frighten one monster"},
 	{POW_SCARE_UNDEAD,		"attempts to make all undead monsters in line of sight flee"},
 	{POW_SCARE_ALL,			"attempts to make all monsters in line of sight flee"},
-	{POW_CALL_MONSTER,		"attempts to call monster nearby"},
+	{POW_CALL_MONSTER,		"attempts to teleport a monster closer to you"},
 	{POW_POLY_MONSTER,		"attempts to change a monster"},
 	{POW_HEAL_MONSTER,		"attempts to heal a monster"},
 	{POW_HASTE_MONSTER,		"attempts to haste a monster"},
@@ -203,15 +202,16 @@ info_entry power_info[POW_MAX] =
 	{POW_RES_ELEMENTS,		"protects from all elements, cumulative with equipment"},
 	{POW_RES_GREATER,		"protects from many things"},
 	{POW_RESISTANCE,		"protects from all elements & poison, cumulative with equipment"},
-	{POW_GLYPH_WARDING,		"places a glyph on the floor that monsters cannot pass over"},
+	{POW_GLYPH_WARDING,		"puts a strong glyph on the floor that monsters cannot pass over"},
+	{POW_GLYPH_LESSER,		"puts a glyph on the floor that monsters cannot pass over"},
+	{POW_GLYPH_HOLY,		"puts a sigil that blocks undead & demons and prevents summoning"},
 	{POW_REMOVE_CURSE_1,	"removes standard curses"},
 	{POW_REMOVE_CURSE_2,	"removes both normal and heavy curses"},
 	{POW_MAP_1,				"maps the local area"},
 	{POW_MAP_2,				"permanently lights and detects objects on the entire level"},
 	{POW_MAP_3,				"permanently lights and detects all on the entire level"},
 	{POW_PROBE,				"teaches about a monster's attributes and resistances"},
-	{POW_SELF_KNOW,			"reveals all the magics that affect you"},
-	{POW_KNOW_ALL,			"reveals the entire map and yourself, and raises your stats"},
+	{POW_KNOW_ALL,			"reveals the entire map, IDs your pack, and raises your stats"},
 	{POW_ENCHANT_WEAPON_HIT,"adds a plus to hit to weapons"},
 	{POW_ENCHANT_WEAPON_DAM,"adds a plus to damage to weapons"},
 	{POW_ENCHANT_WEAPON,	"adds plusses to hit and damage to weapons"},
@@ -269,192 +269,6 @@ info_entry power_info[POW_MAX] =
 	{POW_RISK_HACK,			"either kills or rewards you"},
 	{POW_WONDER_HACK,		"creates a random effect"},
 };
-
-/*
- * Curse the players equipment (minor)
- */
-static bool curse_minor(void)
-{
-	int k;
-	int count = 0;
-	object_type *o_ptr;
-
-	for (k = INVEN_WIELD; k < INVEN_MUSIC; k++)
-	{
-		/* Curse the weapon */
-		o_ptr = &inventory[k];
-
-		/* Not rings, lites or amulets */
-		if ((k == INVEN_LEFT) || (k == INVEN_RIGHT) || (k == INVEN_LITE) || (k == INVEN_NECK))
-			continue;
-
-		/* Nothing to curse */
-		if (!o_ptr->k_idx) continue;
-
-		/* Already cursed */
-		if (cursed_p(o_ptr)) continue;
-
-		/* Artifacts resist */
-		if (artifact_p(o_ptr)) continue;
-
-		/* Ego items save */
-		if (ego_item_p(o_ptr) && rand_int(100) < 50) continue;
-
-		/* Curse the object */
-		if ((k == INVEN_WIELD) || (k == INVEN_BOW))
-		{
-			o_ptr->to_h -= randint(4);
-			o_ptr->to_d -= randint(4);
-		}
-		else o_ptr->to_a -= randint(4);
-
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Count it */
-		count++;
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-	}
-
-	if (count) 
-	{
-		message(MSG_ITEM_DAMAGE, 0, "A dark aura surrounds your equipment!");
-		return (TRUE);
-	}
-
-	/* Notice */
-	return (FALSE);
-}
-
-/*
- * Curse the players armor
- */
-static bool curse_armor(void)
-{
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	/* Curse the body armor */
-	o_ptr = &inventory[INVEN_BODY];
-
-	/* Nothing to curse */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	/* Already cursed */
-	if (cursed_p(o_ptr)) return (FALSE);
-
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
-
-	/* Attempt a saving throw for artifacts */
-	if (artifact_p(o_ptr) && (rand_int(100) < 50))
-	{
-		/* Cool */
-		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
-			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
-	}
-
-	/* not artifact or failed save... */
-	else
-	{
-		/* Oops */
-		message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
-			"A terrible black aura blasts your %s!", o_name);
-
-		/* Blast the armor */
-		o_ptr->a_idx = 0;
-		o_ptr->e_idx = EGO_BLASTED;
-		o_ptr->to_a = 0 - randint(5) - randint(5);
-		o_ptr->to_h = 0;
-		o_ptr->to_d = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-	}
-
-	return (TRUE);
-}
-
-/*
- * Curse the players weapon
- */
-static bool curse_weapon(void)
-{
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	/* Curse the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* Nothing to curse */
-	if (!o_ptr->k_idx) return (FALSE);
-
-	/* Already cursed */
-	if (cursed_p(o_ptr)) return (FALSE);
-
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3);
-
-	/* Attempt a saving throw */
-	if (artifact_p(o_ptr) && (rand_int(100) < 50))
-	{
-		/* Cool */
-		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
-			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
-	}
-
-	/* not artifact or failed save... */
-	else
-	{
-		/* Oops */
-		message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
-			"A terrible black aura blasts your %s!", o_name);
-
-		/* Shatter the weapon */
-		o_ptr->a_idx = 0;
-		o_ptr->e_idx = EGO_SHATTERED;
-		o_ptr->to_h = 0 - randint(5) - randint(5);
-		o_ptr->to_d = 0 - randint(5) - randint(5);
-		o_ptr->to_a = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-	}
-
-	/* Notice */
-	return (TRUE);
-}
 
 /*
  * Hack -- activate the ring of power
@@ -536,62 +350,41 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 
 	switch (idx)
 	{
-		case POW_HEAL_2D10:
+		case POW_HEAL_1:
 		{
-			if (hp_player(damroll(2, 10))) *obvious = TRUE;
+			if (heal_player(5, 10)) *obvious = TRUE;
 			if (set_cut(p_ptr->cut - 10)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_4D10:
+		case POW_HEAL_2:
 		{
-			if (hp_player(damroll(4, 10))) *obvious = TRUE;
+			if (heal_player(15, 20)) *obvious = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_6D10:
+		case POW_HEAL_3:
 		{
-			if (hp_player(damroll(6, 10))) *obvious = TRUE;
+			if (heal_player(30, 30)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_8D10:
+		case POW_HEAL_4:
 		{
-			if (hp_player(damroll(8, 10))) *obvious = TRUE;
+			if (heal_player(60, 40)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_300:
+		case POW_HEAL_5:
 		{
-			if (hp_player(300)) *obvious = TRUE;
+			if (heal_player(90, 100)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_500:
+		case POW_HEAL_CURE_1:
 		{
-			if (hp_player(500)) *obvious = TRUE;
-			if (set_stun(0)) *obvious = TRUE;
-			if (set_cut(0)) *obvious = TRUE;
-			break;
-		}
-		case POW_HEAL_1000:
-		{
-			if (hp_player(1000)) *obvious = TRUE;
-			if (set_stun(0)) *obvious = TRUE;
-			if (set_cut(0)) *obvious = TRUE;
-			break;
-		}
-		case POW_HEAL_2000:
-		{
-			if (hp_player(2000)) *obvious = TRUE;
-			if (set_stun(0)) *obvious = TRUE;
-			if (set_cut(0)) *obvious = TRUE;
-			break;
-		}
-		case POW_HEAL_CURE_6D8:
-		{
-			if (hp_player(damroll(6, 8))) *obvious = TRUE;
+			if (heal_player(25, 30)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_poisoned(0)) *obvious = TRUE;
@@ -599,9 +392,9 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_CURE_300:
+		case POW_HEAL_CURE_2:
 		{
-			if (hp_player(300)) *obvious = TRUE;
+			if (heal_player(60, 40)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_poisoned(0)) *obvious = TRUE;
@@ -610,9 +403,9 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_CURE_1200:
+		case POW_HEAL_CURE_3:
 		{
-			if (hp_player(1200)) *obvious = TRUE;
+			if (heal_player(90, 100)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
@@ -820,6 +613,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (set_confused(0)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
+			break;
 		}
 		case POW_CURE_BODY:
 		{
@@ -1389,12 +1183,12 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
 			if (set_blessed(p_ptr->blessed + durat)) *obvious = TRUE;
-			if (set_oppose_acid(p_ptr->oppose_acid + durat)) *obvious = TRUE;
-			if (set_oppose_elec(p_ptr->oppose_elec + durat)) *obvious = TRUE;
-			if (set_oppose_fire(p_ptr->oppose_fire + durat)) *obvious = TRUE;
-			if (set_oppose_cold(p_ptr->oppose_cold + durat)) *obvious = TRUE;
-			if (set_oppose_pois(p_ptr->oppose_pois + durat)) *obvious = TRUE;
-			if (set_oppose_disease(p_ptr->oppose_disease + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_SHIELD:
@@ -1434,6 +1228,18 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		case POW_INFRAVISION:
 		{
 			if (set_tim_infra(p_ptr->tim_infra + 50 + randint(50))) *obvious = TRUE;
+			break;
+		}
+		case POW_STEALTH:
+		{
+			if (p_ptr->tim_stealth <= 0)
+			{
+				if (set_tim_stealth(randint(25) + 25 + llev)) *obvious = TRUE;
+			}
+			else
+			{
+				if (set_tim_stealth(p_ptr->tim_stealth + randint(10))) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_SEE_INVIS:
@@ -1518,7 +1324,12 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_CREATE_TRAP:
 		{
-			if (trap_creation()) *obvious = TRUE;
+			if (trap_creation(2)) *obvious = TRUE;
+			break;
+		}
+		case POW_MAGIC_LOCK:
+		{
+			if (magic_lock()) *obvious = TRUE;
 			break;
 		}
 		case POW_ACQUIRE_1:
@@ -1714,81 +1525,102 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_RES_FIRE:
 		{
-			if (set_oppose_fire(p_ptr->oppose_cold + randint(20) + 20)) *obvious = TRUE;
+			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + randint(20) + 20)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_COLD:
 		{
-			if (set_oppose_cold(p_ptr->oppose_fire + randint(20) + 20)) *obvious = TRUE;
+			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + randint(20) + 20)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_FIRE_COLD:
 		{
 			durat = randint(10) + 10;
-			if (set_oppose_fire(p_ptr->oppose_fire + durat)) *obvious = TRUE;
-			if (set_oppose_cold(p_ptr->oppose_cold + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_ACID_ELEC:
 		{
 			durat = randint(20) + 20;
-			if (set_oppose_acid(p_ptr->oppose_acid + durat)) *obvious = TRUE;
-			if (set_oppose_elec(p_ptr->oppose_elec + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_POISON:
 		{
-			if (set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20)) *obvious = TRUE;
+			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + randint(20) + 20)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_DISEASE:
 		{
-			if (set_oppose_disease(p_ptr->oppose_disease + randint(20) + 20)) *obvious = TRUE;
+			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + randint(20) + 20)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_SOUND:
 		{
-			if (set_tim_res_sound(p_ptr->tim_res_sound + randint(40) + 40)) *obvious = TRUE;
+			if (set_tim_res(RS_SND, p_ptr->tim_res[RS_SND] + randint(20) + 20)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_ELEMENTS:
 		{
 			durat = randint(llev/2) + llev/2;
-			if (set_oppose_acid(p_ptr->oppose_acid + durat)) *obvious = TRUE;
-			if (set_oppose_elec(p_ptr->oppose_elec + durat)) *obvious = TRUE;
-			if (set_oppose_fire(p_ptr->oppose_fire + durat)) *obvious = TRUE;
-			if (set_oppose_cold(p_ptr->oppose_cold + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RES_GREATER:
 		{
 			durat = randint(llev/3) + llev/3;
-			if (set_oppose_pois(p_ptr->oppose_pois + durat)) *obvious = TRUE;
-			if (set_oppose_disease(p_ptr->oppose_disease + durat)) *obvious = TRUE;
-			if (set_tim_res_lite(p_ptr->tim_res_lite + durat)) *obvious = TRUE;
-			if (set_tim_res_dark(p_ptr->tim_res_dark + durat)) *obvious = TRUE;
-			if (set_tim_res_confu(p_ptr->tim_res_confu + durat)) *obvious = TRUE;
-			if (set_tim_res_sound(p_ptr->tim_res_sound + durat)) *obvious = TRUE;
-			if (set_tim_res_shard(p_ptr->tim_res_shard + durat)) *obvious = TRUE;
-			if (set_tim_res_nexus(p_ptr->tim_res_nexus + durat)) *obvious = TRUE;
-			if (set_tim_res_nethr(p_ptr->tim_res_nethr + durat)) *obvious = TRUE;
-			if (set_tim_res_chaos(p_ptr->tim_res_chaos + durat)) *obvious = TRUE;
-			if (set_tim_res_water(p_ptr->tim_res_water + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_DIS, p_ptr->tim_res[RS_DIS] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_LIT, p_ptr->tim_res[RS_LIT] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_DRK, p_ptr->tim_res[RS_DRK] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_CNF, p_ptr->tim_res[RS_CNF] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_SND, p_ptr->tim_res[RS_SND] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_SHR, p_ptr->tim_res[RS_SHR] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_NEX, p_ptr->tim_res[RS_NEX] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_NTH, p_ptr->tim_res[RS_NTH] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_CHS, p_ptr->tim_res[RS_CHS] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_WTR, p_ptr->tim_res[RS_WTR] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_RESISTANCE:
 		{
 			durat = randint(20) + 20;
-			if (set_oppose_acid(p_ptr->oppose_acid + durat)) *obvious = TRUE;
-			if (set_oppose_elec(p_ptr->oppose_elec + durat)) *obvious = TRUE;
-			if (set_oppose_fire(p_ptr->oppose_fire + durat)) *obvious = TRUE;
-			if (set_oppose_cold(p_ptr->oppose_cold + durat)) *obvious = TRUE;
-			if (set_oppose_pois(p_ptr->oppose_pois + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ACD, p_ptr->tim_res[RS_ACD] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_ELC, p_ptr->tim_res[RS_ELC] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_FIR, p_ptr->tim_res[RS_FIR] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_CLD, p_ptr->tim_res[RS_CLD] + durat)) *obvious = TRUE;
+			if (set_tim_res(RS_PSN, p_ptr->tim_res[RS_PSN] + durat)) *obvious = TRUE;
 			break;
 		}
 		case POW_GLYPH_WARDING:
 		{
-			warding_glyph();
+			if (!warding_glyph(WG_GLYPH))
+			{
+				message(MSG_FAIL, 0, "The floor glows for a moment, but nothing happens.");
+			}
+			*obvious = TRUE;
+			break;
+		}
+		case POW_GLYPH_LESSER:
+		{
+			if (!warding_glyph(WG_GLYPH_LESSER))
+			{
+				message(MSG_FAIL, 0, "The floor glows for a moment, but nothing happens.");
+			}
+			*obvious = TRUE;
+			break;
+		}
+		case POW_GLYPH_HOLY:
+		{
+			if (!warding_glyph(WG_GLYPH_HOLY))
+			{
+				message(MSG_FAIL, 0, "The floor glows for a moment, but nothing happens.");
+			}
 			*obvious = TRUE;
 			break;
 		}
@@ -1836,14 +1668,6 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			if (probing()) *obvious = TRUE;
 			break;
 		}
-		case POW_SELF_KNOW:
-		{
-			message(MSG_EFFECT, 0, "You begin to know yourself a little better...");
-			message_flush();
-			self_knowledge();
-			*obvious = TRUE;
-			break;
-		}
 		case POW_KNOW_ALL:
 		{
 			message(MSG_EFFECT, 0, "You begin to feel more enlightened...");
@@ -1858,7 +1682,6 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 			(void)detect_objects_gold();
 			(void)detect_objects_normal();
 			identify_pack();
-			self_knowledge();
 			*obvious = TRUE;
 			break;
 		}
@@ -2010,7 +1833,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_POISON_SELF:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!p_ptr->no_poison && !resist_effect(20, RS_PSN))
 			{
 				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
 				{
@@ -2043,7 +1866,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_CONFUSE_SELF:
 		{
-			if (!p_ptr->resist_confu)
+			if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
 			{
 				if (set_confused(p_ptr->confused + rand_int(10) + 20))
 				{
@@ -2054,7 +1877,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_HALLUCINATE:
 		{
-			if (!p_ptr->resist_chaos)
+			if (!resist_effect(25, RS_CHS))
 			{
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
@@ -2081,7 +1904,7 @@ bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *ob
 		}
 		case POW_DISEASE:
 		{
-			if (!(p_ptr->resist_disease || p_ptr->oppose_disease))
+			if (!p_ptr->no_disease && !resist_effect(20, RS_DIS))
 			{
 				if(set_diseased(p_ptr->diseased + rand_int(30) + 80)) *obvious = TRUE;
 			}

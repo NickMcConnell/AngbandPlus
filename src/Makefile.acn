@@ -15,16 +15,50 @@
 #
 
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o monster3.o\
-  xtra1.o xtra2.o effects.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o squelch.o\
-  cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \
-  store.o birth.o load.o quest.o powers.o\
-  wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o randart.o \
-  main-acn.o main.o \
+  main.o \
+  main-acn.o \
+  birth.o \
+  cave.o \
+  cmd-attk.o \
+  cmd-book.o \
+  cmd-item.o \
+  cmd-know.o \
+  cmd-misc.o \
+  cmd-util.o \
+  dungeon.o \
+  effects.o \
+  files.o \
+  generate.o \
+  info.o \
+  init1.o \
+  init2.o \
+  load.o \
+  melee1.o \
+  melee2.o \
+  monster1.o \
+  monster2.o \
+  monster3.o \
+  object1.o \
+  object2.o \
+  powers.o \
+  quest.o \
+  save.o \
+  spells1.o \
+  spells2.o \
+  squelch.o \
+  store.o \
+  tables.o \
+  traps.c \
+  util.o \
+  variable.o \
+  wizard.o \
+  xtra1.o \
+  xtra2.o \
+  z-form.o \
+  z-rand.o \
+  z-term.o \
+  z-util.o \
+  z-virt.o \
   C:o.Stubs OSLib:o.OSLib C:o.eventlib
 
 

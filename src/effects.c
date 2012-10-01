@@ -70,6 +70,29 @@ bool hp_player(int num)
 }
 
 /*
+ * Heal a player a percentage of his wounds.
+ */
+bool heal_player(int perc, int min)
+{
+	int i;
+
+	/* No healing */
+	if (!perc) return (FALSE);
+
+	/* No healing needed */
+	if (p_ptr->chp >= p_ptr->mhp) return (FALSE);
+
+	/* Figure healing level */
+	i = ((p_ptr->mhp - p_ptr->chp) * perc) / 100;
+
+	/* Enforce minimums */
+	if (i < min) i = min;
+
+	/* Actual healing */
+	return hp_player(i);
+}
+
+/*
  * Decreases players hit points and sets death flag if necessary
  */
 void damage_player(int dam, cptr kb_str)
@@ -546,7 +569,7 @@ bool set_blind(int v)
 	p_ptr->redraw |= (PR_BLIND);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -694,6 +717,9 @@ bool set_confused(int v)
 	/* Redraw the "confused" */
 	p_ptr->redraw |= (PR_CONFUSED);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -744,6 +770,9 @@ bool set_poisoned(int v)
 	/* Redraw the "poisoned" */
 	p_ptr->redraw |= (PR_POISONED);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -793,6 +822,9 @@ bool set_diseased(int v)
 
 	/* Redraw the "diseased" */
 	p_ptr->redraw |= (PR_DISEASED);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -943,6 +975,9 @@ bool set_afraid(int v)
 	/* Redraw the "afraid" */
 	p_ptr->redraw |= (PR_AFRAID);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -992,6 +1027,9 @@ bool set_paralyzed(int v)
 
 	/* Redraw the state */
 	p_ptr->redraw |= (PR_STATE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1051,6 +1089,9 @@ bool set_image(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1099,6 +1140,9 @@ bool set_fast(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1150,6 +1194,9 @@ bool set_slow(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1199,6 +1246,9 @@ bool set_shield(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1251,6 +1301,9 @@ bool set_blessed(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1299,6 +1352,9 @@ bool set_hero(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1349,6 +1405,9 @@ bool set_rage(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1394,6 +1453,9 @@ bool set_protevil(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1444,6 +1506,9 @@ bool set_resilient(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1493,6 +1558,9 @@ bool set_absorb(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1605,6 +1673,20 @@ bool set_tim_invis(int v)
 }
 
 /*
+ * Nullify invisibility 
+ */
+void nullify_invis(void)
+{
+	/* If temporary invis is on, reduce it considerably */
+	if (p_ptr->tim_invis > 0) set_tim_invis(p_ptr->tim_invis - (5 * INVIS_DELAY));
+	/* If permanent invis is on, nullify it for a short time */
+	else set_tim_invis(0 - INVIS_DELAY);
+
+	/* Check bounds */
+	if (p_ptr->tim_invis < (0 - INVIS_DELAY)) set_tim_invis(0 - INVIS_DELAY);
+}
+
+/*
  * Set "p_ptr->tim_infra", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because because
@@ -1660,9 +1742,9 @@ bool set_tim_infra(int v)
 }
 
 /*
- * Set "p_ptr->oppose_acid", notice observable changes
+ * Set "p_ptr->tim_stealth", notice observable changes
  */
-bool set_oppose_acid(int v)
+bool set_tim_stealth(int v)
 {
 	bool notice = FALSE;
 
@@ -1672,9 +1754,9 @@ bool set_oppose_acid(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_acid)
+		if (!p_ptr->tim_stealth)
 		{
-			message(MSG_EFFECT, 0, "You feel resistant to acid!");
+			message(MSG_EFFECT, 0, "You feel your movements grow more silent!");
 			notice = TRUE;
 		}
 	}
@@ -1682,245 +1764,15 @@ bool set_oppose_acid(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_acid)
+		if (p_ptr->tim_stealth)
 		{
-			message(MSG_EFFECT, 0, "You feel less resistant to acid.");
+			message(MSG_EFFECT, 0, "Your movements grow noisier.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	p_ptr->oppose_acid = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->oppose_elec", notice observable changes
- */
-bool set_oppose_elec(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_elec)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to electricity!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_elec)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to electricity.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_elec = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->oppose_fire", notice observable changes
- */
-bool set_oppose_fire(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_fire)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to fire!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_fire)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to fire.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_fire = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->oppose_cold", notice observable changes
- */
-bool set_oppose_cold(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_cold)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to cold!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_cold)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to cold.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_cold = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->oppose_pois", notice observable changes
- */
-bool set_oppose_pois(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_pois)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to poison!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_pois)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to poison.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_pois = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_lite", notice observable changes
- */
-bool set_tim_res_lite(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_lite)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to bright light!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_lite)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to bright light.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_lite = v;
+	p_ptr->tim_stealth = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1939,9 +1791,9 @@ bool set_tim_res_lite(int v)
 }
 
 /*
- * Set "p_ptr->tim_res_dark", notice observable changes
+ * Set "p_ptr->tim_res[type]", notice observable changes
  */
-bool set_tim_res_dark(int v)
+bool set_tim_res(int type, int v)
 {
 	bool notice = FALSE;
 
@@ -1951,9 +1803,9 @@ bool set_tim_res_dark(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_res_dark)
+		if (!p_ptr->tim_res[type])
 		{
-			message(MSG_EFFECT, 0, "You feel resistant to darkness!");
+			message_format(MSG_EFFECT, 0, "You feel resistant to %s!", resist_names[type]);
 			notice = TRUE;
 		}
 	}
@@ -1961,416 +1813,21 @@ bool set_tim_res_dark(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_res_dark)
+		if (p_ptr->tim_res[type])
 		{
-			message(MSG_EFFECT, 0, "You feel less resistant to darkness.");
+			message_format(MSG_EFFECT, 0, "You feel less resistant to %s.", resist_names[type]);
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	p_ptr->tim_res_dark = v;
+	p_ptr->tim_res[type] = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_confu", notice observable changes
- */
-bool set_tim_res_confu(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_confu)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to confusion!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_confu)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to confusion.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_confu = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_sound", notice observable changes
- */
-bool set_tim_res_sound(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_sound)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to sonic attacks!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_sound)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to sonic attacks.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_sound = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_shard", notice observable changes
- */
-bool set_tim_res_shard(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_shard)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to blasts of shards!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_shard)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to blasts of shards.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_shard = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_nexus", notice observable changes
- */
-bool set_tim_res_nexus(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_nexus)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to nexus attacks!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_nexus)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to nexus attacks.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_nexus = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_nethr", notice observable changes
- */
-bool set_tim_res_nethr(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_nethr)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to nether forces!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_nethr)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to nether forces.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_nethr = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_chaos", notice observable changes
- */
-bool set_tim_res_chaos(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_chaos)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to chaos!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_chaos)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to chaos.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_chaos = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->oppose_disease", notice observable changes
- */
-bool set_oppose_disease(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_disease)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to disease!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_disease)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to disease.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_disease = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-/*
- * Set "p_ptr->tim_res_water", notice observable changes
- */
-bool set_tim_res_water(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_res_water)
-		{
-			message(MSG_EFFECT, 0, "You feel resistant to water attacks!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_res_water)
-		{
-			message(MSG_EFFECT, 0, "You feel less resistant to water attacks.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_res_water = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2506,6 +1963,9 @@ bool set_stun(int v)
 
 	/* Redraw the "stun" */
 	p_ptr->redraw |= (PR_STUN);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2717,6 +2177,9 @@ bool set_cut(int v)
 
 	/* Redraw the "cut" */
 	p_ptr->redraw |= (PR_CUT);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();

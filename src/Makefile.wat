@@ -2,9 +2,6 @@
 
 # Purpose: Makefile support for "main-ibm.c" for Watcom C/C++
 
-# From: akemi@netcom.com (David Boeren)
-# Extra program targets by: michmarc@microsoft.com (Mike Marcelais)
-
 CC = wcc386
 
 # For Watcom v11
@@ -17,32 +14,57 @@ CFLAGS  = /mf /3r /3 /wx /s /oabhiklrsx /DUSE_IBM /DUSE_WAT
 # CFLAGS  = /mf /3r /3 /wx /d2 /od /DUSE_IBM /DUSE_WAT
 
 OBJS = &
-  z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj &
-  variable.obj tables.obj util.obj cave.obj &
-  object1.obj object2.obj monster1.obj monster2.obj monster3.obj&
-  xtra1.obj xtra2.obj spells1.obj spells2.obj melee1.obj melee2.obj &
-  load1.obj load2.obj save.obj files.obj &
-  cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj &
-  store.obj birth.obj wizard1.obj wizard2.obj powers.obj&
-  generate.obj dungeon.obj init1.obj init2.obj randart.obj &
-  main-ibm.obj main.obj
+  main.obj &
+  main-ibm.obj &
+  birth.obj &
+  cave.obj &
+  cmd-attk.obj &
+  cmd-book.obj &
+  cmd-item.obj &
+  cmd-know.obj &
+  cmd-misc.obj &
+  cmd-util.obj &
+  dungeon.obj &
+  effects.obj &
+  files.obj &
+  generate.obj &
+  info.obj &
+  init1.obj &
+  init2.obj &
+  load.obj &
+  melee1.obj &
+  melee2.obj &
+  monster1.obj &
+  monster2.obj &
+  monster3.obj &
+  object1.obj &
+  object2.obj &
+  powers.obj &
+  quest.obj &
+  save.obj &
+  spells1.obj &
+  spells2.obj &
+  squelch.obj &
+  store.obj &
+  tables.obj &
+  traps.obj &
+  util.obj &
+  variable.obj &
+  wizard.obj &
+  xtra1.obj &
+  xtra2.obj &
+  z-form.obj &
+  z-rand.obj &
+  z-term.obj &
+  z-util.obj &
+  z-virt.obj 
 
-all: angband.exe gredit.exe makepref.exe
+all: angband.exe
 
 # Use whichever of these two you wish...
 angband.exe: $(OBJS) angband.lnk
 #   wlink system dos4g @angband.lnk
    wlink system pmodew @angband.lnk
-
-# Use whichever of these two you wish...
-gredit.exe: gredit.obj gredit.lnk
-#   wlink system dos4g @gredit.lnk
-   wlink system pmodew @gredit.lnk
-
-# Use whichever of these two you wish...
-makepref.exe: makepref.obj makepref.lnk
-#   wlink system dos4g @makepref.lnk
-   wlink system pmodew @makepref.lnk
 
 angband.lnk:
     %create  angband.lnk
@@ -52,23 +74,7 @@ angband.lnk:
     @%append angband.lnk name angband
     @for %i in ($(OBJS)) do @%append angband.lnk file %i
 
-makepref.lnk:
-    %create  makepref.lnk
-#   @%append makepref.lnk debug all
-    @%append makepref.lnk OPTION CASEEXACT
-    @%append makepref.lnk OPTION STACK=16k
-    @%append makepref.lnk name makepref
-    @%append makepref.lnk file makepref.obj
-
-gredit.lnk:
-    %create  gredit.lnk
-#   @%append gredit.lnk debug all
-    @%append gredit.lnk OPTION CASEEXACT
-    @%append gredit.lnk OPTION STACK=16k
-    @%append gredit.lnk name gredit
-    @%append gredit.lnk file gredit.obj
-
-.c.obj:
+.c.objbj:
     $(CC) $(CFLAGS) $[*.c
 
 clean:

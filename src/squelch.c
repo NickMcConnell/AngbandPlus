@@ -1,6 +1,6 @@
 #include "angband.h"
 
-static int do_qual_squelch(void);
+static void do_qual_squelch(void);
 
 /*
  * These are the various levels of squelching supported by the game.  
@@ -70,6 +70,8 @@ static tval_desc_type tvals_on_id[] =
 	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"	},
 	{ TV_BODY_ARMOR,	"Body Armor"		},
 	{ TV_DIGGING,		"Diggers"			},
+	{ TV_RING,			"Rings"				},
+	{ TV_AMULET,		"Amulets"			},
 	{ 0,				NULL }
 };
 
@@ -370,7 +372,7 @@ static int do_cmd_squelch_aux(void)
 /*
  * This command handles the secondary squelch menu. 
  */
-static int do_qual_squelch(void)
+static void do_qual_squelch(void)
 {
 	int i, num, max_num, index;
 	int col, row;
@@ -422,7 +424,7 @@ static int do_qual_squelch(void)
 		{
 			case ESCAPE:
 			{
-				return FALSE;
+				return;
 			}
 
 			case 'n':
@@ -532,7 +534,6 @@ static int do_qual_squelch(void)
  */
 static void init_tv_to_type(void) 
 {
-	  tv_to_type[TV_CHEST]			= SQ_TYPE_MISC;
 	  tv_to_type[TV_SHOT]			= SQ_TYPE_AMMO;
 	  tv_to_type[TV_ARROW]			= SQ_TYPE_AMMO;
 	  tv_to_type[TV_BOLT]			= SQ_TYPE_AMMO;

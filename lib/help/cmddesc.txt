@@ -493,6 +493,10 @@ View previous messages (^P)
 View current quest (^Q)
         This command shows you your current quest status.
 
+Describe current room (^Q) or (^G)
+        This command shows you the full description (under current 
+		conditions) of the room you're currently occupying.
+
 Take notes (:)
         This command allows you to take notes, which will then appear in
         your message list (prefixed with "Note:").

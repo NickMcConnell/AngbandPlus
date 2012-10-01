@@ -430,25 +430,9 @@ void wipe_o_list(void)
 		}
 
 		/* Quest items on quest levels */
- 		if (o_ptr->tval == TV_QUEST)
+ 		if (character_dungeon && (o_ptr->tval == TV_QUEST) && !p_ptr->is_dead)
 		{
-			quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
-
-			/* Mark quest as completed */
-			q_ptr->active_level = 0;
-			p_ptr->cur_quest = 0;
-				
-			/* No reward for failed quest */
-			q_ptr->reward = 0;
-
-			/* Message */
-			message(MSG_QUEST_FAIL, 0, "You have failed in your quest!");
-
-			/* Reset fame */
-			if (p_ptr->fame) p_ptr->fame = 0;
-	
-			/* Disturb */
-			if (disturb_minor) disturb(0);
+			quest_fail();
 		}
 
 		/* Monster */
@@ -624,9 +608,6 @@ s16b get_obj_num(int level)
 		/* Get the actual kind */
 		k_ptr = &k_info[k_idx];
 
-		/* Hack -- prevent embedded chests */
-		if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
-
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -711,8 +692,8 @@ void artifact_aware(artifact_type *a_ptr)
 	/* Aware the artifact is in the current game */
 	a_ptr->status |= A_STATUS_AWARE;
 
-	/* Aware the artifact exists for history's sake (unless a randart) */
-	if (!adult_rand_artifacts) a_ptr->status |= A_STATUS_HISTORY;
+	/* Aware the artifact exists for history's sake */
+	a_ptr->status |= A_STATUS_HISTORY;
 }
 
 /*
@@ -726,8 +707,8 @@ void artifact_known(artifact_type *a_ptr)
 	/* Know the activation */
 	a_ptr->status |= A_STATUS_ACTIVATE;
 
-	/* Know for history's sake (unless a randart) */
-	if (!adult_rand_artifacts) a_ptr->status |= A_STATUS_MEMORY;
+	/* Know for history's sake */
+	a_ptr->status |= A_STATUS_MEMORY;
 }
 
 /*
@@ -766,8 +747,6 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
-	bool flag = k_info[o_ptr->k_idx].aware;
-
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
 
@@ -837,8 +816,19 @@ static s32b object_value_base(object_type *o_ptr)
 	}
 
 	/* Modify according to prefix */
-	if (o_ptr->prefix_idx) value = (value * px_info[o_ptr->prefix_idx].cost) / 100;
-
+	if (o_ptr->prefix_idx) 
+	{
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || 
+			(o_ptr->tval == TV_POLEARM))
+		{
+			value = (value * wpx_info[o_ptr->prefix_idx].cost) / 100;
+		}
+		if ((o_ptr->tval == TV_BODY_ARMOR))
+		{
+			value = (value * apx_info[o_ptr->prefix_idx].cost) / 100;
+		}
+	}
+	
 	/* Return value */
 	return (value);
 }
@@ -867,7 +857,7 @@ static s32b object_value_real(object_type *o_ptr)
 {
 	s32b value;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -878,10 +868,21 @@ static s32b object_value_real(object_type *o_ptr)
 	value = k_ptr->cost;
 
 	/* Modify according to prefix */
-	if (o_ptr->prefix_idx) value = (value * px_info[o_ptr->prefix_idx].cost) / 100;
+	if (o_ptr->prefix_idx) 
+	{
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || 
+			(o_ptr->tval == TV_POLEARM))
+		{
+			value = (value * wpx_info[o_ptr->prefix_idx].cost) / 100;
+		}
+		if ((o_ptr->tval == TV_BODY_ARMOR))
+		{
+			value = (value * apx_info[o_ptr->prefix_idx].cost) / 100;
+		}
+	}
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Artifact */
 	if (o_ptr->a_idx)
@@ -923,34 +924,23 @@ static s32b object_value_real(object_type *o_ptr)
 				}
 
 				case OBJECT_XTRA_TYPE_MID_RESIST:
-				{
-					switch (o_ptr->xtra2) 
-					{
-						case 0: value  += 600;  break; /* Free Action */
-						case 1: value  += 750;  break; /* Hold Life */
-						case 2: value  += 400;  break; /* No Blindness */
-						case 3: value  += 400;  break; /* Bravery */
-						case 4: value  += 1300; break; /* Resist Poison */
-						case 5: value  += 1000; break; /* Resist Disease */
-						case 6: value  += 500;  break; /* Resist Lite */
-						case 7: value  += 500;  break; /* Resist Dark */
-						case 8: value  += 600;  break; /* Resist Confusion */
-						case 9: value  += 600;  break; /* Resist Sound */
-						case 10: value += 500;  break; /* Resist Shards */
-						case 11: value += 600;  break; /* Resist Water */
-					}
-					break;
-				}
-
 				case OBJECT_XTRA_TYPE_HIGH_RESIST:
 				{
 					switch (o_ptr->xtra2) 
 					{
-						case 0: value += 800;  break; /* Resist Nexus */
-						case 1: value += 2000; break; /* Resist Nether */
-						case 2: value += 1600; break; /* Resist Chaos */
-						case 3: value += 1600; break; /* Resist Disenchantment */
-						case 4: value += 2000; break; /* Resist Time */
+						case RS_WTR: value += 600;  break; /* Resist Water */
+						case RS_PSN: value += 1200; break; /* Resist Poison */
+						case RS_DIS: value += 1000; break; /* Resist Disease */
+						case RS_LIT: value += 500;  break; /* Resist Lite */
+						case RS_DRK: value += 500;  break; /* Resist Dark */
+						case RS_CNF: value += 600;  break; /* Resist Confusion */
+						case RS_SND: value += 600;  break; /* Resist Sound */
+						case RS_SHR: value += 500;  break; /* Resist Shards */
+						case RS_NEX: value += 800;  break; /* Resist Nexus */
+						case RS_NTH: value += 2000; break; /* Resist Nether */
+						case RS_CHS: value += 1600; break; /* Resist Chaos */
+						case RS_DSN: value += 1600; break; /* Resist Disenchantment */
+						case RS_TIM: value += 2000; break; /* Resist Time */
 					}
 					break;
 				}
@@ -1063,7 +1053,9 @@ static s32b object_value_real(object_type *o_ptr)
 			if (o_ptr->to_d < 0) return (0L);
 
 			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += ((o_ptr->to_h + o_ptr->to_d) * 100L);
+
+			value += (o_ptr->to_a * 120L);
 
 			/* Done */
 			break;
@@ -1085,7 +1077,7 @@ static s32b object_value_real(object_type *o_ptr)
 			value += ((o_ptr->to_d - k_ptr->to_d) * 100L);
 
 			/* Give credit for armor bonus */
-			value += (o_ptr->to_a * 100L);
+			value += (o_ptr->to_a * 120L);
 
 			/* Done */
 			break;
@@ -1099,24 +1091,24 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_POLEARM:
 		{
 			int to_h_val, to_d_val;
-			item_prefix_type *px_ptr = &px_info[o_ptr->prefix_idx];
+			weapon_prefix_type *wpx_ptr = &wpx_info[o_ptr->prefix_idx];
 
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
 
 			/* Reduce the values if there is a negative prefix */
-			if (px_ptr->to_h >= 0) to_h_val = o_ptr->to_h;
-			else to_h_val = o_ptr->to_h + px_ptr->to_h;
+			if (wpx_ptr->to_h >= 0) to_h_val = o_ptr->to_h;
+			else to_h_val = o_ptr->to_h + wpx_ptr->to_h;
 
 			/* Reduce the values if there is a negative prefix */
-			if (px_ptr->to_d >= 0) to_d_val = o_ptr->to_d;
-			else to_d_val = o_ptr->to_d + px_ptr->to_d;
+			if (wpx_ptr->to_d >= 0) to_d_val = o_ptr->to_d;
+			else to_d_val = o_ptr->to_d + wpx_ptr->to_d;
 
 			if (to_h_val < 0) to_h_val = 0;
 			if (to_d_val < 0) to_d_val = 0;
 
 			/* Factor in the bonuses */
-			value += ((to_h_val + to_d_val + o_ptr->to_a) * 100L);
+			value += ((to_h_val + to_d_val + o_ptr->to_a) * 120L);
 
 			/* Small price increase for lower bonuses */
 			if (to_h_val < o_ptr->to_h) value += (o_ptr->to_h - to_h_val) * 10;
@@ -1226,8 +1218,7 @@ void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
 	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN))
 	{
 		q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-		if (amt < o_ptr->number)
-			o_ptr->pval -= q_ptr->pval;
+		if (amt < o_ptr->number) o_ptr->pval -= q_ptr->pval;
 
 		/* Hack -- Rods need to have their timeouts distributed.  The
 		 * dropped stack will accept all time remaining to charge up to its
@@ -1337,13 +1328,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Analyze the items */
 	switch (o_ptr->tval)
 	{
-		/* Chests */
-		case TV_CHEST:
-		{
-			/* Never okay */
-			return (FALSE);
-		}
-
 		/* Food and Potions and Scrolls */
 		case TV_FOOD:
 		case TV_POTION:
@@ -1364,7 +1348,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Require identical charges */
 			if (o_ptr->pval != j_ptr->pval) return (FALSE);
 
-			/* Fall through */
+			break;
 		}
 
 		/* Rods */
@@ -1563,6 +1547,9 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 		o_ptr->pval += j_ptr->pval;
 		o_ptr->timeout += j_ptr->timeout;
 	}
+
+	/* Combine the histories */
+	stack_histories(o_ptr, j_ptr);
 
 }
 
@@ -2075,6 +2062,7 @@ static void charge_staff(object_type *o_ptr)
 		case SV_STAFF_GENOCIDE:			o_ptr->pval = randint(2)  + 1; break;
 		case SV_STAFF_EARTHQUAKES:		o_ptr->pval = randint(5)  + 3; break;
 		case SV_STAFF_DESTRUCTION:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_STAFF_BARRIERS:			o_ptr->pval = randint(4)  + 2; break;
 	}
 }
 
@@ -2214,8 +2202,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_2(object_type *o_ptr, int level, int power)
 {
-	int toac1 = randint(5) + m_bonus(5, level);
-	int toac2 = m_bonus(10, level);
+	int toac1 = randint(3) + m_bonus(3, level);
+	int toac2 = m_bonus(5, level);
 
 	/* Good */
 	if (power > 0)
@@ -2409,14 +2397,15 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_LIGHTNING:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = randint(3) + m_bonus(10, level);
-					break;
+					o_ptr->to_a = randint(3) + m_bonus(5, level);
 
 					/* Rating boost */
 					rating += 10;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
+
+					break;
 				}
 
 				/* WOE */
@@ -2439,7 +2428,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage */
-					o_ptr->to_d = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_d = damroll(2, 4) + m_bonus(6, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2461,7 +2450,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to hit */
-					o_ptr->to_h = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_h = damroll(2, 5) + m_bonus(10, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2505,7 +2494,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(5) + m_bonus(10, level);
+					o_ptr->to_d = randint(4) + m_bonus(6, level);
 					o_ptr->to_h = randint(5) + m_bonus(10, level);
 
 					/* Cursed */
@@ -2603,7 +2592,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_THE_MAGI:
 				{
 					o_ptr->pval = randint(5) + m_bonus(5, level);
-					o_ptr->to_a = randint(5) + m_bonus(5, level);
+					o_ptr->to_a = randint(3) + m_bonus(3, level);
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -2778,20 +2767,6 @@ static void a_m_aux_6(object_type *o_ptr)
 		{
 			/* Hack -- charge staffs */
 			charge_staff(o_ptr);
-
-			break;
-		}
-
-		case TV_CHEST:
-		{
-			/* Hack -- skip ruined chests */
-			if (k_info[o_ptr->k_idx].level <= 0) break;
-
-			/* Hack -- pick a "difficulty" */
-			o_ptr->pval = randint(k_info[o_ptr->k_idx].level);
-
-			/* Never exceed "difficulty" of 55 to 59 */
-			if (o_ptr->pval > 55) o_ptr->pval = (s16b)(55 + rand_int(5));
 
 			break;
 		}
@@ -3034,13 +3009,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 				case OBJECT_XTRA_TYPE_MID_RESIST:
 				{
-					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_MID_RESIST);
+					/* Water - Shards resist */
+					o_ptr->xtra2 = (byte)rand_int(7) + 4;
 					break;
 				}
 
 				case OBJECT_XTRA_TYPE_HIGH_RESIST:
 				{
-					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_HIGH_RESIST);
+					/* Nexus - Time resist */
+					o_ptr->xtra2 = (byte)rand_int(5) + 12;
 					break;
 				}
 
@@ -3132,35 +3109,70 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 	}
 
-	/* Try to attach a prefix - for now, only for weapons */
+	/* Try to attach a prefix */
 	if (o_ptr->k_idx && 
 		((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) ||(o_ptr->tval == TV_POLEARM)))
 	{
 		int k, l;
 
 		/* Ten tries */
-		for (k = 1;k < 10; k++)
+		for (k = 1; k < 10; k++)
 		{
-			item_prefix_type *px_ptr;
+			weapon_prefix_type *wpx_ptr;
 
 			/* Try to apply a random prefix */
-			l = randint(z_info->px_max - 1);
-			px_ptr = &px_info[l];
+			l = randint(z_info->wpx_max - 1);
+			wpx_ptr = &wpx_info[l];
 
 			/* Not a real prefix */
-			if (!px_ptr->rarity) continue;
+			if (!wpx_ptr->rarity) continue;
 
 			/* Check for material constraints */
-			if (px_ptr->material)
+			if (wpx_ptr->material)
 			{
-				if (px_ptr->material != object_material(o_ptr)) continue;
+				if (wpx_ptr->material != object_material(o_ptr)) continue;
 			}
 
 			/* Hack - Good items must have prefixes worth more than 50% */
-			if (good && !(px_ptr->flags & PXF_GOOD)) continue;
+			if (good && !(wpx_ptr->flags & PXF_GOOD)) continue;
 
 			/* Roll for rarity */
-			if (rand_int(px_ptr->rarity) == 0)
+			if (rand_int(wpx_ptr->rarity) == 0)
+			{
+				o_ptr->prefix_idx = l;
+
+				break;
+			}
+		}
+	}
+	/* Try to attach a prefix - for now, only for weapons */
+	if (o_ptr->k_idx && (o_ptr->tval == TV_BODY_ARMOR))
+	{
+		int k, l;
+
+		/* Ten tries */
+		for (k = 1; k < 10; k++)
+		{
+			armor_prefix_type *apx_ptr;
+
+			/* Try to apply a random prefix */
+			l = randint(z_info->apx_max - 1);
+			apx_ptr = &apx_info[l];
+
+			/* Not a real prefix */
+			if (!apx_ptr->rarity) continue;
+
+			/* Check for material constraints */
+			if (apx_ptr->material)
+			{
+				if (apx_ptr->material != object_material(o_ptr)) continue;
+			}
+
+			/* Hack - Good items must have prefixes worth more than 50% */
+			if (good && !(apx_ptr->flags & PXF_GOOD)) continue;
+
+			/* Roll for rarity */
+			if (rand_int(apx_ptr->rarity) == 0)
 			{
 				o_ptr->prefix_idx = l;
 
@@ -3380,6 +3392,9 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
 	return (TRUE);
 }
 
+/*
+ * Hack - make an object according to its character and color
+ */
 bool make_mimic(object_type *j_ptr, byte a, char c)
 {
 	int k_idx;
@@ -3506,22 +3521,48 @@ bool make_gold(object_type *j_ptr, int coin_type)
 	}
 
 	/* Hack -- Creeping Coins only generate "themselves" */
+
 	if (coin_type) i = coin_type;
 
 	/* Do not create "illegal" Treasure Types */
 	if (i >= MAX_GOLD) i = MAX_GOLD - 1;
 
 	/* Prepare a gold object */
-	object_prep(j_ptr, OBJ_GOLD_LIST + i);
+	object_prep(j_ptr, z_info->k_min_gold + i);
 
 	/* Hack -- Base coin cost */
-	base = k_info[OBJ_GOLD_LIST+i].cost;
+	base = k_info[z_info->k_min_gold + i].cost;
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
 
 	/* Success */
 	return (TRUE);
+}
+
+/*
+ * Mark an object's history
+ */
+void object_history(object_type *o_ptr, byte origin, s16b r_idx, s16b s_idx, s16b u_idx)
+{
+	o_ptr->origin_nature = origin;
+
+	switch(origin)
+	{
+		case ORIGIN_DROP_KNOWN:
+		{
+			o_ptr->origin_r_idx = r_idx;
+			o_ptr->origin_s_idx = s_idx;
+			o_ptr->origin_u_idx = u_idx;
+
+			/* Fall through */
+		}
+		case ORIGIN_ACQUIRE: case ORIGIN_DROP_UNKNOWN: case ORIGIN_FLOOR:
+		{
+			o_ptr->origin_dlvl = p_ptr->depth;
+			break;
+		}
+	}
 }
 
 /*
@@ -3816,17 +3857,20 @@ void acquirement(int y1, int x1, int num, bool great, bool real_depth)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	/* Get local object */
+	i_ptr = &object_type_body;
+
 	/* Acquirement */
 	while (num--)
 	{
-		/* Get local object */
-		i_ptr = &object_type_body;
-
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
 		if (!make_object(i_ptr, TRUE, great, real_depth)) continue;
+
+		/* Mark history */
+		object_history(i_ptr, ORIGIN_ACQUIRE, 0, 0, 0);
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
@@ -3856,6 +3900,9 @@ void place_object(int y, int x, bool good, bool great)
 	/* Make an object (if possible) */
 	if (make_object(i_ptr, good, great, TRUE))
 	{
+		/* Mark history */
+		object_history(i_ptr, ORIGIN_FLOOR, 0, 0, 0);
+
 		/* Give it to the floor */
 		if (!floor_carry(y, x, i_ptr))
 		{
@@ -3894,69 +3941,15 @@ void place_gold(int y, int x)
 }
 
 /*
- * Hack -- instantiate a trap
- *
- * XXX XXX XXX This routine should be redone to reflect trap "level".
- * That is, it does not make sense to have spiked pits at 50 feet.
- * Actually, it is not this routine, but the "trap instantiation"
- * code, which should also check for "trap doors" on quest levels.
- */
-void pick_trap(int y, int x)
-{
-	int feat;
-
-	/* Paranoia */
-	if (cave_feat[y][x] != FEAT_INVIS) return;
-
-	/* Pick a trap */
-	while (TRUE)
-	{
-		/* Hack -- pick a trap */
-		feat = FEAT_TRAP_HEAD + rand_int(16);
-
-		/* Hack -- no trap doors on fixed quest levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (quest_check(p_ptr->depth) == QUEST_FIXED))
-			continue;
-
-		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
-
-		/* Done */
-		break;
-	}
-
-	/* Activate the trap */
-	cave_set_feat(y, x, feat);
-}
-
-/*
- * Places a random trap at the given location.
- *
- * The location must be a legal, naked, floor grid.
- *
- * Note that all traps start out as "invisible" and "untyped", and then
- * when they are "discovered" (by detecting them or setting them off),
- * the trap is "instantiated" as a visible, "typed", trap.
- */
-void place_trap(int y, int x)
-{
-	/* Paranoia */
-	if (!in_bounds(y, x)) return;
-
-	/* Require empty, clean, floor grid */
-	if (!cave_naked_bold(y, x)) return;
-
-	/* Place an invisible trap */
-	cave_set_feat(y, x, FEAT_INVIS);
-}
-
-/*
  * Place a secret door at the given location
  */
 void place_secret_door(int y, int x)
 {
 	/* Create secret door */
 	cave_set_feat(y, x, FEAT_SECRET);
+
+	/* Create a locked door, 1 in 4 */
+	if (!rand_int(4)) place_lock(y, x, FALSE, WG_DOOR_LOCK);
 }
 
 /*
@@ -3964,31 +3957,11 @@ void place_secret_door(int y, int x)
  */
 void place_closed_door(int y, int x)
 {
-	int tmp;
+	/* Create closed door */
+	cave_set_feat(y, x, FEAT_CLOSED);
 
-	/* Choose an object */
-	tmp = rand_int(400);
-
-	/* Closed doors (300/400) */
-	if (tmp < 300)
-	{
-		/* Create closed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
-	}
-
-	/* Locked doors (99/400) */
-	else if (tmp < 399)
-	{
-		/* Create locked door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
-	}
-
-	/* Stuck doors (1/400) */
-	else
-	{
-		/* Create jammed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
-	}
+	/* Create a locked door, 1 in 4 */
+	if (!rand_int(4)) place_lock(y, x, TRUE, WG_DOOR_LOCK);
 }
 
 /*
@@ -4155,7 +4128,7 @@ void inven_item_describe(int item)
 	if (artifact_p(o_ptr) && object_known_p(o_ptr))
 	{
 		/* Get a description */
-		object_desc(o_name, o_ptr, FALSE, 3);
+		object_desc(o_name, o_ptr, FALSE, (display_insc_msg ? 3 : 2));
  
 		/* Print a message */
 		message_format(MSG_DESCRIBE, 0,
@@ -4164,7 +4137,7 @@ void inven_item_describe(int item)
 	else
 	{
 		/* Get a description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, TRUE, (display_insc_msg ? 3 : 2));
 
 		/* Print a message */
 		message_format(MSG_DESCRIBE, 0, "You have %s (%c).", o_name, index_to_label(item));
@@ -4880,62 +4853,7 @@ void reorder_pack(void)
 }
 
 /*
- * Hack -- display an object kind in the current window
- *
- * Include list of usable spells for readable books
- */
-void display_koff(int k_idx, int pval)
-{
-	int y;
-
-	object_type *i_ptr;
-	object_type object_type_body;
-
-	char o_name[80];
-
-	/* Erase the window */
-	for (y = 0; y < Term->hgt; y++)
-	{
-		/* Erase the line */
-		Term_erase(0, y, 255);
-	}
-
-	/* No info */
-	if (!k_idx) return;
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Prepare the object */
-	object_wipe(i_ptr);
-
-	/* Prepare the object */
-	object_prep(i_ptr, k_idx);
-
-	/* Describe */
-	object_desc_store(o_name, i_ptr, FALSE, 0);
-
-	/* Mention the object name */
-	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
-
-	/* Warriors are illiterate */
-	if (!spellcaster()) return;
-
-	if (i_ptr->tval == TV_MUSIC)
-	{
-		print_spells(i_ptr->sval, TRUE, pval, 1, 14);
-	}
-	else if (cp_ptr->spell_book[i_ptr->sval])
-
-	/* Display spells in readable books */
-	{
-		/* Print spells */
-		print_spells(i_ptr->sval, FALSE, 0, 1, 14);
-	}
-}
-
-/*
- * Hack -- Create a "forged" artifact
+ * Hack -- Create a "forged" artifact, for knowledge purposes
  */
 bool make_fake_artifact(object_type *o_ptr, int a_idx)
 {
@@ -5012,6 +4930,166 @@ void create_quest_item(int ny, int nx)
 }
 
 /*
+ * Determine which equipment slot (if any) an item likes
+ */
+s16b wield_slot(object_type *o_ptr)
+{
+	/* Slot for equipment */
+	switch (o_ptr->tval)
+	{
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		{
+			return (INVEN_WIELD);
+		}
+
+		case TV_BOW:
+		{
+			return (INVEN_BOW);
+		}
+
+		case TV_RING:
+		{
+			int slot;
+
+			cptr q, s;
+			
+			object_type *i_ptr = &inventory[INVEN_RIGHT];
+			object_type *j_ptr = &inventory[INVEN_LEFT];
+	
+			/* Right hand is free - pick it first */
+			if (!i_ptr->k_idx) return (INVEN_RIGHT);
+
+			/* Left hand is free - pick it */
+			if (!j_ptr->k_idx) return (INVEN_LEFT);
+
+			/* 
+			 * Both hands are full - time to see if we can decide where to put it ourselves 
+			 * If not obvious, prefer left hand to right hand for swapping.
+			 */
+
+			/* Both rings are cursed, choose arbitrarily (will fail later anyway) */
+			if (cursed_p(i_ptr) && cursed_p(j_ptr)) return (INVEN_LEFT);
+
+			/* Left ring is cursed, but right one isn't */
+			if (!cursed_p(i_ptr) && cursed_p(j_ptr)) return (INVEN_RIGHT);
+
+			/* Right ring is cursed, but left one isn't */
+			if (cursed_p(i_ptr) && !cursed_p(j_ptr)) return (INVEN_LEFT);
+
+			/* Rings are of the same type, choice might be easy */
+			if ((i_ptr->sval == j_ptr->sval) && object_known_p(i_ptr) && object_known_p(j_ptr))
+			{
+				switch (i_ptr->sval)
+				{
+					case SV_RING_PROTECTION:
+					case SV_RING_LIGHTNING:
+					case SV_RING_ACID:
+					case SV_RING_FLAMES:
+					case SV_RING_ICE:
+					{
+						/* Prefer the ring with lower ac bonus */
+						if (i_ptr->to_a < j_ptr->to_a) return (INVEN_RIGHT);
+						else return (INVEN_LEFT);
+					}
+					case SV_RING_ACCURACY:
+					case SV_RING_DAMAGE:
+					case SV_RING_SLAYING:
+					{
+						/* Don't auto-choose ambiguous rings (only applies to slaying) */
+						if (((i_ptr->to_h < j_ptr->to_h) && (i_ptr->to_d > j_ptr->to_d)) ||
+							((i_ptr->to_h > j_ptr->to_h) && (i_ptr->to_d < j_ptr->to_d)))
+						{
+							break;
+						}
+						else
+						{
+							/* Prefer the ring with lower bonuses */
+							if ((i_ptr->to_h < j_ptr->to_h) || (i_ptr->to_d < j_ptr->to_d))
+								return (INVEN_RIGHT);
+							else return (INVEN_LEFT);
+						}
+					}
+					default:
+					{
+						/* 
+						 * For most cases, just prefer the ring with lower pval
+						 * Note that this works fine for rings with no pval
+						 */
+						if (i_ptr->pval < j_ptr->pval) return (INVEN_RIGHT);
+						else return (INVEN_LEFT);
+					}
+				}
+			}
+			
+			/* Since we haven't chosen automatically, choose interactively */
+
+			/* Restrict the choices */
+			item_tester_tval = TV_RING;
+
+			/* Choose a ring from the equipment only */
+			q = "Replace which ring? ";
+			s = "Oops.";
+			if (!get_item(&slot, q, s, USE_EQUIP)) return (0);
+			
+			return (slot);
+		}
+
+		case TV_AMULET:
+		{
+			return (INVEN_NECK);
+		}
+
+		case TV_LITE:
+		case TV_LITE_SPECIAL:
+		{
+			return (INVEN_LITE);
+		}
+
+		case TV_DRAG_ARMOR:
+		case TV_BODY_ARMOR:
+		{
+			return (INVEN_BODY);
+		}
+
+		case TV_CLOAK:
+		{
+			return (INVEN_OUTER);
+		}
+
+		case TV_SHIELD:
+		{
+			return (INVEN_ARM);
+		}
+
+		case TV_HEADGEAR:
+		{
+			return (INVEN_HEAD);
+		}
+
+		case TV_GLOVES:
+		{
+			return (INVEN_HANDS);
+		}
+
+		case TV_BOOTS:
+		{
+			return (INVEN_FEET);
+		}
+
+		case TV_MUSIC:
+		{
+			if (cp_ptr->flags & CF_MUSIC) return (INVEN_MUSIC);
+		}
+	}
+
+	/* No slot available */
+	return (0);
+}
+
+/*
  * Weight factor for weapon plusses
  */
 byte wgt_factor(object_type *o_ptr)
@@ -5023,4 +5101,119 @@ byte wgt_factor(object_type *o_ptr)
 	if (factor > 29) factor = 29;
 
 	return max_item_plus[factor];
+}
+
+/* 
+ * Actual weight (including prefixes)
+ */
+s16b actual_weight(object_type *o_ptr)
+{
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			return ((o_ptr->weight * wpx_info[o_ptr->prefix_idx].weight) / 100);
+		}
+	}
+	if ((o_ptr->tval == TV_BODY_ARMOR))
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			return ((o_ptr->weight * apx_info[o_ptr->prefix_idx].weight) / 100);
+		}
+	}
+	return o_ptr->weight;
+}
+
+/* 
+ * Actual to-hit (including prefixes)
+ */
+s16b actual_to_h(object_type *o_ptr)
+{
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			return (o_ptr->to_h + wpx_info[o_ptr->prefix_idx].to_h);
+		}
+	}
+
+	else if (o_ptr->tval == TV_BODY_ARMOR)
+	{
+		/* Note - can never raise the to-hit above 0 */
+		if (o_ptr->prefix_idx) 
+		{
+			int i = (o_ptr->to_h + apx_info[o_ptr->prefix_idx].to_h);
+			return ((i > 0) ? 0 : i);
+		}
+	}
+
+	return o_ptr->to_h;
+}
+
+/* 
+ * Actual to-damage (including prefixes)
+ */
+s16b actual_to_d(object_type *o_ptr)
+{
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			return (o_ptr->to_d + wpx_info[o_ptr->prefix_idx].to_d);
+		}
+	}
+
+	return o_ptr->to_d;
+}
+
+/* 
+ * Actual damage dice (including prefixes)
+ */
+byte actual_dd(object_type *o_ptr)
+{
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			int i = o_ptr->dd + wpx_info[o_ptr->prefix_idx].dd;
+			return ((i > 0) ? i : 1);
+		}
+	}
+
+	return o_ptr->dd;
+}
+
+/* 
+ * Actual damage sides (including prefixes)
+ */
+byte actual_ds(object_type *o_ptr)
+{
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			int i = o_ptr->ds + wpx_info[o_ptr->prefix_idx].ds;
+			return ((i > 0) ? i : 1);
+		}
+	}
+
+	return o_ptr->ds;
+}
+
+/* 
+ * Actual damage sides (including prefixes)
+ */
+s16b actual_ac(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_BODY_ARMOR)
+	{
+		if (o_ptr->prefix_idx) 
+		{
+			int i = o_ptr->ac + apx_info[o_ptr->prefix_idx].ac;
+			return ((i > 0) ? i : 1);
+		}
+	}
+
+	return o_ptr->ac;
 }

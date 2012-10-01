@@ -42,27 +42,27 @@
 
 SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-  variable.c tables.c util.c cave.c \
+  variable.c tables.c traps.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c monster3.c\
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
   cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
   store.c birth.c squelch.c load.c powers.c\
-  wizard1.c wizard2.c quest.c effects.c \
-  generate.c dungeon.c init1.c init2.c randart.c \
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+  info.c wizard.c quest.c effects.c \
+  generate.c dungeon.c init1.c init2.c \
+  main-cap.c main-gcu.c main-x11.c maid-x11.c main-xaw.c main.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
+  variable.o tables.o traps.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o monster3.o\
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \
-  store.o birth.o squelch.o load.o powers.o\
-  wizard1.o wizard2.o quest.o effects.o \
-  generate.o dungeon.o init1.o init2.o randart.o \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+  info.o store.o birth.o squelch.o load.o powers.o\
+  wizard.o quest.o effects.o \
+  generate.o dungeon.o init1.o init2.o \
+  main-cap.o main-gcu.o main-x11.o maid-x11.o main-xaw.o main.o
 
 
 
@@ -239,7 +239,7 @@ all: angband
 #
 
 install: angband
-	 cp angband ..
+	cp angband ..
 
 
 #
@@ -247,7 +247,7 @@ install: angband
 #
 
 angband: $(OBJS)
-	 $(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
 
 
 #
@@ -292,6 +292,7 @@ dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
+info.o: info.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 load.o: load.c $(INCS)
@@ -309,17 +310,16 @@ object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 powers.o: powers.c $(INCS)
 quest.o: quest.c $(INCS)
-randart.o: randart.c $(INCS)
 save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 squelch.o: squelch.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
+traps.o: traps.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
-wizard1.o: wizard1.c $(INCS)
-wizard2.o: wizard2.c $(INCS)
+wizard.o: wizard.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
@@ -327,4 +327,3 @@ z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h
 z-util.o: z-util.c $(HDRS) z-util.h
 z-virt.o: z-virt.c $(HDRS) z-virt.h z-util.h
-

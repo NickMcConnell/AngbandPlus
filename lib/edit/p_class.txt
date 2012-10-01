@@ -9,9 +9,10 @@
 # Format:
 # N:class number:class name
 # S:str:int:wis:dex:con:chr
-# C:dis:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc 
-# X:dis:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc
-# I:hitdie:expbase:attackmax:minweight:multiplier:spellstat1:spellstat2:disturbweight
+# C:dis:byp:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc 
+# X:dis:byp:dev:sav:stl:srh:fos:thn:thb:tht:dig:alc
+# O:acd:elc:fir:cld:wtr:poi:dis:lit:drk:cnf:snd:shr:nex:nth:chs:dsn:tim:mna
+# I:hitdie:expbase:attacks factor:spellstat1:spellstat2:disturbweight
 # B:sval:handicap
 # E:tval:sval:ego:min:max - starting equipment, up to 4 entries per class
 # T:class titles - there must be exactly 10 of these per class
@@ -25,13 +26,10 @@
 # 'C' and 'X' are the skill lines - 'C' represents the basic class skill, and 'X' 
 # is the amount of skill gained every 10 levels.
 
-# 'I' is class info. Hitdie and Expbase are modified according to race. Attackmax is the 
-# maximum amount of attacks acheivable by a member of this class. Minweight and multiplier
-# determine that calculation of attack number; minweight determines the lowest possible 
-# weight the class can get benifits for (if your minweight is 10 then a weapon that weighs
-# 4 is the same as a weapon that weighs 10). The higher the multiplier is, the more attacks
-# you are likely to get. The two spellstats are  the index number of the stats (0 = STR,
-# 1 = INT, 2 = WIS, 3 = DEX, 4 = CON, 5 = CHR) used for mana and fail rate calculations -
+# 'I' is class info. Hitdie and Expbase are modified according to race. Attacks factor
+# determines the number of melee attacks you might get - higher is better (max = 4). The two 
+# spellstats are  the index number of the stats (0 = STR, 1 = INT, 2 = WIS, 3 = DEX, 
+# 4 = CON, 5 = CHR) used for mana and fail rate calculations -
 # the actual figure used is the average of the two stats, use the same stat twice if 
 # only one stat has effect. Disturbweight is the maximum weight the character can wear
 # without losing mana.
@@ -76,16 +74,17 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:0.4.0
 
 N:0:Warrior
 S:3:-2:-1:1:1:-2
-C:25:18:18:1:14:2:70:55:65:0:26
-X:10:7:10:0:0:0:45:45:45:0:5
-I:9:0:6:30:5:0:0:0
+C:25:5:18:18:1:14:2:28:18:22:0:26
+X:10:1:7:10:0:0:0:15:15:15:0:5
+O:15:15:15:15:10:15:15:10:10:15:10:10:5:5:5:5:0:0
+I:9:0:4:0:0:0
 E:75:30:0:1:1
 E:23:16:0:1:1
-E:36:24:0:1:1
+E:36:10:0:1:1
 T:Rookie
 T:Soldier
 T:Mercenary
@@ -96,13 +95,34 @@ T:Hero
 T:Baron
 T:Duke
 T:Lord
-F:BRAVERY_30|PSEUDO_ID5|BETTER_CRITICAL|PSEUDO_ID_HEAVY
+F:BRAVERY_30 | PSEUDO_ID5 | BETTER_CRITICAL | PSEUDO_ID_HEAVY
 
-N:1:Mage
+N:1:Thief
+S:0:0:-2:3:0:-1
+C:40:30:30:25:3:25:20:20:12:20:0:40
+X:10:10:7:10:1:2:0:10:6:10:0:8
+O:10:10:10:10:10:10:20:10:15:15:20:10:5:5:5:0:0:0
+I:3:10:2:0:0:0
+E:23:7:0:1:1
+E:36:4:0:1:1
+T:Cutpurse	
+T:Robber
+T:Burgler
+T:Catburgler
+T:Dodger
+T:Rogue
+T:Knave
+T:Thief
+T:Master-Thief
+T:Shadow
+F:PSEUDO_ID5 | PSEUDO_ID_HEAVY | TRAP_KNOW | TRAP_PLACE
+
+N:2:Mage
 S:-3:2:0:1:-1:1
-C:30:36:30:2:16:20:34:20:20:0:45
-X:7:13:9:0:0:0:15:15:15:0:10
-I:0:30:4:40:2:1:1:250
+C:30:0:36:30:2:16:20:11:7:7:0:45
+X:7:1:13:9:0:0:0:5:5:5:0:10
+O:15:15:15:15:10:10:10:10:10:15:10:10:15:15:15:0:0:5
+I:0:30:0:1:1:250
 B:0:1
 B:1:1
 B:2:1
@@ -127,13 +147,72 @@ T:Conjurer
 T:Warlock
 T:Sorcerer
 T:Mage-Lord
-F:NO_GLOVE|ZERO_FAIL|BEAM|PSEUDO_ID1|CHOOSE_SPELLS
+F:NO_GLOVE | ZERO_FAIL | BEAM | PSEUDO_ID1 | CHOOSE_SPELLS
 
-N:2:Priest
+N:3:Spellsword
+S:2:1:-1:0:0:0
+C:25:3:30:25:1:12:5:23:13:13:0:30
+X:7:1:10:10:0:0:0:12:9:10:0:7
+O:15:15:15:15:10:15:15:10:10:15:10:10:5:5:10:0:0:0
+I:5:35:2:1:1:400
+B:0:5
+B:1:5
+B:2:5
+B:3:5
+B:4:5
+B:5:5
+B:6:5
+B:7:5
+B:8:5
+E:36:4:0:1:1
+E:23:16:0:1:1
+E:70:9:0:1:1        
+T:Student
+T:Journeyman
+T:Spellslinger
+T:Wizard
+T:Warrior-Mage
+T:Knight-Mage
+T:Spellsword
+T:Battlemage
+T:Scourge
+T:Wizard-Lord
+F:PSEUDO_ID2 | CHOOSE_SPELLS | BEAM
+
+N:4:Ranger
+S:1:1:0:2:0:0
+C:30:10:32:28:3:24:16:20:34:34:0:35
+X:8:3:10:10:0:0:0:10:15:15:0:8
+O:20:20:20:20:20:20:20:5:5:5:5:5:5:5:5:0:0:0
+I:4:30:2:1:1:350
+B:0:3
+B:1:4
+B:2:7
+B:4:5
+B:5:11
+B:9:3
+E:90:0:0:1:1
+E:23:16:0:1:1
+E:19:13:0:1:1
+E:17:1:0:8:12
+T:Runner
+T:Strider
+T:Scout
+T:Courser
+T:Tracker
+T:Guide
+T:Pathfinder
+T:Low-Ranger
+T:High-Ranger
+T:Ranger-Lord
+F:EXTRA_SHOT | PSEUDO_ID2 | CHOOSE_SPELLS | BETTER_SHOT
+
+N:5:Priest
 S:-1:-2:2:-1:0:1
-C:25:30:32:2:16:8:48:35:35:0:30
-X:7:10:12:0:0:0:20:20:20:0:7
-I:2:20:5:35:3:2:2:350
+C:25:0:30:32:2:16:8:16:12:12:0:30
+X:7:0:10:12:0:0:0:6:6:6:0:7
+O:10:10:10:10:10:10:10:15:20:20:10:10:15:20:15:0:0:0
+I:2:20:1:2:2:350
 B:10:1
 B:11:1
 B:12:1
@@ -158,40 +237,14 @@ T:Patriarch
 T:Priest
 T:High-Priest
 T:Archpriest
-F:BLESS_WEAPON|ZERO_FAIL|PSEUDO_ID4
+F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID4
 
-N:3:Ranger
-S:1:1:0:2:0:0
-C:30:32:28:3:24:16:56:72:72:0:35
-X:8:10:10:0:0:0:30:45:45:0:8
-I:4:30:5:35:4:1:1:300
-B:0:3
-B:1:4
-B:2:7
-B:4:5
-B:5:11
-B:9:3
-E:90:0:0:1:1
-E:23:16:0:1:1
-E:19:13:0:1:1
-E:17:1:0:8:12
-T:Runner
-T:Strider
-T:Scout
-T:Courser
-T:Tracker
-T:Guide
-T:Pathfinder
-T:Low-Ranger
-T:High-Ranger
-T:Ranger-Lord
-F:EXTRA_SHOT|PSEUDO_ID2|CHOOSE_SPELLS|BETTER_SHOT
-
-N:4:Paladin
+N:6:Paladin
 S:2:-2:1:0:1:1
-C:20:24:25:1:12:2:68:40:40:0:19
-X:7:10:11:0:0:0:35:30:30:0:5
-I:6:35:5:30:4:2:2:400
+C:20:0:24:25:1:12:2:24:13:13:0:19
+X:7:0:10:11:0:0:0:12:10:10:0:5
+O:10:10:10:10:10:10:10:10:15:15:10:10:15:20:15:0:0:0
+I:6:35:2:2:2:400
 B:10:5
 B:11:5
 B:12:5
@@ -214,13 +267,14 @@ T:Guardian
 T:Low-Paladin
 T:High-Paladin
 T:Paladin-Lord
-F:PSEUDO_ID3|PSEUDO_ID_HEAVY
+F:PSEUDO_ID3 | PSEUDO_ID_HEAVY
 
-N:5:Mystic
+N:7:Mystic
 S:-4:3:3:0:0:0
-C:25:23:35:3:15:10:10:20:65:0:30
-X:6:4:10:0:0:0:4:10:25:0:5
-I:1:32:4:50:2:1:2:170
+C:25:2:23:35:3:15:10:3:7:22:0:30
+X:6:1:4:10:0:0:0:1:3:9:0:5
+O:15:15:15:15:15:15:15:15:15:15:15:15:15:15:0:0:0:10
+I:1:32:0:1:2:180
 B:0:1
 B:1:1
 B:2:1
@@ -245,14 +299,15 @@ T:Enlightened
 T:Master
 T:Grand-Master
 T:Transcendent
-F:NO_GLOVE|ZERO_FAIL|POWER|PSEUDO_ID1
-F:EXTRA_MANA|EXTRA_SPELL|MYSTIC_CAST|CHOOSE_SPELLS
+F:NO_GLOVE | ZERO_FAIL | POWER | PSEUDO_ID1
+F:EXTRA_MANA | EXTRA_SPELL | MYSTIC_CAST | CHOOSE_SPELLS
 
-N:6:Bard
+N:8:Bard
 S:0:1:-1:1:0:2
-C:25:30:25:3:18:8:55:45:35:0:40
-X:10:10:10:0:0:0:30:35:20:0:8
-I:3:15:5:35:4:5:5:300
+C:25:10:30:25:3:18:8:20:15:12:0:40
+X:10:2:10:10:0:0:0:10:12:7:0:8
+O:10:10:10:10:10:10:10:10:15:20:20:10:5:5:10:0:0:0
+I:3:15:2:5:5:350
 E:50:0:0:1:1
 E:50:1:0:1:1
 E:23:7:0:1:1
@@ -267,33 +322,6 @@ T:Poet
 T:Bard
 T:Master-Bard
 T:Maestro
-F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE|INFLUENCE
+F:MUSIC | PSEUDO_ID5 | PSEUDO_ID_HEAVY | NO_GLOVE | LORE | INFLUENCE |
+F:ZERO_FAIL
 
-N:7:Spellsword
-S:2:1:-1:0:0:0
-C:25:30:25:1:12:5:65:38:40:0:30
-X:7:10:10:0:0:0:35:28:30:0:7
-I:5:35:5:30:4:1:1:400
-B:0:5
-B:1:5
-B:2:5
-B:3:5
-B:4:5
-B:5:5
-B:6:5
-B:7:5
-B:8:5
-E:36:6:0:1:1
-E:23:16:0:1:1
-E:70:9:0:1:1        
-T:Student
-T:Journeyman
-T:Spellslinger
-T:Wizard
-T:Warrior-Mage
-T:Knight-Mage
-T:Spellsword
-T:Battlemage
-T:Scourge
-T:Wizard-Lord
-F:PSEUDO_ID2|CHOOSE_SPELLS|BEAM

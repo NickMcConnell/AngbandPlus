@@ -1,28 +1,31 @@
-# File: prefix.txt
+# File: w_prefix.txt
 
-# This file is used to initialize the "lib/data/prefix.raw" file, which is
-# used to initialize the "prefix" information for the Angband game.
+# This file is used to initialize the "lib/data/w_prefix.raw" file, which is
+# used to initialize the "weapon prefix" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
 # Format:
 # N: serial number : prefix name
+# K: evl:chs:anl:plt:udd:dmn:hmn:ppl:fry:drg:lyc:acd:elc:fir:cld:psn:lit:drk
 # W: rarity : material : weight % : cost % 
 # P: + to hit, + to dam, + to dd, + to ds
 # F: flags 
 
-# Flags - SHOP, ARTIFACT, GOOD, determine whether the object is legal in stores, artifacts, and 
+# Flags - SHOP, GOOD, determine whether the object is legal in stores and 
 # good items respectively.
 
 # Version stamp (required)
 
-V:0.3.6
+V:0.4.0
 
 N:0:<none>
 W:1:0:100:100
 P:0:0:0:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
+
+# Weapon prefixes
 
 N:1:Broken
 W:10:0:50:1
@@ -40,83 +43,101 @@ F:SHOP
 N:4:Hunter's
 W:15:0:100:110
 P:0:1:0:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
 N:5:Quality
 W:20:0:100:130
 P:1:1:0:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
 N:6:Orcish
 W:30:0:120:130
-P:0:2:0:0
-F:SHOP | ARTIFACT | GOOD
+P:0:2:0:0:0
+F:SHOP | GOOD
 
 N:7:Dwarven
 W:40:0:110:150
 P:0:0:0:1
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
 N:8:Elven
 W:40:0:90:200
 P:2:0:0:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
 N:9:Kobold
 W:40:0:80:80
-P:0:0:-1:-1
-F:SHOP | ARTIFACT | GOOD
+P:0:0:-1:-1:0
+F:SHOP | GOOD
 
 N:10:Rattikin
 W:40:0:80:120
 P:1:0:-1:1
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
-N:11:Trollish
+N:11:Ursan
 W:45:0:160:200
 P:0:0:1:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
 N:12:Felpurr
 W:45:0:90:110
 P:0:0:0:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
-N:13:Hobbit
+N:13:Vargr
+W:45:0:90:140
+P:0:1:0:0
+F:SHOP | GOOD
+
+N:14:Grippli
 W:50:0:60:100
 P:0:0:0:-1
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
-N:14:Gnomish
+N:15:Gnomish
 W:50:0:50:65
 P:0:0:-1:0
-F:SHOP | ARTIFACT | GOOD
+F:SHOP | GOOD
 
-N:15:Yeek
-W:50:0:60:30
-P:-1:-1:-1:-1
-F:SHOP | ARTIFACT | GOOD
+N:16:Lizardman
+W:50:0:115:100
+P:0:1:0:0
+F:SHOP | GOOD
 
-N:16:Ogrish
+N:17:Iron
+W:50:12:100:120
+P:0:0:0:0
+K:0:0:0:0:0:11:0:0:12:0:0:0:0:0:0:0:0:0
+F:GOOD | SHOP
+
+N:18:Ogrish
 W:60:0:250:200
 P:-2:0:1:1
-F:ARTIFACT | GOOD
+F:GOOD
 
-N:17:Runed
+N:19:Runed
 W:75:0:100:200
 P:0:5:0:0
-F:ARTIFACT | GOOD
+F:GOOD
 
-N:18:Ornamental
+N:20:Ornamental
 W:80:12:110:350
 P:-3:-3:-1:-1
 
-N:19:Dark Elven
+N:21:Silver
+W:80:12:100:200
+P:0:0:0:0
+K:0:0:0:0:12:0:0:0:0:0:12:0:0:0:0:0:0:0
+F:GOOD
+
+N:22:Dark Elven
 W:90:0:90:250
 P:2:2:0:1
-F:ARTIFACT | GOOD
+F:GOOD
 
-N:20:Majestic
+N:23:Majestic
 W:150:0:120:500
-P:2:2:2:2
-F:ARTIFACT | GOOD
+P:2:2:1:2
+F:GOOD
+

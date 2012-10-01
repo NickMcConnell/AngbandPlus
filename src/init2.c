@@ -247,12 +247,16 @@ static cptr err_str[PARSE_ERROR_MAX] =
 header z_head;
 header v_head;
 header f_head;
+header d_head;
 header k_head;
 header a_head;
 header e_head;
-header px_head;
+header wpx_head;
+header apx_head;
+header w_head;
 header r_head;
 header u_head;
+header s_head;
 header p_head;
 header c_head;
 header h_head;
@@ -613,6 +617,24 @@ static errr init_f_info(void)
 }
 
 /*
+ * Initialize the "d_info" array
+ */
+static errr init_d_info(void)
+{
+	/* Init the header */
+	init_header(&d_head, z_info->d_max, sizeof(desc_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	d_head.parse_info_txt = parse_d_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("rooms", &d_head, (void*)&d_info, (void*)&d_name, (void*)&d_text);
+}
+
+/*
  * Initialize the "k_info" array
  */
 static errr init_k_info(void)
@@ -669,19 +691,55 @@ static errr init_e_info(void)
 /*
  * Initialize the "e_info" array
  */
-static errr init_px_info(void)
+static errr init_wpx_info(void)
 {
 	/* Init the header */
-	init_header(&px_head, z_info->px_max, sizeof(item_prefix_type));
+	init_header(&wpx_head, z_info->wpx_max, sizeof(weapon_prefix_type));
 
 #ifdef ALLOW_TEMPLATES
 
 	/* Save a pointer to the parsing function */
-	px_head.parse_info_txt = parse_px_info;
+	wpx_head.parse_info_txt = parse_wpx_info;
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("prefix", &px_head, (void*)&px_info, (void*)&px_name, NULL);
+	return init_info("w_prefix", &wpx_head, (void*)&wpx_info, (void*)&wpx_name, NULL);
+}
+
+/*
+ * Initialize the "e_info" array
+ */
+static errr init_apx_info(void)
+{
+	/* Init the header */
+	init_header(&apx_head, z_info->apx_max, sizeof(armor_prefix_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	apx_head.parse_info_txt = parse_apx_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("a_prefix", &apx_head, (void*)&apx_info, (void*)&apx_name, NULL);
+}
+
+/*
+ * Initialize the "w_info" array
+ */
+static errr init_w_info(void)
+{
+	/* Init the header */
+	init_header(&w_head, z_info->w_max, sizeof(trap_widget));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	w_head.parse_info_txt = parse_w_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("trap", &w_head, (void*)&w_info, (void*)&w_name, NULL);
 }
 
 /*
@@ -718,6 +776,24 @@ static errr init_u_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("unique", &u_head, (void*)&u_info, (void*)&u_name, (void*)&u_text);
+}
+
+/*
+ * Initialize the "s_info" array
+ */
+static errr init_s_info(void)
+{
+	/* Init the header */
+	init_header(&s_head, z_info->s_max, sizeof(monster_special));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	s_head.parse_info_txt = parse_s_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("ego_mon", &s_head, (void*)&s_info, (void*)&s_name, (void*)&s_text);
 }
 
 /*
@@ -864,14 +940,14 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_APPLE },
 		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_JERKY },
 
+		{ TV_FOOD, SV_FOOD_APPLE },
 		{ TV_LITE, SV_LANTERN },
 		{ TV_LITE, SV_LANTERN },
 		{ TV_LITE, SV_LANTERN },
-		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
@@ -912,34 +988,34 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* Armoury */
 
-		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
-		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_HEADGEAR, SV_HARD_LEATHER_CAP },
 		{ TV_HEADGEAR, SV_HARD_LEATHER_CAP },
 		{ TV_HEADGEAR, SV_METAL_CAP },
-
 		{ TV_HEADGEAR, SV_IRON_HELM },
 		{ TV_BODY_ARMOR, SV_ROBE },
-		{ TV_BODY_ARMOR, SV_ROBE },
+
 		{ TV_BODY_ARMOR, SV_ROBE },
 		{ TV_BODY_ARMOR, SV_ROBE },
 		{ TV_BODY_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_BODY_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_BODY_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_BODY_ARMOR, SV_HARD_LEATHER_ARMOR },
+		{ TV_BODY_ARMOR, SV_HARD_LEATHER_ARMOR },
 		{ TV_BODY_ARMOR, SV_HARD_LEATHER_ARMOR },
 
-		{ TV_BODY_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_BODY_ARMOR, SV_HARD_STUDDED_LEATHER },
-		{ TV_BODY_ARMOR, SV_HARD_STUDDED_LEATHER },
+		{ TV_BODY_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_BODY_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_BODY_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_BODY_ARMOR, SV_METAL_SCALE_MAIL },
+		{ TV_BODY_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_BODY_ARMOR, SV_CHAIN_MAIL },
 		{ TV_BODY_ARMOR, SV_CHAIN_MAIL },
-
 		{ TV_BODY_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
+
+		{ TV_BODY_ARMOR, SV_BAR_CHAIN_MAIL },
 		{ TV_BODY_ARMOR, SV_BAR_CHAIN_MAIL },
 		{ TV_BODY_ARMOR, SV_DOUBLE_CHAIN_MAIL },
 		{ TV_BODY_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
@@ -994,10 +1070,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_PIKE },
 		{ TV_POLEARM, SV_BEAKED_AXE },
 		{ TV_POLEARM, SV_BROAD_AXE },
-		{ TV_POLEARM, SV_LANCE },
+		{ TV_POLEARM, SV_HATCHET },
 		{ TV_POLEARM, SV_BATTLE_AXE },
 
-		{ TV_HAFTED, SV_WHIP },
+		{ TV_POLEARM, SV_CLEAVER },
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_BOW, SV_SLING },
@@ -1019,7 +1095,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_ARROW, SV_ARROW_BITER },
 		{ TV_BOLT, SV_BOLT_BITER },
 		{ TV_SHOT, SV_SHOT_BULLET },
-		/* Item */
+		{ TV_HAFTED, SV_WHIP },
 		/* Item */
 		/* Item */
 		/* Item */
@@ -1040,12 +1116,13 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_WOODEN_CLUB },
 		{ TV_HAFTED, SV_WOODEN_CLUB },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
+		{ TV_HAFTED, SV_THREE_PIECE_STAFF },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-		{ TV_SCROLL, SV_SCROLL_LIGHT },
 
+		{ TV_SCROLL, SV_SCROLL_LIGHT },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
@@ -1053,18 +1130,17 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
+		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
+
 		{ TV_POTION, SV_POTION_RESTORE_EXP }
-
-		/* Item */
 		/* Item */
 		/* Item */
 		/* Item */
@@ -1117,12 +1193,13 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
+		{ TV_POTION, SV_POTION_STEALTH },
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_SLEEP},
 		{ TV_POWDER, SV_POWDER_SLEEP},
-		{ TV_POWDER, SV_POWDER_CONFUSE},
 
+		{ TV_POWDER, SV_POWDER_CONFUSE},
 		{ TV_POWDER, SV_POWDER_FLASH},
 		{ TV_POWDER, SV_POWDER_FLASH},
 		{ TV_POWDER, SV_POWDER_FLASH},
@@ -1130,8 +1207,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POWDER, SV_POWDER_DARKNESS},
 		{ TV_POWDER, SV_POWDER_DARKNESS},
 		{ TV_POWDER, SV_POWDER_POISON},
-		{ TV_POWDER, SV_POWDER_FIRE1},
 
+		{ TV_POWDER, SV_POWDER_FIRE1},
 		{ TV_POWDER, SV_POWDER_COLD1},
 		/* Item */
 		/* Item */
@@ -1139,8 +1216,6 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		/* Item */
 		/* Item */
 		/* Item */
-		/* Item */
-
 	},
 
 	{
@@ -1315,6 +1390,7 @@ static errr init_other(void)
 
 	/* Entity arrays */
 	C_MAKE(cave_o_idx, MAX_DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_t_idx, MAX_DUNGEON_HGT, s16b_wid);
 	C_MAKE(cave_m_idx, MAX_DUNGEON_HGT, s16b_wid);
 
 #ifdef MONSTER_FLOW
@@ -1337,6 +1413,9 @@ static errr init_other(void)
 
 	/* Monsters */
 	C_MAKE(m_list, z_info->m_max, monster_type);
+
+	/* Monsters */
+	C_MAKE(t_list, z_info->t_max, trap_type);
 
 	/*** Prepare lore array ***/
 
@@ -1950,6 +2029,10 @@ void init_angband(void)
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
 
+	/* Initialize feature info */
+	note("[Initializing arrays... (room descriptions)]");
+	if (init_d_info()) quit("Cannot initialize room descriptions");
+
 	/* Initialize object info */
 	note("[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
@@ -1964,7 +2047,15 @@ void init_angband(void)
 
 	/* Initialize prefix info */
 	note("[Initializing arrays... (prefixes)]");
-	if (init_px_info()) quit("Cannot initialize prefixes");
+	if (init_wpx_info()) quit("Cannot initialize weapon prefixes");
+
+	/* Initialize prefix info */
+	note("[Initializing arrays... (prefixes)]");
+	if (init_apx_info()) quit("Cannot initialize armor prefixes");
+
+	/* Initialize monster info */
+	note("[Initializing arrays... (traps)]");
+	if (init_w_info()) quit("Cannot initialize traps");
 
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
@@ -1973,6 +2064,10 @@ void init_angband(void)
 	/* Initialize unique info */
 	note("[Initializing arrays... (uniques)]");
 	if (init_u_info()) quit("Cannot initialize uniques");
+
+	/* Initialize unique info */
+	note("[Initializing arrays... (ego monsters)]");
+	if (init_s_info()) quit("Cannot initialize ego monsters");
 
 	/* Initialize feature info */
 	note("[Initializing arrays... (vaults)]");
@@ -2081,6 +2176,7 @@ void cleanup_angband(void)
 	/* Free the lore, monster, and object lists */
 	C_FREE(lr_list, z_info->r_max, monster_lore);
 	C_FREE(lu_list, z_info->u_max, monster_lore);
+	C_FREE(t_list, z_info->t_max, trap_type);
 	C_FREE(m_list, z_info->m_max, monster_type);
 	C_FREE(o_list, z_info->o_max, object_type);
 
@@ -2094,6 +2190,7 @@ void cleanup_angband(void)
 
 	/* Free the cave */
 	C_FREE(cave_o_idx, MAX_DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_t_idx, MAX_DUNGEON_HGT, s16b_wid);
 	C_FREE(cave_m_idx, MAX_DUNGEON_HGT, s16b_wid);
 	C_FREE(cave_feat, MAX_DUNGEON_HGT, byte_wid);
 	C_FREE(cave_info, MAX_DUNGEON_HGT, byte_256);
@@ -2117,9 +2214,12 @@ void cleanup_angband(void)
 	free_info(&c_head);
 	free_info(&p_head);
 	free_info(&h_head);
+	free_info(&s_head);
 	free_info(&u_head);
 	free_info(&r_head);
-	free_info(&px_head);
+	free_info(&w_head);
+	free_info(&apx_head);
+	free_info(&wpx_head);
 	free_info(&e_head);
 	free_info(&a_head);
 	free_info(&k_head);

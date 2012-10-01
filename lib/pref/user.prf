@@ -48,26 +48,30 @@
 ?:[EQU $RACE Elf]
 %:Elf.prf
 
-?:[EQU $RACE Hobbit]
-%:Hobbit.prf
+?:[EQU $RACE Dwarf]
+%:Dwarf.prf
 
 ?:[EQU $RACE Gnome]
 %:Gnome.prf
 
-?:[EQU $RACE Dwarf]
-%:Dwarf.prf
+# "lizardman" is too long for 8.3, try several variations.
+?:[EQU $RACE Lizardmn]
+%.Lizardman.prf
+%:Lizardmn.prf
+%:Lzrdman.prf
+%:L-man.prf
 
-?:[EQU $RACE Half-Orc]
-%:Half-Orc.prf
+?:[EQU $RACE Felpurr]
+%:Felpurr.prf
 
-# "Half-Troll.prf" is too long for stupid 8.3 filenames,
-# so try to load the shortened filename too.
-?:[EQU $RACE Half-Troll]
-%:Half-Troll.prf
-%:H-Troll.prf
+?:[EQU $RACE Rattikin]
+%:Rattikin.prf
 
-?:[EQU $RACE Dunadan]
-%:Dunadan.prf
+?:[EQU $RACE Ursa]
+%:Ursa.prf
+
+?:[EQU $RACE Vargr]
+%:Vargr.prf
 
 ?:[EQU $RACE Angel]
 %:Angel.prf

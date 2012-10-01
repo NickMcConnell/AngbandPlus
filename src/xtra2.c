@@ -286,6 +286,9 @@ void monster_death(int m_idx)
 		/* Mega-Hack -- Actually create "Grond" */
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
+		/* Mark origin */
+		i_ptr->origin_nature = ORIGIN_MORGOTH;
+
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
 
@@ -300,6 +303,9 @@ void monster_death(int m_idx)
 
 		/* Mega-Hack -- Actually create "Morgoth" */
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
+
+		/* Mark origin */
+		i_ptr->origin_nature = ORIGIN_MORGOTH;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -333,6 +339,11 @@ void monster_death(int m_idx)
 			/* Assume seen XXX XXX XXX */
 			lore_learn(m_ptr, LRN_FLAG1, RF1_DROP_MIMIC, FALSE);
 
+			/* Mark history */
+			if (visible) 
+				object_history(i_ptr, ORIGIN_DROP_KNOWN, m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx);
+			else object_history(i_ptr, ORIGIN_DROP_UNKNOWN, 0, 0, 0);
+
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, y, x);
 
@@ -358,6 +369,11 @@ void monster_death(int m_idx)
 
 			/* Hack - if a unique, inscribe with his name */
 			if (inscribe_unique && m_ptr->u_idx) i_ptr->note = quark_add(monster_name(m_ptr));
+
+			/* Mark history */
+			if (visible) 
+				object_history(i_ptr, ORIGIN_DROP_KNOWN, m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx);
+			else object_history(i_ptr, ORIGIN_DROP_UNKNOWN, 0, 0, 0);
 
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
@@ -512,29 +528,27 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			message_format(MSG_KILL, TRUE, "%^s%s", m_name, note);
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			message_format(MSG_KILL, TRUE, "You have killed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
-		else if ((r_ptr->flags2 & (RF2_DEMON)) ||
-		         (r_ptr->flags2 & (RF2_UNDEAD)) ||
-				 (r_ptr->flags2 & (RF2_PLANT)) ||
-		         (r_ptr->flags2 & (RF2_STUPID)) ||
+		else if ((r_ptr->flags4 & (RF4_DEMON)) || (r_ptr->flags4 & (RF4_UNDEAD)) ||
+				 (r_ptr->flags4 & (RF4_PLANT)) || (r_ptr->flags1 & (RF1_STUPID)) ||
 		         (strchr("Evg$|!?~=", r_ptr->d_char)))
 		{
-			message_format(MSG_KILL, TRUE, "You have destroyed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			message_format(MSG_KILL, TRUE, "You have slain %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
 		/* Calculate experience */
@@ -561,7 +575,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (m_ptr->u_idx)
+		if (m_ptr->u_idx) 
 		{
 			u_info[m_ptr->u_idx].dead = TRUE;
 
@@ -584,6 +598,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Not afraid */
 		(*fear) = FALSE;
+
+		/* Update monster list */
+		p_ptr->window |= PW_VISIBLE;
 
 		/* Monster is dead */
 		return (TRUE);
@@ -722,6 +739,374 @@ static bool change_panel(int dir)
 	return (modify_panel(wy, wx));
 }
 
+/* 
+ * Hack - generate the current room description 
+ */
+static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
+{
+	/* Initialize text */
+	strcpy(text_always, "");
+	strcpy(text_visible, "");
+
+	/* Town or not in room */
+	if (!room)
+	{
+		if (!p_ptr->depth)
+		{
+			/* Initialise town description */
+			strcpy(name, "town");
+			strcpy(text_always, "It feels like home.");
+		}
+		else
+		{
+			strcpy(name, "the dungeon");
+			strcpy(text_visible, "It is a dangerous maze of corridors and rooms.");
+		}
+
+		return;
+	}
+	
+	/* In room */
+	switch (room_info[room].type)
+	{
+		case (ROOM_LARGE):
+		{
+			strcpy(name, "large chamber");
+			strcpy(text_visible, "This chamber contains an inner room with its own monsters, treasures and traps.");
+			return;
+		}
+		case (ROOM_NEST_RODENT):
+		{
+			strcpy(name, "rodent warren");
+			strcpy(text_visible, "Many small creatures scurry around you, and the room is full of rodent hairs and droppings.");
+			return;
+		}
+		case (ROOM_NEST_JELLY):
+		{
+			strcpy(name, "jelly pit");
+			strcpy(text_always, "An overpowering stench pervades the air here, which is unnaturally humid.");
+			return;
+		}
+		case (ROOM_NEST_TREASURE):
+		{
+			strcpy(name, "money pit");
+			strcpy(text_visible, "This room seems to have been designed to keep intruders out. Or perhaps it was meant to keep the treasure in?");
+			return;
+		}
+		case (ROOM_NEST_ANIMAL):
+		{
+			strcpy(name, "zoo");
+			strcpy(text_visible, "This room contains a wide assortment of animals, probably collected by some mad spellcaster.");
+			return;
+		}
+		case (ROOM_NEST_HORROR):
+		{
+			strcpy(name, "horror pit");
+			strcpy(text_visible, "You have entered a chamber full of pure horror. If the walls could talk, ");
+			strcat(text_visible, "they would tell of unspeakable acts. The shadows seem to move around you.");
+			return;
+		}
+		case (ROOM_NEST_UNDEAD):
+		{
+			strcpy(name, "graveyard");
+			strcpy(text_visible, "This room is full of corpses. Some of them don't seem to be still.");
+			return;
+		}
+		case (ROOM_PIT_ORC):
+		{
+			strcpy(name, "orc pit");
+			strcpy(text_visible, "You have stumbled into the barracks of a group of war-hungry orcs.");
+			return;
+		}
+		case (ROOM_PIT_TROLL):
+		{
+			strcpy(name, "troll pit");
+			strcpy(text_visible, "You have stumbled into a conclave of several troll clans. Filth lines the walls, ");
+			strcat(text_visible, "and the floor is covered with crushed bones and mangled equipment.");
+			strcpy(text_always, "The stink is unbearable.");
+			return;
+		}
+		case (ROOM_PIT_PERSON):
+		{
+			strcpy(name, "meeting area");
+			strcpy(text_visible, "You have stumbled into a meeting area of various servents of evil.");
+			return;
+		}
+		case (ROOM_PIT_GIANT):
+		{
+			strcat(name, "dragon cavern");
+			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
+			return;
+		}
+		case (ROOM_PIT_DRAGON):
+		{
+			strcpy(name, "demon pit");
+			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
+			return;
+		}
+		case (ROOM_PIT_DEMON):
+		{
+			strcpy(name, "demon pit");
+			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
+			return;
+		}
+		case (ROOM_QUEST_VAULT):
+		{
+			strcpy(name, "mysterious vault");
+			strcpy(text_visible, "As you enter this sealed chamber, you feel a sudden moment of awe. ");
+			return;
+		}
+		case (ROOM_GREATER_VAULT):
+		{
+			strcpy(name, "greater vault");
+			strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
+			strcat(text_visible, "deadly monsters and rich treasure.");
+			strcpy(text_always, "Beware!");
+			return;
+		}
+		case (ROOM_LESSER_VAULT):
+		{
+			strcpy(name, "lesser vault");
+			strcpy(text_visible, "This vault is larger than most you have seen and contains more than ");
+			strcat(text_visible, "its share of monsters and treasure.");
+			return;
+		}
+		case (ROOM_NORMAL):
+		{
+			int i, j, n;
+
+			char *s;
+
+			char buf_text1[240];
+			char buf_text2[240];
+			char buf_name1[16];
+			char buf_name2[16];
+
+			/* Clear the history text */
+			buf_text1[0] = '\0';
+			buf_text2[0] = '\0';
+
+			/* Clear the name1 text */
+			buf_name1[0] = '\0';
+
+			/* Clear the name2 text */
+			buf_name2[0] = '\0';
+			
+			i = 0;
+
+			while ((j = room_info[room].section[i++]) != -1)
+			{
+				/* Visible description or always present? */
+				if (d_info[j].seen)
+				{
+					/* Get the textual history */
+					strcat(buf_text1, (d_text + d_info[j].text));
+				}
+				else
+				{
+					/* Get the textual history */
+					strcat(buf_text2, (d_text + d_info[j].text));
+				}
+
+				/* Get the name1 text if needed */
+				if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[j].name1));
+
+				/* Get the name2 text if needed */
+				if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[j].name2));
+			}
+
+			/* Skip leading spaces */
+			for (s = buf_text1; *s == ' '; s++) /* loop */;
+
+			/* Get apparent length */
+			n = strlen(s);
+
+			/* Kill trailing spaces */
+			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+			/* Set the visible description */
+			strcpy(text_visible, s);
+
+			/* Skip leading spaces */
+			for (s = buf_text2; *s == ' '; s++) /* loop */;
+
+			/* Get apparent length */
+			n = strlen(s);
+
+			/* Kill trailing spaces */
+			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+			/* Set the visible description */
+			strcpy(text_always, s);
+
+			/* Set room name */
+			if (strlen(buf_name1)) strcpy(name, buf_name1);
+
+			/* And add second room name if necessary */
+			if (strlen(buf_name2))
+			{
+				if (strlen(buf_name1))
+				{
+					strcat(name, " ");
+					strcat(name, buf_name2);
+				}
+				else
+				{
+					strcpy(name, buf_name2);
+				}
+
+			}
+
+			return;
+		}
+	}
+}
+
+/*
+ * Hack -- describe the given room info in the current "term" window
+ */
+void display_room_info(int room)
+{
+	int y;
+	char first[2];
+	char name[32];
+	char text_visible[240];
+	char text_always[240];
+
+	/* Hack -- handle "xtra" mode */
+	if (!character_dungeon) return;
+
+	/* Erase the window */
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* Erase the line */
+		Term_erase(0, y, 255);
+	}
+
+	/* Begin recall */
+	Term_gotoxy(0, 1);
+
+	/* Get the actual room description */
+	get_room_desc(room, name, text_visible, text_always);
+
+	/* Output to the screen */
+	text_out_hook = text_out_to_screen;
+
+	/* Describe room */
+	if (strlen(text_visible))
+	{
+		text_out(text_visible);
+
+		if (strlen(text_always))
+		{
+			text_out("  ");
+			text_out(text_always);
+		}
+
+	}
+	else if (strlen(text_always))
+	{
+		text_out(text_always);
+	}
+	else
+	{
+		text_out("There is nothing remarkable about it.");
+	}
+
+	/* Clear the top line */
+	Term_erase(0, 0, 255);
+
+	/* Reset the cursor */
+	Term_gotoxy(0, 0);
+
+	/* Hack - set first character to upper */
+	first[0] = name[0];
+	first[1] = '\0';
+
+	/* Dump the name */
+	Term_addstr(-1, TERM_L_BLUE, first);
+
+	/* Dump the name */
+	Term_addstr(-1, TERM_L_BLUE, (name + 1));
+}
+
+/*
+ * Hack -- describe players current location.
+ */
+void describe_room(bool force_full)
+{
+	int by = p_ptr->py / BLOCK_HGT;
+	int bx = p_ptr->px / BLOCK_WID;
+	int room = dun_room[by][bx];
+	char name[32];
+	char text_visible[240];
+	char text_always[240];
+
+	/* Hack -- handle "xtra" mode */
+	if (!character_dungeon) return;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_ROOM_INFO);
+
+	if (!force_full && !display_room_desc) return;
+
+	/* Get the actual room description */
+	get_room_desc(room, name, text_visible, text_always);
+
+	/* Display the room */
+	if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) && 
+		((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) || 
+		!(p_ptr->depth)))
+	{
+		if (room_info[room].seen && !force_full)
+		{
+			message_format(MSG_ROOM_DESC, 0, "You have entered %s %s.",
+				(is_a_vowel(name[0]) ? "an" : "a"), name);
+		}
+		else if ((strlen(text_visible)) && (strlen(text_always)))
+		{
+			/* Message */
+			message_format(MSG_ROOM_DESC, 0, "You have entered %s %s. %s %s",
+				(is_a_vowel(name[0]) ? "an" : "a"),	name, text_visible, text_always);
+
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+		else if (strlen(text_visible))
+		{
+			/* Message */
+			message_format(MSG_ROOM_DESC, 0, "You have entered %s %s. %s",
+				(is_a_vowel(name[0]) ? "an" : "a"),	name, text_visible);
+
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+		else if (strlen(text_always))
+		{
+			/* Message */
+			message_format(MSG_ROOM_DESC, 0, "You have entered %s %s. %s",
+				(is_a_vowel(name[0]) ? "an" : "a"),	name, text_always);
+
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+		else
+		{
+			/* Message */
+			message_format(MSG_ROOM_DESC, 0, "You have entered %s %s. There is nothing remarkable about it.",
+				(is_a_vowel(name[0]) ? "an" : "a"),	name);
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+	}
+	else if ((strlen(text_always)) && ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
+		!(p_ptr->depth)))
+	{
+		/* Message */
+		message_format(MSG_ROOM_DESC, 0, "%s", text_always);
+	}
+}
+
 /*
  * Verify the current panel (relative to the player location).
  *
@@ -750,7 +1135,6 @@ void verify_panel(void)
 	{
 		wy = ((p_ptr->py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 	}
-
 
 	/* Scroll screen horizontally when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
@@ -785,9 +1169,9 @@ static void look_mon_desc(char *buf, int m_idx)
 	int perc;
 
 	/* Determine if the monster is "living" (vs "undead") */
-	if (r_ptr->flags2 & (RF2_UNDEAD)) living = FALSE;
-	if (r_ptr->flags2 & (RF2_DEMON)) living = FALSE;
-	if (r_ptr->flags2 & (RF2_PLANT)) living = FALSE;
+	if (r_ptr->flags4 & (RF4_UNDEAD)) living = FALSE;
+	if (r_ptr->flags4 & (RF4_DEMON)) living = FALSE;
+	if (r_ptr->flags4 & (RF4_PLANT)) living = FALSE;
 	if (strchr("Evg$|!?~=", r_ptr->d_char)) living = FALSE;
 
 	/* Healthy monsters */
@@ -919,8 +1303,8 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 2)
 	{
 		/* Extract levels */
-		z1 = get_monster_fake(r1,who[a].u_idx)->level;
-		z2 = get_monster_fake(r2,who[b].u_idx)->level;
+		z1 = get_monster_fake(r1, 0, who[a].u_idx)->level;
+		z2 = get_monster_fake(r2, 0, who[b].u_idx)->level;
 
 		/* Compare levels */
 		if (z1 < z2) return (TRUE);
@@ -931,8 +1315,8 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 1)
 	{
 		/* Extract experience */
-		z1 = get_monster_fake(r1,who[a].u_idx)->mexp;
-		z2 = get_monster_fake(r2,who[b].u_idx)->mexp;
+		z1 = get_monster_fake(r1, 0, who[a].u_idx)->mexp;
+		z2 = get_monster_fake(r2, 0, who[b].u_idx)->mexp;
 
 		/* Compare experience */
 		if (z1 < z2) return (TRUE);
@@ -978,7 +1362,7 @@ void ang_sort(vptr u, vptr v, int n)
 /* 
  * Code for inserting the uniques into the appropriate locations in a monster list
  */
-void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base)
+void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base, bool spoil)
 {
 	int i, j;
 	int counter = 0;
@@ -1012,10 +1396,14 @@ void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base)
 
 				if (u_ptr->r_idx == who[i].r_idx)
 				{
-					temp_list[counter].u_idx = j;
-					temp_list[counter].r_idx = who[i].r_idx;
+					if ((spoil) || (cheat_know) || (lu_list[j].r_sights))
+					{
+						temp_list[counter].u_idx = j;
+						temp_list[counter].r_idx = who[i].r_idx;
 	
-					counter++;
+						counter++;
+					}
+
 					found++;
 				}
 
@@ -1398,15 +1786,22 @@ static bool target_set_interactive_accept(int y, int x)
 		if (o_ptr->marked) return (TRUE);
 	}
 
+	/* Visible trap */
+	if (cave_t_idx[y][x])
+	{
+		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+
+		/* Visible traps */
+		if (t_ptr->visible) return (TRUE);
+	}
+
 	/* Interesting memorized features */
 	if (cave_info[y][x] & (CAVE_MARK))
 	{
-		/* Notice glyphs */
-		if (cave_feat[y][x] == FEAT_GLYPH) return (TRUE);
-
 		/* Notice doors */
 		if (cave_feat[y][x] == FEAT_OPEN) return (TRUE);
 		if (cave_feat[y][x] == FEAT_BROKEN) return (TRUE);
+		if (cave_feat[y][x] == FEAT_CLOSED) return (TRUE);
 
 		/* Notice stairs */
 		if (cave_feat[y][x] == FEAT_LESS) return (TRUE);
@@ -1415,14 +1810,6 @@ static bool target_set_interactive_accept(int y, int x)
 		/* Notice shops */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
 		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
-
-		/* Notice traps */
-		if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_TRAP_TAIL)) return (TRUE);
-
-		/* Notice doors */
-		if ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_DOOR_TAIL)) return (TRUE);
 
 		/* Notice rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE) return (TRUE);
@@ -1828,6 +2215,53 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Double break */
 		if (this_o_idx) break;
 
+		/* Actual traps */
+		if (cave_t_idx[y][x] > 0)
+		{
+			trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+			trap_widget *w_ptr = &w_info[t_ptr->w_idx];
+
+			/* 
+			 * Visible trap 
+			 * Note that simple locks (LOCK flag) don't appear here
+			 */
+			if (t_ptr->visible && !(w_info[t_ptr->w_idx].flags & WGF_LOCK))
+			{
+				cptr t_name = w_name + w_ptr->name;
+
+				if (!(cp_ptr->flags & CF_TRAP_KNOW))
+				{
+					switch (w_ptr->flags & WGF_TYPE_MASK)
+					{
+						case WGF_PIT:		t_name = "a pit"; break;
+						case WGF_RUNE:		t_name = "a strange rune"; break;
+						case WGF_SPOT:		t_name = "a discolored spot"; break;
+						case WGF_DART:		t_name = "a dart trap"; break;
+						case WGF_GAS:		t_name = "a gas trap"; break;
+						case WGF_SLOTS:		t_name = "mysterious slots"; break;
+						case WGF_ROCKS:		t_name = "loose rocks"; break;
+					}
+				}
+				
+				if (cheat_wizard)
+					sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", 
+							s1, s2, s3, t_name, info, y, x);
+				else
+					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, t_name, info);
+				prt(out_val, 0, 0);
+				move_cursor_relative(y, x);
+				query = inkey();
+
+				/* Change the intro */
+				s1 = "It is ";
+
+				/* Preposition */
+				s2 = "on ";
+
+				boring = FALSE;
+			}
+		}
+
 		/* Feature (apply "mimic") */
 		feat = f_info[cave_feat[y][x]].mimic;
 
@@ -1839,15 +2273,16 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		}
 
 		/* Terrain feature if needed */
-		if (boring || (feat > FEAT_INVIS))
+		if (boring || (feat > FEAT_FLOOR))
 		{
 			cptr name = f_name + f_info[feat].name;
+			cptr lock = "";
 
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-			if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
+			if (*s2 && (feat >= FEAT_CLOSED) && (feat < FEAT_SHOP_HEAD)) s2 = "in ";
 
 			/* Pick proper indefinite article */
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
@@ -1858,11 +2293,17 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				s3 = "the entrance to the ";
 			}
 
+			/* Hack - locks */
+			if (cave_t_idx[y][x] && trap_lock(y, x) && (feat == FEAT_CLOSED))
+			{
+				lock = w_name + w_info[t_list[cave_t_idx[y][x]].w_idx].name;
+			}
+
 			/* Display a message */
 			if (cheat_wizard)
-				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+				sprintf(out_val, "%s%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, lock, info, y, x);
 			else
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+				sprintf(out_val, "%s%s%s%s%s [%s]", s1, s2, s3, name, lock, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();

@@ -172,7 +172,7 @@ static errr rd_item(object_type *o_ptr)
 
 	u16b save_flags;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	object_kind *k_ptr;
 
@@ -200,50 +200,31 @@ static errr rd_item(object_type *o_ptr)
 	if (save_flags & 0x0002) rd_byte(&o_ptr->discount);
 
 	rd_byte(&o_ptr->number);
-	if (older_than(0,3,3)) rd_s16b(&o_ptr->weight);
 
-	if (save_flags & 0x0004) rd_byte(&o_ptr->a_idx); 
-	if (save_flags & 0x0008) rd_byte(&o_ptr->e_idx);
-	if (!older_than(0,3,2))
-	{
-		if (save_flags & 0x0800) rd_byte(&o_ptr->prefix_idx);
-	}
+	rd_byte(&o_ptr->a_idx); 
+	rd_byte(&o_ptr->e_idx);
+	rd_byte(&o_ptr->prefix_idx);
 
-	if (save_flags & 0x0010) rd_s16b(&o_ptr->timeout);
+	if (save_flags & 0x0004) rd_s16b(&o_ptr->timeout);
 
-	if (!older_than(0,3,3))
-	{
-		if (save_flags & 0x0020) rd_s16b(&o_ptr->to_h);
-		if (save_flags & 0x0040) rd_s16b(&o_ptr->to_d);
-	}
-	else
-	{
-		s16b tmp_to_h = 0;
-		s16b tmp_to_d = 0;
+	if (save_flags & 0x0008) rd_s16b(&o_ptr->to_h);
+	if (save_flags & 0x0010) rd_s16b(&o_ptr->to_d);
+
+	if (save_flags & 0x0020) rd_s16b(&o_ptr->to_a);
+
+	if (save_flags & 0x0040) rd_s16b(&o_ptr->ac);
+
+	if (save_flags & 0x0080) rd_byte(&old_dd);
+	if (save_flags & 0x0100) rd_byte(&old_ds);
+
+	rd_byte(&o_ptr->ident);
+
+	rd_byte(&o_ptr->origin_nature);
+	rd_s16b(&o_ptr->origin_dlvl);
+	if (save_flags & 0x0200) rd_s16b(&o_ptr->origin_r_idx);
+	if (save_flags & 0x0400) rd_s16b(&o_ptr->origin_s_idx);
+	if (save_flags & 0x0800) rd_s16b(&o_ptr->origin_u_idx);
 	
-		if (save_flags & 0x0020) rd_s16b(&tmp_to_h);
-		if (save_flags & 0x0040) rd_s16b(&tmp_to_d);
-
-		tmp_to_h -= px_info[o_ptr->prefix_idx].to_h;
-		tmp_to_d -= px_info[o_ptr->prefix_idx].to_d;
-
-		o_ptr->to_h = tmp_to_h;
-		o_ptr->to_d = tmp_to_d;
-	}
-
-	if (save_flags & 0x0080) rd_s16b(&o_ptr->to_a);
-
-	if (save_flags & 0x0100) rd_s16b(&o_ptr->ac);
-
-	if (save_flags & 0x0200) rd_byte(&old_dd);
-	if (save_flags & 0x0400) rd_byte(&old_ds);
-
-	if (older_than(0,3,2))
-	{
-		if (save_flags & 0x0800) rd_byte(&o_ptr->ident);
-	}
-	else rd_byte(&o_ptr->ident);
-
 	if (save_flags & 0x1000) rd_byte(&o_ptr->marked);
 
 	/* Monster holding object */
@@ -287,7 +268,7 @@ static errr rd_item(object_type *o_ptr)
 	}
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Paranoia */
 	if (o_ptr->a_idx)
@@ -392,6 +373,7 @@ static void rd_monster(monster_type *m_ptr)
 {
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
+	rd_s16b(&m_ptr->s_idx);
 	rd_s16b(&m_ptr->u_idx);
 
 	/* Read the other information */
@@ -448,24 +430,24 @@ static void rd_lore(bool unique, int idx)
 	if (save_flags & 0x0200) rd_byte(&l_ptr->r_blows[3]);
 
 	/* Memorize flags */
-	if (save_flags & 0x0400) rd_u32b(&l_ptr->r_flags1);
-	if (save_flags & 0x0800) rd_u32b(&l_ptr->r_flags2);
-	if (save_flags & 0x1000) rd_u32b(&l_ptr->r_flags3);
-	if (save_flags & 0x2000) rd_u32b(&l_ptr->r_flags4);
-	if (save_flags & 0x4000) rd_u32b(&l_ptr->r_flags5);
-	if (save_flags & 0x8000) rd_u32b(&l_ptr->r_flags6);
+	if (save_flags & 0x0400) rd_u32b(&l_ptr->flags1);
+	if (save_flags & 0x0800) rd_u32b(&l_ptr->flags2);
+	if (save_flags & 0x1000) rd_u32b(&l_ptr->flags3);
+	if (save_flags & 0x2000) rd_u32b(&l_ptr->s_flags1);
+	if (save_flags & 0x4000) rd_u32b(&l_ptr->s_flags2);
+	if (save_flags & 0x8000) rd_u32b(&l_ptr->s_flags3);
 
 	if (!unique)
 	{
 		monster_race *r_ptr = &r_info[idx];
 
 		/* Repair the lore flags */
-		l_ptr->r_flags1 &= r_ptr->flags1;
-		l_ptr->r_flags2 &= r_ptr->flags2;
-		l_ptr->r_flags3 &= r_ptr->flags3;
-		l_ptr->r_flags4 &= r_ptr->flags4;
-		l_ptr->r_flags5 &= r_ptr->flags5;
-		l_ptr->r_flags6 &= r_ptr->flags6;
+		l_ptr->flags1 &= r_ptr->flags1;
+		l_ptr->flags2 &= r_ptr->flags2;
+		l_ptr->flags3 &= r_ptr->flags3;
+		l_ptr->s_flags1 &= r_ptr->s_flags1;
+		l_ptr->s_flags2 &= r_ptr->s_flags2;
+		l_ptr->s_flags3 &= r_ptr->s_flags3;
 
 		rd_byte(&r_ptr->cur_unique);
 	}
@@ -474,13 +456,29 @@ static void rd_lore(bool unique, int idx)
 		monster_unique *u_ptr = &u_info[idx];
 
 		/* Repair the lore flags */
-		l_ptr->r_flags1 &= u_ptr->flags1;
-		l_ptr->r_flags2 &= u_ptr->flags2;
-		l_ptr->r_flags3 &= u_ptr->flags3;
-		l_ptr->r_flags4 &= u_ptr->flags4;
-		l_ptr->r_flags5 &= u_ptr->flags5;
-		l_ptr->r_flags6 &= u_ptr->flags6;
+		l_ptr->flags1 &= u_ptr->flags1;
+		l_ptr->flags2 &= u_ptr->flags2;
+		l_ptr->flags3 &= u_ptr->flags3;
+		l_ptr->s_flags1 &= u_ptr->s_flags1;
+		l_ptr->s_flags2 &= u_ptr->s_flags2;
+		l_ptr->s_flags3 &= u_ptr->s_flags3;
 	}
+}
+
+/*
+ * Read a "trap" record
+ */
+static void rd_trap(trap_type *t_ptr)
+{
+	byte tmp8u;
+
+	rd_s16b(&t_ptr->w_idx);
+	rd_byte(&t_ptr->fy);
+	rd_byte(&t_ptr->fx);
+	rd_byte(&t_ptr->charges);
+
+	rd_byte(&tmp8u);
+	t_ptr->visible = (tmp8u & 0x01) ? TRUE: FALSE;
 }
 
 /*
@@ -653,28 +651,25 @@ static void rd_options(void)
 		}
 	}
 	
-	if (!older_than(0,3,3))
+	/* Squelch bytes */
+	for (i = 0; i < MAX_SQ_TYPES; i++) rd_byte(&op_ptr->squelch_level[i]);
+
+	/* Read the option flags */
+	rd_u16b(&flag16[0]);
+
+	/* Analyze the options */
+	for (i = 0; i < OPT_SQUELCH; i++)
 	{
-		/* Squelch bytes */
-		for (i = 0; i < MAX_SQ_TYPES; i++) rd_byte(&op_ptr->squelch_level[i]);
+		int os = i / 16;
+		int ob = i % 16;
 
-		/* Read the option flags */
-		rd_u16b(&flag16[0]);
-
-		/* Analyze the options */
-		for (i = 0; i < OPT_SQUELCH; i++)
+		/* Process real entries */
+		if (options_squelch[i].text)
 		{
-			int os = i / 16;
-			int ob = i % 16;
-
-			/* Process real entries */
-			if (options_squelch[i].text)
-			{
-				/* Set flag */
-				if (flag16[os] & (1L << ob)) op_ptr->opt_squelch[i] = TRUE;
-				/* Clear flag */
-				else op_ptr->opt_squelch[i] = FALSE;
-			}
+			/* Set flag */
+			if (flag16[os] & (1L << ob)) op_ptr->opt_squelch[i] = TRUE;
+			/* Clear flag */
+			else op_ptr->opt_squelch[i] = FALSE;
 		}
 	}
 
@@ -697,22 +692,6 @@ static void rd_options(void)
 			}
 		}
 	}
-}
-
-/*
- * Fix an old stat value 
- */
-static byte fix_stat(s16b old)
-{
-	if (old <= 3) return 0;
-	if (old < 18) return (old - 3);
-	if (old < 18 + 10) return 15;
-	if (old < 18 + 30) return 16;
-	if (old < 18 + 50) return 17;
-	if (old < 18 + 70) return 18;
-	if (old < 18 + 90) return 19;
-	
-	return (20);
 }
 
 /*
@@ -769,33 +748,15 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) 
 	{
-		if (older_than(0,3,2))
-		{
-			s16b temp_max, temp_cur;
-
-			rd_s16b(&temp_max);
-			rd_s16b(&temp_cur);
-
-			p_ptr->stat_max[i] = fix_stat(temp_max);
-			p_ptr->stat_cur[i] = fix_stat(temp_max);
-		}
-		else if (older_than(0,3,5))
-		{
-			rd_byte(&p_ptr->stat_max[i]);
-			rd_byte(&p_ptr->stat_cur[i]);
-		}
-		else
-		{
-			rd_byte(&p_ptr->stat_max[i]);
-			rd_byte(&p_ptr->stat_cur[i]);
-			rd_byte(&p_ptr->stat_birth[i]);
-		}
+		rd_byte(&p_ptr->stat_max[i]);
+		rd_byte(&p_ptr->stat_cur[i]);
+		rd_byte(&p_ptr->stat_birth[i]);
 	}
 
-	if (!older_than(0,3,4)) rd_u16b(&p_ptr->fame);
+	rd_u16b(&p_ptr->fame);
 
 	rd_s32b(&p_ptr->au);
-	if (!older_than(0,3,5)) rd_s32b(&p_ptr->au_birth);
+	rd_s32b(&p_ptr->au_birth);
 
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
@@ -855,35 +816,14 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
+	rd_s16b(&p_ptr->tim_stealth);
 	rd_s16b(&p_ptr->tim_invis);
-	rd_s16b(&p_ptr->oppose_fire);
-	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_acid);
-	rd_s16b(&p_ptr->oppose_elec);
-	rd_s16b(&p_ptr->oppose_pois);
-	rd_s16b(&p_ptr->oppose_disease);
-	rd_s16b(&p_ptr->tim_res_lite);
-	rd_s16b(&p_ptr->tim_res_dark);
-	rd_s16b(&p_ptr->tim_res_confu);
-	rd_s16b(&p_ptr->tim_res_sound);
-	rd_s16b(&p_ptr->tim_res_shard);
-	rd_s16b(&p_ptr->tim_res_nexus);
-	rd_s16b(&p_ptr->tim_res_nethr);
-	rd_s16b(&p_ptr->tim_res_chaos);
-	rd_s16b(&p_ptr->tim_res_water);
 	rd_s16b(&p_ptr->racial_power);
 
+	/* Read resistances */
+	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);
+
 	rd_byte(&p_ptr->searching);
-
-	/* Squelch bytes */
-	if (older_than(0,3,3))
-	{
-		for (i = 0; i < 24; i++) rd_byte(&op_ptr->squelch_level[i]);
-		strip_bytes(1);
-	}
-
-	/* Read the randart seed */
-	if (adult_rand_artifacts) rd_u32b(&seed_randart);
 
 	/* Hack -- the three "special seeds" */
 	rd_u32b(&seed_flavor);
@@ -898,30 +838,6 @@ static errr rd_extra(void)
 	/* Read "death" */
 	rd_byte(&tmp8u);
 	p_ptr->is_dead = tmp8u;
-
-	/* Initialize random artifacts */
-	if (adult_rand_artifacts && !(p_ptr->is_dead))
-	{
-
-#ifdef GJW_RANDART
-
-		/*
-		 * Importing old savefiles with random artifacts is dangerous
-		 * since if the randart-generators differ they will produce different
-		 * artifacts from the same random seed.
-		 *
-		 * Therefore, Check for incompatible randart version - this might be 
-		 * different than the normal compatible version so have double check
-		 */
-		if (older_than(0,3,4))
-		{
-			note(format("Incompatible random artifacts version!"));
-			return (-1);
-		}
-
-#endif /* GJW_RANDART */
-
-	}
 
 	/* Read "feeling" */
 	rd_byte(&p_ptr->feeling);
@@ -946,129 +862,6 @@ static errr rd_extra(void)
 	for (i = 0; i < tmp16u; i++) rd_s16b(&p_ptr->player_hp[i]);
 
 	return (0);
-}
-
-/*
- * Read the random artifacts
- */
-static errr rd_randarts(void)
-{
-
-#ifdef GJW_RANDART
-
-	int i;
-	byte tmp8u;
-	s16b tmp16s;
-	u16b tmp16u;
-	u16b artifact_count;
-	s32b tmp32s;
-	u32b tmp32u;
-
-	/* Read the number of artifacts */
-	rd_u16b(&artifact_count);
-
-	/* Alive or cheating death */
-	if (!p_ptr->is_dead || arg_wizard)
-	{
-		/* Incompatible save files */
-		if (artifact_count > z_info->a_max)
-		{
-			note(format("Too many (%u) random artifacts!", artifact_count));
-			return (-1);
-		}
-
-		/* Mark the old artifacts as "empty" */
-		for (i = 0; i < z_info->a_max; i++)
-		{
-			artifact_type *a_ptr = &a_info[i];
-			if (!(a_ptr->flags3 & TR3_DONT_RANDOMIZE)) a_ptr->name = 0;
-			a_ptr->tval = 0;
-			a_ptr->sval = 0;
-		}
-
-		/* Read the artifacts */
-		for (i = 0; i < artifact_count; i++)
-		{
-			artifact_type *a_ptr = &a_info[i];
-
-			rd_byte(&a_ptr->tval);
-			rd_byte(&a_ptr->sval);
-			rd_s16b(&a_ptr->pval);
-
-			rd_s16b(&a_ptr->to_h);
-			rd_s16b(&a_ptr->to_d);
-			rd_s16b(&a_ptr->to_a);
-			rd_s16b(&a_ptr->ac);
-
-			rd_byte(&a_ptr->dd);
-			rd_byte(&a_ptr->ds);
-
-			rd_s16b(&a_ptr->weight);
-
-			rd_s32b(&a_ptr->cost);
-
-			rd_u32b(&a_ptr->flags1);
-			rd_u32b(&a_ptr->flags2);
-			rd_u32b(&a_ptr->flags3);
-			rd_u32b(&a_ptr->flags4);
-
-			rd_byte(&a_ptr->level);
-			rd_byte(&a_ptr->rarity);
-
-			rd_byte(&a_ptr->activation);
-			rd_u16b(&a_ptr->time);
-			rd_u16b(&a_ptr->randtime);
-
-			rd_byte(&a_ptr->prefix_idx);
-		}
-	}
-	else
-	{
-		/* Read the artifacts */
-		for (i = 0; i < artifact_count; i++)
-		{
-			rd_byte(&tmp8u); /* a_ptr->tval */
-			rd_byte(&tmp8u); /* a_ptr->sval */
-			rd_s16b(&tmp16s); /* a_ptr->pval */
-
-			rd_s16b(&tmp16s); /* a_ptr->to_h */
-			rd_s16b(&tmp16s); /* a_ptr->to_d */
-			rd_s16b(&tmp16s); /* a_ptr->to_a */
-			rd_s16b(&tmp16s); /* a_ptr->ac */
-
-			rd_byte(&tmp8u); /* a_ptr->dd */
-			rd_byte(&tmp8u); /* a_ptr->ds */
-
-			rd_s16b(&tmp16s); /* a_ptr->weight */
-
-			rd_s32b(&tmp32s); /* a_ptr->cost */
-
-			rd_u32b(&tmp32u); /* a_ptr->flags1 */
-			rd_u32b(&tmp32u); /* a_ptr->flags2 */
-			rd_u32b(&tmp32u); /* a_ptr->flags3 */
-			rd_u32b(&tmp32u); /* a_ptr->flags4 */
-
-			rd_byte(&tmp8u); /* a_ptr->level */
-			rd_byte(&tmp8u); /* a_ptr->rarity */
-
-			rd_byte(&tmp8u); /* a_ptr->activation */
-			rd_u16b(&tmp16u); /* a_ptr->time */
-			rd_u16b(&tmp16u); /* a_ptr->randtime */
-			rd_byte(&tmp8u); /* a_ptr->prefix */
-		}
-	}
-
-	/* Initialize only the randart names */
-	do_randart(seed_randart, FALSE);
-
-	return (0);
-
-#else /* GJW_RANDART */
-
-	note("Random artifacts are disabled in this binary.");
-	return (-1);
-
-#endif /* GJW_RANDART */
 }
 
 /* 
@@ -1257,7 +1050,7 @@ static void rd_messages(void)
  */
 static errr rd_dungeon(void)
 {
-	int i, y, x;
+	int i, j, y, x;
 
 	s16b depth;
 	s16b py, px;
@@ -1364,6 +1157,34 @@ static errr rd_dungeon(void)
 		return (-1);
 	}
 
+	/*** Room Descriptions ***/
+
+	for (x = 0; x < MAX_ROOMS_ROW; x++)
+	{
+		for (y = 0; y < MAX_ROOMS_COL; y++)
+		{
+			rd_byte(&dun_room[x][y]);
+		}
+	}
+
+	for (i = 1; i < DUN_ROOMS; i++)
+	{
+		rd_byte(&room_info[i].type);
+		rd_byte(&tmp8u);
+
+		room_info[i].seen = (tmp8u & 0x01) ? TRUE: FALSE;
+
+		if (room_info[i].type == ROOM_NORMAL)
+		{
+			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
+			{
+				rd_s16b(&room_info[i].section[j]);
+
+				if (room_info[i].section[j] == -1) break;
+			}
+		}
+	}
+	
 	/*** Objects ***/
 
 	/* Read the item count */
@@ -1496,6 +1317,40 @@ static errr rd_dungeon(void)
 		m_ptr->hold_o_idx = i;
 	}
 
+	/*** Traps ***/
+
+	/* Read the trap count */
+	rd_u16b(&limit);
+
+	/* Hack -- verify */
+	if (limit >= z_info->t_max)
+	{
+		note(format("Too many (%d) trap entries!", limit));
+		return (-1);
+	}
+
+	/* Read the traps */
+	for (i = 1; i < limit; i++)
+	{
+		trap_type *t_ptr;
+		trap_type trap_type_body;
+
+		/* Get local trap */
+		t_ptr = &trap_type_body;
+
+		/* Clear the trap */
+		(void)WIPE(t_ptr, trap_type);
+
+		/* Read the monster */
+		rd_trap(t_ptr);
+
+		/* Place monster in dungeon */
+		if (trap_place(t_ptr->fy, t_ptr->fx, t_ptr) != i)
+		{
+			note(format("Cannot place trap %d", i));
+			return (-1);
+		}
+	}
 
 	/*** Success ***/
 
@@ -1523,9 +1378,9 @@ static errr rd_savefile_new_aux(void)
 	note(format("Loading a %d.%d.%d savefile...",
 	            sf_major, sf_minor, sf_patch));
 
-	if (older_than(0,3,1))
+	if (older_than(0,4,0))
 	{
-		note("Not compatible with 0.3.0 or older savefiles!");
+		note("Not compatible with old savefiles!");
 		return (-1);
 	}
 
@@ -1581,8 +1436,7 @@ static errr rd_savefile_new_aux(void)
 		rd_byte(&tmp8u);
 		u_ptr->dead = (tmp8u & 0x01) ? TRUE: FALSE;
 
-		if (u_ptr->dead) rd_s16b(&u_ptr->depth);
-		else u_ptr->depth = -1;
+		rd_s16b(&u_ptr->depth);
 
 		rd_lore(TRUE, i);
 	}
@@ -1722,13 +1576,6 @@ static errr rd_savefile_new_aux(void)
 	/* Read the spell stuff */
 	if (rd_spells()) return (-1);
 	if (arg_fiddle) note("Loaded spell information");
-
-	/* Read random artifacts */
-	if ((adult_rand_artifacts) && (!older_than(0,3,4)))
-	{
-		if (rd_randarts()) return (-1);
-		if (arg_fiddle) note("Loaded Random Artifacts");
-	}
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];

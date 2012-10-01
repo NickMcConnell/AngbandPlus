@@ -139,6 +139,16 @@ Show flavors in object descriptions    [show_flavors]
     Display "flavors" (color or variety) in object descriptions, even for
     objects whose type is known.  This does not affect objects in stores.
 
+***** <display_insc_msg>
+Display inscriptions in messages       [display_insc_msg]
+    If this is turned on, item inscriptions will appear in all messages. 
+    Otherwise, they will only appear in messages in which they are relevant.
+
+***** <display_recharge_msg>
+Display messages upon recharge       [display_recharge_msg]
+    If this is turned on, you will get messages whenever an artifact, rod
+	or talisman recharges.
+
 ***** <show_piles>
 Show stacks using special attr/char    [show_piles]
      Stacks of items on the floor are shown using the "&" symbol.

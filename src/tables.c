@@ -90,7 +90,7 @@ byte adj_str_th[A_RANGE] =
  */
 byte adj_str_td[A_RANGE] =
 {
-	128 + -2	/* 0 */,
+	128 + -3	/* 0 */,
 	128 + -2	/* 1 */,
 	128 + -1	/* 2 */,
 	128 + -1	/* 3 */,
@@ -108,19 +108,19 @@ byte adj_str_td[A_RANGE] =
 	128 + 2		/* 15 */,
 	128 + 3		/* 16 */,
 	128 + 3		/* 17 */,
-	128 + 3		/* 18 */,
-	128 + 5		/* 19 */,
-	128 + 6		/* 20 */,
-	128 + 8		/* 21 */,
-	128 + 10	/* 22 */,
-	128 + 11	/* 23 */,
-	128 + 12	/* 24 */,
-	128 + 13	/* 25 */,
-	128 + 14	/* 26 */,
-	128 + 15	/* 27 */,
-	128 + 16	/* 28 */,
-	128 + 18	/* 29 */,
-	128 + 20	/* 30 */
+	128 + 4		/* 18 */,
+	128 + 4		/* 19 */,
+	128 + 5		/* 20 */,
+	128 + 5		/* 21 */,
+	128 + 7		/* 22 */,
+	128 + 8 	/* 23 */,
+	128 + 9		/* 24 */,
+	128 + 10	/* 25 */,
+	128 + 11	/* 26 */,
+	128 + 12	/* 27 */,
+	128 + 13	/* 28 */,
+	128 + 14	/* 29 */,
+	128 + 15	/* 30 */
 };
 
 /*
@@ -166,31 +166,31 @@ byte adj_str_wgt[A_RANGE] =
  */
 byte adj_str_hold[A_RANGE] =
 {
-	4		/* 0 */,
-	5		/* 1 */,
-	6		/* 2 */,
-	7		/* 3 */,
-	8		/* 4 */,
-	10		/* 5 */,
-	12		/* 6 */,
-	14		/* 7 */,
-	16		/* 8 */,
-	18		/* 9 */,
-	20		/* 10 */,
-	22		/* 11 */,
-	24		/* 12 */,
-	26		/* 13 */,
-	28		/* 14 */,
-	30		/* 15 */,
-	35		/* 16 */,
-	45		/* 17 */,
-	55		/* 18 */,
-	65		/* 19 */,
-	80		/* 20 */,
-	80		/* 21 */,
-	80		/* 22 */,
-	90		/* 23 */,
-	90		/* 24 */,
+	2		/* 0 */,
+	3		/* 1 */,
+	4		/* 2 */,
+	5		/* 3 */,
+	6		/* 4 */,
+	7		/* 5 */,
+	8		/* 6 */,
+	9		/* 7 */,
+	10		/* 8 */,
+	11		/* 9 */,
+	13		/* 10 */,
+	15		/* 11 */,
+	17		/* 12 */,
+	19		/* 13 */,
+	21		/* 14 */,
+	23		/* 15 */,
+	25		/* 16 */,
+	27		/* 17 */,
+	30		/* 18 */,
+	35		/* 19 */,
+	40		/* 20 */,
+	50		/* 21 */,
+	60		/* 22 */,
+	70		/* 23 */,
+	80		/* 24 */,
 	90		/* 25 */,
 	90		/* 26 */,
 	90		/* 27 */,
@@ -539,44 +539,6 @@ byte adj_dex_th[A_RANGE] =
 	128 + 15	/* 28 */,
 	128 + 15	/* 29 */,
 	128 + 15	/* 30 */
-};
-
-/*
- * Stat Table (DEX) -- index into the "blow" table
- */
-byte adj_dex_blow[A_RANGE] =
-{
-	0		/* 0 */,
-	0		/* 1 */,
-	0		/* 2 */,
-	0		/* 3 */,
-	0		/* 4 */,
-	0		/* 5 */,
-	0		/* 6 */,
-	1		/* 7 */,
-	1		/* 8 */,
-	1		/* 9 */,
-	1		/* 10 */,
-	1		/* 11 */,
-	1		/* 12 */,
-	1		/* 13 */,
-	1		/* 14 */,
-	1		/* 15 */,
-	2		/* 16 */,
-	2		/* 17 */,
-	3		/* 18 */,
-	4		/* 19 */,
-	6		/* 20 */,
-	8		/* 21 */,
-	10		/* 22 */,
-	11		/* 23 */,
-	12		/* 24 */,
-	14		/* 25 */,
-	16		/* 26 */,
-	18		/* 27 */,
-	20		/* 28 */,
-	20		/* 29 */,
-	20		/* 30 */
 };
 
 /*
@@ -1004,47 +966,88 @@ byte adj_mag_stat[A_RANGE] =
 };
 
 /*
- * This table is used to help calculate the number of blows the player can
+ * These tables are used to help calculate the number of blows the player can
  * make in a single round of attacks (one player turn) with a normal weapon.
+ */
+
+/* 
+ * The first table compares the weapon weight ( / 30) with the player's strength. 
+ */
+byte wght_str_blows[30][A_RANGE] = 
+{
+/* W/S */
+
+/*  0 */ {5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
+/*  1 */ {4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5},
+/*  2 */ {3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5},
+/*  3 */ {3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5},
+/*  4 */ {2,2,2,2,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5},
+/*  5 */ {2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5},
+/*  6 */ {1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5},
+/*  7 */ {1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,5,5},
+/*  8 */ {1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,5},
+/*  9 */ {1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,5},
+/* 10 */ {0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4},
+/* 11 */ {0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4},
+/* 12 */ {0,0,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4},
+/* 13 */ {0,0,0,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4},
+/* 14 */ {0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4},
+/* 15 */ {0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4},
+/* 16 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4},
+/* 17 */ {0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4,4},
+/* 18 */ {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4,4},
+/* 19 */ {0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4,4},
+/* 20 */ {0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,4,4},
+/* 21 */ {0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,4},
+/* 22 */ {0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3},
+/* 23 */ {0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3},
+/* 24 */ {0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3},
+/* 25 */ {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3},
+/* 26 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3},
+/* 27 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3},
+/* 28 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3},
+/* 29 */ {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3}
+};
+
+/* 
+ * The next table is then used to calculate the actual number of attacks.
  *
  * This number ranges from a single blow/round for weak players to up to six
  * blows/round for powerful warriors.
  *
  * Note that certain artifacts and ego-items give "bonus" blows/round.
  *
- * First, from the player class, we extract some values:
+ * To get "P", we use the result of the previous table (modified by class).
  *
- *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
- *    Mage    --> num = 4; mul = 2; div = MAX(40, weapon_weight);
- *    Priest  --> num = 5; mul = 3; div = MAX(35, weapon_weight);
- *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
- *
- * To get "P", we look up the relevant "adj_str_blow[]" (see above),
- * multiply it by "mul", and then divide it by "div", rounding down.
- *
- * To get "D", we look up the relevant "adj_dex_blow[]" (see above),
- * note especially column 6 (DEX 18/101) and 11 (DEX 18/150).
+ * To get "D", we use dexterity
  *
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
-byte blows_table[12][12] =
+byte blows_table[10][A_RANGE] =
 {
 /* P/D */
-		/*	0,	1,	2,	3,	4,	5,	6,	7,	8,	9,  10,  11+ */
-/* 0 */	{	1,	1,	1,	1,	1,	1,	2,	2,	2,	2,	 2,	  3 },
-/* 1 */	{	1,	1,	1,	1,	2,	2,	3,	3,	3,	4,	 4,	  4 },
-/* 2 */	{	1,	1,	2,	2,	3,	3,	4,	4,	4,	5,	 5,	  5 },
-/* 3 */	{	1,	2,	2,	3,	3,	4,	4,	4,	5,	5,	 5,	  5 },
-/* 4 */	{	1,	2,	2,	3,	3,	4,	4,	5,	5,	5,	 5,	  5 },
-/* 5 */	{	2,	2,	3,	3,	4,	4,	5,	5,	5,	5,	 5,	  6 },
-/* 6 */	{	2,	2,	3,	3,	4,	4,	5,	5,	5,	5,	 5,	  6 },
-/* 7 */	{	2,	3,	3,	4,	4,	4,	5,	5,	5,	5,	 5,   6 },
-/* 8 */	{	3,	3,	3,	4,	4,	4,	5,	5,	5,	5,	 6,	  6 },
-/* 9 */	{	3,	3,	4,	4,	4,	4,	5,	5,	5,	5,	 6,	  6 },
-/*10 */	{	3,	3,	4,	4,	4,	4,	5,	5,	5,	6,	 6,	  6 },
-/*11+*/	{	3,	3,	4,	4,	4,	4,	5,	5,	6,	6,	 6,	  6 },
+                         
+/* 0 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3},
+/* 1 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3},
+/* 2 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3},
+/* 3 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4},
+/* 4 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,3,3,3,3,3,4,4,4,4,4},
+/* 5 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,3,4,4,4,4,4,4},
+/* 6 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,4,5,5,5},
+/* 7 */ {1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,5},
+/* 8 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,6,6},
+/* 9 */ {1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,6,6}
+};
+
+/*
+ * The max plusses per item weight, in increments of 1 pound
+ */
+byte max_item_plus[30] =
+{
+	3,   3,  4,  4,  5,  5,  6,  6,  7,  7, 
+	8,   9,  9, 10, 10, 11, 11, 12, 12, 12,
+	13, 13, 13, 14, 14, 14, 15, 15, 15, 15
 };
 
 /*
@@ -1209,34 +1212,34 @@ player_sex sex_info[SEX_MAX] =
 };
 
 player_race_special race_special_info[2][RACE_SPECIAL_LEVELS] =
-/* Title, stat bonuses, skill bonuses, flag1, flag2, flag3, flag4, extra */
+/* Title, stat bonuses, skill bonuses, flag1, flag2, flag3, extra */
 {
 /* Angels and Demons - each line is a 5-level bracket. Extra is the index of racial ability */
 	{ /*Angel*/
-		{ "Cherub",		{0,0,0,0,0,0}	,{0, 0, 0,0,0,0, 0,0,0,0,0},0x00000000L,0x00000000L,0x00000000L,0,1},
-		{ "Seraph",		{0,0,0,0,1,0}	,{0, 1, 1,0,0,0, 1,0,0,0,0},0x10000000L,0x00000000L,0x00000040L,0,2},
-		{ "Deva",		{2,0,1,0,2,1}	,{0, 3, 3,0,0,0, 4,0,0,0,0},0x10000000L,0x00000800L,0x00000042L,0,3},
-		{ "Deva",		{2,0,1,0,2,1}	,{0, 3, 3,0,0,0, 4,0,0,0,0},0x10000000L,0x00000800L,0x00000042L,0,3},
-		{ "Planetar",	{2,1,1,0,2,1}	,{0, 6, 7,0,0,0, 8,1,0,0,0},0x90000000L,0x00004800L,0x00000052L,0,3},
-		{ "Planetar",	{2,1,1,0,2,1}	,{0, 6, 7,0,0,0, 8,1,0,0,0},0x90000000L,0x00004800L,0x00000052L,0,3},
-		{ "Archon",		{3,1,2,0,3,2}	,{0, 9,11,0,0,0,12,3,0,0,0},0x90000000L,0x000149C0L,0x00000052L,0,4},
-		{ "Archon",		{3,1,2,0,3,2}	,{0, 9,11,0,0,0,12,3,0,0,0},0x90000000L,0x000149C0L,0x00000052L,0,4},
-		{ "Solar",		{3,2,2,0,3,2}	,{0,12,16,0,0,0,16,5,0,0,0},0x90000000L,0x00014BF0L,0x00000057L,0,5},
-		{ "Solar",		{3,2,2,0,3,2}	,{0,12,16,0,0,0,16,5,0,0,0},0x90000000L,0x00014BF0L,0x00000057L,0,5},
-		{ "Archangel",	{4,2,3,0,4,3}	,{0,16,22,0,0,0,24,9,0,0,0},0x90000000L,0x00414BF0L,0x00000057L,0,5}
+		{ "Cherub",		{0,0,0,0,0,0}	,{0,0, 0, 0,0,0,0, 0,0,0,0,0},0x00000000L,0x00000000L,0x00000000L,1},
+		{ "Seraph",		{0,0,0,0,1,0}	,{0,0, 1, 1,0,0,0, 0,0,0,0,0},0x10000000L,0x00000000L,0x00000040L,2},
+		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000008L,0x00000042L,3},
+		{ "Deva",		{2,0,1,0,2,1}	,{0,0, 3, 3,0,0,0, 1,0,0,0,0},0x10000000L,0x00000008L,0x00000042L,3},
+		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000008L,0x00000052L,3},
+		{ "Planetar",	{2,1,1,0,2,1}	,{0,0, 6, 7,0,0,0, 3,0,0,0,0},0x90000000L,0x00000008L,0x00000052L,3},
+		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000009L,0x00000052L,4},
+		{ "Archon",		{3,1,2,0,3,2}	,{0,0, 9,11,0,0,0, 4,1,0,0,0},0x90000000L,0x00000009L,0x00000052L,4},
+		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000009L,0x00000057L,5},
+		{ "Solar",		{3,2,2,0,3,2}	,{0,0,12,16,0,0,0, 5,2,0,0,0},0x90000000L,0x00000009L,0x00000057L,5},
+		{ "Archangel",	{4,2,3,0,4,3}	,{0,0,16,22,0,0,0, 8,3,0,0,0},0x90000000L,0x0000000BL,0x00000057L,5}
 	},
 	{ /*Demon*/
-		{ "Lemure",		{0,0,0,0, 0, 0}	,{0, 0, 0,	0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000000L,0x00000000L,0,0},
-		{ "Quasit",		{1,0,0,1, 1, 0}	,{0, 0, 0,	0,0,0, 1, 1, 1,0,0},0x00000000L,0x00000800L,0x00000000L,0,0},
-		{ "Imp",		{2,2,0,2, 2,-1}	,{0, 2, 0,	0,0,0, 2, 1, 1,0,0},0x00000000L,0x00000840L,0x00000000L,0,0},
-		{ "Tengu",		{3,3,0,3, 2,-1}	,{0, 4, 1, -1,0,0, 4, 2, 1,0,0},0x00000000L,0x00000C40L,0x00000000L,0,6},
-		{ "Bodak",      {3,3,0,3, 3,-1}	,{0, 6, 3, -2,0,0, 8, 4, 2,0,0},0x04000000L,0x00008C40L,0x00000000L,0,7},
-		{ "Vrock",      {3,3,1,3, 4,-1}	,{0, 8, 5, -4,0,0,12, 6, 4,0,0},0x04000000L,0x00008C50L,0x00000000L,0,7},
-		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,10, 7, -5,0,0,16, 8, 6,0,0},0x44000000L,0x00008C50L,0x00000000L,0,7},
-		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,13, 9, -7,0,0,20,10, 8,0,0},0x44000000L,0x00208C50L,0x00000000L,0,8},
-		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,16,11, -8,0,0,24,12,10,0,0},0x44000000L,0x00208C50L,0x00000004L,0,8},
-		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,19,13, -9,0,0,26,14,12,0,0},0x44000000L,0x00608C50L,0x00000004L,0,8},
-		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,22,15,-10,0,0,30,16,12,0,0},0x44000000L,0x00608C14L,0x00000004L,0,9}
+		{ "Lemure",		{0,0,0,0, 0, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000000L,0x00000000L,0},
+		{ "Quasit",		{1,0,0,1, 1, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000008L,0x00000000L,0},
+		{ "Imp",		{2,2,0,2, 2,-1}	,{0,0, 2, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000008L,0x00000000L,0},
+		{ "Tengu",		{3,3,0,3, 2,-1}	,{0,0, 4, 1, -1,0,0, 1, 1, 0,0,0},0x00000000L,0x00000008L,0x00000000L,6},
+		{ "Bodak",      {3,3,0,3, 3,-1}	,{0,0, 6, 3, -2,0,0, 3, 1, 1,0,0},0x04000000L,0x00000008L,0x00000000L,7},
+		{ "Vrock",      {3,3,1,3, 4,-1}	,{0,0, 8, 5, -4,0,0, 5, 2, 2,0,0},0x04000000L,0x00000008L,0x00000000L,7},
+		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,0,10, 7, -5,0,0, 6, 3, 2,0,0},0x44000000L,0x00000008L,0x00000000L,7},
+		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,0,13, 9, -7,0,0, 7, 3, 3,0,0},0x44000000L,0x00000008L,0x00000000L,8},
+		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,0,16,11, -8,0,0, 8, 4, 3,0,0},0x44000000L,0x00000008L,0x00000004L,8},
+		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,0,19,13, -9,0,0, 9, 5, 4,0,0},0x44000000L,0x00000008L,0x00000004L,8},
+		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,0,22,15,-10,0,0,10, 5, 4,0,0},0x44000000L,0x00000008L,0x00000004L,9}
 	}	
 };
 
@@ -1275,12 +1278,12 @@ spell_book instruments[SV_MUSIC_MAX] =
 		/* Flute (sval 2) */
 		0,
 		{
-			{POW_HEAL_2D10,			"Lesser Healing Melody",		 2,  2, 20,   0},	
+			{POW_HEAL_1,			"Lesser Healing Melody",		 2,  2, 20,   0},	
 			{POW_POLY_MONSTER,		"Changing Melody",				15, 10, 40,   0},	
-			{POW_HEAL_6D10,			"Greater Healing Melody",		20, 14, 40,   0},	
+			{POW_HEAL_3,			"Greater Healing Melody",		20, 14, 40,   0},	
 			{POW_CURE_POIS_DISE,	"Curing Melody",				35, 50, 90,   0}, 
 			{POW_WORD_RECALL,		"Recall Melody",				40, 75, 80,   0},	
-			{POW_INVIS_2,				"Unseen Melody",				45,	45, 80,   0},	
+			{POW_INVIS_2,			"Unseen Melody",				45,	45, 80,   0},	
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
@@ -1321,8 +1324,8 @@ spell_book instruments[SV_MUSIC_MAX] =
 			{POW_CALM_ANIMALS,		"Song of Soothing the Beast",	10, 30, 60,   0},	
 			{POW_CALM_NON_EVIL,		"Song of Peace",				20, 45, 80,   0},	
 			{POW_CALM_ALL,			"Song of Great Peace",			30, 65, 90,   0},	
-			{POW_HEAL_300,			"Song of Health",				45, 85, 95,   0},	
-			{POW_DISPEL_EVIL_3,		"Song of Holyness",				50,	30, 95,   0},	
+			{POW_HEAL_4,			"Song of Health",				45, 85, 85,   0},	
+			{POW_DISPEL_EVIL_3,		"Song of Holyness",				50,	30, 75,   0},	
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
@@ -1341,7 +1344,7 @@ spell_book books[SV_BOOK_MAX] =
 			{POW_DETECT_MONSTERS,	"Detect Monsters",			 2,  2, 23,   4},
 			{POW_BALL_POISON_1,		"Stinking Cloud",			 3,  3, 27,   3},  
 			{POW_CONFUSE_MONSTER,	"Confuse Monster",			 3,  3, 30,   1},
-			{POW_DETECT_TRAP_DOOR,	"Find Hidden Traps/Doors",	 4,  3, 25,   1},
+			{POW_DETECT_TRAP_DOOR,	"Find Traps, Doors & Stairs",4,  3, 25,   1},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}
 		}
@@ -1373,8 +1376,9 @@ spell_book books[SV_BOOK_MAX] =
 			{POW_SLOW_MONSTER,		"Slow Monster",				11,  7, 50,  10},	
 			{POW_DETECT_ENCHANT,	"Detect Enchantment",		12,	 7,	40,   6},
 			{POW_BOLT_FIRE_2,		"Fire Bolt",				14,  9, 50,   8},	
+			{POW_GLYPH_LESSER,		"Barrier",					15, 35, 90,  10}, 
 			{POW_RECHARGE_1,		"Recharge Item",			15, 10, 75,  10},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0, 0}
 		}
 	},
 	{		
@@ -1383,12 +1387,12 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{POW_BALL_FROST_1,		"Frost Ball",				17, 12, 55,   8},	
 			{POW_BLIND_MONSTER,		"Blind Monster",			19, 12, 60,   8},
-			{POW_IDENTIFY_PACK,		"Identify Pack",			21, 21, 80,   6},	
+			{POW_MAGIC_LOCK,		"Magic Lock",				21,	20,	50,	 10},
+			{POW_IDENTIFY_PACK,		"Identify Pack",			22, 21, 80,   6},	
 			{POW_TELE_OTHER,		"Teleport Others",			23, 12, 60,   8},	
 			{POW_BALL_FIRE_1,		"Fire Ball",				25, 18, 65,  12},	
 			{POW_HASTE_SELF_1,		"Haste Self",				29, 12, 65,  10},	
-			{POW_DESTRUCTION,		"Word of Destruction",		33, 21, 80,  15},	
-			{POW_GENOCIDE,			"Genocide",					42, 25, 95,  21},	
+			{POW_DESTRUCTION,		"Word of Destruction",		35, 21, 80,  15},	
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
 	},
@@ -1424,7 +1428,7 @@ spell_book books[SV_BOOK_MAX] =
 		/* Kelek's Grimoire of Power (sval 6) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 50,   8},	
+			{POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 50,   8},
 			{POW_POLY_MONSTER,		"Polymorph Other",			11,  7, 45,   9},
 			{POW_RECHARGE_4,		"Greater Recharge Item",	25, 30, 95, 160},	
 			{POW_GENOCIDE,			"Genocide",					30, 50, 70,  40},	
@@ -1481,7 +1485,7 @@ spell_book books[SV_BOOK_MAX] =
 		SBF_PRAYER,
 		{
 			{POW_DETECT_EVIL,		"Detect Evil",				 1,  1, 10,   4}, 
-			{POW_HEAL_2D10,			"Cure Light Wounds",		 1,  2, 15,   4}, 
+			{POW_HEAL_1,			"Cure Light Wounds",		 1,  2, 15,   4}, 
 			{POW_BLESS_1,			"Bless",					 1,  2, 20,   4}, 
 			{POW_CURE_FEAR,			"Remove Fear",				 1,  2, 25,   4}, 
 			{POW_LIGHT_AREA,		"Call Light",				 3,  2, 25,   1}, 
@@ -1497,7 +1501,7 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{POW_SCARE_MONSTER,		"Scare Monster",			 5,  4, 29,   3},
 			{POW_TELE_MINOR,		"Portal",					 5,  4, 30,   4},
-			{POW_HEAL_4D10,			"Cure Serious Wounds",		 5,  4, 32,   4},
+			{POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32,   4},
 			{POW_BLESS_2,			"Chant",					 5,  5, 34,   4},
 			{POW_SLEEP_ADJACENT,	"Sanctuary",				 7,  5, 36,   3},
 			{POW_SATISFY_HUNGER,	"Satisfy Hunger",			 7,  5, 38,   4},
@@ -1512,13 +1516,13 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{POW_CURE_POISON_2,		"Neutralize Poison",		 9,  6, 38,   4}, 
 			{POW_BALL_HOLY,			"Orb of Draining",			 9,  7, 38,   4}, 
-			{POW_HEAL_6D10,			"Cure Critical Wounds",		 9,  7, 40,   4}, 
+			{POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40,   4}, 
 			{POW_CURE_DISEASE,		"Cure Disease",				10,  7, 40,   4}, 
+			{POW_GLYPH_HOLY,		"Holy Sigil",				10,	15, 50,	  5},
 			{POW_SEE_INVIS,			"Sense Invisible",			11,  8, 42,   4}, 
 			{POW_PROT_EVIL,			"Protection from Evil",		11,  8, 42,   4}, 
-			{POW_EARTHQUAKE,		"Earthquake",				11,  9, 55,   5}, 
+			{POW_EARTHQUAKE,		"Earthquake",				13,  9, 55,   5}, 
 			{POW_MAP_1,				"Sense Surroundings",		13, 10, 45,   4}, 
-			{POW_HEAL_8D10,			"Cure Mortal Wounds",		13, 11, 45,   4}, 
 			{ 0, NULL, 99,  0, 0, 0}
 		}
 	},
@@ -1529,12 +1533,11 @@ spell_book books[SV_BOOK_MAX] =
 			{POW_SCARE_UNDEAD,		"Turn Undead",				15, 12, 50,   5}, 
 			{POW_BLESS_3,			"Prayer",					15, 14, 50,   5}, 
 			{POW_DISPEL_UNDEAD_1,	"Dispel Undead",			17, 14, 55,   7}, 
-			{POW_HEAL_300,			"Heal",						21, 16, 60,   7}, 
 			{POW_DISPEL_EVIL_3,		"Dispel Evil",				25, 20, 70,  12}, 
 			{POW_GLYPH_WARDING,		"Glyph of Warding",			33, 55, 90,  15}, 
 			{POW_HOLY_2,			"Holy Word",				39, 32, 95,  20}, 
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
 	},
 	{
@@ -1569,14 +1572,14 @@ spell_book books[SV_BOOK_MAX] =
 		/* Purifications and Healing (sval 16) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
-			{POW_HEAL_8D10,			"Cure Mortal Wounds",		17,  7, 60,  45}, 
-			{POW_HEAL_500,			"Heal",						20, 25, 80, 130}, 
-			{POW_HEAL_2000,			"Healing",					30, 50, 80, 130}, 
+			{POW_HEAL_4,			"Cure Mortal Wounds",		17,  7, 60,  45}, 
+			{POW_HEAL_5,			"Healing",					30, 50, 80, 130}, 
 			{POW_RESTORE_STATS,		"Restoration",				35, 70, 90, 230}, 
 			{POW_RESTORE_LEVEL,		"Remembrance",				35, 70, 90, 250}, 
 			{POW_CALM_NON_EVIL,		"Holy Peace",				45, 50, 80, 200}, 
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
+			{ 0, NULL, 99,  0, 0, 0}
 		}
 	},
 	{
@@ -1640,7 +1643,7 @@ spell_book books[SV_BOOK_MAX] =
 			{POW_BOLT_MANA,			"Mana Bolt",				10,  5, 50,  15},	
 			{POW_INVIS_2,			"Vanish from Sight",		20, 20,	60,  50},
 			{POW_BANISH,			"Banish Enemies",			25, 30, 80, 200}, 
-			{POW_HEAL_300,			"Heal",						30, 20, 60,  20}, 
+			{POW_HEAL_4,			"Heal",						30, 20, 60,  20}, 
 			{POW_HASTE_SELF_2,		"Essence of Speed",			35, 60, 50, 200},	
 			{POW_ALTER_REALITY,		"Alter Reality",			40, 80, 75, 200}, 
 			{POW_GLYPH_WARDING,		"Glyph of Warding",			45, 60, 90,  20}, 
@@ -1667,101 +1670,89 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{POW_IDENTIFY,			"Perception",				 1, 15, 50,   1}, 
 			{POW_IDENTIFY_PACK,		"Greater Perception",		20, 20, 90,   2},	
-			{POW_SELF_KNOW,			"Self Knowledge",			45,100, 82,   4}, 
 			{POW_IDENTIFY_FULL,		"Revelation",				50,100, 72,   8},
 			{POW_MAP_2,				"Clairvoyance",				50,100, 10,   2}, 
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
 	}
 };
 
 /*
- * The max plusses per item weight, in increments of 1 pound
+ * Resistance names 
  */
-byte max_item_plus[30] =
+cptr resist_names[RS_MAX] =
 {
-	3,   4,  4,  5,  5,  6,  6,  7,  8,  8, 
-	9,  10, 10, 10, 10, 12, 12, 14, 14, 14,
-	16, 16, 16, 18, 18, 18, 18, 18, 20, 20
+	"acid",
+	"electricty",
+	"fire",
+	"cold",
+	"water",
+	"poison",
+	"disease",
+	"light",
+	"dark",
+	"confusion",
+	"sound",
+	"shards",
+	"nexus",
+	"nether",
+	"chaos",
+	"disenchantment",
+	"time",
+	"mana"
 };
 
 /*
- * Each chest has a certain set of traps, determined by pval
- * Each chest has a "pval" from 1 to the chest level (max 55)
- * If the "pval" is negative then the trap has been disarmed
- * The "pval" of a chest determines the quality of its treasure
- * Note that disarming a trap on a chest also removes the lock.
+ * Resistance names 
  */
-byte chest_traps[64] =
+cptr resist_names_short[RS_MAX] =
 {
-	0,					/* 0 == empty */
-	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),			/* 5 == best small wooden */
-	0,
-	(CHEST_POISON),
-	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_POISON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),			/* 15 == best large wooden */
-	0,
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),
-	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_EXPLODE),			/* 25 == best small iron */
-	0,
-	(CHEST_POISON | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_SUMMON),
-	(CHEST_SUMMON),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),	/* 35 == best large iron */
-	0,
-	(CHEST_SUMMON),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),	/* 45 == best small steel */
-	0,
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_PARALYZE),	/* 55 == best large steel */
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
+	"Acid ",
+	"Elec ",
+	"Fire ",
+	"Cold ",
+	"Water",
+	"Poisn",
+	"Dises",
+	"Light",
+	"Dark ",
+	"Confu",
+	"Sound",
+	"Shard",
+	"Nexus",
+	"Nethr",
+	"Chaos",
+	"Disen",
+	"Time ",
+	"Mana "
 };
 
+/*
+ * Resistance maximums
+ */
+res_cap resist_caps[RS_MAX] =
+{
+	{55, 88},
+	{55, 88},
+	{55, 88},
+	{55, 88},
+	{50, 66},
+	{55, 88},
+	{55, 88},
+	{50, 66},
+	{50, 66},
+	{40, 50},
+	{40, 50},
+	{40, 50},
+	{40, 50},
+	{40, 50},
+	{40, 50},
+	{40, 50},
+	{40, 50},
+	{40, 50}
+};
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -1814,20 +1805,20 @@ cptr window_flag_desc[16] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
-	"Display player (basic)",
-	"Display player (extra)",
+	"Display player (basic info)",
+	"Display player (flags & resists)",
+	"Display current player condition",
 	"Display visible monsters",
-	NULL,
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
+	"Display room descriptions",
 	NULL,
-	"Display snap-shot",
 	NULL,
 	NULL,
-	"Display borg messages",
-	"Display borg status"
+	NULL,
+	NULL
 };
 
 /*
@@ -1839,6 +1830,7 @@ option_type options[OPT_NORMAL] =
 	{"quick_messages",		"Activate quick messages",					TRUE },
 	{"floor_query_flag",	"Prompt for floor item selection",			FALSE},
 	{"carry_query_flag",	"Prompt before picking things up",			TRUE },
+	{"carry_heavy_query",	"Verify before picking up heavy objects",	TRUE },
 	{"use_old_target",		"Use old target by default",				FALSE},
 	{"always_pickup",		"Pick things up by default",				TRUE },
 	{"always_repeat",		"Repeat obvious commands",					TRUE },
@@ -1859,7 +1851,6 @@ option_type options[OPT_NORMAL] =
 	{"disturb_minor",		"Disturb whenever boring things happen",	TRUE },
 	{"alert_failure",		"Alert user to various failures",			FALSE},
 	{"verify_destroy",		"Verify destruction of objects",			TRUE },
-	{NULL,					NULL,										FALSE},
 	{"use_command",			"Allow unified use command",				FALSE},
 	{"expand_look",			"Expand the power of the look command",		TRUE },
 	{"expand_list",			"Expand the power of the list commands",	TRUE },
@@ -1890,9 +1881,11 @@ option_type options[OPT_NORMAL] =
 	{"auto_more",			"Automatically clear '-more-' prompts",		FALSE},
 	{"view_monster_lite",	"Allow monsters to have light radius",		TRUE },
 	{"verify_leave_quest",	"Verify before descending from quest level",TRUE },
-	{"carry_heavy_query",	"Verify before picking up heavy objects",	TRUE },
 	{"auto_haggle",			"Auto-haggle in stores",					TRUE },
-	{"inscribe_unique",		"Auto-inscribe unique drops",				TRUE } 
+	{"display_room_desc",	"Display room descriptions",				FALSE},
+	{"display_insc_msg",	"Display inscriptions in messages",			FALSE},
+	{"display_recharge_msg","Display messages upon recharge",			TRUE },
+	{"inscribe_unique",		"Auto-inscribe unique drops",				FALSE} 
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -1903,7 +1896,6 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_ironman",			"Restrict the use of stairs/recall",		FALSE},
 	{"birth_no_stores",			"Restrict the use of stores/home",			FALSE},
 	{"birth_no_artifacts",		"Restrict creation of artifacts",			FALSE},
-	{"birth_rand_artifacts",	"Randomize some of the artifacts",			FALSE},
 	{"birth_autoscum",			"Generate better (harder) levels",			FALSE},
 	{"birth_no_feelings",		"No level feelings",						FALSE},
 	{"birth_start_kit",			"Pre-shop for some basic items",			FALSE},
@@ -1973,14 +1965,14 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_weights,
 		OPT_show_flavors,
 		OPT_show_piles,
+		OPT_display_insc_msg,
+		OPT_display_recharge_msg,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
 		OPT_view_monster_lite,
-		255,
-		255,
 		255,
 		255,
 		255
@@ -2019,13 +2011,13 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
 		OPT_scroll_target,
-		OPT_inscribe_unique,
+		OPT_display_room_desc,
 #ifdef ALLOW_HAGGLE
 		OPT_auto_haggle,
 #else /* ALLOW_HAGGLE */
 		255,
 #endif /* ALLOW_HAGGLE */
-		255,
+		OPT_inscribe_unique,
 		255,
 		255,
 		255,
@@ -2106,16 +2098,12 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_nightmare_mode,
 		OPT_birth_autoscum,
 		OPT_birth_preserve,
-#ifdef GJW_RANDART
-		OPT_birth_rand_artifacts,
-#else /* GJW_RANDART */
-		255,
-#endif /* GJW_RANDART */
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_feelings,
 		OPT_birth_no_artifacts,
 		OPT_birth_force_small_lev,
+		255,
 		255,
 		255,
 		255,

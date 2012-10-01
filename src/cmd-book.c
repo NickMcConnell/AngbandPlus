@@ -125,20 +125,24 @@ static s16b spell_chance(int book, int spell, bool music)
 	if (p_ptr->disrupt) 
 	{
 		if (chance < 15) chance = 25;
-		else chance+=10;
+		else chance += 10;
 	}
 
 	/* Gloves (after minfail)*/
 	if (p_ptr->cumber_glove) 
 	{
 		if (chance < 10) chance = 25;
-		else chance+=15;
+		else chance += 15;
 	}
 
 	/* Heavy armor */
 	if (p_ptr->cumber_armor) 
 	{
-		chance += (p_ptr->cumber_armor / 20) + 1;
+		if (p_ptr->cumber_armor < 60) chance += 1;
+		if ((p_ptr->cumber_armor >= 60) && (p_ptr->cumber_armor < 90)) chance += 2;
+		if ((p_ptr->cumber_armor >= 90) && (p_ptr->cumber_armor < 105)) chance += 3;
+		if ((p_ptr->cumber_armor >= 105) && (p_ptr->cumber_armor < 120)) chance += 4;
+		if (p_ptr->cumber_armor >= 120) chance += 5 + ((p_ptr->cumber_armor - 120) / 10);
 	}
 
 	/* Stunning makes spells harder */
@@ -233,18 +237,16 @@ static void spell_info(char *p, int spell_index)
 	/* XXX XXX Analyze the spell */
 	switch (spell_index)
 	{
-		case POW_HEAL_2D10:
-			strcpy(p, " heal 2d10"); break;
-		case POW_HEAL_4D10	:
-			strcpy(p, " heal 4d10"); break;
-		case POW_HEAL_6D10:
-			strcpy(p, " heal 6d10"); break;
-		case POW_HEAL_8D10:
-			strcpy(p, " heal 8d10, any cut"); break;
-		case POW_HEAL_300:
-			strcpy(p, " heal 300, any cut"); break;
-		case POW_HEAL_2000:
-			strcpy(p, " heal 2000, any cut"); break;
+		case POW_HEAL_1:
+			strcpy(p, " heal 5%"); break;
+		case POW_HEAL_2:
+			strcpy(p, " heal 15%"); break;
+		case POW_HEAL_3:
+			strcpy(p, " heal 30%"); break;
+		case POW_HEAL_4:
+			strcpy(p, " heal 60%, any cut"); break;
+		case POW_HEAL_5:
+			strcpy(p, " heal 90%, any cut"); break;
 		case POW_CURE_POISON_1:
 			strcpy(p, " halve poison"); break;
 		case POW_TELE_10: 
@@ -350,6 +352,8 @@ static void spell_info(char *p, int spell_index)
 			strcpy(p, " dur 24+d24"); break;
 		case POW_PROT_EVIL:
 			sprintf(p, " dur %d+d25", durlev * 3); break;
+		case POW_MAGIC_LOCK: 
+			strcpy(p, " rad 3"); break;
 		case POW_HASTE_SELF_1: 
 			sprintf(p, " dur %d+d20", durlev); break;
 		case POW_HASTE_SELF_2	: 
@@ -405,7 +409,7 @@ void print_spells(int book, bool music, int lev, int y, int x)
 	if (!music)
 	{
 		k_ptr = &k_info[lookup_kind(TV_MAGIC_BOOK, book)];
-		basenm = (k_name + k_ptr->name);
+		basenm = k_name + k_ptr->name;
 	}
 	else
 	{
@@ -921,8 +925,11 @@ static void do_browse_instrument(int instrument, int lev)
 			if (power_info[j].index == s_ptr->index) break;
 		}
 
+		/* Output to the screen */
+		text_out_hook = text_out_to_screen;
+
 		/* Display that spell's information. */
-		if (power_info[j].desc != NULL) c_roff(TERM_L_BLUE, format("%^s.",power_info[j].desc));
+		if (power_info[j].desc != NULL) text_out_c(TERM_L_BLUE, format("%^s.",power_info[j].desc));
 	}
 }
 
@@ -971,8 +978,11 @@ static void do_browse_book(int book)
 			if (power_info[j].index == s_ptr->index) break;
 		}
 
+		/* Output to the screen */
+		text_out_hook = text_out_to_screen;
+		
 		/* Display that spell's information. */
-		if (power_info[j].desc != NULL) c_roff(TERM_L_BLUE, format("%^s.",power_info[j].desc));
+		if (power_info[j].desc != NULL) text_out_c(TERM_L_BLUE, format("%^s.",power_info[j].desc));
 	}
 }
 
@@ -1031,7 +1041,7 @@ void do_cmd_browse(void)
 	}
 	
 	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx, o_ptr->pval);
+	object_actual_track(o_ptr);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -1111,7 +1121,7 @@ void do_cmd_study(void)
 	}
 
 	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx, o_ptr->pval);
+	object_actual_track(o_ptr);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -1570,7 +1580,7 @@ void do_cmd_magic(void)
 	}
 
 	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx, o_ptr->pval);
+	object_actual_track(o_ptr);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();

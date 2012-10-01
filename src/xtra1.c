@@ -821,6 +821,82 @@ static void prt_frame_extra(void)
 }
 
 /*
+ * Track a new monster
+ */
+void health_track(int m_idx)
+{
+	/* Track a new guy */
+	p_ptr->health_who = m_idx;
+
+	/* Redraw (later) */
+	p_ptr->redraw |= (PR_HEALTH);
+}
+
+/*
+ * Hack -- track the given monster race
+ */
+void monster_track(int r_idx, int u_idx)
+{
+	/* Save this monster ID */
+	term_mon_race_idx = r_idx;
+	term_mon_unique_idx = u_idx;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+}
+
+/*
+ * Hack -- track the given object kind
+ */
+void artifact_track(int a_idx)
+{
+	object_type *o_ptr = &term_object;
+
+	/* Make fake artifact */
+	make_fake_artifact(o_ptr, a_idx);
+
+	term_obj_real = FALSE;
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+/*
+ * Hack -- track the given object kind
+ */
+void object_kind_track(int k_idx)
+{
+	object_type *o_ptr = &term_object;
+
+	/* Prepare the object */
+	object_wipe(o_ptr);
+	object_prep(o_ptr, k_idx);
+
+	term_obj_real = FALSE;
+	object_known(o_ptr);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+/*
+ * Hack -- track the given object kind
+ */
+void object_actual_track(object_type *j_ptr)
+{
+	object_type *o_ptr = &term_object;
+
+	/* Prepare the object */
+	object_wipe(o_ptr);
+	object_copy(o_ptr, j_ptr);
+
+	term_obj_real = TRUE;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+/*
  * Hack -- display inventory in sub-windows
  */
 static void fix_inven(void)
@@ -949,6 +1025,38 @@ static void fix_player_1(void)
 }
 
 /*
+ * Hack -- display player in sub-windows (mode 1)
+ */
+static void fix_status(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_CONDITION))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display flags */
+		display_player_status();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
+/*
  * Hack -- display recent messages in sub-windows
  *
  * Adjust for width and split messages.  XXX XXX XXX
@@ -1060,8 +1168,7 @@ static void fix_monster(void)
 		Term_activate(angband_term[j]);
 
 		/* Display monster race info */
-		if (p_ptr->monster_race_idx) 
-			display_roff(p_ptr->monster_race_idx, p_ptr->monster_unique_idx);
+		if (term_mon_race_idx) display_roff(term_mon_race_idx, term_mon_unique_idx);
 
 		/* Fresh */
 		Term_fresh();
@@ -1077,6 +1184,7 @@ static void fix_monster(void)
 static void fix_object(void)
 {
 	int j;
+	object_type *o_ptr = &term_object;
 
 	/* Scan windows */
 	for (j = 0; j < ANGBAND_TERM_MAX; j++)
@@ -1092,8 +1200,44 @@ static void fix_object(void)
 		/* Activate */
 		Term_activate(angband_term[j]);
 
-		/* Display monster race info */
-		if (p_ptr->object_kind_idx) display_koff(p_ptr->object_kind_idx, p_ptr->object_pval);
+		/* Display object info */
+		display_koff(o_ptr);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
+/*
+ * Hack -- display room recall in sub-windows
+ */
+static void fix_room_info(void)
+{
+	int by = p_ptr->py / BLOCK_HGT;
+	int bx = p_ptr->px / BLOCK_WID;
+	int room = dun_room[by][bx];
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_ROOM_INFO))) continue;	
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display room info */
+		display_room_info(room);
 
 		/* Fresh */
 		Term_fresh();
@@ -1536,7 +1680,7 @@ static void calc_hitpoints(void)
  */
 static void calc_torch(void)
 {
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	object_type *o_ptr = &inventory[INVEN_LITE];
 
@@ -1544,7 +1688,7 @@ static void calc_torch(void)
 	p_ptr->cur_lite = 0;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Examine Refueling lites */
 	if ((o_ptr->tval == TV_LITE_SPECIAL) || ((o_ptr->tval == TV_LITE) && (o_ptr->timeout > 0)))
@@ -1632,6 +1776,7 @@ static int weight_limit(void)
 static void calc_bonuses(void)
 {
 	int i, j, hold;
+	int res, cur_cap;
 
 	int old_speed;
 
@@ -1653,7 +1798,7 @@ static void calc_bonuses(void)
 
 	object_type *o_ptr;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	/*** Memorize ***/
 
@@ -1734,32 +1879,10 @@ static void calc_bonuses(void)
 	p_ptr->sustain_con = FALSE;
 	p_ptr->sustain_dex = FALSE;
 	p_ptr->sustain_chr = FALSE;
-	p_ptr->resist_acid = FALSE;
-	p_ptr->resist_elec = FALSE;
-	p_ptr->resist_fire = FALSE;
-	p_ptr->resist_cold = FALSE;
-	p_ptr->resist_pois = FALSE;
-	p_ptr->resist_disease = FALSE;
-	p_ptr->resist_lite = FALSE;
-	p_ptr->resist_dark = FALSE;
-	p_ptr->resist_confu = FALSE;
-	p_ptr->resist_sound = FALSE;
-	p_ptr->resist_chaos = FALSE;
-	p_ptr->resist_disen = FALSE;
-	p_ptr->resist_shard = FALSE;
-	p_ptr->resist_water = FALSE;
-	p_ptr->resist_nexus = FALSE;
-	p_ptr->resist_nethr = FALSE;
-	p_ptr->resist_time = FALSE;
-	p_ptr->immune_acid = FALSE;
-	p_ptr->immune_elec = FALSE;
-	p_ptr->immune_fire = FALSE;
-	p_ptr->immune_cold = FALSE;
 
 	p_ptr->tim_flag1 = 0L;
 	p_ptr->tim_flag2 = 0L;
 	p_ptr->tim_flag3 = 0L;
-	p_ptr->tim_flag4 = 0L;
 
 	/*** Extract race/class info ***/
 
@@ -1767,16 +1890,33 @@ static void calc_bonuses(void)
 	p_ptr->see_infra = rp_ptr->infra;
 
 	/* Extract skills */
-	for (i=0 ; i<SK_MAX ; i++)
+	for (i = 0 ; i < SK_MAX ; i++)
 	{
 		p_ptr->skill[i] = rp_ptr->r_skill[i] + cp_ptr->c_skill[i];
-		if (rp_ptr->special) p_ptr->skill[i]+=rsp_ptr[(p_ptr->max_lev)/5]->r_skill[i];
+		if (rp_ptr->special) p_ptr->skill[i] += rsp_ptr[(p_ptr->max_lev) / 5]->r_skill[i];
+	}
+
+	/* Extract resistances */
+	for (i = 0 ; i < RS_MAX ; i++)
+	{
+		/* Race can increase caps */
+		cur_cap = (rp_ptr->res[i] > resist_caps[i].normal) ? 
+			rp_ptr->res[i] : resist_caps[i].normal;
+
+		/* Base resistance = class + race */
+		p_ptr->res[i] = ((rp_ptr->res[i] + cp_ptr->res[i]) * p_ptr->lev) / 50;
+
+		/* Boundary check */
+		if (p_ptr->res[i] > resist_caps[i].normal) p_ptr->res[i] = cur_cap;
+
+		/* Display */
+		p_ptr->dis_res[i] = p_ptr->res[i];
 	}
 
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3, &f4);
+	player_flags(&f1, &f2, &f3);
 
 	/* Good flags */
 	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
@@ -1793,9 +1933,14 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	if (f2 & (TR2_BRAVERY)) p_ptr->bravery = TRUE;
 	if (f2 & (TR2_NO_BLIND)) p_ptr->no_blind = TRUE;
+	if (f2 & (TR2_NO_POISON)) p_ptr->no_poison = TRUE;
+	if (f2 & (TR2_NO_DISEASE)) p_ptr->no_disease = TRUE;
+	if (f2 & (TR2_NO_STUN)) p_ptr->no_stun = TRUE;
+	if (f2 & (TR2_NO_CUT)) p_ptr->no_cut = TRUE;
+	if (f2 & (TR2_NO_CONF)) p_ptr->no_confuse = TRUE;
 
 	/* Weird flags */
-	if (f4 & (TR4_BLESSED)) p_ptr->bless_blade = TRUE;
+	if (f2 & (TR2_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
 	if (f3 & (TR3_DISRUPT)) p_ptr->disrupt = TRUE;
@@ -1803,32 +1948,6 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 	if (f3 & (TR3_DRAIN_ITEM)) p_ptr->item_drain = TRUE;
-
-	/* Immunity flags */
-	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
-	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
-	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
-	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
-
-	/* Resistance flags */
-	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
-	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
-	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
-	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
-	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
-	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
-	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
-	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
-	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
-	if (f2 & (TR2_RES_WATER)) p_ptr->resist_water = TRUE;
-	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
-	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
-	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
-	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
-	if (f2 & (TR2_RES_TIME))  p_ptr->resist_time = TRUE;
-	if (f2 & (TR2_RES_MANA))  p_ptr->resist_mana = TRUE;
-	if (f2 & (TR2_RES_DISEASE)) p_ptr->resist_disease = TRUE;
 
 	/* Sustain flags */
 	if (f1 & (TR1_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -1852,7 +1971,7 @@ static void calc_bonuses(void)
 		if ((o_ptr->tval == TV_LITE) && (!o_ptr->timeout)) continue;
 
 		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -1908,9 +2027,14 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 		if (f2 & (TR2_BRAVERY)) p_ptr->bravery = TRUE;
 		if (f2 & (TR2_NO_BLIND)) p_ptr->no_blind = TRUE;
+		if (f2 & (TR2_NO_POISON)) p_ptr->no_poison = TRUE;
+		if (f2 & (TR2_NO_DISEASE)) p_ptr->no_disease = TRUE;
+		if (f2 & (TR2_NO_STUN)) p_ptr->no_stun = TRUE;
+		if (f2 & (TR2_NO_CUT)) p_ptr->no_cut = TRUE;
+		if (f2 & (TR2_NO_CONF)) p_ptr->no_confuse = TRUE;
 
 		/* Weird flags */
-		if (f4 & (TR4_BLESSED)) p_ptr->bless_blade = TRUE;
+		if (f2 & (TR2_BLESSED)) p_ptr->bless_blade = TRUE;
 
 		/* Bad flags */
 		if (f3 & (TR3_DISRUPT)) p_ptr->disrupt = TRUE;
@@ -1918,32 +2042,6 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 		if (f3 & (TR3_DRAIN_ITEM)) p_ptr->item_drain = TRUE;
-
-		/* Immunity flags */
-		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
-		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
-		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
-		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
-
-		/* Resistance flags */
-		if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
-		if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
-		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
-		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
-		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
-		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
-		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-		if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
-		if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
-		if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
-		if (f2 & (TR2_RES_WATER)) p_ptr->resist_water = TRUE;
-		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
-		if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
-		if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
-		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
-		if (f2 & (TR2_RES_TIME))  p_ptr->resist_time = TRUE;
-		if (f2 & (TR2_RES_MANA))  p_ptr->resist_mana = TRUE;
-		if (f2 & (TR2_RES_DISEASE)) p_ptr->resist_disease = TRUE;
 
 		/* Sustain flags */
 		if (f1 & (TR1_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -1954,16 +2052,38 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		/* Modify the base armor class */
-		p_ptr->ac += o_ptr->ac;
+		p_ptr->ac += actual_ac(o_ptr);
 
 		/* The base armor class is always known */
-		p_ptr->dis_ac += o_ptr->ac;
+		p_ptr->dis_ac += actual_ac(o_ptr);
 
 		/* Apply the bonuses to armor class */
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+
+		/* Extract resistances */
+		for (j = 0 ; j < RS_MAX ; j++)
+		{
+			res = object_resist(o_ptr, j);
+
+			/* Set current cap */
+			cur_cap = (p_ptr->res[j] > resist_caps[j].normal) ?
+				p_ptr->res[j] : resist_caps[j].normal;
+
+			/* Base resistance = class + race */
+			p_ptr->res[j] += res;
+
+			/* Display */
+			p_ptr->dis_res[j] += object_resist_known(o_ptr, j);
+
+			if (res > cur_cap) cur_cap = res;
+
+			/* Boundary check */
+			if (p_ptr->res[j] > cur_cap) p_ptr->res[j] = cur_cap;
+			if (p_ptr->dis_res[j] > cur_cap) p_ptr->dis_res[j] = cur_cap;
+		}
 
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
@@ -2009,6 +2129,30 @@ static void calc_bonuses(void)
 	}
 
 	/*** Temporary flags ***/
+
+	/* Temporary resistances */
+	for (i = 0 ; i < RS_MAX ; i++)
+	{
+		/* Temporary resistance, add 33% */
+		if (p_ptr->tim_res[i]) 
+		{
+			/* If already higher than cap, ignore */
+			if (!(p_ptr->res[i] > resist_caps[i].temp))
+			{
+				p_ptr->res[i] += 33;
+				if (p_ptr->res[i] > resist_caps[i].temp) 
+					p_ptr->res[i] = resist_caps[i].temp;
+			}
+
+			/* If already higher than cap, ignore */
+			if (!(p_ptr->dis_res[i] > resist_caps[i].temp))
+			{
+				p_ptr->dis_res[i] += 33;
+				if (p_ptr->dis_res[i] > resist_caps[i].temp) 
+					p_ptr->dis_res[i] = resist_caps[i].temp;
+			}
+		}
+	}
 
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > PY_STUN_HEAVY)
@@ -2120,6 +2264,13 @@ static void calc_bonuses(void)
 		p_ptr->tim_flag1 |= TR1_INFRA;
 	}
 
+	/* Temporary stealth boost */
+	if (p_ptr->tim_stealth)
+	{
+		p_ptr->tim_flag1 |= TR1_STEALTH;
+		/* Actual stealth affect appears later */
+	}
+
 	/* Fear */
 	if (p_ptr->afraid)
 	{
@@ -2131,92 +2282,6 @@ static void calc_bonuses(void)
 		 */
 		p_ptr->to_h -= 10;
 		p_ptr->dis_to_h -= 10;
-	}
-
-	/*** Temporary resistances ***/
-
-	if (p_ptr->oppose_acid)
-	{
-		p_ptr->tim_flag2 |= TR2_RES_ACID; 
-	}
-
-	if (p_ptr->oppose_elec)
-	{
-		p_ptr->tim_flag2 |= TR2_RES_ELEC; 
-	}
-
-	if (p_ptr->oppose_fire)
-	{
-		p_ptr->tim_flag2 |= TR2_RES_FIRE; 
-	}
-
-	if (p_ptr->oppose_cold)
-	{
-		p_ptr->tim_flag2 |= TR2_RES_COLD; 
-	}
-
-	if (p_ptr->oppose_pois)
-	{
-		p_ptr->tim_flag2 |= TR2_RES_POIS; 
-	}
-
-	if (p_ptr->oppose_disease)
-	{
-		p_ptr->tim_flag2 |= TR2_RES_DISEASE;
-	}
-
-	if (p_ptr->tim_res_lite)
-	{
-		p_ptr->resist_lite = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_LITE;
-	}
-
-	if (p_ptr->tim_res_dark)
-	{
-		p_ptr->resist_dark = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_DARK;
-	}
-
-	if (p_ptr->tim_res_confu)
-	{
-		p_ptr->resist_confu = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_CONFU;
-	}
-
-	if (p_ptr->tim_res_sound)
-	{
-		p_ptr->resist_sound = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_SOUND;
-	}
-
-	if (p_ptr->tim_res_shard)
-	{
-		p_ptr->resist_shard = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_SHARD;
-	}
-
-	if (p_ptr->tim_res_water)
-	{
-		p_ptr->resist_water = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_WATER;
-	}
-
-	if (p_ptr->tim_res_nexus)
-	{
-		p_ptr->resist_nexus = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_NEXUS;
-	}
-
-	if (p_ptr->tim_res_nethr)
-	{
-		p_ptr->resist_nethr = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_NETHR;
-	}
-
-	if (p_ptr->tim_res_chaos)
-	{
-		p_ptr->resist_chaos = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_CHAOS;
 	}
 
 	/*** Analyze weight ***/
@@ -2258,10 +2323,14 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill[SK_STL] += 1;
+	if (p_ptr->tim_stealth) p_ptr->skill[SK_STL] += 2;
 
 	/* Affect Skill -- disarming (DEX and INT) */
 	p_ptr->skill[SK_DIS] += adj_dex_dis[p_stat(A_DEX)];
 	p_ptr->skill[SK_DIS] += adj_int_dis[p_stat(A_INT)];
+
+	/* Affect Skill -- bypass (DEX) */
+	p_ptr->skill[SK_BYP] += adj_dex_dis[p_stat(A_DEX)];
 
 	/* Affect Skill -- magic devices (INT) */
 	p_ptr->skill[SK_DEV] += adj_int_dev[p_stat(A_INT)];
@@ -2414,37 +2483,28 @@ static void calc_bonuses(void)
 	/* Normal weapons or Unarmed combat */
 	if (!p_ptr->heavy_wield)
 	{
-		int str_index, dex_index;
-		int div;
+		int wgt_val = 0;
+		int wgt_index;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		if (o_ptr->k_idx) 
 		{
-			div = ((actual_weight(o_ptr) < cp_ptr->min_weight)
-				? cp_ptr->min_weight : actual_weight(o_ptr));
+			wgt_val = (actual_weight(o_ptr) / 10);
+
+			if (wgt_val > 29) wgt_val = 29;
 
 			/* Boost digging skill by weapon weight */
 			p_ptr->skill[SK_DIG] += (actual_weight(o_ptr) / 10);
 		}
-		else div = cp_ptr->min_weight;
 
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_stat(A_STR)] * cp_ptr->att_multiply / div);
+		/* Calculate weight index */
+		wgt_index = wght_str_blows[wgt_val][p_stat(A_STR)] + cp_ptr->attack_factor;
 
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
+		/* Use the blows tables */
+		p_ptr->num_blow = blows_table[wgt_index][p_stat(A_DEX)];
 
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_stat(A_DEX)]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
-
-		/* Maximal value */
-		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
+		/* Require at least one blow */
+		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
@@ -2452,7 +2512,7 @@ static void calc_bonuses(void)
 		/* If enraged, provide an extra blow */
 		if (p_ptr->rage) p_ptr->num_blow++;
 
-		/* Require at least one blow */
+		/* Require at least one blow (Check again in case of negative extra blows) */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 	}
 
@@ -2480,7 +2540,7 @@ static void calc_bonuses(void)
 	/* Process gloves for those disturbed by them */
 	if (cp_ptr->flags & CF_NO_GLOVE)
 	{
-		u32b f1, f2, f3, f4;
+		u32b f1, f2, f3;
 
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -2489,13 +2549,12 @@ static void calc_bonuses(void)
 		o_ptr = &inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
-		    !(f2 & (TR2_FREE_ACT)) &&
-		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)) &&
-		    !((f1 & (TR1_MANA)) && (o_ptr->pval > 0)))
+				!(f2 & (TR2_FREE_ACT)) && 
+				!((o_ptr->pval > 0) && ((f1 & (TR1_DEX)) || (f1 & (TR1_MANA)))))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -2527,25 +2586,23 @@ static void calc_bonuses(void)
 	if (cp_ptr->spell_weight)
 	{
 		int i;
-		int cur_wgt, max_wgt;
+		int cur_wgt;
 
 		/* Assume player not encumbered by armor */
 		p_ptr->cumber_armor = 0;
 
 		/* Weigh the armor */
 		cur_wgt = 0;
-		for (i = INVEN_BODY; i <= INVEN_FEET; i++);
+		for (i = INVEN_BODY; i <= INVEN_FEET; i++)
 		{
 			object_type *o_ptr = &inventory[i];
 
 			cur_wgt += actual_weight(o_ptr);
 		}
 
-		/* Determine the weight allowance */
-		max_wgt = cp_ptr->spell_weight;
-
 		/* Heavy armor penalty */
-		if ((cur_wgt - max_wgt) > 0) p_ptr->cumber_armor = cur_wgt - max_wgt;
+		if ((cur_wgt - cp_ptr->spell_weight) > 0)
+			p_ptr->cumber_armor = cur_wgt - cp_ptr->spell_weight;
 
 		/* Take note when "armor state" changes */
 		if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
@@ -2572,8 +2629,8 @@ static void calc_bonuses(void)
 			p_ptr->old_cumber_armor = p_ptr->cumber_armor;
 		}
 	}
-	
-	/*** Notice changes ***/
+
+	/*** Chances to avoid effects ***/
 
 	/* Analyze stats */
 	for (i = 0; i < A_MAX; i++)
@@ -2850,6 +2907,12 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_PANEL);
 		verify_panel();
 	}
+
+	if (p_ptr->update & (PU_ROOM_INFO))
+	{
+		p_ptr->update &= ~(PU_ROOM_INFO);
+		describe_room(FALSE);
+	}
 }
 
 /*
@@ -3099,6 +3162,13 @@ void window_stuff(void)
 		fix_player_1();
 	}
 
+	/* Display player (mode 1) */
+	if (p_ptr->window & (PW_CONDITION))
+	{
+		p_ptr->window &= ~(PW_CONDITION);
+		fix_status();
+	}
+
 	/* Display monster list */
 	if (p_ptr->window & (PW_VISIBLE))
 	{
@@ -3132,6 +3202,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_OBJECT);
 		fix_object();
+	}
+
+	/* Display room info */
+	if (p_ptr->window & (PW_ROOM_INFO))
+	{
+		p_ptr->window &= ~(PW_ROOM_INFO);
+		fix_room_info();
 	}
 }
 

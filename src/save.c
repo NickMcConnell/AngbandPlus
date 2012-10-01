@@ -88,22 +88,22 @@ static void wr_item(object_type *o_ptr)
 	u16b save_flags = 0;
 
 	/* Don't waste space on "rare" fields */
-	if (o_ptr->pval)		save_flags |= 0x0001;
-	if (o_ptr->discount)	save_flags |= 0x0002;
-	if (o_ptr->a_idx)		save_flags |= 0x0004;
-	if (o_ptr->e_idx)		save_flags |= 0x0008;
-	if (o_ptr->timeout)		save_flags |= 0x0010;
-	if (o_ptr->to_h)		save_flags |= 0x0020;
-	if (o_ptr->to_d)		save_flags |= 0x0040;
-	if (o_ptr->to_a)		save_flags |= 0x0080;
-	if (o_ptr->ac)			save_flags |= 0x0100;
-	if (o_ptr->dd)			save_flags |= 0x0200;
-	if (o_ptr->ds)			save_flags |= 0x0400;
- 	if (o_ptr->prefix_idx)	save_flags |= 0x0800;
-	if (o_ptr->marked)		save_flags |= 0x1000;
-	if (o_ptr->held_m_idx)	save_flags |= 0x2000;
-	if (o_ptr->xtra1)		save_flags |= 0x4000;
-	if (o_ptr->xtra2)		save_flags |= 0x8000;
+	if (o_ptr->pval)		 save_flags |= 0x0001;
+	if (o_ptr->discount)	 save_flags |= 0x0002;
+	if (o_ptr->timeout)		 save_flags |= 0x0004;
+	if (o_ptr->to_h)		 save_flags |= 0x0008;
+	if (o_ptr->to_d)		 save_flags |= 0x0010;
+	if (o_ptr->to_a)		 save_flags |= 0x0020;
+	if (o_ptr->ac)			 save_flags |= 0x0040;
+	if (o_ptr->dd)			 save_flags |= 0x0080;
+	if (o_ptr->ds)			 save_flags |= 0x0100;
+	if (o_ptr->origin_r_idx) save_flags |= 0x0200;
+	if (o_ptr->origin_s_idx) save_flags |= 0x0400;
+ 	if (o_ptr->origin_u_idx) save_flags |= 0x0800;
+	if (o_ptr->marked)		 save_flags |= 0x1000;
+	if (o_ptr->held_m_idx)	 save_flags |= 0x2000;
+	if (o_ptr->xtra1)		 save_flags |= 0x4000;
+	if (o_ptr->xtra2)		 save_flags |= 0x8000;
 
 	wr_u16b(save_flags);
 	
@@ -122,9 +122,9 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->number);
 
-	if (o_ptr->a_idx) wr_byte(o_ptr->a_idx); 
-	if (o_ptr->e_idx) wr_byte(o_ptr->e_idx);
-	if (o_ptr->prefix_idx) wr_byte(o_ptr->prefix_idx);
+	wr_byte(o_ptr->a_idx); 
+	wr_byte(o_ptr->e_idx);
+	wr_byte(o_ptr->prefix_idx);
 
 	if (o_ptr->timeout) wr_s16b(o_ptr->timeout);
 
@@ -136,6 +136,12 @@ static void wr_item(object_type *o_ptr)
 	if (o_ptr->ds) wr_byte(o_ptr->ds);
 
 	wr_byte(o_ptr->ident);
+
+	wr_byte(o_ptr->origin_nature);
+	wr_s16b(o_ptr->origin_dlvl);
+	if (o_ptr->origin_r_idx) wr_s16b(o_ptr->origin_r_idx);
+	if (o_ptr->origin_s_idx) wr_s16b(o_ptr->origin_s_idx);
+	if (o_ptr->origin_u_idx) wr_s16b(o_ptr->origin_u_idx);
 
 	if (o_ptr->marked) wr_byte(o_ptr->marked);
 
@@ -163,6 +169,7 @@ static void wr_item(object_type *o_ptr)
 static void wr_monster(monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
+	wr_s16b(m_ptr->s_idx);
 	wr_s16b(m_ptr->u_idx);
 	wr_byte(m_ptr->attr);
 	wr_byte(m_ptr->fy);
@@ -203,12 +210,12 @@ static void wr_lore(bool unique, int idx)
 	if (l_ptr->r_blows[1])		save_flags |= 0x0080;
 	if (l_ptr->r_blows[2])		save_flags |= 0x0100;
 	if (l_ptr->r_blows[3])		save_flags |= 0x0200;
-	if (l_ptr->r_flags1)		save_flags |= 0x0400;
-	if (l_ptr->r_flags2)		save_flags |= 0x0800;
-	if (l_ptr->r_flags3)		save_flags |= 0x1000;
-	if (l_ptr->r_flags4)		save_flags |= 0x2000;
-	if (l_ptr->r_flags5)		save_flags |= 0x4000;
-	if (l_ptr->r_flags6)		save_flags |= 0x8000;
+	if (l_ptr->flags1)			save_flags |= 0x0400;
+	if (l_ptr->flags2)			save_flags |= 0x0800;
+	if (l_ptr->flags3)			save_flags |= 0x1000;
+	if (l_ptr->s_flags1)		save_flags |= 0x2000;
+	if (l_ptr->s_flags2)		save_flags |= 0x4000;
+	if (l_ptr->s_flags3)		save_flags |= 0x8000;
 
 	wr_u16b(save_flags);
 
@@ -236,14 +243,30 @@ static void wr_lore(bool unique, int idx)
 	if (l_ptr->r_blows[3]) wr_byte(l_ptr->r_blows[3]);
 
 	/* Memorized flags */
-	if (l_ptr->r_flags1) wr_u32b(l_ptr->r_flags1);
-	if (l_ptr->r_flags2) wr_u32b(l_ptr->r_flags2);
-	if (l_ptr->r_flags3) wr_u32b(l_ptr->r_flags3);
-	if (l_ptr->r_flags4) wr_u32b(l_ptr->r_flags4);
-	if (l_ptr->r_flags5) wr_u32b(l_ptr->r_flags5);
-	if (l_ptr->r_flags6) wr_u32b(l_ptr->r_flags6);
+	if (l_ptr->flags1) wr_u32b(l_ptr->flags1);
+	if (l_ptr->flags2) wr_u32b(l_ptr->flags2);
+	if (l_ptr->flags3) wr_u32b(l_ptr->flags3);
+	if (l_ptr->s_flags1) wr_u32b(l_ptr->s_flags1);
+	if (l_ptr->s_flags2) wr_u32b(l_ptr->s_flags2);
+	if (l_ptr->s_flags3) wr_u32b(l_ptr->s_flags3);
 
 	if (!unique) wr_byte(r_info[idx].cur_unique);
+}
+
+/*
+ * Write a "monster" record
+ */
+static void wr_trap(trap_type *t_ptr)
+{
+	byte tmp8u = 0;
+
+	wr_s16b(t_ptr->w_idx);
+	wr_byte(t_ptr->fy);
+	wr_byte(t_ptr->fx);
+	wr_byte(t_ptr->charges);
+
+	if (t_ptr->visible) tmp8u |= 0x01;
+	wr_byte(tmp8u);
 }
 
 /*
@@ -458,8 +481,8 @@ static void wr_extra(void)
 
 	wr_u16b(p_ptr->fame);
 
-	wr_u32b(p_ptr->au);
-	wr_u32b(p_ptr->au_birth);
+	wr_s32b(p_ptr->au);
+	wr_s32b(p_ptr->au_birth);
 
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
@@ -505,28 +528,14 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
+	wr_s16b(p_ptr->tim_stealth);
 	wr_s16b(p_ptr->tim_invis);
-	wr_s16b(p_ptr->oppose_fire);
-	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_acid);
-	wr_s16b(p_ptr->oppose_elec);
-	wr_s16b(p_ptr->oppose_pois);
-	wr_s16b(p_ptr->oppose_disease);
-	wr_s16b(p_ptr->tim_res_lite);
-	wr_s16b(p_ptr->tim_res_dark);
-	wr_s16b(p_ptr->tim_res_confu);
-	wr_s16b(p_ptr->tim_res_sound);
-	wr_s16b(p_ptr->tim_res_shard);
-	wr_s16b(p_ptr->tim_res_nexus);
-	wr_s16b(p_ptr->tim_res_nethr);
-	wr_s16b(p_ptr->tim_res_chaos);
-	wr_s16b(p_ptr->tim_res_water);
 	wr_s16b(p_ptr->racial_power);
 
-	wr_byte(p_ptr->searching);
+	/* Write resistances */
+	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res[i]);
 
-	/* Random artifact seed */
-	if (adult_rand_artifacts) wr_u32b(seed_randart);
+	wr_byte(p_ptr->searching);
 
 	/* Write the "object seeds" */
 	wr_u32b(seed_flavor);
@@ -593,51 +602,6 @@ static void wr_spells(void)
 }
 
 /*
- * Dump the random artifacts
- */
-static void wr_randarts(void)
-{
-	int i;
-
-	wr_u16b(z_info->a_max);
-
-	for (i = 0; i < z_info->a_max; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-
-		wr_byte(a_ptr->tval);
-		wr_byte(a_ptr->sval);
-		wr_s16b(a_ptr->pval);
-
-		wr_s16b(a_ptr->to_h);
-		wr_s16b(a_ptr->to_d);
-		wr_s16b(a_ptr->to_a);
-		wr_s16b(a_ptr->ac);
-
-		wr_byte(a_ptr->dd);
-		wr_byte(a_ptr->ds);
-
-		wr_s16b(a_ptr->weight);
-
-		wr_s32b(a_ptr->cost);
-
-		wr_u32b(a_ptr->flags1);
-		wr_u32b(a_ptr->flags2);
-		wr_u32b(a_ptr->flags3);
-		wr_u32b(a_ptr->flags4);
-
-		wr_byte(a_ptr->level);
-		wr_byte(a_ptr->rarity);
-
-		wr_byte(a_ptr->activation);
-		wr_u16b(a_ptr->time);
-		wr_u16b(a_ptr->randtime);
-
-		wr_byte(a_ptr->prefix_idx);
-	}
-}
-
-/*
  * The cave grid flags that get saved in the savefile
  */
 #define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
@@ -647,7 +611,7 @@ static void wr_randarts(void)
  */
 static void wr_dungeon(void)
 {
-	int i, y, x;
+	int i, j, y, x;
 
 	byte tmp8u;
 
@@ -739,6 +703,34 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
+	/*** Dump room descriptions ***/
+	for (x = 0; x < MAX_ROOMS_ROW; x++)
+	{
+		for (y = 0; y < MAX_ROOMS_COL; y++)
+		{
+			wr_byte(dun_room[x][y]);
+		}
+	}
+
+	for (i = 1; i < DUN_ROOMS; i++)
+	{
+		wr_byte(room_info[i].type);
+		tmp8u = 0;
+
+		if (room_info[i].seen) tmp8u |= 0x01;
+		wr_byte(tmp8u);
+
+		if (room_info[i].type == ROOM_NORMAL)
+		{
+			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
+			{
+				wr_s16b(room_info[i].section[j]);
+
+				if (room_info[i].section[j] == -1) break;
+			}
+		}
+	}
+	
 	/*** Compact ***/
 
 	/* Compact the objects */
@@ -746,6 +738,9 @@ static void wr_dungeon(void)
 
 	/* Compact the monsters */
 	compact_monsters(0);
+
+	/* Compact the traps */
+	compact_traps(0);
 
 	/*** Dump objects ***/
 
@@ -773,6 +768,20 @@ static void wr_dungeon(void)
 
 		/* Dump it */
 		wr_monster(m_ptr);
+	}
+
+	/*** Dump objects ***/
+
+	/* Total objects */
+	wr_u16b(t_max);
+
+	/* Dump the objects */
+	for (i = 1; i < t_max; i++)
+	{
+		trap_type *t_ptr = &t_list[i];
+
+		/* Dump it */
+		wr_trap(t_ptr);
 	}
 }
 
@@ -856,7 +865,7 @@ static bool wr_savefile_new(void)
 		if (u_ptr->dead) tmp8u |= 0x01;
 		wr_byte(tmp8u);
 
-		if (u_ptr->dead) wr_s16b(u_ptr->depth);
+		wr_s16b(u_ptr->depth);
 		wr_lore(TRUE, i);
 	}
 
@@ -937,12 +946,6 @@ static bool wr_savefile_new(void)
 	/* Write the spell information */
 	wr_spells();
   
-	/* Write randart information */
-	if (adult_rand_artifacts)
-	{
-		wr_randarts();
-	}
-
 	/* Write the inventory */
 	for (i = 0; i < INVEN_MAX; i++)
 	{

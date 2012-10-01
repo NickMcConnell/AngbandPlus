@@ -7,13 +7,14 @@
 # Basic defines (change the file locations as appropriate).
 #
 
-LCC_PATH =	C:\lcc
-LINK	=	$(LCC_PATH)\bin\lcclnk.exe
+LCC_PATH	=	C:\lcc
+LINK		=	$(LCC_PATH)\bin\lcclnk.exe
 CC		=	$(LCC_PATH)\bin\lcc.exe
 RC		=	$(LCC_PATH)\bin\lrc.exe
-LIBS	=	$(LCC_PATH)\lib\winmm.lib
-INCS	=	$(LCC_PATH)\include
-CFLAGS	=	-I$(INCS) -DHAS_STRICMP -DUSE_TRANSPARENCY
+LIBS		=	$(LCC_PATH)\lib\winmm.lib
+INCS		=	$(LCC_PATH)\include
+CFLAGS		=	-I$(INCS) -DHAS_STRICMP -DUSE_TRANSPARENCY
+
 
 OBJS=\
 	z-virt.obj \
@@ -23,17 +24,19 @@ OBJS=\
 	z-form.obj \
 	xtra2.obj \
 	xtra1.obj \
-	wizard2.obj \
-	wizard1.obj \
+	wizard.obj \
 	variable.obj \
 	util.obj \
+	traps.obj \
 	tables.obj \
 	store.obj \
+	squelch.obj \
 	spells2.obj \
 	spells1.obj \
 	save.obj \
 	readdib.obj \
-	randart.obj \
+	quest.obj \
+	powers.obj \
 	object2.obj \
 	object1.obj \
 	monster3.obj \
@@ -42,19 +45,20 @@ OBJS=\
 	melee2.obj \
 	melee1.obj \
 	main-win.obj \
-	load1.obj \
-	load2.obj \
+	load.obj \
 	init2.obj \
 	init1.obj \
+	info.obj \
 	generate.obj \
 	files.obj \
+	effects.obj \
 	dungeon.obj \
-	cmd6.obj \
-	cmd5.obj \
-	cmd4.obj \
-	cmd3.obj \
-	cmd2.obj \
-	cmd1.obj \
+	cmd-util.obj \
+	cmd-misc.obj \
+	cmd-know.obj \
+	cmd-item.obj \
+	cmd-book.obj \
+	cmd-attk.obj \
 	cave.obj \
 	birth.obj \
 	angband.res
@@ -64,7 +68,7 @@ OBJS=\
 #
 
 angband.exe:	$(OBJS) Makefile.lcc
-	$(LINK) -s -subsystem windows -o angband.exe $(OBJS) $(LIBS)
+	$(LINK)  -s -subsystem windows -o angband.exe $(OBJS) $(LIBS)
 
 # Build Z-VIRT.C
 Z-VIRT_C=\
@@ -75,6 +79,7 @@ Z-VIRT_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 
 z-virt.obj: $(Z-VIRT_C) z-virt.c
 	$(CC) -c $(CFLAGS) z-virt.c
@@ -100,14 +105,21 @@ Z-TERM_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
+	z-term.h\
+	z-virt.h\
 
 z-term.obj: $(Z-TERM_C) z-term.c
 	$(CC) -c $(CFLAGS) z-term.c
@@ -133,7 +145,9 @@ Z-FORM_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 
 z-form.obj: $(Z-FORM_C) z-form.c
 	$(CC) -c $(CFLAGS) z-form.c
@@ -147,10 +161,15 @@ XTRA2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -168,10 +187,15 @@ XTRA1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -180,8 +204,8 @@ XTRA1_C=\
 xtra1.obj: $(XTRA1_C) xtra1.c
 	$(CC) -c $(CFLAGS) xtra1.c
 
-# Build WIZARD2.C
-WIZARD2_C=\
+# Build WIZARD.C
+WIZARD_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -189,38 +213,22 @@ WIZARD2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
-	z-virt.h\
-	z-form.h\
-	z-rand.h\
-	z-term.h\
-	config.h\
-	defines.h\
-	types.h\
-	externs.h\
-
-wizard2.obj: $(WIZARD2_C) wizard2.c
-	$(CC) -c $(CFLAGS) wizard2.c
-
-# Build WIZARD1.C
-WIZARD1_C=\
-	angband.h\
 	h-basic.h\
-	h-config.h\
-	h-system.h\
-	h-type.h\
-	h-define.h\
-	z-util.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-wizard1.obj: $(WIZARD1_C) wizard1.c
-	$(CC) -c $(CFLAGS) wizard1.c
+wizard.obj: $(WIZARD_C) wizard.c
+	$(CC) -c $(CFLAGS) wizard.c
 
 # Build VARIABLE.C
 VARIABLE_C=\
@@ -231,10 +239,15 @@ VARIABLE_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -252,10 +265,15 @@ UTIL_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -264,7 +282,33 @@ UTIL_C=\
 util.obj: $(UTIL_C) util.c
 	$(CC) -c $(CFLAGS) util.c
 
-# Build TABLES.C
+# Build TRAPS.C
+TRAPS_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+traps.obj: $(TRAPS_C) traps.c
+	$(CC) -c $(CFLAGS) traps.c
+
+	# Build TABLES.C
 TABLES_C=\
 	angband.h\
 	h-basic.h\
@@ -273,10 +317,15 @@ TABLES_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -294,10 +343,15 @@ STORE_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -305,6 +359,32 @@ STORE_C=\
 
 store.obj: $(STORE_C) store.c
 	$(CC) -c $(CFLAGS) store.c
+
+# Build SQUELCH.C
+SQUELCH_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+squelch.obj: $(SQUELCH_C) squelch.c
+	$(CC) -c $(CFLAGS) squelch.c
 
 # Build SPELLS2.C
 SPELLS2_C=\
@@ -315,10 +395,15 @@ SPELLS2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -336,10 +421,15 @@ SPELLS1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -357,10 +447,15 @@ SAVE_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -376,6 +471,58 @@ READDIB_C=\
 readdib.obj: $(READDIB_C) readdib.c
 	$(CC) -c $(CFLAGS) readdib.c
 
+# Build QUEST.C
+QUEST_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+quest.obj: $(QUEST_C) quest.c
+	$(CC) -c $(CFLAGS) quest.c
+
+# Build POWERS.C
+POWERS_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+powers.obj: $(POWERS_C) powers.c
+	$(CC) -c $(CFLAGS) powers.c
+
 # Build OBJECT2.C
 OBJECT2_C=\
 	angband.h\
@@ -385,10 +532,15 @@ OBJECT2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -406,10 +558,15 @@ OBJECT1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -427,16 +584,21 @@ MONSTER3_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-monster3.obj: $(MONSTER2_C) monster3.c
+monster3.obj: $(MONSTER3_C) monster3.c
 	$(CC) -c $(CFLAGS) monster3.c
 
 # Build MONSTER2.C
@@ -448,10 +610,15 @@ MONSTER2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -469,10 +636,15 @@ MONSTER1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -490,10 +662,15 @@ MELEE2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -511,10 +688,15 @@ MELEE1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -532,15 +714,19 @@ MAIN-WIN_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
-	readdib.h\
 
 main-win.obj: $(MAIN-WIN_C) main-win.c
 	$(CC) -c $(CFLAGS) main-win.c
@@ -554,10 +740,15 @@ LOAD_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -575,14 +766,21 @@ INIT2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
+	init.h\
+	h-basic.h\
 
 init2.obj: $(INIT2_C) init2.c
 	$(CC) -c $(CFLAGS) init2.c
@@ -596,17 +794,50 @@ INIT1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+	init.h\
+	h-basic.h\
+
+init1.obj: $(INIT1_C) init1.c
+	$(CC) -c $(CFLAGS) init1.c
+
+# Build INFO.C
+INFO_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-init1.obj: $(INIT1_C) init1.c
-	$(CC) -c $(CFLAGS) init1.c
+info.obj: $(INFO_C) info.c
+	$(CC) -c $(CFLAGS) info.c
 
 # Build GENERATE.C
 GENERATE_C=\
@@ -617,10 +848,15 @@ GENERATE_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -638,10 +874,15 @@ FILES_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -649,6 +890,32 @@ FILES_C=\
 
 files.obj: $(FILES_C) files.c
 	$(CC) -c $(CFLAGS) files.c
+
+# Build EFFECTS.C
+EFFECTS_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	h-basic.h\
+	z-virt.h\
+	h-basic.h\
+	z-form.h\
+	h-basic.h\
+	z-rand.h\
+	h-basic.h\
+	z-term.h\
+	h-basic.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+effects.obj: $(EFFECTS_C) effects.c
+	$(CC) -c $(CFLAGS) effects.c
 
 # Build DUNGEON.C
 DUNGEON_C=\
@@ -659,10 +926,15 @@ DUNGEON_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -671,8 +943,8 @@ DUNGEON_C=\
 dungeon.obj: $(DUNGEON_C) dungeon.c
 	$(CC) -c $(CFLAGS) dungeon.c
 
-# Build CMD6.C
-CMD6_C=\
+# Build CMD-UTIL.C
+CMD-UTIL_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -680,20 +952,25 @@ CMD6_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-cmd6.obj: $(CMD6_C) cmd6.c
-	$(CC) -c $(CFLAGS) cmd6.c
+cmd-util.obj: $(CMD-UTIL_C) cmd-util.c
+	$(CC) -c $(CFLAGS) cmd-util.c
 
-# Build CMD5.C
-CMD5_C=\
+# Build CMD-MISC.C
+CMD-MISC_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -701,20 +978,25 @@ CMD5_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-cmd5.obj: $(CMD5_C) cmd5.c
-	$(CC) -c $(CFLAGS) cmd5.c
+cmd-misc.obj: $(CMD-MISC_C) cmd-misc.c
+	$(CC) -c $(CFLAGS) cmd-misc.c
 
-# Build CMD4.C
-CMD4_C=\
+# Build CMD-KNOW.C
+CMD-KNOW_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -722,20 +1004,25 @@ CMD4_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-cmd4.obj: $(CMD4_C) cmd4.c
-	$(CC) -c $(CFLAGS) cmd4.c
+cmd-know.obj: $(CMD-KNOW_C) cmd-know.c
+	$(CC) -c $(CFLAGS) cmd-know.c
 
-# Build CMD3.C
-CMD3_C=\
+# Build CMD-ITEM.C
+CMD-ITEM_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -743,20 +1030,25 @@ CMD3_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-cmd3.obj: $(CMD3_C) cmd3.c
-	$(CC) -c $(CFLAGS) cmd3.c
+cmd-item.obj: $(CMD-ITEM_C) cmd-item.c
+	$(CC) -c $(CFLAGS) cmd-item.c
 
-# Build CMD2.C
-CMD2_C=\
+# Build CMD-BOOK.C
+CMD-BOOK_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -764,20 +1056,25 @@ CMD2_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-cmd2.obj: $(CMD2_C) cmd2.c
-	$(CC) -c $(CFLAGS) cmd2.c
+cmd-book.obj: $(CMD-BOOK_C) cmd-book.c
+	$(CC) -c $(CFLAGS) cmd-book.c
 
-# Build CMD1.C
-CMD1_C=\
+# Build CMD-ATTK.C
+CMD-ATTK_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -785,17 +1082,22 @@ CMD1_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
 	externs.h\
 
-cmd1.obj: $(CMD1_C) cmd1.c
-	$(CC) -c $(CFLAGS) cmd1.c
+cmd-attk.obj: $(CMD-ATTK_C) cmd-attk.c
+	$(CC) -c $(CFLAGS) cmd-attk.c
 
 # Build CAVE.C
 CAVE_C=\
@@ -806,10 +1108,15 @@ CAVE_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -827,10 +1134,15 @@ BIRTH_C=\
 	h-type.h\
 	h-define.h\
 	z-util.h\
+	h-basic.h\
 	z-virt.h\
+	h-basic.h\
 	z-form.h\
+	h-basic.h\
 	z-rand.h\
+	h-basic.h\
 	z-term.h\
+	h-basic.h\
 	config.h\
 	defines.h\
 	types.h\
@@ -839,27 +1151,5 @@ BIRTH_C=\
 birth.obj: $(BIRTH_C) birth.c
 	$(CC) -c $(CFLAGS) birth.c
 
-# Build RANDART.C
-RANDART_C=\
-	angband.h\
-	h-basic.h\
-	h-config.h\
-	h-system.h\
-	h-type.h\
-	h-define.h\
-	z-util.h\
-	z-virt.h\
-	z-form.h\
-	z-rand.h\
-	z-term.h\
-	config.h\
-	defines.h\
-	types.h\
-	externs.h\
-
-randart.obj: randart.c
-	$(CC) -c $(CFLAGS) randart.c
-
 angband.res: angband.rc
 	$(RC) -I$(INCS) angband.rc
-

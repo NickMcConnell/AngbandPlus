@@ -55,10 +55,6 @@ C:0:^C
 A:w0
 C:0:X
 
-# Hack -- Pray 
-A:m
-C:0:p
-
 # Hack -- Destroy squelched
 A:k!
 C:0:^K
@@ -214,13 +210,13 @@ C:1:^C
 A:w0
 C:1:X
 
-# Hack -- Pray 
-A:m
-C:1:p
-
 # Roguelike keymap: Repeat last command
 A:^V
 C:1:'
+
+# Roguelike keymap: Describe current room
+A:^D
+C:1:^G
 
 # Use racial powers
 A:U

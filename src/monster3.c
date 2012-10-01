@@ -15,6 +15,7 @@
 /* Hack - variables for caching purposes */
 
 static s16b stored_unique;
+static char mon_name[80];
 
 /* 
  * Get the information for a monster based on its indexes.
@@ -34,16 +35,122 @@ cptr monster_text(int r_idx, int u_idx)
 /* 
  * Get the information for a monster based on its indexes.
  */
-static cptr monster_name_aux(int r_idx, int u_idx)
+static cptr monster_name_aux(int r_idx, int s_idx, int u_idx)
 {
+	int count = 0;
+	char *t, *s;
+
 	/* Paranoia - if this happens, we're in trouble */
 	if (!r_idx) return (NULL);
 
 	/* Unique */
 	if (u_idx) return (u_name + u_info[u_idx].name);
 
+	/* 
+	 * Ego monster. Here is where we get fancy.
+	 * There are two kinds of ego monster names - insertive, and non-insertive.
+	 * Insertive names are those that go into the base name. For instance, 
+	 * if the base monster is "novice warrior", and the ego name is "dwarven", the full name
+	 * would be "novice dwarven warrior". Their format is "<dwarven>" for the go name, and 
+	 * "novice ^warrior" for the base name.
+     * Non insertive names are where the base-name is left intact. They follow the format
+	 * "dwarven &", where the '&' determines the place of insertion for the base name.
+     */
+	if (s_idx)
+	{
+		t = mon_name;
+		s = s_name + s_info[s_idx].name;
+
+		/* Check if we have an "insertive" ego name */
+		if (*s == '<')
+		{
+			s = r_name + r_info[r_idx].name;
+
+			/* Copy the string */
+			for (; *s; s++)
+			{
+				/* Insert the ego monster name */
+				if (*s == '^') 
+				{
+					cptr p = s_name + s_info[s_idx].name;
+
+					for (; *p; p++)
+					{
+						if (*p == '<') continue;
+						if (*p == '>')
+						{
+							*t++ = ' ';
+							continue;
+						}
+
+						/* Capitalize if necessary */
+						if (!count) *t++ = toupper(*p);
+						else  *t++ = *p;
+
+						count++;
+					}
+				}
+
+				/* Capitalize if necessary */
+				else if (!count) *t++ = toupper(*s);
+				else *t++ = *s;
+
+				count++;
+			}
+		}
+		/* Not-insertive */
+		else for (; *s; s++)
+		{
+			/* Insert the base monster name */
+			if (*s == '&') 
+			{
+				cptr p = r_name + r_info[r_idx].name;
+
+				for (; *p; p++)
+				{
+					/* Capitalize if necessary */
+					if (!count) *t++ = toupper(*p);
+					else  *t++ = *p;
+
+					count++;
+				}
+			}
+
+			/* Capitalize if necessary */
+			else if (!count) *t++ = toupper(*s);
+			else  *t++ = *s;
+			count++;
+		}
+
+		/* Terminate string */
+		*t = '\0';	
+
+		/* Return name */
+		return (&mon_name[0]);
+	}
+
 	/* Normal Monster */
-	else return (r_name + r_info[r_idx].name);
+	t = mon_name;
+
+	s = r_name + r_info[r_idx].name;
+
+	/* Copy the string */
+	for (; *s; s++)
+	{
+		if (*s == '^') continue;
+
+		/* Captialize first letter */
+		else if (!count) *t++ = toupper(*s);
+		else  *t++ = *s;
+
+		count++;
+	}
+
+	/* Terminate string */
+	*t = '\0';	
+
+	/* Return name */
+	return (&mon_name[0]);
 }
 
 /* 
@@ -70,19 +177,19 @@ cptr monster_name_race(int r_idx)
 			if (u_ptr->r_idx == r_idx) break;
 		}
 
-		return (monster_name_aux(r_idx, u_idx));
+		return (monster_name_aux(r_idx, 0, u_idx));
 	}
 	
 	/* Not a unique */
-	return (monster_name_aux(r_idx, 0));
+	return (monster_name_aux(r_idx, 0, 0));
 }
 
 /* 
  * Get the information for a monster based on its indexes.
  */
-cptr monster_name_idx(int r_idx, int u_idx)
+cptr monster_name_idx(int r_idx, int s_idx, int u_idx)
 {
-	return (monster_name_aux(r_idx, u_idx));
+	return (monster_name_aux(r_idx, s_idx, u_idx));
 }
 
 /* 
@@ -92,7 +199,7 @@ cptr monster_name_idx(int r_idx, int u_idx)
  */
 cptr monster_name(monster_type *m_ptr)
 {
-	return monster_name_aux(m_ptr->r_idx, m_ptr->u_idx);
+	return monster_name_aux(m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx);
 }
 
 
@@ -118,59 +225,121 @@ monster_race *get_monster_real(monster_type *m_ptr)
 	if ((m_ptr->r_idx < 0) || (m_ptr->r_idx >= z_info->r_max))
 		quit(format("Error obtaining monster attributes code - illegal r_idx"));
 
+#ifdef MONSTER_EGO_DEV
 	/* Simple monster */
-	if (!m_ptr->u_idx) return (r_ptr);
+	if (!m_ptr->u_idx && !m_ptr->s_idx) return (r_ptr);
 
 	/* Paranoia - if this happens, we're in trouble */
-	if ((m_ptr->u_idx < 0) || (m_ptr->u_idx >= z_info->u_max))
-		quit(format("Error obtaining monster attributes code - illegal u_idx"));
+	if ((m_ptr->s_idx < 0) || (m_ptr->s_idx >= z_info->s_max))
+		quit(format("Error obtaining monster attributes code - illegal s_idx"));
 
-	/* It's a unique */
-
-	/* Optimization - check to see if the unique is already stored */
-	if (stored_unique != m_ptr->u_idx)
+	/* Ego monster */
+	if (m_ptr->s_idx)
 	{
+		/* XXX XXX XXX - note - ego monsters are currently regular monsters with different 
+		   names */
 		/*
-		 * Copy basic stats from u_ptr to the temporary monster. Note that name andtext,
+		 * Copy basic stats from s_ptr to the temporary monster. Note that name and text,
 		 * are never derived from it so no need to copy them.
 		 */
-		monster_unique *u_ptr = &u_info[m_ptr->u_idx];
+		monster_special *s_ptr = &s_info[m_ptr->s_idx];
 
-		monster_temp.hdice = u_ptr->hdice;		
-		monster_temp.hside = u_ptr->hside;
-		monster_temp.ac = u_ptr->ac;
-		monster_temp.sleep = u_ptr->sleep;			
-		monster_temp.aaf = u_ptr->aaf;
-		monster_temp.speed = u_ptr->speed;			
-		monster_temp.mexp = u_ptr->mexp;
-		monster_temp.freq_spell = u_ptr->freq_spell;	
-		monster_temp.level = u_ptr->level;			
-		monster_temp.rarity = u_ptr->rarity;		
-		monster_temp.d_attr = u_ptr->d_attr;		
+		monster_temp.hdice = r_ptr->hdice + s_ptr->hdice_add;		
+		monster_temp.hside = r_ptr->hside + s_ptr->hside_add;
+		monster_temp.ac = r_ptr->ac + s_ptr->ac_add;
+		monster_temp.sleep = r_ptr->sleep;			
+		monster_temp.aaf = r_ptr->aaf;
+		monster_temp.speed = r_ptr->speed + s_ptr->speed_add;			
+		monster_temp.mexp = r_ptr->mexp + s_ptr->mexp_add;
+		monster_temp.freq_spell = s_ptr->freq_spell;	
+		monster_temp.level = r_ptr->level + s_ptr->level;			
+		monster_temp.rarity = r_ptr->rarity;		
 
 		for (i = 0; i < 4; i++)
 		{
-			monster_temp.blow[i].method = u_ptr->blow[i].method;
-			monster_temp.blow[i].effect = u_ptr->blow[i].effect;
-			monster_temp.blow[i].d_dice = u_ptr->blow[i].d_dice;
-			monster_temp.blow[i].d_side = u_ptr->blow[i].d_side;
+			monster_temp.blow[i].method = r_ptr->blow[i].method;
+			monster_temp.blow[i].effect = r_ptr->blow[i].effect;
+			monster_temp.blow[i].d_dice = r_ptr->blow[i].d_dice;
+			monster_temp.blow[i].d_side = r_ptr->blow[i].d_side;
 		}
 
 		/* d_char copied from r_ptr */
-		monster_temp.d_char = r_ptr->d_char;
-		monster_temp.x_char = r_ptr->d_char;
-		monster_temp.x_attr = u_ptr->d_attr;
+		monster_temp.d_char = (s_ptr->s_char > 0) ? (byte)s_ptr->s_char : r_ptr->d_char;
+		monster_temp.d_attr = (s_ptr->s_attr > 0) ? (byte)s_ptr->s_attr : r_ptr->d_attr;
+		monster_temp.x_char = (s_ptr->s_char > 0) ? (byte)s_ptr->s_char : r_ptr->x_char;
+		monster_temp.x_attr = (s_ptr->s_attr > 0) ? (byte)s_ptr->s_attr : r_ptr->x_attr;
 
 		/* Flags are a combination of both, except flags1 */
-		monster_temp.flags1 = (u_ptr->flags1);		
-		monster_temp.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
-		monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
-		monster_temp.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
-		monster_temp.flags5 = (r_ptr->flags5 | u_ptr->flags5);		
-		monster_temp.flags6 = (r_ptr->flags6 | u_ptr->flags6);		
+		monster_temp.flags1 = (r_ptr->flags1 | s_ptr->flags1);		
+		monster_temp.flags2 = (r_ptr->flags2 | s_ptr->flags2);		
+		monster_temp.flags3 = (r_ptr->flags3 | s_ptr->flags3);		
+		monster_temp.flags4 = (r_ptr->s_flags1 | s_ptr->flags4);		
+		monster_temp.flags5 = (r_ptr->s_flags2 | s_ptr->flags5);		
+		monster_temp.flags6 = (r_ptr->s_flags3 | s_ptr->flags6);		
 
-		/* Remember the unique for next time */
-		stored_unique = m_ptr->u_idx;
+		/* XXX XXX XXX Reset unique cache */
+		stored_unique = 0;
+#else /* EGO_MONSTER_DEV */
+	/* Simple monster */
+	if (!m_ptr->u_idx) 
+	{
+		return (r_ptr);
+#endif
+	}
+	else
+	{
+		/* It's a unique */
+
+		/* Paranoia - if this happens, we're in trouble */
+		if ((m_ptr->u_idx < 0) || (m_ptr->u_idx >= z_info->u_max))
+			quit(format("Error obtaining monster attributes code - illegal u_idx"));
+
+		/* Optimization - check to see if the unique is already stored */
+		if (stored_unique != m_ptr->u_idx)
+		{
+			/*
+			 * Copy basic stats from u_ptr to the temporary monster. Note that name and text
+			 * are never derived from it so no need to copy them.
+			 */
+			monster_unique *u_ptr = &u_info[m_ptr->u_idx];
+
+			monster_temp.hdice = u_ptr->hdice;		
+			monster_temp.hside = u_ptr->hside;
+			monster_temp.ac = u_ptr->ac;
+			monster_temp.sleep = u_ptr->sleep;			
+			monster_temp.aaf = u_ptr->aaf;
+			monster_temp.speed = u_ptr->speed;			
+			monster_temp.mexp = u_ptr->mexp;
+			monster_temp.freq_spell = 
+				(u_ptr->freq_spell) ? u_ptr->freq_spell : r_ptr->freq_spell;
+			monster_temp.level = u_ptr->level;			
+			monster_temp.rarity = u_ptr->rarity;		
+			monster_temp.d_attr = u_ptr->d_attr;		
+
+			for (i = 0; i < 4; i++)
+			{
+				monster_temp.blow[i].method = u_ptr->blow[i].method;
+				monster_temp.blow[i].effect = u_ptr->blow[i].effect;
+				monster_temp.blow[i].d_dice = u_ptr->blow[i].d_dice;
+				monster_temp.blow[i].d_side = u_ptr->blow[i].d_side;
+			}
+
+			/* d_char copied from r_ptr */
+			monster_temp.d_char = r_ptr->d_char;
+			monster_temp.x_char = r_ptr->d_char;
+			monster_temp.x_attr = u_ptr->d_attr;
+
+			/* Flags are a combination of both, except flags1 */
+			monster_temp.flags1 = (u_ptr->flags1);		
+			monster_temp.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
+			monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
+			monster_temp.s_flags1 = (r_ptr->s_flags1 | u_ptr->s_flags1);		
+			monster_temp.s_flags2 = (r_ptr->s_flags2 | u_ptr->s_flags2);		
+			monster_temp.s_flags3 = (r_ptr->s_flags3 | u_ptr->s_flags3);		
+
+			/* Remember the unique for next time */
+			stored_unique = m_ptr->u_idx;
+		}
 	}
 
 	/* Success */
@@ -182,7 +351,7 @@ monster_race *get_monster_real(monster_type *m_ptr)
  *
  * Note that this uses a different monster "body".
  */
-monster_race *get_monster_fake(int r_idx, int u_idx)
+monster_race *get_monster_fake(int r_idx, int s_idx, int u_idx)
 {
 	int i;
 
@@ -208,7 +377,7 @@ monster_race *get_monster_fake(int r_idx, int u_idx)
 	r_ptr = &r_info[u_ptr->r_idx];
 
 	/*
-	 * Copy basic stats from u_ptr to the temporary monster. Note that name andtext,
+	 * Copy basic stats from u_ptr to the temporary monster. Note that name and text
 	 * are never derived from it so no need to copy them.
 	 */
 	monster_temp_fake.hdice = u_ptr->hdice;		
@@ -218,7 +387,7 @@ monster_race *get_monster_fake(int r_idx, int u_idx)
 	monster_temp_fake.aaf = u_ptr->aaf;
 	monster_temp_fake.speed = u_ptr->speed;			
 	monster_temp_fake.mexp = u_ptr->mexp;
-	monster_temp_fake.freq_spell = u_ptr->freq_spell;	
+	monster_temp_fake.freq_spell = (u_ptr->freq_spell) ? u_ptr->freq_spell : r_ptr->freq_spell;
 	monster_temp_fake.level = u_ptr->level;			
 	monster_temp_fake.rarity = u_ptr->rarity;		
 	monster_temp_fake.d_attr = u_ptr->d_attr;		
@@ -241,8 +410,9 @@ monster_race *get_monster_fake(int r_idx, int u_idx)
 	monster_temp_fake.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
 	monster_temp_fake.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
 	monster_temp_fake.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
-	monster_temp_fake.flags5 = (r_ptr->flags5 | u_ptr->flags5);		
-	monster_temp_fake.flags6 = (r_ptr->flags6 | u_ptr->flags6);		
+	monster_temp_fake.s_flags1 = (r_ptr->s_flags1 | u_ptr->s_flags1);		
+	monster_temp_fake.s_flags2 = (r_ptr->s_flags2 | u_ptr->s_flags2);		
+	monster_temp_fake.s_flags3 = (r_ptr->s_flags3 | u_ptr->s_flags3);		
 
 	/* Success */
 	return (&monster_temp_fake);
@@ -290,12 +460,13 @@ monster_lore *get_lore_idx(int r_idx, int u_idx)
 	lore_temp.r_sights = lu_ptr->r_sights;
 
 	/* Flags are a combination of both */
-	lore_temp.r_flags1 = (lu_ptr->r_flags1);		
-	lore_temp.r_flags2 = (lr_ptr->r_flags2 | lu_ptr->r_flags2);		
-	lore_temp.r_flags3 = (lr_ptr->r_flags3 | lu_ptr->r_flags3);		
-	lore_temp.r_flags4 = (lr_ptr->r_flags4 | lu_ptr->r_flags4);		
-	lore_temp.r_flags5 = (lr_ptr->r_flags5 | lu_ptr->r_flags5);		
-	lore_temp.r_flags6 = (lr_ptr->r_flags6 | lu_ptr->r_flags6);		
+	lore_temp.flags1 = (lu_ptr->flags1);		
+	lore_temp.flags2 = (lr_ptr->flags2 | lu_ptr->flags2);		
+	lore_temp.flags3 = (lr_ptr->flags3 | lu_ptr->flags3);
+	lore_temp.flags4 = (lr_ptr->flags4 | lu_ptr->flags4);
+	lore_temp.s_flags1 = (lr_ptr->s_flags1 | lu_ptr->s_flags1);		
+	lore_temp.s_flags2 = (lr_ptr->s_flags2 | lu_ptr->s_flags2);		
+	lore_temp.s_flags3 = (lr_ptr->s_flags3 | lu_ptr->s_flags3);		
 
 	/* Success */
 	return (&lore_temp);
@@ -327,12 +498,13 @@ void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
 		/* Learn something */
 		switch (mode)
 		{
-			case LRN_FLAG1:   lr_ptr->r_flags1 |= (r_ptr->flags1 & what); break;
-			case LRN_FLAG2:   lr_ptr->r_flags2 |= (r_ptr->flags2 & what); break;
-			case LRN_FLAG3:   lr_ptr->r_flags3 |= (r_ptr->flags3 & what); break;
-			case LRN_FLAG4:   lr_ptr->r_flags4 |= (r_ptr->flags4 & what); break;
-			case LRN_FLAG5:   lr_ptr->r_flags5 |= (r_ptr->flags5 & what); break;
-			case LRN_FLAG6:   lr_ptr->r_flags6 |= (r_ptr->flags6 & what); break;
+			case LRN_FLAG1:   lr_ptr->flags1 |= (r_ptr->flags1 & what); break;
+			case LRN_FLAG2:   lr_ptr->flags2 |= (r_ptr->flags2 & what); break;
+			case LRN_FLAG3:   lr_ptr->flags3 |= (r_ptr->flags3 & what); break;
+			case LRN_FLAG4:   lr_ptr->flags4 |= (r_ptr->flags4 & what); break;
+			case LRN_S_FLAG1: lr_ptr->s_flags1 |= (r_ptr->s_flags1 & what); break;
+			case LRN_S_FLAG2: lr_ptr->s_flags2 |= (r_ptr->s_flags2 & what); break;
+			case LRN_S_FLAG3: lr_ptr->s_flags3 |= (r_ptr->s_flags3 & what); break;
 			case LRN_CASTS:   if (lr_ptr->r_cast   < MAX_UCHAR) lr_ptr->r_cast++;   break;
 			case LRN_SIGHTS:  if (lr_ptr->r_sights < MAX_SHORT) lr_ptr->r_sights++; break;
 			case LRN_IGNORES: if (lr_ptr->r_ignore < MAX_UCHAR) lr_ptr->r_ignore++; break;
@@ -356,27 +528,22 @@ void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
 		/* Learn something */
 		switch (mode)
 		{
-			case LRN_FLAG1:   lu_ptr->r_flags1 |= (u_ptr->flags1 & what);  break;
-			case LRN_FLAG2:   lr_ptr->r_flags2 |= (r_ptr->flags2 & what);
-							  lu_ptr->r_flags2 |= (u_ptr->flags2 & what);  break;
-			case LRN_FLAG3:   lr_ptr->r_flags3 |= (r_ptr->flags3 & what);
-							  lu_ptr->r_flags3 |= (u_ptr->flags3 & what);  break;
-			case LRN_FLAG4:   lr_ptr->r_flags4 |= (r_ptr->flags4 & what);
-							  lu_ptr->r_flags4 |= (u_ptr->flags4 & what);  break;
-			case LRN_FLAG5:   lr_ptr->r_flags5 |= (r_ptr->flags5 & what);
-							  lu_ptr->r_flags5 |= (u_ptr->flags5 & what);  break;
-			case LRN_FLAG6:   lr_ptr->r_flags6 |= (r_ptr->flags6 & what);
-							  lu_ptr->r_flags6 |= (u_ptr->flags6 & what);  break;
+			case LRN_FLAG1:   lu_ptr->flags1 |= (u_ptr->flags1 & what);  break;
+			case LRN_FLAG2:   lr_ptr->flags2 |= (r_ptr->flags2 & what);
+							  lu_ptr->flags2 |= (u_ptr->flags2 & what);  break;
+			case LRN_FLAG3:   lr_ptr->flags3 |= (r_ptr->flags3 & what);
+							  lu_ptr->flags3 |= (u_ptr->flags3 & what);  break;
+			case LRN_FLAG4:   lr_ptr->flags4 |= (r_ptr->flags4 & what);
+							  lu_ptr->flags4 |= (u_ptr->flags4 & what);  break;
+			case LRN_S_FLAG1: lr_ptr->s_flags1 |= (r_ptr->s_flags1 & what);
+							  lu_ptr->s_flags1 |= (u_ptr->s_flags1 & what);  break;
+			case LRN_S_FLAG2: lr_ptr->s_flags2 |= (r_ptr->s_flags2 & what);
+							  lu_ptr->s_flags2 |= (u_ptr->s_flags2 & what);  break;
+			case LRN_S_FLAG3: lr_ptr->s_flags3 |= (r_ptr->s_flags3 & what);
+							  lu_ptr->s_flags3 |= (u_ptr->s_flags3 & what);  break;
 			case LRN_CASTS:   if (lu_ptr->r_cast   < MAX_UCHAR) lu_ptr->r_cast++;   break;
 			case LRN_SIGHTS:  if (lu_ptr->r_sights < MAX_SHORT) lu_ptr->r_sights++;
-							  if (unique_hack)
-							  {
-								/* 
-								 * Hack which enables "special" uniques to be sorted correctly 
-								 * in various monster memory functions
-								 */
-								if (lr_ptr->r_sights < MAX_SHORT) lr_ptr->r_sights++;
-							  } break;
+							  if (lr_ptr->r_sights < MAX_SHORT) lr_ptr->r_sights++; break;
 			case LRN_IGNORES: if (lu_ptr->r_ignore < MAX_UCHAR) lu_ptr->r_ignore++; break;
 			case LRN_WAKES:   if (lu_ptr->r_wake   < MAX_UCHAR) lu_ptr->r_wake++;   break;
 			case LRN_PDEATH:  if (lu_ptr->r_deaths < MAX_SHORT) lu_ptr->r_deaths++; break;

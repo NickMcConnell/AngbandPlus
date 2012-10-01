@@ -205,11 +205,6 @@
 #define CHECK_MODIFICATION_TIME
 
 /*
- * OPTION: Allow the use of random artifacts (see "randart.c").
- */
-#define GJW_RANDART 
-
-/*
  * OPTION: Allow the use of "sound" in various places.
  */
 #define USE_SOUND
@@ -348,7 +343,6 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef GJW_RANDART
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
@@ -382,3 +376,7 @@
  */
 /* define DEBUG_SAVE */
 
+/*
+ * HACK - Defines turned off for now for implementation of things that aren't ready yet 
+ */
+/* define EGO_MONSTER_DEV ego monsters */

@@ -60,13 +60,16 @@ static int check_m_hit(int power, int level)
 	if (k < 10) return (k < 5);
 
 	/* Calculate the "attack quality" */
-	i = (power + (level * 3));
+	i = (power + (level * 2));
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
+	/* Check for negative AC (should be impossible, but still...) */
+	if (ac < 0) return (TRUE);
+
 	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
+	if ((i > ac) && (randint(i) > ac)) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -112,7 +115,7 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, j, k, tmp, ac, rlev;
+	int i, j, k, tmp, rlev;
 	int do_cut, do_stun;
 
 	s32b gold;
@@ -128,10 +131,7 @@ bool make_attack_normal(int m_idx)
 	bool blinked;
 
 	/* Not allowed to attack */
-	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
+	if (r_ptr->flags2 & (RF2_NEVER_BLOW)) return (FALSE);
 
 	/* Extract the effective monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
@@ -172,42 +172,42 @@ bool make_attack_normal(int m_idx)
 		if (m_ptr->ml) visible = TRUE;
 
         /* Extract visibility from carrying lite */
-        if (r_ptr->flags2 & RF2_HAS_LITE) visible = TRUE;
+        if (r_ptr->flags1 & RF1_HAS_LITE) visible = TRUE;
 
 		/* Extract the attack "power" */
 		switch (effect)
 		{
-			case RBE_HURT:		power = 60; break;
-			case RBE_POISON:	power =  5; break;
-			case RBE_DISEASE:	power =  2; break;
-			case RBE_UN_BONUS:	power = 20; break;
-			case RBE_UN_POWER:	power = 15; break;
+			case RBE_HURT:		power = 30; break;
+			case RBE_SHATTER:	power = 30; break;
+			case RBE_UN_BONUS:	power = 15; break;
+			case RBE_UN_POWER:	power = 12; break;
+			case RBE_ACID:		power = 10; break;
+			case RBE_ELEC:		power = 10; break;
+			case RBE_FIRE:		power = 10; break;
+			case RBE_COLD:		power = 10; break;
+			case RBE_CONFUSE:	power = 10; break;
+			case RBE_TERRIFY:	power = 10; break;
 			case RBE_EAT_GOLD:	power =  5; break;
 			case RBE_EAT_ITEM:	power =  5; break;
 			case RBE_EAT_FOOD:	power =  5; break;
 			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_ACID:		power =  0; break;
-			case RBE_ELEC:		power = 10; break;
-			case RBE_FIRE:		power = 10; break;
-			case RBE_COLD:		power = 10; break;
+			case RBE_POISON:	power =  5; break;
+			case RBE_EXP_1:		power =  5; break;
+			case RBE_EXP_2:		power =  5; break;
+			case RBE_EXP_3:		power =  5; break;
+			case RBE_EXP_4:		power =  5; break;
+			case RBE_DISEASE:	power =  2; break;
+			case RBE_BLIND:		power =  2; break;
+			case RBE_PARALYZE:	power =  2; break;
+			case RBE_LOSE_ALL:	power =  2; break;
 			case RBE_RUST:		power =  0; break;
 			case RBE_ROT:		power =  0; break;
-			case RBE_BLIND:		power =  2; break;
-			case RBE_CONFUSE:	power = 10; break;
-			case RBE_TERRIFY:	power = 10; break;
-			case RBE_PARALYZE:	power =  2; break;
 			case RBE_LOSE_STR:	power =  0; break;
 			case RBE_LOSE_DEX:	power =  0; break;
 			case RBE_LOSE_CON:	power =  0; break;
 			case RBE_LOSE_INT:	power =  0; break;
 			case RBE_LOSE_WIS:	power =  0; break;
 			case RBE_LOSE_CHR:	power =  0; break;
-			case RBE_LOSE_ALL:	power =  2; break;
-			case RBE_SHATTER:	power = 60; break;
-			case RBE_EXP_1:		power =  5; break;
-			case RBE_EXP_2:		power =  5; break;
-			case RBE_EXP_3:		power =  5; break;
-			case RBE_EXP_4:		power =  5; break;
 		}
 
 		/* Monster hits player */
@@ -217,13 +217,11 @@ bool make_attack_normal(int m_idx)
 			disturb(1);
 
 			/* Hack -- Apply "protection from evil" */
-			if ((p_ptr->protevil > 0) &&
-			    (r_ptr->flags2 & (RF2_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			if ((p_ptr->protevil > 0) && (r_ptr->flags4 & (RF4_EVIL)) &&
+			    (p_ptr->lev >= rlev) && ((rand_int(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
-				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
+				lore_learn(m_ptr, LRN_FLAG4, RF4_EVIL, FALSE);
 
 				/* Message */
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
@@ -265,6 +263,13 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				case RBM_GRAB:
+				{
+					act = "grabs you.";
+					do_stun = 1;
+					break;
+				}
+				
 				case RBM_CLAW:
 				{
 					act = "claws you.";
@@ -394,9 +399,6 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Hack -- Player armor reduces total damage */
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
-
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -409,7 +411,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					if (!p_ptr->no_poison && !resist_effect(20, RS_PSN))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
 						{
@@ -429,7 +431,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "disease" effect */
-					if (!(p_ptr->resist_disease || p_ptr->oppose_disease))
+					if (!p_ptr->no_disease && !resist_effect(20, RS_DIS))
 					{
 						if (set_diseased(p_ptr->diseased + randint(rlev) + 5))
 						{
@@ -449,7 +451,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Allow complete resist */
-					if (!p_ptr->resist_disen)
+					if (!resist_effect(20, RS_DSN))
 					{
 						/* Apply disenchantment */
 						if (apply_disenchant()) obvious = TRUE;
@@ -832,7 +834,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_confu)
+					if (!p_ptr->no_confuse && !resist_effect(25, RS_CNF))
 					{
 						if (set_confused(p_ptr->confused + randint(5) + randint((rlev / 5) + 1)))
 						{
@@ -996,9 +998,6 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Hack -- Reduce damage based on the player armor class */
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
-
 					/* Take damage */
 					take_hit(damage, ddesc);
 
@@ -1142,7 +1141,7 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/* Handle cut */
-			if (do_cut)
+			if (do_cut && !p_ptr->no_cut)
 			{
 				int k;
 
@@ -1167,7 +1166,7 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/* Handle stun */
-			if (do_stun)
+			if (do_stun && !p_ptr->no_stun)
 			{
 				int k;
 
@@ -1232,7 +1231,7 @@ bool make_attack_normal(int m_idx)
 	if (blinked)
 	{
 		message(MSG_EFFECT, 0, "There is a puff of smoke!");
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+		teleport_away(m_idx, 15);
 	}
 
 	/* Always notice cause of death */

@@ -80,7 +80,7 @@ void do_cmd_display_character(void)
 		/* Toggle mode */
 		else if (ch == 'h')
 		{
-			if (mode<2) mode++;
+			if (mode < 1) mode++;
 			else mode = 0;
 		}
 
@@ -395,6 +395,22 @@ void do_cmd_feeling(void)
 }
 
 /*
+ * Note that "feeling" is set to zero unless some time has passed.
+ * Note that this is done when the level is GENERATED, not entered.
+ */
+void do_cmd_room_desc(void)
+{
+#if 0
+	int by = p_ptr->py / BLOCK_HGT;
+	int bx = p_ptr->px / BLOCK_WID;
+	int room = dun_room[by][bx];
+
+	screen_room_info(room);
+#endif
+	describe_room(TRUE);
+}
+
+/*
  * Display the current quest (if any)
  */
 void do_cmd_quest(void)
@@ -440,6 +456,7 @@ static cptr monster_group_text[] =
 {
 	"Uniques",
 	"Ants",
+	"Automata",
 	"Bats",
 	"Birds",
 	"Canines",
@@ -448,28 +465,29 @@ static cptr monster_group_text[] =
 	"Dragons",
 	"Elementals",
 	"Eyes/Beholders",
+	"Faeries",
 	"Felines",
-	"Flies",
 	"Ghosts",
 	"Giants",
-	"Golems",
-	"Humans",
+	"Hags/Harpies",
 	"Humanoids",
-	"Hybrids",
+	"Hydras",
 	"Icky Things",
 	"Insects",
 	"Jellies",
 	"Killer Beetles",
 	"Kobolds",
-	"Lice",
 	"Lichs",
+	"Lycanthropes",
 	"Mimics",
 	"Molds",
 	"Mushroom Patches",
+	"Mummies",
 	"Nagas",
 	"Nameless Horrors",
 	"Ogres",
 	"Orcs",
+	"People",
 	"Quadropeds",
 	"Quylthulgs",
 	"Reptiles/Amphibians",
@@ -484,10 +502,9 @@ static cptr monster_group_text[] =
 	"Wights/Wraiths",
 	"Worms/Worm Masses",
 	"Xorns/Xarens",
-	"Yeeks",
 	"Yeti",
 	"Zephyr Hounds",
-	"Zombies/Mummies",
+	"Zombies",
 	NULL
 };
 
@@ -499,6 +516,7 @@ static cptr monster_group_char[] =
 {
 	(char *) -1L,
 	"a",
+	"A",
 	"b",
 	"B",
 	"C",
@@ -507,31 +525,32 @@ static cptr monster_group_char[] =
 	"Dd",
 	"E",
 	"e",
-	"f",
 	"F",
-	"G",
-	"P",
+	"f",
 	"g",
-	"p",
-	"h",
+	"G",
 	"H",
+	"h",
+	"Y",
 	"i",
 	"I",
 	"j",
 	"K",
 	"k",
-	"l",
 	"L",
-	"$!?=.|~",
+	"l",
+	"$!?=.|~[]",
 	"m",
 	",",
+	"M",
 	"n",
 	"N",
 	"O",
 	"o",
+	"pP",
 	"q",
 	"Q",
-	"RM",
+	"R",
 	"r",
 	"S",
 	"s",
@@ -544,7 +563,6 @@ static cptr monster_group_char[] =
 	"w",
 	"X",
 	"y",
-	"Y",
 	"Z",
 	"z",
 	NULL
@@ -597,7 +615,7 @@ static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
 	mon_idx[mon_cnt].r_idx = 0;
 
 	/* Insert Uniques */
-	if (!(mode & 0x01)) saturate_mon_list(mon_idx, &mon_cnt, (bool)!grp_unique);
+	if (!(mode & 0x01)) saturate_mon_list(mon_idx, &mon_cnt, (bool)!grp_unique, FALSE);
 
 	/* Return the number of races */
 	return mon_cnt;
@@ -736,9 +754,6 @@ static int collect_artifacts(int grp_cur, int object_idx[])
 
 		/* Require artifacts ever seen*/
 		if (!(a_ptr->status & (A_STATUS_AWARE | A_STATUS_HISTORY))) continue;
-
-		/* Skip historical info for randarts */
-		if (adult_rand_artifacts && !(a_ptr->status & A_STATUS_AWARE)) continue;
 
 		/* Check for race in the group */
 		if (a_ptr->tval == group_tval)
@@ -939,7 +954,16 @@ static void desc_art_fake(int a_idx)
 	/* Make fake artifact */
 	make_fake_artifact(o_ptr, a_idx);
 
-	identify_fully_aux(o_ptr);
+	/* Track the object */
+	object_actual_track(o_ptr);
+
+	/* Hack - mark as fake */
+	term_obj_real = FALSE;
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	screen_object(o_ptr, FALSE);
 }
 
 /*
@@ -1037,6 +1061,9 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Prompt */
 		prt("<dir>, 'r' to recall, ESC", 23, 0);
 
+		/* Mega Hack -- track this monster race */
+		if (object_cnt) artifact_track(object_idx[object_cur]);
+
 		/* The "current" object changed */
 		if (object_old != object_idx[object_cur])
 		{
@@ -1107,7 +1134,7 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		int u_idx = mon_idx[mon_top + i].u_idx;
 
 		/* Access the race */
-		monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
+		monster_race *r_ptr = get_monster_fake(r_idx, 0, u_idx);
 		monster_lore *lr_ptr = &lr_list[r_idx];
 		monster_unique *u_ptr = &u_info[u_idx];
 
@@ -1115,7 +1142,7 @@ static void display_monster_list(int col, int row, int per_page, monster_list_en
 		attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
 
 		/* Display the name */
-		c_prt(attr, monster_name_idx(r_idx, u_idx), row + i, col);
+		c_prt(attr, monster_name_idx(r_idx, 0, u_idx), row + i, col);
 
 		if (cheat_wizard) 
 		{
@@ -1235,7 +1262,7 @@ static void do_cmd_knowledge_monsters(void)
 		prt("<dir>, 'r' to recall, ESC", 23, 0);
 
 		/* Mega Hack -- track this monster race */
-		monster_track(mon_idx[mon_cur].r_idx, mon_idx[mon_cur].u_idx);
+		if (mon_cnt) monster_track(mon_idx[mon_cur].r_idx, mon_idx[mon_cur].u_idx);
 
 		/* Hack -- handle stuff */
 		handle_stuff();
@@ -1333,6 +1360,38 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 }
 
 /*
+ * Describe fake object
+ */
+static void desc_obj_fake(int k_idx)
+{
+	object_type *o_ptr;
+	object_type object_type_body;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
+
+	/* Create the artifact */
+	object_prep(o_ptr, k_idx);
+
+	/* It's fully know */
+	o_ptr->ident |= IDENT_KNOWN;
+
+	/* Track the object */
+	object_actual_track(o_ptr);
+
+	/* Hack - mark as fake */
+	term_obj_real = FALSE;
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	screen_object(o_ptr, FALSE);
+}
+
+/*
  * Display known objects
  */
 static void do_cmd_knowledge_objects(void)
@@ -1426,7 +1485,10 @@ static void do_cmd_knowledge_objects(void)
 		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		prt("<dir>, ESC", 23, 0);
+		prt("<dir>, 'r' to recall, ESC", 23, 0);
+
+		/* Mega Hack -- track this monster race */
+		if (object_cnt) object_kind_track(object_idx[object_cur]);
 
 		/* The "current" object changed */
 		if (object_old != object_idx[object_cur])
@@ -1454,6 +1516,16 @@ static void do_cmd_knowledge_objects(void)
 			case ESCAPE:
 			{
 				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				desc_obj_fake(object_idx[object_cur]);
+
+				redraw = TRUE;
 				break;
 			}
 
@@ -1686,22 +1758,22 @@ static cptr ident_info[] =
 	">:A down staircase",
 	"?:A scroll",
 	"@:You",
-	/*"A:unused",*/
+	"A:Automata",
 	"B:Bird",
 	"C:Canine",
 	"D:Ancient Dragon/Wyrm",
 	"E:Elemental",
-	"F:Fly",
-	"G:Ghost",
-	"H:Hybrid",
+	"F:Faery",
+	"G:Giant",
+	"H:Hag/Harpy",
 	"I:Insect",
 	"J:Snake",
 	"K:Killer Beetle",
 	"L:Lich",
-	"M:Multi-Headed Reptile",
+	"M:Mummy",
 	"N:Nameless Horror",
 	"O:Ogre",
-	"P:Giant Humanoid",
+	"P:High-Level Person",
 	"Q:Quylthulg (Pulsing Flesh Mound)",
 	"R:Reptile/Amphibian",
 	"S:Spider/Scorpion/Tick",
@@ -1710,7 +1782,7 @@ static cptr ident_info[] =
 	"V:Vampire",
 	"W:Wight/Wraith/etc",
 	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
+	"Y:Hydra",
 	"Z:Zephyr Hound",
 	"[:Hard armor",
 	"\\:A hafted weapon (mace/whip/etc)",
@@ -1724,16 +1796,16 @@ static cptr ident_info[] =
 	"d:Dragon",
 	"e:Floating Eye",
 	"f:Feline",
-	"g:Golem",
+	"g:Ghost",
 	"h:Humanoids",
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",
-	"l:Louse",
+	"l:Lycanthrope",
 	"m:Mold",
 	"n:Naga",
 	"o:Orc",
-	"p:Person/Human",
+	"p:Low-Level Person",
 	"q:Quadruped",
 	"r:Rodent",
 	"s:Skeleton",
@@ -1742,8 +1814,8 @@ static cptr ident_info[] =
 	"v:Vortex",
 	"w:Worm/Worm-Mass",
 	/* "x:unused", */
-	"y:Yeek",
-	"z:Zombie/Mummy",
+	"y:Yeti",
+	"z:Zombie",
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
@@ -1889,7 +1961,7 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* "Saturate" the monster list with all the appropriate uniques */
-	saturate_mon_list(who, &n, (bool)!uniq);
+	saturate_mon_list(who, &n, (bool)!uniq, FALSE);
 
 	/* Start at the end */
 	i = n - 1;
@@ -1899,9 +1971,6 @@ void do_cmd_query_symbol(void)
 	{
 		/* Extract a race */
 		r_idx = who[i].r_idx;
-
-		/* Hack -- Auto-recall */
-		monster_track(who[i].r_idx, who[i].u_idx);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();

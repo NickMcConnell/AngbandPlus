@@ -112,23 +112,22 @@ Note that the class stat bonuses only affect character generation.
                fighting, and Intelligence, which he uses for spellcasting. 
 
  === Recommended combinations of Race and Class ===
+
           Warrior  Mage  Priest  Ranger  Paladin  Mystic  Bard  Spellsword
  Human      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- Half-Elf   Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
  Elf        Yes     Yes    Yes     Yes     No       Yes    Yes     Yes
- Hobbit     Yes     Yes    No      No      No       No     Yes     No
- Gnome      Yes     Yes    Yes     No      No       Yes     No      Yes
  Dwarf      Yes     No     Yes     No      Yes      Yes    No      No
- Half-Orc   Yes     No     Yes     No      No       No     No      Yes
- Half-Troll Yes     No     Yes     No      No       No     No      No
- Dunadan    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- High-Elf   Yes     Yes    No      Yes     No       No     Yes     Yes
- Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- Demon      Yes     Yes    No      Yes     No       No     No      Yes
- Nilbog     Yes     No     No      No      No       No     No      No
+ Gnome      Yes     Yes    Yes     No      No       Yes    No      Yes
+ Grippli    Yes     Yes    Yes     Yes     No       Yes    Yes     No
+ Lizardman  Yes     No     No      Yes     No       No     No      Yes
  Rattikin   Yes     Yes    No      Yes     No       No     No      Yes
  Felpurr    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
- 
+ Ursa       Yes     No     Yes     No      Yes      No     No      No
+ Vargr      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Nilbog     Yes     No     No      No      No       No     No      No
+ Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
+ Demon      Yes     Yes    No      Yes     No       No     No      Yes
+
 === Stat and Other Bonuses Tables ===
 
                 STR    INT    WIS    DEX    CON    CHR  Hit Dice  EXP/Lev

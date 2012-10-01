@@ -1,0 +1,340 @@
+Changes from 0.4.0b to 0.4.0c:
+
+## Bug fixes ##
+
+- If you couldn't see a trap, it wouldn't affect you (oops).
+
+- Occasionally secret doors were visible before detected.
+
+- Sometimes, broken/openend doors would appear to be closed.
+
+- When you identified an artifact that ignores disenchantment but do not 
+  *ID* it, you could get an incorrect message about it being vulnerable 
+  to disenchantment.
+
+- Light sources, musical instruments, rings and amulets were incorrectly 
+  reported as being vulnerable to disenchantment.
+  
+- Character dumps would not display random resistances of items.
+
+Changes from 0.4.0 to 0.4.0b:
+
+## Gameplay changes ##
+
+- Now, item info tells you what kind of attacks an item is vulnerable to.
+
+## Bug fixes ##
+
+- Monsters will no longer leave phantom "doors" when bashing locked doors.
+
+- The object recall window now works correctly.
+
+- Proper message when trying to browse a book in a store (note: it is still
+  impossible to browse in a store, because the amount of reworking necesary
+  to correct this exceeds the utility by far).
+
+- Makefile.std corrected (thanks Darkgod and Keith Willoughby)
+
+- You can no longer buy stuff in the shop using 'm'.
+
+- Fixed message when a single item recharged.
+
+- You could never learn the second component of an alchemical formula.
+
+- Occasionally, player traps would be generated in the dungeon.
+
+- Room descriptions could be generated jumbled.
+
+- Inappropriate symbols could appear in room description titles.
+
+- Several bugs associated with character dumps fixed.
+
+- The browser will no longer crash if you press down when it's empty.
+
+- Monster spoilers will now always include uniques. (You used to need to turn
+  on cheat_know for them to be included because of a bug).
+
+Changes from 0.3.6 to 0.4.0:
+
+- Not compatible with 0.3.6 or older savefiles.
+
+## Gamplay Changes ##
+
+- Added room descriptions (taken from UnAngband). Each room now has a 
+  description which can affect its contents. You can turn the display of room
+  descriptions off by a gameplay option, and also display them in a terminal 
+  window.
+
+- Resistances are now percentile. Instead of having an on/off flag, there is 
+  now a percentile value to each resistance. All resistance sources are now 
+  cumulative. Also, all characters now have intrinsic resistances which rise 
+  with level, and depend on race and class. This severly changes game balance -
+  probably a lot of tuning will be necessary.
+
+- Added an option to avoid displaying inscriptions in messages.
+
+- Added an option to display a message whenever an item recharges. (Thanks 
+  Behemoth)
+
+- The monster list terminal now shows monster symbols. (Thanks Pav Lucistnik)
+
+- Invisibility revised. Attacking no longer totally cancels temporary 
+  invisibilty, just shortens it. Monsters far less likely to cast spells while 
+  you're invisible.
+
+- Alchemy rebalanced. Now, all potions have a pval which determines which 
+  combinations they can be in.
+
+- Added amulets and rings to the "squelch by quality" menu.
+
+- Totally revised the item 'I'nspection display. It now uses similar code to 
+  the monster recall. Also, it will correctly display resists and slays. 
+  Finally, it display's the item's history. (based on David Sward's patch)
+
+- The code for generating spoilers has been unified with the monster/item 
+  recall code.
+
+- No more self knowledge. Potions of *enlightenment* no longer provide the 
+  ability. Potions of self knowledge and the self knowledge spell removed.
+
+- Now, the object browser also supports item "r"ecall.
+
+- Chests have been totally removed from the game. They will return in a future
+  version, in a different form.
+
+- The object recall term window now displays the most recent object recall.
+
+- The character screen now only has two modes.
+
+- You can now display the player's temporary conditions in a term window.
+
+- If you're standing on a trap square, you can activate it by pressing '>' 
+  (down). This is so thieves will be able to use trap doors/teleport traps 
+  to escape monsters.
+
+- New trap system - there is now an edit file that controls trap types 
+  (trap.txt). Glyphs and locks have been re-implemented as traps. Many new
+  trap types added.
+
+- All players now have a chance to bypass a visible trap - going through the
+  square without being affected. Thieves have a much higher chance than other
+  classes.
+
+- Character dumps improved (Thanks to Pav Lucistnik)
+
+- Players can now "magic-lock" doors (well, actually only some classes can). 
+  Magic-locked doors are very difficult for monsters to open/bash, but they
+  can be easily opened by the player.
+
+- Monsters unlocking doors no longer depends on their HP, but on their depth. 
+  As a general rule, monsters will find it harder to unlock doors. However, 
+  there's a new monster PICK_LOCK flag, which will make it easier for the 
+  monster to unlock doors.
+
+- Monsters bashing doors also now depends on monster depth, BUT the more 
+  damaged they are, the harder it is for them to bash a door.
+
+- Changed the pref file format so that trap types can be assigned graphics 
+  (note that the modify visual command has not been updated). You need to 
+  add "W:" lines for the trap graphics. Windows preferrences now need "T:" 
+  lines, instead of "W:" lines. (yes, that seems to make little sense. But 
+  since the trap info is called w_info and windows are called term windows, 
+  that seemed to actually be the better way around. I'll probably revise the 
+  way .prf files are handled in a future version to solve these problems.)
+
+# Combat #
+
+- Monsters with high AC (relative to your skill) now harder to hit. Bonuses 
+  to hit now more important.
+
+- Changed AC. Now, AC no longer reduces damage, but every point of AC is more
+  useful in determining whether you will be hit or not. AC value has been 
+  reduced for most items.
+
+- Mana regenration much faster for characters with low mana. This will 
+  hopefully allow low-level mages to keep up after the other changes. Also,
+  note that spell/item damage has not been toned down, and so improved 
+  relatively to weapons.
+
+- Reduced the maximum damage enchantment bonuses for melee weapons, the 
+  maximum level of rings of damage/slaying, and of ego items and artifacts. 
+  Also, reduced the damage bonus from very high STR.
+
+- Higher strength required to weild heavier weapons.
+
+- Changed the calculation for amount of blows. This will be worse for most 
+  characters. Dexterity is now a lot more important, as is class. 
+
+- Weapon weight no longer affects the critical hits. Instead, they are 
+  determined heavily by player level and to-hit skill.
+
+- Slays/Brands multiplier lowered, but now they affect entire damage 
+  (including bonuses).
+
+- Many weapon weights lowered.
+
+# Quests #
+
+- Random quests are now all stored in the same slot, since there is no reason 
+  to keep the history and it just wastes memory.
+
+- Quest reward allocation improved, less likely to end up giving you only ammo.
+
+# Spells #
+
+- Armor penalties for spellcasters revised. Rangers, Bards and Mystics can 
+  wear more armor before the penalty kicks in. Also, the penalty is now 
+  non-linear, making for a low penalty for wearing a bit more than allowed, a 
+  very high penalty for wearing a lot more.
+
+- Spell list for most classes changed. 
+
+- All calming spells made more powerful.
+
+- New types of glyphs - lesser glyph of warding (available to mages), which is 
+  lot easier for monsters to break than the normal glyph, and holy sigils, 
+  which only block movement of undead and demons (but block all summoning), 
+  and can be broken by any monster.
+
+- Changed the way healing spells/items work. Now, They heal a percentage of 
+  your damage (though each is capped at a minimum). So, for instance, cure 
+  light wounds will always heal 5% of your, and cure critical wounds will 
+  heal 30% of your damage.
+
+# Races/Classes #
+
+- Total reworking of race list:
+  - Races removed: Half-elf, high-elf, half-orc, dunadan, half-troll, hobbit.
+  - New races: Grippli (a frog-like race), Ursa (a bear-like race), Vargr 
+               (a wolf-race), and Lizardman.
+
+- New class: Thief. Thieves have moderate fighting skills, great stealth (which 
+  improves with levels), and can tell the exact type of a trap by looking at it. 
+  They also have the ability to place traps using the 'p' command. Currently, 
+  this uses the Oangband trap system, because I didn't have time to implement 
+  the system I wanted. This will change in future versions.
+
+- Bards can now get 0% fail rate.
+
+# Items #
+
+- Item destruction has been toned down.
+
+- Musical instruments are now indestructible (this might change in a future 
+  version).
+
+- Added new item flags that protect from certain effect in addition to the 
+  resistances. Big thanks to Richard Smith for helping me assign them to the 
+  proper items.
+
+- Random artifacts removed. They will be back in a future version, once all the 
+  changes to the item system are properly in place, but for now having them 
+  around really complicates development. 
+
+- Added armor prefixes. They work in a similar way to weapon prefixes.
+
+- Added several new weapon prefixes.
+
+- Added flexible slays - now, different weapons can have different levels 
+  of the same slay.
+
+- All potions now feed you a little (except for potion of salt water).
+
+- Many new ego item types added.
+
+- Added several items: Hatchet, Cleaver, Stout Stick, Three-Piece-Staff, 
+  Blackrock Quarterstaff, Apples, Piece of Ambrosia, Mysterious Piece of Meat, 
+  Silver Crown, Shirt, Potion of Stealth, Silver Arrows, Silver Bolts,
+  Staff of Barriers, Talismans of Rapid fire/acid/frost/lightning bolts. 
+
+- Removed several items: Lance, Pint of Nectar, Filthy Rag, potion of 
+  self knowledge.
+
+- The Beacon of Om now has an activation.
+
+- The Massive Iron Crown of Morgoth now give +50 stats, not +125 - still more 
+  than enough, but the old value could cause display problems.
+
+- All potions now feed the player the same amount.
+
+- Artifacts added: The Cleaver of Fendilo (Gumband).
+
+- Artifacts removed: The Lance of Eorlingas,
+
+# Monsters #
+
+- Reorganized the letters for many monsters:
+  - 'y'eeks have been removed.
+  - 'l'ice have been removed.
+  - 'F'lies have been removed (some flies become 'I'nsects).
+  - 'g'olems are now 'A'utomata.
+  - 'G'hosts are now 'g'hosts.
+  - Giant 'P'eople are now 'G'iants.
+  - 'p'eople split to low-level 'p'eople and high-level 'P'eople.
+  - 'l'ycanthropes added.
+  - 'F'aeries added.
+  - 'Y'etis become 'y'etis.
+  - 'M'ulti-headed reptiles become h'Y'dras.
+  - 'z'ombies split into 'z'ombies and 'M'ummies.
+  - 'H'ybrids become 'H'ags. (Harpies remain 'H's, but most other 'H's 
+     becomes 'q'uardrapeds).
+
+- Many new monsters added, many monsters removed, and many monsters changed. 
+  Don't assume anything about monsters just because you know them in another 
+  variant (or an older version).
+
+- Elementals no longer fail when casting spells.
+
+- New "ego" monsters, which currently are for flavor only and don't affect 
+  gameplay.
+
+- New monster flag: EVASIVE. Monsters with this flag have a chance of evading 
+  your blows and blinking away.
+
+- New monster spell: S_FAERY.
+
+- Removed the ESCORT/ESCORTS and FRIEND/FRIENDS double-flag redundancy. Added a 
+  new flag, MANY, which combines with a group (either kind) to make it larger.
+
+- Removed the S_WRAITH monster spell. The wraith uniques are now handled 
+  similarly to all other uniques.
+
+- The POWERFUL monster flag has been renamed to the less confusing 
+  WIDE_BREATH, and has been removed from all monsters without breath attacks.
+
+- New attack methods: GRAB
+
+- Monsters with stealing attacks now blink a shorter distance away.
+
+## Non-Gameplay Affecting Changes ##
+
+## Bug Fixes ##
+
+- Fixed a bug associated with spellbook rewards (Thanks to Pav Lucistnik and
+  Behemoth)
+
+- Fixed a message bug when shooting/throwing your last missile.
+
+- Fixed a bug whereby Lokkak didn't get his summoning spells.
+
+- Fixed a few bugs with monster spoilers.
+
+- Fixed possible freeze error when generating levels.
+
+- Fixed spellcasters' armor penalties.
+
+- Random class selection again chooses a legal class.
+
+- Fixed the incorrect special quest failure bugs.
+
+- Fixed the quest reward artifact bugs. (Thanks to Kieron Dunbar).
+
+- Fixed the special quest failure bug.
+
+- Stacking bugs for wands and staves have been fixed.
+
+- Behavior of rods and talismans in shops has been fixed.
+
+- Fixed mana breathers that actually breathed disenchantment.
+
+- Fixed possible freeze error when generating levels.

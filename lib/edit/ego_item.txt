@@ -26,6 +26,8 @@
 # X: inventory slot : rating : xtra
 # C: max to-hit : max to-dam : max to-ac : pval
 # W: depth : rarity : weight : cost
+# K: evl:chs:anl:plt:udd:dmn:hmn:ppl:fry:drg:lyc:acd:elc:fir:cld:psn:lit:drk
+# O: acd:elc:fir:cld:wtr:poi:dis:lit:drk:cnf:snd:shr:nex:nth:chs:dsn:tim:mna
 # T: tval : min_sval : max_sval
 # F: flag | flag | etc
 
@@ -61,47 +63,47 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:0.4.0
 
 ### Body Armor ###
 
 N:1:of Resist Acid
 X:30:10:0
 W:0:1:0:1000
+O:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:36:0:99
-F:RES_ACID 
 
 N:2:of Resist Lightning
 X:30:5:0
 W:0:1:0:750
 T:36:0:99
-F:RES_ELEC 
+O:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
 N:3:of Resist Fire
 X:30:10:0
 W:0:1:0:800
+O:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:36:0:99
-F:RES_FIRE 
 
 N:4:of Resist Cold
 X:30:5:0
 W:0:1:0:750
+O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:36:0:99
-F:RES_COLD 
 
 # One mid resist
 N:5:of Resistance
 X:30:20:4
 W:10:3:0:9000
-C:0:0:10:0
+C:0:0:5:0
+O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:36:0:99
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | IGNORE_ELEM
 
 N:6:of Resist Water
 X:30:15:0
 W:5:2:0:1500
+O:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:36:0:99
-F:RES_WATER 
 
 N:7:of Health
 X:30:15:0
@@ -114,10 +116,10 @@ F:HEALTH | HIDE_TYPE
 N:8:of Elvenkind
 X:30:30:2
 W:5:5:0:14000
-C:0:0:10:3
+C:0:0:5:3
+O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:36:0:99
 F:STEALTH | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_NON_ELEM | IGNORE_ELEM | IGNORE_DISEN
 
 N:9:of Vulnerability
@@ -132,16 +134,18 @@ F:AGGRAVATE | LIGHT_CURSE
 N:10:of Permanence
 X:30:30:2
 W:30:3:0:28000
-C:0:0:20:0
+O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+C:0:0:10:0
 T:36:2:3
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
-F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:HOLD_LIFE 
 F:IGNORE_NON_ELEM | IGNORE_ELEM | IGNORE_DISEN
 
 N:11:of Mana
 X:30:15:0
 W:0:2:0:2000
 C:0:0:0:4
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:5:0:0
 T:36:2:3
 F:MANA | HIDE_TYPE
 
@@ -149,8 +153,8 @@ F:MANA | HIDE_TYPE
 N:12:(Dwarven)
 X:30:20:0
 W:15:3:0:5000
-C:0:0:15:2
-T:36:23:99
+C:0:0:10:2
+T:36:13:99
 F:IGNORE_NON_ELEM | IGNORE_ELEM | 
 F:FREE_ACT | STR | CON | INFRA | HIDE_TYPE | 
 
@@ -158,8 +162,9 @@ F:FREE_ACT | STR | CON | INFRA | HIDE_TYPE |
 N:13:(Blackrock studded)
 X:30:25:5
 W:20:3:0:6500
-C:0:0:15:0
-T:36:23:99
+C:0:0:10:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:5:0:0
+T:36:13:99
 F:IGNORE_NON_ELEM | IGNORE_ELEM | IGNORE_DISEN
 
 # 14 (unused)
@@ -169,42 +174,43 @@ F:IGNORE_NON_ELEM | IGNORE_ELEM | IGNORE_DISEN
 N:15:of Resist Acid
 X:32:10:0
 W:0:1:0:800
+O:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:34:0:99
-F:RES_ACID 
 
 N:16:of Resist Lightning
 X:32:5:0
 W:0:1:0:400
+O:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:34:0:99
-F:RES_ELEC
 
 N:17:of Resist Fire
 X:32:10:0
 W:0:1:0:700
+O:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:34:0:99
-F:RES_FIRE
 
 N:18:of Resist Cold
 X:32:5:0
 W:0:1:0:400
+O:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:34:0:99
-F:RES_COLD
 
 #One mid resist
 N:19:of Resistance
 X:32:20:4
 W:10:3:0:9000
-C:0:0:10:0
+C:0:0:5:0
+O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 T:34:0:99
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | IGNORE_ELEM 
 
 #One resist
 N:20:of Preservation
 X:32:25:2
 W:25:5:0:20000
-C:0:0:20:0
+C:0:0:10:0
 T:34:0:99
-F:RES_DISEN | SUST_STR | SUST_CON | SUST_DEX | HOLD_LIFE | 
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0
+F:SUST_STR | SUST_CON | SUST_DEX | HOLD_LIFE | 
 F:IGNORE_ELEM 
 
 N:21:of Perfect Health
@@ -212,7 +218,8 @@ X:32:25:0
 W:25:5:0:15000
 T:34:0:99
 C:0:0:0:4
-F:RES_POIS | RES_DISEASE | HEALTH | HIDE_TYPE
+O:0:0:0:0:0:25:25:0:0:0:0:0:0:0:0:0:0:0
+F:HEALTH | HIDE_TYPE
 
 N:22:of Vulnerability
 X:32:0:0
@@ -226,7 +233,8 @@ X:32:0:0
 W:35:5:0:0
 C:0:0:0:10
 T:34:0:99
-F:MANA | DRAIN_ITEM | DISRUPT | RES_MANA | HIDE_TYPE | LIGHT_CURSE
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:50
+F:MANA | DRAIN_ITEM | DISRUPT | HIDE_TYPE | LIGHT_CURSE
 
 ### Crowns and Helms ###
 
@@ -257,8 +265,8 @@ X:33:20:3
 W:15:4:0:7500
 C:0:0:0:3
 T:32:10:99
+O:15:15:15:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:INT | SUST_INT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_NON_ELEM | IGNORE_ELEM 
 
 N:28:of Might
@@ -287,7 +295,8 @@ X:33:8:0
 W:0:2:0:1000
 C:0:0:0:5
 T:32:0:9
-F:GLOW | RES_LITE
+O:0:0:0:0:0:0:0:5:25:0:0:0:0:0:0:0:0:0
+F:GLOW 
 
 N:32:of Regeneration
 X:33:6:0
@@ -305,20 +314,22 @@ N:34:of Serenity
 X:33:20:0
 W:15:4:0:8000
 T:32:0:99
-F:RES_SOUND | RES_CONFU | BRAVERY
+O:0:0:0:0:0:0:0:0:0:25:25:0:0:0:0:0:0:0
+F:BRAVERY
 
 N:35:of Night and Day
 X:33:20:0
 W:15:5:0:7500
 T:32:10:99
-F:RES_LITE | RES_DARK | GLOW | SEE_INVIS | NO_BLIND
+O:0:0:0:0:0:0:0:15:15:0:0:0:0:0:0:0:0:0
+F:GLOW | SEE_INVIS | NO_BLIND
 
 N:36:of Wizardry
 X:33:15:0
 W:20:3:0:4000
-C:0:0:5:8
+C:0:0:3:8
 T:32:10:99
-F:SUST_INT | SUST_WIS | MANA 
+F:SUST_INT | SUST_WIS | NO_STUN | MANA
 
 N:37:of Teleportation
 X:33:0:0
@@ -345,9 +356,10 @@ F:STR | DEX | CON | LIGHT_CURSE
 N:40:of Protection
 X:31:10:0
 W:0:1:0:1500
-C:0:0:10:0
+C:0:0:5:0
 T:35:0:99
-F:IGNORE_NON_ELEM | IGNORE_ELEM | RES_SHARD
+O:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0
+F:IGNORE_NON_ELEM | IGNORE_ELEM 
 
 N:41:of Stealth
 X:31:10:0
@@ -360,14 +372,14 @@ F:STEALTH | HIDE_TYPE
 N:42:of Aman
 X:31:15:2
 W:10:4:0:3500
-C:0:0:20:3
+C:0:0:10:3
 T:35:0:99
 F:STEALTH | IGNORE_NON_ELEM | IGNORE_ELEM
 
 N:43:of Invisibility
 X:31:20:0
 W:50:12:0:20000
-C:0:0:10:0
+C:0:0:5:0
 T:35:0:99
 F:INVIS | IGNORE_ELEM
 
@@ -383,9 +395,10 @@ F:INT | SUST_INT | STEALTH
 N:45:of Kings
 X:31:20:5
 W:40:10:0:15000
-C:0:0:25:4
+C:0:0:12:4
 T:35:0:99
-F:BRAVERY | WIS | CHR | SUST_CHR | SUST_WIS | RES_CONFU | FEATHER |
+O:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0
+F:BRAVERY | WIS | CHR | SUST_CHR | FEATHER |
 F:IGNORE_NON_ELEM | IGNORE_ELEM
 
 N:46:of Irritation
@@ -413,7 +426,7 @@ F:FREE_ACT
 N:49:of Slaying
 X:34:10:0
 W:0:1:0:1500
-C:5:5:0:0
+C:5:4:0:0
 T:31:0:99
 F:SHOW_MODS
 
@@ -427,7 +440,7 @@ F:DEX | HIDE_TYPE
 N:51:of Power
 X:34:15:0
 W:5:5:0:2500
-C:5:7:0:5
+C:5:5:0:5
 T:31:2:99
 F:STR | SHOW_MODS 
 
@@ -444,14 +457,15 @@ X:34:15:0
 W:10:2:0:4500
 C:0:0:5:4
 T:31:0:0
-F:MANA | RES_CONFU | IGNORE_DISEN 
+O:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0
+F:MANA | IGNORE_DISEN 
 
 N:54:of Combat
 X:34:15:0
 W:30:4:0:7000
-C:4:8:0:2
+C:4:5:0:2
 T:31:2:99
-F:STR | BLOWS | DISRUPT | SHOW_MODS | AGGRAVATE | HIDE_TYPE
+F:STR | BLOWS | SHOW_MODS | AGGRAVATE | DISRUPT | HIDE_TYPE 
 
 N:55:of Weakness
 X:34:0:0
@@ -499,7 +513,8 @@ N:61:of Stability
 X:35:15:0
 W:10:3:0:5000
 T:30:0:99
-F:RES_NEXUS | FEATHER
+O:0:0:0:0:0:0:0:0:0:0:0:0:30:0:0:0:0:0
+F:FEATHER
 
 N:62:of Elvenkind
 X:35:20:0
@@ -531,169 +546,344 @@ W:0:1:0:4500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_ACID | RES_ACID 
+K:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0
+O:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:66:of Shocking
-X:24:8:0
-W:0:1:0:3500
+N:66:of *Melting*
+X:24:15:0
+W:10:4:0:6500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_ELEC | RES_ELEC 
+K:0:0:0:0:0:0:0:0:0:0:0:35:0:0:0:0:0:0
+O:35:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:67:of Burning
+N:67:of Shocking
 X:24:8:0
-W:0:1:0:3500
+W:0:1:0:4500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_FIRE | RES_FIRE 
+K:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0
+O:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:68:of Freezing
-X:24:8:0
-W:0:1:0:3500
+N:68:of *Shocking*
+X:24:15:0
+W:10:4:0:6500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_COLD | RES_COLD 
+K:0:0:0:0:0:0:0:0:0:0:0:0:35:0:0:0:0:0
+O:0:35:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:69:of the Day
+N:69:of Burning
+X:24:8:0
+W:0:1:0:4500
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0
+O:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
+N:70:of *Burning*
+X:24:15:0
+W:10:4:0:6500
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:35:0:0:0:0
+O:0:0:35:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
+N:71:of Freezing
+X:24:8:0
+W:0:1:0:4500
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0
+O:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
+N:72:of *Freezing*
+X:24:15:0
+W:10:4:0:6500
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:35:0:0:0
+O:0:0:0:35:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+
+N:73:of the Day
 X:24:15:0
 W:5:3:0:6000
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_LITE | RES_DARK | GLOW
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:15:0
+O:0:0:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0
+F:GLOW
 
-N:70:of the Night
+N:74:of the Sun
+X:24:20:0
+W:15:6:0:10000
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:20:0
+O:0:0:0:20:0:0:0:0:20:0:0:0:0:0:0:0:0:0
+F:GLOW
+
+N:75:of the Night
 X:24:15:0
 W:5:3:0:6000
+C:0:0:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:15
+O:0:0:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0
+F:STEALTH
+
+N:76:of the Moon
+X:24:20:0
+W:15:6:0:10000
 C:0:0:0:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_DARK | RES_LITE | STEALTH
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:20
+O:0:0:20:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0
+F:STEALTH
 
-N:71:of Venom
+N:77:of Venom
 X:24:18:0
 W:10:5:0:7500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:BRAND_POIS | RES_POIS
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0
+O:0:0:0:0:0:15:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:72:of Slay Plant
+N:78:of *Venom*
+X:24:23:0
+W:20:8:0:7500
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:35:0:0
+O:0:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0
+
+N:79:of Slay Plant
 X:24:10:0
 W:0:2:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:CON | SLAY_PLANT | SUST_CON
+K:0:0:0:17:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:CON | SUST_CON
 
-N:73:of Slay Animal
+N:80:of *Slay Plant*
+X:24:18:0
+W:15:5:0:8000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:15:15:0:0:0:0:0:0:0:0:0:0:0
+F:CON | SUST_CON
+
+N:81:of Slay Animal
 X:24:12:0
 W:0:2:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:INT | SLAY_ANIMAL | SLOW_DIGEST
+K:0:0:17:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:INT | SLOW_DIGEST
 
-N:74:of Slay Demon
+N:82:of *Slay Animal*
+X:24:18:0
+W:15:5:0:8000
+C:0:0:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:30:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:INT | SLOW_DIGEST | WIS | SUST_INT | SUST_WIS
+
+N:83:of Slay Demon
 X:24:10:0
 W:0:2:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:INT | SLAY_DEMON | RES_FIRE
+K:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:INT 
 
-N:75:of Slay Humanoid
-X:24:10:0
-W:0:2:0:5000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-C:0:0:0:2
-F:STR | SLAY_HUMANOID | SUST_STR
-
-N:76:of Slay Person
-X:24:10:0
-W:0:2:0:5000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-C:0:0:0:2
-F:DEX | SLAY_PERSON | SUST_DEX
-
-N:77:of Slay Undead
-X:24:10:0
-W:0:2:0:8000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:WIS | SLAY_UNDEAD | SEE_INVIS
-
-N:78:of Slay Evil
-X:24:12:0
-W:0:2:0:5000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:WIS | SLAY_EVIL | BLESSED
-
-N:79:of Slay Chaos
-X:24:12:0
-W:0:2:0:6000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:CHR | SLAY_CHAOS | RES_CHAOS
-
-N:80:of Slay Dragon
-X:24:12:0
-W:0:2:0:4000
-C:0:0:0:2
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:CON | SLAY_DRAGON | BRAVERY
-
-N:81:of *Slay Dragon*
+N:84:of *Slay Demon*
 X:24:18:0
 W:20:4:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:CON | STR | KILL_DRAGON | BRAVERY | RES_FIRE 
+K:0:0:0:0:0:35:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:30:0:0:0:0:0:0:0:0:0:0:0:10:0:0:0
+F:INT | BRAVERY | STR
 
-N:82:of Slay Nature
+N:85:of Slay Humanoid
+X:24:10:0
+W:0:2:0:5000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:0:0:0:2
+K:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0
+F:STR | SUST_STR
+
+N:86:of *Slay Humanoid*
+X:24:18:0
+W:20:4:0:8000
+C:0:0:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:35:0:0:0:0:0:0:0:0:0:0:0
+F:INT | STR | SUST_STR | DEX
+
+N:87:of Slay Person
+X:24:10:0
+W:0:2:0:5000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:0:0:0:2
+K:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0
+F:DEX | SUST_DEX
+
+N:88:of *Slay Person*
+X:24:18:0
+W:20:4:0:8000
+C:0:0:3:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:0:0:0:2
+K:0:0:0:0:0:0:0:35:0:0:0:0:0:0:0:0:0:0
+F:DEX | SUST_DEX | STR | SUST_STR
+
+N:89:of Slay Undead
+X:24:10:0
+W:0:2:0:8000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:WIS | SEE_INVIS
+
+N:90:of *Slay Undead*
+X:24:18:0
+W:20:4:0:8000
+C:0:0:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+C:0:0:0:2
+K:0:0:0:0:35:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0
+F:WIS | SEE_INVIS
+
+N:91:of Slay Dragon
+X:24:12:0
+W:0:2:0:4000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0
+F:CON | BRAVERY
+
+N:92:of *Slay Dragon*
+X:24:18:0
+W:20:4:0:8000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:0:35:0:0:0:0:0:0:0:0
+O:5:5:5:5:0:0:0:0:5:5:5:0:0:0:0:0:0:0
+F:CON | STR | BRAVERY 
+
+N:93:of Slay Faery
+X:24:12:0
+W:0:2:0:4000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0
+F:WIS | SUST_WIS
+
+N:94:of *Slay Faery*
+X:24:18:0
+W:20:4:0:8000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:0:0:0:0:0:0:0:35:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:25:0:0:0:0:0:0:0:0:0
+F:WIS | SUST_WIS | NO_BLIND
+
+N:95:of Slay Evil
+X:24:12:0
+W:0:2:0:5000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:WIS | BLESSED
+
+N:96:of Slay Chaos
+X:24:12:0
+W:0:2:0:6000
+C:0:0:0:2
+T:21:0:99
+T:22:0:99
+T:23:0:99
+K:0:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:0:10:0:0:0:0:15:0:0:0
+F:CHR 
+
+N:97:of Slay Nature
 X:24:15:0
 W:5:4:0:9000
 C:0:0:0:3
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_PLANT | SLAY_ANIMAL | HEALTH
+K:0:0:18:18:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:HEALTH
 
-N:83:of Carnage
+N:98:of Carnage
 X:24:15:0
 W:5:4:0:9000
 C:5:5:0:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_PERSON | SLAY_HUMANOID 
+K:0:0:0:0:0:0:20:20:0:0:0:0:0:0:0:0:0:0
 
 # One random ability
-N:84:(Blessed)
+N:99:(Blessed)
 X:24:20:3
 W:0:4:0:4000
 C:0:0:0:3
@@ -703,49 +893,50 @@ T:23:0:99
 F:WIS | BLESSED
 
 # One random sustain
-N:85:(Holy Avenger)
+N:100:(Holy Avenger)
 X:24:25:1
 W:10:5:0:20000
-C:6:6:4:4
+C:5:5:4:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:WIS | SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
-F:SEE_INVIS | BLESSED | BRAVERY
+K:15:0:0:0:20:20:0:0:0:0:0:0:0:0:0:0:0:0
+F:WIS | SEE_INVIS | NO_CONF | BLESSED | BRAVERY
 
 # One random mid resist
-N:86:(Defender)
+N:101:(Defender)
 X:24:25:4
 W:5:5:0:15000
-C:4:4:8:0
+C:4:4:5:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | SUST_CON |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_DEX |
-F:IGNORE_NON_ELEM | IGNORE_ELEM
+O:20:20:20:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | SUST_CON | SUST_DEX |
+F:IGNORE_NON_ELEM | NO_DISEASE | IGNORE_ELEM
 
 # One random ability
-N:87:of Gondolin
+N:102:of Gondolin
 X:24:25:3
 W:10:5:0:22500
-C:7:7:0:0
+C:6:6:0:0
 T:22:0:99
 T:23:0:99
-F:SLAY_DEMON | SLAY_HUMANOID | SLAY_DRAGON | 
-F:RES_DARK | SEE_INVIS | IGNORE_ELEM
+K:0:0:0:0:0:20:20:0:0:20:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:10:0:0:0:0:0:0:0:0:0
+F:SEE_INVIS | IGNORE_ELEM
 
-N:88:of Westernesse
+N:103:of Westernesse
 X:24:25:0
 W:10:5:0:20000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STR | DEX | CON | 
-F:SLAY_HUMANOID | FREE_ACT | SEE_INVIS
+K:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0
+F:STR | DEX | CON | FREE_ACT | SEE_INVIS
 
-N:89:of Extra Attacks
+N:104:of Extra Attacks
 X:24:20:0
 W:20:8:0:10000
 T:21:0:99
@@ -754,55 +945,58 @@ T:23:0:99
 C:0:0:0:2
 F:BLOWS | HIDE_TYPE
 
-N:90:of Fury
+N:105:of Fury
 X:24:25:0
 W:35:10:0:20000
 T:21:12:99
 T:22:10:99
 T:23:16:99
-C:10:10:0:2
+C:10:5:0:2
 F:BLOWS | AGGRAVATE | BRAVERY
 
-N:91:of Terror
+N:106:of Terror
 X:24:15:0
 W:5:4:0:5000
-C:8:8:0:0
+C:8:5:0:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:TERROR 
 
 # One random ability
-N:92:of Law
+N:107:of Law
 X:24:20:3
 W:10:5:0:20000
-C:7:7:0:0
+C:7:5:0:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_EVIL | SLAY_CHAOS | RES_CHAOS | RES_CONFU | SUST_WIS | 
-F:BRAVERY | NO_BLIND 
+K:15:20:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:0:10:0:0:0:0:20:0:0:0
+F:SUST_WIS | BRAVERY | NO_BLIND 
 
-N:93:of Morgul
+N:108:of Morgul
 X:24:0:0
 W:10:4:0:0
 C:0:0:0:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
+K:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0:0
+O:0:0:0:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE | 
-F:RES_NETHR | HOLD_LIFE | DRAIN_EXP | SLAY_UNDEAD
+F:HOLD_LIFE | DRAIN_EXP 
 
 # Digging weapons only
 
-N:94:of Digging
+N:109:of Digging
 X:24:4:0
 W:0:1:0:500
 C:0:0:0:4
 T:20:0:99
 F:TUNNEL | HIDE_TYPE
 
-N:95:of Earthquakes
+N:110:of Earthquakes
 X:24:8:0
 W:10:3:0:3000
 C:10:10:0:6
@@ -811,81 +1005,83 @@ F:STR | TUNNEL | IMPACT
 
 # Swords only
 
-N:96:of Sharpness
+N:111:of Sharpness
 X:24:12:0
 W:5:5:0:6000
-C:10:10:0:6
+C:10:5:0:6
 T:23:0:99
 F:WOUNDING
 
 # Axes/Polearms only
 
-N:97:of Hacking
+N:112:of Hacking
 X:24:15:0
 W:5:5:0:7500
 C:2:2:0:5
 T:22:0:99
-F:SLAY_PLANT | SPEED
+K:0:0:0:17:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SPEED
 
 # Blunt weapons only
 
-N:98:of Crushing
+N:113:of Crushing
 X:24:12:0
 W:5:5:0:6000
 C:5:5:0:2
 T:21:0:99
-F:SLAY_PERSON | SLAY_UNDEAD | STR | DEX | SUST_STR | SUST_DEX 
+K:0:0:0:0:20:0:20:0:0:0:0:0:0:0:0:0:0:0
+F:STR | DEX | SUST_STR | SUST_DEX 
 
 ### Missile Launchers ###
 
-N:99:of Accuracy
+N:114:of Accuracy
 X:25:10:0
 W:0:1:0:1000
 C:15:0:0:0
 T:19:0:99
 
-N:100:of Power
+N:115:of Power
 X:25:10:0
 W:0:1:0:1000
-C:0:15:0:0
+C:0:12:0:0
 T:19:0:99
 
-N:101:of Lothlorien
+N:116:of Lothlorien
 X:25:20:3
 W:25:5:0:20000
-C:10:10:0:2
+C:8:8:0:2
 T:19:12:13
 F:DEX | MIGHT | FREE_ACT | IGNORE_ELEM
 
-N:102:of the Haradrim
+N:117:of the Haradrim
 X:25:30:0
 W:15:4:0:20000
-C:5:15:0:1
+C:5:10:0:1
 T:19:23:24
 F:MIGHT | SHOTS | IGNORE_NON_ELEM | IGNORE_ELEM
 
-N:103:of Extra Might
+N:118:of Extra Might
 X:25:20:0
 W:0:4:0:10000
 C:5:10:0:1
 F:MIGHT | HIDE_TYPE
 T:19:0:99
 
-N:104:of Extra Shots
+N:119:of Extra Shots
 X:25:20:0
 W:10:5:0:10000
 C:5:5:0:1
 F:SHOTS | HIDE_TYPE
 T:19:0:99
 
-N:105:of Buckland
+N:120:of Buckland
 X:25:25:0
 W:5:4:0:20000
 C:0:0:0:2
 T:19:1:1
 F:DEX | SHOTS | MIGHT | IGNORE_NON_ELEM | IGNORE_ELEM
 
-N:106:of the Nazgul
+N:121:of the Nazgul
 X:25:0:0
 W:0:3:0:0
 C:10:10:0:0
@@ -894,145 +1090,153 @@ F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS
 
 ### Ammo ###
 
-N:107:of Slay Plant
+N:122:of Slay Plant
 X:23:8:0
 W:0:1:0:20
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_PLANT
+K:0:0:0:17:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:108:of Slay Animal
+N:123:of Slay Animal
 X:23:10:0
 W:0:2:0:20
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_ANIMAL
+K:0:0:17:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:109:of Slay Evil
+N:124:of Slay Evil
 X:23:10:0
 W:0:2:0:20
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_EVIL
+K:15:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:110:of Slay Chaos
+N:125:of Slay Chaos
 X:23:10:0
 W:0:1:0:20
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_CHAOS
+K:0:16:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:111:of Slay Undead
+N:126:of Slay Undead
 X:23:10:0
 W:0:2:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_UNDEAD
+K:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:112:of Slay Demon
+N:127:of Slay Demon
 X:23:10:0
 W:0:1:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_DEMON
+K:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0:0
 
-N:113:of Slay Dragon
+N:128:of Slay Dragon
 X:23:10:0
 W:0:1:0:40
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_DRAGON
+K:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0
 
-N:114:of Slay Humanoid
+N:129:of Slay Faery
+X:23:10:0
+W:0:1:0:40
+T:16:0:99
+T:17:0:99
+T:18:0:99
+K:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0
+
+N:130:of Slay Humanoid
 X:23:10:0
 W:0:1:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_HUMANOID
+K:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0:0
 
-N:115:of Slay Person
+N:131:of Slay Person
 X:23:10:0
 W:0:2:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_PERSON
+K:0:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0
 
-N:116:of Holy Might
+N:132:of Holy Might
 X:23:20:0
 W:25:6:0:60
-C:10:10:0:0
+C:8:8:0:0
 T:16:1:99
 T:17:2:99
 T:18:2:99
-F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_FIRE | BLESSED
-F:IGNORE_NON_ELEM | IGNORE_ELEM
+K:15:0:0:0:20:20:0:0:0:0:20:0:0:20:0:0:0:0
+F:BLESSED | IGNORE_NON_ELEM | IGNORE_ELEM
 
-N:117:of Acid
+N:133:of Acid
 X:23:10:0
 W:0:3:0:35
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_ACID
+K:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0:0
 
-N:118:of Lightning
+N:134:of Lightning
 X:23:10:0
 W:0:3:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_ELEC 
+K:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0:0
 
-N:119:of Flame
+N:135:of Flame
 X:23:10:0
 W:0:3:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_FIRE 
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0:0
 
-N:120:of Frost
+N:136:of Frost
 X:23:10:0
 W:0:3:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_COLD 
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0:0
 
-N:121:(Poisoned)
+N:137:(Poisoned)
 X:23:15:0
 W:10:4:0:35
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_POIS 
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:20:0:0
 
-N:122:of Light
+N:138:of Light
 X:23:12:0
 W:10:4:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_LITE
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:15:0
 
-N:123:of Darkness
+N:139:of Darkness
 X:23:12:0
 W:10:4:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:BRAND_DARK
+K:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:15
 
-N:124:of Wounding
+N:140:of Wounding
 X:23:15:0
 W:10:4:0:35
 C:5:5:0:0
@@ -1040,7 +1244,7 @@ T:17:0:99
 T:18:0:99
 F:WOUNDING
 
-N:125:of Backbiting
+N:141:of Backbiting
 X:23:0:0
 W:5:2:0:0
 C:50:50:0:0
@@ -1055,14 +1259,14 @@ F:LIGHT_CURSE
 # they keep their rarity of 0 and nobody adds 'T' lines for them. 
 
 # Destroyed Weapon
-N:126:(Shattered)
+N:142:(Shattered)
 X:24:0:0
 W:0:0:0:0
 C:5:5:0:0
 
 # Destroyed Body Armor
 
-N:127:(Blasted)
+N:143:(Blasted)
 X:30:0:0
 W:0:0:0:0
 C:0:0:10:0

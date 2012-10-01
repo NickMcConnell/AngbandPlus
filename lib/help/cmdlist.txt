@@ -46,7 +46,7 @@ mation about any command, consult the help file "cmddesc.txt".
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (unused)
  #  (unused)                            ^C  (special - break)
- $  User interface                      ^D  (unused)
+ $  User interface                      ^D  Describe current room
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
@@ -108,7 +108,7 @@ mation about any command, consult the help file "cmddesc.txt".
  $  Mix potions                         ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  (unused)
+ &  Interact with colors                ^G  Describe current room
  *  Target monster or location          ^H  (alter - west)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump screen dump                    ^J  (alter - south)

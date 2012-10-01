@@ -636,6 +636,9 @@ static void player_outfit(void)
 			if ((rp_ptr->prefix) && ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_HAFTED) ||
 				(i_ptr->tval == TV_POLEARM))) i_ptr->prefix_idx = rp_ptr->prefix;
 
+			/* Mark History */
+			i_ptr->origin_nature = ORIGIN_BIRTH;
+
 			object_aware(i_ptr);
 			object_known(i_ptr);
 			(void)inven_carry(i_ptr);
@@ -755,8 +758,12 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		}
 		if (c == '*')
 		{
-			/* Select at random */
-			cur = rand_int(num);
+			/* Select a legal choice at random */
+			while (TRUE)
+			{
+				cur = rand_int(num);
+				if (!choices[cur].ghost) break;
+			}
 
 			/* Move it onto the screen */
 			if ((cur < top) || (cur > top + hgt))
@@ -1740,7 +1747,7 @@ static bool player_birth_quick(void)
 	p_ptr->expfact = old_expfact;
 
 	p_ptr->age = old_char.age;
-	p_ptr->au = old_char.au;
+	p_ptr->au_birth = p_ptr->au = old_char.au;
 	p_ptr->ht = old_char.ht;
 	p_ptr->wt = old_char.wt;
 	p_ptr->sc = old_char.sc;
@@ -1839,7 +1846,7 @@ void player_birth(void)
 	char buf[80];
 	char ch;
 
-	if (character_existed) while(TRUE)
+	if (character_existed) while (TRUE)
 	{
 		/* Verify birth options */
 		while (TRUE)

@@ -11,22 +11,6 @@
 #include "angband.h"
 
 /*
- * Leave a "glyph of warding" which prevents monster movement
- */
-void warding_glyph(void)
-{
-	/* XXX XXX XXX */
-	if (!cave_clean_bold(p_ptr->py, p_ptr->px))
-	{
-		message(MSG_FAIL, 0, "The object resists the spell.");
-		return;
-	}
-
-	/* Create a glyph */
-	cave_set_feat(p_ptr->py, p_ptr->px, FEAT_GLYPH);
-}
-
-/*
  * Hack -- Removes curse from an object.
  */
 static void uncurse_object(object_type *o_ptr)
@@ -61,7 +45,7 @@ static int remove_curse_aux(int all)
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b f1, f2, f3, f4;
+		u32b f1, f2, f3;
 
 		object_type *o_ptr = &inventory[i];
 
@@ -72,7 +56,7 @@ static int remove_curse_aux(int all)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
@@ -114,521 +98,189 @@ bool remove_all_curse(void)
 }
 
 /*
- * Hack -- acquire self knowledge
- *
- * List various information about the player and/or his current equipment.
- *
- * See also "identify_fully()".
- *
- * Use the "roff()" routines, perhaps.  XXX XXX XXX
- *
- * Use the "show_file()" method, perhaps.  XXX XXX XXX
- *
- * This function cannot display more than 20 lines.  XXX XXX XXX
+ * Curse the players armor
  */
-void self_knowledge(void)
+bool curse_armor(void)
 {
-	int i = 0, j, k;
-
-	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
-
 	object_type *o_ptr;
 
-	cptr info[128];
+	char o_name[80];
 
-	/* Get item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
-	{
-		u32b t1, t2, t3, t4;
+	/* Curse the body armor */
+	o_ptr = &inventory[INVEN_BODY];
 
-		o_ptr = &inventory[k];
+	/* Nothing to curse */
+	if (!o_ptr->k_idx) return (FALSE);
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+	/* Already cursed */
+	if (cursed_p(o_ptr)) return (FALSE);
 
-		/* Extract the flags */
-		object_flags(o_ptr, &t1, &t2, &t3, &t4);
+	/* Describe */
+	object_desc(o_name, o_ptr, FALSE, 3);
 
-		/* Extract flags */
-		f1 |= t1;
-		f2 |= t2;
-		f3 |= t3;
-		f4 |= t4;
-	}
-
-	if (p_ptr->exp_drain)
-	{
-		info[i++] = "Your experience is slowly draining.";
-	}
-	if (p_ptr->item_drain)
-	{
-		info[i++] = "Your items are slowly losing their magic.";
-	}
-	if (p_ptr->blind)
-	{
-		info[i++] = "You cannot see.";
-	}
-	if (p_ptr->confused)
-	{
-		info[i++] = "You are confused.";
-	}
-	if (p_ptr->afraid)
-	{
-		info[i++] = "You are terrified.";
-	}
-	if (p_ptr->cut)
-	{
-		info[i++] = "You are bleeding.";
-	}
-	if (p_ptr->stun)
-	{
-		info[i++] = "You are stunned.";
-	}
-	if (p_ptr->poisoned)
-	{
-		info[i++] = "You are poisoned.";
-	}
-	if (p_ptr->image)
-	{
-		info[i++] = "You are hallucinating.";
-	}
-	if (p_ptr->aggravate)
-	{
-		info[i++] = "You aggravate monsters.";
-	}
-	if (p_ptr->teleport)
-	{
-		info[i++] = "Your position is very uncertain.";
-	}
-	if (p_ptr->blessed)
-	{
-		info[i++] = "You feel righteous.";
-	}
-	if (p_ptr->hero)
-	{
-		info[i++] = "You feel heroic.";
-	}
-	if (p_ptr->rage)
-	{
-		info[i++] = "You are in a battle rage.";
-	}
-	if (p_ptr->protevil)
-	{
-		info[i++] = "You are protected from evil.";
-	}
-	if (p_ptr->shield)
-	{
-		info[i++] = "You are protected by a mystic shield.";
-	}
-	if (p_ptr->resilient)
-	{
-		info[i++] = "You are temporarily resilient.";
-	}
-	if (p_ptr->absorb)
-	{
-		info[i++] = "You are set to absorb the next attack.";
-	}
-	if (p_ptr->searching)
-	{
-		info[i++] = "You are looking around very carefully.";
-	}
-	if (p_ptr->new_spells)
-	{
-		info[i++] = "You can learn some spells/prayers.";
-	}
-	if (p_ptr->word_recall)
-	{
-		info[i++] = "You will soon be recalled.";
-	}
-	if (p_ptr->see_infra)
-	{
-		info[i++] = "Your eyes are sensitive to infrared light.";
-	}
-	if (p_ptr->slow_digest)
-	{
-		info[i++] = "Your appetite is small.";
-	}
-	if (p_ptr->ffall)
-	{
-		info[i++] = "You land gently.";
-	}
-	if (p_ptr->lite)
-	{
-		info[i++] = "You are glowing with light.";
-	}
-	if (p_ptr->regenerate)
-	{
-		info[i++] = "You regenerate quickly.";
-	}
-	if (p_ptr->telepathy)
-	{
-		info[i++] = "You have ESP.";
-	}
-	if (p_ptr->see_inv)
-	{
-		info[i++] = "You can see invisible creatures.";
-	}
-	if (p_ptr->free_act)
-	{
-		info[i++] = "You have free action.";
-	}
-	if (p_ptr->hold_life)
-	{
-		info[i++] = "You have a firm hold on your life force.";
-	}
-	if (p_ptr->invis)
-	{
-		info[i++] = "You are invisible.";
-	}
-	if (p_ptr->immune_acid)
-	{
-		info[i++] = "You are completely immune to acid.";
-	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
-	{
-		info[i++] = "You resist acid exceptionally well.";
-	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
-	{
-		info[i++] = "You are resistant to acid.";
-	}
-	if (p_ptr->immune_elec)
-	{
-		info[i++] = "You are completely immune to lightning.";
-	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
-	{
-		info[i++] = "You resist lightning exceptionally well.";
-	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
-	{
-		info[i++] = "You are resistant to lightning.";
-	}
-	if (p_ptr->immune_fire)
-	{
-		info[i++] = "You are completely immune to fire.";
-	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
-	{
-		info[i++] = "You resist fire exceptionally well.";
-	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
-	{
-		info[i++] = "You are resistant to fire.";
-	}
-	if (p_ptr->immune_cold)
-	{
-		info[i++] = "You are completely immune to cold.";
-	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
-	{
-		info[i++] = "You resist cold exceptionally well.";
-	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
-	{
-		info[i++] = "You are resistant to cold.";
-	}
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
-	{
-		info[i++] = "You resist poison exceptionally well.";
-	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
-	{
-		info[i++] = "You are resistant to poison.";
-	}
-	if ((p_ptr->resist_disease) && (p_ptr->oppose_disease))
-	{
-		info[i++] = "You resist disease exceptionally well.";
-	}
-	else if ((p_ptr->resist_disease) || (p_ptr->oppose_disease))
-	{
-		info[i++] = "You are resistant to disease.";
-	}
-	if (p_ptr->bravery)
-	{
-		info[i++] = "You are completely fearless.";
-	}
-	if (p_ptr->resist_lite)
-	{
-		info[i++] = "You are resistant to bright light.";
-	}
-	if (p_ptr->resist_dark)
-	{
-		info[i++] = "You are resistant to darkness.";
-	}
-	if (p_ptr->no_blind)
-	{
-		info[i++] = "Your eyes are resistant to blindness.";
-	}
-	if (p_ptr->resist_confu)
-	{
-		info[i++] = "You are resistant to confusion.";
-	}
-	if (p_ptr->resist_sound)
-	{
-		info[i++] = "You are resistant to sonic attacks.";
-	}
-	if (p_ptr->resist_shard)
-	{
-		info[i++] = "You are resistant to blasts of shards.";
-	}
-	if (p_ptr->resist_water)
-	{
-		info[i++] = "You are resistant to water attacks.";
-	}
-	if (p_ptr->resist_nexus)
-	{
-		info[i++] = "You are resistant to nexus attacks.";
-	}
-	if (p_ptr->resist_mana)
-	{
-		info[i++] = "You are resistant to mana attacks.";
-	}
-	if (p_ptr->resist_nethr)
-	{
-		info[i++] = "You are resistant to nether forces.";
-	}
-	if (p_ptr->resist_chaos)
-	{
-		info[i++] = "You are resistant to chaos.";
-	}
-	if (p_ptr->resist_disen)
-	{
-		info[i++] = "You are resistant to disenchantment.";
-	}
-	if (p_ptr->resist_time)
-	{
-		info[i++] = "You are resistant to time manipulation.";
-	}
-	if (p_ptr->sustain_str)
-	{
-		info[i++] = "Your strength is sustained.";
-	}
-	if (p_ptr->sustain_int)
-	{
-		info[i++] = "Your intelligence is sustained.";
-	}
-	if (p_ptr->sustain_wis)
-	{
-		info[i++] = "Your wisdom is sustained.";
-	}
-	if (p_ptr->sustain_con)
-	{
-		info[i++] = "Your constitution is sustained.";
-	}
-	if (p_ptr->sustain_dex)
-	{
-		info[i++] = "Your dexterity is sustained.";
-	}
-	if (p_ptr->sustain_chr)
-	{
-		info[i++] = "Your charisma is sustained.";
-	}
-	if (f1 & (TR1_STR))
-	{
-		info[i++] = "Your strength is affected by your equipment.";
-	}
-	if (f1 & (TR1_INT))
-	{
-		info[i++] = "Your intelligence is affected by your equipment.";
-	}
-	if (f1 & (TR1_WIS))
-	{
-		info[i++] = "Your wisdom is affected by your equipment.";
-	}
-	if (f1 & (TR1_DEX))
-	{
-		info[i++] = "Your dexterity is affected by your equipment.";
-	}
-	if (f1 & (TR1_CON))
-	{
-		info[i++] = "Your constitution is affected by your equipment.";
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "Your charisma is affected by your equipment.";
-	}
-	if (f1 & (TR1_MANA))
-	{
-		info[i++] = "Your mana is affected by your equipment.";
-	}
-	if (f1 & (TR1_HEALTH))
-	{
-		info[i++] = "Your hit points are affected by your equipment.";
-	}
-	if (f1 & (TR1_STEALTH))
-	{
-		info[i++] = "Your stealth is affected by your equipment.";
-	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "Your searching ability is affected by your equipment.";
-	}
-	if (f1 & (TR1_INFRA))
-	{
-		info[i++] = "Your infravision is affected by your equipment.";
-	}
-	if (f1 & (TR1_TUNNEL))
-	{
-		info[i++] = "Your digging ability is affected by your equipment.";
-	}
-	if (f1 & (TR1_SPEED))
-	{
-		info[i++] = "Your speed is affected by your equipment.";
-	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "Your attack speed is affected by your equipment.";
-	}
-	if (f1 & (TR1_SHOTS))
-	{
-		info[i++] = "Your shooting speed is affected by your equipment.";
-	}
-	if (f1 & (TR1_MIGHT))
-	{
-		info[i++] = "Your shooting might is affected by your equipment.";
+	/* Attempt a saving throw for artifacts */
+	if (artifact_p(o_ptr) && (rand_int(100) < 50))
+	{
+		/* Cool */
+		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
+			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
 	}
 
-	/* Get the current weapon */
+	/* not artifact or failed save... */
+	else
+	{
+		/* Oops */
+		message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
+			"A terrible black aura blasts your %s!", o_name);
+
+		/* Blast the armor */
+		o_ptr->a_idx = 0;
+		o_ptr->e_idx = EGO_BLASTED;
+		o_ptr->to_a = 0 - randint(5) - randint(5);
+		o_ptr->to_h = 0;
+		o_ptr->to_d = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
+
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	return (TRUE);
+}
+
+/*
+ * Curse the players weapon
+ */
+bool curse_weapon(void)
+{
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	/* Curse the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Analyze the weapon */
-	if (o_ptr->k_idx)
+	/* Nothing to curse */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	/* Already cursed */
+	if (cursed_p(o_ptr)) return (FALSE);
+
+	/* Describe */
+	object_desc(o_name, o_ptr, FALSE, 3);
+
+	/* Attempt a saving throw */
+	if (artifact_p(o_ptr) && (rand_int(100) < 50))
 	{
-		/* Special "Attack Bonuses" */
-		if (f4 & (TR4_BRAND_ACID))
-		{
-			info[i++] = "Your weapon melts your foes.";
-		}
-		if (f4 & (TR4_BRAND_ELEC))
-		{
-			info[i++] = "Your weapon shocks your foes.";
-		}
-		if (f4 & (TR4_BRAND_FIRE))
-		{
-			info[i++] = "Your weapon burns your foes.";
-		}
-		if (f4 & (TR4_BRAND_COLD))
-		{
-			info[i++] = "Your weapon freezes your foes.";
-		}
-		if (f4 & (TR4_BRAND_POIS))
-		{
-			info[i++] = "Your weapon poisons your foes.";
-		}
-		if (f4 & (TR4_BRAND_LITE))
-		{
-			info[i++] = "Your weapon has the power of light.";
-		}
-		if (f4 & (TR4_BRAND_DARK))
-		{
-			info[i++] = "Your weapon has the power of darkness.";
-		}
-
-		/* Special "slay" flags */
-		if (f4 & (TR4_SLAY_ANIMAL))
-		{
-			info[i++] = "Your weapon strikes at animals with extra force.";
-		}
-		if (f4 & (TR4_SLAY_PLANT))
-		{
-			info[i++] = "Your weapon strikes at plants with extra force.";
-		}
-		if (f4 & (TR4_SLAY_EVIL))
-		{
-			info[i++] = "Your weapon strikes at evil with extra force.";
-		}
-		if (f4 & (TR4_SLAY_CHAOS))
-		{
-			info[i++] = "Your weapon strikes at chaos with extra force.";
-		}
-		if (f4 & (TR4_SLAY_UNDEAD))
-		{
-			info[i++] = "Your weapon strikes at undead with holy wrath.";
-		}
-		if (f4 & (TR4_SLAY_DEMON))
-		{
-			info[i++] = "Your weapon strikes at demons with holy wrath.";
-		}
-		if (f4 & (TR4_SLAY_HUMANOID))
-		{
-			info[i++] = "Your weapon is especially deadly against humanoids.";
-		}
-		if (f4 & (TR4_SLAY_PERSON))
-		{
-			info[i++] = "Your weapon is especially deadly against people.";
-		}
-		if (f4 & (TR4_SLAY_DRAGON))
-		{
-			info[i++] = "Your weapon is especially deadly against dragons.";
-		}
-
-		/* Special "kill" flags */
-		if (f4 & (TR4_KILL_DRAGON))
-		{
-			info[i++] = "Your weapon is a great bane of dragons.";
-		}
-
-		if (f4 & (TR4_WOUNDING))
-		{
-			info[i++] = "Your weapon is supernaturally sharp.";
-		}
-
-		if (f4 & (TR4_TERROR))
-		{
-			info[i++] = "Your weapon strikes fear in the hearts of your foes.";
-		}
-
-		if (f4 & (TR4_IMPACT))
-		{
-			info[i++] = "Your weapon can induce earthquakes.";
-		}
-
-		if (f4 & (TR4_BLESSED))
-		{
-			info[i++] = "Your weapon has been blessed by the gods.";
-		}
-
+		/* Cool */
+		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
+			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
 	}
 
-	/* Save screen */
-	screen_save();
-
-	/* Clear the screen */
-	Term_clear();
-
-	/* Label the information */
-	prt("     Your Attributes:", 1, 0);
-
-	/* Dump the info */
-	for (k = 2, j = 0; j < i; j++)
+	/* not artifact or failed save... */
+	else
 	{
-		/* Show the info */
-		prt(info[j], k++, 0);
+		/* Oops */
+		message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
+			"A terrible black aura blasts your %s!", o_name);
 
-		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
-		{
-			prt("-- more --", k, 0);
-			inkey();
+		/* Shatter the weapon */
+		o_ptr->a_idx = 0;
+		o_ptr->e_idx = EGO_SHATTERED;
+		o_ptr->to_h = 0 - randint(5) - randint(5);
+		o_ptr->to_d = 0 - randint(5) - randint(5);
+		o_ptr->to_a = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
 
-			/* Clear the screen */
-			Term_clear();
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
 
-			/* Label the information */
-			prt("     Your Attributes:", 1, 0);
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
 
-			/* Reset */
-			k = 2;
-		}
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
-	/* Pause */
-	prt("[Press any key to continue]", k, 0);
-	(void)inkey();
+	/* Notice */
+	return (TRUE);
+}
 
-	/* Load screen */
-	screen_load();
+/*
+ * Curse the players equipment (minor)
+ */
+bool curse_minor(void)
+{
+	int k;
+	int count = 0;
+	object_type *o_ptr;
+
+	for (k = INVEN_WIELD; k < INVEN_MUSIC; k++)
+	{
+		/* Curse the weapon */
+		o_ptr = &inventory[k];
+
+		/* Not rings, lites or amulets */
+		if ((k == INVEN_LEFT) || (k == INVEN_RIGHT) || (k == INVEN_LITE) || (k == INVEN_NECK))
+			continue;
+
+		/* Nothing to curse */
+		if (!o_ptr->k_idx) continue;
+
+		/* Already cursed */
+		if (cursed_p(o_ptr)) continue;
+
+		/* Artifacts resist */
+		if (artifact_p(o_ptr)) continue;
+
+		/* Ego items save */
+		if (ego_item_p(o_ptr) && rand_int(100) < 50) continue;
+
+		/* Curse the object */
+		if ((k == INVEN_WIELD) || (k == INVEN_BOW))
+		{
+			o_ptr->to_h -= randint(4);
+			o_ptr->to_d -= randint(4);
+		}
+		else o_ptr->to_a -= randint(4);
+
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Count it */
+		count++;
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	if (count) 
+	{
+		message(MSG_ITEM_DAMAGE, 0, "A dark aura surrounds your equipment!");
+		return (TRUE);
+	}
+
+	/* Notice */
+	return (FALSE);
 }
 
 /*
@@ -715,37 +367,39 @@ void set_recall(void)
 bool detect_traps(void)
 {
 	int y, x;
+	int i;
 
 	bool detect = FALSE;
 
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (i = 1; i < t_max; i++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect invisible traps */
-			if (cave_feat[y][x] == FEAT_INVIS)
-			{
-				/* Pick a trap */
-				pick_trap(y, x);
-			}
+		trap_type *t_ptr = &t_list[i];
 
-			/* Detect traps */
-			if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			    (cave_feat[y][x] <= FEAT_TRAP_TAIL))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
+		/* Skip dead traps */
+		if (!t_ptr->w_idx) continue;
 
-				/* Redraw */
-				lite_spot(y, x);
+		/* Location */
+		y = t_ptr->fy;
+		x = t_ptr->fx;
 
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
+		/* Only detect legal traps */
+		if (!trap_detectable(y, x)) continue;
+
+		/* Only detect nearby traps */
+		if (!panel_contains(y, x)) continue;
+
+		/* Set to visible */
+		t_list[i].visible = TRUE;
+
+		detect = TRUE;
+
+		/* Hack -- Memorize */
+		cave_info[y][x] |= (CAVE_MARK);
+
+		/* Redraw */
+		lite_spot(y, x);
 	}
-
+		
 	/* Describe */
 	if (detect)
 	{
@@ -773,15 +427,16 @@ bool detect_doors(void)
 			/* Detect secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
-				/* Pick a door */
-				place_closed_door(y, x);
+				/* Create closed door */
+				cave_set_feat(y, x, FEAT_CLOSED);
+
+				if (trap_lock(y, x)) t_list[cave_t_idx[y][x]].visible = TRUE;
 			}
 
 			/* Detect doors */
-			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
-			    ((cave_feat[y][x] == FEAT_OPEN) ||
-			     (cave_feat[y][x] == FEAT_BROKEN)))
+			if ((cave_feat[y][x] == FEAT_OPEN) ||
+			    (cave_feat[y][x] == FEAT_CLOSED) ||
+			    (cave_feat[y][x] == FEAT_BROKEN))
 			{
 				/* Hack -- Memorize */
 				cave_info[y][x] |= (CAVE_MARK);
@@ -1179,7 +834,7 @@ bool detect_monsters_invis(void)
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
 			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			if (term_mon_race_idx == m_ptr->r_idx)
 			{
 				/* Window stuff */
 				p_ptr->window |= (PW_MONSTER);
@@ -1241,10 +896,10 @@ bool detect_monsters_evil(void)
 		if (!panel_contains(y, x)) continue;
 
 		/* Detect evil monsters */
-		if (r_ptr->flags2 & (RF2_EVIL))
+		if (r_ptr->flags4 & (RF4_EVIL))
 		{
 			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			if (term_mon_race_idx == m_ptr->r_idx)
 			{
 				/* Window stuff */
 				p_ptr->window |= (PW_MONSTER);
@@ -1490,10 +1145,10 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 
 	int calc_d = o_ptr->to_d;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -1931,7 +1586,16 @@ static void ident_aux(int item)
 		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
 		/* Describe it fully */
-		if artifact_known_p(a_ptr) identify_fully_aux(o_ptr);
+		if artifact_known_p(a_ptr) 
+		{
+			/* Track the object */
+			object_actual_track(o_ptr);
+
+			/* Hack -- Handle stuff */
+			handle_stuff();
+
+			screen_object(o_ptr, TRUE);
+		}
 	}
 }
 
@@ -2101,8 +1765,14 @@ bool identify_fully(void)
 	} 
 	else 
 	{
+		/* Track the object */
+		object_actual_track(o_ptr);
+
+		/* Hack -- Handle stuff */
+		handle_stuff();
+
 		/* Describe it fully */
-		identify_fully_aux(o_ptr);
+		screen_object(o_ptr, TRUE);
 	}
 
 	/* Success */
@@ -2726,7 +2396,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		message(MSG_EFFECT, 0, "There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->no_blind && !p_ptr->resist_lite)
+		if (!p_ptr->no_blind && !resist_effect(20, RS_LIT))
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -2888,14 +2558,14 @@ void earthquake(int cy, int cx, int r)
 				{
 					message(MSG_EFFECT, 0, "You are bashed by rubble!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					if (!p_ptr->no_stun) set_stun(p_ptr->stun + randint(50));
 					break;
 				}
 				case 3:
 				{
 					message(MSG_EFFECT, 0, "You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					if (!p_ptr->no_stun) set_stun(p_ptr->stun + randint(50));
 					break;
 				}
 			}
@@ -2936,7 +2606,7 @@ void earthquake(int cy, int cx, int r)
 					sn = 0;
 
 					/* Monster can move to escape the wall */
-					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
+					if (!(r_ptr->flags2 & (RF2_NEVER_MOVE)))
 					{
 						/* Look for safety */
 						for (i = 0; i < 8; i++)
@@ -2948,8 +2618,11 @@ void earthquake(int cy, int cx, int r)
 							/* Skip non-empty grids */
 							if (!cave_empty_bold(y, x)) continue;
 
-							/* Hack -- no safety on glyph of warding */
-							if (cave_feat[y][x] == FEAT_GLYPH) continue;
+							/* no teleport onto glyph of warding */
+							if (trap_monster(y, x) && trap_glyph(y, x)) 
+							{
+								if (mon_glyph_check(cave_m_idx[yy][xx], y, x)) continue;
+							}		
 
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
@@ -3135,10 +2808,10 @@ static void cave_temp_room_lite(void)
 			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+			if (r_ptr->flags1 & (RF1_STUPID)) chance = 10;
 
 			/* Smart monsters always wake up */
-			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
+			if (r_ptr->flags1 & (RF1_SMART)) chance = 100;
 
 			/* Sometimes monsters wake up */
 			if (m_ptr->csleep && (rand_int(100) < chance))
@@ -3191,7 +2864,7 @@ static void cave_temp_room_unlite(void)
 		cave_info[y][x] &= ~(CAVE_GLOW);
 
 		/* Hack -- Forget "boring" grids */
-		if (cave_feat[y][x] <= FEAT_INVIS)
+		if (cave_feat[y][x] <= FEAT_FLOOR)
 		{
 			/* Forget the grid */
 			cave_info[y][x] &= ~(CAVE_MARK);
@@ -3270,6 +2943,13 @@ static void lite_room(int y1, int x1)
 		cave_temp_room_aux(y - 1, x - 1);
 		cave_temp_room_aux(y - 1, x + 1);
 		cave_temp_room_aux(y + 1, x - 1);
+	}
+
+	/* Hack --- Have we seen this room before? */
+	if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].seen))
+	{
+		p_ptr->update |= (PU_ROOM_INFO);
+		p_ptr->window |= (PW_ROOM_INFO);
 	}
 }
 
@@ -3527,10 +3207,16 @@ bool door_creation(void)
 	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_DOOR, flg));
 }
 
-bool trap_creation(void)
+bool trap_creation(int power)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_TRAP, flg));
+	return (project(-1, 1, p_ptr->py, p_ptr->px, power, GF_MAKE_TRAP, flg));
+}
+
+bool magic_lock(void)
+{
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(-1, 3, p_ptr->py, p_ptr->px, 0, GF_MAGIC_LOCK, flg));
 }
 
 bool destroy_doors_touch(void)

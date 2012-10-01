@@ -55,7 +55,7 @@ void do_cmd_redraw(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_CONDITION);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
@@ -569,11 +569,11 @@ static errr option_dump(cptr fname)
 			/* Dump the flag */
 			if (op_ptr->window_flag[i] & (1L << j))
 			{
-				fprintf(fff, "W:%d:%d:1\n", i, j);
+				fprintf(fff, "T:%d:%d:1\n", i, j);
 			}
 			else
 			{
-				fprintf(fff, "W:%d:%d:0\n", i, j);
+				fprintf(fff, "T:%d:%d:0\n", i, j);
 			}
 
 			/* Skip a line */
@@ -1114,7 +1114,6 @@ static errr keymap_dump(cptr fname)
 
 	int mode;
 
-
 	/* Roguelike */
 	if (rogue_like_commands)
 	{
@@ -1127,7 +1126,6 @@ static errr keymap_dump(cptr fname)
 		mode = KEYMAP_MODE_ORIG;
 	}
 
-
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -1139,7 +1137,6 @@ static errr keymap_dump(cptr fname)
 
 	/* Failure */
 	if (!fff) return (-1);
-
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");

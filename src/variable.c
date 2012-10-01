@@ -61,12 +61,11 @@ bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
-bool character_existed;	
+bool character_existed;		/* A character existed on the same savefile */
 
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
-u32b seed_randart;		/* Hack -- consistent random artifacts */
 u32b seed_alchemy;		/* Hack -- consistent alchemy tables */
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
@@ -90,8 +89,6 @@ bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
-bool opening_chest;		/* Hack -- prevent chest generation */
-
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
@@ -106,10 +103,21 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+s16b t_max = 1;			/* Number of allocated traps */
+s16b t_cnt = 0;			/* Number of live traps */
+
 /* Hack - temporary monster races for holding uniques */
 monster_race monster_temp;
 monster_race monster_temp_fake;
 monster_lore lore_temp;
+
+/*
+ * Hack - Trackees for term windows
+ */
+s16b term_mon_race_idx;		/* Monster race trackee */
+s16b term_mon_unique_idx;	/* Monster unique trackee */
+object_type term_object;
+bool term_obj_real;
 
 /*
  * TRUE if process_command() is a repeated call.
@@ -166,7 +174,7 @@ char angband_term_name[ANGBAND_TERM_MAX][16] =
 	"Term-3",
 	"Term-4",
 	"Term-5",
-	"Term-6",
+  	"Term-6",
 	"Term-7"
 };
 
@@ -230,7 +238,6 @@ char angband_sound_name[MSG_MAX][16] =
 	"dsm",
 	"teleport",
 	"tplevel",
-	"spell_fail",
 	"tpother",
 	"hitwall",
 	"store",
@@ -241,8 +248,8 @@ char angband_sound_name[MSG_MAX][16] =
 	"shutdoor",
 	"bash",
 	"spike",
-	"lockpick_succeed",
-	"lockpick_fail",
+	"disarm_succeed",
+	"disarm_fail",
 	"stairs",
 	"quest_fail",
 	"quest_succeed",
@@ -253,6 +260,7 @@ char angband_sound_name[MSG_MAX][16] =
 	"item_damage",
 	"item_bonus",
 	"item_break",
+	"item_recharge",
 	"pseudo_id",
 	"theft",
 	"mon_fail",
@@ -303,6 +311,16 @@ byte (*cave_feat)[MAX_DUNGEON_WID];
 s16b (*cave_o_idx)[MAX_DUNGEON_WID];
 
 /*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid trap indexes
+ *
+ * Note that this array yields the index of the trap in a grid,.
+ * This array replicates the information contained in the trap list, but 
+ * provides extremely fast determination of which, if any, trap
+ * is in any given grid.
+ */
+s16b (*cave_t_idx)[MAX_DUNGEON_WID];
+
+/*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid monster indexes
  *
  * Note that this array yields the index of the monster or player in a grid,
@@ -329,6 +347,23 @@ byte (*cave_when)[MAX_DUNGEON_WID];
 #endif	/* MONSTER_FLOW */
 
 /*
+ * Array of room information
+ *
+ * This assumes that room descriptions will never exceed 240 visible characters +
+ * 240 invisible characters. Currently we do no bounds checking.
+ *
+ */
+room_info_type room_info[DUN_ROOMS];
+
+/*
+ * Array[MAX_ROOMS_ROW][MAX_ROOMS_COL] of room information
+ *
+ * This indexes into the above room information
+ *
+ */
+byte dun_room[MAX_ROOMS_ROW][MAX_ROOMS_COL];
+
+/*
  * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
@@ -337,6 +372,11 @@ object_type *o_list;
  * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *m_list;
+
+/*
+ * Array[z_info->t_max] of dungeon monsters
+ */
+trap_type *t_list;
 
 /*
  * Array[z_info->r_max] of monster lore for races
@@ -461,6 +501,13 @@ feature_type *f_info;
 char *f_name;
 
 /*
+ * The room description information arrays
+ */
+desc_type *d_info;
+char *d_name;
+char *d_text;
+
+/*
  * The object kind arrays
  */
 object_kind *k_info;
@@ -481,8 +528,20 @@ char *e_name;
 /*
  * The prefix arrays
  */
-item_prefix_type *px_info;
-char *px_name;
+weapon_prefix_type *wpx_info;
+char *wpx_name;
+
+/*
+ * The prefix arrays
+ */
+armor_prefix_type *apx_info;
+char *apx_name;
+
+/*
+ * The trap widget arrays
+ */
+trap_widget *w_info;
+char *w_name;
 
 /*
  * The monster race arrays
@@ -497,6 +556,13 @@ char *r_text;
 monster_unique *u_info;
 char *u_name;
 char *u_text;
+
+/*
+ * The monster special arrays
+ */
+monster_special *s_info;
+char *s_name;
+char *s_text;
 
 /*
  * The player class arrays
@@ -643,6 +709,17 @@ bool (*get_mon_num_hook)(int r_idx);
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+
+/*
+ * Hack - the destination file for text_out_to_file.
+ */
+FILE *text_out_file = NULL;
+
+/*
+ * Hack -- function hook to output (colored) text to the
+ * screen or to a file.
+ */
+void (*text_out_hook)(byte a, cptr str);
 
 /*
  * The "highscore" file descriptor, if available.

@@ -393,13 +393,9 @@ static u16b image_random(void)
  */
 bool feat_supports_lighting(byte feat)
 {
-	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
-		return TRUE;
-
 	switch (feat)
 	{
 		case FEAT_FLOOR:
-		case FEAT_INVIS:
 		case FEAT_SECRET:
 		case FEAT_MAGMA:
 		case FEAT_QUARTZ:
@@ -476,24 +472,11 @@ bool feat_supports_lighting(byte feat)
  *
  * Some comments on the "terrain" layer...
  *
- * Note that "boring" grids (floors, invisible traps, and any illegal grids)
- * are very different from "interesting" grids (all other terrain features),
- * and the two types of grids are handled completely separately.  The most
- * important distinction is that "boring" grids may or may not be memorized
- * when they are first encountered, and so we must use the "CAVE_SEEN" flag
- * to see if they are "see-able".
- *
  * Some comments on the "terrain" layer (boring grids)...
  *
  * Note that "boring" grids are always drawn using the picture for "empty
  * floors", which is stored in "f_info[FEAT_FLOOR]".  Sometimes, special
  * lighting effects may cause this picture to be modified.
- *
- * Note that "invisible traps" are always displayes exactly like "empty
- * floors", which prevents various forms of "cheating", with no loss of
- * efficiency.  There are still a few ways to "guess" where traps may be
- * located, for example, objects will never fall into a grid containing
- * an invisible trap.  XXX XXX
  *
  * To determine if a "boring" grid should be displayed, we simply check to
  * see if it is either memorized ("CAVE_MARK"), or currently "see-able" by
@@ -600,6 +583,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	s16b this_o_idx, next_o_idx = 0;
 
 	s16b m_idx;
+	s16b t_idx;
 
 	s16b image = p_ptr->image;
 
@@ -612,6 +596,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
+
+	/* Trap */
+	t_idx = cave_t_idx[y][x];
 
 	/* Feature */
 	feat = cave_feat[y][x];
@@ -629,7 +616,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Boring grids (floors, etc) */
-	else if (feat <= FEAT_INVIS)
+	else if (feat <= FEAT_FLOOR)
 	{
 		/* Memorized (or seen) floor */
 		if ((info & (CAVE_MARK)) ||
@@ -747,8 +734,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Special lighting effects (walls only) */
 			if (view_granite_lite &&
-			    (((a == TERM_WHITE) && !use_transparency && (feat >= FEAT_SECRET)) ||
-			     (use_transparency && feat_supports_lighting(feat))))
+			    (((a == TERM_WHITE) && !use_transparency && 
+				(feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID)) ||
+			    (use_transparency && feat_supports_lighting(feat))))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -828,6 +816,24 @@ void map_info(int y, int x, byte *ap, char *cp)
 	(*tcp) = c;
 
 #endif /* USE_TRANSPARENCY */
+
+	/* Traps */
+	if (t_idx > 0)
+	{
+		/* Memorized (or seen) floor */
+		if ((info & (CAVE_MARK)) || (info & (CAVE_SEEN)))
+		{
+			trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+			trap_widget *w_ptr = &w_info[t_ptr->w_idx];
+
+			/* Draw trap */
+			if (t_list[t_idx].visible) 
+			{
+				a = w_ptr->x_attr;
+				c = w_ptr->x_char;
+			}
+		}
+	}
 
 	/* Objects */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -989,18 +995,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 		c = r_ptr->x_char;
 	}
 
-	/* Handle "player" */
-	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
-	{
-		monster_race *r_ptr = &r_info[0];
-
-		/* Get the "player" attr */
-		a = r_ptr->x_attr;
-
-		/* Get the "player" char */
-		c = r_ptr->x_char;
-	}
-
 	/* Result */
 	(*ap) = a;
 	(*cp) = c;
@@ -1136,7 +1130,7 @@ void note_spot(int y, int x)
 	if (!(info & (CAVE_MARK)))
 	{
 		/* Memorize some "boring" grids */
-		if (cave_feat[y][x] <= FEAT_INVIS)
+		if (cave_feat[y][x] <= FEAT_FLOOR)
 		{
 			/* Option -- memorize certain floors */
 			if (((info & (CAVE_GLOW)) && view_perma_grids) ||
@@ -1299,7 +1293,7 @@ static byte priority_table[][2] =
 	{ FEAT_BROKEN, 15 },
 
 	/* Closed doors */
-	{ FEAT_DOOR_HEAD + 0x00, 17 },
+	{ FEAT_CLOSED , 17 },
 
 	/* Hidden gold */
 	{ FEAT_QUARTZ_K, 19 },
@@ -2558,7 +2552,7 @@ void update_view(void)
 			fy = m_ptr->fy;
 
 			/* Carrying lite */
-			if (r_ptr->flags2 & (RF2_HAS_LITE))
+			if (r_ptr->flags1 & (RF1_HAS_LITE))
 			{
 				for (i = -1; i <= 1; i++)
 				{
@@ -3033,6 +3027,7 @@ void update_flow(void)
  */
 void map_area(void)
 {
+	byte feat;
 	int i, x, y, y1, y2, x1, x2;
 
 	/* Pick an area to map */
@@ -3052,11 +3047,13 @@ void map_area(void)
 	{
 		for (x = x1; x < x2; x++)
 		{
+			feat = cave_feat[y][x];
+
 			/* All non-walls are "checked" */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if ((feat < FEAT_SECRET) || (feat > FEAT_PERM_SOLID))
 			{
 				/* Memorize normal features */
-				if (cave_feat[y][x] > FEAT_INVIS)
+				if (feat > FEAT_FLOOR)
 				{
 					/* Memorize the object */
 					cave_info[y][x] |= (CAVE_MARK);
@@ -3068,8 +3065,10 @@ void map_area(void)
 					int yy = y + ddy_ddd[i];
 					int xx = x + ddx_ddd[i];
 
+					feat = cave_feat[yy][xx];
+
 					/* Memorize walls (etc) */
-					if (cave_feat[yy][xx] >= FEAT_SECRET)
+					if ((feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID))
 					{
 						/* Memorize the walls */
 						cave_info[yy][xx] |= (CAVE_MARK);
@@ -3128,7 +3127,7 @@ void wiz_lite(void)
 		for (x = 1; x < p_ptr->cur_wid-1; x++)
 		{
 			/* Process all non-walls */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if ((cave_feat[y][x] < FEAT_SECRET) || (cave_feat[y][x] > FEAT_PERM_SOLID))
 			{
 				/* Scan all neighbors */
 				for (i = 0; i < 9; i++)
@@ -3140,7 +3139,7 @@ void wiz_lite(void)
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
 					/* Memorize normal features */
-					if (cave_feat[yy][xx] > FEAT_INVIS)
+					if (cave_feat[yy][xx] > FEAT_FLOOR)
 					{
 						/* Memorize the grid */
 						cave_info[yy][xx] |= (CAVE_MARK);
@@ -3222,7 +3221,7 @@ void town_illuminate(bool daytime)
 		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Interesting grids */
-			if (cave_feat[y][x] > FEAT_INVIS)
+			if (cave_feat[y][x] > FEAT_FLOOR)
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
@@ -3305,7 +3304,7 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	if ((feat >= FEAT_CLOSED) && (feat < FEAT_SHOP_HEAD))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
@@ -3662,44 +3661,6 @@ void scatter(int *yp, int *xp, int y, int x, int d)
 	/* Save the location */
 	(*yp) = ny;
 	(*xp) = nx;
-}
-
-/*
- * Track a new monster
- */
-void health_track(int m_idx)
-{
-	/* Track a new guy */
-	p_ptr->health_who = m_idx;
-
-	/* Redraw (later) */
-	p_ptr->redraw |= (PR_HEALTH);
-}
-
-/*
- * Hack -- track the given monster race
- */
-void monster_track(int r_idx, int u_idx)
-{
-	/* Save this monster ID */
-	p_ptr->monster_race_idx = r_idx;
-	p_ptr->monster_unique_idx = u_idx;
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-}
-
-/*
- * Hack -- track the given object kind
- */
-void object_kind_track(int k_idx, int pval)
-{
-	/* Save this object ID */
-	p_ptr->object_kind_idx = k_idx;
-	p_ptr->object_pval = pval;
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OBJECT);
 }
 
 /*

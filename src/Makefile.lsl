@@ -9,8 +9,8 @@ SRCS = \
   xtra1.c xtra2.c effects.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c squelch.c\
   cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
-  store.c birth.c load.c quest.c powers.c\
-  wizard1.c wizard2.c \
+  store.c birth.c load.c quest.c powers.c \
+  wizard.c info.c traps.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
 
@@ -21,8 +21,8 @@ OBJS = \
   xtra1.o xtra2.o effects.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o squelch.o\
   cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \
-  store.o birth.o load.o quest.o powers.o\
-  wizard1.o wizard2.o \
+  store.o birth.o load.o quest.o powers.o \
+  wizard.o info.o traps.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
 
@@ -85,6 +85,7 @@ dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
+info.o: info.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 load.o: load.c $(INCS)
@@ -109,10 +110,10 @@ spells2.o: spells2.c $(INCS)
 squelch.o: squelch.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
+traps.o: traps.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
-wizard1.o: wizard1.c $(INCS)
-wizard2.o: wizard2.c $(INCS)
+wizard.o: wizard.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h

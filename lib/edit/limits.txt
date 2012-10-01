@@ -8,13 +8,19 @@
 
 # Version stamp (required)
 
-V:0.3.6
+V:0.4.0
 
 # Maximum number of feature types
-M:F:80
+M:F:42
+
+# Maximum number of room description lines
+M:D:231
 
 # Maximum number of object kinds
-M:K:551
+M:K:506
+
+# First gold entry
+S:G:464
 
 # Maximum number of artifacts
 M:A:167
@@ -23,44 +29,56 @@ M:A:167
 S:A:31
 
 # Maximum number of classes
-M:C:8
+M:C:9
 
 # Maximum number of ego-item types
-M:E:128
+M:E:144
 
-# Maximum number of prefix types
-M:X:21
+# Maximum number of weapon prefix types
+M:X:24
+
+# Maximum number of armor prefix types
+M:Y:9
+
+# Maximum number of trap widgets
+M:W:35
 
 # Maximum number of monster races
 M:R:668
 
+# Maximum number of special (ego) monsters
+M:S:11
+
 # Maximum number of monster uniques
-M:U:108
+M:U:111
 
 # Maximum number of vaults
 M:V:38
 
 # Maximum number of player races
-M:P:15
+M:P:13
 
 # Maximum number of player history lines
-M:H:210
+M:H:217
 
 # Maximum number of owners per store
 M:B:5
 
-# Maximum number of quests (including random quests)
-M:Q:128
+# Maximum number of quests (including a slot for random quests)
+M:Q:4
 
-# Maximum number of objects
+# Maximum number of objects on a level
 M:O:512
 # Old Vanilla value - might be necessary on older computers
 # M:O:256
 
-# Maximum number of monsters
+# Maximum number of monsters on a level
 M:M:1024
 # Old Vanilla value - might be necessary on older computers
 # M:M:512
+
+# Maximum number of traps on a level
+M:T:128
 
 # Array sizes (in bytes) for some initialization stuff
 #
@@ -71,4 +89,4 @@ M:N:20480
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:61440
+M:?:61440
