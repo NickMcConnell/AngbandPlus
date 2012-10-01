@@ -27,7 +27,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
 	char history[5][55];
 };
@@ -40,7 +40,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
 
 /*
  * Additional items in the "start kit"
@@ -850,10 +850,10 @@ static bool player_birth_aux_1(void)
 		op_ptr->opt_adult[i] = op_ptr->opt_birth[i];
 	}
 
-	/* Reset score options from cheat options */
+	/* Reset score options and cheat options */
 	for (i = 0; i < OPT_CHEAT; i++)
 	{
-		op_ptr->opt_score[i] = op_ptr->opt_cheat[i];
+		op_ptr->opt_cheat[i] = op_ptr->opt_score[i] = FALSE;
 	}
 
 	/* Clean up */
@@ -1045,9 +1045,9 @@ static bool player_birth_aux_3(void)
 
 	char buf[80];
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
@@ -1058,7 +1058,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 

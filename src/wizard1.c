@@ -229,13 +229,13 @@ static void spoil_obj_desc(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		message(MSG_FAIL, 0, "Cannot create spoiler file.");
 		return;
 	}
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items for Angband Version %d.%d.%d\n\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Spoiler File -- Basic Items for %s Version %s\n\n\n",
+	        VERSION_NAME, VERSION_STRING);
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -320,12 +320,12 @@ static void spoil_obj_desc(cptr fname)
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		message(MSG_FAIL, 0, "Cannot close spoiler file.");
 		return;
 	}
 
 	/* Message */
-	msg_print("Successfully created a spoiler file.");
+	message(MSG_SUCCEED, 0, "Successfully created a spoiler file.");
 }
 
 /*
@@ -468,7 +468,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR4_BRAND_ELEC,	"Lightning Brand" },
 	{ TR4_BRAND_FIRE,	"Flame Tongue" },
 	{ TR4_BRAND_COLD,	"Frost Brand" },
-	{ TR4_BRAND_VENOM,	"Venom Brand" },
+	{ TR4_BRAND_POIS,	"Venom Brand" },
 	{ TR4_BRAND_LITE,	"Light Brand" },
 	{ TR4_BRAND_DARK,	"Dark Brand" },
 };
@@ -681,7 +681,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_x_ptr,
 /*
  * Get a "basic" description "The Cloak of Death [1,+10]"
  */
-static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
+static void analyze_general(object_type *o_ptr, char *desc_x_ptr)
 {
 	/* Get a "useful" description of the object */
 	object_desc_store(desc_x_ptr, o_ptr, TRUE, 1);
@@ -692,7 +692,7 @@ static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
  * speed, infravision, tunneling, stealth, searching, and extra attacks.
  */
 
-static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
+static void analyze_pval(object_type *o_ptr, pval_info_type *pval_x_ptr)
 {
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 	                        TR1_DEX | TR1_CON | TR1_CHR);
@@ -740,9 +740,10 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 	*affects_list = NULL;
 }
 
-/* Note the slaying specialties of a weapon */
-
-static void analyze_slay (object_type *o_ptr, cptr *slay_list)
+/* 
+ * Note the slaying specialties of a weapon 
+ */
+static void analyze_slay(object_type *o_ptr, cptr *slay_list)
 {
 	u32b f1, f2, f3, f4;
 
@@ -755,9 +756,10 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 	*slay_list = NULL;
 }
 
-/* Note an object's elemental brands */
-
-static void analyze_brand (object_type *o_ptr, cptr *brand_list)
+/* 
+ * Note an object's elemental brands 
+ */
+static void analyze_brand(object_type *o_ptr, cptr *brand_list)
 {
 	u32b f1, f2, f3, f4;
 
@@ -770,8 +772,10 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 	*brand_list = NULL;
 }
 
-/* Note the resistances granted by an object */
-static void analyze_resist (object_type *o_ptr, cptr *resist_list)
+/* 
+ * Note the resistances granted by an object 
+ */
+static void analyze_resist(object_type *o_ptr, cptr *resist_list)
 {
 	u32b f1, f2, f3, f4;
 
@@ -784,8 +788,10 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 	*resist_list = NULL;
 }
 
-/* Note the immunities granted by an object */
-static void analyze_immune (object_type *o_ptr, cptr *immune_list)
+/* 
+ * Note the immunities granted by an object 
+ */
+static void analyze_immune(object_type *o_ptr, cptr *immune_list)
 {
 	u32b f1, f2, f3, f4;
 
@@ -799,8 +805,10 @@ static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 
 }
 
-/* Note which stats an object sustains */
-static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
+/* 
+ * Note which stats an object sustains 
+ */
+static void analyze_sustains(object_type *o_ptr, cptr *sustain_list)
 {
 	const u32b all_sustains = (TR1_SUST_STR | TR1_SUST_INT | TR1_SUST_WIS |
 	                           TR1_SUST_DEX | TR1_SUST_CON | TR1_SUST_CHR);
@@ -831,7 +839,7 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
-static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
+static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 {
 	u32b f1, f2, f3, f4;
 
@@ -889,7 +897,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
-static void analyze_misc (object_type *o_ptr, char *misc_desc)
+static void analyze_misc(object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -928,8 +936,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for EyAngband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for %s Version %s",
+	        VERSION_NAME, VERSION_STRING);
 	spoiler_underline(buf);
 }
 
@@ -1029,8 +1037,9 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 			 * Don't print a trailing list separator but do print a trailing
 			 * item separator.
 			 */
-			if (line_len > 1 && line[line_len - 1] == ' '
-			    && line[line_len - 2] == LIST_SEP)
+			if ((line_len > 1) && (line[line_len - 1] == ' ') &&
+			    (line[line_len - 2] == LIST_SEP))
+
 			{
 				/* Ignore space and separator */
 				line[line_len - 2] = '\0';
@@ -1062,7 +1071,9 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	fprintf(fff, "%s\n", line);
 }
 
-/* Create a spoiler file entry for an artifact */
+/* 
+ * Create a spoiler file entry for an artifact 
+ */
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
@@ -1171,7 +1182,7 @@ static void spoil_artifact(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		message(MSG_FAIL, 0, "Cannot create spoiler file.");
 		return;
 	}
 
@@ -1217,12 +1228,12 @@ static void spoil_artifact(cptr fname)
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		message(MSG_FAIL, 0, "Cannot close spoiler file.");
 		return;
 	}
 
 	/* Message */
-	msg_print("Successfully created a spoiler file.");
+	message(MSG_SUCCEED, 0, "Successfully created a spoiler file.");
 }
 
 /*
@@ -1257,13 +1268,13 @@ static void spoil_mon_desc(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		message(MSG_FAIL, 0, "Cannot create spoiler file.");
 		return;
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for EyAngband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for %s Version %s\n",
+	        VERSION_NAME, VERSION_STRING);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1359,16 +1370,15 @@ static void spoil_mon_desc(cptr fname)
 	/* Free the "who" array */
 	C_KILL(who, z_info->r_max, u16b);
 
-
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		message(MSG_FAIL, 0, "Cannot close spoiler file.");
 		return;
 	}
 
 	/* Worked */
-	msg_print("Successfully created a spoiler file.");
+	message(MSG_SUCCEED, 0, "Successfully created a spoiler file.");
 }
 
 /*
@@ -1482,13 +1492,13 @@ static void spoil_mon_info(cptr fname)
 	/* Oops */
 	if (!fff)
 	{
-		msg_print("Cannot create spoiler file.");
+		message(MSG_FAIL, 0, "Cannot create spoiler file.");
 		return;
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for EyAngband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for %s Version %s\n",
+	        VERSION_NAME, VERSION_STRING);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
@@ -1990,11 +2000,11 @@ static void spoil_mon_info(cptr fname)
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
-		msg_print("Cannot close spoiler file.");
+		message(MSG_FAIL, 0, "Cannot close spoiler file.");
 		return;
 	}
 
-	msg_print("Successfully created a spoiler file.");
+	message(MSG_SUCCEED, 0, "Successfully created a spoiler file.");
 }
 
 /*
@@ -2006,9 +2016,6 @@ void do_cmd_spoilers(void)
 
 	/* Save screen */
 	screen_save();
-
-	/* Drop priv's */
-	safe_setuid_drop();
 
 	/* Interact */
 	while (1)
@@ -2068,11 +2075,8 @@ void do_cmd_spoilers(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
-
-	/* Grab priv's */
-	safe_setuid_grab();
 
 	/* Load screen */
 	screen_load();

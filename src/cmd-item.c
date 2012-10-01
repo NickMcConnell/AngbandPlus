@@ -155,6 +155,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 void do_cmd_wield(void)
 {
 	int item, slot;
+	bool ring_auto_choose = FALSE;
 
 	object_type *o_ptr;
 
@@ -187,22 +188,134 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
 	/* Ask for ring to replace */
-	if ((o_ptr->tval == TV_RING) &&
-		inventory[INVEN_LEFT].k_idx &&
-		inventory[INVEN_RIGHT].k_idx)
+	if ((o_ptr->tval == TV_RING) &&	inventory[INVEN_LEFT].k_idx && inventory[INVEN_RIGHT].k_idx)
 	{
-		/* Restrict the choices */
-		item_tester_tval = TV_RING;
-	
-		/* Choose a ring from the equipment only */
-		q = "Replace which ring? ";
-		s = "Oops.";
-		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+		/* Maybe we can find out which ring should be replaced */
+		if (object_known_p(&inventory[INVEN_LEFT]) && 
+			object_known_p(&inventory[INVEN_RIGHT])	&& 
+			(inventory[INVEN_LEFT].sval == inventory[INVEN_RIGHT].sval))
+		{
+			switch (inventory[INVEN_LEFT].sval)
+			{
+				case SV_RING_FEATHER_FALL:
+				case SV_RING_SUSTAIN_STR_CHR:
+				case SV_RING_SUSTAIN_CON_DEX:
+				case SV_RING_SUSTAIN_INT_WIS:
+				case SV_RING_SUSTAIN_ALL:
+				case SV_RING_RESIST_FIRE_COLD:
+				case SV_RING_RESIST_ACID_ELEC:
+				case SV_RING_FREE_ACTION:
+				case SV_RING_BRAVERY:
+				case SV_RING_RESIST_CONFU:
+				case SV_RING_RESIST_POIS:
+				case SV_RING_RESIST_DISEASE:
+				case SV_RING_RESIST_DISEN:
+				case SV_RING_SEE_INVIS:
+				{
+					/* Two simple rings, pick arbitrarily */
+					slot = INVEN_RIGHT;
+					ring_auto_choose = TRUE;
+					break;
+				}
+				case SV_RING_STR:
+				case SV_RING_CON:
+				case SV_RING_DEX:
+				case SV_RING_MANA:
+				case SV_RING_HEALTH:
+				case SV_RING_GREATNESS:
+				case SV_RING_SPEED:
+				case SV_RING_SEARCHING:
+				{
+					/* Prefer the ring with lower pval */
+					if (inventory[INVEN_LEFT].pval < inventory[INVEN_RIGHT].pval)
+						slot = INVEN_LEFT;
+					else
+						slot = INVEN_RIGHT;
+					ring_auto_choose = TRUE;
+					break;
+				}
+				case SV_RING_FLAMES:
+				case SV_RING_ACID:
+				case SV_RING_ICE:
+				case SV_RING_LIGHTNING:
+				case SV_RING_PROTECTION:
+				{
+					/* Prefer the ring with lower ac bonus */
+					if (inventory[INVEN_LEFT].to_a < inventory[INVEN_RIGHT].to_a)
+						slot = INVEN_LEFT;
+					else
+						slot = INVEN_RIGHT;
+					ring_auto_choose = TRUE;
+					break;
+				}
+				case SV_RING_DAMAGE:
+				{
+					/* Prefer the ring with lower damage bonus */
+					if (inventory[INVEN_LEFT].to_d < inventory[INVEN_RIGHT].to_d)
+						slot = INVEN_LEFT;
+					else
+						slot = INVEN_RIGHT;
+					ring_auto_choose = TRUE;
+					break;
+				}
+				case SV_RING_ACCURACY:
+				{
+					/* Prefer the ring with lower to-hit bonus */
+					if (inventory[INVEN_LEFT].to_h < inventory[INVEN_RIGHT].to_h)
+						slot = INVEN_LEFT;
+					else
+						slot = INVEN_RIGHT;
+					ring_auto_choose = TRUE;
+					break;
+				}
+				case SV_RING_SLAYING:
+				{
+					/* Don't auto-choose ambiguous rings */
+					if (((inventory[INVEN_LEFT].to_h < inventory[INVEN_RIGHT].to_h) &&
+						(inventory[INVEN_LEFT].to_d > inventory[INVEN_RIGHT].to_d)) ||
+						((inventory[INVEN_LEFT].to_h > inventory[INVEN_RIGHT].to_h) &&
+						(inventory[INVEN_LEFT].to_d < inventory[INVEN_RIGHT].to_d)))
+					{
+						break;
+					}
+					else
+					{
+						/* Prefer the ring with lower bonuses */
+						if ((inventory[INVEN_LEFT].to_h < inventory[INVEN_RIGHT].to_h) ||
+							(inventory[INVEN_LEFT].to_d < inventory[INVEN_RIGHT].to_d))
+						{
+							slot = INVEN_LEFT;
+						}
+						else slot = INVEN_RIGHT;
+						ring_auto_choose = TRUE;
+						break;
+					}
+				}
+				default:
+				{
+					/* Cursed rings - always prompt to prevent trouble */
+					ring_auto_choose = FALSE;
+					break;
+				}
+			}
+		}
+		
+		if (!ring_auto_choose)
+		{
+			{
+				/* Restrict the choices */
+				item_tester_tval = TV_RING;
+
+				/* Choose a ring from the equipment only */
+				q = "Replace which ring? ";
+				s = "Oops.";
+				if (!get_item(&slot, q, s, USE_EQUIP)) return;
+			}
+		}
 	}
 
 	/* Prevent wielding into a cursed slot */
@@ -212,7 +325,7 @@ void do_cmd_wield(void)
 		object_desc(o_name, &inventory[slot], FALSE, 0);
 
 		/* Message */
-		msg_format("The %s you are %s appears to be cursed.",
+		message_format(MSG_FAIL, 0, "The %s you are %s appears to be cursed.",
 		           o_name, describe_use(slot));
 
 		/* Cancel the command */
@@ -287,13 +400,13 @@ void do_cmd_wield(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	message_format(MSG_DESCRIBE, 0, "%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
-		msg_print("Oops! It feels deathly cold!");
+		message(MSG_CURSE, 0, "Oops! It feels deathly cold!");
 
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -356,7 +469,7 @@ void do_cmd_takeoff(void)
 	if (cursed_p(o_ptr))
 	{
 		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
+		message(MSG_FAIL, 0, "Hmmm, it seems to be cursed.");
 
 		/* Nope */
 		return;
@@ -411,7 +524,7 @@ void do_cmd_drop(void)
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
 		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
+		message(MSG_FAIL, 0, "Hmmm, it seems to be cursed.");
 
 		/* Nope */
 		return;
@@ -488,7 +601,7 @@ void do_cmd_destroy(void)
 	if (artifact_p(o_ptr))
 	{
 		/* Message */
-		msg_format("You cannot destroy %s.", o_name);
+		message_format(MSG_FAIL, 0, "You cannot destroy %s.", o_name);
 
 		/* Remove special inscription, if any */
 		if (!object_known_p(o_ptr)) switch (o_ptr->discount)
@@ -526,7 +639,7 @@ void do_cmd_destroy(void)
 	}
 
 	/* Message */
-	msg_format("You destroy %s.", o_name);
+	message_format(MSG_SUCCEED, 0, "You destroy %s.", o_name);
 
 	/* Reduce the charges of rods */
 	reduce_charges(o_ptr, amt);
@@ -583,10 +696,10 @@ void do_cmd_observe(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
-	msg_format("Examining %s...", o_name);
+	message_format(MSG_DESCRIBE, 0, "Examining %s...", o_name);
 
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	if (!identify_fully_aux(o_ptr)) message(MSG_DESCRIBE, 0, "You see nothing special.");
 }
 
 /*
@@ -621,12 +734,12 @@ void do_cmd_uninscribe(void)
 	/* Nothing to remove */
 	if (!o_ptr->note)
 	{
-		msg_print("That item had no inscription to remove.");
+		message(MSG_FAIL, 0, "That item had no inscription to remove.");
 		return;
 	}
 
 	/* Message */
-	msg_print("Inscription removed.");
+	message(MSG_SUCCEED, 0, "Inscription removed.");
 
 	/* Remove the incription */
 	o_ptr->note = 0;
@@ -675,8 +788,8 @@ void do_cmd_inscribe(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Message */
-	msg_format("Inscribing %s.", o_name);
-	msg_print(NULL);
+	message_format(MSG_GENERIC, 0, "Inscribing %s.", o_name);;
+	message_flush();
 
 	/* Start with nothing */
 	strcpy(tmp, "");
@@ -767,13 +880,13 @@ static void do_cmd_refill_lamp(void)
 	else j_ptr->timeout += o_ptr->timeout;
 
 	/* Message */
-	msg_print("You fuel your lamp.");
+	message(MSG_FUEL, j_ptr->k_idx, "You fuel your lamp.");
 
 	/* Comment */
 	if (j_ptr->timeout >= FUEL_LAMP)
 	{
 		j_ptr->timeout = FUEL_LAMP;
-		msg_print("Your lamp is full.");
+		message(MSG_FUEL, -1, "Your lamp is full.");
 	}
 
 	/* Use fuel from a lantern */
@@ -872,19 +985,19 @@ static void do_cmd_refill_torch(void)
 	j_ptr->timeout += o_ptr->timeout + 5;
 
 	/* Message */
-	msg_print("You combine the torches.");
+	message(MSG_FUEL, j_ptr->k_idx, "You combine the torches.");
 
 	/* Over-fuel message */
 	if (j_ptr->timeout >= FUEL_TORCH)
 	{
 		j_ptr->timeout = FUEL_TORCH;
-		msg_print("Your torch is fully fueled.");
+		message(MSG_FUEL, -1, "Your torch is fully fueled.");
 	}
 
 	/* Refuel message */
 	else
 	{
-		msg_print("Your torch glows more brightly.");
+		message(MSG_FUEL, -1, "Your torch glows more brightly.");
 	}
 
 	/* Decrease the item (from the pack) */
@@ -923,7 +1036,7 @@ void do_cmd_refill(void)
 	/* It is nothing */
 	if (o_ptr->tval != TV_LITE)
 	{
-		msg_print("You are not wielding a refuelable light.");
+		message(MSG_FAIL, 0, "You are not wielding a refuelable light.");
 	}
 
 	/* It's a lamp */
@@ -972,10 +1085,8 @@ void do_cmd_eat_food(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Sound */
 	sound(MSG_EAT);
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1179,14 +1290,14 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_JERKY:
 		case SV_FOOD_SLIME_MOLD:
 		{
-			msg_print("That tastes good.");
+			message(MSG_EFFECT, 0, "That tastes good.");
 			ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_WAYBREAD:
 		{
-			msg_print("That tastes good.");
+			message(MSG_EFFECT, 0, "That tastes good.");
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
 			ident = TRUE;
@@ -1195,7 +1306,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_PINT_OF_NECTAR:
 		{
-			msg_print("That tastes good.");
+			message(MSG_EFFECT, 0, "That tastes good.");
 			(void)set_poisoned(0);
 			(void)set_diseased(p_ptr->diseased/2);
 			(void)set_afraid(0);
@@ -1293,7 +1404,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_APPLE_JUICE:
 		case SV_POTION_SLIME_MOLD:
 		{
-			msg_print("You feel less thirsty.");
+			message(MSG_EFFECT, 0, "You feel less thirsty.");
 			ident = TRUE;
 			break;
 		}
@@ -1306,7 +1417,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_SALT_WATER:
 		{
-			msg_print("The potion makes you vomit!");
+			message(MSG_EFFECT, 0, "The potion makes you vomit!");
 			(void)set_food(PY_FOOD_STARVE - 1);
 			(void)set_poisoned(0);
 			(void)set_paralyzed(p_ptr->paralyzed + 4);
@@ -1375,7 +1486,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (!p_ptr->hold_life && (p_ptr->exp > 0))
 			{
-				msg_print("You feel your memories fade.");
+				message(MSG_EFFECT, 0, "You feel your memories fade.");
 				lose_exp(p_ptr->exp / 4);
 				ident = TRUE;
 			}
@@ -1384,7 +1495,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_RUINATION:
 		{
-			msg_print("Your nerves and muscles feel weak and lifeless!");
+			message(MSG_EFFECT, 0, "Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
 			(void)do_dec_stat(A_STR, 25, TRUE, FALSE);
 			(void)do_dec_stat(A_WIS, 25, TRUE, FALSE);
@@ -1434,7 +1545,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DETONATIONS:
 		{
-			msg_print("Massive explosions rupture your body!");
+			message(MSG_EFFECT, 0, "Massive explosions rupture your body!");
 			take_hit(damroll(50, 20), "a potion of Detonation");
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
@@ -1444,7 +1555,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DEATH:
 		{
-			msg_print("A feeling of Death flows through your body.");
+			message(MSG_EFFECT, 0, "A feeling of Death flows through your body.");
 			take_hit(5000, "a potion of Death");
 			ident = TRUE;
 			break;
@@ -1454,14 +1565,14 @@ void do_cmd_quaff_potion(void)
 		{
 			if (rand_int(100)<=49) 
 			{
-				msg_print("You took one risk too many.");
+				message(MSG_EFFECT, 0, "You took one risk too many.");
 				take_hit(5000, "a potion of Risk");
 				ident = TRUE;
 				break;
 			}
 			else
 			{
-				msg_print("Great risks bring great rewards - ");
+				message(MSG_EFFECT, 0, "Great risks bring great rewards - ");
 				hp_player(damroll(4, 8));
 				(void)do_inc_stat(A_STR);
 				(void)do_inc_stat(A_INT);
@@ -1478,8 +1589,8 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DEFORM:
 		{
-			msg_print("You feel your flesh twist and contort");
-			scramble_stats(3);
+			message(MSG_EFFECT, 0, "You feel your flesh twist and contort");
+			for (time = 0; time < 3; time++) scramble_stats();
 			ident=TRUE;
 			p_ptr->ht+=(rand_int(11)-5);
 			p_ptr->wt+=(rand_int(21)-10);
@@ -1640,7 +1751,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_LIFE:
 		{
-			msg_print("You feel life flow through your body!");
+			message(MSG_EFFECT, 0, "You feel life flow through your body!");
 			restore_exp();
 			hp_player(5000);
 			(void)set_poisoned(0);
@@ -1666,7 +1777,7 @@ void do_cmd_quaff_potion(void)
 			{
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
-				msg_print("Your feel your head clear.");
+				message(MSG_EFFECT, 0, "Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				ident = TRUE;
@@ -1765,7 +1876,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_ENLIGHTENMENT:
 		{
-			msg_print("An image of your surroundings forms in your mind...");
+			message(MSG_EFFECT, 0, "An image of your surroundings forms in your mind...");
 			wiz_lite();
 			ident = TRUE;
 			break;
@@ -1773,8 +1884,8 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
-			msg_print("You begin to feel more enlightened...");
-			msg_print(NULL);
+			message(MSG_EFFECT, 0, "You begin to feel more enlightened...");
+			message_flush();
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
@@ -1792,8 +1903,8 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
-			msg_print("You begin to know yourself a little better...");
-			msg_print(NULL);
+			message(MSG_EFFECT, 0, "You begin to know yourself a little better...");
+			message_flush();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -1805,7 +1916,7 @@ void do_cmd_quaff_potion(void)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
 				if (ee > 100000L) ee = 100000L;
-				msg_print("You feel more experienced.");
+				message(MSG_EFFECT, 0, "You feel more experienced.");
 				gain_exp(ee);
 				ident = TRUE;
 			}
@@ -1867,11 +1978,11 @@ void do_cmd_quaff_potion(void)
 	if (!((potion_alch[o_ptr->sval].known1) && (potion_alch[o_ptr->sval].known2)) &&
 		(rand_int(100) <= p_ptr->skill[SK_ALC] - 40))
 	{
-		msg_print("You have gained alchemical knowledge!");
+		message(MSG_STUDY, 0, "You have gained alchemical knowledge!");
 		if (!(potion_alch[o_ptr->sval].known1)) potion_alch[o_ptr->sval].known1 = TRUE;
 		else potion_alch[o_ptr->sval].known2 = TRUE;
 		alchemy_describe(line, o_ptr->sval);
-		msg_format("%s", line);
+		message_format(MSG_STUDY, -1, "%s", line);
 	}
 		
 
@@ -1924,15 +2035,16 @@ static bool curse_armor(void)
 	if (artifact_p(o_ptr) && (rand_int(100) < 50))
 	{
 		/* Cool */
-		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your armor", o_name);
+		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
+			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
 	}
 
 	/* not artifact or failed save... */
 	else
 	{
 		/* Oops */
-		msg_format("A terrible black aura blasts your %s!", o_name);
+		message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
+			"A terrible black aura blasts your %s!", o_name);
 
 		/* Blast the armor */
 		o_ptr->name1 = 0;
@@ -1986,15 +2098,16 @@ static bool curse_weapon(void)
 	if (artifact_p(o_ptr) && (rand_int(100) < 50))
 	{
 		/* Cool */
-		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your weapon", o_name);
+		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
+			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
 	}
 
 	/* not artifact or failed save... */
 	else
 	{
 		/* Oops */
-		msg_format("A terrible black aura blasts your %s!", o_name);
+		message_format(MSG_ITEM_DAMAGE, o_ptr->k_idx, 
+			"A terrible black aura blasts your %s!", o_name);
 
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
@@ -2035,33 +2148,28 @@ static bool curse_weapon(void)
  */
 void do_cmd_read_scroll(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int item, k, used_up, ident, lev;
 
 	object_type *o_ptr;
 
 	cptr q, s;
 
-
 	/* Check some conditions */
 	if (p_ptr->blind)
 	{
-		msg_print("You can't see anything.");
+		message(MSG_FAIL, 0, "You can't see anything.");
 		return;
 	}
 	if (no_lite())
 	{
-		msg_print("You have no light to read by.");
+		message(MSG_FAIL, 0, "You have no light to read by.");
 		return;
 	}
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		message(MSG_FAIL, 0, "You are too confused!");
 		return;
 	}
-
 
 	/* Restrict choices to scrolls */
 	item_tester_tval = TV_SCROLL;
@@ -2111,7 +2219,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
-			msg_print("There is a high pitched humming noise.");
+			message(MSG_EFFECT, 0, "There is a high pitched humming noise.");
 			aggravate_monsters(0);
 			ident = TRUE;
 			break;
@@ -2133,7 +2241,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0))
 				{
 					ident = TRUE;
 				}
@@ -2145,7 +2253,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_UNDEAD))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_UNDEAD))
 				{
 					ident = TRUE;
 				}
@@ -2157,7 +2265,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, SUMMON_DRAGON))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DRAGON))
 				{
 					ident = TRUE;
 				}
@@ -2201,7 +2309,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ALTER_REALITY:
 		{
-			msg_print("The world changes!");
+			message(MSG_EFFECT, 0, "The world changes!");
 			/* Leaving */
 			p_ptr->leaving = TRUE;
 			ident = TRUE;
@@ -2226,7 +2334,7 @@ void do_cmd_read_scroll(void)
 		{
 			if (remove_curse())
 			{
-				msg_print("You feel as if someone is watching over you.");
+				message(MSG_EFFECT, 0, "You feel as if someone is watching over you.");
 				ident = TRUE;
 			}
 			break;
@@ -2363,7 +2471,7 @@ void do_cmd_read_scroll(void)
 		{
 			if (p_ptr->confusing == 0)
 			{
-				msg_print("Your hands begin to glow.");
+				message(MSG_EFFECT, 0, "Your hands begin to glow.");
 				p_ptr->confusing = TRUE;
 				ident = TRUE;
 			}
@@ -2392,7 +2500,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_STAR_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			destroy_area(p_ptr->py, p_ptr->px, 15, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -2419,14 +2527,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(py, px, 1, TRUE);
+			acquirement(p_ptr->py, p_ptr->px, 1, TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE);
+			acquirement(p_ptr->py, p_ptr->px, randint(2) + 1, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -2479,9 +2587,6 @@ void do_cmd_read_scroll(void)
  */
 void do_cmd_use_staff(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int item, ident, chance, k, lev;
 
 	object_type *o_ptr;
@@ -2490,7 +2595,6 @@ void do_cmd_use_staff(void)
 	bool use_charge = TRUE;
 
 	cptr q, s;
-
 
 	/* Restrict choices to staves */
 	item_tester_tval = TV_STAFF;
@@ -2516,7 +2620,7 @@ void do_cmd_use_staff(void)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the staffs.");
+		message(MSG_FAIL, 0, "You must first pick up the staffs.");
 		return;
 	}
 
@@ -2549,7 +2653,7 @@ void do_cmd_use_staff(void)
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to use the staff properly.");
+		message(MSG_FAIL, 0, "You failed to use the staff properly.");
 		return;
 	}
 
@@ -2557,7 +2661,7 @@ void do_cmd_use_staff(void)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
-		msg_print("The staff has no charges left.");
+		message(MSG_FAIL, 0, "The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
@@ -2596,7 +2700,7 @@ void do_cmd_use_staff(void)
 		{
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, p_ptr->depth, 0))
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0))
 				{
 					ident = TRUE;
 				}
@@ -2624,7 +2728,7 @@ void do_cmd_use_staff(void)
 			{
 				if (!p_ptr->blind)
 				{
-					msg_print("The staff glows blue for a moment...");
+					message(MSG_EFFECT, 0, "The staff glows blue for a moment...");
 				}
 				ident = TRUE;
 			}
@@ -2635,7 +2739,7 @@ void do_cmd_use_staff(void)
 		{
 			if (!p_ptr->blind)
 			{
-				msg_print("The end of the staff glows brightly...");
+				message(MSG_EFFECT, 0, "The end of the staff glows brightly...");
 			}
 			for (k = 0; k < 8; k++) lite_line(ddd[k],damroll(6,8));
 			ident = TRUE;
@@ -2726,7 +2830,7 @@ void do_cmd_use_staff(void)
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
 				ident = TRUE;
-				msg_print("Your feel your head clear.");
+				message(MSG_EFFECT, 0, "Your feel your head clear.");
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 			}
@@ -2799,14 +2903,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_EARTHQUAKES:
 		{
-			earthquake(py, px, 10);
+			earthquake(p_ptr->py, p_ptr->px, 10);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			destroy_area(p_ptr->py, p_ptr->px, 15, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -2860,7 +2964,7 @@ void do_cmd_use_staff(void)
 		item = inven_carry(i_ptr);
 
 		/* Message */
-		msg_print("You unstack your staff.");
+		message(MSG_GENERIC, 0, "You unstack your staff.");
 	}
 
 	/* Describe charges in the pack */
@@ -2929,7 +3033,7 @@ void do_cmd_aim_wand(void)
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
-		msg_print("You must first pick up the wands.");
+		message(MSG_FAIL, 0, "You must first pick up the wands.");
 		return;
 	}
 
@@ -2966,7 +3070,7 @@ void do_cmd_aim_wand(void)
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to use the wand properly.");
+		message(MSG_FAIL, 0, "You failed to use the wand properly.");
 		return;
 	}
 
@@ -2974,7 +3078,7 @@ void do_cmd_aim_wand(void)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
-		msg_print("The wand has no charges left.");
+		message(MSG_FAIL, 0, "The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
 		return;
 	}
@@ -3037,7 +3141,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_LITE:
 		{
-			msg_print("A line of blue shimmering light appears.");
+			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
 			lite_line(dir,damroll(6,8));
 			ident = TRUE;
 			break;
@@ -3151,7 +3255,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_WONDER:
 		{
-			msg_print("Oops.  Wand of wonder activated.");
+			message(MSG_EFFECT, 0, "Oops.  Wand of wonder activated.");
 			break;
 		}
 
@@ -3276,7 +3380,7 @@ void do_cmd_aim_wand(void)
 		item = inven_carry(i_ptr);
 
 		/* Message */
-		msg_print("You unstack your wand.");
+		message(MSG_GENERIC, 0, "You unstack your wand.");
 	}
 
 	/* Describe the charges in the pack */
@@ -3369,7 +3473,7 @@ void do_cmd_zap_rod(void)
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to use the rod properly.");
+		message(MSG_FAIL, 0, "You failed to use the rod properly.");
 		return;
 	}
 
@@ -3377,14 +3481,14 @@ void do_cmd_zap_rod(void)
 	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
-		msg_print("The rod is still charging.");
+		message(MSG_FAIL, 0, "The rod is still charging.");
 		return;
 	}
 	/* A stack of rods lacks enough energy. */
 	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_info[o_ptr->k_idx].pval))
 	{
 		if (flush_failure) flush();
-		msg_print("The rods are all still charging.");
+		message(MSG_FAIL, 0, "The rods are all still charging.");
 		return;
 	}
 
@@ -3508,7 +3612,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_LITE:
 		{
-			msg_print("A line of blue shimmering light appears.");
+			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
 			lite_line(dir,damroll(6,8));
 			ident = TRUE;
 			break;
@@ -3657,7 +3761,7 @@ static void ring_of_power(int dir)
 		case 2:
 		{
 			/* Message */
-			msg_print("You are surrounded by a malignant aura.");
+			message(MSG_EFFECT, 0, "You are surrounded by a malignant aura.");
 
 			/* Decrease all stats (permanently) */
 			(void)do_dec_stat(A_STR, 50, TRUE, FALSE);
@@ -3678,7 +3782,7 @@ static void ring_of_power(int dir)
 		case 3:
 		{
 			/* Message */
-			msg_print("You are surrounded by a powerful aura.");
+			message(MSG_EFFECT, 0, "You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
 			dispel_monsters(1000);
@@ -3777,19 +3881,19 @@ void do_cmd_activate(void)
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
-		msg_print("You failed to activate it properly.");
+		message(MSG_FAIL, 0, "You failed to activate it properly.");
 		return;
 	}
 
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
-		msg_print("It whines, glows and fades...");
+		message(MSG_FAIL, 0, "It whines, glows and fades...");
 		return;
 	}
 
 	/* Activate the artifact */
-	message(MSG_ZAP, 0, "You activate it...");
+	message(MSG_ZAP, TRUE, "You activate it...");
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -3804,21 +3908,21 @@ void do_cmd_activate(void)
 		{
 			case ACT_ILLUMINATION:
 			{
-				msg_format("The %s wells with clear light...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s wells with clear light...", o_name);
 				lite_area(damroll(2, 15), 3);
 				break;
 			}
 
 			case ACT_MAGIC_MAP:
 			{
-				msg_format("The %s shines brightly...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s shines brightly...", o_name);
 				map_area();
 				break;
 			}
 
 			case ACT_CLAIRVOYANCE:
 			{
-				msg_format("The %s glows a deep green...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s glows a deep green...", o_name);
 				wiz_lite();
 				(void)detect_traps();
 				(void)detect_doors();
@@ -3828,7 +3932,7 @@ void do_cmd_activate(void)
 
 			case ACT_PROT_EVIL:
 			{
-				msg_format("The %s lets out a shrill wail...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s lets out a shrill wail...", o_name);
 				k = 3 * p_ptr->lev;
 				(void)set_protevil(p_ptr->protevil + randint(25) + k);
 				break;
@@ -3836,14 +3940,14 @@ void do_cmd_activate(void)
 
 			case ACT_DISP_EVIL:
 			{
-				msg_format("The %s floods the area with goodness...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s floods the area with goodness...", o_name);
 				dispel_evil(p_ptr->lev * 5);
 				break;
 			}
 
 			case ACT_HASTE2:
 			{
-				msg_format("The %s glows brightly...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s glows brightly...", o_name);
 				if (!p_ptr->fast)
 				{
 					(void)set_fast(randint(75) + 75);
@@ -3857,7 +3961,7 @@ void do_cmd_activate(void)
 
 			case ACT_FIRE3:
 			{
-				msg_format("The %s glows deep red...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 120, 3);
 				break;
@@ -3865,7 +3969,7 @@ void do_cmd_activate(void)
 
 			case ACT_FROST5:
 			{
-				msg_format("The %s glows bright white...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s glows bright white...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 200, 3);
 				break;
@@ -3873,7 +3977,7 @@ void do_cmd_activate(void)
 
 			case ACT_ELEC2:
 			{
-				msg_format("The %s glows deep blue...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s glows deep blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ELEC, dir, 250, 3);
 				break;
@@ -3881,7 +3985,7 @@ void do_cmd_activate(void)
 
 			case ACT_BIZZARE:
 			{
-				msg_format("The %s glows intensely black...", o_name);
+				message_format(MSG_EFFECT, 0, "The %s glows intensely black...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				ring_of_power(dir);
 				break;
@@ -3890,21 +3994,21 @@ void do_cmd_activate(void)
 
 			case ACT_STAR_BALL:
 			{
-				msg_format("Your %s is surrounded by lightning...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is surrounded by lightning...", o_name);
 				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
 				break;
 			}
 
 			case ACT_RAGE:
 			{
-				msg_format("Your %s glows blood-red...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows blood-red...", o_name);
 				(void)set_rage(p_ptr->rage + randint(50) + 50);
 				break;
 			}
 
 			case ACT_RAGE_BLESS_RESIST:
 			{
-				msg_format("Your %s glows many colours...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows many colours...", o_name);
 				(void)hp_player(30);
 				(void)set_afraid(0);
 				(void)set_rage(p_ptr->rage + randint(50) + 50);
@@ -3919,8 +4023,8 @@ void do_cmd_activate(void)
 
 			case ACT_HEAL2:
 			{
-				msg_format("Your %s glows a bright white...", o_name);
-				msg_print("You feel much better...");
+				message_format(MSG_EFFECT, 0, "Your %s glows a bright white...", o_name);
+				message(MSG_EFFECT, 0, "You feel much better...");
 				(void)hp_player(1000);
 				(void)set_cut(0);
 				break;
@@ -3928,37 +4032,37 @@ void do_cmd_activate(void)
 
 			case ACT_PHASE:
 			{
-				msg_format("Your %s twists space around you...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s twists space around you...", o_name);
 				teleport_player(10);
 				break;
 			}
 
 			case ACT_GENOCIDE:
 			{
-				msg_format("Your %s glows deep blue...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
 
 			case ACT_TRAP_DOOR_DEST:
 			{
-				msg_format("Your %s glows bright red...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows bright red...", o_name);
 				destroy_doors_touch();
 				break;
 			}
 
 			case ACT_DETECT:
 			{
-				msg_format("Your %s glows bright white...", o_name);
-				msg_print("An image forms in your mind...");
+				message_format(MSG_EFFECT, 0, "Your %s glows bright white...", o_name);
+				message(MSG_EFFECT, 0, "An image forms in your mind...");
 				detect_all();
 				break;
 			}
 
 			case ACT_HEAL1:
 			{
-				msg_format("Your %s glows deep blue...", o_name);
-				msg_print("You feel a warm tingling inside...");
+				message_format(MSG_EFFECT, 0, "Your %s glows deep blue...", o_name);
+				message(MSG_EFFECT, 0, "You feel a warm tingling inside...");
 				(void)hp_player(500);
 				(void)set_cut(0);
 				break;
@@ -3966,7 +4070,7 @@ void do_cmd_activate(void)
 
 			case ACT_RESIST:
 			{
-				msg_format("Your %s glows many colours...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows many colours...", o_name);
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
@@ -3977,40 +4081,40 @@ void do_cmd_activate(void)
 
 			case ACT_SLEEP:
 			{
-				msg_format("Your %s glows deep blue...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows deep blue...", o_name);
 				sleep_monsters_touch();
 				break;
 			}
 
 			case ACT_RECHARGE1:
 			{
-				msg_format("Your %s glows bright yellow...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows bright yellow...", o_name);
 				recharge(60);
 				break;
 			}
 
 			case ACT_TELEPORT:
 			{
-				msg_format("Your %s twists space around you...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s twists space around you...", o_name);
 				teleport_player(100);
 				break;
 			}
 
 			case ACT_RESTORE_LIFE:
 			{
-				msg_format("Your %s glows a deep red...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows a deep red...", o_name);
 				restore_exp();
 				break;
 			}
 
 			case ACT_RESTORE_MANA:
 			{
-				msg_format("Your %s glows in all the colours of the rainbow...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows in all the colours of the rainbow...", o_name);
 				if (p_ptr->csp < p_ptr->msp)
 				{
 					p_ptr->csp = p_ptr->msp;
 					p_ptr->csp_frac = 0;
-					msg_print("Your feel your head clear.");
+					message(MSG_EFFECT, 0, "Your feel your head clear.");
 					p_ptr->redraw |= (PR_MANA);
 					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				}
@@ -4019,7 +4123,7 @@ void do_cmd_activate(void)
 
 			case ACT_MISSILE:
 			{
-				msg_format("Your %s glows extremely brightly...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows extremely brightly...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
 				break;
@@ -4027,16 +4131,16 @@ void do_cmd_activate(void)
 
 			case ACT_DIMENSION_DOOR:
 			{
-				msg_format("Your %s opens a door in the fabric of reality...", o_name);
-				msg_print("Choose a location to teleport to.");
-				msg_print(NULL);
+				message_format(MSG_EFFECT, 0, "Your %s opens a door in the fabric of reality...", o_name);
+				message(MSG_EFFECT, 0, "Choose a location to teleport to.");
+				message_flush();
 				dimen_door();
 				break;
 			}
 
 			case ACT_FIRE1:
 			{
-				msg_format("Your %s is covered in fire...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in fire...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
 				break;
@@ -4044,7 +4148,7 @@ void do_cmd_activate(void)
 
 			case ACT_FROST1:
 			{
-				msg_format("Your %s is covered in frost...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in frost...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(6, 8));
 				break;
@@ -4052,7 +4156,7 @@ void do_cmd_activate(void)
 
 			case ACT_LIGHTNING_BOLT:
 			{
-				msg_format("Your %s is covered in sparks...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in sparks...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
 				break;
@@ -4060,7 +4164,7 @@ void do_cmd_activate(void)
 
 			case ACT_LITE_BOLT:
 			{
-				msg_format("Your %s is covered in light...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in light...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_LITE, dir, damroll(4, 8));
 				break;
@@ -4068,7 +4172,7 @@ void do_cmd_activate(void)
 
 			case ACT_DARK_BOLT:
 			{
-				msg_format("Your %s is covered in darkness...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in darkness...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_DARK, dir, damroll(4, 8));
 				break;
@@ -4076,7 +4180,7 @@ void do_cmd_activate(void)
 
 			case ACT_WATER_BOLT:
 			{
-				msg_format("Your %s is covered in water...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in water...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_WATER, dir, damroll(5, 7));
 				break;
@@ -4084,7 +4188,7 @@ void do_cmd_activate(void)
 
 			case ACT_MANA_BOLT:
 			{
-				msg_format("Your %s is covered in a purple aura...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in a purple aura...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MANA, dir, damroll(8, 8));
 				break;
@@ -4092,7 +4196,7 @@ void do_cmd_activate(void)
 
 			case ACT_ACID1:
 			{
-				msg_format("Your %s is covered in acid...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in acid...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				break;
@@ -4100,7 +4204,7 @@ void do_cmd_activate(void)
 
 			case ACT_ARROW:
 			{
-				msg_format("Your %s grows magical spikes...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s grows magical spikes...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ARROW, dir, 150);
 				break;
@@ -4108,7 +4212,7 @@ void do_cmd_activate(void)
 
 			case ACT_HASTE1:
 			{
-				msg_format("Your %s glows bright green...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows bright green...", o_name);
 				if (!p_ptr->fast)
 				{
 					(void)set_fast(randint(20) + 20);
@@ -4122,7 +4226,7 @@ void do_cmd_activate(void)
 
 			case ACT_REM_FEAR_POIS:
 			{
-				msg_format("Your %s glows deep blue...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows deep blue...", o_name);
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
 				break;
@@ -4130,7 +4234,7 @@ void do_cmd_activate(void)
 
 			case ACT_STINKING_CLOUD:
 			{
-				msg_format("Your %s throbs deep green...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s throbs deep green...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir, 12, 3);
 				break;
@@ -4138,7 +4242,7 @@ void do_cmd_activate(void)
 
 			case ACT_FROST2:
 			{
-				msg_format("Your %s is covered in frost...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s is covered in frost...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 48, 2);
 				break;
@@ -4146,7 +4250,7 @@ void do_cmd_activate(void)
 
 			case ACT_FROST4:
 			{
-				msg_format("Your %s glows a pale blue...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows a pale blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(12, 8));
 				break;
@@ -4154,7 +4258,7 @@ void do_cmd_activate(void)
 
 			case ACT_FROST3:
 			{
-				msg_format("Your %s glows a intense blue...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows a intense blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 100, 2);
 				break;
@@ -4162,7 +4266,7 @@ void do_cmd_activate(void)
 
 			case ACT_FIRE2:
 			{
-				msg_format("Your %s rages in fire...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s rages in fire...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 72, 2);
 				break;
@@ -4170,7 +4274,7 @@ void do_cmd_activate(void)
 
 			case ACT_DRAIN_LIFE2:
 			{
-				msg_format("Your %s glows black...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows black...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				drain_life(dir, 120);
 				break;
@@ -4178,7 +4282,7 @@ void do_cmd_activate(void)
 
 			case ACT_STONE_TO_MUD:
 			{
-				msg_format("Your %s pulsates...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s pulsates...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				wall_to_mud(dir);
 				break;
@@ -4186,14 +4290,14 @@ void do_cmd_activate(void)
 
 			case ACT_MASS_GENOCIDE:
 			{
-				msg_format("Your %s lets out a long, shrill note...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s lets out a long, shrill note...", o_name);
 				(void)mass_genocide();
 				break;
 			}
 
 			case ACT_CURE_WOUNDS:
 			{
-				msg_format("Your %s radiates deep purple...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s radiates deep purple...", o_name);
 				hp_player(damroll(4, 8));
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				break;
@@ -4201,7 +4305,7 @@ void do_cmd_activate(void)
 
 			case ACT_TELE_AWAY:
 			{
-				msg_format("Your %s glows deep red...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				teleport_monster(dir);
 				break;
@@ -4209,14 +4313,14 @@ void do_cmd_activate(void)
 
 			case ACT_WOR:
 			{
-				msg_format("Your %s glows soft white...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows soft white...", o_name);
 				set_recall();
 				break;
 			}
 
 			case ACT_CONFUSE:
 			{
-				msg_format("Your %s glows in scintillating colours...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows in scintillating colours...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				confuse_monster(dir, 20);
 				break;
@@ -4224,21 +4328,21 @@ void do_cmd_activate(void)
 
 			case ACT_IDENTIFY:
 			{
-				msg_format("Your %s glows yellow...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows yellow...", o_name);
 				if (!ident_spell()) return;
 				break;
 			}
 
 			case ACT_PROBE:
 			{
-				msg_format("Your %s glows brightly...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows brightly...", o_name);
 				probing();
 				break;
 			}
 
 			case ACT_DRAIN_LIFE1:
 			{
-				msg_format("Your %s glows white...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows white...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				drain_life(dir, 90);
 				break;
@@ -4246,51 +4350,51 @@ void do_cmd_activate(void)
 
 			case ACT_FIREBRAND:
 			{
-				msg_format("Your %s glows deep red...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows deep red...", o_name);
 				(void)brand_weapon(TV_BOLT,EGO_FLAME,TRUE);
 				break;
 			}
 
 			case ACT_LITEBRAND:
 			{
-				msg_format("Your %s glows blinding white...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows blinding white...", o_name);
 				(void)brand_weapon(TV_BOLT,EGO_AMMO_LITE,TRUE);
 				break;
 			}
 
 			case ACT_VENOMSHOT:
 			{
-				msg_format("Your %s glows sickly green...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows sickly green...", o_name);
 				(void)brand_weapon(TV_SHOT,EGO_POISON,TRUE);
 				break;
 			}
 
 			case ACT_SATISFY_HUNGER:
 			{
-				msg_format("Your %s glow a soft, gentle red...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glow a soft, gentle red...", o_name);
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
 			case ACT_DETECT_ENCHANT:
 			{
-				msg_format("Your %s emits a low frequancy ringing...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s emits a low frequancy ringing...", o_name);
 				(void)detect_objects_magic();
 			}
 
 			case ACT_DETECT_TRAPS:
 			{
-				msg_format("Your %s shimmers brightly...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s shimmers brightly...", o_name);
 				(void)detect_traps();
 			}
 			case ACT_DETECT_TREASURE:
 			{
-				msg_format("Your %s glows golden yellow...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s glows golden yellow...", o_name);
 				(void)detect_treasure();
 			}
 			case ACT_CALM_NON_CHAOS:
 			{
-				msg_format("Your %s resonates with the voice of law...", o_name);
+				message_format(MSG_EFFECT, 0, "Your %s resonates with the voice of law...", o_name);
 				(void)calm_non_chaos();
 			}
 		}
@@ -4319,7 +4423,7 @@ void do_cmd_activate(void)
 		{
 			case SV_DRAGON_BLUE:
 			{
-				msg_print("You breathe lightning.");
+				message(MSG_DSM, o_ptr->sval, "You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4327,7 +4431,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_WHITE:
 			{
-				msg_print("You breathe frost.");
+				message(MSG_DSM, o_ptr->sval, "You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4335,7 +4439,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_BLACK:
 			{
-				msg_print("You breathe acid.");
+				message(MSG_DSM, o_ptr->sval, "You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4343,7 +4447,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_GREEN:
 			{
-				msg_print("You breathe poison gas.");
+				message(MSG_DSM, o_ptr->sval, "You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4351,7 +4455,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_RED:
 			{
-				msg_print("You breathe fire.");
+				message(MSG_DSM, o_ptr->sval, "You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4360,7 +4464,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_MULTIHUED:
 			{
 				chance = rand_int(5);
-				msg_format("You breathe %s.",
+				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
 				           ((chance == 1) ? "lightning" :
 				            ((chance == 2) ? "frost" :
 				             ((chance == 3) ? "acid" :
@@ -4376,7 +4480,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_BRONZE:
 			{
-				msg_print("You breathe confusion.");
+				message(MSG_DSM, o_ptr->sval, "You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4384,7 +4488,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_GOLD:
 			{
-				msg_print("You breathe sound.");
+				message(MSG_DSM, o_ptr->sval, "You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
@@ -4393,7 +4497,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_CHAOS:
 			{
 				chance = rand_int(2);
-				msg_format("You breathe %s.",
+				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
@@ -4404,7 +4508,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_LAW:
 			{
 				chance = rand_int(2);
-				msg_format("You breathe %s.",
+				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
 				          dir, 230, 2);
@@ -4415,7 +4519,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_ETHEREAL:
 			{
 				chance = rand_int(3);
-				msg_format("You breathe %s.",
+				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
 				           ((chance == 1) ? "light" :
 				            ((chance == 2) ? "darknesst" : "confusion")));
 				fire_ball((chance == 1) ? GF_LITE :
@@ -4428,7 +4532,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_BALANCE:
 			{
 				chance = rand_int(4);
-				msg_format("You breathe %s.",
+				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
 				           ((chance == 1) ? "chaos" :
 				            ((chance == 2) ? "disenchantment" :
 				             ((chance == 3) ? "sound" : "shards"))));
@@ -4443,7 +4547,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_SHINING:
 			{
 				chance = rand_int(2);
-				msg_format("You breathe %s.",
+				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
 				o_ptr->timeout = rand_int(300) + 300;
@@ -4452,7 +4556,7 @@ void do_cmd_activate(void)
 
 			case SV_DRAGON_POWER:
 			{
-				msg_print("You breathe the elements.");
+				message(MSG_DSM, o_ptr->sval, "You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
@@ -4468,7 +4572,7 @@ void do_cmd_activate(void)
 
 
 	/* Mistake */
-	msg_print("Oops.  That object cannot be activated.");
+	message(MSG_FAIL, 0, "Oops.  That object cannot be activated.");
 }
 
 void do_cmd_mix(void)
@@ -4517,7 +4621,7 @@ void do_cmd_mix(void)
 
 	if (o_ptr1->sval==o_ptr2->sval)
 	{
-		msg_print("You must mix two different potions!");
+		message(MSG_FAIL, 0, "You must mix two different potions!");
 		return;
 	}
 
@@ -4588,10 +4692,10 @@ void do_cmd_mix(void)
 		potion_alch[sv].known2 = TRUE;
 	}
 
-	else if ((roll < chance+30) && (roll < 99)) msg_print("You have wasted the potions.");
+	else if ((roll < chance+30) && (roll < 99)) message(MSG_FAIL, 0, "You have wasted the potions.");
 	else 
 	{
-		msg_print("The potions explode in your hands!");
+		message(MSG_FAIL, 0, "The potions explode in your hands!");
 		take_hit(damroll(4,8)+penalty, "carelessly mixing potions");
 	}
 

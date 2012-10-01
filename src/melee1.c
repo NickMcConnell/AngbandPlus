@@ -72,10 +72,12 @@ static int check_hit(int power, int level)
 	return (FALSE);
 }
 
+#define MAX_DESC_INSULT 8
+
 /*
  * Hack -- possible "insult" messages
  */
-static cptr desc_insult[] =
+static cptr desc_insult[MAX_DESC_INSULT] =
 {
 	"insults you!",
 	"insults your mother!",
@@ -87,10 +89,12 @@ static cptr desc_insult[] =
 	"moons you!!!"
 };
 
+#define MAX_DESC_MOAN 4
+
 /*
  * Hack -- possible "insult" messages
  */
-static cptr desc_moan[] =
+static cptr desc_moan[MAX_DESC_MOAN] =
 {
 	"seems sad about something.",
 	"asks if you have seen his dogs.",
@@ -226,7 +230,7 @@ bool make_attack_normal(int m_idx)
 				}
 
 				/* Message */
-				msg_format("%^s is repelled.", m_name);
+				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
 
 				/* Hack -- Next attack */
 				continue;
@@ -355,20 +359,20 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_INSULT:
 				{
-					act = desc_insult[rand_int(8)];
+					act = desc_insult[rand_int(MAX_DESC_INSULT)];
 					break;
 				}
 
 				case RBM_MOAN:
 				{
-					act = desc_moan[rand_int(4)];
+					act = desc_moan[rand_int(MAX_DESC_MOAN)];
 					break;
 				}
 
 			}
 
 			/* Message */
-			if (act) msg_format("%^s %s", m_name, act);
+			if (act) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s %s", m_name, act);
 
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
@@ -480,12 +484,11 @@ bool make_attack_normal(int m_idx)
 						if (!o_ptr->k_idx) continue;
 
 						/* Drain charged wands/staffs */
-						if (((o_ptr->tval == TV_STAFF) ||
-						     (o_ptr->tval == TV_WAND)) &&
-						    (o_ptr->pval))
+						if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) &&
+							(o_ptr->pval > 0))
 						{
 							/* Message */
-							msg_print("Energy drains from your pack!");
+							message(MSG_ITEM_DAMAGE, 0, "Energy drains from your pack!");
 
 							/* Obvious */
 							obvious = TRUE;
@@ -529,7 +532,7 @@ bool make_attack_normal(int m_idx)
 					                      p_ptr->lev)))
 					{
 						/* Saving throw message */
-						msg_print("You quickly protect your money pouch!");
+						message(MSG_RESIST, 0, "You quickly protect your money pouch!");
 
 						/* Occasional blink anyway */
 						if (rand_int(3)) blinked = TRUE;
@@ -545,17 +548,17 @@ bool make_attack_normal(int m_idx)
 						p_ptr->au -= gold;
 						if (gold <= 0)
 						{
-							msg_print("Nothing was stolen.");
+							message(MSG_THEFT, 0, "Nothing was stolen.");
 						}
 						else if (p_ptr->au)
 						{
-							msg_print("Your purse feels lighter.");
-							msg_format("%ld coins were stolen!", (long)gold);
+							message(MSG_THEFT, 0, "Your purse feels lighter.");
+							message_format(MSG_THEFT, -1, "%ld coins were stolen!", (long)gold);
 						}
 						else
 						{
-							msg_print("Your purse feels lighter.");
-							msg_print("All of your coins were stolen!");
+							message(MSG_THEFT, 0, "Your purse feels lighter.");
+							message(MSG_THEFT, -1, "All of your coins were stolen!");
 						}
 
 						/* Redraw gold */
@@ -582,7 +585,7 @@ bool make_attack_normal(int m_idx)
 					                      p_ptr->lev)))
 					{
 						/* Saving throw message */
-						msg_print("You grab hold of your backpack!");
+						message(MSG_RESIST, 0, "You grab hold of your backpack!");
 
 						/* Occasional "blink" anyway */
 						blinked = TRUE;
@@ -616,7 +619,7 @@ bool make_attack_normal(int m_idx)
 						object_desc(o_name, o_ptr, FALSE, 3);
 
 						/* Message */
-						msg_format("%sour %s (%c) was stolen!",
+						message_format(MSG_THEFT, 0, "%sour %s (%c) was stolen!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
 						           o_name, index_to_label(i));
 
@@ -673,7 +676,7 @@ bool make_attack_normal(int m_idx)
 						object_desc(o_name, o_ptr, FALSE, 0);
 
 						/* Message */
-						msg_format("%sour %s (%c) was eaten!",
+						message_format(MSG_THEFT, 0, "%sour %s (%c) was eaten!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
 						           o_name, index_to_label(i));
 
@@ -709,7 +712,7 @@ bool make_attack_normal(int m_idx)
 						/* Notice */
 						if (!p_ptr->blind)
 						{
-							msg_print("Your light dims.");
+							message(MSG_EFFECT, 0, "Your light dims.");
 							obvious = TRUE;
 						}
 
@@ -726,7 +729,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
-					msg_print("You are covered in acid!");
+					message(MSG_MONSTER, m_ptr->r_idx, "You are covered in acid!");
 
 					/* Special damage */
 					acid_dam(damage, ddesc);
@@ -743,7 +746,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
-					msg_print("You are struck by electricity!");
+					message(MSG_MONSTER, m_ptr->r_idx, "You are struck by electricity!");
 
 					/* Take damage (special) */
 					elec_dam(damage, ddesc);
@@ -760,7 +763,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
-					msg_print("You are enveloped in flames!");
+					message(MSG_MONSTER, m_ptr->r_idx, "You are enveloped in flames!");
 
 					/* Take damage (special) */
 					fire_dam(damage, ddesc);
@@ -777,7 +780,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Message */
-					msg_print("You are covered with frost!");
+					message(MSG_MONSTER, m_ptr->r_idx, "You are covered with frost!");
 
 					/* Take damage (special) */
 					cold_dam(damage, ddesc);
@@ -836,12 +839,12 @@ bool make_attack_normal(int m_idx)
 					/* Increase "afraid" */
 					if (p_ptr->bravery)
 					{
-						msg_print("You stand your ground!");
+						message(MSG_RESIST, 0, "You stand your ground!");
 						obvious = TRUE;
 					}
 					else if (rand_int(100) < p_ptr->skill[SK_SAV])
 					{
-						msg_print("You stand your ground!");
+						message(MSG_RESIST, 0, "You stand your ground!");
 						obvious = TRUE;
 					}
 					else
@@ -869,12 +872,12 @@ bool make_attack_normal(int m_idx)
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
 					{
-						msg_print("You are unaffected!");
+						message(MSG_RESIST, 0, "You are unaffected!");
 						obvious = TRUE;
 					}
 					else if (rand_int(100) < p_ptr->skill[SK_SAV])
 					{
-						msg_print("You resist the effects!");
+						message(MSG_RESIST, 0, "You resist the effects!");
 						obvious = TRUE;
 					}
 					else
@@ -1000,19 +1003,19 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->hold_life && (rand_int(100) < 90))
 					{
-						msg_print("You keep hold of your life force!");
+						message(MSG_RESIST, 0, "You keep hold of your life force!");
 					}
 					else
 					{
-						s32b d = (p_ptr->exp/100);
+						s32b d = (p_ptr->exp / 100);
 						if (p_ptr->hold_life)
 						{
-							msg_print("You feel your life slipping away!");
-							lose_exp(d/10);
+							message(MSG_EFFECT, 0, "You feel your life slipping away!");
+							lose_exp(d / 10);
 						}
 						else
 						{
-							msg_print("You feel your life draining away!");
+							message(MSG_EFFECT, 0, "You feel your life draining away!");
 							lose_exp(d);
 						}
 					}
@@ -1029,19 +1032,19 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->hold_life && (rand_int(100) < 80))
 					{
-						msg_print("You keep hold of your life force!");
+						message(MSG_RESIST, 0, "You keep hold of your life force!");
 					}
 					else
 					{
-						s32b d = (p_ptr->exp/50);
+						s32b d = (p_ptr->exp / 50);
 						if (p_ptr->hold_life)
 						{
-							msg_print("You feel your life slipping away!");
-							lose_exp(d/10);
+							message(MSG_EFFECT, 0, "You feel your life slipping away!");
+							lose_exp(d / 10);
 						}
 						else
 						{
-							msg_print("You feel your life draining away!");
+							message(MSG_EFFECT, 0, "You feel your life draining away!");
 							lose_exp(d);
 						}
 					}
@@ -1058,19 +1061,19 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->hold_life && (rand_int(100) < 70))
 					{
-						msg_print("You keep hold of your life force!");
+						message(MSG_RESIST, 0, "You keep hold of your life force!");
 					}
 					else
 					{
-						s32b d = (p_ptr->exp/33);
+						s32b d = (p_ptr->exp / 33);
 						if (p_ptr->hold_life)
 						{
-							msg_print("You feel your life slipping away!");
-							lose_exp(d/10);
+							message(MSG_EFFECT, 0, "You feel your life slipping away!");
+							lose_exp(d / 10);
 						}
 						else
 						{
-							msg_print("You feel your life draining away!");
+							message(MSG_EFFECT, 0, "You feel your life draining away!");
 							lose_exp(d);
 						}
 					}
@@ -1087,19 +1090,19 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->hold_life && (rand_int(100) < 60))
 					{
-						msg_print("You keep hold of your life force!");
+						message(MSG_RESIST, 0, "You keep hold of your life force!");
 					}
 					else
 					{
-						s32b d = (p_ptr->exp/25);
+						s32b d = (p_ptr->exp / 25);
 						if (p_ptr->hold_life)
 						{
-							msg_print("You feel your life slipping away!");
-							lose_exp(d/10);
+							message(MSG_EFFECT, 0, "You feel your life slipping away!");
+							lose_exp(d / 10);
 						}
 						else
 						{
-							msg_print("You feel your life draining away!");
+							message(MSG_EFFECT, 0, "You feel your life draining away!");
 							lose_exp(d);
 						}
 					}
@@ -1199,7 +1202,7 @@ bool make_attack_normal(int m_idx)
 					disturb(1);
 
 					/* Message */
-					msg_format("%^s misses you.", m_name);
+					message_format(MSG_MON_FAIL, m_ptr->r_idx, "%^s misses you.", m_name);
 				}
 
 				break;
@@ -1224,7 +1227,7 @@ bool make_attack_normal(int m_idx)
 	/* Blink away */
 	if (blinked)
 	{
-		msg_print("There is a puff of smoke!");
+		message(MSG_EFFECT, 0, "There is a puff of smoke!");
 		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 

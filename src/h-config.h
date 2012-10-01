@@ -13,6 +13,7 @@
  * should not be defined by the user.
  */
 
+
 /*
  * OPTION: Compile on a Macintosh machine
  */
@@ -83,6 +84,8 @@
 #ifndef ULTRIX
 /* #define ULTRIX */
 #endif
+
+
 
 /*
  * Extract the "SUNOS" flag from the compiler
@@ -167,6 +170,8 @@
 # endif
 #endif
 
+
+
 /*
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
  * The only such platform that angband is ported to is currently
@@ -175,6 +180,8 @@
 #if defined(__alpha) && defined(__osf__)
 # define L64
 #endif
+
+
 
 /*
  * OPTION: set "SET_UID" if the machine is a "multi-user" machine.
@@ -193,6 +200,7 @@
 # define SET_UID
 #endif
 
+
 /*
  * OPTION: Set "USG" for "System V" versions of Unix
  * This is used to choose a "lock()" function, and to choose
@@ -208,6 +216,7 @@
 #  endif
 # endif
 #endif
+
 
 /*
  * Every system seems to use its own symbol as a path separator.
@@ -245,6 +254,7 @@
 # define PATH_SEP ""
 #endif
 
+
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
@@ -257,6 +267,8 @@
 # define FILE_TYPE(X) ((void)0)
 #endif
 
+
+#ifdef OLD_CRUFT
 /*
  * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
  */
@@ -266,6 +278,8 @@
 #  define strrchr(S,C) rindex((S),(C))
 # endif
 #endif
+#endif /* OLD_CRUFT */
+
 
 /*
  * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
@@ -280,10 +294,13 @@
 # define stricmp(S,T) strcasecmp((S),(T))
 #endif
 
+
+#ifdef OLD_CRUFT
 /*
  * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
  */
 #define HAS_MEMSET
+#endif /* OLD_CRUFT */
 
 /*
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
@@ -297,4 +314,8 @@
 # endif
 #endif
 
+
+
 #endif
+
+

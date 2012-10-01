@@ -288,10 +288,7 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool no_lite(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	return (!player_can_see_bold(py, px));
+	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
 
 /*
@@ -1383,9 +1380,6 @@ static byte priority(byte a, char c)
  */
 void display_map(int *cy, int *cx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int map_hgt, map_wid;
 
 	int row, col;
@@ -1505,8 +1499,8 @@ void display_map(int *cy, int *cx)
 	}
 
 	/* Player location */
-	row = (py * map_hgt / p_ptr->cur_hgt);
-	col = (px * map_wid / p_ptr->cur_wid);
+	row = (p_ptr->py * map_hgt / p_ptr->cur_hgt);
+	col = (p_ptr->px * map_wid / p_ptr->cur_wid);
 
 	/*** Make sure the player is visible ***/
 
@@ -2501,10 +2495,7 @@ void forget_view(void)
  */
 void update_view(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int pg = GRID(py,px);
+	int pg = GRID(p_ptr->py,p_ptr->px);
 
 	int i, j, g, o2;
 
@@ -2587,7 +2578,7 @@ void update_view(void)
 				{
 					for (j = -1; j <= 1; j++)
 					{
-						if (los(py,px,fy+i,fx+j))
+						if (los(p_ptr->py,p_ptr->px,fy+i,fx+j))
 						{
 							g = GRID(fy+i,fx+j);
 							info = fast_cave_info[g];
@@ -2720,8 +2711,8 @@ void update_view(void)
 							int x = GRID_X(g);
 
 							/* Hack -- move towards player */
-							int yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
-							int xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
+							int yy = (y < p_ptr->py) ? (y + 1) : (y > p_ptr->py) ? (y - 1) : y;
+							int xx = (x < p_ptr->px) ? (x + 1) : (x > p_ptr->px) ? (x - 1) : x;
 
 							/* Check for "simple" illumination */
 							if (cave_info[yy][xx] & (CAVE_GLOW))
@@ -2939,9 +2930,6 @@ void update_flow(void)
 
 #ifdef MONSTER_FLOW
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int ty, tx;
 
 	int y, x;
@@ -2956,10 +2944,8 @@ void update_flow(void)
 	byte flow_y[FLOW_MAX];
 	byte flow_x[FLOW_MAX];
 
-
 	/* Hack -- disabled */
 	if (!adult_flow_by_sound) return;
-
 
 	/*** Cycle the flow ***/
 
@@ -2986,18 +2972,17 @@ void update_flow(void)
 	/*** Player Grid ***/
 
 	/* Save the time-stamp */
-	cave_when[py][px] = flow_n;
+	cave_when[p_ptr->py][p_ptr->px] = flow_n;
 
 	/* Save the flow cost */
-	cave_cost[py][px] = 0;
+	cave_cost[p_ptr->py][p_ptr->px] = 0;
 
 	/* Enqueue that entry */
-	flow_y[flow_head] = py;
-	flow_x[flow_head] = px;
+	flow_y[flow_head] = (byte)p_ptr->py;
+	flow_x[flow_head] = (byte)p_ptr->px;
 
 	/* Advance the queue */
 	++flow_tail;
-
 
 	/*** Process Queue ***/
 
@@ -3782,11 +3767,8 @@ void disturb(int stop_search)
 		/* Redraw the player */
 		if (hidden_player)
 		{
-			int py = p_ptr->py;
-			int px = p_ptr->px;
-
 			/* Redraw player */
-			lite_spot(py, px);
+			lite_spot(p_ptr->py, p_ptr->px);
 		}
 	}
 

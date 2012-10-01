@@ -8,7 +8,6 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-
 /*
  * This file provides an optimized random number generator.
  *
@@ -38,29 +37,22 @@
  * Some code by Randy (randy@stat.tamu.edu).
  */
 
-
-
 #include "z-rand.h"
-
 
 /*
  * Random Number Generator -- Linear Congruent RNG
  */
 #define LCRNG(X)        ((X) * 1103515245 + 12345)
 
-
-
 /*
  * Use the "simple" LCRNG
  */
 bool Rand_quick = TRUE;
 
-
 /*
  * Current "value" of the "simple" RNG
  */
 u32b Rand_value;
-
 
 /*
  * Current "index" for the "complex" RNG
@@ -71,8 +63,6 @@ u16b Rand_place;
  * Current "state" table for the "complex" RNG
  */
 u32b Rand_state[RAND_DEG];
-
-
 
 /*
  * Initialize the "complex" RNG using a new seed
@@ -101,7 +91,6 @@ void Rand_state_init(u32b seed)
 		Rand_place = j;
 	}
 }
-
 
 /*
  * Extract a "random" number from 0 to m-1, via "modulus"
@@ -148,7 +137,6 @@ u32b Rand_mod(u32b m)
 	return (r);
 }
 
-
 /*
  * Extract a "random" number from 0 to m-1, via "division"
  *
@@ -162,6 +150,8 @@ u32b Rand_mod(u32b m)
  *
  * Note that "m" must not be greater than 0x1000000, or division
  * by zero will result.
+ *
+ * ToDo: Check for m > 0x1000000.
  */
 u32b Rand_div(u32b m)
 {
@@ -220,9 +210,6 @@ u32b Rand_div(u32b m)
 	return (r);
 }
 
-
-
-
 /*
  * The number of entries in the "Rand_normal_table"
  */
@@ -274,8 +261,6 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
 	32763,   32763,   32763,   32764,   32764,	32764,	 32764,	  32765,
 	32765,   32765,   32765,   32766,   32766,	32766,	 32766,	  32767,
 };
-
-
 
 /*
  * Generate a random integer number of NORMAL distribution
@@ -338,4 +323,50 @@ s16b Rand_normal(int mean, int stand)
 	return (mean + offset);
 }
 
+/*
+ * Extract a "random" number from 0 to m-1, using the "simple" RNG.
+ *
+ * This function should be used when generating random numbers in
+ * "external" program parts like the main-*.c files.  It preserves
+ * the current RNG state to prevent influences on game-play.
+ *
+ * Could also use rand() from <stdlib.h> directly. XXX XXX XXX
+ */
+u32b Rand_simple(u32b m)
+{
+	static bool initialized = FALSE;
+	static u32b simple_rand_value;
 
+	bool old_rand_quick;
+	u32b old_rand_value;
+
+
+	/* Save RNG state */
+	old_rand_quick = Rand_quick;
+	old_rand_value = Rand_value;
+
+	/* Use "simple" RNG */
+	Rand_quick = TRUE;
+
+	if (initialized)
+	{
+		/* Use old seed */
+		Rand_value = simple_rand_value;
+	}
+	else
+	{
+		/* Initialize with new seed */
+		Rand_value = time(NULL);
+		initialized = TRUE;
+	}
+
+	/* Get a random number */
+	simple_rand_value = rand_int(m);
+
+	/* Restore RNG state */
+	Rand_quick = old_rand_quick;
+	Rand_value = old_rand_value;
+
+	/* Use the value */
+	return (simple_rand_value);
+}

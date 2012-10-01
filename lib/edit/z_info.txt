@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 # Maximum number of feature types
 M:F:80
@@ -35,7 +35,7 @@ M:E:133
 M:R:667
 
 # Maximum number of vaults
-M:V:35
+M:V:33
 
 # Maximum number of player races
 M:P:13
@@ -47,13 +47,17 @@ M:H:142
 M:B:5
 
 # Maximum number of quests (including random quests)
-M:Q:64
+M:Q:128
 
 # Maximum number of objects
 M:O:512
+# Old Vanilla value - might be necessary on older computers
+# M:O:256
 
 # Maximum number of monsters
-M:M:512
+M:M:1024
+# Old Vanilla value - might be necessary on older computers
+# M:M:512
 
 # Array sizes (in bytes) for some initialization stuff
 #

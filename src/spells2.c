@@ -15,18 +15,15 @@
  */
 void warding_glyph(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	/* XXX XXX XXX */
-	if (!cave_clean_bold(py, px))
+	if (!cave_clean_bold(p_ptr->py, p_ptr->px))
 	{
-		msg_print("The object resists the spell.");
+		message(MSG_FAIL, 0, "The object resists the spell.");
 		return;
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_GLYPH);
+	cave_set_feat(p_ptr->py, p_ptr->px, FEAT_GLYPH);
 }
 
 /*
@@ -549,7 +546,7 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if (f4 & (TR4_BRAND_VENOM))
+		if (f4 & (TR4_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
@@ -723,7 +720,7 @@ void set_recall(void)
 	/* Ironman */
 	if (adult_ironman && !p_ptr->total_winner)
 	{
-		msg_print("Nothing happens.");
+		message(MSG_FAIL, 0, "Nothing happens.");
 		return;
 	}
 
@@ -731,14 +728,14 @@ void set_recall(void)
 	if (!p_ptr->word_recall)
 	{
 		p_ptr->word_recall = rand_int(20) + 15;
-		msg_print("The air about you becomes charged...");
+		message(MSG_EFFECT, 0, "The air about you becomes charged...");
 	}
 
 	/* Deactivate recall */
 	else
 	{
 		p_ptr->word_recall = 0;
-		msg_print("A tension leaves the air around you...");
+		message(MSG_EFFECT, 0, "A tension leaves the air around you...");
 	}
 }
 
@@ -783,7 +780,7 @@ bool detect_traps(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of traps!");
+		message(MSG_DETECT, 0, "You sense the presence of traps!");
 	}
 
 	/* Result */
@@ -832,7 +829,7 @@ bool detect_doors(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of doors!");
+		message(MSG_DETECT, 0, "You sense the presence of doors!");
 	}
 
 	/* Result */
@@ -872,7 +869,7 @@ bool detect_stairs(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of stairs!");
+		message(MSG_DETECT, 0, "You sense the presence of stairs!");
 	}
 
 	/* Result */
@@ -920,7 +917,7 @@ bool detect_treasure(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of buried treasure!");
+		message(MSG_DETECT, 0, "You sense the presence of buried treasure!");
 	}
 
 	/* Result */
@@ -972,7 +969,7 @@ bool detect_objects_gold(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of treasure!");
+		message(MSG_DETECT, 0, "You sense the presence of treasure!");
 	}
 
 	/* Result */
@@ -1023,7 +1020,7 @@ bool detect_objects_normal(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of objects!");
+		message(MSG_DETECT, 0, "You sense the presence of objects!");
 	}
 
 	/* Result */
@@ -1117,7 +1114,7 @@ bool detect_objects_magic(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of magic objects!");
+		message(MSG_DETECT, 0, "You sense the presence of magic objects!");
 	}
 
 	/* Return result */
@@ -1170,7 +1167,7 @@ bool detect_monsters_normal(void)
 	if (flag)
 	{
 		/* Describe result */
-		msg_print("You sense the presence of monsters!");
+		message(MSG_DETECT, 0, "You sense the presence of monsters!");
 	}
 
 	/* Result */
@@ -1234,7 +1231,7 @@ bool detect_monsters_invis(void)
 	if (flag)
 	{
 		/* Describe result */
-		msg_print("You sense the presence of invisible creatures!");
+		message(MSG_DETECT, 0, "You sense the presence of invisible creatures!");
 	}
 
 	/* Result */
@@ -1298,7 +1295,7 @@ bool detect_monsters_evil(void)
 	if (flag)
 	{
 		/* Describe result */
-		msg_print("You sense the presence of evil creatures!");
+		message(MSG_DETECT, 0, "You sense the presence of evil creatures!");
 	}
 
 	/* Result */
@@ -1331,35 +1328,32 @@ bool detect_all(void)
  */
 void stair_creation(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	/* XXX XXX XXX */
-	if (!cave_valid_bold(py, px))
+	if (!cave_valid_bold(p_ptr->py, p_ptr->px))
 	{
-		msg_print("The object resists the spell.");
+		message(MSG_FAIL, 0, "The object resists the spell.");
 		return;
 	}
 
 	/* XXX XXX XXX */
-	delete_object(py, px);
+	delete_object(p_ptr->py, p_ptr->px);
 
 	/* Create a staircase */
 	if (!p_ptr->depth)
 	{
-		cave_set_feat(py, px, FEAT_MORE);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 	}
 	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 	}
 	else if (rand_int(100) < 50)
 	{
-		cave_set_feat(py, px, FEAT_MORE);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 	}
 	else
 	{
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 	}
 }
 
@@ -1569,7 +1563,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
 				{
-					msg_print("The curse is broken!");
+					message(MSG_ITEM_BONUS, o_ptr->k_idx, "The curse is broken!");
 
 					/* Uncurse the object */
 					uncurse_object(o_ptr);
@@ -1597,7 +1591,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
 				{
-					msg_print("The curse is broken!");
+					message(MSG_ITEM_BONUS, o_ptr->k_idx, "The curse is broken!");
 
 					/* Uncurse the object */
 					uncurse_object(o_ptr);
@@ -1625,7 +1619,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				    (!(f3 & (TR3_PERMA_CURSE))) &&
 				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
 				{
-					msg_print("The curse is broken!");
+					message(MSG_ITEM_BONUS, o_ptr->k_idx, "The curse is broken!");
 
 					/* Uncurse the object */
 					uncurse_object(o_ptr);
@@ -1693,7 +1687,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Describe */
-	msg_format("%s %s glow%s brightly!",
+	message_format(MSG_ITEM_BONUS, o_ptr->k_idx, "%s %s glow%s brightly!",
 	           ((item >= 0) ? "Your" : "The"), o_name,
 	           ((o_ptr->number > 1) ? "" : "s"));
 
@@ -1709,7 +1703,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		if (flush_failure) flush();
 
 		/* Message */
-		msg_print("The enchantment failed.");
+		message(MSG_FAIL, 0, "The enchantment failed.");
 	}
 
 	/* Something happened */
@@ -1759,7 +1753,7 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 		if (flush_failure) flush();
 	
 		/* Fail */
-		msg_print("The branding failed.");
+		message(MSG_FAIL, 0, "The branding failed.");
 
 		/* Notice */
 		return (TRUE);
@@ -1871,7 +1865,7 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 		}
 	}
 	o_ptr->name2 = brand_type;
-	msg_format("Your %s %s", o_name, act);
+	message_format(MSG_ITEM_BONUS, o_ptr->k_idx, "Your %s %s", o_name, act);
 
 	if (add_plus) enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 
@@ -1939,17 +1933,17 @@ bool ident_spell(void)
 	/* Describe */
 	if (item >= INVEN_WIELD)
 	{
-		msg_format("%^s: %s (%c).",
+		message_format(MSG_DESCRIBE, 0, "%^s: %s (%c).",
 		           describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).  %s", o_name, index_to_label(item), 
+		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).  %s", o_name, index_to_label(item), 
 			((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.  %s", o_name, ((squelch==1) ? "(Squelched)" :
+		message_format(MSG_DESCRIBE, 0, "On the ground: %s.  %s", o_name, ((squelch==1) ? "(Squelched)" :
 			((squelch==-1) ? "(Squelch Failed)" : "")));
 		
 	}
@@ -2047,17 +2041,17 @@ bool identify_fully(void)
 	/* Describe */
 	if (item >= INVEN_WIELD)
 	{
-		msg_format("%^s: %s (%c).",
+		message_format(MSG_DESCRIBE, 0, "%^s: %s (%c).",
 		           describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).  %s", o_name, index_to_label(item),
+		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).  %s", o_name, index_to_label(item),
 			((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
  	}
  	else
  	{
-		msg_format("On the ground: %s.  %s", o_name,
+		message_format(MSG_DESCRIBE, 0, "On the ground: %s.  %s", o_name,
 		   ((squelch==1) ? "(Squelched)" : ((squelch==-1) ? "(Squelch Failed)" : "")));
 		
  	}
@@ -2167,7 +2161,7 @@ bool recharge(int num)
 		if (rand_int(recharge_strength) == 0)
 		{
 			/* Hack -- backfire */
-			msg_print("The recharge backfires, draining the rod further!");
+			message(MSG_ITEM_DAMAGE, o_ptr->k_idx, "The recharge backfires, draining the rod further!");
 
 			/* Hack -- decharge the rod */
 			if (o_ptr->timeout < 10000) o_ptr->timeout = (o_ptr->timeout + 100) * 2;
@@ -2197,7 +2191,7 @@ bool recharge(int num)
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
 			/* Dangerous Hack -- Destroy the item */
-			msg_print("There is a bright flash of light.");
+			message(MSG_ITEM_DAMAGE, o_ptr->k_idx, "There is a bright flash of light.");
 
 			/* Reduce and describe inventory */
 			if (item >= 0)
@@ -2454,8 +2448,8 @@ void aggravate_monsters(int who)
 	}
 
 	/* Messages */
-	if (speed) msg_print("You feel a sudden stirring nearby!");
-	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
+	if (speed) message(MSG_EFFECT, 0, "You feel a sudden stirring nearby!");
+	else if (sleep) message(MSG_EFFECT, 0, "You hear a sudden stirring in the distance!");
 }
 
 /*
@@ -2563,13 +2557,13 @@ bool probing(void)
 			char m_name[80];
 
 			/* Start the message */
-			if (!probe) msg_print("Probing...");
+			if (!probe) message(MSG_GENERIC, 0, "Probing...");
 
 			/* Get "the monster" or "something" */
 			monster_desc(m_name, m_ptr, 0x04);
 
 			/* Describe the monster */
-			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+			message_format(MSG_DESCRIBE, 0, "%^s has %d hit points.", m_name, m_ptr->hp);
 
 			/* Learn all of the non-spell, non-treasure flags */
 			lore_do_probe(i);
@@ -2582,7 +2576,7 @@ bool probing(void)
 	/* Done */
 	if (probe)
 	{
-		msg_print("That's all.");
+		message(MSG_GENERIC, 0, "That's all.");
 	}
 
 	/* Result */
@@ -2681,7 +2675,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 	if (flag)
 	{
 		/* Message */
-		msg_print("There is a searing blast of light!");
+		message(MSG_EFFECT, 0, "There is a searing blast of light!");
 
 		/* Blind the player */
 		if (!p_ptr->no_blind && !p_ptr->resist_lite)
@@ -2721,9 +2715,6 @@ void destroy_area(int y1, int x1, int r, bool full)
  */
 void earthquake(int cy, int cx, int r)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i, t, y, x, yy, xx, dy, dx;
 
 	int damage = 0;
@@ -2777,7 +2768,7 @@ void earthquake(int cy, int cx, int r)
 			map[16+yy-cy][16+xx-cx] = TRUE;
 
 			/* Hack -- Take note of player damage */
-			if ((yy == py) && (xx == px)) hurt = TRUE;
+			if ((yy == p_ptr->py) && (xx == p_ptr->px)) hurt = TRUE;
 		}
 	}
 
@@ -2788,8 +2779,8 @@ void earthquake(int cy, int cx, int r)
 		for (i = 0; i < 8; i++)
 		{
 			/* Get the location */
-			y = py + ddy_ddd[i];
-			x = px + ddx_ddd[i];
+			y = p_ptr->py + ddy_ddd[i];
+			x = p_ptr->px + ddx_ddd[i];
 
 			/* Skip non-empty grids */
 			if (!cave_empty_bold(y, x)) continue;
@@ -2809,18 +2800,18 @@ void earthquake(int cy, int cx, int r)
 		{
 			case 1:
 			{
-				msg_print("The cave ceiling collapses!");
+				message(MSG_EFFECT, 0, "The cave ceiling collapses!");
 				break;
 			}
 			case 2:
 			{
-				msg_print("The cave floor twists in an unnatural way!");
+				message(MSG_EFFECT, 0, "The cave floor twists in an unnatural way!");
 				break;
 			}
 			default:
 			{
-				msg_print("The cave quakes!");
-				msg_print("You are pummeled with debris!");
+				message(MSG_EFFECT, 0, "The cave quakes!");
+				message(MSG_EFFECT, 0, "You are pummeled with debris!");
 				break;
 			}
 		}
@@ -2829,7 +2820,7 @@ void earthquake(int cy, int cx, int r)
 		if (!sn)
 		{
 			/* Message and damage */
-			msg_print("You are severely crushed!");
+			message(MSG_EFFECT, 0, "You are severely crushed!");
 			damage = 300;
 		}
 
@@ -2841,20 +2832,20 @@ void earthquake(int cy, int cx, int r)
 			{
 				case 1:
 				{
-					msg_print("You nimbly dodge the blast!");
+					message(MSG_RESIST, 0, "You nimbly dodge the blast!");
 					damage = 0;
 					break;
 				}
 				case 2:
 				{
-					msg_print("You are bashed by rubble!");
+					message(MSG_EFFECT, 0, "You are bashed by rubble!");
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint(50));
 					break;
 				}
 				case 3:
 				{
-					msg_print("You are crushed between the floor and ceiling!");
+					message(MSG_EFFECT, 0, "You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint(50));
 					break;
@@ -2862,7 +2853,7 @@ void earthquake(int cy, int cx, int r)
 			}
 
 			/* Move player */
-			monster_swap(py, px, sy, sx);
+			monster_swap(p_ptr->py, p_ptr->px, sy, sx);
 		}
 
 		/* Take some damage */
@@ -2928,7 +2919,7 @@ void earthquake(int cy, int cx, int r)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Scream in pain */
-					msg_format("%^s wails out in pain!", m_name);
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
@@ -2944,7 +2935,7 @@ void earthquake(int cy, int cx, int r)
 					if (m_ptr->hp < 0)
 					{
 						/* Message */
-						msg_format("%^s is embedded in the rock!", m_name);
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is embedded in the rock!", m_name);
 
 						/* Delete the monster */
 						delete_monster(yy, xx);
@@ -2966,12 +2957,8 @@ void earthquake(int cy, int cx, int r)
 
 	/* XXX XXX XXX */
 
-	/* New location */
-	py = p_ptr->py;
-	px = p_ptr->px;
-
 	/* Important -- no wall on player */
-	map[16+py-cy][16+px-cx] = FALSE;
+	map[16+p_ptr->py-cy][16+p_ptr->px-cx] = FALSE;
 
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
@@ -2986,7 +2973,7 @@ void earthquake(int cy, int cx, int r)
 			if (!map[16+yy-cy][16+xx-cx]) continue;
 
 			/* Paranoia -- never affect player */
-			if ((yy == py) && (xx == px)) continue;
+			if ((yy == p_ptr->py) && (xx == p_ptr->px)) continue;
 
 			/* Destroy location (if valid) */
 			if (cave_valid_bold(yy, xx))
@@ -3120,7 +3107,7 @@ static void cave_temp_room_lite(void)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Dump a message */
-					msg_format("%^s wakes up.", m_name);
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s wakes up.", m_name);
 				}
 			}
 		}
@@ -3282,22 +3269,19 @@ void unlite_room(int y1, int x1)
  */
 bool lite_area(int dam, int rad)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
 	/* Hack -- Message */
 	if (!p_ptr->blind)
 	{
-		msg_print("You are surrounded by a white light.");
+		message(MSG_EFFECT, 0, "You are surrounded by a white light.");
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg);
+	(void)project(-1, rad, p_ptr->py, p_ptr->px, dam, GF_LITE_WEAK, flg);
 
 	/* Lite up the room */
-	lite_room(py, px);
+	lite_room(p_ptr->py, p_ptr->px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3309,22 +3293,19 @@ bool lite_area(int dam, int rad)
  */
 bool unlite_area(int dam, int rad)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
 	/* Hack -- Message */
 	if (!p_ptr->blind)
 	{
-		msg_print("Darkness surrounds you.");
+		message(MSG_EFFECT, 0, "Darkness surrounds you.");
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg);
+	(void)project(-1, rad, p_ptr->py, p_ptr->px, dam, GF_DARK_WEAK, flg);
 
 	/* Lite up the room */
-	unlite_room(py, px);
+	unlite_room(p_ptr->py, p_ptr->px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3338,16 +3319,13 @@ bool unlite_area(int dam, int rad)
  */
 bool fire_ball(int typ, int dir, int dam, int rad)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int ty, tx;
 
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	/* Use the given direction */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
 
 	/* Hack -- Use an actual "target" */
 	if ((dir == 5) && target_okay())
@@ -3367,17 +3345,14 @@ bool fire_ball(int typ, int dir, int dam, int rad)
  */
 static bool project_hook(int typ, int dir, int dam, int flg)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int ty, tx;
 
 	/* Pass through the target if needed */
 	flg |= (PROJECT_THRU);
 
 	/* Use the given direction */
-	ty = py + ddy[dir];
-	tx = px + ddx[dir];
+	ty = p_ptr->py + ddy[dir];
+	tx = p_ptr->px + ddx[dir];
 
 	/* Hack -- Use an actual "target" */
 	if ((dir == 5) && target_okay())
@@ -3538,36 +3513,24 @@ bool call_monster(int dir)
  */
 bool door_creation(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_DOOR, flg));
+	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_DOOR, flg));
 }
 
 bool trap_creation(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg));
+	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_TRAP, flg));
 }
 
 bool destroy_doors_touch(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
+	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_KILL_DOOR, flg));
 }
 
 bool sleep_monsters_touch(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, p_ptr->py, p_ptr->px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }

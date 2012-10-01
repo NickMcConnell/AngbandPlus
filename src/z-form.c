@@ -11,8 +11,10 @@
 /* Purpose: Low level text formatting -BEN- */
 
 #include "z-form.h"
+
 #include "z-util.h"
 #include "z-virt.h"
+
 
 /*
  * Here is some information about the routines in this file.
@@ -143,6 +145,10 @@
  * character capitilized, if reasonable.
  */
 
+
+
+
+
 /*
  * The "type" of the "user defined print routine" pointer
  */
@@ -171,6 +177,8 @@ static uint vstrnfmt_aux_dflt(char *buf, uint max, cptr fmt, vptr arg)
  * dynamically by sending the proper "%r" sequence to "vstrnfmt()"
  */
 static vstrnfmt_aux_func vstrnfmt_aux = vstrnfmt_aux_dflt;
+
+
 
 /*
  * Basic "vararg" format function.
@@ -244,11 +252,13 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 	/* Resulting string */
 	char tmp[1024];
 
+
 	/* Mega-Hack -- treat "illegal" length as "infinite" */
 	if (!max) max = 32767;
 
 	/* Mega-Hack -- treat "no format" as "empty string" */
 	if (!fmt) fmt = "";
+
 
 	/* Begin the buffer */
 	n = 0;
@@ -324,6 +334,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			/* Continue */
 			continue;
 		}
+
 
 		/* Begin the "aux" string */
 		q = 0;
@@ -433,6 +444,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 				}
 			}
 		}
+
 
 		/* Terminate "aux" */
 		aux[q] = '\0';
@@ -551,7 +563,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			{
 				cptr arg;
 				char arg2[1024];
- 
+
 				/* Get the next argument */
 				arg = va_arg(vp, cptr);
 
@@ -562,9 +574,9 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 				strncpy(arg2, arg, 1024);
 				arg2[1023] = '\0';
 
- 				/* Format the argument */
+				/* Format the argument */
 				sprintf(tmp, aux, arg2);
- 
+
 				/* Done */
 				break;
 			}
@@ -627,6 +639,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 		}
 	}
 
+
 	/* Terminate buffer */
 	buf[n] = '\0';
 
@@ -634,15 +647,17 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 	return (n);
 }
 
+
+static char *format_buf = NULL;
+static huge format_len = 0;
+
+
 /*
  * Do a vstrnfmt (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
  */
 char *vformat(cptr fmt, va_list vp)
 {
-	static char *format_buf = NULL;
-	static huge format_len = 0;
-
 	/* Initial allocation */
 	if (!format_buf)
 	{
@@ -674,6 +689,12 @@ char *vformat(cptr fmt, va_list vp)
 	return (format_buf);
 }
 
+void vformat_kill(void)
+{
+	C_KILL(format_buf, format_len, char);
+}
+
+
 /*
  * Do a vstrnfmt (see above) into a buffer of a given size.
  */
@@ -695,6 +716,7 @@ uint strnfmt(char *buf, uint max, cptr fmt, ...)
 	/* Return the number of bytes written */
 	return (len);
 }
+
 
 /*
  * Do a vstrnfmt (see above) into a buffer of unknown size.
@@ -718,6 +740,9 @@ uint strfmt(char *buf, cptr fmt, ...)
 	/* Return the number of bytes written */
 	return (len);
 }
+
+
+
 
 /*
  * Do a vstrnfmt() into (see above) into a (growable) static buffer.
@@ -743,6 +768,9 @@ char *format(cptr fmt, ...)
 	return (res);
 }
 
+
+
+
 /*
  * Vararg interface to plog()
  */
@@ -763,6 +791,8 @@ void plog_fmt(cptr fmt, ...)
 	/* Call plog */
 	plog(res);
 }
+
+
 
 /*
  * Vararg interface to quit()
@@ -785,6 +815,8 @@ void quit_fmt(cptr fmt, ...)
 	quit(res);
 }
 
+
+
 /*
  * Vararg interface to core()
  */
@@ -805,3 +837,5 @@ void core_fmt(cptr fmt, ...)
 	/* Call core() */
 	core(res);
 }
+
+

@@ -237,7 +237,7 @@ static void sense_inventory(void)
 		/* Message (equipment) */
 		if (i >= INVEN_WIELD)
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
+			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...  %s",
 						o_name, index_to_label(i), describe_use(i),
 						((o_ptr->number == 1) ? "is" : "are"),
 						inscrip_text[feel - INSCRIP_NULL],
@@ -248,7 +248,7 @@ static void sense_inventory(void)
 		/* Message (inventory) */
 		else
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
+			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...",
 			           o_name, index_to_label(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
 			           inscrip_text[feel - INSCRIP_NULL]);
@@ -319,7 +319,6 @@ static void regenhp(int percent)
 	}
 }
 
-
 /*
  * Regenerate mana points
  */
@@ -365,7 +364,6 @@ static void regenmana(int percent)
 	}
 }
 
-
 /*
  * Regenerate the monsters (once per 100 game turns)
  *
@@ -409,8 +407,6 @@ static void regen_monsters(void)
 	}
 }
 
-
-
 /*
  * Handle certain things once every 10 game turns
  */
@@ -443,15 +439,15 @@ static void process_world(void)
 				closing_flag++;
 
 				/* Message */
-				msg_print("The gates to ANGBAND are closing...");
-				msg_print("Please finish up and/or save your game.");
+				message(MSG_TIMEOUT, 0, "The gates to ANGBAND are closing...");
+				message(MSG_TIMEOUT, 0, "Please finish up and/or save your game.");
 			}
 
 			/* Slam the gate */
 			else
 			{
 				/* Message */
-				msg_print("The gates to ANGBAND are now closed.");
+				message(MSG_TIMEOUT, 0, "The gates to ANGBAND are now closed.");
 
 				/* Stop playing */
 				p_ptr->playing = FALSE;
@@ -479,21 +475,20 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
-				msg_print("The sun has risen.");
+				message(MSG_GENERIC, 0, "The sun has risen.");
 			}
 
 			/* Night falls */
 			else
 			{
 				/* Message */
-				msg_print("The sun has fallen.");
+				message(MSG_GENERIC, 0, "The sun has fallen.");
 			}
 
 			/* Illuminate */
 			town_illuminate(dawn);
 		}
 	}
-
 
 	/* While in the dungeon */
 	else
@@ -523,13 +518,12 @@ static void process_world(void)
 					/* No reward for failed quest */
 					q_info[i].reward = 0;
 
-					msg_print("You have failed on your quest!");
+					message(MSG_QUEST_FAIL, 0, "You have failed on your quest!");
 
 					if (disturb_minor) disturb(0);
 				}
 			}
 		}
-
 			
 		/*** Update the Stores ***/
 
@@ -539,7 +533,7 @@ static void process_world(void)
 			int n;
 
 			/* Message */
-			if (cheat_xtra) msg_print("Updating Shops...");
+			if (cheat_xtra) message(MSG_GENERIC, 0, "Updating Shops...");
 
 			/* Maintain each shop (except home) */
 			for (n = 0; n < MAX_STORES; n++)
@@ -555,7 +549,7 @@ static void process_world(void)
 			if (rand_int(STORE_SHUFFLE) == 0)
 			{
 				/* Message */
-				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
+				if (cheat_xtra) message(MSG_GENERIC, 0, "Shuffling a Shopkeeper...");
 
 				/* Pick a random shop (except home) */
 				while (1)
@@ -569,7 +563,7 @@ static void process_world(void)
 			}
 
 			/* Message */
-			if (cheat_xtra) msg_print("Done.");
+			if (cheat_xtra) message(MSG_GENERIC, 0, "Done.");
 		}
 	}
 
@@ -627,7 +621,7 @@ static void process_world(void)
 		i = rand_int(900);
 		if (i<A_MAX)
 		{
-			msg_print("You suffer an attack of your disease -");
+			message(MSG_EFFECT, 0, "You suffer an attack of your disease -");
 			(void)do_dec_stat(i,10,FALSE,(bool)rand_int(1));
 			p_ptr->update |= (PU_BONUS);
 
@@ -636,12 +630,12 @@ static void process_world(void)
 		}
 		else if (i == A_MAX)
 		{
-			msg_print("Your disease clouds your vision!");
+			message(MSG_EFFECT, 0, "Your disease clouds your vision!");
 			(void)set_blind(rand_int(10)+10);
 		}
 		else if (i == A_MAX+1)
 		{
-			msg_print("You suffer a dizzy spell!");
+			message(MSG_EFFECT, 0, "You suffer a dizzy spell!");
 			(void)set_stun(rand_int(25)+25);
 			(void)set_confused(rand_int(5)+5);
 		}
@@ -716,7 +710,7 @@ static void process_world(void)
 			if (!p_ptr->paralyzed && (rand_int(100) < 10))
 			{
 				/* Message */
-				msg_print("You faint from the lack of food.");
+				message(MSG_EFFECT, 0, "You faint from the lack of food.");
 				disturb(1);
 
 				/* Hack -- faint (bypass free action) */
@@ -1023,7 +1017,7 @@ static void process_world(void)
 			else if (o_ptr->timeout == 0)
 			{
 				disturb(0);
-				msg_print("Your light has gone out!");
+				message(MSG_EFFECT, 0, "Your light has gone out!");
 				p_ptr->update |= (PU_BONUS);
 			}
 
@@ -1031,14 +1025,13 @@ static void process_world(void)
 			else if ((o_ptr->timeout < 100) && (!(o_ptr->timeout % 10)))
 			{
 				if (disturb_minor) disturb(0);
-				msg_print("Your light is growing faint.");
+				message(MSG_EFFECT, 0, "Your light is growing faint.");
 			}
 		}
 	}
 
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
-
 
 	/*** Process Inventory ***/
 
@@ -1186,7 +1179,7 @@ static void process_world(void)
 			/* Determine the level */
 			if (p_ptr->depth)
 			{
-				msg_print("You feel yourself yanked upwards!");
+				message(MSG_TPLEVEL, 0, "You feel yourself yanked upwards!");
 
 				/* New depth */
 				p_ptr->depth = 0;
@@ -1196,7 +1189,7 @@ static void process_world(void)
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				message(MSG_TPLEVEL, 0, "You feel yourself yanked downwards!");
 
 				/* New depth */
 				p_ptr->depth = p_ptr->max_depth;
@@ -1210,66 +1203,25 @@ static void process_world(void)
 }
 
 
-
 /*
  * Verify use of "wizard" mode
  */
 static bool enter_wizard_mode(void)
 {
-	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0002))
+	/* Mention effects */
+	message(MSG_GENERIC, 0, "You are about to enter 'wizard' mode for the very first time!");
+	message(MSG_GENERIC, 0, "This is a form of cheating, and your game will not be scored!");
+	message_flush();
+
+	/* Verify request */
+	if (!get_check("Are you sure you want to enter wizard mode? "))
 	{
-		/* Mention effects */
-		msg_print("You are about to enter 'wizard' mode for the very first time!");
-		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to enter wizard mode? "))
-		{
-			return (FALSE);
-		}
+		return (FALSE);
 	}
-
-	/* Mark savefile */
-	p_ptr->noscore |= 0x0002;
 
 	/* Success */
 	return (TRUE);
 }
-
-
-
-#ifdef ALLOW_DEBUG
-
-/*
- * Verify use of "debug" mode
- */
-static bool verify_debug_mode(void)
-{
-	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0008))
-	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, debug commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use the debug commands? "))
-		{
-			return (FALSE);
-		}
-	}
-
-	/* Mark savefile */
-	p_ptr->noscore |= 0x0008;
-
-	/* Okay */
-	return (TRUE);
-}
-
-#endif /* ALLOW_DEBUG */
 
 #ifdef ALLOW_BORG
 
@@ -1282,9 +1234,9 @@ static bool verify_borg_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message(MSG_GENERIC, 0, "You are about to use the dangerous, unsupported, borg commands!");
+		message(MSG_GENERIC, 0, "Your machine may crash, and your savefile may become corrupted!");
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
@@ -1330,36 +1282,13 @@ static void process_command(void)
 
 		/*** Cheating Commands ***/
 
-		/* Toggle Wizard Mode */
-		case KTRL('W'):
-		{
-			if (p_ptr->wizard)
-			{
-				p_ptr->wizard = FALSE;
-				msg_print("Wizard mode off.");
-			}
-			else if (enter_wizard_mode())
-			{
-				p_ptr->wizard = TRUE;
-				msg_print("Wizard mode on.");
-			}
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Redraw "title" */
-			p_ptr->redraw |= (PR_TITLE);
-
-			break;
-		}
-
-
 #ifdef ALLOW_DEBUG
 
 		/* Special "debug" commands */
 		case KTRL('A'):
 		{
-			if (verify_debug_mode()) do_cmd_debug();
+			if (cheat_debug) do_cmd_debug();
+			else message(MSG_FAIL, 0, "Debug mode currently turned off!");
 			break;
 		}
 
@@ -1420,7 +1349,6 @@ static void process_command(void)
 			break;
 		}
 
-
 		/*** Various commands ***/
 
 		/* Identify an object */
@@ -1436,7 +1364,6 @@ static void process_command(void)
 			toggle_inven_equip();
 			break;
 		}
-
 
 		/*** Standard "Movement" Commands ***/
 
@@ -1569,7 +1496,6 @@ static void process_command(void)
 			do_cmd_disarm();
 			break;
 		}
-
 
 		/*** Magic and Prayers ***/
 
@@ -1795,7 +1721,6 @@ static void process_command(void)
 			break;
 		}
 
-
 		/*** Misc Commands ***/
 
 		/* Take notes */
@@ -1904,8 +1829,6 @@ static void process_command(void)
 	}
 }
 
-
-
 /*
  * Hack -- helper function for "process_player()"
  *
@@ -1929,7 +1852,6 @@ static void process_player_aux(void)
 
 	static byte	old_r_cast_inate = 0;
 	static byte	old_r_cast_spell = 0;
-
 
 	/* Tracking a monster */
 	if (p_ptr->monster_race_idx)
@@ -1981,7 +1903,6 @@ static void process_player_aux(void)
 		}
 	}
 }
-
 
 /*
  * Process the player
@@ -2059,11 +1980,10 @@ static void process_player(void)
 				disturb(0);
 
 				/* Hack -- Show a Message */
-				msg_print("Cancelled.");
+				message(MSG_GENERIC, 0, "Cancelled.");
 			}
 		}
 	}
-
 
 	/*** Handle actual user input ***/
 
@@ -2104,13 +2024,13 @@ static void process_player(void)
 			disturb(0);
 
 			/* Warning */
-			msg_print("Your pack overflows!");
+			message(MSG_GENERIC, 0, "Your pack overflows!");
 
 			/* Describe */
 			object_desc(o_name, o_ptr, TRUE, 3);
 
 			/* Message */
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
+			message_format(MSG_DROP, 0, "You drop %s (%c).", o_name, index_to_label(item));
 
 			/* Drop it (carefully) near the player */
 			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
@@ -2355,9 +2275,6 @@ static void dungeon(void)
 	monster_type *m_ptr;
 	int i;
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = p_ptr->cur_hgt;
 	p_ptr->wx = p_ptr->cur_wid;
@@ -2389,10 +2306,8 @@ static void dungeon(void)
 	repair_mflag_show = TRUE;
 	repair_mflag_mark = TRUE;
 
-
 	/* Disturb */
 	disturb(1);
-
 
 	/* Track maximum player level */
 	if (p_ptr->max_lev < p_ptr->lev)
@@ -2400,13 +2315,11 @@ static void dungeon(void)
 		p_ptr->max_lev = p_ptr->lev;
 	}
 
-
 	/* Track maximum dungeon level */
 	if (p_ptr->max_depth < p_ptr->depth)
 	{
 		p_ptr->max_depth = p_ptr->depth;
 	}
-
 
 	/* No stairs down from fixed quests */
 	if (quest_check(p_ptr->depth) == QUEST_FIXED)
@@ -2424,19 +2337,19 @@ static void dungeon(void)
 	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
 	{
 		/* Place a staircase */
-		if (cave_valid_bold(py, px))
+		if (cave_valid_bold(p_ptr->py, p_ptr->px))
 		{
 			/* XXX XXX XXX */
-			delete_object(py, px);
+			delete_object(p_ptr->py, p_ptr->px);
 
 			/* Make stairs */
 			if (p_ptr->create_down_stair)
 			{
-				cave_set_feat(py, px, FEAT_MORE);
+				cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 			}
 			else
 			{
-				cave_set_feat(py, px, FEAT_LESS);
+				cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 			}
 		}
 
@@ -2444,22 +2357,17 @@ static void dungeon(void)
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
-
 	/* Choose panel */
 	verify_panel();
 
-
 	/* Flush messages */
-	msg_print(NULL);
-
+	message_flush();
 
 	/* Hack -- Increase "xtra" depth */
 	character_xtra++;
 
-
 	/* Clear */
 	Term_clear();
-
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2670,23 +2578,10 @@ static void dungeon(void)
 
 /*
  * Process some user pref files
- *
- * Hack -- Allow players on UNIX systems to keep a ".angband.prf" user
- * pref file in their home directory.  Perhaps it should be loaded with
- * the "basic" user pref files instead of here.  This may allow bypassing
- * of some of the "security" compilation options.  XXX XXX XXX XXX XXX
  */
 static void process_some_user_pref_files(void)
 {
 	char buf[1024];
-
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	char *homedir;
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
@@ -2696,22 +2591,6 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
-
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	/* Process the "~/.angband.prf" file */
-	if ((homedir = getenv("HOME")))
-	{
-		/* Get the ".angband.prf" filename */
-		path_build(buf, 1024, homedir, ".angband.prf");
-
-		/* Process the ".angband.prf" file */
-		(void)process_pref_file(buf);
-	}
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 }
 
 
@@ -2749,13 +2628,13 @@ void play_game(bool new_game)
 
 
 	/* Verify main term */
-	if (!angband_term[0])
+	if (!term_screen)
 	{
 		quit("main window does not exist");
 	}
 
 	/* Make sure main term is active */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
@@ -2877,7 +2756,11 @@ void play_game(bool new_game)
 	Term_fresh();
 
 	/* Hack -- Enter wizard mode */
-	if (arg_wizard && enter_wizard_mode()) p_ptr->wizard = TRUE;
+	if (arg_wizard && enter_wizard_mode()) 
+	{
+		cheat_wizard = TRUE;
+		score_wizard = TRUE;
+	}
 
 	/* Flavor the objects */
 	flavor_init();
@@ -2960,13 +2843,13 @@ void play_game(bool new_game)
 		wipe_m_list();
 
 		/* XXX XXX XXX */
-		msg_print(NULL);
+		message_flush();
 
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+			if ((cheat_live) && !get_check("Die? "))
 			{
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
@@ -2978,8 +2861,8 @@ void play_game(bool new_game)
 				p_ptr->noscore |= 0x0001;
 
 				/* Message */
-				msg_print("You invoke wizard mode and cheat death.");
-				msg_print(NULL);
+				message(MSG_CHEAT, 0, "You invoke cheat death.");
+				message_flush();
 
 				/* Cheat death */
 				p_ptr->is_dead = FALSE;
@@ -3009,8 +2892,8 @@ void play_game(bool new_game)
 				if (p_ptr->word_recall)
 				{
 					/* Message */
-					msg_print("A tension leaves the air around you...");
-					msg_print(NULL);
+					message(MSG_EFFECT, 0, "A tension leaves the air around you...");
+					message_flush();
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
@@ -3036,7 +2919,4 @@ void play_game(bool new_game)
 
 	/* Close stuff */
 	close_game();
-
-	/* Quit */
-	quit(NULL);
 }

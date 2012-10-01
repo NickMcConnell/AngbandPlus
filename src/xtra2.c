@@ -11,34 +11,49 @@
 #include "angband.h"
 
 /*
- * Apply level raise bonuses for special levels
+ * Mega-Hack - Apply level raise bonuses for races that progress with levels
  */
 static void special_level(void)
 {
-	cptr s, t;
+	cptr levname;
 
+	/* Hack - Demons gain bulk every level */
 	if (rp_ptr->special == RACE_SPECIAL_DEMON)
 	{
 		p_ptr->ht += 2;
 		p_ptr->wt += 4;
 	}
-	s=rsp_ptr[p_ptr->lev/5]->name;
-	if (is_a_vowel(*s)) t="an";
-	else t="a";
-	if (strcmp(s,rsp_ptr[(p_ptr->lev-1)/5]->name))
+
+	/* Get the name for the new level */
+	levname=rsp_ptr[p_ptr->lev/5]->name;
+
+	/* Check if name changed from last level */
+	if (strcmp(levname, rsp_ptr[(p_ptr->lev-1)/5]->name))
 	{
-		msg_format("A wave of %s passes through your body",
+		cptr t;
+	
+		/* Get the proper article */
+		if (is_a_vowel(*levname)) t="an";
+		else t="a";
+
+		/* Message */
+		message_format(MSG_LEVEL, -1, "A wave of %s passes through your body",
 			((rp_ptr->special == RACE_SPECIAL_DEMON) ? "great evil":"holiness"));
-		msg_format("You have grown into %s %s!",t,s);
+		message_format(MSG_LEVEL, -1, "You have grown into %s %s!",t,levname);
 	}
+
+	/* Check to see if you got a new power */
 	if (rsp_ptr[(p_ptr->lev)/5]->power != rsp_ptr[(p_ptr->lev-1)/5]->power)
 	{
-		if (!rsp_ptr[(p_ptr->lev-1)/5]->power) msg_print("You gain a racial power!");
-		else msg_print("Your racial power has changed!");
+		if (!rsp_ptr[(p_ptr->lev-1)/5]->power) message(MSG_LEVEL, -1, "You gain a racial power!");
+		else message(MSG_LEVEL, -1, "Your racial power has changed!");
+
+		/* Reset power timer */
 		p_ptr->racial_power = 0;
 	}
 	
 	p_ptr->redraw |= (PR_STATS | PR_MISC);
+
 	return;
 }
 
@@ -90,15 +105,15 @@ void check_experience(void)
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
-	                       p_ptr->expfact / 100L)))
+			(p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
 	{
 		/* Gain a level */
 		p_ptr->lev++;
 
-		/* Save the highest level */
+		/* Check if a "special" race */
 		if ((rp_ptr->special) && (p_ptr->lev > p_ptr->max_lev)) special_level();
 
+		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
 
 		/* Message */
@@ -109,6 +124,27 @@ void check_experience(void)
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+
+	/* Gain max levels while possible */
+	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+		(p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
+							p_ptr->expfact / 100L)))
+	{
+		/* Gain max level */
+		p_ptr->max_lev++;
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS); +
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -153,6 +189,41 @@ static int get_coin_type(monster_race *r_ptr)
 }
 
 /*
+ * Create magical stairs after finishing a quest monster.
+ */
+static void build_quest_stairs(int y, int x)
+{
+	int ny, nx;
+
+	/* Stagger around */
+	while (!cave_valid_bold(y, x))
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&ny, &nx, y, x, d, 0);
+
+		/* Stagger */
+		y = ny; x = nx;
+	}
+
+	/* Destroy any objects */
+	delete_object(y, x);
+
+	/* Explain the staircase */
+	message(MSG_QUEST_SUCCEED, TRUE, "A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_MORE);
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+}
+
+/*
  * Handle the "death" of a monster.
  *
  * Disperse treasures centered at the monster location based on the
@@ -168,7 +239,7 @@ static int get_coin_type(monster_race *r_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx;
+	int i, j, y, x;
 
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -378,7 +449,8 @@ void monster_death(int m_idx)
 	if (!fixedquest) 
 	{
 		/* Give a message */
-		msg_print("You have completed your quest - collect your reward at the guild!");
+		message(MSG_QUEST_SUCCEED, TRUE, 
+			"You have completed your quest - collect your reward at the guild!");
 		
 		return;
 	}
@@ -386,32 +458,8 @@ void monster_death(int m_idx)
 	/* Need some stairs */
 	else if (total)
 	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
-		{
-			int d = 1;
-
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
-
-			/* Stagger */
-			y = ny; x = nx;
-		}
-
-		/* Destroy any objects */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Fully update the flow */
-		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+		/* Build magical stairs */
+		build_quest_stairs(y, x);
 	}
 
 	/* Nothing left, game over... */
@@ -424,9 +472,9 @@ void monster_death(int m_idx)
 		p_ptr->redraw |= (PR_TITLE);
 
 		/* Congratulations */
-		msg_print("*** CONGRATULATIONS ***");
-		msg_print("You have won the game!");
-		msg_print("You may retire (commit suicide) when you are ready.");
+		message(MSG_QUEST_SUCCEED, TRUE, "*** CONGRATULATIONS ***");
+		message(MSG_QUEST_SUCCEED, FALSE, "You have won the game!");
+		message(MSG_QUEST_SUCCEED, FALSE, "You may retire (commit suicide) when you are ready.");
 	}
 }
 
@@ -486,13 +534,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
+			message_format(MSG_KILL, TRUE, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
+			message_format(MSG_KILL, TRUE, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -502,19 +550,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
 		         (strchr("Evg$", r_ptr->d_char)))
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
+			message_format(MSG_KILL, TRUE, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
+			message_format(MSG_KILL, TRUE, "You have slain %s.", m_name);
 		}
 
 		/* Maximum player level */
 		div = p_ptr->max_lev;
 
-		/* Angels get less exp for non-evil non-uniques */
+		/* Hack - Angels get less exp for non-evil non-uniques */
 		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
 			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=2;
 		
@@ -718,40 +766,35 @@ static bool change_panel(int dir)
  */
 void verify_panel(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int wy = p_ptr->wy;
 	int wx = p_ptr->wx;
 
-
 	/* Scroll screen vertically when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (py != wy + SCREEN_HGT / 2))
+	    (p_ptr->py != wy + SCREEN_HGT / 2))
 	{
-		wy = py - SCREEN_HGT / 2;
+		wy = p_ptr->py - SCREEN_HGT / 2;
 	}
 
 	/* Scroll screen vertically when 2 grids from top/bottom edge */
-	else if ((py < wy + 2) || (py >= wy + SCREEN_HGT - 2))
+	else if ((p_ptr->py < wy + 2) || (p_ptr->py >= wy + SCREEN_HGT - 2))
 	{
-		wy = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
+		wy = ((p_ptr->py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 	}
 
 
 	/* Scroll screen horizontally when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (px != wx + SCREEN_WID / 2))
+	    (p_ptr->px != wx + SCREEN_WID / 2))
 	{
-		wx = px - SCREEN_WID / 2;
+		wx = p_ptr->px - SCREEN_WID / 2;
 	}
 
 	/* Scroll screen horizontally when 4 grids from left/right edge */
-	else if ((px < wx + 4) || (px >= wx + SCREEN_WID - 4))
+	else if ((p_ptr->px < wx + 4) || (p_ptr->px >= wx + SCREEN_WID - 4))
 	{
-		wx = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
+		wx = ((p_ptr->px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 	}
-
 
 	/* Scroll if needed */
 	if (modify_panel(wy, wx))
@@ -764,12 +807,10 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-static cptr look_mon_desc(int m_idx)
+static void look_mon_desc(char *buf, int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	char buf[100];
 
 	bool living = TRUE;
 	int perc;
@@ -814,8 +855,6 @@ static cptr look_mon_desc(int m_idx)
 	if (m_ptr->monfear) strcat(buf, ", afraid");
 	if (m_ptr->calmed) strcat(buf, ", calmed");
 	if (m_ptr->stunned) strcat(buf, ", stunned");
-
-	return format("%s",buf);
 }
 
 /*
@@ -1076,9 +1115,6 @@ sint target_dir(char ch)
  */
 static bool target_able(int m_idx)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	monster_type *m_ptr;
 
 	/* No monster */
@@ -1094,7 +1130,7 @@ static bool target_able(int m_idx)
 	if (!m_ptr->ml) return (FALSE);
 
 	/* Monster must be projectable */
-	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
+	if (!projectable(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx)) return (FALSE);
 
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->image) return (FALSE);
@@ -1210,24 +1246,21 @@ static void target_set_location(int y, int x)
  */
 static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	byte *x = (byte*)(u);
 	byte *y = (byte*)(v);
 
 	int da, db, kx, ky;
 
 	/* Absolute distance components */
-	kx = x[a]; kx -= px; kx = ABS(kx);
-	ky = y[a]; ky -= py; ky = ABS(ky);
+	kx = x[a]; kx -= p_ptr->px; kx = ABS(kx);
+	ky = y[a]; ky -= p_ptr->py; ky = ABS(ky);
 
 	/* Approximate Double Distance to the first point */
 	da = ((kx > ky) ? (kx + kx + ky) : (ky + ky + kx));
 
 	/* Absolute distance components */
-	kx = x[b]; kx -= px; kx = ABS(kx);
-	ky = y[b]; ky -= py; ky = ABS(ky);
+	kx = x[b]; kx -= p_ptr->px; kx = ABS(kx);
+	ky = y[b]; ky -= p_ptr->py; ky = ABS(ky);
 
 	/* Approximate Double Distance to the first point */
 	db = ((kx > ky) ? (kx + kx + ky) : (ky + ky + kx));
@@ -1475,8 +1508,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	int query;
 
-	char out_val[160];
-
+	char out_val[256];
 
 	/* Repeat forever */
 	while (1)
@@ -1509,7 +1541,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (cheat_wizard)
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -1574,9 +1609,24 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
+						char buf[100];
+
+						/* Describe the monster */
+						look_mon_desc(buf, cave_m_idx[y][x]);
+
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
+						if (cheat_wizard)
+						{
+							sprintf(out_val, "%s%s%s%s (%s) [r,%s] (%d:%d)",
+						            s1, s2, s3, m_name, buf, info, y, x);
+						}
+						else
+						{
+							sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
+							        s1, s2, s3, m_name, buf, info);
+						}
+
+				
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -1649,7 +1699,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 		}
 
-
 		/* Assume not floored */
 		floored = FALSE;
 
@@ -1675,8 +1724,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (1)
 				{
 					/* Describe the pile */
-					sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
-						s1, s2, s3, floor_num, info);
+					if (cheat_wizard)
+						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s] (%d:%d)", s1, s2, s3, floor_num, info, y, x);
+					else
+						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
+							s1, s2, s3, floor_num, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -1745,7 +1797,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				object_desc(o_name, o_ptr, TRUE, 3);
 
 				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				if (cheat_wizard)
+					sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+				else
+					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
@@ -1802,7 +1857,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (cheat_wizard)
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -1867,13 +1925,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  */
 bool target_set_interactive(int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i, d, m, t, bd;
 
-	int y = py;
-	int x = px;
+	int y = p_ptr->py;
+	int x = p_ptr->px;
 
 	bool done = FALSE;
 
@@ -1883,14 +1938,8 @@ bool target_set_interactive(int mode)
 
 	char info[80];
 
-
 	/* Cancel target */
 	target_set_monster(0);
-
-
-	/* Cancel tracking */
-	/* health_track(0); */
-
 
 	/* Prepare the "temp" array */
 	target_set_interactive_prepare(mode);
@@ -1971,8 +2020,8 @@ bool target_set_interactive(int mode)
 						handle_stuff();
 					}
 
-					y = py;
-					x = px;
+					y = p_ptr->py;
+					x = p_ptr->px;
 				}
 
 				case 'o':
@@ -2104,8 +2153,8 @@ bool target_set_interactive(int mode)
 						handle_stuff();
 					}
 
-					y = py;
-					x = px;
+					y = p_ptr->py;
+					x = p_ptr->px;
 				}
 
 				case 'o':
@@ -2335,7 +2384,7 @@ bool get_aim_dir(int *dp)
 	if (p_ptr->command_dir != dir)
 	{
 		/* Warn the user */
-		msg_print("You are confused.");
+		message(MSG_EFFECT, 0, "You are confused.");
 	}
 
 	/* Save direction */
@@ -2451,7 +2500,7 @@ bool confuse_dir(int *dp)
 	if ((*dp) != dir)
 	{
 		/* Warn the user */
-		msg_print("You are confused.");
+		message(MSG_EFFECT, 0, "You are confused.");
 
 		/* Save direction */
 		(*dp) = dir;

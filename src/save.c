@@ -323,7 +323,6 @@ static errr wr_randomizer(void)
 	return (0);
 }
 
-
 /*
  * Write the "options"
  *
@@ -388,31 +387,33 @@ static void wr_options(void)
 
 	/* Reset */
 	flag16[0] = 0L;
+	flag16[1] = 0L;
 
 	/* Analyze the options */
 	for (i = 0; i < OPT_CHEAT; i++)
 	{
-		int ob = i % 8;
+		int ob = i % 16;
 
 		/* Process real entries */
 		if (options_cheat[i].text)
 		{
 			if (op_ptr->opt_cheat[i]) flag16[0] |= (1L << ob);
-			if (op_ptr->opt_score[i]) flag16[0] |= (1L << (ob+8));
+			if (op_ptr->opt_score[i]) flag16[1] |= (1L << ob);
 		}
 
 	}
 
 	/* Dump the flags */
 	wr_u16b(flag16[0]);
+	wr_u16b(flag16[1]);
 
 	/*** Window options ***/
 
 	/* Reset */
-	for (i = 0; i < 8; i++)	flag16[i] = op_ptr->window_flag[i];
+	for (i = 0; i < ANGBAND_TERM_MAX; i++)	flag16[i] = op_ptr->window_flag[i];
 
 	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u16b(flag16[i]);
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u16b(flag16[i]);
 
 }
 
@@ -934,8 +935,14 @@ static bool save_player_aux(char *name)
 	/* File type is "SAVE" */
 	FILE_TYPE(FILE_TYPE_SAVE);
 
-	/* Create the savefile */
-	fd = fd_make(name, mode);
+	/* Grab permissions */
+	safe_setuid_grab();
+
+ 	/* Create the savefile */
+ 	fd = fd_make(name, mode);
+ 
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* File is okay */
 	if (fd >= 0)
@@ -943,8 +950,14 @@ static bool save_player_aux(char *name)
 		/* Close the "fd" */
 		fd_close(fd);
 
-		/* Open the savefile */
-		fff = my_fopen(name, "wb");
+		/* Grab permissions */
+		safe_setuid_grab();
+
+ 		/* Open the savefile */
+ 		fff = my_fopen(name, "wb");
+ 
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Successful open */
 		if (fff)
@@ -956,8 +969,14 @@ static bool save_player_aux(char *name)
 			if (my_fclose(fff)) ok = FALSE;
 		}
 
-		/* Remove "broken" files */
-		if (!ok) fd_kill(name);
+		/* Grab permissions */
+		safe_setuid_grab();
+
+ 		/* Remove "broken" files */
+ 		if (!ok) fd_kill(name);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 	/* Failure */
@@ -970,8 +989,6 @@ static bool save_player_aux(char *name)
 	return (TRUE);
 }
 
-
-
 /*
  * Attempt to save the player in a savefile
  */
@@ -980,7 +997,6 @@ bool save_player(void)
 	int result = FALSE;
 
 	char safe[1024];
-
 
 #ifdef SET_UID
 
@@ -1021,6 +1037,9 @@ bool save_player(void)
 		strcat(temp, "o");
 #endif /* VM */
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove it */
 		fd_kill(temp);
 
@@ -1033,13 +1052,15 @@ bool save_player(void)
 		/* Remove preserved savefile */
 		fd_kill(temp);
 
+		/* Drop permissions */
+		safe_setuid_drop();
+
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
 
 		/* Success */
 		result = TRUE;
 	}
-
 
 #ifdef SET_UID
 
@@ -1051,7 +1072,6 @@ bool save_player(void)
 # endif
 
 #endif
-
 
 	/* Return the result */
 	return (result);
@@ -1083,40 +1103,50 @@ bool load_player(void)
 
 	cptr what = "generic";
 
-
 	/* Paranoia */
 	turn = 0;
 
 	/* Paranoia */
 	p_ptr->is_dead = FALSE;
 
-
 	/* Allow empty savefile name */
 	if (!savefile[0]) return (TRUE);
 
+	/* Grab permissions */
+	safe_setuid_grab();
+ 
+	/* Open the savefile */
+	fd = fd_open(savefile, O_RDONLY);
+ 
+	/* Drop permissions */
+	safe_setuid_drop();
+ 
+	/* No file */
+	if (fd < 0)
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(VM)
-
-	/* XXX XXX XXX Fix this */
-
-	/* Verify the existance of the savefile */
-	if (access(savefile, 0) < 0)
 	{
 		/* Give a message */
-		msg_print("Savefile does not exist.");
-		msg_print(NULL);
+		message(MSG_GENERIC, 0, "Savefile does not exist.");
+		message_flush();
 
 		/* Allow this */
 		return (TRUE);
 	}
 
-#endif
+	/* Close the file */
+	fd_close(fd);
 
 	/* Okay */
 	if (!err)
 	{
-		/* Open the savefile */
-		fd = fd_open(savefile, O_RDONLY);
+		/* Grab permissions */
+		safe_setuid_grab();
+
+ 		/* Open the savefile */
+ 		fd = fd_open(savefile, O_RDONLY);
+ 
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* No file */
 		if (fd < 0) err = -1;
@@ -1128,7 +1158,6 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
-
 		/* Read the first four bytes */
 		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
 
@@ -1176,9 +1205,9 @@ bool load_player(void)
 		    (version_patch != sf_patch))
 		{
 			/* Message */
-			msg_format("Converted a %d.%d.%d savefile.",
+			message_format(MSG_GENERIC, 0, "Converted a %d.%d.%d savefile.",
 			           sf_major, sf_minor, sf_patch);
-			msg_print(NULL);
+			message_flush();
 		}
 
 		/* Player is dead */
@@ -1188,7 +1217,7 @@ bool load_player(void)
 			p_ptr->is_dead = FALSE;
 
 			/* Cheat death */
-			if (arg_wizard)
+			if (cheat_wizard)
 			{
 				/* A character was loaded */
 				character_loaded = TRUE;
@@ -1222,9 +1251,8 @@ bool load_player(void)
 	}
 
 	/* Message */
-	msg_format("Error (%s) reading %d.%d.%d savefile.",
-	           what, sf_major, sf_minor, sf_patch);
-	msg_print(NULL);
+		message_format(MSG_GENERIC, 0, "Error (%s) reading %d.%d.%d savefile.",
+			what, sf_major, sf_minor, sf_patch);	message_flush();
 
 	/* Oops */
 	return (FALSE);

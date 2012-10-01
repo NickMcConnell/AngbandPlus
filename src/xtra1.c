@@ -134,14 +134,8 @@ static void prt_title(void)
 {
 	cptr p;
 
-	/* Wizard */
-	if (p_ptr->wizard)
-	{
-		p = "[=-WIZARD-=]";
-	}
-
 	/* Winner */
-	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 	{
 		p = "***WINNER***";
 	}
@@ -859,7 +853,7 @@ static void fix_inven(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -891,7 +885,7 @@ static void fix_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -923,7 +917,7 @@ static void fix_player_0(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -955,7 +949,7 @@ static void fix_player_1(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -991,7 +985,7 @@ static void fix_message(void)
 	int x, y;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1045,7 +1039,7 @@ static void fix_overhead(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1077,7 +1071,7 @@ static void fix_monster(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1109,7 +1103,7 @@ static void fix_object(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1138,7 +1132,7 @@ static void fix_m_list(void)
 	int i, j; 
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1367,7 +1361,7 @@ static void calc_spells(void)
 			p_ptr->spell_learned[h] &= ~(1L << j);
 
 			/* Message */
-			msg_format("You have forgotten the spell of %s.", s_ptr->sname);
+			message_format(MSG_EFFECT, 0, "You have forgotten the spell of %s.", s_ptr->sname);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1411,7 +1405,7 @@ static void calc_spells(void)
 			p_ptr->spell_learned[h] &= ~(1L << j);
 
 			/* Message */
-			msg_format("You have forgotten the spell of %s.", s_ptr->sname);
+			message_format(MSG_EFFECT, 0, "You have forgotten the spell of %s.", s_ptr->sname);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1458,7 +1452,7 @@ static void calc_spells(void)
 			p_ptr->spell_learned[h] |= (1L << j);
 
 			/* Message */
-			msg_format("You have remembered the spell of %s.", s_ptr->sname);
+			message_format(MSG_EFFECT, 0, "You have remembered the spell of %s.", s_ptr->sname);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1641,11 +1635,11 @@ static void calc_mana(void)
 		/* Message */
 		if (p_ptr->cumber_glove)
 		{
-			msg_print(format("Your covered hands feel unsuitable for %s.", act));
+			message_format(MSG_EFFECT, 0, "Your covered hands feel unsuitable for %s.", act);
 		}
 		else
 		{
-			msg_print(format("Your hands feel more suitable for %s.",act));
+			message_format(MSG_EFFECT, 0, "Your hands feel more suitable for %s.",act);
 		}
 
 		/* Save it */
@@ -1658,11 +1652,11 @@ static void calc_mana(void)
 		/* Message */
 		if (p_ptr->cumber_armor)
 		{
-			msg_print("The weight of your armor encumbers your movement.");
+			message(MSG_EFFECT, 0, "The weight of your armor encumbers your movement.");
 		}
 		else
 		{
-			msg_print("You feel able to move more freely.");
+			message(MSG_EFFECT, 0, "You feel able to move more freely.");
 		}
 
 		/* Save it */
@@ -1729,9 +1723,6 @@ static void calc_torch(void)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-	/* Player is glowing */
-	if (p_ptr->lite) p_ptr->cur_lite = 1;
-
 	/* Examine Refueling lites */
 	if ((o_ptr->tval == TV_LITE_SPECIAL) || ((o_ptr->tval == TV_LITE) && (o_ptr->timeout > 0)))
 	{
@@ -1742,12 +1733,24 @@ static void calc_torch(void)
 		else p_ptr->cur_lite = 1; /* Hack - paranoia */
 	}
 
+	/* Reduce light gradually when running out of fuel */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->timeout < 200) && (o_ptr->timeout > 0))
+	{
+		p_ptr->cur_lite = ((p_ptr->cur_lite * o_ptr->timeout) / 200)+1;
+	}
+
 	/* Reduce lite when running if requested */
 	if (p_ptr->running && view_reduce_lite)
 	{
 		/* Reduce the lite radius if needed */
 		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
 	}
+
+	/* Player is glowing */
+	if (p_ptr->lite) p_ptr->cur_lite += 1;
+
+	/* Never more than 4 radius */
+	if (p_ptr->cur_lite > 4) p_ptr->cur_lite = 4;
 
 	if (view_monster_lite)
     {
@@ -2686,11 +2689,11 @@ static void calc_bonuses(void)
 	{
 		if (p_ptr->invis)
 		{
-			msg_print("You fade from sight...");
+			message(MSG_EFFECT, 0, "You fade from sight...");
 		}
 		else
 		{
-			msg_print("You become visible again.");
+			message(MSG_EFFECT, 0, "You become visible again.");
 		}
 	}
 
@@ -2720,15 +2723,15 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->heavy_shoot)
 		{
-			msg_print("You have trouble wielding such a heavy bow.");
+			message(MSG_EFFECT, 0, "You have trouble wielding such a heavy bow.");
 		}
 		else if (inventory[INVEN_BOW].k_idx)
 		{
-			msg_print("You have no trouble wielding your bow.");
+			message(MSG_EFFECT, 0, "You have no trouble wielding your bow.");
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy bow.");
+			message(MSG_EFFECT, 0, "You feel relieved to put down your heavy bow.");
 		}
 
 		/* Save it */
@@ -2741,15 +2744,15 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->heavy_wield)
 		{
-			msg_print("You have trouble wielding such a heavy weapon.");
+			message(MSG_EFFECT, 0, "You have trouble wielding such a heavy weapon.");
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
-			msg_print("You have no trouble wielding your weapon.");
+			message(MSG_EFFECT, 0, "You have no trouble wielding your weapon.");
 		}
 		else
 		{
-			msg_print("You feel relieved to put down your heavy weapon.");
+			message(MSG_EFFECT, 0, "You feel relieved to put down your heavy weapon.");
 		}
 
 		/* Save it */
@@ -2762,15 +2765,15 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			msg_print("You do not feel comfortable with your weapon.");
+			message(MSG_EFFECT, 0, "You do not feel comfortable with your weapon.");
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
-			msg_print("You feel comfortable with your weapon.");
+			message(MSG_EFFECT, 0, "You feel comfortable with your weapon.");
 		}
 		else
 		{
-			msg_print("You feel more comfortable after removing your weapon.");
+			message(MSG_EFFECT, 0, "You feel more comfortable after removing your weapon.");
 		}
 
 		/* Save it */
@@ -3096,7 +3099,7 @@ void window_stuff(void)
 	if (!p_ptr->window) return;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Save usable flags */
 		if (angband_term[j])
@@ -3148,7 +3151,7 @@ void window_stuff(void)
 		fix_m_list();
 	}
 
-	/* Display overhead view */
+	/* Display message recall */
 	if (p_ptr->window & (PW_MESSAGE))
 	{
 		p_ptr->window &= ~(PW_MESSAGE);

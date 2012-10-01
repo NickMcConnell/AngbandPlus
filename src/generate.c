@@ -576,7 +576,7 @@ static void destroy_level(void)
 	int y1, x1, y, x, k, t, n;
 
 	/* Note destroyed levels */
-	if (cheat_room) msg_print("Destroyed Level");
+	if (cheat_room) message(MSG_CHEAT, 0, "Destroyed Level");
 
 	/* Drop a few epi-centers (usually about two) */
 	for (n = 0; n < randint(5); n++)
@@ -1716,7 +1716,7 @@ static void build_type5(int y0, int x0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster nest (%s)", name);
+		message_format(MSG_CHEAT, 0, "Monster nest (%s)", name);
 	}
 
 	/* Increase the level rating */
@@ -2017,7 +2017,7 @@ static void build_type6(int y0, int x0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster pit (%s)", name);
+		message_format(MSG_CHEAT, 0, "Monster pit (%s)", name);
 	}
 
 
@@ -2261,7 +2261,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_print("Lesser Vault");
+	if (cheat_room) message_format(MSG_CHEAT, 0, "Lesser Vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2295,7 +2295,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_print("Greater Vault");
+	if (cheat_room) message_format(MSG_CHEAT, 0, "Greater Vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2751,19 +2751,23 @@ static void cave_gen(void)
 
 	if ((adult_force_small_lev) || (randint(SMALL_LEVEL)==1))
     {
-		if (cheat_room) msg_print ("A 'small' dungeon level.");
+		int l, m;
 
 		while (TRUE)
 		{
-			p_ptr->cur_hgt = randint(MAX_DUNGEON_HGT/SCREEN_HGT) * SCREEN_HGT;
-			p_ptr->cur_wid = randint(MAX_DUNGEON_WID/SCREEN_WID) * SCREEN_WID;
+			l = randint(MAX_DUNGEON_HGT/SCREEN_HGT);
+			m = randint(MAX_DUNGEON_WID/SCREEN_WID);
+
+			p_ptr->cur_hgt = l * SCREEN_HGT;
+			p_ptr->cur_wid = m * SCREEN_WID;
 			
 			/* Exit if less than normal dungeon */
 			if ((p_ptr->cur_hgt < MAX_DUNGEON_HGT) || (p_ptr->cur_wid < MAX_DUNGEON_WID)) break;
 		}
 
-		if (cheat_room) 
-			msg_format("X:%d, Y:%d.", p_ptr->cur_wid/SCREEN_WID, p_ptr->cur_hgt/SCREEN_HGT);
+		if (cheat_room) message_format(MSG_CHEAT, 0, "A 'small' dungeon level (%dx%d).", m, l);
+
+		if (!adult_force_small_lev) rating += ((m+l<=3) ? 15 : 10);
 	}
 	else
 	{
@@ -2997,7 +3001,7 @@ static void cave_gen(void)
 		if (i > small_tester) i = small_tester;
 		else if (cheat_hear)
 		{
-			msg_format("Reduced monsters base from %d to %d", small_tester, i);
+			message_format(MSG_CHEAT, 0, "Reduced monsters base from %d to %d", small_tester, i);
 		}
 	}
 
@@ -3438,7 +3442,7 @@ void generate_cave(void)
 		if (okay) break;
 
 		/* Message */
-		if (why) msg_format("Generation restarted (%s)", why);
+		if (why) message_format(MSG_CHEAT, 0, "Generation restarted (%s)", why);
 
 		/* Wipe the objects */
 		wipe_o_list();

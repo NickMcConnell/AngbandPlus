@@ -26,6 +26,10 @@ void do_cmd_display_character(void)
 	/* Prompt */
 	p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
 
+	/* Make sure everything is properly updated */
+	p_ptr->update |= (PU_BONUS);
+	update_stuff();
+
 	/* Save screen */
 	screen_save();
 
@@ -63,11 +67,11 @@ void do_cmd_display_character(void)
 				{
 					if (file_character(ftmp, FALSE))
 					{
-						msg_print("Character dump failed!");
+						message(MSG_FAIL, 0, "Character dump failed!");
 					}
 					else
 					{
-						msg_print("Character dump successful.");
+						message(MSG_SUCCEED, 0, "Character dump successful.");
 					}
 				}
 			}
@@ -83,11 +87,11 @@ void do_cmd_display_character(void)
 		/* Oops */
 		else
 		{
-			bell("Illegal command for change name!");
+			bell("Illegal command for character display!");
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
 
 	/* Load screen */
@@ -103,7 +107,6 @@ void do_cmd_message_one(void)
 	/* Recall one message XXX XXX XXX */
 	c_prt(message_color(0), format( "> %s", message_str(0)), 0, 0);
 }
-
 
 /*
  * Show previous messages to the user
@@ -124,19 +127,17 @@ void do_cmd_messages(void)
 {
 	char ch;
 
-	int i, j, n;
-	uint q;
+	int i, j, n, q;
+	int wid, hgt;
 
 	char shower[80];
 	char finder[80];
-
 
 	/* Wipe finder */
 	strcpy(finder, "");
 
 	/* Wipe shower */
 	strcpy(shower, "");
-
 
 	/* Total messages */
 	n = message_num();
@@ -147,6 +148,8 @@ void do_cmd_messages(void)
 	/* Start at leftmost edge */
 	q = 0;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Save screen */
 	screen_save();
@@ -157,17 +160,17 @@ void do_cmd_messages(void)
 		/* Clear screen */
 		Term_clear();
 
-		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < 20) && (i + j < n); j++)
+		/* Dump messages */
+		for (j = 0; (j < hgt - 4) && (i + j < n); j++)
 		{
 			cptr msg = message_str((s16b)(i+j));
 			byte attr = message_color((s16b)(i+j));
 
 			/* Apply horizontal scroll */
-			msg = (strlen(msg) >= q) ? (msg + q) : "";
+			msg = ((int)strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, attr, msg);
+			Term_putstr(0, hgt - 3 - j, -1, attr, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -180,7 +183,7 @@ void do_cmd_messages(void)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
+					Term_putstr(str-msg, hgt - 3 - j, len, TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -190,10 +193,10 @@ void do_cmd_messages(void)
 
 		/* Display header XXX XXX XXX */
 		prt(format("Message Recall (%d-%d of %d), Offset %d",
-		           i, i+j-1, n, q), 0, 0);
+		           i, i + j - 1, n, q), 0, 0);
 
 		/* Display prompt (not very informative) */
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
 
 		/* Get a command */
 		ch = inkey();
@@ -208,7 +211,7 @@ void do_cmd_messages(void)
 		if (ch == '4')
 		{
 			/* Scroll left */
-			q = (q >= 40) ? (q - 40) : 0;
+			q = (q >= wid / 2) ? (q - wid / 2) : 0;
 
 			/* Success */
 			continue;
@@ -218,7 +221,7 @@ void do_cmd_messages(void)
 		if (ch == '6')
 		{
 			/* Scroll right */
-			q = q + 40;
+			q = q + wid / 2;
 
 			/* Success */
 			continue;
@@ -228,7 +231,7 @@ void do_cmd_messages(void)
 		if (ch == '=')
 		{
 			/* Prompt */
-			prt("Show: ", 23, 0);
+			prt("Show: ", hgt - 1, 0);
 
 			/* Get a "shower" string, or continue */
 			if (!askfor_aux(shower, 80)) continue;
@@ -243,7 +246,7 @@ void do_cmd_messages(void)
 			s16b z;
 
 			/* Prompt */
-			prt("Find: ", 23, 0);
+			prt("Find: ", hgt - 1, 0);
 
 			/* Get a "finder" string, or continue */
 			if (!askfor_aux(finder, 80)) continue;
@@ -335,9 +338,8 @@ void do_cmd_note(void)
 	if (!tmp[0] || (tmp[0] == ' ')) return;
 
 	/* Add the note to the message recall */
-	msg_format("Note: %s", tmp);
+	message_format(MSG_NOTE, 0, "Note: %s", tmp);
 }
-
 
 /*
  * Mention the current version
@@ -345,11 +347,9 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing EyAngband %d.%d.%d.  Type '?' for more info.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	message_format(MSG_GENERIC, 0, "You are playing %s %s.  Type '?' for more info.",
+	           VERSION_NAME, VERSION_STRING);
 }
-
-
 
 /*
  * Array of feeling strings
@@ -383,16 +383,16 @@ void do_cmd_feeling(void)
 	/* No useful feeling in town */
 	if (!p_ptr->depth)
 	{
-		msg_print("Looks like a typical town.");
+		message(MSG_FEELING, 0, "Looks like a typical town.");
 		return;
 	}
 
 	/* Display the feeling */
-	if (!adult_no_feelings) msg_print(do_cmd_feeling_text[feeling]);
+	if (!adult_no_feelings) message(MSG_FEELING, p_ptr->depth, do_cmd_feeling_text[feeling]);
 
 	/* Display the quest descpription for the current level (mode 3 = short)*/
 	quest_feel = describe_quest(p_ptr->depth,3);
-	if (quest_feel != NULL) msg_print(quest_feel);
+	if (quest_feel != NULL) message(MSG_FEELING, -1, quest_feel);
 
 }
 
@@ -433,20 +433,20 @@ void do_cmd_quest(void)
 		curquest = describe_quest(current,4);
 
 		/* Break into two lines if necessary */
-		if (strlen(curquest) < 70) msg_print(curquest);
+		if (strlen(curquest) < 70) message(MSG_DESCRIBE, 0, curquest);
 		else 
 		{
 			curquest = describe_quest(current,1);
-			msg_print(curquest);
+			message(MSG_DESCRIBE, 0, curquest);
 			curquest = describe_quest(current,2);
-			msg_print(curquest);
+			message(MSG_DESCRIBE, -1, curquest);
 		}
 	}
 	else if (current == -1)
 	{
-		msg_print("Collect your reward at the guild!");
+		message(MSG_DESCRIBE, 0, "Collect your reward at the guild!");
 	}
-	else msg_print("You are not currently undertaking a quest.");
+	else message(MSG_DESCRIBE, 0, "You are not currently undertaking a quest.");
 
 }
 
@@ -466,10 +466,10 @@ static void do_cmd_knowledge_artifacts(void)
 	bool *okay;
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	fff = my_fopen_temp(file_name, 1024);
+ 
+	/* Failure */
+	if (!fff) return;
 
 	/* Allocate the "okay" array */
 	C_MAKE(okay, z_info->a_max, bool);
@@ -603,10 +603,10 @@ static void do_cmd_knowledge_alchemy(void)
 	char file_name[1024];
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	fff = my_fopen_temp(file_name, 1024);
+ 
+	/* Failure */
+	if (!fff) return;
 
 	/* Scan the alchemy info */
 	for (i = 0; i < SV_MAX_POTIONS; i++)
@@ -1479,7 +1479,7 @@ void do_cmd_knowledge(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
 
 
@@ -1494,7 +1494,7 @@ void do_cmd_knowledge(void)
 static cptr ident_info[] =
 {
 	" :A dark grid",
-	"!:A potion (or oil)",
+	"!:A potion (or flask)",
 	"\":An amulet (or necklace)",
 	"#:A wall (or secret door)",
 	"$:Treasure (gold or gems)",
@@ -1503,12 +1503,12 @@ static cptr ident_info[] =
 	"':An open door",
 	"(:Soft armor",
 	"):A shield",
-	"*:A vein with treasure (or Throwing powder)",
+	"*:A throwning powder (or vein with treasure)",
 	"+:A closed door",
 	",:Food (or mushroom patch)",
 	"-:A wand (or rod)",
 	".:Floor",
-	"/:A polearm (Axe/Pike/etc)",
+	"/:A polearm (or musical instrument)",
 	/* "0:unused", */
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
@@ -1587,7 +1587,7 @@ static cptr ident_info[] =
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
+	"~:A light-source (or chest/spike)",
 	NULL
 };
 
@@ -1724,7 +1724,7 @@ void do_cmd_query_symbol(void)
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -1756,7 +1756,7 @@ void do_cmd_query_symbol(void)
 	if (query != 'y')
 	{
 		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -1854,5 +1854,5 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, u16b);
+	C_FREE(who, z_info->r_max, u16b);
 }

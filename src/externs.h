@@ -8,12 +8,10 @@
  * are included in all such copies.
  */
 
-
 /*
  * Note that some files have their own header files
  * (z-virt.h, z-util.h, z-form.h, term.h, random.h)
  */
-
 
 /*
  * Automatically generated "variable" declarations
@@ -60,8 +58,8 @@ extern player_race_special race_special_info[2][RACE_SPECIAL_LEVELS];
 extern byte max_item_plus[30];
 extern byte chest_traps[64];
 extern cptr color_names[16];
-extern cptr stat_names[6];
-extern cptr stat_names_reduced[6];
+extern cptr stat_names[A_MAX];
+extern cptr stat_names_reduced[A_MAX];
 extern cptr window_flag_desc[16];
 extern option_type options[OPT_NORMAL];
 extern option_type options_birth[OPT_BIRTH];
@@ -146,8 +144,8 @@ extern u16b *message__ptr;
 extern char *message__buf;
 extern u16b *message__type;
 extern byte message__color[MSG_MAX];
-extern term *angband_term[8];
-extern char angband_term_name[8][16];
+extern term *angband_term[ANGBAND_TERM_MAX];
+extern char angband_term_name[ANGBAND_TERM_MAX][16];
 extern byte angband_color_table[256][4];
 extern char angband_sound_name[MSG_MAX][16];
 extern sint view_n;
@@ -162,7 +160,6 @@ extern s16b (*cave_o_idx)[MAX_DUNGEON_WID];
 extern s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 extern byte (*cave_cost)[MAX_DUNGEON_WID];
 extern byte (*cave_when)[MAX_DUNGEON_WID];
-extern header *z_head;
 extern maxima *z_info;
 extern object_type *o_list;
 extern monster_type *m_list;
@@ -186,42 +183,30 @@ extern player_class *cp_ptr;
 extern ptr_player_race_special rsp_ptr[RACE_SPECIAL_LEVELS];
 extern player_other *op_ptr;
 extern player_type *p_ptr;
-extern header *v_head;
 extern vault_type *v_info;
 extern char *v_name;
 extern char *v_text;
-extern header *f_head;
 extern feature_type *f_info;
 extern char *f_name;
-extern header *k_head;
 extern object_kind *k_info;
 extern char *k_name;
-extern header *a_head;
 extern artifact_type *a_info;
 extern char *a_name;
-extern header *e_head;
 extern ego_item_type *e_info;
 extern char *e_name;
-extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
-extern header *c_head;
 extern player_class *c_info;
 extern char *c_name;
 extern char *c_text;
-extern header *p_head;
 extern player_race *p_info;
 extern char *p_name;
-extern header *h_head;
 extern hist_type *h_info;
 extern char *h_text;
-extern header *b_head;
 extern owner_type *b_info;
 extern char *b_name;
-extern header *g_head;
 extern byte *g_info;
-extern header *q_head;
 extern quest_type *q_info;
 extern char *q_name;
 extern cptr ANGBAND_SYS;
@@ -233,6 +218,7 @@ extern cptr ANGBAND_DIR_EDIT;
 extern cptr ANGBAND_DIR_FILE;
 extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_SAVE;
+extern cptr ANGBAND_DIR_PREF;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
 extern bool item_tester_full;
@@ -385,6 +371,7 @@ extern bool hp_player(int num);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern bool restore_exp(void);
+extern void scramble_stats(void);
 extern bool do_dec_stat(int stat, int amount, bool permanent, bool can_sustain);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
@@ -429,7 +416,7 @@ extern bool set_food(int v);
 /* files.c */
 extern void safe_setuid_drop(void);
 extern void safe_setuid_grab(void);
-extern errr process_pref_file_aux(char *buf);
+extern errr process_pref_file_command(char *buf);
 extern errr process_pref_file(cptr name);
 extern errr check_time(void);
 extern errr check_time_init(void);
@@ -454,31 +441,10 @@ extern void display_scores_aux(int from, int to, int note, high_score *score);
 /* generate.c */
 extern void generate_cave(void);
 
-/* init1.c */
-extern int color_char_to_attr(char c);
-#ifdef ALLOW_TEMPLATES
-extern errr init_z_info_txt(FILE *fp, char *buf);
-extern errr init_v_info_txt(FILE *fp, char *buf);
-extern errr init_f_info_txt(FILE *fp, char *buf);
-extern errr init_k_info_txt(FILE *fp, char *buf);
-extern errr init_a_info_txt(FILE *fp, char *buf);
-extern errr init_e_info_txt(FILE *fp, char *buf);
-extern errr init_r_info_txt(FILE *fp, char *buf);
-extern errr init_p_info_txt(FILE *fp, char *buf);
-extern errr init_c_info_txt(FILE *fp, char *buf);
-extern errr init_h_info_txt(FILE *fp, char *buf);
-extern errr init_b_info_txt(FILE *fp, char *buf);
-extern errr init_g_info_txt(FILE *fp, char *buf);
-extern errr init_q_info_txt(FILE *fp, char *buf);
-#endif /* ALLOW_TEMPLATES */
-
 /* init2.c */
 extern void init_file_paths(char *path);
 extern void init_angband(void);
-#ifdef ALLOW_TEMPLATES
-extern s16b error_idx;
-extern s16b error_line;
-#endif /* ALLOW_TEMPLATES */
+extern void cleanup_angband(void);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -633,7 +599,6 @@ extern void fire_dam(int dam, cptr kb_str);
 extern void cold_dam(int dam, cptr kb_str);
 extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
-extern void scramble_stats(int times);
 
 /* spells2.c */
 extern void warding_glyph(void);
@@ -731,9 +696,9 @@ extern void store_init(int which);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
-extern errr path_temp(char *buf, int max);
 extern errr path_build(char *buf, int max, cptr path, cptr file);
 extern FILE *my_fopen(cptr file, cptr mode);
+extern FILE *my_fopen_temp(char *buf, int max);
 extern errr my_fclose(FILE *fff);
 extern errr my_fgets(FILE *fff, char *buf, huge n);
 extern errr my_fputs(FILE *fff, cptr buf, huge n);
@@ -744,7 +709,6 @@ extern int fd_make(cptr file, int mode);
 extern int fd_open(cptr file, int flags);
 extern errr fd_lock(int fd, int what);
 extern errr fd_seek(int fd, long n);
-extern errr fd_chop(int fd, huge n);
 extern errr fd_read(int fd, char *buf, huge n);
 extern errr fd_write(int fd, cptr buf, huge n);
 extern errr fd_close(int fd);
@@ -770,8 +734,9 @@ extern errr message_init(void);
 extern void move_cursor(int row, int col);
 extern void msg_print(cptr msg);
 extern void msg_format(cptr fmt, ...);
-extern void message(u16b message_type, s16b extra, cptr message);
+extern void message(u16b message_type, s16b extra, cptr msg);
 extern void message_format(u16b message_type, s16b extra, cptr fmt, ...);
+extern void message_flush(void);
 extern void screen_save(void);
 extern void screen_load(void);
 extern void c_put_str(byte attr, cptr str, int row, int col);
@@ -791,6 +756,7 @@ extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
 extern uint maxroll(uint num, uint sides);
 extern bool is_a_vowel(int ch);
+extern int color_char_to_attr(char c);
 
 #ifdef SUPPORT_GAMMA
 extern void build_gamma_table(int gamma);
@@ -826,11 +792,13 @@ extern bool confuse_dir(int *dp);
 /*
  * Hack -- conditional (or "bizarre") externs
  */
-
-#ifndef HAS_MEMSET
-/* util.c */
-extern char *memset(char*, int, huge);
-#endif
+ 
+#ifdef OLD_CRUFT
+# ifndef HAS_MEMSET
+ /* util.c */
+ extern char *memset(char*, int, huge);
+# endif /* HAS_MEMSET */
+#endif /* OLD_CRUFT */
 
 #ifndef HAS_STRICMP
 /* util.c */
@@ -843,6 +811,7 @@ extern int stricmp(cptr a, cptr b);
 extern int usleep(huge usecs);
 # endif
 extern void user_name(char *buf, int id);
+extern errr user_home(char *buf, int len);
 #endif
 
 #ifdef ALLOW_REPEAT
@@ -857,7 +826,7 @@ extern void repeat_check(void);
 #ifdef GJW_RANDART
 
 /* randart.c */
-extern int do_randart(u32b randart_seed);
+extern errr do_randart(u32b randart_seed);
 
 #endif /* GJW_RANDART */
 

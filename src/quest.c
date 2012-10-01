@@ -87,9 +87,9 @@ static void plural_aux(char * Name)
 	{
 		strcpy (&(Name[NameLen-4]), "ice");
 	}
-	else if (streq(&(Name[NameLen-4]), "lman"))
+	else if ((streq(&(Name[NameLen-4]), "lman")) || (streq(&(Name[NameLen-4]), "sman")))
 	{
-		strcpy (&(Name[NameLen-4]), "lmen");
+		strcpy (&(Name[NameLen-3]), "men");
 	}
 	else if (streq(&(Name[NameLen-2]), "ex"))
 	{
@@ -230,7 +230,7 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	{
 		if ((lev_diff<(-50)) || (lev+lev_diff < 1))
 		{
-			msg_print("There are no elligable monsters to quest for");
+			message(MSG_FAIL, 0, "There are no elligable monsters to quest for");
 			return FALSE;
 		}
 
@@ -322,7 +322,7 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 
 	if (i <= 1) 
 	{
-		msg_print("Something is wrong");
+		message(MSG_FAIL, 0, "Something is wrong");
 		return FALSE;
 	}
 
@@ -391,7 +391,7 @@ void display_guild(void)
 			else
 			{
 				/* Inform the player */
-				msg_print("A reward for your efforts is waiting outside!");
+				message(MSG_STORE, 0, "A reward for your efforts is waiting outside!");
 				
 				/* Create the reward */
 				grant_reward(q_info[i].base_level,q_info[i].reward);
@@ -566,7 +566,7 @@ void guild_purchase(void)
 	/* In a current quest */
 	if (current)
 	{
-		msg_print("Finish your current quest first!");
+		message(MSG_FAIL, 0, "Finish your current quest first!");
 		return;
 	}
 
@@ -585,7 +585,7 @@ void guild_purchase(void)
 		{
 			if (q_info[i].active_level == qlev)
 			{
-				msg_print("A greater task lies before you!");
+				message(MSG_FAIL, 0, "A greater task lies before you!");
 				return;
 			}
 			/* if not problem, skip */
@@ -598,7 +598,7 @@ void guild_purchase(void)
 			if (!q_info[i].active_level) continue;
 			else 
 			{
-				msg_print("You already have an assigned quest!");
+				message(MSG_FAIL, 0, "You already have an assigned quest!");
 				return;
 			}
 		}
@@ -619,7 +619,7 @@ void guild_purchase(void)
 		if (!place_quest(slot,qlev,num,(unique) ? 0 : guild[item],unique)) return;
 	}
 
-	else msg_print("You can't accept any more quests!");
+	else message(MSG_FAIL, 0, "You can't accept any more quests!");
 
 	/* Clear screen */
 	Term_clear();

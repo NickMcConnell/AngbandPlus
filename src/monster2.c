@@ -157,7 +157,7 @@ void compact_monsters(int size)
 	int cur_lev, cur_dis, chance;
 
 	/* Message (only if compacting) */
-	if (size) msg_print("Compacting monsters...");
+	if (size) message(MSG_GENERIC, 0, "Compacting monsters...");
 
 	/* Compact at least 'size' objects */
 	for (num = 0, cnt = 1; num < size; cnt++)
@@ -313,7 +313,7 @@ s16b m_pop(void)
 	}
 
 	/* Warn the player (except during dungeon creation) */
-	if (character_dungeon) msg_print("Too many monsters!");
+	if (character_dungeon) message(MSG_GENERIC, 0, "Too many monsters!");
 
 	/* Try not to crash */
 	return (0);
@@ -837,16 +837,12 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
 
-
 	/* Compute distance */
 	if (full)
 	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
-
 		/* Distance components */
-		int dy = (py > fy) ? (py - fy) : (fy - py);
-		int dx = (px > fx) ? (px - fx) : (fx - px);
+		int dy = (p_ptr->py > fy) ? (p_ptr->py - fy) : (fy - p_ptr->py);
+		int dx = (p_ptr->px > fx) ? (p_ptr->px - fx) : (fx - p_ptr->px);
 
 		/* Approximate distance */
 		d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
@@ -865,10 +861,8 @@ void update_mon(int m_idx, bool full)
 		d = m_ptr->cdis;
 	}
 
-
 	/* Detected */
 	if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
-
 
 	/* Nearby */
 	if (d <= MAX_SIGHT)
@@ -1391,7 +1385,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Unique (%s).", name);
+			if (cheat_hear) message_format(MSG_CHEAT, 0, "Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - p_ptr->depth) * 2;
@@ -1401,7 +1395,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		else
 		{
 			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Monster (%s).", name);
+			if (cheat_hear) message_format(MSG_CHEAT, 0, "Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - p_ptr->depth);
@@ -1412,7 +1406,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-		if (cheat_hear) msg_format("Unique (%s).", name);
+		if (cheat_hear) message_format(MSG_CHEAT, 0, "Unique (%s).", name);
 	}
 
 	/* Get local monster */
@@ -1798,9 +1792,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
  */
 bool alloc_monster(int dis, bool slp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x;
 
 	/* Find a legal, distant, unoccupied, space */
@@ -1814,7 +1805,7 @@ bool alloc_monster(int dis, bool slp)
 		if (!cave_naked_bold(y, x)) continue;
 
 		/* Accept far away grids */
-		if (distance(y, x, py, px) > dis) break;
+		if (distance(y, x, p_ptr->py, p_ptr->px) > dis) break;
 	}
 
 	/* Attempt to place the monster, allow groups */
@@ -2082,7 +2073,7 @@ void message_pain(int m_idx, int dam)
 	/* Notice non-damage */
 	if (dam == 0)
 	{
-		msg_format("%^s is unharmed.", m_name);
+		message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is unharmed.", m_name);
 		return;
 	}
 
@@ -2096,76 +2087,76 @@ void message_pain(int m_idx, int dam)
 	if (strchr("jmvQ", r_ptr->d_char))
 	{
 		if (percentage > 95)
-			msg_format("%^s barely notices.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s barely notices.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s flinches.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s flinches.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s squelches.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s squelches.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s quivers in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s quivers in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s writhes about.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s writhes about.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s jerks limply.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s jerks limply.", m_name);
 	}
 
 	/* Dogs and Hounds */
 	else if (strchr("CZ", r_ptr->d_char))
 	{
 		if (percentage > 95)
-			msg_format("%^s shrugs off the attack.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s shrugs off the attack.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s snarls with pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s snarls with pain.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s yelps in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s yelps in pain.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s howls in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s howls in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s howls in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s howls in agony.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s yelps feebly.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s yelps feebly.", m_name);
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
 	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char))
 	{
 		if (percentage > 95)
-			msg_format("%^s ignores the attack.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s ignores the attack.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s grunts with pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s grunts with pain.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s squeals in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s squeals in pain.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s shrieks in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s shrieks in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s shrieks in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s shrieks in agony.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s cries out feebly.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s cries out feebly.", m_name);
 	}
 
 	/* Another type of monsters (shrug,cry,scream) */
 	else
 	{
 		if (percentage > 95)
-			msg_format("%^s shrugs off the attack.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s shrugs off the attack.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s grunts with pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s grunts with pain.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s cries out in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s cries out in pain.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s screams in pain.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s screams in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s screams in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s screams in agony.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s cries out feebly.", m_name);
+			message_format(MSG_MONSTER, m_ptr->r_idx, "%^s cries out feebly.", m_name);
 	}
 }
 

@@ -1469,7 +1469,7 @@ static void roff_top(int r_idx)
 void screen_roff(int r_idx)
 {
 	/* Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Begin recall */
 	Term_erase(0, 1, 255);

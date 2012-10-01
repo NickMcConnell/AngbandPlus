@@ -207,16 +207,16 @@ u16b *message__type;
 byte message__color[MSG_MAX];
 
 /*
- * The array[8] of window pointers
+ * The array[ANGBAND_TERM_MAX] of window pointers
  */
-term *angband_term[8];
+term *angband_term[ANGBAND_TERM_MAX];
 
 /*
  * The array[8] of window names (modifiable?)
  */
-char angband_term_name[8][16] =
+char angband_term_name[ANGBAND_TERM_MAX][16] =
 {
-	"Angband",
+	VERSION_NAME,
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -249,40 +249,72 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
 
+
 /*
  * Standard sound (and message) names
  */
 char angband_sound_name[SOUND_MAX][16] =
 {
-	"",
+	"generic",
+	"fail",
+	"succeed",
+	"effect",
+	"monster",
+	"note",
+	"bell",
+	"timeout",
+	"cheat",
+	"death",
+	"hitpoint_warn",
+	"resist",
+	"feeling",
 	"hit",
 	"miss",
 	"flee",
 	"drop",
+	"pickup",
+	"curse",
 	"kill",
 	"level",
-	"death",
 	"study",
-	"teleport",
 	"shoot",
 	"quaff",
 	"zap",
-	"walk",
+	"throw",
+	"fuel",
+	"eat",
+	"dsm",
+	"teleport",
+	"tplevel",
 	"tpother",
 	"hitwall",
-	"eat",
-	"store1",
-	"store2",
-	"store3",
-	"store4",
+	"store",
+	"store_angry",
+	"store_happy",
 	"dig",
 	"opendoor",
 	"shutdoor",
-	"tplevel",
-	"bell",
-	"nothing_to_open",
+	"bash",
+	"spike",
+	"lockpick_succeed",
 	"lockpick_fail",
 	"stairs",
+	"quest_fail",
+	"quest_succeed",
+	"trap",
+	"critical_hit",
+	"find",
+	"item_resist",
+	"item_damage",
+	"item_bonus",
+	"item_break",
+	"pseudo_id",
+	"theft",
+	"mon_fail",
+	"summon",
+	"describe",
+	"detect",
+	"ffall"
 };
 
 /*
@@ -463,13 +495,11 @@ player_type *p_ptr = &player_type_body;
 /*
  * Structure (not array) of size limits
  */
-header *z_head;
 maxima *z_info;
 
 /*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -477,35 +507,30 @@ char *v_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -513,7 +538,6 @@ char *r_text;
 /*
  * The player class arrays
  */
-header *c_head;
 player_class *c_info;
 char *c_name;
 char *c_text;
@@ -521,34 +545,29 @@ char *c_text;
 /*
  * The player race arrays
  */
-header *p_head;
 player_race *p_info;
 char *p_name;
 
 /*
  * The player history arrays
  */
-header *h_head;
 hist_type *h_info;
 char *h_text;
 
 /*
  * The shop owner arrays
  */
-header *b_head;
 owner_type *b_info;
 char *b_name;
 
 /*
  * The racial price adjustment arrays
  */
-header *g_head;
 byte *g_info;
 
 /*
  * The quest arrays
  */
-header *q_head;
 quest_type *q_info;
 char *q_name;
 
@@ -613,7 +632,13 @@ cptr ANGBAND_DIR_INFO;
 cptr ANGBAND_DIR_SAVE;
 
 /*
- * User "preference" files (ascii)
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
+ * User defined "preference" files (ascii)
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_USER;

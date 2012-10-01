@@ -67,7 +67,7 @@ void do_cmd_redraw(void)
 	handle_stuff();
 
 	/* Redraw every window */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Dead window */
 		if (!angband_term[j]) continue;
@@ -257,6 +257,31 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 				break;
 			}
 
+			case '?':
+			{
+				switch (type)
+				{
+					case (OPT_TYPE_CHEAT):
+					{
+						sprintf(buf1, "cheatopt.txt#%s", options_cheat[opt[k]].text);
+						break;
+					}
+					case (OPT_TYPE_BIRTH):
+					{
+						sprintf(buf1, "birthopt.txt#%s", options_birth[opt[k]].text);
+						break;
+					}
+					default:
+					{
+						sprintf(buf1, "option.txt#%s", options[opt[k]].text);
+						break;
+					}
+				}
+				show_file(buf1, NULL, 0, 0); 
+				Term_clear(); 
+				break;
+			}
+
 			default:
 			{
 				bell("Illegal command for normal options!");
@@ -278,10 +303,10 @@ static void do_cmd_options_win(void)
 
 	char ch;
 
-	u32b old_flag[8];
+	u32b old_flag[ANGBAND_TERM_MAX];
 
 	/* Memorize old flags */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		old_flag[j] = op_ptr->window_flag[j];
 	}
@@ -296,7 +321,7 @@ static void do_cmd_options_win(void)
 		prt("Window flags (<dir> to move, 't' to toggle, or ESC)", 0, 0);
 
 		/* Display the windows */
-		for (j = 0; j < 8; j++)
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
 		{
 			byte a = TERM_WHITE;
 
@@ -326,7 +351,7 @@ static void do_cmd_options_win(void)
 			Term_putstr(0, i + 5, -1, a, str);
 
 			/* Display the windows */
-			for (j = 0; j < 8; j++)
+			for (j = 0; j < ANGBAND_TERM_MAX; j++)
 			{
 				byte a = TERM_WHITE;
 
@@ -395,7 +420,7 @@ static void do_cmd_options_win(void)
 	}
 
 	/* Notice changes */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -497,7 +522,7 @@ static errr option_dump(cptr fname)
 	}
 
 	/* Dump window flags */
-	for (i = 1; i < 8; i++)
+	for (i = 1; i < ANGBAND_TERM_MAX; i++)
 	{
 		/* Require a real window */
 		if (!angband_term[i]) continue;
@@ -607,7 +632,7 @@ void options_birth_menu(bool adult)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
 
 	if (adult) screen_load();
@@ -642,12 +667,12 @@ static void do_cmd_pref_file_hack(int row)
 	if (process_pref_file(ftmp))
 	{
 		/* Mention failure */
-		msg_format("Failed to load '%s'!", ftmp);
+		message_format(MSG_FAIL, 0, "Failed to load '%s'!", ftmp);
 	}
 	else
 	{
 		/* Mention success */
-		msg_format("Loaded '%s'.", ftmp);
+		message_format(MSG_SUCCEED, 0, "Loaded '%s'.", ftmp);
 	}
 }
 
@@ -661,10 +686,8 @@ void do_cmd_options(void)
 {
 	char ch;
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact */
 	while (1)
@@ -673,7 +696,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("EyAngband options", 2, 0);
+		prt(format("%s Options", VERSION_NAME), 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -795,12 +818,12 @@ void do_cmd_options(void)
 			if (option_dump(ftmp))
 			{
 				/* Failure */
-				msg_print("Failed!");
+				message(MSG_FAIL, 0, "Failed!");
 			}
 			else
 			{
 				/* Success */
-				msg_print("Done.");
+				message(MSG_SUCCEED, 0, "Done.");
 			}
 
 			/* Grab priv's */
@@ -864,8 +887,11 @@ void do_cmd_options(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
+
+	/* Save the game */
+	save_player();
 
 	/* Load screen */
 	screen_load();
@@ -885,7 +911,7 @@ void do_cmd_pref(void)
 	if (!get_string("Pref: ", tmp, 80)) return;
 
 	/* Process that pref command */
-	(void)process_pref_file_aux(tmp);
+	(void)process_pref_file_command(tmp);
 }
 
 #ifdef ALLOW_MACROS
@@ -1250,7 +1276,7 @@ void do_cmd_macros(void)
 			safe_setuid_grab();
 
 			/* Prompt */
-			msg_print("Appended macros.");
+			message(MSG_SUCCEED, 0, "Appended macros.");
 		}
 
 		/* Query a macro */
@@ -1274,7 +1300,7 @@ void do_cmd_macros(void)
 			if (k < 0)
 			{
 				/* Prompt */
-				msg_print("Found no macro.");
+				message(MSG_FAIL, 0, "Found no macro.");
 			}
 
 			/* Found one */
@@ -1290,7 +1316,7 @@ void do_cmd_macros(void)
 				prt(tmp, 22, 0);
 
 				/* Prompt */
-				msg_print("Found a macro.");
+				message(MSG_SUCCEED, 0, "Found a macro.");
 			}
 		}
 
@@ -1325,7 +1351,7 @@ void do_cmd_macros(void)
 				macro_add(pat, macro_buffer);
 
 				/* Prompt */
-				msg_print("Added a macro.");
+				message(MSG_SUCCEED, 0, "Added a macro.");
 			}
 		}
 
@@ -1345,7 +1371,7 @@ void do_cmd_macros(void)
 			macro_add(pat, pat);
 
 			/* Prompt */
-			msg_print("Removed a macro.");
+			message(MSG_SUCCEED, 0, "Removed a macro.");
 		}
 
 		/* Save keymaps */
@@ -1375,7 +1401,7 @@ void do_cmd_macros(void)
 			safe_setuid_grab();
 
 			/* Prompt */
-			msg_print("Appended keymaps.");
+			message(MSG_SUCCEED, 0, "Appended keymaps.");
 		}
 
 		/* Query a keymap */
@@ -1399,7 +1425,7 @@ void do_cmd_macros(void)
 			if (!act)
 			{
 				/* Prompt */
-				msg_print("Found no keymap.");
+				message(MSG_FAIL, 0, "Found no keymap.");
 			}
 
 			/* Found one */
@@ -1415,7 +1441,7 @@ void do_cmd_macros(void)
 				prt(tmp, 22, 0);
 
 				/* Prompt */
-				msg_print("Found a keymap.");
+				message(MSG_SUCCEED, 0, "Found a keymap.");
 			}
 		}
 
@@ -1453,7 +1479,7 @@ void do_cmd_macros(void)
 				keymap_act[mode][(byte)(pat[0])] = string_make(macro_buffer);
 
 				/* Prompt */
-				msg_print("Added a keymap.");
+				message(MSG_SUCCEED, 0, "Added a keymap.");
 			}
 		}
 
@@ -1476,7 +1502,7 @@ void do_cmd_macros(void)
 			keymap_act[mode][(byte)(pat[0])] = NULL;
 
 			/* Prompt */
-			msg_print("Removed a keymap.");
+			message(MSG_SUCCEED, 0, "Removed a keymap.");
 		}
 
 		/* Enter a new action */
@@ -1509,7 +1535,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
 
 
@@ -1645,7 +1671,7 @@ void do_cmd_visuals(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped monster attr/chars.");
+			message(MSG_SUCCEED, 0, "Dumped monster attr/chars.");
 		}
 
 		/* Dump object attr/chars */
@@ -1710,7 +1736,7 @@ void do_cmd_visuals(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped object attr/chars.");
+			message(MSG_SUCCEED, 0, "Dumped object attr/chars.");
 		}
 
 		/* Dump feature attr/chars */
@@ -1775,7 +1801,7 @@ void do_cmd_visuals(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped feature attr/chars.");
+			message(MSG_SUCCEED, 0, "Dumped feature attr/chars.");
 		}
 
 		/* Modify monster attr/chars */
@@ -1792,9 +1818,9 @@ void do_cmd_visuals(void)
 				monster_race *r_ptr = &r_info[r];
 
 				byte da = (byte)(r_ptr->d_attr);
-				char dc = (byte)(r_ptr->d_char);
+				byte dc = (byte)(r_ptr->d_char);
 				byte ca = (byte)(r_ptr->x_attr);
-				char cc = (byte)(r_ptr->x_char);
+				byte cc = (byte)(r_ptr->x_char);
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -1952,7 +1978,7 @@ void do_cmd_visuals(void)
 			reset_visuals(TRUE);
 
 			/* Message */
-			msg_print("Visual attr/char tables reset.");
+			message(MSG_SUCCEED, 0, "Visual attr/char tables reset.");
 		}
 
 		/* Unknown option */
@@ -1962,9 +1988,8 @@ void do_cmd_visuals(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
-
 
 	/* Load screen */
 	screen_load();
@@ -1990,10 +2015,8 @@ void do_cmd_colors(void)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact until done */
 	while (1)
@@ -2009,7 +2032,7 @@ void do_cmd_colors(void)
 #ifdef ALLOW_COLORS
 		prt("(2) Dump colors", 5, 5);
 		prt("(3) Modify colors", 6, 5);
-#endif
+#endif /* ALLOW_COLORS */
 
 		/* Prompt */
 		prt("Command: ", 8, 0);
@@ -2107,7 +2130,7 @@ void do_cmd_colors(void)
 			my_fclose(fff);
 
 			/* Message */
-			msg_print("Dumped color redefinitions.");
+			message(MSG_SUCCEED, 0, "Dumped color redefinitions.");
 		}
 
 		/* Edit colors */
@@ -2190,9 +2213,8 @@ void do_cmd_colors(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
-
 
 	/* Load screen */
 	screen_load();
@@ -2233,14 +2255,11 @@ void do_cmd_load_screen(void)
 	/* Oops */
 	if (!fp) return;
 
-
 	/* Save screen */
 	screen_save();
 
-
 	/* Clear the screen */
 	Term_clear();
-
 
 	/* Load the screen */
 	for (y = 0; okay && (y < 24); y++)
@@ -2285,20 +2304,16 @@ void do_cmd_load_screen(void)
 		}
 	}
 
-
 	/* Close it */
 	my_fclose(fp);
 
-
 	/* Message */
-	msg_print("Screen dump loaded.");
-	msg_print(NULL);
-
+	message(MSG_SUCCEED, 0, "Screen dump loaded.");
+	message_flush();
 
 	/* Load screen */
 	screen_load();
 }
-
 
 /*
  * Hack -- save a screen dump to a file
@@ -2333,10 +2348,8 @@ void do_cmd_save_screen(void)
 	/* Oops */
 	if (!fff) return;
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Dump the screen */
 	for (y = 0; y < 24; y++)
@@ -2385,15 +2398,12 @@ void do_cmd_save_screen(void)
 	/* Skip a line */
 	fprintf(fff, "\n");
 
-
 	/* Close it */
 	my_fclose(fff);
 
-
 	/* Message */
-	msg_print("Screen dump saved.");
-	msg_print(NULL);
-
+	message(MSG_SUCCEED, 0, "Screen dump saved.");
+	message_flush();
 
 	/* Load screen */
 	screen_load();
@@ -2467,7 +2477,7 @@ void do_cmd_save_game(void)
 	disturb(1);
 
 	/* Clear messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Handle stuff */
 	handle_stuff();

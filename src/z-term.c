@@ -16,6 +16,7 @@
 
 #include "z-virt.h"
 
+
 /*
  * This file provides a generic, efficient, terminal window package,
  * which can be used not only on standard terminal environments such
@@ -98,6 +99,7 @@
  * any window, but this pair can be redefined to any pair, including
  * the standard "white space", or the bizarre "emptiness" ("attr 0"
  * and "char 0"), as long as various obscure restrictions are met.
+ *
  *
  * This package provides several functions which allow a program to
  * interact with the "term" structures.  Most of the functions allow
@@ -262,12 +264,21 @@
  * create a "visual system" for a new platform when porting Angband.
  */
 
+
+
+
+
+
 /*
  * The current "term"
  */
 term *Term = NULL;
 
+
+
+
 /*** Local routines ***/
+
 
 /*
  * Nuke a term_win (see below)
@@ -297,6 +308,7 @@ static errr term_win_nuke(term_win *s, int w, int h)
 	/* Success */
 	return (0);
 }
+
 
 /*
  * Initialize a "term_win" (using the given window size)
@@ -344,6 +356,7 @@ static errr term_win_init(term_win *s, int w, int h)
 	/* Success */
 	return (0);
 }
+
 
 /*
  * Copy a "term_win" from another
@@ -393,7 +406,10 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 	return (0);
 }
 
+
+
 /*** External hooks ***/
+
 
 /*
  * Execute the "Term->user_hook" hook, if available (see above).
@@ -419,7 +435,10 @@ errr Term_xtra(int n, int v)
 	return ((*Term->xtra_hook)(n, v));
 }
 
+
+
 /*** Fake hooks ***/
+
 
 /*
  * Hack -- fake hook for "Term_curs()" (see above)
@@ -477,7 +496,10 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp)
 	return (-1);
 }
 
+
+
 /*** Efficient routines ***/
+
 
 /*
  * Mentally draw an attr/char at a given location
@@ -537,6 +559,7 @@ void Term_queue_char(int x, int y, byte a, char c)
 	if (x < Term->x1[y]) Term->x1[y] = x;
 	if (x > Term->x2[y]) Term->x2[y] = x;
 }
+
 
 /*
  * Mentally draw some attr/chars at a given location
@@ -610,7 +633,10 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	}
 }
 
+
+
 /*** Refresh routines ***/
+
 
 /*
  * Flush a row of the current window (see "Term_fresh")
@@ -1056,7 +1082,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 /*
  * Actually perform all requested changes to the window
  *
- * If aboslutely nothing has changed, not even temporarily, or if the
+ * If absolutely nothing has changed, not even temporarily, or if the
  * current "Term" is not mapped, then this function will return 1 and
  * do absolutely nothing.
  *
@@ -1504,6 +1530,7 @@ errr Term_gotoxy(int x, int y)
 	return (0);
 }
 
+
 /*
  * At a given location, place an attr/char
  * Do not change the cursor position
@@ -1531,6 +1558,7 @@ errr Term_draw(int x, int y, byte a, char c)
 	/* Success */
 	return (0);
 }
+
 
 /*
  * Using the given attr, add the given char at the cursor.
@@ -1577,6 +1605,7 @@ errr Term_addch(byte a, char c)
 	/* Note "Useless" cursor */
 	return (1);
 }
+
 
 /*
  * At the current location, using an attr, add a string
@@ -1985,6 +2014,11 @@ errr Term_keypress(int k)
 	/* Success (unless overflow) */
 	if (Term->key_head != Term->key_tail) return (0);
 
+#if 0
+	/* Hack -- Forget the oldest key */
+	if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
+#endif
+
 	/* Problem */
 	return (1);
 }
@@ -2006,6 +2040,11 @@ errr Term_key_push(int k)
 
 	/* Success (unless overflow) */
 	if (Term->key_head != Term->key_tail) return (0);
+
+#if 0
+	/* Hack -- Forget the oldest key */
+	if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
+#endif
 
 	/* Problem */
 	return (1);
@@ -2146,6 +2185,7 @@ errr Term_load(void)
 	return (0);
 }
 
+
 /*
  * Exchange the "requested" screen with the "tmp" screen
  */
@@ -2157,6 +2197,7 @@ errr Term_exchange(void)
 	int h = Term->hgt;
 
 	term_win *exchanger;
+
 
 	/* Create */
 	if (!Term->tmp)
@@ -2189,6 +2230,8 @@ errr Term_exchange(void)
 	return (0);
 }
 
+
+
 /*
  * React to a new physical window size.
  */
@@ -2206,14 +2249,18 @@ errr Term_resize(int w, int h)
 	term_win *hold_mem;
 	term_win *hold_tmp;
 
+
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
+
 
 	/* Ignore illegal changes */
 	if ((w < 1) || (h < 1)) return (-1);
 
+
 	/* Ignore non-changes */
 	if ((Term->wid == w) && (Term->hgt == h)) return (1);
+
 
 	/* Minimum dimensions */
 	wid = MIN(Term->wid, w);
@@ -2284,14 +2331,14 @@ errr Term_resize(int w, int h)
 	}
 
 	/* Free some arrays */
-	C_KILL(hold_x1, Term->hgt, byte);
-	C_KILL(hold_x2, Term->hgt, byte);
+	C_FREE(hold_x1, Term->hgt, byte);
+	C_FREE(hold_x2, Term->hgt, byte);
 
 	/* Nuke */
 	term_win_nuke(hold_old, Term->wid, Term->hgt);
 
 	/* Kill */
-	KILL(hold_old, term_win);
+	FREE(hold_old, term_win);
 
 	/* Illegal cursor */
 	if (Term->old->cx >= w) Term->old->cu = 1;
@@ -2301,7 +2348,7 @@ errr Term_resize(int w, int h)
 	term_win_nuke(hold_scr, Term->wid, Term->hgt);
 
 	/* Kill */
-	KILL(hold_scr, term_win);
+	FREE(hold_scr, term_win);
 
 	/* Illegal cursor */
 	if (Term->scr->cx >= w) Term->scr->cu = 1;
@@ -2314,7 +2361,7 @@ errr Term_resize(int w, int h)
 		term_win_nuke(hold_mem, Term->wid, Term->hgt);
 
 		/* Kill */
-		KILL(hold_mem, term_win);
+		FREE(hold_mem, term_win);
 
 		/* Illegal cursor */
 		if (Term->mem->cx >= w) Term->mem->cu = 1;
@@ -2328,7 +2375,7 @@ errr Term_resize(int w, int h)
 		term_win_nuke(hold_tmp, Term->wid, Term->hgt);
 
 		/* Kill */
-		KILL(hold_tmp, term_win);
+		FREE(hold_tmp, term_win);
 
 		/* Illegal cursor */
 		if (Term->tmp->cx >= w) Term->tmp->cu = 1;
@@ -2358,6 +2405,8 @@ errr Term_resize(int w, int h)
 	/* Success */
 	return (0);
 }
+
+
 
 /*
  * Activate a new Term (and deactivate the current Term)
@@ -2398,6 +2447,8 @@ errr Term_activate(term *t)
 	/* Success */
 	return (0);
 }
+
+
 
 /*
  * Nuke a term
@@ -2465,6 +2516,7 @@ errr term_nuke(term *t)
 	return (0);
 }
 
+
 /*
  * Initialize a term, using a window of the given size.
  * Also prepare the "input queue" for "k" keypresses
@@ -2475,8 +2527,10 @@ errr term_init(term *t, int w, int h, int k)
 {
 	int y;
 
+
 	/* Wipe it */
 	(void)WIPE(t, term);
+
 
 	/* Prepare the input queue */
 	t->key_head = t->key_tail = 0;
@@ -2487,6 +2541,7 @@ errr term_init(term *t, int w, int h, int k)
 	/* Allocate the input queue */
 	C_MAKE(t->key_queue, t->key_size, char);
 
+
 	/* Save the size */
 	t->wid = w;
 	t->hgt = h;
@@ -2494,6 +2549,7 @@ errr term_init(term *t, int w, int h, int k)
 	/* Allocate change arrays */
 	C_MAKE(t->x1, h, byte);
 	C_MAKE(t->x2, h, byte);
+
 
 	/* Allocate "displayed" */
 	MAKE(t->old, term_win);
@@ -2524,10 +2580,14 @@ errr term_init(term *t, int w, int h, int k)
 	/* Force "total erase" */
 	t->total_erase = TRUE;
 
+
 	/* Default "blank" */
 	t->attr_blank = 0;
 	t->char_blank = ' ';
 
+
 	/* Success */
 	return (0);
 }
+
+

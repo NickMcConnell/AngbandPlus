@@ -20,9 +20,6 @@ static void do_cmd_wiz_hack_ben(void)
 
 #ifdef MONSTER_FLOW
 
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i, y, x;
 
 	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
@@ -38,13 +35,13 @@ static void do_cmd_wiz_hack_ben(void)
 				if (cave_cost[y][x] != i) continue;
 
 				/* Reliability in yellow */
-				if (cave_when[y][x] == cave_when[py][px])
+				if (cave_when[y][x] == cave_when[p_ptr->py][p_ptr->px])
 				{
 					a = TERM_YELLOW;
 				}
 
 				/* Display player/floors/walls */
-				if ((y == py) && (x == px))
+				if ((y == p_ptr->py) && (x == p_ptr->px))
 				{
 					print_rel('@', a, y, x);
 				}
@@ -682,9 +679,9 @@ static void wiz_statistics(object_type *o_ptr)
 		}
 
 		/* Let us know what we are doing */
-		msg_format("Creating a lot of %s items. Base level = %d.",
+		message_format(MSG_CHEAT, 0, "Creating a lot of %s items. Base level = %d.",
 		           quality, p_ptr->depth);
-		msg_print(NULL);
+		message_flush();
 
 		/* Set counters to zero */
 		matches = better = worse = other = 0;
@@ -767,8 +764,8 @@ static void wiz_statistics(object_type *o_ptr)
 		}
 
 		/* Final dump */
-		msg_format(q, i, matches, better, worse, other);
-		msg_print(NULL);
+		message_format(MSG_CHEAT, 0, q, i, matches, better, worse, other);
+		message_flush();
 	}
 
 	/* Hack -- Normally only make a single artifact */
@@ -908,7 +905,7 @@ static void do_cmd_wiz_play(void)
 	if (changed)
 	{
 		/* Message */
-		msg_print("Changes accepted.");
+		message(MSG_CHEAT, 0, "Changes accepted.");
 
 		/* Change */
 		object_copy(o_ptr, i_ptr);
@@ -926,7 +923,7 @@ static void do_cmd_wiz_play(void)
 	/* Ignore change */
 	else
 	{
-		msg_print("Changes ignored.");
+		message(MSG_CHEAT, 0, "Changes ignored.");
 	}
 }
 
@@ -940,9 +937,6 @@ static void do_cmd_wiz_play(void)
  */
 static void wiz_create_item(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	object_type *i_ptr;
 	object_type object_type_body;
 
@@ -970,10 +964,10 @@ static void wiz_create_item(void)
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, py, px);
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 
 	/* All done */
-	msg_print("Allocated.");
+	message(MSG_CHEAT, 0, "Allocated.");
 }
 
 /*
@@ -1022,7 +1016,7 @@ static void wiz_create_artifact(int a_idx)
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 
 	/* All done */
-	msg_print("Allocated.");
+	message(MSG_CHEAT, 0, "Allocated.");
 }
 
 /*
@@ -1102,7 +1096,7 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
 
 	/* Accept request */
-	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
+	message_format(MSG_CHEAT, 0, "You jump to dungeon level %d.", p_ptr->command_arg);
 
 	/* New depth */
 	p_ptr->depth = p_ptr->command_arg;
@@ -1191,7 +1185,7 @@ static void do_cmd_rerate(void)
 	handle_stuff();
 
 	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
+	message_format(MSG_CHEAT, 0, "Current Life Rating is %d/100.", percent);
 }
 
 
@@ -1200,14 +1194,11 @@ static void do_cmd_rerate(void)
  */
 static void do_cmd_wiz_summon(int num)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i;
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0);
 	}
 }
 
@@ -1219,9 +1210,6 @@ static void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named(int r_idx, bool slp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i, x, y;
 
 	/* Paranoia */
@@ -1234,7 +1222,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;
@@ -1305,15 +1293,11 @@ static void do_cmd_wiz_unhide(int d)
  */
 static void do_cmd_wiz_query(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x;
 
 	char cmd;
 
 	u16b mask = 0x00;
-
 
 	/* Get a "debug command" */
 	if (!get_com("Debug Command Query: ", &cmd)) return;
@@ -1357,7 +1341,7 @@ static void do_cmd_wiz_query(void)
 			if (cave_floor_bold(y, x)) a = TERM_YELLOW;
 
 			/* Display player/floors/walls */
-			if ((y == py) && (x == px))
+			if ((y == p_ptr->py) && (x == p_ptr->px))
 			{
 				print_rel('@', a, y, x);
 			}
@@ -1373,8 +1357,8 @@ static void do_cmd_wiz_query(void)
 	}
 
 	/* Get keypress */
-	msg_print("Press any key.");
-	msg_print(NULL);
+	message(MSG_GENERIC, 0, "Press any key.");
+	message_flush();
 
 	/* Redraw map */
 	prt_map();
@@ -1387,11 +1371,7 @@ static void do_cmd_wiz_query(void)
  */
 void do_cmd_debug(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	char cmd;
-
 
 	/* Get a "debug command" */
 	if (!get_com("Debug Command: ", &cmd)) return;
@@ -1480,14 +1460,15 @@ void do_cmd_debug(void)
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE);
+			acquirement(p_ptr->py, p_ptr->px, p_ptr->command_arg, FALSE);
 			break;
 		}
 
 		/* Hitpoint rerating */
 		case 'h':
 		{
-			do_cmd_rerate(); break;
+			do_cmd_rerate(); 
+			break;
 		}
 
 		/* Identify */
@@ -1581,7 +1562,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE);
+			acquirement(p_ptr->py, p_ptr->px, p_ptr->command_arg, TRUE);
 			break;
 		}
 
@@ -1624,7 +1605,7 @@ void do_cmd_debug(void)
 		/* Oops */
 		default:
 		{
-			msg_print("That is not a valid debug command.");
+			message(MSG_FAIL, 0, "That is not a valid debug command.");
 			break;
 		}
 	}

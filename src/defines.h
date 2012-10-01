@@ -37,22 +37,27 @@
  */
 
 /*
+ * Name of the version/variant
+ */
+#define VERSION_NAME "EyAngband"
+
+/*
  * Current version string
  */
-#define VERSION_STRING	"0.2.2"
+#define VERSION_STRING	"0.2.3"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	2
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 /*
  * Version of random artifact code - EyAngband versions start from 100
  */
-#define RANDART_VERSION	101
+#define RANDART_VERSION	102
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -159,29 +164,34 @@
 #define TEMP_MAX		1536
 
 /*
- * OPTION: Maximum number of macros (see "io.c")
+ * OPTION: Maximum number of macros (see "util.c")
  * Default: assume at most 256 macros are used
  */
 #define MACRO_MAX		256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
+ * OPTION: Maximum number of "quarks" (see "util.c")
  * Default: assume at most 512 different inscriptions are used
  */
 #define QUARK_MAX		512
 
 /*
- * OPTION: Maximum number of messages to remember (see "io.c")
+ * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
  */
 #define MESSAGE_MAX		2048
 
 /*
- * OPTION: Maximum space for the message text buffer (see "io.c")
+ * OPTION: Maximum space for the message text buffer (see "util.c")
  * Default: assume that each of the 2048 messages is repeated an
  * average of three times, and has an average length of 48
  */
 #define MESSAGE_BUF		32768
+
+/*
+ * Maximum amount of Angband windows.
+ */
+#define ANGBAND_TERM_MAX 8
 
 /*
  * Total number of stores (see "store.c", etc)
@@ -1340,6 +1350,7 @@
 #define SV_AMULET_THE_MAGI		12
 #define SV_AMULET_INVISIBILITY	13
 #define SV_AMULET_POWER			14
+#define SV_AMULET_BRIGHTNESS	19
 /* Artifact amulets */
 #define SV_AMULET_CARLAMMAS		15
 #define SV_AMULET_INGWE			16
@@ -1689,6 +1700,11 @@
  * Special "sval" limit -- maximum amount of rings
  */
 #define SV_MAX_RINGS		45
+
+/* 
+ * Special "sval" limit -- maximum amount of rings
+ */
+#define SV_MAX_AMULETS		20
 
 /* 
  * Special "k_info" hard coded values - 
@@ -2147,7 +2163,7 @@
 #define TR4_BRAND_ELEC		0x01000000L	/* Weapon has elec brand */
 #define TR4_BRAND_FIRE		0x02000000L	/* Weapon has fire brand */
 #define TR4_BRAND_COLD		0x04000000L	/* Weapon has cold brand */
-#define TR4_BRAND_VENOM		0x08000000L	/* Weapon has venom brand */
+#define TR4_BRAND_POIS		0x08000000L	/* Weapon has venom brand */
 #define TR4_BRAND_LITE		0x10000000L	/* Weapon has light brand */ 
 #define TR4_BRAND_DARK		0x20000000L	/* Weapon has darkness brand */
 #define TR4_XXX10			0x40000000L
@@ -2689,7 +2705,7 @@
  */
 #define OPT_NORMAL					56 /* Regular options */
 #define OPT_BIRTH					17 /* Birth/adult options */
-#define OPT_CHEAT					7  /* Cheat/score options */
+#define OPT_CHEAT					9  /* Cheat/score options */
 
 /*
  * Option indexes (normal)
@@ -2784,6 +2800,8 @@
 #define OPT_cheat_know				4
 #define OPT_cheat_live				5
 #define OPT_cheat_no_save			6
+#define OPT_cheat_debug				7
+#define OPT_cheat_wizard			8
 
 /*
  * Hack -- Option symbols
@@ -2885,6 +2903,8 @@
 #define cheat_know				op_ptr->opt_cheat[OPT_cheat_know]
 #define cheat_live				op_ptr->opt_cheat[OPT_cheat_live]
 #define cheat_no_save			op_ptr->opt_cheat[OPT_cheat_no_save]
+#define cheat_debug				op_ptr->opt_cheat[OPT_cheat_debug]
+#define cheat_wizard			op_ptr->opt_cheat[OPT_cheat_wizard]
 #define score_peek				op_ptr->opt_score[OPT_cheat_peek]
 #define score_hear				op_ptr->opt_score[OPT_cheat_hear]
 #define score_room				op_ptr->opt_score[OPT_cheat_room]
@@ -2892,6 +2912,8 @@
 #define score_know				op_ptr->opt_score[OPT_cheat_know]
 #define score_live				op_ptr->opt_score[OPT_cheat_live]
 #define score_no_save			op_ptr->opt_score[OPT_cheat_no_save]
+#define score_debug				op_ptr->opt_score[OPT_cheat_debug]
+#define score_wizard			op_ptr->opt_score[OPT_cheat_wizard]
 
 /*
  * Information for "do_cmd_options()".
@@ -2905,12 +2927,6 @@
  * Hack -- The main "screen"
  */
 #define term_screen	(angband_term[0])
-
-/*
- * Hack -- random number generation
- */
-#define randint(M) \
-	(rand_int(M) + 1)
 
 /*
  * Determine if a given inventory item is "aware"
@@ -3151,76 +3167,79 @@ extern int PlayerUID;
 #define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
-#define MSG_GENERIC          0
-#define MSG_HIT              1
-#define MSG_MISS             2
-#define MSG_FLEE             3
-#define MSG_DROP             4
-#define MSG_KILL             5
-#define MSG_LEVEL            6
-#define MSG_DEATH            7
-#define MSG_STUDY            8
-#define MSG_TELEPORT         9
-#define MSG_SHOOT           10
-#define MSG_QUAFF           11
-#define MSG_ZAP             12
-#define MSG_WALK            13
-#define MSG_TPOTHER         14
-#define MSG_HITWALL         15
-#define MSG_EAT             16
-#define MSG_STORE1          17
-#define MSG_STORE2          18
-#define MSG_STORE3          19
-#define MSG_STORE4          20
-#define MSG_DIG             21
-#define MSG_OPENDOOR        22
-#define MSG_SHUTDOOR        23
-#define MSG_TPLEVEL         24
-#define MSG_BELL            25
-#define MSG_NOTHING_TO_OPEN 26
-#define MSG_LOCKPICK_FAIL   27
-#define MSG_STAIRS          28
-
-#define MSG_MAX             29
-
-/*** Sound constants ***/
-
 /*
- * Mega-Hack -- some primitive sound support (see "main-win.c")
- *
- * Some "sound" constants for "Term_xtra(TERM_XTRA_SOUND, val)"
+ * Message/Sound types 
  */
-#define SOUND_HIT	    1
-#define SOUND_MISS	    2
-#define SOUND_FLEE	    3
-#define SOUND_DROP	    4
-#define SOUND_KILL	    5
-#define SOUND_LEVEL	    6
-#define SOUND_DEATH	    7
-#define SOUND_STUDY     8
-#define SOUND_TELEPORT  9
-#define SOUND_SHOOT     10
-#define SOUND_QUAFF     11
-#define SOUND_ZAP       12
-#define SOUND_WALK      13
-#define SOUND_TPOTHER   14
-#define SOUND_HITWALL   15
-#define SOUND_EAT       16
-#define SOUND_STORE1    17
-#define SOUND_STORE2    18
-#define SOUND_STORE3    19
-#define SOUND_STORE4    20
-#define SOUND_DIG       21
-#define SOUND_OPENDOOR  22
-#define SOUND_SHUTDOOR  23
-#define SOUND_TPLEVEL   24
 
-/*
- * Mega-Hack -- maximum known sounds
- *
- * Should be the same as MSG_MAX for compatibility reasons.
- */
-#define SOUND_MAX MSG_MAX
+
+/* Generic Messages */
+#define MSG_GENERIC				 0 /* System and unclassified messages */
+#define MSG_FAIL				 1 /* Generic failure message */
+#define MSG_SUCCEED				 2 /* Generic success message */
+#define MSG_EFFECT				 3 /* Generic effect message */
+#define MSG_MONSTER				 4 /* Generic monster message */
+
+/* Special message types */
+#define MSG_NOTE				 5
+#define MSG_BELL				 6
+#define MSG_TIMEOUT				 7 /* Time-limit */
+#define MSG_CHEAT				 8 /* Cheat info */
+
+/* Specific message types */
+#define MSG_DEATH				 9 /* Player dies */
+#define MSG_HITPOINT_WARN		10 /* Hitpoint warning */
+#define MSG_RESIST				11 /* Player Resists */
+#define MSG_FEELING				12 /* Level feeling */
+#define MSG_HIT					13 /* Player hit */
+#define MSG_MISS				14 /* Player miss */
+#define MSG_FLEE				15 /* Monster fless */
+#define MSG_DROP				16 /* Drop item */
+#define MSG_PICKUP				17 /* Pickup an item */
+#define MSG_CURSE				18 /* Item cursed */
+#define MSG_KILL				19 /* Kill monster */
+#define MSG_LEVEL				20 /* Gain level */
+#define MSG_STUDY				21 /* Gain spell */
+#define MSG_SHOOT				22 /* Shoot */
+#define MSG_QUAFF				23 /* Quaff potion */
+#define MSG_ZAP					24 /* Zap/use/activate/aim item */
+#define MSG_THROW				25 /* Throw something */
+#define MSG_FUEL				26 /* Fuel a lite */
+#define MSG_EAT					27 /* Eat */
+#define MSG_DSM					28 /* Dragon Scale Mail breath */
+#define MSG_TELEPORT			29 /* Teleport */
+#define MSG_TPLEVEL				30 /* Teleport level (and recall) */
+#define MSG_SPELL_FAIL			31 /* Spell failure */
+#define MSG_TPOTHER				32 /* Teleport other */
+#define MSG_HITWALL				33 /* Hit wall */
+#define MSG_STORE				34 /* Normal store message */
+#define MSG_STORE_ANGRY			35 /* Storekeeper angry */
+#define MSG_STORE_HAPPY			36 /* Storekeeper pleased */
+#define MSG_DIG					37 /* Tunnel */
+#define MSG_OPENDOOR			38 /* Open Door */
+#define MSG_SHUTDOOR			39 /* Close door */
+#define MSG_BASH				40 /* Bash door */
+#define MSG_SPIKE				41 /* Spike a door */
+#define MSG_LOCKPICK_SUCCEED	42 /* Lockpick/disarm success */
+#define MSG_LOCKPICK_FAIL		43 /* Lockpick/disarm failure */
+#define MSG_STAIRS				44 /* Climb stairs */
+#define MSG_QUEST_FAIL			45 /* Succeed in quest */
+#define MSG_QUEST_SUCCEED		46 /* Fail in quest */
+#define MSG_TRAP				47 /* Hit a trap */
+#define MSG_CRITICAL_HIT		48 /* Score critical hit */
+#define MSG_FIND				49 /* Find something */
+#define MSG_ITEM_RESIST			50 /* Item resists */
+#define MSG_ITEM_DAMAGE			51 /* Item damaged */
+#define MSG_ITEM_BONUS			52 /* Item enchanted */
+#define MSG_ITEM_BREAK			53 /* Item break */
+#define MSG_PSEUDO_ID			54 /* Pseudo-ID */
+#define MSG_THEFT				55 /* Item/gold stolen */
+#define MSG_MON_FAIL			56 /* Monster fails at something */
+#define MSG_SUMMON				57 /* Monster summoned */
+#define MSG_DESCRIBE			58 /* Describe something */
+#define MSG_DETECT				59 /* Detection spells */
+#define MSG_FFALL				60 /* Feather Fall */
+
+#define MSG_MAX             61
 
 /*** Hack ***/
 
@@ -3237,29 +3256,6 @@ extern int PlayerUID;
 # undef MESSAGE_BUF
 # define MESSAGE_BUF	4096
 #endif
-
-/*
- * Available graphic modes
- */
-#define GRAPHICS_NONE		0
-#define GRAPHICS_ORIGINAL	1
-#define GRAPHICS_ADAM_BOLT	2
-
-/*
- * Parse errors
- */
-#define PARSE_ERROR_GENERIC					 1
-#define PARSE_ERROR_OBSOLETE_FILE			 2
-#define PARSE_ERROR_MISSING_RECORD_HEADER	 3
-#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS	 4
-#define PARSE_ERROR_INVALID_FLAG			 5
-#define PARSE_ERROR_UNDEFINED_DIRECTIVE		 6
-#define PARSE_ERROR_OUT_OF_MEMORY			 7
-#define PARSE_ERROR_OUT_OF_BOUNDS			 8
-#define PARSE_ERROR_TOO_FEW_ARGUMENTS		 9
-#define PARSE_ERROR_TOO_MANY_ARGUMENTS		10
-
-#define PARSE_ERROR_MAX						11
 
 /*
  * List of commands that will be auto-repeated
@@ -3462,12 +3458,30 @@ extern int PlayerUID;
 #define SP_SELF_KNOW			122
 #define SP_ENCHANT_WEAP			123
 #define SP_ENCHANT_ARMR			124
-#define SP_BRAND_AMMO_ANIMAL	125
-#define SP_BRAND_AMMO_WOUND		126
-#define SP_BRAND_AMMO_ELEMNT	127
+#define SP_BRAND_ARROW_ANML		125
+#define SP_BRAND_ARROW_WOUND	126
+#define SP_BRAND_ARROW_ELMNT	127
 #define SP_BRAND_SHOT_HOLY		128
 
 /*
  * Number of different spells in the game
  */
 #define SPELLS_TOTAL	129
+
+/* 
+ * Hack - variables defined in order to be compatible with the general main*.c files.
+ * DO NOT USE WITHIN EYANGBAND SOURCE FILES 
+ */
+
+/* Dungeon height variables */
+#define DUNGEON_WID MAX_DUNGEON_WID
+#define DUNGEON_HGT MAX_DUNGEON_HGT
+
+/* Fake directory names - redirect to the save dir */
+#define ANGBAND_DIR_BONE ANGBAND_DIR_SAVE
+#define ANGBAND_DIR_INFO ANGBAND_DIR_SAVE
+
+/*
+ * Maximum known sounds - Should be the same as MSG_MAX for compatibility reasons.
+ */
+#define SOUND_MAX MSG_MAX

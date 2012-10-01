@@ -15,7 +15,6 @@
  * Max sizes of the following arrays.
  */
 #define MAX_SYLLABLES 158				/* Used with scrolls (see below) */
-#define MAX_MATERIALS  20				/* Used with amulets (min 19) */
 #define MAX_WOODS      32				/* Used with staffs (min 30) */
 #define MAX_METALS     32				/* Used with wands/rods (min 32/28) */
 
@@ -68,7 +67,7 @@ static byte ring_col[SV_MAX_RINGS] =
 /*
  * Amulets (adjectives and colors).
  */
-static cptr amulet_adj[MAX_MATERIALS] =
+static cptr amulet_adj[SV_MAX_AMULETS] =
 {
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
@@ -76,7 +75,7 @@ static cptr amulet_adj[MAX_MATERIALS] =
 	"Copper", "Platinum", "Carved Oak", "Aluminum", "Sapphire"
 };
 
-static byte amulet_col[MAX_MATERIALS] =
+static byte amulet_col[SV_MAX_AMULETS] =
 {
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
@@ -468,9 +467,9 @@ void flavor_init(void)
 	}
 
 	/* Amulets have "amulet colors" */
-	for (i = 0; i < MAX_MATERIALS; i++)
+	for (i = 0; i < SV_MAX_AMULETS; i++)
 	{
-		j = rand_int(MAX_MATERIALS);
+		j = rand_int(SV_MAX_AMULETS);
 		temp_adj = amulet_adj[i];
 		amulet_adj[i] = amulet_adj[j];
 		amulet_adj[j] = temp_adj;
@@ -835,7 +834,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) 
 		{
-			/* Hack - know the light radius of items */
+			/* Hack - know the light radius of lite items */
 			if (o_ptr->name1) 
 			{
 				(*f3) = (a_info[o_ptr->name1].flags3 & (TR3_LITE_MASK));
@@ -966,9 +965,6 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 	}
 }
 
-
-
-
 /*
  * Obtain the "flags" for an item
  */
@@ -977,8 +973,6 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, f4);
 }
 
-
-
 /*
  * Obtain the "flags" for an item which are known to the player
  */
@@ -986,7 +980,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 {
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
 }
-
 
 /*
  * Efficient version of '(T) += strfmt((T), "%c", (C))'
@@ -2571,7 +2564,7 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It does extra damage from frost.";
 	}
-	if (f4 & (TR4_BRAND_VENOM))
+	if (f4 & (TR4_BRAND_POIS))
 	{
 		info[i++] = "It does extra damage from poison.";
 	}
@@ -3691,7 +3684,7 @@ void toggle_inven_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -3946,9 +3939,6 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	char which;
 
 	int i, j, k;
@@ -3999,17 +3989,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 #endif /* ALLOW_REPEAT */
 
-
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
-
+	message_flush();
 
 	/* Not done */
 	done = FALSE;
 
 	/* No item selected */
 	item = FALSE;
-
 
 	/* Full inventory */
 	i1 = 0;
@@ -4025,7 +4012,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept inventory */
 	if (i1 <= i2) allow_inven = TRUE;
 
-
 	/* Full equipment */
 	e1 = INVEN_WIELD;
 	e2 = INVEN_TOTAL - 1;
@@ -4040,9 +4026,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept equipment */
 	if (e1 <= e2) allow_equip = TRUE;
 
-
 	/* Scan all objects in the grid */
-	floor_num = scan_floor(floor_list, 23, py, px, 0x00);
+	floor_num = scan_floor(floor_list, 23, p_ptr->py, p_ptr->px, 0x00);
 
 	/* Full floor */
 	f1 = 0;
@@ -4057,7 +4042,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Accept floor */
 	if (f1 <= f2) allow_floor = TRUE;
-
 
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor)
@@ -4123,7 +4107,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		int ne = 0;
 
 		/* Scan windows */
-		for (j = 0; j < 8; j++)
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
 		{
 			/* Unused */
 			if (!angband_term[j]) continue;
@@ -4610,7 +4594,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	prt("", 0, 0);
 
 	/* Warning if needed */
-	if (oops && str) msg_print(str);
+	if (oops && str) message(MSG_GENERIC, 0, str);
 
 #ifdef ALLOW_REPEAT
 

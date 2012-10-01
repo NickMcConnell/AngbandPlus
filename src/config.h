@@ -191,7 +191,6 @@
  * Special scoring options, allowing "high scores" to those who would
  * normally not get them.
  */
-/* #define SCORE_WIZARDS */
 /* #define SCORE_BORGS */
 /* #define SCORE_CHEATERS */
 
@@ -283,20 +282,19 @@
 #endif
 
 /*
+ * OPTION: Path to the pref files of the user.
+ */
+#ifdef SET_UID
+# define USER_PREF_PATH "~/.angband"
+#endif /* SETUID */
+
+
+/*
  * On multiuser systems, add the "uid" to savefile names
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
 #endif
-
-/*
- * Allow players on UNIX systems to keep a ".angband.prf" user pref
- * file in their home-directory.
- *
- * WARNING - This may allow bypassing of some of the "security"
- * compilation options and may be a security risk!
- */
-#define ALLOW_PREF_IN_HOME
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -380,6 +378,20 @@
  */
 #ifdef ALLOW_BORG
 # ifdef USE_GRAPHICS
-/* #  define ALLOW_BORG_GRAPHICS */
+#  define ALLOW_BORG_GRAPHICS 
 # endif /* USE_GRAPHICS */
 #endif /* ALLOW_BORG */
+
+/*
+ * Switch on when your system doesn't support some ANSI-C functions
+ * like memset(), strstr(), strchr(), and strrchr().
+ *
+ * Please send a mail to rr9@angband.org if you have to use this
+ * switch.  If nobody uses the code then it will be removed.
+ */
+/* #define OLD_CRUFT */
+
+/*
+ * HACK - define if the source contains the cleanup_angband() function.
+ */
+#define HAS_CLEANUP 

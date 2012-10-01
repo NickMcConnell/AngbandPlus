@@ -153,9 +153,9 @@ static spell_tip spell_tips[SPELLS_TOTAL] =
 	{SP_SELF_KNOW,			"Reveals all the magics that affect you."},
 	{SP_ENCHANT_WEAP,		"Adds plusses to Hit and Damage to weapons."},
 	{SP_ENCHANT_ARMR,		"Adds plusses to armour class to armour."},
-	{SP_BRAND_AMMO_ANIMAL,	"Makes arrows and bolts extra powerful against animals."},
-	{SP_BRAND_AMMO_WOUND,	"Makes arrows and bolts sharper and more powerful."},
-	{SP_BRAND_AMMO_ELEMNT,	"Imbues arrows and bolts with elemental power."},
+	{SP_BRAND_ARROW_ANML,	"Makes arrows extra powerful against animals."},
+	{SP_BRAND_ARROW_WOUND,	"Makes arrows sharper and more powerful."},
+	{SP_BRAND_ARROW_ELMNT,	"Imbues arrows with elemental power."},
 	{SP_BRAND_SHOT_HOLY,	"Makes your shots powerful against evil creatures."}
 };
 
@@ -793,7 +793,7 @@ static int get_spell(int *sn, cptr prompt, int book, bool known)
 		if (!spell_okay(book, spell, known))
 		{
 			bell("Illegal spell choice!");
-			msg_format("You may not %s that spell.", prompt);
+			message_format(MSG_FAIL, 0, "You may not %s that spell.", prompt);
 			continue;
 		}
 
@@ -956,7 +956,7 @@ static int get_tune(int *sn, int instrument, int lev)
 		if (!tune_okay(instrument, lev, tune))
 		{
 			bell("Illegal tune choice!");
-			msg_print("You may not play that tune.");
+			message(MSG_FAIL, 0, "You may not play that tune.");
 			continue;
 		}
 
@@ -1126,7 +1126,7 @@ void do_cmd_browse(void)
 
 	if (!spellcaster())
 	{
-		msg_print("You know no magic!");
+		message(MSG_FAIL, 0, "You know no magic!");
 		return;
 	}
 
@@ -1202,25 +1202,25 @@ void do_cmd_study(void)
 	/* Forbid illiterates to read spellbooks. */
 	if (!literate())
 	{
-		msg_print("You cannot learn magic!");
+		message(MSG_FAIL, 0, "You cannot learn magic!");
 		return;
 	}
 
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		message(MSG_FAIL, 0, "You cannot see!");
 		return;
 	}
 
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		message(MSG_FAIL, 0, "You are too confused!");
 		return;
 	}
 
 	if (!(p_ptr->new_spells))
 	{
-		msg_print("You cannot learn any new spells.");
+		message(MSG_FAIL, 0, "You cannot learn any new spells.");
 		return;
 	}
 
@@ -1283,7 +1283,7 @@ void do_cmd_study(void)
 	if (spell < 0)
 	{
 		/* Message */
-		msg_print("You cannot learn any spells in that book.");
+		message(MSG_FAIL, 0, "You cannot learn any spells in that book.");
 
 		/* Abort */
 		return;
@@ -1310,11 +1310,8 @@ void do_cmd_study(void)
 	s_ptr = &books[o_ptr->sval].contents[spell];
 
 	/* Mention the result */
-	msg_format("You have learned the spell of %s.",
+	message_format(MSG_STUDY, TRUE, "You have learned the spell of %s.",
 	           s_ptr->sname);
-
-	/* Sound */
-	sound(SOUND_STUDY);
 
 	/* One less spell available */
 	p_ptr->new_spells--;
@@ -1323,7 +1320,7 @@ void do_cmd_study(void)
 	if (p_ptr->new_spells)
 	{
 		/* Message */
-		msg_format("You can learn %d more spell%s.", p_ptr->new_spells, 
+		message_format(MSG_STUDY, FALSE, "You can learn %d more spell%s.", p_ptr->new_spells, 
 			(p_ptr->new_spells != 1)  ? "s" : "");
 	}
 
@@ -1479,8 +1476,8 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_TELE_CONTROL:
 		{
-			msg_print("Choose a location to teleport to.");
-			msg_print(NULL);
+			message(MSG_GENERIC, 0, "Choose a location to teleport to.");
+			message_flush();
 			dimen_door();
 			break;
 		}
@@ -1491,7 +1488,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_ALTER_REALITY:
 		{
-			msg_print("The world changes!");
+			message(MSG_EFFECT, 0, "The world changes!");
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -1557,7 +1554,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		case SP_BEAM_WEAK_LITE:
 		{ 
 			if (!get_aim_dir(&dir)) return;
-			msg_print("A line of blue shimmering light appears.");
+			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
 			lite_line(dir,damroll(9,8));
 			break;
 		}
@@ -1634,7 +1631,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{
 			if (banish_evil(100))
 			{
-				msg_print("The power of your god banishes evil!");
+				message(MSG_EFFECT, 0, "The power of your god banishes evil!");
 			}
 			break;
 		}
@@ -2090,8 +2087,8 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_SELF_KNOW:
 		{
-			msg_print("You begin to know yourself a little better...");
-			msg_print(NULL);
+			message(MSG_EFFECT, 0, "You begin to know yourself a little better...");
+			message_flush();
 			self_knowledge();
 			break;
 		}
@@ -2105,17 +2102,17 @@ static void aux_spell_cast(int index, int plev, int beam)
 			(void)enchant_spell(0, 0, rand_int(3) + 2);
 			break;
 		}
-		case SP_BRAND_AMMO_ANIMAL:
+		case SP_BRAND_ARROW_ANML:
 		{	
 			(void)brand_weapon(TV_ARROW,EGO_HURT_ANIMAL,FALSE);
 			break;
 		}
-		case SP_BRAND_AMMO_WOUND:
+		case SP_BRAND_ARROW_WOUND:
 		{	
 			(void)brand_weapon(TV_ARROW,EGO_WOUNDING,TRUE);
 			break;
 		}
-		case SP_BRAND_AMMO_ELEMNT:
+		case SP_BRAND_ARROW_ELMNT:
 		{	
 			/* 
 			 * Hack - choose random brand 
@@ -2153,7 +2150,7 @@ static void do_cast_or_pray(int book)
 	{
 		if (spell == -2) 
 		{
-			msg_print("You don't know any spells in that books.");
+			message(MSG_FAIL, 0, "You don't know any spells in that books.");
 		}
 		return;
 	}
@@ -2165,12 +2162,14 @@ static void do_cast_or_pray(int book)
 	if (spell_mana(book, spell, FALSE) > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to cast this spell.");
+		message(MSG_GENERIC, 0, "You do not have enough mana to cast this spell.");
+
+		/* Flush input */
+		flush();
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
 	}
-
 
 	/* Spell failure chance */
 	chance = spell_chance(book, spell, FALSE);
@@ -2183,22 +2182,23 @@ static void do_cast_or_pray(int book)
 		{
 			case SBF_MAGIC:
 			{
-				msg_print("You fail to tap onto the necessary magical forces!");
+				message(MSG_SPELL_FAIL, 0, "You fail to tap onto the necessary magical forces!");
 				break;
 			}
 			case SBF_PRAYER:
 			{
-				msg_print("Your prayer was left unanswered!");
+				message(MSG_SPELL_FAIL, 0, "Your prayer was left unanswered!");
 				break;
 			}
 			case SBF_MYSTIC:
 			{
-				msg_print("You lose your concentration!");
+				message(MSG_SPELL_FAIL, 0, "You lose your concentration!");
 				break;
 			}
 			case SBF_CODEX:
 			{
-				msg_print("Your mind is overwhelmed by the magnitute of ancient mystery!");
+				message(MSG_SPELL_FAIL, 0, 
+					"Your mind is overwhelmed by the magnitute of ancient mystery!");
 				/* Lose your spell-casting stats */
 				if (rand_int(100) < chance) 
 				{ 
@@ -2211,7 +2211,8 @@ static void do_cast_or_pray(int book)
 			}
 			case SBF_NECRONOM:
 			{
-				msg_print("You lost your grasp on the evil powers that you had sought to control!");
+				message(MSG_SPELL_FAIL, 0, 
+					"You lost your grasp on the evil powers that you had sought to control!");
 				/* Summon some horrors */
 				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+10, SUMMON_HORROR);
 				/* Darkness */
@@ -2223,16 +2224,16 @@ static void do_cast_or_pray(int book)
 				/* Lose EXP */
 				if (p_ptr->hold_life && (rand_int(100) < (100-chance)))
 				{
-					msg_print("You keep hold of your life force!");
+					message(MSG_RESIST, 0, "You keep hold of your life force!");
 				}
 				else if (p_ptr->hold_life)
 				{
-					msg_print("You feel your life slipping away!");
+					message(MSG_EFFECT, 0, "You feel your life slipping away!");
 					lose_exp(200 + (p_ptr->exp/250));
 				}
 				else
 				{
-					msg_print("You feel your life draining away!");
+					message(MSG_EFFECT, 0, "You feel your life draining away!");
 					lose_exp(200 + (p_ptr->exp/25));
 				}				
 				break;
@@ -2282,7 +2283,7 @@ static void do_cast_or_pray(int book)
 		p_ptr->csp_frac = 0;
 
 		/* Message */
-		msg_print("You faint from the effort!");
+		message(MSG_EFFECT, 0, "You faint from the effort!");
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
@@ -2293,7 +2294,7 @@ static void do_cast_or_pray(int book)
 			bool perm = (rand_int(100) < 25);
 
 			/* Message */
-			msg_print("You have damaged your health!");
+			message(MSG_EFFECT, 0, "You have damaged your health!");
 
 			/* Reduce constitution */
 			(void)do_dec_stat(A_CON, 15 + randint(10), perm, FALSE);
@@ -2323,7 +2324,7 @@ static void do_play(int instrument, int lev)
 	{
 		if (tune == -2) 
 		{
-			msg_print("You can't play any tunes with this instrument.");
+			message(MSG_FAIL, 0, "You can't play any tunes with this instrument.");
 		}
 		return;
 	}
@@ -2335,7 +2336,10 @@ static void do_play(int instrument, int lev)
 	if (spell_mana(instrument, tune, TRUE) > p_ptr->csp)
 	{
 		/* Warning */
-		msg_print("You do not have enough mana to play this tune.");
+		message(MSG_GENERIC, 0, "You do not have enough mana to play this tune.");
+
+		/* Flush input */
+		flush();
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
@@ -2348,7 +2352,7 @@ static void do_play(int instrument, int lev)
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
-		msg_print("Your tune falls flat!");
+		message(MSG_SPELL_FAIL, 0, "Your tune falls flat!");
 	}
 
 	/* Process spell */
@@ -2374,7 +2378,7 @@ static void do_play(int instrument, int lev)
 		p_ptr->csp_frac = 0;
 
 		/* Message */
-		msg_print("You faint from the effort!");
+		message(MSG_EFFECT, 0, "You faint from the effort!");
 
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
@@ -2385,7 +2389,7 @@ static void do_play(int instrument, int lev)
 			bool perm = (rand_int(100) < 25);
 
 			/* Message */
-			msg_print("You overtax your muscles!");
+			message(MSG_EFFECT, 0, "You overtax your muscles!");
 
 			/* Reduce constitution */
 			(void)do_dec_stat(A_DEX, 15 + randint(10), perm, FALSE);
@@ -2410,7 +2414,7 @@ void do_cmd_magic(void)
 
 	if (!spellcaster())
 	{
-		msg_print("You know no magic!");
+		message(MSG_FAIL, 0, "You know no magic!");
 		return;
 	}
 
@@ -2420,7 +2424,7 @@ void do_cmd_magic(void)
 	{
 		if (!(cp_ptr->flags & CF_MYSTIC_CAST))
 		{
-			msg_print("You are too confused!");
+			message(MSG_FAIL, 0, "You are too confused!");
 			return;
 		}
 		else item_tester_hook = item_tester_hook_bookmusic;
@@ -2430,7 +2434,7 @@ void do_cmd_magic(void)
 	{
 		if ((!(cp_ptr->flags & CF_MYSTIC_CAST)) && (!(cp_ptr->flags & CF_MUSIC)))
 		{
-			msg_print("You cannot see!");
+			message(MSG_FAIL, 0, "You cannot see!");
 			return;
 		}
 		else item_tester_hook = item_tester_hook_bookmusic;
@@ -2444,7 +2448,7 @@ void do_cmd_magic(void)
 		o_ptr = &inventory[INVEN_MUSIC];
 		if (!o_ptr->tval)
 		{
-			msg_print("You have nothing to play tunes with.");
+			message(MSG_FAIL, 0, "You have nothing to play tunes with.");
 			return;
 		}
 

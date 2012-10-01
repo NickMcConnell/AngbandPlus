@@ -1599,11 +1599,11 @@ spell_book books[SV_MAX_BOOKS] =
 		/* The Lore of the Hunter (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ SP_BRAND_AMMO_ANIMAL,	"Hunter's Arrows",			18, 25, 60,	  6},
+			{ SP_BRAND_ARROW_ANML,	"Hunter's Arrows",			18, 25, 60,	  6},
 			{ SP_CALM_ANIMALS,		"Calm Animals",				23, 35, 55,   8},
-			{ SP_BRAND_AMMO_WOUND,	"Sharpen Arrows",			28, 25, 70,   2},
+			{ SP_BRAND_ARROW_WOUND,	"Sharpen Arrows",			28, 25, 70,   2},
 			{ SP_HASTE_SELF_1,		"Haste Self",				33, 12, 90,  10},
-			{ SP_BRAND_AMMO_ELEMNT,	"Elemental Arrows",			43, 40, 80,  10},
+			{ SP_BRAND_ARROW_ELMNT, "Elemental Arrows",			43, 40, 80,  10},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}
@@ -1786,12 +1786,12 @@ spell_book books[SV_MAX_BOOKS] =
 		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
 		{
 			{ SP_IDENTIFY,			"Perception",				 1, 20, 50,   1}, 
-			{ SP_SELF_KNOW,			"Self Knowledge",			45, 90,102,   2}, 
-			{ SP_IDENTIFY_FULL,		"Revelation",				50,100,107,   5},
+			{ SP_SELF_KNOW,			"Self Knowledge",			45,100, 82,   4}, 
+			{ SP_IDENTIFY_FULL,		"Revelation",				50,100, 72,   8},
+			{ SP_MAP_2,				"Clairvoyance",				50,100, 10,   2}, 
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
-			{ 0, NULL, 99,  0, 0, 0}
+			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
 	},
 	{
@@ -1800,7 +1800,7 @@ spell_book books[SV_MAX_BOOKS] =
 		{
 			{ SP_DARK_AREA,			"Unlight Area",				 1,  1, 15,   1}, 
 			{ SP_DISPEL_NON_EVIL,	"Wave of Evil",			    25, 15,132,   4}, 
-			{ SP_BEAM_NETHER,		"Ray of Evil",              40, 50,117,   5}, 
+			{ SP_BEAM_NETHER,		"Ray of Evil",              40, 50, 97,   5}, 
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
@@ -1918,11 +1918,10 @@ cptr color_names[16] =
 	"Light Umber",
 };
 
-
 /*
  * Abbreviations of healthy stats
  */
-cptr stat_names[6] =
+cptr stat_names[A_MAX] =
 {
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
 };
@@ -1930,11 +1929,10 @@ cptr stat_names[6] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[6] =
+cptr stat_names_reduced[A_MAX] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
 };
-
 
 /*
  * Certain "screens" always use the main screen, including News, Birth,
@@ -2022,7 +2020,7 @@ option_type options[OPT_NORMAL] =
 	{"show_piles",			"Show stacks using special attr/char",		FALSE},
 	{"center_player",		"Center map continuously",					FALSE},
 	{"run_avoid_center",	"Avoid centering while running",			FALSE},	
-	{"scroll_target",		"Scroll map while targetting",				FALSE},
+	{"scroll_target",		"Scroll map while targetting",				TRUE },
 	{"auto_more",			"Automatically clear '-more-' prompts",		FALSE},
 	{"view_monster_lite",	"Allow monsters to have light radius",		TRUE },
 	{"verify_leave_quest",	"Verify before descending from quest level",TRUE },
@@ -2058,7 +2056,9 @@ option_type options_cheat[OPT_CHEAT] =
 	{"cheat_xtra",			"Peek into something else",					FALSE},
 	{"cheat_know",			"Know complete monster info",				FALSE},
 	{"cheat_live",			"Allow player to avoid death",				FALSE},
-	{"cheat_no_save",		"No automatic saves",    					FALSE}
+	{"cheat_no_save",		"No automatic saves upon death", 			FALSE},
+	{"cheat_debug",			"Allow access to debug mode",	 			FALSE},
+	{"cheat_wizard",		"Activate wizard mode",						FALSE}
 };
 
 /*
@@ -2143,7 +2143,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_dungeon_align,
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
-		255,
+		OPT_scroll_target,
 		255,
 		255,
 		255,
@@ -2165,7 +2165,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_fresh_after,
 		OPT_compress_savefile,
  		OPT_run_avoid_center,
-		OPT_scroll_target,
+		255,
 		255,
 		255,
 		255,
@@ -2176,6 +2176,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Cheat ***/
 
 	{
+#ifdef ALLOW_DEBUG
+		OPT_cheat_debug,
+#else /* ALLOW_DEBUG */
+		255,
+#endif /* ALLOW_DEBUG */
 		OPT_cheat_peek,
 		OPT_cheat_hear,
 		OPT_cheat_room,
@@ -2183,8 +2188,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_know,
 		OPT_cheat_live,
 		OPT_cheat_no_save,
-		255,
-		255,
+		OPT_cheat_wizard,
 		255,
 		255,
 		255,
@@ -2223,9 +2227,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_preserve,
 #ifdef GJW_RANDART
 		OPT_birth_rand_artifacts,
-#else
+#else /* GJW_RANDART */
 		255,
-#endif
+#endif /* GJW_RANDART */
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_feelings,

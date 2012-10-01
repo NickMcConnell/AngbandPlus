@@ -285,9 +285,6 @@ static void compact_objects_aux(int i1, int i2)
  */
 void compact_objects(int size)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i, y, x, num, cnt;
 
 	int cur_lev, cur_dis, chance;
@@ -296,7 +293,7 @@ void compact_objects(int size)
 	if (size)
 	{
 		/* Message */
-		msg_print("Compacting objects...");
+		message(MSG_GENERIC, 0, "Compacting objects...");
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -352,7 +349,7 @@ void compact_objects(int size)
 			}
 
 			/* Nearby objects start out "immune" */
-			if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis)) continue;
+			if ((cur_dis > 0) && (distance(p_ptr->py, p_ptr->px, y, x) < cur_dis)) continue;
 
 			/* Saving throw */
 			chance = 90;
@@ -503,7 +500,7 @@ s16b o_pop(void)
 	}
 
 	/* Warn the player (except during dungeon creation) */
-	if (character_dungeon) msg_print("Too many objects!");
+	if (character_dungeon) message(MSG_GENERIC, 0, "Too many objects!");
 
 	/* Oops */
 	return (0);
@@ -1382,7 +1379,7 @@ s16b lookup_kind(int tval, int sval)
 	}
 
 	/* Oops */
-	msg_format("No object (%d,%d)", tval, sval);
+	message_format(MSG_GENERIC, 0, "No object (%d,%d)", tval, sval);
 
 	/* Oops */
 	return (0);
@@ -1540,21 +1537,21 @@ static void object_mention(object_type *o_ptr)
 	if (artifact_p(o_ptr))
 	{
 		/* Silly message */
-		msg_format("Artifact (%s)", o_name);
+		message_format(MSG_CHEAT, 0, "Artifact (%s)", o_name);
 	}
 
 	/* Ego-item */
 	else if (ego_item_p(o_ptr))
 	{
 		/* Silly message */
-		msg_format("Ego-item (%s)", o_name);
+		message_format(MSG_CHEAT, 0, "Ego-item (%s)", o_name);
 	}
 
 	/* Normal item */
 	else
 	{
 		/* Silly message */
-		msg_format("Object (%s)", o_name);
+		message_format(MSG_CHEAT, 0, "Object (%s)", o_name);
 	}
 }
 
@@ -3155,11 +3152,12 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
 		/* Message */
-		if (j_ptr->tval != TV_POWDER) msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+		if (j_ptr->tval != TV_POWDER) 
+			message_format(MSG_ITEM_BREAK, j_ptr->k_idx, "The %s disappear%s.",
+		    o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (p_ptr->wizard) msg_print("Breakage (breakage).");
+		if (cheat_wizard) message(MSG_CHEAT, 0, "Breakage (breakage).");
 
 		/* Failure */
 		return;
@@ -3257,11 +3255,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!flag && !artifact_p(j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+		message_format(MSG_ITEM_BREAK, j_ptr->k_idx, "The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
+		if (cheat_wizard) message(MSG_CHEAT, 0, "Breakage (no floor space).");
 
 		/* Failure */
 		return;
@@ -3302,11 +3300,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!floor_carry(by, bx, j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+		message_format(MSG_ITEM_BREAK, j_ptr->k_idx, "The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
+		if (cheat_wizard) message(MSG_CHEAT, 0, "Breakage (too many objects).");
 
 		/* Hack -- Preserve artifacts */
 		a_info[j_ptr->name1].cur_num = 0;
@@ -3322,7 +3320,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Message when an object falls under the player */
 	if (chance && (cave_m_idx[by][bx] < 0))
 	{
-		msg_print("You feel something roll beneath your feet.");
+		message(MSG_DROP, -1, "You feel something roll beneath your feet.");
 	}
 }
 
@@ -3651,19 +3649,9 @@ void inven_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("You have %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("You have %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	message_format(MSG_DESCRIBE, 0, "You have %d charge%s remaining.", o_ptr->pval, 
+		(o_ptr->pval != 1) ? "s" : "");
 }
 
 /*
@@ -3679,7 +3667,7 @@ void inven_item_describe(int item)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
-	msg_format("You have %s (%c).", o_name, index_to_label(item));
+	message_format(MSG_DESCRIBE, 0, "You have %s (%c).", o_name, index_to_label(item));
 }
 
 /*
@@ -3796,19 +3784,9 @@ void floor_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("There are %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("There is %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	message_format(MSG_DESCRIBE, 0, "There are %d charge%s remaining.", o_ptr->pval,
+		(o_ptr->pval != 1) ? "s" : "");
 }
 
 /*
@@ -3824,7 +3802,7 @@ void floor_item_describe(int item)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
-	msg_format("You see %s.", o_name);
+	message_format(MSG_DESCRIBE, 0, "You see %s.", o_name);
 }
 
 /*
@@ -4154,7 +4132,7 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(i_ptr);
 
 	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	message_format(MSG_DESCRIBE, 0, "%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Return slot */
 	return (slot);
@@ -4167,9 +4145,6 @@ s16b inven_takeoff(int item, int amt)
  */
 void inven_drop(int item, int amt)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	object_type *o_ptr;
 
 	object_type *i_ptr;
@@ -4212,10 +4187,10 @@ void inven_drop(int item, int amt)
 	object_desc(o_name, i_ptr, TRUE, 3);
 
 	/* Message */
-	msg_format("You drop %s (%c).", o_name, index_to_label(item));
+	message_format(MSG_DROP, 0, "You drop %s (%c).", o_name, index_to_label(item));
 
 	/* Drop it near the player */
-	drop_near(i_ptr, 0, py, px);
+	drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -amt);
@@ -4287,7 +4262,7 @@ void combine_pack(void)
 	}
 
 	/* Message */
-	if (flag) msg_print("You combine some items in your pack.");
+	if (flag) message(MSG_GENERIC, 0, "You combine some items in your pack.");
 }
 
 /*
@@ -4410,7 +4385,7 @@ void reorder_pack(void)
 	}
 
 	/* Message */
-	if (flag) msg_print("You reorder some items in your pack.");
+	if (flag) message(MSG_GENERIC, 0, "You reorder some items in your pack.");
 }
 
 /*

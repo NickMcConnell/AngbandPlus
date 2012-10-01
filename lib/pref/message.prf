@@ -1,0 +1,216 @@
+# File: message.prf
+
+#
+# This file defines the default message colors.
+#
+# This file includes, if appropriate, various "sub-files".
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+# Format:
+# M:<message-type>:<color>
+#
+# Possible colors:
+# d = Black
+# w = White
+# s = Gray
+# o = Orange
+# r = Red
+# g = Green
+# b = Blue
+# u = Brown
+# D = Dark Gray
+# W = Light Gray
+# v = Violet
+# y = Yellow
+# R = Light Red
+# G = Light Green
+# B = Light Blue
+# U = Light Brown
+
+
+#MSG_GENERIC
+M:0:w
+
+#MSG_FAIL
+M:1:w
+
+#MSG_SUCCEED
+M:2:w
+
+#MSG_EFFECT
+M:3:w
+
+#MSG_MONSTER
+M:4:w
+
+#MSG_NOTE
+M:5:w
+
+#MSG_BELL
+M:6:o
+
+#MSG_TIMEOUT
+M:7:w
+
+#MSG_CHEAT
+M:8:w
+
+#MSG_DEATH
+M:9:w
+
+#MSG_HITPOINT_WARN
+M:10:R
+
+#MSG_RESIST
+M:11:w
+
+#MSG_FEELING
+M:12:w
+
+#MSG_HIT
+M:13:w
+
+#MSG_MISS
+M:14:w
+
+#MSG_FLEE
+M:15:w
+
+#MSG_DROP	
+M:16:w
+
+#MSG_PICKUP	
+M:17:w
+
+#MSG_CURSE	
+M:18:w
+
+#MSG_KILL				
+M:19:w
+
+#MSG_LEVEL
+M:20:w
+
+#MSG_STUDY
+M:21:w
+
+#MSG_SHOOT
+M:22:w
+
+#MSG_QUAFF
+M:23:w
+
+#MSG_ZAP
+M:24:w
+
+#MSG_THROW	
+M:25:w
+
+#MSG_FUEL
+M:26:w
+
+#MSG_EAT
+M:27:w
+
+#MSG_DSM
+M:28:w
+
+#MSG_TELEPORT
+M:29:w
+
+#MSG_TPLEVEL
+M:30:w
+
+#MSG_SPELL_FAIL
+M:31:w
+
+#MSG_TPOTHER
+M:32:w
+
+#MSG_HITWALL
+M:33:w
+
+#MSG_STORE
+M:34:w
+
+#MSG_STORE_ANGRY
+M:35:w
+
+#MSG_STORE_HAPPY
+M:36:w
+
+#MSG_DIG
+M:37:w
+
+#MSG_OPENDOOR
+M:38:w
+
+#MSG_SHUTDOOR
+M:39:w
+
+#MSG_BASH
+M:40:w
+
+#MSG_SPIKE
+M:41:w
+
+#MSG_LOCKPICK_SUCCEED
+M:42:w
+
+#MSG_LOCKPICK_FAIL
+M:43:w
+
+#MSG_STAIRS
+M:44:w
+
+#MSG_QUEST_FAIL
+M:45:y
+
+#MSG_QUEST_SUCCEED
+M:46:y
+
+#MSG_TRAP
+M:47:w
+
+#MSG_CRITICAL_HIT
+M:48:w
+
+#MSG_FIND
+M:49:w
+
+#MSG_ITEM_RESIST
+M:50:w
+
+#MSG_ITEM_DAMAGE
+M:51:w
+
+#MSG_ITEM_BONUS
+M:52:w
+
+#MSG_ITEM_BREAK
+M:53:w
+
+#MSG_PSEUDO_ID
+M:54:w
+
+#MSG_THEFT
+M:55:w
+
+#MSG_MON_FAIL
+M:56:w
+
+#MSG_SUMMON
+M:57:w
+
+#MSG_DESCRIBE
+M:58:w
+
+#MSG_DETECT
+M:59:w
+
+#MSG_FFALL
+M:60:w
+
+?:1
+
