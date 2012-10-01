@@ -33,11 +33,13 @@ monster_race monster_temp_roff;
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_armour(int r_idx, monster_race *r_ptr)
+static bool know_armour(int r_idx, int u_idx)
 {
+	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
+	monster_lore *l_ptr = get_lore_idx(r_idx, u_idx);
 	s32b level = r_ptr->level;
 
-	s32b kills = l_list[r_idx].r_tkills;
+	s32b kills = l_ptr->r_tkills;
 
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
@@ -57,11 +59,14 @@ static bool know_armour(int r_idx, monster_race *r_ptr)
  * the higher the level of the monster, the fewer the attacks you need,
  * the more damage an attack does, the more attacks you need
  */
-static bool know_damage(int r_idx, monster_race *r_ptr, int i)
+static bool know_damage(int r_idx, int u_idx, int i)
 {
+	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
+	monster_lore *l_ptr = get_lore_idx(r_idx, u_idx);
+
 	s32b level = r_ptr->level;
 
-	s32b a = l_list[r_idx].r_blows[i];
+	s32b a = l_ptr->r_blows[i];
 
 	s32b d1 = r_ptr->blow[i].d_dice;
 	s32b d2 = r_ptr->blow[i].d_side;
@@ -404,19 +409,16 @@ int collect_mon_group(u32b flags1, cptr vp[64])
  * This function should only be called with the cursor placed at the
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
- *
- * This is a LAZY implementation - it should be re-written completely
- * with a new tiered lore system.
  */
-static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
+static void roff_main(int r_idx, int u_idx)
 {
-	monster_lore *l_ptr;
+	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
+	monster_lore *l_ptr = get_lore_idx(r_idx, u_idx);
 
 	bool old = FALSE;
 	bool sin = FALSE;
 
 	int m, n, r;
-	int div;
 
 	cptr p, q;
 
@@ -439,21 +441,11 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 	char buf[2048];
 #endif
 
-	monster_race save_mem;
-
-	long i, j;
-
-	/* Get the race and lore */
-	l_ptr = &l_list[r_idx];
+	u32b i, j;
 
 	/* Cheat -- know everything */
 	if (cheat_know)
 	{
-		/* XXX XXX XXX */
-
-		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_race);
-
 		/* Hack -- Maximal kills */
 		l_ptr->r_tkills = MAX_SHORT;
 
@@ -485,8 +477,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) l_ptr->r_drop_gold = 0;
 
 		/* Hack -- observe many spells */
-		l_ptr->r_cast_inate = MAX_UCHAR;
-		l_ptr->r_cast_spell = MAX_UCHAR;
+		l_ptr->r_cast = MAX_UCHAR;
 
 		/* Hack -- know all the flags */
 		l_ptr->r_flags1 = r_ptr->flags1;
@@ -639,8 +630,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 #ifndef PREVENT_LOAD_R_TEXT
 
 	/* Simple method */
-	if (!unique) strcpy(buf, r_text + r_ptr->text);
-	else strcpy(buf, u_text + r_ptr->text);
+	strcpy(buf, monster_text(r_idx, u_idx));
 
 	/* Dump it */
 	roff(buf);
@@ -786,23 +776,12 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 		else if (flags2 & (RF2_PLANT))		roff(" plant");
 		else roff(" creature");
 
-		/* calculate the integer exp part */
-		div = p_ptr->lev;
-
-		/* Hack - angels get less exp for killing non-evil creatures */
-		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
-			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=2;
-
-		i = (long)r_ptr->mexp / div;
-
-		/* calculate the fractional exp part scaled by 100, */
-		/* must use long arithmetic to avoid overflow  */
-		j = ((((long)r_ptr->mexp % div) *
-			  (long)1000 / div + 5) / 10);
-
 		/* Mention the experience */
+		mon_exp(r_ptr, &i, &j);
+		j = (j + 5) / 10;
 		roff(" is worth ");
-		c_roff(TERM_L_GREEN,format("%ld.%02ld ", (long)i, (long)j));
+		if (j) c_roff(TERM_ORANGE,format("%ld.%02ld ", (long)i, (long)j));
+		else c_roff(TERM_ORANGE,format("%ld ", (long)i));
 		roff(format("point%s",
 			        (((i == 1) && (j == 0)) ? "" : "s")));
 
@@ -923,6 +902,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 
 		/* Adverb */
 		if (flags2 & (RF2_SMART)) roff(" intelligently");
+		if (flags2 & (RF2_NEVER_FAIL)) roff(" without chance of failure");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
@@ -940,14 +920,11 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 	/* End the sentence about inate/other spells */
 	if (breath || magic)
 	{
-		/* Total casting */
-		m = l_ptr->r_cast_inate + l_ptr->r_cast_spell;
-
 		/* Average frequency */
 		n = r_ptr->freq_spell;
 
 		/* Describe the spell frequency */
-		if (m > 100)
+		if (l_ptr->r_cast > 100)
 		{
 			roff("; ");
 			c_roff(TERM_L_GREEN,"1");
@@ -956,7 +933,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 		}
 
 		/* Guess at the frequency */
-		else if (m)
+		else if (l_ptr->r_cast)
 		{
 			n = ((n + 9) / 10) * 10;
 			roff("; about ");
@@ -970,7 +947,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 	}
 
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx, r_ptr))
+	if (know_armour(r_idx, u_idx))
 	{
 		/* Armor */
 		roff(format("%^s has an armor rating of ",wd_he[msex]));
@@ -1181,8 +1158,14 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 	    roff(" feet.  ");
 	}
 
+	if (l_ptr->r_flags1 & RF1_DROP_MIMIC)
+	{
+		/* Intro */
+		roff(format("%^s may be useful once dead.  ", wd_he[msex]));
+	}
+
 	/* Drops gold and/or items */
-	if (l_ptr->r_drop_gold || l_ptr->r_drop_item)
+	else if (l_ptr->r_drop_gold || l_ptr->r_drop_item)
 	{
 		/* No "n" needed */
 		sin = FALSE;
@@ -1231,7 +1214,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 		{
 			p = NULL;
 		}
-
+		
 		/* Objects */
 		if (l_ptr->r_drop_item)
 		{
@@ -1325,7 +1308,7 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 			roff(q);
 
 			/* Describe damage (if known) */
-			if (d1 && d2 && know_damage(r_idx, r_ptr, m))
+			if (d1 && d2 && know_damage(r_idx, u_idx, m))
 			{
 				/* Display the damage */
 				roff(" with damage");
@@ -1357,64 +1340,29 @@ static void roff_main(bool unique, int r_idx, monster_race *r_ptr)
 
 	/* All done */
 	roff("\n");
-
-	/* Cheat -- know everything */
-	if (cheat_know)
-	{
-		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_race);
-	}
 }
 
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-void roff_top(int r_idx, bool unique)
+void roff_top(int r_idx, int u_idx)
 {
-	int i;
-	
 	cptr name;
 	
 	byte a1, a2;
 	char c1, c2;
 
-	if (unique)
-	{
-		monster_race *r_ptr = &r_info[r_idx];
-		monster_unique *u_ptr;
-		
-		for (i = 0; i < z_info->u_max; i++)
-		{
-			u_ptr = &u_info[i];
+	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
 
-			/* Find correct u_ptr */
-			if (u_ptr->r_idx == r_idx) break;
-		}
+	/* Get the chars */
+	c1 = r_ptr->d_char;
+	c2 = r_ptr->x_char;
 
-		name = (u_name + u_ptr->name);
+	/* Get the attrs */
+	a1 = r_ptr->d_attr;
+	a2 = r_ptr->x_attr;
 
-		/* Get the chars */
-		c1 = r_ptr->d_char; /* Note - r_ptr */
-		c2 = u_ptr->x_char;
-
-		/* Get the attrs */
-		a1 = u_ptr->d_attr;
-		a2 = u_ptr->x_attr;
-	}
-	else
-	{
-		monster_race *r_ptr = &r_info[r_idx];
-
-		name = (r_name + r_ptr->name);
-
-		/* Get the chars */
-		c1 = r_ptr->d_char;
-		c2 = r_ptr->x_char;
-
-		/* Get the attrs */
-		a1 = r_ptr->d_attr;
-		a2 = r_ptr->x_attr;
-	}
+	name = monster_name_idx(r_idx, u_idx);
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -1423,10 +1371,14 @@ void roff_top(int r_idx, bool unique)
 	Term_gotoxy(0, 0);
 
 	/* In wizard mode, show r_idx */
-	if (cheat_wizard) Term_addstr(-1, TERM_WHITE, format("%d: ",r_idx));
+	if (cheat_wizard) 
+	{
+		if (u_idx) Term_addstr(-1, TERM_WHITE, format("%d/%d: ",r_idx,u_idx));
+		else Term_addstr(-1, TERM_WHITE, format("%d: ",r_idx));
+	}
 
 	/* A title (use "The" for non-uniques) */
-	if (!unique)
+	if (!u_idx)
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
@@ -1445,73 +1397,19 @@ void roff_top(int r_idx, bool unique)
 	Term_addstr(-1, TERM_WHITE, "'):");
 }
 
-static void roff_aux(int r_idx)
+static void roff_aux(int r_idx, int u_idx)
 {
-	int i;
-
-	monster_race *r_ptr = &r_info[r_idx];
-
-	bool unique = ((r_ptr->flags1 & RF1_UNIQUE) ? TRUE : FALSE);
-
-	/* If not unique, recall the monster from r_info */
-	if (!unique) roff_main(unique, r_idx, r_ptr);
-	/* 
-	 * Unique, first find the index, then build temporary monster; don't use normal temp 
-	 * monster so as not to interfere with other stuff.
-	 */
-	else
-	{
-		monster_unique *u_ptr;
-
-		/* Find correct u_ptr */
-		for (i = 0; i < z_info->u_max; i++)
-		{
-			if (u_info[i].r_idx == r_idx) break;
-		}
-
-		u_ptr = &u_info[i];
-
-		/* Build temporary monster for recall */
-		monster_temp_roff.text = u_ptr->text;
-		monster_temp_roff.hdice = u_ptr->hdice;		
-		monster_temp_roff.hside = u_ptr->hside;
-		monster_temp_roff.ac = u_ptr->ac;
-		monster_temp_roff.sleep = u_ptr->sleep;			
-		monster_temp_roff.aaf = u_ptr->aaf;
-		monster_temp_roff.speed = u_ptr->speed;			
-		monster_temp_roff.mexp = u_ptr->mexp;
-		monster_temp_roff.freq_spell = u_ptr->freq_spell;	
-		monster_temp_roff.level = u_ptr->level;			
-		monster_temp_roff.rarity = u_ptr->rarity;		
-
-		for (i = 0; i < 4; i++)
-		{
-			monster_temp_roff.blow[i].method = u_ptr->blow[i].method;
-			monster_temp_roff.blow[i].effect = u_ptr->blow[i].effect;
-			monster_temp_roff.blow[i].d_dice = u_ptr->blow[i].d_dice;
-			monster_temp_roff.blow[i].d_side = u_ptr->blow[i].d_side;
-		}
-
-		/* Flags are a combination of both */
-		monster_temp_roff.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
-		monster_temp_roff.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
-		monster_temp_roff.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
-		monster_temp_roff.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
-		monster_temp_roff.flags5 = (r_ptr->flags5 | u_ptr->flags5);		
-		monster_temp_roff.flags6 = (r_ptr->flags6 | u_ptr->flags6);		
-
-		/* Recall monster */
-		roff_main(unique, r_idx, &monster_temp_roff);
-	}
+	/* Main body of lore */
+	roff_main(r_idx, u_idx);
 
 	/* Describe monster */
-	roff_top(r_idx, unique);
+	roff_top(r_idx, u_idx);
 }
 
 /*
  * Hack -- describe the given monster race at the top of the screen
  */
-void screen_roff(int r_idx)
+void screen_roff(int r_idx, int u_idx)
 {
 	/* Flush messages */
 	message_flush();
@@ -1519,13 +1417,13 @@ void screen_roff(int r_idx)
 	/* Begin recall */
 	Term_erase(0, 1, 255);
 
-	roff_aux(r_idx);	
+	roff_aux(r_idx, u_idx);	
 }
 
 /*
  * Hack -- describe the given monster race in the current "term" window
  */
-void display_roff(int r_idx)
+void display_roff(int r_idx, int u_idx)
 {
 	int y;
 
@@ -1540,5 +1438,5 @@ void display_roff(int r_idx)
 	Term_gotoxy(0, 1);
 
 	/* Recall monster */
-	roff_aux(r_idx);
+	roff_aux(r_idx, u_idx);
 }

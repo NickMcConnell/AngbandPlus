@@ -669,7 +669,7 @@ char *vformat(cptr fmt, va_list vp)
 	if (!fmt) return (format_buf);
 
 	/* Keep going until successful */
-	while (1)
+	while (TRUE)
 	{
 		uint len;
 

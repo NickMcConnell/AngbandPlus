@@ -44,15 +44,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.0"
+#define VERSION_STRING	"0.3.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	0
-#define VERSION_EXTRA	0
+#define VERSION_PATCH	1
+#define VERSION_EXTRA	1
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -206,27 +206,27 @@
 /*
  * Store constants
  */
-#define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
-#define STORE_CHOICES	48		/* Number of items to choose stock from */
-#define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
-#define STORE_TURNOVER	9		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
-#define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
-#define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
-#define STORE_TURNS		1000	/* Number of turns between turnovers */
-#define GUILD_QUESTS	4		/* Number of quests offered at the guild at any given time */
+#define STORE_BM_OLDDEPTH	15		/* Chance BM will generate items according to "old" method */
+#define STORE_INVEN_MAX		24		/* Max number of discrete objs in inven */
+#define STORE_CHOICES		48		/* Number of items to choose stock from */
+#define STORE_OBJ_LEVEL		5		/* Magic Level for normal stores */
+#define STORE_TURNOVER		9		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP		6		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP		18		/* Max slots to "always" keep full */
+#define STORE_SHUFFLE		25		/* 1/Chance (per day) of an owner changing */
+#define STORE_TURNS			1000	/* Number of turns between turnovers */
+#define GUILD_QUESTS		4		/* Number of quests offered at the guild at any given time */
 
 /*
  * Misc constants
  */
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
-#define BREAK_GLYPH		550		/* Rune of protection resistance */
 #define BTH_PLUS_ADJ	3		/* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
-#define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define QUEST_TURNS		1200	/* Number of turns between quest failure checks */
-#define DISEASE_RATE	1000	/* High value slows disease */
 #define FEELING_RATE	100		/* Amount of turns needed to get a level feeling */
+#define BREAK_GLYPH		(adult_nightmare_mode ? 250 : 550)	/* Rune of protection resistance */
+#define DISEASE_RATE	(adult_nightmare_mode ? 500 : 1000)	/* High value slows disease */
 
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
@@ -234,6 +234,17 @@
  * Lower values yield better objects more often.
  */
 #define GREAT_OBJ	20
+
+/*
+ * Misc constants for object boosting (used for easy_mode and "luck").
+ * These are percentages.
+ */
+#define LUCK_INFLATE	10
+#define LUCK_GOOD		5
+#define LUCK_GREAT		2
+#define EASY_INFLATE	20
+#define EASY_GOOD		10
+#define EASY_GREAT		4
 
 /*
  * There is a 1/20 (5%) chance that ego-items with an inflated base-level are
@@ -264,7 +275,7 @@
 /*
  * There is a 1/160 chance per round of creating a new monster
  */
-#define MAX_M_ALLOC_CHANCE	160
+#define MAX_M_ALLOC_CHANCE (adult_nightmare_mode ? 16 : 160)	
 
 /*
  * Normal levels get at least 14 monsters
@@ -607,7 +618,7 @@
 #define GF_CALM_NON_CHAOS	60
 
 /*
- * Some constants for the "learn" code
+ * Some constants for the monster "learn" code
  *
  * Most of these come from the "SM_xxx" flags
  */
@@ -633,6 +644,25 @@
 #define DRS_RES_DISEASE	20
 #define DRS_RES_WATER	21
 #define DRS_RES_MANA	22
+
+/*
+ * Constants for the player "learn" code
+ */
+#define LRN_PDEATH	1	/* Learn that the monster killed the player */
+#define LRN_MDEATH	2	/* Learn that the player killed the monster */
+#define LRN_FLAG1	3	/* Learn that the monster has a flag from r_ptr->flags1 */
+#define LRN_FLAG2	4	/* Learn that the monster has a flag from r_ptr->flags2 */
+#define LRN_FLAG3	5	/* Learn that the monster has a flag from r_ptr->flags3 */
+#define LRN_FLAG4	6	/* Learn that the monster has a flag from r_ptr->flags4 */
+#define LRN_FLAG5	7	/* Learn that the monster has a flag from r_ptr->flags5 */
+#define LRN_FLAG6	8	/* Learn that the monster has a flag from r_ptr->flags6 */
+#define LRN_BLOWS	9	/* Remember a blow */
+#define LRN_CASTS	10	/* Remember a monster spell */
+#define LRN_SIGHTS	11	/* Remember seeing the monster */
+#define LRN_IGNORES	12	/* Remember that the monster ignored you */
+#define LRN_WAKES	13	/* Remember that the monster woke up */
+#define LRN_ITEM	14	/* Count item drops */
+#define LRN_GOLD	15	/* Count gold drops */
 
 /*
  * Number of keymap modes
@@ -1245,15 +1275,16 @@
 #define SV_DRAGON_WHITE			 3
 #define SV_DRAGON_RED			 4
 #define SV_DRAGON_GREEN			 5
-#define SV_DRAGON_MULTIHUED		 6
-#define SV_DRAGON_SHINING		10
-#define SV_DRAGON_LAW			12
-#define SV_DRAGON_BRONZE		14
-#define SV_DRAGON_GOLD			16
-#define SV_DRAGON_CHAOS			18
-#define SV_DRAGON_BALANCE		20
-#define SV_DRAGON_ETHEREAL		25
-#define SV_DRAGON_POWER			30
+#define SV_DRAGON_BRONZE		 6
+#define SV_DRAGON_GOLD			 7
+#define SV_DRAGON_SILVER		 8
+#define SV_DRAGON_MULTIHUED		 9
+#define SV_DRAGON_SHADOW		10
+#define SV_DRAGON_SPIRIT		11
+#define SV_DRAGON_ETHEREAL		12
+#define SV_DRAGON_CHAOS			13
+#define SV_DRAGON_TIME			14
+#define SV_DRAGON_POWER			15
 
 /* The sval codes for TV_LITE */
 #define SV_TORCH				0
@@ -1286,7 +1317,7 @@
 #define SV_AMULET_DOOM			 0
 #define SV_AMULET_TELEPORT		 1
 #define SV_AMULET_UNMAGIC		 2
-#define SV_AMULET_ADORNMENT		 3
+#define SV_AMULET_FORTUNE		 3
 #define SV_AMULET_SLOW_DIGEST	 4
 #define SV_AMULET_HOLD_LIFE		 5
 #define SV_AMULET_RESIST_ACID	 6
@@ -1472,8 +1503,8 @@
 /* The "sval" codes for TV_SCROLL */
 #define SV_SCROLL_DARKNESS				 0
 #define SV_SCROLL_AGGRAVATE_MONSTER		 1
-#define SV_SCROLL_CURSE_ARMOR			 2
-#define SV_SCROLL_CURSE_WEAPON			 3
+#define SV_SCROLL_CURSE_EQUIP			 2
+#define SV_SCROLL_STAR_CURSE_EQUIP		 3
 #define SV_SCROLL_SUMMON_MONSTER		 4
 #define SV_SCROLL_SUMMON_UNDEAD			 5
 #define SV_SCROLL_SUMMON_DRAGON			 6
@@ -1506,7 +1537,7 @@
 #define SV_SCROLL_BLESSING				33
 #define SV_SCROLL_HOLY_CHANT			34
 #define SV_SCROLL_HOLY_PRAYER			35
-#define SV_SCROLL_MONSTER_CONFUSION		36
+/* xxx */
 #define SV_SCROLL_PROTECTION_FROM_EVIL	37
 #define SV_SCROLL_RUNE_OF_PROTECTION	38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION	39
@@ -1599,17 +1630,18 @@
 #define SV_POWDER_SLEEP			 4
 #define SV_POWDER_SLOW			 5
 #define SV_POWDER_CALM			 6
-#define SV_POWDER_FLASH			 7
-#define SV_POWDER_DARKNESS		 8
-#define SV_POWDER_POISON		 9
-#define SV_POWDER_FIRE1			10
-#define SV_POWDER_COLD1			11
-#define SV_POWDER_FIRE2			12
-#define SV_POWDER_COLD2			13
-#define SV_POWDER_ENERGY		14
+#define SV_POWDER_POLYMORPH		 7
+#define SV_POWDER_FLASH			 8
+#define SV_POWDER_DARKNESS		 9
+#define SV_POWDER_POISON		10
+#define SV_POWDER_FIRE1			11
+#define SV_POWDER_COLD1			12
+#define SV_POWDER_FIRE2			13
+#define SV_POWDER_COLD2			14
+#define SV_POWDER_ENERGY		15
 
 /* "Sval" limit -- maximum amount of powders */
-#define SV_POWDER_MAX			15
+#define SV_POWDER_MAX			16
 
 /* The sval codes for TV_FLASK */
 #define SV_FLASK_LANTERN	0
@@ -1624,20 +1656,15 @@
 #define SV_FOOD_PARALYSIS		 5
 #define SV_FOOD_WEAKNESS		 6
 #define SV_FOOD_SICKNESS		 7
-#define SV_FOOD_STUPIDITY		 8
-#define SV_FOOD_NAIVETY			 9
-#define SV_FOOD_UNHEALTH		10
-#define SV_FOOD_DISEASE			11
-#define SV_FOOD_CURE_POISON		12
-#define SV_FOOD_CURE_DISEASE	13
-#define SV_FOOD_CURE_BLINDNESS	14
-#define SV_FOOD_CURE_PARANOIA	15
-#define SV_FOOD_CURE_CONFUSION	16
-#define SV_FOOD_CURE_SERIOUS	17
-#define SV_FOOD_RESTORE_STR		18
-#define SV_FOOD_RESTORE_CON		19
-#define SV_FOOD_RESTORE_DEX		20
-#define SV_FOOD_RESTORING		21
+#define SV_FOOD_DISEASE			 8
+#define SV_FOOD_CURE_POISON		 9
+#define SV_FOOD_CURE_DISEASE	10
+#define SV_FOOD_CURE_CONFUSION	11
+#define SV_FOOD_CURE_SERIOUS	12
+#define SV_FOOD_RESTORE_STR		13
+#define SV_FOOD_RESTORE_CON		14
+#define SV_FOOD_RESTORE_DEX		15
+#define SV_FOOD_RESTORING		16
 /* eight missing mushrooms */
 #define SV_FOOD_JERKY			30
 #define SV_FOOD_RATION			31
@@ -1647,7 +1674,7 @@
 
 /* "Sval" limits -- first "normal" food, number of mushrooms */
 #define SV_FOOD_MIN_FOOD		30
-#define SV_FOOD_MAX_SHROOM		22
+#define SV_FOOD_MAX_SHROOM		17
 
 /* The "sval" codes for TV_MAGIC_BOOK */
 #define SV_BOOK_MAGE1			 0
@@ -2003,8 +2030,8 @@
 #define SM_RES_TIME		0x08000000
 #define SM_RES_MANA		0x10000000	/* Resistance to mana attacks */
 #define SM_RES_DISEASE	0x20000000
-#define SM_RES_WATER	0x40000000
-#define SM_XXX4			0x80000000
+#define SM_OPP_DISEASE	0x40000000
+#define SM_RES_WATER	0x80000000
 
 /*
  * Note that "flags1" contains all flags dependant on "pval", plus all "sustains".
@@ -2092,7 +2119,7 @@
 #define TR3_SEE_INVIS		0x00000010L	/* See invis */
 #define TR3_INVIS			0x00000020L	/* Invisibility*/
 #define TR3_GLOW			0x00000040L	/* Perma-lite */
-#define TR3_XXX1			0x00000080L
+#define TR3_LUCK			0x00000080L /* Luck */
 #define TR3_LITE1			0x00000100L
 #define TR3_LITE2			0x00000200L
 #define TR3_LITE3			0x00000400L
@@ -2174,7 +2201,8 @@
  * Flag set 2 -- mask for flags that can become double resists.
  */
 #define TR2_DOUBLE_RES_MASK \
- (TR2_RES_ACID | TR2_RES_ELEC | TR2_RES_FIRE | TR2_RES_COLD | TR2_RES_POIS)
+	(TR2_RES_ACID | TR2_RES_ELEC | TR2_RES_FIRE | TR2_RES_COLD | \
+	 TR2_RES_POIS | TR2_RES_DISEASE)
 
 /*
  * Flag set 3 -- mask for "ignore element" flags.
@@ -2197,7 +2225,7 @@
  * Flag set 3 -- mask for "medium usefulness" flags (for random ego items).
  */
 #define TR3_MID_USE_MASK \
-	(TR3_REGEN | TR3_GLOW | TR3_SEE_INVIS)
+	(TR3_REGEN | TR3_GLOW | TR3_SEE_INVIS | TR3_LUCK )
 
 /*
  * Flag set 3 -- mask for "high usefulness" flags (for random ego items).
@@ -2229,7 +2257,7 @@
 #define OBJECT_XTRA_SIZE_SUSTAIN		6
 #define OBJECT_XTRA_SIZE_MID_RESIST		12
 #define OBJECT_XTRA_SIZE_HIGH_RESIST	5
-#define OBJECT_XTRA_SIZE_POWER			7
+#define OBJECT_XTRA_SIZE_POWER			8
 
 /*** Class flags ***/
 
@@ -2248,8 +2276,8 @@
 #define CF_MUSIC			0x00001000L	/* Allow use of musical instruments */
 #define CF_LORE				0x00002000L	/* Identify acts as *identify* for artifacts */
 #define CF_BETTER_CRITICAL	0x00004000L	/* Better critical hits */
-#define CF_BETTER_SHOT		0x00008000L	/* Better critical hits with missiles*/
-#define CF_XXX1				0x00010000L	
+#define CF_BETTER_SHOT		0x00008000L	/* Better critical hits with missiles */
+#define CF_INFLUENCE		0x00010000L	/* Better offensive condition spells */
 #define CF_XXX2				0x00020000L	
 #define CF_XXX3				0x00040000L	
 #define CF_XXX4				0x00080000L	
@@ -2285,11 +2313,11 @@
  * New monster race bit flags
  */
 #define RF1_UNIQUE			0x00000001	/* Unique Monster */
-#define RF1_XXX1			0x00000002	/
+#define RF1_XXX1			0x00000002	
 #define RF1_MALE			0x00000004	/* Male gender */
 #define RF1_FEMALE			0x00000008	/* Female gender */
-#define RF1_XXX2			0x00000010	
-#define RF1_CHAR_CLEAR		0x00000020	/* Changes symbol */
+#define RF1_CHAR_CLEAR		0x00000010	/* Absorbs symbol */
+#define RF1_ATTR_MIMIC		0x00000020	/* Gains a random color for mimics*/
 #define RF1_ATTR_CLEAR		0x00000040	/* Absorbs color */
 #define RF1_ATTR_MULTI		0x00000080	/* Changes color */
 #define RF1_FORCE_DEPTH		0x00000100	/* Start at "correct" depth */
@@ -2314,7 +2342,7 @@
 #define RF1_DROP_4D2		0x08000000	/* Drop 4d2 items/gold */
 #define RF1_DROP_GOOD		0x10000000	/* Drop good items */
 #define RF1_DROP_GREAT		0x20000000	/* Drop great items */
-#define RF1_XXX3			0x40000000	
+#define RF1_DROP_MIMIC		0x40000000	/* Drop an item according to char and attr */
 #define RF1_DROP_CHOSEN		0x80000000	/* Drop "chosen" items */
 
 /*
@@ -2322,27 +2350,27 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_SEE_INVIS 		0x00000004	/* Monster can see invisible */
-#define RF2_HAS_LITE		0x00000008	/* Monster carries light */
-#define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
-#define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
-#define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
-#define RF2_WEIRD_MIND		0x00000080	/* Monster avoids telepathy? */
-#define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
-#define RF2_REGENERATE		0x00000200	/* Monster regenerates */
-#define RF2_POWERFUL		0x00000400	/* Monster has strong breath */
-#define RF2_OPEN_DOOR		0x00000800	/* Monster can open doors */
-#define RF2_BASH_DOOR		0x00001000	/* Monster can bash doors */
-#define RF2_PASS_WALL		0x00002000	/* Monster can pass walls */
-#define RF2_KILL_WALL		0x00004000	/* Monster can destroy walls */
-#define RF2_MOVE_BODY		0x00008000	/* Monster can move monsters */
-#define RF2_KILL_BODY		0x00010000	/* Monster can kill monsters */
-#define RF2_TAKE_ITEM		0x00020000	/* Monster can pick up items */
-#define RF2_KILL_ITEM		0x00040000	/* Monster can crush items */
-#define RF2_XXX1			0x00080000	
-#define RF2_XXX2			0x00100000	
-#define RF2_XXX3			0x00200000	
-#define RF2_XXX4			0x00400000	/
+#define RF2_NEVER_FAIL		0x00000004	/* Monster never fails in spellcasting */
+#define RF2_SEE_INVIS 		0x00000008	/* Monster can see invisible players */
+#define RF2_HAS_LITE		0x00000010	/* Monster carries light */
+#define RF2_INVISIBLE		0x00000020	/* Monster avoids vision */
+#define RF2_COLD_BLOOD		0x00000040	/* Monster avoids infra */
+#define RF2_EMPTY_MIND		0x00000080	/* Monster avoids telepathy */
+#define RF2_WEIRD_MIND		0x00000100	/* Monster avoids telepathy? */
+#define RF2_MULTIPLY		0x00000200	/* Monster reproduces */
+#define RF2_REGENERATE		0x00000400	/* Monster regenerates */
+#define RF2_POWERFUL		0x00000800	/* Monster has strong breath */
+#define RF2_OPEN_DOOR		0x00001000	/* Monster can open doors */
+#define RF2_BASH_DOOR		0x00002000	/* Monster can bash doors */
+#define RF2_PASS_WALL		0x00004000	/* Monster can pass walls */
+#define RF2_KILL_WALL		0x00008000	/* Monster can destroy walls */
+#define RF2_MOVE_BODY		0x00010000	/* Monster can move monsters */
+#define RF2_KILL_BODY		0x00020000	/* Monster can kill monsters */
+#define RF2_TAKE_ITEM		0x00040000	/* Monster can pick up items */
+#define RF2_KILL_ITEM		0x00080000	/* Monster can crush items */
+#define RF2_XXX1			0x00100000	
+#define RF2_XXX2			0x00200000	
+#define RF2_XXX3			0x00400000	
 #define RF2_PERSON			0x00800000	/* Person */
 #define RF2_HUMANOID		0x01000000	/* Humanoid */
 #define RF2_DRAGON			0x02000000	/* Dragon */
@@ -2703,7 +2731,7 @@
  * These values are hard-coded by savefiles (and various pieces of code).
  */
 #define OPT_NORMAL					57 /* Regular options */
-#define OPT_BIRTH					17 /* Birth/adult options */
+#define OPT_BIRTH					18 /* Birth/adult options */
 #define OPT_CHEAT					8  /* Cheat/score options */
 
 /*
@@ -2789,6 +2817,7 @@
 #define OPT_birth_random_hp			14
 #define OPT_birth_force_small_lev	15
 #define OPT_birth_easy_mode			16
+#define OPT_birth_nightmare_mode	17
 
 /*
  * Option indexes (cheat and score)
@@ -2879,6 +2908,7 @@
 #define birth_random_hp			op_ptr->opt_birth[OPT_birth_random_hp]
 #define	birth_force_small_lev	op_ptr->opt_birth[OPT_birth_force_small_lev]
 #define	birth_easy_mode			op_ptr->opt_birth[OPT_birth_easy_mode]
+#define	birth_nightmare_mode	op_ptr->opt_birth[OPT_birth_nightmare_mode]
 #define adult_point_based		op_ptr->opt_adult[OPT_birth_point_based]
 #define adult_auto_roller		op_ptr->opt_adult[OPT_birth_auto_roller]
 #define adult_preserve			op_ptr->opt_adult[OPT_birth_preserve]
@@ -2896,6 +2926,7 @@
 #define adult_random_hp			op_ptr->opt_adult[OPT_birth_random_hp]
 #define	adult_force_small_lev	op_ptr->opt_adult[OPT_birth_force_small_lev]
 #define	adult_easy_mode			op_ptr->opt_adult[OPT_birth_easy_mode]
+#define	adult_nightmare_mode	op_ptr->opt_adult[OPT_birth_nightmare_mode]
 #define cheat_peek				op_ptr->opt_cheat[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt_cheat[OPT_cheat_hear]
 #define cheat_room				op_ptr->opt_cheat[OPT_cheat_room]
@@ -3154,6 +3185,11 @@ extern int PlayerUID;
 # define getuid() PlayerUID
 # define geteuid() PlayerUID
 #endif
+
+/*
+ * Used for monster list allocations
+ */
+#define M_LIST_ITEMS	(z_info->r_max + z_info->u_max)
 
 /*** Color constants ***/
 

@@ -950,20 +950,20 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
+		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
-
 		{ TV_POTION, SV_POTION_RESTORE_EXP }
+
+		/* Item */
 		/* Item */
 		/* Item */
 		/* Item */
@@ -1240,8 +1240,17 @@ static errr init_other(void)
 	/*** Prepare lore array ***/
 
 	/* Lore */
-	C_MAKE(l_list, z_info->r_max, monster_lore);
+	C_MAKE(lr_list, z_info->r_max, monster_lore);
+	C_MAKE(lu_list, z_info->u_max, monster_lore);
 
+	/*** Prepare the unique counters ***/
+	for (i = 0; i < z_info->u_max; i++)
+	{
+		monster_unique *u_ptr = &u_info[i];
+
+		if (u_ptr->r_idx) r_info[u_ptr->r_idx].max_unique++;
+	}
+	
 	/*** Prepare the inventory ***/
 
 	/* Allocate it */
@@ -1958,7 +1967,8 @@ void cleanup_angband(void)
 	C_FREE(inventory, INVEN_MAX, object_type);
 
 	/* Free the lore, monster, and object lists */
-	C_FREE(l_list, z_info->r_max, monster_lore);
+	C_FREE(lr_list, z_info->r_max, monster_lore);
+	C_FREE(lu_list, z_info->u_max, monster_lore);
 	C_FREE(m_list, z_info->m_max, monster_type);
 	C_FREE(o_list, z_info->o_max, object_type);
 

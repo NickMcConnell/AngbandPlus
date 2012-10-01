@@ -62,7 +62,7 @@ typedef struct
 /*
  * The basic items categorized by type
  */
-static grouper group_item[] =
+static grouper group_item[32] =
 {
 	{ TV_SHOT,		"Ammo" },
 	{ TV_ARROW,		  NULL },
@@ -206,7 +206,7 @@ static void spoil_obj_desc(cptr fname)
 {
 	int i, j, k, l, s, t, n = 0;
 
-	u16b who[200];
+	u16b *who;
 
 	char buf[1024];
 
@@ -214,6 +214,9 @@ static void spoil_obj_desc(cptr fname)
 	char dam[80];
 
 	cptr format = " %-54s%7s%6s%4s%9s\n";
+
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->k_max, u16b);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -312,6 +315,9 @@ static void spoil_obj_desc(cptr fname)
 		}
 	}
 
+	/* Free the "who" array */
+	C_KILL(who, z_info->k_max, u16b);
+
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -354,7 +360,7 @@ static void spoil_obj_desc(cptr fname)
 /*
  * The artifacts categorized by type
  */
-static grouper group_artifact[] =
+static grouper group_artifact[18] =
 {
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
@@ -403,7 +409,7 @@ struct flag_desc
  * affects all stats.  In this case, "All stats" is used instead of
  * listing each stat individually.
  */
-static flag_desc stat_flags_desc[] =
+static flag_desc stat_flags_desc[A_MAX] =
 {
 	{ TR1_STR,        "STR" },
 	{ TR1_INT,        "INT" },
@@ -537,6 +543,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_TELEPATHY,	"ESP" },
 	{ TR3_SEE_INVIS,	"See Invisible" },
 	{ TR3_INVIS,		"Invisibility" },
+	{ TR3_LUCK,			"Luck" },
 	{ TR3_DISRUPT,		"Disrupts spellcasting" },
 	{ TR3_AGGRAVATE,	"Aggravates" },
 	{ TR3_DRAIN_EXP,	"Drains Experience" },
@@ -610,8 +617,10 @@ typedef struct
 	                + 1       /* type of curse */
 	                + 1];     /* sentinel NULL */
 
+	/* Any activation at all? */
+	bool activates;
 	/* A string describing an artifact's activation */
-	cptr activation;
+	char activation[100];
 
 	/* "Level 20, Rarity 30, 3.0 lbs, 20000 Gold" */
 	char misc_desc[80];
@@ -904,6 +913,8 @@ static void analyze_misc(object_type *o_ptr, char *misc_desc)
  */
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
+	int i, j;
+
 	analyze_general(o_ptr, desc_x_ptr->description);
 
 	analyze_pval(o_ptr, &desc_x_ptr->pval_info);
@@ -922,7 +933,7 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 
 	analyze_misc(o_ptr, desc_x_ptr->misc_desc);
 
-	desc_x_ptr->activation = item_activation(o_ptr);
+	desc_x_ptr->activates = item_activation(desc_x_ptr->activation, &i, &j, o_ptr);
 }
 
 static void print_header(void)
@@ -993,7 +1004,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	line_len = strlen(line);
 
 	/* Now begin the tedious task */
-	while (1)
+	while (TRUE)
 	{
 		/* Copy the current item to a buffer */
 		strcpy(buf, *list);
@@ -1098,9 +1109,8 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
 
-
 	/* Write out the possible activation at the primary indention level */
-	if (art_ptr->activation)
+	if (art_ptr->activates)
 	{
 		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
 	}
@@ -1207,7 +1217,7 @@ static void spoil_mon_desc(cptr fname)
 	char hp[80];
 	char exp[80];
 
-	u16b *who;
+	monster_list_entry *who;
 	u16b why = 2;
 
 	/* Build the filename */
@@ -1238,7 +1248,7 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -1246,27 +1256,34 @@ static void spoil_mon_desc(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[n++] = i;
+		if (r_ptr->name) who[n++].r_idx = i;
 	}
 
 	/* Select the sort method */
-	ang_sort_comp = ang_sort_comp_hook;
-	ang_sort_swap = ang_sort_swap_hook;
+	ang_sort_comp = ang_mon_sort_comp_hook;
+	ang_sort_swap = ang_mon_sort_swap_hook;
 
 	/* Sort the array by dungeon depth of monsters */
 	ang_sort(who, &why, n);
 
+	/* "Saturate" the monster list with all the appropriate uniques */
+	saturate_mon_list(who, &n, TRUE);
+
 	/* Scan again */
 	for (i = 0; i < n; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
+		monster_race *r_ptr = get_monster_fake(who[i].r_idx, who[i].u_idx);
 
-		cptr name = (r_name + r_ptr->name);
+		cptr name = (monster_name_idx(who[i].r_idx, who[i].u_idx));
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (r_ptr->flags1 & (RF1_UNIQUE)) 
 		{
-			sprintf(nam, "[U] %s", name);
+			sprintf(nam, "<U> %s", name);
+		}
+		else if (who[i].u_idx)
+		{
+			sprintf(nam, "|U| %s", name);
 		}
 		else
 		{
@@ -1318,7 +1335,7 @@ static void spoil_mon_desc(cptr fname)
 	fprintf(fff, "\n");
 
 	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, u16b);
+	C_KILL(who, M_LIST_ITEMS, monster_list_entry);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1426,9 +1443,8 @@ static void spoil_mon_info(cptr fname)
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
 	u16b why = 2;
-	s16b *who;
+	monster_list_entry *who;
 	int count = 0;
-
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -1453,7 +1469,7 @@ static void spoil_mon_info(cptr fname)
 	spoil_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, s16b);
+	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -1461,22 +1477,25 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[count++] = i;
+		if (r_ptr->name) who[count++].r_idx = i;
 	}
 
 	/* Select the sort method */
-	ang_sort_comp = ang_sort_comp_hook;
-	ang_sort_swap = ang_sort_swap_hook;
+	ang_sort_comp = ang_mon_sort_comp_hook;
+	ang_sort_swap = ang_mon_sort_swap_hook;
 
 	/* Sort the array by dungeon depth of monsters */
 	ang_sort(who, &why, count);
+
+	/* "Saturate" the monster list with all the appropriate uniques */
+	saturate_mon_list(who, &count, TRUE);
 
 	/*
 	 * List all monsters in order
 	 */
 	for (n = 0; n < count; n++)
 	{
-		monster_race *r_ptr = &r_info[who[n]];
+		monster_race *r_ptr = get_monster_fake(who[n].r_idx, who[n].u_idx);
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1493,7 +1512,6 @@ static void spoil_mon_info(cptr fname)
 		else if (flags1 & (RF1_MALE)) msex = 1;
 		else msex = 0;
 
-
 		/* Prefix */
 		if (flags1 & (RF1_UNIQUE))
 		{
@@ -1505,7 +1523,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		sprintf(buf, "%s  (", (r_name + r_ptr->name));	/* ---)--- */
+		sprintf(buf, "%s  (", (monster_name_idx(who[n].r_idx, who[n].u_idx)));	/* ---)--- */
 		spoil_out(buf);
 
 		/* Color */
@@ -1520,7 +1538,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", who[n]);
+		sprintf(buf, "Num:%d  ", who[n].r_idx);
 		spoil_out(buf);
 
 		/* Level */
@@ -1562,9 +1580,8 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Describe */
-		spoil_out(r_text + r_ptr->text);
+		spoil_out(monster_text(who[n].r_idx, who[n].u_idx));
 		spoil_out("  ");
-
 
 		spoil_out("This");
 
@@ -1672,6 +1689,7 @@ static void spoil_mon_info(cptr fname)
 			}
 			spoil_out(" magical, casting spells");
 			if (flags2 & (RF2_SMART)) spoil_out(" intelligently");
+			if (flags2 & (RF2_NEVER_FAIL)) spoil_out(" without chance of failure");
 			for (i = 0; i < vn; i++)
 			{
 				if (!i) spoil_out(" which ");
@@ -1812,8 +1830,14 @@ static void spoil_mon_info(cptr fname)
 		if (flags1 & (RF1_DROP_3D2)) i += 6;
 		if (flags1 & (RF1_DROP_4D2)) i += 8;
 
+		if (flags1 & RF1_DROP_MIMIC)
+		{
+			/* Intro */
+			roff(format("%^s may be useful once dead.  ", wd_che[msex]));
+		}
+		
 		/* Drops gold and/or items */
-		if (i)
+		else if (i)
 		{
 			sin = FALSE;
 			spoil_out(wd_che[msex]);
@@ -1940,7 +1964,7 @@ static void spoil_mon_info(cptr fname)
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, s16b);
+	C_KILL(who, M_LIST_ITEMS, monster_list_entry);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1963,7 +1987,7 @@ void do_cmd_spoilers(void)
 	screen_save();
 
 	/* Interact */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();

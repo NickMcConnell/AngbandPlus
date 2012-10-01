@@ -578,7 +578,7 @@ void options_birth_menu(bool adult)
 	else type = OPT_TYPE_BIRTH;
 
 	/* Interact */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -690,7 +690,7 @@ void do_cmd_options(void)
 	screen_save();
 
 	/* Interact */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -837,7 +837,7 @@ void do_cmd_options(void)
 			prt("Command: Base Delay Factor", 19, 0);
 
 			/* Get a new value */
-			while (1)
+			while (TRUE)
 			{
 				char cx;
 				int msec = op_ptr->delay_factor * op_ptr->delay_factor;
@@ -859,7 +859,7 @@ void do_cmd_options(void)
 			prt("Command: Hitpoint Warning", 19, 0);
 
 			/* Get a new value */
-			while (1)
+			while (TRUE)
 			{
 				char cx;
 				prt(format("Current hitpoint warning: %2d%%",
@@ -1198,7 +1198,7 @@ void do_cmd_macros(void)
 	screen_save();
 
 	/* Process requests until done */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -1565,7 +1565,7 @@ void do_cmd_visuals(void)
 	screen_save();
 
 	/* Interact until done */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -1637,7 +1637,6 @@ void do_cmd_visuals(void)
 			/* Failure */
 			if (!fff) continue;
 
-
 			/* Skip some lines */
 			fprintf(fff, "\n\n");
 
@@ -1653,7 +1652,7 @@ void do_cmd_visuals(void)
 				if (!r_ptr->name) continue;
 
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+				fprintf(fff, "# %s\n", monster_name_race(i));
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
@@ -1809,7 +1808,7 @@ void do_cmd_visuals(void)
 			prt("Command: Change monster attr/chars", 15, 0);
 
 			/* Hack -- query until done */
-			while (1)
+			while (TRUE)
 			{
 				monster_race *r_ptr = &r_info[r];
 
@@ -1818,10 +1817,9 @@ void do_cmd_visuals(void)
 				byte ca = (byte)(r_ptr->x_attr);
 				byte cc = (byte)(r_ptr->x_char);
 
-				/* Label the object */
+				/* Label the monster */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Monster = %d, Name = %-40.40s",
-				                   r, (r_name + r_ptr->name)));
+				            format("Monster = %d, Name = %-40.40s", r, (monster_name_race(r))));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -1864,7 +1862,7 @@ void do_cmd_visuals(void)
 			prt("Command: Change object attr/chars", 15, 0);
 
 			/* Hack -- query until done */
-			while (1)
+			while (TRUE)
 			{
 				object_kind *k_ptr = &k_info[k];
 
@@ -1919,7 +1917,7 @@ void do_cmd_visuals(void)
 			prt("Command: Change feature attr/chars", 15, 0);
 
 			/* Hack -- query until done */
-			while (1)
+			while (TRUE)
 			{
 				feature_type *f_ptr = &f_info[f];
 
@@ -2015,7 +2013,7 @@ void do_cmd_colors(void)
 	screen_save();
 
 	/* Interact until done */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -2138,7 +2136,7 @@ void do_cmd_colors(void)
 			prt("Command: Modify colors", 8, 0);
 
 			/* Hack -- query until done */
-			while (1)
+			while (TRUE)
 			{
 				cptr name;
 
@@ -2469,8 +2467,13 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(void)
 {
+
+#ifndef DEBUG_SAVE
+
 	/* Disturb the player */
 	disturb(1);
+
+#endif /* DEBUG_SAVE */
 
 	/* Clear messages */
 	message_flush();
@@ -2478,8 +2481,12 @@ void do_cmd_save_game(void)
 	/* Handle stuff */
 	handle_stuff();
 
+#ifndef DEBUG_SAVE
+
 	/* Message */
 	prt("Saving game...", 0, 0);
+
+#endif /* DEBUG_SAVE */
 
 	/* Refresh */
 	Term_fresh();
@@ -2493,7 +2500,14 @@ void do_cmd_save_game(void)
 	/* Save the player */
 	if (save_player())
 	{
-		prt("Saving game... done.", 0, 0);
+
+#ifndef DEBUG_SAVE
+
+		/* Message */
+		prt("Saving game... Done", 0, 0);
+
+#endif /* DEBUG_SAVE */
+
 	}
 
 	/* Save failed (oops) */

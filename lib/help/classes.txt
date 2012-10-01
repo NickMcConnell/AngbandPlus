@@ -104,7 +104,6 @@ Note that the class stat bonuses only affect character generation.
                fighting, and Intelligence, which he uses for spellcasting. 
 
  === Recommended combinations of Race and Class ===
-
           Warrior  Mage  Priest  Ranger  Paladin  Mystic  Bard  Spellsword
  Human      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
  Half-Elf   Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
@@ -119,6 +118,8 @@ Note that the class stat bonuses only affect character generation.
  Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
  Demon      Yes     Yes    No      Yes     No       No     No      Yes
  Nilbog     Yes     No     No      No      No       No     No      No
+ Rattikin   Yes     Yes    No      Yes     No       No     No      Yes
+ Felpurr    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
  
 === Stat and Other Bonuses Tables ===
 

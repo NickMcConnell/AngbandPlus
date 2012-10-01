@@ -8,7 +8,7 @@ all: angband
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
   variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
+  object1.o object2.o monster1.o monster2.o monster3.o\
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
@@ -70,6 +70,7 @@ melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
 monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
+monster3.o: monster3.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 save.o: save.c $(INCS)

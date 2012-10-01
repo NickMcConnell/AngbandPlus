@@ -2088,7 +2088,8 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_flow_by_smell",		"Monsters chase recent locations",			TRUE },
 	{"birth_random_hp",			"Generate hitpoints randomly",				TRUE },
 	{"birth_force_small_lev",	"All levels will be generated as small",	FALSE},
-	{"birth_easy_mode",			"Easy mode",								FALSE}
+	{"birth_easy_mode",			"Easy mode",								FALSE},
+	{"birth_nightmare_mode",	"Nightmare mode",							FALSE}
 };
 
 option_type options_cheat[OPT_CHEAT] =
@@ -2269,6 +2270,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 
 	{
 		OPT_birth_easy_mode,
+		OPT_birth_nightmare_mode,
 		OPT_birth_autoscum,
 		OPT_birth_preserve,
 #ifdef GJW_RANDART
@@ -2281,7 +2283,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_feelings,
 		OPT_birth_no_artifacts,
 		OPT_birth_force_small_lev,
-		255,
 		255,
 		255,
 		255,

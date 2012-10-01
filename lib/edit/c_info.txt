@@ -63,6 +63,7 @@
 # is determined by the relevant realm's handicap.
 # BEAM - The character's bolt spells have a higher chance of beaming.
 # POWER - The character's spells will be more powerful.
+# INFLUENCE - Monsters will find it harder to resist player "condition" spells (such as sleep).
 # EXTRA_MANA - The character gets 1.5 times as much mana as without this flag.
 # EXTRA_SPELL - The character gains spells faster.
 # MYSTIC_CAST - Allows the character to cast spells from the mystic spellbooks even
@@ -72,9 +73,10 @@
 # BETTER_CRITICAL - Improved critical hits.
 # BETTER_SHOT - Improved critical hits with shots.
 
+
 # Version stamp (required)
 
-V:0.3.0
+V:0.3.1
 
 N:0:Warrior
 S:5:-2:-2:2:2:-1
@@ -209,7 +211,7 @@ E:23:7:0:1:1
 E:36:4:0:1:1
 T:Performer|Entertainer|Musician|Trubador|Minstrel
 T:Courtier|Poet|Bard|Master-Bard|Maestro
-F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE
+F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE|INFLUENCE
 
 N:7:Spellsword
 S:3:2:-2:0:1:0

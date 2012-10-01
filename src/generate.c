@@ -162,12 +162,10 @@
 #define WALL_MAX	500
 #define TUNN_MAX	900
 
-
 /*
  * Maximal number of room types
  */
 #define ROOM_MAX	9
-
 
 /*
  * Simple structure to hold a map location
@@ -296,7 +294,7 @@ static void new_player_spot(void)
 	int y, x;
 
 	/* Place the player */
-	while (1)
+	while (TRUE)
 	{
 		/* Pick a legal spot */
 		y = rand_range(1, p_ptr->cur_hgt - 2);
@@ -541,7 +539,7 @@ static void build_streamer(int feat, int chance)
 			int d = DUN_STR_RNG;
 
 			/* Pick a nearby grid */
-			while (1)
+			while (TRUE)
 			{
 				ty = rand_spread(y, d);
 				tx = rand_spread(x, d);
@@ -666,7 +664,7 @@ static void vault_objects(int y, int x, int num)
 		for (i = 0; i < 11; ++i)
 		{
 			/* Pick a random location */
-			while (1)
+			while (TRUE)
 			{
 				j = rand_spread(y, 2);
 				k = rand_spread(x, 3);
@@ -706,7 +704,7 @@ static void vault_trap_aux(int y, int x, int yd, int xd)
 	for (count = 0; count <= 5; count++)
 	{
 		/* Get a location */
-		while (1)
+		while (TRUE)
 		{
 			y1 = rand_spread(y, yd);
 			x1 = rand_spread(x, xd);
@@ -754,7 +752,7 @@ static void vault_monsters(int y1, int x1, int num)
 			int d = 1;
 
 			/* Pick a nearby location */
-			scatter(&y, &x, y1, x1, d, 0);
+			scatter(&y, &x, y1, x1, d);
 
 			/* Require "empty" floor grids */
 			if (!cave_empty_bold(y, x)) continue;
@@ -1560,7 +1558,7 @@ static bool vault_aux_giant(int r_idx)
 	return (TRUE);
 }
 
-#define DRAGON_PIT_TYPES	8
+#define DRAGON_PIT_TYPES	9
 
 /*
  * Hack -- breath type for "vault_aux_dragon()"
@@ -2042,6 +2040,19 @@ static void build_type6(int y0, int x0)
 				break;
 			}
 
+			/* Silver */
+			case 7:
+			{
+				/* Message */
+				name = "shard dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = RF4_BR_SHAR;
+
+				/* Done */
+				break;
+			}
+
 			/* Multi-hued */
 			default:
 			{
@@ -2051,7 +2062,8 @@ static void build_type6(int y0, int x0)
 				/* Restrict dragon breath type */
 				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
 				                          RF4_BR_FIRE | RF4_BR_COLD |
-				                          RF4_BR_POIS);
+				                          RF4_BR_POIS | RF4_BR_SHAR |
+										  RF4_BR_SOUN | RF4_BR_CONF);
 
 				/* Done */
 				break;
@@ -3140,7 +3152,7 @@ static void cave_gen(void)
 				int y, x;
 
 				/* Pick a location */
-				while (1)
+				while (TRUE)
 				{
 					y = rand_int(p_ptr->cur_hgt);
 					x = rand_int(p_ptr->cur_wid);

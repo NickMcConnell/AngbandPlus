@@ -20,7 +20,7 @@ INCLDIR = c:\apps\bc45\include;c:\angband\ext-win\src
 SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
   variable.c tables.c util.c cave.c \
-  object1.c object2.c monster1.c monster2.c \
+  object1.c object2.c monster1.c monster2.c monster3.c\
   xtra1.c xtra2.c effects.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c squelch.c\
   cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
@@ -32,7 +32,7 @@ SRCS = \
 OBJS = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
   variable.obj tables.obj util.obj cave.obj \
-  object1.obj object2.obj monster1.obj monster2.obj \
+  object1.obj object2.obj monster1.obj monster2.obj monster3.obj\
   xtra1.obj xtra2.obj effects.obj spells1.obj spells2.obj \
   melee1.obj melee2.obj save.obj files.obj squelch.obj\
   cmd-attk.obj cmd-book.obj cmd-item.obj cmd-know.obj cmd-misc.obj cmd-util.obj \
@@ -44,7 +44,7 @@ OBJS = \
 OBJS32 = \
   z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 \
   variable.o32 tables.o32 util.o32 cave.o32 \
-  object1.o32 object2.o32 monster1.o32 monster2.o32 \
+  object1.o32 object2.o32 monster1.o32 monster2.o32 monster3.o32\
   xtra1.o32 xtra2.o32 effects.o32 spells1.o32 spells2.o32 \
   melee1.o32 melee2.o32 save.o32 files.o32 squelch.o32\
   cmd-attk.o32 cmd-book.o32 cmd-item.o32 cmd-know.o32 cmd-misc.o32 cmd-util.o32 \
@@ -160,7 +160,7 @@ angband: $(OBJS) ..\ext-win\src\angband.rc
 c0wl+
 z-util z-virt z-form z-rand z-term +
 variable tables util cave +
-object1 object2 monster1 monster2 +
+object1 object2 monster1 monster2 monster3+
 xtra1 xtra2 spells1 spells2 +
 melee1 melee2 save files +
 cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
@@ -191,7 +191,7 @@ angband32: $(OBJS32) ..\ext-win\src\angband.rc
 c0w32 +
 z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 +
 variable.o32 tables.o32 util.o32 cave.o32 +
-object1.o32 object2.o32 monster1.o32 monster2.o32 +
+object1.o32 object2.o32 monster1.o32 monster2.o32 monster3.o32+
 xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
 melee1.o32 melee2.o32 save.o32 files.o32 +
 cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +

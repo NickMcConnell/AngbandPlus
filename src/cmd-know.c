@@ -154,7 +154,7 @@ void do_cmd_messages(void)
 	screen_save();
 
 	/* Process requests until done */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -376,8 +376,6 @@ void do_cmd_feeling(void)
 {
 	cptr quest_feel;
 
-	int i = rand_int(100);
-
 	/* Verify the feeling */
 	if (p_ptr->feeling > 10) p_ptr->feeling = 10;
 
@@ -432,6 +430,8 @@ void do_cmd_quest(void)
 	/* No quest at all */
 	else message(MSG_DESCRIBE, 0, "You are not currently undertaking a quest.");
 }
+
+#define BROWSER_ROWS	16
 
 /*
  * Description of each monster group.
@@ -554,7 +554,7 @@ static cptr monster_group_char[] =
  * Build a list of monster indexes in the given group. Return the number
  * of monsters in the group.
  */
-static int collect_monsters(int grp_cur, int mon_idx[], int mode)
+static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
 {
 	int i, mon_cnt = 0;
 
@@ -569,10 +569,10 @@ static int collect_monsters(int grp_cur, int mon_idx[], int mode)
 	{
 		/* Access the race */
 		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+		monster_lore *lr_ptr = &lr_list[i];
 
 		/* Is this a unique? */
-		bool unique = ((r_ptr->flags1 & RF1_UNIQUE) ? TRUE : FALSE);
+		bool unique = r_ptr->max_unique;
 
 		/* Skip empty race */
 		if (!r_ptr->name) continue;
@@ -580,13 +580,13 @@ static int collect_monsters(int grp_cur, int mon_idx[], int mode)
 		if (grp_unique && !(unique)) continue;
 
 		/* Require known monsters */
-		if (!(mode & 0x02) && !cheat_know && !(l_ptr->r_sights)) continue;
+		if (!(mode & 0x02) && !cheat_know && !(lr_ptr->r_sights)) continue;
 
 		/* Check for race in the group */
 		if (grp_unique || strchr(group_char, r_ptr->d_char))
 		{
 			/* Add the race */
-			mon_idx[mon_cnt++] = i;
+			mon_idx[mon_cnt++].r_idx = i;
 
 			/* XXX Hack -- Just checking for non-empty group */
 			if (mode & 0x01) break;
@@ -594,7 +594,10 @@ static int collect_monsters(int grp_cur, int mon_idx[], int mode)
 	}
 
 	/* Terminate the list */
-	mon_idx[mon_cnt] = 0;
+	mon_idx[mon_cnt].r_idx = 0;
+
+	/* Insert Uniques */
+	if (!(mode & 0x01)) saturate_mon_list(mon_idx, &mon_cnt, (bool)!grp_unique);
 
 	/* Return the number of races */
 	return mon_cnt;
@@ -793,6 +796,40 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 
 	if (!d) return;
 
+	/* Diagonals - hack */
+	if ((ddx[d] > 0) && ddy[d])
+	{
+		/* Browse group list */
+		if (!col)
+		{
+			int old_grp = grp;
+
+			/* Move up or down */
+			grp += ddy[d] * BROWSER_ROWS;
+
+			/* Verify */
+			if (grp < 0) grp = 0;
+			if (grp >= grp_cnt)	grp = grp_cnt - 1;
+			if (grp != old_grp)	list = 0;
+		}
+
+		/* Browse sub-list list */
+		else
+		{
+			/* Move up or down */
+			list += ddy[d] * BROWSER_ROWS;
+
+			/* Verify */
+			if (list < 0) list = 0;
+			if (list >= list_cnt) list = list_cnt - 1;
+		}
+
+		(*grp_cur) = grp;
+		(*list_cur) = list;
+
+		return;
+	}
+
 	if (ddx[d])
 	{
 		col += ddx[d];
@@ -919,9 +956,6 @@ static void do_cmd_knowledge_artifacts(void)
 	bool flag;
 	bool redraw;
 
-	char find_ch = '\0', find_name[80] = "";
-	int find_mode = 0;
-
 	/* Allocate the "object_idx" array */
 	C_MAKE(object_idx, z_info->a_max, int);
 
@@ -935,10 +969,7 @@ static void do_cmd_knowledge_artifacts(void)
 		len = strlen(object_group_text[i]);
 
 		/* Save the maximum length */
-		if (len > max)
-		{
-			max = len;
-		}
+		if (len > max) max = len;
 
 		/* See if any monsters are known */
 		if (collect_artifacts(i, object_idx))
@@ -976,7 +1007,7 @@ static void do_cmd_knowledge_artifacts(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < 16; i++)
+			for (i = 0; i < BROWSER_ROWS; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -986,20 +1017,20 @@ static void do_cmd_knowledge_artifacts(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + 16) grp_top = grp_cur - 15;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
 
 		/* Scroll monster list */
 		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + 16) object_top = object_cur - 15;
+		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of object groups */
-		display_group_list(0, 6, max, 16, grp_idx, object_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
 		object_cnt = collect_artifacts(grp_idx[grp_cur], object_idx);
 
 		/* Display a list of objects in the current group */
-		display_artifact_list(max + 3, 6, 16, object_idx, object_cur, object_top);
+		display_artifact_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
 		prt("<dir>, 'r' to recall, ESC", 23, 0);
@@ -1059,46 +1090,34 @@ static void do_cmd_knowledge_artifacts(void)
 /*
  * Display the monsters in a group.
  */
-static void display_monster_list(int col, int row, int per_page, int mon_idx[],
+static void display_monster_list(int col, int row, int per_page, monster_list_entry *mon_idx,
 	int mon_cur, int mon_top)
 {
-	int i, j;
-	bool unique = FALSE;
+	int i;
 
 	/* Display lines until done */
-	for (i = 0; i < per_page && mon_idx[i]; i++)
+	for (i = 0; i < per_page && mon_idx[i].r_idx; i++)
 	{
 		byte attr;
 
 		/* Get the race index */
-		int r_idx = mon_idx[mon_top + i];
+		int r_idx = mon_idx[mon_top + i].r_idx;
+		int u_idx = mon_idx[mon_top + i].u_idx;
 
 		/* Access the race */
-		monster_race *r_ptr = &r_info[r_idx];
-		monster_lore *l_ptr = &l_list[r_idx];
-		monster_unique *u_ptr;
-
-		unique = ((r_ptr->flags1 & RF1_UNIQUE) ? TRUE : FALSE);
-
-		if (unique)
-		{
-			for (j = 0; j < z_info->u_max; j++)
-			{
-				u_ptr = &u_info[j];
-
-				if (u_ptr->r_idx == r_idx) break;
-			}
-		}
+		monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
+		monster_lore *lr_ptr = &lr_list[r_idx];
+		monster_unique *u_ptr = &u_info[u_idx];
 
 		/* Choose a color */
 		attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
 
 		/* Display the name */
-		c_prt(attr, r_name + r_ptr->name, row + i, col);
+		c_prt(attr, monster_name_idx(r_idx, u_idx), row + i, col);
 
 		if (cheat_wizard) 
 		{
-			if (unique) c_prt(attr, format ("%d/%d", j, r_idx), row + i, 60);
+			if (u_idx) c_prt(attr, format ("%d/%d", r_idx, u_idx), row + i, 60);
 			else c_prt(attr, format ("%d", r_idx), row + i, 60);
 		}
 
@@ -1106,10 +1125,10 @@ static void display_monster_list(int col, int row, int per_page, int mon_idx[],
 		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
 
 		/* Display kills */
-		if (!unique)
-			put_str(format("%5d", l_ptr->r_pkills), row + i, 73);
+		if (!u_idx)
+			put_str(format("%5d", lr_ptr->r_pkills), row + i, 73);
 		else
-			put_str(format("%s", (l_ptr->r_pkills) ? "dead" : "alive"), row + i, 73);
+			put_str(format("%s", (u_ptr->dead) ? "dead" : "alive"), row + i, 73);
 	
 	}
 
@@ -1127,20 +1146,17 @@ static void do_cmd_knowledge_monsters(void)
 {
 	int i, len, max;
 	int grp_cur, grp_top;
-	int mon_old, mon_cur, mon_top;
+	int mon_cur, mon_top;
 	int grp_cnt, grp_idx[100];
 	int mon_cnt;
-	int *mon_idx;
-
+	monster_list_entry *mon_idx;
+	
 	int column = 0;
 	bool flag;
 	bool redraw;
 
-	char find_ch = '\0', find_name[80] = "";
-	int find_mode = 0;
-
 	/* Allocate the "mon_idx" array */
-	C_MAKE(mon_idx, z_info->r_max, int);
+	C_MAKE(mon_idx, M_LIST_ITEMS, monster_list_entry);
 
 	max = 0;
 	grp_cnt = 0;
@@ -1152,10 +1168,7 @@ static void do_cmd_knowledge_monsters(void)
 		len = strlen(monster_group_text[i]);
 
 		/* Save the maximum length */
-		if (len > max)
-		{
-			max = len;
-		}
+		if (len > max) max = len;
 
 		/* See if any monsters are known */
 		if ((monster_group_char[i] == ((char *) -1L)) || collect_monsters(i, mon_idx, 0x01))
@@ -1170,7 +1183,6 @@ static void do_cmd_knowledge_monsters(void)
 
 	grp_cur = grp_top = 0;
 	mon_cur = mon_top = 0;
-	mon_old = -1;
 
 	flag = FALSE;
 	redraw = TRUE;
@@ -1194,7 +1206,7 @@ static void do_cmd_knowledge_monsters(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < 16; i++)
+			for (i = 0; i < BROWSER_ROWS; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -1204,36 +1216,29 @@ static void do_cmd_knowledge_monsters(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + 16) grp_top = grp_cur - 15;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
 
 		/* Scroll monster list */
 		if (mon_cur < mon_top) mon_top = mon_cur;
-		if (mon_cur >= mon_top + 16) mon_top = mon_cur - 15;
+		if (mon_cur >= mon_top + BROWSER_ROWS) mon_top = mon_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of monster groups */
-		display_group_list(0, 6, max, 16, grp_idx, monster_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, monster_group_text, grp_cur, grp_top);
 
 		/* Get a list of monsters in the current group */
 		mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
 
 		/* Display a list of monsters in the current group */
-		display_monster_list(max + 3, 6, 16, mon_idx, mon_cur, mon_top);
+		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top);
 
 		/* Prompt */
 		prt("<dir>, 'r' to recall, ESC", 23, 0);
 
-		/* The "current" monster changed */
-		if (mon_old != mon_idx[mon_cur])
-		{
-			/* Hack -- track this monster race */
-			monster_race_track(mon_idx[mon_cur]);
+		/* Mega Hack -- track this monster race */
+		monster_track(mon_idx[mon_cur].r_idx, mon_idx[mon_cur].u_idx);
 
-			/* Hack -- handle stuff */
-			handle_stuff();
-
-			/* Remember the "current" monster */
-			mon_old = mon_idx[mon_cur];
-		}
+		/* Hack -- handle stuff */
+		handle_stuff();
 
 		if (!column)
 		{
@@ -1258,11 +1263,14 @@ static void do_cmd_knowledge_monsters(void)
 			case 'r':
 			{
 				/* Recall on screen */
-				screen_roff(mon_idx[mon_cur]);
+				if (mon_idx[mon_cur].r_idx)
+				{
+					screen_roff(mon_idx[mon_cur].r_idx, mon_idx[mon_cur].u_idx);
 
-				(void) inkey();
-
-				redraw = TRUE;
+					(void) inkey();
+	
+					redraw = TRUE;
+				}
 				break;
 			}
 
@@ -1277,7 +1285,7 @@ static void do_cmd_knowledge_monsters(void)
 	}
 
 	/* XXX XXX Free the "mon_idx" array */
-	C_KILL(mon_idx, z_info->r_max, int);
+	C_KILL(mon_idx, M_LIST_ITEMS, monster_list_entry);
 }
 
 /*
@@ -1340,9 +1348,6 @@ static void do_cmd_knowledge_objects(void)
 	bool flag;
 	bool redraw;
 
-	char find_ch = '\0', find_name[80] = "";
-	int find_mode = 0;
-
 	/* Allocate the "object_idx" array */
 	C_MAKE(object_idx, z_info->k_max, int);
 
@@ -1356,10 +1361,7 @@ static void do_cmd_knowledge_objects(void)
 		len = strlen(object_group_text[i]);
 
 		/* Save the maximum length */
-		if (len > max)
-		{
-			max = len;
-		}
+		if (len > max) max = len;
 
 		/* See if any monsters are known */
 		if (collect_objects(i, object_idx))
@@ -1398,7 +1400,7 @@ static void do_cmd_knowledge_objects(void)
 				Term_putch(i, 5, TERM_WHITE, '=');
 			}
 
-			for (i = 0; i < 16; i++)
+			for (i = 0; i < BROWSER_ROWS; i++)
 			{
 				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
 			}
@@ -1408,20 +1410,20 @@ static void do_cmd_knowledge_objects(void)
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + 16) grp_top = grp_cur - 15;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
 
 		/* Scroll monster list */
 		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + 16) object_top = object_cur - 15;
+		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
 
 		/* Display a list of object groups */
-		display_group_list(0, 6, max, 16, grp_idx, object_group_text, grp_cur, grp_top);
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
 		object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
 
 		/* Display a list of objects in the current group */
-		display_object_list(max + 3, 6, 16, object_idx, object_cur, object_top);
+		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
 
 		/* Prompt */
 		prt("<dir>, ESC", 23, 0);
@@ -1522,7 +1524,7 @@ void do_cmd_knowledge(void)
 	screen_save();
 
 	/* Interact until done */
-	while (1)
+	while (TRUE)
 	{
 		/* Clear screen */
 		Term_clear();
@@ -1715,7 +1717,7 @@ void do_cmd_query_symbol(void)
 	bool recall = FALSE;
 
 	u16b why = 0;
-	u16b *who;
+	monster_list_entry *who;
 
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified: ", &sym)) return;
@@ -1755,32 +1757,32 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
 
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+		monster_lore *lr_ptr = &lr_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !l_ptr->r_sights) continue;
+		if (!cheat_know && !lr_ptr->r_sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
 		/* Require unique monsters if needed */
-		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		if (uniq && !(r_ptr->max_unique)) continue;
 
 		/* Collect "appropriate" monsters */
-		if (all || (r_ptr->d_char == sym)) who[n++] = i;
+		if (all || (r_ptr->d_char == sym)) who[n++].r_idx = i;
 	}
 
 	/* Nothing to recall */
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		C_FREE(who, z_info->r_max, u16b);
+		C_FREE(who, M_LIST_ITEMS, monster_list_entry);
 
 		return;
 	}
@@ -1812,7 +1814,7 @@ void do_cmd_query_symbol(void)
 	if (query != 'y')
 	{
 		/* XXX XXX Free the "who" array */
-		C_FREE(who, z_info->r_max, u16b);
+		C_FREE(who, M_LIST_ITEMS, monster_list_entry);
 
 		return;
 	}
@@ -1821,36 +1823,39 @@ void do_cmd_query_symbol(void)
 	if (why)
 	{
 		/* Select the sort method */
-		ang_sort_comp = ang_sort_comp_hook;
-		ang_sort_swap = ang_sort_swap_hook;
+		ang_sort_comp = ang_mon_sort_comp_hook;
+		ang_sort_swap = ang_mon_sort_swap_hook;
 
 		/* Sort the array */
 		ang_sort(who, &why, n);
 	}
 
+	/* "Saturate" the monster list with all the appropriate uniques */
+	saturate_mon_list(who, &n, (bool)!uniq);
+
 	/* Start at the end */
 	i = n - 1;
 
 	/* Scan the monster memory */
-	while (1)
+	while (TRUE)
 	{
 		/* Extract a race */
-		r_idx = who[i];
+		r_idx = who[i].r_idx;
 
 		/* Hack -- Auto-recall */
-		monster_race_track(r_idx);
+		monster_track(who[i].r_idx, who[i].u_idx);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();
 
 		/* Hack -- Begin the prompt */
-		roff_top(r_idx, FALSE);
+		roff_top(r_idx, who[i].u_idx);
 
 		/* Hack -- Complete the prompt */
 		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
 
 		/* Interact */
-		while (1)
+		while (TRUE)
 		{
 			/* Recall */
 			if (recall)
@@ -1859,7 +1864,7 @@ void do_cmd_query_symbol(void)
 				screen_save();
 
 				/* Recall on screen */
-				screen_roff(who[i]);
+				screen_roff(who[i].r_idx, who[i].u_idx);
 
 				/* Hack -- Complete the prompt (again) */
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
@@ -1910,5 +1915,5 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 	/* Free the "who" array */
-	C_FREE(who, z_info->r_max, u16b);
+	C_FREE(who, M_LIST_ITEMS, monster_list_entry);
 }

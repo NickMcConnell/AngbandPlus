@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.3.0
+V:0.3.1
 
 # Maximum number of feature types
 M:F:80
@@ -32,19 +32,19 @@ M:C:8
 M:E:128
 
 # Maximum number of monster races
-M:R:667
+M:R:668
 
 # Maximum number of monster uniques
 M:U:108
 
 # Maximum number of vaults
-M:V:33
+M:V:35
 
 # Maximum number of player races
-M:P:13
+M:P:15
 
 # Maximum number of player history lines
-M:H:142
+M:H:200
 
 # Maximum number of owners per store
 M:B:5

@@ -68,6 +68,7 @@ typedef struct monster_blow monster_blow;
 typedef struct monster_unique monster_unique;
 typedef struct monster_race monster_race;
 typedef struct monster_lore monster_lore;
+typedef struct monster_list_entry monster_list_entry;
 typedef struct vault_type vault_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
@@ -148,8 +149,6 @@ struct feature_type
 
 /*
  * Information about object "kinds", including player knowledge.
- *
- * Only "aware" and "tried" are saved in the savefile
  */
 struct object_kind
 {
@@ -397,11 +396,15 @@ struct monster_race
 	byte x_attr;			/* Desired monster attribute */
 	char x_char;			/* Desired monster character */
 
+	/* Special */
+
+	byte max_unique;		/* How many uniques exist for this monster */
+
 	/* Calculated fields */
 
 	byte cur_num;			/* Monster population on current level */
 
-	byte num_unique;		/* How many uniques exist for this monster */
+	byte cur_unique;		/* How many uniques remain for this monster */
 
 	byte total_visible;     /* Amount of this race that are visible */
 };
@@ -429,8 +432,7 @@ struct monster_lore
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
 
-	byte r_cast_inate;		/* Max number of inate spells seen */
-	byte r_cast_spell;		/* Max number of other spells seen */
+	byte r_cast;			/* Max number of spells seen */
 
 	byte r_blows[4];		/* Number of times each blow type was seen */
 
@@ -440,6 +442,15 @@ struct monster_lore
 	u32b r_flags4;			/* Observed racial flags */
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
+};
+
+/*
+ * Structure for building monster "lists"
+ */
+struct monster_list_entry
+{
+	s16b r_idx;			/* Monster race index */
+	s16b u_idx;			/* Unique index (for uniques) */
 };
 
 /*
@@ -574,6 +585,8 @@ struct monster_type
 	s16b hold_o_idx;	/* Object being held (if any) */
 
 	u32b smart;			/* Field for "smart_learn" */
+
+	byte attr;			/* Monster's attribute */
 };
 
 /*
@@ -622,9 +635,7 @@ struct quest_type
 struct owner_type
 {
 	u32b owner_name;	/* Name (offset) */
-
 	s16b max_cost;		/* Purse limit */
-
 	byte owner_race;	/* Owner race */
 
 #ifdef ALLOW_HAGGLE
@@ -944,6 +955,7 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+	s16b oppose_disease; /* Timed -- oppose disease */
 	
 	s16b tim_res_lite;		/* Timed -- resist light */
 	s16b tim_res_dark;		/* Timed -- resist darkness */
@@ -953,7 +965,6 @@ struct player_type
 	s16b tim_res_nexus;		/* Timed -- resist nexus */
 	s16b tim_res_nethr;		/* Timed -- resist nether */
 	s16b tim_res_chaos;		/* Timed -- resist chaos */
-	s16b tim_res_disease;	/* Timed -- resist disease */
 	s16b tim_res_water;		/* Timed -- resist water */
 
 	s16b racial_power;	/* Timed -- Racial power recharge */
@@ -964,7 +975,6 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 
-	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
 	u16b spell_learned[SV_BOOK_MAX];	/* Spell flags */
@@ -1012,7 +1022,8 @@ struct player_type
 
 	s16b health_who;		/* Health bar trackee */
 
-	s16b monster_race_idx;	/* Monster race trackee */
+	s16b monster_race_idx;		/* Monster race trackee */
+	s16b monster_unique_idx;	/* Monster unique trackee */
 
 	s16b object_kind_idx;	/* Object kind trackee */
 	s16b object_pval;		/* Object pval trackee */
@@ -1128,6 +1139,7 @@ struct player_type
 	bool telepathy;		/* Telepathy */
 	bool invis;			/* Invisible */
 	bool see_inv;		/* See invisible */
+	bool luck;			/* Luck */
 
 	bool disrupt;		/* Disrupt spells */
 	bool aggravate;		/* Aggravate monsters */

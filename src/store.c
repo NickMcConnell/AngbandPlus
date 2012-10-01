@@ -342,7 +342,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-	if (adult_easy_mode) factor = factor / 2;
+	if (adult_easy_mode) factor = (factor * 4) / 5; 
 
 	/* Shop is buying */
 	if (flip)
@@ -1123,7 +1123,7 @@ static void store_delete(void)
  */
 static void store_create(void)
 {
-	int k_idx, tries, level;
+	int k_idx, tries, level, temp;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -1138,11 +1138,15 @@ static void store_create(void)
 		if (store_num == STORE_B_MARKET) 
 		{
 			/* Pick a level for object/magic */
-			level = ((p_ptr->max_depth<95) ? p_ptr->max_depth + rand_int(10) : 95 + rand_int(10));
+			if (rand_int(100) < STORE_BM_OLDDEPTH) level = 25 + rand_int(25);
+			else level = p_ptr->max_depth + 5 + rand_int(5);
+	
+			/* Not too deep */
+			if (level > 100) level = 100;
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
-
+		
 			/* Handle failure */
 			if (!k_idx) continue;
 		}
@@ -1163,8 +1167,15 @@ static void store_create(void)
 		/* Create a new object of the chosen kind */
 		object_prep(i_ptr, k_idx);
 
+		/* Store object creation level */
+		temp = p_ptr->obj_depth;
+		p_ptr->obj_depth = level;
+
 		/* Apply some "low-level" magic (no artifacts) */
 		apply_magic(i_ptr, level, FALSE, FALSE, FALSE, TRUE);
+
+		/* Restore object creation level */
+		p_ptr->obj_depth = temp;
 
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
@@ -1173,8 +1184,9 @@ static void store_create(void)
 			if (i_ptr->sval >= SV_LANTERN) i_ptr->timeout = FUEL_LAMP / 2;
 		}
 
-		/* The object is "known" */
+		/* The object is fully "known" */
 		object_known(i_ptr);
+		i_ptr->ident |= (IDENT_MENTAL);
 
 		/* Mega-Hack -- no chests in stores */
 		if (i_ptr->tval == TV_CHEST) continue;
@@ -1186,10 +1198,8 @@ static void store_create(void)
 			if (black_market_crap(i_ptr)) continue;
 
 			/* Hack -- No "cheap" items */
-			if (object_value(i_ptr) < 10) continue;
+			if (object_value(i_ptr) < 25) continue;
 
-			/* No "worthless" items */
-			/* if (object_value(i_ptr) <= 0) continue; */
 		}
 
 		/* Prune normal stores */
@@ -1362,6 +1372,9 @@ static void display_entry(int item)
 			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
 			put_str(out_val, y, 61);
 		}
+
+		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
+		k_info[o_ptr->k_idx].everseen = TRUE;
 
 #ifdef ALLOW_HAGGLE
 
@@ -2158,7 +2171,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	/* Haggle */
 	for (flag = FALSE; !flag; )
 	{
-		while (1)
+		while (TRUE)
 		{
 			loop_flag = TRUE;
 
@@ -3491,7 +3504,7 @@ void store_shuffle(int which)
 	int i, j;
 
 	/* Ignore home */
-	if (which == STORE_HOME) return;
+	if ((which == STORE_HOME) || (which == STORE_GUILD)) return;
 
 	/* Save the store index */
 	store_num = which;
@@ -3507,7 +3520,6 @@ void store_shuffle(int which)
 
 	/* Activate the new owner */
 	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
 
 #ifdef ALLOW_HAGGLE
 

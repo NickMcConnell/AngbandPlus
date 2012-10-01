@@ -146,6 +146,19 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
                to them and magical weapons and armor that they weild will 
                quickly lose its power.
 
+          Rattikin
+               The rattikin are a race of humanoid rats who live in the 
+               outskirts of human society. They are very dexterous, and totally
+               immune to disease. They make good warriors and rangers, and 
+               decent mages and spellswords.
+
+          Felpurr
+               The felpurr are a noble race of humanoid felines. They are 
+               dexterous and smart, and can play all classes well. They have an
+               innate luck, and will often find useful stuff in their adventures
+               in the dungeon.
+
+
  === Recommended combinations of Race and Class ===
 
           Warrior  Mage  Priest  Ranger  Paladin  Mystic  Bard  Spellsword
@@ -162,6 +175,8 @@ can otherwise acheive in this stat. Most races also have intrinsic abilities.
  Angel      Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
  Demon      Yes     Yes    No      Yes     No       No     No      Yes
  Nilbog     Yes     No     No      No      No       No     No      No
+ Rattikin   Yes     Yes    No      Yes     No       No     No      Yes
+ Felpurr    Yes     Yes    Yes     Yes     Yes      Yes    Yes     Yes
 
 === Stat Bonus Tables ===
 
@@ -183,8 +198,10 @@ are listed in the following table.
            Angel        *    *    *    *    *    *       9         +90%
            Demon        *    *    *    *    *    *      10        +120%
            Nilbog      +2   +1   +1   +3   +3    0      10         +20%
+           Rattikin    -2   +2   -1   +4   -1   -4       7         +10%
+           Felpurr     -1   +2    0   +2   -2    0       8         +20%
 
-		*see below           
+           *see below           
 
 === Angel Progression chart ===
 

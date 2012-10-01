@@ -49,10 +49,15 @@ These are options that influence the difficulty of the game. Changing any of
 these can result in a considerably different playing experience.
 
 ***** <birth_easy_mode>
-Easy mode    [birth_esay_mode]
+Easy mode    [birth_easy_mode]
     If you wish to have an easier job, select this option and you shall face
     monsters with less hitpoints. In addition, you will get better prices at 
-    shops and get an extra 500 GP at the start of the game.
+    shops and get an extra 500 GP at the start of the game. You will also get
+    easier quests, and other bonuses.
+
+***** <birth_nightmare_mode>
+Nightmare mode    [birth_nightmare_mode]
+    Not for the feint of heart, this makes you game harder in many ways.
 
 ***** <birth_autoscum>
 Generate better (harder) levels    [birth_autoscum]

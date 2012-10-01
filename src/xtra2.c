@@ -155,46 +155,6 @@ void check_experience(void)
 }
 
 /*
- * Hack -- Return the "automatic coin type" of a monster race
- * Used to allocate proper treasure when "Creeping coins" die
- *
- * Note the use of actual "monster names".  XXX XXX XXX
- */
-static int get_coin_type(int m_idx)
-{
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-
-	cptr name = (r_name + r_ptr->name);
-
-	/* Hack - don't restrict coin types for uniques */
-	if (m_ptr->u_idx) return (0);
-	
-	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
-	{
-		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (2);
-		if (strstr(name, " silver ")) return (5);
-		if (strstr(name, " gold ")) return (10);
-		if (strstr(name, " mithril ")) return (16);
-		if (strstr(name, " adamantite ")) return (17);
-		if (strstr(name, " gems")) return (11+rand_int(5));
-
-		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (2);
-		if (strstr(name, "Silver ")) return (5);
-		if (strstr(name, "Gold ")) return (10);
-		if (strstr(name, "Mithril ")) return (16);
-		if (strstr(name, "Adamantite ")) return (17);
-		if (strstr(name, "Gems")) return (11+rand_int(5));
-	}
-
-	/* Assume nothing */
-	return (0);
-}
-
-/*
  * Create magical stairs after finishing a quest monster.
  */
 static void build_quest_stairs(int y, int x)
@@ -207,7 +167,7 @@ static void build_quest_stairs(int y, int x)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&ny, &nx, y, x, d, 0);
+		scatter(&ny, &nx, y, x, d);
 
 		/* Stagger */
 		y = ny; x = nx;
@@ -261,7 +221,7 @@ void monster_death(int m_idx)
 
 	monster_type *m_ptr = &m_list[m_idx];
 
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
 
@@ -353,9 +313,6 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
-	/* Hack -- handle creeping coins */
-	coin_type = get_coin_type(m_idx);
-
 	/* Average dungeon and monster levels */
 	p_ptr->obj_depth  = (p_ptr->depth + r_ptr->level) / 2;
 
@@ -368,11 +325,26 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
+		/* Hack - drop "mimic" items */
+		if (r_ptr->flags1 & (RF1_DROP_MIMIC))
+		{
+ 			if (!make_mimic(i_ptr, m_ptr->attr, r_ptr->d_char)) continue;
+
+			/* Assume seen XXX XXX XXX */
+			lore_learn(m_ptr, LRN_FLAG1, RF1_DROP_MIMIC, FALSE);
+
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, -1, y, x);
+
+			/* Don't drop other stuff */
+			continue;
+		}
+
 		/* Make Gold */
 		if (do_gold && (!do_item || (rand_int(100) < 50)))
 		{
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			if (!make_gold(i_ptr, 0)) continue;
 
 			/* Assume seen XXX XXX XXX */
 			dump_gold++;
@@ -393,10 +365,7 @@ void monster_death(int m_idx)
 	}
 
 	/* Reset the object level */
-	p_ptr->obj_depth  = p_ptr->depth;
-
-	/* Reset "coin" type */
-	coin_type = 0;
+	p_ptr->obj_depth = p_ptr->depth;
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -509,10 +478,9 @@ void monster_death(int m_idx)
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
-	s32b div, new_exp, new_exp_frac;
+	u32b new_exp, new_exp_frac;
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -551,7 +519,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		         (r_ptr->flags2 & (RF2_UNDEAD)) ||
 				 (r_ptr->flags2 & (RF2_PLANT)) ||
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg$", r_ptr->d_char)))
+		         (strchr("Evg$|!?~=", r_ptr->d_char)))
 		{
 			message_format(MSG_KILL, TRUE, "You have destroyed %s.", m_name);
 		}
@@ -562,19 +530,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			message_format(MSG_KILL, TRUE, "You have slain %s.", m_name);
 		}
 
-		/* Maximum player level */
-		div = p_ptr->max_lev;
-
-		/* Hack - Angels get less exp for non-evil non-uniques */
-		if  (!(r_ptr->flags1 & (RF1_UNIQUE)) && 
-			(rp_ptr->special==RACE_SPECIAL_ANGEL) && !(r_ptr->flags2 & (RF2_EVIL))) div *=2;
+		/* Calculate experience */
+		mon_exp(r_ptr, &new_exp, &new_exp_frac);
 		
-		/* Give some experience for the kill */
-		new_exp = (long)r_ptr->mexp / div;
-
 		/* Handle fractional experience */
-		new_exp_frac = (((long)r_ptr->mexp % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
+		new_exp_frac = ((new_exp_frac * 0x10000L) / 1000L) + p_ptr->exp_frac;
 
 		/* Keep track of experience */
 		if (new_exp_frac >= 0x10000L)
@@ -600,13 +560,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (l_ptr->r_pkills < MAX_SHORT) l_ptr->r_pkills++;
-
-			/* Count kills in all lives */
-			if (l_ptr->r_tkills < MAX_SHORT) l_ptr->r_tkills++;
+			lore_learn(m_ptr, LRN_MDEATH, 0, TRUE);
 
 			/* Hack -- Auto-recall */
-			monster_race_track(m_ptr->r_idx);
+			monster_track(m_ptr->r_idx, m_ptr->u_idx);
 		}
 
 		/* Delete the monster */
@@ -810,7 +767,7 @@ void verify_panel(void)
 static void look_mon_desc(char *buf, int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	bool living = TRUE;
 	int perc;
@@ -819,7 +776,7 @@ static void look_mon_desc(char *buf, int m_idx)
 	if (r_ptr->flags2 & (RF2_UNDEAD)) living = FALSE;
 	if (r_ptr->flags2 & (RF2_DEMON)) living = FALSE;
 	if (r_ptr->flags2 & (RF2_PLANT)) living = FALSE;
-	if (strchr("Egv$|=$?!~", r_ptr->d_char)) living = FALSE;
+	if (strchr("Evg$|!?~=", r_ptr->d_char)) living = FALSE;
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
@@ -911,14 +868,14 @@ static void ang_sort_aux(vptr u, vptr v, int p, int q)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
-	u16b *who = (u16b*)(u);
+	monster_list_entry *who = (monster_list_entry*)(u);
 
 	u16b *why = (u16b*)(v);
 
-	int w1 = who[a];
-	int w2 = who[b];
+	int r1 = who[a].r_idx;
+	int r2 = who[b].r_idx;
 
 	int z1, z2;
 
@@ -926,8 +883,8 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 4)
 	{
 		/* Extract player kills */
-		z1 = l_list[w1].r_pkills;
-		z2 = l_list[w2].r_pkills;
+		z1 = lr_list[r1].r_pkills;
+		z2 = lr_list[r2].r_pkills;
 
 		/* Compare player kills */
 		if (z1 < z2) return (TRUE);
@@ -938,8 +895,8 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 3)
 	{
 		/* Extract total kills */
-		z1 = l_list[w1].r_tkills;
-		z2 = l_list[w2].r_tkills;
+		z1 = lr_list[r1].r_tkills;
+		z2 = lr_list[r2].r_tkills;
 
 		/* Compare total kills */
 		if (z1 < z2) return (TRUE);
@@ -950,8 +907,8 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 2)
 	{
 		/* Extract levels */
-		z1 = r_info[w1].level;
-		z2 = r_info[w2].level;
+		z1 = r_info[r1].level;
+		z2 = r_info[r2].level;
 
 		/* Compare levels */
 		if (z1 < z2) return (TRUE);
@@ -962,8 +919,8 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 1)
 	{
 		/* Extract experience */
-		z1 = r_info[w1].mexp;
-		z2 = r_info[w2].mexp;
+		z1 = r_info[r1].mexp;
+		z2 = r_info[r2].mexp;
 
 		/* Compare experience */
 		if (z1 < z2) return (TRUE);
@@ -971,7 +928,7 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	}
 
 	/* Compare indexes */
-	return (w1 <= w2);
+	return (r1 <= r2);
 }
 
 /*
@@ -980,11 +937,11 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_mon_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
-	u16b *who = (u16b*)(u);
+	monster_list_entry *who = (monster_list_entry*)(u);
 
-	u16b holder;
+	monster_list_entry holder;
 
 	/* Swap */
 	holder = who[a];
@@ -1004,6 +961,76 @@ void ang_sort(vptr u, vptr v, int n)
 {
 	/* Sort the array */
 	ang_sort_aux(u, v, 0, n-1);
+}
+
+/* 
+ * Code for inserting the uniques into the appropriate locations in a monster list
+ */
+void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base)
+{
+	int i, j;
+	int counter = 0;
+	monster_list_entry *temp_list;
+
+	C_MAKE(temp_list, M_LIST_ITEMS, monster_list_entry);
+
+	for (i = 0;i < *count; i++)
+	{
+		monster_race *r_ptr = &r_info[who[i].r_idx];
+
+		if (!who[i].r_idx) continue;
+
+		/* Found a unique */
+		if (r_ptr->max_unique)
+		{
+			int found = 0;
+
+			/* Real base monster */
+			if (!(r_ptr->flags1 & RF1_UNIQUE) && allow_base)
+			{
+				temp_list[counter].r_idx = who[i].r_idx;
+				temp_list[counter].u_idx = 0;
+	
+				counter++;
+			}
+
+			for (j = 1;j < z_info->u_max; j++)
+			{
+				monster_unique *u_ptr = &u_info[j];
+
+				if (u_ptr->r_idx == who[i].r_idx)
+				{
+					temp_list[counter].u_idx = j;
+					temp_list[counter].r_idx = who[i].r_idx;
+	
+					counter++;
+					found++;
+				}
+
+				/* Efficiency */
+				if (found == r_ptr->max_unique) break;
+			}	
+		}
+		/* Didn't find a unique */
+		else
+		{
+			temp_list[counter].r_idx = who[i].r_idx;
+			temp_list[counter].u_idx = 0;
+
+			counter++;
+		}
+	}
+
+	/* Copy the new list into the old one */
+	for (i = 0; i < z_info->r_max + z_info->u_max; i++)
+	{
+		who[i].r_idx = temp_list[i].r_idx;
+		who[i].u_idx = temp_list[i].u_idx;
+	}
+
+	(*count) = counter;
+
+	C_FREE(temp_list, M_LIST_ITEMS, monster_list_entry);
 }
 
 /*** Targetting Code ***/
@@ -1476,7 +1503,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 	char out_val[256];
 
 	/* Repeat forever */
-	while (1)
+	while (TRUE)
 	{
 		/* Paranoia */
 		query = ' ';
@@ -1524,7 +1551,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = get_monster_full(m_ptr);
+			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			/* Visible */
 			if (m_ptr->ml)
@@ -1540,7 +1567,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				monster_desc(m_name, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
-				monster_race_track(m_ptr->r_idx);
+				monster_track(m_ptr->r_idx, m_ptr->u_idx);
 
 				/* Hack -- health bar for this monster */
 				health_track(cave_m_idx[y][x]);
@@ -1558,7 +1585,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						screen_save();
 
 						/* Recall on screen */
-						screen_roff(m_ptr->r_idx);
+						screen_roff(m_ptr->r_idx, m_ptr->u_idx);
 
 						/* Hack -- Complete the prompt (again) */
 						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
@@ -1685,7 +1712,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				floored = TRUE;
 
 				/* Describe */
-				while (1)
+				while (TRUE)
 				{
 					/* Describe the pile */
 					if (cheat_wizard)

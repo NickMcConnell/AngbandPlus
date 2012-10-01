@@ -334,7 +334,7 @@ typedef struct tval_desc
 /*
  * A list of tvals and their textual names
  */
-static tval_desc tvals[] =
+static tval_desc tvals[31] =
 {
 	{ TV_SWORD,			"Sword"				},
 	{ TV_POLEARM,		"Polearm"			},
@@ -1210,7 +1210,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, d);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;

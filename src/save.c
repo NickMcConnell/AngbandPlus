@@ -164,6 +164,7 @@ static void wr_monster(monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
 	wr_s16b(m_ptr->u_idx);
+	wr_byte(m_ptr->attr);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
@@ -185,10 +186,9 @@ static void wr_monster(monster_type *m_ptr)
 /*
  * Write a "lore" record
  */
-static void wr_lore(int r_idx)
+static void wr_lore(bool unique, int idx)
 {
-	monster_lore *l_ptr = &l_list[r_idx];
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = (unique ? &lu_list[idx] : &lr_list[idx]);
 
 	u16b save_flags = 0;
 
@@ -197,8 +197,8 @@ static void wr_lore(int r_idx)
 	if (l_ptr->r_deaths)		save_flags |= 0x0002;
 	if (l_ptr->r_pkills)		save_flags |= 0x0004;
 	if (l_ptr->r_tkills)		save_flags |= 0x0008;
-	if (l_ptr->r_cast_inate)	save_flags |= 0x0010;
-	if (l_ptr->r_cast_spell)	save_flags |= 0x0020;
+	if (l_ptr->r_wake)			save_flags |= 0x0010;
+	if (l_ptr->r_cast)			save_flags |= 0x0020;
 	if (l_ptr->r_blows[0])		save_flags |= 0x0040;
 	if (l_ptr->r_blows[1])		save_flags |= 0x0080;
 	if (l_ptr->r_blows[2])		save_flags |= 0x0100;
@@ -219,7 +219,7 @@ static void wr_lore(int r_idx)
 	if (l_ptr->r_tkills) wr_s16b(l_ptr->r_tkills);
 
 	/* Count wakes and ignores */
-	wr_byte(l_ptr->r_wake);
+	if (l_ptr->r_wake) wr_byte(l_ptr->r_wake);
 	wr_byte(l_ptr->r_ignore);
 
 	/* Count drops */
@@ -227,8 +227,7 @@ static void wr_lore(int r_idx)
 	wr_byte(l_ptr->r_drop_item);
 
 	/* Count spells */
-	if (l_ptr->r_cast_inate) wr_byte(l_ptr->r_cast_inate);
-	if (l_ptr->r_cast_spell) wr_byte(l_ptr->r_cast_spell);
+	if (l_ptr->r_cast) wr_byte(l_ptr->r_cast);
 
 	/* Count blows of each type */
 	if (l_ptr->r_blows[0]) wr_byte(l_ptr->r_blows[0]);
@@ -244,7 +243,7 @@ static void wr_lore(int r_idx)
 	if (l_ptr->r_flags5) wr_u32b(l_ptr->r_flags5);
 	if (l_ptr->r_flags6) wr_u32b(l_ptr->r_flags6);
 
-	wr_byte (r_ptr->num_unique);
+	if (!unique) wr_byte(r_info[idx].cur_unique);
 }
 
 /*
@@ -485,6 +484,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->oppose_disease);
 	wr_s16b(p_ptr->tim_res_lite);
 	wr_s16b(p_ptr->tim_res_dark);
 	wr_s16b(p_ptr->tim_res_confu);
@@ -493,11 +493,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_res_nexus);
 	wr_s16b(p_ptr->tim_res_nethr);
 	wr_s16b(p_ptr->tim_res_chaos);
-	wr_s16b(p_ptr->tim_res_disease);
 	wr_s16b(p_ptr->tim_res_water);
 	wr_s16b(p_ptr->racial_power);
 
-	wr_byte(p_ptr->confusing);
 	wr_byte(p_ptr->searching);
 
 	/* Squelch bytes */
@@ -791,12 +789,13 @@ static bool wr_savefile_new(void)
 		wr_byte(tmp8u);
 
 		if (u_ptr->dead) wr_s16b(u_ptr->depth);
+		wr_lore(TRUE, i);
 	}
 
 	/* Dump the monster lore */
 	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
+	for (i = 0; i < tmp16u; i++) wr_lore(FALSE, i);
 
 	/* Dump the object memory */
 	tmp16u = z_info->k_max;

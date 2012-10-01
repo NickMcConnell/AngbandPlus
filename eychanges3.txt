@@ -1,3 +1,195 @@
+Changes from 0.3.0 to 0.3.1:
+
+## Gamplay Changes ##
+
+- 0.3.0 or older savefiles not compatible.
+
+- Breaks graphic support. Graphics can still be turned on, BUT the .prf files are totally out of
+  sync with the actual monster/item lists. Will be repaired in a future version.
+
+# Races/Classes #
+
+- Two new races - rattikin, who have very high dex and good int but low str and charisma, and 
+  are innately resistant to disease, and Felpurr, a feline race with decent stats and innate 
+  luck. Both were inspired by the game Wizardry 7.
+
+- New class flag, "INFLUENCE", given to bards. This flag makes status-affecting spells (confuse,
+  sleep, calm), etc, more powerful.
+  
+- The mystic's POWER flag no longer increases the beaming chances of spells. Note that the priest
+  spell "orb of draining" is no longer affected by this spell.
+
+# Stat/abilities #
+
+- Temporary resist disease is now cumulative with normal resist disease - like the basic
+  resists and resist poison.
+
+# Combat #
+
+- Changed the way monster saving throws for "status-altering" spells (confusion, sleep, etc.)
+  work, usually in favor of the player. Now these spells have a chance on working on all monsters
+  not immune to these spells, even deep ones (but not a very high chance in most cases).
+
+- Damage calculations for several breath types changed:
+  - Disease, Nexus, Sound, Shards, Mana, Plasma and Time breathes made more powerful.
+  - Chaos and gravity made slightly less powerful.
+
+- Changed the way polymorph monsters are chosen so that higher level characters are more
+  likely to get benificial polymorphs (though it's still risky).
+
+# Interface #
+
+- Changes to how experience is displayed in monster memory - it now appears in orange, and 
+  the fraction will no longer appear unless needed.
+
+- The various knowledge "browsers" now support page-up and page-down (actually the diagonals).
+
+# Items #
+
+- Item added : Powder of Transforming (Polymorph), Silver DSM, Time DSM, Shadow DSM, Spirit
+  DSM, Scrolls of Curse Equipment, *Curse Equipment*, Amulets of Fortune.
+
+- Items removed: Mushrooms of stupidity, naivity, unhealth, cure blindness and 
+  cure paranoia, Pseudo DSM, Balance DSM, Law DSM, scrolls of curse weapon, curse armor, 
+  monster confusing, Amulets of Adornment.
+
+- New item flag: LUCK, which increases the chance of finding good objects. It has been
+  added to several artifacts, and can be found on ego-items that give a random ability,
+  in addition to the new amulets of fortune.
+
+- DSMs made shallower and more common. They also were all made more powerful; most now
+  grant immunity to fear (except the ones that grant invisibility), the activation recharge
+  time has been shortened considerably, and the damage done is now increased with character
+  level.
+
+- Ego items depths/rarities reworked.
+
+- 'Defender' Weapons no longer grant a stealth bonus or a random sustain. Instead, they 
+  all sustain dexterity and constitution and grant a random resist.
+
+- Changed mushroom colors to match mushroom patch colors (mostly). Also made them slightly 
+  rarer, but they will now be dropped sometimes by mushroom patches.
+
+- Strengthened various wands and talismans.
+
+- Potion of lose memories renamed potions of lose life levels.
+
+- Several items changed rarities/depths and costs.
+
+# Monsters #
+
+- Monsters added: Baby silver dragon, Young silver dragon, Mature silver dragon, Ancient
+  silver dragon, Great Fragment Wyrm, Time Drake, Grand Wyrm of Time, Spirit Drake, Spirit 
+  dragon, White Dragon bat, Giant Silver Dragon Fly, Elder Vampire, Corruption Vortex, 
+  book mimic.
+
+- Monsters removed: Pseudo-dragon, law drake, balance drake, crystal dragon, death drake,
+  Great Wyrm of Law, Great Wyrm of Balance, Giant White Dragon Fly, Little Old Lady,
+  Dagashi, Metallic Green Centipede, 4-headed Hydra, clear ant.
+
+- Monsters renamed: Great Gold Wyrm -> Great Thunder Wyrm, Great bronze wyrm -> Great 
+  Perplexity Wyrm, Great Wyrm of Chaos -> Grand Wyrm of Chaos, Great Wyrm of Many Colors ->
+  Grand Wyrm of Many Colors, were-rat -> rattikin.
+
+- The COMPANION flag has been changed so that it will allow more than one companion; however, it
+  now requires that the companions also have the COMPANION flag. Tom, Bill and Bert the trolls 
+  now also have this flag.
+
+- Smeagol is now a lot more powerful but might drop a great item (from JLE patch).
+
+- Dragons have been "uniformized", all dragons of similar age (baby, young, etc.) gaining
+  similar abilities and found on similar levels. Similarly, the drakes have been also
+  "uniformized". Also, multi-hued dragons now gain sound, confusion, and shards breaths as 
+  well as their previous ones. 
+
+- Creeping coins/gems have been re-organized according to their value. Creeping Gems have the old
+  Creeping mithril coin abilities, creeping mithril has the strength of creeping admanatite,
+  and adamantite has the powers of the old creeping gems.
+
+- Magic mushroom patches are now dark blue (to prevent them from dropping elvish waybread).
+
+- Many monsters changed slightly.
+
+- Summon Uniques may now summon hi dragons or demons in addition to undead if no unique are
+  available.
+
+- Summon hi undead may now summon more types of undead.
+
+- Re-organized depths, rarities and experience values for many monsters, hopefully now
+  offering a considerably more streamlined and balanced progression (though there are 
+  occasional deliberate spikes in the power graph). Also, there is now at least one non-
+  unique for every dungeon level above 4000' (and no native non-uniques deeper than that).
+
+- New monster flag - NEVER_FAIL - monsters with this flag will never fail when casting spells.
+  This flag is given to monsters that cast spells innately, and to several very powerful 
+  creatures.
+
+- New monster flag - ATTR_MIMIC - monster will be assigned a random color when created, that is 
+  legal to its character - i.e., a pile of Creeping Gems will now get a "legal" gem color. It has
+  been given to creeping gems, potion mimics, ring mimics, death/doom swords (which can rarely 
+  mimics broken swords, or blades of chaos/stability) and the new book mimics.
+
+- New monster flag - DROP_MIMIC - monster will drop an item that has the same character and color
+  as it. Given to all mimics.
+
+# stores #
+
+- Objects in stores will now be created pre-*identified*; this means that you'll know the
+  random abilities of store-bought ego-items. Items sold to the stores will NOT be *ID*'d.
+
+- Known random abilities of ego items will now affect their price -
+  a dagger (+1, +1) (blessed) that offers telepathy will no longer be worth less than a
+  dagger (+1, +2) (blessed) that offers free fall.
+
+- Change to the black market, it now will tend to be more "interesting" in the early game,
+  though still dependant on player depth.
+
+- The player will know that items he had seen for sale in a store exist. For instance, if the
+  player never saw (in his current character or others on the same savefile) a talisman of force
+  bolts, it will not appear in the object browser. However, if the character does see one in the
+  black market, it will now appear there, but he won't know its flavour (like items seen by his 
+  ancestors).
+
+# Other Changes #
+
+- Changed quest award distributions - they will generally be improved now.
+
+- Added a new birth option - "nightmare_mode". It's different from the nightmare modes
+  in other variants, so don't think that if you mastered nightmare Zangband the same skills
+  will work here...
+
+- Changed "easy_mode". Reduced the effect on shops, but added a chance to "inflate" items
+  upon created, which means a LOT more good/great objects. Also, in easy mode you'll get
+  easier quests.
+
+- The recall depth now appears on the character screen (Patch by Gileba).
+
+- The resist page now appears in character dumps (Patch by Gileba). Also, "No Blind" moved from
+  the top of the second column to the bottom of the first one to make room for "luck".
+
+- Heavy curses can no longer be broken by enchanting the item.
+
+- Two new greater vaults by Chris Weisiger.
+
+## Non-Gameplay Affecting Changes ##
+
+- Continued rewriting the monster system. The monster browser, memory, and several other things
+  now function properly (i.e. without the hacks used before). 
+
+## Bug fixes ## 
+
+- Fixed a bug which caused completed quests to "fail" after a while.
+
+- The roguelike keyset option is now properly saved.
+
+- The spells "resist fire" and "resist cold" were inverted.
+
+- From Vanilla: The cheat_know option marks monsters as known even after it's turned off. 
+
+- From Vanilla: The easy_open option counts doors under the player when determining which door to close. 
+
+- From Vanilla: Pref files for player races are not loaded automatically. 
+
 Changes from 0.2.3 to 0.3.0: 
 
 (Entries marked by '*' have changed since the 0.3.0 beta)

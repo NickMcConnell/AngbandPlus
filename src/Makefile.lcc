@@ -36,6 +36,7 @@ OBJS=\
 	randart.obj \
 	object2.obj \
 	object1.obj \
+	monster3.obj \
 	monster2.obj \
 	monster1.obj \
 	melee2.obj \
@@ -417,6 +418,27 @@ OBJECT1_C=\
 object1.obj: $(OBJECT1_C) object1.c
 	$(CC) -c $(CFLAGS) object1.c
 
+# Build MONSTER3.C
+MONSTER3_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	z-virt.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+monster3.obj: $(MONSTER2_C) monster3.c
+	$(CC) -c $(CFLAGS) monster3.c
+
 # Build MONSTER2.C
 MONSTER2_C=\
 	angband.h\
@@ -523,8 +545,8 @@ MAIN-WIN_C=\
 main-win.obj: $(MAIN-WIN_C) main-win.c
 	$(CC) -c $(CFLAGS) main-win.c
 
-# Build LOAD1.C
-LOAD1_C=\
+# Build LOAD.C
+LOAD_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -541,29 +563,8 @@ LOAD1_C=\
 	types.h\
 	externs.h\
 
-load1.obj: $(LOAD1_C) load1.c
-	$(CC) -c $(CFLAGS) load1.c
-
-# Build LOAD2.C
-LOAD2_C=\
-	angband.h\
-	h-basic.h\
-	h-config.h\
-	h-system.h\
-	h-type.h\
-	h-define.h\
-	z-util.h\
-	z-virt.h\
-	z-form.h\
-	z-rand.h\
-	z-term.h\
-	config.h\
-	defines.h\
-	types.h\
-	externs.h\
-
-load2.obj: $(LOAD2_C) load2.c
-	$(CC) -c $(CFLAGS) load2.c
+load.obj: $(LOAD_C) load.c
+	$(CC) -c $(CFLAGS) load.c
 
 # Build INIT2.C
 INIT2_C=\

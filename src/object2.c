@@ -870,6 +870,73 @@ static s32b object_value_real(object_type *o_ptr)
 
 		/* Hack -- Reward the ego-item with a bonus */
 		value += e_ptr->cost;
+
+		/* Price bonus for random abilities */
+		if (o_ptr->xtra1 && o_ptr->ident & IDENT_MENTAL)
+		{
+			switch (o_ptr->xtra1)
+			{
+				case OBJECT_XTRA_TYPE_SUSTAIN:
+				{
+					switch (o_ptr->xtra2)
+					{
+						case 0: case 1: case 2: case 3: case 4: value += 450; break;
+						case 5: value += 350; break; 
+					}
+
+					break;
+				}
+
+				case OBJECT_XTRA_TYPE_MID_RESIST:
+				{
+					switch (o_ptr->xtra2) 
+					{
+						case 0: value  += 600;  break; /* Free Action */
+						case 1: value  += 750;  break; /* Hold Life */
+						case 2: value  += 400;  break; /* No Blindness */
+						case 3: value  += 400;  break; /* Bravery */
+						case 4: value  += 1300; break; /* Resist Poison */
+						case 5: value  += 1000; break; /* Resist Disease */
+						case 6: value  += 500;  break; /* Resist Lite */
+						case 7: value  += 500;  break; /* Resist Dark */
+						case 8: value  += 600;  break; /* Resist Confusion */
+						case 9: value  += 600;  break; /* Resist Sound */
+						case 10: value += 500;  break; /* Resist Shards */
+						case 11: value += 600;  break; /* Resist Water */
+					}
+					break;
+				}
+
+				case OBJECT_XTRA_TYPE_HIGH_RESIST:
+				{
+					switch (o_ptr->xtra2) 
+					{
+						case 0: value += 800;  break; /* Resist Nexus */
+						case 1: value += 2000; break; /* Resist Nether */
+						case 2: value += 1600; break; /* Resist Chaos */
+						case 3: value += 1600; break; /* Resist Disenchantment */
+						case 4: value += 2000; break; /* Resist Time */
+					}
+					break;
+				}
+
+				case OBJECT_XTRA_TYPE_POWER:
+				{
+					switch (o_ptr->xtra2) 
+					{
+						case 0: value += 250;  break; /* Slow digest */
+						case 1: value += 200;  break; /* Feather Falling */
+						case 2: value += 600;  break; /* Regeneration */
+						case 3: value += 3000; break; /* Telepathy */
+						case 4: value += 600;  break; /* See invis */
+						case 5: value += 3000; break; /* Invisibility*/
+						case 6: value += 300;  break; /* Perma-lite */
+						case 7: value += 1000; break; /* Luck */
+					} 
+					break;
+				}
+			}
+		}		
 	}
 
 	/* Analyze pval bonus */
@@ -910,11 +977,11 @@ static s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 250L);
 
 			/* Give credit for health and mana bonusees */
-			if (f1 & (TR1_HEALTH)) value += (o_ptr->pval * 400L);
-			if (f1 & (TR1_MANA)) value += (o_ptr->pval * 400L);
+			if (f1 & (TR1_HEALTH)) value += (o_ptr->pval * 350L);
+			if (f1 & (TR1_MANA)) value += (o_ptr->pval * 350L);
 
 			/* Give credit for stealth and searching */
-			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
+			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 150L);
 			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
 
 			/* Give credit for infra-vision and tunneling */
@@ -1106,7 +1173,7 @@ s32b object_value(object_type *o_ptr)
 {
 	s32b value;
 
-	/* Unknown items -- acquire a base value */
+	/* Known items -- acquire the actual value */
 	if (object_known_p(o_ptr))
 	{
 		/* Broken items -- worthless */
@@ -1119,7 +1186,7 @@ s32b object_value(object_type *o_ptr)
 		value = object_value_real(o_ptr);
 	}
 
-	/* Known items -- acquire the actual value */
+	/* Unknown items -- acquire a base value */
 	else
 	{
 		/* Hack -- Felt broken items */
@@ -2585,7 +2652,7 @@ static void a_m_aux_5(object_type *o_ptr, int level)
  *
  * Hack -- note the special code for various items
  */
-static void a_m_aux_6(object_type *o_ptr, int level)
+static void a_m_aux_6(object_type *o_ptr)
 {
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
@@ -2809,7 +2876,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 		default:
 		{
-			a_m_aux_6(o_ptr, lev);
+			a_m_aux_6(o_ptr);
 			break;
 		}
 	}
@@ -2941,6 +3008,27 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	}
 }
 
+/* Hack - parameters for "mimic" items */
+static byte mimic_attr;
+static char mimic_char;
+
+/*
+ * Determine if a template is a proper "mimic" item
+ */
+static bool kind_mimic(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+	
+	/* Flavored items */
+	if ((k_ptr->flavor) && ((k_ptr->flavor % 16) == mimic_attr)
+		&& (k_ptr->d_char == mimic_char)) return (TRUE);
+	/* Non-flavored items */
+	else if ((k_ptr->d_attr == mimic_attr) && (k_ptr->d_char == mimic_char)) return (TRUE);
+	
+	/* Not a mimic item */
+	return (FALSE);
+}
+
 /*
  * Hack -- determine if a template is "good".
  *
@@ -3038,8 +3126,30 @@ static bool kind_is_good(int k_idx)
 bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
 {
 	int prob, base;
+	int temp_level = p_ptr->obj_depth;
 	
 	object_kind *k_ptr;
+
+	/* Easy mode - chance of inflating item */
+	if (adult_easy_mode)
+	{
+		/* Increase depth (up to twice) */
+		if (rand_int(100) < EASY_INFLATE) p_ptr->obj_depth += 5;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(100) < EASY_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(100) < EASY_GREAT)) great = TRUE;
+	}
+
+	/* Luck - chance of inflating item */
+	if (p_ptr->luck)
+	{
+		/* Increase depth (up to twice) */
+		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
+		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(100) < LUCK_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(100) < LUCK_GREAT)) great = TRUE;
+	}
 
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
@@ -3100,7 +3210,112 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
 		if (cheat_peek) object_mention(j_ptr);
 	}
 
+	p_ptr->obj_depth = temp_level;
+
 	/* Success */
+	return (TRUE);
+}
+
+bool make_mimic(object_type *j_ptr, byte a, char c)
+{
+	int k_idx;
+	object_kind *k_ptr;
+	bool good = FALSE;
+	bool great = FALSE;
+
+	/* Easy mode - chance of inflating item */
+	if (adult_easy_mode)
+	{
+		/* Increase depth (up to twice) */
+		if (rand_int(100) < EASY_INFLATE) p_ptr->obj_depth += 5;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(100) < EASY_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(100) < EASY_GREAT)) great = TRUE;
+	}
+
+	/* Luck - chance of inflating item */
+	if (p_ptr->luck)
+	{
+		/* Increase depth (up to twice) */
+		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
+		if (rand_int(100) < LUCK_INFLATE) p_ptr->obj_depth += 5;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(100) < LUCK_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(100) < LUCK_GREAT)) great = TRUE;
+	}
+
+	/* Hack - gold mimics */
+   	if (c == '$') 
+	{
+		int coin_type = 0;
+
+		/* 
+		 * Hack - determine coin type according to color. A hack, but better
+		 * than the old method of using monster names for this. 
+		 */
+		switch (a)
+		{
+			case TERM_UMBER: coin_type = 2; break; /* copper */
+			case TERM_SLATE: coin_type = 5; break; /* silver */
+			/* case TERM_RED: coin_type = 7; break; - garnets, same color as rubies */
+			case TERM_YELLOW: coin_type = 10; break; /* gold */
+			case TERM_L_WHITE: coin_type = 11; break; /* opals */
+			case TERM_BLUE: coin_type = 12; break; /* sapphires */
+			case TERM_RED: coin_type = 13; break; /* rubies */
+			case TERM_WHITE: coin_type = 14; break; /* diamonds */
+			case TERM_GREEN: coin_type = 15; break; /* emeralds */
+			case TERM_L_BLUE: coin_type = 16; break; /* mithril */
+			case TERM_L_GREEN: coin_type = 17; break; /* adamantite */
+		}			
+
+		/* Make gold */
+		return (make_gold(j_ptr, coin_type));
+	}
+
+	/* Set the variables */
+	mimic_char = c;
+	mimic_attr = a;
+	
+	/* Activate restriction */
+	get_obj_num_hook = kind_mimic;
+
+	/* Prepare allocation table */
+	get_obj_num_prep();
+
+	/* Pick a random object */
+	k_idx = get_obj_num(p_ptr->obj_depth);
+
+	/* Clear restriction */
+	get_obj_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_obj_num_prep();
+
+	/* Handle failure */
+	if (!k_idx) return (FALSE);
+
+	/* Prepare the object */
+	object_prep(j_ptr, k_idx);
+	
+	/* Apply magic (allow artifacts) */
+	apply_magic(j_ptr, p_ptr->obj_depth, TRUE, good, great, TRUE);
+
+	k_ptr = &k_info[j_ptr->k_idx];
+
+	/* Hack -- some objects appear in stacks */
+	if ((k_ptr->qd>1) || (k_ptr->qs>1)) j_ptr->number = damroll(k_ptr->qd, k_ptr->qs);
+
+	/* Notice "okay" out-of-depth objects */
+	if (!cursed_p(j_ptr) && !broken_p(j_ptr) && (k_ptr->level > p_ptr->depth))
+	{
+		/* Rating increase */
+		rating += (k_info[j_ptr->k_idx].level - p_ptr->depth);
+
+		/* Cheat -- peek at items */
+		if (cheat_peek) object_mention(j_ptr);
+	}
+
+	/* success */
 	return (TRUE);
 }
 
@@ -3109,7 +3324,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
  *
  * The location must be a legal, clean, floor grid.
  */
-bool make_gold(object_type *j_ptr)
+bool make_gold(object_type *j_ptr, int coin_type)
 {
 	int i;
 
@@ -3508,7 +3723,7 @@ void place_gold(int y, int x)
 	object_wipe(i_ptr);
 
 	/* Make some gold */
-	if (make_gold(i_ptr))
+	if (make_gold(i_ptr, 0))
 	{
 		/* Give it to the floor */
 		(void)floor_carry(y, x, i_ptr);
@@ -3531,7 +3746,7 @@ void pick_trap(int y, int x)
 	if (cave_feat[y][x] != FEAT_INVIS) return;
 
 	/* Pick a trap */
-	while (1)
+	while (TRUE)
 	{
 		/* Hack -- pick a trap */
 		feat = FEAT_TRAP_HEAD + rand_int(16);

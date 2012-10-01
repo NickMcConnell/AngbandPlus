@@ -366,6 +366,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->u_idx);
 
 	/* Read the other information */
+	rd_byte(&m_ptr->attr);
 	rd_byte(&m_ptr->fy);
 	rd_byte(&m_ptr->fx);
 	rd_s16b(&m_ptr->hp);
@@ -386,10 +387,9 @@ static void rd_monster(monster_type *m_ptr)
 /*
  * Read the monster lore
  */
-static void rd_lore(int r_idx)
+static void rd_lore(bool unique, int idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
-	monster_lore *l_ptr = &l_list[r_idx];
+	monster_lore *l_ptr = (unique ? &lu_list[idx] : &lr_list[idx]);
 
 	u16b save_flags;
 
@@ -402,7 +402,7 @@ static void rd_lore(int r_idx)
 	if (save_flags & 0x0008) rd_s16b(&l_ptr->r_tkills);
 
 	/* Count wakes and ignores */
-	rd_byte(&l_ptr->r_wake);
+	if (save_flags & 0x0010) rd_byte(&l_ptr->r_wake);
 	rd_byte(&l_ptr->r_ignore);
 
 	/* Count drops */
@@ -410,8 +410,7 @@ static void rd_lore(int r_idx)
 	rd_byte(&l_ptr->r_drop_item);
 
 	/* Count spells */
-	if (save_flags & 0x0010) rd_byte(&l_ptr->r_cast_inate);
-	if (save_flags & 0x0020) rd_byte(&l_ptr->r_cast_spell);
+	if (save_flags & 0x0020) rd_byte(&l_ptr->r_cast);
 
 	/* Count blows of each type */
 	if (save_flags & 0x0040) rd_byte(&l_ptr->r_blows[0]);
@@ -427,15 +426,32 @@ static void rd_lore(int r_idx)
 	if (save_flags & 0x4000) rd_u32b(&l_ptr->r_flags5);
 	if (save_flags & 0x8000) rd_u32b(&l_ptr->r_flags6);
 
-	/* Repair the lore flags */
-	l_ptr->r_flags1 &= r_ptr->flags1;
-	l_ptr->r_flags2 &= r_ptr->flags2;
-	l_ptr->r_flags3 &= r_ptr->flags3;
-	l_ptr->r_flags4 &= r_ptr->flags4;
-	l_ptr->r_flags5 &= r_ptr->flags5;
-	l_ptr->r_flags6 &= r_ptr->flags6;
+	if (!unique)
+	{
+		monster_race *r_ptr = &r_info[idx];
 
-	rd_byte (&r_ptr->num_unique);
+		/* Repair the lore flags */
+		l_ptr->r_flags1 &= r_ptr->flags1;
+		l_ptr->r_flags2 &= r_ptr->flags2;
+		l_ptr->r_flags3 &= r_ptr->flags3;
+		l_ptr->r_flags4 &= r_ptr->flags4;
+		l_ptr->r_flags5 &= r_ptr->flags5;
+		l_ptr->r_flags6 &= r_ptr->flags6;
+
+		rd_byte(&r_ptr->cur_unique);
+	}
+	else
+	{
+		monster_unique *u_ptr = &u_info[idx];
+
+		/* Repair the lore flags */
+		l_ptr->r_flags1 &= u_ptr->flags1;
+		l_ptr->r_flags2 &= u_ptr->flags2;
+		l_ptr->r_flags3 &= u_ptr->flags3;
+		l_ptr->r_flags4 &= u_ptr->flags4;
+		l_ptr->r_flags5 &= u_ptr->flags5;
+		l_ptr->r_flags6 &= u_ptr->flags6;
+	}
 }
 
 /*
@@ -753,6 +769,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->oppose_disease);
 	rd_s16b(&p_ptr->tim_res_lite);
 	rd_s16b(&p_ptr->tim_res_dark);
 	rd_s16b(&p_ptr->tim_res_confu);
@@ -761,11 +778,9 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_res_nexus);
 	rd_s16b(&p_ptr->tim_res_nethr);
 	rd_s16b(&p_ptr->tim_res_chaos);
-	rd_s16b(&p_ptr->tim_res_disease);
 	rd_s16b(&p_ptr->tim_res_water);
 	rd_s16b(&p_ptr->racial_power);
 
-	rd_byte(&p_ptr->confusing);
 	rd_byte(&p_ptr->searching);
 
 	/* Squelch bytes */
@@ -803,7 +818,7 @@ static errr rd_extra(void)
 		 * Therefore, Check for incompatible randart version - this might be 
 		 * different than the normal compatible version so have double check
 		 */
-		if (older_than(0,3,0))
+		if (older_than(0,3,1))
 		{
 			note(format("Incompatible random artifacts version!"));
 			return (-1);
@@ -913,7 +928,7 @@ static errr rd_inventory(void)
 	object_type object_type_body;
 
 	/* Read until done */
-	while (1)
+	while (TRUE)
 	{
 		u16b n;
 
@@ -1303,9 +1318,9 @@ static errr rd_savefile_new_aux(void)
 	note(format("Loading a %d.%d.%d savefile...",
 	            sf_major, sf_minor, sf_patch));
 
-	if (older_than(0,3,0))
+	if (older_than(0,3,1))
 	{
-		note("Not compatible with 0.2.3 or older savefiles!");
+		note("Not compatible with 0.3.0 or older savefiles!");
 		return (-1);
 	}
 
@@ -1363,6 +1378,8 @@ static errr rd_savefile_new_aux(void)
 
 		if (u_ptr->dead) rd_s16b(&u_ptr->depth);
 		else u_ptr->depth = -1;
+
+		rd_lore(TRUE, i);
 	}
 	
 	/* Monster Memory */
@@ -1379,7 +1396,7 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		/* Read the lore */
-		rd_lore(i);
+		rd_lore(FALSE, i);
 	}
 
 	if (arg_fiddle) note("Loaded Monster Memory");

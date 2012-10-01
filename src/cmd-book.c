@@ -140,10 +140,10 @@ static spell_tip spell_tips[SP_MAX] =
 	{SP_RES_FIRE_COLD,		"Opposition to fire and frost.  Cumulative with equipment."},
 	{SP_RES_ACID_ELEC,		"Opposition to acid & electricity.  Cumulative with equipment."},
 	{SP_RES_POISON,			"Opposition to poison. Cumulative with equipment."},
-	{SP_RES_DISEASE,		"Opposition to disease.."},
+	{SP_RES_DISEASE,		"Opposition to disease. Cumulative with equipment."},
 	{SP_RES_SOUND,			"Opposition to sound."},
 	{SP_RES_ELEMENTS,		"Opposition to all elements. Cumulative with equipment."},
-	{SP_RES_GREATER,		"Resist many things. Poison resistance cumulative with equipment."},
+	{SP_RES_GREATER,		"Resist many things. Partially cumulative with equipment."},
 	{SP_RESISTANCE,			"Opposition to all elements + poison.  Cumulative with equipment."},
 	{SP_GLYPH_WARDING,		"Places a glyph on the floor that monsters cannot pass over."},
 	{SP_REMOVE_CURSE_1,		"Removes standard curses."},
@@ -356,11 +356,12 @@ static bool tune_okay(int instrument, int lev, int tune)
  */
 static void spell_info(char *p, int spell_index)
 {
-	int plev = ((cp_ptr->flags & CF_POWER) 
-		? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	/* Various class flags influence things */
+	int	beam = ((cp_ptr->flags & CF_BEAM) ? p_ptr->lev : (p_ptr->lev / 2));
+	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
 
-	int beam = ((cp_ptr->flags & CF_BEAM) 
-		? plev : (plev / 2));
 	int beam_low = (beam - 10 > 0 ? beam - 10 : 0);
 
 	/* Default */
@@ -388,67 +389,70 @@ static void spell_info(char *p, int spell_index)
 		case SP_TELE_10: 
 			strcpy(p, " range 10"); break;
 		case SP_TELE_MINOR:
-			sprintf(p, " range %d", 3 * plev); break;
+			sprintf(p, " range %d", 3 * damlev); break;
 		case SP_TELE_CONTROL: 
 			strcpy(p, " range 20"); break;
 		case SP_TELE_MAJOR: 
-			sprintf(p, " range %d", plev * 5); break;
+			sprintf(p, " range %d", damlev * 5); break;
 		case SP_BOLT_MISSILE: 
-			sprintf(p, " dam %dd4", (3+((plev-1)/5))); break;
+			sprintf(p, " dam %dd4", (3+((damlev-1)/5))); break;
 		case SP_BOLT_ELEC: 
-			sprintf(p, " dam %dd8, beam %d%%", (3+((plev-5)/4)), beam_low); break;
+			sprintf(p, " dam %dd8, beam %d%%", (3 + ((damlev-5) / 4)), beam_low); break;
 		case SP_BOLT_FROST: 
-			sprintf(p, " dam %dd8, beam %d%%", (5+((plev-5)/4)), beam_low); break;
+			sprintf(p, " dam %dd8, beam %d%%", (5 + ((damlev-5) / 4)), beam_low); break;
 		case SP_BOLT_ACID: 
-			sprintf(p, " dam %dd9, beam %d%%", (6+((plev-5)/4)), beam); break;
+			sprintf(p, " dam %dd9, beam %d%%", (6 + ((damlev-5) / 4)), beam); break;
 		case SP_BOLT_FIRE: 
-			sprintf(p, " dam %dd9, beam %d%%", (7+((plev-5)/3)), beam); break;
+			sprintf(p, " dam %dd9, beam %d%%", (7 + ((damlev-5) / 3)), beam); break;
 		case SP_BOLT_SOUND: 
-			sprintf(p, " dam %dd4, beam %d%%", (3+((plev-1)/5)), beam_low); break;
+			sprintf(p, " dam %dd4, beam %d%%", (3 + ((damlev-1) / 5)), beam_low); break;
 		case SP_BOLT_FORCE: 
-			sprintf(p, " dam %dd8, beam %d%%", (2+((plev-5)/4)), beam); break;
+			sprintf(p, " dam %dd8, beam %d%%", (2 + ((damlev-5) / 4)), beam); break;
 		case SP_BOLT_MANA: 
-			sprintf(p, " dam %dd8, beam %d%%", (6+((plev-5)/4)), beam); break;
+			sprintf(p, " dam %dd8, beam %d%%", (6 + ((damlev-5) / 4)), beam); break;
 		case SP_BEAM_WEAK_LITE: 
 			strcpy(p, " dam 9d8"); break;
 		case SP_BEAM_NETHER:
-			sprintf(p, " dam %dd4", 8 * plev); break;
+			sprintf(p, " dam %dd4", damlev * 8); break;
 		case SP_BALL_POISON_1:
-			sprintf(p, " dam %d, rad 2", 10 + (plev / 2)); break;
+			sprintf(p, " dam %d, rad 2", 10 + (damlev / 2)); break;
 		case SP_BALL_POISON_2: 
-			sprintf(p, " dam %d, rad 3", 20 + (plev/2)); break;
+			sprintf(p, " dam %d, rad 3", 20 + (damlev / 2)); break;
 		case SP_BALL_ACID: 
-			sprintf(p, " dam %d, rad 3", 45 + (plev)); break;
+			sprintf(p, " dam %d, rad 3", 45 + damlev); break;
 		case SP_BALL_FIRE: 
-			sprintf(p, " dam %d, rad 2", 60 + plev); break;
+			sprintf(p, " dam %d, rad 2", 60 + damlev); break;
 		case SP_BALL_FROST_1: 
-			sprintf(p, " dam %d, rad 2", 35 + plev); break;
+			sprintf(p, " dam %d, rad 2", 35 + damlev); break;
 		case SP_BALL_FROST_2: 
-			sprintf(p, " dam %d, rad 3", 70 + (plev)); break;
+			sprintf(p, " dam %d, rad 3", 70 + damlev); break;
 		case SP_BALL_SOUND: 
-			sprintf(p, " dam %d, rad 2", 30 + plev); break;
+			sprintf(p, " dam %d, rad 2", 30 + damlev); break;
 		case SP_BALL_METEOR: 
-			sprintf(p, " dam %d, rad 3", 65 + (plev)); break;
+			sprintf(p, " dam %d, rad 3", 65 + damlev); break;
 		case SP_BALL_MANA: 
-			sprintf(p, " dam %d, rad 3", 300 + (plev * 2)); break;
+			sprintf(p, " dam %d, rad 3", 300 + (damlev * 2)); break;
 		case SP_BALL_HOLY:
-			sprintf(p, " dam %d+3d6, rad %d", 
-				plev + (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)), 
-				((plev >= 30) && (cp_ptr->flags & CF_BLESS_WEAPON)) ? 3 : 2); break;
+			{
+				int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 2 : 4)));
+				int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
+				sprintf(p, " dam %d+3d6, rad %d", x, y);
+				break;
+			}
 		case SP_ANNIHILATION	:
 			strcpy(p, " dam 200"); break;
 		case SP_DISPEL_UNDEAD_1:
-			sprintf(p, " dam d%d", 3 * plev); break;
+			sprintf(p, " dam d%d", 3 * damlev); break;
 		case SP_DISPEL_UNDEAD_2:
-			sprintf(p, " dam d%d", 4 * plev); break;
+			sprintf(p, " dam d%d", 4 * damlev); break;
 		case SP_DISPEL_NON_EVIL:
-			sprintf(p, " dam d%d", 5 * plev); break;
+			sprintf(p, " dam d%d", 5 * damlev); break;
 		case SP_DISPEL_EVIL_1:
-			sprintf(p, " dam d%d", 3 * plev); break;
+			sprintf(p, " dam d%d", 3 * damlev); break;
 		case SP_DISPEL_EVIL_2:
-			sprintf(p, " dam d%d", 4 * plev); break;
+			sprintf(p, " dam d%d", 4 * damlev); break;
 		case SP_WORD_HOLY:
-			sprintf(p, " dam d%d, heal 1000", plev * 4); break;
+			sprintf(p, " dam d%d, heal 1000", damlev * 4); break;
 		case SP_GENOCIDE: 
 			strcpy(p, " hurt 1d4 per kill"); break;
 		case SP_MASS_GENOCIDE: 
@@ -458,11 +462,11 @@ static void spell_info(char *p, int spell_index)
 		case SP_WORD_DESTRUCTION: 
 			strcpy(p, " rad 15"); break;
 		case SP_LIGHT_AREA:
-			sprintf(p, " dam 2d%d, rad %d", (plev/2), ( plev / 10) + 1); break;
+			sprintf(p, " dam 2d%d, rad %d", (damlev/2), (damlev / 10) + 1); break;
 		case SP_DARK_AREA:
-			sprintf(p, " dam 2d%d, rad %d", (plev/2), ( plev / 10) + 1); break;
+			sprintf(p, " dam 2d%d, rad %d", (damlev/2), (damlev / 10) + 1); break;
 		case SP_ABSORB_HIT: 
-			sprintf(p, " dur %d+d25", plev); break;
+			sprintf(p, " dur %d+d25", durlev); break;
 		case SP_BLESS:
 			strcpy(p, " dur 12+d12"); break;
 		case SP_CHANT:
@@ -482,11 +486,11 @@ static void spell_info(char *p, int spell_index)
 		case SP_SEE_INVIS:
 			strcpy(p, " dur 24+d24"); break;
 		case SP_PROT_EVIL:
-			sprintf(p, " dur %d+d25", 3*plev); break;
+			sprintf(p, " dur %d+d25", durlev * 3); break;
 		case SP_HASTE_SELF_1: 
-			sprintf(p, " dur %d+d20", plev); break;
+			sprintf(p, " dur %d+d20", durlev); break;
 		case SP_HASTE_SELF_2	: 
-			sprintf(p, " dur %d+d30", 30+plev); break;
+			sprintf(p, " dur %d+d30", durlev + 30); break;
 		case SP_RES_FIRE: 
 			strcpy(p, " dur 20+d20"); break;
 		case SP_RES_COLD: 
@@ -502,9 +506,9 @@ static void spell_info(char *p, int spell_index)
 		case SP_RES_SOUND: 
 			strcpy(p, " dur 40+d40"); break;
 		case SP_RES_ELEMENTS:
-			sprintf(p, " dur %d+d%d", plev/2, plev/2); break;
+			sprintf(p, " dur %d+d%d", durlev / 2, durlev / 2); break;
 		case SP_RES_GREATER:
-			sprintf(p, " dur %d+d%d", plev/3, plev/3); break;
+			sprintf(p, " dur %d+d%d", durlev / 3, durlev / 3); break;
 		case SP_RESISTANCE: 
 			strcpy(p, " dur 20+d20"); break;
 	}
@@ -1339,10 +1343,18 @@ void do_cmd_study(void)
 /*
  * Actual spell effect 
  */
-static void aux_spell_cast(int index, int plev, int beam)
+static void aux_spell_cast(int index)
 {
 	int dir;
 	int durat;
+
+	/* Various class flags influence things */
+	int	beam = ((cp_ptr->flags & CF_BEAM) ? p_ptr->lev : (p_ptr->lev / 2));
+	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	int inflev = ((cp_ptr->flags & CF_INFLUENCE) ? p_ptr->lev + (p_ptr->lev / 2) :
+					((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 4) : p_ptr->lev));
+	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
 
 	switch (index)
 	{
@@ -1459,12 +1471,12 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_TELE_MINOR:
 		{
-			teleport_player(plev * 3);
+			teleport_player(damlev * 3);
 			break;
 		}
 		case SP_TELE_MAJOR:
 		{
-			teleport_player(plev * 5);
+			teleport_player(damlev * 5);
 			break;
 		}
 		case SP_TELE_OTHER:
@@ -1503,56 +1515,56 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(0, GF_MISSILE, dir,
-				              damroll(3 + ((plev - 1) / 5), 4));
+				              damroll(3 + ((damlev - 1) / 5), 4));
 			break;
 		}
 		case SP_BOLT_ELEC:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-				              damroll(3+((plev-5)/4), 8));
+				              damroll(3 + ((damlev - 5) / 4), 8));
 			break;
 		}
 		case SP_BOLT_FROST:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam-10, GF_COLD, dir,
-				              damroll(5+((plev-5)/4), 8));
+				              damroll(5 + ((damlev - 5) / 4), 8));
 			break;
 		}
 		case SP_BOLT_ACID:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_ACID, dir,
-				              damroll(6+((plev-5)/4), 9));
+				              damroll(6+((damlev-5)/4), 9));
 			break;
 		}
 		case SP_BOLT_FIRE:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_FIRE, dir,
-				              damroll(7+((plev-5)/3), 9));
+				              damroll(7+((damlev-5)/3), 9));
 			break;
 		}
 		case SP_BOLT_SOUND:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam-10, GF_SOUND, dir,
-				              damroll(3 + ((plev - 1) / 5), 4));
+				              damroll(3 + ((damlev - 1) / 5), 4));
 			break;
 		}
 		case SP_BOLT_FORCE:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_FORCE, dir,
-				              damroll(2+((plev-5)/4), 8));
+				              damroll(2+((damlev-5)/4), 8));
 			break;
 		}
 		case SP_BOLT_MANA:
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_MANA, dir,
-				              damroll(6+((plev-5)/4), 8));
+				              damroll(6+((damlev-5)/4), 8));
 			break;
 		}
 		case SP_BEAM_WEAK_LITE:
@@ -1566,69 +1578,70 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(100, GF_NETHER, dir,
-				              damroll((8 * plev), 4));				
+				              damroll((8 * damlev), 4));				
 			break;
 		}
 		case SP_BALL_POISON_1:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
+			fire_ball(GF_POIS, dir, 10 + (damlev / 2), 2);
 			break;
 		}
 		case SP_BALL_POISON_2:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+			fire_ball(GF_POIS, dir, 20 + (damlev / 2), 3);
 			break;
 		}
 		case SP_BALL_ACID:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_ACID, dir, 45 + (plev), 2);
+			fire_ball(GF_ACID, dir, 45 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_FIRE:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_FIRE, dir, 60 + (plev), 2);
+			fire_ball(GF_FIRE, dir, 60 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_FROST_1:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_COLD, dir, 35 + (plev), 2);
+			fire_ball(GF_COLD, dir, 35 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_FROST_2:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_COLD, dir, 70 + (plev), 3);
+			fire_ball(GF_COLD, dir, 70 + (damlev), 3);
 			break;
 		}
 		case SP_BALL_SOUND:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_SOUND, dir, 30 + (plev), 2);
+			fire_ball(GF_SOUND, dir, 30 + (damlev), 2);
 			break;
 		}
 		case SP_BALL_METEOR:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_METEOR, dir, 65 + (plev), 3);
+			fire_ball(GF_METEOR, dir, 65 + (damlev), 3);
 			break;
 		}
 		case SP_BALL_MANA:
 		{
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_MANA, dir, 300 + (plev * 2), 3);
+			fire_ball(GF_MANA, dir, 300 + (damlev * 2), 3);
 			break;
 		}
 		case SP_BALL_HOLY:
 		{
+			int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 2 : 4)));
+			int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
+
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_HOLY_ORB, dir, (damroll(3, 6) + plev +
-				       (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
-				      (((plev >= 30) && (cp_ptr->flags & CF_BLESS_WEAPON)) ? 3 : 2));
+			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + x, y);
 			break;
 		}
 		case SP_BANISH:
@@ -1647,32 +1660,32 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_DISPEL_UNDEAD_1:
 		{
-			(void)dispel_undead(randint(plev * 3));
+			(void)dispel_undead(randint(damlev * 3));
 			break;
 		}
 		case SP_DISPEL_UNDEAD_2:
 		{
-			(void)dispel_undead(randint(plev * 4));
+			(void)dispel_undead(randint(damlev * 4));
 			break;
 		}
 		case SP_DISPEL_NON_EVIL:
 		{
-			dispel_non_evil(randint(plev * 5));
+			dispel_non_evil(randint(damlev * 5));
 			break;
 		}
 		case SP_DISPEL_EVIL_1:
 		{
-			(void)dispel_evil(randint(plev * 3));
+			(void)dispel_evil(randint(damlev * 3));
 			break;
 		}
 		case SP_DISPEL_EVIL_2:
 		{
-			(void)dispel_evil(randint(plev * 4));
+			(void)dispel_evil(randint(damlev * 4));
 			break;
 		}
 		case SP_WORD_HOLY:
 		{
-			(void)dispel_evil(randint(plev * 4));
+			(void)dispel_evil(randint(damlev * 4));
 			(void)hp_player(1000);
 			(void)set_afraid(0);
 			(void)set_poisoned(0);
@@ -1702,7 +1715,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_LIGHT_AREA: 
 		{
-			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+			(void)lite_area(damroll(2, (damlev / 2)), (damlev / 10) + 1);
 			break;
 		}
 		case SP_DARK_AREA:
@@ -1711,7 +1724,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 			{
 				(void)set_blind(p_ptr->blind + 3 + randint(5));
 			}
-			(void)unlite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+			(void)unlite_area(damroll(2, (damlev / 2)), (damlev / 10) + 1);
 			break;
 		}
 		case SP_DETECT_MONSTERS:
@@ -1754,7 +1767,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_ABSORB_HIT:
 		{
-			(void)set_absorb(p_ptr->absorb + randint(25) + plev);
+			(void)set_absorb(p_ptr->absorb + randint(25) + durlev);
 			break;
 		}
 		case SP_BLESS:
@@ -1795,7 +1808,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{
 			if (!p_ptr->tim_invis)
 			{
-				(void)set_tim_invis(randint(25) + 25 + plev);
+				(void)set_tim_invis(randint(25) + 25 + durlev);
 			}
 			else
 			{
@@ -1816,14 +1829,14 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_PROT_EVIL:
 		{
-			(void)set_protevil(p_ptr->protevil + randint(25) + 3 * plev);
+			(void)set_protevil(p_ptr->protevil + randint(25) + 3 * durlev);
 			break;
 		}
 		case SP_HASTE_SELF_1:
 		{
 			if (!p_ptr->fast)
 			{
-				(void)set_fast(randint(20) + plev);
+				(void)set_fast(randint(20) + durlev);
 			}
 			else
 			{
@@ -1835,7 +1848,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		{
 			if (!p_ptr->fast)
 			{
-				(void)set_fast(randint(30) + 30 + plev);
+				(void)set_fast(randint(30) + 30 + durlev);
 			}
 			else
 			{
@@ -1873,88 +1886,88 @@ static void aux_spell_cast(int index, int plev, int beam)
 		case SP_CONFUSE_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			(void)confuse_monster(dir, plev);
+			(void)confuse_monster(dir, inflev);
 			break;
 		}
 		case SP_CONFUSE_ALL:
 		{
-			(void)confuse_monsters();
+			(void)confuse_monsters(inflev);
 			break;
 		}
 		case SP_SLEEP_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			(void)sleep_monster(dir, plev);
+			(void)sleep_monster(dir, inflev);
 			break;
 		}
 		case SP_SLEEP_ADJACENT:
 		{
-			(void)sleep_monsters_touch();
+			(void)sleep_monsters_touch(inflev);
 			break;
 		}
 		case SP_SLEEP_ALL:
 		{
-			(void)sleep_monsters();
+			(void)sleep_monsters(inflev);
 			break;
 		}
 		case SP_SLOW_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			(void)slow_monster(dir,plev);
+			(void)slow_monster(dir, inflev);
 			break;
 		}
 		case SP_SLOW_ALL:
 		{
-			(void)slow_monsters();
+			(void)slow_monsters(inflev);
 			break;
 		}
 		case SP_CALM_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			(void)calm_monster(dir,plev);
+			(void)calm_monster(dir, inflev);
 			break;
 		}
 		case SP_CALM_ANIMALS:
 		{
-			(void)calm_animals();
+			(void)calm_animals(inflev);
 			break;
 		}
 		case SP_CALM_NON_EVIL:
 		{
-			(void)calm_non_evil();
+			(void)calm_non_evil(inflev);
 			break;
 		}
 		case SP_CALM_ALL:
 		{
-			(void)calm_monsters();
+			(void)calm_monsters(inflev);
 			break;
 		}
 		case SP_BLIND_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			blind_monster(dir,plev);
+			blind_monster(dir, inflev);
 			break;
 		}
 		case SP_SCARE_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			(void)fear_monster(dir, plev);
+			(void)fear_monster(dir, inflev);
 			break;
 		}
 		case SP_SCARE_UNDEAD:
 		{
-			(void)turn_undead();
+			(void)turn_undead(inflev);
 			break;
 		}
 		case SP_SCARE_ALL:
 		{
-			(void)scare_monsters();
+			(void)scare_monsters(inflev);
 			break;
 		}
 		case SP_POLY_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return;
-			(void)poly_monster(dir);
+			(void)poly_monster(dir, inflev);
 			break;
 		}
 		case SP_SATISFY_HUNGER:
@@ -1994,12 +2007,12 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_RES_FIRE:
 		{
-			(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+			(void)set_oppose_fire(p_ptr->oppose_cold + randint(20) + 20);
 			break;
 		}
 		case SP_RES_COLD:
 		{
-			(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+			(void)set_oppose_cold(p_ptr->oppose_fire + randint(20) + 20);
 			break;
 		}
 		case SP_RES_FIRE_COLD:
@@ -2023,7 +2036,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_RES_DISEASE:
 		{
-			(void)set_tim_res_disease(p_ptr->tim_res_disease + randint(20) + 20);
+			(void)set_oppose_disease(p_ptr->oppose_disease + randint(20) + 20);
 			break;
 		}
 		case SP_RES_SOUND:
@@ -2033,7 +2046,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_RES_ELEMENTS:
 		{
-			durat = randint(plev/2) + plev/2;
+			durat = randint(durlev/2) + durlev/2;
 			(void)set_oppose_acid(p_ptr->oppose_acid + durat);
 			(void)set_oppose_elec(p_ptr->oppose_elec + durat);
 			(void)set_oppose_fire(p_ptr->oppose_fire + durat);
@@ -2042,8 +2055,9 @@ static void aux_spell_cast(int index, int plev, int beam)
 		}
 		case SP_RES_GREATER:
 		{
-			durat = randint(plev/3) + plev/3;
+			durat = randint(durlev/3) + durlev/3;
 			(void)(set_oppose_pois(p_ptr->oppose_pois + durat));
+			(void)(set_oppose_disease(p_ptr->oppose_disease + durat));
 			(void)(set_tim_res_lite(p_ptr->tim_res_lite + durat));
 			(void)(set_tim_res_dark(p_ptr->tim_res_dark + durat));
 			(void)(set_tim_res_confu(p_ptr->tim_res_confu + durat));
@@ -2052,7 +2066,6 @@ static void aux_spell_cast(int index, int plev, int beam)
 			(void)(set_tim_res_nexus(p_ptr->tim_res_nexus + durat));
 			(void)(set_tim_res_nethr(p_ptr->tim_res_nethr + durat));
 			(void)(set_tim_res_chaos(p_ptr->tim_res_chaos + durat)); 
-			(void)(set_tim_res_disease(p_ptr->tim_res_disease + durat));
 			(void)(set_tim_res_water(p_ptr->tim_res_water + durat));
 			break;
 		}
@@ -2148,11 +2161,7 @@ static void aux_spell_cast(int index, int plev, int beam)
 static void do_cast_or_pray(int book)
 {
 	int spell;
-	int chance, beam;
-	int shape = 0;
-
-	int plev = ((cp_ptr->flags & CF_POWER) 
-		? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
+	int chance;
 
 	magic_type *s_ptr;
 
@@ -2255,10 +2264,7 @@ static void do_cast_or_pray(int book)
 	/* Process spell */
 	else
 	{
-		/* Hack -- higher chance of "beam" instead of "bolt" for mages */
-		beam = ((cp_ptr->flags & CF_BEAM) ? plev : (plev / 2));
-
-		aux_spell_cast(s_ptr->index,plev,beam);
+		aux_spell_cast(s_ptr->index);
 
 		/* A spell was cast or a prayer prayed */
 		if (!(p_ptr->spell_worked[book] & (1L << spell)))
@@ -2269,7 +2275,7 @@ static void do_cast_or_pray(int book)
 			p_ptr->spell_worked[book] |= (1L << spell);
 
 			/* Gain experience */
-			gain_exp(e * (s_ptr->slevel+(cp_ptr->spell_handicap[book]-1)));
+			gain_exp(e * (s_ptr->slevel + (cp_ptr->spell_handicap[book]-1)));
 		}
 	}
 
@@ -2325,7 +2331,6 @@ static void do_play(int instrument, int lev)
 {
 	int tune;
 	int chance;
-	int shape = 0;
 
 	magic_type *s_ptr;
 
@@ -2366,7 +2371,7 @@ static void do_play(int instrument, int lev)
 	}
 
 	/* Process spell */
-	else aux_spell_cast(s_ptr->index,p_ptr->lev,(p_ptr->lev / 2));
+	else aux_spell_cast(s_ptr->index);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;

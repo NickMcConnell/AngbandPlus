@@ -389,6 +389,8 @@ static bool res_stat(int stat)
  */
 bool do_dec_stat(int stat, int amount, bool permanent, bool can_sustain)
 {
+	if (adult_nightmare_mode && !permanent && (rand_int(3) == 0)) permanent = TRUE;
+
 	/* Get the "sustain" */
 	if (can_sustain)
 	{
@@ -1261,7 +1263,7 @@ bool set_absorb(int v)
 	{
 		if (!p_ptr->absorb)
 		{
-			message(MSG_EFFECT, 0, "An aura of magical light emenates from your body!");
+			message(MSG_EFFECT, 0, "An aura of magical light emanates from your body!");
 			notice = TRUE;
 		}
 	}
@@ -2053,9 +2055,9 @@ bool set_tim_res_chaos(int v)
 }
 
 /*
- * Set "p_ptr->tim_res_disease", notice observable changes
+ * Set "p_ptr->oppose_disease", notice observable changes
  */
-bool set_tim_res_disease(int v)
+bool set_oppose_disease(int v)
 {
 	bool notice = FALSE;
 
@@ -2065,7 +2067,7 @@ bool set_tim_res_disease(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_res_disease)
+		if (!p_ptr->oppose_disease)
 		{
 			message(MSG_EFFECT, 0, "You feel resistant to disease!");
 			notice = TRUE;
@@ -2075,7 +2077,7 @@ bool set_tim_res_disease(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_res_disease)
+		if (p_ptr->oppose_disease)
 		{
 			message(MSG_EFFECT, 0, "You feel less resistant to disease.");
 			notice = TRUE;
@@ -2083,7 +2085,7 @@ bool set_tim_res_disease(int v)
 	}
 
 	/* Use the value */
-	p_ptr->tim_res_disease = v;
+	p_ptr->oppose_disease = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2102,7 +2104,7 @@ bool set_tim_res_disease(int v)
 }
 
 /*
- * Set "p_ptr->tim_res_disease", notice observable changes
+ * Set "p_ptr->tim_res_water", notice observable changes
  */
 bool set_tim_res_water(int v)
 {

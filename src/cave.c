@@ -300,7 +300,6 @@ bool cave_valid_bold(int y, int x)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
-
 	/* Forbid perma-grids */
 	if (cave_perma_bold(y, x)) return (FALSE);
 
@@ -903,21 +902,16 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Visible monster */
 		if (m_ptr->ml)
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-			monster_unique *u_ptr = &u_info[m_ptr->u_idx];
+			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			byte da;
 			char dc;
 
-			u32b f1;
-
 			/* Desired attr */
-			da = ((m_ptr->u_idx) ? u_ptr->x_attr : r_ptr->x_attr);
+			da = m_ptr->attr;
 
 			/* Desired char */
-			dc = ((m_ptr->u_idx) ? u_ptr->x_char : r_ptr->x_char);
-
-			f1 = ((m_ptr->u_idx) ? (u_ptr->flags1 | r_ptr->flags1) : r_ptr->flags1);
+			dc = r_ptr->x_char;
 
 			/* Hack -- monster hallucination */
 			if (image)
@@ -949,17 +943,17 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 
 			/* Multi-hued monster */
-			else if (f1 & (RF1_ATTR_MULTI))
+			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
 				/* Multi-hued attr */
-				a = randint(15);
+				a = m_ptr->attr = randint(15);
 
 				/* Normal char */
 				c = dc;
 			}
 
 			/* Normal monster (not "clear" in any way) */
-			else if (!(f1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
+			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
 			{
 				/* Use attr */
 				a = da;
@@ -979,14 +973,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 
 			/* Normal char, Clear attr, monster */
-			else if (!(f1 & (RF1_CHAR_CLEAR)))
+			else if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR)))
 			{
 				/* Normal char */
 				c = dc;
 			}
 
 			/* Normal attr, Clear char, monster */
-			else if (!(f1 & (RF1_ATTR_CLEAR)))
+			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)))
 			{
 				/* Normal attr */
 				a = da;
@@ -2563,23 +2557,23 @@ void update_view(void)
 	    /*** Step 1A -- monster lites ***/
 
 		/* Scan monster list and add monster lites */
-		for ( k = 1; k < z_info->m_max; k++)
+		for (k = 1; k < z_info->m_max; k++)
 		{
 			/* Check the k'th monster */
 			monster_type *m_ptr = &m_list[k];
-			u32b f2 = ((m_ptr->u_idx) ? 
-				(u_info[m_ptr->u_idx].flags2 | r_info[m_ptr->r_idx].flags2) :
-				r_info[m_ptr->r_idx].flags2);
+			monster_race *r_ptr;
 
 			/* Skip dead monsters */
 			if (!m_ptr->r_idx) continue;
+
+			r_ptr = get_monster_real(m_ptr);
 
 			/* Access the location */
 			fx = m_ptr->fx;
 			fy = m_ptr->fy;
 
 			/* Carrying lite */
-			if (f2 & (RF2_HAS_LITE))
+			if (r_ptr->flags2 & (RF2_HAS_LITE))
 			{
 				for (i = -1; i <= 1; i++)
 				{
@@ -3459,7 +3453,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		x = x1;
 
 		/* Create the projection path */
-		while (1)
+		while (TRUE)
 		{
 			/* Save grid */
 			gp[n++] = GRID(y,x);
@@ -3521,7 +3515,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		x = x1 + sx;
 
 		/* Create the projection path */
-		while (1)
+		while (TRUE)
 		{
 			/* Save grid */
 			gp[n++] = GRID(y,x);
@@ -3577,7 +3571,7 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		x = x1 + sx;
 
 		/* Create the projection path */
-		while (1)
+		while (TRUE)
 		{
 			/* Save grid */
 			gp[n++] = GRID(y,x);
@@ -3658,13 +3652,10 @@ bool projectable(int y1, int x1, int y2, int x2)
  *
  * This function is often called from inside a loop which searches for
  * locations while increasing the "d" distance.
- *
- * Currently the "m" parameter is unused.
  */
-void scatter(int *yp, int *xp, int y, int x, int d, int m)
+void scatter(int *yp, int *xp, int y, int x, int d)
 {
 	int nx, ny;
-
 
 	/* Pick a location */
 	while (TRUE)
@@ -3703,10 +3694,11 @@ void health_track(int m_idx)
 /*
  * Hack -- track the given monster race
  */
-void monster_race_track(int r_idx)
+void monster_track(int r_idx, int u_idx)
 {
 	/* Save this monster ID */
 	p_ptr->monster_race_idx = r_idx;
+	p_ptr->monster_unique_idx = u_idx;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);

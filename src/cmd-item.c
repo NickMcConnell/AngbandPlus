@@ -313,7 +313,6 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 void do_cmd_wield(void)
 {
 	int item, slot;
-	bool ring_auto_choose = FALSE;
 
 	object_type *o_ptr;
 
@@ -346,8 +345,11 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Assign slot */
+	slot = wield_slot(o_ptr);
+
 	/* Check the slot */
-	if (!(slot = wield_slot(o_ptr))) return;
+	if (!slot) return;
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -1191,34 +1193,9 @@ static void do_cmd_eat_food_aux(int item)
 			break;
 		}
 
-		case SV_FOOD_STUPIDITY:
-		{
-			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_INT,10,FALSE,TRUE);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_NAIVETY:
-		{
-			take_hit(damroll(8, 8), "poisonous food");
-			(void)do_dec_stat(A_WIS,10,FALSE,TRUE);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_UNHEALTH:
-		{
-			if (!(p_ptr->resist_disease))
-			{
-				if(set_diseased(p_ptr->diseased + rand_int(15) + 50)) ident = TRUE;
-			}
-			break;
-		}
-
 		case SV_FOOD_DISEASE:
 		{
-			if (!(p_ptr->resist_disease))
+			if (!(p_ptr->resist_disease || p_ptr->oppose_disease))
 			{
 				if(set_diseased(p_ptr->diseased + rand_int(30) + 100)) ident = TRUE;
 			}
@@ -1234,18 +1211,6 @@ static void do_cmd_eat_food_aux(int item)
 		case SV_FOOD_CURE_DISEASE:
 		{
 			if (set_diseased(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_BLINDNESS:
-		{
-			if (set_blind(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_CURE_PARANOIA:
-		{
-			if (set_afraid(0)) ident = TRUE;
 			break;
 		}
 
@@ -1462,7 +1427,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_DISEASE:
 		{
-			if (!(p_ptr->resist_disease))
+			if (!(p_ptr->resist_disease || p_ptr->oppose_disease))
 			{
 				if(set_diseased(p_ptr->diseased + rand_int(20) + 75)) ident = TRUE;
 			}
@@ -1952,6 +1917,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_oppose_fire(p_ptr->oppose_fire + time)) ident = TRUE;
 			if (set_oppose_cold(p_ptr->oppose_cold + time)) ident = TRUE;
 			if (set_oppose_pois(p_ptr->oppose_pois + time)) ident = TRUE;
+			if (set_oppose_disease(p_ptr->oppose_disease + time)) ident = TRUE;
 			if (set_tim_res_lite(p_ptr->tim_res_lite + time)) ident = TRUE;
 			if (set_tim_res_dark(p_ptr->tim_res_dark + time)) ident = TRUE;
 			if (set_tim_res_confu(p_ptr->tim_res_confu + time)) ident = TRUE;
@@ -1960,7 +1926,6 @@ static void do_cmd_quaff_potion_aux(int item)
 			if (set_tim_res_nexus(p_ptr->tim_res_nexus + time)) ident = TRUE;
 			if (set_tim_res_nethr(p_ptr->tim_res_nethr + time)) ident = TRUE;
 			if (set_tim_res_chaos(p_ptr->tim_res_chaos + time)) ident = TRUE;
-			if (set_tim_res_disease(p_ptr->tim_res_disease + time)) ident = TRUE;
 			if (set_tim_res_water(p_ptr->tim_res_water + time)) ident = TRUE;
 			break;
 		}
@@ -2074,6 +2039,67 @@ void do_cmd_quaff_potion(void)
 }
 
 /*
+ * Curse the players equipment (minor)
+ */
+static bool curse_minor(void)
+{
+	int k;
+	int count = 0;
+	object_type *o_ptr;
+
+	for (k = INVEN_WIELD; k < INVEN_MUSIC; k++)
+	{
+		/* Curse the weapon */
+		o_ptr = &inventory[k];
+
+		/* Not rings, lites or amulets */
+		if ((k == INVEN_LEFT) || (k == INVEN_RIGHT) || (k == INVEN_LITE) || (k == INVEN_NECK))
+			continue;
+
+		/* Nothing to curse */
+		if (!o_ptr->k_idx) continue;
+
+		/* Already cursed */
+		if (cursed_p(o_ptr)) continue;
+
+		/* Artifacts resist */
+		if (artifact_p(o_ptr)) continue;
+
+		/* Ego items save */
+		if (ego_item_p(o_ptr) && rand_int(100) < 50) continue;
+
+		/* Curse the object */
+		if ((k == INVEN_WIELD) || (k == INVEN_BOW))
+		{
+			o_ptr->to_h -= randint(4);
+			o_ptr->to_d -= randint(4);
+		}
+		else o_ptr->to_a -= randint(4);
+
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Count it */
+		count++;
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	if (count) 
+	{
+		message(MSG_ITEM_DAMAGE, 0, "A dark aura surrounds your equipment!");
+		return (TRUE);
+	}
+
+	/* Notice */
+	return (FALSE);
+}
+
+/*
  * Curse the players armor
  */
 static bool curse_armor(void)
@@ -2082,13 +2108,14 @@ static bool curse_armor(void)
 
 	char o_name[80];
 
-
 	/* Curse the body armor */
 	o_ptr = &inventory[INVEN_BODY];
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
 
+	/* Already cursed */
+	if (cursed_p(o_ptr)) return (FALSE);
 
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
@@ -2148,6 +2175,9 @@ static bool curse_weapon(void)
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
+
+	/* Already cursed */
+	if (cursed_p(o_ptr)) return (FALSE);
 
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
@@ -2252,15 +2282,21 @@ static void do_cmd_read_scroll_aux(int item)
 			break;
 		}
 
-		case SV_SCROLL_CURSE_ARMOR:
+		case SV_SCROLL_CURSE_EQUIP:
 		{
-			if (curse_armor()) ident = TRUE;
+			k = rand_int(5);
+
+			if ((k == 0) && curse_armor()) ident = TRUE;
+			else if ((k == 1) && curse_weapon()) ident = TRUE;
+			else if (curse_minor()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_CURSE_WEAPON:
+		case SV_SCROLL_STAR_CURSE_EQUIP:
 		{
+			if (curse_armor()) ident = TRUE;
 			if (curse_weapon()) ident = TRUE;
+			if (curse_minor()) ident = TRUE;
 			break;
 		}
 
@@ -2491,17 +2527,6 @@ static void do_cmd_read_scroll_aux(int item)
 		case SV_SCROLL_HOLY_PRAYER:
 		{
 			if (set_blessed(p_ptr->blessed + randint(48) + 24)) ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_MONSTER_CONFUSION:
-		{
-			if (p_ptr->confusing == 0)
-			{
-				message(MSG_EFFECT, 0, "Your hands begin to glow.");
-				p_ptr->confusing = TRUE;
-				ident = TRUE;
-			}
 			break;
 		}
 
@@ -2921,13 +2946,13 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters()) ident = TRUE;
+			if (sleep_monsters(15 + rand_int(10))) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_SLOW_MONSTERS:
 		{
-			if (slow_monsters()) ident = TRUE;
+			if (slow_monsters(15 + rand_int(10))) ident = TRUE;
 			break;
 		}
 
@@ -3212,25 +3237,25 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir, 15)) ident = TRUE;
+			if (sleep_monster(dir, 10 + plev / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir, 15)) ident = TRUE;
+			if (slow_monster(dir, 10 + plev / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 10)) ident = TRUE;
+			if (confuse_monster(dir, 10 + plev / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, 10)) ident = TRUE;
+			if (fear_monster(dir, 10 + plev / 2)) ident = TRUE;
 			break;
 		}
 
@@ -3242,7 +3267,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_POLYMORPH:
 		{
-			if (poly_monster(dir)) ident = TRUE;
+			if (poly_monster(dir, 10 + plev / 2)) ident = TRUE;
 			break;
 		}
 
@@ -3434,8 +3459,8 @@ static void do_cmd_aim_wand_aux(int item)
 /* Aim a wand */
 void do_cmd_aim_wand(void)
 {
-	int     item;
-	cptr    q, s;
+	int item;
+	cptr q, s;
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
@@ -3458,7 +3483,6 @@ void do_cmd_aim_wand(void)
 static void do_cmd_zap_rod_aux(int item)
 {
 	int ident, k, chance;
-	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
 
@@ -3790,7 +3814,7 @@ static void do_cmd_invoke_talisman_aux(int item)
 
 		case SV_TALIS_POLYMORPH:
 		{
-			if (poly_monster(dir)) ident = TRUE;
+			if (poly_monster(dir, plev)) ident = TRUE;
 			break;
 		}
 
@@ -4226,7 +4250,7 @@ static void do_cmd_activate_aux(int item)
 			case ACT_SLEEP:
 			{
 				message_format(MSG_EFFECT, 0, "Your %s glows deep blue...", o_name);
-				sleep_monsters_touch();
+				sleep_monsters_touch(50);
 				break;
 			}
 
@@ -4541,7 +4565,7 @@ static void do_cmd_activate_aux(int item)
 			case ACT_CALM_NON_CHAOS:
 			{
 				message_format(MSG_EFFECT, 0, "Your %s resonates with the voice of law...", o_name);
-				(void)calm_non_chaos();
+				(void)calm_non_chaos(100);
 			}
 
 			case ACT_CALL_MONSTER:
@@ -4568,6 +4592,9 @@ static void do_cmd_activate_aux(int item)
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
+		cptr breath;
+		int typ, power, time;
+
 		/* Get a direction for breathing (or abort) */
 		if (!get_aim_dir(&dir)) return;
 
@@ -4576,145 +4603,165 @@ static void do_cmd_activate_aux(int item)
 		{
 			case SV_DRAGON_BLUE:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe lightning.");
-				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				breath = "lightning";
+				typ = GF_ELEC;
+				power = 125;
 				break;
 			}
 
 			case SV_DRAGON_WHITE:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe frost.");
-				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				breath = "frost";
+				typ = GF_COLD;
+				power = 125;
 				break;
 			}
 
 			case SV_DRAGON_BLACK:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe acid.");
-				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
-				break;
-			}
-
-			case SV_DRAGON_GREEN:
-			{
-				message(MSG_DSM, o_ptr->sval, "You breathe poison gas.");
-				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				breath = "acid";
+				typ = GF_ACID;
+				power = 125;
 				break;
 			}
 
 			case SV_DRAGON_RED:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe fire.");
-				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				breath = "fire";
+				typ = GF_FIRE;
+				power = 125;
 				break;
 			}
 
-			case SV_DRAGON_MULTIHUED:
+			case SV_DRAGON_GREEN:
 			{
-				chance = rand_int(5);
-				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
-				           ((chance == 1) ? "lightning" :
-				            ((chance == 2) ? "frost" :
-				             ((chance == 3) ? "acid" :
-				              ((chance == 4) ? "poison gas" : "fire")))));
-				fire_ball(((chance == 1) ? GF_ELEC :
-				           ((chance == 2) ? GF_COLD :
-				            ((chance == 3) ? GF_ACID :
-				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
+				breath = "poison gas";
+				typ = GF_POIS;
+				power = 150;
 				break;
 			}
 
 			case SV_DRAGON_BRONZE:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe confusion.");
-				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				breath = "confusion";
+				typ = GF_CONFUSION;
+				power = 100;
 				break;
 			}
 
 			case SV_DRAGON_GOLD:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe sound.");
-				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				breath = "sound";
+				typ = GF_SOUND;
+				power = 100;
 				break;
 			}
 
-			case SV_DRAGON_CHAOS:
+			case SV_DRAGON_SILVER:
 			{
-				chance = rand_int(2);
-				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
-				           ((chance == 1 ? "chaos" : "disenchantment")));
-				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				breath = "shards";
+				typ = GF_SHARD;
+				power = 100;
 				break;
 			}
 
-			case SV_DRAGON_LAW:
+			case SV_DRAGON_MULTIHUED:
 			{
-				chance = rand_int(2);
-				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
-				           ((chance == 1 ? "sound" : "shards")));
-				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
-				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				chance = rand_int(8);
+				switch (chance)
+				{
+					case 0:	breath = "fire";		typ = GF_FIRE; break;
+					case 1:	breath = "lightning";	typ = GF_ELEC; break;
+					case 2:	breath = "frost";		typ = GF_COLD; break;
+					case 3:	breath = "acid";		typ = GF_ACID; break;
+					case 4:	breath = "poison gas";	typ = GF_POIS;	break;
+					case 5:	breath = "shards";		typ = GF_SHARD; break;
+					case 6:	breath = "confusion";	typ = GF_CONFUSION; break;
+					case 7:	breath = "sound";		typ = GF_SOUND; break;
+				}
+				power = 250;
+				break;
+			}
+
+			case SV_DRAGON_SHADOW:
+			{
+				breath = "nether";
+				typ = GF_NETHER;
+				power = 250;
+				break;
+			}
+
+			case SV_DRAGON_SPIRIT:
+			{
+				breath = "force";
+				typ = GF_FORCE;
+				power = 250;
 				break;
 			}
 
 			case SV_DRAGON_ETHEREAL:
 			{
 				chance = rand_int(3);
-				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
-				           ((chance == 1) ? "light" :
-				            ((chance == 2) ? "darknesst" : "confusion")));
-				fire_ball((chance == 1) ? GF_LITE :
-				           ((chance == 2) ? GF_DARK : GF_CONFUSION),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				switch (chance)
+				{
+					case 0:	breath = "light";		typ = GF_LITE; break;
+					case 1:	breath = "confusion";	typ = GF_CONFUSION; break;
+					case 2:	breath = "darkness";	typ = GF_DARK; break;
+				}
+				power = 250;
 				break;
 			}
 
-			case SV_DRAGON_BALANCE:
+			case SV_DRAGON_CHAOS:
 			{
 				chance = rand_int(4);
-				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
-				           ((chance == 1) ? "chaos" :
-				            ((chance == 2) ? "disenchantment" :
-				             ((chance == 3) ? "sound" : "shards"))));
-				fire_ball(((chance == 1) ? GF_CHAOS :
-				           ((chance == 2) ? GF_DISENCHANT :
-				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				switch (chance)
+				{
+					case 0:	breath = "chaos";			typ = GF_CHAOS; break;
+					case 1:	breath = "disenchantment";	typ = GF_DISENCHANT; break;
+					case 2:	breath = "plasma";			typ = GF_PLASMA; break;
+					case 3:	breath = "sound";			typ = GF_SOUND; break;
+				}
+				power = 350;
 				break;
 			}
 
-			case SV_DRAGON_SHINING:
+			case SV_DRAGON_TIME:
 			{
-				chance = rand_int(2);
-				message_format(MSG_DSM, o_ptr->sval, "You breathe %s.",
-				           ((chance == 0 ? "light" : "darkness")));
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				chance = rand_int(4);
+				switch (chance)
+				{
+					case 0:	breath = "time";			typ = GF_TIME; break;
+					case 1:	breath = "inertia";			typ = GF_INERTIA; break;
+					case 2:	breath = "plasma";			typ = GF_NEXUS; break;
+					case 3:	breath = "nether";			typ = GF_NETHER; break;
+				}
+				power = 350;
 				break;
 			}
 
 			case SV_DRAGON_POWER:
 			{
-				message(MSG_DSM, o_ptr->sval, "You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 300, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				breath = "the elements";
+				typ = GF_MISSILE;
+				power = 400;
 				break;
 			}
 		}
+		
+		time = 100 + (power / 4);
+		
+		/* Modify power according to level */
+		power += rand_int((p_ptr->lev * 2) + 1);
+
+		/* Message */
+		message_format(MSG_DSM, o_ptr->sval, "You breathe %s.", breath);
+
+		/* Actual attack */
+		fire_ball(typ, dir, power, 2);
+
+		/* Recharging */
+		o_ptr->timeout = rand_int(time) + time;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -4980,8 +5027,8 @@ void do_cmd_mix(void)
 	/* Check again if found */
 	if (found)
 	{
-		chance = 25+(p_ptr->skill[SK_ALC])-((k_ptr->cost)/250);
-		penalty = (k_ptr->cost)/800;
+		chance = 25 + (p_ptr->skill[SK_ALC]) - ((k_ptr->cost) / 250);
+		penalty = (k_ptr->cost) / 800;
 
 		/* Always 5% chance of success or failure*/
 

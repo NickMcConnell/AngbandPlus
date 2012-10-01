@@ -392,3 +392,8 @@
  */
 #define HAS_CLEANUP 
 
+/*
+ * HACK - save every turn. Used for debug purposes.
+ */
+/* define DEBUG_SAVE */
+

@@ -1,8 +1,8 @@
 
 
-                           ***********************
-                           **  EyAngband 0.3.0  **
-                           ***********************
+                          ************************
+                          **  EyAngband 0.3.1b  **
+                          ************************
                                By Eytan Zweig
 
             Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
@@ -10,7 +10,7 @@
        Angband 2.0 - 2.6.2:  Alex Cutler, Andy Astrand, Sean Marsh,
                              Geoff Hill, Charles Teague, Charles Swiger
      Angband 2.7.0 - 2.8.5:  Ben Harrison
-     Angband 2.9.0 - 2.9.1:  Robert Ruehlmann
+     Angband 2.9.0 - 2.9.2:  Robert Ruehlmann
 
 	
         Send comments, bug reports, and patches, to "eytanzw@yahoo.com"

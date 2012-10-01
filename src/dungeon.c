@@ -368,7 +368,7 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
@@ -448,20 +448,22 @@ static void process_world(void)
 	/*** Update quests ***/
 	if ((p_ptr->cur_quest) && !(turn % (10L * QUEST_TURNS)))
 	{
-		int j = quest_num(p_ptr->cur_quest);
+		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 
 		/* Check for failure */
 		if ((p_ptr->cur_quest != p_ptr->depth) && (rand_int(2) == 0))
 		{
-			if (q_info[j].started)
+			/* Check if quest is in progress */
+			if (q_ptr->started && q_ptr->active_level)
 			{
 				/* Mark quest as completed */
-				q_info[j].active_level = 0;
+				q_ptr->active_level = 0;
 				p_ptr->cur_quest = 0;
 				
 				/* No reward for failed quest */
-				q_info[j].reward = 0;
+				q_ptr->reward = 0;
 
+				/* Message */
 				message(MSG_QUEST_FAIL, 0, "You have failed in your quest!");
 	
 				/* Disturb */
@@ -469,7 +471,7 @@ static void process_world(void)
 			}
 		}
 	}
-	
+
 	/*** Handle the "town" (stores and sunshine) ***/
 
 	/* While in town */
@@ -515,11 +517,13 @@ static void process_world(void)
 			{
 				/* Skip the home */
 				if (n == STORE_HOME) continue;
+				if (n == STORE_GUILD) continue;
 
 				/* Maintain */
 				store_maint(n);
-			}
 
+			}
+	
 			/* Sometimes, shuffle the shop-keepers */
 			if (rand_int(STORE_SHUFFLE) == 0)
 			{
@@ -527,10 +531,14 @@ static void process_world(void)
 				if (cheat_wizard) message(MSG_CHEAT, 0, "Shuffling a Shopkeeper...");
 
 				/* Pick a random shop (except home) */
-				while (1)
+				while (TRUE)
 				{
 					n = rand_int(MAX_STORES);
-					if (n != STORE_HOME) break;
+
+					if (n == STORE_HOME) continue;
+					if (n == STORE_GUILD) continue;
+					
+					break;
 				}
 
 				/* Shuffle it */
@@ -550,7 +558,7 @@ static void process_world(void)
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
-
+	
 	/* Hack -- Check for creature regeneration */
 	if (!(turn % 100)) regen_monsters();
 
@@ -744,6 +752,7 @@ static void process_world(void)
 	if (p_ptr->oppose_fire) (void)set_oppose_fire(p_ptr->oppose_fire - 1);
 	if (p_ptr->oppose_cold) (void)set_oppose_cold(p_ptr->oppose_cold - 1);
 	if (p_ptr->oppose_pois) (void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	if (p_ptr->oppose_disease) (void)set_oppose_disease(p_ptr->oppose_disease - 1);
 	if (p_ptr->tim_res_lite) (void)set_tim_res_lite(p_ptr->tim_res_lite - 1);
 	if (p_ptr->tim_res_dark) (void)set_tim_res_dark(p_ptr->tim_res_dark - 1);
 	if (p_ptr->tim_res_confu) (void)set_tim_res_confu(p_ptr->tim_res_confu - 1);
@@ -752,7 +761,6 @@ static void process_world(void)
 	if (p_ptr->tim_res_nexus) (void)set_tim_res_nexus(p_ptr->tim_res_nexus - 1);
 	if (p_ptr->tim_res_nethr) (void)set_tim_res_nethr(p_ptr->tim_res_nethr - 1);
 	if (p_ptr->tim_res_chaos) (void)set_tim_res_chaos(p_ptr->tim_res_chaos - 1);
-	if (p_ptr->tim_res_disease) (void)set_tim_res_disease(p_ptr->tim_res_disease - 1);
 	if (p_ptr->tim_res_water) (void)set_tim_res_water(p_ptr->tim_res_water - 1);
 
 	/*** Stuff with CON-related healing ***/
@@ -937,7 +945,7 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Recharge rods on the ground.  No messages. */
-		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN) && (o_ptr->timeout))
+		if (((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_TALISMAN)) && (o_ptr->timeout))
 		{
 			/* Charge it */
 			o_ptr->timeout -= o_ptr->number;
@@ -1041,6 +1049,12 @@ static void process_command(void)
 	repeat_check();
 
 #endif /* ALLOW_REPEAT */
+
+#ifdef DEBUG_SAVE
+
+	do_cmd_save_game();
+
+#endif /* DEBUG_SAVE */
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -1614,6 +1628,7 @@ static void process_command(void)
 static void process_player_aux(void)
 {
 	static int old_monster_race_idx = 0;
+	static int old_monster_unique_idx = 0;
 
 	static u32b	old_r_flags1 = 0L;
 	static u32b	old_r_flags2 = 0L;
@@ -1627,17 +1642,17 @@ static void process_player_aux(void)
 	static byte	old_r_blows2 = 0;
 	static byte	old_r_blows3 = 0;
 
-	static byte	old_r_cast_inate = 0;
-	static byte	old_r_cast_spell = 0;
+	static byte	old_r_cast = 0;
 
 	/* Tracking a monster */
 	if (p_ptr->monster_race_idx)
 	{
 		/* Get the monster lore */
-		monster_lore *l_ptr = &l_list[p_ptr->monster_race_idx];
+		monster_lore *l_ptr = get_lore_idx(p_ptr->monster_race_idx, p_ptr->monster_unique_idx);
 
 		/* Check for change of any kind */
 		if ((old_monster_race_idx != p_ptr->monster_race_idx) ||
+			(old_monster_unique_idx != p_ptr->monster_unique_idx) ||
 		    (old_r_flags1 != l_ptr->r_flags1) ||
 		    (old_r_flags2 != l_ptr->r_flags2) ||
 		    (old_r_flags3 != l_ptr->r_flags3) ||
@@ -1648,11 +1663,11 @@ static void process_player_aux(void)
 		    (old_r_blows1 != l_ptr->r_blows[1]) ||
 		    (old_r_blows2 != l_ptr->r_blows[2]) ||
 		    (old_r_blows3 != l_ptr->r_blows[3]) ||
-		    (old_r_cast_inate != l_ptr->r_cast_inate) ||
-		    (old_r_cast_spell != l_ptr->r_cast_spell))
+		    (old_r_cast   != l_ptr->r_cast))
 		{
 			/* Memorize old race */
 			old_monster_race_idx = p_ptr->monster_race_idx;
+			old_monster_unique_idx = p_ptr->monster_unique_idx;
 
 			/* Memorize flags */
 			old_r_flags1 = l_ptr->r_flags1;
@@ -1669,8 +1684,7 @@ static void process_player_aux(void)
 			old_r_blows3 = l_ptr->r_blows[3];
 
 			/* Memorize castings */
-			old_r_cast_inate = l_ptr->r_cast_inate;
-			old_r_cast_spell = l_ptr->r_cast_spell;
+			old_r_cast = l_ptr->r_cast;
 
 			/* Window stuff */
 			p_ptr->window |= (PW_MONSTER);
@@ -1712,8 +1726,7 @@ static void process_player(void)
 		if (p_ptr->resting == -1)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp))
+			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp == p_ptr->msp))
 			{
 				disturb(0);
 			}
@@ -1723,12 +1736,9 @@ static void process_player(void)
 		else if (p_ptr->resting == -2)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp) &&
-			    !p_ptr->blind && !p_ptr->confused &&
-			    !p_ptr->poisoned && !p_ptr->afraid &&
-			    !p_ptr->stun && !p_ptr->cut &&
-			    !p_ptr->slow && !p_ptr->paralyzed &&
+			if ((p_ptr->chp == p_ptr->mhp) && (p_ptr->csp == p_ptr->msp) &&
+			    !p_ptr->blind && !p_ptr->confused && !p_ptr->poisoned && !p_ptr->afraid &&
+			    !p_ptr->stun && !p_ptr->cut && !p_ptr->slow && !p_ptr->paralyzed &&
 			    !p_ptr->image && !p_ptr->word_recall)
 			{
 				disturb(0);
@@ -1740,8 +1750,7 @@ static void process_player(void)
 	if (!avoid_abort)
 	{
 		/* Check for "player abort" */
-		if (p_ptr->running ||
-		    p_ptr->command_rep ||
+		if (p_ptr->running || p_ptr->command_rep ||
 		    (p_ptr->resting && !(turn & 0x7F)))
 		{
 			/* Do not wait */
@@ -1821,7 +1830,7 @@ static void process_player(void)
 			if (p_ptr->notice) notice_stuff();
 
 			/* Update stuff (if needed) */
-			update_stuff();
+			if (p_ptr->update) update_stuff();
 
 			/* Redraw stuff (if needed) */
 			if (p_ptr->redraw) redraw_stuff();
@@ -1833,10 +1842,8 @@ static void process_player(void)
 		/* Hack -- cancel "lurking browse mode" */
 		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
 
-
 		/* Assume free turn */
 		p_ptr->energy_use = 0;
-
 
 		/* Paralyzed or Knocked Out */
 		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
@@ -1889,9 +1896,6 @@ static void process_player(void)
 
 				/* Redraw the state */
 				p_ptr->redraw |= (PR_STATE);
-
-				/* Redraw stuff */
-				/* redraw_stuff(); */
 			}
 		}
 
@@ -1941,7 +1945,7 @@ static void process_player(void)
 					if (!m_ptr->r_idx) continue;
 
 					/* Get monster info*/
-					r_ptr = get_monster_full(m_ptr);
+					r_ptr = get_monster_real(m_ptr);
 
 					/* Skip non-multi-hued monsters */
 					if (!(r_ptr->flags1 & (RF1_ATTR_MULTI))) continue;
@@ -1968,9 +1972,6 @@ static void process_player(void)
 					/* Get the monster */
 					m_ptr = &m_list[i];
 
-					/* Skip dead monsters */
-					/* if (!m_ptr->r_idx) continue; */
-
 					/* Clear "nice" flag */
 					m_ptr->mflag &= ~(MFLAG_NICE);
 				}
@@ -1989,9 +1990,6 @@ static void process_player(void)
 
 					/* Get the monster */
 					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
-					/* if (!m_ptr->r_idx) continue; */
 
 					/* Repair "mark" flag */
 					if (m_ptr->mflag & (MFLAG_MARK))
@@ -2030,15 +2028,11 @@ static void process_player(void)
 				/* Get the monster */
 				m_ptr = &m_list[i];
 
-				/* Skip dead monsters */
-				/* if (!m_ptr->r_idx) continue; */
-
 				/* Clear "show" flag */
 				m_ptr->mflag &= ~(MFLAG_SHOW);
 			}
 		}
-	}
-	while (!p_ptr->energy_use && !p_ptr->leaving);
+	} while (!p_ptr->energy_use && !p_ptr->leaving);
 }
 
 /*
@@ -2288,7 +2282,7 @@ static void dungeon(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		update_stuff();
+		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2312,7 +2306,7 @@ static void dungeon(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		update_stuff();
+		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2336,7 +2330,7 @@ static void dungeon(void)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		update_stuff();
+		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();
@@ -2601,7 +2595,7 @@ void play_game(bool new_game)
 		if (p_ptr->notice) notice_stuff();
 
 		/* Update stuff */
-		update_stuff();
+		if (p_ptr->update) update_stuff();
 
 		/* Redraw stuff */
 		if (p_ptr->redraw) redraw_stuff();

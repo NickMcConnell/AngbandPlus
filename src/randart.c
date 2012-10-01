@@ -312,7 +312,7 @@ static void build_prob(FILE *learn)
 	int c_prev, c_cur, c_next;
 
 	/* Build raw frequencies */
-	while (1)
+	while (TRUE)
 	{
 		c_prev = c_cur = S_WORD;
 
@@ -895,7 +895,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(52);
+		r = rand_int(53);
 		switch (r)
 		{
 			case 0:
@@ -1060,13 +1060,14 @@ static void add_ability(artifact_type *a_ptr)
 				break;
 			case 45: a_ptr->flags3 |= TR3_FEATHER; break;
 			case 46: a_ptr->flags3 |= TR3_GLOW; break;
-			case 47: a_ptr->flags3 |= TR3_SEE_INVIS; break;
-			case 48:
+			case 47: a_ptr->flags3 |= TR3_LUCK; break;
+			case 48: a_ptr->flags3 |= TR3_SEE_INVIS; break;
+			case 49:
 				if (rand_int(3) == 0) a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
-			case 49: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-			case 50: a_ptr->flags3 |= TR3_REGEN; break;
-			case 51:
+			case 50: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
+			case 51: a_ptr->flags3 |= TR3_REGEN; break;
+			case 52:
 				if (rand_int(4) == 0) a_ptr->flags3 |= TR3_INVIS;
 				break;
 		}
@@ -1308,7 +1309,8 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags3 & TR3_SEE_INVIS)	 p += 8;
 	if (a_ptr->flags3 & TR3_REGEN)		 p += 8;
 	if (a_ptr->flags3 & TR3_GLOW)		 p += 8;
-		if (a_ptr->flags3 & TR3_TELEPATHY)	 p += 20;
+	if (a_ptr->flags3 & TR3_LUCK)		 p += 10;
+	if (a_ptr->flags3 & TR3_TELEPATHY)	 p += 20;
 	if (a_ptr->flags3 & TR3_INVIS)		 p += 20;
 
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) p -= 4;

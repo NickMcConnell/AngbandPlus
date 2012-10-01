@@ -21,7 +21,9 @@
 #   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Angel         --> 67 --> 68 --> 69
 #   Demon         --> 70 --> 71 --> (72) --> 73
-#   Nilbog        --> 74
+#   Nilbog        --> 74 --> 75 --> 90 --> 91
+#   Rattikin      --> 76 --> 77 --> 85 --> 78 --> 79 --> 80 --> 81 --> 82
+#   Felpurr       --> 83 --> 84 --> 86 --> 87 --> 88 --> 89
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -29,7 +31,7 @@
 
 # Version stamp (required)
 
-V:0.3.0
+V:0.3.1
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -357,6 +359,138 @@ D:and now you seek revenge.
 N:74:75:100:75
 D:A creature spawned by the powers of unmagic for reasons unknown, 
 
-N:75:0:100:50
-D:your past is as mysterious as your true nature.
+N:75:90:100:50
+D:your past is as mysterious as your true nature. 
+
+N:76:77:20:40
+D:You are the runt of 
+N:76:77:80:50
+D:You come from 
+N:76:77:100:55
+D:You are the largest of 
+
+N:77:78:15:45
+D:a litter numbering a dozen, 
+N:77:78:40:45
+D:a litter of ten, 
+N:77:78:70:50
+D:a litter of seven, 
+N:77:78:85:50
+D:a litter of six, 
+N:77:78:95:55
+D:a litter of five, 
+N:77:78:100:55
+D:a litter of four, 
+
+N:78:79:35:40
+D:Your father was a thief, 
+N:78:79:70:45
+D:Your father was a merchant, 
+N:78:79:95:50
+D:Your father was a warrior, 
+N:78:79:100:60
+D:Your father was the tribal chief, 
+
+N:79:80:50:45
+D:and your mother was a thief. 
+N:79:80:95:50
+D:and your mother was a mage. 
+N:79:80:100:55
+D:and your mother was a huntress. 
+
+N:80:81:10:50
+D:You have black eyes, 
+N:80:81:40:50
+D:You have dark brown eyes, 
+N:80:81:80:50
+D:You have brown eyes, 
+N:80:81:99:50
+D:You have light brown eyes, 
+N:80:81:100:50
+D:You have glowing red eyes, 
+
+N:81:82:40:45
+D:pale white fur, 
+N:81:82:60:50
+D:pale brown fur, 
+N:81:82:95:50
+D:olive green fur, 
+N:81:82:100:60
+D:glistering silver fur, 
+
+N:82:0:10:50
+D:and large, flat teeth.
+N:82:0:90:50
+D:and small, sharp teeth.
+N:82:0:100:50
+D:and large, sharp teeth.
+
+N:83:84:20:45
+D:You are the smallest of 
+N:83:84:80:50
+D:You come from 
+N:83:84:100:55
+D:You are the largest of 
+
+N:84:86:20:45
+D:a litter of six. 
+N:84:86:50:50
+D:a litter of five. 
+N:84:86:80:55
+D:a litter of four. 
+N:84:86:100:60
+D:a litter of three. 
+
+N:85:78:15:45
+D:all of which survived.
+N:85:78:85:50
+D:most of which survived.
+N:85:78:100:55
+D:of which all but you had died.
+
+N:86:87:10:40
+D:Your mother was a servant, 
+N:86:87:30:50
+D:Your mother was a warrior, 
+N:86:87:50:60
+D:Your mother was an artist, 
+N:86:87:70:75
+D:Your mother was a warrior-mage, 
+N:86:87:85:90
+D:Your mother was a noble huntress, 
+N:86:87:100:100
+D:Your mother was tribe chief, 
+
+N:87:88:100:50
+D:and you never knew your father. 
+
+N:88:89:10:50
+D:You have black eyes 
+N:88:89:40:50
+D:You have yellow eyes 
+N:88:89:80:50
+D:You have green eyes 
+N:88:89:100:50
+D:You have orange eyes, 
+
+N:89:0:20:40
+D:and grey fur.
+N:89:0:50:50
+D:and smooth grey fur.
+N:89:0:70:50
+D:and calico fur.
+N:89:0:90:55
+D:and orange fur.
+N:89:0:100:60
+D:and golden fur.
+
+N:90:91:100:50
+D:You have smooth grey skin, no hair, 
+
+N:91:0:20:50
+D:and your eyes are a bright purple.
+N:91:0:80:50
+D:and your eyes are a bright white.
+N:91:0:100:50
+D:and your eyes are black as the night sky.
 

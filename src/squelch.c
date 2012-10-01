@@ -7,7 +7,6 @@ static int do_qual_squelch(void);
  * It is currently hardcoded at 24 bytes, but since there are only 17
  * applicable tvals there shouldn't be a problem.  
  */
-
 byte squelch_level[24];
 byte auto_destroy;
 
@@ -20,7 +19,6 @@ byte auto_destroy;
  * 3 ---> Squelch good and worse items
  * 4 ---> squelch all but artifacts
  */
-
 #define SQUELCH_NONE     0
 #define SQUELCH_CURSED   1
 #define SQUELCH_AVERAGE  2
@@ -32,7 +30,6 @@ byte auto_destroy;
  * I've combined some of the tvals to make this list a little more
  * reasonable.
  */
-
 #define TYPE_AMMO    1
 #define TYPE_BOW     2
 #define TYPE_WEAPON1 3
@@ -60,14 +57,12 @@ byte auto_destroy;
  * and is reinitialized every time do_cmd_squelch is called.  This 
  * can certainly be done more cleanly.
  */
-
 static int tv_to_type[100];
 
 /*
  * These structures are lifted from wizard2.c where they were used in 
  * the 'create item' command.  I have adapted them for my code.
  */
-
 typedef struct tval_desc
 {
 	int		tval;
@@ -79,7 +74,6 @@ static char head[4] = { 'a', 'A', '0', ':' };
 /*
  * Here are the categories for squelch-on-creation.
  */
-
 static tval_desc typevals[] =
 {
 	{TYPE_AMMO,		"Missiles"				},
@@ -109,7 +103,6 @@ static tval_desc typevals[] =
 /*
  * Here are the categories for squelch-on-identification.
  */
-
 static tval_desc tvals[] =
 {
 	{ TV_SWORD,			"Sword"				},
@@ -133,7 +126,6 @@ static tval_desc tvals[] =
 /*
  * This subroutine actually handles the squelching menus.
  */
-
 static int do_cmd_squelch_aux(void)
 {
 	int i, j, temp, num, max_num;
@@ -309,7 +301,7 @@ static int do_cmd_squelch_aux(void)
 
 		/* Clear screen */
 
-		while (1) 
+		while (TRUE) 
 		{
 			Term_clear();
 
@@ -429,7 +421,7 @@ static int do_qual_squelch(void)
 	char squelch_str[5] = "NCVGA";
 
 	index = 0;
-	while (1) 
+	while (TRUE) 
 	{
 		/* Clear screen */
 		Term_clear();
@@ -670,7 +662,6 @@ void do_cmd_squelch(void)
  * 
  * Output: One of the three above values.
  */
-
 int squelch_itemp(object_type *o_ptr, int feeling, int fullid)
 {
 	int i, num, result;
@@ -740,7 +731,6 @@ int squelch_itemp(object_type *o_ptr, int feeling, int fullid)
 	return result;
 
 }
-
 /*
  * This performs the squelch, actually removing the item from the 
  * game.  It returns 1 if the item was squelched, and 0 otherwise.  
@@ -826,8 +816,6 @@ void rearrange_stack(int y, int x)
 		cave_o_idx[y][x] = first_bad_idx;
 	}
 }  
-
-
 
 void do_squelch_pile(int y, int x)
 {

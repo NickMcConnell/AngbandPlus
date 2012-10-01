@@ -36,7 +36,7 @@ static bool test_hit_fire(int chance, int ac, int vis)
 	k = rand_int(100);
 
 	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
+	if (k < 10) return ((k < 5) ? TRUE : FALSE);
 
 	/* Invisible monsters are harder to hit */
 	if (!vis) chance = chance / 2;
@@ -61,7 +61,7 @@ static bool test_hit_norm(int chance, int ac, int vis)
 	k = rand_int(100);
 
 	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
+	if (k < 10) return ((k < 5) ? TRUE : FALSE);
 
 	/* Penalize invisible targets */
 	if (!vis) chance = chance / 2;
@@ -220,8 +220,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	char m_name[80];
 	
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -230,13 +229,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	if ((special & SPEC_CUT) || (special & SPEC_CUT_STRONG))
 	{
 		/* Cut the monster */
-		if (r_ptr->flags3 & (RF3_NO_CUT))
-		{
-			if (m_ptr->ml)
-			{
-				l_ptr->r_flags3 |= (RF3_NO_CUT);
-			}
-		}
+		if (r_ptr->flags3 & (RF3_NO_CUT)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
 		else if (rand_int(100) >= r_ptr->level)
 		{
 			/* Already partially poisoned */
@@ -253,13 +246,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	if (special & SPEC_POIS) 
 	{
 		/* Poison the monster */
-		if (r_ptr->flags3 & (RF3_RES_POIS))
-		{
-			if (m_ptr->ml)
-			{
-				l_ptr->r_flags3 |= (RF3_RES_POIS);
-			}
-		}
+		if (r_ptr->flags3 & (RF3_RES_POIS)) lore_learn(m_ptr, LRN_FLAG3, RF3_RES_POIS, FALSE);
 		else if (rand_int(100) >= r_ptr->level)
 		{
 			/* Already partially poisoned */
@@ -275,13 +262,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	if (special & SPEC_BLIND) 
 	{
 		/* Blind the monster */
-		if (r_ptr->flags3 & (RF3_NO_BLIND))
-		{
-			if (m_ptr->ml)
-			{
-				l_ptr->r_flags3 |= (RF3_NO_BLIND);
-			}
-		}
+		if (r_ptr->flags3 & (RF3_NO_BLIND)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_BLIND, FALSE);
 		else if (rand_int(100) >= r_ptr->level)
 		{
 			/* Already partially blinded */
@@ -297,13 +278,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	if (special & SPEC_STUN)
 	{
 		/* Stun the monster */
-		if (r_ptr->flags3 & (RF3_NO_STUN))
-		{
-			if (m_ptr->ml)
-			{
-				l_ptr->r_flags3 |= (RF3_NO_STUN);
-			}
-		}
+		if (r_ptr->flags3 & (RF3_NO_STUN)) lore_learn(m_ptr, LRN_FLAG3, RF3_NO_STUN, FALSE);
 		else if (rand_int(100) >= r_ptr->level)
 		{
 			/* Already partially stunned */
@@ -319,13 +294,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	if (special & SPEC_CONF) 
 	{
 		/* Confuse the monster */
-		if (r_ptr->flags3 & (RF3_RES_CONF))
-		{
-			if (m_ptr->ml)
-			{
-				l_ptr->r_flags3 |= (RF3_RES_CONF);
-			}
-		}
+		if (r_ptr->flags3 & (RF3_RES_CONF)) lore_learn(m_ptr, LRN_FLAG3, RF3_RES_CONF, FALSE);
 		else if (rand_int(100) >= r_ptr->level)
 		{
 			/* Already partially confused */
@@ -348,8 +317,7 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 {
 	int mult = 1;
 
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	u32b f1, f2, f3, f4;
 
@@ -364,10 +332,7 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			/* Notice immunity */
 			if (r_ptr->flags3 & (RF3_RES_FIRE))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF3_RES_FIRE);
-				}
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FIRE, FALSE);
 				mult = 0;
 			}
 			break;
@@ -383,121 +348,81 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f4 & (TR4_SLAY_ANIMAL)) &&
-			    (r_ptr->flags2 & (RF2_ANIMAL)))
+			if ((f4 & (TR4_SLAY_ANIMAL)) && (r_ptr->flags2 & (RF2_ANIMAL)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags3 |= (RF2_ANIMAL);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_ANIMAL, FALSE);
 
 				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Plant */
-			if ((f4 & (TR4_SLAY_PLANT)) &&
-			    (r_ptr->flags2 & (RF2_PLANT)))
+			if ((f4 & (TR4_SLAY_PLANT)) && (r_ptr->flags2 & (RF2_PLANT)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_PLANT);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_PLANT, FALSE);
 
 				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Evil */
-			if ((f4 & (TR4_SLAY_EVIL)) &&
-			    (r_ptr->flags2 & (RF2_EVIL)))
+			if ((f4 & (TR4_SLAY_EVIL)) && (r_ptr->flags2 & (RF2_EVIL)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_EVIL);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 
 				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Evil */
-			if ((f4 & (TR4_SLAY_CHAOS)) &&
-			    (r_ptr->flags2 & (RF2_CHAOTIC)))
+			if ((f4 & (TR4_SLAY_CHAOS)) && (r_ptr->flags2 & (RF2_CHAOTIC)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_CHAOTIC);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_CHAOTIC, FALSE);
 
 				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Undead */
-			if ((f4 & (TR4_SLAY_UNDEAD)) &&
-			    (r_ptr->flags2 & (RF2_UNDEAD)))
+			if ((f4 & (TR4_SLAY_UNDEAD)) && (r_ptr->flags2 & (RF2_UNDEAD)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_UNDEAD);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_UNDEAD, FALSE);
 
 				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Demon */
-			if ((f4 & (TR4_SLAY_DEMON)) &&
-			    (r_ptr->flags2 & (RF2_DEMON)))
+			if ((f4 & (TR4_SLAY_DEMON)) && (r_ptr->flags2 & (RF2_DEMON)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_DEMON);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_DEMON, FALSE);
 
 				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Humanoid */
-			if ((f4 & (TR4_SLAY_HUMANOID)) &&
-			    (r_ptr->flags2 & (RF2_HUMANOID)))
+			if ((f4 & (TR4_SLAY_HUMANOID)) && (r_ptr->flags2 & (RF2_HUMANOID)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_HUMANOID);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_HUMANOID, FALSE);
 
 				if (mult < 3) mult = 3;
 			}
 
 			/* Slay People */
-			if ((f4 & (TR4_SLAY_PERSON)) &&
-			    (r_ptr->flags2 & (RF2_PERSON)))
+			if ((f4 & (TR4_SLAY_PERSON)) && (r_ptr->flags2 & (RF2_PERSON)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_PERSON);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_PERSON, FALSE);
 
 				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Dragon  */
-			if ((f4 & (TR4_SLAY_DRAGON)) &&
-			    (r_ptr->flags2 & (RF2_DRAGON)))
+			if ((f4 & (TR4_SLAY_DRAGON)) && (r_ptr->flags2 & (RF2_DRAGON)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_DRAGON);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_DRAGON, FALSE);
 
 				if (mult < 3) mult = 3;
 			}
 
 			/* Execute Dragon */
-			if ((f4 & (TR4_KILL_DRAGON)) &&
-			    (r_ptr->flags2 & (RF2_DRAGON)))
+			if ((f4 & (TR4_KILL_DRAGON)) && (r_ptr->flags2 & (RF2_DRAGON)))
 			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_DRAGON);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_DRAGON, FALSE);
 
 				if (mult < 5) mult = 5;
 			}
@@ -506,13 +431,8 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_ACID))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_ACID))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_ACID);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_ACID)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ACID, FALSE);
 
 				/* Otherwise, take the damage */
 				else
@@ -525,13 +445,8 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_ELEC))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_ELEC))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_ELEC);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_ELEC)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ELEC, FALSE);
 
 				/* Otherwise, take the damage */
 				else
@@ -544,13 +459,8 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_FIRE))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_FIRE))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_FIRE);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_FIRE)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FIRE, FALSE);
 
 				/* Otherwise, take the damage */
 				else
@@ -563,13 +473,8 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_COLD))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_COLD))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_COLD);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_COLD)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_COLD, FALSE);
 
 				/* Otherwise, take the damage */
 				else
@@ -582,13 +487,8 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_POIS))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_POIS))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_POIS);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_POIS)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_POIS, FALSE);
 
 				/* Otherwise, take the damage + poison the creature */
 				else
@@ -602,30 +502,21 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_LITE))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_LITE))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_LITE);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_LITE)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_LITE, FALSE);
 
 				/* Otherwise, take the damage */
 				else if (r_ptr->flags3 & (RF3_HURT_LITE))
 				{
 					if (mult < 5) mult = 5;
+					if (rand_int(100)<50) (*special) |= SPEC_BLIND;
 
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_HURT_LITE);
-						if (rand_int(100)<50) (*special) |= SPEC_BLIND;
-					}
+					lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_LITE, FALSE);
 				}
-
 				else 
 				{
 					if (mult < 2) mult = 2;
-					if (rand_int(100)<15) (*special) |= SPEC_BLIND;
+					if (rand_int(100)<20) (*special) |= SPEC_BLIND;
 				}
 			}
 
@@ -633,25 +524,16 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			if (f4 & (TR4_BRAND_DARK))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_RES_DARK))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_DARK);
-					}
-				}
+				if (r_ptr->flags3 & (RF3_RES_DARK)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_DARK, FALSE);
 
 				/* Otherwise, take the damage */
 				else if (r_ptr->flags3 & (RF3_HURT_DARK))
 				{
 					if (mult < 5) mult = 5;
-
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_HURT_DARK);
-					}
-
 					if (rand_int(100)<50) (*special) |= SPEC_BLIND;
+
+					lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_DARK, FALSE);
 				}
 
 				else 
@@ -664,14 +546,10 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			/* Wounding */
 			if (f4 & (TR4_WOUNDING))
 			{
+				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_NO_CUT))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_NO_CUT);
-					}
-				}
-				if (rand_int(100)<50) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
+				else if (rand_int(100)<50) 
 				{
 					/* Hack - bolts and arrows do more cutting damage */
 					if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW)) 
@@ -685,8 +563,10 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 			{
 				/* Hack - undead creatures aren't affected unless the blade also
 				   has slay undead */
-					if ((!(r_ptr->flags2 & (RF2_UNDEAD))) || (f4 & (TR4_SLAY_UNDEAD)))
-						(*special) |= SPEC_FEAR;
+				if (r_ptr->flags3 & (RF3_NO_FEAR)) 
+					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_FEAR, FALSE);
+				else if ((!(r_ptr->flags2 & (RF2_UNDEAD))) || (f4 & (TR4_SLAY_UNDEAD)))
+					(*special) |= SPEC_FEAR;
 			}
 
 			break;
@@ -1082,7 +962,7 @@ static void py_pickup(int pickup)
 		}
 
 		/* Pick up objects */
-		while (1)
+		while (TRUE)
 		{
 			cptr q, s;
 
@@ -1403,7 +1283,7 @@ void py_attack(int y, int x)
 	int num = 0, k, bonus, chance;
 
 	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	object_type *o_ptr;
 
@@ -1427,7 +1307,7 @@ void py_attack(int y, int x)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+	if (m_ptr->ml) monster_track(m_ptr->r_idx, m_ptr->u_idx);
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
@@ -1498,19 +1378,6 @@ void py_attack(int y, int x)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
 
-			/* Confusion attack */
-			if (p_ptr->confusing)
-			{
-				/* Confuse the monster */
-				special |= SPEC_CONF;
-
-				/* Cancel glowing hands */
-				p_ptr->confusing = FALSE;
-
-				/* Message */
-				message(MSG_EFFECT, 0, "Your hands stop glowing.");
-			}
-
 			/* Handle special effects (confusing, stunning, etc */
 			if (special) attack_special(cave_m_idx[y][x], special, k);
 		}
@@ -1546,9 +1413,6 @@ static void move_player(int dir, int jumping)
 {
 	int y, x;
 
-	/* Permit the player to move? */
-	bool can_move = FALSE;
-	
 	/* Find the result of moving */
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
@@ -3029,7 +2893,7 @@ void do_cmd_fire(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = get_monster_full(m_ptr);
+			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
@@ -3051,7 +2915,7 @@ void do_cmd_fire(void)
 				    (r_ptr->flags2 & (RF2_UNDEAD)) ||
 				    (r_ptr->flags2 & (RF2_PLANT)) ||
 				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg$", r_ptr->d_char)))
+				    (strchr("Evg$|!?~=", r_ptr->d_char)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -3076,7 +2940,7 @@ void do_cmd_fire(void)
 					message_format(MSG_SHOOT, o_ptr->k_idx, "The %s hits %s.", o_name, m_name);
 
 					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+					if (m_ptr->ml) monster_track(m_ptr->r_idx, m_ptr->u_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
@@ -3297,7 +3161,7 @@ void do_cmd_throw(void)
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = get_monster_full(m_ptr);
+			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
@@ -3319,7 +3183,7 @@ void do_cmd_throw(void)
 				    (r_ptr->flags2 & (RF2_UNDEAD)) ||
 				    (r_ptr->flags2 & (RF2_PLANT)) ||
 				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg$", r_ptr->d_char)))
+				    (strchr("Evg$|!?~=", r_ptr->d_char)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -3344,7 +3208,7 @@ void do_cmd_throw(void)
 					message_format(MSG_THROW, o_ptr->k_idx, "The %s hits %s.", o_name, m_name);
 
 					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+					if (m_ptr->ml) monster_track(m_ptr->r_idx, m_ptr->u_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
@@ -3357,7 +3221,7 @@ void do_cmd_throw(void)
 					{
 						case SV_POWDER_SLEEP:
 						{
-							if (sleep_monster(dir,20)) aware=TRUE;
+							if (sleep_monster(dir, 20)) aware=TRUE;
 							break;
 						}
 						case SV_POWDER_CONFUSE:
@@ -3380,7 +3244,7 @@ void do_cmd_throw(void)
 						}
 						case SV_POWDER_DARKNESS:
 						{
-							message(MSG_EFFECT, 0, "The powder bursts into a cloud pf darkness.");
+							message(MSG_EFFECT, 0, "The powder bursts into a cloud of darkness.");
 							(void)blind_monster(dir, 12);
 							(void)fire_bolt_or_beam(0, GF_DARK_WEAK, dir, damroll(5 , 7));
 							aware=TRUE;
@@ -3440,12 +3304,17 @@ void do_cmd_throw(void)
 						}
 						case SV_POWDER_SLOW:
 						{
-							if (slow_monster(dir,20)) aware=TRUE;
+							if (slow_monster(dir, 20)) aware=TRUE;
 							break;
 						}
 						case SV_POWDER_CALM:
 						{
-							if (calm_monster(dir,20)) aware=TRUE;
+							if (calm_monster(dir, 20)) aware=TRUE;
+							break;
+						}
+						case SV_POWDER_POLYMORPH:
+						{
+							if (poly_monster(dir, 20)) aware=TRUE;
 							break;
 						}
 					}

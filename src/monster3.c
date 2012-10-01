@@ -1,0 +1,404 @@
+/* File: monster3.c */
+
+/*
+ * This file contains the routines for handling the multi-tiered monster system.
+ *
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
+#include "angband.h"
+
+/* Hack - variables for caching purposes */
+
+static s16b stored_unique;
+
+/* 
+ * Get the information for a monster based on its indexes.
+ */
+cptr monster_text(int r_idx, int u_idx)
+{
+	/* Paranoia - if this happens, we're in trouble */
+	if (!r_idx) return (NULL);
+
+	/* Unique */
+	if (u_idx) return (u_text + u_info[u_idx].text);
+
+	/* Normal Monster */
+	else return (r_text + r_info[r_idx].text);
+}
+
+/* 
+ * Get the information for a monster based on its indexes.
+ */
+static cptr monster_name_aux(int r_idx, int u_idx)
+{
+	/* Paranoia - if this happens, we're in trouble */
+	if (!r_idx) return (NULL);
+
+	/* Unique */
+	if (u_idx) return (u_name + u_info[u_idx].name);
+
+	/* Normal Monster */
+	else return (r_name + r_info[r_idx].name);
+}
+
+/* 
+ * Get the information for a monster based on its race index alone.
+ */
+cptr monster_name_race(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!r_idx) return (NULL);
+
+	/* Unique */
+	if (r_ptr->flags1 & RF1_UNIQUE) 
+	{
+		int u_idx;
+		monster_unique *u_ptr;
+
+		for (u_idx = 0; u_idx < z_info->u_max; u_idx++)
+		{
+			u_ptr = &u_info[u_idx];
+
+			/* Find correct u_ptr */
+			if (u_ptr->r_idx == r_idx) break;
+		}
+
+		return (monster_name_aux(r_idx, u_idx));
+	}
+	
+	/* Not a unique */
+	return (monster_name_aux(r_idx, 0));
+}
+
+/* 
+ * Get the information for a monster based on its indexes.
+ */
+cptr monster_name_idx(int r_idx, int u_idx)
+{
+	return (monster_name_aux(r_idx, u_idx));
+}
+
+/* 
+ * Get the information for a real monster (one that has an m_list entry)
+ *
+ * Note that this function must NEVER be called for a dead monster.
+ */
+cptr monster_name(monster_type *m_ptr)
+{
+	return monster_name_aux(m_ptr->r_idx, m_ptr->u_idx);
+}
+
+
+/*
+ * The following functions return the pointer to where the actual monster information is
+ * stored. If the monster is a normal monster, this is in r_info. If the monster is
+ * a unique, our lives are a bit more complicated. 
+ */
+
+/* 
+ * Get the information for a real monster (one that has an m_list entry)
+ *
+ * Note that this function must NEVER be called for a dead monster.
+ */
+monster_race *get_monster_real(monster_type *m_ptr)
+{
+	int i;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!m_ptr->r_idx) quit(format("Error obtaining monster attributes code - missing r_idx."));
+	if ((m_ptr->r_idx < 0) || (m_ptr->r_idx >= z_info->r_max))
+		quit(format("Error obtaining monster attributes code - illegal r_idx"));
+
+	/* Simple monster */
+	if (!m_ptr->u_idx) return (r_ptr);
+
+	/* Paranoia - if this happens, we're in trouble */
+	if ((m_ptr->u_idx < 0) || (m_ptr->u_idx >= z_info->u_max))
+		quit(format("Error obtaining monster attributes code - illegal u_idx"));
+
+	/* It's a unique */
+
+	/* Optimization - check to see if the unique is already stored */
+	if (stored_unique != m_ptr->u_idx)
+	{
+		/*
+		 * Copy basic stats from u_ptr to the temporary monster. Note that name andtext,
+		 * are never derived from it so no need to copy them.
+		 */
+		monster_unique *u_ptr = &u_info[m_ptr->u_idx];
+
+		monster_temp.hdice = u_ptr->hdice;		
+		monster_temp.hside = u_ptr->hside;
+		monster_temp.ac = u_ptr->ac;
+		monster_temp.sleep = u_ptr->sleep;			
+		monster_temp.aaf = u_ptr->aaf;
+		monster_temp.speed = u_ptr->speed;			
+		monster_temp.mexp = u_ptr->mexp;
+		monster_temp.freq_spell = u_ptr->freq_spell;	
+		monster_temp.level = u_ptr->level;			
+		monster_temp.rarity = u_ptr->rarity;		
+		monster_temp.d_attr = u_ptr->d_attr;		
+
+		for (i = 0; i < 4; i++)
+		{
+			monster_temp.blow[i].method = u_ptr->blow[i].method;
+			monster_temp.blow[i].effect = u_ptr->blow[i].effect;
+			monster_temp.blow[i].d_dice = u_ptr->blow[i].d_dice;
+			monster_temp.blow[i].d_side = u_ptr->blow[i].d_side;
+		}
+
+		/* d_char copied from r_ptr */
+		monster_temp.d_char = r_ptr->d_char;
+
+		/* Flags are a combination of both */
+		monster_temp.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
+		monster_temp.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
+		monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
+		monster_temp.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
+		monster_temp.flags5 = (r_ptr->flags5 | u_ptr->flags5);		
+		monster_temp.flags6 = (r_ptr->flags6 | u_ptr->flags6);		
+
+		/* Remember the unique for next time */
+		stored_unique = m_ptr->u_idx;
+	}
+	
+	/* Hack - copy x_attr and x_char */
+	monster_temp.x_char = r_ptr->x_char;
+	monster_temp.x_attr = r_ptr->x_attr;
+
+	/* Success */
+	return (&monster_temp);
+}
+
+/* 
+ * Get the information for a fake monster 
+ *
+ * Note that this uses a different monster "body".
+ */
+monster_race *get_monster_fake(int r_idx, int u_idx)
+{
+	int i;
+
+	monster_race *r_ptr = &r_info[r_idx];
+	monster_unique *u_ptr = &u_info[u_idx];
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!r_idx) quit(format("Error obtaining monster attributes code - missing r_idx."));
+	if ((r_idx < 0) || (r_idx >= z_info->r_max))
+		quit(format("Error obtaining monster attributes code - illegal r_idx"));
+
+	/* Simple monster */
+	if (!u_idx) return (r_ptr);
+
+	/* Paranoia - if this happens, we're in trouble */
+	if ((u_idx < 0) || (u_idx >= z_info->u_max))
+		quit(format("Error obtaining monster attributes code - illegal u_idx"));
+
+	/* The monster happens to be the one already stored */
+	if (stored_unique == u_idx) return (&monster_temp);
+
+	/* It's a unique */
+	r_ptr = &r_info[u_ptr->r_idx];
+
+	/*
+	 * Copy basic stats from u_ptr to the temporary monster. Note that name andtext,
+	 * are never derived from it so no need to copy them.
+	 */
+	monster_temp_fake.hdice = u_ptr->hdice;		
+	monster_temp_fake.hside = u_ptr->hside;
+	monster_temp_fake.ac = u_ptr->ac;
+	monster_temp_fake.sleep = u_ptr->sleep;			
+	monster_temp_fake.aaf = u_ptr->aaf;
+	monster_temp_fake.speed = u_ptr->speed;			
+	monster_temp_fake.mexp = u_ptr->mexp;
+	monster_temp_fake.freq_spell = u_ptr->freq_spell;	
+	monster_temp_fake.level = u_ptr->level;			
+	monster_temp_fake.rarity = u_ptr->rarity;		
+	monster_temp_fake.d_attr = u_ptr->d_attr;		
+
+	for (i = 0; i < 4; i++)
+	{
+		monster_temp_fake.blow[i].method = u_ptr->blow[i].method;
+		monster_temp_fake.blow[i].effect = u_ptr->blow[i].effect;
+		monster_temp_fake.blow[i].d_dice = u_ptr->blow[i].d_dice;
+		monster_temp_fake.blow[i].d_side = u_ptr->blow[i].d_side;
+	}
+
+	/* x_attr, x_char and d_char copied from r_ptr */
+	monster_temp_fake.d_char = r_ptr->d_char;
+	monster_temp_fake.x_char = r_ptr->x_char;
+	monster_temp_fake.x_attr = r_ptr->x_attr;
+
+	/* Flags are a combination of both */
+	monster_temp_fake.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
+	monster_temp_fake.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
+	monster_temp_fake.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
+	monster_temp_fake.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
+	monster_temp_fake.flags5 = (r_ptr->flags5 | u_ptr->flags5);		
+	monster_temp_fake.flags6 = (r_ptr->flags6 | u_ptr->flags6);		
+
+	/* Success */
+	return (&monster_temp_fake);
+}
+
+/* 
+ * Get the lore information
+ */
+monster_lore *get_lore_idx(int r_idx, int u_idx)
+{
+	int i;
+
+	monster_lore *lr_ptr = &lr_list[r_idx];
+	monster_lore *lu_ptr = &lu_list[u_idx];
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!r_idx) quit(format("Error obtaining monster attributes code - missing r_idx."));
+	if ((r_idx < 0) || (r_idx >= z_info->r_max))
+		quit(format("Error obtaining monster attributes code - illegal r_idx"));
+
+	/* Simple monster */
+	if (!u_idx) return (lr_ptr);
+
+	/* Paranoia - if this happens, we're in trouble */
+	if ((u_idx < 0) || (u_idx >= z_info->u_max))
+		quit(format("Error obtaining monster attributes code - illegal u_idx"));
+
+	/*
+	 * Copy basic stats from u_ptr to the temporary monster. Note that name andtext,
+	 * are never derived from it so no need to copy them.
+	 */
+	for (i = 0; i < 4; i++)
+	{
+		lore_temp.r_blows[i] = lu_ptr->r_blows[i];
+	}
+
+	lore_temp.r_cast = lu_ptr->r_cast;
+	lore_temp.r_deaths = lu_ptr->r_deaths;
+	lore_temp.r_drop_gold = lu_ptr->r_drop_gold;
+	lore_temp.r_drop_item = lu_ptr->r_drop_item;
+	lore_temp.r_ignore = lu_ptr->r_ignore;
+	lore_temp.r_wake = lu_ptr->r_wake;
+	lore_temp.r_tkills = lu_ptr->r_tkills;
+	lore_temp.r_pkills = lu_ptr->r_pkills;
+	lore_temp.r_sights = lu_ptr->r_sights;
+
+	/* Flags are a combination of both */
+	lore_temp.r_flags1 = (lr_ptr->r_flags1 | lu_ptr->r_flags1);		
+	lore_temp.r_flags2 = (lr_ptr->r_flags2 | lu_ptr->r_flags2);		
+	lore_temp.r_flags3 = (lr_ptr->r_flags3 | lu_ptr->r_flags3);		
+	lore_temp.r_flags4 = (lr_ptr->r_flags4 | lu_ptr->r_flags4);		
+	lore_temp.r_flags5 = (lr_ptr->r_flags5 | lu_ptr->r_flags5);		
+	lore_temp.r_flags6 = (lr_ptr->r_flags6 | lu_ptr->r_flags6);		
+
+	/* Success */
+	return (&lore_temp);
+}
+
+/*
+ * This function is used to enable the player to learn a monster ability. It needs to figure
+ * out what part of the monster memory this ability belongs to, and place it there.
+ *
+ * "unseen" allows updating the info for monsters you can't see
+ */
+void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *lr_ptr = &lr_list[m_ptr->r_idx];
+
+	/* Paranoia - if this happens, we're in trouble */
+	if (!m_ptr->r_idx) quit(format("Error obtaining monster attributes code - missing r_idx."));
+	if ((m_ptr->r_idx < 0) || (m_ptr->r_idx >= z_info->r_max))
+		quit(format("Error obtaining monster attributes code - illegal r_idx"));
+	if ((m_ptr->u_idx < 0) || (m_ptr->u_idx >= z_info->u_max))
+		quit(format("Error obtaining monster attributes code - illegal u_idx"));
+
+	/* Unseen monster */
+	if (!unseen && !m_ptr->ml) return;
+
+	if (!m_ptr->u_idx)
+	{
+		/* Learn something */
+		switch (mode)
+		{
+			case LRN_FLAG1:   if (r_ptr->flags1 & what) lr_ptr->r_flags1 |= what;  break;
+			case LRN_FLAG2:   if (r_ptr->flags2 & what) lr_ptr->r_flags2 |= what;  break;
+			case LRN_FLAG3:   if (r_ptr->flags3 & what) lr_ptr->r_flags3 |= what;  break;
+			case LRN_FLAG4:	  if (r_ptr->flags4 & what) lr_ptr->r_flags4 |= what;  break;
+			case LRN_FLAG5:   if (r_ptr->flags5 & what) lr_ptr->r_flags5 |= what;  break;
+			case LRN_FLAG6:   if (r_ptr->flags6 & what) lr_ptr->r_flags6 |= what;  break;
+			case LRN_CASTS:   if (lr_ptr->r_cast   < MAX_UCHAR) lr_ptr->r_cast++;   break;
+			case LRN_SIGHTS:  if (lr_ptr->r_sights < MAX_SHORT) lr_ptr->r_sights++; break;
+			case LRN_IGNORES: if (lr_ptr->r_ignore < MAX_UCHAR) lr_ptr->r_ignore++; break;
+			case LRN_WAKES:   if (lr_ptr->r_wake   < MAX_UCHAR) lr_ptr->r_wake++;   break;
+			case LRN_PDEATH:  if (lr_ptr->r_deaths < MAX_SHORT) lr_ptr->r_deaths++; break;
+			case LRN_MDEATH:  if (lr_ptr->r_pkills < MAX_SHORT) lr_ptr->r_pkills++;
+							  if (lr_ptr->r_tkills < MAX_SHORT) lr_ptr->r_tkills++; break;
+			case LRN_BLOWS:   if (lr_ptr->r_blows[what] < MAX_UCHAR) lr_ptr->r_blows[what]++;  break;
+			case LRN_ITEM:    if (what > lr_ptr->r_drop_item) lr_ptr->r_drop_item = (byte)what; break;
+			case LRN_GOLD:    if (what > lr_ptr->r_drop_gold) lr_ptr->r_drop_gold = (byte)what; break;
+		}
+	}
+	else
+	/* Unique - more complex handling */
+	{
+		monster_unique *u_ptr = &u_info[m_ptr->u_idx];
+		monster_lore *lu_ptr = &lu_list[m_ptr->u_idx];
+
+		bool unique_hack = ((r_ptr->flags1 & RF1_UNIQUE) ? TRUE : FALSE);
+
+		/* Learn something */
+		switch (mode)
+		{
+			case LRN_FLAG1:   if (r_ptr->flags1 & what) lr_ptr->r_flags1 |= what; 
+							  if (u_ptr->flags1 & what) lu_ptr->r_flags1 |= what;  break;
+			case LRN_FLAG2:   if (r_ptr->flags2 & what) lr_ptr->r_flags2 |= what; 
+							  if (u_ptr->flags2 & what) lu_ptr->r_flags2 |= what;  break;
+			case LRN_FLAG3:   if (r_ptr->flags3 & what) lr_ptr->r_flags3 |= what; 
+							  if (u_ptr->flags3 & what) lu_ptr->r_flags3 |= what;  break;
+			case LRN_FLAG4:   if (r_ptr->flags4 & what) lr_ptr->r_flags4 |= what; 
+							  if (u_ptr->flags4 & what) lu_ptr->r_flags4 |= what;  break;
+			case LRN_FLAG5:   if (r_ptr->flags5 & what) lr_ptr->r_flags5 |= what; 
+							  if (u_ptr->flags5 & what) lu_ptr->r_flags5 |= what;  break;
+			case LRN_FLAG6:   if (r_ptr->flags6 & what) lr_ptr->r_flags6 |= what; 
+							  if (u_ptr->flags6 & what) lu_ptr->r_flags6 |= what;  break;
+			case LRN_CASTS:   if (lu_ptr->r_cast   < MAX_UCHAR) lu_ptr->r_cast++;   break;
+			case LRN_SIGHTS:  if (lu_ptr->r_sights < MAX_SHORT) lu_ptr->r_sights++;
+							  if (unique_hack)
+							  {
+								/* 
+								 * Hack which enables "special" uniques to be sorted correctly 
+								 * in various monster memory functions
+								 */
+								if (lr_ptr->r_sights < MAX_SHORT) lr_ptr->r_sights++;
+							  } break;
+			case LRN_IGNORES: if (lu_ptr->r_ignore < MAX_UCHAR) lu_ptr->r_ignore++; break;
+			case LRN_WAKES:   if (lu_ptr->r_wake   < MAX_UCHAR) lu_ptr->r_wake++;   break;
+			case LRN_PDEATH:  if (lu_ptr->r_deaths < MAX_SHORT) lu_ptr->r_deaths++; break;
+			case LRN_MDEATH:  if (lu_ptr->r_pkills < MAX_SHORT) lu_ptr->r_pkills++;
+							  if (lu_ptr->r_tkills < MAX_SHORT) lu_ptr->r_tkills++; 
+							  if (unique_hack)
+							  {
+								/* 
+								 * Hack which enables "special" uniques to be sorted correctly 
+								 * in various monster memory functions
+								 */
+								if (lr_ptr->r_pkills < MAX_SHORT) lr_ptr->r_pkills++;
+								if (lr_ptr->r_tkills < MAX_SHORT) lr_ptr->r_tkills++; break;
+							  } break;
+			case LRN_BLOWS:   if (lu_ptr->r_blows[what] < MAX_UCHAR) lu_ptr->r_blows[what]++;  break;
+			case LRN_ITEM:    if (what > lu_ptr->r_drop_item) lu_ptr->r_drop_item = (byte)what; break;
+			case LRN_GOLD:    if (what > lu_ptr->r_drop_gold) lu_ptr->r_drop_gold = (byte)what; break;
+		}
+	}
+
+	return;
+}

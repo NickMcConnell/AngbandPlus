@@ -52,7 +52,7 @@ static cptr ring_adj[SV_RING_MAX] =
 	"Engagement", "Adamantite" /*, "Wedding", "Lead", "Double-banded" */
 };
 
-static byte ring_col[SV_RING_MAX] =
+byte ring_col[SV_RING_MAX] =
 {
 	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
 	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
@@ -138,7 +138,6 @@ static byte wand_col[MAX_METALS] =
 	TERM_WHITE, TERM_L_WHITE, TERM_SLATE, TERM_WHITE, TERM_SLATE*/
 };
 
-
 /*
  * Rods (adjectives and colors).
  *
@@ -148,26 +147,23 @@ static cptr rod_adj[MAX_METALS];
 
 static byte rod_col[MAX_METALS];
 
-
 /*
  * Mushrooms (adjectives and colors).
  */
 static cptr food_adj[SV_FOOD_MAX_SHROOM] =
 {
-	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
-	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
-	"Grey", "Light Blue", "Light Green", "Violet", "Red",
-	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
-	"Orange", "Pink"
+	"Blue", "Dark Blue", "Grey", "Grey Spotted", "Pink",
+	"Red", "Yellow", "Golden", "Orange", "Orange Spotted",
+	"Green", "Green Spotted", "Purple", "Violet", "Dark Green",
+	"White", "Brown"
 };
 
 static byte food_col[SV_FOOD_MAX_SHROOM] =
 {
-	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
-	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
-	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
-	TERM_ORANGE, TERM_L_RED
+	TERM_BLUE, TERM_BLUE, TERM_SLATE, TERM_SLATE, TERM_L_RED,
+	TERM_L_RED, TERM_YELLOW, TERM_YELLOW, TERM_ORANGE, TERM_ORANGE,
+	TERM_L_GREEN, TERM_L_GREEN, TERM_VIOLET, TERM_VIOLET, TERM_GREEN,
+	TERM_WHITE, TERM_UMBER
 };
 
 /*
@@ -210,7 +206,7 @@ static cptr potion_adj[SV_POTION_MAX] =
 	"Lavender", "Bluish-Purple", "Luminescent"
 };
 
-static byte potion_col[SV_POTION_MAX] =
+byte potion_col[SV_POTION_MAX] =
 {
 	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
@@ -234,14 +230,16 @@ static cptr powder_adj[SV_POWDER_MAX] =
 {
 	"Red", "Yellow", "Blue", "Green", "Violet", 
     "Pink", "Grey", "Light Brown", "Dark Brown", "Light Green", 
-	"Light Blue", "Black", "White", "Silver", "Golden"
+	"Light Blue", "Black", "White", "Silver", "Golden",
+	"Orange"
 };
 
 static byte powder_col[SV_POWDER_MAX] =
 {
 	TERM_RED, TERM_YELLOW, TERM_BLUE, TERM_GREEN, TERM_VIOLET, 
 	TERM_L_RED, TERM_SLATE, TERM_L_UMBER, TERM_UMBER, TERM_L_GREEN, 
-	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_WHITE, TERM_YELLOW
+	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_WHITE, TERM_YELLOW,
+	TERM_ORANGE
 };
 
 /*
@@ -595,7 +593,7 @@ void flavor_init(void)
 			buf[0] = '\0';
 
 			/* Collect words until done */
-			while (1)
+			while (TRUE)
 			{
 				int q, s;
 
@@ -798,7 +796,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 	object_kind *k_ptr;
 
 	/* Check artifact knowledge status */
-	if (artifact_p(o_ptr))
+		if (artifact_p(o_ptr))
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
@@ -861,6 +859,14 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 
 		if (mode == OBJECT_FLAGS_KNOWN)
 		{
+			if (o_ptr->e_idx)
+			{
+				ego_item_type *e_ptr = &e_info[o_ptr->e_idx];
+
+				/* Obvious flags (pval) */
+				(*f1) = (e_ptr->flags1);
+			}
+
 			/* Obvious artifact flags */
 			if (o_ptr->a_idx)
 			{
@@ -2217,17 +2223,16 @@ static cptr act_description[ACT_MAX] =
 
 /*
  * Determine the "Activation" (if any) for an artifact
- * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+bool item_activation(char *text, int *time1, int *time2, object_type *o_ptr)
 {
 	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-
+	
 	/* Require activation ability */
-	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
+	if (!(f3 & (TR3_ACTIVATE))) return (FALSE);
 
 	/* Artifact activations */
 	if (o_ptr->a_idx)
@@ -2235,80 +2240,115 @@ cptr item_activation(object_type *o_ptr)
 		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
 		/* Paranoia */
-		if (a_ptr->activation >= ACT_MAX)
-			return (NULL);
+		if (a_ptr->activation >= ACT_MAX) return (FALSE);
 
 		/* Some artifacts can be activated */
-		return (act_description[a_ptr->activation]);
+		strcpy(text, act_description[a_ptr->activation]);
+		*time1 = a_ptr->time;
+		*time2 = a_ptr->randtime;
+		return (TRUE);
 	}
 
 	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
+	if (o_ptr->tval != TV_DRAG_ARMOR) return (FALSE);
 
 	/* Branch on the sub-type */
 	switch (o_ptr->sval)
 	{
 		case SV_DRAGON_BLUE:
 		{
-			return "breathe lightning (100) every 450+d450 turns";
+			strcpy (text, "breathe lightning (125+)");
+			*time1 = *time2 = 100 + (125 / 4);
+			break;
 		}
 		case SV_DRAGON_WHITE:
 		{
-			return "breathe frost (110) every 450+d450 turns";
+			strcpy (text, "breathe frost (125+)");
+			*time1 = *time2 = 100 + (125 / 4);
+			break;
 		}
 		case SV_DRAGON_BLACK:
 		{
-			return "breathe acid (130) every 450+d450 turns";
+			strcpy (text, "breathe acid (125+)");
+			*time1 = *time2 = 100 + (125 / 4);
+			break;
 		}
 		case SV_DRAGON_GREEN:
 		{
-			return "breathe poison gas (150) every 450+d450 turns";
+			strcpy (text, "breathe poison gas (150+)");
+			*time1 = *time2 = 100 + (150 / 4);
+			break;
 		}
 		case SV_DRAGON_RED:
 		{
-			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			return "breathe multi-hued (250) every 225+d225 turns";
+			strcpy (text, "breathe fire (125+)");
+			*time1 = *time2 = 100 + (125 / 4);
+			break;
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			return "breathe confusion (120) every 450+d450 turns";
+			strcpy (text, "breathe confusion (100+)");
+			*time1 = *time2 = 100 + (100 / 4);
+			break;
 		}
 		case SV_DRAGON_GOLD:
 		{
-			return "breathe sound (130) every 450+d450 turns";
+			strcpy (text, "breathe sound (100+)");
+			*time1 = *time2 = 100 + (100 / 4);
+			break;
 		}
-		case SV_DRAGON_CHAOS:
+		case SV_DRAGON_SILVER:
 		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
+			strcpy (text, "breathe shards (100+)");
+			*time1 = *time2 = 100 + (100 / 4);
+			break;
 		}
-		case SV_DRAGON_LAW:
+		case SV_DRAGON_MULTIHUED:
 		{
-			return "breathe sound/shards (230) every 300+d300 turns";
+			strcpy (text, "breathe multi-hued (250+)");
+			*time1 = *time2 = 100 + (250 / 4);
+			break;
 		}
-		case SV_DRAGON_BALANCE:
+		case SV_DRAGON_SPIRIT:
 		{
-			return "breathe balance (250) every 300+d300 turns";
+			strcpy (text, "breathe force (250+)");
+			*time1 = *time2 = 100 + (250 / 4);
+			break;
 		}
-		case SV_DRAGON_SHINING:
+		case SV_DRAGON_SHADOW:
 		{
-			return "breathe light/darkness (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-			return "breathe the elements (300) every 300+d300 turns";
+			strcpy (text, "breathe nether (250+)");
+			*time1 = *time2 = 100 + (250 / 4);
+			break;
 		}
 		case SV_DRAGON_ETHEREAL:
 		{
-			return "breathe light/darkness/confusion (300) every 300+d300 turns";
+			strcpy (text, "breathe light/darkness/confusion  (250+)");
+			*time1 = *time2 = 100 + (250 / 4);
+			break;
 		}
-
+		case SV_DRAGON_CHAOS:
+		{
+			strcpy (text, "breathe chaos/disenchant/plasma/sound  (350+)");
+			*time1 = *time2 = 100 + (350 / 4);
+			break;
+		}
+		case SV_DRAGON_TIME:
+		{
+			strcpy (text, "breathe time/inertia/nexus/nether  (350+)");
+			*time1 = *time2 = 100 + (350 / 4);
+			break;
+		}
+		case SV_DRAGON_POWER:
+		{
+			strcpy (text, "breathe the elements  (400+)");
+			*time1 = *time2 = 100 + (400 / 4);
+			break;
+		} 
 	}
 
-	/* Oops */
-	return NULL;
+	/* Done */
+	return (TRUE);
 }
 
 /*
@@ -2324,7 +2364,7 @@ cptr item_activation(object_type *o_ptr)
  *
  * ToDo: Allow dynamic generation of strings.
  */
-bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
+static bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info)
 {
 	int i = 0;
 
@@ -2336,8 +2376,13 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
 	{
+		char s[100];
+		int j = 0;
+		int k = 0;
+
 		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
+		(void)item_activation(s, &j, &k, o_ptr);
+		info[i++] = format("%s every %d+d%d turns", s, j, k);
 		info[i++] = "...if it is being worn.";
 	}
 
@@ -2378,10 +2423,19 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 			if (o_ptr->tval == TV_LITE)
 			{
 				info[i++] = "--- While fueled:";
-				info[i++] = format("It provides light (radius %d)",rad);
+				if (rad == 4) info[i++] = "It provides light (radius 4)";
+				if (rad == 3) info[i++] = "It provides light (radius 3)";
+				if (rad == 2) info[i++] = "It provides light (radius 2)";
+				if (rad == 1) info[i++] = "It provides light (radius 1)";
 			}
 			/* TV_LITE_SPECIAL */ 
-			else info[i++] = format("It provides light (radius %d) forever.",rad); 
+			else 
+			{
+				if (rad == 4) info[i++] = "It provides light (radius 4) forever";
+				if (rad == 3) info[i++] = "It provides light (radius 3) forever";
+				if (rad == 2) info[i++] = "It provides light (radius 2) forever";
+				if (rad == 1) info[i++] = "It provides light (radius 1) forever";
+			}
 		}
 	}
 
@@ -2671,6 +2725,10 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It renders you completely invisible.";
 	}
+	if (f3 & (TR3_LUCK))
+	{
+		info[i++] = "It improves your chances of finding good equipment.";
+	}
 	if (f2 & (TR2_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
@@ -2751,10 +2809,10 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 /*
  * Describe an item's random attributes for "character dumps"
  */
-int identify_random_gen(object_type *o_ptr, cptr *info, int len)
+int identify_random_gen(object_type *o_ptr, cptr *info)
 {
 	/* Fill the list of descriptions and return the count */
-	return identify_fully_aux2(o_ptr, OBJECT_FLAGS_RANDOM, info, len);
+	return identify_fully_aux2(o_ptr, OBJECT_FLAGS_RANDOM, info);
 }
 
 /*
@@ -2767,7 +2825,7 @@ bool identify_fully_aux(object_type *o_ptr)
 
 	/* Fill the list of descriptions */
 
-	i = identify_fully_aux2(o_ptr, OBJECT_FLAGS_KNOWN, info, 128);
+	i = identify_fully_aux2(o_ptr, OBJECT_FLAGS_KNOWN, info);
 
 	/* No special effects */
 	if (!i) return (FALSE);

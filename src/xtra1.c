@@ -1085,7 +1085,8 @@ static void fix_monster(void)
 		Term_activate(angband_term[j]);
 
 		/* Display monster race info */
-		if (p_ptr->monster_race_idx) display_roff(p_ptr->monster_race_idx);
+		if (p_ptr->monster_race_idx) 
+			display_roff(p_ptr->monster_race_idx, p_ptr->monster_unique_idx);
 
 		/* Fresh */
 		Term_fresh();
@@ -1189,7 +1190,7 @@ static void fix_m_list(void)
 			for (i = 1; i< z_info->r_max; i++)
 			{
 				monster_race *r_ptr = &r_info[i];
-				monster_lore *l_ptr = &l_list[i];
+				monster_lore *lr_ptr = &lr_list[i];
 
 				/* Default Colour */
 				byte attr = TERM_WHITE;
@@ -1204,7 +1205,7 @@ static void fix_m_list(void)
 				}
 
 				/* Have we ever killed one? */
-				if (l_ptr->r_tkills)
+				if (lr_ptr->r_tkills)
 				{
 					if (r_ptr->level > p_ptr->depth)
 					{
@@ -1219,17 +1220,17 @@ static void fix_m_list(void)
 				else
 				{
 					if (!(r_ptr->flags1 & RF1_UNIQUE)) attr = TERM_SLATE;
-				}
-			
+				}			
 				
 				/* Dump the monster name */
 				if (r_ptr->total_visible == 1)
 				{
-					c_prt(attr, (r_name + r_ptr->name), (num % (h - 1)) + 1, (num / (h - 1) * 26));
+					c_prt(attr, (monster_name_race(i)), (num % (h - 1)) + 1, (num / (h - 1) * 26));
 				}
 				else
 				{
-					c_prt(attr,format("%s (x%d)",r_name + r_ptr->name, r_ptr->total_visible), (num % (h - 1)) + 1, (num / (h - 1)) * 26);
+					c_prt(attr,format("%s (x%d)", monster_name_race(i), r_ptr->total_visible), 
+						(num % (h - 1)) + 1, (num / (h - 1)) * 26);
 				}
 
 				num++;
@@ -1842,6 +1843,7 @@ static void calc_bonuses(void)
 	p_ptr->lite = FALSE;
 	p_ptr->bravery = FALSE;
 	p_ptr->no_blind = FALSE;
+	p_ptr->luck = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
 	p_ptr->sustain_wis = FALSE;
@@ -1900,6 +1902,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_INVIS)) p_ptr->invis = TRUE;
+	if (f3 & (TR3_LUCK)) p_ptr->luck = TRUE;
 
 	/* "semi-immunities" */
 	if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
@@ -2014,6 +2017,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_INVIS)) p_ptr->invis = TRUE;
+		if (f3 & (TR3_LUCK)) p_ptr->luck = TRUE;
 
 		/* "semi-immunities" */
 		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
@@ -2263,6 +2267,11 @@ static void calc_bonuses(void)
 		p_ptr->tim_flag2 |= TR2_RES_POIS; 
 	}
 
+	if (p_ptr->oppose_disease)
+	{
+		p_ptr->tim_flag2 |= TR2_RES_DISEASE;
+	}
+
 	if (p_ptr->tim_res_lite)
 	{
 		p_ptr->resist_lite = TRUE;
@@ -2315,12 +2324,6 @@ static void calc_bonuses(void)
 	{
 		p_ptr->resist_chaos = TRUE;
 		p_ptr->tim_flag2 |= TR2_RES_CHAOS;
-	}
-
-	if (p_ptr->tim_res_disease)
-	{
-		p_ptr->resist_disease = TRUE;
-		p_ptr->tim_flag2 |= TR2_RES_DISEASE;
 	}
 
 	/*** Analyze weight ***/

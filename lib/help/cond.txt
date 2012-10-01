@@ -150,6 +150,9 @@ Abilities:
           will be less likely to target you with spells. Note, though, that the
           effectiveness of invisibility depends greatly on your stealth - and if
           your stealth is very low, you might not benifit from it at all.
+     Luck:
+          Some items make you luckier, allowing you to find better items more 
+          often.
      Stealth :
           Items with this ability decrease the amount of noise your character 
           makes as he moves around the dungeon and performs actions.

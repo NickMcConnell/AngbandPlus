@@ -117,20 +117,13 @@ cptr describe_quest(s16b level, int mode)
 	char where[80];
 
 	quest_type *q_ptr = &q_info[q_idx];
-	monster_race *r_ptr = &r_info[q_ptr->r_idx];
 
 	if (!q_idx) return NULL;
 
-	strcpy(name, (r_name + r_ptr->name));
-
-	/* Unique quest monster */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		strcpy(targets, name);
-	}
+	strcpy(name, (monster_name_race(q_ptr->r_idx)));
 
 	/* Multiple quest monsters */
-	else if ((q_ptr->max_num - q_ptr->cur_num) > 1)
+	if ((q_ptr->max_num - q_ptr->cur_num) > 1)
 	{
 		plural_aux(name);
 		strcpy(targets, format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name));
@@ -189,7 +182,7 @@ static void grant_reward(byte reward_level, byte type)
 			object_wipe(i_ptr);
 
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			if (!make_gold(i_ptr, 0)) continue;
 
 			/* Drop it in the dungeon */
 			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
@@ -205,13 +198,12 @@ static void grant_reward(byte reward_level, byte type)
 /*
  * Actually give the character a quest
  */
-static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
+static bool place_quest(int q, int lev, int number, int difficulty)
 {
 	int i, mcount, midx;
 	int chance;
 	sint lev_diff;
 	monster_race *r_ptr;
-	monster_lore *l_ptr;
 
 	mcount = 0;
 
@@ -245,8 +237,6 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		for (i = 0; i < z_info->r_max; i++)
 		{
 			r_ptr = &r_info[i];
-			l_ptr = &l_list[i];
-
 			/* Never any monster with force depth */
 			if (r_ptr->flags1 & RF1_FORCE_DEPTH) continue;
 
@@ -257,19 +247,9 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 			if (r_ptr->flags1 & RF1_NEVER_MOVE) continue;
 
 			/* Count an appropriate monster */
-			if (unique)
-			{
-				if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-				if (l_ptr->r_pkills) continue;
+			if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
-				if (r_ptr->level == (lev + lev_diff)) mcount++;
-			}
-			else 
-			{
-				if (r_ptr->flags1 & RF1_UNIQUE) continue;
-
-				if (r_ptr->level == (lev + lev_diff)) mcount++;
-			}
+			if (r_ptr->level == (lev + lev_diff)) mcount++;
 		}
 
 		/* Climb up until you find a suitable monster type */
@@ -287,7 +267,6 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	for (i = 0, mcount = 0; mcount < midx; i++)
 	{
 		r_ptr = &r_info[i];
-		l_ptr = &l_list[i];
 
 		/* Never any monster with force depth */
 		if ((r_ptr->flags1 & RF1_FORCE_DEPTH)) continue;
@@ -299,17 +278,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		if (r_ptr->flags1 & RF1_NEVER_MOVE) continue;
 
 		/* Count appropriate monsters */
-		if (unique)
-		{
-			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-			if (l_ptr->r_pkills) continue;
-			if (r_ptr->level == (lev+lev_diff)) mcount++;
-		}
-		else 
-		{
-			if ((r_ptr->flags1 & RF1_UNIQUE)) continue;
-			if (r_ptr->level == (lev+lev_diff)) mcount++;
-		}
+		if ((r_ptr->flags1 & RF1_UNIQUE)) continue;
+		if (r_ptr->level == (lev+lev_diff)) mcount++;
 	}
 
 	if (i <= 1) 
@@ -322,12 +292,14 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	if (number <= 0) number = 1;
 	if (number > 63) number = 63;
 
+	if (adult_easy_mode) number = (number + 1) / 2;
+
 	/* Actually write the quest */
 	q_info[q].type = QUEST_GUILD;
 	q_info[q].base_level = lev;
 	q_info[q].active_level = lev;
-	q_info[q].r_idx = i-1;
-	q_info[q].max_num = (unique) ? 1 : number;
+	q_info[q].r_idx = i - 1;
+	q_info[q].max_num = number;
 	q_info[q].started = FALSE;
 
 	/* Set current quest */
@@ -335,8 +307,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 
 	/* Decide on reward type */
 
-	/* 100% for gold reward, modified by difficulty and dlev*/
-	chance = 100 - (difficulty * 15) - (lev / 3); 
+	/* Chance of gold reward */
+	chance = 90 - ((difficulty - 1) * 20) - (lev * 2); 
 	
 	/* No negative chances */
 	if (chance < 0) chance = 0;
@@ -344,8 +316,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	if (rand_int(100) < chance) q_info[q].reward = REWARD_GOLD;
 	else
 	{
-		/* 85% for good item reward, modified by difficulty and dlev*/
-		chance = 85 - (difficulty * 5) - (lev / 5); 
+		/* Chance of good item reward */
+		chance = 95 - ((difficulty - 1) * 10) - (lev - 1); 
 
 		if (chance < 0) chance = 0;
 
@@ -367,7 +339,6 @@ void display_guild(void)
 {
 	int i, j;
 	cptr q_out;
-	bool legal = TRUE;
 
 	/* Describe the guild */
 	put_str("The Adventurer's Guild", 3, 30);
@@ -435,7 +406,7 @@ void display_guild(void)
 			else 
 			{
 				attr = TERM_ORANGE;
-				difficulty = "A challanging";
+				difficulty = "A challenging";
 			}
 
 			put_str(format("%c)", I2A(avail_quest)), 7+avail_quest, 0);
@@ -507,7 +478,6 @@ void guild_purchase(void)
 {
 	int item;
 	int i, slot, qlev, num;
-	bool unique;
 	bool found = FALSE;
 
 	/* In a current quest */
@@ -559,14 +529,9 @@ void guild_purchase(void)
 
 	if (found)
 	{
-		unique = FALSE;
-		if (guild[item] == 99) unique = TRUE;
-		
 		/* How many monsters? */
-
-		if (unique) num = 1;
-		else num = damroll(4,4)+2;
-		if (!place_quest(slot, qlev, num, (unique) ? 0 : guild[item], unique)) return;
+		num = damroll(5,3)+2;
+		if (!place_quest(slot, qlev, num, guild[item])) return;
 	}
 
 	else message(MSG_FAIL, 0, "You can't accept any more quests!");

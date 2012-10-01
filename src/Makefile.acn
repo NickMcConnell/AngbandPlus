@@ -17,7 +17,7 @@
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
   variable.o tables.o util.o cave.o \
-  object1.o object2.o monster1.o monster2.o \
+  object1.o object2.o monster1.o monster2.o monster3.o\
   xtra1.o xtra2.o effects.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o squelch.o\
   cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \

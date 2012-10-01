@@ -14,8 +14,11 @@
  * Helper function -- return a "nearby" race for polymorphing
  *
  * Note that this function is one of the more "dangerous" ones...
+ *
+ * "Power" is used to somewhat control the monster choice. High power
+ * means greater likelihood of easier monsters.
  */
-s16b poly_r_idx(int r_idx)
+static s16b poly_r_idx(int r_idx, int power)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -25,8 +28,8 @@ s16b poly_r_idx(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (r_idx);
 
 	/* Allowable range of "levels" for resulting monster */
-	lev1 = r_ptr->level - ((randint(20)/randint(9))+1);
-	lev2 = r_ptr->level + ((randint(20)/randint(9))+1);
+	lev1 = r_ptr->level - ((randint(20)/randint(9))+1) - (power / 10);
+	lev2 = r_ptr->level + ((randint(20)/randint(9))+1) - ((power - 3) / 7);
 
 	/* Pick a (possibly new) non-unique race */
 	for (i = 0; i < 1000; i++)
@@ -93,7 +96,7 @@ void teleport_away(int m_idx, int dis)
 		for (i = 0; i < 500; i++)
 		{
 			/* Pick a (possibly illegal) location */
-			while (1)
+			while (TRUE)
 			{
 				ny = rand_spread(oy, dis);
 				nx = rand_spread(ox, dis);
@@ -162,7 +165,7 @@ void teleport_player(int dis)
 		for (i = 0; i < 500; i++)
 		{
 			/* Pick a (possibly illegal) location */
-			while (1)
+			while (TRUE)
 			{
 				y = rand_spread(p_ptr->py, dis);
 				x = rand_spread(p_ptr->px, dis);
@@ -230,10 +233,10 @@ void teleport_monster_to(int m_idx, int ny, int nx)
 	x = mx;
 
 	/* Find a usable location */
-	while (1)
+	while (TRUE)
 	{
 		/* Pick a nearby legal location */
-		while (1)
+		while (TRUE)
 		{
 			y = rand_spread(ny, dis);
 			x = rand_spread(nx, dis);
@@ -275,10 +278,10 @@ void teleport_player_to(int ny, int nx)
 	int dis = 0, ctr = 0;
 
 	/* Find a usable location */
-	while (1)
+	while (TRUE)
 	{
 		/* Pick a nearby legal location */
-		while (1)
+		while (TRUE)
 		{
 			y = rand_spread(ny, dis);
 			x = rand_spread(nx, dis);
@@ -376,6 +379,7 @@ static byte spell_color(int type)
 		case GF_FIRE:		return (TERM_RED);
 		case GF_COLD:		return (TERM_WHITE);
 		case GF_POIS:		return (TERM_GREEN);
+		case GF_DISEASE:	return (TERM_L_GREEN);
 		case GF_HOLY_ORB:	return (TERM_L_DARK);
 		case GF_MANA:		return (TERM_L_DARK);
 		case GF_ARROW:		return (TERM_WHITE);
@@ -1734,7 +1738,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
-	monster_lore *l_ptr;
 
 	cptr name;
 
@@ -1802,9 +1805,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Obtain monster info */
 	m_ptr = &m_list[cave_m_idx[y][x]];
-	r_ptr = get_monster_full(m_ptr);
-	l_ptr = &l_list[m_ptr->r_idx];
-	name = (r_name + r_ptr->name);
+	r_ptr = get_monster_real(m_ptr);
+	name = monster_name(m_ptr);
 	if (m_ptr->ml) seen = TRUE;
 
 	/* Reduce damage by distance */
@@ -1818,14 +1820,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	    (r_ptr->flags2 & (RF2_UNDEAD)) ||
 	    (r_ptr->flags2 & (RF2_STUPID)) ||
 	    (r_ptr->flags2 & (RF2_PLANT)) ||
-	    (strchr("Evg$", r_ptr->d_char)))
+	    (strchr("Evg$|!?~=", r_ptr->d_char)))
 	{
 		/* Special note at death */
 		note_dies = " is destroyed.";
 	}
 
 	/* Uniques get a higher resistance level */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) resist = 5;
+	if (r_ptr->flags1 & (RF1_UNIQUE)) resist = 10;
 
 	/* Analyze the damage type */
 	switch (typ)
@@ -1845,7 +1847,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 2;
 				note = " is hit hard.";
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 			}
 			break;
 		}
@@ -1865,9 +1867,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_ACID)))) 
-					l_ptr->r_flags3 |= (RF3_RES_ACID);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ACID , FALSE);
 			}
 			break;
 		}
@@ -1880,9 +1880,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_ELEC))))
-					l_ptr->r_flags3 |= (RF3_RES_ELEC);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_ELEC, FALSE);
 			}
 			break;
 		}
@@ -1895,9 +1893,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_FIRE)))) 
-					l_ptr->r_flags3 |= (RF3_RES_FIRE);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FIRE, FALSE);
 			}
 			break;
 		}
@@ -1910,9 +1906,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_COLD))))
-					l_ptr->r_flags3 |= (RF3_RES_COLD);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_COLD, FALSE);
 			}
 			break;
 		}
@@ -1928,9 +1922,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists a lot.";
 				dam /= 9;
 				do_pois = 0;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_POIS))))
-					l_ptr->r_flags3 |= (RF3_RES_POIS);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_POIS, FALSE);
 			}
 			break;
 		}
@@ -1943,9 +1935,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 8;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_DISEASE))))
-					l_ptr->r_flags3 |= (RF3_RES_DISEASE);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_DISEASE, FALSE);
 			}
 			break;
 		}
@@ -1958,9 +1948,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_PLAS))))
-					l_ptr->r_flags3 |= (RF3_RES_PLAS);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_PLAS, FALSE);
 			}
 			break;
 		}
@@ -1973,21 +1961,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " is immune.";
 				dam = 0;
-				if (seen) l_ptr->r_flags2 |= (RF2_UNDEAD);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_UNDEAD, FALSE);
 			}
 			else if ((r_ptr->flags3 & (RF3_RES_NETH)) || (r_ptr->flags4 & (RF4_BR_NETH)))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_NETH))))
-					l_ptr->r_flags3 |= (RF3_RES_NETH);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_NETH, FALSE);
 			}
 			else if (r_ptr->flags2 & (RF2_EVIL))
 			{
 				dam /= 2;
 				note = " resists somewhat.";
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 			}
 			break;
 		}
@@ -2000,9 +1986,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_WATER))))
-					l_ptr->r_flags3 |= (RF3_RES_WATER);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_WATER, FALSE);
 			}
 			break;
 		}
@@ -2019,9 +2003,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 3; dam /= (randint(6)+6);
 				do_poly = FALSE;
 				do_conf = 0;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_CHAO))))
-					l_ptr->r_flags3 |= (RF3_RES_CHAO);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_CHAO, FALSE);
 			}
 			else if (r_ptr->flags2 & (RF2_CHAOTIC))
 			{
@@ -2029,7 +2011,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam /= 2;
 				do_poly = FALSE;
 				do_conf = 0;
-				if (seen) l_ptr->r_flags2 |= (RF2_CHAOTIC);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_CHAOTIC, FALSE);
 			}
 			break;
 		}
@@ -2045,9 +2027,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				do_cut = 0;
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_SHAR))))
-					l_ptr->r_flags3 |= (RF3_RES_SHAR);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_SHAR, FALSE);
 			}
 			break;
 		}
@@ -2063,8 +2043,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 2; dam /= (randint(6)+6);
 				do_stun = 0;
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_SOUN))))
-					l_ptr->r_flags3 |= (RF3_RES_SOUN);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_SOUN, FALSE);
 			}
 			break;
 		}
@@ -2080,8 +2059,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 2; dam /= (randint(6)+6);
 				do_conf = 0;
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_CONF))))
-					l_ptr->r_flags3 |= (RF3_RES_CONF);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_CONF, FALSE);
 			}
 			break;
 		}
@@ -2095,8 +2073,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_DISE))))
-					l_ptr->r_flags3 |= (RF3_RES_DISE);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_DISE, FALSE);
 			}
 			break;
 		}
@@ -2110,8 +2087,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_NEXU))))
-					l_ptr->r_flags3 |= (RF3_RES_NEXU);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_NEXU, FALSE);
 			}
 			break;
 		}
@@ -2127,8 +2103,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 3; dam /= (randint(6)+6);
 				do_stun = 0;
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_FORCE))))
-					l_ptr->r_flags3 |= (RF3_RES_FORCE);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_FORCE, FALSE);
 			}
 			break;
 		}
@@ -2142,8 +2117,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_INER))))
-					l_ptr->r_flags3 |= (RF3_RES_INER);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_INER, FALSE);
 			}
 			break;
 		}
@@ -2157,8 +2131,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_TIME))))
-					l_ptr->r_flags3 |= (RF3_RES_TIME);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_TIME, FALSE);
 			}
 			break;
 		}
@@ -2174,8 +2147,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 3; dam /= (randint(6)+6);
 				do_dist = 0;
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_GRAV))))
-					l_ptr->r_flags3 |= (RF3_RES_GRAV);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_GRAV, FALSE);
 			}
 			break;
 		}
@@ -2189,8 +2161,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists somewhat.";
 				dam /= 2;
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_MANA))))
-					l_ptr->r_flags3 |= (RF3_RES_MANA);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_MANA, FALSE);
 			}
 			break;
 		}
@@ -2215,12 +2186,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				do_cut = 0;
 				do_stun = 0;
 				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_COLD))))
-					l_ptr->r_flags3 |= (RF3_RES_COLD);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_COLD, FALSE);
 			}
 			break;
 		}
-
 
 		/* Drain Life */
 		case GF_OLD_DRAIN:
@@ -2232,11 +2201,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				if (r_ptr->flags2 & (RF2_UNDEAD))
 				{
-					if (seen) l_ptr->r_flags2 |= (RF2_UNDEAD);
+					lore_learn(m_ptr, LRN_FLAG2, RF2_UNDEAD, FALSE);
 				}
 				if (r_ptr->flags2 & (RF2_DEMON))
 				{
-					if (seen) l_ptr->r_flags2 |= (RF2_DEMON);
+					lore_learn(m_ptr, LRN_FLAG2, RF2_DEMON, FALSE);
 				}
 
 				note = " is unaffected!";
@@ -2257,7 +2226,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Powerful monsters can resist, uniques are immune */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
 				note = " is unaffected!";
 				do_poly = FALSE;
@@ -2340,7 +2309,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Powerful monsters can resist */
-			if (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+			if (r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10))
 			{
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -2365,12 +2334,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags3 & (RF3_NO_SLEEP)) ||
-			    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_NO_SLEEP);
+					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_SLEEP, FALSE);
 				}
 
 				/* No obvious effect */
@@ -2396,12 +2365,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags3 & (RF3_NO_BLIND)) ||
-			    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_BLIND))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_NO_BLIND);
+					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_BLIND, FALSE);
 				}
 
 				/* No obvious effect */
@@ -2427,12 +2396,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-			    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CALM))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_NO_CALM);
+					lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CALM, FALSE);
 				}
 
 				/* No obvious effect */
@@ -2443,7 +2412,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				/* calm (much) later */
 				note = " is pacified!";
-				do_calm = (2*(damroll(5, (dam / 2)) + 1))/resist;
+				do_calm = (2*(damroll(5, (dam / 2)) + 1)) / resist;
 			}
 
 			/* No "real" damage */
@@ -2461,12 +2430,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags3 & (RF3_RES_CONF)) ||
-			    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_RES_CONF))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_RES_CONF);
+					lore_learn(m_ptr, LRN_FLAG3, RF3_RES_CONF, FALSE);
 				}
 
 				/* Resist */
@@ -2492,7 +2461,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_LITE);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_LITE, FALSE);
 
 				/* Special effect */
 				note = " cringes from the light!";
@@ -2519,14 +2488,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_LITE))))
-					l_ptr->r_flags3 |= (RF3_RES_LITE);
 				do_blind = 0;
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_LITE, FALSE);
 			}
 			else if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_LITE);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_LITE, FALSE);
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
 				dam *= 2;
@@ -2545,7 +2512,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_DARK);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_DARK, FALSE);
 
 				/* Special effect */
 				note = " cringes from the dark!";
@@ -2572,14 +2539,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
-				/* Monster lore - give a resistance flag unless you know you don't need it */
-				if ((seen) && (!(l_ptr->r_flags4 & (RF4_BR_DARK))))
-					l_ptr->r_flags3 |= (RF3_RES_DARK);
 				do_blind = 0;
+				lore_learn(m_ptr, LRN_FLAG3, RF3_RES_DARK, FALSE);
 			}
 			else if (r_ptr->flags3 & (RF3_HURT_DARK))
 			{
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_DARK);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_DARK, FALSE);
 				note = " cringes from the dark!";
 				note_dies = " shrivels away in the dark!";
 				dam *= 2;
@@ -2597,7 +2562,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_ROCK);
+				lore_learn(m_ptr, LRN_FLAG3, RF3_HURT_ROCK, FALSE);
 
 				/* Cute little message */
 				note = " loses some skin!";
@@ -2621,7 +2586,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_UNDEAD))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) l_ptr->r_flags2 |= (RF2_UNDEAD);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_UNDEAD, FALSE);
 				do_dist = dam;
 			}
 
@@ -2645,7 +2610,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_EVIL))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 				do_dist = dam;
 			}
 
@@ -2698,7 +2663,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_UNDEAD))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_UNDEAD);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_UNDEAD, FALSE);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2736,7 +2701,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_EVIL))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2778,8 +2743,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags3 & (RF3_NO_FEAR)) ||
-			    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{
+				lore_learn(m_ptr, LRN_FLAG3, RF3_NO_FEAR, FALSE);
+
 				/* No obvious effect */
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -2798,7 +2765,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_UNDEAD))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_UNDEAD);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_UNDEAD, FALSE);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2828,7 +2795,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_EVIL))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2869,7 +2836,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 
 				/* Irrelevant */
 				skipped = TRUE;
@@ -2901,19 +2868,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags2 & (RF2_ANIMAL))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_ANIMAL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_ANIMAL, FALSE);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
 				/* Attempt a saving throw */
 				if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-				    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 				{
 					/* Memorize a flag */
 					if (r_ptr->flags3 & (RF3_NO_CALM))
 					{
-						if (seen) l_ptr->r_flags3 |= (RF3_NO_CALM);
+						lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CALM, FALSE);
 					}
 	
 					/* No obvious effect */
@@ -2924,7 +2891,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				{
 					/* calm (much) later */
 					note = " is pacified!";
-					do_calm = (2*(damroll(5, (dam / 2)) + 1))/resist;
+					do_calm = (2*(damroll(5, (dam / 2)) + 1)) / resist;
 				}
 
 				/* No "real" damage */
@@ -2955,12 +2922,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 				/* Attempt a saving throw */
 				if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-				    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+					(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 				{
 					/* Memorize a flag */
 					if (r_ptr->flags3 & (RF3_NO_CALM))
 					{
-						if (seen) l_ptr->r_flags3 |= (RF3_NO_CALM);
+						lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CALM, FALSE);
 					}
 	
 					/* No obvious effect */
@@ -2971,7 +2938,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				{
 					/* calm (much) later */
 					note = " is pacified!";
-					do_calm = (2*(damroll(5, (dam / 2)) + 1))/resist;
+					do_calm = (2*(damroll(5, (dam / 2)) + 1)) / resist;
 				}
 
 				/* No "real" damage */
@@ -2982,7 +2949,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags2 |= (RF2_EVIL);
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 
 				/* Irrelevant */
 				skipped = TRUE;
@@ -3005,12 +2972,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 				/* Attempt a saving throw */
 				if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-				    (r_ptr->level*resist > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+					(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 				{
 					/* Memorize a flag */
 					if (r_ptr->flags3 & (RF3_NO_CALM))
 					{
-						if (seen) l_ptr->r_flags3 |= (RF3_NO_CALM);
+						lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CALM, FALSE);
 					}
 	
 					/* No obvious effect */
@@ -3021,7 +2988,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				{
 					/* calm (much) later */
 					note = " is pacified!";
-					do_calm = (2*(damroll(5, (dam / 2)) + 1))/resist;
+					do_calm = (2*(damroll(5, (dam / 2)) + 1)) / resist;
 				}
 
 				/* No "real" damage */
@@ -3031,6 +2998,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Others ignore */
 			else
 			{
+				/* Learn about type */
+				lore_learn(m_ptr, LRN_FLAG2, RF2_CHAOTIC, FALSE);
+
 				/* Irrelevant */
 				skipped = TRUE;
 
@@ -3044,9 +3014,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Default */
 		default:
 		{
-			/* Learn about type */
-			if (seen) l_ptr->r_flags2 |= (RF2_CHAOTIC);
-
 			/* Irrelevant */
 			skipped = TRUE;
 
@@ -3100,14 +3067,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		note = note_dies;
 	}
 
-	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
+	/* Mega-Hack -- Handle "polymorph" */
 	else if (do_poly && (randint(90) > r_ptr->level))
 	{
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
 
 		/* Pick a "new" monster race */
-		tmp = poly_r_idx(m_ptr->r_idx);
+		tmp = poly_r_idx(m_ptr->r_idx, dam);
 
 		/* Handle polymorh */
 		if (tmp != m_ptr->r_idx)
@@ -3491,15 +3458,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_DISEASE:
 		{
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by disease!");
-			if (p_ptr->resist_disease) 				
-			{
-				dam *= 6; dam /= (randint(6) + 6);
-			}
+			if (p_ptr->resist_disease) dam = (dam + 2) / 3;
+			if (p_ptr->oppose_disease) dam = (dam + 2) / 3;
 
 			take_hit(dam, killer);
-			if (!(p_ptr->resist_disease))
+			if (!(p_ptr->resist_disease || p_ptr->oppose_disease))
 			{
-				(void)set_diseased(p_ptr->diseased + rand_int(dam)*5);
+				(void)set_diseased(p_ptr->diseased + (rand_int(dam) * 3));
 			}
 			break;
 		}
@@ -3653,7 +3618,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 			if (p_ptr->resist_sound)
 			{
-				dam *= 5; dam /= (randint(6) + 6);
+				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
 			{
@@ -3702,7 +3667,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something strange!");
 			if (p_ptr->resist_nexus)
 			{
-				dam *= 6; dam /= (randint(6) + 6);
+				dam *= 5; dam /= (randint(6) + 6);
 			}
 			else
 			{
@@ -3842,7 +3807,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) message(MSG_EFFECT, 0, "You are hit by something!");
 			if (p_ptr->resist_mana)
 			{
-				dam *= 6; dam /= (randint(4) + 6);
+				dam *= 7; dam /= (randint(6) + 6);
 			}
 			take_hit(dam, killer);
 			break;
@@ -4416,7 +4381,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 				monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 
 				/* Hack -- auto-recall */
-				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+				if (m_ptr->ml) monster_track(m_ptr->r_idx, m_ptr->u_idx);
 
 				/* Hack - auto-track */
 				if (m_ptr->ml) health_track(cave_m_idx[y][x]);

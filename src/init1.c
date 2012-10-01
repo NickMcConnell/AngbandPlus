@@ -122,8 +122,8 @@ static cptr r_info_flags1[] =
 	"XXX1",
 	"MALE",
 	"FEMALE",
-	"XXX2",
 	"CHAR_CLEAR",
+	"ATTR_MIMIC",
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
 	"FORCE_DEPTH",
@@ -148,7 +148,7 @@ static cptr r_info_flags1[] =
 	"DROP_4D2",
 	"DROP_GOOD",
 	"DROP_GREAT",
-	"XXX3",
+	"DROP_MIMIC",
 	"DROP_CHOSEN"
 };
 
@@ -159,6 +159,7 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
+	"NEVER_FAIL",
 	"SEE_INVIS",
 	"HAS_LITE",
 	"INVISIBLE",
@@ -179,7 +180,6 @@ static cptr r_info_flags2[] =
 	"XXX1",
 	"XXX2",
 	"XXX3",
-	"XXX4",
 	"PERSON",
 	"HUMANOID",
 	"DRAGON",
@@ -368,6 +368,7 @@ static cptr c_info_flags[] =
 	"LORE",			
 	"BETTER_CRITICAL",			
 	"BETTER_SHOT",			
+	"INFLUENCE",
 	"XXX1",			
 	"XXX2",			
 	"XXX3",			
@@ -378,7 +379,6 @@ static cptr c_info_flags[] =
 	"XXX8",	
 	"XXX9",	
 	"XXX10",	
-	"XXX11",	
 	"PSEUDO_ID1",
 	"PSEUDO_ID2",
 	"PSEUDO_ID3",
@@ -476,7 +476,7 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"INVIS",
 	"GLOW",
-	"XXX1",
+	"LUCK",
 	"LITE1",
 	"LITE2",
 	"LITE3",
@@ -4031,14 +4031,14 @@ errr init_b_info_txt(FILE *fp, char *buf, header *head)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-			int idx, gld, max, min, hgl, tol;
+			int race, gld, max, min, hgl, tol;
 
 			/* Scan for the values */
 			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-			                &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
+			                &race, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			ot_ptr->owner_race = idx;
+			ot_ptr->owner_race = race;
 			ot_ptr->max_cost = gld;
 
 #ifdef ALLOW_HAGGLE

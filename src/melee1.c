@@ -108,8 +108,7 @@ static cptr desc_moan[MAX_DESC_MOAN] =
 bool make_attack_normal(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	int ap_cnt;
 
@@ -222,10 +221,7 @@ bool make_attack_normal(int m_idx)
 			    ((rand_int(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_EVIL);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_EVIL, FALSE);
 
 				/* Message */
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is repelled.", m_name);
@@ -372,11 +368,10 @@ bool make_attack_normal(int m_idx)
 			/* Message */
 			if (act) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s %s", m_name, act);
 
-			/* Hack -- assume all attacks are obvious */
-			obvious = TRUE;
-
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
+
+			obvious = TRUE;
 
 			/* Apply appropriate damage */
 			switch (effect)
@@ -432,7 +427,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "disease" effect */
-					if (!(p_ptr->resist_disease))
+					if (!(p_ptr->resist_disease || p_ptr->oppose_disease))
 					{
 						if (set_diseased(p_ptr->diseased + randint(rlev) + 5))
 						{
@@ -1207,19 +1202,8 @@ bool make_attack_normal(int m_idx)
 			}
 		}
 
-		/* Analyze "visible" monsters only */
-		if (visible)
-		{
-			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (l_ptr->r_blows[ap_cnt] > 10))
-			{
-				/* Count attacks of this type */
-				if (l_ptr->r_blows[ap_cnt] < MAX_UCHAR)
-				{
-					l_ptr->r_blows[ap_cnt]++;
-				}
-			}
-		}
+		/* Count "obvious" attacks (and ones that cause damage) */
+		if (visible && (obvious || damage)) lore_learn(m_ptr, LRN_BLOWS, ap_cnt, TRUE);
 	}
 
 	/* Blink away */
@@ -1230,10 +1214,7 @@ bool make_attack_normal(int m_idx)
 	}
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (l_ptr->r_deaths < MAX_SHORT))
-	{
-		l_ptr->r_deaths++;
-	}
+	if (p_ptr->is_dead)	lore_learn(m_ptr, LRN_PDEATH, 0, TRUE);
 
 	/* Assume we attacked */
 	return (TRUE);

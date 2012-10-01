@@ -91,8 +91,6 @@ bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
-s16b coin_type;			/* Hack -- force coin type */
-
 bool opening_chest;		/* Hack -- prevent chest generation */
 
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
@@ -109,8 +107,9 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
-/* Hack - a temporary monster race for holding uniques */
+/* Hack - temporary monster races for holding uniques */
 monster_race monster_temp;
+monster_race monster_temp_fake;
 monster_lore lore_temp;
 
 /*
@@ -390,9 +389,14 @@ object_type *o_list;
 monster_type *m_list;
 
 /*
- * Array[z_info->r_max] of monster lore
+ * Array[z_info->r_max] of monster lore for races
  */
-monster_lore *l_list;
+monster_lore *lr_list;
+
+/*
+ * Array[z_info->u_max] of monster lore for uniques
+ */
+monster_lore *lu_list;
 
 /*
  * Array[MAX_STORES] of stores

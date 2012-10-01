@@ -1565,7 +1565,6 @@ char inkey(void)
 
 	term *old = Term;
 
-
 	/* Hack -- Use the "inkey_next" pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
 	{
@@ -1581,7 +1580,6 @@ char inkey(void)
 
 	/* Forget pointer */
 	inkey_next = NULL;
-
 
 #ifdef ALLOW_BORG
 
@@ -1655,7 +1653,6 @@ char inkey(void)
 			done = TRUE;
 		}
 
-
 		/* Hack -- Handle "inkey_base" */
 		if (inkey_base)
 		{
@@ -1703,10 +1700,8 @@ char inkey(void)
 			break;
 		}
 
-
 		/* Get a key (see above) */
 		ch = inkey_aux();
-
 
 		/* Handle "control-right-bracket" */
 		if (ch == 29)
@@ -1717,7 +1712,6 @@ char inkey(void)
 			/* Continue */
 			continue;
 		}
-
 
 		/* Treat back-quote as escape */
 		if (ch == '`') ch = ESCAPE;
@@ -1732,7 +1726,6 @@ char inkey(void)
 			/* End "macro trigger" */
 			parse_under = FALSE;
 		}
-
 
 		/* Handle "control-caret" */
 		if (ch == 30)
@@ -1759,25 +1752,18 @@ char inkey(void)
 		}
 	}
 
-
 	/* Hack -- restore the term */
 	Term_activate(old);
-
 
 	/* Restore the cursor */
 	Term_set_cursor(v);
 
-
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
 
 	/* Return the keypress */
 	return (ch);
 }
-
-
-
 
 /*
  * Flush the screen, make a noise
@@ -1797,7 +1783,6 @@ void bell(cptr reason)
 	flush();
 }
 
-
 /*
  * Hack -- Make a (relevant?) sound
  */
@@ -1809,9 +1794,6 @@ void sound(int val)
 	/* Make a sound (if allowed) */
 	Term_xtra(TERM_XTRA_SOUND, val);
 }
-
-
-
 
 /*
  * The "quark" package
@@ -1861,7 +1843,6 @@ s16b quark_add(cptr str)
 	return (i);
 }
 
-
 /*
  * This function looks up a quark
  */
@@ -1879,7 +1860,6 @@ cptr quark_str(s16b i)
 	return (q);
 }
 
-
 /*
  * Initialize the "quark" package
  */
@@ -1891,8 +1871,6 @@ errr quark_init(void)
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * The "message memorization" package.
@@ -1934,8 +1912,6 @@ errr quark_init(void)
  * extremely efficient, both in space and time, for use with the Borg.
  */
 
-
-
 /*
  * How many messages are "available"?
  */
@@ -1944,8 +1920,6 @@ s16b message_num(void)
 	/* Determine how many messages are "available" */
 	return (message__next + MESSAGE_MAX - message__last) % MESSAGE_MAX;
 }
-
-
 
 /*
  * Recall the "text" of a saved message
@@ -1972,7 +1946,6 @@ cptr message_str(s16b age)
 	return (s);
 }
 
-
 /*
  * Recall the "type" of a saved message
  */
@@ -1990,7 +1963,6 @@ u16b message_type(s16b age)
 	return (message__type[x]);
 }
 
-
 /*
  * Recall the "color" of a saved message
  */
@@ -1998,7 +1970,6 @@ byte message_color(s16b age)
 {
 	return message__color[message_type(age)];
 }
-
 
 /*
  * Add a new message, with great efficiency
@@ -2280,7 +2251,7 @@ static void msg_flush(int x)
 	Term_putstr(x, 0, -1, a, "-more-");
 
 	/* Get an acceptable keypress */
-	while (1)
+	while (TRUE)
 	{
 		char ch;
 		ch = inkey();
@@ -3080,7 +3051,7 @@ void request_command(bool shopping)
 
 
 	/* Get command */
-	while (1)
+	while (TRUE)
 	{
 		/* Hack -- auto-commands */
 		if (p_ptr->command_new)
@@ -3124,7 +3095,7 @@ void request_command(bool shopping)
 			prt("Count: ", 0, 0);
 
 			/* Get a command count */
-			while (1)
+			while (TRUE)
 			{
 				/* Get a new keypress */
 				ch = inkey();
@@ -3205,7 +3176,6 @@ void request_command(bool shopping)
 			}
 		}
 
-
 		/* Allow "keymaps" to be bypassed */
 		if (ch == '\\')
 		{
@@ -3216,14 +3186,12 @@ void request_command(bool shopping)
 			if (!inkey_next) inkey_next = "";
 		}
 
-
 		/* Allow "control chars" to be entered */
 		if (ch == '^')
 		{
 			/* Get a new command and controlify it */
 			if (get_com("Control: ", &ch)) ch = KTRL(ch);
 		}
-
 
 		/* Look up applicable keymap */
 		act = keymap_act[mode][(byte)(ch)];
@@ -3241,10 +3209,8 @@ void request_command(bool shopping)
 			continue;
 		}
 
-
 		/* Paranoia */
 		if (ch == '\0') continue;
-
 
 		/* Use command */
 		p_ptr->command_cmd = ch;
@@ -3264,7 +3230,6 @@ void request_command(bool shopping)
 		}
 	}
 
-
 	/* Shopping */
 	if (shopping)
 	{
@@ -3281,7 +3246,6 @@ void request_command(bool shopping)
 			case 's': p_ptr->command_cmd = 'd'; break;
 		}
 	}
-
 
 	/* Hack -- Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -3317,7 +3281,6 @@ void request_command(bool shopping)
 			s = strchr(s + 1, '^');
 		}
 	}
-
 
 	/* Hack -- erase the message line. */
 	prt("", 0, 0);
@@ -3520,7 +3483,6 @@ static s16b gamma_helper[256] =
 	-29, -27, -26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16,
 	-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1
 };
-
 
 /*
  * Build the gamma table so that floating point isn't needed.

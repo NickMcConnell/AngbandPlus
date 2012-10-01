@@ -1845,7 +1845,7 @@ typedef struct flag_desc
 /*
  * Hack -- see below
  */
-static flag_desc flag_list[3][18] =
+static flag_desc flag_list[3][19] =
 {
 	{
 		{2, TR2_RES_ACID, TR2_IM_ACID,  "R.   Acid:"},	
@@ -1865,12 +1865,12 @@ static flag_desc flag_list[3][18] =
 		{2, TR2_RES_CHAOS,			 0,	"R.  Chaos:"},	
 		{2, TR2_RES_DISEN,			 0,	"R.  Disen:"},
 		{2, TR2_RES_TIME,			 0,	"R.   Time:"},  
-		{2, TR2_RES_MANA,			 0,	"R.   Mana:"}
+		{2, TR2_RES_MANA,			 0,	"R.   Mana:"},
+		{2, TR2_NO_BLIND,			 0, "No  Blind:"}
 	},
 	{
 		{2, TR2_FREE_ACT,			 0, "Free Actn:"},
 		{2, TR2_HOLD_LIFE,			 0, "Hold Life:"},
-		{2, TR2_NO_BLIND,			 0, "No  Blind:"},
 		{2, TR2_BRAVERY,			 0, "  Bravery:"},
 		{3, TR3_SLOW_DIGEST,		 0, "S. Digest:"},
 		{3, TR3_FEATHER,			 0, "Fthr Fall:"},
@@ -1879,6 +1879,7 @@ static flag_desc flag_list[3][18] =
 		{3, TR3_TELEPATHY,			 0, "Telepathy:"},
 		{3, TR3_SEE_INVIS,			 0, "See Invis:"},
 		{3, TR3_INVIS,				 0, "Invisible:"},
+		{3, TR3_LUCK,				 0,	"     Luck:"},
 		{1, TR1_STEALTH,			 0, "  Stealth:"},
 		{1, TR1_SEARCH,				 0, "   Search:"},
 		{99,0, 0,						"          "},
@@ -1928,7 +1929,7 @@ static void display_player_flag_info(void)
 		col = 2 + (26 * x);
 
 		/* Eighteen rows */
-		for (y = 0; y < 18; y++)
+		for (y = 0; y < 19; y++)
 		{
 			if (flag_list[x][y].set == 99) break;
 				
@@ -2166,6 +2167,17 @@ static void display_player_misc_info(void)
 	/* Status */
 	Term_putstr(col, 5, -1, TERM_WHITE, "Status");
 	Term_putstr(col+14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
+
+   	/* Deepest recall level */
+   	Term_putstr(col, 7, -1, TERM_WHITE, "Max Depth");
+   	if (!depth_in_feet) 
+	{
+		Term_putstr(col+14, 7, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->max_depth));
+	}
+	else 
+	{
+		Term_putstr(col+11, 7, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
+	}
 }
 
 /*
@@ -2264,6 +2276,7 @@ static void display_player_sust_info(void)
 	object_type *o_ptr;
 	u32b f1, f2, f3, f4;
 	u32b ignore_f2, ignore_f3, ignore_f4;
+	u32b hack_f1;
 
 	byte a;
 	char c;
@@ -2329,7 +2342,9 @@ static void display_player_sust_info(void)
 		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Hack -- assume stat modifiers are known */
-		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
+		object_flags(o_ptr, &hack_f1, &ignore_f2, &ignore_f3, &ignore_f4);
+		hack_f1 &= TR1_PVAL_MASK;
+		f1 |= hack_f1;
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
@@ -2579,6 +2594,34 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
+	fprintf(fff, "  [Resists & Abilities]\n\n");
+
+	/* Display player */
+	display_player(2);
+
+	/* Dump part of the screen */
+	for (y = 2; y < 23; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Back up over spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) --x;
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
@@ -2606,7 +2649,7 @@ errr file_character(cptr name, bool full)
 			        index_to_label(i), o_name);
 
 			/* Describe random object attributes */
-			info_length = identify_random_gen(&inventory[i], info, 128);
+			info_length = identify_random_gen(&inventory[i], info);
 
 			/* Write it */
 			for (k = 0; k < info_length; k++)
@@ -2628,7 +2671,7 @@ errr file_character(cptr name, bool full)
 		        index_to_label(i), o_name);
 
 		/* Describe random object attributes */
-		info_length = identify_random_gen(&inventory[i], info, 128);
+		info_length = identify_random_gen(&inventory[i], info);
 
 		/* Write it */
 		for (k = 0; k < info_length; k++)
@@ -2651,7 +2694,7 @@ errr file_character(cptr name, bool full)
 			fprintf(fff, "%c) %s\n", I2A(i), o_name);
 
 			/* Describe random object attributes */
-			info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
+			info_length = identify_random_gen(&st_ptr->stock[i], info);
 
 			/* Write it */
 			for (k = 0; k < info_length; k++)
@@ -3271,8 +3314,11 @@ void get_name(void)
  */
 static long total_points(void)
 {
-	if (adult_easy_mode) return ((p_ptr->max_exp + (100 * p_ptr->max_depth))/4);
-	else return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	int p = (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	if (adult_easy_mode) p /= 4;
+	if (adult_nightmare_mode) p *= 3;
+
+	return p;
 }
 
 /*
@@ -4219,7 +4265,7 @@ static void close_game_aux(void)
 	message_flush();
 
 	/* Forever */
-	while (1)
+	while (TRUE)
 	{
 		/* Describe options */
 		Term_putstr(2, 23, -1, TERM_WHITE, p);

@@ -20,7 +20,7 @@
  * The Windows version has been tested to compile with Visual C++ 5.0
  * and 6.0, Cygwin 1.0, Borland C++ 5.5 command line tools, and lcc-win32.
  *
- *
+ *z
  * See also "main-dos.c" and "main-ibm.c".
  *
  *
@@ -510,15 +510,14 @@ static DIBINIT infMask;
 
 #endif /* USE_TRANSPARENCY */
 
+#endif /* USE_GRAPHICS */
+
 /*
  * Available graphic modes
  */
 #define GRAPHICS_NONE       0
 #define GRAPHICS_ORIGINAL   1
 #define GRAPHICS_ADAM_BOLT  2
-
-#endif /* USE_GRAPHICS */
-
 
 #ifdef USE_SOUND
 
@@ -1110,7 +1109,7 @@ static void load_prefs(void)
 	arg_force_roguelike = (GetPrivateProfileInt("Angband", "force_roguelike", 0, ini_file) != 0);
 
 	/* Extract the "arg_original" flag */
-	arg_force_original = (GetPrivateProfileInt("Angband", "force_roguelike", 0, ini_file) == 0);
+	arg_force_original = (GetPrivateProfileInt("Angband", "force_original", 0, ini_file) != 0);
 
 #ifdef SUPPORT_GAMMA
 
@@ -3119,6 +3118,9 @@ static void check_for_save_file(LPSTR cmd_line)
 
 	/* Play game */
 	play_game(FALSE);
+
+	/* Quit */
+	quit(NULL);
 }
 
 

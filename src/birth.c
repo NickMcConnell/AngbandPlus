@@ -501,23 +501,23 @@ static void player_wipe(void)
 	for (i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
+		monster_lore *lr_ptr = &lr_list[i];
 
 		/* Hack -- Reset the counter */
 		r_ptr->cur_num = 0;
 
 		/* Hack -- Reset the unique counter */
-		r_ptr->num_unique = 0;
+		r_ptr->cur_unique = r_ptr->max_unique;
 
 		/* Clear player kills */
-		l_ptr->r_pkills = 0;
-
+		lr_ptr->r_pkills = 0;
 	}
 
 	/* Reset the "uniques" */
 	for (i = 1; i < z_info->u_max; i++)
 	{
 		monster_unique *u_ptr = &u_info[i];
+		monster_lore *lu_ptr = &lu_list[i];
 
 		/* Hack -- Reset the depth */
 		u_ptr->depth = -1;
@@ -525,8 +525,8 @@ static void player_wipe(void)
 		/* Hack -- Reset the living */
 		u_ptr->dead = FALSE;
 
-		/* Hack -- Increment unique counter */
-		r_info[u_ptr->r_idx].num_unique++;
+		/* Clear player kills */
+		lu_ptr->r_pkills = 0;
 	}
 
 	/* Hack -- Well fed player */
@@ -648,7 +648,6 @@ static bool player_birth_aux_1(void)
 	char p2 = ')';
 
 	char buf[80];
-
 
 	/*** Instructions ***/
 
@@ -839,7 +838,7 @@ static bool player_birth_aux_1(void)
 	            "must be changed now to affect the birth of this character.");
 
 	/* Verify birth options */
-	while (1)
+	while (TRUE)
 	{
 		sprintf(buf, "Modify options (y/n)? ");
 		put_str(buf, 20, 2);
@@ -931,7 +930,7 @@ static bool player_birth_aux_2(void)
 	get_history();
 
 	/* Interact */
-	while (1)
+	while (TRUE)
 	{
 		/* Reset cost */
 		cost = 0;
@@ -1208,7 +1207,7 @@ static bool player_birth_aux_3(void)
 			put_str("(Hit ESC to stop)", 12, col+13);
 
 			/* Auto-roll */
-			while (1)
+			while (TRUE)
 			{
 				bool accept = TRUE;
 
@@ -1447,7 +1446,7 @@ void player_birth(void)
 	int i, n;
 
 	/* Create a new character */
-	while (1)
+	while (TRUE)
 	{
 		/* Wipe the player */
 		player_wipe();

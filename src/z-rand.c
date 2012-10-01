@@ -167,7 +167,7 @@ u32b Rand_div(u32b m)
 	if (Rand_quick)
 	{
 		/* Wait for it */
-		while (1)
+		while (TRUE)
 		{
 			/* Cycle the generator */
 			r = (Rand_value = LCRNG(Rand_value));
@@ -184,7 +184,7 @@ u32b Rand_div(u32b m)
 	else
 	{
 		/* Wait for it */
-		while (1)
+		while (TRUE)
 		{
 			int j;
 
@@ -339,7 +339,7 @@ u32b Rand_simple(u32b m)
 
 	bool old_rand_quick;
 	u32b old_rand_value;
-
+	u32b result;
 
 	/* Save RNG state */
 	old_rand_quick = Rand_quick;
@@ -350,7 +350,7 @@ u32b Rand_simple(u32b m)
 
 	if (initialized)
 	{
-		/* Use old seed */
+		/* Use stored seed */
 		Rand_value = simple_rand_value;
 	}
 	else
@@ -361,12 +361,15 @@ u32b Rand_simple(u32b m)
 	}
 
 	/* Get a random number */
-	simple_rand_value = rand_int(m);
+	result = rand_int(m);
+
+	/* Store the new seed */
+	simple_rand_value = Rand_value;
 
 	/* Restore RNG state */
 	Rand_quick = old_rand_quick;
 	Rand_value = old_rand_value;
 
 	/* Use the value */
-	return (simple_rand_value);
+	return (result);
 }

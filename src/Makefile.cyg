@@ -50,6 +50,7 @@ SRCS = \
 	melee2.c \
 	monster1.c \
 	monster2.c \
+	monster3.c \
 	object1.c \
 	object2.c \
 	readdib.c \
@@ -94,6 +95,7 @@ EXOBJS = \
 	melee2.o \
 	monster1.o \
 	monster2.o \
+	monster3.o \
 	object1.o \
 	object2.o \
 	readdib.o \
@@ -245,6 +247,9 @@ monster1.o: monster1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 monster2.o: monster2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+monster3.o: monster3.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 object1.o: object1.c $(INCS)

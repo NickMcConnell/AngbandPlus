@@ -1,0 +1,16 @@
+Bugs fixed in 0.3.1b -
+
+- The game would freeze occasionally.
+- Red Creeping Gems sometimes dropped gold in addition to rubies.
+- MOVE_BODY and KILL_BODY didn't work.
+- Random sustains of ego items were being spoiled.
+- A bug prevented the monster memory of being updated with monster teleport spells.
+- LUCK didn't affect items created by mimics.
+- Several makefiles were out of date. (Thanks Adam Horowitz and Gwidon S. Naskarent for 
+  reminding me).
+- A bug with the display of the priest spell "Orb of Draining". (Thanks Julian Lighton for
+  noticing).
+- A minor bug with the recharging of rods (Thanks Julian Lighton for noticing).
+- LUCK's influence was too strong (I toned it up to debug something and forgot to tone it 
+  down again). 
+- The FRIENDS flag could create groups that were too large.

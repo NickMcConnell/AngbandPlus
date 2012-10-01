@@ -265,10 +265,6 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are set to absorb the next attack.";
 	}
-	if (p_ptr->confusing)
-	{
-		info[i++] = "Your hands are glowing dull red.";
-	}
 	if (p_ptr->searching)
 	{
 		info[i++] = "You are looking around very carefully.";
@@ -377,7 +373,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are resistant to poison.";
 	}
-	if (p_ptr->resist_disease)
+	if ((p_ptr->resist_disease) && (p_ptr->oppose_disease))
+	{
+		info[i++] = "You resist disease exceptionally well.";
+	}
+	else if ((p_ptr->resist_disease) || (p_ptr->oppose_disease))
 	{
 		info[i++] = "You are resistant to disease.";
 	}
@@ -1149,7 +1149,7 @@ bool detect_monsters_normal(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1200,12 +1200,11 @@ bool detect_monsters_invis(void)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr;
-		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1217,9 +1216,6 @@ bool detect_monsters_invis(void)
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
-			/* Take note that they are invisible */
-			l_ptr->r_flags2 |= (RF2_INVISIBLE);
-
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
 			{
@@ -1235,6 +1231,9 @@ bool detect_monsters_invis(void)
 
 			/* Update the monster */
 			update_mon(i, FALSE);
+
+			/* Take note that they are invisible */
+			lore_learn(m_ptr, LRN_FLAG2, RF2_INVISIBLE, FALSE);
 
 			/* Detect */
 			flag = TRUE;
@@ -1266,12 +1265,11 @@ bool detect_monsters_evil(void)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr;
-		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Location */
 		y = m_ptr->fy;
@@ -1283,9 +1281,6 @@ bool detect_monsters_evil(void)
 		/* Detect evil monsters */
 		if (r_ptr->flags2 & (RF2_EVIL))
 		{
-			/* Take note that they are evil */
-			l_ptr->r_flags2 |= (RF2_EVIL);
-
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
 			{
@@ -1301,6 +1296,9 @@ bool detect_monsters_evil(void)
 
 			/* Update the monster */
 			update_mon(i, FALSE);
+
+			/* Take note */
+			lore_learn(m_ptr, LRN_FLAG2, RF2_INVISIBLE, FALSE);
 
 			/* Detect */
 			flag = TRUE;
@@ -1529,7 +1527,6 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 	bool res = FALSE;
 
 	bool a = artifact_p(o_ptr);
-	bool e = ego_item_p(o_ptr);
 
 	u32b f1, f2, f3, f4;
 
@@ -1568,7 +1565,7 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+					(!((f3 & (TR3_PERMA_CURSE)) || (f3 & (TR3_HEAVY_CURSE)))) &&
 				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
 				{
 					message(MSG_ITEM_BONUS, o_ptr->k_idx, "The curse is broken!");
@@ -1596,7 +1593,7 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+					(!((f3 & (TR3_PERMA_CURSE)) || (f3 & (TR3_HEAVY_CURSE)))) &&
 				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
 				{
 					message(MSG_ITEM_BONUS, o_ptr->k_idx, "The curse is broken!");
@@ -1624,7 +1621,7 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+					(!((f3 & (TR3_PERMA_CURSE)) || (f3 & (TR3_HEAVY_CURSE)))) &&
 				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
 				{
 					message(MSG_ITEM_BONUS, o_ptr->k_idx, "The curse is broken!");
@@ -2309,31 +2306,31 @@ static bool project_hack(int typ, int dam)
  */
 bool speed_monsters(void)
 {
-	return (project_hack(GF_OLD_SPEED, p_ptr->lev));
+	return (project_hack(GF_OLD_SPEED, 0));
 }
 
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int power)
 {
-	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+	return (project_hack(GF_OLD_SLOW, power));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int power)
 {
-	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_hack(GF_OLD_SLEEP, power));
 }
 
 /*
  * Confuse monsters
  */
-bool confuse_monsters(void)
+bool confuse_monsters(int power)
 {
-	return (project_hack(GF_OLD_CONF, p_ptr->lev));
+	return (project_hack(GF_OLD_CONF, power));
 }
 
 /*
@@ -2347,17 +2344,17 @@ bool banish_evil(int dist)
 /*
  * Turn undead
  */
-bool turn_undead(void)
+bool turn_undead(int power)
 {
-	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	return (project_hack(GF_TURN_UNDEAD, power));
 }
 
 /*
  * Scare all
  */
-bool scare_monsters(void)
+bool scare_monsters(int power )
 {
-	return (project_hack(GF_TURN_ALL, p_ptr->lev));
+	return (project_hack(GF_TURN_ALL, power));
 }
 
 /*
@@ -2395,33 +2392,33 @@ bool dispel_monsters(int dam)
 /*
  * Calm Animals
  */
-bool calm_animals(void)
+bool calm_animals(int power)
 {
-	return (project_hack(GF_CALM_ANIMALS, p_ptr->lev));
+	return (project_hack(GF_CALM_ANIMALS, power));
 }
 
 /*
  * Calm non-evil
  */
-bool calm_non_evil(void)
+bool calm_non_evil(int power)
 {
-	return (project_hack(GF_CALM_NON_EVIL, p_ptr->lev));
+	return (project_hack(GF_CALM_NON_EVIL, power));
 }
 
 /*
  * Calm non-chaos
  */
-bool calm_non_chaos(void)
+bool calm_non_chaos(int dam)
 {
-	return (project_hack(GF_CALM_NON_CHAOS, p_ptr->lev));
+	return (project_hack(GF_CALM_NON_CHAOS, dam));
 }
 
 /*
  * Calm monsters
  */
-bool calm_monsters(void)
+bool calm_monsters(int dam)
 {
-	return (project_hack(GF_OLD_CALM, p_ptr->lev));
+	return (project_hack(GF_OLD_CALM, dam));
 }
 
 /*
@@ -2443,7 +2440,7 @@ void aggravate_monsters(int who)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Skip aggravating monster (or player) */
 		if (i == who) continue;
@@ -2508,7 +2505,7 @@ bool genocide(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Hack -- Skip Unique Monsters */
 		if (m_ptr->u_idx) continue;
@@ -2910,7 +2907,7 @@ void earthquake(int cy, int cx, int r)
 			if (cave_m_idx[yy][xx] > 0)
 			{
 				monster_type *m_ptr = &m_list[cave_m_idx[yy][xx]];
-				monster_race *r_ptr = get_monster_full(m_ptr);
+				monster_race *r_ptr = get_monster_real(m_ptr);
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
@@ -3118,7 +3115,7 @@ static void cave_temp_room_lite(void)
 			int chance = 25;
 
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
-			monster_race *r_ptr = get_monster_full(m_ptr);
+			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			/* Stupid monsters rarely wake up */
 			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
@@ -3447,7 +3444,7 @@ bool heal_monster(int dir)
 bool speed_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SPEED, dir, 0, flg));
 }
 
 bool slow_monster(int dir, int plev)
@@ -3480,10 +3477,10 @@ bool calm_monster(int dir, int plev)
 	return (project_hook(GF_OLD_CALM, dir, plev, flg));
 }
 
-bool poly_monster(int dir)
+bool poly_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_POLY, dir, plev, flg));
 }
 
 bool clone_monster(int dir)
@@ -3531,8 +3528,8 @@ bool destroy_doors_touch(void)
 	return (project(-1, 1, p_ptr->py, p_ptr->px, 0, GF_KILL_DOOR, flg));
 }
 
-bool sleep_monsters_touch(void)
+bool sleep_monsters_touch(int power)
 {
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, p_ptr->py, p_ptr->px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, p_ptr->py, p_ptr->px, power, GF_OLD_SLEEP, flg));
 }

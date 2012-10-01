@@ -60,8 +60,7 @@ static bool int_outof(monster_race *r_ptr, int prob)
 static bool check_player_visibility(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	if ((m_ptr->blinded) || ((p_ptr->invis) && !(r_ptr->flags2 & (RF2_SEE_INVIS))))
 	{
@@ -83,8 +82,8 @@ static bool check_player_visibility(int m_idx)
 		return FALSE;
 	}
 	
-	if ((p_ptr->invis) && (r_ptr->flags2 & (RF2_SEE_INVIS)) && (m_ptr->ml))
-		l_ptr->r_flags2 |= (RF2_SEE_INVIS);
+	if ((p_ptr->invis) && (r_ptr->flags2 & (RF2_SEE_INVIS)))
+		lore_learn(m_ptr, LRN_FLAG2, RF2_SEE_INVIS, FALSE);
 
 	return FALSE;
 }
@@ -95,7 +94,7 @@ static bool check_player_visibility(int m_idx)
 static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	u32b f4 = (*f4p);
 	u32b f5 = (*f5p);
@@ -133,6 +132,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->oppose_fire) smart |= (SM_OPP_FIRE);
 		if (p_ptr->oppose_cold) smart |= (SM_OPP_COLD);
 		if (p_ptr->oppose_pois) smart |= (SM_OPP_POIS);
+		if (p_ptr->oppose_disease) smart |= (SM_OPP_DISEASE);
 
 		/* Know resistances */
 		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
@@ -248,9 +248,13 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_POIS);
 	}
 
-	if (smart & (SM_RES_DISEASE))
+	if ((smart & (SM_OPP_DISEASE)) && (smart & (SM_RES_DISEASE)))
 	{
 		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_DISEASE);
+	}
+	else if ((smart & (SM_OPP_DISEASE)) || (smart & (SM_RES_DISEASE)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_DISEASE);
 	}
 
 	if (smart & (SM_IMM_BRAVE))
@@ -440,7 +444,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	/* Determine the radius of the blast */
 	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
@@ -467,7 +471,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 static int choose_attack_spell(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	/* Extract the racial spell flags */
 	u32b f4 = r_ptr->flags4;
@@ -799,9 +803,8 @@ static bool make_attack_spell(int m_idx)
 	int failrate;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
-
+	monster_race *r_ptr = get_monster_real(m_ptr);
+	
 	char m_name[80];
 	char m_poss[80];
 
@@ -872,8 +875,8 @@ static bool make_attack_spell(int m_idx)
 	/* Handle "stunned" */
 	if (m_ptr->stunned) failrate *= 3;
 
-	/* Hack -- Stupid monsters will never fail (for jellies and such) */
-	if (r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
+	/* Some monsters will never fail (for jellies and such) */
+	if (r_ptr->flags2 & (RF2_NEVER_FAIL)) failrate = 0;
 
 	/* Check for spell failure (innate attacks never fail) */
 	if ((thrown_spell >= RF5_OFFSET) && (rand_int(100) < failrate))
@@ -1070,7 +1073,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes sound.", m_name);
 			breath(m_idx, GF_SOUND,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
 			update_smart_learn(m_idx, DRS_RES_SOUND);
 			break;
 		}
@@ -1082,7 +1085,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes chaos.", m_name);
 			breath(m_idx, GF_CHAOS,
-			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)));
+			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
 			update_smart_learn(m_idx, DRS_RES_CHAOS);
 			break;
 		}
@@ -1106,7 +1109,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes nexus.", m_name);
 			breath(m_idx, GF_NEXUS,
-			       ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)));
+			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
 			update_smart_learn(m_idx, DRS_RES_NEXUS);
 			break;
 		}
@@ -1141,7 +1144,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes gravity.", m_name);
 			breath(m_idx, GF_GRAVITY,
-			       ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)));
+			       ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)));
 			break;
 		}
 
@@ -1152,7 +1155,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes shards.", m_name);
 			breath(m_idx, GF_SHARD,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
 			update_smart_learn(m_idx, DRS_RES_SHARD);
 			break;
 		}
@@ -1164,7 +1167,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes plasma.", m_name);
 			breath(m_idx, GF_PLASMA,
-			       ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)));
+			       ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)));
 			break;
 		}
 
@@ -1186,7 +1189,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes mana.", m_name);
 			breath(m_idx, GF_DISENCHANT,
-			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)));
+			       ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6)));
 			update_smart_learn(m_idx, DRS_RES_MANA);
 			break;
 		}
@@ -1210,7 +1213,7 @@ static bool make_attack_spell(int m_idx)
 			if (blind) message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes.", m_name);
 			else message_format(MSG_MONSTER, m_ptr->r_idx, "%^s breathes disease.", m_name);
 			breath(m_idx, GF_DISEASE,
-			       ((m_ptr->hp / 3) > 650 ? 650 : (m_ptr->hp / 3)));
+			       ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)));
 			update_smart_learn(m_idx, DRS_RES_DISEASE);
 			break;
 			break;
@@ -2283,7 +2286,8 @@ static bool make_attack_spell(int m_idx)
 			}
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
+				/* Hack - summon hi demons, undead, or dragons */
+				count += summon_specific(y, x, rlev, SUMMON_HI_DEMON + rand_int(3));
 			}
 			if (blind && count)
 			{
@@ -2297,38 +2301,29 @@ static bool make_attack_spell(int m_idx)
 	if (seen)
 	{
 		/* Innate spell */
-		if (thrown_spell < 32*4)
+		if (thrown_spell < 32 * 4)
 		{
-			/*
-			 * Hack - Forget that he has the resistance in case of a breath weapon
-			 * since it's redundant.
-			 */
-			if (thrown_spell > RF4_OFFSET+7) 
-				l_ptr->r_flags3 &= ~(1L << (thrown_spell - 32*3 + 2));
-			l_ptr->r_flags4 |= (1L << (thrown_spell - 32*3));
-			if (l_ptr->r_cast_inate < MAX_UCHAR) l_ptr->r_cast_inate++;
+			lore_learn(m_ptr, LRN_FLAG4, (1L << (thrown_spell - RF4_OFFSET)), TRUE);
+			lore_learn(m_ptr, LRN_CASTS, 0, TRUE);
 		}
 
 		/* Bolt or Ball */
-		else if (thrown_spell < 32*5)
+		else if (thrown_spell < 32 * 5)
 		{
-			l_ptr->r_flags5 |= (1L << (thrown_spell - 32*4));
-			if (l_ptr->r_cast_spell < MAX_UCHAR) l_ptr->r_cast_spell++;
+			lore_learn(m_ptr, LRN_FLAG5, (1L << (thrown_spell - RF5_OFFSET)), TRUE);
+			lore_learn(m_ptr, LRN_CASTS, 0, TRUE);
 		}
 
 		/* Special spell */
-		else if (thrown_spell < 32*6)
+		else if (thrown_spell < 32 * 6)
 		{
-			l_ptr->r_flags6 |= (1L << (thrown_spell - 32*5));
-			if (l_ptr->r_cast_spell < MAX_UCHAR) l_ptr->r_cast_spell++;
+ 			lore_learn(m_ptr, LRN_FLAG6, (1L << (thrown_spell - RF6_OFFSET)), TRUE);
+			lore_learn(m_ptr, LRN_CASTS, 0, TRUE);
 		}
 	}
 
 	/* Always take note of monsters that kill you */
-	if (p_ptr->is_dead && (l_ptr->r_deaths < MAX_SHORT))
-	{
-		l_ptr->r_deaths++;
-	}
+	if (p_ptr->is_dead) lore_learn(m_ptr, LRN_PDEATH, 0, TRUE);
 
 	/* A spell was cast */
 	return (TRUE);
@@ -2351,7 +2346,7 @@ static int mon_will_run(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	u16b p_lev, m_lev;
 	u16b p_chp, p_mhp;
@@ -2428,7 +2423,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	int cost = 999;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	/* Monster flowing disabled */
 	if (!adult_flow_by_sound) return (FALSE);
@@ -2504,7 +2499,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	int i;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	/* Monster flowing disabled */
 	if (!adult_flow_by_sound) return (FALSE);
@@ -2891,7 +2886,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 static bool get_moves(int m_idx, int mm[5])
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	int y, ay, x, ax;
 
@@ -3212,13 +3207,13 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
 	u32b mexp1, mexp2;
 
 	/* Race 1 */
-	r_ptr = get_monster_full(m_ptr);
+	r_ptr = get_monster_real(m_ptr);
 
 	/* Extract mexp */
 	mexp1 = r_ptr->mexp;
 
 	/* Race 2 */
-	r_ptr = get_monster_full(m_ptr);
+	r_ptr = get_monster_real(n_ptr);
 
 	/* Extract mexp */
 	mexp2 = r_ptr->mexp;
@@ -3257,8 +3252,7 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
 static void process_monster(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = get_monster_full(m_ptr);
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = get_monster_real(m_ptr);
 
 	int i, d, oy, ox, ny, nx;
 
@@ -3409,14 +3403,7 @@ static void process_monster(int m_idx)
 				m_ptr->csleep -= d;
 
 				/* Notice the "not waking up" */
-				if (m_ptr->ml)
-				{
-					/* Hack -- Count the ignores */
-					if (l_ptr->r_ignore < MAX_UCHAR)
-					{
-						l_ptr->r_ignore++;
-					}
-				}
+				lore_learn(m_ptr, LRN_IGNORES, 0, FALSE);
 			}
 
 			/* Just woke up */
@@ -3440,10 +3427,7 @@ static void process_monster(int m_idx)
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 					/* Hack -- Count the wakings */
-					if (l_ptr->r_wake < MAX_UCHAR)
-					{
-						l_ptr->r_wake++;
-					}
+					lore_learn(m_ptr, LRN_WAKES, 0, FALSE);
 				}
 			}
 		}
@@ -3674,10 +3658,7 @@ static void process_monster(int m_idx)
 			if (multiply_monster(m_idx))
 			{
 				/* Take note if visible */
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_MULTIPLY);
-				}
+				lore_learn(m_ptr, LRN_FLAG2, RF2_MULTIPLY, FALSE);
 
 				/* Multiplying takes energy */
 				return;
@@ -3715,7 +3696,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 25)
 			{
 				/* Memorize flags */
-				if (m_ptr->ml) l_ptr->r_flags1 |= (RF1_RAND_25);
+				lore_learn(m_ptr, LRN_FLAG1, RF1_RAND_25, FALSE);
 
 				/* Stagger */
 				stagger = TRUE;
@@ -3729,7 +3710,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 50)
 			{
 				/* Memorize flags */
-				if (m_ptr->ml) l_ptr->r_flags1 |= (RF1_RAND_50);
+				lore_learn(m_ptr, LRN_FLAG1, RF1_RAND_50, FALSE);
 
 				/* Stagger */
 				stagger = TRUE;
@@ -3743,7 +3724,7 @@ static void process_monster(int m_idx)
 			if (rand_int(100) < 75)
 			{
 				/* Memorize flags */
-				if (m_ptr->ml) l_ptr->r_flags1 |= (RF1_RAND_50 | RF1_RAND_25);
+				if (m_ptr->ml) lore_learn(m_ptr, LRN_FLAG1, (RF1_RAND_25 | RF1_RAND_50), FALSE);
 
 				/* Stagger */
 				stagger = TRUE;
@@ -3945,7 +3926,7 @@ static void process_monster(int m_idx)
 		    (r_ptr->flags1 & (RF1_NEVER_BLOW)))
 		{
 			/* Hack -- memorize lack of attacks */
-			if (m_ptr->ml) l_ptr->r_flags1 |= (RF1_NEVER_BLOW);
+			lore_learn(m_ptr, LRN_FLAG1, RF1_NEVER_BLOW, FALSE);
 
 			/* Do not move */
 			do_move = FALSE;
@@ -3975,7 +3956,7 @@ static void process_monster(int m_idx)
 		if (do_move && (r_ptr->flags1 & (RF1_NEVER_MOVE)))
 		{
 			/* Hack -- memorize lack of attacks */
-			if (m_ptr->ml) l_ptr->r_flags1 |= (RF1_NEVER_MOVE);
+			if (m_ptr->ml) lore_learn(m_ptr, LRN_FLAG1, RF1_NEVER_MOVE, FALSE);
 
 			/* Do not move */
 			do_move = FALSE;
@@ -4191,28 +4172,28 @@ static void process_monster(int m_idx)
 	if (m_ptr->ml)
 	{
 		/* Monster opened a door */
-		if (did_open_door) l_ptr->r_flags2 |= (RF2_OPEN_DOOR);
+		if (did_open_door) lore_learn(m_ptr, LRN_FLAG2, RF2_OPEN_DOOR, FALSE);
 
 		/* Monster bashed a door */
-		if (did_bash_door) l_ptr->r_flags2 |= (RF2_BASH_DOOR);
+		if (did_bash_door) lore_learn(m_ptr, LRN_FLAG2, RF2_BASH_DOOR, FALSE);
 
 		/* Monster tried to pick something up */
-		if (did_take_item) l_ptr->r_flags2 |= (RF2_TAKE_ITEM);
+		if (did_take_item) lore_learn(m_ptr, LRN_FLAG2, RF2_TAKE_ITEM, FALSE);
 
 		/* Monster tried to crush something */
-		if (did_kill_item) l_ptr->r_flags2 |= (RF2_KILL_ITEM);
+		if (did_kill_item) lore_learn(m_ptr, LRN_FLAG2, RF2_KILL_ITEM, FALSE);
 
 		/* Monster pushed past another monster */
-		if (did_move_body) l_ptr->r_flags2 |= (RF2_MOVE_BODY);
+		if (did_move_body) lore_learn(m_ptr, LRN_FLAG2, RF2_MOVE_BODY, FALSE);
 
 		/* Monster ate another monster */
-		if (did_kill_body) l_ptr->r_flags2 |= (RF2_KILL_BODY);
+		if (did_kill_body) lore_learn(m_ptr, LRN_FLAG2, RF2_KILL_BODY, FALSE);
 
 		/* Monster passed through a wall */
-		if (did_pass_wall) l_ptr->r_flags2 |= (RF2_PASS_WALL);
+		if (did_pass_wall) lore_learn(m_ptr, LRN_FLAG2, RF2_PASS_WALL, FALSE);
 
 		/* Monster destroyed a wall */
-		if (did_kill_wall) l_ptr->r_flags2 |= (RF2_KILL_WALL);
+		if (did_kill_wall) lore_learn(m_ptr, LRN_FLAG2, RF2_KILL_WALL, FALSE);
 	}
 
 	/* Hack -- get "bold" if out of options */
@@ -4315,7 +4296,7 @@ void process_monsters(byte minimum_energy)
 		/* Heal monster? XXX XXX XXX */
 
 		/* Get the race */
-		r_ptr = get_monster_full(m_ptr);
+		r_ptr = get_monster_real(m_ptr);
 
 		/* Monsters is bleeding or poisoned */
 		if ((m_ptr->bleeding) || (m_ptr->poisoned))

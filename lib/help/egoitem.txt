@@ -15,12 +15,12 @@ Ego weapons are denoted by the following "names":
      A magical weapon that actually helps the wielder defend himself, thus
      increasing his/her armour class, and protecting him/her against damage
      from fire, cold, acid, lightning, and falls.  This weapon also will
-     increase your stealth, let you see invisible creatures, protect you
-     from paralyzation and some slowing attacks, and help you regenerate hit
-     points and mana faster.  As a result of the regeneration ability, you
-     will use up food somewhat faster than normal while wielding such a
-     weapon.  These powerful weapons also will sustain one stat, though this
-     stat will vary from weapon to weapon.
+     let you see invisible creatures, protect you from paralyzation and some
+     slowing attacks, and help you regenerate hit points and mana faster. 
+     As a result of the regeneration ability, you will use up food somewhat 
+     faster than normal while wielding such a weapon.  These powerful weapons
+     also will sustain your constitution and dexterity, and offer one additonal
+     resistance that will vary from weapon to weapon.
 
 (Holy Avenger)
      A Holy Avenger is one of the more powerful of weapons.  A Holy Avenger
@@ -110,35 +110,33 @@ Weapons of Slaying enemies.
      Weapons of Slay Evil, Chaos, Plant and Animal do double the base damage,
      while weapons of Slay Humanoid, Person, Dragon, Demon and Undead do
      triple the base damage. As with elemental branded weapons, the magical
-     damage bonus is not affected.
+     damage bonus is not affected. In addition, each slay type offers an
+     additional power - . Weapons of Slay Animal will give a bonus to
+     intelligence (which is what sets the sentient races apart from the
+     animals), and provide slow digestion so that the player does not need
+     to eat so often. Weapons of Slay Plant give a bonus to constitution,
+     as the body grows more resistant to the hazardous chemicals found in
+     some plants. Weapons of Slay Evil provide a bonus to wisdom and
+     are blessed, so that priests may use them even if they are sharp: and
+     they have a bonus power, as other Blessed weapons do. Weapons of
+     Slay Chaos provide a bonus to charisma, and grant resistance to chaos:
+     Weapons of Slay Undead will allow you to see into the invisible world
+     of ghosts and wraiths, and provide a wisdom bonus: weapons of Slay Demon
+     provide resistance to fire, the chief weapon of many demons, and grant
+     intelligence; Weapons of Slay Preson will increase and sustain the
+	 character's dexterity, weapons of Slay Humanoid will increase and
+	 sustain the characer's strength. Weapons of Slay dragon provide a 
+	 constitution bonus, and resistance to fear. Special weapons of 
+	 *Slay Dragon* do five times their base damage, and also give a strength
+	 bonus and resistance to fire (in addition to the slay dragon powers)
 
 Weapons of Slay Nature -
      The bane of natural creatures, these weapons provide double damage to
-     both animals and plants.
+     both animals and plants. It also provides a bonus to your health.
 
 Weapons of Carnage
      Used in the great wars, these weapons provide triple damage to both
      people and humanoids.
-
-Weapons of *Slaying* enemies.
-     These weapons, in addition to doing extra damage to your enemies, have
-     extra powers as well. Weapons of *Slay Animal* will give a bonus to
-     intelligence (which is what sets the sentient races apart from the
-     animals), and provide slow digestion so that the player does not need
-     to eat so often. Weapons of *Slay Plant* give a bonus to constitution,
-     as the body grows more resistant to the hazardous chemicals found in
-     some plants. Weapons of *Slay Evil* provide a bonus to wisdom and
-     are blessed, so that priests may use them even if they are sharp: and
-     they have a bonus power, as other Blessed weapons do. Weapons of
-     *Slay Chaos* provide a bonus to charisma, and grant resistance to chaos:
-     Weapons of *Slay *Undead* will allow you to see into the invisible world
-     of ghosts and wraiths, and provide a wisdom bonus: weapons of *Slay Demon*
-     provide resistance to fire, the chief weapon of many demons, and grant
-     intelligence: and weapons of *Slay Dragon* do five times their base
-     damage, provide a constitution bonus, and resistance to fear. Weapons
-     of *Slay Preson* will increase and sustain the character's dexterity,
-     weapons of *Slay Humanoid* will increase and sustain the characer's 
-     strength.
 
 Weapon of Morgul.
      These blades are so foully cursed with evil, it is rumored that it is
@@ -153,10 +151,19 @@ Weapon of Morgul.
      it - no monster will remain asleep when the character wields a weapon of
      Morgul.
 
+Polearms of Hacking
+     These axes and other polearms are built for rapid hacking, giving you a 
+     speed bonus and doing extra damage against plants.
+
 Swords of Sharpness
      These swords are sharpened far beyond the level acheivable by normal means.
      Wounds created by these weapons will be extra damaging, and cause additional
      bleeding damage over time.
+
+Blunt weapons of Crushing
+     These weapons will crush the bones of whatever they contact, doing extra 
+     damage against undead and people, and also will raise and sustain your 
+     strength and dexterity.
 
 Shovels of Digging.
      These powerful diggers will dig through granite as if it were mere wood,
@@ -428,8 +435,8 @@ Cloak of Invisiblity.
 Cloak of Kings.
      This cloak bears the mark of royalty, and is one of the most powerful
      objects that can be found. It grants the wearer protection from fear and
-     confusion, protects him from falls, and grants him the power of telepathy.
-     It also provides a random resistance to one powerful attack type.
+     confusion, protects him from falls, and raises and sustains his charisma 
+     and wisdom. It also provides a random resistance to one powerful attack type.
 
 Cloak of the Magi.
      This cloak increases and sustains intelligence, and allows its wearer
@@ -471,10 +478,15 @@ Gloves of Spellcasting.
      Also, the wearer can not be confused, and the gloves can not be harmed by
      disenchantment. Only delicate silk gloves can have these powers.
 
-Gauntlets of Combat.
+Gauntlets of Power.
      These spiked gauntlets will boost the wearer's strength as well as the
      wearer's  to-hit and to-dam numbers. They can only be gauntlets and
      cesti, not leather gloves.
+
+Gauntlets of Combat.
+     More powerful than normal gloves of power, these gloves also provide a 
+     speed enhancement as well as the strength bonus - but they will aggravate
+     nearby monsters.
 
 Gloves of Thievery.
      These gloves will boost the wearer's dexterity and provide free action,
