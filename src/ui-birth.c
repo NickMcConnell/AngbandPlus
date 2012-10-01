@@ -553,7 +553,7 @@ static enum birth_stage roller_command(bool first_call)
 	static bool prev_roll = FALSE;
 
    	/* Display the player - a bit cheaty, but never mind. */
-	display_player(0);
+	display_player(0, TRUE);
 
 	if (first_call)
 		prev_roll = FALSE;
@@ -914,7 +914,7 @@ errr get_birth_command(bool wait)
 
 		case BIRTH_QUICKSTART:
 		{
-			display_player(0);
+			display_player(0, TRUE);
 			next = get_quickstart_command();
 			break;
 		}
@@ -1002,7 +1002,7 @@ errr get_birth_command(bool wait)
 		case BIRTH_NAME_CHOICE:
 		{
 			if (prev < BIRTH_NAME_CHOICE)
-				display_player(0);
+				display_player(0, TRUE);
 
 			next = get_name_command();
 			if (next == BIRTH_BACK)
@@ -1014,7 +1014,7 @@ errr get_birth_command(bool wait)
 		case BIRTH_FINAL_CONFIRM:
 		{
 			if (prev < BIRTH_FINAL_CONFIRM)
-				display_player(0);
+				display_player(0, TRUE);
 
 			next = get_confirm_command();
 			if (next == BIRTH_BACK)

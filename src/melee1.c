@@ -234,13 +234,6 @@ bool make_attack_normal(monster_type *m_ptr)
 	/* Extract the effective monster level */
 	rlev = MAX(r_ptr->level, 1);
 
-	if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
-	{
-		/* Reveal it */
-		reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-	}
-
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
@@ -1886,6 +1879,12 @@ int get_breath_dam(s16b hit_points, int gf_type, bool powerful)
 			max_dam = 500;
 			break;
 		}
+		case GF_LAVA:
+		{
+			dam = hit_points / 3;
+			max_dam = 500;
+			break;
+		}
 		case GF_INERTIA:
 		{
 			if (powerful)
@@ -2213,31 +2212,10 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0x00);
 
 	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, sizeof(m_name), m_ptr, 0x22);
+	monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
 
 	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, sizeof(m_name), m_ptr, 0x88);
-
-	/* Hack -- a visible monster loses any hidden mimic status */
-	if ((m_ptr->ml) && (m_ptr->mimic_k_idx))
-	{
-
-		/* Reveal it */
-		reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-		/* Get monster name */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
-
-		/* Notice monster */
-		msg_format("%^s appears.", m_name);
-
-		/* Focus on this monster, unless otherwise occupied */
-		if (!p_ptr->health_who)
-		{
-			p_ptr->health_who = cave_m_idx[m_ptr->fy][m_ptr->fx];
-			p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
-		}
-	}
+	monster_desc(ddesc, sizeof(ddesc), m_ptr, 0x88);
 
 	/* Get the summon level */
 	if (r_ptr->d_char == 'Q') summon_lev = r_ptr->level + 3;
@@ -3132,9 +3110,29 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF5_Unused */
+		/* RF5_BALL_METEOR */
 		case 128+10:
 		{
+			disturb(1, 0);
+			if (spower < 10)
+			{
+				if (blind) msg_format("%^s mumbles.", m_name);
+				else msg_format("%^s produces a meteor shower.", m_name);
+				rad = 1;
+			}
+			else if (spower < 40)
+			{
+				if (blind) msg_format("%^s murmurs deeply.", m_name);
+				else msg_format("%^s produces a meteor storm.", m_name);
+				rad = 2;
+			}
+			else
+			{
+				if (blind) msg_format("%^s murmurs strongly.", m_name);
+				else msg_format("%^s produces a violent meteor storm.", m_name);
+				rad = 3;
+			}
+			mon_ball(m_idx, GF_METEOR, get_dam(m_ptr, attack), rad, py, px);
 			break;
 		}
 
@@ -3454,9 +3452,22 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF5_RF5_XXX3 */
+		/* RF5_BOLT_GRAV */
 		case 128+26:
 		{
+			disturb(1, 0);
+			if ((spower < 5) || (spower <= rlev / 10))
+			{
+				if (blind) msg_format("%^s mumbles.", m_name);
+				else msg_format("%^s fires a gravity bolt.", m_name);
+			}
+			else
+			{
+				if (blind) msg_format("%^s murmurs deeply.", m_name);
+				else msg_format("%^s casts a powerful bolt of gravity.", m_name);
+			}
+			mon_bolt(m_idx, GF_GRAVITY, get_dam(m_ptr, attack), 0L);
+			break;
 			break;
 		}
 
@@ -3512,9 +3523,26 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			break;
 		}
 
-		/* RF5_RF5XXX4 */
+		/* RF5_BEAM_LAVA */
 		case 128+30:
 		{
+			disturb(1, 0);
+			if (spower < 25)
+			{
+				if (blind) msg_format("%^s begins murmuring.", m_name);
+				else msg_format("%^s shoots a beam of molten magma.", m_name);
+			}
+			else if (spower < 50)
+			{
+				if (blind) msg_format("%^s mubles something.", m_name);
+				else msg_format("%^s shoots a jet of lava.", m_name);
+			}
+			else
+			{
+				if (blind) msg_format("%^s mubles something.", m_name);
+				else msg_format("%^s shoots a searing jet of lava.", m_name);
+			}
+			mon_beam(m_idx, GF_LAVA, get_dam(m_ptr, attack), 10);
 			break;
 		}
 

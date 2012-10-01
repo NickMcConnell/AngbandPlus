@@ -51,7 +51,7 @@
 #define SM_OPP_FIRE		0x00000004
 #define SM_OPP_COLD		0x00000008
 #define SM_OPP_POIS		0x00000010
-#define SM_OPP_XXX1		0x00000020
+#define SM_NAT_LAVA		0x00000020
 #define SM_OPP_XXX2		0x00000040
 #define SM_GOOD_SAVE	0x00000080
 #define SM_PERF_SAVE	0x00000100
@@ -120,6 +120,18 @@
 #define MDESC_HIDE		0x40	/* Assume the monster is hidden */
 #define MDESC_SHOW		0x80	/* Assume the monster is visible */
 
+
+/*
+ * Bit flags for the "place_monster" functions
+ */
+#define MPLACE_SLEEP	0x01	/* Create sleeping monster, if possible */
+#define MPLACE_GROUP	0x02	/* Create group monsters, if possible */
+#define MPLACE_NO_MIMIC	0x04	/* Prevent mimics from being created */
+#define MPLACE_NO_GHOST	0x08	/* Prevent player ghosts from being created*/
+#define MPLACE_OVERRIDE	0x10	/* Placing a mimic, or replacing a missing quest monster */
+#define MPLACE_XXX3		0x20	/* Unused */
+#define MPLACE_XXX4		0x40	/* Unused */
+#define MPLACE_XXX5		0x80	/* Unused */
 
 
 #define MONSTER_BLOW_MAX 4
@@ -216,7 +228,7 @@
  */
 #define MFLAG_VIEW      	0x00000001L  /* Monster is in line of sight */
 #define MFLAG_STERILE		0x00000002L  /* Sterilized Monster */
-#define MFLAG_MIMIC  		0x00000004L  /* A mimic detected as an object */
+#define MFLAG_XXXX  		0x00000004L  /* Unused */
 #define MFLAG_ACTV      	0x00000008L  /* Monster is in active mode */
 #define MFLAG_HIDE			0x00000010L  /* Monster is hiding in terrain */
 #define MFLAG_TOWN      	0x00000020L  /* Monster is using "townsman" AI */
@@ -268,7 +280,7 @@
 #define RF1_MALE			0x00000004	/* Male gender */
 #define RF1_FEMALE			0x00000008	/* Female gender */
 #define RF1_CHAR_CLEAR		0x00000010	/* Absorbs symbol */
-#define RF1_CHAR_MIMIC		0x00000020	/* Monster can mimic a symbol */
+#define RF1_CHAR_MIMIC		0x00000020	/* Monster can mimic an object */
 #define RF1_ATTR_CLEAR		0x00000040	/* Absorbs color */
 #define RF1_ATTR_MULTI		0x00000080	/* Changes color */
 #define RF1_FORCE_DEPTH		0x00000100	/* Start at "correct" depth */
@@ -444,7 +456,7 @@
 #define RF5_BALL_CONFU     0x00000080  /* Confusion Ball -> Conf Storm */
 #define RF5_BALL_SOUND     0x00000100  /* Sound Ball -> Sound Storm */
 #define RF5_BALL_SHARD     0x00000200  /* Shard Ball -> Shard Storm */
-#define RF5_RF5_XXX2       0x00000400  /* Unused */
+#define RF5_BALL_METEOR    0x00000400  /* Meteor Ball */
 #define RF5_BALL_STORM     0x00000800  /* Storm Ball -> Tempest */
 #define RF5_BALL_NETHR     0x00001000  /* Nether Ball -> Nether Storm */
 #define RF5_BALL_CHAOS     0x00002000  /* Chaos Ball -> Chaos Storm */
@@ -460,11 +472,11 @@
 #define RF5_BOLT_WATER     0x00800000  /* Water Bolt */
 #define RF5_BOLT_NETHR     0x01000000  /* Nether Bolt */
 #define RF5_BOLT_MANA      0x02000000  /* Magic Missile -> Mana Bolt */
-#define RF5_RF5_XXX3       0x04000000  /* Unused */
+#define RF5_BOLT_GRAV      0x04000000  /* Gravity Bolt */
 #define RF5_BEAM_ELEC      0x08000000  /* Electric spark */
 #define RF5_BEAM_ICE       0x10000000  /* Ice Lance */
 #define RF5_BEAM_NETHR     0x20000000  /* Spear of Nether */
-#define RF5_RF5_XXX4	   0x40000000  /* Unused */
+#define RF5_BEAM_LAVA	   0x40000000  /* Lava Beam */
 #define RF5_HOLY_ORB       0x80000000  /* Orb of Draining */
 
 
@@ -575,8 +587,9 @@
 #define RF5_BALL_MASK \
 	(RF5_BALL_ACID | RF5_BALL_ELEC | RF5_BALL_FIRE | RF5_BALL_COLD | \
 	 RF5_BALL_POIS | RF5_BALL_LIGHT | RF5_BALL_DARK | RF5_BALL_CONFU | \
-	 RF5_BALL_SOUND | RF5_BALL_SHARD | RF5_BALL_STORM | RF5_BALL_NETHR | \
-	 RF5_BALL_CHAOS | RF5_BALL_MANA | RF5_BALL_WATER | RF5_HOLY_ORB)
+	 RF5_BALL_SOUND | RF5_BALL_SHARD | RF5_BALL_METEOR | RF5_BALL_STORM | \
+	 RF5_BALL_NETHR | RF5_BALL_CHAOS | RF5_BALL_MANA | RF5_BALL_WATER | \
+	 RF5_HOLY_ORB)
 
 #define RF6_BALL_MASK (0L)
 
@@ -592,7 +605,7 @@
 #define RF5_BOLT_MASK \
 	(RF5_BOLT_ACID | RF5_BOLT_ELEC | RF5_BOLT_FIRE | RF5_BOLT_COLD | \
 	 RF5_BOLT_POIS | RF5_BOLT_NETHR | RF5_BOLT_WATER | RF5_BOLT_MANA | \
-	 RF5_BOLT_PLAS | RF5_BOLT_ICE)
+	 RF5_BOLT_GRAV | RF5_BOLT_PLAS | RF5_BOLT_ICE)
 
 #define RF6_BOLT_MASK \
    0L
@@ -606,7 +619,7 @@
  */
 #define RF4_BEAM_MASK   (0L)
 
-#define RF5_BEAM_MASK 	(RF5_BEAM_ELEC | RF5_BEAM_ICE | RF5_BEAM_NETHR)
+#define RF5_BEAM_MASK 	(RF5_BEAM_ELEC | RF5_BEAM_ICE | RF5_BEAM_NETHR | RF5_BEAM_LAVA)
 
 #define RF6_BEAM_MASK 	(0L)
 
@@ -847,12 +860,6 @@
 
 
 /*
- * Determine if the monster is fully visible.
- */
-#define mon_fully_visible(M) \
-(((M)->ml) && !((M)->mflag & (MFLAG_MIMIC)))
-
-/*
  * Make sure the game doesn't crash if the monster is set to NEED_FLOW
  * and the game calls the flow array.
  */
@@ -961,6 +968,7 @@ enum {
 	MON_MSG_HEALTHIER,
 	MON_MSG_FALL_ASLEEP,
 	MON_MSG_WAKES_UP,
+	MON_MSG_STIRS,
 	MON_MSG_CRINGE_LIGHT,
 	MON_MSG_SHRIVEL_LIGHT,
 	MON_MSG_LOSE_SKIN,
@@ -993,8 +1001,8 @@ enum {
 	MON_MSG_DISENTEGRATES,
 	MON_MSG_FREEZE_SHATTER,
 	MON_MSG_MANA_DRAIN,
-
-
+	MON_MSG_MIMIC_REVEAL,
+	MON_MSG_MIMIC_APPEARS,
 
 	/* Always leave this at the end */
 	MAX_MON_MSG
@@ -1028,6 +1036,11 @@ enum
 #define MON_TMD_FLG_NOMESSAGE	0x0010  /*  Never show a message */
 #define MON_TMD_FLG_NOFAIL		0x0020	/*  Never Fail the Tests. */
 /* XXX */
+
+/*
+ * Maximum length of artifact names
+ */
+#define MAX_GHOST_NAME_LEN 32
 
 #endif  /* INCLUDED_MONSTER_H */
 

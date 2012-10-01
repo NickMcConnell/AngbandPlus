@@ -1329,6 +1329,12 @@ static int find_resist(int m_idx, int spell_lrn)
 			if (smart & (SM_RES_NETHR)) return (30);
 			else return (0);
 		}
+		/* Nether Spells */
+		case LRN_LAVA:
+		{
+			if (smart & (SM_NAT_LAVA)) return (70);
+			else return (0);
+		}
 		/* Chaos Spells */
 		case LRN_CHAOS:
 		{
@@ -1716,12 +1722,26 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x)
 	*tar_y = p_ptr->py;
 	*tar_x = p_ptr->px;
 
-	/*hack - some spells are unfair on themed levels*/
-	if (feeling >= LEV_THEME_HEAD)
+	/*hack - some spells are pointless or unfair on arena levels*/
+	if (p_ptr->dungeon_type == DUNGEON_TYPE_ARENA)
+	{
+		f6 &= ~(RF6_TELE_LEVEL | RF6_TELE_AWAY);
+		f7 &= ~(RF7_SUMMON_MASK);
+	}
+	/*hack - some spells are pointless or unfair on labyrinth levels*/
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_LABYRINTH)
+	{
+		f6 &= ~(RF6_TELE_LEVEL);
+		f7 &= ~(RF7_SUMMON_MASK);
+	}
+	/*hack - some spells are unfair on themed and wilderness levels*/
+	/* Also includes DUNGEON_TYPE_WILDERNESS */
+	else if (p_ptr->dungeon_type >= DUNGEON_TYPE_THEMED_LEVEL)
 	{
 		f6 &= ~(RF6_TELE_TO | RF6_TELE_LEVEL | RF6_TELE_AWAY);
 		f7 &= ~(RF7_SUMMON_MASK);
 	}
+
 
 	/* Check what kinds of spells can hit player */
 	path = projectable(fy, fx, p_ptr->py, p_ptr->px, PROJECT_CHCK);
@@ -3501,7 +3521,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 		/* Hack -- memorize lack of moves after a while. */
 		if (!(l_ptr->r_l_flags1 & (RF1_NEVER_MOVE)))
 		{
-			if ((mon_fully_visible(m_ptr)) && (one_in_(20)))
+			if ((m_ptr->ml) && (one_in_(20)))
 			{
 				l_ptr->r_l_flags1 |= (RF1_NEVER_MOVE);
 			}
@@ -3517,7 +3537,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 				/* Hack -- memorize lack of attacks after a while */
 				if (!(l_ptr->r_l_flags1 & (RF1_NEVER_BLOW)))
 				{
-					if ((mon_fully_visible(m_ptr)) && (one_in_(10)))
+					if ((m_ptr->ml) && (one_in_(10)))
 					{
 						l_ptr->r_l_flags1 |= (RF1_NEVER_BLOW);
 					}
@@ -3637,7 +3657,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 			/* Hack -- memorize lack of attacks after a while */
 			if (!(l_ptr->r_l_flags1 & (RF1_NEVER_BLOW)))
 			{
-				if ((mon_fully_visible(m_ptr)) && (one_in_(10)))
+				if ((m_ptr->ml) && (one_in_(10)))
 				{
 					l_ptr->r_l_flags1 |= (RF1_NEVER_BLOW);
 				}
@@ -5023,13 +5043,6 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		/* Monster is visible and not cloaked */
 		if (m_ptr->ml)
 		{
-			/* Reveal minics */
-			if (m_ptr->mimic_k_idx)
-			{
-				/* Reveal it */
-				reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-			}
 
 			/* Player will always be disturbed if monster moves adjacent */
 			if (m_ptr->cdis == 1) disturb(1, 0);
@@ -5103,8 +5116,8 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 				if (f1 & (TR1_SLAY_ANIMAL))  flg3 |= (RF3_ANIMAL);
 				if (f1 & (TR1_SLAY_EVIL))    flg3 |= (RF3_EVIL);
 
-				/* The object cannot be picked up by the monster */
-				if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) ||
+				/* The object (or quest related mimic) cannot be picked up by the monster */
+				if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) || (o_ptr->ident & (IDENT_QUEST)) ||
  				   (f3 & (TR3_NEVER_PICKUP)))
 				{
 					/* Only give a message for "take_item" */
@@ -5200,7 +5213,7 @@ static s16b process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	}
 
 	/* Learn things from observable monster */
-	if ((mon_fully_visible(m_ptr)) && player_can_observe())
+	if ((m_ptr->ml) && player_can_observe())
 	{
 		const feature_type *f_ptr = &f_info[cave_feat[m_ptr->fy][m_ptr->fx]];
 		feature_lore *f_l_ptr = &f_l_list[cave_feat[m_ptr->fy][m_ptr->fx]];
@@ -5472,7 +5485,7 @@ static s16b process_monster(monster_type *m_ptr)
 				sound(MSG_MULTIPLY);
 
 				/* Take note if visible */
-				if (mon_fully_visible(m_ptr))
+				if (m_ptr->ml)
 				{
 					l_ptr->r_l_flags2 |= (RF2_MULTIPLY);
 				}
@@ -5599,12 +5612,12 @@ static s16b process_monster(monster_type *m_ptr)
 		if (r_ptr->flags1 & (RF1_RAND_25))
 		{
 			chance += 25;
-			if (mon_fully_visible(m_ptr)) l_ptr->r_l_flags1 |= (RF1_RAND_25);
+			if (m_ptr->ml) l_ptr->r_l_flags1 |= (RF1_RAND_25);
 		}
 		if (r_ptr->flags1 & (RF1_RAND_50))
 		{
 			chance += 50;
-			if (mon_fully_visible(m_ptr)) l_ptr->r_l_flags1 |= (RF1_RAND_50);
+			if (m_ptr->ml) l_ptr->r_l_flags1 |= (RF1_RAND_50);
 		}
 
 		/* Chance of moving randomly */
@@ -5822,15 +5835,14 @@ static void recover_monster(monster_type *m_ptr)
 			mon_clear_timed(m_idx, MON_TMD_SLEEP , MON_TMD_FLG_NOMESSAGE);
 
 			/* Notice the "waking up" */
-			if ((visible) && (!(m_ptr->mimic_k_idx)))
+			if (visible)
 			{
 				char m_name[80];
 
 				/* Acquire the monster name */
 				monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-				/* Dump a message */
-				msg_format("%^s wakes up.", m_name);
+				add_monster_message(m_name, m_idx, MON_MSG_WAKES_UP);
 			}
 		}
 
@@ -5866,7 +5878,7 @@ static void recover_monster(monster_type *m_ptr)
 					}
 
 					/* We are making a substantial amount of extra noise */
-					if ((add_wakeup_chance >= 1000) &&  (!(m_ptr->mimic_k_idx)))
+					if (add_wakeup_chance >= 1000)
 					{
 						char m_name[80];
 
@@ -5874,7 +5886,7 @@ static void recover_monster(monster_type *m_ptr)
 						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 						/* Warning */
-						msg_format("%^s stirs.", m_name);
+						add_monster_message(m_name, m_idx, MON_MSG_STIRS);
 					}
 				}
 			}
@@ -5886,15 +5898,14 @@ static void recover_monster(monster_type *m_ptr)
 				mon_clear_timed(m_idx, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
 
 				/* Notice the "waking up" */
-				if ((visible) && (!(m_ptr->mimic_k_idx)))
+				if (visible)
 				{
 					char m_name[80];
 
 					/* Acquire the monster name */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-					/* Dump a message */
-					msg_format("%^s wakes up.", m_name);
+					add_monster_message(m_name, m_idx, MON_MSG_WAKES_UP);
 
 					/* Hack -- Count the wakings */
 					if (l_ptr->wake < MAX_UCHAR)

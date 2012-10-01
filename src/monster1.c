@@ -9,6 +9,7 @@
  */
 
 #include "angband.h"
+#include "init.h"
 
 
 /*
@@ -761,6 +762,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		else if (spower < 50) vp[vn++] = "produce whirlwinds of shards";
 		else vp[vn++] = "call up storms of knives";
 	}
+	if (l_ptr->r_l_flags5 & (RF5_BALL_METEOR))
+	{
+		if (spower < 10) vp[vn++] = "produce meteor showers";
+		else if (spower < 50) vp[vn++] = "produce meteor storms";
+		else vp[vn++] = "produce violent meteor storms";
+	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BALL_STORM))
 	{
@@ -823,6 +830,11 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (spower < 5) vp[vn++] = "casts magic missiles";
 		else vp[vn++] = "cast mana bolts";
 	}
+	if (l_ptr->r_l_flags5 & (RF5_BOLT_GRAV))
+	{
+		if (spower < 5) vp[vn++] = "fires gravity bolts";
+		else vp[vn++] = "casts powerful bolts of gravity";
+	}
 
 	if (l_ptr->r_l_flags5 & (RF5_BEAM_ELEC))	vp[vn++] = "shoot sparks of lightning";
 	if (l_ptr->r_l_flags5 & (RF5_BEAM_ICE))		vp[vn++] = "cast lances of ice";
@@ -832,6 +844,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (spower < 25) vp[vn++] = "cast beams of nether";
 		else if (spower < 50) vp[vn++] = "hurl lances of nether";
 		else vp[vn++] = "shoot rays of death";
+	}
+	if (l_ptr->r_l_flags5 & (RF5_BEAM_LAVA))
+	{
+		if (spower < 25) vp[vn++] = "shoots beams of molten magma";
+		else if (spower < 50) vp[vn++] = "shoots jets of lava";
+		else vp[vn++] = "shoots searing jets of lava";
 	}
 
 	if (l_ptr->r_l_flags6 & RF6_HASTE)       vp[vn++] = "haste-self";
@@ -2154,12 +2172,12 @@ void roff_top(int r_idx)
 	/* Special treatment for player ghosts. */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
-		Term_addstr(-1, TERM_WHITE, ghost_name);
-		Term_addstr(-1, TERM_WHITE, ", the ");
+		Term_addstr(-1, TERM_WHITE, player_ghost_name);
+		Term_addstr(-1, TERM_WHITE, " ");
 	}
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	else Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
@@ -2359,7 +2377,7 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 
 
 /*
- * Add various player ghost attributes depending on race. -LM-
+ * Add various player ghost attributes depending on race.
  */
 static void process_ghost_race(int ghost_race, int r_idx)
 {
@@ -2371,6 +2389,7 @@ static void process_ghost_race(int ghost_race, int r_idx)
 	int dun_level = r_ptr->level;
 
 	int race_middle = 0;
+
 	/*nonsense high amount which will be lowered later*/
 	int race_min = 25000;
 	int race_max = 0;
@@ -2382,13 +2401,9 @@ static void process_ghost_race(int ghost_race, int r_idx)
 	r_ptr->aaf += (p_info[ghost_race].r_srh + p_info[ghost_race].r_fos) / 2 + p_info[ghost_race].infra;
 
 	/*Add in some intrinsic race abilities*/
-
 	if (p_info[ghost_race].pr_flags2 & TR2_RES_LIGHT) r_ptr->flags3 &= ~(RF3_HURT_LIGHT);
-
 	if (p_info[ghost_race].pr_flags3 & TR3_FREE_ACT) r_ptr->flags3 |= (RF3_NO_CHARM);
-
 	if (p_info[ghost_race].pr_flags2 & TR2_RES_POIS) r_ptr->flags3 |= (RF3_IM_POIS);
-
 	if (p_info[ghost_race].pr_flags3 & TR3_REGEN) r_ptr->flags2 |= (RF2_REGENERATE);
 
 	/*Add native abilities*/
@@ -2451,9 +2466,18 @@ static void process_ghost_race(int ghost_race, int r_idx)
 		{
 			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
 			r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+
+			/* Sometimes make it extra tough */
+			if (one_in_(3))
+			{
+				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
+				r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+			}
 		}
 
 		r_ptr->ac += r_ptr->ac / 3;
+		/* Sometimes make it extra tough */
+		if (one_in_(4)) r_ptr->ac += r_ptr->ac / 3;
 
 	}
 
@@ -2464,9 +2488,18 @@ static void process_ghost_race(int ghost_race, int r_idx)
 		for (n = 0; n < MONSTER_BLOW_MAX; n++)
 		{
 			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+
+			/* Sometimes make it extra weak */
+			if (one_in_(3))
+			{
+				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+			}
 		}
 
 		r_ptr->ac -= r_ptr->ac / 3;
+
+		/* Sometimes make it extra weak */
+		if (one_in_(4)) r_ptr->ac -= r_ptr->ac / 3;
 
 	}
 
@@ -2507,7 +2540,12 @@ static void process_ghost_race(int ghost_race, int r_idx)
 	{
 
 		r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 6);
-		r_ptr->spell_power += r_ptr->spell_power / 5;
+
+		/* Sometimes make it extra tough */
+		if (one_in_(3))
+		{
+			r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 6);
+		}
 
 		if (dun_level > 54)
 			r_ptr->flags4 |= (RF4_PMISSL);
@@ -2524,7 +2562,6 @@ static void process_ghost_race(int ghost_race, int r_idx)
 	/*bottom quartile gets no bow ability*/
 	else if(p_info[ghost_race].r_thb < race_min)
 	{
-
 		r_ptr->flags4 &= ~(RF4_ARCHERY_MASK);
 	}
 
@@ -2553,16 +2590,29 @@ static void process_ghost_class(int ghost_class, int r_idx)
 	if (c_info[ghost_class].spell_book)
 	{
 
-		r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 6;
-		r_ptr->spell_power += r_ptr->spell_power / 5;
+		r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 8;
+		r_ptr->mana += r_ptr->mana / 5;
+
+		/* Sometimes make it extra tough */
+		if (one_in_(3))
+		{
+			r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 8;
+			r_ptr->mana += r_ptr->mana / 5;
+		}
 	}
 
 	/*pure spellcasters get even more magic ability*/
 	if (c_info[ghost_class].flags & CF_ZERO_FAIL)
 	{
-		r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 5;
-		r_ptr->spell_power += r_ptr->spell_power / 4;
-		r_ptr->mana += r_ptr->mana / 2;
+		r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 8;
+		r_ptr->mana += r_ptr->mana / 5;
+
+		/* Sometimes make it extra tough */
+		if (one_in_(4))
+		{
+			r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 8;
+			r_ptr->mana += r_ptr->mana / 5;
+		}
 	}
 
 	/* adjust for bravery flag*/
@@ -2577,7 +2627,7 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 		if (r_ptr->blow[0].effect == RBE_HURT) r_ptr->blow[0].effect = RBE_EAT_GOLD;
 		if (r_ptr->blow[1].effect == RBE_HURT) r_ptr->blow[1].effect = RBE_EAT_ITEM;
-		if (dun_level > 50) r_ptr->flags7 |= (RF7_S_THIEF);
+		if ((dun_level > 50) && one_in_(2)) r_ptr->flags7 |= (RF7_S_THIEF);
 
 		r_ptr->aaf += r_ptr->aaf / 3;
 	}
@@ -2588,15 +2638,13 @@ static void process_ghost_class(int ghost_class, int r_idx)
 	/*get extra frequency with arrows*/
 	if (c_info[ghost_class].flags & CF_EXTRA_ARROW)
 	{
-
 		if (dun_level > 30) r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 3);
 		r_ptr->flags4 |= (RF4_ARROW);
-
 	}
+
 	/*get extra frequency with shots*/
 	if (c_info[ghost_class].flags & CF_EXTRA_SHOT)
 	{
-
 		if (dun_level > 30) r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 3);
 		r_ptr->flags4 |= (RF4_SHOT);
 	}
@@ -2607,25 +2655,25 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		byte level_adj = MAX(dun_level - c_info[ghost_class].spell_first, 0);
 
 
-		if (level_adj > 25) r_ptr->flags2 |= (RF2_LOW_MANA_RUN);
-		if (level_adj > 35) r_ptr->flags3 |= (RF3_IM_ELEM);
-		if (level_adj > 11) r_ptr->flags5 |= (RF5_BALL_POIS);
-		if (level_adj > 65) r_ptr->flags6 |= (RF6_TELE_AWAY);
-		if (level_adj > 55) r_ptr->flags6 |= (RF6_TELE_TO);
-		if (level_adj > 5) r_ptr->flags6 |= (RF6_BLINK);
-		if (level_adj > 50) r_ptr->flags6 |= (RF6_TELE_SELF_TO);
-		if (dun_level > 35) r_ptr->flags6 |= (RF6_HASTE);
+		if ((level_adj > 25) && one_in_(2)) r_ptr->flags2 |= (RF2_LOW_MANA_RUN);
+		if ((level_adj > 35) && one_in_(2)) r_ptr->flags3 |= (RF3_IM_ELEM);
+		if ((level_adj > 11) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_POIS);
+		if ((level_adj > 65) && one_in_(2)) r_ptr->flags6 |= (RF6_TELE_AWAY);
+		if ((level_adj > 55) && one_in_(2)) r_ptr->flags6 |= (RF6_TELE_TO);
+		if ((level_adj > 5) && one_in_(2)) r_ptr->flags6 |= (RF6_BLINK);
+		if ((level_adj > 50) && one_in_(2)) r_ptr->flags6 |= (RF6_TELE_SELF_TO);
+		if ((dun_level > 35) && one_in_(2)) r_ptr->flags6 |= (RF6_HASTE);
 
 
 		if (c_info[ghost_class].flags & CF_ZERO_FAIL)
 		{
 			if (level_adj > 0) r_ptr->flags5 |= (RF5_BOLT_MANA);
-			if (level_adj > 25) r_ptr->flags5 |= (RF5_BALL_FIRE);
-			if (level_adj > 35) r_ptr->flags5 |= (RF5_BALL_COLD);
-			if (level_adj > 55) r_ptr->flags5 |= (RF5_BALL_STORM);
-			if (level_adj > 65) r_ptr->flags5 |= (RF5_BALL_MANA);
-			if (level_adj > 75) r_ptr->flags6 |= (RF6_MIND_BLAST);
-			if (level_adj > 85) r_ptr->flags6 |= (RF6_BRAIN_SMASH);
+			if ((level_adj > 25) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_FIRE);
+			if ((level_adj > 35) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_COLD);
+			if ((level_adj > 55) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_STORM);
+			if ((level_adj > 65) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_MANA);
+			if ((level_adj > 75) && one_in_(2)) r_ptr->flags6 |= (RF6_MIND_BLAST);
+			if ((level_adj > 85) && one_in_(2)) r_ptr->flags6 |= (RF6_BRAIN_SMASH);
 		}
 
 	}
@@ -2637,11 +2685,11 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		if (level_adj > 25) r_ptr->flags2 |= (RF2_LOW_MANA_RUN);
 		if (level_adj > 11) r_ptr->flags5 |= (RF5_HOLY_ORB);
 		if (level_adj > 5)  r_ptr->flags6 |= (RF6_HEAL);
-		if (level_adj > 15) r_ptr->flags6 |= (RF6_BLINK);
-		if (level_adj > 55) r_ptr->flags6 |= (RF6_TELE_SELF_TO);
-		if (dun_level > 45) r_ptr->flags6 |= (RF6_HASTE);
-		if (dun_level > 65) r_ptr->flags5 |= (RF5_BEAM_NETHR);
-		if (dun_level > 10)
+		if ((level_adj > 15) && one_in_(2)) r_ptr->flags6 |= (RF6_BLINK);
+		if ((level_adj > 55) && one_in_(2)) r_ptr->flags6 |= (RF6_TELE_SELF_TO);
+		if ((dun_level > 45) && one_in_(2)) r_ptr->flags6 |= (RF6_HASTE);
+		if ((dun_level > 65) && one_in_(2)) r_ptr->flags5 |= (RF5_BEAM_NETHR);
+		if ((dun_level > 10) && one_in_(2))
 		{
 			r_ptr->flags3 |= (RF3_IM_FIRE |	RF3_IM_COLD);
 			r_ptr->flags3 &= ~(RF3_HURT_FIRE |	RF3_HURT_COLD);
@@ -2649,16 +2697,16 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 		if (c_info[ghost_class].flags & CF_ZERO_FAIL)
 		{
-			r_ptr->spell_power += r_ptr->spell_power / 4;
+			r_ptr->mana += r_ptr->mana / 4;
 
-			if (level_adj > 25) r_ptr->flags5 |= (RF5_BALL_FIRE);
-			if (level_adj > 35) r_ptr->flags5 |= (RF5_BALL_COLD);
-			if (level_adj > 55) r_ptr->flags5 |= (RF5_BALL_STORM);
-			if (level_adj > 65) r_ptr->flags5 |= (RF5_BALL_MANA);
-			if (level_adj > 45) r_ptr->flags6 |= (RF6_WOUND);
-			if (level_adj > 65) r_ptr->flags7 |= (RF7_S_UNDEAD);
-			if (level_adj > 80) r_ptr->flags7 |= (RF7_S_HI_UNDEAD);
-			if (level_adj > 50) r_ptr->flags7 |= (RF7_S_WRAITH);
+			if ((level_adj > 25) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_FIRE);
+			if ((level_adj > 35) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_COLD);
+			if ((level_adj > 55) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_STORM);
+			if ((level_adj > 65) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_MANA);
+			if ((level_adj > 45) && one_in_(2)) r_ptr->flags6 |= (RF6_WOUND);
+			if ((level_adj > 65) && one_in_(2)) r_ptr->flags7 |= (RF7_S_UNDEAD);
+			if ((level_adj > 80) && one_in_(2)) r_ptr->flags7 |= (RF7_S_HI_UNDEAD);
+			if ((level_adj > 50) && one_in_(2)) r_ptr->flags7 |= (RF7_S_WRAITH);
 		}
 
 	}
@@ -2672,23 +2720,23 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		if (level_adj > 5)
 		{
 			r_ptr->flags6 |= (RF6_HEAL);
-			r_ptr->flags5 |= (RF5_BEAM_ELEC);
+			if (one_in_(2)) r_ptr->flags5 |= (RF5_BEAM_ELEC);
 
 		}
 
-		if (level_adj > 9) r_ptr->flags5 |= (RF5_BALL_POIS);
+		if ((level_adj > 9) && (one_in_(2)))  r_ptr->flags5 |= (RF5_BALL_POIS);
 		if (dun_level > 10)
 		{
 			r_ptr->flags3 |= (RF3_IM_FIRE |	RF3_IM_COLD);
 			r_ptr->flags3 &= ~(RF3_HURT_FIRE |	RF3_HURT_COLD);
 		}
 
-		if (level_adj > 20) r_ptr->flags5 |= (RF5_BALL_FIRE);
-		if (level_adj > 25) r_ptr->flags5 |= (RF5_BALL_COLD);
-		if (level_adj > 27) r_ptr->flags5 |= (RF5_BALL_ACID);
-		if (level_adj > 30) r_ptr->flags5 |= (RF5_BALL_ELEC);
-		if (dun_level > 40) r_ptr->flags6 |= (RF6_HASTE);
-		if (level_adj > 45) r_ptr->flags6 |= (RF6_WOUND);
+		if ((level_adj > 20) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_FIRE);
+		if ((level_adj > 25) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_COLD);
+		if ((level_adj > 27) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_ACID);
+		if ((level_adj > 30) && one_in_(2)) r_ptr->flags5 |= (RF5_BALL_ELEC);
+		if ((dun_level > 40) && one_in_(2)) r_ptr->flags6 |= (RF6_HASTE);
+		if ((level_adj > 45) && one_in_(2)) r_ptr->flags6 |= (RF6_WOUND);
 
 
 	}
@@ -2728,10 +2776,19 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		{
 			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
 			r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+
+			/* Sometimes make it extra tough */
+			if (one_in_(3))
+			{
+				r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 4;
+				r_ptr->blow[n].d_dice = 6 * r_ptr->blow[n].d_dice / 5;
+			}
 		}
 
 		r_ptr->ac += r_ptr->ac / 3;
 
+		/* Sometimes make it extra tough */
+		if (one_in_(4)) r_ptr->ac += r_ptr->ac / 3;
 	}
 
 	/*bottom quartile gets less fighting ability*/
@@ -2741,9 +2798,18 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		for (n = 0; n < MONSTER_BLOW_MAX; n++)
 		{
 			r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+
+			/* Sometimes make it extra weak */
+			if (one_in_(3))
+			{
+				r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 4;
+			}
 		}
 
 		r_ptr->ac -= r_ptr->ac / 3;
+
+		/* Sometimes make it extra weak */
+		if (one_in_(4)) r_ptr->ac -= r_ptr->ac / 4;
 
 	}
 
@@ -2785,7 +2851,12 @@ static void process_ghost_class(int ghost_class, int r_idx)
 	{
 
 		r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 6);
-		r_ptr->spell_power += r_ptr->spell_power / 5;
+
+		/* Sometimes make it extra tough */
+		if (one_in_(3))
+		{
+			r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 7);
+		}
 
 		if (dun_level > 54)
 			r_ptr->flags4 |= (RF4_PMISSL);
@@ -2807,142 +2878,111 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 }
 
+void prepare_ghost_name(void)
+{
+	monster_race *r_ptr = &r_info[ghost_r_idx];
+
+	/* Current entry */
+	ghost_template *t_ptr;
+
+	/* Paranoia */
+	if ((player_ghost_num < 0) || (player_ghost_num >= z_info->ghost_template_max))
+	{
+		my_strcpy(player_ghost_name, "Nobody", sizeof(player_ghost_name));
+		return;
+	}
+
+	t_ptr = &t_info[player_ghost_num];
+
+	my_strcat(player_ghost_name, format("%^s, the %^s", t_ptr->t_name, r_name + r_ptr->name), sizeof(player_ghost_name));
+}
+
 /*
  * Once a monster with the flag "PLAYER_GHOST" is generated, it needs
  * to have a little color added, if it hasn't been prepared before.
- * This function uses a bones file to get a name, give the ghost a
- * gender, and add flags depending on the race and class of the slain
- * adventurer.  -LM-
+ * This function prepares teh ghost and then flagss depending on the
+ * race and class of the slain adventurer, or picks from one of the
+ * maintainer templates.
  */
-bool prepare_ghost(int r_idx, bool from_savefile)
+bool prepare_ghost(int r_idx)
 {
 	byte ghost_sex = 0, ghost_race = 0, ghost_class = 0;
-	byte	try, i, backup_file_selector;
-	bool prepare_new_template = FALSE;
+	int	i;
 
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
+	ghost_template *t_ptr;
 
-	ang_file	*fp;
-	bool		err = FALSE;
-	char		path[1024];
+	bool found_template = FALSE;
 
 	/* Paranoia. */
 	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (FALSE);
 	if (adult_no_player_ghosts) return (FALSE);
+	if (!z_info->ghost_template_max) return (FALSE);
 
-	/* Hack -- If the ghost has a sex, then it must already have been prepared. */
-	if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE))
+	/* No more than one player ghost at a time */
+	if (ghost_r_idx) return (FALSE);
+
+	/* The template is already selected */
+	if ((player_ghost_num > -1) && (player_ghost_num < z_info->ghost_template_max))
 	{
-		/* Hack - Ensure that ghosts are always "seen". */
-		l_ptr->sights = 1;
+		t_ptr = &t_info[player_ghost_num];
 
-		/* Nothing more to do. */
-		return (TRUE);
+		/* We have a valid template */
+		if (strlen(t_ptr->t_name))
+		{
+			found_template = TRUE;
+			ghost_sex = t_ptr->t_gender;
+			ghost_race = t_ptr->t_race;
+			ghost_class = t_ptr->t_class;
+		}
 	}
 
-	/* Hack -- No easy player ghosts, unless the ghost is from a savefile.
-	 * This also makes player ghosts much rarer, and effectively (almost)
-	 * prevents more than one from being on a level.
-	 * From 0.5.1, other code makes it is formally impossible to have more
-	 * than one ghost at a time. -BR-
-	 */
-	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE))
+	/* We need to select a template */
+	if (!found_template)
 	{
-		if (FALSE) return (FALSE);
+		/* There are dead player characters to check */
+		if (z_info->ghost_maint_max < z_info->ghost_template_max)
+		{
+			for (i = 0; i < z_info->ghost_template_max; i++)
+			{
+				t_ptr = &t_info[i];
+
+				/* Empty template */
+				if (!strlen(t_ptr->t_name)) continue;
+
+				/* The current level is too far from the depth the player was killed */
+				if (ABS(t_ptr->t_depth - p_ptr->depth) > 3) continue;
+
+				/* Use this template */
+				found_template = TRUE;
+				player_ghost_num = i;
+				ghost_sex = t_ptr->t_gender;
+				ghost_race = t_ptr->t_race;
+				ghost_class = t_ptr->t_class;
+				break;
+			}
+		}
+
+		/* No dead char templates to use, select a random maintainer template instead */
+		if (!found_template)
+		{
+			player_ghost_num = randint0(z_info->ghost_maint_max);
+			t_ptr = &t_info[player_ghost_num];
+			ghost_sex = t_ptr->t_gender;
+			ghost_race = t_ptr->t_race;
+			ghost_class = t_ptr->t_class;
+		}
 	}
+
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
+
+	/* Hack -- Induce consistant town layout */
+	Rand_value = seed_ghost;
 
 	/* Store the index of the base race. */
-	r_ghost = r_idx;
-
-	/* Choose a bones file.  Use the variable bones_selector if it has any
-	 * information in it (this allows saved ghosts to reacquire all special
-	 * features), then use the current depth, and finally pick at random.
-	 */
-	for (try = 0; try < PLAYER_GHOST_TRIES_MAX + z_info->ghost_maint_max; ++try)
-	{
-		/* Prepare a path, and store the file number for future reference. */
-		if (try == 0)
-		{
-			if (bones_selector)
-			{
-				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
-			}
-			else
-			{
-				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, p_ptr->depth);
-				bones_selector = (byte)p_ptr->depth;
-			}
-		}
-		else
-		{
-			if (try < PLAYER_GHOST_TRIES_MAX) backup_file_selector = randint(MAX_DEPTH - 1);
-			else backup_file_selector = MAX_DEPTH + rand_int(z_info->ghost_maint_max);
-			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, backup_file_selector);
-			bones_selector = backup_file_selector;
-		}
-
-		if (!file_exists(path)) continue;
-
-		/* Attempt to open the bones file. */
-		fp = file_open(path, MODE_READ, -1);
-
-		/* No bones file with that number, try again. */
-		if (!fp)
-		{
-
-			/* Remove the file unless it is a maintainer ghost template. */
-			if (bones_selector <= MAX_DEPTH) file_delete(path);
-
-			bones_selector = 0;
-
-			/*try again*/
-			continue;
-		}
-
-		/* Success. */
-		if (fp)
-		{
-
-			 /* XXX XXX XXX Scan the file to get the basic info of the ghost  */
-			if (!file_getl(fp, ghost_name, sizeof(ghost_name)) ||
-				!next_line_to_number(fp, &ghost_sex) ||
-				!next_line_to_number(fp, &ghost_race) ||
-				!next_line_to_number(fp, &ghost_class))
-			{
-				err = TRUE;
-			}
-
-			/* Close the file */
-			(void)file_close(fp);
-
-			break;
-		}
-	}
-
-	/* Hack -- broken file */
-	if (err)
-	{
-		/* Remove the file unless it is a maintainer ghost template. */
-		if (bones_selector <= MAX_DEPTH) file_delete(path);
-
-		bones_selector = 0;
-		return (FALSE);
-	}
-
-	/*** Process the ghost name and store it in a global variable. ***/
-
-	/* XXX XXX XXX Find the first comma, or end of string */
-	for (i = 0; (i < 40) && (ghost_name[i]) && (ghost_name[i] != ','); i++);
-
-	/* Terminate the name */
-	ghost_name[i] = '\0';
-
-	/* Force a name */
-	if (!ghost_name[0]) my_strcpy(ghost_name, "Nobody", sizeof(ghost_name));
-
-	/* Capitalize the name */
-	if (islower(ghost_name[0])) ghost_name[0] = toupper(ghost_name[0]);
+	ghost_r_idx = r_idx;
 
 	/*** Process sex. ***/
 
@@ -2959,7 +2999,6 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	/* Sanity check. */
 	if (ghost_race >= z_info->p_max)
 	{
-		prepare_new_template = TRUE;
 		ghost_race = rand_int(z_info->p_max);
 	}
 
@@ -2972,12 +3011,14 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	/* Sanity check. */
 	if (ghost_class >= z_info->c_max)
 	{
-		prepare_new_template = TRUE;
 		ghost_class = rand_int(z_info->c_max);
 	}
 
 	/* And use the ghost class to gain some flags. */
 	process_ghost_class(ghost_class, r_idx);
+
+	/*** Process the ghost name and store it in a global variable. ***/
+	prepare_ghost_name();
 
 	/* Hack -- increase the level feeling */
 	rating += 10;
@@ -2990,62 +3031,231 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	 */
 	l_ptr->sights = 1;
 
-	/*
-	 * If we used a random race/class, prepare a new template so the new
-	 * ghost is consistent when the game is re-opened
-	 */
-	if (prepare_new_template)
-	{
-		/* Find a blank bones file*/
-		for (try = 1; try < MAX_DEPTH; ++try)
-		{
-			/*make the path*/
-			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, try);
-
-			/* Attempt to open the bones file. */
-			fp = file_open(path, MODE_WRITE, FTYPE_SAVE);
-
-			/* Found a number to make a new bones file. */
-			if (!fp)
-			{
-				char esc_name[80];
-
-				/* Try to write a new "Bones File" */
-				fp = file_open(path, MODE_WRITE, FTYPE_SAVE);
-
-				/*paranoia*/
-				if (!fp) continue;
-
-				/*use this number for the ghost*/
-				bones_selector = try;
-
-				 /* Get the canonical form of the name */
-				escape_latin1(esc_name, sizeof(esc_name), ghost_name);
-
-				/*now save the new file*/
-				/* Save the info */
-				file_putf(fp, "%s\n", esc_name);
-				file_putf(fp, "%d\n", ghost_sex);
-				file_putf(fp, "%d\n", ghost_race);
-				file_putf(fp, "%d\n", ghost_class);
-
-				/*Mark end of file*/
-				file_putf(fp, "\n");
-
-				/* Close and save the Bones file */
-				(void)file_close(fp);
-
-				/*done*/
-				break;
-			}
-
-			/* This one is used, close it, and then continue*/
-			/* Success. */
-			else (void)file_close(fp);
-		}
-
-	}
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = FALSE;
 
 	/* Success */
 	return (TRUE);
+}
+
+void remove_player_ghost(void)
+{
+	monster_lore *l_ptr;
+
+	/* Paranoia */
+	if ((player_ghost_num < 0) || (player_ghost_num >= z_info->ghost_template_max))
+	{
+		player_ghost_num = -1;
+		return;
+	}
+	if (!ghost_r_idx) return;
+
+	/* Remove the memory of seeing it */
+	l_ptr = &l_list[ghost_r_idx];
+
+	l_ptr->sights = 0;
+	l_ptr->pkills = 1;
+	l_ptr->tkills = 0;
+
+	/* No current player ghosts, set up a new random entry */
+	player_ghost_num = -1;
+	ghost_r_idx = 0;
+	player_ghost_name[0] = '\0';
+	seed_ghost = rand_int(0x10000000);
+}
+
+/*
+ * Remove a player ghost entry if the player killed it.
+  */
+void delete_player_ghost_entry(void)
+{
+	/* Paranoia */
+	if ((player_ghost_num < 0) || (player_ghost_num >= z_info->ghost_template_max))
+	{
+		player_ghost_num = -1;
+		return;
+	}
+
+	/* Don't wipe the permanent maintainer templates */
+	else if (player_ghost_num >= z_info->ghost_maint_max)
+	{
+		ghost_template *t_ptr = &t_info[player_ghost_num];
+
+		/* Wipe the structure */
+		(void)WIPE(t_ptr, ghost_template);
+	}
+}
+
+/*
+ * Add a player ghost entry if the player died.
+ * but only if there is an unused slot.
+ */
+void add_player_ghost_entry(void)
+{
+	int i;
+
+	for (i = z_info->ghost_maint_max; i < z_info->ghost_template_max; i++)
+	{
+		ghost_template *t_ptr = &t_info[i];
+
+		/* This slot already used...keep looking */
+		if (strlen(t_ptr->t_name)) continue;
+
+		/* Make the entry */
+		if (op_ptr->full_name[0] != '\0')
+		{
+			my_strcpy(t_ptr->t_name, op_ptr->full_name, sizeof(t_ptr->t_name));
+		}
+		else my_strcpy(t_ptr->t_name, "Anonymous", sizeof(t_ptr->t_name));
+
+		t_ptr->t_gender = p_ptr->psex;
+		t_ptr->t_race = p_ptr->prace;
+		t_ptr->t_class = p_ptr->pclass;
+		t_ptr->t_depth = p_ptr->depth;
+
+		break;
+	}
+}
+
+/*
+ * Populate the ghost_player_max portion of the player ghost file.
+ */
+void load_player_ghost_file(void)
+{
+	ang_file *fp;
+
+	/* Current entry */
+	ghost_template *t_ptr = NULL;
+
+	int i;
+
+	char str[1024];
+
+	/* General buffer */
+	char buf[1024];
+
+	char *s;
+
+	/* Build the filename */
+	path_build(str, 1024, ANGBAND_DIR_BONE, "ghost_templates.txt");
+
+	/* Open the "Bones File" */
+	fp = file_open(str, MODE_READ, -1);
+
+	/* Not allowed to read it?  Weird. */
+	if (!fp) return;
+
+	/* Parse the file */
+	while (file_getl(fp, buf, sizeof(buf)))
+	{
+		/* Skip "empty" lines */
+		if (!buf[0]) continue;
+
+		/* Skip "blank" lines */
+		if (isspace((unsigned char) buf[0])) continue;
+
+		/* Skip comments */
+		if (buf[0] == '#') continue;
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) continue;
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) continue;
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Make sure we are in range */
+			if (i >= z_info->ghost_template_max) continue;
+
+			/* Point at the "info" */
+			t_ptr = &t_info[i];
+
+			/* Store the name */
+			my_strcpy(t_ptr->t_name, s, MAX_GHOST_NAME_LEN);
+		}
+
+		/* Process 'I' for "Info" (one line only) */
+		else if (buf[0] == 'I')
+		{
+			int t_gender, t_race, t_class, t_depth;
+
+			/* There better be a current t_ptr */
+			if (!t_ptr) continue;
+
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+					&t_gender, &t_race, &t_class, &t_depth)) continue;
+
+			/* Save the values */
+			t_ptr->t_gender = t_gender;
+			t_ptr->t_race = t_race;
+			t_ptr->t_class = t_class;
+			t_ptr->t_depth = t_depth;
+		}
+	}
+
+	/* Close and save the ghost_template file */
+	file_close(fp);
+}
+
+/*
+ * Populate the ghost_player_max portion of the player ghost file.
+ */
+void save_player_ghost_file(void)
+{
+	ang_file *fp;
+
+	int i;
+
+	char str[1024];
+
+	/* Build the filename */
+	path_build(str, 1024, ANGBAND_DIR_BONE, "ghost_templates.txt");
+
+	/* Open the "Bones File" */
+	fp = file_open(str, MODE_WRITE, FTYPE_TEXT);
+
+	/* Not allowed to write it?  Weird. */
+	if (!fp) return;
+
+	file_putf(fp, "# This file contains dead player ghost templates.\n");
+	file_putf(fp, "# do not edit this file unless you know exactly what you are doing! \n\n");
+	file_putf(fp, "# === Understanding ghost_templates.txt === \n\n");
+	file_putf(fp, "# N: serial number : dead player ghost name \n");
+	file_putf(fp, "# I: gender : race : class : depth \n\n");
+
+	for (i = z_info->ghost_maint_max; i < z_info->ghost_template_max; i++)
+	{
+		ghost_template *t_ptr = &t_info[i];
+
+		/* Unused slot */
+		if (!strlen(t_ptr->t_name)) continue;
+
+		/*
+		 * Write N line
+		 * n:entry num:ghost name
+		 */
+		file_putf(fp, "N:%d:%s\n", i, t_ptr->t_name);
+
+		/* Write I: line */
+		file_putf(fp, "I:%d:%d:%d:%d\n",
+					t_ptr->t_gender, t_ptr->t_race, t_ptr->t_class, t_ptr->t_depth);
+
+		/* Blank Line */
+		file_putf(fp, "\n");
+	}
+
+	/* Close and save the ghost_template file */
+	file_close(fp);
 }

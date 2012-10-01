@@ -108,7 +108,7 @@ static cptr likert(int x, int y, byte *attr)
 /*
  * Equippy chars
  */
-static void display_player_equippy(int y, int x)
+static void display_player_equippy(int y, int x, bool onscreen)
 {
 	int i;
 
@@ -127,9 +127,18 @@ static void display_player_equippy(int y, int x)
 		/* Skip empty objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Get attr/char for display */
-		a = object_attr(o_ptr);
-		c = object_char(o_ptr);
+		if (onscreen)
+		{
+			/* Get attr/char for display */
+			a = object_attr(o_ptr);
+			c = object_char(o_ptr);
+		}
+		else
+		{
+			/* Get attr/char for display */
+			a = object_attr_default(o_ptr);
+			c = object_char_default(o_ptr);
+		}
 
 		/* Dump */
 		Term_putch(x+i-INVEN_WIELD, y, a, c);
@@ -137,15 +146,38 @@ static void display_player_equippy(int y, int x)
 }
 
 
+/*
+ * Equippy chars
+ */
+static void display_home_inven_letters(int y, int x, bool onscreen)
+{
+	int i;
+
+	cptr which_set;
+
+	if (!onscreen) which_set = "abcdefghijklmnopqrstuvwxyz";
+	else if (rogue_like_commands) which_set = roguelike_home_letters;
+	else which_set = standard_home_letters;
+
+	/* Dump equippy chars */
+	for (i = 0; i < MAX_INVENTORY_HOME; ++i)
+	{
+		char c = which_set[i];
+
+		/* Dump */
+		Term_putch(x+i, y, TERM_WHITE, c);
+	}
+}
+
 
 /*
  * Equippy chars
  */
-static void display_home_equippy(int y, int x)
+static void display_home_equippy(int y, int x, bool onscreen)
 {
 	int i;
 
-	byte a;
+	byte a ;
 	char c;
 
 	object_type *o_ptr;
@@ -161,9 +193,19 @@ static void display_home_equippy(int y, int x)
 		/* Skip empty objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Get attr/char for display */
-		a = object_attr(o_ptr);
-		c = object_char(o_ptr);
+		if (onscreen)
+		{
+			/* Get attr/char for display */
+			a = object_attr(o_ptr);
+			c = object_char(o_ptr);
+		}
+		else
+		{
+			/* Get attr/char for display */
+			a = object_attr_default(o_ptr);
+			c = object_char_default(o_ptr);
+		}
+
 
 		/* Dump */
 		Term_putch(x+i, y, a, c);
@@ -572,7 +614,8 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *fn)
 /*
  * List of resistances and abilities to display
  */
-#define RES_ROWS 9
+#define RES_ROWS 8
+
 struct player_flag_record
 {
 	const char name[7];		/* Name of resistance/ability */
@@ -583,144 +626,59 @@ struct player_flag_record
 
 static const struct player_flag_record player_flag_table[RES_ROWS*4] =
 {
-	{ "rAcid",	1, TR2_RES_ACID,	TR2_IM_ACID},
-	{ "rElec",	1, TR2_RES_ELEC,	TR2_IM_ELEC},
-	{ "rFire",	1, TR2_RES_FIRE,	TR2_IM_FIRE},
-	{ "rCold",	1, TR2_RES_COLD,	TR2_IM_COLD},
-	{ "rPois",	1, TR2_RES_POIS,	0},
-	{ "rFear",	1, TR2_RES_FEAR,	0},
-	{ "rLite",	1, TR2_RES_LIGHT,	0},
-	{ "rDark",	1, TR2_RES_DARK,	0},
-	{ "rBlnd",	1, TR2_RES_BLIND,	0},
+	{ "rAcid",	2, TR2_RES_ACID,	TR2_IM_ACID},
+	{ "rElec",	2, TR2_RES_ELEC,	TR2_IM_ELEC},
+	{ "rFire",	2, TR2_RES_FIRE,	TR2_IM_FIRE},
+	{ "rCold",	2, TR2_RES_COLD,	TR2_IM_COLD},
+	{ "rPois",	2, TR2_RES_POIS,	TR2_IM_POIS},
+	{ "rFear",	2, TR2_RES_FEAR,	0},
+	{ "rLite",	2, TR2_RES_LIGHT,	0},
+	{ "rDark",	2, TR2_RES_DARK,	0},
 
-	{ "rConf",	1, TR2_RES_CONFU,	0},
-	{ "Sound",	1, TR2_RES_SOUND,	0},
-	{ "Shard",	1, TR2_RES_SHARD,	0},
-	{ "Nexus",	1, TR2_RES_NEXUS,	0},
-	{ "Nethr",	1, TR2_RES_NETHR,	0},
-	{ "Chaos",	1, TR2_RES_CHAOS,	0},
-	{ "Disen",	1, TR2_RES_DISEN,	0},
-	{ "S.Dig",	2, TR3_SLOW_DIGEST,	0},
-	{ "Feath",	2, TR3_FEATHER, 	0},
+	{ "rBlnd",	2, TR2_RES_BLIND,	0},
+	{ "rConf",	2, TR2_RES_CONFU,	0},
+	{ "Sound",	2, TR2_RES_SOUND,	0},
+	{ "Shard",	2, TR2_RES_SHARD,	0},
+	{ "Nexus",	2, TR2_RES_NEXUS,	0},
+	{ "Nethr",	2, TR2_RES_NETHR,	0},
+	{ "Chaos",	2, TR2_RES_CHAOS,	0},
+	{ "Disen",	2, TR2_RES_DISEN,	0},
 
-	{ "Light",	2, TR3_LIGHT, 		0},
-	{ "Regen",	2, TR3_REGEN, 		0},
-	{ "  ESP",	2, TR3_TELEPATHY, 	0},
-	{ "Invis",	2, TR3_SEE_INVIS, 	0},
-	{ "FrAct",	2, TR3_FREE_ACT, 	0},
-	{ "HLife",	2, TR3_HOLD_LIFE, 	0},
-	{ "LCurs",	2, TR3_LIGHT_CURSE,	0},
-	{ "HCurs",	2, TR3_HEAVY_CURSE,	0},
-	{ "Bless",  2, TR3_BLESSED,     0},
+	{ "S.Dig",	3, TR3_SLOW_DIGEST,	0},
+	{ "Feath",	3, TR3_FEATHER, 	0},
+	{ "PLite",	3, TR3_LIGHT, 		0},
+	{ "Regen",	3, TR3_REGEN, 		0},
+	{ "Telep",	3, TR3_TELEPATHY, 	0},
+	{ "Invis",	3, TR3_SEE_INVIS, 	0},
+	{ "FrAct",	3, TR3_FREE_ACT, 	0},
+	{ "HLife",	3, TR3_HOLD_LIFE, 	0},
 
-	{ "Aggrv",  2, TR3_AGGRAVATE,   0},
-	{ "Stea.",	0, TR1_STEALTH,		0},
-	{ "Sear.",	0, TR1_SEARCH,		0},
-	{ "Infra",	0, TR1_INFRA,		0},
-	{ "Tunn.",	0, TR1_TUNNEL,		0},
-	{ "Speed",	0, TR1_SPEED,		0},
-	{ "Blows",	0, TR1_BLOWS,		0},
-	{ "Shots",	0, TR1_SHOTS,		0},
-	{ "Might",	0, TR1_MIGHT,		0},
+	{ "Stea.",	1, TR1_STEALTH,		0},
+	{ "Sear.",	1, TR1_SEARCH,		0},
+	{ "Infra",	1, TR1_INFRA,		0},
+	{ "Aggr",	3, TR3_AGGRAVATE,	0},
+	{ "Speed",	1, TR1_SPEED,		0},
+	{ "Blows",	1, TR1_BLOWS,		0},
+	{ "Shots",	1, TR1_SHOTS,		0},
+	{ "Might",	1, TR1_MIGHT,		0}
 };
-
-
-
-
-/*
- * Hack -- see below
- */
-static const byte display_player_flag_set[4] =
-{
-	2,
-	2,
-	3,
-	1
-};
-
-/*
- * Hack -- see below
- */
-static const u32b display_player_flag_head[4] =
-{
-	TR2_RES_ACID,
-	TR2_RES_BLIND,
-	TR3_SLOW_DIGEST,
-	TR1_STEALTH
-};
-
-/*
- * Hack -- see below
- */
-static cptr display_player_flag_names[4][8] =
-{
-	{
-		" Acid:",	/* TR2_RES_ACID */
-		" Elec:",	/* TR2_RES_ELEC */
-		" Fire:",	/* TR2_RES_FIRE */
-		" Cold:",	/* TR2_RES_COLD */
-		" Pois:",	/* TR2_RES_POIS */
-		" Fear:",	/* TR2_RES_FEAR */
-		" Lite:",	/* TR2_RES_LIGHT */
-		" Dark:"	/* TR2_RES_DARK */
-	},
-
-	{
-		"Blind:",	/* TR2_RES_BLIND */
-		"Confu:",	/* TR2_RES_CONFU */
-		"Sound:",	/* TR2_RES_SOUND */
-		"Shard:",	/* TR2_RES_SHARD */
-		"Nexus:",	/* TR2_RES_NEXUS */
-		"Nethr:",	/* TR2_RES_NETHR */
-		"Chaos:",	/* TR2_RES_CHAOS */
-		"Disen:"	/* TR2_RES_DISEN */
-	},
-
-	{
-		"S.Dig:",	/* TR3_SLOW_DIGEST */
-		"Feath:",	/* TR3_FEATHER */
-		"PLite:",	/* TR3_LIGHT */
-		"Regen:",	/* TR3_REGEN */
-		"Telep:",	/* TR3_TELEPATHY */
-		"Invis:",	/* TR3_SEE_INVIS */
-		"FrAct:",	/* TR3_FREE_ACT */
-		"HLife:"	/* TR3_HOLD_LIFE */
-	},
-
-	{
-		"Stea.:",	/* TR1_STEALTH */
-		"Sear.:",	/* TR1_SEARCH */
-		"Infra:",	/* TR1_INFRA */
-		"Tunn.:",	/* TR1_TUNNEL */
-		"Speed:",	/* TR1_SPEED */
-		"Blows:",	/* TR1_BLOWS */
-		"Shots:",	/* TR1_SHOTS */
-		"Might:"	/* TR1_MIGHT */
-	}
-};
-
 
 /*
  * Special display, part 1
  */
-static void display_player_flag_info(void)
+static void display_player_flag_info(bool onscreen)
 {
 	int x, y, i, n;
 
 	int row, col;
 
-	int set;
-	u32b head;
-	u32b flag;
-	cptr name;
+	u32b f1, f2, f3, fn;
 
-	u32b f[6];
-
+	byte record = 0;
 
 	/* Four columns */
 	for (x = 0; x < 4; x++)
 	{
-
 		/* Reset */
 		row = 11;
 		col = 20 * x - 2;
@@ -731,44 +689,30 @@ static void display_player_flag_info(void)
 		/* Eight rows */
 		for (y = 0; y < 8; y++)
 		{
-			bool hack_aggravate = FALSE;
 			byte name_attr = TERM_WHITE;
-
-			/* Extract set */
-			set = display_player_flag_set[x];
-
-			/* Extract head */
-			head = display_player_flag_head[x];
-
-			/*hack - replace tunneling with aggravate*/
-			if ((x == 3) && (y ==3)) hack_aggravate = TRUE;
-
-			/* Extract flag */
-			flag = (head << y);
-
-			/* Extract name */
-			name = display_player_flag_names[x][y];
-
-			/*hack in aggrivate flag*/
-			if (hack_aggravate)
-			{
-				name = "Aggr.:";
-				flag = TR3_AGGRAVATE;
-				set  = 3;
-			}
+			const struct player_flag_record *pfr_ptr = &player_flag_table[record++];
+			u32b flag_used;
 
 			/* Check equipment */
 			for (n = 8, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
 			{
 				byte attr = TERM_SLATE;
-
+				char o_name[80];
 				object_type *o_ptr;
 
 				/* Object */
 				o_ptr = &inventory[i];
 
+				object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+
 				/* Known flags */
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3], &f[4]);
+				object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
+
+				/* get the flag */
+				if 		(pfr_ptr->set == 1) flag_used = f1;
+				else if (pfr_ptr->set == 2) flag_used = f2;
+				else if (pfr_ptr->set == 3) flag_used = f3;
+				else/*(pfr_ptr->set == 4)*/ flag_used = fn;
 
 				/* Color columns by parity */
 				if (i % 2) attr = TERM_L_WHITE;
@@ -776,16 +720,15 @@ static void display_player_flag_info(void)
 				/* Non-existant objects */
 				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
-				/* Hack -- Check immunities */
-				if ((x == 0) && (y < 5) &&
-				    (f[set] & ((TR2_IM_ACID) << y)))
+				/* First check immunities */
+				else if ((pfr_ptr->im_flag) && (flag_used & (pfr_ptr->im_flag)))
 				{
 					c_put_str(TERM_L_GREEN, "*", row, col+n);
 					name_attr = TERM_L_GREEN;
 				}
 
 				/* Check flags */
-				else if (f[set] & flag)
+				else if (flag_used & (pfr_ptr->res_flag))
 				{
 					c_put_str(TERM_L_BLUE, "+", row, col+n);
 					if (name_attr != TERM_L_GREEN) name_attr = TERM_L_BLUE;
@@ -799,28 +742,33 @@ static void display_player_flag_info(void)
 			}
 
 			/* Player flags */
-			player_flags(&f[1], &f[2], &f[3], &f[4]);
+			player_flags(&f1, &f2, &f3, &fn);
+
+			/* get the flag */
+			if 		(pfr_ptr->set == 1) flag_used = f1;
+			else if (pfr_ptr->set == 2) flag_used = f2;
+			else if (pfr_ptr->set == 3) flag_used = f3;
+			else /*(pfr_ptr->set == 4)*/flag_used = fn;
 
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
 
 			/* Hack -- Check immunities */
-			if ((x == 0) && (y < 5) &&
-			    (f[set] & ((TR2_IM_ACID) << y)))
+			if ((pfr_ptr->im_flag) && (flag_used & (pfr_ptr->im_flag)))
 			{
 				c_put_str(TERM_L_GREEN, "*", row, col+n);
 				name_attr = TERM_L_GREEN;
 			}
 
 			/* Check flags */
-			else if (f[set] & flag)
+			else if (flag_used & (pfr_ptr->res_flag))
 			{
 			    c_put_str(TERM_L_BLUE, "+", row, col+n);
 				if (name_attr != TERM_L_GREEN) name_attr = TERM_L_BLUE;
 			}
 
 			/* Header */
-			c_put_str(name_attr, name, row, col+2);
+			c_put_str(name_attr, pfr_ptr->name, row, col+2);
 
 			/* Advance */
 			row++;
@@ -830,7 +778,7 @@ static void display_player_flag_info(void)
 		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+8);
 
 		/* Equippy */
-		display_player_equippy(row++, col+8);
+		display_player_equippy(row++, col+8, onscreen);
 	}
 }
 
@@ -956,8 +904,8 @@ void display_player_stat_info(int row, int col)
 		cnv_stat(p_ptr->stat_max[i], buf, sizeof(buf));
 		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
 
-		/* Race Bonus */
-		strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[i]);
+		/* Race Bonus add in permanent stat bonus here */
+		strnfmt(buf, sizeof(buf), "%+3d", (rp_ptr->r_adj[i] + p_ptr->stat_quest_add[i]));
 		c_put_str(TERM_L_BLUE, buf, row+i, col+11);
 
 		/* Class Bonus */
@@ -993,7 +941,7 @@ void display_player_stat_info(int row, int col)
  * Huge mods (>9), like from MICoMorgoth, will be a '*'
  * No mod, no sustain, will be a slate '.'
  */
-static void display_player_sust_info(void)
+static void display_player_sust_info(bool onscreen)
 {
 	int i, row, col, stats;
 
@@ -1111,7 +1059,7 @@ static void display_player_sust_info(void)
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col);
 
 	/* Equippy */
-	display_player_equippy(row+7, col);
+	display_player_equippy(row+7, col, onscreen);
 }
 
 /*
@@ -1127,16 +1075,9 @@ static void display_player_sust_info(void)
  * This is followed by the home equipment
  *
  */
-static void display_home_equipment_info(int mode)
+static void display_home_equipment_info(int mode, bool onscreen)
 {
 	int x, y, n, xmax, xmin;
-
-	int set;
-	u32b head;
-	u32b flag;
-	cptr name;
-
-	u32b f[5];
 
 	int i, row, col, stats;
 
@@ -1156,13 +1097,13 @@ static void display_home_equipment_info(int mode)
 	col = 7;
 
 	/* Equippy */
-	display_home_equippy(row-2, col);
+	display_home_equippy(row-2, col, onscreen);
 
 	/* Header */
-	c_put_str(TERM_WHITE, "abcdefghijklmnopqrstuvwx", row-1, col);
+	display_home_inven_letters(row-1, col, onscreen);
 
 	/* Footer */
-	c_put_str(TERM_WHITE, "abcdefghijklmnopqrstuvwx", row+6, col);
+	display_home_inven_letters(row+6, col, onscreen);
 
 	/* Process home stats */
 	for (i = 0; i < MAX_INVENTORY_HOME; ++i)
@@ -1258,19 +1199,19 @@ static void display_home_equipment_info(int mode)
 	col = 7;
 
 	/* 2nd Header */
-	c_put_str(TERM_WHITE, "abcdefghijklmnopqrstuvwx", row-1, col + MAX_INVENTORY_HOME + 8);
+	display_home_inven_letters((row-1), (col + MAX_INVENTORY_HOME + 8), onscreen);
 
 	/* Footer */
-	c_put_str(TERM_WHITE, "abcdefghijklmnopqrstuvwx", row+8, col);
+	display_home_inven_letters((row+8), col, onscreen);
 
 	/* 2nd Footer */
-	c_put_str(TERM_WHITE, "abcdefghijklmnopqrstuvwx", row+8, col + MAX_INVENTORY_HOME + 8);
+	display_home_inven_letters((row+8), (col + MAX_INVENTORY_HOME + 8), onscreen);
 
 	/* 3rd Equippy */
-	display_home_equippy(row+9, col);
+	display_home_equippy(row+9, col, onscreen);
 
 	/* 4th Equippy */
-	display_home_equippy(row+9,col+ MAX_INVENTORY_HOME + 8);
+	display_home_equippy(row+9,col+ MAX_INVENTORY_HOME + 8, onscreen);
 
 	/* Two Rows, alternating depending upon the mode */
 	for (x = 0; xmin < xmax; ++xmin, ++x)
@@ -1282,31 +1223,10 @@ static void display_home_equipment_info(int mode)
 		/* Eight rows */
 		for (y = 0; y < 8; y++)
 		{
-			bool hack_aggravate = FALSE;
 			byte name_attr = TERM_WHITE;
-
-			/* Extract set */
-			set = display_player_flag_set[xmin];
-
-			/* Extract head */
-			head = display_player_flag_head[xmin];
-
-			/*hack - replace tunneling with aggravate*/
-			if ((xmin == 3) && (y ==3)) hack_aggravate = TRUE;
-
-			/* Extract flag */
-			flag = (head << y);
-
-			/* Extract name */
-			name = display_player_flag_names[xmin][y];
-
-			/*hack in aggravate flag for tunneling*/
-			if (hack_aggravate)
-			{
-				name = "Aggr.:";
-				flag = TR3_AGGRAVATE;
-				set  = 3;
-			}
+			int z = (x * 8) + y + ((mode == 2) ? 0 : 16);
+			const struct player_flag_record *pfr_ptr = &player_flag_table[z];
+			u32b flag_used;
 
 			/* Check equipment */
 			for (n = 7, i = 0; i < MAX_INVENTORY_HOME; ++i, ++n)
@@ -1315,28 +1235,32 @@ static void display_home_equipment_info(int mode)
 
 				object_type *o_ptr;
 
+				f1 = 0L;
+				f2 = 0L;
+				f3 = 0L;
+				fn = 0L;
+
 				/* Object */
 				o_ptr = &st_ptr->stock[i];
 
 				/* Known flags */
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3], &f[4]);
+				object_flags_known(o_ptr, &f1, &f2, &f3, &fn);
 
-				/* Color columns by parity */
-				if (i % 2) attr = TERM_L_WHITE;
+				/* get the flag */
+				if 		(pfr_ptr->set == 1) flag_used = f1;
+				else if (pfr_ptr->set == 2) flag_used = f2;
+				else if (pfr_ptr->set == 3) flag_used = f3;
+				else/*(pfr_ptr->set == 3)*/ flag_used = fn;
 
-				/* Non-existant objects */
-				if (!o_ptr->k_idx) attr = TERM_L_DARK;
-
-				/* Hack -- Check immunities */
-				if ((xmin == 0) && (y < 5) &&
-				    (f[set] & ((TR2_IM_ACID) << y)))
+				/* First check immunities */
+				if ((pfr_ptr->im_flag) && (flag_used & (pfr_ptr->im_flag)))
 				{
 					c_put_str(TERM_L_GREEN, "*", row, col+n);
 					name_attr = TERM_L_GREEN;
 				}
 
 				/* Check flags */
-				else if (f[set] & flag)
+				else if (flag_used & (pfr_ptr->res_flag))
 				{
 					c_put_str(TERM_L_BLUE, "+", row, col+n);
 					if (name_attr != TERM_L_GREEN) name_attr = TERM_L_BLUE;
@@ -1350,7 +1274,7 @@ static void display_home_equipment_info(int mode)
 			}
 
 			/* Header */
-			c_put_str(name_attr, name, row, col);
+			c_put_str(name_attr, pfr_ptr->name, row, col);
 
 			/* Advance */
 			row++;
@@ -1663,8 +1587,12 @@ static void display_special_abilities(int row, int col)
  * Mode 2 = Home equiment Stat Flags and 1st part of Resists
  * Mode 3 = Home equiment Stat Flags and 2st part of Resists
  * Mode 4 = Special abilities (nativity) and temporary bonuses
+ *
+ * The boolean onscreen specifies if this is to display onscreen
+ * or to be written to a file.  To make sure the equppy is displalyed properly
+ * in a file while in tile mode.
  */
-void display_player(int mode)
+void display_player(int mode, bool onscreen)
 {
 	/* Erase screen */
 	clear_from(0);
@@ -1695,10 +1623,10 @@ void display_player(int mode)
 			c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
 
 			/* Stat/Sustain flags */
-			display_player_sust_info();
+			display_player_sust_info(onscreen);
 
 			/* Other flags */
-			display_player_flag_info();
+			display_player_flag_info(onscreen);
 		}
 
 		/* Standard */
@@ -1718,7 +1646,7 @@ void display_player(int mode)
 		display_special_abilities(1, 1);
 	}
 
-	else display_home_equipment_info(mode);
+	else display_home_equipment_info(mode, onscreen);
 }
 
 
@@ -1810,7 +1738,7 @@ static void dump_player_stat_info(ang_file *fff)
 		}
 
 		/* Get attr/char for display */
-		else equippy[x] = object_char(o_ptr);
+		else equippy[x] = object_char_default(o_ptr);
 	}
 
 	/*finish off the string*/
@@ -2008,7 +1936,7 @@ static void dump_home_stat_info(ang_file *fff)
 		}
 
 		/* Get attr/char for display */
-		else equippy[i] = object_char(o_ptr);
+		else equippy[i] = object_char_default(o_ptr);
 	}
 
 	/*finish off the string*/
@@ -2151,7 +2079,7 @@ errr file_character(const char *path, bool full)
 
 
 	/* Display player */
-	display_player(0);
+	display_player(0, FALSE);
 
 	/* Dump part of the screen */
 	for (y = 1; y < 23; y++)
@@ -2200,7 +2128,7 @@ errr file_character(const char *path, bool full)
 	dump_player_stat_info(fff);
 
 	/* Display player */
-	display_player(1);
+	display_player(1, FALSE);
 
 	/* Dump flags, but in two separate rows */
 	for (w = 0; w < 2; w ++)
@@ -2309,7 +2237,7 @@ errr file_character(const char *path, bool full)
 		for (i =2; i <4; ++i)
 		{
 			/* Display player */
-			display_player(i);
+			display_player(i, FALSE);
 
 			/* Dump part of the screen */
 			for (y = (i + 7); y < (i + 17); y++)
@@ -2336,7 +2264,7 @@ errr file_character(const char *path, bool full)
 		}
 
 		/* Display player */
-		display_player(0);
+		display_player(0, FALSE);
 
 		/* End the row */
 		file_putf(fff, "\n");
@@ -2363,19 +2291,19 @@ errr file_character(const char *path, bool full)
 	else file_putf(fff, "[Your Home Is Empty]\n\n");
 
 	/* Check if in quest */
-	if (p_ptr->cur_quest > 0)
+	if (guild_quest_level())
 	{
-		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+		quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 		/* Skip completed quest */
-		if (q_ptr->active_level)
+		if (!(q_ptr->q_flags & (QFLAG_COMPLETED)))
 		{
 			char q_out[160];
 
 			x_file_putf(fff, encoding, "  [Current Quest]\n\n");
 
 			/*get the quest description*/
-			describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_FULL);
+			describe_quest(q_out, sizeof(q_out), guild_quest_level(), QMODE_FULL);
 
 			/* Describe quest */
 			x_file_putf(fff, encoding, "%s\n", q_out);

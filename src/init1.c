@@ -351,7 +351,7 @@ static flag_name info_flags[] =
 	{"BALL_CONFU", RF5, RF5_BALL_CONFU},
 	{"BALL_SOUND", RF5, RF5_BALL_SOUND},
 	{"BALL_SHARD", RF5, RF5_BALL_SHARD},
-	{"RF5XXX2", RF5, RF5_RF5_XXX2},
+	{"BALL_METEOR", RF5,RF5_BALL_METEOR},
 	{"BALL_STORM", RF5, RF5_BALL_STORM},
 	{"BALL_NETHR", RF5, RF5_BALL_NETHR},
 	{"BALL_CHAOS", RF5, RF5_BALL_CHAOS},
@@ -367,11 +367,11 @@ static flag_name info_flags[] =
 	{"BOLT_WATER", RF5, RF5_BOLT_WATER},
 	{"BOLT_NETHR", RF5, RF5_BOLT_NETHR},
 	{"BOLT_MANA", RF5, RF5_BOLT_MANA},
-	{"RF5XXX3", RF5, RF5_RF5_XXX3},
+	{"BOLT_GRAV", RF5, RF5_BOLT_GRAV},
 	{"BEAM_ELEC", RF5, RF5_BEAM_ELEC},
 	{"BEAM_ICE", RF5, RF5_BEAM_ICE},
 	{"BEAM_NETHR", RF5, RF5_BEAM_NETHR},
-	{"RF5XXX4", RF5, RF5_RF5_XXX4},
+	{"BEAM_LAVA", RF5, RF5_BEAM_LAVA},
 	{"HOLY_ORB", RF5, RF5_HOLY_ORB},
 
 
@@ -2042,26 +2042,26 @@ errr parse_t_info(char *buf, header *head)
 		t_ptr = (ghost_template*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(t_ptr->t_name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+		my_strcpy(t_ptr->t_name, s, MAX_GHOST_NAME_LEN);
 	}
 
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int t_gender, t_race, t_class;
+		int t_gender, t_race, t_class, t_depth;
 
 		/* There better be a current k_ptr */
 		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &t_gender, &t_race, &t_class)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &t_gender, &t_race, &t_class, &t_depth)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		t_ptr->t_gender = t_gender;
 		t_ptr->t_race = t_race;
 		t_ptr->t_class = t_class;
+		t_ptr->t_depth = t_depth;
 	}
 
 	else
@@ -3713,24 +3713,15 @@ errr parse_q_info(char *buf, header *head)
 		}
 
 		/* Save the values */
-		prev_lev = q_ptr->base_level = q_ptr->active_level = lev;
+		prev_lev = q_ptr->base_level = lev;
 
 		q_ptr->mon_idx = r_idx;
 
 		if(r_idx)
 		{
-			monster_race *r_ptr = &r_info[r_idx];
+			q_ptr->q_type = QUEST_PERMANENT;
 
-			/*unique quest*/
-			if (r_ptr->flags1 & RF1_UNIQUE)
-			{
-				q_ptr->q_type = QUEST_FIXED_U;
-			}
-
-			/*fixed quest*/
-			else q_ptr->q_type = QUEST_FIXED;
-
-			q_ptr->max_num = max;
+			q_ptr->q_max_num = max;
 		}
 
 

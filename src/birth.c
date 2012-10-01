@@ -453,7 +453,7 @@ static void player_wipe(void)
 	}
 
 	/* Wipe the quest */
-	guild_quest_wipe();
+	guild_quest_wipe(TRUE);
 
 	/* Reset the fixed quests */
 	for (i = 0; i < z_info->q_max; i++)
@@ -461,10 +461,10 @@ static void player_wipe(void)
 		quest_type *q_ptr = &q_info[i];
 
 		/* Reset level */
-		if ((q_ptr->q_type == QUEST_FIXED) || (q_ptr->q_type == QUEST_FIXED_U))
+		if (quest_fixed(q_ptr))
 		{
-			q_ptr->active_level = q_ptr->base_level;
-			q_ptr->cur_num = 0;
+			q_info[i].q_flags = 0L;
+			q_ptr->q_num_killed = 0;
 		}
 	}
 
@@ -502,8 +502,8 @@ static void player_wipe(void)
 	}
 
 	/*No current player ghosts*/
-	bones_selector = 0;
-
+	player_ghost_num = -1;
+	ghost_r_idx = 0;
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
@@ -646,7 +646,6 @@ static void player_outfit(void)
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	k_info[i_ptr->k_idx].everseen = TRUE;
-	(void)inven_carry(i_ptr);
 	apply_autoinscription(i_ptr);
 	/* Remember history */
 	object_history(i_ptr, ORIGIN_BIRTH, 0);
@@ -662,7 +661,6 @@ static void player_outfit(void)
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	k_info[i_ptr->k_idx].everseen = TRUE;
-	(void)inven_carry(i_ptr);
 	apply_autoinscription(i_ptr);
 	/* Remember history */
 	object_history(i_ptr, ORIGIN_BIRTH, 0);

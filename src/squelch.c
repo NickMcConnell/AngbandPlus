@@ -671,8 +671,9 @@ bool squelch_item_ok(const object_type *o_ptr)
 	/* Always delete "nothings" */
 	if (!o_ptr->k_idx) return (TRUE);
 
-	/* Ignore inscribed objects, artifacts or quest objects */
-	if (o_ptr->obj_note || artifact_p(o_ptr) || (o_ptr->ident & IDENT_QUEST))
+	/* Ignore inscribed objects, artifacts , mimics or quest objects */
+	if ((o_ptr->obj_note) || (artifact_p(o_ptr)) || (o_ptr->ident & (IDENT_QUEST)) ||
+		(o_ptr->mimic_r_idx))
 	{
 		return (FALSE);
 	}

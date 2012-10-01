@@ -114,33 +114,50 @@ immediate quest failure.
 
 ***** <Level Quest>
 THEMED LEVEL QUESTS:
-This quest is a more difficult version of the Monster Pit/Nest quests.  Instead of
-95 creatures in a pit or nest, the entire level is full of 200 or more
-monsters of a particular theme.
-Since there are so many like creatures bunched so closely together, a creature
-from inside one of these themed levels will not attempt to summon more 
-creatures to the battle.  This tends to be the most difficult type of quest, 
-increases your player fame by the greatest amount, and offers the most lucrative 
-rewards.  Voluntarily leaving a themed level results in immediate 
+This quest is a more difficult version of the Monster Pit/Nest quests.  Instead 
+of 95 creatures in a pit or nest, the entire level is full of 200 or more
+monsters of a particular theme.  Since there are so many like creatures bunched 
+so closely together, a creature from inside one of these themed levels will not 
+attempt to summon more creatures to the battle.  This tends to be one of the more 
+difficult type of quest, increases your player fame by a large amount, and 
+offers lucrative rewards.  Voluntarily leaving a themed level results in immediate 
 quest failure.
+
+***** <Wilderness Quest>
+WILDERNESS QUEST:
+This quest is a different version of the Themed level quests.  An entire level
+of unthemed randomly chosen creatures in a wilderness level.  Since there are so 
+many like creatures bunched so closely together, a creature from inside one of 
+these wilderness levels will not attempt to summon more creatures to the battle.  
+This tends to be adifficult type of quest, depending on the most difficult
+to kill creature on the level, increases your player fame by a large amount
+(tied with Level Quests), and offers above average rewards and fame increase.
+Voluntarily leaving a wilderness level results in immediate quest failure.
+
+***** <Arena Quest>
+ARENA QUEST:
+The player starts in a small, empty room.  The quest is to kill 40 random 
+creatures that appear in the room.  (Note that a group of monsters only
+counts as one).  The room will slowly expand, revealing items that will
+help the player survive.  This is one of the hardest quests, and therefore
+has the gretaest reward and fame potential.  Voluntarily leaving an arena 
+level results in immediate quest failure.
+
+
 
 
 REWARD:
 
 The biggest reason to take on an optional quest is the reward.  The quality 
-of the reward depends on two factors. The first factor is the difficulty
+of the rewards offered depends on two factors. The first factor is the difficulty
 of the quest.  The second factor is the player's reputation at the guild. 
 The player's reputation at the guild is increased by completing quests 
 and by killing uniques. When the advanturer fails a quest, their 
 reputation at the guild is greatly decreased.
 
-Early in the game, the quest reward is usually gold.  As a player's reputation at
-the guild increases, the guild will choose to reward the player with stat gain
-potions, dungeon spellbooks, or guaranteed good or guaranteed great equipment.
-If a player's reputation at the guild is high enough, the guild may attempt 
-to tailor a great item to the player's biggest need, based on an evaluation 
-of the equipment the player is wearing, as well as the equipment in the 
-player's backpack and home.  The player can also receive permanent increases
-to their speed or maximum hit points.  The ultimate reward is for the guild to 
-create an artifact specifically as a quest reward.  The player will even be given 
-a chance to name the artifact.
+Early in the game, the rewards areusually gold or objects.  As a player's 
+reputation increases, the guild will offer to reward the player with stat gain
+increases, dungeon spellbooks, or permanent hp increases.  The ultimate reward 
+is for the guild to offer to create an artifact specifically as a quest reward.  
+The player will even be given a chance to choose the object to be made into an 
+artifact and name it.

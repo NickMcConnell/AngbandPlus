@@ -24,7 +24,7 @@
  */
 
 /*
- * Hack -- function hook to piont to the right "get_energy_*flow*" function
+ * Hack -- function hook to point to the right "get_energy_*flow*" function
  */
 static int (*get_energy_to_move)(int y, int x, byte which_flow, u32b elem_flag);
 
@@ -731,6 +731,12 @@ bool feat_supports_lighting_dvg(u16b feat)
 	/* A couple others */
 	switch (feat)
 	{
+		case FEAT_LESS:
+		case FEAT_MORE:
+		case FEAT_CLOSED_DOOR_WOODEN:
+		case FEAT_OPEN_DOOR_WOODEN:
+		case FEAT_OPEN_DOOR_STEEL:
+		case FEAT_OPEN_DOOR_IRON:
 		case FEAT_RUBBLE:
 		case FEAT_L_ROCK:
 		case FEAT_FLOOR_EARTH:
@@ -1474,7 +1480,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				if ((use_graphics) && (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 				{
 					a = (byte)0x87;
-					c = (char)0xB6;
+					c = (char)0xB7;
 				}
 
 				else
@@ -1658,22 +1664,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Desired char */
 			dc = r_ptr->x_char;
 
-			/*make mimics look like an object*/
-			if (m_ptr->mimic_k_idx)
-			{
-				/* Make sure it is seen, if it imitates an object. */
-				m_ptr->mflag |= (MFLAG_MIMIC);
-
-				/* Normal attr */
-				a = da = object_type_attr(m_ptr->mimic_k_idx);
-
-				/* Normal char */
-				c = dc = object_type_char(m_ptr->mimic_k_idx);
-
-			}
-
 			/* Hack -- monster hallucination */
-			else if (image)
+			if (image)
 			{
 				int i = image_monster(FALSE);
 
@@ -1738,8 +1730,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Hack -- hidden monsters */
 			/* TODO -- pick a tile for graphics mode */
 			/* Note that we keep the original looks if the monster is being detected */
-			if (((m_ptr->mflag & (MFLAG_MARK | MFLAG_HIDE)) == (MFLAG_HIDE)) &&
-				!(m_ptr->mimic_k_idx) && !image)
+			if (((m_ptr->mflag & (MFLAG_MARK | MFLAG_HIDE)) == (MFLAG_HIDE)) && (!image))
 			{
 				map_hidden_monster(m_ptr, &a, &c);
 			}
@@ -2498,8 +2489,8 @@ void display_map(int *cy, int *cx)
 				/* Notice dangerous monsters */
 				tp = MAX(20, (int)r_ptr->level - (2 * p_ptr->lev / 3) + 20);
 
-				/* Ignore invisible monsters and mimics*/
-				if ((!m_ptr->ml) || (m_ptr->mimic_k_idx)) tp = 20;
+				/* Ignore invisible monsters */
+				if (!m_ptr->ml) tp = 20;
 			}
 
 			/* Save "best" */
@@ -4582,8 +4573,6 @@ static void update_flows_full_prep(void)
 
 void update_flows(bool full)
 {
-
-
 	/*First check if we need a full update*/
 	if (!full)
 	{
@@ -4599,6 +4588,9 @@ void update_flows(bool full)
 						    MAX_DISTANCE_BETWEEN_UPDATES) full = TRUE;
 		/*We can't do any more partial updates*/
 		else if (cost_at_center[FLOW_NO_DOORS] < 500) full = TRUE;
+
+		/* Arena levels are too small to have partial updates */
+		else if (p_ptr->dungeon_type == DUNGEON_TYPE_ARENA) full = TRUE;
 	}
 
 	if (!full)

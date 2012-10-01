@@ -78,31 +78,44 @@ static int quests_max;
 
 
 /*List of various store services allowed*/
+/*
+ * Timed effects
+ */
+enum
+{
+	SERVICE_ENCHANT_ARMOR	= 0,
+	SERVICE_ENCHANT_TO_HIT,
+	SERVICE_ENCHANT_TO_DAM,
+	SERVICE_ELEM_BRAND_WEAP,
+	SERVICE_ELEM_BRAND_AMMO,
+	SERVICE_RECHARGING,
+	SERVICE_IDENTIFY,
+	SERVICE_IDENTIFY_FULLY,
+	SERVICE_CURE_CRITICAL,
+	SERVICE_RESTORE_LIFE_LEVELS,
+	SERVICE_REMOVE_CURSE,
+	SERVICE_REMOVE_HEAVY_CURSE,
+	SERVICE_RESTORE_STAT,
+	SERVICE_INCREASE_STAT,
+	SERVICE_CREATE_RANDART,
+	SERVICE_PROBE_QUEST_MON,
+	SERVICE_BUY_HEALING_POTION,
+	SERVICE_BUY_LIFE_POTION,
+	SERVICE_BUY_SCROLL_BANISHMENT,
+	SERVICE_FIREPROOF_BOOK,
+	SERVICE_QUEST_DEFER_REWARD,
+	SERVICE_ABANDON_QUEST,
+	SERVICE_QUEST_REWARD_RANDART,
+	SERVICE_QUEST_REWARD_INC_HP,
+	SERVICE_QUEST_REWARD_INC_STAT,
+	SERVICE_QUEST_REWARD_AUGMENTATION,
 
-#define SERVICE_ENCHANT_ARMOR	0
-#define SERVICE_ENCHANT_TO_HIT	1
-#define SERVICE_ENCHANT_TO_DAM	2
-#define SERVICE_ELEM_BRAND_WEAP	3
-#define SERVICE_ELEM_BRAND_AMMO	4
-#define SERVICE_RECHARGING		5
-#define	SERVICE_IDENTIFY		6
-#define SERVICE_IDENTIFY_FULLY	7
-#define	SERVICE_CURE_CRITICAL	8
-#define	SERVICE_RESTORE_LIFE_LEVELS	9
-#define SERVICE_REMOVE_CURSE	10
-#define SERVICE_REMOVE_HEAVY_CURSE	11
-#define SERVICE_RESTORE_STAT	12
-#define SERVICE_INCREASE_STAT	13
-#define SERVICE_CREATE_RANDART	14
-#define SERVICE_PROBE_QUEST_MON	15
-#define SERVICE_BUY_HEALING_POTION	16
-#define SERVICE_BUY_LIFE_POTION	17
-#define SERVICE_BUY_SCROLL_BANISHMENT	18
-#define SERVICE_ABANDON_QUEST	19
-#define SERVICE_FIREPROOF_BOOK  20
-#define SERVICE_QUEST_REWARD 	21
 
-#define STORE_SERVICE_MAX 		22
+	STORE_SERVICE_MAX
+};
+
+#define QUEST_REWARD_HEAD	SERVICE_QUEST_DEFER_REWARD
+#define QUEST_REWARD_TAIL	SERVICE_QUEST_REWARD_AUGMENTATION
 
 /* Indicates which store offers the service*/
 static byte service_store[STORE_SERVICE_MAX] =
@@ -126,9 +139,14 @@ static byte service_store[STORE_SERVICE_MAX] =
 	STORE_TEMPLE,		/*	SERVICE_BUY_HEALING_POTION	*/
 	STORE_TEMPLE,		/*	SERVICE_BUY_LIFE_POTION		*/
 	STORE_MAGIC,		/*	SERVICE_BUY_SCROLL_BANISHMENT	*/
-	STORE_GUILD,		/*	SERVICE_ABANDON_QUEST		*/
 	STORE_BOOKSHOP,		/*	SERVICE_FIREPROOF_BOOK		*/
-	STORE_GUILD			/*	SERVICE_QUEST_REWARD		*/
+	STORE_GUILD,		/*	SERVICE_QUEST_DEFER_REWARD	*/
+	STORE_GUILD,		/*	SERVICE_ABANDON_QUEST		*/
+	STORE_GUILD,		/*	SERVICE_QUEST_REWARD_RANDART	*/
+	STORE_GUILD,		/*	SERVICE_QUEST_REWARD_INC_HP		*/
+	STORE_GUILD,		/*	SERVICE_QUEST_REWARD_INC_STAT	*/
+	STORE_GUILD			/*	SERVICE_QUEST_REWARD_AUGMENTATION	*/
+
 };
 
 /* Indicates the base price of the service*/
@@ -153,9 +171,14 @@ static u32b service_price[STORE_SERVICE_MAX] =
 	20000L,				/*	SERVICE_BUY_HEALING_POTION	*/
 	125000L,			/*	SERVICE_BUY_LIFE_POTION		*/
 	125000L,			/*	SERVICE_BUY_SCROLL_BANISHMENT	*/
-	0,					/*  SERVICE_ABANDON_QUEST 		*/
 	100000L,			/*  SERVICE_FIREPROOF_BOOK 		*/
-	0,					/*  SERVICE_QUEST_REWARD 		*/
+	0,					/*	SERVICE_QUEST_DEFER_REWARD	*/
+	0,					/*  SERVICE_ABANDON_QUEST 		*/
+	0,					/*	SERVICE_QUEST_REWARD_RANDART	*/
+	0,					/*	SERVICE_QUEST_REWARD_INC_HP		*/
+	0,					/*	SERVICE_QUEST_REWARD_INC_STAT	*/
+	0					/*	SERVICE_QUEST_REWARD_AUGMENTATION	*/
+
 };
 
 /*
@@ -182,9 +205,13 @@ static cptr service_names[STORE_SERVICE_MAX] =
 	"Purchase Potion of Healing",				/*	SERVICE_BUY_HEALING_POTION	*/
 	"Purchase Potion of Life",					/*	SERVICE_BUY_LIFE_POTION		*/
 	"Purchase Scroll of Mass Banishment",		/*	SERVICE_BUY_SCROLL_BANISHMENT	*/
-	"Abandon Your Quest",						/* SERVICE_ABANDON_QUEST 		*/
-	"Make Spell Book Fireproof[price varies]",	/* SERVICE_FIREPROOF_BOOK */
-	"Receive Your Quest Reward!",				/* SERVICE_QUEST_REWARD */
+	"Make Spell Book Fireproof[price varies]",	/*  SERVICE_FIREPROOF_BOOK */
+	"Defer Quest Reward",						/*	SERVICE_QUEST_DEFER_REWARD	*/
+	"Abandon Your Quest",						/*  SERVICE_ABANDON_QUEST 		*/
+	"Create Artifact Quest Reward",				/*	SERVICE_QUEST_REWARD_RANDART	*/
+	"Permanent Hit Point Increase Reward",		/*	SERVICE_QUEST_REWARD_INC_HP		*/
+	"Permanent Stat Increase Reward",			/*	SERVICE_QUEST_REWARD_INC_STAT	*/
+	"Permanent Stats Augmentation Reward"		/*	SERVICE_QUEST_REWARD_AUGMENTATION	*/
 };
 
 
@@ -194,11 +221,14 @@ static byte quests_offered[QUEST_SLOT_MAX];
 /* Quest Titles*/
 static cptr quest_title[QUEST_SLOT_MAX] =
 {
-	"Monster or Unique Quest",	/*QUEST_MONSTER*/
-	"Pit or Nest Quest",		/*QUEST_PIT*/
-  	"Level Quest",				/*QUEST_LEVEL*/
-	"Vault Quest",				/*QUEST_VAULT*/
-  	"Guardian Quest"			/*QUEST_FIXED */
+	"Monster or Unique Quest",	/* QUEST_MONSTER*/
+  	"Guardian Quest",			/* QUEST_GUARDIAN */
+	"Pit or Nest Quest",		/* QUEST_PIT*/
+	"Wilderness Quest",			/* QUEST_WILDERNESS */
+  	"Level Quest",				/* QUEST_THEMED_LEVEL*/
+	"Vault Quest",				/* QUEST_VAULT*/
+	"Arena Quest",				/* QUEST_ARENA_LEVEL */
+	"Labyrinth Quest"			/* QUEST_LABYRINTH_LEVEL */
 };
 
 
@@ -320,7 +350,7 @@ static void stat_display(menu_type *menu, int oid, bool cursor, int row, int col
 	c_put_str(TERM_L_GREEN, buf, row, col+5);
 
 	/* Race Bonus */
-	strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[pr_stat]);
+	strnfmt(buf, sizeof(buf), "%+3d", (rp_ptr->r_adj[pr_stat] + p_ptr->stat_quest_add[pr_stat]));
 	c_put_str(TERM_L_BLUE, buf, row, col+11);
 
 	/* Class Bonus */
@@ -373,9 +403,14 @@ static int stats_menu(int service)
 		{
 			if (p_ptr->stat_cur[i] < p_ptr->stat_max[i]) stats[count++] = i;
 		}
-		else /*(service == SERVICE_INCREASE_STAT)*/
+		else if (service == SERVICE_INCREASE_STAT)
 		{
 			if (p_ptr->stat_max[i] < 18+100) stats[count++] = i;
+		}
+		/* must be SERVICE_QUEST_REWARD_INC_STAT*/
+		else
+		{
+			if (p_ptr->stat_quest_add[i] <= 2) stats[count++] = i;
 		}
 
 	}
@@ -393,9 +428,14 @@ static int stats_menu(int service)
 	{
 		my_strcpy(title, " Please select a stat to restore.", sizeof(title));
 	}
-	else /*(service == SERVICE_INCREASE_STAT)*/
+	else if (service == SERVICE_INCREASE_STAT)
 	{
 		my_strcpy(title, " Please select a stat to increase.", sizeof(title));
+	}
+	/* must be SERVICE_QUEST_REWARD_INC_STAT*/
+	else
+	{
+		my_strcpy(title, " Please select a stat to permanently increase.", sizeof(title));
 	}
 
 	menu.prompt = title;
@@ -599,8 +639,7 @@ static bool check_gold(s32b price)
 static void init_services_and_quests(int store_num)
 {
 	int i;
-
-	bool quest_reward = FALSE;
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 	/* Wipe all the old information. */
 	services_min = 0;
@@ -608,13 +647,10 @@ static void init_services_and_quests(int store_num)
 	quests_min = 0;
 	quests_max = 0;
 	for (i = 0; i < STORE_SERVICE_MAX; i++) services_offered[i] = -1;
-	for (i = 0;i < QUEST_SLOT_MAX; i++) quests_offered[i] = -1;
+	for (i = 0; i < QUEST_SLOT_MAX; i++) quests_offered[i] = -1;
 
 	/*Nothing in the store*/
 	if (store_num == STORE_HOME) return;
-
-	/* Know our quest_status */
-	if(store_num == STORE_GUILD) quest_reward = check_reward();
 
 	/*First, initialize the services*/
 	/* Get the store services for the current store*/
@@ -636,28 +672,62 @@ static void init_services_and_quests(int store_num)
 		if (i == SERVICE_ABANDON_QUEST)
 		{
 			/*We finished the quest, why abandon it?*/
-			if (quest_reward) continue;
+			if (guild_quest_complete()) continue;
 
-			if (!p_ptr->cur_quest) continue;
+			/* No current guild quest */
+			if (!q_ptr->q_type) continue;
+
+			if (!guild_quest_level()) continue;
 		}
 
-		if (i == SERVICE_QUEST_REWARD)
+		else if ((i >= QUEST_REWARD_HEAD) &&
+				 (i <= QUEST_REWARD_TAIL))
 		{
-			if (!quest_reward) continue;
+			/* Not currently offering a reward */
+			if (!guild_quest_complete()) continue;
+
+			if (i == SERVICE_QUEST_REWARD_INC_HP)
+			{
+				if (!(q_ptr->q_reward & (REWARD_INC_HP)))
+				{
+					/* This service should not be offered */
+					continue;
+				}
+			}
+			if (i == SERVICE_QUEST_REWARD_RANDART)
+			{
+				if (!(q_ptr->q_reward & (REWARD_RANDART)))
+				{
+					/* This service should not be offered */
+					continue;
+				}
+			}
+			else if (i == SERVICE_QUEST_REWARD_INC_STAT)
+			{
+				if (!(q_ptr->q_reward & (REWARD_INC_STAT)))
+				{
+					/* This service should not be offered */
+					continue;
+				}
+			}
+			else if (i == SERVICE_QUEST_REWARD_AUGMENTATION)
+			{
+				if (!(q_ptr->q_reward & (REWARD_AUGMENTATION)))
+				{
+					/* This service should not be offered */
+					continue;
+				}
+			}
 		}
 
 		/* Filter out quest-specific services when appropriate. */
-		if (i == SERVICE_PROBE_QUEST_MON)
+		else if (i == SERVICE_PROBE_QUEST_MON)
 		{
-			quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
-
-			if (!p_ptr->cur_quest) continue;
-			if (quest_reward) continue;
+			if (!guild_quest_level()) continue;
+			if (guild_quest_complete()) continue;
 
 			if (q_ptr->q_type == QUEST_VAULT) continue;
-			if (q_ptr->q_type == QUEST_PIT) continue;
-			if (q_ptr->q_type == QUEST_NEST) continue;
-			if (q_ptr->q_type == QUEST_THEMED_LEVEL) continue;
+			if (quest_multiple_r_idx(q_ptr)) continue;
 		}
 
 		/* Offer this service. */
@@ -674,7 +744,7 @@ static void init_services_and_quests(int store_num)
 	if (store_num != STORE_GUILD) return;
 
 	/* No quest options if they currently have an active one. */
-	if (p_ptr->cur_quest) return;
+	if (guild_quest_level()) return;
 
 	/*Honor the no quests option*/
 	if (!can_quest_at_level()) return;
@@ -714,13 +784,11 @@ static u32b price_services(int store_num, int choice)
 	/*Guild price factoring*/
 	else
 	{
-		if (p_ptr->fame < 100) price += price * (100 - p_ptr->fame) / 100;
+		if (p_ptr->q_fame < 1000) price += price * (1000 - p_ptr->q_fame) / 1000;
 	}
 
 	return(price);
 }
-
-
 
 
 /*
@@ -730,8 +798,9 @@ static bool store_service_aux(int store_num, s16b choice)
 {
 	object_type *o_ptr;
 	object_kind *k_ptr;
-
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 	char o_name[80];
+	char title[80];
 
 	byte lev;
 
@@ -742,6 +811,7 @@ static bool store_service_aux(int store_num, s16b choice)
 	char prompt[160];
 
 	u32b price = price_services(store_num, choice);
+	get_title(title, sizeof(title));
 
 	switch (choice)
 	{
@@ -1097,11 +1167,21 @@ static bool store_service_aux(int store_num, s16b choice)
 		}
 		case SERVICE_RESTORE_STAT:
 		case SERVICE_INCREASE_STAT:
+		case SERVICE_QUEST_REWARD_INC_STAT:
 		{
+
 			int result;
 
 			/*Too expensive*/
-			if (!check_gold(price)) return (FALSE);
+			if (choice != SERVICE_QUEST_REWARD_INC_STAT)
+			{
+				if (!check_gold(price)) return (FALSE);
+			}
+			else
+			{
+				/* Ask confirmation */
+				if (!get_check(format("Choose a stat to permanently increase, %s?", title))) return (FALSE);
+			}
 
 			screen_save();
 
@@ -1115,14 +1195,19 @@ static bool store_service_aux(int store_num, s16b choice)
 				{
 					screen_load();
 					msg_format("None of your stats need restoring.");
-					return (FALSE);
 				}
 				else if (choice == SERVICE_INCREASE_STAT)
 				{
 					screen_load();
 					msg_format("Your stats cannot be increased any further.");
-					return (FALSE);
 				}
+				/* must be SERVICE_QUEST_REWARD_INC_STAT*/
+				else
+				{
+					screen_load();
+					msg_format("Your stats cannot be permanently increased any further.");
+				}
+				return (FALSE);
 			}
 
 			/*player chose escape - do nothing */
@@ -1141,12 +1226,18 @@ static bool store_service_aux(int store_num, s16b choice)
 										stat_names_full[result]);
 
 			}
-			/*must be SERVICE_INCREASE_STAT*/
-			else
+			else if (choice == SERVICE_INCREASE_STAT)
 			{
 				if (do_inc_stat(result)) p_ptr->au -= price;
 				else msg_format("Your %s cannot be increased any further.",
 									stat_names_full[result]);
+			}
+			/* must be SERVICE_QUEST_REWARD_INC_STAT*/
+			else
+			{
+				Term_gotoxy(0, 0);
+				do_perm_stat_boost(result);
+				guild_quest_wipe(TRUE);
 			}
 			screen_load();
 			return (TRUE);
@@ -1166,8 +1257,8 @@ static bool store_service_aux(int store_num, s16b choice)
 			item_tester_hook = item_tester_hook_randart;
 
 			/* Get an item */
-			q = "Choose an item to be made into an artifact. ";
-			s = "You have no eligible item.";
+			q = format("Choose an item to be made into an artifact, %s.", title);
+			s = format("You have no eligible item, %s.", title);
 			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return (FALSE);
 
 			/*Got the item*/
@@ -1194,10 +1285,10 @@ static bool store_service_aux(int store_num, s16b choice)
 
 			/*re-use the o_value variable for a completely different purpose*/
 			/*extra power bonus for expensive items and high player fame*/
-			o_value = p_ptr->fame / 2 + MAX((k_ptr->cost / 2000), p_ptr->fame / 5);
+			o_value = p_ptr->q_fame / 20 + MAX((k_ptr->cost / 2000), p_ptr->q_fame / 50);
 
-		   	/*Hack - add in any to-hit and to-value, since they will be erased*/
-			o_value += (o_ptr->to_h + o_ptr->to_d + o_ptr->to_a / 2);
+			/*Hack - add in any to-hit and to-value, since they will be erased*/
+			o_value += (o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) / 2;
 
 			/*actually create the Randart, or handle failure*/
 			if (make_one_randart(o_ptr, o_value, TRUE))
@@ -1208,11 +1299,83 @@ static bool store_service_aux(int store_num, s16b choice)
 				object_aware(o_ptr);
 				object_known(o_ptr);
 
+				/* Mark the history */
+				o_ptr->origin_nature = ORIGIN_ACQUIRE;
+				o_ptr->origin_r_idx = 0;
+				o_ptr->origin_dlvl = 0;
+
+
+
 				/* Mark the item as fully known */
 				o_ptr->ident |= (IDENT_MENTAL);
 
 				/*Let the player know what they just got*/
 				object_info_screen(o_ptr);
+
+				return (TRUE);
+			}
+
+			msg_print("The attempt at making an artifact has failed");
+			return (FALSE);
+		}
+
+		case SERVICE_QUEST_REWARD_RANDART:
+		{
+			int rand_power;
+
+			/* Paranoia - should never happen */
+			if ((adult_no_artifacts) || (adult_no_xtra_artifacts))
+			{
+				msg_print("Nothing happens.");
+				return (FALSE);
+			}
+
+			/* Only accept legal items */
+			item_tester_hook = item_tester_hook_randart;
+
+			/* Get an item */
+			q = format("Choose an item to be made into an artifact, %s. ", title);
+			s = format("You have no eligible item, %s. ", title);
+			if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return (FALSE);
+
+			/*Got the item*/
+			o_ptr = &inventory[item];
+
+			/*Got the object kind*/
+			k_ptr = &k_info[o_ptr->k_idx];
+
+			/* Description */
+			object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+
+			strnfmt(prompt, sizeof(prompt), "Make %s into an artifact? ", o_name);
+
+			if (!get_check(prompt)) return (FALSE);
+
+			/* extra power bonus for expensive items and high player fame*/
+			rand_power = (p_ptr->q_fame + p_ptr->deferred_rewards) / 20 + MAX((k_ptr->cost / 2000), p_ptr->q_fame / 50);
+
+			/*Hack - add in any to-hit and to-value, since they will be erased*/
+			rand_power += (o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) / 2;
+
+			/*actually create the Randart, or handle failure*/
+			if (make_one_randart(o_ptr, rand_power, TRUE))
+			{
+				/* Identify it fully */
+				object_aware(o_ptr);
+				object_known(o_ptr);
+
+				/* Mark the history */
+				o_ptr->origin_nature = ORIGIN_REWARD;
+				o_ptr->origin_r_idx = 0;
+				o_ptr->origin_dlvl = q_ptr->base_level;
+
+				/* Mark the item as fully known */
+				o_ptr->ident |= (IDENT_MENTAL);
+
+				/*Let the player know what they just got*/
+				object_info_screen(o_ptr);
+
+				guild_quest_wipe(TRUE);
 
 				return (TRUE);
 			}
@@ -1224,14 +1387,10 @@ static bool store_service_aux(int store_num, s16b choice)
 		{
 			char race_name[80];
 
-			quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 			monster_race *r_ptr = &r_info[q_ptr->mon_idx];
 			monster_lore *l_ptr = &l_list[q_ptr->mon_idx];
 
-			if (((q_ptr->q_type != QUEST_MONSTER) &&
-			     (q_ptr->q_type != QUEST_UNIQUE) &&
-			     (q_ptr->q_type != QUEST_GUARDIAN)) ||
-				(q_ptr->mon_idx == 0))
+			if ((!quest_single_r_idx(q_ptr)) || (q_ptr->mon_idx == 0))
 			{
 				msg_print("You are not currently questing for a specific creature.");
 				return (FALSE);
@@ -1241,7 +1400,7 @@ static bool store_service_aux(int store_num, s16b choice)
 			monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
 
 			/* Make it plural if necessary*/
-			if (q_ptr->max_num > 1) plural_aux(race_name, sizeof(race_name));
+			if (q_ptr->q_max_num > 1) plural_aux(race_name, sizeof(race_name));
 
 			price += r_ptr->level * 100;
 
@@ -1378,13 +1537,8 @@ static bool store_service_aux(int store_num, s16b choice)
 		}
 		case SERVICE_ABANDON_QUEST:
 		{
-			char title[40];
-
-			/*Get the current title*/
-			get_title(title, sizeof(title));
-
 			/* Check for current quest */
-			if (!p_ptr->cur_quest)
+			if (!guild_quest_level())
 			{
 		    	msg_format("You don't have a current quest, %s.", title);
 		    	return (FALSE);
@@ -1398,12 +1552,8 @@ static bool store_service_aux(int store_num, s16b choice)
 
 			/*Get the new title, and give a message*/
 			get_title(title, sizeof(title));
-			msg_format("The guild is disappointed in you, %s.", title);
-
-			p_ptr->redraw |= (PR_QUEST_ST);
-
-			/* Prepare to re-draw the store */
-			init_services_and_quests(store_num);
+			msg_print(format("The guild is disappointed in you, %s.", title));
+			message_flush();
 
 			return (TRUE);
 		}
@@ -1483,22 +1633,67 @@ static bool store_service_aux(int store_num, s16b choice)
 
  		  	return (FALSE);
  		}
-		case SERVICE_QUEST_REWARD:
+		case SERVICE_QUEST_DEFER_REWARD:
 		{
-			/*paranoia*/
-			if (!check_reward()) return FALSE;
+			/* Check for current quest */
+			if (!guild_quest_level())
+			{
+			   	msg_format("You don't have a current quest, %s.", title);
+			   	return (FALSE);
+			}
 
-			/*Give the reward*/
-			do_reward();
+			/* Ask confirmation */
+			if (!get_check(format("Really defer your reward, %s?", title))) return (FALSE);
 
-			/* Prepare to re-draw the store */
-			init_services_and_quests(store_num);
+			p_ptr->deferred_rewards += (q_ptr->q_fame_inc / 2);
 
-			p_ptr->redraw |= (PR_QUEST_ST);
+			guild_quest_wipe(FALSE);
+
+			return (TRUE);
+
+		}
+		case SERVICE_QUEST_REWARD_INC_HP:
+		{
+			/* Check for current quest */
+			if (!guild_quest_level())
+			{
+			   	msg_format("You don't have a current quest, %s.", title);
+			   	return (FALSE);
+			}
+
+			/* Ask confirmation */
+			if (!get_check(format("Do you wish to permanently increase your hit points, %s?", title))) return (FALSE);
+
+			grant_reward_hp();
+
+			/* Inform the player */
+			msg_print(format("You now have an increased vitality, %s!", title));
+
+			guild_quest_wipe(TRUE);
 
 			return (TRUE);
 		}
+		case SERVICE_QUEST_REWARD_AUGMENTATION:
+		{
+			int i;
 
+			/* Check for current quest */
+			if (!guild_quest_level())
+			{
+			   	msg_format("You don't have a current quest, %s.", title);
+			   	return (FALSE);
+			}
+
+			/* Ask confirmation */
+			if (!get_check(format("Do you wish to permanently increase your stats, %s?", title))) return (FALSE);
+
+			/* Boost all six stats */
+			for (i = 0; i < A_MAX; i++) do_perm_stat_boost(i);
+
+			/* The quest is over */
+			guild_quest_wipe(TRUE);
+			return (TRUE);
+		}
 	}
 
 	return (FALSE);
@@ -1891,8 +2086,9 @@ static bool store_check_num(int st, const object_type *o_ptr)
  */
 static bool store_will_buy(int store_num, const object_type *o_ptr)
 {
-	/* Hack -- The Home is simple */
-	if ((store_num == STORE_HOME) || (store_num == STORE_GUILD)) return (TRUE);
+	/* Hack -- The Home and guild are simple */
+	if (store_num == STORE_HOME) return (TRUE);
+	if (store_num == STORE_GUILD) return (FALSE);
 
 	/* Switch on the store */
 	switch (store_num)
@@ -2379,8 +2575,8 @@ static bool black_market_ok(const object_type *o_ptr)
 	/* Check the other stores */
 	for (i = 0; i < MAX_STORES; i++)
 	{
-		/* Skip home and black market */
-		if (i == STORE_B_MARKET || i == STORE_HOME)
+		/* Skip home, the guild, and the black market */
+		if (i == STORE_B_MARKET || i == STORE_HOME || i == STORE_GUILD)
 			continue;
 
 		/* Check every object in the store */
@@ -2497,7 +2693,7 @@ bool keep_in_stock(const object_type *o_ptr, int which)
  * Used to determine if the store should shuffle inventory or
  * if the shopkeeper should retire.
  */
-int count_nonstandard_inven(int which)
+static int count_nonstandard_inven(int which)
 {
 	store_type *st_ptr = &store[which];
 	int i;
@@ -2526,7 +2722,7 @@ int count_nonstandard_inven(int which)
  * Delete an object from store 'st', or, if it is a stack, perhaps only
  * partially delete it.
  */
-static void store_delete_index(int st, int what)
+void store_delete_index(int st, int what)
 {
 	int num;
 	object_type *o_ptr;
@@ -2972,7 +3168,7 @@ static void store_display_recalc(int this_store)
 	text_out_wrap = wid - 2;
 
 	/* Put a reasonable limit on height for extremely large screens. */
-	if (this_store == STORE_GUILD) hgt_max = quests_max + 20;
+	if ((this_store == STORE_GUILD) && !guild_quest_complete()) hgt_max = quests_max + 20;
 	else hgt_max = st_ptr->stock_num + quests_max + 20;
 	if (hgt > hgt_max) hgt = hgt_max;
 
@@ -3002,13 +3198,11 @@ static void store_display_recalc(int this_store)
 	/*Some guild-specific layout items*/
 	if (this_store == STORE_GUILD)
 	{
-
 			scr_places_y[LOC_ITEMS_END] = hgt - 11;
 			scr_places_y[LOC_MORE] = hgt - 10;
 			scr_places_y[LOC_CUR_QUEST1] = hgt - 5;
 			scr_places_y[LOC_CUR_QUEST2] = hgt - 4;
 			scr_places_y[LOC_GUILD_REP] = hgt - 8;
-
 	}
 
 
@@ -3052,6 +3246,7 @@ static int find_entry_type(int *entry_type, int oid)
 
 	return (entry_num);
 }
+
 
 /*
  * Helper function for store_display_entry.
@@ -3113,7 +3308,6 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 
 	int this_store = current_store();
 	store_type *st_ptr = &store[this_store];
-
 	(void)menu;
 	(void)cursor;
 	(void)width;
@@ -3125,7 +3319,6 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 	{
 		colour = TERM_L_GREEN;
 		my_strcpy(i_name, service_names[services_offered[entry_num]], sizeof(i_name));
-
 	}
 	else if (entry_type == ENTRY_QUEST)
 	{
@@ -3139,13 +3332,19 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 
 		colour = tval_to_attr[o_ptr->tval & 0x7F];
 
+		/* Don't display the quest reward inventory until the quest is complete */
+		if (this_store == STORE_GUILD)
+		{
+			if (!guild_quest_complete()) return;
+		}
+
 		if (this_store !=STORE_HOME)
 		{
 			if (object_ident_changed(o_ptr)) store_updates();
 		}
 
 		/* Describe the object - preserving insriptions in the home */
-		if (this_store == STORE_HOME) desc = ODESC_FULL;
+		if ((this_store == STORE_HOME) || (this_store == STORE_GUILD)) desc = ODESC_FULL;
 		else desc = ODESC_FULL | ODESC_STORE;
 		object_desc(i_name, sizeof(i_name), o_ptr, ODESC_PREFIX | desc);
 	}
@@ -3168,6 +3367,11 @@ static void store_display_entry(menu_type *menu, int oid, bool cursor, int row, 
 
 	/* Get the price if appropriate*/
 	if (this_store == STORE_HOME) return;
+	/* No prices for quest rewards */
+	if (this_store == STORE_GUILD)
+	{
+		if (guild_quest_complete()) return;
+	}
 
 	/* Display the entry price */
 	if (entry_type == ENTRY_SERVICE)
@@ -3241,33 +3445,29 @@ static void store_display_frame(void)
 	/*The Guild is also special*/
 	else if (this_store == STORE_GUILD)
 	{
-
 		/* Put the owner name */
 		put_str("The Adventurer's Guild", scr_places_y[LOC_OWNER], 1);
 
 		/* Label the object descriptions */
-		if (p_ptr->cur_quest)
+		if (guild_quest_complete())
 		{
-			quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+			put_str("Guild Services and Quest Rewards",	scr_places_y[LOC_HEADER], 1);
+		}
+		else if (guild_quest_level())
+		{
 			char q_out[120];
 
 			put_str("Guild Services", scr_places_y[LOC_HEADER], 1);
 
 			/* Print out the quest on 2 different lines. */
 			c_put_str(TERM_BLUE, "Your current quest:", scr_places_y[LOC_CUR_QUEST1]-1, 1);
-			describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_1);
+			describe_quest(q_out, sizeof(q_out), guild_quest_level(), QMODE_HALF_1);
 			put_str(q_out, scr_places_y[LOC_CUR_QUEST1], 1);
 
-			/* Unless it is a completed quest */
-			if (q_ptr->active_level)
-			{
-				/* Put the monster symbol at the end if necessary */
-				show_quest_mon(scr_places_y[LOC_CUR_QUEST1], 1 + strlen(q_out));
-				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_2);
-				put_str(q_out, scr_places_y[LOC_CUR_QUEST2], 1);
-			}
-
-
+			/* Put the monster symbol at the end if necessary */
+			show_quest_mon(scr_places_y[LOC_CUR_QUEST1], 1 + strlen(q_out));
+			describe_quest(q_out, sizeof(q_out), guild_quest_level(), QMODE_HALF_2);
+			put_str(q_out, scr_places_y[LOC_CUR_QUEST2], 1);
 		}
 		else
 		{
@@ -3724,6 +3924,158 @@ void do_cmd_buy(cmd_code code, cmd_arg args[])
 	}
 }
 
+/*
+ * Retrieve the item with the given index from the home's inventory.
+ */
+void do_cmd_reward(cmd_code code, cmd_arg args[])
+{
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	int item = args[0].item;
+	int amt = args[1].number;
+	char title[40];
+	object_type *o_ptr;
+	object_kind *k_ptr;
+	object_type picked_item;
+	char o_name[80];
+	int item_new;
+
+	store_type *st_ptr;
+
+	/*Get the current title*/
+	get_title(title, sizeof(title));
+
+	/* Paranoia */
+	if (current_store() != STORE_GUILD)
+	{
+		msg_print(format("You are not currently in the guild, %s.", title));
+		return;
+	}
+	if (!guild_quest_complete())
+	{
+		msg_print(format("You are not currently eligible for a quest reward, %s.", title));
+		return;
+	}
+
+	st_ptr = &store[STORE_GUILD];
+
+	/* Get the actual object */
+	o_ptr = &st_ptr->stock[item];
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Mark the history */
+	o_ptr->origin_nature = ORIGIN_REWARD;
+	o_ptr->origin_r_idx = 0;
+	o_ptr->origin_dlvl = q_ptr->base_level;
+
+	/* Get desired object */
+	object_copy_amt(&picked_item, o_ptr, amt);
+
+	/* Ensure we have room */
+	if ((!inven_carry_okay(&picked_item)) && (o_ptr->tval != TV_GOLD))
+	{
+		msg_print(format("You cannot carry that many items, %s.", title));
+		return;
+	}
+
+	/* Give it to the player, with gold handled differently than objects */
+	if (o_ptr->tval == TV_GOLD)
+	{
+		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+
+		p_ptr->au += o_ptr->pval;
+		msg_format("You have been rewarded with %s, %s.", o_name, title);
+	}
+	else
+	{
+		item_new = inven_carry(&picked_item);
+
+		/* Describe just the result */
+		object_desc(o_name, sizeof(o_name), &inventory[item_new], ODESC_PREFIX | ODESC_FULL);
+
+		/* Message */
+		msg_format("You have been rewarded with %s (%c), %s.", o_name, index_to_label(item_new), title);
+	}
+
+	/*It's an ironman spellbook, so make the spells available. */
+	if ((k_ptr->k_flags3 & (TR3_IRONMAN_ONLY)) && (cp_ptr->spell_book == k_ptr->tval))
+	{
+		byte realm, j;
+		realm = get_player_spell_realm();
+
+		/* Extract spells */
+		for (j = 0; j < SPELLS_PER_BOOK; j++)
+		{
+			s16b spell = spell_list[realm][k_ptr->sval][j];
+
+			/*skip blank spell slots*/
+			if (spell == -1) continue;
+
+			/* Remove the Ironman Restriction. */
+			p_ptr->spell_flags[spell] &= ~(PY_SPELL_IRONMAN);
+		}
+
+		/* Update the spells. */
+		p_ptr->update |= PU_SPELLS;
+	}
+
+	/* Handle Artifacts */
+	if (o_ptr->art_num)
+	{
+		/*
+		 * Artifact might not yet be marked as created (if it was chosen from tailored
+		 * rewards), so now it's the right time to mark it.
+		 */
+		a_info[o_ptr->art_num].a_cur_num = 1;
+
+		/* If the item was an artifact, and if the auto-note is selected, write a message. */
+		if (adult_take_notes)
+		{
+			int artifact_depth;
+			char note[120];
+			char shorter_desc[100];
+
+			/* Get a shorter description to fit the notes file */
+			object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, ODESC_BASE);
+
+			/* Build note and write */
+			sprintf(note, "Quest Reward: %s", shorter_desc);
+
+			/*record the depth where the artifact was created */
+			artifact_depth = o_ptr->xtra1;
+
+			do_cmd_note(note, artifact_depth);
+
+			/*mark item creation depth as 0, which will indicate the artifact
+			 *has been previously identified.  This prevents an artifact from showing
+			 *up on the notes list twice if it has been previously identified.  JG */
+			o_ptr->xtra1 = 0;
+		}
+
+		/* Process artifact lore */
+		if (ARTIFACT_EASY_MENTAL(o_ptr))
+		{
+			/* Get the lore entry */
+			artifact_lore *a_l_ptr = &a_l_list[o_ptr->art_num];
+
+			/* Remember this artifact from now on */
+			a_l_ptr->was_fully_identified = TRUE;
+		}
+	}
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Remove the item from the guild before we wipe everything */
+	store_item_increase(STORE_GUILD, item, -amt);
+	store_item_optimize(STORE_GUILD, item);
+
+	/* The quest is over */
+	guild_quest_wipe(TRUE);
+	init_services_and_quests(STORE_GUILD);
+	p_ptr->redraw |= (PR_QUEST_ST);
+	store_flags |= (STORE_FRAME_CHANGE | STORE_GOLD_CHANGE);
+}
+
 
 /*
  * Retrieve the item with the given index from the home's inventory.
@@ -3798,13 +4150,15 @@ bool item_tester_hook_randart(const object_type *o_ptr)
 	/*Hack - don't allow unidentified items*/
 	if(!(o_ptr->ident & (IDENT_KNOWN))) return (FALSE);
 
+	/* Don't use current artifacts */
+	if (o_ptr->art_num) return (FALSE);
+
 	if (can_be_randart(o_ptr))
 	{
-
-		/*We don't use current artifacts or ego-items, unless dragon armor*/
+		/*We don't use ego-items, unless dragon armor*/
 		if ((o_ptr->tval != TV_DRAG_ARMOR) && (o_ptr->tval != TV_DRAG_SHIELD))
 		{
-			if ((o_ptr->art_num) || (o_ptr->ego_num)) return(FALSE);
+			if (o_ptr->ego_num) return(FALSE);
 		}
 
 		/*don't make artifacts out of stacks of items*/
@@ -3880,7 +4234,23 @@ static bool store_purchase(int oid)
 	/* Handle services and quests differently. */
 	if (entry_type == ENTRY_SERVICE)
 	{
-		return service_purchase(this_store, services_offered[entry_num]);
+		bool success = service_purchase(this_store, services_offered[entry_num]);
+
+		if ((services_offered[entry_num] >= QUEST_REWARD_HEAD) &&
+			(services_offered[entry_num] <= QUEST_REWARD_TAIL))
+		{
+			if (success)
+			{
+				init_services_and_quests(this_store);
+
+			}
+		}
+
+		p_ptr->redraw |= (PR_QUEST_ST);
+
+		store_flags |= (STORE_FRAME_CHANGE | STORE_GOLD_CHANGE);
+
+		return (success);
 	}
 	else if (entry_type == ENTRY_QUEST)
 	{
@@ -3908,7 +4278,7 @@ static bool store_purchase(int oid)
 	o_ptr = &st_ptr->stock[entry_num];
 	if (entry_num < 0) return FALSE;
 
-	if (this_store == STORE_HOME)
+	if ((this_store == STORE_HOME) || (this_store == STORE_GUILD))
 	{
 		max_amount = o_ptr->number;
 	}
@@ -3938,12 +4308,19 @@ static bool store_purchase(int oid)
 	else
 		num = find_inven(o_ptr);
 
-	strnfmt(o_name, sizeof o_name, "%s how many%s? (max %d) ",
+	if (this_store == STORE_GUILD)
+	{
+		amount_purchased = o_ptr->number;
+	}
+	else
+	{
+		strnfmt(o_name, sizeof o_name, "%s how many%s? (max %d) ",
 	        (this_store == STORE_HOME) ? "Take" : "Buy",
 	        num ? format(" (you have %d)", num) : "", max_amount);
 
-	/* Get a quantity */
-	amount_purchased = get_quantity(o_name, max_amount);
+		/* Get a quantity */
+		amount_purchased = get_quantity(o_name, max_amount);
+	}
 
 	/* Allow user abort */
 	if (amount_purchased <= 0) return FALSE;
@@ -3952,23 +4329,33 @@ static bool store_purchase(int oid)
 	object_copy_amt(i_ptr, o_ptr, amount_purchased);
 
 	/* Ensure we have room */
-	if (!inven_carry_okay(i_ptr))
+	if ((!inven_carry_okay(i_ptr)) && (i_ptr->tval != TV_GOLD))
 	{
 		msg_print("You cannot carry that many items.");
 		return FALSE;
 	}
 
-	/* Describe the object (fully) */
-	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
-
 	/* Attempt to buy it */
-	if (this_store != STORE_HOME)
+	/* Home is much easier */
+	if (this_store == STORE_HOME)
+	{
+		cmd_insert(CMD_RETRIEVE, entry_num, amount_purchased);
+	}
+	else if (this_store == STORE_GUILD)
+	{
+		cmd_insert(CMD_REWARD, entry_num, amount_purchased);
+	}
+	else
 	{
 		u32b price;
 		bool response;
 
 		/* Extract the price for the entire stack */
 		price = price_item(i_ptr, FALSE) * i_ptr->number;
+
+
+		/* Describe the object (fully) */
+		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		screen_save();
 
@@ -3989,12 +4376,6 @@ static bool store_purchase(int oid)
 		}
 
 		cmd_insert(CMD_BUY, entry_num, amount_purchased);
-	}
-
-	/* Home is much easier */
-	else
-	{
-		cmd_insert(CMD_RETRIEVE, entry_num, amount_purchased);
 	}
 
 	store_updates();
@@ -4366,6 +4747,7 @@ static void store_examine(int oid)
 }
 
 
+
 /*
  * Flee the store when it overflows.
  */
@@ -4704,6 +5086,9 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 {
 	bool leave = FALSE;
 
+	/* Check for outstanding rewards */
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
 	/* Take note of the store number from the terrain feature */
 	int this_store = current_store();
 
@@ -4720,6 +5105,17 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 		msg_print("The doors are locked.");
 		return;
 	}
+
+	/* See if we are holding a quest item */
+	if (this_store == STORE_GUILD)
+	{
+		if ((q_ptr->q_type == QUEST_VAULT) && (!guild_quest_complete()))
+		{
+			/* The artifact has been returned, the quest is a success */
+			if (quest_item_slot() > -1) quest_finished(q_ptr);
+		}
+	}
+
 	/*
 	 * Quests and services are re-counted
 	 * each time a person enters the store
@@ -4797,7 +5193,7 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 			}
 			else if (this_store == STORE_GUILD)
 			{
-				button_add("[BUY]", 'p');
+				button_add("[SELECT]", 'p');
 			}
 			else
 			{
@@ -4809,7 +5205,8 @@ void do_cmd_store(cmd_code code, cmd_arg args[])
 			event_signal(EVENT_MOUSEBUTTONS);
 
 			/* As many rows in the menus as there are items in the store */
-			menu.count = st_ptr->stock_num + quests_max;
+			if ((this_store == STORE_GUILD) && (!guild_quest_complete())) menu.count = quests_max;
+			else menu.count = st_ptr->stock_num + quests_max;
 
 			/* Roguelike */
 			if (rogue_like_commands)

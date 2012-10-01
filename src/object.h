@@ -166,7 +166,7 @@
 #define SV_AMMO_LIGHT		0	/* pebbles */
 #define SV_AMMO_NORMAL		1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY		2	/* seeker arrows and bolts */
-#define SV_AMMO_SILVER		3	/* silver arrows and bolts */
+
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING			2	/* (x2) */
@@ -633,11 +633,13 @@
 
 #define SV_GOLD_COPPER			3
 #define SV_GOLD_SILVER			6
+#define SV_GOLD_GARNET			8
 #define SV_GOLD_GOLD			11
 #define SV_GOLD_OPALS			12
 #define SV_GOLD_SAPPHIRES		13
 #define SV_GOLD_RUBIES			14
 #define SV_GOLD_DIAMOND			15
+#define SV_GOLD_EMERALD			16
 #define SV_GOLD_MITHRIL			17
 #define SV_GOLD_ADAMANTITE		18
 
@@ -753,14 +755,14 @@
  * Special object flags
  */
 #define IDENT_SENSE     		0x00000001	/* Item has been "sensed" */
-#define IDENT_UNUSED_XXXXXXX2	0x00000002
+#define IDENT_UNUSED_XXXXXXX2	0x00000002	/* Unused */
 #define IDENT_EMPTY     		0x00000004	/* Item charges are known */
 #define IDENT_KNOWN     		0x00000008	/* Item abilities are known */
 #define IDENT_STORE     		0x00000010	/* Item is in the inventory of a store */
 #define IDENT_MENTAL    		0x00000020	/* Item information is known */
 #define IDENT_CURSED    		0x00000040	/* Item is temporarily cursed */
 #define IDENT_BROKEN    		0x00000080	/* Item is permanently worthless */
-#define IDENT_QUEST     		0x00000100	/* Item is a quest artifact */
+#define IDENT_QUEST     		0x00000100	/* Item is a quest object (quest artifact or mimicing quest monster */
 #define IDENT_PERFECT_BALANCE   0x00000200	/* Item has perfect balance */
 #define IDENT_HIDE_CARRY		0x00000400	/* Don't reveal the object is being carried by a creature*/
 #define IDENT_EFFECT 			0x00000800	/* Know item activation/effect */
@@ -1488,7 +1490,7 @@ object_aware_p(o_ptr) && \
  * Max sizes of the following arrays.
  */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
+
 
 /** The titles of scrolls, ordered by sval. */
 extern char scroll_adj[MAX_TITLES][16];

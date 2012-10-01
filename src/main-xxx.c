@@ -33,14 +33,14 @@
  * and for more comments about what this file must supply.
  *
  * There are two basic ways to port Angband to a new system.  The
- * first involves modifying the "main-gcu.c" and/or "main-x11.c"
- * files to support some version of "curses" and/or "X11" on your
- * machine, and to compile with the "USE_GCU" and/or "USE_X11"
+ * first involves modifying the "main-gcu.c" and/or "main-sdl.c"
+ * files to support some version of "curses" on your
+ * machine, and to compile with the "USE_GCU" and/or "USE_sdl"
  * compilation flags defined.  The second involves creating a
  * new "main-xxx.c" file, based on this sample file (or on any
  * existing "main-xxx.c" file), and comes in two flavors, based
  * on whether it contains a "main()" function (as in "main-mac.c"
- * and "main-win.c") or not (as in "main-gcu.c" or "main-x11.c").
+ * and "main-win.c") or not (as in "main-gcu.c" or "main-sdl.c").
  *
  * If the "main-xxx.c" file includes its own "main()" function,
  * then you should NOT link in the "main.c" file, and your "main()"
@@ -58,7 +58,7 @@
  *
  * Note that the "util.c" file often contains functions which must
  * be modified in small ways for various platforms, even if you are
- * able to use the existing "main-gcu.c" and/or "main-x11.c" files,
+ * able to use the existing "main-gcu.c" and/or "main-sdl.c" files,
  * in particular, the "file handling" functions may not work on all
  * systems.
  *

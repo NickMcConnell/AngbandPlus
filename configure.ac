@@ -155,18 +155,10 @@ NOINSTALL="$with_noinstall"; AC_SUBST(NOINSTALL)
 SETEGID="$with_setgid";      AC_SUBST(SETEGID)
 
 dnl Frontends
-AC_ARG_ENABLE(gtk,
-	[AS_HELP_STRING([--enable-gtk],       [Enables GTK 2.x frontend (default: disabled)])],
-	[enable_gtk=$enableval],
-	[enable_gtk=no])
 AC_ARG_ENABLE(curses,
 	[AS_HELP_STRING([--enable-curses],    [Enables Curses frontend (default: enabled)])],
 	[enable_curses=$enableval],
 	[enable_curses=yes])
-AC_ARG_ENABLE(x11,
-	[AS_HELP_STRING([--enable-x11],       [Enables X11 frontend (default: enabled)])],
-	[enable_x11=$enableval],
-	[enable_x11=yes])
 AC_ARG_ENABLE(sdl,
 	[AS_HELP_STRING([--enable-sdl],       [Enables SDL frontend (default: disabled)])],
 	[enable_sdl=$enableval],
@@ -178,12 +170,6 @@ AC_ARG_ENABLE(sdl_mixer,
 	[enable_sdl_mixer=$enable_sdl_mixer],
 	[enable_sdl_mixer=yes])
 
-
-if test "x$enable_gtk" = "xyes"; then
-	if test "x$wsetgid" = "xyes"; then
-		AC_MSG_ERROR([The "setgid" option and the GTK port are incompatible.])
-	fi
-fi
 
 
 dnl curses checking
@@ -217,20 +203,6 @@ fi
 
 AC_CHECK_FUNCS([use_default_colors can_change_color])
 
-dnl X11 checking
-if test "$enable_x11" = "yes"; then
-	AC_PATH_XTRA
-
-	if test "x$have_x" != "xyes"; then
-		with_x11=no
-	else
-		AC_DEFINE(USE_X11, 1, [Define to 1 if using the X11 frontend and X11 libraries are found.])
-		CFLAGS="$CFLAGS $X_CFLAGS"
-		LDFLAGS="$LDFLAGS $X_PRE_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS"
-		with_x11=yes
-	fi
-fi
-
 dnl SDL checking
 if test "$enable_sdl" = "yes"; then
 	AM_PATH_SDL(1.2.10,,)
@@ -246,30 +218,6 @@ if test "$enable_sdl" = "yes"; then
 			CFLAGS="${CFLAGS} ${SDL_CFLAGS}"
 			LDFLAGS="${LDFLAGS} ${SDL_LIBS} -lSDL_image -lSDL_ttf"
 		fi
-	fi
-fi
-
-
-dnl GTK checking
-if test "$enable_gtk" = "yes"; then
-	PKG_CHECK_MODULES(GTK, [glib-2.0 >= 2.6.0 gtk+-2.0 >= 2.6.0 gthread-2.0 pango libglade-2.0],
-		[with_gtk=yes],
-		[with_gtk=no]
-	)
-	PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.6.0],
-		[with_gtkx=yes],
-		[with_gtk=no]
-	)
-
-	if test "x$SETEGID" != "x"; then
-		enable_gtk=no
-		with_gtk=no
-	fi
-
-	if test "$with_gtk" = "yes"; then
-		AC_DEFINE(USE_GTK, 1, [Define to 1 if using the GTK+ 2.x interface and GTK+ 2.x is found.])
-		CFLAGS="${CFLAGS} $GTK_CFLAGS"
-		LDFLAGS="${LDFLAGS} $GTK_LIBS -rdynamic -export-dynamic"
 	fi
 fi
 
@@ -326,24 +274,6 @@ if test "$enable_curses" = "yes"; then
 	fi
 else
 	echo "- Curses                                  Disabled"
-fi
-if test "$enable_gtk" = "yes"; then
-	if test "$with_gtk" = "no"; then
-		echo "- GTK 2.x                                 No; missing libraries"
-	else
-		echo "- GTK 2.x                                 Yes"
-	fi
-else
-	echo "- GTK 2.x                                 Disabled"
-fi
-if test "$enable_x11" = "yes"; then
-	if test "$with_x11" = "no"; then
-		echo "- X11                                     No; missing libraries"
-	else
-		echo "- X11                                     Yes"
-	fi
-else
-	echo "- X11                                     Disabled"
 fi
 if test "$enable_sdl" = "yes"; then
 	if test "$with_sdl" = "no"; then

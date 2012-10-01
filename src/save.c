@@ -132,6 +132,8 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
+	wr_s16b(o_ptr->mimic_r_idx);
+
 	/* Old flags */
 	wr_u32b(0L);
 	wr_u32b(0L);
@@ -173,7 +175,7 @@ static void wr_item(const object_type *o_ptr)
 /*
  * Special monster flags that get saved in the savefile
  */
-#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_STERILE | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY | \
+#define SAVE_MON_FLAGS (MFLAG_STERILE | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY | \
 						MFLAG_SLOWER | MFLAG_FASTER | MFLAG_ALWAYS_CAST | \
 						MFLAG_AGGRESSIVE | MFLAG_ATTACKED_BAD | MFLAG_BONUS_ITEM | \
 						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE | MFLAG_QUEST | MFLAG_DESPERATE | \
@@ -186,6 +188,7 @@ static void wr_item(const object_type *o_ptr)
 static void wr_monster(const monster_type *m_ptr)
 {
 	u32b tmp32u;
+	int i;
 
 	wr_s16b(m_ptr->r_idx);
 
@@ -193,14 +196,14 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
-	wr_s16b(m_ptr->m_timed[MON_TMD_SLEEP]);
 	wr_byte(m_ptr->mspeed);
 	wr_s16b(m_ptr->m_energy);
-	wr_s16b(m_ptr->m_timed[MON_TMD_STUN]);
-	wr_s16b(m_ptr->m_timed[MON_TMD_CONF]);
-	wr_s16b(m_ptr->m_timed[MON_TMD_FEAR]);
-	wr_s16b(m_ptr->m_timed[MON_TMD_FAST]);
-	wr_s16b(m_ptr->m_timed[MON_TMD_SLOW]);
+
+	/* Find the number of monster timed effects */
+	wr_byte(MON_TMD_MAX);
+
+	/* Write all the monster timed effects, in a loop */
+	for (i = 0; i < MON_TMD_MAX; i++) wr_s16b(m_ptr->m_timed[i]);
 
 	/*save the temporary flags*/
 	tmp32u = m_ptr->mflag & (SAVE_MON_FLAGS);
@@ -209,7 +212,6 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->target_y);
 	wr_byte(m_ptr->target_x);
 	wr_byte(m_ptr->mana);
-	wr_s16b(m_ptr->mimic_k_idx);
 	wr_byte(0);
 }
 
@@ -566,6 +568,7 @@ static void wr_extra(void)
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_birth[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_quest_add[i]);
 
 	wr_s16b(p_ptr->ht_birth);
 	wr_s16b(p_ptr->wt_birth);
@@ -575,7 +578,8 @@ static void wr_extra(void)
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
-	wr_u16b(p_ptr->fame);
+	wr_u16b(p_ptr->q_fame);
+	wr_u16b(p_ptr->deferred_rewards);
 
 	wr_u32b(p_ptr->au);
 
@@ -606,50 +610,26 @@ static void wr_extra(void)
 	wr_s16b(0);	/* oops */
 
 	wr_s16b(0);		/* old "rest" */
-	wr_s16b(p_ptr->timed[TMD_BLIND]);
-	wr_s16b(p_ptr->timed[TMD_PARALYZED]);
-	wr_s16b(p_ptr->timed[TMD_CONFUSED]);
 	wr_s16b(p_ptr->food);
+
 	wr_s16b(0);	/* old "food_digested" */
 	wr_s16b(0);	/* old "protection" */
 	wr_s16b(p_ptr->p_energy);
-	wr_s16b(p_ptr->timed[TMD_FAST]);
-	wr_s16b(p_ptr->timed[TMD_SLOW]);
-	wr_s16b(p_ptr->timed[TMD_AFRAID]);
-	wr_s16b(p_ptr->timed[TMD_CUT]);
-	wr_s16b(p_ptr->timed[TMD_STUN]);
-	wr_s16b(p_ptr->timed[TMD_POISONED]);
-	wr_s16b(p_ptr->timed[TMD_IMAGE]);
-	wr_s16b(p_ptr->timed[TMD_PROTEVIL]);
-	wr_s16b(p_ptr->timed[TMD_INVULN]);
-	wr_s16b(p_ptr->timed[TMD_HERO]);
-	wr_s16b(p_ptr->timed[TMD_SHERO]);
-	wr_s16b(p_ptr->timed[TMD_SHIELD]);
-	wr_s16b(p_ptr->timed[TMD_BLESSED]);
-	wr_s16b(p_ptr->timed[TMD_SINVIS]);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->state.see_infra);
-	wr_s16b(p_ptr->timed[TMD_SINFRA]);
-	wr_s16b(p_ptr->timed[TMD_OPP_FIRE]);
-	wr_s16b(p_ptr->timed[TMD_OPP_COLD]);
-	wr_s16b(p_ptr->timed[TMD_OPP_ACID]);
-	wr_s16b(p_ptr->timed[TMD_OPP_ELEC]);
-	wr_s16b(p_ptr->timed[TMD_OPP_POIS]);
-
-	wr_s16b(p_ptr->timed[TMD_NAT_LAVA]);
-	wr_s16b(p_ptr->timed[TMD_NAT_OIL]);
-	wr_s16b(p_ptr->timed[TMD_NAT_SAND]);
-	wr_s16b(p_ptr->timed[TMD_NAT_TREE]);
-	wr_s16b(p_ptr->timed[TMD_NAT_WATER]);
-	wr_s16b(p_ptr->timed[TMD_NAT_MUD]);
 
 	wr_byte(p_ptr->confusing);
-	wr_s16b(p_ptr->timed[TMD_SLAY_ELEM]);
-	wr_byte(p_ptr->timed[TMD_FLYING]);
+	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->searching);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(0);
+
+	/* Find the number of timed effects */
+	wr_byte(TMD_MAX);
+
+	/* Write all the effects, in a loop */
+	for (i = 0; i < TMD_MAX; i++) wr_s16b(p_ptr->timed[i]);
 
 	/* 4gai use */
 	wr_s16b(p_ptr->base_wakeup_chance);
@@ -687,42 +667,7 @@ static void wr_extra(void)
 	}
 
 	/* Store the bones file selector, if the player is not dead. -LM- */
-	wr_byte(bones_selector);
-
-	/*save the bones template as part of the savefile*/
-	if (bones_selector)
-	{
-		ang_file	*fp = FALSE;
-		char	path[1024];
-
-		sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
-
-		/* Attempt to open the bones file. */
-		fp = file_open(path, MODE_WRITE, FTYPE_TEXT);
-
-		/*something would have to be very strange for this not to be true*/
-		if (fp)
-		{
-			byte ghost_sex = 0, ghost_race = 0, ghost_class = 0;
-
-			/* Ghost name is a global variable and is not needed */
-			char dummy[80];
-
-			/* XXX XXX XXX Scan the file to get the basic info of the ghost  */
-			file_getl(fp, dummy, sizeof(dummy));
-			next_line_to_number(fp, &ghost_sex);
-			next_line_to_number(fp, &ghost_race);
-			next_line_to_number(fp, &ghost_class);
-
-			/* Close the file */
-			(void)file_close(fp);
-
-			wr_string(ghost_name);
-			wr_byte(ghost_sex);
-			wr_byte(ghost_race);
-			wr_byte(ghost_class);
-		}
-	}
+	wr_s16b(player_ghost_num);
 
 	/* Store the number of thefts on the level. -LM- */
 	wr_byte(recent_failed_thefts);
@@ -746,16 +691,15 @@ static void wr_extra(void)
 	wr_u32b(0L);	/* oops */
 
 
-	/* Write the "object seeds" */
+	/* Write the "special seeds" */
 	wr_u32b(seed_flavor);
 	wr_u32b(seed_town);
-
+	wr_u32b(seed_ghost);
 
 	/* Special stuff */
 	wr_u16b(p_ptr->panic_save);
 	wr_u16b(p_ptr->total_winner);
 	wr_u16b(p_ptr->noscore);
-
 
 	/* Write death */
 	wr_byte(p_ptr->is_dead);
@@ -893,19 +837,6 @@ static void wr_notes(void)
  */
 static void wr_extensions(void)
 {
-	/* Write call huorns time if present */
-	if (p_ptr->timed[TMD_CALL_HOURNS] > 0)
-	{
-		/* Write extension id */
-		wr_s16b(EXTENSION_CALL_HUORNS);
-		/* Write field type */
-		wr_byte(EXTENSION_TYPE_U16B);
-		/* Write field value */
-		wr_u16b(p_ptr->timed[TMD_CALL_HOURNS]);
-		/* Write end mark for fields */
-		wr_byte(EXTENSION_TYPE_END);
-	}
-
 	/* Write end mark for extensions */
 	wr_s16b(END_EXTENSIONS);
 }
@@ -1170,15 +1101,27 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte(q_info[i].q_type);
-		wr_byte(q_info[i].reward);
-		wr_byte(q_info[i].active_level);
-		wr_byte(q_info[i].base_level);
-		wr_byte(q_info[i].theme);
-		wr_s16b(q_info[i].mon_idx);
-		wr_s16b(q_info[i].cur_num);
-		wr_s16b(q_info[i].max_num);
-		wr_byte(q_info[i].q_flags);
+		quest_type *q_ptr = &q_info[i];
+
+		wr_byte(q_ptr->q_type);
+
+		/* Only limited info for permanent quests.  The rest is detailed in quest.txt */
+		if (q_ptr->q_type == QUEST_PERMANENT)
+		{
+			wr_byte(q_ptr->q_flags);
+			wr_s16b(q_ptr->q_num_killed);
+			continue;
+		}
+
+		wr_u16b(q_ptr->q_reward);
+		wr_u16b(q_ptr->q_fame_inc);
+		wr_byte(q_ptr->base_level);
+		wr_byte(q_ptr->theme);
+		wr_s16b(q_ptr->mon_idx);
+		wr_s32b(q_ptr->start_turn);
+		wr_s16b(q_ptr->q_num_killed);
+		wr_s16b(q_ptr->q_max_num);
+		wr_byte(q_ptr->q_flags);
 	}
 
 	/* Hack -- Dump the artifacts */
@@ -1371,6 +1314,8 @@ bool save_player(void)
 	int result = FALSE;
 
 	char safe[1024];
+
+	save_player_ghost_file();
 
 	/* New savefile */
 	my_strcpy(safe, savefile, sizeof(safe));

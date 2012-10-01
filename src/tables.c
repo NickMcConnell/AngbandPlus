@@ -1747,7 +1747,8 @@ cptr feeling_themed_level[LEV_THEME_TAIL] =
 	"major demon",
 	"cave dweller",
 	"undead",
-	"elemental dragons"
+	"elemental dragons",
+	"servants of the Valar"
 };
 
 
@@ -2330,7 +2331,7 @@ byte spell_info_RF5[32][5]=
 	{6,     3,     1,     6,     6},        /* RF5_BALL_CONFU */
 	{4,     2,     1,     6,     6},        /* RF5_BALL_SOUND */
 	{4,     3,     1,     6,     6},        /* RF5_BALL_SHARD */
-	{0,     0,     0,     0,     0},        /* RF5_XXX2 */
+	{6,     5,     2,     6,     6},        /* RF5_BALL_METEOR */
 	{5,     3,     1,     4,     4},        /* RF5_BALL_STORM */
 	{6,     3,     1,     6,     6},        /* RF5_BALL_NETHR */
 	{7,     3,     1,     4,     4},        /* RF5_BALL_CHAOS */
@@ -2346,12 +2347,12 @@ byte spell_info_RF5[32][5]=
 	{5,     3,     1,     6,     6},        /* RF5_BOLT_WATER */
 	{5,     3,     1,     6,     6},        /* RF5_BOLT_NETHR */
 	{5,     2,     1,     6,     6},        /* RF5_BOLT_MANA */
-	{0,     0,     0,     0,     0},        /* RF5_XXX3 */
+	{5,     2,     1,     6,     6},        /* RF5_BOLT_GRAV */
 	{6,     3,     1,     6,     6},        /* RF5_BEAM_ELEC */
 	{6,     4,     1,     6,     6},        /* RF5_BEAM_ICE */
-	{6,     3,     1,     6,     6},        /* RF5_BEAM_NETHER */
-	{0,     0,     0,     0,     0},        /* RF5_XXX4 */
-	{5,     5,     2,     8,     8}        /* RF5_HOLY_ORB */
+	{6,     3,     1,     6,     6},        /* RF5_BEAM_NETHR */
+	{6,     5,     2,     0,     0},        /* RF5_BEAM_LAVA */
+	{5,     5,     2,     8,     8}         /* RF5_HOLY_ORB */
 };
 
  /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
@@ -2498,7 +2499,7 @@ byte spell_desire_RF5[32][8] =
 	{ 40,  0,   0,   0,	0,   0, LRN_CONFU ,  100}, /* RF5_BALL_CONFU*/
 	{ 40,  0,   0,   0,	0,   0, LRN_SOUND ,  100}, /* RF5_BALL_SOUND*/
 	{ 40,  0,   0,   0,	0,   0, LRN_SHARD ,  100}, /* RF5_BALL_SHARD*/
-	{ 40,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX1 */
+	{ 40,  0,   0,   0,	0,   0, 	0     ,  100}, /* RF5_BALL_METEOR */
 	{ 40,  0,   0,   0,	0,   0, LRN_STORM ,  100}, /* RF5_BALL_STORM*/
 	{ 40,  0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BALL_NETHR*/
 	{ 40,  0,   0,   0,	0,   0, LRN_CHAOS ,  100}, /* RF5_BALL_CHAOS*/
@@ -2514,12 +2515,12 @@ byte spell_desire_RF5[32][8] =
 	{ 35,  0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BOLT_WATER*/
 	{ 35,  0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BOLT_NETHR*/
 	{ 30,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BOLT_MANA */
-	{ 0,  0,   0,   0,	0,   0,    0  	  ,  100}, /* RF5_XXX3*/
+	{ 45,  0,   0,   0,	0,   0,    0  	  ,  100}, /* RF5_BOLT_GRAV */
 	{ 50,  0,   0,   0,	0,   0, LRN_ELEC  ,   90}, /* RF5_BEAM_ELEC */
 	{ 50,  0,   0,   0,	0,   0, LRN_ICE	  ,   90}, /* RF5_BEAM_ICE  */
 	{ 50,  0,   0,   0,	0,   0, LRN_NETHR ,   90}, /* RF5_BEAM_NETHR*/
-	{ 0,  0,   0,   0,	0,   0,	   0	  ,  100},  /* RF5_XXX4*/
-	{ 60,  0,   0,   0,	0,   0,	   0	  ,  100} 	/* RF5_HOLY_ORB */
+	{ 0,   0,   0,   0,	0,   0,	 LRN_LAVA ,  100}, /* RF5_BEAM_LAVA*/
+	{ 60,  0,   0,   0,	0,   0,	   0	  ,  100}  /* RF5_HOLY_ORB */
 };
 
 
@@ -2947,3 +2948,58 @@ const byte squelch_status_color[SQUELCH_OPT_MAX] =
 	TERM_L_UMBER,
     TERM_L_RED,
 };
+
+/*
+ * 11x25 room, or 9x23 of room after the permanent rock.
+ * Walls open over time.  Values of 10 are the permanent borders of the cave.
+ */
+const byte arena_level_map[ARENA_LEVEL_HGT][ARENA_LEVEL_WID] =
+{
+	{10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10},
+	{10, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9,10},
+	{10, 9,10, 8, 5, 5, 6, 5, 4, 5, 4, 5, 2, 5, 4, 5, 4, 5, 6, 5, 5, 7,10, 9,10},
+	{10, 9, 7, 7, 9, 6, 4, 3, 3, 4, 1, 2, 3, 2, 1, 4, 3, 3, 4, 6, 9, 7, 7, 9,10},
+	{10, 9, 8, 8, 6, 5, 4, 5, 3, 4, 1,10, 1,10, 1, 4, 3, 5, 4, 5, 6, 8, 8, 9,10},
+	{10,10, 8, 7, 8, 5, 4, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 2, 4, 5, 8, 7, 8,10,10},
+	{10, 9, 8, 8, 6, 5, 4, 5, 3, 4, 1,10, 1,10, 1, 4, 3, 5, 4, 5, 6, 8, 8, 9,10},
+	{10, 9, 7, 7, 9, 6, 4, 3, 3, 4, 1, 2, 3, 2, 1, 4, 3, 3, 4, 6, 9, 7, 7, 9,10},
+	{10, 9,10, 8, 5, 5, 6, 5, 4, 5, 4, 5, 2, 5, 4, 5, 4, 5, 6, 5, 5, 8,10, 9,10},
+	{10, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9,10},
+	{10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10}
+};
+
+const byte pit_room_maps[MAX_PIT_PATTERNS][PIT_HEIGHT][PIT_WIDTH] =
+{
+	/* Original Pit with one hard monster in center */
+	{
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,1,1,2,2,3,3,4,5,5,5,4,3,3,2,2,1,1,0},
+		{0,1,1,2,2,3,3,4,6,7,6,4,3,3,2,2,1,1,0},
+		{0,1,1,2,2,3,3,4,5,5,5,4,3,3,2,2,1,1,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	},
+	/* One top monster with tougher escorts */
+	{
+		{0,0,1,1,1,2,2,3,3,4,3,2,2,2,1,1,1,0,0},
+		{0,1,2,3,3,4,4,5,5,6,5,5,4,4,3,3,2,1,0},
+		{1,2,3,4,4,5,5,6,6,7,6,6,5,5,4,4,3,2,1},
+		{0,1,2,3,3,4,4,5,5,6,5,5,4,4,3,3,2,1,0},
+		{0,0,1,1,1,2,2,3,3,4,3,2,2,2,1,1,1,0,0},
+	},
+	/* Two top monsters with toughest escorts */
+	{
+		{0,0,0,1,1,1,2,2,2,3,2,2,2,1,1,1,0,0,0},
+		{0,1,3,4,5,6,5,4,3,3,3,4,5,6,5,4,3,1,0},
+		{0,2,3,4,5,7,5,4,3,3,3,4,5,7,5,4,3,2,0},
+		{0,1,3,4,5,6,5,4,3,3,3,4,5,6,5,4,3,1,0},
+		{0,0,0,1,1,1,2,2,2,3,2,2,2,1,1,1,0,0,0},
+	}
+
+};
+
+/* Some useful constants */
+cptr standard_home_letters =   "abcfmnoqrtuvyz13456790AB";
+cptr roguelike_home_letters =  "acfhmnoqruvyz13456790ABD";
+cptr standard_equip_letters =  "abcdefghijklmnopqrstuvw";
+cptr roguelike_equip_letters = "acdefgimopqrstuwvxzABCD";
+

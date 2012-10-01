@@ -239,6 +239,9 @@ void wield_item(object_type *o_ptr, int item, int slot)
 		return;
 	}
 
+	/* Hack - Don't wield mimic objects */
+	if (o_ptr->mimic_r_idx) return;
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -1681,7 +1684,7 @@ void py_steal(int y, int x)
 		else
 		{
 
-			/*the town gets aggravated right away, and the shops close*/
+			/*the town gets aggravated right away*/
 			mass_aggravate_monsters(SOURCE_PLAYER);
 
 			msg_print("The furious townspeople search for the notorious burglar!");

@@ -15,7 +15,6 @@ HEADERS = \
 	externs.h \
 	game-cmd.h \
 	game-event.h \
-	$(GTKHEADERS) \
 	h-basic.h \
 	init.h \
 	main.h \
@@ -38,18 +37,12 @@ HEADERS = \
 	z-util.h \
 	z-virt.h
 
-GTKHEADERS = \
-	gtk/cairo-utils.h \
-	gtk/main-gtk.h \
-	
+
 ZFILES = z-file.o z-form.o z-msg.o z-quark.o z-rand.o z-term.o z-type.o \
          z-util.o z-virt.o
-MAINFILES = main.o main-crb.o main-gcu.o $(GTKMAINFILES) \
-            main-sdl.o main-win.o main-x11.o snd-sdl.o
+MAINFILES = main.o main-crb.o main-gcu.o \
+            main-sdl.o main-win.o snd-sdl.o
 
-GTKMAINFILES = \
-	gtk/main-gtk.o \
-	gtk/cairo-utils.o 
 	
 ANGFILES = \
 	attack.o \

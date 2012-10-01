@@ -412,7 +412,7 @@ bool do_inc_stat(int stat)
 {
 	bool res;
 
-	/* Restore strength */
+	/* Restore stat first */
 	res = res_stat(stat);
 
 	/* Attempt to increase */
@@ -439,7 +439,26 @@ bool do_inc_stat(int stat)
 	return (FALSE);
 }
 
+/*
+ * Permanently gain a "point" in a stat
+ */
+void do_perm_stat_boost(int stat)
+{
+	/* Restore stat first */
+	(void)res_stat(stat);
 
+	/* Increase stat*/
+	p_ptr->stat_quest_add[stat]++;
+
+	/* Message */
+	msg_print(format("You feel very %s!", desc_stat_pos[stat]));
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Redisplay the stats later */
+	p_ptr->redraw |= (PR_STATS);
+}
 
 /*
  * Identify everything being carried.
@@ -1399,49 +1418,7 @@ static bool detect_stairs(int y, int x)
 
 
 
-/*
- * Helper function for various detection functions.
- * If treasure is true, it detects treasure mimics.
- * If false, it detects object mimics.
- */
 
-static bool detect_mimics(int y, int x, bool treasure)
-{
-	monster_type *m_ptr;
-	monster_race *r_ptr;
-
-	/* No monsters here */
-	if (cave_m_idx[y][x] < 1) return (FALSE);
-
-	m_ptr = &mon_list[cave_m_idx[y][x]];
-	r_ptr = &r_info[m_ptr->r_idx];
-
-	/* Skip dead monsters */
-	if (!m_ptr->r_idx) return (FALSE);
-
-	/* Are we detecting treasure or objects? Handle both.  */
-	if (treasure)
-	{
-		if (!(strchr("$", r_ptr->d_char))) return (FALSE);
-	}
-	/* We are detecting objects */
-	else if (!(strchr("!?-_=", r_ptr->d_char))) return (FALSE);
-
-	/* Mimic not in hiding */
-	if (!m_ptr->mimic_k_idx) return (FALSE);
-
-	/*mark them as a mimic*/
-	m_ptr->mflag |= (MFLAG_MIMIC | MFLAG_MARK | MFLAG_SHOW);
-
-	/* Optimize -- Repair flags */
-	repair_mflag_mark = TRUE;
-	repair_mflag_show = TRUE;
-
-	/* Update the monster */
-	update_mon(cave_m_idx[y][x], FALSE);
-
-	return (TRUE);
-}
 
 /*
  * Detect if there is treasure on a square
@@ -1463,9 +1440,6 @@ static bool detect_treasure(int y, int x)
 
 		return (TRUE);
 	}
-
-	/* Check for mimics */
-	if (detect_mimics(y, x, TRUE)) return (TRUE);
 
 	/* Result */
 	return (FALSE);
@@ -1507,9 +1481,6 @@ static bool detect_objects_gold(int y, int x)
 		}
 	}
 
-	/* Check for mimics */
-	if (detect_mimics(y, x, FALSE)) detect = TRUE;
-
 	/* Result */
 	return (detect);
 }
@@ -1549,9 +1520,6 @@ static bool detect_objects_normal(int y, int x)
 			p_ptr->redraw |= (PR_ITEMLIST);
 		}
 	}
-
-	/* Check for mimics */
-	if (detect_mimics(y, x, FALSE)) detect = TRUE;
 
 	return (detect);
 }
@@ -1602,9 +1570,6 @@ static bool detect_objects_magic(int y, int x)
 		}
 	}
 
-	/* Check for mimics */
-	if (detect_mimics(y, x, FALSE)) detect = TRUE;
-
 	/* Return result */
 	return (detect);
 }
@@ -1624,9 +1589,6 @@ static bool detect_monsters_normal(int y, int x)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) return (FALSE);
-
-		/* XXX XXX - Mimics stay hidden */
-		if (m_ptr->mimic_k_idx) return (FALSE);
 
 		/* Detect all non-invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE)) return (FALSE);
@@ -1662,9 +1624,6 @@ static bool detect_monsters_living(int y, int x)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) return (FALSE);
-
-		/* XXX XXX - Mimics stay hidden */
-		if (m_ptr->mimic_k_idx) return (FALSE);
 
 		/*Only detect living monsters*/
 		if (monster_nonliving(r_ptr)) return (FALSE);
@@ -1703,9 +1662,6 @@ static bool detect_monsters_invis(int y, int x)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) return (FALSE);
-
-		/* XXX XXX - Mimics stay hidden */
-		if (m_ptr->mimic_k_idx) return (FALSE);
 
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
@@ -1749,9 +1705,6 @@ static bool detect_monsters_evil(int y, int x)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) return (FALSE);
-
-		/* XXX XXX - Mimics stay hidden */
-		if (m_ptr->mimic_k_idx) return (FALSE);
 
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (RF3_EVIL))
@@ -5414,7 +5367,7 @@ bool mass_identify (int rad)
 	return (TRUE);
 }
 
-void identify_object (object_type *o_ptr, bool star_ident)
+void identify_object(object_type *o_ptr, bool star_ident)
 {
 	/* Identify it */
 	object_aware(o_ptr);
@@ -6035,6 +5988,7 @@ bool steal_powers(int dir)
 		{5, RF5_BALL_CONFU, GF_CONFUSION, BALL},
 		{5, RF5_BALL_SOUND, GF_SOUND, BALL},
 		{5, RF5_BALL_SHARD, GF_SHARD, BALL},
+		{5, RF5_BALL_METEOR, GF_METEOR, BALL},
 		{5, RF5_BALL_STORM, GF_WATER, BALL},
 		{5, RF5_BALL_NETHR, GF_NETHER, BALL},
 		{5, RF5_BALL_CHAOS, GF_CHAOS, BALL},
@@ -6050,9 +6004,11 @@ bool steal_powers(int dir)
 		{5, RF5_BOLT_WATER, GF_WATER, BOLT},
 		{5, RF5_BOLT_NETHR, GF_NETHER, BOLT},
 		{5, RF5_BOLT_MANA, GF_MANA, BOLT},
+		{5, RF5_BOLT_GRAV, GF_GRAVITY, BOLT},
 		{5, RF5_BEAM_ELEC, GF_ELEC, BEAM},
 		{5, RF5_BEAM_ICE, GF_ICE, BEAM},
 		{5, RF5_BEAM_NETHR, GF_NETHER, BEAM},
+		{5, RF5_BEAM_LAVA, GF_LAVA, BEAM},
 		{5, RF5_HOLY_ORB, GF_HOLY_ORB, BALL},
 	};
 

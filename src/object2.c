@@ -285,6 +285,8 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Hack -- cursed items are always "cursed" */
 	if (k_ptr->k_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (k_ptr->k_flags3 & (TR3_HEAVY_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (k_ptr->k_flags3 & (TR3_PERMA_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Hack -- extract the perfect_balance flag */
 	if (k_ptr->k_flags3 & (TR3_PERFECT_BALANCE)) o_ptr->ident |= (IDENT_PERFECT_BALANCE);
@@ -553,6 +555,10 @@ static bool make_artifact(object_type *o_ptr)
 	if ((can_be_randart(o_ptr)) && (!adult_no_xtra_artifacts))
 	{
 		int chance = depth_check;
+
+		/* Hack - harder for quest objects because so many of them are generated */
+		if (object_generation_mode == OB_GEN_MODE_QUEST) if (chance < 20) chance = 20;
+
 		chance += (MAX_DEPTH + depth_check) / 10;
 
 		/*occasionally make a randart*/
@@ -1492,6 +1498,8 @@ void object_into_artifact(object_type *o_ptr, artifact_type *a_ptr)
 
 	/* Hack -- extract the "cursed" flag */
 	if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (a_ptr->a_flags3 & (TR3_HEAVY_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+	if (a_ptr->a_flags3 & (TR3_PERMA_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Hack -- extract the "perfect balance" flag */
 	if (a_ptr->a_flags3 & (TR3_PERFECT_BALANCE)) o_ptr->ident |= (IDENT_PERFECT_BALANCE);
@@ -1583,7 +1591,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	 */
 	if ((good) && (great))
 	{
-		if (object_generation_mode == OB_GEN_MODE_QUEST) rolls = 2;
+		if (object_generation_mode == OB_GEN_MODE_QUEST) rolls = 1;
 		else rolls = 4;
 	}
 
@@ -1691,7 +1699,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		case TV_RING:
 		case TV_AMULET:
 		{
-			if (!power && !interesting && (one_in_(2) < 50)) power = -1;
+			if (!power && !interesting && (one_in_(2))) power = -1;
 			a_m_aux_3(o_ptr, lev, power);
 			break;
 		}
@@ -1898,6 +1906,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 		/* Hack -- acquire "cursed" flag */
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		if (e_ptr->flags3 & (TR3_HEAVY_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		if (e_ptr->flags3 & (TR3_PERMA_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
@@ -1961,6 +1971,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 		/* Hack -- acquire "cursed" flag */
 		if (k_ptr->k_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		if (k_ptr->k_flags3 & (TR3_HEAVY_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		if (k_ptr->k_flags3 & (TR3_PERMA_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 	}
 }
 
@@ -2468,6 +2480,31 @@ static bool kind_is_bookshop(int k_idx)
 	return (FALSE);
 }
 
+/*
+ * Hack -- determine if a template is "a dungeon spellbook".
+ *
+ */
+static bool kind_is_dungeon_spellbook(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+		/* Books **/
+
+		case TV_MAGIC_BOOK:
+		case TV_DRUID_BOOK:
+		case TV_PRAYER_BOOK:
+		{
+			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			return(FALSE);
+		}
+
+	}
+	return(FALSE);
+
+}
 
 /*
  * Hack -- determine if a template is "a priestly dungeon prayerbook".
@@ -2695,10 +2732,42 @@ static bool kind_is_headgear(int k_idx)
 }
 
 /*
- * Hack -- determine if a template is armor.
+ * Hack -- determine if a template is wearable armor (all types).
  *
  */
 static bool kind_is_armor(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+		/* Armor -- suitable  unless damaged */
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		{
+			if (k_ptr->to_a < 0) return (FALSE);
+			return (TRUE);
+		}
+	}
+
+	/* Assume not armor */
+	return (FALSE);
+}
+
+/*
+ * Hack -- determine if a template is armor.
+ *
+ */
+static bool kind_is_body_armor(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
@@ -2720,7 +2789,7 @@ static bool kind_is_armor(int k_idx)
 }
 
 /*
- * Hack -- determine if a template is Dragon Scale Mail.
+ * Hack -- determine if a template is Dragon Scale Mail or shield.
  *
  */
 static bool kind_is_dragarmor(int k_idx)
@@ -2950,7 +3019,7 @@ static bool kind_is_polearm(int k_idx)
 /*
  * Hack -- determine if a template is a weapon.
  */
-static bool kind_is_weapon(int k_idx)
+bool kind_is_weapon(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
@@ -3317,6 +3386,35 @@ static bool kind_is_good(int k_idx)
 	return (FALSE);
 }
 
+void object_quantities(object_type *j_ptr)
+{
+	/* Hack -- generate multiple spikes/missiles */
+	switch (j_ptr->tval)
+	{
+		case TV_SPIKE:
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		{
+			j_ptr->number = damroll(6, 7);
+			return;
+		}
+		/* Occasionally do multiple potions, scrolls */
+		case TV_SCROLL:
+		case TV_POTION:
+		{
+			if (one_in_(10)) j_ptr->number = randint1(2);
+			return;
+		}
+		case TV_FOOD:
+		{
+			if (one_in_(3)) j_ptr->number = damroll(2,2);
+			return;
+		}
+
+	}
+}
+
 
 
 /*
@@ -3368,7 +3466,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 			else if (objecttype == DROP_TYPE_SCROLL) 				get_obj_num_hook = kind_is_scroll;
 			else if (objecttype == DROP_TYPE_SHIELD) 				get_obj_num_hook = kind_is_shield;
 			else if (objecttype == DROP_TYPE_WEAPON) 				get_obj_num_hook = kind_is_weapon;
-			else if (objecttype == DROP_TYPE_ARMOR) 				get_obj_num_hook = kind_is_armor;
+			else if (objecttype == DROP_TYPE_ARMOR) 				get_obj_num_hook = kind_is_body_armor;
 			else if (objecttype == DROP_TYPE_BOOTS) 				get_obj_num_hook = kind_is_boots;
 			else if (objecttype == DROP_TYPE_BOW) 					get_obj_num_hook = kind_is_bow;
 			else if (objecttype == DROP_TYPE_CLOAK)					get_obj_num_hook = kind_is_cloak;
@@ -3424,17 +3522,8 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype, bool
 	/* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great, interesting);
 
-	/* Hack -- generate multiple spikes/missiles */
-	switch (j_ptr->tval)
-	{
-		case TV_SPIKE:
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		{
-			j_ptr->number = damroll(6, 7);
-		}
-	}
+	/* Hack -- generate multiple objects occasionally */
+	object_quantities(j_ptr);
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
@@ -3558,7 +3647,7 @@ bool prep_object_theme(int themetype)
 		}
 		case DROP_TYPE_ARMOR:
 		{
-			get_obj_num_hook = kind_is_armor;
+			get_obj_num_hook = kind_is_body_armor;
 			break;
 		}
 		case DROP_TYPE_BOOTS:
@@ -3610,6 +3699,37 @@ bool prep_object_theme(int themetype)
 	get_obj_num_prep();
 
 	return(TRUE);
+
+}
+
+
+/*
+ * Get the mimic k_idx for certain objects.
+ */
+int get_object_mimic_k_idx(const monster_race *r_ptr)
+{
+	int k_idx = 0;
+
+	if (r_ptr->d_char == ')') get_obj_num_hook = kind_is_armor;
+	else if (r_ptr->d_char == '|') get_obj_num_hook = kind_is_weapon;
+	else if (r_ptr->d_char == '?') get_obj_num_hook = kind_is_dungeon_spellbook;
+	else if (r_ptr->d_char == '[') get_obj_num_hook = kind_is_dragarmor;
+	/* Whoops! */
+	else return (0);
+
+	/* Prepare allocation table */
+	get_obj_num_prep();
+
+	/* Find an object to mimic */
+	while (!k_idx) k_idx = get_obj_num(effective_depth(p_ptr->depth));
+
+	/* Clear restriction */
+	get_obj_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_obj_num_prep();
+
+	return(k_idx);
 
 }
 
@@ -4026,7 +4146,7 @@ void object_history(object_type *o_ptr, byte origin, s16b r_idx)
 			if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 			{
 				/* Format the ghost name */
-				char *name = format("%^s, the %^s", ghost_name, r_name + r_ptr->name);
+				char *name = player_ghost_name;
 
 				/* Store the name */
 				o_ptr->origin_m_name = quark_add(name);

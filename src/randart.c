@@ -24,10 +24,6 @@
 #define MAX_TRIES 200
 #define BUFLEN 1024
 
-#define MIN_NAME_LEN 5
-#define MAX_NAME_LEN 9
-
-
 #define sign(x)	((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
 
 /* Total number of different slay types used */
@@ -345,11 +341,11 @@ static s16b cur_art_k_idx;
 
 /*
  * Use W. Sheldon Simms' random name generator.  Generate a random word using
- * the probability tables we built earlier.  Relies on the ASCII character
+ * the probability tables we built at game startup.  Relies on the ASCII character
  * set.  Relies on European vowels (a, e, i, o, u).  The generated name should
  * be copied/used before calling this function again.
  */
-static char *make_word(void)
+static char *make_word(byte min_length, byte max_length)
 {
 	static char word_buf[90];
 	int r, totalfreq;
@@ -380,7 +376,7 @@ startover:
 
 		if (c_next == E_WORD)
 		{
-			if ((lnum < MIN_NAME_LEN) || vow == 0)
+			if ((lnum < min_length) || vow == 0)
 			{
 				tries++;
 				if (tries < 10) goto getletter;
@@ -390,7 +386,7 @@ startover:
 			break;
 		}
 
-		if (lnum >= MAX_NAME_LEN) goto startover;
+		if (lnum >= max_length) goto startover;
 
 		*cp = I2A(c_next);
 
@@ -408,11 +404,11 @@ startover:
 }
 
 
-void make_random_name(char *random_name, size_t max)
+void make_random_name(char *random_name, byte min, byte max)
 {
 
 	/*get the randomly generated word*/
-	my_strcpy(random_name, make_word(), max);
+	my_strcpy(random_name, make_word(min, max), max);
 
 	return;
 }
@@ -3395,7 +3391,7 @@ static void scramble_artifact(int a_idx)
 	}
 
 	/*randomize the name*/
-	make_random_name(buf, MAX_LEN_ART_NAME);
+	make_random_name(buf, 5, 11);
 
 	if (!one_in_(3))
 	{
@@ -3898,7 +3894,7 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 		char buf[MAX_LEN_ART_NAME];
 
 		/*randomize the name*/
-		make_random_name(buf, MAX_LEN_ART_NAME);
+		make_random_name(buf, 5, 11);
 
 		/*Capitalize the name*/
 		buf[0] = toupper((unsigned char)buf[0]);
@@ -4086,7 +4082,7 @@ void make_quest_artifact(int lev)
 	artifact_prep(k_idx, a_idx);
 
 	/*randomize the name*/
-	make_random_name(buf, MAX_LEN_ART_NAME);
+	make_random_name(buf, 5, 11);
 
 	/*Capitalize the name*/
 	buf[0] = toupper((unsigned char)buf[0]);
@@ -4145,8 +4141,8 @@ void create_quest_artifact(object_type *o_ptr)
 
 
 /*
- * Wipe an artifact clean.  Rebuild the names string to delete the name.
- * Check first to make sure it is a randart
+ * Wipe an artifact clean.
+ * Check first to make sure it is a randart.
  */
 void artifact_wipe(int a_idx, bool quest_art_wipe)
 {

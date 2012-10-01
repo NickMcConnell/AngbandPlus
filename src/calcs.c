@@ -1124,8 +1124,10 @@ static void calc_bonuses(void)
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
-
 		}
+
+		/* Add permanent stat increases */
+		add += p_ptr->stat_quest_add[i];
 
 		/* Extract the new "stat_top" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], add);

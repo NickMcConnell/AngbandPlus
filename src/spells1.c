@@ -486,9 +486,7 @@ void teleport_towards(int oy, int ox, int ny, int nx)
  */
 void teleport_player_level(int who)
 {
-	byte kind_of_quest = quest_check(p_ptr->depth);
-
-	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 	bool go_up = FALSE;
 	bool go_down = FALSE;
@@ -511,42 +509,19 @@ void teleport_player_level(int who)
 	 * Fixed quests where the player can't go lower until they finish the quest, or the
 	 * bottom of the dungeon.
 	 */
-	if ((kind_of_quest == QUEST_FIXED) ||
-	    (kind_of_quest == QUEST_FIXED_U) ||
-	    (kind_of_quest == QUEST_GUARDIAN) ||
-	    (p_ptr->depth >= MAX_DEPTH-1))
+	if (no_down_stairs(p_ptr->depth))
 	{
 		go_up = TRUE;
 	}
 
 	/*Not fair to fail the quest if the monster teleports the player off*/
 	if ((who >= SOURCE_MONSTER_START) &&
-		((kind_of_quest == QUEST_MONSTER) ||
-		 (kind_of_quest == QUEST_UNIQUE) ||
-		 (kind_of_quest == QUEST_PIT) ||
-		 (kind_of_quest == QUEST_NEST) ||
-		 (kind_of_quest == QUEST_THEMED_LEVEL)))
+			(quest_might_fail_if_leave_level() || quest_shall_fail_if_leave_level()))
 	{
 		/*de-activate the quest*/
 		q_ptr->q_flags &= ~(QFLAG_STARTED);
 
 		go_up = TRUE;
-
-	}
-
-	/* Same as above, but don't re-set the quest if the player already has the quest chest*/
-	if ((who >= SOURCE_MONSTER_START) && (kind_of_quest == QUEST_VAULT))
-	{
-		/* Player is holding the quest item?  If so, player can go up or down*/
-		if (quest_item_slot() == -1)
-		{
-			q_ptr->q_flags &= ~(QFLAG_STARTED);
-		}
-
-		/*
-		 * We found the item, but go up.
-		 */
-		else go_up = TRUE;
 	}
 
 	/*We don't have a direction yet, pick one at random*/
@@ -563,7 +538,6 @@ void teleport_player_level(int who)
 
 		/* New depth */
 		dungeon_change_level(p_ptr->depth - 1);
-
 	}
 
 	else
@@ -2227,10 +2201,10 @@ static void lava_dam(int dam, cptr kb_str, bool player_native)
 	int inv = (dam < 30) ? 2 : (dam < 60) ? 3 : 4;
 	bool double_resist = FALSE;
 
-	/* Resist most of the damage */
+	/* Resist most of the damage, equipment is spared */
 	if (player_native)
 	{
-		dam /= 9;
+		dam /= 3;
 		double_resist = TRUE;
 	}
 
@@ -2775,27 +2749,6 @@ static int project_m_n;
 static int project_m_x;
 static int project_m_y;
 
-
-/*reveal a mimic, re-light the spot, and print a message if asked for*/
-void reveal_mimic(int y, int x, bool message)
-{
-	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-
-	/*no longer a mimic*/
-	m_ptr->mimic_k_idx = 0;
-
-	/* Mimic no longer acts as a detected object */
-	m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-	/* Message  XXX */
-	if (message) msg_print("There is a mimic!");
-
-	/* Redraw */
-	light_spot(y, x);
-
-	/* Disturb */
-	disturb(0, 0);
-}
 
 /*
  * Temporarily light a grid.
@@ -4110,7 +4063,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 
 			case GF_LAVA:
 			{
-				if (hates_lava(o_ptr) && dam > rand_int(50))
+				if (hates_lava(o_ptr) && dam > rand_int(150))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
@@ -4139,6 +4092,12 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 					msg_format("The %s %s unaffected!",
 					           o_name, (plural ? "are" : "is"));
 				}
+			}
+
+			/* The mimics cover is blown */
+			else if (o_ptr->mimic_r_idx)
+			{
+				reveal_mimic(this_o_idx, o_ptr->marked);
 			}
 
 			/* Kill it */
@@ -4304,15 +4263,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 		monster_type *m2_ptr = &mon_list[who];
 		monster_race *r2_ptr = &r_info[m2_ptr->r_idx];
 
-		/* Reveal if a mimic */
-		if ((m_ptr->mimic_k_idx) && (seen))
-		{
-			/* Reveal it */
-			reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
-		}
-
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
 
 		/* Monsters are same race, or uniques suffer no damage */
 		if ((m_ptr->r_idx == m2_ptr->r_idx) || (r_ptr->flags1 & (RF1_UNIQUE)) ||
@@ -5422,7 +5373,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			if (r_ptr->r_native & (FF3_LAVA))
 			{
 				m_note = MON_MSG_RESIST;
-				damage /= 30;
+				damage /= 9;
 				if (seen) l_ptr->r_l_native |= (ELEMENT_LAVA);
 			}
 
@@ -5448,13 +5399,6 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 
 	/* "Unique" monsters or quest monsters cannot be polymorphed */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) || (m_ptr->mflag & (MFLAG_QUEST))) do_poly = FALSE;
-
-	/* Reveal mimics */
-	if (m_ptr->mimic_k_idx)
-	{
-		/* Reveal it */
-		reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
-	}
 
 	/* Get the actual monster name */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
@@ -5497,7 +5441,7 @@ bool project_m(int who, int y, int x, int damage, int typ, u32b flg)
 			delete_monster_idx(mon_idx);
 
 			/* Create a new monster (no groups) */
-			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+			(void)place_monster_aux(y, x, tmp, 0L);
 
 			/* Hack -- Assume success XXX XXX XXX */
 

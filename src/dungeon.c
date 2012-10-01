@@ -19,6 +19,7 @@
 #include "angband.h"
 #include "game-event.h"
 
+
 /*
  * Change dungeon level.
  * Aside from setting the player depth at the beginning of the game,
@@ -429,6 +430,675 @@ static void recharged_notice(object_type *o_ptr, bool all)
 	}
 }
 
+/*
+ * Helper function for process_guild_quests
+ * Count the number of quest monsters hiding as mimic objects
+ * Simply return zero if inapplicable
+ */
+static int count_quest_monsters(const quest_type *q_ptr)
+{
+	int cur_quest_monsters = q_ptr->q_num_killed;
+
+	int j;
+
+	/* Count the quest monsters */
+	for (j = 1; j < mon_max; j++)
+	{
+		monster_type *m_ptr = &mon_list[j];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Count Quest monsters */
+		if (m_ptr->mflag & (MFLAG_QUEST)) cur_quest_monsters++;
+	}
+
+	/* Count and return the mimics */
+	for (j = 1; j < o_max; j++)
+	{
+		object_type *o_ptr = &o_list[j];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Only work with the mimic objects */
+		if (!o_ptr->mimic_r_idx) continue;
+
+		/* Mimic is waiting to turn into a quest monster */
+		if (o_ptr->ident & (IDENT_QUEST)) cur_quest_monsters++;
+	}
+
+	return (cur_quest_monsters);
+}
+
+
+#define ARENA_SQUARE_SLOTS  100
+
+/*
+ * Helper function for process_arena_level and add arena object.
+ * Determine which object to give to the player.
+ */
+static s16b get_arena_obj_num(void)
+{
+	s16b k_idx;
+	s16b level = randint0(p_ptr->depth) + p_ptr->depth / 5;
+	byte tval_type = randint1(100);
+
+	/* 35% chance of a potion */
+	if (tval_type < 35)
+	{
+		if (level <= 20) 		k_idx = lookup_kind(TV_POTION, SV_POTION_CURE_CRITICAL);
+		else if (level <= 40) 	k_idx = lookup_kind(TV_POTION, SV_POTION_SPEED);
+		else if (level <= 70) 	k_idx = lookup_kind(TV_POTION, SV_POTION_HEALING);
+		else if (level <= 85) 	k_idx = lookup_kind(TV_POTION, SV_POTION_STAR_HEALING);
+		else 				 	k_idx = lookup_kind(TV_POTION, SV_POTION_LIFE);
+	}
+	/* 20% chance of a scroll */
+	else if (tval_type <= 55)
+	{
+		if (level <= 10) 		k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PHASE_DOOR);
+		else if (level <= 20) 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_HOLY_PRAYER);
+		else if (level <= 40) 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_RECHARGING);
+		else if (level <= 60) 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL);
+		else 				 	k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_MASS_BANISHMENT);
+	}
+	/* 25% chance of a staff/wand */
+	else if (tval_type <= 80)
+	{
+		if (level <= 20) 		k_idx = lookup_kind(TV_WAND, SV_WAND_TELEPORT_AWAY);
+		else if (level <= 40) 	k_idx = lookup_kind(TV_WAND, SV_WAND_ANNIHILATION);
+		else if (level <= 60) 	k_idx = lookup_kind(TV_STAFF, SV_STAFF_HEALING);
+		else if (level <= 85) 	k_idx = lookup_kind(TV_STAFF, SV_STAFF_HOLINESS);
+		else 				 	k_idx = lookup_kind(TV_STAFF, SV_STAFF_SPEED);
+	}
+	/* 20% chance of a custom item for that specific class */
+	else
+	{
+		/* spellcasters want mana */
+		if (cp_ptr->flags & (CF_ZERO_FAIL)) k_idx = lookup_kind(TV_POTION, SV_POTION_RESTORE_MANA);
+
+		/*
+		 * Most others get ammo, but first check to confirm
+		 * they are wielding something in the ammo slot.
+		 * If not, give them a potion of healing.
+		 */
+		else if (!p_ptr->state.ammo_tval)
+		{
+			k_idx = lookup_kind(TV_POTION, SV_POTION_HEALING);
+		}
+		/* Others get ammo */
+		else
+		{
+			byte sval;
+			byte tval = p_ptr->state.ammo_tval;
+			if (level <= 30) 		sval = SV_AMMO_LIGHT;
+			else if (level <= 75) 	sval = SV_AMMO_NORMAL;
+			else 					sval = SV_AMMO_HEAVY;
+
+			/* Hack - the svals for shots are slightly different than bows and bolts */
+			if ((tval == TV_ARROW || tval == TV_BOLT)) sval++;
+
+			k_idx = lookup_kind(tval, sval);
+		}
+	}
+
+	return (k_idx);
+}
+
+/*
+ * Determine if a monster is suitable for the arena"
+ */
+static bool monster_arena_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters for the arena */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* No breeders */
+	if (r_ptr->flags2 & (RF2_MULTIPLY)) return (FALSE);
+
+	/*no mimics */
+	if (r_ptr->flags1 & (RF1_CHAR_MIMIC)) return (FALSE);
+
+	/*no mimics */
+	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for process_arena_level.
+ * Add monsters to the recently added parts of the dungeon.
+ * If new spaces have been cleared, this function will first try to put them there.
+ */
+static bool add_arena_monster(bool new_squares, byte stage, s32b cur_quest_monsters)
+{
+	u16b empty_squares_y[ARENA_SQUARE_SLOTS];
+	u16b empty_squares_x[ARENA_SQUARE_SLOTS];
+	byte empty_squares = 0;
+	byte y, x;
+	s16b r_idx;
+	byte slot;
+	monster_type *m_ptr;
+	s16b mon_lev = p_ptr->depth;
+
+	/*
+	 * Start with add floor spaces where appropriate.
+	 * See where the new squares are
+	 */
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		{
+			/* Ignore the outer walls locations */
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Look for an exact match to the stage */
+			if ((arena_level_map[y][x] != stage) && (new_squares)) continue;
+
+			/* New, and open square */
+			if (cave_naked_bold(y, x))
+			{
+				slot = empty_squares;
+
+				/*
+				 * Hack - continue to write new slots over random spaces
+				 * if we have more empty squares than slots
+				 */
+				if (empty_squares >= ARENA_SQUARE_SLOTS)
+				{
+					byte chance = randint0(empty_squares);
+
+					if (chance >= ARENA_SQUARE_SLOTS) continue;
+					else slot = chance;
+				}
+
+				empty_squares_y[slot] = y;
+				empty_squares_x[slot] = x;
+				empty_squares++;
+			}
+		}
+	}
+
+	/* Paranoia - shouldn't happen */
+	if (!empty_squares) return (FALSE);
+
+	/* Find a spot in the array */
+	slot = randint0(MIN(empty_squares, ARENA_SQUARE_SLOTS));
+	y = empty_squares_y[slot];
+	x = empty_squares_x[slot];
+
+	/* Prepare allocation table */
+	get_mon_num_hook = monster_arena_okay;
+	get_mon_num_prep();
+
+	/* Give then a little breathing room every couple monsters */
+	if (stage < (ARENA_MAX_STAGES - 1))
+	{
+		if ((cur_quest_monsters % 5) == 4)
+		{
+			mon_lev = (mon_lev * 3) / 4;
+		}
+	}
+
+	/* Pick a monster, using the given level */
+	r_idx = get_mon_num(mon_lev, y, x, 0L);
+
+	/* One out of 10 monsters, make sure they are a little harder */
+	if ((cur_quest_monsters % 10) == 9)
+	{
+		s16b r2_idx = get_mon_num(mon_lev, y, x, 0L);
+		monster_race *r_ptr = &r_info[r_idx];
+		monster_race *r2_ptr = &r_info[r2_idx];
+
+		/* If we found a tougher monster, use it */
+		if (r_ptr->mon_power < r2_ptr->mon_power)
+		{
+			r_idx = r2_idx;
+		}
+	}
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+	get_mon_num_prep();
+
+	if (!place_monster_aux(y, x, r_idx, (MPLACE_GROUP))) return (FALSE);
+
+	/* Mark it as a questor */
+	if (!cave_m_idx[y][x])	return (FALSE); /* Paranoia - should never happen */
+	m_ptr = &mon_list[cave_m_idx[y][x]];
+	m_ptr->mflag |= (MFLAG_QUEST);
+	disturb(0,0);
+	return (TRUE);
+}
+
+
+/*
+ * Helper function for process_arena_level.
+ * Add objects to the recently added parts of the dungeon.
+ * This function assumes new squares have just been cleared.
+ */
+static void add_arena_object(byte stage)
+{
+	u16b empty_squares_y[ARENA_SQUARE_SLOTS];
+	u16b empty_squares_x[ARENA_SQUARE_SLOTS];
+	byte empty_squares = 0;
+	byte slot;
+	byte y, x;
+	s16b k_idx;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/*
+	 * Start with add floor spaces where appropriate.
+	 * See where the new squares are
+	 */
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		/* boundry control */
+		if (empty_squares == ARENA_SQUARE_SLOTS) break;
+
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		{
+			/* Ignore the outer walls locations */
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Look for an exact match to the stage */
+			if (arena_level_map[y][x] != stage) continue;
+
+			/* New, and open square */
+			if (cave_naked_bold(y, x))
+			{
+				empty_squares_y[empty_squares] = y;
+				empty_squares_x[empty_squares] = x;
+				empty_squares++;
+			}
+		}
+	}
+
+	/* Paranoia - shouldn't happen */
+	if (!empty_squares) return;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+	object_wipe(i_ptr);
+
+	/* Pick a square at random */
+	slot = randint0(empty_squares);
+	y = empty_squares_y[slot];
+	x = empty_squares_x[slot];
+
+	k_idx = get_arena_obj_num();
+
+	/* Prepare the object */
+	object_prep(i_ptr, k_idx);
+
+	apply_magic(i_ptr, p_ptr->depth, TRUE, FALSE, FALSE, TRUE);
+
+	object_quantities(i_ptr);
+
+	/* But don't give out too much the ammo */
+	if (obj_is_ammo(i_ptr)) i_ptr->number /= 2;
+
+	/* Identify it */
+	object_aware(i_ptr);
+	object_known(i_ptr);
+
+	/* Put it on the floor */
+	floor_carry(y, x, i_ptr);
+}
+
+/*
+ * Hack - the last couple monsters on a wilderness level are too hard to find.
+ * Teleport them to the player, one every 10 normal game turns.
+ * Don't teleport if there is one in line of sight
+ */
+static void process_wilderness_quests(void)
+{
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	int cur_quest_monsters = count_quest_monsters(q_ptr);
+	u16b tele_mon_idx[10];
+	u16b mon_count = 0;
+	u16b actual_mon_count = 0;
+	u16b i;
+	monster_type *m_ptr;
+	char ddesc[80];
+	int remaining = q_ptr->q_max_num - cur_quest_monsters;
+
+	/* Don't start teleporting them yet */
+	if (remaining > 10) return;
+
+	for (i = 1; i < z_info->m_max; i++)
+	{
+		m_ptr = &mon_list[i];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Count the real monsters */
+		actual_mon_count++;
+
+		/* Can we already see a monster, or is it in line of sight? */
+		if (m_ptr->project) continue;
+		if (m_ptr->ml) continue;
+
+		tele_mon_idx[mon_count++] = i;
+	}
+
+	/* No monsters to be revealed */
+	if (!mon_count)
+	{
+		/* There are monsters in line of sight or are already visible */
+		if (actual_mon_count)return;
+
+		/* Only mimics left.  Reveal them so the player can complete the quest */
+		for (i = 1; i < o_max; i++)
+		{
+			object_type *o_ptr = &o_list[i];
+
+			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Only work with the mimic objects */
+			if (!o_ptr->mimic_r_idx) continue;
+
+			/* Mimic is waiting to turn into a quest monster */
+			reveal_mimic(i, FALSE);
+
+			break;
+		}
+
+		return;
+	}
+
+	/* Pick one monster at random and teleport them to the player */
+	i = randint0(mon_count);
+	m_ptr = &mon_list[tele_mon_idx[i]];
+
+	/* Move monster near player (also updates "m_ptr->ml"). */
+	teleport_towards(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
+
+	/* Get the "died from" name */
+	monster_desc(ddesc, sizeof(ddesc), m_ptr, 0x88);
+
+	/* Monster is now visible. */
+	if (m_ptr->ml)
+	{
+		disturb(1, 0);
+		/* Message */
+		msg_format("%^s suddenly appears.", ddesc);
+	}
+}
+
+/*
+ * This function assumes it is called every 10 game turns during an arena level.
+ */
+static void process_arena_level(void)
+{
+	int i;
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	s32b turns_lapsed = turn - q_info->start_turn;
+	bool new_squares = FALSE;
+
+	/* Each monster phase is 5 game turns at normal speed */
+	s32b current_mon_phase = turns_lapsed / ARENA_STAGE_MON + 1;
+
+	/* Each quest phase is 20 game turns at normal speed */
+	s32b current_lev_phase = turns_lapsed / ARENA_STAGE_LEV;
+	s32b prev_lev_phase = (turns_lapsed - 10) / ARENA_STAGE_LEV;
+
+	int cur_quest_monsters = count_quest_monsters(q_ptr);
+
+	/* Boundry Control */
+	if (current_mon_phase > q_ptr->q_max_num) current_mon_phase = q_ptr->q_max_num;
+	if (prev_lev_phase < 0) prev_lev_phase = 0;
+
+	/* First check if there is anything to do */
+	if ((cur_quest_monsters >= current_mon_phase) &&
+		((current_lev_phase == prev_lev_phase) || (current_lev_phase >= ARENA_MAX_STAGES)))
+	{
+		return;
+	}
+
+	/* Open up more of the dungeon  */
+	if (current_lev_phase > prev_lev_phase)
+	{
+		/* There are only 10 level phases */
+		if (current_lev_phase < ARENA_MAX_STAGES)
+		{
+			byte new_objects = MIN((1 + randint1(2)), current_lev_phase);
+
+			/* Open up more of the arena */
+			update_arena_level(current_lev_phase);
+
+			/* We are expanding the level */
+			new_squares = TRUE;
+
+			/* Add new more objects */
+			for (i = 0; i < new_objects; i++)
+			{
+				add_arena_object(current_lev_phase);
+			}
+		}
+	}
+
+	while (current_mon_phase > cur_quest_monsters)
+	{
+		/* Add monsters, unless there is no room or we have enough. */
+		if (!add_arena_monster(new_squares, current_lev_phase, cur_quest_monsters))
+		{
+			/* No room for new monsters? */
+			if (!new_squares)break;
+
+			/* All the new squares are full, try other balnk squares */
+			new_squares  = FALSE;
+		}
+		else cur_quest_monsters++;
+	}
+
+}
+
+
+/*
+ * Check for quest failure or missing monsters.
+ */
+static void process_guild_quests(void)
+{
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	int cur_quest_monsters = count_quest_monsters(q_ptr);
+	int remaining = cur_quest_monsters - q_ptr->q_num_killed;
+	int i, y, x;
+	int best_r_idx = 0;
+	int r_idx;
+	int attempts_left = 10000;
+
+	/* No need to process vault quests or fixed quests */
+	if (quest_fixed(q_ptr)) return;
+	if (q_ptr->q_type == QUEST_VAULT) return;
+
+	/* We have enough monsters, we are done */
+	if (remaining >= (q_ptr->q_max_num - q_ptr->q_num_killed)) return;
+
+	/* Find a legal, distant, unoccupied, space */
+	while (attempts_left)
+	{
+		--attempts_left;
+
+		/* Pick a location */
+		y = rand_int(p_ptr->cur_map_hgt);
+		x = rand_int(p_ptr->cur_map_wid);
+
+		/* Require a grid that all monsters can exist in. */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Accept far away grids */
+		if (distance(y, x, p_ptr->py, p_ptr->px) >  MAX_SIGHT) break;
+	}
+
+	/* Couldn't find a spot */
+	if (!attempts_left) return;
+
+	/* Find the right type of monster to put on the level, and right degree of difficulty */
+	/* Very simple for quests for a specific monster */
+	if (quest_single_r_idx(q_ptr))
+	{
+		best_r_idx = q_ptr->mon_idx;
+	}
+
+	/* Get the theme, if needed */
+	if (quest_themed(q_ptr))
+	{
+		if (q_ptr->q_type == QUEST_THEMED_LEVEL)
+		{
+			monster_level = effective_depth(p_ptr->depth) + THEMED_LEVEL_QUEST_BOOST;
+		}
+
+		else /* QUEST_PIT and QUEST_NEST */
+		{
+			monster_level = effective_depth(p_ptr->depth) + PIT_NEST_QUEST_BOOST;
+		}
+
+		get_mon_hook(q_ptr->theme);
+	}
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	if (!best_r_idx)
+	{
+		monster_race *r_ptr;
+		monster_race *r2_ptr = &r_info[best_r_idx];
+
+		/* Quests where the monster is specified (monster quests, unique quests*/
+		if (q_ptr->mon_idx) best_r_idx = q_ptr->mon_idx;
+
+		/* 10 chances to get the strongest monster possible */
+		else for (i = 0; i < 10; i++)
+		{
+			r_idx = get_mon_num(monster_level, y, x, 0L);
+
+			if (!best_r_idx)
+			{
+				best_r_idx = r_idx;
+				r2_ptr = &r_info[best_r_idx];
+				continue;
+			}
+
+			r_ptr = &r_info[r_idx];
+
+			/* Don't use a unique as a replacement */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+			/* Weaker monster.  Don't use it */
+			if (r_ptr->mon_power < r2_ptr->mon_power) continue;
+
+			best_r_idx = r_idx;
+			r2_ptr = &r_info[best_r_idx];
+
+		}
+	}
+
+	if (place_monster_aux(y, x, best_r_idx, (MPLACE_SLEEP | MPLACE_GROUP | MPLACE_OVERRIDE)))
+	{
+		/* Scan the monster list */
+		for (i = 1; i < mon_max; i++)
+		{
+			monster_type *m_ptr = &mon_list[i];
+
+			/* Ignore dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			/* Make sure we have the right monster race */
+			if (m_ptr->r_idx != best_r_idx) continue;
+
+			/*mark it as a quest monster*/
+			m_ptr->mflag |= (MFLAG_QUEST);
+		}
+	}
+
+	/* Reset everything */
+	monster_level = effective_depth(p_ptr->depth);
+	get_mon_num_hook = NULL;
+	get_mon_num_prep();
+}
+
+
+static void process_mimics(void)
+{
+	s16b i;
+	int dist;
+	int obj_y, obj_x;
+	int chance;
+
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		monster_race *r_ptr;
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Only work with the mimic objects */
+		if (!o_ptr->mimic_r_idx) continue;
+
+		r_ptr = &r_info[o_ptr->mimic_r_idx];
+
+		/* Determine object location */
+		/* Held by a monster */
+		if (o_ptr->held_m_idx)
+		{
+			monster_type *m_ptr;
+
+			/* Get the monster */
+			m_ptr = &mon_list[o_ptr->held_m_idx];
+
+			/* Get the location */
+			obj_y = m_ptr->fy;
+			obj_x = m_ptr->fx;
+		}
+		/* On the ground */
+		else
+		{
+			obj_y = o_ptr->iy;
+			obj_x = o_ptr->ix;
+		}
+
+		/*
+		 * If the mimic can't cast, wait until the player is right next to it to come out of hiding
+		 * Hack - make an exception for creeping coins (so pits/nests are still dangerous)
+		 *
+		 */
+		if ((!r_ptr->freq_ranged) && (o_ptr->tval != TV_GOLD))
+		{
+			if ((ABS(obj_y - p_ptr->py) <= 1)  && (ABS(obj_x - p_ptr->px) <= 1))
+			{
+				reveal_mimic(i, o_ptr->marked);
+			}
+			continue;
+		}
+
+		/* get the distance to player */
+		dist = distance(obj_y, obj_x, p_ptr->py, p_ptr->px);
+
+		/* Must be in line of fire from the player */
+		if (!player_can_fire_bold(obj_y, obj_x)) continue;
+
+		/* paranoia */
+		if (dist > MAX_SIGHT) continue;
+
+		/* Chance to be revealed gets bigger as the player gets closer */
+		chance = (MAX_SIGHT - dist) * (MAX_SIGHT/4)  + 10;
+
+		/* Reveal the mimic if test is passed*/
+		if (randint0(MAX_SIGHT * 5) < chance)
+		{
+			reveal_mimic(i, o_ptr->marked);
+		}
+	}
+}
+
 
 /*
  * Recharge activatable objects in the player's equipment
@@ -752,8 +1422,6 @@ static void process_world(void)
 
 	object_type *o_ptr;
 
-	bool was_ghost = FALSE;
-
 	/* We decrease noise slightly every game turn */
 	total_wakeup_chance -= 400;
 
@@ -765,151 +1433,32 @@ static void process_world(void)
 	if (turn % 10) return;
 
 	/*** Update quests ***/
-	if ((p_ptr->cur_quest) && !(turn % QUEST_TURNS))
+	if (guild_quest_active())
 	{
-		bool fail_quest = FALSE;
-
-		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+		quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 		/* Check for failure */
-		if ((p_ptr->cur_quest != p_ptr->depth) && (one_in_(20)))
+		if (guild_quest_level() != p_ptr->depth)
 		{
-			/* Check if quest is in progress */
-			if ((q_ptr->q_flags & (QFLAG_STARTED)) && q_ptr->active_level &&
-				((q_ptr->q_type == QUEST_MONSTER) || (q_ptr->q_type == QUEST_UNIQUE)))
+			if (one_in_(20))
 			{
-				quest_fail();
-				fail_quest = TRUE;
+				if (!(turn % QUEST_TURNS))
+				{
+					if (quest_might_fail_if_leave_level())
+					{
+						quest_fail();
+					}
+				}
 			}
 		}
-
-		if ((!fail_quest) && (p_ptr->cur_quest == p_ptr->depth) &&
-			(q_ptr->q_type != QUEST_FIXED_U) && (q_ptr->q_type != QUEST_VAULT))
+		/* We are on the level */
+		else
 		{
-			int cur_quest_monsters = 0;
-			int j;
-
-			/* Make sure there are enough quest monsters */
-			for (j = 1; j < mon_max; j++)
+			if (q_ptr->q_type == QUEST_ARENA_LEVEL) process_arena_level();
+			else if (!(turn % QUEST_TURNS)) process_guild_quests();
+			if (q_ptr->q_type == QUEST_WILDERNESS_LEVEL)
 			{
-				monster_type *m_ptr = &mon_list[j];
-
-				/* Paranoia -- Skip dead monsters */
-				if (!m_ptr->r_idx) continue;
-
-				/* Count Quest monsters */
-				if (m_ptr->mflag & (MFLAG_QUEST)) cur_quest_monsters++;
-			}
-
-			if ((q_ptr->max_num - q_ptr->cur_num) > cur_quest_monsters)
-			{
-				int old_feeling = feeling;
-				int i, y, x;
-				int best_r_idx = 0;
-				int r_idx;
-				int attempts_left = 10000;
-
-				if (q_ptr->q_type == QUEST_THEMED_LEVEL)
-				{
-					monster_level = effective_depth(p_ptr->depth) + THEMED_LEVEL_QUEST_BOOST;
-				}
-				/* For Monster/unique quests the best_r_idx is already known */
-				else if ((q_ptr->q_type == QUEST_MONSTER) ||
-						 (q_ptr->q_type == QUEST_GUARDIAN) ||
-						 (q_ptr->q_type == QUEST_UNIQUE))
-				{
-					best_r_idx = q_ptr->mon_idx;
-				}
-				/* QUEST_PIT and QUEST_NEST */
-				else  monster_level = effective_depth(p_ptr->depth) + PIT_NEST_QUEST_BOOST;
-
-				/* make a monster */
-				get_mon_hook(q_ptr->theme);
-
-				/* Prepare allocation table */
-				get_mon_num_prep();
-
-				/* mega-hack - undo feeling so monster can be generated */
-				feeling = 0;
-
-				/* Find a legal, distant, unoccupied, space */
-				while (attempts_left)
-				{
-					--attempts_left;
-
-					/* Pick a location */
-					y = rand_int(p_ptr->cur_map_hgt);
-					x = rand_int(p_ptr->cur_map_wid);
-
-					/* Require a grid that all monsters can exist in. */
-					if (!cave_empty_bold(y, x)) continue;
-
-					/* Accept far away grids */
-					if (distance(y, x, p_ptr->py, p_ptr->px) >  MAX_SIGHT) break;
-				}
-
-				if ((attempts_left) && (!best_r_idx))
-				{
-					monster_race *r_ptr;
-					monster_race *r2_ptr = &r_info[best_r_idx];
-
-					/* Quests where the monster is specified (monster quests, unique quests*/
-					if (q_ptr->mon_idx) best_r_idx = q_ptr->mon_idx;
-
-					/* 10 chances to get the strongest monster possible */
-					else for (i = 0; i < 10; i++)
-					{
-						r_idx = get_mon_num(monster_level, y, x);
-
-						if (!best_r_idx)
-						{
-							best_r_idx = r_idx;
-							r2_ptr = &r_info[best_r_idx];
-							continue;
-						}
-
-						r_ptr = &r_info[r_idx];
-
-						/* Don't use a unique as a replacement */
-						if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
-
-						/* Weaker monster.  Don't use it */
-						if (r_ptr->mon_power < r2_ptr->mon_power) continue;
-
-						best_r_idx = r_idx;
-						r2_ptr = &r_info[best_r_idx];
-
-					}
-				}
-
-				if (place_monster_aux(y, x, best_r_idx, TRUE, FALSE))
-				{
-
-					/* Scan the monster list */
-					for (i = 1; i < mon_max; i++)
-					{
-						monster_type *m_ptr = &mon_list[i];
-
-						/* Ignore dead monsters */
-						if (!m_ptr->r_idx) continue;
-
-						/* Make sure we have the right monster race */
-						if (m_ptr->r_idx != best_r_idx) continue;
-
-						/*mark it as a quest monster*/
-						m_ptr->mflag |= (MFLAG_QUEST);
-					}
-				}
-
-				feeling = old_feeling;
-
-				monster_level = effective_depth(p_ptr->depth);
-
-				/* Remove restriction */
-				get_mon_num_hook = NULL;
-
-				/* Prepare allocation table */
-				get_mon_num_prep();
+				if (!(turn % 100)) process_wilderness_quests();
 			}
 		}
 	}
@@ -1002,19 +1551,22 @@ static void process_world(void)
 
 	/*** Process the monsters ***/
 
-	/* Hack - see if there is already a player ghost on the level */
-	if (bones_selector) was_ghost=TRUE;
-
 	/* Check for creature generation */
 	if (one_in_(MAX_M_ALLOC_CHANCE))
 	{
-		/* Make a new monster, but not on themed levels */
-		if (feeling < LEV_THEME_HEAD) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		/*
+		 * Make a new monster, but not on arena levels DUNGEON_TYPE_ARENA,
+		 * labyrinth, DUNGEON_TYPE_LABYRINTH, themed levels or wilderness levels. DUNGEON_TYPE_WILDERNESS
+		 */
+		if (p_ptr->dungeon_type < DUNGEON_TYPE_THEMED_LEVEL)
+		{
+			(void)alloc_monster(MAX_SIGHT + 5, (MPLACE_SLEEP | MPLACE_GROUP | MPLACE_NO_MIMIC | MPLACE_NO_GHOST));
+		}
 	}
 
 	/* Hack - if there is a ghost now, and there was not before,
 	 * give a challenge */
-	if ((bones_selector) && (!(was_ghost))) ghost_challenge();
+	if ((player_ghost_num > -1) && (one_in_(30))) ghost_challenge();
 
 	/* Put out fire if necessary */
 	if ((level_flag & (LF1_FIRE)) && !(turn % 1000)) put_out_fires();
@@ -1391,6 +1943,9 @@ static void process_world(void)
 		}
 	}
 
+	/* Process mimic objects */
+	process_mimics();
+
 	/* Recharge activatable objects and rods */
 	recharge_objects();
 
@@ -1451,8 +2006,16 @@ static void process_world(void)
 
 		int chance;
 
-		/*players notice strongholds sooner*/
-		if (feeling < LEV_THEME_HEAD) chance = 80;
+		/*players notice arena levels almost instantly */
+		if (p_ptr->dungeon_type== DUNGEON_TYPE_ARENA) chance = 2;
+
+		/*players notice wilderness and labyrinth levels almost as quickly */
+		else if (p_ptr->dungeon_type== DUNGEON_TYPE_WILDERNESS) chance = 10;
+		else if (p_ptr->dungeon_type== DUNGEON_TYPE_LABYRINTH) chance = 10;
+
+		/* Players notice themed levels quickly as well */
+		else if (p_ptr->dungeon_type >= DUNGEON_TYPE_THEMED_LEVEL) chance = 20;
+
 		else chance = 40;
 
 		/* After sufficient time, can learn about the level */
@@ -1484,7 +2047,7 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time - unless resurrecting a dead character */
-	if (!(p_ptr->noscore & 0x0002) && !(p_ptr->is_dead))
+	if (!(p_ptr->noscore & (NOSCORE_WIZARD | NOSCORE_DEBUG)) && !(p_ptr->is_dead))
 	{
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
@@ -1499,7 +2062,7 @@ static bool enter_wizard_mode(void)
 	}
 
 	/* Mark savefile */
-	p_ptr->noscore |= 0x0002;
+	p_ptr->noscore |= (NOSCORE_WIZARD | NOSCORE_DEBUG);
 
 	/* Success */
 	return (TRUE);
@@ -2097,7 +2660,7 @@ void process_player(void)
 /*
  * Checks if multi-color monsters onscreen.
  */
-void do_animation(void)
+static void do_animation(void)
 {
 	int i;
 
@@ -2212,10 +2775,8 @@ static void dungeon(void)
 		p_ptr->autosave = FALSE;
 	}
 
-	/* No stairs down from fixed quests */
-	if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-		(quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-		(quest_check(p_ptr->depth) == QUEST_GUARDIAN))
+	/* No stairs down from fixed or guardian quests */
+	if (no_down_stairs(p_ptr->depth))
 	{
 		if ((p_ptr->create_stair == FEAT_MORE) ||
 			(p_ptr->create_stair == FEAT_MORE_SHAFT))
@@ -2319,27 +2880,27 @@ static void dungeon(void)
 	/* Handle delayed death */
 	if (p_ptr->is_dead) return;
 
-	/* Mark quest as started */
-	if ((p_ptr->cur_quest > 0) && (p_ptr->cur_quest == p_ptr->depth))
+	/* Check quests */
+	for (i = 0; i < z_info->q_max; i++)
 	{
-		/* Check quests */
-		for (i = 0; i < z_info->q_max; i++)
+		quest_type *q_ptr = &q_info[i];
+
+		/* Already complete */
+		if (is_quest_complete(i)) continue;
+
+		/* Check for quest */
+		if (q_ptr->base_level == p_ptr->depth)
 		{
-			/* Check for quest */
-			if (q_info[i].base_level == p_ptr->depth)
-			{
-				q_info[i].q_flags |= (QFLAG_STARTED);
-				break;
-			}
+			q_info[i].q_flags |= (QFLAG_STARTED);
+			break;
 		}
 	}
 
 	/* Announce (or repeat) the feeling */
 	if ((effective_depth(p_ptr->depth)) && (do_feeling)) do_cmd_feeling();
 
-
 	/* Announce a player ghost challenge. -LM- */
-	if (bones_selector) ghost_challenge();
+	if (player_ghost_num > -1) ghost_challenge();
 
 	/*** Process this dungeon level ***/
 
@@ -2570,6 +3131,8 @@ void play_game(void)
 		/* Hack -- seed for random artifacts */
 		seed_randart = rand_int(0x10000000);
 
+		seed_ghost = rand_int(0x10000000);
+
 		/* Roll up a new character. Quickstart is allowed if ht_birth is set */
 		player_birth(p_ptr->ht_birth ? TRUE : FALSE);
 
@@ -2662,6 +3225,7 @@ void play_game(void)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
+
 	/* Process */
 	while (TRUE)
 	{
@@ -2698,43 +3262,24 @@ void play_game(void)
 		wipe_x_list();
 		count_feat_everseen();
 
+		/* Reset player ghost info */
+		player_ghost_num = -1;
+		ghost_r_idx = 0;
+		player_ghost_name[0] = '\0';
+
 		/* Delete any pending monster message */
 		size_mon_msg = 0;
 		size_mon_hist = 0;
 
 		/* Check for quest_failure */
-		if (p_ptr->cur_quest)
+		if (guild_quest_level())
 		{
-			byte quest_info = quest_check(p_ptr->cur_quest);
+			if (quest_shall_fail_if_leave_level()) quest_fail();
 
-			quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
-
-			if (quest_info == QUEST_VAULT)
+			else if (quest_might_fail_if_leave_level())
 			{
-				/* Check if had already been on quest level */
-				if (q_ptr->q_flags & (QFLAG_STARTED))
-				{
-					if (quest_item_slot() == -1) quest_fail();
-
-				}
-
-			}
-
-			else if ((quest_info == QUEST_MONSTER) || (quest_info == QUEST_UNIQUE))
-			{
-				/* Check that the quest is in process */
-				if ((p_ptr->cur_quest != p_ptr->depth) && (q_ptr->q_flags & (QFLAG_STARTED))
-				      && (q_ptr->active_level))
-				{
-					/* Have a chance to fail if the quest is in progress */
-					if (one_in_(10)) quest_fail();
-				}
-			}
-			else if ((quest_info == QUEST_NEST) || (quest_info == QUEST_PIT) ||
-					 (quest_info == QUEST_THEMED_LEVEL))
-			{
-				/*You can't leave this level*/
-				if ((q_ptr->q_flags & (QFLAG_STARTED)) && (q_ptr->active_level)) quest_fail();
+				/* Have a chance to fail if the quest is in progress */
+				if (one_in_(10)) quest_fail();
 			}
 		}
 

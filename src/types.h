@@ -381,11 +381,11 @@ struct ego_item_type
  */
 struct ghost_template
 {
-	u32b t_name;	/* Ghost Name */
-	u32b t_text;	/* Ghost Text */
+	char t_name[MAX_GHOST_NAME_LEN];	/* Ghost Text */
 	byte t_gender;	/* Ghost gender (0 = male  1 = female) */
 	byte t_race;	/* Ghost race */
 	byte t_class; 	/* Ghost class */
+	byte t_depth; 	/* Ghost native depth */
 };
 
 
@@ -645,6 +645,8 @@ struct object_type
 	s16b origin_dlvl;	/* Depth */
 	s16b origin_r_idx;	/* Monster race */
 	s16b origin_m_name;	/* Index of monster name quark. Used only for player ghosts */
+
+	s16b mimic_r_idx;	/* Object is a mimic */
 };
 
 
@@ -692,8 +694,6 @@ struct monster_type
 
 	byte mana;          /* Current mana level */
 
-	s16b mimic_k_idx;	/*type of mimic code*/
-
 	byte using_flow;	/*Which movement flow is the creature using?*/
 
 };
@@ -729,16 +729,17 @@ struct quest_type
 {
 	u32b name;			/* Name (offset) */
 	byte q_type;		/* Quest Type */
-	byte reward;		/* Quest Reward */
+	u16b q_reward;		/* Quest Reward */
+	u16b q_fame_inc;	/* Amount fame will be increased when the quest is finished */
 	byte theme;			/* Monster Theme for themed levels and nests/pits*/
 
-	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
-	byte base_level;	/* The dungeon level on which the quest was assigned*/
+	byte base_level;	/* The dungeon level on which the quest is assigned*/
 
 	s16b mon_idx;		/* Monster race/unique */
+	s32b start_turn;	/* Mark when the quest began */
 
-	s16b cur_num;		/* Number killed */
-	s16b max_num;		/* Number required */
+	s16b q_num_killed;	/* Number killed */
+	s16b q_max_num;		/* Number required */
 
 	byte q_flags;		/* Various quest flags */
 };
@@ -1048,7 +1049,8 @@ struct player_type
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
 
-	u16b fame;			/* Fame - used for quests */
+	u16b q_fame;		/* Fame - used for quests */
+	u16b deferred_rewards; /* Quest reward points deferred for future use */
 
 	s32b au;			/* Current Gold */
 
@@ -1074,6 +1076,7 @@ struct player_type
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
+	s16b stat_quest_add[A_MAX];	/* Quest reward bonuses */
 
 	s16b timed[TMD_MAX];	/* Timed effects */
 
@@ -1204,7 +1207,6 @@ struct player_type
 
 	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
-	u16b cur_quest;		/* Current quest */
 	u16b next_quest;
 
 	u16b cumulative_terrain_damage; /* How much damage we are taking from

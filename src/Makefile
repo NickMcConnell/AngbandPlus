@@ -6,7 +6,6 @@ include Makefile.src
 INCLUDE = $(HDRS) $(INCS)
 OBJECTS = $(ANGFILES) $(MAINFILES) $(ZFILES)
 SRCS    = ${OBJECTS:.o=.c}
-SUBDIRS = gtk
 PROG    = nppangband
 CFLAGS += -I.
 LDFLAGS += -lSDL

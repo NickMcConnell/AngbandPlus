@@ -77,7 +77,7 @@ graf-dvg.prf:  The preference file used for David Gervais's 32x32 graphics.
 remappings.  It contains the default values of options and the keymaps for the
 original and roguelike keysets.  Links to the file "message.prf", which controls
 the colors of messages.  Links to system-specific general preference files
-(pref-x11.prf, pref-gcu.prf, etc.).  These contain system-specific keymappings
+(pref-gcu.prf, etc.).  These contain system-specific keymappings
 and allow the game to recognize your keyboard.
 
 message.prf:  Message colors.

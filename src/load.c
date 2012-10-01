@@ -262,6 +262,8 @@ static errr rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->marked);
 
+	rd_s16b(&o_ptr->mimic_r_idx);
+
 	/* Old flags */
 	strip_bytes(12);
 
@@ -278,16 +280,12 @@ static errr rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->obj_note = quark_add(buf);
 
-	if (!older_than(0,4,5))
-	{
-
-		/* Object history */
-		rd_byte(&o_ptr->origin_nature);
-		rd_s16b(&o_ptr->origin_dlvl);
-		rd_s16b(&o_ptr->origin_r_idx);
-		rd_string(buf, sizeof(buf));
-		if (buf[0]) o_ptr->origin_m_name = quark_add(buf);
-	}
+	/* Object history */
+	rd_byte(&o_ptr->origin_nature);
+	rd_s16b(&o_ptr->origin_dlvl);
+	rd_s16b(&o_ptr->origin_r_idx);
+	rd_string(buf, sizeof(buf));
+	if (buf[0]) o_ptr->origin_m_name = quark_add(buf);
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -484,7 +482,8 @@ static errr rd_item(object_type *o_ptr)
  */
 static void rd_monster(monster_type *m_ptr)
 {
-	byte dummy;
+	byte num;
+	int i;
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
@@ -494,32 +493,31 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->fx);
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
-	rd_s16b(&m_ptr->m_timed[MON_TMD_SLEEP]);
 	rd_byte(&m_ptr->mspeed);
 	rd_s16b(&m_ptr->m_energy);
-	if (older_than(0,5,3))
+
+	/* Find the number of monster timed effects */
+	rd_byte(&num);
+
+	if (num == MON_TMD_MAX)
 	{
-		rd_byte(&dummy);
-		m_ptr->m_timed[MON_TMD_STUN] = dummy;
-		rd_byte(&dummy);
-		m_ptr->m_timed[MON_TMD_CONF] = dummy;
-		rd_byte(&dummy);
-		m_ptr->m_timed[MON_TMD_FEAR] = dummy;
+		/* Read all the effects */
+		for (i = 0; i < num; i++) rd_s16b(&m_ptr->m_timed[i]);
 	}
 	else
 	{
-		rd_s16b(&m_ptr->m_timed[MON_TMD_STUN]);
-		rd_s16b(&m_ptr->m_timed[MON_TMD_CONF]);
-		rd_s16b(&m_ptr->m_timed[MON_TMD_FEAR]);
+		s16b dummy;
+		/* Probably in trouble anyway */
+		for (i = 0; i < num; i++) rd_s16b(&dummy);
+
+		note("Discarding unsupported monster timed effects");
 	}
-	rd_s16b(&m_ptr->m_timed[MON_TMD_FAST]);
-	rd_s16b(&m_ptr->m_timed[MON_TMD_SLOW]);
+
 	rd_u32b(&m_ptr->mflag);
 	rd_u32b(&m_ptr->smart);
 	rd_byte(&m_ptr->target_y);
 	rd_byte(&m_ptr->target_x);
 	rd_byte(&m_ptr->mana);
-	rd_s16b(&m_ptr->mimic_k_idx);
 
 	strip_bytes(1);
 }
@@ -565,32 +563,6 @@ static errr rd_unknown_extension(void)
 
 
 /*
- * Read the call huorns extension.
- */
-static errr rd_call_huorns_extension(void)
-{
-	byte tmp8u;
-	u16b temp;
-
-	/* Read and validate field type of the spell timer */
-	rd_byte(&tmp8u);
-	if (tmp8u != EXTENSION_TYPE_U16B) return (-1);
-
-	/* Read timer value */
-	rd_u16b(&temp);
-
-	p_ptr->timed[TMD_CALL_HOURNS] = temp;
-
-	/* Read and validate end mark of fields */
-	rd_byte(&tmp8u);
-	if (tmp8u != EXTENSION_TYPE_END) return (-1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * Process variable extensions.
  */
 static errr rd_extensions(void)
@@ -610,13 +582,6 @@ static errr rd_extensions(void)
 		/* Process extensions */
 		switch (extension)
 		{
-			/* Call huorns */
-			case EXTENSION_CALL_HUORNS:
-			{
-				if (rd_call_huorns_extension()) return (-1);
-				break;
-			}
-
 			/* Unknown. Discard */
 			default:
 			{
@@ -1112,6 +1077,7 @@ static errr rd_extra(void)
 	u16b tmp16u;
 	u16b file_e_max;
 	u32b extra_u32b;
+	byte num;
 
 
 	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
@@ -1158,19 +1124,18 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
-	if (!older_than(0,5,1))
-	{
-		for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_birth[i]);
+	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_birth[i]);
+	for (i = 0; i < A_MAX; ++i) rd_s16b(&p_ptr->stat_quest_add[i]);
 
-		rd_s16b(&p_ptr->ht_birth);
-		rd_s16b(&p_ptr->wt_birth);
-		rd_s16b(&p_ptr->sc_birth);
-		rd_s32b(&p_ptr->au_birth);
-	}
+	rd_s16b(&p_ptr->ht_birth);
+	rd_s16b(&p_ptr->wt_birth);
+	rd_s16b(&p_ptr->sc_birth);
+	rd_s32b(&p_ptr->au_birth);
 
 	strip_bytes(24);	/* oops */
 
-	rd_u16b(&p_ptr->fame);
+	rd_u16b(&p_ptr->q_fame);
+	rd_u16b(&p_ptr->deferred_rewards);
 
 	rd_s32b(&p_ptr->au);
 
@@ -1227,54 +1192,38 @@ static errr rd_extra(void)
 
 	/* Read the flags */
 	strip_bytes(2);	/* Old "rest" */
-	rd_s16b(&p_ptr->timed[TMD_BLIND]);
-	rd_s16b(&p_ptr->timed[TMD_PARALYZED]);
-	rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
 	rd_s16b(&p_ptr->food);
+
 	strip_bytes(4);	/* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->p_energy);
-	rd_s16b(&p_ptr->timed[TMD_FAST]);
-	rd_s16b(&p_ptr->timed[TMD_SLOW]);
-	rd_s16b(&p_ptr->timed[TMD_AFRAID]);
-	rd_s16b(&p_ptr->timed[TMD_CUT]);
-	rd_s16b(&p_ptr->timed[TMD_STUN]);
-	rd_s16b(&p_ptr->timed[TMD_POISONED]);
-	rd_s16b(&p_ptr->timed[TMD_IMAGE]);
-	rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
-	rd_s16b(&p_ptr->timed[TMD_INVULN]);
-	rd_s16b(&p_ptr->timed[TMD_HERO]);
-	rd_s16b(&p_ptr->timed[TMD_SHERO]);
-	rd_s16b(&p_ptr->timed[TMD_SHIELD]);
-	rd_s16b(&p_ptr->timed[TMD_BLESSED]);
-	rd_s16b(&p_ptr->timed[TMD_SINVIS]);
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->state.see_infra);
-	rd_s16b(&p_ptr->timed[TMD_SINFRA]);
-	rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
-	rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
-	rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
-	rd_s16b(&p_ptr->timed[TMD_OPP_ELEC]);
-	rd_s16b(&p_ptr->timed[TMD_OPP_POIS]);
-
-	if (!(older_than(0,4,6)))
-	{
-		rd_s16b(&p_ptr->timed[TMD_NAT_LAVA]);
-		rd_s16b(&p_ptr->timed[TMD_NAT_OIL]);
-		rd_s16b(&p_ptr->timed[TMD_NAT_SAND]);
-		rd_s16b(&p_ptr->timed[TMD_NAT_TREE]);
-		rd_s16b(&p_ptr->timed[TMD_NAT_WATER]);
-		rd_s16b(&p_ptr->timed[TMD_NAT_MUD]);
-	}
-
 
 	rd_byte(&p_ptr->confusing);
-	rd_s16b(&p_ptr->timed[TMD_SLAY_ELEM]);	/* oops */
 	rd_byte(&tmp8u);
-	p_ptr->timed[TMD_FLYING] = tmp8u;
 	rd_byte(&p_ptr->searching);
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
+
+	/* Find the number of timed effects */
+	rd_byte(&num);
+
+	if (num == TMD_MAX)
+	{
+		/* Read all the effects */
+		for (i = 0; i < num; i++) rd_s16b(&p_ptr->timed[i]);
+	}
+	else
+	{
+		s16b dummy2;
+
+		/* Probably in trouble anyway */
+		for (i = 0; i < TMD_MAX; i++) rd_s16b(&dummy2);
+
+		/* Discard unused entries */
+		note("Discarding unsupported timed effects");
+	}
 
 	rd_s16b(&p_ptr->base_wakeup_chance);
 	rd_s16b(&total_wakeup_chance);
@@ -1282,20 +1231,7 @@ static errr rd_extra(void)
 	/* Read item-quality squelch sub-menu */
  	for (i = 0; i < SQUELCH_BYTES; i++) rd_byte(&squelch_level[i]);
 
- 	/*
- 	 * Clear the quality squelch bytes, since they are now in
- 	 * a different order.
- 	 */
- 	if (older_than(0,5,2))
- 	{
- 		/*Clear the squelch bytes*/
- 		for (i = 0; i < SQUELCH_BYTES; i++)
- 		{
- 			squelch_level[i] = SQUELCH_NONE;
- 		}
- 	}
-
-	/* Load the name of the current greater vault */
+ 	/* Load the name of the current greater vault */
 	rd_string(g_vault_name, sizeof(g_vault_name));
 
 	/* Read the number of saved ego-item types */
@@ -1339,55 +1275,13 @@ static errr rd_extra(void)
 		inscriptions[i].inscriptionIdx = quark_add(tmp);
 	}
 
-	/* The number of the bone file (if any) that player ghosts should use to
-	 * reacquire a name, sex, class, and race.
+	/*
+	 * The number of the bone file (if any) that player ghosts should use to
+	 * derive the ghost name, sex, class, race, and level.
 	 */
-	rd_byte(&bones_selector);
+	rd_s16b(&player_ghost_num);
 
-	/*if an active player ghost, read and then write the savefile*/
-	if (bones_selector)
-	{
-		ang_file *fp = FALSE;
-		char	path[1024];
-		byte ghost_sex, ghost_race, ghost_class;
-		char temp_name[80];
-		char esc_name[80];
-
-		rd_string(temp_name, sizeof(temp_name));
-		rd_byte(&ghost_sex);
-		rd_byte(&ghost_race);
-		rd_byte(&ghost_class);
-
-		/*make the path*/
-		sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
-
-		/* Try to write a new "Bones File" */
-		fp = file_open(path, MODE_WRITE, FTYPE_SAVE);
-
-		/*paranoia*/
-		if (fp)
-		{
-			/* Get the canonical form of the name */
-			escape_latin1(esc_name, sizeof(esc_name), temp_name);
-
-			/*now save the new file*/
-			/* Save the info */
-			file_putf(fp, "%s\n", esc_name);
-			file_putf(fp, "%d\n", ghost_sex);
-			file_putf(fp, "%d\n", ghost_race);
-			file_putf(fp, "%d\n", ghost_class);
-
-			/*Mark end of file*/
-			file_putf(fp, "\n");
-
-			/* Close and save the Bones file */
-			(void)file_close(fp);
-		}
-
-		/*done*/
-	}
-
-	/* Find out how many thefts have recently occured. */
+	/* Find out how many thefts have recently occurred. */
 	rd_byte(&recent_failed_thefts);
 
 	/* Read number of monster traps on level. */
@@ -1405,9 +1299,11 @@ static errr rd_extra(void)
 	/* Skip the flags */
 	strip_bytes(12);
 
-	/* Hack -- the two "special seeds" */
+	/* Hack -- the three "special seeds" */
 	rd_u32b(&seed_flavor);
 	rd_u32b(&seed_town);
+	rd_u32b(&seed_ghost);
+
 
 
 	/* Special stuff */
@@ -1432,10 +1328,10 @@ static errr rd_extra(void)
 	rd_s32b(&turn);
 
 	/*Current Player Turn*/
-	if (!older_than(0,4,4)) rd_s32b(&p_ptr->p_turn);
+	rd_s32b(&p_ptr->p_turn);
 
 	/* Turn count for quest indicator */
-	if (!older_than(0,4,8)) rd_u16b(&quest_indicator_timer);
+	rd_u16b(&quest_indicator_timer);
 
 	/* Check if the quest indicator must flash the victory sign */
 	if (quest_indicator_timer & (QUEST_INDICATOR_COMPLETE_BIT))
@@ -1447,21 +1343,18 @@ static errr rd_extra(void)
 	}
 
 	/* Panel change offsets */
-	if (!older_than(0,4,8))
+	rd_u16b(&panel_change_offset_y);
+	rd_u16b(&panel_change_offset_x);
+
+	/* Check bounds */
+	if (panel_change_offset_y < MIN_PANEL_CHANGE_OFFSET_Y)
 	{
-		rd_u16b(&panel_change_offset_y);
-		rd_u16b(&panel_change_offset_x);
+		panel_change_offset_y = MIN_PANEL_CHANGE_OFFSET_Y;
+	}
 
-		/* Check bounds */
-		if (panel_change_offset_y < MIN_PANEL_CHANGE_OFFSET_Y)
-		{
-			panel_change_offset_y = MIN_PANEL_CHANGE_OFFSET_Y;
-		}
-
-		if (panel_change_offset_x < MIN_PANEL_CHANGE_OFFSET_X)
-		{
-			panel_change_offset_x = MIN_PANEL_CHANGE_OFFSET_X;
-		}
+	if (panel_change_offset_x < MIN_PANEL_CHANGE_OFFSET_X)
+	{
+		panel_change_offset_x = MIN_PANEL_CHANGE_OFFSET_X;
 	}
 
 	/* Read the player_hp array */
@@ -1561,7 +1454,7 @@ static errr rd_randarts(void)
 			rd_u32b(&a_ptr->a_flags1);
 			rd_u32b(&a_ptr->a_flags2);
 			rd_u32b(&a_ptr->a_flags3);
-			if (!older_than(0,4,7)) rd_u32b(&a_ptr->a_native);
+			rd_u32b(&a_ptr->a_native);
 			rd_byte(&a_ptr->a_level);
 			rd_byte(&a_ptr->a_rarity);
 			rd_byte(&a_ptr->activation);
@@ -2080,7 +1973,7 @@ static errr rd_dungeon(void)
 		/* If a player ghost, some special features need to be added. */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
-			(void)prepare_ghost(n_ptr->r_idx, TRUE);
+			(void)prepare_ghost(n_ptr->r_idx);
 		}
 
 		/* Place monster in dungeon */
@@ -2125,33 +2018,27 @@ static errr rd_dungeon(void)
 	}
 
 	/*** Effects ***/
-	if (!older_than(0,4,4))
+	/* Read the effect count */
+	rd_u16b(&limit);
+
+	/* Verify maximum */
+	if (limit > z_info->x_max)
 	{
-
-		/* Read the effect count */
-		rd_u16b(&limit);
-
-		/* Verify maximum */
-		if (limit > z_info->x_max)
-		{
-			note(format("Too many (%d) effect entries!", limit));
-			return (-1);
-		}
-
-		/* Read the dungeon items */
-		for (i = 1; i < limit; i++)
-		{
-
-			/* Read the item */
-			if (rd_effect())
-			{
-				note("Error reading effect");
-				return (-1);
-			}
-
-		}
+		note(format("Too many (%d) effect entries!", limit));
+		return (-1);
 	}
 
+	/* Read the dungeon items */
+	for (i = 1; i < limit; i++)
+	{
+
+		/* Read the item */
+		if (rd_effect())
+		{
+			note("Error reading effect");
+			return (-1);
+		}
+	}
 
 
 	/*** Success ***/
@@ -2287,89 +2174,26 @@ static errr rd_savefile_new_aux(void)
 	/* Load the Quests */
 	for (i = 0; i < tmp16u; i++)
 	{
-		if (older_than(0,5,4))
+		quest_type *q_ptr = &q_info[i];
+
+		rd_byte(&q_ptr->q_type);
+		/* Only limited info for permanent quests.  The rest is detailed in quest.txt */
+		if (q_ptr->q_type == QUEST_PERMANENT)
 		{
-		rd_byte(&q_info[i].q_type);
-
-		if ((q_info[i].q_type == QUEST_FIXED) || (q_info[i].q_type == QUEST_FIXED_U))
-		{
-			rd_byte(&q_info[i].active_level);
-			rd_s16b(&q_info[i].cur_num);
-		}
-		else if ((q_info[i].q_type == QUEST_MONSTER) ||
-				 (q_info[i].q_type == QUEST_UNIQUE) ||
-				 (q_info[i].q_type == QUEST_GUARDIAN))
-		{
-			rd_byte(&q_info[i].reward);
-			rd_byte(&q_info[i].active_level);
-			rd_byte(&q_info[i].base_level);
-
-			rd_s16b(&q_info[i].mon_idx);
-			rd_s16b(&q_info[i].cur_num);
-			rd_s16b(&q_info[i].max_num);
-
-			rd_byte(&q_info[i].q_flags);
-
-			/* Set current quest */
-			if (q_info[i].active_level || q_info[i].reward)
-				p_ptr->cur_quest = q_info[i].base_level;
-		}
-		else if (q_info[i].q_type == QUEST_VAULT)
-		{
-			rd_byte(&q_info[i].reward);
-			rd_byte(&q_info[i].active_level);
-			rd_byte(&q_info[i].base_level);
-
-			/* Read the started field */
-			if (!older_than(0,4,8))
-			{
-				rd_byte(&q_info[i].q_flags);
-			}
-
-			/* Set current quest */
-			if (q_info[i].active_level || q_info[i].reward)
-				p_ptr->cur_quest = q_info[i].base_level;
-		}
-		else if ((q_info[i].q_type == QUEST_THEMED_LEVEL) ||
-			 (q_info[i].q_type == QUEST_NEST) ||
-		     (q_info[i].q_type == QUEST_PIT))
-		{
-			rd_byte(&q_info[i].reward);
-			rd_byte(&q_info[i].active_level);
-			rd_byte(&q_info[i].base_level);
-			rd_byte(&q_info[i].theme);
-			rd_s16b(&q_info[i].cur_num);
-			rd_s16b(&q_info[i].max_num);
-
-			rd_byte(&q_info[i].q_flags);
-
-			/* Set current quest */
-			if (q_info[i].active_level || q_info[i].reward)
-			p_ptr->cur_quest = q_info[i].base_level;
-
-		}
-		}
-		else
-		{
-			rd_byte(&q_info[i].q_type);
-			rd_byte(&q_info[i].reward);
-			rd_byte(&q_info[i].active_level);
-			rd_byte(&q_info[i].base_level);
-			rd_byte(&q_info[i].theme);
-			rd_s16b(&q_info[i].mon_idx);
-			rd_s16b(&q_info[i].cur_num);
-			rd_s16b(&q_info[i].max_num);
-			rd_byte(&q_info[i].q_flags);
-
-			/* Set current quest */
-			if ((q_info[i].active_level || q_info[i].reward) &&
-				(q_info[i].q_type != QUEST_FIXED) &&
-				(q_info[i].q_type != QUEST_FIXED_U))
-			{
-				p_ptr->cur_quest = q_info[i].base_level;
-			}
+			rd_byte(&q_ptr->q_flags);
+			rd_s16b(&q_ptr->q_num_killed);
+			continue;
 		}
 
+		rd_u16b(&q_ptr->q_reward);
+		rd_u16b(&q_ptr->q_fame_inc);
+		rd_byte(&q_ptr->base_level);
+		rd_byte(&q_ptr->theme);
+		rd_s16b(&q_ptr->mon_idx);
+		rd_s32b(&q_ptr->start_turn);
+		rd_s16b(&q_ptr->q_num_killed);
+		rd_s16b(&q_ptr->q_max_num);
+		rd_byte(&q_ptr->q_flags);
 	}
 
 	if (arg_fiddle) note("Loaded Quests");
@@ -2406,11 +2230,8 @@ static errr rd_savefile_new_aux(void)
 	if (rd_notes()) return (-1);
 	if (arg_fiddle) note("Loaded Notes");
 
-	if (!older_than(0, 4, 10))
-	{
-	    if (rd_extensions()) return (-1);
-		if (arg_fiddle) note("Loaded Extensions");
-	}
+	if (rd_extensions()) return (-1);
+	if (arg_fiddle) note("Loaded Extensions");
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
@@ -2457,23 +2278,20 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Artifact lore */
-	if (!older_than(0, 4, 9))
+	/* Read the stored number of artifacts (normal + special) */
+	rd_u16b(&tmp16u);
+
+	/* Check bounds */
+	if (tmp16u > z_info->art_norm_max)
 	{
-		/* Read the stored number of artifacts (normal + special) */
-		rd_u16b(&tmp16u);
+		note(format("Too many (%u) artifacts!", tmp16u));
+		return (-1);
+	}
 
-		/* Check bounds */
-		if (tmp16u > z_info->art_norm_max)
-		{
-			note(format("Too many (%u) artifacts!", tmp16u));
-			return (-1);
-		}
-
-		/* Read artifact lore */
-		for (i = 0; i < tmp16u; i++)
-		{
-			if (rd_artifact_lore(i)) return (-1);
-		}
+	/* Read artifact lore */
+	for (i = 0; i < tmp16u; i++)
+	{
+		if (rd_artifact_lore(i)) return (-1);
 	}
 
 	/* I'm not dead yet... */
@@ -2584,6 +2402,8 @@ bool load_player(void)
 
 	/* Paranoia */
 	p_ptr->is_dead = FALSE;
+
+	load_player_ghost_file();
 
 	/* Allow empty savefile name */
 	if (!savefile[0]) return (TRUE);

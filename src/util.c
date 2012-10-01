@@ -970,7 +970,7 @@ static ui_event_data inkey_aux(int scan_cutoff)
 	/* Initialize the no return */
 	ke0.type = EVT_NONE;
 	ke0.key = 0;
-	ke0.index = 0; /* To fix GCC warnings on X11 */
+	ke0.index = 0; 
 	ke0.mousey = 0;
 	ke0.mousex = 0;
 
@@ -2599,7 +2599,7 @@ static bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *le
 	{
 		case '*':
 		{
-			make_random_name(buf, 12);
+			make_random_name(buf, 4, 12);
 			buf[0] = toupper((unsigned char) buf[0]);
 			*curs = 0;
 			result = FALSE;
@@ -4068,33 +4068,6 @@ int pick_random_item(int chance_values[], int max)
 
 	/* Return the index */
 	return (i);
-}
-
-
-/*
- * Read a whole line from fff and try to get a number from it.
- * The number is stored in dest.
- * Return FALSE on error.
- */
-errr next_line_to_number(ang_file *fff, byte *dest)
-{
-	char buf[1024], *end;
-	byte number;
-
-	/* Read the line */
-	if (!file_getl(fff, buf, sizeof(buf))) return (FALSE);
-
-	/* Convert to number */
-	number = (byte)strtol(buf, &end, 10);
-
-	/* Check success */
-	if (end == buf) return (FALSE);
-
-	/* Store the number */
-	*dest = number;
-
-	/* Done */
-	return (TRUE);
 }
 
 int effective_depth(int depth)

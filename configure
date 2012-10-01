@@ -688,8 +688,6 @@ SDL_CONFIG
 SDL_CFLAGS
 SDL_LIBS
 PKG_CONFIG
-GTK_CFLAGS
-GTK_LIBS
 GLIB_CFLAGS
 GLIB_LIBS
 LIBOBJS
@@ -1280,7 +1278,6 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-gtk            Enables GTK 2.x frontend (default: disabled)
   --enable-curses         Enables Curses frontend (default: enabled)
   --enable-x11            Enables X11 frontend (default: enabled)
   --enable-sdl            Enables SDL frontend (default: disabled)
@@ -4750,12 +4747,6 @@ _ACEOF
 NOINSTALL="$with_noinstall";
 SETEGID="$with_setgid";
 
-# Check whether --enable-gtk was given.
-if test "${enable_gtk+set}" = set; then
-  enableval=$enable_gtk; enable_gtk=$enableval
-else
-  enable_gtk=no
-fi
 
 # Check whether --enable-curses was given.
 if test "${enable_curses+set}" = set; then
@@ -4786,15 +4777,6 @@ else
   enable_sdl_mixer=yes
 fi
 
-
-
-if test "x$enable_gtk" = "xyes"; then
-	if test "x$wsetgid" = "xyes"; then
-		{ { echo "$as_me:$LINENO: error: The \"setgid\" option and the GTK port are incompatible." >&5
-echo "$as_me: error: The \"setgid\" option and the GTK port are incompatible." >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-fi
 
 
 if test "$enable_curses" = "yes"; then

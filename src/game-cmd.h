@@ -88,7 +88,7 @@ typedef enum cmd_code
 	CMD_BUY,
 	CMD_STASH,
 	CMD_RETRIEVE,
-	CMD_QUEST,
+	CMD_REWARD,
 
 	/* Hors categorie Commands */
 	CMD_SUICIDE,

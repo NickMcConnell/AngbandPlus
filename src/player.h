@@ -414,7 +414,7 @@
 #define INVEN_LEFT      26
 #define INVEN_RIGHT     27
 #define INVEN_NECK      28
-#define INVEN_LIGHT      29
+#define INVEN_LIGHT     29
 #define INVEN_BODY      30
 #define INVEN_OUTER     31
 #define INVEN_ARM       32
@@ -711,24 +711,28 @@ enum
 /*slots for the following tables*/
 /*The code assumes QUEST_SLOT_MONSTER is first and always available to the player*/
 #define QUEST_SLOT_MONSTER		0
-#define QUEST_SLOT_PIT_NEST		1
-#define QUEST_SLOT_LEVEL		2
-#define QUEST_SLOT_VAULT		3
-#define QUEST_SLOT_FIXED		4
-#define QUEST_SLOT_MAX			5
+#define QUEST_SLOT_GUARDIAN		1
+#define QUEST_SLOT_PIT_NEST		2
+#define QUEST_SLOT_WILDERNESS	3
+#define QUEST_SLOT_LEVEL		4
+#define QUEST_SLOT_VAULT		5
+#define QUEST_SLOT_ARENA		6
+#define QUEST_SLOT_LABYRINTH		7
+#define QUEST_SLOT_MAX			8
 
 /*
  * Quest types
  */
-#define QUEST_FIXED			1	/* A fixed quest from quest.txt for a non-unique*/
-#define QUEST_FIXED_U		2	/* A fixed quest from quest.txt for a unique*/
-#define QUEST_MONSTER		3	/* Kill a non-unique*/
-#define QUEST_UNIQUE		4	/* Kill a unique*/
-#define QUEST_VAULT			5	/* retrieve a artifact from a vault and return it to the guild*/
-#define QUEST_PIT			6	/* clear out an entire monster pit*/
-#define QUEST_NEST			7	/* clear out a monster next*/
-#define QUEST_THEMED_LEVEL	8	/* clear out an entire level of creatures*/
-#define QUEST_GUARDIAN		9  	/* A fixed monster quest from the guild */
+#define QUEST_PERMANENT			1	/* A fixed quest from quest.txt for specific monster race or unique */
+#define QUEST_MONSTER			2	/* Kill a specific monster race or unique*/
+#define QUEST_GUARDIAN			3  	/* A fixed monster quest from the guild */
+#define QUEST_PIT				4	/* clear out an entire monster pit*/
+#define QUEST_NEST				5	/* clear out a monster next*/
+#define QUEST_THEMED_LEVEL		6	/* clear out an entire level of creatures*/
+#define QUEST_WILDERNESS_LEVEL	7	/* Clear out an entire wilderness level */
+#define QUEST_VAULT				8	/* retrieve a artifact from a vault and return it to the guild*/
+#define QUEST_ARENA_LEVEL		9	/* Kill a given # of creatures in a closed arena with no escape */
+#define QUEST_LABYRINTH_LEVEL   10   /* Clear out an entire labrynth level */
 
 #define MON_RARE_FREQ	15
 #define MON_LESS_FREQ	50
@@ -737,17 +741,24 @@ enum
 
 #define QUEST_LEVEL_BOOST	2
 
+#define ARENA_LEVEL_HGT		11
+#define ARENA_LEVEL_WID		25
+#define ARENA_STAGE_MON 	50
+#define ARENA_STAGE_LEV 	(ARENA_STAGE_MON * 4)
+#define ARENA_MAX_MON 		40
+#define ARENA_MAX_STAGES 	10
+
 /*
  * Quest reward types
  */
-#define REWARD_GOLD			1
-#define REWARD_GOOD_ITEM	2
-#define REWARD_GREAT_ITEM	3
-#define REWARD_TAILORED		4
-#define REWARD_RANDART		5
-#define REWARD_INC_HP		6
-#define REWARD_INC_SPEED	7
-
+#define REWARD_GOLD			0x0001
+#define REWARD_GOOD_ITEM	0x0002
+#define REWARD_GREAT_ITEM	0x0004
+#define REWARD_TAILORED		0x0008
+#define REWARD_INC_HP		0x0010
+#define REWARD_INC_STAT		0x0020
+#define REWARD_RANDART		0x0040
+#define REWARD_AUGMENTATION	0x0080
 
 /*Quest description Modes*/
 #define QMODE_HALF_1 1
@@ -766,7 +777,29 @@ enum
 /* flags for q_flags */
 #define QFLAG_STARTED   	0x01
 #define QFLAG_EXTRA_LEVEL   0x02
-#define QFLAG_VAULT_QUEST   0x04  /* Allow the player to choose a vault quest */
+#define QFLAG_VAULT_QUEST   0x04  	/* Allow the player to choose a vault quest */
+#define QFLAG_ARENA_QUEST   0x08  	/* Allow the player to choose an arena quest */
+#define QFLAG_COMPLETED		0x10	/* Current quest is completed, go get reward */
+#define QFLAG_LABYRINTH_QUEST   0x20  	/* Allow the player to choose an labrynth quest */
+#define QFLAG_WILDERNESS_QUEST  0x40  	/* Allow the player to choose an wilderness quest */
+
+/*
+ * Return true if the guild quest is not completed.
+ */
+#define guild_quest_complete() \
+       (q_info[GUILD_QUEST_SLOT].q_flags & (QFLAG_COMPLETED))
+
+#define guild_quest_started() \
+       (q_info[GUILD_QUEST_SLOT].q_flags & (QFLAG_STARTED))
+
+#define guild_quest_active() \
+       (guild_quest_started() && !guild_quest_complete())
+
+#define is_quest_complete(T) \
+       (q_info[T].q_flags & (QFLAG_COMPLETED))
+
+#define guild_quest_level() \
+       (q_info[GUILD_QUEST_SLOT].base_level)
 
 #endif /*INCLUDED_PLAYER_H*/
 

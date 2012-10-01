@@ -1,3 +1,39 @@
+NPP 0.6.0. BETA 1 Changes: 
+Broke savecompatibility with NPP 0.5.4.
+Revised Mimic Code
+Changes to the savefile structure.
+Player ghosts can only appear at dungeon creation.
+In Wizard mode, editing a character now gives lets the player to edit player fame as well.
+New mimic monsters.
+Changed some of morgoth's flags : removed teleport_to, added teleport_away and native_water.
+Multiplied the scale of player fame by a factor of 10.
+Added Servants of the valar pits, nests, and themed levels.
+Made "wakes up" and "stirs a blended monster message.
+Removed redundant save of the "call hourns" timer to the savefile.
+Completey revised player ghost code - should eliminate the savefile issue with Macintosh savefiles with an active player ghost.
+Added Rob Fiala as a permanent player ghost template (drew countless NPP unique tiles for the 32x32 tileset).
+Bugfix: The player ghost name was cut short to 3 letters.
+Scrolls names are now made by the random name generator rather than the old "scroll syllable" table.
+Added new wizard mode command to know everything about every object kind, monster race, and feature.
+Updated DVG tileset to Rob Fiala (buzzkill)'s U32 Tileset.
+Sorted flavors.txt, along with the corresponding flvr pref files.
+Eliminated function from util.c that did not work properly on the MAC port.
+Wilderness level quests.
+Arena Level quests.
+Major cleanup of the quest code.
+Potions, scrolls, and food, including mushrooms, now have a chance of appearing in multiple quantities.
+Two new quest rewards - permanent stat increase and permanent stat augmentation.
+New wizard command to give information on quest status (more info than cheat).
+Quest rewards are now generated when the quest is chosen in the guild, and the player chooses their quest reward from a menu after they complete the quest, rather than the game trying to figure out the best reward for the player.
+The player may defer their quest reward if they don't see anything good, and instead enhance thier next quest reward choices.
+Bugfix: The character screen was not properly showing object resistance and immunitiy flags for the player equipment and home.
+Bugfix: Normally rings and amulets were cursed too frequently.
+Added 3 new spells:  Meteor ball, Gravity bolt, and Lava Beam.
+Added 8x8 tiles for all servants of the valar, adamantite, and all mimics.
+Added two more patterns for the monster in the "pit" rooms.
+Eliminate GTK and X11 ports
+Added labrynth levels (from Angband 3.4).
+
 NPP 0.5.4 changes:
 The edges of the detected trap areas now show up onscreen.
 DVG tileset - added tiles for many objects, flavors, terrains, monsters, allspells, and bolt spells (by Buzzkill, Jeff Greene, and Thacker).

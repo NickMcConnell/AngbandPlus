@@ -109,6 +109,7 @@ static struct
 	{ CMD_BUY, { arg_ITEM, arg_NUMBER, arg_END }, do_cmd_buy, FALSE, 0 },
 	{ CMD_STEAL, { arg_DIRECTION, arg_END }, do_cmd_steal, FALSE, 0 },
 	{ CMD_RETRIEVE, { arg_ITEM, arg_NUMBER, arg_END }, do_cmd_retrieve, FALSE, 0 },
+	{ CMD_REWARD, { arg_ITEM, arg_NUMBER, arg_END }, do_cmd_reward, FALSE, 0 },
 	{ CMD_MAKE_TRAP, { arg_DIRECTION, arg_END }, do_cmd_make_trap, FALSE, 0 },
 
 	{ CMD_SUICIDE, { arg_END }, do_cmd_suicide, FALSE, 0 },

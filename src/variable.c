@@ -81,6 +81,7 @@ u32b seed_randart;		/* Hack -- consistent random artifacts */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+u32b seed_ghost;			/* Hack -- consistent player_ghosts */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -235,8 +236,6 @@ byte angband_color_table[256][4] =
 
 	/*
 	 * Values for shades at compile time, taken from shades.prf
-	 * Hack -- TERM_WHITE (Shade 1) comes from font-x11.prf, because
-	 * we must ensure that all colors are different.
 	 */
 	{0x00, 0x00, 0x00, 0x00},	/* 	16 - Unused */
 	{0x00, 0xFF, 0xFA, 0xFA},	/* TERM_SNOW_WHITE 	(Shade 1 - w1) */
@@ -983,30 +982,24 @@ autoinscription* inscriptions = 0;
 u16b inscriptionsCount = 0;
 
 
-/* The bones file a restored player ghost should use to collect extra
- * flags, a sex, and a unique name.  This also indicates that there is
- * a ghost active.  -LM-
+/* The entry in a restored player ghost should use to collect extra
+ * flags, a sex, and a unique name.  Any value above -1 indicates that there is
+ * a ghost active.
  */
-byte bones_selector;
+s16b player_ghost_num;
 
 /*
- * The player ghost template index. -LM-
+ * The r_idx of the active player ghost template, if any.
  */
-int r_ghost;
+s16b ghost_r_idx;
 
 /*
  * The player ghost name is stored here for quick reference by the
  * description function.  -LM-
  */
-char ghost_name[80];
+char player_ghost_name[80];
 
 
-/*
- * The type (if any) of the player ghost's personalized string, and
- * the string itself. -LM-
- */
-int ghost_string_type = 0;
-char ghost_string[80];
 
 /*
  * The name of the current greater vault, if any. -DG-

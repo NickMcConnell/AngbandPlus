@@ -551,17 +551,36 @@ static void prt_feeling(int row, int col)
 		return;
 	}
 
+	if (p_ptr->dungeon_type == DUNGEON_TYPE_ARENA)
+	{
+		attr = TERM_RED_LAVA;
+		my_strcpy(feel, "F:Arena", sizeof(feel));
+	}
+
 	/* Get color of level based on feeling  -JSV- */
-	if (feeling ==  1) 		{attr = TERM_RED;		my_strcpy(feel, "F:Special", sizeof(feel));}
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_LABYRINTH)
+	{
+		attr = TERM_L_BLUE;
+		my_strcpy(feel, "F:Labyrinth", sizeof(feel));
+	}
+
+	/* Get color of level based on feeling  -JSV- */
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_WILDERNESS)
+	{
+		attr = TERM_GREEN;
+		my_strcpy(feel, "F:Wilderness", sizeof(feel));
+	}
+	else if (feeling ==  1) 		{attr = TERM_RED;		my_strcpy(feel, "F:Special", sizeof(feel));}
 	else if (feeling ==  2) {attr = TERM_L_RED;		my_strcpy(feel, "F:Superb", sizeof(feel));}
 	else if (feeling ==  3) {attr = TERM_ORANGE;	my_strcpy(feel, "F:Excellent", sizeof(feel));}
 	else if (feeling ==  4) {attr = TERM_ORANGE;	my_strcpy(feel, "F:Very Good", sizeof(feel));}
 	else if (feeling ==  5) {attr = TERM_YELLOW;	my_strcpy(feel, "F:Good", sizeof(feel));}
-	else if (feeling ==  6) {attr = TERM_YELLOW;	my_strcpy(feel, "F:Very Lucky", sizeof(feel));}
-	else if (feeling ==  7) {attr = TERM_YELLOW;	my_strcpy(feel, "F:Lucky", sizeof(feel));}
+	else if (feeling ==  6) {attr = TERM_YELLOW;	my_strcpy(feel, "F:Lucky", sizeof(feel));}
+	else if (feeling ==  7) {attr = TERM_YELLOW;	my_strcpy(feel, "F:LuckTurning", sizeof(feel));}
 	else if (feeling ==  8) {attr = TERM_WHITE;		my_strcpy(feel, "F:Like Looks", sizeof(feel));}
 	else if (feeling ==  9) {attr = TERM_WHITE;		my_strcpy(feel, "F:Not All Bad", sizeof(feel));}
 	else if (feeling == 10) {attr = TERM_L_WHITE;	my_strcpy(feel, "F:Boring", sizeof(feel));}
+
 	/* (feeling >= LEV_THEME_HEAD) */
 	else  					{attr = TERM_BLUE;		my_strcpy(feel, "F:Themed", sizeof(feel));}
 
@@ -1617,7 +1636,7 @@ static void update_player0_subwindow(game_event_type type, game_event_data *data
 	Term_activate(inv_term);
 
 	/* Display flags */
-	display_player(0);
+	display_player(0, TRUE);
 
 	Term_fresh();
 
@@ -1637,7 +1656,7 @@ static void update_player1_subwindow(game_event_type type, game_event_data *data
 	Term_activate(inv_term);
 
 	/* Display flags */
-	display_player(1);
+	display_player(1, TRUE);
 
 	Term_fresh();
 

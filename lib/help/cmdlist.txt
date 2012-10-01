@@ -158,6 +158,7 @@ h    recalculate hitpoints
 i    mass identify witha  radius of 3
 j    jump to another dungeon level of the players choice
 k    self knowledge
+K    Know everything about every monster, object, terrain, and ego item.
 l    identify and locate all objects in the dungeon
 m    magic map the dungeon
 M    create 15 random normal items

@@ -106,29 +106,9 @@
  */
 #define MAINTAINER	"nppangbanddev@verizon.net"
 
-/*** X11 settings ***/
-
 /*
- * OPTION: Gamma correct colours (with X11)
+ * OPTION: Gamma correct colours
  */
 #define SUPPORT_GAMMA
-
-
-/*
- * OPTION: Default font (when using X11).
- */
-#define DEFAULT_X11_FONT		"-angband-8x12x-*-iso8859-1"
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_0		"-angband-10x14x-*-iso8859-1"
-#define DEFAULT_X11_FONT_1		"-angband-8x12x-*-iso8859-1"
-#define DEFAULT_X11_FONT_2		"-angband-8x12x-*-iso8859-1"
-#define DEFAULT_X11_FONT_3		"-angband-5x8x-*-iso8859-1"
-#define DEFAULT_X11_FONT_4		"-angband-5x8x-*-iso8859-1"
-#define DEFAULT_X11_FONT_5		"-angband-5x8x-*-iso8859-1"
-#define DEFAULT_X11_FONT_6		"-angband-5x8x-*-iso8859-1"
-#define DEFAULT_X11_FONT_7		"-angband-5x8x-*-iso8859-1"
 
 #endif /* !INCLUDED_CONFIG_H */

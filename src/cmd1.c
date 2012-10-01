@@ -295,6 +295,36 @@ bool put_object_in_inventory(object_type *o_ptr)
 }
 
 
+/* Helper function for do_cmd_pickup_from_pile */
+static int get_first_item_for_pickup(void)
+{
+	int y = p_ptr->py;
+	int x = p_ptr->px;
+
+	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
+
+	/* First, find the item */
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Test for auto-pickup */
+		if (inven_carry_okay(o_ptr))
+		{
+			return (this_o_idx);
+		}
+	}
+
+	/* Not found */
+	return (-1);
+}
+
+
 /*
  * Allow the player to sort through items in a pile and
  * pickup what they want.  This command does not use
@@ -359,6 +389,26 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 			break;
 		}
 
+		/* Auto-pickup if only one item */
+		else if ((!floor_query_flag) && (pickup) && (cycles < 2) &&
+				(want_pickup_num == 1))
+		{
+			item = get_first_item_for_pickup();
+
+			/* paranoia */
+			if (item == -1) break;
+
+			o_ptr = &o_list[item];
+
+			/* Pick up the object */
+			if (put_object_in_inventory(o_ptr))
+			{
+				/* Delete the gold */
+				delete_object_idx(item);
+				break;
+			}
+		}
+
 		/*clear the restriction*/
 		item_tester_hook = NULL;
 
@@ -384,15 +434,7 @@ void do_cmd_pickup_from_pile(bool pickup, bool message)
 		}
 
 		/* Pickup failed.  Quit. */
-		else
-		{
-			char o_name[80];
-
-			/* Describe the object */
-			object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
-
-			break;
-		}
+		else break;
 	}
 
 	/*clear the restriction*/
@@ -429,6 +471,9 @@ void py_pickup_gold(void)
 		next_o_idx = o_ptr->next_o_idx;
 
 		if (o_ptr->tval != TV_GOLD) continue;
+
+		/* Never pick up mimics */
+		if (o_ptr->mimic_r_idx) continue;
 
 		gold = (long)o_ptr->pval * o_ptr->number;
 
@@ -489,6 +534,22 @@ void py_pickup(bool pickup)
 	/* Are we allowed to pick up anything here? */
 	if (!(f_info[cave_feat[py][px]].f_flags1 & (FF1_DROP))) return;
 
+	/* As a precaution, first, check for mimics, and reveal them.  */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Only work with the mimic objects */
+		if (!o_ptr->mimic_r_idx) continue;
+
+		reveal_mimic(this_o_idx, TRUE);
+	}
+
  	/* Automatically destroy squelched items in pile if necessary */
 	do_squelch_pile(py, px);
 
@@ -513,6 +574,9 @@ void py_pickup(bool pickup)
 		next_o_idx = o_ptr->next_o_idx;
 
 		if ((!obj_is_ammo(o_ptr)) && (!is_throwing_weapon(o_ptr))) continue;
+
+		/* Hack - Don't pick up mimic objects */
+		if (o_ptr->mimic_r_idx) continue;
 
 		/* Possibly pickup throwing weapons */
 		if (weapon_inscribed_for_quiver(o_ptr)) do_continue = FALSE;
@@ -552,6 +616,9 @@ void py_pickup(bool pickup)
 
 		if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) continue;
 
+		/* Hack - Don't pick up mimic objects */
+		if (o_ptr->mimic_r_idx) continue;
+
 		/* Put it in the quiver */
 		if (put_object_in_inventory(o_ptr))
 		{
@@ -585,6 +652,10 @@ void py_pickup(bool pickup)
 		if (auto_pickup_inscrip(o_ptr)) do_continue = FALSE;
 
 		if (do_continue) continue;
+
+		/* Hack - Don't pick up mimic objects */
+		if (o_ptr->mimic_r_idx) continue;
+
 		/* Put it in the quiver */
 		if (put_object_in_inventory(o_ptr))
 		{
@@ -616,6 +687,9 @@ void py_pickup(bool pickup)
 			next_o_idx = o_ptr->next_o_idx;
 
 			if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) continue;
+
+			/* Hack - Don't pick up mimic objects */
+			if (o_ptr->mimic_r_idx) continue;
 
 			/* Put it in the quiver */
 			if (put_object_in_inventory(o_ptr))
@@ -658,9 +732,7 @@ void py_pickup(bool pickup)
 		/* Get the object */
 		o_ptr = &o_list[cave_o_idx[py][px]];
 
-		/* Describe the object, fully if identified */
-		if (object_known_p(o_ptr)) object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
-		else object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_BASE);
+		object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		msg_c_format(msgt, "You see %s.", o_name);
 	}

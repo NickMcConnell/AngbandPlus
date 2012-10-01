@@ -135,7 +135,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:0.6.0
 
 ##### Non-race (contains the player picture) #####
 N:0:<player>
@@ -2350,9 +2350,8 @@ I:110:20d10:30:25:10
 W:14:3:0:80
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
-F:CHAR_CLEAR | CHAR_MIMIC | ATTR_CLEAR | FORCE_MAXHP | NEVER_MOVE
-F:INVISIBLE | COLD_BLOOD | EMPTY_MIND | NO_FEAR | NO_CONF
-F:NO_SLEEP
+F:CHAR_CLEAR | ATTR_CLEAR | FORCE_MAXHP | NEVER_MOVE | INVISIBLE
+F:COLD_BLOOD | EMPTY_MIND | NO_FEAR | NO_CONF | NO_SLEEP
 D:A strange creature that merges with the dungeon floor, trapping its
 D: victims by enveloping them within its perfectly disguised form.
 
@@ -2830,8 +2829,8 @@ W:18:3:51:60
 B:HIT:POISON:3d4
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND
-F:HURT_COLD | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND | HURT_COLD
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_18 | POW_5
 S:BOLT_COLD | WOUND | SCARE | BLIND | CONF
 D:A strange creature that disguises itself as a discarded potion bottle
@@ -3281,8 +3280,8 @@ B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND
-F:HURT_FIRE | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND | HURT_FIRE
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_20 | POW_5
 S:BOLT_FIRE | WOUND | SCARE | BLIND | CONF
 S:S_MONSTER
@@ -3875,15 +3874,15 @@ D:A giant orc-like figure with an awesomely muscled frame.
 
 N:311:Creeping diamond gems
 G:$:w
-I:120:20d20:5:150:10
-W:26:3:0:100
-B:BITE:POISON:3d6
-B:TOUCH:POISON:3d6
-B:HIT:BATTER:1d10
-B:HIT:BATTER:1d11
+I:120:20d25:5:150:10
+W:29:3:0:110
+B:BITE:POISON:3d8
+B:TOUCH:POISON:3d8
+B:HIT:BATTER:1d12
+B:HIT:BATTER:1d12
 F:CHAR_MIMIC | ONLY_GOLD | DROP_90 | DROP_2D2 | COLD_BLOOD
-F:EMPTY_MIND | BASH_DOOR | IM_ACID | IM_ELEC | IM_POIS
-F:NO_CONF | NO_SLEEP
+F:EMPTY_MIND | BASH_DOOR | IM_ACID | IM_ELEC | IM_FIRE
+F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:It appears to be a pile of diamonds, slithering toward you on lots of
 D: tiny legs.
 
@@ -3947,12 +3946,12 @@ D:A short and swarthy Easterling.
 
 N:316:Creeping adamantite coins
 G:$:G
-I:125:20d25:5:50:10
-W:27:3:0:70
-B:BITE:POISON:3d7
-B:TOUCH:POISON:3d7
-B:HIT:BATTER:1d12
-B:HIT:BATTER:1d12
+I:125:25d25:5:75:10
+W:30:3:0:130
+B:BITE:POISON:4d7
+B:TOUCH:POISON:4d7
+B:HIT:BATTER:2d8
+B:HIT:BATTER:2d8
 F:CHAR_MIMIC | ONLY_GOLD | DROP_90 | DROP_2D2 | COLD_BLOOD
 F:EMPTY_MIND | BASH_DOOR | IM_ACID | IM_ELEC | IM_POIS
 F:NO_CONF | NO_SLEEP
@@ -4341,8 +4340,8 @@ B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
 B:HIT:POISON:3d4
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND
-F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_25 | POW_10
 S:BOLT_ACID | BOLT_ELEC | BOLT_FIRE | BOLT_COLD | WOUND
 S:SCARE | BLIND | CONF | S_MONSTER
@@ -4657,6 +4656,18 @@ S:SPELL_PCT_10 | POW_4
 S:BRTH_SOUND | SCARE
 D:It has a form that legends are made of.  Its still-tender scales are a
 D: tarnished gold hue, and light is reflected from its form.
+
+
+N:364:Creeping garnet gems
+G:$:r1
+I:100:15d8:5:33:10
+W:8:3:0:26
+B:HIT:BATTER:2d4
+B:TOUCH:POISON:3d4
+F:CHAR_MIMIC | ONLY_GOLD | DROP_60 | DROP_1D2 | COLD_BLOOD
+F:EMPTY_MIND | BASH_DOOR | IM_ELEC | IM_POIS | NO_CONF
+F:NO_SLEEP
+D:It appears to be a pile of garnets, until it reaches out to attack you.
 
 
 N:365:Nexus quylthulg
@@ -5234,9 +5245,8 @@ B:BITE:POISON:4d4
 B:BITE:POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:SPIT:BLIND:4d4
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | DROP_2D2 | COLD_BLOOD
-F:EMPTY_MIND | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
-F:NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | DROP_2D2 | COLD_BLOOD | EMPTY_MIND
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_20 | POW_5
 S:BALL_POIS | WOUND | SCARE | BLIND | CONF
 S:S_MONSTER
@@ -5540,9 +5550,9 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:PARALYZE:15d1
 B:HIT:PARALYZE:15d1
-F:CHAR_CLEAR | CHAR_MIMIC | ATTR_CLEAR | FORCE_MAXHP | NEVER_MOVE
-F:INVISIBLE | COLD_BLOOD | EMPTY_MIND | NO_SLOW | NO_FEAR
-F:NO_STUN | NO_CONF | NO_SLEEP
+F:CHAR_CLEAR | ATTR_CLEAR | FORCE_MAXHP | NEVER_MOVE | INVISIBLE
+F:COLD_BLOOD | EMPTY_MIND | NO_SLOW | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
 D:A larger cousin of the lurker, this creature traps unsuspecting
 D: victims and paralyzes them, to be slowly digested later.
 
@@ -5974,9 +5984,9 @@ B:BITE:POISON:4d4
 B:BITE:POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:SPIT:BLIND:4d4
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | DROP_2D2 | COLD_BLOOD
-F:EMPTY_MIND | HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN
-F:NO_CONF | NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | DROP_2D2 | COLD_BLOOD | EMPTY_MIND
+F:HURT_FIRE | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
 S:SPELL_PCT_30 | POW_6
 S:SHRIEK | DARKNESS | TRAPS | DRAIN_MANA | SCARE
 S:BLIND | CONF | SLOW | S_MONSTER
@@ -6257,9 +6267,8 @@ B:BITE:POISON:4d4
 B:BITE:POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:CLAW:CONFUSE:4d4
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | DROP_2D2 | COLD_BLOOD
-F:EMPTY_MIND | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
-F:NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | DROP_2D2 | COLD_BLOOD | EMPTY_MIND
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_30 | POW_9
 S:BALL_SHARD | BOLT_POIS | BOLT_MANA | BEAM_ELEC | SCARE
 S:BLIND | CONF | S_MONSTER
@@ -7051,9 +7060,9 @@ B:BITE:POISON:4d4
 B:BITE:POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:BUTT:CONFUSE:4d4
-F:CHAR_MIMIC | FORCE_SLEEP | NEVER_MOVE | DROP_2D2 | COLD_BLOOD
-F:EMPTY_MIND | IM_ACID | IM_FIRE | IM_COLD | IM_POIS
-F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+F:CHAR_MIMIC | NEVER_MOVE | DROP_2D2 | COLD_BLOOD | EMPTY_MIND
+F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | NO_SLOW
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 S:SPELL_PCT_33 | POW_10
 S:BALL_LIGHT | BALL_DARK | BALL_CONFU | BALL_SHARD | BOLT_WATER
 S:BOLT_MANA | BEAM_ELEC | BEAM_ICE | HASTE
@@ -9684,10 +9693,10 @@ F:IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | RES_CHAOS
 F:RES_NETHR | RES_WATER | RES_PLAS | RES_NEXUS | RES_DISEN
 F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
 F:N_LAVA | N_ICE | N_OIL | N_FIRE | N_SAND
-F:N_FOREST | N_ACID | N_MUD
+F:N_FOREST | N_WATER | N_ACID | N_MUD
 S:SPELL_PCT_60 | POW_200
 S:BALL_MANA | BOLT_PLAS | BOLT_MANA | ADD_MANA | HEAL
-S:CURE | TELE_SELF_TO | TELE_TO | BRAIN_SMASH | WOUND
+S:CURE | TELE_TO | TELE_AWAY | BRAIN_SMASH | WOUND
 S:S_HI_DRAGON | S_HI_DEMON | S_HI_UNIQUE | S_HI_UNDEAD | S_WRAITH
 D:He is the Master of the Pits of Angband.  His figure is like a black
 D: mountain crowned with lightning.  He rages with everlasting anger,
@@ -9705,7 +9714,7 @@ D: defiance as he strides towards you to crush you to a pulp!
 N:645:Skeleton
 G:s:w
 I:110:10d10:20:40:0
-W:6:3:35:75
+W:6:1:35:75
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:UNIQUE | FORCE_MAXHP | ONLY_ITEM | DROP_60 | DROP_90
@@ -9719,7 +9728,7 @@ D:An animated skeleton, creaking as it advances.
 N:646:Zombie
 G:z:s1
 I:110:20d10:20:25:0
-W:12:4:53:150
+W:12:1:53:150
 B:HIT:HURT:4d7
 B:HIT:POISON:4d7
 F:UNIQUE | FORCE_MAXHP | ONLY_ITEM | DROP_90 | DROP_GOOD
@@ -9735,7 +9744,7 @@ D: chunks as it shambles forward.
 N:647:Spirit
 G:G:w1
 I:115:20d20:20:55:0
-W:18:4:67:240
+W:18:1:67:240
 B:TOUCH:HURT:4d6
 B:TOUCH:TERRIFY:1d4
 B:TOUCH:LOSE_DEX:1d4
@@ -9752,7 +9761,7 @@ D:A ghostly apparition that shrieks horribly.
 N:648:Mummy
 G:z:s1
 I:115:15d50:20:35:0
-W:24:4:67:800
+W:24:1:67:800
 B:HIT:HURT:2d10
 B:HIT:HURT:2d10
 B:HIT:POISON:3d10
@@ -9771,7 +9780,7 @@ D: its head.
 N:649:Wight
 G:W:s1
 I:115:15d65:20:45:0
-W:30:5:80:1000
+W:30:1:80:1000
 B:WAIL:TERRIFY:1d5
 B:TOUCH:HURT:1d14
 B:TOUCH:EXP_40:2d5
@@ -9790,7 +9799,7 @@ D: out towards you, your panicked soul cowers away.
 N:650:Ghost
 G:G:W
 I:115:15d80:20:45:0
-W:36:5:83:1250
+W:36:1:83:1250
 B:WAIL:TERRIFY:1d6
 B:TOUCH:EXP_20:2d6
 B:CLAW:LOSE_INT:4d7
@@ -9809,7 +9818,7 @@ D: illuminates nothing.
 N:651:Vampire
 G:V:v
 I:120:15d90:20:55:0
-W:42:5:92:6000
+W:42:1:92:6000
 B:HIT:HURT:6d9
 B:HIT:HURT:6d9
 B:BITE:EXP_20:3d9
@@ -9829,7 +9838,7 @@ D: teeth.
 N:652:Phantom
 G:G:v
 I:120:20d90:30:45:20
-W:46:6:101:15000
+W:46:1:101:15000
 B:TOUCH:EXP_80:2d10
 B:TOUCH:EXP_80:2d10
 B:CLAW:LOSE_INT:4d8
@@ -9848,7 +9857,7 @@ D: your very soul.
 N:653:Lich
 G:L:o1
 I:125:32d95:20:75:0
-W:56:6:109:25000
+W:56:1:109:25000
 B:TOUCH:EXP_40:2d9
 B:TOUCH:UN_POWER:2d9
 B:TOUCH:LOSE_DEX:5d9
@@ -9868,7 +9877,7 @@ D:A skeletal form dressed in robes, radiating vastly evil power.
 N:654:Nether Wraith
 G:W:G
 I:125:45d100:20:75:0
-W:65:6:120:32000
+W:65:1:120:32000
 B:HIT:HURT:6d15
 B:HIT:HURT:6d15
 B:TOUCH:EXP_80:4d9
@@ -9888,7 +9897,7 @@ D: dreadful chill invades your bones.
 N:655:Deathlord
 G:W:W1
 I:125:55d100:20:110:0
-W:74:6:155:34000
+W:74:1:155:34000
 B:HIT:HURT:10d12
 B:HIT:UN_BONUS:6d9
 B:WAIL:PARALYZE:6d9
@@ -10563,5 +10572,138 @@ D: Like Tulkas himself, this Ainu delights in tests of strenght and
 D: laughs ever, even in the face of Morgoth's wrath. The strongest among
 D: those that follow the Champion of Aman seek to disrupt their opponent
 D: with spells while pummeling them with mighty blows.
+
+
+N:688:Creeping emerald gems
+G:$:g
+I:120:20d20:5:80:10
+W:26:3:0:100
+B:BITE:POISON:3d6
+B:TOUCH:POISON:3d6
+B:HIT:BATTER:1d10
+B:HIT:BATTER:1d11
+F:CHAR_MIMIC | ONLY_GOLD | DROP_90 | DROP_2D2 | COLD_BLOOD
+F:EMPTY_MIND | BASH_DOOR | IM_ACID | IM_ELEC | IM_POIS
+F:NO_CONF | NO_SLEEP
+D:It appears to be a pile of emeralds, until it begins to attack you.
+
+
+N:689:Mushroom mimic
+G:,:G1
+I:110:8d8:5:15:10
+W:14:3:35:20
+B:HIT:DISEASE:1d8
+B:HIT:POISON:1d8
+F:CHAR_MIMIC | NEVER_MOVE | COLD_BLOOD | EMPTY_MIND | HURT_LIGHT
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_15 | POW_3
+S:BOLT_POIS | DARKNESS | WOUND | SCARE | BLIND
+D:A strange creature that disguises itself as a mushroom to lure
+D: unsuspecting adventurers within reach of its sickly claws.
+
+
+N:690:Armor mimic
+G:):g1
+I:110:15d15:5:120:10
+W:25:3:50:130
+B:HIT:WOUND:4d8
+B:HIT:HURT:4d8
+B:HIT:POISON:3d6
+B:CLAW:POISON:3d6
+F:CHAR_MIMIC | NEVER_MOVE | ONLY_ITEM | DROP_1D2 | COLD_BLOOD
+F:EMPTY_MIND | IM_ACID | IM_FIRE | NO_FEAR | NO_STUN
+F:NO_CONF | NO_SLEEP
+S:SPELL_PCT_30 | POW_10
+S:WOUND | SCARE | BLIND
+D:A strange creature that disguises itself as armor laying on the
+D: dungeon floor to lure unsuspecting adventurers close so it can launch
+D: a surprise attack.
+
+
+N:691:Sword mimic
+G:|:W
+I:140:15d15:5:45:10
+W:20:3:0:200
+B:HIT:HURT:4d4
+B:HIT:HURT:4d4
+B:HIT:POISON:3d3
+B:HIT:WOUND:3d3
+F:CHAR_MIMIC | RAND_50 | ONLY_ITEM | DROP_1D2 | COLD_BLOOD
+F:EMPTY_MIND | EVASIVE | FLYING | IM_ACID | IM_FIRE
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+D:A strange creature that disguises itself as a weapon laying on the
+D: dungeon floor to lure unsuspecting adventurers close so it can launch
+D: a sudden furious attack.   The first that most adventurers realise of
+D: the deception is when the seemingly inviting dungeon loot suddenly
+D: jumps into the air and begins hacking away at them.
+
+
+N:692:Amulet Mimic
+G:":v
+I:125:40d40:5:55:10
+W:50:3:75:5000
+B:BITE:POISON:4d10
+B:BITE:POISON:4d10
+B:BITE:CONFUSE:4d10
+F:CHAR_MIMIC | NEVER_MOVE | ONLY_ITEM | DROP_3D2 | COLD_BLOOD
+F:EMPTY_MIND | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD
+F:NO_SLOW | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_50 | POW_35
+S:BALL_LIGHT | BALL_DARK | BALL_MANA | BOLT_WATER | BOLT_MANA
+S:HASTE | ADD_MANA | HEAL | MIND_BLAST
+D:A strange creature that disguises itself as a piece of jewlery laying
+D: on the dungeon floor to lure unsuspecting adventurers within reach of
+D: its venemous fangs.   The first that most adventurers realise of the
+D: deception is when the shining gemstone suddenly starts casting spells
+D: at them.
+
+
+N:693:Dungeon spellbook mimic
+G:?:b1
+I:125:50d50:5:65:10
+W:60:3:100:10000
+B:BITE:POISON:7d7
+B:BITE:PARALYZE:7d7
+B:BITE:CONFUSE:7d7
+B:BITE:POISON:7d7
+F:CHAR_MIMIC | NEVER_MOVE | ONLY_ITEM | DROP_4D2 | COLD_BLOOD
+F:EMPTY_MIND | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD
+F:IM_POIS | NO_SLOW | NO_FEAR | NO_STUN | NO_CONF
+F:NO_SLEEP
+S:SPELL_PCT_75 | POW_40
+S:BALL_LIGHT | BALL_DARK | BALL_CONFU | BALL_SOUND | BALL_SHARD
+S:BALL_STORM | BALL_MANA | BALL_WATER | BOLT_WATER | BOLT_MANA
+S:HASTE | ADD_MANA | HEAL | BRAIN_SMASH
+D:A strange creature that disguises itself as a valuable dungeon
+D: spellbook laying on the dungeon floor to lure unsuspecting
+D: adventurers within reach of its venemous fangs.   The first that most
+D: adventurers realise of the deception is when the book opens and
+D: starts casting deadly spells at them.
+
+
+N:694:Dragon armor Mimic
+G:[:v1
+I:130:50d100:5:175:10
+W:70:3:80:18000
+B:BITE:ACID:8d10
+B:BITE:FIRE:8d10
+B:BITE:ACID:8d10
+B:BITE:ELEC:8d10
+F:CHAR_MIMIC | NEVER_MOVE | ONLY_ITEM | DROP_3D2 | DROP_4D2
+F:COLD_BLOOD | EMPTY_MIND | IM_ACID | IM_ELEC | IM_FIRE
+F:IM_COLD | IM_POIS | RES_CHAOS | RES_NETHR | RES_WATER
+F:RES_PLAS | RES_NEXUS | RES_DISEN | NO_SLOW | NO_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP
+S:SPELL_PCT_75 | POW_85
+S:BRTH_LIGHT | BRTH_DARK | BRTH_CONFU | BRTH_SOUND | BRTH_SHARD
+S:BRTH_GRAV | BRTH_NEXUS | BRTH_NETHR | BRTH_CHAOS | BRTH_DISEN
+S:BALL_LIGHT | BALL_DARK | BALL_CONFU | BALL_SOUND | BALL_SHARD
+S:BALL_NETHR | BALL_CHAOS | BALL_WATER | HASTE | ADD_MANA
+S:HEAL
+D:A strange creature that disguises itself as priceless dragon armor
+D: laying on the dungeon floor to lure unsuspecting adventurers within
+D: reach of its powerful spells.   The first that most adventurers
+D: realise of the deception is when the armor comes to life and starts
+D: breathing deadly spells at them.
 
 

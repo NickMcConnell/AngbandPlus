@@ -42,15 +42,6 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 
 	bool living = TRUE;
 
-	/*monster is an undiscovered mimic, don't desccribe and return*/
-	if (m_ptr->mimic_k_idx)
-	{
-		/*Paranoia - terminate the string*/
-		buf[0] = '\0';
-
-	    return;
-	}
-
 	/* Determine if the monster is "living" (vs "undead") */
 	if (monster_nonliving(r_ptr)) living = FALSE;
 
@@ -150,11 +141,7 @@ static int draw_path(u16b path_n, u16b *path_g, char *c, byte *a, int y1, int x1
 		/* Visible monsters are orange. */
 		if (cave_m_idx[y][x] && mon_list[cave_m_idx[y][x]].ml)
 		{
-			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
-
-			/*mimics act as objects*/
-			if (m_ptr->mimic_k_idx) color_type = TERM_YELLOW;
-			else color_type = TERM_ORANGE;
+			color_type = TERM_ORANGE;
 		}
 
 		/* Known objects are yellow. */
@@ -258,9 +245,6 @@ bool target_able(int m_idx)
 
 	/* Monster must be visible */
 	if (!m_ptr->ml) return (FALSE);
-
-	/*monster is an undiscovered mimic*/
-	if (m_ptr->mimic_k_idx) return (FALSE);
 
 	/* Monster must be projectable */
 	if (!m_ptr->project) return (FALSE);
@@ -1010,32 +994,23 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 
 				char m_name[80];
 
-				if (m_ptr->mimic_k_idx)
-				{
-					/*get the description*/
-					mimic_desc_object(m_name, sizeof(m_name), m_ptr->mimic_k_idx);
-				}
+				/* Get the monster name ("a kobold") */
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
 
-				else
-				{
-					/* Get the monster name ("a kobold") */
-					monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
+				/* Hack -- track this monster race */
+				monster_race_track(m_ptr->r_idx);
 
-					/* Hack -- track this monster race */
-					monster_race_track(m_ptr->r_idx);
+				/* Hack -- health bar for this monster */
+				health_track(cave_m_idx[y][x]);
 
-					/* Hack -- health bar for this monster */
-					health_track(cave_m_idx[y][x]);
+				/*Track the feature*/
+				feature_kind_track(cave_feat[y][x]);
 
-					/*Track the feature*/
-					feature_kind_track(cave_feat[y][x]);
+				/* Window stuff */
+				p_ptr->redraw |= (PR_FEATURE);
 
-					/* Window stuff */
-					p_ptr->redraw |= (PR_FEATURE);
-
-					/* Hack -- handle stuff */
-					handle_stuff();
-				}
+				/* Hack -- handle stuff */
+				handle_stuff();
 
 				/* Interact */
 				while (1)
@@ -1045,8 +1020,8 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 					if (cave_o_idx[y][x] > 0)button_add("[VIEW_FLOOR]", 'f');
 					event_signal(EVENT_MOUSEBUTTONS);
 
-					/* Recall, but not mimics */
-					if ((recall) && (!(m_ptr->mimic_k_idx)))
+					/* Recall */
+					if (recall)
 					{
 						/* Save screen */
 						screen_save();
@@ -1067,32 +1042,19 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 					/* Normal */
 					else
 					{
+						char buf[80];
 
 						/* Basic info */
 						strnfmt(out_val, sizeof(out_val),
 							"%s%s%s", s1, s2, m_name);
 
 						/* Describe the monster, unless a mimic */
-						if (!(m_ptr->mimic_k_idx))
-						{
-							char buf[80];
+						look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
 
-							look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
-
-							/* Monster state, terrain suffix, options  */
-							my_strcat(out_val, format(" (%s)%s [r,%s]",
-								buf, terrain_suffix, info),
-								sizeof(out_val));
-						}
-
-						/* Mimics */
-						else
-						{
-							/* Terrain suffix, options */
-							my_strcat(out_val,
-								format("%s [I,%s]", terrain_suffix,
-								info), sizeof(out_val));
-						}
+						/* Monster state, terrain suffix, options  */
+						my_strcat(out_val, format(" (%s)%s [r,%s]",
+							buf, terrain_suffix, info),
+							sizeof(out_val));
 
 						/* Wizards want coordinates */
 						if (p_ptr->wizard)
@@ -1114,39 +1076,11 @@ static ui_event_data target_set_interactive_aux(int y, int x, int mode, cptr inf
 					button_kill('f');
 					event_signal(EVENT_MOUSEBUTTONS);
 
-					/* Handle fake object recall */
-					if (m_ptr->mimic_k_idx)
-					{
-						object_type body;
-						object_type *o_ptr = &body;
+					/* Normal commands */
+					if (query.key != 'r') break;
 
-						/* Validate input first */
-						if (query.key != 'I') break;
-
-						/* Paranoia */
-						object_wipe(o_ptr);
-
-						/* Prepare */
-						object_prep(o_ptr, m_ptr->mimic_k_idx);
-
-						/* Fake history */
-						object_history(o_ptr, ORIGIN_FLOOR, 0);
-
-						/* Clear prompt. Place cursor */
-						prt("", 0, 0);
-
-						/* Show the fake info - EXPERIMENTAL */
-						object_info_screen(o_ptr);
-					}
-					/* Regular monsters */
-					else
-					{
-						/* Normal commands */
-						if (query.key != 'r') break;
-
-						/* Toggle recall */
-						recall = !recall;
-					}
+					/* Toggle recall */
+					recall = !recall;
 				}
 
 				/* Stop on everything but "return"/"space", or floor */
@@ -1707,13 +1641,13 @@ bool target_set_interactive(int mode, int x, int y)
 	/* Interact */
 	while (!done)
 	{
-		button_kill('l');
+		button_kill('f');
 		button_kill('?');
 		if (list_floor_objects)
 		{
-			button_add("[HIDE_OBJLIST]", 'l');
+			button_add("[HIDE_OBJLIST]", 'f');
 		}
-		else button_add("[SHOW_OBJLIST]", 'l');
+		else button_add("[SHOW_OBJLIST]", 'f');
 		if (help)
 		{
 			button_add("[HIDE_HELP]", '?');
@@ -1746,13 +1680,13 @@ bool target_set_interactive(int mode, int x, int y)
 			if (((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x])) ||
 				((mode & (TARGET_TRAP)) && target_able_trap(y, x)))
 			{
-				strcpy(info, "q,t,r,l,p,o,+,-,<dir>");
+				strcpy(info, "q,t,r,f,p,o,+,-,<dir>");
 			}
 
 			/* Dis-allow target */
 			else
 			{
-				strcpy(info, "q,p,l,o,+,-,<dir>");
+				strcpy(info, "q,p,f,o,+,-,<dir>");
 			}
 
 			/* Adjust panel if needed */
@@ -1879,9 +1813,10 @@ bool target_set_interactive(int mode, int x, int y)
 					break;
 				}
 
-				case 'l':
+				case 'f':
 				{
 					list_floor_objects = (!list_floor_objects);
+					break;
 				}
 
 				case '?':
@@ -1973,13 +1908,13 @@ bool target_set_interactive(int mode, int x, int y)
 			/* Default prompt */
 			if (!(mode & (TARGET_GRID)))
 			{
-				strcpy(info, "q,t,l,p,m,+,-,<dir>");
+				strcpy(info, "q,t,f,p,m,+,-,<dir>");
 			}
 
 			/* Disable monster selection */
 			else
 			{
-				strcpy(info, "q,t,l.p,+,-,<dir>");
+				strcpy(info, "q,t,f.p,+,-,<dir>");
 			}
 
 			/* Find the path. */
@@ -2123,7 +2058,7 @@ bool target_set_interactive(int mode, int x, int y)
 					break;
 				}
 
-				case 'l':
+				case 'f':
 				{
 					list_floor_objects = (!list_floor_objects);
 				}

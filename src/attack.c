@@ -762,42 +762,6 @@ void py_attack(int y, int x)
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 
-	/* Reveal minics and hidden creatures (note: mimics cannot be sneak-attacked) */
-	if (((m_ptr->mimic_k_idx) && (m_ptr->ml)) || (m_ptr->mflag & (MFLAG_HIDE)))
-	{
-		/* Mimic no longer acts as a detected object */
-		m_ptr->mflag &= ~(MFLAG_MIMIC | MFLAG_HIDE);
-
-		/*no longer a mimic*/
-		m_ptr->mimic_k_idx = 0;
-
-		/* Get monster name ("a kobold") */
-		monster_desc(m_name, sizeof(m_name), m_ptr, 0x88);
-
-		/* And reveal */
-		update_mon(cave_m_idx[m_ptr->fy][m_ptr->fx], FALSE);
-
-		/* Redraw */
-		light_spot(m_ptr->fy, m_ptr->fx);
-
-		/* Message */
-		if (!p_ptr->timed[TMD_AFRAID])
-		{
-			msg_format("You find yourself fighting %s!", m_name);
-
-		}
-		else
-		{
-
-			msg_format("%^s appears, but you are too frightened to fight it!",
-				m_name);
-			p_ptr->p_energy_use = 0;
-
-			return;
-		}
-
-	}
-
 	/*record if monster was sleeping before waking*/
 	if (m_ptr->m_timed[MON_TMD_SLEEP]) was_asleep = TRUE;
 
@@ -1312,17 +1276,6 @@ void do_cmd_fire(cmd_code code, cmd_arg args[])
 				/* Make some noise */
 				add_wakeup_chance += p_ptr->base_wakeup_chance / 2;
 
-				/* Reveal fully visible mimics */
-				if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
-				{
-					/* Reveal it */
-					reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-					/*We can not see it*/
-					visible = TRUE;
-
-				}
-
 				/* Handle unseen monster */
 				if (!visible)
 				{
@@ -1604,7 +1557,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear,
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, sizeof(m_name), m_ptr, 0x22);
+	monster_desc(m_poss, sizeof(m_poss), m_ptr, 0x22);
 
 	/* Analyze the potion */
 	switch (o_ptr->sval)
@@ -2243,17 +2196,6 @@ void do_cmd_throw(cmd_code code, cmd_arg args[])
 
 				/* Make some noise */
 				add_wakeup_chance += p_ptr->base_wakeup_chance / 2;
-
-				/* Reveal fully visible mimics */
-				if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
-				{
-					/* Reveal it */
-					reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
-
-					/*We can not see it*/
-					visible = TRUE;
-
-				}
 
 				/* Handle unseen monster */
 				if (!visible)

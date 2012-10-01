@@ -1039,7 +1039,9 @@ static char get_item_tag(menu_type *menu, int oid)
 	int idx = choice[oid];
 
 	if (p_ptr->command_wrk == USE_FLOOR)  return I2A(oid);
+
 	else return index_to_label(idx);
+
 }
 
 static void get_item_display(menu_type *menu, int oid, bool cursor, int row, int col, int width)
@@ -1088,8 +1090,8 @@ static void get_item_display(menu_type *menu, int oid, bool cursor, int row, int
 	o_name[width - 3] = '\0';
 
 	/* Hack - re-print the label with the right color, code taken from get_item_tag above*/
-	if (p_ptr->command_wrk == USE_FLOOR)  label = I2A(oid);
-	else label = index_to_label(idx);
+	label = get_item_tag(menu, oid);
+
 	c_put_str(attr, format("%c)",label), row, (col-3));
 
 	/* Now print the object  */
@@ -1110,6 +1112,12 @@ static void item_menu_hook(int oid, void *db, const region *loc)
 	/* Get the object */
 	object_type *o_ptr;
 
+	/* Make sure the player has drop down lists turned on */
+	if (!p_ptr->command_see) return;
+
+	/* Not displaying full menu */
+	if (loc->page_rows == 1) return;
+
 	/* Get the object, handle whether in Inventory or on floor */
 	if (p_ptr->command_wrk == (USE_FLOOR)) o_ptr = &o_list[idx];
 	else o_ptr = &inventory[idx];
@@ -1121,9 +1129,6 @@ static void item_menu_hook(int oid, void *db, const region *loc)
 
 	/* No info until they know about the item */
 	if (!object_is_known(o_ptr)) return;
-
-	/* Not displaying full menu */
-	if (loc->page_rows == 1) return;
 
 	/* Output to the screen */
 	text_out_hook = text_out_to_screen;
@@ -1384,8 +1389,8 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops, int sq_y, int sq_x)
 
 	/* Set up the menu */
 	WIPE(&menu, menu);
-	menu.cmd_keys = "\n\r";
 	menu.browse_hook = item_menu_hook;
+	menu.cmd_keys = "\n\r";
 
 	/* Clear space */
 	area.width = len;

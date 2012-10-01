@@ -410,6 +410,22 @@ static void do_cmd_wiz_change_aux(void)
 
 	/* Update */
 	check_experience();
+
+	/* Default */
+	sprintf(tmp_val, "%ld", (long)(p_ptr->q_fame));
+
+	/* Query */
+	if (!get_string("Fame: ", tmp_val, 10)) return;
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Verify */
+	if (tmp_long < 0) tmp_long = 0L;
+
+	/* Save */
+	p_ptr->q_fame = tmp_long;
+
 }
 
 
@@ -1406,6 +1422,98 @@ static void do_cmd_wiz_learn(void)
 	}
 }
 
+/*
+ * Become aware of a lot of objects
+ */
+static void do_cmd_wiz_know_all(void)
+{
+	int i, j;
+
+	/* Knowledge of every object */
+	for (i = 1; i < z_info->k_max; i++)
+	{
+		k_info[i].aware = TRUE;
+		k_info[i].everseen = TRUE;
+		k_info[i].tried = TRUE;
+
+	}
+	/* Knowledge of every ego-item */
+	for (i = 1; i < z_info->e_max; i++)
+	{
+		e_info[i].everseen = TRUE;
+	}
+	/* Full knowledge of every monster */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
+
+		/* Know all flags */
+		l_ptr->r_l_flags1 = r_ptr->flags1;
+		l_ptr->r_l_flags2 = r_ptr->flags2;
+		l_ptr->r_l_flags3 = r_ptr->flags3;
+		l_ptr->r_l_flags4 = r_ptr->flags4;
+		l_ptr->r_l_flags5 = r_ptr->flags5;
+		l_ptr->r_l_flags6 = r_ptr->flags6;
+		l_ptr->r_l_flags7 = r_ptr->flags7;
+		l_ptr->r_l_native = r_ptr->r_native;
+
+		/* Know max sightings, sleeping habits, spellcasting, and combat blows. */
+		l_ptr->sights = MAX_SHORT;
+		l_ptr->ranged = MAX_UCHAR;
+		for (j = 0; j < MONSTER_BLOW_MAX; j++)
+		{
+			l_ptr->blows[j] = MAX_UCHAR;
+		}
+		l_ptr->wake = l_ptr->ignore = MAX_UCHAR;
+
+		/* know the treasure drops*/
+		l_ptr->drop_gold = l_ptr->drop_item =
+		(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
+		 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
+
+		/* But only "valid" treasure drops */
+		if (r_ptr->flags1 & RF1_ONLY_GOLD) l_ptr->drop_item = 0;
+		if (r_ptr->flags1 & RF1_ONLY_ITEM) l_ptr->drop_gold = 0;
+	}
+
+	/* Full knowledge of every feature */
+	for (i = 1; i < z_info->f_max; i++)
+	{
+		feature_type *f_ptr = &f_info[i];
+		feature_lore *f_l_ptr = &f_l_list[i];
+
+		/* Know all flags and sites */
+		f_l_ptr->f_l_flags1 = f_ptr->f_flags1;
+		f_l_ptr->f_l_flags2 = f_ptr->f_flags2;
+		f_l_ptr->f_l_flags3 = f_ptr->f_flags3;
+		f_l_ptr->f_l_sights = MAX_UCHAR;
+
+		/* Know all transitions */
+		f_l_ptr->f_l_defaults = MAX_UCHAR;
+		for (j = 0; j < MAX_FEAT_STATES; j++)
+		{
+			/*There isn't an action here*/
+			if (f_ptr->state[j].fs_action == FS_FLAGS_END) continue;
+
+			/* Hack -- we have seen this transition */
+			f_l_ptr->f_l_state[j] = MAX_UCHAR;
+		}
+		/*Know movement, damage to non-native, and stealth.....*/
+		f_l_ptr->f_l_dam_non_native = MAX_UCHAR;
+		f_l_ptr->f_l_native_moves = MAX_UCHAR;
+		f_l_ptr->f_l_non_native_moves = MAX_UCHAR;
+		f_l_ptr->f_l_stealth_adj = MAX_UCHAR;
+		f_l_ptr->f_l_native_to_hit_adj = MAX_UCHAR;
+		f_l_ptr->f_l_non_native_to_hit_adj = MAX_UCHAR;
+	}
+}
+
+
 
 /*
  * Hack -- Rerate Hitpoints
@@ -1481,6 +1589,10 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 
 	int i, x, y;
 
+	/* Prepare the place_monster flags */
+	byte mp_flags = MPLACE_GROUP;
+	if (slp) mp_flags |= MPLACE_SLEEP;
+
 	/* Paranoia */
 	if (!r_idx) return;
 	if (r_idx >= z_info->r_max-1) return;
@@ -1497,7 +1609,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+		if (place_monster_aux(y, x, r_idx, mp_flags)) break;
 	}
 }
 
@@ -1680,7 +1792,26 @@ static void wiz_create_items(void)
 	}
 }
 
-/* Create a specific terrain grid given its feature number or query a grid */
+/* More informative than spoiler information */
+static void do_cmd_wiz_know_quests(void)
+{
+	int i;
+
+	msg_print(format("p_ptr->cur_quest is %d", guild_quest_level()));
+
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		quest_type *q_ptr = &q_info[i];
+
+		msg_print(format("quest #%d, name is %s, type is %d", i, q_name + q_ptr->name, q_ptr->q_type));
+		msg_print(format("quest #%d, level is %d, mon_race is %d, theme is %d", i, q_ptr->base_level, q_ptr->mon_idx, q_ptr->theme));
+		msg_print(format("quest #%d, max num is is %d, num killed is %d, ", i, q_ptr->q_max_num, q_ptr->q_num_killed));
+		if (q_ptr->q_flags & (QFLAG_STARTED)) msg_print(format("quest #%d is started", i));
+		if (q_ptr->q_flags & (QFLAG_COMPLETED)) msg_print(format("quest #%d is completed", i));
+	}
+}
+
+/* Create a specific monster grid */
 static void do_cmd_wiz_monster(void)
 {
 
@@ -1733,7 +1864,7 @@ static void do_cmd_wiz_monster(void)
 	}
 
 	/* Place the monster */
-	if(!place_monster_aux(y, x, r_idx, FALSE, FALSE))
+	if(!place_monster_aux(y, x, r_idx, 0L))
 	{
 		msg_print("Monster placement failed");
 	}
@@ -1977,6 +2108,11 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		case 'K':
+		{
+			do_cmd_wiz_know_all();
+		}
+
 		/* Learn about objects */
 		case 'l':
 		{
@@ -2009,6 +2145,13 @@ void do_cmd_debug(void)
 		case 'p':
 		{
 			teleport_player(10);
+			break;
+		}
+
+		/* Query the dungeon */
+		case 'Q':
+		{
+			do_cmd_wiz_know_quests();
 			break;
 		}
 

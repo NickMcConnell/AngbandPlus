@@ -113,7 +113,7 @@ static struct
 	{ "k",        "Kobolds" },
 	{ "L",        "Lichs" },
 	{ "tp",		  "Men" },
-	{ "'$!?=._-",  "Mimics" },
+	{ "'$!?=._-"")[|,",  "Mimics" },
 	{ "m",        "Molds" },
 	{ ",",        "Mushroom Patches" },
 	{ "n",        "Nagas" },
@@ -1057,7 +1057,11 @@ static void display_monster(int col, int row, bool cursor, int oid)
 	byte c = r_ptr->x_char;
 
 	/* Display the name */
-	c_prt(attr, r_name + r_ptr->name, row, col);
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+		c_prt(attr, player_ghost_name, row, col);
+	}
+	else c_prt(attr, r_name + r_ptr->name, row, col);
 
 	/* Display symbol */
 	big_pad(66, row, a, c);
@@ -1416,7 +1420,7 @@ static int art2gid(int oid) { return obj_group_order[a_info[oid].tval]; }
 static bool artifact_is_known(int a_idx)
 {
 	int i;
-
+	store_type *st_ptr = &store[STORE_GUILD];
 	artifact_type *a_ptr = &a_info[a_idx];
 
 	/* Artifact doesn't exist at all, we are in wizard mode, or not created yet */
@@ -1449,6 +1453,14 @@ static bool artifact_is_known(int a_idx)
 		{
 			return FALSE;
 		}
+	}
+
+	/* Check guild to see if it is waiting as a quest reward */
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+		object_type *o_ptr = &st_ptr->stock[i];
+
+		if (o_ptr->art_num == a_idx) return (FALSE);
 	}
 
 	return TRUE;
@@ -2349,7 +2361,7 @@ static void do_cmd_knowledge_home(void *obj, const char *name)
 	ang_file *fff;
 
 	char o_name[120];
-
+	cptr which_set;
 	char file_name[1024];
 
 	(void)obj;
@@ -2365,6 +2377,9 @@ static void do_cmd_knowledge_home(void *obj, const char *name)
 	/* Failure */
 	if (!fff) return;
 
+	if (rogue_like_commands) which_set = roguelike_home_letters;
+	else which_set = standard_home_letters;
+
 	/* Home -- if anything there */
 	if (st_ptr->stock_num)
 	{
@@ -2373,7 +2388,7 @@ static void do_cmd_knowledge_home(void *obj, const char *name)
 		{
 
 			object_desc(o_name, sizeof(o_name), &st_ptr->stock[k], ODESC_PREFIX | ODESC_FULL);
-			file_putf(fff, "%c) %s\n", I2A(k), o_name);
+			file_putf(fff, "%c) %s\n", which_set[k], o_name);
 
 			/* Describe random object attributes*/
 			identify_random_gen(&st_ptr->stock[k]);

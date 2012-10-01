@@ -95,86 +95,6 @@ static void print_tomb(void)
 	put_str_centred(line++, 8, 8+31, "on %-.24s", ctime(&death_time));
 }
 
-/*
- * Save a "bones" file for a dead character.  Now activated and (slightly)
- * altered (from Oangband).  Allows the inclusion of personalized strings.
- */
-static void make_bones(void)
-{
-	ang_file *fp;
-
-	char str[1024];
-
-	int i;
-
-	/* Ignore wizards */
-	if (!(p_ptr->noscore & 0x00FF))
-	{
-		/* Ignore people who die in town */
-		if (p_ptr->depth)
-		{
-			int level;
-			char tmp[128];
-
-			/* Slightly more tenacious saving routine. */
-			for (i = 0; i < 10; i++)
-			{
-				/* Ghost hovers near level of death. */
-				if (i == 0) level = p_ptr->depth;
-				else level = p_ptr->depth + 5 - damroll(2, 4);
-				if (level < 1) level = randint(4);
-
-				/* XXX XXX XXX "Bones" name */
-				sprintf(tmp, "bone.%03d", level);
-
-				/* Build the filename */
-				path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
-
-				/* Do not over-write a previous ghost */
-				if (file_exists(str)) continue;
-
-				/* If no file by that name exists, we can make a new one. */
-				break;
-			}
-
-			/* Try to write a new "Bones File" */
-			fp = file_open(str, MODE_WRITE, FTYPE_TEXT);
-
-			/* Not allowed to write it?  Weird. */
-			if (!fp) return;
-
-			/* Save the info */
-			if (op_ptr->full_name[0] != '\0')
-			{
-				char esc_name[80];
-
-				/* Escape non-ascii characters */
-				escape_latin1(esc_name, sizeof(esc_name), op_ptr->full_name);
-
-				/* Store the converted name */
-				file_putf(fp, "%s\n", esc_name);
-			}
-
-			else file_putf(fp, "Anonymous\n");
-
-			file_putf(fp, "%d\n", p_ptr->psex);
-			file_putf(fp, "%d\n", p_ptr->prace);
-			file_putf(fp, "%d\n", p_ptr->pclass);
-
-			/* Clear screen */
-			Term_clear();
-
-			/*Mark end of file*/
-			file_putf(fp, "\n");
-
-			/* Close and save the Bones file */
-			file_close(fp);
-
-			return;
-		}
-	}
-}
-
 
 
 /*
@@ -310,7 +230,7 @@ static void death_info(void *unused, const char *title)
 	screen_save();
 
 	/* Display player */
-	display_player(0);
+	display_player(0, TRUE);
 
 	/* Prompt for inventory */
 	prt("Hit any key to see more information (esc to abort): ", 0, 0);
@@ -529,8 +449,8 @@ void death_screen(void)
 	int cursor = 0;
 	ui_event_data c = EVENT_EMPTY;
 
-	/* Dump bones file */
-	make_bones();
+	/* Try to make a player ghost template */
+	add_player_ghost_entry();
 
 	/* Retire in the town in a good state */
 	if (p_ptr->total_winner)

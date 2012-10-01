@@ -205,7 +205,7 @@ void do_cmd_change_name(void)
 		button_add("|PREV", ARROW_LEFT);
 
 		/* Display the player */
-		display_player(mode);
+		display_player(mode, TRUE);
 
 		event_signal(EVENT_MOUSEBUTTONS);
 
@@ -3396,8 +3396,23 @@ void do_cmd_feeling(void)
 		return;
 	}
 
+	if (p_ptr->dungeon_type == DUNGEON_TYPE_WILDERNESS)
+	{
+		msg_print("You have entered an area of near pristine wilderness.");
+	}
+
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_LABYRINTH)
+	{
+		msg_print("You have entered a complex labyrinth of dungeon hallways.");
+	}
+
+	else if (p_ptr->dungeon_type == DUNGEON_TYPE_ARENA)
+	{
+		msg_print("You are in an arena fighting for your life.");
+	}
+
 	/* Verify the feeling */
-	if (feeling >= LEV_THEME_HEAD)
+	else if (feeling >= LEV_THEME_HEAD)
 	{
 
 		/*print out a message about a themed level*/
@@ -3421,12 +3436,12 @@ void do_cmd_feeling(void)
 	p_ptr->redraw |= (PR_FEELING);
 }
 
-
+#define NUM_GHOST_CHALLENGES	26
 
 /*
  * Array of feeling strings
  */
-static cptr do_cmd_challenge_text[14] =
+static cptr do_cmd_challenge_text[NUM_GHOST_CHALLENGES] =
 {
 	"challenges you from beyond the grave!",
 	"thunders 'Prove worthy of your traditions - or die ashamed!'.",
@@ -3441,30 +3456,45 @@ static cptr do_cmd_challenge_text[14] =
 	"walks Middle-Earth once more!",
 	"challenges you to demonstrate your prowess!",
 	"demands you prove yourself here and now!",
-	"asks 'Can ye face the best of those who came before?'."
+	"asks 'Can ye face the best of those who came before?'.",
+	"challenges you to a fight to the death!",
+	"wails 'These halls shall claim your life as well!'",
+	"begs you 'Free me from this cursed form!'.",
+	"whispers 'Those who perish here shall find no rest'.",
+	"boasts 'You won't leave this level alive!",
+	"wishes to claim your soul!",
+	"declares 'You will join me in this tortured afterlife!'",
+	"proclaims 'Prepare to fight your last battle'",
+	"bellows 'Your adventures will end here!'",
+	"dares you to proceed further!",
+	"wants to collect your bones!",
+	"yells 'Now you shall meet your undoing!'"
 };
 
 
 
 
 /*
- * Personalize, randomize, and announce the challenge of a player ghost. -LM-
+ * Personalize, randomize, and announce the challenge of a player ghost.
  */
 void ghost_challenge(void)
 {
-	monster_race *r_ptr = &r_info[r_ghost];
+	size_t i;
+
+	/* No active player ghost template */
+	if (player_ghost_num < 0) return;
 
 	/*paranoia*/
 	/* Check there is a name/ghost first */
-	if (ghost_name[0] == '\0')
+	if (player_ghost_name[0] == '\0')
 	{
-		/*there wasn't a ghost*/
-		bones_selector = 0;
-		return;
+		/*Make sure the name has been created*/
+		prepare_ghost_name();
 	}
 
-	msg_format("%^s, the %^s %s", ghost_name, r_name + r_ptr->name,
-		do_cmd_challenge_text[rand_int(14)]);
+	i = randint0(NUM_GHOST_CHALLENGES);
+
+	msg_format("%^s %s", player_ghost_name, do_cmd_challenge_text[i]);
 
 	message_flush();
 }
@@ -3477,28 +3507,26 @@ void do_cmd_quest(void)
 {
 	char q_out[120];
 
-	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
-
 	/* Check if you're on a quest */
-	if (p_ptr->cur_quest > 0)
+	if (guild_quest_level() > 0)
 	{
+
 		/* Completed quest */
-		if (!q_ptr->active_level)
+		if (guild_quest_complete())
 		{
 			msg_print("Collect your reward at the guild!");
 		}
-
 		else
 		{
-			describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_FULL);
+			describe_quest(q_out, sizeof(q_out), guild_quest_level(), QMODE_FULL);
 
 			/* Break into two lines if necessary */
 			if (strlen(q_out) < 70) msg_print(q_out);
 			else
 			{
-				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_1);
+				describe_quest(q_out, sizeof(q_out), guild_quest_level(), QMODE_HALF_1);
 				msg_format(q_out);
-				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_2);
+				describe_quest(q_out, sizeof(q_out), guild_quest_level(), QMODE_HALF_2);
 				msg_format(q_out);
 			}
 		}

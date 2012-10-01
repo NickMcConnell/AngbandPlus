@@ -949,8 +949,6 @@ static errr init_alloc(void)
 
 	ego_item_type *e_ptr;
 
-	quest_type *q_ptr;
-
 	alloc_entry *table;
 
 	s16b num[MAX_DEPTH];
@@ -1287,22 +1285,6 @@ static errr init_alloc(void)
 		}
 	}
 
-	/*** Initialize quest monsters ***/
-
-	/* Scan the quests */
-	for (i = 0; i < z_info->q_max; i++)
-	{
-		/* Get the i'th quest */
-		q_ptr = &q_info[i];
-
-		/* Skip non-quests */
-		if (q_ptr->active_level)
-		{
-			/* Get the quest monster */
-			r_ptr = &r_info[q_ptr->mon_idx];
-		}
-	}
-
 	/* Success */
 	return (0);
 }
@@ -1478,8 +1460,6 @@ bool init_angband(void)
 void cleanup_angband(void)
 {
 	int i;
-
-	delete_current_bones_file();
 
     delete_notes_file();
 

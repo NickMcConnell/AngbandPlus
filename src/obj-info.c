@@ -359,7 +359,7 @@ int get_num_blows(const object_type *o_ptr, u32b f1, int str_add, int dex_add)
 		if (adult_maximize)
 		{
 			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+			add += (rp_ptr->r_adj[i] + p_ptr->stat_quest_add[i] + cp_ptr->c_adj[i]);
 		}
 
 		/* Extract the new "stat_use" value for the stat */

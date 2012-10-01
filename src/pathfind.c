@@ -528,8 +528,8 @@ static bool run_test(void)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[row][col]];
 
-			/* Visible monster, but not mimics, disturb run */
-			if ((m_ptr->ml) && (m_ptr->mimic_k_idx == 0)) return (TRUE);
+			/* Visible monsters disturb run */
+			if (m_ptr->ml) return (TRUE);
 
 		}
 

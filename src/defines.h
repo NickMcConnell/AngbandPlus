@@ -53,15 +53,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.4"
+#define VERSION_STRING	"0.6.0 WIP1"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	5
-#define VERSION_PATCH	4
+#define VERSION_MINOR	6
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
@@ -69,8 +69,8 @@
  * Oldest version number that can still be imported
  */
 #define OLD_VERSION_MAJOR	0
-#define OLD_VERSION_MINOR	4
-#define OLD_VERSION_PATCH	2
+#define OLD_VERSION_MINOR	6
+#define OLD_VERSION_PATCH	0
 
 
 /*
@@ -486,8 +486,9 @@
 #define LRN_CONFU_SAVE    49 /* Both resist Confusion and Saves apply */
 #define LRN_DARK_SAVE     50
 #define LRN_HOLY_SAVE     51
+#define LRN_LAVA  		  62
 
-#define LRN_MAX           60
+#define LRN_MAX           63
 
 
 
@@ -654,7 +655,8 @@ enum
 #define LEV_THEME_CAVE_DWELLER		22	/*cave dweller*/
 #define LEV_THEME_UNDEAD			23	/*undead*/
 #define LEV_THEME_DRAGON_ELEMENTAL  24  /*Elemental Dragons*/
-#define LEV_THEME_TAIL				25
+#define LEV_THEME_VALAR_SERVANTS	25  /* Servants of the Valar*/
+#define LEV_THEME_TAIL				26
 
 #define PIT_LEVEL_BOOST				6
 #define NEST_LEVEL_BOOST			5
@@ -1286,10 +1288,16 @@ enum
 
 /* Level types */
 #define DUNGEON_TYPE_DEFAULT		1	/* Vanilla-like levels */
-#define DUNGEON_TYPE_THEMED_LEVEL	2
-#define DUNGEON_TYPE_TOWN			3
+#define DUNGEON_TYPE_TOWN			2
+#define DUNGEON_TYPE_THEMED_LEVEL	3
 #define DUNGEON_TYPE_WILDERNESS		4
+#define DUNGEON_TYPE_ARENA			5
+#define DUNGEON_TYPE_LABYRINTH		6
 
+/** Constants for the various patterns of pits */
+#define MAX_PIT_PATTERNS	3
+#define PIT_WIDTH			19
+#define PIT_HEIGHT			5
 
 
 /*
@@ -1328,12 +1336,6 @@ enum
 #define QUEST_INDICATOR_COMPLETE_BIT 0x8000
 
 
-/*
- * This is not used any more, and should be deleted if savfile compatibility is broken.
- */
-
-/* Recognized extensions */
-#define EXTENSION_CALL_HUORNS 501
 /* A savefile must have at least this value inserted at the end of the extension
  * management section */
 #define END_EXTENSIONS 438

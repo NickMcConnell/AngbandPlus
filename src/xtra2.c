@@ -201,22 +201,26 @@ int get_coin_type(const monster_race *r_ptr)
 		/* Look for textual clues */
 		if (strstr(name, " copper ")) return (SV_GOLD_COPPER);
 		if (strstr(name, " silver ")) return (SV_GOLD_SILVER);
+		if (strstr(name, " garnet ")) return (SV_GOLD_GARNET);
 		if (strstr(name, " gold ")) return (SV_GOLD_GOLD);
 		if (strstr(name, " mithril ")) return (SV_GOLD_MITHRIL);
 		if (strstr(name, " opal")) return (SV_GOLD_OPALS);
 		if (strstr(name, " sapphire")) return (SV_GOLD_SAPPHIRES);
 		if (strstr(name, " ruby")) return (SV_GOLD_RUBIES);
+		if (strstr(name, " emerald"))return (SV_GOLD_EMERALD);
 		if (strstr(name, " diamond")) return (SV_GOLD_DIAMOND);
 		if (strstr(name, " adamantite ")) return (SV_GOLD_ADAMANTITE);
 
 		/* Look for textual clues */
 		if (strstr(name, " Copper ")) return (SV_GOLD_COPPER);
 		if (strstr(name, " Silver ")) return (SV_GOLD_SILVER);
+		if (strstr(name, " Garnet ")) return (SV_GOLD_GARNET);
 		if (strstr(name, " Gold ")) return (SV_GOLD_GOLD);
 		if (strstr(name, " Mithril ")) return (SV_GOLD_MITHRIL);
 		if (strstr(name, " Opal")) return (SV_GOLD_OPALS);
 		if (strstr(name, " Sapphire")) return (SV_GOLD_SAPPHIRES);
 		if (strstr(name, " Ruby")) return (SV_GOLD_RUBIES);
+		if (strstr(name, " Emerald"))    return (SV_GOLD_EMERALD);
 		if (strstr(name, " Diamond")) return (SV_GOLD_DIAMOND);
 		if (strstr(name, " Adamantite ")) return (SV_GOLD_ADAMANTITE);
 	}
@@ -226,95 +230,13 @@ int get_coin_type(const monster_race *r_ptr)
 }
 
 
-/*
- * Create magical stairs after finishing a quest monster.
- */
-static void build_quest_stairs(int y, int x)
+
+/* Helper function for monster_death - drop any objects the monster is holding */
+static void mon_drop_held_objects(monster_type *m_ptr)
 {
-	int ny, nx;
-
-	/* Stagger around */
-	while (!cave_clean_bold(y, x))
-	{
-
-		/* Pick a location */
-		scatter(&ny, &nx, y, x, 5, 1);
-
-		/* Stagger */
-		y = ny; x = nx;
-	}
-
-	/* Destroy any objects */
-	delete_object(y, x);
-
-	/* Explain the staircase */
-	msg_print("A magical staircase appears...");
-
-	/* Create stairs down */
-	cave_set_feat(y, x, FEAT_MORE);
-
-	light_spot(y, x);
-
-	/* Update the visuals */
-	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-}
-
-
-/*
- * Handle the "death" of a monster.
- *
- * Disperse treasures centered at the monster location based on the
- * various flags contained in the monster flags fields.
- *
- * Check for "Quest" completion when a quest monster is killed.
- *
- * Note that only the player can induce "monster_death()" on Uniques or quest monsters.
- *
- * Note that monsters can now carry objects, and when a monster dies,
- * it drops all of its objects, which may disappear in crowded rooms.
- */
-void monster_death(int m_idx, int who)
-{
-	int i, j, y, x;
-
-	int dump_item = 0;
-	int dump_gold = 0;
-
-	int number_drops = 0;
-	int total = 0;
-
-	bool questlevel = FALSE;
-	bool completed = FALSE;
-	bool fixedquest = FALSE;
-	bool writenote = TRUE;
-	bool need_stairs = FALSE;
-
-	s16b set_object_level;
-
 	s16b this_o_idx, next_o_idx = 0;
-
-	monster_type *m_ptr = &mon_list[m_idx];
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
-
-	bool chest = (r_ptr->flags1 & (RF1_DROP_CHEST)) ? TRUE : FALSE;
-	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
-	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
-
-	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
-	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
-
-	int force_coin = get_coin_type(r_ptr);
-
 	object_type *i_ptr;
 	object_type object_type_body;
-
-	/* Get the location */
-	y = m_ptr->fy;
-	x = m_ptr->fx;
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -343,52 +265,90 @@ void monster_death(int m_idx, int who)
 		delete_object_idx(this_o_idx);
 
 		/* Drop it */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
 	}
 
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
+}
 
-	/* Mega-Hack -- drop "winner" treasures */
-	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
-	{
-		/* Get local object */
-		i_ptr = &object_type_body;
+/*
+ * Helper function for monster_death -
+ * Intended only to drop Morgoth's special artifacts
+ */
+static void mon_drop_chosen_objects(monster_type *m_ptr)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
 
-		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
+	/* Get local object */
+	i_ptr = &object_type_body;
 
-		/* Mega-Hack -- Mark this item as "Grond" */
-		i_ptr->art_num = ART_GROND;
+	/* Mega-Hack -- Prepare to make "Grond" */
+	object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
 
-		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
+	/* Mega-Hack -- Mark this item as "Grond" */
+	i_ptr->art_num = ART_GROND;
 
-		/* Remember history */
-		object_history(i_ptr, ORIGIN_MORGOTH, 0);
+	/* Mega-Hack -- Actually create "Grond" */
+	apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+	/* Remember history */
+	object_history(i_ptr, ORIGIN_MORGOTH, 0);
 
-		/* Get local object */
-		i_ptr = &object_type_body;
+	/* Drop it in the dungeon */
+	drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
 
-		/* Mega-Hack -- Prepare to make "Morgoth's crown" */
-		object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
+	/* Get local object */
+	i_ptr = &object_type_body;
 
-		/* Mega-Hack -- Mark this item as "Morgoth" */
-		i_ptr->art_num = ART_MORGOTH;
+	/* Mega-Hack -- Prepare to make "Morgoth's crown" */
+	object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
 
-		/* Mega-Hack -- Actually create "Morgoth" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
+	/* Mega-Hack -- Mark this item as "Morgoth" */
+	i_ptr->art_num = ART_MORGOTH;
 
-		/* Remember history */
-		object_history(i_ptr, ORIGIN_MORGOTH, 0);
+	/* Mega-Hack -- Actually create "Morgoth" */
+	apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
-	}
+	/* Remember history */
+	object_history(i_ptr, ORIGIN_MORGOTH, 0);
 
+	/* Drop it in the dungeon */
+	drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+}
+
+/*
+ * Helper function for monster_death -
+ * Drop the monster's normal objects
+ */
+static void mon_drop_loot(int m_idx)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	int j;
+	bool chest = (r_ptr->flags1 & (RF1_DROP_CHEST)) ? TRUE : FALSE;
+	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
+	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
+
+	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
+	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
+
+	int force_coin = get_coin_type(r_ptr);
+
+	int dump_item = 0;
+	int dump_gold = 0;
+
+	int number_drops = 0;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Average dungeon and monster levels */
+	s16b set_object_level = object_level = (effective_depth(p_ptr->depth) + r_ptr->level) / 2;
 
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number_drops++;
@@ -400,9 +360,6 @@ void monster_death(int m_idx, int who)
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
-
-	/* Average dungeon and monster levels */
-	set_object_level = object_level = (effective_depth(p_ptr->depth) + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number_drops; j++)
@@ -460,7 +417,7 @@ void monster_death(int m_idx, int who)
 		}
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
 	}
 
 	/* Re-set the object level */
@@ -487,7 +444,7 @@ void monster_death(int m_idx, int who)
 		if (one_in_(5)) this_good = TRUE;
 		if ((!this_good) && (!this_great) && (!this_chest))
 		{
-			object_level += 5;
+			object_level += 2;
 			if (object_level > MAX_DEPTH) object_level = MAX_DEPTH;
 			interesting = TRUE;
 		}
@@ -507,7 +464,7 @@ void monster_death(int m_idx, int who)
 		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
 
 
 	}
@@ -525,6 +482,99 @@ void monster_death(int m_idx, int who)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
+}
+
+/*
+ * Helper function for monster-death.
+ * Process the death of a quest monster.
+ */
+static void process_quest_monster_death(int i, int m_idx, bool *writenote)
+{
+	quest_type *q_ptr = &q_info[i];
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	/* Not the right monster race for certain quests */
+	if (quest_single_r_idx(q_ptr) || quest_fixed(q_ptr))
+	{
+		if (q_ptr->mon_idx != m_ptr->r_idx) return;
+	}
+
+	else if (quest_multiple_r_idx(q_ptr))
+	{
+		if (!(m_ptr->mflag & (MFLAG_QUEST))) return;
+	}
+
+	/* Not a quest that counts monster deaths */
+	else return;
+
+	/* Mark kills */
+	q_ptr->q_num_killed++;
+
+	/* Completed quest? */
+	if (q_ptr->q_num_killed == q_ptr->q_max_num)
+	{
+		/* Mark complete */
+		quest_finished(q_ptr);
+
+		/*
+		 * Make a note of the completed quest, but not for fixed quests.
+		 * That is a special note written later.
+		 */
+		if (!quest_fixed(q_ptr))
+		{
+			write_quest_note(TRUE);
+			*writenote = FALSE;
+		}
+	}
+
+	/*not done yet*/
+	if (!(q_ptr->q_flags & (QFLAG_COMPLETED))) p_ptr->notice |= PN_QUEST_REMAIN;
+
+	/* Update the quest status */
+	p_ptr->redraw |= (PR_QUEST_ST);
+}
+
+/*
+ * Handle the "death" of a monster.
+ *
+ * Disperse treasures centered at the monster location based on the
+ * various flags contained in the monster flags fields.
+ *
+ * Check for "Quest" completion when a quest monster is killed.
+ *
+ * Note that only the player can induce "monster_death()" on Uniques or quest monsters.
+ *
+ * Note that monsters can now carry objects, and when a monster dies,
+ * it drops all of its objects, which may disappear in crowded rooms.
+ */
+void monster_death(int m_idx, int who)
+{
+	int i;
+	int total = 0;
+	bool questlevel = FALSE;
+	bool completed = FALSE;
+	bool fixedquest = FALSE;
+	bool writenote = TRUE;
+
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Drop any objects the monster is carrying */
+	if (m_ptr->hold_o_idx)
+	{
+		mon_drop_held_objects(m_ptr);
+	}
+
+	/* Mega-Hack -- drop "winner" treasures */
+	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
+	{
+		mon_drop_chosen_objects(m_ptr);
+	}
+
+	/* Drop the monster's standard loot */
+	mon_drop_loot(m_idx);
+
 	/* Update monster list window */
 	p_ptr->redraw |= (PR_MONLIST);
 
@@ -536,148 +586,36 @@ void monster_death(int m_idx, int who)
 		/*
 		 * Hack - don't count if player didn't kill, or on a town level
 		 * This assumes only a player can kill quest monsters!!!!!
-		 * This line is also ugly coding. :)
 		 */
 		if (((who != SOURCE_PLAYER) && (who != SOURCE_TRAP)) || (!p_ptr->depth)) continue;
 
 		/* Quest level? */
-		if ((q_ptr->active_level == p_ptr->depth) && (p_ptr->depth > 0))
+		if ((q_ptr->base_level == p_ptr->depth) && !is_quest_complete(i))
 		{
-			/* One on the level */
+			/* We are on a quest level */
 			questlevel = TRUE;
 
-			/* Require "Quest Monsters" */
-			if 	(q_ptr->mon_idx == m_ptr->r_idx)
+			/* Mark fixed quests */
+			if (quest_fixed(q_ptr)) fixedquest = TRUE;
+
+			process_quest_monster_death(i, m_idx, &writenote);
+
+			/* We just completed the quest */
+			if (q_ptr->q_flags & (QFLAG_COMPLETED))
 			{
-				char race_name[80];
-
-				/* Get the monster race name (singular)*/
-				monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
-
-				/* Mark kills */
-				q_ptr->cur_num++;
-
-				/* Redraw quest indicator */
-				p_ptr->redraw |= (PR_QUEST_ST);
-
-				/* Completed quest? */
-				if (q_ptr->cur_num == q_ptr->max_num)
-				{
-					/* Mark complete */
-					q_ptr->active_level = 0;
-
-					/* Mark fixed quests */
-					if ((q_ptr->q_type == QUEST_FIXED) ||
-						(q_ptr->q_type == QUEST_FIXED_U))
-						fixedquest = TRUE;
-
-					if (q_ptr->q_type == QUEST_GUARDIAN) need_stairs = TRUE;
-
-					/* One complete */
-					completed = TRUE;
-
-					/*make a note of the completed quest, but not for fixed or
-				     * fixed unique quests
-					 */
-					if ((adult_take_notes) && (!fixedquest))
-					{
-						char note[120];
-
-						/* Multiple quest monsters */
-						if (q_ptr->max_num > 1)
-						{
-							plural_aux(race_name, sizeof(race_name));
-						}
-
-						if (r_ptr->flags1 & (RF1_UNIQUE))
-						{
-							/*write note*/
-							if monster_nonliving(r_ptr)
-								sprintf(note, "Quest: Destroyed %s", race_name);
-							else sprintf(note, "Quest: Killed %s", race_name);
-						}
-
-						else
-						{
-							/* Write note */
-							if monster_nonliving(r_ptr)
-            					sprintf(note, "Quest: Destroyed %d %s", q_ptr->max_num, race_name);
-							else sprintf(note, "Quest: Killed %d %s", q_ptr->max_num, race_name);
-						}
-
- 		  				do_cmd_note(note, p_ptr->depth);
-
-						/*don't double-write uniques*/
-						writenote = FALSE;
-					}
-				}
-
-				/*let the player know how many left*/
-				else if ((q_ptr->q_type == QUEST_MONSTER) ||
-						(q_ptr->q_type == QUEST_GUARDIAN)) p_ptr->notice |= PN_QUEST_REMAIN;
-
-			}
-			/*quest monster from a themed level, nest, or pit*/
-			else if ((m_ptr->mflag & (MFLAG_QUEST)) &&
-					 ((q_ptr->q_type ==  QUEST_THEMED_LEVEL) ||
-			 		  (q_ptr->q_type == QUEST_PIT) ||
-				  	  (q_ptr->q_type == QUEST_NEST)))
-			{
-				char note[120];
-
-				/* Mark kills */
-				q_ptr->cur_num++;
-
-				/* Redraw quest indicator */
-				p_ptr->redraw |= (PR_QUEST_ST);
-
-				/* Completed quest? */
-				if (q_ptr->cur_num == q_ptr->max_num)
-				{
-					/* Mark complete */
-					q_ptr->active_level = 0;
-
-					/* One complete */
-					completed = TRUE;
-
-					if (adult_take_notes)
-					{
-						char mon_theme[80];
-						/*Get the theme*/
-						my_strcpy(mon_theme, feeling_themed_level[q_ptr->theme], sizeof(mon_theme));
-
-						my_strcpy(note, "Quest: Cleared out ", sizeof(note));
-
-						/*make the grammar proper*/
-						if (my_is_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
-						else my_strcat(note, "a ", sizeof(note));
-
-						/*dump the monster theme*/
-						my_strcat(note, mon_theme, sizeof(note));
-
-						/*Finish off the line*/
-						if  (q_ptr->q_type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
-			 			else if (q_ptr->q_type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
-				  		else if (q_ptr->q_type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
-
-						/*write it*/
-						do_cmd_note(note, p_ptr->depth);
-
-					}
-				}
-				/*not done yet*/
-				else p_ptr->notice |= PN_QUEST_REMAIN;
+				completed = TRUE;
 			}
 		}
 
-		p_ptr->redraw |= (PR_QUEST_ST);
-
-		/* Count incomplete fixed quests */
-		if (q_ptr->active_level && (fixedquest)) total++;
+		/* Count remaining permanent quests */
+		if (quest_fixed(q_ptr))
+		{
+			if (!is_quest_complete(i)) total++;
+		}
 	}
 
 	/* If the player kills a Unique, and the notes option is on, write a note.
-	 * The quest section will write the note if the unique is a quild questor*/
+	 * If the unique is a guild questor, the note was already written */
    	if ((r_ptr->flags1 & RF1_UNIQUE) && (adult_take_notes) && (writenote))
 	{
 
@@ -687,7 +625,7 @@ void monster_death(int m_idx, int who)
 		/*write note for player ghosts*/
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
-			my_strcpy(note2, format("Destroyed %^s, the %^s", ghost_name, r_name + r_ptr->name), sizeof (note2));
+			my_strcpy(note2, format("Destroyed %^s", player_ghost_name), sizeof (note2));
 		}
 
 		/*All other uniques*/
@@ -726,22 +664,13 @@ void monster_death(int m_idx, int who)
 		/* Redraw the status */
 		p_ptr->redraw |= (PR_QUEST_ST);
 
-		/* If fixed monster quest, build magical stairs */
-		if (need_stairs)
-		{
-			build_quest_stairs(y, x);
-		}
-
 		return;
 	}
 
 	/* Need some stairs */
 	else if (total)
 	{
-		/* Build magical stairs */
-		build_quest_stairs(y, x);
-
-		p_ptr->fame += 20;
+		p_ptr->q_fame += 150;
 		altered_inventory_counter += 50;
 	}
 
@@ -755,11 +684,8 @@ void monster_death(int m_idx, int who)
  		/* Redraw the "title" */
  		p_ptr->redraw |= (PR_TITLE);
 
-		p_ptr->fame += 50;
+		p_ptr->q_fame += 500;
 		altered_inventory_counter += 200;
-
-		/* Build magical stairs */
-		build_quest_stairs(y, x);
 
  		/* Congratulations */
  		msg_print("*** CONGRATULATIONS ***");
@@ -992,21 +918,20 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 			/* reputation bonus, except for the town unique */
 	    	if ((who == SOURCE_PLAYER) || (who == SOURCE_TRAP))
 	    	{
-	    		if ((r_ptr->level >= p_ptr->lev) || one_in_(2)) p_ptr->fame++;
+	    		if (r_ptr->level >= p_ptr->lev)p_ptr->q_fame += 5;
 	    		altered_inventory_counter += 2;
 	    	}
 		}
 
-		/* When the player kills a player ghost, the bones file that
-		 * it used is (often) deleted.
+		/* When the player kills a player ghost, the template needs to be deleted.
 		 */
 		if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) &&
 			((who == SOURCE_PLAYER) || (who == SOURCE_TRAP)))
 		{
-			/*Another point of player fame*/
-			p_ptr->fame++;
+			/* fame boost*/
+			p_ptr->q_fame += 7;
 			altered_inventory_counter += 5;
-
+			delete_player_ghost_entry();
 		}
 
 		/* Recall even invisible uniques or winners */
