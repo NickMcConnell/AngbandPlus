@@ -385,34 +385,34 @@ bool make_attack_normal(int m_idx, int y, int x)
 		/* Extract the attack "power".  Elemental attacks upgraded. */
 		switch (effect)
 		{
-			case RBE_HURT: 		power = 60; break;
-			case RBE_POISON:		power =  25; break;
+			case RBE_HURT:		power = 60; break;
+			case RBE_POISON:		power =	 25; break;
 			case RBE_UN_BONUS:	power = 20; break;
 			case RBE_UN_POWER:	power = 15; break;
-			case RBE_EAT_GOLD:	power =  5; break;
-			case RBE_EAT_ITEM:	power =  5; break;
-			case RBE_EAT_FOOD:	power =  5; break;
-			case RBE_EAT_LITE:	power =  5; break;
+			case RBE_EAT_GOLD:	power =	 5; break;
+			case RBE_EAT_ITEM:	power =	 5; break;
+			case RBE_EAT_FOOD:	power =	 5; break;
+			case RBE_EAT_LITE:	power =	 5; break;
 			case RBE_ACID:		power = 50; break;
 			case RBE_ELEC:		power = 50; break;
 			case RBE_FIRE:		power = 50; break;
 			case RBE_COLD:		power = 50; break;
-			case RBE_BLIND:		power =  2; break;
+			case RBE_BLIND:		power =	 2; break;
 			case RBE_CONFUSE:		power = 10; break;
 			case RBE_TERRIFY:		power = 10; break;
-			case RBE_PARALYZE:	power =  2; break;
-			case RBE_LOSE_STR:	power =  0; break;
-			case RBE_LOSE_DEX:	power =  0; break;
-			case RBE_LOSE_CON:	power =  0; break;
-			case RBE_LOSE_INT:	power =  0; break;
-			case RBE_LOSE_WIS:	power =  0; break;
-			case RBE_LOSE_CHR:	power =  0; break;
-			case RBE_LOSE_ALL:	power =  2; break;
+			case RBE_PARALYZE:	power =	 2; break;
+			case RBE_LOSE_STR:	power =	 0; break;
+			case RBE_LOSE_DEX:	power =	 0; break;
+			case RBE_LOSE_CON:	power =	 0; break;
+			case RBE_LOSE_INT:	power =	 0; break;
+			case RBE_LOSE_WIS:	power =	 0; break;
+			case RBE_LOSE_CHR:	power =	 0; break;
+			case RBE_LOSE_ALL:	power =	 2; break;
 			case RBE_SHATTER:		power = 60; break;
-			case RBE_EXP_10:		power =  5; break;
-			case RBE_EXP_20:		power =  5; break;
-			case RBE_EXP_40:		power =  5; break;
-			case RBE_EXP_80:		power =  5; break;
+			case RBE_EXP_10:		power =	 5; break;
+			case RBE_EXP_20:		power =	 5; break;
+			case RBE_EXP_40:		power =	 5; break;
+			case RBE_EXP_80:		power =	 5; break;
 		}
 
 
@@ -668,14 +668,16 @@ bool make_attack_normal(int m_idx, int y, int x)
 					take_hit(damage, ddesc);
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					if (!(p_ptr->resist_pois && p_ptr->oppose_pois))
 					{
+						if (p_ptr->resist_pois || p_ptr->oppose_pois) damage /= 3;
+
 						if (p_ptr->poisoned)
 						{
-							/* 1/4 to 1/2 damage. */
+							/* 1/3 to 2/3 damage. */
 							if (set_poisoned(p_ptr->poisoned + 
-								randint((damage + 3) / 4) + 
-								(damage / 4)))
+								randint((damage + 2) / 3) + 
+								(damage / 3)))
 								obvious = TRUE;
 						}
 						else 
@@ -689,7 +691,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_POIS);
+					update_smart_learn(m_idx, LRN_POIS);
 
 					break;
 				}
@@ -707,7 +709,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_DISEN);
+					update_smart_learn(m_idx, LRN_DISEN);
 
 					break;
 				}
@@ -759,24 +761,44 @@ bool make_attack_normal(int m_idx, int y, int x)
 								/* Obvious */
 								obvious = TRUE;
 
-								/* Heal */
-								j = 5 + rlev / 10;
+								/* Heal; halved in 0.5.1 for mana gain
+								 * Is later doubled if it slips to hps
+								 */
+								j = 2 + rlev / 20;
 
 								/* Handle new-style wands correctly. */
 								if (o_ptr->tval == TV_WAND)
 								{
-									m_ptr->hp += j * o_ptr->pval;
+									j *= o_ptr->pval;
 								}
 								/* Handle new-style rods correctly. */
 								else if (o_ptr->tval == TV_ROD)
 								{
-									m_ptr->hp += j * (o_ptr->pval - o_ptr->timeout) / 30;
+									j *= (o_ptr->pval - o_ptr->timeout) / 30;
 								}
 								else
 								{
-									m_ptr->hp += j * o_ptr->pval * 
+									j *= o_ptr->pval * 
 										o_ptr->number;
 								}
+
+								/* Replenish monster mana */
+								if (m_ptr->mana < r_ptr->mana)
+								{
+									if ( j > (r_ptr->mana - m_ptr->mana) * 10)
+									{
+										 j -= (r_ptr->mana - m_ptr->mana) * 10;
+										 m_ptr->mana = r_ptr->mana;
+									}
+									else
+									{
+										 m_ptr->mana += (j/10) + 1;
+										 j = 0;
+									} 
+								}
+								
+								/* Add hps with leftover */
+								m_ptr->hp += j * 2;
 
 								if (m_ptr->hp > m_ptr->maxhp) 
 									m_ptr->hp = m_ptr->maxhp;
@@ -925,8 +947,8 @@ bool make_attack_normal(int m_idx, int y, int x)
 
 						/* Message */
 						msg_format("%sour %s (%c) was stolen!",
-						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i));
+							   ((o_ptr->number > 1) ? "One of y" : "Y"),
+							   o_name, index_to_label(i));
 
 						/* Get local object */
 						i_ptr = &object_type_body;
@@ -993,8 +1015,8 @@ bool make_attack_normal(int m_idx, int y, int x)
 
 						/* Message */
 						msg_format("%sour %s (%c) was eaten!",
-						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i));
+							   ((o_ptr->number > 1) ? "One of y" : "Y"),
+							   o_name, index_to_label(i));
 
 						/* Steal the items */
 						inven_item_increase(i, -1);
@@ -1054,7 +1076,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					acid_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_ACID);
+					update_smart_learn(m_idx, LRN_ACID);
 
 					break;
 				}
@@ -1074,7 +1096,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					elec_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_ELEC);
+					update_smart_learn(m_idx, LRN_ELEC);
 
 					break;
 				}
@@ -1094,7 +1116,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					fire_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_FIRE);
+					update_smart_learn(m_idx, LRN_FIRE);
 
 					break;
 				}
@@ -1114,7 +1136,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					cold_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_COLD);
+					update_smart_learn(m_idx, LRN_COLD);
 
 					break;
 				}
@@ -1145,7 +1167,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_BLIND);
+					update_smart_learn(m_idx, LRN_BLIND);
 
 					break;
 				}
@@ -1176,7 +1198,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_CONFU);
+					update_smart_learn(m_idx, LRN_CONFU);
 
 					break;
 				}
@@ -1217,7 +1239,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_RES_FEAR);
+					update_smart_learn(m_idx, LRN_FEAR_SAVE);
 
 					break;
 				}
@@ -1246,14 +1268,14 @@ bool make_attack_normal(int m_idx, int y, int x)
 					{
 						if (p_ptr->paralyzed)
 						{
-							if (set_paralyzed(p_ptr->paralyzed + 2 + randint(rlev / 3)))
+							if (set_paralyzed(p_ptr->paralyzed + 2 + randint(rlev / 6)))
 							{
 								obvious = TRUE;
 							}
 						}
 						else
 						{
-							if (set_paralyzed(4 + randint(rlev)))
+							if (set_paralyzed(4 + randint(rlev / 2)))
 							{
 								obvious = TRUE;
 							}
@@ -1261,7 +1283,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					}
 
 					/* Learn about the player */
-					update_smart_learn(m_idx, DRS_FREE);
+					update_smart_learn(m_idx, LRN_FREE_SAVE);
 
 					break;
 				}

@@ -9,10 +9,10 @@ Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the
 most up to date information about Angband.
 
-Angband 2.9.0 has an incredibly complex history, and is the result of a
-lot of work by a lot of people, all of whom have contributed their time
-and energy for free, being rewarded only by the pleasure of keeping alive
-one of the best freeware games available anywhere.
+Angband has an incredibly complex history, and is the result of a lot of 
+work by a lot of people, all of whom have contributed their time and energy 
+for free, rewarded only by the pleasure of keeping alive one of the best 
+freeware games available anywhere.
 
 The version control files, if they existed, would span more than ten years
 time, and more than six different primary developers.  Without such files,
@@ -27,7 +27,7 @@ First came "VMS Moria", by Robert Alan Koeneke (1985).
 
 Then came "Umoria" (Unix Moria), by James E. Wilson (1989).
 
-Details about the history of the various flavors of "moria", the direct
+Details about the history of the various flavors of "moria", the direct 
 ancestor to Angband, can be found elsewhere, and a note from Robert Alan
 Koeneke is included in this file.  Note that "moria" has been ported to
 a variety of platforms, and has its own newsgroup, and its own fans.
@@ -64,52 +64,44 @@ code that acted as a "curses" emulator.  One such port was "Macintosh
 Angband 2.6.1", by Keith Randall, which added support for color, and
 which formed the basis for the first release of Angband 2.7.0.
 
-During the last half of 1994, I (Ben Harrison) had been playing with
-the Angband source, primarily to investigate the possibility of making
-some kind of automatic player for Angband, like the old "rogue-o-matic"
-program for the game "rogue".  The difficulty of compiling a version
-for the Macintosh, and the complexity of the code, prevented this, and
-so I began cleaning up the code in various ways for my own personal use.
-
 In late 1994, Charles Swiger announced that he was starting a real job
 and would no longer be able to be the Angband maintainer.  This induced
 some amount of uproar in the Angband community (as represented by the
 Angband newsgroup), with various people attempting to form "committees"
 to take over the maintenance of Angband.  Since committees have never
 given us anything but trouble (think "COBOL"), there was very little
-resistance when, on the first day of 1995, I made my code available,
-calling it "Angband 2.7.0", and by default, taking over as the new
-maintainer of Angband.  Or, at least, that is how I remember it...
+resistance when, on the first day of 1995, Ben Harrison made his code 
+available, calling it "Angband 2.7.0", and by default, taking over as the 
+new maintainer of Angband.
 
-Angband 2.7.0 was a very clean (but very buggy) rewrite that, among other
-things, allowed extremely simple porting to multiple platforms, starting
-with Unix and Macintosh, and by the time most of the bugs were cleaned up,
-in Angband 2.7.2, including X11, and various IBM machines.  Angband 2.7.4
-was released to the "ftp.cis.ksu.edu" site, and quickly gained acceptance,
-perhaps helped by the OS2 and Windows and Amiga and Linux ports.  Angband
-2.7.5 and 2.7.6 added important capabilities such as macros and user pref
-files, and continued to clean up the source.  Angband 2.7.8 was released
-to the major ftp archives as the first "stable" version in a year or so,
-with new "help files" and "spoiler files" for the "online help", plus a
-variety of minor tweaks and some new features.
+Between then and 1999, Ben Harrison transformed Angband, becoming (in many 
+people's minds) the most important contributor to the game since Robert 
+Koeneke.  The first and most important change he made was a massive 
+code-level cleanup.  This, combined with the development of a generic, 
+OS-independant interface, allowed simple porting to many new and existing 
+platforms (including X11, IBM machines, OS2, Windows, Amiga, and Linux), 
+and made possible the explosion of variants that adds such vigor to the 
+game today.  Like all other modern Angband variants, Oangband has more 
+code by Ben Harrison than by any other single person; it may, indeed, owe 
+its very existance to him.
 
-After Angband 2.7.8 was released, I created a web site to keep track of
-all the changes made in each version (though a few may have been missed),
-and acquired the use of a new develoepement ftp server to supplement the
-official "mirror" server.  This web site is now permanently located at
-the Official Angband Home Page (http://thangorodrim.angband.org/).
-Unfortunately, the next six versions were numbered Angband 2.7.9v1 to
-Angband 2.7.9v6, but really each were rather major updates.  Angband 2.8.0
-and 2.8.1 were released using a more normal version scheme.  Angband 2.8.2
-and 2.8.3 add a few random features, clean up some code, and provide
-graphics support and such for a few more platforms.
+Other changes made in this period include:
+
+- macros and keymaps
+- user preference files
+- user-customizable template files for monsters, objects, ego-items, 
+  artifacts, vaults, and terrain features.
+- extreme enhancements to the on-line help and game information in general
+- new or rewritten spell projections, messages, string-handling, inventory 
+  and equipment, monster processing, object creation and effects, and a 
+  whole lot more.
 
 After the release of Angband 2.8.3 Ben's free time was more and more
 occupied by his work.  He released a beta version of Angband 2.8.5,
 introducing many new features, but couldn't give as much attention to
 maintaining the game as he wanted to.
 
-So in March 2000, I (Robert Ruehlmann) offered to take over Angband and
+So in March 2000, Robert Ruehlmann offered to take over Angband and
 started to fix the remaining bugs in the Angband 2.8.5 beta.  The
 resulting version has now been released as Angband 2.9.0.
 
@@ -118,136 +110,6 @@ not only as the most up to date description of Angband, but also lists
 changes made between versions, and changes planned for upcoming versions,
 and lists various email addresses and web sites related to Angband.
 
-=== Some of the changes between Angband 2.6.1 and Angband 2.7.8 ===
-
-It is very hard to pin down, along the way from 2.6.2 to 2.7.8, exactly
-what changes were made, and exactly when they were made.  Most releases
-involved so many changes from the previous release as to make "diff files"
-not very useful, since often the diff files are as long as the code itself.
-Most of the changes, with the notable exception of the creation of some of
-the new "main-xxx.c" files for the various new platforms, and a few other
-minor exceptions generally noted directly in comments in the source, were
-written by myself, either spontaneously, or, more commonly, as the result
-of a suggestion or comment by an Angband player.
-
-The most important modification was a massive "code level cleanup" that made
-all of my other modifications much simpler and safer.  This cleanup was so
-massive that in many places the code is no longer recognizable, for example,
-via "diff -r", often because it was rewritten from scratch.
-
-The second most important modification was the design of a generic "z-term.c"
-package, which allows Angband to be ported to a new machine with as few as 50
-lines of code.  Angband 2.7.8 thus runs without modification on many machines,
-including Macintosh, PowerMac, Unix/X11, Unix/Curses, Amiga, Windows, OS2-386,
-DOS-386, and even DOS-286.
-
-It would be difficult to list all of the changes between Angband 2.6.1 and
-Angband 2.7.8, because many of them were made in passing during the massive
-code level cleanup.  Many of the changes are invisible to the user, but still
-provide increased simplicity and efficiency, and decreased code size, or make
-other more visable changes possible.  For example, the new "project()" code
-that handles all bolts, beams, and balls, the new "update_view()" code that
-simplifies line of sight computation, or the new "generate()" code that builds
-new levels in the dungeon.  Many changes have been made to increase efficiency,
-including the new "process_monsters()" and "update_monsters()" functions, and
-the new "objdes()" and "lite_spot()" routines.  The generic "z-term.c" package
-yielded efficient screen updates, and enabled the efficient use of "color".
-
-But anyway, here are a few things that come to mind, in no particular order,
-and with very little time or effort.  Somehow I managed to put off updating
-this file to the very end, and it will just have to do for now.  The recent
-changes (and bug fixes) can be found at the Official Angband Home Page.
-
-    color
-    macros
-    keymaps
-    user pref files
-    generic feature array, with template file
-    generic object array, with template file
-    generic artifact array, with template file
-    generic ego-item array, with template file
-    generic monster array, with template fils
-    generic vault array, with template file
-    binary image files for the template files
-    special stat effect tables
-    a special table of spells
-    a special table of options
-    inventory tagging
-    inventory restrictions
-    using objects off the floor
-    various new runtime options
-    the new "destroy" command
-    the new "examine" command
-    the new "note" command
-    the new "dump screen" command
-    the new "load screen" command
-    the new "un-inscribe" command
-    the new "change visuals" command
-    the new "change colors" command
-    the new "change macros" command
-    the new "save game" command
-    the new "fire" vs "throw" commands
-    rearranged equipment slots
-    a standard bow slot
-    an extra inventory slot
-    an underlying keyset
-    refueling torches
-    better monster memory
-    nicer targetting mode
-    object stacking
-    the recall window
-    the choice window
-    the mirror window
-    new high score code
-    special lighting effects
-    intelligent monsters
-    new monster flags
-    text formatting code
-    much cleaner store code
-    generic spell projections
-    scrolls of *identify*
-    maximize mode
-    preserve mode
-    new inscription code
-    new message recall code
-    new spell and prayer code
-    massive cleanup of effects code
-    new object allocation routines
-    powerful (but simple) on line help
-    robust savefile cheat preventers
-    new official cheating options
-    new blindness code
-    new hallucination code
-    optimized object description code
-    new keypress input routines
-    actual object discounts
-    fractional (assymptotic) speed
-    postponing updates/redraws
-    run-time price determination
-    better wizard commands
-    the automatic player
-    launchers of extra shots
-    elemental ignore flags
-    new ego-item types
-    new player ghost creation
-    no more sliding objects
-    no more sliding monsters
-    new object flags
-    new chest trap code
-    regularized the artifact code
-    regularized the ego-item code
-    new monster abilities
-    new monster spell attacks
-    some new store owners
-    run-time skill computation
-    player kills vs anscestor kills
-    better room illumination code
-    better group monster code
-    table access through pointers
-    more redefinable constants
-    slightly new screen layout
-    extreme code cleaning
-    extreme optimizations
 
 
 === A Posting from the Original Author ===
@@ -422,9 +284,9 @@ and many others...
 
 
 Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
-  This software may be copied and distributed for educational, research, and
-  not for profit purposes provided that this copyright and statement are
-  included in all such copies.
+  This software may be copied and distributed for educational, research, 
+  and not for profit purposes provided that this copyright and statement 
+  are included in all such copies.
 
 Umoria Version 5.2, patch level 1
 
@@ -467,24 +329,22 @@ Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
 Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra
 
 
-=== Variant of Angband (Oangband Version 0.5.0) ===
+=== Variant of Angband (Oangband Version 0.5.1) ===
 
 Oangband Version 0.4  : 4/18/99  Leon Marrick
 
 Oangband Version 0.5  : 4/18/99  Bahman Rabii
 
-Copyright (c) 2000      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
+Copyright (c) 2001      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
                         Ben Harrison, James E. Wilson, Robert A. Koeneke
 
 This software may be copied and distributed for educational, research,
 and not for profit purposes provided that this copyright and statement
 are included in all such copies.  Other copyrights may also apply.
 
-All changes made by Bahman Rabii are also available under the GNU
-GENERAL PUBLIC LICENSE.  Note that this doesn't influence the current
-distribution, since parts of the source are still only available under
-the old Moria/Angband/Oangband license.  Until all parts of Angband
-are distributed under the GPL the only valid license remains the
-original Moria/Angband license.
-
-
+All changes made by Bahman Rabii and Leon Marrick are also available 
+under the GNU GENERAL PUBLIC LICENSE.  Note that this doesn't influence 
+the current distribution, since parts of the source are still only avail-
+able under the old Moria/Angband license.  Until all parts of Oangband are 
+distributed under the GPL the only valid license remains the original 
+Moria/Angband license.

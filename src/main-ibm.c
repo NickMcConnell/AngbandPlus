@@ -8,57 +8,44 @@
  * are included in all such copies.
  */
 
+/* Purpose: Visual Display Support for "term.c", for the IBM */
+
 
 /*
- * This file helps Angband work with DOS computers.
+ * Original code by "Billy Tanksley (wtanksle@ucsd.edu)"
+ * Use "Makefile.ibm" to compile Angband using this file.
  *
- * To use this file with DJGPP, use "Makefile.ibm", which defines "USE_IBM".
+ * Support for DJGPP v2 by "Scott Egashira (egashira@u.washington.edu)"
  *
- * To use this file with Watcom C/C++, use "Makefile.wat", which defines
- * "USE_IBM" and "USE_WAT".
+ * Extensive modifications by "Ben Harrison (benh@phial.com)",
+ * including "collation" of the Watcom C/C++ and DOS-286 patches.
  *
- * To use this file with a DOS-286 machine, use "Makefile.286" (not ready),
- * which defines "USE_IBM", "USE_WAT", "USE_286", and, depending on your
- * compiler, perhaps "USE_CONIO".
+ * Watcom C/C++ changes by "David Boeren (akemi@netcom.com)"
+ * Use "Makefile.wat" to compile this file with Watcom C/C++, and
+ * be sure to define "USE_IBM" and "USE_WAT".
  *
- * See also "main-dos.c" and "main-win.c".
+ * DOS-286 (conio.h) changes by (Roland Jay Roberts (jay@map.com)
+ * Use "Makefile.286" (not ready) to compile this file for DOS-286,
+ * and be sure to define "USE_IBM", "USE_WAT", and "USE_286".  Also,
+ * depending on your compiler, you may need to define "USE_CONIO".
  *
- *
- * The "lib/user/pref-ibm.prf" file contains keymaps, macro definitions,
- * and/or color redefinitions.
- *
- * The "lib/user/font-ibm.prf" contains attr/char mappings for use with the
- * normal DOS fonts.
- *
- * The "lib/user/graf-ibm.prf" contains attr/char mappings for use with the
- * special "lib/xtra/angband.fnt" font file, which is activated by the "-g"
- * flag.
- *
+ * True color palette support by "Mike Marcelais (michmarc@microsoft.com)",
+ * with interface to the "color_table" array by Ben Harrison.
  *
  * Both "shift" keys are treated as "identical", and all the modifier keys
  * (control, shift, alt) are ignored when used with "normal" keys, unless
  * they modify the underlying "ascii" value of the key.  You must use the
  * new "user pref files" to be able to interact with the keypad and such.
  *
+ * The "lib/user/pref-ibm.prf" file contains macro definitions and possible
+ * alternative color set definitions.  The "lib/user/font-ibm.prf" contains
+ * attr/char mappings for walls and floors and such.
+ *
  * Note the "Term_user_ibm()" function hook, which could allow the user
  * to interact with the "main-ibm.c" visual system.  Currently this hook
  * is unused, but, for example, it could allow the user to toggle "sound"
  * or "graphics" modes, or to select the number of screen rows, with the
  * extra screen rows being used for the mirror window.
- *
- *
- * Initial framework (and some code) by Ben Harrison (benh@phial.com).
- *
- * Original code by Billy Tanksley (wtanksle@ucsd.edu).
- *
- * Support for DJGPP v2 by Scott Egashira (egashira@u.washington.edu).
- *
- * Support for DOS-286 (conio.h) by Roland Jay Roberts (jay@map.com).
- *
- * Support for Watcom C/C++ by David Boeren (akemi@netcom.com).
- *
- * True color palette support, and graphics support, by Mike Marcelais
- * (michmarc@microsoft.com).
  */
 
 
@@ -76,11 +63,10 @@
 
 #include <bios.h>
 #include <dos.h>
-#include <conio.h>
 
 #ifdef USE_WAT
 
-/*# include <conio.h>*/
+# include <conio.h>
 
 # ifdef USE_CONIO
 # else /* USE_CONIO */
@@ -181,10 +167,10 @@ extern int directvideo = 1;
 
 /*
  * Screen Size
- * Now screen_x and screen_y are used. They are set before
- * running these routines but must be corrected if the
- * requested mode is unavailable.
  */
+static int rows = 25;
+static int cols = 80;
+
 
 /*
  * Physical Screen
@@ -317,11 +303,7 @@ static byte ibm_color_simple[16] =
 static void activate_color_complex(void)
 {
 	int i;
-
-#if 0
-	/* Is this important? */
 	printf("%c%c%c%c",8,8,8,8);
-#endif
 
 #if 1
 
@@ -666,7 +648,7 @@ static errr Term_xtra_ibm(int n, int v)
 # else /* USE_WAT */
 
 			/* Apply the virtual screen to the physical screen */
-			ScreenUpdateLine(VirtualScreen + ((v*screen_x) << 1), v);
+			ScreenUpdateLine(VirtualScreen + ((v*cols) << 1), v);
 
 # endif /* USE_WAT */
 
@@ -688,10 +670,10 @@ static errr Term_xtra_ibm(int n, int v)
 #else /* USE_CONIO */
 
 			/* Clear each line (virtual or physical) */
-			for (i = 0; i < screen_y; i++)
+			for (i = 0; i < rows; i++)
 			{
 				/* Clear the line */
-				memcpy((VirtualScreen + ((i*screen_x) << 1)), wiper, (screen_x << 1));
+				memcpy((VirtualScreen + ((i*cols) << 1)), wiper, (cols << 1));
 			}
 
 # ifdef USE_VIRTUAL
@@ -699,7 +681,7 @@ static errr Term_xtra_ibm(int n, int v)
 #  ifdef USE_WAT
 
 			/* Copy the virtual screen to the physical screen */
-			memcpy(PhysicalScreen, VirtualScreen, screen_y*screen_x*2);
+			memcpy(PhysicalScreen, VirtualScreen, 25*80*2);
 
 #  else /* USE_WAT */
 
@@ -811,12 +793,12 @@ static errr Term_wipe_ibm(int x, int y, int n)
 	/* Wipe the region */
 	window(x+1, y+1, x+n, y+1);
 	clrscr();
-	window(1, 1, screen_x, screen_y);
+	window(1, 1, cols, rows);
 
 #else /* USE_CONIO */
 
 	/* Wipe part of the virtual (or physical) screen */
-	memcpy(VirtualScreen + ((screen_x*y + x)<<1), wiper, n<<1);
+	memcpy(VirtualScreen + ((cols*y + x)<<1), wiper, n<<1);
 
 #endif /* USE_CONIO */
 
@@ -867,7 +849,7 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
 #else /* USE_CONIO */
 
 	/* Access the virtual (or physical) screen */
-	dest = VirtualScreen + (((screen_x * y) + x) << 1);
+	dest = VirtualScreen + (((cols * y) + x) << 1);
 
 	/* Save the data */
 	for (i = 0; i < n; i++)
@@ -889,7 +871,11 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
+#ifdef USE_TRANSPARENCY
+static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+#else /* USE_TRANSPARENCY */
 static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
+#endif /* USE_TRANSPARENCY */
 {
 	register int i;
 	register byte attr;
@@ -928,7 +914,7 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
 #else /* USE_CONIO */
 
 	/* Access the virtual (or physical) screen */
-	dest = VirtualScreen + (((screen_x * y) + x) << 1);
+	dest = VirtualScreen + (((cols * y) + x) << 1);
 
 	/* Save the data */
 	for (i = 0; i < n; i++)
@@ -985,7 +971,7 @@ static void Term_nuke_ibm(term *t)
 #endif /* USE_WAT */
 
 	/* Move the cursor to the bottom of the screen */
-	Term_curs_ibm(0, screen_y-1);
+	Term_curs_ibm(0, rows-1);
 
 #ifdef USE_WAT
 
@@ -1201,9 +1187,6 @@ void enable_graphic_font(const char *font)
 /*
  * Initialize the IBM "visual module"
  *
- * Hack -- we assume that "blank space" should be "white space"
- * (and not "black space" which might make more sense).
- *
  * Note the use of "((x << 2) | (x >> 4))" to "expand" a 6 bit value
  * into an 8 bit value, without losing much precision, by using the 2
  * most significant bits as the least significant bits in the new value.
@@ -1212,7 +1195,6 @@ errr init_ibm(void)
 {
 	int i;
 	int mode;
-	char buf[20];
 
 	term *t = &term_screen_body;
 
@@ -1260,19 +1242,24 @@ errr init_ibm(void)
 
 	/* Force 25 line mode */
 	_setvideomode(_TEXTC80);
-	_settextrows(screen_y);
+	_settextrows(25);
 
 #else /* USE_WAT */
 
 	/* Set video mode */
 	r.h.ah = 0x00;
-	r.h.al = 0x03; /* Color text mode */
+	r.h.al = 0x13; /* VGA only mode */
 	int86(0x10, &r, &r);
 
-	/* A nice simple way. Lets hope they have mode.com... */
-	sprintf(buf, "mode co%d,%d\r", screen_x, screen_y);
-	system(buf);
-	mode = 0x13;
+	/* Get video mode */
+	r.h.ah = 0x0F;
+	int86(0x10, &r, &r);
+	mode = r.h.al;
+
+	/* Set video mode */
+	r.h.ah = 0x00;
+	r.h.al = 0x03; /* Color text mode */
+	int86(0x10, &r, &r);
 
 #endif /* USE_WAT */
 
@@ -1330,7 +1317,7 @@ errr init_ibm(void)
 #else /* USE_CONIO */
 
 	/* Build a "wiper line" */
-	for (i = 0; i < screen_x; i++)
+	for (i = 0; i < 80; i++)
 	{
 		/* Space */
 		wiper[2*i] = ' ';
@@ -1345,7 +1332,7 @@ errr init_ibm(void)
 #ifdef USE_VIRTUAL
 
 	/* Make the virtual screen */
-	C_MAKE(VirtualScreen, screen_y * screen_x * 2, byte);
+	C_MAKE(VirtualScreen, rows * cols * 2, byte);
 
 #endif /* USE_VIRTUAL */
 
@@ -1372,7 +1359,7 @@ errr init_ibm(void)
 
 
 	/* Initialize the term */
-	term_init(t, screen_x, screen_y, 256);
+	term_init(t, 80, 24, 256);
 
 #ifdef USE_CONIO
 #else /* USE_CONIO */
@@ -1409,5 +1396,4 @@ errr init_ibm(void)
 
 
 #endif /* USE_IBM */
-
 

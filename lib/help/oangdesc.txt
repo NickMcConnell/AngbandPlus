@@ -3,67 +3,59 @@
 
      Opinion Angband, or Oangband for short, is one of the many variants of 
 Angband.  It was created to accomplish exactly two things:  To be an exercise 
-in C programming, and to turn a new conception of non-magical combat
-into a game you can enjoy.  As you will shortly discover, however,
-Oangband has developed a life of its own.  
+in C programming, and to turn a new conception of non-magical combat into a 
+game you can enjoy.  As you will shortly discover, however, this variant has 
+developed a life of its own.  A selection of features includes:
 
-     A selection of features includes:
+- The elimination of years of slow HP and damage inflation, and a "tabula rasa" 
+approach to game balance in general.
 
--The elimination of years of slow HP and damage inflation, and a "tabula rasa" 
-approach to game balance in general.  
+- A fundamentally altered conception of physical combat.
 
--A fundamentally altered conception of physical combat.
-
--A radically revised magical system, offering you the chance to play any of 
+- A radically revised magical system, offering you the chance to play any of 
 four spellcasters, any of four warrior-spellcasters, or the pure warrior we 
 all know and love.
 
--Very much more varied classes.  Mages are great with magical items, Rogues 
+- Very much more varied classes.  Mages are great with magical items, Rogues 
 steal and set traps, Assassins whip poisoned knives at their foes, Paladins 
 smite with elemental powers, Priests evoke the power of Holy Light, and 
 Necromancers just blast everything in sight.  
 
--Races are also more differentiated.  There are three new races, including 
+- Races are also more differentiated.  There are three new races, including 
 one designed especially for new players.
 
--More ways to combat monsters.  Now you really can start and win the game 
-relying on magic, melee, shooting, throwing, or magical devices to do 
-damage to your foes.
+- More ways to combat monsters.  Now you really can start and win the game 
+relying on magic, melee, shooting, throwing, or magical devices to do damage 
+to your foes.
 
--All sorts of new monster nastiness.  Dragons are dangerous once more, 
-Undead have a deadly touch, Trolls will gleefully pelt you to death with 
-boulders, and those Zephyr Hounds are *nuts*.
+- The most cunning AI in any Angband variant.  Monster mana.  All sorts of new 
+monster nastiness.  Dragons are dangerous once more, Undead have a deadly touch, 
+Trolls will gleefully pelt you to death with boulders, and those Zephyr Hounds 
+are out of control.  In Oangband, even the snakes have attitude.
 
--Enhanced object description and learning code.
+- Enhanced object description and learning code.  Dungeon features that affect 
+movement, sighting, and combat.  Exciting chests and nasty traps.
 
--dungeon features that affect movement, sighting, and combat.
+- More varied dungeons, including new room types, special levels, lakes, forests, 
+and lots of new vaults.
 
--exciting chests and nasty traps.
+- Shapeshifting, interface enhancements (including big-screen), and circular 
+detection spells.
 
--More varied dungeons, including "Interesting Rooms", new room types, and 
-themed levels.
-
--One-slot wand and rod stacking, arc spells, themed random artifacts, and 
+- One-slot wand and rod stacking, arc spells, themed random artifacts, and 
 player ghosts that challenge you to mortal combat.
 
--Shapeshifting is introduced as a major new element of the game.
+- New just about everything.  Whether it be Wands of Storms, the Dark Elven 
+Smith Eol, Shields of Night and Day, Athelas, Amulets of the Lion, Large 
+Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
 
--Nearly total removal of genocide-type spells.
+- And Angband-compatible savefiles.
 
--A heavily reworked monster list.
 
--New just about everything.  Whether it be Wands of Storms, the Dark Elven 
-Smith Eol, Shields of Night and Day, Athelas, new vaults, rods of Northwinds, 
-Large Jeweled Chests, or activatable rings, Oangband has novelty enough for 
-anyone.
 
--And Angband-compatible savefiles.
-
-If you feel the need for more detail, I'd suggest just perusing the help 
-files.  If you like, you will find a diff.txt file In the "lib/info" folder 
-that lists (most) of the changes between Oangband 0.3.2 and 0.4.0, in more 
-detail than you really want to know.  A complete listing of Oangband diff.txt 
-files can be found at the Oangband development site.
+If you feel the need for more detail, I'd suggest just perusing the help files.  
+You will also find a file in the "lib/info/diffs" folder that lists (many) of 
+the changes between Oangband 0.5.0 and 0.5.1.
 
 
 === The Jaded Angband Player's Guide to Oangband ===
@@ -80,7 +72,7 @@ files can be found at the Oangband development site.
 -Don't expect to deal with vaults just using Genocide and Destruction.
 -Don't expect to trap or trick Morgoth easily.
 -Beware of uniques you don't know from Angband; even some you do know
- (like Ancalagon) may be different
+ (like Ancalagon) may be different.
 -And never, never, never, think this game is fair.  It's not.
 
 

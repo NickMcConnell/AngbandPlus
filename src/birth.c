@@ -174,7 +174,7 @@ static void load_prev_data(void)
 static int adjust_stat(int value, int amount, int auto_roll)
 {
 	/* Negative amounts or maximize mode */
-        if ((amount < 0) || adult_maximize)
+	if ((amount < 0) || adult_maximize)
 	{
 		return (modify_stat_value(value, amount));
 	}
@@ -281,10 +281,15 @@ static void get_stats(void)
 
 /*
  * Roll for some info that the auto-roller ignores
+ *
+ * No characters will have HPs at level 50 that differ from the average.
+ * HPs will never differ from the average by more than 2 * character hitdice
+ * on any level.
  */
 static void get_extra(void)
 {
-	int i, j, min_value, max_value;
+	int i, j;
+	int final_hps;
 
 
 	/* Level one */
@@ -293,61 +298,72 @@ static void get_extra(void)
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
+
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
 
-	/* Minimum hitpoints at highest level */
-	min_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 3) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	/* Maximum hitpoints at highest level */
-	max_value = (PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8;
-	max_value += PY_MAX_LEVEL;
+	/* Final hitpoints = hitdice + (49 * (average roll)) */
+	final_hps = p_ptr->hitdie + (((PY_MAX_LEVEL + 1) * (p_ptr->hitdie + 1))/ 2);
 
 	/* Pre-calculate level 1 hitdice */
 	p_ptr->player_hp[0] = p_ptr->hitdie;
 
-	/* Hack - Get the hitpoints for non-random hp characters.  
-	 * Each level provides exactly average hitpoints.
-	 * If the average is a fraction, alternate.
-	 */
-	if (!adult_random_hitpoints)
-	{
-       	        for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-       	                p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + p_ptr->hitdie/2;
-			if (((p_ptr->hitdie % 2) == 1) & ((i % 2) == 1)) p_ptr->player_hp[i]++;
-		}
 
-	}
-	/* Hack, if the player wants, use old-style rolled hitpoints */
-	else
+	/* Roll out the hitpoints */
+	for (i = 1; i < PY_MAX_LEVEL - 1; i++)
 	{
-	        /* Roll out the hitpoints */
-	        while (TRUE)
-	        {
-	                /* Roll the hitpoint values */
-	                for (i = 1; i < PY_MAX_LEVEL; i++)
-	                {
-		                 j = randint(p_ptr->hitdie);
-		                 p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+		/* Expected previous level's HPs. */
+		int average = p_ptr->hitdie + (((i-1) * (p_ptr->hitdie + 1)) / 2);
+
+		/* Difference between previous level's HPs and the average */
+		int diff = average - p_ptr->player_hp[i-1];
+
+		/* Make adjustments near the end or where necessary */
+		if (i >= (PY_MAX_LEVEL - 6) || rand_int(p_ptr->hitdie * 2) < ABS(diff))
+		{
+			/* If previous level's HPs < average, bias for a large gain. */
+			if (average > p_ptr->player_hp[i-1])
+			{
+				/* Strong bias if needed. */
+			       if (ABS(diff) >= p_ptr->hitdie)
+					j = p_ptr->hitdie;
+
+				/* Relatively small one otherwise. */
+				else
+					j = p_ptr->hitdie - rand_int(p_ptr->hitdie - ABS(diff));
 			}
 
-			/* XXX Could also require acceptable "mid-level" hitpoints */
-			
-			/* Require "valid" hitpoints at highest level */
-			if (p_ptr->player_hp[PY_MAX_LEVEL-1] < min_value) continue;
-			if (p_ptr->player_hp[PY_MAX_LEVEL-1] > max_value) continue;
+			/* If previous level's HPs > average, bias for a small gain. */
+			else if (average < p_ptr->player_hp[i-1])
+			{
+				/* Strong bias if needed. */
+				if (ABS(diff) >= p_ptr->hitdie)
+					j = 1;
 
-			/* Acceptable */
-			break;
+				/* Relatively small one otherwise. */
+				else
+					j = 1 + rand_int(p_ptr->hitdie - 1 - ABS(diff));
+			}
+
+			/* No bias necessary. */
+			else j = randint(p_ptr->hitdie - 1);
 		}
-	}
-}
 
+		/* Usually no bias -- average gain of half the hitdice. */
+		else j = randint(p_ptr->hitdie - 1);
+
+		/* Add this level's HP gain to the previous level's HPs. */
+		p_ptr->player_hp[i] = p_ptr->player_hp[i-1] + j;
+	}
+
+	/* 
+	 * Final HPs are always constant. 
+	 */
+	p_ptr->player_hp[PY_MAX_LEVEL-1] = final_hps;
+}
 
 /*
  * Get the racial history, and social class, using the "history charts".
@@ -584,7 +600,7 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
 		/* Clear player kills */
-	       l_ptr->pkills = 0;
+		l_ptr->pkills = 0;
 	}
 
 
@@ -763,13 +779,13 @@ static bool player_birth_aux_1(void)
 
 	/* Display some helpful information */
 	Term_putstr(5, 10, -1, TERM_WHITE,
-	            "Please answer the following questions.  Most of the questions");
+		    "Please answer the following questions.  Most of the questions");
 	Term_putstr(5, 11, -1, TERM_WHITE,
-	            "display a set of standard answers, and many will also accept");
+		    "display a set of standard answers, and many will also accept");
 	Term_putstr(5, 12, -1, TERM_WHITE,
-	            "some special responses, including 'Q' to quit, 'S' to restart,");
+		    "some special responses, including 'Q' to quit, 'S' to restart,");
 	Term_putstr(5, 13, -1, TERM_WHITE,
-	            "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
+		    "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
 
 	/*** Player sex ***/
@@ -797,7 +813,7 @@ static bool player_birth_aux_1(void)
 	while (1)
 	{
 		sprintf(buf, "Choose a sex (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
+			I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
@@ -826,7 +842,7 @@ static bool player_birth_aux_1(void)
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-	            "Your 'race' determines various intrinsic factors and bonuses.");
+		    "Your 'race' determines various intrinsic factors and bonuses.");
 
 	/* Dump races */
 	for (n = 0; n < MAX_P_IDX; n++)
@@ -845,7 +861,7 @@ static bool player_birth_aux_1(void)
 	while (1)
 	{
 		sprintf(buf, "Choose a race (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
+			I2A(0), I2A(n-1));
 		put_str(buf, 19, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
@@ -874,9 +890,9 @@ static bool player_birth_aux_1(void)
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-	            "Your 'class' determines various intrinsic abilities and bonuses.");
+		    "Your 'class' determines various intrinsic abilities and bonuses.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-	            "Any entries with a (*) should only be used by advanced players.");
+		    "Any entries with a (*) should only be used by advanced players.");
 
 	/* Dump classes */
 	for (n = 0; n < MAX_CLASS; n++)
@@ -901,7 +917,7 @@ static bool player_birth_aux_1(void)
 	while (1)
 	{
 		sprintf(buf, "Choose a class (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
+			I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
@@ -931,9 +947,9 @@ static bool player_birth_aux_1(void)
 
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-	            "You can change your options at any time, but the 'Birth' options");
+		    "You can change your options at any time, but the 'Birth' options");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-	            "must be changed now to affect the birth of this character.");
+		    "must be changed now to affect the birth of this character.");
 
 	/* Verify birth options */
 	while (1)
@@ -962,10 +978,16 @@ static bool player_birth_aux_1(void)
 		op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = op_ptr->opt[i];
 	}
 
-	/* Reset score options from cheat options */
-	for (i = OPT_cheat_start; i < OPT_cheat_end; i++)
+	/* Reset cheat options */
+	for (i = OPT_cheat_start; i <= OPT_cheat_end; i++)
 	{
-		op_ptr->opt[OPT_score_start + (i - OPT_cheat_start)] = op_ptr->opt[i];
+		op_ptr->opt[i]=0;
+	}
+
+	/* Reset cheat options */
+	for (i = OPT_score_start; i <= OPT_score_end; i++)
+	{
+		op_ptr->opt[i]=0;
 	}
 
 	/* Clean up */
@@ -1039,7 +1061,7 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Variable stat maxes */
-		        if (adult_maximize)
+			if (adult_maximize)
 			{
 				/* Reset stats */
 				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
@@ -1205,13 +1227,13 @@ static bool player_birth_aux_3(void)
 
 		/* Extra info */
 		Term_putstr(5, 10, -1, TERM_WHITE,
-		            "The auto-roller will automatically ignore characters which do");
+			    "The auto-roller will automatically ignore characters which do");
 		Term_putstr(5, 11, -1, TERM_WHITE,
-		            "not meet the minimum values for any stats specified below.");
+			    "not meet the minimum values for any stats specified below.");
 		Term_putstr(5, 12, -1, TERM_WHITE,
-		            "Note that stats are not independant, so it is not possible to");
+			    "Note that stats are not independant, so it is not possible to");
 		Term_putstr(5, 13, -1, TERM_WHITE,
-		            "get perfect (or even high) values for all your stats.");
+			    "get perfect (or even high) values for all your stats.");
 
 		/* Prompt for the minimum stats */
 		put_str("Enter minimum value for: ", 15, 2);
@@ -1618,6 +1640,10 @@ void player_birth(void)
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
+
+	/* Unsquelch all items */
+	for (n = 0; n < k_head->info_num; n++) k_info[n].squelch = FALSE;
+
 }
 
 

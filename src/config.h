@@ -311,6 +311,14 @@
  */
 #define MONSTER_FLOW_DEPTH 32
 
+
+/*
+ * OPTION: Maximum flow depth when using "MONSTER_FLOW" with 
+ * the 'fast_flow' option
+ */
+#define FAST_FLOW_DEPTH 20
+
+
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
  */
@@ -321,6 +329,7 @@
  * OPTION: Use the new "update_view()" algorithm
  */
 #define UPDATE_VIEW_NEW
+
 
 /*
  * OPTION: Use the "complex" wall illumination code
@@ -442,6 +451,21 @@
 
 
 /*
+ * OPTION: For some brain-dead computers with no command line interface,
+ * namely Macintosh, there has to be some way of "naming" your savefiles.
+ * The current "Macintosh" hack is to make it so whenever the character
+ * name changes, the savefile is renamed accordingly.  But on normal
+ * machines, once you manage to "load" a savefile, it stays that way.
+ * Macintosh is particularly weird because you can load savefiles that
+ * are not contained in the "lib:save:" folder, and if you change the
+ * player's name, it will then save the savefile elsewhere.  Note that
+ * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ */
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
+# define SAVEFILE_MUTABLE
+#endif
+
+/*
  * OPTION: Check the "time" against "lib/file/hours.txt"
  */
 /* #define CHECK_TIME */
@@ -460,17 +484,29 @@
 #define CAPITALIZE_USER_NAME
 
 
-
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"leon2m@sprintmail.com"
-
+#define MAINTAINER	"bahman@topped-with-meat.com"
 
 /*
  * OPTION: Default font (when using X11).
  */
 #define DEFAULT_X11_FONT		"9x15"
+
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0		"10x20"
+#define DEFAULT_X11_FONT_1		"9x15"
+#define DEFAULT_X11_FONT_2		"9x15"
+#define DEFAULT_X11_FONT_3		"5x8"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
+
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -480,6 +516,14 @@
 #define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
 #define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
 
+
+
+
+/*
+ * OPTION: Gamma correct X11 colours.
+ */
+
+#define SUPPORT_GAMMA
 
 
 /*

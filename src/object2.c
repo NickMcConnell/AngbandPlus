@@ -989,7 +989,7 @@ static s32b object_value_real(object_type *o_ptr)
 
 			if (f1 & (TR1_TUNNEL))
 			{
-				/* Give credit for tunneling bonus above that which a 	
+				/* Give credit for tunneling bonus above that which a	
 				 * digger possesses intrinsically.
 				 */
 				if ((o_ptr->tval != TV_DIGGING) || 
@@ -1000,7 +1000,7 @@ static s32b object_value_real(object_type *o_ptr)
 			/* Give credit for perfect balance. */
 			if (f1 & (TR1_PERFECT_BALANCE)) value += o_ptr->dd * 200L;
 
-			/* Give credit for speed bonus.  Formula changed to avoid
+			/* Give credit for speed bonus.   Formula changed to avoid
 			 * excessively valuable low-speed items.
 			 */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * o_ptr->pval * 5000L);
@@ -1167,13 +1167,13 @@ static s32b object_value_real(object_type *o_ptr)
  *
  * o_ptr = source item
  * q_ptr = target item, must be of the same type as o_ptr
- * amt   = number of items that are transfered
+ * amt	 = number of items that are transfered
  */
 void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
 {
 	/*
 	 * Hack -- If rods or wands are dropped, the total maximum timeout or
-	 * charges need to be allocated between the two stacks.  If all the items
+	 * charges need to be allocated between the two stacks.   If all the items
 	 * are being dropped, it makes for a neater message to leave the original
 	 * stack's pval alone. -LM-
 	 */
@@ -1395,24 +1395,29 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Normally, require identical knowledge of both items */
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) 
 			{
-				/* Hack - Allow pseudo and fully-IDed ammo without 
+				/*
+				 * Hack - Allow pseudo and fully-IDed ammo without 
 				 * plusses to stack together.
 				 */
 				if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || 
 					(o_ptr->tval == TV_SHOT))
 				{
-					if (!((o_ptr->ident & (IDENT_SENSE) || 
-						object_known_p(o_ptr)) &&
-						(j_ptr->ident & (IDENT_SENSE) || 
-						object_known_p(j_ptr)) && 
+					if (((o_ptr->ident & (IDENT_SENSE) && 
+						object_known_p(j_ptr)) ||
+						(j_ptr->ident & (IDENT_SENSE) && 
+						object_known_p(o_ptr))) && 
 						o_ptr->to_h == 0 && o_ptr->to_d == 0 &&
-						j_ptr->to_h == 0 && j_ptr->to_d == 0))
+						j_ptr->to_h == 0 && j_ptr->to_d == 0)
 					{
-						return(FALSE);
+						/* Fall through */
 					}
+
+					/* Usually don't stack. */
+					else return (FALSE);
 				}
 
-				else return (0);
+				/* Usually don't stack. */
+				else return (FALSE);
 			}
 
 			/* Require identical "bonuses" */
@@ -1639,25 +1644,25 @@ void object_prep(object_type *o_ptr, int k_idx)
  *
  * A sample distribution of values from "m_bonus(10, N)" is shown below:
  *
- *   N       0     1     2     3     4     5     6     7     8     9    10
- * ---    ----  ----  ----  ----  ----  ----  ----  ----  ----  ----  ----
- *   0   66.37 13.01  9.73  5.47  2.89  1.31  0.72  0.26  0.12  0.09  0.03
- *   8   46.85 24.66 12.13  8.13  4.20  2.30  1.05  0.36  0.19  0.08  0.05
- *  16   30.12 27.62 18.52 10.52  6.34  3.52  1.95  0.90  0.31  0.15  0.05
- *  24   22.44 15.62 30.14 12.92  8.55  5.30  2.39  1.63  0.62  0.28  0.11
- *  32   16.23 11.43 23.01 22.31 11.19  7.18  4.46  2.13  1.20  0.45  0.41
- *  40   10.76  8.91 12.80 29.51 16.00  9.69  5.90  3.43  1.47  0.88  0.65
- *  48    7.28  6.81 10.51 18.27 27.57 11.76  7.85  4.99  2.80  1.22  0.94
- *  56    4.41  4.73  8.52 11.96 24.94 19.78 11.06  7.18  3.68  1.96  1.78
- *  64    2.81  3.07  5.65  9.17 13.01 31.57 13.70  9.30  6.04  3.04  2.64
- *  72    1.87  1.99  3.68  7.15 10.56 20.24 25.78 12.17  7.52  4.42  4.62
- *  80    1.02  1.23  2.78  4.75  8.37 12.04 27.61 18.07 10.28  6.52  7.33
- *  88    0.70  0.57  1.56  3.12  6.34 10.06 15.76 30.46 12.58  8.47 10.38
- *  96    0.27  0.60  1.25  2.28  4.30  7.60 10.77 22.52 22.51 11.37 16.53
- * 104    0.22  0.42  0.77  1.36  2.62  5.33  8.93 13.05 29.54 15.23 22.53
- * 112    0.15  0.20  0.56  0.87  2.00  3.83  6.86 10.06 17.89 27.31 30.27
- * 120    0.03  0.11  0.31  0.46  1.31  2.48  4.60  7.78 11.67 25.53 45.72
- * 128    0.02  0.01  0.13  0.33  0.83  1.41  3.24  6.17  9.57 14.22 64.07
+ *   N	     0	   1	 2     3     4	   5	 6     7     8	   9	10
+ * ---	  ----	----  ----  ----  ----	----  ----  ----  ----	----  ----
+ *   0	 66.37 13.01  9.73  5.47  2.89	1.31  0.72  0.26  0.12	0.09  0.03
+ *   8	 46.85 24.66 12.13  8.13  4.20	2.30  1.05  0.36  0.19	0.08  0.05
+ *  16	 30.12 27.62 18.52 10.52  6.34	3.52  1.95  0.90  0.31	0.15  0.05
+ *  24	 22.44 15.62 30.14 12.92  8.55	5.30  2.39  1.63  0.62	0.28  0.11
+ *  32	 16.23 11.43 23.01 22.31 11.19	7.18  4.46  2.13  1.20	0.45  0.41
+ *  40	 10.76	8.91 12.80 29.51 16.00	9.69  5.90  3.43  1.47	0.88  0.65
+ *  48	  7.28	6.81 10.51 18.27 27.57 11.76  7.85  4.99  2.80	1.22  0.94
+ *  56	  4.41	4.73  8.52 11.96 24.94 19.78 11.06  7.18  3.68	1.96  1.78
+ *  64	  2.81	3.07  5.65  9.17 13.01 31.57 13.70  9.30  6.04	3.04  2.64
+ *  72	  1.87	1.99  3.68  7.15 10.56 20.24 25.78 12.17  7.52	4.42  4.62
+ *  80	  1.02	1.23  2.78  4.75  8.37 12.04 27.61 18.07 10.28	6.52  7.33
+ *  88	  0.70	0.57  1.56  3.12  6.34 10.06 15.76 30.46 12.58	8.47 10.38
+ *  96	  0.27	0.60  1.25  2.28  4.30	7.60 10.77 22.52 22.51 11.37 16.53
+ * 104	  0.22	0.42  0.77  1.36  2.62	5.33  8.93 13.05 29.54 15.23 22.53
+ * 112	  0.15	0.20  0.56  0.87  2.00	3.83  6.86 10.06 17.89 27.31 30.27
+ * 120	  0.03	0.11  0.31  0.46  1.31	2.48  4.60  7.78 11.67 25.53 45.72
+ * 128	  0.02	0.01  0.13  0.33  0.83	1.41  3.24  6.17  9.57 14.22 64.07
  */
 static s16b m_bonus(int max, int level)
 {
@@ -2113,6 +2118,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				if (rand_int(MAX_DEPTH) < level)
 				{
 					o_ptr->name2 = EGO_MORGUL;
+					if (o_ptr->to_d < 0) o_ptr->to_d -= o_ptr->to_d;
 				}
 			}
 
@@ -3243,7 +3249,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			break;
 		}
 
-		case TV_CHEST:  /* changed by LM */
+		case TV_CHEST:	/* changed by LM */
 		{
 			/* Hack -- pick a "value/difficulty", capable of being
 			 * as little as chest level - 16... */
@@ -3278,7 +3284,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  *
  * The base "chance" of the item being "good" increases with the "level"
  * parameter, which is usually derived from the dungeon level, being equal
- * to the level plus 10, up to a maximum of 75.  If "good" is true, then
+ * to the level plus 10, up to a maximum of 75.   If "good" is true, then
  * the object is guaranteed to be "good".  If an object is "good", then
  * the chance that the object will be "great" (ego-item or artifact), also
  * increases with the "level", being equal to half the level, plus 5, up to
@@ -3306,7 +3312,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
 
-	/* Base chance of being "good".  Reduced in Oangband. */
+	/* Base chance of being "good".   Reduced in Oangband. */
 	good_percent = 2 * lev / 3 + 10;
 
 	/* Maximal chance of being "good".  Reduced in Oangband. */
@@ -3419,7 +3425,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_SWORD:
 		{
 			/* All melee weapons get a chance to improve their base
-			 * damage dice.  Note the maximum value for dd*ds of 40.
+			 * damage dice.   Note the maximum value for dd*ds of 40.
 			 */
 			int newdicesides = 0;
 
@@ -3896,9 +3902,10 @@ static bool kind_is_good(int k_idx)
 bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 {
 	int prob, base;
-	bool sq_flag = FALSE;
 
 	object_kind *k_ptr;
+
+	bool sq_flag = FALSE;
 
 	/* Chance of "special object" */
 	prob = ((good) ? 10 : 1000);
@@ -3950,18 +3957,18 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		/* Handle failure */
 		if (!k_idx)
 		{
-		        /* Clear any special object restriction, and prepare the standard
-                         * object allocation table.
-                         */
-		        if (get_obj_num_hook)
+			/* Clear any special object restriction, and prepare the standard
+			 * object allocation table.
+			 */
+			if (get_obj_num_hook)
 			{
-                                   /* Clear restriction */
-                                   get_obj_num_hook = NULL;
+				   /* Clear restriction */
+				   get_obj_num_hook = NULL;
 
-                                   /* Prepare allocation table */
-                                   get_obj_num_prep();
+				   /* Prepare allocation table */
+				   get_obj_num_prep();
 			}
-		       
+
 			/* No object was created. */
 			return (FALSE);
 		}
@@ -4065,7 +4072,12 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 	}
 
 	/* Do not squelch artifacts */
-	return((sq_flag && !j_ptr->name1)? FALSE : TRUE);
+	if(j_ptr->name1) sq_flag=FALSE;
+
+	if (sq_flag) do_squelch_item(j_ptr);
+
+	/* Return */
+	return(TRUE);
 }
 
 
@@ -4215,7 +4227,7 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
  * some form of "description" of the drop event (under the player).
  *
  * We check several locations to see if we can find a location at which
- * the object can combine, stack, or be placed.  Artifacts will try very
+ * the object can combine, stack, or be placed.   Artifacts will try very
  * hard to be placed, including "teleporting" to a useful grid if needed.
  */
 void drop_near(object_type *j_ptr, int chance, int y, int x)
@@ -4248,7 +4260,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	{
 		/* Message */
 		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (breakage).");
@@ -4362,7 +4374,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	{
 		/* Message */
 		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (no floor space).");
@@ -4409,7 +4421,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	{
 		/* Message */
 		msg_format("The %s disappear%s.",
-		           o_name, (plural ? "" : "s"));
+			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
 		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
@@ -4451,9 +4463,12 @@ void acquirement(int y1, int x1, int num, bool great)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make a good (or great) object (if possible) */
-		if (make_object(i_ptr, TRUE, great, FALSE))
-		  drop_near(i_ptr, -1, y1, x1);
+		/* Make a good (or great) object */
+		if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
+
+		/* Drop the object */
+		drop_near(i_ptr, -1, y1, x1);
+ 
 	}
 }
 
@@ -4478,7 +4493,7 @@ void place_object(int y, int x, bool good, bool great, bool exact_kind)
 	/* Wipe the object */
 	object_wipe(i_ptr);
 
-	/* Make an object (if possible) */
+	/* Make an object */
 	if (make_object(i_ptr, good, great, exact_kind))
 	{
 		/* Give it to the floor */
@@ -4488,6 +4503,7 @@ void place_object(int y, int x, bool good, bool great, bool exact_kind)
 			a_info[i_ptr->name1].creat_stat = 0;
 		}
 	}
+
 }
 
 
@@ -5017,10 +5033,10 @@ bool inven_carry_okay(object_type *o_ptr)
 	int j;
 
 	/* Empty slot? */
-	if (p_ptr->inven_cnt < INVEN_PACK) return (TRUE);
+	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce) return (TRUE);
 
 	/* Similar slot? */
-	for (j = 0; j < INVEN_PACK; j++)
+	for (j = 0; j < INVEN_PACK - p_ptr->pack_size_reduce; j++)
 	{
 		object_type *j_ptr = &inventory[j];
 
@@ -5230,6 +5246,7 @@ s16b inven_takeoff(int item, int amt)
 	object_type object_type_body;
 
 	cptr act;
+	cptr act2 = "";
 
 	char o_name[120];
 
@@ -5273,6 +5290,13 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were holding";
 	}
 
+	/* Removed something from the quiver slots */
+	else if ((item >= INVEN_Q0) && (item <= INVEN_Q9))
+	{
+		act = "You removed";
+		act2 = "from your quiver";
+	}
+
 	/* Took off something */
 	else
 	{
@@ -5287,7 +5311,7 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(i_ptr);
 
 	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	msg_format("%s %s (%c) %s.", act, o_name, index_to_label(slot), act2);
 
 	/* Return slot */
 	return (slot);
@@ -5537,6 +5561,317 @@ void reorder_pack(void)
 	/* Message */
 	if (flag) msg_print("You reorder some items in your pack.");
 }
+
+
+
+/*
+ * Copy of "get_tag" (in object1.c) that looks only at the given 
+ * inventory slot, and accepts any letter between '@' and the number.
+ * Stores the number found.
+ */
+static bool get_tag_num(int i, int *tag_num)
+{
+	cptr s;
+
+	object_type *o_ptr = &inventory[i];
+
+	/* Skip non-objects */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	/* Skip empty inscriptions */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '@' */
+	s = strchr(quark_str(o_ptr->note), '@');
+
+	/* Process all tags */
+	while (s)
+	{
+		/* Check the tags */
+		if (isdigit(s[1]) || isdigit(s[2]))
+		{
+			/* Store tag */
+			if (isdigit(s[1])) *tag_num = D2I(s[1]);
+			else if (isdigit(s[2])) *tag_num = D2I(s[2]);
+
+			/* Success */
+			return (TRUE);
+		}
+
+		/* Find another '@' */
+		s = strchr(s + 1, '@');
+	}
+
+	/* No tag of the type we're looking for */
+	return (FALSE);
+}
+
+
+/*
+ * Update (combine and sort ammo in) the quiver.  If requested, find 
+ * the right slot to put new ammo in, and make it available.
+ *
+ * Items marked with inscriptions of the form "@ [any letter or none] 
+ * [any digit]" ("@f4", "@4", etc.) will be placed in the slot the 
+ * digit corresponds to.  Everything else will be sorted around them.
+ */
+void process_quiver(int *slot, object_type *o_ptr)
+{
+	int i, j, k, num;
+	int tag_num, ammo_num;
+
+	s32b i_value;
+	s32b j_value;
+
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+	object_type object_type_body;
+
+	bool flag = FALSE;
+
+	bool untouchable[1 + INVEN_Q9 - INVEN_Q0];
+
+
+	/* All slots start out being alterable. */
+	for (i = 0; i < 1 + INVEN_Q9 - INVEN_Q0; i++) 
+		untouchable[i] = FALSE;
+
+
+	/* Combine the quiver (backwards) */
+	for (i = INVEN_Q9; i > INVEN_Q0; i--)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Skip empty items */
+		if (!i_ptr->k_idx) continue;
+
+		/* Scan the items above that item */
+		for (j = INVEN_Q0; j < i; j++)
+		{
+			/* Get the item */
+			j_ptr = &inventory[j];
+
+			/* Skip empty items */
+			if (!j_ptr->k_idx) continue;
+
+			/* Can we drop "i_ptr" onto "j_ptr"? */
+			if (object_similar(j_ptr, i_ptr))
+			{
+				/* Take note */
+				flag = TRUE;
+
+				/* Add together the item counts */
+				object_absorb(j_ptr, i_ptr);
+
+				/* One object is gone */
+				p_ptr->inven_cnt--;
+
+				/* Slide everything down */
+				for (k = i; k < INVEN_Q9; k++)
+				{
+					/* Hack -- slide object */
+					COPY(&inventory[k], &inventory[k+1], object_type);
+				}
+
+				/* Hack -- wipe hole */
+				object_wipe(&inventory[k]);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_EQUIP);
+
+				/* Done */
+				break;
+			}
+		}
+	}
+
+	/* Re-order the quiver (forwards) */
+	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!i_ptr->k_idx) continue;
+
+		/*
+		 * put items inscribed "@#" into the quiver corresponding 
+		 * to their number.
+		 */
+		/* Get the inscription of the item. */
+		if ((get_tag_num(i, &tag_num)) && (tag_num != i - INVEN_Q0))
+		{
+			/* Save tag number of this object */
+			int tag_num1 = tag_num;
+
+			/* Get local object */
+			j_ptr = &object_type_body;
+
+			/* Save a copy of the moving item */
+			object_copy(j_ptr, &inventory[i]);
+
+			/* Move the item in the destination slot to the original location. */
+			object_copy(&inventory[i], &inventory[INVEN_Q0 + tag_num]);
+
+			/* Put the tagged item where it wants to go. */
+			object_copy(&inventory[INVEN_Q0 + tag_num], j_ptr);
+
+			/* XXX -- Delete any duplicate tags. */
+			if ((get_tag_num(i, &tag_num)) && (tag_num == tag_num1))
+			{
+				j_ptr = &inventory[i];
+				j_ptr->note = 0;
+			}
+
+			/* Mark the destination slot as being untouchable. */
+			untouchable[INVEN_Q0 + tag_num] = TRUE;
+
+			/* Go to next slot. */
+			continue;
+		}
+
+		/* Leave items with inscriptions that match their slots alone. */
+		if ((get_tag_num(i, &tag_num)) && (tag_num == i - INVEN_Q0))
+		{
+			/* Mark this slot as being untouchable */
+			untouchable[i - INVEN_Q0] = TRUE;
+
+			/* Go to next slot. */
+			 continue;
+		}
+
+		/* Get the "value" of the item */
+		i_value = object_value(i_ptr);
+
+		/* Scan every occupied slot */
+		for (j = INVEN_Q0; j <= INVEN_Q9; j++)
+		{
+			/* Skip untouchable slots. */
+			if (untouchable[j - INVEN_Q0]) continue;
+
+			/* Get the item already there */
+			j_ptr = &inventory[j];
+
+			/* Use empty slots */
+			if (!j_ptr->k_idx) break;
+
+			/* Objects sort by decreasing type */
+			if (i_ptr->tval > j_ptr->tval) break;
+			if (i_ptr->tval < j_ptr->tval) continue;
+
+			/* Non-aware (flavored) items always come last */
+			if (!object_aware_p(i_ptr)) continue;
+			if (!object_aware_p(j_ptr)) break;
+
+			/* Objects sort by increasing sval */
+			if (i_ptr->sval < j_ptr->sval) break;
+			if (i_ptr->sval > j_ptr->sval) continue;
+
+			/* Unidentified objects always come last */
+			if (!object_known_p(i_ptr)) continue;
+			if (!object_known_p(j_ptr)) break;
+
+			/* Determine the "value" of the pack item */
+			j_value = object_value(j_ptr);
+
+			/* Objects sort by decreasing value */
+			if (i_value > j_value) break;
+			if (i_value < j_value) continue;
+		}
+
+		/* Never move down */
+		if (j >= i) continue;
+
+		/* Take note */
+		flag = TRUE;
+
+		/* Get local object */
+		j_ptr = &object_type_body;
+
+		/* Save a copy of the moving item */
+		object_copy(j_ptr, &inventory[i]);
+
+		/* Slide the objects */
+		for (k = i; k > j;)
+		{
+			/* Do not alter untouchable slots. */
+			for (num = 1; num < 11;)
+			{
+				if (untouchable[k - num - INVEN_Q0]) num++;
+				else break;
+			}
+
+			/* Slide the item */
+			object_copy(&inventory[k], &inventory[k-num]);
+
+			/* Move down to the next alterable slot. */
+			k -= num;
+		}
+
+		/* Insert the moving item */
+		object_copy(&inventory[j], j_ptr);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
+	}
+
+	/*
+	 * Items in the quiver take up space which needs to be subtracted 
+	 * from space available elsewhere.
+	 */
+	ammo_num = 0;
+
+	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty. */
+		if (!i_ptr->k_idx) continue;
+
+		/* Tally up missiles. */
+		ammo_num += i_ptr->number;
+	}
+
+	/* Every 99 missiles in the quiver takes up one backpack slot. */
+	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
+
+
+	/* Message */
+	if ((!slot) && (flag)) msg_print("You reorganize your quiver.");
+
+
+	/* If requested, find a slot for new ammo. */
+	if (slot)
+	{
+		/* Search for available slots. */
+		for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+		{
+			/* Get the item */
+			i_ptr = &inventory[i];
+
+			/* Accept empty slot */
+			if (!i_ptr->k_idx)
+			{
+				*slot = i;
+				return;
+			}
+
+			/* Accept slot that has space to absorb more */
+			if (object_similar(o_ptr, i_ptr))
+			{
+				*slot = i;
+				return;
+			}
+		}
+
+		/* No slot available. */
+		*slot = 0;
+	}
+}
+
 
 
 

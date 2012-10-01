@@ -71,27 +71,27 @@ cptr obj_special_info[6][50] =
 {
 	/* Dragon Scale Mails. */
 	{
-		"",	/*  */
-		"(It can breathe acid for 150 damage)",	/* Black */
-		"(It can breathe lightning for 130 damage)",	/* Blue */
-		"(It can breathe frost for 140 damage)",	/* White */
-		"(It can breathe fire for 160 damage)",	/* Red */
-		"(It can breathe poison for 150 damage)",	/* Green */
+		"",								/*  */
+		"(It can breathe acid for 150 damage)",				/* Black */
+		"(It can breathe lightning for 130 damage)",			/* Blue */
+		"(It can breathe frost for 140 damage)",			/* White */
+		"(It can breathe fire for 160 damage)",				/* Red */
+		"(It can breathe poison for 150 damage)",			/* Green */
 		"(It can breathe any of various elements for 190 damage)",	/* Multihued */
-		"",	"",	"",	/*  */
-		"(It can breathe light or darkness for 160 damage)",	/* Shining */
-		"",	/*  */
-		"(It can breathe sound or shards for 190 damage)",	/* Law */
-		"",	/*  */
-		"(It can breathe confusion for 130 damage)",	/* Bronze */
-		"",	/*  */
-		"(It can breathe sound for 130 damage)",	/* Gold */
-		"",	/*  */
+		"",	"",	"",						/*  */
+		"(It can breathe light or darkness for 160 damage)",		/* Shining */
+		"",								/*  */
+		"(It can breathe sound or shards for 190 damage)",		/* Law */
+		"",								/*  */
+		"(It can breathe confusion for 130 damage)",			/* Bronze */
+		"",								/*  */
+		"(It can breathe sound for 130 damage)",			/* Gold */
+		"",								/*  */
 		"(It can breathe chaos or disenchantment for 180 damage)",	/* Chaos */
-		"",	/*  */
+		"",								/*  */
 		"(It can breathe sound, shards, chaos, or disenchantment for 210 damage)",	/* Balance */
 		"",	"",	"",	"",	"",	"",	"",	"",	"",
-		"(It can breathe just about anything for 240 damage)",	/* Power */
+		"(It can breathe just about anything for 240 damage)",		/* Power */
 		"",	"",	"",	"",	"",	"",	"",	"",	"",	"",
 		"",	"",	"",	"",	"",	"",	"",	"",	""
 	},
@@ -252,7 +252,7 @@ cptr obj_special_info[6][50] =
 		"(damage: 140)",			/* Dragon's Frost */
 		"(damage: 150 - 170)",		/* Dragon's Breath */
 		"(damage: 10 - 234)",		/* Striking */
-		"(damage: 20 - 160)",		/* Storms */
+		"(damage: 35 - 140)",		/* Storms */
 		"",		/*  */
 		"",		/*  */
 		"",		/*  */
@@ -1185,7 +1185,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_CAMMITHRIM:
 		{
-			return "magic missile (2d6) every 2 turns";
+			return "magic missile (2d6) every turn";
 		}
 		case ACT_EOL:
 		{
@@ -1581,55 +1581,55 @@ cptr item_activation(object_type *o_ptr)
 
 		case ACT_DRAGON_BLUE:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe lightning (130) every 350+d350 turns";
+			return "assume dragon form; Activation in dragon form: breathe lightning (130) every 350+d350 turns";
 		}
 		case ACT_DRAGON_WHITE:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe frost (140) every 350+d350 turns";
+			return "assume dragon form; Activation in dragon form: breathe frost (140) every 350+d350 turns";
 		}
 		case ACT_DRAGON_BLACK:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe acid (150) every 350+d350 turns";
+			return "assume dragon form; Activation in dragon form: breathe acid (150) every 350+d350 turns";
 		}
 		case ACT_DRAGON_GREEN:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe poison gas (150) every 350+d350 turns";
+			return "assume dragon form; Activation in dragon form: breathe poison gas (150) every 350+d350 turns";
 		}
 		case ACT_DRAGON_RED:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe fire (160) every 350+d350 turns";
+			return "assume dragon form; Activation in dragon form: breathe fire (160) every 350+d350 turns";
 		}
 		case ACT_DRAGON_MULTIHUED:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe an element or poison (190) every 350+d350 turns";
+			return "assume dragon form; Activation in dragon form: breathe an element or poison (190) every 350+d350 turns";
 		}
 		case ACT_DRAGON_BRONZE:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe confusion (130) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe confusion (130) every 300+d300 turns";
 		}
 		case ACT_DRAGON_GOLD:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe sound (130) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe sound (130) every 300+d300 turns";
 		}
 		case ACT_DRAGON_CHAOS:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe chaos/disenchant (180) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe chaos/disenchant (180) every 300+d300 turns";
 		}
 		case ACT_DRAGON_LAW:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe sound/shards (190) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe sound/shards (190) every 300+d300 turns";
 		}
 		case ACT_DRAGON_BALANCE:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe balance (210) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe balance (210) every 300+d300 turns";
 		}
 		case ACT_DRAGON_SHINING:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe light/darkness (160) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe light/darkness (160) every 300+d300 turns";
 		}
 		case ACT_DRAGON_POWER:
 		{
-			return "Assume Dragonform; Activation in Dragonform: breathe the elements (240) every 300+d300 turns";
+			return "assume dragon form; Activation in dragon form: breathe the elements (240) every 300+d300 turns";
 		}
 
 		case ACT_RING_ACID:
@@ -1651,6 +1651,10 @@ cptr item_activation(object_type *o_ptr)
 		case ACT_AMULET_ESCAPING:
 		{
 			return "teleport(40) every 40+d40 turns";
+		}
+		case ACT_AMULET_LION:
+		{
+			return "become lion every 40+d40 turns";
 		}
 		case ACT_BALROG_WHIP:
 		{
@@ -1680,7 +1684,6 @@ void identify_fully_aux(object_type *o_ptr)
 
 	int attr_listed = 0;
 	int attr_num = 0;
-
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -2454,8 +2457,6 @@ void identify_fully_aux(object_type *o_ptr)
  * Use the "roff()" routines, perhaps.  XXX XXX XXX
  *
  * Use the "show_file()" method, perhaps.  XXX XXX XXX
- *
- * This function cannot display more than 20 lines.  XXX XXX XXX
  */
 void self_knowledge(void)
 {
@@ -2918,7 +2919,7 @@ void self_knowledge(void)
 		prt(info[j], k++, 0);
 
 		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
+		if ((k == Term->hgt - 2) && (j+1 < i))
 		{
 			prt("-- more --", k, 0);
 			inkey();
@@ -3165,7 +3166,7 @@ void spell_info(char *p, int spell_index)
 			30 + plev * 2, plev / 7); break;
 		case 173: sprintf(p, " dam %d+d%d, rad %d", 3 * plev / 2, 50 + plev * 3, 
 			1 + plev / 15); break;
-		case 174: sprintf(p, " dam %d+d%d, rad 1", 2*plev, 50+plev*3); break;
+		case 174: sprintf(p, " dam %d+d%d, rad 1", 3*plev, 50+plev*5); break;
 		case 175: sprintf(p, " dam %d+d%d, rad %d", 5 * plev / 2, plev * 3, 
 			plev / 10); break;
 		case 177: sprintf(p, " dur %d+d30", plev / 2); break;

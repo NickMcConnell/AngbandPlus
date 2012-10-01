@@ -13,7 +13,8 @@
 
 
 /*
- * This file loads savefiles from Angband 2.7.X and 2.8.X
+ * This file loads savefiles from Angband 2.7.X and 2.8.X, and from all 
+ * (non-beta) versions of Oangband.
  *
  * Ancient savefiles (pre-2.7.0) are loaded by another file.
  *
@@ -271,9 +272,62 @@ static byte convert_owner[24] =
 	3, 2, 0, 2, 1, 2, 3, 0
 };
 
-	
+
+
 /*
- * Artifact conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6 -LM-
+ * Monster conversion -- pre-Oangband 0.5.1 to Oangband 0.5.1. 
+ *
+ * The figure "-1" means that an old monster has no new counterpart, or one 
+ * that is so much more dangerous as to be an insta-kill risk.
+ */
+static int mon_index_conv[] = 
+{
+	  0,   1,  12,  13,  14,   2,   3,   4,   5,   6,   7,   8,   9,  10, 
+	 11,  30,  31,  23,  24,  32,  33,  28,  78,  26,  20,  40,  29,  34, 
+	 25,  27,  21,  22,  52,  54,  45,  37,  38,  60,  39,  53,  55,  46, 
+	 43,  47,  56,  41, 664, 666,  51,  50,  49,  42, 665,  67,  72,  61, 
+	 63,  71,  66,  68,  69,  59,  44,  65,  77,  64,  80,  70,  48,  76, 
+	 75,  81,  82,  79, 104,  62, 667,  39,  92,  88,  94,  89,  85,  93, 
+	 87, 119, 131,  86, 106,  60,  37,  38, 105, 101, 139, 108, 107, 103, 
+	121, 116, 124,  91, 120, 118, 115, 117, 145, 123, 111, 114, 668, 669, 
+	670, 129,  76, 130, 152, 122,  75, 134, 133,  -1, 137, 142, 141,  90, 
+	144, 146, 147, 149, 148, 175, 113, 671, 140, 156, 153, 672, 154, 162, 
+	673, 157, 160, 161, 164, 165, 166, 158, 159, 155, 335, 193, 172,  -1, 
+	169, 189, 182, 183, 234, 676, 179, 207, 288, 185, 163, 215, 209, 174, 
+	178, 180, 184, 211, 181, 677, 201, 250, 319, 208, 192, 191, 246, 678, 
+	197, 199, 202, 173, 196, 198, 204, 213, 243, 214, 226, 221, 222, 228, 
+	190, 219, 220, 229, 225, 276, 169, 223, 236, 313, 237, 235, 233, 244, 
+	241, 679, 249, 262, 258, 680, 453, 200, 256, 227, 257, 268, 269, 270, 
+	277, 266, 272, 683, 684, 280, 283, 255, 292, 291, 282, 685, 300, 299, 
+	301, 302, 297, 303, 304, 306, 305, 267, 296, 328, 687, 686, 265, 332, 
+	323, 324, 325, 364, 342, 281, 340, 212, 158, 346, 690, 422, 298, 345, 
+	347, 248, 688, 689, 352, 355, 353, 691, 692, 330, 354, 358, 327, 341, 
+	410, 359, 311, 253, 695,  -1, 254, 307, 293, 374, 698, 337, 375, 360, 
+	372, 373, 201, 706, 361, 378, 380, 390, 389, 386, 696, 387, 393, 697, 
+	395, 381, 379, 404, 402, 406, 273, 274, 284, 308, 432, 314, 203, 411, 
+	320, 336, 349, 388, 398, 417, 201, 425, 710, 421, 431, 423, 405, 433, 
+	441, 382, 203, 440, 490, 506, 383, 701, 702, 703, 435, 436, 447, 434, 
+	479, 446, 403, 359, 529, 704, 458, 459, 321, 454, 472, 466, 471, 473, 
+	465, 467, 470, 468, 262, 482, 480, 434, 275, 478, 401, 427, 551, 530, 
+	489, 418, 368, 487, 315, 707, 426, 437, 443, 316, 492, 460, 488, 562, 
+	718, 409, 414, 705, 499, 510, 312, 442, 497, 498, 455, 448, 474, 428, 
+	475, 502, 708, 503, 504, 531, 552, 716, 496, 709, 711, 505, 491, 547, 
+	481, 523, 712, 713, 532, 537, 512, 509, 361, 533, 517, 520, 524, 589, 
+	540, 515, 486, 495, 519, 516, 725, 518, 717, 555, 553, 560, 571, 511, 
+	525, 728, 528, 567, 543, 731, 719, 542, 548, 734, 556, 563, 482, 478, 
+	572, 579, 737, 568, 720, 602, 721, 545, 578, 482, 605, 732, 745, 738, 
+	591, 614, 592, 559, 722, 748, 570, 739, 590, 535, 574, 575, 521, 593, 
+	726, 727, 747, 634, 754, 535, 594, 735, 596, 576, 632, 586, 588, 608, 
+	729, 730, 601, 522, 733, 744, 751, 736, 639, 740, 749, 482, 750, 619, 
+	600, 615, 616, 620, 760, 761, 627, 622, 626, 648, 766, 758, 757, 630, 
+	762, 759, 770, 764, 763, 652, 769, 765, 752, 743, 746, 753,  -1, 771, 
+	775, 776, 777, 778, 779, 780, 781, 782, 783, 784, 785, 786, 787,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
+};
+
+/*
+ * Artifact conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6 
  */
 static byte conv_arti[128] = 
 {
@@ -418,7 +472,7 @@ static byte conv_arti[128] =
 };
 
 /*
- * Object conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6. -LM-
+ * Object conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6. 
  */
 static int obj_index_conv[] = 
 {
@@ -475,7 +529,6 @@ static int obj_index_conv[] =
 	733, 734, 735, 736, 737, 738, 741, 742, 743, 744, 
 	745, 746
 };
-
 
 /*
  * Old pre-2.7.4 inventory slot values
@@ -1221,7 +1274,13 @@ static void rd_monster(monster_type *m_ptr)
 	s16b tmp16u;
 
 	/* Read the monster race */
-	rd_s16b(&m_ptr->r_idx);
+	rd_s16b(&tmp16u);
+
+	/* Convert monster indexes for pre 0.5.1 savefiles. */
+	if (o_older_than(0, 5, 1)) m_ptr->r_idx = mon_index_conv[tmp16u];
+
+	/* Otherwise, accept the index stored. */
+	else m_ptr->r_idx = tmp16u;
 
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
@@ -1239,6 +1298,11 @@ static void rd_monster(monster_type *m_ptr)
 	if (o_older_than(0, 3, 3)) rd_byte(&tmp8u);
 	else rd_byte(&m_ptr->stasis);
 
+	/* Verify monster HPs. */
+	if ((o_older_than(0, 5, 1)) && (m_ptr->hp > m_ptr->maxhp))
+		m_ptr->hp = m_ptr->maxhp;
+
+
 	/* Oangband 0.5.0 saves 'smart learn' flags and
 	 * Black Breath state.
 	 */
@@ -1246,14 +1310,32 @@ static void rd_monster(monster_type *m_ptr)
 	if (!o_older_than(0, 5, 0)) rd_s32b(&m_ptr->smart);
 
 	/* Oangband 0.5.0 saves some more data not yet in use */
-	if (!o_older_than(0, 5, 0)){
-	  rd_byte(&tmp8u);
-	  rd_byte(&tmp8u);
-	  rd_byte(&tmp8u);
-	  rd_byte(&tmp8u);
-	  rd_s16b(&tmp16u);
-	  rd_s16b(&tmp16u);
+	if (!o_older_than(0, 5, 0))
+	{
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
 	}
+
+	/* Monster extra desire to cast harassment spells */
+	if (!o_older_than(0, 5, 0))
+	{
+		rd_byte(&m_ptr->harass);
+	}
+
+	/* 
+	 * Monster mana.
+	 * 0.5.0 saves a placeholder.
+	 * 0.5.1 saves real data.
+	 */
+	if (!o_older_than(0, 5, 0))
+	{
+		rd_byte(&m_ptr->mana);
+	}
+
+	/* Spare */
+	if (!o_older_than(0, 5, 0)) rd_s16b(&tmp16u);
 
 }
 
@@ -1838,10 +1920,10 @@ static errr rd_extra(void)
 	 * use the old maximize and preserve bytes.
 	 */
 
-        rd_byte(&tmp8u);
+	rd_byte(&tmp8u);
 	if (older_than(2, 8, 5)) adult_maximize = tmp8u;
-        rd_byte(&tmp8u);
-        if (older_than(2, 8, 5)) adult_preserve = tmp8u;
+	rd_byte(&tmp8u);
+	if (older_than(2, 8, 5)) adult_preserve = tmp8u;
 
 	/* Current shapechange. Note: this byte is related to random artifacts
 	 * in some versions of Standard Angband */
@@ -2663,8 +2745,8 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		/* Hack -- ignore "broken" monsters */
 		if (n_ptr->r_idx <= 0) continue;
 
-		/* Hack -- no old-style player ghosts. */
-		if (n_ptr->r_idx >= MAX_R_IDX-1) continue;
+		/* Hack -- no illegal monsters. */
+		if (n_ptr->r_idx >= MAX_R_IDX) continue;
 
 
 		/* Place monster in dungeon */
@@ -2905,6 +2987,13 @@ static errr rd_dungeon(void)
 		/* Read the monster */
 		rd_monster(n_ptr);
 
+		/* Hack -- ignore "broken" monsters */
+		if (n_ptr->r_idx <= 0) continue;
+
+		/* Hack -- no illegal monsters. */
+		if (n_ptr->r_idx >= MAX_R_IDX) continue;
+
+
 		/* Access the "r_idx" of the chosen monster */
 		r_idx = n_ptr->r_idx;
 
@@ -2923,6 +3012,9 @@ static errr rd_dungeon(void)
 			note(format("Cannot place monster %d", i));
 			return (162);
 		}
+
+		/* mark minimum range for recalculation */
+		n_ptr->min_range = 0;
 	}
 
 	/*
@@ -2957,7 +3049,7 @@ static errr rd_dungeon(void)
  */
 static errr rd_savefile_new_aux(void)
 {
-	int i;
+	int i, j;
 
 	int total_artifacts = 0;
 	int random_artifacts = 0;
@@ -3057,12 +3149,22 @@ static errr rd_savefile_new_aux(void)
 		monster_race *r_ptr;
 		monster_lore *l_ptr;
 
+		/* Calculate or accept the monster race. */
+		if (o_older_than(0, 5, 1)) 
+		{
+			j = mon_index_conv[i];
+
+			/* Hack -- handle monsters we can't convert. */
+			if ((j < 0) || (j > MAX_R_IDX)) j = 0;
+		}
+		else j = i;
+
 		/* Read the lore */
-		rd_lore(i);
+		rd_lore(j);
 
 		/* Access that monster */
-		r_ptr = &r_info[i];
-		l_ptr = &l_list[i];
+		r_ptr = &r_info[j];
+		l_ptr = &l_list[j];
 
 		/* XXX XXX Hack -- repair old savefiles */
 		if (older_than(2, 7, 6))

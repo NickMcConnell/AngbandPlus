@@ -235,7 +235,7 @@ static void prt_gold(void)
 }
 
 /*
- * Prints current shape, if not normal.  -LM-
+ * Prints current shape, if not normal.   -LM-
  */
 static void prt_shape(void)
 {
@@ -405,7 +405,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), ROW_DEPTH, COL_DEPTH);
+	c_prt(TERM_L_BLUE, format("%7s", depths), Term->hgt - 1, Term->wid - 10);
 }
 
 
@@ -417,37 +417,37 @@ static void prt_hunger(void)
 	/* Fainting / Starving */
 	if (p_ptr->food < PY_FOOD_FAINT)
 	{
-		c_put_str(TERM_RED, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_RED, "Weak  ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Weak */
 	else if (p_ptr->food < PY_FOOD_WEAK)
 	{
-		c_put_str(TERM_ORANGE, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_ORANGE, "Weak  ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Hungry */
 	else if (p_ptr->food < PY_FOOD_ALERT)
 	{
-		c_put_str(TERM_YELLOW, "Hungry", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_YELLOW, "Hungry", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Normal */
 	else if (p_ptr->food < PY_FOOD_FULL)
 	{
-		c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "      ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Full */
 	else if (p_ptr->food < PY_FOOD_MAX)
 	{
-		c_put_str(TERM_L_GREEN, "Full  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "Full  ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Gorged */
 	else
 	{
-		c_put_str(TERM_GREEN, "Gorged", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_GREEN, "Gorged", Term->hgt - 1, COL_HUNGRY);
 	}
 }
 
@@ -459,11 +459,11 @@ static void prt_blind(void)
 {
 	if (p_ptr->blind)
 	{
-		c_put_str(TERM_ORANGE, "Blind", ROW_BLIND, COL_BLIND);
+		c_put_str(TERM_ORANGE, "Blind", Term->hgt - 1, COL_BLIND);
 	}
 	else
 	{
-		put_str("     ", ROW_BLIND, COL_BLIND);
+		put_str("     ", Term->hgt - 1, COL_BLIND);
 	}
 }
 
@@ -475,11 +475,11 @@ static void prt_confused(void)
 {
 	if (p_ptr->confused)
 	{
-		c_put_str(TERM_ORANGE, "Confused", ROW_CONFUSED, COL_CONFUSED);
+		c_put_str(TERM_ORANGE, "Confused", Term->hgt - 1, COL_CONFUSED);
 	}
 	else
 	{
-		put_str("        ", ROW_CONFUSED, COL_CONFUSED);
+		put_str("        ", Term->hgt - 1, COL_CONFUSED);
 	}
 }
 
@@ -491,11 +491,11 @@ static void prt_afraid(void)
 {
 	if (p_ptr->afraid)
 	{
-		c_put_str(TERM_ORANGE, "Afraid", ROW_AFRAID, COL_AFRAID);
+		c_put_str(TERM_ORANGE, "Afraid", Term->hgt - 1, COL_AFRAID);
 	}
 	else
 	{
-		put_str("      ", ROW_AFRAID, COL_AFRAID);
+		put_str("      ", Term->hgt - 1, COL_AFRAID);
 	}
 }
 
@@ -507,11 +507,11 @@ static void prt_poisoned(void)
 {
 	if (p_ptr->poisoned)
 	{
-		c_put_str(TERM_ORANGE, "Poisoned", ROW_POISONED, COL_POISONED);
+		c_put_str(TERM_ORANGE, "Poisoned", Term->hgt - 1, COL_POISONED);
 	}
 	else
 	{
-		put_str("        ", ROW_POISONED, COL_POISONED);
+		put_str("        ", Term->hgt - 1, COL_POISONED);
 	}
 }
 
@@ -629,12 +629,12 @@ static void prt_state(void)
 	}
 
 	/* Display the info (or blanks) */
-	c_put_str(attr, text, ROW_STATE, COL_STATE);
+	c_put_str(attr, text, Term->hgt - 1, COL_STATE);
 }
 
 
 /*
- * Prints the speed of a character.			-CJS-
+ * Prints the speed of a character.  		-CJS-
  */
 static void prt_speed(void)
 {
@@ -661,7 +661,7 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-14s", buf), Term->hgt - 1, COL_SPEED);
 }
 
 
@@ -669,11 +669,11 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", ROW_STUDY, 64);
+		put_str("Study", Term->hgt - 1, 64);
 	}
 	else
 	{
-		put_str("     ", ROW_STUDY, COL_STUDY);
+		put_str("     ", Term->hgt - 1, COL_STUDY);
 	}
 }
 
@@ -742,13 +742,29 @@ static void prt_stun(void)
 
 
 
+static void prt_blank(void)
+{
+	int i,j;
+
+	j = (panel_extra_rows ? 2 : 0);
+
+	if (Term->hgt > (j + 24))
+	{
+		for (i=23; i < (Term->hgt - 1 - j); i++)
+		{
+			put_str("            ", i, 0);
+		}
+	}
+}
+
+
 /*
  * Redraw the "monster health bar"
  *
  * The "monster health bar" provides visual feedback on the "health"
  * of the monster currently being "tracked".  There are several ways
  * to "track" a monster, including targetting it, attacking it, and
- * affecting it (and nobody else) with a ranged attack.  When nothing
+ * affecting it (and nobody else) with a ranged attack.   When nothing
  * is being tracked, we clear the health bar.  If the monster being
  * tracked is not currently visible, a special health bar is shown.
  */
@@ -910,6 +926,8 @@ status_type status_info[] = {
 	{0, 0, TERM_SLATE, 7}, /* Stealth */
 };
 
+
+
 /*
  * Initialize the extra status messages.
  */
@@ -918,7 +936,7 @@ static void init_status(void)
 	int i, col, row;
 
 	col = 0;
-	row = screen_y - 3;
+	row = Term->hgt - 3;
 
 	/* Check each status message */
 	for (i = 0; i < STATUS_MAX; i++)
@@ -939,7 +957,7 @@ static void init_status(void)
 		if (i < STATUS_MAX - 1)
 		{
 			/* There isn't room for the next message on this line */
-			if (col + status_info[i + 1].width >= 80 /* screen_x */)
+			if (col + status_info[i + 1].width >= 80)
 			{
 				/* Wrap */
 				col = 0;
@@ -955,8 +973,6 @@ static void init_status(void)
  */
 static void prt_status(void)
 {
-	static bool initialized = FALSE;
-
 	char *s = "                    ";
 
 	int i;
@@ -966,17 +982,10 @@ static void prt_status(void)
 	bool force = FALSE;
 
 	/* XXX Check for room */
-	if (screen_y < 26) return;
+	if (!panel_extra_rows) return;
 
 	/* Initialize */
-	if (!initialized)
-	{
-		/* Initialize */
-		init_status();
-
-		/* Only once */
-		initialized = TRUE;
-	}
+	init_status();
 
 	/* Check each status message */
 	for (i = 0; i < STATUS_MAX; i++)
@@ -1118,7 +1127,7 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-        prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
+	prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -1171,6 +1180,9 @@ static void prt_frame_extra(void)
 	prt_confused();
 	prt_afraid();
 	prt_poisoned();
+
+	/* Blank spaces in bigscreen mode */
+	prt_blank();
 
 	/* State */
 	prt_state();
@@ -1323,7 +1335,7 @@ static void fix_player_1(void)
 /*
  * Hack -- display recent messages in sub-windows
  *
- * Adjust for width and split messages.  XXX XXX XXX
+ * Adjust for width and split messages.   XXX XXX XXX
  */
 static void fix_message(void)
 {
@@ -1351,7 +1363,7 @@ static void fix_message(void)
 		/* Dump messages */
 		for (i = 0; i < h; i++)
 		{
-		        byte color = message_color((s16b)i);
+			byte color = message_color((s16b)i);
 
 			/* Dump the message on the appropriate line */
 			Term_putstr(0, (h - 1) - i, -1, color, message_str(i));
@@ -1525,7 +1537,7 @@ static void calc_spells(void)
 
 	/* Extract total allowed spells */
 	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
-	               levels / 2);
+		       levels / 2);
 
 	/* Boundary control. */
 	if (num_allowed > mp_ptr->spell_number) num_allowed = mp_ptr->spell_number;
@@ -1596,7 +1608,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[s_ptr->index]);
+				   spell_names[s_ptr->index]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1649,7 +1661,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[s_ptr->index]);
+				   spell_names[s_ptr->index]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1705,7 +1717,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[s_ptr->index]);
+				   p, spell_names[s_ptr->index]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -2100,7 +2112,7 @@ static int weight_limit(void)
  * a large, heavy weapon - training that many classes simply do not have the
  * time or inclination for.  -LM- 
  */
-sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type *o_ptr)
+sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
 	int add_skill = 0;
 
@@ -2201,7 +2213,7 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 			break;
 		}
 
-		/* Necromancer.  Can use 6 lb weapons without penalty at level 1, and 16 lb weapons without penalty at 50th level. */
+		/* Necromancer.   Can use 6 lb weapons without penalty at level 1, and 16 lb weapons without penalty at 50th level. */
 		case CLASS_NECRO:
 		{
 			add_skill = 20 + (2 * p_ptr->lev / 3) - (weight / 3);
@@ -2229,40 +2241,27 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 		}
 	}
 
-		/* Now, special racial abilities and limitations are 
-		 * considered.  Most modifiers are relatively small, to 
-		 * keep options open to the player. */
-	switch (prace)
+	/* Now, special racial abilities and limitations are 
+	 * considered.  Most modifiers are relatively small, to 
+	 * keep options open to the player. */
+	if (o_ptr->tval == TV_SWORD)
 	{
-		/* Humans are rather fond of swords.  */
-		case RACE_HUMAN:
-		{
-			if (o_ptr->tval == TV_SWORD)
-			{
-				add_skill += 2 + p_ptr->lev / 10;
-			}
-			break;
-		}
-		/* Dwarves know all about axes. */ 
-		case RACE_DWARF:
-		{
-			if (o_ptr->tval == TV_POLEARM)
-			{
-				add_skill += 3 + p_ptr->lev / 7;
-			}
-			break;
-		}
-
-		/* Ents do not love axes (and similar weapons). */
-		case RACE_ENT:
-		{
-			if (o_ptr->tval == TV_POLEARM)
-			{
-				add_skill -= 3 + p_ptr->lev / 7;
-			}
-			break;
-		}
+		if ((rp_ptr->flags_special) & PS_SWORD_SKILL) add_skill += 3 + p_ptr->lev / 7;
+		else if ((rp_ptr->flags_special) & PS_SWORD_UNSKILL) add_skill -= 3 + p_ptr->lev / 7;
 	}
+
+	else if (o_ptr->tval == TV_POLEARM)
+	{
+		if ((rp_ptr->flags_special) & PS_POLEARM_SKILL) add_skill += 3 + p_ptr->lev / 7;
+		else if ((rp_ptr->flags_special) & PS_POLEARM_UNSKILL) add_skill -= 3 + p_ptr->lev / 7;
+	}
+
+	else if (o_ptr->tval == TV_HAFTED)
+	{
+		if ((rp_ptr->flags_special) & PS_HAFTED_SKILL) add_skill += 3 + p_ptr->lev / 7;
+		else if ((rp_ptr->flags_special) & PS_HAFTED_UNSKILL) add_skill -= 3 + p_ptr->lev / 7;
+	}
+
 	return (add_skill);
 }
 
@@ -2270,7 +2269,7 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
  * penalties to missile Skill 
  */
 
-sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_type *o_ptr)
+sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
 	int add_skill = 0;
 
@@ -2311,55 +2310,26 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			}
 		}
 	}
-		/* Now, special racial abilities and limitations 
-		 * are considered.  The choice of race can be of 
-		 * some significance.
-		 */
-	switch (prace)
+
+	/* Now, special racial abilities and limitations 
+	 * are considered.  The choice of race can be of 
+	 * some significance.
+	 */
+	
+	if (p_ptr->ammo_tval == TV_BOLT)
 	{
-		/* Other races may do better overall, but humans aren't 
-		 * bad with xbows. */
-		case RACE_HUMAN:
-		{
-			if (p_ptr->ammo_tval == TV_BOLT)
-			{
-				add_skill += 3 + p_ptr->lev / 7;
-			}
-			break;
-		}
-		
-		/* Hobbits are good with slings.  Since they already 
-		 * have a high missile skill, this extra bonus 
-		 * is kept small. */
-		case RACE_HOBBIT:
-		{
-			if (p_ptr->ammo_tval == TV_SHOT)
-			{
-				add_skill += 3 + p_ptr->lev / 7;
-			}
-			break;
-		}
-		/* Dwarves tend to be on the receiving end of arrows, 
-		 * and don't like bows. */ 
-		case RACE_DWARF:
-		{
-			if (p_ptr->ammo_tval == TV_ARROW)
-			{
-				add_skill -= (3 + p_ptr->lev / 4);
-			}
-			break;
-		}
-		/* Elves and bows just go together.  High-elves already 
-		 * have a high enough missile skill. */
-		case RACE_HALF_ELF:
-		case RACE_ELF:
-		{
-			if (p_ptr->ammo_tval == TV_ARROW)
-			{
-				add_skill += 4 + p_ptr->lev / 8;
-			}
-			break;
-		}
+		if ((rp_ptr->flags_special) & PS_XBOW_SKILL) add_skill += 3 + p_ptr->lev / 7;
+		else if ((rp_ptr->flags_special) & PS_XBOW_UNSKILL) add_skill -= 3 + p_ptr->lev / 7;
+	}
+	else if (p_ptr->ammo_tval == TV_ARROW)
+	{
+		if ((rp_ptr->flags_special) & PS_BOW_SKILL) add_skill += 3 + p_ptr->lev / 7;
+		else if ((rp_ptr->flags_special) & PS_BOW_UNSKILL) add_skill -= 3 + p_ptr->lev / 7;
+	}
+	else if (p_ptr->ammo_tval == TV_SHOT)
+	{
+		if ((rp_ptr->flags_special) & PS_SLING_SKILL) add_skill += 3 + p_ptr->lev / 7;
+		else if ((rp_ptr->flags_special) & PS_SLING_UNSKILL) add_skill -= 3 + p_ptr->lev / 7;
 	}
 	return (add_skill);
 }
@@ -2607,8 +2577,8 @@ static void shape_change_main(void)
 		}
 		case SHAPE_WYRM:
 		{
-		        o_ptr = &inventory[INVEN_BODY];
-		        p_ptr->to_a += 10;
+			o_ptr = &inventory[INVEN_BODY];
+			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 			p_ptr->to_d += 5;
 			p_ptr->dis_to_d += 5;
@@ -2616,30 +2586,44 @@ static void shape_change_main(void)
 			p_ptr->skill_dev += 4;
 			p_ptr->skill_thb -= 30;
 			p_ptr->skill_tht -= 30;
-			if (o_ptr->tval == TV_DRAG_ARMOR){
-			       /* Apply an extra bonus power depending on the type
-				* of DSM when in WYRM form */
-			       if (o_ptr->sval == SV_DRAGON_BLACK) 
-				 p_ptr->immune_acid = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_BLUE) 
-				 p_ptr->immune_elec = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_WHITE) 
-				 p_ptr->immune_cold = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_RED) 
-				 p_ptr->immune_fire = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_GREEN) 
-				 p_ptr->regenerate = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_SHINING) 
-				 p_ptr->see_inv = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_LAW) 
-				 p_ptr->hold_life = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_BRONZE) 
-				 p_ptr->free_act = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_GOLD) 
-				 p_ptr->free_act = TRUE;
-			       else if (o_ptr->sval == SV_DRAGON_CHAOS) 
-				 p_ptr->hold_life = TRUE;
-			       /* Multihued, Balance and Power don't need any help */
+
+			/* 
+			 * Apply an extra bonus power depending on the type
+			 * of DSM when in WYRM form 
+			 */
+			if (o_ptr->tval == TV_DRAG_ARMOR)
+			{
+				/* Elemental DSM -> immunity */
+				if (o_ptr->sval == SV_DRAGON_BLACK) 
+					p_ptr->immune_acid = TRUE;
+				else if (o_ptr->sval == SV_DRAGON_BLUE) 
+					p_ptr->immune_elec = TRUE;
+				else if (o_ptr->sval == SV_DRAGON_WHITE) 
+					p_ptr->immune_cold = TRUE;
+				else if (o_ptr->sval == SV_DRAGON_RED) 
+					p_ptr->immune_fire = TRUE;
+
+				/* Green DSM -> regen */
+				else if (o_ptr->sval == SV_DRAGON_GREEN) 
+					p_ptr->regenerate = TRUE;
+
+				/* Shining DSM -> SI */
+				else if (o_ptr->sval == SV_DRAGON_SHINING) 
+					p_ptr->see_inv = TRUE;
+
+				/* Law/Chaos DSM -> hold life */
+				else if (o_ptr->sval == SV_DRAGON_LAW) 
+					p_ptr->hold_life = TRUE;
+				else if (o_ptr->sval == SV_DRAGON_CHAOS) 
+					p_ptr->hold_life = TRUE;
+
+				/* Bronze/Gold DSM -> FA */
+				else if (o_ptr->sval == SV_DRAGON_BRONZE) 
+					p_ptr->free_act = TRUE;
+				else if (o_ptr->sval == SV_DRAGON_GOLD) 
+					p_ptr->free_act = TRUE;
+
+				/* Multihued, Balance and Power don't need any help */
 			}
 			break;
 		}
@@ -2653,7 +2637,7 @@ static void shape_change_main(void)
  * not only race/class intrinsics, but also objects being worn
  * and temporary spell effects.
  *
- * This is the "kitchen sink" function!  I may get around to 
+ * This is the "kitchen sink" function!	 I may get around to 
  * segmenting it, simply to make it more readable...  -LM-
  *
  * I have added class-specific modifiers to Skill and enforced a max
@@ -2894,7 +2878,7 @@ static void calc_bonuses(void)
 	/* Special Stuff, not found in p_info.txt */
 
 	/* Ent */
-	if (p_ptr->prace == RACE_ENT) 
+	if ((rp_ptr->flags_special) & PS_WOODEN) 
 	{
 		/* Ents dig like maniacs, but only with their hands. */
 		if (!inventory[INVEN_WIELD].k_idx) 
@@ -3020,7 +3004,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 
-		/* Modify the base armor class.  Shields worn on back are penalized. */
+		/* Modify the base armor class.   Shields worn on back are penalized. */
 		if ((p_ptr->shield_on_back) && (i == INVEN_ARM)) 
 			temp_armour = o_ptr->ac / 3;
 		else temp_armour = o_ptr->ac;
@@ -3061,14 +3045,14 @@ static void calc_bonuses(void)
 	/* Hack -- clear a few flags for certain races. */
 
 	/* The Shadow Fairy's saving grace */
-	if ((p_ptr->prace == RACE_S_FAIRY) && (p_ptr->aggravate)) 
+	if (((rp_ptr->flags_special) & PS_SHADOW) && (p_ptr->aggravate)) 
 	{
 		p_ptr->skill_stl -= 3;
 		p_ptr->aggravate = FALSE;
 	}
 
 	/* Nothing, but nothing, can make an Ent lightfooted. */
-	if (p_ptr->prace == RACE_ENT) p_ptr->ffall = FALSE;
+	if ((rp_ptr->flags_special) & PS_WOODEN) p_ptr->ffall = FALSE;
 
 
 	/*** Analyze shapechanges - statistics only ***/
@@ -3136,7 +3120,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_d -= 5;
 	}
 
-	/* Heightened magical defenses.  Halves the difference between saving 
+	/* Heightened magical defenses.   Halves the difference between saving 
 	 * throw and 100.  */
 	if (p_ptr->magicdef)
 	{
@@ -3181,7 +3165,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_d += 5;
 	}
 
-	/* Temporary "Berserk".  Now also increases Deadliness. */
+	/* Temporary "Berserk".   Now also increases Deadliness. */
 	if (p_ptr->shero)
 	{
 		p_ptr->to_h += 5;
@@ -3214,7 +3198,7 @@ static void calc_bonuses(void)
 		p_ptr->see_inv = TRUE;
 	}
 
-	/* Temporary infravision boost.  More useful now. */
+	/* Temporary infravision boost.   More useful now. */
 	if (p_ptr->tim_infra)
 	{
 		p_ptr->see_infra = p_ptr->see_infra + 3;
@@ -3247,9 +3231,9 @@ static void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
-        /* Sanity check on extreme speeds */
-        if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
-        if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
+	/* Sanity check on extreme speeds */
+	if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
+	if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
 
 	/*** Apply modifier bonuses ***/
 
@@ -3327,7 +3311,7 @@ static void calc_bonuses(void)
 
 	/* Apply Skill -- Extract the base wakeup chance (x100) from stealth.  
 	 * Various activities can now directly affect the possibility that 
-	 * monsters will be disturbed the next time they are processed.  So be 
+	 * monsters will be disturbed the next time they are processed.   So be 
 	 * careful when bashing or fighting!  Also, since noise is created by 
 	 * performing actions, not passing time, faster chars no longer have an 
 	 * effective bonus to stealth.  To compensate, stealth is now 15% more 
@@ -3492,7 +3476,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Add all class and race-specific adjustments to missile Skill. */
-	p_ptr->skill_thb += add_special_missile_skill (p_ptr->pclass, p_ptr->prace, o_ptr->weight, o_ptr);
+	p_ptr->skill_thb += add_special_missile_skill (p_ptr->pclass, o_ptr->weight, o_ptr);
 
 
 	/*** Analyze weapon ***/
@@ -3562,7 +3546,7 @@ static void calc_bonuses(void)
 
 
 	/* Add all other class and race-specific adjustments to melee Skill. */
-	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, p_ptr->prace, 
+	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, 
 		o_ptr->weight, o_ptr);
 
 
@@ -3784,6 +3768,7 @@ void notice_stuff(void)
 	{
 		p_ptr->notice &= ~(PN_COMBINE);
 		combine_pack();
+		process_quiver(NULL, NULL);
 	}
 
 	/* Reorder the pack */
@@ -3929,7 +3914,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-                prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
+		prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 	}
 

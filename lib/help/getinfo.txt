@@ -99,23 +99,19 @@ all her variants, including Oangband.  Lots of friendly people.  You may
 post character dumps there and ask for and offer advice.  Please put a "[O]"
 before Oangband-specific posts.
 
-http://www.phial.com/angband/  :  Ben Harrison's webpage.  Not updated recently, 
-but plenty current enough to be the Official Word on Angband development.
+http://www.consume.org/Oangband/  :  The Oangband website.  Get the latest 
+version, report bugs and neat ideas to Bahman Rabii, download some spoilers 
+and Oangband tips.
 
-http://home.sprintmail.com/~leon2m/Oangband_Development_Site.htm  :
-   Oangband's little hunk o' web.  It is also not updated very often, but 
-contains complete Oangband development history, 0.4.0 spoilers, and various 
-other tidbits.
-
-http://thangorodrim.angband.org/  :  Now this site IS updated often.  The 
-largest clearinghouse of Angband and Angband variant information on the 
-Internet.  Has more than enough links to keep you busy.
+http://thangorodrim.angband.org/  :  The largest clearinghouse of Angband 
+and Angband variant information on the Internet.  The official Angband site.  
+Has more than enough links to keep you busy.
 
 http://wkweb5.cableinet.co.uk/bablos/angband/  :  Links to, and clear 
 information about, most Angband variants.
 
-http://www.skoardy.demon.co.uk/rlnews/index.html  :  The place where people find 
-out what's happening where in the roguelike world.
+http://www.skoardy.demon.co.uk/rlnews/index.html  :  The place where people 
+find out what's happening where in the roguelike world.
 
 http://www.fragment.com/~jl8e/angband/faq.txt  :  Concise information about 
 virtually every Angband variant in existence, new and old.

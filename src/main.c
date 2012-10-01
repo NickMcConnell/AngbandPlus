@@ -1,7 +1,6 @@
 /* File: main.c */
 
-/* system-specific variations and special features, command-line arguments.
- *
+/*
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -9,20 +8,22 @@
  * are included in all such copies.
  */
 
-/* This version of Oangband, particularly main.c, main-x11.c,
- * main-win.c, main-gcu.c, and main-ibm.c have been modified by Tom
- * Morton's 'BigScreen' patch, allowing terminals larger than 24x80.  
- */
-
 #include "angband.h"
 
 
 /*
  * Some machines have a "main()" function in their "main-xxx.c" file,
- * all the others use this file for their "main()" function.  */
+ * all the others use this file for their "main()" function.
+ */
 
 
 #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+
+#ifdef USE_SCRIPT
+
+#include "Python.h"
+
+#endif /* USE_SCRIPT */
 
 
 /*
@@ -82,6 +83,10 @@ extern unsigned _ovrbuffer = 0x1500;
  *
  * Note that the "path" must be "Angband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
+ *
+ * Make sure that the path doesn't overflow the buffer.  We have
+ * to leave enough space for the path separator, directory, and
+ * filenames.
  */
 static void init_stuff(void)
 {
@@ -100,7 +105,10 @@ static void init_stuff(void)
 	tail = getenv("ANGBAND_PATH");
 
 	/* Use the angband_path, or a default */
-	strcpy(path, tail ? tail : DEFAULT_PATH);
+	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+
+	/* Make sure it's terminated */
+	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
@@ -217,6 +225,13 @@ static void change_path(cptr info)
 			break;
 		}
 
+		case 'z':
+		{
+			string_free(ANGBAND_DIR_SCRIPT);
+			ANGBAND_DIR_SCRIPT = string_make(s+1);
+			break;
+		}
+
 #endif /* VERIFY_SAVEFILE */
 
 		default:
@@ -252,7 +267,6 @@ int main(int argc, char *argv[])
 	/* Save the "program name" XXX XXX XXX */
 	argv0 = argv[0];
 
-
 #ifdef USE_286
 	/* Attempt to use XMS (or EMS) memory for swap space */
 	if (_OvrInitExt(0L, 0L))
@@ -274,8 +288,10 @@ int main(int argc, char *argv[])
 
 #endif
 
+
 	/* Get the file paths */
 	init_stuff();
+
 
 #ifdef SET_UID
 
@@ -334,9 +350,13 @@ int main(int argc, char *argv[])
 	}
 
 	/* Acquire the "user name" as a default player name */
+#ifdef ANGBAND_2_8_1
+	user_name(player_name, player_uid);
+#else /* ANGBAND_2_8_1 */
 	user_name(op_ptr->full_name, player_uid);
+#endif /* ANGBAND_2_8_1 */
 
-#endif
+#endif /* SET_UID */
 
 
 	/* Process the command line arguments */
@@ -376,13 +396,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'G':
-			case 'g':
-			{
-				arg_graphics = TRUE;
-				break;
-			}
-
 			case 'R':
 			case 'r':
 			{
@@ -390,26 +403,6 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'B':
-			case 'b':
-			case 'Y':
-			case 'y':
-			{
-                                /* -TM- */
-			        screen_y = atoi(&argv[i][2]);
-				if (screen_y <= 0) screen_y = 50;
-				break;
-			}
-			
-			case 'X':
-			case 'x':
-			{
-                                /* -TM- */
-				screen_x = atoi(&argv[i][2]);
-				if (screen_x <= 80) screen_x = 80;
-				break;
-			}
-			
 			case 'O':
 			case 'o':
 			{
@@ -429,15 +422,26 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-				strcpy(op_ptr->full_name, &argv[i][2]);
+#ifdef ANGBAND_2_8_1
+				strncpy(player_name, &argv[i][2], 32);
+				player_name[31] = '\0';
+#else /* ANGBAND_2_8_1 */
+				strncpy(op_ptr->full_name, &argv[i][2], 32);
+				op_ptr->full_name[31] = '\0';
+#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 
 			case 'm':
-			case 'M':
 			{
 				if (!argv[i][2]) goto usage;
 				mstr = &argv[i][2];
+				break;
+			}
+
+			case 'M':
+			{
+				arg_monochrome = TRUE;
 				break;
 			}
 
@@ -469,16 +473,61 @@ int main(int argc, char *argv[])
 				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
-                                /* -TM- */
-				puts("  -xnn     Request nn width screen. Defaults to 80.");
-                                /* -TM- */
-				puts("  -ynn     Request nn line screen. Normally 25.");
-				puts("           This option defaults to 50 lines.");
+				puts("  -M       Request monochrome mode");
 				puts("  -s<num>  Show <num> high scores");
 				puts("  -u<who>  Use your <who> savefile");
-				puts("  -m<sys>  Force 'main-<sys>.c' usage");
 				puts("  -d<def>  Define a 'lib' dir sub-path");
+				
+#ifdef USE_XAW
+				puts("  -mxaw    To use XAW");
+				puts("  --       Sub options");
+				puts("  -- -d    Set display name");
+				puts("  -- -s    Turn off smoothscaling graphics");
+				puts("  -- -n#   Number of terms to use");
+#endif /* USE_XAW */
+				
+#ifdef USE_X11
+				puts("  -mx11    To use X11");
+				puts("  --       Sub options");
+				puts("  -- -d    Set display name");
+				puts("  -- -s    Turn off smoothscaling graphics");
+				puts("  -- -n#   Number of terms to use");
+#endif /* USE_X11 */
 
+#ifdef USE_GCU
+				puts("  -mgcu    To use GCU (GNU Curses)");
+				puts("  --       Sub options");
+				puts("  -- -x    No extra sub-windows");
+#endif /* USE_GCU */
+
+#ifdef USE_CAP
+				puts("  -mcap    To use CAP (\"Termcap\" calls)");
+#endif /* USE_CAP */
+
+#ifdef USE_DOS
+				puts("  -mdos    To use DOS (Graphics)");
+#endif /* USE_DOS */
+
+#ifdef USE_IBM
+				puts("  -mibm    To use IBM (BIOS text mode)");
+#endif /* USE_IBM */
+
+#ifdef USE_SLA
+				puts("  -msla    To use SLA (SLANG)");
+#endif /* USE_SLA */
+
+#ifdef USE_LSL
+				puts("  -mlsl    To use LSL (Linux-SVGALIB)");
+#endif /* USE_LSL */
+
+#ifdef USE_AMI
+				puts("  -mami    To use AMI (Amiga)");
+#endif /* USE_AMI */
+
+#ifdef USE_VME
+				puts("  -mvme    To use VME (VAX/ESA)");
+#endif /* USE_VME */
+				
 				/* Actually abort the process */
 				quit(NULL);
 			}
@@ -502,8 +551,11 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly) */
-	safe_setuid_drop();
+	/* Drop privs (so X11 will work correctly), unless we are running */
+	/* the Linux-SVGALib version. */
+#ifndef USE_LSL
+ 	safe_setuid_drop();
+#endif
 
 
 #ifdef USE_XAW
@@ -657,16 +709,14 @@ int main(int argc, char *argv[])
 
 
 	/* Grab privs (dropped above for X11) */
-	safe_setuid_grab();
+#ifndef USE_LSL
+ 	safe_setuid_grab();
+#endif
 
 
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-	/* Calculate screen geometry */
-	/* -TM- */
-	SCREEN_HGT = screen_y - 2;
-	SCREEN_WID = screen_x - (COL_MAP + 1);
 
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
@@ -679,7 +729,7 @@ int main(int argc, char *argv[])
 	init_angband();
 
 	/* Wait for response */
-	pause_line(screen_y-1);
+	pause_line(23);
 
 	/* Play the game */
 	play_game(new_game);

@@ -1,6 +1,6 @@
 /* File: dungeon.c */
 
-/* Peusdo-ID, char & monster regeneration, town and dungeon management,
+/* Pseusdo-ID, char & monster regeneration, town and dungeon management,
  * all timed character, monster, and object states, entry into Wizard, 
  * debug, and borg mode, definitions of user commands, process player, 
  * the basic function for interacting with the dungeon (including what 
@@ -293,18 +293,18 @@ static void sense_inventory(void)
 		if (i >= INVEN_WIELD)
 		{
 			msg_format("You feel the %s (%c) you are %s %s %s...",
-			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
+				   o_name, index_to_label(i), describe_use(i),
+				   ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
 		}
 
 		/* Message (inventory) */
 		else
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
-			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
-			           feel_text[feel],
-				   ((squelch==1) ? "(Squelched)" :
+			msg_format("You feel the %s (%c) in your pack %s %s... %s",
+				   o_name, index_to_label(i),
+				   ((o_ptr->number == 1) ? "is" : "are"),
+				   feel_text[feel],
+				   ((squelch==1) ? "(Squelch)" :
 				    ((squelch==-1) ? "(Squelch Failed)" : "")));
 		}
 
@@ -316,7 +316,7 @@ static void sense_inventory(void)
 		o_ptr->feel = feel;
 
 		/* Squelch it if necessary */
-		do_squelch_item(squelch, i, o_ptr);
+		if (squelch) do_squelch_item(o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -428,6 +428,8 @@ static void regenmana(int percent)
 /*
  * Regenerate the monsters (once per 100 game turns)
  *
+ * Also regen monster mana -BR-
+ *
  * XXX XXX XXX Should probably be done during monster turns.
  */
 static void regen_monsters(void)
@@ -444,13 +446,27 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Monsters suffering from the Black Breath cannot regenerate. */
+		/* first regenerate mana */
+		if (m_ptr->mana < r_ptr->mana)
+		{
+			/* Mana comes back 1 point at a time, with probability
+			 * Based on maximum mana */
+			if (rand_int(200) < (r_ptr->mana)) m_ptr->mana++;
+			
+			/* Do not over-regenerate */
+			if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
+			
+			/* Fully healed -> flag minimum range for recalculation */
+			if (m_ptr->mana == r_ptr->mana) m_ptr->min_range = 0;
+		}
+
+		/* Monsters suffering from the Black Breath cannot regenerate hps. */
 		if (m_ptr->black_breath)
 		{
 			continue;
 		}
 
-		/* Allow regeneration (if needed) */
+		/* Allow hp regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
 		{
 			/* Hack -- Base regeneration */
@@ -467,6 +483,9 @@ static void regen_monsters(void)
 
 			/* Do not over-regenerate */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+			/* Fully healed -> flag minimum range for recalculation */
+			if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
@@ -597,14 +616,14 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
-				msg_print("The sun has risen.     ");
+				msg_print("The sun has risen.");
 			}
 
 			/* Night falls */
 			else
 			{
 				/* Message */
-				msg_print("The sun has set.       ");
+				msg_print("The sun has set.");
 			}
 
 			/* Illuminate */
@@ -667,14 +686,16 @@ static void process_world(void)
 	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (!p_ptr->themed_level))
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		(void)alloc_monster(MAX_SIGHT + 5, FALSE, FALSE);
 	}
 
 	/* Hack - if there is a ghost now, and there was not before, 
 	 * give a challenge */
 	if ((bones_selector) && (!(was_ghost))) ghost_challenge();
 
-	/* Hack -- Check for creature regeneration */
+	/* Hack -- Check for creature regeneration 
+	 * Monster hps and mana -BR-
+	 */
 	if (!(turn % 100)) regen_monsters();
 
 
@@ -684,7 +705,7 @@ static void process_world(void)
 	if (p_ptr->poisoned)
 	{
 		/* Take damage */
-		take_hit(1, "poison");
+		take_hit(1+randint(p_ptr->poisoned > 400 ? 20 : p_ptr->poisoned / 20), "poison");
 	}
 
 	/* Take damage from cuts */
@@ -725,7 +746,7 @@ static void process_world(void)
 			i = extract_energy[p_ptr->pspeed] * 2;
 
 			/* Half-trolls eat a lot.  */
-			if (p_ptr->prace == RACE_HALF_TROLL) i += 5;
+			if ((rp_ptr->flags_special) & PS_HUNGRY) i += 5;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -809,7 +830,7 @@ static void process_world(void)
 	}
 
 	/* Otherwise, the basic mana regen is the same as that of HPs. */
-	else 	mana_regen_amount = regen_amount;
+	else	mana_regen_amount = regen_amount;
 
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
@@ -836,7 +857,7 @@ static void process_world(void)
 	if (p_ptr->image)
 	{
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) 
+		if ((rp_ptr->flags_special) & PS_DIVINE)
 			(void)set_image(p_ptr->image - 2);
 		else (void)set_image(p_ptr->image - 1);
 	}
@@ -845,7 +866,7 @@ static void process_world(void)
 	if (p_ptr->blind)
 	{
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) 
+		if ((rp_ptr->flags_special) & PS_DIVINE)
 			(void)set_blind(p_ptr->blind - 2);
 
 		else (void)set_blind(p_ptr->blind - 1);
@@ -880,6 +901,12 @@ static void process_world(void)
 
 		/* Clear all temporary elemental brands. */
 		if (!p_ptr->ele_attack) set_ele_attack(0, 0);
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATUS);
+
+		/* Handle stuff */
+		handle_stuff();
 	}
 
 	/* Timed infra-vision */
@@ -892,7 +919,7 @@ static void process_world(void)
 	if (p_ptr->paralyzed)
 	{
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) 
+		if ((rp_ptr->flags_special) & PS_DIVINE)
 			(void)set_paralyzed(p_ptr->paralyzed - 2);
 
 		else (void)set_paralyzed(p_ptr->paralyzed - 1);
@@ -902,7 +929,8 @@ static void process_world(void)
 	if (p_ptr->confused)
 	{
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) (void)set_confused(p_ptr->confused - 2);
+		if ((rp_ptr->flags_special) & PS_DIVINE)
+			(void)set_confused(p_ptr->confused - 2);
 
 		else (void)set_confused(p_ptr->confused - 1);
 	}
@@ -911,7 +939,8 @@ static void process_world(void)
 	if (p_ptr->afraid)
 	{
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) (void)set_afraid(p_ptr->afraid - 2);
+		if ((rp_ptr->flags_special) & PS_DIVINE)
+			(void)set_afraid(p_ptr->afraid - 2);
 
 		else (void)set_afraid(p_ptr->afraid - 1);
 	}
@@ -926,7 +955,8 @@ static void process_world(void)
 	if (p_ptr->slow)
 	{
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) (void)set_slow(p_ptr->slow - 2);
+		if ((rp_ptr->flags_special) & PS_DIVINE)
+			(void)set_slow(p_ptr->slow - 2);
 
 		else (void)set_slow(p_ptr->slow - 1);
 	}
@@ -1008,10 +1038,10 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Hobbits are sturdy. */
-		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+		if ((rp_ptr->flags_special) & PS_HARDY) adjust++;
 
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) adjust = 3 * adjust / 2;
+		if ((rp_ptr->flags_special) & PS_DIVINE) adjust = 3 * adjust / 2;
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -1023,7 +1053,7 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) adjust = 3 * adjust / 2;
+		if ((rp_ptr->flags_special) & PS_DIVINE)adjust = 3 * adjust / 2;
 
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
@@ -1035,10 +1065,10 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Hobbits are sturdy. */
-		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+		if ((rp_ptr->flags_special) & PS_HARDY) adjust++;
 
 		/* Maiar recover quickly from anything. */
-		if (p_ptr->prace == RACE_MAIA) adjust = 3 * adjust / 2;
+		if ((rp_ptr->flags_special) & PS_DIVINE) adjust = 3 * adjust / 2;
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
@@ -1137,7 +1167,7 @@ static void process_world(void)
 	 */
 	if (p_ptr->black_breath)
 	{
-		if (p_ptr->prace == RACE_HOBBIT) chance = 2;
+		if ((rp_ptr->flags_special) & PS_HARDY) chance = 2;
 		else chance = 5;
 
 		if ((rand_int(100) < chance) && (p_ptr->exp > 0))
@@ -1204,11 +1234,13 @@ static void process_world(void)
 			/* Boundary control. */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 
-			/* Notice changes, provide message if object is inscribed. */
-			if (!(o_ptr->timeout)) 
+			/* Update if any rods are recharged */
+			if (temp > (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval)
 			{
-				recharged_notice(o_ptr);
+				/* Update window */
 				j++;
+				/* Message if whole stack is recharged, if inscribed */
+				if (!(o_ptr->timeout)) recharged_notice(o_ptr);
 			}
 		}
 	}
@@ -1259,7 +1291,7 @@ static void process_world(void)
 	if ((p_ptr->teleport) && (rand_int(100) < 1))
 	{
 		/* Teleport player */
-		teleport_player(40);
+		teleport_player(40,FALSE);
 	}
 
 	/* Delayed Word-of-Recall */
@@ -2047,20 +2079,20 @@ static void process_player_aux(void)
 {
 	static int old_monster_race_idx = 0;
 
-	static u32b	old_r_flags1 = 0L;
-	static u32b	old_r_flags2 = 0L;
-	static u32b	old_r_flags3 = 0L;
-	static u32b	old_r_flags4 = 0L;
-	static u32b	old_r_flags5 = 0L;
-	static u32b	old_r_flags6 = 0L;
+	static u32b old_r_flags1 = 0L;
+	static u32b old_r_flags2 = 0L;
+	static u32b old_r_flags3 = 0L;
+	static u32b old_r_flags4 = 0L;
+	static u32b old_r_flags5 = 0L;
+	static u32b old_r_flags6 = 0L;
 
-	static byte	old_r_blows0 = 0;
-	static byte	old_r_blows1 = 0;
-	static byte	old_r_blows2 = 0;
-	static byte	old_r_blows3 = 0;
+	static byte old_r_blows0 = 0;
+	static byte old_r_blows1 = 0;
+	static byte old_r_blows2 = 0;
+	static byte old_r_blows3 = 0;
 
-	static byte	old_r_cast_inate = 0;
-	static byte	old_r_cast_spell = 0;
+	static byte old_r_cast_inate = 0;
+	static byte old_r_cast_spell = 0;
 
 
 	/* Tracking a monster */
@@ -2232,48 +2264,54 @@ static void process_player(void)
 
 
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
+		if (inventory[INVEN_PACK - p_ptr->pack_size_reduce].k_idx)
 		{
-			int item = INVEN_PACK;
+			int item;
 
-			char o_name[120];
+			for (item = INVEN_PACK; item >= INVEN_PACK - p_ptr->pack_size_reduce; item--)
+			{
+				char o_name[120];
 
-			object_type *o_ptr;
+				object_type *o_ptr;
 
-			/* Access the slot to be dropped */
-			o_ptr = &inventory[item];
+				/* Access the slot to be dropped */
+				o_ptr = &inventory[item];
 
-			/* Disturbing */
-			disturb(0, 0);
+				/* Skip non-objects */
+				if (!o_ptr->k_idx) continue;
 
-			/* Warning */
-			msg_print("Your pack overflows!");
+				/* Disturbing */
+				disturb(0, 0);
 
-			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
+				/* Warning */
+				msg_print("Your pack overflows!");
 
-			/* Message */
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
+				/* Describe */
+				object_desc(o_name, o_ptr, TRUE, 3);
 
-			/* Drop it (carefully) near the player */
-			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+				/* Message */
+				msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
-			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
+				/* Drop it (carefully) near the player */
+				drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
 
-			/* Notice stuff (if needed) */
-			if (p_ptr->notice) notice_stuff();
+				/* Modify, Describe, Optimize */
+				inven_item_increase(item, -255);
+				inven_item_describe(item);
+				inven_item_optimize(item);
 
-			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
+				/* Notice stuff (if needed) */
+				if (p_ptr->notice) notice_stuff();
 
-			/* Redraw stuff (if needed) */
-			if (p_ptr->redraw) redraw_stuff();
+				/* Update stuff (if needed) */
+				if (p_ptr->update) update_stuff();
 
-			/* Window stuff (if needed) */
-			if (p_ptr->window) window_stuff();
+				/* Redraw stuff (if needed) */
+				if (p_ptr->redraw) redraw_stuff();
+
+				/* Window stuff (if needed) */
+				if (p_ptr->window) window_stuff();
+			}
 		}
 
 
@@ -2504,21 +2542,15 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
+
 	monster_type *m_ptr;
 	int i;
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-
-	/* Hack -- enforce illegal panel */
-	p_ptr->wy = DUNGEON_HGT;
-	p_ptr->wx = DUNGEON_WID;
-
-
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
-
 
 	/* Reset the "command" vars */
 	p_ptr->command_cmd = 0;
@@ -2526,7 +2558,6 @@ static void dungeon(void)
 	p_ptr->command_rep = 0;
 	p_ptr->command_arg = 0;
 	p_ptr->command_dir = 0;
-
 
 	/* Cancel the target */
 	target_set_monster(0);
@@ -2579,9 +2610,11 @@ static void dungeon(void)
 	/* Make a staircase */
 	if (p_ptr->create_down_stair || p_ptr->create_up_stair)
 	{
+
 		/* Place a staircase */
 		if (cave_valid_bold(py, px))
 		{
+
 			/* XXX XXX XXX */
 			delete_object(py, px);
 
@@ -2625,7 +2658,6 @@ static void dungeon(void)
 
 	/* Update stuff */
 	update_stuff();
-
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
@@ -2742,13 +2774,13 @@ static void dungeon(void)
 			/* process monster with even more energy first */
 			process_monsters(p_ptr->energy + 1);
 
-                       /* if still alive */
-                       if (!p_ptr->leaving)
-                       {
-                               /* Process the player */
-                               process_player();
-			       
-                       }
+			/* if still alive */
+			if (!p_ptr->leaving)
+			{
+				/* Process the player */
+				process_player();
+
+			}
 		}
 
 		/* Notice stuff */
@@ -2875,6 +2907,9 @@ static void process_some_user_pref_files(void)
  */
 void play_game(bool new_game)
 {
+
+	int i;
+
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
 
@@ -2888,20 +2923,24 @@ void play_game(bool new_game)
 	/* Make sure main term is active */
 	Term_activate(angband_term[0]);
 
+	/* Initialise the resize hooks */
+	angband_term[0]->resize_hook = resize_map;
+	
+	for (i = 1; i < 8; i++)
+	{
+		/* Does the term exist? */
+		if (angband_term[i])
+		{
+			/* Add the redraw on resize hook */
+			angband_term[i]->resize_hook = redraw_window;
+		}
+	}
+
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
 	{
 		quit("main window is too small");
 	}
-
-	/* Calculate the height of the dungeon display */
-	SCREEN_HGT = screen_y - 2;
-
-	/* XXX Hack -- Show extra status messages if there is enough room */
-	if (screen_y >= 26) SCREEN_HGT -= 2;
-
-	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
 
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
@@ -3043,13 +3082,24 @@ void play_game(bool new_game)
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
 
-
 	/* Start playing */
 	p_ptr->playing = TRUE;
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
+	/* Resize / init the map */
+	map_panel_size();
+
+	/* Verify the (possibly resized) panel */
+	verify_panel();
+	
+	/* Update some stuff not stored in the savefile any more */
+	p_ptr->update |= (PU_UPDATE_VIEW);
+
+	/* Update stuff */
+	update_stuff();
+	
 	/* Process */
 	while (TRUE)
 	{

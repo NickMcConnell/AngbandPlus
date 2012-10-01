@@ -20,6 +20,19 @@ Your inventory (backpack) and equipment (your person):
      easier for monsters to catch up to you.  The point at which your load thus 
      hinders you depends on your strength.
 
+Your quiver:
+          Your equipment includes a quiver, which may hold up to ten different 
+     kinds of ammo.  Once placed in the quiver (using the wield command), ammo 
+     normally sorts in the quiver slots just as it does in the packpack.  You may 
+     lock ammo into a specific slot, and make shooting a lot more convenient, by 
+     inscribing ammo with inscriptions similar to "@1", or "@f1".  Wherever you 
+     store it, ammo still takes up space; for every 99 missiles (or fraction 
+     thereof) that you place in the quiver slots, you lose an inventory slot.  
+     Any such slots will be clearly marked.  Ammo on the floor will automatically 
+     combine with similar items in the quiver, which makes cleaning up after a 
+     big fight much easier.
+
+
 Specific Types of Objects:
           Many objects found within the dungeon have special commands for their 
      use.  Wands must be Aimed, staves must be Used, scrolls must be Read, and 
@@ -27,7 +40,7 @@ Specific Types of Objects:
      pack, but also items on the ground, if you are standing on top of them.
 
      Wands:
-          In Oangband, known wands stack, uniting their charges.  Such a stack 
+          In Oangband, known wands stack, combining their charges.  Such a stack 
           may be heavier, but can be recharged more safely and effectively.
      Staffs:
           Staffs do not combine their charges and only stack if they happen to 

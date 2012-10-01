@@ -770,8 +770,15 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(0);      
 	wr_byte(0);      
 	wr_byte(0);	 
-	wr_byte(0);   
-	wr_s16b(0);    
+	wr_byte(0);
+
+	/* Extra desire to cast harassment spells */
+	wr_byte(m_ptr->harass);
+
+	/* Current Mana */   
+	wr_byte(m_ptr->mana);    
+
+	/* Spare */
 	wr_s16b(0); 
 }
 
@@ -823,7 +830,6 @@ static void wr_lore(int r_idx)
 
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
-
 	wr_byte(0);
 	wr_byte(0);
 	wr_byte(0);
@@ -936,7 +942,7 @@ static void wr_options(void)
 	/* Write "hitpoint_warn" */
 	wr_byte(op_ptr->hitpoint_warn);
 
-        wr_u16b(0);     /* Was cheating options */
+	wr_u16b(0);     /* Was cheating options */
 
 
 	/*** Normal options ***/

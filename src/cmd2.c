@@ -360,20 +360,22 @@ static byte get_choice(void)
 			if (choice < 4) return (TV_BOOTS);
 			if (choice < 8) return (TV_HELM);
 			if (choice < 12) return (TV_CROWN);
-			if (choice < 16) return (TV_SHIELD);
-			if (choice < 20) return (TV_GLOVES);
-			if (choice < 24) return (TV_CLOAK);
-			if (choice < 30) return (TV_HARD_ARMOR);
-			if (choice < 35) return (TV_SCROLL);
-			if (choice < 40) return (TV_POTION);
-			if (choice < 47) return (TV_RING);
-			if (choice < 54) return (TV_AMULET);
-			if (choice < 70) return (TV_HAFTED);
-			if (choice < 90) return (TV_STAFF);
-			if (choice < 94) return (TV_ROD);
+			if (choice < 19) return (TV_SHIELD);
+			if (choice < 23) return (TV_GLOVES);
+			if (choice < 28) return (TV_CLOAK);
+			if (choice < 35) return (TV_HARD_ARMOR);
+			if (choice < 40) return (TV_SCROLL);
+			if (choice < 45) return (TV_POTION);
+			if (choice < 52) return (TV_RING);
+			if (choice < 59) return (TV_AMULET);
+			if (choice < 77) return (TV_HAFTED);
+			if (choice < 82) return (TV_ROD);
+			if (choice < 87) return (TV_WAND);
+			if (choice < 92) return (TV_STAFF);
 			if (choice < 101) return (TV_PRAYER_BOOK);
 			break;
 		}
+
 
 		case CLASS_DRUID:
 		{
@@ -450,7 +452,7 @@ static byte get_choice(void)
  * In Oangband, chests are nice finds.  Small chests distribute 3-5 items,
  * while large chests can distribute 5-7.  Item types are biased to be
  * useful for the character, and they can frequently be of good quality 
- * (or better).  Code in object2.c helps these items be even better. -LM-
+ * (or better).   Code in object2.c helps these items be even better. -LM-
  *
  * The "value" of the items in a chest is based on the "power" of the chest,
  * which is in turn based on the level on which the chest is generated.
@@ -579,6 +581,12 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			}
 		}
 
+		/* If no object was made, we need to try another tval. */
+		if (!obj_success)
+		{
+			required_tval = get_choice();
+		}
+
 		/* If chest scatters its contents, pick any floor square. */
 		if (scatter)
 		{
@@ -664,9 +672,16 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_POISON))
 	{
 		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
 		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
+			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+			{
+				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+			}
+			else
+			{
+				(void)set_poisoned(p_ptr->poisoned + rand_int(10) + 5);
+			}
 		}
 	}
 
@@ -785,7 +800,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_RUNES_OF_EVIL))
 	{
 		/* Message. */
-		msg_print("Hideous voices bid:  'Let the darkness have thee!'");
+		msg_print("Hideous voices bid: 'Let the darkness have thee!'");
 
 		/* Determine how many nasty tricks can be played. */
 		nasty_tricks_count = 4 + rand_int(3);
@@ -874,7 +889,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		{
 			/* We may continue repeating */
 			more = TRUE;
-			if (flush_failure) flush();	
+			if (flush_failure) flush();
 			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 		}
 	}
@@ -1316,7 +1331,7 @@ static bool do_cmd_close_test(int y, int x)
 		return (FALSE);
 	}
 
- 	/* Require open/broken door */
+	/* Require open/broken door */
 	if ((cave_feat[y][x] != FEAT_OPEN) &&
 	    (cave_feat[y][x] != FEAT_BROKEN))
 	{
@@ -1490,7 +1505,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 
 
 /*
- * Tunnel through wall.  Assumes valid location.
+ * Tunnel through wall.   Assumes valid location.
  *
  * Note that it is impossible to "extend" rooms past their
  * outer walls (which are actually part of the room).
@@ -2458,7 +2473,7 @@ void do_cmd_spike(void)
 	if (!do_cmd_spike_test(y, x)) return;
 
 
-	/* Take a partial turn.  Now jamming is more useful. */
+	/* Take a partial turn.   Now jamming is more useful. */
 	p_ptr->energy_use = 40;
 
 	/* Confuse direction */
@@ -2678,7 +2693,7 @@ void do_cmd_run(void)
 
 
 /*
- * Stay still.  Search.  Enter stores.
+ * Stay still.  Search.   Enter stores.
  * Pick up treasure and objects if "pickup" is true.
  */
 static void do_cmd_hold_or_stay(int pickup)

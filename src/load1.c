@@ -120,7 +120,7 @@ static void note(cptr msg)
 	prt(msg, y, 0);
 
 	/* Advance one line (wrap if needed) */
-	if (++y >= screen_y) y = 2;
+	if (++y >= 24) y = 2;
 
 	/* Flush it */
 	Term_fresh();
@@ -2851,6 +2851,15 @@ static errr rd_savefile_old_aux(void)
 		note("Loaded dungeon");
 	}
 
+	/* Clear dungeon level (artifacts preserved)
+	 * and return to town.
+	 * Monster list is too different to drop right
+	 * into an existing level */
+	character_dungeon = FALSE;
+	wipe_m_list();
+	wipe_o_list();
+	p_ptr->depth=0;
+	generate_cave();
 
 	/* Hack -- no old-style ghosts */
 	r_info[MAX_R_IDX-1].max_num = 0;

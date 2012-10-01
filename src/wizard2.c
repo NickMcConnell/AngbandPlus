@@ -33,9 +33,9 @@ static void do_cmd_wiz_hack_ben(void)
 	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
 	{
 		/* Update map */
-		for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+		for (y = panel_row_min; y <= panel_row_max; y++)
 		{
-			for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+			for (x = panel_col_min; x <= panel_col_max; x++)
 			{
 				byte a = TERM_RED;
 
@@ -328,21 +328,21 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
-	           o_ptr->tval, o_ptr->sval), 4, j);
+		   o_ptr->k_idx, k_info[o_ptr->k_idx].level,
+		   o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
-	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+		   o_ptr->number, o_ptr->weight,
+		   o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
+		   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
+		   o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
 
 	prt(format("ident = %04x  timeout = %-d",
-	           o_ptr->ident, o_ptr->timeout), 8, j);
+		   o_ptr->ident, o_ptr->timeout), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY......BRAND.", 11, j);
@@ -354,16 +354,16 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS2------------+", 17, j);
 	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcp psaefcp ldbc sn   ", 19, j);
+	prt("	     aefcp psaefcp ldbc sn   ", 19, j);
 	prt("siwdcc  clioo atclioo ialoshtncd", 20, j);
 	prt("tnieoh  ierli raierli trnnnrhehi", 21, j);
 	prt("rtsxna..dceds.atdceds.ekdfddrxss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("        ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("        aihnf ee    ggggcregb vr", 12, j+32);
-	prt("        sdose eld   nnnntalrl ym", 13, j+32);
+	prt("        ehsi  st	 iiiiadta  hp", 11, j+32);
+	prt("        aihnf ee	 ggggcregb vr", 12, j+32);
+	prt("        sdose eld	 nnnntalrl ym", 13, j+32);
 	prt("        yewta ieirmsrrrriieaeccc", 14, j+32);
 	prt("        ktmatlnpgeihaefcvnpvsuuu", 15, j+32);
 	prt("        nyoahivaeggoclioaeoasrrr", 16, j+32);
@@ -381,7 +381,7 @@ typedef struct tval_desc
 {
 	int tval;
 	cptr desc;
- 	bool can_be_artifact;
+	bool can_be_artifact;
 
 } tval_desc;
 
@@ -391,41 +391,41 @@ typedef struct tval_desc
  */
 static tval_desc tvals[] =
 {
- 	{ TV_SWORD,             "Sword",               TRUE  },
- 	{ TV_POLEARM,           "Polearm",             TRUE  },
- 	{ TV_HAFTED,            "Hafted Weapon",       TRUE  },
- 	{ TV_BOW,               "Missile Weapon",      TRUE  },
- 	{ TV_ARROW,             "Arrows",              FALSE },
- 	{ TV_BOLT,              "Bolts",               FALSE },
- 	{ TV_SHOT,              "Shots",               FALSE },
- 	{ TV_SHIELD,            "Shield",              TRUE  },
- 	{ TV_CROWN,             "Crown",               TRUE  },
- 	{ TV_HELM,              "Helm",                TRUE  },
- 	{ TV_GLOVES,            "Gloves",              TRUE  },
- 	{ TV_BOOTS,             "Boots",               TRUE  },
- 	{ TV_CLOAK,             "Cloak",               TRUE  },
- 	{ TV_DRAG_ARMOR,        "Dragon Scale Mail",   TRUE  },
- 	{ TV_HARD_ARMOR,        "Hard Armor",          TRUE  },
- 	{ TV_SOFT_ARMOR,        "Soft Armor",          TRUE  },
- 	{ TV_RING,              "Ring",                TRUE  },
- 	{ TV_AMULET,            "Amulet",              TRUE  },
- 	{ TV_LITE,              "Light",               TRUE  },
- 	{ TV_POTION,            "Potion",              FALSE },
- 	{ TV_SCROLL,            "Scroll",              FALSE },
- 	{ TV_WAND,              "Wand",                TRUE  },
- 	{ TV_STAFF,             "Staff",               TRUE  },
- 	{ TV_ROD,               "Rod",                 TRUE  },
- 	{ TV_PRAYER_BOOK,       "Priest Book",         FALSE },
- 	{ TV_MAGIC_BOOK,        "Magic Book",          FALSE },
- 	{ TV_DRUID_BOOK,        "Druid Stone",         FALSE },
- 	{ TV_NECRO_BOOK,        "Necromantic Tome",    FALSE },
- 	{ TV_SPIKE,             "Spikes",              FALSE },
- 	{ TV_DIGGING,           "Digger",              FALSE },
- 	{ TV_CHEST,             "Chest",               FALSE },
- 	{ TV_FOOD,              "Food",                FALSE },
- 	{ TV_FLASK,             "Flask",               FALSE },
- 	{ TV_GOLD,              "treasure",            FALSE },
- 	{ 0,                    NULL,                  FALSE }
+	{ TV_SWORD,		"Sword",	       TRUE  },
+	{ TV_POLEARM,		"Polearm",	       TRUE  },
+	{ TV_HAFTED,		"Hafted Weapon",       TRUE  },
+	{ TV_BOW,		"Missile Weapon",      TRUE  },
+	{ TV_ARROW,		"Arrows",	       FALSE },
+	{ TV_BOLT,		"Bolts",	       FALSE },
+	{ TV_SHOT,		"Shots",	       FALSE },
+	{ TV_SHIELD,		"Shield",	       TRUE  },
+	{ TV_CROWN,		"Crown",	       TRUE  },
+	{ TV_HELM,		"Helm",		       TRUE  },
+	{ TV_GLOVES,		"Gloves",	       TRUE  },
+	{ TV_BOOTS,		"Boots",	       TRUE  },
+	{ TV_CLOAK,		"Cloak",	       TRUE  },
+	{ TV_DRAG_ARMOR,	"Dragon Scale Mail",   TRUE  },
+	{ TV_HARD_ARMOR,	"Hard Armor",	       TRUE  },
+	{ TV_SOFT_ARMOR,	"Soft Armor",	       TRUE  },
+	{ TV_RING,		"Ring",		       TRUE  },
+	{ TV_AMULET,		"Amulet",	       TRUE  },
+	{ TV_LITE,		"Light",	       TRUE  },
+	{ TV_POTION,		"Potion",	       FALSE },
+	{ TV_SCROLL,		"Scroll",	       FALSE },
+	{ TV_WAND,		"Wand",		       TRUE  },
+	{ TV_STAFF,		"Staff",	       TRUE  },
+	{ TV_ROD,		"Rod",		       TRUE  },
+	{ TV_PRAYER_BOOK,	"Priest Book",	       FALSE },
+	{ TV_MAGIC_BOOK,	"Magic Book",	       FALSE },
+	{ TV_DRUID_BOOK,	"Druid Stone",	       FALSE },
+	{ TV_NECRO_BOOK,	"Necromantic Tome",    FALSE },
+	{ TV_SPIKE,		"Spikes",	       FALSE },
+	{ TV_DIGGING,		"Digger",	       FALSE },
+	{ TV_CHEST,		"Chest",	       FALSE },
+	{ TV_FOOD,		"Food",		       FALSE },
+	{ TV_FLASK,		"Flask",	       FALSE },
+	{ TV_GOLD,		"treasure",	       FALSE },
+	{ 0,			NULL,		       FALSE }
 };
 
 
@@ -629,8 +629,8 @@ static int wiz_create_itemtype(bool artifact)
 	      /* Analyze matching items */
 	      if (k_ptr->tval == tval)
 		{
-		          /* Hack -- Skip instant artifacts */
-		          if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			  /* Hack -- Skip instant artifacts */
+			  if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 			  /* Prepare it */
 			  row = 2 + (num % 20);
@@ -808,7 +808,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 /*
- * Try to create an item again. Output some statistics.    -Bernd-
+ * Try to create an item again. Output some statistics. -Bernd-
  *
  * The statistics are correct now.  We acquire a clean grid, and then
  * repeatedly place an object in this grid, copying it into an item
@@ -873,7 +873,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
-		           quality, p_ptr->depth);
+			   quality, p_ptr->depth);
 		msg_print(NULL);
 
 		/* Set counters to zero */
@@ -933,18 +933,18 @@ static void wiz_statistics(object_type *o_ptr)
 
 			/* Check for better */
 			else if ((i_ptr->pval >= o_ptr->pval) &&
-			         (i_ptr->to_a >= o_ptr->to_a) &&
-			         (i_ptr->to_h >= o_ptr->to_h) &&
-			         (i_ptr->to_d >= o_ptr->to_d))
+				 (i_ptr->to_a >= o_ptr->to_a) &&
+				 (i_ptr->to_h >= o_ptr->to_h) &&
+				 (i_ptr->to_d >= o_ptr->to_d))
 			{
 				better++;
 			}
 
 			/* Check for worse */
 			else if ((i_ptr->pval <= o_ptr->pval) &&
-			         (i_ptr->to_a <= o_ptr->to_a) &&
-			         (i_ptr->to_h <= o_ptr->to_h) &&
-			         (i_ptr->to_d <= o_ptr->to_d))
+				 (i_ptr->to_a <= o_ptr->to_a) &&
+				 (i_ptr->to_h <= o_ptr->to_h) &&
+				 (i_ptr->to_d <= o_ptr->to_d))
 			{
 				worse++;
 			}
@@ -1215,6 +1215,9 @@ static void do_cmd_wiz_cure_all(void)
 	/* Restore the level */
 	(void)restore_level();
 
+	/* Update stuff (if needed) */
+	if (p_ptr->update) update_stuff();
+
 	/* Heal the player */
 	p_ptr->chp = p_ptr->mhp;
 	p_ptr->chp_frac = 0;
@@ -1347,7 +1350,7 @@ static void do_cmd_rerate(void)
 	}
 
 	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
+			(p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
 
 	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);
@@ -1581,9 +1584,9 @@ static void do_cmd_wiz_query(void)
 	}
 
 	/* Scan map */
-	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+	for (y = panel_row_min; y <= panel_row_max; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+		for (x = panel_col_min; x <= panel_col_max; x++)
 		{
 			byte a = TERM_RED;
 
@@ -1801,7 +1804,7 @@ void do_cmd_debug(void)
 		/* Phase Door */
 		case 'p':
 		{
-			teleport_player(10);
+			teleport_player(10, TRUE);
 			break;
 		}
 
@@ -1823,7 +1826,7 @@ void do_cmd_debug(void)
 		/* Teleport */
 		case 't':
 		{
-			teleport_player(100);
+			teleport_player(100,TRUE);
 			break;
 		}
 

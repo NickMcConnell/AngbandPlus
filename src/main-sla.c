@@ -1,25 +1,12 @@
 /* File: main-sla.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
-
+/* Purpose: Actual Unix "slang" support for Angband */
 
 /*
- * This file helps Angband work with Unix/slang computers.
- *
- * This file is probably out of date.  XXX XXX XXX
- *
- *
  * Author: hans@grumbeer.pfalz.de (Hans-Joachim Baader)
  *
  * Most of this code is adapted directly from "main-gcu.c"
  */
-
 
 #include "angband.h"
 
@@ -118,7 +105,7 @@ static char *color_terminals [] =
  */
 int has_colors(void)
 {
-	int i;
+	int  i;
 
 	char *terminal;
 
@@ -204,10 +191,10 @@ static void Term_init_sla(term *t)
 static errr Term_xtra_sla_event(int v)
 {
 	/* Do not wait unless requested */
-	if (!v && (SLang_input_pending (0) == 0)) return (1);
+	if (!v && (SLang_input_pending(0) == 0)) return (1);
 
 	/* Get and enqueue the key */
-	Term_keypress(SLang_getkey ());
+	Term_keypress(SLang_getkey());
 
 	/* Success */
 	return 0;
@@ -313,7 +300,7 @@ static errr Term_xtra_sla(int n, int v)
 static errr Term_curs_sla(int x, int y, int z)
 {
 	/* Literally move the cursor */
-	SLsmg_gotorc (y, x);
+	SLsmg_gotorc(y, x);
 
 	/* Success */
 	return 0;
@@ -375,7 +362,7 @@ errr init_sla(void)
 	if (err) quit("SLang initialization failed");
 
 	/* Get terminal info */
-	SLtt_get_terminfo ();
+	SLtt_get_terminfo();
 
 	/* Initialize some more */
 	if (SLsmg_init_smg() == 0)
@@ -465,5 +452,4 @@ errr init_sla(void)
 }
 
 #endif /* USE_SLA */
-
 

@@ -1217,15 +1217,15 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Ranger",
-		{ 2, 0, 1, 1, 1, 1},
-		22, 32, 28, 3, 24, 16, 15, 30,
-		50, 50, 50, 0,  0,  0, 65, 95,
+		{ 1, 0, 1, 1, 1, 0},
+		22, 26, 28, 4, 24, 16, 15, 30,
+		50, 40, 50, 0,  0,  0, 65, 95,
 		5, 30
 	},
 
 	{
 		"Paladin",
-		{ 3, -3, 1, 0, 2, 2},
+		{ 2, -3, 1, 0, 1, 2},
 		14, 16, 25, 1, 12,  2, 19, 15,
 		30, 30, 55, 0,  0,  0, 76, 20,
 		7, 35
@@ -1241,7 +1241,7 @@ player_class class_info[MAX_CLASS] =
 
 	{
 		"Necromancer",
-		{ -3, 3, -3, -1, 0, -2},
+		{ -2, 3, -2, 1, 0, -2},
 		14, 32, 25,  2, 14,  6, 10, 15,
 		30, 50, 40,  0,  0,  0, 30, 30,
 		0, 25
@@ -1255,7 +1255,6 @@ player_class class_info[MAX_CLASS] =
 		4, 30
 	}
 };
-
 
 
 /*
@@ -1328,14 +1327,14 @@ player_magic magic_info[MAX_CLASS] =
 
 		{
 			/* Magic for Beginners (sval 0) */
-			{   0,	 1,  1, 22,   4},	/* Magic Missile */
-			{   1,	 1,  1, 23,   4},	/* Detect Monsters */
-			{   2,	 2,  1, 24,   4},	/* Phase Door */
-			{   3,	 3,  2, 25,   4},	/* Light Area */
-			{   4,	 3,  1, 25,   4},	/* Combat Poison */
-			{   5,	 4,  2, 25,   4},	/* Cure Light Wounds */
-			{  69,	 5,  3, 25,   4}, /* Find Traps */
-			{  70,	 5,  3, 25,   4}, /* Detect Doors/Stairs */
+			{   0,   1,  1, 22,   4}, /* Magic Missile */
+			{   1,	 1,  1, 23,   4}, /* Detect Monsters */
+			{   2,	 2,  1, 24,   4}, /* Phase Door */
+			{   3,	 3,  2, 25,   4}, /* Light Area */
+			{   4,	 3,  1, 25,   4}, /* Combat Poison */
+			{   5,	 4,  2, 25,   4}, /* Cure Light Wounds */
+			{  69,	 5,  3, 25,   4},       /* Find Traps */
+			{  70,	 5,  3, 25,   4},       /* Detect Doors/Stairs */
 			{   8,	 6,  3, 27,   5},	/* Stinking Cloud */
 
 			/* Conjurings and Tricks (sval 1) */
@@ -1380,7 +1379,7 @@ player_magic magic_info[MAX_CLASS] =
 			{  39,	16,  8, 40,  20},	/* Stair Creation */
 			{  40,	20, 11, 60,  20},	/* Teleport Level */
 			{  41,	25, 15, 60,  25},	/* Word of Recall */
-			{  42,	43, 20, 65,  75},       /* Dimension Door */
+			{  42,	43, 20, 65,  75},	/* Dimension Door */
 
 			/* Kelek's Grimoire of Power (sval 6) */
 			{  43,	 5,  2, 50,  10},	/* Detect Evil */
@@ -1601,7 +1600,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 141,	 5,  4, 45,   1}, /* detect trap/doors */
 			{ 132,	 7,  1, 35,   1}, /* combat poison */
 			{ 134,	 7,  2, 30,   2}, /* door destruction */
-			{ 131,	 9,  5, 60,   2}, /* blink */
+			{ 131,	 9,  4, 60,   2}, /* blink */
 			{ 156,	 9,  6, 60,   1}, /* disarm trap */
 
 			/* Communion with Nature (sval 1) */
@@ -1681,7 +1680,7 @@ player_magic magic_info[MAX_CLASS] =
 			{  68,	 7,  2, 35,   1}, /* Call Light */
 			{  65,	 8,  2, 35,   2}, /* Cure Light Wounds */
 			{  71,	 9,  2, 40,   2}, /* Slow Poison */
-			{  79,	10,  4, 45,   2}, /* Resist Heat and Cold */
+			{  151,	10,  4, 45,   2}, /* Resist Heat and Cold */
 			{  73,	11,  4, 40,   2}, /* Scare Monster */
 
 			/* Words of Wisdom (sval 1) */
@@ -1763,7 +1762,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 132,	 3,  1, 25,   4}, /* combat poison */
 			{ 131,	 3,  2, 25,   4}, /* blink */
 			{ 133,	 4,  2, 25,   4}, /* lightning spark */
-			{ 134,	 5,  3, 45,   4}, /* door destruction */
+			{ 134,	 5,  3, 25,   4}, /* door destruction */
 			{ 135,	 5,  3, 25,   4}, /* turn stone to mud */
 			{ 136,	 6,  4, 27,   5}, /* ray of sunlight */
 
@@ -2313,7 +2312,7 @@ cptr spell_names[255] =
 	"Mana Bolt",
 	"Genocide",
 	"Dark Ball",
-	"Stench of Death",	
+	"Stench of Death",
 
 	/* Mysteries of Angmar (sval 4) */
 	"Probing",							/* index 223 */
@@ -2725,7 +2724,7 @@ cptr window_flag_desc[32] =
  */
 cptr option_text[OPT_MAX] =
 {
-        "rogue_like_commands",		/* OPT_rogue_like_commands */      /*0*/
+	"rogue_like_commands",		/* OPT_rogue_like_commands */	   /*0*/
 	"quick_messages",			/* OPT_quick_messages */
 	"floor_query_flag",			/* OPT_floor_query_flag */
 	"carry_query_flag",			/* OPT_carry_query_flag */
@@ -2744,8 +2743,8 @@ cptr option_text[OPT_MAX] =
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
-	"run_use_corners",			/* OPT_run_use_corners */  /*20*/
-	"disturb_move",				/* OPT_disturb_move */
+	"run_use_corners",			/* OPT_run_use_corners */
+	"disturb_move",				/* OPT_disturb_move */  /*20*/
 	"disturb_near",				/* OPT_disturb_near */
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
@@ -2765,9 +2764,9 @@ cptr option_text[OPT_MAX] =
 	"expand_list",				/* OPT_expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
 	"view_torch_grids",			/* OPT_view_torch_grids */
-	"dungeon_align",			/* OPT_dungeon_align */     /*40*/
+	NULL,
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	"empty_levels",				/* OPT_empty_levels */
+	"fast_flow",			/* OPT_dungeon_stair */
 	NULL,
 	NULL,
 	NULL,
@@ -2791,65 +2790,65 @@ cptr option_text[OPT_MAX] =
 	"view_special_lite",			/* OPT_view_special_lite */
 	NULL,
 	NULL,
-	NULL,	        
-	"show_piles",                           /* OPT_show_piles */
-	NULL,  	        
-	NULL,          	
-	"disturb_trap_detect",    	/* OPT_disturb_trap_detect]*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL, /*80*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL, /*100*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL, /*120*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,
-      	NULL,
-	"birth_point_based",                  /* OPT_birth_point_based */
-	"birth_auto_roller",           	/* OPT_birth_auto_roller */
-	"birth_maximize",              	/* OPT_birth_maximize */        
-	"birth_preserve",              	/* OPT_birth_preserve */           
-      	NULL,    
-   	NULL,
-   	NULL,
-   	NULL,
-	"birth_random_hitpoints",             	/* OPT_birth_random_hitpoints */ 
-        NULL,
-   	NULL,
-        NULL,
-   	NULL, /*140*/
-   	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	
-	NULL,      	
-	NULL,      	
-	NULL,      	
-	"cheat_peak",                           /* OPT_cheat_peek */ /*160*/
-        "cheat_hear",                           /* OPT_cheat_hear */
-        "cheat_room",                           /* OPT_cheat_room */
-        "cheat_xtra",                           /* OPT_cheat_xtra */
-        "cheat_know",                           /* OPT_cheat_know */
-        "cheat_live",                           /* OPT_cheat_live */
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL, /*180*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,
-	"adult_point_based",                  /* OPT_adult_point_based */
-	"adult_auto_roller",           	/* OPT_adult_auto_roller */          
-        "adult_maximize",              	/* OPT_adult_maximize */      
-   	"adult_preserve",              	/* OPT_adult_preserve */
-   	NULL,
-   	NULL,
-   	NULL,
-   	NULL,
-	"adult_random_hitpoints",             	/* OPT_adult_random_hitpoints */ /*200*/
+	NULL,		
+	"show_piles",				/* OPT_show_piles */
+	NULL,		
+	"show_detect",				/* OPT_show_detect */
+	"disturb_trap_detect",		/* OPT_disturb_trap_detect */
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL, /*80*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL, /*100*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL, /*120*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,
+	NULL,
+	"birth_point_based",		      /* OPT_birth_point_based */
+	"birth_auto_roller",		/* OPT_birth_auto_roller */
+	"birth_maximize",		/* OPT_birth_maximize */	
+	"birth_preserve",		/* OPT_birth_preserve */	   
+	NULL,	 
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL, /*140*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		
+	NULL,		
+	NULL,		
+	NULL,		
+	"cheat_peak",				/* OPT_cheat_peek */ /*160*/
+	"cheat_hear",				/* OPT_cheat_hear */
+	"cheat_room",				/* OPT_cheat_room */
+	"cheat_xtra",				/* OPT_cheat_xtra */
+	"cheat_know",				/* OPT_cheat_know */
+	"cheat_live",				/* OPT_cheat_live */
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL, /*180*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,
+	"adult_point_based",		      /* OPT_adult_point_based */
+	"adult_auto_roller",		/* OPT_adult_auto_roller */	     
+	"adult_maximize",		/* OPT_adult_maximize */      
+	"adult_preserve",		/* OPT_adult_preserve */
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL,
@@ -2857,12 +2856,12 @@ cptr option_text[OPT_MAX] =
 	NULL,	
 	NULL,	
 	NULL,	
-        "score_peek",                           /* OPT_score_peek */
-        "score_hear",                           /* OPT_score_hear */
-        "score_room",                           /* OPT_score_room */
-        "score_xtra",                           /* OPT_score_xtra */
-        "score_know",                           /* OPT_score_know */
-        "score_live",                           /* OPT_score_live */
+	"score_peek",				/* OPT_score_peek */
+	"score_hear",				/* OPT_score_hear */
+	"score_room",				/* OPT_score_room */
+	"score_xtra",				/* OPT_score_xtra */
+	"score_know",				/* OPT_score_know */
+	"score_live",				/* OPT_score_live */
 	NULL,	
 	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL, /*240*/
@@ -2877,7 +2876,7 @@ cptr option_text[OPT_MAX] =
  */
 cptr option_desc[OPT_MAX] =
 {
-        "Rogue-like commands",				/* OPT_rogue_like_commands */ /*0*/
+	"Rogue-like commands",				/* OPT_rogue_like_commands */ /*0*/
 	"Activate quick messages",					/* OPT_quick_messages */
 	"Prompt for floor item selection",			/* OPT_floor_query_flag */
 	"Prompt before picking things up",			/* OPT_carry_query_flag */
@@ -2897,7 +2896,7 @@ cptr option_desc[OPT_MAX] =
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
 	"When running, use corners",				/* OPT_run_use_corners */
-	"Disturb whenever any monster moves",		/* OPT_disturb_move */  /*20*/
+	"Disturb whenever any monster moves",		/* OPT_disturb_move */	/*20*/
 	"Disturb whenever viewable monster moves",	/* OPT_disturb_near */
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
@@ -2912,14 +2911,14 @@ cptr option_desc[OPT_MAX] =
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Open and close doors automatically",		/* OPT_easy_open  -TBN- */
-	"Disarm traps automatically",   			/* OPT_easy_disarm   -TNB- */
+	"Disarm traps automatically",				/* OPT_easy_disarm   -TNB- */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
-	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */  /*40*/
+	NULL,									   /*40*/
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	"Allow empty 'Arena' levels",				/* OPT_empty_levels */
+	"Simplified monster path finding (faster)",	/* OPT_fast_flow */
 	NULL,
 	NULL,
 	NULL,
@@ -2943,78 +2942,78 @@ cptr option_desc[OPT_MAX] =
 	"Use special colors for floor grids",		/* OPT_view_special_lite */
 	NULL,
 	NULL,
-	NULL,	        
-	"Show stacks using special attr/char",          /* OPT_show_piles */
-	NULL,       	
-	NULL,         	
+	NULL,		
+	"Show stacks using special attr/char",		/* OPT_show_piles */
+	NULL,		
+	"Show region affected by using detection spells", /* OPT_show_detect */
 	"Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,  /*80*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,           NULL,      	
-	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,  /*100*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,  /*120*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,
-      	NULL,
-	"Birth: Use point based character generation",           /* OPT_birth_point_based */
-	"Birth: Use Autoroller if rolling for stats",            /* OPT_birth_auto_roller */
-	"Birth: Race/Class bonuses effect maximum stats",        /* OPT_birth_maximize */      
-	"Birth: No special feelings/artifacts preserved",  /* OPT_birth_preserve */      
-      	NULL,
-      	NULL,
-      	NULL,
-      	NULL,
-	"Birth: Generate hitpoints randomly",             	 /* OPT_birth_random_hitpoints */
-      	NULL,    
-   	NULL,
-   	NULL,
-  	NULL, /*140*/
-   	NULL,   	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,
-      	NULL,
-      	NULL,
-      	NULL,      	
-        "Cheat: Peek into object creation",             /* OPT_cheat_peek */ /*160*/
-        "Cheat: Peek into monster creation",            /* OPT_cheat_hear */
-        "Cheat: Peek into dungeon creation",            /* OPT_cheat_room */
-        "Cheat: Peek into something else",              /* OPT_cheat_xtra */
-        "Cheat: Know complete monster info",            /* OPT_cheat_know */
-        "Cheat: Allow player to avoid death",           /* OPT_cheat_live */
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL, /*180*/
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
-      	NULL,
-	"Adult: Use point based character generation",           /* OPT_adult_point_based */
-	"Adult: Use Autoroller if rolling for stats",            /* OPT_adult_auto_roller */
-	"Adult: Race/Class bonuses effect maximum stats",        /* OPT_adult_maximize */        
-	"Adult: Artifacts preserved & no special feelings",  /* OPT_adult_preserve */      
-      	NULL,
-      	NULL,
-      	NULL,
-      	NULL, 
-	"Adult: Generate hitpoints randomly",        /* OPT_adult_random_hitpoints */ /*200*/
-	NULL,	NULL,   NULL,   NULL, 	NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,  /*80*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,		
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,  /*100*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,  /*120*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,
+	NULL,
+	"Birth: Use point based character generation",		 /* OPT_birth_point_based */
+	"Birth: Use Autoroller if rolling for stats",		 /* OPT_birth_auto_roller */
+	"Birth: Race/Class bonuses effect maximum stats",	 /* OPT_birth_maximize */      
+	"Birth: No special feelings/artifacts preserved",  /* OPT_birth_preserve */	 
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,	 
+	NULL,
+	NULL,
+	NULL, /*140*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,		
+	"Cheat: Peek into object creation",		/* OPT_cheat_peek */ /*160*/
+	"Cheat: Peek into monster creation",		/* OPT_cheat_hear */
+	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
+	"Cheat: Peek into something else",		/* OPT_cheat_xtra */
+	"Cheat: Know complete monster info",		/* OPT_cheat_know */
+	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL, /*180*/
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,		NULL,		NULL,		NULL,		NULL,
+	NULL,
+	"Adult: Use point based character generation",		 /* OPT_adult_point_based */
+	"Adult: Use Autoroller if rolling for stats",		 /* OPT_adult_auto_roller */
+	"Adult: Race/Class bonuses effect maximum stats",	 /* OPT_adult_maximize */	 
+	"Adult: Artifacts preserved & no special feelings",  /* OPT_adult_preserve */	   
+	NULL,
+	NULL,
+	NULL,
+	NULL, 
+	NULL, 
+	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL, /*220*/
 	NULL,
 	NULL,
 	NULL,
-        "Score: Peek into object creation",                     /* OPT_score_peek */
-        "Score: Peek into monster creation",            /* OPT_score_hear */
-        "Score: Peek into dungeon creation",            /* OPT_score_room */
-        "Score: Peek into something else",                      /* OPT_score_xtra */
-        "Score: Know complete monster info",            /* OPT_score_know */
-        "Score: Allow player to avoid death",           /* OPT_score_live */
+	"Score: Peek into object creation",			/* OPT_score_peek */
+	"Score: Peek into monster creation",		/* OPT_score_hear */
+	"Score: Peek into dungeon creation",		/* OPT_score_room */
+	"Score: Peek into something else",			/* OPT_score_xtra */
+	"Score: Know complete monster info",		/* OPT_score_know */
+	"Score: Allow player to avoid death",		/* OPT_score_live */
 	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL,
 	NULL,	NULL,	NULL,	NULL,	NULL, /*240*/
@@ -3029,7 +3028,7 @@ cptr option_desc[OPT_MAX] =
  */
 bool option_norm[OPT_MAX] =
 {
-        FALSE,		/* OPT_rogue_like_commands */   /*0*/
+	FALSE,		/* OPT_rogue_like_commands */	/*0*/
 	FALSE,		/* OPT_quick_messages */
 	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
@@ -3049,7 +3048,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
 	TRUE,		/* OPT_run_use_corners */
-	TRUE,		/* OPT_disturb_move */         /*20*/
+	TRUE,		/* OPT_disturb_move */ /*20*/
 	TRUE,		/* OPT_disturb_near */
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
@@ -3069,9 +3068,9 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	TRUE,		/* OPT_view_torch_grids */
-	FALSE,		/* OPT_dungeon_align */        /*40*/
+	FALSE,						     /*40*/
 	TRUE,		/* OPT_dungeon_stair */
-	TRUE,		/* OPT_empty_levels */
+	FALSE,		/* OPT_fast_flow */
 	FALSE,
 	FALSE,
 	FALSE,
@@ -3089,68 +3088,68 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_center_running */
 	FALSE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	TRUE,		/* OPT_view_yellow_lite */       /*60*/
+	TRUE,		/* OPT_view_yellow_lite */	 /*60*/
 	TRUE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
 	TRUE,		/* OPT_view_special_lite */
 	FALSE,
 	FALSE,
-	FALSE,	        
-	FALSE,	        /* OPT_show_piles */
-	FALSE,  	
-	FALSE,          
-	TRUE,           /* OPT_disturb_trap_detect */
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,  /*80*/
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,  /*100*/
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,  /*120*/
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,
-      	FALSE,
-	FALSE,           /* OPT_birth_point_based */
-	TRUE,            /* OPT_birth_auto_roller */
-	TRUE,        /* OPT_birth_maximize */        
-	FALSE,  /* OPT_birth_preserve */      
-      	FALSE,
-      	FALSE,
-      	FALSE,
-      	FALSE,
-	FALSE,             	 /* OPT_birth_random_hitpoints */
-      	FALSE,    
-   	FALSE,
-   	FALSE,
-  	FALSE, /*140*/
-   	FALSE,   	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	
-	FALSE,          /* OPT_cheat_peek */  /*160*/
-        FALSE,          /* OPT_cheat_hear */
-        FALSE,          /* OPT_cheat_room */
-        FALSE,          /* OPT_cheat_xtra */
-        FALSE,          /* OPT_cheat_know */
-        FALSE,          /* OPT_cheat_live */
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE, /*180*/
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
-      	FALSE,
-	FALSE,  /* OPT_adult_point_based */
-	TRUE,   /* OPT_adult_auto_roller */
-	TRUE,   /* OPT_adult_maximize */        
-	FALSE,  /* OPT_adult_preserve */      
-      	FALSE,
-      	FALSE,
-      	FALSE,
-      	FALSE, 
-	FALSE,  /* OPT_adult_random_hitpoints */ /*200*/
+	FALSE,		
+	FALSE,		/* OPT_show_piles */
+	FALSE,		
+	TRUE,			  /* OPT_show_detect */
+	TRUE,		/* OPT_disturb_trap_detect */
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,	/*80*/
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,	/*100*/
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,	/*120*/
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,
+	FALSE,
+	FALSE,		 /* OPT_birth_point_based */
+	TRUE,		 /* OPT_birth_auto_roller */
+	TRUE,	     /* OPT_birth_maximize */	     
+	FALSE,	/* OPT_birth_preserve */      
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,	  
+	FALSE,	  
+	FALSE,
+	FALSE,
+	FALSE, /*140*/
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		
+	FALSE,		/* OPT_cheat_peek */  /*160*/
+	FALSE,		/* OPT_cheat_hear */
+	FALSE,		/* OPT_cheat_room */
+	FALSE,		/* OPT_cheat_xtra */
+	FALSE,		/* OPT_cheat_know */
+	FALSE,		/* OPT_cheat_live */
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE, /*180*/
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,		FALSE,		FALSE,		FALSE,		FALSE,
+	FALSE,
+	FALSE,	/* OPT_adult_point_based */
+	TRUE,	/* OPT_adult_auto_roller */
+	TRUE,	/* OPT_adult_maximize */	
+	FALSE,	/* OPT_adult_preserve */      
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE, 
+	FALSE, 
 	FALSE,	FALSE,	FALSE,	FALSE,	FALSE,
 	FALSE,	FALSE,	FALSE,	FALSE,	FALSE,
 	FALSE,	FALSE,	FALSE,	FALSE,	FALSE,
@@ -3158,12 +3157,12 @@ bool option_norm[OPT_MAX] =
 	FALSE,
 	FALSE,
 	FALSE,
-        FALSE,          /* OPT_score_peek */
-        FALSE,          /* OPT_score_hear */
-        FALSE,          /* OPT_score_room */
-        FALSE,          /* OPT_score_xtra */
-        FALSE,          /* OPT_score_know */
-        FALSE,          /* OPT_score_live */
+	FALSE,		/* OPT_score_peek */
+	FALSE,		/* OPT_score_hear */
+	FALSE,		/* OPT_score_room */
+	FALSE,		/* OPT_score_xtra */
+	FALSE,		/* OPT_score_know */
+	FALSE,		/* OPT_score_live */
 	FALSE,
 	FALSE,	FALSE,	FALSE,	FALSE,	FALSE,
 	FALSE,	FALSE,	FALSE,	FALSE,	FALSE, /*240*/
@@ -3197,7 +3196,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_details,
 		OPT_metric,
 		OPT_show_flavors,
-		255,
+		OPT_show_detect,
 		255,
 		255,
 		255
@@ -3239,9 +3238,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
-		OPT_dungeon_align,
+		255,
 		OPT_dungeon_stair,
-		OPT_empty_levels,
+		OPT_fast_flow,
 		255,
 		255,
 		255,
@@ -3280,11 +3279,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Birth ***/
 
 	{
-	        OPT_birth_point_based, 
-	        OPT_birth_auto_roller,        
-	        OPT_birth_maximize,         
-	        OPT_birth_preserve, 
-	        OPT_birth_random_hitpoints,
+		OPT_birth_point_based, 
+		OPT_birth_auto_roller,	      
+		OPT_birth_maximize,	    
+		OPT_birth_preserve, 
+		255,
 		255,
 		255,
 		255,
@@ -3302,9 +3301,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255
 	},
 
-        /*** Cheat ***/
+	/*** Cheat ***/
 
-        {
+	{
 	  OPT_cheat_peek,
 	  OPT_cheat_hear,
 	  OPT_cheat_room,
@@ -3324,25 +3323,25 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	  255,
 	  255,
 	  255,
-          255
-        }
+	  255
+	}
 };
 
 /* Table of Druid blows. -LM- */
 druid_blows d_blow[NUM_D_BLOWS] =
 {
-	{ "punch", 			 1, 5 },
-	{ "kick", 			 2, 4 },
-	{ "knee", 			 1,12 },
-	{ "chop", 			 2, 7 },
+	{ "punch",			 1, 5 },
+	{ "kick",			 2, 4 },
+	{ "knee",			 1,12 },
+	{ "chop",			 2, 7 },
 	{ "uppercut",		 3, 6 },
 	{ "boot",			 3, 9 },
-	{ "bang on", 		 6, 4 },
-	{ "slam", 			 4, 9 },
-	{ "grapple with", 	13, 3 },
-	{ "hammer", 		 9, 6 },
+	{ "bang on",		 6, 4 },
+	{ "slam",			 4, 9 },
+	{ "grapple with",	13, 3 },
+	{ "hammer",		 9, 6 },
 	{ "head butt",		 3,24 },
-	{ "strangle", 		 8,10 },
+	{ "strangle",		 8,10 },
 	{ "roundhouse kick",	 5,19 },
 	{ "assault",		10,11 },
 	{ "crush",			11,11 },
@@ -3355,14 +3354,479 @@ druid_blows d_blow[NUM_D_BLOWS] =
 
 cptr feel_text[FEEL_MAX] =
 {
-	NULL,            /* FEEL_NONE */
-	"broken",        /* FEEL_BROKEN */
-	"terrible",      /* FEEL_TERRIBLE */
-	"worthless",     /* FEEL_WORTHLESS */
-	"cursed",        /* FEEL_CURSED */
-	"uncursed",      /* FEEL_UNCURSED */
-	"average",       /* FEEL_AVERAGE */
-	"good",          /* FEEL_GOOD */
-	"excellent",     /* FEEL_EXCELLENT */
-	"special",       /* FEEL_SPECIAL */
+	NULL,		 /* FEEL_NONE */
+	"broken",	 /* FEEL_BROKEN */
+	"terrible",	 /* FEEL_TERRIBLE */
+	"worthless",	 /* FEEL_WORTHLESS */
+	"cursed",	 /* FEEL_CURSED */
+	"uncursed",	 /* FEEL_UNCURSED */
+	"average",	 /* FEEL_AVERAGE */
+	"good",		 /* FEEL_GOOD */
+	"excellent",	 /* FEEL_EXCELLENT */
+	"special",	 /* FEEL_SPECIAL */
 };
+
+byte mana_cost_RF4[32]=
+{
+	1,			/* RF4_SHIEIK */
+	0,			/* RF4_LASH */
+	0,			/* RF4_BOULDER */
+	0,			/* RF4_SHOT */
+	0,			/* RF4_ARROW */
+	0,			/* RF4_BOLT */
+	0,			/* RF4_MISSL */
+	0,			/* RF4_PMISSLE */
+	0,			/* RF4_BRTH_ACID */
+	0,			/* RF4_BRTH_ELEC */
+	0,			/* RF4_BRTH_FIRE */
+	0,			/* RF4_BRTH_COLD */
+	0,			/* RF4_BRTH_POIS */
+	0,			/* RF4_BRTH_PLAS */
+	0,			/* RF4_BRTH_LITE */
+	0,			/* RF4_BRTH_DARK */
+	0,			/* RF4_BRTH_CONFU */
+	0,			/* RF4_BRTH_SOUND */
+	0,			/* RF4_BRTH_SHARD */
+	0,			/* RF4_BRTH_INER */
+	0,			/* RF4_BRTH_GRAV */
+	0,			/* RF4_BRTH_FORCE */
+	0,			/* RF4_BRTH_NEXUS */
+	0,			/* RF4_BRTH_NETHR */
+	0,			/* RF4_BRTH_CHAOS */
+	0,			/* RF4_BRTH_DISEN */
+	0,			/* RF4_BRTH_TIME */
+	0,			/* RF4_XXX2 */
+	0,			/* RF4_XXX3 */
+	0,			/* RF4_XXX4 */
+	0,			/* RF4_XXX5 */
+	0			/* RF4_XXX6 */
+};
+
+byte mana_cost_RF5[32]=
+{
+	4,			/* RF5_BALL_ACID */
+	4,			/* RF5_BALL_ELEC */
+	4,			/* RF5_BALL_FIRE */
+	4,			/* RF5_BALL_COLD */
+	4,			/* RF5_BALL_POIS */
+	5, 			/* RF5_BALL_LITE */
+	5, 			/* RF5_BALL_DARK */
+	6, 			/* RF5_BALL_CONFU */
+	4, 			/* RF5_BALL_SOUND */
+	4, 			/* RF5_BALL_SHARD */
+	5, 			/* RF5_BALL_STORM */
+	6, 			/* RF5_BALL_NETHR */
+	7, 			/* RF5_BALL_CHAOS */
+	5, 			/* RF5_BALL_MANA */
+	0, 			/* RF5_XXX1 */
+	0, 			/* RF5_XXX2 */
+	4, 			/* RF5_BOLT_ACID */
+	4, 			/* RF5_BOLT_ELEC */
+	4, 			/* RF5_BOLT_FIRE */
+	4, 			/* RF5_BOLT_COLD */
+	4, 			/* RF5_BOLT_POIS */
+	4, 			/* RF5_BOLT_PLAS */
+	4, 			/* RF5_BOLT_ICE */
+	5, 			/* RF5_BOLT_WATER */
+	5, 			/* RF5_BOLT_NETHER */
+	4, 			/* RF5_BOLT_MANA */
+	0, 			/* RF5_XXX3 */
+	3, 			/* RF5_BEAM_ELEC */
+	6, 			/* RF5_BEAM_ICE */
+	7, 			/* RF5_BEAM_NETHER */
+	7, 			/* RF5_ARC__HFIRE */
+	5  			/* RF5_ARC__FORCE */
+};
+
+byte mana_cost_RF6[32]=
+{
+	6, 			/* RF6_HASTE */
+	0, 			/* RF6_ADD_MANA */
+	0, 			/* RF6_HEAL */
+	3, 			/* RF6_CURE */
+	1, 			/* RF6_BLINK */	
+	6, 			/* RF6_TPORT */
+	0, 			/* RF6_XXX1 */
+	4, 			/* RF6_TELE_SELF_TO */
+	4, 			/* RF6_TELE_TO */
+	8, 			/* RF6_TELE_AWAY */
+	8, 			/* RF6_TELE_LEVEL */
+	0, 			/* RF6_XXX3 */
+	1, 			/* RF6_DARKNESS */
+	2, 			/* RF6_TRAPS */
+	6, 			/* RF6_FORGET */
+	0, 			/* RF6_DRAIN_MANA */
+	0, 			/* RF6_XXX4 */ 
+	0, 			/* RF6_XXX5 */ 
+	3, 			/* RF6_MIND_BLAST */
+	4, 			/* RF6_BRAIN_SMASH */
+	4, 			/* RF6_WOUND */
+	0, 			/* RF6_XXX6 */
+	0, 			/* RF6_XXX7 */ 
+	0, 			/* RF6_XXX8 */
+	0, 			/* RF6_XXX9 */
+	2, 			/* RF6_HUNGER */ 
+	0, 			/* RF6_XX11 */ 
+	1, 			/* RF6_SCARE */ 
+	3, 			/* RF6_BLIND */ 
+	4, 			/* RF6_CONF */ 
+	5, 			/* RF6_SLOW */ 
+	6  			/* RF6_HOLD */ 
+};
+
+byte mana_cost_RF7[32]=
+{
+	12,			/* RF7_S_KIN */ /* Summon - 6 */
+	0, 			/* RF7_XXX1 */
+	0, 			/* RF7_XXX2 */
+	10,			/* RF7_S_MONSTER */ /* Summon - 1 */
+	15,		/* RF7_S_MONSTERS */ /* Summon - 8 */
+	0,			/* RF7_XXX3 */
+	0, 			/* RF7_XXX4 */
+	0, 			/* RF7_XXX5 */
+	10, 			/* RF7_S_ANT */ /* Summon - 6 */
+	12,			/* RF7_S_SPIDER */ /* Summon - 6 */
+	14,			/* RF7_S_HOUND */ /* Summon - 6 */
+	15,			/* RF7_S_ANIMAL */ /* Summon - 6 */
+	0, 			/* RF7_XXX6 */
+	0, 			/* RF7_XXX7 */
+	15,			/* RF7_S_THIEF */ /* Summon - 6 */
+	5, 			/* RF7_S_BERTBILLTOM */ /* Summon - 2 */
+	0, 			/* RF7_XXX8 */
+	0, 			/* RF7_XXX9 */
+	0, 			/* RF7_XX10 */
+	0, 			/* RF7_XX11 */
+	14,			/* RF7_S_DRAGON */ /* Summon - 1 */
+	20,			/* RF7_S_HI_DRAGON */ /* Summon - 8 */
+	0, 			/* RF7_XX12 */
+	0, 			/* RF7_XX13 */
+	14,			/* RF7_S_DEMON */ /* Summon - 1 / 2-3 */
+	20,			/* RF7_S_HI_DEMON */ /* Summon - 8 */
+	0, 			/* RF7_XX14 */
+	0, 			/* RF7_XX15 */
+	12,			/* RF7_S_UNDEAD */ /* Summon - 1 */
+	20,			/* RF7_S_HI_UNDEAD */ /* Summon - 8 */
+	20,			/* RF7_S_WRAITH */ /* Summon - 8 */
+	20 			/* RF7_S_UNIQUE */ /* Summon - 8 */
+};
+
+/*
+ * d_spower:   desirability for AI per monster spell power.
+ * d_hps:      desirability for AI per 10 monster hps.
+ * d_rlev:     desirability for AI per monster level.
+ * d_summ:     desriability for AI per monster level, modified 
+ *                  by number of clear spaces for summoning.
+ * d_hurt:     desirability for AI per monster spell power,
+ *                 modified by degree of damage to monster.
+ * d_mana:     desirability for AI per monster spell power,
+ *                 modified by monster being low on mana.
+ * d_esc:      desirability for AI per monster level, modified
+ *                 by monster wanting to flee.
+ * d_tact:     desirability for AI per monster level, modified
+ *                 by monster wanting to reposition.
+ * d_res:      category of 'resistability' checked by monster AI
+ *                 for purposes of desirability.
+ * d_range:    % of spell desirability retained for each step past 'range'
+ */
+
+byte spell_desire_RF4[32][10] =
+{
+/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
+/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
+	{ 0,   0,   3,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_SHRIEK    */
+	{ 0,   0,   4,	 0,   0,   0,	0,   0,	   0	  ,    0}, /* RF4_LASH	    */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_BOULDER   */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_SHOT	    */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_ARROW	    */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_BOLT	    */
+	{ 3,   0,   0,	 0,   0,   0,	0,   0, LRN_ARCH  ,  100}, /* RF4_MISSL	    */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_PARCH ,  100}, /* RF4_PMISSL    */
+	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_ACID  ,   90}, /* RF4_BRTH_ACID */
+	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_ELEC  ,   90}, /* RF4_BRTH_ELEC */
+	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_FIRE  ,   90}, /* RF4_BRTH_FIRE */
+	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_COLD  ,   90}, /* RF4_BRTH_COLD */
+	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_POIS  ,   90}, /* RF4_BRTH_POIS */
+	{ 0,   5,   0,	 0,   0,   1,	0,   0, LRN_PLAS  ,   90}, /* RF4_BRTH_PLAS */
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_LITE  ,   90}, /* RF4_BRTH_LITE */
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_DARK  ,   90}, /* RF4_BRTH_DARK */
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_CONFU ,   90}, /* RF4_BRTH_CONFU*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SOUND ,   90}, /* RF4_BRTH_SOUND*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SHARD ,   90}, /* RF4_BRTH_SHARD*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0,	   0	  ,   90}, /* RF4_BRTH_INER */
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_GRAV */
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_SOUND2,   90}, /* RF4_BRTH_FORCE*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_NEXUS ,   90}, /* RF4_BRTH_NEXUS*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_NETHR ,   90}, /* RF4_BRTH_NETHR*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_CHAOS ,   90}, /* RF4_BRTH_CHAOS*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0, LRN_DISEN ,   90}, /* RF4_BRTH_DISEN*/
+	{ 0,   4,   0,	 0,   0,   1,	0,   0,	   0	  ,   90}, /* RF4_BRTH_TIME */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX2 */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX3 */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX4 */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX5 */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100} /* RF4_XXX6 */
+};
+
+byte spell_desire_RF5[32][10] =
+{
+/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
+/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BALL_ACID */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BALL_ELEC */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BALL_FIRE */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BALL_COLD */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BALL_POIS */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_LITE  ,  100}, /* RF5_BALL_LITE */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_DARK  ,  100}, /* RF5_BALL_DARK */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_CONFU ,  100}, /* RF5_BALL_CONFU*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_SOUND ,  100}, /* RF5_BALL_SOUND*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_SHARD ,  100}, /* RF5_BALL_SHARD*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_STORM ,  100}, /* RF5_BALL_STORM*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BALL_NETHR*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_CHAOS ,  100}, /* RF5_BALL_CHAOS*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BALL_MANA */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX1 */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX2 */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ACID  ,  100}, /* RF5_BOLT_ACID */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_ELEC  ,  100}, /* RF5_BOLT_ELEC */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BOLT_FIRE */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BOLT_COLD */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BOLT_POIS */
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_PLAS  ,  100}, /* RF5_BOLT_PLAS */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ICE	  ,  100}, /* RF5_BOLT_ICE  */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_WATER ,  100}, /* RF5_BOLT_WATER*/
+	{ 3,   0,   0,	 0,   0,   0,	0,   0, LRN_NETHR ,  100}, /* RF5_BOLT_NETHR*/
+	{ 3,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_BOLT_MANA */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF5_XXX3	    */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ELEC  ,   90}, /* RF5_BEAM_ELEC */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_ICE	  ,   90}, /* RF5_BEAM_ICE  */
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_NETHR ,   90}, /* RF5_BEAM_NETHR*/
+	{ 5,   0,   0,	 0,   0,   0,	0,   0, LRN_FIRE  ,   95}, /* RF5_ARC__HFIRE*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,   90} /* RF5_ARC__FORCE*/
+};
+
+byte spell_desire_RF6[32][10] =
+{
+/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
+/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
+	{ 0,   0,   5,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_HASTE	    */
+	{ 1,   0,   0,	 0,   0,   2,	0,   0,	   0	  ,  100}, /* RF6_ADD_MANA  */
+	{ 0,   0,   0,	 0,   2,   0,	0,   0,	   0	  ,  100}, /* RF6_HEAL	    */
+	{ 0,   0,   5,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURE	    */
+	{ 0,   0,   1,	 0,   0,   0,	1,   2,	   0	  ,  100}, /* RF6_BLINK	    */
+	{ 0,   0,   1,	 0,   0,   0,	3,   1,	   0	  ,  100}, /* RF6_TPORT	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX1	    */
+	{ 0,   0,   3,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_TELE_SELF_TO*/
+	{ 0,   0,   2,	 0,   0,   0,	0,   1,	   0	  ,  100}, /* RF6_TELE_TO   */
+	{ 0,   0,   1,	 0,   0,   0,	3,   1,	   0	  ,  100}, /* RF6_TELE_AWAY */
+	{ 0,   0,   1,	 0,   0,   0,	3,   1, LRN_NEXUS_SAVE,	   100}, /* RF6_TELE_LEVEL */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX3	    */
+	{ 0,   0,   1,	 0,   0,   0,	1,   1,	   0	  ,  100}, /* RF6_DARKNESS  */
+	{ 0,   0,   2,	 0,   0,   0,	1,   2,	   0	  ,  100}, /* RF6_TRAPS	    */
+	{ 0,   0,   3,	 0,   0,   0,	1,   0, LRN_SAVE  ,  100}, /* RF6_FORGET    */
+	{ 0,   0,   2,	 0,   0,   1,	0,   0, LRN_MANA  ,  100}, /* RF6_DRAIN_MANA*/
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX4	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX5	    */
+	{ 0,   0,   3,	 0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_MIND_BLAST*/
+	{ 0,   0,   4,	 0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_BRAIN_SMASH*/
+	{ 4,   0,   0,	 0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_WOUND	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX6	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX7	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX8	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX9	    */
+	{ 0,   0,   3,	 0,   0,   0,	0,   0,	 LRN_SAVE ,  100}, /* RF6_HUNGER    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XX11	    */
+	{ 0,   0,   2,	 0,   0,   0,	0,   0, LRN_FEAR_SAVE,	  100}, /* RF6_SCARE	 */
+	{ 0,   0,   3,	 0,   0,   0,	0,   0, LRN_BLIND_SAVE,	   100}, /* RF6_BLIND	  */
+	{ 0,   0,   3,	 0,   0,   0,	0,   0, LRN_CONFU_SAVE,	   100}, /* RF6_CONF	  */
+	{ 0,   0,   4,	 0,   0,   0,	0,   0, LRN_FREE_SAVE,	  100}, /* RF6_SLOW	 */
+	{ 0,   0,   4,	 0,   0,   0,	0,   0, LRN_FREE_SAVE,	  100} /* RF6_HOLD	*/
+};
+
+byte spell_desire_RF7[32][10] =
+{
+/*     d_spower	  d_rlev    d_hurt    d_esc	 d_res				    */
+/*	     d_hps    d_summ	d_mana	  d_tact	   d_range		    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_KIN	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX1	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX2	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_MONSTER */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_MONSTERS*/
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX3	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX4	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX5	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_ANT	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_SPIDER  */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HOUND   */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_ANIMAL  */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX6	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_THIEF   */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_BERTBILLTOM*/
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX8	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX9	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX10	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX11	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_DRAGON  */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HI_DRAGON*/
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX12	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX13	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_DEMON   */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON*/
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX14	    */
+	{ 0,   0,   0,	 0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX15	    */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}, /* RF7_S_WRAITH  */
+	{ 0,   0,   0,	 2,   0,   0,	1,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
+};
+
+byte spell_range_RF4[32] =
+{
+	0,
+	3,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	6,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
+byte spell_range_RF5[32] =
+{
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	6,
+	6,
+	6,
+	6,
+	6,
+};
+
+byte spell_range_RF6[32] =
+{
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0, 
+	0,
+	0,
+	0,
+	0 
+};
+
+byte spell_range_RF7[32] =
+{
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+};
+
+
+
+
+
+

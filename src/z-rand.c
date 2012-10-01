@@ -173,6 +173,9 @@ u32b Rand_div(u32b m)
 	/* Partition size */
 	n = (0x10000000 / m);
 
+	/* Sanity -BR- */
+	if (!n) return(0);
+
 	/* Use a simple RNG */
 	if (Rand_quick)
 	{

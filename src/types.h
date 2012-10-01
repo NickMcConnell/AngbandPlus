@@ -355,8 +355,7 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b mana;				/* Unused (for now) */
-                                                /* to be max mana */
+	byte mana;                              /* max mana */
 
 	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
@@ -367,6 +366,7 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags7;			/* Flags 6 (summon spells) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -386,6 +386,9 @@ struct monster_race
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
+
+        byte spell_power;
+
 };
 
 /*
@@ -424,6 +427,7 @@ struct monster_lore
          u32b flags4;                  /* Observed racial flags */
          u32b flags5;                  /* Observed racial flags */
          u32b flags6;                  /* Observed racial flags */
+         u32b flags7;                  /* Observed racial flags */
 };
 
 
@@ -554,7 +558,7 @@ struct monster_type
 
 	byte stasis;		/* Monster is held in stasis. -LM- */
 
-	bool black_breath;	/* Monster suffers from the Black Breath -LM- */ /* Does not get saved ? */
+	bool black_breath;	/* Monster suffers from the Black Breath -LM- */ /* Now gets saved - BR */
 
 	byte cdis;			/* Current dis from player */
 
@@ -566,21 +570,23 @@ struct monster_type
 
 #ifdef DRS_SMART_OPTIONS
 
-        u32b smart;			/* Field for "smart_learn" */  /* Does not get saved ? */
+	u32b smart;			/* Field for "smart_learn" */  /* Now saved */
 
 #endif
 
 #ifdef WDT_TRACK_OPTIONS
-        byte ty;			/* Y location of target */  /* Not yet used */
-    	byte tx;			/* X location of target */  /* Not yet used */
+	byte ty;			/* Y location of target */  /* Not yet used */
+	byte tx;			/* X location of target */  /* Not yet used */
 
-    	byte t_dur;			/* How long are we tracking */  /* Not yet used */
-
-  	byte t_bit;			/* Up to eight bit flags */  /* Not yet used */
 #endif
 
-        s16b mana;                      /* Not yet used */
-        s16b max_mana;                  /* Not yet used */
+	byte harass;                    /* An AI variable making harassment spells 
+					 * more likely early in a battle */
+  
+	byte min_range;			/* What is the closest we want to be? */  /* Not saved */
+	byte best_range;		/* How close do we want to be? */  /* Not saved */
+
+	byte mana;                      /* Current mana level */
 
 };
 
@@ -788,6 +794,9 @@ struct player_race
         u32b flags1;            /* Racial Flags, set 1 */
         u32b flags2;            /* Racial Flags, set 2 */
         u32b flags3;            /* Racial Flags, set 3 */
+
+        u32b flags_special;     /* Special Racial Flags */
+
 };
 
 
@@ -994,16 +1003,14 @@ struct player_type
 
 	bool leaving;			/* True if player is leaving */
 
-	bool create_up_stair;	/* Create up stair on next level */
-	bool create_down_stair;	/* Create down stair on next level */
-
-	s16b wy;				/* Dungeon panel */
-	s16b wx;				/* Dungeon panel */
+	bool create_up_stair;	        /* Create up stair on next level */
+	bool create_down_stair;	        /* Create down stair on next level */
 
 	s16b total_weight;		/* Total weight being carried */
 
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */
+	s16b pack_size_reduce;	        /* Amount of space the quiver uses up. */
 
 	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
@@ -1012,9 +1019,9 @@ struct player_type
 
 	s16b health_who;		/* Health bar trackee */
 
-	s16b monster_race_idx;	/* Monster race trackee */
+	s16b monster_race_idx;	        /* Monster race trackee */
 
-	s16b object_kind_idx;	/* Object kind trackee */
+	s16b object_kind_idx;	        /* Object kind trackee */
 
 	s16b energy_use;		/* Energy use this turn */
 

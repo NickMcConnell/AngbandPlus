@@ -20,14 +20,14 @@
  * greater than the highest sval index for that object type.  Values 
  * correct for Oangband 0.4.0.
  */
-#define MAX_ROCKS      49       /* Used with rings (min 38) */
-#define MAX_AMULETS    30       /* Used with amulets (min 15) */
-#define MAX_WOODS      51       /* Used with staffs (min 44) */
-#define MAX_METALS     51       /* Used with wands/rods (min 44/44) */
-#define MAX_COLORS     84       /* Used with potions (min 60) */
-#define MAX_SHROOM     25       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     60       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
+#define MAX_ROCKS      49	/* Used with rings (min 38) */
+#define MAX_AMULETS    30	/* Used with amulets (min 15) */
+#define MAX_WOODS      51	/* Used with staffs (min 44) */
+#define MAX_METALS     51	/* Used with wands/rods (min 44/44) */
+#define MAX_COLORS     84	/* Used with potions (min 60) */
+#define MAX_SHROOM     25	/* Used with mushrooms (min 20) */
+#define MAX_TITLES     60	/* Used with scrolls (min 48) */
+#define MAX_SYLLABLES 164	/* Used with scrolls (see below) */
 
 
 /*
@@ -129,7 +129,7 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Admantium", "Admantium-plated", "Aluminum", "Antimony", "Beryllium", 
+	"Adamantium", "Adamantium-plated", "Aluminum", "Antimony", "Beryllium", 
 	"Billon", "Bismuth", "Brass", "Bronze", "Carbonized", 
 	"Cast Iron", "Chromium", "Cobalt", "Copper", "Copper-plated", 
 	"Corundum", "Damascened", "Electrum", "Galvorn", "Tarnished", 
@@ -1014,7 +1014,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * efficiently move through a buffer while modifying it in various ways.
  *
  * Various improper uses and/or placements of "&" or "~" characters can
- * easily induce out-of-bounds memory accesses.  Some of these could be
+ * easily induce out-of-bounds memory accesses.   Some of these could be
  * easily checked for, if efficiency was not a concern.
  *
  * Note that all ego-items (when known) append an "Ego-Item Name", unless
@@ -1030,7 +1030,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  *
  * Special Rings and Amulets, if not "aware", use the same code as normal
  * rings and amulets, and if "aware", use the "k_info" base-name (Ring or
- * Amulet or Necklace).  They will NEVER "append" the "k_info" name.  But,
+ * Amulet or Necklace).   They will NEVER "append" the "k_info" name.  But,
  * they will append the artifact name, just like any artifact, if known.
  *
  * Special Wands, Rods, and Staffs will be identified even if they are 
@@ -1767,7 +1767,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	       (o_ptr->tval == TV_WAND)))
 	   {
 		  /* Dump " (N charges)" */
-	          object_desc_chr_macro(t, ' ');
+		  object_desc_chr_macro(t, ' ');
 		  object_desc_chr_macro(t, p1);
 
 		  /* Clear explaination for staffs. */
@@ -1786,7 +1786,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		  object_desc_chr_macro(t, p2);
 	   }
 
-	   /* Hack -- Rods have a "charging" indicator.  Now that stacks of rods may 
+	   /* Hack -- Rods have a "charging" indicator.   Now that stacks of rods may 
 	    * be in any state of charge or discharge, this now includes a number.
 	    */
 	   else if (known && (o_ptr->tval == TV_ROD))
@@ -1803,8 +1803,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				/* Find out how many rods are charging, by dividing 
 				 * current timeout by each rod's maximum timeout.  
 				 * Ensure that any remainder is rounded up.  Display 
-			 	 * very discharged stacks as merely fully discharged.
-			 	 */
+				 * very discharged stacks as merely fully discharged.
+				 */
 				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 				if (power > o_ptr->number) power = o_ptr->number;
 
@@ -1827,7 +1827,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	   else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
 	   {
 		/* Hack -- Turns of light for normal lites */
-	        object_desc_str_macro(t, " (with ");
+		object_desc_str_macro(t, " (with ");
 		object_desc_num_macro(t, o_ptr->pval);
 		object_desc_str_macro(t, " turns of light)");
 	   }
@@ -2083,7 +2083,10 @@ s16b index_to_label(int i)
 	/* Indexes for "inven" are easy */
 	if (i < INVEN_WIELD) return (I2A(i));
 
-	/* Indexes for "equip" are offset */
+	/* Indexes for quiver slots are numeric */
+	if ((i >= INVEN_Q0) && (i <= INVEN_Q9)) return (I2A(A2I('0') + i - INVEN_Q0));
+
+	/* Indexes for other "equip" are offset */
 	return (I2A(i - INVEN_WIELD));
 }
 
@@ -2118,11 +2121,18 @@ s16b label_to_equip(int c)
 {
 	int i;
 
+	/* Hack -- handle quiver slots. */
+	if (isdigit(c)) i = (D2I(c) + INVEN_Q0);
+
 	/* Convert */
-	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
+	else
+	{
+		i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
+	}
 
 	/* Verify the index */
 	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
+
 
 	/* Empty slots can never be chosen */
 	if (!inventory[i].k_idx) return (-1);
@@ -2205,6 +2215,14 @@ s16b wield_slot(object_type *o_ptr)
 		{
 			return (INVEN_FEET);
 		}
+
+		/* Ammo asks for first quiver slot. */
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (INVEN_Q0);
+		}
 	}
 
 	/* No slot available */
@@ -2223,7 +2241,7 @@ cptr mention_use(int i)
 	switch (i)
 	{
 		case INVEN_WIELD: p = "Wielding"; break;
-		case INVEN_BOW:   p = "Shooting"; break;
+		case INVEN_BOW:	  p = "Shooting"; break;
 		case INVEN_LEFT:  p = "On left hand"; break;
 		case INVEN_RIGHT: p = "On right hand"; break;
 		case INVEN_NECK:  p = "Around neck"; break;
@@ -2239,6 +2257,12 @@ cptr mention_use(int i)
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
+		case INVEN_Q0:	case INVEN_Q1:	case INVEN_Q2:	case INVEN_Q3:
+		case INVEN_Q4:	case INVEN_Q5:	case INVEN_Q6:
+		case INVEN_Q7:	case INVEN_Q8:	case INVEN_Q9:
+		{
+			p = "In quiver"; break;
+		}
 		default:	  p = "In pack"; break;
 	}
 
@@ -2280,7 +2304,7 @@ cptr describe_use(int i)
 	switch (i)
 	{
 		case INVEN_WIELD: p = "attacking monsters with"; break;
-		case INVEN_BOW:   p = "shooting missiles with"; break;
+		case INVEN_BOW:	  p = "shooting missiles with"; break;
 		case INVEN_LEFT:  p = "wearing on your left hand"; break;
 		case INVEN_RIGHT: p = "wearing on your right hand"; break;
 		case INVEN_NECK:  p = "wearing around your neck"; break;
@@ -2296,6 +2320,12 @@ cptr describe_use(int i)
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
+		case INVEN_Q0:	case INVEN_Q1:	case INVEN_Q2:	case INVEN_Q3:
+		case INVEN_Q4:	case INVEN_Q5:	case INVEN_Q6:
+		case INVEN_Q7:	case INVEN_Q8:	case INVEN_Q9:
+		{
+			p = "have in your quiver"; break;
+		}
 		default:	  p = "carrying in your pack"; break;
 	}
 
@@ -2334,7 +2364,7 @@ cptr describe_use(int i)
  */
 bool item_tester_okay(object_type *o_ptr)
 {
-	/* Hack -- allow listing empty slots */
+	/* Hack -- show empty slots if requested. */
 	if (item_tester_full) return (TRUE);
 
 	/* Require an item */
@@ -2468,6 +2498,22 @@ void display_equip(void)
 		/* Examine the item */
 		o_ptr = &inventory[i];
 
+		/* Hack -- never show empty quiver slots. */
+		if ((!o_ptr->k_idx) && (i >= INVEN_Q0) && (i <= INVEN_Q9))
+		{
+			/* Clear the line, skip to next slot */
+			Term_erase(0, i, 255);
+			continue;
+		}
+
+		/* Hack -- never show the "blank" slot. */
+		if (i == INVEN_BLANK)
+		{
+			/* Clear the line, skip to next slot */
+			Term_erase(0, i, 255);
+			continue;
+		}
+
 		/* Start with an empty "index" */
 		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
 
@@ -2529,6 +2575,7 @@ void display_equip(void)
 }
 
 
+
 /*
  * Display the inventory.
  *
@@ -2554,7 +2601,7 @@ void show_inven(void)
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = screen_x - 4;
+	lim = 79 - 3;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
@@ -2611,7 +2658,7 @@ void show_inven(void)
 	}
 
 	/* Find the column to start in */
-	col = (len > screen_x - 4) ? 0 : ((screen_x - 1) - len);
+	col = (len > 76) ? 0 : (79 - len);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -2654,7 +2701,36 @@ void show_inven(void)
 				make_metric(wgt) / 10, make_metric(wgt) % 10);
 			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 
-			put_str(tmp_val, j + 1, screen_x - 9);
+			put_str(tmp_val, j + 1, 71);
+		}
+	}
+
+	/* 
+	 * Add notes about slots used by the quiver, if we have space, want 
+	 * to show all slots, and have items in the quiver.
+	 */
+	if ((p_ptr->pack_size_reduce) && (item_tester_full) && 
+		(j <= (23 - p_ptr->pack_size_reduce)))
+	{
+		/* Insert a blank dividing line, if we have the space. */
+		if (j <= (22 - p_ptr->pack_size_reduce))
+		{
+			j++;
+			prt("", j, col ? col - 2 : col);
+		}
+
+		for (i = 1; i <= p_ptr->pack_size_reduce; i++)
+		{
+			/* Go to next line. */
+			j++;
+			prt("", j, col ? col - 2 : col);
+
+			/* Determine index, print it out. */
+			sprintf(tmp_val, "%c)", index_to_label(INVEN_PACK - i));
+			put_str(tmp_val, j, col);
+
+			/* Hack -- use "(QUIVER)" as a description. */
+			c_put_str(TERM_BLUE, "(QUIVER)", j, col + 3);
 		}
 	}
 
@@ -2687,7 +2763,7 @@ void show_equip(void)
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = screen_x - 4;
+	lim = 76;
 
 	/* Require space for labels (if needed) */
 	if (show_labels) lim -= (14 + 2);
@@ -2703,6 +2779,13 @@ void show_equip(void)
 	{
 		o_ptr = &inventory[i];
 
+		/* Hack -- never show empty quiver slots. */
+		if ((!o_ptr->k_idx) && (i >= INVEN_Q0) && (i <= INVEN_Q9))
+		{
+			/* Skip to next slot */
+			continue;
+		}
+
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
 
@@ -2715,7 +2798,7 @@ void show_equip(void)
 		/* Save the index */
 		out_index[k] = i;
 
-		/* Acquire inventory color.  Apply spellbook hack. */
+		/* Acquire inventory color */
 		out_color[k] = proc_list_color_hack(o_ptr);
 
 		/* Save the description */
@@ -2738,7 +2821,7 @@ void show_equip(void)
 	}
 
 	/* Hack -- Find a column to start in */
-	col = (len > screen_x - 4) ? 0 : ((screen_x - 1) - len);
+	col = (len > 76) ? 0 : (79 - len);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -2752,6 +2835,11 @@ void show_equip(void)
 		/* Clear the line */
 		prt("", j + 1, col ? col - 2 : col);
 
+
+		/* Leave an empty line for the blank slot. */
+		if (i == INVEN_BLANK) continue;
+
+
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));
 
@@ -2760,7 +2848,7 @@ void show_equip(void)
 		{
 			c_put_str(TERM_L_BLUE, tmp_val, j+1, col);
 		}
-		else if ((object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
+		else if ((!o_ptr) || (object_known_p(o_ptr)) || (object_aware_p(o_ptr)))
 		{
 			put_str(tmp_val, j+1, col);
 		}
@@ -2796,7 +2884,7 @@ void show_equip(void)
 				make_metric(wgt) / 10, make_metric(wgt) % 10);
 			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 
-			put_str(tmp_val, j+1, screen_x - 9);
+			put_str(tmp_val, j+1, 71);
 		}
 	}
 
@@ -2967,17 +3055,24 @@ static bool get_item_okay(int item)
  */
 static int get_tag(int *cp, char tag)
 {
-	int i;
+	int i, start;
 	cptr s;
 
 
+	if (p_ptr->command_wrk == USE_EQUIP) start = INVEN_WIELD;
+	else start = 0;
+
+
 	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
+	for (i = start; i < INVEN_TOTAL; ++i)
 	{
 		object_type *o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
+
+		/* Skip items not of the required tval. */
+		if ((item_tester_tval) && (o_ptr->tval != item_tester_tval)) continue;
 
 		/* Skip empty inscriptions */
 		if (!o_ptr->note) continue;
@@ -3217,6 +3312,9 @@ void show_floor(int *floor_list, int floor_num)
  *
  * If no item is selected, we do nothing to "cp", and return FALSE.
  *
+ * If 'all squelched items' are selected we set cp to ALL_SQUELCHED and return
+ * TRUE.
+ *
  * Global "p_ptr->command_new" is used when viewing the inventory or equipment
  * to allow the user to enter a command while viewing those screens, and
  * also to induce "auto-enter" of stores, and other such stuff.
@@ -3239,8 +3337,8 @@ void show_floor(int *floor_list, int floor_num)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-  	int py = p_ptr->py;
-  	int px = p_ptr->px;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
   
 	char which = ' ';
 
@@ -3250,6 +3348,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool done, item;
 
 	bool oops = FALSE;
+
+	bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
 
 	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
 	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
@@ -3444,8 +3544,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Viewing inventory */
 		if (p_ptr->command_wrk == (USE_INVEN))
 		{
-  			/* Redraw if needed */
-  			if (p_ptr->command_see) show_inven();
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_inven();
 
 			/* Begin the prompt */
 			sprintf(out_val, "Inven:");
@@ -3468,6 +3568,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Indicate that floor items are available */
 			if (allow_floor) strcat(out_val, " - for floor,");
+
+			/* Indicate that selecting all SQUELCHED items is an option */
+			if (can_squelch) strcat(out_val, " ! for all SQUELCHED,");
 		}
 
 		/* Viewing equipment */
@@ -3497,6 +3600,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Append */
 			if (allow_floor) strcat(out_val, " - for floor,");
+
+			/* Indicate that selecting all SQUELCHED items is an option */
+			if (can_squelch) strcat(out_val, " ! for all SQUELCHED,");
 		}
 
 		/* Viewing floor */
@@ -3529,6 +3635,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			{
 				strcat(out_val, " / for equip,");
 			}
+
+			/* Indicate that selecting all SQUELCHED items is an option */
+			if (can_squelch) strcat(out_val, " ! for SQUELCH,");
 		}
 
 		/* Finish the prompt */
@@ -3668,44 +3777,19 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 
-			case '0':
-			case '1': case '2': case '3':
-			case '4': case '5': case '6':
-			case '7': case '8': case '9':
+			case '!':
 			{
-				/* Look up the tag */
-				if (!get_tag(&k, which))
+				/* Can we select all squelched items? */
+				if (can_squelch)
 				{
-					bell("Illegal object choice (tag)!");
-					break;
-				}
-
-				/* Hack -- Validate the item */
-				if ((k < INVEN_WIELD) ? !allow_inven : !allow_equip)
-				{
-					bell("Illegal object choice (tag)!");
-					break;
-				}
-
-				/* Validate the item */
-				if (!get_item_okay(k))
-				{
-					bell("Illegal object choice (tag)!");
-					break;
-				}
-
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k))
-				{
+					(*cp) = ALL_SQUELCHED;
+					item = TRUE;
 					done = TRUE;
 					break;
 				}
 
-				/* Accept that choice */
-				(*cp) = k;
-				item = TRUE;
-				done = TRUE;
-				break;
+				/* Otherwise just fall through */
+
 			}
 
 			case '\n':
@@ -3768,6 +3852,69 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 
+			case '0': case '1': case '2': case '3':
+			case '4': case '5': case '6':
+			case '7': case '8': case '9':
+			{
+				/* Look up the tag */
+				if (!get_tag(&k, which))
+				{
+					/* We are asking for ammo. */
+					if ((item_tester_tval == 0) || 
+					    (item_tester_tval == TV_SHOT) || 
+					    (item_tester_tval == TV_ARROW) || 
+					    (item_tester_tval == TV_BOLT))
+					{
+						/* If allowed, look at equipment and fall through. */
+						if (use_equip)
+						{
+							p_ptr->command_wrk = USE_EQUIP;
+
+							/* Fall through. */
+							goto fall_through;
+						}
+					}
+
+					/*
+					 * If not asking for ammo, or not allowed to look at 
+					 * equipment, display error message.
+					 */
+					bell("Illegal object choice (tag)!");
+					break;
+				}
+
+				/* Hack -- Validate the item */
+				if ((k < INVEN_WIELD) ? !allow_inven : !allow_equip)
+				{
+					bell("Illegal object choice (tag1)!");
+					break;
+				}
+
+				/* Validate the item */
+				if (!get_item_okay(k))
+				{
+					bell("Illegal object choice (tag2)!");
+					break;
+				}
+
+				/* Allow player to "refuse" certain actions */
+				if (!get_item_allow(k))
+				{
+					done = TRUE;
+					break;
+				}
+
+				/* Accept that choice */
+				(*cp) = k;
+				item = TRUE;
+				done = TRUE;
+				break;
+
+
+				/* Fall through, if requested. */
+				fall_through:
+			}
+
 			default:
 			{
 				bool verify;
@@ -3818,7 +3965,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Validate the item */
-                               if (!get_item_okay(k))
+				if (!get_item_okay(k))
 				{
 					bell("Illegal object choice (normal)!");
 					break;
@@ -3914,3 +4061,99 @@ cptr object_adj(int tval, int sval)
 		default: return (NULL);
 	}
 }
+
+/*
+ * An "item_tester_hook" for items marked SQUELCH
+ */
+static bool item_tester_squelched(object_type *o_ptr)
+{
+	cptr s;
+
+	/* Should be inscribed */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Look for the SQUELCH inscribtion */
+	s = strstr(quark_str(o_ptr->note), "SQUELCH");
+	if (s) return (TRUE);
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+
+/*
+ * Destroy all items marked SQUELCH
+ */
+extern bool destroy_squelched_items(void)
+{
+	int floor_num, floor_list[24];
+	int n;
+	int count=0;
+
+	object_type *o_ptr;
+
+	item_tester_hook = item_tester_squelched;
+
+	if (scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01))
+	{
+		for (n = 0; n < floor_num; n++)
+		{
+			o_ptr = &o_list[floor_list[n]];
+
+			/* Hack -- skip artifacts */
+			if (artifact_p(o_ptr)) continue;
+
+			if (item_tester_okay(o_ptr))
+			{
+				/* Destroy item */
+				floor_item_increase(floor_list[n], -o_ptr->number);
+				floor_item_optimize(floor_list[n]);
+
+				/* Count the casualties */
+				count ++;
+			}
+		}
+	}
+
+	/* Scan through the slots backwards */
+	for (n = INVEN_PACK - 1; n >= 0; n--)
+	{
+		o_ptr = &inventory[n];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Hack -- skip artifacts */
+		if (artifact_p(o_ptr)) continue;
+
+		/* Give this item slot a shot at death */
+		if (item_tester_okay(o_ptr))
+		{
+			/* Destroy item */
+			inven_item_increase(n, -o_ptr->number);
+			inven_item_optimize(n);
+
+			/* Count the casualties */
+			count ++;
+		}
+	
+	}
+
+	item_tester_hook = NULL;	  
+
+	/* message */
+	if (count > 0) msg_format("You destroy %i SQUELCH-ed item%s.",
+				    count, ((count > 1) ? "s" : ""));
+	else msg_print("No SQUELCH-ed items to destroy.");
+
+	/*
+	 * return value is used to determine if player energy
+	 * should be spent.
+	 */
+	return (count != 0);
+}
+
+
+
+
+

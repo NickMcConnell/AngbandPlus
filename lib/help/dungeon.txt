@@ -86,7 +86,7 @@ Level Feelings:
      at shallow depths), a vault (more often), a player ghost, or an artifact.
 
 Themed Levels:
-          If you are deep enough, and have sent a bit of time on the previous 
+          If you are deep enough, and have spent a bit of time on the previous 
      level, you may very rarely find a themed level, filled with monsters of a 
      given type.  Such levels only appear once in a lifetime, so don't leave 
      them unless you really want to.  Vision range is reduced on themed levels.

@@ -1,24 +1,16 @@
 /* File: main-acn.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison, Kevin Bracey, and others
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
- */
-
+/* Purpose: Support for Acorn RISC OS Angband */
 
 /*
- * Purpose: Support for Acorn RISC OS Angband
- *
- *
  * Author: Kevin Bracey (kbracey@art.acorn.co.uk)
  *
- *
- * This file is *known* to be out of date.  It needs some work.  XXX XXX XXX
- *
- *
+ */
+
+/* Check compiler flag */
+#ifdef __riscos
+
+/*
  * === Instructions for compiling Angband for RISC OS ===
  *
  * You will require:
@@ -32,10 +24,6 @@
  * RISC OS form, and bug fixes for OSLib.
  *
  */
-
-
-/* Check compiler flag */
-#ifdef __riscos
 
 #define VERSION "2.7.9v6 (07-May-96)"
 
@@ -367,8 +355,8 @@ static void window_to_front(wimp_w w)
 {
 	union
 	{
-		wimp_open open;
-		wimp_window_state state;
+		wimp_open           open;
+		wimp_window_state   state;
 	} a;
 
 	a.state.w=w;
@@ -381,8 +369,8 @@ static void window_hide(wimp_w w)
 {
 	union
 	{
-		wimp_open open;
-		wimp_window_state state;
+		wimp_open           open;
+		wimp_window_state   state;
 	} a;
 
 	a.state.w=w;
@@ -783,7 +771,7 @@ static int save_handler(bits event_code, toolbox_action *event,
 
 	msg_flag=FALSE;
 
-	do_cmd_save_game();
+	do_cmd_save_game(FALSE);
 
 	saveas_file_save_completed(1, id->this_obj, save->file_name);
 
@@ -797,7 +785,7 @@ static int defaultsave_handler(bits event_code, toolbox_action *event,
 {
 	msg_flag=FALSE;
 
-	do_cmd_save_game();
+	do_cmd_save_game(FALSE);
 
 	return 1;
 }
@@ -1187,7 +1175,7 @@ static int quitmenu_handler(bits event_code, toolbox_action *event,
 		msg_flag = FALSE;
 
 		/* Save the game */
-		do_cmd_save_game();
+		do_cmd_save_game(FALSE);
 	}
 
 	/* Quit */
@@ -1816,6 +1804,9 @@ int main(int argc, char *argv[])
 	/* Catch nasty signals */
 	signals_init();
 
+	/* No name (yet) */
+	strcpy(player_name, "");
+
 	/* Hack -- Use the "pref-acn.prf" file */
 	ANGBAND_SYS = "acn";
 
@@ -2338,8 +2329,6 @@ errr fd_seek(int fd, huge offset)
 	return 0;
 }
 
-
-
 errr fd_lock(int fd, int what)
 {
 	return 0;
@@ -2356,47 +2345,3 @@ errr path_temp(char *buf, int max)
 }
 
 #endif /* __riscos */
-
-
-/*
- | This section deals with checking that the .raw files are up to date
- | wrt to the .txt files.  Note that this function won't work for RISC OS 2
- | (due to the lack of OS_Args 7) so it simply returns 0 to indicate that
- | the file isn't OOD.
- |
- | For this to work, the equivalent function (in init2.c) needs to be
- | #if-d out (and this function should be declared).  You'll probably
- | also need to zap the UNIX #includes at the top of the file
-*/
-
-extern errr check_modification_date( int fd, cptr template_file )
-{
-  char raw_buf[1024];
-  char txt_buf[1024];
-  int i;
-  os_error *e;
-
-  if ( os_version() < 300 ) { return 0; }
-
-  /* Use OS_Args 7 to find out the pathname 'fd' refers to */
-        e = SWI
-	  (
-	   6, 0, SWI_OS_Args,
-	   /* In: */
-	   7,                                      /* Get path from filehandle */
-	   fd,                                     /* file handle */
-	   raw_buf,                        /* buffer */
-	   0,0,                            /* unused */
-	   1024                            /* size of buffer */
-	   /* No output regs used */
-	   );
-        if ( e ) { core( e->errmess ); }
-
-        /* Build the path to the template_file */
-        path_build( txt_buf, 1024, ANGBAND_DIR_EDIT, template_file );
-
-        i = file_is_newer( riscosify_name(txt_buf), raw_buf );
-
-        return i;
-}
-

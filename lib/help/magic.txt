@@ -51,7 +51,7 @@ about what areas they affect, and what shapes they take.
      "Arc", "Cone", "Breath"
           Fires an arc, centered on the direction you choose or on your target, 
      and always originating at your location.  These are short-range spells, 
-     because arcs lose energy as they expand.
+     because arcs lose energy as they expand.  All monster breaths are arcs.
 
      "Ball", "Storm"  (storms have a larger radius)
           If you target a specific monster, such spells explode centered at that 
@@ -77,7 +77,7 @@ about what areas they affect, and what shapes they take.
 Sorcery:
           Although they have lost magical invulnerability and genocide, and 
      will find dungeon destruction spells expensive, mages can learn to recover 
-     mana very quickly, and move about the dungeon better than anyone else - it 
+     mana very quickly, and move about the dungeon better than anyone else; it 
      is rumoured that precise control of teleportation is not impossible for 
      them.  In addition, mages can recharge the magical items they need to help 
      improve damage dealing ability far better than anyone else.  They are 
@@ -132,11 +132,10 @@ Necromancy:
 
 === Shapeshifts ===
 
-Listing of shapeshifts and their effects.  All shapeshifts chop mana
-in to 2/3 of normal.  All shapeshifts reduce shooting and throwing
-skills, in most cases to abysmal levels.  Various effects can be
-checked by using the 'C'haracter screen, then typing 'h' twice.
-Shapeshifts may be canceled by typing ']'.
+Listing of shapeshifts and their effects.  All shapeshifts reduce mana by a 
+third, and greatly reduce shooting and throwing skills.  Various effects can 
+be checked by using the 'C'haracter screen, then typing 'h' twice.  Shapeshifts 
+may be canceled by typing ']'.
 
 Druid:
       Mouse-has superb stealth and very poor combat and magical device skills.
@@ -227,5 +226,10 @@ Be warned, recharging is not a sure deal...
           foes.  Until the effects wear off, the monster cannot regenerate.
      Hold:  Priests can eventually learn to Hold monsters.  For a little while, 
           that monster can do nothing at all, and cannot be harmed by any means.
+
+     Wait for the monster to run out of mana:  Most monsters have a limited 
+          amount of mana.  It may take a long time for them to run out, but 
+          once they do, they'll need a while to recover.  Be aware that some 
+          monsters can magically recover mana.
 
 Check the monster health bar for the monster's current status.

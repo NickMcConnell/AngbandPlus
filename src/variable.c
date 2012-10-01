@@ -72,6 +72,7 @@ bool arg_fiddle;			/* Command arg -- Request fiddle mode */
 bool arg_wizard;			/* Command arg -- Request wizard mode */
 bool arg_sound;				/* Command arg -- Request special sounds */
 bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_monochrome;		/* Command arg -- Request monochrome mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 
@@ -103,6 +104,11 @@ s32b old_turn;			/* Hack -- Level feeling counter */
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 
+bool use_transparency = FALSE; /* Use transparent tiles */
+
+int image_count;  		/* Grids until next random image    */
+                  		/* Optimizes the hallucination code */
+
 s16b signal_count;		/* Hack -- Count interupts */
 
 bool msg_flag;			/* Player has pending message */
@@ -130,13 +136,6 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
-/* 
- * Screen size (in characters)
- * This should be corrected (if non-default) by main-xxx.c
- */
-s16b screen_x = 80;
-s16b screen_y = 24;
-
 /*
  * Height of dungeon map on screen.
  */
@@ -149,10 +148,30 @@ s16b SCREEN_WID = 66;
 
 s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
-bool empty_level;			/* Is the level empty. */
 bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
+
+bool fake_monochrome;	/* Use fake monochrome for effects */
+
+
+/*
+ * Dungeon size info
+ */
+
+s16b max_panel_rows, max_panel_cols;
+s16b panel_row_min, panel_row_max;
+s16b panel_col_min, panel_col_max;
+s16b panel_col_prt, panel_row_prt;
+bool panel_extra_rows=FALSE;
+
+byte *mp_a = NULL;
+char *mp_c = NULL;
+	
+#ifdef USE_TRANSPARENCY
+byte *mp_ta = NULL;
+char *mp_tc = NULL;
+#endif /* USE_TRANSPARENCY */
 
 /*
  * Player info
@@ -438,6 +457,10 @@ s16b alloc_race_size;
  */
 alloc_entry *alloc_race_table;
 
+/*
+ * The total of all final monster generation probabilities 
+ */
+u32b alloc_race_total;
 
 /*
  * Specify attr/char pairs for visual special effects
@@ -596,6 +619,12 @@ byte *g_info;
 cptr ANGBAND_SYS = "xxx";
 
 /*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
+
+/*
  * Path name: The main "lib" directory
  * This variable is not actually used anywhere in the code
  */
@@ -624,6 +653,12 @@ cptr ANGBAND_DIR_DATA;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_EDIT;
+
+/*
+ * Script files
+ * These files are portable between platforms.
+ */
+cptr ANGBAND_DIR_SCRIPT;
 
 /*
  * Various extra files (ascii)
@@ -715,13 +750,6 @@ char themed_feeling[80];
  * The type of object the item generator should make, if specified. -LM-
  */
 byte required_tval = 0;
-
-/*
- * The racial type of monster that the monster generator should 
- * make, if specified.  -LM-
- */
-char required_race = '\0';
-
 
 /* The bones file a restored player ghost should use to collect extra 
  * flags, a sex, and a unique name.  This also indicates that there is 

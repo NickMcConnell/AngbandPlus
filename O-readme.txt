@@ -1,6 +1,6 @@
 
              ****************************************************
-             **  Oangband 0.5.0b   ***   The Pits of Angband   **
+             **   Oangband 0.5.1   ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,7 +15,7 @@
 
          Oangband 0.1.0-0.4.0: Copyright (c) 1998-1999 Leon Marrick
 
-               Oangband 0.5.0: Copyright (c) 2000 Bahman Rabii
+         Oangband 0.5.0-0.5.1: Copyright (c) 2000-2001 Bahman Rabii
 
     Send comments, bug reports, and patches to "bahman@topped-with-meat.com".
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
@@ -24,18 +24,18 @@
 
 === General Info ===
 
-This is the readme file for Oangband 0.5.0 (October 3, 2000)
+This is the readme file for Oangband 0.5.1 (April 2, 2000)
 
      Oangband is a variant of Angband, created to experiment with
-changes in melee algorithms, spells, items, monsters, a substantial
+changes in melee algorithms, monster AI, spells, items, a substantial
 reduction in both HPs and damage, and whatever else might both catch
-Leon Marrick's fancy and be practicable for him to code.
+the maintainer's fancy and be practicable for him to code.
 Appropriately, it is called Opinion-Angband, or Oangband for short.
 
      On-line help exists for all significant changes made, so make
 certain you have a look through at least some of the new help
 documents available through the "?" command.  In addition, the file
-containing the complete list of changes from version 0.4.1 to 0.5.0
+containing the complete list of changes from version 0.5.0 to 0.5.1
 can be found in the lib/files directory.
 
      Oangband is based on Angband 2.8.3.  I hope you will join me in a
@@ -43,10 +43,11 @@ paean of praise to Ben Harrison, whose excellent code has made so many
 variants of Angband possible.
 
      Oangband 0.5.0 adapts a large amount of code from Angband
-2.8.5-2.9.1
+2.8.5-2.9.1.
 
-     Expect another full version (more than bug-fixes) in the first
-half of 2001.
+     Oangband 0.5.1 was producing in collaboration between Leon
+Marrick and Bahman Rabii.
 
+     Expect another full version (more than bug-fixes) in late 2001.
 
 Bahman Rabii

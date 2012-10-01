@@ -151,11 +151,15 @@ void do_cmd_eat_food(void)
 	{
 		case SV_FOOD_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
+				if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 				{
-					ident = TRUE;
+					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10)) ident = TRUE;
+				}
+				else
+				{
+					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 5)) ident = TRUE;
 				}
 			}
 			break;
@@ -360,7 +364,7 @@ void do_cmd_eat_food(void)
 		{
 			msg_print("That tastes good.");
 			(void)set_food(PY_FOOD_MAX - 1);
-			(void)set_poisoned(0);
+			(void)set_poisoned(p_ptr->poisoned / 2);
 			(void)hp_player(damroll(5, 10));
 			ident = TRUE;
 			break;
@@ -493,11 +497,15 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
+				if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 				{
-					ident = TRUE;
+					if (set_poisoned(p_ptr->poisoned + rand_int(25) + 10)) ident = TRUE;
+				}
+				else
+				{
+					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 5)) ident = TRUE;
 				}
 			}
 			break;
@@ -756,7 +764,7 @@ void do_cmd_quaff_potion(void)
 			if (hp_player(damroll(6, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
+			if (set_poisoned((p_ptr->poisoned / 2)-10)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 50)) ident = TRUE;
 			break;
@@ -767,7 +775,7 @@ void do_cmd_quaff_potion(void)
 			if (hp_player(300)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
+			if (set_poisoned(p_ptr->poisoned - 200)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -974,12 +982,12 @@ void do_cmd_quaff_potion(void)
 		{
 		  if (mp_ptr->spell_book == TV_PRAYER_BOOK){
 		    msg_print("You reject the unholy serum.");
-       		    take_hit(damroll(10, 6), "dark forces");
+		    take_hit(damroll(10, 6), "dark forces");
 		    break;
 		  }
 		  if (mp_ptr->spell_book == TV_DRUID_BOOK) {
 		    msg_print("You reject the unholy serum.");
-       		    take_hit(damroll(10, 6), "unnatural forces");
+		    take_hit(damroll(10, 6), "unnatural forces");
 		    break;
 		  }
 		  msg_print("You are infused with dark power.");
@@ -1165,14 +1173,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_PHASE_DOOR:
 		{
-			teleport_player(10);
+			teleport_player(10, TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_TELEPORT:
 		{
-			teleport_player(100);
+			teleport_player(100, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1639,7 +1647,7 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_TELEPORTATION:
 		{
-			teleport_player(100);
+			teleport_player(100, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1816,7 +1824,7 @@ void do_cmd_use_staff(void)
 			if (dispel_evil(120)) ident = TRUE;
 			k = 2 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
+			if (set_poisoned((p_ptr->poisoned / 2)-10)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
 			if (hp_player(50)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
@@ -1850,7 +1858,7 @@ void do_cmd_use_staff(void)
 			
 			msg_print("Mighty magics rend your enemies!");
 			fire_sphere(GF_MANA, 0,
-		               randint(75) + 125, 5, 20);
+			       randint(75) + 125, 5, 20);
 			if (p_ptr->pclass != CLASS_MAGE)
 			{
 				(void)take_hit(20, "unleashing magics too mighty to control");
@@ -1863,7 +1871,7 @@ void do_cmd_use_staff(void)
 		{
 			msg_print("Light bright beyond enduring dazzles your foes!");
 			fire_sphere(GF_LITE, 0,
-		               randint(67) + 100, 5, 20);
+			       randint(67) + 100, 5, 20);
 			ident = TRUE;
 			break;
 		}
@@ -1896,13 +1904,13 @@ void do_cmd_use_staff(void)
 			/* Raise a storm. */
 			msg_print("A howling whirlwind rises in wrath around you.");
 			fire_sphere(GF_FORCE, 0,
-		          randint(100) + 100, 6, 20);
+			  randint(100) + 100, 6, 20);
 
 			/* Whisk around the player and nearby monsters.  This is 
 			 * actually kinda amusing to see...
 			 */
 			fire_ball(GF_AWAY_ALL, 0, 12, 6, FALSE);
-			teleport_player(6);
+			teleport_player(6, TRUE);
 
 			/* Identify */
 			ident = TRUE;
@@ -2227,7 +2235,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MANA, dir, damroll(2, 6));
 			ident = TRUE;
 			break;
 		}
@@ -2300,25 +2308,27 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_arc(GF_FIRE, dir, 140, 7, 120);
+			fire_arc(GF_FIRE, dir, 160, 7, 90);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_arc(GF_COLD, dir, 140, 7, 120);
+			fire_arc(GF_COLD, dir, 160, 7, 90);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_BREATH:
 		{
-			if (rand_int(5) == 0) fire_arc(GF_ACID, dir, 170, 7, 120);
-			else if (rand_int(4) == 0) fire_arc(GF_ELEC, dir, 150, 7, 120);
-			else if (rand_int(3) == 0) fire_arc(GF_COLD, dir, 150, 7, 120);
-			else if (rand_int(2) == 0) fire_arc(GF_POIS, dir, 160, 7, 120);
-			else fire_arc(GF_FIRE, dir, 170, 7, 120);
+			int tmp = randint(5);
+
+			if (tmp == 1) fire_arc(GF_ACID, dir, 200, 9, 90);
+			if (tmp == 2) fire_arc(GF_ELEC, dir, 180, 9, 90);
+			if (tmp == 3) fire_arc(GF_COLD, dir, 190, 9, 90);
+			if (tmp == 4) fire_arc(GF_FIRE, dir, 210, 9, 90);
+			if (tmp == 5) fire_arc(GF_POIS, dir, 200, 7, 120);
 
 			ident = TRUE;
 			break;
@@ -2339,10 +2349,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STORMS:
 		{
-			TARGET_PRESERVE
-			fire_bolt(GF_WATER, dir, damroll(12 + plev / 5, 4));
-			TARGET_RESTORE
-			fire_bolt(GF_ELEC, dir, damroll(12 + plev / 5, 4));
+			fire_bolt(GF_STORM, dir, damroll(25 + plev / 5, 4));
 			ident = TRUE;
 			break;
 		}
@@ -2363,11 +2370,11 @@ void do_cmd_aim_wand(void)
 		{
 			msg_print("You speak soft, beguiling words.");
 
-			if (rand_int(3) == 0) 
+			if (rand_int(2) == 0) 
 			{
 				if (slow_monster(dir, plev * 2)) ident = TRUE;
 			}
-			else if (rand_int(2) == 0) 
+			if (rand_int(2) == 0) 
 			{
 				if (confuse_monster(dir, plev * 2)) ident = TRUE;
 			}
@@ -3258,38 +3265,38 @@ void do_cmd_activate(void)
 
 		case ACT_RAZORBACK:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become Dragonking of Storms.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become Dragonking of Storms.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       msg_print("You are surrounded by lightning...");
-			       for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3, FALSE);
+				msg_print("You are surrounded by lightning...");
+				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3, FALSE);
 			}
 			o_ptr->timeout = 1000;
 			break;
 		}
 		case ACT_BLADETURNER:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become an Avatar of Dragonkind.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become an Avatar of Dragonkind.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       msg_print("Your scales glow many colours...");
-			       (void)hp_player(30);
-			       (void)set_afraid(0);
-			       (void)set_shero(p_ptr->hero + randint(50) + 50);
-			       (void)set_blessed(p_ptr->blessed + randint(50) + 50);
-			       (void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
-			       (void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
-			       (void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
-			       (void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
-			       (void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+				msg_print("Your scales glow many colours...");
+				(void)hp_player(30);
+				(void)set_afraid(0);
+				(void)set_shero(p_ptr->hero + randint(50) + 50);
+				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
+				(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
 			}
 			o_ptr->timeout = 400;
 			break;
@@ -3306,7 +3313,7 @@ void do_cmd_activate(void)
 		case ACT_BELEGENNON:
 		{
 			msg_print("Your armor twists space around you...");
-			teleport_player(10);
+			teleport_player(10, TRUE);
 			o_ptr->timeout = 2;
 			break;
 		}
@@ -3410,7 +3417,7 @@ void do_cmd_activate(void)
 		case ACT_COLANNON:
 		{
 			msg_print("Your cloak twists space around you...");
-			teleport_player(100);
+			teleport_player(100, TRUE);
 			o_ptr->timeout = 45;
 			break;
 		}
@@ -3426,8 +3433,8 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your gloves glow extremely brightly...");
 			if (!get_aim_dir(&dir)) return;
-			fire_bolt(GF_MISSILE, dir, damroll(2, 6));
-			o_ptr->timeout = 2;
+			fire_bolt(GF_MANA, dir, damroll(2, 6));
+			o_ptr->timeout = 0;
 			break;
 		}
 		case ACT_EOL:
@@ -4102,14 +4109,14 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_TELEPORT1:
 		{
 			msg_print("You pass through a transparent gateway...");
-			teleport_player(30);
+			teleport_player(30,TRUE);
 			o_ptr->timeout = 10 + randint(10);
 			break;
 		}
 		case ACT_RANDOM_TELEPORT2:
 		{
 			msg_print("Time and space twist about you...");
-			teleport_player(200);
+			teleport_player(200,TRUE);
 			o_ptr->timeout = 80;
 			break;
 		}
@@ -4321,233 +4328,233 @@ void do_cmd_activate(void)
 		/* Activations for dragon scale mails. */
 		case ACT_DRAGON_BLACK:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small acidic dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small acidic dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe acid.");
-			       fire_ball(GF_ACID, dir, 150, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe acid.");
+				fire_arc(GF_ACID, dir, 150, 10, 40);
 			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_BLUE:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
-                        {
-			       msg_print("You become a small storm dragon.");
-			       shapechange(SHAPE_WYRM);
+			if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+				msg_print("You become a small storm dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe lightning.");
-			       fire_ball(GF_ELEC, dir, 130, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe lightning.");
+				fire_arc(GF_ELEC, dir, 130, 10, 40);
 			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_WHITE:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small icy dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small icy dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe frost.");
-			       fire_ball(GF_COLD, dir, 140, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe frost.");
+				fire_arc(GF_COLD, dir, 140, 10, 40);
 			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_RED:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small fire dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small fire dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe fire.");
-			       fire_ball(GF_FIRE, dir, 160, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe fire.");
+				fire_arc(GF_FIRE, dir, 160, 10, 40);
 			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_GREEN:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small poisonous dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small poisonous dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe poison gas.");
-			       fire_ball(GF_POIS, dir, 150, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe poison gas.");
+				fire_arc(GF_POIS, dir, 150, 10, 40);
 			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_MULTIHUED:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small but powerful dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small but powerful dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       chance = rand_int(5);
-			       msg_format("You breathe %s.",
+				if (!get_aim_dir(&dir)) return;
+				chance = rand_int(5);
+				msg_format("You breathe %s.",
 				      ((chance == 1) ? "lightning" :
 				      ((chance == 2) ? "frost" :
 				      ((chance == 3) ? "acid" :
 				      ((chance == 4) ? "poison gas" : "fire")))));
-			       fire_ball(((chance == 1) ? GF_ELEC :
+				fire_arc(((chance == 1) ? GF_ELEC :
 				      ((chance == 2) ? GF_COLD :
 				      ((chance == 3) ? GF_ACID :
 				      ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				      dir, 190, 2, FALSE);
+				      dir, 190, 10, 40);
 			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_SHINING:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small glowing dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small glowing dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
-		        {
-			       if (!get_aim_dir(&dir)) return;
-			       chance = rand_int(2);
-			       msg_format("You breathe %s.",
+			{
+				if (!get_aim_dir(&dir)) return;
+				chance = rand_int(2);
+				msg_format("You breathe %s.",
 				      ((chance == 0 ? "light" : "darkness")));
-			       fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 
-				      160, 2, FALSE);
+				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 
+				      160, 10, 40);
 			}			
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_LAW:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small dragon of Order.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small dragon of Order.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       chance = rand_int(2);
-			       msg_format("You breathe %s.",
+				if (!get_aim_dir(&dir)) return;
+				chance = rand_int(2);
+				msg_format("You breathe %s.",
 				      ((chance == 1 ? "sound" : "shards")));
-			       fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
-				      dir, 190, 2, FALSE);
+				fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
+				      dir, 190, 10, 40);
 			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_BRONZE:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small mystifying dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small mystifying dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe confusion.");
-			       fire_ball(GF_CONFUSION, dir, 130, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe confusion.");
+				fire_arc(GF_CONFUSION, dir, 130, 10, 40);
 			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_GOLD:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small dragon with a deafening roar.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small dragon with a deafening roar.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe sound.");
-			       fire_ball(GF_SOUND, dir, 130, 2, FALSE);
-			}			
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe sound.");
+				fire_arc(GF_SOUND, dir, 130, 10, 40);
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_CHAOS:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small dragon of Chaos.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small dragon of Chaos.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       chance = rand_int(2);
-			       msg_format("You breathe %s.",
+				if (!get_aim_dir(&dir)) return;
+				chance = rand_int(2);
+				msg_format("You breathe %s.",
 				      ((chance == 1 ? "chaos" : "disenchantment")));
-			       fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				      dir, 180, 2, FALSE);
+				fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
+				      dir, 180, 10, 40);
 			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_BALANCE:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small dragon of Balance.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small dragon of Balance.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       chance = rand_int(4);
-			       msg_format("You breathe %s.",
+				if (!get_aim_dir(&dir)) return;
+				chance = rand_int(4);
+				msg_format("You breathe %s.",
 				      ((chance == 1) ? "chaos" :
 				      ((chance == 2) ? "disenchantment" :
 				      ((chance == 3) ? "sound" : "shards"))));
-			       fire_ball(((chance == 1) ? GF_CHAOS :
+				fire_arc(((chance == 1) ? GF_CHAOS :
 				      ((chance == 2) ? GF_DISENCHANT :
 				      ((chance == 3) ? GF_SOUND : GF_SHARD))),
-				      dir, 210, 2, FALSE);
+				      dir, 210, 10, 40);
 			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_POWER:
 		{
-		        if ((p_ptr->schange) != SHAPE_WYRM)
+			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-			       msg_print("You become a small but wonderous dragon.");
-			       shapechange(SHAPE_WYRM);
+				msg_print("You become a small but wonderous dragon.");
+				shapechange(SHAPE_WYRM);
 			}
 			else
 			{
-			       if (!get_aim_dir(&dir)) return;
-			       msg_print("You breathe the elements.");
-			       fire_ball(GF_MISSILE, dir, 240, 2, FALSE);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You breathe the elements.");
+				fire_arc(GF_MANA, dir, 240, 10, 40);
 			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
@@ -4591,15 +4598,15 @@ void do_cmd_activate(void)
 		/* Activations for amulets. */
 		case ACT_AMULET_ESCAPING:
 		{
-			teleport_player(40);
+			teleport_player(40,TRUE);
 			o_ptr->timeout = rand_int(40) + 40;
 			break;
 		}
 
 		case ACT_AMULET_LION:
 		{
-			msg_print("You become a feirce Lion.");
-		        shapechange(SHAPE_LION);
+			msg_print("You become a fierce Lion.");
+			shapechange(SHAPE_LION);
 			o_ptr->timeout = 200;
 			break;
 		}

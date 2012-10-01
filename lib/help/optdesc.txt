@@ -2,20 +2,20 @@
 ============================== Option Descriptions =============================
 
 This file describes the options available through the "=" command.  They help
-customize your Angband experience, so make certain your choices get selected.
+customize your Oangband experience, so be sure to select those you like.
 
-Options you will want to change to your preferences include:
+Options you may want to change to your preferences include:
 
--Roguelike commands, if you are used to the commands used in certain other 
-     roguelike games.
--Pick things up by default.  Toggle this on if you like instant pickup, but
-     consider turning it off when pack space becomes an issue.
--Alert user to critical hitpoints.  Some find it annoying, but it can save 
-     your character's life.  Don't forget to increase the HP warning.
--Set the delay factor to two or more if you want to see pretty ball explosions 
-     and whatnot.
--Change some of the monster options if the game seems too hard or easy.
--Change some of the efficiency options if the game runs too slowly.
+- Roguelike commands, if you are used to the commands used in certain other 
+  roguelike games.
+- Pick things up by default.  Toggle this on if you like instant pickup, but
+  consider turning it off when pack space becomes an issue.
+- Alert user to critical hitpoints.  This can save your character's life.  Don't 
+  forget to increase the HP warning.
+- Set the delay factor to two or more if you want to see pretty ball explosions 
+  and whatnot.
+- Change some of the monster options if the game seems too hard or easy.
+- Change some of the efficiency options if the game runs too slowly.
 
 
 === Listing of Options ===
@@ -71,8 +71,8 @@ Repeat obvious commands    [always_repeat]
      given.
 
 Show dungeon level in feet (or meters)    [depth_in_feet]
-     Display dungeon depths in "feet" ("meters" if the "Use metric (SI) 
-     measurements" option is used) instead of "levels".
+     Display dungeon depths in feet (meters if the "Use metric (SI) measure-
+     ments" option is used) instead of levels.
 
 Merge inscriptions when stacking    [stack_force_notes]
      Force otherwise identical objects to merge, even if one has an empty
@@ -111,6 +111,11 @@ Show flavors in object descriptions    [show_flavors]
      Display "flavors" (color or variety) in object descriptions and infor-
      mation screens, even for objects whose type is known.  This does not 
      affect objects in stores.
+
+Show region affected by using detection spells   [show_detect]
+     Display a circular flash on the screen that helps show where the 
+     detection radius ends.
+
 
 
 === Option Set 2 -- Disturbance ===
@@ -236,19 +241,17 @@ Map remembers all perma-lit grids    [view_perma_grids]
 Map remembers all torch-lit grids    [view_torch_grids]
      Memorize all floor grids which have ever been lit up by the player.  
 
-Generate dungeons with aligned rooms    [dungeon_align]
-     Force all rooms to be "aligned" with the "panel" divisions.  This results
-     in a much "prettier" dungeon, but may result in fewer greater vaults.
-
 Generate dungeons with connected stairs    [dungeon_stair]
      Always generate a staircase back to the level you came from, if you used
      a staircase to get to the level.  This is more "realistic", and "safer",
      but less of a "challenge" for some people.
 
-Empty levels    [empty_levels]
-     If on, the game will occasionally produce an arena level, in which
-     rooms are isolated one from another in a sea of empty floor space.  Al-
-     though dangerous, arenas allow your firepower to really wreak havoc.
+Simplified monster path finding (faster)    [fast_flow]
+     Monsters use a simplified method to find paths around walls
+     toward you.  The difference in movement is rarely noticeable for
+     most monsters.  This simplification can cause the game to run
+     much faster on certain older computers, especially when running
+     down corridors.
 
 Monsters chase current location (v.slow)    [flow_by_sound]
      Allow monsters to make paths to the player when they are nearby.  This
@@ -257,10 +260,6 @@ Monsters chase current location (v.slow)    [flow_by_sound]
 Monsters chase recent locations (v.slow)    [flow_by_smell]
      Allow monsters to take advantage of "old" trails that you may have left
      in the dungeon.  This has no effect unless "flow_by_sound" is also set.
-
-Monsters learn from their mistakes    [smart_learn]
-     Allow monsters to learn what spell attacks you are resistant to,
-     and to use this information to choose the best attacks.
 
 Monsters exploit players weaknesses    [smart_cheat]
      Allow monsters to know what spell attacks you are resistant to,
@@ -452,32 +451,29 @@ Display borg status
 
 === Item squleching menus ===
 
-Item squelching (from the Autosquelch patch by David Blackston) allows you
-define certain items that you know do not interest you.  These items are
-deleted automatically.  They are not replaced by new items.  Autosquelch in
-no way affects the frequency of other items.  Autosquelch makes use of only 
-information you have access to in game, and does not provide any degree of 
-"free" identification.
+Item squelching (based on the Autosquelch patch by David Blackston)
+allows you define certain items that you know do not interest you.
+These items will be marked so that you can quickly and easily destroy
+them.
 
-Oangband support two types of autosquelching for two different classes of
-object.
+Uninteresting items are automatically inscribed with the word
+"SQUELCH".  The 'destroy item' command, followed by an exlaimation
+point ("!") will delete all items marked "SQUELCH" in your inventory
+and at your current location on the map.  The "SQUELCH" inscribtion
+can be removed normally from any objects you wish not to destroy.
 
-The main autosquelch screen allows you to select item types through menus.
-Items set to be squelched will be deleted if that class of object is known 
-to you.  For example, if you choose to squelch "Amulets of DOOM", they will
-be generated normally until you have identified your first such amulet.
-After that they will be deleted.  No indication is given that an item was 
-squelched.  This is refered to as "squelch-on-generate" and is usable in 
-Oangband for items other than weapons, armor, and ammunition.
+Oangband supports two types of item squelching:
 
-The secondary autosquelch menu allows you to set miminum "quality" 
-threshholds for various categories of armor, weaponry and ammunition.  For 
-any given category, you may choose to squelch no items (N), only cursed 
-items (C), cursed and average items (V), all but ego items and artifacts (G), 
-or all but artifacts (A).  These items will be generated normally.  Any items 
-identified as squlechable will be immediately removed from the game.  This 
-will be indicated in the player messages.  This refered to as 
-"squelch-on-identify".
+The main autosquelch screen allows you to select known item types
+through menus.  For example, if you choose to squelch "Amulets of
+DOOM", they will be marked "SQUELCH" when they are created.
+
+The secondary autosquelch menu allows you to set miminum "quality"
+threshholds for various categories of armor, weaponry and ammunition.
+For any given category, you may choose to squelch some, most, or none
+of the items, depending on quality.  These items will be generated
+normally, but those identified as squlechable will be marked
+"SQUELCH".
 
 === Miscellaneous Options ===
 

@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -1713,15 +1713,17 @@ I:45:0:-5
 W:50:0:2:0
 A:50/1
 F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
-D:with dreadful hexes of wretchedness and wandering laid upon it.
+F:RES_NEXUS | FREE_ACT
+D:with dreadful hexes of wretchedness and wandering laid upon it.  You 
+D:will follow its path, and none other.
 
-N:261:Aggravate Monster
+N:261:Aggravation
 G:=:d
 I:45:1:0
-W:5:0:2:0
+W:5:0:2:100
 A:5/1
-F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
-D:that highly interests monsters you'd much prefer to avoid.
+F:RES_FEAR | AGGRAVATE | EASY_KNOW
+D:that fills you and the monsters with the urge to fight.
 
 N:262:Weakness
 G:=:d
@@ -1993,8 +1995,7 @@ I:40:0:-5
 W:50:0:3:0
 A:50/1
 F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
-D:that calls a terrible curse upon you, crushing your mind and body in a 
-D:relentless vice.
+D:that calls a terrible curse upon you.
 
 N:303:Teleportation
 G:":d
@@ -2549,7 +2550,7 @@ G:!:d
 I:75:13:0
 W:10:0:4:0
 A:10/1
-P:0:1d1:0:0:0
+P:0:5d5:0:0:0
 D:that weakens your spirit.
 
 ## XXX 394 XXX ##
@@ -2559,7 +2560,7 @@ G:!:d
 I:75:15:0
 W:40:0:4:0
 A:40/6
-P:0:1d1:0:0:0
+P:0:8d8:0:0:0
 D:of distilled sorrow.
 
 N:396:Weakness
@@ -2623,7 +2624,7 @@ G:!:d
 I:75:23:0
 W:55:0:4:0
 A:55/4
-P:0:1d1:0:0:0
+P:0:12d12:0:0:0
 D:drawn from the river of the damned.
 
 N:404:Infra-vision
@@ -2678,7 +2679,7 @@ N:410:Resist Fire and Cold
 G:!:d
 I:75:30:0
 W:35:0:4:175
-A:20/2:55/1
+A:20/2:50/1:70/1
 P:0:1d1:0:0:0
 D:that protects you from extreme temperatures.
 
@@ -2686,7 +2687,7 @@ N:411:Resist Acid and Electricity
 G:!:d
 I:75:31:0
 W:35:0:4:175
-A:20/2:55/1
+A:20/2:50/1:70/1
 P:0:1d1:0:0:0
 D:that protects you from lightning and acid.
 
@@ -2818,53 +2819,54 @@ A:20/1
 P:0:1d1:0:0:0
 D:that restores your stolen charm.
 
+
 N:428:Strength
 G:!:d
 I:75:48:0
 W:26:0:4:6000
-A:26/6:32/6:38/3:48/3
+A:30/6:40/2:50/1
 P:0:1d1:0:0:0
-D:that gives makes you permanently stronger.
+D:that makes you permanently stronger.
 
 N:429:Intelligence
 G:!:d
 I:75:49:0
 W:26:0:4:6000
-A:26/6:32/6:38/3:48/3
+A:35/6:45/2:55/1
 P:0:1d1:0:0:0
-D:that gives makes you permanently smarter.
+D:that makes you permanently smarter.
 
 N:430:Wisdom
 G:!:d
 I:75:50:0
 W:26:0:4:6000
-A:26/6:32/6:38/3:48/3
+A:35/6:45/2:55/1
 P:0:1d1:0:0:0
-D:that gives makes you permanently wiser.
+D:that makes you permanently wiser.
 
 N:431:Dexterity
 G:!:d
 I:75:51:0
 W:26:0:4:6000
-A:26/6:32/6:38/3:48/3
+A:30/6:40/2:50/1
 P:0:1d1:0:0:0
-D:that gives makes you permanently more agile.
+D:that makes you permanently more agile.
 
 N:432:Constitution
 G:!:d
 I:75:52:0
 W:26:0:4:6000
-A:26/6:32/6:38/3:48/3
+A:30/6:40/2:50/2:60/1
 P:0:1d1:0:0:0
-D:that gives makes you permanently healthy.
+D:that makes you permanently more healthy.
 
 N:433:Charisma
 G:!:d
 I:75:53:0
 W:22:0:4:1500
-A:22/6:30/6:36/3:44/3
+A:15/6:28/2:40/1
 P:0:1d1:0:0:0
-D:that gives makes you permanently charming.
+D:that makes you permanently more charming.
 
 N:434:Resistance
 G:!:d
@@ -3057,7 +3059,7 @@ N:467:Drain Life
 G:-:d
 I:65:12:5
 W:55:0:10:1500
-A:55/1
+A:52/1
 P:0:1d1:0:0:0
 D:that sucks the life out of a foe~.
 
@@ -3088,7 +3090,7 @@ D:that fires magical bolts~.
 N:471:Acid Bolts
 G:-:d
 I:65:16:10
-W:35:0:10:1200
+W:35:0:10:1000
 A:35/1
 P:0:1d1:0:0:0
 D:that launches bolts or beams of acid~.
@@ -3104,7 +3106,7 @@ D:that fires bolts or beams of electricity~.
 N:473:Fire Bolts
 G:-:d
 I:65:18:10
-W:40:0:10:1000
+W:40:0:10:1200
 A:40/1
 P:0:1d1:0:0:0
 D:that shoots bolts or beams of fire~.
@@ -3245,7 +3247,7 @@ D:
 
 N:493:& Wand~
 G:-:d
-I:65:41:4
+I:65:41:5
 W:70:0:10:27500
 # A:70/52 TNB
 P:0:1d1:0:0:0
@@ -3257,7 +3259,7 @@ D:
 
 N:494:& Wand~
 G:-:d
-I:65:42:4
+I:65:42:5
 W:100:0:10:150000
 # A:100/48 TNB
 P:0:1d1:0:0:0

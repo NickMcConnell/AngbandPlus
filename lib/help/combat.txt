@@ -48,6 +48,7 @@ Heroism, and Berserk) can make all the difference when fighting tough monsters.
           your back.  This reduces armour protection, removes the special shield 
           abilities above, but has no effect on magical resistances or other 
           attributes.
+
      Attacking:
          If you move your character into a square containing a monster, you will 
          attack that monster.  If you are wielding no weapon, and are not a
@@ -136,6 +137,11 @@ the difference, but note that Berserkers make lousy archers and throwers.
          arrows, and crossbows shoot bolts and seeker bolts.  Simply equip the
          weapon and keep plenty of the ammo on hand and you're ready.
 
+     The Quiver Slots:
+         Ammo is best kept in special quiver slots.  You may "wield" up to 
+         ten different groups of ammo, then fire them just as you would those 
+         in the backpack.
+
      Attacking:
          You shoot at a monster by typing 'f' (or 't' in the roguelike command 
          set), then selecting a missile you would like to fire.  This activates 
@@ -158,7 +164,6 @@ the difference, but note that Berserkers make lousy archers and throwers.
          same kinds of slays and brands you can find on melee weapons.  For 
          full information on possible missile weapon and ammo qualities, see the 
          help file "equip.txt".
-
 
      What Happens When You Hit a Monster:
          Here, archery and melee are virtually identical, with the biggest 

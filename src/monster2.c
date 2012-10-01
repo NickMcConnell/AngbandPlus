@@ -57,7 +57,7 @@ void delete_monster_idx(int i)
 
 	/* Total Hack -- If the monster was a player ghost, remove it from 
 	 * the monster memory, ensure that it never appears again, clear 
-	 * its bones file selector and allow the next ghost to speak. -LM-
+	 * its bones file selector and allow the next ghost to speak.
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
@@ -66,8 +66,6 @@ void delete_monster_idx(int i)
 		l_ptr->tkills = 0;
 		bones_selector = 0;
 		ghost_has_spoken = FALSE;
-
-		/* ghost_string_type = 0; */
 	}
 
 	/* Delete objects */
@@ -183,7 +181,7 @@ static void compact_monsters_aux(int i1, int i2)
  */
 void compact_monsters(int size)
 {
-	int i, num, cnt;
+	int i, j, num, cnt;
 
 	int cur_lev, cur_dis, chance;
 
@@ -201,6 +199,8 @@ void compact_monsters(int size)
 		/* Get closer each iteration */
 		cur_dis = 5 * (20 - cnt);
 
+		j = 0;
+
 		/* Check all the monsters */
 		for (i = 1; i < m_max; i++)
 		{
@@ -209,7 +209,11 @@ void compact_monsters(int size)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Paranoia -- skip "dead" monsters */
-			if (!m_ptr->r_idx) continue;
+			if (!m_ptr->r_idx) 
+			{
+				if (j++ >= size) return;
+				else continue;
+			}
 
 			/* Hack -- High level monsters start out "immune" */
 			if (r_ptr->level > cur_lev) continue;
@@ -406,6 +410,11 @@ errr get_mon_num_prep(void)
 /*
  * Choose a monster race that seems "appropriate" to the given level
  *
+ * We use this function, not only to pick a monster but to build a 
+ * table of probabilities.  This table can be used again and again, if 
+ * certain conditions (generation level being the most important) don't 
+ * change.
+ *
  * This function uses the "prob2" field of the "monster allocation table",
  * and various local information, to calculate the "prob3" field of the
  * same table, which is then used to choose an "appropriate" monster, in
@@ -415,7 +424,7 @@ errr get_mon_num_prep(void)
  * "normal" monsters will *never* be created in the town, unless the
  * "level" is "modified", for example, by polymorph or summoning.
  *
- * There is a small chance (1/50) of "boosting" the given depth by
+ * There is a small chance (1/40) of "boosting" the given depth by
  * a small amount (up to four levels), except in the town.
  *
  * It is (slightly) more likely to acquire a monster of the given level
@@ -427,86 +436,118 @@ errr get_mon_num_prep(void)
  */
 s16b get_mon_num(int level)
 {
-	int i, j, p;
+	int i, d;
 
 	int r_idx;
 
-	long value, total;
+	long value;
+	int failure = 0;
+	int temp_level = level;
 
 	monster_race *r_ptr;
 
 	alloc_entry *table = alloc_race_table;
 
+	/* Low-level monsters avoid the deep dungeon. */
+	int depth_rare = 2 * level / 3;
+	int depth_very_rare = level / 3;
 
-	/* Boost the level */
-	if (level > 0)
+
+	/* Sometimes, monsters in the dungeon can be out of depth */
+	if (p_ptr->depth != 0)
 	{
-		/* Occasional "nasty" monster */
+		/* Occasional boost to maximum level */
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 10 + 1;
+			d = level / 10 + 1;
 
 			/* Boost the level */
-			level += ((d < 6) ? d : 6);
-		}
+			temp_level += ((d < 5) ? d : 5);
 
-		/* Occasional "nasty" monster */
-		if (rand_int(NASTY_MON) == 0)
-		{
-			/* Pick a level bonus */
-			int d = level / 10 + 1;
+			/* Occasional second boost */
+			if (rand_int(NASTY_MON) == 0)
+			{
+				/* Pick a level bonus */
+				d = level / 10 + 1;
 
-			/* Boost the level */
-			level += ((d < 6) ? d : 6);
+				/* Boost the level */
+				temp_level += ((d < 5) ? d : 5);
+			}
 		}
 	}
 
 
-	/* Reset total */
-	total = 0L;
-
-	/* Process probabilities */
-	for (i = 0; i < alloc_race_size; i++)
+	/* Try hard to find a suitable monster */
+	while (TRUE)
 	{
-		/* Monsters are sorted by depth */
-		if (table[i].level > level) break;
+		/* Reset sum of final monster probabilities. */
+		alloc_race_total = 0L;
 
-		/* Default */
-		table[i].prob3 = 0;
-
-		/* Hack -- No town monsters in dungeon */
-		if ((level > 0) && (table[i].level <= 0)) continue;
-
-		/* Access the "r_idx" of the chosen monster */
-		r_idx = table[i].index;
-
-		/* Access the actual race */
-		r_ptr = &r_info[r_idx];
-
-		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
+		/* Process probabilities */
+		for (i = 0; i < alloc_race_size; i++)
 		{
-			continue;
+			/* Assume no probability */
+			table[i].prob3 = 0;
+
+			/* Ignore illegal monsters */
+			if (!table[i].prob2) continue;
+
+			/* Monsters are sorted by depth */
+			if (table[i].level > temp_level) continue;
+
+			/* Hack -- No town monsters in dungeon */
+			if ((p_ptr->depth != 0) && (table[i].level <= 0)) continue;
+
+			/* Get the monster index */
+			r_idx = table[i].index;
+
+			/* Get the actual race */
+			r_ptr = &r_info[r_idx];
+
+			/* Hack -- some monsters are unique */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
+			    (r_ptr->cur_num >= r_ptr->max_num)) continue;
+
+			/* Forced-depth monsters only appear at their level. */
+			if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && 
+			    (r_ptr->level != p_ptr->depth)) continue;
+
+			/* Accept */
+			table[i].prob3 = table[i].prob2;
+
+			/* Keep low-level monsters rare */
+			if (table[i].level < depth_rare) table[i].prob3 /= 4;
+			if (table[i].level < depth_very_rare) table[i].prob3 /= 4;
+
+			/* Sum up probabilities */
+			alloc_race_total += table[i].prob3;
 		}
 
-		/* Forced-depth monsters never appear at levels other than their native depth. */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level != p_ptr->depth)) continue;
+		/* No legal monsters */
+		if (alloc_race_total == 0) 
+		{
+			failure++;
 
+			if (failure == 1)
+			{
+				/* Try relaxing the level restrictions */
+				if (p_ptr->themed_level) temp_level += 20;
+				else temp_level += 10;
+			}
+			else
+			{
+				/* Our monster restrictions are too stringent. */
+				return (0);
+			}
+		}
 
-		/* Accept */
-		table[i].prob3 = table[i].prob2;
-
-		/* Total */
-		total += table[i].prob3;
+		/* Success */
+		else break;
 	}
-
-	/* No legal monsters */
-	if (total <= 0) return (0);
-
 
 	/* Pick a monster */
-	value = rand_int(total);
+	value = rand_int(alloc_race_total);
 
 	/* Find the monster */
 	for (i = 0; i < alloc_race_size; i++)
@@ -518,63 +559,51 @@ s16b get_mon_num(int level)
 		value = value - table[i].prob3;
 	}
 
-
-	/* Power boost */
-	p = rand_int(100);
-
-	/* Try for a "harder" monster once (60%) or twice (10%) */
-	if (p < 60)
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a monster */
-		value = rand_int(total);
-
-		/* Find the monster */
-		for (i = 0; i < alloc_race_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-	/* Try for a "harder" monster twice (10%) */
-	if (p < 10)
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a monster */
-		value = rand_int(total);
-
-		/* Find the monster */
-		for (i = 0; i < alloc_race_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-
 	/* Result */
 	return (table[i].index);
 }
 
 
 
+/*
+ * A replacement for "get_mon_num()", for use when that function has 
+ * built up a suitable table of monster probabilities, and all we want 
+ * to do is pull another monster from it.
+ *
+ * Usage of this function has a curious and quite intentional effect:  
+ * on rare occasion, 1 in NASTY_MON times, the effective generation level 
+ * is raised somewhat.  Most monsters will actually end up being in depth, 
+ * but not all...
+ */
+s16b get_mon_num_quick(int level)
+{
+	int i;
+	long value;
+	alloc_entry *table = alloc_race_table;
+
+	/* 
+	 * No monsters available.  XXX XXX - try using the standard 
+	 * function again, although it probably failed the first time.
+	 */
+	if (!alloc_race_total) return (get_mon_num(level));
+
+
+	/* Pick a monster */
+	value = rand_int(alloc_race_total);
+
+	/* Find the monster */
+	for (i = 0; i < alloc_race_size; i++)
+	{
+		/* Found the entry */
+		if (value < table[i].prob3) break;
+
+		/* Decrement */
+		value = value - table[i].prob3;
+	}
+
+	/* Result */
+	return (table[i].index);
+}
 
 
 /*
@@ -714,12 +743,9 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	/* Handle all other visible monster requests */
 	else
 	{
-		/* It could be a Player Ghost. */
+		/* It could be a player ghost. */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
-			/* Clear the descriptor. */
-			strcpy(desc, "                               ");
-
 			/* Get the ghost name. */
 			strcpy(desc, ghost_name);
 
@@ -890,7 +916,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * Monsters which are not on the current panel may be "visible" to
  * the player, and their descriptions will include an "offscreen"
  * reference.  Currently, offscreen monsters cannot be targetted
- * or viewed directly, but old targets will remain set.  XXX XXX
+ * or viewed directly, but old targets will remain set.   XXX XXX
  *
  * The player can choose to be disturbed by several things, including
  * "disturb_move" (monster which is viewable moves in some way), and
@@ -966,8 +992,8 @@ void update_mon(int m_idx, bool full)
 			/* Weird mind, occasional telepathy */
 			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
 			{
-				/* One in ten individuals are detectable */
-				if ((m_idx % 10) == 5)
+				/* Monster is rarely detectable */
+				if (((turn / 10) % 10) == (m_idx % 10))
 				{
 					/* Detectable */
 					flag = TRUE;
@@ -1422,6 +1448,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	cptr name;
 
 	/* Paranoia */
+	if (!r_idx) return (FALSE);
+
+	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Require passable terrain, with no other creature or player. */
@@ -1431,16 +1460,13 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Hack -- no creation on glyph of warding */
 	if (cave_feat[y][x] == FEAT_GLYPH) return (FALSE);
 
-	/* Paranoia */
-	if (!r_idx) return (FALSE);
-
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
 
 	/* Hack -- Demons & creatures who breathe fire cannot appear on water. */
 	if ((cave_feat[y][x] == FEAT_WATER) && 
-		((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BR_FIRE)))) 
+		((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BRTH_FIRE)))) 
 		return (FALSE);
 
 	/* Hack -- Only creatures resistant to fire may appear on lava. */
@@ -1461,62 +1487,18 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		return (FALSE);
 	}
 
+	/* Hack -- only 1 player ghost at a time */
+	if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && bones_selector)
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
 
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
 	{
 		/* Cannot create */
 		return (FALSE);
-	}
-
-
-	/* Powerful monster (Trigger tweaked a little in Oangband) */
-	if (r_ptr->level > p_ptr->depth + 2)
-	{
-		/* Player ghosts */
-		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
-		{
-			/* Message for cheaters */
-			if (cheat_hear) msg_print("Deep Unique (Player Ghost).");
-
-			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) * 2;
-		}
-
-
-		/* Unique monsters */
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Unique (%s).", name);
-
-			/* Boost rating by twice delta-depth */
-			rating += (r_ptr->level - p_ptr->depth) * 2;
-		}
-
-		/* Normal monsters */
-		else
-		{
-			/* Message for cheaters */
-			if (cheat_hear) msg_format("Deep Monster (%s).", name);
-
-			/* Boost rating by delta-depth */
-			rating += (r_ptr->level - p_ptr->depth);
-		}
-	}
-
-	/* Note the monster */
-	else if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		if (cheat_hear)
-		{
-			/* Hack -- Player ghost hasn't been named yet. */
-			if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) 
-				msg_print("Unique (Player Ghost).");
-
-			/* Other unique monsters induce the standard message. */
-			else msg_format("Unique (%s).", name);
-		}
 	}
 
 
@@ -1531,12 +1513,15 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr->r_idx = r_idx;
 
 
-	/* If the monster is a player ghost, perform various manipulations on it, 
-	 * and forbid ghost creation if something goes wrong.
+	/* 
+	 * If the monster is a player ghost, perform various manipulations 
+	 * on it, and forbid ghost creation if something goes wrong.
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
 		if (!prepare_ghost(r_idx, n_ptr, FALSE)) return (FALSE);
+
+		name = format("%s, the %s", ghost_name, name);
 	}
 
 	/* Enforce sleeping if needed */
@@ -1559,19 +1544,25 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Initialize WDT variables */
 #ifdef WDT_TRACK_OPTIONS
-	n_ptr->ty=0;		
-	n_ptr->tx=0;			
-	n_ptr->t_dur=0;		
-	n_ptr->t_bit=0;	
-#endif	
+	n_ptr->ty=0;
+	n_ptr->tx=0;
+	n_ptr->t_dur=0;
+	n_ptr->t_bit=0;
+#endif
 
-	/* Initialize mana (unused so far) */
-	n_ptr->mana=0;              
-	n_ptr->max_mana=0;         
+	/* Initialize distance at which monster likes to operate */
+
+	/* Mark minimum range for recalculation */
+	n_ptr->min_range=0;
+
+	/* Monsters like to use harassment spells at first */
+	n_ptr->harass = BASE_HARASS;
+
+	/* Initialize mana */
+	n_ptr->mana=r_ptr->mana;
 
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
-
 
 	/* Extract the monster base speed */
 	n_ptr->mspeed = r_ptr->speed;
@@ -1607,6 +1598,38 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
 
+	/* Monster generation messages for cheaters */
+	if (cheat_hear)
+	{
+		/* Deep unique monsters */
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
+		   (r_ptr->level > p_ptr->depth))
+		{
+			/* Message */
+			msg_format("Deep Unique (%s).", name);
+
+			/* Boost rating by twice delta-depth */
+			rating += (r_ptr->level - p_ptr->depth) * 2;
+		}
+
+		/* Note any unique monster, even if not out of depth */
+		else if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/* Message */
+			msg_format("Unique (%s).", name);
+		}
+
+		/* Deep normal monsters */
+		else if (r_ptr->level > p_ptr->depth + 2)
+		{
+			/* Message */
+			msg_format("Deep Monster (%s).", name);
+
+			/* Boost rating by delta-depth */
+			rating += (r_ptr->level - p_ptr->depth);
+		}
+	}
+
 	/* Success */
 	return (TRUE);
 }
@@ -1619,49 +1642,42 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 /*
- * Attempt to place a "group" of monsters around the given location
+ * Attempt to place a group of monsters around the given location.
+ *
+ * Hack -- A group of monsters counts as a single individual for the 
+ * level rating.
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp)
+static bool place_monster_group(int y, int x, int r_idx, bool slp, s16b group_size)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int old, n, i;
-	int total = 0, extra = 0;
+	int reduce;
 
 	int hack_n = 0;
 
 	byte hack_y[GROUP_MAX];
 	byte hack_x[GROUP_MAX];
 
-
-	/* Pick a group size */
-	total = randint(13);
-
-	/* Hard monsters, small groups */
+	/* Hard monsters, smaller groups */
 	if (r_ptr->level > p_ptr->depth)
 	{
-		extra = r_ptr->level - p_ptr->depth;
-		extra = 0 - randint(extra);
+		reduce = (r_ptr->level - p_ptr->depth) / 2;
+		group_size -= randint(reduce);
 	}
 
-	/* Easy monsters, large groups */
+	/* Easy monsters, slightly smaller groups  -BR- */
 	else if (r_ptr->level < p_ptr->depth)
 	{
-		extra = p_ptr->depth - r_ptr->level;
-		extra = randint(extra);
+		reduce = (p_ptr->depth - r_ptr->level) / 6;
+		group_size -= randint(reduce);
 	}
 
-	/* Hack -- limit group reduction */
-	if (extra > 12) extra = 12;
-
-	/* Modify the group size */
-	total += extra;
-
 	/* Minimum size */
-	if (total < 1) total = 1;
+	if (group_size < 1) group_size = 1;
 
 	/* Maximum size */
-	if (total > GROUP_MAX) total = GROUP_MAX;
+	if (group_size > GROUP_MAX) group_size = GROUP_MAX;
 
 
 	/* Save the rating */
@@ -1672,20 +1688,20 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	hack_x[0] = x;
 	hack_y[0] = y;
 
-	/* Puddle monsters, breadth first, up to total */
-	for (n = 0; (n < hack_n) && (hack_n < total); n++)
+	/* Puddle monsters, breadth first, up to group_size */
+	for (n = 0; (n < hack_n) && (hack_n < group_size); n++)
 	{
 		/* Grab the location */
 		int hx = hack_x[n];
 		int hy = hack_y[n];
 
-		/* Check each direction, up to total */
-		for (i = 0; (i < 8) && (hack_n < total); i++)
+		/* Check each direction, up to group_size */
+		for (i = 0; (i < 8) && (hack_n < group_size); i++)
 		{
 			int mx = hx + ddx_ddd[i];
 			int my = hy + ddy_ddd[i];
 
-			/* Walls and Monsters block flow */
+			/* Walls and monsters block flow */
 			if (!cave_empty_bold(my, mx)) continue;
 
 			/* Attempt to place another monster */
@@ -1706,7 +1722,6 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	/* Success */
 	return (TRUE);
 }
-
 
 /*
  * Hack -- help pick an escort type
@@ -1739,30 +1754,129 @@ static bool place_monster_okay(int r_idx)
 }
 
 
+
+/*
+ * Attempt to place an escort of monsters around the given location
+ */
+static void place_monster_escort(int y, int x, int leader_idx, bool slp)
+{
+	int escort_size, escort_idx;
+	int n, i;
+
+	monster_race *r_ptr = &r_info[leader_idx];
+
+	int hack_n = 0;
+
+	byte hack_y[GROUP_MAX];
+	byte hack_x[GROUP_MAX];
+
+	/* Save previous monster restriction value. */
+	bool (*get_mon_num_hook_temp)(int r_idx) = get_mon_num_hook;
+
+
+	/* Calculate the number of escorts we want. */
+	if (r_ptr->flags1 & (RF1_ESCORTS)) escort_size = 6 + rand_int(15);
+	else escort_size = 2 + rand_int(7);
+
+
+	/* Use the leader's monster type to restrict the escorts. */
+	place_monster_idx = leader_idx;
+
+	/* Set the escort hook */
+	get_mon_num_hook = place_monster_okay;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Build monster table */
+	(void)get_mon_num(monster_level);
+
+	/* Start on the monster */
+	hack_n = 1;
+	hack_x[0] = x;
+	hack_y[0] = y;
+
+	/* Puddle monsters, breadth first, up to escort_size */
+	for (n = 0; (n < hack_n) && (hack_n < escort_size); n++)
+	{
+		/* Grab the location */
+		int hx = hack_x[n];
+		int hy = hack_y[n];
+
+		/* Check each direction, up to group_size */
+		for (i = 0; (i < 8) && (hack_n < escort_size); i++)
+		{
+			int mx = hx + ddx_ddd[i];
+			int my = hy + ddy_ddd[i];
+
+			/* Walls block flow */
+			if (!cave_floor_bold(my, mx)) continue;
+
+			/* Flow past occupied grids. */
+			if (cave_m_idx[my][mx] != 0)
+			{
+				/* Add grid to the "hack" set */
+				hack_y[hack_n] = my;
+				hack_x[hack_n] = mx;
+				hack_n++;
+
+				/* Hack -- Count as "free" grid. */
+				if (escort_size < GROUP_MAX) escort_size++;
+			}
+
+			if (!cave_empty_bold(my, mx)) continue;
+
+			/* Get an appropriate monster (quickly). */
+			escort_idx = get_mon_num_quick(r_ptr->level);
+
+			/* Attempt to place another monster */
+			if (place_monster_one(my, mx, escort_idx, slp))
+			{
+				/* Add grid to the "hack" set */
+				hack_y[hack_n] = my;
+				hack_x[hack_n] = mx;
+				hack_n++;
+			}
+			else continue;
+
+			/* Place a group of escorts if needed */
+			if (r_info[escort_idx].flags1 & (RF1_FRIENDS))
+			{
+				/* Place a group of monsters */
+				(void)place_monster_group(my, mx, escort_idx, slp, 5 + randint(10));
+			}
+			else if (r_info[escort_idx].flags1 & (RF1_FRIEND))
+			{
+				/* Place a group of monsters */
+				(void)place_monster_group(my, mx, escort_idx, slp, 1 + randint(2));
+			}
+		}
+	}
+
+	/* Return to previous monster restrictions (usually none) */
+	get_mon_num_hook = get_mon_num_hook_temp;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* XXX - rebuild monster table */
+	(void)get_mon_num(monster_level);
+}
+
+
+
 /*
  * Attempt to place a monster of the given race at the given location
  *
- * Note that certain monsters are now marked as requiring "friends".
- * These monsters, if successfully placed, and if the "grp" parameter
- * is TRUE, will be surrounded by a "group" of identical monsters.
- *
- * Note that certain monsters are now marked as requiring an "escort",
- * which is a collection of monsters with similar "race" but lower level.
- *
- * Some monsters induce a fake "group" flag on their escorts.
- *
- * Note the "bizarre" use of non-recursion to prevent annoying output
- * when running a code profiler.
+ * Monsters may have some friends, or lots of friends.  They may also 
+ * have a few escorts, or lots of escorts.
  *
  * Note the use of the new "monster allocation table" code to restrict
- * the "get_mon_num()" function to "legal" escort types.
+ * the "get_mon_num()" function to legal escort types.
  */
 bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 {
-	int i;
-
 	monster_race *r_ptr = &r_info[r_idx];
-
 
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
@@ -1774,80 +1888,40 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	/* Friends for certain monsters */
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
-		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp);
+		/* Attempt to place a large group */
+		(void)place_monster_group(y, x, r_idx, slp, damroll(3, 7));
 	}
 
+	else if (r_ptr->flags1 & (RF1_FRIEND))
+	{
+		/* Attempt to place a small group */
+		(void)place_monster_group(y, x, r_idx, slp, randint(3));
+	}
 
 	/* Escorts for certain monsters */
-	if (r_ptr->flags1 & (RF1_ESCORT))
+	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags1 & (RF1_ESCORTS)))
 	{
-		/* Try to place several "escorts" */
-		for (i = 0; i < 50; i++)
-		{
-			int nx, ny, z, d = 3;
-
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
-
-			/* Require empty grids */
-			if (!cave_empty_bold(ny, nx)) continue;
-
-
-			/* Set the escort index */
-			place_monster_idx = r_idx;
-
-
-			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-
-			/* Pick a random race */
-			z = get_mon_num(r_ptr->level);
-
-
-			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-
-			/* Handle failure */
-			if (!z) break;
-
-			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp);
-
-			/* Place a "group" of escorts if needed */
-			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
-			    (r_ptr->flags1 & (RF1_ESCORTS)))
-			{
-				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp);
-			}
-		}
+		place_monster_escort(y, x, r_idx, slp);
 	}
 
 	/* Success */
 	return (TRUE);
 }
 
-
 /*
  * Hack -- attempt to place a monster at the given location
  *
  * Attempt to find a monster appropriate to the "monster_level"
  */
-bool place_monster(int y, int x, bool slp, bool grp)
+bool place_monster(int y, int x, bool slp, bool grp, bool quick)
 {
 	int r_idx;
 
-	/* Pick a monster */
-	r_idx = get_mon_num(monster_level);
+	/* Pick a monster - regular method */
+	if (!quick) r_idx = get_mon_num(monster_level);
+
+	/* Pick a monster - quick method */
+	else r_idx = get_mon_num_quick(monster_level);
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
@@ -1868,8 +1942,11 @@ bool place_monster(int y, int x, bool slp, bool grp)
  * Use "slp" to choose the initial "sleep" status
  *
  * Use "monster_level" for the monster level
+ *
+ * Use "quick" to either rebuild the monster generation table, or 
+ * just draw another monster from it.
  */
-bool alloc_monster(int dis, int slp)
+bool alloc_monster(int dis, int slp, bool quick)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1877,7 +1954,7 @@ bool alloc_monster(int dis, int slp)
 	int y, x;
 
 	/* Find a legal, distant, unoccupied, space */
-	while (1)
+	while (TRUE)
 	{
 		/* Pick a location */
 		y = rand_int(DUNGEON_HGT);
@@ -1886,12 +1963,17 @@ bool alloc_monster(int dis, int slp)
 		/* Require "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
 
+		/* Do not put random monsters in marked rooms. */
+		if ((!character_dungeon) && (cave_info[y][x] & (CAVE_TEMP))) 
+			continue;
+
 		/* Accept far away grids */
-		if (distance(y, x, py, px) > dis) break;
+		if ((dis == 0) || (distance(y, x, py, px) > dis)) break;
 	}
 
 	/* Attempt to place the monster, allow groups */
-	if (place_monster(y, x, slp, TRUE)) return (TRUE);
+	if (place_monster(y, x, slp, TRUE, quick)) return (TRUE);
+
 
 	/* Nope */
 	return (FALSE);
@@ -1918,7 +2000,7 @@ static bool summon_specific_okay(int r_idx)
 
 
 	/* Player ghosts cannot be summoned. */
-	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return(FALSE);
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
@@ -1926,67 +2008,45 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
-
 		case SUMMON_KIN:
 		{
 			okay = ((r_ptr->d_char == summon_kin_type) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HI_DEMON:
-		{
-			okay = (r_ptr->d_char == 'U');
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_ANT:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_SPIDER:
 		{
 			okay = ((r_ptr->d_char == 'S') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_HOUND:
 		{
 			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
-		case SUMMON_DEMON:
+		case SUMMON_ANIMAL:
 		{
-			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_UNDEAD:
-		{
-			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_DRAGON:
 		{
 			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HI_UNDEAD:
-		{
-			okay = ((r_ptr->d_char == 'L') ||
-			        (r_ptr->d_char == 'V') ||
-			        (r_ptr->d_char == 'W'));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
@@ -1996,10 +2056,38 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_DEMON:
+		{
+			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_HI_DEMON:
+		{
+			okay = (r_ptr->d_char == 'U');
+			break;
+		}
+
+		case SUMMON_UNDEAD:
+		{
+			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_HI_UNDEAD:
+		{
+			okay = ((r_ptr->d_char == 'L') ||
+				(r_ptr->d_char == 'V') ||
+				(r_ptr->d_char == 'W'));
+			break;
+		}
+
 		case SUMMON_WRAITH:
 		{
 			okay = ((r_ptr->d_char == 'W') &&
-			        (r_ptr->flags1 & (RF1_UNIQUE)));
+				(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
@@ -2044,6 +2132,16 @@ static bool summon_specific_okay(int r_idx)
 				if (effect == RBE_EAT_GOLD) okay = TRUE;
 				if (effect == RBE_EAT_ITEM) okay = TRUE;
 			}
+			break;
+		}
+
+		case SUMMON_BERTBILLTOM:
+		{
+			okay = ((r_ptr->d_char == 'T') &&
+				(r_ptr->flags1 & (RF1_UNIQUE)) &&
+				  ((strstr((r_name + r_ptr->name), "Bert")) || 
+				   (strstr((r_name + r_ptr->name), "Bill")) || 
+				   (strstr((r_name + r_ptr->name), "Tom" ))));
 			break;
 		}
 	}
@@ -2092,7 +2190,7 @@ bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 		/* Pick a location */
 		scatter(&y, &x, y1, x1, d, 0);
 
-		/* Require passable terrain, with no other creature or player.  */
+		/* Require passable terrain, with no other creature or player. */
 		if (!cave_passable_bold(y, x)) continue;
 		if (cave_m_idx[y][x] != 0) continue;
 
@@ -2119,7 +2217,8 @@ bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 
 
 	/* Pick a monster, using the level calculation */
-	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 5);
+	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 1 + 
+		(p_ptr->depth >= 20 ? 4 : p_ptr->depth / 5));
 
 
 	/* Remove restriction */
@@ -2295,7 +2394,14 @@ void message_pain(int m_idx, int dam)
 
 
 /*
- * Learn about an "observed" resistance.
+ * Monster learns about an "observed" resistance.
+ *
+ * The LRN_xxx const indicates the type of resistance to be
+ * investigated.
+ *
+ * SM_xxx flags are set appropriately.
+ *
+ * -BR-
  */
 void update_smart_learn(int m_idx, int what)
 {
@@ -2312,130 +2418,351 @@ void update_smart_learn(int m_idx, int what)
 	/* Not intelligent, only learn sometimes */
 	if (!(r_ptr->flags2 & (RF2_SMART)) && (rand_int(100) < 50)) return;
 
-
 	/* XXX XXX XXX */
 
 	/* Analyze the knowledge */
 	switch (what)
 	{
-		case DRS_FREE:
+
+		/* Slow/paralyze attacks learn about free action and saving throws */
+		case LRN_FREE_SAVE:
 		{
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
 			if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
+			else m_ptr->smart &= ~(SM_IMM_FREE);
 			break;
 		}
 
-		case DRS_MANA:
+		/* Mana attacks learn if you have any mana to attack */
+		case LRN_MANA:
 		{
 			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
+			else m_ptr->smart &= ~(SM_IMM_MANA);
 			break;
 		}
 
-		case DRS_RES_ACID:
+		/* Acid attacks learn about Acid resists and immunities */
+		case LRN_ACID:
 		{
 			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+			else m_ptr->smart &= ~(SM_RES_ACID);
 			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
+			else m_ptr->smart &= ~(SM_OPP_ACID);
 			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+			else m_ptr->smart &= ~(SM_IMM_ACID);
 			break;
 		}
 
-		case DRS_RES_ELEC:
+		/* Electircal attacks learn about Electrical resists and immunities */
+		case LRN_ELEC:
 		{
 			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			else m_ptr->smart &= ~(SM_RES_ELEC);
 			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
+			else m_ptr->smart &= ~(SM_OPP_ELEC);
 			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			else m_ptr->smart &= ~(SM_IMM_ELEC);
 			break;
 		}
 
-		case DRS_RES_FIRE:
+		/* Fire attacks learn about Fire resists and immunities */
+		case LRN_FIRE:
 		{
 			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+			else m_ptr->smart &= ~(SM_RES_FIRE);
 			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
+			else m_ptr->smart &= ~(SM_OPP_FIRE);
 			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+			else m_ptr->smart &= ~(SM_IMM_FIRE);
 			break;
 		}
 
-		case DRS_RES_COLD:
+		/* Cold attacks learn about Cold resists and immunities */
+		case LRN_COLD:
 		{
 			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			else m_ptr->smart &= ~(SM_RES_COLD);
 			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			else m_ptr->smart &= ~(SM_OPP_COLD);
 			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			else m_ptr->smart &= ~(SM_IMM_COLD);
 			break;
 		}
 
-		case DRS_RES_POIS:
+		/* Poison attacks learn about Poison resists */
+		case LRN_POIS:
 		{
 			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+			else m_ptr->smart &= ~(SM_RES_POIS);
 			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+			else m_ptr->smart &= ~(SM_OPP_POIS);
 			break;
 		}
 
-		case DRS_RES_FEAR:
+		/* Fear attacks learn about resist fear and saving throws */
+		case LRN_FEAR_SAVE:
 		{
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
 			if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+			else m_ptr->smart &= ~(SM_RES_FEAR);
 			break;
 		}
 
-		case DRS_RES_LITE:
+		/* Light attacks learn about light and blindness resistance */
+		case LRN_LITE:
 		{
 			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
+			else m_ptr->smart &= ~(SM_RES_LITE);
 			break;
 		}
 
-		case DRS_RES_DARK:
+		/* Darkness attacks learn about dark and blindness resistance */
+		case LRN_DARK:
 		{
 			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+			else m_ptr->smart &= ~(SM_RES_DARK);
 			break;
 		}
 
-		case DRS_RES_BLIND:
+		/*
+		 * Some Blindness attacks learn about blindness resistance 
+		 * Others (below) do more
+		 */
+		case LRN_BLIND:
 		{
 			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			else m_ptr->smart &= ~(SM_RES_BLIND);
 			break;
 		}
 
-		case DRS_RES_CONFU:
+		/* 
+		 * Some Confusion attacks learn about confusion resistance
+		 * Others (below) do more
+		 */
+		case LRN_CONFU:
 		{
 			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			else m_ptr->smart &= ~(SM_RES_CONFU);
 			break;
 		}
 
-		case DRS_RES_SOUND:
+		/* 
+		 * Some sound attacks learn about sound and confusion resistance, and saving throws 
+		 * Others (below) do less.
+		 */
+		case LRN_SOUND:
 		{
 			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			else m_ptr->smart &= ~(SM_RES_SOUND);
+			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			else m_ptr->smart &= ~(SM_RES_CONFU);
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
 			break;
 		}
 
-		case DRS_RES_SHARD:
+		/* Shards attacks learn about shards resistance */
+		case LRN_SHARD:
 		{
+			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			else m_ptr->smart &= ~(SM_RES_SHARD);
+			break;
+		}
+
+		/*
+		 *  Some Nexus attacks learn about Nexus resistance only
+		 *  Others (below) do more
+		 */
+		case LRN_NEXUS:
+		{
+			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+			else m_ptr->smart &= ~(SM_RES_NEXUS);
+			break;
+		}
+
+		/* Nether attacks learn about Nether resistance */
+		case LRN_NETHR:
+		{
+			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+			else m_ptr->smart &= ~(SM_RES_NETHR);
+			break;
+		}
+
+		/* Chaos attacks learn about Chaos resistance */
+		case LRN_CHAOS:
+		{
+			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+			else m_ptr->smart &= ~(SM_RES_CHAOS);
+			break;
+		}
+
+		/* Disenchantment attacks learn about disenchantment resistance */
+		case LRN_DISEN:
+		{
+			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+			else m_ptr->smart &= ~(SM_RES_DISEN);
+			break;
+		}
+
+		/* Some attacks learn only about saving throws (cause wounds, etc) */
+		case LRN_SAVE:
+		{
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
+		}
+
+		/* Archery attacks don't learn anything */
+		case LRN_ARCH:
+		{
+			break;
+		}
+
+		/* Poison archery attacks learn about poison resists */
+		case LRN_PARCH:
+		{
+			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+			else m_ptr->smart &= ~(SM_RES_POIS);
+			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+			else m_ptr->smart &= ~(SM_OPP_POIS);
+			break;
+		}
+
+		/* Ice attacks learn aboyt sound/shards/cold resists and cold immunity */
+		case LRN_ICE:
+		{
+			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			else m_ptr->smart &= ~(SM_RES_COLD);
+			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			else m_ptr->smart &= ~(SM_OPP_COLD);
+			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			else m_ptr->smart &= ~(SM_IMM_COLD);
+			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			else m_ptr->smart &= ~(SM_RES_SOUND);
 			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
 			break;
 		}
 
-		case DRS_RES_NEXUS:
+		/* Plasma attacks learn about fire/lightning resists/immunities */
+		case LRN_PLAS:
 		{
+			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			else m_ptr->smart &= ~(SM_RES_ELEC);
+			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
+			else m_ptr->smart &= ~(SM_OPP_ELEC);
+			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			else m_ptr->smart &= ~(SM_IMM_ELEC);
+			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+			else m_ptr->smart &= ~(SM_RES_FIRE);
+			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
+			else m_ptr->smart &= ~(SM_OPP_FIRE);
+			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+			else m_ptr->smart &= ~(SM_IMM_FIRE);
+			break;
+		}
+
+		/* 
+		 * Some sounds attacks learna about sound resistance only
+		 * Others (above) do more
+		 */
+		case LRN_SOUND2:
+		{
+			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			else m_ptr->smart &= ~(SM_RES_SOUND);
+			break;
+		}
+
+		/* 
+		 * Storm attacks learn about Electrical/Cold/Acid resists/immunities,
+		 * and about confusion resist
+		 */
+		case LRN_STORM:
+		{
+			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			else m_ptr->smart &= ~(SM_RES_ELEC);
+			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
+			else m_ptr->smart &= ~(SM_OPP_ELEC);
+			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			else m_ptr->smart &= ~(SM_IMM_ELEC);
+			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			else m_ptr->smart &= ~(SM_RES_COLD);
+			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			else m_ptr->smart &= ~(SM_OPP_COLD);
+			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			else m_ptr->smart &= ~(SM_IMM_COLD);
+			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+			else m_ptr->smart &= ~(SM_RES_ACID);
+			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
+			else m_ptr->smart &= ~(SM_OPP_ACID);
+			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+			else m_ptr->smart &= ~(SM_IMM_ACID);
+			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+		}
+
+		/* Water attacks learn about sound/confusion resists */
+		case LRN_WATER:
+		{
+			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			else m_ptr->smart &= ~(SM_RES_SOUND);
+			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			else m_ptr->smart &= ~(SM_RES_CONFU);
+		}
+
+		/* 
+		 * Some nexus attacks learn about Nexus resist and saving throws
+		 * Others (above) do more
+		 */
+		case LRN_NEXUS_SAVE:
+		{
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
 			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
 			break;
 		}
 
-		case DRS_RES_NETHR:
+		/*
+		 * Some Blindness attacks learn about blindness resistance and saving throws
+		 * Others (above) do less
+		 */
+		case LRN_BLIND_SAVE:
 		{
-			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
+			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
 			break;
 		}
 
-		case DRS_RES_CHAOS:
+		/* 
+		 * Some Confusion attacks learn about confusion resistance and saving throws
+		 * Others (above) do less
+		 */
+		case LRN_CONFU_SAVE:
 		{
-			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			else m_ptr->smart &= ~(SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			else m_ptr->smart &= ~(SM_PERF_SAVE);
+			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			else m_ptr->smart &= ~(SM_RES_CONFU);
 			break;
 		}
 
-		case DRS_RES_DISEN:
-		{
-			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
-			break;
-		}
 	}
 
 #endif /* DRS_SMART_OPTIONS */
 
 }
+

@@ -30,7 +30,7 @@ static bool test_hit_combat(int chance, int ac, int vis)
 	/* Percentile dice */
 	k = rand_int(100);
 
-	/* Hack -- Instant hit.  Chance to miss removed in Oangband because
+	/* Hack -- Instant hit.   Chance to miss removed in Oangband because
 	 * of the way monster ACs now work (fewer truly easy targets).
 	 */
 	if (k < 5) return (TRUE);
@@ -67,7 +67,7 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 		if (sleeping_bonus)
 		{ 
 			if ((p_ptr->pclass == CLASS_ASSASSIN) && (thrown_weapon))
-			        message(MSG_HIT, 0, "Assassin Strike.");
+				message(MSG_HIT, 0, "Assassin Strike.");
 			else message(MSG_HIT, 0, "You rudely awaken the monster.");
 		}
 
@@ -85,12 +85,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
+					message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-	 			        message_format(MSG_HIT, 0, "The %s strikes %s.", o_name, m_name);
+					message_format(MSG_HIT, 0, "The %s strikes %s.", o_name, m_name);
 				}
 			mult_a_crit = 15;
 		}
@@ -99,12 +99,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
+					message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-	 			        message_format(MSG_HIT, 0, "The %s penetrates %s.", o_name, m_name);
+					message_format(MSG_HIT, 0, "The %s penetrates %s.", o_name, m_name);
 				}
 			mult_a_crit = 21;
 		}
@@ -113,12 +113,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
+					message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-	 			        message_format(MSG_HIT, 0, "The %s drives into %s.", o_name, m_name);
+					message_format(MSG_HIT, 0, "The %s drives into %s.", o_name, m_name);
 				}
 			mult_a_crit = 28;
 		}
@@ -127,12 +127,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
+					message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-	 			        message_format(MSG_HIT, 0, "The %s transpierces %s.", o_name, m_name);
+					message_format(MSG_HIT, 0, "The %s transpierces %s.", o_name, m_name);
 				}
 			mult_a_crit = 35;
 		}
@@ -168,7 +168,7 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 		 */
 		if ((sleeping_bonus) && ((p_ptr->pclass == CLASS_ROGUE) || 
 			(p_ptr->pclass == CLASS_ASSASSIN)))
-                        message(MSG_HIT, 0, "You ruthlessly sneak attack!");
+			message(MSG_HIT, 0, "You ruthlessly sneak attack!");
 
 
 		/* Hack - Weapons that normally do little damage benefit most from 
@@ -198,7 +198,7 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 			mult_m_crit *= 17;
 
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-			        message_format(MSG_HIT, 0, "You hack at %s.", m_name);
+				message_format(MSG_HIT, 0, "You hack at %s.", m_name);
 			else
 				message_format(MSG_HIT, 0, "You bash %s.", m_name);
 		}
@@ -230,7 +230,7 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 			       message_format(MSG_HIT, 0, "You bludgeon %s.", m_name);
 		}
 		else 
-  		{
+		{
 			mult_m_crit *= 32;
 			message_format(MSG_HIT, 0, "You *smite* %s.", m_name);
 		}
@@ -580,7 +580,7 @@ static int get_druid_damage(int plev, char m_name[])
 	else
 	{
 		/* Basic attack message. */		
-	         message_format(MSG_HIT, 0, "You %s %s.", description, m_name);
+		 message_format(MSG_HIT, 0, "You %s %s.", description, m_name);
 	}
 	return(damage);
 }
@@ -645,7 +645,6 @@ void py_attack(int y, int x)
 
 	/* Initial blows available. */
 	blows = p_ptr->num_blow;
-
 
 	/* If the monster is sleeping and visible, it can be hit more effectively 
 	 * by some classes.
@@ -721,10 +720,12 @@ void py_attack(int y, int x)
 		bash_chance = 0;
 	}
 
-	/* Players do not bash if they could otherwise take advantage of special 
-	 * bonuses against sleeping monsters, or if the monster is low-level.
+	/*
+	 * Players do not bash if they could otherwise take advantage of special 
+	 * bonuses against sleeping monsters, or if the monster is low-level or 
+	 * not visible.
 	 */
-	else if ((sleeping_bonus) || (r_ptr->level < p_ptr->lev / 2))
+	else if ((sleeping_bonus) || (r_ptr->level < p_ptr->lev / 2) || (!m_ptr->ml))
 	{
 		bash_chance = 0;
 	}
@@ -734,6 +735,13 @@ void py_attack(int y, int x)
 		(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128 
 		+ ((p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_PALADIN) ? 
 		p_ptr->lev : 0);
+
+	/* Some classes don't bash very often. */
+	if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_MAGE) || 
+		(p_ptr->pclass == CLASS_DRUID) || (p_ptr->pclass == CLASS_NECRO)) 
+	{
+		bash_chance /= 3;
+	}
 
 	/* Players bash more often when they see a real need. */
 	if (bash_chance)
@@ -748,7 +756,7 @@ void py_attack(int y, int x)
 	/* Try to get in a shield bash. */
 	if (bash_chance > rand_int(240 + r_ptr->level * 9))
 	{
-	        message(MSG_HIT, 0, "You get in a shield bash!");
+		message(MSG_HIT, 0, "You get in a shield bash!");
 
 		/* Calculate attack quality, a mix of momentum and accuracy. */
 		bash_quality = p_ptr->skill_thn + (p_ptr->wt / 8) + 
@@ -768,7 +776,7 @@ void py_attack(int y, int x)
 
 		/* Encourage the player to keep wearing that heavy shield. */
 		if (randint(bash_dam) > 30 + randint(bash_dam / 2)) 
-	               message(MSG_HIT, 0, "WHAMM!");
+		       message(MSG_HIT, 0, "WHAMM!");
 
 
 		/* Damage, check for fear and death. */
@@ -781,7 +789,7 @@ void py_attack(int y, int x)
 		/* Stunning. */
 		if (bash_quality + p_ptr->lev > randint(200 + r_ptr->level * 4))
 		{
-	               message_format(MSG_HIT, 0, "%^s is stunned.", m_name);
+		       message_format(MSG_HIT, 0, "%^s is stunned.", m_name);
 
 			m_ptr->stunned += rand_int(p_ptr->lev / 5) + 4;
 			if (m_ptr->stunned > 24) m_ptr->stunned = 24;
@@ -791,7 +799,7 @@ void py_attack(int y, int x)
 		if (bash_quality + p_ptr->lev > randint(300 + r_ptr->level * 6) && 
 			(!r_ptr->flags3 & (RF3_NO_CONF)))
 		{
-		        message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+			message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
 
 			m_ptr->confused += rand_int(p_ptr->lev / 5) + 4;
 		}
@@ -800,7 +808,6 @@ void py_attack(int y, int x)
 		if ((30 + adj_dex_th[p_ptr->stat_ind[A_DEX]] - 128) < randint(60))
 			blows -= randint(blows);
 	}
-
 
 	/* Access the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -851,7 +858,7 @@ void py_attack(int y, int x)
 			 * We then deflate and roll the whole number of damage dice, 
 			 * roll the fractional die, and add the two damages together.
 			 *
-			 * This calculation and that for archery are the cornerstones of 			 * the reformed combat system. -LM-
+			 * This calculation and that for archery are the cornerstones of			 * the reformed combat system. -LM-
 			 */
 			if (o_ptr->k_idx)
 			{
@@ -896,7 +903,7 @@ void py_attack(int y, int x)
 			else
 			{
 				/* Hack - If no weapon is wielded, Druids are able to fight 
-				 * effectively.  All other classes only get 1 damage, plus 
+				 * effectively.   All other classes only get 1 damage, plus 
 				 * whatever bonus their strength gives them. -LM-
 				 */
 				if (p_ptr->pclass == CLASS_DRUID)
@@ -962,7 +969,7 @@ void py_attack(int y, int x)
 				}
 				else
 				{
-				        message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+					message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
 			}
@@ -1009,7 +1016,7 @@ void py_attack(int y, int x)
 				msg_print("You escape into the shadows!");
 
 				/* Teleport. */
-				teleport_player(6 + p_ptr->lev / 5);
+				teleport_player(6 + p_ptr->lev / 5, TRUE);
 
 				/* Fight's over. */
 				return;
@@ -1042,7 +1049,7 @@ void py_attack(int y, int x)
 	}
 
 
-	/* Mega-Hack -- apply earthquake brand.  Radius reduced in Oangband. */
+	/* Mega-Hack -- apply earthquake brand.   Radius reduced in Oangband. */
 	if (do_quake)
 	{
 		int py = p_ptr->py;
@@ -1107,7 +1114,7 @@ static int breakage_chance(object_type *o_ptr)
  *
  * You may only fire items that "match" your missile launcher.  Project 
  * the missile along the path from player to target.
- * Take terrain and sleeping bonuses into account, make noise,  and check
+ * Take terrain and sleeping bonuses into account, make noise,	and check
  * for a hit.  If the missile hits, multiply the base damage die by the 
  * launcher, slay/brand, critical hit, and Deadliness multipliers in turn.
  * Apply any special attack or class bonuses, and check for death.
@@ -1172,7 +1179,7 @@ void do_cmd_fire(void)
 	/* Get an item */
 	q = "Fire which item? ";
 	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
 	/* Access the item (if in the pack) */
 	if (item >= 0)
@@ -1587,7 +1594,7 @@ void do_cmd_throw(void)
 	/* Get an item */
 	q = "Throw which item? ";
 	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
 	/* Access the item (if in the pack) */
 	if (item >= 0)
@@ -1817,7 +1824,7 @@ void do_cmd_throw(void)
 				/* The basic damage-determination formula is the same in
 				 * throwing as it is in melee (apart from the thrown weapon 
 				 * multiplier, and the ignoring of non-object bonuses to
- 				 * Deadliness for objects that are not thrown weapons).  See 
+				 * Deadliness for objects that are not thrown weapons).   See 
 				 * formula "py_attack" in "cmd1.c" for more details. -LM-
 				 */
 
@@ -1921,7 +1928,7 @@ void do_cmd_throw(void)
 		}
 	}
 
-	/* Chance of breakage (during attacks).  Throwing weapons are designed 
+	/* Chance of breakage (during attacks).   Throwing weapons are designed 
 	 * not to break.  -LM-
 	 */
 	if (f1 & (TR1_PERFECT_BALANCE)) j = (hit_body ? 1 : 0);

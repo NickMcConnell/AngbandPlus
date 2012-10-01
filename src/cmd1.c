@@ -1,7 +1,7 @@
 /* File: cmd1.c */
 
 /* Searching, pickup, effects of traps, move one square (including special 
- * terrain effects), and the running algorithm.  
+ * terrain effects), and the running algorithm.   
  *
  * Tim Baker's easy patch installed.
  *
@@ -107,6 +107,55 @@ void search(void)
 
 
 /*
+ * Objects that combine with items already in the quiver get picked 
+ * up, placed in the quiver, and combined automatically.
+ */
+static bool quiver_carry(object_type *o_ptr, int o_idx)
+{
+	int i;
+
+	object_type *i_ptr;
+
+
+	/* Must be ammo. */
+	if ((o_ptr->tval != TV_BOLT) && (o_ptr->tval != TV_ARROW) && 
+		(o_ptr->tval != TV_SHOT)) return (FALSE);
+
+	/* Check quiver for similar objects. */
+	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+	{
+		/* Get object in that slot. */
+		i_ptr = &inventory[i];
+
+		/* Look for similar. */
+		if (object_similar(i_ptr, o_ptr))
+		{
+			char o_name[120];
+
+			/* Absorb floor object. */
+			object_absorb(i_ptr, o_ptr);
+
+			/* Get the object again */
+			o_ptr = &inventory[i];
+
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Message */
+			msg_format("You have %s (%c).", o_name, index_to_label(i));
+
+			/* Delete the object */
+			delete_object_idx(o_idx);
+
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
  * Return TRUE if the given object is inscribed with "=g".
  */
 static bool auto_pickup_okay(object_type *o_ptr)
@@ -174,7 +223,7 @@ static void py_pickup_aux(int o_idx)
  * 2 to pick up objects, forcing a menu for multiple objects.
  * 3 to pick up objects, forcing a menu for any number of objects.
  *
- * Scan the list of objects in that floor grid.  Pick up gold automatically.
+ * Scan the list of objects in that floor grid.   Pick up gold automatically.
  * Pick up objects automatically until pile or backpack space is full if 
  * auto-pickup option is on, carry_query_floor option is not, and menus are 
  * not forced (which the "get" command does). Otherwise, store objects on 
@@ -189,7 +238,7 @@ static void py_pickup_aux(int o_idx)
  * forced.  Confirm pickup if that option is on.
  *
  * Pick up multiple objects (unless using autopickup, no confirm) using Tim
- * Baker's menu system.  Recursively call this function (forcing menus for any 
+ * Baker's menu system.   Recursively call this function (forcing menus for any 
  * number of objects) until objects are gone, backpack is full, or player is 
  * satisfied.
  *
@@ -255,8 +304,11 @@ byte py_pickup(int pickup)
 			continue;
 		}
 
+		/* Automatically pick up objects like those in the quiver. */
+		if (quiver_carry(o_ptr, this_o_idx)) continue;
+
 		/* Automatically pick up some items */
-		else if (inven_carry_okay(o_ptr) && auto_pickup_okay(o_ptr))
+		if (inven_carry_okay(o_ptr) && auto_pickup_okay(o_ptr))
 		{
 			/* Pick up the object */
 			py_pickup_aux(this_o_idx);
@@ -289,7 +341,7 @@ byte py_pickup(int pickup)
 			}
 		}
 
-		/* Otherwise, activate the menu system.  Tally objects and store 
+		/* Otherwise, activate the menu system.   Tally objects and store 
 		 * them in an array.
 		 */
 		else
@@ -324,7 +376,7 @@ byte py_pickup(int pickup)
 			/* Access the object */
 			o_ptr = &o_list[floor_o_idx];
 
-			/* Describe the object.  Less detail if blind. */
+			/* Describe the object.   Less detail if blind. */
 			if (p_ptr->blind) object_desc(o_name, o_ptr, TRUE, 0);
 			else object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -352,8 +404,8 @@ byte py_pickup(int pickup)
 		{
 			/* Access the object */
 			o_ptr = &o_list[floor_o_idx];
-        
-			/* Describe the object.  Less detail if blind. */
+	
+			/* Describe the object.   Less detail if blind. */
 			if (p_ptr->blind) object_desc(o_name, o_ptr, TRUE, 0);
 			else object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -367,7 +419,7 @@ byte py_pickup(int pickup)
 			/* Message */
 			msg_print("You have no room for any of the objects on the floor.");
 		}
-                
+		
 		/* Done */
 		return (objs_picked_up);
 	}
@@ -385,7 +437,7 @@ byte py_pickup(int pickup)
 			/* Access the object */
 			o_ptr = &o_list[floor_o_idx];
 
-			/* Describe the object.  Less detail if blind. */
+			/* Describe the object.   Less detail if blind. */
 			if (p_ptr->blind) object_desc(o_name, o_ptr, TRUE, 0);
 			else object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -458,7 +510,7 @@ static int check_trap_hit(int power)
 	bool hit = FALSE;
 
 	/* This function is called from the trap attack code, which generally
-	 * uses the simple RNG.  We temporarily switch over to the complex 
+	 * uses the simple RNG.   We temporarily switch over to the complex 
 	 * RNG for true randomness. - LM-
 	 */
 	Rand_quick = FALSE;
@@ -920,13 +972,24 @@ void hit_trap(int y, int x)
 			if (selection == 3)
 			{
 				msg_print("You are surrounded by a pungent green gas!");
-				if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+				if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
 				{
-					Rand_quick = FALSE;
+					if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+					{
+						Rand_quick = FALSE;
 
-					(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+						(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
 
-					Rand_quick = TRUE;
+						Rand_quick = TRUE;
+					}
+					else
+					{
+						Rand_quick = FALSE;
+
+						(void)set_poisoned(p_ptr->poisoned + rand_int(10) + 5);
+
+						Rand_quick = TRUE;
+					}
 				}
 			}
 
@@ -1246,7 +1309,7 @@ void hit_trap(int y, int x)
 				}
 
 				/* herald the arrival of Software Bugs. */
-				msg_print("AAAAAAAHHHH!  THEY'RE EVERYWHERE!");
+				msg_print("AAAAAAAHHHH! THEY'RE EVERYWHERE!");
 			}
 
 			Rand_quick = TRUE;
@@ -1261,7 +1324,7 @@ void hit_trap(int y, int x)
 
 			Rand_quick = FALSE;
 
-			teleport_player(250);
+			teleport_player(250, FALSE);
 
 			Rand_quick = TRUE;
 
@@ -1277,7 +1340,7 @@ void hit_trap(int y, int x)
 
 			/* hold the missile type and name. */
 			int sval = 0;
-			int tval = 0;	
+			int tval = 0;
 			cptr missile_name = "";
 
 
@@ -1506,7 +1569,7 @@ void move_player(int dir, int do_pickup)
 		if ((easy_disarm) && 
 			(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 			(cave_feat[y][x] <= FEAT_TRAP_TAIL) &&
-		        (cave_feat[y][x] != FEAT_TRAP_ROGUE))
+			(cave_feat[y][x] != FEAT_TRAP_ROGUE))
 
 		{
 			/* Optional auto-repeat. */
@@ -1532,7 +1595,7 @@ void move_player(int dir, int do_pickup)
 				/* Closed door */
 				if (cave_feat[y][x] < FEAT_SECRET)
 				{
-				        message(MSG_HITWALL, 0, "You feel a door blocking your way.");
+					message(MSG_HITWALL, 0, "You feel a door blocking your way.");
 					cave_info[y][x] |= (CAVE_MARK);
 					lite_spot(y, x);
 				}
@@ -1540,7 +1603,7 @@ void move_player(int dir, int do_pickup)
 				/* Wall (or secret door) */
 				else
 				{
-          				message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
+					message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
 					cave_info[y][x] |= (CAVE_MARK);
 					lite_spot(y, x);
 				}
@@ -1567,13 +1630,13 @@ void move_player(int dir, int do_pickup)
 					}
 
 					/* Otherwise, a message. */
-				        message(MSG_HITWALL, 0, "There is a door blocking your way.");
+					message(MSG_HITWALL, 0, "There is a door blocking your way.");
 				}
 
 				/* Wall (or secret door) */
 				else
 				{
-				        message(MSG_HITWALL, 0, "There is a wall blocking your way.");
+					message(MSG_HITWALL, 0, "There is a wall blocking your way.");
 				}
 			}
 
@@ -1598,7 +1661,7 @@ void move_player(int dir, int do_pickup)
 					{
 						player_is_crossing = dir;
 
-				                /* Automate 2nd movement command, if not disturbed. */
+						/* Automate 2nd movement command, if not disturbed. */
 						p_ptr->command_cmd = 59;
 						p_ptr->command_rep = 1;
 						p_ptr->command_dir = dir;
@@ -1636,7 +1699,7 @@ void move_player(int dir, int do_pickup)
 					else can_move = FALSE;
 
 					/* Stop any run. */
-					p_ptr->running = 0;
+					disturb(0,0);
 
 					/* Explain why the horse won't cross the water. */
 					if (can_move == FALSE) 
@@ -1725,7 +1788,7 @@ void move_player(int dir, int do_pickup)
 
 				/* Handle "store doors" */
 				if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		 		   (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+				   (cave_feat[y][x] <= FEAT_SHOP_TAIL))
 				{
 					/* Disturb */
 					disturb(0, 0);
@@ -1752,7 +1815,7 @@ void move_player(int dir, int do_pickup)
 
 				/* Set off an visible trap */
 				else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		       		  (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+				  (cave_feat[y][x] <= FEAT_TRAP_TAIL))
 				{
 					/* Disturb */
 					disturb(0, 0);
@@ -1816,7 +1879,7 @@ static int see_nothing(int dir, int y, int x)
  * The running algorithm  -CJS-
  *
  * Basically, once you start running, you keep moving until something
- * interesting happens.  In an enclosed space, you run straight, but
+ * interesting happens.   In an enclosed space, you run straight, but
  * you follow corners as needed (i.e. hallways).  In an open space,
  * you run straight, but you stop before entering an enclosed space
  * (i.e. a room with a doorway).  In a semi-open space (with walls on
@@ -1824,7 +1887,7 @@ static int see_nothing(int dir, int y, int x)
  * enclosed space or an open space (i.e. running along side a wall).
  *
  * All discussions below refer to what the player can see, that is,
- * an unknown wall is just like a normal floor.  This means that we
+ * an unknown wall is just like a normal floor.   This means that we
  * must be careful when dealing with "illegal" grids.
  *
  * No assumptions are made about the layout of the dungeon, so this
@@ -1848,11 +1911,11 @@ static int see_nothing(int dir, int y, int x)
  * the grids adjacent to the requested destination grid (marked 'x'),
  * two on each side (marked 'L' and 'R').  If either one of the two
  * grids on a given side is a wall, then that side is considered to
- * be "closed".  Both sides enclosed yields a hallway.
+ * be "closed".   Both sides enclosed yields a hallway.
  *
- *    LL                     @L
- *    @x      (normal)       RxL   (diagonal)
- *    RR      (east)          R    (south-east)
+ *    LL		     @L
+ *    @x      (normal)	     RxL   (diagonal)
+ *    RR      (east)	      R	   (south-east)
  *
  * In the diagram below, in which the player is running east along a
  * hallway, he will stop as indicated before attempting to enter the
@@ -1878,9 +1941,9 @@ static int see_nothing(int dir, int y, int x)
  * stopping at the end of the hallway (marked '2').
  *
  * ##################
- * o@x       1
+ * o@x	     1
  * ########### ######
- * #2          #
+ * #2	       #
  * #############
  *
  * After each step, the surroundings are examined to determine if
@@ -1893,10 +1956,10 @@ static int see_nothing(int dir, int y, int x)
  * or five new grids (for straight and diagonal moves respectively)
  * to which you were not previously adjacent (marked as '!').
  *
- *   ...!              ...
+ *   ...!	       ...
  *   .o@!  (normal)    .o.!  (diagonal)
  *   ...!  (east)      ..@!  (south east)
- *                      !!!
+ *			!!!
  *
  * If any of the newly adjacent grids are "interesting" (monsters,
  * objects, some terrain features) then running stops.
@@ -1917,7 +1980,7 @@ static int see_nothing(int dir, int y, int x)
  * to be open, then running stops.  Otherwise, as shown below, the
  * player has probably reached a "corner".
  *
- *    ###             o##
+ *    ###	      o##
  *    o@x  (normal)   #@!   (diagonal)
  *    ##!  (east)     ##x   (south east)
  *
@@ -1939,10 +2002,10 @@ static int see_nothing(int dir, int y, int x)
  * Below, we avoid the obvious grid (marked 'x') and cut the corner
  * instead (marked 'n').
  *
- *    ###:               o##
- *    o@x#   (normal)    #@n    (maybe?)
- *    ##n#   (east)      ##x#
- *                       ####
+ *    ###:		 o##
+ *    o@x#   (normal)	 #@n	(maybe?)
+ *    ##n#   (east)	 ##x#
+ *			 ####
  *
  * If one of the "option" grids is open, then we may have a choice, so
  * we check to see whether it is a potential corner or an intersection
@@ -1984,10 +2047,10 @@ static byte chome[] =
  * we seem to be in a corridor, then force a turn into the side
  * corridor, must be moving straight into a corridor here. ???
  *
- * Diagonal Corridor    Blunt Corridor (?)
- *       # #                  #
- *       #x#                 @x#
- *       @p.                  p
+ * Diagonal Corridor	Blunt Corridor (?)
+ *	 # #		      #
+ *	 #x#		     @x#
+ *	 @p.		      p
  */
 static void run_init(int dir)
 {
@@ -2121,10 +2184,10 @@ static bool run_test(void)
 	{
 		if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= p_ptr->dtrap_rad) 
 		{
-		        p_ptr->dtrap_x=0;
-		        p_ptr->dtrap_y=0;
-		        p_ptr->dtrap_rad=0;
-		        return(TRUE);	  
+			p_ptr->dtrap_x=0;
+			p_ptr->dtrap_y=0;
+			p_ptr->dtrap_rad=0;
+			return(TRUE);
 		}
 	}
 

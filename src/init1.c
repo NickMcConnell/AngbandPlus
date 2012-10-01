@@ -172,8 +172,8 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"SPEAKING", /* From Zangband.  Was XXX1X2 */
-	"PLAYER_GHOST",	/* Was XXX2X2 */
+	"SPEAKING",	/* From Zangband.  Was XXX1X2 */
+	"PLAYER_GHOST", /* Was XXX2X2 */
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
@@ -182,7 +182,7 @@ static cptr r_info_flags2[] =
 	"REGENERATE",
 	"XXX3X2",
 	"XXX4X2",
-	"POWERFUL",
+	"X",
 	"XXX5X2",
 	"XXX7X2",
 	"XXX6X2",
@@ -195,12 +195,12 @@ static cptr r_info_flags2[] =
 	"TAKE_ITEM",
 	"KILL_ITEM",
 	"FLYING",	/* Was BRAIN_1 */
-	"BRAIN_2",
-	"BRAIN_3",
+	"LOW_MANA_RUN",
 	"BRAIN_4",
-	"BRAIN_5",
-	"BRAIN_6",
-	"BRAIN_7",
+	"POWERFUL",
+	"ARCHER",
+	"MORGUL_MAGIC",
+	"UDUN_MAGIC",
 	"BRAIN_8"
 };
 
@@ -249,37 +249,37 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
+	"LASH",
 	"BOULDER",
-	"ARROW_5",
-	"ARROW_1",
-	"ARROW_2",
-	"ARROW_3",
-	"ARROW_4",
-	"BR_ACID",
-	"BR_ELEC",
-	"BR_FIRE",
-	"BR_COLD",
-	"BR_POIS",
-	"BR_NETH",
-	"BR_LITE",
-	"BR_DARK",
-	"BR_CONF",
-	"BR_SOUN",
-	"BR_CHAO",
-	"BR_DISE",
-	"BR_NEXU",
-	"BR_TIME",
-	"BR_INER",
-	"BR_GRAV",
-	"BR_SHAR",
-	"BR_PLAS",
-	"BR_WALL",
-	"BR_MANA",
-	"XXX5X4",
-	"XXX6X4",
-	"XXX7X4",
-	"XXX8X4"
+	"SHOT",
+	"ARROW",
+	"BOLT",
+	"MISSL",
+	"PMISSL",
+	"BRTH_ACID",
+	"BRTH_ELEC",
+	"BRTH_FIRE",
+	"BRTH_COLD",
+	"BRTH_POIS",
+	"BRTH_PLAS",
+	"BRTH_LITE",
+	"BRTH_DARK",
+	"BRTH_CONFU",
+	"BRTH_SOUND",
+	"BRTH_SHARD",
+	"BRTH_INER",
+	"BRTH_GRAV",
+	"BRTH_FORCE",
+	"BRTH_NEXUS",
+	"BRTH_NETHR",
+	"BRTH_CHAOS",
+	"BRTH_DISEN",
+	"BRTH_TIME",
+	"XXX42",
+	"XXX43",
+	"XXX44",
+	"XXX45",
+	"XXX45"
 };
 
 /*
@@ -287,33 +287,72 @@ static cptr r_info_flags4[] =
  */
 static cptr r_info_flags5[] =
 {
-	"BA_ACID",
-	"BA_ELEC",
-	"BA_FIRE",
-	"BA_COLD",
-	"BA_POIS",
-	"BA_NETH",
-	"BA_WATE",
-	"BA_MANA",
-	"BA_DARK",
+	"BALL_ACID",
+	"BALL_ELEC",
+	"BALL_FIRE",
+	"BALL_COLD",
+	"BALL_POIS",
+	"BALL_LITE",
+	"BALL_DARK",
+	"BALL_CONFU",
+	"BALL_SOUND",
+	"BALL_SHARD",
+	"BALL_STORM",
+	"BALL_NETHR",
+	"BALL_CHAOS",
+	"BALL_MANA",
+	"XXX51",
+	"XXX52",
+	"BOLT_ACID",
+	"BOLT_ELEC",
+	"BOLT_FIRE",
+	"BOLT_COLD",
+	"BOLT_POIS",
+	"BOLT_PLAS",
+	"BOLT_ICE",
+	"BOLT_WATER",
+	"BOLT_NETHR",
+	"BOLT_MANA",
+	"XXX53",
+	"BEAM_ELEC",
+	"BEAM_ICE",
+	"BEAM_NETHR",
+	"ARC_HFIRE",
+	"ARC_FORCE"
+};
+
+/*
+ * Monster race flags
+ */
+static cptr r_info_flags6[] =
+{
+	"HASTE",
+	"ADD_MANA",
+	"HEAL",
+	"CURE",
+	"BLINK",
+	"TPORT",
+	"XXX3X6",
+	"TELE_SELF_TO",
+	"TELE_TO",
+	"TELE_AWAY",
+	"TELE_LEVEL",
+	"XXX64",
+	"DARKNESS",
+	"TRAPS",
+	"FORGET",
 	"DRAIN_MANA",
+	"XXX6",
+	"XXX5",
 	"MIND_BLAST",
 	"BRAIN_SMASH",
-	"CAUSE_1",
-	"CAUSE_2",
-	"CAUSE_3",
-	"CAUSE_4",
-	"BO_ACID",
-	"BO_ELEC",
-	"BO_FIRE",
-	"BO_COLD",
-	"BO_POIS",
-	"BO_NETH",
-	"BO_WATE",
-	"BO_MANA",
-	"BO_PLAS",
-	"BO_ICEE",
-	"MISSILE",
+	"WOUND",
+	"XXX7",
+	"XXX8",
+	"XXX9",
+	"XX10",
+	"HUNGER",
+	"XX12",
 	"SCARE",
 	"BLIND",
 	"CONF",
@@ -324,40 +363,79 @@ static cptr r_info_flags5[] =
 /*
  * Monster race flags
  */
-static cptr r_info_flags6[] =
+static cptr r_info_flags7[] =
 {
-	"HASTE",
-	"XXX1X6",
-	"HEAL",
-	"XXX2X6",
-	"BLINK",
-	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
-	"TELE_TO",
-	"TELE_AWAY",
-	"TELE_LEVEL",
-	"XXX5",
-	"DARKNESS",
-	"TRAPS",
-	"FORGET",
-	"BA_LITE",
 	"S_KIN",
-	"S_HI_DEMON",
+	"XXX1",
+	"XXX2",
 	"S_MONSTER",
 	"S_MONSTERS",
+	"XXX3",
+	"XXX4",
+	"XXX5",
 	"S_ANT",
 	"S_SPIDER",
 	"S_HOUND",
-	"XXX9X6",
-	"XXX10X6",
-	"S_DEMON",
-	"S_UNDEAD",
+	"S_ANIMAL",
+	"XXX6",
+	"XXX7",
+	"S_THIEF",
+	"S_BERTBILLTOM",
+	"XXX8",
+	"XXX9",
+	"XX10",
+	"XX11",
 	"S_DRAGON",
-	"S_HI_UNDEAD",
 	"S_HI_DRAGON",
+	"XX12",
+	"XX13",
+	"S_DEMON",
+	"S_HI_DEMON",
+	"XX14",
+	"XX15",
+	"S_UNDEAD",
+	"S_HI_UNDEAD",
 	"S_WRAITH",
 	"S_UNIQUE"
+};
+
+/*
+ * Special Player Race Flags
+ */
+static cptr p_info_flags_sp[] =
+{
+	"SWORD_SKILL",
+	"POLEARM_SKILL",
+	"HAFTED_SKILL",
+	"SLING_SKILL",
+	"BOW_SKILL",
+	"XBOW_SKILL",  
+	"XXX1",
+	"XXX2",
+	"XXX3",
+	"SWORD_UNSKILL",
+	"POLEARM_UNSKILL",
+	"HAFTED_UNSKILL",
+	"SLING_UNSKILL",
+	"BOW_UNSKILL",
+	"XBOW_UNSKILL",
+	"XXX4",
+	"XXX5",
+	"XXX6",
+	"HARDY",
+	"HUNGRY",
+	"DIVINE",
+	"SHADOW",
+	"WOODEN",
+	"XXX7",
+	"XXX8",
+	"XXX9",
+	"XX10",
+	"XX11",
+	"XX12",
+	"XX13",
+	"XX14",
+	"XX15"
 };
 
 
@@ -697,7 +775,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 
 /*
- * Initialize the "t_info" array, by parsing an ascii "template" file.  
+ * Initialize the "t_info" array, by parsing an ascii "template" file.
  * Load only the selected themed level into memory (this allows an arbi-
  * trarily large t_info.txt file). -LM-
  * Otherwise, code is essentially that of "init_v_info_txt".
@@ -714,7 +792,7 @@ errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
 	/* Current entry */
 	vault_type *t_ptr = NULL;
 
-#ifndef NO_THEMED_LEVELS	/* Themed levels and old machines don't mix. */
+#ifndef NO_THEMED_LEVELS /* Themed levels and old machines don't mix. */
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -1015,7 +1093,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (1 != sscanf(buf+2, "%d",
-			                &mimic)) return (1);
+					&mimic)) return (1);
 
 			/* Save the values */
 			f_ptr->mimic = mimic;
@@ -1289,7 +1367,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &sval, &pval)) return (1);
+					&tval, &sval, &pval)) return (1);
 
 			/* Save the values */
 			k_ptr->tval = tval;
@@ -1308,7 +1386,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &extra, &wgt, &cost)) return (1);
+					&level, &extra, &wgt, &cost)) return (1);
 
 			/* Save the values */
 			k_ptr->level = level;
@@ -1359,7 +1437,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+					&ac, &hd1, &hd2, &th, &td, &ta)) return (1);
 
 			k_ptr->ac = ac;
 			k_ptr->dd = hd1;
@@ -1613,7 +1691,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &tval, &sval, &pval)) return (1);
+					&tval, &sval, &pval)) return (1);
 
 			/* Save the values */
 			a_ptr->tval = tval;
@@ -1632,7 +1710,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &rarity, &wgt, &cost)) return (1);
+					&level, &rarity, &wgt, &cost)) return (1);
 
 			/* Save the values */
 			a_ptr->level = level;
@@ -1651,7 +1729,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta, &act)) return (1);
+					&ac, &hd1, &hd2, &th, &td, &ta, &act)) return (1);
 
 			a_ptr->ac = ac;
 			a_ptr->dd = hd1;
@@ -1899,7 +1977,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (2 != sscanf(buf+2, "%d:%d",
-			                &slot, &rating)) return (1);
+					&slot, &rating)) return (1);
 
 			/* Save the values */
 			e_ptr->slot = slot;
@@ -1917,7 +1995,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &level, &rarity, &pad2, &cost)) return (1);
+					&level, &rarity, &pad2, &cost)) return (1);
 
 			/* Save the values */
 			e_ptr->level = level;
@@ -2089,15 +2167,22 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 		}
 	}
 
+	/* Scan flags7 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags7[i]))
+		{
+			r_ptr->flags7 |= (1L << i);
+			return (0);
+		}
+	}
+
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
 	/* Failure */
 	return (1);
 }
-
-
-
 
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file.
@@ -2273,7 +2358,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the other values */
 			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &spd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
+					&spd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
 
 			/* Save the values */
 			r_ptr->speed = spd;
@@ -2290,12 +2375,12 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
-        		int lev, rar, mana;
+			int lev, rar, mana;
 			long exp;
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &lev, &rar, &mana, &exp)) return (1);
+					&lev, &rar, &mana, &exp)) return (1);
 
 			/* Save the values */
 			r_ptr->level = lev;
@@ -2424,6 +2509,19 @@ errr init_r_info_txt(FILE *fp, char *buf)
 					continue;
 				}
 
+				/* Read spell power. */
+				if (1 == sscanf(s, "POW_%d", &i))
+				{
+					/* Save spell power. */
+					r_ptr->spell_power = i;
+
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
 				/* Parse this entry */
 				if (0 != grab_one_spell_flag(r_ptr, s)) return (5);
 
@@ -2456,43 +2554,69 @@ errr init_r_info_txt(FILE *fp, char *buf)
  */
 static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 {
-       int i;
+	int i;
 
-       /* Check flags1 */
-       for (i = 0; i < 32; i++)
-       {
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
 	      if (streq(what, k_info_flags1[i]))
 	      {
 		     pr_ptr->flags1 |= (1L << i);
 		     return (0);
 	      }
-       }
+	}
 
-       /* Check flags2 */
-       for (i = 0; i < 32; i++)
-       {
+	/* Check flags2 */
+	for (i = 0; i < 32; i++)
+	{
 	      if (streq(what, k_info_flags2[i]))
 	      {
 		     pr_ptr->flags2 |= (1L << i);
 		     return (0);
 	      }
-       }
+	}
 
-       /* Check flags3 */
-       for (i = 0; i < 32; i++)
-       {
+	/* Check flags3 */
+	for (i = 0; i < 32; i++)
+	{
 	      if (streq(what, k_info_flags3[i]))
 	      {
 		     pr_ptr->flags3 |= (1L << i);
 		     return (0);
 	      }
-       }
-       
-       /* Oops */
-       msg_format("Unknown player flag '%s'.", what);
-       
-       /* Error */
-       return (PARSE_ERROR_GENERIC);
+	}
+	
+	/* Oops */
+	msg_format("Unknown player flag '%s'.", what);
+	
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
+
+
+
+/*
+ * Grab one special flag in a player_race from a textual string
+ */
+static errr grab_one_special_racial_flag(player_race *pr_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+	      if (streq(what, p_info_flags_sp[i]))
+	      {
+		     pr_ptr->flags_special |= (1L << i);
+		     return (0);
+	      }
+	}
+	
+	/* Oops */
+	msg_format("Unknown player special flag '%s'.", what);
+	
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
 }
 
 
@@ -2502,27 +2626,27 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
  */
 errr init_p_info_txt(FILE *fp, char *buf)
 {
-       int i, j;
+	int i, j;
 
-       char *s, *t;
+	char *s, *t;
 
-       /* Not ready yet */
-       bool okay = FALSE;
+	/* Not ready yet */
+	bool okay = FALSE;
 
-       /* Current entry */
-       player_race *pr_ptr = NULL;
-       
+	/* Current entry */
+	player_race *pr_ptr = NULL;
+	
 
-       /* Just before the first record */
-       error_idx = -1;
+	/* Just before the first record */
+	error_idx = -1;
   
-       /* Just before the first line */
-       error_line = -1;
+	/* Just before the first line */
+	error_line = -1;
 
 
-       /* Parse */
-       while (0 == my_fgets(fp, buf, 1024))
-       {
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
 	      /* Advance the line number */
 	      error_line++;
 
@@ -2543,7 +2667,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			 (v2 != p_head->v_minor) ||
 			 (v3 != p_head->v_patch))
 		     {
-		            return (PARSE_ERROR_OBSOLETE_FILE);
+			    return (PARSE_ERROR_OBSOLETE_FILE);
 		     }
 
 		     /* Okay to proceed */
@@ -2589,7 +2713,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 
 		     /* Hack -- Verify space */
 		     if (p_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE)
-		            return (PARSE_ERROR_OUT_OF_MEMORY);
+			    return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		     /* Advance and Save the name index */
 		     if (!pr_ptr->name) pr_ptr->name = ++p_head->name_size;
@@ -2611,35 +2735,35 @@ errr init_p_info_txt(FILE *fp, char *buf)
 	      /* Process 'S' for "Stats" (one line only) */
 	      if (buf[0] == 'S')
 	      {
-		     int adj;
+		      int adj;
 
-		     /* Start the string */
-		     s = buf+1;
+		      /* Start the string */
+		      s = buf+1;
 
-		     /* For each stat */
-		     for (j = 0; j < A_MAX; j++)
-		     {
-                            /* Find the colon before the subindex */
-		            s = strchr(s, ':');
+		      /* For each stat */
+		      for (j = 0; j < A_MAX; j++)
+		      {
+			      /* Find the colon before the subindex */
+			      s = strchr(s, ':');
 
-			    /* Verify that colon */
-			    if (!s) return (PARSE_ERROR_GENERIC);
+			      /* Verify that colon */
+			      if (!s) return (PARSE_ERROR_GENERIC);
 
-			    /* Nuke the colon, advance to the subindex */
-			    *s++ = '\0';
+			      /* Nuke the colon, advance to the subindex */
+			      *s++ = '\0';
 
-			    /* Get the value */
-			    adj = atoi(s);
+			      /* Get the value */
+			      adj = atoi(s);
 
-                            /* Save the value */
-			    pr_ptr->r_adj[j] = adj;
+			      /* Save the value */
+			      pr_ptr->r_adj[j] = adj;
 
-			    /* Next... */
-			    continue;
-		     }
+			      /* Next... */
+			      continue;
+		      }
 
-		     /* Next... */
-		     continue;
+		      /* Next... */
+		      continue;
 	      }
 
 	      /* Process 'R' for "Racial Skills" (one line only) */
@@ -2786,8 +2910,8 @@ errr init_p_info_txt(FILE *fp, char *buf)
 		     /* Parse every entry textually */
 		     for (s = buf + 2; *s; )
 		     {
-                            /* Find the end of this entry */
-		            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+			    /* Find the end of this entry */
+			    for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			    /* Nuke and skip any dividers */
 			    if (*t)
@@ -2807,19 +2931,46 @@ errr init_p_info_txt(FILE *fp, char *buf)
 		     continue;
 	      }
 
+	      /* Hack -- Process 'U' for flags */
+	      if (buf[0] == 'U')
+	      {
+		     /* Parse every entry textually */
+		     for (s = buf + 2; *s; )
+		     {
+			    /* Find the end of this entry */
+			    for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			    /* Nuke and skip any dividers */
+			    if (*t)
+			    {
+				   *t++ = '\0';
+				   while ((*t == ' ') || (*t == '|')) t++;
+			    }
+
+			    /* Parse this entry */
+			    if (0 != grab_one_special_racial_flag(pr_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			    /* Start the next entry */
+			    s = t;
+		     }
+		     
+		     /* Next... */
+		     continue;
+	      }
+
 	      /* Hack -- Process 'C' for class choices */
 	      if (buf[0] == 'C')
 	      {
 		     /* Parse every entry textually */
 		     for (s = buf + 2; *s; )
 		     {
-                            /* Find the end of this entry */
-		            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+			    /* Find the end of this entry */
+			    for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
 
 			    /* Nuke and skip any dividers */
 			    if (*t)
 			    {
-			           *t++ = '\0';
+				   *t++ = '\0';
 				   while ((*t == ' ') || (*t == '|')) t++;
 			    }
 			    
@@ -2837,20 +2988,20 @@ errr init_p_info_txt(FILE *fp, char *buf)
 
 	      /* Oops */
 	      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-       }
+	}
 
 
-       /* Complete the "name" and "text" sizes */
-       ++p_head->name_size;
-       ++p_head->text_size;
+	/* Complete the "name" and "text" sizes */
+	++p_head->name_size;
+	++p_head->text_size;
 
 
-       /* No version yet */
-       if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
 
 
-       /* Success */
-       return (0);
+	/* Success */
+	return (0);
 }
 
 
@@ -2944,7 +3095,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf, "N:%d:%d:%d:%d",
-			                &prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
+					&prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
 			h_ptr->chart = prv;
@@ -3006,30 +3157,30 @@ errr init_h_info_txt(FILE *fp, char *buf)
  */
 errr init_b_info_txt(FILE *fp, char *buf)
 {
-       int i, j;
+	int i, j;
 
-       char *s, *t;
+	char *s, *t;
 
-       /* Not ready yet */
-       bool okay = FALSE;
+	/* Not ready yet */
+	bool okay = FALSE;
 
-       /* Current entry */
-       owner_type *ot_ptr = NULL;
+	/* Current entry */
+	owner_type *ot_ptr = NULL;
 
 
-       /* Just before the first record */
-       error_idx = -1;
+	/* Just before the first record */
+	error_idx = -1;
 
-       /* Just before the first line */
-       error_line = -1;
-       
+	/* Just before the first line */
+	error_line = -1;
+	
 
-       /* Prepare the "fake" stuff */
-       b_head->name_size = 0;
+	/* Prepare the "fake" stuff */
+	b_head->name_size = 0;
   
-       /* Parse */
-       while (0 == my_fgets(fp, buf, 1024))
-       {
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
 	      /* Advance the line number */
 	      error_line++;
 
@@ -3051,7 +3202,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			 (v2 != b_head->v_minor) ||
 			 (v3 != b_head->v_patch))
 		     {
-		            return (PARSE_ERROR_OBSOLETE_FILE);
+			    return (PARSE_ERROR_OBSOLETE_FILE);
 		     }
 
 		     /* Okay to proceed */
@@ -3115,7 +3266,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 
 		     /* Hack -- Verify space */
 		     if (b_head->name_size + strlen(t) + 8 > FAKE_NAME_SIZE)
-		            return (PARSE_ERROR_OUT_OF_MEMORY);
+			    return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		     /* Advance and Save the name index */
 		     if (!ot_ptr->owner_name) ot_ptr->owner_name = ++b_head->name_size;
@@ -3157,19 +3308,19 @@ errr init_b_info_txt(FILE *fp, char *buf)
 
 	      /* Oops */
 	      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-       }
+	}
 
 
-       /* Complete the "name" and "text" sizes */
-       ++b_head->name_size;
+	/* Complete the "name" and "text" sizes */
+	++b_head->name_size;
 
 
-       /* No version yet */
-       if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
 
 
-       /* Success */
-       return (0);
+	/* Success */
+	return (0);
 }
 
 /*
@@ -3177,30 +3328,30 @@ errr init_b_info_txt(FILE *fp, char *buf)
  */
 errr init_g_info_txt(FILE *fp, char *buf)
 {
-       int i, j;
+	int i, j;
 
-       char *s;
+	char *s;
 
-       /* Not ready yet */
-       bool okay = FALSE;
+	/* Not ready yet */
+	bool okay = FALSE;
 
-       /* Current entry */
-       byte *g_ptr;
-
-
-       /* Just before the first record */
-       error_idx = -1;
-
-       /* Just before the first line */
-       error_line = -1;
+	/* Current entry */
+	byte *g_ptr;
 
 
-       /* Prepare the "fake" stuff */
-       g_head->text_size = 0;
+	/* Just before the first record */
+	error_idx = -1;
 
-       /* Parse */
-       while (0 == my_fgets(fp, buf, 1024))
-       {
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	g_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
 	      /* Advance the line number */
 	      error_line++;
 
@@ -3238,72 +3389,72 @@ errr init_g_info_txt(FILE *fp, char *buf)
 	      /* Process 'A' for "Adjustments" */
 	      if (buf[0] == 'A')
 	      {
-		       int adj;
+			int adj;
 
-		       /* Start the string */
-		       s = buf+1;
+			/* Start the string */
+			s = buf+1;
 
-		       /* Changed this to a for loop from a while loop.
-			* It appears to have been setting off an odd
-			* compiler bug in Borland C for the windows
-			* version. -BR-
-			*/
-		       for (j=MAX_P_IDX; j > 0; j--)
-		       {
-                              /* Hack - get the index */
-			      i = error_idx + 1;
+			/* Changed this to a for loop from a while loop.
+			 * It appears to have been setting off an odd
+			 * compiler bug in Borland C for the windows
+			 * version. -BR-
+			 */
+			for (j=MAX_P_IDX; j > 0; j--)
+			{
+				/* Hack - get the index */
+				i = error_idx + 1;
 
-			      /* Verify information */
-			      if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+				/* Verify information */
+				if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
-			      /* Verify information */
-			      if (i >= g_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+				/* Verify information */
+				if (i >= g_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
-			      /* Save the index */
-			      error_idx = i;
+				/* Save the index */
+				error_idx = i;
 
-			      /* Point at the "info" */
-			      g_ptr = &g_info[i];
+				/* Point at the "info" */
+				g_ptr = &g_info[i];
+				
+				/* Find the colon before the subindex */
+				s = strchr(s, ':');
+				
+				/* Verify that colon */
+				if (!s) return (PARSE_ERROR_GENERIC);
 
-			      /* Find the colon before the subindex */
-			      s = strchr(s, ':');
+				/* Nuke the colon, advance to the subindex */
+				*s++ = '\0';
 
-			      /* Verify that colon */
-			      if (!s) return (PARSE_ERROR_GENERIC);
+				/* Get the value */
+				adj = atoi(s);
 
-			      /* Nuke the colon, advance to the subindex */
-			      *s++ = '\0';
+				/* Save the value */
+				*g_ptr = adj;
 
-			      /* Get the value */
-			      adj = atoi(s);
+				/* Next... */
+				continue;
+			}
 
-			      /* Save the value */
-			      *g_ptr = adj;
-
-			      /* Next... */
-			      continue;
-		       }
-
-		       /* Next... */
-		       continue;
+			/* Next... */
+			continue;
 	      }
 
 
 	      /* Oops */
 	      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-       }
+	}
 
 
-       /* Complete the "text" size */
-       ++g_head->text_size;
+	/* Complete the "text" size */
+	++g_head->text_size;
 
 
-       /* No version yet */
-       if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
 
 
-       /* Success */
-       return (0);
+	/* Success */
+	return (0);
 }
 
 #else	/* ALLOW_TEMPLATES */
@@ -3313,5 +3464,6 @@ static int i = 0;
 #endif
 
 #endif	/* ALLOW_TEMPLATES */
+
 
 

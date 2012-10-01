@@ -93,8 +93,10 @@
  * 23 Jan 98   SWD      282     Hacked more on sub-windows.  Now links, with
  *                              warnings.  Seems to work.
  *
- * 01 Nov 98   AGA      2.8.3   Adjusted for 2.8.3/Oangband sources.
- *                    Oangband  typos corrected.
+ * 01 Nov 98   AGA      2.8.3	Adjusted for 2.8.3 sources, typos corrected
+ *
+ * 01 Nov 98   AGA	Z214b	Corrections for ZAngband 2.1.4 beta
+ *
  */
 
 #include <signal.h>
@@ -836,7 +838,7 @@ int main(int argc, char **argv)
 	/* Check command line */
 	if (argc!=2 && argc!=3)
 	{
-		printf("Usage: %s Term-1|...|Term-7 [number of lines]\n"
+		printf("Usage: %s Mirror|Recall|Choice|Term-4|...|Term-7 [number of lines]\n"
 		       "Start this before angband.exe\n", argv[0]);
 		exit(1);
 	}
@@ -1201,7 +1203,7 @@ void angbandThread(void *arg)
 
 	int show_score = 0;
 
-	char player_name[32];
+	char player_name_aga[32];
 
 	/* Save the "program name" */
 	argv0 = (char*)arg;
@@ -1220,10 +1222,10 @@ void angbandThread(void *arg)
 	                 &arg_force_original,
 	                 &arg_fiddle,
 	                 &arg_wizard,
-	                 player_name)) quit(NULL);
+	                 player_name_aga)) quit(NULL);
 
 	/* XXX XXX XXX (?) */
-	strcpy(op_ptr->full_name, player_name);
+	strcpy(player_name, player_name_aga);
 
 	/* Process the player name */
 	process_player_name(TRUE);

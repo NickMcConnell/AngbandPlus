@@ -15,7 +15,6 @@
 #include "angband.h"
 
 
-
 /*
  * Hack -- redraw the screen
  *
@@ -33,21 +32,11 @@ void do_cmd_redraw(void)
 
 	term *old = Term;
 
-
-	/* Low level flush */
-	Term_flush();
-
-	/* Reset "inkey()" */
-	flush();
-
-
-	/* Hack -- React to changes */
+	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-
 
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
@@ -55,20 +44,23 @@ void do_cmd_redraw(void)
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+	/* Forget view */
+	p_ptr->update |= (PU_FORGET_VIEW);
+
+	/* Update view */
+	p_ptr->update |= (PU_UPDATE_VIEW);
+
+	/* Update monsters */
+	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
-
-	/* Clear screen */
-	Term_clear();
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
 
 	/* Hack -- update */
 	handle_stuff();
@@ -94,6 +86,89 @@ void do_cmd_redraw(void)
 	}
 }
 
+
+/*
+ * Map resizing whenever the main term changes size
+ */
+void resize_map(void)
+{
+	/* Only if the dungeon exists */
+	if (!character_dungeon) return;
+	
+	/* Mega-Hack -- no panel yet */
+	panel_row_min = 0;
+	panel_row_max = 0;
+	panel_col_min = 0;
+	panel_col_max = 0;
+
+	/* Reset the panels */
+	map_panel_size();
+				
+	if (character_dungeon)
+	{
+		verify_panel();
+	}
+
+	/* Combine and Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Update torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+	/* Forget view */
+	p_ptr->update |= (PU_FORGET_VIEW);
+
+	/* Update view */
+	p_ptr->update |= (PU_UPDATE_VIEW);
+
+	/* Update monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw everything */
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+	/* Hack -- update */
+	handle_stuff();
+	
+	/* Redraw */
+	Term_redraw();
+
+	/* Refresh */
+	Term_fresh();
+}
+
+/*
+ * Redraw a term when it is resized
+ */
+void redraw_window(void)
+{
+	/* Only if the dungeon exists */
+	if (!character_dungeon) return;
+	
+	/* Hack - Activate term zero for the redraw */
+	Term_activate(&term_screen[0]);
+	
+	/* Hack -- react to changes */
+	Term_xtra(TERM_XTRA_REACT, 0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+
+	/* Hack -- update */
+	handle_stuff();
+
+	/* Redraw */
+	Term_redraw();
+
+	/* Refresh */
+	Term_fresh();
+}
 
 /*
  * Hack -- change name
@@ -176,12 +251,12 @@ void do_cmd_change_name(void)
 void do_cmd_message_one(void)
 {
 	/* Recall one message XXX XXX XXX */
-        c_prt(message_color(0), format( "> %s", message_str(0)), 0, 0);
+	c_prt(message_color(0), format( "> %s", message_str(0)), 0, 0);
 }
 
 
 /*
- * Show previous messages to the user
+ * Show previous messages to the user -BEN-
  *
  * The screen format uses line 0 and 23 for headers and prompts,
  * skips line 1 and 22, and uses line 2 thru 21 for old messages.
@@ -197,20 +272,19 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(void)
 {
-	int i, j, k, n, q;
+	int i, j, k, n;
+	int q;
 
-	char shower[81];
-	char finder[81];
+	char shower[80];
+	char finder[80];
 
-	int per_screen = screen_y - 4;
-
+	int wid, hgt;
 
 	/* Wipe finder */
 	strcpy(finder, "");
 
 	/* Wipe shower */
 	strcpy(shower, "");
-
 
 	/* Total messages */
 	n = message_num();
@@ -221,9 +295,11 @@ void do_cmd_messages(void)
 	/* Start at leftmost edge */
 	q = 0;
 
-
-	/* Save screen */
+	/* Save the screen */
 	screen_save();
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Process requests until done */
 	while (1)
@@ -231,17 +307,20 @@ void do_cmd_messages(void)
 		/* Clear screen */
 		Term_clear();
 
-		/* Dump per_screen lines of messages */
-		for (j = 0; (j < per_screen) && (i + j < n); j++)
+		/* Dump messages */
+		for (j = 0; (j < hgt-4) && (i + j < n); j++)
 		{
 			cptr msg = message_str(i+j);
-                        byte attr = message_color((s16b)(i+j));
+			byte attr = message_color(i+j);
+
+			/* Hack -- fake monochrome */
+			if (fake_monochrome) attr = TERM_WHITE;
 
 			/* Apply horizontal scroll */
-			msg = (strlen(msg) >= q) ? (msg + q) : "";
+			msg = ((int)strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, (screen_y - 3) - j, -1, attr, msg);
+			Term_putstr(0, hgt-3 - j, -1, attr, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -254,8 +333,7 @@ void do_cmd_messages(void)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, (screen_y - 3) - j, len,
-						TERM_YELLOW, shower);
+					Term_putstr(str - msg, hgt-3 - j, len, TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -265,11 +343,10 @@ void do_cmd_messages(void)
 
 		/* Display header XXX XXX XXX */
 		prt(format("Message Recall (%d-%d of %d), Offset %d",
-		           i, i+j-1, n, q), 0, 0);
+		    i, i + j - 1, n, q), 0, 0);
 
 		/* Display prompt (not very informative) */
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]",
-			screen_y - 1, 0);
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt-1, 0);
 
 		/* Get a command */
 		k = inkey();
@@ -284,7 +361,7 @@ void do_cmd_messages(void)
 		if (k == '4')
 		{
 			/* Scroll left */
-			q = (q >= 40) ? (q - 40) : 0;
+			q = (q >= wid / 2) ? (q - wid / 2) : 0;
 
 			/* Success */
 			continue;
@@ -294,7 +371,7 @@ void do_cmd_messages(void)
 		if (k == '6')
 		{
 			/* Scroll right */
-			q = q + 40;
+			q = q + wid / 2;
 
 			/* Success */
 			continue;
@@ -304,7 +381,7 @@ void do_cmd_messages(void)
 		if (k == '=')
 		{
 			/* Prompt */
-			prt("Show: ", screen_y - 1, 0);
+			prt("Show: ", hgt-1, 0);
 
 			/* Get a "shower" string, or continue */
 			if (!askfor_aux(shower, 80)) continue;
@@ -319,7 +396,7 @@ void do_cmd_messages(void)
 			int z;
 
 			/* Prompt */
-			prt("Find: ", screen_y - 1, 0);
+			prt("Find: ", hgt-1, 0);
 
 			/* Get a "finder" string, or continue */
 			if (!askfor_aux(finder, 80)) continue;
@@ -358,18 +435,18 @@ void do_cmd_messages(void)
 			if (i + 10 < n) i += 10;
 		}
 
-		/* Recall one screen of older messages */
+		/* Recall 20 older messages */
 		if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
 		{
 			/* Go older if legal */
-			if (i + per_screen < n) i += per_screen;
+			if (i + 20 < n) i += 20;
 		}
 
-		/* Recall one screen of newer messages */
+		/* Recall 20 newer messages */
 		if ((k == 'n') || (k == KTRL('N')))
 		{
 			/* Go newer (if able) */
-			i = (i >= per_screen) ? (i - per_screen) : 0;
+			i = (i >= 20) ? (i - 20) : 0;
 		}
 
 		/* Recall 10 newer messages */
@@ -390,7 +467,7 @@ void do_cmd_messages(void)
 		if (i == j) bell(NULL);
 	}
 
-	/* Load screen */
+	/* Restore the screen */
 	screen_load();
 }
 
@@ -411,7 +488,7 @@ static cptr autosave_desc[1] =
 {
 	"Timed autosave"
 };
-       
+
 s16b toggle_frequency(s16b current)
 {
 	if (current == 0) return 50;
@@ -433,11 +510,11 @@ s16b toggle_frequency(s16b current)
  */
 static void do_cmd_options_autosave(cptr info)
 {
-	char	ch;
+	char ch;
 
-	int     i, k = 0, n = 1;
+	int i, k = 0, n = 1;
 
-	char	buf[80];
+	char buf[80];
 
 
 	/* Clear screen */
@@ -460,13 +537,13 @@ static void do_cmd_options_autosave(cptr info)
 			if (i == k) a = TERM_L_BLUE;
 
 			/* Display the option text */
-			sprintf(buf, "%-48s: %s   (%s)",
+			sprintf(buf, "%-48s: %s  (%s)",
 				autosave_desc[i],
 				autosave ? "yes" : "no ",
 				autosave_text[i]);
 			c_prt(a, buf, i + 2, 0);
 
-			prt(format("Timed autosave frequency: every %d turns",  autosave_freq), 5, 0);
+			prt(format("Timed autosave frequency: every %d turns", autosave_freq), 5, 0);
 		}
 
 
@@ -643,9 +720,9 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			/* Display the option text */
 			sprintf(buf, "%-48s: %s  (%s)",
-			        option_desc[opt[i]],
-			        op_ptr->opt[opt[i]] ? "yes" : "no ",
-			        option_text[opt[i]]);
+				option_desc[opt[i]],
+				op_ptr->opt[opt[i]] ? "yes" : "no ",
+				option_text[opt[i]]);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -660,14 +737,14 @@ static void do_cmd_options_aux(int page, cptr info)
 		{
 			case ESCAPE:
 			{
-                                /* Hack -- Notice use of any "cheat" options */
-			  	for (i = OPT_cheat_start; i < OPT_cheat_end+1; i++)
-			        {
-			               if (op_ptr->opt[i])
-				       {
-				              /* Set score option */
-					      op_ptr->opt[OPT_score_start + (i - OPT_cheat_start)] = TRUE;
-				       }
+				/* Hack -- Notice use of any "cheat" options */
+				for (i = OPT_cheat_start; i < OPT_cheat_end+1; i++)
+				{
+					if (op_ptr->opt[i])
+					{
+						/* Set score option */
+						op_ptr->opt[OPT_score_start + (i - OPT_cheat_start)] = TRUE;
+					}
 				}
 
 				return;
@@ -997,10 +1074,10 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
-                prt("(5) Birth Options - For Character Creation (Only)", 9, 5);
+		prt("(5) Birth Options - For Character Creation (Only)", 9, 5);
 
 		/* Cheating */
-                prt("(6) Cheat Options", 11, 5);
+		prt("(6) Cheat Options", 11, 5);
 
 		/* Window flags */
 		prt("(W) Window flags", 13, 5);
@@ -1062,11 +1139,11 @@ void do_cmd_options(void)
 			}
 
 			/* Birth Options */
-		        case '5':
+			case '5':
 			{
-			        /* Spawn */
-        			do_cmd_options_aux(4, "Birth Options");
-			        break;
+				/* Spawn */
+				do_cmd_options_aux(4, "Birth Options");
+				break;
 			}
 
 			/* Cheating Options */
@@ -1108,7 +1185,7 @@ void do_cmd_options(void)
 				{
 					int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 					prt(format("Current base delay factor: %d (%d msec)",
-					           op_ptr->delay_factor, msec), 22, 0);
+						   op_ptr->delay_factor, msec), 22, 0);
 					prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
 					k = inkey();
 					if (k == ESCAPE) break;
@@ -1130,7 +1207,7 @@ void do_cmd_options(void)
 				while (1)
 				{
 					prt(format("Current hitpoint warning: %2d%%",
-					           op_ptr->hitpoint_warn * 10), 22, 0);
+						   op_ptr->hitpoint_warn * 10), 22, 0);
 					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
 					k = inkey();
 					if (k == ESCAPE) break;
@@ -1995,7 +2072,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+					(byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
 			}
 
 			/* All done */
@@ -2055,7 +2132,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the object attr/char info */
 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+					(byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
 			}
 
 			/* All done */
@@ -2115,7 +2192,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the feature attr/char info */
 				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+					(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
 			}
 
 			/* All done */
@@ -2148,24 +2225,24 @@ void do_cmd_visuals(void)
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Monster = %d, Name = %-40.40s",
-				                   r, (r_name + r_ptr->name)));
+					    format("Monster = %d, Name = %-40.40s",
+						   r, (r_name + r_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-				            format("Default attr/char = %3u / %3u", da, dc));
+					    format("Default attr/char = %3u / %3u", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-				            format("Current attr/char = %3u / %3u", ca, cc));
+					    format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				i = inkey();
@@ -2203,24 +2280,24 @@ void do_cmd_visuals(void)
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Object = %d, Name = %-40.40s",
-				                   k, (k_name + k_ptr->name)));
+					    format("Object = %d, Name = %-40.40s",
+						   k, (k_name + k_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-				            format("Default attr/char = %3d / %3d", da, dc));
+					    format("Default attr/char = %3d / %3d", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-				            format("Current attr/char = %3d / %3d", ca, cc));
+					    format("Current attr/char = %3d / %3d", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				i = inkey();
@@ -2258,24 +2335,24 @@ void do_cmd_visuals(void)
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Terrain = %d, Name = %-40.40s",
-				                   f, (f_name + f_ptr->name)));
+					    format("Terrain = %d, Name = %-40.40s",
+						   f, (f_name + f_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-				            format("Default attr/char = %3d / %3d", da, dc));
+					    format("Default attr/char = %3d / %3d", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-				            format("Current attr/char = %3d / %3d", ca, cc));
+					    format("Current attr/char = %3d / %3d", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				i = inkey();
@@ -2461,7 +2538,7 @@ void do_cmd_colors(void)
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
-				        i, kv, rv, gv, bv);
+					i, kv, rv, gv, bv);
 			}
 
 			/* All done */
@@ -2505,19 +2582,19 @@ void do_cmd_colors(void)
 
 				/* Describe the color */
 				Term_putstr(5, 10, -1, TERM_WHITE,
-				            format("Color = %d, Name = %s", a, name));
+					    format("Color = %d, Name = %s", a, name));
 
 				/* Label the Current values */
 				Term_putstr(5, 12, -1, TERM_WHITE,
-				            format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
-				                   angband_color_table[a][0],
-				                   angband_color_table[a][1],
-				                   angband_color_table[a][2],
-				                   angband_color_table[a][3]));
+					    format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
+						   angband_color_table[a][0],
+						   angband_color_table[a][1],
+						   angband_color_table[a][2],
+						   angband_color_table[a][3]));
 
 				/* Prompt */
 				Term_putstr(0, 14, -1, TERM_WHITE,
-				            "Command (n/N/k/K/r/R/g/G/b/B): ");
+					    "Command (n/N/k/K/r/R/g/G/b/B): ");
 
 				/* Get a command */
 				i = inkey();
@@ -2592,7 +2669,7 @@ void do_cmd_version(void)
 {
 	/* Silly message */
 	msg_format("You are playing Oangband %d.%d.%d.  Type '?' for more info.",
-	           O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
+		   O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
 }
 
 
@@ -2758,7 +2835,7 @@ void do_cmd_load_screen(void)
 	}
 
 	/* Get the blank line */
-//	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+	/* if (my_fgets(fff, buf, 1024)) okay = FALSE; */
 
 
 	/* Load the screen */
@@ -2799,7 +2876,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Get the blank line */
-//	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+	/* if (my_fgets(fff, buf, 1024)) okay = FALSE; */
 
 
 	/* Close it */
@@ -3092,39 +3169,39 @@ static void do_cmd_knowledge_uniques(void)
 	/* Collect matching monsters */
 	for (i = 1, n = 0; i < MAX_R_IDX; i++)
 	{
-	       monster_race *r_ptr = &r_info[i];
-	       monster_lore *l_ptr = &l_list[i];
-	  	  
-	       /* Require known monsters */
-	       if (!cheat_know && !l_ptr->sights) continue;
+		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
+		  
+		/* Require known monsters */
+		if (!cheat_know && !l_ptr->sights) continue;
 	  
-	       /* Require unique monsters */
-	       if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
-	  	  
-	       /* No Player Ghosts */
-	       if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
+		/* Require unique monsters */
+		if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		  
+		/* No Player Ghosts */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
 
-	       /* Collect "appropriate" monsters */
-	       who[n++] = i;
+		/* Collect "appropriate" monsters */
+		who[n++] = i;
 	}
 
 
-        /* Select the sort method */
+	/* Select the sort method */
 	ang_sort_comp = ang_sort_comp_hook;
 	ang_sort_swap = ang_sort_swap_hook;
 
 	/* Sort the array by dungeon depth of monsters */
 	ang_sort(who, &why, n);
 
-        /* Print the monsters */
+	/* Print the monsters */
 	for (i = 0; i < n; i++)
 	{
-	       monster_race *r_ptr = &r_info[who[i]];
-	       bool dead = (r_ptr->max_num == 0);
+		monster_race *r_ptr = &r_info[who[i]];
+		bool dead = (r_ptr->max_num == 0);
 
-	       /* Print a message */
-	       fprintf(fff, "     %s is %s\n",
-	              (r_name + r_ptr->name),
+		/* Print a message */
+		fprintf(fff, "    %s is %s\n",
+		      (r_name + r_ptr->name),
 		      (dead ? "dead" : "alive"));
 	}
 

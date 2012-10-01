@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by
@@ -332,7 +332,7 @@ X:31:0
 W:0:0:0:0
 C:-15:-15:0:0
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
-D:It irritates nearby monsters, whom you'll find it hard to hit.
+D:It irritates nearby monsters, whom you'll find hard to hit.
 
 N:47:of Shard Protection
 X:31:10
@@ -707,7 +707,7 @@ D:harmed by the elements.
 N:102:of Morgul
 X:24:0
 W:0:0:0:0
-C:-20:-20:-10:0
+C:-20:+20:-10:0
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE
 D:A weapon of dispair, bearing perilous hexes that protect and awake your 
 D:foes.  You can see even invisible creatures, but will rue every combat 

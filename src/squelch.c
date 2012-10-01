@@ -1,7 +1,7 @@
 /* File: squelch.c */
 
 /* Item squelching support.  Setting squelch parameters for both squelch 
- * on generate and squelch on identify.  Handling squelching menus.
+ * on generate and squelch on identify.   Handling squelching menus.
  * Determining if items should be squelched.  Actually squelching items.
  *
  * Copyright (c) 2000 David Blackston and others
@@ -35,11 +35,11 @@ byte squelch_level[24];
  * 4 ---> squelch all but artifacts
  */
 
-#define SQUELCH_NONE     0
-#define SQUELCH_CURSED   1
-#define SQUELCH_AVERAGE  2
-#define SQUELCH_GOOD     3
-#define SQUELCH_ALL      4
+#define SQUELCH_NONE	 0
+#define SQUELCH_CURSED	 1
+#define SQUELCH_AVERAGE	 2
+#define SQUELCH_GOOD	 3
+#define SQUELCH_ALL	 4
 
 
 
@@ -74,8 +74,8 @@ static int tv_to_type[100];
 
 typedef struct tval_desc
 {
-	int        tval;
-	cptr       desc;
+	int	   tval;
+	cptr	   desc;
 } tval_desc;
 
 static char head[4] =
@@ -87,19 +87,19 @@ static char head[4] =
 static tval_desc typevals[] = 
 {
 
-        {TYPE_AMULET, "Amulets"},  
-	{TYPE_RING, "Rings"},    
-	{TYPE_STAFF, "Staves"},      
-	{TYPE_WAND, "Wands"},    
-	{TYPE_ROD, "Rods"},     
+	{TYPE_AMULET, "Amulets"},  
+	{TYPE_RING, "Rings"}, 
+	{TYPE_STAFF, "Staves"},
+	{TYPE_WAND, "Wands"}, 
+	{TYPE_ROD, "Rods"},
 	{TYPE_SCROLL, "Scrolls"},  
 	{TYPE_POTION, "Potions"},  
 	{TYPE_BOOK, "Magic Books"},
 	{TYPE_FOOD, "Food Items"},
-	{TYPE_MISC, "Miscellaneous"},    
+	{TYPE_MISC, "Miscellaneous"}, 
 	{0, NULL}
   
-};    
+};
 
 /*
  * Here are the categories for squelch-on-identification.
@@ -109,23 +109,23 @@ static tval_desc typevals[] =
 
 static tval_desc tvals[] =
 {
-  	{ TV_SWORD,             "Sword"                },
-  	{ TV_POLEARM,           "Polearm"              },
-  	{ TV_HAFTED,            "Hafted Weapon"        },
-  	{ TV_BOW,               "Bow"                  },
-  	{ TV_ARROW,             "Arrows"               },
-  	{ TV_BOLT,              "Bolts"                },
-  	{ TV_SHOT,              "Shots"                },
-  	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ 0,                    NULL }
+	{ TV_SWORD,		"Sword"                },
+	{ TV_POLEARM,		"Polearm"              },
+	{ TV_HAFTED,		"Hafted Weapon"        },
+	{ TV_BOW,		"Bow"                  },
+	{ TV_ARROW,		"Arrows"               },
+	{ TV_BOLT,		"Bolts"                },
+	{ TV_SHOT,		"Shots"		       },
+	{ TV_SHIELD,		"Shield"	       },
+	{ TV_CROWN,		"Crown"		       },
+	{ TV_HELM,		"Helm"		       },
+	{ TV_GLOVES,		"Gloves"	       },
+	{ TV_BOOTS,		"Boots"		       },
+	{ TV_CLOAK,		"Cloak"		       },
+	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"    },
+	{ TV_HARD_ARMOR,	"Hard Armor"           },
+	{ TV_SOFT_ARMOR,	"Soft Armor"           },
+	{ 0,			NULL }
 };
 
 /*
@@ -242,129 +242,133 @@ static int do_cmd_squelch_aux(void)
 	/* Choose! */
 	if (!get_com("Squelch what type of object? (Q: Secondary Menu for Weapons and Armour) ", &ch)) return (0);
 
-
 	if (ch=='Q') 
 	{
-	       /* Switch to secondary squelching menu */
-	       do_qual_squelch();
+		/* Switch to secondary squelching menu */
+		do_qual_squelch();
 	} 
 	else 
-        {
+	{
 
-	       /* Analyze choice */
-	       num = ch-'a';
+		/* Analyze choice */
+		num = ch-'a';
 
-	       /* Bail out if choice is illegal */
-	       if ((num < 0) || (num >= max_num)) return (0);
+		/* Bail out if choice is illegal */
+		if ((num < 0) || (num >= max_num)) return (0);
 
-	       /* Base object type chosen, fill in tval */
-	       typeval = typevals[num].tval;
-	       tval_desc = typevals[num].desc;
+		/* Base object type chosen, fill in tval */
+		typeval = typevals[num].tval;
+		tval_desc = typevals[num].desc;
 
 
-	       /*** And now we go for k_idx ***/
+		/*** And now we go for k_idx ***/
 	  
-	       /* Clear screen */
-	       
-	       while (1) 
-	       {
-		      Term_clear();
+		/* Clear screen */
 
-		      /* First sort based on value */
-		      /* Step 1: Read into choice array */
+		while (1) 
+		{
+			Term_clear();
 
-		      for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
-		      {
-			     object_kind *k_ptr = &k_info[i];
+			/* First sort based on value */
+			/* Step 1: Read into choice array */
+
+			for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
+			{
+				object_kind *k_ptr = &k_info[i];
 		
-			     if (tv_to_type[k_ptr->tval] == typeval) 
-			     {
-			            if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-				    choice[num++] = i;
-			     }
-		      }
-		      
-		      max_num = num;
-		      
-		      /* Step 2: Simple bubble sort */
-		      for (i=0; i<max_num; i++)
-		      { 
-			       for (j=i; j<max_num; j++) 
-			       {
-			              if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
-					  ((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
-					   (k_info[choice[i]].cost>k_info[choice[j]].cost))) 
-				      {
-					     temp = choice[i];
-					     choice[i] = choice[j];
-					     choice[j] = temp;
-				      }
-			       }
-		      }
+				if (tv_to_type[k_ptr->tval] == typeval) 
+				{
+					if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+					if (!(k_ptr->aware)) continue;
+					choice[num++] = i;
+				}
+			}
 
-		      for (num = 0; num<max_num; num++)
-		      {
-			     object_kind *k_ptr = &k_info[choice[num]];
+			max_num = num;
 
-			     /* Prepare it */
-			     row = 3 + (num % 20);
-			     col = 30 * (num / 20);
-			     ch = head[num/26] + (num%26);
+			/* Step 2: Simple bubble sort */
+			for (i=0; i<max_num; i++)
+			{ 
+				for (j=i; j<max_num; j++) 
+				{
+					if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
+					    ((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
+					     (k_info[choice[i]].cost>k_info[choice[j]].cost))) 
+					{
+						temp = choice[i];
+						choice[i] = choice[j];
+						choice[j] = temp;
+					}
+				}
+			}
 
-			     /* Acquire the "name" of object "i" */
-			     strip_name(buf, choice[num]);
-	      
-			     /* Get the squelch character */
-			     sq = (k_ptr->squelch ? (k_ptr->aware ? '*' : '.') : ' ');
-			   
-			     /* Get the color */
-			     color = (k_ptr->squelch ? 
-				      (k_ptr->aware ? TERM_RED : TERM_L_UMBER) :
-				      (k_ptr->aware ? TERM_L_GREEN : TERM_GREEN));
+			if (!max_num) c_put_str(TERM_RED, "No known objects of this type.", 3, 0);
 
-			     /* Print it */
-			     prt(format("[%c%c] ", ch, sq), row, col);
-			     c_put_str(color, buf, row, col+5);
-		      }
+			else
+			{
+				for (num = 0; num<max_num; num++)
+				{
+					object_kind *k_ptr = &k_info[choice[num]];
 
-		      /* Print the legend */
-		      prt("'*': Squelch (ided)     '.': Squelch (not ided)     ' ': Allow generation", 1, 0);
-		      
-		      /* Choose! */
-		      if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
-		      
-		      if (ch==KTRL('A')) 
-		      {
-			     /* ^A --> Squelch all items */
-			     for (i=0; i<max_num; i++) 
-			     {
-			            k_info[choice[i]].squelch = TRUE;
-			     }
-		      } 
-		      else if (ch==KTRL('U')) 
-		      {
-			     /* ^U --> Unsquelch all items */
-			     for (i=0; i<max_num; i++) 
-			     {
-			            k_info[choice[i]].squelch = FALSE;
-			     }
-		      } 
-		      else 
-		      {
-			     /* Analyze choice */
-			     num = -1;
-			     if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
-			     if ((ch >= head[1]) && (ch < head[1] + 26)) num = ch - head[1] + 26;
-			     if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 52;
-	      
-			     /* Bail out if choice is "illegal" */
-			     if ((num < 0) || (num >= max_num)) return (1);
-	      
-			     /* Toggle */
-			     k_info[choice[num]].squelch =
-			       (k_info[choice[num]].squelch ? FALSE : TRUE);
-		      }
-	       }
+					/* Prepare it */
+					row = 3 + (num % 20);
+					col = 30 * (num / 20);
+					ch = head[num/26] + (num%26);
+
+					/* Acquire the "name" of object "i" */
+					strip_name(buf, choice[num]);
+
+					/* Get the squelch character */
+					sq = (k_ptr->squelch ? '*' : ' ');
+
+					/* Get the color */
+					color = (k_ptr->squelch ? TERM_RED : TERM_L_GREEN);
+
+					/* Print it */
+					prt(format("[%c%c] ", ch, sq), row, col);
+					c_put_str(color, buf, row, col+5);
+				}
+
+				/* Print the legend */
+				prt("'*': Squelch           ' ': Do not squelch", 1, 0);
+
+			}
+
+			/* Choose! */
+			if (!get_com(format("%s : Command? (^A: Squelch all   ^U: Unsquelch all)", tval_desc), &ch)) return (1);
+
+			if (ch==KTRL('A')) 
+			{
+				/* ^A --> Squelch all items */
+				for (i=0; i<max_num; i++) 
+				{
+					k_info[choice[i]].squelch = TRUE;
+				}
+			} 
+			else if (ch==KTRL('U')) 
+			{
+				/* ^U --> Unsquelch all items */
+				for (i=0; i<max_num; i++) 
+				{
+					k_info[choice[i]].squelch = FALSE;
+				}
+			} 
+			else 
+			{
+				/* Analyze choice */
+				num = -1;
+				if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
+				if ((ch >= head[1]) && (ch < head[1] + 26)) num = ch - head[1] + 26;
+				if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 52;
+
+				/* Bail out if choice is "illegal" */
+				if ((num < 0) || (num >= max_num)) return (1);
+
+				/* Toggle */
+				k_info[choice[num]].squelch =
+				  (k_info[choice[num]].squelch ? FALSE : TRUE);
+			}
+		}
 	}
 	/* And return successful */
 	return (1);
@@ -389,140 +393,159 @@ static int do_qual_squelch(void)
 
 	while (1) 
 	{
-	       /* Clear screen */
-	       Term_clear();
+		/* Clear screen */
+		Term_clear();
 	  
-	       /* Print all tval's and their descriptions */
-	       for (num = 0; (num<60) && tvals[num].tval; num++)
-	       {
-		      row = 2 + (num % 20);
-		      col = 30 * (num / 20);
-		      prt(format("(%c): %s", squelch_str[squelch_level[num]], tvals[num].desc), row, col);
-		      
-	       }
+		/* Print all tval's and their descriptions */
+		for (num = 0; (num<60) && tvals[num].tval; num++)
+		{
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			prt(format("(%c): %s", squelch_str[squelch_level[num]], tvals[num].desc), row, col);
+		}
 
-	       /* Print out the rest of the screen */
-	       prt("Legend:", 2, 30);
-	       prt("N     : Squelch Nothing", 4, 30);
-	       prt("C     : Squelch Cursed Items", 5, 30);
-	       prt("V     : Squelch Average and Below", 6, 30);
-	       prt("G     : Squelch Good and Below", 7, 30);
-	       prt("A     : Squelch All but Artifacts", 8, 30);
+		/* Print out the rest of the screen */
+		prt("Legend:", 2, 30);
+		prt("N     : Squelch Nothing", 4, 30);
+		prt("C     : Squelch Cursed Items", 5, 30);
+		prt("V     : Squelch Average and Below", 6, 30);
+		prt("G     : Squelch Good and Below", 7, 30);
+		prt("A     : Squelch All but Artifacts", 8, 30);
 
-	       prt("Commands:", 11, 30);
-	       prt("Arrows: Move and adjust settings", 13, 30);
-	       prt("ncvga : Change a single setting", 14, 30);
-	       prt("NCVGA : Change all settings", 15, 30);
-	       prt("ESC   : Exit Secondary Menu", 16, 30);
-	       prt("Secondary Squelching Menu: Weapons and Armor squelch only after identify", 0,0);
+		prt("Commands:", 11, 30);
+		prt("Arrows: Move and adjust settings", 13, 30);
+		prt("ncvga : Change a single setting", 14, 30);
+		prt("NCVGA : Change all settings", 15, 30);
+		prt("ESC   : Exit Secondary Menu", 17, 30);
+		prt("Secondary Squelching Menu: Weapons/Armor (Squelch only after identify)", 0,0);
 
-	       /* Need to know maximum index */
-	       max_num=num;
+		/* Need to know maximum index */
+		max_num=num;
 
-	       /* Place the cursor */
-	       move_cursor(index+ 2, 1);
+		/* Place the cursor */
+		move_cursor(index+ 2, 1);
 
+		/* Get a key */
+		ch = inkey();
 
-	       /* Get a key */
-	       ch = inkey();
+		/* Analyze */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				return 0;
+			}
 
-	       /* Analyze */
-	       switch (ch)
-	       {
-	             case ESCAPE:
-		            {
-			           return 0;
-			    }
+			case 'n':
+			{
+				squelch_level[index] = SQUELCH_NONE;
+				break;
+			}
 
-	             case 'n':
-		            squelch_level[index] = SQUELCH_NONE;
-			    break;
-	             case 'N':
-		            for (i=0; i<24; i++) 
-			    {
-			           squelch_level[i] = SQUELCH_NONE;
-			    }
-			    break;
+			case 'N':
+			{
+				for (i=0; i<24; i++) 
+				{
+					squelch_level[i] = SQUELCH_NONE;
+				}
+				break;
+			}
 
-	             case 'c':
-		            squelch_level[index] = SQUELCH_CURSED;
-			    break;
+			case 'c':
+			{
+				squelch_level[index] = SQUELCH_CURSED;
+				break;
+			}
 
-	             case 'C':
-		            for (i=0; i<24; i++) 
-			    {
-			           squelch_level[i] = SQUELCH_CURSED;
-			    }
-			    break;
+			case 'C':
+			{
+				for (i=0; i<24; i++) 
+				{
+					squelch_level[i] = SQUELCH_CURSED;
+				}
+				break;
+			}
 				  
-	             case 'v':
-		            squelch_level[index] = SQUELCH_AVERAGE;
-			    break;
+			case 'v':
+			{
+				squelch_level[index] = SQUELCH_AVERAGE;
+				break;
+			}
 
-	             case 'V':
-		            for (i=0; i<24; i++) 
-			    {
-			           squelch_level[i] = SQUELCH_AVERAGE;
-			    }
-			    break;
+			case 'V':
+			{
+				for (i=0; i<24; i++) 
+				{
+					squelch_level[i] = SQUELCH_AVERAGE;
+				}
+				break;
+			}
 
-	             case 'g':
-		            squelch_level[index] = SQUELCH_GOOD;
-			    break;
+			case 'g':
+			{
+				squelch_level[index] = SQUELCH_GOOD;
+				break;
+			}
 
-	             case 'G':
-		            for (i=0; i<24; i++) 
-			    {
-			           squelch_level[i] = SQUELCH_GOOD;
-			    }
-			    break;
+			case 'G':
+			{
+				for (i=0; i<24; i++) 
+				{
+					squelch_level[i] = SQUELCH_GOOD;
+				}
+				break;
+			}
 
-	             case 'a':
-		            squelch_level[index] = SQUELCH_ALL;
-			    break;
+			case 'a':
+			{
+				squelch_level[index] = SQUELCH_ALL;
+				break;
+			}
 
-	             case 'A':
-		            for (i=0; i<24; i++) 
-			    {
-			           squelch_level[i] = SQUELCH_ALL;
-			    }
-			    break;
+			case 'A':
+			{
+				for (i=0; i<24; i++) 
+				{
+					squelch_level[i] = SQUELCH_ALL;
+				}
+				break;
+			}
 
-	             case '-':
-	             case '8':
-		            {
-			           index = (max_num + index - 1) % max_num;
-				   break;
-			    }
-	    
-	             case ' ':
-	             case '\n':
-	             case '\r':
-	             case '2':
-		     {
-		            index = (index + 1) % max_num;
-			    break;
-		     }
-	    
-	             case '6':
-		     {
-		            squelch_level[index] = (squelch_level[index]+1)%(SQUELCH_ALL+1);
-			    break;
-		     }
-	    
-	             case '4':
-		     {
-		            squelch_level[index] = (SQUELCH_ALL+squelch_level[index])%(SQUELCH_ALL+1);
-			    break;
-		     }
-	    
-	             default:
-		     {
-		            bell("");
-			    break;
-		     }
-	       }
-	       
+			case '-':
+			case '8':
+			{
+				index = (max_num + index - 1) % max_num;
+				break;
+			}
+
+			case ' ':
+			case '\n':
+			case '\r':
+			case '2':
+			{
+				index = (index + 1) % max_num;
+				break;
+			}
+
+			case '6':
+			{
+				squelch_level[index] = (squelch_level[index]+1)%(SQUELCH_ALL+1);
+				break;
+			}
+
+			case '4':
+			{
+				squelch_level[index] = (SQUELCH_ALL+squelch_level[index])%(SQUELCH_ALL+1);
+				break;
+			}
+
+			default:
+			{
+				bell("");
+				break;
+			}
+		}
+
 	}
 
 }
@@ -535,25 +558,25 @@ static int do_qual_squelch(void)
 
 void init_tv_to_type(void) 
 {
-       tv_to_type[TV_SKELETON]=TYPE_MISC;
-       tv_to_type[TV_BOTTLE]=TYPE_MISC;
-       tv_to_type[TV_JUNK]=TYPE_MISC;
-       tv_to_type[TV_SPIKE]=TYPE_MISC;
-       tv_to_type[TV_CHEST]=TYPE_MISC;
-       tv_to_type[TV_LITE]=TYPE_MISC;
-       tv_to_type[TV_AMULET]=TYPE_AMULET;
-       tv_to_type[TV_RING]=TYPE_RING;
-       tv_to_type[TV_STAFF]=TYPE_STAFF;
-       tv_to_type[TV_WAND]=TYPE_WAND;
-       tv_to_type[TV_ROD]=TYPE_ROD;
-       tv_to_type[TV_SCROLL]=TYPE_SCROLL;
-       tv_to_type[TV_POTION]=TYPE_POTION;
-       tv_to_type[TV_FLASK]=TYPE_MISC;
-       tv_to_type[TV_FOOD]=TYPE_FOOD;
-       tv_to_type[TV_MAGIC_BOOK]=TYPE_BOOK;
-       tv_to_type[TV_PRAYER_BOOK]=TYPE_BOOK;
-       tv_to_type[TV_DRUID_BOOK]=TYPE_BOOK;
-       tv_to_type[TV_NECRO_BOOK]=TYPE_BOOK;
+	tv_to_type[TV_SKELETON]=TYPE_MISC;
+	tv_to_type[TV_BOTTLE]=TYPE_MISC;
+	tv_to_type[TV_JUNK]=TYPE_MISC;
+	tv_to_type[TV_SPIKE]=TYPE_MISC;
+	tv_to_type[TV_CHEST]=TYPE_MISC;
+	tv_to_type[TV_LITE]=TYPE_MISC;
+	tv_to_type[TV_AMULET]=TYPE_AMULET;
+	tv_to_type[TV_RING]=TYPE_RING;
+	tv_to_type[TV_STAFF]=TYPE_STAFF;
+	tv_to_type[TV_WAND]=TYPE_WAND;
+	tv_to_type[TV_ROD]=TYPE_ROD;
+	tv_to_type[TV_SCROLL]=TYPE_SCROLL;
+	tv_to_type[TV_POTION]=TYPE_POTION;
+	tv_to_type[TV_FLASK]=TYPE_MISC;
+	tv_to_type[TV_FOOD]=TYPE_FOOD;
+	tv_to_type[TV_MAGIC_BOOK]=TYPE_BOOK;
+	tv_to_type[TV_PRAYER_BOOK]=TYPE_BOOK;
+	tv_to_type[TV_DRUID_BOOK]=TYPE_BOOK;
+	tv_to_type[TV_NECRO_BOOK]=TYPE_BOOK;
 }
 
 void do_cmd_squelch(void)
@@ -568,7 +591,7 @@ void do_cmd_squelch(void)
 	/* Simple loop */
 	while (flag)  
 	{
-	       flag = do_cmd_squelch_aux();
+		flag = do_cmd_squelch_aux();
 	}
 
 	/* Restore the screen */
@@ -590,7 +613,7 @@ void do_cmd_squelch(void)
  * Input:
  *  o_ptr   : This is a pointer to the object type being identified.
  *  feeling : This is the feeling of the object if it is being 
- *            pseudoidentified or 0 if the object is being identified.
+ *	      pseudoidentified or 0 if the object is being identified.
  *  fullid  : This is 1 if the object is being identified and 0 otherwise.
  * 
  * Output: One of the three above values.
@@ -598,96 +621,98 @@ void do_cmd_squelch(void)
 
 int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 {
-       int i, num, result;
-       byte feel;
+	int i, num, result;
+	byte feel;
 
-       /* default */
-       result = SQUELCH_NO;
+	/* default */
+	result = SQUELCH_NO;
 
 
-       /* Check to see if the object is eligible for squelching on id. */
-       num=-1;
-       for (i=0; tvals[i].tval; i++) 
-       {
-	      if (tvals[i].tval==o_ptr->tval) 
-	      {
-		     num=i;
-	      }
-       }
-       if (num==-1) return result;
+	/* Check to see if the object is eligible for squelching on id. */
+	num=-1;
+	for (i=0; tvals[i].tval; i++) 
+	{
+		if (tvals[i].tval==o_ptr->tval) 
+		{
+			num=i;
+		}
+	}
+	if (num==-1) return result;
  
-       /* 
-	* Get the "feeling" of the object.  If the object is being identified
-	* get the feeling returned by a heavy pseudoid.
-	*/
-       feel = feeling;
-       if (fullid==1) 
-	      feel = value_check_aux1(o_ptr);
+	/* 
+	 * Get the "feeling" of the object.  If the object is being identified
+	 * get the feeling returned by a heavy pseudoid.
+	 */
+	feel = feeling;
+	if (fullid==1) 
+	  feel = value_check_aux1(o_ptr);
 
-       /* Get result based on the feeling and the squelch_level */
-       switch (squelch_level[num]) 
-       {
-             case SQUELCH_NONE:
-	            return result;
-		    break;
+	/* Get result based on the feeling and the squelch_level */
+	switch (squelch_level[num]) 
+	{
+		case SQUELCH_NONE:
+		{
+			return result;
+			break;
+		}
 
-             case SQUELCH_CURSED:
-	            result = (((feel==FEEL_BROKEN) ||
-			       (feel==FEEL_TERRIBLE) ||
-			       (feel==FEEL_WORTHLESS) ||
-			       (feel==FEEL_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
-		    break;
-             case SQUELCH_AVERAGE:
-	            result = (((feel==FEEL_BROKEN) ||
-			       (feel==FEEL_TERRIBLE) ||
-			       (feel==FEEL_WORTHLESS) ||
-			       (feel==FEEL_CURSED) ||
-			       (feel==FEEL_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
-		    break;
-             case SQUELCH_GOOD:
-	            result = (((feel==FEEL_BROKEN) ||
-			       (feel==FEEL_TERRIBLE) ||
-			       (feel==FEEL_WORTHLESS) ||
-			       (feel==FEEL_CURSED) ||
-			       (feel==FEEL_AVERAGE) ||
-			       (feel==FEEL_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
-		    break;
-             case SQUELCH_ALL:
-	            result = SQUELCH_YES;
-		    break;
-       }
+		case SQUELCH_CURSED:
+		{
+			result = (((feel==FEEL_BROKEN) ||
+				   (feel==FEEL_TERRIBLE) ||
+				   (feel==FEEL_WORTHLESS) ||
+				   (feel==FEEL_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
+			break;
+		}
+
+		case SQUELCH_AVERAGE:
+		{
+			result = (((feel==FEEL_BROKEN) ||
+				   (feel==FEEL_TERRIBLE) ||
+				   (feel==FEEL_WORTHLESS) ||
+				   (feel==FEEL_CURSED) ||
+				   (feel==FEEL_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
+			break;
+		}
+
+		case SQUELCH_GOOD:
+		{
+			result = (((feel==FEEL_BROKEN) ||
+				   (feel==FEEL_TERRIBLE) ||
+				   (feel==FEEL_WORTHLESS) ||
+				   (feel==FEEL_CURSED) ||
+				   (feel==FEEL_AVERAGE) ||
+				   (feel==FEEL_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
+			break;
+		}
+
+		case SQUELCH_ALL:
+		{
+			result = SQUELCH_YES;
+			break;
+		}
+	}
 
 
-       if (result==SQUELCH_NO) return result;
+	if (result==SQUELCH_NO) return result;
 
-       /* Squelching will fail on an artifact */
-       if (artifact_p(o_ptr))
-	      result = SQUELCH_FAILED;
+	/* Squelching will fail on an artifact */
+	if (artifact_p(o_ptr))
+	  result = SQUELCH_FAILED;
   
-       return result;
+	return result;
 }
 
 /*
- * This performs the squelch, actually removing the item from the 
- * game.  It returns 1 if the item was squelched, and 0 otherwise.  
- * This return value is never actually used.
+ * Marks the 'squelched' item for player removal.
  */
-int do_squelch_item(int squelch, int item, object_type *o_ptr)
+void do_squelch_item(object_type *o_ptr)
 {
+	o_ptr->note = 0;
 
-       if (squelch != SQUELCH_YES) return 0;
+	o_ptr->note = quark_add("SQUELCH");
 
-       if (item>0) 
-       {
-	      inven_item_increase(item, -o_ptr->number);
-	      inven_item_optimize(item);
-       } 
-       else 
-       {
-	      floor_item_increase(0 - item, -o_ptr->number);
-	      floor_item_optimize(0 - item);
-       }
-       return 1;
+	return;
 }
 
 
