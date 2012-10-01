@@ -1498,18 +1498,20 @@ function monster_events_code (m_idx, eventcode)
 	-- Teleports away.
 	if (eventcode == 9) then
 
-		local m_name = ""
+		if (no_monster_teleport == 0) then
+			local m_name = ""
 
-		if not (monster(m_idx).ml) then
-			m_name = "it"
-		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
-			m_name = m_race(monster(m_idx).r_idx).name_char
-		else
-			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+			if not (monster(m_idx).ml) then
+				m_name = "it"
+			elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+				m_name = m_race(monster(m_idx).r_idx).name_char
+			else
+				m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+			end
+
+			msg_print(string.format('%s teleports!', m_name))
+			teleport_away(m_idx, 10)
 		end
-
-		msg_print(string.format('%s teleports!', m_name))
-		teleport_away(m_idx, 10)
 	end
 
 	-- An aura of Life Blast(10%).
@@ -1787,7 +1789,7 @@ function monster_events_code (m_idx, eventcode)
 	-- Teleports away(on a lit grid).
 	if (eventcode == 28) then
 
-		if (lua_randint(100) <= 33) then
+		if (lua_randint(100) <= 33 and no_monster_teleport == 0) then
 
 			local m_name = ""
 

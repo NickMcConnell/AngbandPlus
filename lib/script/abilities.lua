@@ -34,7 +34,7 @@ function divinable (item)
 	if (item.tval == TV_WEAPON or item.tval == TV_RANGED or item.tval == TV_SOFT_ARMOR or item.tval == TV_HARD_ARMOR
 	or item.tval == TV_DRAG_ARMOR or item.tval == TV_GLOVES or item.tval == TV_HELM or item.tval == TV_BOOTS or item.tval == TV_ARM_BAND
 	or item.tval == TV_CLOAK or item.tval == TV_CROWN or item.tval == TV_ROD or item.tval == TV_AMMO or item.tval == TV_BOOMERANG
-	or item.tval == TV_RING or item.tval == TV_AMULET or item.tval == TV_SHIELD) then return TRUE end
+	or item.tval == TV_RING or item.tval == TV_AMULET or item.tval == TV_SHIELD or item.tval == TV_INSTRUMENT) then return TRUE end
 
 	return FALSE
 
@@ -1142,7 +1142,7 @@ function use_ability (powernum)
 
 			-- "power" based on Diviner's ability.
 			power = lua_randint(p_ptr.abilities[(CLASS_DIVINER * 10) + 1] / 2) + (p_ptr.abilities[(CLASS_DIVINER * 10) + 1] / 2)
-			power = power * 3
+			power = power * 4
 
 			-- Power can never exceed half of your Divination skill.
 			if (power > (p_ptr.skill[27] / 2)) then power = p_ptr.skill[27] / 2 end
@@ -1152,7 +1152,7 @@ function use_ability (powernum)
 			i = 0
 
 			-- Some items may skip that part.
-			if (item.tval == TV_BOOMERANG or not(divinable(item))) then i = power end
+			if (not(divinable(item))) then i = power end
 
 			-- Artifacts gains no additional powers.
 			if (item.name1 > 0) then i = power end
@@ -1173,7 +1173,7 @@ function use_ability (powernum)
 					-- Determine a random amount.
 					amt = lua_randint(power - i)
 
-					amt = amt / 3
+					amt = amt / 2
 
 					if (amt > 100) then amt = 100 end
 
@@ -1191,7 +1191,7 @@ function use_ability (powernum)
 					-- Random amount.
 					amt = lua_randint(power - i)
 
-					amt = amt / 5
+					amt = amt / 3
 					if (amt <= 0) then amt = 1 end
 
 					-- Apply it to a random stat.
@@ -1199,7 +1199,7 @@ function use_ability (powernum)
 					item.statsbonus[whichone] = item.statsbonus[whichone] + amt
 
 					-- Increase i.
-					i = i + (amt * 10)
+					i = i + (amt * 8)
 
 				-- A skills bonus.
 				elseif (btype >= 40) then
@@ -1207,7 +1207,7 @@ function use_ability (powernum)
 					-- Random amount.
 					amt = lua_randint(power - i)
 
-					amt = amt / 5
+					amt = amt / 3
 					if (amt <= 0) then amt = 1 end
 
 					-- Apply it to a random skill.
@@ -1223,14 +1223,13 @@ function use_ability (powernum)
 					item.skillsbonus[whichone] = item.skillsbonus[whichone] + amt
 
 					-- Increase i.
-					i = i + (amt * 10)
+					i = i + (amt * 8)
 
 				-- A misc bonus.
 				elseif (btype >= 20) then
 
 					-- What type of "misc" bonus do you get.
-					if (item.tval == TV_ROD or item.tval == TV_ARM_BAND) then misctype = lua_randint(6)
-					else misctype = lua_randint(5) end
+					misctype = lua_randint(6)
 
 					-- The amount of "i" that it costs depends on the bonus you get.
 
@@ -1247,7 +1246,7 @@ function use_ability (powernum)
 						item.extrablows = item.extrablows + amt
 
 						-- Increase i.
-						i = i + (amt * 12)
+						i = i + (amt * 9)
 					end
 
 					-- Speed bonus.
@@ -1263,7 +1262,7 @@ function use_ability (powernum)
 						item.speedbonus = item.speedbonus + amt
 
 						-- Increase i.
-						i = i + (amt * 10)
+						i = i + (amt * 6)
 					end
 
 					-- Life bonus.
@@ -1276,7 +1275,7 @@ function use_ability (powernum)
 						item.lifebonus = item.lifebonus + amt
 
 						-- Increase i.
-						i = i + amt
+						i = i + (amt / 2)
 					end
 
 					-- Light
@@ -1309,7 +1308,7 @@ function use_ability (powernum)
 						item.reflect = item.reflect + amt
 
 						-- Increase i.
-						i = i + amt
+						i = i + (amt / 2)
 					end
 
 					-- Mana bonus.
@@ -1322,7 +1321,7 @@ function use_ability (powernum)
 						item.manabonus = item.manabonus + amt
 
 						-- Increase i.
-						i = i + amt
+						i = i + (amt / 2)
 					end
 
 				-- Gain a flag.
@@ -1341,98 +1340,98 @@ function use_ability (powernum)
 					if (misctype == 1 and not(get_object_flag2(item, TR2_RES_FEAR))) then
 
 						give_object_flag2(item, TR2_RES_FEAR)
-						i = i + 5
+						i = i + 3
 					end
 
 					-- Resist conf.
 					if (misctype == 2 and not(get_object_flag2(item, TR2_RES_CONF))) then
 
 						give_object_flag2(item, TR2_RES_CONF)
-						i = i + 15
+						i = i + 8
 					end
 
 					-- Resist blind.
 					if (misctype == 3 and not(get_object_flag2(item, TR2_RES_BLIND))) then
 
 						give_object_flag2(item, TR2_RES_BLIND)
-						i = i + 5
+						i = i + 1
 					end
 
 					-- Hold life.
 					if (misctype == 4 and not(get_object_flag2(item, TR2_HOLD_LIFE))) then
 
 						give_object_flag2(item, TR2_HOLD_LIFE)
-						i = i + 10
+						i = i + 5
 					end
 
 					-- Safety.
 					if (misctype == 5 and not(get_object_flag4(item, TR4_SAFETY))) then
 
 						give_object_flag4(item, TR4_SAFETY)
-						i = i + 15
+						i = i + 8
 					end
 
 					-- Sustain Strength.
 					if (misctype == 6 and not(get_object_flag2(item, TR2_SUST_STR))) then
 
 						give_object_flag2(item, TR2_SUST_STR)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Intelligence.
 					if (misctype == 7 and not(get_object_flag2(item, TR2_SUST_INT))) then
 
 						give_object_flag2(item, TR2_SUST_INT)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Wisdom.
 					if (misctype == 8 and not(get_object_flag2(item, TR2_SUST_WIS))) then
 
 						give_object_flag2(item, TR2_SUST_WIS)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Dexterity.
 					if (misctype == 9 and not(get_object_flag2(item, TR2_SUST_DEX))) then
 
 						give_object_flag2(item, TR2_SUST_DEX)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Constitution.
 					if (misctype == 10 and not(get_object_flag2(item, TR2_SUST_CON))) then
 
 						give_object_flag2(item, TR2_SUST_CON)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Charisma.
 					if (misctype == 11 and not(get_object_flag2(item, TR2_SUST_CHR))) then
 
 						give_object_flag2(item, TR2_SUST_CHR)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Telepathy.
 					if (misctype == 12 and not(get_object_flag3(item, TR3_TELEPATHY))) then
 
 						give_object_flag3(item, TR3_TELEPATHY)
-						i = i + 15
+						i = i + 8
 					end
 
 					-- Regen.
 					if (misctype == 13 and not(get_object_flag3(item, TR3_REGEN))) then
 
 						give_object_flag3(item, TR3_REGEN)
-						i = i + 10
+						i = i + 5
 					end
 
 					-- Eternal.
 					if (misctype == 14 and not(get_object_flag4(item, TR4_ETERNAL))) then
 
 						give_object_flag4(item, TR4_ETERNAL)
-						i = i + 20
+						i = i + 10
 					end
 
 					-- Levels.
@@ -1442,7 +1441,7 @@ function use_ability (powernum)
 						item.level = 1
 						item.kills = 0
 						item.tweakpoints = item.tweakpoints + 2
-						i = i + 50
+						i = i + 30
 					end
 				end
 
@@ -1450,12 +1449,12 @@ function use_ability (powernum)
 
 			-- Improve the base AC, base damages, to_h, to_d, etc...
 			if (not(item.name1 > 0) and divinable(item)) then
-				item.dd = item.dd + ((item.dd * (power / 3)) / 100)
-				item.ds = item.ds + ((item.ds * (power / 3)) / 100)
-				item.ac = item.ac + ((item.ac * (power / 3)) / 100)
-				item.to_h = item.to_h + lua_randint(power / 3)
-				item.to_d = item.to_d + lua_randint(power / 3)
-				item.to_a = item.to_a + lua_randint(power / 3)
+				item.dd = item.dd + ((item.dd * (power / 2)) / 100)
+				item.ds = item.ds + ((item.ds * (power / 2)) / 100)
+				item.ac = item.ac + ((item.ac * (power / 2)) / 100)
+				item.to_h = item.to_h + lua_randint(power / 2)
+				item.to_d = item.to_d + lua_randint(power / 2)
+				item.to_a = item.to_a + lua_randint(power / 2)
 
 				-- Give a flag to mark is as a magic item.
 				give_object_flag4(item, TR4_ENCHANTED)
@@ -1654,8 +1653,8 @@ function use_ability (powernum)
 	--end
 
 	dam = weapon_damages()
-        dam = dam + (dam * p_ptr.stat_ind[A_WIS+1] * 2 / 100)
-	dam = dam + (dam * 20 * p_ptr.abilities[(CLASS_KENSAI * 10) + 5] / 100)
+	dam = dam + multiply_divide(dam, p_ptr.stat_ind[A_WIS+1], 100)
+	dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_KENSAI * 10) + 5] * 10, 100)
 
 	dtype = current_weapon.extra1
 	if (dtype == 0) then dtype = GF_PHYSICAL end
@@ -1788,8 +1787,8 @@ function use_ability (powernum)
         end
 
 	dam = weapon_damages() / 2
-        dam = dam + (dam * p_ptr.stat_ind[A_WIS+1] * 2 / 100)
-	dam = dam + (dam * p_ptr.abilities[(CLASS_KENSAI * 10) + 10] * 10 / 100)
+	dam = dam + multiply_divide(dam, p_ptr.stat_ind[A_WIS+1] * 2, 100)
+	dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_KENSAI * 10) + 10] * 10, 100)
 
 	dtype = current_weapon.extra1
 	if (dtype == 0) then dtype = GF_PHYSICAL end

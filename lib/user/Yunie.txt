@@ -1,0 +1,349 @@
+  [Portralis 0.4.0 Character Dump]
+
+ Name        : Yunie        Alignment          0 STR: 5     4     0     9      
+ Sex         : Female       Misfortune         0 INT: 55    110   0     165    
+ Race        : Gnome        Death Count        2 WIS: 5     15    0     20     
+ Class       : High Mage    Reincarnate        0 DEX: 5     -1    0     4      
+ Element     : Electric                          CON: 15    95    0     110    
+ Score       : 3945                              CHR: 5     0     0     5      
+                                                                               
+                            Level             30    Max Hit Points    366275   
+                            Experience     78867    Cur Hit Points    366275   
+ + To Hit          453      Max Exp        78867    Max SP (Mana)       5228   
+ + %To Damage      394      Exp to Adv.   100000    Cur SP (Mana)       5228   
+ + To AC            26      Gold             934                               
+   Ability P         1      Stat Points         0      Blows/Round:  4         
+                            Skill Points        0      Blows/Round(2):  n/a    
+                            Class Level        10      Shots/Round:  1         
+                            Class Kills      1000      Wpn.dmg: 2252-22533     
+                                                       Wpn2.dmg: n/a           
+                                                       Sht.dmg: n/a            
+                                                       Sht2.dmg: n/a           
+                                                       Infra-Vision: 0 feet    
+                         (Character Background) 0                              
+          Yunie is a young gnome mage who dreams of becoming                   
+          a powerful wizard. Despite her short size, she is strong             
+          willed and will try her best to overcome any challenges.             
+          She has black hairs, blue eyes and a fair skin.                      
+ ----------    CHARACTER'S SKILLS    ----------    --- MISC. INFO ---          
+                                                                               
+ a) Fighting:       0   A) Polearms:       0       Wpn.dmg:  2252-22533        
+ b) Spellcraft:     112 B) Daggers:        0       Wpn2.dmg: n/a               
+ c) Shooting:       0   C) Axes:           0       Sht.dmg:  n/a               
+ d) Throwing:       0   D) Rods:           71      Sht2.dmg: n/a               
+ e) Defense:        0   E) Martial Arts:   0       To_h   :  364               
+ f) Agility:        1   F) Bow:            0       To_d   :  305               
+ g) Stealth:        0   G) Crossbow:       0       To_a   :  26                
+ h) Combat Feats:   0   H) Firearms:       0       AC     :  21                
+ i) Dual Wield:     0   I) Elemental:      76                                  
+ j) Leadership:     0   J) Alteration:     5                                   
+ k) Alchemy:        0   K) Mysticism:      0       Dual Wield: No              
+ l) Crafting:       0   L) Conjuration:    0       Press 'u' to toggle.        
+ m) Swords:         0   M) Divination:     0                                   
+ n) Blunt:          0   N) Magic Defense:  49                                  
+                                                                               
+                                                                               
+ Remaining skill points: 0   Press one of the letters to increase the skill.   
+               Press 'x' to view next skills page(if any).                     
+ --------------    ABILITIES    --------------                                 
+                                                                               
+ Spell Absorbtion [1]                                                          
+ Empower Spells [12]                                                           
+ Shield of Element [1]                                                         
+ Mastery Of Element [15]                                                       
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+ --------------    RESISTANCES    --------------                               
+                                                                               
+ Fire:      25                                                                 
+ Cold:      0                                                                  
+ Electric:  0                                                                  
+ Acid:      0                                                                  
+ Poison:    0                                                                  
+ Light:     -25                                                                
+ Darkness:  25                                                                 
+ Warp:      0                                                                  
+ Water:     3                                                                  
+ Wind:      25                                                                 
+ Earth:     2                                                                  
+ Sound:     19                                                                 
+ Radio:     0                                                                  
+ Chaos:     0                                                                  
+ Physical:  0                                                                  
+ Mana:      0                                                                  
+                                                                               
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Maximize Mode:      OFF
+ Preserve Mode:      OFF
+ Autoscum:           ON
+ Small Levels:       ON
+ Arena Levels:       ON
+ Persistent Dungeons:       OFF
+
+ Your body was a Player.
+
+         ----------    CHARACTER'S SKILLS    ---
+                                                
+         a) Fighting:       0   A) Polearms:    
+         b) Spellcraft:     112 B) Daggers:     
+         c) Shooting:       0   C) Axes:        
+         d) Throwing:       0   D) Rods:        
+         e) Defense:        0   E) Martial Arts:
+         f) Agility:        1   F) Bow:         
+         g) Stealth:        0   G) Crossbow:    
+         h) Combat Feats:   0   H) Firearms:    
+         i) Dual Wield:     0   I) Elemental:   
+         j) Leadership:     0   J) Alteration:  
+         k) Alchemy:        0   K) Mysticism:   
+         l) Crafting:       0   L) Conjuration: 
+         m) Swords:         0   M) Divination:  
+         n) Blunt:          0   N) Magic Defense
+                                                
+                                                
+         Remaining skill points: 0   Press one o
+                       Press 'x' to view next sk
+                                                
+        -------    --- MISC. INFO ---           
+                                                
+           0       Wpn.dmg:  2252-22533         
+           0       Wpn2.dmg: n/a                
+           0       Sht.dmg:  n/a                
+           71      Sht2.dmg: n/a                
+           0       To_h   :  364                
+           0       To_d   :  305                
+           0       To_a   :  26                 
+           0       AC     :  21                 
+           76                                   
+           5                                    
+           0       Dual Wield: No               
+           0       Press 'u' to toggle.         
+           0                                    
+        :  49                                   
+                                                
+                                                
+        f the letters to increase the skill.    
+        ills page(if any).                      
+                                                
+         --------------    ABILITIES    --------
+                                                
+         Spell Absorbtion [1]                   
+         Empower Spells [12]                    
+         Shield of Element [1]                  
+         Mastery Of Element [15]                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+        ------                                  
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+         --------------    RESISTANCES    ------
+                                                
+         Fire:      25                          
+         Cold:      0                           
+         Electric:  0                           
+         Acid:      0                           
+         Poison:    0                           
+         Light:     -25                         
+         Darkness:  25                          
+         Warp:      0                           
+         Water:     3                           
+         Wind:      25                          
+         Earth:     2                           
+         Sound:     19                          
+         Radio:     0                           
+         Chaos:     0                           
+         Physical:  0                           
+         Mana:      0                           
+                                                
+                                                
+                                                
+        --------                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+         --------------    RESISTANCES    ------
+                                                
+         Fire:      25                          
+         Cold:      0                           
+         Electric:  0                           
+         Acid:      0                           
+         Poison:    0                           
+         Light:     -25                         
+         Darkness:  25                          
+         Warp:      0                           
+         Water:     3                           
+         Wind:      25                          
+         Earth:     2                           
+         Sound:     19                          
+         Radio:     0                           
+         Chaos:     0                           
+         Physical:  0                           
+         Mana:      0                           
+                                                
+                                                
+                                                
+        --------                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+
+ You have defeated 3491 enemies.
+
+
+  [Character Equipment]
+
+a) The Rod of Spirit Trapping 'Gin'Whal' (L:15, K:45/75) (5d10) (+89,+89)
+b) (nothing)
+e) a Ring of Speed (L:17, K:71/85) (+32,+37) {75% off}
+f) a Ring of Constitution (L:17, K:71/85) (+97,+26)
+k) an Amulet of Light (+5,+5)
+m) The Orb of Death Light (L:17, K:71/85) (+42,+42)
+n) (nothing)
+o) The Cloak 'Abjurer's Cloak' (L:17, K:71/85) (+26,+26) [21,+21]
+p) (nothing)
+s) a Cotton Cowl (L:15, K:24/75) (+40,+26) [0,+0]
+u) a Pair of Cotton Gloves (L:11, K:17/55) (+36,+14) [0,+0] (2 points.)
+x) (nothing)
+{) (nothing)
+|) a Crystal of Lesser Fire Ball (L:16, K:61/80) (+20,+20) (Power: 33, Radius: 2, 
+
+
+  [Character Inventory]
+
+a) a Book of Alteration Magic [Alter Position]
+b) 4 Scrolls of Word of Recall
+c) 6 Scrolls of Teleportation
+d) a Bronze Staff (2d7) [1]
+e) a Bronze Staff (2d7) [1]
+f) a Ring of Safety
+g) a Ring of the Dwarves
+h) a Pair of Mithril Gauntlets [8,+7]
+i) (nothing)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+m) (nothing)
+n) (nothing)
+o) (nothing)
+p) (nothing)
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory (page 1)]
+
+a) gold (77822 golds)
+b) a Lute (3d8) (+30,+35)
+c) a Licialhyd (Strength, Power: 11)
+d) a Licialhyd (Wisdom, Power: 10)
+e) an Amulet of Brilliance (+65,+16)
+f) an Amulet of Light (+5,+5)
+g) a Robes [2]
+h) a Robes [2]
+i) a Cloak (+116,+136) [1,+272]
+j) a Cloak [1,+0]
+k) a Cotton Cowl [0]
+l) a Pair of Cotton Gloves [0]
+
+
+  [Home Inventory (page 2)]
+
+a) a Pair of Cotton Gloves [0] {average}
+b) a Pair of Cotton Gloves [0]
+c) a Tavern Basement Key
+d) a Monstrous Rat's Head
+e) a Gorg's Head
+f) a Prayer Room Key
+g) a Red Rune Stone
+h) (nothing)
+i) (nothing)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+
+

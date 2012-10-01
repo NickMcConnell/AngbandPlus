@@ -287,6 +287,8 @@ function weapon_damages()
 	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
 	local intfight = 0
 	local usedstat = 0
+	local stealthbonus = 0
+	local i
 
 	craftbonus = p_ptr.skill[12]
 	if (craftbonus > craftmax) then craftbonus = craftmax end
@@ -305,6 +307,12 @@ function weapon_damages()
 		end
 
 		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+
+		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
+		if (i > 10) then i = 10 end
+		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
+		if (stealthbonus > 10) then stealthbonus = 10 end
+		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
 	end
 
 	-- Defensive Strike!
@@ -322,6 +330,12 @@ function weapon_damages()
         else k = damroll(current_weapon.dd, current_weapon.ds)
 	end
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
+
+	-- Stealthy Fighter
+	if (stealthbonus > 0) then
+
+		k = k + multiply_divide(k, stealthbonus, 100)
+	end
 
 	-- Rogue Weapons Mastery.
 	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
@@ -611,6 +625,8 @@ function min_weapon_damages()
 	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
 	local intfight = 0
 	local usedstat = 0
+	local stealthbonus = 0
+	local i
 
 	craftbonus = p_ptr.skill[12]
 	if (craftbonus > craftmax) then craftbonus = craftmax end
@@ -629,6 +645,12 @@ function min_weapon_damages()
 		end
 
 		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+
+		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
+		if (i > 10) then i = 10 end
+		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
+		if (stealthbonus > 10) then stealthbonus = 10 end
+		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
 	end
 
 	-- Defensive Strike!
@@ -646,6 +668,12 @@ function min_weapon_damages()
         else k = damroll(current_weapon.dd, 1)
 	end
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
+
+	-- Stealthy Fighter
+	if (stealthbonus > 0) then
+
+		k = k + multiply_divide(k, stealthbonus, 100)
+	end
 
 	-- Rogue Weapons Mastery.
 	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
@@ -755,6 +783,8 @@ function max_weapon_damages()
 	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
 	local intfight = 0
 	local usedstat = 0
+	local stealthbonus = 0
+	local i
 
 	craftbonus = p_ptr.skill[12]
 	if (craftbonus > craftmax) then craftbonus = craftmax end
@@ -773,6 +803,12 @@ function max_weapon_damages()
 		end
 
 		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+
+		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
+		if (i > 10) then i = 10 end
+		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
+		if (stealthbonus > 10) then stealthbonus = 10 end
+		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
 	end
 
 	-- Defensive Strike!
@@ -790,6 +826,12 @@ function max_weapon_damages()
         else k = maxroll(current_weapon.dd, current_weapon.ds)
 	end
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
+
+	-- Stealthy Fighter
+	if (stealthbonus > 0) then
+
+		k = k + multiply_divide(k, stealthbonus, 100)
+	end
 
 	-- Rogue Weapons Mastery.
 	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
@@ -1225,39 +1267,6 @@ function monster_hit_player(monster, bonus)
 	local proll
 	local mroll
         local mistpenalities = 25 + (p_ptr.abilities[(CLASS_SHADOW * 10) + 7] / 2)
-
-	-- Kensai's Iajutsu!
-	if (p_ptr.abilities[(CLASS_KENSAI * 10) + 2] >= 1 and (monster_physical) and (kensai_equip())) then
-		msg_print("In Iajutsu")
-		if (inven(INVEN_WIELD).itemskill == 12) then
-			current_weapon = inven(INVEN_WIELD)
-		else
-			current_weapon = inven(INVEN_WIELD+1)
-		end
-		local hitbonus = (p_ptr.to_h * p_ptr.stat_ind[A_WIS+1] * 3 / 100)
-		local iajutsudam = weapon_damages()
-		iajutsudam = iajutsudam + (iajutsudam * p_ptr.stat_ind[A_WIS+1] * 3 / 100)
-		iajutsudam = iajutsudam + (iajutsudam * p_ptr.abilities[(CLASS_KENSAI * 10) + 2] * 10 / 100)
-		local damtype = current_weapon.extra1
-		if (damtype == 0) then damtype = 15 end
-		if (player_hit_monster(monster, hitbonus)) then
-			melee_attack = TRUE
-			no_magic_return = TRUE
-			nevermiss = TRUE
-			fire_ball_specific_grid(iajutsudam, monster.fx, monster.fy, 0, damtype)
-			melee_attack = FALSE
-			no_magic_return = FALSE
-			nevermiss = FALSE
-			if (monster_died) then
-
-				monster_died = FALSE
-				return 0
-			end
-		else
-			msg_print(string.format('Your iajutsu misses %s!', m_race(monster.r_idx).name_char))
-		end
-
-	end
 
         -- First, let's calculate the player's defense!
         pdef = p_ptr.ac + p_ptr.to_a

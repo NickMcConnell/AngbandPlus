@@ -363,6 +363,18 @@ function element_hit_monster (who, m_idx, element, dam)
 			if (music == 1) then proll = (p_ptr.stat_ind[A_CHR+1])
 			else proll = (p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1]) end
 
+			if (music == 1) then proll = proll + p_ptr.skill[29]
+			else proll = proll + p_ptr.skill[2] end
+
+			if (casting_elemental) then proll = proll + p_ptr.skill[23] end
+			if (casting_alteration) then proll = proll + p_ptr.skill[24] end
+			if (casting_mysticism) then proll = proll + p_ptr.skill[25] end
+			if (casting_conjuration) then proll = proll + p_ptr.skill[26] end
+			if (casting_divination) then proll = proll + p_ptr.skill[27] end
+
+			mroll = mroll - p_ptr.skill[28]
+			if (mroll < 0) then mroll = 0 end
+
 			-- Shadow Stalker's Storm of Shadow Edges ability is harder to counter.
 			if (stormshadow) then proll = proll + p_ptr.skill[7] end
 
@@ -392,6 +404,18 @@ function element_hit_monster (who, m_idx, element, dam)
 			mroll = monster(m_idx).mind
 			if (music == 1) then proll = (p_ptr.stat_ind[A_CHR+1])
 			else proll = (p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1]) end
+
+			if (music == 1) then proll = proll + p_ptr.skill[29]
+			else proll = proll + p_ptr.skill[2] end
+
+			if (casting_elemental) then proll = proll + p_ptr.skill[23] end
+			if (casting_alteration) then proll = proll + p_ptr.skill[24] end
+			if (casting_mysticism) then proll = proll + p_ptr.skill[25] end
+			if (casting_conjuration) then proll = proll + p_ptr.skill[26] end
+			if (casting_divination) then proll = proll + p_ptr.skill[27] end
+
+			mroll = mroll - p_ptr.skill[28]
+			if (mroll < 0) then mroll = 0 end
 
 			-- Shadow Stalker's Storm of Shadow Edges ability is harder to counter.
 			if (stormshadow) then proll = proll + p_ptr.skill[7] end
@@ -597,6 +621,16 @@ function element_hit_monster (who, m_idx, element, dam)
 				end
 				proll = p_ptr.stat_ind[A_DEX+1]
 
+				proll = proll + p_ptr.skill[3]
+				if (drop_ranged.tval > 0) then
+
+					proll = proll + p_ptr.skill[drop_ranged.itemskill]
+				end
+
+				mroll = mroll - p_ptr.skill[5]
+				mroll = mroll - p_ptr.skill[6]
+				if (mroll < 0) then mroll = 0 end
+
 				-- Rogue's Stealthy Fighter may help.
 				if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 10) then
 
@@ -734,7 +768,9 @@ function element_hit_monster (who, m_idx, element, dam)
 
 					ranged_attack = FALSE
 					no_magic_return = TRUE
+					no_monster_teleport = 1
 					fire_jump_ball(drop_ranged.brandtype, (drop_ranged.branddam), drop_ranged.brandrad, monster(m_idx).fx, monster(m_idx).fy, TRUE)
+					no_monster_teleport = 0
 					no_magic_return = FALSE
 					ranged_attack = TRUE
 				end
@@ -849,15 +885,28 @@ function element_hit_monster (who, m_idx, element, dam)
 
 				if (m_race(monster(m_idx).r_idx).event_misc == 328) then
 
-					if (lua_randint(monster(m_idx).mind) >= lua_randint(p_ptr.stat_ind[A_DEX+1])) then
+					local mroll
+					mroll = monster(m_idx).mind
+
+					mroll = mroll - p_ptr.skill[5]
+					mroll = mroll - p_ptr.skill[6]
+					if (mroll < 0) then mroll = 0 end
+
+					if (lua_randint(mroll) >= lua_randint(p_ptr.stat_ind[A_DEX+1] + p_ptr.skill[4])) then
 
 						msg_print(string.format('%s blocked your item!', m_name))
                 				dam = 0
 						blocked = 1
 					end
 				else
+					local mroll
+					mroll = monster(m_idx).dex
+
+					mroll = mroll - p_ptr.skill[5]
+					mroll = mroll - p_ptr.skill[6]
+					if (mroll < 0) then mroll = 0 end
 					
-					if (lua_randint(monster(m_idx).dex) >= lua_randint(p_ptr.stat_ind[A_DEX+1])) then
+					if (lua_randint(mroll) >= lua_randint(p_ptr.stat_ind[A_DEX+1] + p_ptr.skill[4])) then
 
 						msg_print(string.format('%s blocked your item!', m_name))
                 				dam = 0
@@ -937,7 +986,9 @@ function element_hit_monster (who, m_idx, element, dam)
 
 					throw_attack = FALSE
 					no_magic_return = TRUE
+					no_monster_teleport = 1
 					fire_jump_ball(drop_ranged.brandtype, (drop_ranged.branddam), drop_ranged.brandrad, monster(m_idx).fx, monster(m_idx).fy, TRUE)
+					no_monster_teleport = 0
 					no_magic_return = FALSE
 					throw_attack = TRUE
 				end
@@ -1124,13 +1175,23 @@ function element_hit_monster (who, m_idx, element, dam)
 					local proll
 					local mroll
 
-					mroll = monster(m_idx).str + monster(m_idx).dex
+					mroll = (monster(m_idx).str + monster(m_idx).dex) / 2
 					proll = p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1] + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 10)
 
-					-- Rogue's Stealthy Fighter may help.
-					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 10) then
+					proll = proll + p_ptr.skill[1]
+					if (current_weapon.tval > 0) then
 
-						proll = proll + multiply_divide(p_ptr.skill[7], (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] - 10) * 10, 100)
+						proll = proll + p_ptr.skill[current_weapon.itemskill]
+					end
+
+					mroll = mroll - p_ptr.skill[5]
+					mroll = mroll - p_ptr.skill[6]
+					if (mroll < 0) then mroll = 0 end
+
+					-- Rogue's Stealthy Fighter may help.
+					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then
+
+						proll = proll + p_ptr.skill[7]
 					end
 
 					if (lua_randint(mroll) >= lua_randint(proll)) then
@@ -1162,7 +1223,7 @@ function element_hit_monster (who, m_idx, element, dam)
 				-- Rogue's Deadly Stalker.
 				if (p_ptr.abilities[(CLASS_ROGUE * 10) + 6] >= 1) then
 
-					if (not(player_invis(monster(m_idx)))) then
+					if (player_invis(monster(m_idx))) then
 
 						dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_ROGUE * 10) + 6] * 33, 100)
 						dstalker = 1
@@ -1208,14 +1269,24 @@ function element_hit_monster (who, m_idx, element, dam)
 					if (m_race(monster(m_idx).r_idx).event_misc == 328) then
 						mroll = monster(m_idx).mind
 					else
-						mroll = monster(m_idx).str + monster(m_idx).dex
+						mroll = (monster(m_idx).str + monster(m_idx).dex) / 2
 					end
 					proll = p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1] + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 10)
 
-					-- Rogue's Stealthy Fighter may help.
-					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 10) then
+					proll = proll + p_ptr.skill[1]
+					if (current_weapon.tval > 0) then
 
-						proll = proll + multiply_divide(p_ptr.skill[7], (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] - 10) * 10, 100)
+						proll = proll + p_ptr.skill[current_weapon.itemskill]
+					end
+
+					mroll = mroll - p_ptr.skill[5]
+					mroll = mroll - p_ptr.skill[6]
+					if (mroll < 0) then mroll = 0 end
+
+					-- Rogue's Stealthy Fighter may help.
+					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then
+
+						proll = proll + p_ptr.skill[7]
 					end
 
 					if (lua_randint(mroll) >= lua_randint(proll)) then
@@ -1409,7 +1480,9 @@ function element_hit_monster (who, m_idx, element, dam)
 						save_magic_return = no_magic_return
 						melee_attack = FALSE
 						no_magic_return = TRUE
+						no_monster_teleport = 1
 						fire_jump_ball(inven(INVEN_HANDS).brandtype, (inven(INVEN_HANDS).branddam), inven(INVEN_HANDS).brandrad, meleex, meleey, TRUE)
+						no_monster_teleport = 0
 						no_magic_return = save_magic_return
 						melee_attack = TRUE
 					end
@@ -1423,7 +1496,9 @@ function element_hit_monster (who, m_idx, element, dam)
 						save_magic_return = no_magic_return
 						melee_attack = FALSE
 						no_magic_return = TRUE
+						no_monster_teleport = 1
 						fire_jump_ball(current_weapon.brandtype, bdam, current_weapon.brandrad, meleex, meleey, TRUE)
+						no_monster_teleport = 0
 						no_magic_return = save_magic_return
 						melee_attack = TRUE
 					end
@@ -1439,12 +1514,16 @@ function element_hit_monster (who, m_idx, element, dam)
 				-- Kensai's The Dragon's Fury!
 				if (p_ptr.abilities[(CLASS_KENSAI * 10)+9] > 0 and not(blocked) and (scorptail == 0) and (kensai_equip()) and (current_weapon.itemskill == 12)) then
 					local furydam = originalpower / 5
-					furydam = furydam + (furydam * p_ptr.stat_ind[A_WIS+1] * 2 / 100)
-					furydam = furydam + (furydam * p_ptr.abilities[(CLASS_KENSAI * 10)+9] * 10 / 100)
+
+					furydam = furydam + multiply_divide(furydam, p_ptr.stat_ind[A_WIS+1] * 2, 100)
+					furydam = furydam + multiply_divide(furydam, p_ptr.abilities[(CLASS_KENSAI * 10)+9] * 10, 100)
+
 					save_magic_return = no_magic_return
 					melee_attack = FALSE
 					no_magic_return = TRUE
+					no_monster_teleport = 1
 					fire_jump_ball(GF_MANA, furydam, 0, meleex, meleey, TRUE)
+					no_monster_teleport = 0
 					no_magic_return = save_magic_return
 					melee_attack = TRUE
 				end
@@ -3445,20 +3524,22 @@ function element_hit_monster (who, m_idx, element, dam)
 		end
 
 		-- Bard's Enthralling Songs.
-		if (music == 1 and p_ptr.events[29044] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 9] > 0 and dam > 0) then
+		-- Fixed by Kipar.
+        	if (music == 1 and p_ptr.events[29044] == 1 and p_ptr.abilities[(CLASS_BARD * 10) + 9] > 0 and dam > 0) then
+            		ppower = p_ptr.abilities[(CLASS_BARD * 10) + 9] * 10
+            		mpower = monster(m_idx).level + monster(m_idx).mind
 
-			ppower = p_ptr.abilities[(CLASS_BARD * 10) + 9] * 10
-			mpower = monster(m_idx).level + monster(m_idx).mind
+            		if (monster(m_idx).boss == 0 and not(get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) and m_race(monster(m_idx).r_idx).cursed == 0) then
 
-			if (monster(m_idx).boss == 0 and not(get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) and monster(m_idx).cursed == 0) then
+                		if (lua_randint(ppower) >= lua_randint(mpower)) then
 
-				if (lua_randint(ppower) >= lua_randint(mpower)) then
+                    			msg_print(string.format('%s has been enthralled!', m_name))
+                    			set_pet(monster(m_idx), TRUE)
+                    			dam=0
+                		end
+            		end
+        	end
 
-					msg_print(string.format('%s has been enthralled!', m_name))
-					set_pet(monster(m_idx), TRUE)
-				end
-			end
-		end
 
 	end
 
@@ -3921,20 +4002,21 @@ function element_hit_player (who, element, dam, rad)
 			else
 				current_weapon = inven(INVEN_WIELD+1)
 			end
-			local hitbonus = (p_ptr.to_h * p_ptr.stat_ind[A_WIS+1] * 3 / 100)
 			local iajutsudam = weapon_damages()
-			iajutsudam = iajutsudam + (iajutsudam * p_ptr.stat_ind[A_WIS+1] * 3 / 100)
-			iajutsudam = iajutsudam + (iajutsudam * p_ptr.abilities[(CLASS_KENSAI * 10) + 2] * 10 / 100)
+
+			iajutsudam = iajutsudam + multiply_divide(iajutsudam, p_ptr.stat_ind[A_WIS+1], 100)
+			iajutsudam = iajutsudam + multiply_divide(iajutsudam, p_ptr.abilities[(CLASS_KENSAI * 10) + 2] * 10, 100)
+
 			local damtype = current_weapon.extra1
 			if (damtype == 0) then damtype = GF_PHYSICAL end
-			if (player_hit_monster(monster(who), hitbonus)) then
+			if (player_hit_monster(monster(who), 0)) then
 				melee_attack = TRUE
 				no_magic_return = TRUE
-				nevermiss = TRUE
+				--nevermiss = TRUE
 				fire_ball_specific_grid(iajutsudam, monster(who).fx, monster(who).fy, 0, damtype)
 				melee_attack = FALSE
 				no_magic_return = FALSE
-				nevermiss = FALSE
+				--nevermiss = FALSE
 				if (monster_died) then
 
 					monster_died = FALSE

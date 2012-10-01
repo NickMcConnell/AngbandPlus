@@ -5929,7 +5929,7 @@ D:most powerful warriors with terrible, nightmarish visions.
 N:314:Hunter of Zekis
 G:u:y
 I:140:170d170:20:2600:0:0:0:0:0:0:0:0
-W:51:1:800:2500
+W:51:2:800:2500
 B:40:60:150:9:0:22:2
 E:1:0:1:2:1:1
 C:19:100
@@ -5939,6 +5939,7 @@ A:claw:!:1:3d6:15:0:0
 R:6:-100
 R:7:100
 F:EVIL | DEMON | FORCE_MAXHP | FRIENDS | DROP_CORPSE | CAN_FLY | OPEN_DOOR | BASH_DOOR
+F:ONLY_ITEM | DROP_60 | DROP_GOOD | DROP_GREAT
 M:100:2
 S:cast:Energy Ball:2:30:17:3:0:0:30
 S:cast:Disabling Ball:2:20:173:3:1:0:30

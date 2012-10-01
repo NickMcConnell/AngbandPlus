@@ -4097,8 +4097,10 @@ static void process_monster(int m_idx, bool is_friend)
                                 /* There is a field? Hurt the monster then! */
                                 no_magic_return = TRUE;
                                 nevermiss = TRUE;
+				casting_conjuration = TRUE;
                                 if (fieldtype == GF_SLEEP_GAS) corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 3 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 6] / 20), fieldtype);
                                 else corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 0, fieldtype);
+				casting_conjuration = FALSE;
                                 no_magic_return = FALSE;
                                 nevermiss = FALSE;
                         }

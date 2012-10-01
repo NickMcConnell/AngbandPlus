@@ -13,7 +13,7 @@ I:Avemorsh;
 T:You! I remember you. You were with that old, undead shaman not too long;
 T:ago. I was about to turn you into dust, but then he cut the link between;
 T:this place and the primary plane. And now you came back to me. I guess;
-T:you are desperate to die.;
+T:you are desperate to die!;
 A:Gin'Whal! I believe Rogoth is right. Something bad happened to you!:0:0:0:1:3:0:0:0:0
 %
 

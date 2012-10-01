@@ -3036,11 +3036,20 @@ void do_cmd_cast(bool wisdom)
 					dam = ((spellpower + rodbonus) * spellstat);
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						dam += multiply_divide(dam, elembonus, 100);
 					}
-					if (is_alteration(spell_ptr->type[i])) dam += multiply_divide(dam, alterbonus, 100);
-					if (is_mysticism(spell_ptr->type[i])) dam += multiply_divide(dam, mystbonus, 100);
+					if (is_alteration(spell_ptr->type[i]))
+					{
+						casting_alteration = TRUE;
+						dam += multiply_divide(dam, alterbonus, 100);
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+						dam += multiply_divide(dam, mystbonus, 100);
+					}
 					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
                                         if (dir == 0)
 					{
@@ -3049,6 +3058,11 @@ void do_cmd_cast(bool wisdom)
 					ignore_spellcraft = TRUE;
                                         fire_bolt(spell_ptr->type[i], dir, dam);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 2)
                                 {
@@ -3098,22 +3112,26 @@ void do_cmd_cast(bool wisdom)
 					rad = spell_ptr->radius[i];
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						dam += multiply_divide(dam, elembonus, 100);
 						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
+						casting_alteration = TRUE;
 						dam += multiply_divide(dam, alterbonus, 100);
 						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
+						casting_mysticism = TRUE;
 						dam += multiply_divide(dam, mystbonus, 100);
 						rad += ((p_ptr->skill[24] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_divination(spell_ptr->type[i]))
 					{
+						casting_divination = TRUE;
 						rad += ((p_ptr->skill[26] / 20) + (p_ptr->skill[1] / 30));
 					}
 					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
@@ -3124,6 +3142,11 @@ void do_cmd_cast(bool wisdom)
 					ignore_spellcraft = TRUE;
                                         fire_ball(spell_ptr->type[i], dir, dam, rad);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 3)
                                 {
@@ -3173,28 +3196,37 @@ void do_cmd_cast(bool wisdom)
 					rad = spell_ptr->radius[i];
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						dam += multiply_divide(dam, elembonus, 100);
 						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
+						casting_alteration = TRUE;
 						dam += multiply_divide(dam, alterbonus, 100);
 						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_mysticism(spell_ptr->type[i]))
 					{
+						casting_mysticism = TRUE;
 						dam += multiply_divide(dam, mystbonus, 100);
 						rad += ((p_ptr->skill[24] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_divination(spell_ptr->type[i]))
 					{
+						casting_divination = TRUE;
 						rad += ((p_ptr->skill[26] / 20) + (p_ptr->skill[1] / 30));
 					}
 					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
 					ignore_spellcraft = TRUE;
                                         attack_aura(spell_ptr->type[i], dam, rad);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 4)
                                 {
@@ -3242,11 +3274,20 @@ void do_cmd_cast(bool wisdom)
 					dam = ((spellpower + rodbonus) * spellstat);
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						dam += multiply_divide(dam, elembonus, 100);
 					}
-					if (is_alteration(spell_ptr->type[i])) dam += multiply_divide(dam, alterbonus, 100);
-					if (is_mysticism(spell_ptr->type[i])) dam += multiply_divide(dam, mystbonus, 100);
+					if (is_alteration(spell_ptr->type[i]))
+					{
+						casting_alteration = TRUE;
+						dam += multiply_divide(dam, alterbonus, 100);
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+						dam += multiply_divide(dam, mystbonus, 100);
+					}
 					dam = dam + multiply_divide(dam, p_ptr->to_s, 100);
                                         if (dir == 0)
 					{
@@ -3255,6 +3296,11 @@ void do_cmd_cast(bool wisdom)
 					ignore_spellcraft = TRUE;
                                         chain_attack(dir, spell_ptr->type[i], dam, spell_ptr->radius[i], 20);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 5)
                                 {
@@ -3281,14 +3327,28 @@ void do_cmd_cast(bool wisdom)
 					dam = dam * spellpower;
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						dam += multiply_divide(dam, elembonus, 100);
 					}
-					if (is_alteration(spell_ptr->type[i])) dam += multiply_divide(dam, alterbonus, 100);
-					if (is_mysticism(spell_ptr->type[i])) dam += multiply_divide(dam, mystbonus, 100);
+					if (is_alteration(spell_ptr->type[i]))
+					{
+						casting_alteration = TRUE;
+						dam += multiply_divide(dam, alterbonus, 100);
+					}
+					if (is_mysticism(spell_ptr->type[i]))
+					{
+						casting_mysticism = TRUE;
+						dam += multiply_divide(dam, mystbonus, 100);
+					}
 					ignore_spellcraft = TRUE;
                                         chain_attack(dir, spell_ptr->type[i], dam, spell_ptr->radius[i], 1);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
 				if (spell_ptr->shape[i] == 6)
                                 {
@@ -3341,15 +3401,29 @@ void do_cmd_cast(bool wisdom)
 						dam = dam * spellpower;
 						if (is_elemental(spell_ptr->type[i]))
 						{
+							casting_elemental = TRUE;
 							if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 							dam += multiply_divide(dam, elembonus, 100);
 						}
-						if (is_alteration(spell_ptr->type[i])) dam += multiply_divide(dam, alterbonus, 100);
-						if (is_mysticism(spell_ptr->type[i])) dam += multiply_divide(dam, mystbonus, 100);
+						if (is_alteration(spell_ptr->type[i]))
+						{
+							casting_alteration = TRUE;
+							dam += multiply_divide(dam, alterbonus, 100);
+						}
+						if (is_mysticism(spell_ptr->type[i]))
+						{
+							casting_mysticism = TRUE;
+							dam += multiply_divide(dam, mystbonus, 100);
+						}
 						ignore_spellcraft = TRUE;
 						if (spell_ptr->radius[i] >= 1) fire_ball(spell_ptr->type[i], dir, dam, spell_ptr->radius[i]);
 						else fire_bolt(spell_ptr->type[i], dir, dam);
 						ignore_spellcraft = FALSE;
+						casting_elemental = FALSE;
+						casting_alteration = FALSE;
+						casting_conjuration = FALSE;
+						casting_mysticism = FALSE;
+						casting_divination = FALSE;
 
 						if (!(f4 & (TR4_RETURNING)) && !(p_ptr->skill[2] >= 70 && current_weapon->itemskill != 21))
 						{
@@ -3378,10 +3452,15 @@ void do_cmd_cast(bool wisdom)
 					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						spellpower += multiply_divide(spellpower, elembonus, 100);
 					}
-					if (is_alteration(spell_ptr->type[i])) spellpower += multiply_divide(spellpower, alterbonus, 100);
+					if (is_alteration(spell_ptr->type[i]))
+					{
+						casting_alteration = TRUE;
+						spellpower += multiply_divide(spellpower, alterbonus, 100);
+					}
                                         if (dir == 0)
 					{
 						if (!(get_aim_dir(&dir))) return;
@@ -3389,6 +3468,11 @@ void do_cmd_cast(bool wisdom)
 					ignore_spellcraft = TRUE;
                                         fire_bolt(spell_ptr->type[i], dir, spellpower);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 2)
                                 {
@@ -3403,12 +3487,14 @@ void do_cmd_cast(bool wisdom)
 					rad = spell_ptr->radius[i];
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						spellpower += multiply_divide(spellpower, elembonus, 100);
 						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
+						casting_alteration = TRUE;
 						spellpower += multiply_divide(spellpower, alterbonus, 100);
 						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
 					}
@@ -3419,6 +3505,11 @@ void do_cmd_cast(bool wisdom)
 					ignore_spellcraft = TRUE;
                                         fire_ball(spell_ptr->type[i], dir, spellpower, rad);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 3)
                                 {
@@ -3433,18 +3524,25 @@ void do_cmd_cast(bool wisdom)
 					rad = spell_ptr->radius[i];
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						spellpower += multiply_divide(spellpower, elembonus, 100);
 						rad += ((p_ptr->skill[22] / 20) + (p_ptr->skill[1] / 30));
 					}
 					if (is_alteration(spell_ptr->type[i]))
 					{
+						casting_alteration = TRUE;
 						spellpower += multiply_divide(spellpower, alterbonus, 100);
 						rad += ((p_ptr->skill[23] / 20) + (p_ptr->skill[1] / 30));
 					}
 					ignore_spellcraft = TRUE;
                                         attack_aura(spell_ptr->type[i], spellpower, rad);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                                 if (spell_ptr->shape[i] == 4)
                                 {
@@ -3457,10 +3555,15 @@ void do_cmd_cast(bool wisdom)
 					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					if (is_elemental(spell_ptr->type[i]))
 					{
+						casting_elemental = TRUE;
 						if (spell_ptr->type[i] == GF_MISSILE) elembonus = elembonus / 2;
 						spellpower += multiply_divide(spellpower, elembonus, 100);
 					}
-					if (is_alteration(spell_ptr->type[i])) spellpower += multiply_divide(spellpower, alterbonus, 100);
+					if (is_alteration(spell_ptr->type[i]))
+					{
+						casting_alteration = TRUE;
+						spellpower += multiply_divide(spellpower, alterbonus, 100);
+					}
                                         if (dir == 0)
 					{
 						if (!(get_rep_dir(&dir))) return;
@@ -3468,6 +3571,11 @@ void do_cmd_cast(bool wisdom)
 					ignore_spellcraft = TRUE;
                                         chain_attack(dir, spell_ptr->type[i], spellpower, spell_ptr->radius[i], 20);
 					ignore_spellcraft = FALSE;
+					casting_elemental = FALSE;
+					casting_alteration = FALSE;
+					casting_conjuration = FALSE;
+					casting_mysticism = FALSE;
+					casting_divination = FALSE;
                                 }
                         }
                         /* Spell kind 3 = Haste */
@@ -4870,7 +4978,7 @@ void spell_making()
                                                 efftype = 0;
                                                 effbase = 150;
                                                 effcost = 10;
-                                                effkind = 5;
+                                                effkind = 28;
                                                 interfacetype = 3;
                                                 sprintf(choseneffect, "Alter Position");
                                                 chosen = TRUE;

@@ -37,8 +37,11 @@ A:I will...if I can.:0:0:0:1:5:0:0:0:0
 
 N:5:0:0:0:0:0
 I:Avemorsh;
+T:Here...take this. This is the axe I've used during our battle.;
+T:It was forged from the pures ores of adamant. May it serve you well in;
+T:the battles to come.;
 T:Farewell, <CLASS>...;
-A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+A:[CONTINUE]:0:0:0:3:38:4:6:0:0
 %
 
 N:6:0:0:0:0:0

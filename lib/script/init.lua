@@ -54,6 +54,7 @@ evil_slayer = 0
 need_gun = 0
 finishingblow = 0
 accuratestrike = 0
+no_monster_teleport = 0
 
 -- Redirect error messages to Angband's msg_print()
 _ALERT = function(text)

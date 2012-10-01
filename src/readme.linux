@@ -1,0 +1,14 @@
+* Note - you will need the lib directory from the windows build.
+* Note2 - and the full src distribution...
+* Note3 - If running on 64 bit linux: after building with this patch set for the first time, be sure to remove any files from lib/data/ before running for the first time.  
+2010-01-14: adelie - Linux pack 2:
+Skill screens can now toggle between "real" and "base" skill scores using the 's' key.  This should make it easier to find out how many points you may need to get that next skill feat if you have a number of modifiers from race, class, equipment, etc.  Tested on linux, on top of the first linux pack.  Should work on windows with little or no modification.   
+2010-01-10: adelie - Patchset for Portralis .4 build 001 fix 1:
+Tested, reasonably stable in both x86 and amd64 linux environments.  Unpack into your src directory, copy Makefile.linux to Makefile, and edit the makefile, choosing a set of build options as appropriate for your setup (search for adelie to quickly find the section to modify).
+
+The hg.patch file is optional, might be of use if you want to try to merge this into a future release.
+
+Known remaining bugs:
+* Naming items is broken.  (Tweaking works correctly)
+* Command line options are not accepted.  If you need to start a new character, remove the old save file at lib/save/userid.name by hand.
+* Choosing the Final Death option in Limbo will cause a crash. (amd64 only?) 

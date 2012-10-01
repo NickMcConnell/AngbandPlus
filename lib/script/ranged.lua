@@ -698,6 +698,8 @@ function ranged_damages ()
 	local xmight = 0
 	local craftbonus = 0
 	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
+	local stealthbonus
+	local i
 
 	craftbonus = p_ptr.skill[12]
 	if (craftbonus > craftmax) then craftbonus = craftmax end
@@ -716,6 +718,12 @@ function ranged_damages ()
 		end
 
 		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+
+		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
+		if (i > 10) then i = 10 end
+		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
+		if (stealthbonus > 10) then stealthbonus = 10 end
+		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
 	end
 
 	if (current_weapon.tval == TV_RANGED) then
@@ -751,6 +759,12 @@ function ranged_damages ()
 
 	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
         k = k * (tskill + 1)
+
+	-- Stealthy Fighter
+	if (stealthbonus > 0) then
+
+		k = k + multiply_divide(k, stealthbonus, 100)
+	end
 
 	-- Rogue Weapons Mastery.
 	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
@@ -825,6 +839,8 @@ function max_ranged_damages ()
 	local xmight = 0
 	local craftbonus = 0
 	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
+	local stealthbonus
+	local i
 
 	craftbonus = p_ptr.skill[12]
 	if (craftbonus > craftmax) then craftbonus = craftmax end
@@ -843,6 +859,12 @@ function max_ranged_damages ()
 		end
 
 		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+
+		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
+		if (i > 10) then i = 10 end
+		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
+		if (stealthbonus > 10) then stealthbonus = 10 end
+		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
 	end
 
 	if (current_weapon.tval == TV_RANGED) then
@@ -878,6 +900,12 @@ function max_ranged_damages ()
 
 	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
         k = k * (tskill + 1)
+
+	-- Stealthy Fighter
+	if (stealthbonus > 0) then
+
+		k = k + multiply_divide(k, stealthbonus, 100)
+	end
 
 	-- Rogue Weapons Mastery.
 	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
@@ -952,6 +980,8 @@ function min_ranged_damages ()
 	local xmight = 0
 	local craftbonus = 0
 	local craftmax = p_ptr.abilities[(CLASS_ENCHANTER * 10) + 1] * 5
+	local stealthbonus
+	local i
 
 	craftbonus = p_ptr.skill[12]
 	if (craftbonus > craftmax) then craftbonus = craftmax end
@@ -970,6 +1000,12 @@ function min_ranged_damages ()
 		end
 
 		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+
+		i = p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
+		if (i > 10) then i = 10 end
+		stealthbonus = multiply_divide(p_ptr.skill[7], i, 100)
+		if (stealthbonus > 10) then stealthbonus = 10 end
+		stealthbonus = stealthbonus * p_ptr.abilities[(CLASS_ROGUE * 10) + 1]
 	end
 
 	if (current_weapon.tval == TV_RANGED) then
@@ -1005,6 +1041,12 @@ function min_ranged_damages ()
 
 	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
         k = k * (tskill + 1)
+
+	-- Stealthy Fighter
+	if (stealthbonus > 0) then
+
+		k = k + multiply_divide(k, stealthbonus, 100)
+	end
 
 	-- Rogue Weapons Mastery.
 	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then

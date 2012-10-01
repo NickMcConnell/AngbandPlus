@@ -5518,8 +5518,11 @@ void use_hardcode_ability(int powernum)
 		}
 		case 1007:
 		{
+			int inv_dur;
+
+			inv_dur = 10 + (p_ptr->skill[6] / 10);
 			msg_print("You hide nearby...");
-                        (void)set_invis(3, 5);
+                        (void)set_invis(inv_dur, 5);
                         energy_use = 100;
 			break;
 		}

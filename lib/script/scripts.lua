@@ -813,6 +813,20 @@ function activate_spell_script (powernum)
 	energy_use = 100
   end
 
+  -- Footpad's Boots.
+  if (powernum == 15) then
+
+	set_invis(10, 30)
+	energy_use = 100
+  end
+
+  -- Tolgo Drumset.
+  if (powernum == 16) then
+
+	place_field(FEAT_TREES, 1, px, py, 500)
+	energy_use = 100
+  end
+
 end
 
 -- Some "Flow" dungeons scripts --

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: init
-** Generated automatically by tolua 5.0a on 01/03/10 14:05:13.
+** Generated automatically by tolua 5.0a on 01/31/10 14:59:18.
 */
 
 #ifndef __cplusplus
@@ -16956,6 +16956,101 @@ static int tolua_set_no_magic_return(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: casting_elemental */
+static int tolua_get_casting_elemental(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)casting_elemental);
+ return 1;
+}
+
+/* set function: casting_elemental */
+static int tolua_set_casting_elemental(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  casting_elemental = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: casting_alteration */
+static int tolua_get_casting_alteration(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)casting_alteration);
+ return 1;
+}
+
+/* set function: casting_alteration */
+static int tolua_set_casting_alteration(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  casting_alteration = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: casting_conjuration */
+static int tolua_get_casting_conjuration(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)casting_conjuration);
+ return 1;
+}
+
+/* set function: casting_conjuration */
+static int tolua_set_casting_conjuration(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  casting_conjuration = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: casting_mysticism */
+static int tolua_get_casting_mysticism(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)casting_mysticism);
+ return 1;
+}
+
+/* set function: casting_mysticism */
+static int tolua_set_casting_mysticism(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  casting_mysticism = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: casting_divination */
+static int tolua_get_casting_divination(lua_State* tolua_S)
+{
+ tolua_pushboolean(tolua_S,(bool)casting_divination);
+ return 1;
+}
+
+/* set function: casting_divination */
+static int tolua_set_casting_divination(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  casting_divination = ((bool)  tolua_toboolean(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: monster_physical */
 static int tolua_get_monster_physical(lua_State* tolua_S)
 {
@@ -24959,6 +25054,11 @@ TOLUA_API int tolua_init_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"global_y",tolua_get_global_y,tolua_set_global_y);
  tolua_variable(tolua_S,"nevermiss",tolua_get_nevermiss,tolua_set_nevermiss);
  tolua_variable(tolua_S,"no_magic_return",tolua_get_no_magic_return,tolua_set_no_magic_return);
+ tolua_variable(tolua_S,"casting_elemental",tolua_get_casting_elemental,tolua_set_casting_elemental);
+ tolua_variable(tolua_S,"casting_alteration",tolua_get_casting_alteration,tolua_set_casting_alteration);
+ tolua_variable(tolua_S,"casting_conjuration",tolua_get_casting_conjuration,tolua_set_casting_conjuration);
+ tolua_variable(tolua_S,"casting_mysticism",tolua_get_casting_mysticism,tolua_set_casting_mysticism);
+ tolua_variable(tolua_S,"casting_divination",tolua_get_casting_divination,tolua_set_casting_divination);
  tolua_variable(tolua_S,"monster_physical",tolua_get_monster_physical,tolua_set_monster_physical);
  tolua_variable(tolua_S,"monster_ranged",tolua_get_monster_ranged,tolua_set_monster_ranged);
  tolua_variable(tolua_S,"ranged_attack",tolua_get_ranged_attack,tolua_set_ranged_attack);

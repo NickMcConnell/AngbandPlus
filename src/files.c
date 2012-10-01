@@ -1287,7 +1287,6 @@ static void display_player_various(void)
 		{
 			call_lua("min_monk_damages", "", "l", &showdmg_min);
 			call_lua("max_monk_damages", "", "l", &showdmg_max);
-			/* desc = format("%ld-%ld", min_monk_damages(), max_monk_damages());*/
 			desc = format("%ld-%ld", showdmg_min, showdmg_max);
 		}
 		else
@@ -1298,7 +1297,6 @@ static void display_player_various(void)
 			{
 				call_lua("min_weapon_damages", "", "l", &showdmg_min);
 				call_lua("max_weapon_damages", "", "l", &showdmg_max);
-				/*desc = format("%ld-%ld", min_weapon_damages(), max_weapon_damages());*/
 				desc = format("%ld-%ld", showdmg_min, showdmg_max);
 			}
 		}
@@ -1314,10 +1312,8 @@ static void display_player_various(void)
 	{
 		s32b showdmg_min = 0;
 		s32b showdmg_max = 0;
-
 		call_lua("min_weapon_damages", "", "l", &showdmg_min);
 		call_lua("max_weapon_damages", "", "l", &showdmg_max);
-		/*desc = format("%ld-%ld", min_weapon_damages(), max_weapon_damages());*/
 		desc = format("%ld-%ld", showdmg_min, showdmg_max);
 	}
 	put_str(desc, 18, 65);
@@ -1355,7 +1351,7 @@ static void display_player_various(void)
 	{
 		s32b showdmg_min = 0;
 		s32b showdmg_max = 0;
-
+		
 		call_lua("min_ranged_damages", "", "l", &showdmg_min);
 		call_lua("max_ranged_damages", "", "l", &showdmg_max);
 		desc = format("%ld-%ld", showdmg_min, showdmg_max);
@@ -3007,7 +3003,11 @@ errr file_character(cptr name, bool full)
 		else if (Total == 1)
 			fprintf(fff,"\n You have defeated one enemy.\n");
 		else
-			fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
+			#ifdef L64
+			fprintf(fff,"\n You have defeated %d enemies.\n", Total);
+			#else
+			fprintf(fff,"\n You have defeated %ld enemies.\n", Total);
+			#endif
 	}
 
 
@@ -5832,7 +5832,11 @@ void display_player_skills()
 
 		sprintf(skillstring, "%c) %s:", letter, skill_names[i]);
 		c_put_str(TERM_WHITE, skillstring, col, rowname);
-		sprintf(str, "%d", p_ptr->skill[i]);
+		if (skillsfull == 1){
+			sprintf(str, "%d", p_ptr->skill[i]);
+		}else{
+			sprintf(str, "%d", p_ptr->skill_base[i]);
+		}
         	c_put_str(TERM_L_GREEN, str, col, row);
 
 		col += 1;

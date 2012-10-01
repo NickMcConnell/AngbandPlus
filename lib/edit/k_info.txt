@@ -2247,7 +2247,7 @@ P:10:1d2:0:0:0
 U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:INDESTRUCTIBLE
 
-N:282:&Pair~ Magesilk Gloves
+N:282:& Pair~ Magesilk Gloves
 G:]:y
 I:31:7:2:77:91
 W:50:0:1:10000

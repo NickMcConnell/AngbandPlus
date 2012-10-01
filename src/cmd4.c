@@ -165,6 +165,9 @@ void do_cmd_change_name(void)
 	/* Reset skills page. */
 	skillspage = 0;
 
+	/* Default to full scores */
+	skillsfull = TRUE;
+
 	/* Save the screen */
 	Term_save();
 
@@ -190,10 +193,28 @@ void do_cmd_change_name(void)
                                 "['c' to rename, 'f' to file, 'r' to undo, 'z' to change mode, or ESC]");
                         Term_putstr(6, 23, -1, TERM_WHITE,
                                 "['s' to improve stats, 't' for toggle skill/main window.]");
-                }else{
+                }else if (mode == 2){
+			if (skillsfull == TRUE){
+				Term_putstr(15, 22, -1, TERM_WHITE,
+				"Skill Display: ");
+				Term_putstr(30, 22, -1, TERM_L_GREEN,
+				"REAL");
+			}else{
+				Term_putstr(15, 22, -1, TERM_WHITE,
+				"Skill Display: ");
+				Term_putstr(30, 22, -1, TERM_L_GREEN,
+				"BASE");
+			}
+			
+			Term_putstr(37, 22, -1, TERM_WHITE,
+				"Press 's' to toggle.");
                         Term_putstr(6, 23, -1, TERM_WHITE,
                                 "['c' to rename, 'f' to file, 'r' to undo, 'z' to change mode, or ESC]");
-                }
+                }else{
+
+                        Term_putstr(6, 23, -1, TERM_WHITE,
+                                "['c' to rename, 'f' to file, 'r' to undo, 'z' to change mode, or ESC]");
+		}
 
 		/* Query */
 		c = inkey();
@@ -558,8 +579,13 @@ void do_cmd_change_name(void)
                 /* {                                                   */
                 /*         if (mode==0) do_cmd_change_movement();      */
                 /* }                                                   */
-                else if (c == 's' && (mode == 0 || mode == 1))
-                {
+		else if (c == 's' && (mode == 2)) {
+			if (skillsfull == 1){ 
+				skillsfull = 0;
+			}else{
+			skillsfull = 1;
+			}
+		}else if (c == 's' && (mode == 0 || mode == 1)){
                         if (p_ptr->statpoints <= 0) msg_print("You have no stat points left!");
                         else
                         {

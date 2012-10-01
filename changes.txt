@@ -1,0 +1,42 @@
+Portralis 0.4 build 002.
+
+CHANGES
+---------
+
+
+Gameplay:
+
+- Some changes were done to further improve the Rogue class:
+        * Stealhy Fighter now provides a bonus to damages based on Stealth.
+	* Thievery has been improved. (see the changes to Thievery and Divine Items below)
+	* Deadly Stalker no longer requires you to be "invisible through a special ability".
+          It was also bugged and has been fixed(see bugs fixed below).
+- Enemy counters have been nerfed. Now, your general skills and specialized skills will be
+  added to your rolls for counter bypassing. So if you attack with a sword, in addition to
+  your strength and dexterity, your Swords skill will also be added. Also, defensive skills
+  will now lower enemy rolls. Defense+Agility for melee and ranged, and Magic Defense for
+  magic. Finally, melee blocking from monsters have been greatly lowered, it used to be
+  strength+dexterity, which resulted in very, very high rolls. Now, it will use the average
+  of both stats, making the melee block rolls more on par with ranged and magic counters.
+- Thievery and Divine Items were pretty much identical. They have been changed, so that Thievery
+  has an emphasis on base damages and base AC, while Divine Items provides more general bonus,
+  which are more helpful to a caster. Both have received a general boost.
+- Teleporting monsters will no longer teleport when struck by brands or similar powers.
+- Hide's duration is now 10 + 10% of Stealth skill.
+- Hunters of Zekis are now a bit rarer, and can now drop magic items. It's the first "pack"
+  enemy that has magic items drops, but it's only fair, since they can be very, very painful
+  to fight.
+
+Content:
+
+- Not much of a content patch, but I did add a few artifacts ideas that Gando sent me a while
+  ago. That, and an artifact reward for beating the sealed stairway quest in Avemorsh.
+
+Bugs fixed:
+
+- Implemented Adelie's changes to the code to allow compilation under Linux and 64 bits OS.
+- Divine Items and Thievery should now properly work on instruments and thrown weapons.
+- Stealthy Fighter was checking if the player was NOT invisible to a monster! Meaning that
+  the higher your Stealth was, the more unlikely the ability was to occur!
+- Many of the Kensai's abilities were using calculations that would cause them to overflow
+  in damages, and thus cause no damages because the numbers becomes negative. This should now be fixed.

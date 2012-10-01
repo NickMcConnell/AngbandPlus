@@ -359,6 +359,11 @@ s16b global_y;
 /* Portralis Variables! */
 bool nevermiss;
 bool no_magic_return;
+bool casting_elemental;
+bool casting_alteration;
+bool casting_conjuration;
+bool casting_mysticism;
+bool casting_divination;
 bool monster_physical;
 bool monster_ranged;
 bool ranged_attack;
@@ -1233,6 +1238,8 @@ s16b birth_wild_y;
 char skill_names[SKILL_MAX][80];
 s16b num_skills;
 s16b skillspage;
+/* whether to show full (true) or base (false) skill levels. */
+s16b skillsfull;
 
 /* Classes def and abilities... */
 class_def classes_def[MAX_CLASS];

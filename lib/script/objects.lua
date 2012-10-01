@@ -2029,7 +2029,8 @@ function mining_treasures (x, y, feat)
 	end
 end
 
--- Pretty much identical to "Divine Item". Just uses different ability and skill!
+-- Similar to "Divine Item".
+-- There is a greater emphasis on base stats, like base AC and base damages.
 function stolen_item_enhance (item)
 
 	local power
@@ -2043,7 +2044,7 @@ function stolen_item_enhance (item)
 
 			-- "power" based on Diviner's ability.
 			power = lua_randint(p_ptr.abilities[(CLASS_ROGUE * 10) + 2] / 2) + (p_ptr.abilities[(CLASS_ROGUE * 10) + 2] / 2)
-			power = power * 3
+			power = power * 4
 
 			-- Power can never exceed half of your Stealth skill.
 			if (power > (p_ptr.skill[7] / 2)) then power = p_ptr.skill[7] / 2 end
@@ -2053,7 +2054,7 @@ function stolen_item_enhance (item)
 			i = 0
 
 			-- Some items may skip that part.
-			if (item.tval == TV_BOOMERANG or not(divinable(item))) then i = power end
+			if (not(divinable(item))) then i = power end
 
 			-- Artifacts gains no additional powers.
 			if (item.name1 > 0) then i = power end
@@ -2230,9 +2231,9 @@ function stolen_item_enhance (item)
 				else
 
 					-- Pick a flag
-					if (p_ptr.abilities[(CLASS_DIVINER * 10) + 1] >= 10) then
+					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then
 						misctype = lua_randint(15)
-					elseif (p_ptr.abilities[(CLASS_DIVINER * 10) + 1] >= 5) then
+					elseif (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 5) then
 						misctype = lua_randint(14)
 					else misctype = lua_randint(13) end
 
@@ -2242,98 +2243,98 @@ function stolen_item_enhance (item)
 					if (misctype == 1 and not(get_object_flag2(item, TR2_RES_FEAR))) then
 
 						give_object_flag2(item, TR2_RES_FEAR)
-						i = i + 5
+						i = i + 3
 					end
 
 					-- Resist conf.
 					if (misctype == 2 and not(get_object_flag2(item, TR2_RES_CONF))) then
 
 						give_object_flag2(item, TR2_RES_CONF)
-						i = i + 15
+						i = i + 8
 					end
 
 					-- Resist blind.
 					if (misctype == 3 and not(get_object_flag2(item, TR2_RES_BLIND))) then
 
 						give_object_flag2(item, TR2_RES_BLIND)
-						i = i + 5
+						i = i + 1
 					end
 
 					-- Hold life.
 					if (misctype == 4 and not(get_object_flag2(item, TR2_HOLD_LIFE))) then
 
 						give_object_flag2(item, TR2_HOLD_LIFE)
-						i = i + 10
+						i = i + 5
 					end
 
 					-- Safety.
 					if (misctype == 5 and not(get_object_flag4(item, TR4_SAFETY))) then
 
 						give_object_flag4(item, TR4_SAFETY)
-						i = i + 15
+						i = i + 8
 					end
 
 					-- Sustain Strength.
 					if (misctype == 6 and not(get_object_flag2(item, TR2_SUST_STR))) then
 
 						give_object_flag2(item, TR2_SUST_STR)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Intelligence.
 					if (misctype == 7 and not(get_object_flag2(item, TR2_SUST_INT))) then
 
 						give_object_flag2(item, TR2_SUST_INT)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Wisdom.
 					if (misctype == 8 and not(get_object_flag2(item, TR2_SUST_WIS))) then
 
 						give_object_flag2(item, TR2_SUST_WIS)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Dexterity.
 					if (misctype == 9 and not(get_object_flag2(item, TR2_SUST_DEX))) then
 
 						give_object_flag2(item, TR2_SUST_DEX)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Constitution.
 					if (misctype == 10 and not(get_object_flag2(item, TR2_SUST_CON))) then
 
 						give_object_flag2(item, TR2_SUST_CON)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Sustain Charisma.
 					if (misctype == 11 and not(get_object_flag2(item, TR2_SUST_CHR))) then
 
 						give_object_flag2(item, TR2_SUST_CHR)
-						i = i + 5
+						i = i + 2
 					end
 
 					-- Telepathy.
 					if (misctype == 12 and not(get_object_flag3(item, TR3_TELEPATHY))) then
 
 						give_object_flag3(item, TR3_TELEPATHY)
-						i = i + 15
+						i = i + 8
 					end
 
 					-- Regen.
 					if (misctype == 13 and not(get_object_flag3(item, TR3_REGEN))) then
 
 						give_object_flag3(item, TR3_REGEN)
-						i = i + 10
+						i = i + 5
 					end
 
 					-- Eternal.
 					if (misctype == 14 and not(get_object_flag4(item, TR4_ETERNAL))) then
 
 						give_object_flag4(item, TR4_ETERNAL)
-						i = i + 20
+						i = i + 10
 					end
 
 					-- Levels.
@@ -2343,7 +2344,7 @@ function stolen_item_enhance (item)
 						item.level = 1
 						item.kills = 0
 						item.tweakpoints = item.tweakpoints + 2
-						i = i + 50
+						i = i + 30
 					end
 				end
 
@@ -2351,12 +2352,12 @@ function stolen_item_enhance (item)
 
 			-- Improve the base AC, base damages, to_h, to_d, etc...
 			if (not(item.name1 > 0) and divinable(item)) then
-				item.dd = item.dd + ((item.dd * (power / 3)) / 100)
-				item.ds = item.ds + ((item.ds * (power / 3)) / 100)
-				item.ac = item.ac + ((item.ac * (power / 3)) / 100)
-				item.to_h = item.to_h + lua_randint(power / 3)
-				item.to_d = item.to_d + lua_randint(power / 3)
-				item.to_a = item.to_a + lua_randint(power / 3)
+				item.dd = item.dd + ((item.dd * (power)) / 100)
+				item.ds = item.ds + ((item.ds * (power)) / 100)
+				item.ac = item.ac + ((item.ac * (power)) / 100)
+				item.to_h = item.to_h + lua_randint(power)
+				item.to_d = item.to_d + lua_randint(power)
+				item.to_a = item.to_a + lua_randint(power)
 
 				-- Give a flag to mark is as a magic item.
 				give_object_flag4(item, TR4_ENCHANTED)

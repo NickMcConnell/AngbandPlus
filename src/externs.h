@@ -251,6 +251,11 @@ extern s16b global_x;
 extern s16b global_y;
 extern bool nevermiss;
 extern bool no_magic_return;
+extern bool casting_elemental;
+extern bool casting_alteration;
+extern bool casting_conjuration;
+extern bool casting_mysticism;
+extern bool casting_divination;
 extern bool monster_physical;
 extern bool monster_ranged;
 extern bool ranged_attack;
@@ -636,6 +641,7 @@ extern void race_legends(void);
 extern void make_bones(byte used);
 extern errr get_xtra_line(char * file_name, monster_type *m_ptr, char * output);
 extern void display_player_abilities();
+extern void do_cmd_story(void);
 
 
 /* generate.c */
@@ -1371,6 +1377,7 @@ extern void lua_revive_in_town();
 extern char skill_names[SKILL_MAX][80];
 extern s16b num_skills;
 extern s16b skillspage;
+extern s16b skillsfull;
 
 /* Class def and abilities... */
 extern class_def classes_def[MAX_CLASS];

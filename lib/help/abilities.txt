@@ -1,4 +1,4 @@
-PORTRALIS 0.3 COMPLETE ABILITIES GUIDE
+PORTRALIS 0.4 COMPLETE ABILITIES GUIDE
 -------------------------------------------
 
 This guide deals about every abilities for every classes. This
@@ -688,11 +688,20 @@ ROGUE
 
 1. Stealthy Fighter(Passive, level 1)
 
-Effect: Use your Stealth skill as a Fighting or Shooting skill.
+Effect: Use your Stealth skill as a Fighting or Shooting skill. Also improve
+        the base damage roll of melee and ranged attacks.
 % of Stealth used: 10%
-Extra points: +10% of Stealth used, up to a maximum of 100% at 10 points.
-              For every points above 10, 10% of your Stealth is added to any
-              rolls to bypass enemy melee and ranged blocking counters.
+Extra points: +10% of Stealth used(up to a maximum of 100% at 10 points).
+              This ability starts by giving you (1% of Stealth)% bonus
+              damages per points. For every points, the base bonus increase
+              by 1%, for a maximum of 10% at 10 points. Note that the bonus
+              per points caps at 10% to damages per points, so at 10 points
+              and 100 Stealth, you will gain +10% damages for every points
+              above 10.
+
+              Also, at 10 points and higher, it is fully treated as Fighting
+              and Shooting, and will therefore help bypassing enemy counters
+              like those skills would.
 
 This passive ability allows you to use your Stealth as a skill to improve
 both your melee and shooting abilities, while retaining all the benefits of
@@ -3459,7 +3468,7 @@ When attacked by a monster's melee attack, you get a strike against that
  powerful. You must be wielding a one handed sword, and not have heavy
  armor, a shield, or a ranged weapon equiped to use this ability.
 Damage: weapon damage.
-Bonus from wis: +3% to base damage per wis, +3% to_h bonus per wis
+Bonus from wis: +1% to base damage per wis
 Extra AP: increase total damage (base + wis bonus) by 10%
 
 3. Honorable Warrior (Passive, level 1)
@@ -3489,7 +3498,7 @@ Lets you attack opponents an extra space away, without actually moving.
  wielding a one handed sword, and not have heavy armor, a shield, or
  a ranged weapon equiped to use this ability.
 Damage: weapon damage
-Bonus from wis: +2% to damage per wis
+Bonus from wis: +1% to damage per wis
 Range: 2
 Extra AP: +10% to total damage (base + wis bonus), for every 10 AP add an additional range.
 

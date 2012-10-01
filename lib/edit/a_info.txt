@@ -593,6 +593,80 @@ D:You are not an official follower of Shan, yet you have been given this
 D:magnificient relic as a reward for your victory over the Grey Wight and 
 D:Balcia.
 
+# Adamantium Battle Axe of the Gin'Whal
+N:38:of the Gin'Whal
+I:21:63:0
+W:75:50:150:500000
+P:10:12d10:125:125:0
+R:1:50
+R:10:50
+T:0:30
+T:4:30
+K:16:50
+U:0:16:5:0:0:50:0:0:0:0:0:0:0:0:0:0:0:0
+F:LEVELS | ETERNAL | COULD2H | SPECIAL_GENE | ACTIVATE
+F:RES_FEAR | SUST_STR | SUST_CON
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Fire:10:1:0:0:0:0:0
+S:Type change, Wind:10:10:0:0:0:0:0
+S:Type change, Harm:10:162:0:0:0:0:0
+D:The battle axe that was wielded by Avemorsh. After his defeat, he handed over the axe 
+D:to you. It is a very powerful weapon that will also ward his wielder from the powers 
+D:of fire and wind.
+
+# Ring of the Mer(idea from Gando)
+N:39:'Ring of the Mer'
+I:45:61:0
+W:20:10:2:10000
+P:0:1d1:25:25:0
+R:9:100
+U:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:ETERNAL | ACTIVATE
+S:Summon Water Elementals:7:196:5:20:0:0:200
+D:This was made by a Mer Queen in ages past for a human consort who wished to visit 
+D:her in her realm. Long dead both, this ring has passed on to various adventurers and 
+D:monsters as the ages have gone by.  It is shaped like a fish biting its tail. 
+D:The details are exquisite and fine down to the tiny scales of the fish tail. 
+D:Made of some coral substance that is yet hard and durable it fits any finger.
+
+# Pair of Leather Boots 'Footpad's Boots'(idea from Gando)
+N:40:'Footpad's Boots'
+I:30:2:0
+W:50:40:5:75000
+P:10:1d1:40:40:30
+K:6:100
+F:ETERNAL | LEVELS | ACTIVATE
+U:0:0:0:0:10:0:0:0:0:0:0:0:0:0:0:0:0:0
+S:Hide(10 turns invisibility):9:15:0:0:0:0:10
+D:The tale goes that some unnamed rogue of extraordinary daring had these fashioned 
+D:for him to aid him in his ventures into the lairs of magnificent treasure troves, guarded 
+D:by the most dangerous of foes. He was quite successful for a long time and then one day 
+D:was heard from no more. It is said that he died whilst attempting to steal the heart 
+D:from a gorgon's chest. Whatever that means. Made of dragon skin and spidersilk, these boots 
+D:make no sound when walked in even at a fast pace and somehow the shadows of the corners 
+D:seem to pull the wearer to them.
+
+# Tolgo Drumset(idea from Gando)
+N:41:'Tolgo Drumset'
+I:93:7:0
+W:45:25:15:60000
+P:0:6d10:50:50:0
+T:2:15
+T:5:15
+K:25:30
+K:28:30
+U:0:0:0:0:0:0:0:0:0:0:0:12:3:0:0:0:0:0
+F:ETERNAL | LEVELS | ACTIVATE
+S:Crumble Wall Section:2:100:48:0:0:0:10
+S:Call Trees(create trees around the player, radius 1):9:16:0:0:0:0:10
+D:The Tolgo was a tribe living in the hills far from any cities. They worshipped a 
+D:tree goddess and played these drums to awaken her every spring. One spring day they came no 
+D:more as disease and famine had taken their toll. A wandering adventurer found this drumset, 
+D:and learned to play it. It is said that the tree Goddess still lives somewhere in the 
+D:wilderness and calls out to her lost tribe of worshipers. If you listen closely to the drums 
+D:you can hear a faint echoing female voice. The drums themselves are unprepossessing being 
+D:little more than wood and skin bound by twine.
+
 # The template for artifacts corpses
 
 N:201: 
