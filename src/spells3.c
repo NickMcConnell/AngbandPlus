@@ -87,32 +87,56 @@ void brand_ammo (int brand_type, int bolts_only)
 }
 
 
-/* Fetch an item (teleport it right underneath the caster) */
+/*
+ * Fetch an item (teleport it right underneath the caster)
+ */
 void fetch_item(int dir, int wgt)
 {
 	int ty, tx, i;
-	bool flag;
+
 	object_type *o_ptr;
 	int py, px;
+	char o_name[80];
 
-	py = p_ptr->py; px = p_ptr->px;
+	py = p_ptr->py;
+	px = p_ptr->px;
 
 	/* Check to see if an object is already there */
-	if(cave_o_idx[py][px])
+	if (cave_o_idx[py][px])
 	{
 		msg_print("You can't fetch when you're already standing on something.");
 		return;
 	}
 
 	/* Use a target */
-	if(dir==5 && target_okay())
+	if (dir == 5 && target_okay())
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
 
-		if(distance(py, px, ty, tx)>MAX_RANGE)
+		if (distance(py, px, ty, tx) > MAX_RANGE)
 		{
 			msg_print("You can't fetch something that far away!");
+			return;
+		}
+		/* We need an item to fetch */
+		if (!cave_o_idx[ty][tx])
+		{
+			msg_print("There is no object at this place.");
+			return;
+		}
+
+		/* No fetching from vault */
+		if (cave_info[ty][tx] & CAVE_ICKY)
+		{
+			msg_print("The item slips from your control.");
+			return;
+		}
+
+		/* We need to see the item */
+		if (!player_has_los_bold(ty, tx))
+		{
+			msg_print("You have no direct line of sight to that location.");
 			return;
 		}
 	}
@@ -121,20 +145,24 @@ void fetch_item(int dir, int wgt)
 		/* Use a direction */
 		ty = py; /* Where to drop the item */
 		tx = px;
-		flag = FALSE;
-		do
+
+		while (TRUE)
 		{
 			ty += ddy[dir];
 			tx += ddx[dir];
+
 			if ((distance(py, px, ty, tx)> MAX_RANGE)
 				|| !cave_floor_bold(ty, tx)) return;
-		} while(!cave_o_idx[ty][tx]);
+
+			if (cave_o_idx[ty][tx]) break;
+		}
 	}
+
 	o_ptr = &o_list[cave_o_idx[ty][tx]];
 
-	/* Too heavy to 'fetch' */
 	if (o_ptr->weight > wgt)
 	{
+		/* Too heavy to 'fetch' */
 		msg_print("The object is too heavy.");
 		return;
 	}
@@ -142,15 +170,20 @@ void fetch_item(int dir, int wgt)
 	i = cave_o_idx[ty][tx];
 	cave_o_idx[ty][tx] = 0;
 	cave_o_idx[py][px] = i; /* 'move' it */
-	o_ptr->iy = py;
-	o_ptr->ix = px;
+	o_ptr->iy = (byte)py;
+	o_ptr->ix = (byte)px;
 
+	object_desc(o_name, o_ptr, TRUE, 0);
+	msg_format("%^s flies through the air to your feet.", o_name);
+
+	note_spot(py, px);
 	p_ptr->redraw |= PR_MAP;
 }
 
 
-/* incremental sleep spell */
-/* -KMW- */
+/*
+ * Incremental sleep spell - KMW -
+ */
 void do_sleep_monster(void)
 {
 	int dir;
@@ -170,8 +203,9 @@ void do_sleep_monster(void)
 	}
 }
 
-/* incremental fear spell */
-/* -KMW- */
+/*
+ * Incremental fear spell - KMW -
+ */
 void do_fear_monster(void)
 {
 	int dir;
@@ -191,8 +225,9 @@ void do_fear_monster(void)
 	}
 }
 
-/* incremental cure wounds spell */
-/* -KMW- */
+/*
+ * Incremental cure wounds spell - KMW -
+ */
 void do_cure_wounds(void)
 {
 	if (p_ptr->lev < 15)
@@ -213,7 +248,9 @@ void do_cure_wounds(void)
 }
 
 
-/* flood -KMW- */
+/*
+ * Flood -KMW-
+ */
 void flood(int cy, int cx, int r, int typ)
 {
 	int py = p_ptr->py;
@@ -258,13 +295,12 @@ void flood(int cy, int cx, int r, int typ)
 			/* if (!dx && !dy) continue; */
 
 			/* Skip some grids for forest */
-			if ((rand_int(100) < 50) &&
-			   (typ == 2)) continue;
+			if ((rand_int(100) < 50) && (typ == 2)) continue;
 
 			if ((typ == 2) && !floor) continue;
 
 			/* Damage this grid */
-			map[16+yy-cy][16+xx-cx] = TRUE;
+			map[16 + yy - cy][16 + xx - cx] = TRUE;
 
 		}
 	}
@@ -289,8 +325,8 @@ void flood(int cy, int cx, int r, int typ)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Most monsters cannot co-exist with rock */
-				if (!(r_ptr->flags2 & (RF2_SWIM)) &&
-				    !(r_ptr->flags2 & (RF2_FLY)) &&
+				if (!(r_ptr->flags2 & (RF2_CAN_SWIM)) &&
+				    !(r_ptr->flags2 & (RF2_CAN_FLY)) &&
 				    !(r_ptr->flags2 & (RF2_PASS_WALL)) &&
 				    (typ == 1))
 				{
@@ -363,7 +399,7 @@ void flood(int cy, int cx, int r, int typ)
 	px = p_ptr->px;
 
 	/* Important -- no wall on player */
-	map[16+py-cy][16+px-cx] = FALSE;
+	map[16 + py - cy][16 + px - cx] = FALSE;
 
 
 	/* Examine the quaked region */
@@ -376,7 +412,7 @@ void flood(int cy, int cx, int r, int typ)
 			xx = cx + dx;
 
 			/* Skip unaffected grids */
-			if (!map[16+yy-cy][16+xx-cx]) continue;
+			if (!map[16 + yy - cy][16 + xx - cx]) continue;
 
 			/* Paranoia -- never affect player */
 			if ((yy == py) && (xx == px)) continue;
@@ -392,13 +428,21 @@ void flood(int cy, int cx, int r, int typ)
 				/* Wall (or floor) type */
 				t = (floor ? rand_int(100) : 200);
 
-				if (typ == 1) {
+				if (typ == 1)
+				{
 					if (t < 100)
+					{
 						cave_set_feat(yy, xx, FEAT_DEEP_WATER);
+					}
 					else
+					{
 						cave_set_feat(yy, xx, FEAT_SHAL_WATER);
-				} else if (typ == 2)
-						cave_set_feat(yy, xx, FEAT_TREES);
+					}
+				}
+				else if (typ == 2)
+				{
+					cave_set_feat(yy, xx, FEAT_TREES);
+				}
 			}
 		}
 	}
@@ -453,6 +497,7 @@ void fissure(int feat)
 			{
 				ty = rand_spread(y, d);
 				tx = rand_spread(x, d);
+
 				if (!in_bounds(ty, tx)) continue;
 				break;
 			}
@@ -460,7 +505,11 @@ void fissure(int feat)
 			/* Only convert non-permanent features */
 			if ((cave_feat[ty][tx] >= FEAT_PERM_EXTRA) &&
 			   (cave_feat[ty][tx] <= FEAT_PERM_SOLID)) continue;
+
+			/* Only convert non-permanent features */
 			if (cave_feat[ty][tx] == FEAT_LESS) continue;
+
+			/* Only convert non-permanent features */
 			if (cave_feat[ty][tx] == FEAT_MORE) continue;
 
 			/* Clear previous contents, add proper vein type */
@@ -481,12 +530,14 @@ void fissure(int feat)
 }
 
 
+/*
+ * Alter the terrain in the dungeon
+ */
 void alter_terrain(int cy, int cx, int r, int typ)
 {
 	int y, x, yy, xx, dy, dx;
 
 	bool map[32][32];
-	bool floor;
 
 	/* Paranoia -- Enforce maximum range */
 	if (r > 12) r = 12;
@@ -508,7 +559,6 @@ void alter_terrain(int cy, int cx, int r, int typ)
 			/* Extract the location */
 			yy = cy + dy;
 			xx = cx + dx;
-			floor = cave_floor_bold(yy, xx);
 
 			/* Skip illegal grids */
 			if (!in_bounds_fully(yy, xx)) continue;
@@ -540,32 +590,50 @@ void alter_terrain(int cy, int cx, int r, int typ)
 			/* Skip staircases */
 			if (cave_feat[yy][xx] == FEAT_LESS || cave_feat[yy][xx] == FEAT_MORE)
 			    continue;
-			
-			if (typ == 1) {
+
+			/* Reduce lava levels */
+			if (typ == 1)
+			{
 				if (cave_feat[yy][xx] == FEAT_DEEP_LAVA)
 					cave_set_feat(yy, xx, FEAT_SHAL_LAVA);
 				else if (cave_feat[yy][xx] == FEAT_SHAL_LAVA)
 					cave_set_feat(yy, xx, FEAT_FLOOR);
-			} else if (typ == 2) {
+			}
+
+			/* Reduce water levels */
+			else if (typ == 2)
+			{
 				if (cave_feat[yy][xx] == FEAT_DEEP_WATER)
 					cave_set_feat(yy, xx, FEAT_SHAL_WATER);
 				else if (cave_feat[yy][xx] == FEAT_SHAL_WATER)
 					cave_set_feat(yy, xx, FEAT_FLOOR);
 				else if (cave_feat[yy][xx] == FEAT_FOG)
 					cave_set_feat(yy, xx, FEAT_FLOOR);
-			} else if (typ == 3) {
+			}
+
+			/* Turn everything to floor */
+			else if (typ == 3)
+			{
 				if ((cave_feat[yy][xx] != FEAT_MOUNTAIN) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_EXTRA) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_INNER) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_OUTER) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_SOLID))
 					cave_set_feat(yy, xx, FEAT_FLOOR);
-			} else if (typ == 4) {
+			}
+
+			/* Plant some trees */
+			else if (typ == 4)
+			{
 				if ((cave_feat[yy][xx] == FEAT_FLOOR) ||
 				    (cave_feat[yy][xx] == FEAT_DEEP_WATER) ||
 				    (cave_feat[yy][xx] == FEAT_SHAL_WATER))
 					cave_set_feat(yy, xx, FEAT_TREES);
-			} else if (typ == 5) {
+			}
+
+			/* Lava eruption */
+			else if (typ == 5)
+			{
 				if ((cave_feat[yy][xx] != FEAT_MOUNTAIN) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_EXTRA) &&
 				    (cave_feat[yy][xx] != FEAT_PERM_INNER) &&
@@ -593,6 +661,7 @@ void alter_terrain(int cy, int cx, int r, int typ)
 
 /*
  * Imprision
+ *
  * Allow "target" mode to pass over monsters
  * Affect grids, objects, and monsters
  */
@@ -601,7 +670,7 @@ bool imprision(int typ, int dir, int rad)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int x,y,ty, tx;
+	int x, y, ty, tx;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM;
 
@@ -617,13 +686,20 @@ bool imprision(int typ, int dir, int rad)
 		ty = p_ptr->target_row;
 	}
 
-	for (x = tx - rad;x <= tx + rad; x++)
+	for (x = tx - rad; x <= tx + rad; x++)
+	{
 		for (y = ty - rad; y <= ty + rad; y++)
-			if (cave_empty_bold(y,x))  {
+		{
+			if (cave_empty_bold(y, x))
+			{
 				cave_set_feat(y, x, typ);
 				cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
 			}
-/*	Term_fresh(); */
+		}
+	}
+
+	/* Term_fresh(); */
+
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
@@ -631,20 +707,24 @@ bool imprision(int typ, int dir, int rad)
 }
 
 
-/* From Zangband by Topi Ylinen */
+/*
+ * Rustproof an item - from Zangband
+ */
 void rustproof(void)
 {
 	int item;
 	object_type *o_ptr;
+	object_kind *k_ptr;
 	char o_name[80];
 	cptr q,s;
-	object_kind *k_ptr;
+
+	/* Select a piece of armour */
 	item_tester_hook = item_tester_hook_armour;
 
 	/* Get an item */
-	q = "Rustproof which item? ";
-	s = "You have no items to rustproof.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	q = "Rustproof which piece of armour? ";
+	s = "You have nothing to rustproof.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -658,34 +738,48 @@ void rustproof(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+
+	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 	k_ptr = &k_info[o_ptr->k_idx];
 	k_ptr->flags3 |= TR3_IGNORE_ACID;
 
-	if ((o_ptr->to_a < 0) && !(o_ptr->ident & IDENT_CURSED)) {
-		msg_format("%s %s look%s as good as new!", ((item >= 0) ? "Your" : "The"), o_name, ((o_ptr->number > 1) ? "" : "s"));
+	if ((o_ptr->to_a < 0) && !(o_ptr->ident & IDENT_CURSED))
+	{
+		msg_format("%s %s look%s as good as new!",
+			((item >= 0) ? "Your" : "The"), o_name,
+			((o_ptr->number > 1) ? "" : "s"));
 		o_ptr->to_a = 0;
 	}
 
 	msg_format("%s %s %s now protected against corrosion.",
-	    ((item >= 0) ? "Your" : "The"), o_name, ((o_ptr->number > 1) ? "are" : "is"));
+		((item >= 0) ? "Your" : "The"), o_name,
+		((o_ptr->number > 1) ? "are" : "is"));
 }
 
 
-/* From Kamband by Ivan Tkatchev */
+/*
+ * Summon a monster - from Kamband
+ */
 void summon_monster(int sumtype)
 {
 	p_ptr->energy_use = 100;
 
-	if (p_ptr->inside_special == 1) {
+	if (p_ptr->inside_arena)
+	{
 		msg_print("This place seems devoid of life.");
-		msg_print(NULL);
+		message_flush();
 		return;
 	}
 
-	if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+randint(5), sumtype, TRUE))
+	if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth + randint(5),
+		 sumtype, TRUE))
+	{
 		msg_print("You summon some help.");
+	}
 	else
+	{
 		msg_print("You called, but no help came.");
+	}
 }
 

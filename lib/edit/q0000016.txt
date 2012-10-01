@@ -1,0 +1,52 @@
+# q0000016.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:16:N:Volcano II
+
+# Definition
+Q:16:Q:6:0:0:0:30:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST16 2]
+Q:16:T:The volcano is acting up again.  But, we do not think
+Q:16:T:it is natural. Now, it is time to eliminate all creatures
+Q:16:T:that are making their home at the volcano. You must exterminate
+Q:16:T:them all if we are to avoid having lava ruin our crops!
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST16 3]
+Q:16:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST16 5]
+Q:16:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........KKKKKKKLLKKKKKKK......XXX
+D:XX...........X.............XXXXX9.......KKLLLLLKKKKLLLKKKKKKKK......XX
+D:XX..........................X........KKKKKKKKLLLKKKLLLKKKKKKKKKK9...XX
+D:XXX.................................KKKKKKKKKKLLLKLLLLKKKKKKKKKKKK...X
+D:XX................................KKKKKKKKKKK<LLLLLLLLLKKKKKKKKKKK...X
+D:XX...................................KKKKLLLLLLLLLLLLLKKKKKKKKKKK....X
+D:XX..................................KKKKKKKKKKLLLLLLLLKKKKKKKKKK.....X
+D:X...................................KKKKKKKKKLLLKKKLLLKKKKKKKKK9....XX
+D:X.....................................KKKKKKLLLKKKKLLLKKKKKKKKKK.....X
+D:XX....................................KKKKKLKKKKKKKLLLKKKKKKK........X
+D:XX......................................KKKKKKKKKKLLLKKKKKKK........XX
+D:XX.........................................KKKKKKKLLLKKKKKK.........XX
+D:XXX............................................KKLLKKKKKKK...........X
+D:XX.................X..............................KKKKKKK............X
+D:X...............XXXXX9...XXX........................................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9..XXXX...XXXXX....XXXXXXXXXX9......XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:15:2
+
+

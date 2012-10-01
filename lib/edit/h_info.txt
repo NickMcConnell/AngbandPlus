@@ -20,6 +20,7 @@
 #   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
 #   Kobolds       --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
+#   Maia          --> 31 --> 32 --> 67 --> 68
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -28,7 +29,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 N:1:2:10:25
@@ -260,6 +261,36 @@ D:and small, sharp teeth.
 N:30:0:100:55
 D:and large, sharp teeth.
 
+N:31:32:10:20
+D:You are a unnoticed minion of 
+N:31:32:25:30
+D:You are a minor servant of 
+N:31:32:45:40
+D:You are a subject of 
+N:31:32:65:50
+D:You have attached yourself to 
+N:31:32:85:65
+D:You are associated with 
+N:31:32:95:80
+D:You are a notable follower of 
+N:31:32:100:100
+D:You are a celebrated assistant to 
+
+N:32:67:20:55
+D:Nessa.  
+N:32:67:40:60
+D:Vana.  
+N:32:67:50:65
+D:Tulkas.  
+N:32:67:80:75
+D:Mandos.  
+N:32:67:90:80
+D:Nienna.  
+N:32:67:95:90
+D:Varda.  
+N:32:67:100:95
+D:Manwe.  
+
 N:50:51:20:50
 D:You have dark brown eyes, 
 N:50:51:60:50
@@ -388,4 +419,19 @@ N:66:0:66:50
 D:scabby skin.
 N:66:0:100:50
 D:leprous skin.
+
+N:67:68:100:50
+D:In the past, you dwelt on earth in the form of 
+
+N:68:0:25:50
+D:various animals.
+N:68:0:55:55
+D:a spirit of forest and river.
+N:68:0:70:60
+D:a beneficent but unseen force.
+N:68:0:96:70
+D:a wise and ancient counselor.
+N:68:0:100:80
+D:a Wizard of legend.
+
 

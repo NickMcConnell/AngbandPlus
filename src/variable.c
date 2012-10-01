@@ -78,10 +78,9 @@ u32b seed_town;			/* Hack -- consistent town layout */
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
+s16b base_level;			/* Base dungeon level */
 
 char summon_kin_type;		/* Hack -- See summon_specific() */
-
-char plot_names[MAX_PLOTS][40]; /* -KMW- */
 
 s32b turn;				/* Current game turn */
 
@@ -123,6 +122,10 @@ s16b m_cnt = 0;			/* Number of live monsters */
  */
 bool command_repeating = FALSE;
 
+/*
+ * The quest we are leaving
+ */
+int leaving_quest;
 
 /*
  * Dungeon variables
@@ -220,17 +223,19 @@ byte message__color[MSG_MAX];
 
 
 /*
- * The array[8] of window pointers
+ * The array[ANGBAND_TERM_MAX] of window pointers
  */
-term *angband_term[8];
+term *angband_term[ANGBAND_TERM_MAX];
 
 
 /*
- * The array[8] of window names (modifiable?)
+ * The array[ANGBAND_TERM_MAX] of window names (modifiable?)
+ *
+ * ToDo: Make the names independent of ANGBAND_TERM_MAX
  */
-char angband_term_name[8][16] =
+char angband_term_name[ANGBAND_TERM_MAX][16] =
 {
-	"Angband",
+	VERSION_NAME,
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -268,7 +273,7 @@ byte angband_color_table[256][4] =
 /*
  * Standard sound (and message) names
  */
-char angband_sound_name[MSG_MAX][16] =
+const char angband_sound_name[SOUND_MAX][16] =
 {
 	"",
 	"hit",
@@ -330,6 +335,11 @@ byte (*cave_info)[256];
  */
 byte (*cave_feat)[DUNGEON_WID];
 
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid special feature codes
+ */
+s16b (*cave_special)[DUNGEON_WID];
+
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
@@ -387,12 +397,6 @@ monster_type *m_list;
  * Array[z_info->r_max] of monster lore
  */
 monster_lore *l_list;
-
-
-/*
- * Hack -- Array[MAX_Q_IDX] of quests
- */
-quest q_list[MAX_QUESTS];
 
 
 /*
@@ -472,10 +476,10 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*
  * Pointer to the player tables (sex, race, class, magic)
  */
-player_sex *sp_ptr;
-player_race *rp_ptr;
-player_class *cp_ptr;
-player_magic *mp_ptr;
+const player_sex *sp_ptr;
+const player_race *rp_ptr;
+const player_class *cp_ptr;
+const player_magic *mp_ptr;
 
 /*
  * The player other record (static)
@@ -501,13 +505,11 @@ player_type *p_ptr = &player_type_body;
 /*
  * Structure (not array) of size limits
  */
-header *z_head;
 maxima *z_info;
 
 /*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -515,7 +517,6 @@ char *v_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -523,7 +524,6 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
@@ -531,7 +531,6 @@ char *k_text;
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
@@ -539,7 +538,6 @@ char *a_text;
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
@@ -547,7 +545,6 @@ char *e_text;
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -556,7 +553,6 @@ char *r_text;
 /*
  * The player race arrays
  */
-header *p_head;
 player_race *p_info;
 char *p_name;
 char *p_text;
@@ -564,22 +560,22 @@ char *p_text;
 /*
  * The player history arrays
  */
-header *h_head;
 hist_type *h_info;
 char *h_text;
 
 /*
  * The shop owner arrays
  */
-header *b_head;
 owner_type *b_info;
 char *b_name;
+char *b_text;
 
 /*
  * The racial price adjustment arrays
  */
-header *g_head;
 byte *g_info;
+char *g_name;
+char *g_text;
 
 
 /*
@@ -649,7 +645,13 @@ cptr ANGBAND_DIR_INFO;
 cptr ANGBAND_DIR_SAVE;
 
 /*
- * User "preference" files (ascii)
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
+ * User defined "preference" files (ascii)
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_USER;
@@ -679,7 +681,7 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool (*item_tester_hook)(const object_type*);
 
 
 
@@ -707,6 +709,39 @@ bool (*get_mon_num_hook)(int r_idx);
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+
+
+/*
+ * Buildings
+ */
+building_type building[MAX_BLDG];
+
+
+/*
+ * Plot info
+ */
+plot_type *plots;
+
+/*
+ * Quest info
+ */
+quest_type *quest;
+
+/*
+ * Quest text
+ */
+char quest_text[10][80];
+
+/*
+ * Current line of the quest text
+ */
+int quest_text_line;
+
+
+/*
+ * Flags for initialization
+ */
+int init_flags;
 
 
 /*

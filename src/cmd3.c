@@ -110,7 +110,7 @@ void do_cmd_equip(void)
 /*
  * The "wearable" tester
  */
-static bool item_tester_hook_wear(object_type *o_ptr)
+static bool item_tester_hook_wear(const object_type *o_ptr)
 {
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
@@ -264,16 +264,16 @@ void do_cmd_wield(void)
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
-	/* Check quest status */
-	for (i = 0 ; i < MAX_QUESTS ; i++)
+	/* Check if completed a quest */
+	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		if ((q_list[i].quest_type == 3) &&
-			(q_list[i].k_idx == o_ptr->name1) &&
-			(p_ptr->rewards[i + QUEST_REWARD] == QUEST_ACTIVE))
+		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
+		    (quest[i].status == QUEST_STATUS_TAKEN) &&
+		    (quest[i].k_idx == o_ptr->name1))
 		{
-			p_ptr->rewards[i + QUEST_REWARD] = QUEST_COMPLETED;
+			quest[i].status = QUEST_STATUS_COMPLETED;
 			msg_print("You completed your quest!");
-			msg_print(NULL);
+			message_flush();
 		}
 	}
 
@@ -444,8 +444,12 @@ void do_cmd_destroy(void)
 	/* Verify destruction */
 	if (verify_destroy)
 	{
-		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
+		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		{
+			/* Make a verification */
+			sprintf(out_val, "Really destroy %s? ", o_name);
+			if (!get_check(out_val)) return;
+		}
 	}
 
 	/* Take a turn */
@@ -638,7 +642,7 @@ void do_cmd_inscribe(void)
 
 	/* Message */
 	msg_format("Inscribing %s.", o_name);
-	msg_print(NULL);
+	message_flush();
 
 	/* Start with nothing */
 	strcpy(tmp, "");
@@ -669,7 +673,7 @@ void do_cmd_inscribe(void)
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(object_type *o_ptr)
+static bool item_tester_refill_lantern(const object_type *o_ptr)
 {
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
@@ -781,7 +785,7 @@ static void do_cmd_refill_lamp(void)
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(object_type *o_ptr)
+static bool item_tester_refill_torch(const object_type *o_ptr)
 {
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&
@@ -1399,7 +1403,7 @@ void do_cmd_query_symbol(void)
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -1433,7 +1437,7 @@ void do_cmd_query_symbol(void)
 	if (query != 'y')
 	{
 		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return;
 	}
@@ -1535,10 +1539,9 @@ void do_cmd_query_symbol(void)
 
 
 /*
-*  research_mon
-*  -KMW-
-*/
-bool research_mon()
+ *  Research a monster -KMW-
+ */
+bool research_mon(void)
 {
 	int i, n, r_idx;
 	char sym, query;
@@ -1558,7 +1561,6 @@ bool research_mon()
 	u16b why = 0;
 	u16b *who;
 
-	monster_race *r2_ptr;
 	monster_lore *l2_ptr;
 
 	oldcheat = cheat_know;
@@ -1612,7 +1614,7 @@ bool research_mon()
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
+		C_FREE(who, z_info->r_max, u16b);
 
 		return(FALSE);
 	}
@@ -1667,7 +1669,6 @@ bool research_mon()
 				Term_save();
 
 				/* Recall on screen */
-				r2_ptr = &r_info[r_idx];
 				l2_ptr = &l_list[r_idx];
 
 				oldkills = l2_ptr->r_tkills;
@@ -1724,12 +1725,10 @@ bool research_mon()
 	}
 
 
-	/* Re-display the identity */
-	/* prt(buf, 5, 5);*/
-
 	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, u16b);
+	C_FREE(who, z_info->r_max, u16b);
 
 	cheat_know = oldcheat;
-	return(notpicked);
+	return (notpicked);
 }
+

@@ -1,0 +1,60 @@
+# q0000065.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:65:N:Counterstrike
+
+# Definition
+Q:65:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST65 2]
+Q:65:T:You have served me well. Even as we speak, my engineers are sealing
+Q:65:T:the tunnel through which the monsters invaded. Now it is time to
+Q:65:T:take action against Dulnshead. Recently, my scouts have reported a
+Q:65:T:buildup of troops in two locations near the far northern mountains.
+Q:65:T:My armies are ready to march against the larger of the two garrisons,
+Q:65:T:but I need to prevent the troops at the smaller garrison from attacking
+Q:65:T:my troops. Your task is to destroy this small garrison, so that my troops
+Q:65:T:may carry out their mission in as safe a way as possible.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST65 3]
+Q:65:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST65 5]
+Q:65:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Novice Warrior
+F:a:1:8:35
+
+# Floor with Swordsman
+F:b:1:8:168
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXX.b..XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXX..b.D.......................aXX
+D:XXXXXXXXXXX.b..XXXXXXXXXXXXXXXXXXXXXXXX.XX
+D:XXXXXXXXXXX....XXXXXXXXXXXXXXXXXXXXXXXX.XX
+D:XXXXXXXXXXXXXXXXXXX.............XXXXXXX.XX
+D:XXXXXXXXXXXXXXXXXXX.............XXXXXXX.XX
+D:XXXXXXXXXXXXXXXXXXX..aa.....aa..XXXXXXX.XX
+D:XXXXXXXXXXXXXXXXXXX.............XXXXXXX.XX
+D:X<.......XXXXXXXXXX.............D......aXX
+D:X........XXXXXXXXXX.....aa......XXXXXXXXXX
+D:X........D........D.............XXXXXXXXXX
+D:X........XXXXXXXXXX.............XXXXXXXXXX
+D:X........XXXXXXXXXX..aa.....aa..XXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:10:1
+

@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 # Maximum number of feature types
@@ -30,10 +30,10 @@ M:E:256
 M:R:580
 
 # Maximum number of vaults
-M:V:128
+M:V:35
 
 # Maximum number of player races
-M:P:11
+M:P:12
 
 # Maximum number of player history lines
 M:H:256
@@ -46,6 +46,9 @@ M:O:256
 
 # Maximum number of monsters
 M:M:512
+
+# Maximum number of quest plots
+M:Q:8
 
 #
 # Array sizes (in bytes) for some initialization stuff

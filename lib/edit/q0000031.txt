@@ -1,0 +1,66 @@
+# q0000031.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:31:N:King's Health
+
+# Definition
+Q:31:Q:3:0:0:0:30:0:3:6
+
+# Description for quest
+?:[LEQ $QUEST31 2]
+Q:31:T:Regent->We have the princess back! Joy and Celebration! We must tell
+Q:31:T:the King right away, he will be so pleased.
+Q:31:T:Captain->There is a problem with the King. You should take a look.
+Q:31:T:Regent->Sorry about that. The King is so far gone that it will take
+Q:31:T:a miracle to save him. It is rumored that the Arkenstone of Thrain
+Q:31:T:can help heal those sick in the mind. If only you could find it...
+Q:31:T:Search the north-east mountains for the rumored cave.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST31 3]
+Q:31:T:You may keep the Arkenstone as a reward for your service.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST31 5]
+Q:31:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Arkenstone
+F:1:1:8:0:0:0:3
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..**XXXXXXXXXXXXXXXXX
+D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...*XXXXXXXXXXXXXXXXX
+D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.99.......XXXXXXXXXXX
+D:XXXX......XXXXXXXX................................D..........XXXXXXXXXXX
+D:XXXXX......XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
+D:XXXXXX......XXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX..........XXXXXXXXXX
+D:XXXXXX.............XXXXXXXXX...9....XXXXXX.XXXXXXXXXX.........XXXXXXXXXX
+D:XXXXXX.............XXXXXXXXX...8....XXXXXX.XXXXXXXXXXXX......XXXXXXXXXXX
+D:XXXXXXX...9........XXXXXXXXX........D......XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX....9.......XXXXXXXXXXXX....XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX.....9......XXXXXXX.XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX............XXXXXX.X.XXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX..................XXX.XXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX............XXXXXXXXX...............XXXXXXXX........1.....XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXX..........99..XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXX..........99..XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.......................XXXXXXX
+D:X<...................XXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.XXX....XX.XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXX..............XX.XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX
+D:XXXXX.......................XX.X............XXXXXXXXXXXXXX.XXXXXXXXXXXXX
+D:XXXXX.XXXXXXXX.........................9....XXXXXXXX.....XX.XXXXXXXXXXXX
+D:XXXXX.8XXXXXXXX.............XXXX........9.................XX.XXXXXXXXXXX
+D:XXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXXXX........XXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:18:1
+

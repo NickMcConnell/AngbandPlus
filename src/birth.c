@@ -28,7 +28,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
 	char history[4][60];
 };
@@ -44,7 +44,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
 
 
 
@@ -293,24 +293,6 @@ static void get_extra(void)
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-	/* Initialize arena and rewards information -KMW- */
-	p_ptr->arena_number = 0;
-	p_ptr->inside_special = 0;
-	p_ptr->leftbldg = FALSE;
-	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
-	for (i = 0; i < MAX_REWARDS; i++)
-		p_ptr->rewards[i] = FALSE;
-
-	/* Initialize quest information -KMW- */
-	for (i = 0; i < MAX_MON_QUEST; i++)
-		p_ptr->cqmon[i] = FALSE;
-	for (i = 0; i < MAX_MON_QUEST; i++)
-		p_ptr->cqmonc[i] = FALSE;
-	for (i = 0; i < MAX_ITEM_QUEST; i++)
-		p_ptr->cqitem[i] = FALSE;
-	for (i = 0; i < MAX_ITEM_QUEST; i++)
-		p_ptr->cqitemc[i] = FALSE;
-
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
 
@@ -539,6 +521,46 @@ static void player_wipe(void)
 		a_ptr->cur_num = 0;
 	}
 
+
+	/* Start with no quests */
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		quest[i].status = QUEST_STATUS_UNTAKEN;
+		quest[i].cur_num = 0;
+		quest[i].max_num = 0;
+		quest[i].type = 0;
+		quest[i].level = 0;
+		quest[i].r_idx = 0;
+	}
+
+	/* Add a special quest */
+	init_flags = INIT_ASSIGN;
+	p_ptr->inside_quest = QUEST_SAURON;
+	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+	quest[QUEST_SAURON].status = QUEST_STATUS_TAKEN;
+	p_ptr->inside_quest = 0;
+
+	/* Add a second quest */
+	init_flags = INIT_ASSIGN;
+	p_ptr->inside_quest = QUEST_MORGOTH;
+	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+	quest[QUEST_MORGOTH].status = QUEST_STATUS_TAKEN;
+	p_ptr->inside_quest = 0;
+
+
+	/* Wipe the arena and special buildings -KMW- */
+	p_ptr->arena_number = 0;
+	p_ptr->inside_arena = 0;
+	p_ptr->leftbldg = FALSE;
+	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
+
+	/* Reset building rewards */
+	for (i = 0; i < MAX_REWARDS; i++)
+	{
+		p_ptr->rewards[i] = 0;
+	}
+
+
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
 	{
@@ -581,7 +603,7 @@ static void player_wipe(void)
 
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
 }
 
 
@@ -592,7 +614,7 @@ static void player_wipe(void)
  * In addition, he always has some food and a few torches.
  */
 
-static byte player_init[MAX_CLASS][3][2] =
+static const byte player_init[MAX_CLASS][3][2] =
 {
 	{
 		/* Warrior */
@@ -915,18 +937,26 @@ static bool player_birth_aux_1(void)
 		"Your 'Plot' determines the series of quests you will be assigned.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"All plots ultimately lead to the quests to kill Sauron and Morgoth.");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"Note that the quests for plots e) through h) are currently not.");
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"implemented and these plots are included for testing purposes only.");
+
+	/* Initialize plot names */
+	init_flags = INIT_SHOW_TEXT | INIT_ASSIGN;
+	process_dungeon_file("pl_info.txt", 0, 0, 0, 0);
 
 	/* Dump Plots */
-	for (n = 0; n < MAX_PLOTS; n++)
+	for (n = 0; n < z_info->q_max; n++)
 	{
 		cptr mod = "";
 
 		/* Analyze */
-		str = plot_names[n];
+		str = plots[n].name;
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
+		put_str(buf, 21 + (n/3), 2 + 24 * (n%3));
 	}
 
 	/* Get a Plot */
@@ -940,18 +970,18 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_PLOTS);
+		if (ch == '*') k = rand_int(z_info->q_max);
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal plot!");
 	}
 
-	/* Set Plot */
+	/* Set Plot (Town) */
 	p_ptr->plot_num = k + 1;
 
-	/* Class */
+	/* Plot */
 	put_str("Plot", 6, 1);
-	c_put_str(TERM_L_BLUE, plot_names[k], 6, 8);
+	c_put_str(TERM_L_BLUE, plots[k].name, 6, 8);
 
 	/* Clear */
 	clear_from(15);
@@ -1009,7 +1039,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*
@@ -1210,9 +1240,9 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
@@ -1224,7 +1254,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 

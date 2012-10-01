@@ -1,0 +1,56 @@
+# q0000023.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:23:N:Orcs Spotted!
+
+# Definition
+Q:23:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST23 2]
+Q:23:T:Yet another threat has moved into the area.  Could this have
+Q:23:T:anything to do with our attacks against Morgoth?  Snagas and 
+Q:23:T:Orcs have been spotted to the north-east and word is that they
+Q:23:T:have razed all settlements in their path.  We need your help.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST23 3]
+Q:23:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST23 5]
+Q:23:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Snaga
+F:a:1:8:96
+
+# Floor with Hill Orc
+F:b:1:8:120
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.........................X**.b....XXX
+D:X.........................X*.....a..XX
+D:X.........................X..........X
+D:X............X............X...a...a..X
+D:X............X............XXXXXXDXXXXX
+D:X............X.......................X
+D:X............X.......................X
+D:X............X.......................X
+D:X.a......a...X.......................X
+D:X............X.................a.....X
+D:X............X.......................X
+D:X............X...a..a....a...........X
+D:X............X.......................X
+D:X............X.....a................XX
+D:X<...........X.....................XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:15:1
+

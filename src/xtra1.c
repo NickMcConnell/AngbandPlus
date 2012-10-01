@@ -329,11 +329,11 @@ static void prt_depth(void)
 {
 	char depths[32];
 
-	if(p_ptr->inside_special == 1)    /* -KMW- */
+	if (p_ptr->inside_arena)    /* -KMW- */
 	{
 		strcpy(depths, "Arena");
 	}
-	else if (p_ptr->inside_special == 2) /* -KMW- */
+	else if (p_ptr->inside_quest) /* -KMW- */
 	{
 		strcpy(depths, "Quest");
 	}
@@ -856,7 +856,7 @@ static void fix_inven(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -890,7 +890,7 @@ static void fix_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -923,7 +923,7 @@ static void fix_player_0(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -957,7 +957,7 @@ static void fix_player_1(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -994,7 +994,7 @@ static void fix_message(void)
 	int x, y;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1049,7 +1049,7 @@ static void fix_overhead(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1082,7 +1082,7 @@ static void fix_monster(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1115,7 +1115,7 @@ static void fix_object(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1152,7 +1152,7 @@ static void calc_spells(void)
 	int i, j, k, levels;
 	int num_allowed, num_known;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	cptr p = (((mp_ptr->spell_book == TV_MAGIC_BOOK)|| (mp_ptr->spell_book == TV_ILLUSION_BOOK)) ? "spell" : "prayer");
 
@@ -1181,7 +1181,7 @@ static void calc_spells(void)
 	num_known = 0;
 
 	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Count known spells */
 		if ((j < 32) ?
@@ -1301,7 +1301,7 @@ static void calc_spells(void)
 
 
 	/* Check for spells to remember */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
@@ -1360,7 +1360,7 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
@@ -2145,13 +2145,13 @@ extern void calc_bonuses(void)
 	}
 
 	/* Temporary see invisible */
-	if (p_ptr->tim_s_invis)
+	if (p_ptr->tim_invis)
 	{
 		p_ptr->see_inv = TRUE;
 	}
 
 	/* Temporary invisibility */
-	if (p_ptr->tim_invis)
+	if (p_ptr->tim_pl_invis)
 	{
 		p_ptr->invisible = TRUE;
 	}
@@ -2174,19 +2174,31 @@ extern void calc_bonuses(void)
 		p_ptr->levitate = TRUE;
 	}
 
-	/* temporary stat sustain */
+	/* Temporary stat sustain */
 	if (p_ptr->tim_sus_str)
+	{
 		p_ptr->sustain_str++;
+	}
 	if (p_ptr->tim_sus_int)
+	{
 		p_ptr->sustain_int++;
+	}
 	if (p_ptr->tim_sus_wis)
+	{
 		p_ptr->sustain_wis++;
+	}
 	if (p_ptr->tim_sus_dex)
+	{
 		p_ptr->sustain_dex++;
+	}
 	if (p_ptr->tim_sus_con)
+	{
 		p_ptr->sustain_con++;
+	}
 	if (p_ptr->tim_sus_chr)
+	{
 		p_ptr->sustain_chr++;
+	}
 
 	/*** Special flags ***/
 
@@ -2206,7 +2218,7 @@ extern void calc_bonuses(void)
 	i = weight_limit();
 
 	/* Apply "encumbrance" from weight */
-	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
+	if (j > i / 2) p_ptr->pspeed -= ((j - (i / 2)) / (i / 10));
 
 	/* Bloating slows the player down (a little) */
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
@@ -2420,11 +2432,11 @@ extern void calc_bonuses(void)
 			/* Warrior */
 			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
 
-			/* MageModified by GJW -KMW- */
-			case CLASS_MAGE:    num = 4; wgt = 35; mul= 3; div = 2; break;
+			/* Mage */
+			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
 
-			/* PriestModified by GJW -KMW- */
-			case CLASS_PRIEST:  num = 5; wgt = 40; mul = 2; break;
+			/* Priest */
+			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
 
 			/* Rogue */
 			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
@@ -2432,14 +2444,14 @@ extern void calc_bonuses(void)
 			/* Ranger */
 			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
 
-			/* PaladinModified by GJW -KMW- */
-			case CLASS_PALADIN: num = 5; wgt = 35; mul = 4;break;
+			/* Paladin */
+			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
 
-			/* Illusionist -KMW- */
- 			case CLASS_ILLUSIONIST:    num = 4; wgt = 35; mul = 3; div = 2; break;
+			/* Illusionist */
+ 			case CLASS_ILLUSIONIST: num = 4; wgt = 40; mul = 2; break;
 
-			/* Druid -KMW- */
-			case CLASS_DRUID:  num = 5; wgt = 40; mul = 2; break;
+			/* Druid */
+			case CLASS_DRUID:  num = 5; wgt = 35; mul = 3; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -2981,7 +2993,7 @@ void window_stuff(void)
 	if (!p_ptr->window) return;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Save usable flags */
 		if (angband_term[j])
@@ -3026,7 +3038,7 @@ void window_stuff(void)
 		fix_player_1();
 	}
 
-	/* Display overhead view */
+	/* Display message recall */
 	if (p_ptr->window & (PW_MESSAGE))
 	{
 		p_ptr->window &= ~(PW_MESSAGE);

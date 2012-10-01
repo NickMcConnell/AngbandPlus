@@ -1,0 +1,65 @@
+# q0000072.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:72:N:Attack on Minas Sereg
+
+# Definition
+Q:72:Q:6:0:0:0:30:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST72 2]
+Q:72:T:It is quickly becoming clear to me that Morgoth will go to any length to 
+Q:72:T:prevent the war with Dulnshead from ending. Before I attempt to end the war
+Q:72:T:diplomatically, then, I must seal Morgoth in his caves. Through your
+Q:72:T:actions he has already been robbed of all his outposts, and my soldiers
+Q:72:T:maintain an ever-vigilant guard at the very entrance to his corrupt pit.
+Q:72:T:However, Morgoth's power above ground will not be fully crushed until the
+Q:72:T:two towers guarding the entrance to his dungeon fall to us. It falls to
+Q:72:T:you to enter these towers and destroy all monsters inside. I would advise
+Q:72:T:you to take Minas Sereg, the Northern Tower, first.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST72 3]
+Q:72:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST72 5]
+Q:72:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.D..<..D.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX.......X.....X.......XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX......XXXXXXXXX.....X.X.....XXXXXXXXX......XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXX.....XXXXXXXX9....X..9..D.D..9..X....9XXXXXXXX.....XXXXXXXXXXXXX
+D:XXXXXXXXXX....XXXXXXXXXXXX.....D.....X.X.....D.....XXXXXXXXXXXX....XXXXXXXXXX
+D:XXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXX
+D:X.....D..XXXXX.....X.....9.....X.....X.X.....X.....9.....X.....XXXXX..D.....X
+D:X.....XXXXXXXX..8..D...........D..9..D.D..9..D...........D..9..XXXXXXXX.....X
+D:X..9..XXXXXXXX.....X.....9.....X.....X.X.....X.....9.....X.....XXXXXXXX..9..X
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....X
+D:X.....D...............................................................D.....X
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....X
+D:X..9..XXXXXXXX.....X.....9.....X.....X.X.....X.....9.....X.....XXXXXXXX..9..X
+D:X.....XXXXXXXX..9..D...........D..9..D.D..9..D...........D..8..XXXXXXXX.....X
+D:X.....D..XXXXX.....X.....9.....X.....X.X.....X.....9.....X.....XXXXX..D.....X
+D:XXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXX
+D:XXXXXXXXXX....XXXXXXXXXXXX.....D.....X.X.....D.....XXXXXXXXXXXX....XXXXXXXXXX
+D:XXXXXXXXXXXXX.....XXXXXXXX9....X..9..D.D..9..X....9XXXXXXXX.....XXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX......XXXXXXXXX.....X.X.....XXXXXXXXX......XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX.......X.....X.......XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.D..9..D.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:2:38
+

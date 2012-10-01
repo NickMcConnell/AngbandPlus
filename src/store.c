@@ -342,7 +342,7 @@ static owner_type *ot_ptr = NULL;
  * to adjust (by 200) to extract a usable multiplier.  Note that the
  * "greed" value is always something (?).
  */
-static s32b price_item(object_type *o_ptr, int greed, bool flip)
+static s32b price_item(const object_type *o_ptr, int greed, bool flip)
 {
 	int factor;
 	int adjust;
@@ -572,7 +572,7 @@ static s16b label_to_store(int c)
  * since stores (but not the home) only get objects under certain
  * restricted circumstances.
  */
-static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
+static bool store_object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Hack -- Identical items cannot be stacked */
 	if (o_ptr == j_ptr) return (0);
@@ -635,7 +635,7 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
  * it cannot hold.  Before, one could "nuke" objects this way, by
  * adding them to a pile which was already full.
  */
-static bool store_check_num(object_type *o_ptr)
+static bool store_check_num(const object_type *o_ptr)
 {
 	int i;
 	object_type *j_ptr;
@@ -679,7 +679,7 @@ static bool store_check_num(object_type *o_ptr)
 /*
  * Determine if a weapon is 'blessed'
  */
-static bool is_blessed(object_type *o_ptr)
+static bool is_blessed(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -696,7 +696,7 @@ static bool is_blessed(object_type *o_ptr)
  *
  * Note that a shop-keeper must refuse to buy "worthless" objects
  */
-static bool store_will_buy(object_type *o_ptr)
+static bool store_will_buy(const object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if (store_num == STORE_HOME) return (TRUE);
@@ -1100,7 +1100,7 @@ static void store_item_optimize(int item)
  * Crap is defined as any object that is "available" elsewhere
  * Based on a suggestion by "Lee Vogt" <lvogt@cig.mcel.mot.com>
  */
-static bool black_market_crap(object_type *o_ptr)
+static bool black_market_crap(const object_type *o_ptr)
 {
 	int i, j;
 
@@ -1354,18 +1354,6 @@ static void display_entry(int item)
 	sprintf(out_val, "%c) ", store_to_label(item));
 	prt(out_val, y, 0);
 
-/*
- *	if (show_store_graph)
- *	{
- *		byte a = object_attr(o_ptr);
- *
- * #ifdef AMIGA
- *		if (a & 0x80) a |= 0x40;
- * #endif
- *
- *		Term_draw(3, y, a, object_char(o_ptr));
- *	}
- */
 
 	/* Describe an object in the home */
 	if (store_num == STORE_HOME)
@@ -1377,8 +1365,6 @@ static void display_entry(int item)
 		/* Leave room for weights, if necessary -DRS- */
 		if (show_weights) maxwid -= 10;
 
-		/* if (show_store_graph) maxwid -= 2; */
-
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
@@ -1387,7 +1373,6 @@ static void display_entry(int item)
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Display the object */
-		/* c_put_str(attr, o_name, y, show_store_graph ? 5 : 3); */
 		c_put_str(attr, o_name, y, 3);
 
 		/* Show weights */
@@ -1411,8 +1396,6 @@ static void display_entry(int item)
 		/* Leave room for weights, if necessary -DRS- */
 		if (show_weights) maxwid -= 7;
 
-		/* if (show_store_graph) maxwid -= 2; */
-
 		/* Describe the object (fully) */
 		object_desc_store(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
@@ -1421,7 +1404,6 @@ static void display_entry(int item)
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Display the object */
-		/* c_put_str(attr, o_name, y, show_store_graph ? 5 : 3); */
 		c_put_str(attr, o_name, y, 3);
 
 		/* Show weights */
@@ -1805,7 +1787,7 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
 
 
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Ask until done */
@@ -1876,7 +1858,7 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
 
 		/* Warning */
 		msg_print("Invalid response.");
-		msg_print(NULL);
+		message_flush();
 	}
 
 	/* Success */
@@ -1955,7 +1937,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 		{
 			/* Message summary */
 			msg_print("You instantly agree upon the price.");
-			msg_print(NULL);
+			message_flush();
 		}
 
 		/* No need to haggle */
@@ -1963,7 +1945,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 		{
 			/* Message summary */
 			msg_print("You eventually agree upon the price.");
-			msg_print(NULL);
+			message_flush();
 		}
 
 		/* Auto-haggle */
@@ -1971,7 +1953,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 		{
 			/* Message summary */
 			msg_print("You quickly agree upon the price.");
-			msg_print(NULL);
+			message_flush();
 
 			/* Ignore haggling */
 			ignore = TRUE;
@@ -2169,7 +2151,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 		{
 			/* Message */
 			msg_print("You instantly agree upon the price.");
-			msg_print(NULL);
+			message_flush();
 
 			/* Ignore haggling */
 			ignore = TRUE;
@@ -2183,7 +2165,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 		{
 			/* Message */
 			msg_print("You eventually agree upon the price.");
-			msg_print(NULL);
+			message_flush();
 		}
 
 		/* No haggle option */
@@ -2191,7 +2173,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 		{
 			/* Message summary */
 			msg_print("You quickly agree upon the price.");
-			msg_print(NULL);
+			message_flush();
 
 			/* Ignore haggling */
 			ignore = TRUE;
@@ -2218,7 +2200,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 	/* Mega-Hack -- artificial "last offer" value */
 	last_offer = object_value(o_ptr) * o_ptr->number;
-	last_offer *= ot_ptr->max_inflate / 100L;
+	last_offer = last_offer * ot_ptr->max_inflate / 100L;
 
 	/* No offer yet */
 	offer = 0;
@@ -2416,7 +2398,7 @@ static void store_purchase(void)
 		/* Message */
 		msg_format("Buying %s (%c).",
 		           o_name, store_to_label(item));
-		msg_print(NULL);
+		message_flush();
 
 		/* Haggle for a final price */
 		choice = purchase_haggle(i_ptr, &price);
@@ -2718,7 +2700,7 @@ static void store_sell(void)
 	{
 		/* Describe the transaction */
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
-		msg_print(NULL);
+		message_flush();
 
 		/* Haggle for it */
 		choice = sell_haggle(i_ptr, &price);
@@ -2878,7 +2860,14 @@ static void store_examine(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Description */
-	object_desc_store(o_name, o_ptr, TRUE, 3);
+	if (store_num == STORE_HOME)
+	{
+		object_desc(o_name, o_ptr, TRUE, 3);
+	}
+	else
+	{
+		object_desc_store(o_name, o_ptr, TRUE, 3);
+	}
 
 	/* Describe */
 	msg_format("Examining %s...", o_name);
@@ -3261,13 +3250,6 @@ void do_cmd_store(void)
 	/* Hack -- Extract the store code */
 	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
 
-	/* Cannot enter house til rewarded by Lord of Castle -KMW- */
-	if ((which == STORE_HOME) && (!p_ptr->rewards[10]))
-	{
-		msg_print("You do not own this house - see the Lord.");
-		msg_print(NULL);
-		return;
-	}
 
 	/* Hack -- Check the "locked doors" */
 	if (adult_no_stores || store[which].store_open >= turn)
@@ -3459,7 +3441,7 @@ void do_cmd_store(void)
 
 
 	/* Flush messages XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Hack -- Decrease "icky" depth */

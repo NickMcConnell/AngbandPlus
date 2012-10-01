@@ -1,0 +1,20 @@
+# q0000008.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:8:N:Master Thief
+
+# Definition
+Q:8:Q:1:0:0:1:0:354:0
+
+# Description for quest
+?:[LEQ $QUEST8 2]
+Q:8:T:A master thief has been robbing my people on the roads.
+Q:8:T:Find him and eliminate him! He could be in the town or
+Q:8:T:on the roads but he is here.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST8 3]
+Q:8:T:A reward for your good work awaits you outside.
+?:1

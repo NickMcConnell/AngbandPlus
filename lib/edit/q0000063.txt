@@ -1,0 +1,57 @@
+# q0000063.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:63:N:Invading Monsters
+
+# Definition
+Q:63:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST63 2]
+Q:63:T:My scouts have finally discovered the source of the thieves
+Q:63:T:and other monsters who have plagued my city. Those swine in
+Q:63:T:Dulnshead have created a secret tunnel leading straight from
+Q:63:T:the pits of Morgoth to the territory around my city. It is
+Q:63:T:imperative that the tunnel be closed. However, before the
+Q:63:T:tunnel can be closed, you must defeat the latest group of
+Q:63:T:monsters to invade my territory. Find their lair to the west,
+Q:63:T:and slay all the monsters inside. Take caution - my scouts
+Q:63:T:weren't able to tell what monsters had come through the tunnel.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST63 3]
+Q:63:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST63 5]
+Q:63:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX..................X.............................X
+D:XXXX....................X..............X..............X
+D:XXX........9............XX..............X.............X
+D:XXX......................XX.............X.............X
+D:XX........................X............X..............X
+D:XX.........................X..........X...............X
+D:X.........................X..........X.............9..X
+D:X........................X............X...............X
+D:X.......................X..............XXX............X
+D:X.......................X................X............X
+D:X.......................X........9.......X............X
+D:X.......................X.................X...........X
+D:X..........9.............X.................XX.........X
+D:X.........................X.................XXX.......X
+D:XX.........................X..................XX......X
+D:XXXX...........................................X......X
+D:XXXXXX.........................................X.....<X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:53
+

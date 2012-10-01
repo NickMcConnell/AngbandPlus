@@ -1,0 +1,22 @@
+# q0000076.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:76:N:Spy!
+
+# Definition
+Q:76:Q:1:0:0:1:0:575:0
+
+# Description for quest
+?:[LEQ $QUEST76 2]
+Q:76:T:Now that we've thwarted Morgoth's blockade, he's sent a spy among
+Q:76:T:us to attempt to discover our plans. I have no idea who it is that
+Q:76:T:he sent, but I know somebody's here. Scouts in the tower saw a
+Q:76:T:shadowy figure pass by them. You must find this person and slay
+Q:76:T:them!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST76 3]
+Q:76:T:A reward for your good work awaits you outside.
+?:1

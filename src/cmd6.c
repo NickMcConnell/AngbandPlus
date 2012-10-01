@@ -562,7 +562,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (set_tim_s_invis(p_ptr->tim_s_invis + 12 + randint(12)))
+			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
 			{
 				ident = TRUE;
 			}
@@ -830,7 +830,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
 			msg_print("You begin to feel more enlightened...");
-			msg_print(NULL);
+			message_flush();
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
@@ -849,7 +849,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
 			msg_print("You begin to know yourself a little better...");
-			msg_print(NULL);
+			message_flush();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -2320,7 +2320,9 @@ void do_cmd_zap_rod(void)
 
 
 	/* Get a direction (unless KNOWN not to need it) */
-	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
+	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) &&
+		 (o_ptr->sval < SV_ROD_MIN_ARTIFACT)) ||
+		 !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
@@ -2598,6 +2600,86 @@ void do_cmd_zap_rod(void)
 			o_ptr->pval = 25;
 			break;
 		}
+
+		case SV_ROD_DELVING:
+		{
+			if (!get_aim_dir(&dir)) return;
+			if (wall_to_mud(dir)) ident = TRUE;
+			o_ptr->pval = 10;
+			break;
+		}
+
+		case SV_ROD_HIDDEN_WAYS:
+		{
+			int x, y;
+			int plev = p_ptr->lev;
+
+			msg_print("You open a dimensional gate. Choose a destination.");
+
+			if (!tgt_pt(&x, &y)) return;
+
+			if (!cave_empty_bold(y, x) || (cave_info[y][x] & CAVE_ICKY) ||
+			   (distance(y, x, p_ptr->py, p_ptr->px) > plev + 2) ||
+			   (!rand_int(plev * plev / 2)))
+			{
+				msg_print("You fail to exit the astral plane correctly!");
+				teleport_player(10);
+			}
+			else teleport_player_to(y, x);
+			ident = TRUE;
+			o_ptr->pval = 40;
+			break;
+		}
+
+		case SV_ROD_UNSUNG_HEROES:
+		{
+			if (!p_ptr->fast)
+			{
+				(void)set_fast(randint(50) + 50);
+			}
+			else
+			{
+				(void)set_fast(p_ptr->fast + 5);
+			}
+			set_shero(p_ptr->shero + randint(50) + 50);
+			set_afraid(0);
+			o_ptr->pval = 200;
+			ident = TRUE;
+			break;
+		}
+
+		case SV_ROD_ILLUSIONS:
+		{
+			int timeout = randint(50) + 50;
+
+			if (!p_ptr->tim_ghostly)
+			{
+				(void)set_tim_ghostly(timeout);
+			}
+			else
+			{
+				(void)set_tim_ghostly(p_ptr->tim_ghostly + 5);
+			}
+			if (!p_ptr->tim_pl_invis)
+			{
+				(void)set_tim_pl_invis(timeout);
+			}
+			else
+			{
+				(void)set_tim_pl_invis(p_ptr->tim_pl_invis + 5);
+			}
+			if (!p_ptr->tim_invis)
+			{
+				(void)set_tim_invis(timeout);
+			}
+			else
+			{
+				(void)set_tim_invis(p_ptr->tim_invis + 5);
+			}
+			o_ptr->pval = 400;
+			ident = TRUE;
+			break;
+		}
 	}
 
 
@@ -2611,6 +2693,7 @@ void do_cmd_zap_rod(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
+		object_known(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -2659,7 +2742,7 @@ void do_cmd_zap_rod(void)
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(object_type *o_ptr)
+static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -2744,11 +2827,61 @@ static void ring_of_power(int dir)
 
 
 /*
- * Enchant some bolts -- merged with the mage spell -GJW	-KMW-
+ * Enchant some (non-magical) bolts
  */
 static bool brand_bolts(void)
 {
-	brand_ammo (1, 1);
+	int item;
+	object_type *o_ptr;
+	cptr q, s;
+
+
+	/* Restrict choices to bolts */
+	item_tester_tval = TV_BOLT;
+
+	/* Get an item */
+	q = "Enchant which bolts? ";
+	s = "You have no bolts to brand.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/*
+	 * Don't enchant artifacts, ego-items, cursed or broken items
+	 */
+	if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
+	    cursed_p(o_ptr) || broken_p(o_ptr))
+	{
+		/* Flush */
+		if (flush_failure) flush();
+
+		/* Fail */
+		msg_print("The fiery enchantment failed.");
+
+		/* Notice */
+		return (TRUE);
+	}
+
+	/* Message */
+	msg_print("Your bolts are covered in a fiery aura!");
+
+	/* Ego-item */
+	o_ptr->name2 = EGO_FLAME;
+
+	/* Enchant */
+	enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+	/* Notice */
 	return (TRUE);
 }
 
@@ -3191,6 +3324,7 @@ void do_cmd_activate(void)
 
 			case ACT_WOR:
 			{
+				msg_format("Your %s glows soft white...", o_name);
 				set_recall();
 				break;
 			}

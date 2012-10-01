@@ -261,7 +261,7 @@ void identify_pack(void)
 /*
  * Used by the "enchant" function (chance of failure)
  */
-static int enchant_table[16] =
+static const int enchant_table[16] =
 {
 	0, 10,  50, 100, 200,
 	300, 400, 500, 700, 950,
@@ -772,7 +772,6 @@ void self_knowledge(void)
 			info[i++] = "Your weapon freezes your foes.";
 		}
 
-		/* Added by GJW -KMW- */
 		if (f1 & (TR1_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
@@ -1594,13 +1593,14 @@ void stair_creation(void)
 	delete_object(py, px);
 
 	/* Create a staircase */
-	if(p_ptr->inside_special > 0) /* in arena or quest -KMW- */
+	/* in arena or quest -KMW- */
+	if(p_ptr->inside_arena || p_ptr->inside_quest)
 		msg_print("There is no effect!");
 	else if (!p_ptr->depth)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (quest_number(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
@@ -1620,7 +1620,7 @@ void stair_creation(void)
 /*
  * Hook to specify "weapon"
  */
-static bool item_tester_hook_weapon(object_type *o_ptr)
+static bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1644,7 +1644,7 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-bool item_tester_hook_armour(object_type *o_ptr)
+bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1666,7 +1666,7 @@ bool item_tester_hook_armour(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown(object_type *o_ptr)
+static bool item_tester_unknown(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -1675,7 +1675,7 @@ static bool item_tester_unknown(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown_star(object_type *o_ptr)
+static bool item_tester_unknown_star(const object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
@@ -2081,7 +2081,7 @@ bool identify_fully(void)
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
  */
-static bool item_tester_hook_recharge(object_type *o_ptr)
+static bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staffs */
 	if (o_ptr->tval == TV_STAFF) return (TRUE);

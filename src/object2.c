@@ -773,7 +773,7 @@ void object_tried(object_type *o_ptr)
  * Return the "value" of an "unknown" item
  * Make a guess at the value of non-aware items
  */
-static s32b object_value_base(object_type *o_ptr)
+static s32b object_value_base(const object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -833,7 +833,7 @@ static s32b object_value_base(object_type *o_ptr)
  *
  * Every wearable item with a "pval" bonus is worth extra (see below).
  */
-static s32b object_value_real(object_type *o_ptr)
+static s32b object_value_real(const object_type *o_ptr)
 {
 	s32b value;
 
@@ -1052,7 +1052,7 @@ static s32b object_value_real(object_type *o_ptr)
  *
  * Note that discounted items stay discounted forever.
  */
-s32b object_value(object_type *o_ptr)
+s32b object_value(const object_type *o_ptr)
 {
 	s32b value;
 
@@ -1117,7 +1117,7 @@ s32b object_value(object_type *o_ptr)
  *
  * Chests, and activatable items, never stack (for various reasons).
  */
-bool object_similar(object_type *o_ptr, object_type *j_ptr)
+bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1319,7 +1319,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
  *
  * These assumptions are enforced by the "object_similar()" code.
  */
-void object_absorb(object_type *o_ptr, object_type *j_ptr)
+void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1381,7 +1381,7 @@ void object_wipe(object_type *o_ptr)
 /*
  * Prepare an object based on an existing object
  */
-void object_copy(object_type *o_ptr, object_type *j_ptr)
+void object_copy(object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Copy the structure */
 	COPY(o_ptr, j_ptr, object_type);
@@ -1689,9 +1689,13 @@ static bool make_artifact_special(object_type *o_ptr)
 	/* if (!p_ptr->depth) return (FALSE); -KMW- */
 
 	/* Check the special artifacts */
-	for (i = 0; i < ART_MIN_NORMAL; ++i)
+	/* for (i = 0; i < ART_MIN_NORMAL; ++i) */
+	for (i = 0; i < z_info->a_max; ++i)
 	{
 		artifact_type *a_ptr = &a_info[i];
+
+		if (!((i < ART_MIN_NORMAL) || (a_ptr->tval == TV_ROD)))
+			continue;
 
 		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
@@ -2558,7 +2562,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (rand_int(100) < f2) power = -2;
 	}
 
-
 	/* Assume no rolls */
 	rolls = 0;
 
@@ -2818,10 +2821,12 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Rings -- Rings of Speed are good */
+		/* Rings -- Rings of Speed, Lordly Protection and Extra Attacks are good */
 		case TV_RING:
 		{
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
+			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
 			return (FALSE);
 		}
 
@@ -3242,7 +3247,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		bx = tx;
 
 		/* Require floor space */
-		if (!cave_clean_bold(by, bx)) continue;
+		if (!terrain_clean_bold(by, bx)) continue;
 
 		/* Okay */
 		flag = TRUE;
@@ -3299,7 +3304,8 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 		/* Make a good (or great) object (if possible) */
 		if (!make_object(i_ptr, TRUE, great)) continue;
 
-		if (known) {
+		if (known)
+		{
 			object_aware(i_ptr);
 			object_known(i_ptr);
 		}
@@ -3322,7 +3328,7 @@ void place_object(int y, int x, bool good, bool great)
 	if (!in_bounds(y, x)) return;
 
 	/* Hack -- clean floor space */
-	if (!cave_clean_bold(y, x)) return;
+	if (!terrain_clean_bold(y, x)) return;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -3355,7 +3361,7 @@ void place_gold(int y, int x)
 	if (!in_bounds(y, x)) return;
 
 	/* Require clean floor space */
-	if (!cave_clean_bold(y, x)) return;
+	if (!terrain_clean_bold(y, x)) return;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -3395,11 +3401,12 @@ void pick_trap(int y, int x)
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
 		/* Hack -- no trap doors on special levels */
-		if ((feat == FEAT_TRAP_HEAD) && (p_ptr->inside_special > 0))
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_quest > 0) &&
+		    (p_ptr->inside_arena > 0))
 			continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD) && (p_ptr->depth >= MAX_DEPTH-1))
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1))
 			continue;
 
 		/* Done */
@@ -3530,19 +3537,9 @@ void inven_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("You have %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("You have %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	msg_format("You have %d charge%s remaining.", o_ptr->pval,
+	           (o_ptr->pval != 1) ? "s" : "");
 }
 
 
@@ -3676,19 +3673,9 @@ void floor_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("There are %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("There is %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	msg_format("There are %d charge%s remaining.", o_ptr->pval,
+	           (o_ptr->pval != 1) ? "s" : "");
 }
 
 
@@ -3756,7 +3743,7 @@ void floor_item_optimize(int item)
 /*
  * Check if we have space for an item in the pack without overflow
  */
-bool inven_carry_okay(object_type *o_ptr)
+bool inven_carry_okay(const object_type *o_ptr)
 {
 	int j;
 
@@ -3881,16 +3868,16 @@ s16b inven_carry(object_type *o_ptr)
 			if (o_ptr->tval < j_ptr->tval) continue;
 
 			/* Non-aware (flavored) items always come last */
-			if (!object_aware_p(o_ptr) && !cheat_flav) continue;
-			if (!object_aware_p(j_ptr) && !cheat_flav) break;
+			if (!object_aware_p(o_ptr) && !cheat_iden) continue;
+			if (!object_aware_p(j_ptr) && !cheat_iden) break;
 
 			/* Objects sort by increasing sval */
 			if (o_ptr->sval < j_ptr->sval) break;
 			if (o_ptr->sval > j_ptr->sval) continue;
 
 			/* Unidentified objects always come last */
-			if (!object_known_p(o_ptr)) continue;
-			if (!object_known_p(j_ptr)) break;
+			if (!object_known_p(o_ptr) && !cheat_iden) continue;
+			if (!object_known_p(j_ptr) && !cheat_iden) break;
 
 			/* Rods sort by increasing recharge time */
 			if (o_ptr->tval == TV_ROD)
@@ -4251,16 +4238,16 @@ void reorder_pack(void)
 			if (o_ptr->tval < j_ptr->tval) continue;
 
 			/* Non-aware (flavored) items always come last */
-			if (!object_aware_p(o_ptr) && !cheat_flav) continue;
-			if (!object_aware_p(j_ptr) && !cheat_flav) break;
+			if (!object_aware_p(o_ptr) && !cheat_iden) continue;
+			if (!object_aware_p(j_ptr) && !cheat_iden) break;
 
 			/* Objects sort by increasing sval */
 			if (o_ptr->sval < j_ptr->sval) break;
 			if (o_ptr->sval > j_ptr->sval) continue;
 
 			/* Unidentified objects always come last */
-			if (!object_known_p(o_ptr)) continue;
-			if (!object_known_p(j_ptr)) break;
+			if (!object_known_p(o_ptr) && !cheat_iden) continue;
+			if (!object_known_p(j_ptr) && !cheat_iden) break;
 
 			/* Rods sort by increasing recharge time */
 			if (o_ptr->tval == TV_ROD)
@@ -4330,7 +4317,7 @@ s16b spell_chance(int spell)
 {
 	int chance, minfail;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 
 	/* Paranoia -- must be literate */
@@ -4393,7 +4380,7 @@ s16b spell_chance(int spell)
  */
 bool spell_okay(int spell, bool known)
 {
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
@@ -4446,39 +4433,221 @@ void spell_info(char *p, int spell)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-			case 2: strcpy(p, " range 10"); break;
-			case 5:
-			{
-				if (p_ptr->lev < 15)
-					strcpy(p, " heal 4d10");
-				else if (p_ptr->lev < 30)
-					strcpy(p, " heal 6d10");
-				else
-					strcpy(p, " heal 8d10");
+			case SPELL_MAGIC_MISSILE:
+				sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
 				break;
-			}
-			case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-			case 14: sprintf(p, " range %d", plev * 5); break;
-			case 15: sprintf(p, " dam %dd6", (2+((plev-5)/4))); break;
-			case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-			case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 26: sprintf(p, " dam %d", 30 + plev); break;
-			case 29: sprintf(p, " dur %d+d20", plev); break;
-			case 30: sprintf(p, " dam %d", 55 + plev); break;
-			case 39: sprintf(p, " dam%dd8", (6+((plev-5)/4))); break;
-			case 40: sprintf(p, " dam %dd3", 20 + plev/2); break;
-			case 41: sprintf(p, " dam %dd2", 40 + plev); break;
-			case 42: sprintf(p, " dam %dd3", 70 + plev); break;
-			case 43: sprintf(p, " dam %dd3", 65 + plev); break;
-			case 44: sprintf(p, " dam %dd8", (10+((plev-5)/4))); break;
-			case 45: sprintf(p, " dam %dd3", 300 + (plev*2)); break;
-			case 52: strcpy(p, " dur 20+d20"); break;
-			case 53: strcpy(p, " dur 20+d20"); break;
-			case 54: strcpy(p, " dur 20+d20"); break;
-			case 55: strcpy(p, " dur 20+d20"); break;
-			case 57: strcpy(p, " dur 20+d20"); break;
+			case SPELL_PHASE_DOOR:
+				strcpy(p, " range 10");
+				break;
+			case SPELL_CURE_LIGHT_WOUNDS:
+				if (p_ptr->lev < 15)
+				{
+					strcpy(p, " heal 4d10");
+				}
+				else if (p_ptr->lev < 30)
+				{
+					strcpy(p, " heal 6d10");
+				}
+				else
+				{
+					strcpy(p, " heal 8d10");
+				}
+				break;
+			case SPELL_STINKING_CLOUD:
+				sprintf(p, " dam %d", 10 + (plev / 2));
+				break;
+			case SPELL_LIGHTNING_BOLT:
+				sprintf(p, " dam %dd8", (3 + ((plev - 5) / 4)));
+				break;
+			case SPELL_TELEPORT_SELF:
+				sprintf(p, " range %d", plev * 5);
+				break;
+			case SPELL_SPEAR_OF_LIGHT:
+				sprintf(p, " dam %dd6", (2 + ((plev - 5) / 4)));
+				break;
+			case SPELL_FROST_BOLT:
+				sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4)));
+				break;
+			case SPELL_FIRE_BOLT:
+				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
+				break;
+			case SPELL_FROST_BALL:
+				sprintf(p, " dam %d", 30 + plev);
+				break;
+			case SPELL_HASTE_SELF:
+				sprintf(p, " dur %d+d20", plev);
+				break;
+			case SPELL_FIRE_BALL:
+				sprintf(p, " dam %d", 55 + plev);
+				break;
+			case SPELL_ACID_BOLT:
+				sprintf(p, " dam%dd8", (6 + ((plev - 5) / 4)));
+				break;
+			case SPELL_CLOUD_KILL:
+				sprintf(p, " dam %dd3", 20 + plev/2);
+				break;
+			case SPELL_ACID_BALL:
+				sprintf(p, " dam %dd2", 40 + plev);
+				break;
+			case SPELL_ICE_STORM:
+				sprintf(p, " dam %dd3", 70 + plev);
+				break;
+			case SPELL_METEOR_SWARM:
+				sprintf(p, " dam %dd3", 65 + plev);
+				break;
+			case SPELL_PLASMA_BOLT:
+				sprintf(p, " dam %dd8", (10 + ((plev - 5) / 4)));
+				break;
+			case SPELL_MANA_STORM:
+				sprintf(p, " dam %dd3", 300 + (plev * 2));
+				break;
+			case SPELL_RESIST_FIRE:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESIST_COLD:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESIST_ACID:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESIST_ELEC:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESISTANCE:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_HEROISM:
+				strcpy(p, " dur 25+d25");
+				break;
+			case SPELL_SHIELD:
+				strcpy(p, " dur 30+d20");
+				break;
+			case SPELL_BERSERKER:
+				strcpy(p, " dur 25+d25");
+				break;
+			case SPELL_ESSENCE_OF_SPEED:
+				sprintf(p, " dur %d+d25", 30 + plev);
+				break;
+			case SPELL_GLOBE_OF_INVULNERABILITY:
+				strcpy(p, " dur 8+d8");
+				break;
+		}
+	}
+
+	/* Priest spells */
+	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* See below */
+		int orb = (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4));
+
+		/* Analyze the spell */
+		switch (spell)
+		{
+			case PRAYER_CURE_WOUNDS:
+				if (p_ptr->lev < 15)
+				{
+					strcpy(p, " heal 4d10");
+				}
+				else if (p_ptr->lev < 30)
+				{
+					strcpy(p, " heal 6d10");
+				}
+				else
+				{
+					strcpy(p, " heal 8d10");
+				}
+				break;
+			case PRAYER_BLESS:
+				strcpy(p, " dur 12+d12");
+				break;
+			case PRAYER_PORTAL:
+				sprintf(p, " range %d", 3 * plev);
+				break;
+			case PRAYER_DUSTSTORM:
+				sprintf(p, " dam %dd6", 3 + (plev / 4));
+				break;
+			case PRAYER_CHANT:
+				strcpy(p, " dur 24+d24");
+				break;
+			case PRAYER_RESIST_HEAT_COLD:
+				strcpy(p, " dur 10+d10");
+				break;
+			case PRAYER_ORB_OF_DRAINING:
+				sprintf(p, " %d+3d6", plev + orb);
+				break;
+			case PRAYER_SENSE_INVISIBLE:
+				strcpy(p, " dur 24+d24");
+				break;
+			case PRAYER_PROTECTION_FROM_EVIL:
+				sprintf(p, " dur %d+d25", 3 * plev);
+				break;
+			case PRAYER_CURE_MORTAL_WOUNDS:
+				strcpy(p, " heal 8d10");
+				break;
+			case PRAYER_PRAYER:
+				strcpy(p, " dur 48+d48");
+				break;
+			case PRAYER_DISPEL_UNDEAD:
+				sprintf(p, " dam d%d", 3 * plev);
+				break;
+			case PRAYER_HEAL:
+				strcpy(p, " heal 300");
+				break;
+			case PRAYER_DISPEL_EVIL:
+				sprintf(p, " dam d%d", 3 * plev);
+				break;
+			case PRAYER_HOLY_WORD:
+				strcpy(p, " heal 1000");
+				break;
+			case PRAYER_RESIST_NETHER:
+				strcpy(p, " dur 20+d20");
+				break;
+			case PRAYER_CURE_WOUNDS2:
+				if (p_ptr->lev < 15)
+				{
+					strcpy(p, " heal 4d10");
+				}
+				else if (p_ptr->lev < 30)
+				{
+					strcpy(p, " heal 6d10");
+				}
+				else
+				{
+					strcpy(p, " heal 8d10");
+				}
+				break;
+			case PRAYER_CURE_MORTAL_WOUNDS2:
+				strcpy(p, " heal 8d10");
+				break;
+			case PRAYER_STAR_HEALING:
+				strcpy(p, " heal 2000");
+				break;
+			case PRAYER_DISPEL_DEMONS:
+				sprintf(p, " dam d%d", 4 * plev);
+				break;
+			case PRAYER_DISPEL_UNDEAD2:
+				sprintf(p, " dam d%d", 4 * plev);
+				break;
+			case PRAYER_DISPEL_EVIL2:
+				sprintf(p, " dam d%d", 4 * plev);
+				break;
+			case PRAYER_ANNIHILATION:
+				strcpy(p, " dam 200");
+				break;
+			case PRAYER_BALEFIRE:
+				sprintf(p, " dam %dd10", 15 + ((plev - 5) / 3));
+				break;
+			case PRAYER_BLINK:
+				strcpy(p, " range 10");
+				break;
+			case PRAYER_TELEPORT_SELF:
+				sprintf(p, " range %d", plev * 8);
+				break;
+			case PRAYER_IMMOLATION:
+				sprintf(p, " dam %dd3", 100 + (plev * 2));
+				break;
 		}
 	}
 
@@ -4490,100 +4659,117 @@ void spell_info(char *p, int spell)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 0: sprintf(p, " dam %dd4", 2+((plev-1)/5)); break;
-			case 2: strcpy(p, " range 10"); break;
-			case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 9: sprintf(p, " dur 200+d100"); break;
-			case 12: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 16: sprintf(p, " dam %dd8", (5+((plev-6)/4))); break;
-			case 18: sprintf(p, " dur 24+d24"); break;
-			case 21: sprintf(p, " dam %dd6", (2+((plev-5)/4))); break;
-			case 22: sprintf(p, " dam %d", 25 + plev); break;
-			case 26: sprintf(p, " dam %d", 35 + plev); break;
-			case 27: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 29: sprintf(p, " dur %d+d20", plev); break;
-			case 31: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 32: sprintf(p, " dur 30+d30"); break;
-			case 34: sprintf(p, " dam %d", 50 + plev); break;
-			case 38: sprintf(p, " dam %d", 50 + plev); break;
-			case 40: sprintf(p, " dam %dd8", (2+((plev-5)/4))); break;
-			case 41: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-			case 43: sprintf(p, " dam %dd8", (10+((plev-5)/4))); break;
-			case 44: sprintf(p, " dam %dd8", (12+((plev-5)/4))); break;
-			case 45: sprintf(p, " dam %dd3", 300 + (plev*2)); break;
-			case 46: sprintf(p, " dam %dd2", 30 + plev); break;
-			case 47: sprintf(p, " dam %dd2", 35 + plev); break;
-			case 48: sprintf(p, " dam %dd2", 40 + plev); break;
-			case 49: sprintf(p, " dam %dd2", 45 + plev); break;
-			case 50: sprintf(p, " dam %dd2", 50 + plev); break;
-			case 51: sprintf(p, " dam %dd2", 80 + plev); break;
-			case 53: strcpy(p, " dur 20+d20"); break;
-			case 54: strcpy(p, " dur 20+d20"); break;
-			case 55: strcpy(p, " dur 20+d20"); break;
-			case 56: strcpy(p, " dur 20+d20"); break;
-			case 57: strcpy(p, " dur 20+d20"); break;
-			case 59: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-			case 60: sprintf(p, " dam %dd2", 40 + plev); break;
-			case 62: sprintf(p, " range %d", (plev * 7)); break;
-		}
-	}
-
-	/* Priest spells */
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-	{
-		int plev = p_ptr->lev;
-
-		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-			case 1:
-			{
-				if (p_ptr->lev < 15)
-					strcpy(p, " heal 4d10");
-				else if (p_ptr->lev < 30)
-					strcpy(p, " heal 6d10");
-				else
-					strcpy(p, " heal 8d10");
+			case ILLUS_CONFUSION_BOLT:
+				sprintf(p, " dam %dd4", 2 + ((plev - 1) / 5));
 				break;
-			}
-			case 2: strcpy(p, " dur 12+d12"); break;
-			case 9: sprintf(p, " range %d", 3*plev); break;
-			case 10: sprintf(p, " dam %dd6", 3+(plev/4)); break;
-			case 11: strcpy(p, " dur 24+d24"); break;
-			case 15: strcpy(p, " dur 10+d10"); break;
-			case 17: sprintf(p, " %d+3d6", plev + orb); break;
-			case 19: strcpy(p, " dur 24+d24"); break;
-			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-			case 23: strcpy(p, " heal 8d10"); break;
-			case 25: strcpy(p, " dur 48+d48"); break;
-			case 26: sprintf(p, " dam d%d", 3*plev); break;
-			case 27: strcpy(p, " heal 300"); break;
-			case 28: sprintf(p, " dam d%d", 3*plev); break;
-			case 30: strcpy(p, " heal 1000"); break;
-			case 37: strcpy(p, " dur 20+d20"); break;
-			case 38:
-			{
-				if (p_ptr->lev < 15)
-					strcpy(p, " heal 4d10");
-				else if (p_ptr->lev < 30)
-					strcpy(p, " heal 6d10");
-				else
-					strcpy(p, " heal 8d10");
+			case ILLUS_PHASE_DOOR:
+				strcpy(p, " range 10");
 				break;
-			}
-			case 39: strcpy(p, " heal 8d10"); break;
-			case 40: strcpy(p, " heal 2000"); break;
-			case 43: sprintf(p, " dam d%d", 6*plev);break;
-			case 44: sprintf(p, " dam d%d", 4*plev);break;
-			case 45: sprintf(p, " dam d%d", 4*plev);break;
-			case 48: strcpy(p, " dam 200"); break;
-			case 49: sprintf(p, " dam %dd10", 15+((plev-5)/3)); break;
-			case 57: strcpy(p, " range 10"); break;
-			case 58: sprintf(p, " range %d", plev * 8); break;
-			case 63: sprintf(p, " dam %dd3", 100+(plev*2)); break;
+			case ILLUS_STINKING_CLOUD:
+				sprintf(p, " dam %d", 10 + (plev / 2));
+				break;
+			case ILLUS_INFRAVISION:
+				sprintf(p, " dur 200+d100");
+				break;
+			case ILLUS_FOG_CLOUD:
+				sprintf(p, " dam %d", 10 + (plev / 2));
+				break;
+			case ILLUS_SHADOW_MONSTER:
+				sprintf(p, " dam %dd8", (5 + ((plev - 6) / 4)));
+				break;
+			case ILLUS_DETECT_INVISIBLE:
+				sprintf(p, " dur 24+d24");
+				break;
+			case ILLUS_SPEAR_OF_LIGHT:
+				sprintf(p, " dam %dd6", (2 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_CHAOS:
+				sprintf(p, " dam %d", 25 + plev);
+				break;
+			case ILLUS_SHADOW_BALL:
+				sprintf(p, " dam %d", 35 + plev);
+				break;
+			case ILLUS_BOLT_OF_DARKNESS:
+				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_HASTE_SELF:
+				sprintf(p, " dur %d+d20", plev);
+				break;
+			case ILLUS_PRISMATIC_SPRAY:
+				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_CHROMATIC_SHIELD:
+				sprintf(p, " dur 30+d30");
+				break;
+			case ILLUS_BEDLAM:
+				sprintf(p, " dam %d", 50 + plev);
+				break;
+			case ILLUS_SUNFIRE:
+				sprintf(p, " dam %d", 50 + plev);
+				break;
+			case ILLUS_PHANTOM_HAND:
+				sprintf(p, " dam %dd8", (2 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_FORCEFUL_HAND:
+				sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_GRASPING_HAND:
+				sprintf(p, " dam %dd8", (10 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_CLENCHED_FIST:
+				sprintf(p, " dam %dd8", (12 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_CRUSHING_HAND:
+				sprintf(p, " dam %dd3", 300 + (plev * 2));
+				break;
+			case ILLUS_FORCE_BLAST:
+				sprintf(p, " dam %dd2", 30 + plev);
+				break;
+			case ILLUS_SPHERE_OF_LIGHT:
+				sprintf(p, " dam %dd2", 30 + plev);
+				break;
+			case ILLUS_SPHERE_OF_DARKNESS:
+				sprintf(p, " dam %dd2", 35 + plev);
+				break;
+			case ILLUS_SPHERE_OF_CONFUSION:
+				sprintf(p, " dam %dd2", 40 + plev);
+				break;
+			case ILLUS_SPHERE_OF_CHAOS:
+				sprintf(p, " dam %dd2", 45 + plev);
+				break;
+			case ILLUS_SPHERE_OF_SOUND:
+				sprintf(p, " dam %dd2", 50 + plev);
+				break;
+			case ILLUS_EXPLOSION:
+				sprintf(p, " dam %dd2", 80 + plev);
+				break;
+			case ILLUS_RESIST_LITE_AND_DARK:
+				strcpy(p, " dur 20+d20");
+				break;
+			case ILLUS_RESIST_POISON:
+				strcpy(p, " dur 20+d20");
+				break;
+			case ILLUS_RESIST_CHAOS_AND_CONFU:
+				strcpy(p, " dur 20+d20");
+				break;
+			case ILLUS_RESIST_SOUND_AND_SHARDS:
+				strcpy(p, " dur 20+d20");
+				break;
+			case ILLUS_RESIST_NEXUS:
+				strcpy(p, " dur 20+d20");
+				break;
+			case ILLUS_INVISIBILITY:
+				strcpy(p, " dur d24");
+				break;
+			case ILLUS_SHADOW_MONSTERS:
+				sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
+				break;
+			case ILLUS_SHADOW_BALL_II:
+				sprintf(p, " dam %dd2", 40 + plev);
+				break;
+			case ILLUS_SHADOW_GATE:
+				sprintf(p, " range %d", (plev * 7));
+				break;
 		}
 	}
 
@@ -4595,33 +4781,77 @@ void spell_info(char *p, int spell)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 1:
-			{
+			case DRUID_CURE_WOUNDS:
 				if (p_ptr->lev < 15)
+				{
 					strcpy(p, " heal 4d10");
+				}
 				else if (p_ptr->lev < 30)
+				{
 					strcpy(p, " heal 6d10");
+				}
 				else
+				{
 					strcpy(p, " heal 8d10");
+				}
 				break;
-			}
-			case 2: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-			case 9: sprintf(p, " range %d", 3*plev); break;
-			case 10: sprintf(p, " dam %dd6", 3+(plev/4)); break;
-			case 12: sprintf(p, " dam %dd3", 9+(plev/2)); break;
-			case 15: strcpy(p, " dur 10+d10"); break;
-			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-			case 21: sprintf(p, " dur %d+d24", 24); break;
-			case 27: strcpy(p, " heal 300"); break;
-			case 31: sprintf(p, " dam %dd8", 8+((plev-5)/4));break;
-			case 37: strcpy(p, " dur 20+d20"); break;
-			case 43: sprintf(p, " dam %dd10", 35+(plev/2)); break;
-			case 45: sprintf(p, " dam %dd2", 60+plev); break;
-			case 48: sprintf(p, " dam %dd2", 70+plev); break;
-			case 49: sprintf(p, " dam %dd10", 15+((plev-5)/3)); break;
-			case 57: strcpy(p, " range 10"); break;
-			case 58: sprintf(p, " range %d", plev * 8); break;
- 			case 63: sprintf(p, " dam %dd3", 100+(plev*2)); break;
+			case DRUID_POISON_BOLT:
+				sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
+				break;
+			case DRUID_PORTAL:
+				sprintf(p, " range %d", 3 * plev);
+				break;
+			case DRUID_DUSTSTORM:
+				sprintf(p, " dam %dd6", 3 + (plev / 4));
+				break;
+			case DRUID_POISON_CLOUD:
+				sprintf(p, " dam %dd3", 9 + (plev / 2));
+				break;
+			case DRUID_RESIST_HEAT_COLD:
+				strcpy(p, " dur 10+d10");
+				break;
+			case DRUID_LEVITATE:
+				strcpy(p, " dur 50+d50");
+				break;
+			case DRUID_PROTECTION_FROM_EVIL:
+				sprintf(p, " dur %d+d25", 3 * plev);
+				break;
+			case DRUID_SENSE_INVISIBLE:
+				sprintf(p, " dur %d+d24", 24);
+				break;
+			case DRUID_HEAL:
+				strcpy(p, " heal 300");
+				break;
+			case DRUID_NEXUS_BOLT:
+				sprintf(p, " dam %dd8", 8 + ((plev - 5) / 4));
+				break;
+			case DRUID_RESIST_NETHER:
+				strcpy(p, " dur 20+d20");
+				break;
+			case DRUID_FIRESTORM:
+				sprintf(p, " dam %dd10", 35 + (plev / 2));
+				break;
+			case DRUID_TORNADO:
+				sprintf(p, " dam %dd2", 60 + plev);
+				break;
+			case DRUID_NEXUS_BALL:
+				sprintf(p, " dam %dd2", 70 + plev);
+				break;
+			case DRUID_BALEFIRE:
+				sprintf(p, " dam %dd10", 15 + ((plev - 5) / 3));
+				break;
+			case DRUID_SUSTAIN_SELF:
+				strcpy(p, " dur 50+d50");
+				break;
+			case DRUID_BLINK:
+				strcpy(p, " range 10");
+				break;
+			case DRUID_TELEPORT_SELF:
+				sprintf(p, " range %d", plev * 8);
+				break;
+ 			case DRUID_DROWN:
+				sprintf(p, " dam %dd3", 100 + (plev * 2));
+				break;
 		}
 	}
 }
@@ -4630,11 +4860,11 @@ void spell_info(char *p, int spell)
 /*
  * Print a list of spells (for browsing or casting or viewing).
  */
-void print_spells(byte *spells, int num, int y, int x)
+void print_spells(const byte *spells, int num, int y, int x)
 {
 	int i, spell;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	cptr comment;
 
@@ -4773,14 +5003,14 @@ void display_koff(int k_idx)
 		int spell;
 		int num = 0;
 
-		byte spells[64];
+		byte spells[PY_MAX_SPELLS];
 
 
 		/* Get the item's sval */
 		sval = i_ptr->sval;
 
 		/* Extract spells */
-		for (spell = 0; spell < 64; spell++)
+		for (spell = 0; spell < PY_MAX_SPELLS; spell++)
 		{
 			/* Check for this spell */
 			if ((spell < 32) ?

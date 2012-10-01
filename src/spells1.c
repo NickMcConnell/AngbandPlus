@@ -115,7 +115,7 @@ void teleport_away(int m_idx, int dis)
 			if (!in_bounds_fully(ny, nx)) continue;
 
 			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
+			if (!terrain_naked_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave_feat[ny][nx] == FEAT_GLYPH) continue;
@@ -196,10 +196,10 @@ void teleport_player(int dis)
 			if (!in_bounds_fully(y, x)) continue;
 
 			/* Require "naked" floor space */
-			if (!cave_naked_bold(y, x)) continue;
+			if (!terrain_naked_bold(y, x)) continue;
 
 			/* No teleporting into vaults and such */
-			if(p_ptr->inside_special == 0)
+			if (!(p_ptr->inside_quest || p_ptr->inside_arena))
 				if (cave_info[y][x] & (CAVE_ICKY)) continue;
 
 			/* This grid looks good */
@@ -265,7 +265,7 @@ void teleport_player_to(int ny, int nx)
 		}
 
 		/* Accept "naked" floor grids */
-		if (cave_naked_bold(y, x)) break;
+		if (terrain_naked_bold(y, x)) break;
 
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -305,9 +305,10 @@ void teleport_player_level(void)
 		return;
 	}
 
-
-	if (p_ptr->inside_special > 0) { /* arena or quest -KMW- */
+	if (p_ptr->inside_arena || p_ptr->inside_quest)
+	{
 		msg_print("There is no effect.");
+		return;
 	}
 
 	else if (!p_ptr->depth)
@@ -321,7 +322,7 @@ void teleport_player_level(void)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (quest_number(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -493,7 +494,7 @@ void take_hit(int dam, cptr kb_str)
 	{
 		/* Hack -- Note death */
 		message(MSG_DEATH, 0, "You die.");
-		msg_print(NULL);
+		message_flush();
 
 		/* Note cause of death */
 		strcpy(p_ptr->died_from, kb_str);
@@ -521,8 +522,8 @@ void take_hit(int dam, cptr kb_str)
 		}
 
 		/* Message */
-		msg_print("*** LOW HITPOINT WARNING! ***");
-		msg_print(NULL);
+		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
+		message_flush();
 	}
 }
 
@@ -534,7 +535,7 @@ void take_hit(int dam, cptr kb_str)
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
-static bool hates_acid(object_type *o_ptr)
+static bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -588,7 +589,7 @@ static bool hates_acid(object_type *o_ptr)
 /*
  * Does a given object (usually) hate electricity?
  */
-static bool hates_elec(object_type *o_ptr)
+static bool hates_elec(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -608,7 +609,7 @@ static bool hates_elec(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-static bool hates_fire(object_type *o_ptr)
+static bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -657,7 +658,7 @@ static bool hates_fire(object_type *o_ptr)
 /*
  * Does a given object (usually) hate cold?
  */
-static bool hates_cold(object_type *o_ptr)
+static bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -683,7 +684,7 @@ static bool hates_cold(object_type *o_ptr)
 /*
  * Melt something
  */
-static int set_acid_destroy(object_type *o_ptr)
+static int set_acid_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
@@ -696,7 +697,7 @@ static int set_acid_destroy(object_type *o_ptr)
 /*
  * Electrical damage
  */
-static int set_elec_destroy(object_type *o_ptr)
+static int set_elec_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
@@ -709,7 +710,7 @@ static int set_elec_destroy(object_type *o_ptr)
 /*
  * Burn something
  */
-static int set_fire_destroy(object_type *o_ptr)
+static int set_fire_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
@@ -722,7 +723,7 @@ static int set_fire_destroy(object_type *o_ptr)
 /*
  * Freeze things
  */
-static int set_cold_destroy(object_type *o_ptr)
+static int set_cold_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
@@ -737,7 +738,7 @@ static int set_cold_destroy(object_type *o_ptr)
 /*
  * This seems like a pretty standard "typedef"
  */
-typedef int (*inven_func)(object_type *);
+typedef int (*inven_func)(const object_type *);
 
 /*
  * Destroys a type of item on a given percent chance
@@ -1273,7 +1274,7 @@ bool apply_disenchant(int mode)
 /*
  * Apply Nexus
  */
-static void apply_nexus(monster_type *m_ptr)
+static void apply_nexus(const monster_type *m_ptr)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 
@@ -3063,7 +3064,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (monster_saves(r_ptr->level, p_ptr->lev))) {
+			    (monster_saves(r_ptr->level, p_ptr->lev)))
+			{
 				/* No obvious effect */
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -3084,7 +3086,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (monster_saves(r_ptr->level, p_ptr->lev))) {
+			    (monster_saves(r_ptr->level, p_ptr->lev)))
+			{
 				/* No obvious effect */
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -3322,7 +3325,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Pet care. */
-			if (dam > 0 && (m_ptr->is_pet || m_ptr->is_friendly)) {
+			if (dam > 0 && (m_ptr->is_pet || m_ptr->is_friendly))
+			{
 				msg_format("%^s howls in rebellion!", m_name);
 				m_ptr->is_pet = FALSE;
 				m_ptr->is_friendly = FALSE;
@@ -3516,7 +3520,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
-			if (!p_ptr->resist_sound)
+			if (!(p_ptr->resist_sound || !p_ptr->oppose_ss))
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
 				(void)set_stun(p_ptr->stun + k);
@@ -3528,9 +3532,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_NETHER:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-			if ((p_ptr->resist_nethr) || (p_ptr->oppose_neth))
+			if ((p_ptr->resist_nethr) || (p_ptr->oppose_nethr))
 			{
 				dam *= 6; dam /= (randint(6) + 6);
+			}
+			if ((p_ptr->resist_nethr) && (p_ptr->oppose_nethr))
+			{
+				dam = dam / 2;
 			}
 			else
 			{
@@ -3557,11 +3565,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_WATER:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if (!p_ptr->resist_sound)
+			if (!(p_ptr->resist_sound || !p_ptr->oppose_ss))
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
 			}
-			if (!p_ptr->resist_confu)
+			if (!(p_ptr->resist_confu || !p_ptr->oppose_cc))
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
@@ -3577,16 +3585,20 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_cc))
+			if ((p_ptr->resist_chaos) && (p_ptr->oppose_cc))
+			{
+				dam = dam / 2;
+			}
+			if (!(p_ptr->resist_confu || !p_ptr->oppose_cc))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
-			if ((!p_ptr->resist_chaos) && (!p_ptr->oppose_cc))
+			if (!(p_ptr->resist_chaos || !p_ptr->oppose_cc))
 			{
 				(void)set_image(p_ptr->image + randint(10));
 			}
 			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos &&
-			    !p_ptr->oppose_cc)
+			    !p_ptr->oppose_nethr && !p_ptr->oppose_cc)
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
@@ -3615,7 +3627,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else
+			if ((p_ptr->resist_shard) && (p_ptr->oppose_ss))
+			{
+				dam = dam / 2;
+			}
+			if (!(p_ptr->resist_shard) || (p_ptr->oppose_ss))
 			{
 				(void)set_cut(p_ptr->cut + dam);
 			}
@@ -3631,7 +3647,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
 			}
-			else
+			if ((p_ptr->resist_sound) || (p_ptr->oppose_ss))
+			{
+				dam = dam / 2;
+			}
+			if (!(p_ptr->resist_sound) || (p_ptr->oppose_ss))
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k);
@@ -3648,7 +3668,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
 			}
-			if ((!p_ptr->resist_confu) && (!p_ptr->oppose_cc))
+			if ((p_ptr->resist_confu) && (p_ptr->oppose_cc))
+			{
+				dam = dam / 2;
+			}
+			if (!(p_ptr->resist_confu || p_ptr->oppose_cc))
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
@@ -3676,11 +3700,15 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_NEXUS:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-			if ((p_ptr->resist_nexus) || (p_ptr->oppose_nex))
+			if ((p_ptr->resist_nexus) || (p_ptr->oppose_nexus))
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else
+			if ((p_ptr->resist_nexus) && (p_ptr->oppose_nexus))
+			{
+				dam = dam / 2;
+			}
+			if (!(p_ptr->resist_nexus || p_ptr->oppose_nexus))
 			{
 				apply_nexus(m_ptr);
 			}
@@ -3717,7 +3745,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 			}
-			else if (!blind && !p_ptr->resist_blind)
+			if ((p_ptr->resist_lite) && (p_ptr->oppose_ld))
+			{
+				dam = dam / 2;
+			}
+			if (!p_ptr->resist_lite && !p_ptr->oppose_ld &&
+			    !blind && !p_ptr->resist_blind)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -3733,7 +3766,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 			}
-			else if (!blind && !p_ptr->resist_blind)
+			if ((p_ptr->resist_dark) && (p_ptr->oppose_ld))
+			{
+				dam = dam / 2;
+			}
+			if (!p_ptr->resist_dark && !p_ptr->oppose_ld &&
+			    !blind && !p_ptr->resist_blind)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -3799,7 +3837,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			msg_print("Gravity warps around you.");
 			teleport_player(5);
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
-			if (!p_ptr->resist_sound)
+			if (!(p_ptr->resist_sound || p_ptr->oppose_ss))
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k);
@@ -3830,11 +3868,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			cold_dam(dam, killer);
-			if (!p_ptr->resist_shard)
+			if (!(p_ptr->resist_shard || p_ptr->oppose_ss))
 			{
 				(void)set_cut(p_ptr->cut + damroll(5, 8));
 			}
-			if (!p_ptr->resist_sound)
+			if (!(p_ptr->resist_sound || p_ptr->oppose_ss))
 			{
 				(void)set_stun(p_ptr->stun + randint(15));
 			}

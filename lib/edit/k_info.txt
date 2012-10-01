@@ -1,12 +1,12 @@
 # File: k_info.txt
 
 
-# This file is used to initialize the "lib/raw/k_info.raw" file, which is
+# This file is used to initialize the "lib/data/k_info.raw" file, which is
 # used to initialize the "object kind" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/k_info.raw" file.
+# After modifying this file, delete the "lib/data/k_info.raw" file.
 
 # Available slots (possibly out of date):
 #   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
@@ -32,9 +32,9 @@
 # 'G' is for graphics - symbol and color. There are 16 colors, as
 # follows:
 
-# D - Black        w - White          s - Gray          o - Orange
+# D - Dark Gray    w - White          s - Gray          o - Orange
 # r - Red          g - Green          b - Blue          u - Brown
-# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# d - Black        W - Light Gray     v - Violet        y - Yellow
 # R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
 
 # 'I' is for basic information. The tval is for the type of item, the
@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -1122,8 +1122,8 @@ F:FEATHER | EASY_KNOW
 N:143:Poison Resistance
 G:=:d
 I:45:20:0
-W:60:0:2:16000
-A:60/2
+W:40:0:2:16000
+A:40/2
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -2986,8 +2986,8 @@ I:38:30:0
 W:110:0:200:300000
 A:110/64
 P:40:2d4:-3:0:15
-F:RES_CONFU |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
+F:RES_CONFU |
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3500,6 +3500,42 @@ A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 521 - 611 unused
+# 521 - 579 unused
+# 580 - 611 for magical device artifacts
 
 
+# The Rod of Delving -- see artifact list
+
+N:580:& Rod~
+G:-:d
+I:66:28:0
+W:50:0:10:5000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Rod of Hidden Ways -- see artifact list
+
+N:581:& Rod~
+G:-:d
+I:66:29:0
+W:70:0:20:50000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Rod of Unsung Heroes -- see artifact list
+
+N:582:& Rod~
+G:-:d
+I:66:30:0
+W:70:0:20:25000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+# The Rod of Illusions -- see artifact list
+
+N:583:& Rod~
+G:-:d
+I:66:31:0
+W:80:0:20:50000
+P:0:1d1:0:0:0
+F:INSTA_ART

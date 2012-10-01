@@ -1,0 +1,27 @@
+# q0000067.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:67:N:Ulfast
+
+# Definition
+Q:67:Q:1:0:0:1:0:211:0
+
+# Description for quest
+?:[LEQ $QUEST67 2]
+Q:67:T:Your daring theft of the sabre Careth Asdriag from the Dulnshead
+Q:67:T:troops has scared the enemy commanders so much that they have enlisted
+Q:67:T:the help of mercenaries to bolster their armies, and a large force of
+Q:67:T:warriors has been dispatched to their city. I've sent my armies to
+Q:67:T:prevent this force from arriving, but the city has been left without
+Q:67:T:a strong defense. Ulfast, son of Ulfang, has taken advantage of this
+Q:67:T:situation and is attacking my people. I have no one else to turn to, so
+Q:67:T:it falls to you to slay Ulfast. He may be in my town, on the roads, or
+Q:67:T:even in the enemy city, but you must find and slay him regardless.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST67 3]
+Q:67:T:As a reward for your good work I have constructed a beautiful
+Q:67:T:town home which awaits you.
+?:1

@@ -1,0 +1,62 @@
+# q0000024.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:24:N:Stealth Mission
+
+# Definition
+Q:24:Q:4:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST24 2]
+Q:24:T:I have my best people working on the problem facing us.
+Q:24:T:We need to know all we can about our enemies if we are
+Q:24:T:to defeat them.  I have a strong feeling all of this is
+Q:24:T:Morgoth's work.  If only I knew what he was planning!
+Q:24:T:We need you to go into the south cave which is known to be
+Q:24:T:under Morgoth's control.  You need to explore the cave for
+Q:24:T:the back exit.  Your knowledge may give us the clue we are
+Q:24:T:looking for. Be careful and stealthy - could be anything
+Q:24:T:in that cave.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST24 3]
+Q:24:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST24 5]
+Q:24:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.......................%%..........................................X
+D:X...........%..........%%..................%.............9..........X
+D:X....................%%%................................%...........X
+D:X..................%%%..............................................X
+D:X........%........%...........%%...............%....................X
+D:X............................%%.....................................X
+D:X%%%%%%%%%%%%%%.............%%.........................%%%..........X
+D:X.............%%%%%%%......%%.........%.............%%%%............X
+D:X...................%%%.%%%%...........%...........%%...............X
+D:X........%............%%%...............%.....%%%%%%..........%.....X
+D:X............9...................%.......%%..%%.....................X
+D:X..........................................%%%......................X
+D:X................%.........................%%.......................X
+D:X............................%............%..........9..............X
+D:X.%......................................%.....................%....X
+D:X......%%%%%%%........%..........................%..................X
+D:X............%%.....................................................X
+D:X.............%%.............................%......................X
+D:X..............%%..........%........%...............................X
+D:X.....%.........%%....................%.................%...........X
+D:X................%%............................................%....X
+D:X...............<.%%................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

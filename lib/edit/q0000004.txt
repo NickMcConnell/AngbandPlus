@@ -1,0 +1,58 @@
+# q0000004.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:4:N:The Sewer
+
+# Definition
+Q:4:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST4 2]
+Q:4:T:The sewer underneath the city has been acting strange
+Q:4:T:lately. There are rumors of monsters living beneath our
+Q:4:T:fair city. I need you to exterminate the vermin and
+Q:4:T:bring the sewer back to its normal, if dirty, self.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST4 3]
+Q:4:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST4 5]
+Q:4:T:I had to call help from a local druid, since you failed to
+Q:4:T:clean out the sewer.
+?:1
+
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:XVVVVVVVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:X...............VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
+D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V...........%%%%%%%%%%%%%9....WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
+D:X%%%%%.V9%%%%%%%%%%%%%9........WWWWV9%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
+D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%9..WW.%%X
+D:X%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WW9%%%%%%%%%%%.......%%X
+D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%X
+D:X%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV.................9%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVVVVVVV.%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%..................V............%%%%X
+D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVV.....X
+D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%............VVVVV.X
+D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:4
+

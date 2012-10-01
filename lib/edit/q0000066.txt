@@ -1,0 +1,72 @@
+# q0000066.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:66:N:Counterstrike II
+
+# Definition
+Q:66:Q:3:0:0:0:10:0:87:6
+
+# Description for quest
+?:[LEQ $QUEST66 2]
+Q:66:T:Though you were successful in your strike against the garrison,
+Q:66:T:my troops were defeated in battle against those of Dulnshead. They
+Q:66:T:were caught by a force of Orcs who ambushed them from behind as
+Q:66:T:they fought, trapping them. I sent fifty men - only five escaped.
+Q:66:T:As if this weren't enough, the leader of my force was killed and the
+Q:66:T:powerful sabre known as Careth Asdriag fell into the hands of the
+Q:66:T:enemy! They mustn't be allowed to keep this weapon! Return to the
+Q:66:T:northern mountains and recover this weapon.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST66 3]
+Q:66:T:As a reward for your good work you may keep the sabre.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST66 5]
+Q:66:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Swordsman
+F:a:1:8:168
+
+# Floor with Cave Orc
+F:b:1:8:98
+
+# Floor with Wood Spider
+F:c:1:8:120
+
+# Floor with Orc Shaman
+F:d:1:8:126
+
+# Floor with Brodda, the Easterling
+F:e:1:8:133
+
+# Floor with Careth Asdriag
+F:1:1:8:0:0:0:87
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX..<..XXXXXXXXXXXXXXXXXXXXXXX..bbb..XXX
+D:XXX.....................D.....D.....................D..bdb..XXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXXXXXXX..bbb..XXX
+D:XXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XXX
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXX
+D:X.a.a.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.........XXXXXXXX.XXXXXX
+D:X.....XXXXXXXXXXXXXXXXXXXXXXX9....XXXXX..ccccc..XXXXXXXX.XXXXXX
+D:X..e..XXXXXXXXXXXXXXXXXXXXXXX.***.XXXXX..ccdcc..XXXXXXXX.XXXXXX
+D:X.....XXXXX..**XXXXXXXXXXXXXX.....D^^^D..ccdcc..D........XXXXXX
+D:X.a.a.XXXXX..*1XXXXXXXXXXXXXX.***.XXXXX..ccccc..XXXXXXXXXXXXXXX
+D:X.....D^^^D..**XXXXXXXXXXXXXX9....XXXXX.........XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:3:27
+

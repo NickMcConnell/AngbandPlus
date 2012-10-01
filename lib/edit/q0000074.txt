@@ -1,0 +1,66 @@
+# q0000074.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:74:N:End the War
+
+# Definition
+Q:74:Q:6:0:0:0:30:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST74 2]
+Q:74:T:Thanks to you, the great Dragon has been slain and Morgoth confined
+Q:74:T:to his dark underworld. The battle you fought was glorious indeed - fire
+Q:74:T:lit the skies and the tower glowed a brilliant red in the heat of the
+Q:74:T:Dragon's breath. In honor of the battle you fought, I have cast
+Q:74:T:away the former name of the tower and christened it Minas Rilnar, the
+Q:74:T:Tower of Brilliant Flame! Still, you have many tasks left. I seek to
+Q:74:T:end this pointless war. Secret talks have revealed that Dulnshead's King
+Q:74:T:also wishes to end the war, but his guard captain seeks to avenge lost
+Q:74:T:battles. You must slay him. He is in the guardhouse at Dulnshead.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST74 3]
+Q:74:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST74 5]
+Q:74:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Town Guard
+F:a:1:8:572
+
+# Floor with Guard Captain
+F:b:1:8:573
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....XXXXX**.a.XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....XXXXX**b..Da.................aXXXXXXXX
+D:X.....XXXXX**.a.XXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXX
+D:X......XXXXXXXXXXXXXXXXXXXXX...............X
+D:X......XXXXXXXXXXXXXXXXXXXXX....a..........X
+D:X.aaaa.XXXXXXXXXXXXXXXXXXXXX.......a..a..a.X
+D:X......XXXXXXXXXXXXXXXXXXXXX...............X
+D:X......XXXXXXXXXXXXXXXXXXXXX.......a.......X
+D:X.aaaa.XXXXXXXXXXXXXXXXXXXXX....a..........X
+D:X......XXXXXXXXXXXXXXXXXXXXX............***X
+D:X**....XXXXXXXXXXXXXXXXXXXXX.......a....***X
+D:X**....D........aa.........D............***X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

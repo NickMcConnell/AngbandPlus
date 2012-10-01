@@ -1,0 +1,119 @@
+# q0000057.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:57:N:The Keep
+
+# Definition
+Q:57:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST57 2]
+Q:57:T:My scholars have found a way into the Keep based on the knowledge of the
+Q:57:T:lake and the architecture of Telamoor. Don't ask me how - I'm just the King.
+Q:57:T:With the knowledge they give you, you will be able to enter the Keep of
+Q:57:T:Telamoor. Be careful - noone has entered there in eons. Your quest is to
+Q:57:T:eliminate any spirits and whatever else may be in the Keep. Only then can we
+Q:57:T:reclaim Telamoor!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST57 3]
+Q:57:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST57 5]
+Q:57:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Ghost
+F:b:1:8:326
+
+# Floor with Spectre
+F:c:1:8:347
+
+# Floor with Dread
+F:d:1:8:369
+
+# Floor with Shadow
+F:e:1:8:377
+
+# Floor with Phantom
+F:f:1:8:378
+
+# Floor with Death Knight
+F:g:1:8:407
+
+# Floor with Dread (Possibly with friends)
+F:h:1:8:460
+
+# Floor with Dreadmaster
+F:i:1:8:471
+
+# Floor with Akhoril The Blind
+F:j:1:8:453
+
+# Floor with Ring of Power (Narya)
+F:1:1:8:0:0:0:10
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....................................................................................X
+D:X.XXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXX.X
+D:X.X....aaaaaaa....X.....X...XX............XXXX............XX..X......X......X.......X.X
+D:X.X..XXXXXXXXXXX..X.....X...XX.aX..........XX..........Xa.XX..X......X..i...D....h..X.X
+D:X.X...............X.....X...XX..aX.........j..........Xa..XX..X......X......X.......X.X
+D:X.X.....,,,,,.....X.....X....XX..........................XX.iiX......XXXXXXXX.......X.X
+D:X.X...,,,,,,,,,...X.....X.....XX...XXXX..........XXXX...XX^^..+......X..............X.X
+D:X.X.....,,,,,.....X.....X......XX..bbbb..........bbbb..XX1*^^.X......X.h.........h..X.X
+D:X.X...............X.....X.XXXXXXXXXXXXXX........XXXXXXXXXXXXXXX......X..............X.X
+D:X.XXXXXXXXDXXXXXXXX.....X.X...X........XX......XX.......X..***X......XXXXXXXXXDXXXXXX.X
+D:X.......................X.X...+.........XXXDDXXX........X..***X.......................X
+D:X.........c.............X.X...X.........................+..***X.......................X
+D:X.......................X.XXXXXXXXXXXXXXXXX..XXXX.......X..***X.......................X
+D:X................XXXXXXXXXXXXX..........XXXDDX..XXXXXXXXXXXXXXXXXXXXXX................X
+D:X................X........XX....XXXXXXX..XX..X...XXXXXXX.............X.......c........X
+D:X................X.......XX^^^^XXb....XX..+..X..XX....bXX............X................X
+D:X................X......XX^^^^XXa......XXXX..XXXX......aXX...........X................X
+D:X....d...........X......X****XX...........D..D...........XX..........X................X
+D:X................X......X****XX...........X..X...........XX..........X................X
+D:X................XXXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXX................X
+D:X.....a......................................................................d........X
+D:X.....................................................................................X
+D:X........................................acd..........................................X
+D:X.....................................................................................X
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....X
+D:X.....X..X..X..X..X..X..X..X..X..X..X.............X..X..X.hX..X..X..X.hX..X..X..X.....X
+D:X.....X..h.....h.....h.....h........D.............D....h........................X.....X
+D:X.....X..X..X..X..X..X..X..X..X..X..X............ X..X..X..X..X.hX..X..X..X..X..X.....X
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....X
+D:X.....................................................................................X
+D:X..............................gg....................gg...............................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDDDDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X----;-----------------------------------,..,-----------------------------------------X
+D:X---;;---------------------;-------------,..,------------------------;;---------------X
+D:X----------------------------------------,..,-----------------------------------------X
+D:X---------,,,,,------VWV------,,,,,------,ef,------,,,,,-------VWV------,,,,,---------X
+D:X-------,,-----,,---VWWWV---,,-----,,----,..,----,,-----,,----VWWWV---,,-----,,-------X
+D:X-----,,---TTT---,,--VWV--,,---TTT---,,--,..,--,,---TTT---,,---VWV--,,---TTT---,,-----X
+D:X---,,---TTTTTTT---,,---,,---TTTTTTT---,,,..,,,---TTTTTTT---,,----,,---TTTTTTT---,,---X
+D:X--,---TTTTTTTTTTT---,-,---TTTTTTTTTTT---,..,---TTTTTTTTTTT---,,-,---TTTTTTTTTTT---,--X
+D:X-----TTTTTTTTTTTTT---,---TTTTTTTTTTTTT--,..,--TTTTTTTTTTTTT----,---TTTTTTTTTTTTT-----X
+D:X--,---TTTTTTTTTTT---,-,---TTTTTTTTTTT---,..,---TTTTTTTTTTT---,,-,---TTTTTTTTTTT---,--X
+D:X---,,---TTTTTTT---,,---,,---TTTTTTT---,,,..,,,---TTTTTTT---,,----,,---TTTTTTT---,,---X
+D:X-----,,---TTT---,,--VWV--,,---TTT---,,--,..,--,,---TTT---,,---VWV--,,---TTT---,,-----X
+D:X-------,,-----,,---VWWWV---,,-----,,----,..,----,,-----,,----VWWWV---,,-----,,-------X
+D:X---;-----,,,,,------VWV------,,,,,------,..,------,,,,,-------VWV------,,,,,------;--X
+D:X------------------------------------;---,..,-------------------------------------;;--X
+D:X----------------------------------------,.<,---------------------------------------;-X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:48:43
+

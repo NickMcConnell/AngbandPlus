@@ -16,25 +16,25 @@
 /*
  * Global array for looping through the "keypad directions".
  */
-s16b ddd[9] =
+const s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
  * Global arrays for converting "keypad direction" into "offsets".
  */
-s16b ddx[10] =
+const s16b ddx[10] =
 { 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
 
-s16b ddy[10] =
+const s16b ddy[10] =
 { 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]".
  */
-s16b ddx_ddd[9] =
+const s16b ddx_ddd[9] =
 { 0, 0, 1, -1, 1, -1, 1, -1, 0 };
 
-s16b ddy_ddd[9] =
+const s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
 
@@ -42,7 +42,7 @@ s16b ddy_ddd[9] =
  * Global array for converting numbers to uppercase hecidecimal digit
  * This array can also be used to convert a number to an octal digit
  */
-char hexsym[16] =
+const char hexsym[16] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -52,7 +52,7 @@ char hexsym[16] =
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
  */
-byte adj_mag_study[] =
+const byte adj_mag_study[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -98,7 +98,7 @@ byte adj_mag_study[] =
 /*
  * Stat Table (INT/WIS) -- extra half-mana-points per level
  */
-byte adj_mag_mana[] =
+const byte adj_mag_mana[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -144,7 +144,7 @@ byte adj_mag_mana[] =
 /*
  * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
  */
-byte adj_mag_fail[] =
+const byte adj_mag_fail[] =
 {
 	99	/* 3 */,
 	99	/* 4 */,
@@ -190,7 +190,7 @@ byte adj_mag_fail[] =
 /*
  * Stat Table (INT/WIS) -- Various things
  */
-byte adj_mag_stat[] =
+const byte adj_mag_stat[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -236,7 +236,7 @@ byte adj_mag_stat[] =
 /*
  * Stat Table (CHR) -- payment percentages
  */
-byte adj_chr_gold[] =
+const byte adj_chr_gold[] =
 {
 	130	/* 3 */,
 	125	/* 4 */,
@@ -282,7 +282,7 @@ byte adj_chr_gold[] =
 /*
  * Stat Table (INT) -- Magic devices
  */
-byte adj_int_dev[] =
+const byte adj_int_dev[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -328,7 +328,7 @@ byte adj_int_dev[] =
 /*
  * Stat Table (WIS) -- Saving throw
  */
-byte adj_wis_sav[] =
+const byte adj_wis_sav[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -374,7 +374,7 @@ byte adj_wis_sav[] =
 /*
  * Stat Table (DEX) -- disarming
  */
-byte adj_dex_dis[] =
+const byte adj_dex_dis[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -420,7 +420,7 @@ byte adj_dex_dis[] =
 /*
  * Stat Table (INT) -- disarming
  */
-byte adj_int_dis[] =
+const byte adj_int_dis[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -466,7 +466,7 @@ byte adj_int_dis[] =
 /*
  * Stat Table (DEX) -- bonus to ac (plus 128)
  */
-byte adj_dex_ta[] =
+const byte adj_dex_ta[] =
 {
 	128 + -4	/* 3 */,
 	128 + -3	/* 4 */,
@@ -512,7 +512,7 @@ byte adj_dex_ta[] =
 /*
  * Stat Table (STR) -- bonus to dam (plus 128)
  */
-byte adj_str_td[] =
+const byte adj_str_td[] =
 {
 	128 + -2	/* 3 */,
 	128 + -2	/* 4 */,
@@ -558,7 +558,7 @@ byte adj_str_td[] =
 /*
  * Stat Table (DEX) -- bonus to hit (plus 128)
  */
-byte adj_dex_th[] =
+const byte adj_dex_th[] =
 {
 	128 + -3	/* 3 */,
 	128 + -2	/* 4 */,
@@ -604,7 +604,7 @@ byte adj_dex_th[] =
 /*
  * Stat Table (STR) -- bonus to hit (plus 128)
  */
-byte adj_str_th[] =
+const byte adj_str_th[] =
 {
 	128 + -3	/* 3 */,
 	128 + -2	/* 4 */,
@@ -650,7 +650,7 @@ byte adj_str_th[] =
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
  */
-byte adj_str_wgt[] =
+const byte adj_str_wgt[] =
 {
 	5	/* 3 */,
 	6	/* 4 */,
@@ -696,7 +696,7 @@ byte adj_str_wgt[] =
 /*
  * Stat Table (STR) -- weapon weight limit in pounds
  */
-byte adj_str_hold[] =
+const byte adj_str_hold[] =
 {
 	4	/* 3 */,
 	5	/* 4 */,
@@ -742,7 +742,7 @@ byte adj_str_hold[] =
 /*
  * Stat Table (STR) -- digging value
  */
-byte adj_str_dig[] =
+const byte adj_str_dig[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -788,7 +788,7 @@ byte adj_str_dig[] =
 /*
  * Stat Table (STR) -- help index into the "blow" table
  */
-byte adj_str_blow[] =
+const byte adj_str_blow[] =
 {
 	3	/* 3 */,
 	4	/* 4 */,
@@ -834,7 +834,7 @@ byte adj_str_blow[] =
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
-byte adj_dex_blow[] =
+const byte adj_dex_blow[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -880,7 +880,7 @@ byte adj_dex_blow[] =
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
-byte adj_dex_safe[] =
+const byte adj_dex_safe[] =
 {
 	0	/* 3 */,
 	1	/* 4 */,
@@ -926,7 +926,7 @@ byte adj_dex_safe[] =
 /*
  * Stat Table (CON) -- base regeneration rate
  */
-byte adj_con_fix[] =
+const byte adj_con_fix[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -972,7 +972,7 @@ byte adj_con_fix[] =
 /*
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
  */
-byte adj_con_mhp[] =
+const byte adj_con_mhp[] =
 {
 	128 + -5	/* 3 */,
 	128 + -3	/* 4 */,
@@ -1026,16 +1026,14 @@ byte adj_con_mhp[] =
  *
  * First, from the player class, we extract some values:
  *
- * This has been modified by GJW and -KMW- to balance spellcasters in melee combat
- *
  *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
- *    Mage    --> num = 4; mul = 3; div = 2* MAX(35, weapon_weight);
- *    Priest  --> num = 5; mul = 3; div = MAX(40, weapon_weight);
+ *    Mage    --> num = 4; mul = 2; div = MAX(40, weapon_weight);
+ *    Priest  --> num = 5; mul = 3; div = MAX(35, weapon_weight);
  *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
  *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *    Paladin --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *    Illusionist --> num = 4; mul = 3; div = 2 * MAX(35, weapon_weight); -KMW-
- *    Druid   --> num = 5; mul = 3; div = MAX(40, weapon_weight); -KMW-
+ *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ *    Illusionist --> num = 4; mul = 2; div = MAX(40, weapon_weight);
+ *    Druid   --> num = 5; mul = 3; div = MAX(35, weapon_weight);
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div", rounding down.
@@ -1046,22 +1044,22 @@ byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
-byte blows_table[12][12] =
+const byte blows_table[12][12] =
 {
 	/* P/D */
 	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
 
 	/* 0  */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2 },
+	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3 },
 
 	/* 1  */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   3 },
+	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   4,   4,   4 },
 
 	/* 2  */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   4,   4,   4 },
+	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5 },
 
 	/* 3  */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   4,   5,   5,   5 },
+	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
 
 	/* 4  */
 	{  1,   2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
@@ -1097,7 +1095,7 @@ byte blows_table[12][12] =
  * Note that this table used a different indexing scheme to determine "P"
  */
 
-byte old_blows_table[11][12] =
+const byte old_blows_table[11][12] =
 {
 	/* P/D */
 	/* 3,  10, /01, /50, /90,/100,/101,/110,/120,/130,/140,/150 */
@@ -1172,7 +1170,7 @@ s16b arena_monsters[MAX_ARENA_MONS] = {   /* -KMW- */
  * the (compiled out) small random energy boost code.  It may
  * also tend to cause more "clumping" at high speeds.
  */
-byte extract_energy[200] =
+const byte extract_energy[200] =
 {
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -1205,7 +1203,7 @@ byte extract_energy[200] =
 /*
  * Base experience levels, may be adjusted up for race and/or class
  */
-s32b player_exp[PY_MAX_LEVEL] =
+const s32b player_exp[PY_MAX_LEVEL] =
 {
 	10,
 	25,
@@ -1266,7 +1264,7 @@ s32b player_exp[PY_MAX_LEVEL] =
  *	Title,
  *	Winner
  */
-player_sex sex_info[MAX_SEXES] =
+const player_sex sex_info[MAX_SEXES] =
 {
 	{
 		"Female",
@@ -1289,7 +1287,7 @@ player_sex sex_info[MAX_SEXES] =
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
  *	HD, Exp
  */
-player_class class_info[MAX_CLASS] =
+const player_class class_info[MAX_CLASS] =
 {
 	{
 		"Warrior",
@@ -1377,7 +1375,7 @@ player_class class_info[MAX_CLASS] =
  *
  *   Array of { Lev, Mana, Fail, Exp/Lev }
  */
-player_magic magic_info[MAX_CLASS] =
+const player_magic magic_info[MAX_CLASS] =
 {
 	{
 		/*** Warrior ***/
@@ -1617,8 +1615,8 @@ player_magic magic_info[MAX_CLASS] =
 			{ 30, 50, 80, 130},
 			{ 35, 70, 90, 230},
 			{ 35, 70, 90, 250},	/* 350 */
-			{ 40, 80, 80, 200},
 
+			{ 13,  6, 70,  20},
 			{ 15,  7, 70,  25},
 			{ 20, 10, 75,  60},
 			{ 25, 25, 80, 250},
@@ -1888,8 +1886,8 @@ player_magic magic_info[MAX_CLASS] =
 			{ 30, 35, 80, 200},
 			{ 40, 40, 80, 100},
 			{ 47, 70, 75, 250},	/* 350 */
-			{ 99,  0,  0,   0},
 
+			{ 99,  0,  0,   0},
 			{ 10, 16, 50,  20},
 			{ 25, 30, 80,  15},
 			{ 30, 50, 80, 130},
@@ -2094,54 +2092,342 @@ u32b spell_flags[4][9][2] =
 {
 	{
 		/*** Mage spell books ***/
-		{ 0x000001ff, 0x00000000 },
-		{ 0x0003fe00, 0x00000000 },
-		{ 0x03fc0000, 0x00000000 },
-		{ 0xfc000000, 0x00000001 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x00000000, 0x0000007e },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0xfc000000 },
-		{ 0x00000000, 0x00003f80 }
+		BOOK(SPELL_MAGIC_MISSILE,
+		     SPELL_DETECT_MONSTERS,
+		     SPELL_PHASE_DOOR,
+		     SPELL_LIGHT_AREA,
+		     SPELL_TREASURE_DETECTION,
+		     SPELL_CURE_LIGHT_WOUNDS,
+		     SPELL_OBJECT_DETECTION,
+		     SPELL_FIND_TRAPS_DOORS,
+		     SPELL_STINKING_CLOUD),
+		BOOK(SPELL_CONFUSE_MONSTER,
+		     SPELL_LIGHTNING_BOLT,
+		     SPELL_TRAP_DOOR_DESTRUCTION,
+		     SPELL_SLEEP_I,
+		     SPELL_CURE_POISON,
+		     SPELL_TELEPORT_SELF,
+		     SPELL_SPEAR_OF_LIGHT,
+		     SPELL_FROST_BOLT,
+		     SPELL_TURN_STONE_TO_MUD),
+		BOOK(SPELL_SATISFY_HUNGER,
+		     SPELL_RECHARGE_ITEM_I,
+		     SPELL_FETCH_ITEM,
+		     SPELL_POLYMORPH_OTHER,
+		     SPELL_IDENTIFY,
+		     SPELL_LOWER_WATER,
+		     SPELL_FIRE_BOLT,
+		     SPELL_SLOW_MONSTER,
+		     -1),
+		BOOK(SPELL_FROST_BALL,
+		     SPELL_SUMMON_ELEMENTAL,
+		     SPELL_TELEPORT_OTHER,
+		     SPELL_HASTE_SELF,
+		     SPELL_FIRE_BALL,
+		     SPELL_WORD_OF_DESTRUCTION,
+		     SPELL_GENOCIDE,
+		     -1,
+		     -1),
+		BOOK(SPELL_RESIST_FIRE,
+		     SPELL_RESIST_COLD,
+		     SPELL_RESIST_ACID,
+		     SPELL_RESIST_ELEC,
+		     SPELL_RUST_PROOF,
+		     SPELL_RESISTANCE,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(SPELL_DOOR_CREATION,
+		     SPELL_STAIR_CREATION,
+		     SPELL_TELEPORT_LEVEL,
+		     SPELL_EARTHQUAKE,
+		     SPELL_WORD_OF_RECALL,
+		     SPELL_DIMENSION_DOOR,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(SPELL_WIZARD_LIGHT,
+		     SPELL_DETECT_ENCHANTMENT,
+		     SPELL_TIME_SPACE_ANCHOR,
+		     SPELL_GENOCIDE2,
+		     SPELL_MASS_GENOCIDE,
+		     SPELL_PROBING,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(SPELL_HEROISM,
+		     SPELL_SHIELD,
+		     SPELL_BERSERKER,
+		     SPELL_LIFE_FOR_MANA,
+		     SPELL_ESSENCE_OF_SPEED,
+		     SPELL_GLOBE_OF_INVULNERABILITY,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(SPELL_ACID_BOLT,
+		     SPELL_CLOUD_KILL,
+		     SPELL_ACID_BALL,
+		     SPELL_ICE_STORM,
+		     SPELL_METEOR_SWARM,
+		     SPELL_PLASMA_BOLT,
+		     SPELL_MANA_STORM,
+		     -1,
+		     -1)
 	},
 
 	{
 		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0xfe000000, 0x00000000 },
-		{ 0x00000000, 0xfe000000 },
-		{ 0x00000000, 0x0000003f },
-		{ 0x00000000, 0x00000fc0 },
-		{ 0x00000000, 0x01fc0000 },
-		{ 0x00000000, 0x0003f000 }
+		BOOK(PRAYER_DETECT_EVIL,
+			 PRAYER_CURE_WOUNDS,
+			 PRAYER_BLESS,
+			 PRAYER_REMOVE_FEAR,
+			 PRAYER_CALL_LIGHT,
+			 PRAYER_FIND_TRAPS,
+			 PRAYER_DETECT_DOORS_STAIRS,
+			 PRAYER_SLOW_POISON,
+			 -1),
+		BOOK(PRAYER_SCARE_MONSTER,
+			 PRAYER_PORTAL,
+			 PRAYER_DUSTSTORM,
+			 PRAYER_CHANT,
+			 PRAYER_SANCTUARY,
+			 PRAYER_SATISFY_HUNGER,
+			 PRAYER_REMOVE_CURSE,
+			 PRAYER_RESIST_HEAT_COLD,
+			 -1),
+		BOOK(PRAYER_LEVITATE,
+			 PRAYER_ORB_OF_DRAINING,
+			 PRAYER_DISINTEGRATE,
+			 PRAYER_SENSE_INVISIBLE,
+			 PRAYER_PROTECTION_FROM_EVIL,
+			 PRAYER_EARTHQUAKE,
+			 PRAYER_SENSE_SURROUNDINGS,
+			 PRAYER_CURE_MORTAL_WOUNDS,
+			 PRAYER_TURN_UNDEAD),
+		BOOK(PRAYER_PRAYER,
+			 PRAYER_DISPEL_UNDEAD,
+			 PRAYER_HEAL,
+			 PRAYER_DISPEL_EVIL,
+			 PRAYER_GLYPH_OF_WARDING,
+			 PRAYER_HOLY_WORD,
+			 PRAYER_SUMMON_ANGEL,
+			 -1,
+			 -1),
+		BOOK(PRAYER_BLINK,
+			 PRAYER_TELEPORT_SELF,
+			 PRAYER_TELEPORT_OTHER,
+			 PRAYER_TELEPORT_LEVEL,
+			 PRAYER_WORD_OF_RECALL,
+			 PRAYER_ALTER_REALITY,
+			 PRAYER_IMMOLATION,
+			 -1,
+			 -1),
+		BOOK(PRAYER_DETECT_MONSTERS,
+			 PRAYER_DETECTION,
+			 PRAYER_PERCEPTION,
+			 PRAYER_PROBING,
+			 PRAYER_CLAIRVOYANCE,
+			 PRAYER_RESIST_NETHER,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_CURE_WOUNDS2,
+			 PRAYER_CURE_MORTAL_WOUNDS2,
+			 PRAYER_STAR_HEALING,
+			 PRAYER_RESTORATION,
+			 PRAYER_REMEMBRANCE,
+			 -1,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(PRAYER_UNBARRING_WAYS,
+			 PRAYER_RECHARGING,
+			 PRAYER_DISPEL_CURSE,
+			 PRAYER_ENCHANT_WEAPON,
+			 PRAYER_ENCHANT_ARMOUR,
+			 PRAYER_ELEMENTAL_BRAND,
+			 PRAYER_IMPRISON,
+			 -1,
+			 -1),
+		BOOK(PRAYER_DISPEL_DEMONS,
+			 PRAYER_DISPEL_UNDEAD2,
+			 PRAYER_DISPEL_EVIL2,
+			 PRAYER_BANISHMENT,
+			 PRAYER_WORD_OF_DESTRUCTION,
+			 PRAYER_ANNIHILATION,
+			 PRAYER_BALEFIRE,
+			 -1,
+			 -1)
 	},
 
-	{	/* Added these books -KMW- */
+	{
 		/*** Illusionist spell books ***/
-		{ 0x000001ff, 0x00000000 },
-		{ 0x0003fe00, 0x00000000 },
-		{ 0x03fc0000, 0x00000000 },
-		{ 0xfc000000, 0x00000001 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x00000000, 0x0000007e },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000,0xfc000000 },
-		{ 0x00000000, 0x00003f80 }
+		BOOK(ILLUS_CONFUSION_BOLT,
+		     ILLUS_DETECT_MONSTERS,
+		     ILLUS_PHASE_DOOR,
+		     ILLUS_LIGHT_AREA,
+		     ILLUS_TREASURE_DETECTION,
+		     ILLUS_FEAR,
+		     ILLUS_OBJECT_DETECTION,
+		     ILLUS_FIND_TRAPS_DOORS,
+		     ILLUS_STINKING_CLOUD),
+		BOOK(ILLUS_INFRAVISION,
+		     ILLUS_SLEEP,
+		     ILLUS_TRAP_DOOR_DESTRUCTION,
+		     ILLUS_FOG_CLOUD,
+		     ILLUS_CURE_POISON,
+		     ILLUS_SATISFY_HUNGER,
+		     ILLUS_SHADOW_DOOR,
+		     ILLUS_SHADOW_MONSTER,
+		     ILLUS_TURN_STONE_TO_MUD),
+		BOOK(ILLUS_DETECT_INVISIBLE,
+		     SPELL_RECHARGE_ITEM_I,
+		     ILLUS_BRAND_AMMO,
+		     ILLUS_SPEAR_OF_LIGHT,
+		     ILLUS_CHAOS,
+		     ILLUS_MENTAL_BARRIER,
+		     ILLUS_TRUE_SIGHT,
+		     ILLUS_SLOW_MONSTER,
+		     -1),
+		BOOK(ILLUS_SHADOW_BALL,
+		     ILLUS_BOLT_OF_DARKNESS,
+		     ILLUS_SHADOW_FORM,
+		     ILLUS_HASTE_SELF,
+		     ILLUS_PRISMATIC_WALL,
+		     ILLUS_PRISMATIC_SPRAY,
+		     ILLUS_CHROMATIC_SHIELD,
+		     -1,
+		     -1),
+		BOOK(ILLUS_RESIST_FEAR,
+		     ILLUS_RESIST_LITE_AND_DARK,
+		     ILLUS_RESIST_POISON,
+		     ILLUS_RESIST_CHAOS_AND_CONFU,
+		     ILLUS_RESIST_SOUND_AND_SHARDS,
+		     ILLUS_RESIST_NEXUS,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(ILLUS_WIZARD_LOCK,
+		     ILLUS_BEDLAM,
+		     ILLUS_WORD_OF_RECALL,
+		     ILLUS_DETECT_ENCHANTMENT,
+		     ILLUS_PROBING,
+		     ILLUS_SUNFIRE,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(ILLUS_SPHERE_OF_LIGHT,
+		     ILLUS_SPHERE_OF_DARKNESS,
+		     ILLUS_SPHERE_OF_CONFUSION,
+		     ILLUS_SPHERE_OF_CHAOS,
+		     ILLUS_SPHERE_OF_SOUND,
+		     ILLUS_EXPLOSION,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(ILLUS_INVISIBILITY,
+		     ILLUS_SHADOW_MONSTERS,
+		     ILLUS_SHADOW_BALL_II,
+		     ILLUS_LIFE_FOR_MANA,
+		     ILLUS_SHADOW_GATE,
+		     ILLUS_SUMMON_SHADOWS,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(ILLUS_INTERPOSING_HAND,
+		     ILLUS_PHANTOM_HAND,
+		     ILLUS_FORCEFUL_HAND,
+		     ILLUS_GRASPING_HAND,
+		     ILLUS_CLENCHED_FIST,
+		     ILLUS_CRUSHING_HAND,
+		     ILLUS_FORCE_BLAST,
+		     -1,
+		     -1)
 	},
 
-	{	/* Added these books -KMW- */
-		/*** Druid spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0xfe000000, 0x00000000 },
-		{ 0x00000000, 0xfe000000 },
-		{ 0x00000000, 0x0000003f },
-		{ 0x00000000, 0x00000fc0 },
-		{ 0x00000000, 0x01fc0000 },
- 		{ 0x00000000, 0x0003f000 }
+	{
+		/*** DRUID spell books ***/
+		BOOK(DRUID_DETECT_EVIL,
+			 DRUID_CURE_WOUNDS,
+			 DRUID_POISON_BOLT,
+			 DRUID_REMOVE_FEAR,
+			 DRUID_CALL_LIGHT,
+			 DRUID_FIND_TRAPS,
+			 DRUID_DETECT_DOORS_STAIRS,
+			 DRUID_SLOW_POISON,
+			 -1),
+		BOOK(DRUID_SLEEP,
+			 DRUID_PORTAL,
+			 DRUID_DUSTSTORM,
+			 DRUID_COOL_LAVA,
+			 DRUID_POISON_CLOUD,
+			 DRUID_SATISFY_HUNGER,
+			 DRUID_REMOVE_CURSE,
+			 DRUID_RESIST_HEAT_COLD,
+			 -1),
+		BOOK(DRUID_LEVITATE,
+			 DRUID_CHARM_MONSTER,
+			 DRUID_DISINTEGRATE,
+			 DRUID_GROW_TREES,
+			 DRUID_PROTECTION_FROM_EVIL,
+			 DRUID_SENSE_INVISIBLE,
+			 PRAYER_SENSE_SURROUNDINGS,
+			 DRUID_LOWER_WATER,
+			 DRUID_TURN_ANIMALS),
+		BOOK(DRUID_FEAR,
+			 DRUID_CALL_WOLVES,
+			 DRUID_HEAL,
+			 DRUID_ANALYZE_MONSTER,
+			 DRUID_GLYPH_OF_WARDING,
+			 DRUID_DETECTION,
+			 DRUID_NEXUS_BOLT,
+			 -1,
+			 -1),
+		BOOK(DRUID_DETECT_MONSTERS,
+			 DRUID_MAP_TERRAIN,
+			 DRUID_PERCEPTION,
+			 DRUID_PROBING,
+			 DRUID_CLAIRVOYANCE,
+			 DRUID_RESIST_NETHER,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(DRUID_FEAR_II,
+			 DRUID_CURE_MORTAL_WOUNDS,
+			 DRUID_FOREST,
+			 DRUID_RESTORATION,
+			 DRUID_FAITHFULNESS,
+			 DRUID_FIRESTORM,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(DRUID_FISSURE,
+			 DRUID_TORNADO,
+			 DRUID_EARTHQUAKE,
+			 DRUID_FLOOD,
+			 DRUID_NEXUS_BALL,
+			 DRUID_BALEFIRE,
+			 -1,
+			 -1,
+			 -1),
+		BOOK(DRUID_UNBARRING_WAYS,
+			 DRUID_RECHARGING,
+			 DRUID_ERRUPTIONS,
+			 DRUID_SUSTAIN_SELF,
+			 DRUID_BRAND_AMMO,
+			 PRAYER_ELEMENTAL_BRAND,
+			 DRUID_IMPRISON,
+			 -1,
+			 -1),
+		BOOK(DRUID_BLINK,
+			 DRUID_TELEPORT_SELF,
+			 DRUID_TELEPORT_OTHER,
+			 DRUID_SUMMON_ANIMALS,
+			 DRUID_WORD_OF_RECALL,
+			 DRUID_ALTER_REALITY,
+			 DRUID_DROWN,
+			 -1,
+			 -1)
 	}
 };
 
@@ -2150,7 +2436,7 @@ u32b spell_flags[4][9][2] =
  * Names of the spells (mage spells then priest spells
  * followed by illusionist & druid spells -KMW-)
  */
-cptr spell_names[4][64] =
+cptr spell_names[4][PY_MAX_SPELLS] =
 {
 	/*** Mage Spells ***/
 
@@ -2225,7 +2511,7 @@ cptr spell_names[4][64] =
 		"Resist Fire",
 		"Resist Cold",
 		"Resist Acid",
-		"Resist Poison",
+		"Resist Electricity",
 		"Protect from Corrosion",
 		"Resistance",
 
@@ -2296,9 +2582,9 @@ cptr spell_names[4][64] =
 		"*Healing*",
 		"Restoration",
 		"Remembrance",
-		"Immolation",
 
 		/* Wrath of God (sval 8) */
+		"Dispel Demons",
 		"Dispel Undead",
 		"Dispel Evil",
 		"Banishment",
@@ -2509,7 +2795,7 @@ cptr spell_names[4][64] =
  * The "pval" of a chest determines the quality of its treasure
  * Note that disarming a trap on a chest also removes the lock.
  */
-byte chest_traps[64] =
+const byte chest_traps[64] =
 {
 	0,					/* 0 == empty */
 	(CHEST_POISON),
@@ -2734,7 +3020,7 @@ cptr color_names[16] =
 /*
  * Abbreviations of healthy stats
  */
-cptr stat_names[6] =
+cptr stat_names[A_MAX] =
 {
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
 };
@@ -2742,7 +3028,7 @@ cptr stat_names[6] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[6] =
+cptr stat_names_reduced[A_MAX] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
 };
@@ -2894,7 +3180,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"auto_destroy",			/* OPT_auto_destroy */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2964,7 +3250,7 @@ cptr option_text[OPT_MAX] =
 	"cheat_xtra",				/* OPT_cheat_xtra */
 	"cheat_know",				/* OPT_cheat_know */
 	"cheat_live",				/* OPT_cheat_live */
-	"cheat_flav",				/* OPT_cheat_flav */
+	"cheat_iden",				/* OPT_cheat_iden */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -3158,7 +3444,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"No query to destroy known worthless items",	/* OPT_auto_destroy */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3197,7 +3483,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
-	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
+	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3228,7 +3514,7 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
 	"Cheat: Know complete monster info",		/* OPT_cheat_know */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	"Cheat: Know all flavored objects",			/* OPT_cheat_flav */
+	"Cheat: Know everything about objects",		/* OPT_cheat_iden */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3261,7 +3547,7 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
-	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
+	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3324,7 +3610,7 @@ cptr option_desc[OPT_MAX] =
 /*
  * Options -- normal values
  */
-bool option_norm[OPT_MAX] =
+const bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
@@ -3422,7 +3708,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_auto_destroy */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3492,7 +3778,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_cheat_xtra */
 	FALSE,		/* OPT_cheat_know */
 	FALSE,		/* OPT_cheat_live */
-	FALSE,		/* OPT_cheat_flav */
+	FALSE,		/* OPT_cheat_iden */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3590,7 +3876,7 @@ bool option_norm[OPT_MAX] =
  *
  * Note the special significance given to the constant "255".
  */
-byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
+const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
 	/*** User-Interface ***/
 
@@ -3632,11 +3918,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_other,
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
+		OPT_auto_destroy,
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
-		255,
 		255,
 		255,
 		255
@@ -3725,8 +4011,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_room,
 		OPT_cheat_xtra,
 		OPT_cheat_know,
+		OPT_cheat_iden,
 		OPT_cheat_live,
-		OPT_cheat_flav,
 		255,
 		255,
 		255,

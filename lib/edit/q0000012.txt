@@ -1,0 +1,58 @@
+# q0000012.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:12:N:Poisoning of Water
+
+# Definition
+Q:12:Q:6:0:0:0:25:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST12 2]
+Q:12:T:Water trolls are poisoning the lake outside the town. As this
+Q:12:T:is the primary source of water for our fair city, you can
+Q:12:T:see the dire consequences! Hurry and eliminate the trolls
+Q:12:T:so the water can return to a normal state naturally.
+Q:12:T:Be prepared, rumor has it there approximately 20 water trolls
+Q:12:T:at the lake.
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST12 3]
+Q:12:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST12 5]
+Q:12:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Water Troll
+F:a:1:8:348
+
+# Floor with Troll King
+F:b:1:8:552
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X........................................................................X
+D:X................................VVVV....................................X
+D:X................X.............VVVWWVVVV......VVVV.......................X
+D:X.............................VVWWWWWWWVVVV.VVVWWVV......................X
+D:X................X........a...VWWWWWWWWWWWVVVWWWWWVVV....................X
+D:X.......................aa...VVWWWWWWWWWWWWWWWWWWWWWVVV..................X
+D:X................Xa........VVVWWWWWWWWWWWWWWWWWWWWWWWWVVV................X
+D:X.........................VVWWWWWW..aaaaa......WWWWWWVV..................X
+D:X................Xa.....a.VVWWWW.....aWW.aa.....WWWWVV...................X
+D:X..........................VVVWW...a..WWaa.....WWVVVV....................X
+D:X................X...........VVWWW...aaaa....WWWWV.......................X
+D:X.......................a.....VVWWW.......WWWWVVVV.......................X
+D:X................Xa.......a....VVWWWWWWWWWWWVVV..........................X
+D:X.<......b.......................VVWWWWWWWVVV............................X
+D:X..................................VVVVVVVV..............................X
+D:X........................................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:14:3
+

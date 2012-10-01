@@ -67,7 +67,6 @@ typedef s16b s16b_wid[DUNGEON_WID];
 /**** Available Structs ****/
 
 
-typedef struct header header;
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
@@ -80,7 +79,6 @@ typedef struct vault_type vault_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
-typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
@@ -91,61 +89,14 @@ typedef struct player_class player_class;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
-typedef struct building building; /* From Kamband -KMW- */
+typedef struct bldg_type bldg_type; /* From Kamband -KMW- */
+typedef struct building_type building_type; /* From Zangband */
+typedef struct plot_type plot_type;
+typedef struct quest_type quest_type;
 
 
 
 /**** Available structs ****/
-
-
-/*
- * Template file header information (see "init.c").  16 bytes.
- *
- * Note that the sizes of many of the "arrays" are between 32768 and
- * 65535, and so we must use "unsigned" values to hold the "sizes" of
- * these arrays below.  Normally, I try to avoid using unsigned values,
- * since they can cause all sorts of bizarre problems, but I have no
- * choice here, at least, until the "race" array is split into "normal"
- * and "unique" monsters, which may or may not actually help.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "read()" and "write()" functions cannot handle more than 32767 bytes
- * at one time, so we need replacement functions, see "util.c" for details.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
- * function can handle more than 65536 bytes at a time, since this might
- * result in segmentation problems on certain older machines, and in fact,
- * we should not assume that it can handle exactly 65536 bytes at a time,
- * since the internal functions may use an unsigned short to specify size.
- *
- * In general, these problems occur only on machines (such as most personal
- * computers) which use 2 byte "int" values, and which use "int" for the
- * arguments to the relevent functions.
- */
-struct header
-{
-	byte v_major;		/* Version -- major */
-	byte v_minor;		/* Version -- minor */
-	byte v_patch;		/* Version -- patch */
-	byte v_extra;		/* Version -- extra */
-
-
-	u16b info_num;		/* Number of "info" records */
-
-	u16b info_len;		/* Size of each "info" record */
-
-
-	u16b head_size;		/* Size of the "header" in bytes */
-
-	u16b info_size;		/* Size of the "info" array in bytes */
-
-	u32b name_size;		/* Size of the "name" array in bytes */
-
-	u32b text_size;		/* Size of the "text" array in bytes */
-};
 
 
 /*
@@ -170,7 +121,7 @@ struct maxima
 	u16b h_max;		/* Max size for "h_info[]" */
 
 	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b unused;	/* Unused */
+	u16b q_max;		/* Max size for "plot_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
@@ -492,14 +443,6 @@ struct vault_type
 	int mon9;			/* monster index 9 -KMW- */
 	int mon10;			/* monster index 10 -KMW- */
 	int mon[10];		/* monster indices -KMW- */
-	int item1;			/* item index 1 -KMW- */
-	int item2;			/* item index 2 -KMW- */
-	int item3;			/* item index 3 -KMW- */
-	int item4;			/* item index 4 -KMW- */
-	int item5;			/* item index 5 -KMW- */
-	int item[5];		/* artifact indicies -KMW- */
-	int kobjects[10];		/* array of object index -KMW- */
-	int eobjects[10];		/* ego attributes for kobjects -KMW- */
 };
 
 
@@ -649,58 +592,6 @@ struct alloc_entry
 
 
 /*
- * Structure for the "quests"
- *
- * Hack -- currently, only the "level" parameter is set, with the
- * semantics that "one (QUEST) monster of that level" must be killed,
- * and then the "level" is reset to zero, meaning "all done".  Later,
- * we should allow quests like "kill 100 fire hounds", and note that
- * the "quest level" is then the level past which progress is forbidden
- * until the quest is complete.  Note that the "QUESTOR" flag then could
- * become a more general "never out of depth" flag for monsters.
- *
- * Actually, in Angband 2.8.0 it will probably prove easier to restrict
- * the concept of quest monsters to specific unique monsters, and to
- * actually scan the dead unique list to see what quests are left.
- *
- * For the quest_type field, both types 1 and 2 use level, r_idx, cur_num
- * and max_num.  If the quest is a type 2 then the monsters can be killed
- * on any level.  Type 3 designates an object and uses the k_idx field.
- * Type 4 requires the player to find the exit, and 5 to kill all monsters on
- * quest level.  -KMW-
-*/
-struct quest
-{
-	s16b quest_type;
-
-	char qname[60];		/* Quest name -KMW- */
-	/* 1 */ s16b level;	/* Dungeon level */
-	/* 2 */ s16b r_idx;	/* Monster race */
-
-	s16b cur_num;		/* Number killed */
-	s16b max_num;		/* Number required */
-
-	/* 3 */ s16b k_idx;	/* object index -KMW- */
-	/* 5 */ s16b num_mon;	/* number of monsters on level -KMW- */
-	char qtext1[80];		/* Quest Description Line -KMW- */
-	char qtext2[80];		/* Quest Description Line -KMW- */
-	char qtext3[80];		/* Quest Description Line -KMW- */
-	char qtext4[80];		/* Quest Description Line -KMW- */
-	char qtext5[80];		/* Quest Description Line -KMW- */
-	char qtext6[80];		/* Quest Description Line -KMW- */
-	char qtext7[80];		/* Quest Description Line -KMW- */
-	char qtext8[80];		/* Quest Description Line -KMW- */
-	char qtext9[80];		/* Quest Description Line -KMW- */
-	s16b questy;		/* location of quest entrance -KMW- */
-	s16b questx;		/* location of quest entrance -KMW- */
-	s16b revert;		/* revert to terrain when done -KMW- */
-	bool vaultused;		/* Does quest need a special level? -KMW- */
-};
-
-
-
-
-/*
  * A store owner
  */
 struct owner_type
@@ -784,7 +675,7 @@ struct player_magic
 	s16b spell_first;		/* Level of first spell */
 	s16b spell_weight;		/* Weight that hurts spells */
 
-	magic_type info[64];	/* The available spells */
+	magic_type info[PY_MAX_SPELLS];	/* The available spells */
 };
 
 
@@ -908,7 +799,7 @@ struct player_other
 
 	bool opt[OPT_MAX];		/* Options */
 
-	u32b window_flag[8];	/* Window flags */
+	u32b window_flag[ANGBAND_TERM_MAX];	/* Window flags */
 
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
@@ -942,9 +833,6 @@ struct player_type
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
 
-	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
-
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
@@ -964,16 +852,10 @@ struct player_type
 
 	s16b plot_num;			/* Characters plotline number -KMW- */
 	s16b arena_number;		/* monster number in arena -KMW- */
-	s16b inside_special;		/* Is character inside arena, quest level? -KMW- */
-	bool exit_bldg;			/* Goal obtained in arena? -KMW- */
-	bool leftbldg;			/* did we just leave a special area? -KMW- */
-	s16b rewards[MAX_REWARDS];	/* Status of rewards in town -KMW- */
+	s16b inside_arena;		/* Is character inside arena, quest level? -KMW- */
+	s16b inside_quest;		/* Inside quest level */
 
-	/* For quests to be changed after entered once and things taken... */
-	s16b cqmon[MAX_MON_QUEST];
-	s16b cqmonc[MAX_MON_QUEST];
-	s16b cqitem[MAX_ITEM_QUEST];
-	s16b cqitemc[MAX_ITEM_QUEST];
+	s16b rewards[MAX_REWARDS];	/* Status of rewards in town -KMW- */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
@@ -1004,8 +886,8 @@ struct player_type
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
-	s16b tim_s_invis;		/* Timed -- See Invisible */
-	s16b tim_invis;		/* Timed --Invisibility -KMW- */
+	s16b tim_invis;		/* Timed -- See Invisible */
+	s16b tim_pl_invis;	/* Timed -- Invisibility -KMW- */
  	s16b tim_ghostly;		/* Timed -- walk through walls -KMW- */
 	s16b tim_infra;		/* Timed -- Infra Vision */
 	s16b tim_levitate;	/* Timed -- Levitation */
@@ -1024,8 +906,8 @@ struct player_type
 	s16b oppose_ld;	/* Timed -- oppose light and dark */
 	s16b oppose_cc;	/* Timed -- oppose chaos & confusion */
 	s16b oppose_ss;	/* Timed -- oppose sound & shards */
-	s16b oppose_nex;	/* Timed -- oppose nexus */
-	s16b oppose_neth;	/* Timed -- oppose nether */
+	s16b oppose_nexus;	/* Timed -- oppose nexus */
+	s16b oppose_nethr;	/* Timed -- oppose nether */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1043,7 +925,7 @@ struct player_type
 	u32b spell_forgotten1;	/* Spell flags */
 	u32b spell_forgotten2;	/* Spell flags */
 
-	byte spell_order[64];	/* Spell order */
+	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
@@ -1063,7 +945,11 @@ struct player_type
 
 	bool playing;			/* True if player is playing */
 
+	byte exit_bldg;			/* Goal obtained in arena? -KMW- */
+	byte leftbldg;			/* did we just leave a special area? -KMW- */
 	bool leaving;			/* True if player is leaving */
+
+	bool leaving_dungeon;		/* True if player is leaving the dungeon */
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
@@ -1071,7 +957,7 @@ struct player_type
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
 
-	s16b total_weight;		/* Total weight being carried */
+	s32b total_weight;		/* Total weight being carried */
 
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */
@@ -1271,7 +1157,7 @@ struct high_score
 	char max_dun[4];		/* Max Dungeon Level (number) */
 
 	char arena_number[4];	/* Arena level attained -KMW- */
-	char inside_special[4];   /* Did the player die in the arena? -KMW- */
+	char inside_arena[4];   /* Did the player die in the arena? -KMW- */
 	char exit_bldg[4];	/* Can the player exit arena? Goal obtained? -KMW- */
 
 	char how[32];		/* Method of death (string) */
@@ -1279,21 +1165,54 @@ struct high_score
 
 /*
  * A structure to describe a building.
- * From Kamband -KMW-
+ * From Zangband
  */
+struct building_type
+{
+	char name[20];				/* Building name */
+	char owner_name[20];			/* Proprietor name */
+	char owner_race[20];			/* Proprietor race */
 
-struct building {
-  cptr name;			/* proprietor name */
-  cptr race;			/* proprietor race */
-  byte num_actions;		/* Max 6 */
+	char act_names[MAX_BLDG_ACTS][30];	/* action names */
+	s16b member_costs[MAX_BLDG_ACTS];	/* Costs for class members of building */
+	s16b other_costs[MAX_BLDG_ACTS];	/* Costs for nonguild members */
+	char letters[MAX_BLDG_ACTS];		/* action letters */
+	s16b actions[MAX_BLDG_ACTS];		/* action codes */
+	s16b action_restr[MAX_BLDG_ACTS];	/* action restrictions */
 
-  cptr act_names[6];		/* action names */
-  s16b class_costs[6];		/* Costs for class members of building */
-  s16b other_costs[6];		/* Costs for nonguild members */
-  char letters[6];		/* action letters */
-  s16b actions[6];		/* action codes */
-  s16b action_restr[6];		/* action restrictions */
+	s16b member_class[MAX_CLASS];		/* which classes are part of guild */
+	s16b member_race[MAX_RACES];		/* which races are part of guild */
+	/* s16b member_realm[MAX_REALM+1]; */ /* which realms are part of guild */
+};
 
-  s16b g_class[MAX_CLASS];	/* which classes are part of guild */
-  s16b class;			/* main class for this building */
+
+/*
+ * Structure for the "plots"
+ */
+struct plot_type
+{
+	char name[22];          /* Plot name */
+};
+
+
+/*
+ * Structure for the "quests"
+ */
+struct quest_type
+{
+	s16b status;            /* Is the quest taken, completed, finished? */
+
+	s16b type;              /* The quest type */
+
+	char name[60];          /* Quest name */
+	s16b level;             /* Dungeon level */
+	s16b r_idx;             /* Monster race */
+
+	s16b cur_num;           /* Number killed */
+	s16b max_num;           /* Number required */
+
+	s16b k_idx;             /* object index */
+	s16b num_mon;           /* number of monsters on level */
+
+	byte flags;             /* quest flags */
 };

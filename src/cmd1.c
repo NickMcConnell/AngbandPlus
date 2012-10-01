@@ -108,9 +108,8 @@ sint critical_shot(int weight, int plus, int dam)
  * Critical hits (by player)
  *
  * Factor in weapon weight, total plusses, player level.
- * AND monster sleep status - Added by GJW	-KMW-
  */
-sint critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
+sint critical_norm(int weight, int plus, int dam)
 {
 	int i, k;
 
@@ -118,9 +117,7 @@ sint critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	/* Rogues always get critical hits against sleeping foes. From GJW -KMW- */
-	if( (p_ptr->pclass == CLASS_ROGUE && m_ptr->csleep > 0) ||
-	     (randint(5000) <= i) )
+	if (randint(5000) <= i)
 	{
 		k = weight + randint(650);
 
@@ -165,7 +162,7 @@ sint critical_norm(int weight, int plus, int dam, monster_type *m_ptr)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 {
 	int mult = 1;
 
@@ -373,7 +370,6 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
-			/* added poison brand by GJW 	-KMW- */
 			/* Brand (Poison) */
 			if (f1 & (TR1_BRAND_POIS))
 			{
@@ -503,7 +499,7 @@ void search(void)
 /*
  * Determine if the object can be picked up, and has "=g" in its inscription.
  */
-static bool auto_pickup_okay(object_type *o_ptr)
+static bool auto_pickup_okay(const object_type *o_ptr)
 {
 	cptr s;
 
@@ -541,6 +537,7 @@ static bool auto_pickup_okay(object_type *o_ptr)
 static void py_pickup_aux(int o_idx)
 {
 	int slot;
+	int i;
 
 	char o_name[80];
 	object_type *o_ptr;
@@ -559,6 +556,19 @@ static void py_pickup_aux(int o_idx)
 	/* Message */
 	msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
+	/* Check if completed a quest */
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
+		    (quest[i].status == QUEST_STATUS_TAKEN) &&
+			   (quest[i].k_idx == o_ptr->name1))
+		{
+			quest[i].status = QUEST_STATUS_COMPLETED;
+			msg_print("You completed your quest!");
+			msg_print(NULL);
+		}
+	}
+	
 	/* Delete the object */
 	delete_object_idx(o_idx);
 }
@@ -932,7 +942,6 @@ void hit_trap(int y, int x)
 					{
 						msg_print("The poison does not affect you!");
 					}
-
 					else
 					{
 						dam = dam * 2;
@@ -1112,11 +1121,8 @@ void py_attack(int y, int x)
 
 	bool do_quake = FALSE;
 
-	bool vorpal_cut = FALSE, chaos_effect = FALSE, force_effect = FALSE;
-	bool drain_msg = TRUE;
-	int drain_result = 0, drain_heal = 0;
-	int drain_left = 100;
-	u32b f1, f2, f3; /* A massive hack -- life-draining weapons */
+	/* A massive hack -- vampiric, chaotic and force weapons */
+	u32b f1, f2, f3;
 
 
 	/* Get the monster */
@@ -1127,6 +1133,10 @@ void py_attack(int y, int x)
 
 	/* Disturb the player */
 	disturb(0, 0);
+
+
+	/* Disturb the monster */
+	m_ptr->csleep = 0;
 
 
 	/* Extract monster name (or "it") */
@@ -1171,20 +1181,8 @@ void py_attack(int y, int x)
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
-			object_flags(o_ptr,&f1,&f2,&f3);
+			object_flags(o_ptr, &f1, &f2, &f3);
 
-			if ((f3 & TR3_CHAOTIC) && (randint(2) == 1))
-				chaos_effect = TRUE;
-			if ((f1 & TR1_FORCE) && (randint(2) == 1)) {
-				force_effect = TRUE;
-			}
-			if (f3 & TR3_VAMPIRIC) {
-				if (!((r_ptr->flags3 & RF3_UNDEAD) ||
-				     (r_ptr->flags3 & RF3_NONLIVING)))
-					drain_result = m_ptr->hp;
-			}
-			if (f1 & TR1_VORPAL)
-				vorpal_cut = TRUE;
 
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
@@ -1192,18 +1190,22 @@ void py_attack(int y, int x)
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, m_ptr);
-
-				if (vorpal_cut) {
-					int step_k = k;
-
-					do {
-						k += step_k;
-						msg_print("Your blade cuts deep!");
-					} while (randint(2) == 1);
-				}
-				/* factor in monster for critical_norm (GJW)		-KMW- */
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 				k += o_ptr->to_d;
+			}
+
+			/*
+			 * Vorpal blades (changed -JIH-).
+			 * Note that the damage multiplier is being affected
+			 * *after* we factor in weapon to_d bonuses.
+			 */
+			if ((f1 & TR1_VORPAL) && (randint(2) == 1))
+			{
+				/* Increase damage */
+				k += k / 3;
+
+				/* Message */
+				msg_print("Your blade cuts deep!");
 			}
 
 			/* Apply the player damage bonuses */
@@ -1221,29 +1223,6 @@ void py_attack(int y, int x)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL, FALSE)) break;
 
-			/* Disturb the monster (AFTER damage is done -GJW) 	-KMW- */
-			m_ptr->csleep = 0;
-
-			if (drain_result) {
-				drain_result -= m_ptr->hp;
-				if (drain_result > 0) {
-					drain_heal = damroll(5,(drain_result / 5));
-					if (drain_left) {
-						if (drain_heal < drain_left)
-							drain_left -= drain_heal;
-						else {
-							drain_heal = drain_left;
-							drain_left = 0;
-						}
-						if (drain_msg) {
-							msg_format("Your weapon drains life from %s!", m_name);
-							drain_msg = FALSE;
-						}
-						hp_player(drain_heal);
-					}
-				}
-			}
-
 			/* Confusion attack */
 			if (p_ptr->confusing)
 			{
@@ -1251,10 +1230,7 @@ void py_attack(int y, int x)
 				p_ptr->confusing = FALSE;
 
 				/* Message */
-				if (!chaos_effect)
-					msg_print("Your hands stop glowing.");
-				else
-					chaos_effect = FALSE;
+				msg_print("Your hands stop glowing.");
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1277,26 +1253,36 @@ void py_attack(int y, int x)
 				}
 			}
 
-			else if (chaos_effect && (randint(10) == 1)) {
-				chaos_effect = FALSE;
-				msg_format("%^s disappears!",m_name);
-				teleport_away(cave_m_idx[y][x], 50);
-				num = p_ptr->num_blow + 1;
-			} else if (chaos_effect && (randint(10) == 1) &&
-			     (!(r_ptr->flags1 & RF1_UNIQUE))) {
-				int tmp = poly_r_idx(m_ptr->r_idx);
+			/* Vampiric weapons */
+			if ((f3 & TR3_VAMPIRIC) && (k > 0) && (randint(2) == 1))
+			{
+				if (!((r_ptr->flags3 & RF3_UNDEAD) ||
+				     (r_ptr->flags3 & RF3_NONLIVING)))
+				{
+					/* Heal the player */
+					hp_player(damroll(5, (k / 5)));
 
-				chaos_effect = FALSE;
-				if (tmp != m_ptr->r_idx) {
-					msg_format("%^s changes!", m_name);
-					delete_monster_idx(cave_m_idx[y][x]);
-					(void) place_monster_aux(y, x, tmp, FALSE, FALSE, 0);
-					m_ptr = &m_list[cave_m_idx[y][x]];
-					monster_desc(m_name, m_ptr, 0);
-					r_ptr = &r_info[m_ptr->r_idx];
+					/* Message */
+					msg_format("Your weapon drains life from %s!", m_name);
 				}
-			} else if (force_effect) {
-				fire_ball(GF_FORCE, 5,10 + (p_ptr->lev / 2), 2);
+			}
+
+			if ((f3 & TR3_CHAOTIC) && (randint(2) == 1))
+			{
+				if (randint(2) == 1)
+				{
+					fire_ball(GF_CHAOS, 5, 10 + (p_ptr->lev / 2), 2);
+				}
+				else
+				{
+					fire_ball(GF_DISENCHANT, 5, 10 + (p_ptr->lev / 2), 2);
+				}
+				msg_print("Your weapon produces a chaotic effect!");
+			}
+
+			if ((f1 & TR1_FORCE) && (randint(2) == 1))
+			{
+				fire_ball(GF_FORCE, 5, 10 + (p_ptr->lev / 2), 2);
 				msg_print("Your weapon radiates force!");
 			}
 		}
@@ -1317,7 +1303,8 @@ void py_attack(int y, int x)
 		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 	}
 
-	if ((m_ptr->is_pet) || (m_ptr->is_friendly)) {
+	if ((m_ptr->is_pet) || (m_ptr->is_friendly))
+	{
 		char m_name[80];
 
 		monster_desc(m_name, m_ptr, 0x80);
@@ -1328,13 +1315,7 @@ void py_attack(int y, int x)
 	}
 
 	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake)
-	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
-
-		earthquake(py, px, 10);
-	}
+	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
 }
 
 
@@ -1354,15 +1335,12 @@ void move_player(int dir, int jumping)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x, wt;
+	int y, x;
+
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
-
-	/* Determine a max carrying capacity for swimming */
-	wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
-
 
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
@@ -1370,81 +1348,6 @@ void move_player(int dir, int jumping)
 		/* Attack */
 		py_attack(y, x);
 	}
-
-#if 0
-
-	/* Water -KMW- */
-	else if ((cave_feat[y][x] == FEAT_DEEP_WATER) &&
-		(p_ptr->total_weight >= wt) && (!p_ptr->levitate))
-	{
-		msg_print("You can't swim with that much weight.");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-	/* Shallow Lava */
-	else if ((cave_feat[y][x] == FEAT_SHAL_LAVA) &&
-		!((p_ptr->resist_fire) || (p_ptr->immune_fire) ||
-		    (p_ptr->oppose_fire) || (p_ptr->levitate)))
-	{
-		msg_print("The heat is too intense!");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-	/* Deep Lava (not levitating) */
-	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && (!p_ptr->levitate))
-	{
-		msg_print("You can't move through that!");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-	/* Deep Lava (levitating) */
-	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && (p_ptr->levitate) &&
-	    !((p_ptr->resist_fire) || (p_ptr->oppose_fire) ||
-	    (p_ptr->immune_fire)))
-	{
-		msg_print("The heat is too intense to move over it.");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-	/* Chasm */
-	else if ((cave_feat[y][x] == FEAT_CHASM) && !p_ptr->levitate)
-	{
-		msg_print("You can't cross the chasm.");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-	/* Mountain */
-	else if (cave_feat[y][x] == FEAT_MOUNTAIN)
-	{
-		msg_print("You can't move through that!");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-	/* Trees */
-	else if ((cave_feat[y][x] == FEAT_TREES) &&
-		!((p_ptr->pclass == CLASS_RANGER) ||
-		 (p_ptr->pclass == CLASS_DRUID) ||
-		 (p_ptr->ghostly)))
-	{
-		msg_print("The trees are in your way.");
-		p_ptr->running = 0;
-		cave_info[y][x] |= (CAVE_MARK);
-		lite_spot(y, x);
-	}
-
-#endif /* 0 */
 
 #ifdef ALLOW_EASY_ALTER
 
@@ -1475,7 +1378,7 @@ void move_player(int dir, int jumping)
 #endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls" */
-	else if ((!cave_floor_bold(y, x)) && (!p_ptr->ghostly) &&
+	else if ((!terrain_floor_bold(y, x)) && (!p_ptr->ghostly) &&
 		   (!cave_perma_bold(y, x)))
 	{
 		/* Disturb the player */
@@ -1527,7 +1430,7 @@ void move_player(int dir, int jumping)
 			/* Wall (or secret door) */
 			else
 			{
-				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
+				message(MSG_HITWALL, 0, "There is a damn wall blocking your way.");
 			}
 		}
 	}
@@ -1604,42 +1507,6 @@ void move_player(int dir, int jumping)
 
 			/* Free turn XXX XXX XXX */
 			p_ptr->energy_use = 0;
-		}
-
-		/* Handle quest areas -KMW- */
-		if (cave_feat[y][x] == FEAT_QUEST_ENTER)
-		{
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Hack -- Enter quest level */
-			p_ptr->command_new = '[';
-
-			/* Free turn XXX XXX XXX */
-			p_ptr->energy_use = 0;
-		}
-
-		if (cave_feat[y][x] == FEAT_QUEST_EXIT)
-		{
-			int i, i2;
-
-			for (i2=QUEST_REWARD_HEAD; i2 < QUEST_REWARD_TAIL; i2++) {
-				i = i2 - QUEST_DIFF;
-				if (p_ptr->rewards[i] == 1)
-					break;
-			}
-
-			if (q_list[i2-QUEST_OFFSET1].quest_type == 4) {
-				p_ptr->rewards[i] = 2;
-				msg_print("You accomplished your quest!");
-				msg_print(NULL);
-			}
-
-			p_ptr->inside_special = 0;
-			p_ptr->depth = 0;
-			p_ptr->leaving = TRUE;
-			p_ptr->py = p_ptr->oldpy;
-			p_ptr->px = p_ptr->oldpx;
 		}
 
 		/* Discover invisible traps */
@@ -1874,13 +1741,13 @@ static int see_nothing(int dir, int y, int x)
 /*
  * Hack -- allow quick "cycling" through the legal directions
  */
-static byte cycle[] =
+static const byte cycle[] =
 { 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
 
 /*
  * Hack -- map each direction into the "middle" of the "cycle[]" array
  */
-static byte chome[] =
+static const byte chome[] =
 { 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };
 
 
@@ -2104,8 +1971,8 @@ static bool run_test(void)
 				case FEAT_PERM_INNER:
 				case FEAT_PERM_OUTER:
 				case FEAT_PERM_SOLID:
-				/* water, lava, & trees -KMW- */
 
+				/* water, lava, & trees -KMW- */
 				case FEAT_SHAL_WATER:
 				case FEAT_DEEP_WATER:
 				case FEAT_GRASS:
@@ -2116,6 +1983,7 @@ static bool run_test(void)
 				case FEAT_CHASM:
 				case FEAT_TREES:
 				case FEAT_MOUNTAIN:
+
 				/* quest features -KMW- */
 				case FEAT_QUEST_ENTER:
 				case FEAT_QUEST_EXIT:
@@ -2235,9 +2103,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    ((cave_feat[row][col] < FEAT_SECRET) ||
-			     ((cave_feat[row][col] > FEAT_DEEP_WATER) &&
-				(cave_feat[row][col] <= FEAT_FOG))))
+			    (cave_feat[row][col] < FEAT_SECRET))
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -2268,9 +2134,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-			    ((cave_feat[row][col] < FEAT_SECRET) ||
-			     ((cave_feat[row][col] > FEAT_DEEP_WATER) &&
-				(cave_feat[row][col] <= FEAT_FOG))))
+			    (cave_feat[row][col] < FEAT_SECRET))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

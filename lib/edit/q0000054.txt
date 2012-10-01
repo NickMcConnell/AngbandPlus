@@ -1,0 +1,61 @@
+# q0000054.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:54:N:Strange Tower 2
+
+# Definition
+Q:54:Q:4:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST54 2]
+Q:54:T:That tower-like structure in the western part of Telamoor is now spilling
+Q:54:T:more smoke into the sky. Investigate and exterminate! There must be an inner
+Q:54:T:sanctum and a way inside. Search thoroughly and be careful! Get to the exit
+Q:54:T:in order to stop the fumes!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST54 3]
+Q:54:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST54 5]
+Q:54:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Necromancer
+F:a:1:8:391
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX................................................................;;;XXXX
+D:XXX....................................................................;;;XX
+D:X.......................................................................;;;X
+D:X............................XXXXXX.XXXXXX................................;X
+D:X..........................XXX...........XXX...............................X
+D:X........................XXX.XX.........XX.XXX.............................X
+D:X......................XX.....XX..X+X..XX.....XX...........................X
+D:X....................XXX.......XXXX.XXXX.......XXX.........................X
+D:X..................XXXX......XXXX.....XXXX......XXXX.......................X
+D:X..................X..XXXX..XXX.........XXX..XXXX..X.......................X
+D:X..................X.....XXXX....XXXXX....XXXX.....X.......................X
+D:X..........................XX^^^^Xa<aX^^^^XX...............................X
+D:X..................X.....XXXX^^^^X...X^^^^XXXX.....X.......................X
+D:X..................X..XXXX..XXX.........XXX..XXXX..X.......................X
+D:X..................XXXXX.....XXXX.....XXXX......XXXX.......................X
+D:X....................XXX.......XXXX.XXXX.......XXX.........................X
+D:X......................XX.....XX..XXX..XX.....XX...........................X
+D:X........................XXX.XX.........XX.XXX.............................X
+D:X..........................XXX...........XXX...............................X
+D:X;;;;........................XXXXXX.XXXXXX.................................X
+D:XXX;;;;..................................................................XXX
+D:XXXXX;;;;..............................................................XXXXX
+D:XXXXXX;;;;.......................................;;;;;;;;;............XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:37
+

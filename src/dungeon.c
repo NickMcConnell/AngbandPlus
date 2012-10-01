@@ -14,7 +14,7 @@
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static int value_check_aux1(object_type *o_ptr)
+static int value_check_aux1(const object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -56,7 +56,7 @@ static int value_check_aux1(object_type *o_ptr)
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static int value_check_aux2(object_type *o_ptr)
+static int value_check_aux2(const object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
@@ -576,8 +576,10 @@ static void process_world(void)
 			}
 
 			/* Reset the "once a day" rewards  -KMW- */
-			for(n=20;n<30;n++)
+			for(n = 0; n < MAX_REWARDS; n++)
+			{
 				p_ptr->rewards[n] = FALSE;
+			}
 
 			/* Message */
 			if (cheat_xtra) msg_print("Done.");
@@ -588,7 +590,8 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. Changed -KMW-*/
-	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (p_ptr->inside_special == 0))
+	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (!p_ptr->inside_arena) &&
+	    (!p_ptr->inside_quest))
 	{
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
@@ -669,7 +672,7 @@ static void process_world(void)
 	}
 
 	/* Take damage from being stuck in rock */
-	if (!cave_floor_bold(p_ptr->py, p_ptr->px) &&
+	if (!terrain_floor_bold(p_ptr->py, p_ptr->px) &&
 	    !cave_perma_bold(p_ptr->py, p_ptr->px) && !p_ptr->ghostly)
 	{
 		msg_print("You are being crushed!");
@@ -825,28 +828,28 @@ static void process_world(void)
 		(void)set_blind(p_ptr->blind - 1);
 	}
 
-	/* Times see-invisible */
-	if (p_ptr->tim_s_invis)
-	{
-		(void)set_tim_s_invis(p_ptr->tim_s_invis - 1);
-	}
-
-	/* time/space anchor */
-	if (p_ptr->ts_anchor)
-	{
-		(void)set_tim_tsanchor(p_ptr->ts_anchor - 1);
-	}
-
-	/* Times invisibility */
+	/* Timed see-invisible */
 	if (p_ptr->tim_invis)
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
 	}
 
-	/* Times ghostliness */
+	/* time/space anchor */
+	if (p_ptr->ts_anchor)
+	{
+		(void)set_tim_ts_anchor(p_ptr->ts_anchor - 1);
+	}
+
+	/* Timed invisibility */
+	if (p_ptr->tim_pl_invis)
+	{
+		(void)set_tim_pl_invis(p_ptr->tim_pl_invis - 1);
+	}
+
+	/* Timed ghostliness */
 	if (p_ptr->tim_ghostly)
 	{
-		(void)set_tim_ghost(p_ptr->tim_ghostly - 1);
+		(void)set_tim_ghostly(p_ptr->tim_ghostly - 1);
 	}
 
 	/* Timed infra-vision */
@@ -862,45 +865,39 @@ static void process_world(void)
 	}
 
 	/* Timed sustained strength */
-	if (p_ptr->tim_sus_str) {
-		p_ptr->tim_sus_str--;
-		if (!p_ptr->tim_sus_str)
-			msg_print("Your strength is no longer protected.");
+	if (p_ptr->tim_sus_str)
+	{
+		(void)set_tim_sus_str(p_ptr->tim_sus_str - 1);
 	}
 
 	/* Timed sustained intelligence */
-	if (p_ptr->tim_sus_int) {
-		p_ptr->tim_sus_int--;
-		if (!p_ptr->tim_sus_int)
-			msg_print("Your intelligence is no longer protected.");
+	if (p_ptr->tim_sus_int)
+	{
+		(void)set_tim_sus_int(p_ptr->tim_sus_int - 1);
 	}
 
 	/* Timed sustained wisdom */
-	if (p_ptr->tim_sus_wis) {
-		p_ptr->tim_sus_wis--;
-		if (!p_ptr->tim_sus_wis)
-			msg_print("Your wisdom is no longer protected.");
+	if (p_ptr->tim_sus_wis)
+	{
+		(void)set_tim_sus_wis(p_ptr->tim_sus_wis - 1);
 	}
 
 	/* Timed sustained dexterity */
-	if (p_ptr->tim_sus_dex) {
-		p_ptr->tim_sus_dex--;
-		if (!p_ptr->tim_sus_dex)
-			msg_print("Your dexterity is no longer protected.");
+	if (p_ptr->tim_sus_dex)
+	{
+		(void)set_tim_sus_dex(p_ptr->tim_sus_dex - 1);
 	}
 
 	/* Timed sustained constitution */
-	if (p_ptr->tim_sus_con) {
-		p_ptr->tim_sus_con--;
-		if (!p_ptr->tim_sus_con)
-			msg_print("Your constitution is no longer protected.");
+	if (p_ptr->tim_sus_con)
+	{
+		(void)set_tim_sus_con(p_ptr->tim_sus_con - 1);
 	}
 
 	/* Timed sustained charisma */
-	if (p_ptr->tim_sus_chr) {
-		p_ptr->tim_sus_chr--;
-		if (!p_ptr->tim_sus_chr)
-			msg_print("Your charisma is no longer protected.");
+	if (p_ptr->tim_sus_chr)
+	{
+		(void)set_tim_sus_chr(p_ptr->tim_sus_chr - 1);
 	}
 
 	/* Paralysis */
@@ -1018,15 +1015,15 @@ static void process_world(void)
 	}
 
 	/* Oppose Nexus */
-	if (p_ptr->oppose_nex)
+	if (p_ptr->oppose_nexus)
 	{
-		(void)set_oppose_nex(p_ptr->oppose_nex - 1);
+		(void)set_oppose_nexus(p_ptr->oppose_nexus - 1);
 	}
 
 	/* Oppose Nether */
-	if (p_ptr->oppose_neth)
+	if (p_ptr->oppose_nethr)
 	{
-		(void)set_oppose_neth(p_ptr->oppose_neth - 1);
+		(void)set_oppose_nethr(p_ptr->oppose_nethr - 1);
 	}
 
 
@@ -1226,24 +1223,23 @@ static void process_world(void)
 			sound(MSG_TPLEVEL);
 
 			/* Determine the level */
-			if (p_ptr->depth)
+			if (p_ptr->depth || p_ptr->inside_quest)
 			{
 				msg_print("You feel yourself yanked upwards!");
 
-				/* New depth */
 				p_ptr->depth = 0;
 
-				/*if leave quest before complete - reset -KMW- */
-/*				for(i=0; i < MAX_QUESTS; i++) {
-					if ((p_ptr->rewards[i+QUEST_REWARD] == 1) &&
-					    (q_list[i].quest_type == 5) &&
-					    (p_ptr->inside_special == 2)) {
-						q_list[i].cur_num = 0;
-						break;
-					}
+				leaving_quest = p_ptr->inside_quest;
+
+				/* Leaving an 'only once' quest marks it as failed */
+				if (leaving_quest &&
+					(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+				{
+					quest[leaving_quest].status = QUEST_STATUS_FAILED;
 				}
-*/
- 				p_ptr->inside_special = 0; /* -KMW- */
+
+				p_ptr->inside_quest = 0;
 				p_ptr->leaving = TRUE;
 			}
 			else
@@ -1253,6 +1249,10 @@ static void process_world(void)
 				/* New depth */
 				p_ptr->depth = p_ptr->max_depth;
 				if (p_ptr->depth < 1) p_ptr->depth = 1;
+
+				/* Save player position */
+				p_ptr->oldpx = p_ptr->px;
+				p_ptr->oldpy = p_ptr->py;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1274,7 +1274,7 @@ static bool enter_wizard_mode(void)
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
 		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
@@ -1305,7 +1305,7 @@ static bool verify_debug_mode(void)
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
@@ -1344,7 +1344,7 @@ static bool verify_borg_mode(void)
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, borg commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
@@ -1602,13 +1602,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Enter quest level -KMW- */
-		case '[':
-		{
-			do_cmd_quest();
-			break;
-		}
-
 		/* Go up staircase */
 		case '<':
 		{
@@ -1678,12 +1671,12 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_cast();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1691,12 +1684,12 @@ static void process_command(void)
 		/* Pray a prayer */
 		case 'p':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_pray();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1721,12 +1714,12 @@ static void process_command(void)
 		/* Activate an artifact */
 		case 'A':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_activate();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1748,12 +1741,12 @@ static void process_command(void)
 		/* Fire an item */
 		case 'f':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_fire();
 			else
 			{
 				msg_print("You're in the arena now. This is hand-to-hand!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1761,12 +1754,12 @@ static void process_command(void)
 		/* Throw an item */
 		case 'v':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_throw();
 			else
 			{
 				msg_print("You're in the arena now. This is hand-to-hand!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1774,12 +1767,12 @@ static void process_command(void)
 		/* Aim a wand */
 		case 'a':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_aim_wand();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1787,12 +1780,12 @@ static void process_command(void)
 		/* Zap a rod */
 		case 'z':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_zap_rod();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1800,12 +1793,12 @@ static void process_command(void)
 		/* Quaff a potion */
 		case 'q':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_quaff_potion();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1813,12 +1806,12 @@ static void process_command(void)
 		/* Read a scroll */
 		case 'r':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_read_scroll();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1826,12 +1819,12 @@ static void process_command(void)
 		/* Use a staff */
 		case 'u':
 		{
-			if (p_ptr->inside_special != 1)  /* -KMW- */
+			if (!p_ptr->inside_arena)  /* -KMW- */
 				do_cmd_use_staff();
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
-				msg_print(NULL);
+				message_flush();
 			}
 			break;
 		}
@@ -1976,7 +1969,7 @@ static void process_command(void)
 			break;
 		}
 
-			/* Show quest status -KMW- */
+		/* Show quest status -KMW- */
 		case KTRL('Q'):
 		{
 			do_cmd_checkquest();
@@ -2510,6 +2503,7 @@ static void dungeon(void)
 {
 	monster_type *m_ptr;
 	int i;
+	int quest_num;
 
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2554,6 +2548,16 @@ static void dungeon(void)
 	disturb(1, 0);
 
 
+	/* Get index of current quest (if any) */
+	quest_num = quest_number(p_ptr->depth);
+
+	/* Inside a quest? */
+	if (quest_num)
+	{
+		/* Mark the quest monster */
+		r_info[quest[quest_num].r_idx].flags1 |= RF1_QUESTOR;
+	}
+
 	/* Track maximum player level */
 	if (p_ptr->max_lev < p_ptr->lev)
 	{
@@ -2561,15 +2565,15 @@ static void dungeon(void)
 	}
 
 
-	/* Track maximum dungeon level (if not in quest -KMW-) */
-	if ((p_ptr->max_depth < p_ptr->depth) && (p_ptr->inside_special != 2))
+	/* Track maximum dungeon level */
+	if ((p_ptr->max_depth < p_ptr->depth) && (!p_ptr->inside_quest))
 	{
 		p_ptr->max_depth = p_ptr->depth;
 	}
 
 
 	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
+	if (quest_number(p_ptr->depth))
 	{
 		p_ptr->create_down_stair = FALSE;
 	}
@@ -2610,7 +2614,7 @@ static void dungeon(void)
 
 
 	/* Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Hack -- Increase "xtra" depth */
@@ -2688,6 +2692,10 @@ static void dungeon(void)
 	/* Handle delayed death */
 	if (p_ptr->is_dead) return;
 
+
+	/* Print quest message if appropriate */
+	if (!p_ptr->inside_quest)
+		quest_discovery(random_quest_number(p_ptr->depth));
 
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
@@ -2826,29 +2834,24 @@ static void dungeon(void)
 		/* Count game turns */
 		turn++;
 	}
+
+	/* Inside a quest and non-unique questor? */
+	if (quest_num && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE))
+	{
+		/* Un-mark the quest monster */
+		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
+	}
 }
 
 
 
 /*
  * Process some user pref files
- *
- * Hack -- Allow players on UNIX systems to keep a ".angband.prf" user
- * pref file in their home directory.  Perhaps it should be loaded with
- * the "basic" user pref files instead of here.  This may allow bypassing
- * of some of the "security" compilation options.  XXX XXX XXX XXX XXX
  */
 static void process_some_user_pref_files(void)
 {
 	char buf[1024];
 
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	char *homedir;
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
@@ -2858,22 +2861,6 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
-
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	/* Process the "~/.angband.prf" file */
-	if ((homedir = getenv("HOME")))
-	{
-		/* Get the ".angband.prf" filename */
-		path_build(buf, 1024, homedir, ".angband.prf");
-
-		/* Process the ".angband.prf" file */
-		(void)process_pref_file(buf);
-	}
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 }
 
 
@@ -2911,13 +2898,13 @@ void play_game(bool new_game)
 
 
 	/* Verify main term */
-	if (!angband_term[0])
+	if (!term_screen)
 	{
 		quit("main window does not exist");
 	}
 
 	/* Make sure main term is active */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
@@ -2984,9 +2971,10 @@ void play_game(bool new_game)
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
 
-		/* Start in town-KMW- */
+		/* Start in town */
 		p_ptr->depth = 0;
-		p_ptr->inside_special = 0;
+		p_ptr->inside_arena = 0;
+		p_ptr->inside_quest = 0;
 
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
@@ -3044,6 +3032,14 @@ void play_game(bool new_game)
 	/* Flavor the objects */
 	flavor_init();
 
+	/* Initialize the town-buildings if necessary */
+	if (!p_ptr->depth && !p_ptr->inside_quest)
+	{
+		/* Init the town */
+		init_flags = INIT_ONLY_BUILDINGS;
+		process_dungeon_file("t_info.txt", 0, 0, DUNGEON_HGT, DUNGEON_WID);
+	}
+
 	/* Reset visuals */
 	reset_visuals(TRUE);
 
@@ -3061,14 +3057,6 @@ void play_game(bool new_game)
 	/* Process some user pref files */
 	process_some_user_pref_files();
 
-	/* Initialize vault info */
-	if (init_v_info()) quit("Cannot initialize vaults");
-
-	/* Initialize quest info */
-	if (init_q_info(new_game)) quit("Cannot initialize quests");
-
-	/* Initialize wilderness -KMW- */
-	if (init_w_info()) quit ("Cannot initialize wilderness");
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -3138,7 +3126,7 @@ void play_game(bool new_game)
 
 
 		/* XXX XXX XXX */
-		msg_print(NULL);
+		message_flush();
 
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
@@ -3157,7 +3145,7 @@ void play_game(bool new_game)
 
 				/* Message */
 				msg_print("You invoke wizard mode and cheat death.");
-				msg_print(NULL);
+				message_flush();
 
 				/* Cheat death */
 				p_ptr->is_dead = FALSE;
@@ -3188,7 +3176,7 @@ void play_game(bool new_game)
 				{
 					/* Message */
 					msg_print("A tension leaves the air around you...");
-					msg_print(NULL);
+					message_flush();
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
@@ -3197,9 +3185,9 @@ void play_game(bool new_game)
 				/* Note cause of death XXX XXX XXX */
 				strcpy(p_ptr->died_from, "Cheating death");
 
-				/* New depth -KMW- */
+				/* New depth */
 				/* p_ptr->depth = 0; */
-				p_ptr->inside_special = 0;
+				p_ptr->inside_arena = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -3215,7 +3203,4 @@ void play_game(bool new_game)
 
 	/* Close stuff */
 	close_game();
-
-	/* Quit */
-	quit(NULL);
 }

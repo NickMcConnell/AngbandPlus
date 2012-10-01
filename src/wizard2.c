@@ -368,7 +368,7 @@ typedef struct tval_desc
 /*
  * A list of tvals and their textual names
  */
-static tval_desc tvals[] =
+static const tval_desc tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
@@ -750,7 +750,7 @@ static void wiz_statistics(object_type *o_ptr)
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
 		           quality, p_ptr->depth);
-		msg_print(NULL);
+		message_flush();
 
 		/* Set counters to zero */
 		matches = better = worse = other = 0;
@@ -834,7 +834,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Final dump */
 		msg_format(q, i, matches, better, worse, other);
-		msg_print(NULL);
+		message_flush();
 	}
 
 
@@ -846,11 +846,11 @@ static void wiz_statistics(object_type *o_ptr)
 /*
  * Change the quantity of a the item
  */
-static void wiz_quantity_item(object_type *o_ptr)
+static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
 
-	char tmp_val[100];
+	char tmp_val[3];
 
 
 	/* Never duplicate artifacts */
@@ -869,6 +869,16 @@ static void wiz_quantity_item(object_type *o_ptr)
 		/* Paranoia */
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
+
+		/* Adjust total weight being carried */
+		if (carried)
+		{
+			/* Remove the weight of the old number of objects */
+			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+
+			/* Add the weight of the new number of objects */
+			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+		}
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
@@ -962,7 +972,8 @@ static void do_cmd_wiz_play(void)
 
 		if (ch == 'q' || ch == 'Q')
 		{
-			wiz_quantity_item(i_ptr);
+			bool carried = (item >= 0) ? TRUE : FALSE;
+			wiz_quantity_item(i_ptr, carried);
 		}
 	}
 
@@ -1180,7 +1191,7 @@ static void do_cmd_wiz_jump(void)
 	/* New depth */
 	p_ptr->depth = p_ptr->command_arg;
 
-	p_ptr->inside_special = 0;
+	p_ptr->inside_arena = 0;
 	p_ptr->leftbldg = FALSE;
 
 	/* Leaving */
@@ -1446,7 +1457,7 @@ static void do_cmd_wiz_query(void)
 
 	/* Get keypress */
 	msg_print("Press any key.");
-	msg_print(NULL);
+	message_flush();
 
 	/* Redraw map */
 	prt_map();
@@ -1466,13 +1477,6 @@ extern void do_cmd_spoilers(void);
 
 
 /*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
-
-
-
-/*
  * Ask for and parse a "debug command"
  *
  * The "p_ptr->command_arg" may have been set.
@@ -1482,8 +1486,7 @@ void do_cmd_debug(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i,y,x,i2;
-	char tmp_str[80];
+	int y, x;
 
 	char cmd;
 
@@ -1582,7 +1585,8 @@ void do_cmd_debug(void)
 		/* Hitpoint rerating */
 		case 'h':
 		{
-			do_cmd_rerate(); break;
+			do_cmd_rerate();
+			break;
 		}
 
 		/* Identify */
@@ -1675,7 +1679,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg,TRUE, TRUE);
+			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
 			break;
 		}
 
@@ -1715,34 +1719,13 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* test for quest flags - temporary -KMW- */
-		case 'y':
-		{
-			for (i = 0; i < MAX_MON_QUEST; i++){
-				sprintf(tmp_str,"i:%d, cqmon:%d, cqmonc:%d",i,p_ptr->cqmon[i], p_ptr->cqmonc[i]);
-				msg_print(tmp_str);msg_print(NULL);
-			}
-			break;
-		}
-
-		/* Complete a Quest -KMW- */
-		case '=':
-		{			
-			for (i2 = QUEST_REWARD_HEAD ; i2 < QUEST_REWARD_TAIL && p_ptr->rewards[i2 - QUEST_DIFF] == 3 ; i2++)
-			  	;
-			if (i2 < QUEST_REWARD_TAIL)
-				p_ptr->rewards[i2 - QUEST_DIFF] = 3;
-			msg_print("Completed Quest");
-			msg_print(NULL);
-			wilderness_gen(1);
-			break;
-		}
-
 		/* Make every dungeon square "known" to test streamers -KMW- */
 		case 'r':
 		{
-			for(y=0;y < DUNGEON_HGT;y++) {
-				for(x=0;x < DUNGEON_WID;x++) {
+			for(y = 0; y < DUNGEON_HGT; y++)
+			{
+				for(x = 0; x < DUNGEON_WID; x++)
+				{
 					cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
 				}
 			}

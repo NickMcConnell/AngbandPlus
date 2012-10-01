@@ -1,27 +1,18 @@
-# This is a makefile for the Cygwin 1.0 release which may
-# be downloaded by following the links from the url:
+# This is a makefile for the Cygwin tools which may
+# be downloaded by following the links from the URL:
 # http://sources.redhat.com/cygwin/
-
-
-#
-# File locations - change these as appropriate
-#
-CYGDIR  = c:/cygwin
-TGTDIR  = c:/kangband
 
 #
 # Standard defines
 #
 
-CC      =       gcc
-WRES    =       windres
-LIBDIRS =       -L$(CYGDIR)/lib
-INCDIRS =       -I$(CYGDIR)/usr/include/mingw32
-LIBS    =       -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
-CFLAGS  =       -Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
+CC = gcc
+WRES = windres
+LIBS = -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+CFLAGS = -Wall -mno-cygwin -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
 
 
-SRCS	= \
+SRCS = \
 	angband.rc \
 	birth.c \
 	bldg.c \
@@ -37,8 +28,8 @@ SRCS	= \
 	generate.c \
 	init1.c \
 	init2.c \
-	load.c \
-	main.c \
+	init3.c \
+	load2.c \
 	main-win.c \
 	melee1.c \
 	melee2.c \
@@ -60,6 +51,7 @@ SRCS	= \
 	wizard2.c \
 	xtra1.c \
 	xtra2.c \
+	xtra3.c \
 	z-form.c \
 	z-rand.c \
 	z-term.c \
@@ -67,7 +59,7 @@ SRCS	= \
 	z-virt.c 
 
 
-EXOBJS  = \
+EXOBJS = \
 	angband.res \
 	birth.o \
 	bldg.o \
@@ -83,8 +75,8 @@ EXOBJS  = \
 	generate.o \
 	init1.o \
 	init2.o \
-	load.o \
-	main.o \
+	init3.o \
+	load2.o \
 	main-win.o \
 	melee1.o \
 	melee2.o \
@@ -106,6 +98,7 @@ EXOBJS  = \
 	wizard2.o \
 	xtra1.o \
 	xtra2.o \
+	xtra3.o \
 	z-form.o \
 	z-rand.o \
 	z-term.o \
@@ -113,13 +106,13 @@ EXOBJS  = \
 	z-virt.o 
 
 
-HDRS	= \
+HDRS = \
 	h-basic.h \
 	h-define.h h-type.h \
 	h-system.h h-config.h
 
 
-INCS	= \
+INCS = \
 	angband.h \
 	config.h defines.h \
 	types.h externs.h \
@@ -133,16 +126,16 @@ INCS	= \
 #
 
 
-default:        kangband
+default:	kangband
 
-install:        kangband movebin cleanobjs
+install:	kangband movebin cleanobjs
 
 # movebin:
-#               copy kangband.exe ..
-#               del kangband.exe
+#		copy kangband.exe ..
+#		del kangband.exe
 
 movebin:
-		mv -f kangband.exe $(TGTDIR)/kangband.exe
+		mv -f kangband.exe ../kangband.exe
 
 cleanobjs:
 		rm -f $(EXOBJS)
@@ -150,7 +143,7 @@ cleanobjs:
 cleanbin:
 		rm -f kangband
 
-clean:  cleanobjs cleanbin
+clean:	cleanobjs cleanbin
 
 
 #
@@ -163,6 +156,12 @@ kangband: $(EXOBJS)
 
 #
 # Compiling angband.rc
+#
+# Note: this format seems to work but the alternative actually used
+# is the one recommended by Cygnus
+#
+# angband.res : angband.rc
+#	$(WRES) angband.rc angband.res
 #
 
 angband.res : angband.rc
@@ -209,22 +208,25 @@ files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-init1.o: init1.c $(INCS)
+init1.o: init1.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-init2.o: init2.c $(INCS)
+init2.o: init2.c $(INCS) init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-load.o: load.c $(INCS)
+init3.o: init3.c $(INCS) init.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+load2.o: load2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main.o: main.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-main-win.o: main-win.c $(INCS)
+melee1.o: melee1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee1.o: melee1.c $(INCS)
+main-win.o: main-win.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 melee2.o: melee2.c $(INCS)
@@ -240,9 +242,6 @@ object1.o: object1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 object2.o: object2.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-quest.o: quest.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 randart.o: randart.c $(INCS)
@@ -290,6 +289,9 @@ xtra1.o: xtra1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 xtra2.o: xtra2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+xtra3.o: xtra3.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h

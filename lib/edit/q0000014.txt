@@ -1,0 +1,56 @@
+# q0000014.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:14:N:The Gauntlet
+
+# Definition
+Q:14:Q:4:0:0:0:30:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST14 2]
+Q:14:T:Consider this a quest to determine the full extent of your
+Q:14:T:valor, courage, and cunning. You must pass this test before
+Q:14:T:we entrust you with the most important quests.  There is a
+Q:14:T:cave to the east filled with vile monsters. There is also
+Q:14:T:an exit on the other side of the cave.
+Q:14:T:This highly dangerous quest requires you to run the gauntlet
+Q:14:T:and make it to the exit alive.
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST14 3]
+Q:14:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST14 5]
+Q:14:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..........................................................X
+D:X......................................................<...X
+D:X..........................................................X
+D:X................*............9...........&................X
+D:X..........................................................X
+D:X.......&............*............9...........&............X
+D:X..........................................................X
+D:X...........&.............*...........9...........&........X
+D:X..........................................................X
+D:X...9...........&.............*...........9...........&....X
+D:X..........................................................X
+D:X.......9...........&.............*...........9............X
+D:X..........................................................X
+D:X...........9...........&.............*...........9........X
+D:X..........................................................X
+D:X...............9...........&.............*................X
+D:X..P.......................................................X
+D:X..........................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:2
+

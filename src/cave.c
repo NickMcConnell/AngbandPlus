@@ -16,7 +16,7 @@
  */
 
 /*
- * Approximate Distance between two points.
+ * Approximate distance between two points.
  *
  * When either the X or Y component dwarfs the other component,
  * this function is almost perfect, and otherwise, it tends to
@@ -299,10 +299,7 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool no_lite(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	return (!player_can_see_bold(py, px));
+	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
 
 
@@ -1323,7 +1320,7 @@ void prt_map(void)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
  */
-static byte priority_table[][2] =
+static const byte priority_table[][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -3464,8 +3461,7 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if ((feat >= FEAT_DOOR_HEAD) &&
-	    (feat <= FEAT_MOUNTAIN)) /* -KMW- */
+	if ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_MOUNTAIN))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
@@ -3955,33 +3951,6 @@ void disturb(int stop_search, int unused_flag)
 	if (flush_disturb) flush();
 }
 
-
-
-
-/*
- * Hack -- Check if a level is a "quest" level
- */
-bool is_quest(int level)
-{
-	int i, j, k;
-
-	/* Check quests */
-
-	if (p_ptr->inside_special == 2)
-		return (TRUE);
-
-	for (i=QUEST_REWARD_HEAD;i < QUEST_REWARD_TAIL;i++)
-	{
-		j = i - QUEST_OFFSET1;
-		k = i - QUEST_DIFF;
-		if ((q_list[j].quest_type == 1) && (p_ptr->rewards[k] < 2) &&
-		    (q_list[j].level == level))
-			return (TRUE);
-	}
-
-	/* Nope */
-	return (FALSE);
-}
 
 
 

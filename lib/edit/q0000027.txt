@@ -1,0 +1,23 @@
+# q0000027.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:27:N:Ulfast
+
+# Definition
+Q:27:Q:1:0:0:1:0:211:0
+
+# Description for quest
+?:[LEQ $QUEST27 2]
+Q:27:T:Regent-> While we have been concentrating abroad, Ulfast
+Q:27:T:has been spotted terrorizing our people.
+Q:27:T:Find him and eliminate him! He could be in the town or
+Q:27:T:on the roads but he is here.
+Q:27:T:The King's health is still deteriorating.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST27 3]
+Q:27:T:As a reward for your good work I have constructed a beautiful
+Q:27:T:town home which awaits you.
+?:1

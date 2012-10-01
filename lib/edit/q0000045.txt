@@ -1,0 +1,78 @@
+# q0000045.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:45:N:Weapons Storage
+
+# Definition
+Q:45:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST45 2]
+Q:45:T:There is a row of buildings on the south side that contained
+Q:45:T:various supplies for the castle. We know that the middle one
+Q:45:T:was the weapons area. According to our records, there should be some
+Q:45:T:magical items left behind but then again, these are old records.
+Q:45:T:Clear the building of any inhabitants, living or nonliving.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST45 3]
+Q:45:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST45 5]
+Q:45:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Skeleton Human
+F:b:1:8:164
+
+# Floor with Moaning Spirit
+F:c:1:8:167
+
+# Floor with Bastard Sword
+F:k:1:8:0:31
+
+# Floor with Broad Sword
+F:l:1:8:0:34
+
+# Floor with Flail
+F:m:1:8:0:50
+
+# Floor with War Hammer
+F:n:1:8:0:55
+
+# Floor with Long Sword of Slaying
+F:o:1:8:0:42:70
+
+# Floor with Mace of Disruption (Blessed)
+F:p:1:8:0:57:16:66
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X....................<...............X
+D:X....................................X
+D:X....................................X
+D:X....................................X
+D:X;..........X...............;........X
+D:X;;;;......XXX.............;;;.......X
+D:XXXX;;;..bbb:...............;;.......X
+D:X..XXX;;.bbb.....................aa..X
+D:X....XX;;..........cc............aa..X
+D:X;...^X+;;...........................X
+D:X....^^XX;;..........................X
+D:X....^^^XX;;..........^^^^^^^^^^^^...X
+D:X..o.....XX;;.......^..............;;X
+D:X...p.....XX;;......^..kklllmmnnn...;X
+D:X.........XXX;;.....^................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:21
+

@@ -1,0 +1,79 @@
+# q0000046.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:46:N:Unknown Building
+
+# Definition
+Q:46:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST46 2]
+Q:46:T:We don't know what the left most building in the row was used for.
+Q:46:T:You will have to check this one out - there does appear to be activity
+Q:46:T:there according to the castle wizard.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST46 3]
+Q:46:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST46 5]
+Q:46:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Skeleton Human
+F:b:1:8:164
+
+# Floor with Moaning Spirit
+F:c:1:8:167
+
+# Floor with Moaning Spirit
+F:d:1:8:275
+
+# Floor with Scroll of Dispel Undead
+F:k:1:8:0:211
+
+# Floor with Scroll of Holy Chant
+F:l:1:8:0:218
+
+# Floor with Scroll of Holy Prayer
+F:m:1:8:0:219
+
+# Floor with Scroll of Protection from Evil
+F:n:1:8:0:209
+
+# Floor with Potion of Heroism
+F:o:1:8:0:257
+
+# Floor with Potion of Detect Invisible
+F:p:1:8:0:263
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X....................<...........;;;;X
+D:X...............................;;;;;X
+D:X..............................;;;;;;X
+D:X...............................;;;;;X
+D:X:................................;;;X
+D:X................................;;;;X
+D:X............................dd..;;;;X
+D:X.................................;;;X
+D:X..a............................;;;;;X
+D:X:................................;;;X
+D:X..............................;;;;;;X
+D:X.....bbb.........cccc.........;;;;;;X
+D:X.................................;;;X
+D:X............mp.................;;;;;X
+D:X........kklmnopnol..........;;;;;;;;X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:21
+

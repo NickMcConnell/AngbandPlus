@@ -1,16 +1,87 @@
-2.9.1.1
+Kangband 2.9.2:
+===============
+
+Codebase Updates
+----------------
+- Upgraded the source code base to Angband 2.9.2. (See the change logs
+  for standard Angband for details).
+- Changed some minor feature differences so as to conform Kangband
+  more closely with standard Angband (mostly combat stuff).
+- Conformed vault generation with standard Angband. The customized
+  vaults will be added back in the next version via a different
+  methodology.
+- Updated building and quest-handling code to that of Zangband 2.4.0.
+  This necessitated some changes to quests and buildings. Note that
+  characters loaded from earlier versions will have their arena and
+  quest information reset as a result of this change.
+
+New / Changed Features
+----------------------
+- Entering and leaving quests is now done via the '<' and '>' commands.
+- Added a Maia race similar to that of Oangband (from where the stats
+  and histories were taken). Maia have intrinsic regeneration and
+  slowed digestion. Unlike Oangband, their score is not adjusted.
+- The temporary high resistances available to certain classes are now
+  cummulative with the permanent high resistances and offer the same
+  protection from magical attack side effects (such as stunning and
+  confusion).
+- The Monster AI options now factor in the temporary resistances when
+  choosing which spell a monster will cast.
+- Made some changes to allow 'magical items' to be artifacts and added
+  four new artifact rods.  The name 'Rod of Delving' was taken from
+  Oangband but the effect is somewhat different.
+	Rod of Delving (Stone-to-Mud)
+	Rod of Hidden Ways (Dimension Door)
+	Rod of Unsung Heroes (Berserk Rage, Haste Self, Remove Fear)
+	Rod of Illusions (Ghostliness, Invisibility, See Invisible)
+- Added the "No confirm to destroy known worthless items." option from
+  Zangband.
+- The cheat_flav option was replaced with cheat_iden which makes the
+  game behave as if all items have been *identified* when describing
+  them.
+- Monsters with quality drops may now also drop Rings of Lordly
+  Protection and Rings of Extra Attacks.
+- Vorpal weapons now do a flat 1/3 extra damage *after* factoring in
+  weapon damage bonuses but the effect only kicks in half the time.
+  This needs to be playtested.
+- Vampiric weapons have had caps on their life draining removed but
+  no longer drain monsters every blow. This needs to be playtested.
+- The chaotic effects produced by Chaos brand weapons have been changed
+  so that you will now get a player-centered, radius 2 ball of either
+  chaos or disenchantment if the chaotic effect goes off.
+- Replaced the Mage's 'Resist Poison' spell with 'Resist Electricity'.
+
+Bug Fixes
+---------
+- Fixed a bug with the 'Resist Cold' spell.
+- Fixed a bug with the separation of confusion and chaos and the 
+  smart_cheat option.
+- Fixed a bug with *ID-ing* certain artifacts.
+- Fixed a bug with the "Immolation" spell in Purifications and Healing
+  which was intended to be "Dispel Demons (x6)" but actually dispelled
+  undead. Since dispelling demons doesn't fit with the theme of that
+  book, the spell was moved to Wrath of God with altered minimum level
+  and mana costs and reduced to x4.
+
+
+Kangband 2.9.1r1
+================
+
+Codebase Updates
+----------------
 - Applied all the bug-fix patches to the 2.9.1 source available on
   Thangorodrim.
 - Updated the makefiles using gcc to use the '-fno-strength-reduce'
   switch.
+
+New / Changed Features
+----------------------
+- Added a new cheating option which identifies all flavored items by
+  bypassing the p_ptr->aware checks. When in use, the game behaves as
+  if all flavored items are known to the player. Switching off the
+  option restores the original behaviour.
 - Assigning the "LEVITATION" flag as an intrinsic racial ability via
   p_info.txt should now have the appropriate effect.
-- Fixed a bug with the timed levitation spell (which necessitated an
-  increment to the version number).
-- Fixed a bug that allowed cast spells to bypass the adult_ironman
-  option and scrolls/rods of recall to bypass the time/space anchor.
-- Fixed a bug with the adult_no_stores option that let you enter the
-  special buildings when it was set.
 - You may no longer cross the "Chasm" terrain when levitating. This is
   in preparation for adding chasm streamers deep in the dungeon.
 - Crossing lava is now allowed without fire resitance or levitation.
@@ -22,6 +93,15 @@
 - If the Illusion spell 'Shadow Form' expires while the player is
   moving through rock, the player will now take damage from being
   crushed. Adapted from Zangband.
+
+Bug Fixes
+---------
+- Fixed a bug with the timed levitation spell (which necessitated an
+  increment to the version number).
+- Fixed a bug that allowed cast spells to bypass the adult_ironman
+  option and scrolls/rods of recall to bypass the time/space anchor.
+- Fixed a bug with the adult_no_stores option that let you enter the
+  special buildings when it was set.
 - Fixed a problem with the 'Unknown Building' quest in the 'Haunting
   of Telamoor' plot which resulted in a 'nothing' object being
   created.
@@ -62,23 +142,41 @@
   Easterling			Beserker
 
 
-2.9.1 BETA
+Kangband 2.9.1 (Beta):
+======================
+
+Codebase Updates
+----------------
 - Updated the source code base to Angband 2.9.1 which involves numerous
   minor changes (see change lists for standard Angband for details).
-- Females no longer get more gold at character birth.
+
+New / Changed Features
+----------------------
 - Removed the pseudo-graphics in inventory, equipment and store
   listings (may be restored later).
 - Pet fear handling removed (pet handling in general will get a major
   overhaul in the next version).
 
-2.8.3j patch-level 1
+
+Kangband 2.8.3j (patch-level 1):
+================================
+
+Codebase Updates:
+-----------------
+- Added Greg Wooledge's patch for glibc2.1/egcs systems
+- Some (fairly minor) source cleanups/changes.
+- Added Tim Baker's 'easy' patch (disabled though).
+
+New / Changed Features
+----------------------
 - Temple doesn't sell books anymore; book shop only buys books.
 - Random character/attribute options added to birth.
-- Fixed faulty vault layout (Greg Wooledge).
-- Now prints home details after death instead of black market stock.
+
+Bug Fixes
+---------
 - Infamous save-file '2.8.3c' bug fixed.
-- Added Tim Baker's 'easy' patch (disabled though).
-- Some (fairly minor) source cleanups/changes.
+- Now prints home details after death instead of black market stock.
+- Fixed faulty vault layout (Greg Wooledge).
 - Fixed bug where you could be asked to kill a unique who'd already
   died. If you have a save-file where a quest cannot be completed
   because of this, leave the town level; when you return the quest
@@ -86,14 +184,21 @@
 - It's now not possible to wield quest items multiple times to receive
   multiple gifts (eg. Sting).
 - Various spells could destroy staircases ; fixed
-- Added Greg Wooledge's patch for glibc2.1/egcs systems
+
  
-2.8.3j
+Kangband 2.8.3j:
+================
+
+New / Changed Features
+----------------------
 - Can now wield item from floor to complete a quest.
-- Screen not always refreshed in casino; fixed.
-- Rogue-like commands wouldn't work in new buildings. Hopefully fixed.
 - Extra shopkeepers added (previously, Black Market and Bookstore had
   the same owners).
+- Few other minor alterations.
+
+Bug Fixes
+---------
+- Screen not always refreshed in casino; fixed.
+- Rogue-like commands wouldn't work in new buildings. Hopefully fixed.
 - Fixed/added a few prototypes. Some functions called with too many
   arguments, etc.
-- Few other minor alterations.

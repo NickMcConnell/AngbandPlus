@@ -17,7 +17,7 @@
 #define MAX_ROCKS      49       /* Used with rings (min 38) */
 #define MAX_AMULETS    16       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
+#define MAX_METALS     35       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     60       /* Used with potions (min 60) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
@@ -120,7 +120,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
+	"Platinum", "Lead", "Lead-Plated", "Ivory", "Pewter"
 };
 
 static byte wand_col[MAX_METALS] =
@@ -131,7 +131,7 @@ static byte wand_col[MAX_METALS] =
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
+	TERM_WHITE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_SLATE
 };
 
 
@@ -704,7 +704,7 @@ void reset_visuals(bool unused)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_kind *k_ptr;
 
@@ -714,7 +714,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		(*f1) = (*f2) = (*f3) = 0L;
 
 		/* Must be identified */
-		if (!object_known_p(o_ptr)) return;
+		if (!object_known_p(o_ptr) && !cheat_iden) return;
 	}
 
 	if (mode != OBJECT_FLAGS_RANDOM)
@@ -770,16 +770,16 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 
 #ifdef SPOIL_ARTIFACTS
 		/* Full knowledge for some artifacts */
-		if (artifact_p(o_ptr)) spoil = TRUE;
+		if (artifact_p(o_ptr) || cheat_iden) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
 
 #ifdef SPOIL_EGO_ITEMS
 		/* Full knowledge for some ego-items */
-		if (ego_item_p(o_ptr)) spoil = TRUE;
+		if (ego_item_p(o_ptr) || cheat_iden) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
 
 		/* Need full knowledge or spoilers */
-		if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
+		if (!spoil && !(o_ptr->ident & IDENT_MENTAL) && !cheat_iden) return;
 
 		/* Artifact */
 		if (o_ptr->name1)
@@ -798,7 +798,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		}
 
 		/* Full knowledge for *identified* objects */
-		if (!(o_ptr->ident & IDENT_MENTAL)) return;
+		if (!(o_ptr->ident & IDENT_MENTAL) && !cheat_iden) return;
 	}
 
 	/* Extra powers */
@@ -833,7 +833,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
 }
@@ -843,7 +843,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
 	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
 }
@@ -1005,7 +1005,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  *   2 -- Amulet of Death [1,+3] (+2 to Stealth)
  *   3 -- Rings of Death [1,+3] (+2 to Stealth) {nifty}
  */
-void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
+void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 {
 	cptr basenm;
 	cptr modstr;
@@ -1049,10 +1049,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* See if the object is "aware" */
-	aware = ((object_aware_p(o_ptr) || (cheat_flav)) ? TRUE : FALSE);
+	aware = ((object_aware_p(o_ptr) || (cheat_iden)) ? TRUE : FALSE);
 
 	/* See if the object is "known" */
-	known = (object_known_p(o_ptr) ? TRUE : FALSE);
+	known = ((object_known_p(o_ptr) || (cheat_iden)) ? TRUE : FALSE);
 
 	/* See if the object is "flavored" */
 	flavor = (k_ptr->flavor ? TRUE : FALSE);
@@ -1184,6 +1184,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Rods */
 		case TV_ROD:
 		{
+			/* Hack -- Known artifacts */
+			if (artifact_p(o_ptr) && aware) break;
+
 			/* Color the object */
 			modstr = rod_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
@@ -1252,7 +1255,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-			/* Druid Books */
+		/* Druid Books */
 		case TV_NATURE_BOOK:
 		{
 			modstr = basenm;
@@ -1985,6 +1988,8 @@ static cptr act_description[ACT_MAX] =
 	"confuse monster",
 	"probing",
 	"fire branding of bolts",
+	"beserk rage, heroism and haste self (50+d50 turns)",
+	"large fire ball (300)"
 };
 
 
@@ -1993,7 +1998,7 @@ static cptr act_description[ACT_MAX] =
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+cptr item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -2112,7 +2117,7 @@ cptr item_activation(object_type *o_ptr)
  *
  * ToDo: Allow dynamic generation of strings.
  */
-bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
+static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, int len)
 {
 	int i = 0;
 
@@ -2264,7 +2269,7 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		info[i++] = "It does extra damage from frost.";
 	}
 
-	if (f1 & (TR1_BRAND_POIS)) /* From GJW  -KMW- */
+	if (f1 & (TR1_BRAND_POIS))
 	{
 		info[i++] = "It does extra damage from poison.";
 	}
@@ -2530,7 +2535,7 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 /*
  * Describe an item's random attributes for "character dumps"
  */
-int identify_random_gen(object_type *o_ptr, cptr *info, int len)
+int identify_random_gen(const object_type *o_ptr, cptr *info, int len)
 {
 	/* Fill the list of descriptions and return the count */
 	return identify_fully_aux2(o_ptr, OBJECT_FLAGS_RANDOM, info, len);
@@ -2540,7 +2545,7 @@ int identify_random_gen(object_type *o_ptr, cptr *info, int len)
 /*
  * Describe an item
  */
-bool identify_fully_aux(object_type *o_ptr)
+bool identify_fully_aux(const object_type *o_ptr)
 {
 	int i, j, k;
 	cptr info[128];
@@ -2666,7 +2671,7 @@ s16b label_to_equip(int c)
 /*
  * Determine which equipment slot (if any) an item likes
  */
-s16b wield_slot(object_type *o_ptr)
+s16b wield_slot(const object_type *o_ptr)
 {
 	/* Slot for equipment */
 	switch (o_ptr->tval)
@@ -2852,7 +2857,7 @@ cptr describe_use(int i)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
@@ -3125,8 +3130,6 @@ void show_inven(void)
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
-	/* Require space for 'equippy' graphics */
-	/* if (show_inven_graph) lim -= 2; */
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -3169,9 +3172,6 @@ void show_inven(void)
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
 
-		/* Account for gfx again */
-		/* if (show_inven_graph) l += 2; */
-
 		/* Maintain the maximum length */
 		if (l > len) len = l;
 
@@ -3200,20 +3200,7 @@ void show_inven(void)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
 
-/*
- *		if (show_inven_graph)
- *		{
- *			byte a = object_attr(o_ptr);
- *
- * #ifdef AMIGA
- *			if (a & 0x80) a |= 0x40;
- * #endif
- *			Term_draw(col + 3, j + 1, a, object_char(o_ptr));
- *		}
- */
-
 		/* Display the entry itself */
-		/* c_put_str(out_color[j], out_desc[j], j + 1, show_inven_graph ? (col + 5) : (col + 3)); */
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
@@ -3262,8 +3249,6 @@ void show_equip(void)
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
-	/* if (show_equip_graph) lim -= 2; */
-
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -3296,9 +3281,6 @@ void show_equip(void)
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
 
-		/* Increase length for icon */
-		/* if (show_equip_graph) l += 2; */
-
 		/* Maintain the max-length */
 		if (l > len) len = l;
 
@@ -3327,37 +3309,21 @@ void show_equip(void)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
-/*
- *		if (show_equip_graph)
- *		{
- *			byte a = object_attr(o_ptr);
- *
- * #ifdef AMIGA
- *			if (a & 0x80) a |= 0x40;
- * #endif
- *
- *			Term_draw(col + 3, j + 1, a, object_char(o_ptr));
- *		}
- */
-
 		/* Use labels */
 		if (show_labels)
 		{
 			/* Mention the use */
 			sprintf(tmp_val, "%-14s: ", mention_use(i));
-			/* put_str(tmp_val, j+1, show_equip_graph ? col + 5 : col + 3); */
 			put_str(tmp_val, j+1, col + 3);
 
 			/* Display the entry itself */
-			/* c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 21 : col + 19); */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 19);
+			c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			/* c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 5 : col + 3); */
 			c_put_str(out_color[j], out_desc[j], j+1, col + 3);
 		}
 
@@ -3380,7 +3346,7 @@ void show_equip(void)
 /*
  * Display a list of the items on the floor at the given location.
  */
-void show_floor(int *floor_list, int floor_num)
+void show_floor(const int *floor_list, int floor_num)
 {
 	int i, j, k, l;
 	int col, len, lim;
@@ -3490,7 +3456,7 @@ void toggle_inven_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -3810,7 +3776,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Not done */
@@ -3940,7 +3906,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			int ne = 0;
 
 			/* Scan windows */
-			for (j = 0; j < 8; j++)
+			for (j = 0; j < ANGBAND_TERM_MAX; j++)
 			{
 				/* Unused */
 				if (!angband_term[j]) continue;
@@ -4463,5 +4429,54 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Result */
 	return (item);
+}
+
+/*
+ * Create the artifact of the specified number
+ */
+void create_named_art(int a_idx, int y, int x)
+{
+	object_type *o_ptr;
+	object_type object_type_body;
+	int k_idx;
+
+	artifact_type *a_ptr = &a_info[a_idx];
+
+	/* Ignore "empty" artifacts */
+	if (!a_ptr->name) return;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
+
+	/* Acquire the "kind" index */
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!k_idx) return;
+
+	/* Create the artifact */
+	object_prep(o_ptr, k_idx);
+
+	/* Save the name */
+	o_ptr->name1 = a_idx;
+
+	/* Extract the fields */
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	/* Hack -- acquire "cursed" flag */
+	if (a_ptr->flags3 & TR3_LIGHT_CURSE) o_ptr->ident |= (IDENT_CURSED);
+
+	/* Drop the artifact from heaven */
+	(void)drop_near(o_ptr, -1, y, x);
 }
 

@@ -1,0 +1,142 @@
+# q0000078.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:78:N:Castle Siege II
+
+# Definition
+Q:78:Q:1:0:0:1:90:392:0:6
+
+# Description for quest
+?:[LEQ $QUEST78 2]
+Q:78:T:Once again Morgoth has sent an army to destroy us. However, this army
+Q:78:T:seeks only to trap us in our cities, cut off from our farmland. They
+Q:78:T:have already entrenched themselves, and have constructed a fortress in
+Q:78:T:the northern woods where they have amassed their strength. Trolls 
+Q:78:T:patrol the castle, while Dragons form the main guard, and all are
+Q:78:T:under the leadership of Lorgan, a mighty warrior-chief of the men of
+Q:78:T:the east. You are to enter the castle, find Lorgan, and slay him.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST78 3]
+Q:78:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST78 5]
+Q:78:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Ancient Blue Dragon
+F:a:1:8:411
+
+# Floor with Mature Blue Dragon
+F:b:1:8:384
+
+# Floor with Ancient Red Dragon
+F:c:1:8:444
+
+# Floor with Mature Red Dragon
+F:d:1:8:402
+
+# Floor with Ancient White Dragon
+F:e:1:8:424
+
+# Floor with Mature White Dragon
+F:f:1:8:375
+
+# Floor with War Troll
+F:g:1:8:565
+
+# Floor with Troll King
+F:h:1:8:552
+
+# Floor with Easterling
+F:i:1:8:576
+
+# Floor with Logan, Chief of the Easterlings
+F:j:1:8:392
+
+# Floor with Blue DSM
+F:k:1:8:0:401
+
+# Floor with White DSM
+F:l:1:8:0:402
+
+# Floor with Red DSM
+F:m:1:8:0:403
+
+# Floor with Dragon Helm
+F:n:1:8:0:413
+
+# Floor with Dragon Shield
+F:o:1:8:0:414
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..........i..........XX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............X
+D:X......................X.............D...............................................................................................................D.............X
+D:X.....................XX..........g..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..........g..X
+D:X....................XXXXXXDXXXXXXXXXX...............................................................................................................XXXXXXXXXXDXXXX
+D:X.....................XXXXX.XXXXXXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX........XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX.......dXXXXXXXX...............X...............X.X.X.X.X.X.XdXcX.X.X.XaX.X.XbXaX.XeX.X.X.X.X.XfX.......XXXXX.iii....XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX........XXXXXXXX...............X...............X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.X.......XXXXX........XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX........XXXXXXXX...............D...............D...............D...............D...............D....a..XXXXX........XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX..XXXXXXXXXXXXXX........g......X........ba.....XX.X.X.X.X.X.X.XXX.X.X.X.X.X.X.XXX.X.X.X.X.X.X.XX.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XXdX.X.XcX.X.X.XXX.X.X.X.X.X.XbXXX.X.X.XfX.X.X.XX.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X............X..........X......X..XXXXXX.XXXXX.XX.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX..XXXXXXXXXXXXXX...f.......f...X...............X.XX.XXXXXXX.X.X.XXXXXX.X....X.XX.X.....X......XX.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X.8X.X.......X.X.X......X....X....X.XXXX.XXXXX.XX.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X........iii....XXXX.XXXXXXXXXXX.XXXXXXXXX.X.XXXXXXX...X......X.X.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX.......e.......D........ii.....D....X..............X......X......8X.X.X..XXXX..D....c..D..XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XXXX.XXXXX.XXXXXXXX.X.XXXXXX.XXXXXXX.X.XXXX..XXXX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X..X.....X.X........X.....8X.........X......X..XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X.XXXXXX.X.X.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.X.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX...9.......................................9.XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX.......c.......D...............XX...9.......................a.................XX....e..XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.....................XXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX.................................d...........XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX..XXXXXXXXXXXXXX...d.......d...X...............XX.............................................XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X....................XXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX.............................................XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X...................XXXXXXX..XXXXXX..XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXDXXXXXXXXX..........................................i..XXXXXXXXXXXDXXXXXXXX..XXXXXXXX.XXXX
+D:X..................XXXXXXXX..XXXXXX..XXX..........X...............X...............XXXXXXX........................................XX**....X..........X..XXXXXXXX.XXXX
+D:X..................XXXXXXXX..XXXXXX..XXX..........X...............X...............X*..i.X.................................i......XX**...aX..........X..XXXXXXXX.XXXX
+D:X..................XXXXXXXX..XXXXXX..XXX......h...X...............X...............X*....X^^^.......................f..........^^^XX......X..*.......X..XXXXXXXX.XXXX
+D:X.........................D..XXXXXX..XXX..........X...............X...............Xn...iX^^^..............................i...^^^XX......X.*k*......X..XXXXXXXX.XXXX
+D:X.........................D..D....D....D..........D.......a.......D........h......X*j...D^^^e.......e.........................^^^^D..c...D*nlo*.....X..XXXXXXXX.XXXX
+D:X.........................D..XXXXXX..XXX..........X...............X.......ii......Xo....X^^^..............................i...^^^XX......X.*m*......X..XXXXXXXX.XXXX
+D:X...................XXXXXXX..XXXXXX..XXX..........X...............X...............X*...iX^^^..................................^^^XX......X..*.......X..XXXXXXXX.XXXX
+D:X..................XXXXXXXX..XXXXXX..XXX..........X...........b...X...............X*..i.X..........................b......i......XX**...eX..........X..XXXXXXXX.XXXX
+D:X..................XXXXXXXX..XXXXXX..XXX..........X...............X...............XXXXXXX...........................d.........i..XX**....X..........X..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX..XXXXXX..XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXDXXXXXXXXX.............................................XXXXXXXXXXXDXXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX.............................................XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...d...........X...............XX...................................d.........XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X..................XXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX....................................f........XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X...................XXXXXXX.XXXXXXX..XXXXXXXXXXXXXX.......c.......D........h......XX...........................c.................XX....e..XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X...i..............XXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...........d...X...............XX............................................9XX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXX.XXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...........f...X...............XX.XXXXXXX.X.XXXXXXXXXXXXX.XXXXXXXX.XX.X..X.X.X.X.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X..................XXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X8X.XX8....X......X........XXXXXXXX.X..X..X...X8X.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X..................XXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX...XXXXX.XXXXXX.XXXXXXXXXX.......XXXXXX.XXXXXXX.......XX.XXXXXXXX..XXXXXXXX.XXXX
+D:X..................XXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX.......e.......D.........abc...D.XX.....X........X.XX..XXX.XXXXXXXX............D....c..D..XXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............XX.XXXXX.XXXXXXXX.X................XXXXXXXXXX...X.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.................XXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X.X....X.X.X......XXXX.XXXXXXXXX.X.XXXXXXXXXXXX.X.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X................XXXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...f...........X...............XXX.XXXX.X.X.XXXXXX.9XXXXXX......XXXXXX.XXXXX...X.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X...............XXXXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXX...............X...............X.X......X...........................8X.........X.......XXXXXXXXXXX..XXXXXXXX.XXXX
+D:X............XXXXXXXXXXXXXX.XXXXXXX..XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXX.XXXX
+D:X.......XXXXXXXXXXXXXXXXXXX.XXXXXXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX........XXXXXXXX.XXXX
+D:X.......XXXXXXXXXXXXXXXXXXXDXXXXXXXXXX...............................................................................................................XXXXXXXXXXDXXXX
+D:X.......XXXXXXXXXXXXXXXX..g..........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............X
+D:X.......XXXXXXXXXXXXXXXX.............D...............................................................................................................D.............X
+D:X<......XXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..........g..X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:58:1
+

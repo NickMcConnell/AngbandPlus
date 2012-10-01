@@ -22,7 +22,7 @@
 #		  Needs 4OS2.
 #
 
-VERSION         = 291
+VERSION         = 292
 EXPORT          = kangband-$(VERSION).os2.zip
 
 CC		= gcc
@@ -62,11 +62,11 @@ OBJS = \
 	z-util.o z-virt.o z-form.o z-rand.o z-term.o \
 	variable.o tables.o util.o cave.o \
 	object1.o object2.o monster1.o monster2.o \
-	xtra1.o xtra2.o spells1.o spells2.o spells3.o \
+	xtra1.o xtra2.o spells1.o spells2.o \
 	melee1.o melee2.o save.o files.o \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load1.o load2.o \
-	wizard1.o wizard2.o \
+	store.o birth.o load2.o init3.o xtra3.o \
+	bldg.o spells3.o wizard1.o wizard2.o \
 	generate.o dungeon.o init1.o init2.o randart.o
 
 .c.o:
@@ -157,7 +157,7 @@ ECF=>> ..\startwnd.cmd
 
 ..\startwnd.cmd: 
 	$(EC) @echo off                                             > ..\startwnd.cmd
-	$(EC) REM This file starts up Kangband and up to seven other views. The $(ECF)
+	$(EC) REM This file starts up Angband and up to seven other views. The $(ECF)
 	$(EC) REM optional number behind the name sets the number of lines for $(ECF)
 	$(EC) REM that screen.  Choose contents for each via the game options. $(ECF)
 	$(EC) REM                                                              $(ECF)
@@ -166,13 +166,13 @@ ECF=>> ..\startwnd.cmd
 	$(EC) start /win /n aclient Term-2 10                                  $(ECF)
 	$(EC) rem start /win /n aclient Term-3 24                              $(ECF)
 	$(EC) delay                                                            $(ECF)
-	$(EC) kangband %1 %2 %3 %4 %5 %6 %7 %8 %9                               $(ECF)
+	$(EC) kangband %1 %2 %3 %4 %5 %6 %7 %8 %9                              $(ECF)
 
-kangband.exe: angband.a main.o main-emx.o main-epm.o
-	$(CC) -o kangband.exe main.o main-emx.o angband.a $(LFLAGS) 
+kangband.exe: kangband.a main.o main-emx.o main-epm.o
+	$(CC) -o kangband.exe main.o main-emx.o kangband.a $(LFLAGS) 
 
-angband.a: $(OBJS)
-	$(AR) r angband.a $(OBJS)
+kangband.a: $(OBJS)
+	$(AR) r kangband.a $(OBJS)
 
 aclient.exe: main-emx.c
 	$(NICE) $(CC) $(CFLAGS) -Wall -D__EMX__CLIENT__ -o aclient.exe main-emx.c -lvideo

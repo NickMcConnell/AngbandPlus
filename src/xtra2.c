@@ -731,116 +731,10 @@ bool set_invuln(int v)
 
 
 /*
- * Set "p_ptr->tim_s_invis", notice observable changes
+ * Set "p_ptr->tim_invis", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
  * "p_ptr->tim_image" affects monster visibility.
- */
-bool set_tim_s_invis(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_s_invis)
-		{
-			msg_print("Your eyes feel very sensitive!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_s_invis)
-		{
-			msg_print("Your eyes feel less sensitive.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_s_invis = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters*/
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->ts_anchor", notice observable changes
- */
-bool set_tim_tsanchor(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->ts_anchor)
-		{
-			msg_print("You temporarily stabilize local space!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->ts_anchor)
-		{
-			msg_print("Your time/space anchor ravels apart.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->ts_anchor = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_invis", notice observable changes
  */
 bool set_tim_invis(int v)
 {
@@ -854,7 +748,7 @@ bool set_tim_invis(int v)
 	{
 		if (!p_ptr->tim_invis)
 		{
-			msg_print("You can see through yourself!");
+			msg_print("Your eyes feel very sensitive!");
 			notice = TRUE;
 		}
 	}
@@ -864,14 +758,13 @@ bool set_tim_invis(int v)
 	{
 		if (p_ptr->tim_invis)
 		{
-			msg_print("You become substantial again.");
+			msg_print("Your eyes feel less sensitive.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->tim_invis = v;
-	p_ptr->tim_s_invis = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -882,60 +775,7 @@ bool set_tim_invis(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_ghostly", notice observable changes
- */
-bool set_tim_ghost(int v)
-{
-	bool notice = FALSE;
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_ghostly)
-		{
-			msg_print("You no longer feel solid");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->tim_ghostly)
-		{
-			msg_print("You become solid again.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_ghostly = v;
-	p_ptr->tim_s_invis = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
- 	/* Update the monsters */
+	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Handle stuff */
@@ -993,106 +833,6 @@ bool set_tim_infra(int v)
 
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->tim_levitate", notice observable changes
- *
- * Note that we check if we are already levitating via a racial
- * instrinsic or as a result of our equipment. If so, we reset the
- * counter to avoid unnecessary and annoying messages.
- */
-bool set_tim_levitate(int v)
-{
-	int i;
-
-	bool notice = FALSE;
-	bool levitating = FALSE;
-
-	object_type *o_ptr;
-
-	u32b f1, f2, f3;
-
-	/*** Analyze Player ***/
-
-	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3);
-
-	/* Check if levitating */
-	if (f3 & (TR3_LEVITATION))
-	{
-		msg_print("You are already levitating.");
-		levitating = TRUE;
-		v = 0;
-	}
-
-	/*** Analyze equipment ***/
-
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
-
-		/* Check if levitating */
-		if (f3 & (TR3_LEVITATION))
-		{
-			msg_print("You are already levitating.");
-			levitating = TRUE;
-			v = 0;
-		}
-	}
-
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->tim_levitate)
-		{
-			msg_print("You rise up from the floor!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (!levitating)
-		{
-			if (p_ptr->tim_levitate)
-			{
-				msg_print("You drop to the floor.");
-				notice = TRUE;
-			}
-		}
-	}
-
-	/* Use the value */
-	p_ptr->tim_levitate = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1322,241 +1062,6 @@ bool set_oppose_pois(int v)
 
 	/* Use the value */
 	p_ptr->oppose_pois = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
-* Set "p_ptr->oppose_ld", notice observable changes
-*/
-bool set_oppose_ld(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_ld)
-		{
-			msg_print("You feel resistant to light & dark!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_ld)
-		{
-			msg_print("You feel less resistant to light & dark.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_ld = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_cc", notice observable changes
- */
-bool set_oppose_cc(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_cc)
-		{
-			msg_print("You feel resistant to chaos & confusion!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_cc)
-		{
-			msg_print("You feel less resistant to chaos & confusion.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_cc = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_ss", notice observable changes
- */
-bool set_oppose_ss(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_ss)
-		{
-			msg_print("You feel resistant to sound & shards!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_ss)
-		{
-			msg_print("You feel less resistant to sound & shards.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_ss = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_nex", notice observable changes
- */
-bool set_oppose_nex(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_nex)
-		{
-			msg_print("You feel resistant to nexus!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_nex)
-		{
-			msg_print("You feel less resistant to nexus.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_nex = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
-
-/*
- * Set "p_ptr->oppose_neth", notice observable changes
- */
-bool set_oppose_neth(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->oppose_neth)
-		{
-			msg_print("You feel resistant to life-draining forces!");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->oppose_neth)
-		{
-			msg_print("You feel less resistant to life-draining forces.");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->oppose_neth = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2217,6 +1722,27 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 	}
+
+	/* Gain max levels while possible */
+	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
+	                           p_ptr->expfact / 100L)))
+	{
+		/* Gain max level */
+		p_ptr->max_lev++;
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
 }
 
 
@@ -2264,7 +1790,7 @@ void lose_exp(s32b amount)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-static int get_coin_type(monster_race *r_ptr)
+static int get_coin_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
@@ -2290,6 +1816,43 @@ static int get_coin_type(monster_race *r_ptr)
 	return (0);
 }
 
+#if 0
+/*
+ * Create magical stairs after finishing a quest monster.
+ */
+static void build_quest_stairs(int y, int x)
+{
+	int ny, nx;
+
+
+	/* Stagger around */
+	while (!cave_valid_bold(y, x))
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&ny, &nx, y, x, d, 0);
+
+		/* Stagger */
+		y = ny; x = nx;
+	}
+
+	/* Destroy any objects */
+	delete_object(y, x);
+
+	/* Explain the staircase */
+	msg_print("A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_MORE);
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+}
+#endif /* 0 */
 
 /*
  * Handle the "death" of a monster.
@@ -2329,7 +1892,11 @@ void monster_death(int m_idx)
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
+	bool create_stairs = FALSE;
+
 	int force_coin = get_coin_type(r_ptr);
+
+	int quest_num;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -2340,7 +1907,8 @@ void monster_death(int m_idx)
 	x = m_ptr->fx;
 
 	/* Handle the possibility of player vanquishing arena combatant -KMW- */
-	if (p_ptr->inside_special == 1) {       /* -KMW- */
+	if (p_ptr->inside_arena)
+	{
 		p_ptr->exit_bldg = TRUE;
 		msg_print("Victorious! You're on your way to becoming Champion.");
 		p_ptr->arena_number++;
@@ -2474,68 +2042,170 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-	/* keep track of any quest activity */
-	if (p_ptr->inside_special == 2) {
-		for (i = 0; i < MAX_MON_QUEST; i++) {
-			if (m_ptr->r_idx == p_ptr->cqmon[i]) {
-				p_ptr->cqmonc[i]++;
+	/* Inside a quest */
+	quest_num = p_ptr->inside_quest;
+
+	/* Search for an active quest on this dungeon level */
+	if (!quest_num)
+	{
+		for (i = MAX_Q_IDX - 1; i > 0; i--)
+		{
+			/* Quest is not active */
+			if (quest[i].status != QUEST_STATUS_TAKEN)
+				continue;
+
+			/* Quest is not a dungeon quest */
+			if (quest[i].flags & QUEST_FLAG_PRESET)
+				continue;
+
+			/* Quest is not on this level */
+			if ((quest[i].level != p_ptr->depth) &&
+				 (quest[i].type != QUEST_TYPE_KILL_ANY_LEVEL))
+				continue;
+
+			/* Not a "kill monster" quest */
+			if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) ||
+			    (quest[i].type == QUEST_TYPE_FIND_EXIT))
+				continue;
+
+			/* Interesting quest */
+			if ((quest[i].type == QUEST_TYPE_KILL_NUMBER) ||
+			    (quest[i].type == QUEST_TYPE_KILL_ALL))
+				break;
+
+			/* Interesting quest */
+			if (((quest[i].type == QUEST_TYPE_KILL_LEVEL) ||
+			     (quest[i].type == QUEST_TYPE_KILL_ANY_LEVEL) ||
+			     (quest[i].type == QUEST_TYPE_RANDOM)) &&
+			     (quest[i].r_idx == m_ptr->r_idx))
+				break;
+		}
+
+		quest_num = i;
+	}
+
+	/* Handle the current quest */
+	if (quest_num && (quest[quest_num].status == QUEST_STATUS_TAKEN))
+	{
+		/* Current quest */
+		i = quest_num;
+
+		switch (quest[i].type)
+		{
+			case QUEST_TYPE_KILL_NUMBER:
+			{
+				quest[i].cur_num++;
+
+				if (quest[i].cur_num >= quest[i].num_mon)
+				{
+					/* completed quest */
+					quest[i].status = QUEST_STATUS_COMPLETED;
+
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
+					{
+						msg_print("You just completed your quest!");
+						message_flush();
+					}
+
+					quest[i].cur_num = 0;
+				}
+				break;
+			}
+			case QUEST_TYPE_KILL_ALL:
+			{
+				number_mon = 0;
+
+				/* Count all hostile monsters */
+				for (i2 = 0; i2 < DUNGEON_WID; ++i2)
+				{
+					for (j2 = 0; j2 < DUNGEON_HGT; j2++)
+					{
+						if (cave_m_idx[j2][i2] > 0)
+						{
+							if ((!m_ptr->is_pet) &&
+							    cave_m_idx[j2][i2] != m_idx)
+							{
+								number_mon++;
+							}
+						}
+					}
+				}
+
+				if (number_mon == 0)
+				{
+					/* completed */
+					if (quest[i].flags & QUEST_FLAG_SILENT)
+					{
+						quest[i].status = QUEST_STATUS_FINISHED;
+					}
+					else
+					{
+						quest[i].status = QUEST_STATUS_COMPLETED;
+						msg_print("You just completed your quest!");
+						message_flush();
+					}
+				}
+				break;
+			}
+			case QUEST_TYPE_KILL_LEVEL:
+			case QUEST_TYPE_RANDOM:
+			{
+				/* Only count valid monsters */
+				if (quest[i].r_idx != m_ptr->r_idx)
+					break;
+
+				quest[i].cur_num++;
+
+				if (quest[i].cur_num >= quest[i].max_num)
+				{
+					/* completed quest */
+					quest[i].status = QUEST_STATUS_COMPLETED;
+					if (!p_ptr->inside_quest && p_ptr->depth)
+						create_stairs = TRUE;
+
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
+					{
+						msg_print("You just completed your quest!");
+						message_flush();
+					}
+
+					/* Finish the two main quests without rewarding */
+					if ((i == QUEST_SAURON) || (i == QUEST_MORGOTH))
+					{
+						quest[i].status = QUEST_STATUS_FINISHED;
+					}
+				}
+				break;
+			}
+			case QUEST_TYPE_KILL_ANY_LEVEL:
+			{
+				quest[i].cur_num++;
+				if (quest[i].cur_num >= quest[i].max_num)
+				{
+					 /* completed quest */
+					quest[i].status = QUEST_STATUS_COMPLETED;
+
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
+					{
+						msg_print("You just completed your quest!");
+						message_flush();
+					}
+					quest[i].cur_num = 0;
+				}
+				break;
 			}
 		}
 	}
 
-	/* Process "any level" quest monster completion -KMW- */
-	for(i=0; i < MAX_QUESTS; i++) {
-		if (p_ptr->rewards[i+QUEST_REWARD] != 1)
-			continue;
-		if ((q_list[i].quest_type == 1) && (q_list[i].r_idx == m_ptr->r_idx)) {
-			p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED; /* completed quest */
-			msg_print("You just completed your quest!");
-			msg_print(NULL);
-			break;
-		}
-	else if ((q_list[i].quest_type == 2) && (q_list[i].r_idx == m_ptr->r_idx)) {
-			q_list[i].cur_num++;
-			if (q_list[i].cur_num >= q_list[i].max_num) {
-				p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED; /* completed quest */
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-				q_list[i].cur_num = 0;
-			}
-			break;
-		}
-		else if ((q_list[i].quest_type == 5) && (p_ptr->inside_special == 2)) {
-			q_list[i].cur_num++;
-			if (q_list[i].cur_num >= q_list[i].num_mon) {
-				p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed quest */
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-				q_list[i].cur_num = 0;
-			}
-			break;
-		}
-		else if ((q_list[i].quest_type == 6) && (p_ptr->inside_special == 2)) {
-			number_mon = 0;
-			for (i2 = 0; i2 < DUNGEON_WID; ++i2)
-				for (j2 = 0; j2 < DUNGEON_HGT; j2++)
-			if (cave_m_idx[j2][i2] > 0)
-				number_mon++;
-			if ((number_mon - 1) == 0) {
-				p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED; /* completed */
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-			}
-			break;
-		}
-	}
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
-	if (i == MAX_QUESTS) return; /* no more quests -KMW- */
+	/* No more quests -KMW- */
+	if (i == MAX_Q_IDX) return;
 
 	/* Need some stairs */
-	if ((i == ((MAX_QUESTS) - 2)) || (m_ptr->r_idx == q_list[MAX_QUESTS-2].r_idx))
-	/* i.e. Sauron */
+	if (create_stairs)
 	{
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
@@ -2567,7 +2237,7 @@ void monster_death(int m_idx)
 
 
 	/* Nothing left, game over... */
-	else
+	if (strstr((r_name + r_ptr->name), "Morgoth, Lord of Darkness"))
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -2921,13 +2591,12 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-cptr look_mon_desc(int m_idx)
+static void look_mon_desc(char *buf, int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
-	int perc;
 
 
 	/* Determine if the monster is "living" (vs "undead") */
@@ -2940,29 +2609,27 @@ cptr look_mon_desc(int m_idx)
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
-		return (living ? "unhurt" : "undamaged");
+		strcpy(buf, (living ? "unhurt" : "undamaged"));
 	}
-
-
-	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-	if (perc >= 60)
+	else
 	{
-		return (living ? "somewhat wounded" : "somewhat damaged");
+		/* Calculate a health "percentage" */
+		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+
+		if (perc >= 60)
+			strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"));
+		else if (perc >= 25)
+			strcpy(buf, (living ? "wounded" : "damaged"));
+		else if (perc >= 10)
+			strcpy(buf, (living ? "badly wounded" : "badly damaged"));
+		else
+			strcpy(buf, (living ? "almost dead" : "almost destroyed"));
 	}
 
-	if (perc >= 25)
-	{
-		return (living ? "wounded" : "damaged");
-	}
-
-	if (perc >= 10)
-	{
-		return (living ? "badly wounded" : "badly damaged");
-	}
-
-	return (living ? "almost dead" : "almost destroyed");
+	if (m_ptr->csleep) strcat(buf, ", asleep");
+	if (m_ptr->confused) strcat(buf, ", confused");
+	if (m_ptr->monfear) strcat(buf, ", afraid");
+	if (m_ptr->stunned) strcat(buf, ", stunned");
 }
 
 
@@ -3072,7 +2739,7 @@ sint motion_dir(int y1, int x1, int y2, int x2)
  */
 sint target_dir(char ch)
 {
-	int d;
+	int d = 0;
 
 	int mode;
 
@@ -3081,32 +2748,37 @@ sint target_dir(char ch)
 	cptr s;
 
 
-	/* Default direction */
-	d = (isdigit(ch) ? D2I(ch) : 0);
-
-	/* Roguelike */
-	if (rogue_like_commands)
+	/* Already a direction? */
+	if (isdigit(ch))
 	{
-		mode = KEYMAP_MODE_ROGUE;
+		d = D2I(ch);
 	}
-
-	/* Original */
 	else
 	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
-	/* Extract the action (if any) */
-	act = keymap_act[mode][(byte)(ch)];
-
-	/* Analyze */
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
 
@@ -3553,7 +3225,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	int query;
 
-	char out_val[160];
+	char out_val[256];
 
 
 	/* Repeat forever */
@@ -3588,7 +3260,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (p_ptr->wizard)
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -3654,9 +3329,23 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
+						char buf[80];
+
+						/* Describe the monster */
+						look_mon_desc(buf, cave_m_idx[y][x]);
+
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
+						if (p_ptr->wizard)
+						{
+							sprintf(out_val, "%s%s%s%s (%s) [r,%s] (%d:%d)",
+						            s1, s2, s3, m_name, buf, info, y, x);
+						}
+						else
+						{
+							sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
+							        s1, s2, s3, m_name, buf, info);
+						}
+
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -3708,7 +3397,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					object_desc(o_name, o_ptr, TRUE, 3);
 
 					/* Describe the object */
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					if (p_ptr->wizard)
+						sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+					else
+						sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -3761,8 +3453,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (1)
 				{
 					/* Describe the pile */
-					sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
-						s1, s2, s3, floor_num, info);
+					if (p_ptr->wizard)
+						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s] (%d:%d)", s1, s2, s3, floor_num, info, y, x);
+					else
+						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
+							s1, s2, s3, floor_num, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -3833,7 +3528,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				object_desc(o_name, o_ptr, TRUE, 3);
 
 				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				if (p_ptr->wizard)
+					sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+				else
+					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
@@ -3874,6 +3572,30 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		{
 			cptr name = f_name + f_info[feat].name;
 
+			/* Hack -- special handling for building doors */
+			if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
+			{
+				name = building[feat - FEAT_BLDG_HEAD].name;
+			}
+
+			/* Hack -- special handling for quest entrances */
+			if (feat == FEAT_QUEST_ENTER)
+			{
+				/* Set the quest number temporary */
+				int old_quest = p_ptr->inside_quest;
+				p_ptr->inside_quest = cave_special[y][x];
+
+				/* Get the quest text */
+				init_flags = INIT_SHOW_TEXT;
+				quest_text_line = 0;
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+				name = quest[cave_special[y][x]].name;
+
+				/* Reset the old quest number */
+				p_ptr->inside_quest = old_quest;
+			}
+
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
@@ -3883,15 +3605,27 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Pick proper indefinite article */
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
-			/* Hack -- special introduction for store & building doors -KMW- */
-			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
-			    ((feat >= FEAT_BLDG_HEAD) & (feat <= FEAT_BLDG_TAIL)))
+			/* Hack -- special introduction for store doors */
+			if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
 			{
 				s3 = "the entrance to the ";
 			}
 
+			/* Handle buildings and quest entrances */
+			else if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
+			{
+				s3 = "the entrance to the ";
+			}
+			else if (feat == FEAT_QUEST_ENTER)
+			{
+				s3 = "the quest-entrance to the ";
+			}
+
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (p_ptr->wizard)
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -4557,60 +4291,4 @@ bool confuse_dir(int *dp)
 	/* Not confused */
 	return (FALSE);
 }
-
-
-/*
- * From Psionic Angband by Aram Harrow
- */
-bool tgt_pt(int *x,int *y)
-{
-	char ch = 0;
-	int d,cu,cv;
-	char command = ' ';
-	bool success = FALSE;
-
-	*x = p_ptr->px;
-	*y = p_ptr->py;
-
-	cu = Term->scr->cu;
-	cv = Term->scr->cv;
-	Term->scr->cu = 0;
-	Term->scr->cv = 1;
-	msg_print("Select a point and press space.");
-
-	while ((ch != 27) && (ch != ' '))
-	{
-		move_cursor_relative(*y,*x);
-		ch = inkey();
-		switch (ch)
-		{
-			case 27: break;
-			case ' ': success = TRUE; break;
-			default:
-			{
-				d = target_dir(command);
-				if (!d) break;
-				*x += ddx[d];
-				*y += ddy[d];
-
-				/* Hack -- Verify x */
-				if ((*x>=DUNGEON_WID-1) || (*x>=p_ptr->wx + SCREEN_WID)) (*x)--;
-				else if ((*x<=0) || (*x<=p_ptr->wx)) (*x)++;
-
-				/* Hack -- Verify y */
-				if ((*y>=DUNGEON_HGT-1) || (*y>=p_ptr->wy + SCREEN_HGT)) (*y)--;
-				else if ((*y<=0) || (*y<=p_ptr->wy)) (*y)++;
-
-				break;
-			}
-		}
-	}
-
-	Term->scr->cu = cu;
-	Term->scr->cv = cv;
-	Term_fresh();
-	return success;
-
-}
-
 

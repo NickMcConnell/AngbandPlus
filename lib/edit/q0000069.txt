@@ -1,0 +1,64 @@
+# q0000069.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:68:N:Reconaissance Mission
+
+# Definition
+Q:69:Q:4:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST69 2]
+Q:69:T:My suspicions about Morgoth's involvement in this war were correct.
+Q:69:T:It would seem as if he is attempting to keep our cities at war, by
+Q:69:T:preventing either side from winning a truly decisive victory over the
+Q:69:T:other. I don't yet know why he is doing this - perhaps he believes that
+Q:69:T:if my armies and those of Dulnshead unite we will be powerful enough to
+Q:69:T:pose a threat to him. If only I had proof of his involvement, I could
+Q:69:T:negotiate a truce and end this pointless war. I want you to go to an
+Q:69:T:outpost Morgoth maintains, to the west. It is said there is a hidden exit
+Q:69:T:there - find it. It could prove vital to know about it in the future.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST69 3]
+Q:69:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST69 5]
+Q:69:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X........XXXXXXX......XXXXXXXXXXXXXXXX........XXXXXXXXXXXXXXXXXX
+D:X..@..@..D.....D..9...XXXXXXXXXXXXXXXX........XXXXXXXXXXXXXXXXXX
+D:X..@..@..XXXXXXX......XXXXXXXXXXXXXXXX........XXXXXXX....9XXXXXX
+D:X........XXXXXXX@.....XXXXXXXXXXXXXXXX........XXXXXXX.....XXXXXX
+D:XXXXDDXXXXXXXXXX......D..............D........D.....D.....XXXXXX
+D:X........XXXXXXX@.....XXXXXXXXXXXXXXXX........XXXXXXX.....XXXXXX
+D:X..9..9..XXXXXXX......XXXXXXXXXXXXXXXX........XXXXXXX....9XXXXXX
+D:X..9..9..D.....D..9...XXXXXXXXXXXXXXXX...99...XXXXXXXXXDXXXXXXXX
+D:X........XXXXXXX......XXXXXXXXXXXXXXXX........XXXXXXXXX.XXXXXXXX
+D:XXX+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXX.XXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXDXXXXXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXX.................XXXXXXXXX.......XXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXX...9.........9...XXXXXXXXX.......XXXXX
+D:XXX.XXXXXXXXXXXXXXXXXXXXXX.................XXXXXXXXX...9...XXXXX
+D:XXXDXXXXXXXXXXXXXXXXXXXXXX.................D.......D.......XXXXX
+D:X...D....................+.................XXXXXXXXX...9...XXXXX
+D:X.8.XXXXXXXXXXXXXXXXXXXXXX...9.........9...XXXXXXXXX.......XXXXX
+D:X<..XXXXXXXXXXXXXXXXXXXXXX.................XXXXXXXXX.......XXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:45
+

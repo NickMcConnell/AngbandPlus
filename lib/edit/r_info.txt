@@ -1,12 +1,12 @@
 # File: r_info.txt
 
 
-# This file is used to initialize the "lib/raw/r_info.raw" file, which is
+# This file is used to initialize the "lib/data/r_info.raw" file, which is
 # used to initialize the "monster race" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/r_info.raw" file.
+# After modifying this file, delete the "lib/data/r_info.raw" file.
 
 # Currently, "unique" monsters are just "special" monster races, with
 # the requirement that only one monster of that race can exist at a time,
@@ -105,7 +105,7 @@
 
 # Note that monster zero is used for the "player" picture.
 
-# Additions by -KMW- ->  I have added RF2_SWIM, RF2_FLY, RF2_DEEPLAVA
+# Additions by -KMW- ->  I have added RF2_CAN_SWIM, RF2_CAN_FLY, RF2_DEEPLAVA
 # and RF2_AQUATIC which determine whether monsters can cross deep water
 # terrain, over all terrain, through deep lava, and if they exist only
 # in deep water.
@@ -133,9 +133,9 @@
 # 'G' is for graphics - symbol and color. There are 16 colors, as
 # follows:
 
-# D - Black        w - White          s - Gray          o - Orange
+# D - Dark Gray    w - White          s - Gray          o - Orange
 # r - Red          g - Green          b - Blue          u - Brown
-# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# d - Black        W - Light Gray     v - Violet        y - Yellow
 # R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
 
 # 'I' is for information - speed, health, vision in tens of feet,
@@ -165,7 +165,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 ##### Non-race (contains the "player" picture) #####
@@ -205,7 +205,7 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
-N:4:Bill Ferney
+N:4:Farmer Maggot
 G:h:w
 I:110:35d10:40:10:3
 W:0:4:0:0
@@ -216,8 +216,8 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
-D:His dogs attack people.  He won't let people near his apples.  He's not a
-D:nice hobbit!
+D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
+D:hobbit!
 
 N:5:Blubbering idiot
 G:t:W
@@ -430,7 +430,7 @@ W:1:1:0:5
 B:HIT:HURT:1d5
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | SWIM
+F:EVIL | IM_POIS | CAN_SWIM
 D:It is a squat and ugly humanoid figure.
 
 N:25:Kobold
@@ -439,8 +439,8 @@ I:110:3d7:20:16:10
 W:1:1:0:5
 B:HIT:HURT:1d6
 F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | IM_POIS | SWIM
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_POIS | CAN_SWIM
 D:It is a small, dog-headed humanoid.
 
 N:26:White worm mass
@@ -467,7 +467,7 @@ G:R:U
 I:110:3d4:20:4:15
 W:1:1:0:2
 B:BITE:HURT:1d1
-F:ANIMAL | SWIM
+F:ANIMAL | CAN_SWIM
 D:It is a small lizard with a hardened hide.
 
 N:29:Jackal
@@ -476,7 +476,7 @@ I:110:1d4:10:3:10
 W:1:1:0:1
 B:BITE:HURT:1d1
 F:FRIENDS | 
-F:ANIMAL | SWIM
+F:ANIMAL | CAN_SWIM
 D:It is a yapping snarling dog, dangerous when in a pack.
 
 N:30:Soldier ant
@@ -493,7 +493,7 @@ G:b:o
 I:120:1d6:20:3:10
 W:1:1:0:1
 B:BITE:HURT:1d1
-F:ANIMAL | FLY
+F:ANIMAL | CAN_FLY
 D:A fast-moving pest.
 
 N:32:Shrieker mushroom patch
@@ -607,7 +607,7 @@ W:2:1:0:6
 B:BITE:HURT:1d3
 F:RAND_25 | 
 F:BASH_DOOR | 
-F:ANIMAL | SWIM
+F:ANIMAL | CAN_SWIM
 D:It is as big as a wolf.
 
 N:42:Giant black ant
@@ -627,7 +627,7 @@ I:110:4d6:8:20:80
 W:2:1:0:10
 B:BITE:FIRE:1d3
 F:RAND_25 | 
-F:ANIMAL | IM_FIRE | DEEPLAVA | SWIM
+F:ANIMAL | IM_FIRE | DEEPLAVA | CAN_SWIM
 D:A small black and orange lizard.
 
 N:44:White harpy
@@ -639,7 +639,7 @@ B:CLAW:HURT:1d1
 B:BITE:HURT:1d2
 F:FEMALE | 
 F:RAND_50 | 
-F:ANIMAL | EVIL | FLY
+F:ANIMAL | EVIL | CAN_FLY
 D:A flying, screeching bird with a woman's face.
 
 N:45:Blue yeek
@@ -660,7 +660,7 @@ B:BITE:HURT:1d4
 F:UNIQUE | 
 F:FORCE_MAXHP | RAND_25 | 
 F:BASH_DOOR | 
-F:ANIMAL | NO_CONF | NO_SLEEP | SWIM
+F:ANIMAL | NO_CONF | NO_SLEEP | CAN_SWIM
 D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
 D:stealing mushrooms.
 
@@ -672,7 +672,7 @@ B:BITE:HURT:1d4
 F:UNIQUE | 
 F:FORCE_MAXHP | RAND_25 | 
 F:BASH_DOOR | 
-F:ANIMAL | NO_CONF | NO_SLEEP | SWIM
+F:ANIMAL | NO_CONF | NO_SLEEP | CAN_SWIM
 D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
 D:stealing mushrooms.
 
@@ -909,7 +909,7 @@ G:R:u
 I:110:3d6:8:16:80
 W:4:1:0:8
 B:BITE:HURT:1d5
-F:ANIMAL | SWIM
+F:ANIMAL | CAN_SWIM
 D:It is an armoured lizard with a powerful bite.
 
 N:69:Novice ranger
@@ -1075,7 +1075,7 @@ W:5:1:0:25
 B:HIT:HURT:1d10
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | SWIM
+F:EVIL | IM_POIS | CAN_SWIM
 D:It a man-sized figure with the all too recognizable face of a kobold.
 
 N:83:Skeleton kobold
@@ -1127,7 +1127,7 @@ W:5:1:0:15
 B:BITE:POISON:2d4
 F:RAND_50 | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_POIS | SWIM
+F:ANIMAL | IM_POIS | CAN_SWIM
 D:It has a copper head and sharp venomous fangs.
 
 N:88:Purple mushroom patch
@@ -1195,7 +1195,7 @@ I:130:3d8:10:15:30
 W:6:1:0:10
 B:BITE:HURT:1d3
 F:RAND_50 | 
-F:ANIMAL | FLY
+F:ANIMAL | CAN_FLY
 D:It screeches as it attacks.
 
 N:94:Novice archer
@@ -1242,7 +1242,7 @@ W:6:1:0:20
 B:BITE:POISON:2d5
 F:RAND_50 | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_POIS | SWIM
+F:ANIMAL | IM_POIS | CAN_SWIM
 D:It is recognized by the hard-scaled end of its body that is often rattled 
 D:to frighten its prey.
 
@@ -1319,7 +1319,7 @@ W:7:1:0:16
 B:BITE:LOSE_STR:2d4
 F:RAND_50 | 
 F:BASH_DOOR | 
-F:ANIMAL | SWIM
+F:ANIMAL | CAN_SWIM
 D:It looks poisonous.
 
 N:105:Green icky thing
@@ -1392,10 +1392,10 @@ B:HIT:HURT:1d10
 B:HIT:HURT:1d10
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | ESCORTS |
+F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | SWIM
+F:EVIL | IM_POIS | CAN_SWIM
 D:Strong and powerful, for a kobold.
 
 N:111:Wormtongue, Agent of Saruman
@@ -1409,7 +1409,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | SWIM
+F:EVIL | CAN_SWIM
 S:1_IN_5 | 
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
 D:He's been spying for Saruman.  He is a snivelling wretch with no morals 
@@ -1579,7 +1579,7 @@ B:CLAW:HURT:1d2
 B:BITE:HURT:1d3
 F:FEMALE | 
 F:RAND_25 | 
-F:ANIMAL | EVIL | FLY
+F:ANIMAL | EVIL | CAN_FLY
 D:A woman's face on the body of a vicious black bird.
 
 N:126:Orc shaman
@@ -1697,7 +1697,7 @@ B:HIT:HURT:1d12
 F:UNIQUE | MALE
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | SWIM
+F:OPEN_DOOR | BASH_DOOR | CAN_SWIM
 D:A nasty piece of work, Brodda picks on defenseless women and children.
 
 N:134:King cobra
@@ -1751,7 +1751,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | EVIL | SWIM
+F:ANIMAL | EVIL | CAN_SWIM
 S:1_IN_4 | 
 S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
 S:S_MONSTER
@@ -1878,7 +1878,7 @@ B:BITE:HURT:1d6
 F:RAND_25 | 
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | SWIM
+F:ANIMAL | CAN_SWIM
 D:It howls and snaps at you.
 
 N:148:Giant fruit fly
@@ -1888,7 +1888,7 @@ W:10:6:0:4
 B:BITE:HURT:1d2
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | 
-F:ANIMAL | FLY
+F:ANIMAL | CAN_FLY
 D:A fast-breeding, annoying pest.
 
 N:149:Panther
@@ -1976,7 +1976,7 @@ W:12:3:0:40
 B:BITE:POISON:4d4
 F:RAND_50 | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_POIS | SWIM
+F:ANIMAL | IM_POIS | CAN_SWIM
 D:It has glistening black skin, a sleek body and highly venomous fangs.
 
 N:156:White wolf
@@ -1988,7 +1988,7 @@ B:BITE:HURT:1d4
 F:RAND_25 | 
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_COLD | SWIM
+F:ANIMAL | IM_COLD | CAN_SWIM
 D:A large and muscled wolf from the northern wastes.  Its breath is cold and 
 D:icy and its fur coated in frost.
 
@@ -2029,7 +2029,7 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | SWIM
+F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | CAN_SWIM
 D:A leader of a band of raiding orcs, he picks on hobbits.
 
 N:160:Master yeek
@@ -2086,7 +2086,7 @@ B:HIT:HURT:1d3
 F:RAND_50 | RAND_25 | 
 F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | IM_POIS | NONLIVING |
-F:NO_CONF | NO_SLEEP | NO_FEAR | FLY
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY
 D:A whirlwind of sentient air.
 
 N:164:Skeleton human
@@ -2258,7 +2258,7 @@ B:HIT:HURT:2d4
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | SWIM
+F:EVIL | CAN_SWIM
 S:1_IN_3 | 
 S:HASTE | BLINK | BLIND | HOLD | SLOW | BO_FIRE | BO_ELEC
 D:A mystic at one with nature.  Om.
@@ -2324,7 +2324,7 @@ B:BITE:COLD:1d6
 F:FORCE_SLEEP | 
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_COLD | FLY
+F:ANIMAL | IM_COLD | CAN_FLY
 S:1_IN_10 | 
 S:BR_COLD
 D:It is a large fly that drips frost.
@@ -2376,7 +2376,7 @@ B:BITE:HURT:1d8
 F:RAND_25 | 
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | EVIL | SWIM
+F:ANIMAL | EVIL | CAN_SWIM
 D:It is a large wolf with eyes full of cunning.
 
 N:187:Giant black louse
@@ -2548,7 +2548,7 @@ W:15:1:0:70
 B:HIT:HURT:3d4
 B:BITE:HURT:2d6
 F:BASH_DOOR | 
-F:ANIMAL | FLY
+F:ANIMAL | CAN_FLY
 D:It is half lion, half eagle.  It flies menacingly towards you.
 
 N:201:Homonculous
@@ -2654,7 +2654,7 @@ W:16:2:0:70
 B:BITE:POISON:1d6
 F:FORCE_SLEEP | RAND_50 | RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_POIS | FLY
+F:ANIMAL | IM_POIS | CAN_FLY
 S:1_IN_10 | 
 S:BR_POIS
 D:A vast, foul-smelling dragonfly.
@@ -2678,7 +2678,7 @@ W:16:5:0:4
 B:BITE:CONFUSE:2d2
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | 
-F:ANIMAL | FLY
+F:ANIMAL | CAN_FLY
 D:A giant buzzing wasp, its stinger drips venom.
 
 N:211:Ulfast, Son of Ulfang
@@ -2738,7 +2738,7 @@ B:BITE:HURT:1d6
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | HURT_LITE | SWIM
+F:EVIL | TROLL | HURT_LITE | CAN_SWIM
 D:He is green skinned and ugly.
 
 N:215:Nar, the Dwarf
@@ -2750,7 +2750,8 @@ B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:UNIQUE | MALE |
-F:FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
@@ -2781,7 +2782,7 @@ B:HIT:HURT:2d4
 F:RAND_25 | 
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | IM_POIS | NONLIVING |
-F:NO_CONF | NO_SLEEP | NO_FEAR | SWIM
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_SWIM
 D:A whirlpool of sentient liquid.
 
 N:218:Giant pink scorpion
@@ -2975,7 +2976,7 @@ I:120:3d8:12:20:50
 W:18:2:0:68
 F:FORCE_SLEEP | NEVER_BLOW | RAND_50 | RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_ACID | FLY
+F:ANIMAL | IM_ACID | CAN_FLY
 S:1_IN_9 | 
 S:BR_ACID
 D:The size of a large bird, this fly drips caustic acid.
@@ -3012,7 +3013,7 @@ B:BITE:HURT:1d3
 F:FORCE_SLEEP | 
 F:RAND_50 | RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_FIRE | FLY
+F:ANIMAL | IM_FIRE | CAN_FLY
 S:1_IN_9 | 
 S:BR_SOUN
 D:Large beating wings support this dazzling insect.  A loud buzzing noise 
@@ -3093,7 +3094,7 @@ B:CLAW:HURT:3d3
 F:FORCE_SLEEP | 
 F:FRIENDS | NONLIVING |
 F:BASH_DOOR | 
-F:ANIMAL | IM_POIS | FLY
+F:ANIMAL | IM_POIS | CAN_FLY
 S:1_IN_10 | 
 S:BR_POIS
 D:Swirling vapours surround this beast as it floats towards you, seemingly 
@@ -3123,7 +3124,7 @@ B:CLAW:HURT:3d3
 F:FORCE_SLEEP | 
 F:FRIENDS | NONLIVING |
 F:BASH_DOOR | 
-F:ANIMAL | IM_ACID | SWIM
+F:ANIMAL | IM_ACID | CAN_SWIM
 S:1_IN_10 | 
 S:BR_ACID
 D:Liquid footprints follow this hound as it pads around the dungeon.  An 
@@ -3246,7 +3247,7 @@ B:BITE:ELEC:1d3
 F:FORCE_SLEEP | 
 F:RAND_50 | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_ELEC | FLY
+F:ANIMAL | IM_ELEC | CAN_FLY
 S:1_IN_4 | 
 S:BR_ELEC
 D:It is a glowing blue bat with a sharp tail.
@@ -3288,7 +3289,7 @@ W:21:1:0:100
 B:ENGULF:ACID:3d3
 F:FORCE_SLEEP | RAND_50 | NONLIVING |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | 
-F:IM_ACID | NO_FEAR | NO_CONF | NO_SLEEP | SWIM
+F:IM_ACID | NO_FEAR | NO_CONF | NO_SLEEP | CAN_SWIM
 S:1_IN_6 | 
 S:BR_ACID
 D:A caustic spinning whirlpool of water.
@@ -3312,7 +3313,7 @@ W:21:1:0:130
 B:ENGULF:ELEC:5d5
 F:FORCE_SLEEP | RAND_50 | NONLIVING |
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | 
-F:IM_ELEC | NO_FEAR | NO_CONF | NO_SLEEP | FLY
+F:IM_ELEC | NO_FEAR | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_6 | 
 S:BR_ELEC
 D:A shimmering tornado of air, sparks crackle along its length.
@@ -3372,7 +3373,7 @@ B:TOUCH:ACID:2d6
 F:RAND_50 | DROP_60 | 
 F:STUPID | EMPTY_MIND | MULTIPLY | 
 F:TAKE_ITEM | KILL_BODY | OPEN_DOOR | BASH_DOOR | 
-F:IM_POIS | NO_FEAR | SWIM
+F:IM_POIS | NO_FEAR | CAN_SWIM
 S:1_IN_11 | 
 S:DRAIN_MANA
 D:It is a strangely moving puddle.
@@ -3425,7 +3426,7 @@ W:23:1:0:60
 B:BITE:FIRE:1d3
 F:FORCE_SLEEP | RAND_50 | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_FIRE | FLY
+F:ANIMAL | IM_FIRE | CAN_FLY
 S:1_IN_4 | 
 S:BR_FIRE
 D:It is a sharp-tailed bat, wreathed in fire.
@@ -3447,7 +3448,7 @@ W:18:1:0:70
 F:FORCE_SLEEP | NEVER_BLOW | 
 F:RAND_50 | RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | NO_CONF | NO_SLEEP | FLY
+F:ANIMAL | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:BR_CONF
 D:This vast gleaming bronze fly has wings which beat mesmerically fast.
@@ -3540,7 +3541,7 @@ B:BITE:EXP_40:1d4
 B:BITE:EXP_40:1d4
 F:RAND_50 | COLD_BLOOD | REGENERATE | 
 F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | FLY
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY
 D:An undead bat that flies at your neck hungrily.
 
 N:273:Sangahyando of Umbar
@@ -4061,7 +4062,7 @@ F:SMART | INVISIBLE | BASH_DOOR |
 F:EVIL | DEMON | IM_FIRE
 S:1_IN_5 | 
 S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
-S:CONF | SCARE
+S:CONF | SCARE | S_KIN
 D:An intensely irritating git of a monster.
 
 N:308:Basilisk
@@ -4164,7 +4165,7 @@ B:BITE:HURT:1d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DRAGON | IM_ELEC | FLY
+F:EVIL | DRAGON | IM_ELEC | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_ELEC
@@ -4181,7 +4182,7 @@ B:BITE:HURT:1d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DRAGON | IM_COLD | FLY
+F:EVIL | DRAGON | IM_COLD | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_COLD
@@ -4198,7 +4199,7 @@ B:BITE:HURT:1d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DRAGON | IM_POIS | FLY
+F:EVIL | DRAGON | IM_POIS | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_POIS
@@ -4215,7 +4216,7 @@ B:BITE:HURT:1d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:DRAGON | NO_CONF | NO_SLEEP | FLY
+F:DRAGON | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_CONF
@@ -4457,7 +4458,7 @@ B:HIT:HURT:1d8
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_POIS | HURT_LITE | SWIM
+F:EVIL | TROLL | IM_POIS | HURT_LITE | CAN_SWIM
 D:He is a vicious monster, feared for his ferocity.
 
 N:335:Half-troll
@@ -4472,7 +4473,7 @@ F:MALE |
 F:FRIENDS | 
 F:ONLY_ITEM | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_POIS | SWIM
+F:EVIL | TROLL | IM_POIS | CAN_SWIM
 D:A huge, ugly, half-human in search of plunder.
 
 N:336:Mystic
@@ -4691,7 +4692,7 @@ F:MALE |
 F:FORCE_MAXHP | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | SWIM
+F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | CAN_SWIM
 D:He is a troll that reeks of brine.
 
 N:349:Fire elemental
@@ -4739,7 +4740,7 @@ F:FORCE_SLEEP | RAND_25 |
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_BODY | KILL_ITEM | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_POIS | NONLIVING |
-F:NO_CONF | NO_SLEEP | NO_FEAR | SWIM
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_SWIM
 S:1_IN_6 | 
 S:BO_COLD
 D:It is a towering tempest of water.
@@ -4871,7 +4872,7 @@ F:FORCE_SLEEP | RAND_25 |
 F:EMPTY_MIND | COLD_BLOOD | NONLIVING |
 F:KILL_BODY | KILL_ITEM | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | FLY
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY
 S:1_IN_8 | 
 S:BO_ELEC
 D:It is a towering tornado of winds.
@@ -5060,7 +5061,7 @@ B:BITE:HURT:1d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DRAGON | IM_ACID | FLY
+F:EVIL | DRAGON | IM_ACID | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_ACID
@@ -5098,7 +5099,7 @@ B:CLAW:HURT:1d8
 B:BITE:HURT:2d8
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_COLD
@@ -5183,7 +5184,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_1D2 | DROP_4D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DRAGON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | 
-F:IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_5 | 
 S:SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
@@ -5217,7 +5218,7 @@ B:BITE:HURT:2d8
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:DRAGON | FLY
+F:DRAGON | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_SOUN
@@ -5228,9 +5229,9 @@ N:383:Rogrog the Black Troll
 G:T:D
 I:120:15d100:20:70:50
 W:36:5:0:5000
+B:HIT:HURT:6d6
 B:HIT:HURT:2d10
-B:HIT:HURT:2d10
-B:BITE:HURT:3d10
+B:BITE:HURT:2d3
 B:SPIT:ACID:3d8
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
@@ -5251,7 +5252,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:BASH_DOOR | 
-F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:SCARE | 
 S:BR_ELEC
@@ -5267,7 +5268,7 @@ B:BITE:HURT:1d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:BASH_DOOR | 
-F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:SCARE | 
 S:BR_POIS
@@ -5283,7 +5284,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_1D2 | DROP_4D2 | 
 F:BASH_DOOR | 
-F:DRAGON | NO_CONF | NO_SLEEP | FLY
+F:DRAGON | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:CONF | SCARE | 
 S:BR_CONF
@@ -5299,7 +5300,7 @@ B:BITE:HURT:2d8
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DRAGON | IM_FIRE | FLY
+F:EVIL | DRAGON | IM_FIRE | CAN_FLY
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_FIRE
@@ -5541,7 +5542,7 @@ B:BITE:HURT:2d12
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_1D2 | DROP_4D2 | 
 F:BASH_DOOR | 
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:CONF | SCARE | 
 S:BR_FIRE
@@ -5557,7 +5558,7 @@ B:BITE:HURT:2d12
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_1D2 | DROP_4D2 | 
 F:BASH_DOOR | 
-F:DRAGON | NO_CONF | NO_SLEEP | FLY
+F:DRAGON | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:CONF | SCARE | 
 S:BR_SOUN
@@ -5591,7 +5592,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:BASH_DOOR | 
-F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:SCARE | 
 S:BR_ACID
@@ -5609,7 +5610,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DRAGON | IM_ACID | IM_FIRE | IM_COLD | 
-F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_5 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
@@ -5689,7 +5690,7 @@ B:BITE:HURT:2d8
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_1D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ELEC
@@ -5705,7 +5706,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:DRAGON | NO_CONF | NO_SLEEP | FLY
+F:DRAGON | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_CONF
@@ -5721,7 +5722,7 @@ B:GAZE:LOSE_INT:2d6
 B:GAZE:UN_POWER:2d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:BASH_DOOR | 
-F:EVIL | IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:EVIL | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BO_ACID | BO_FIRE | BO_COLD
@@ -5754,7 +5755,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:4d6
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_11 | 
@@ -5872,7 +5873,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 |
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | SWIM
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_SWIM
 S:1_IN_4 | 
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
 D:A towering water elemental, Waldern is master of all things liquid. 
@@ -5891,7 +5892,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
 F:EVIL | DRAGON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | 
-F:NO_CONF | NO_SLEEP | FLY
+F:NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_4 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_SOUN | BR_CONF | 
 S:BR_SHAR | BR_GRAV | BR_NEXU
@@ -5908,7 +5909,7 @@ B:BITE:HURT:2d12
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_COLD
@@ -5924,7 +5925,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_POIS
@@ -5990,7 +5991,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID
@@ -6148,7 +6149,7 @@ B:CRUSH:HURT:8d12
 B:CRUSH:HURT:8d12
 B:HIT:ELEC:12d12
 F:BASH_DOOR | 
-F:ANIMAL | IM_ELEC | FLY
+F:ANIMAL | IM_ELEC | CAN_FLY
 D:A vast legendary bird, its iron talons rake the most impenetrable of 
 D:surfaces and its screech echoes through the many winding dungeon corridors.
 
@@ -6229,7 +6230,7 @@ B:BITE:HURT:2d14
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE
@@ -6246,7 +6247,7 @@ B:BITE:HURT:2d14
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:DRAGON | NO_CONF | NO_SLEEP | FLY
+F:DRAGON | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_SOUN
@@ -6325,7 +6326,7 @@ S:S_MONSTER
 D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the 
 D:power of the rings.
 
-N:450:Dark elven sorcerer
+N:450:Dark elven sorceror
 G:h:v
 I:130:80d10:20:70:10
 W:41:2:0:3000
@@ -6503,7 +6504,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:COLD_BLOOD | BASH_DOOR | 
 F:EVIL | UNDEAD | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | FLY
+F:NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_2 | 
 S:SLOW | CAUSE_4 | DRAIN_MANA | MIND_BLAST | BRAIN_SMASH | FORGET | 
 S:BO_MANA | 
@@ -6556,7 +6557,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_ACID | IM_FIRE | IM_COLD | 
-F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_5 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
@@ -6672,7 +6673,7 @@ F:RAND_25 |
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | FLY
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY
 S:1_IN_5 | 
 S:BO_ELEC | BA_COLD | BA_ELEC
 D:A towering air elemental, Ariel, the sorceress, avoids your blows 
@@ -6804,7 +6805,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE
@@ -6876,7 +6877,7 @@ I:140:100d20:200:60:0
 W:47:1:0:1000
 B:HIT:UN_BONUS:7d7
 B:HIT:UN_BONUS:7d7
-B:HIT:EXP_80:5d5
+B:HIT:UN_BONUS:7d7
 B:HIT:EXP_80:5d5
 F:FORCE_SLEEP | NEVER_MOVE | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
@@ -6897,7 +6898,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE
@@ -7131,7 +7132,7 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
 S:BO_COLD | BA_COLD | BA_NETH | 
-S:S_UNDEAD
+S:S_UNDEAD | S_KIN
 D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost 
 D:for a life of everlasting torment.
 
@@ -7172,7 +7173,7 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
 S:BA_FIRE | BA_COLD | BA_NETH | 
-S:S_UNDEAD
+S:S_UNDEAD | S_KIN
 D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
 D:combat awesome and his form twisted by evil cunning.
 
@@ -7223,7 +7224,7 @@ F:UNIQUE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | IM_ACID | IM_FIRE | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | FLY
+F:ANIMAL | IM_ACID | IM_FIRE | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_3 | 
 S:BO_FIRE | BO_PLAS | BA_FIRE | 
 S:BR_FIRE | BR_LITE | BR_PLAS
@@ -7370,11 +7371,11 @@ B:HIT:CONFUSE:6d6
 F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | FLY |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE | CAN_FLY |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
-S:BRAIN_SMASH | BA_NETH
+S:BRAIN_SMASH | BA_NETH | S_KIN
 D:Chief messenger between Sauron and Morgoth, she is surely the most deadly 
 D:of her vampire race.  At first she is charming to meet, but her wings and 
 D:eyes give away her true form.
@@ -7390,7 +7391,7 @@ B:BITE:HURT:4d14
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | FLY
+F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE
@@ -7413,7 +7414,7 @@ D:It looks like it was once a dragon corpse, now deeply infected with
 D:magical bacteria that make it pulse in a foul and degrading way.
 
 N:508:Fundin Bluecloak
-G:h:B
+G:h:G
 I:130:50d100:25:195:10
 W:56:2:0:20000
 B:HIT:HURT:10d10
@@ -7446,7 +7447,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | FLY
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | CAN_FLY
 S:1_IN_2 | 
 S:TELE_TO | BLIND | 
 S:BO_FIRE | BO_MANA | BA_FIRE | 
@@ -7467,8 +7468,8 @@ B:HIT:HURT:10d10
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | FLY
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | CAN_FLY
 S:1_IN_2 | 
 S:TELE_TO | BLIND | 
 S:BO_MANA | BO_NETH | BA_NETH | 
@@ -7492,10 +7493,10 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_ACID | IM_FIRE | 
-F:NO_CONF | NO_SLEEP | DEEPLAVA | FLY
+F:NO_CONF | NO_SLEEP | DEEPLAVA | CAN_FLY
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | 
-S:BR_ACID | 
+S:BR_ACID | BR_FIRE | 
 S:S_DRAGON | S_HI_DRAGON
 D:'Rushing Jaws' is his name, and death is his game.  No dragon of the brood 
 D:of Glaurung can match him.
@@ -7535,11 +7536,11 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | FLY
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | CAN_FLY
 S:1_IN_2 | 
 S:TELE_TO | BLIND | BO_MANA | 
-S:S_ANGEL
+S:S_ANGEL | S_KIN
 D:Commanding a legion of angels, Gabriel will destroy you for your sins.  He 
 D:will crush you like the pitiful insignificant being he sees you to be.  
 D:Your very soul will be taken into judgement by his supreme authority as he 
@@ -7700,7 +7701,7 @@ F:ATTR_MULTI |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:DRAGON | NO_CONF | NO_SLEEP 
+F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
 S:BR_SOUN | BR_CHAO | BR_SHAR | BR_DISE | 
@@ -7714,20 +7715,20 @@ N:522:Tselakus, the Dreadlord
 G:G:r
 I:130:65d100:20:150:10
 W:68:2:0:35000
-B:HIT:EXP_40:10d10
-B:HIT:EXP_40:10d10
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
 B:HIT:LOSE_STR:4d6
 B:HIT:LOSE_STR:4d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:INVISIBLE |TAKE_ITEM | COLD_BLOOD | PASS_WALL | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | IM_COLD | 
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
-S:S_WRAITH | S_HI_UNDEAD
+S:S_WRAITH | S_HI_UNDEAD | S_KIN
 D:This huge affront to existence twists and tears at the fabric of space.  A 
 D:master of mighty magic, Tselakus hungers for your tender flesh.  Darkness 
 D:itself recoils from the touch of Tselakus as he leaves a trail of death 
@@ -7749,7 +7750,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | FLY |
+F:EVIL | DRAGON | CAN_FLY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | 
@@ -7787,7 +7788,8 @@ F:INVISIBLE | EMPTY_MIND |
 F:ANIMAL | EVIL | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
-S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD |
+S:S_HI_DRAGON | S_HI_DEMON
 D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
 
 N:526:Greater draconic quylthulg
@@ -7853,10 +7855,10 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:SMART | BASH_DOOR | 
 F:EVIL | IM_POIS | 
-F:NO_CONF | NO_SLEEP | FLY
+F:NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
-S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD
+S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
 D:A disembodied eye, floating in the air.  His gaze seems to shred your 
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -7941,7 +7943,7 @@ F:ANIMAL | EVIL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BRAIN_SMASH | 
-S:S_HI_UNDEAD | S_HI_DRAGON
+S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON
 D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor 
 D:Quylthulg changes colours in front of your eyes.  Pulsating first one 
 D:colour then the next, it knows only it must bring help to protect itself.
@@ -7959,7 +7961,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
 S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
-S:S_HI_UNDEAD | S_HI_DRAGON
+S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
 D:This disgusting creature squeals and snorts as it writhes on the floor.  
 D:It pulsates with evil.  Its intent is to overwhelm you with monster after 
 D:monster, until it can greedily dine on your remains.
@@ -7981,7 +7983,7 @@ F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | CAUSE_3 | BRAIN_SMASH | 
 S:BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTERS | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
 D:The Chief of the Ringwraiths.  A fell being of devastating power.  His 
 D:spells are lethal and his combat blows crushingly hard.  He moves at 
 D:speed, and commands legions of evil to do his bidding.  It is said that he 
@@ -8000,9 +8002,9 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | 
-F:IM_POIS | NO_CONF | NO_SLEEP | FLY | DEEPLAVA
+F:IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY | DEEPLAVA
 S:1_IN_3 | 
-S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC
+S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | S_HI_DEMON
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
 D:as he decides your fate.
 
@@ -8080,7 +8082,7 @@ F:NO_CONF | NO_SLEEP | DEEPLAVA
 S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE | 
-S:S_DEMON | S_HI_UNDEAD
+S:S_DEMON | S_HI_UNDEAD | S_HI_DEMON
 D:A massive form cloaked in flame.  Lungorthin stares balefully at you with 
 D:eyes that smoulder red.  The dungeon floor where he stands is scorched by 
 D:the heat of his body.
@@ -8106,7 +8108,7 @@ S:S_MONSTERS | S_HOUND
 D:Draugluin provides Sauron with a fearsome personal guard.  He is an 
 D:enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 
-N:542:Feagwath the Undead Sorcerer
+N:542:Feagwath the Undead Sorceror
 G:L:R
 I:130:60d100:100:100:0
 W:90:3:0:45000
@@ -8124,7 +8126,7 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | DEEPLAVA
 S:1_IN_3 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_FIRE | 
-S:S_MONSTERS | S_DEMON | S_HI_UNDEAD
+S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_KIN
 D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
 D:risen from the grave to continue his foul plots and schemes.
 
@@ -8187,7 +8189,7 @@ F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP | DEEPLAVA
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE | 
-S:S_DEMON | S_HI_UNDEAD
+S:S_HI_DEMON | S_HI_UNDEAD
 D:Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned 
 D:for slaying Ecthelion the Warder of the Gates and he has never been 
 D:defeated in combat.  With his whip of flame and awesome fiery breath he 
@@ -8210,13 +8212,13 @@ F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | SWIM | DEEPLAVA
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_SWIM | DEEPLAVA
 S:1_IN_2 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
 S:BRAIN_SMASH | FORGET | 
 S:BO_ICEE | BO_MANA | BO_PLAS | 
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
-S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON
 D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments, 
 D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
 D:destroy your soul.  He has many servants, and rarely fights without them.
@@ -8244,7 +8246,8 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | DEEPLAVA
 S:1_IN_3 | 
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON |
+S:S_HI_DEMON 
 D:He is the Master of the Pits of Angband.  His figure is like a black 
 D:mountain crowned with Lightning.  He rages with everlasting anger, his 
 D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 
@@ -8557,7 +8560,7 @@ B:BITE:ACID:2d5
 F:MALE |
 F:FORCE_MAXHP | FRIENDS | DROP_90 |
 F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | TROLL | IM_POIS | IM_ACID | HURT_LITE | SWIM
+F:EVIL | TROLL | IM_POIS | IM_ACID | HURT_LITE | CAN_SWIM
 D:A massive and cruel troll, acidic drool drips down his hideous face.
 
 # Additional Monsters
@@ -8568,7 +8571,7 @@ I:120:30d8:10:32:1
 W:15:3:0:80
 B:BITE:HURT:4d4
 B:CRUSH:HURT:4d4
-F:BASH_DOOR | ANIMAL | SWIM
+F:BASH_DOOR | ANIMAL | CAN_SWIM
 D:It's a gigantic snake.
 
 # This monster added by Jonathan Ellis
@@ -8633,7 +8636,7 @@ B:BITE:HURT:2d10
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:DROP_60 | DROP_90 | DROP_2D2 | 
 F:BASH_DOOR | AQUATIC | 
-F:EVIL | DRAGON |  NO_CONF | NO_SLEEP | SWIM
+F:EVIL | DRAGON |  NO_CONF | NO_SLEEP | CAN_SWIM
 S:1_IN_4 | 
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
 D:A water-breathing sinuous form resembling a dragon.

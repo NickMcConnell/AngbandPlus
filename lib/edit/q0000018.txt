@@ -1,0 +1,14 @@
+# q0000018.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:18:N:Khamul
+
+# Definition
+Q:18:Q:1:0:0:1:0:494:0
+
+# Description for quest
+?:[LEQ $QUEST18 2]
+Q:18:T:Khamul the Easterling has been spotted around town and is
+Q:18:T:terrorizing everyone!  Defeat him!
+?:1

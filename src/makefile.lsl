@@ -6,11 +6,11 @@ SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
-  xtra1.c xtra2.c spells1.c spells2.c spells3.c \
+  xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load1.c load2.c \
-  wizard1.c wizard2.c \
+  store.c birth.c load2.c init3.c xtra3.c \
+  bldg.c spells3.c wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
 
@@ -18,11 +18,11 @@ OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o spells3.o \
+  xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
-  wizard1.o wizard2.o \
+  store.o birth.o load2.o init3.o xtra3.o \
+  bldg.o spells3.o wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
 
@@ -74,6 +74,7 @@ INCS = \
 
 
 birth.o: birth.c $(INCS)
+bldg.o: bldg.c $(INCS)
 cave.o: cave.c $(INCS)
 cmd1.o: cmd1.c $(INCS)
 cmd2.o: cmd2.c $(INCS)
@@ -87,7 +88,7 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 randart.o: randart.c $(INCS)
-load1.o: load1.c $(INCS)
+init3.o: init3.c $(INCS)
 load2.o: load2.c $(INCS)
 main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
@@ -112,6 +113,7 @@ wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
+xtra3.o: xtra3.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
 z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h

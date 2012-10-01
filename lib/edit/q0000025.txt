@@ -1,0 +1,62 @@
+# q0000025.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:25:N:Rescue Strike
+
+# Definition
+Q:25:Q:6:0:0:0:15:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST25 2]
+Q:25:T:You have served me well.  But, it is all for naught...*cough*
+Q:25:T:We now know what he was planning *sniff*  He KIDNAPPED MY DAUGHTER!
+Q:25:T:My only daughter!! Arrrrghh... *sob*
+Q:25:T:I am lost without her. You might as well leave...
+Q:25:T:
+Q:25:T:Excuse me but I am the King's regent. His majesty is in a state
+Q:25:T:of grief. There is hope for the princess. I have soldiers attacking
+Q:25:T:the back side of the mountain. I need you to clear out all monsters
+Q:25:T:in the south cave. With your distraction, we can rescue her! Hurry!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST25 3]
+Q:25:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST25 5]
+Q:25:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.......................%%..........................................X
+D:X...........%..........%%..................%.............9..........X
+D:X....................%%%................................%...........X
+D:X..................%%%..@...........................................X
+D:X........%........%...........%%...............%....................X
+D:X............................%%.....................................X
+D:X%%%%%%%%%%%%%%....@........%%.........................%%%..........X
+D:X.............%%%%%%%......%%.........%.............%%%%............X
+D:X...................%%%.%%%%...........%...........%%...............X
+D:X........%............%%%...............%.....%%%%%%..........%.....X
+D:X............9...................%.......%%..%%.....................X
+D:X..........................................%%%......................X
+D:X................%.........................%%.......................X
+D:X............................%............%..........9..............X
+D:X.%......................................%.....................%....X
+D:X......%%%%%%%........%..........................%..................X
+D:X............%%.....................................................X
+D:X.............%%.............................%......................X
+D:X..............%%..........%........%...............................X
+D:X.....%.........%%....................%.................%...........X
+D:X................%%............................................%....X
+D:X...............<.%%................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

@@ -1,7 +1,7 @@
 === Playing the Game ===
 
-    Most of your interaction with Kangband will take the form of "commands".
-Every Kangband command consists of an "underlying command" plus a variety of
+    Most of your interaction with Angband will take the form of "commands".
+Every Angband command consists of an "underlying command" plus a variety of
 optional or required arguments, such as a repeat count, a direction, or the
 index of an inventory object.  Commands are normally specified by typing a
 series of keypresses, from which the underlying command is extracted, along
@@ -205,7 +205,7 @@ the host machine, causing unexpected results.  In general, these special keys
 are control keys, and often, you can disable their special effects.
 
         If you are playing on a UNIX or similar system, then Ctrl-C will
-interrupt Kangband.  The second and third interrupt will induce a warning
+interrupt Angband.  The second and third interrupt will induce a warning
 bell, and the fourth will induce both a warning bell and a special message,
 since the fifth will quit the game, after killing your character.  Also,
 Ctrl-Z will suspend the game, and return you to the original command shell,
@@ -222,7 +222,7 @@ by the operating system as explained above.
 and the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ("^"), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying
-Kangband keyset.  The backslash key is useful for creating macro actions
+angband keyset.  The backslash key is useful for creating macro actions
 which are not affected by any keymap definitions that may be in force, for
 example, the sequence "\" + "." + "6" will always mean "run east", even if
 the "." key has been mapped to a different underlying command.
@@ -259,7 +259,7 @@ character.  This character is ignored, but it is safest to use a SPACE or
 ESCAPE which are always ignored as commands in case you type the command
 just after the count expires.
 
-        You can tell Kangband to automatically use a repeat count of 99
+        You can tell Angband to automatically use a repeat count of 99
 with commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
  
@@ -294,7 +294,7 @@ with "@#" where "#" is the number you entered will be selected.  For example,
 if you have a shovel engraved with "@0" and you type "w" (for wield) and
 then 0, you will wield the shovel.  This is very useful for macros (see
 below), since you can use this to select an object regardless of its
-location in your pack.  For example, Kangband automatically defines a macro
+location in your pack.  For example, Angband automatically defines a macro
 for the key "X" to do "w0".  If you then engrave both your digging
 instrument and your primary weapon with @0, pressing X will wield
 whichever one is not being currently wielded (letting you quickly switch
@@ -302,12 +302,12 @@ between them).  Multiple numbers can be engraved on the same object; for
 example, if a sword is engraved with @1@0, then either "w1" or "w0" will
 wield it.  Normally, you inscribe "@1@0" on your primary weapon, and
 "@2@0" on your digger or secondary weapon.  Note that an inscription
-containing "@x#" will act like "@#" but only when the current "Kangband
+containing "@x#" will act like "@#" but only when the current "Angband
 command" is "x".  Thus you can put "@z4" on a rod and "@u4" on a staff,
 and then use both "z4" and "u4" as desired.
 
         Note that any object containing "!x" in its inscription, where
-"x" is the current "Kangband command" (or containing "!*" ever) will induce
+"x" is the current "angband command" (or containing "!*" ever) will induce
 "verification" whenever that object is "selected".  Thus, inscribing, say,
 "!f!k!d" on an object will greatly reduce the odds of you "losing" it by
 accident, and inscribing "!*" on an object will allow you to be very paranoid
@@ -316,15 +316,15 @@ about the object.  Note that "selling" and "dropping" both use the "d" command.
 
 === User Pref Files ===
 
-        Kangband allows you to change various aspects of the game to suit
-your tastes.  You may define keymaps (changing the way Kangband maps your
+        Angband allows you to change various aspects of the game to suit
+your tastes.  You may define keymaps (changing the way Angband maps your
 keypresses to underlying commands), create macros (allowing you to map a
 single keypress to a series of keypresses), modify the visuals (allowing
 you to change the appearance of monsters, objects, or terrain features),
 change the colors (allowing you to make a given color brighter, darker,
 or even completely different), or set options (turning them off or on).
 
-        Kangband stores your preferences in files called "user pref files",
+        Angband stores your preferences in files called "user pref files",
 which contain comments and "user pref commands", which are simple strings
 describing one aspect of the system about which the user has a preference.
 There are many ways to load a user pref file, and in fact, some of these
@@ -334,7 +334,7 @@ command line arguments to redirect this directory, especially on multiuser
 systems.  You may also enter single user pref commands directly, using the
 special "Enter a user pref command" command, activated by "double quote".
 You may have to use the "redraw" command (^R) after changing certain of
-the aspects of the game, to allow Kangband to adapt to your changes.
+the aspects of the game, to allow Angband to adapt to your changes.
 
         When the game starts up, after you have loaded an old character,
 or created a new character, some user pref files are loaded automatically.
@@ -382,8 +382,8 @@ to about 1024 keys in both triggers and actions.
 
         The special "\" command (which must be encoded in macros as "\\")
 is very useful in macros, since it bypasses all keymaps and allows the next
-keystroke to be considered a command in the underlying Kangband command set.
-For a list of the Kangband command set, see the "command.txt" help file.
+keystroke to be considered a command in the underlying Angband command set.
+For a list of the Angband command set, see the "command.txt" help file.
 For example, a macro which maps Shift-KP6 to "\" + "." + "6" will induce
 the "run east" behavior, regardless of what keyset the user has chosen, and
 regardless of what keymaps have been defined.
@@ -397,7 +397,7 @@ the form "P:<str>", which defines the encoded macro trigger.
         The "Interact with macros" command also allows you to define
 "keymaps", which are vaguely related to macros.  A keymap maps a single
 keypress to a series of keypresses, which bypass both other keymaps and
-any macros.  Kangband uses keymaps to map the original and the roguelike
+any macros.  Angband uses keymaps to map the original and the roguelike
 keysets to the underlying command set, and allows the user to modify or
 add keymaps of their own.  Note that all keymap actions must be specified
 using underlying commands, not keypresses from the original or roguelike
@@ -440,8 +440,8 @@ must do so, remember that you are only cheating yourself.
 internal values used to display various colors.  This command may or may
 not have any effect on your machine.  Advanced machines may allow you to
 change the actual RGB values used to represent each of the 16 colors used
-by Kangband, and perhaps even allow you to define new colors which are not
-currently used by Kangband.
+by Angband, and perhaps even allow you to define new colors which are not
+currently used by Angband.
 
 	Colors can be specified in user pref files as line of the form
 "V:<N>:<V>:<R>:<G>:<B>".
@@ -452,4 +452,3 @@ currently used by Kangband.
 on or off.  You may turn options off or on using the user pref commands
 of the form "X:<option>" or "Y:<option>" respectively.
 
- 

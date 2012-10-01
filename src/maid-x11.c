@@ -8,10 +8,7 @@
  * are included in all such copies.
  */
 
-#ifdef USE_X11
-
-#include <math.h>
-
+#if defined(USE_X11) || defined(USE_XAW)
 
 /*
  * This file defines some "XImage" manipulation functions for X11.
@@ -70,6 +67,7 @@
 
 #ifdef SUPPORT_GAMMA
 static bool gamma_table_ready = FALSE;
+static int gamma_val = 0;
 #endif /* SUPPORT_GAMMA */
 
 
@@ -86,18 +84,21 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 
 #ifdef SUPPORT_GAMMA
 
-	int gamma = 0;
+
 
 	if (!gamma_table_ready)
 	{
 		cptr str = getenv("ANGBAND_X11_GAMMA");
-		if (str != NULL) gamma = atoi(str);
+		if (str != NULL) gamma_val = atoi(str);
+
 		gamma_table_ready = TRUE;
-		build_gamma_table(gamma);
+
+		/* Only need to build the table if gamma exists */
+		if (gamma_val) build_gamma_table(gamma_val);
 	}
 
 	/* Hack -- Gamma Correction */
-	if (gamma > 0)
+	if (gamma_val > 0)
 	{
 		red = gamma_table[red];
 		green = gamma_table[green];
@@ -137,6 +138,7 @@ typedef struct BITMAPFILEHEADER
 	u16b bfReserved2;
 	u32b bfOffBits;
 } BITMAPFILEHEADER;
+
 
 /*
  * The Win32 "BITMAPINFOHEADER" type.
@@ -881,5 +883,4 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 
 #endif /* USE_GRAPHICS */
 
-
-#endif /* USE_X11 */
+#endif /* USE_X11 || USE_XAW */

@@ -1,0 +1,12 @@
+# File: pl_info.txt
+
+# Plot Names
+
+N:0:Troubles at Home
+N:1:Kidnapped!
+N:2:Haunting of Telamoor
+N:3:Rival Towns
+N:4:City of the Ancients
+N:5:A Heroes Welcome
+N:6:Dwarven Alliance
+N:7:The Wastelands!

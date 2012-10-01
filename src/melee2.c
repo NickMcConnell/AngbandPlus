@@ -51,7 +51,7 @@
 /*
  * Internal probability routine
  */
-static bool int_outof(monster_race *r_ptr, int prob)
+static bool int_outof(const monster_race *r_ptr, int prob)
 {
 	/* Non-Smart monsters are half as "smart" */
 	if (!(r_ptr->flags2 & (RF2_SMART))) prob = prob / 2;
@@ -117,6 +117,14 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->oppose_fire) smart |= (SM_OPP_FIRE);
 		if (p_ptr->oppose_cold) smart |= (SM_OPP_COLD);
 		if (p_ptr->oppose_pois) smart |= (SM_OPP_POIS);
+		if (p_ptr->oppose_ld) smart |= (SM2_OPP_LITE);
+		if (p_ptr->oppose_ld) smart |= (SM2_OPP_DARK);
+		if (p_ptr->oppose_cc) smart |= (SM2_OPP_CONFU);
+		if (p_ptr->oppose_cc) smart |= (SM2_OPP_CHAOS);
+		if (p_ptr->oppose_ss) smart |= (SM2_OPP_SOUND);
+		if (p_ptr->oppose_ss) smart |= (SM2_OPP_SHARD);
+		if (p_ptr->oppose_nexus) smart |= (SM2_OPP_NEXUS);
+		if (p_ptr->oppose_nethr) smart |= (SM2_OPP_NETHR);
 
 		/* Know resistances */
 		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
@@ -242,15 +250,24 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_SCARE);
 	}
 
-	if (smart & (SM_RES_LITE))
+	if ((smart & (SM2_OPP_LITE)) && (smart & (SM_RES_LITE)))
 	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_LITE);
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_LITE);
+	}
+	else if ((smart & (SM2_OPP_LITE)) || (smart & (SM_RES_LITE)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_LITE);
 	}
 
-	if (smart & (SM_RES_DARK))
+	if ((smart & (SM2_OPP_DARK)) && (smart & (SM_RES_DARK)))
 	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_DARK);
-		if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BA_DARK);
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_DARK);
+		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_DARK);
+	}
+	else if ((smart & (SM2_OPP_DARK)) || (smart & (SM_RES_DARK)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_DARK);
+		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_DARK);
 	}
 
 	if (smart & (SM_RES_BLIND))
@@ -258,47 +275,72 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BLIND);
 	}
 
-	if (smart & (SM_RES_CONFU))
+	if ((smart & (SM2_OPP_CONFU)) && (smart & (SM_RES_CONFU)))
 	{
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_CONF);
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_CONF);
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_CONF);
 	}
-
-	if (smart & (SM_RES_SOUND))
-	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_SOUN);
-	}
-
-	if (smart & (SM_RES_SHARD))
-	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_SHAR);
-	}
-
-	if (smart & (SM_RES_NEXUS))
-	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_NEXU);
-		if (int_outof(r_ptr, 50)) f6 &= ~(RF6_TELE_LEVEL);
-	}
-
-	if (smart & (SM_RES_NETHR))
-	{
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_NETH);
-		if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BA_NETH);
-		if (int_outof(r_ptr, 50)) f5 &= ~(RF5_BO_NETH);
-	}
-
-	if (smart & (SM_RES_CHAOS))
+	else if ((smart & (SM2_OPP_CONFU)) || (smart & (SM_RES_CONFU)))
 	{
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_CONF);
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_CONF);
-		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_CHAO);
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_CONF);
+	}
+
+	if ((smart & (SM2_OPP_SOUND)) && (smart & (SM_RES_SOUND)))
+	{
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_SOUN);
+	}
+	else if ((smart & (SM2_OPP_SOUND)) || (smart & (SM_RES_SOUND)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_SOUN);
+	}
+
+	if ((smart & (SM2_OPP_SHARD)) && (smart & (SM_RES_SHARD)))
+	{
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_SHAR);
+	}
+	else if ((smart & (SM2_OPP_SHARD)) || (smart & (SM_RES_SHARD)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_SHAR);
+	}
+
+	if ((smart & (SM2_OPP_NEXUS)) && (smart & (SM_RES_NEXUS)))
+	{
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_NEXU);
+		if (int_outof(r_ptr, 80)) f6 &= ~(RF6_TELE_LEVEL);
+	}
+	else if ((smart & (SM2_OPP_NEXUS)) || (smart & (SM_RES_NEXUS)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_NEXU);
+		if (int_outof(r_ptr, 30)) f6 &= ~(RF6_TELE_LEVEL);
+	}
+
+	if ((smart & (SM2_OPP_NETHR)) && (smart & (SM_RES_NETHR)))
+	{
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_NETH);
+		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_NETH);
+		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_NETH);
+	}
+	if ((smart & (SM2_OPP_NETHR)) || (smart & (SM_RES_NETHR)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_NETH);
+		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_NETH);
+		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_NETH);
+	}
+
+	if ((smart & (SM2_OPP_CHAOS)) && (smart & (SM_RES_CHAOS)))
+	{
+		if (int_outof(r_ptr, 80)) f4 &= ~(RF4_BR_CHAO);
+	}
+	else if ((smart & (SM2_OPP_CHAOS)) || (smart & (SM_RES_CHAOS)))
+	{
+		if (int_outof(r_ptr, 30)) f4 &= ~(RF4_BR_CHAO);
 	}
 
 	if (smart & (SM_RES_DISEN))
 	{
 		if (int_outof(r_ptr, 100)) f4 &= ~(RF4_BR_DISE);
 	}
-
 
 	if (smart & (SM_IMM_FREE))
 	{
@@ -356,20 +398,25 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx, boo
 	*rx = p_ptr->px;
 
 	/* Paranoia */
-	if (sy < 0 || sy >= DUNGEON_WID || sx < 0 || sy >= DUNGEON_HGT) {
+	if (sy < 0 || sy >= DUNGEON_WID || sx < 0 || sy >= DUNGEON_HGT)
+	{
 		return;
 	}
 
-	for (rad = 1; rad < range; rad++) {
+	for (rad = 1; rad < range; rad++)
+	{
 		if (sx-rad < 0 || sy-rad < 0 ||
-		    sx+rad >= DUNGEON_WID || sy+rad >= DUNGEON_HGT) {
+		    sx+rad >= DUNGEON_WID || sy+rad >= DUNGEON_HGT)
+		{
 			return;
 		}
 
 		/* Top row */
-		for (j = sx-rad; j <= sx+rad; j++) {
+		for (j = sx-rad; j <= sx+rad; j++)
+		{
 			if (cave_m_idx[sy-rad][j] > 0 &&
-			    (m_list[cave_m_idx[sy-rad][j]].is_pet != petuse)) {
+			    (m_list[cave_m_idx[sy-rad][j]].is_pet != petuse))
+			{
 				*ry = sy-rad;
 				*rx = j;
 				return;
@@ -377,14 +424,18 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx, boo
 		}
 
 		/* Left/right side */
-		for (i = sy-(rad-1); i <= sy+(rad-1); i++) {
+		for (i = sy-(rad-1); i <= sy+(rad-1); i++)
+		{
 			if (cave_m_idx[i][sx-rad] > 0 &&
-			    (m_list[cave_m_idx[i][sx-rad]].is_pet != petuse)) {
+			    (m_list[cave_m_idx[i][sx-rad]].is_pet != petuse))
+			{
 				*ry = i;
 				*rx = sx-rad;
 				return;
-			} else if (cave_m_idx[i][sx+rad] > 0 &&
-			    (m_list[cave_m_idx[i][sx+rad]].is_pet != petuse)) {
+			}
+			else if (cave_m_idx[i][sx+rad] > 0 &&
+			    (m_list[cave_m_idx[i][sx+rad]].is_pet != petuse))
+			{
 				*ry = i;
 				*rx = sx+rad;
 				return;
@@ -392,9 +443,11 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx, boo
 		}
 
 		/* Bottom row */
-		for (j = sx-rad; j <= sx+rad; j++) {
+		for (j = sx-rad; j <= sx+rad; j++)
+		{
 			if (cave_m_idx[sy+rad][j] > 0 &&
-			    (m_list[cave_m_idx[sy+rad][j]].is_pet != petuse)) {
+			    (m_list[cave_m_idx[sy+rad][j]].is_pet != petuse))
+			{
 				*ry = sy+rad;
 				*rx = j;
 				return;
@@ -722,7 +775,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
  * Verify the various "blind-ness" checks in the code.
  *
  * XXX XXX XXX Note that several effects should really not be "seen"
- * if the player is blind.  See also "effects.c" for other "mistakes".
+ * if the player is blind.
  *
  * Perhaps monsters should breathe at locations *near* the player,
  * since this would allow them to inflict "partial" damage.
@@ -806,25 +859,37 @@ bool make_attack_spell(int m_idx)
 	/* Pets target enemies. */
 	/* Make sure that player isn't targetted by pet. */
 
-	if (m_ptr->is_pet) {
+	if (m_ptr->is_pet)
+	{
 		find_target_nearest(m_ptr->fy, m_ptr->fx, 30, &py, &px, TRUE);
-		if (py == p_ptr->py && px == p_ptr->px) return FALSE;
+		if (py == p_ptr->py && px == p_ptr->px)
+		{
+			return FALSE;
+		}
 		direct = FALSE;
-	} else if (m_ptr->is_friendly) {
+	}
+	else if (m_ptr->is_friendly)
+	{
 		direct = FALSE;
 		return FALSE;
+
 		/* py = m_ptr->fy;
 		px = m_ptr->fx; */
-	} else {
+	}
+	else
+	{
 		py = p_ptr->py;
 		px = p_ptr->px;
 	}
 
-	if (!m_ptr->is_pet) {
+	if (!m_ptr->is_pet)
+	{
 		d1 = distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
 		find_target_nearest(m_ptr->fy, m_ptr->fx, r_ptr->aaf, &py, &px, FALSE);
 		d2 = distance(m_ptr->fy, m_ptr->fx, py, px);
-		if (d1 < d2) {
+
+		if (d1 < d2)
+		{
 			py = p_ptr->py;
 			px = p_ptr->px;
 		}
@@ -836,7 +901,9 @@ bool make_attack_spell(int m_idx)
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
 	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
 	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
+	{
 		return FALSE;
+	}
 
 	x = px;
 	y = py;
@@ -2160,7 +2227,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, 0, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2174,7 +2244,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, 0, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2188,7 +2261,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_ANT, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2202,7 +2278,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_SPIDER, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2216,7 +2295,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HOUND, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2230,7 +2312,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HYDRA, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
 			break;
 		}
 
@@ -2244,7 +2329,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_ANGEL, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2258,7 +2346,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DEMON, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2272,7 +2363,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_UNDEAD, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2286,7 +2380,10 @@ bool make_attack_spell(int m_idx)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DRAGON, m_ptr->is_pet);
 			}
-			if (blind && count) msg_print("You hear something appear nearby.");
+			if (blind && count)
+			{
+				msg_print("You hear something appear nearby.");
+			}
 			break;
 		}
 
@@ -2709,112 +2806,112 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
  */
 
 
-static sint d_off_y_0[] =
+static const sint d_off_y_0[] =
 { 0 };
 
-static sint d_off_x_0[] =
+static const sint d_off_x_0[] =
 { 0 };
 
 
-static sint d_off_y_1[] =
+static const sint d_off_y_1[] =
 { -1, -1, -1, 0, 0, 1, 1, 1, 0 };
 
-static sint d_off_x_1[] =
+static const sint d_off_x_1[] =
 { -1, 0, 1, -1, 1, -1, 0, 1, 0 };
 
 
-static sint d_off_y_2[] =
+static const sint d_off_y_2[] =
 { -1, -1, -2, -2, -2, 0, 0, 1, 1, 2, 2, 2, 0 };
 
-static sint d_off_x_2[] =
+static const sint d_off_x_2[] =
 { -2, 2, -1, 0, 1, -2, 2, -2, 2, -1, 0, 1, 0 };
 
 
-static sint d_off_y_3[] =
+static const sint d_off_y_3[] =
 { -1, -1, -2, -2, -3, -3, -3, 0, 0, 1, 1, 2, 2,
   3, 3, 3, 0 };
 
-static sint d_off_x_3[] =
+static const sint d_off_x_3[] =
 { -3, 3, -2, 2, -1, 0, 1, -3, 3, -3, 3, -2, 2,
   -1, 0, 1, 0 };
 
 
-static sint d_off_y_4[] =
+static const sint d_off_y_4[] =
 { -1, -1, -2, -2, -3, -3, -3, -3, -4, -4, -4, 0,
   0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 0 };
 
-static sint d_off_x_4[] =
+static const sint d_off_x_4[] =
 { -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, -4, 4,
   -4, 4, -3, 3, -2, -3, 2, 3, -1, 0, 1, 0 };
 
 
-static sint d_off_y_5[] =
+static const sint d_off_y_5[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -4, -4, -5, -5,
   -5, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 5, 5,
   5, 0 };
 
-static sint d_off_x_5[] =
+static const sint d_off_x_5[] =
 { -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1, 0, 1,
   -5, 5, -5, 5, -4, 4, -4, 4, -2, -3, 2, 3, -1,
   0, 1, 0 };
 
 
-static sint d_off_y_6[] =
+static const sint d_off_y_6[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
   -6, -6, -6, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5,
   5, 5, 6, 6, 6, 0 };
 
-static sint d_off_x_6[] =
+static const sint d_off_x_6[] =
 { -6, 6, -5, 5, -5, 5, -4, 4, -2, -3, 2, 3, -1,
   0, 1, -6, 6, -6, 6, -5, 5, -5, 5, -4, 4, -2,
   -3, 2, 3, -1, 0, 1, 0 };
 
 
-static sint d_off_y_7[] =
+static const sint d_off_y_7[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -5, -5,
   -6, -6, -6, -6, -7, -7, -7, 0, 0, 1, 1, 2, 2, 3,
   3, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 0 };
 
-static sint d_off_x_7[] =
+static const sint d_off_x_7[] =
 { -7, 7, -6, 6, -6, 6, -5, 5, -4, -5, 4, 5, -2,
   -3, 2, 3, -1, 0, 1, -7, 7, -7, 7, -6, 6, -6,
   6, -5, 5, -4, -5, 4, 5, -2, -3, 2, 3, -1, 0,
   1, 0 };
 
 
-static sint d_off_y_8[] =
+static const sint d_off_y_8[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
   -6, -6, -7, -7, -7, -7, -8, -8, -8, 0, 0, 1, 1,
   2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
   8, 8, 8, 0 };
 
-static sint d_off_x_8[] =
+static const sint d_off_x_8[] =
 { -8, 8, -7, 7, -7, 7, -6, 6, -6, 6, -4, -5, 4,
   5, -2, -3, 2, 3, -1, 0, 1, -8, 8, -8, 8, -7,
   7, -7, 7, -6, 6, -6, 6, -4, -5, 4, 5, -2, -3,
   2, 3, -1, 0, 1, 0 };
 
 
-static sint d_off_y_9[] =
+static const sint d_off_y_9[] =
 { -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6,
   -7, -7, -7, -7, -8, -8, -8, -8, -9, -9, -9, 0,
   0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7,
   7, 8, 8, 8, 8, 9, 9, 9, 0 };
 
-static sint d_off_x_9[] =
+static const sint d_off_x_9[] =
 { -9, 9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4,
   -5, 4, 5, -2, -3, 2, 3, -1, 0, 1, -9, 9, -9,
   9, -8, 8, -8, 8, -7, 7, -7, 7, -6, 6, -4, -5,
   4, 5, -2, -3, 2, 3, -1, 0, 1, 0 };
 
 
-static sint *dist_offsets_y[10] =
+static const sint *dist_offsets_y[10] =
 {
 	d_off_y_0, d_off_y_1, d_off_y_2, d_off_y_3, d_off_y_4,
 	d_off_y_5, d_off_y_6, d_off_y_7, d_off_y_8, d_off_y_9
 };
 
-static sint *dist_offsets_x[10] =
+static const sint *dist_offsets_x[10] =
 {
 	d_off_x_0, d_off_x_1, d_off_x_2, d_off_x_3, d_off_x_4,
 	d_off_x_5, d_off_x_6, d_off_x_7, d_off_x_8, d_off_x_9
@@ -2852,8 +2949,8 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 	int i, y, x, dy, dx, d, dis;
 	int gy = 0, gx = 0, gdis = 0;
 
-	sint *y_offsets;
-	sint *x_offsets;
+	const sint *y_offsets;
+	const sint *x_offsets;
 
 	/* Start with adjacent locations, spread further */
 	for (d = 1; d < 10; d++)
@@ -2874,7 +2971,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!in_bounds_fully(y, x)) continue;
 
 			/* Skip locations in a wall */
-			if (!cave_floor_bold(y, x)) continue;
+			if (!terrain_floor_bold(y, x)) continue;
 
 			/* Check for "availability" (if monsters can flow) */
 			if (flow_by_sound)
@@ -2945,7 +3042,7 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 	int i, y, x, dy, dx, d, dis;
 	int gy = 0, gx = 0, gdis = 999, min;
 
-	sint *y_offsets, *x_offsets;
+	const sint *y_offsets, *x_offsets;
 
 	/* Closest distance to get */
 	min = distance(py, px, fy, fx) * 3 / 4 + 2;
@@ -3030,27 +3127,37 @@ static bool get_moves(int m_idx, int mm[5])
 
 	/* Choose the appropriate target for pets. */
 
-	if (m_ptr->is_pet) {
-		find_target_nearest(m_ptr->fy, m_ptr->fx, 30, &py, &px,TRUE);
-	} else if (m_ptr->is_friendly) {
+	if (m_ptr->is_pet)
+	{
+		find_target_nearest(m_ptr->fy, m_ptr->fx, 30, &py, &px, TRUE);
+	}
+	else if (m_ptr->is_friendly)
+	{
 		py = m_ptr->fy;
 		px = m_ptr->fx;
-	} else if ((p_ptr->invisible) &&
+	}
+	else if ((p_ptr->invisible) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
 	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
-	    (!(r_ptr->flags2 & (RF2_INVISIBLE)))) {
+	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
+	{
 		py = m_ptr->fy;
 		px = m_ptr->fx;
-	} else {
+	}
+	else
+	{
 		py = p_ptr->py;
 		px = p_ptr->px;
 	}
 
-	if (!m_ptr->is_pet) {
+	if (!m_ptr->is_pet)
+	{
 		d1 = distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px);
 		find_target_nearest(m_ptr->fy, m_ptr->fx, r_ptr->aaf, &py, &px, FALSE);
 		d2 = distance(m_ptr->fy, m_ptr->fx, py, px);
-		if (d1 < d2) {
+	
+		if (d1 < d2)
+		{
 			py = p_ptr->py;
 			px = p_ptr->px;
 		}
@@ -3383,7 +3490,7 @@ static bool get_moves(int m_idx, int mm[5])
 /*
  * Hack -- compare the "strength" of two monsters XXX XXX XXX
  */
-static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
+static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr)
 {
 	monster_race *r_ptr;
 
@@ -3806,7 +3913,7 @@ static void process_monster(int m_idx)
 
 
 		/* Floor is open? */
-		if (cave_floor_bold(ny, nx))
+		if (terrain_floor_bold(ny, nx))
 		{
 			/* Go ahead and move */
 			do_move = TRUE;
@@ -3816,27 +3923,27 @@ static void process_monster(int m_idx)
 
 			/* handle deep water -KMW- */
 			if ((cave_feat[ny][nx] == FEAT_DEEP_WATER) &&
-			    ((!(r_ptr->flags2 & (RF2_SWIM))) &&
+			    ((!(r_ptr->flags2 & (RF2_CAN_SWIM))) &&
 			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) &&
-			    (!(r_ptr->flags2 & (RF2_FLY)))))
+			    (!(r_ptr->flags2 & (RF2_CAN_FLY)))))
 				do_move = FALSE;
 
 			/* handle deep lava -KMW- */
 			else if ((cave_feat[ny][nx] == FEAT_DEEP_LAVA) &&
 			    ((!(r_ptr->flags2 & (RF2_DEEPLAVA))) &&
 			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) &&
-			    (!(r_ptr->flags2 & (RF2_FLY)))))
+			    (!(r_ptr->flags2 & (RF2_CAN_FLY)))))
 				do_move = FALSE;
 
 			/* handle shallow lava -KMW- */
 			else if ((cave_feat[ny][nx] == FEAT_SHAL_LAVA) &&
 			    ((!(r_ptr->flags3 & (RF3_IM_FIRE))) &&
 			    (!(r_ptr->flags2 & (RF2_PASS_WALL))) &&
-			    (!(r_ptr->flags2 & (RF2_FLY)))))
+			    (!(r_ptr->flags2 & (RF2_CAN_FLY)))))
 				do_move = FALSE;
 
 			else if ((cave_feat[ny][nx] == FEAT_CHASM) &&
-			    (!(r_ptr->flags2 & (RF2_FLY))))
+			    (!(r_ptr->flags2 & (RF2_CAN_FLY))))
 				do_move = FALSE;
 
 			/* handle aquatic monsters -KMW- */
@@ -4078,23 +4185,30 @@ static void process_monster(int m_idx)
 
 				/* Kill the monster */
 				delete_monster(ny, nx);
+			}
 
 			/* "Friendly" monsters. */
-			} else if ((m_ptr->is_pet && !n_ptr->is_pet) ||
-				   (!m_ptr->is_pet && n_ptr->is_pet)) {
+			else if ((m_ptr->is_pet && !n_ptr->is_pet) ||
+				   (!m_ptr->is_pet && n_ptr->is_pet))
+			{
 				do_move = FALSE;
 
-				for (tmp_i = 0; tmp_i < 4; tmp_i++) {
+				for (tmp_i = 0; tmp_i < 4; tmp_i++)
+				{
 					if (!(r_ptr->blow[tmp_i].method)) break;
+
 					dam = damroll(r_ptr->blow[tmp_i].d_dice,
 					    r_ptr->blow[tmp_i].d_side);
 
 					/* Get the the monster names */
 					/* Assume names are always known */
-					if (m_ptr->is_pet) {
+					if (m_ptr->is_pet)
+					{
 						monster_desc(m_name, m_ptr, 0x80);
 						monster_desc(n_name, n_ptr, 0x88);
-					} else {
+					}
+					else
+					{
 						monster_desc(m_name, m_ptr, 0x88);
 						monster_desc(n_name, n_ptr, 0x80);
 					}
@@ -4118,7 +4232,7 @@ static void process_monster(int m_idx)
 			/* Push past weaker monsters (unless leaving a wall) */
 			if ((r_ptr->flags2 & (RF2_MOVE_BODY)) &&
 			    (compare_monsters(m_ptr, n_ptr) > 0) &&
-			    (cave_floor_bold(m_ptr->fy, m_ptr->fx)) &&
+			    (terrain_floor_bold(m_ptr->fy, m_ptr->fx)) &&
 			    !m_ptr->is_pet)
 			{
 				/* Allow movement */

@@ -1,0 +1,54 @@
+# q0000053.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:53:N:Strange Outpost
+
+# Definition
+Q:53:Q:6:0:0:0:40:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST53 2]
+Q:53:T:Thank you for clearing the lake. We still hear rumblings in the ground
+Q:53:T:near it but for now let us tackle the newly discovered outpost. I am
+Q:53:T:trying to find a way into the keep but the records are spotty.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST53 3]
+Q:53:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST53 5]
+Q:53:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Dread
+F:b:1:8:369
+
+# Floor with Shadow
+F:c:1:8:377
+
+# Floor with Phantom
+F:d:1:8:378
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX..............................X.....................;;;XXXXXXXXXXXXXXXX
+D:XXX...................cc.........X........................XXXXXXXXXXXXXXXX
+D:XXX;;.................dd.........X.........aaaa............;XXXXXXXXXXXXXX
+D:XXX;;............................X.........aaaa...............XXXXXXXXXXXX
+D:XXX;;;;..........................D...............................XXXXXXXXX
+D:XXXXX;;;;;............dd.........X.....................................XXX
+D:XXXXXX;;;;;...........cc.........X................................<.....XX
+D:XXXXX;;;;;;;.....................X..........bb..........................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:7:65
+

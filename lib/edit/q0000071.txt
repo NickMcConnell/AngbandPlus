@@ -1,0 +1,23 @@
+# q0000071.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:71:N:Assasination
+
+# Definition
+Q:71:Q:1:0:0:1:0:355:0
+
+# Description for quest
+?:[LEQ $QUEST71 2]
+Q:71:T:It would seem I am not the only person interested in your actions. Morgoth
+Q:71:T:has taken notice of our alliance and views you as a threat. My sources
+Q:71:T:report that Morgoth has commanded Ulfang the Black to dispatch you. In light
+Q:71:T:of this, I will give you no quest - you'll be busy protecting
+Q:71:T:yourself. Return to me when you have taken care of Ulfang - I'll give you
+Q:71:T:further quests then.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST71 3]
+Q:71:T:A reward for your good work awaits you outside.
+?:1

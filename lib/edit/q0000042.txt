@@ -1,0 +1,48 @@
+# q0000042.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:42:N:South Gatehouse
+
+# Definition
+Q:42:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST42 2]
+Q:42:T:Well done! Now, I need you to move to the South Gatehouse. The two buildings
+Q:42:T:served the same purpose so expect more of the same.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST42 3]
+Q:42:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST42 5]
+Q:42:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX......;;;;;;;X
+D:XXXXXXXXXXXXXXXXX...........a.....;;;;;X
+D:XXXXXXXX;;...........................;;X
+D:XXXXX;;..............XX................X
+D:XX;;;;;.............XXXX...............X
+D:X....................XX................X
+D:X;;;;....a.............................X
+D:XXXX;;.........XX................XX....X
+D:XXXX;;;.......XXXX..............XXXX...X
+D:XXXXXX;;;;;....XX................XX....X
+D:XXXXXXXXXX;;;..........................X
+D:XXXXXXXXXXXX;;;;;;.....................X
+D:XXXXXXXXXXXXXXXXXXXX;;;;;;...........<.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:13:37
+

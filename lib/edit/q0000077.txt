@@ -1,0 +1,25 @@
+# q0000077.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:77:N:Castle Siege
+
+# Definition
+Q:77:Q:1:0:0:1:0:297:0
+
+# Description for quest
+?:[LEQ $QUEST77 2]
+Q:77:T:Thanks to you, we have thwarted all of Morgoth's attempts to incite
+Q:77:T:war between my city and Dulnshead. Now, he resorts to a direct
+Q:77:T:confrontation with us. He has sent an army of Trolls, Ogres and
+Q:77:T:a few Dragons to destroy us, under the leadership of Lokkak, a
+Q:77:T:powerful and destructive ogre. My armies have intercepted the main
+Q:77:T:body of this force, and are battling as we speak, but Lokkak escaped
+Q:77:T:my armies and my attack the city. You are to patrol the city and the
+Q:77:T:roads, find Lokkak and kill him.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST77 3]
+Q:77:T:A reward for your good work awaits you outside.
+?:1

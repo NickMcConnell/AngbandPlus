@@ -598,7 +598,7 @@ s16b get_mon_num(int level)
  *   0x22 --> Possessive, genderized if visable ("his") or "its"
  *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
  */
-void monster_desc(char *desc, monster_type *m_ptr, int mode)
+void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 {
 	cptr res;
 
@@ -1410,13 +1410,16 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet)
 
 	if ((r_ptr->flags2 & (RF2_AQUATIC)) &&
 	    (cave_feat[y][x] != FEAT_DEEP_WATER)) /* -KMW- */
-			/* Cannot create without water*/
-			cave_set_feat(y, x, FEAT_DEEP_WATER);
-
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
 	if ((!(r_ptr->flags2 & (RF2_AQUATIC))) &&
 	    (cave_feat[y][x] == FEAT_DEEP_WATER)) /* -KMW- */
-			/* Cannot create */
-			return (FALSE);
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
 
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
@@ -1506,10 +1509,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet)
 	/* Give a random starting energy */
 	n_ptr->energy = (byte)rand_int(100);
 
-	/* Set to be a pet, if applicable */
-	/* Uniques cannot be pets */
-	if ((pet) && !(r_ptr->flags1 & (RF1_UNIQUE))) {
-	  n_ptr->is_pet = TRUE;
+	/* Set to be a pet, if applicable (no uniques) */
+	if ((pet) && !(r_ptr->flags1 & (RF1_UNIQUE)))
+	{
+		n_ptr->is_pet = TRUE;
 	}
 
 	/* Force monster to wait for player */
@@ -1852,15 +1855,16 @@ bool place_monster(int y, int x, bool slp, bool grp)
  *
  * Use "monster_level" for the monster level
  */
-bool alloc_monster(int dis, int slp)
+bool alloc_monster(int dis, bool slp)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int y, x;
+	int	attempts_left = 10000;
 
 	/* Find a legal, distant, unoccupied, space */
-	while (1)
+	while (--attempts_left)
 	{
 		/* Pick a location */
 		y = rand_int(DUNGEON_HGT);
@@ -1871,6 +1875,16 @@ bool alloc_monster(int dis, int slp)
 
 		/* Accept far away grids */
 		if (distance(y, x, py, px) > dis) break;
+	}
+
+	if (!attempts_left)
+	{
+		if (cheat_xtra || cheat_hear)
+		{
+			msg_print("Warning! Could not allocate a new monster.");
+		}
+
+		return FALSE;
 	}
 
 	/* Attempt to place the monster, allow groups */
@@ -2367,12 +2381,14 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_RES_LITE:
 		{
 			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
+			if (p_ptr->oppose_ld) m_ptr->smart |= (SM2_OPP_LITE);
 			break;
 		}
 
 		case DRS_RES_DARK:
 		{
 			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+			if (p_ptr->oppose_ld) m_ptr->smart |= (SM2_OPP_DARK);
 			break;
 		}
 
@@ -2385,36 +2401,42 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_RES_CONFU:
 		{
 			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_ptr->oppose_cc) m_ptr->smart |= (SM2_OPP_CONFU);
 			break;
 		}
 
 		case DRS_RES_SOUND:
 		{
 			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_ptr->oppose_ss) m_ptr->smart |= (SM2_OPP_SOUND);
 			break;
 		}
 
 		case DRS_RES_SHARD:
 		{
 			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			if (p_ptr->oppose_ss) m_ptr->smart |= (SM2_OPP_SHARD);
 			break;
 		}
 
 		case DRS_RES_NEXUS:
 		{
 			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+			if (p_ptr->oppose_nexus) m_ptr->smart |= (SM2_OPP_NEXUS);
 			break;
 		}
 
 		case DRS_RES_NETHR:
 		{
 			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+			if (p_ptr->oppose_nethr) m_ptr->smart |= (SM2_OPP_NETHR);
 			break;
 		}
 
 		case DRS_RES_CHAOS:
 		{
 			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+			if (p_ptr->oppose_cc) m_ptr->smart |= (SM2_OPP_CHAOS);
 			break;
 		}
 

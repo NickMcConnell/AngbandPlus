@@ -39,17 +39,23 @@
 
 
 /*
+ * Name of the version/variant
+ */
+#define VERSION_NAME "Kangband"
+
+
+/*
  * Current version string
  */
-#define VERSION_STRING	"2.9.1"
+#define VERSION_STRING	"2.9.2"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
-#define VERSION_PATCH	1
-#define VERSION_EXTRA	1
+#define VERSION_PATCH	2
+#define VERSION_EXTRA	0
 
 
 /*
@@ -111,56 +117,17 @@
  */
 #define DUNGEON_WID		198
 
-#define TOWN_HEIGHT	44	/* This is the expanded town size -KMW- */
-#define TOWN_WIDTH	66	/* This town includes expanded buildings -KMW- */
 
 /*
- * The rewards array handles all town benefits per player. It is essentially
- * an array of boolean values.  Currently, the reward positions 0-9 are
- * for class-specific building rewards. Positions 10-19 are for the castle
- * rewards. Positions 20-29 are for time constraints on rewards. Positions
- * 30-49 are for castle quests.
- *
- * Example, when the mage earns the ability to identify posessions, the reward
- * position 1 is set to true. This will always be set this way.
- * The position 11 is set to true when the ability
- * is used and the mage cannot identify possessions again until a whole
- * day in the dungeon has passed. These flags are reset in dungeon.c
- *
- * For quests, a value of 1 means the quest is active.  Value of 2 means
- * the quest is completed and a value of 3 means the reward has been given.
- *
- * Rewards 50-99 are currently unused and for future expansion.-KMW-
+ * Maximum amount of Angband windows.
  */
-#define MAX_REWARDS 100  /* Amount of rewards per player in town -KMW- */
-
-/* Extra quest constants */
-#define QUEST_ACTIVE		1
-#define QUEST_COMPLETED		2
-#define QUEST_REWARDED		3
-
-/* Quest objective types */
-#define QUEST_OBJ_KILL_LEVEL		1
-#define QUEST_OBJ_KILL_ANY			2
-#define QUEST_OBJ_FIND_OBJECT		3
-#define QUEST_OBJ_FIND_EXIT			4
-#define QUEST_OBJ_KILL_MONSTERS		5
-#define QUEST_OBJ_KILL_ALL_MONSTERS	6
-
-#define QUEST_REWARD_HEAD	100	/* -KMW- */
-#define QUEST_REWARD_TAIL	120	/* -KMW- */
-
-#define MAX_MON_QUEST		10
-#define MAX_ITEM_QUEST		5
-
-#define MAX_ARENA_MONS		29	/* -KMW- */
+#define ANGBAND_TERM_MAX 8
 
 
 /*
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES	9 /* Added bookstore -KMW- */
-
 
 /*
  * Store index definitions (see "store.c", etc)
@@ -171,9 +138,129 @@
 #define STORE_TEMPLE	3
 #define STORE_ALCHEMY	4
 #define STORE_MAGIC		5
-#define STORE_BOOK		6
-#define STORE_B_MARKET	7
-#define STORE_HOME		8
+#define STORE_B_MARKET	6
+#define STORE_HOME		7
+#define STORE_BOOK		8
+
+
+/*
+ * Number of buildings
+ */
+#define MAX_BLDG		15
+
+/*
+ * Building owner defines
+ */
+#define BUILDING_NON_MEMBER 0
+#define BUILDING_MEMBER     1
+#define BUILDING_OWNER      2
+
+/*
+ * Building actions
+ */
+#define BACT_NOTHING		0
+#define BACT_RESEARCH_ITEM	1
+#define BACT_TOWN_HISTORY	2
+#define BACT_RACE_LEGENDS	3
+#define BACT_UNUSED_1		4
+#define BACT_KING_LEGENDS	5
+#define BACT_QUEST		6
+#define BACT_GOLD			7
+#define BACT_POSTER		8
+#define BACT_ARENA_RULES	9
+#define BACT_ARENA		10
+#define BACT_ARENA_LEGENDS	11
+#define BACT_IN_BETWEEN		12
+#define BACT_GAMBLE_RULES	13
+#define BACT_CRAPS		14
+#define BACT_SPIN_WHEEL		15
+#define BACT_DICE_SLOTS		16
+#define BACT_REST			17
+#define BACT_FOOD			18
+#define BACT_UNUSED_2		19
+#define BACT_RESEARCH_MONSTER	20
+#define BACT_COMPARE_WEAPONS	21
+#define BACT_LEGENDS		22
+#define BACT_ENCHANT_WEAPON	23
+#define BACT_ENCHANT_ARMOR	24
+#define BACT_RECHARGE		25
+#define BACT_IDENTS		26
+#define BACT_LEARN		27
+#define BACT_HEALING		28
+#define BACT_RESTORE		29
+#define BACT_ENCHANT_ARROWS	30
+#define BACT_ENCHANT_BOW	31
+#define BACT_UNUSED_3		32
+#define MAX_BACT			33
+
+/*
+ * Max actions per building
+ */
+#define MAX_BLDG_ACTS		6
+
+
+/*
+ * Arena constants
+ */
+#define MAX_ARENA_MONS		29	/* -KMW- */
+
+
+/*
+ * The "daily" rewards
+ */
+#define REWARD_GOLD		0
+#define MAX_REWARDS		1
+
+
+/*
+ * Number of quests
+ */
+#define MAX_Q_IDX			200
+
+/*
+ * Extra quest constants
+ */
+#define QUEST_SAURON			98
+#define QUEST_MORGOTH			99
+
+/*
+ * Quest Info File Initialization flags
+ */
+#define INIT_SHOW_TEXT			0x01
+#define INIT_ASSIGN			0x02
+#define INIT_CREATE_DUNGEON		0x04
+#define INIT_ONLY_FEATURES		0x08
+#define INIT_ONLY_BUILDINGS		0x10
+
+/*
+ * Quest status
+ */
+#define QUEST_STATUS_UNTAKEN		0
+#define QUEST_STATUS_TAKEN		1
+#define QUEST_STATUS_COMPLETED	2
+#define QUEST_STATUS_REWARDED		3
+#define QUEST_STATUS_FINISHED		4
+#define QUEST_STATUS_FAILED		5
+#define QUEST_STATUS_FAILED_DONE	6
+
+/*
+ * Quest type
+ */
+#define QUEST_TYPE_KILL_LEVEL		1
+#define QUEST_TYPE_KILL_ANY_LEVEL	2
+#define QUEST_TYPE_FIND_ARTIFACT	3
+#define QUEST_TYPE_FIND_EXIT		4
+#define QUEST_TYPE_KILL_NUMBER	5
+#define QUEST_TYPE_KILL_ALL		6
+#define QUEST_TYPE_RANDOM		7
+
+/*
+ * Quest flags
+ */
+#define QUEST_FLAG_SILENT		0x01 /* no messages from completion */
+#define QUEST_FLAG_PRESET		0x02 /* quest is outside main dungeon */
+#define QUEST_FLAG_ONCE			0x04 /* we only allow one attempt */
+
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -181,33 +268,16 @@
 #define MAX_SEXES            2
 
 /*
+ * Maximum number of player "race" types (only used in "types.h")
+ */
+#define MAX_RACES           12
+
+/*
  * Maximum number of player "class" types (see "table.c", etc)
  */
 #define MAX_CLASS		8	/* Added illusionist & druid -KMW- */
 
 
-/*
- * Hack -- Maximum number of quests
- * Changed this to 20 (18 level/monster, one Sauron, one Morgoth) -KMW-
- * These quests use the standard structure of kill monster x on level y
- * or complete a special level.
- *
- * Quests are implemented with features and the rewards array
- * Whenever a new quest is added, the appropriate rewards array must
- * be coded.  Currently, the quests interact with rewards 30-49.
- */
-#define MAX_QUESTS	20	/* -KMW- */
-#define QUEST_OFFSET1	100	/* Quests start at 100 -KMW- */
-#define QUEST_REWARD	30	/* where quests stored in reward array -KMW- */
-#define QUEST_DIFF	70	/* diff between reward and quest array -KMW- */
-
-/* Plots - KMW-
- * This can be changed to any value, within reason.  If you increase the number
- * of plots, you must also create a respective q_info#.txt and w_info#.txt where
- * the # symbol would be replaced by the plot number.  These files are in
- * the LIB\EDIT directory
- */
-#define MAX_PLOTS		4
 
 /*
  * Maximum number of high scores in the high score file
@@ -243,25 +313,25 @@
 
 
 /*
- * OPTION: Maximum number of macros (see "io.c")
+ * OPTION: Maximum number of macros (see "util.c")
  * Default: assume at most 256 macros are used
  */
 #define MACRO_MAX	256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
+ * OPTION: Maximum number of "quarks" (see "util.c")
  * Default: assume at most 512 different inscriptions are used
  */
 #define QUARK_MAX	512
 
 /*
- * OPTION: Maximum number of messages to remember (see "io.c")
+ * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
  */
 #define MESSAGE_MAX	2048
 
 /*
- * OPTION: Maximum space for the message text buffer (see "io.c")
+ * OPTION: Maximum space for the message text buffer (see "util.c")
  * Default: assume that each of the 2048 messages is repeated an
  * average of three times, and has an average length of 48
  */
@@ -397,6 +467,351 @@
 #define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
+
+/*
+ * Maximum number of players spells
+ */
+#define PY_MAX_SPELLS 64
+
+/* Magic for Beginners */
+#define SPELL_MAGIC_MISSILE             0
+#define SPELL_DETECT_MONSTERS           1
+#define SPELL_PHASE_DOOR                2
+#define SPELL_LIGHT_AREA                3
+#define SPELL_TREASURE_DETECTION        4
+#define SPELL_CURE_LIGHT_WOUNDS         5
+#define SPELL_OBJECT_DETECTION          6
+#define SPELL_FIND_TRAPS_DOORS          7
+#define SPELL_STINKING_CLOUD            8
+
+/* Conjurings and Tricks */
+#define SPELL_CONFUSE_MONSTER           9
+#define SPELL_LIGHTNING_BOLT           10
+#define SPELL_TRAP_DOOR_DESTRUCTION    11
+#define SPELL_SLEEP_I                  12
+#define SPELL_CURE_POISON              13
+#define SPELL_TELEPORT_SELF            14
+#define SPELL_SPEAR_OF_LIGHT           15
+#define SPELL_FROST_BOLT               16
+#define SPELL_TURN_STONE_TO_MUD        17
+
+/* Incantations and Illusions */
+#define SPELL_SATISFY_HUNGER           18
+#define SPELL_RECHARGE_ITEM_I          19
+#define SPELL_FETCH_ITEM               20
+#define SPELL_POLYMORPH_OTHER          21
+#define SPELL_IDENTIFY                 22
+#define SPELL_LOWER_WATER              23
+#define SPELL_FIRE_BOLT                24
+#define SPELL_SLOW_MONSTER             25
+
+/* Sorcery and Evocations */
+#define SPELL_FROST_BALL               26
+#define SPELL_SUMMON_ELEMENTAL         27
+#define SPELL_TELEPORT_OTHER           28
+#define SPELL_HASTE_SELF               29
+#define SPELL_FIRE_BALL                30
+#define SPELL_WORD_OF_DESTRUCTION      31
+#define SPELL_GENOCIDE                 32
+
+/* Mordenkainen's Escapes */
+#define SPELL_DOOR_CREATION            33
+#define SPELL_STAIR_CREATION           34
+#define SPELL_TELEPORT_LEVEL           35
+#define SPELL_EARTHQUAKE               36
+#define SPELL_WORD_OF_RECALL           37
+#define SPELL_DIMENSION_DOOR           38
+
+/* Raal's Tome of Destruction */
+#define SPELL_ACID_BOLT                39
+#define SPELL_CLOUD_KILL               40
+#define SPELL_ACID_BALL                41
+#define SPELL_ICE_STORM                42
+#define SPELL_METEOR_SWARM             43
+#define SPELL_PLASMA_BOLT              44
+#define SPELL_MANA_STORM               45
+
+/* Kelek's Grimoire of Power */
+#define SPELL_WIZARD_LIGHT             46
+#define SPELL_DETECT_ENCHANTMENT       47
+#define SPELL_TIME_SPACE_ANCHOR        48
+#define SPELL_GENOCIDE2                49
+#define SPELL_MASS_GENOCIDE            50
+#define SPELL_PROBING                  51
+
+/* Resistance of Scarabtarices */
+#define SPELL_RESIST_FIRE              52
+#define SPELL_RESIST_COLD              53
+#define SPELL_RESIST_ACID              54
+#define SPELL_RESIST_ELEC              55
+#define SPELL_RUST_PROOF               56
+#define SPELL_RESISTANCE               57
+
+/* Tenser's transformations */
+#define SPELL_HEROISM                  58
+#define SPELL_SHIELD                   59
+#define SPELL_BERSERKER                60
+#define SPELL_LIFE_FOR_MANA            61
+#define SPELL_ESSENCE_OF_SPEED         62
+#define SPELL_GLOBE_OF_INVULNERABILITY 63
+
+/* Beginners Handbook */
+#define PRAYER_DETECT_EVIL              0
+#define PRAYER_CURE_WOUNDS              1
+#define PRAYER_BLESS                    2
+#define PRAYER_REMOVE_FEAR              3
+#define PRAYER_CALL_LIGHT               4
+#define PRAYER_FIND_TRAPS               5
+#define PRAYER_DETECT_DOORS_STAIRS      6
+#define PRAYER_SLOW_POISON              7
+
+/* Words of Wisdom */
+#define PRAYER_SCARE_MONSTER            8
+#define PRAYER_PORTAL                   9
+#define PRAYER_DUSTSTORM               10
+#define PRAYER_CHANT                   11
+#define PRAYER_SANCTUARY               12
+#define PRAYER_SATISFY_HUNGER          13
+#define PRAYER_REMOVE_CURSE            14
+#define PRAYER_RESIST_HEAT_COLD        15
+
+/* Chants and Blessings */
+#define PRAYER_LEVITATE                16
+#define PRAYER_ORB_OF_DRAINING         17
+#define PRAYER_DISINTEGRATE            18
+#define PRAYER_SENSE_INVISIBLE         19
+#define PRAYER_PROTECTION_FROM_EVIL    20
+#define PRAYER_EARTHQUAKE              21
+#define PRAYER_SENSE_SURROUNDINGS      22
+#define PRAYER_CURE_MORTAL_WOUNDS      23
+#define PRAYER_TURN_UNDEAD             24
+
+/* Exorcism and Dispelling */
+#define PRAYER_PRAYER                  25
+#define PRAYER_DISPEL_UNDEAD           26
+#define PRAYER_HEAL                    27
+#define PRAYER_DISPEL_EVIL             28
+#define PRAYER_GLYPH_OF_WARDING        29
+#define PRAYER_HOLY_WORD               30
+#define PRAYER_SUMMON_ANGEL            31
+
+/* Godly Insights */
+#define PRAYER_DETECT_MONSTERS         32
+#define PRAYER_DETECTION               33
+#define PRAYER_PERCEPTION              34
+#define PRAYER_PROBING                 35
+#define PRAYER_CLAIRVOYANCE            36
+#define PRAYER_RESIST_NETHER           37
+
+/* Purifications and Healing */
+#define PRAYER_CURE_WOUNDS2            38
+#define PRAYER_CURE_MORTAL_WOUNDS2     39
+#define PRAYER_STAR_HEALING            40
+#define PRAYER_RESTORATION             41
+#define PRAYER_REMEMBRANCE             42
+
+/* Wrath of God */
+#define PRAYER_DISPEL_DEMONS           43
+#define PRAYER_DISPEL_UNDEAD2          44
+#define PRAYER_DISPEL_EVIL2            45
+#define PRAYER_BANISHMENT              46
+#define PRAYER_WORD_OF_DESTRUCTION     47
+#define PRAYER_ANNIHILATION            48
+#define PRAYER_BALEFIRE                49
+
+/* Holy Infusions */
+#define PRAYER_UNBARRING_WAYS          50
+#define PRAYER_RECHARGING              51
+#define PRAYER_DISPEL_CURSE            52
+#define PRAYER_ENCHANT_WEAPON          53
+#define PRAYER_ENCHANT_ARMOUR          54
+#define PRAYER_ELEMENTAL_BRAND         55
+#define PRAYER_IMPRISON                56
+
+/* Ethereal openings */
+#define PRAYER_BLINK                   57
+#define PRAYER_TELEPORT_SELF           58
+#define PRAYER_TELEPORT_OTHER          59
+#define PRAYER_TELEPORT_LEVEL          60
+#define PRAYER_WORD_OF_RECALL          61
+#define PRAYER_ALTER_REALITY           62
+#define PRAYER_IMMOLATION              63
+
+/* Illusions for Beginners */
+#define ILLUS_CONFUSION_BOLT            0
+#define ILLUS_DETECT_MONSTERS           1
+#define ILLUS_PHASE_DOOR                2
+#define ILLUS_LIGHT_AREA                3
+#define ILLUS_TREASURE_DETECTION        4
+#define ILLUS_FEAR                      5
+#define ILLUS_OBJECT_DETECTION          6
+#define ILLUS_FIND_TRAPS_DOORS          7
+#define ILLUS_STINKING_CLOUD            8
+
+/* Tricks and Visions */
+#define ILLUS_INFRAVISION               9
+#define ILLUS_SLEEP                    10
+#define ILLUS_TRAP_DOOR_DESTRUCTION    11
+#define ILLUS_FOG_CLOUD                12
+#define ILLUS_CURE_POISON              13
+#define ILLUS_SATISFY_HUNGER           14
+#define ILLUS_SHADOW_DOOR              15
+#define ILLUS_SHADOW_MONSTER           16
+#define ILLUS_TURN_STONE_TO_MUD        17
+
+/* Phantasms and Illusions */
+#define ILLUS_DETECT_INVISIBLE         18
+#define ILLUS_RECHARGE_ITEM_I          19
+#define ILLUS_BRAND_AMMO               20
+#define ILLUS_SPEAR_OF_LIGHT           21
+#define ILLUS_CHAOS                    22
+#define ILLUS_MENTAL_BARRIER           23
+#define ILLUS_TRUE_SIGHT               24
+#define ILLUS_SLOW_MONSTER             25
+
+/* Shadows and Prisms */
+#define ILLUS_SHADOW_BALL              26
+#define ILLUS_BOLT_OF_DARKNESS         27
+#define ILLUS_SHADOW_FORM              28
+#define ILLUS_HASTE_SELF               29
+#define ILLUS_PRISMATIC_WALL           30
+#define ILLUS_PRISMATIC_SPRAY          31
+#define ILLUS_CHROMATIC_SHIELD         32
+
+/* Knowledge of Kenault */
+#define ILLUS_WIZARD_LOCK              33
+#define ILLUS_BEDLAM                   34
+#define ILLUS_WORD_OF_RECALL           35
+#define ILLUS_DETECT_ENCHANTMENT       36
+#define ILLUS_PROBING                  37
+#define ILLUS_SUNFIRE                  38
+
+/* Bigby's Handbook */
+#define ILLUS_INTERPOSING_HAND         39
+#define ILLUS_PHANTOM_HAND             40
+#define ILLUS_FORCEFUL_HAND            41
+#define ILLUS_GRASPING_HAND            42
+#define ILLUS_CLENCHED_FIST            43
+#define ILLUS_CRUSHING_HAND            44
+#define ILLUS_FORCE_BLAST              45
+
+/* Otiluke's Spheres */
+#define ILLUS_SPHERE_OF_LIGHT          46
+#define ILLUS_SPHERE_OF_DARKNESS       47
+#define ILLUS_SPHERE_OF_CONFUSION      48
+#define ILLUS_SPHERE_OF_CHAOS          49
+#define ILLUS_SPHERE_OF_SOUND          50
+#define ILLUS_EXPLOSION                51
+
+/* Serten's Immunities */
+#define ILLUS_RESIST_FEAR              52
+#define ILLUS_RESIST_LITE_AND_DARK     53
+#define ILLUS_RESIST_POISON            54
+#define ILLUS_RESIST_CHAOS_AND_CONFU   55
+#define ILLUS_RESIST_SOUND_AND_SHARDS  56
+#define ILLUS_RESIST_NEXUS             57
+
+/* Boccob's Book of Shadows */
+#define ILLUS_INVISIBILITY             58
+#define ILLUS_SHADOW_MONSTERS          59
+#define ILLUS_SHADOW_BALL_II           60
+#define ILLUS_LIFE_FOR_MANA            61
+#define ILLUS_SHADOW_GATE              62
+#define ILLUS_SUMMON_SHADOWS           63
+
+/* Nature's Handbook */
+#define DRUID_DETECT_EVIL               0
+#define DRUID_CURE_WOUNDS               1
+#define DRUID_POISON_BOLT               2
+#define DRUID_REMOVE_FEAR               3
+#define DRUID_CALL_LIGHT                4
+#define DRUID_FIND_TRAPS                5
+#define DRUID_DETECT_DOORS_STAIRS       6
+#define DRUID_SLOW_POISON               7
+
+/* Natural States */
+#define DRUID_SLEEP                     8
+#define DRUID_PORTAL                    9
+#define DRUID_DUSTSTORM                10
+#define DRUID_COOL_LAVA                11
+#define DRUID_POISON_CLOUD             12
+#define DRUID_SATISFY_HUNGER           13
+#define DRUID_REMOVE_CURSE             14
+#define DRUID_RESIST_HEAT_COLD         15
+
+/* Wilderness Guide */
+#define DRUID_LEVITATE                 16
+#define DRUID_CHARM_MONSTER            17
+#define DRUID_DISINTEGRATE             18
+#define DRUID_GROW_TREES               19
+#define DRUID_PROTECTION_FROM_EVIL     20
+#define DRUID_SENSE_INVISIBLE          21
+#define DRUID_SENSE_SURROUNDINGS       22
+#define DRUID_LOWER_WATER              23
+#define DRUID_TURN_ANIMALS             24
+
+/* Call of the Wild */
+#define DRUID_FEAR                     25
+#define DRUID_CALL_WOLVES              26
+#define DRUID_HEAL                     27
+#define DRUID_ANALYZE_MONSTER          28
+#define DRUID_GLYPH_OF_WARDING         29
+#define DRUID_DETECTION                30
+#define DRUID_NEXUS_BOLT               31
+
+/* Druidic Insights */
+#define DRUID_DETECT_MONSTERS          32
+#define DRUID_MAP_TERRAIN              33
+#define DRUID_PERCEPTION               34
+#define DRUID_PROBING                  35
+#define DRUID_CLAIRVOYANCE             36
+#define DRUID_RESIST_NETHER            37
+
+/* Growth and Destruction */
+#define DRUID_FEAR_II                  38
+#define DRUID_CURE_MORTAL_WOUNDS       39
+#define DRUID_FOREST                   40
+#define DRUID_RESTORATION              41
+#define DRUID_FAITHFULNESS             42
+#define DRUID_FIRESTORM                43
+
+/* Nature's Wrath */
+#define DRUID_FISSURE                  44
+#define DRUID_TORNADO                  45
+#define DRUID_EARTHQUAKE               46
+#define DRUID_FLOOD                    47
+#define DRUID_NEXUS_BALL               48
+#define DRUID_BALEFIRE                 49
+
+/* Druidic Alterations */
+#define DRUID_UNBARRING_WAYS           50
+#define DRUID_RECHARGING               51
+#define DRUID_ERRUPTIONS               52
+#define DRUID_SUSTAIN_SELF             53
+#define DRUID_BRAND_AMMO               54
+#define DRUID_ELEMENTAL_BRAND          55
+#define DRUID_IMPRISON                 56
+
+/* Commune with Nature */
+#define DRUID_BLINK                    57
+#define DRUID_TELEPORT_SELF            58
+#define DRUID_TELEPORT_OTHER           59
+#define DRUID_SUMMON_ANIMALS           60
+#define DRUID_WORD_OF_RECALL           61
+#define DRUID_ALTER_REALITY            62
+#define DRUID_DROWN                    63
+
+
+#define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
+#define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
+
+#define BOOK(a, b, c, d, e, f, g, h, i) \
+{ \
+	(BOOK1(a) | BOOK1(b) | BOOK1(c) | BOOK1(d) | BOOK1(e) | \
+	 BOOK1(f) | BOOK1(g) | BOOK1(h) | BOOK1(i)), \
+	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
+	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
+}
 
 
 /*
@@ -742,12 +1157,14 @@
 #define FEAT_BLDG_HEAD		0x40
 #define FEAT_BLDG_TAIL		0x51
 
-/* Extra Terrain -KMW- */
+/* Extra terrains that block line of sight -KMW- */
 #define FEAT_TREES		0x60
 #define FEAT_FOG			0x61
-/* 0x62 - 0x63 reserved for terrains that block line of sight -KMW- */
+/* xxx */
+/* xxx */
 #define FEAT_MOUNTAIN		0x64
-/* 0x65 - 0x66 can be used for those that do not block line of sight -KMW- */
+
+/* Extra terrains that do not block line of sight -KMW- */
 #define FEAT_GRASS		0x67
 #define FEAT_DEEP_WATER		0x68
 #define FEAT_SHAL_WATER		0x69
@@ -755,13 +1172,14 @@
 #define FEAT_SHAL_LAVA		0x6B
 #define FEAT_CHASM		0x6C
 #define FEAT_DIRT			0x6D
+/* xxx */
+/* xxx */
 
 /* Quest features -KMW- */
 #define FEAT_QUEST_ENTER	0x70
 #define FEAT_QUEST_EXIT		0x71
-#define FEAT_GQUEST_ENTER	0x72
-#define FEAT_QUEST_DOWN		0x73
-#define FEAT_QUEST_UP		0x74
+#define FEAT_QUEST_DOWN		0x72
+#define FEAT_QUEST_UP		0x73
 
 
 
@@ -1439,6 +1857,10 @@
 #define SV_ROD_ELEC_BALL		25
 #define SV_ROD_FIRE_BALL		26
 #define SV_ROD_COLD_BALL		27
+#define SV_ROD_DELVING		28
+#define SV_ROD_HIDDEN_WAYS		29
+#define SV_ROD_UNSUNG_HEROES		30
+#define SV_ROD_ILLUSIONS		31
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -1596,6 +2018,11 @@
 #define SV_ROD_MIN_DIRECTION	12
 
 /*
+ * Special "sval" limit -- first artifact rod
+ */
+#define SV_ROD_MIN_ARTIFACT	28
+
+/*
  * Special "sval" limit -- first "large" chest
  */
 #define SV_CHEST_MIN_LARGE	4
@@ -1605,6 +2032,12 @@
  */
 #define SV_BOOK_MIN_GOOD	4
 
+
+/*
+ * Defines for "gold"
+ */
+#define OBJ_GOLD_LIST   480     /* First "gold" entry */
+#define MAX_GOLD        18      /* Number of "gold" entries */
 
 
 /*** Monster blow constants ***/
@@ -1704,6 +2137,7 @@
 #define ENCH_TOHIT   0x01
 #define ENCH_TODAM   0x02
 #define ENCH_TOAC    0x04
+#define ENCH_FORCE   0x08 /* Force enchantment */
 
 
 /*
@@ -1933,6 +2367,40 @@
 #define SM_RES_DISEN	0x80000000
 
 
+#define SM2_OPP_LITE		0x00000001
+#define SM2_OPP_DARK		0x00000002
+#define SM2_OPP_CHAOS		0x00000004
+#define SM2_OPP_CONFU		0x00000008
+#define SM2_OPP_SOUND		0x00000010
+#define SM2_OPP_SHARD		0x00000020
+#define SM2_OPP_NEXUS		0x00000040
+#define SM2_OPP_NETHR		0x00000080
+#define SM2_XXX9		0x00000100
+#define SM2_XX10		0x00000200
+#define SM2_XX11		0x00000400
+#define SM2_XX12		0x00000800
+#define SM2_XX13		0x00001000
+#define SM2_XX14		0x00002000
+#define SM2_XX15		0x00004000
+#define SM2_XX16		0x00008000
+#define SM2_XX17		0x00010000
+#define SM2_XX18		0x00020000
+#define SM2_XX19		0x00040000
+#define SM2_XX20		0x00080000
+#define SM2_XX21		0x00100000
+#define SM2_XX22		0x00200000
+#define SM2_XX23		0x00400000
+#define SM2_XX24		0x00800000
+#define SM2_XX25		0x01000000
+#define SM2_XX26		0x02000000
+#define SM2_XX27		0x04000000
+#define SM2_XX28		0x08000000
+#define SM2_XX29		0x10000000
+#define SM2_XX30		0x20000000
+#define SM2_XX31		0x40000000
+#define SM2_XX32		0x80000000
+
+
 /*
  * As of 2.7.8, the "object flags" are valid for all objects, and as
  * of 2.7.9, these flags are not actually stored with the object, but
@@ -1992,14 +2460,14 @@
 #define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
 #define TR2_XXX1			0x00000040L	/* (reserved) */
 #define TR2_XXX2			0x00000080L	/* (reserved) */
-#define TR2_XXX3			0x00001000L	/* (reserved) */
-#define TR2_XXX4			0x00002000L	/* (reserved) */
-#define TR2_XXX5			0x00004000L	/* (reserved) */
-#define TR2_XXX6		 	0x00008000L	/* (reserved) */
-#define TR2_IM_ACID			0x00001000L	/* Immunity to acid */
-#define TR2_IM_ELEC			0x00002000L	/* Immunity to elec */
-#define TR2_IM_FIRE			0x00004000L	/* Immunity to fire */
-#define TR2_IM_COLD			0x00008000L	/* Immunity to cold */
+#define TR2_XXX3			0x00000100L	/* (reserved) */
+#define TR2_XXX4			0x00000200L	/* (reserved) */
+#define TR2_XXX5			0x00000400L	/* (reserved) */
+#define TR2_XXX6		 	0x00000800L	/* (reserved) */
+#define TR2_IM_ACID		0x00001000L	/* Immunity to acid */
+#define TR2_IM_ELEC		0x00002000L	/* Immunity to elec */
+#define TR2_IM_FIRE		0x00004000L	/* Immunity to fire */
+#define TR2_IM_COLD		0x00008000L	/* Immunity to cold */
 #define TR2_RES_ACID		0x00010000L	/* Resist acid */
 #define TR2_RES_ELEC		0x00020000L	/* Resist elec */
 #define TR2_RES_FIRE		0x00040000L	/* Resist fire */
@@ -2154,7 +2622,7 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_QUESTOR2		0x00000004	/* Quest level monster -KMW- */
+#define RF2_XXX1			0x00000004	/* (?) */
 #define RF2_XXX2			0x00000008	/* (?) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
@@ -2165,8 +2633,8 @@
 #define RF2_XXX3			0x00000400	/* (?) */
 #define RF2_DEEPLAVA		0x00000800	/* Monster can cross deep lava -KMW- */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
-#define RF2_SWIM			0x00002000	/* Monster can swim deep water -KMW-*/
-#define RF2_FLY			0x00004000	/* Monster can fly over terrain -KMW- */
+#define RF2_CAN_SWIM		0x00002000	/* Monster can swim deep water -KMW-*/
+#define RF2_CAN_FLY		0x00004000	/* Monster can fly over terrain -KMW- */
 #define RF2_AQUATIC		0x00008000	/* Monster only lives in water -KMW- */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
@@ -2505,6 +2973,7 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
+#define OPT_KANGBAND				96
 #define OPT_BIRTH					128
 #define OPT_CHEAT					160
 #define OPT_ADULT					192
@@ -2598,6 +3067,9 @@
 /* xxx */
 /* xxx */
 /* xxx xxx */
+#define OPT_auto_destroy		(OPT_KANGBAND+0)
+/* xxx xxx */
+
 #define OPT_birth_point_based		(OPT_BIRTH+0)
 #define OPT_birth_auto_roller		(OPT_BIRTH+1)
 #define OPT_birth_maximize			(OPT_BIRTH+2)
@@ -2613,7 +3085,7 @@
 #define OPT_cheat_xtra				(OPT_CHEAT+3)
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
-#define OPT_cheat_flav				(OPT_CHEAT+6)
+#define OPT_cheat_iden				(OPT_CHEAT+6)
 
 /* xxx xxx */
 #define OPT_adult_point_based		(OPT_ADULT+0)
@@ -2718,6 +3190,7 @@
 /* xxx */
 /* xxx */
 /* xxx xxx */
+#define auto_destroy			op_ptr->opt[OPT_auto_destroy]
 #define birth_point_based		op_ptr->opt[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt[OPT_birth_auto_roller]
 #define birth_maximize			op_ptr->opt[OPT_birth_maximize]
@@ -2733,7 +3206,7 @@
 #define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]
 #define cheat_know				op_ptr->opt[OPT_cheat_know]
 #define cheat_live				op_ptr->opt[OPT_cheat_live]
-#define cheat_flav				op_ptr->opt[OPT_cheat_flav]
+#define cheat_iden				op_ptr->opt[OPT_cheat_iden]
 /* xxx xxx */
 #define adult_point_based		op_ptr->opt[OPT_adult_point_based]
 #define adult_auto_roller		op_ptr->opt[OPT_adult_auto_roller]
@@ -2768,12 +3241,6 @@
  * Hack -- The main "screen"
  */
 #define term_screen	(angband_term[0])
-
-/*
- * Hack -- random number generation
- */
-#define randint(M) \
-	(rand_int(M) + 1)
 
 
 /*
@@ -2921,27 +3388,55 @@
  *
  * Note the use of the new "CAVE_WALL" flag.
  *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
  */
 #define cave_floor_bold(Y,X) \
 	(!(cave_info[Y][X] & (CAVE_WALL)))
 
 /*
+ * Determine if a "legal" grid is a "floor" grid
+ *
+ * Line 1 -- forbid doors, rubble, seams, walls
+ * Line 2 -- allow trees
+ * Line 3 -- allow fog
+ *
+ * Note the use of the new "CAVE_WALL" flag.
+ *
+ */
+#define terrain_floor_bold(Y,X) \
+	((cave_floor_bold(Y,X)) || \
+	 (cave_feat[Y][X] == FEAT_TREES) || \
+	 (cave_feat[Y][X] == FEAT_FOG))
+
+/*
  * Determine if a "legal" grid is a "clean" floor grid
  *
  * Line 1 -- forbid non-floors
- * Line 2 -- forbid deep water -KMW-
- * Line 3 -- forbid deep lava -KMW-
- * Line 4 -- forbid normal objects
+ * Line 2 -- forbid normal objects
  */
 #define cave_clean_bold(Y,X) \
+	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	 (cave_o_idx[Y][X] == 0))
+
+/*
+ * Determine if a "legal" grid is a "clean" floor grid
+ * used for placing objects (see object2.c)
+ *
+ * Line 1 -- allow floor
+ * Line 2 -- allow shallow water
+ * Line 3 -- allow shallow lava
+ * Line 4 -- allow dirt
+ * Line 5 -- allow grass
+ * Line 6 -- allow fog
+ * Line 7 -- forbid normal objects
+ */
+#define terrain_clean_bold(Y,X) \
 	(((cave_feat[Y][X] == FEAT_FLOOR) || \
-	(cave_feat[Y][X] == FEAT_SHAL_WATER) || \
-	(cave_feat[Y][X] == FEAT_SHAL_LAVA) || \
-	(cave_feat[Y][X] == FEAT_DIRT) || \
-	(cave_feat[Y][X] == FEAT_FOG)) && \
-	(cave_o_idx[Y][X] == 0))
+	  (cave_feat[Y][X] == FEAT_SHAL_WATER) || \
+	  (cave_feat[Y][X] == FEAT_SHAL_LAVA) || \
+	  (cave_feat[Y][X] == FEAT_DIRT) || \
+	  (cave_feat[Y][X] == FEAT_GRASS) || \
+	  (cave_feat[Y][X] == FEAT_FOG)) && \
+	  (cave_o_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is an "empty" floor grid
@@ -2956,18 +3451,33 @@
 /*
  * Determine if a "legal" grid is an "naked" floor grid
  *
+ * Line 1 -- forbid non-floors
+ * Line 2 -- forbid normal objects
+ * Line 3 -- forbid player/monsters
+ */
+#define cave_naked_bold(Y,X) \
+	((cave_feat[Y][X] == FEAT_FLOOR) && \
+	 (cave_o_idx[Y][X] == 0) && \
+	 (cave_m_idx[Y][X] == 0))
+
+
+/*
+ * Determine if a "legal" grid is an "naked" floor grid
+ * Currently used for allowing teleporting onto terrain.
+ *
  * Line 1 -- forbid non-floors, non-shallow water & lava -KMW-
  * Line 4 -- forbid normal objects
  * Line 5 -- forbid player/monsters
  */
-#define cave_naked_bold(Y,X) \
+#define terrain_naked_bold(Y,X) \
 	(((cave_feat[Y][X] == FEAT_FLOOR) || \
-	(cave_feat[Y][X] == FEAT_SHAL_WATER) || \
-	(cave_feat[Y][X] == FEAT_SHAL_LAVA) || \
-	(cave_feat[Y][X] == FEAT_DIRT) || \
-	(cave_feat[Y][X] == FEAT_FOG)) && \
-	(cave_o_idx[Y][X] == 0) && \
-	(cave_m_idx[Y][X] == 0))
+	 (cave_feat[Y][X] == FEAT_SHAL_WATER) || \
+	 (cave_feat[Y][X] == FEAT_SHAL_LAVA) || \
+	 (cave_feat[Y][X] == FEAT_DIRT) || \
+	 (cave_feat[Y][X] == FEAT_GRASS) || \
+	 (cave_feat[Y][X] == FEAT_FOG)) && \
+	 (cave_o_idx[Y][X] == 0) && \
+	 (cave_m_idx[Y][X] == 0))
 
 
 /*
@@ -2976,33 +3486,18 @@
  * Line 1 -- perma-walls
  * Line 2-3 -- stairs
  * Line 4-5 -- shop doors
- */
-#define cave_perma_bold(Y,X) \
-	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
-	 ((cave_feat[Y][X] == FEAT_LESS) || \
-	  (cave_feat[Y][X] == FEAT_MORE)) || \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
-
-
-/*
- * Determine if a "legal" grid is "permanent"
- *
- * Line 1 -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- building doors -KMW-
- * Line 6-7 -- shop doors
+ * Line 6-7 -- building doors -KMW-
  * Line 8-9 -- quest entrances -JIH-
  */
-#define cave_perma_bold_new(Y,X) \
+#define cave_perma_bold(Y,X) \
 	(((cave_feat[Y][X] >= FEAT_PERM_EXTRA) && \
 	  (cave_feat[Y][X] <= FEAT_PERM_SOLID)) || \
 	 ((cave_feat[Y][X] == FEAT_LESS) || \
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
-	 ((cave_feat[Y][X] >= FEAT_BLDG_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_BLDG_TAIL)) || \
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
 	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)) || \
+	 ((cave_feat[Y][X] >= FEAT_BLDG_HEAD) && \
+	  (cave_feat[Y][X] <= FEAT_BLDG_TAIL)) || \
 	 ((cave_feat[Y][X] >= FEAT_QUEST_ENTER) && \
 	  (cave_feat[Y][X] <= FEAT_QUEST_EXIT)))
 
@@ -3094,8 +3589,9 @@ extern int PlayerUID;
 #define MSG_NOTHING_TO_OPEN 26
 #define MSG_LOCKPICK_FAIL   27
 #define MSG_STAIRS          28
+#define MSG_HITPOINT_WARN   29
 
-#define MSG_MAX             29
+#define MSG_MAX             30
 
 
 /*** Sound constants ***/
@@ -3158,36 +3654,11 @@ extern int PlayerUID;
 
 
 /*
- * Available graphic modes
- */
-#define GRAPHICS_NONE       0
-#define GRAPHICS_ORIGINAL   1
-#define GRAPHICS_ADAM_BOLT  2
-
-
-/*
  * r_info indices of the quest monsters
  * (required for loading old savefiles)
  */
 #define R_INFO_SAURON 546
 #define R_INFO_MORGOTH 547
-
-
-/*
- * Parse errors
- */
-#define PARSE_ERROR_GENERIC                  1
-#define PARSE_ERROR_OBSOLETE_FILE            2
-#define PARSE_ERROR_MISSING_RECORD_HEADER    3
-#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
-#define PARSE_ERROR_INVALID_FLAG             5
-#define PARSE_ERROR_UNDEFINED_DIRECTIVE      6
-#define PARSE_ERROR_OUT_OF_MEMORY            7
-#define PARSE_ERROR_OUT_OF_BOUNDS            8
-#define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
-#define PARSE_ERROR_TOO_MANY_ARGUMENTS      10
-
-#define PARSE_ERROR_MAX                     11
 
 
 /*
@@ -3250,4 +3721,10 @@ extern int PlayerUID;
 #define ACT_FIREBRAND           46
 #define ACT_BESERKER            47
 #define ACT_FIRESTORM           48
+
 #define ACT_MAX                 49
+
+/*
+ * HACK - define if the source contains the cleanup_angband() function.
+ */
+#define HAS_CLEANUP

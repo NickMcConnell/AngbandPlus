@@ -1,0 +1,122 @@
+# q0000017.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:17:N:Graveyard
+
+# Definition
+Q:17:Q:4:0:0:0:30:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST17 2]
+Q:17:T:There is a crypt to the east where we have buried all of our
+Q:17:T:past rulers and heroes. Now, it is being overrun by undead!
+Q:17:T:Is nothing sacred to Morgoth?! You must travel through the passageways
+Q:17:T:of this underground and find the exit. The exit will trigger a
+Q:17:T:powerful dispel undead spell which will free this holy spot from
+Q:17:T:the undead. The spell must have dissapated over time. You can
+Q:17:T:reactivate it!
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST17 3]
+Q:17:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST17 5]
+Q:17:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Permanent Wall
+F: :61:136
+
+# Floor with Giant Skeleton Troll
+F:a:1:8:338
+
+# Floor with Lich
+F:b:1:8:356
+
+# Floor with Master Lich
+F:c:1:8:451
+
+# Floor with Dracolich
+F:d:1:8:476
+
+# Floor with Grave Wight
+F:e:1:8:324
+
+# Floor with Barrow Wight
+F:f:1:8:337
+
+# Floor with Shade
+F:g:1:8:346
+
+# Floor with Spectre
+F:h:1:8:347
+
+# Floor with Shadow
+F:i:1:8:377
+
+# Floor with Phantom
+F:j:1:8:378
+
+# Dungeon
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X XXXXXXXXXXXX                                                                                                                X
+D:X X..........X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                 X
+D:X X...d<d....X        X*X*X*XjXjXjX.X.X...X.X.XcXcX.X*X*X.+.X                                                                 X
+D:X X..........X        XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDXXX      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX          X
+D:X XXXXXDXXXXXX        X...............D...D...............X        X.........aaa........XXXXX.......fff..........+*X          X
+D:X     X.X             XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDX        X...............**...XXXXX..**................XXX          X
+D:X     X.X             XeXeXeX*X*X*X.X.X...X.XcX*X*X*X^X^X.X        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X     X.X             XXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXX        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X     X.X                XXX          X...X                        X.........ggg........XXXXX............gg......X            X
+D:X    XX.XX               X.XXXXXXXXXXXXDDDXXXXX                    X..........hh...**...XXXXX..**................X            X
+D:X   XX...XX            XXXDXXXXXXXXX.........XX                    XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X  XX.....XX           X.D........D....bbb....X                    X.............................................X            X
+D:X XX.......XX          XXXDXXXXXXXX....bbb....X                    X............iii..............................X            X
+D:X X.........X            X.X      XX.........XX                    X.............................................X            X
+D:X XXXXX.XXXXX            X.X       XXXXDDDXXXX                     X.............................................X            X
+D:X     X.X                X.X          X...X                        XXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXX            X
+D:X     X.X                X.X          X...X                                            X...X                                  X
+D:X     X.X                X.X         XX...XX                                           X...X                                  X
+D:X     X.X                X.X        XX.....XX                                          X...X                                  X
+D:X    XXDXX  XXXX         X.X       XX.......XX                                         X...X                                  X
+D:X    X...XXXX..X         X.X      XX.........XX                                        X...X                                  X
+D:X    X...+..Dc.X         X.X     XX.....aaa...XX                                       X...X                                  X
+D:X    X...XXXX..X         X.X    XX.......b.....XX                          XXXXXXXXXXXXXDDDXXXXXXXXXXXX                       X
+D:X    XX.XX  XXXX         X.X   XX.......aaa.....XX                        XX..........................XX                      X
+D:X     X.X                X.X  XX.................XX                     XXX............................XX            XXXXX    X
+D:X     X.X                X.X  X...................X                    XX...............................XX           Xj..X    X
+D:X     X.X                X.X  XXXX..XXXXXXX..XXXXXX                   XX.................................XX          X...X    X
+D:X     X.X                X.X     X..X     X..X                 XXXXXXXX...................*ccc............XX         XDXXX    X
+D:X     X.X                X.X     X..XXXXXXX..XXXXXXX           X.....D...................**ccc.............XXXXXXXXXXX.X      X
+D:X     X.X                X.X     X...........D.....X           X.....D..................***cdc.............D...........X      X
+D:X     X.X                X.X     X...........D.....X           X...XXXX.................***ccc............XXXXXXXXXXXX.X      X
+D:X  XXXX.XXXX             X.X     XXXXXXXXXXXXXXXX..XXXXXXX     X...X  XX.................**..............XX          X.X      X
+D:X  X.......X             X.X                    X........XXXXXXX...X   XX.................*.............XX           X.X      X
+D:X  XXX...XXX             X.X                    X..................X    XX.............................XX            X.X      X
+D:X  X.......X             X.X                    X........XXXXXXX...X     XX...........................XX             X.X      X
+D:X  XXXX.XXXX             X.X                    XXXXXXXXXX     XXXXX      XXXXXXXXXXXXDDDDDXXXXXXXXXXXX              X.X      X
+D:X     X.X                XDXXXXXXXXXXXXXXX                                           X.....X                         X.X      X
+D:X     X.X                X...............XXXXXXXXXXX      XXXXXXXXXXXX               X.....X                         X.X      X
+D:X     X.X                X.....bb........D.........X      X..........X             XXX.....XX                        X.X      X
+D:X     X.X         XXXXX  X.....cc........XXXXXXXXDDXXXXXXXX....fff...XXXXX        XX...XXX..XXX                 XXXXXXDXX     X
+D:X     X.X         XghiX  XDXXXXXXXXXXXXXXX  X..........D.*.....fff....+.+%       XX....XXXj...XXXXXX          XXX...Dff.X     X
+D:X     X.X         X..XX XX.XX               X..eeeee...D.*.....fff....XXX%       X.............X...X          X.D...Xff.X     X
+D:X  XXXX.XXX       XX+XXXX...X               X..eeeee...XXXX..........XX  % XXXXX XXXXXXXXXXXX..D...X          XXX...X...X     X
+D:X  X......X        XX.......X            XXXX.....*....XXXX..........X   % X...X     XX..j..D..XXXXXX           XXXXXXXDXX    X
+D:X  X.a.a.aX         X.......XXXXXX       X..D.......*..D**XXXXXXXXXXXX   % XXXDXX    X......X..Xhhi.X                X...X    X
+D:X  X......X         X...*...D***jX       X..XXXXXXXXXXXX**X              +  X...X    XXXXXXXX..X....X                X...X    X
+D:X  X......X         X.....*.XXXXXX       XXXX          XXXX              %  X.j.XXXXXX X....D..D....X         XXXXXXXXDXDXXXX X
+D:X  XXXDDXXXXXXXXXXXXXX+XXXXXX                                            %  X....X...X X..XXX..XXXXXXXXX      X..*e....X....X X
+D:X    X.................X                                                 %+%%....D...XXXXXX.D..D.....+.X      X..*.....X....X X
+D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:49:123
+
+

@@ -1,0 +1,68 @@
+# q0000033.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:33:N:Attack on Cirith Hyarmen
+
+# Definition
+Q:33:Q:6:0:0:0:40:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST33 2]
+Q:33:T:King->Now that the north tower has fallen, we will take Cirith Hyarmen, the
+Q:33:T:south tower!
+Q:33:T:Slay them all to bring that tower under our control and before Morgoth
+Q:33:T:has a chance to respond to the last attack.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST33 3]
+Q:33:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST33 5]
+Q:33:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX...................XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........................................XXXXXXXXXXXXXXXX
+D:XXXXXXXXX.......................................................XXXXXXXXXX
+D:XXXX...........................XXXXXDXXXXXX...........................XXXX
+D:XXXX.............9.............X*..9..8..*X..................9........XXXX
+D:XXXX...........................X..........X...........................XXXX
+D:XXXX...........................XXXXXXXXXXXX...........................XXXX
+D:XXXX..................................................................XXXX
+D:XXXX..................................................................XXXX
+D:XXXX...........................XXXXXDXXXXX............................XXXX
+D:XXXX..................XXXXXXXXXX.........XXXXXXXXXXX..................XXXX
+D:XXXX................XXX............................XXX................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X......9....................9....X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX.......9........X................................X................XXXX
+D:XXXX................X................................X................XXXX
+D:XXXX................X......9....................9....X................XXXX
+D:XXXX................XXX..............................X................XXXX
+D:XXXX..................XXXXXXXXXX..........XXXXXXXXXXXX................XXXX
+D:XXXX...........................XXXXXDXXXXXX...........................XXXX
+D:XXXX..................................................................XXXX
+D:XXXX........................................................9.........XXXX
+D:XXXX..................................................................XXXX
+D:XXXXXXXXX.......................................................XXXXXXXXXX
+D:XXXXXXXXXXXXXXX....................9......................XXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.................................XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX.........<.........XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:32:37
+

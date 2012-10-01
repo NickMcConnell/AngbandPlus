@@ -1,0 +1,18 @@
+# q0000001.txt
+#Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:1:N:Random Quest
+
+# Definition
+Q:1:Q:7:0:0:*:1:*:0:0
+
+# Description for quest
+?:[LEQ $QUEST1 2]
+Q:1:T:Kill <num> <monsters>
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST1 3]
+Q:1:T:A reward for your good work awaits you outside.
+?:1

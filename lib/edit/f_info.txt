@@ -1,20 +1,17 @@
 # File: f_info.txt
 
 
-# This file is used to initialize the "lib/raw/f_info.raw" file, which is
+# This file is used to initialize the "lib/data/f_info.raw" file, which is
 # used to initialize the "terrain feature" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/f_info.raw" file.
+# After modifying this file, delete the "lib/data/f_info.raw" file.
 
 # Note that the terrain feature are grouped into very regular groups,
 # such that each of the bits in the feature type conveys information.
 
 # Note that terrain feature zero contains the "darkness" picture.
-
-
-# Version stamp (required)
 
 # === Understanding f_info.txt ===
 
@@ -28,9 +25,9 @@
 # 'G' is for graphics - symbol and color. There are 16 colors, as
 # follows:
 
-# D - Black        w - White          s - Gray          o - Orange
+# D - Dark Gray    w - White          s - Gray          o - Orange
 # r - Red          g - Green          b - Blue          u - Brown
-# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# d - Black        W - Light Gray     v - Violet        y - Yellow
 # R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
 
 # 'M' is the index of a feature to mimic.
@@ -38,7 +35,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 # 0x00 --> <darkness>
@@ -113,20 +110,20 @@ G:5:b
 N:13:Magic Shop
 G:6:r
 
-# 0x0E --> shop -- bookstore (perm)
+# 0x0E --> shop -- black market (perm)
 
-N:14:Bookstore
-G:9:D
-
-# 0x0F --> shop -- black market (perm)
-
-N:15:Black Market
+N:14:Black Market
 G:7:D
 
-# 0x10 --> shop -- home (perm)
+# 0x0F --> shop -- home (perm)
 
-N:16:Home
+N:15:Home
 G:8:y
+
+# 0x10 --> shop -- bookstore (perm)
+
+N:16:Bookstore
+G:9:o
 
 # 0x11 --> visible trap -- trap door
 
@@ -408,7 +405,7 @@ G:+:U
 
 # 0x43 --> building -- Gambling House (perm)
 
-N:67:Gambling House
+N:67:Gambling Den
 G:+:U
 
 # 0x44 --> building -- Inn (perm)
@@ -442,7 +439,7 @@ G:+:R
 # 0x4C --> building -- Inner Temple (perm)
 
 N:76:Inner Temple
-G:+:G
+G:+:g
 
 # 0x4D --> building -- House of Thieves (perm)
 
@@ -476,14 +473,17 @@ G:+:G
 # Numbers 0x62 and 0x63 are available (unused)
 
 # 0x60 --> terrain -- trees
+
 N:96:tree
 G:#:G
 
 # 0x61 --> terrain -- fog
+
 N:97:dense fog
 G:#:s
 
 # 0x64 --> terrain -- mountains
+
 N:100:mountain
 G:^:U
 
@@ -491,50 +491,61 @@ G:^:U
 # Numbers 0x65, 0x66, 0x6E, 0x6F are available (unused)
 
 # 0x67 --> terrain -- grass
+
 N:103:patch of grass
 G:::g
 
 # 0x68 --> terrain -- deep water
+
 N:104:pool of deep water
 G:#:b
 
 # 0x69 --> terrain -- shallow water
+
 N:105:stream of shallow water
 G:#:B
 
-# 0x70 --> terrain -- deep lava
+# 0x6A --> terrain -- deep lava
+
 N:106:pool of deep lava
 G:#:r
 
-# 0x71 --> terrain -- shallow lava
+# 0x6B --> terrain -- shallow lava
+
 N:107:stream of shallow lava
 G:#:U
 
-# 0x72 --> terrain -- chasm
+# 0x6C --> terrain -- chasm
+
 N:108:chasm
 G:#:D
 
-# 0x73 --> terrain -- dirt
+# 0x6D --> terrain -- dirt
+
 N:109:patch of dirt
 G:::u
 
 
 # Using 112 - 114 for quest entrances/exits -KMW-
 
-# 0x76 --> terrain -- quest entrance
+# 0x70 --> terrain -- quest entrance
+
 N:112:quest entrance
 G:>:y
+
+# 0x71 --> terrain -- quest exit
 
 N:113:quest exit
 G:<:y
 
-N:114:guild quest entrance
+# 0x72 --> terrain -- quest down level
+
+N:114:quest down level
 G:>:r
 
-N:115:quest down level
-G:>:r
+# 0x73 --> terrain -- quest up level
 
-N:116:quest up level
+N:115:quest up level
 G:<:r
 
 # Numbers through to 127 are unused for now.

@@ -1,0 +1,91 @@
+# q0000055.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:55:N:The Graveyard
+
+# Definition
+Q:55:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST55 2]
+Q:55:T:We still are trying to unlock the secrets of the Keep. While we are at it,
+Q:55:T:why don't you examine the graveyard off the west wall of Telamoor.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST55 3]
+Q:55:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST55 5]
+Q:55:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phantom Warrior
+F:a:1:8:561
+
+# Floor with Skeleton Human
+F:b:1:8:164
+
+# Floor with Ghost
+F:c:1:8:326
+
+# Floor with Phantom
+F:d:1:8:378
+
+# Floor with Death Knight
+F:e:1:8:407
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<...----------------------------X
+D:X---.----------------------------X
+D:X---..............---------------X
+D:X----------------.---------------X
+D:X----------------a---------------X
+D:X--XX---;X-------a------X;---;;--X
+D:X----------------a---------------X
+D:X----------------b---------------X
+D:X--X;---;;-------b------;;---;;--X
+D:X----------------b---------------X
+D:X----------------b---------------X
+D:X--;;---;;-------d------;;---;;--X
+D:X----------------d---------------X
+D:X----------------c---------------X
+D:X--;;---;;-------c------X;---X;--X
+D:X----------------c---------------X
+D:X----------------c---------------X
+D:X--:X---X:-------d------;X---;;--X
+D:X----------------.---------------X
+D:X----------------.---------------X
+D:X--;;---X;-------.------;;---;X--X
+D:X----------------.---------------X
+D:X----------------.---------------X
+D:X--;;---;;-------.------;---XX--X
+D:X----------------.---------------X
+D:X----------------.---------------X
+D:X--;;---;X-------.------X;---X;--X
+D:X----------------.---------------X
+D:X----------------.---------------X
+D:X--XX---;X-------.------XX---;;--X
+D:X----------------.---------------X
+D:X----------------.---------------X
+D:X--XX---XX-------........----X;--X
+D:X----------------------..--------X
+D:X---------------XXXXXXDDDXXXXXX--X
+D:X--X;---;;------X.............X--X
+D:X---------------X.............X--X
+D:X---------------X.............X--X
+D:X--XX---XX------X.............X--X
+D:X---------------X..aa...ee....X--X
+D:X---------------X..aa.........X--X
+D:X--XX---XX------XXXXXXXXXXXXXXX--X
+D:X--------------------------------X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+
