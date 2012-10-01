@@ -411,10 +411,10 @@ static void do_qual_squelch(void)
 		prt("Secondary Squelching Menu", 0,0);
 
 		/* Need to know maximum index */
-		max_num=num;
+		max_num = num;
 
 		/* Place the cursor */
-		move_cursor(index+ 2, 1);
+		Term_gotoxy(1, index + 2);
 
 		/* Get a key */
 		ch = inkey();

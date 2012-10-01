@@ -154,19 +154,6 @@
 /* #define ALLOW_HAGGLE */
 
 /*
- * OPTION: Prevent the loading of the "c_text" array. saving some memory, 
- * but removing the level titles.
- */
-/* #define PREVENT_LOAD_C_TEXT */
-
-/*
- * OPTION: Prevent the loading of the "r_text" array, saving ~60K, 
- * but "simplifying" the "monster" descriptions.
- */
-/* #define PREVENT_LOAD_R_TEXT */
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
@@ -343,10 +330,6 @@
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef CHECK_MODIFICATION_TIME
-# undef PREVENT_LOAD_R_TEXT
-# define PREVENT_LOAD_R_TEXT
-# undef PREVENT_LOAD_C_TEXT
-# define PREVENT_LOAD_C_TEXT
 #endif
 
 /*
@@ -370,11 +353,6 @@
  * HACK - save every turn. Used for debug purposes.
  */
 /* define DEBUG_SAVE */
-
-/*
- * HACK - Defines turned off for now for implementation of things that aren't ready yet 
- */
-/* define EGO_MONSTER_DEV ego monsters */
 
 /*
  * Use the new XML help system by Antony Sidwell 

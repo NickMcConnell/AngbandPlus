@@ -10,7 +10,7 @@ Birth options are divided into three sub-sets -
 
 ==== Sub-Set 1 - Birth options ====
 
-These are options that directly affect the creation of a character.
+These are options that directly affect the creation of a character. 
 
 ***** <birth_point_based>
 Allow purchase of stats using points [birth_point_based]
@@ -20,11 +20,17 @@ Allow purchase of stats using points [birth_point_based]
 
 ***** <birth_auto_roller>
 Allow specification of minimal stats    [birth_auto_roller]
-    If point based creation is turned off, this allows the player to set 
-    minimum stats (within reason) and ask the game to keep on rolling until a 
-    character with the desired stats is generated. Using this method can lead 
-    to better characters than point-based creation, but totally random rolling
-    can create even better ones (though rarely). 
+    This allows the player to set minimum stats (within reason) and ask the 
+    game to keep on rolling until a character with the desired stats is 
+    generated. Using this method can lead to better characters than 
+    point-based creation.
+
+***** <birth_weighted_roller>
+Allow specification of stat weighings   [birth_weighted_roller]
+    This allows the player to set weighings for the various stats ask the game
+    to keep on rolling until a character with appropriate stats is generated. 
+    Like the auto roller, using this method can lead to better characters than 
+    point-based creation. 
 
 ***** <birth_random_hp>
 Generate hitpoints randomly [birth_random_hp]

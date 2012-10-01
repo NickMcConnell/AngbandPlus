@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.4"
+#define VERSION_STRING	"0.4.5"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	4
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 #define VERSION_EXTRA	0
 
 /*
@@ -488,6 +488,11 @@
  */
 #define A_RANGE	31
 
+/* 
+ * The maximum "internal" stat
+ */
+#define A_CAP	20
+
 /*
  * Macro for "current" stat values 
  */
@@ -694,6 +699,8 @@
 #define QUEST_FIXED			1
 #define QUEST_GUILD			2
 #define QUEST_VAULT			3
+#define QUEST_UNIQUE		4
+#define QUEST_FIXED_U		5
 
 /*
  * Quest reward types 
@@ -701,6 +708,7 @@
 #define REWARD_GOLD			1
 #define REWARD_GOOD_ITEM	2
 #define REWARD_GREAT_ITEM	3
+#define REWARD_TAILORED		4
 
 /*
  * Quest item name parts 
@@ -872,6 +880,7 @@
 #define FEAT_BROKEN		0x05
 #define FEAT_CLOSED		0x06
 #define FEAT_CHEST		0x07
+#define FEAT_QST_CHEST	0x08
 
 /* Extra */
 #define FEAT_SECRET		0x10
@@ -1293,8 +1302,8 @@
 #define EGO_HURT_HOLY_MIGHT		133
 #define EGO_AMMO_ACID			134
 #define EGO_AMMO_ELEC			135
-#define EGO_FLAME				136
-#define EGO_FROST				137
+#define EGO_AMMO_FIRE			136
+#define EGO_AMMO_COLD			137
 #define EGO_POISON				138
 #define EGO_AMMO_LITE			139
 #define EGO_AMMO_DARK			140
@@ -1979,6 +1988,7 @@
 #define ORIGIN_MORGOTH		8
 #define ORIGIN_CHEAT		9
 #define ORIGIN_MIXED		10
+#define ORIGIN_CHEST		11
 
 /* Prefix Flags */
 #define PXF_SHOP		0x00000001L	/* Can be created in shops */ 
@@ -2538,7 +2548,7 @@
 #define CF_TRAP_PLACE		0x00080000L	/* Allow player to place traps */
 #define CF_APPRAISE			0x00100000L	/* Allow player to sense approximate price of objects */
 #define CF_SUB_SPELL		0x00200000L /* Allow player to use sub-spells */
-#define CF_XXX1				0x00400000L
+#define CF_XXX1				0x00400000L 
 #define CF_XXX2				0x00800000L
 #define CF_XXX3				0x01000000L
 #define CF_XXX4				0x02000000L
@@ -2557,8 +2567,9 @@
 /*
  * Monster placement modes 
  */
-#define PLACE_NO_U	1	/* No uniques allowed */
-#define PLACE_UNIQ	2	/* Force a unique */
+#define PLACE_NO_UNIQUE	1	/* No uniques allowed */
+#define PLACE_UNIQUE	2	/* Force a unique */
+#define PLACE_LAST_EGO	3	/* Use the same ego-monster as last time */
 
 /*
  * Special Monster Flags (all temporary)
@@ -2583,15 +2594,15 @@
 #define RF1_ATTR_CLEAR		0x00000020	/* Absorbs color */
 #define RF1_ATTR_MULTI		0x00000040	/* Changes color */
 #define RF1_CHAR_CLEAR		0x00000080	/* Absorbs character */
-#define RF1_HAS_LITE		0x00000100	/* Monster carries light */
-#define RF1_STUPID			0x00000200	/* Monster is stupid */
-#define RF1_SMART			0x00000400	/* Monster is smart */
-#define RF1_FORCE_MAXHP		0x00000800	/* Start with max hitpoints */
-#define RF1_FORCE_SLEEP		0x00001000	/* Start out sleeping */
-#define RF1_MULTIPLY		0x00002000	/* Monster reproduces */
-#define RF1_COMPANION		0x00004000	/* Arrive with a unique from same level */
-#define RF1_FRIENDS			0x00008000	/* Arrive with a group of friends */
-#define RF1_ESCORTS			0x00010000	/* Arrive with a group of escorts */
+#define RF1_STUPID			0x00000100	/* Monster is stupid */
+#define RF1_SMART			0x00000200	/* Monster is smart */
+#define RF1_FORCE_MAXHP		0x00000400	/* Start with max hitpoints */
+#define RF1_FORCE_SLEEP		0x00000800	/* Start out sleeping */
+#define RF1_MULTIPLY		0x00001000	/* Monster reproduces */
+#define RF1_COMPANION		0x00002000	/* Arrive with a unique from same level */
+#define RF1_FRIENDS			0x00004000	/* Arrive with a group of friends */
+#define RF1_ESCORTS			0x00008000	/* Arrive with a group of escorts */
+#define RF1_PEERS			0x00010000	/* Arrive with a group of similar ego-type */
 #define RF1_MANY			0x00020000	/* Make groups larger */
 #define RF1_RAND_25			0x00040000	/* Moves randomly (25%) */
 #define RF1_RAND_50			0x00080000	/* Moves randomly (50%) */
@@ -2633,15 +2644,15 @@
 #define RF2_EMPTY_MIND		0x00080000	/* Monster avoids telepathy */
 #define RF2_WEIRD_MIND		0x00100000	/* Monster avoids telepathy? */
 #define RF2_EVASIVE			0x00200000	/* Monster can avoid attacks */
-#define RF2_XXX3			0x00400000
+#define RF2_HAS_LITE		0x00400000	/* Monster carries light */
 #define RF2_HURT_LITE		0x00800000	/* Hurt by lite */
 #define RF2_HURT_ROCK		0x01000000	/* Hurt by rock remover */
 #define RF2_HURT_DARK		0x02000000	/* Hurt by darkness */
-#define RF2_HURT_ACID		0x04000000
-#define RF2_HURT_ELEC		0x08000000
-#define RF2_HURT_FIRE		0x10000000
-#define RF2_HURT_COLD		0x20000000
-#define RF2_XXX4			0x40000000
+#define RF2_HURT_ACID		0x04000000	/* Hurt by acid */
+#define RF2_HURT_ELEC		0x08000000	/* Hurt by elec */
+#define RF2_HURT_FIRE		0x10000000	/* Hurt by fire */
+#define RF2_HURT_COLD		0x20000000	/* Hurt by cold */
+#define RF2_XXX3			0x40000000
 #define RF2_NO_TRAP			0x80000000 /* Monster will avoid traps */
 
 /*
@@ -3040,9 +3051,9 @@
 #define WGF_XXX8			0x01000000
 #define WGF_XXX9			0x02000000
 #define WGF_XXX10			0x04000000
-#define WGF_XXX11			0x08000000
-#define WGF_XXX12			0x10000000
-#define WGF_XXX13			0x20000000
+#define WGF_ATTR_CLEAR		0x08000000	/* Absorbs color */
+#define WGF_XXX11			0x10000000
+#define WGF_XXX12			0x20000000
 #define WGF_DETECT			0x40000000	/* Trap can be detected/searched */
 #define WGF_DISARM			0x80000000	/* Player can disarm this trap */
 
@@ -3059,7 +3070,7 @@
  * These values are hard-coded by savefiles (and various pieces of code).
  */
 #define OPT_NORMAL					62 /* Regular options */
-#define OPT_BIRTH					18 /* Birth/adult options */
+#define OPT_BIRTH					19 /* Birth/adult options */
 #define OPT_CHEAT					9  /* Cheat/score options */
 #define OPT_SQUELCH					2  /* Squelch options */
 
@@ -3152,6 +3163,7 @@
 #define OPT_birth_easy_mode			15
 #define OPT_birth_nightmare_mode	16
 #define OPT_birth_retain_squelch	17
+#define OPT_birth_weighted_roller	18
 
 /*
  * Option indexes (cheat and score)
@@ -3254,6 +3266,7 @@
 #define	birth_easy_mode			op_ptr->opt_birth[OPT_birth_easy_mode]
 #define	birth_nightmare_mode	op_ptr->opt_birth[OPT_birth_nightmare_mode]
 #define birth_retain_squelch	op_ptr->opt_birth[OPT_birth_retain_squelch]
+#define birth_weighted_roller	op_ptr->opt_birth[OPT_birth_weighted_roller]
 #define adult_point_based		op_ptr->opt_adult[OPT_birth_point_based]
 #define adult_auto_roller		op_ptr->opt_adult[OPT_birth_auto_roller]
 #define adult_preserve			op_ptr->opt_adult[OPT_birth_preserve]
@@ -3271,7 +3284,8 @@
 #define	adult_force_small_lev	op_ptr->opt_adult[OPT_birth_force_small_lev]
 #define	adult_easy_mode			op_ptr->opt_adult[OPT_birth_easy_mode]
 #define	adult_nightmare_mode	op_ptr->opt_adult[OPT_birth_nightmare_mode]
-#define adult_retain_squelch	op_ptr->opt_birth[OPT_birth_retain_squelch]
+#define adult_retain_squelch	op_ptr->opt_adult[OPT_birth_retain_squelch]
+#define adult_weighted_roller	op_ptr->opt_adult[OPT_birth_weighted_roller]
 #define cheat_peek				op_ptr->opt_cheat[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt_cheat[OPT_cheat_hear]
 #define cheat_room				op_ptr->opt_cheat[OPT_cheat_room]

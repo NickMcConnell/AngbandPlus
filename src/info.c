@@ -2467,6 +2467,13 @@ void display_object_history(object_type *o_ptr)
 			history_depth(o_ptr->origin_dlvl);
  			break;
 		}
+		case ORIGIN_CHEST:
+		{
+			text_out_c(TERM_YELLOW, format("%s ", intro));
+			text_out_c(TERM_YELLOW, "found in a chest ");
+			history_depth(o_ptr->origin_dlvl);
+ 			break;
+		}
 		case ORIGIN_DROP_UNKNOWN:
 		{
 			text_out_c(TERM_YELLOW, format("%s ", intro));
@@ -2619,10 +2626,8 @@ void stack_histories(object_type *o_ptr, object_type *j_ptr)
  */
 void display_koff(object_type *o_ptr)
 {
-	int y;
-
-	char o_name[80];
-
+	int y, x;
+	
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)
 	{
@@ -2633,15 +2638,19 @@ void display_koff(object_type *o_ptr)
 	/* No info */
 	if (!o_ptr->k_idx) return;
 
-	/* Mention the object name */
-	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
+	/* Begin recall */
+	Term_gotoxy(0, 1);
+
+	/* Center spellbooks in window */
+	x = (Term->wid - 66) / 2;
+	if (x < 0) x = 0;
 
 	/* Display spells in readable books */
 	if (o_ptr->tval == TV_MUSIC)
 	{
 		if (cp_ptr->flags & CF_MUSIC)
 		{
-			print_spells(o_ptr->sval, TRUE, o_ptr->pval, 1, 14);
+			print_spells(o_ptr->sval, TRUE, o_ptr->pval, 1, x);
 			return;
 		}
 	}
@@ -2650,15 +2659,13 @@ void display_koff(object_type *o_ptr)
 		if (cp_ptr->spell_book[o_ptr->sval])
 		{
 			/* Print spells */
-			print_spells(o_ptr->sval, FALSE, 0, 1, 14);
+			print_spells(o_ptr->sval, FALSE, 0, 1, x);
 			return;
 		}
 	}
 
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
-
-	text_out("\n");
 
 	/* Actually display the item */
 	list_object(o_ptr, OBJECT_INFO_KNOWN);

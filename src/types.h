@@ -456,38 +456,16 @@ struct monster_special
 {
 	u32b name;				/* Name (offset) */
 
+	byte level;				/* Minimum depth */
 	byte rarity;			/* Rarity of creature */
 
+	byte exp_perc;			/* Percentage of experience */
+
+	s16b speed_mod;			/* Speed modifier */
+	byte hp_perc;			/* Percentage of normal hp */
+
+	u32b req_flag4;			/* Must have these flags */
 	u32b no_flag4;			/* Can't have these flags */
-
-#ifdef MONSTER_EGO_DEV
-	u32b text;				/* Text (offset) */
-
-	s16b s_attr;			/* Replacement attr (can be negative) */
-	s16b s_char;			/* Replacement char (can be negative) */
-
-	s16b hdice_add;			/* Creatures hit dice count */
-	s16b hside_add;			/* Creatures hit dice sides */
-
-	s16b ac_add;			/* Armour Class */
-
-	s16b speed_add;			/* Speed (normally 110) */
-
-	s32b mexp_add;			/* Exp value for kill */
-
-	byte freq_spell;		/* Spell frequency */
-
-	u32b flags1;			/* Flags 1 (general) */
-	u32b flags2;			/* Flags 2 (abilities) */
-	u32b flags3;			/* Flags 3 (race/resist) */
-	u32b s_flags1;			/* Spell flags 1 (inate/breath) */
-	u32b s_flags2;			/* Spell flags 2 (normal spells) */
-	u32b s_flags3;			/* Spell flags 3 (special spells) */
-
-	monster_blow blow[4];	/* Up to four blows per round */
-
-	byte level;				/* Level of creature */
-#endif
 };
 
 /*
@@ -831,7 +809,7 @@ struct quest_type
 	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
 	byte base_level;	/* The dungeon level on which the quest was assigned*/
 
-	s16b r_idx;			/* Monster race */
+	s16b mon_idx;		/* Monster race/unique */
 
 	s16b cur_num;		/* Number killed */
 	s16b max_num;		/* Number required */
@@ -1265,9 +1243,7 @@ struct player_type
 	s16b command_rep;		/* Gives repetition of current command */
 	s16b command_dir;		/* Gives direction of current command */
 
-	s16b command_see;		/* See "cmd1.c" */
-	s16b command_wrk;		/* See "cmd1.c" */
-
+	s16b command_wrk;		/* Hack -- control get_item mode */
 	s16b command_new;		/* Hack -- command chaining XXX XXX */
 
 	s16b new_spells;		/* Number of spells available */

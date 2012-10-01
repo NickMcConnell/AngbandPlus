@@ -1455,9 +1455,10 @@ static void display_entry(int item)
 		/* Extract the "minimum" price */
 		x = price_item(o_ptr, ot_ptr->inflate, FALSE);
 
+		attr = (x <= p_ptr->au ? TERM_WHITE : TERM_L_DARK);
 		/* Actually draw the price (with tax) */
 		sprintf(out_val, "%9ld  ", (long)x);
-		put_str(out_val, y, 68);
+		c_put_str(attr, out_val, y, 68);
 
 #endif /* ALLOW_HAGGLE */
 
@@ -2379,7 +2380,7 @@ static void store_purchase(void)
 	int n, amt;
 	int item, item_new;
 
-	s32b price;
+	s32b price, price_one;
 
 	object_type *o_ptr;
 
@@ -2420,8 +2421,33 @@ static void store_purchase(void)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
-	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+	/* Prepare price of one item */
+	price_one = price_item(o_ptr, ot_ptr->inflate, FALSE);
+
+	if (store_num == STORE_HOME)
+	{
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
+	}
+	else
+	{
+		/* Can't afford any */
+		if (price_one > p_ptr->au)
+		{
+			message(MSG_FAIL, 0, "You do not have enough gold.");
+			return;
+		}
+
+		/* Offer only what I can afford */
+		if (o_ptr->number * price_one > p_ptr->au)
+		{
+			amt = get_quantity(NULL, (int)(p_ptr->au / price_one));
+		}
+		else
+		{
+			amt = get_quantity(NULL, o_ptr->number);
+		}
+	}
 
 	/* Allow user abort */
 	if (amt <= 0) return;
@@ -2576,9 +2602,6 @@ static void store_purchase(void)
 
 					/* Start over */
 					store_top = 0;
-
-					/* Redraw everything */
-					display_inventory();
 				}
 
 				/* The object is gone */
@@ -2589,17 +2612,10 @@ static void store_purchase(void)
 					{
 						store_top = 0;
 					}
-
-					/* Redraw everything */
-					display_inventory();
 				}
 
-				/* The object is still here */
-				else
-				{
-					/* Redraw the object */
-					display_entry(item);
-				}
+				/* Redraw everything */
+				display_inventory();
 			}
 
 			/* Player cannot afford it */
@@ -2700,7 +2716,7 @@ static void store_sell(void)
 
 	/* Get an item */
 	s = "You have nothing that I want.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3510,9 +3526,6 @@ void do_cmd_store(void)
 
 	/* Hack -- Cancel automatic command */
 	p_ptr->command_new = 0;
-
-	/* Hack -- Cancel "see" mode */
-	p_ptr->command_see = FALSE;
 
 	/* Flush messages XXX XXX XXX */
 	message_flush();

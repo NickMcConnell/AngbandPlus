@@ -981,7 +981,9 @@ void stair_creation(void)
 	{
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 	}
-	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
+			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) || 
+			 (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 	}
@@ -1426,20 +1428,20 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 			break;
 		}
 		case EGO_BRAND_FIRE:
-		case EGO_FLAME:
+		case EGO_AMMO_FIRE:
 		{
 			/* Make sure you don't give an inappropriate brand */
-			if (ammo) brand_type = EGO_FLAME;
+			if (ammo) brand_type = EGO_AMMO_FIRE;
 			else brand_type = EGO_BRAND_FIRE;
 			if (o_ptr->number > 1) act = "are covered in a fiery aura!";
 			else act = "is covered in a fiery aura!";
 			break;
 		}
 		case EGO_BRAND_COLD:
-		case EGO_FROST:
+		case EGO_AMMO_COLD:
 		{
 			/* Make sure you don't give an inappropriate brand */
-			if (ammo) brand_type = EGO_FROST;
+			if (ammo) brand_type = EGO_AMMO_COLD;
 			else brand_type = EGO_BRAND_COLD;
 			if (o_ptr->number > 1) act = "glow deep, icy blue!";
 			else act = "glows deep, icy blue!";
@@ -2524,7 +2526,7 @@ void earthquake(int cy, int cx, int r)
 				delete_object(yy, xx);
 
 				/* Delete traps */
-				delete_trap(y, x);
+				delete_trap(yy, xx);
 
 				/* Wall (or floor) type */
 				t = (floor ? rand_int(100) : 200);

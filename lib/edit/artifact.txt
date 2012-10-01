@@ -50,7 +50,7 @@
 
 # Version stamp (required)
 
-V:0.4.4
+V:0.4.5
 
 ## Artifact Perma-Lights ##
 
@@ -963,7 +963,7 @@ F:STEALTH | SLOW_DIGEST | SHOW_MODS
 # The Two-Handed Sword 'Gurthang'
 
 N:102:'Gurthang'
-I:23:25:19:2
+I:23:25:20:2
 W:30:30:180:100000
 P:0:4d5:11:12:0
 K:0:0:0:0:0:0:0:0:0:35:0:0:0:20:0:20:0:0
@@ -992,7 +992,7 @@ F:SHOW_MODS | WOUNDING
 # The Two-Handed Sword 'Mormegil'
 
 N:105:'Mormegil'
-I:23:25:19:-5
+I:23:25:20:-5
 W:30:15:200:10000
 P:0:4d5:-17:-17:0
 K:0:0:0:0:20:20:0:0:0:35:0:0:0:0:0:0:0:0

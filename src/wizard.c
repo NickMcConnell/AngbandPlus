@@ -1555,7 +1555,7 @@ static void do_cmd_wiz_named_unique(int u_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, TRUE, TRUE, PLACE_UNIQ)) break;
+		if (place_monster_aux(y, x, r_idx, TRUE, TRUE, PLACE_UNIQUE)) break;
 	}
 }
 
@@ -2242,11 +2242,7 @@ static void spoil_mon_desc(cptr fname)
 		/* Get the "name" */
 		if (who[i].u_idx) 
 		{
-			sprintf(nam, "<U> %s", name);
-		}
-		else if (who[i].u_idx)
-		{
-			sprintf(nam, "|U| %s", name);
+			sprintf(nam, "[U] %s", name);
 		}
 		else
 		{
@@ -2281,7 +2277,6 @@ static void spoil_mon_desc(cptr fname)
 		{
 			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
 		}
-
 
 		/* Experience */
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
@@ -2473,6 +2468,269 @@ static void spoil_mon_info(cptr fname)
 }
 
 /*
+ * Do the calculations for a specific flag 
+ */
+static void spoil_mon_calc_aux(monster_list_entry *who, int n, int fset, u32b flag, bool full)
+{
+	int i, j, k, l, m;
+	char nam[80];
+	char title[7];
+	cptr name;
+
+	bool no_flag;
+
+	u16b y_flag[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	u16b x_flag[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	u16b y_flag_u[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	u16b x_flag_u[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	/* Acid resistance */
+	for (i = 0; i < n; i++)
+	{
+		monster_race *r_ptr = get_monster_fake(who[i].r_idx, 0, who[i].u_idx);
+
+		/* Ignore town monsters */
+		if (!r_ptr->level) continue;
+
+		l = r_ptr->level / 10;
+		if (l > 9) l = 9;
+
+		no_flag = FALSE;
+
+		/* Hack - handle different flagsets */
+		if (fset == 2) if (!(r_ptr->flags2 & flag)) no_flag = TRUE;
+		if (fset == 3) if (!(r_ptr->flags3 & flag)) no_flag = TRUE;
+
+		/* No resistance */
+		if (no_flag)
+		{
+			if (who[i].u_idx)
+			{
+				x_flag_u[l]++;
+				x_flag_u[10]++;
+			}
+			else
+			{
+				x_flag[l]++;
+				x_flag[10]++;
+			}
+
+			continue;
+		}
+		
+		if (full)
+		{
+			/* Get monster name */
+			name = (monster_name_idx(who[i].r_idx, 0, who[i].u_idx));
+		
+			/* Prefix */
+			if (who[i].u_idx) 
+			{
+				sprintf(nam, "[U] %s", name);
+			}
+			else
+			{
+				sprintf(nam, "The %s", name);
+			}
+
+			/* List monster */
+			fprintf(fff, "%s\n", nam);
+		}
+
+		if (who[i].u_idx)
+		{
+			y_flag_u[l]++;
+			y_flag_u[10]++;
+		}
+		else
+		{
+			y_flag[l]++;
+			y_flag[10]++;
+		}
+	}
+
+	fprintf(fff, "\n       |     Non-uniques     |        Uniques\n");
+	fprintf(fff, "Levels | + | - |Distrib|Total| + | - |Distrib|Total\n");
+	fprintf(fff, "-------+---+---+-------+-----+---+---+-------+-----\n");
+	fprintf(fff, "");
+
+	/* Print summary */
+	for (i = 0; i < 11; i++)
+	{
+		j = y_flag[10];
+		l = y_flag[i] + x_flag[i];
+		k = y_flag_u[10];
+		m = y_flag_u[i] + x_flag_u[i];
+
+		if (i < 9) sprintf (title, "%3d-%3d", i * 10, i * 10 + 9);
+		else if (i < 10) sprintf (title, "  90+  ");
+		else sprintf(title, " TOTAL ");
+
+		fprintf(fff, "%7s|%3d|%3d|  %3d%% |%3d%% |%3d|%3d|  %3d%% |%3d%%\n",
+			title, y_flag[i], x_flag[i], 
+			(j > 0 ? ((100 * y_flag[i]) / j) : 0), (l > 0 ? ((100 * y_flag[i]) / l) : 0),
+			y_flag_u[i], x_flag_u[i], 
+			(k > 0 ? ((100 * y_flag_u[i]) / k) : 0), (m > 0 ? ((100 * y_flag_u[i]) / m) : 0));
+	}
+}
+
+/*
+ * Create a spoiler file for monsters
+ */
+static void spoil_mon_calc(cptr fname)
+{
+	int i, n = 0;
+
+	char buf[1024];
+	bool full;
+
+	monster_list_entry *who;
+	u16b why = 2;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		message(MSG_FAIL, 0, "Cannot create spoiler file.");
+		return;
+	}
+
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
+
+	full = get_check("Verbose list? ");
+
+	/* Dump the header */
+	fprintf(fff, "Monster Statistics for %s Version %s\n",
+	        VERSION_NAME, VERSION_STRING);
+	fprintf(fff, "------------------------------------------\n\n");
+
+	/* Allocate the "who" array */
+	C_MAKE(who, M_LIST_ITEMS, monster_list_entry);
+
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Use that monster */
+		if (r_ptr->name) who[n++].r_idx = i;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_mon_sort_comp_hook;
+	ang_sort_swap = ang_mon_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
+
+	/* "Saturate" the monster list with all the appropriate uniques */
+	saturate_mon_list(who, &n, TRUE, TRUE);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Acid resistance\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_RES_ACID, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Acid vulnerability\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_HURT_ACID, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Elec resistance\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_RES_ELEC, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Elec vulnerability\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_HURT_ELEC, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Fire resistance\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_RES_FIRE, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Fire vulnerability\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_HURT_FIRE, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Cold resistance\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_RES_COLD, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Cold vulnerability\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_HURT_COLD, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Invisibility\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_INVISIBLE, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Kill Wall\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_KILL_WALL, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Pass Wall\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_PASS_WALL, full);
+	
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "No Blind\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_NO_BLIND, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "Res Conf\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_RES_CONF, full);
+
+	/* End it */
+	fprintf(fff, "\n");
+
+	/* Free the "who" array */
+	KILL(who);
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		message(MSG_FAIL, 0, "Cannot close spoiler file.");
+		return;
+	}
+
+	/* Worked */
+	message(MSG_SUCCEED, 0, "Successfully created a spoiler file.");
+}
+
+/*
  * Create Spoiler files
  */
 static void do_cmd_spoilers(void)
@@ -2496,9 +2754,10 @@ static void do_cmd_spoilers(void)
 		prt("(2) Full Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+		prt("(5) Monster Analysis (mon-data.spo)", 9, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+		prt("Command: ", 13, 0);
 
 		/* Get a choice */
 		ch = inkey();
@@ -2531,6 +2790,12 @@ static void do_cmd_spoilers(void)
 		else if (ch == '4')
 		{
 			spoil_mon_info("mon-info.spo");
+		}
+
+		/* Option (4) */
+		else if (ch == '5')
+		{
+			spoil_mon_calc("mon-data.spo");
 		}
 
 		/* Oops */

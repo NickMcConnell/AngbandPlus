@@ -899,18 +899,19 @@ static bool wr_savefile_new(void)
 	{
 		wr_byte(q_info[i].type);
 
-		if (q_info[i].type == QUEST_FIXED)
+		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
 		{
 			wr_byte(q_info[i].active_level);
 			wr_s16b(q_info[i].cur_num);
 		}
-		else if (q_info[i].type == QUEST_GUILD)
+
+		else if ((q_info[i].type == QUEST_GUILD) || (q_info[i].type == QUEST_UNIQUE))
 		{
 			wr_byte(q_info[i].reward);
 			wr_byte(q_info[i].active_level);
 			wr_byte(q_info[i].base_level);
 
-			wr_s16b(q_info[i].r_idx);
+			wr_s16b(q_info[i].mon_idx);
 
 			wr_s16b(q_info[i].cur_num);
 			wr_s16b(q_info[i].max_num);
@@ -1248,7 +1249,7 @@ bool load_player(void)
 		/* Clear screen */
 		Term_clear();
 
-		err = rd_savefile_new();
+		err = rd_savefile();
 
 		/* Message (below) */
 		if (err) what = "Cannot parse savefile";

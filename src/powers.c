@@ -1126,7 +1126,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 				message(MSG_EFFECT, 0, "Light bursts out in all directions...");
 				*obvious = TRUE;
 			}
-			for (i = 0; i < i; i++) lite_line(ddd[i],damroll(6,8));
+			for (i = 0; i < 8; i++) lite_line(ddd[i], damroll(6,8));
 			break;
 		}
 		case POW_STAR_BALL_ELEC:
@@ -1983,8 +1983,15 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			/* Hack - choose random brand */
 			i = rand_int(4);
+			switch (i)
+			{
+				case 0: i = EGO_BRAND_ACID; break;
+				case 1: i = EGO_BRAND_ELEC; break;
+				case 2: i = EGO_BRAND_FIRE; break;
+				case 3: i = EGO_BRAND_COLD; break;
+			}
 			*obvious = TRUE;
-			if (!brand_weapon(0, EGO_BRAND_ACID + i, TRUE)) return (FALSE);
+			if (!brand_weapon(0, i, TRUE)) return (FALSE);
 			break;
 		}
 		case POW_BRAND_ARROW_ANML:
@@ -2006,14 +2013,21 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			 */
 
 			i = rand_int(4);
+			switch (i)
+			{
+				case 0: i = EGO_AMMO_ACID; break;
+				case 1: i = EGO_AMMO_ELEC; break;
+				case 2: i = EGO_AMMO_FIRE; break;
+				case 3: i = EGO_AMMO_COLD; break;
+			}
 			*obvious = TRUE;
-			if (!brand_weapon(TV_ARROW, EGO_AMMO_ACID + i, TRUE)) return (FALSE);
+			if (!brand_weapon(TV_ARROW, i, TRUE)) return (FALSE);
 			break;
 		}
 		case POW_BRAND_BOLT_FIRE:
 		{
 			*obvious = TRUE;
-			if (!brand_weapon(TV_BOLT, EGO_FLAME, TRUE)) return (FALSE);
+			if (!brand_weapon(TV_BOLT, EGO_AMMO_FIRE, TRUE)) return (FALSE);
 			break;
 		}
 		case POW_BRAND_BOLT_LITE:

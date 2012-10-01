@@ -201,7 +201,7 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 		}
 
 		/* Hilite current option */
-		move_cursor(k + 3, 47);
+		Term_gotoxy(47, k + 3);
 
 		/* Get a key */
 		ch = inkey();
@@ -285,6 +285,7 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 						break;
 					}
 					case (OPT_TYPE_BIRTH):
+					case (OPT_TYPE_ADULT):
 					{
 						sprintf(buf1, "demo.xml", options_birth[opt[k]].text);
 						break;
@@ -307,6 +308,7 @@ static void do_cmd_options_aux(int page, cptr info, byte type)
 						break;
 					}
 					case (OPT_TYPE_BIRTH):
+					case (OPT_TYPE_ADULT):
 					{
 						sprintf(buf1, "birthopt.txt#%s", options_birth[opt[k]].text);
 						break;

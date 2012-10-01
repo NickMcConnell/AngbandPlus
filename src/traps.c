@@ -470,7 +470,8 @@ bool place_trap_chest(int y, int x)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Require closed, or secret door*/
-	if (cave_feat[y][x] != FEAT_CHEST) return (FALSE);
+	if ((cave_feat[y][x] != FEAT_CHEST) && (cave_feat[y][x] != FEAT_QST_CHEST)) 
+		return (FALSE);
 
 	/* Assign a trap type */
 	while (TRUE)

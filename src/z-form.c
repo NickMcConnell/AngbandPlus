@@ -15,7 +15,6 @@
 #include "z-util.h"
 #include "z-virt.h"
 
-
 /*
  * Here is some information about the routines in this file.
  *

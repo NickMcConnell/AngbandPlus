@@ -45,7 +45,7 @@
 
 # Version stamp (required)
 
-V:0.4.4
+V:0.4.5
 
 N:1:2:5:5
 A:

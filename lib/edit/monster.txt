@@ -2,7 +2,7 @@
 #
 #This file is currently in transition. Documentation will return in a future version.
 
-V:0.4.4
+V:0.4.5
 
 N:0:<player>
 G:@:w
@@ -145,7 +145,7 @@ G:C:U
 I:110:1d4:10:3:10
 W:1:1:0:1
 B:BITE:HURT:1d1
-F:ANIMAL | FRIENDS | MANY
+F:ANIMAL | FRIENDS | MANY | EGO
 D:It is a yapping, snarling canine, dangerous when in a pack.
 
 N:18:rock lizard
@@ -153,7 +153,7 @@ G:R:U
 I:110:3d4:20:4:15
 W:1:1:0:1
 B:BITE:HURT:1d1
-F:ANIMAL
+F:ANIMAL | EGO
 D:It is a small lizard with a hardened hide.
 
 N:19:large white snake
@@ -180,7 +180,7 @@ G:b:o
 I:120:1d3:20:2:10
 W:1:1:0:1
 B:BITE:HURT:1d1
-F:ANIMAL | FRIENDS | NO_BLIND | SEE_INVIS | NO_TRAP 
+F:ANIMAL | EGO | FRIENDS | NO_BLIND | SEE_INVIS | NO_TRAP 
 D:A fast-moving pest.
 
 N:22:white icky thing
@@ -275,7 +275,7 @@ G:b:D
 I:120:1d6:20:4:10
 W:2:1:0:2
 B:BITE:HURT:1d1
-F:ANIMAL | FRIENDS | NO_BLIND | SEE_INVIS | NO_TRAP 
+F:ANIMAL | EGO | FRIENDS | NO_BLIND | SEE_INVIS | NO_TRAP 
 D:A fast-moving pest with big ears.
 
 N:33:giant white mouse
@@ -312,7 +312,7 @@ W:2:1:0:4
 B:BITE:HURT:1d2
 B:CLAW:HURT:1d1
 B:CLAW:HURT:1d1
-F:ANIMAL | NO_TRAP 
+F:ANIMAL | NO_TRAP | EGO
 D:A black bird, often used as a familiar by evil mages.
 
 N:37:kobold
@@ -337,7 +337,7 @@ I:110:8d4:20:12:5
 W:2:1:0:12
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HAS_LITE | MALE | OPEN_DOOR |
+F:BASH_DOOR | DROP_60 | EVIL | PEERS | HAS_LITE | MALE | OPEN_DOOR |
 F:PERSON | TAKE_ITEM | EGO | ROGUE | PICK_LOCK
 S:1_IN_15 | TRAPS1
 D:A rather shifty individual.
@@ -347,7 +347,7 @@ G:p:r
 I:110:6d4:20:6:5
 W:2:1:0:14
 B:HIT:HURT:1d4
-F:BASH_DOOR | DROP_60 | FORCE_SLEEP | FRIENDS | HAS_LITE | MALE |
+F:BASH_DOOR | DROP_60 | FORCE_SLEEP | PEERS | HAS_LITE | MALE |
 F:OPEN_DOOR | PERSON | EGO | MAGE
 S:1_IN_12 | BLIND | BLINK | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
@@ -358,7 +358,7 @@ I:110:9d4:20:16:5
 W:2:1:0:15
 B:HIT:HURT:1d7
 B:HIT:HURT:1d6
-F:BASH_DOOR | DROP_60 | FRIENDS | HAS_LITE | MALE | OPEN_DOOR | PERSON
+F:BASH_DOOR | DROP_60 | PEERS | HAS_LITE | MALE | OPEN_DOOR | PERSON
 F:EGO | WARRIOR
 D:He looks inexperienced but tough.
 
@@ -376,7 +376,7 @@ G:R:o
 I:110:4d6:8:20:80
 W:2:1:0:15
 B:BITE:FIRE:1d3
-F:ANIMAL | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD
+F:ANIMAL | EGO | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD
 D:A small black and orange lizard.
 
 N:44:blubbering icky thing
@@ -402,7 +402,7 @@ G:S:D
 I:120:2d6:8:16:80
 W:2:2:0:12
 B:BITE:HURT:1d4
-F:ANIMAL | BASH_DOOR | FRIENDS | MANY | WEIRD_MIND
+F:ANIMAL | EGO | BASH_DOOR | FRIENDS | MANY | WEIRD_MIND
 D:It is a black spider that moves in fits and starts.
 
 N:47:green ooze
@@ -420,7 +420,7 @@ I:120:3d5:40:12:0
 W:2:2:0:12
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
-F:ANIMAL | BASH_DOOR
+F:ANIMAL | EGO | BASH_DOOR
 D:A larger than normal feline, hissing loudly.  Its velvet claws conceal a
 D: fistful of needles.
 
@@ -448,7 +448,7 @@ G:p:o
 I:110:5d4:20:4:5
 W:3:1:0:21
 B:HIT:HURT:1d2
-F:DROP_60 | FORCE_SLEEP | FRIENDS | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | MAGE
+F:DROP_60 | FORCE_SLEEP | PEERS | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | MAGE
 S:1_IN_8 | BLINK | CAUSE_1 | HEAL | MISSILE 
 D:He is stuttering over mystic incantations.
 
@@ -457,7 +457,7 @@ G:p:g
 I:110:7d4:20:10:10
 W:3:1:0:24
 B:HIT:HURT:1d5
-F:BASH_DOOR | DROP_60 | FORCE_SLEEP | FRIENDS | HAS_LITE | MALE |
+F:BASH_DOOR | DROP_60 | FORCE_SLEEP | PEERS | HAS_LITE | MALE |
 F:OPEN_DOOR | PERSON | EGO | PRIEST
 S:1_IN_12 | CAUSE_1 | HEAL | SCARE
 D:He is tripping over his priestly robes.
@@ -489,7 +489,7 @@ I:110:8d8:20:32:30
 W:3:1:0:80
 B:HIT:HURT:1d8
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR
+F:OPEN_DOOR | EGO
 D:He is one of the many weaker 'slave' orcs, often mistakenly known as a
 D: goblin.
 
@@ -600,7 +600,7 @@ I:120:4d6:15:20:25
 W:3:3:0:20
 B:BITE:HURT:2d3
 B:CLAW:HURT:2d3
-F:ANIMAL | BASH_DOOR
+F:ANIMAL | EGO | BASH_DOOR
 D:A utterly silent whirlwind of fangs and claws aiming straight for your
 D: jugular
 
@@ -667,7 +667,7 @@ I:110:9d10:20:32:30
 W:4:1:0:140
 B:HIT:HURT:1d8
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR
+F:OPEN_DOOR | EGO
 D:He is often found in huge numbers in deep caves.
 
 N:75:giant white rat
@@ -711,7 +711,7 @@ G:R:u
 I:110:3d6:8:16:80
 W:4:1:0:30
 B:BITE:HURT:1d5
-F:ANIMAL
+F:ANIMAL | EGO
 D:It is an armoured lizard with a powerful bite.
 
 N:80:kobold archer
@@ -748,7 +748,7 @@ I:110:9d4:20:16:5
 W:4:1:0:70
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:BASH_DOOR | DROP_90 | FRIENDS | HAS_LITE | MALE | OPEN_DOOR | PERSON
+F:BASH_DOOR | DROP_90 | PEERS | HAS_LITE | MALE | OPEN_DOOR | PERSON
 F:EGO | MAGE | WARRIOR
 S:1_IN_12 | BLIND | BLINK | MISSILE
 D:He seems to be trained in both magic and fighting, though not much in either.
@@ -769,7 +769,7 @@ I:110:6d8:20:8:5
 W:4:2:0:72
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
-F:BASH_DOOR | DROP_60 | FORCE_SLEEP | FRIENDS | HAS_LITE | MALE |
+F:BASH_DOOR | DROP_60 | FORCE_SLEEP | PEERS | HAS_LITE | MALE |
 F:OPEN_DOOR | PERSON | EGO | WARRIOR
 S:1_IN_9 | ARROW_2 | MISSILE
 D:An agile hunter, ready and relaxed.
@@ -797,7 +797,7 @@ I:110:2d4:15:5:5
 W:4:3:0:40
 B:BITE:DISEASE:2d3
 B:BITE:DISEASE:2d3
-F:ANIMAL | NO_FEAR | WEIRD_MIND
+F:ANIMAL | EGO | NO_FEAR | WEIRD_MIND
 D:A large dog, foaming at the mouth.
 
 N:89:nibelung
@@ -868,7 +868,7 @@ G:o:u
 I:110:11d10:20:30:30
 W:5:1:0:200
 B:HIT:HURT:1d10
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | MALE | OPEN_DOOR
+F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | MALE | OPEN_DOOR | EGO
 D:He is a hardy well-weathered survivor.
 
 N:97:skeleton kobold
@@ -950,7 +950,7 @@ I:120:4d5:25:15:15
 W:5:5:0:210
 B:BITE:HURT:1d4
 B:CLAW:HURT:1d4
-F:ANIMAL | EVIL | FRIENDS | MANY | NO_TRAP 
+F:ANIMAL | EGO | EVIL | FRIENDS | MANY | NO_TRAP 
 S:1_IN_10 | CAUSE_1
 D:A crook-beaked bird with bedraggled black feathers.  It mocks you, and you
 D: realise that its scorn can kill.
@@ -1039,7 +1039,7 @@ I:110:3d3:8:10:25
 W:6:2:0:12
 B:BITE:DISEASE:2d2
 F:ANIMAL | MULTIPLY | RAND_25 | RES_DISEASE
-D:It is a sickly-looking rodent.
+D:It bears the plague.
 
 N:115:purple mushroom patch
 G:,:v
@@ -1100,7 +1100,7 @@ G:C:u
 I:120:5d7:30:27:20
 W:7:1:0:300
 B:BITE:HURT:1d6
-F:ANIMAL | BASH_DOOR | FRIENDS | RAND_25
+F:ANIMAL | EGO | BASH_DOOR | FRIENDS | RAND_25
 D:It howls and snaps at you.
 
 N:121:giant pink frog
@@ -1126,7 +1126,7 @@ I:110:4d8:20:15:30
 W:7:2:0:60
 B:BITE:HURT:1d6
 B:BITE:HURT:1d6
-F:ANIMAL
+F:ANIMAL | EGO
 D:It is a black lizard with overlapping scales and a powerful jaw.
 
 N:124:pink naga
@@ -1167,17 +1167,15 @@ F:HURT_LITE | NEVER_MOVE | NO_FEAR | SEE_INVIS | EMPTY_MIND | STUPID | NEVER_FAI
 S:1_IN_7 | DRAIN_MANA
 D:A disembodied eye, bloodshot and nasty.
 
-N:128:dark elf
-G:h:D
-I:110:7d9:20:16:20
-W:7:3:0:175
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
-F:BASH_DOOR | DROP_90 | EVIL | FORCE_SLEEP | HURT_LITE | MALE |
-F:OPEN_DOOR | PERSON | WARRIOR | PICK_LOCK
-S:1_IN_10 | CONF | DARKNESS
-D:An elven figure with jet black skin and white hair, his eyes are large and
-D: twisted with evil.
+N:128:^warrior
+G:p:u
+I:110:7d9:20:20:20
+W:7:2:0:175
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:BASH_DOOR | DROP_60 | PEERS | HAS_LITE | MALE | OPEN_DOOR | PERSON
+F:EGO | WARRIOR 
+D:His hand rests on his sword, as he scans his surroundings alertly.
 
 N:129:faery cat
 G:f:G
@@ -1211,7 +1209,7 @@ G:R:y
 I:110:5d7:6:35:1
 W:8:1:0:250
 B:BITE:FIRE:3d6
-F:ANIMAL | FORCE_SLEEP | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD
+F:ANIMAL | EGO | FORCE_SLEEP | HAS_LITE | RAND_25 | RES_FIRE | HURT_COLD
 S:1_IN_9 | BR_FIRE
 D:A large black and yellow lizard.  You'd better run away!
 
@@ -1243,7 +1241,7 @@ W:8:1:0:225
 B:BITE:HURT:1d8
 B:CLAW:HURT:1d6
 B:CLAW:HURT:1d6
-F:ANIMAL | BASH_DOOR | RAND_25
+F:ANIMAL | EGO | BASH_DOOR | RAND_25
 D:A large bear appears to have made its home in this cave. It is hungry.
 
 N:136:headless
@@ -1315,7 +1313,7 @@ I:120:7d7:30:30:20
 W:9:1:0:360
 B:BITE:HURT:1d4
 B:BITE:HURT:1d3
-F:ANIMAL | BASH_DOOR | FRIENDS | RAND_25 | RES_COLD
+F:ANIMAL | EGO | BASH_DOOR | FRIENDS | RAND_25 | RES_COLD
 D:A large and muscled wolf from the northern wastes.  Its breath is cold and
 D: icy and its fur coated in frost.
 
@@ -1446,16 +1444,16 @@ F:UNIQUE
 
 # Level 10 #
 
-N:156:dark elven mage
-G:h:v
-I:120:7d10:20:16:20
-W:10:1:0:500
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
-F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | HURT_LITE | MALE |
-F:ONLY_ITEM | OPEN_DOOR | PERSON | RES_POIS | MAGE | PICK_LOCK
-S:1_IN_5 | BA_POIS | BLIND | CONF | DARKNESS | MISSILE
-D:A dark elven figure, dressed all in black, hurling spells at you.
+N:156:^mage
+G:p:r
+I:110:7d10:20:35:10
+W:28:1:0:400
+B:HIT:HURT:2d5
+B:HIT:HURT:2d5
+F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | HAS_LITE | MALE |
+F:ONLY_ITEM | OPEN_DOOR | PERSON | RES_POIS | MAGE | PEERS | EGO
+S:1_IN_5 | BLIND | BO_ACID | BO_ELEC | BO_FIRE | CONF | DARKNESS
+D:A mage of some power - you can tell by the size of his hat.
 
 N:157:owlbear
 G:q:G
@@ -1464,10 +1462,10 @@ W:10:1:0:320
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d10
-F:ANIMAL | BASH_DOOR | EVIL | OPEN_DOOR
+F:ANIMAL | EGO | BASH_DOOR | EVIL | OPEN_DOOR
 D:A bizarre bear-creature with the claws and the face of an owl.
 
-N:158:dark elven warrior
+N:158:dark elf
 G:h:u
 I:110:10d10:20:16:20
 W:10:1:0:500
@@ -1484,7 +1482,7 @@ W:10:1:0:585
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | PICK_LOCK
+F:OPEN_DOOR | PICK_LOCK | EGO
 D:He is a large orc with powerful arms and deep black skin.
 
 N:160:giant white tick
@@ -1501,7 +1499,7 @@ I:120:9d8:40:28:0
 W:10:2:0:280
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
-F:ANIMAL | BASH_DOOR
+F:ANIMAL | BASH_DOOR | EGO
 D:A large black cat, stalking you with intent.  It thinks you're its next
 D: meal.
 
@@ -1539,10 +1537,10 @@ N:165:^brigand
 G:p:b
 I:110:9d8:20:32:10
 W:10:2:0:350
-B:HIT:HURT:2d4
+B:HIT:HURT:2d3
 B:TOUCH:EAT_ITEM
 F:BASH_DOOR | DROP_1D2 | EVIL | HAS_LITE | MALE | OPEN_DOOR | PERSON |
-F:TAKE_ITEM | EGO | ROGUE | PICK_LOCK
+F:TAKE_ITEM | EGO | ROGUE | PICK_LOCK | PEERS
 S:1_IN_11 | TRAPS1
 D:He is eyeing your backpack.
 
@@ -1561,7 +1559,7 @@ G:O:U
 I:110:12d9:20:30:30
 W:10:3:0:600
 B:HIT:HURT:2d8
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR
+F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR | EGO
 D:A hideous, smallish giant that is often found near or with orcs.
 
 N:168:giant fruit fly
@@ -1634,7 +1632,7 @@ I:110:12d10:12:14:10
 W:11:1:0:400
 B:BITE:HURT:2d5
 B:HIT:HURT:2d5
-F:ANIMAL | BASH_DOOR
+F:ANIMAL | BASH_DOOR | EGO
 D:A huge, beastly bear, more savage than most of its kind.
 
 N:175:skeleton human
@@ -1683,7 +1681,7 @@ G:p:r
 I:110:7d8:18:20:10
 W:11:2:0:418
 B:HIT:HURT:1d5
-F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | FRIENDS | HAS_LITE | MALE |
+F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | PEERS | HAS_LITE | MALE |
 F:OPEN_DOOR | PERSON | EGO | MAGE
 S:1_IN_4 | BLINK | BO_COLD | DARKNESS | S_MONSTER
 D:A mage, trained in the arts of summoning.
@@ -1694,7 +1692,7 @@ I:110:9d10:20:25:75
 W:11:3:0:320
 B:BITE:HURT:1d10
 B:BITE:HURT:1d10
-F:ANIMAL | BASH_DOOR | KILL_ITEM | KILL_WALL | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | KILL_ITEM | KILL_WALL | WEIRD_MIND | EGO
 D:Despite its minuscule size, this mole creature has fangs powerful
 D: enough to bore through solid rock.
 
@@ -1714,7 +1712,7 @@ G:J:D
 I:120:9d8:10:32:1
 W:11:3:0:480
 B:BITE:POISON:4d4
-F:ANIMAL | BASH_DOOR | RAND_50 | RES_POIS
+F:ANIMAL | BASH_DOOR | RAND_50 | RES_POIS 
 D:It has glistening black skin, a sleek body and highly venomous fangs.
 
 # Level 12 #
@@ -1751,14 +1749,14 @@ D:A warrior trained in melee as well as missile weapons.
 
 N:186:^priest
 G:p:g
-I:110:11d8:20:22:40
+I:110:9d8:20:16:20
 W:12:1:0:650
-B:HIT:HURT:2d3
-B:HIT:HURT:2d3
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
 F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | HAS_LITE | MALE |
-F:OPEN_DOOR | PERSON | SMART | EGO | PRIEST
-S:1_IN_3 | CAUSE_2 | HEAL | SCARE | S_MONSTER
-D:A robed humanoid dedicated to his dark god.
+F:OPEN_DOOR | PERSON | SMART | EGO | PRIEST | PEERS
+S:1_IN_5 | CAUSE_2 | HEAL | SCARE | S_MONSTER
+D:A robed figure dedicated to his dark god.
 
 N:187:mirkwood spider
 G:S:g
@@ -1777,12 +1775,12 @@ I:110:18d9:20:33:30
 W:12:2:0:1000
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR | RAND_25
+F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR | RAND_25 | EGO
 D:A massive orc-like figure with black skin and powerful arms.
 
 N:189:dark elven priest
 G:h:g
-I:120:6d10:20:27:30
+I:120:7d10:20:27:30
 W:12:2:0:1200
 B:HIT:HURT:1d9
 B:HIT:HURT:1d10
@@ -1809,7 +1807,7 @@ W:12:2:0:520
 B:BITE:HURT:1d6
 B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
-F:ANIMAL | BASH_DOOR
+F:ANIMAL | BASH_DOOR | EGO
 D:One of the largest of its species, a sleek orange and black shape creeps
 D: towards you, ready to pounce.
 
@@ -1854,7 +1852,7 @@ I:110:15d10:20:40:20
 W:12:3:0:750
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | MALE | OPEN_DOOR
+F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | MALE | OPEN_DOOR | EGO
 D:One of the most powerful and vicious species of orc, the grey orcs
 D: have been bred to survive above ground.
 
@@ -1910,7 +1908,8 @@ W:13:1:0:650
 B:BITE:HURT:1d6
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
-F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | HAS_LITE | HURT_DARK | ANIMAL | RES_LITE
+F:BASH_DOOR | FORCE_SLEEP | FRIENDS | MANY | HAS_LITE | HURT_DARK | ANIMAL |
+F:RES_LITE
 S:1_IN_5 | BR_LITE
 D:A brilliant canine form whose light hurts your eyes, even at this distance.
 
@@ -1932,15 +1931,17 @@ I:110:5d14:15:12:35
 W:13:2:0:600
 B:BITE:HURT:3d4
 B:GAZE:PARALYZE
-F:ANIMAL
-D:Similar to an aggessive, large rooster, it's gaze is deadly.
+B:GAZE:PARALYZE
+F:ANIMAL | NO_SLEEP
+D:A strange hybrid of rooster and lizard. As it flies closer
+D: to you, you shy away from its deadly gaze...
 
 N:204:warg
 G:C:s
 I:120:10d8:20:20:40
 W:13:2:0:640
 B:BITE:HURT:1d8
-F:ANIMAL | BASH_DOOR | EVIL | FRIENDS | RAND_25
+F:ANIMAL | BASH_DOOR | EVIL | FRIENDS | RAND_25 | EGO
 D:It is a large wolf with eyes full of cunning.
 
 N:205:clear hound
@@ -1998,7 +1999,7 @@ N:210:flying skull
 G:s:s
 I:110:8d9:30:30:20
 W:13:3:0:700
-B:BITE:LOSE_STR:1d4
+B:BITE:LOSE_CON:1d4
 B:BITE:POISON:1d3
 F:BASH_DOOR | COLD_BLOOD | DROP_60 | EVIL | FRIENDS | MANY | NO_BLIND | NO_CUT |
 F:NO_FEAR | NO_SLEEP | RES_COLD | RES_CONF | RES_POIS | UNDEAD |
@@ -2086,7 +2087,7 @@ B:BITE:HURT:1d6
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | REGENERATE | HURT_FIRE | HURT_ACID
+F:OPEN_DOOR | REGENERATE | HURT_FIRE | HURT_ACID | EGO
 D:He is green skinned and ugly.
 
 N:219:zombified ogre
@@ -2130,7 +2131,7 @@ I:120:8d8:30:30:15
 W:14:3:0:800
 B:BITE:DISEASE:2d4
 B:BITE:DISEASE:2d4
-F:ANIMAL | BASH_DOOR | NO_FEAR | WEIRD_MIND
+F:ANIMAL | BASH_DOOR | NO_FEAR | WEIRD_MIND | EGO
 D:A large wolf, foam spraying from its mouth, and its coming right at you.
 
 N:223:lurker
@@ -2191,7 +2192,7 @@ W:15:1:0:1224
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:BASH_DOOR | DROP_60 | EVIL | FORCE_MAXHP | FRIENDS | HUMANOID | MALE |
-F:OPEN_DOOR | RES_POIS | PICK_LOCK
+F:OPEN_DOOR | RES_POIS | PICK_LOCK | EGO
 D:He is a cunning orc of power, as tall as a man, and stronger.  It fears
 D: little.
 
@@ -2233,7 +2234,7 @@ G:C:B
 I:120:7d8:20:20:10
 W:15:2:0:900
 B:BITE:HURT:1d8
-F:ANIMAL | BASH_DOOR | FRIENDS | RAND_25 | NEVER_FAIL
+F:ANIMAL | BASH_DOOR | FRIENDS | RAND_25 | NEVER_FAIL | EGO
 S:1_IN_4 | BLINK | BLINK_TO
 D:A strange magical member of the canine race, its form seems to shimmer and
 D: fade in front of your very eyes.
@@ -2380,7 +2381,7 @@ W:16:3:0:675
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-F:BASH_DOOR | DROP_90 | EVIL | HUMANOID | MALE | OPEN_DOOR | PICK_LOCK
+F:BASH_DOOR | DROP_90 | EVIL | HUMANOID | MALE | OPEN_DOOR | PICK_LOCK | EGO
 D:An armoured orc with an air of authority.
 
 N:247:gelatinous cube
@@ -2655,7 +2656,7 @@ I:120:5d10:20:20:50
 W:19:2:0:1800
 B:BITE:HURT:1d6
 B:HIT:ELEC:5d8
-F:ANIMAL | DROP_1D2 | RES_ELEC | SMART
+F:ANIMAL | DROP_1D2 | RES_ELEC | SMART | EGO
 S:1_IN_6 | BR_ELEC
 D:This small yellow rat is surrounded by a field of electrical sparks.
 
@@ -2741,7 +2742,7 @@ W:20:2:0:1210
 B:BITE:HURT:1d7
 B:CLAW:HURT:1d5
 B:CLAW:HURT:1d5
-F:ANIMAL | FRIENDS | MANY | NO_TRAP 
+F:ANIMAL | FRIENDS | MANY | NO_TRAP | EGO
 D:Often flocks of these winged menaces can be found in underground caverns.
 
 N:281:sabre-tooth tiger
@@ -2752,7 +2753,7 @@ B:BITE:HURT:1d10
 B:BITE:HURT:1d10
 B:CLAW:HURT:1d10
 B:CLAW:HURT:1d10
-F:ANIMAL | BASH_DOOR
+F:ANIMAL | BASH_DOOR | EGO
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate
 D: even the strongest armour.
 
@@ -2762,7 +2763,7 @@ I:120:17d15:20:40:30
 W:20:3:0:10000
 B:HIT:HURT:3d8
 B:HIT:HURT:3d5
-F:BASH_DOOR | DROP_2D2 | EVIL | FORCE_SLEEP | HURT_LITE | MALE |
+F:BASH_DOOR | DROP_2D2 | EVIL | FORCE_SLEEP | MALE |
 F:ONLY_ITEM | OPEN_DOOR | PERSON | WARRIOR | PICK_LOCK
 S:1_IN_5 | BLIND | BO_COLD | BO_FIRE | CONF | DARKNESS | HASTE
 D:A dark elven figure in armour and radiating evil power.
@@ -2901,7 +2902,7 @@ B:BITE:HURT:3d4
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | HURT_ROCK |
-F:MALE | OPEN_DOOR | REGENERATE | HURT_ACID
+F:MALE | OPEN_DOOR | REGENERATE | HURT_ACID | EGO
 D:He is a giant troll with scabrous black skin.
 
 N:296:energy vortex
@@ -3076,7 +3077,7 @@ B:BITE:COLD:2d6
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | REGENERATE | RES_COLD | HURT_FIRE | HURT_ACID
+F:OPEN_DOOR | REGENERATE | RES_COLD | HURT_FIRE | HURT_ACID | EGO
 D:He is a white troll with powerfully clawed hands.
 
 N:313:werebear
@@ -3155,7 +3156,7 @@ B:BITE:HURT:1d6
 B:CLAW:POISON:3d3
 B:CLAW:POISON:3d3
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR | RES_POIS |
-F:REGENERATE | HURT_ACID
+F:REGENERATE | HURT_ACID | EGO
 D:A powerful troll form.  Venom drips from its needlelike claws.
 
 N:321:hill giant
@@ -3164,7 +3165,7 @@ I:110:27d15:20:45:50
 W:25:1:0:3600
 B:HIT:HURT:4d8
 B:HIT:HURT:4d8
-F:BASH_DOOR | DROP_60 | EVIL | HUMANOID | OPEN_DOOR
+F:BASH_DOOR | DROP_60 | EVIL | HUMANOID | OPEN_DOOR 
 D:A ten foot tall humanoid with powerful muscles.
 
 N:322:natural quylthulg
@@ -3182,7 +3183,7 @@ I:110:27d9:20:30:30
 W:25:1:0:2200
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
-F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR
+F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | OPEN_DOOR | EGO
 D:A giant orc-like figure with an awesomely muscled frame.
 
 N:324:carrion crawler
@@ -3278,17 +3279,17 @@ F:RES_POIS | SEE_INVIS | UNDEAD | NO_TRAP
 S:1_IN_8 | CAUSE_2 | DARKNESS | SCARE
 D:It is a tangible but ghostly form made of white fog.
 
-N:332:dark elven druid
+N:332:dark elven conjurer
 G:h:g
 I:120:18d20:15:70:10
 W:26:2:0:17500
 B:HIT:HURT:3d8
 B:HIT:HURT:1d7
 B:HIT:HURT:1d7
-F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | HURT_LITE | MALE |
+F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | MALE |
 F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | PERSON | RES_CONF | RES_POIS | PRIEST
-S:1_IN_6 | CONF | DARKNESS | HEAL | S_ANIMALS | S_MONSTER
-D:A powerful dark elf, with mighty nature-controlling enchantments.
+S:1_IN_6 | CONF | DARKNESS | HEAL | S_ANIMALS | S_MONSTER | S_SPIDER
+D:A powerful dark elf, with mighty summoning enchantments.
 
 N:333:catoblepas
 G:q:g
@@ -3463,8 +3464,8 @@ B:HIT:COLD:5d8
 F:BASH_DOOR | DROP_60 | EVIL | HUMANOID | OPEN_DOOR | RES_COLD | HURT_FIRE
 D:A twelve foot tall giant covered in furs.
 
-N:350:^mage
-G:P:r
+N:350:experienced ^mage
+G:P:R
 I:110:15d8:20:35:10
 W:28:1:0:6000
 B:HIT:HURT:2d5
@@ -3473,7 +3474,8 @@ F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_SLEEP | HAS_LITE | MALE |
 F:ONLY_ITEM | OPEN_DOOR | PERSON | SMART | EGO | MAGE
 S:1_IN_3 | BLIND | BO_COLD | BO_ELEC | BO_FIRE | CONF | HASTE |
 S:S_MONSTER | TELE_TO | TPORT
-D:A mage of some power - you can tell by the size of his hat.
+D:As he intones words of power, it is clear to you he knows what he is
+D: doing.
 
 N:351:giant army ant
 G:a:o
@@ -3714,7 +3716,7 @@ B:BITE:HURT:1d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:BASH_DOOR | DROP_60 | EVIL | FRIENDS | HUMANOID | HURT_LITE | MALE |
-F:OPEN_DOOR | REGENERATE | RES_POIS | HURT_ACID
+F:OPEN_DOOR | REGENERATE | RES_POIS | HURT_ACID | EGO
 D:He is a vicious monster, feared for his ferocity.
 
 N:373:grave wight
@@ -3866,7 +3868,7 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 F:BASH_DOOR | DROP_2D2 | ESCORTS | EVIL | FORCE_SLEEP | HUMANOID |
-F:ONLY_ITEM | OPEN_DOOR
+F:ONLY_ITEM | OPEN_DOOR | EGO
 S:1_IN_5 | BO_FIRE | CAUSE_2 | HOLD | SCARE | S_MONSTER | TPORT | TRAPS2
 D:This ogre has risen to become leader and shaman of his tribe.
 
@@ -4073,7 +4075,7 @@ B:BITE:HURT:2d2
 B:BITE:HURT:2d2
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
-F:BASH_DOOR | DROP_60 | EVIL | FORCE_MAXHP | FRIENDS | HUMANOID |
+F:BASH_DOOR | DROP_60 | EVIL | FORCE_MAXHP | FRIENDS | HUMANOID | EGO |
 F:HURT_LITE | MALE | OPEN_DOOR | REGENERATE | RES_COLD | RES_POIS |
 F:RES_WATER
 D:He is a troll that reeks of brine.
@@ -4178,7 +4180,7 @@ B:BITE:HURT:2d3
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
 F:BASH_DOOR | DROP_60 | EVIL | FORCE_MAXHP | FRIENDS | HUMANOID |
-F:OPEN_DOOR | REGENERATE | RES_POIS | SMART | HURT_ACID
+F:OPEN_DOOR | REGENERATE | RES_POIS | SMART | HURT_ACID | EGO
 D:It is a massive intelligent troll with needle sharp fangs.
 
 N:411:earth elemental
@@ -4451,7 +4453,7 @@ W:35:1:0:10000
 B:BUTT:HURT:4d6
 B:BUTT:HURT:4d6
 B:CRUSH:HURT:4d4
-F:ANIMAL | BASH_DOOR | FRIENDS
+F:ANIMAL | BASH_DOOR | FRIENDS | EGO
 D:A massive elephantine form with eyes twisted by madness.
 
 N:432:hell hound
@@ -4865,7 +4867,7 @@ B:BITE:HURT:3d4
 B:BITE:HURT:3d4
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
-F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_MAXHP | HUMANOID | NO_SLEEP |
+F:BASH_DOOR | DROP_1D2 | EVIL | FORCE_MAXHP | HUMANOID | NO_SLEEP | EGO |
 F:OPEN_DOOR | REGENERATE | RES_CONF | RES_POIS | TAKE_ITEM | HURT_ACID
 D:A massive two-headed troll, larger and stronger than many men together.
 D: Fortunately, ettins are solitary creatures.
@@ -5078,7 +5080,7 @@ B:BITE:HURT:3d4
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 F:BASH_DOOR | DROP_2D2 | ESCORTS | EVIL | FORCE_MAXHP | HUMANOID | HURT_ACID |
-F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | REGENERATE | RES_CONF | RES_POIS
+F:NO_SLEEP | ONLY_ITEM | OPEN_DOOR | REGENERATE | RES_CONF | RES_POIS | EGO
 D:This troll's great strength and size have won it the place of chieftain of
 D: its tribe.
 
@@ -5347,7 +5349,7 @@ W:40:3:0:30000
 B:HIT:HURT:3d6
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:DROP_90 | EVIL | FORCE_MAXHP | HUMANOID | INVISIBLE | NO_SLEEP |
+F:DROP_90 | EVIL | FORCE_MAXHP | HUMANOID | INVISIBLE | NO_SLEEP | 
 F:PASS_WALL | REGENERATE | RES_COLD | RES_CONF | RES_ELEC | RES_POIS
 D:A weird troll from the elemental planes.
 
@@ -5520,8 +5522,8 @@ B:HIT:HURT:2d8
 B:HIT:HURT:2d8
 B:HIT:HURT:2d8
 F:BASH_DOOR | DROP_4D2 | DROP_90 | EVIL | FORCE_MAXHP | FORCE_SLEEP |
-F:HURT_LITE | MALE | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | PERSON |
-F:RES_CONF | SMART | MAGE | PICK_LOCK
+F:MALE | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | PERSON | RES_CONF | SMART | 
+F:MAGE | PICK_LOCK
 S:1_IN_2 | BA_COLD | BA_FIRE | BLIND | BLINK | BO_ACID | CAUSE_3 | CONF |
 S:DARKNESS | HEAL | S_DEMON | S_MONSTER | S_UNDEAD | TELE_TO
 D:A dark elven figure, dressed in deepest black.  Power seems to crackle

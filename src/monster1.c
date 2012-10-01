@@ -87,13 +87,13 @@ static bool know_damage(monster_lore *l_ptr, int r_idx, int u_idx, int i)
 /*
  * Collect the special abilities - seperate function so it can also be used in spoiler creation
  */ 
-static int collect_mon_special(u32b flags1, u32b flags2, cptr vp[64])
+static int collect_mon_special(u32b flags2, cptr vp[64])
 {
 	int n;
 
 	/* Collect innate */
 	n = 0;
-    if (flags1 & (RF1_HAS_LITE))  vp[n++] = "illuminate the dungeon";
+    if (flags2 & (RF2_HAS_LITE))  vp[n++] = "illuminate the dungeon";
 	if (flags2 & (RF2_OPEN_DOOR)) vp[n++] = "open doors";
 	if (flags2 & (RF2_BASH_DOOR)) vp[n++] = "bash down doors";
 	if (flags2 & (RF2_PICK_LOCK)) vp[n++] = "pick locks";
@@ -406,10 +406,15 @@ int collect_mon_group(u32b flags1, cptr vp[64])
 	}
 	if (flags1 & (RF1_FRIENDS))
 	{
-		if (flags1 & (RF1_MANY)) vp[n++] = "many other similar companions";
-		else vp[n++] = "other similar companions";
+		if (flags1 & (RF1_MANY)) vp[n++] = "many similar companions";
+		else vp[n++] = "similar companions";
 	}
-	if (flags1 & (RF1_COMPANION))		vp[n++] = "a unique companion";
+	if (flags1 & (RF1_PEERS))
+	{
+		if (flags1 & (RF1_MANY)) vp[n++] = "many companions";
+		else vp[n++] = "companions";
+	}
+	if (flags1 & (RF1_COMPANION)) vp[n++] = "a unique companion";
 
 	return n;
 }
@@ -527,6 +532,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	/* Assume some "creation" flags */
 	if (r_ptr->flags1 & (RF1_COMPANION))	flags1 |= (RF1_COMPANION);
 	if (r_ptr->flags1 & (RF1_FRIENDS))		flags1 |= (RF1_FRIENDS);
+	if (r_ptr->flags1 & (RF1_PEERS))		flags1 |= (RF1_PEERS);
 	if (r_ptr->flags1 & (RF1_ESCORTS))		flags1 |= (RF1_ESCORTS);
 	if (r_ptr->flags1 & (RF1_MANY))			flags1 |= (RF1_MANY);
 
@@ -796,7 +802,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		else text_out(" creature");
 
 		/* Mention the experience */
-		mon_exp(r_idx, u_idx, &i, &j);
+		mon_exp(r_idx, 0, u_idx, &i, &j);
 		j = (j + 5) / 10;
 		text_out(" is worth ");
 		if (j) text_out_c(TERM_ORANGE,format("%ld.%02ld ", (long)i, (long)j));
@@ -990,7 +996,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	}
 
 	/* Collect special abilities. */
-	vn = collect_mon_special(flags1, flags2, vp);
+	vn = collect_mon_special(flags2, vp);
 
 	/* Describe special abilities. */
 	if (vn)

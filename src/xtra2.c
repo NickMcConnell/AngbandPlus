@@ -406,7 +406,10 @@ void monster_death(int m_idx)
 			questlevel = TRUE;
 
 			/* Require "Quest Monsters" */
-			if (q_ptr->r_idx == m_ptr->r_idx)
+			if ((((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_GUILD)) &&
+				(q_ptr->mon_idx == m_ptr->r_idx)) ||
+				(((q_ptr->type == QUEST_FIXED_U) || (q_ptr->type == QUEST_UNIQUE)) &&
+				(q_ptr->mon_idx == m_ptr->u_idx)))
 			{
 				/* Mark kills */
 				q_ptr->cur_num++;
@@ -418,7 +421,8 @@ void monster_death(int m_idx)
 					q_ptr->active_level = 0;
 
 					/* Mark fixed quests */
-					if (q_ptr->type == QUEST_FIXED) fixedquest = TRUE;
+					if ((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_FIXED_U)) 
+						fixedquest = TRUE;
 
 					/* One complete */
 					completed = TRUE;
@@ -550,7 +554,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Calculate experience */
-		mon_exp(m_ptr->r_idx, m_ptr->u_idx, &new_exp, &new_exp_frac);
+		mon_exp(m_ptr->r_idx, m_ptr->s_idx, m_ptr->u_idx, &new_exp, &new_exp_frac);
 		
 		/* Handle fractional experience */
 		new_exp_frac = ((new_exp_frac * 0x10000L) / 1000L) + p_ptr->exp_frac;
@@ -1225,7 +1229,7 @@ static void look_mon_desc(char *buf, int m_idx)
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-static void ang_sort_aux(vptr u, vptr v, int p, int q)
+static void ang_sort_aux(void *u, void *v, int p, int q)
 {
 	int z, a, b;
 
@@ -1271,7 +1275,7 @@ static void ang_sort_aux(vptr u, vptr v, int p, int q)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_mon_sort_comp_hook(const void *u, const void *v, int a, int b)
 {
 	monster_list_entry *who = (monster_list_entry*)(u);
 
@@ -1340,7 +1344,7 @@ bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-void ang_mon_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_mon_sort_swap_hook(void *u, void *v, int a, int b)
 {
 	monster_list_entry *who = (monster_list_entry*)(u);
 
@@ -1360,7 +1364,7 @@ void ang_mon_sort_swap_hook(vptr u, vptr v, int a, int b)
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort(vptr u, vptr v, int n)
+void ang_sort(void *u, void *v, int n)
 {
 	/* Sort the array */
 	ang_sort_aux(u, v, 0, n-1);
@@ -1658,7 +1662,7 @@ static void target_set_location(int y, int x)
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
  * and sort the arrays by double-distance to the player.
  */
-static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
+static bool ang_sort_comp_distance(const void *u, const void *v, int a, int b)
 {
 	byte *x = (byte*)(u);
 	byte *y = (byte*)(v);
@@ -1689,7 +1693,7 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
  * and sort the arrays by distance to the player.
  */
-static void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
+static void ang_sort_swap_distance(void *u, void *v, int a, int b)
 {
 	byte *x = (byte*)(u);
 	byte *y = (byte*)(v);
@@ -1803,6 +1807,7 @@ static bool target_set_interactive_accept(int y, int x)
 
 		/* Notice chests */
 		if (cave_feat[y][x] == FEAT_CHEST) return (TRUE);
+		if (cave_feat[y][x] == FEAT_QST_CHEST) return (TRUE);
 
 		/* Notice stairs */
 		if (cave_feat[y][x] == FEAT_LESS) return (TRUE);
@@ -2304,7 +2309,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Hack - chests */
-			if (cave_t_idx[y][x] && trap_chest(y, x) && (feat == FEAT_CHEST))
+			if (cave_t_idx[y][x] && trap_chest(y, x) && 
+				((feat == FEAT_CHEST) || (feat == FEAT_QST_CHEST)))
 			{
 				lock = w_name + w_info[t_list[cave_t_idx[y][x]].w_idx].name;
 			}
@@ -3218,9 +3224,6 @@ static void death_examine(void)
 		/* Clear the screen */
 		Term_clear();
 
-		/* Reset "display" mode */
-		p_ptr->command_see = TRUE;
-
 		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
  
 		/* Get the item */
@@ -3299,7 +3302,7 @@ static void kingly(void)
 	flush();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(Term->hgt - 1);
 }
 
 /*

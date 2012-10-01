@@ -2941,7 +2941,8 @@ static bool get_moves(int m_idx, int mm[5])
 	}
 
 	/* Monster groups try to surround the player */
-	if (!done && adult_smart_packs && (r_ptr->flags1 & RF1_FRIENDS))
+	if (!done && adult_smart_packs && 
+		((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_PEERS)))
 	{
 		int i;
 
@@ -3415,7 +3416,7 @@ static void process_monster(int m_idx)
 		int d = 1;
 
 		/* Make a "saving throw" against stun */
-		if (rand_int(5000) <= r_ptr->level * r_ptr->level)
+		if (rand_int(5000) < ((r_ptr->level * r_ptr->level) - m_ptr->stunned))
 		{
 			/* Recover fully */
 			d = m_ptr->stunned;
@@ -3606,7 +3607,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->stunned)
 	{
 		/* 50% chance of doing nothing */
-		if (randint(100)<50) return;
+		if (randint(100) < 50) return;
 	}
 
 	/* Attempt to "mutiply" if able and allowed */
@@ -4039,7 +4040,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* If he carries a light, update lights */
-			if ((view_monster_lite) && (r_ptr->flags1 & (RF1_HAS_LITE))) do_view = TRUE;
+			if ((view_monster_lite) && (r_ptr->flags2 & (RF2_HAS_LITE))) do_view = TRUE;
 
 			/*
 			 * Monster traps, taken from Oangband for now.

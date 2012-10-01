@@ -361,6 +361,15 @@ static errr rd_item(object_type *o_ptr)
 			/* Force a meaningful pval */
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
+
+		/* Mega-Hack - Enforce the special broken items */
+		if ((o_ptr->e_idx == EGO_BLASTED) || (o_ptr->e_idx == EGO_SHATTERED))
+		{
+			/* These were set to k_info values by preceding code */
+			o_ptr->ac = 0;
+			o_ptr->dd = 0;
+			o_ptr->ds = 0;
+		}
 	}
 
 	return (0);
@@ -1518,18 +1527,18 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&q_info[i].type);
 
-		if (q_info[i].type == QUEST_FIXED)
+		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
 		{
 			rd_byte(&q_info[i].active_level);
 			rd_s16b(&q_info[i].cur_num);
 		}
-		else if (q_info[i].type == QUEST_GUILD)
+		else if ((q_info[i].type == QUEST_GUILD) || (q_info[i].type == QUEST_UNIQUE))
 		{
 			rd_byte(&q_info[i].reward);
 			rd_byte(&q_info[i].active_level);
 			rd_byte(&q_info[i].base_level);
 
-			rd_s16b(&q_info[i].r_idx);
+			rd_s16b(&q_info[i].mon_idx);
 			rd_s16b(&q_info[i].cur_num);
 			rd_s16b(&q_info[i].max_num);
 
@@ -1646,7 +1655,7 @@ static errr rd_savefile_new_aux(void)
 /*
  * Actually read the savefile
  */
-errr rd_savefile_new(void)
+errr rd_savefile(void)
 {
 	errr err;
 

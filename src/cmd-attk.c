@@ -233,6 +233,7 @@ static void attack_special(int m_idx, byte special, int dam)
 	
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
+	int tmp;
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -249,7 +250,9 @@ static void attack_special(int m_idx, byte special, int dam)
 			/* Was not poisoned */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s is bleeding.", m_name);
 
-			m_ptr->bleeding += dam*2;
+			tmp = m_ptr->bleeding + dam * 2;
+
+			m_ptr->bleeding = (tmp < 10000) ? tmp : 10000;
 		}
 	}
 
@@ -265,7 +268,9 @@ static void attack_special(int m_idx, byte special, int dam)
 			/* Was not poisoned */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s is poisoned.", m_name);
 
-			m_ptr->poisoned += dam;
+			tmp = m_ptr->poisoned + dam;
+
+			m_ptr->poisoned = (tmp < 10000) ? tmp : 10000;
 		}
 	}
 
@@ -281,7 +286,10 @@ static void attack_special(int m_idx, byte special, int dam)
 			/* Was not blinded */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears blinded.", m_name);
 
-			m_ptr->blinded += 1 + dam/3 + rand_int(dam)/3;
+			tmp = m_ptr->blinded + 1 + dam/3 + rand_int(dam)/3;
+
+			m_ptr->blinded = (tmp < 200) ? tmp : 200;
+
 		}
 	}
 
@@ -297,7 +305,9 @@ static void attack_special(int m_idx, byte special, int dam)
 			/* Was not stunned */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears dazed.", m_name);
 
-			m_ptr->stunned += 10 + rand_int(dam) / 5;
+			tmp = m_ptr->stunned + 10 + rand_int(dam) / 5;
+
+			m_ptr->stunned = (tmp < 200) ? tmp : 200;
 		}
 	}
 
@@ -313,7 +323,9 @@ static void attack_special(int m_idx, byte special, int dam)
 			/* Was not stunned */
 			else message_format(MSG_SUCCEED, m_ptr->r_idx, "%^s appears confused.", m_name);
 
-			m_ptr->confused += 10 + rand_int(dam) / 5;
+			tmp = m_ptr->confused + 10 + rand_int(dam) / 5;
+
+			m_ptr->confused = (tmp < 200) ? tmp : 200;
 		}
 	}
 }
@@ -1351,6 +1363,9 @@ static void move_player(int dir, int jumping)
 
 				/* Hit the trap */
 				hit_trap(y, x);
+
+				/* Hack - light the spot */
+				lite_spot(y, x);
 			}
 			else
 			{
@@ -2095,7 +2110,8 @@ void do_cmd_go_up(void)
 	}
 
 	/* Verify leaving quest level */
-	if ((verify_leave_quest) && (quest_check(p_ptr->depth) == QUEST_GUILD))
+	if ((verify_leave_quest) && ((quest_check(p_ptr->depth) == QUEST_GUILD)) ||
+		((quest_check(p_ptr->depth) == QUEST_UNIQUE)))
 	{
 		sprintf(out_val, "Really risk failing your quest? ");
 		if (!get_check(out_val)) return;
@@ -2135,7 +2151,8 @@ void do_cmd_go_down(void)
 	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE)
 	{
 		/* Verify leaving quest level */
-		if ((verify_leave_quest) && (quest_check(p_ptr->depth) == QUEST_GUILD))
+		if ((verify_leave_quest) && ((quest_check(p_ptr->depth) == QUEST_GUILD)) ||
+			((quest_check(p_ptr->depth) == QUEST_UNIQUE)))
 		{
 			sprintf(out_val, "Really risk failing your quest? ");
 			if (!get_check(out_val)) return;
@@ -2257,7 +2274,7 @@ static bool do_cmd_walk_test(int y, int x)
 		}
 
 		/* Door */
-		else if (cave_feat[y][x] == FEAT_CHEST)
+		else if ((cave_feat[y][x] == FEAT_CHEST) || (cave_feat[y][x] == FEAT_QST_CHEST))
 		{
 			/* Message */
 			message(MSG_HITWALL, 0, "There is a chest in the way!");

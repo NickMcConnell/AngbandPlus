@@ -63,7 +63,7 @@
 
 # Version stamp (required)
 
-V:0.4.4
+V:0.4.5
 
 ### Body Armor ###
 
@@ -1070,7 +1070,7 @@ T:19:23:24
 F:MIGHT | SHOTS | IGNORE_NON_ELEM | IGNORE_ELEM
 
 N:119:of Extra Might
-X:25:20:0
+X:20:0
 W:0:4:0:10000
 C:5:10:0:1
 F:MIGHT | HIDE_TYPE

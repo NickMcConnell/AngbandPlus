@@ -813,8 +813,16 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Draw trap */
 			if (t_list[t_idx].visible) 
 			{
-				a = w_ptr->x_attr;
-				c = w_ptr->x_char;
+				/* Normal trap (not "clear" in any way) */
+				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+				{
+					a = w_ptr->x_attr;
+					c = w_ptr->x_char;
+				}
+				else
+				{
+					c = w_ptr->x_char;
+				}
 			}
 		}
 	}
@@ -876,8 +884,16 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			/* Draw trap */
 			if (t_list[t_idx].visible) 
 			{
-				a = w_ptr->x_attr;
-				c = w_ptr->x_char;
+				/* Normal trap (not "clear" in any way) */
+				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+				{
+					a = w_ptr->x_attr;
+					c = w_ptr->x_char;
+				}
+				else
+				{
+					c = w_ptr->x_char;
+				}
 			}
 		}
 	}
@@ -1052,13 +1068,13 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[FEAT_FLOOR];
 
 			/* Normal attr */
-                        a = f_ptr->d_attr;
+			a = f_ptr->d_attr;
 
 			/* Normal char */
-                        c = f_ptr->d_char;
+			c = f_ptr->d_char;
 
 			/* Special lighting effects */
-                        if (view_special_lite && (a == TERM_WHITE))
+			if (view_special_lite && (a == TERM_WHITE))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -1066,30 +1082,30 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 					/* Only lit by "torch" lite */
 					if (view_yellow_lite && !(info & (CAVE_GLOW)))
 					{
-                                                /* Use "yellow" */
-                                                a = TERM_YELLOW;
+						/* Use "yellow" */
+						a = TERM_YELLOW;
 					}
 				}
 
 				/* Handle "blind" */
 				else if (p_ptr->blind)
 				{
-                                        /* Use "dark gray" */
-                                        a = TERM_L_DARK;
+					/* Use "dark gray" */
+					a = TERM_L_DARK;
 				}
 
 				/* Handle "dark" grids */
 				else if (!(info & (CAVE_GLOW)))
 				{
-                                        /* Use "dark gray" */
-                                        a = TERM_L_DARK;
+					/* Use "dark gray" */
+					a = TERM_L_DARK;
 				}
 
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-                                        /* Use "gray" */
-                                        a = TERM_SLATE;
+					/* Use "gray" */
+					a = TERM_SLATE;
 				}
 			}
 		}
@@ -1101,10 +1117,10 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[FEAT_NONE];
 
 			/* Normal attr */
-                        a = f_ptr->d_attr;
+			a = f_ptr->d_attr;
 
 			/* Normal char */
-                        c = f_ptr->d_char;
+			c = f_ptr->d_char;
 		}
 	}
 
@@ -1121,38 +1137,38 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[feat];
 
 			/* Normal attr */
-                        a = f_ptr->d_attr;
+			a = f_ptr->d_attr;
 
 			/* Normal char */
-                        c = f_ptr->d_char;
+			c = f_ptr->d_char;
 
 			/* Special lighting effects (walls only) */
 			if (view_granite_lite &&
-                            (((a == TERM_WHITE) && (feat >= FEAT_SECRET)) ||
-                             (feat_supports_lighting(feat))))
+				(((a == TERM_WHITE) && (feat >= FEAT_SECRET)) ||
+				(feat_supports_lighting(feat))))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
 				{
-                                        /* Use "white" */
+					/* Use "white" */
 				}
 
 				/* Handle "blind" */
 				else if (p_ptr->blind)
 				{
-                                        /* Use "dark gray" */
-                                        a = TERM_L_DARK;
+					/* Use "dark gray" */
+					a = TERM_L_DARK;
 				}
 
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-                                        /* Use "gray" */
-                                        a = TERM_SLATE;
+					/* Use "gray" */
+					a = TERM_SLATE;
 				}
 				else
 				{
-                                        /* Use "white" */
+					/* Use "white" */
 				}
 			}
 		}
@@ -1164,10 +1180,10 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[FEAT_NONE];
 
 			/* Normal attr */
-                        a = f_ptr->d_attr;
+			a = f_ptr->d_attr;
 
 			/* Normal char */
-                        c = f_ptr->d_char;
+			c = f_ptr->d_char;
 		}
 	}
 
@@ -1183,8 +1199,16 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			/* Draw trap */
 			if (t_list[t_idx].visible) 
 			{
-				a = w_ptr->t_attr;
-				c = w_ptr->t_char;
+				/* Normal monster (not "clear" in any way) */
+				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+				{
+					a = w_ptr->x_attr;
+					c = w_ptr->x_char;
+				}
+				else
+				{
+					c = w_ptr->x_char;
+				}
 			}
 		}
 	}
@@ -1224,10 +1248,10 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 				k_ptr = &k_info[0];
 
 				/* Normal attr */
-                                a = k_ptr->d_attr;
+				a = k_ptr->d_attr;
 
 				/* Normal char */
-                                c = k_ptr->d_char;
+				c = k_ptr->d_char;
 
 				break;
 			}
@@ -1246,8 +1270,16 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			/* Draw trap */
 			if (t_list[t_idx].visible) 
 			{
-				a = w_ptr->t_attr;
-				c = w_ptr->t_char;
+				/* Normal trap (not "clear" in any way) */
+				if (!(w_ptr->flags & (WGF_ATTR_CLEAR)))
+				{
+					a = w_ptr->x_attr;
+					c = w_ptr->x_char;
+				}
+				else
+				{
+					c = w_ptr->x_char;
+				}
 			}
 		}
 	}
@@ -1260,16 +1292,18 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		/* Visible monster */
 		if (m_ptr->ml)
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr = get_monster_real(m_ptr);
 
 			byte da;
 			char dc;
 
-			/* Desired attr */
-                        da = r_ptr->d_attr;
+			/* Desired attr - handle multi-coloured creatures */
+			if ((r_ptr->flags1 & RF1_ATTR_MULTI) || (r_ptr->flags1 & RF1_ATTR_MIMIC))
+				da = m_ptr->attr;
+			else da = r_ptr->d_attr;
 
 			/* Desired char */
-                        dc = r_ptr->d_char;
+			dc = r_ptr->d_char;
 
 			/* Hack -- monster hallucination */
 			if (image)
@@ -1303,8 +1337,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			/* Multi-hued monster */
 			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
-				/* Multi-hued attr */
-				a = randint(15);
+				/* Use attr */
+				a = da;
 
 				/* Normal char */
 				c = dc;
@@ -1352,10 +1386,11 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		monster_race *r_ptr = &r_info[0];
 
 		/* Get the "player" attr */
-                a = r_ptr->d_attr;
+		if (view_player_color) a = r_ptr->x_attr;
+		else a = r_ptr->d_attr;
 
 		/* Get the "player" char */
-                c = r_ptr->d_char;
+		c = r_ptr->d_char;
 	}
 
 	/* Result */
@@ -1615,6 +1650,7 @@ static byte priority_table[][2] =
 	/* Closed doors, chests */
 	{ FEAT_CLOSED , 17 },
 	{ FEAT_CHEST , 17 },
+	{ FEAT_QST_CHEST , 17 },
 
 	/* Hidden gold */
 	{ FEAT_QUARTZ_K, 19 },
@@ -2361,7 +2397,7 @@ struct vinfo_hack {
  *
  * We use "u" to point to an array of long integers.
  */
-static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
+static bool ang_sort_comp_hook_longs(const void *u,const void *v, int a, int b)
 {
 	long *x = (long*)(u);
 
@@ -2376,7 +2412,7 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
  *
  * We use "u" to point to an array of long integers.
  */
-static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
+static void ang_sort_swap_hook_longs(void *u, void *v, int a, int b)
 {
 	long *x = (long*)(u);
 
@@ -2858,7 +2894,7 @@ void update_view(void)
 			fy = m_ptr->fy;
 
 			/* Carrying lite */
-			if (r_ptr->flags1 & (RF1_HAS_LITE))
+			if (r_ptr->flags2 & (RF2_HAS_LITE))
 			{
 				for (i = -1; i <= 1; i++)
 				{
@@ -3721,13 +3757,11 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 		sx = 1;
 	}
 
-
 	/* Number of "units" in one "half" grid */
 	half = (ay * ax);
 
 	/* Number of "units" in one "full" grid */
 	full = half << 1;
-
 
 	/* Vertical */
 	if (ay > ax)

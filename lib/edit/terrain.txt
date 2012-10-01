@@ -32,7 +32,7 @@
 
 # Version stamp (required)
 
-V:0.4.4
+V:0.4.5
 
 # 0x00 --> <darkness>
 
@@ -69,10 +69,15 @@ G:':u
 N:6:closed door
 G:+:U
 
-# 0x06 --> chest
+# 0x07 --> chest
 
 N:7:chest
 G:~:s
+
+# 0x08 --> quest chest
+
+N:8:ancient chest
+G:~:v
 
 # 0x10 --> secret door
 

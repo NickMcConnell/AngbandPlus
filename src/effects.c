@@ -281,7 +281,7 @@ static bool inc_stat(int stat)
 	value = p_ptr->stat_cur[stat];
 
 	/* Cannot go above 18/100 */
-	if (value < 20)
+	if (value < A_CAP)
 	{
 		/* Gain one (sometimes two) points */
 		if (value < 15)

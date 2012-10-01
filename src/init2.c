@@ -1968,7 +1968,7 @@ static errr init_alloc(void)
 		if (q_ptr->active_level)
 		{
 			/* Get the quest monster */
-			r_ptr = &r_info[q_ptr->r_idx];
+			r_ptr = &r_info[q_ptr->mon_idx];
 		}
 	}
 

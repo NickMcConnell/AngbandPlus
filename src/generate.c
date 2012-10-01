@@ -376,7 +376,9 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
+			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) || 
+			 (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		place_up_stairs(y, x);
 	}
@@ -424,8 +426,9 @@ static void alloc_stairs(int feat, int num, int walls)
 				}
 
 				/* Quest -- must go up */
-				else if ((quest_check(p_ptr->depth) == QUEST_FIXED) 
-					|| (p_ptr->depth >= MAX_DEPTH-1))
+				else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
+						 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
+						 (p_ptr->depth >= MAX_DEPTH-1))
 				{
 					/* Clear previous contents, add up stairs */
 					cave_set_feat(y, x, FEAT_LESS);
@@ -659,9 +662,14 @@ static void destroy_level(void)
  * Create up to "num" objects excluding gold near the given coordinates
  * Only really called by the room_info routines
  */
-static void vault_items(int y, int x, int num)
+static void vault_items(int y, int x, int num, byte tval)
 {
 	int i, j, k;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
 
 	/* Attempt to place 'num' objects */
 	for (; num > 0; --num)
@@ -681,8 +689,22 @@ static void vault_items(int y, int x, int num)
 			/* Require "clean" floor space */
 			if (!cave_clean_bold(j, k)) continue;
 
-			/* Place gold */
-			place_object(j, k, FALSE,FALSE);
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
+			/* Make an object (if possible) */
+			if (make_typed(i_ptr, tval, FALSE, FALSE, FALSE))
+			{
+				/* Mark history */
+				object_history(i_ptr, ORIGIN_FLOOR, 0, 0, 0);
+
+				/* Give it to the floor */
+				if (!floor_carry(j, k, i_ptr))
+				{
+					/* Hack -- Preserve artifacts */
+					a_info[i_ptr->a_idx].status &= ~A_STATUS_CREATED;
+				}
+			}
 
 			/* Placement accomplished */
 			break;
@@ -1011,24 +1033,6 @@ static bool room_info_mon(int r_idx)
 }
 
 /*
- * Hack -- flags type for "vault_aux_room_info()"
- */
-static int room_info_kind_tval;
-
-/*
- *
- */
-static bool room_info_kind(int k_idx)
-{
-	object_kind *k_ptr = &k_info[k_idx];
-
-	if (k_ptr->tval == room_info_kind_tval) return (TRUE);
-
-	return(FALSE);
-
-}
-
-/*
  * Get the room description, and place stuff accordingly.
  */
 static void get_room_info(int y, int x)
@@ -1090,20 +1094,8 @@ static void get_room_info(int y, int x)
 		/* Place objects if needed */
 		if ((d_info[i].tval) &&	rand_int(100) < 85)
 		{
-			room_info_kind_tval = d_info[i].tval;
-
-			get_obj_num_hook = room_info_kind;
-
-			/* Prepare allocation table */
-			get_obj_num_prep();
-
 			/* Place the items */
-			vault_items(y, x, randint(6));
-
-			get_obj_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_obj_num_prep();
+			vault_items(y, x, randint(6), d_info[i].tval);
 
 			/* Lower the level's object count */
 			if (obj_gen > 0) obj_gen--;
@@ -2100,7 +2092,7 @@ static void build_type5(int y0, int x0)
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE, PLACE_NO_U);
+			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE, PLACE_NO_UNIQUE);
 		}
 	}
 }
@@ -2474,51 +2466,51 @@ static void build_type6(int y0, int x0)
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
 	{
-		place_monster_aux(y0 - 2, x, what[0], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y0 + 2, x, what[0], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y0 - 2, x, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 + 2, x, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Middle columns */
 	for (y = y0 - 1; y <= y0 + 1; y++)
 	{
-		place_monster_aux(y, x0 - 9, what[0], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 9, what[0], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 9, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 9, what[0], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 8, what[1], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 8, what[1], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 8, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 8, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 7, what[1], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 7, what[1], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 7, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 7, what[1], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 6, what[2], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 6, what[2], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 6, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 6, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 5, what[2], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 5, what[2], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 5, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 5, what[2], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 4, what[3], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 4, what[3], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 4, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 4, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 3, what[3], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 3, what[3], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 3, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 3, what[3], FALSE, FALSE, PLACE_NO_UNIQUE);
 
-		place_monster_aux(y, x0 - 2, what[4], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y, x0 + 2, what[4], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y, x0 - 2, what[4], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y, x0 + 2, what[4], FALSE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Above/Below the center monster */
 	for (x = x0 - 1; x <= x0 + 1; x++)
 	{
-		place_monster_aux(y0 + 1, x, what[5], FALSE, FALSE, PLACE_NO_U);
-		place_monster_aux(y0 - 1, x, what[5], FALSE, FALSE, PLACE_NO_U);
+		place_monster_aux(y0 + 1, x, what[5], FALSE, FALSE, PLACE_NO_UNIQUE);
+		place_monster_aux(y0 - 1, x, what[5], FALSE, FALSE, PLACE_NO_UNIQUE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(y0, x0 + 1, what[6], FALSE, FALSE, PLACE_NO_U);
-	place_monster_aux(y0, x0 - 1, what[6], FALSE, FALSE, PLACE_NO_U);
+	place_monster_aux(y0, x0 + 1, what[6], FALSE, FALSE, PLACE_NO_UNIQUE);
+	place_monster_aux(y0, x0 - 1, what[6], FALSE, FALSE, PLACE_NO_UNIQUE);
 
 	/* Center monster */
-	place_monster_aux(y0, x0, what[7], FALSE, FALSE, PLACE_NO_U);
+	place_monster_aux(y0, x0, what[7], FALSE, FALSE, PLACE_NO_UNIQUE);
 }
 
 /*
@@ -2682,7 +2674,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Quest item */
 				case 'Q':
 				{
-					create_quest_item(y, x);
+					place_quest_chest(y, x);
 					break;
 				}
 
@@ -3533,17 +3525,34 @@ static void cave_gen(void)
 		/* Quest levels */
 		if (q_ptr->active_level == p_ptr->depth)
 		{
-			monster_race *r_ptr = &r_info[q_ptr->r_idx];
-			s16b num_questors;
+			int y, x;
 
-			/* A certain number of questors */
-			num_questors = q_ptr->max_num - q_ptr->cur_num;
-
-			/* Ensure quest monsters */
-			while (r_ptr->cur_num < num_questors)
+			if ((q_ptr->type == QUEST_GUILD) || (q_ptr->type == QUEST_FIXED))
 			{
-				int y, x;
+				monster_race *r_ptr = &r_info[q_ptr->mon_idx];
+				s16b num_questors;
 
+				/* A certain number of questors */
+				num_questors = q_ptr->max_num - q_ptr->cur_num;
+
+				/* Ensure quest monsters */
+				while (r_ptr->cur_num < num_questors)
+				{
+					/* Pick a location */
+					while (TRUE)
+					{
+						y = rand_int(p_ptr->cur_map_hgt);
+						x = rand_int(p_ptr->cur_map_wid);
+
+						if (cave_naked_bold(y, x)) break;
+					}
+
+					/* Place the questor */
+					place_monster_aux(y, x, q_ptr->mon_idx, TRUE, TRUE, 0);
+				}
+			}
+			else if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
+			{
 				/* Pick a location */
 				while (TRUE)
 				{
@@ -3554,7 +3563,7 @@ static void cave_gen(void)
 				}
 
 				/* Place the questor */
-				place_monster_aux(y, x, q_ptr->r_idx, TRUE, TRUE, 0);
+				place_monster_aux(y, x, u_info[q_ptr->mon_idx].r_idx, TRUE, TRUE, PLACE_UNIQUE);
 			}
 		}
 	}

@@ -1984,7 +1984,8 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_force_small_lev",	"All levels will be generated as small",	FALSE},
 	{"birth_easy_mode",			"Easy mode",								FALSE},
 	{"birth_nightmare_mode",	"Nightmare mode",							FALSE},
-	{"birth_retain_squelch",	"Retain squelch settings",					FALSE}
+	{"birth_retain_squelch",	"Retain squelch settings",					FALSE},
+	{"birth_weighted_roller",	"Allow specification of stat weighings",	FALSE}
 };
 
 option_type options_cheat[OPT_CHEAT] =
@@ -2152,10 +2153,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_point_based,
 		OPT_birth_auto_roller,
+		OPT_birth_weighted_roller,
 		OPT_birth_random_hp,
 		OPT_birth_start_kit,
 		OPT_birth_retain_squelch,
-		255,
 		255,
 		255,
 		255,

@@ -131,7 +131,6 @@ static cptr r_info_flags1[32] =
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
 	"CHAR_CLEAR",
-	"HAS_LITE",
 	"STUPID",
 	"SMART",	
 	"FORCE_MAXHP",
@@ -140,6 +139,7 @@ static cptr r_info_flags1[32] =
 	"COMPANION",	
 	"FRIENDS",
 	"ESCORTS",	
+	"PEERS",
 	"MANY",
 	"RAND_25",		
 	"RAND_50",		
@@ -184,7 +184,7 @@ static cptr r_info_flags2[32] =
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"EVASIVE",
-	"XXX3",	
+	"HAS_LITE",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_DARK",
@@ -192,7 +192,7 @@ static cptr r_info_flags2[32] =
 	"HURT_ELEC",
 	"HURT_FIRE",
 	"HURT_COLD",
-	"XXX4",
+	"XXX3",
 	"NO_TRAP"
 };
 
@@ -419,8 +419,8 @@ static cptr c_info_flags[32] =
 	"APPRAISE",
 	"SUB_SPELL",			
 	"XXX1",			
-	"XXX2",			
-	"XXX3",		
+	"XXX2",		
+	"XXX3",	
 	"XXX4",	
 	"XXX5",	
 	"PSEUDO_ID1",
@@ -462,9 +462,9 @@ static cptr w_info_flags[32] =
 	"XXX8",	
 	"XXX9",	
 	"XXX10",	
+	"ATTR_CLEAR",
 	"XXX11",
 	"XXX12",
-	"XXX13",
 	"DETECT",
 	"DISARM"
 };
@@ -3838,57 +3838,12 @@ errr parse_u_info(char *buf, header *head)
 	return (0);
 }
 
-#ifdef MONSTER_EGO_DEV
 /*
  * Grab one (basic) flag in a monster_special from a textual string
  */
-static errr grab_one_special_basic_flag(monster_special *s_ptr, cptr what)
+static errr grab_one_special_flag(u32b *flag, cptr what)
 {
-	if (grab_one_flag(&s_ptr->flags1, r_info_flags1, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&s_ptr->flags2, r_info_flags2, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&s_ptr->flags3, r_info_flags3, what) == 0)
-		return (0);
-
-	/* Oops */
-	message_format(MSG_GENERIC, 0, "Unknown monster flag '%s'.", what);
-
-	/* Failure */
-	return (PARSE_ERROR_GENERIC);
-}
-
-/*
- * Grab one (spell) flag in a monster_special from a textual string
- */
-static errr grab_one_special_spell_flag(monster_special *s_ptr, cptr what)
-{
-	if (grab_one_flag(&s_ptr->flags4, r_info_flags4, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&s_ptr->flags5, r_info_flags5, what) == 0)
-		return (0);
-
-	if (grab_one_flag(&s_ptr->flags6, r_info_flags6, what) == 0)
-		return (0);
-
-	/* Oops */
-	message_format(MSG_GENERIC, 0, "Unknown monster flag '%s'.", what);
-
-	/* Failure */
-	return (PARSE_ERROR_GENERIC);
-}
-
-#endif
-
-/*
- * Grab one (basic) flag in a monster_special from a textual string
- */
-static errr grab_one_special_negative_flag(monster_special *s_ptr, cptr what)
-{
-	if (grab_one_flag(&s_ptr->no_flag4, r_info_flags4, what) == 0)
+	if (grab_one_flag(flag, r_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -3939,243 +3894,47 @@ errr parse_s_info(char *buf, header *head)
 		/* Point at the "info" */
 		s_ptr = (monster_special*)head->info_ptr + i;
 
-#ifdef MONSTER_EGO_DEV
-		/* Reset attr and char */
-		s_ptr->s_attr = -1;
-		s_ptr->s_char = -1;
-#endif
 		/* Store the name */
 		if (!(s_ptr->name = add_name(head, s)))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
-#ifdef MONSTER_EGO_DEV
-	/* Process 'D' for "Description" */
-	else if (buf[0] == 'D')
-	{
-		/* There better be a current s_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Get the text */
-		s = buf+2;
-
-		/* Store the text */
- 		if (!add_text(&s_ptr->text, head, s))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	/* Process 'G' for "Graphics" (one line only) */
-	else if (buf[0] == 'G')
-	{
-		/* There better be a current d_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		s_ptr->s_char = buf[2];
-	}
-
-	/* Process 'C' for "Colour" (one line only) */
-	else if (buf[0] == 'C')
-	{
-		/* There better be a current d_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Paranoia */
-		if (!buf[2]) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		s_ptr->s_attr = buf[2];
-	}
-
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
-	{
-		int spd, hp1, hp2, ac;
-
-		/* There better be a current s_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the other values */
-		if (4 != sscanf(buf+2, "%d:%dd%d:%d",
-		                &spd, &hp1, &hp2, &ac)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		s_ptr->speed_add = spd;
-		s_ptr->hdice_add = hp1;
-		s_ptr->hside_add = hp2;
-		s_ptr->ac_add = ac;
-	}
-
-	/* Process 'W' for "More Info" (one line only) */
-	else if (buf[0] == 'W')
-	{
-		int lev, rar, pad;
-		long exp;
-
-		/* There better be a current s_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-		                &lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		s_ptr->level = lev;
-		s_ptr->rarity = rar;
-		s_ptr->mexp_add = exp;
-	}
-
-	/* Process 'B' for "Blows" (up to four lines) */
-	else if (buf[0] == 'B')
-	{
-		int n1, n2;
-
-		/* There better be a current s_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Find the next empty blow slot (if any) */
-		for (i = 0; i < 4; i++) if (!s_ptr->blow[i].method) break;
-
-		/* Oops, no more slots */
-		if (i == 4) return (PARSE_ERROR_GENERIC);
-
-		/* Analyze the first field */
-		for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
-
-		/* Terminate the field (if necessary) */
-		if (*t == ':') *t++ = '\0';
-
-		/* Analyze the method */
-		for (n1 = 0; r_info_blow_method[n1]; n1++)
-		{
-			if (streq(s, r_info_blow_method[n1])) break;
-		}
-
-		/* Invalid method */
-		if (!r_info_blow_method[n1]) return (PARSE_ERROR_GENERIC);
-
-		/* Analyze the second field */
-		for (s = t; *t && (*t != ':'); t++) /* loop */;
-
-		/* Terminate the field (if necessary) */
-		if (*t == ':') *t++ = '\0';
-
-		/* Analyze effect */
-		for (n2 = 0; r_info_blow_effect[n2]; n2++)
-		{
-			if (streq(s, r_info_blow_effect[n2])) break;
-		}
-
-		/* Invalid effect */
-		if (!r_info_blow_effect[n2]) return (PARSE_ERROR_GENERIC);
-
-		/* Analyze the third field */
-		for (s = t; *t && (*t != 'd'); t++) /* loop */;
-
-		/* Terminate the field (if necessary) */
-		if (*t == 'd') *t++ = '\0';
-
-		/* Save the method */
-		s_ptr->blow[i].method = n1;
-
-		/* Save the effect */
-		s_ptr->blow[i].effect = n2;
-
-		/* Extract the damage dice and sides */
-		s_ptr->blow[i].d_dice = atoi(s);
-		s_ptr->blow[i].d_side = atoi(t);
-	}
-
-	/* Process 'F' for "Basic Flags" (multiple lines) */
-	else if (buf[0] == 'F')
-	{
-		/* There better be a current r_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Parse every entry */
-		for (s = buf + 2; *s; )
-		{
-			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-			
-			/* Nuke and skip any dividers */
-			if (*t)
-			{
-				*t++ = '\0';
-				while (*t == ' ' || *t == '|') t++;
-			}
-
-			/* Parse this entry */
-			if (0 != grab_one_special_basic_flag(s_ptr, s))
-				return (PARSE_ERROR_INVALID_FLAG);
-
-			/* Start the next entry */
-			s = t;
-		}
-	}
-
-	/* Process 'S' for "Spell Flags" (multiple lines) */
-	else if (buf[0] == 'S')
-	{
-		/* There better be a current r_ptr */
-		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Parse every entry */
-		for (s = buf + 2; *s; )
-		{
-			/* Find the end of this entry */
-			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-			/* Nuke and skip any dividers */
-			if (*t)
-			{
-				*t++ = '\0';
-				while ((*t == ' ') || (*t == '|')) t++;
-			}
-
-			/* XXX XXX XXX Hack -- Read spell frequency */
-			if (1 == sscanf(s, "1_IN_%d", &i))
-			{
-				/* Extract a "frequency" */
-				s_ptr->freq_spell = 100 / i;
-
-				/* Start at next entry */
-				s = t;
-
-				/* Continue */
-				continue;
-			}
-
-			/* Parse this entry */
-			if (0 != grab_one_special_spell_flag(s_ptr, s))
-				return (PARSE_ERROR_INVALID_FLAG);
-
-			/* Start the next entry */
-			s = t;
-		}
-	}
-
-#else /* MONSTER_EGO_DEV */
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
 		int rar;
+		int lev;
+		int exp;
 
 		/* There better be a current s_ptr */
 		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d",
-		                &rar)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+		                &lev, &rar, &exp)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
+		s_ptr->level = lev;
 		s_ptr->rarity = rar;
+		s_ptr->exp_perc = exp;
 	}
 
-#endif
+	/* Process 'I' for ego type effects (one line only)*/
+	else if (buf[0] == 'I')
+	{
+		int spd, hp_prc;
+
+		/* There better be a current s_ptr */
+		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%d:%d",
+		                &spd, &hp_prc)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		s_ptr->speed_mod = spd;
+		s_ptr->hp_perc = hp_prc;
+	}
 
 	/* Process 'X' for "Negative Flags" (multiple lines) */
 	else if (buf[0] == 'X')
@@ -4197,7 +3956,7 @@ errr parse_s_info(char *buf, header *head)
 			}
 
 			/* Parse this entry */
-			if (0 != grab_one_special_negative_flag(s_ptr, s))
+			if (0 != grab_one_special_flag(&s_ptr->no_flag4, s))
 				return (PARSE_ERROR_INVALID_FLAG);
 
 			/* Start the next entry */
@@ -4205,6 +3964,34 @@ errr parse_s_info(char *buf, header *head)
 		}
 	}
 	
+	/* Process 'Y' for "Required Flags" (multiple lines) */
+	else if (buf[0] == 'Y')
+	{
+		/* There better be a current r_ptr */
+		if (!s_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+			
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_special_flag(&s_ptr->req_flag4, s))
+				return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
 	else
 	{
 		/* Oops */
@@ -5163,13 +4950,14 @@ errr parse_q_info(char *buf, header *head)
 	/* Process 'W' for "Where/What" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, idx, max;
+		int lev, r_idx, u_idx, max;
 
 		/* There better be a current q_ptr */
 		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",&lev, &idx, &max)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",&lev, &r_idx, &u_idx, &max)) 
+			return (PARSE_ERROR_GENERIC);
 
 		/* Check quests */
 		for (i = 0; i < error_idx; i++)
@@ -5180,9 +4968,18 @@ errr parse_q_info(char *buf, header *head)
 
 		/* Save the values */
 		prev_lev = q_ptr->base_level = q_ptr->active_level = lev;
-		q_ptr->r_idx = idx;
+		if (r_idx)
+		{
+			q_ptr->mon_idx = r_idx;
+			q_ptr->type = QUEST_FIXED;
+		}
+		else 
+		{
+			q_ptr->mon_idx = u_idx;
+			q_ptr->type = QUEST_FIXED_U;
+		}
+
 		q_ptr->max_num = max;
-		q_ptr->type = QUEST_FIXED;
 	}
 	else
 	{

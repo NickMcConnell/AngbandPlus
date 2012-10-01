@@ -6,25 +6,25 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
-# Note that there are a total of 127 available quests (modifiable in z_info). Any quests
-# not allocated here will be available to assignment as random quests.
+# Note that you can either put in a monster index, OR a unique index. 
+# Inserting both means that the unique index will be ignored. 
 
 # Format:
 # N:<quest index>:<quest name>
-# W:<level>:<monster>:<number>
+# W:<level>:<monster>:<unique>:<number>
 
 # Version stamp (required)
 
-V:0.4.4
+V:0.4.5
 
 N:0:Fake quest
-W:0:0:0
+W:0:0:0:0
 
 N:1:Sauron
-W:99:665:1
+W:99:0:110:1
 
 N:2:Morgoth
-W:100:666:1
+W:100:0:111:1
 
 # "Fake" slot for the random quests
 # N:3:Random

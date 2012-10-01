@@ -31,14 +31,11 @@ int usleep(huge usecs)
 	int *no_fds = NULL;
 #endif
 
-
 	/* Was: int readfds, writefds, exceptfds; */
 	/* Was: readfds = writefds = exceptfds = 0; */
 
-
 	/* Paranoia -- No excessive sleeping */
 	if (usecs > 4000000L) core("Illegal usleep() call");
-
 
 	/* Wait for it */
 	Timer.tv_sec = (usecs / 1000000L);
@@ -245,7 +242,6 @@ errr path_parse(char *buf, int max, cptr file)
 	return (0);
 }
 
-
 #endif /* SET_UID */
 
 #ifndef HAVE_MKSTEMP
@@ -321,7 +317,6 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 	return (0);
 }
 
-
 /*
  * Hack -- replacement for "fopen()"
  */
@@ -335,7 +330,6 @@ FILE *my_fopen(cptr file, cptr mode)
 	/* Attempt to fopen the file anyway */
 	return (fopen(buf, mode));
 }
-
 
 /*
  * Hack -- replacement for "fclose()"
@@ -596,7 +590,6 @@ int fd_open(cptr file, int flags)
 
 }
 
-
 /*
  * Hack -- attempt to lock a file descriptor
  *
@@ -717,7 +710,6 @@ errr fd_read(int fd, char *buf, size_t n)
 	return (0);
 }
 
-
 /*
  * Hack -- Attempt to write data to a file descriptor
  */
@@ -750,7 +742,6 @@ errr fd_write(int fd, cptr buf, size_t n)
 	return (0);
 }
 
-
 /*
  * Hack -- attempt to close a file descriptor
  */
@@ -766,7 +757,6 @@ errr fd_close(int fd)
 	return (0);
 }
 
-
 #ifdef CHECK_MODIFICATION_TIME
 # ifdef MACINTOSH
 #  include <stat.h>
@@ -774,7 +764,6 @@ errr fd_close(int fd)
 #  include <sys/types.h>
 #  include <sys/stat.h>
 # endif /* MACINTOSH */
-
 
 errr check_modification_date(int fd, cptr template_file)
 {
@@ -812,9 +801,6 @@ errr check_modification_date(int fd, cptr template_file)
 
 #endif /* ACORN */
 
-
-
-
 /*
  * Convert a decimal to a single digit hex number
  */
@@ -822,8 +808,6 @@ static char hexify(uint i)
 {
 	return (hexsym[i%16]);
 }
-
-
 
 /*
  * Convert a hexidecimal-digit into a decimal
@@ -834,7 +818,6 @@ static int dehex(char c)
 	if (isalpha(c)) return (A2I(tolower(c)) + 10);
 	return (0);
 }
-
 
 /*
  * Hack -- convert a printable string into real ascii
@@ -948,7 +931,6 @@ void text_to_ascii(char *buf, int len, cptr str)
 	*s = '\0';
 }
 
-
 /*
  * Hack -- convert a string into a printable form
  *
@@ -1034,8 +1016,6 @@ void ascii_to_text(char *buf, int len, cptr str)
 	*s = '\0';
 }
 
-
-
 /*
  * The "macro" package
  *
@@ -1044,13 +1024,10 @@ void ascii_to_text(char *buf, int len, cptr str)
  * and a small set of flags.
  */
 
-
-
 /*
  * Determine if any macros have ever started with a given character.
  */
 static bool macro__use[256];
-
 
 /*
  * Find the macro (if any) which exactly matches the given pattern
@@ -1079,7 +1056,6 @@ sint macro_find_exact(cptr pat)
 	return (-1);
 }
 
-
 /*
  * Find the first macro (if any) which contains the given pattern
  */
@@ -1106,7 +1082,6 @@ static sint macro_find_check(cptr pat)
 	/* Nothing */
 	return (-1);
 }
-
 
 /*
  * Find the first macro (if any) which contains the given pattern and more
@@ -1137,7 +1112,6 @@ static sint macro_find_maybe(cptr pat)
 	/* Nothing */
 	return (-1);
 }
-
 
 /*
  * Find the longest macro (if any) which starts with the given pattern
@@ -1173,7 +1147,6 @@ static sint macro_find_ready(cptr pat)
 	return (n);
 }
 
-
 /*
  * Add a macro definition (or redefinition).
  *
@@ -1192,10 +1165,8 @@ errr macro_add(cptr pat, cptr act)
 {
 	int n;
 
-
 	/* Paranoia -- require data */
 	if (!pat || !act) return (-1);
-
 
 	/* Look for any existing macro */
 	n = macro_find_exact(pat);
@@ -1227,8 +1198,6 @@ errr macro_add(cptr pat, cptr act)
 	return (0);
 }
 
-
-
 /*
  * Initialize the "macro" package
  */
@@ -1244,9 +1213,6 @@ errr macro_init(void)
 	return (0);
 }
 
-
-
-
 /*
  * Flush all pending input.
  *
@@ -1260,8 +1226,6 @@ void flush(void)
 	inkey_xtra = TRUE;
 }
 
-
-
 /*
  * Local variable -- we are inside a "macro action"
  *
@@ -1269,16 +1233,12 @@ void flush(void)
  */
 static bool parse_macro = FALSE;
 
-
 /*
  * Local variable -- we are inside a "macro trigger"
  *
  * Strip all keypresses until a low ascii value is found.
  */
 static bool parse_under = FALSE;
-
-
-
 
 /*
  * Helper function called only from "inkey()"
@@ -1308,10 +1268,8 @@ static char inkey_aux(void)
 
 	char buf[1024];
 
-
 	/* Wait for a keypress */
 	(void)(Term_inkey(&ch, TRUE, TRUE));
-
 
 	/* End "macro action" */
 	if (ch == 30) parse_macro = FALSE;
@@ -1325,11 +1283,9 @@ static char inkey_aux(void)
 	/* Inside "macro trigger" */
 	if (parse_under) return (ch);
 
-
 	/* Save the first key, advance */
 	buf[p++] = ch;
 	buf[p] = '\0';
-
 
 	/* Check for possible macro */
 	k = macro_find_check(buf);
@@ -1372,7 +1328,6 @@ static char inkey_aux(void)
 		}
 	}
 
-
 	/* Check for available macro */
 	k = macro_find_ready(buf);
 
@@ -1393,7 +1348,6 @@ static char inkey_aux(void)
 		return (ch);
 	}
 
-
 	/* Get the pattern */
 	pat = macro__pat[k];
 
@@ -1407,13 +1361,11 @@ static char inkey_aux(void)
 		if (Term_key_push(buf[--p])) return (0);
 	}
 
-
 	/* Begin "macro action" */
 	parse_macro = TRUE;
 
 	/* Push the "end of macro action" key */
 	if (Term_key_push(30)) return (0);
-
 
 	/* Get the macro action */
 	act = macro__act[k];
@@ -1944,7 +1896,6 @@ static u16b *message__type;
  */ 
 static u16b *message__count; 
    
-
 /*
  * Table of colors associated to message-types
  */
@@ -2342,15 +2293,6 @@ void messages_free(void)
  * are left with "meaningful" values.
  */
 
-
-/*
- * Move the cursor
- */
-void move_cursor(int row, int col)
-{
-	Term_gotoxy(col, row);
-}
-
 /*
  * Hack -- flush
  */
@@ -2417,7 +2359,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (message_column && (!msg || ((message_column + n) > 72)))
+	if (message_column && (!msg || ((message_column + n) > (Term->wid - 8))))
 	{
 		/* Flush */
 		msg_flush(message_column);
@@ -2462,17 +2404,17 @@ static void msg_print_aux(u16b type, cptr msg)
 	color = message_type_color(type);
 
 	/* Split message */
-	while (n > 72)
+	while (n > (Term->wid - 8))
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = 72;
+		split = Term->wid - 8;
 
 		/* Find the "best" split point */
-		for (check = 40; check < 72; check++)
+		for (check = (Term->wid / 2); check < (Term->wid - 8); check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -2673,7 +2615,6 @@ void text_out_to_screen(byte a, cptr str)
 	int w, h;
 
 	cptr s;
-
 
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
@@ -2885,9 +2826,6 @@ void clear_from(int row)
 	}
 }
 
-
-
-
 /*
  * Get some input at the cursor location.
  *
@@ -2919,20 +2857,17 @@ bool askfor_aux(char *buf, int len)
 	/* Locate the cursor */
 	Term_locate(&x, &y);
 
-
 	/* Paranoia */
 	if (len < 0) len = 0;
 
 	/* Paranoia */
 	if ((x < 0) || (x >= 80)) x = 0;
 
-
 	/* Restrict the length */
 	if (x + len > 80) len = 80 - x;
 
 	/* Truncate the default entry */
 	buf[len-1] = '\0';
-
 
 	/* Display the default answer */
 	Term_erase(x, y, len);
@@ -3093,7 +3028,6 @@ s16b get_quantity(cptr prompt, int max)
 	return (amt);
 }
 
-
 /*
  * Verify something with the user
  *
@@ -3136,7 +3070,6 @@ bool get_check(cptr prompt)
 	return (TRUE);
 }
 
-
 /*
  * Prompts for a keypress
  *
@@ -3167,7 +3100,6 @@ bool get_com(cptr prompt, char *command)
 	return (ch != ESCAPE);
 }
 
-
 /*
  * Pause for user response
  *
@@ -3181,14 +3113,10 @@ void pause_line(int row)
 	prt("", row, 0);
 }
 
-
-
-
 /*
  * Hack -- special buffer to hold the action of the current keymap
  */
 static char request_command_buffer[256];
-
 
 /*
  * Request a command from the user.
@@ -3260,6 +3188,9 @@ void request_command(bool shopping)
 		/* Get a keypress in "command" mode */
 		else
 		{
+			/* Hack -- reset view to inventory */
+			p_ptr->command_wrk = USE_INVEN;
+
 			/* Hack -- no flush needed */
 			msg_flag = FALSE;
 

@@ -421,12 +421,6 @@ void wipe_o_list(void)
 			artifact_aware(&a_info[o_ptr->a_idx]);
 		}
 
-		/* Quest items on quest levels */
- 		if (character_dungeon && (o_ptr->tval == TV_QUEST) && !p_ptr->is_dead)
-		{
-			quest_fail();
-		}
-
 		/* Monster */
 		if (o_ptr->held_m_idx)
 		{
@@ -530,7 +524,7 @@ object_type* get_first_object(int y, int x)
  * Get the next object in a stack or
  * NULL if there isn't one.
  */
-object_type* get_next_object(object_type *o_ptr)
+object_type* get_next_object(const object_type *o_ptr)
 {
 	if (o_ptr->next_o_idx) return (&o_list[o_ptr->next_o_idx]);
 
@@ -541,7 +535,7 @@ object_type* get_next_object(object_type *o_ptr)
 /*
  * Apply a "object restriction function" to the "object allocation table"
  */
-errr get_obj_num_prep(void)
+void get_obj_num_prep(void)
 {
 	int i;
 
@@ -567,7 +561,7 @@ errr get_obj_num_prep(void)
 	}
 
 	/* Success */
-	return (0);
+	return;
 }
 
 /*
@@ -3195,6 +3189,23 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 	}
 }
 
+/* Hack - paremeters for "typed" items */
+static byte typed_tval;
+
+/*
+ * Determine if a template is a proper "mimic" item
+ */
+static bool kind_typed(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+	
+	/* Flavored items */
+	if (k_ptr->tval == typed_tval) return (TRUE);
+	
+	/* Not a mimic item */
+	return (FALSE);
+}
+
 /* Hack - parameters for "mimic" items */
 static byte mimic_attr;
 static char mimic_char;
@@ -3406,6 +3417,111 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool real_depth)
 }
 
 /*
+ * Attempt to make an object (normal or good/great)
+ *
+ * This routine plays nasty games to generate the "special artifacts".
+ *
+ * This routine uses "object_level" for the "generation level".
+ *
+ * We assume that the given object has been "wiped".
+ *
+ * Great gives "great" magic to all applicable items.
+ */
+bool make_typed(object_type *j_ptr, byte tval, bool good, bool great, bool real_depth)
+{
+	int temp_level = p_ptr->obj_depth;
+	int prob, base;
+	
+	object_kind *k_ptr;
+
+	/* Easy mode - chance of inflating item */
+	if (adult_easy_mode)
+	{
+		/* Increase depth */
+		if (rand_int(1000) < EASY_INFLATE) p_ptr->obj_depth += 5;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(1000) < EASY_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(1000) < EASY_GREAT)) great = TRUE;
+	}
+
+	/* Luck - chance of inflating item */
+	if (p_ptr->luck)
+	{
+		/* Increase depth (up to four times) */
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 1;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 2;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 3;
+		if (rand_int(1000) < LUCK_INFLATE) p_ptr->obj_depth += 4;
+		/* Chance of improving object "quality" */
+		if (!good && (rand_int(1000) < LUCK_GOOD)) good = TRUE;
+		if (!great && good && (rand_int(1000) < LUCK_GREAT)) great = TRUE;
+	}
+
+	/* Base level for the object */
+	base = (good ? (p_ptr->obj_depth + 10) : p_ptr->obj_depth);
+
+	prob = (good ? 10 : 1000);
+
+	while (TRUE)
+	{
+		/* Generate a special artifact, or a normal object */
+		if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr, real_depth))
+		{
+			int k_idx;
+
+			typed_tval = tval;
+
+			/* Activate restriction */
+			get_obj_num_hook = kind_typed;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Pick a random object */
+			k_idx = get_obj_num(base);
+
+			/* Clear restriction */
+			get_obj_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Handle failure */
+			if (!k_idx) return (FALSE);
+
+			/* Prepare the object */
+			object_prep(j_ptr, k_idx);
+		}
+
+		/* Don't allow cursed objects if "good" is set */
+		if (!good || (object_value_real(j_ptr) > 0)) break;
+	}
+
+	/* Apply magic (allow artifacts) */
+	apply_magic(j_ptr, p_ptr->obj_depth, TRUE, good, great, real_depth);
+
+	k_ptr = &k_info[j_ptr->k_idx];
+
+	/* Hack -- some objects appear in stacks */
+	if ((k_ptr->qd>1) || (k_ptr->qs>1)) j_ptr->number = damroll(k_ptr->qd, k_ptr->qs);
+
+	/* Notice "okay" out-of-depth objects */
+	if (!cursed_p(j_ptr) && !broken_p(j_ptr) && (k_ptr->level > p_ptr->depth))
+	{
+		/* Rating increase */
+		rating += (k_info[j_ptr->k_idx].level - p_ptr->depth);
+
+		/* Cheat -- peek at items */
+		if (cheat_peek) object_mention(j_ptr);
+	}
+
+	p_ptr->obj_depth = temp_level;
+
+	/* Success */
+	return (TRUE);
+}
+
+/*
  * Hack - make an object according to its character and color
  */
 bool make_mimic(object_type *j_ptr, byte a, char c)
@@ -3449,17 +3565,17 @@ bool make_mimic(object_type *j_ptr, byte a, char c)
 		 */
 		switch (a)
 		{
-			case TERM_UMBER: coin_type = 2; break; /* copper */
-			case TERM_SLATE: coin_type = 5; break; /* silver */
+			case TERM_UMBER: coin_type = 3; break; /* copper */
+			case TERM_SLATE: coin_type = 6; break; /* silver */
 			/* case TERM_RED: coin_type = 7; break; - garnets, same color as rubies */
-			case TERM_YELLOW: coin_type = 10; break; /* gold */
-			case TERM_L_WHITE: coin_type = 11; break; /* opals */
-			case TERM_BLUE: coin_type = 12; break; /* sapphires */
-			case TERM_RED: coin_type = 13; break; /* rubies */
-			case TERM_WHITE: coin_type = 14; break; /* diamonds */
-			case TERM_GREEN: coin_type = 15; break; /* emeralds */
-			case TERM_L_BLUE: coin_type = 16; break; /* mithril */
-			case TERM_L_GREEN: coin_type = 17; break; /* adamantite */
+			case TERM_YELLOW: coin_type = 11; break; /* gold */
+			case TERM_L_WHITE: coin_type = 12; break; /* opals */
+			case TERM_BLUE: coin_type = 13; break; /* sapphires */
+			case TERM_RED: coin_type = 14; break; /* rubies */
+			case TERM_WHITE: coin_type = 15; break; /* diamonds */
+			case TERM_GREEN: coin_type = 16; break; /* emeralds */
+			case TERM_L_BLUE: coin_type = 17; break; /* mithril */
+			case TERM_L_GREEN: coin_type = 18; break; /* adamantite */
 		}			
 
 		/* Make gold */
@@ -3573,7 +3689,8 @@ void object_history(object_type *o_ptr, byte origin, s16b r_idx, s16b s_idx, s16
 
 			/* Fall through */
 		}
-		case ORIGIN_ACQUIRE: case ORIGIN_DROP_UNKNOWN: case ORIGIN_FLOOR:
+		case ORIGIN_ACQUIRE: case ORIGIN_DROP_UNKNOWN: 
+		case ORIGIN_FLOOR:	 case ORIGIN_CHEST:
 		{
 			o_ptr->origin_dlvl = p_ptr->depth;
 			break;
@@ -4025,6 +4142,16 @@ void place_chest(int y, int x)
 	place_trap_chest(y, x);
 }
 
+/*
+ * Place a random type of closed door at the given location.
+ */
+void place_quest_chest(int y, int x)
+{
+	/* Create closed door */
+	cave_set_feat(y, x, FEAT_QST_CHEST);
+
+	place_trap_chest(y, x);
+}
 /*
  * Describe an alchemical formula (place string in buf)
  */
@@ -4950,6 +5077,9 @@ void create_quest_item(int ny, int nx)
 	/* Identify it */
 	object_known(i_ptr);
 
+	/* Mark history */
+	object_history(i_ptr, ORIGIN_CHEST, 0, 0, 0);
+		
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, ny, nx);
 }

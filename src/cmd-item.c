@@ -52,9 +52,6 @@
  */
 void do_cmd_inven(void)
 {
-	/* Hack -- Start in "inventory" mode */
-	p_ptr->command_wrk = (USE_INVEN);
-
 	/* Save screen */
 	screen_save();
 
@@ -70,6 +67,9 @@ void do_cmd_inven(void)
 	/* Prompt for a command */
 	prt("(Inventory) Command: ", 0, 0);
 
+	/* Hack -- Use equipment screen */
+	p_ptr->command_wrk = USE_INVEN;
+
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
 
@@ -82,13 +82,6 @@ void do_cmd_inven(void)
 		/* Reset stuff */
 		p_ptr->command_new = 0;
 	}
-
-	/* Hack -- Process normal keys */
-	else
-	{
-		/* Hack -- Use "display" mode */
-		p_ptr->command_see = TRUE;
-	}
 }
 
 /*
@@ -96,9 +89,6 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
-	/* Hack -- Start in "equipment" mode */
-	p_ptr->command_wrk = (USE_EQUIP);
-
 	/* Save screen */
 	screen_save();
 
@@ -114,6 +104,9 @@ void do_cmd_equip(void)
 	/* Prompt for a command */
 	prt("(Equipment) Command: ", 0, 0);
 
+	/* Hack -- Use equipment screen */
+	p_ptr->command_wrk = USE_EQUIP;
+
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
 
@@ -125,13 +118,6 @@ void do_cmd_equip(void)
 	{
 		/* Reset stuff */
 		p_ptr->command_new = 0;
-	}
-
-	/* Hack -- Process normal keys */
-	else
-	{
-		/* Enter "display" mode */
-		p_ptr->command_see = TRUE;
 	}
 }
 

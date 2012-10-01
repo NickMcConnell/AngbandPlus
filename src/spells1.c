@@ -30,7 +30,7 @@ static int apply_resistance(int dam, byte res)
 	return dam;
 }
 
-static int resist_steps[11] = {0,0,25,50,100,200,300,400,600,1000};
+static int resist_steps[11] = {0,0,0,25,50,100,200,300,400,600,1000};
 
 /*
  * Chance to avoid a resistance according to effect.
@@ -45,14 +45,14 @@ bool resist_effect(byte res)
 	/* Full resistance, immune to the effect */
 	if (p_ptr->res[res] >= step) return TRUE;
 
-	for (i = 0, j = (p_ptr->res[res] * 10); ((j > 0) && (i < 10)); j -= step, i++)
-	{
-		/* Whole steps */
-		if (j >= step) chance = resist_steps[i + 1];
-		/* Less than a whole step */
-		else chance += 
-			(((100 * (j % step)) / step) * (resist_steps[i + 1] - resist_steps[i])) / 100;
-	}
+	/* Nearest lower whole step */
+	i = (p_ptr->res[res]*10) / step;
+        
+	/* Fraction of the next step (j/step) */
+	j = (p_ptr->res[res]*10) % step;
+
+	chance = resist_steps[i] + 
+		(((100 * j ) / step) * (resist_steps[i + 1] - resist_steps[i])) / 100;
 
 	return (rand_int(1000) <= chance);
 }
@@ -380,7 +380,9 @@ void teleport_player_level(void)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
+			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) || 
+			 (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -3270,6 +3272,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 				/* Learn all of the non-spell, non-treasure flags */
 				lore_do_probe(m_ptr);
+
+				/* Something happened */
+				obvious = TRUE;
 			}
 
 			break;
@@ -3355,7 +3360,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Create a new monster (no groups) */
-			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, PLACE_NO_U);
+			(void)place_monster_aux(y, x, tmp, FALSE, FALSE, PLACE_NO_UNIQUE);
 
 			/* Hack -- Assume success XXX XXX XXX */
 
@@ -4275,7 +4280,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Encoded "radius" info (see above) */
 	byte gm[16];
 
-
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))
 	{
@@ -4417,7 +4421,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			}
 		}
 	}
-
 
 	/* Save the "blast epicenter" */
 	y2 = y;
@@ -4562,7 +4565,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	}
 
 	/* Update stuff if needed */
-		update_stuff();
+	update_stuff();
 
 	/* Check objects */
 	if (flg & (PROJECT_ITEM))

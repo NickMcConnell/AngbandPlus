@@ -676,7 +676,7 @@ byte count_spells(int book)
 }
 
 /*
- * Get a spell out of a book/instrument
+ * Get a spell out of a book
  */
 static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool allow_all)
 {
@@ -684,7 +684,7 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 
 	int spell = -1;
 
-	bool flag, redraw, okay;
+	bool flag, okay;
 	char choice;
 
 	char out_val[160];
@@ -731,47 +731,20 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) %^s which spell? ",
+	strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) %^s which spell? ",
 		I2A(0), I2A(count_spells(book)-1), prompt);
+
+	/* Save screen */
+	screen_save();
+
+	/* Display a list of spells */
+	print_spells(book, FALSE, 0, 1, 14);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
 		okay = TRUE;
-
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Hide the list */
-			if (redraw)
-			{
-				/* Load screen */
-				screen_load();
-
-				/* Hide list */
-				redraw = FALSE;
-			}
-
-			/* Show the list */
-			else
-			{
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save screen */
-				screen_save();
-
-				/* Display a list of spells */
-				print_spells(book, FALSE, 0, 1, 14);
-			}
-
-			/* Ask again */
-			continue;
-		}
 
 		/* Force high sub-spell */
 		if (ss && !spellbook_menu)
@@ -826,12 +799,8 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 		flag = TRUE;
 	}
 
-	/* Restore the screen */
-	if (redraw)
-	{
-		/* Load screen */
-		screen_load();
-	}
+	/* Load screen */
+	screen_load();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -847,7 +816,7 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 }
 
 /*
- * Get a spell out of a book/instrument
+ * Get a spell out of an instrument
  */
 static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_all)
 {
@@ -855,7 +824,7 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 
 	int tune = -1;
 
-	bool flag, redraw, okay;
+	bool flag, okay;
 	char choice;
 
 	char out_val[160];
@@ -900,45 +869,19 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) %^s which tune? ",
 		I2A(0), I2A(count_tunes(instrument, lev)-1), prompt);
 
+	/* Save screen */
+	screen_save();
+
+	/* Display a list of spells */
+	print_spells(instrument, TRUE, lev, 1, 14);
+
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Hide the list */
-			if (redraw)
-			{
-				/* Load screen */
-				screen_load();
-
-				/* Hide list */
-				redraw = FALSE;
-			}
-
-			/* Show the list */
-			else
-			{
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save screen */
-				screen_save();
-
-				/* Display a list of spells */
-				print_spells(instrument, TRUE, lev, 1, 14);
-			}
-
-			/* Ask again */
-			continue;
-		}
 
 		/* Lowercase */
 		choice = tolower(choice);
@@ -967,12 +910,8 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 		flag = TRUE;
 	}
 
-	/* Restore the screen */
-	if (redraw)
-	{
-		/* Load screen */
-		screen_load();
-	}
+	/* Load screen */
+	screen_load();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -1367,9 +1306,6 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 	/* Nothing chosen yet */
 	bool flag = FALSE;
 
-	/* No redraw yet */
-	bool redraw = FALSE;
-
 	magic_type *s_ptr = &books[book].contents[spell];
 
 	int handicap = cp_ptr->spell_handicap[book]-1;
@@ -1390,42 +1326,18 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 	*ss = 0;
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) What spell power? ",
+	strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) What spell power? ",
 		I2A(0), I2A(max));
+
+	/* Save screen */
+	screen_save();
+
+	/* Display a list of spells */
+	print_sub_spells(book, spell, from, to, 0, 30);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Hide the list */
-			if (redraw)
-			{
-				/* Load screen */
-				screen_load();
-
-				/* Hide list */
-				redraw = FALSE;
-			}
-
-			/* Show the list */
-			else
-			{
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save screen */
-				screen_save();
-
-				/* Display a list of spells */
-				print_sub_spells(book, spell, from, to, 0, 30);
-			}
-
-			/* Ask again */
-			continue;
-		}
-
 		/* Lowercase */
 		choice = tolower(choice);
 
@@ -1443,12 +1355,8 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 		flag = TRUE;
 	}
 
-	/* Restore the screen */
-	if (redraw)
-	{
-		/* Load screen */
-		screen_load();
-	}
+	/* Load screen */
+	screen_load();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);

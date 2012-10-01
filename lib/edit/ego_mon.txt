@@ -8,47 +8,154 @@
 
 # === Understanding ego_mon.txt ===
 
-#
+# N: serial number : ego monster type
+# W: level : rarity : exp modifier
+# I: speed modifier : hp percentage
+# Y: necessary flags
+# X: excluded flags
 
-V:0.4.4
+# There are two kinds of ego monster names - insertive, and non-insertive.
+# Insertive names are those that go into the base name. For instance, 
+# if the base monster is "novice warrior", and the ego name is "dwarven", 
+# the full name would be "novice dwarven warrior". Their format is "<dwarven>" 
+# for the ego name, and "novice ^warrior" for the base name.
+# Non insertive names are where the base-name is left intact. They follow the 
+# format "dwarven &", where the '&' determines the place of insertion for the 
+# base name.
+
+# X/Y: Note that you can only include a subset of flags in these two 
+# lines; namely, the ones that identify the monster (such as UNDEAD or
+# HUMANOID) and not ones that determine monster abilities.
+
+V:0.4.5
+
+# Person types #
 
 N:1:<human>
-W:1
+W:0:1:100
+I:0:100
+Y:PERSON
 
 N:2:<elven>
-W:2
+W:0:2:100
+I:1:95
+Y:PERSON
 
 N:3:<dwarven>
-W:2
+W:0:2:105
+I:0:110
+Y:PERSON
 X:MAGE
 
 N:4:<gnome>
-W:5
+W:0:5:95
+I:0:90
+Y:PERSON
 X:WARRIOR
 
 N:5:<grippli>
-W:7
+W:0:7:95
+I:2:80
+Y:PERSON
 X:WARRIOR 
 
 N:6:<lizardman>
-W:3
+W:0:3:110
+I:0:120
+Y:PERSON
 X:MAGE | PRIEST
 
 N:7:<rattikin>
-W:2
+W:0:2:100
+I:1:90
+Y:PERSON
 X:PRIEST
 
 N:8:<felpurr>
-W:4
+W:0:4:100
+I:0:100
+Y:PERSON
 X:ROGUE
 
 N:9:<ursa>
-W:6
+W:0:6:110
+I:-1:140
+Y:PERSON
 X:MAGE | ROGUE
 
 N:10:<vargr>
-W:4
+W:0:4:105
+I:0:110
+Y:PERSON
 
 N:11:<kyrrus>
-W:6
+W:0:6:100
+I:0:95
+Y:PERSON
 X:WARRIOR | ROGUE
+
+# Animal types #
+
+# Normal animal - no title
+N:12:&
+W:0:1:100
+I:0:100
+Y:ANIMAL
+
+N:13:large &
+W:0:6:105
+I:0:120
+Y:ANIMAL
+
+N:14:small &
+W:0:6:90
+I:0:85
+Y:ANIMAL
+
+N:15:young &
+W:0:7:100
+I:1:90
+Y:ANIMAL
+
+N:16:old &
+W:0:8:90
+I:-1:90
+Y:ANIMAL
+
+N:17:ferocious &
+W:5:8:100
+I:2:110
+Y:ANIMAL
+
+N:18:sickly &
+W:0:9:80
+I:-1:75
+Y:ANIMAL
+
+# Humanoid types #
+
+# Normal humanoid - no title
+N:19:&
+W:0:1:100
+I:0:100
+Y:HUMANOID
+
+N:20:battle-scarred &
+W:0:7:105
+I:0:110
+Y:HUMANOID
+
+N:21:small &
+W:0:7:95
+I:0:90
+Y:HUMANOID
+
+N:22:cunning-eyed &
+W:0:8:105
+I:2:100
+Y:HUMANOID
+
+N:23:drooling &
+W:0:8:95
+I:-2:100
+Y:HUMANOID

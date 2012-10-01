@@ -172,7 +172,7 @@ bool make_attack_normal(int m_idx)
 		if (m_ptr->ml) visible = TRUE;
 
         /* Extract visibility from carrying lite */
-        if (r_ptr->flags1 & RF1_HAS_LITE) visible = TRUE;
+        if (r_ptr->flags2 & RF2_HAS_LITE) visible = TRUE;
 
 		/* Extract the attack "power" */
 		switch (effect)

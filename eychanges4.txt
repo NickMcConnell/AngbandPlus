@@ -1,3 +1,164 @@
+Changes from 0.4.4b to 0.4.5:
+
+- Savefiles compatible from 0.4.4/b, but there may be irregularities, 
+  especially with existing monsters and rewards for any incomplete quests.
+
+- Various code improvements from Angband CVS.
+
+## Gameplay changes ##
+
+- Added new, Zangband-style weighted autoroller as a birth option (in addition
+  to old autoroller).
+
+- Now, items you can't afford will have their price greyed out in the stores.
+  (Patch by Pav Lucistnik).
+
+- Now, the store will never offer you more items than you can afford for sale
+  (so, for instance, if you have 100 gold and there are 15 potions costing 10
+  gold each, it will let you choose (1-10) potions instead of (1-15) at the
+  prompt). (Patch by Pav Lucistnik).
+
+- Messages will now take advantage of bigscreen. (Patch by Pav Lucistnik).
+
+- Reduced the chance of monsters overcoming stunning completely in one turn.
+
+- Increased maximum number of traps per level to 256.
+
+- Now, non-ID'd items you are wearing are pseudo-ID'd much faster than other 
+  items. Also, at very high levels, warrior pseudo-ID is slightly slower.
+
+- Rewrote quest reward code from scratch; it should now be a lot more 
+  accurate in giving better items.
+
+- Any command which requires an item/spell choice always displays the 
+  possibilities.
+
+# Items #
+
+- Reworked chests. Now, they will generate 3-5 items from some general theme.
+  These items are no longer necessarily excellent.
+
+# Classes #
+
+- Rangers no longer start the game with a spellbook, but get a larger amount 
+  of arrows.
+
+# Quests #
+
+- Uniques can now show up as quest monsters.
+
+- Quest objects are now found in chests.
+
+# Monsters #
+
+- Group person types now travel in groups of the same race, not class; this
+  utilizes the new PEERS monster flag; note that every once in a while an
+  old-style group will be generated.
+
+- Ego-monster types now have a gameplay effect - they modify the amount of HP
+  that the monster has, and can also affect speed. Now, novice vargr warriors 
+  and novice rattikin warriors are no longer exactly the same.
+  
+- Some monster revisions: the lower level "dark elf" races have been removed, 
+  replaced by more advanced group types. Dark elf warriors are now simply 
+  dark elves. Dark elf druids now dark elf conjurers; nature-worshipping dark-
+  elves seemed somewhat out of place.
+
+- The old "mage" monster is now "experienced mage", to let place for the lower-
+  level group "mage" monster.
+
+- Flying skulls now drain CON instead of STR. At the moment they were too 
+  similar to giant bees, and there are plenty of strength-drainig monsters
+  but only very few constituion draining ones.
+
+- Brigands and priests slightly weakened, and now group monsters.
+
+- Cleaned up some of the monster generation code.
+
+- Added ego-monster types for animals and humanoids. 
+
+- Minor changes to the Cockatrice.
+
+## Non-gameplay changes ##
+ 
+- Improved the HTML screenshot code to support player colors and "mimic"
+  monsters, as well as show all mutil-hued monsters in the color they
+  were when the shot was taken.
+   
+## Bug fixes ##
+
+- Staves of probing now properly identified on use.
+
+- Fixed bug which caused resistances to work incorrectly as they approached 
+  (but not reached) the cap. (Thanks Jaroslav Sladek for fix).
+
+- Fixed potential overflows with monster conditions.
+
+- Fixed bug with traps in darkness.
+
+- Fixed bug that could rarely invalidate savefiles or crash the game.
+
+- Fixed some bugs with monster generation, that stopped out-of-depth uniques
+  based on normal monsters from appearing in vaults.
+
+- Fixed some bugs with the object recall window, and they now make better
+  use of space.
+
+- Fixed starting weapons for kyrri characters.
+
+- Shattered and Blasted weapons/armor are no longer partially fixed on
+  reload.
+
+- Earthquakes properly remove traps, now.
+
+- Fixed incorrect prefixes on certain artifacts. 
+
+- Birth option to retain squelch now always works correctly.
+
+- Context sensitive help now works correctly during character generation.
+
+- Creeping gems corrected.
+
+- Fixed scrolls of elemental brand.
+
+- Staffs of starlight now work correctly.
+
+- Mages have the HAS_LIGHT flag instead of the erroneus HURT_LIGHT.
+
+- Fixed bows of extra might.
+
+Changes from 0.4.4 to 0.4.4b:
+
+- Full savefile support for 0.4.4 savefiles.
+
+- Added option from Zangband for player color to reflect damage.
+
+- Things hurt by acid no longer "melt" but rather "dissolve". Ego-items of
+  melting are now of corrosiveness.
+
+## Bug fixes ##
+
+- Fixed starting items for mages, fixed and tweaked items for spellswords, 
+  tweaked thief items.
+
+- Corrected name of first priest spellbook.
+
+- If you throw something at a monster and you fail the to-hit roll, you now get 
+  a message.
+
+- Fixed Gurthang's brand.
+
+- You can no longer get cursed items in quest rewards.
+
+- Compilation problems in systems with usleep.
+
+- Music instrument artifacts now appear on spoilers and knowledge browsers.
+
+- Recent CodeWarrior releases require <unistd.h> and <fcntl.h> for Angband to 
+  compile. (From Vanilla CVS)
+
+- Potions of life now only partially heal tainted characters.
+
 Changes from 0.4.3 to 0.4.4:
 
 - No savefile compatibility to earlier versions.

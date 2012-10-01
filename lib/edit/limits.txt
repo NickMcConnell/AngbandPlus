@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.4.4
+V:0.4.5
 
 # Maximum number of feature types
 M:F:42
@@ -44,7 +44,7 @@ M:W:46
 M:R:667
 
 # Maximum number of special (ego) monsters
-M:S:12
+M:S:24
 
 # Maximum number of monster uniques
 M:U:112
@@ -66,16 +66,18 @@ M:Q:4
 
 # Maximum number of objects on a level
 M:O:512
-# Old Vanilla value - might be necessary on older computers
+# Lower value for older computers
 # M:O:256
 
 # Maximum number of monsters on a level
 M:M:1024
-# Old Vanilla value - might be necessary on older computers
+# Lower value for older computers
 # M:M:512
 
 # Maximum number of traps on a level
-M:T:128
+M:T:256
+# Lower value for older computers
+# M:T:128
 
 # Array sizes (in bytes) for some initialization stuff
 #

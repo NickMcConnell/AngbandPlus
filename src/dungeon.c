@@ -89,12 +89,16 @@ int value_check_aux2(object_type *o_ptr)
  */
 static void sense_inventory(void)
 {
-	int i;
-	int plev = p_ptr->lev;
-	bool heavy = FALSE;
-	int feel;
+	int i, feel;
+	bool heavy;
 	object_type *o_ptr;
 	char o_name[80];
+	u32b delay1, delay2;
+
+	bool okay = FALSE;
+	bool squelch = FALSE;
+
+	bool notice = FALSE;
 
 	/*** Check for "sensing" ***/
 
@@ -104,66 +108,85 @@ static void sense_inventory(void)
 	/* Analyze the class */
 	switch (cp_ptr->flags & CF_PSEUDO_ID_MASK)
 	{
-		case CF_PSEUDO_ID1:
-		{
-			/* Very slow (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CF_PSEUDO_ID2:
-		{
-			/* Slow (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CF_PSEUDO_ID3:
-		{
-			/* Slow sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CF_PSEUDO_ID4:
-		{
-			/* Fast (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CF_PSEUDO_ID5:
-		{
-			/* Fast sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		default : return;
+		case CF_PSEUDO_ID1: delay1 = 240000L / (p_ptr->lev + 5); break;
+		case CF_PSEUDO_ID2: delay1 = 120000L / (p_ptr->lev + 5); break;
+		case CF_PSEUDO_ID3: delay1 = 80000L / ((p_ptr->lev * p_ptr->lev) + 40); break;
+		case CF_PSEUDO_ID4: delay1 = 10000L / ((p_ptr->lev * p_ptr->lev) + 40); break;
+		case CF_PSEUDO_ID5: delay1 = 9000L / ((p_ptr->lev * p_ptr->lev) + 40); break;
+		/* No pseudo-ID */
+		default: return;
 	}
 
-	/* Heavy sensing */
-	if (cp_ptr->flags & CF_PSEUDO_ID_HEAVY) heavy=TRUE;
+	delay2 = delay1 / 25;
 
-	/*** Sense everything ***/
+	if (delay1 < 5) delay1 = 5;
+	if (delay2 < 3) delay2 = 3;
+
+	heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
+
+	/* Check to see if detected anything worn */
+	if (!rand_int(delay2)) 
+	{
+		/*** Sense your pack ***/
+
+		/* Check everything */
+		for (i = INVEN_WIELD; i < INVEN_MUSIC; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* Skip empty slots */
+			if (!o_ptr->k_idx) continue;
+
+			/* It already has a discount or special inscription, except "indestructible" */
+			if ((o_ptr->discount > 0) && !(o_ptr->discount == INSCRIP_INDESTRUCT)) continue;
+
+			/* It has already been sensed, do not sense it again */
+			if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+			/* It is fully known, no information needed */
+			if (object_known_p(o_ptr)) continue;
+
+			/* Check for a feeling */
+			feel = ((heavy || (o_ptr->discount == INSCRIP_INDESTRUCT)) ? value_check_aux1(o_ptr) 
+				: value_check_aux2(o_ptr));
+
+			/* Skip non-feelings */
+			if (!feel) continue;
+
+			/* Get an object description */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
+			
+			/* Sense the object */
+			o_ptr->discount = feel;
+
+			squelch = squelch_itemp(o_ptr);
+			
+			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) you are %s %s %s...",
+						o_name, index_to_label(i), describe_use(i),
+						((o_ptr->number == 1) ? "is" : "are"),
+						inscrip_text[feel - INSCRIP_NULL]);
+
+			/* Squelch it if necessary */
+			if (squelch) do_squelch_item(o_ptr);
+
+			notice = TRUE;
+		}
+	}
+
+	/* Check to see if detected anything in the pack */
+	if (rand_int(delay1)) return;
+
+	/* Heavy sensing */
+	if (cp_ptr->flags & CF_PSEUDO_ID_HEAVY) heavy = TRUE;
+
+	/*** Sense your pack ***/
 
 	/* Check everything */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_PACK; i++)
 	{
-		bool okay = FALSE;
-
-		bool squelch = FALSE;
-
 		o_ptr = &inventory[i];
 
 		/* Skip empty slots */
@@ -193,7 +216,7 @@ static void sense_inventory(void)
 			}
 		}
 
-		/* Skip non-sense machines */
+		/* Skip irrelevant items */
 		if (!okay) continue;
 
 		/* It already has a discount or special inscription, except "indestructible" */
@@ -206,7 +229,7 @@ static void sense_inventory(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
+		if (!rand_int(5)) continue;
 
 		/* Check for a feeling */
 		feel = ((heavy || (o_ptr->discount == INSCRIP_INDESTRUCT)) ? value_check_aux1(o_ptr) 
@@ -224,42 +247,29 @@ static void sense_inventory(void)
 		/* Sense the object */
 		o_ptr->discount = feel;
 		
-		/* Squelch it? */
-		if (i < INVEN_WIELD) 
-		{
-			squelch = squelch_itemp(o_ptr);
-		}
+		squelch = squelch_itemp(o_ptr);
 		
-		/* Stop everything */
-		if (disturb_minor) disturb(0);
-
-		/* Message (equipment) */
-		if (i >= INVEN_WIELD)
-		{
-			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) you are %s %s %s...",
-						o_name, index_to_label(i), describe_use(i),
-						((o_ptr->number == 1) ? "is" : "are"),
-						inscrip_text[feel - INSCRIP_NULL]);
-		}
-
-		/* Message (inventory) */
-		else
-		{
-			message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...",
-						o_name, index_to_label(i),
-						((o_ptr->number == 1) ? "is" : "are"),
-						inscrip_text[feel - INSCRIP_NULL]);
-		}
+		message_format(MSG_PSEUDO_ID, 0, "You feel the %s (%c) in your pack %s %s...",
+					o_name, index_to_label(i),
+					((o_ptr->number == 1) ? "is" : "are"),
+					inscrip_text[feel - INSCRIP_NULL]);
 
 		/* Squelch it if necessary */
 		if (squelch) do_squelch_item(o_ptr);
 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		notice = TRUE;
 	}
+
+	if (!notice) return;
+
+	/* Stop everything */
+	if (disturb_minor) disturb(0);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
 
 /*
@@ -462,7 +472,8 @@ static void process_world(void)
 		if ((p_ptr->cur_quest != p_ptr->depth) && (rand_int(2) == 0))
 		{
 			/* Check if quest is in progress */
-			if (q_ptr->started && q_ptr->active_level && (q_ptr->type == QUEST_GUILD))
+			if (q_ptr->started && q_ptr->active_level && 
+				((q_ptr->type == QUEST_GUILD) || (q_ptr->type == QUEST_UNIQUE)))
 				quest_fail();
 		}
 	}
@@ -1907,9 +1918,6 @@ static void process_player(void)
 			if (p_ptr->window) window_stuff();
 		}
 
-		/* Hack -- cancel "lurking browse mode" */
-		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
-
 		/* Assume free turn */
 		p_ptr->energy_use = 0;
 
@@ -2128,6 +2136,8 @@ static void dungeon(void)
 	p_ptr->command_arg = 0;
 	p_ptr->command_dir = 0;
 
+	p_ptr->command_wrk = USE_INVEN;
+
 	/* Cancel the target */
 	target_set_monster(0);
 
@@ -2160,7 +2170,8 @@ static void dungeon(void)
 	}
 
 	/* No stairs down from fixed quests */
-	if (quest_check(p_ptr->depth) == QUEST_FIXED)
+	if ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
+		(quest_check(p_ptr->depth) == QUEST_FIXED_U))
 	{
 		p_ptr->create_down_stair = FALSE;
 	}
@@ -2316,6 +2327,12 @@ static void dungeon(void)
 
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
+
+		/* Hack -- Compact the trap list occasionally */
+		if (t_cnt + 32> z_info->t_max) compact_traps(64);
+
+		/* Hack -- Compress the trap list occasionally */
+		if (t_cnt + 32 < t_max) compact_traps(0);
 
 		/*** Apply energy ***/
 
@@ -2676,6 +2693,35 @@ void play_game(bool new_game)
 		wipe_o_list();
 		wipe_t_list();
 		wipe_m_list();
+
+		/* Quest items on quest levels */
+		if ((p_ptr->cur_quest) && (quest_check(p_ptr->cur_quest) == QUEST_VAULT))
+		{
+			quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+
+			/* Check if had already been on quest level */
+			if (q_ptr->started)
+			{
+				int i;
+				object_type *o_ptr;
+				bool fail_quest = TRUE;
+
+				/* Check if player has a quest item in his inventory */
+				for (i = 0; i < INVEN_PACK; i++)
+				{
+					o_ptr = &inventory[i];
+
+					/* Found the quest item */
+					if (o_ptr->tval == TV_QUEST)
+					{
+						fail_quest = FALSE;
+						break;
+					}
+				}
+
+				if (fail_quest) quest_fail();
+			}
+		}
 
 		/* XXX XXX XXX */
 		message_flush();

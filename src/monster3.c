@@ -225,66 +225,10 @@ monster_race *get_monster_real(monster_type *m_ptr)
 	if ((m_ptr->r_idx < 0) || (m_ptr->r_idx >= z_info->r_max))
 		quit(format("Error obtaining monster attributes code - illegal r_idx"));
 
-#ifdef MONSTER_EGO_DEV
-	/* Simple monster */
-	if (!m_ptr->u_idx && !m_ptr->s_idx) return (r_ptr);
-
-	/* Paranoia - if this happens, we're in trouble */
-	if ((m_ptr->s_idx < 0) || (m_ptr->s_idx >= z_info->s_max))
-		quit(format("Error obtaining monster attributes code - illegal s_idx"));
-
-	/* Ego monster */
-	if (m_ptr->s_idx)
-	{
-		/* XXX XXX XXX - note - ego monsters are currently regular monsters with different 
-		   names */
-		/*
-		 * Copy basic stats from s_ptr to the temporary monster. Note that name and text,
-		 * are never derived from it so no need to copy them.
-		 */
-		monster_special *s_ptr = &s_info[m_ptr->s_idx];
-
-		monster_temp.hdice = r_ptr->hdice + s_ptr->hdice_add;		
-		monster_temp.hside = r_ptr->hside + s_ptr->hside_add;
-		monster_temp.ac = r_ptr->ac + s_ptr->ac_add;
-		monster_temp.sleep = r_ptr->sleep;			
-		monster_temp.aaf = r_ptr->aaf;
-		monster_temp.speed = r_ptr->speed + s_ptr->speed_add;			
-		monster_temp.mexp = r_ptr->mexp + s_ptr->mexp_add;
-		monster_temp.freq_spell = s_ptr->freq_spell;	
-		monster_temp.level = r_ptr->level + s_ptr->level;			
-		monster_temp.rarity = r_ptr->rarity;		
-
-		for (i = 0; i < 4; i++)
-		{
-			monster_temp.blow[i].method = r_ptr->blow[i].method;
-			monster_temp.blow[i].effect = r_ptr->blow[i].effect;
-			monster_temp.blow[i].d_dice = r_ptr->blow[i].d_dice;
-			monster_temp.blow[i].d_side = r_ptr->blow[i].d_side;
-		}
-
-		/* d_char copied from r_ptr */
-		monster_temp.d_char = (s_ptr->s_char > 0) ? (byte)s_ptr->s_char : r_ptr->d_char;
-		monster_temp.d_attr = (s_ptr->s_attr > 0) ? (byte)s_ptr->s_attr : r_ptr->d_attr;
-		monster_temp.x_char = (s_ptr->s_char > 0) ? (byte)s_ptr->s_char : r_ptr->x_char;
-		monster_temp.x_attr = (s_ptr->s_attr > 0) ? (byte)s_ptr->s_attr : r_ptr->x_attr;
-
-		/* Flags are a combination of both, except flags1 */
-		monster_temp.flags1 = (r_ptr->flags1 | s_ptr->flags1);		
-		monster_temp.flags2 = (r_ptr->flags2 | s_ptr->flags2);		
-		monster_temp.flags3 = (r_ptr->flags3 | s_ptr->flags3);		
-		monster_temp.flags4 = (r_ptr->s_flags1 | s_ptr->flags4);		
-		monster_temp.flags5 = (r_ptr->s_flags2 | s_ptr->flags5);		
-		monster_temp.flags6 = (r_ptr->s_flags3 | s_ptr->flags6);		
-
-		/* XXX XXX XXX Reset unique cache */
-		stored_unique = 0;
-#else /* EGO_MONSTER_DEV */
 	/* Simple monster */
 	if (!m_ptr->u_idx) 
 	{
 		return (r_ptr);
-#endif
 	}
 	else
 	{

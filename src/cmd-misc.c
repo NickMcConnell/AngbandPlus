@@ -158,7 +158,7 @@ static bool is_open(int feat)
  */
 static bool is_closed(int feat)
 {
-	return ((feat == FEAT_CLOSED) || (feat == FEAT_CHEST));
+	return ((feat == FEAT_CLOSED) || (feat == FEAT_CHEST) || (feat == FEAT_QST_CHEST));
 }
 
 /*
@@ -227,7 +227,8 @@ static bool do_cmd_open_test(int y, int x)
 
 	/* Must be a closed door */
 	if ((cave_feat[y][x] != FEAT_CLOSED) &&
-	    (cave_feat[y][x] != FEAT_CHEST))
+	    (cave_feat[y][x] != FEAT_CHEST) &&
+		(cave_feat[y][x] != FEAT_QST_CHEST))
 	{
 		/* Message */
 		message(MSG_FAIL, 0, "You see nothing there to open.");
@@ -249,6 +250,7 @@ static bool do_cmd_open_test(int y, int x)
  */
 static bool do_cmd_open_aux(int y, int x)
 {
+	int i, j;
 	bool more = FALSE;
 
 	/* Verify legality */
@@ -257,8 +259,6 @@ static bool do_cmd_open_aux(int y, int x)
 	/* Locked door */
 	if (trap_lock(y, x) && trap_player(y, x)) 
 	{
-		int i, j;
-
 		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
 
 		/* Disarm factor */
@@ -326,13 +326,131 @@ static bool do_cmd_open_aux(int y, int x)
 
 			hit_trap(y, x);
 		}
-		/* No trap */
-		else 
+		/* No trap - quest chest */
+		else if (cave_feat[y][x] == FEAT_QST_CHEST)
 		{
+			/* Delete Chest */
 			cave_set_feat(y, x, FEAT_FLOOR);
 
-			/* Create a reward */
-			acquirement(y, x, 1, TRUE, TRUE);
+			/* Make the quest item */
+			create_quest_item(y, x);
+		}
+		/* Normal chest */
+		else 
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			byte tval;
+			int theme;
+			bool placed = FALSE;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Delete Chest */
+			cave_set_feat(y, x, FEAT_FLOOR);
+
+			/* 
+			 * Hack - code for making themed chest drops 
+			 * This can probably be improved considerably
+			 */
+
+			/* Pick a theme */
+			theme = rand_int(3);
+
+			/* How many items to generate? */
+			j = 3 + rand_int(3);
+			
+			/* Attempt to place some objects */
+			for (i = 0; i < j; i++)
+			{
+				/* Wipe the object */
+				object_wipe(i_ptr);
+
+				/* Get the actual item from the theme */
+				switch (theme)
+				{
+					/* Warrior theme */
+					case 0:
+					{
+						switch(rand_int(24))
+						{
+							case 0: case 1: tval = TV_SWORD; break;
+							case 2: case 3: tval = TV_POLEARM; break;
+							case 4: case 5: tval = TV_HAFTED; break;
+							case 6: case 7: tval = TV_BODY_ARMOR; break;
+							case 8: case 9: tval = TV_BOW; break;	
+							case 10: case 11: tval = TV_BOOTS; break;
+							case 12: case 13: tval = TV_GLOVES; break;
+							case 14: case 15: tval = TV_HEADGEAR; break;
+							case 16: case 17: tval = TV_SHIELD; break;
+							case 18: case 19: tval = TV_CLOAK; break;	
+							case 20: tval = TV_DRAG_ARMOR; break;
+							case 21: tval = TV_SHOT; break;	
+							case 22: tval = TV_ARROW; break;
+							case 23: tval = TV_BOLT; break;	
+						}
+						break;
+					}
+					/* Spellcaster theme */
+					case 1:
+					{
+						switch(rand_int(16))
+						{
+							case 0: case 1: tval = TV_SCROLL; break;
+							case 2: case 3: tval = TV_POTION; break;
+							case 4: case 5: tval = TV_WAND; break;
+							case 6: case 7: tval = TV_STAFF; break;
+							case 8: case 9: tval = TV_ROD; break;	
+							case 10: case 11: tval = TV_TALISMAN; break;
+							case 12: tval = TV_MAGIC_BOOK; break;
+							case 13: tval = TV_AMULET; break;
+							case 14: tval = TV_POWDER; break;
+							case 15: tval = TV_RING; break;	
+						}
+						break;
+					}
+					/* Misc theme */
+					case 2:
+					{
+						switch(rand_int(19))
+						{
+							case 0: case 1: tval = TV_SCROLL; break;
+							case 2: case 3: tval = TV_POTION; break;
+							case 4: case 5: tval = TV_LITE; break;
+							case 6: case 7: tval = TV_AMULET; break;
+							case 8: case 9: tval = TV_RING; break;	
+							case 10: tval = TV_MUSIC; break;
+							case 13: tval = TV_FLASK; break;
+							case 14: tval = TV_CLOAK; break;
+							case 15: tval = TV_POWDER; break;	
+							case 16: tval = TV_SHOT; break;	
+							case 17: tval = TV_ARROW; break;
+							case 18: tval = TV_BOLT; break;	
+						}
+						break;
+					}
+				}
+
+				/* Increase item depth */
+				p_ptr->obj_depth  = p_ptr->depth + 10;
+
+				/* Make a themed object (if possible) */
+				if (make_typed(i_ptr, tval, TRUE, FALSE, TRUE))
+				{
+					/* Mark history */
+					object_history(i_ptr, ORIGIN_CHEST, 0, 0, 0);
+
+					/* Drop the object */
+					drop_near(i_ptr, -1, y, x);
+
+					placed = TRUE;
+				}
+
+				/* Restore item depth */
+				p_ptr->obj_depth  = p_ptr->depth;
+			}				
 		}
 	}
 
@@ -585,7 +703,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 	}
 
 	/* Hacl - Can't tunnel into a chest */
-	if (cave_feat[y][x] == FEAT_CHEST)
+	if ((cave_feat[y][x] == FEAT_CHEST) || (cave_feat[y][x] == FEAT_QST_CHEST))
 	{
 		/* Message */
 		message(MSG_FAIL, 0, "You can't tunnel into a chest.");
