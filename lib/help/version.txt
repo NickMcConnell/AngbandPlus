@@ -1,13 +1,13 @@
 === Version Information ===
 
-This file was last updated for EyAngband 0.1.2.
+This file was last updated for EyAngband 0.1.3.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the EyAngband home page (httP://members.xoom.com/eytanzw/eyangband) and the
 Official Angband Home Page ("http://thangorodrim.angband.org") for the
 most up to date information about EyAngband and Angband in general.
 
-EyAngband 0.1.2 has an incredibly complex history, and is the result of a
+EyAngband 0.1.3 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
 one of the best freeware games available anywhere.

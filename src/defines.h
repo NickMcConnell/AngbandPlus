@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.1.2"
+#define VERSION_STRING	"0.1.3"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 #define VERSION_EXTRA	0
 
 
@@ -117,7 +117,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES  9
+#define MAX_STORES  10
 
 /*
  * Store index definitions (see "store.c", etc)
@@ -131,6 +131,13 @@
 #define STORE_B_MARKET	6
 #define STORE_HOME		7
 #define STORE_BOOK		8
+#define STORE_GUILD		9
+
+/*
+ * Number of quests offered at the guild at any given time
+ */
+#define GUILD_QUESTS 4
+
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
@@ -142,17 +149,9 @@
 #define MAX_START_ITEMS		4
 
 /*
- * Hack -- Maximum number of quests
- */
-#ifndef CUSTOM_QUESTS
- #define MAX_Q_IDX	4
-#endif
-
-/*
  * Maximum number of high scores in the high score file
  */
 #define MAX_HISCORES	100
-
 
 /*
  * Maximum dungeon level.  The player can never reach this level
@@ -262,7 +261,6 @@
  * Lower values yield harder monsters more often.
  */
 #define NASTY_MON	50		/* 1/chance of inflated monster level */
-
 
 
 /*
@@ -515,6 +513,13 @@
 
 /*** General index values ***/
 
+
+/*
+ * Quest types 
+ */
+
+#define QUEST_FIXED			1
+#define QUEST_GUILD			2
 
 /*
  * Legal restrictions for "summon_specific()"
@@ -2638,6 +2643,7 @@
 #define OPT_birth_no_artifacts		(OPT_BIRTH+6)
 #define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
 #define OPT_birth_autoscum          (OPT_BIRTH+8)
+#define OPT_birth_no_feelings		(OPT_BIRTH+9)
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -2655,6 +2661,7 @@
 #define OPT_adult_no_artifacts		(OPT_ADULT+6)
 #define OPT_adult_rand_artifacts	(OPT_ADULT+7)
 #define OPT_adult_autoscum          (OPT_ADULT+8)
+#define OPT_adult_no_feelings		(OPT_ADULT+9)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -2753,6 +2760,7 @@
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
 #define birth_autoscum      	op_ptr->opt[OPT_birth_autoscum]
+#define birth_no_feelings	    op_ptr->opt[OPT_birth_no_feelings]
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]
@@ -2770,6 +2778,7 @@
 #define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
 #define adult_autoscum			op_ptr->opt[OPT_adult_autoscum]
+#define adult_no_feelings	    op_ptr->opt[OPT_adult_no_feelings]
 /* xxx xxx */
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]

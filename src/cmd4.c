@@ -2408,9 +2408,7 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
-#ifdef CUSTOM_QUESTS
-	int i;
-#endif
+	cptr quest_feel;
 
 	/* Verify the feeling */
 	if (feeling > 10) feeling = 10;
@@ -2423,43 +2421,12 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+	if (!adult_no_feelings) msg_print(do_cmd_feeling_text[feeling]);
 
-#ifdef CUSTOM_QUESTS
-	/* Check quests */
-	for (i = 0; i < z_info->q_max; i++)
-	{
-		quest *q_ptr = &q_info[i];
+	/* Display the quest descpription for the current level */
+	quest_feel = quest_feeling(p_ptr->depth,FALSE);
+	if (quest_feel != NULL) msg_print(quest_feel);
 
-		/* Check for quest */
-		if (q_ptr->level == p_ptr->depth)
-		{
-			monster_race *r_ptr = &r_info[q_ptr->r_idx];
-
-			/* Unique quest monster */
-			if (r_ptr->flags1 & (RF1_UNIQUE))
-			{
-				msg_format("You feel an intense desire to kill %s.",
-				           (r_name + r_ptr->name));
-			}
-
-			/* Multiple quest monsters */
-			else if ((q_ptr->max_num - q_ptr->cur_num) > 1)
-			{
-				msg_format("You feel an intense desire to kill %d %ss.",
-				           (q_ptr->max_num - q_ptr->cur_num),
-				           (r_name + r_ptr->name));
-			}
-
-			/* One quest monster */
-			else
-			{
-				msg_format("You feel an intense desire to kill a %s.",
-				           (r_name + r_ptr->name));
-			}
-		}
-	}
-#endif /*CUSTOM_QUESTS*/
 }
 
 
@@ -2812,78 +2779,6 @@ static void do_cmd_knowledge_artifacts(void)
 	fd_kill(file_name);
 }
 
-
-/*
- * Display known uniques
- */
-static void do_cmd_knowledge_uniques(void)
-{
-	int i, n;
-	FILE *fff;
-	char file_name[1024];
-	u16b why = 2;
-	u16b *who;
-
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
-
-	/* Collect matching monsters */
-	for (i = 1, n = 0; i < z_info->r_max; i++)
-	{
-		monster_race *r_ptr = &r_info[i];
-		monster_lore *l_ptr = &l_list[i];
-
-		/* Require known monsters */
-		if (!cheat_know && !l_ptr->r_sights) continue;
-
-		/* Require unique monsters */
-		if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
-
-		/* Collect "appropriate" monsters */
-		who[n++] = i;
-	}
-
-	/* Select the sort method */
-	ang_sort_comp = ang_sort_comp_hook;
-	ang_sort_swap = ang_sort_swap_hook;
-
-	/* Sort the array by dungeon depth of monsters */
-	ang_sort(who, &why, n);
-
-
-	/* Print the monsters */
-	for (i = 0; i < n; i++)
-	{
-		monster_race *r_ptr = &r_info[who[i]];
-		bool dead = (r_ptr->max_num == 0);
-
-		/* Print a message */
-		fprintf(fff, "     %s is %s\n",
-			    (r_name + r_ptr->name),
-			    (dead ? "dead" : "alive"));
-	}
-
-	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, u16b);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Known Uniques", 0, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
 /*
  * Display known objects
  */
@@ -2982,6 +2877,455 @@ static void do_cmd_knowledge_alchemy(void)
 	/* Remove the file */
 	fd_kill(file_name);
 }
+/*
+ * Description of each monster group.
+ */
+static char *monster_group_text[] = {
+"Uniques",
+"Ants",
+"Bats",
+"Birds",
+"Canines",
+"Centipedes",
+"Demons",
+"Dragons",
+"Elementals",
+"Eyes/Beholders",
+"Felines",
+"Flies",
+"Ghosts",
+"Giants",
+"Golems",
+"Humans",
+"Humanoids",
+"Hybrids",
+"Icky Things",
+"Insects",
+"Jellies",
+"Killer Beetles",
+"Kobolds",
+"Lice",
+"Lichs",
+"Mimics",
+"Molds",
+"Mushroom Patches",
+"Nagas",
+"Nameless Horrors",
+"Ogres",
+"Orcs",
+"Quadropeds",
+"Quylthulgs",
+"Reptiles/Amphibians",
+"Rodents",
+"Scorpions/Spiders",
+"Skeletons",
+"Snakes",
+"Townspeople",
+"Trolls",
+"Vampires",
+"Vortices",
+"Wights/Wraiths",
+"Worms/Worm Masses",
+"Xorns/Xarens",
+"Yeeks",
+"Yeti",
+"Zephyr Hounds",
+"Zombies/Mummies",
+NULL};
+
+/*
+ * Symbols of monsters in each group. Note the "Uniques" group
+ * is handled differently.
+ */
+static char *monster_group_char[] = {
+(char *) -1L,
+"a",
+"b",
+"B",
+"C",
+"c",
+"Uu",
+"Dd",
+"E",
+"e",
+"f",
+"F",
+"G",
+"P",
+"g",
+"p",
+"h",
+"H",
+"i",
+"I",
+"j",
+"K",
+"k",
+"l",
+"L",
+"$!?=.|~",
+"m",
+",",
+"n",
+"N",
+"O",
+"o",
+"q",
+"Q",
+"RM",
+"r",
+"S",
+"s",
+"J",
+"t",
+"T",
+"V",
+"v",
+"W",
+"w",
+"X",
+"y",
+"Y",
+"Z",
+"z",
+NULL
+};
+
+
+/*
+ * Build a list of monster indexes in the given group. Return the number
+ * of monsters in the group.
+ */
+static int collect_monsters(int grp_cur, int mon_idx[], int mode)
+{
+	int i, mon_cnt = 0;
+
+	/* Get a list of x_char in this group */
+	char *group_char = monster_group_char[grp_cur];
+
+	/* XXX Hack -- Check if this is the "Uniques" group */
+	bool grp_unique = (monster_group_char[grp_cur] == (char *) -1L);
+
+	/* Check every race */
+	for (i = 0; i < z_info->r_max; i++)
+	{
+		/* Access the race */
+		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
+
+		/* Is this a unique? */
+		bool unique = (r_ptr->flags1 & RF1_UNIQUE) != 0;
+
+		/* Is the unique dead? */
+		bool dead = unique && (r_ptr->max_num == 0);
+
+		/* Skip empty race */
+		if (!r_ptr->name) continue;
+
+#if 0
+		/* Require matching "unique" status */
+		if (unique != grp_unique) continue;
+#endif
+		if (grp_unique && !(unique)) continue;
+
+		/* Require known monsters */
+		if (!(mode & 0x02) && !cheat_know && !l_ptr->r_sights) continue;
+
+		/* Check for race in the group */
+		if (grp_unique || strchr(group_char, r_ptr->d_char))
+		{
+			/* Add the race */
+			mon_idx[mon_cnt++] = i;
+
+			/* XXX Hack -- Just checking for non-empty group */
+			if (mode & 0x01) break;
+		}
+	}
+
+	/* Terminate the list */
+	mon_idx[mon_cnt] = 0;
+
+	/* Return the number of races */
+	return mon_cnt;
+}
+
+
+/*
+ * Display the monster groups.
+ */
+static void display_group_list(int col, int row, int wid, int per_page,
+	int grp_idx[], int grp_cur, int grp_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && (grp_idx[i] >= 0); i++)
+	{
+		/* Get the group index */
+		int grp = grp_idx[grp_top + i];
+
+		/* Choose a color */
+		byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+		/* Erase the entire line */
+		Term_erase(col, row + i, wid);
+
+		/* Display the group label */
+		c_put_str(attr, monster_group_text[grp], row + i, col);
+	}
+}
+
+
+/*
+ * Display the monsters in a group.
+ */
+static void display_monster_list(int col, int row, int per_page, int mon_idx[],
+	int mon_cur, int mon_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && mon_idx[i]; i++)
+	{
+		/* Get the race index */
+		int r_idx = mon_idx[mon_top + i];
+
+		/* Access the race */
+		monster_race *r_ptr = &r_info[r_idx];
+		monster_lore *l_ptr = &l_list[r_idx];
+
+		/* Choose a color */
+		byte attr = (i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+		/* Display the name */
+		c_prt(attr, r_name + r_ptr->name, row + i, col);
+
+		/* Display symbol */
+		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
+
+		/* Display kills */
+		if (!(r_ptr->flags1 & RF1_UNIQUE))
+			put_str(format("%5d", l_ptr->r_pkills), row + i, 73);
+		else
+			put_str(format("%s", (l_ptr->r_pkills) ? "dead" : "alive"), row + i, 73);
+	
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
+
+
+/*
+ * Display known monsters.
+ */
+static void do_cmd_knowledge_monsters(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top;
+	int mon_old, mon_cur, mon_top;
+	int grp_cnt, grp_idx[100];
+	int mon_cnt;
+	int *mon_idx;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	char find_ch = '\0', find_name[80] = "";
+	int find_mode = 0;
+
+	/* Allocate the "mon_idx" array */
+	C_MAKE(mon_idx, z_info->r_max, int);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; monster_group_text[i] != NULL; i++)
+	{
+		/* Measure the label */
+		len = strlen(monster_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max)
+		{
+			max = len;
+		}
+
+		/* See if any monsters are known */
+		if ((monster_group_char[i] == ((char *) -1L)) || collect_monsters(i, mon_idx, 0x01))
+		{
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	grp_cur = grp_top = 0;
+	mon_cur = mon_top = 0;
+	mon_old = -1;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+		
+			prt("Knowledge - Monsters", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			prt("Sym", 4, 67);
+			prt("Kills", 4, 73);
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < 16; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top)
+			grp_top = grp_cur;
+		if (grp_cur >= grp_top + 16)
+			grp_top = grp_cur - 15;
+
+		/* Scroll monster list */
+		if (mon_cur < mon_top)
+			mon_top = mon_cur;
+		if (mon_cur >= mon_top + 16)
+			mon_top = mon_cur - 15;
+
+		/* Display a list of monster groups */
+		display_group_list(0, 6, max, 16, grp_idx, grp_cur, grp_top);
+
+		/* Get a list of monsters in the current group */
+		mon_cnt = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
+
+		/* Display a list of monsters in the current group */
+		display_monster_list(max + 3, 6, 16, mon_idx, mon_cur, mon_top);
+
+		/* Prompt */
+		prt("<dir>, 'r' to recall, ESC", 23, 0);
+
+		/* The "current" monster changed */
+		if (mon_old != mon_idx[mon_cur])
+		{
+			/* Hack -- track this monster race */
+			monster_race_track(mon_idx[mon_cur]);
+
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" monster */
+			mon_old = mon_idx[mon_cur];
+		}
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
+		}
+	
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				screen_roff(mon_idx[mon_cur]);
+
+				(void) inkey();
+
+				redraw = TRUE;
+				break;
+			}
+
+			default:
+			{
+				int d;
+
+				/* Extract direction */
+				d = target_dir(ch);
+
+				if (!d) break;
+
+				if (ddx[d])
+				{
+					column += ddx[d];
+					if (column < 0) column = 0;
+					if (column > 1) column = 1;
+					break;
+				}
+
+				/* Browse group list */
+				if (!column)
+				{
+					int old_grp = grp_cur;
+
+					/* Move up or down */
+					grp_cur += ddy[d];
+
+					/* Verify */
+					if (grp_cur < 0)
+						grp_cur = 0;
+					if (grp_cur >= grp_cnt)
+						grp_cur = grp_cnt - 1;
+
+					if (grp_cur != old_grp)
+						mon_cur = mon_top = 0;
+				}
+
+				/* Browse monster list */
+				else
+				{
+					/* Move up or down */
+					mon_cur += ddy[d];
+
+					/* Verify */
+					if (mon_cur < 0)
+						mon_cur = 0;
+					if (mon_cur >= mon_cnt)
+						mon_cur = mon_cnt - 1;
+				}
+				
+				break;
+			}
+		}
+	}
+
+	/* XXX XXX Free the "mon_idx" array */
+	C_KILL(mon_idx, z_info->r_max, int);
+
+}
 
 /*
  * Interact with "knowledge"
@@ -3007,7 +3351,7 @@ void do_cmd_knowledge(void)
 
 		/* Give some choices */
 		prt("(1) Display known artifacts", 4, 5);
-		prt("(2) Display known uniques", 5, 5);
+		prt("(2) Display known monsters", 5, 5);
 		prt("(3) Display known objects", 6, 5);
 		prt("(4) Display known alchemical combinations", 7, 5);
 
@@ -3031,7 +3375,7 @@ void do_cmd_knowledge(void)
 		else if (ch == '2')
 		{
 			/* Spawn */
-			do_cmd_knowledge_uniques();
+			do_cmd_knowledge_monsters();
 		}
 
 		/* Objects */

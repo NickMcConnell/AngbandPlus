@@ -3097,7 +3097,6 @@ static errr init_g_info(void)
 	return (0);
 }
 
-#ifdef CUSTOM_QUESTS
 /*
  * Initialize the "q_info" array, by parsing a binary "image" file
  */
@@ -3343,8 +3342,6 @@ static errr init_q_info(void)
 	/* Success */
 	return (0);
 }
-
-#endif CUSTOM_QUESTS
 
 
 /*** Initialize others ***/
@@ -3648,7 +3645,13 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR }
 
-	}
+	},
+
+	{
+
+		{ 0, 0 },
+	},
+
 };
 
 
@@ -3725,14 +3728,6 @@ static errr init_other(void)
 	/* Lore */
 	C_MAKE(l_list, z_info->r_max, monster_lore);
 
-
-#ifndef CUSTOM_QUESTS
-	/*** Prepare quest array ***/
-
-	/* Quests */
-	C_MAKE(q_list, MAX_Q_IDX, quest);
-#endif
-
 	/*** Prepare the inventory ***/
 
 	/* Allocate it */
@@ -3756,8 +3751,8 @@ static errr init_other(void)
 		/* Allocate the stock */
 		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
 
-		/* No table for the black market or home */
-		if ((i == STORE_B_MARKET) || (i == STORE_HOME)) continue;
+		/* No table for the black market, adventurer's guild or home */
+		if ((i == STORE_B_MARKET) || (i == STORE_HOME) || (i == STORE_GUILD)) continue;
 
 		/* Assume full table */
 		st_ptr->table_size = STORE_CHOICES;
@@ -3792,7 +3787,6 @@ static errr init_other(void)
 	}
 
 
-
 	/*** Prepare the options ***/
 
 	/* Initialize the options */
@@ -3809,11 +3803,10 @@ static errr init_other(void)
 		op_ptr->window_flag[n] = 0L;
 	}
 
-
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Robert Ruehlmann", MAINTAINER);
+	(void)format("%s (%s).", "Eytan Zweig", MAINTAINER);
 
 
 	/* Success */
@@ -3835,9 +3828,8 @@ static errr init_alloc(void)
 
 	ego_item_type *e_ptr;
 
-#ifdef CUSTOM_QUESTS
 	quest *q_ptr;
-#endif
+
 	alloc_entry *table;
 
 	s16b num[MAX_DEPTH];
@@ -4094,7 +4086,6 @@ static errr init_alloc(void)
 		}
 	}
 
-#ifdef CUSTOM_QUESTS
 	/*** Initialize quest monsters ***/
 
 	/* Scan the quests */
@@ -4104,7 +4095,7 @@ static errr init_alloc(void)
 		q_ptr = &q_info[i];
 
 		/* Skip non-quests */
-		if (q_ptr->level)
+		if (q_ptr->active_level)
 		{
 			/* Get the quest monster */
 			r_ptr = &r_info[q_ptr->r_idx];
@@ -4117,7 +4108,6 @@ static errr init_alloc(void)
 			}
 		}
 	}
-#endif
 
 	/* Success */
 	return (0);
@@ -4359,11 +4349,9 @@ void init_angband(void)
 	note("[Initializing arrays... (prices)]");
 	if (init_g_info()) quit("Cannot initialize prices");
 
-#ifdef CUSTOM_QUESTS
 	/* Initialize quest info */
 	note("[Initializing arrays... (quests)]");
 	if (init_q_info()) quit("Cannot initialize quests");
-#endif
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

@@ -372,13 +372,6 @@
  */
 #define GJW_RANDART
 
-
-/*
- * OPTION: Allow the use of q_info.txt to modify quests. If this is turned off,
- * you must place a QUESTOR tag in r_info.txt quest uniques.
- */
-#define CUSTOM_QUESTS
-
 /*
  * OPTION: Allow the use of "sound" in various places.
  */

@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.1.3
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -1168,15 +1168,14 @@ P:1:0d0:0:0:0
 
 N:191:& Elven Cloak~
 G:(:G
-I:35:3:1
+I:35:3:0
 W:35:0:5:350
 A:35/4
 P:2:0d0:0:0:0
-F:STEALTH
 
 N:192:& Shadow Cloak~
 G:(:D
-I:35:6:2
+I:35:6:1
 W:60:0:5:4000
 A:60/4
 P:7:0d0:0:0:4
@@ -2239,28 +2238,28 @@ P:0:1d1:0:0:0
 N:376:Resistance
 G:!:d
 I:75:60:0
-W:60:0:5:1500
+W:60:0:4:1500
 A:60/2:80/2
 P:0:1d1:0:0:0
 
 N:377:*Resistance*
 G:!:d
 I:75:61:0
-W:90:0:5:15000
+W:90:0:4:15000
 A:90/2
 P:0:1d1:0:0:0
 
 N:378:Satisfy Hunger
 G:!:d
 I:75:62:0
-W:5:0:5:100
+W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
 
 N:379:Invisibility
 G:!:d
 I:75:63:0
-W:25:0:5:750
+W:25:0:4:750
 A:25/4
 P:0:1d1:0:0:0
 
@@ -2271,35 +2270,35 @@ P:0:1d1:0:0:0
 N:385:Sleeping
 G:*:d
 I:76:0:0
-W:10:0:2:250
+W:10:0:2:150
 A:10/1:15/1
 P:0:1d1:0:0:0
 
 N:386:Confusing
 G:*:d
 I:76:1:0
-W:10:0:2:200
+W:10:0:2:100
 A:10/1:15/1
 P:0:1d1:0:0:0
 
 N:387:Startling
 G:*:d
 I:76:2:0
-W:5:0:2:150
+W:5:0:2:60
 A:5/1:7/1
 P:0:1d1:0:0:0
 
 N:388:Blinding flash
 G:*:d
 I:76:3:0
-W:2:0:2:100
+W:2:0:2:35
 A:2/2:5/1:7/1
 P:0:1d1:0:0:0
 
 N:389:Incineration
 G:*:d
 I:76:4:0
-W:20:0:2:350
+W:20:0:2:200
 A:20/1:25/1
 P:0:1d1:0:0:0
 
@@ -2320,14 +2319,14 @@ P:0:1d1:0:0:0
 N:392:Slowing
 G:*:d
 I:76:7:0
-W:10:0:2:0
+W:10:0:2:100
 A:10/1:15/1
 P:0:1d1:0:0:0
 
 N:394:Freezing
 G:*:d
 I:76:8:0
-W:20:0:2:350
+W:20:0:2:200
 A:20/1:25/1
 P:0:1d1:0:0:0
 
@@ -3098,7 +3097,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ##### Mystic Spellbooks #####
 
-N:518:[The Five Steps to Transcendence]
+N:518:[The Seven Steps to Transcendence]
 G:?:b
 I:90:20:0
 W:40:0:30:15000

@@ -1149,7 +1149,7 @@ static cptr ident_info[] =
 	"e:Floating Eye",
 	"f:Feline",
 	"g:Golem",
-	"h:Hobbit/Elf/Dwarf",
+	"h:Humanoids",
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",

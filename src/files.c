@@ -3660,7 +3660,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
-			        p_name + p_info[pr].name, c_name + cp_ptr[pr].name,
+			        p_name + p_info[pr].name, c_name + c_info[pc].name,
 			        clev);
 
 			/* Append a "maximum level" */
@@ -3874,7 +3874,6 @@ static errr enter_score(void)
 
 	/* Save the cause of death (31 chars) */
 	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
-
 
 	/* Lock (for writing) the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_WRLCK)) return (1);

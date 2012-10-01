@@ -450,29 +450,14 @@ static void player_wipe(void)
 		a_ptr->cur_num = 0;
 	}
 
-
-#ifndef CUSTOM_QUESTS
-	/* Start with no quests */
-	for (i = 0; i < MAX_Q_IDX; i++)
-	{
-		q_list[i].level = 0;
-	}
-
-	/* Add a special quest */
-	q_list[0].level = 99;
-
-	/* Add a second quest */
-	q_list[1].level = 100;
-#else
 	/* Start with some quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		quest *q_ptr = &q_info[i];
 
 		/* Reset level */
-		q_ptr->level = q_ptr->old_level;
+		q_ptr->active_level = q_ptr->base_level;
 	}
-#endif
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
@@ -484,6 +469,13 @@ static void player_wipe(void)
 
 		/* Reset "aware" */
 		k_ptr->aware = FALSE;
+	}
+
+	/* Reset the "alchemy" knowledge */
+	for (i = 0; i < SV_MAX_POTIONS ; i++)
+	{
+		potion_alch[i].known1 = FALSE;
+		potion_alch[i].known2 = FALSE;
 	}
 
 
@@ -830,11 +822,13 @@ static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
  * This function handles "point-based" character creation.
  *
  * The player selects, for each stat, a value from 10 to 18 (inclusive),
- * each costing a certain amount of points (as above), from a pool of 48
+ * each costing a certain amount of points (as above), from a pool of 50
  * available points, to which race/class modifiers are then applied.
  *
- * Each unused point is converted into 100 gold pieces.
+ * Each unused point is converted into 50 gold pieces.
  */
+#define POINTS 50
+
 static bool player_birth_aux_2(void)
 {
 	int i;
@@ -851,7 +845,6 @@ static bool player_birth_aux_2(void)
 	char ch;
 
 	char buf[80];
-
 
 	/* Initialize stats */
 	for (i = 0; i < A_MAX; i++)
@@ -888,7 +881,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Restrict cost */
-		if (cost > 48)
+		if (cost > POINTS)
 		{
 			/* Warning */
 			bell("Excessive stats!");
@@ -901,7 +894,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au = (100 * (48 - cost)) + 100;
+		p_ptr->au = (50 * (POINTS - cost)) + 100;
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -931,7 +924,7 @@ static bool player_birth_aux_2(void)
 
 
 		/* Prompt XXX XXX XXX */
-		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost);
+		sprintf(buf, "Total Cost %2d/%d.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost,POINTS);
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */

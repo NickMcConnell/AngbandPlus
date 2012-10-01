@@ -80,10 +80,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	/* Too stupid to know anything */
 	if (r_ptr->flags2 & (RF2_STUPID)) return;
 
-
 	/* Must be cheating or learning */
 	if (!smart_cheat && !smart_learn) return;
-
 
 	/* Update acquired knowledge */
 	if (smart_learn)
@@ -94,7 +92,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		/* Use the memorized flags */
 		smart = m_ptr->smart;
 	}
-
 
 	/* Cheat if requested */
 	if (smart_cheat)
@@ -742,30 +739,8 @@ bool make_attack_spell(int m_idx)
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
 
-#ifdef MONSTER_AI
-
-	if (!smart_monsters)
-	{
-		/* Only do spells occasionally */
-		if (rand_int(100) >= chance) return (FALSE);
-	}
-	else
-	{
-		/* Do spells more often, because they can fail */
-		if (rand_int(100) >= 2 * chance) return (FALSE);
-
-		/* Sometimes forbid innate attacks (breaths) */
-		if (rand_int(100) >= chance) no_innate = TRUE;
-	}
-
-#else /* MONSTER_AI */
-
 	/* Only do spells occasionally */
 	if (rand_int(100) >= chance) return (FALSE);
-
-#endif /* MONSTER_AI */
-
-
 
 	/* Hack -- require projectable player */
 	if (normal)
@@ -3952,7 +3927,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* If he carries a light, update lights */
-			if ((view_monster_lite) && (r_ptr->flags2 & (RF2_HAS_LITE)))	do_view = TRUE;
+			if ((view_monster_lite) && (r_ptr->flags2 & (RF2_HAS_LITE))) do_view = TRUE;
 
 			/* Scan all objects in the grid */
 			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)

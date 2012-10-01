@@ -1974,10 +1974,8 @@ void monster_death(int m_idx)
 	int number = 0;
 	int total = 0;
 
-#ifdef CUSTOM_QUESTS
 	int completed = 0;
 	int level_total = 0;
-#endif
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -2135,8 +2133,6 @@ void monster_death(int m_idx)
 	}
 
 
-#ifdef CUSTOM_QUESTS
-
 	/* Only process dungeon kills */
 	if (!p_ptr->depth) return;
 
@@ -2150,7 +2146,7 @@ void monster_death(int m_idx)
 		quest *q_ptr = &q_info[i];
 
 		/* Quest level? */
-		if (q_ptr->level == p_ptr->depth)
+		if (q_ptr->active_level == p_ptr->depth)
 		{
 			/* One on the level */
 			level_total++;
@@ -2165,7 +2161,7 @@ void monster_death(int m_idx)
 				if (q_ptr->cur_num == q_ptr->max_num)
 				{
 					/* Mark complete */
-					q_ptr->level = 0;
+					q_ptr->active_level = 0;
 
 					/* One complete */
 					completed++;
@@ -2174,7 +2170,7 @@ void monster_death(int m_idx)
 		}
 
 		/* Count incomplete quests */
-		if (q_ptr->level) total++;
+		if (q_ptr->active_level) total++;
 	}
 
 	/* Require a quest level */
@@ -2182,24 +2178,6 @@ void monster_death(int m_idx)
 
 	/* Require all quests on this level to be completed */
 	if (completed != level_total) return;
-
-#else /*CUSTOM_QUESTS*/
-
-	/* Only process "Quest Monsters" */
-	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
-
-
-	/* Hack -- Mark quests as complete */
-	for (i = 0; i < MAX_Q_IDX; i++)
-	{
-		/* Hack -- note completed quests */
-		if (q_list[i].level == r_ptr->level) q_list[i].level = 0;
-
-		/* Count incomplete quests */
-		if (q_list[i].level) total++;
-	}
-
-#endif /*CUSTOM_QUESTS*/
 
 	/* Need some stairs */
 	if (total)

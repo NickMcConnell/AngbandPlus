@@ -1593,7 +1593,9 @@ static errr rd_savefile_new_aux(void)
 
 	if (!older_than(0,1,2))
 	{
-		/* Dump the alchemy info */
+		byte tmp8u;
+
+		/* Load the alchemy info */
 		rd_u16b(&tmp16u);
 		if (tmp16u != SV_MAX_POTIONS)
 		{
@@ -1603,39 +1605,26 @@ static errr rd_savefile_new_aux(void)
 
 		for (i = 0; i < tmp16u; i++) 
 		{
-			rd_byte(&potion_alch[i].known1);
-			rd_byte(&potion_alch[i].known2);
+			if (older_than(0,1,3))
+			{
+				rd_byte(&potion_alch[i].known1);
+				rd_byte(&potion_alch[i].known2);
+			}
+			else
+			{
+				rd_byte(&tmp8u);
+				potion_alch[i].known1 = (tmp8u & 0x01) ? TRUE: FALSE;
+				potion_alch[i].known2 = (tmp8u & 0x02) ? TRUE: FALSE;
+			}
+
 		}
 	}
 
-#ifdef CUSTOM_QUESTS
-
 	/* Load the Quests */
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u != z_info->q_max)
-	{
-		note(format("Wrong amount (%u) of quests!", tmp16u));
-		return (23);
-	}
-
-	/* Load the Quests */
-	for (i = 0; i < tmp16u; i++)
-	{
-		rd_byte(&q_info[i].level);
-		rd_s16b(&q_info[i].cur_num);
-		rd_byte(&tmp8u);
-	}
-	if (arg_fiddle) note("Loaded Quests");
-
-#else
-
-	/* Load the Quests */
-	rd_u16b(&tmp16u);
-
-	/* Incompatible save files */
-	if (tmp16u > 4)
+	if (tmp16u > z_info->q_max)
 	{
 		note(format("Too many (%u) quests!", tmp16u));
 		return (23);
@@ -1644,15 +1633,35 @@ static errr rd_savefile_new_aux(void)
 	/* Load the Quests */
 	for (i = 0; i < tmp16u; i++)
 	{
-		rd_byte(&tmp8u);
-		q_list[i].level = tmp8u;
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
+		if (!older_than(0,1,3)) 
+		{
+			rd_byte(&q_info[i].type);
+
+			if (q_info[i].type == QUEST_FIXED)
+			{
+				rd_byte(&q_info[i].active_level);
+				rd_s16b(&q_info[i].cur_num);
+			}
+			else if (q_info[i].type == QUEST_GUILD)
+			{
+				rd_byte(&q_info[i].reward);
+				rd_byte(&q_info[i].active_level);
+				rd_byte(&q_info[i].base_level);
+
+				rd_s16b(&q_info[i].r_idx);
+
+				rd_s16b(&q_info[i].cur_num);
+				rd_s16b(&q_info[i].max_num);
+			}
+		}
+		else 
+		{
+			rd_byte(&q_info[i].active_level);
+			rd_s16b(&q_info[i].cur_num);
+			rd_byte(&tmp8u);
+		}
 	}
 	if (arg_fiddle) note("Loaded Quests");
-	
-#endif /*CUSTOM_QUESTS*/
 
 	/* Load the Artifacts */
 	rd_u16b(&tmp16u);

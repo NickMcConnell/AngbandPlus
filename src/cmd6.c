@@ -1935,6 +1935,33 @@ void do_cmd_use_staff(void)
 	/* Use a single charge */
 	o_ptr->pval--;
 
+	/* XXX Hack -- unstack if necessary */
+	if ((item >= 0) && (o_ptr->number > 1))
+	{
+		object_type *i_ptr;
+		object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+		/* Restore the charges */
+		o_ptr->pval++;
+
+		/* Unstack the used item */
+		o_ptr->number--;
+		p_ptr->total_weight -= i_ptr->weight;
+		item = inven_carry(i_ptr);
+
+		/* Message */
+		msg_print("You unstack your staff.");
+	}
+
 	/* Describe charges in the pack */
 	if (item >= 0)
 	{
@@ -3514,6 +3541,22 @@ void do_cmd_mix(void)
 	
 	if (found)
 	{
+		chance = 25+(p_ptr->skill[SK_ALC])-((k_ptr->cost)/250);
+
+		/* Always 5% chance of success or failure*/
+
+		if (chance < 5) chance = 5;
+
+		if (chance > 96) chance = 96;
+	}
+	/* If there's no potion, always fail */
+	else chance = 0;
+
+	/*** Skill check ***/
+	roll = rand_int(100);	
+
+	if (roll < chance)
+	{
 		/*** Create new potion ****/
 
 		/* Get local object */
@@ -3525,23 +3568,6 @@ void do_cmd_mix(void)
 		/* Prepare the ojbect */
 		object_prep(to_ptr, k_idx);
 
-		/*** Skill check ***/
-
-		chance = 25+(p_ptr->skill[SK_ALC])-((k_ptr->cost)/250);
-
-		/* Always 5% chance of success or failure*/
-
-		if (chance < 5) chance = 5;
-
-		if (chance > 95) chance = 95;
-	}
-	/* If there's no potion, always fail */
-	else chance = 0;
-
-	roll = rand_int(100);	
-
-	if (roll < chance)
-	{
 		drop_near(to_ptr, -1, p_ptr->py, p_ptr->px); /* drop the object */
 		potion_alch[sv].known1 = TRUE;
 		potion_alch[sv].known2 = TRUE;

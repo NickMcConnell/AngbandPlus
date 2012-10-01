@@ -186,7 +186,7 @@ static cptr potion_adj[MAX_COLORS] =
 	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled", 
 	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
 	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold", "Foaming",
-	"Lavender", "Violet Speckled", "Luminescent"
+	"Lavender", "Bluish-Purple", "Luminescent"
 };
 
 

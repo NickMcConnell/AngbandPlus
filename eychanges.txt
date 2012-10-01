@@ -1,3 +1,71 @@
+Changes from 0.1.2 to 0.1.3:
+
+- Fixed bug which allowed mystics to cast spells when confused or blinded from non-mystic
+  spellbooks.
+
+- Fixed staff stacking bug.
+
+- Added semi-random quests, which are achievable through a new "adventurers guild" 
+  building. You go into the building and choose a quest based on difficulty and it gets
+  assigned to you. Currently, you gain no special rewards for completing the quests,
+  nor can uniques be part of these quests.  This will be improved in future versions.
+
+- Replaced "known uniques" screen with new "monster knowledge" screen taken and modified 
+  from Kamband (it includes all the unique info + info on all other monsters as well). Note
+  that uniques appear both in their own list and in their letter's list.
+
+- Considerably smaller chances of a level generating a "special" feeling if it doesn't 
+  have an artifact in perserve off mode.
+
+- Turning monster AI on no longer causes monsters to cast spells twice as often.
+
+- Added "no level feelings" ironman option. 
+
+- Paladins and Mystics can no longer get a radius 3 Orb of Draining (priests can).
+
+- The spell "detect enchantment" now works properly.
+
+- Unused points in character creation are converted into 50 gold pieces rather than 100. 
+  However, you get 50 rather than 48 points to distribute.
+
+- Paladins returned to depending on wisdom only for spell calculations, not charisma. 
+
+- Mystics' experience factor slightly increased.
+
+- Mystics' mana bonus has been reduced, though they still get significantly more than other
+  classes. The reduction is mainly noticable after stat gain - the low INT/WIS range has
+  no been affected by this change.
+
+- Mystics no longer get as severe a mana penalty for wearing heavy armor as they used to,
+  but the distrub threshold has been reduced, so they start getting penalized for less 
+  armor.
+
+- Demons no longer aggravate monsters at high levels, but they no longer gain intrisic 
+  resist electricity, feather falling, or see invisible.
+
+- Angels no longer aggravate monsters at high levels, but they no longer get intrisic
+  resist darkness, resist blindness, nor sustain intelligence.	
+
+- Fixed the alchemy memory so that it won't be remembered after death.
+
+- Fixed the high-score list
+
+- Corrected the typo in the name of the mystic spellbook "seven steps to transcendence".
+
+## Monster Changes ##
+
+- Death swords are now deeper and worth more exp, gremlins now shallower and worth less 
+  exp (to discourage gremlin farming), pseduo dragons worth slightly less exp.
+
+- Snarl the small kobold slightly weakened and is now found at 50'. He now has a chance
+  of dropping an item (similar to normal kobold).
+
+## Item Changes ##
+
+- Elven cloaks no longer give stealth bonuses, Shadow cloaks give smaller stealth bonus.
+
+- Powder prices reduced.
+
 Changes from 0.1.1 to 0.1.2:
 
 - Savegame format changed - older savefiles can be read, but magic-users will discover that

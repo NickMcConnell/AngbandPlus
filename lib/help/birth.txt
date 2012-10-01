@@ -546,14 +546,12 @@ Archangel       50   +3   +3   +5    0   +3   +6      Prot. from Evil
 
 Resistances and inherent abilties (cumulative):
 Cherub    - None.
-Seraph    - Permanent Light (radius 1), Sustain Wisdom.
+Seraph    - Sustain Wisdom, Permanent Light (radius 1).
 Deva      - Resist Fear, Feather Falling.
 Plaentar  - Resist Light, See Invisible, Sustain Charisma.
-Archon    - Resist Fire, Cold, Darkness, Blinding & Confusion,
-            Free Action.
-Solar     - Resist Acid & Electricity, Regeneration, Slow digestion, 
-            Sustain Intelligence.
-Archangel - Resist chaos, Hold Life, Aggravate Monsters.
+Archon    - Resist Fire, Cold, Confusion, Free Action.
+Solar     - Resist Acid & Electricity, Regeneration, Slow digestion.
+Archangel - Resist chaos, Hold Life.
 
 
 === Demon Progression chart ===
@@ -576,14 +574,13 @@ Resistances and inherent abilties (cumulative):
 Lemure     - None.
 Quasit     - Resist Fear.
 Imp        - Resist Fire.
-Tengu      - Resist Blindness, Feather Falling.
-Bodak      - Resist Darkness, See invisible, 
-             Sustain strength.
+Tengu      - Resist Blindness.
+Bodak      - Resist Darkness, Sustain strength.
 Vrock      - Resist Acid.
-Hezrou     - Resist Electricity, Sustain Constituion.
+Hezrou     - Sustain Constituion.
 Glabrezu   - Resist Nether.
-Nalfeshnee - Regeneration, Slow Digestion. 
-Pit Fiend  - Resist Chaos, Aggravate Monsters.
+Nalfeshnee - Regeneration. 
+Pit Fiend  - Resist Chaos.
 Balrog     - Immune to Fire.
 
 

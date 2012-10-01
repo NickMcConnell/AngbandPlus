@@ -1179,7 +1179,7 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if (store_num == STORE_B_MARKET)
+		if (store_num == STORE_B_MARKET) 
 		{
 			/* Pick a level for object/magic */
 			level = ((p_ptr->max_depth<95) ? p_ptr->max_depth + rand_int(10) : 95 + rand_int(10));
@@ -1256,8 +1256,6 @@ static void store_create(void)
 		break;
 	}
 }
-
-
 
 /*
  * Eliminate need to bargain if player has haggled well in the past
@@ -1509,7 +1507,6 @@ static void display_store(void)
 {
 	char buf[80];
 
-
 	/* Clear screen */
 	Term_clear();
 
@@ -1527,6 +1524,14 @@ static void display_store(void)
 		{
 			put_str("Weight", 5, 70);
 		}
+
+	}
+
+	/* The "guild is special */
+	else if (store_num == STORE_GUILD)
+	{
+		display_guild();
+		return;
 	}
 
 	/* Normal stores */
@@ -2993,17 +2998,6 @@ static void store_process_command(void)
 			break;
 		}
 
-#if 0
-
-		/* Drop an item */
-		case 'd':
-		{
-			do_cmd_drop();
-			break;
-		}
-
-#endif
-
 		/* Destroy an item */
 		case 'k':
 		{
@@ -3209,7 +3203,189 @@ static void store_process_command(void)
 	}
 }
 
+/* 
+ * Hack - legal commands in the adventurer's guild
+ */
 
+static void guild_process_command(void)
+{
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
+	/* Parse the command */
+	switch (p_ptr->command_cmd)
+	{
+		/* Leave */
+		case ESCAPE:
+		{
+			leave_store = TRUE;
+			break;
+		}
+
+		/* Ignore */
+		case '\n':
+		case '\r':
+		{
+			break;
+		}
+
+		/* Redraw */
+		case KTRL('R'):
+		{
+			do_cmd_redraw();
+			display_store();
+			break;
+		}
+
+		/* Get (purchase) */
+		case 'g':
+		{
+			guild_purchase();
+			break;
+		}
+		/*** Help and Such ***/
+
+		/* Help */
+		case '?':
+		{
+			do_cmd_help();
+			break;
+		}
+
+		/* Identify symbol */
+		case '/':
+		{
+			do_cmd_query_symbol();
+			break;
+		}
+
+		/* Character description */
+		case 'C':
+		{
+			do_cmd_change_name();
+			break;
+		}
+
+
+		/*** System Commands ***/
+
+		/* Hack -- User interface */
+		case '!':
+		{
+			(void)Term_user(0);
+			break;
+		}
+
+		/* Single line from a pref file */
+		case '"':
+		{
+			do_cmd_pref();
+			break;
+		}
+
+		/* Interact with macros */
+		case '@':
+		{
+			do_cmd_macros();
+			break;
+		}
+
+		/* Interact with visuals */
+		case '%':
+		{
+			do_cmd_visuals();
+			break;
+		}
+
+		/* Interact with colors */
+		case '&':
+		{
+			do_cmd_colors();
+			break;
+		}
+
+		/* Interact with options */
+		case '=':
+		{
+			do_cmd_options();
+			do_cmd_redraw();
+			display_store();
+			break;
+		}
+
+
+		/*** Misc Commands ***/
+
+		/* Take notes */
+		case ':':
+		{
+			do_cmd_note();
+			break;
+		}
+
+		/* Version info */
+		case 'V':
+		{
+			do_cmd_version();
+			break;
+		}
+
+		/* Repeat level feeling */
+		case KTRL('F'):
+		{
+			do_cmd_feeling();
+			break;
+		}
+
+		/* Show previous message */
+		case KTRL('O'):
+		{
+			do_cmd_message_one();
+			break;
+		}
+
+		/* Show previous messages */
+		case KTRL('P'):
+		{
+			do_cmd_messages();
+			break;
+		}
+
+		/* Check knowledge */
+		case '~':
+		case '|':
+		{
+			do_cmd_knowledge();
+			break;
+		}
+
+		/* Load "screen dump" */
+		case '(':
+		{
+			do_cmd_load_screen();
+			break;
+		}
+
+		/* Save "screen dump" */
+		case ')':
+		{
+			do_cmd_save_screen();
+			break;
+		}
+
+
+		/* Hack -- Unknown command */
+		default:
+		{
+			msg_print("That command does not work in the adventurer's guild.");
+			break;
+		}
+	}
+}
 /*
  * Enter a store, and interact with it.
  *
@@ -3306,15 +3482,21 @@ void do_cmd_store(void)
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", 22, 31);
-		prt(" d) Drop/Sell an item.", 23, 31);
+		if (store_num != STORE_GUILD)
+		{	
+			prt(" g) Get/Purchase an item.", 22, 31);
+			prt(" d) Drop/Sell an item.", 23, 31);
 
-		/* Add in the eXamine option */
-		if (rogue_like_commands)
-			prt(" x) eXamine an item.", 22, 56);
+			/* Add in the eXamine option */
+			if (rogue_like_commands)
+				prt(" x) eXamine an item.", 22, 56);
+			else
+				prt(" l) Look at an item.", 22, 56);
+		}
 		else
-			prt(" l) Look at an item.", 22, 56);
-
+		{
+			prt(" g) Get a quest.", 22, 31);
+		}
 		/* Prompt */
 		prt("You may: ", 21, 0);
 
@@ -3322,7 +3504,8 @@ void do_cmd_store(void)
 		request_command(TRUE);
 
 		/* Process the command */
-		store_process_command();
+		if (store_num != STORE_GUILD) store_process_command();
+		else guild_process_command();
 
 		/* Notice stuff */
 		notice_stuff();
@@ -3518,8 +3701,8 @@ void store_maint(int which)
 	int old_rating = rating;
 
 
-	/* Ignore home */
-	if (which == STORE_HOME) return;
+	/* Ignore home and guild*/
+	if ((which == STORE_HOME) || (which == STORE_GUILD)) return;
 
 	/* Save the store index */
 	store_num = which;

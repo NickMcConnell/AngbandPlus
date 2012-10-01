@@ -21,11 +21,9 @@ Inventory list (i)
         Displays a list of objects being carried but not equipped.  You
         can carry up to 23 different items, not counting those in your
         equipment.  Often, many identical objects can be "stacked" into
-        a "pile" which will count as a single item.  This is always
-        true of things like potions, scrolls, and food, but you may have
-        to set options to allow wands, staves, and other such objects to
-        stack.  Each object has a weight, and if you carry more objects
-        than your strength permits, you will begin to slow down.
+        a "pile" which will count as a single item.  Each object has a weight, 
+        and if you carry more objects than your strength permits, you will
+        begin to slow down.
  
 Equipment list (e)
         Use this command to display a list of the objects currently being
@@ -276,7 +274,7 @@ Cast a spell (m) or (p)
 
 Use racial power (U)
         Use this command to use your racial power. Obviously, you can only
-		do this if you have one.
+        do this if you have one.
 
 --- Object Manipulation Commands ---
 
@@ -512,18 +510,18 @@ Character Description (C)
 Check knowledge (~)
         This command allows you to ask about the knowledge possessed by
         your character.  Currently, this includes being able to list all
-        known "artifacts", "uniques", and "objects".  Normally, once an
+        known "artifacts", "monsters", and "objects".  Normally, once an
         artifact is "generated", and "lost", it can never again be found,
         and will become "known" to the player.  With "preserve" mode, an
         artifact can never be "lost" until it is "known" to the player.
         In either case, any "known" artifacts not in the possession of
-        the player will never again be "generated".  The "uniques" are
-        special "unique" monsters which can only be killed once per game.
-        Certain "objects" come in "flavors", and you must determine the
-        effect of each "flavor" once for each such type of object, and
-        this command will allow you to display all "known" flavors. 
-        This command also enables you to get a list of all known alchemical
-        combinations.
+        the player will never again be "generated".  The "monsters" gives
+        you a list of all known monsters, detailing how many kills you 
+        have for each type. Certain "objects" come in "flavors", and you 
+        must determine the effect of each "flavor" once for each such type 
+        of object, and this command will allow you to display all "known" 
+        flavors. This command also enables you to get a list of all known 
+        alchemical combinations.
 
 Interact with the system (!)
         Allow the user to interact with the underlying visual system.
@@ -632,4 +630,3 @@ Load screen dump (left-paren)
 Save screen dump (right-paren)
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
-

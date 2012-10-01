@@ -586,7 +586,6 @@ char *b_name;
 header *g_head;
 byte *g_info;
 
-#ifdef CUSTOM_QUESTS
 /*
  * The quest arrays
  */
@@ -594,7 +593,6 @@ header *q_head;
 quest *q_info;
 char *q_name;
 char *q_text;
-#endif
 
 /*
  * Hack -- The special Angband "System Suffix"

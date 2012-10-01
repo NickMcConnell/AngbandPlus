@@ -178,9 +178,7 @@ struct maxima
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
 
-#ifdef CUSTOM_QUESTS
 	u16b q_max;		/* Max size for "q_info[]" */
-#endif
 };
 
 
@@ -257,7 +255,6 @@ struct object_kind
 	byte flavor;		/* Special object flavor (or zero) */
 
 	bool easy_know;		/* This object is always known (if aware) */
-
 
 	bool aware;			/* The player is "aware" of the item's effects */
 
@@ -652,29 +649,22 @@ struct alloc_entry
  * the concept of quest monsters to specific unique monsters, and to
  * actually scan the dead unique list to see what quests are left.
  */
-#ifndef CUSTOM_QUESTS
 struct quest
 {
-	byte level;		/* Dungeon level */
-	int r_idx;		/* Monster race */
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
 
-	int cur_num;	/* Number killed (unused) */
-	int max_num;	/* Number required (unused) */
+	byte type;			/* Quest Type */
+	byte reward;		/* Quest Reward */
+
+	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
+	byte base_level;	/* The dungeon level on which the quest was assigned*/
+
+	s16b r_idx;			/* Monster race */
+
+	s16b cur_num;		/* Number killed */
+	s16b max_num;		/* Number required */
 };
-#else
-struct quest
-{
-	u32b name;		/* Name (offset) */
-	u32b text;		/* Text (offset) */
-
-	byte level;		/* Dungeon level */
-	byte old_level;	/* Dungeon level */
-	s16b r_idx;		/* Monster race */
-
-	s16b cur_num;	/* Number killed */
-	s16b max_num;	/* Number required */
-};
-#endif
 
 
 

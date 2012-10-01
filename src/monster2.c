@@ -468,6 +468,8 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
+		/* 
+
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 

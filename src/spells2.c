@@ -1257,10 +1257,11 @@ bool detect_objects_normal(void)
  */
 bool detect_objects_magic(void)
 {
-	int i, y, x, tv;
+	int i, y, x, tv, sv;
 
+	bool found;
 	bool detect = FALSE;
-
+	
 
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
@@ -1280,16 +1281,43 @@ bool detect_objects_magic(void)
 		/* Only detect nearby objects */
 		if (!panel_contains(y, x)) continue;
 
-		/* Examine the tval */
+		found = FALSE;
+
+		/* Examine the object */
 		tv = o_ptr->tval;
+		sv = o_ptr->sval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-		    (tv == TV_AMULET) || (tv == TV_RING) ||
-		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
-		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) ||
-		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
+		switch (tv)
+		{
+			case TV_AMULET:
+			case TV_RING:
+			case TV_STAFF:
+			case TV_WAND:
+			case TV_ROD:
+			case TV_SCROLL:
+			case TV_POTION:
+			case TV_MAGIC_BOOK:
+			case TV_POWDER:
+			{
+				found = TRUE;
+				break;
+			}
+			case TV_LITE:
+			{
+				if (sv == SV_LITE_LANTERN_SEE) found = TRUE;
+				if (artifact_p(o_ptr) || ego_item_p(o_ptr)) found = TRUE;
+				break;
+			}
+			default:
+			{
+				if (artifact_p(o_ptr) || ego_item_p(o_ptr)) found = TRUE;
+				if ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)) found = TRUE;
+				break;
+			}
+		}
+
+		if (found)
 		{
 			/* Memorize the item */
 			o_ptr->marked = TRUE;

@@ -8,9 +8,8 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/q_info.raw" file.
 
-# Note that changes to this file will only be relevent to new characters - old
-# savefiles will either be broken (if the number of quests changes), or will still
-# use the old quest information.
+# Note that there are a total of 64 available quests (modifiable in z_info). Any quests
+# not allocated here will be available to assignment as random quests.
 
 # Format:
 # N:<quest index>:<quest name>
@@ -19,11 +18,10 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.1.3
 
 N:0:Sauron
 W:99:638:1
 
 N:1:Morgoth
 W:100:639:1
-

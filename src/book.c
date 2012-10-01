@@ -379,7 +379,7 @@ void spell_info(char *p, int spell_index)
 		case  69: strcpy(p, " dur 10+d10"); break;
 		case  71: sprintf(p, " dam %d+3d6, rad %d", plev + 
 			(plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)), 
-			(plev < 30) ? 2 : 3); break;
+			((plev >= 30) && (cp_ptr->flags & CF_BLESS_WEAPON)) ? 3 : 2); break;
 		case  72: strcpy(p, " heal 6d10"); break;
 		case  73: strcpy(p, " dur 24+d24"); break;
 		case  74: sprintf(p, " dur %d+d25", 3*plev); break;

@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.1.3
 
 
 # Maximum number of feature types
@@ -44,8 +44,8 @@ M:H:134
 # Maximum number of owners per store
 M:B:4
 
-# Maximum number of quests - changing this will invalidate old savefiles
-M:Q:4
+# Maximum number of quests 
+M:Q:64
 
 # Maximum number of objects
 M:O:512

@@ -708,6 +708,7 @@ static bool wr_savefile_new(void)
 	int i;
 	u32b now;
 	u16b tmp16u1, tmp16u2;
+	byte tmp8u;
 
 	/* Guess at the current time */
 	now = time((time_t *)0);
@@ -786,32 +787,37 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u1);
 	for (i = 0; i < tmp16u1; i++)
 	{
-		wr_byte(potion_alch[i].known1);
-		wr_byte(potion_alch[i].known2);
+		tmp8u = 0;
+
+		if (potion_alch[i].known1) tmp8u |= 0x01;
+		if (potion_alch[i].known1) tmp8u |= 0x02;
+		wr_byte(tmp8u);
 	}
 
-#ifdef CUSTOM_QUESTS
 	/* Hack -- Dump the quests */
 	tmp16u1 = z_info->q_max;
 	wr_u16b(tmp16u1);
 	for (i = 0; i < tmp16u1; i++)
 	{
-		wr_byte(q_info[i].level);
-		wr_s16b(q_info[i].cur_num);
-		wr_byte(0);
+		wr_byte(q_info[i].type);
+
+		if (q_info[i].type == QUEST_FIXED)
+		{
+			wr_byte(q_info[i].active_level);
+			wr_s16b(q_info[i].cur_num);
+		}
+		else if (q_info[i].type == QUEST_GUILD)
+		{
+			wr_byte(q_info[i].reward);
+			wr_byte(q_info[i].active_level);
+			wr_byte(q_info[i].base_level);
+
+			wr_s16b(q_info[i].r_idx);
+
+			wr_s16b(q_info[i].cur_num);
+			wr_s16b(q_info[i].max_num);
+		}
 	}
-#else
-	/* Dump the quests */
-	tmp16u1 = MAX_Q_IDX;
-	wr_u16b(tmp16u1);
-	for (i = 0; i < tmp16u1; i++)
-	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-#endif
 
 	/* Hack -- Dump the artifacts */
 	tmp16u1 = z_info->a_max;

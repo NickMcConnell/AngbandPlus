@@ -4002,32 +4002,6 @@ void disturb(int stop_search, int unused_flag)
 }
 
 
-
-
-#ifndef CUSTOM_QUESTS
-/*
- * Hack -- Check if a level is a "quest" level
- */
-bool is_quest(int level)
-{
-	int i;
-
-	/* Town is never a quest */
-	if (!level) return (FALSE);
-
-	/* Check quests */
-	for (i = 0; i < MAX_Q_IDX; i++)
-	{
-		/* Check for quest */
-		if (q_list[i].level == level) return (TRUE);
-	}
-
-	/* Nope */
-	return (FALSE);
-}
-
-#else
-
 /*
  * Hack -- Check if a level is a "quest" level
  */
@@ -4042,11 +4016,10 @@ bool is_quest(int level)
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* Check for quest */
-		if (q_info[i].level == level) return (TRUE);
+		if (q_info[i].active_level == level) return (TRUE);
 	}
 
 	/* Nope */
 	return (FALSE);
 }
 
-#endif

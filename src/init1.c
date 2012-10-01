@@ -856,7 +856,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-#ifdef CUSTOM_QUESTS
 
 		/* Process 'Q' for "Maximum q_info[] index" */
 		if (buf[2] == 'Q')
@@ -872,7 +871,6 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-#endif
 
 		/* Process 'N' for "Fake name size" */
 		if (buf[2] == 'N')
@@ -4022,7 +4020,6 @@ errr init_g_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
-#ifdef CUSTOM_QUESTS
 /*
  * Initialize the "q_info" array, by parsing an ascii "template" file
  */
@@ -4176,9 +4173,10 @@ errr init_q_info_txt(FILE *fp, char *buf)
 			                &lev, &idx, &max)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			q_ptr->old_level = lev;
+			q_ptr->base_level = lev;
 			q_ptr->r_idx = idx;
 			q_ptr->max_num = max;
+			q_ptr->type = QUEST_FIXED;
 
 			/* Next... */
 			continue;
@@ -4202,7 +4200,6 @@ errr init_q_info_txt(FILE *fp, char *buf)
 	/* Success */
 	return (0);
 }
-#endif
 
 #else	/* ALLOW_TEMPLATES */
 

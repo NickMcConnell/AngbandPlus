@@ -489,7 +489,7 @@ void do_cmd_cast_or_pray(void)
 	}
 
 	/* Restrict choices to spell books of the player's realm. */
-	if ((!cp_ptr->flags & CF_MYSTIC_CAST) &&  (p_ptr->blind || no_lite() || p_ptr->confused))
+	if ((cp_ptr->flags & CF_MYSTIC_CAST) && (p_ptr->blind || no_lite() || p_ptr->confused))
 	{
 		item_tester_hook = item_tester_hook_mysticbooks;
 	}
@@ -1132,7 +1132,7 @@ void do_cmd_cast_or_pray(void)
 				fire_ball(GF_HOLY_ORB, dir,
 				          (damroll(3, 6) + plev +
 				           (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4))),
-				          ((plev < 30) ? 2 : 3));
+				          (((plev >= 30) && (cp_ptr->flags & CF_BLESS_WEAPON)) ? 3 : 2));
 				break;
 			}
 

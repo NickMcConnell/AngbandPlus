@@ -2888,6 +2888,13 @@ static bool kind_is_good(int k_idx)
 				return (TRUE);
 			return (FALSE);
 		}
+		
+		/* Lights -- Enchanted lanterns are good */
+		case TV_LITE:
+		{
+			if (k_ptr->sval == SV_LITE_LANTERN_SEE) return (TRUE);
+			return (FALSE);
+		}
 
 	}
 

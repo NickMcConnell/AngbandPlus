@@ -28,6 +28,7 @@ extern s16b ddy_ddd[9];
 extern char hexsym[16];
 extern byte adj_mag_study[];
 extern byte adj_mag_mana[];
+extern byte adj_mag_extra_mana[];
 extern byte adj_mag_fail[];
 extern byte adj_mag_stat[];
 extern byte adj_chr_gold[];
@@ -54,9 +55,7 @@ extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
 extern spell_book books[SV_MAX_BOOKS];
 extern player_race_special race_special_info[2][11];
-#if 0
-extern cptr spell_names[256];
-#endif
+extern s16b guild[GUILD_QUESTS];
 extern byte chest_traps[64];
 extern cptr color_names[16];
 extern cptr stat_names[6];
@@ -166,9 +165,6 @@ extern maxima *z_info;
 extern object_type *o_list;
 extern monster_type *m_list;
 extern monster_lore *l_list;
-#ifndef CUSTOM_QUESTS
-extern quest *q_list;
-#endif
 extern store_type *store;
 extern object_type *inventory;
 extern s16b alloc_kind_size;
@@ -228,12 +224,10 @@ extern owner_type *b_info;
 extern char *b_name;
 extern header *g_head;
 extern byte *g_info;
-#ifdef CUSTOM_QUESTS
 extern header *q_head;
 extern quest *q_info;
 extern char *q_name;
 extern char *q_text;
-#endif /*CUSTOM_QUESTS*/
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
@@ -573,6 +567,12 @@ extern void combine_pack(void);
 extern void reorder_pack(void);
 extern void display_spell_list(void);
 extern void display_koff(int k_idx);
+
+/* quest.c */
+extern cptr quest_feeling(s16b level, bool full);
+extern bool do_give_quest(void);
+extern void display_guild(void);
+extern void guild_purchase(void);
 
 /* save.c */
 extern bool save_player(void);

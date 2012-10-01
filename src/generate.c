@@ -1789,7 +1789,7 @@ static void build_type5(int y0, int x0)
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
 	if ((p_ptr->depth <= 40) &&
-	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+	    (randint(p_ptr->depth * p_ptr->depth + 100) < 100))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2099,7 +2099,7 @@ static void build_type6(int y0, int x0)
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
 	if ((p_ptr->depth <= 40) &&
-	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
+	    (randint(p_ptr->depth * p_ptr->depth + 100) < 100))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2347,7 +2347,7 @@ static void build_type7(int y0, int x0)
 
 	/* (Sometimes) Cause a special feeling */
 	if ((p_ptr->depth <= 50) ||
-	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
+	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 100) < 150))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2383,7 +2383,7 @@ static void build_type8(int y0, int x0)
 
 	/* (Sometimes) Cause a special feeling */
 	if ((p_ptr->depth <= 50) ||
-	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 1) < 400))
+	    (randint((p_ptr->depth-40) * (p_ptr->depth-40) + 100) < 150))
 	{
 		good_item_flag = TRUE;
 	}
@@ -3080,44 +3080,13 @@ static void cave_gen(void)
 		(void)alloc_monster(0, TRUE);
 	}
 
-#ifndef CUSTOM_QUESTS
-	/* Ensure quest monsters */
-	if (is_quest(p_ptr->depth))
-	{
-		/* Ensure quest monsters */
-		for (i = 1; i < z_info->r_max; i++)
-		{
-			monster_race *r_ptr = &r_info[i];
-
-			/* Ensure quest monsters */
-			if ((r_ptr->flags1 & (RF1_QUESTOR)) &&
-			    (r_ptr->level == p_ptr->depth) &&
-			    (r_ptr->cur_num <= 0))
-			{
-				int y, x;
-
-				/* Pick a location */
-				while (1)
-				{
-					y = rand_int(DUNGEON_HGT);
-					x = rand_int(DUNGEON_WID);
-
-					if (cave_naked_bold(y, x)) break;
-				}
-
-				/* Place the questor */
-				place_monster_aux(y, x, i, TRUE, TRUE);
-			}
-		}
-	}
-#else /*CUSTOM_QUESTS*/
 	/* Ensure quest monsters */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		quest *q_ptr = &q_info[i];
 
 		/* Quest levels */
-		if (q_ptr->level == p_ptr->depth)
+		if (q_ptr->active_level == p_ptr->depth)
 		{
 			monster_race *r_ptr = &r_info[q_ptr->r_idx];
 			s16b num_questors;
@@ -3144,7 +3113,6 @@ static void cave_gen(void)
 			}
 		}
 	}
-#endif /*CUSTOM_QUESTS*/
 
 	/* Put some objects in rooms */
 	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
@@ -3283,7 +3251,6 @@ static void town_gen_hack(void)
 	/* Hack -- Induce consistant town layout */
 	Rand_value = seed_town;
 
-
 	/* Prepare an Array of "remaining stores", and count them */
 	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
 
@@ -3291,7 +3258,7 @@ static void town_gen_hack(void)
 	for (y = 0; y < 2; y++)
 	{
 		/* Place four stores per row */
-		for (x = 0; x < 4; x++)
+		for (x = 0; x < 5; x++)
 		{
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : rand_int(n));
@@ -3303,8 +3270,10 @@ static void town_gen_hack(void)
 			rooms[k] = rooms[--n];
 		}
 	}
+#if 0
 	/* Hack -- Build the 9th store.  Taken from Zangband -LM- */
 	build_store(rooms[0], rand_int(2), 4);
+#endif
 
 	/* Place the stairs */
 	while (TRUE)
@@ -3320,10 +3289,8 @@ static void town_gen_hack(void)
 	/* Clear previous contents, add down stairs */
 	cave_set_feat(y, x, FEAT_MORE);
 
-
 	/* Place the player */
 	player_place(y, x);
-
 
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
@@ -3528,7 +3495,6 @@ void generate_cave(void)
 
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;
-
 
 		/* Prevent object over-flow */
 		if (o_max >= z_info->o_max)

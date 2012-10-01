@@ -438,6 +438,11 @@ Restrict the use of stores/home    [birth_no_stores]
     restore stat... Not recommended for new players, or indeed for 
     sane players.
 
+No level feelings [birth_no_feelings]
+    You will no longer get a descriptive feeling when entering a level - 
+    you'll have to explore it yourself to discover what it contains, with
+    no prior warning. Recommended only for advanced players.
+
 Restrict the creation of artifacts    [birth_no_artifacts]
     No artifacts will be created. Ever. Just *how* masochistic are you?
 

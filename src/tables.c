@@ -98,7 +98,7 @@ byte adj_mag_study[] =
 
 
 /*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
+ * Stat Table (INT/WIS) -- half-mana-points per level
  */
 byte adj_mag_mana[] =
 {
@@ -142,6 +142,51 @@ byte adj_mag_mana[] =
 	16	/* 18/220+ */
 };
 
+
+/*
+ * Stat Table (INT/WIS) -- extra half-mana-points per level for classes with extra mana
+ */
+byte adj_mag_extra_mana[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	0	/* 6 */,
+	0	/* 7 */,
+	0	/* 8 */,
+	0	/* 9 */,
+	0	/* 10 */,
+	1	/* 11 */,
+	1	/* 12 */,
+	2	/* 13 */,
+	2	/* 14 */,
+	2	/* 15 */,
+	2	/* 16 */,
+	3	/* 17 */,
+	3	/* 18/00-18/09 */,
+	3	/* 18/10-18/19 */,
+	3	/* 18/20-18/29 */,
+	3	/* 18/30-18/39 */,
+	3	/* 18/40-18/49 */,
+	3	/* 18/50-18/59 */,
+	3	/* 18/60-18/69 */,
+	3	/* 18/70-18/79 */,
+	3	/* 18/80-18/89 */,
+	3	/* 18/90-18/99 */,
+	4	/* 18/100-18/109 */,
+	4	/* 18/110-18/119 */,
+	5	/* 18/120-18/129 */,
+	5	/* 18/130-18/139 */,
+	6	/* 18/140-18/149 */,
+	6	/* 18/150-18/159 */,
+	7	/* 18/160-18/169 */,
+	7	/* 18/170-18/179 */,
+	8	/* 18/180-18/189 */,
+	8	/* 18/190-18/199 */,
+	9   /* 18/200-18/209 */,
+	9	/* 18/210-18/219 */,
+	9	/* 18/220+ */
+};
 
 /*
  * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
@@ -1316,24 +1361,24 @@ player_race_special race_special_info[2][11] =
 		{ "Deva",		{3,1,2,0,4,1}	,{0, 3, 3,0,0,0, 4,0,0,0,0},0,0x00200004L,0x00000006,3},
 		{ "Planetar",	{3,1,2,0,4,2}	,{0, 6, 7,0,0,0, 8,1,0,0,0},0,0x00600024L,0x00000026,3},
 		{ "Planetar",	{3,1,2,0,4,2}	,{0, 6, 7,0,0,0, 8,1,0,0,0},0,0x00600024L,0x00000026,3},
-		{ "Archon",		{4,2,3,0,5,3}	,{0, 9,11,0,0,0,12,3,0,0,0},0,0x03EC0024L,0x00000066,4},
-		{ "Archon",		{4,2,3,0,5,3}	,{0, 9,11,0,0,0,12,3,0,0,0},0,0x03EC0024L,0x00000066,4},
-		{ "Solar",		{5,3,4,0,6,4}	,{0,12,16,0,0,0,16,5,0,0,0},0,0x03EF0026L,0x0000006F,5},
-		{ "Solar",		{5,3,4,0,6,4}	,{0,12,16,0,0,0,16,5,0,0,0},0,0x03EF0026L,0x0000006F,5},
-		{ "Archangel",	{6,3,4,0,7,5}	,{0,16,22,0,0,0,24,9,0,0,0},0,0x43EF0026L,0x000040EF,5}
+		{ "Archon",		{4,2,3,0,5,3}	,{0, 9,11,0,0,0,12,3,0,0,0},0,0x02EC0024L,0x00000066,4},
+		{ "Archon",		{4,2,3,0,5,3}	,{0, 9,11,0,0,0,12,3,0,0,0},0,0x02EC0024L,0x00000066,4},
+		{ "Solar",		{5,3,4,0,6,4}	,{0,12,16,0,0,0,16,5,0,0,0},0,0x02EF0024L,0x0000006F,5},
+		{ "Solar",		{5,3,4,0,6,4}	,{0,12,16,0,0,0,16,5,0,0,0},0,0x02EF0024L,0x0000006F,5},
+		{ "Archangel",	{6,3,4,0,7,5}	,{0,16,22,0,0,0,24,9,0,0,0},0,0x42EF0024L,0x000000EF,5}
 	},
 	{ /*Demon*/
 		{ "Lemure",		{0,0,0,0, 0, 0}	,{0, 0, 0,	0,0,0, 0, 0, 0,0,0},0,0x00000000L,0x00000000,0},
 		{ "Quasit",		{2,0,0,2, 2, 0}	,{0, 0, 0,	0,0,0, 1, 1, 1,0,0},0,0x00200000L,0x00000000,0},
 		{ "Imp",		{3,2,0,3, 3,-1}	,{0, 2, 0,	0,0,0, 2, 1, 1,0,0},0,0x00240000L,0x00000000,0},
-		{ "Tengu",		{4,4,1,4, 3,-1}	,{0, 4, 1, -1,0,0, 4, 2, 1,0,0},0,0x01240000L,0x00000002,6},
-		{ "Bodak",      {4,4,1,4, 4,-1}	,{0, 6, 3, -2,0,0, 8, 4, 2,0,0},0,0x01A40001L,0x00000022,7},
-		{ "Vrock",      {4,4,2,4, 5,-2}	,{0, 8, 5, -4,0,0,12, 6, 4,0,0},0,0x03A50001L,0x00000022,7},
-		{ "Hezrou",		{5,4,2,4, 6,-2}	,{0,10, 7, -5,0,0,16, 8, 6,0,0},0,0x03A70011L,0x00000022,7},
-		{ "Glabrezu",   {6,5,3,4, 7,-2}	,{0,13, 9, -7,0,0,20,10, 8,0,0},0,0x23A70011L,0x00000022,8},
-		{ "Nalfeshnee", {7,6,3,4, 8,-3}	,{0,16,11, -8,0,0,24,12,10,0,0},0,0x23A70011L,0x0000002A,8},
-		{ "Pit Fiend",	{8,6,4,4, 9,-3}	,{0,19,13, -9,0,0,26,14,12,0,0},0,0x63A70011L,0x0000402A,8},
-		{ "Balrog",		{9,7,4,5,10,-4}	,{0,22,15,-10,0,0,30,16,12,0,0},0,0x63A74011L,0x0000402A,9}
+		{ "Tengu",		{4,4,1,4, 3,-1}	,{0, 4, 1, -1,0,0, 4, 2, 1,0,0},0,0x01240000L,0x00000000,6},
+		{ "Bodak",      {4,4,1,4, 4,-1}	,{0, 6, 3, -2,0,0, 8, 4, 2,0,0},0,0x01A40001L,0x00000000,7},
+		{ "Vrock",      {4,4,2,4, 5,-2}	,{0, 8, 5, -4,0,0,12, 6, 4,0,0},0,0x01A50001L,0x00000000,7},
+		{ "Hezrou",		{5,4,2,4, 6,-2}	,{0,10, 7, -5,0,0,16, 8, 6,0,0},0,0x01A50011L,0x00000000,7},
+		{ "Glabrezu",   {6,5,3,4, 7,-2}	,{0,13, 9, -7,0,0,20,10, 8,0,0},0,0x21A50011L,0x00000000,8},
+		{ "Nalfeshnee", {7,6,3,4, 8,-3}	,{0,16,11, -8,0,0,24,12,10,0,0},0,0x21A50011L,0x00000008,8},
+		{ "Pit Fiend",	{8,6,4,4, 9,-3}	,{0,19,13, -9,0,0,26,14,12,0,0},0,0x61A50011L,0x00004008,8},
+		{ "Balrog",		{9,7,4,5,10,-4}	,{0,22,15,-10,0,0,30,16,12,0,0},0,0x61A54011L,0x00004008,9}
 	}	
 };
 
@@ -1681,6 +1726,16 @@ spell_book books[SV_MAX_BOOKS] =
 	}
 };
 
+/*
+ * The Adventurer's guild's selection
+ */
+s16b guild[GUILD_QUESTS] = 
+{
+	{0},
+	{2},
+	{4},
+	{6},
+};
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -1986,7 +2041,7 @@ cptr option_text[OPT_MAX] =
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
 	"birth_autoscum",			/* OPT_birth_autoscum */
-	NULL,						/* xxx */
+	"birth_no_feelings",		/* OPT_birth_no_feelings */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2050,7 +2105,7 @@ cptr option_text[OPT_MAX] =
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
 	"adult_autoscum",			/* OPT_adult_autoscum */
-	NULL,						/* xxx */
+	"adult_no_feelings",		/* OPT_adult_no_feelings */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2250,7 +2305,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
 	"Birth: Generate better (harder) levels",	/* OPT_birth_autoscum */
-	NULL,										/* xxx */
+	"Birth: No level feelings",					/* OPT_birth_no_feelings */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2314,7 +2369,7 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
 	"Adult: Generate better (harder) levels",	/* OPT_adult_autoscum */
-	NULL,										/* xxx */
+	"Adult: No level feelings",					/* OPT_adult_no_feelings */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2514,7 +2569,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
 	FALSE,		/* OPT_birth_autoscum */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_no_feelings */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2578,7 +2633,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
 	FALSE,		/* OPT_adult_autoscum */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_no_feelings */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2751,10 +2806,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_preserve,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
+		OPT_birth_no_feelings,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
 		OPT_birth_autoscum,
-		255,
 		255,
 		255,
 		255,

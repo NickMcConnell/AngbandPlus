@@ -89,7 +89,7 @@ static tval_desc typevals[] =
 	{TYPE_CLOAK,	"Cloaks"				},   
 	{TYPE_SHIELD,	"Shields"				},   
 	{TYPE_HELM,		"Helmets"				},
-	{TYPE_BOOT,		"Gloves, and boots"		},   
+	{TYPE_BOOT,		"Gloves and boots"		},   
 	{TYPE_AMULET,	"Amulets"				},  
 	{TYPE_RING,		"Rings"					},    
 	{TYPE_STAFF,	"Staves"				},      

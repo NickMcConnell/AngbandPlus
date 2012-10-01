@@ -1553,6 +1553,8 @@ static void calc_mana(void)
 	/* Extract total mana */
 	stat_factor = (p_ptr->stat_ind[cp_ptr->spell_stat1] + p_ptr->stat_ind[cp_ptr->spell_stat2])/2;
 	msp = adj_mag_mana[stat_factor] * levels / 2;
+	if (cp_ptr->flags & CF_EXTRA_MANA) msp+=adj_mag_extra_mana[stat_factor] * levels / 2;
+	
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1613,9 +1615,6 @@ static void calc_mana(void)
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
-
-	/* Hack - Mystics get 2 times mana */
-	if (cp_ptr->flags & CF_EXTRA_MANA) msp *= 2;
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)

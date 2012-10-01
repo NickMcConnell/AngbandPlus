@@ -2796,10 +2796,8 @@ void play_game(bool new_game)
 	/* Flush the message */
 	Term_fresh();
 
-
 	/* Hack -- Enter wizard mode */
 	if (arg_wizard && enter_wizard_mode()) p_ptr->wizard = TRUE;
-
 
 	/* Flavor the objects */
 	flavor_init();
