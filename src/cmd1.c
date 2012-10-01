@@ -610,9 +610,11 @@ void py_pickup(int pickup)
 
 					/* Check if completed a quest -KMW- */
 					for (i=0; i < MAX_QUESTS;i++)
-						if ((q_list[i].quest_type == 3) &&
-						    (q_list[i].k_idx == o_ptr->name1)) {
-							p_ptr->rewards[i+QUEST_REWARD] = 2;
+						if ((q_list[i].quest_type == QUEST_OBJ_FIND_OBJECT) &&
+						    (q_list[i].k_idx == o_ptr->name1) &&
+							(p_ptr->rewards[i + QUEST_REWARD] < QUEST_COMPLETED))
+						{
+							p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED;
 							msg_print("You completed your quest!");
 							msg_print(NULL);
 						}
@@ -1276,6 +1278,17 @@ void move_player(int dir, int do_pickup)
 		((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
 		oktomove = TRUE;
 
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_disarm) &&
+		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		extern bool do_cmd_disarm_aux(int y, int x);
+		(void) do_cmd_disarm_aux(y, x);
+	}
+#endif /* ALLOW_EASY_DISARM */
+
 	/* Player can not walk through "walls" */
 	else if ((!cave_floor_bold(y, x)) &&
 	    (!p_ptr->ghostly) &&
@@ -1326,6 +1339,9 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
+#ifdef ALLOW_EASY_OPEN /* TNB */
+				if (easy_open_door(y, x)) return;
+#endif
 				msg_print("There is a door blocking your way.");
 			}
 
@@ -1372,7 +1388,11 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+		py_pickup(do_pickup != always_pickup);
+#else
 		py_pickup(do_pickup);
+#endif /* ALLOW_EASY_DISARM */
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -2206,5 +2226,9 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	move_player(p_ptr->run_cur_dir, FALSE);
+#else
 	move_player(p_ptr->run_cur_dir, always_pickup);
+#endif /* ALLOW_EASY_DISARM */
 }

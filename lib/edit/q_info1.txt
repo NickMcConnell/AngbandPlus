@@ -364,7 +364,7 @@ D:X    X.................X                                                 %+%%.
 D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:117:Kamul
+N:117:Khamul
 T1:Khamul the Easterling has been spotted around town and is
 T2:terrorizing everyone!  Defeat him!
 Q:1:0:0:1:0:494:0:0:0:0:0

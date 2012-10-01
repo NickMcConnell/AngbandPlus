@@ -692,7 +692,11 @@ extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
 extern uint maxroll(uint num, uint sides);
 extern bool is_a_vowel(int ch);
-
+#ifdef ALLOW_REPEAT
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
+#endif
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
 extern s16b modify_stat_value(int value, int amount);

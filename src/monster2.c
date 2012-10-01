@@ -1417,12 +1417,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet)
 			/* Cannot create */
 			return (FALSE);
 
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->r_flags2 & RF2_QUESTOR2))
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
 	{

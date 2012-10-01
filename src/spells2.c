@@ -3301,6 +3301,10 @@ void alter_terrain(int cy, int cx, int r, int typ)
 			/* Skip unaffected grids */
 			if (!map[16+yy-cy][16+xx-cx]) continue;
 
+			/* Skip staircases */
+			if (cave_feat[yy][xx] == FEAT_LESS || cave_feat[yy][xx] == FEAT_MORE)
+			    continue;
+			
 			if (typ == 1) {
 				if (cave_feat[yy][xx] == FEAT_DEEP_LAVA)
 					cave_set_feat(yy, xx, FEAT_SHAL_LAVA);

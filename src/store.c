@@ -857,7 +857,7 @@ static bool store_will_buy(object_type *o_ptr)
 			}
 			break;
 		}
-		case 9: /* Bookstore -KMW- */
+		case 6: /* Bookstore -KMW- */
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -1624,6 +1624,20 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Get the item index */
+    if (repeat_pull(com_val)) {
+
+        /* Verify the item */
+        if ((*com_val >= 0) && (*com_val <= (st_ptr->stock_num - 1))) {
+
+	        /* Success */
+	        return (TRUE);
+        }
+    }
+
+#endif /* TNB */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1689,6 +1703,12 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Save item */
 	(*com_val) = item;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push(*com_val);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2846,6 +2866,13 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{

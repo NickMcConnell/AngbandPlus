@@ -521,3 +521,23 @@
 # define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMP
 #endif
+
+/*
+ * Tim Baker's easy patch - note that EASY_OPEN and EASY_DISARM depend
+ * upon each other (if you enable one, you must enable the other) 
+ */
+/*
+ * OPTION: Repeat last command -- TNB
+ */
+/* #define ALLOW_REPEAT */
+
+/*
+ * OPTION: Make opening and closing things easy -- TNB
+ */
+/* #define ALLOW_EASY_OPEN */
+
+/*
+ * OPTION: Make disarming traps easy -- TNB
+ */
+/* #define ALLOW_EASY_DISARM */
+

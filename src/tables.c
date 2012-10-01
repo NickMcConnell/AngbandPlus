@@ -3052,7 +3052,11 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	"easy_open",   /* OPT_easy_open */
+#else
 	NULL,						/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -3065,7 +3069,11 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	"easy_disarm",   /* OPT_easy_disarm */
+#else
 	NULL,						/* xxx track_follow */
+#endif /* ALLOW_EASY_DISARM */
 	NULL,						/* xxx track_target */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
@@ -3127,7 +3135,11 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	"Open and close automatically",   /* OPT_easy_open */
+#else
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -3140,7 +3152,11 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	"Disarm traps automatically",   /* OPT_easy_disarm */
+#else
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_DISARM */
 	NULL,										/* xxx */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
@@ -3203,7 +3219,13 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
+	
+	/* IMHO Easy patch should default to off */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	FALSE,   /* OPT_easy_open */
+#else
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	TRUE,		/* OPT_testing_stack */
@@ -3216,7 +3238,11 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	FALSE,   /* OPT_easy_disarm */
+#else
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_DISARM */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
@@ -3336,9 +3362,17 @@ byte option_page[4][19] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+#ifdef ALLOW_EASY_OPEN /* TNB */
+		OPT_easy_open,
+#else
 		255,
+#endif /* ALLOW_EASY_OPEN */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+		OPT_easy_disarm,
+#else
 		255,
-		255,
+#endif /* ALLOW_EASY_DISARM */
+ 		255,
 		255,
 		255
 	}

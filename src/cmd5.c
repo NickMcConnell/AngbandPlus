@@ -42,6 +42,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Get the spell, if available */
+    if (repeat_pull(sn)) {
+
+        /* Verify the spell */
+        if (spell_okay(*sn, known)) {
+
+            /* Success */
+            return (TRUE);
+        }
+    }
+
+#endif
 
 	/* Extract spells */
 	for (spell = 0; spell < 64; spell++)
@@ -200,6 +214,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	/* Save the choice */
 	(*sn) = spell;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+    repeat_push(*sn);
+
+#endif
 
 	/* Success */
 	return (TRUE);

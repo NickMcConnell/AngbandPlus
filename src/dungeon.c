@@ -1274,13 +1274,19 @@ extern void do_cmd_borg(void);
 #endif
 
 
-
 /*
  * Parse and execute the current command
  * Give "Warning" on illegal commands.
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{

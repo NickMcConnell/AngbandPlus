@@ -103,9 +103,16 @@
 #  include <string.h>
 # else
 #  include <strings.h>
+/* Some compilers may define these as macros. */
+#  ifndef strstr
 extern char *strstr();
+#  endif
+#  ifndef strchr
 extern char *strchr();
+#  endif
+#  ifndef strrchr
 extern char *strrchr();
+#  endif
 # endif
 
 #else

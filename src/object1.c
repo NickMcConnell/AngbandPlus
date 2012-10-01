@@ -3632,6 +3632,57 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Get the item index */
+    if (repeat_pull(cp)) {
+
+        /* Floor item? */
+        if (*cp < 0) {
+
+			/* Scan all objects in the grid */
+			for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Validate the item */
+				if (!item_tester_okay(o_ptr)) continue;
+
+				/* Save the index */
+				(*cp) = 0 - this_o_idx;
+
+				/* Forget the item_tester_tval restriction */
+				item_tester_tval = 0;
+
+				/* Forget the item_tester_hook restriction */
+				item_tester_hook = NULL;
+
+				/* Success */
+				return (TRUE);
+	        }
+        }
+
+        /* Verify the item */
+        else if (get_item_okay(*cp)) {
+
+	        /* Forget the item_tester_tval restriction */
+	        item_tester_tval = 0;
+
+	        /* Forget the item_tester_hook restriction */
+	        item_tester_hook = NULL;
+
+	        /* Success */
+	        return (TRUE);
+        }
+    }
+
+#endif /* ALLOW_REPEAT */
 
 	/* Extract args */
 	if (mode & (USE_EQUIP)) equip = TRUE;
@@ -4139,6 +4190,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+    if (item) repeat_push(*cp);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Result */
 	return (item);

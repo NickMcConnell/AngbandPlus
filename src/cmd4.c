@@ -2922,12 +2922,16 @@ void do_cmd_checkquest(void)
 	monster_race *r_ptr;
 	cptr name;
 
-	for (i2=QUEST_REWARD_HEAD;i2 < QUEST_REWARD_TAIL;i2++) {
+	for (i2 = QUEST_REWARD_HEAD; i2 < QUEST_REWARD_TAIL; i2++)
+	{
 		i = i2 - QUEST_DIFF;
-		if (p_ptr->rewards[i] == 0) {
+		if (!p_ptr->rewards[i])
+		{
 			sprintf(tmp_str,"No current quest");
 			break;
-		} else if (p_ptr->rewards[i] == 1) {
+		} 
+		else if (p_ptr->rewards[i] == QUEST_ACTIVE)
+		{
 			j = i2 - QUEST_OFFSET1;
 			if ((q_list[j].quest_type == 1) ||
 			    (q_list[j].quest_type == 2))
@@ -2939,18 +2943,19 @@ void do_cmd_checkquest(void)
 				break;
 			} else {
 				strcpy(tmp_str2,q_list[j].qname);
-				if (q_list[j].quest_type == 3)
+				if (q_list[j].quest_type == QUEST_OBJ_FIND_OBJECT)
 					sprintf(tmp_str,"%s - find object",tmp_str2);
-				else if (q_list[j].quest_type == 4)
+				else if (q_list[j].quest_type == QUEST_OBJ_FIND_EXIT)
 					sprintf(tmp_str,"%s - find exit",tmp_str2);
-				else if (q_list[j].quest_type == 5)
+				else if (q_list[j].quest_type == QUEST_OBJ_KILL_MONSTERS)
 					sprintf(tmp_str,"%s: Kill %d creatures, have killed %d",
 					    tmp_str2, q_list[j].num_mon, q_list[j].cur_num);
-				else if (q_list[j].quest_type == 6)
+				else if (q_list[j].quest_type == QUEST_OBJ_KILL_ALL_MONSTERS)
 					sprintf(tmp_str,"%s: Kill all monsters", tmp_str2);
 				break;
 			}
-		} else if (p_ptr->rewards[i] == 2) {
+		} else if (p_ptr->rewards[i] == QUEST_COMPLETED) 
+				{
 			sprintf(tmp_str,"Current Quest Complete - Unrewarded");
 			break;
 		}

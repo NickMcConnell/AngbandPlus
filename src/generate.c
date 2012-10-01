@@ -3801,6 +3801,7 @@ static void cave_gen(void)
  */
 void wilderness_gen(int refresh)
 {
+	monster_race *r_ptr;
 	int i,j,y,x, tmpx, tmpy;
 	int mcy, mcx;
 	int pcy, pcx;
@@ -4005,25 +4006,38 @@ void wilderness_gen(int refresh)
 	}
 
 	/* Handle the quest placements */
-	for (i = QUEST_OFFSET1; i < (QUEST_OFFSET1 + MAX_QUESTS); i++) {
+	for (i = QUEST_OFFSET1; i < (QUEST_OFFSET1 + MAX_QUESTS); i++) 
+	{
 		j = i - QUEST_DIFF;
 		tmpx = q_list[i-QUEST_OFFSET1].questx;
 		tmpy = q_list[i-QUEST_OFFSET1].questy;
-		if ((p_ptr->rewards[j] > 0) && (q_list[i-QUEST_OFFSET1].vaultused)) {
-			if (p_ptr->rewards[j] == 1)
+		if ((p_ptr->rewards[j] > 0) && (q_list[i-QUEST_OFFSET1].vaultused)) 
+		{
+			if (p_ptr->rewards[j] == QUEST_ACTIVE)
 				cave_set_feat(tmpy, tmpx, FEAT_QUEST_ENTER);
 			else
 				cave_set_feat(tmpy, tmpx, q_list[i-QUEST_OFFSET1].revert);
-		} else if ((p_ptr->rewards[j] == 1) && (q_list[i-QUEST_OFFSET1].quest_type == 1)
-		    && (q_list[i-QUEST_OFFSET1].level == 0)) {
-			while (1) {
-				y = rand_int(DUNGEON_HGT);
-				x = rand_int(DUNGEON_WID);
-				if (!cave_naked_bold(y,x)) continue;
-				if (distance(y, x, p_ptr->py, p_ptr->px) < 10) continue;
-				else break;
-			}
-			place_monster_aux(y,x,q_list[i-QUEST_OFFSET1].r_idx,FALSE,TRUE, 0);
+		} else if ((p_ptr->rewards[j] == QUEST_ACTIVE) && (q_list[i-QUEST_OFFSET1].quest_type == 1)
+		    && (q_list[i-QUEST_OFFSET1].level == 0)) 
+			{
+				int modidx;
+				
+				while (1) 
+				{
+					y = rand_int(DUNGEON_HGT);
+					x = rand_int(DUNGEON_WID);
+					if (!cave_naked_bold(y,x)) continue;
+					if (distance(y, x, p_ptr->py, p_ptr->px) < 10) continue;
+					else break;
+				}
+			modidx = q_list[i - QUEST_OFFSET1].r_idx;
+		    r_ptr = &r_info[modidx];
+			/* Hack - If unique is already dead, mark quest as completed (let player
+			 * collect reward) */
+			if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->cur_num >= r_ptr->max_num))
+				p_ptr->rewards[j] = QUEST_COMPLETED;
+			else
+				place_monster_aux(y,x,modidx,FALSE,TRUE, 0);
 		}
 	}
 

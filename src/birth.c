@@ -1148,7 +1148,7 @@ static bool player_birth_aux(void)
 	char buf[80];
 
 	bool autoroll = FALSE;
-
+	bool skip = FALSE;
 
 	/*** Instructions ***/
 
@@ -1188,11 +1188,42 @@ static bool player_birth_aux(void)
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Choose a sex (%c-%c): ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a sex (%c-%c), * for random, or R for a random character: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == 'R')
+		{
+			/* Hack to roll a random character */
+			p_ptr->psex = randint(MAX_SEXES) - 1;
+			sp_ptr = &sex_info[p_ptr->psex];
+			
+			p_ptr->prace = randint(MAX_RACES) - 1;
+			rp_ptr = &race_info[p_ptr->prace];
+			
+			p_ptr->pclass = randint(MAX_CLASS) - 1;
+			cp_ptr = &class_info[p_ptr->pclass];
+						
+			mp_ptr = &magic_info[p_ptr->pclass];
+			
+			/* Choose a random plot too */
+			p_ptr->plot_num = randint(MAX_PLOTS);
+			
+			p_ptr->maximize = randint(2);
+			p_ptr->preserve = randint(2);
+			
+			clear_from(15);
+			skip = TRUE;
+			break;
+		}
+		/* Random gender */
+		if (c == '*')
+		{
+			k = randint(MAX_SEXES) - 1;
+			break;
+		}
+		
 		if (c == ESCAPE) c = 'a';
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
@@ -1200,196 +1231,228 @@ static bool player_birth_aux(void)
 		else bell("Illegal sex!");
 	}
 
-	/* Set sex */
-	p_ptr->psex = k;
-	sp_ptr = &sex_info[p_ptr->psex];
+	if (!skip)
+	{			
+		/* Set sex */
+		p_ptr->psex = k;
+		sp_ptr = &sex_info[p_ptr->psex];
 
-	/* Clean up */
-	clear_from(15);
+		/* Clean up */
+		clear_from(15);
 
 
-	/*** Player race ***/
+		/*** Player race ***/
 
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Your 'race' determines various intrinsic factors and bonuses.");
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Your 'race' determines various intrinsic factors and bonuses.");
+	
+		/* Dump races */
+		for (n = 0; n < MAX_RACES; n++)
+		{
+			/* Analyze */
+			p_ptr->prace = n;
+			rp_ptr = &race_info[p_ptr->prace];
+			str = rp_ptr->title;
 
-	/* Dump races */
-	for (n = 0; n < MAX_RACES; n++)
-	{
-		/* Analyze */
-		p_ptr->prace = n;
+			/* Display */
+			sprintf(buf, "%c%c %s", I2A(n), p2, str);
+			put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		}
+
+		/* Choose */
+		while (1)
+		{
+			sprintf(buf, "Choose a race (%c-%c), or * for a random choice: ", I2A(0), I2A(n-1));
+			put_str(buf, 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+				k = randint(n) - 1;
+				break;
+			}			
+			if (c == ESCAPE) c = 'a';
+			k = (islower(c) ? A2I(c) : -1);
+			if ((k >= 0) && (k < n)) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal race!");
+		}
+	
+		/* Set race */
+		p_ptr->prace = k;
 		rp_ptr = &race_info[p_ptr->prace];
-		str = rp_ptr->title;
 
-		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-	}
-
-	/* Choose */
-	while (1)
-	{
-		sprintf(buf, "Choose a race (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) c = 'a';
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal race!");
-	}
-
-	/* Set race */
-	p_ptr->prace = k;
-	rp_ptr = &race_info[p_ptr->prace];
-
-	/* Clean up */
-	clear_from(15);
+		/* Clean up */
+		clear_from(15);
 
 
-	/*** Player class ***/
+		/*** Player class ***/
 
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Your 'class' determines various intrinsic abilities and bonuses.");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Any entries with a (*) should only be used by advanced players.");
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Your 'class' determines various intrinsic abilities and bonuses.");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"Any entries with a (*) should only be used by advanced players.");
 
-	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
-	{
-		cptr mod = "";
+		/* Dump classes */
+		for (n = 0; n < MAX_CLASS; n++)
+		{
+			cptr mod = "";
 
-		/* Analyze */
-		p_ptr->pclass = n;
+			/* Analyze */
+			p_ptr->pclass = n;
+			cp_ptr = &class_info[p_ptr->pclass];
+			mp_ptr = &magic_info[p_ptr->pclass];
+			str = cp_ptr->title;
+
+			/* Verify legality */
+			if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+
+			/* Display */
+			sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
+			put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
+		}
+
+		/* Get a class */
+		while (1)
+		{
+			sprintf(buf, "Choose a class (%c-%c), or * for random: ", I2A(0), I2A(n-1));
+			put_str(buf, 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+				k = randint(n) - 1;
+				break;
+			}			
+			if (c == ESCAPE) c = 'a';
+			k = (islower(c) ? A2I(c) : -1);
+			if ((k >= 0) && (k < n)) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal class!");
+		}
+
+		/* Set class */
+		p_ptr->pclass = k;
 		cp_ptr = &class_info[p_ptr->pclass];
 		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
 
-		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+		/* Clean up */
+		clear_from(15);	
 
-		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
-	}
+		/* Plots -KMW- */
+		/* Need to list all the plot names at the top */
+		list_plotnames();
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Please pick the plot number you wish to play (1-10).");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"If you hit ESCAPE, one will be picked at random.");
 
-	/* Get a class */
-	while (1)
-	{
-		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) c = 'a';
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal class!");
-	}
+		p_ptr->plot_num = 1;
+		sprintf(inp, "1");
 
-	/* Set class */
-	p_ptr->pclass = k;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
-
-	/* Clean up */
-	clear_from(15);
-
-	/* Plots -KMW- */
-	/* Need to list all the plot names at the top */
-	list_plotnames();
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Please pick the plot number you wish to play (1-10).");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"If you hit ESCAPE, one will be picked at random.");
-
-	p_ptr->plot_num = 1;
-	sprintf(inp, "1");
-
-	/* Ask about plot number -KMW- */
-	put_str("Enter plot number (1-10):  ", 20, 2);
-	/* Get a response (or escape) */
-	if (!askfor_aux(inp, 8)) {
-		p_ptr->plot_num = randint(MAX_PLOTS);
-		sprintf(tmp_str, "You have been assigned plot number %d.  Press any key to continue.",p_ptr->plot_num);
-		Term_putstr(5, 16, -1, TERM_YELLOW, tmp_str);
-		c = inkey();
-	} else {
-		if ((atoi(inp) >= 1) && (atoi(inp) <= 10)) {
-			p_ptr->plot_num = atoi(inp);
-		} else {
+		/* Ask about plot number -KMW- */
+		/* Should use MAX_PLOTS instead of 10 here ; this code will be
+		 * replaced anyway soon. */
+		put_str("Enter plot number (1-10):  ", 20, 2);
+		/* Get a response (or escape) */
+		if (!askfor_aux(inp, 8)) 
+		{
 			p_ptr->plot_num = randint(MAX_PLOTS);
 			sprintf(tmp_str, "You have been assigned plot number %d.  Press any key to continue.",p_ptr->plot_num);
 			Term_putstr(5, 16, -1, TERM_YELLOW, tmp_str);
 			c = inkey();
+		} else 
+		{
+			if ((atoi(inp) >= 1) && (atoi(inp) <= 10)) 
+			{
+				p_ptr->plot_num = atoi(inp);
+			} else {
+				p_ptr->plot_num = randint(MAX_PLOTS);
+				sprintf(tmp_str, "You have been assigned plot number %d.  Press any key to continue.",p_ptr->plot_num);
+				Term_putstr(5, 16, -1, TERM_YELLOW, tmp_str);
+				c = inkey();
+			}
 		}
+
+		/* Clear */
+		clear_from(15);
+
+
+		/*** Maximize mode ***/
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Using 'maximize' mode makes the game harder at the start,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"but often makes it easier to win.");
+
+		/* Ask about "maximize" mode */
+		while (1)
+		{
+			put_str("Use 'maximize' mode? (y/n/*) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+			    if (randint(2))
+					c = 'y';
+				else
+			  		c = 'n';
+			}
+		
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal maximize flag!");
+		}
+
+		/* Set "maximize" mode */
+		p_ptr->maximize = (c == 'y');
+
+		/* Clear */
+		clear_from(15);
+
+
+		/*** Preserve mode ***/
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"but eliminates the 'special' feelings about some levels.");
+
+		/* Ask about "preserve" mode */
+		while (1)
+		{
+			put_str("Use 'preserve' mode? (y/n/*) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+				c = 'y';
+				if (randint(2) == 1)
+					c = 'n';
+				break;
+			}			
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal preserve flag!");
+		}
+
+		/* Set "preserve" mode */
+		p_ptr->preserve = (c == 'y');
+
+		/* Clear */
+		clear_from(20);
 	}
-
-	/* Clear */
-	clear_from(15);
-
-
-	/*** Maximize mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'maximize' mode makes the game harder at the start,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but often makes it easier to win.");
-
-	/* Ask about "maximize" mode */
-	while (1)
-	{
-		put_str("Use 'maximize' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal maximize flag!");
-	}
-
-	/* Set "maximize" mode */
-	p_ptr->maximize = (c == 'y');
-
-	/* Clear */
-	clear_from(15);
-
-
-	/*** Preserve mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but eliminates the 'special' feelings about some levels.");
-
-	/* Ask about "preserve" mode */
-	while (1)
-	{
-		put_str("Use 'preserve' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal preserve flag!");
-	}
-
-	/* Set "preserve" mode */
-	p_ptr->preserve = (c == 'y');
-
-	/* Clear */
-	clear_from(20);
-
-
+	
 #ifdef ALLOW_AUTOROLLER
 
 	/*** Autoroll ***/

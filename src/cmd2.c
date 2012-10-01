@@ -487,6 +487,205 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	return (more);
 }
 
+#ifdef ALLOW_EASY_OPEN /* TNB */
+
+/*
+ * easy_open_door --
+ *
+ *	If there is a jammed/closed/locked door at the given location,
+ *	then attempt to unlock/open it. Return TRUE if an attempt was
+ *	made (successful or not), otherwise return FALSE.
+ *
+ *	The code here should be nearly identical to that in
+ *	do_cmd_open_test() and do_cmd_open_aux().
+ */
+
+bool easy_open_door(int y, int x)
+{
+	int i, j;
+
+	/* Must be a closed door */
+	if (!((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
+	{
+		/* Nope */
+		return (FALSE);
+	}
+
+	/* Jammed door */
+	if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x08)
+	{
+		/* Stuck */
+		msg_print("The door appears to be stuck.");
+	}
+
+	/* Locked door */
+	else if (cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01)
+	{
+		/* Disarm factor */
+		i = p_ptr->skill_dis;
+
+		/* Penalize some conditions */
+		if (p_ptr->blind || no_lite()) i = i / 10;
+		if (p_ptr->confused || p_ptr->image) i = i / 10;
+
+		/* Extract the lock power */
+		j = cave_feat[y][x] - FEAT_DOOR_HEAD;
+
+		/* Extract the difficulty XXX XXX XXX */
+		j = i - (j * 4);
+
+		/* Always have a small chance of success */
+		if (j < 2) j = 2;
+
+		/* Success */
+		if (rand_int(100) < j)
+		{
+			/* Message */
+			msg_print("You have picked the lock.");
+
+			/* Open the door */
+			cave_set_feat(y, x, FEAT_OPEN);
+
+			/* Update some things */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			/* Sound */
+			sound(SOUND_OPENDOOR);
+
+			/* Experience */
+			gain_exp(1);
+		}
+
+		/* Failure */
+		else
+		{
+			/* Failure */
+			if (flush_failure) flush();
+
+			/* Message */
+			msg_print("You failed to pick the lock.");
+		}
+	}
+
+	/* Closed door */
+	else
+	{
+		/* Open the door */
+		cave_set_feat(y, x, FEAT_OPEN);
+
+		/* Update some things */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+		/* Sound */
+		sound(SOUND_OPENDOOR);
+	}
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Return the number of features around (or under) the character.
+ * Usually look for doors and floor traps.
+ */
+static int count_dt(int *y, int *x, byte f1, byte f2)
+{
+	int d, count;
+
+	/* Count how many matches */
+	count = 0;
+
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++) {
+
+		/* Extract adjacent (legal) location */
+		int yy = p_ptr->py + ddy_ddd[d];
+		int xx = p_ptr->px + ddx_ddd[d];
+
+		/* Must have knowledge */
+		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
+
+		/* Not looking for this feature */
+		if (cave_feat[yy][xx] < f1) continue;
+		if (cave_feat[yy][xx] > f2) continue;
+
+		/* OK */
+		++count;
+
+		/* Remember the location. Only useful if only one match */
+		*y = yy;
+		*x = xx;
+	}
+
+	/* All done */
+	return count;
+}
+
+/*
+ * Return the number of chests around (or under) the character.
+ * If requested, count only trapped chests.
+ */
+static int count_chests(int *y, int *x, bool trapped)
+{
+	int d, count, o_idx;
+
+	object_type *o_ptr;
+
+	/* Count how many matches */
+	count = 0;
+
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++) {
+
+		/* Extract adjacent (legal) location */
+		int yy = p_ptr->py + ddy_ddd[d];
+		int xx = p_ptr->px + ddx_ddd[d];
+
+		/* No (visible) chest is there */
+		if ((o_idx = chest_check(yy, xx)) == 0) continue;
+
+		/* Grab the object */
+		o_ptr = &o_list[o_idx];
+
+		/* Already open */
+		if (o_ptr->pval == 0) continue;
+
+		/* No (known) traps here */
+		if (trapped && (!object_known_p(o_ptr) ||
+			!chest_traps[o_ptr->pval])) continue;
+
+		/* OK */
+		++count;
+
+		/* Remember the location. Only useful if only one match */
+		*y = yy;
+		*x = xx;
+	}
+
+	/* All done */
+	return count;
+}
+
+/*
+ * Convert an adjacent location to a direction.
+ */
+static int coords_to_dir(int y, int x)
+{
+    int d[3][3] = { 7, 4, 1, 8, 5, 2, 9, 6, 3 };
+    int dy, dx;
+
+    dy = y - p_ptr->py;
+    dx = x - p_ptr->px;
+
+    /* Paranoia */
+    if (ABS(dx) > 1 || ABS(dy) > 1) return (0);
+
+    return d[dx + 1][dy + 1];
+}
+
+#endif /* ALLOW_EASY_OPEN */
+
 
 /*
  * Determine if a given grid may be "opened"
@@ -631,6 +830,28 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
+#ifdef ALLOW_EASY_OPEN /* TNB */
+
+	/* Option: Pick a direction */
+	if (easy_open) {
+
+	    int num_doors, num_chests;
+
+	    /* Count closed doors (locked or jammed) */
+	    num_doors = count_dt(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL);
+
+	    /* Count chests (locked) */
+	    num_chests = count_chests(&y, &x, FALSE);
+
+	    /* See if only one target */
+	    if (num_doors || num_chests) {
+	        bool too_many = (num_doors && num_chests) || (num_doors > 1) ||
+				(num_chests > 1);
+	        if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
+	    }
+	}
+
+#endif /* ALLOW_EASY_OPEN */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -788,6 +1009,18 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
+#ifdef ALLOW_EASY_OPEN /* TNB */
+
+	/* Option: Pick a direction */
+	if (easy_open) {
+
+		/* Count open doors */
+		if (count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1) {
+			p_ptr->command_dir = coords_to_dir(y, x);
+		}
+	}
+
+#endif /* ALLOW_EASY_OPEN */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1247,7 +1480,11 @@ static bool do_cmd_disarm_test(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+bool do_cmd_disarm_aux(int y, int x)
+#else
 static bool do_cmd_disarm_aux(int y, int x)
+#endif
 {
 	int i, j, power;
 
@@ -1339,6 +1576,28 @@ void do_cmd_disarm(void)
 
 	bool more = FALSE;
 
+#ifdef ALLOW_EASY_DISARM /* TNB */
+
+	/* Option: Pick a direction */
+	if (easy_disarm) {
+
+	    int num_traps, num_chests;
+
+	    /* Count visible traps */
+	    num_traps = count_dt(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL);
+
+	    /* Count chests (trapped) */
+	    num_chests = count_chests(&y, &x, TRUE);
+
+	    /* See if only one target */
+	    if (num_traps || num_chests) {
+	        bool too_many = (num_traps && num_chests) || (num_traps > 1) ||
+				(num_chests > 1);
+	        if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
+	    }
+	}
+
+#endif /* ALLOW_EASY_DISARM */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1925,6 +2184,9 @@ static bool do_cmd_walk_test(int y, int x)
 		/* Door */
 		else if (cave_feat[y][x] < FEAT_SECRET)
 		{
+#ifdef ALLOW_EASY_OPEN /* TNB */
+			return (TRUE);
+#endif
 			/* Message */
 			msg_print("There is a door in the way!");
 		}
@@ -2037,7 +2299,11 @@ static void do_cmd_walk_or_jump(int pickup)
 void do_cmd_walk(void)
 {
 	/* Move (usually pickup) */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	do_cmd_walk_or_jump(FALSE);
+#else
 	do_cmd_walk_or_jump(always_pickup);
+#endif /* ALLOW_EASY_DISARM */
 }
 
 
@@ -2047,7 +2313,11 @@ void do_cmd_walk(void)
 void do_cmd_jump(void)
 {
 	/* Move (usually do not pickup) */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	do_cmd_walk_or_jump(TRUE);
+#else
 	do_cmd_walk_or_jump(!always_pickup);
+#endif
 }
 
 

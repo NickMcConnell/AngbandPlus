@@ -1993,7 +1993,7 @@ errr file_character(cptr name, bool full)
 
 	FILE *fff = NULL;
 
-	store_type *st_ptr = &store[7];
+	store_type *st_ptr = &store[8];
 
 	char o_name[80];
 

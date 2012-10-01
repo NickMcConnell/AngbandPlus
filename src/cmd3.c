@@ -260,12 +260,14 @@ void do_cmd_wield(void)
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
+	/* Check quest status */
 	for (i = 0 ; i < MAX_QUESTS ; i++)
 	{
 		if ((q_list[i].quest_type == 3) &&
-			(q_list[i].k_idx == o_ptr->name1))
+			(q_list[i].k_idx == o_ptr->name1) &&
+			(p_ptr->rewards[i + QUEST_REWARD] == QUEST_ACTIVE))
 		{
-			p_ptr->rewards[i+QUEST_REWARD] = 2;
+			p_ptr->rewards[i + QUEST_REWARD] = QUEST_COMPLETED;
 			msg_print("You completed your quest!");
 			msg_print(NULL);
 		}

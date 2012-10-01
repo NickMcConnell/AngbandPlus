@@ -2395,7 +2395,7 @@ void monster_death(int m_idx)
 		if (p_ptr->rewards[i+QUEST_REWARD] != 1)
 			continue;
 		if ((q_list[i].quest_type == 1) && (q_list[i].r_idx == m_ptr->r_idx)) {
-			p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed quest */
+			p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED; /* completed quest */
 			msg_print("You just completed your quest!");
 			msg_print(NULL);
 			break;
@@ -2403,7 +2403,7 @@ void monster_death(int m_idx)
 	else if ((q_list[i].quest_type == 2) && (q_list[i].r_idx == m_ptr->r_idx)) {
 			q_list[i].cur_num++;
 			if (q_list[i].cur_num >= q_list[i].max_num) {
-				p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed quest */
+				p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED; /* completed quest */
 				msg_print("You just completed your quest!");
 				msg_print(NULL);
 				q_list[i].cur_num = 0;
@@ -2427,7 +2427,7 @@ void monster_death(int m_idx)
 			if (cave_m_idx[j2][i2] > 0)
 				number_mon++;
 			if ((number_mon - 1) == 0) {
-				p_ptr->rewards[i+QUEST_REWARD] = 2; /* completed */
+				p_ptr->rewards[i+QUEST_REWARD] = QUEST_COMPLETED; /* completed */
 				msg_print("You just completed your quest!");
 				msg_print(NULL);
 			}
@@ -3971,6 +3971,17 @@ bool get_aim_dir(int *dp)
 
 	cptr p;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    if (repeat_pull(dp)) {
+
+    	/* Verify */
+    	if (!(*dp == 5 && !target_okay())) {
+	        return (TRUE);
+	    }
+    }
+
+#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -4051,6 +4062,12 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
+
 	/* A "valid" direction was entered */
 	return (TRUE);
 }
@@ -4080,7 +4097,14 @@ bool get_rep_dir(int *dp)
 
 	cptr p;
 
-
+#ifdef ALLOW_REPEAT /* TNB */
+	
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
+#endif /* ALLOW_REPEAT */
+	
 	/* Initialize */
 	(*dp) = 0;
 
@@ -4111,6 +4135,12 @@ bool get_rep_dir(int *dp)
 
 	/* Save direction */
 	(*dp) = dir;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+    repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);

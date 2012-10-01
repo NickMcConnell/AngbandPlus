@@ -2490,11 +2490,11 @@ static errr rd_savefile_new_aux(void)
 		note("Warning -- converting obsolete save file.");
 	}
 
-	if (older_than(2, 8, 3, 5))
+/*	if (older_than(2, 8, 3, 5))
 	{
 		note("Warning -- cannot convert Kangband save files v282c and earlier.");
 		return(34);
-	}
+		} */
 
 	/* Strip the version bytes */
 	strip_bytes(4);

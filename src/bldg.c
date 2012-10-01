@@ -957,13 +957,13 @@ static void castle_quest(void)
 		put_str(tmp_str,10,0);
 		msg_print(NULL);
 	}
-	else if ((increment >= 25) && (p_ptr->rewards[(QUEST_REWARD_TAIL - 1 - QUEST_DIFF)] == 3))
+	else if ((increment >= 25) && (p_ptr->rewards[(QUEST_REWARD_TAIL - 1 - QUEST_DIFF)] == QUEST_REWARDED))
 	{
 		put_str("You have completed all quests I have given and have",8,0);
 		put_str("vanquished the evil Morgoth!  We are in your debt.",9,0);
 		put_str("You have fulfilled your destiny!",12,0);
 	}
-	else if (p_ptr->rewards[increment + 29] == 3)
+	else if (p_ptr->rewards[increment + 29] == QUEST_REWARDED)
 	{
 		put_str("You fulfilled your last quest but you are not ready for another.",8,0);
 		sprintf(tmp_str,"Return when you have reached level %d", (increment*2)+2);
@@ -978,9 +978,9 @@ static void castle_quest(void)
 		{
 			increment = j2;
 			j = j2 - QUEST_DIFF;
-			if (p_ptr->rewards[j] == 0)
+			if (!p_ptr->rewards[j])
 			{
-				p_ptr->rewards[j] = 1;
+				p_ptr->rewards[j] = QUEST_ACTIVE;
 				qstatus = 0;
 				break;
 			}
@@ -992,7 +992,7 @@ static void castle_quest(void)
 				qstatus = 1;
 				break;
 			}
-			else if (p_ptr->rewards[j] == 2)
+			else if (p_ptr->rewards[j] == QUEST_COMPLETED)
 			{
 				qstatus = 2;
 				for (i = 0; i < MAX_MON_QUEST; i++)
@@ -1004,7 +1004,7 @@ static void castle_quest(void)
 				for (i = 0; i < MAX_ITEM_QUEST; i++)
 					p_ptr->cqitemc[i] = FALSE;
 				/* just fulfilled quest */
-				p_ptr->rewards[j] = 3;
+				p_ptr->rewards[j] = QUEST_REWARDED;
 				break;
 			}
 		}
@@ -1014,9 +1014,9 @@ static void castle_quest(void)
 			case 0: /* need to assign quest */
 			{
 				qidx = increment - QUEST_OFFSET1;
-				if (q_list[qidx].quest_type == 2)
+				if (q_list[qidx].quest_type == QUEST_OBJ_KILL_ANY)
 				{
-					if (q_list[qidx].r_idx == 0)
+					if (!q_list[qidx].r_idx)
 						q_list[qidx].r_idx = randint(50) + (40 * (increment - QUEST_OFFSET1));
 					r_ptr = &r_info[q_list[qidx].r_idx];
 					while ((r_ptr->flags1 & (RF1_UNIQUE)) ||
@@ -1025,6 +1025,7 @@ static void castle_quest(void)
 						q_list[qidx].r_idx = randint(50) + 100;
 						r_ptr = &r_info[q_list[qidx].r_idx];
 					}
+					/* Choose a random number of monsters, if necessary */
 					if (q_list[qidx].max_num == 0)
 					{
 						if (randint(10) > 7)
@@ -1042,7 +1043,7 @@ static void castle_quest(void)
 				else
 				{
 					get_questinfo(increment);
-					p_ptr->rewards[j] = 1;
+					p_ptr->rewards[j] = QUEST_ACTIVE;
 				}
 				break;
 			}
@@ -1098,7 +1099,7 @@ static void castle_greet(void)
 	{ /* set last reward that hasn't been given to TRUE */
 		for (j=10;j<20;j++)
 		{
-			if (p_ptr->rewards[j] == 0)
+			if (!p_ptr->rewards[j])
 			{
 				p_ptr->rewards[j] = 1;
 				break;
@@ -1364,7 +1365,6 @@ static bool compare_weapons(void)
 
 	/* Store copy of original wielded weapon in pack slot */
 	i_ptr = &inventory[INVEN_WIELD];
-	orig_ptr = &inventory[INVEN_PACK];
 	object_copy(orig_ptr, i_ptr);
 
 	i = 6;
@@ -1372,11 +1372,7 @@ static bool compare_weapons(void)
 	q = "What is your first weapon? ";
 	s = "You have nothing to compare.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN)))
-	{
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
 		return(FALSE);
-	}
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1396,8 +1392,6 @@ static bool compare_weapons(void)
 	s = "You have nothing to compare.";
 	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN)))
 	{
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
 		return(FALSE);
 	}
 

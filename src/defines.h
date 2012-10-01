@@ -106,7 +106,7 @@
 #define DUNGEON_WID	198
 
 #define TOWN_HEIGHT	44	/* This is the expanded town size -KMW- */
-#define TOWN_WIDTH	66	/* This town includes extra buildings -KMW- */
+#define TOWN_WIDTH	66	/* This town includes expanded buildings -KMW- */
 
 /*
  * The rewards array handles all town benefits per player. It is essentially
@@ -127,6 +127,19 @@
  * Rewards 50-99 are currently unused and for future expansion.-KMW-
  */
 #define MAX_REWARDS 100  /* Amount of rewards per player in town -KMW- */
+
+/* Extra quest constants */
+#define QUEST_ACTIVE		1
+#define QUEST_COMPLETED		2
+#define QUEST_REWARDED		3
+
+/* Quest objective types */
+#define QUEST_OBJ_KILL_LEVEL		1
+#define QUEST_OBJ_KILL_ANY			2
+#define QUEST_OBJ_FIND_OBJECT		3
+#define QUEST_OBJ_FIND_EXIT			4
+#define QUEST_OBJ_KILL_MONSTERS		5
+#define QUEST_OBJ_KILL_ALL_MONSTERS	6
 
 #define QUEST_REWARD_HEAD	100	/* -KMW- */
 #define QUEST_REWARD_TAIL	120	/* -KMW- */
@@ -2387,7 +2400,11 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
+#ifdef ALLOW_EASY_OPEN /* TNB */
+#define OPT_easy_open 31
+#else
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2400,7 +2417,10 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
+#ifdef ALLOW_EASY_DISARM /* TNB */
+#define OPT_easy_disarm 44
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
 /* xxx */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
@@ -2460,7 +2480,11 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+#ifdef ALLOW_EASY_OPEN /* TNB */
+#define easy_open			op_ptr->opt[OPT_easy_open]
+#else
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2473,7 +2497,10 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#ifdef ALLOW_EASY_DISARM /* TNB */
+#define easy_disarm			op_ptr->opt[OPT_easy_disarm]
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
 /* xxx */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]

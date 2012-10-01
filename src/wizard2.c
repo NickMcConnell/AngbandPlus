@@ -1567,21 +1567,14 @@ void do_cmd_debug(void)
 
 		/* Complete a Quest -KMW- */
 		case 'q':
-		{
-			for(i2=QUEST_REWARD_HEAD; i2 < QUEST_REWARD_TAIL; i2++) {
-				i = i2 - QUEST_DIFF;
-				if (p_ptr->rewards[i] == 1) {
-					p_ptr->rewards[i]++;
-					msg_print("Completed Quest");
-					msg_print(NULL);
-					wilderness_gen(1);
-					break;
-				}
-			}
-			if (i2 == QUEST_REWARD_TAIL) {
-				msg_print("No current quest");
-				msg_print(NULL);
-			}
+		{			
+			for (i2 = QUEST_REWARD_HEAD ; i2 < QUEST_REWARD_TAIL && p_ptr->rewards[i2 - QUEST_DIFF] == 3 ; i2++)
+			  	;
+			if (i2 < QUEST_REWARD_TAIL)
+				p_ptr->rewards[i2 - QUEST_DIFF] = 3;
+			msg_print("Completed Quest");
+			msg_print(NULL);
+			wilderness_gen(1);
 			break;
 		}
 
