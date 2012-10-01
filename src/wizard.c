@@ -2360,7 +2360,7 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		strnfmt(buf, sizeof(buf), (monster_name_idx(who[i].r_idx, 0, who[i].u_idx))); /* --)-- */
+		strnfmt(buf, sizeof(buf), "%s  (", (monster_name_idx(who[i].r_idx, 0, who[i].u_idx))); /* --)-- */
 		text_out(buf);
 
 		/* Color */

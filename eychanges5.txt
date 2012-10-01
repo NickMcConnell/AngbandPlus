@@ -1,3 +1,39 @@
+Changes from 0.5.0 to 0.5.0b:
+
+## Non-gameplay changes ##
+
+- Optimized monster name routine. (Thanks Kusunose Turo)
+
+## Bug Fixes ##
+
+- Non-uniques with very high life values would be sometimes generated with very
+  low hp.
+
+- Qlzqqlzuup was a quest monster, and Morgoth wasn't.
+
+- Some of the entries in rooms.txt were bad. (Thanks Kusunose Turo)
+
+- The Ether DSM activation could produce weird results. (Thanks Kusunose Turo)
+
+- Fueling a lantern from a pile of lantern would empty all the lanterns in the 
+  pile, but only give you fuel from a single lantern. Now the lantern you fill 
+  from unstacks first. (Thanks Kusunose Turo)
+
+- The boots of Thror are no longer cheaper than boots of speed +3 (note that
+  in general, artifact/ego item prices still need major rework).
+
+- Dimension door/master of space no longer resets the target.
+
+- Mushrooms of Cure Light Wounds had incorrect weight.
+
+- Problem with the description of Narya's activation.
+
+- Amulets of the Magi no longer have EASY_KNOW.
+
+- Monster spoiler headers were missing a "(".
+
+- Several typos fixed.
+
 Changes from 0.4.6 to 0.5.0:
 
 ## Documentation ##

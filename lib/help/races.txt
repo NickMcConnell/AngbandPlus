@@ -19,7 +19,7 @@ Elf
     The distant offspring of the union of Faery and human gene pools, Elves 
     carry the blood of Faery nobility.  Elves are intrinsically better 
     magicians then humans, but not as good at fighting.  They tend to be 
-    smarter and faster than humans or and also have better wisdom and charisma.
+    smarter and faster than humans and also have better wisdom and charisma.
     Elves are better at searching, disarming, perception, stealth, bows, and 
     magic, but they are not as good at hand weapons or digging. Elves may 
     choose any class. They are resistant to attacks involving bright light.

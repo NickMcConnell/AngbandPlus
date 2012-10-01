@@ -693,9 +693,39 @@ static void do_cmd_refill_lamp(void)
 	/* Use fuel from a lantern */
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval >= SV_LANTERN))
 	{
-		/* No more fuel */
-		o_ptr->timeout = 0;
+		/* XXX Hack -- unstack if necessary */
+		if ((item >= 0) && (o_ptr->number > 1))
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
 
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Obtain a local object */
+			object_copy(i_ptr, o_ptr);
+
+			/* Modify quantity */
+			i_ptr->number = 1;
+
+			/* No more fuel */
+			i_ptr->timeout = 0;
+
+			/* Unstack the used item */
+			o_ptr->number--;
+			p_ptr->total_weight -= object_weight(i_ptr);
+			item = inven_carry(i_ptr);
+
+			/* Message */
+			message(MSG_GENERIC, 0, "You unstack your lantern.");
+		}
+
+		else
+		{
+			/* No more fuel */
+			o_ptr->timeout = 0;
+		}
+ 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 

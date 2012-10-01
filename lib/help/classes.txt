@@ -67,12 +67,12 @@ Priest
     A Priest is a character of holy devotion.  She explores the dungeon only in
     order to destroy the evil that lurks within, and if treasure just happens
     to fall into her packs, well, so much more to the glory of her church!  The
-    priest receives her spells from a deity, and therefore do not choose which
-    spells she will learn.  She is familiar with magical devices, preferring to
-    call them instruments of god, but is not as good as a mage in their use.
-    A priest has good saving throws, and makes a decent fighter, preferring 
-    blunt weapons over edged ones.  Wisdom is the priest's primary stat, 
-    determining spellcasting ability.
+    priest receives her spells from a deity, and therefore does not choose 
+	which spells she will learn.  She is familiar with magical devices, 
+	which she calls instruments of god, but is not as good as a mage in their 
+	use.  A priest has good saving throws, and makes a decent fighter, 
+	preferring blunt weapons over edged ones.  Wisdom is the priest's primary 
+	stat, determining spellcasting ability.
 
 ***** <Paladin>
 Paladin
@@ -92,7 +92,7 @@ Mystic
     mages.  While she is the weakest fighter of all the classes, she gains 
     spells the fastest, and has the most mana.  A mystic relies almost only on
     her spells, and is not very good at activating magical items.  She is, 
-    however, moderatly skilled at throwing weapons at her enemies from afar.
+    however, moderately skilled at throwing weapons at her enemies from afar.
     There are said to be rare spellbooks in the dungeon that teach her 
     discplines that lie beyond the scope of other classes.  Her primary stats
     are Wisdom and Intelligence, which combine to determine her spellcasting

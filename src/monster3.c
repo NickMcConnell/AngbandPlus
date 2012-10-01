@@ -37,7 +37,6 @@ cptr monster_text(int r_idx, int u_idx)
  */
 static cptr monster_name_aux(int r_idx, int s_idx, int u_idx)
 {
-	int count = 0;
 	char *t, *s;
 
 	/* Paranoia - if this happens, we're in trouble */
@@ -83,19 +82,11 @@ static cptr monster_name_aux(int r_idx, int s_idx, int u_idx)
 							continue;
 						}
 
-						/* Capitalize if necessary */
-						if (!count) *t++ = toupper(*p);
-						else  *t++ = *p;
-
-						count++;
+						*t++ = *p;
 					}
 				}
 
-				/* Capitalize if necessary */
-				else if (!count) *t++ = toupper(*s);
 				else *t++ = *s;
-
-				count++;
 			}
 		}
 		/* Not-insertive */
@@ -108,19 +99,15 @@ static cptr monster_name_aux(int r_idx, int s_idx, int u_idx)
 
 				for (; *p; p++)
 				{
-					/* Capitalize if necessary */
-					if (!count) *t++ = toupper(*p);
-					else  *t++ = *p;
-
-					count++;
+					*t++ = *p;
 				}
 			}
 
-			/* Capitalize if necessary */
-			else if (!count) *t++ = toupper(*s);
-			else  *t++ = *s;
-			count++;
+			else *t++ = *s;
 		}
+
+		/* Capitalize string */
+		mon_name[0] = toupper(mon_name[0]);
 
 		/* Terminate string */
 		*t = '\0';	
@@ -139,12 +126,11 @@ static cptr monster_name_aux(int r_idx, int s_idx, int u_idx)
 	{
 		if (*s == '^') continue;
 
-		/* Captialize first letter */
-		else if (!count) *t++ = toupper(*s);
-		else  *t++ = *s;
-
-		count++;
+		*t++ = *s;
 	}
+
+	/* Capitalize string */
+	mon_name[0] = toupper(mon_name[0]);
 
 	/* Terminate string */
 	*t = '\0';	

@@ -24,7 +24,7 @@ info_entry power_info[POW_MAX] =
 	{POW_HEAL_3,			"reduces cuts and heals you a large amount"},
 	{POW_HEAL_4,			"heals you a very large amount, eliminates cuts and stunning"},
 	{POW_HEAL_5,			"heals you fully, eliminates cuts and stunning"},	
-	{POW_HEAL_CURE_1,		"heals a some damage, cures stunning effects and reduces cuts"},	
+	{POW_HEAL_CURE_1,		"heals some damage, cures stunning effects and reduces cuts"},	
 	{POW_HEAL_CURE_2,		"heals a moderate amount, cures negative effects"},	
 	{POW_HEAL_CURE_3,		"heals a large amount, cures negative effects"},	
 	{POW_HEAL_CURE_4,		"heals you a very large amount, cures negative effects"},	
@@ -108,6 +108,7 @@ info_entry power_info[POW_MAX] =
 	{POW_BALL_ELEC_2,		"fires a powrful ball of lightning"},
 	{POW_BALL_FIRE_1,		"fires a ball of fire"},
 	{POW_BALL_FIRE_2,		"fires a large fire ball"},
+	{POW_BALL_FIRE_3,		"fires a large, powerful, fire ball"},
 	{POW_BALL_COLD_1,		"fires a ball of frost"},
 	{POW_BALL_COLD_2,		"fires a large frost ball"},
 	{POW_BALL_COLD_3,		"fires a large, powerful, frost ball"},
@@ -2422,11 +2423,11 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 				case POW_DRAGON_ETHER:
 				{
-					chance = rand_int(3);
+					chance = rand_int(2);
 					switch (chance)
 					{
 						case 0:	breath = "light";		typ = GF_LITE; break;
-						case 2:	breath = "darkness";	typ = GF_DARK; break;
+						case 1:	breath = "darkness";	typ = GF_DARK; break;
 					}
 					power = 250;
 					break;

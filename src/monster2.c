@@ -1703,14 +1703,21 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, byte
 	/* Non-uniques - random distribution with life as mean and life/6 as SD */
 	else
 	{
+		int j;
+
 		/* First, base life */
-		i = r_ptr->life * 10;
-		
+		i = r_ptr->life;
+
 		/* Modify by ego-type */
 		if (n_ptr->s_idx) i = (i * s_info[n_ptr->s_idx].hp_perc) / 100;
 
-		/* Assign actual HP (round up if above .5)*/
-		n_ptr->maxhp = (Rand_normal(i, i / 7) + 5) / 10;
+		/* Standard deviation */
+		j = (((i * 10) / 7) + 5) / 10;
+
+		if (i > 1) j++;
+
+		/* Assign actual HP */
+		n_ptr->maxhp = Rand_normal(i, j);
 	}
 	
 	/* Adjust HP for easy mode */

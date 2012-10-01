@@ -11,7 +11,7 @@
 # Artifacts 1-30 are "special", 31-90 are "armor", and 90-166 are "weapons".
 
 # Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
-# not be dropped when Morgoth is killed.  Note that they, like the "special"
+# not be dropped wfhen Morgoth is killed.  Note that they, like the "special"
 # artifacts, are never created "accidentally".
 
 # === Understanding artifact.txt ===
@@ -807,7 +807,7 @@ U:CURE_FEAR_POIS:5:0
 
 N:88:of Thror
 I:30:4:0:3
-W:30:25:80:12000
+W:30:25:80:125000
 P:4:1d1:0:12
 F:STR | CON | SPEED | BRAVERY
 

@@ -366,7 +366,7 @@ S:YES
 N:1:2:135:0
 A:painted
 B:
-D:Faded cave paintings 
+D:Faded cave paintings cover 
 S:YES
 
 N:1:13:138:0
@@ -793,14 +793,14 @@ D:badly burned by powerful fire.
 R:BR_FIRE
 S:YES
 
-N:1:2:95:11
+N:6:7:95:11
 A:
 B:
 D:badly melted by powerful acid.  
 R:BR_ACID
 S:YES
 
-N:1:2:100:11
+N:6:7:100:11
 A:
 B:
 D:covered in a thick layer of frost.  

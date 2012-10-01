@@ -4428,10 +4428,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
  */
 void dimen_door(int dis, int fail)
 {
-	int ny;
-	int nx;
+	int ny, nx;
 	bool okay;
 	bool old_expand_look = expand_look;
+	s16b old_target_set = p_ptr->target_set;
+	s16b old_target_who = p_ptr->target_who;
+	s16b old_target_row = p_ptr->target_row; 
+	s16b old_target_col = p_ptr->target_col;
 
 	expand_look = TRUE;
 	okay = target_set_interactive(TARGET_FREE);
@@ -4441,6 +4444,12 @@ void dimen_door(int dis, int fail)
 	/* grab the target coords. */
 	ny = p_ptr->target_row;
 	nx = p_ptr->target_col;
+
+	/* Hack - return target to old values */
+	p_ptr->target_set = old_target_set;
+	p_ptr->target_col = old_target_col;
+	p_ptr->target_row = old_target_row;
+	p_ptr->target_who = old_target_who;
 
 	/* Test for empty floor, forbid vaults or too large a
 	 * distance, and insure that this spell is never certain.
