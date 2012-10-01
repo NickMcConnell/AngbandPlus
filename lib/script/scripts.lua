@@ -11,6 +11,657 @@
 --
 -- Other scripted functions do not have a parameter.
 
+-- This function displays various bonus on the character screen, and is called in files.c.
+-- Do NOT delete this function, as it's call is hard coded.
+-- This function will need to be constantly updated when adding new passive abilities to
+-- properly reflect their bonus.
+function lua_display_bonus ()
+
+	local meleebonus = 0
+	local rangedbonus = 0
+	local magicbonus = 0
+	local intbonus = 0
+	local wisbonus = 0
+	local musicbonus = 0
+	local elementbonus = 0
+
+	local totalac = 0
+	local magicac = 0
+	local evasion = 0
+	local dodgebonus = 0
+	local magic_evasion = 0
+	local magic_evasion_bonus = 0
+	local block = 0
+	local blockbonus = 0
+	local magblock = 0
+
+	local meleehit = 0
+	local rangedhit = 0
+	local magichit = 0
+	local throwhit = 0
+	local hitbonus = 0
+	local elementalhit = 0
+	local alterationhit = 0
+	local mysticismhit = 0
+	local conjurationhit = 0
+	local divinationhit = 0
+	local musichit = 0
+	local elementalbonus = 0
+	local alterationbonus = 0
+	local mysticismbonus = 0
+	local conjurationbonus = 0
+	local divinationbonus = 0
+	local musicbonus = 0
+
+	-- TOTAL MELEE BONUS
+	-- A sum of the many passive abilities related to melee damage.
+	
+	-- Battle Skill. (Warrior)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 5)
+	-- Irresistible Hits. (Warrior)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 7] * 10)
+	-- Weapons Mastery. (Warrior)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 10] * 10)
+	-- Sheer Power. (Fighter)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 20)
+	-- Defensive Fighting. (Fighter)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 2] * 10)
+	-- Fighting Specialist. (Fighter)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] * 10)
+	-- Love of Battle. (Fighter)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 10] * 10)
+	-- Rods Mastery. (Mage)
+	if ((p_ptr.abilities[(CLASS_MAGE * 10) + 6] >= 1) and inven(INVEN_WIELD).tval == TV_ROD) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 6] * 10)
+        end
+	-- Stealthy Fighter. (Rogue)
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+			if (inven(INVEN_WIELD).tval == TV_WEAPON or inven(INVEN_WIELD).tval == TV_ROD) then
+
+				if (get_object_flag4(inven(INVEN_WIELD), TR4_DEX_WEAPON)) then
+
+					meleebonus = meleebonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10)
+				end
+			end
+		end
+	end
+	-- Rogue Weapons Mastery. (Rogue)
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (inven(INVEN_WIELD).tval == TV_WEAPON or inven(INVEN_WIELD).tval == TV_ROD) then
+
+			if (get_object_flag4(inven(INVEN_WIELD), TR4_DEX_WEAPON)) then
+
+				meleebonus = meleebonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 20)
+			end
+		end
+	end
+	-- Art of Poisoning. (Rogue)
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 7] >= 1 and inven(INVEN_WIELD).extra1 == GF_POIS) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 7] * 10)
+	end
+	-- Black Market's Bounty Hunter. (Rogue)
+	meleebonus = meleebonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 10] * 10)
+	-- Mystical Power. (Priest)
+	if ((p_ptr.abilities[(CLASS_PRIEST * 10) + 2] >= 1) and is_mysticism(inven(INVEN_WIELD).extra1)) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_PRIEST * 10) + 2] * 20)
+	end
+	-- Blessing of Might. (Priest)
+	if (p_ptr.events[29054] == 3) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_PRIEST * 10) + 7] * 5)
+        end
+	-- Strength through Spirit. (Monk)
+	if ((p_ptr.abilities[(CLASS_MONK * 10) + 1] >= 1) and unarmed()) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_MONK * 10) + 1] * 10)
+        end
+	-- Spiritual Warrior. (Monk)
+	if ((p_ptr.abilities[(CLASS_MONK * 10) + 6] >= 1) and unarmed()) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_MONK * 10) + 6] * 10)
+        end
+	-- Perfect Union. (Monk)
+	if ((p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) and unarmed()) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_MONK * 10) + 10] * 10)
+        end
+	-- Elemental Spellsword. (Elemental Lord)
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] >= 1 and inven(INVEN_WIELD).extra1 == p_ptr.elemlord) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 30)
+	end
+	-- Elemental Being. (Elemental Lord)
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1 and inven(INVEN_WIELD).extra1 == p_ptr.elemlord) then
+
+		meleebonus = meleebonus + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 30)
+	end
+	-- Inner Elemental Mastery. (Monsters)
+	if (p_ptr.abilities[(CLASS_MONSTER * 10) + 4] >= 1) then
+
+		local ebonus = 0
+
+		ebonus = multiply_divide(m_race(p_ptr.body_monster).resistances[p_ptr.elemlord+1], 20, 100)
+		if (ebonus > 0) then
+
+			meleebonus = meleebonus + (ebonus * p_ptr.abilities[(CLASS_MONSTER * 10) + 4])
+		end
+	end
+	-- The Paragon Elder Monster abilities. (Monsters)
+	if (get_player_monster_ability(BOSS_DOUBLE_DAMAGES)) then
+
+		meleebonus = meleebonus + 100
+	end
+
+	-- Add to_d bonus.
+	meleebonus = meleebonus + p_ptr.dis_to_d
+
+
+	-- TOTAL RANGED BONUS
+	-- A sum of the many passive abilities related to ranged damage.
+
+	-- Stealthy Fighter. (Rogue)
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+			if (inven(INVEN_WIELD).tval == TV_RANGED) then
+
+				if (not(get_object_flag4(inven(INVEN_WIELD), TR4_MUST2H))) then
+
+					rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10)
+				end
+			end
+		end
+	end
+	-- Rogue Weapons Mastery. (Rogue)
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (inven(INVEN_WIELD).tval == TV_RANGED) then
+
+			if (not(get_object_flag4(inven(INVEN_WIELD), TR4_MUST2H))) then
+
+				rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 20)
+			end
+		end
+	end
+	-- Art of Poisoning. (Rogue)
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 7] >= 1) then
+
+		if (inven(INVEN_WIELD).tval == TV_RANGED) then
+
+			if (inven(INVEN_WIELD).extra1 == GF_POIS or inven(INVEN_AMMO).extra1 == GF_POIS) then
+
+				rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 7] * 10)
+			end
+		end
+	end
+	-- Black Market's Bounty Hunter. (Rogue)
+	rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_ROGUE * 10) + 10] * 10)
+	-- Blessing of Dexterity. (Priest)
+	if (p_ptr.events[29054] == 4) then
+
+		rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_PRIEST * 10) + 8] * 5)
+        end
+	-- Sharpshooter. (ranged)
+	rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8] * 10)
+	-- Accurate Shots. (ranged)
+	rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] * 10)
+	-- Elemental Spellsword. (Elemental Lord)
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] >= 1 and ((inven(INVEN_WIELD).tval == TV_RANGED and inven(INVEN_WIELD).extra1 == p_ptr.elemlord) or (inven(INVEN_AMMO).extra1 == p_ptr.elemlord))) then
+
+		rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 30)
+	end
+	-- Elemental Being. (Elemental Lord)
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1 and ((inven(INVEN_WIELD).tval == TV_RANGED and inven(INVEN_WIELD).extra1 == p_ptr.elemlord) or (inven(INVEN_AMMO).extra1 == p_ptr.elemlord))) then
+
+		rangedbonus = rangedbonus + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 30)
+	end
+	-- Inner Elemental Mastery. (Monsters)
+	if (p_ptr.abilities[(CLASS_MONSTER * 10) + 4] >= 1) then
+
+		local ebonus = 0
+
+		ebonus = multiply_divide(m_race(p_ptr.body_monster).resistances[p_ptr.elemlord+1], 20, 100)
+		if (ebonus > 0) then
+
+			rangedbonus = rangedbonus + (ebonus * p_ptr.abilities[(CLASS_MONSTER * 10) + 4])
+		end
+	end
+	-- The Paragon Elder Monster abilities. (Monsters)
+	if (get_player_monster_ability(BOSS_DOUBLE_DAMAGES)) then
+
+		rangedbonus = rangedbonus + 100
+	end
+
+	-- Add to_d bonus.
+	rangedbonus = rangedbonus + p_ptr.dis_to_d
+
+	-- TOTAL MAGIC BONUS
+	-- A sum of the many passive abilities related to general magic damage.
+
+	-- Improved Magics. (Monsters)
+	magicbonus = magicbonus + (p_ptr.abilities[(CLASS_MONSTER * 10) + 3] * 10)
+	-- Inner Elemental Mastery. (Monsters)
+	if (p_ptr.abilities[(CLASS_MONSTER * 10) + 4] >= 1) then
+
+		local ebonus = 0
+
+		ebonus = multiply_divide(m_race(p_ptr.body_monster).resistances[p_ptr.elemlord+1], 20, 100)
+		if (ebonus > 0) then
+
+			magicbonus = magicbonus + (ebonus * p_ptr.abilities[(CLASS_MONSTER * 10) + 4])
+		end
+	end
+	-- The Paragon Elder Monster abilities. (Monsters)
+	if (get_player_monster_ability(BOSS_DOUBLE_MAGIC)) then
+
+		magicbonus = magicbonus + 100
+	end
+
+	-- Add to_d bonus.
+	magicbonus = magicbonus + p_ptr.dis_to_d
+	-- Add to_s bonus.
+	magicbonus = magicbonus + p_ptr.to_s
+
+	-- INT CASTING BONUS.
+
+	-- Improved Combat Spells. (Mage)
+	intbonus = intbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 10)
+	-- Explosive Spells. (Mage)
+	intbonus = intbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 5] * 10)
+
+	-- Add general magic bonus.
+	--intbonus = intbonus + magicbonus
+
+	-- WIS CASTING BONUS.
+
+	-- Wisdom Casting Mastery. (Priest)
+	wisbonus = wisbonus + (p_ptr.abilities[(CLASS_PRIEST * 10) + 1] * 10)
+	-- Spiritual Warrior. (Monk)
+	wisbonus = wisbonus + (p_ptr.abilities[(CLASS_MONK * 10) + 6] * 10)
+
+	-- Add general magic bonus.
+	--wisbonus = wisbonus + magicbonus
+
+	-- MUSIC BONUS.
+
+	-- Improved Songs. (Bard)
+	musicbonus = musicbonus + (p_ptr.abilities[(CLASS_BARD * 10) + 1] * 10)
+	-- Charismatic Musician. (Bard)
+	musicbonus = musicbonus + (p_ptr.abilities[(CLASS_BARD * 10) + 6] * 10)
+
+	-- Add general magic bonus.
+	--musicbonus = musicbonus + magicbonus
+
+
+	-- BONUS TO CHOSEN ELEMENT.
+	
+	-- Elemental Spellsword. (Elemental Lord)
+	elementbonus = elementbonus + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 30)
+	-- Elemental Being. (Elemental Lord)
+	elementbonus = elementbonus + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 30)
+
+
+
+	-- DEFENSIVE BONUS
+
+	-- AC.
+	-- Should already be calculated in passive.lua.
+	totalac = p_ptr.dis_ac
+
+	-- MAGIC AC.
+	magicac = (p_ptr.skill[28] * 3)
+	magicac = magicac + multiply_divide(magicac, p_ptr.dis_to_a, 100)
+
+	-- Heavy Armor Mastery can give a bonus.
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 5) then
+
+		if (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR) then
+
+			magicac = magicac + (p_ptr.dis_ac / 2)
+		end
+	end
+
+
+	-- EVASION.
+	evasion = p_ptr.stat_ind[A_DEX+1] + p_ptr.skill[6]
+
+	-- Passive bonus to dodge rolls.
+
+	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 2] > 0) then
+
+		dodgebonus = dodgebonus + multiply_divide(p_ptr.skill[1], p_ptr.abilities[(CLASS_FIGHTER * 10) + 2] * 10, 100)
+	end
+
+	-- Rogue's Improved Dodge.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 4] >= 1) then
+
+		dodgebonus = dodgebonus + multiply_divide(evasion, p_ptr.abilities[(CLASS_ROGUE * 10) + 4] * 20, 100)
+	end
+
+	-- Defender's Universal Avoidance.
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 6] >= 1) then
+
+		dodgebonus = dodgebonus + multiply_divide(evasion, p_ptr.abilities[(CLASS_DEFENDER * 10) + 6] * 10, 100)
+	end
+
+	-- Monk's Perfect Union.
+	if (p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) then
+
+		if (not(inven(INVEN_BODY).tval == TV_HARD_ARMOR) and not(inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+			dodgebonus = dodgebonus + multiply_divide(p_ptr.skill[19], p_ptr.abilities[(CLASS_MONK * 10) + 10] * 10, 100)
+		end
+	end
+
+	evasion = evasion + dodgebonus
+
+
+	-- MAGIC EVASION.
+	magic_evasion = p_ptr.skill[28]
+
+	-- Agility bonus if you have 70+ base points in it.
+	if (p_ptr.skill_base[6] >= 70) then
+
+		magic_evasion = magic_evasion + p_ptr.skill[6]
+	end
+
+	-- Defensive Fighting.
+	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 2] >= 10) then
+
+		magic_evasion = magic_evasion + multiply_divide(p_ptr.skill[1], p_ptr.abilities[(CLASS_FIGHTER * 10) + 2] * 10, 100)
+	end
+
+	-- Universal Avoidance.
+	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 6] > 0) then
+
+		magic_evasion_bonus = magic_evasion_bonus + multiply_divide(magic_evasion, p_ptr.abilities[(CLASS_DEFENDER * 10) + 6] * 10, 100)
+	end
+
+	magic_evasion = magic_evasion + magic_evasion_bonus
+
+
+	-- BLOCK.
+	if ((not(inven(INVEN_WIELD).tval == 0) or not(inven(INVEN_WIELD+1).tval == 0))) then
+
+		if (inven(INVEN_WIELD).ac > 0 or inven(INVEN_WIELD+1).ac > 0 or (unarmed() and p_ptr.skill_base[19] >= 40)) then
+
+			block = p_ptr.stat_ind[A_STR+1] + p_ptr.skill[5]
+
+			-- Also add Wisdom if we're unarmed and we have Strength through Spirit.
+			if ((p_ptr.abilities[(CLASS_MONK * 10) + 1] >= 1) and unarmed()) then
+
+				local wbonus = 0
+
+				wbonus = p_ptr.abilities[(CLASS_MONK * 10) + 1] * 10
+				if (wbonus > 100) then wbonus = 100 end
+
+				block = block + multiply_divide(p_ptr.stat_ind[A_WIS+1], wbonus, 100)
+        		end
+
+			-- Your shield's base AC provides a percentile bonus AND a flat bonus.
+			if (not(inven(INVEN_WIELD).tval == 0)) then
+
+				block = block + inven(INVEN_WIELD).ac
+				blockbonus = blockbonus + inven(INVEN_WIELD).ac
+			end
+			if (not(inven(INVEN_WIELD+1).tval == 0)) then
+
+				block = block + inven(INVEN_WIELD+1).ac
+				blockbonus = blockbonus + inven(INVEN_WIELD+1).ac
+			end
+
+			-- Warrior's balanced Warrior.
+			if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
+
+				blockbonus = blockbonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 5)
+			end
+
+			-- Defender's Shield Mastery.
+			if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] >= 1 and shield_has()) then
+
+				blockbonus = blockbonus + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] * 15)
+			end
+
+			-- Defender's Universal Avoidance.
+			if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 6] >= 1) then
+
+				blockbonus = blockbonus + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 6] * 10)
+			end
+
+			block = block + multiply_divide(block, blockbonus, 100)
+		end
+	end
+
+	-- MAGIC BLOCKING.
+	-- Will be the same as Block, but only with a Defender ability and a shield.
+	if ((not(inven(INVEN_WIELD).tval == 0) or not(inven(INVEN_WIELD+1).tval == 0)) and p_ptr.abilities[(CLASS_DEFENDER * 10) + 2] >= 5) then
+
+		if ((inven(INVEN_WIELD).ac > 0 or inven(INVEN_WIELD+1).ac > 0) and shield_has()) then
+
+			magblock = block
+		end
+	end
+
+
+
+	-- ACCURACIES.
+
+	-- MELEE.
+
+	if (unarmed()) then
+		hitbonus = p_ptr.skill[1] + multiply_divide(p_ptr.skill[19], 150, 100)
+	else
+		hitbonus = p_ptr.skill[1] + multiply_divide(p_ptr.skill[inven(INVEN_WIELD).itemskill + 1], 150, 100)
+	end
+
+	-- Fighting Specialist.
+	if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] > 0) then
+
+		hitbonus = hitbonus + multiply_divide(p_ptr.skill[1], p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] * 10, 100)
+	end
+
+	-- Stealthy Fighter.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 0 and not(inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+		if (get_object_flag4(inven(INVEN_WIELD), TR4_DEX_WEAPON)) then
+
+			local sbonus
+
+			sbonus = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+			if (sbonus > 100) then sbonus = 100 end
+			hitbonus = hitbonus + multiply_divide(p_ptr.skill[7], sbonus, 100)
+		end
+	end
+
+	-- Elemental Spellsword.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] >= 1 and element == p_ptr.elemlord) then
+
+		local sbonus
+
+		sbonus = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10
+		if (sbonus > 100) then sbonus = 100 end
+		hitbonus = hitbonus + multiply_divide(p_ptr.skill[23], sbonus, 100)
+	end
+
+	meleehit = p_ptr.stat_ind[A_DEX+1] + hitbonus + p_ptr.dis_to_h
+
+	hitbonus = 0
+
+	-- Battle Skill.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
+
+		hitbonus = hitbonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 5)
+        end
+
+	meleehit = meleehit + multiply_divide(meleehit, hitbonus, 100)
+
+
+	-- RANGED.
+
+	hitbonus = 0
+	hitbonus = p_ptr.skill[3] + (multiply_divide(p_ptr.skill[inven(INVEN_WIELD).itemskill + 1], 150, 100))
+
+	-- Stealthy Fighter.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 0 and not(inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
+
+		if (not(get_object_flag4(inven(INVEN_WIELD), TR4_MUST2H))) then
+
+			local sbonus
+
+			sbonus = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+			if (sbonus > 100) then sbonus = 100 end
+			hitbonus = hitbonus + multiply_divide(p_ptr.skill[7], sbonus, 100)
+		end
+	end
+
+	rangedhit = p_ptr.stat_ind[A_DEX+1] + hitbonus + p_ptr.dis_to_h
+
+	hitbonus = 0
+
+	-- Battle Skill.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
+
+		hitbonus = hitbonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 5)
+        end
+
+	-- Marksman's Accurate Shots.
+	if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] >= 1) then
+
+		hitbonus = hitbonus + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] * 10)
+	end
+
+	rangedhit = rangedhit + multiply_divide(rangedhit, hitbonus, 100)
+
+
+	-- THROWING.
+
+	hitbonus = 0
+	hitbonus = multiply_divide(p_ptr.skill[4], 150, 100)
+
+	throwhit = p_ptr.stat_ind[A_DEX+1] + hitbonus + p_ptr.dis_to_h
+
+	hitbonus = 0
+
+	-- Battle Skill.
+	if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
+
+		hitbonus = hitbonus + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 5)
+        end
+
+	throwhit = throwhit + multiply_divide(throwhit, hitbonus, 100)
+
+
+	-- BASE MAGIC.
+
+	hitbonus = 0
+	magichit = p_ptr.skill[2] + p_ptr.dis_to_h
+
+	elementalhit = magichit + p_ptr.skill[23] + (p_ptr.skill[23] / 2)
+	alterationhit = magichit + p_ptr.skill[24] + (p_ptr.skill[24] / 2)
+	mysticismhit = magichit + p_ptr.skill[25] + (p_ptr.skill[25] / 2)
+	conjurationhit = magichit + p_ptr.skill[26] + (p_ptr.skill[26] / 2)
+	divinationhit = magichit + p_ptr.skill[27] + (p_ptr.skill[27] / 2)
+	musichit = p_ptr.skill[29] + p_ptr.dis_to_h
+
+	-- Improved Combat Spells
+	if (p_ptr.abilities[(CLASS_MAGE * 10) + 2] >= 1) then
+
+		elementalbonus = elementalbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 10)
+		mysticismbonus = mysticismbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 10)
+		conjurationbonus = conjurationbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 10)
+	end
+
+	-- Spells Efficiency.
+	if (p_ptr.abilities[(CLASS_MAGE * 10) + 7] >= 1) then
+
+		hitbonus = hitbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+		elementalbonus = elementalbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+		alterationbonus = alterationbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+		mysticismbonus = mysticismbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+		conjurationbonus = conjurationbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+		divinationbonus = divinationbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+		musicbonus = musicbonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 7] * 10)
+	end
+
+	magichit = magichit + multiply_divide(magichit, hitbonus, 100)
+	elementalhit = elementalhit + multiply_divide(elementalhit, elementalbonus, 100)
+	alterationhit = alterationhit + multiply_divide(alterationhit, alterationbonus, 100)
+	mysticismhit = mysticismhit + multiply_divide(mysticismhit, mysticismbonus, 100)
+	conjurationhit = conjurationhit + multiply_divide(conjurationhit, conjurationbonus, 100)
+	divinationhit = divinationhit + multiply_divide(divinationhit, divinationbonus, 100)
+	musichit = musichit + multiply_divide(musichit, musicbonus, 100)
+
+
+	-- DISPLAY THE BONUS ON THE SCREEN.
+	c_put_str(TERM_WHITE, "DAMAGE/POWER", 8, 0)
+	c_put_str(TERM_WHITE, "To_d Bonus:", 9, 0)
+	c_put_str(TERM_L_GREEN, string.format('%d', p_ptr.dis_to_d), 9, 12)
+	c_put_str(TERM_WHITE, "Base Melee:", 10, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', meleebonus), 10, 12)
+	c_put_str(TERM_WHITE, "Base Range:", 11, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', rangedbonus), 11, 12)
+	c_put_str(TERM_WHITE, "Base Magic:", 12, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', magicbonus), 12, 12)
+	c_put_str(TERM_WHITE, "INT Spells:", 13, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', intbonus), 13, 12)
+	c_put_str(TERM_WHITE, "WIS Spells:", 14, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', wisbonus), 14, 12)
+	c_put_str(TERM_WHITE, "Music     :", 15, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', musicbonus), 15, 12)
+	c_put_str(TERM_WHITE, "Element   :", 16, 0)
+	c_put_str(TERM_L_GREEN, string.format('+%d%%', elementbonus), 16, 12)
+
+	-- DISPLAY THE DEFENSIVE BONUS.
+	c_put_str(TERM_WHITE, "DEFENSES", 8, 19)
+	c_put_str(TERM_WHITE, "To_a Bonus:", 9, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', p_ptr.dis_to_a), 9, 31)
+	c_put_str(TERM_WHITE, "AC        :", 10, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', p_ptr.dis_ac), 10, 31)
+	c_put_str(TERM_WHITE, "Magic AC  :", 11, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', magicac), 11, 31)
+	c_put_str(TERM_WHITE, "Evasion   :", 12, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', evasion), 12, 31)
+	c_put_str(TERM_WHITE, "Mag. Evade:", 13, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', magic_evasion), 13, 31)
+	c_put_str(TERM_WHITE, "Block     :", 14, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', block), 14, 31)
+	c_put_str(TERM_WHITE, "Mag. Block:", 15, 19)
+	c_put_str(TERM_L_GREEN, string.format('%d', magblock), 15, 31)
+
+	-- DISPLAY ACCURACIES.
+	c_put_str(TERM_WHITE, "ACCURACIES", 8, 36)
+	c_put_str(TERM_WHITE, "To_h Bonus:", 9, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', p_ptr.dis_to_h), 9, 48)
+	c_put_str(TERM_WHITE, "Melee     :", 10, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', meleehit), 10, 48)
+	c_put_str(TERM_WHITE, "Ranged    :", 11, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', rangedhit), 11, 48)
+	c_put_str(TERM_WHITE, "Throwing  :", 12, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', throwhit), 12, 48)
+	c_put_str(TERM_WHITE, "Base Magic:", 13, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', magichit), 13, 48)
+	c_put_str(TERM_WHITE, "Elemental :", 14, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', elementalhit), 14, 48)
+	c_put_str(TERM_WHITE, "Alteration:", 15, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', alterationhit), 15, 48)
+	c_put_str(TERM_WHITE, "Mysticism :", 16, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', mysticismhit), 16, 48)
+	c_put_str(TERM_WHITE, "Conjur.   :", 17, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', conjurationhit), 17, 48)
+	c_put_str(TERM_WHITE, "Divination:", 18, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', divinationhit), 18, 48)
+	c_put_str(TERM_WHITE, "Music     :", 19, 36)
+	c_put_str(TERM_L_GREEN, string.format('%d', musichit), 19, 48)
+end
+
 -- Insert whatever formula you want here. ;)
 function skill_points_per_levels ()
 
@@ -699,6 +1350,91 @@ function dialog_script (scriptid)
 		end
 	end
 
+	-- Used in Q36.txt, d70.txt.
+	if (scriptid == 10) then
+
+		cave_set_feat(10, 4, FEAT_FLOOR)
+		update_and_handle()
+	end
+
+	-- SECRET LEVELS DIALOG SCRIPTS
+
+	-- THE ANCIENT DEMIGOD
+
+	-- Used in Q25000.txt
+	if (scriptid == 25000) then
+
+		local scalelev
+
+		scalelev = p_ptr.lev + (p_ptr.lev / 2)
+		if (scalelev < 75) then scalelev = 75 end
+
+		-- Delete anything that's at 18,25.
+		delete_monster(18, 25)
+
+		-- It is floor.
+		cave_set_feat(18, 25, FEAT_FLOOR)
+
+		place_monster_one_return(18, 25, 2501, FALSE, FALSE, scalelev, 0)
+		energy_use = 0
+		lite_spot(18, 25)
+		update_and_handle()
+	end
+	if (scriptid == 25001) then
+
+		-- Delete anything that's at 17,25.
+		delete_monster(17, 25)
+
+		-- If the player's at these coordinates, move the player.
+		if (px == 25 and py == 17) then
+
+			delete_monster(18, 25)
+			cave_set_feat(18, 25, FEAT_FLOOR)
+			teleport_player_to(18,25)
+		end
+
+		-- It is floor.
+		cave_set_feat(17, 25, FEAT_FLOOR)
+
+		place_monster_one_return(17, 25, 2502, FALSE, FALSE, 20, 0)
+		energy_use = 0
+		lite_spot(17, 25)
+		update_and_handle()
+	end
+	if (scriptid == 25002) then
+
+		local scalelev
+
+		scalelev = p_ptr.lev + (p_ptr.lev / 2)
+		if (scalelev < 75) then scalelev = 75 end
+
+		-- Delete anything that's at 11,29.
+		delete_monster(29, 11)
+
+		-- It is floor.
+		cave_set_feat(29, 11, FEAT_FLOOR)
+
+		-- Close the wall behind you.
+		cave_set_feat(24, 11, 60)
+
+		place_monster_one_return(29, 11, 2503, FALSE, FALSE, scalelev, 0)
+		energy_use = 0
+		lite_spot(29, 11)
+		update_and_handle()
+	end
+	if (scriptid == 25003) then
+
+		-- Reopen the wall.
+		cave_set_feat(24, 11, FEAT_FLOOR)
+		update_and_handle()
+	end
+	if (scriptid == 25004) then
+
+		-- Open a wall.
+		cave_set_feat(8, 12, FEAT_FLOOR)
+		energy_use = 0
+		update_and_handle()
+	end
 end
 
 -- Function called when using scripted spells/activations.
@@ -1868,6 +2604,43 @@ function altered_ophelia_tomb_4 ()
 	end
 end
 
+-- Used in Q34.txt
+function old_orc_ruins_1 ()
+
+	if (p_ptr.events[132] == 1) then
+
+		if (p_ptr.events[133] == 0) then
+			p_ptr.events[133] = 1
+			--show_dialog(64)
+		end
+	else
+
+		show_dialog(64)
+	end
+end
+
+-- Used in Q36.txt
+function old_orc_ruins_2 ()
+
+	if (p_ptr.events[139] == 1) then
+
+		if (p_ptr.events[142] == 0) then
+			p_ptr.events[142] = 1
+			show_dialog(71)
+		end
+	end
+end
+
+-- Used in Q37.txt
+function old_orc_ruins_3 ()
+
+	if (p_ptr.events[143] == 0) then
+
+		p_ptr.events[143] = 1
+		show_dialog(73)
+	end
+end
+
 -- Used in Q101.txt
 -- This is when you leave the sewers by the slums entrance.
 -- It makes sure you get teleported to the slums district of Jindar.
@@ -2211,50 +2984,6 @@ function banshee_first ()
 	end
 end
 
--- Used in Q25000.txt
-
-function ginwhal_prepare_level ()
-
-	p_ptr.events[25005] = 0
-	p_ptr.events[25006] = 0
-end
-
-function open_rage_wall_1 ()
-
-	msg_print("A secret door opens up!")
-	cave_set_feat(2, 12, FEAT_FLOOR)
-	update_and_handle()
-end
-
-function open_rage_wall_2 ()
-
-	msg_print("You hear some secret doors opening themselves...")
-	cave_set_feat(3, 35, FEAT_FLOOR)
-	cave_set_feat(7, 33, FEAT_FLOOR)
-	update_and_handle()
-end
-
-function open_rage_wall_3 ()
-
-	msg_print("You hear some secret doors opening themselves...")
-	cave_set_feat(2, 38, FEAT_FLOOR)
-	cave_set_feat(5, 37, FEAT_FLOOR)
-	cave_set_feat(11, 38, FEAT_FLOOR)
-	update_and_handle()
-end
-
-function avemorsh_battle ()
-
-	p_ptr.events[25010] = 0
-	p_ptr.events[25012] = 0
-
-	if (p_ptr.events[25008] == 0) then
-
-		show_dialog(25001)
-		p_ptr.events[25008] = 1
-	end
-end
-
 -- ########## SPECIAL ATTACKS OF MONSTERS ##########
 
 -- Quazar's reality twisting magic.
@@ -2550,324 +3279,74 @@ function immolating_blaze (m_idx)
 	update_and_handle()
 end
 
--- Used in Q25000.txt
-function torment_spells (m_idx)
+-- ########## SECRET LEVELS SCRIPTS ##########
 
-	local m_name = ""
+-- ########## THE ANCIENT DEMIGOD ##########
 
-	if not (monster(m_idx).ml) then
-		m_name = "it"
-	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
-		m_name = m_race(monster(m_idx).r_idx).name_char
-	else
-		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+function ancient_demigod_enter ()
+
+	-- Reset first encounter if needed.
+	if (p_ptr.events[25003] > 0 and p_ptr.events[25004] == 0) then
+
+		p_ptr.events[25003] = 0
 	end
 
-	if (p_ptr.events[25005] < 100) then
+	-- Reset Firestorm Elemental.
+	if (not(p_ptr.events[25006] == 2)) then
 
-		p_ptr.events[25005] = p_ptr.events[25005] + 10
-		msg_print(string.format('%s charges energy... (%d%%)', m_name, p_ptr.events[25005]))
-	elseif (p_ptr.events[25005] >= 100) then
+		p_ptr.events[25006] = 0
+	end
 
-		if (p_ptr.events[25006] == 1) then
+	-- Reset Last encounter before Pyrex.
+	if (not(p_ptr.events[25007] == 2)) then
 
-			msg_print(string.format('%s summon demons!', m_name))
-			summon_specific_kind(py, px, p_ptr.max_plv + (p_ptr.max_plv / 2), 117, FALSE, FALSE, 20)
-			summon_specific_kind(py, px, p_ptr.max_plv + (p_ptr.max_plv / 2), 117, FALSE, FALSE, 20)
-			summon_specific_kind(py, px, p_ptr.max_plv + (p_ptr.max_plv / 2), 117, FALSE, FALSE, 20)
-		else
-			msg_print(string.format('%s summons soldiers of death!', m_name))
-			summon_specific_ridx(py, px, 2308, FALSE, FALSE, 0)
-			summon_specific_ridx(py, px, 2308, FALSE, FALSE, 0)
-			summon_specific_ridx(py, px, 2308, FALSE, FALSE, 0)
-		end
+		p_ptr.events[25007] = 0
+	else
+		cave_set_feat(5, 8, FEAT_FLOOR)
+	end
+
+	if (p_ptr.events[25002] == 0) then
+
+		show_dialog(25001)
+		p_ptr.events[25002] = 1
 	end
 end
 
--- It's nothing but a big script. :)
-function avemorsh_attacks (m_idx)
+function ancient_demigod_first_encounter ()
 
-	local i
-	local m_name = ""
+	if (p_ptr.events[25003] == 0) then
 
-	if not (monster(m_idx).ml) then
-		m_name = "it"
-	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
-		m_name = m_race(monster(m_idx).r_idx).name_char
-	else
-		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+		show_dialog(25002)
+		p_ptr.events[25003] = 1
 	end
+end
 
-	-- Avemorsh has a lot of attacks.
-	-- What he does depends on how many lives he has left.
+function ancient_demigod_pyrex_teleport_1 ()
 
-	-- Phase 1: 75%+ lives.
-	if (monster(m_idx).lives >= multiply_divide(p_ptr.events[25011], 75, 100)) then
+	delete_monster(18, 13)
+	teleport_player_to(18, 13)
+	msg_print("You are teleported!")
+	update_and_handle()
+end
 
-		-- He will do one of three attacks: Fire Storm, Razor Winds or Energy Blast.
-		if (p_ptr.events[25010] == 0) then
+function ancient_demigod_firestorm_elemental ()
 
-			p_ptr.events[25010] = lua_randint(3)
-			if (p_ptr.events[25010] == 1) then
+	if (p_ptr.events[25006] == 0) then
 
-				msg_print(string.format('%s gather flames!', m_name))
-			end
-			if (p_ptr.events[25010] == 2) then
-
-				msg_print(string.format('%s surrounds himself with wind!', m_name))
-			end
-			if (p_ptr.events[25010] == 3) then
-
-				msg_print(string.format('%s begins casting a powerful spell...', m_name))
-			end
-		else
-
-			if (p_ptr.events[25010] == 1) then
-
-				local dam
-				local lvl
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- That's 7500000 at level 30. :)
-				dam = 250000 * lvl
-
-				msg_print(string.format('%s invokes a powerful Fire Storm!', m_name))
-
-				lua_ball(m_idx, GF_FIRE, dam, 10)
-				lua_ball(m_idx, GF_FIRE, dam, 10)
-				lua_ball(m_idx, GF_FIRE, dam, 10)
-
-				p_ptr.events[25010] = 0
-			end
-
-			if (p_ptr.events[25010] == 2) then
-
-				local dam
-				local lvl
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- That's 7500000 at level 30. :)
-				dam = 250000 * lvl
-
-				msg_print(string.format('%s conjures mighty Razor Winds!', m_name))
-
-				lua_ball(m_idx, GF_WIND, dam, 10)
-				lua_ball(m_idx, GF_WIND, dam, 10)
-				lua_ball(m_idx, GF_WIND, dam, 10)
-
-				p_ptr.events[25010] = 0
-			end
-
-			if (p_ptr.events[25010] == 3) then
-
-				local dam
-				local lvl
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- Only 3000000 at level 30, and only once.
-				-- But you'll have to think a bit to counter Missile!
-				dam = 100000 * lvl
-
-				msg_print(string.format('%s casts an Energy Blast!', m_name))
-
-				lua_ball(m_idx, GF_MISSILE, dam, 10)
-
-				p_ptr.events[25010] = 0
-			end
-		end
-
-	-- Phase 2: 50%+ lives.
-	elseif (monster(m_idx).lives >= multiply_divide(p_ptr.events[25011], 50, 100)) then
-
-		if (p_ptr.events[25010] < 4) then
-
-			p_ptr.events[25010] = 4
-			show_dialog(25002)
-		else
-
-			-- His second phase consists of 5 melee Spin Attacks of Harm type.
-			-- If you are next to him, he will use them.
-			if ( (((monster(m_idx).fx - 1) == px) or ((monster(m_idx).fx + 1) == px) or ((monster(m_idx).fx) == px)) and (((monster(m_idx).fy - 1) == py) or ((monster(m_idx).fy + 1) == py) or ((monster(m_idx).fy) == py))) then
-
-				local dam
-				local lvl
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- 15000000 at level 30. Five times. Yeouch!
-				dam = 500000 * lvl
-
-				msg_print(string.format('%s performs a serie of deadly Spin Attacks!', m_name))
-
-				-- This one is a melee attack.
-				monster_physical = TRUE
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				monster_physical = FALSE
-			else
-
-				-- Otherwise, 75% of the time, he will teleport at you.
-				-- But 25% of the time, he will instead cast a Wind spell.
-				if (lua_randint(100) >= 25) then
-
-					-- Check range
-					if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
-
-						-- Check path
-						if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
-
-							msg_print(string.format('%s jumps right next to you!', m_name))
-							teleport_to_player(m_idx)
-						end
-					end
-				else
-
-					local dam
-					local lvl
-
-					if (p_ptr.max_plv < 30) then lvl = 30
-					else lvl = p_ptr.max_plv
-					end
-
-					-- That's 4500000 at level 30.
-					dam = 150000 * lvl
-
-					msg_print(string.format('%s casts a Fire Ball!', m_name))
-
-					lua_ball(m_idx, GF_FIRE, dam, 5)
-				end
-			end
-		end
-	-- Phase 3: 25%+ lives.
-	elseif (monster(m_idx).lives >= multiply_divide(p_ptr.events[25011], 25, 100)) then
-
-		if (p_ptr.events[25010] < 5) then
-
-			p_ptr.events[25010] = 5
-			show_dialog(25002)
-		else
-
-			-- During the third phase, he will gather energy for 5 turns, the unleash a big spell.
-			-- After that, he will jump next to you, spin, then start over.
-			if (p_ptr.events[25012] > 100) then
-
-				local dam
-				local lvl
-
-				-- Check range
-				if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
-
-					-- Check path
-					if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
-
-						msg_print(string.format('%s jumps right next to you!', m_name))
-						teleport_to_player(m_idx)
-					end
-				end
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- That's 3000000 at level 30.
-				dam = 100000 * lvl
-
-				msg_print(string.format('%s performs Gust Spin!', m_name))
-
-				monster_physical = TRUE
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_WIND, 2)
-				monster_physical = FALSE
-
-				p_ptr.events[25012] = 0
-				
-			elseif (p_ptr.events[25012] < 100) then
-
-				p_ptr.events[25012] = p_ptr.events[25012] + 20
-				msg_print(string.format('%s gathers energy... (%d%%)', m_name, p_ptr.events[25012]))
-			else
-
-				local dam
-				local lvl
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- That's 30000000 at level 30. :)
-				-- 5 times. Missile. Can you survive?
-				dam = 1000000 * lvl
-
-				msg_print(string.format('%s screams DESTRUCTION!!!', m_name))
-
-				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
-
-				p_ptr.events[25012] = p_ptr.events[25012] + 20
-			end
-		end
-	-- Phase 4: below 25% lives.
-	else
-
-		if (p_ptr.events[25010] < 6) then
-
-			p_ptr.events[25010] = 6
-			show_dialog(25002)
-		else
-
-			-- The last phase is quite simple. Each turns, he wull summon a Vengeful Orc.
-			-- Every once in a while, he will throw one last Fire Spin in the mix.
-			if (lua_randint(100) >= 25) then
-
-				msg_print(string.format('%s summons a Vengeful Orc!', m_name))
-				summon_specific_ridx(py, px, 2302, FALSE, FALSE, 0)
-			else
-				local dam
-				local lvl
-
-				-- Check range
-				if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
-
-					-- Check path
-					if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
-
-						msg_print(string.format('%s jumps right next to you!', m_name))
-						teleport_to_player(m_idx)
-					end
-				end
-
-				if (p_ptr.max_plv < 30) then lvl = 30
-				else lvl = p_ptr.max_plv
-				end
-
-				-- That's 3000000 at level 30.
-				dam = 100000 * lvl
-
-				msg_print(string.format('%s performs Fire Spin!', m_name))
-
-				monster_physical = TRUE
-				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_FIRE, 2)
-				monster_physical = FALSE
-			end
-		end
+		show_dialog(25004)
+		update_and_handle()
 	end
+end
 
+function ancient_demigod_pyrex_enter ()
+
+	p_ptr.events[25010] = 0
+
+	if (p_ptr.events[25008] == 0) then
+
+		show_dialog(25006)
+		update_and_handle()
+	end
 end
 
 -- ########## MISC SCRIPTS ##########
@@ -3065,16 +3544,7 @@ function get_misc_monster_info (r_idx, line)
 	-- Planar Phantom.
 	if (r_idx == 269) then
 
-		if (line == 1) then return "Phase when damaged(rad 10)          " end
-		if (line == 2) then return "                                    " end
-		if (line == 3) then return "                                    " end
-		if (line == 4) then return "                                    " end
-	end
-
-	-- Acid Horror.
-	if (r_idx == 287) then
-
-		if (line == 1) then return "Acid Aura(Power 20, rad 3)          " end
+		if (line == 1) then return "Teleports when damaged(rad 10)      " end
 		if (line == 2) then return "                                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3242,6 +3712,51 @@ function get_misc_monster_info (r_idx, line)
 		if (line == 4) then return "                                    " end
 	end
 
+	-- Lesser Vortex Elemental
+	if (r_idx == 330) then
+
+		if (line == 1) then return "Warp Aura(Power 30, rad 3)          " end
+		if (line == 2) then return "Teleports when damaged(rad 10)      " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Zombie Lord
+	if (r_idx == 331) then
+
+		if (line == 1) then return "Darkness Aura(Power 25, rad 3)      " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Warp Hound
+	if (r_idx == 332) then
+
+		if (line == 1) then return "Teleports when damaged(rad 10)      " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Spikefiend
+	if (r_idx == 334) then
+
+		if (line == 1) then return "Can grab you from a distance using  " end
+		if (line == 2) then return "it's magical spiked chain.          " end
+		if (line == 3) then return "Physical attacks pierces resistance." end
+		if (line == 4) then return "(based on your Defense skill)       " end
+	end
+
+	-- Estaroth
+	if (r_idx == 1052) then
+
+		if (line == 1) then return "Fire Aura/Fields when moving.       " end
+		if (line == 2) then return "(Power 50, rad 10)                  " end
+		if (line == 3) then return "Fire attacks pierces resistance.    " end
+		if (line == 4) then return "(based on your Magic Defense skill) " end
+	end
+
 	-- Christina
 	if (r_idx == 1357 or r_idx == 1373) then
 
@@ -3254,7 +3769,7 @@ function get_misc_monster_info (r_idx, line)
 	-- Korthrax
 	if (r_idx == 1363) then
 
-		if (line == 1) then return "Phase when damaged(rad 10)          " end
+		if (line == 1) then return "Teleports when damaged(rad 10)      " end
 		if (line == 2) then return "                                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3263,7 +3778,7 @@ function get_misc_monster_info (r_idx, line)
 	-- Balcia.
 	if (r_idx == 1366 or r_idx == 1369) then
 
-		if (line == 1) then return "33% to phase when damaged(rad 10)   " end
+		if (line == 1) then return "33% to teleport when damaged(rad 10)" end
 		if (line == 2) then return "                                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3272,7 +3787,7 @@ function get_misc_monster_info (r_idx, line)
 	-- Balcia(Banshee).
 	if (r_idx == 2001) then
 
-		if (line == 1) then return "33% to phase when damaged(rad 10)   " end
+		if (line == 1) then return "33% to teleport when damaged(rad 10)" end
 		if (line == 2) then return "Chaos Aura(Power 30, rad 3)         " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
@@ -3314,31 +3829,33 @@ function get_misc_monster_info (r_idx, line)
 		if (line == 4) then return "                                    " end
 	end
 
-	-- Firestorm Gatekeeper
-	if (r_idx == 2500) then
+	-- Secret levels enemies.
 
-		if (line == 1) then return "Fire Aura(Power ??, rad 3)          " end
-		if (line == 2) then return "Wind Aura(Power ??, rad 3)          " end
+	-- Corrupted Divine Guard
+	if (r_idx == 2500 or r_idx == 2501) then
+
+		if (line == 1) then return "Regenerates 5% of max hp every      " end
+		if (line == 2) then return "turns.                              " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
 	end
 
-	-- Pure Orcish Rage
-	if (r_idx == 2501) then
+	-- Firestorm Elemental
+	if (r_idx == 2503 or r_idx == 2504) then
 
-		if (line == 1) then return "Prone to great feats of rage when   " end
-		if (line == 2) then return "taking damages.                     " end
-		if (line == 3) then return "                                    " end
-		if (line == 4) then return "                                    " end
+		if (line == 1) then return "Creates Fire fields every turns.    " end
+		if (line == 2) then return "(Power 50+1/3 levels, rad 4)        " end
+		if (line == 3) then return "Wind aura every turns.              " end
+		if (line == 4) then return "(Power 50+3/levels, rad 1)          " end
 	end
 
-	-- Avemorsh's Torment
-	if (r_idx == 2502) then
+	-- Pyrex.
+	if (r_idx == 2505) then
 
-		if (line == 1) then return "90% damages reduction while         " end
-		if (line == 2) then return "charging energy.                    " end
-		if (line == 3) then return "                                    " end
-		if (line == 4) then return "                                    " end
+		if (line == 1) then return "Pyrex's attacks cannot be resisted  " end
+		if (line == 2) then return "more than 75% by normal resistances." end
+		if (line == 3) then return "Fully restores his HP when standing " end
+		if (line == 4) then return "in a Fire Field.                    " end
 	end
 
 	-- Flow monsters.
@@ -3348,7 +3865,7 @@ function get_misc_monster_info (r_idx, line)
 		-- Phase when hit.
 		if (m_race(r_idx).event_take_damages == 9) then
 
-			if (line == 1) then return "Phase when damaged(rad 10)          " end
+			if (line == 1) then return "Teleports when damaged(rad 10)      " end
 			if (line == 2) then return "                                    " end
 			if (line == 3) then return "                                    " end
 			if (line == 4) then return "                                    " end
@@ -3424,6 +3941,7 @@ function lua_inbounds (startx, starty, roomwid, roomhgt, left, top, right, botto
 end
 
 -- Event handlers should be added for every functions you plan on using.
+add_event_handler("lua_display_bonus", lua_display_bonus)
 add_event_handler("skill_points_per_levels", skill_points_per_levels)
 add_event_handler("stat_points_per_levels", stat_points_per_levels)
 add_event_handler("ability_points_per_levels", ability_points_per_levels)
@@ -3471,6 +3989,9 @@ add_event_handler("altered_ophelia_tomb_2", altered_ophelia_tomb_2)
 add_event_handler("altered_ophelia_tomb_3", altered_ophelia_tomb_3)
 add_event_handler("jeffrey_killed_reward", jeffrey_killed_reward)
 add_event_handler("altered_ophelia_tomb_4", altered_ophelia_tomb_4)
+add_event_handler("old_orc_ruins_1", old_orc_ruins_1)
+add_event_handler("old_orc_ruins_2", old_orc_ruins_2)
+add_event_handler("old_orc_ruins_3", old_orc_ruins_3)
 add_event_handler("place_death_portals", place_death_portals)
 add_event_handler("balcia_first", balcia_first)
 add_event_handler("loroth_first", loroth_first)
@@ -3482,10 +4003,11 @@ add_event_handler("immolating_blaze", immolating_blaze)
 add_event_handler("monster_teleport_to_player", monster_teleport_to_player)
 add_event_handler("balcia_third", balcia_third)
 add_event_handler("banshee_first", banshee_first)
-add_event_handler("ginwhal_prepare_level", ginwhal_prepare_level)
-add_event_handler("open_rage_wall_1", open_rage_wall_1)
-add_event_handler("open_rage_wall_2", open_rage_wall_2)
-add_event_handler("open_rage_wall_3", open_rage_wall_3)
-add_event_handler("torment_spells", torment_spells)
-add_event_handler("avemorsh_battle", avemorsh_battle)
-add_event_handler("avemorsh_attacks", avemorsh_attacks)
+
+-- Secret Level: The Ancient Demigod.
+add_event_handler("ancient_demigod_enter", ancient_demigod_enter)
+add_event_handler("ancient_demigod_first_encounter", ancient_demigod_first_encounter)
+add_event_handler("ancient_demigod_pyrex_teleport_1", ancient_demigod_pyrex_teleport_1)
+add_event_handler("ancient_demigod_pyrex_teleport_2", ancient_demigod_pyrex_teleport_2)
+add_event_handler("ancient_demigod_firestorm_elemental", ancient_demigod_firestorm_elemental)
+add_event_handler("ancient_demigod_pyrex_enter", ancient_demigod_pyrex_enter)

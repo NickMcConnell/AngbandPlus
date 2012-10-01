@@ -1,0 +1,49 @@
+N:1:0:0:0:0:0
+I:Savius Bodyguard;
+T:I'm one of the bodyguards of Professor Savius. Speak with him if you;
+T:need anything, but try to harm him and you'll have to answer to my axe!;
+A:Do you know of a place called "Red Rock Labyrinth"?:1:146:1:1:4:0:0:0:0
+A:Tell me more about Professor Savius.:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Savius Bodyguard;
+T:He's a gnome scientist who came all the way here from Karingen. He's well;
+T:versed in orcish history, and he's been investigating these ruins for years;
+T:now. Of course, these ruins can be dangerous, so he hired us to protect;
+T:his hide. To be honest, it can be a little boring at times when he's busy;
+T:in his studies and we just stand around doing guard duty. But he pays us;
+T:nicely, so I won't complain.;
+A:The ruins are dangerous?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Savius Bodyguard;
+T:The cave south of here is nothing we can't handle, and I'm pretty sure;
+T:you can handle it as well. But there are other places around here that;
+T:even we won't approach. And I suggest you do the same. A few bodyguards;
+T:ain't enough for those places, we'd need hundreds like us! Went there;
+T:once. Heard a dragon's roar. Never went back.;
+A:Do you know of a place called "Red Rock Labyrinth"?:1:146:1:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Savius Bodyguard;
+T:Red Rock Labyrinth? Never heard of that.;
+A:It's a cave, surrounded with lava... seen anything like this before?:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Savius Bodyguard;
+T:Hmmm... now that I think about it, at one time, I did find what looked like;
+T:a huge lake of lave, and there was something that looked like a cave in the;
+T:middle of it. I didn't go there, but it was straight south of Ivhala.;
+T:So I guess you could go to Ivhala, and go straight south, and you'll;
+T:eventually find it. Not sure if that's what you're looking for, but that's;
+T:all I know. Sorry.;
+A:Tell me more about Professor Savius.:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

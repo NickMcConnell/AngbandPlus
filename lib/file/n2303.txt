@@ -1,8 +1,11 @@
 Cursed Evasion(Passive)
 
-Effect: Gives you another roll to dodge melee and ranged attacks.
+Effect: Gives you another roll to dodge melee and ranged attacks. Also raise
+        your Dexterity and Agility.
 Power: 2% of normal dodge roll per Misfortune points.
+Bonus to Dexterity and Agility: +3%/Misfortune. (max +30%, based on base values)
 Extra points: +2% of normal dodge roll per Misfortune points.
+              +3%/Misfortune to Dexterity and Agility.
               With 3 or more points, also apply to Magic Defense rolls for the
               purpose of avoiding spells.
 

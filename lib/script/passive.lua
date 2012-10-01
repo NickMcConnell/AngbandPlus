@@ -331,7 +331,7 @@ function calc_bonuses ()
         p_ptr.to_m = 0
 
         -- Spell power
-        p_ptr.to_s = 1
+        p_ptr.to_s = 0
 
 	-- Clear the Displayed/Real armor class
 	p_ptr.ac = 0
@@ -653,6 +653,18 @@ function calc_bonuses ()
 
 	-- WiSDOM
 
+	-- Wisdom Casting Mastery.
+        if (p_ptr.abilities[(CLASS_PRIEST * 10) + 1] >= 1) then
+
+		wis_bonus = wis_bonus + (p_ptr.abilities[(CLASS_PRIEST * 10) + 1] * 10)
+        end
+
+	-- Remove Curse.
+        if (p_ptr.abilities[(CLASS_PRIEST * 10) + 10] >= 1) then
+
+		wis_bonus = wis_bonus + (p_ptr.abilities[(CLASS_PRIEST * 10) + 10] * 20)
+        end
+
 	-- Perfect Union.
         if (p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) then
 
@@ -661,10 +673,21 @@ function calc_bonuses ()
 
 	-- DEXTERITY
 
-	-- Sharpshooter
+	-- Sharpshooter.
         if (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8] >= 1) then
 
 		dex_bonus = dex_bonus + (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 8] * 10)
+        end
+
+	-- Cursed Evasion.
+        if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] >= 1) then
+
+		local dbonus
+
+		dbonus = p_ptr.cursed * 3
+		if (dbonus > 30) then dbonus = 30 end
+
+		dex_bonus = dex_bonus + (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] * dbonus)
         end
 
 	-- CONSTITUTION
@@ -803,6 +826,17 @@ function calc_bonuses ()
 
 		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + multiply_divide(p_ptr.skill_base[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] * 15, 100)
 		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.skill_base[28], p_ptr.abilities[(CLASS_DEFENDER * 10) + 9] * 15, 100)
+        end
+
+	-- Cursed Evasion.
+        if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] >= 1) then
+
+		local dbonus
+
+		dbonus = p_ptr.cursed * 3
+		if (dbonus > 30) then dbonus = 30 end
+
+		p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + multiply_divide(p_ptr.skill_base[6], p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] * dbonus, 100)
         end
 
 
@@ -1719,9 +1753,6 @@ function calc_bonuses ()
                 end
         end
 
-        -- Spell multiplier has a minimum of 1
-        if (p_ptr.to_s == 0) then p_ptr.to_s = 1 end
-
 	--(adelie) Combine the armor and speed checks to only run lua_update_stuff once if needed! 
 	--(adelie) Note that this check must come after all possible modifiers to speed, to_a or ac!
 	if ((not(p_ptr.pspeed == old_speed)) or (not(p_ptr.dis_to_a == old_dis_to_a)) or (not(p_ptr.dis_ac == old_dis_ac))) then
@@ -1729,19 +1760,22 @@ function calc_bonuses ()
 	end
 
 	-- Display Mighty Defense.
-	if (p_ptr.events[29050] > 0) then
+	if (not(character_icky)) then
 
-		if (p_ptr.events[29050] == 1) then
-			c_put_str(TERM_L_GREEN, "MD: Melee  ", 15, 0)
-		elseif (p_ptr.events[29050] == 2) then
-			c_put_str(TERM_L_GREEN, "MD: Ranged ", 15, 0)
-		elseif (p_ptr.events[29050] == 3) then
-			c_put_str(TERM_L_GREEN, "MD: Magic  ", 15, 0)
+		if (p_ptr.events[29050] > 0) then
+
+			if (p_ptr.events[29050] == 1) then
+				c_put_str(TERM_L_GREEN, "MD: Melee  ", 15, 0)
+			elseif (p_ptr.events[29050] == 2) then
+				c_put_str(TERM_L_GREEN, "MD: Ranged ", 15, 0)
+			elseif (p_ptr.events[29050] == 3) then
+				c_put_str(TERM_L_GREEN, "MD: Magic  ", 15, 0)
+			else
+				c_put_str(TERM_L_GREEN, "MD: Summons", 15, 0)
+			end
 		else
-			c_put_str(TERM_L_GREEN, "MD: Summons", 15, 0)
+			c_put_str(TERM_L_GREEN, "           ", 15, 0);
 		end
-	else
-		c_put_str(TERM_L_GREEN, "           ", 15, 0);
 	end
 
 end

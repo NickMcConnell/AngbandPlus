@@ -1,0 +1,19 @@
+N:1:131:1:0:0:0
+I: ;
+T:This room appears to have been used as a training room, where orc warriors;
+T:would come to practice their weapon skills. There are still some old weapons;
+T:lying on the floor, mainly axes. But you see little that could be of interest;
+T:to Professor Savius. And for all you know, it may not have been orcs who;
+T:trained here, especially with the dwarves living in the same region, and using;
+T:the same weapons.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:131:0:0:0:0
+I: ;
+T:This room appears to have been used as a training room, where warriors;
+T:would come to practice their weapon skills. There are still some old weapons;
+T:lying on the floor, mainly axes. But besides that, there is nothing else;
+T:in this room that would give any hint on who exactly came here before.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

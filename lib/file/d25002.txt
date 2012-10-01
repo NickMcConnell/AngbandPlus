@@ -1,25 +1,197 @@
-N:1:25009:6:0:0:0
-I:Avemorsh;
-T:My fire, my wind, my axe, my magic... they're all failing me!! Why??;
-T:Why can't I stop you?? I am leagues above you!! *pant*...*pant*...;
-T:If...if I cannot defeat you by myself...then I will call upon my fallen;
-T:brethren. Arise my peoples!! Let's show this <RACE> the might of;
-T:the orcish race!!;
-A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+N:1:25002:1:0:0:0
+I:Corrupted Divine Guard;
+T:How can this be? How can a lesser being possess so much power??;
+T:ARRGGHH!!!;
+A:[CONTINUE]:0:0:0:1:14:0:0:25003:1
 %
 
-N:1:25009:5:0:0:0
-I:Avemorsh;
-T:*pant*...*pant*...why is a puny <RACE> giving me so much trouble??;
-T:I am Avemorsh the Gin'Whal! The most powerful of all orcs!! There's no;
-T:way I can lose!! If my axe won't do it...then I will cast the most;
-T:powerful spell you've ever seen! You will not survive this time!!;
-A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+N:1:0:0:0:0:0
+I: ;
+T:As you walk into this room, you see a winged man. He looks like a celestial;
+T:being of some kind, but with far greater power than any lesser celestial;
+T:beings that sometimes appear in the mortal world. He is a tall, powerful;
+T:winged man, with blond hairs and golden eyes. However, you do not feel;
+T:confortable in his presence. Something seems wrong, and this man's holy;
+T:appearence could betray a much blacker heart...;
+A:[CONTINUE]:0:0:0:1:2:0:0:25002:1
 %
 
-N:1:25009:4:0:0:0
-I:Avemorsh;
-T:Not bad. But let's see what you can do against my mighty Axe of Pain!;
-T:*A black axe that emits a red light appears in his hands!*;
-A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+N:2:0:0:0:0:0
+I: ;
+T:Next to him is what appears to be a young woman. Her pointed ears would;
+T:make her a elf, however, so she may be older than she seems. She is a;
+T:frail, beautiful young woman, with blond hairs and green eyes. However,;
+T:her face shows no happiness. Only sadness, and fear. She is trembling.;
+T:She is scared. But she doesn't move when the man approaches her.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Winged Man;
+T:You look good today, Lilya. It is good that you are around. I was looking;
+T:for you.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Lilya;
+T:..........;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Winged Man;
+T:Yes, be silent, and listen to my wish. I have been fighting hard lately,;
+T:to defend this place and all. And a man of war needs some love, from time;
+T:to time. I have come to request love from you. I hope you will comply;
+T:to my request, Lilya...;
+T:*A small flame appears in the man's hand, which he uses to threaten and;
+T:intimidate the fragile young lady.*;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The young woman is about to take her clothes off and submit to the man's;
+T:lustful desires, but then she notices your presence.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Lilya;
+T:HE...HELP ME!!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Winged Man;
+T:Hmm? Who are you? It is unlike Lilya to scream whe we ask her to do something.;
+A:You should be ashamed. Leave her alone!:0:0:0:1:9:0:0:0:0
+A:I assumed you were a Celestial. Guess I was wrong, Fiend!:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Winged Man;
+T:What? What's the meaning of this? This is just Lilya! These things happens;
+T:to her all the time! I can't think of any of us who hasn't request some;
+T:"love" from her. Who are you??;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I: ;
+T:Before you can answer his question, he looks at you carefully. He seems;
+T:to be extremely surprised to see you.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:7:0:0
+I:Winged Man;
+T:You... you're just a lesser celestial, you're no Divine Champion! Not even;
+T:a low rank divine guard! You're just a scout from the lesser levels of;
+T:Heavens, who probably spent a lot of time in the mortal world! Why are you;
+T:here? This doesn't make any sense!! No lowly celestials could enter the;
+T:domain of Avemorsh Gin'Whal, the orcish demigod!;
+A:Dorgal's domain?:0:0:0:1:12:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Winged Man;
+T:You... you came from the mortal world!? But how?? How is this possible??;
+T:This is the domain of the orcish demigod, Avemorsh Gin'Whal! A plane of war!;
+T:A plane of storms of fire and destruction! This doesn't mane any sense!!;
+T:A mortal cannot come here!;
+A:Dorgal's domain?:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Winged Man;
+T:Dor...?? How dare you speak our grand master's name!! I don't know how;
+T:a lesser being like you made it here, but believe me, you won't exist;
+T:in this domain for much longer! I will destroy your pathetic body, and;
+T:I will destroy your soul!;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I: ;
+T:Lilya flees, while the man takes his blessed halberd, and prepares to;
+T:fight you. If he really is a higher rank celestial being, be could be;
+T:a very dangerous opponent.;
+A:[END DIALOG]:0:0:0:11:25000:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I: ;
+T:The Corrupted Divine Guard falls on the ground, and disintegrates.;
+T:Lydia comes back from wherever she was hiding, and approaches you.;
+T:She seems extremely surprised that you were able to triumph over;
+T:such a powerful foe.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:7:0:0
+I:Lydia;
+T:You... you defeated him. But how can this be? You're a Celestial, but;
+T:you're no Divine Guard. You haven't ascended to the higher levels of;
+T:Heavens, you haven't been sent by anyone. I... I don't understand!;
+A:My rank isn't important. What's important is that I was able to save you.:0:0:0:1:16:0:0:0:0
+A:Divine Guard? Him? A Fruit Bat could've beat him!:0:0:0:1:17:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Lydia;
+T:You... you defeated him. But how can this be? Your energy is that of;
+T:a mortal, yet you have defeated a Divine Guard in combat. How can you;
+T:wield so much power? I... I don't understand! You're too powerful to be;
+T:a mortal, and yet... are you really a mortal?;
+A:Is my nature really important? I've saved you. It's all that counts.:0:0:0:1:16:0:0:0:0
+A:Too powerful? No. He's the one who was weak. A Fruit Bat could've beat him!:0:0:0:1:17:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Lydia;
+T:*She smiles*;
+T:No, I guess not. I apologize if I've offended you, and I thanks you for coming;
+T:to my rescue. But who are you?;
+A:I am <NAME>, the <RACE> <CLASS>.:0:0:0:1:18:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Lydia;
+T:*Her sad expression turns into a smile, and she giggles at your remark*;
+T:Such bravery! It's been a long time since I've seen an heroic person like;
+T:you. But who are you?;
+A:I am <NAME>, the <RACE> <CLASS>.:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Lydia;
+T:And I am Lydia. I am of elven origin, but...;
+T:...no. That story shall be for another time. Besides, you should flee;
+T:this place. Quickly. If they find you, they will destroy you. And since;
+T:you're in a plane of Heavens, if you die here... you may not have an;
+T:afterlife, and you may not ever be able to return to this world.;
+A:But then, they will hurt you again.:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Lydia;
+T:Yes... such is my sad fate. I have already accepted it. But it was good to;
+T:meet you, <NAME>. You've made me smile, something I haven't done;
+T:for centuries. Willingly, that is. If you leave now, you'll be able to;
+T:return to your world safely. Farewell, <NAME>.;
+A:But then, they will hurt you again.:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I: ;
+T:Lydia looks at you. For her, you're a mystery. The sight of someone from the;
+T:mortal world besting a Divine Guard was something she didn't think was;
+T:possible. You could listen to her, and leave. However, you know that she;
+T:will be wronged by the other corrupted celestials. Besides, Dorgal is here;
+T:somewhere. It is thanks to his help that you were able to come here.;
+T:Letting them down would be cowardly, but it is a also a challenge you;
+T:may not be able to overcome. The choice is yours...;
+A:[END DIALOG]:0:0:0:11:25001:0:0:0:0
 %

@@ -1,6 +1,6 @@
 N:1:1021:1:0:0:0
 I: ;
-T:After a seemingly endless battle... Quazar finally falls on the ground.;
+T:After taking considerable damage, Quazar finally falls on the ground.;
 A:[CONTINUE]:0:0:0:1:6:0:0:0:0
 %
 

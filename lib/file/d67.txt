@@ -1,0 +1,9 @@
+N:1:0:0:0:0:0
+I: ;
+T:This looks like it used to be some sort of storage room, with several jars,;
+T:boxes and other containers being placed on and under large tables.;
+T:Unfortunately, it looks like most of these old boxes are now empty,;
+T:or contains nothing but broken or long rotten content. Needless to say,;
+T:there's nothing of interest in this room.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

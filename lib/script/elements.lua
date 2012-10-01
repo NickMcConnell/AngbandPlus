@@ -289,7 +289,7 @@ function element_hit_monster (who, m_idx, element, dam)
 		totalbonus = totalbonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 3] * 20)
 	end
 
-	-- Fightning Specialist. (melee)
+	-- Fighting Specialist. (melee)
 	if ((p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] >= 1) and (melee_attack)) then
 
 		totalbonus = totalbonus + (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] * 10)
@@ -583,6 +583,23 @@ function element_hit_monster (who, m_idx, element, dam)
 		end
 	end
 
+	-- Monster: Spikefiend's Physical resistance piercing.
+	if (m_race(p_ptr.body_monster).event_misc == 334 and element == GF_PHYSICAL) then
+
+		local proll
+		local mroll
+		local totroll
+		local pierce
+
+		proll = p_ptr.skill[1] + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
+		mroll = monster(m_idx).defense
+		totroll = proll + mroll
+
+		pierce = multiply_divide(proll, 100, mroll)
+
+		resistmod = resistmod - multiply_divide(m_race(monster(m_idx).r_idx).resistances[element+1], pierce, 100)
+	end
+
 	-- If the resistmod is negative, make sure it doesn't reduce resistances below 100.
 	if (resistmod < 0) then
 
@@ -839,7 +856,7 @@ function element_hit_monster (who, m_idx, element, dam)
 			-- Improved Combat Spells
 			if (p_ptr.abilities[(CLASS_MAGE * 10) + 2] >= 1) then
 
-				if (casting_elemental or element == GF_HARM or casting_conjuration) then
+				if (casting_elemental or casting_mysticism or casting_conjuration) then
 
 					bonus = bonus + (p_ptr.abilities[(CLASS_MAGE * 10) + 2] * 10)
 				end
@@ -859,12 +876,15 @@ function element_hit_monster (who, m_idx, element, dam)
                 		dam = 0
 			else
 				local totalvalue = 0
+				local totalmdef = 0
 				local dam_reduction = 0
 
+				totalmdef = monster(m_idx).skill_mdef + multiply_divide(monster(m_idx).skill_mdef, (m_race(monster(m_idx).r_idx).cr-1) * 20, 100)
+
 				if (music == 1) then
-					totalvalue = monster(m_idx).skill_mdef + p_ptr.skill[29]
+					totalvalue = totalmdef + p_ptr.skill[29]
 				else
-					totalvalue = monster(m_idx).skill_mdef + p_ptr.skill[2]
+					totalvalue = totalmdef + p_ptr.skill[2]
 				end
 				if (is_elemental(element)) then totalvalue = totalvalue + p_ptr.skill[23] + (p_ptr.skill[23] / 2) end
 				if (is_alteration(element)) then totalvalue = totalvalue + p_ptr.skill[24] + (p_ptr.skill[24] / 2) end
@@ -880,7 +900,7 @@ function element_hit_monster (who, m_idx, element, dam)
 				-- It should never be 0...
 				if (totalvalue > 0) then
 
-					dam_reduction = multiply_divide(monster(m_idx).skill_mdef, 100, totalvalue)
+					dam_reduction = multiply_divide(totalmdef, 100, totalvalue)
 				end
 
 				dam = dam - multiply_divide(dam, dam_reduction, 100)
@@ -1016,7 +1036,6 @@ function element_hit_monster (who, m_idx, element, dam)
 		end
 
                 -- Try to hit the monster.
-		-- We get bonus hit rate from the ammos.
 		hit = player_hit_monster(monster(m_idx), hitbonus)
 
 		-- Did we hit the monster?
@@ -1148,13 +1167,16 @@ function element_hit_monster (who, m_idx, element, dam)
 			if (dam > 0) then
 
 				local totalvalue = 0
+				local totaldef = 0
 				local dam_reduction = 0
 
-				totalvalue = hitbonus + monster(m_idx).defense
+				totaldef = monster(m_idx).defense + multiply_divide(monster(m_idx).defense, (m_race(monster(m_idx).r_idx).cr-1) * 20, 100)
+
+				totalvalue = hitbonus + totaldef
 
 				-- It should never be 0, but just in case...
 				if (totalvalue > 0) then
-					dam_reduction = multiply_divide(monster(m_idx).defense, 100, totalvalue)
+					dam_reduction = multiply_divide(totaldef, 100, totalvalue)
 				end
 
 				dam = dam - multiply_divide(dam, dam_reduction, 100)
@@ -1313,7 +1335,6 @@ function element_hit_monster (who, m_idx, element, dam)
 		hitbonus = multiply_divide(p_ptr.skill[4], 150, 100)
 
                 -- Try to hit the monster.
-		-- We get bonus hit rate from the ammos.
 		hit = player_hit_monster(monster(m_idx), hitbonus)
 
 		-- Did we hit the monster?
@@ -1432,13 +1453,15 @@ function element_hit_monster (who, m_idx, element, dam)
 			if (dam > 0) then
 
 				local totalvalue = 0
+				local totaldef = 0
 				local dam_reduction = 0
 
-				totalvalue = hitbonus + monster(m_idx).defense
+				totaldef = monster(m_idx).defense + multiply_divide(monster(m_idx).defense, (m_race(monster(m_idx).r_idx).cr-1) * 20, 100)
+				totalvalue = hitbonus + totaldef
 
 				-- It should never be 0, but just in case...
 				if (totalvalue > 0) then
-					dam_reduction = multiply_divide(monster(m_idx).defense, 100, totalvalue)
+					dam_reduction = multiply_divide(totaldef, 100, totalvalue)
 				end
 
 				dam = dam - multiply_divide(dam, dam_reduction, 100)
@@ -1579,9 +1602,6 @@ function element_hit_monster (who, m_idx, element, dam)
 			if (sbonus > 100) then sbonus = 100 end
 			hitbonus = hitbonus + multiply_divide(p_ptr.skill[23], sbonus, 100)
 		end
-
-		-- Add +1 to hitbonus, to make sure it's not 0.
-		hitbonus = hitbonus + 1
 
 		-- Rogue's Stealthy Attacks.
 		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 9] > 0) then
@@ -1952,13 +1972,15 @@ function element_hit_monster (who, m_idx, element, dam)
 				if (dam > 0 and not(critical)) then
 
 					local totalvalue = 0
+					local totaldef = 0
 					local dam_reduction = 0
 
-					totalvalue = hitbonus + monster(m_idx).defense
+					totaldef = monster(m_idx).defense + multiply_divide(monster(m_idx).defense, (m_race(monster(m_idx).r_idx).cr-1) * 20, 100)
+					totalvalue = hitbonus + totaldef
 
 					-- It should never be 0, but just in case...
 					if (totalvalue > 0) then
-						dam_reduction = multiply_divide(monster(m_idx).defense, 100, totalvalue)
+						dam_reduction = multiply_divide(totaldef, 100, totalvalue)
 					end
 
 					dam = dam - multiply_divide(dam, dam_reduction, 100)
@@ -2280,12 +2302,6 @@ function element_hit_monster (who, m_idx, element, dam)
 
 			dam = dam - multiply_divide(dam, 75, 100)
 		end
-	end
-
-	-- Avemorsh's Torment.
-	if (m_race(monster(m_idx).r_idx).event_misc == 2502 and p_ptr.events[25005] < 100 and dam > 0) then
-
-		dam = dam - multiply_divide(dam, 90, 100)
 	end
 
 	-- This is Christina's special ability.
@@ -4388,6 +4404,27 @@ function element_hit_monster (who, m_idx, element, dam)
 		end
 	end
 
+	-- Pyrex will push you back if the damage is too high.
+	if (m_race(monster(m_idx).r_idx).event_misc == 2505) then
+
+		if (dam >= (monster(m_idx).maxhp / 10)) then
+
+			local firedam
+
+			msg_print(string.format('%s pushes you back with a wave of lava!', m_name))
+
+			firedam = 60 + (monster(m_idx).level / 3)
+			firedam = monster_spell_damages(monster(m_idx), firedam)
+			if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then firedam = firedam * 2 end
+
+			lua_project(m_idx, 3, py, px, firedam, GF_FIRE, 2)
+			p_ptr.inside_quest = 0
+			teleport_player(10)
+			p_ptr.inside_quest = 25001
+			update_and_handle()
+		end
+	end
+
 	-- Elemental Lord's Elemental Being.
 	-- All attacks causes a new attack!
 	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1 and no_elemental_damage == 0) then
@@ -5049,7 +5086,7 @@ function element_hit_player (who, element, dam, rad)
 
 					local newppower
 
-					newppower = multiply_divide(ppower, p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] * (2 * p_ptr.cursed), 100)
+					newppower = multiply_divide(ppower, p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] * (4 * p_ptr.cursed), 100)
 
 					if (lua_randint(newppower) >= lua_randint(mpower)) then
 
@@ -5153,93 +5190,93 @@ function element_hit_player (who, element, dam, rad)
 				dam = dam - multiply_divide(dam, 75, 100)
 			end
 		end
-	end
 
-	-- Elemental Lord's Elemental Armor.
-	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] >= 1 and is_elemental(element) and not(element == GF_PHYSICAL)) then
+		-- Elemental Lord's Elemental Armor.
+		if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] >= 1 and is_elemental(element) and not(element == GF_PHYSICAL)) then
 
-                local ppower
-		local mpower
-		local totpower
-		local respercent
+                	local ppower
+			local mpower
+			local totpower
+			local respercent
 
-		ppower = p_ptr.skill[23] / 2
-		ppower = ppower + multiply_divide(ppower, p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] * 10, 100)
-		if (monster_physical) then
+			ppower = p_ptr.skill[23] / 2
+			ppower = ppower + multiply_divide(ppower, p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] * 10, 100)
+			if (monster_physical) then
 
-			mpower = monster(who).str + monster(who).skill_attack
-		elseif (monster_ranged) then
+				mpower = monster(who).str + monster(who).skill_attack
+			elseif (monster_ranged) then
 
-			mpower = monster(who).dex + monster(who).skill_ranged
-		else
+				mpower = monster(who).dex + monster(who).skill_ranged
+			else
 
-			mpower = monster(who).mind + monster(who).skill_magic
-		end
-
-		totpower = ppower + mpower
-		respercent = multiply_divide(100, ppower, totpower)
-
-		dam = dam - multiply_divide(dam, respercent, 100)
-        end
-
-	-- Monsters: Elite ability that halve damages.
-	if (p_ptr.prace == RACE_MONSTER and dam > 0 and get_player_monster_ability(BOSS_HALVE_DAMAGES)) then
-
-		dam = dam / 2
-	end
-
-	-- Reduce damage based on player's AC or Magic Defense.
-	if ((monster_physical) or (monster_ranged)) then
-
-		local totalvalue = 0
-		local skillvalue = 0
-		local dam_reduction = 0
-
-		if (monster_physical) then
-			skillvalue = monster(who).skill_attack
-		else
-			skillvalue = monster(who).skill_ranged
-		end
-		totalvalue = skillvalue + p_ptr.dis_ac
-
-		if (totalvalue > 0) then
-
-			dam_reduction = multiply_divide(p_ptr.dis_ac, 100, totalvalue)
-		end
-
-		dam = dam - multiply_divide(dam, dam_reduction, 100)
-	else
-		local totalvalue = 0
-		local pmdef = 0
-		local dam_reduction = 0
-
-		-- Player's "MDef" value.
-		pmdef = (p_ptr.skill[28] * 3)
-		pmdef = pmdef + multiply_divide(pmdef, p_ptr.dis_to_a, 100)
-
-		-- Heavy Armor Mastery can give a bonus.
-		if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 5) then
-
-			if (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR) then
-
-				pmdef = pmdef + (p_ptr.dis_ac / 2)
+				mpower = monster(who).mind + monster(who).skill_magic
 			end
+
+			totpower = ppower + mpower
+			respercent = multiply_divide(100, ppower, totpower)
+
+			dam = dam - multiply_divide(dam, respercent, 100)
+       		end
+
+		-- Monsters: Elite ability that halve damages.
+		if (p_ptr.prace == RACE_MONSTER and dam > 0 and get_player_monster_ability(BOSS_HALVE_DAMAGES)) then
+
+			dam = dam / 2
 		end
 
-		totalvalue = monster(who).skill_magic + pmdef
+		-- Reduce damage based on player's AC or Magic Defense.
+		if ((monster_physical) or (monster_ranged)) then
 
-		-- Monk's Ki Resilience.
-		if (p_ptr.abilities[(CLASS_MONK * 10) + 9] >= 1) then
+			local totalvalue = 0
+			local skillvalue = 0
+			local dam_reduction = 0
 
-			totalvalue = totalvalue + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_MONK * 10) + 9] * 10, 100)
+			if (monster_physical) then
+				skillvalue = monster(who).skill_attack
+			else
+				skillvalue = monster(who).skill_ranged
+			end
+			totalvalue = skillvalue + p_ptr.dis_ac
+
+			if (totalvalue > 0) then
+
+				dam_reduction = multiply_divide(p_ptr.dis_ac, 100, totalvalue)
+			end
+
+			dam = dam - multiply_divide(dam, dam_reduction, 100)
+		else
+			local totalvalue = 0
+			local pmdef = 0
+			local dam_reduction = 0
+
+			-- Player's "MDef" value.
+			pmdef = (p_ptr.skill[28] * 3)
+			pmdef = pmdef + multiply_divide(pmdef, p_ptr.dis_to_a, 100)
+
+			-- Heavy Armor Mastery can give a bonus.
+			if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] >= 5) then
+
+				if (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR) then
+
+					pmdef = pmdef + (p_ptr.dis_ac / 2)
+				end
+			end
+
+			totalvalue = monster(who).skill_magic + pmdef
+
+			-- Monk's Ki Resilience.
+			if (p_ptr.abilities[(CLASS_MONK * 10) + 9] >= 1) then
+
+				totalvalue = totalvalue + multiply_divide(p_ptr.stat_ind[A_WIS+1], p_ptr.abilities[(CLASS_MONK * 10) + 9] * 10, 100)
+			end
+
+			if (totalvalue > 0) then
+
+				dam_reduction = multiply_divide(pmdef, 100, totalvalue)
+			end
+
+			dam = dam - multiply_divide(dam, dam_reduction, 100)
 		end
-
-		if (totalvalue > 0) then
-
-			dam_reduction = multiply_divide(pmdef, 100, totalvalue)
-		end
-
-		dam = dam - multiply_divide(dam, dam_reduction, 100)
 	end
 
 	-- After all that, if the damages are still not prevented, proceed to next step!
@@ -5272,12 +5309,56 @@ function element_hit_player (who, element, dam, rad)
 					dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)
 				end
 			else
-				dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)
-			end
 
-			if (m_race(monster(who).r_idx).event_misc == 2501 and monster(who).mana == 120) then
+				-- Spikefiend's Physical resistance piercing.
+				-- It's based on it's attack skill versus your Defense skill.
+				if (element == GF_PHYSICAL and m_race(monster(who).r_idx).event_misc == 334) then
 
-				if (dam < (p_ptr.chp / 2)) then dam = (p_ptr.chp / 2) end
+					local totskill
+					local pskill
+					local mskill
+					local pierce
+
+					pskill = p_ptr.skill[5]
+					mskill = monster(who).skill_attack
+					totskill = p_ptr.skill[5] + monster(who).skill_attack
+
+					-- Reduce Physical resistance by how much the monster's attack skill
+					-- represents.
+					pierce = multiply_divide(mskill, 100, totskill)
+					dam = dam - multiply_divide(dam, p_ptr.resistances[element+1] - multiply_divide(p_ptr.resistances[element+1], pierce, 100), 100)
+
+				-- Estaroth's Fire resistance piercing.
+				-- Same as above, but based on your Magic Defense.
+				elseif (element == GF_FIRE and m_race(monster(who).r_idx).event_misc == 1052) then
+
+					local totskill
+					local pskill
+					local mskill
+					local pierce
+
+					pskill = p_ptr.skill[28]
+					mskill = monster(who).skill_magic
+					totskill = p_ptr.skill[28] + monster(who).skill_magic
+
+					-- Reduce Physical resistance by how much the monster's attack skill
+					-- represents.
+					pierce = multiply_divide(mskill, 100, totskill)
+					dam = dam - multiply_divide(dam, p_ptr.resistances[element+1] - multiply_divide(p_ptr.resistances[element+1], pierce, 100), 100)
+
+				-- Scaled Boss Pyrex's attacks can't be resisted more than 75%.
+				elseif (m_race(monster(who).r_idx).event_misc == 2505) then
+
+					if (p_ptr.resistances[element+1] > 75) then
+
+						dam = dam - multiply_divide(dam, 75, 100)
+					else
+
+						dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)
+					end
+				else
+					dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)
+				end	
 			end
 		else
 			dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)

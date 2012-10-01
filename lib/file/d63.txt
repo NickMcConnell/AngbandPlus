@@ -1,0 +1,533 @@
+N:1:157:1:0:0:0
+I:Professor Savius;
+T:Good to see you again, <NAME>! What can I do for you?;
+A:Is there anything else I can help you with?:0:0:0:1:39:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:156:1:0:0:0
+I:Professor Savius;
+T:Ah, there you are <NAME>! You've got to help me! Earlier,;
+T:I've tried to talk with that blue orb thing, which is Dorgal's soul,;
+T:but he wouldn't speak to me! I've heard no voice! Please, you've got to;
+T:do something about this! I really want to speak with Dorgal himself!;
+A:Unfortunately, he is gone now.:0:0:0:1:34:0:0:0:0
+%
+
+N:1:146:1:0:0:0
+I:Professor Savius;
+T:I'm sorry, but I don't know where to find the Red Rock Labyrinth.;
+T:However, maybe you should ask one of my bodyguards, maybe they'll know,;
+T:being Ivhalian natives and all...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:145:1:0:0:0
+I:Professor Savius;
+T:So! What have you found?;
+A:[Tell him about your encounter with Dorgal]:0:0:0:1:31:0:0:0:0
+%
+
+N:1:138:1:0:0:0
+I:Professor Savius;
+T:So! What have you found?;
+A:Nothing yet. I'll continue looking around.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:131:1:0:0:0
+I:Professor Savius;
+T:Welcome back, <NAME>! Have you been able to figure out anything?;
+A:I've found some old text in the ruins. [Show him the retranscribed text]:1:137:1:1:25:0:0:0:0
+A:Remind me where I must go.:0:0:0:1:23:0:0:0:0
+A:Orcs have been revived, and the town of Udor has been destroyed by them.:1:40:1:1:24:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:130:2:0:0:0
+I:Professor Savius;
+T:Greetings, <NAME>! So, have you changed your mind? Are you willing;
+T:to help me figure out what happened to Avemorsh and the Orcs?;
+A:Yes, I've changed my mind, I'll help you.:0:0:0:1:19:0:0:131:1
+A:Tell me more about the Orcs.:0:0:0:1:4:0:0:0:0
+A:Tell me more about Avemorsh.:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:130:1:0:0:0
+I:Professor Savius;
+T:Hello again, <NAME>! You came for an history lesson on Orcs?;
+T:Let me know if you want to know more about the subject!;
+A:Tell me more about the Orcs.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:130:0:4:0:0
+I:Professor Savius;
+T:Ah, a visitor! And a fellow Gnome at that! Glad to see I'm not the only one;
+T:living outside of Karingen. Well, not that Karingen ain't a nice place, but;
+T:it's mostly a new and modern country. Very little to learn about for one;
+T:interested in archeology, history and other professions that study the past.;
+T:And of course, no orcish ruins of any kind over there. But enough about that.;
+T:I am the genius Professor Savius, expert in orcish history, amongst;
+T:other things. And who am I speaking to?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:130:1
+%
+
+N:1:130:0:0:0:0
+I:Professor Savius;
+T:Ah, a visitor! Good day to you, <CLASS>!;
+T:I am the genius Professor Savius, expert in orcish history, amongst;
+T:other things. And who am I speaking to?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:130:1
+%
+
+N:2:0:0:0:0:0
+I:Professor Savius;
+T:Well, <NAME>, if you have any interest in orcish history, you've come to;
+T:the right place! We are in the ruins of an ancient Orc town, said to be;
+T:the home of the mighty Orc Warlord, Avemorsh. And after years of;
+T:research and investigation, I can confirm, without a doubt, that this was;
+T:the case. This was the hometown of history's most powerful mortal warrior!;
+T:... sadly, history hasn't been very kind to him, and he has been completely;
+T:forgotten by most peoples. Very few even knows that he existed. Even fewer;
+T:knows just how powerful he was, and that Orcs weren't the bloodthirsty;
+T:savages that everyone seems to think they were.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Professor Savius;
+T:...but I guess talking about Orcs would take sometime, for I have a lot;
+T:to say. If you don't have time, I understand. But I'll be happy to share;
+T:with you what I've discovered about the Orcs, their culture, and their;
+T:history!;
+A:Tell me more about the Orcs.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Professor Savius;
+T:Most peoples seems to think Orcs were a barbarian race of bloodthirsty;
+T:savages, who cared about little more than crushing the skulls of humans,;
+T:dwarves and elves. And fighting amongst themselves in times of peace.;
+T:However, I have evidences that this wasn't the case at all! While they did;
+T:have a warrior culture, they were noble, and embraced values such as honor;
+T:and courage. They were also just as intelligent as gnomes and humans, and;
+T:they had powerful magics and combat techniques. They were very powerful,;
+T:but tolerant of other, weaker races, such as humans back then. They never;
+T:attacked other races without reason.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Professor Savius;
+T:Their homeland was the Agharias mountains to the east, but they also had;
+T:smaller settlements spread across Portralis. Such as this one. And this;
+T:particular settlement is where the mightiest Orc...no, the mightiest;
+T:mortal warrior to ever exist in Portralis, was born. Avemorsh, who would;
+T:be known as the Gin'Whal. That, my friend, is the true story of the Orcs!;
+A:Tell me more about Avemorsh.:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Professor Savius;
+T:Even amongst the powerful warriors that the Orcs were, the young orcish;
+T:boy, Dorgal as he was originally named, stood out. The young Dorgal was;
+T:born with a supernatural strength, and even as a baby, he had basic grasp;
+T:of magics of Fire and Wind. Imagine that! He was just born, yet was already;
+T:as strong as a grown up adult! It was speculated back then that he may;
+T:have had the blood of a god, making him a demigod. A demigod amongst an;
+T:already powerful race!;
+A:[CONTINUE]:0:0:0:1:7:0:0:130:2
+%
+
+N:7:0:0:0:0:0
+I:Professor Savius;
+T:It didn't take long before he could defeat the strongest Orc leaders as a;
+T:young boy. His father had nothing on him. Orc generals? Champions?;
+T:They couldn't defeat him. He was soon named "Avemorsh", meaning;
+T:"The Strongest". He also gained the title of "Gin'Whal", which means;
+T:"Of Fire and Wind", thanks to his powerful Fire and Wind magic. And he was;
+T:made the Warlord, which is how they used to call their kings. He was the;
+T:youngest, yet strongest, of all the orcish Warlords!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Professor Savius;
+T:According to my research, Dorgal, or Avemorsh as he was now called, led his;
+T:people against all kind of foes. Humans and humanoids, undeads, demons...;
+T:It is said that even dragons feared him, and that he single-handedly defeated;
+T:five mature prismatic dragons in a five-on-one battle! Can you belive that??;
+T:Five Prismatic Dragons!! Alone against the five of them!;
+A:Five-on-one? Prismatic Dragons? That sounds impossible!:0:0:0:1:9:0:0:0:0
+A:Not that impressed. I could've done the same.:0:0:0:1:10:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Professor Savius;
+T:And yet it happened! I've conducted research on the subject, and I've found;
+T:proof that this combat really did happen! He completely banished all draconic;
+T:presence outside the land of the orcs! Something that was pretty much deemed;
+T:impossible. I'm pretty sure no one today would be able to accomplish that;
+T:kind of feat.;
+A:But if he was that powerful... why is there almost no records of his deeds?:0:0:0:1:11:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Professor Savius;
+T:Oh really? Five dragons? Want me to go get some dragons, so you can prove it?;
+T:But in any cases, it is still a formidable feat by mortal standards, and;
+T:I have discovered proofs that this combat really did happen, and that he;
+T:banished all draconic presence outside of orcish lands. I'm pretty sure no;
+T:one today would be able to accomplish that kind of feat. Well, besides you.;
+T:*He looks at you with great skepticism...*;
+A:But if he was that powerful... why is there almost no records of his deeds?:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Professor Savius;
+T:That, my friend, is the biggest piece of a puzzle that I have yet to ressolve.;
+T:I've been able to find information that Dorgal had completely secured the;
+T:homeland of the orcs, the Agharias mountains. And now that it was a time of;
+T:peace, he decided that it was time for his race to establish diplomatic;
+T:relations with the other races, starting with their neighbors the Dwarves,;
+T:and then the Humans and the Elves.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Professor Savius;
+T:...and it pretty much stops there. I have no more information about what;
+T:happened to the demigod Dorgal. It seems like a couple years after;
+T:liberating the country... the great war between the orcs and the other;
+T:race was declared. And according to all the information I've found, the;
+T:orcs were just as they have always been described. Brutal savages with;
+T:more brawn than brain, and who allied themselves with some creatures;
+T:like ogres, which don't exist anymore.;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Professor Savius;
+T:But no honorable warriors. No talk of peace with the other races. And more;
+T:importantly, no Avemorsh Gin'Whal! Records of Dorgal's presence in the;
+T:great orcish war are nowhere to be found. His name or title is never;
+T:mentionned anywhere. How could such a powerful being become so easily;
+T:erase from history? This doesn't make any sense!;
+A:Maybe he was defeated?:0:0:0:1:14:0:0:0:0
+A:He may have died of an illness?:0:0:0:1:15:0:0:0:0
+A:Maybe you're wrong, and he either wasn't that powerful...or he never existed.:0:0:0:1:16:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Professor Savius;
+T:Defeated? But by who? Remember, we're talking about a being capable of;
+T:fighting five dragons at once! Not even an army of mortals could defeat;
+T:him. He'd just cast a huge storm of flames, and any army would be;
+T:instantly turned into ashes! It's that kind of force we're talking about!;
+T:The only thing that could have defeated him would be a divine champion,;
+T:or an ancient wyrm, or a demigod. Perhaps a Wyrmwraith? An Archfiend?;
+T:...that sounds highly unlikely. I don't think he was defeated.;
+A:He may have died of an illness?:0:0:0:1:15:0:0:0:0
+A:Maybe you're wrong, and he either wasn't that powerful...or he never existed.:0:0:0:1:16:0:0:0:0
+A:But then, what could it be?:0:0:0:1:17:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Professor Savius;
+T:Fool! That kind of being cannot die of a disease! A being that powerful;
+T:is immune to all natural diseases through sheer inner power! Unless the;
+T:disease was magical? But it would have taken an incredibly powerful;
+T:being to create it! I can't think of anything...err...;
+T:...Kysoroth the Wyrmwraith, and his undeath breath? ...nah, this is;
+T:stupid, I'm thinking too hard here. I'm pretty sure he didn't die of;
+T:a disease. He's too powerful for that. It must be something else.;
+A:Maybe he was defeated?:0:0:0:1:14:0:0:0:0
+A:Maybe you're wrong, and he either wasn't that powerful...or he never existed.:0:0:0:1:16:0:0:0:0
+A:But then, what could it be?:0:0:0:1:17:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Professor Savius;
+T:Hmmm.... you think so? You know, maybe you're right... I've analyzed;
+T:all clues that me and my team found, and did research in the way of the;
+T:magical science that has been taught to me in Karingen. Yes, we study;
+T:both science and magic there. But my approach could have been wrong, and;
+T:it's possible that I may have misinterpreted some pieces of information,;
+T:and came to wrong conclusions. But still... I've discovered so much, and;
+T:when put together, it all seems to make sense, until we get into the;
+T:great war. No, I'm confident in the fruits of my research. I'm pretty;
+T:sure there's an explanation to all of this.;
+A:Maybe he was defeated?:0:0:0:1:14:0:0:0:0
+A:He may have died of an illness?:0:0:0:1:15:0:0:0:0
+A:But then, what could it be?:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Professor Savius;
+T:I don't know, and that's what we have to figure out. Say... would you like;
+T:to help me in my research? I could use the help of a <CLASS>;
+T:like you! There are some caves and ruins that even my team will not approach,;
+T:but since you seem to be capable of handling yourself pretty well, maybe;
+T:you could explore those places, and see if you can find any clues that would;
+T:bring us closer to an answer. You will be paid well, of course. So, what;
+T:do you say?;
+A:Yes, I'll help you.:0:0:0:1:19:0:0:131:1
+A:Maybe another time.:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Professor Savius;
+T:*He looks disappointed.*;
+T:Oh well... I guess you have better things to do. Well, if you ever change;
+T:your mind, I'll be right here.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Professor Savius;
+T:Awesome! Well, I say that if we want to figure this out, the first place;
+T:to investigate would be ancient Orc territory. Me and my team found some;
+T:ancient ruins east of Ivhala, and we believe that they are ruins of some;
+T:ancient Orc settlement. There's also the entrance to some underground;
+T:caverns, but we were never able to explore them. Why? Because the creatures;
+T:that lives in those caverns are very powerful, more than even my team;
+T:can handle! In fact, if you've never explored an Ivhalian cavern before, you;
+T:may want to purchase some better equipment before going there, or it may;
+T:be too much for you.;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Professor Savius;
+T:Go back to Jindar, and then take a ride to Ivhala. From there, head east,;
+T:till you arrive at (89,47). This is the site of the orcish ruins. You'll;
+T:need to be able to cross the mountains somehow. Maybe get a Ring of Flying,;
+T:you may be able to find one while exploring other caverns and dungeons.;
+T:You may be able to purchase one in some shops, and if you can save enough;
+T:money for an exotic dragon armor, sold at Jindar's Rare Items shop, that'll;
+T:do the job too. In any cases, you'll need to figure something out. If you;
+T:can't, then you may simply not be ready for this, and you should wait till;
+T:you're better prepared.;
+A:[CONTINUE]:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Professor Savius;
+T:Once you're there, look for clues. Search for anything that you think could;
+T:help us find more about Avemorsh. We've already explored the outside ruins;
+T:a lot, so your best bet is probably to explore the underground caverns.;
+T:Explore the caverns, and then come back here with any clues you've found.;
+T:You will be well rewarded! Good luck, <NAME>!;
+A:I have some questions.:0:0:0:1:22:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Professor Savius;
+T:Yes?;
+A:Remind me where I must go.:0:0:0:1:23:0:0:0:0
+A:Orcs have been revived, and the town of Udor has been destroyed by them.:1:40:1:1:24:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Professor Savius;
+T:Go back to Jindar, and then take a ride to Ivhala. From there, head east,;
+T:till you arrive at (89,47). You'll need to be able to fly there somehow.;
+T:Once there, explore the caverns, and try to find any kind of clues.;
+T:Return here once you're done.;
+A:Orcs have been revived, and the town of Udor has been destroyed by them.:1:40:1:1:24:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:24:1021:1:0:0:0
+I:Professor Savius;
+T:Ah, so it's you who saved Jindar! Hehe... surprised I know about that?;
+T:When I learned about the Orcs in Jindar, I sent one of my guards to;
+T:investigate. Too bad they turned out to be some fake imitations... but;
+T:still. It was incredible to be able to bring them back, even as some;
+T:weird twisted reality thing... Of course, that doesn't mean I support;
+T:what that Quazar guy and his evil peers did. I hope you can find them,;
+T:and put a stop to their madness!;
+A:Remind me where I must go.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:24:1021:0:0:0:0
+I:Professor Savius;
+T:Yes, I've heard rumors about Orcs coming back to life. In fact, I've heard;
+T:COUNTLESS of such tales. All proven false. If something destroyed a town,;
+T:it must be some kind of demons. I'd look for some demon worshippers if I;
+T:were you, that's probably what it's all about.;
+A:Remind me where I must go.:0:0:0:1:23:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Professor Savius;
+T:Interesting! Hmmm, I suppose you were unable to read the old Orcish tongue.;
+T:Can't blame you, it's a dead language today, but fortunately, through;
+T:intensive research, I was able to learn most of it! I should be able to read;
+T:it. So let me see this!;
+T:*He takes your paper, and starts reading the text...*;
+A:[CONTINUE]:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Professor Savius;
+T:......hmm.......yes......interesting.....;
+A:[CONTINUE]:0:0:0:1:27:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Professor Savius;
+T:Here's what it says... It says "If you want to find the truth, search the;
+T:Gin'Whal's hometown. When you reach the empty room, look at the northeast;
+T:corner of the room. Search very carefully, on the floor at the northeast;
+T:corner, and you will be able to find the answer.";
+A:[CONTINUE]:0:0:0:1:28:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Professor Savius;
+T:The truth? Hmmm, I wonder what truth whoever wrote this was talking about.;
+T:It's vague, but this is the only clue we have, so we must look further;
+T:into this. Who knows, maybe it will lead us to the answer we're looking for!;
+A:[CONTINUE]:0:0:0:1:29:0:0:138:1
+%
+
+N:29:0:0:0:0:0
+I:Professor Savius;
+T:So let's see! The Gin'Whal surely refers to Avemorsh, Dorgal himself!;
+T:And his hometown would be... Well, that would be right here! We're already;
+T:in Dorgal's hometown! Or what's left of it. Heh... I've sent you all the;
+T:way to Ivhala, and the answer might have been right under my nose all along!;
+T:I'm sorry about that, <NAME>, but at least we've found some;
+T:great leads. You've been of a great help! Here! I believe this gold should;
+T:be a nice compensation for all the risks involved in exploring such a;
+T:dangerous Ivhalian cave. Use it well!;
+A:[He gives you a purse containing 50000 golds.]:0:0:0:3:488:50000:30:0:0
+%
+
+N:30:0:0:0:0:0
+I:Professor Savius;
+T:Now let's see... According to this text, we're supposed to be searching;
+T:for an empty room somewhere. Not sure where that would be though. Maybe you;
+T:can look around, see if you can enter some of those old structures, and;
+T:maybe you'll find something inside one of them. Pay attention to the norteast;
+T:corner of any empty rooms you come across, and see what you can discover.;
+T:And if you find anything, let me know!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Professor Savius;
+T:WHAAATTT?? You talked to Dorgal?? Avemorsh Gin'Whal himself???;
+T:This is... this is fantastic!! Oooh, as soon as we're done talking,;
+T:I'm heading down there to have a chat with this crystal ball. Finally,;
+T:I will learn the truth! Well, you've already told me much of it, but;
+T:I want to talk to Dorgal myself!!;
+A:Calm down... Do you know of a place called "Red Rock Labyrinth"?:0:0:0:1:32:0:0:146:1
+%
+
+N:32:0:0:0:0:0
+I:Professor Savius;
+T:Oh, sorry... I got lost in excitement, my apologies. Hmmm, so you're;
+T:looking for the "Red Rock Labyrinth"... Let's see... a place surrounded;
+T:with lava he said. In the mountains. Hmmm....;
+A:[CONTINUE]:0:0:0:1:33:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Professor Savius;
+T:...I don't recall any places by that name, sorry. However, since it's about;
+T:Ivhala, maybe you could ask one of my dwarven bodyguards. They're Ivhalians;
+T:after all, so they might know more about the region than I do. I'm sorry;
+T:I couldn't be more helpful.;
+A:Thanks. I'll go talk to them then.:0:0:0:0:0:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Professor Savius;
+T:Gone?? No!! This can't be!! Tell me, what happened??;
+A:[Tell him the whole story.]:0:0:0:1:35:0:0:0:0
+%
+
+N:35:0:0:0:0:0
+I:Professor Savius;
+T:*He calms down after hearing your story.*;
+T:I see. Well, I guess he just couldn't be happy, staying in that orb.;
+T:And as much as I would have liked to speak with him, it's just not worthy;
+T:of a warrior of his caliber to live trapped in a ball like this for;
+T:eternity. Besides, you've already told me everything I wanted to know.;
+T:After all these years, my work here is finally completed! I'll be able;
+T:to write a book on this, and you can be certain that your name will be;
+T:mentionned in it!;
+A:[CONTINUE]:0:0:0:1:36:0:0:157:1
+%
+
+N:36:0:0:0:0:0
+I:Professor Savius;
+T:Thanks you for everything, <NAME>. Accept this gold as a reward;
+T:for your trouble!;
+A:[He gives you a purse containing 100000 golds.]:0:0:0:3:488:100000:37:0:0
+%
+
+N:37:0:0:0:0:0
+I:Professor Savius;
+T:This is a lot of gold, but you've risked your life, going down very;
+T:dangerous dungeons and even facing a dragon! I couldn't have done it;
+T:myself. Even with my bodyguards, they would never have been able to;
+T:survive through that much danger. It's amazing the powerful creatures;
+T:you can encounter in this world... But you've managed to survive through;
+T:all of this! Who knows, maybe you too have some dormant, demigod powers;
+T:inside you, like Dorgal! Hahaha!;
+A:That would explain everything!:0:0:0:1:38:0:0:0:0
+A:I just did what I had to do.:0:0:0:1:38:0:0:0:0
+%
+
+N:38:0:0:0:0:0
+I:Professor Savius;
+T:Anyway, I'll probably stay here for a while, just to finish up a few;
+T:things, but I'll return to Karingen after that. At long last... it's been;
+T:so long since I've been there... Well, I wish you safe travels,;
+T:<NAME>! And if I ever need the help of a ressourceful <manwoman> again,;
+T:I know who to look for!;
+A:Is there anything else I can help you with?:0:0:0:1:39:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:39:0:0:0:0:0
+I:Professor Savius;
+T:Not right now, I believe you've done everything I needed help with.;
+T:You're free to continue your adventures. Feel free to explore the tomb;
+T:to the south if you haven't already done so, though it should be;
+T:easy for you, the creatures there are much weaker than those in the;
+T:Agharias mountains!;
+A:Anything of interest in there?:0:0:0:1:40:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:40:0:0:0:0:0
+I:Professor Savius;
+T:For you? Not much. I mean, it wasn't even challenging for us! The only;
+T:challenge we ever faced was one door we couldn't open. But we ended up;
+T:finding another way to get to the tomb at the bottom of the cave.;
+A:A door?:0:0:0:1:41:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:41:0:0:0:0:0
+I:Professor Savius;
+T:Yes. At one point, on the last floor of the cave before reaching the tomb,;
+T:we came across what seemed to be a sealed passage to the stairway.;
+T:There was no way to unlock the door, and we failed to bash it down.;
+T:It was some huge stone doors... not sure what it was. But we ended up finding;
+T:the stairway elsewhere, and we were able to find the tomb, so I guess it;
+T:was nothing important. Still, feel free to search for that sealed door if you;
+T:wish. Maybe you'll be able to unlock it somehow.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

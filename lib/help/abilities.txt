@@ -885,15 +885,18 @@ Blessings: Blessings are abilities that you can activate to provide
 
 Effect: Improves the power of all offensive and healing spells that are casted
         using wisdom, and also increases the casting success rate by increasing
-        your wisdom casting rolls.
+        your wisdom casting rolls. Also improves your Wisdom.
 Bonus to offensive/healing spells power: +10%
 Bonus to wisdom-casting success rolls: +10%
+Bonus to Wisdom: +10% (based on base Wisdom)
 Extra points: +10% to offensive/healing spells power.
               +10% to wisdom-casting success rolls.
+              +10% to Wisdom. (based on base Wisdom)
 
 This passive ability will improve the power of all offensive spells that you
 cast using Wisdom, and also healing spells, making this ability good for both
-offense and hp restoration.
+offense and hp restoration. It will also increase Wisdom, allowing you to cast
+more reliable spells, and make them more powerful.
 
 The ability will also increase the success rate of all wisdom-based spells,
 making them more reliable and less likely to fail in times of need. So if you
@@ -904,7 +907,8 @@ placing some points in this ability.
 
 Effect: Improves the power of offensive and healing Mysticism spells.
         Also improves their success rate(if applicable), and lowers the
-        creation cost of all Mysticism spells, based on your Wisdom.
+        creation cost of all Mysticism spells, based on your Wisdom. (only
+        applies to the first effect)
 Bonus to Mysticism spells power: +20%
 Bonus to Harm/Drain Life rolls: +(10% of Wisdom)%.
 Mysticism creation cost reduction: 10% of Wisdom.
@@ -925,7 +929,8 @@ wisdom and many points in this ability, it may even trivialise them.
 
 The creation cost reduction applies to all Mysticism spells. It provides a flat
 cost reduction, based on your wisdom. It is applied after the reduction from
-a high Mysticism skill.
+a high Mysticism skill. However, note that it will only apply to the first
+effect of your spell.
 
 3. Blessing of Protection(Active/Passive, level 1)
 
@@ -1049,13 +1054,15 @@ formula, so the higher your Wisdom, the more healing you get.
 This ability is powerful, but do be aware of the long cooldown. Keep it for
 when you really need it!
 
-10. Remove Curse(Active, level 10)
+10. Remove Curse(Active/Passive, level 10)
 
 Effect: Using holy power, you can remove the evil power from a cursed item.
         This may weaken the item in the process, but it will become safe
-        to use it.
+        to use it. Also gives you a passive bonus to Wisdom.
 Maximum Misfortune for attempt: 1
+Bonus to Wisdom: +20% (based on base Wisdom)
 Extra points: +10% to rolls.
+              +20% to Wisdom.
               +1 to maximum Misfortune for attempt for every 10 points.
 
 Cursed items can be very powerful, but using them has consequences.
@@ -1089,6 +1096,10 @@ Finally, if you roll below 10% of the total roll, you will fail to uncurse the
 item. Furthermore, something bad may happen. So if you find a very powerful
 cursed item, but think your Wisdom or your ability's level is too low, think
 twice about using trying to uncurse it!
+
+The ability will also give you a significant passive bonus to Wisdom, so this
+ability will help making your spells stronger. Think of it as becoming wiser
+by resisting the temptation of using cursed items!
 
 MONK
 ------
@@ -1987,6 +1998,8 @@ become very powerful in many ways. You gain an Elemental Aura, all your attacks
 deals additional damage, you gain bonus to all stats, Elemental skill, mana,
 all damage of your chosen element and even Physical resistance.
 
+The aura can be turned on or off using the "K" command. It is off by default.
+
 With 10 or more points, your graphic's color will change to mark your status
 as a powerful elemental being!
 
@@ -2118,10 +2131,10 @@ Effect: When you are right next to an enemy and it attacks you, you have a
         a chance to interrupt a serie of consecutive attacks, shots or spells,
         and prevent any attacks beyond the first from occuring.
 Resist: Defense * 2(melee/ranged attacks) or Magic Defense * 2(magic attacks)
-        vs Monster's stat + skill(depends on attacks type)
+        vs Monster's skill(depends on attacks type)
         Roll starts at 10% of your Defense/Magic Defense, and increases with
         extra points.
-Extra points: +10% to resist roll.
+Extra points: +20% to resist roll.
               +10% to used Defense/Magic Defense, up to a maximum of 100% at
               10 points.
 

@@ -628,7 +628,7 @@ N:43:Kobold Crossbowman
 G:k:g
 I:110:75:20:75:10:0:0:0:0:0:0:0:1
 W:2:1:900:100
-B:75:120:100:100:120:0:100:100:1:1:0:0:1:30
+B:75:120:100:100:120:0:100:25:1:1:0:0:1:30
 E:1:1:1:2:1:1
 C:0:0
 T:19:3:5:0
@@ -3113,7 +3113,7 @@ N:189:Ghost of Royalty
 G:G:W
 I:130:150:20:150:0:0:0:0:0:0:0:0:2
 W:30:3:0:150
-B:150:150:150:150:0:150:150:120:3:1:1:20:1:25
+B:150:150:150:150:150:150:150:120:3:1:1:20:1:25
 C:19:100
 A:slash:Phantom Blade:1:4d6:7:0:0:1:12:1:7
 A:slash:Warp Blade:1:4d6:8:0:0:1:12:1:7
@@ -3666,7 +3666,7 @@ A:claw:Blazing Claw:1:6d10:1:0:0:1:10:1:5
 A:bite:Blazing Bite:1:6d10:1:0:0:1:10:1:5
 R:1:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Flames:2:30:1:5:0:0:40:1:3
@@ -3690,7 +3690,7 @@ A:claw:Freezing Claw:1:6d10:2:0:0:1:10:1:5
 A:bite:Freezing Bite:1:6d10:2:0:0:1:10:1:5
 R:2:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Frost:2:30:2:5:0:0:40:1:3
@@ -3714,7 +3714,7 @@ A:claw:Lightning Claw:1:6d10:3:0:0:1:10:1:5
 A:bite:Lightning Bite:1:6d10:3:0:0:1:10:1:5
 R:3:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Lightning:2:30:3:5:0:0:40:1:3
@@ -3738,7 +3738,7 @@ A:claw:Corrosive Claw:1:6d10:4:0:0:1:10:1:5
 A:bite:Corrosive Bite:1:6d10:4:0:0:1:10:1:5
 R:4:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Corrosion:2:30:4:5:0:0:40:1:3
@@ -3762,7 +3762,7 @@ A:claw:Noxious Claw:1:6d10:5:0:0:1:10:1:5
 A:bite:Noxious Bite:1:6d10:5:0:0:1:10:1:5
 R:5:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Diseases:2:30:5:5:0:0:40:1:3
@@ -3787,7 +3787,7 @@ A:claw:Solar Claw:1:6d10:6:0:0:1:10:1:5
 A:bite:Solar Bite:1:6d10:6:0:0:1:10:1:5
 R:6:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Sunlight:2:30:6:5:0:0:40:1:3
@@ -3797,12 +3797,13 @@ D:capable of breathing blasts of light as bright as the sun. Legends
 D:says that the breath of the gold dragon will prevent night from 
 D:occuring for several weeks.
 
-# Frail... but you won't get near it. ;)
+# As of the 1st January 2011 release, this monster has been
+# empowered, and is now considered CR2.
 N:221:Lich
 G:L:D
-I:110:100:20:33:0:0:0:0:0:0:0:0:1
-W:36:1:1300:110
-B:20:20:150:50:0:150:33:150:1:0:0:0:0:0
+I:110:100:20:33:0:0:0:0:0:0:0:0:2
+W:36:2:1300:125
+B:20:20:175:50:0:175:33:175:1:0:0:0:0:0
 E:1:1:1:2:1:1
 C:2:100
 A:touch:Chilling Hand:1:2d5:2:0:0:1:20:1:15
@@ -3865,7 +3866,7 @@ R:4:100
 R:5:100
 R:6:100
 F:DROP_CORPSE | DRAGON | FORCE_MAXHP | BASH_DOOR
-F:DROP_2D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:25:2:1:25
 S:breath:Blast of Flames:2:30:1:5:0:0:40:1:3
@@ -4863,7 +4864,7 @@ N:269:Planar Phantom
 G:G:D
 I:130:160:20:160:0:0:0:0:0:0:0:0:2
 W:45:3:0:200
-B:160:160:160:160:0:160:160:160:3:1:1:20:1:25
+B:160:160:160:160:160:160:160:160:3:1:1:20:1:25
 C:19:100
 Z:0:0:0:0:0:0:0:0:0:9:0:0:0
 A:slash:Phantom Blade:1:5d8:7:0:0:1:12:1:7
@@ -4886,7 +4887,7 @@ S:cast:Planar Maelstorm:2:25:8:5:0:0:50:1:3
 D:The Planar Phantom is the ghost of a fallen ethereal spirit. Possessing both ghostly 
 D:and spiritual characteristics, it is capable of controlling both the darkness and the 
 D:planar void. It can channel both energies in the form of a powerful phantom blade, and 
-D:fight with incredible skill. The fusion of an ancient phantom and the dimensiona planes 
+D:fight with incredible skill. The fusion of an ancient phantom and the dimensional planes 
 D:has created a being of great power that few could hope to defeat.
 
 # Let's take a little break, and put a low level angel.
@@ -5182,7 +5183,7 @@ R:2:100
 R:18:100
 F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR | NO_SLEEP
-M:25:2:1:30
+M:33:2:1:30
 S:breath:Flames:2:25:1:3:0:0:60:1:3
 S:breath:Frost:2:25:2:3:0:0:60:1:3
 S:breath:Frostfire:2:25:18:3:0:0:60:1:3
@@ -5210,7 +5211,7 @@ R:4:100
 R:5:100
 F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR | NO_SLEEP
-M:25:2:1:30
+M:33:2:1:30
 S:breath:Acid:2:25:4:3:0:0:60:1:3
 S:breath:Poison:2:25:5:3:0:0:60:1:3
 S:wail:Noxious Drake's Cry:7:218:1:10:0:0:2000:0:0
@@ -5237,7 +5238,7 @@ R:3:100
 R:6:100
 F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR | NO_SLEEP
-M:25:2:1:30
+M:33:2:1:30
 S:breath:Lightnings:2:25:3:3:0:0:60:1:3
 S:breath:Light:2:25:6:3:0:0:60:1:3
 S:wail:Sky Drake's Cry:7:217:1:10:0:0:2000:0:0
@@ -5247,34 +5248,37 @@ D:a feint light and sparks of electricity, and it possesses great speed, power a
 D:The cry of the Sky Drake is used to call forth a powerful dragon to aid it 
 D:in battle.
 
-N:284:Wailing Lich
-G:L:W
-I:120:110:20:33:0:0:0:0:0:0:0:0:1
-W:46:1:1300:120
-B:20:20:160:50:0:160:33:160:1:0:0:0:0:0
+# Like a normal Lich. Just stronger.
+N:284:Greater Lich
+G:L:D
+I:120:120:20:50:0:0:0:0:0:0:0:0:2
+W:46:2:1300:150
+B:33:33:200:50:0:200:33:200:1:0:0:0:0:0
 E:1:1:1:2:1:1
 C:2:100
-A:touch:Chilling Hand:1:2d6:2:0:0:1:20:1:15
-A:touch:Dark Hand:1:2d6:7:0:0:1:20:1:15
+A:touch:Chilling Hand:1:2d5:2:0:0:1:20:1:15
+A:touch:Dark Hand:1:2d5:7:0:0:1:20:1:15
 R:2:100
 R:5:100
 R:6:-100
 R:7:100
-R:12:100
 R:13:100
 R:15:25
-F:DROP_SKELETON | FORCE_MAXHP | UNDEAD | EVIL
+F:DROP_SKELETON | UNDEAD | EVIL
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:100:2:1:25
-S:cast:Shadow Ball:2:20:7:4:0:0:60:1:3
-S:cast:Sonic Ball:2:20:12:4:0:0:60:1:3
-S:cast:Summon Skeletons:6:45:10:20:0:s:400:1:12
-S:cast:Summon Zombies:6:45:10:20:0:z:400:1:12
-D:An undead abomination that is a magical merging of a Lich and a Wailing Phantom. 
-D:The resulting creature is a powerful Lich who masters the elements of Darkness and Sound 
-D:with equal power. This creature will emit a loud cry when it is about to kill it's 
-D:opponent, presumably a cry of joy, considering it's evil nature.
+S:cast:Shadow Ball:2:30:7:3:0:0:20:1:3
+S:cast:Fire Ball:2:30:1:3:0:0:20:1:3
+S:cast:Energy Ball:2:30:17:3:0:0:20:1:3
+S:cast:Summon Skeletons:6:45:5:20:0:s:800:1:7
+S:cast:Summon Ghosts:6:45:5:20:0:G:800:1:7
+D:After the original transformation to an undead Lich, this particular one has 
+D:lived for over a century in that undead form, allowing it to master it's undead 
+D:to it's full potential. Over the time, it gave up on some debilitating spells, 
+D:to focus on destructive and undead summoning spells. It now masters these spells, 
+D:and with it's powerful magic, the Greater Lich is seen as a powerful figure of 
+D:authority amongst the undead.
 
 # Merman and Mermaid. Rather strong, but sea-only.
 N:285:Merman Guardian
@@ -5661,10 +5665,10 @@ R:2:-100
 R:9:-100
 R:10:100
 R:23:-50
-F:FORCE_MAXHP | CAN_FLY | NEVER_BOSS | BASH_DOOR
+F:FORCE_MAXHP | CAN_FLY | BASH_DOOR
 F:ONLY_ITEM | DROP_3D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:IMMORTAL | NO_CONF | NO_SLEEP | NO_FEAR
-M:33:3:1:25
+M:50:3:1:25
 S:creates:Immolating Inferno:2:40:1:8:0:0:200:1:3
 S:creates:Rain of Solar Beams:2:40:6:8:0:0:200:1:3
 S:creates:Divine Storm:2:40:10:8:0:0:200:1:3
@@ -5756,9 +5760,9 @@ M:100:1:1:25
 S:cast:Mystical Storm:2:25:162:5:0:0:50:1:3
 S:cast:Summon Naga Princesses:7:278:10:20:0:0:3000:0:0
 D:The Naga Archriestess is the highest and most respected spiritual and religious figure amongst naga 
-D:society. Nearly unrivaled in the arts of Mysticism and Conjuration, the Archpriestess is worshipped 
-D:as if she was an actual goddess, and is capable of bringing forth mystical storms to ravage her foes, 
-D:as well as bringing forth a legion of the most elite of naga warriors.
+D:society. Nearly unrivaled in the arts of Mysticism and Conjuration, the Archpriestess is highly respected 
+D:and honored in Naga society, and is capable of bringing forth mystical storms 
+D:to ravage her foes, as well as bringing forth a legion of the most elite of naga warriors.
 
 N:304:Andraos
 G:E:g
@@ -5923,8 +5927,8 @@ D:having all their blood sucked by a lesser vampire will become a Blood Hunter.
 
 N:310:Vampire Warrior
 G:v:D
-I:130:170:20:150:0:0:0:0:0:0:0:0:1
-W:45:1:1700:133
+I:130:170:20:150:0:0:0:0:0:0:0:0:2
+W:45:2:1700:100
 B:150:140:140:150:0:140:140:140:3:0:1:20:0:0
 E:1:1:1:2:1:1
 C:17:100
@@ -5951,8 +5955,8 @@ D:that lesser vampires are born from having all their blood sucked by a vampire.
 
 N:311:Vampire Witch
 G:v:D
-I:130:120:20:75:0:0:0:0:0:0:0:0:1
-W:45:1:1300:133
+I:130:120:20:75:0:0:0:0:0:0:0:0:2
+W:45:2:1300:100
 B:75:75:150:50:0:150:65:150:1:0:0:0:0:0
 E:1:1:1:2:1:1
 C:2:100
@@ -6084,12 +6088,12 @@ D:in demonic hierarchy, and are both respected and feared.
 
 # The Fused Warriors!
 # Human elemental lords who have merged with elementals to create a super being.
-# All their stats are high and they have powerful auras. Uncommon, and worthy of
-# being CR2.
+# All their stats are high and they have powerful auras. And despite being CR2, they
+# aren't rare, and you will definitely encounter them.
 N:316:Fused Warrior of Fire
 G:p:r
 I:130:175:20:150:0:0:0:0:0:0:0:0:2
-W:51:2:1700:100
+W:51:1:1700:100
 B:150:110:150:150:0:150:120:150:3:0:1:20:0:0
 E:1:1:1:2:1:1
 C:19:100
@@ -6108,7 +6112,7 @@ D:red. A powerful aura of fire emanates from his body.
 N:317:Fused Warrior of Water
 G:p:b
 I:130:175:20:150:0:0:0:0:0:0:0:0:2
-W:51:2:1700:100
+W:51:1:1700:100
 B:150:110:150:150:0:150:120:150:3:0:1:20:0:0
 E:1:1:1:2:1:1
 C:19:100
@@ -6127,7 +6131,7 @@ D:blue. A powerful aura of water emanates from his body.
 N:318:Fused Warrior of Earth
 G:p:u
 I:130:175:20:150:0:0:0:0:0:0:0:0:2
-W:51:2:1700:100
+W:51:1:1700:100
 B:150:110:150:150:0:150:120:150:3:0:1:20:0:0
 E:1:1:1:2:1:1
 C:19:100
@@ -6146,7 +6150,7 @@ D:brown. A powerful aura of earth emanates from his body.
 N:319:Fused Warrior of Wind
 G:p:W
 I:130:175:20:150:0:0:0:0:0:0:0:0:2
-W:51:2:1700:100
+W:51:1:1700:100
 B:150:110:150:150:0:150:120:150:3:0:1:20:0:0
 E:1:1:1:2:1:1
 C:19:100
@@ -6300,7 +6304,7 @@ D:It's ability to fight accuratly and to predict it's opponents' moves hints at 
 N:325:Lesser Four Elemental
 G:E:o
 I:140:250:20:200:0:0:0:0:0:0:0:0:2
-W:53:2:2200:150
+W:53:1:2200:150
 B:175:150:150:140:0:150:160:160:4:0:1:20:0:0
 C:19:100
 Z:0:0:0:0:0:0:0:22:0:0:0:0:0
@@ -6377,35 +6381,282 @@ D:than other elemental hounds.
 # case, you're basically dead..."
 
 # A week later, the boy was found dead in a deep dungeon. Sitting next to his body was a beautiful nymph.
-# He really should have listened to his father's advice... Especially since these nymphs are much
-# more common than the ones of depth 21...and million times more dangerous.
+# He really should have listened to his father's advice... 
 
-# Disabled as of 0.5 alpha 1. The Flow ain't ready yet.
-#N:328:Nymph Sorceress
-#G:h:g
-#I:130:100:20:100:0:0:0:0:0:0:0:0:1
-#W:55:1:1300:100
-#B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
-#E:1:1:1:2:1:1
-#C:19:100
-#L:7:0:0
-#Z:0:0:0:0:0:0:0:0:0:0:0:0:328
-#R:16:100
-#R:22:100
-#F:DROP_CORPSE | FEMALE | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
-#F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT
-#F:NO_FEAR | NO_CONF
-#M:100:3:0:0
-#S:cast:Mana Blast:2:30:16:3:0:0:30:0:0
-#S:cast:Confusing Blast:2:30:22:3:0:0:30:0:0
-#S:cast:Summon Monsters from the Flow:7:2050:10:20:0:0:1500:0:0
-#D:Nymphs are said to be embodiement of magic and beauty in female form. 
-#D:However, for a nymph to earn the title of Sorceress in a race that is already 
-#D:made up of naturally born sorceresses, she has to have mastered magic to a level 
-#D:that few beings can comprehend. She masters pure magic, along with powerful 
-#D:mind-dazing and destructive spells, and uses her magic to block and deflect blows. 
-#D:Nymph Sorceresses are said to have connections to other planes of existance, 
-#D:and can summon beings that have never been seen before.
+# You have no idea what she's gonna summon. And she casts multiple spells per rounds. Although frail,
+# do not let her low dexterity and evasion fool you: her special ability allows her to use her Mind
+# stat for avoiding all forms of attacks!
+N:328:Nymph Sorceress
+G:h:g
+I:130:40:20:33:0:0:0:0:0:0:0:0:2
+W:55:2:1300:150
+B:25:33:200:0:0:200:40:200:1:0:0:0:0:0
+E:1:1:1:2:1:1
+C:19:100
+Z:0:0:0:0:0:0:0:0:0:0:0:0:328
+R:16:100
+R:22:100
+F:DROP_CORPSE | DROP_60 | FEMALE | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NO_FEAR | NO_CONF
+M:100:3:1:25
+S:cast:Mana Blast:2:30:16:3:0:0:30:1:3
+S:cast:Confusing Blast:2:30:22:3:0:0:30:1:3
+S:cast:Summon Monsters from the Flow:7:2050:10:20:0:0:1500:0:0
+D:Nymphs are said to be embodiement of magic and beauty in female form. 
+D:However, for a nymph to earn the title of Sorceress in a race that is already 
+D:made up of naturally born sorceresses, she has to have mastered magic to a level 
+D:that few can achieve. She masters pure magic, along with powerful 
+D:mind-dazing and destructive spells, and uses her magic to block and deflect blows. 
+D:Nymph Sorceresses are said to have connections to other planes of existance, 
+D:and can summon beings that have never been seen before.
+
+# Rejoice! This ghost doesn't have the annoying teleportation ability of it's earlier
+# cousin, the Planar Phantom!
+
+# So yeah, this one is nothing special. An extra +10% stats modifiers everywhere is nothing that
+# could make up for the teleport ability. The ability to summon a lot of undeads isn't
+# gonna make up for that either. Having a Lich in it's summons list is also very weak
+# compared to the teleportation ability.
+
+# ...
+# ...
+# ...
+
+# ...what do you mean, "Overpowered"?
+N:329:Forgotten One
+G:G:D
+I:130:170:20:170:0:0:0:0:0:0:0:0:2
+W:55:3:0:150
+B:170:170:170:170:170:170:170:170:4:1:1:20:1:25
+C:19:100
+A:slash:Phantom Blade:1:6d8:7:0:0:1:12:1:7
+A:slash:Planar Blade:1:6d8:8:0:0:1:12:1:7
+A:throw:Phantom Javelin:3:6d8:7:0:33:1:12:1:7
+A:throw:Warp Javelin:3:6d8:8:0:33:1:12:1:7
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:100
+F:UNDEAD | PASS_WALL | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:CAN_FLY | FORCE_MAXHP | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+M:50:2:1:25
+S:cast:Forgotten Darkness:2:30:7:3:0:0:40:1:3
+S:cast:Forgotten Flames:2:30:1:3:0:0:40:1:3
+S:cast:Forgotten Chills:2:30:2:3:0:0:40:1:3
+S:cast:Summon Skeletons:6:50:10:20:0:s:1000:1:15
+S:cast:Summon Ghosts:6:50:10:20:0:G:1000:1:15
+S:cast:Summon Lich:6:50:1:20:0:L:1000:1:15
+D:A ghostly, vaguely humanoid figure, it seems to have been partly erased 
+D:from this world. You are unable to tell whether it's male or female, or have 
+D:any idea what it may have looked like. This lost soul wanders aimlessly in 
+D:deep caverns and dungeons, and seems to have lost all memories. The only thing 
+D:it hasn't lost are it's incredibly powerful magic spells, and it also wields 
+D:a ghostly sword and some phantom javelins to throw at enemies. It may have once 
+D:been an ancient hero, master warrior, archmage or all of this, but now it is 
+D:a lost soul that needs to be put to eternal rest.
+
+# It has the "Guaranteed Block All" counter, which triggers 33% of the time, regardless
+# of it's level and stats. This mean it can block your attacks no matter what level you are.
+# It also has the infamous "blink when hit" ability.
+
+# Compared to other elementals, especially the Four Elemental, it is actually weaker
+# in terms of physical ability, and has less HP, but has powerful magical abilities.
+# The real danger is it's aura, teleporting abilities and blocking ability that ignores stats.
+N:330:Lesser Vortex Elemental
+G:E:D
+I:130:130:20:100:0:0:0:0:0:0:0:0:2
+W:55:1:100:150
+B:120:100:175:120:0:175:100:175:4:0:1:20:0:0
+C:23:33
+Z:0:0:0:0:0:0:0:29:0:9:0:0:0
+A:hit:Vortex Touch:1:5d6:8:0:0:1:13:1:8
+R:8:100
+R:15:100
+F:FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NO_SLEEP | NO_STUN | NO_FEAR | NO_CONF
+M:50:2:1:25
+S:cast:Vortex:2:30:8:5:0:0:40:1:3
+D:A vortex given life and a humanoid shape, the Vortex Elemental looks like a 
+D:pitch-black walking black hole that sends anything that goes through it to 
+D:someplace else, perhaps another dimmension. Capable of warping raw power from 
+D:multiple planes, even the lowliest of Vortex Elementals boast much greater power 
+D:than most other kind of elementals. It is impervious to normal physical attacks, 
+D:and can use it's body to warp any other kind of attacks to other dimmensions.
+
+# It has a lot of hp, and is always escorted by many zombie monsters. It's also
+# fairly powerful on it's own, and what it lacks in power(compared to other CR2), it
+# makes up for it by commanding an army and being difficult to take down.
+N:331:Zombie Lord
+G:z:D
+I:120:300:20:160:0:0:0:0:0:0:0:0:2
+W:55:1:1700:125
+B:160:75:130:160:0:130:60:120:3:0:1:20:0:0
+E:1:1:1:2:1:1
+C:19:100
+Z:0:0:0:0:0:0:0:30:0:0:0:0:0
+A:hit:Tainted Claymore:1:6d8:15:0:0:1:12:1:7
+A:hit:Darkness Strike:1:6d8:7:0:0:1:12:1:7
+A:hit:Toxic Strike:1:6d8:20:0:0:1:12:1:7
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:25
+F:DROP_CORPSE | FORCE_MAXHP | EVIL | MALE | UNDEAD | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:REGENERATE | ESCORT | ESCORTS | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+M:50:1:1:25
+S:cast:Darkness Ball:2:25:7:3:0:0:20:1:3
+S:cast:Summon Zombies:6:50:10:20:0:z:500:1:15
+D:An evil Elemental Lord of Darkness who was once defeated, but has been brought back 
+D:in the form of a powerful zombie warrior. Undeath has only made him stronger, and in 
+D:addition to having stronger Darkness powers than ever, he now commands legions of 
+D:lesser zombies. The blade he wields is a powerful tainted claymore covered with vile 
+D:toxins and darkness. His body, now cursed with undeath, has become extremely resistant 
+D:to all forms of attacks, and a powerful aura of Darkness emanates from it, harming 
+D:anyone that stands in his way.
+
+# Hounds: Teleport when hit edition! :)
+N:332:Warp Hound
+G:C:D
+I:130:140:20:110:0:0:0:0:0:0:0:0:1
+W:58:1:2200:100
+B:140:100:110:130:0:130:100:100:2:0:1:20:0:0
+C:0:0
+Z:0:0:0:0:0:0:0:0:0:9:0:0:0
+A:bite:!:1:4d8:15:0:0:1:13:1:8
+A:bite:Warp Bite:1:4d8:8:0:0:1:13:1:8
+R:8:100
+R:15:50
+F:ANIMAL | FRIENDS | FORCE_MAXHP | DROP_CORPSE
+M:25:1:1:35
+S:breath:Warp Breath:2:18:8:3:0:0:20:1:3
+D:A mighty canine with a body that is partly warped in another plane. It can breath 
+D:vortexes of warping energy, hurting and teleporting around it's foes, and is also 
+D:resistant to common physical attacks.
+
+# And now, we being depth 60+ enemies!
+
+# First, we take a Bone Lord. We make it stronger. We make it capable of melee, ranged
+# and magic attacks. We give it variety. We give it more powerful skeleton summoning abilities.
+# We make it common. We make it appear in groups, despite being able to use summons. 
+# We make it worth LESS experience due to this.
+
+# ...
+
+# Welcome to depth 60. :) Where a single overpowered enemy isn't enough, and an army of them
+# appear before you!
+
+N:333:Death Legionary
+G:s:D
+I:130:175:20:175:0:0:0:0:0:0:0:0:2
+W:60:1:2100:100
+B:160:160:160:160:160:160:130:175:4:1:1:20:1:25
+E:1:1:1:2:1:1
+C:19:100
+A:hit:Bone Blade:1:6d8:15:0:0:1:12:1:7
+A:hit:Black Blade:1:6d8:7:0:0:1:12:1:7
+A:hit:Toxic Blade:1:6d8:20:0:0:1:12:1:7
+A:shoot:Bone Arrow:3:6d8:15:0:33:1:12:1:7
+A:shoot:Black Arrow:3:6d8:7:0:33:1:12:1:7
+A:shoot:Toxic Arrow:3:6d8:20:0:33:1:12:1:7
+R:2:100
+R:4:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:25
+R:20:100
+F:DROP_SKELETON | EVIL | UNDEAD | FRIENDS | OPEN_DOOR | BASH_DOOR
+F:REGENERATE | FORCE_MAXHP | NO_CONF | NO_STUN | NO_SLEEP | NO_FEAR
+M:33:2:1:25
+S:cast:Shadow Storm:2:30:7:5:0:0:60:1:3
+S:cast:Toxic Storm:2:30:20:5:0:0:60:1:3
+S:cast:Summon Skeletons:6:45:10:20:0:s:1000:1:10
+D:The Legion of Death are a troop of extremely powerful skeletal soldiers. They are 
+D:summoned by greater undeads and greater demons to serve them in carrying their 
+D:evil plans. The Death Legionary is a black skeleton who carries a powerful blade, 
+D:as well as bows and arrows, made from the bones of it's defeated opponents, 
+D:and tainted with darkness and powerful toxins. It is capable of summoning other 
+D:skeletal undeads to create an even larger troop, and can use it's magical powers 
+D:to call forth storms of darkness and disease.
+
+# Depth 60 marks the return of the "U" class of monsters, the greater demons.
+# Presenting the Spikefiend. A huge demon with a spiky body and that uses spiked chains
+# with great efficiency. Forget the little imps, these guys are extremely powerful
+# and will set the tone to what you can expect from depth 60+.
+
+# Very bulky and very powerful, it can use it's spiked chains to get you right next
+# to it, provided you're in it's line of sight. Beware ranged and magic characters!
+# This monster may be far more than you can handle!
+
+# All it's attacks are Physical, but don't think having 100% resistance to Physical
+# will protect you. It's attacks ignores some of your Physical resistance!
+N:334:Spikefiend
+G:U:g
+I:120:400:20:400:0:0:0:0:0:0:0:0:3
+W:60:1:70000:150
+B:300:100:150:150:150:150:25:150:4:0:1:20:0:0
+E:1:0:0:2:0:0
+C:19:100
+Z:0:0:0:0:0:0:31:0:0:0:0:0:334
+A:hit:Spiked Chain:1:7d11:15:0:0:1:10:1:5
+A:crush:Spiked Fist:1:7d11:15:0:0:1:10:1:5
+R:6:-25
+R:7:100
+R:15:33
+F:DROP_CORPSE | EVIL | DEMON | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NO_SLEEP | NO_STUN | NO_FEAR
+M:0:0:0:0
+D:A giant demonic creature with a dark green skin and glowing yellow eyes, it's body 
+D:is entirely covered with huge spikes. It also has several giant spiked chains around it's 
+D:body. These are magical chains that can extend themselves to a great distance, and grab foes 
+D:to drag them right next to the Spikefiend in a most painful manner. The Spikefiend 
+D:then proceeds to crush it's victim in melee combat with it's strength and size rivaling 
+D:that of a dragon. It's spiked body provides an excellent protection against blows, 
+D:and the spikes are magical, capable of penetrating any resistance a victim may have 
+D:to Physical blows. The Spikefiend is a feared overlord amongst demons, and no lesser 
+D:demons would ever question a Spikefiend's authority, lest they want to end their existance 
+D:impaled on a spike.
+
+N:335:Prismatic Drake
+G:d:v
+I:130:220:20:220:0:0:0:0:0:0:0:0:2
+W:60:1:12000:125
+B:185:160:170:160:0:160:170:160:4:0:1:20:0:0
+E:0:0:0:0:0:0
+C:19:100
+A:claw:!:1:6d8:15:0:0:1:12:1:7
+A:bite:Burning Bite:1:6d8:1:0:0:1:12:1:7
+A:claw:Electric Claw:1:6d8:3:0:0:1:12:1:7
+A:bite:Chilling Bite:1:6d8:2:0:0:1:12:1:7
+A:claw:Acid Claw:1:6d8:4:0:0:1:12:1:7
+A:bite:Poison Bite:1:6d8:5:0:0:1:12:1:7
+A:claw:Light Claw:1:6d8:6:0:0:1:12:1:7
+R:1:100
+R:2:100
+R:3:100
+R:4:100
+R:5:100
+R:6:100
+F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | OPEN_DOOR | BASH_DOOR
+F:NO_FEAR | NO_SLEEP
+M:33:2:1:25
+S:breath:Flames:2:30:1:3:0:0:60:1:3
+S:breath:Frost:2:30:2:3:0:0:60:1:3
+S:breath:Lightnings:2:30:3:3:0:0:60:1:3
+S:breath:Acid:2:30:4:3:0:0:60:1:3
+S:breath:Poison:2:30:5:3:0:0:60:1:3
+S:breath:Light:2:30:6:3:0:0:60:1:3
+S:wail:Prismatic Drake's Cry:7:222:1:10:0:0:2000:0:0
+D:A pale purplish dragon-like creature with glowing multicolored eyes. It's body is surrounded by 
+D:elemental energy of six different attributes, and it possesses great speed, power and resilience. 
+D:The cry of the Prismatic Drake is used to call forth a powerful dragon to aid it 
+D:in battle.
+
 
 # And here's the Lost Soul.
 N:999:Lost Soul
@@ -7205,28 +7456,111 @@ S:cast:Earth Ball:2:10:11:2:0:0:10:1:3
 D:A young alchemist who experiments with various herbs and components to create 
 D:new potions.
 
-N:1048:Orc Wight
-G:o:B
-I:110:33:20:33:0:0:0:60:10:0:0:0:1
-W:4:1:600:10
-B:40:10:40:40:0:40:10:0:1:0:0:0:0:0
+# Professor Savius and his crew!
+
+N:1048:Savius Bodyguard
+G:h:U
+I:110:180:20:180:0:0:0:62:40:0:0:0:1
+W:40:1:2100:0
+B:140:100:100:130:130:0:33:130:3:0:1:20:0:0
+C:17:100
+A:hit:Axe:1:3d5:15:0:0:1:13:1:8
+A:throw:Throwing Axe:3:3d5:15:0:33:1:13:1:8
+F:DROP_CORPSE | MALE | NEVER_MOVE_FRIENDLY | FRIENDLY | PET | OPEN_DOOR | BASH_DOOR
+F:SPECIAL_GENE | FORCE_MAXHP | GUARD
+M:0:0:0:0
+D:An heavily armored dwarf who works as a private bodyguard for the gnomish 
+D:professor Savius. He wields an axe and a shield, and is also carrying several 
+D:throwing axes to attack foes from a distance.
+
+N:1049:Professor Savius
+G:h:B
+I:120:33:20:20:20:0:0:63:20:0:0:0:1
+W:30:1:1300:0
+B:20:33:150:10:0:150:75:150:1:0:0:0:0:0
 E:1:1:1:2:1:1
-C:0:0
-A:touch:Chill Touch:1:1d8:2:0:0:0:0:0:0
-A:touch:Wight's Touch:1:1d4:7:8:100:0:0:0:0
-R:2:100
+C:2:100
+A:hit:Knife:1:1d3:15:0:0:0:0:0:0
+F:DROP_CORPSE | MALE | UNIQUE | NEVER_MOVE_FRIENDLY | FRIENDLY | PET | OPEN_DOOR | BASH_DOOR
+F:SPECIAL_GENE | FORCE_MAXHP
+M:100:1:1:30
+S:cast:Energy Ball:1:10:17:0:0:0:2:1:3
+S:cast:Blink Away:8:10:0:0:0:0:10:0:0
+D:A gnomish scientist who studies orcish history.
+
+N:1050:Runed Golem
+G:g:R
+I:120:360:20:230:0:140:1:72:60:0:0:0:2
+W:50:1:60000:133
+B:200:75:130:150:0:130:20:160:3:0:1:20:0:0
+C:19:100
+A:punch:!:1:6d12:15:0:0:1:11:1:6
+A:punch:Fire Punch:1:6d12:1:0:0:1:11:1:6
+A:punch:Gale Punch:1:6d12:10:0:0:1:11:1:6
+R:1:100
+R:2:33
+R:3:100
+R:4:-100
 R:5:100
-R:6:-100
-R:7:100
+R:9:25
+R:10:100
+R:11:100
+R:12:75
 R:13:100
-R:15:100
-F:MALE | ORC | UNDEAD | FORCE_MAXHP | UNIQUE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
-F:REGENERATE | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
-F:FRIENDLY | PET | NEVER_MOVE_FRIENDLY | SPECIAL_GENE
-M:50:1:0:0
-S:cast:Fire Bolt:1:2:1:0:0:0:5:0:0
-D:An orcish wight who is extremely weakened. It's wraithly body is starting to fade, 
-D:and it seems in terrible pain.
+R:15:75
+R:48:-100
+F:NONLIVING | FORCE_MAXHP | UNIQUE | SPECIAL_GENE | OPEN_DOOR | BASH_DOOR
+F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | DROP_GREAT | DEATH_DIALOG
+F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+M:33:1:1:30
+S:cast:Fire Ball:2:20:1:2:0:0:10:1:3
+S:cast:Wind Gusts:2:20:10:2:0:0:10:1:3
+D:A stone golem with runes of Fire and Wind magic etched on it. Being enchanted 
+D:with Wind, it is faster than most golems, and it is also capable of using 
+D:magical attacks in addition to it's already powerful melee combat abilities.
+
+N:1051:Blue Orb
+G:*:B
+I:160:1:20:0:0:0:0:74:60:0:0:0:2
+W:50:3:10:0
+B:1:300:400:1:0:200:400:600:0:0:0:0:0:0
+C:5:75
+R:3:100
+R:6:100
+R:15:-50
+R:16:100
+F:NONLIVING | NEVER_MOVE | SPECIAL_GENE | FRIENDLY | PET | COLD_BLOOD
+F:CAN_FLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+M:100:2:1:25
+S:cast:Mana Ray:1:30:16:0:0:0:20:1:3
+S:cast:Energy Ray:1:30:17:0:0:0:20:1:3
+D:A floating blue, magical orb.
+
+N:1052:Estaroth
+G:D:R
+I:130:600:20:500:0:147:1:75:75:0:0:0:4
+W:75:3:120000:200
+B:500:130:300:300:0:300:5:500:6:0:1:20:0:0
+E:0:0:0:0:0:0
+C:19:100
+Z:0:0:0:0:0:0:0:32:0:0:0:0:1052
+T:4:14:100:0
+A:claw:!:1:8d12:15:0:0:1:10:1:5
+A:bite:!:1:8d12:15:0:0:1:10:1:5
+A:claw:Blazing Claw:1:8d12:1:0:0:1:10:1:5
+A:bite:Blazing Bite:1:8d12:1:0:0:1:10:1:5
+R:1:100
+F:DROP_CORPSE | DRAGON | MALE | UNIQUE | SPECIAL_GENE | FORCE_MAXHP | BASH_DOOR
+F:ONLY_ITEM | DROP_4D2 | DROP_3D2 | DROP_GOOD | DROP_GREAT
+F:CAN_FLY | FRIENDLY | PET | NEVER_MOVE_FRIENDLY | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+M:50:3:1:25
+S:breath:Pyroblast:2:50:1:10:0:0:60:1:3
+S:summon:Frostfire Drake:7:281:1:20:0:0:500:0:0
+D:A great and powerful red wyrm who guards his hoard. His ancient, magical dragon scales 
+D:can stop almost any kind of attacks, his massive size gives him immense strength that 
+D:lesser beings could only dream of, his draconic blood gives him an incredible life force, and 
+D:he can magically summon lesser drakes to assist him in battle. He is a fearsome opponent 
+D:for all but the most powerful beings, and trying to steal his hoard would surely be suicide.
 
 
 # The following monsters are hard-coded. Do not delete them, or their associated
@@ -9410,7 +9744,7 @@ D:poisonous.
 N:1523:The Sewers Quylthulg
 G:Q:G
 I:110:200:10:150:0:1003:1:1010:12:0:0:0:1
-W:18:1:3000:125
+W:12:1:3000:125
 B:150:80:120:120:0:120:25:100:1:0:1:20:0:0
 C:0:0
 A:touch:Acid Slime:1:2d10:4:0:0:1:13:1:8
@@ -11872,7 +12206,7 @@ R:15:75
 R:23:100
 F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | ICE | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR | NO_SLEEP
-M:25:2:1:30
+M:33:2:1:30
 S:breath:Cold:2:25:2:3:0:0:60:1:3
 S:breath:Ice:2:25:23:3:0:0:60:1:3
 S:wail:Ice Drake's Cry:7:2119:1:10:0:0:2000:0:0
@@ -11924,32 +12258,42 @@ S:cast:Summon Nightmare Scout:7:2300:1:10:0:0:-1:0:0
 D:Death and despair emanates from this black, red-eyed imp. It serves as a scout 
 D:to seek and lure the cursed ones to eternal agony inside an endless nightmare...
 
-# A beefed-up Phantom Warrior.
-# Very strong, and it can block anything 50% of the time, regardless of your stats.
-N:2301:Phantom of Misery
-G:G:r
-I:120:100:20:100:0:0:0:0:0:0:0:9999:1
-W:20:1:0:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
-C:23:50
-L:2:0:0
-A:slash:Energy Blade:1:3d6:17:7:20:0:0:0:0
-A:slash:Dark Blade:1:3d6:7:7:20:0:0:0:0
+# It has always been one of my favorite monsters. This hasn't changed. :)
+# The monster itself has changed since 0.4, it's regeneration has been toned
+# down, but it has gained other things like summons, immortality, and still
+# has good regen!
+N:2301:Restless Dead
+G:s:r
+I:140:400:20:300:0:0:0:0:0:0:0:3:4
+W:50:1:1900:150
+B:300:175:200:300:0:200:175:300:6:0:1:20:0:0
+E:1:1:1:2:1:1
+C:19:100
+Z:0:0:0:0:0:0:0:0:2301:0:0:0:0
+A:hit:Raging Sword:1:8d12:15:0:0:1:10:1:5
+A:hit:Burning Rage Strike:1:8d12:1:0:0:1:10:1:5
+A:hit:Dark Pain Strike:1:8d12:7:0:0:1:10:1:5
+R:1:100
 R:2:100
 R:5:100
 R:6:-100
 R:7:100
+R:12:25
 R:13:100
-R:15:100
-F:EVIL | UNDEAD | PASS_WALL | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
-F:CAN_FLY | FORCE_MAXHP | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
-M:25:1:0:0
-S:cast:Summon Ghosts:6:50:5:15:0:G:200:0:0
-S:cast:Summon Demons:6:50:5:15:0:u:200:0:0
-D:It looks like a blood-colored shadow, wielding a powerful cursed blade that 
-D:will slay and curse it's opponents. It is capable of drawing power from it's 
-D:opponent's destructive powers and fighting spirit, and therefore, can hold it's 
-D:own against anything that tries to fight it.
+R:15:25
+F:EVIL | UNDEAD | OPEN_DOOR | BASH_DOOR | IMMORTAL
+F:REGENERATE | FORCE_MAXHP | NO_CONF | NO_FEAR | NO_STUN | NO_SLEEP
+M:50:2:1:25
+S:uses:Burning Sword Wave:1:50:1:0:0:0:10:1:3
+S:shout:Restless Wail:2:50:12:3:0:0:30:0:0
+S:cast:Summon Skeletons:6:50:10:20:0:s:600:1:5
+D:A black skeleton with glowing red eyes and wielding a flame sword, this creature 
+D:is an incarnation of the dead who have died due to injustice, abuse, who were innocent 
+D:in life yet put to dead... It now return to this world in this nightmarish form, 
+D:driven by pure anger and hatred, and ready to deliver a bloody retribution to anything 
+D:that stands in it's way. It is almost unstoppable, most attacks can do little to stop 
+D:it's rampage, and it's wail can be fatal, and can awaken even more undead atrocities 
+D:to join the Restless Dead in it's quest for retribution.
 
 # Overall, not too tough by Nightmare Horrors standards.
 N:2302:Vengeful Orc
@@ -11992,7 +12336,7 @@ R:7:100
 F:FORCE_MAXHP | EVIL | INVISIBLE | FEMALE | OPEN_DOOR | BASH_DOOR
 F:NO_FEAR
 M:20:2:1:25
-S:cast:Shadow Globe:2:30:7:5:0:0:50:1:3
+S:cast:Shadow Globe:2:50:7:5:0:0:50:1:3
 S:cast:Phase Away:8:20:0:0:0:0:30:0:0
 D:All you can see is a black, red-eyed woman shrouded in a mist of shadows. 
 D:This cursed agent sneaks in the mortal world, hiding inside the nightmares 
@@ -12101,7 +12445,7 @@ R:1:100
 R:7:100
 F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | OPEN_DOOR | BASH_DOOR
 F:EVIL | NO_FEAR | NO_SLEEP
-M:25:2:0:0
+M:33:2:0:0
 S:breath:Darkness:2:50:7:5:0:0:80:0:0
 S:breath:Flames:2:50:1:5:0:0:80:0:0
 S:wail:Death Drake's Cry:7:222:10:20:0:0:800:0:0
@@ -12318,157 +12662,192 @@ D:creature immortal.
 
 ###### SCALED MONSTERS ######
 
-# Leveling up is not the key. These monsters will ALWAYS be a challenge! A good character build,
-# powerful fully leveled items, and a well executed strategy are required to win.
-# The signature monster type of Secret Levels! :)
+# The signature monster type of Secret Levels, Scaled monsters are always 50% higher
+# level than you. So if you're level 50, the will be level 75. If you're level 100,
+# they will be level 150.
 
-# The depth level of the monsters are equal to the player's level, unless the player is below
-# their base depth level.
-
-# The hp roll is the hp roll per depth levels. So if you give 2d2, and the monster becomes depth
-# 20, hp roll will be 40d40.
-
-# Base stats, skills and base AC are all percentile values of the depth level. So if you make
-# a monster's stats 100, skills 20 and AC 1000, at level 20, it will have base stats of 20, skills
-# of 4 and base AC of 200.
-
-# Dices rolls of attacks and spells powers are also percentile value of depth level.
-
-# The non-scaled values are speed, blows and number of spells.
+# Furthermore, they gain +1% to all their stats, skills, hp and ac modifiers every levels,
+# in addition to getting "Boss" monsters modifiers as well. They often have a lot of powerful
+# attacks, nasty tricks, and sometimes are actually very complex opponents.
 
 #############################
-### Wrath of the Gin'Whal ###
+###  THE ANCIENT DEMIGOD  ###
 #############################
 
-# Are you ready for Secret Levels? This monster will tell. :)
-N:2500:Firestorm Gatekeeper
-G:E:o
-I:140:100:20:100:0:25001:1:0:0:0:0:0:1
-W:30:1:800:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
-C:19:100
-L:6:0:0
-Z:0:0:0:0:0:0:0:2500:0:0:0:0:0
-A:hit:Burning Punch:1:25d10:1:0:0:0:0:0:0
-A:hit:Gust Blades:1:25d10:10:0:0:0:0:0:0
-R:1:100
-R:2:-100
-R:5:75
-R:9:-100
-R:10:100
-R:15:50
-F:FORCE_MAXHP | OPEN_DOOR | SCALED | SPECIAL_GENE | NEVER_BOSS | BASH_DOOR
-F:NO_SLEEP | NO_STUN | NO_FEAR
-M:33:2:0:0
-S:cast:Blaze:2:100:1:5:0:0:30:0:0
-S:cast:Storm:2:100:10:5:0:0:30:0:0
-D:An elemental of fire and wind born from the spirit of Avemorsh himself. 
-D:It guards a magically sealed door and protects anyone from entering 
-D:this forbidden area. It is surrounded by an incredible torrent of flames 
-D:and extremely strong winds. Anything that approaches it will instantly 
-D:be disintegrated by the powerful forces emitted by this creature.
-
-# Flee while you can! Oh wait, even that is difficult to do. :\
-N:2501:Pure Orcish Rage
-G:o:R
-I:180:100:20:100:0:0:0:0:0:0:0:0:1
-W:30:1:1800:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
-E:1:1:1:2:1:1
-C:17:100
-L:8:0:0
-Z:0:0:0:0:0:0:0:0:2501:2501:0:2501:2501
-A:hit:Great Axe:1:25d10:15:0:0:0:0:0:0
-A:hit:Fiery Axe:1:25d10:1:0:0:0:0:0:0
-A:hit:Storm Axe:1:25d10:10:0:0:0:0:0:0
-A:throws:Throwing Axe:3:25d10:15:0:33:0:0:0:0
-A:throws:Burning Axe:3:25d10:1:0:33:0:0:0:0
-A:throws:Gust Axe:3:25d10:10:0:33:0:0:0:0
-F:EVIL | MALE | ORC | SCALED | SPECIAL_GENE | NEVER_BOSS | FORCE_MAXHP
-F:VERY_FAST | OPEN_DOOR | BASH_DOOR | NO_FEAR | NO_CONF
-M:0:0:0:0
-D:An orcish spirit burning with rage. For several ages since the fall of the 
-D:orcish race, this spirit has been accumulating rage and anger. Now, it has 
-D:finally found an opponent to unleash it upon. Millenias of rage awaits 
-D:anyone foolish enough to challenge this spirit.
-
-N:2502:Avemorsh's Torment
-G:o:D
-I:140:100:20:100:0:25003:1:0:0:0:0:0:1
-W:30:1:1500:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
+# As divine beings, they outclass mortals in every ways, with 200% modifiers across the board.
+# Of course, it's a scaled enemy, and it will at LEAST have 275% modifiers because of that.
+# Make it CR4, the ability to recover 20% hp every turns, and you have one powerful foe. 
+# But this is amongst the nicest enemies you will encounter in secret levels. :)
+N:2500:Corrupted Divine Guard
+G:A:W
+I:140:200:20:200:0:0:0:0:0:0:0:0:4
+W:75:1:1700:0
+B:200:200:200:200:0:200:200:200:6:0:1:20:0:0
 E:1:1:1:2:1:1
 C:19:100
-L:12:0:0
-Z:0:0:0:0:0:0:0:0:0:0:0:0:2502
-F:EVIL | MALE | ORC | SCALED | SPECIAL_GENE | NEVER_BOSS | FORCE_MAXHP
-F:OPEN_DOOR | BASH_DOOR | NO_FEAR | NO_CONF
-M:100:1:0:0
-S:cast:torment_spells:999:0:0:0:0:0:0:0:0
-D:A spirit of torment, who took the shape of what seems to be an orcish 
-D:wizard. He seems to be in the process of conjuring nightmarish enemies.
+Z:0:0:0:0:0:0:0:0:2500:0:0:0:0
+A:hit:Halberd:1:6d10:15:0:0:1:11:1:6
+A:hit:Light Strike:1:6d10:6:0:0:1:11:1:6
+A:hit:Flame Strike:1:6d10:1:0:0:1:11:1:6
+A:hit:Gust Strike:1:6d10:10:0:0:1:11:1:6
+R:3:33
+R:6:100
+R:10:33
+F:CAN_FLY | FORCE_MAXHP | MALE | EVIL | SCALED | OPEN_DOOR | BASH_DOOR
+F:SPECIAL_GENE | NEVER_BOSS | NO_FEAR
+M:50:2:1:25
+S:cast:Holy Blast:2:40:6:5:0:0:50:1:3
+S:cast:Inferno:2:40:1:5:0:0:50:1:3
+S:cast:Storm:2:40:10:5:0:0:50:1:3
+D:Divine Guards are upper celestial beings that lives in the planes of demigods and other 
+D:immortal beings, and are part of those commonly known as Divine Champions. Although they 
+D:are low rank Divine Champions, they outclass most mortals in every ways, in both body and 
+D:mind, as well as other lesser celestials. They rarely appear in the mortal world except 
+D:in times of great peril. However, in this plane, the Divine Guards have been corrupted 
+D:by some evil force. They are now twisted and evil, and will not hesitate to use their 
+D:immense power to cause death and destruction. This corrupted winged warrior wields a 
+D:powerful blessed halberd, and wields incredibly powerful magic of light and wind. Thanks 
+D:to his immortal life force, wounds that do not destroy him will heal extremely quickly.
 
-N:2503:Cursed Orb
-G:*:R
-I:160:100:20:100:0:25005:1:0:0:0:0:0:1
-W:30:1:10:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
+# Same as above, but this one is special and has dialogue.
+N:2501:Corrupted Divine Guard
+G:A:W
+I:140:200:20:200:0:25002:1:25002:0:0:0:0:4
+W:75:1:1700:0
+B:200:200:200:200:0:200:200:200:6:0:1:20:0:0
+E:1:1:1:2:1:1
+C:19:100
+Z:0:0:0:0:0:0:0:0:2500:0:0:0:0
+A:hit:Halberd:1:6d10:15:0:0:1:11:1:6
+A:hit:Light Strike:1:6d10:6:0:0:1:11:1:6
+A:hit:Flame Strike:1:6d10:1:0:0:1:11:1:6
+A:hit:Gust Strike:1:6d10:10:0:0:1:11:1:6
+R:3:33
+R:6:100
+R:10:33
+F:CAN_FLY | FORCE_MAXHP | MALE | EVIL | SCALED | OPEN_DOOR | BASH_DOOR
+F:SPECIAL_GENE | NEVER_BOSS | NO_FEAR | DEATH_DIALOG
+M:50:2:1:25
+S:cast:Holy Blast:2:40:6:5:0:0:50:1:3
+S:cast:Inferno:2:40:1:5:0:0:50:1:3
+S:cast:Storm:2:40:10:5:0:0:50:1:3
+D:Divine Guards are upper celestial beings that lives in the planes of demigods and other 
+D:immortal beings, and are part of those commonly known as Divine Champions. Although they 
+D:are low rank Divine Champions, they outclass most mortals in every ways, in both body and 
+D:mind, as well as other lesser celestials. They rarely appear in the mortal world except 
+D:in times of great peril. However, in this plane, the Divine Guards have been corrupted 
+D:by some evil force. They are now twisted and evil, and will not hesitate to use their 
+D:immense power to cause death and destruction. This corrupted winged warrior wields a 
+D:powerful blessed halberd, and wields incredibly powerful magic of light, fire and wind. Thanks 
+D:to his immortal life force, wounds that do not destroy him will heal extremely quickly.
+
+# The sweet Lydia! One of the very few good things to happen in a Secret Level!
+N:2502:Lydia
+G:h:y
+I:110:33:20:60:0:0:0:25003:20:0:0:0:1
+W:30:1:1300:0
+B:25:40:150:0:0:150:25:150:0:0:0:0:0:0
+E:1:1:1:2:1:1
 C:0:0
-L:5:0:0
-F:CAN_FLY | RAND_50 | RAND_25 | SCALED | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
-F:VERY_FAST | NONLIVING | COLD_BLOOD | SPECIAL_GENE
-M:0:0:0:0
-D:A floating sphere filled with evil energy.
+R:6:25
+R:9:25
+R:11:25
+F:DROP_CORPSE | FEMALE | GOOD | FRIENDLY | PET | UNIQUE | OPEN_DOOR | BASH_DOOR
+F:SPECIAL_GENE | FORCE_MAXHP | NEVER_MOVE_FRIENDLY
+M:100:1:1:25
+S:cast:Light Ball:2:10:6:2:0:0:20:1:3
+D:A young, blond-haired elf maiden of mysterious origins. She was abused by the corrupted 
+D:celestials, but you saved her. She is peaceful, and she is no warrior, she do seem to have 
+D:a few mysterious powers of her own...
 
-N:2504:Eternal Pain of a Fallen Orc
-G:o:r
-I:140:100:20:100:0:0:0:0:0:0:0:0:1
-W:30:1:1800:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
-E:1:1:1:2:1:1
-C:19:100
-L:8:0:0
-A:hit:Painful Strike:1:25d10:162:0:0:0:0:0:0
-A:hit:Ki Strike:1:25d10:17:0:0:0:0:0:0
-A:throw:Fire Lance:1:30d15:1:0:50:0:0:0:0
-A:throw:Gust Lance:1:30d15:10:0:50:0:0:0:0
-F:DROP_CORPSE | MALE | ORC | SCALED | FORCE_MAXHP
-F:OPEN_DOOR | BASH_DOOR | NEVER_BOSS | SPECIAL_GENE
-F:NO_FEAR | NO_CONF
-M:25:2:0:0
-S:cast:Harm:1:250:162:0:0:0:30:0:0
-S:cast:Summon Eternal Pain:7:2504:1:20:0:0:0:0:0
-D:An orcish spirit tied to the eternal pain that Avemorsh is enduring. Lots of 
-D:pain...will only bring even more of it.
-
-# The very first secret boss! :)
-# He is incredibly tough until you figure out how his attacks works.
-# Then he should become manageable.
-# It's a lot more about learning to counter his attacks that anything else.
-# You will fail if you just try outlevel him, as he is a scaled enemy.
-N:2505:Avemorsh
-G:o:o
-I:140:100:20:100:0:25008:1:25003:0:0:0:0:1
-W:30:1:1800:100
-B:100:100:100:100:100:100:100:100:1:0:0:0:0:0
-E:1:1:1:2:1:1
-C:19:100
-L:15:0:0
-Z:0:0:0:0:0:0:0:0:0:0:0:2505:2505
+# A mini Pyrex. By no mean as tough, but a nice warm-up. :)
+# It isn't that dangerous physically, but it DOES have a good chunk of hp, and has powerful
+# magic. Has a close range aura that does HEAVY damage, AND spawn fire fields everywhere!
+N:2503:Firestorm Elemental
+G:E:o
+I:160:400:20:130:0:25005:2:25004:0:0:0:0:4
+W:75:1:3000:0
+B:130:150:300:130:0:300:150:250:4:0:1:20:0:0
+C:2:100
+Z:0:0:0:0:0:0:0:0:2503:0:0:0:0
+A:hit:Blazing Punch:1:8d8:1:0:0:1:12:1:7
+A:hit:Gust Slash:1:8d8:10:0:0:1:12:1:7
 R:1:100
+R:2:-50
+R:5:75
+R:9:-50
 R:10:100
-R:108:100
-R:117:100
-F:DROP_CORPSE | MALE | ORC | SCALED | UNIQUE | SECRET_BOSS | FORCE_MAXHP
-F:OPEN_DOOR | BASH_DOOR | NEVER_BOSS | SPECIAL_GENE
-F:ONLY_ITEM | DROP_4D2 | DROP_2D2 | DROP_GOOD | DROP_GREAT
-F:CANNOT_COUNTERSPELL | DEATH_DIALOG | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP
-M:100:1:0:0
-S:cast:avemorsh_attacks:999:0:0:0:0:0:0:0:0
-D:Avemorsh was the most powerful orc, and quite possibly one of the most powerful 
-D:warriors in the history of Portralis. Yet, little is known about him. It's almost 
-D:as if he has been erased from history. It seems like there is something important 
-D:that he cannot remember. It seems like a force even greater than him is controlling 
-D:him, and forcing him to fight against his will. You cannot even imagine what a 
-D:being stronger than Avemorsh would be, except maybe some kind of ancient wyrm 
-D:or a divine champion...
+R:15:60
+F:FORCE_MAXHP | EVIL | OPEN_DOOR | SCALED | SPECIAL_GENE | BASH_DOOR
+F:NEVER_BOSS | NO_SLEEP | NO_STUN | NO_FEAR | NO_CONF | DEATH_DIALOG
+M:100:3:1:25
+S:cast:Blazing Blast:2:50:1:5:0:0:50:1:3
+S:cast:Tornado:2:50:10:5:0:0:50:1:3
+D:An Elemental with the powers of Fire and Wind, it draws upon the powers of 
+D:Pyrex the Soul Burner to empower itself and has gained formidable powers. It spreads 
+D:devastating blazes everywhere it goes, and few creatures are capable of surviving 
+D:it's fiery attacks. It has a body of flames, surrounded by deadly winds. While it 
+D:lacks the melee combat ability and defenses of the Divine Guards, it more than make 
+D:up for it by having a greater life force and being a much more powerful magic user, 
+D:as well as being much more resistant to magic.
+
+# Same thing, but no dialog.
+N:2504:Firestorm Elemental
+G:E:o
+I:160:400:20:130:0:0:0:0:0:0:0:0:4
+W:75:1:3000:0
+B:130:150:300:130:0:300:150:250:4:0:1:20:0:0
+C:2:100
+Z:0:0:0:0:0:0:0:0:2503:0:0:0:0
+A:hit:Blazing Punch:1:8d8:1:0:0:1:12:1:7
+A:hit:Gust Slash:1:8d8:10:0:0:1:12:1:7
+R:1:100
+R:2:-50
+R:5:75
+R:9:-50
+R:10:100
+R:15:60
+F:FORCE_MAXHP | EVIL | OPEN_DOOR | SCALED | SPECIAL_GENE | BASH_DOOR
+F:NEVER_BOSS | NO_SLEEP | NO_STUN | NO_FEAR | NO_CONF
+M:100:3:1:25
+S:cast:Blazing Blast:2:50:1:5:0:0:50:1:3
+S:cast:Tornado:2:50:10:5:0:0:50:1:3
+D:An Elemental with the powers of Fire and Wind, it draws upon the powers of 
+D:Pyrex the Soul Burner to empower itself and has gained formidable powers. It spreads 
+D:devastating blazes everywhere it goes, and few creatures are capable of surviving 
+D:it's fiery attacks. It has a body of flames, surrounded by deadly winds. While it 
+D:lacks the melee combat ability and defenses of the Divine Guards, it more than make 
+D:up for it by having a greater life force and being a much more powerful magic user, 
+D:as well as being much more resistant to magic.
+
+# And here we have the first scaled boss, Pyrex the Burner of Souls! :)
+# If it's your first scaled boss, he will most likely kill you many, many times
+# until you figure out how tricks to beat him. There could be more than one
+# possibility, and you may have to be creative. Good luck! :)
+N:2505:Pyrex, the Burner of Souls
+G:E:R
+I:180:600:20:300:0:25007:1:25006:0:0:0:0:5
+W:75:1:50000:0
+B:300:150:600:300:0:400:10:300:6:0:1:20:0:0
+C:19:100
+L:2:0:0
+Z:0:0:0:0:0:0:0:0:2505:0:0:0:2505
+A:crush:Blazing Fist:1:12d12:1:0:0:1:10:1:5
+A:slash:Tempest Strike:1:12d12:10:0:0:1:10:1:5
+R:1:100
+R:2:-25
+R:5:75
+R:9:-25
+R:10:100
+R:15:75
+F:FORCE_MAXHP | EVIL | MALE | UNIQUE | SCALED | SPECIAL_GENE | BASH_DOOR | OPEN_DOOR
+F:CAN_FLY | NO_SLEEP | NO_STUN | NO_FEAR | NO_CONF | DEATH_DIALOG
+F:ONLY_ITEM | DROP_4D2 | DROP_3D2 | DROP_GOOD | DROP_GREAT
+M:50:3:1:25
+S:cast:Infernal Blaze:2:60:1:10:0:0:60:1:3
+D:Pyrex, the Burner of Souls, is a giant elemental that was once made of fire and wind, 
+D:but his rage and violence grew so much that the fire became the dominant aspect in him. 
+D:He represents the magical aspect of Avemorsh Gin'Whal, and he is responsible for 
+D:corrupting and controlling the minds of the Divine Guards that were once living peacefully 
+D:in this plane. Over the time, Pyrex's power has grown to be nearly equal to Avemorsh himself, 
+D:and his authority is unquestionned.

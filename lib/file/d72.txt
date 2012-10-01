@@ -1,0 +1,23 @@
+N:1:0:0:0:0:0
+I: ;
+T:The golem crumbles on the floor, destroyed by your attacks.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:138:1:0:0:0
+I: ;
+T:It seems like it was guarding a few treasures, which you are now free to take.;
+T:Besides that, however, the room is completely empty. You have a feeling;
+T:that this is the place you are looking for, and you should investigate it;
+T:and see if you can find anything.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:138:0:0:0:0
+I: ;
+T:It seems like it was guarding a few treasures, which you are now free to take.;
+T:Besides that, however, the room is completely empty. There doesn't seem to be;
+T:any clues as to why the golem was placed here, or what this room was used for,;
+T:so you might as well just take the treasures and leave for the time being.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

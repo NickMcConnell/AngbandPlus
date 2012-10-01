@@ -57,6 +57,7 @@ EVENTS AND WHAT THEY MEAN:
 29053: Blessings. 1. Protection 2. F. Strike 3. Might. 4. Dexterity.
 29054: "Divine Intervention" cooldown.
 29055: "Divine Intervention" skills bonus.
+29056: Elemental Being Aura's. 0 is off, 1 is on.
 
 29998: Revive marker.
 29999: Limbo first.
@@ -153,14 +154,33 @@ EVENTS AND WHAT THEY MEAN:
 123. 2nd Cleo first.
 124. 2nd Cleo slain.
 
--- Avemorsh basement.
-125. Orc Wight first.
-126. Rod of spirit trapping picked up.
-127. 1. Keep rod.
-128. 1. Rogoth is gone.
-
 -- Back in Fidac...now possible to get sword back from Walmus.
 129. Walmus gone forever.
+
+-- Professor Savius and Avemorsh.
+130. Savius first. 1. First encounters. 2. Spoke about orcs.
+131. Savius quest #1 started.
+132. Old orc ruins dialog.
+133. Ruins dialog 1.
+134. Ruins dialog 2.
+135. Ruins dialog 3.
+136. Ruins dialog 4.
+137. Ruins text. 1. Text transcribed.
+138. Savius quest #2 started.
+139. Switch found.
+140. Golem.
+141. Empty room first.
+142. Blue Orb room first.
+143. Blue Orb still there.
+144. Blue Orb first.
+145. Red Rock Labyrinth quest started.
+146. Savius red rock.
+147. Estaroth defeated.
+148. Estaroth first.
+149. Selling journal. 2. Journal sold.
+150 - 155. Hoard items.
+156. Blue Orb quest completed.
+157. Savius quests end.
 
 -- Jindar --
 1000. Rolf's state. 0: never spoke. 1: Talked your way inside palace. 2. Let you enter.
@@ -338,16 +358,16 @@ have started the main quest.
 1550. Rhyzendal arc start.
 1551. Locked door in Q520.
 
--- Wrath of the Gin'Whal
+-- Secret Levels
+
+-- The Ancient Demigod.
 25000. Main event.
-25001. Gatekeeper beaten.
-25002. Second challenge: Pure Orcish Rage
-25003. Third challenge: Avemorsh's Torment
-25004. Torment caster ability.
-25005. 0. Will summon Nightmares. 1. Will summon demons.
-25006. Fourth challenge: Eternal Pains.
-25007. Avemorsh first.
-25008. Avemorsh defeated.
-25009. Avemorsh attacks.
-25010. Avemorsh starting lives.
-25011. Avemorsh third phase counter.
+25001. First time.
+25002. First encounter.
+25003. First encounter beaten.
+25004. Lydia dialog.
+25005. Firestorm Elemental. 1. Spawned. 2. Cleared.
+25006. Last encounter before Pyrex. 1. Started. 2. Cleared.
+25007. Pyrex defeated.
+25008. Pyrex first.
+25009. Pyrex phases dialog.

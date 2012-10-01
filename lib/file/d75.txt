@@ -1,0 +1,158 @@
+N:1:149:2:0:0:0
+I:Estaroth;
+T:*Estaroth awakens.*;
+T:Hmmm? Oh, it's you again. What do you want?;
+A:Your treasure. Prepare for battle!:0:0:0:10:1052:0:4:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:149:1:0:0:0
+I:Estaroth;
+T:*Estaroth awakens.*;
+T:Hmmm? Oh, it's you again. Have you brought the 200000 golds I've asked for?;
+A:[Charisma] Please, this is important. I can't pay this, but I must have it!:5:100:0:1:13:0:0:0:0
+A:Here's the money. [Pay 200000 golds]:0:0:0:8:200000:9:10:0:0
+A:I'll take it by force, along with the rest of your hoard!:0:0:0:10:1052:0:4:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:148:1:0:0:0
+I:Estaroth;
+T:*Estaroth awakens.*;
+T:Hmmm? Oh, it's you again. What do you want?;
+A:Is this the ancient Red Rock Labyrinth?:1:145:1:1:5:0:0:0:0
+A:Your treasure. Prepare for battle!:0:0:0:10:1052:0:4:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:Before you stands a huge red dragon. It appears that this place is his home,;
+T:and he is confortably sleeping in front of a huge locked door, which you;
+T:assume is probably his hoard. As you approach, he awakens.;
+A:[CONTINUE]:0:0:0:1:2:0:0:148:1
+%
+
+N:2:0:0:0:0:0
+I:Estaroth;
+T:Greetings, <RACE>. My name is Estaroth, and this is my home.;
+T:May I ask you why you are bothering me in my sleep?;
+A:Is this the ancient Red Rock Labyrinth?:1:145:1:1:5:0:0:0:0
+A:I was just passing by.:0:0:0:1:3:0:0:0:0
+A:Your treasure is mine, dragon!:0:0:0:10:1052:0:4:0:0
+%
+
+N:3:0:0:0:0:0
+I:Estaroth;
+T:Ah, I see. An adventurer, I presume... Fine, do as you please, but;
+T:I warn you, if you try to steal my hoard, I will turn you into a pile;
+T:of ashes, and you will join the many other creatures who tried before;
+T:you.;
+T:*He goes back to sleep...*;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Estaroth;
+T:*sigh*;
+T:Very well, then, let's do this. Give me your best shot, though I'm pretty;
+T:sure it won't be enough.;
+T:*The giant wyrm stands up, ready to fight you.*;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Estaroth;
+T:Red Rock Labyrinth? Yes, indeed, this place used to be called like this.;
+T:But that was ages ago. How does a <RACE> mortal knows this?;
+A:[Tell him the whole story.]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:Estaroth listens to your story with only minimal interest. For a minute,;
+T:you aren't sure if he's going to fall asleep or not. Clearly, he must be;
+T:used to hearing all kind of tales from passing adventurers and other;
+T:living creatures that he probably just doesn't care anymore.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Estaroth;
+T:So that's what it's all about. You're looking for some clues regarding that;
+T:old Elf. However, I might have just what you're looking for. When I first;
+T:came here a long time ago, I've found an old journal, talking about;
+T:someone named Dorgal, or Avemorsh Gin'Whal... I've read it. Didn't really;
+T:care about it, but kept it in my hoard nevertheless. I suppose that;
+T:"Dorgal" might like it if you were to read him the journal...;
+A:Do you still have it?:0:0:0:1:8:0:0:149:1
+%
+
+N:8:0:0:0:0:0
+I:Estaroth;
+T:Yes, I still have it. However, I won't just give it to you for free.;
+T:It seems like it may be more valuable than I thought. So while I won't give;
+T:it to you, I can sell it to you. For 200000 golds. What do you say?;
+A:[Charisma] Please, this is important. I can't pay this, but I must have it!:5:100:0:1:13:0:0:0:0
+A:Here's the money. [Pay 200000 golds]:0:0:0:8:200000:9:10:0:0
+A:I don't have that much money.:0:0:0:1:12:0:0:0:0
+A:I say I'll take it by force. Prepare yourself, dragon!:0:0:0:10:1052:0:4:0:0
+%
+
+N:9:0:0:0:0:0
+I:Estaroth;
+T:Thanks you, <RACE>. Now hold one...;
+T:*He uses some magic to teleport an object from his hoard. An old journal;
+T:appears in your hands.*;
+A:[CONTINUE]:0:0:0:3:1272:0:11:149:2
+%
+
+N:10:0:0:0:0:0
+I:Estaroth;
+T:I said 200000, <RACE>, do not try to fool me, or you'll regret it.;
+T:Come back when you have enough money, or forget about the journal.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Estaroth;
+T:And there you go. Pleasure doing business with you. Now, if you'll excuse me,;
+T:I'll return to my sleep. Good night.;
+T:*He goes back to sleep...*;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Estaroth;
+T:Then you have no journal either. Return with the money if you want it,;
+T:or forget about it.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Estaroth;
+T:Hmmm... well, it IS just a useless journal, after all. To be honest,;
+T:I couldn't care less about your "Avemorsh" or whatever... But it's really;
+T:against my principles to just part away with something for free. But I'm;
+T:ready to give you a huge discount, and sell it for 10000 instead.;
+T:Sounds fair?;
+A:All right, I'll pay 10000. [Pay 10000 golds]:0:0:0:8:10000:9:15:0:0
+A:I don't have that much money.:0:0:0:1:14:0:0:0:0
+A:No, I'll take it by force. Prepare yourself, dragon!:0:0:0:10:1052:0:4:0:0
+%
+
+N:14:0:0:0:0:0
+I:Estaroth;
+T:So you were able to come all the way down here, yet you can't even pay;
+T:10000 golds? Don't be ridiculous! Come back when you're serious about;
+T:doing business.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Estaroth;
+T:Hmph. I make you a generous offer, and you try to fool me in return?? Hmph...;
+T:I'll pretend you just miscounted, but I warn you, annoy me too much,;
+T:and you'll regret it. Come back when you have enough money.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

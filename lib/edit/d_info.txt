@@ -80,7 +80,7 @@ F:BIG | PRINCIPAL
 
 N:5:Underground Cave
 D:an entrance to an underground cave
-W:5:15:1:106:0:14:160:25000:1261:25000:25000
+W:5:15:1:106:0:14:160:25000:1273:25000:25000
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
@@ -234,11 +234,11 @@ W:50:55:1:514:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 
-N:29:Cave
-D:an entrance to a cave
-W:30:40:1:34:0:14:160:0:0:0:0
-L:1:100:1:0:1:0
-A:56:70:51:15:50:15:57:58
+N:29:Ruins Caverns
+D:an entrance to deep caverns
+W:50:60:1:34:0:14:160:0:0:0:0
+L:88:100:1:0:1:0
+A:97:100:51:0:50:0:57:58
 
 N:30:Ivhala Palace Area, Left Wing
 D:an entrance to a dungeon
@@ -273,6 +273,12 @@ W:37:42:1:138:0:14:160:0:0:0:0
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:UNDEAD
+
+N:35:Red Rock Labyrinth
+D:an entrance to a deep dungeon
+W:60:75:1:38:0:14:160:0:0:0:0
+L:1:90:86:10:1:0
+A:56:70:85:15:86:15:57:58
 
 
 # Dungeon #200 is the random dungeon. Do not use it!

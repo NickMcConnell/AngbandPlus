@@ -1,20 +1,26 @@
-Ghostly Misfortune(Passive)
+Restless Force(Active/Passive)
 
-Effect: Your body becomes ghostlike, allowing you to pass through walls and
-        gain resistance to physical attacks. Also allows you to use your
-        Misfortune to get a chance to cancel out any attacks.
-Physical resistance bonus: +10%
-Attack cancelling power: 33% of Misfortune.
-Extra points: +10% resistance to Physical.
-              +33% of Misfortune to cancelling power.
+Effect: Much like a Restless Dead, you regenerate a % of your hp every turns.
+        You can also activate this ability to cast a powerful wave of fire
+        a your enemies that is based on your melee damages.
+% of hp healed per turns: 1%
+Damage: Normal weapon damage + 4%/Misfortune (max 20%)
+Radius: 1 (chain attack, range 30) + 1/3 Misfortune (max 10)
+Element: Fire
+Extra points: +1% hp healed per turns for every 3 points, up to a maximum of
+              10% at 30 points.
+              +20% to damage.
 
-This passive ability will give you resistance to Physical attacks,
-and if your Misfortune is at least as high as the dungeon level you're in,
-you will gain the ability to move through walls. Also, you will get a chance
-to counter any attacks that enemies uses on you, based on your Misfortune
-level, this ability's level and the monster's level + stat, which can be
-strength for melee attacks, dexterity for ranged attacks or mind for
-magic attacks.
+The passive effect of this ability allows you to regenerate some of your hp
+every turns. The more hp you have, the more noticeable this effect is, and a few
+points in this can easily make you nearly untouchable by lesser enemies. It is
+recommended to combine this ability with defensive abilities, so that you won't
+take much damage, and what you do take you will regenerate it quickly.
+
+The active effect will cast a powerful chain of fire at enemies that is based
+on your base melee damage. This ability is still treated as a melee attack,
+despite the range and area of effect, so you do not need to raise Spellcraft
+or Elemental skill for this ability to be effective.
 
 ABOUT NIGHTMARE ABILITIES:
 

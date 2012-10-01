@@ -1,0 +1,28 @@
+N:1:0:0:0:0:0
+I: ;
+T:You go down the stairs, and reach a small room. Inside that room is a floating;
+T:blue orb. You're not sure if it is sentient or not, but at least, it doesn't;
+T:try to attack you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:As you approach, it starts to glow. And then, you hear a voice...;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:Approach, strange. We need to talk...;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:The voice fades. The orb is still glowing, but there's no one around you.;
+T:Was it talking to you through telepathy, talking directly to your mind?;
+T:In any cases, maybe you can to approach this orb, and see if you can;
+T:interact with it.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

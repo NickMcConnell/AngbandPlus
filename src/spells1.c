@@ -1058,6 +1058,9 @@ void take_hit(s32b damage, cptr hit_from)
 	/* Paranoia */
 	if (death) return;
 
+	/* If we're leaving, no damage. */
+	if (p_ptr->leaving) return;
+
 	/* Disturb */
 	disturb(1, 0);
 

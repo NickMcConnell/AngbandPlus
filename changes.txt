@@ -1,48 +1,56 @@
-Portralis 0.5 alpha 2.2.
+Portralis 0.5 alpha 2.3.
 
 CHANGES
 ---------
 
 
-Gameplay:
+CONTENT:
 
-- Three classes are back: Priest, Bard and Elemental Lord. They have almost
-  been entirely redone, and they play out differently that they did in 0.4.
-  So be sure to try them out!
-- Music has been tweaked for 0.5. Overall, Charisma cost has been increased,
-  but the Bard class has plently of Charisma-enhancing abilities, so everything
-  should work out.
-- Charisma and stores discounts works differently. In the previous version,
-  it was a fixed reduction that could eventually reach 100%, and was applied
-  to everything, except high end items, like scrolls of instant leveling.
-  (in other words, it didn't apply to what you'd want charisma for...)
-  Now, the way it works is that it compares your Charisma to the item's depth
-  level to get a reduction. You need more Charisma to get a good discount on
-  high level items than you need for low level ones, but it can now work on
-  any items. The early game benefits of Charisma should now be much more
-  visible and significant. However, to get a significant discount on the
-  scroll of instant item leveling, you will need a LOT of Charisma, and you
-  probably won't have much choice but to use the Bardic Reputation ability
-  to help you out.
-- An old relic of 0.4 made Magic Blocking counters of enemies MUCH less
-  effective than Melee and Ranged blocking ones, because Magic Defense was
-  still lowering the chance of countering. This has been removed, so don't
-  be surprised if high level enemies blocks your spells more often!
+- New questline added! It focus on the history of the ancient Orc race, and although the zulgors tried to bring them back, historically, they were defeated in an ancient war. But what do we know about them? And were they really the barbarians that history describes? The questline starts right up the Avemorsh tomb, at (44,44), the same old ruins where the Stealthy Vipers quests brings you. Look for a building guarded by dwarves, and enter it.
+
+Included in this quests: two dungeons, from depth 50 to 60, and 60 to 75! New lore on the Orc race, new enemies to fight, and a couple more surprises. :)
+
+It's a quest for higher level players. I recommend a level of at least 35-40 to start it, and have some blue gear(preferably a full set of blue gear). You may want to start it only after you defeat Balcia. Remember, this is depth 50+ we're talking about!
+
+GAMEPLAY/BALANCE:
+
+- The Sewers Quylthulg is now level 12 instead of 18, to make it a bit easier to face it, since it's right after Balgam, and there's no real challenging dungeon before it.
+- Dropped the price of the "Harm" book from 3000 to 300. Should make it easier to start out with Mysticism.
+- The "False Notes" harmony and the "No Rhythm" rhythm will now be sold in Udor's Music Shop at VERY cheap price. This will help beginner Bards to compose their first starter song, which is currently difficult due to the price of songs components, and Charisma requirements.
+- The CR bonus to stats for enemies has been changed, and lowered quite a bit. For CR6 and higher, the modifier is a 100% multiplier, for CR3 to 5, it's 50%, CR2 is 25% and no bonus for CR1. So CR1 to 3 are the same, but 4 and higher have been nerfed. Furthermore, they are no longer cumulative with the elite/boss/nightmare stats bonus. The game will use whichever modifier is the highest, but will not apply both. This means that a normal CR4 enemy, and a boss CR4 enemy will have pretty much the same stats(although bosses forces the maximum possible level). Note that this change does not apply to hp modifiers, so elite/boss/nightmare enemies will still get more hp than their normal counterparts.
+
+CLASSES:
+
+Priest:
+- The Priest ability "Wisdom Casting Mastery" will now give a bonus to Wisdom of +10% per points, based on base Wisdom.
+- Mystical Power's cost reduction will now apply only to the first effect of a spell you create. This is to prevent the creation of spells that ends up having 5 "free" effects and costing 0.
+- Remove Curse will now give a passive Wisdom bonus of +20% per points. Think of it as becoming wiser by resisting the temptation of using cursed items at full strength!
+
+Defender:
+- The "Interrupt" ability has been buffed. It's rolls improves by 20% per points instead of 10%, and will now only take into account the monster's skills, and not base stats.
+
+Elemental Lord:
+- The aura of the "Elemental Being" ability can now be toggled on and off using the "K" command.
+
+Nightmare Abilities:
+- Added Restless Force. Requires you to defeat Restless Dead, who returns this release! It's regeneration has been nerfed(still there, but it doesn't fully heal every times it acts anymore, it's a % of it's hp every turns), but it has gained a few other things, so it is still very dangerous. The ability allows you to gain some regeneration for yourself, as well as allowing you to cast a powerful wave of fire. (kind of like Elemental Wave)
+- Cursed Evasion's extra dodge roll has been doubled in power. In addition, the ability now provides a passive bonus to Dexterity and Agility. Considering how hard the Nightmare Shadow Mistress is, I think the ability needed a buff.
+
+USER INTERFACE:
+
+- The character screen has been updated with several new information regarding your various power/damage bonus, defenses and hit rates/accuracies. It includes all related stats, skills and most abilities. I say "most" abilities because certain abilities are not included in calculations in cases where the ability only apply to a specific situation(such as a bonus against a particular kind of enemy, an enemy afflicted by a condition, etc...). So while not 100% accurate due to this, it will still give you a very good idea on just how strong you are, and will make the 0.5 system more transparent, because you will see the stats and skills increasing some numbers.
+
+BUG FIXES:
+
+- Art of Poisoning's activated effect will now work properly.
+- Passive self-projections, such as Blessed Blood and songs, will no longer trigger while you are resting, which was preventing rest from working.
+- Balcia's special move will now trigger when she's below 25% hp, instead of below 3 lives... which she always is, because she no longer has extra lives in 0.5.
+- Fixed an annoying graphical glitch that would happen when buying something in stores, a "black stripe" would show up on one of the store items.
+- Changed the function "mutiply_divide" to use a float-based formula. With certain combinations of high numbers, overflows were caused by the fact that it was doing ((X * Y) / Z). So if you had ((30000000 * 80) / 100), it would cause an overflow. So now it will instead do 30000000 * 0.8, which should work just fine. I've discovered this while testing a character with very high strength, a cursed 22d22 claymore, using Spin Attack. Was doing About 37M damage, but thanks to high defense, the monster took 49M... made no sense. Now fixed, the damage are properly reduced. So if you were hoping to one-shot Nightmare Shadow Mistresses by exploiting this bug, tough luck. :)
+- In some cases, self-projections went through Magic Defense mitigation, even in the case where it's not a monster attack. Stepping in a damage field almost always crashed the game. This has been fixed. Now, I don't know if it will fix other self-projection bugs as well, but it's at least a step in the right direction. 
 
 
-Bugs fixed:
-
-- Fixed an issue with high level boss monsters that caused an infinite loop
-  and crashed the game. Happened frequently at dungeon levels 60+.
 
 Known bugs:
 
-- Unfortunately, the crashes issues for self-projections(potions, effect songs,
-  water, lava, etc...) are not completely fixed. I've still encountered a few
-  intermitently. Just when I thought I finally had a save with the crash,
-  attempts at debugging it have been futile. The crash goes away with irrelevant
-  changes to the code, like adding a debug message, and comes back when taken
-  out... for a while. Then they all went away. I wonder if it's some kind of
-  memory addressing issue, or something with the way the lua files are
-  processed... in any cases, this one remains a mystery. Feel free to post save
-  files that you have with the bug, and I'll take a look at them.
+- Self-projection crash bugs may still be around.

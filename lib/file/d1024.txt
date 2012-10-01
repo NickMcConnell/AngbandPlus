@@ -44,7 +44,7 @@ A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 N:5:0:0:0:0:0
 I:Cloaked Man;
 T:hmmm... not bad. I can see why Balgam was defeated. Very good, <NAME>,;
-T:you definitly live up to your title of <CLASS>.;
+T:you definitely live up to your title of <CLASS>.;
 A:[CONTINUE]:0:0:0:1:6:0:0:0:0
 %
 

@@ -1,57 +1,195 @@
+N:1:25004:1:0:0:0
+I:Lydia;
+T:<NAME>, you're safe! Please be careful. You are me and Dogal's;
+T:only hope... I would hate to see you being destroyed.;
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:We're in Heavens?:0:0:0:1:14:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:17:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
 N:1:0:0:0:0:0
-I: ;
-T:After a long and difficult battle, Avemorsh finally falls on the ground.;
-T:His eyes stops glowing, and the purple energy that was cursing him is;
-T:gone.;
-A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+I:Lydia;
+T:You must flee this place, <NAME>... if you stay here, you will;
+T:be destroyed for sure. I... I don't want that to happen.;
+A:I am staying here, Lydia.:0:0:0:1:2:0:0:0:0
 %
 
 N:2:0:0:0:0:0
-I:Avemorsh;
-T:*pant*...*pant*...congratulations, <CLASS>. You have defeated me.;
-T:You have earned my greatest respect. I have been trapped in this place;
-T:for ages... This is a place that is between the material plane and the;
-T:plane of spirits. A prison that kept me prisoner ever since the fall;
-T:of my race. The purple energy you saw was a mind controlling spell;
-T:casted by none other than Arikyenzal himself!;
-A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+I:Lydia;
+T:But... but why?;
+A:I will save you. You and Dorgal.:0:0:0:1:3:0:0:0:0
 %
 
 N:3:0:0:0:0:0
-I:Avemorsh;
-T:I don't have much time left...there is something you must know.;
-T:Daldumaar... the elves in Nimbraya worships him as a champion who fought;
-T:the mighty Destroyer Arikyenzal, and saved Nimbraya. But the real story;
-T:is very different. Daldumaar was actually a SERVANT of Arikyenzal!!;
-A:A servant of Arikyenzal? You mean...the Nimbrayan religion is wrong??:0:0:0:1:4:0:0:0:0
+I:Lydia;
+T:Dorgal? !! Oh! I spoke the forbidden name! I... Oh, sorry. Speaking the;
+T:true name of Avemorsh Gin'Whal is strictly forbidden here. He must always;
+T:be referred to by his title, "Avemorsh Gin'Whal", The Strongest of Fire and;
+T:Wind. But how do you know him? He has been here for ages, and almost;
+T:completely erased from history in the mortal world!;
+A:"Almost". But me and a gnome were able to find clues that led me here.:0:0:0:1:4:0:0:0:0
 %
 
 N:4:0:0:0:0:0
-I:Avemorsh;
-T:I know it's difficult to believe... but Arikyenzal is the one behind all;
-T:of this. Behind the orc war...and many other things. It will be difficult;
-T:for you to prove that. But if you can...please... let the truth be known.;
-T:Let the world know what we orcs really were!;
-A:I will...if I can.:0:0:0:1:5:0:0:0:0
+I:Lydia;
+T:I see. I suppose it's a long story. I'd love to hear it, but I don't believe;
+T:we have the time for this right now...;
+A:Where is Dorgal?:0:0:0:1:5:0:0:0:0
 %
 
 N:5:0:0:0:0:0
-I:Avemorsh;
-T:Here...take this. This is the axe I've used during our battle.;
-T:It was forged from the pures ores of adamant. May it serve you well in;
-T:the battles to come.;
-T:Farewell, <CLASS>...;
-A:[CONTINUE]:0:0:0:3:38:4:6:0:0
+I:Lydia;
+T:See the door to the north? It leads to Avem... Dorgal. Unfortunately, the;
+T:door is sealed by a powerful force. Such is the will of the evil man who;
+T:once forced Dorgal in here. Although Dorgal was able to awaken his full;
+T:potential, the magic used to give him power made him completely under the;
+T:control of that man, and without a will of his own. So while the corrupted;
+T:Divine Guards considers him the master, he really isn't.;
+A:That man? You mean the Elf?:0:0:0:1:6:0:0:0:0
 %
 
 N:6:0:0:0:0:0
-I: ;
-T:Avemorsh falls on the ground. Flames consumes what's left of his body;
-T:and a moment after, he is gone. On this day, you have defeated one of;
-T:the mightiest warriors in Portralis...but at the same time, you have;
-T:learned a very important piece of information that could greatly shake;
-T:the kingdom of Nimbraya. Right now, you may leave this place. But if;
-T:you ever visit Nimbraya one day, there may be someone who will listen;
-T:to you...;
-A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+I:Lydia;
+T:...;
+T:*She doesn't respond.*;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Lydia;
+T:Dorgal is known for his great strength, and his mastery of Fire and Wind;
+T:magic. But because of the evil magic that was used on him, both aspects;
+T:of him have materialized into powerful beings of their own. The great;
+T:elemental Pyrex the Burner of Souls, and the giant Avemir, an orcish;
+T:word for "second in strength", econd to the Avemorsh. The force that seals;
+T:the door is tied to these two powerful beings, and as long as they exists,;
+T:the seal cannot be broken.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Lydia;
+T:But over the ages, both Pyrex and Avemir became fully independant, and their;
+T:power has grown to the point of being almost equal to Dorgal. Because of this,;
+T:it is almost impossible to destroy them, because their powers are too great,;
+T:and their authority unquestionned.;
+A:So it looks like I have to take down Pyrex and Avemir first.:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Lydia;
+T:You can't, they are too powerful! Far stronger than the corrupted Divine Guard;
+T:that you fought. We would have to call for reinforcements from other planes;
+T:of Heavens, but we do not have the power to do so.;
+A:If no help will come, then I have no choice but to fight.:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Lydia;
+T:...;
+T:*She pauses, thinking. She clearly doesn't want you to get hurt, but she also;
+T:realises that she cannot stop you.*;
+T:... sorry. I am displaying a lack of faith toward you, despite the fact that;
+T:I owe you so much for saving me.;
+A:[CONTINUE]:0:0:0:1:11:0:0:25004:1
+%
+
+N:11:0:0:0:0:0
+I:Lydia;
+T:I do not have the power to fight. But if you wish to battle Pyrex and Avemir,;
+T:I will assist you with the information that I have. Know that this will most;
+T:likely mean your own destruction. But at this point, it seems you are the only;
+T:one that can help us. So ask me your questions, and I will answer them as best;
+T:as I can.;
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:We're in Heavens?:0:0:0:1:14:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:17:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Lydia;
+T:Pyrex the Burner of Souls is a cruel, yet extremely intelligent and powerful;
+T:elemental of Fire and Wind, though his mastery of Fire is far greater than;
+T:his Wind. After all, Fire has always been associated with rage and violence,;
+T:two things that describes him very well. He is responsible for controlling;
+T:and corrupting the mind of the Divine Guards that were once living in peace;
+T:here. You must go through the door to the left to reach him. But beware,;
+T:if you aren't able to withstand the power of Fire-based magic, you won't;
+T:stand any chance at all.;
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:We're in Heavens?:0:0:0:1:14:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:17:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Lydia;
+T:The giant Avemir possess a terrifying strength and his body is almost;
+T:indestructible. He is responsible for controlling and corrupting the bodies;
+T:of the Divine Guards. Despite his massive strength, Avemir can be quite;
+T:calm and calculating, and you will find an extremely cunning mind behind;
+T:his mass of muscles. You must go through the door to the right to reach;
+T:him.;
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:We're in Heavens?:0:0:0:1:14:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:17:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Lydia;
+T:In one of the planes of Heavens, yes. Dorgal was a honorable warrior, worthy;
+T:of ascension to Heavens. Because his awakening was not from his own will,;
+T:he was still able to ascend here, despite being controlled by evil energy.;
+T:An horrible trick from the other demigod responsible for his forced;
+T:awakening... But now, this place is completely corrupted and twisted, you'd;
+T:think we're somewhere in Hell...but we're not. But I think a corrupted Heavens;
+T:is even worse than Hell.;
+A:The other planes aren't coming to help?:0:0:0:1:15:0:0:0:0
+A:There's evil in Heavens?:0:0:0:1:16:0:0:0:0
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Lydia;
+T:Gods and Demigods, unlike Archfiends and other powerful demons, rarely attack;
+T:each others directly. Only under the most extreme ciscumstances will a;
+T:direct intervention happens. And Dorgal and the other man are no exceptions.;
+T:Despite their evil mind, they never challenged other Demigods. Therefore,;
+T:there has been little outside intervention. That, and this plane is rather;
+T:well hidden as well.;
+A:There's evil in Heavens?:0:0:0:1:16:0:0:0:0
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:17:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Lydia;
+T:...unfortunately, yes. Some planes and their master have become corrupted.;
+T:As a result, there are evil Gods. And of course, the reverse is true. There;
+T:are Archfiends who aren't pure evil, such as Shan, the Golden Sul-Rin.;
+T:As you can see, the true nature of Heavens and Hell are far more complex;
+T:than most peoples knows in the mortal world.;
+A:The other planes aren't coming to help?:0:0:0:1:15:0:0:0:0
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:Tell me more about yourself.:0:0:0:1:17:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Lydia;
+T:Sorry, but... I'd rather not at this time.;
+A:Tell me more about Pyrex.:0:0:0:1:12:0:0:0:0
+A:Tell me more about Avemir.:0:0:0:1:13:0:0:0:0
+A:We're in Heavens?:0:0:0:1:14:0:0:0:0
+A:I will go now.:0:0:0:0:0:0:0:0:0
 %

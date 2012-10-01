@@ -1,0 +1,18 @@
+N:1:131:1:0:0:0
+I: ;
+T:This appears to be an old room where the orcs who used to live here would;
+T:gather to eat and drink. There are still some old bottles lying around on;
+T:the floor. However, little else remains, and you see no clues that could;
+T:be of use to Professor Savius. For all you know, it may not even have;
+T:been orcs who used this room...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:131:0:0:0:0
+I: ;
+T:This appears to be an old room where the peoples who used to live here would;
+T:gather to eat and drink. There are still some old bottles lying around on;
+T:the floor. However, little else remains, and there are no clues as to;
+T:who exactly used this room before.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

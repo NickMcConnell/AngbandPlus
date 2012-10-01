@@ -551,24 +551,6 @@ D:A pair of magical bracers enchanted with both light and darkness. They allow t
 D:to summon both celestials and demons, and make him or her much more apt at controlling 
 D:them effectively.
 
-# Rod of Spirit Trapping 'Gin'Whal'
-N:36:'Gin'Whal'
-I:66:19:0
-W:50:60:30:75000
-P:0:4d8:50:50:0
-R:1:25
-R:10:25
-T:1:15
-T:2:15
-U:0:17:0:0:0:0:40:0:30:0:0:0:0:0:0:0:0:0
-F:ACTIVATE | LEVELS | SPECIAL_GENE | ETERNAL | RES_FEAR
-S:Fire Ball:2:100:1:3:0:0:0
-S:Storm:2:100:10:3:0:0:0
-S:Summon Spirits/Elementals:6:40:5:20:0:E:40
-D:The Rod of Spirit Trapping has been imbued with fire and wind, and the spirits 
-D:inside of it are more powerful than ever. Spells cast with this rod will be 
-D:very deadly.
-
 # The REAL Amulet of Golden Truth! :)
 N:37:of Golden Truth 'Shan's Blessing'
 I:40:38:0
@@ -595,27 +577,6 @@ D:are they given something as powerful as what you are currently looking at.
 D:You are not an official follower of Shan, yet you have been given this 
 D:magnificient relic as a reward for your victory over the Grey Wight and 
 D:Balcia.
-
-# Adamantium Battle Axe of the Gin'Whal
-N:38:of the Gin'Whal
-I:21:63:0
-W:75:50:150:500000
-P:10:12d10:75:75:0
-R:1:50
-R:10:50
-T:0:30
-T:4:30
-K:16:50
-U:0:16:5:0:0:50:0:0:0:0:0:0:0:0:0:0:0:0
-F:LEVELS | ETERNAL | COULD2H | SPECIAL_GENE | ACTIVATE
-F:RES_FEAR | SUST_STR | SUST_CON
-S:Type change, Physical:10:15:0:0:0:0:0
-S:Type change, Fire:10:1:0:0:0:0:0
-S:Type change, Wind:10:10:0:0:0:0:0
-S:Type change, Harm:10:162:0:0:0:0:0
-D:The battle axe that was wielded by Avemorsh. After his defeat, he handed over the axe 
-D:to you. It is a very powerful weapon that will also ward his wielder from the powers 
-D:of fire and wind.
 
 # Ring of the Mer(idea from Gando)
 N:39:'Ring of the Mer'
@@ -716,6 +677,50 @@ D:to devour the light that strikes it, thus giving it's wearer a
 D:good protection against light. The cloak itself is also made of 
 D:very resistant material, and provides good protection, as well 
 D:as enhancing the life force and appearence of the wearer.
+
+# Orcish Bracers 'Gin'whal'
+N:44:'Gin'Whal'
+I:41:9:0
+W:75:30:30:500000
+P:10:1d1:75:75:30
+R:1:25
+R:11:25
+T:0:50
+T:4:50
+K:27:100
+F:LEVELS | ETERNAL | FREE_ACT | SUST_STR | SUST_CON | SPECIAL_GENE | ACTIVATE
+U:0:0:1:0:0:5:0:0:0:0:0:0:0:0:0:0:0:0
+S:Fire Ball:2:200:1:5:0:0:5
+S:Wind Gusts:2:200:11:5:0:0:5
+D:A pair of runed bracers, crafted using ancient orcish techniques. A powerful 
+D:artifact that provides solid protection against magic, especially Fire and Wind, 
+D:and give it's user strength and stamina. However, you have a feeling that there 
+D:is more to those bracers that meets the eye. You have a feeling that these bracers 
+D:could become very important in the future. You should probably probably keep them, even if 
+D:you don't plan on wearing them.
+
+N:45:'Debug'
+I:93:7:0
+W:45:25:15:60000
+P:0:6d10:50:50:0
+T:2:30
+T:4:30
+T:5:30
+R:1:75
+R:10:75
+K:25:30
+K:28:30
+U:0:0:0:0:0:0:0:0:0:0:0:12:3:0:0:0:0:0
+F:ETERNAL | LEVELS | ACTIVATE
+S:Crumble Wall Section:2:100:48:0:0:0:10
+S:Call Trees(create trees around the player, radius 1):9:16:0:0:0:0:10
+D:The Tolgo was a tribe living in the hills far from any cities. They worshipped a 
+D:tree goddess and played these drums to awaken her every spring. One spring day they came no 
+D:more as disease and famine had taken their toll. A wandering adventurer found this drumset, 
+D:and learned to play it. It is said that the tree Goddess still lives somewhere in the 
+D:wilderness and calls out to her lost tribe of worshipers. If you listen closely to the drums 
+D:you can hear a faint echoing female voice. The drums themselves are unprepossessing being 
+D:little more than wood and skin bound by twine.
 
 # The template for artifacts corpses
 

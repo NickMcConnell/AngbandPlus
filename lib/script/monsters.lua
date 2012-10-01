@@ -40,6 +40,11 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
         mon.animated = FALSE
         mon.animdam_d = 0
         mon.animdam_s = 0
+	mon.extra1 = 0
+	mon.extra2 = 0
+	mon.extra3 = 0
+	mon.extra4 = 0
+	mon.extra5 = 0
 	elitestatbonus = 0
 	crbonus = 0
 
@@ -176,7 +181,7 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
 	mon.skill_mdef = mon.skill_mdef + multiply_divide(mon.skill_mdef, mon.level * 2, 100)
 	mon.defense = mon.defense + multiply_divide(mon.defense, mon.level * 2, 100)
 
-	-- And yet another 1%!
+	-- And yet another 1%.
 	-- Doesn't do much early on, but later on, this will make monsters really tough!
 	mon.str = mon.str + multiply_divide(mon.str, mon.level, 100)
 	mon.dex = mon.dex + multiply_divide(mon.dex, mon.level, 100)
@@ -192,12 +197,32 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
 	if (m_race(mon.r_idx).cursed > 0) then
 
 		elitestatbonus = 100
-	elseif (mon.boss == 2) then
+	elseif (mon.boss == 2 or get_monster_flag7(mon.r_idx, RF7_SCALED)) then
 
 		elitestatbonus = 50
 	elseif (mon.boss == 1) then
 
 		elitestatbonus = 25
+	end
+
+	-- Apply a modifier for CR.
+	if (m_race(mon.r_idx).cr >= 6) then
+
+		crbonus = 100
+	elseif (m_race(mon.r_idx).cr >= 3) then
+
+		crbonus = 50
+	elseif (m_race(mon.r_idx).cr >= 2) then
+
+		crbonus = 25
+	else
+		crbonus = 0
+	end
+
+	-- Use either the elite/boss modifier, or CR modifier, but not both.
+	if (crbonus > elitestatbonus) then
+
+		elitestatbonus = crbonus
 	end
 
 	mon.str = mon.str + multiply_divide(mon.str, elitestatbonus, 100)
@@ -209,49 +234,6 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
 	mon.skill_evasion = mon.skill_evasion + multiply_divide(mon.skill_evasion, elitestatbonus, 100)
 	mon.skill_mdef = mon.skill_mdef + multiply_divide(mon.skill_mdef, elitestatbonus, 100)
 	mon.defense = mon.defense + multiply_divide(mon.defense, elitestatbonus, 100)
-
-	-- CR Boost.
-	-- Multiplicative with the elite/boss bonus. Elite/Boss high CR enemies are very strong!
-	if (m_race(mon.r_idx).cr == 10) then
-
-		crbonus = 1000
-	elseif (m_race(mon.r_idx).cr == 9) then
-
-		crbonus = 800
-	elseif (m_race(mon.r_idx).cr == 8) then
-
-		crbonus = 600
-	elseif (m_race(mon.r_idx).cr == 7) then
-
-		crbonus = 450
-	elseif (m_race(mon.r_idx).cr == 6) then
-
-		crbonus = 300
-	elseif (m_race(mon.r_idx).cr == 5) then
-
-		crbonus = 200
-	elseif (m_race(mon.r_idx).cr == 4) then
-
-		crbonus = 100
-	elseif (m_race(mon.r_idx).cr == 3) then
-
-		crbonus = 50
-	elseif (m_race(mon.r_idx).cr == 2) then
-
-		crbonus = 25
-	else
-		crbonus = 0
-	end
-
-	mon.str = mon.str + multiply_divide(mon.str, crbonus, 100)
-	mon.dex = mon.dex + multiply_divide(mon.dex, crbonus, 100)
-	mon.mind = mon.mind + multiply_divide(mon.mind, crbonus, 100)
-	mon.skill_attack = mon.skill_attack + multiply_divide(mon.skill_attack, crbonus, 100)
-	mon.skill_ranged = mon.skill_ranged + multiply_divide(mon.skill_ranged, crbonus, 100)
-	mon.skill_magic = mon.skill_magic + multiply_divide(mon.skill_magic, crbonus, 100)
-	mon.skill_evasion = mon.skill_evasion + multiply_divide(mon.skill_evasion, crbonus, 100)
-	mon.skill_mdef = mon.skill_mdef + multiply_divide(mon.skill_mdef, crbonus, 100)
-	mon.defense = mon.defense + multiply_divide(mon.defense, crbonus, 100)
 
 	-- Determine monster's hp.
 	if (get_monster_flag1(mon.r_idx, RF1_FORCE_MAXHP)) then
@@ -272,7 +254,7 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
 	if (m_race(mon.r_idx).cursed > 0) then
 
 		hpmult = hpmult + 5
-	elseif (mon.boss == 2) then
+	elseif (mon.boss == 2 or get_monster_flag7(mon.r_idx, RF7_SCALED)) then
 
 		hpmult = hpmult + 2
 	elseif (mon.boss == 1) then
@@ -354,16 +336,13 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
 
 	-- Mana.
 	if (mon.mind > 5) then
-		mon.mana = (mon.mind - 5) * (10 + ((mon.level - 1) * 2))
-		mon.mana = mon.mana + multiply_divide(mon.mana, (mon.level-1) * 20, 100)
-		mon.mana = mon.mana + multiply_divide(mon.mana, (mon.level-1) * 20, 100)
-		mon.mana = mon.mana + multiply_divide(mon.mana, (mon.level-1) * 20, 100)
+		mon.mana = (mon.mind - 5) * 10
 
 		-- Elites/Boss modifiers.
 		if (m_race(mon.r_idx).cursed > 0) then
 
 			mon.mana = mon.mana * 10
-		elseif (mon.boss == 2) then
+		elseif (mon.boss == 2 or get_monster_flag7(mon.r_idx, RF7_SCALED)) then
 
 			mon.mana = mon.mana * 4
 		elseif (mon.boss == 1) then
@@ -397,6 +376,12 @@ function monster_stats (mon, sleep, friendly, dur, misc, misc2)
 	end
 	if (monspeed > 180) then monspeed = 180 end
 	mon.mspeed = monspeed
+
+	-- Lives.
+	mon.lives = m_race(mon.r_idx).lives
+	if (m_race(mon.r_idx).livesscalefactor > 0) then
+		mon.lives = mon.lives + ((mon.level / m_race(mon.r_idx).livesscalefactor) * m_race(mon.r_idx).livesscale)
+	end
 end
 
 -- A melee attack by a monster.
@@ -484,7 +469,7 @@ function monster_melee_attack(m_idx)
 		if (not(alive) or (death)) then break end
 
 		-- Handle "leaving"
-		if (p_ptr.leaving) then break end
+		if (p_ptr.leaving) then return 0 end
 
 		-- Make sure the monster is still alive
 		if (not(is_alive(monster(m_idx)))) then break end
@@ -822,9 +807,9 @@ function monster_melee_attack(m_idx)
 			if (skillpercent > 100) then skillpercent = 100 end
 
 			proll = multiply_divide(p_ptr.skill[5], skillpercent, 100) * 2
-			mroll = monster(m_idx).str + monster(m_idx).skill_attack
+			mroll = monster(m_idx).skill_attack
 
-			proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] * 10, 100)
+			proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] * 20, 100)
 
 			if (lua_randint(proll) >= lua_randint(mroll)) then
 
@@ -979,6 +964,9 @@ function monster_ranged_attack(m_idx)
 
 			local damage
 
+			-- Return if we're leaving.
+			if (p_ptr.leaving) then return 0 end
+
 			-- Call the "monster_before_ranged" function. (see events.lua)
 			if (m_race(monster(m_idx).r_idx).event_before_ranged > 0) then
 
@@ -1060,9 +1048,9 @@ function monster_ranged_attack(m_idx)
 				if (skillpercent > 100) then skillpercent = 100 end
 
 				proll = multiply_divide(p_ptr.skill[5], skillpercent, 100) * 2
-				mroll = monster(m_idx).dex + monster(m_idx).skill_ranged
+				mroll = monster(m_idx).skill_ranged
 
-				proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] * 10, 100)
+				proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] * 20, 100)
 
 				if (lua_randint(proll) >= lua_randint(mroll)) then
 
@@ -1165,6 +1153,9 @@ function monster_spell_attack (m_idx)
 	for j = 1, num_spells do
 
 		local numspells
+
+		-- Return if we're leaving.
+		if (p_ptr.leaving) then return 0 end
 
 		-- Count how many spells the monster has.
 		i = 1
@@ -1274,9 +1265,9 @@ function monster_spell_attack (m_idx)
 			if (skillpercent > 100) then skillpercent = 100 end
 
 			proll = multiply_divide(p_ptr.skill[28], skillpercent, 100) * 2
-			mroll = monster(m_idx).mind + monster(m_idx).skill_magic
+			mroll = monster(m_idx).skill_magic
 
-			proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] * 10, 100)
+			proll = proll + multiply_divide(proll, p_ptr.abilities[(CLASS_DEFENDER * 10) + 7] * 20, 100)
 
 			if (lua_randint(proll) >= lua_randint(mroll)) then
 

@@ -128,7 +128,7 @@ A:[CONTINUE]:0:0:0:1:11:0:0:0:0
 N:11:0:0:0:0:0
 I:Julian;
 T:...yes, an orc story sounds unbelievable. But then again, Christina's;
-T:attitude is just as unbelievable. She's definitly up to something.;
+T:attitude is just as unbelievable. She's definitely up to something.;
 T:And for some reasons, my instinct tells me that Christina's attitude;
 T:and the news of Udor's destruction might be related...;
 A:[CONTINUE]:0:0:0:1:12:0:0:0:0
@@ -154,7 +154,7 @@ N:14:0:0:0:0:0
 I:Julian;
 T:A Kobold you say? That's strange, orcs in the past used to use kobolds;
 T:as slaves... And now, they would be under the leadership of one?;
-T:That definitly doesn't sound too orcish... But did you get the chance;
+T:That definitely doesn't sound too orcish... But did you get the chance;
 T:to speak with this Kobold? Did he reveal anything regarding his possible;
 T:affiliations?;
 A:He did mention an 'order', and that a new age of darkness was coming...:0:0:0:1:15:0:0:0:0
@@ -397,7 +397,7 @@ A:[CONTINUE]:0:0:0:1:42:0:0:0:0
 
 N:42:0:0:0:0:0
 I:Quazar;
-T:Don't make me laugh, king Julian! Your army is way to weak to do anything!;
+T:Don't make me laugh, king Julian! Your army is way too weak to do anything!;
 T:A single of my orc champions could probably take down a few hundred of;
 T:your men before falling! And then, I can just send another one... or a;
 T:few hundred ones, for that matter!!;
@@ -720,13 +720,11 @@ I:Julian;
 T:Hmmm... not sure. It looks like they saw something in orcs over other;
 T:monsters. To find the answer to this puzzle, we would need to learn more;
 T:about orcs, and their secrets. Unfortunately, our libraries have information;
-T:about the war against the orcs, but very little concerning their customs;
+T:about the war against the orcs, but very little about their customs;
 T:and traditions. The best place to start searching would be ruins of orcish;
 T:origin, though that is difficult to find. Hmmm...but come to think of it,;
-T:didn't you happen to visit one such place already? Now that Quazar's;
-T:influence is broken, I wonder if that place could contain more clues...;
-T:In any case, good luck, <NAME>. If you find anything, please come tell me;
-T:about it!;
+T:didn't you happen to visit one such place already? Maybe you could go back;
+T:to those ruins, and see if you can find anything.;
 A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
 A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
 A:I'll be leaving.:0:0:0:0:0:0:0:0:0

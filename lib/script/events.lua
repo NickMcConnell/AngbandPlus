@@ -40,7 +40,7 @@ function after_player_move (x, y)
 	end
 
 	-- Handle songs.
-	if (p_ptr.events[29042] == 1) then
+	if (p_ptr.events[29042] == 1 and resting == 0) then
 
 		-- If Music skill becomes 0, turn off singning.
 		if (p_ptr.skill[29] == 0) then
@@ -642,7 +642,7 @@ end
 function player_skip_turn ()
 
 	-- Handle songs.
-	if (p_ptr.events[29042] == 1) then
+	if (p_ptr.events[29042] == 1 and resting == 0) then
 
 		-- If Music skill becomes 0, turn off singning.
 		if (p_ptr.skill[29] == 0) then
@@ -1342,6 +1342,142 @@ function player_events_code (eventcode)
 		teleport_player(10 + p_ptr.abilities[(CLASS_MONSTER * 10) + 8])
 	end
 
+	-- An aura of Warp! (power 30)
+	if (eventcode == 29) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = A_INT
+		else
+			damstat = A_WIS
+		end
+
+		sdam = 30 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_WARP, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- An aura of Darkness! (power 25)
+	if (eventcode == 30) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = A_INT
+		else
+			damstat = A_WIS
+		end
+
+		sdam = 25 + (p_ptr.lev / 3)
+		sdam = spell_damages(sdam, damstat, 0)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_DARK, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- Spikefiend's chains!
+	if (eventcode == 31) then
+
+		local x
+		local y
+		local m_name
+
+        	if (not(lua_tgt_pt())) then return end
+		x = global_x
+		y = global_y
+
+		-- Check if we have a monster.
+		if (cave(y, x).m_idx == 0) then
+
+			msg_print("No monster here.")
+			return
+		end
+
+		-- Monster must be in line of sight.
+		if (not(projectable(monster(cave(y, x).m_idx).fy, monster(cave(y, x).m_idx).fx, py, px))) then
+
+			msg_print("Monster must be in line of sight.")
+			return
+		end
+
+		-- All right, we're done validating. Proceed with the actual ability!
+		m_name = m_race(monster(cave(y, x).m_idx).r_idx).name_char
+
+		if (player_hit_monster(monster(cave(y, x).m_idx), p_ptr.skill[2])) then
+
+			local dam
+			local power
+			local ddice
+			local dside
+
+			ddice = 7 + (p_ptr.lev / 10)
+			dside = 11 + (p_ptr.lev / 5)
+
+			power = damroll(ddice, dside)
+
+			-- Uses "spell_damages", but actually use strength, and it's considered
+			-- a ranged attack. Yes, it's weird. But it all makes sense when your enemy
+			-- dies before you can even drag it to you. :)
+			dam = spell_damages(power, A_STR, 0)
+
+			msg_print(string.format('You grab %s with your chains!', m_name))
+
+			no_magic_return = TRUE
+			nevermiss = TRUE
+			melee_attack = TRUE
+			fire_ball_specific_grid(dam, x, y, 0, GF_PHYSICAL)
+			melee_attack = FALSE
+			nevermiss = FALSE
+			no_magic_return = FALSE
+
+			if (not(cave(y, x).m_idx == 0)) then
+				teleport_to_player(cave(y, x).m_idx)
+			end
+		else
+			msg_print(string.format('%s avoided your chains.', m_name))
+		end
+
+        	update_and_handle()
+		energy_use = 100
+	end
+
+	-- Fire fields + aura. (more powerful)
+	if (eventcode == 32) then
+
+		local fdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = A_INT
+		else
+			damstat = A_WIS
+		end
+
+		fdam = 50 + (p_ptr.lev / 3)
+		fdam = spell_damages(fdam, damstat, 0)
+		fdam = fdam + multiply_divide(fdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 20, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_FIRE, fdam, 5)
+		no_magic_return = FALSE
+
+		place_field(FEAT_FIRE_FIELD, 10, px, py, fdam)
+		update_and_handle()
+	end
+
 	-- If you play as a monster that has the ability to teleport to the player, you gain
 	-- the power to teleport where you want. The same restrictions as jump applies though.
 	if (eventcode == 2303) then
@@ -1798,7 +1934,7 @@ function monster_events_code (m_idx, eventcode)
 	-- Balcia(Banshee)'s special move.
 	if (eventcode == 27) then
 
-		if (p_ptr.events[1550] == 0 and monster(m_idx).lives <= 3) then
+		if (p_ptr.events[1550] == 0 and monster(m_idx).hp <= (monster(m_idx).maxhp / 4)) then
 
 			if (inven(INVEN_ESSENCE).tval > 0 and inven(INVEN_WIELD).tval == 0 and inven(INVEN_WIELD+1).tval == 0) then
 
@@ -1841,6 +1977,123 @@ function monster_events_code (m_idx, eventcode)
 		end
 	end
 
+	-- An aura of Warp! (power 30)
+	if (eventcode == 29) then
+
+		local sdam
+
+		sdam = 30 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WARP, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- An aura of Darkness! (power 25)
+	if (eventcode == 30) then
+
+		local sdam
+
+		sdam = 25 + (monster(m_idx).level / 3)
+		sdam = monster_spell_damages(monster(m_idx), sdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_DARK, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- Spikefiend's Spiked Chains.
+	-- Could be used for other monsters... mainly Spikefiend upgrades. :)
+	if (eventcode == 31) then
+
+		local m_name = ""
+
+		if not (monster(m_idx).ml) then
+			m_name = "it"
+		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+			m_name = m_race(monster(m_idx).r_idx).name_char
+		else
+			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+		end
+
+		-- You must be in the monster's line of sight.
+
+		-- Check range
+		if (monster(m_idx).cdis <= MAX_RANGE and monster(m_idx).cdis > 1 and not(is_pet(monster(m_idx)))) then
+
+			-- Check path
+			if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
+
+				msg_print(string.format('%s unleashes magical spiked chains to grab you!', m_name))
+
+				if (monster_hit_player(monster(m_idx), monster(m_idx).skill_magic) == 1) then
+
+					local ddice
+					local dside
+					local damage
+
+					ddice = 7 + (monster(m_idx).level / 10)
+					dside = 11 + (monster(m_idx).level / 5)
+
+					damage = monster_damages(monster(m_idx), ddice, dside, monster(m_idx).str)
+
+					no_magic_return = TRUE
+					monster_ranged = TRUE
+					lua_project(m_idx, 0, py, px, damage, GF_PHYSICAL, 2)
+					monster_ranged = FALSE
+					no_magic_return = FALSE
+
+					update_and_handle()
+
+					msg_print(string.format('%s caught you!', m_name))
+					teleport_player_to(monster(m_idx).fy,monster(m_idx).fx)
+
+					update_and_handle()
+				else
+
+					msg_print("You avoid the chains.")
+				end
+			end
+		end
+
+	end
+
+	-- Place fire fields, AND a fire aura! (more powerful)
+	if (eventcode == 32) then
+
+		local fdam
+
+		fdam = 50 + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+		donthurtmonsters = 0
+
+		place_field_monsters(FEAT_FIRE_FIELD, 10, monster(m_idx).fx, monster(m_idx).fy, fdam)
+		update_and_handle()
+	end
+
+	-- Recover 10% hp every turns.
+	if (eventcode == 2301) then
+
+		if (monster(m_idx).hp < monster(m_idx).maxhp and monster(m_idx).hp > 1) then
+
+			monster(m_idx).hp = monster(m_idx).hp + multiply_divide(monster(m_idx).maxhp, 10, 100)
+			if (monster(m_idx).hp > monster(m_idx).maxhp) then monster(m_idx).hp = monster(m_idx).maxhp end
+
+			update_and_handle()
+		end
+	end
+
 	-- Shadow Mistress's teleportation.
 	-- Code has been rewritten so that this ability can be used for more creatures.
 	if (eventcode == 2303) then
@@ -1867,35 +2120,93 @@ function monster_events_code (m_idx, eventcode)
 		end
 	end
 
-	-- An aura of Fire and Wind.
-	-- Scaled.
+	-- Recover 5% hp every turns.
 	if (eventcode == 2500) then
 
-		local sdam
-		local lvl
+		if (monster(m_idx).hp < monster(m_idx).maxhp) then
 
-		sdam = 30 + (monster(m_idx).level / 3)
-		sdam = monster_spell_damages(monster(m_idx), sdam)
-		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then sdam = sdam * 2 end
+			monster(m_idx).hp = monster(m_idx).hp + multiply_divide(monster(m_idx).maxhp, 5, 100)
+			if (monster(m_idx).hp > monster(m_idx).maxhp) then monster(m_idx).hp = monster(m_idx).maxhp end
+
+			update_and_handle()
+		end
+	end
+
+	-- Firestorm Elemental.
+	-- As you can see, it's Wind aura, although short ranged, is very deadly.
+	if (eventcode == 2503) then
+
+		local fdam
+		local winddam
+
+		fdam = 50 + (monster(m_idx).level / 3)
+		fdam = monster_spell_damages(monster(m_idx), fdam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
+
+		winddam = 50 + (monster(m_idx).level * 3)
+		winddam = monster_spell_damages(monster(m_idx), winddam)
+		if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then winddam = winddam * 2 end
 
 		donthurtmonsters = 1
-		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FIRE, 2)
-		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WIND, 2)
+		lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, winddam, GF_WIND, 2)
 		donthurtmonsters = 0
 
+		place_field_monsters(FEAT_FIRE_FIELD, 4, monster(m_idx).fx, monster(m_idx).fy, fdam)
 		update_and_handle()
 	end
 
-	-- Set mana to 0.
-	if (eventcode == 2501) then
-
-		monster(m_idx).mana = 0
-	end
-
-	-- Store the lives.
+	-- Pyrex has an extremely deadly aura of flames during phase 1!
 	if (eventcode == 2505) then
 
-		p_ptr.events[25011] = monster(m_idx).lives
+		if (monster(m_idx).lives == 2) then
+
+			local fdam
+
+			fdam = 75 + (monster(m_idx).level * 15)
+			fdam = monster_spell_damages(monster(m_idx), fdam)
+			if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
+
+			msg_print("Pyrex emits a powerful Fire aura!")
+
+			donthurtmonsters = 1
+			lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+			donthurtmonsters = 0
+
+			update_and_handle()
+		end
+
+		-- Fore the second phase, Pyrex will use two weaker auras, one being of Wind type.
+		if (monster(m_idx).lives == 1) then
+
+			local fdam
+
+			fdam = 60 + (monster(m_idx).level / 3)
+			fdam = monster_spell_damages(monster(m_idx), fdam)
+			if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
+
+			donthurtmonsters = 1
+			lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_WIND, 2)
+			lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+			donthurtmonsters = 0
+
+			-- But every 3 turns, he casts new fields.
+			if (monster(m_idx).extra1 >= 3) then
+
+				place_field_monsters(FEAT_FIRE_FIELD, 20, monster(m_idx).fx, monster(m_idx).fy, fdam)
+				monster(m_idx).extra1 = 0
+			else
+				monster(m_idx).extra1 = monster(m_idx).extra1 + 1
+			end
+
+			update_and_handle()
+		end
+
+		-- Third phase, he stops using auras. Instead, an elemental will appear
+		-- every turns!
+		if (monster(m_idx).lives == 0) then
+
+			summon_specific_ridx(monster(m_idx).fy, monster(m_idx).fx, 2504, FALSE, FALSE, 0)
+		end
 	end
 
 	-- Flow event codes.
@@ -2004,62 +2315,86 @@ end
 
 function monster_passive (m_idx, eventcode)
 
-	if (eventcode == 2501) then
+	-- Additional code for Pyrex.
+	if (m_race(monster(m_idx).r_idx).event_misc == 2505) then
 
-		local m_name = ""
+		if (monster(m_idx).lives == 1 and p_ptr.events[25010] == 0) then
 
-		if not (monster(m_idx).ml) then
-			m_name = "it"
-		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
-			m_name = m_race(monster(m_idx).r_idx).name_char
-		else
-			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+			local fdam
+
+			p_ptr.events[25010] = 1
+			show_dialog(25007)
+			msg_print("Pyrex makes fire rains down on the floor, creating fire fields everywhere!")
+
+			fdam = 60 + (monster(m_idx).level / 3)
+			fdam = monster_spell_damages(monster(m_idx), fdam)
+			if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
+
+			place_field_monsters(FEAT_FIRE_FIELD, 20, monster(m_idx).fx, monster(m_idx).fy, fdam)
+			update_and_handle()
 		end
 
-		if ((monster(m_idx).seallight > 0 or monster(m_idx).csleep > 0) and (monster(m_idx).mana > 0)) then
+		if (monster(m_idx).lives == 0 and p_ptr.events[25010] == 1) then
 
-			msg_print(string.format('%s calms down.', m_name))
-			monster(m_idx).mana = 0
+			local fdam
+
+			p_ptr.events[25010] = 2
+			show_dialog(25007)
 		end
 
-		if (monster(m_idx).mana == 120) then monster_events_code(m_idx, 2303) end
-	else
+		if (cave(monster(m_idx).fy, monster(m_idx).fx).feat == 221) then
 
-		if (eventcode > 0) then monster_events_code(m_idx, eventcode) end
+			local m_name = ""
+
+			if not (monster(m_idx).ml) then
+				m_name = "it"
+			elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+				m_name = m_race(monster(m_idx).r_idx).name_char
+			else
+				m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+			end
+
+			if (monster(m_idx).hp < monster(m_idx).maxhp and monster(m_idx).lives > 0) then
+
+				monster(m_idx).hp = monster(m_idx).maxhp
+				if (monster(m_idx).hp > monster(m_idx).maxhp) then monster(m_idx).hp = monster(m_idx).maxhp end
+				msg_print(string.format('%s absorbs flames from the fire fields, and heals himself!', m_name))
+				update_and_handle()
+			end
+
+			monster(m_idx).extra2 = monster(m_idx).extra2 + 1
+			msg_print(string.format('%s gathers energy from the flames... (%d/10)', m_name, monster(m_idx).extra2))
+
+			if (monster(m_idx).extra2 >= 10) then
+
+				local fdam
+
+				fdam = 100 + (monster(m_idx).level * 30)
+				fdam = monster_spell_damages(monster(m_idx), fdam)
+				if (get_monster_ability(monster(m_idx), BOSS_DOUBLE_MAGIC)) then fdam = fdam * 2 end
+
+				msg_print(string.format('%s unleashes all gathered energy!!', m_name))
+
+				donthurtmonsters = 1
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, fdam, GF_FIRE, 2)
+				donthurtmonsters = 0
+
+				monster(m_idx).extra2 = 0
+				update_and_handle()
+			end
+		end
 	end
+
+	if (eventcode > 0) then monster_events_code(m_idx, eventcode) end
 end
 
 function monster_take_damages (m_idx, eventcode)
 
-	if (eventcode == 2501) then
-
-		-- Pure Orcish Rage abilities.
-		local m_name = ""
-
-		if not (monster(m_idx).ml) then
-			m_name = "it"
-		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
-			m_name = m_race(monster(m_idx).r_idx).name_char
-		else
-			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
-		end
-
-		if (monster(m_idx).seallight == 0 and monster(m_idx).csleep == 0) then
-
-			if (monster(m_idx).mana < 100) then monster(m_idx).mana = monster(m_idx).mana + 20 end
-
-			msg_print(string.format('%s is building up rage(%d%%).', m_name, monster(m_idx).mana))
-
-			if (monster(m_idx).mana == 100) then
-
-				msg_print(string.format('%s unleash all his rage, and becomes an unstoppable force!!', m_name))
-				monster(m_idx).lives = monster(m_idx).lives * 3
-				monster(m_idx).mana = 120
-			end
-		end
-	else
-		monster_events_code(m_idx, eventcode)
-	end
+	monster_events_code(m_idx, eventcode)
 end
 
 function monster_dies (m_idx, eventcode)
@@ -2156,7 +2491,7 @@ function world_passive ()
 	if (p_ptr.events[29056] > 0) then p_ptr.events[29056] = p_ptr.events[29056] - 1 end
 
 	-- Blessed Blood's effect.
-	if (p_ptr.abilities[(CLASS_PRIEST * 10) + 6] >= 1) then
+	if (p_ptr.abilities[(CLASS_PRIEST * 10) + 6] >= 1 and resting == 0) then
 
 		local power
 		power = spell_damages(1 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 6] / 2), A_WIS, 0)
@@ -2164,7 +2499,7 @@ function world_passive ()
 	end
 
 	-- Elemental Being's aura.
-	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1) then
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1 and resting == 0 and p_ptr.events[29057] == 1) then
 
 		local dam
 		dam = spell_damages(p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] * 4, A_INT, 0)
@@ -2176,6 +2511,32 @@ function world_passive ()
 		no_elemental_damage = 0
 		no_effect_allies = 0
 		no_magic_return = FALSE
+	end
+
+	-- Restless Force's regen.
+	if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 2] >= 1) then
+
+		local regen = 0
+		local percent = 0
+
+		percent = 1 + (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 2] / 3)
+		if (percent > 10) then percent = 10 end
+
+		p_ptr.hp = p_ptr.hp + multiply_divide(p_ptr.maxhp, percent, 100)
+		if (p_ptr.hp > p_ptr.maxhp) then p_ptr.hp = p_ptr.maxhp end
+	end
+
+
+	-- Other stuff.
+
+	-- Used in Q25000.txt
+	if (p_ptr.inside_secret == 0 and p_ptr.events[25007] > 0) then
+
+		-- Reset Last encounter before Pyrex.
+		if (not(p_ptr.events[25007] == 2)) then
+
+			p_ptr.events[25007] = 0
+		end
 	end
 end
 

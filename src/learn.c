@@ -5,6 +5,14 @@
 /* The new spellcasting system is built in this file! */
 /* Items may also 'learn' abilities in this file! */
 
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ */
+
 #include "angband.h"
 
 
@@ -5808,7 +5816,7 @@ void spell_making()
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
 
 				/* Priest's Mystical power. */
-				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1 && effnum == 1)
 				{
 
 					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
@@ -5886,7 +5894,7 @@ void spell_making()
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
 
 				/* Priest's Mystical power. */
-				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1 && effnum == 1)
 				{
 
 					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
@@ -5943,7 +5951,7 @@ void spell_making()
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
 
 				/* Priest's Mystical power. */
-				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1 && effnum == 1)
 				{
 
 					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
@@ -6023,7 +6031,7 @@ void spell_making()
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
 
 				/* Priest's Mystical power. */
-				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1 && effnum == 1)
 				{
 
 					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);
@@ -6125,7 +6133,7 @@ void spell_making()
 				else if (p_ptr->skill_base[24] >= 25) manacost = (manacost - (manacost / 4));
 
 				/* Priest's Mystical power. */
-				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1)
+				if (p_ptr->abilities[(CLASS_PRIEST * 10) + 1] >= 1 && effnum == 1)
 				{
 
 					manacost = manacost - multiply_divide(p_ptr->stat_ind[A_WIS], p_ptr->abilities[(CLASS_PRIEST * 10) + 1] * 10, 100);

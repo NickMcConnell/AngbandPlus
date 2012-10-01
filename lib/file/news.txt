@@ -7,12 +7,12 @@
 
       ------****************************************************------
 
-                     Created by: Variaz
-                             With gracious help from all testers
-                             and members of the forum! :)
-
-                     Version: 0.5.0 alpha version 2.2
-
+             Variant by: Variaz(based on old ToME, Zangband and Vanilla)
+                     Special thanks to all members of the forum, as well
+                     as the original creators of ToME, Zangband
+                     and Angband, and the LUA team(http://www.lua.org).
+                     This game wouldn't exist without all of you! :)
+             Version: 0.5.0 alpha version 2.3
 
                      Questions/comments? Send them to:
                             variaz@hotmail.com

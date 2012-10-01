@@ -1069,76 +1069,47 @@ static void display_player_middle(void)
 	if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
 	/* Dump the bonuses to hit/dam */
-        prt_num("+ To Hit    ", show_tohit, 11, 1, TERM_L_BLUE);
-        prt_num("+ %To Damage", show_todam, 12, 1, TERM_L_BLUE);
+        /*prt_num("+ To Hit    ", show_tohit, 11, 1, TERM_L_BLUE);*/
+        /*prt_num("+ %To Damage", show_todam, 12, 1, TERM_L_BLUE);*/
 
 	/* Dump the armor class bonus */
-        prt_num("+ To AC     ", p_ptr->dis_to_a, 13, 1, TERM_L_BLUE);
+        /*prt_num("+ To AC     ", p_ptr->dis_to_a, 13, 1, TERM_L_BLUE);*/
 
 	/* Dump the total armor class */
         /* prt_num("  Base AC   ", p_ptr->dis_ac, 14, 1, TERM_L_BLUE); */
-        prt_num("  Ability P ", p_ptr->ability_points, 14, 1, TERM_L_GREEN);
+        /*prt_num("  Ability P ", p_ptr->ability_points, 14, 1, TERM_L_GREEN);*/
 
-        prt_num("Level      ", (int)p_ptr->lev, 9, 28, TERM_L_GREEN);
-
-	if (p_ptr->exp >= p_ptr->max_exp)
-	{
-                prt_lnum("Experience ", p_ptr->exp, 10, 28, TERM_L_GREEN);
-	}
-	else
-	{
-                prt_lnum("Experience ", p_ptr->exp, 10, 28, TERM_YELLOW);
-	}
-
-        prt_lnum("Max Exp    ", p_ptr->max_exp, 11, 28, TERM_L_GREEN);
-
-	if (p_ptr->lev >= PY_MAX_LEVEL)
-	{
-                put_str("Exp to Adv.", 12, 28);
-                c_put_str(TERM_L_GREEN, "    *****", 12, 28+11);
-	}
-	else
-	{
-		prt_lnum("Exp to Adv.",
-		         (s32b)(multiply_divide(player_exp[p_ptr->lev - 1], p_ptr->expfact, 100L)),
-                         12, 28, TERM_L_GREEN);
-	}
-
-        prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
-        prt_lnum("Stat Points ", p_ptr->statpoints, 14, 28, TERM_L_GREEN);
-        prt_lnum("Skill Points", p_ptr->skillpoints, 15, 28, TERM_L_GREEN);
-        prt_lnum("Class Level ", p_ptr->class_level[p_ptr->pclass], 16, 28, TERM_L_GREEN);
-        prt_lnum("Class Kills ", p_ptr->class_kills[p_ptr->pclass], 17, 28, TERM_L_GREEN);
-
+	/* As of Portralis 0.5, call a lua function to display bonus. */
+	call_lua("lua_display_bonus", "", "");
         
-        prt_num("Max Hit Points ", p_ptr->mhp, 9, 52, TERM_L_GREEN);
+        prt_num("Max Hit Points ", p_ptr->mhp, 9, 55, TERM_L_GREEN);
 
         if (p_ptr->chp >= p_ptr->mhp)
         {
-                prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_L_GREEN);
+                prt_num("Cur Hit Points ", p_ptr->chp, 10, 55, TERM_L_GREEN);
         }
         else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
         {
-                prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_YELLOW);
+                prt_num("Cur Hit Points ", p_ptr->chp, 10, 55, TERM_YELLOW);
         }
         else
         {
-                prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_RED);
+                prt_num("Cur Hit Points ", p_ptr->chp, 10, 55, TERM_RED);
         }
 
-	prt_num("Max SP (Mana)  ", p_ptr->msp, 11, 52, TERM_L_GREEN);
+	prt_num("Max SP (Mana)  ", p_ptr->msp, 11, 55, TERM_L_GREEN);
 
 	if (p_ptr->csp >= p_ptr->msp)
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_L_GREEN);
+		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 55, TERM_L_GREEN);
 	}
 	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_YELLOW);
+		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 55, TERM_YELLOW);
 	}
 	else
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED);
+		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 55, TERM_RED);
 	}
 }
 
@@ -1683,6 +1654,7 @@ static void display_player_misc_info(void)
 {
 	char	buf[80];
 	char    scorebuf[30];
+	char    apbuf[10];
 
 	/* Display basics */
 	put_str("Name      :", 2, 1);
@@ -1691,6 +1663,7 @@ static void display_player_misc_info(void)
 	put_str("Class     :", 5, 1);
 	put_str("Element   :", 6, 1);
 	put_str("Score     :", 7, 1);
+	prt_str("Ability P :", 8, 1);
 
 	c_put_str(TERM_L_BLUE, player_name, 2, 13);
 	if (p_ptr->body_monster != 0)
@@ -1714,6 +1687,8 @@ static void display_player_misc_info(void)
 	else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 6, 13);
 	sprintf(scorebuf, "%ld", total_points());
 	c_put_str(TERM_L_GREEN, scorebuf, 7, 13);
+	sprintf(apbuf, "%d", p_ptr->ability_points);
+	c_put_str(TERM_L_GREEN, apbuf, 8, 13);
 
 	/* Display extras */
 	put_str("Level     :", 6, 1);
@@ -2376,15 +2351,15 @@ void display_player(int mode)
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 		/* Name, Sex, Race, Class */
-                put_str("Name        :", 2, 1);
-                put_str("Sex         :", 3, 1);
-                put_str("Race        :", 4, 1);
-                put_str("Class       :", 5, 1);
-		put_str("Element     :", 6, 1);
-		put_str("Score       :", 7, 1);
+                put_str("Name        :", 1, 1);
+                put_str("Sex         :", 2, 1);
+                put_str("Race        :", 3, 1);
+                put_str("Class       :", 4, 1);
+		put_str("Element     :", 5, 1);
+		put_str("Score       :", 6, 1);
                 /*put_str("Body        :", 6, 1);*/
 
-		c_put_str(TERM_L_BLUE, player_name, 2, 15);
+		c_put_str(TERM_L_BLUE, player_name, 1, 15);
 		if (p_ptr->body_monster != 0)
 		{
 			monster_race *r_ptr = &r_info[p_ptr->body_monster];
@@ -2396,11 +2371,11 @@ void display_player(int mode)
 				strcpy(tmp, "Female");
 			else
 				strcpy(tmp, "Neutral");
-			c_put_str(TERM_L_BLUE, tmp, 3, 15);
+			c_put_str(TERM_L_BLUE, tmp, 2, 15);
 		}
 		else
-                        c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
-                c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
+                        c_put_str(TERM_L_BLUE, sp_ptr->title, 2, 15);
+                c_put_str(TERM_L_BLUE, rp_ptr->title, 3, 15);
 
                 if (p_ptr->pclass == CLASS_ELEM_LORD)
         	{
@@ -2411,19 +2386,19 @@ void display_player(int mode)
                 	else sprintf(s, "Lord");
                 	sprintf(e, get_element_name(p_ptr->elemlord));
                         sprintf(f, "%s %s", e, s);
-                	c_put_str(TERM_L_BLUE, f, 5, 15);
+                	c_put_str(TERM_L_BLUE, f, 4, 15);
         	}
         
-                else c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 5, 15);
+                else c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 4, 15);
                 if (p_ptr->body_monster != 0)
                 {
-                        c_put_str(TERM_L_BLUE, "           ", 4, 15);
-                        c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 4, 15);
+                        c_put_str(TERM_L_BLUE, "           ", 3, 15);
+                        c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 3, 15);
 		}
-		if (p_ptr->elemlord == 0) c_put_str(TERM_L_BLUE, "n/a", 6, 15);
-		else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 6, 15);
+		if (p_ptr->elemlord == 0) c_put_str(TERM_L_BLUE, "n/a", 5, 15);
+		else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 5, 15);
 		sprintf(scorebuf, "%ld", total_points());
-		c_put_str(TERM_L_GREEN, scorebuf, 7, 15);
+		c_put_str(TERM_L_GREEN, scorebuf, 6, 15);
                 
 
 		/* Age, Height, Weight, Social */
@@ -2431,11 +2406,74 @@ void display_player(int mode)
 		/*prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);*/
 		/*prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);*/
                 /*prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);*/
-		prt_num("Alignment  ", p_ptr->alignment, 2, 28, TERM_L_BLUE);
-		prt_num("Misfortune ", p_ptr->cursed, 3, 28, TERM_L_BLUE);
-                prt_num("Death Count", p_ptr->deathcount, 4, 28, TERM_L_BLUE);
-		prt_num("Reincarnate", p_ptr->reincarnations, 5, 28, TERM_L_BLUE);
-		if (p_ptr->secretscleared > 0) prt_num("Secret Lvls", p_ptr->secretscleared, 6, 28, TERM_L_BLUE);
+		/*prt_num("Ali    : ", p_ptr->alignment, 1, 24, TERM_L_BLUE);*/
+		/*prt_num("Mis    : ", p_ptr->cursed, 2, 24, TERM_L_BLUE);*/
+                /*prt_num("Deaths : ", p_ptr->deathcount, 3, 24, TERM_L_BLUE);*/
+		/*prt_num("Reinc. : ", p_ptr->reincarnations, 4, 24, TERM_L_BLUE);*/
+		/*prt_num("Secrets: ", p_ptr->secretscleared, 5, 24, TERM_L_BLUE);*/
+		c_put_str(TERM_WHITE, "Align.: ", 1, 24);
+		c_put_str(TERM_WHITE, "Misf. : ", 2, 24);
+		c_put_str(TERM_WHITE, "Deaths: ", 3, 24);
+		c_put_str(TERM_WHITE, "Reinc.: ", 4, 24);
+		c_put_str(TERM_WHITE, "CLvl  : ", 5, 24);
+		c_put_str(TERM_WHITE, "CKills: ", 6, 24);
+		/*c_put_str(TERM_WHITE, "Secret: ", 5, 24);*/
+		sprintf(buf, "%d", p_ptr->alignment);
+		c_put_str(TERM_L_GREEN, buf, 1, 32);
+		sprintf(buf, "%d", p_ptr->cursed);
+		c_put_str(TERM_L_GREEN, buf, 2, 32);
+		sprintf(buf, "%d", p_ptr->deathcount);
+		c_put_str(TERM_L_GREEN, buf, 3, 32);
+		sprintf(buf, "%d", p_ptr->reincarnations);
+		c_put_str(TERM_L_GREEN, buf, 4, 32);
+		sprintf(buf, "%d", p_ptr->class_level[p_ptr->pclass]);
+		c_put_str(TERM_L_GREEN, buf, 5, 32);
+		if (p_ptr->class_kills[p_ptr->pclass] >= 500)
+		{
+			c_put_str(TERM_L_GREEN, "***", 6, 32);
+		}
+		else
+		{
+			sprintf(buf, "%d", p_ptr->class_kills[p_ptr->pclass]);
+			c_put_str(TERM_L_GREEN, buf, 6, 32);
+		}
+		/*sprintf(buf, "%d", p_ptr->secretscleared);*/
+		/*c_put_str(TERM_L_GREEN, buf, 5, 32);*/
+
+		c_put_str(TERM_WHITE, "Lvl: ", 1, 35);
+		c_put_str(TERM_WHITE, "Exp: ", 2, 35);
+		c_put_str(TERM_WHITE, "Max: ", 3, 35);
+		c_put_str(TERM_WHITE, "Nxt: ", 4, 35);
+		c_put_str(TERM_WHITE, "Stat  P: ", 5, 35);
+		c_put_str(TERM_WHITE, "Skill P: ", 6, 35);
+
+		sprintf(buf, "%d", p_ptr->lev);
+		c_put_str(TERM_L_GREEN, buf, 1, 40);
+		if (p_ptr->exp >= p_ptr->max_exp)
+		{
+			sprintf(buf, "%ld", p_ptr->exp);
+			c_put_str(TERM_L_GREEN, buf, 2, 40);
+		}
+		else
+		{
+			sprintf(buf, "%ld", p_ptr->exp);
+			c_put_str(TERM_YELLOW, buf, 2, 40);
+		}
+		sprintf(buf, "%ld", p_ptr->max_exp);
+		c_put_str(TERM_L_GREEN, buf, 3, 40);
+		if (p_ptr->lev >= PY_MAX_LEVEL)
+		{
+			c_put_str(TERM_L_GREEN, "*****", 4, 40);
+		}
+		else
+		{
+			sprintf(buf, "%ld", (s32b)(multiply_divide(player_exp[p_ptr->lev - 1], p_ptr->expfact, 100L)));
+			c_put_str(TERM_L_GREEN, buf, 4, 40);
+		}
+		sprintf(buf, "%d", p_ptr->statpoints);
+		c_put_str(TERM_L_GREEN, buf, 5, 44);
+		sprintf(buf, "%d", p_ptr->skillpoints);
+		c_put_str(TERM_L_GREEN, buf, 6, 44);
 
 		/* Base, Mod, Cur */
 		c_put_str(TERM_WHITE, "BASE   MOD   MUT   CUR ", 1, 53);

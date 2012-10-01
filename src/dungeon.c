@@ -3926,6 +3926,10 @@ void show_dialog(int dialognum)
 		p_ptr->leaving = TRUE;
 	}
 
+	/* Redraw everything */
+        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
+
+	handle_stuff();
 }
 
 static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
@@ -4764,6 +4768,20 @@ int process_dialog(int dnum, FILE *fp)
 					{
 						answers[i].valid = 0;
 						if (p_ptr->stat_ind[A_CHR] + multiply_divide(p_ptr->stat_ind[A_CHR], p_ptr->abilities[(CLASS_BARD * 10) + 6] * 20, 100) >= answers[i].cparam1) answers[i].valid = 1;
+						break;
+					}
+					/* Race condition */
+					case 6:
+					{
+						answers[i].valid = 0;
+						if (p_ptr->prace == answers[i].cparam1) answers[i].valid = 1;
+						break;
+					}
+					/* Gender condition */
+					case 7:
+					{
+						answers[i].valid = 0;
+						if (p_ptr->psex == answers[i].cparam1) answers[i].valid = 1;
 						break;
 					}
 				}

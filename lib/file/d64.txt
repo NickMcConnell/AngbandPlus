@@ -1,0 +1,17 @@
+N:1:131:1:0:0:0
+I: ;
+T:You have reached the bottom floor of the caverns, and you have entered in what;
+T:appears to be the ruins of some old structure. You don't hear or sense any;
+T:presence, but you should search this place carefully, and see if you can find;
+T:anything that could be useful for Professor Savius' research.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:131:0:0:0:0
+I: ;
+T:You have arrived in what appears to be the ruins of some old structure.;
+T:You don't hear or sense any presence, and you're not sure what this;
+T:place is supposed to be. Perhaps it would be better to return here;
+T:later if you ever learn more about this place...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

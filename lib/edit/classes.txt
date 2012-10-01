@@ -728,10 +728,10 @@ K:Template:Template;
 K:Template:Template;
 K:Template:Template;
 K:Template:Template;
-A:Eyes of Misfortune:0:0:0:0
-A:Ghostly Misfortune:0:0:0:0
+A:Cursed Treasure Seeker:0:0:0:0
+A:Restless Force:1:0:2301:0
 A:Hexblaze Strike:1:0:2302:1
-A:Shadow of Misfortune:0:0:0:0
+A:Cursed Evasion:0:0:0:0
 A:Restless Dead:0:1:0:0
 A:Thunderglow Shots:1:0:2305:0
 A:Violet Power:0:0:0:0

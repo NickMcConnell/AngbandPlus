@@ -3779,8 +3779,10 @@ s32b get_quantity_s32b(cptr prompt, s32b max)
 s32b multiply_divide(s32b value, s32b mult, s32b div)
 {
 	s32b retval = 0;
+	char ch[80];
 
-	retval = (value * (mult / div)) + (value * (mult - (mult / div * div)) / div);
+	/*retval = (value * (mult / div)) + (value * (mult - (mult / div * div)) / div);*/
+	retval = (s32b)(((float)value) * ((float)((float)mult / (float)div)));
 
 	return (retval);
 }

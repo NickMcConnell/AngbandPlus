@@ -649,9 +649,9 @@ function use_ability (powernum)
 
 	item = lua_get_item(0)
 
-	if (item.tval == TV_WEAPON or item.tval == TV_ROD or item.tval == TV_AMMO) then
+	if (inven(item).tval == TV_WEAPON or inven(item).tval == TV_ROD or inven(item).tval == TV_AMMO) then
 
-		item.extra1 = GF_POIS
+		inven(item).extra1 = GF_POIS
 		msg_print("The weapon's damage type has been changed to Poison!")
 	else
 
@@ -1117,7 +1117,7 @@ function use_ability (powernum)
 	energy_use = 100
   end
 
-  -- Elemental Strike
+  -- Exploding Strike
   if (powernum == 34) then
 
 	local dam
@@ -2823,6 +2823,44 @@ function use_ability (powernum)
 
     	energy_use = 100    
 
+  end
+
+  -- Restless Force's active effect.
+  if (powernum == 2301) then
+
+  	local dam
+        local dir
+	local rad
+	local percent
+
+        -- If used trough combat feats, we already selected a weapon.
+	if (not(combatfeat)) then choose_current_weapon() end
+
+        if (current_weapon.tval == 0) then
+
+                msg_print("You must use a weapon!")
+                return
+        end
+
+	dir = lua_get_rep_dir()
+
+	percent = p_ptr.cursed * 4
+	if (percent > 20) then percent = 20 end
+
+	dam = weapon_damages()
+	dam = dam + multiply_divide(dam, (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 2] * percent), 100)
+        if (dam < 0) then dam = 0 end
+
+	rad = 1 + (p_ptr.cursed / 2)
+	if (rad > 10) then rad = 10 end
+
+	no_magic_return = TRUE
+	melee_attack = TRUE
+	chain_attack(dir, GF_FIRE, dam, rad, 30)
+	melee_attack = FALSE
+	no_magic_return = FALSE
+
+	energy_use = 100
   end
 
   -- Hexblaze Strike

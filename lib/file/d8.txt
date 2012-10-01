@@ -248,7 +248,7 @@ A:[CONTINUE]:0:0:0:1:25:0:0:0:0
 N:25:0:0:0:0:0
 I:Mayor Princeton;
 T:...well, I guess we have to start searching for clues. And I know someone;
-T:who may have some information. Maybe you've heard of than woman, Clara.;
+T:who may have some information. Maybe you've heard of that woman, Clara.;
 T:She's well known in this town, as she always claims to see orcs and other;
 T:weird creatures. Until now, everything she said has been proven false, and;
 T:her latest 'orc' turned out to be a Kobold thief. However, this time, it;

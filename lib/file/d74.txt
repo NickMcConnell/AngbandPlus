@@ -1,0 +1,409 @@
+N:1:145:1:0:0:0
+I:Dorgal;
+T:You have returned, <NAME>. Did you find the Red Rock Labyrinth?;
+T:Were you able to find anything?;
+A:Yes, I've found an old journal from that Elf. [Read it]:2:8:38:1:30:0:0:0:0
+A:Not yet. I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:144:1:0:0:0
+I:Dorgal;
+T:You have returned, <NAME>. I am listening.;
+A:Is there any way I can help you?:1:145:0:1:24:0:0:0:0
+A:What happened to the Elf?:0:0:0:1:25:0:0:0:0
+A:Before finding this orb, I fought a golem. A creation of yours?:0:0:0:1:26:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:You approach the orb, and try to interact with it. You introduce yourself;
+T:as <NAME>, the <RACE> <CLASS>.;
+T:And then, you hear the voice in your mind again...;
+A:[CONTINUE]:0:0:0:1:2:0:0:144:1
+%
+
+N:2:0:0:0:0:0
+I:Voice;
+T:<NAME>... so, that is your name. You are the one who has finally;
+T:found me, after all these years. Since you are a <RACE>,;
+T:I assume that my own race has long forgotten me...;
+A:Were you an Orc?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Voice;
+T:An Orc... yes, that's how humans, dwarves and other races called us;
+T:back then. We used to call ourselves differently, but for now, let's just;
+T:say that yes, I was an Orc. So tell me, <NAME>... what happened to my;
+T:race? What happened to the Orcs? Have they gone... completely insane?;
+A:Actually, your race is extinct.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Voice;
+T:Extinct? What do you mean??;
+A:[Explain the events of the great war against the orcs.]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Voice;
+T:...I see. So that's how it ended. I am saddened to hear this, but I am;
+T:not surprised.;
+A:Who are you?:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Dorgal;
+T:My name is Dorgal. I was once known as the most powerful Orc warrior to;
+T:ever be born, and one of the most powerful warriors in the world. I was;
+T:also known as Avemorsh, "The Strongest", and had the title of Gin'Whal,;
+T:"of Fire and Wind", due to the great powers of Fire and Wind magic that;
+T:I possessed.;
+A:You're Avemorsh Gin'Whal?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Dorgal;
+T:Yes... though my real name was Dorgal. You seem to have heard of my story.;
+T:I was afraid that Elf would manage to completely erase me from history,;
+T:but I'm glad to see that there are still some peoples who remembers who;
+T:I was.;
+A:What happened to you and the Orcs? And who is that Elf?:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Dorgal;
+T:It's a long story... The Orcs were a race of hardy and brave warriors.;
+T:Many humans saw us and ugly and barbaric, I suppose our appearance was;
+T:very different than that of humans. But we weren't barbaric. We valued;
+T:honor, courage, strength and other warrior values. We were brutal in;
+T:battle, but we weren't conquerors, and we would never attack the other;
+T:races without a reason.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Dorgal;
+T:And then one day, I was born. As a child, I was born with an incredible;
+T:physical strength, and with magic of Fire and Wind. It never happened;
+T:before, and no one could ever explain where those powers came from.;
+T:While other children where playing with toys, I was lifting stones, and;
+T:playing with steel axes. Or would light fires, and make strong gusts;
+T:of wind. That, my parents did not like...;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Dorgal;
+T:It didn't take long before I was able to defeat our leader in combat, as;
+T:well as my own father. I became the youngest to ever be named Warlord.;
+T:Once I became a grown-up adult, no one could best me in battle. I led my;
+T:people to many victories, and fought many battles that would have been;
+T:lost if I wouldn't have fought on the front line. I even fought against;
+T:dragons, who were becoming more and more arrogant. Eventually, they started;
+T:demanding tributes from other races. I would never accept to surrender to;
+T:dragons, so I went in their own caves, and challenged them.;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Dorgal;
+T:They didn't take me seriously at first, but once I easily took down one of;
+T:their own, they started coming to me one by one. At one time, five dragons;
+T:of the Prismatic kind, the most powerful kind of dragon, fought me;
+T:five-on-one. And I was still able to defeat them. The few remaining dragons;
+T:fled, and our lands were free from the draconic influence.;
+A:So you really fought five dragons?:0:0:0:1:12:0:0:0:0
+A:[Continue to listen to his story...]:0:0:0:1:13:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Dorgal;
+T:Yes, it happened. Now, don't get me wrong. They were adult dragons, but they;
+T:weren't Wyrms or anything like that. Had it been Prismatic Wyrms, in a;
+T:five-on-one battle, I might not have won... But still, when you consider that;
+T:very few warriors are capable of fighting even a single adult dragon alone,;
+T:defeating five of them with relative ease was quite a feat. I understand;
+T:you may not believe it, but it really did happen. I really had that kind;
+T:of power.;
+A:Continue with your story then.:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Dorgal;
+T:So after our lands were saved from the dragons, peace had returned. My next;
+T:step as the leader of the orcs was to establish peaceful relations with the;
+T:other races, starting with our neighbors, the dwarves. And everything was;
+T:good... until the Elf came to visit me.;
+A:The Elf?:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Dorgal;
+T:One day, a stranger came to me while I was training alone in the mountains.;
+T:He had light skin, and pointed ears, and introduced himself as an Elf, coming;
+T:from the southern forests. He didn't reveal his name, but he was wearing;
+T:a full suit of plate armor, and a cape. I'm guessing he was some noble, or;
+T:maybe a general... I couldn't tell. But he was definitely a person of great;
+T:importance.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Dorgal;
+T:He said he had heard of my powers. Of my strength. Of my victory against;
+T:the dragons. He said that I was one of the "gifted". One with the blood;
+T:of the Gods. He said I was blessed by the Gods, and that I had divine blood;
+T:inside of me. Essentially making me a Demigod. He said that he was also one;
+T:of the "gifted", and that I should follow him, so that he could help me;
+T:to "awaken" my full potential.;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Dorgal;
+T:Of course, I didn't trust that man. I've told him that I had no intention;
+T:to follow him, and that I wanted to be left alone. I did not believe in this;
+T:whole "Demigod" thing. The Elf smirked, and said that I had no choice in the;
+T:matter. He gave me a place where we could meet, should I ever change my mind,;
+T:and then he left. I went back home soon after. I had no idea back then, of the;
+T:horrible things this man would do to my peoples...;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Dorgal;
+T:The days passed, and I was trying to forget about that encounter with the Elf.;
+T:But then, strange things started happening. Some of my peoples went missing.;
+T:Some of my warriors became aggressive, and engaged in battle with the dwarves.;
+T:Some orc women died while giving birth, and their children were sick and;
+T:weak. Something was wrong, but I couldn't tell what it was. One of my shamans;
+T:suggested the possibility of a curse, and that a demon might be behind it.;
+T:So my warriors started hunting for demons or evil spirits. Of course,;
+T:I already had a good idea of who was responsible for this curse... So I left;
+T:the mountains, and went to the meeting place the Elf had told me about.;
+T:It was time to confront him!;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Dorgal;
+T:Soon after I arrived, the Elf showed up. Again, he had that nasty grin on his;
+T:face. He said he knew I would come. I've asked him what he had done to my;
+T:people, and he said that he placed a curse on my people, and that the only;
+T:to break it was for me to "awaken". Otherwise, it would drive my race insane,;
+T:and would eventually lead it to it's demise. Of course, I knew of another way;
+T:to break the curse. To kill that evil Elf wizard, of course!;
+A:[CONTINUE]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Dorgal;
+T:So I attacked him, and gave him everything I had. However, it was futile.;
+T:The Elf's magic was too powerful, and he said that it was the true power;
+T:of an awakened demigod, and that as long as I didn't embrace my true nature;
+T:and remained a mortal, I would never stand a chance against him. He then;
+T:used some magical attack to knock me down. I was paralyzed, and couldn't;
+T:move. Then, he started using some magic on me. He said that if I didn't want;
+T:to awake by myself, he would force me to do so. He would force my true power;
+T:out of me!;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Dorgal;
+T:I screamed. I was terrified, for the first time in my life. And then I passed;
+T:out. When I awoke, the man was gone. I felt dizzy, but not weak. In fact, I;
+T:felt... strong. Powerful. I've decided to return to the mountains. As the days;
+T:passed, I've felt like my power was increasing days after days, but the more;
+T:power I had, the more...tired, I felt. It's like if I was slowing moving on;
+T:to another plane... disappearing from this world. I returned to my peoples.;
+T:The curse was still strong. The Elf had lied to me. My awakening did not;
+T:bring back any sanity to my race. I had been defeated. I was no longer worthy;
+T:of the name "Avemorsh". I couldn't watch my people becoming insane like this,;
+T:so one day, I left the mountains.;
+A:[CONTINUE]:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Dorgal;
+T:Although I've spent most of my time in the mountains where most of my race;
+T:lived, my hometown was a small settlement far away from the mountains.;
+T:So I decided to return there. I didn't tell anyone I was leaving. It was;
+T:pointless at this point. But I did leave one clue behind. On one of the;
+T:paintings, in one of our structures, I wrote a small text in Orcish language.;
+T:The text would hint at my hometown. I assume you found it, correct?;
+A:Yes, that's what led me here.:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Dorgal;
+T:And then I left to my hometown. They, too, had been affected by the curse;
+T:My parents were gone. So were my friends. There were only a few peoples;
+T:left. But it was my hometown, and I've decided that I would spend the last;
+T:of my days as a mortal here. Before "ascending"...to a higher plane.;
+T:There was one last thing I wanted to do. I went down to a hidden room in;
+T:one of the buildings, and used my magic to transfer some of my memories;
+T:into a magical orb. The orb you are staring at right now. I knew my race;
+T:was doomed, but I wanted a part of my soul to stay alive, and reveal;
+T:the truth one day. And this is the last thing I did, before eventually;
+T:disappearing. Litterally disappearing. Ascended to another plane.;
+A:[CONTINUE]:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Dorgal;
+T:I went to a small place south of the town, hid in a cave, which would;
+T:become my "tomb"... and that's how it ended.;
+T:And here we are right now, you and I, in what I assume are centuries;
+T:later. Millenias, perhaps. I'm sorry if my story was a little long,;
+T:but the truth had to be revealed. I thanks you for listening to my;
+T:story, <NAME>. At least, now you know the truth.;
+T:And I'm sure you have questions. I would be happy to answer them.;
+A:Is there any way I can help you?:1:145:0:1:24:0:0:0:0
+A:What happened to the Elf?:0:0:0:1:25:0:0:0:0
+A:Before finding this orb, I fought a golem. A creation of yours?:0:0:0:1:26:0:0:0:0
+A:I will be leaving for now.:0:0:0:1:27:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Dorgal;
+T:Yes... you may be able to. Now that I have finally revealed the truth,;
+T:there is no need for me to stay in this world. I am sure you will pass on;
+T:the knowledge, and to tell you the truth, being inside an orb all this time;
+T:hasn't been the most exciting experience. But before I disappear, there is;
+T:one more thing I want to know. I want to know if there's any clues of the;
+T:Elf's whereabouts. I can only think of the original meeting place I had with;
+T:him, the Red Rock Labyrinth, as a place to look for clues.;
+A:The Red Rock Labyrinth?:0:0:0:1:28:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Dorgal;
+T:I have no idea. He never revealed who he was. I can't tell you whether;
+T:he is still alive today or not. I'm sorry.;
+A:Is there any way I can help you?:1:145:0:1:24:0:0:0:0
+A:Before finding this orb, I fought a golem. A creation of yours?:0:0:0:1:26:0:0:0:0
+A:I will be leaving for now.:0:0:0:1:27:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Dorgal;
+T:Yes. I apologize if it caused you any trouble, but I wanted to keep this;
+T:place safe from the Elf's minions who could have been looking for me. The orb;
+T:had to be protected. Also, should some adventurer discover this place before;
+T:reading my text, he or she would have found treasures, and would then leave;
+T:the room, unaware that there was more than mere treasures in it.;
+T:So the golem's purpose was to help keeping this place secret. Again, sorry;
+T:for any trouble it may have caused you.;
+A:Is there any way I can help you?:1:145:0:1:24:0:0:0:0
+A:What happened to the Elf?:0:0:0:1:25:0:0:0:0
+A:I will be leaving for now.:0:0:0:1:27:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Dorgal;
+T:Sorry to have taken some of your time. But at least, you know the truth.;
+T:Return to me if you ever have any questions.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Dorgal;
+T:The Red Rock was a place in the mountains named after all the lava that;
+T:surrounds it. There is a labyrinth of caverns underneath it, and many;
+T:powerful creatures lives there. It's a very dangerous place, and for;
+T:most adventurers, simply entering this place would mean an almost certain;
+T:death. But you... I don't know. I have a feeling you may have what it takes.;
+T:You must find the Red Rock Labyrinth, and reach the last floor. This is where;
+T:me and the Elf met a long time ago. Go there, and see what you can find.;
+A:[CONTINUE]:0:0:0:1:29:0:0:145:1
+%
+
+N:29:0:0:0:0:0
+I:Dorgal;
+T:Unfortunately, I have no ideas where it would be today. But since you've;
+T:been able to find me here, I'm sure you'll know what to do, or who to ask;
+T:for help in figuring out it's location. Do this for me, and I will use;
+T:the last of my power to summon a great reward for you that will surely;
+T:help you in your adventures. Good luck, <NAME>!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I: ;
+T:You read the old journal loudly. For a moment, you don't hear Dorgal's voice;
+T:anymore. And then he speaks again...;
+A:[CONTINUE]:0:0:0:1:31:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Dorgal;
+T:So that's how I ended up. Fully awakened, yet unable to put my powers to good;
+T:use, instead being forced to serve a corrupted Demigod. Curse him! He is no;
+T:God, he's a Fiend, that's what he is! I can only pray that he was defeated;
+T:by some other superbeing. Such a foul Fiend would have no place amongst the;
+T:Gods in Heavens, and surely Divine Champions and other divine beings have;
+T:already destroyed him. And... they probably destroyed me as well. But I'd;
+T:rather die than being forced to serve that madman!;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I:Dorgal;
+T:Thanks you, <NAME>. Now I know the truth, and so do you. I have;
+T:promised that I would give you a great reward, and I shall do so!;
+T:*You sense a magical force around you. Then, suddently, a pair;
+T:of enchanted bracers appear in your hands!*;
+A:[CONTINUE]:0:0:0:3:44:4:33:0:0
+%
+
+N:33:0:0:0:0:0
+I:Dorgal;
+T:These magical bracers are imbued with what's left of my powers. It will;
+T:make you stronger, tougher and provide you with a solid protection against;
+T:magical attacks. I believe it will be of great help in your future adventures!;
+A:Thanks you.:0:0:0:1:34:0:0:156:1
+%
+
+N:34:0:0:0:0:0
+I:Dorgal;
+T:Now... my time here in this world is done. I am but a fragment of the;
+T:person I once was. My purpose have been fulfilled, and so it is time for;
+T:me to end this trapped existance.;
+A:[CONTINUE]:0:0:0:1:35:0:0:143:1
+%
+
+N:35:0:0:0:0:0
+I:Dorgal;
+T:Farewell, <NAME>! It was good to meet you. Thanks you for everything;
+T:you've done. And please, let the world know that we Orcs were once;
+T:a proud race, and that it is because of a curse that we became an;
+T:enemy of all other races. I hold no grudge against the humans, elves;
+T:and dwarves who destroyed us. They did what they had to do to survive.;
+T:And in the end, we all died in battle, like any warriors would have;
+T:wanted. With that, I can finally rest in peace...;
+A:[CONTINUE]:0:0:0:9:1051:36:0:0:0
+%
+
+N:36:0:0:0:0:0
+I: ;
+T:And with these last words, the blue orb disappears. You no longer hear;
+T:the voice of Dorgal, nor do you feel his presence. He is now gone,;
+T:satisfied with what you have discovered. The last of his power is now;
+T:inside the bracers that he gave you. However, you wonder whether he will;
+T:truly rest in peace now. After all, you do not know whether his soul;
+T:still exists in another plane. He may have been destroyed by other;
+T:divine beings a long time ago, but who knows? Nevertheless, as far as you're;
+T:concerned, your job is done. You have learned the truth behind the;
+T:disappearence of the orcs, and gained a valuable reward in doing so.;
+A:[CONTINUE]:0:0:0:1:37:0:0:0:0
+%
+
+N:37:0:0:0:0:0
+I: ;
+T:There is only one thing left to do. You should go see Professor Savius,;
+T:and let him know how this whole story ended.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

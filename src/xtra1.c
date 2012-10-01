@@ -2036,13 +2036,15 @@ void calc_stats(int mode)
 /* Slowness is rarely appreciated... */
 void calc_equipment()
 {
-	int i, w;
+	int i, w, secretsmod;
 	object_type *o_ptr;
 	u32b f1, f2, f3, f4;
 
 	/* Reset two global variables. */
 	exblows = 0;
 	exshots = 0;
+
+	secretsmod = p_ptr->secretscleared * 20;
 
 	/* Scan the usable inventory */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2060,21 +2062,21 @@ void calc_equipment()
                 object_flags(o_ptr, &f1, &f2, &f3, &f4);
 		
 		/* Stats bonus/penalities. */
-		p_ptr->stat_add[A_STR] += o_ptr->statsbonus[A_STR];
-		p_ptr->stat_add[A_INT] += o_ptr->statsbonus[A_INT];
-		p_ptr->stat_add[A_WIS] += o_ptr->statsbonus[A_WIS];
-		p_ptr->stat_add[A_DEX] += o_ptr->statsbonus[A_DEX];
-		p_ptr->stat_add[A_CON] += o_ptr->statsbonus[A_CON];
-		p_ptr->stat_add[A_CHR] += o_ptr->statsbonus[A_CHR];
+		p_ptr->stat_add[A_STR] += (o_ptr->statsbonus[A_STR] + multiply_divide(o_ptr->statsbonus[A_STR], secretsmod, 100));
+		p_ptr->stat_add[A_INT] += (o_ptr->statsbonus[A_INT] + multiply_divide(o_ptr->statsbonus[A_INT], secretsmod, 100));
+		p_ptr->stat_add[A_WIS] += (o_ptr->statsbonus[A_WIS] + multiply_divide(o_ptr->statsbonus[A_WIS], secretsmod, 100));
+		p_ptr->stat_add[A_DEX] += (o_ptr->statsbonus[A_DEX] + multiply_divide(o_ptr->statsbonus[A_DEX], secretsmod, 100));
+		p_ptr->stat_add[A_CON] += (o_ptr->statsbonus[A_CON] + multiply_divide(o_ptr->statsbonus[A_CON], secretsmod, 100));
+		p_ptr->stat_add[A_CHR] += (o_ptr->statsbonus[A_CHR] + multiply_divide(o_ptr->statsbonus[A_CHR], secretsmod, 100));
 
 		/* Skills bonus/penalities. */
 		for (w = 0; w < SKILL_MAX; w++)
 		{
-			p_ptr->skill_bonus[w] += o_ptr->skillsbonus[w];
+			p_ptr->skill_bonus[w] += (o_ptr->skillsbonus[w] + multiply_divide(o_ptr->skillsbonus[w], secretsmod, 100));
 		}
 
 		/* Various bonus. */
-		p_ptr->to_s += o_ptr->spellbonus;
+		p_ptr->to_s += (o_ptr->spellbonus + multiply_divide(o_ptr->spellbonus, secretsmod, 100));
 		p_ptr->see_infra += o_ptr->infravision;
 		p_ptr->pspeed += o_ptr->speedbonus;
 		exblows += o_ptr->extrablows;
@@ -2115,22 +2117,22 @@ void calc_equipment()
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		/* Modify the base armor class */
-		p_ptr->ac += o_ptr->ac;
+		p_ptr->ac += (o_ptr->ac + multiply_divide(o_ptr->ac, secretsmod, 100));
 
 		/* The base armor class is always known */
-		p_ptr->dis_ac += o_ptr->ac;
+		p_ptr->dis_ac += (o_ptr->ac + multiply_divide(o_ptr->ac, secretsmod, 100));
 
 		/* to_h and to_d */
-		p_ptr->to_h += o_ptr->to_h;
-		p_ptr->to_d += o_ptr->to_d;
-		p_ptr->dis_to_h += o_ptr->to_h;
-		p_ptr->dis_to_d += o_ptr->to_d;
+		p_ptr->to_h += (o_ptr->to_h + multiply_divide(o_ptr->to_h, secretsmod, 100));
+		p_ptr->to_d += (o_ptr->to_d + multiply_divide(o_ptr->to_d, secretsmod, 100));
+		p_ptr->dis_to_h += (o_ptr->to_h + multiply_divide(o_ptr->to_h, secretsmod, 100));
+		p_ptr->dis_to_d += (o_ptr->to_d + multiply_divide(o_ptr->to_d, secretsmod, 100));
 
 		/* Apply the bonuses to armor class */
-		p_ptr->to_a += o_ptr->to_a;
+		p_ptr->to_a += (o_ptr->to_a + multiply_divide(o_ptr->to_a, secretsmod, 100));
 
 		/* Apply the mental bonuses to armor class */
-		p_ptr->dis_to_a += o_ptr->to_a;
+		p_ptr->dis_to_a += (o_ptr->to_a + multiply_divide(o_ptr->to_a, secretsmod, 100));
 	}
 
 }

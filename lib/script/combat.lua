@@ -890,9 +890,6 @@ function monster_hit_player(monster, bonus)
                 if (lua_randint(disroll) >= lua_randint(dismroll)) then return 0 end
         end
 
-	-- Pure Orcish Rage.
-	if (m_race(monster.r_idx).event_misc == 2501 and monster.mana >= 100) then return 1 end
-
         if (mroll >= proll) then
 
 		-- Cursed Evasion Nightmare ability.
@@ -900,7 +897,7 @@ function monster_hit_player(monster, bonus)
 
 			local newproll
 
-			newproll = multiply_divide(proll, p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] * (2 * p_ptr.cursed), 100)
+			newproll = multiply_divide(proll, p_ptr.abilities[(CLASS_NIGHT1 * 10) + 4] * (4 * p_ptr.cursed), 100)
 
 			if (lua_randint(mroll) >= lua_randint(newproll)) then
 

@@ -280,7 +280,7 @@ T:And as a Defender, it's my role to be in the front, and save as many;
 T:lives as I can. I don't care if some snobbish politicians think otherwise.;
 T:I'll listen to them the day they can lift a sword without moaning!;
 A:Tell me more about Shan.:0:0:0:3:49:0:20:0:0
-A:Why aren't the gods helping us? Why are we dealing with archfiends?:0:0:0:1:25:0:0:0:0
+A:Why aren't the Gods helping us? Why are we dealing with Archfiends?:0:0:0:1:25:0:0:0:0
 A:Good bye.:0:0:0:0:0:0:0:0:0
 %
 

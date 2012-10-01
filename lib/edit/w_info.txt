@@ -79,11 +79,17 @@ T:48:36:17:1
 // Ophelia's Tomb.
 T:48:35:18:1
 
-// Vipers HQ.
+// Vipers HQ - ancient orcish ruins.
 T:44:44:23:0
 
 // Delviaz's Hideout
 T:52:48:24:0
+
+// Ancient orcish ruins.
+T:89:47:25:0
+
+// Red Rock Labyrinth.
+T:85:51:26:0
 
 // JINDAR
 // *THE* biggest city in Portralis!
@@ -187,11 +193,11 @@ D:WWWWWW,,,,,,,,wwwwwww,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,,,,,,,MMMMMMMMMMMMMMMMM
 D:WWWWW,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,,T.,,,,,.,,,,,,,,,,.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWW,,,,,,,,,,,,wwwwwwwwwww,,,,,T,,,,,,,,TT.,,,,,,,.,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 D:WWWWW,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,TTT,,.,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMM..MMM...MMMMMMMMMMMMM
-D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,.,,,,,T,,,,,,,,MMMMMMMMMMMMMMMMMMMMM...MMMMMMMMMMMMM
+D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwww,,,,,,,,,,,,,,,,.,,,,,T,,,,,,,,MMMMMMMMMMMMMMMMMMMMM...MM.MMMMMMMMMM
 D:WWWWW,,,,,,,,,,,,,,,,wwwwwwwwwwww,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
 D:WWWWW,,,,,,,,,,,,,,,wwwwTTTwwwwwww,,,,,,,,,,,,.,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMMMMMW
 D:WWWWW,,,,,,,,,,,,wwwwwwTTTTTTTwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
-D:WWWWW,,,,,,,,,,,wwwwwwTTTTTTTTTwwwwwwwwwwwwwwwww.wwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
+D:WWWWW,,,,,,,,,,,wwwwwwTTTTTTTTTwwwwwwwwwwwwwwwww.wwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMM.MMMMMMMMMMMMWW
 D:WWWWW,,,,,,,,,wwwwww,,TTTTTTTT,,,wwwwwwwwwwwwwwwwwwwwwwwwwwwwwMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW
 D:WWWWW,,,,,,,,wwwwww,,,,,TTTT,,,,,wwww,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMW
 D:WWWWW,,,,,,,,wwwwww,,,,,,,,,,,,,,wwww,,,,,,,,,,,,,,,,,,,,,,,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMWW

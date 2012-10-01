@@ -1,0 +1,27 @@
+N:1:0:0:0:0:0
+I:Voice;
+T:Mwhahaha! Welcome, <NAME>, the 'legendary' <RACE>!;
+T:My name is Pyrex, the Burner of Souls, and so far, I must say that I am quite;
+T:amused by your performance! It is no small feat to best a Divine Guard and one;
+T:of my elemental servants in combat, even for beings like us. Congratulations!;
+A:[CONTINUE]:0:0:0:1:2:0:0:25006:1
+%
+
+N:2:0:0:0:0:0
+I:Pyrex;
+T:Well, you're almost there! Only one more room to go. See the wall in front;
+T:of you? Behind it is the stairway that will lead you to my chamber.;
+T:But of course, you need to find the switch to open. Are you ready for your;
+T:last challenge? See if you can reach the switch, without suffering your;
+T:final destruction! Mwhahahaha!;
+A:Why don't you show yourself, coward!:0:0:0:1:3:0:0:0:0
+A:I don't have time for your games, Pyrex. Show yourself!:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Pyrex;
+T:Oh, but YOU are in MY home! This is my place, and I make the rules!;
+T:Well, hope you survive my little challenge! If you do, you'll be rewarded;
+T:with the honor of dying by my flames! Mwhahahaha!;
+A:[END DIALOG]:0:0:0:11:25004:0:0:0:0
+%

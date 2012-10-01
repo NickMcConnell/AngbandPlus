@@ -50,6 +50,10 @@ CONDITION TYPES FOR ANSWERS:
    be at least this value. If negative, the alignment must be at most this value.
 5. Charisma condition. Parameter 1 is the amount. To tell that answer, your 
    Charisma must be equal or higher than that amount.
+6. Race condition. Parameter 1 is the race id. You must be that race for this answer
+   to appear.
+7. Gender condition. Parameter 1 is the gender id. You must be that gender for this
+   answer to appear.
 
 EFFECTS OF ANSWERS:
 

@@ -1886,9 +1886,8 @@ void monster_death(int m_idx)
                 drop_near(q_ptr, -1, y, x);
 	}
 
-	/* Defeating a Secret Boss will award you nice rewards! :) */
-	/* Monsters can capture essences. */
-        if (r_ptr->flags7 & (RF7_SECRET_BOSS))
+	/* Defeating a Scaled UNIQUE monster gives you nice rewards! */
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->flags7 & (RF7_SCALED)) && (!is_pet(m_ptr) && m_ptr->angered_pet == 0 && m_ptr->summoned == 0 && !(m_ptr->no_experience)))
 	{
 		dungeon_info_type *d_ptr;
 		int statamt, skillamt, apamt;
@@ -1904,11 +1903,24 @@ void monster_death(int m_idx)
 		call_lua("ability_points_per_levels", "", "d", &apamt);
                 p_ptr->ability_points += apamt * r_ptr->cr;
 
-		msg_print("Congratulations! You have completed a Secret Level! You gain power!");
+		/* If it was also a secret boss, you gain more, and beat the secret level! */
+		if (r_ptr->flags7 & (RF7_SECRET_BOSS))
+		{
 
-		p_ptr->events[d_info[dungeon_type].secretevent] = 2;
-		anihilate_monsters();
-		update_and_handle();
+			call_lua("stat_points_per_levels", "", "d", &statamt);
+                	p_ptr->statpoints += statamt * r_ptr->cr;
+                        
+			call_lua("skill_points_per_levels", "", "d", &skillamt);
+                	p_ptr->skillpoints += skillamt * r_ptr->cr;
+			
+			call_lua("ability_points_per_levels", "", "d", &apamt);
+                	p_ptr->ability_points += apamt * r_ptr->cr;
+
+			p_ptr->events[d_info[dungeon_type].secretevent] = 2;
+			p_ptr->secretscleared += 1;
+
+			update_and_handle();
+		}
 	}
 
 	/* Reset */

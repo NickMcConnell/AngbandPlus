@@ -1,0 +1,77 @@
+N:1:25009:2:0:0:0
+I: ;
+T:Despite his efforts, Pyrex has so far been unable to stop you. As you continue;
+T:to attack him, he is starting to take major wounds, and his life force has;
+T:taken a significant blow. He is no longer laughing, and he is no longer;
+T:amused... With his life force weakened, he has lost the ability to instantly;
+T:recover his wounds while standing in fire.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:You have managed to cause some wounds to Pyrex, and his life force has been;
+T:weakened. However, you notice the grin on his face. He isn't scared, rather,;
+T:he seems to be quite amused.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Pyrex;
+T:Mwhahaha! Incredible, <NAME>! You've actually managed to wound;
+T:me! For a long time now, I have been looking for a powerful opponent,;
+T:to push my abilities to their limit! Nothing excites me more than a;
+T:violent, challenging battle, you see! However, I do have duties to accomplish;
+T:here, and I cannot let you defeat me.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Pyrex;
+T:Prepare yourself, <NAME>! For this battle has just begun!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Pyrex;
+T:Impossible! A lesser <RACE> couldn't possibly be inflicting me such;
+T:major wounds! Tell me the truth, <NAME>... What are you?;
+A:A lesser <RACE>, as you say.:0:0:0:1:5:0:0:0:0
+A:I am not mortal.:0:0:0:1:6:0:0:0:0
+A:Who cares? I'm going to defeat you no matter what!:0:0:0:1:7:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Pyrex;
+T:Hmph! That couldn't be... Are you saying we would have been underestimating;
+T:you mortals all along? But why are there so many weaklings? Why are they;
+T:all praying, putting their faith in gods, spirits and other beings?;
+T:If you mortals were so powerful, you wouldn't need to do that!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Pyrex;
+T:That sounds more and more believable. Perhaps your power is so great;
+T:that I couldn't properly sense it at first. Your strength definitely;
+T:isn't that of an ordinary mortal. Wait! Does that mean you're a Demigod;
+T:too, like Avemorsh? If that's the case, then your presence here would;
+T:compromise all our plans!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Pyrex;
+T:Don't be so sure! I am weakened, but I am not beaten yet! I still have;
+T:some power, and I can still destroy you!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Pyrex;
+T:Pah! None of this makes any sense! But one thing is sure, <NAME>.;
+T:I must destroy you at all cost before you can reach Avemorsh Gin'Whal!;
+T:And if I cannot do it alone, I will conjure all the help that I need;
+T:to do so!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

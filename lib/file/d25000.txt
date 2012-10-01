@@ -1,7 +1,12 @@
 N:1:0:0:0:0:0
 I:SECRET LEVEL;
-T:Wrath of the Gin'Whal;
+T:The Ancient Demigod;
 T: ;
-T:Minimum scaled enemies level: 30;
+T:Suggested level: 50 or higher.;
+T:Minimum scaled enemies level: 75;
+T: ;
+T:NOTE: Still under construction in this release, only one boss is ready.;
+T:      the others will come in the next release. It should still keep you;
+T:      busy for a while!;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %

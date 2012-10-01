@@ -1,10 +1,9 @@
 // This is a quest template.
 // Very similar to town template.
 // N:Name of town;
-// I:width:height:(0: dark 1: lite):(dungeon level, set to -1 to use current level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
 // S:start position x:start position y
 // F: Feature definition
-// T:(script function's name. It will be run when entering the quest/town.);
 // D:town definition, use the following characters for features:
 //
 // #: Permanent wall
@@ -16,7 +15,7 @@
 // W: Deep water
 // l: Shallow lava
 // L: Deep lava
-// 1,2,3,4,5,6,7,8,9,0,m: Shops
+// 1,2,3,4,5,6,7,8,9,0: Shops
 // <: Stair up
 // >: Stair down
 // +: Door
@@ -27,13 +26,10 @@
 // t: Snow-tree
 // G: Glacier
 // p: pit
-// x: Ice Wall
-// I: Permanent Ice Wall
-// =: Ice Door
 
 // E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
 	Type 1: Dialog	Detail: Which dialog.
-	Type 2: Dungeon entrance  Detail: Which dungeon Extra: startx Extra2: starty. (set extra and extra2 if you want to set up a start position in case character die).
+	Type 2: Dungeon entrance  Detail: Which dungeon
 	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
 	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
 	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
@@ -42,40 +38,60 @@
 	Type 8: Change town.	Detail: Town's id.
 	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
 	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
-	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
-	Type 12: Random Gold.
-	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster. Extra: 0. Normal 1. Elite 2. Boss
-	Type 14: Random Monster of type. Detail: Monster's depth adjustement. Extra: 1. Undead 2. Demon 3. Dragon Extra2: 0. Normal 1. Elite 2. Boss
-	Type 15: Random Item of tval. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. Extra2: Item's tval
-	Type 16: Random Nightmare Horror. Detail: Misfortune adjustment. (by default, it's the current monster level.)
 
-// NOTE: Do not use events 29000 to 29999. They are reserved for various things.
+N:Old Ruins;
 
-// R:(script function's name):x:y
+I:31:21:0:61:0:0:0
+S:15:18
 
-N: ;
+T:old_orc_ruins_1;
 
-I:11:10:0:41:0:0:0
-S:5:6
+// Exit.
+E:21:19:5:99:14:0:0:0:0:0
 
-// Junk.
-E:3:3:6:2:0:0:0:0:0:0
-E:7:4:6:10:0:0:0:0:0:0
-E:8:2:6:3:0:0:0:0:0:0
+// Junk
+E:3:15:6:10:0:0:0:0:0:0
+E:10:19:6:10:0:0:0:0:0:0
 
-// Rod of Spirit Trapping.
-E:7:8:6:1252:0:0:126:0:126:1
+E:23:7:6:243:0:0:0:0:0:0
+E:27:11:6:252:0:0:0:0:0:0
 
-// Quest exit.
-E:3:8:5:76:19:0:0:0:0:0
+// Dialogs.
+E:10:16:1:65:0:0:133:0:133:1
+E:10:17:1:65:0:0:133:0:133:1
+E:10:18:1:65:0:0:133:0:133:1
 
-D:###########
-D:###########
-D:##.......##
-D:##.......##
-D:##.......##
-D:##.......##
-D:##.......##
-D:##+##<##+##
-D:##.<###..##
-D:###########
+E:20:8:1:66:0:0:134:0:134:1
+E:20:9:1:66:0:0:134:0:134:1
+E:20:10:1:66:0:0:134:0:134:1
+
+E:10:9:1:67:0:0:135:0:135:1
+
+E:14:3:1:68:0:0:136:0:136:1
+E:15:3:1:68:0:0:136:0:136:1
+E:16:3:1:68:0:0:136:0:136:1
+
+// Ancient text.
+E:18:1:1:69:0:0:137:0:0:0
+
+D:###############################
+D:############.......############
+D:############.......############
+D:############.......############
+D:###############+###############
+D:############.......#..........#
+D:#----------#.#...#.#..........#
+D:#-........-#.......#..........#
+D:#-........-#.#...#.#..........#
+D:#-.........+.......+..........#
+D:#-........-#.#...#.#..........#
+D:#-........-#.......#..........#
+D:#----------#.#...#.#..........#
+D:############.......#..........#
+D:###############+###############
+D:#..........#.......############
+D:#.-..-..-..#.......############
+D:#..........+.......############
+D:#.-..-..-..#.......############
+D:#..........#...<...+.<#########
+D:###############################

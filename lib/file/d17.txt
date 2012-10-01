@@ -34,7 +34,7 @@ I:Letter;
 T:I am confident that you will be able to do this, <NAME>. Good luck,;
 T:and may the gods be with you!;
 T:Oh, and one last thing... I have included a scroll of Teleportation.;
-T:It should help you espace this city. The monsters are too powerful;
+T:It should help you escape this city. The monsters are too powerful;
 T:outside, but with this scroll, you should be able to get out quickly.;
 A:[CONTINUE]:0:0:0:3:603:0:5:0:0
 %

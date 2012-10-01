@@ -5882,6 +5882,18 @@ void do_cmd_turn_on_off_misc()
                 strcpy(power_desc[num], "Turn On Flight of the Guilty.");
                 num++;
         }
+	if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 9] > 0 && p_ptr->events[29056] == 0)
+        {
+                powers[num] = 18;
+                strcpy(power_desc[num], "Turn On Elemental Being's Aura.");
+                num++;
+        }
+	if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 9] > 0 && p_ptr->events[29056] == 1)
+        {
+                powers[num] = 18;
+                strcpy(power_desc[num], "Turn Off Elemental Being's Aura.");
+                num++;
+        }
 	
 	if (num == 0)
 	{
@@ -6161,6 +6173,19 @@ void do_cmd_turn_on_off_misc()
                 {
                         p_ptr->events[29052] = 0;
                         msg_print("Flight of the Guilty turned On.");
+                }
+	}
+	if (Power == 18)
+	{
+		if (p_ptr->events[29056] == 0)
+                {
+                        p_ptr->events[29056] = 1;
+                        msg_print("Elemental Aura turned Off.");
+                }
+                else
+                {
+                        p_ptr->events[29056] = 0;
+                        msg_print("Elemental Aura turned On.");
                 }
 	}
 

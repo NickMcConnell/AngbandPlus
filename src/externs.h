@@ -1382,7 +1382,6 @@ extern void lua_revive_in_town();
 extern bool is_alive(monster_type *m_ptr);
 extern void lua_monster_script(int m_idx, cptr mscript);
 
-
 /* Skills names, and number of skills available. */
 extern char skill_names[SKILL_MAX][80];
 extern s16b num_skills;

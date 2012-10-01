@@ -1,0 +1,33 @@
+N:1:139:1:0:0:0
+I: ;
+T:There's a small switch at the bottom of the wall.;
+A:Press it.:0:0:0:11:10:4:0:0:0
+A:Leave it alone.:0:0:0:1:3:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:Following the instructions given by the text you've found in the orcish ruins,;
+T:you search the northeast corner of this large empty room...;
+A:[CONTINUE]:0:0:0:1:2:0:0:139:1
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You search carefully, and you discover a small switch well hidden at the;
+T:bottom of the wall.;
+A:Press it.:0:0:0:11:10:4:0:0:0
+A:Leave it alone.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:You leave it alone for now.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:A wall opens south of the room, revealing a secret passage.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

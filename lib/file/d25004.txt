@@ -1,0 +1,37 @@
+N:1:25005:2:0:0:0
+I:Firestorm Elemental;
+T:NO!!! How can I be defeated by a lesser being??;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:As you enter this room, the wall closes itself behind you! And then, a fire;
+T:appears in the room, and turns into an elemental being. A burning wind can;
+T:be felt all across the room...;
+A:[CONTINUE]:0:0:0:1:2:0:0:25005:1
+%
+
+N:2:0:0:0:0:0
+I:Firestorm Elemental;
+T:I've heard the rumor, but needed to see it with my own eyes! A lesser;
+T:being who appears in a place for higher divine beings! Not only that, but;
+T:one that seeks to confront Lord Pyrex himself!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Firestorm Elemental;
+T:Unfortunately, your journey ends here, <RACE>.;
+T:You will never make it to Lord Pyrex's chamber!;
+A:[END DIALOG]:0:0:0:11:25002:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:The Firestorm Elemental is destroyed, and with that, the wall that closed;
+T:itself shatters. It seems that this elemental had some control over the rooms;
+T:and doors of this place. It is possible that now that it is destroyed, some;
+T:doors may now be unlocked.;
+A:[END DIALOG]:0:0:0:11:25003:0:0:0:0
+%

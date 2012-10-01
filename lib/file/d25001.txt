@@ -1,82 +1,21 @@
 N:1:0:0:0:0:0
 I: ;
-T:You enter a large room. Avemorsh stands in the middle of the room.;
-T:He is a tall, powerful orcish warlord, who wears a dark full plate;
-T:armor. He is surrounded by incredibly powerful flames and strong winds,;
-T:both of which makes the other stronger. You are amazed that you can;
-T:even stand in front of such a mighty being.;
+T:The magical bracers given to you by Dorgal have unsealed the sealed stairway.;
+T:You go down... It seems endless. You must have been going down the stairs;
+T:for almost half an hour now, when finally, you arrive in front of what seems;
+T:be some kind of magical portal. The portal's energy is extremely powerful,;
+T:and unlike any common magic you're used to. Although you are unsure where;
+T:it will take you, you decide to enter the portal...;
 A:[CONTINUE]:0:0:0:1:2:0:0:0:0
 %
 
 N:2:0:0:0:0:0
-I:Avemorsh;
-T:You! I remember you. You were with that old, undead shaman not too long;
-T:ago. I was about to turn you into dust, but then he cut the link between;
-T:this place and the primary plane. And now you came back to me. I guess;
-T:you are desperate to die!;
-A:Gin'Whal! I believe Rogoth is right. Something bad happened to you!:0:0:0:1:3:0:0:0:0
-%
-
-N:3:0:0:0:0:0
-I:Avemorsh;
-T:That story again?? Listen. For the last time, I decided to declare the war;
-T:against the dwarves and the humans!! They were NUISANCES!! They were ENEMIES!!;
-T:There was no Daldumaar, no Arikyenzal, no Nimbraya! Only blood lusted orc;
-T:warriors who wanted to tear humans and dwarves apart!;
-A:Arikyenzal? We never spoke of Arikyenzal.:0:0:0:1:4:0:0:0:0
-%
-
-N:4:0:0:0:0:0
-I:Avemorsh;
-T:Of course! Arikyenzal! The legendary Nimbrayan Destroyer! Haven't you never;
-T:heard of...of....errg....;
-T:*He seems to be struck with a headache.*;
-A:[CONTINUE]:0:0:0:1:5:0:0:0:0
-%
-
-N:5:0:0:0:0:0
-I:Avemorsh;
-T:Erg...my...head hurts...;
-A:You're trying to remember something! Think! Daldumaar, Arikyenzal, Nimbraya...:0:0:0:1:6:0:0:0:0
-%
-
-N:6:0:0:0:0:0
-I:Avemorsh;
-T:Arg... There's something... I...I feel like I'm forgetting something;
-T:important...oooh...my head hurts...;
-A:You were the Gin'Whal! Avemorsh the Supreme!:0:0:0:1:7:0:0:0:0
-%
-
-N:7:0:0:0:0:0
-I:Avemorsh;
-T:Yes... Yes, of course! I...I remember now! It was...;
-A:[CONTINUE]:0:0:0:1:8:0:0:0:0
-%
-
-N:8:0:0:0:0:0
 I: ;
-T:Before he can finish his sentence, he starts glowing with a purple light!;
-A:[CONTINUE]:0:0:0:1:9:0:0:0:0
-%
-
-N:9:0:0:0:0:0
-I:Avemorsh;
-T:AAARRRGGGGHHHH!!!!;
-A:[CONTINUE]:0:0:0:1:10:0:0:0:0
-%
-
-N:10:0:0:0:0:0
-I: ;
-T:His eyes are now glowing with this same purple energy. The flames around him;
-T:becomes even stronger. With a fire that strong, even fire elementals would;
-T:find it difficult to approach him. The winds around him makes an hurricane;
-T:looks like a dry sunny day in comparison. He gazes at you with a murderous;
-T:look...;
-A:[CONTINUE]:0:0:0:1:11:0:0:0:0
-%
-
-N:11:0:0:0:0:0
-I:Avemorsh;
-T:Hahahahaha... I WILL KILL YOU!!!;
+T:You reappear in some place, surrounded by stone walls. You are not sure;
+T:where you are, but the entire place is filled with magical energy. The walls,;
+T:the floor, even the air... You are in a different plane of existance. You feel;
+T:dizzy, sick, weak. But after a moment, you feel better, and your body quickly;
+T:adapts to this strange atmosphere. Once you have completely recovered, you;
+T:decide to start exploring this place.;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %

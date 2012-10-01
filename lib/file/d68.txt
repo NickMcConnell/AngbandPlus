@@ -1,0 +1,33 @@
+N:1:131:1:0:0:0
+I: ;
+T:The first thing you see when you enter this room are the paintings on the;
+T:wall in front of you. The entire wall is decorated with paintings depicting;
+T:warriors wielding axes and wearing horned helmets. Looking closer, you can;
+T:see by their faces and their greenish skin tone that these paintings;
+T:depicts orc warriors charging to battle. While it's definitely interesting;
+T:to look at, it doesn't give much clues as to what actually happened to the;
+T:orcs.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:1:131:0:0:0:0
+I: ;
+T:The first thing you see when you enter this room are the paintings on the;
+T:wall in front of you. The entire wall is decorated with paintings depicting;
+T:warriors wielding axes and wearing horned helmets. Looking closer, you can;
+T:see that the warriors have some vaguely pig-like faces and short tusks,;
+T:and a greenish skin tone. This is how the ancient Orc race is often;
+T:depicted. Could orcs have once populated the ruins above? Nevertheless,;
+T:these paintings, despite having greate historical value, do not offer;
+T:much clues as to whether orcs were relly here or not.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You are done looking at the paintings and you are about to leave when;
+T:a small detail catch your attention. At the bottom-right corner of the;
+T:wall, there seems to be something written in small characters. Perhaps;
+T:you could get closer to the wall and see if you can read what's written.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

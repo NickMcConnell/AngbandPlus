@@ -1,0 +1,25 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter a large room that seems to be completely empty. Perhaps it is;
+T:the empty room you are looking for...;
+A:[CONTINUE]:0:0:0:1:2:0:0:141:1
+%
+
+N:2:140:1:0:0:0
+I: ;
+T:Well, it wasn't completely empty, there was a golem, but since you've;
+T:already defeated it, the room is now really empty. You can now start;
+T:investigating it, and see if you can find anything.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:140:0:0:0:0
+I: ;
+T:However, as you look closer, you discover that the room isn't completely;
+T:empty. There is a large, humanoid stone statue in this room. And when you;
+T:approach, several runes that are etched on it's body starts to glow, and;
+T:the statue begins to move. It seems like some kind of guardian golem,;
+T:and you will most likely have to defeat it before you can investigate;
+T:this room any further.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
