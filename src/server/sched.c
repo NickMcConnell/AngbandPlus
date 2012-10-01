@@ -1,3 +1,4 @@
+#ifndef WIN32
 /* $Id: sched.c,v 1.2 2000/04/08 04:46:52 adingle Exp $
  *
  * XPilot, a multiplayer gravity war game.  Copyright (C) 1991-95 by
@@ -467,8 +468,7 @@ void sched(void)
 	    n = select(max_fd, &readmask, 0, 0, tvp);
 	    if (n < 0) {
 		if (errno != EINTR) {
-                    printf("Errno: %d\n",errno);
-		    /* plog("sched select error"); */
+                    plog(format("Errno: %d\n",errno));
 		    core("sched select error");
 		    exit(1);
 		}
@@ -503,3 +503,4 @@ void sched(void)
     }
 }
 
+#endif

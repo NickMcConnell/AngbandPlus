@@ -56,6 +56,7 @@
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
 # include <io.h>
+#define strncasecmp strnicmp
 # ifndef WIN32
 #  include <pwd.h>
 #  include <unistd.h>
@@ -121,7 +122,7 @@ extern char *strrchr();
 
 
 #if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
-extern long atol();
+/*extern long atol(const char *);*/
 #endif
 
 
@@ -129,4 +130,3 @@ extern long atol();
 
 
 #endif
-

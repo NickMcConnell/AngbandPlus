@@ -163,7 +163,6 @@ void do_cmd_version(void)
 /*
  * Array of feeling strings
  */
-#if 0
 static cptr do_cmd_feeling_text[11] =
 {
 	"Looks like any other level.",
@@ -178,7 +177,6 @@ static cptr do_cmd_feeling_text[11] =
 	"This level can't be all bad...",
 	"What a boring place..."
 };
-#endif
 
 
 /*
@@ -192,9 +190,19 @@ static cptr do_cmd_feeling_text[11] =
  * level will still get a "special" feeling.  So, should the level feeling
  * be recomputed whenever it is asked for?  Right now, level feelings are
  * disabled.  --KLJ--
+ *
+ * We give a level feeling to the player who causes the level to be
+ * generated. See dungeon.c [grk]
+ *
  */
-void do_cmd_feeling(void)
+void do_cmd_feeling(int Ind)
 {
+	/* Verify the feeling */
+	if (feeling < 0) feeling = 0;
+	if (feeling > 10) feeling = 10;
+
+	/* Display the feeling */
+	msg_print(Ind, do_cmd_feeling_text[feeling]);
 }
 
 
@@ -390,13 +398,11 @@ void do_cmd_check_artifacts(int Ind, int line)
  */
 void do_cmd_check_uniques(int Ind, int line)
 {
-	int k;
-
+	int k, l, i, space, namelen, total = 0, width = 78;
 	FILE *fff;
-
-	char file_name[1024];
-	cptr killer;
-
+	char file_name[1024], buf[1024];
+	int idx[MAX_R_IDX];
+	monster_race *r_ptr, *curr_ptr;
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -407,60 +413,98 @@ void do_cmd_check_uniques(int Ind, int line)
 	/* Scan the monster races */
 	for (k = 1; k < MAX_R_IDX-1; k++)
 	{
-		monster_race *r_ptr = &r_info[k];
+		r_ptr = &r_info[k];
 
 		/* Only print Uniques */
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			bool dead = (r_ptr->max_num == 0);
-
 			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
+			if (cheat_know || r_ptr->r_sights)
 			{
-				/* Print a message */
-				fprintf(fff, "     %s is %s",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
-
-				/* If dead, print killer */
-								
-				if (dead)
+				l = 0;
+				while (l < total)
 				{
-					killer = lookup_player_name(r_ptr->killer);
-					/*
-					
-					killer = lookup_player_name(r_ptr->killer);
-					if (killer)
-						fprintf(fff, " (killed by %s)",
-							killer);
-							
-					Now displays the respawn time.....
-					*/
-					
-					if (killer)
-					{																						
-						fprintf(fff, " (killed by %s,",killer);
-						/* Hack -- round the displayed
-						 * respawn time off to the
-						 * nearest 10 minutes...
-						 */
-						fprintf(fff, " safe %d min)",
-							((r_ptr->respawn_timer/10)+1)*10);
-					}
-
-				}
-
-				/* Terminate line */
-				fprintf(fff, "\n");
+					curr_ptr = &r_info[idx[l]];
+					if (r_ptr->level > curr_ptr->level)
+						break;
+					l++;
+				}				
+				for (i = total; i > l; i--)	
+					idx[i] = idx[i - 1];
+				idx[l] = k;
+				total++;
 			}
 		}
 	}
+								
+	if (total)
+	{
+		/* for each unique */
+		for (l = total - 1; l >= 0; l--)
+		{
+			bool ok = FALSE;
+			char highlight = 'D';
+			r_ptr = &r_info[idx[l]];
+			sprintf(buf, "%s killed by: ", r_name + r_ptr->name);
+			space = width - strlen(buf);
+					
+			/* Do we need to highlight this unique? */
+			for (i = 1; i <= NumPlayers; i++)
+			{
+				player_type *q_ptr = Players[i];
+				if (q_ptr->r_killed[idx[l]])
+				{
+					if (i == Ind) highlight = 'w';
+				}
+			}
+			
+			/* Append all players who killed this unique */
+			k = 0;
+			for (i = 1; i <= NumPlayers; i++)
+			{
+				player_type *q_ptr = Players[i];
+				if (q_ptr->r_killed[idx[l]])
+				{
+					ok = TRUE;
+					namelen = strlen(q_ptr->name)+2;
+					if (space - namelen < 0 )
+					{
+						/* Out of space, flush the line */
+						fprintf(fff, "%c%s\n", highlight, buf);
+						strcpy(buf, "  \0");
+						k = 0;
+						space = width;
+					}
+					if (k++) strcat(buf, ", ");
+					strcat(buf, q_ptr->name);
+					space -= namelen;
+				}
+			}
+			if(ok)
+			{
+				fprintf(fff, "%c%s\n", highlight, buf);
+			}
+			else
+			{
+				if (r_ptr->r_tkills)
+				{
+					fprintf(fff, "D%s has been killed by somebody.\n", r_name + r_ptr->name);
+				}
+				else
+				{
+					fprintf(fff, "D%s has never been killed!\n", r_name + r_ptr->name);
+				}
+			}
+
+		}
+	}
+	else fprintf(fff, "wNo uniques are witnessed so far.\n");
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(Ind, file_name, "Known Uniques", line, 0);
+	show_file(Ind, file_name, "Known Uniques", line, 1);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -500,8 +544,7 @@ void do_cmd_check_players(int Ind, int line)
 		/* don't display the dungeon master if the secret_dungeon_master
 		 * option is set 
 		 */
-		if ((!strcmp(q_ptr->name,cfg_dungeon_master)) &&
-		   (cfg_secret_dungeon_master)) continue;
+        if (!strcmp(q_ptr->name,cfg_dungeon_master) && (cfg_secret_dungeon_master)) continue;
 
 		/*** Determine color ***/
 
@@ -518,10 +561,21 @@ void do_cmd_check_players(int Ind, int line)
 		fprintf(fff, "%c", attr);
 
 		/* Print a message */
-		fprintf(fff, "     %s the %s %s (Level %d, %s)",
-			q_ptr->name, race_info[q_ptr->prace].title,
-			class_info[q_ptr->pclass].title, q_ptr->lev,
+		if(q_ptr->no_ghost)
+		{
+			fprintf(fff, "     %s the Brave %s %s (Level %d, %s)",
+			q_ptr->name, p_name + p_info[q_ptr->prace].name,
+			c_name + c_info[q_ptr->pclass].name, q_ptr->lev,
 			parties[q_ptr->party].name);
+		} 
+		else 
+		{
+			fprintf(fff, "     %s the %s %s (Level %d, %s)",
+			q_ptr->name, p_name + p_info[q_ptr->prace].name,
+			c_name + c_info[q_ptr->pclass].name, q_ptr->lev,
+			parties[q_ptr->party].name);
+		}
+
 
 		/* Print extra info if these people are in the same party */
 		/* Hack -- always show extra info to dungeon master */

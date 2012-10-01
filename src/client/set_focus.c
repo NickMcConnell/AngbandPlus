@@ -1,3 +1,5 @@
+#if !defined(WIN32) || (defined(WIN32) && defined(USE_SDL))
+
 /* [grk]
  * A gross hack to allow the client to scroll the dungeon display.
  * This is required for large graphical tiles where we cant have an
@@ -40,3 +42,5 @@ void stretch_chat_ctrl( void )
 	             SWP_NOZORDER);
 #endif
 }
+
+#endif

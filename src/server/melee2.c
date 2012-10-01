@@ -884,9 +884,13 @@ bool make_attack_spell(int Ind, int m_idx)
 			break;
 		}
 
-		/* RF4_XXX8X4 */
+		/* RF4_BOULDER */
 		case 96+31:
 		{
+			disturb(Ind, 1, 0);
+			if (blind) msg_format(Ind, "You hear something grunt with exertion.", m_name);
+			else msg_format(Ind, "%^s hurls a boulder at you!", m_name);
+			bolt(Ind, m_idx, GF_ARROW, damroll(1 + r_ptr->level / 7, 12));
 			break;
 		}
 
@@ -1669,15 +1673,42 @@ bool make_attack_spell(int Ind, int m_idx)
 			break;
 		}
 
-		/* RF6_XXX7X6 */
+		/* RF6_S_KIN */
 		case 160+16:
 		{
+			disturb(Ind, 1, 0);
+			if (blind) msg_format(Ind, "%^s mumbles.", m_name);
+			else msg_format(Ind, "%^s magically summons %s %s.", m_name, m_poss,
+			                ((r_ptr->flags1) & RF1_UNIQUE ?
+			                 "minions" : "kin"));
+
+			/* Hack -- Set the letter of the monsters to summon */
+			summon_kin_type = r_ptr->d_char;
+			for (k = 0; k < 6; k++)
+			{
+				count += summon_specific(Depth, y, x, rlev, SUMMON_KIN);
+			}
+			if (blind && count)
+			{
+				msg_print(Ind, "You hear many things appear nearby.");
+			}
 			break;
 		}
 
-		/* RF6_XXX8X6 */
+		/* RF6_S_HI_DEMON */
 		case 160+17:
 		{
+			disturb(Ind, 1, 0);
+			if (blind) msg_format(Ind, "%^s mumbles.", m_name);
+			else msg_format(Ind, "%^s magically summons greater demons!", m_name);
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific(Depth, y, x, rlev, SUMMON_HI_DEMON);
+			}
+			if (blind && count)
+			{
+				msg_print(Ind, "You hear many evil things appear nearby.");
+			}
 			break;
 		}
 
@@ -1709,15 +1740,15 @@ bool make_attack_spell(int Ind, int m_idx)
 			break;
 		}
 
-		/* RF6_S_ANT */
+		/* RF6_S_ANIMAL */
 		case 160+20:
 		{
 			disturb(Ind, 1, 0);
 			if (blind) msg_format(Ind, "%^s mumbles.", m_name);
-			else msg_format(Ind, "%^s magically summons ants.", m_name);
+			else msg_format(Ind, "%^s magically summons animals.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(Depth, y, x, rlev, SUMMON_ANT);
+				count += summon_specific(Depth, y, x, rlev, SUMMON_ANIMAL);
 			}
 			if (blind && count) msg_print(Ind, "You hear many things appear nearby.");
 			break;
@@ -2116,13 +2147,50 @@ static void get_moves(int Ind, int m_idx, int *mm)
 	player_type *p_ptr = Players[Ind];
 
 	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int y, ay, x, ax;
 
 	int move_val = 0;
-
+	
 	int y2 = p_ptr->py;
 	int x2 = p_ptr->px;
+
+	/* Wanderers have their own ideas about where they are going unless
+	 * the player is aggravating them or they are hurt and standing near
+	 * a player who is higher than level 1.
+	 */
+	if ( (r_ptr->flags2 & RF2_WANDERER) && (!p_ptr->aggravate) 
+	   && ( (m_ptr->hp == m_ptr->maxhp) || (p_ptr->lev == 1) ) )
+	{
+		x2 = y2 = 0;
+		
+		/* Do we know where we are going? */
+		if ( m_ptr->wx || m_ptr->wy )
+		{
+			/* Yes, set that as our target */
+			x2 = m_ptr->wx;
+			y2 = m_ptr->wy;
+			
+			/* If we have nearly arrived, go somewhere else */
+			if ( (abs(x2 - m_ptr->fx) < 10) && (abs(y2 - m_ptr->fy) < 10) )
+			{
+				x2 = y2 = 0;
+			}
+
+			/* Occasionally we change our mind about where we want to go */
+			if (randint(1000) < 10)
+			{
+				x2 = y2 = 0;
+			}
+		}
+		if ( !x2 && !y2 )
+		{
+			/* We don't know where we're going, pick a destination */
+			x2 = m_ptr->wx = randint(MAX_WID);
+			y2 = m_ptr->wy = randint(MAX_HGT);
+		}
+	}
 
 
 #ifdef MONSTER_FLOW
@@ -2139,8 +2207,8 @@ static void get_moves(int Ind, int m_idx, int *mm)
 	x = m_ptr->fx - x2;
 
 
-	/* Apply fear if possible and necessary */
-	if (mon_will_run(Ind, m_idx))
+	/* Apply fear if possible and necessary (wanderers never run away) */
+	if ( mon_will_run(Ind, m_idx) && !(r_ptr->flags2 & RF2_WANDERER) )
 	{
 		/* XXX XXX Not very "smart" */
 		y = (-y), x = (-x);
@@ -2348,6 +2416,7 @@ static u32b noise = 0L;
  *
  * Note that the "Ind" specifies the player that the monster will go after.
  */
+
 static void process_monster(int Ind, int m_idx)
 {
 	player_type *p_ptr = Players[Ind];
@@ -2533,7 +2602,6 @@ static void process_monster(int Ind, int m_idx)
 		}
 	}
 
-
 	/* Handle "fear" */
 	if (m_ptr->monfear)
 	{
@@ -2711,7 +2779,7 @@ static void process_monster(int Ind, int m_idx)
 
 
 		/* Tavern entrance? */
-		if (c_ptr->feat == FEAT_SHOP_TAIL)
+		if (c_ptr->feat == FEAT_SHOP_HEAD+7)
 		{
 			/* Nothing */
 		}
@@ -3039,7 +3107,6 @@ static void process_monster(int Ind, int m_idx)
 
 			/* Take or Kill objects (not "gold") on the floor */
 			if (o_ptr->k_idx && (o_ptr->tval != TV_GOLD) &&
-			    (o_ptr->tval != TV_KEY) &&
 			    ((r_ptr->flags2 & RF2_TAKE_ITEM) ||
 			     (r_ptr->flags2 & RF2_KILL_ITEM)))
 			{
@@ -3054,7 +3121,7 @@ static void process_monster(int Ind, int m_idx)
 				o_ptr = &o_list[c_ptr->o_idx];
 
 				/* Extract some flags */
-				object_flags(o_ptr, &f1, &f2, &f3);
+		                object_flags(o_ptr, &f1, &f2, &f3);
 
 				/* Acquire the object name */
 				object_desc(Ind, o_name, o_ptr, TRUE, 3);
@@ -3068,7 +3135,9 @@ static void process_monster(int Ind, int m_idx)
 				if (f1 & TR1_SLAY_TROLL) flg3 |= RF3_TROLL;
 				if (f1 & TR1_SLAY_GIANT) flg3 |= RF3_GIANT;
 				if (f1 & TR1_SLAY_ORC) flg3 |= RF3_ORC;
+                if (f1 & TR1_KILL_DEMON) flg3 |= RF3_DEMON;
 				if (f1 & TR1_SLAY_DEMON) flg3 |= RF3_DEMON;
+                if (f1 & TR1_KILL_UNDEAD) flg3 |= RF3_UNDEAD;
 				if (f1 & TR1_SLAY_UNDEAD) flg3 |= RF3_UNDEAD;
 				if (f1 & TR1_SLAY_ANIMAL) flg3 |= RF3_ANIMAL;
 				if (f1 & TR1_SLAY_EVIL) flg3 |= RF3_EVIL;
@@ -3095,6 +3164,9 @@ static void process_monster(int Ind, int m_idx)
 				/* Pick up the item */
 				else if (r_ptr->flags2 & RF2_TAKE_ITEM)
 				{
+					object_type *i_ptr;
+					object_type object_type_body;
+				
 					/* Take note */
 					did_take_item = TRUE;
 
@@ -3105,6 +3177,18 @@ static void process_monster(int Ind, int m_idx)
 						msg_format(Ind, "%^s picks up %s.", m_name, o_name);
 					}
 
+					if	(monster_can_carry(m_idx))
+					{
+						/* Prepare local object */
+						i_ptr = &object_type_body;
+						
+						/* Obtain local object */
+						COPY(i_ptr, o_ptr, object_type);
+	
+						/* Carry the object */
+						(void)monster_carry(Ind, m_idx, i_ptr);
+					}
+										
 					/* Delete the object */
 					delete_object(Depth, ny, nx);
 				}
@@ -3121,7 +3205,7 @@ static void process_monster(int Ind, int m_idx)
 						/* Dump a message */
 						msg_format(Ind, "%^s crushes %s.", m_name, o_name);
 					}
-
+					
 					/* Delete the object */
 					delete_object(Depth, ny, nx);
 				}
@@ -3285,12 +3369,6 @@ void process_monsters(void)
 
 			p_ptr = Players[pl];
 
-#if 0
-			/* Only check him if he is playing */
-		     	if (p_ptr->conn == NOT_CONNECTED)
-				continue;
-#endif
-
 			/* Make sure he's on the same dungeon level */
 			if (p_ptr->dun_depth != m_ptr->dun_depth)
 				continue;
@@ -3329,17 +3407,18 @@ void process_monsters(void)
 		m_ptr->cdis = dis_to_closest;
 		m_ptr->closest_player = closest;
 
-		/* Hack -- Require proximity */
-		if (m_ptr->cdis >= 100) continue;
-
-
 		/* Access the race */
 		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Hack -- Require proximity unless this is a wanderer */
+		if ( !(r_ptr->flags2 & RF2_WANDERER) )
+		{
+			if (m_ptr->cdis >= 100) continue;
+		}
 
 		/* Access the location */
 		fx = m_ptr->fx;
 		fy = m_ptr->fy;
-
 
 		/* Assume no move */
 		test = FALSE;
@@ -3373,8 +3452,8 @@ void process_monsters(void)
 		}
 #endif
 
-		/* Do nothing */
-		if (!test) continue;
+		/* Do nothing unless a wanderer */
+		if (!test && !(r_ptr->flags2 & RF2_WANDERER) ) continue;
 
 
 		/* Process the monster */
@@ -3408,6 +3487,3 @@ void process_monsters(void)
 		}
 	}
 }
-
-
-

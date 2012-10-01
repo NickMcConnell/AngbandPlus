@@ -132,13 +132,6 @@
 #define IDM_HELP_ABOUT			903
 
 /*
- * This may need to be removed for some compilers XXX XXX XXX
- */
-#ifndef __MSVC__
-# define STRICT
-#endif
-
-/*
  * exclude parts of WINDOWS.H that are not needed
  */
 #define NOSOUND           /* Sound APIs and definitions */
@@ -358,12 +351,10 @@ static term_data *td_ptr;
 /*
  * Even bigger hack than the above -- global edit control handle [grk]
  */
-#ifdef __MSVC__
 static HWND editmsg;
 static HWND old_focus = NULL;
 LONG FAR PASCAL SubClassFunc(HWND hWnd,WORD Message,WORD wParam, LONG lParam);
-FARPROC lpfnOldWndProc;
-#endif
+WNDPROC lpfnOldWndProc;
 
 /*
  * Various boolean flags
@@ -382,6 +373,11 @@ static HINSTANCE hInstance;
  * Yellow brush for the cursor
  */
 static HBRUSH hbrYellow;
+
+/*
+ * Black brush for the chat window edit control
+ */
+static HBRUSH hbrBlack;
 
 /*
  * An icon
@@ -784,15 +780,16 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	WritePrivateProfileString(sec_name, "Rows", buf, ini_file);
 
 	/* Acquire position */
-	GetWindowRect(td->w, &rc);
+	if (GetWindowRect(td->w, &rc))
+	{
+		/* Current position (x) */
+		wsprintf(buf, "%d", rc.left);
+		WritePrivateProfileString(sec_name, "PositionX", buf, ini_file);
 
-	/* Current position (x) */
-	wsprintf(buf, "%d", rc.left);
-	WritePrivateProfileString(sec_name, "PositionX", buf, ini_file);
-
-	/* Current position (y) */
-	wsprintf(buf, "%d", rc.top);
-	WritePrivateProfileString(sec_name, "PositionY", buf, ini_file);
+		/* Current position (y) */
+		wsprintf(buf, "%d", rc.top);
+		WritePrivateProfileString(sec_name, "PositionY", buf, ini_file);
+	}
 }
 
 
@@ -862,8 +859,10 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	td->rows = GetPrivateProfileInt(sec_name, "Rows", td->rows, ini_file);
 
 	/* Window position */
-	td->pos_x = GetPrivateProfileInt(sec_name, "PositionX", td->pos_x, ini_file);
-	td->pos_y = GetPrivateProfileInt(sec_name, "PositionY", td->pos_y, ini_file);
+	GetPrivateProfileString(sec_name, "PositionX", "0", tmp, 127, ini_file);
+	td->pos_x = atoi(tmp);
+	GetPrivateProfileString(sec_name, "PositionY", "0", tmp, 127, ini_file);
+	td->pos_y = atoi(tmp);
 }
 
 
@@ -908,6 +907,9 @@ static void load_prefs(void)
 	int i;
 #endif
 
+	LPSTR buffer[20] = {'\0'};
+	LPDWORD bufferLen = sizeof(buffer);
+
 #ifdef USE_GRAPHICS
 	/* Extract the "use_graphics" flag */
 	use_graphics = (GetPrivateProfileInt("Angband", "Graphics", 0, ini_file) != 0);
@@ -946,9 +948,18 @@ static void load_prefs(void)
 	/* Pull nick/pass */
 	GetPrivateProfileString("MAngband", "nick", "PLAYER", nick, 70, ini_file);
 	GetPrivateProfileString("MAngband", "pass", "passwd", pass, 19, ini_file);
+	GetPrivateProfileString("MAngband", "host", "", server_name, 79, ini_file);
 
-	/* XXX Default real name */
-	strcpy(real_name, "PLAYER");
+	/* Pull username from Windows */
+	if ( GetUserName(buffer, &bufferLen) ) {
+		/* Cut */
+		buffer[16] = '\0';
+  		strcpy(real_name, buffer);
+
+	}
+   	else
+		/* XXX Default real name */
+		strcpy(real_name, "PLAYER");
 }
 
 
@@ -2155,7 +2166,7 @@ static void init_windows(void)
 	td = &data[0];
 	WIPE(td, term_data);
 
-	sprintf(version, "MAngband %d.%d.%d", 
+    sprintf(version, "Mangband %d.%d.%d", 
 			VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	td->s = version;
 	td->keys = 1024;
@@ -2256,11 +2267,11 @@ static void init_windows(void)
 	editmsg = CreateWindowEx(WS_EX_STATICEDGE,"EDIT",NULL,WS_CHILD|ES_AUTOHSCROLL|ES_OEMCONVERT|WS_VISIBLE,
 						 2,data[4].client_hgt-24,data[4].client_wid-8,20,data[4].w,NULL,hInstance,NULL);
 	editfont=CreateFont(16,0,0,0,FW_NORMAL,FALSE,FALSE,FALSE,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,PROOF_QUALITY,DEFAULT_PITCH,"Arial");  
-	SendMessage(editmsg, WM_SETFONT, editfont, NULL );
+	SendMessage(editmsg, WM_SETFONT, (int)editfont, (int)NULL );
 	stretch_chat_ctrl();
 
 	SendMessage(editmsg, EM_LIMITTEXT, 590, 0L);
-	lpfnOldWndProc = (FARPROC)SetWindowLong(editmsg, GWL_WNDPROC, (DWORD) SubClassFunc);
+	lpfnOldWndProc = (WNDPROC)SetWindowLong(editmsg, GWL_WNDPROC, (DWORD) SubClassFunc);
 
 	/* Activate the screen window */
 	SetActiveWindow(data[0].w);
@@ -2314,6 +2325,8 @@ static void init_windows(void)
 	/* Create a "brush" for drawing the "cursor" */
 	hbrYellow = CreateSolidBrush(win_clr[TERM_YELLOW]);
 
+	/* Create a "brush" for drawing the chat window edit control background */
+	hbrBlack = CreateSolidBrush(0);
 
 	/* Process pending messages */
 	(void)Term_xtra_win_flush();
@@ -2652,8 +2665,8 @@ static void process_menus(WORD wCmd)
 			/* Toggle "graphics" */
 			use_graphics = !use_graphics;
 			save_prefs();
-			MessageBox(NULL, "You need to restart MAangband in order for the changes to take effect","MAngband",MB_OK);
-			return 0;
+            MessageBox(NULL, "You need to restart MAngband in order for the changes to take effect","MAngband",MB_OK);
+			return;
 
 			/* Access the "graphic" mappings */
 			sprintf(buf, "%s-%s.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS);
@@ -2752,7 +2765,7 @@ LRESULT FAR PASCAL _export AngbandWndProc(HWND hWnd, UINT uMsg,
                                           WPARAM wParam, LPARAM lParam);
 #endif
 
-LRESULT FAR PASCAL _export AngbandWndProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                           WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT     ps;
@@ -3001,7 +3014,7 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam);
 #endif
 
-LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam)
 {
 	term_data      *td;
@@ -3034,9 +3047,9 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
 
 		case 0x133: /* WM_CTLCOLOREDIT */
 		{
-			SetTextColor(wParam,0x00ffffff);
-			SetBkColor(wParam, 0);
-			return CreateSolidBrush(0);
+			SetTextColor((HDC)wParam,0x00ffffff);
+			SetBkColor((HDC)wParam, 0);
+			return (int)hbrBlack;
 		}
 
                 /* GRK, wasn't trapping this so vis menus got messed up */
@@ -3494,7 +3507,7 @@ static void init_stuff(void)
 
 
 	/* XXX XXX XXX */
-	GetPrivateProfileString("Angband", "LibPath", "c:\\angband\\lib",
+	GetPrivateProfileString("Angband", "LibPath", "c:\\mangband\\lib",
 	                        path, 1000, ini_file);
 
 	/* Analyze the path */
@@ -3689,7 +3702,3 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 }
 
 #endif /* _Windows */
-
-
-
-

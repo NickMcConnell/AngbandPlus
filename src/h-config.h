@@ -144,10 +144,9 @@
 
 /*
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
- * The only such platform that angband is ported to is currently
- * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
+ * (automatic for amd64 with gcc) 
  */
-#if defined(__alpha)
+#if defined(__alpha) || defined(__amd64__)
 # define L64
 #endif
 
@@ -204,6 +203,7 @@
 # define PATH_SEP ":"
 #endif
 #if defined(WINDOWS) || defined(WINNT)
+# define DEFAULT_PATH ".\\lib\\"
 # undef PATH_SEP
 # define PATH_SEP "\\"
 #endif
@@ -263,6 +263,10 @@
 # define stricmp strcasecmp
 #endif
 
+#ifdef WIN32
+#define strcasecmp stricmp
+#endif
+
 
 /*
  * OPTION: Define "HAS_MEMSET" only if "memset()" exists.
@@ -282,8 +286,11 @@
 # endif
 #endif
 
-
-
+/*
+ * Several Windows compilers don't include EWOULDBLOCK
+ */
+#ifdef WINDOWS
+#define EWOULDBLOCK WSAEWOULDBLOCK
 #endif
 
-
+#endif

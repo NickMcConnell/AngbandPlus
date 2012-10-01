@@ -1,5 +1,3 @@
-
-
 /* Purpose: Angband game engine */
 
 /*
@@ -15,6 +13,42 @@
 #include "angband.h"
 #include "externs.h"
 
+bool is_boring(byte feat)
+{
+	return (feat <= FEAT_INVIS || (feat >= 0x40 && feat <= 0x4F));
+}
+
+
+int find_player(s32b id)
+{
+	int i;
+
+	for (i = 1; i < NumPlayers + 1; i++)
+	{
+		player_type *p_ptr = Players[i];
+		
+		if (p_ptr->id == id) return i;
+	}
+	
+	/* assume none */
+	return 0;
+}	
+
+
+int find_player_name(char *name)
+{
+	int i;
+
+	for (i = 1; i < NumPlayers + 1; i++)
+	{
+		player_type *p_ptr = Players[i];
+		
+		if (!strcmp(p_ptr->name, name)) return i;
+	}
+	
+	/* assume none */
+	return 0;
+}
 
 
 /*
@@ -114,6 +148,7 @@ static void sense_inventory(int Ind)
 	object_type *o_ptr;
 
 	char o_name[80];
+	char o_inscribe[80];
 
 
 	/*** Check for "sensing" ***/
@@ -273,7 +308,20 @@ static void sense_inventory(int Ind)
 		o_ptr->ident |= (ID_SENSE);
 
 		/* Inscribe it textually */
-		if (!o_ptr->note) o_ptr->note = quark_add(feel);
+		if (o_ptr->note)
+		{
+			if (strstr((const char*)quark_str(o_ptr->note), (const char*)feel) == NULL)
+			{
+				strcpy(o_inscribe, (const char *)feel);
+				strcat(o_inscribe, " - ");
+				strcat(o_inscribe, quark_str(o_ptr->note));
+				o_ptr->note = quark_add(o_inscribe);
+			}
+		}
+		else
+		{
+			o_ptr->note = quark_add(feel);
+		}
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -499,7 +547,7 @@ static void process_world(int Ind)
 						w_ptr = &p_ptr->cave_flag[y][x];
 
 						/*  Darken "boring" features */
-						if (c_ptr->feat <= FEAT_INVIS && !(c_ptr->info & CAVE_ROOM))
+						if (is_boring(c_ptr->feat) && !(c_ptr->info & CAVE_ROOM))
 						{
 							  /* Forget the grid */ 
 							c_ptr->info &= ~CAVE_GLOW;
@@ -717,11 +765,6 @@ static int auto_retaliate(int Ind)
 	{
 		q_ptr = Players[i];
 
-#if 0
-		/* Skip non-connected players */
-		if (q_ptr->conn == NOT_CONNECTED) continue;
-#endif
-
 		/* Skip players not at this depth */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
 
@@ -914,6 +957,8 @@ static void process_player_begin(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
+	/* Increment turn count */
+	p_ptr->turn++;
 
 	/* Give the player some energy */
 	p_ptr->energy += extract_energy[p_ptr->pspeed];
@@ -938,8 +983,8 @@ static void process_player_begin(int Ind)
 	if (p_ptr->paralyzed || p_ptr->stun >= 100)
 		p_ptr->energy = 0;
 
-	/* Hack -- semi-constant hallucination */
-	if (p_ptr->image && (randint(10) < 1)) p_ptr->redraw |= (PR_MAP);
+	/* Hack -- semi-constant hallucination (but not in stores) */
+	if (p_ptr->image && p_ptr->store_num == -1 && (randint(10) == 1)) p_ptr->redraw |= (PR_MAP);
 
 	/* Mega-Hack -- Random teleportation XXX XXX XXX */
 	if ((p_ptr->teleport) && (rand_int(100) < 1))
@@ -961,6 +1006,7 @@ static void process_player_end(int Ind)
 	int	i, j, new_depth, new_world_x, new_world_y;
 	int	regen_amount, NumPlayers_old=NumPlayers;
 	char	attackstatus;
+    int minus;
 
 	object_type		*o_ptr;
 
@@ -1078,7 +1124,7 @@ static void process_player_end(int Ind)
 		/* Ghosts don't need food */
 		/* don't use food in town */
 
-		if ((!p_ptr->ghost) && (p_ptr->dun_depth>0))
+		if ((!p_ptr->ghost) && (p_ptr->dun_depth>0) && (!check_special_level(p_ptr->dun_depth)) )
 		{
 			/* Digest normally */
 			if (p_ptr->food < PY_FOOD_MAX)
@@ -1194,6 +1240,8 @@ static void process_player_end(int Ind)
 		{
 			disturb(Ind, 0, 0);
 		}
+
+	minus = 1;
 
 		/* Finally, at the end of our turn, update certain counters. */
 		/*** Timeout Various Things ***/
@@ -1362,7 +1410,7 @@ static void process_player_end(int Ind)
 		{
 			/* Hack -- Use some fuel (sometimes) */
 			if (!artifact_p(o_ptr) && !(o_ptr->sval == SV_LITE_DWARVEN)
-				&& !(o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->pval > 0))
+                && !(o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->pval > 0) && (!o_ptr->name3))
 			{
 				/* Decrease life-span */
 				o_ptr->pval--;
@@ -1435,20 +1483,23 @@ static void process_player_end(int Ind)
 				if (!(o_ptr->timeout)) j++;
 			}
 		}
+		/* Don't recharge rods in shops (fixes stacking exploits) */
+		if( (p_ptr->store_num < 0) ){
 
-		/* Recharge rods */
-		for (i = 0; i < INVEN_PACK; i++)
-		{
-			o_ptr = &p_ptr->inventory[i];
-
-			/* Examine all charging rods */
-			if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+			/* Recharge rods */
+			for (i = 0; i < INVEN_PACK; i++)
 			{
-				/* Charge it */
-				o_ptr->pval--;
+				o_ptr = &p_ptr->inventory[i];
 
-				/* Notice changes */
-				if (!(o_ptr->pval)) j++;
+				/* Examine all charging rods */
+				if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+				{
+					/* Charge it */
+					o_ptr->pval--;
+
+					/* Notice changes */
+					if (!(o_ptr->pval)) j++;
+				}
 			}
 		}
 
@@ -1634,7 +1685,6 @@ static void process_various(void)
 
 		}
 
-
 		/* Update the unique respawn timers */
 		for (i = 1; i < MAX_R_IDX-1; i++)
 		{
@@ -1655,16 +1705,21 @@ static void process_various(void)
 			// Decrament the counter 
 			else r_ptr->respawn_timer--; 
 			// Once the timer hits 0, ressurect the unique.
+#if 0 
 			if (!r_ptr->respawn_timer)
     			{
 				/* "Ressurect" the unique */
     				r_ptr->max_num = 1;
 				r_ptr->respawn_timer = -1;
 
-    				/* Tell every player */
+		/* don't announce */
+		/*
     				sprintf(buf,"%s rises from the dead!",(r_name + r_ptr->name));
     				msg_broadcast(0,buf); 
+		*/
+	    
     			}	    			
+#endif
  		}
 
 		// If the level unstaticer is not disabled
@@ -1701,7 +1756,7 @@ static void process_various(void)
 
 
 	/* Grow trees very occasionally */
-	if (!(turn % (10L * GROW_TREE)))
+	if (!(turn % (10L * GROW_TREE)) && (trees_in_town < cfg_max_trees || cfg_max_trees == -1))
 	{
 		/* Find a suitable location */
 		for (i = 1; i < 1000; i++)
@@ -1724,6 +1779,7 @@ static void process_various(void)
 
 			/* Grow a tree here */
 			c_ptr->feat = FEAT_TREE;
+			trees_in_town++;
 
 			/* Show it */
 			everyone_lite_spot(0, y, x);
@@ -1738,8 +1794,8 @@ static void process_various(void)
 	{
 		int n;
 
-		/* Maintain each shop (except home and auction house) */
-		for (n = 0; n < MAX_STORES - 2; n++)
+		/* Maintain each shop */
+		for (n = 0; n < MAX_STORES; n++)
 		{
 			/* Maintain */
 			store_maint(n);
@@ -1748,7 +1804,7 @@ static void process_various(void)
 		/* Sometimes, shuffle the shopkeepers */
 		if (rand_int(STORE_SHUFFLE) == 0)
 		{
-			/* Shuffle a random shop (except home and auction house) */
+			/* Shuffle a random shop (except home and higher) */
 			store_shuffle(rand_int(MAX_STORES - 2));
 		}
 	}
@@ -1801,7 +1857,7 @@ static void process_various(void)
 					c_ptr = &cave[0][y][x];
 
 					 /* Darken "boring" features */
-					if (c_ptr->feat <= FEAT_INVIS && !(c_ptr->info & CAVE_ROOM))
+					if (is_boring(c_ptr->feat) && !(c_ptr->info & CAVE_ROOM))
 					{
 						 /* Darken the grid */
 						c_ptr->info &= ~CAVE_GLOW;
@@ -1836,9 +1892,10 @@ static void process_various(void)
 
 void dungeon(void)
 {
-	int i, d;
+	int i, d, j;
 	byte *w_ptr;
 	cave_type *c_ptr;
+    int dy, dx;       
 
 	/* Return if no one is playing */
 	/* if (!NumPlayers) return; */
@@ -1846,12 +1903,6 @@ void dungeon(void)
 	/* Check for death.  Go backwards (very important!) */
 	for (i = NumPlayers; i > 0; i--)
 	{
-#if 0
-		/* Check connection first */
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* Check for death */
 		if (Players[i]->death)
 		{
@@ -1860,18 +1911,29 @@ void dungeon(void)
 		}
 	}
 
+
+	/* Deallocate any unused levels */
+	for (j = -MAX_WILD+1; j < MAX_DEPTH; j++)
+	{
+		/* Everybody has left a level that is still generated */
+		if (players_on_depth[j] == 0 && cave[j])
+		{						
+			/* Destroy the level */
+			/* Hack -- don't dealloc the town */
+			/* Hack -- don't dealloc special levels */
+			if( (j) && (!check_special_level(j)) )
+				dealloc_dungeon_level(j);
+		}
+	}
+
 	/* Check player's depth info */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
 		player_type *p_ptr = Players[i];
 		int Depth = p_ptr->dun_depth;
-		int j, x, y, startx, starty;
+		int x, y, startx, starty;
 
 		if (players_on_depth[Depth] == 0) continue;
-#if 0
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
 
 		if (!p_ptr->new_level_flag)
 			continue;
@@ -1883,23 +1945,6 @@ void dungeon(void)
 		/* Make sure the server doesn't think the player is in a store */
 		p_ptr->store_num = -1;
 
-		/* Check to see which if the level needs generation or destruction */
-		/* Note that "town" is excluded */
-
-		for (j = -MAX_WILD+1; j < MAX_DEPTH; j++)
-		{
-			/* Everybody has left a level that is still generated */
-			if (players_on_depth[j] == 0 && cave[j])
-			{						
-				/* Destroy the level */
-				/* Hack -- don't dealloc the town */
-				if (j)
-					dealloc_dungeon_level(j);
-			}
-
-		}
-
-
 		/* Somebody has entered an ungenerated level */
 		if (players_on_depth[Depth] && !cave[Depth])
 		{
@@ -1908,7 +1953,11 @@ void dungeon(void)
 
 			/* Generate a dungeon level there */
 			/* option 29 is auto_scum */
-			generate_cave(Depth,p_ptr->options[29]);
+			generate_cave(i, Depth, p_ptr->options[29]);
+			
+			/* Give a level feeling to this player */
+	    /* No feeling outside the dungeon */
+            if (Depth > 0) do_cmd_feeling(i);
 		}
 
 		/* Clear the "marked" and "lit" flags for each cave grid */
@@ -1946,7 +1995,7 @@ void dungeon(void)
 					c_ptr = &cave[Depth][y][x];
 
 					/* Memorize if daytime or "interesting" */
-					if (dawn || c_ptr->feat > FEAT_INVIS || c_ptr->info & CAVE_ROOM)
+					if (dawn || (!is_boring(c_ptr->feat)) || c_ptr->info & CAVE_ROOM)
 						*w_ptr |= CAVE_MARK;
 				}
 			}
@@ -2046,7 +2095,47 @@ void dungeon(void)
 
 		/* Update the player location */
 		cave[Depth][y][x].m_idx = 0 - i;
+    
+		/* Prevent hound insta-death */
+		switch (p_ptr->new_level_method)
+		{
+			/* Only when going *down* stairs (we don't want to make stair scuming safe) */
+			/* Also when moving to another level via spell, such as when recalling */
+			case LEVEL_DOWN:  
+			case LEVEL_RAND:
 
+				/* Remove nearby hounds */
+				for (j = 1; j < m_max; j++)
+				{
+					monster_type	*m_ptr = &m_list[j];
+					monster_race	*r_ptr = &r_info[m_ptr->r_idx];
+		
+					/* Paranoia -- Skip dead monsters */
+					if (!m_ptr->r_idx) continue;
+
+					/* Hack -- Skip Unique Monsters */
+					if (r_ptr->flags1 & RF1_UNIQUE) continue;
+
+					/* Skip monsters other than hounds */
+					if (r_ptr->d_char != 'Z') continue;
+
+					/* Skip monsters not on this depth */
+					if (p_ptr->dun_depth != m_ptr->dun_depth) continue;
+
+					/* Approximate distance */
+					dy = (p_ptr->py > m_ptr->fy) ? (p_ptr->py - m_ptr->fy) : (m_ptr->fy - p_ptr->py);
+					dx = (p_ptr->px > m_ptr->fx) ? (p_ptr->px - m_ptr->fx) : (m_ptr->fx - p_ptr->px);
+					d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+
+					/* Skip distant monsters */
+					if (d > MAX_SIGHT) continue;
+
+					/* Delete the monster */
+					delete_monster_idx(j);					
+				}
+			break;
+		}
+    
 		/* Recalculate panel */
 		p_ptr->panel_row = ((p_ptr->py - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
 		if (p_ptr->panel_row > p_ptr->max_panel_rows) p_ptr->panel_row = p_ptr->max_panel_rows;
@@ -2085,11 +2174,6 @@ void dungeon(void)
 	/* Do final end of turn processing for each player */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* Actually process that player */
 		process_player_end(i);
 	}
@@ -2097,12 +2181,6 @@ void dungeon(void)
 	/* Check for death.  Go backwards (very important!) */
 	for (i = NumPlayers; i > 0; i--)
 	{
-#if 0
-		/* Check connection first */
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* Check for death */
 		if (Players[i]->death)
 		{
@@ -2119,11 +2197,6 @@ void dungeon(void)
 	/* Do some beginning of turn processing for each player */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* Actually process that player */
 		process_player_begin(i);
 	}
@@ -2137,11 +2210,6 @@ void dungeon(void)
 	/* Probess the world */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* Process the world of that player */
 		process_world(i);
 	}
@@ -2156,10 +2224,6 @@ void dungeon(void)
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
 		player_type *p_ptr = Players[i];
-#if 0
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff(i);
@@ -2331,9 +2395,6 @@ void play_game(bool new_game)
 			/* Initialize */
 			store_init(n);
 	
-			/* Ignore home and auction house */
-			if ((n == MAX_STORES - 2) || (n == MAX_STORES - 1)) continue;
-	
 			/* Maintain the shop */
 			for (i = 0; i < 10; i++) store_maint(n);
 		}
@@ -2341,7 +2402,7 @@ void play_game(bool new_game)
 
 
 	/* Flash a message */
-	s_printf("Please wait...\n");
+	plog("Please wait...");
 
 	/* Flush the message */
 	/*Term_fresh();*/
@@ -2354,7 +2415,7 @@ void play_game(bool new_game)
 	/* Flavor the objects */
 	flavor_init();
 
-	s_printf("Object flavors initialized...\n");
+	plog("Object flavors initialized...");
 
 	/* Reset the visual mappings */
 	reset_visuals();
@@ -2390,7 +2451,7 @@ void play_game(bool new_game)
 		alloc_dungeon_level(0);
 
 		/* Actually generate the town */
-		generate_cave(0,0);
+		generate_cave(0, 0, 0);
 	}
 
 	/* Finish initializing dungeon monsters */
@@ -2427,7 +2488,7 @@ void play_game(bool new_game)
 	sched();
 
 	/* This should never, ever happen */
-	s_printf("sched returned!!!\n");
+	plog("FATAL ERROR sched() returned!");
 
 	/* Close stuff */
 	close_game();
@@ -2441,7 +2502,7 @@ void shutdown_server(void)
 {
 	int i;
 
-	s_printf("Shutting down.\n");
+	plog("Shutting down.");
 
 	/* Kick every player out and save his game */
 	while(NumPlayers > 0)
@@ -2462,8 +2523,8 @@ void shutdown_server(void)
 	/* Now wipe every object, to preserve artifacts on the ground */
 	for (i = 1; i < MAX_DEPTH; i++)
 	{
-		/* Wipe this depth */
-		wipe_o_list(i);
+		/* Wipe this depth if no player on it */
+		if (!players_on_depth[i]) wipe_o_list(i);
 	}
 
 	/* Save the server state */
@@ -2473,4 +2534,17 @@ void shutdown_server(void)
 	Report_to_meta(META_DIE);
 
 	quit("Server state saved");
+}
+
+/* 
+ * Check if the given depth is special static level, i.e. a hand designed level.
+ */
+bool check_special_level(s16b special_depth)
+{
+	int i;
+	for(i=0;i<MAX_SPECIAL_LEVELS;i++)
+	{
+		if(special_depth == special_levels[i]) return(TRUE);
+	}
+	return(FALSE);
 }

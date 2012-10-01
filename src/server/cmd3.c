@@ -95,7 +95,7 @@ static void inven_takeoff(int Ind, int item, int amt)
 	p_ptr->window |= (PW_EQUIP);
 
 	/* Redraw */
-	p_ptr->redraw |= (PR_PLUSSES);
+	p_ptr->redraw |= (PR_PLUSSES | PR_OFLAGS);
 }
 
 
@@ -136,6 +136,13 @@ static void inven_drop(int Ind, int item, int amt)
 		return;
 	};
 
+	/* Never drop artifacts above their base depth */
+	if (artifact_p(o_ptr) && (p_ptr->dun_depth < a_info[o_ptr->name1].level) )
+	{
+		msg_print(Ind, "You can not drop this here.");
+		return;	
+	}	
+
 	/* Make a "fake" object */
 	tmp_obj = *o_ptr;
 	tmp_obj.number = amt;
@@ -165,6 +172,10 @@ static void inven_drop(int Ind, int item, int amt)
 	{
 		act = "Dropped";
 	}
+	
+	/* Dropping from equipment? Update object flags! */
+	if (item >= INVEN_WIELD)
+		p_ptr->redraw |= (PR_OFLAGS);
 
 	/* Message */
 	object_desc(Ind, o_name, &tmp_obj, TRUE, 3);
@@ -339,10 +350,14 @@ void do_cmd_wield(int Ind, int item)
 		o_ptr = &(p_ptr->inventory[item]);
 	}
 
-
 	/* Get the item (on the floor) */
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
 
@@ -381,6 +396,14 @@ void do_cmd_wield(int Ind, int item)
 		msg_print(Ind, "The item's inscription prevents it.");
 		return;
 	};
+
+	/* Hack -- MAngband-specific: if it is an artifact and pack is full, base depth must match */
+	if (item < 0 && artifact_p(x_ptr) && !inven_carry_okay(Ind, x_ptr) && (p_ptr->dun_depth < a_info[x_ptr->name1].level))
+	{
+		object_desc(Ind, o_name, x_ptr, FALSE, 0);
+		msg_format(Ind, "Your pack is full and you can't drop %s here.", o_name);
+		return;
+	}
 
 #if 0
 	/* Verify potential overflow */
@@ -498,7 +521,7 @@ void do_cmd_wield(int Ind, int item)
 	p_ptr->update |= (PU_MANA);
 
 	/* Redraw */
-	p_ptr->redraw |= (PR_PLUSSES);
+	p_ptr->redraw |= (PR_PLUSSES | PR_OFLAGS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
@@ -515,17 +538,12 @@ void do_cmd_takeoff(int Ind, int item)
 
 	object_type *o_ptr;
 
-
-#if 0
 	/* Verify potential overflow */
 	if (p_ptr->inven_cnt >= INVEN_PACK)
 	{
-		/* Verify with the player */
-		if (other_query_flag &&
-		    !get_check(Ind, "Your pack may overflow.  Continue? ")) return;
+		msg_print(Ind, "Your pack is full and would overflow!");
+		return;
 	}
-#endif
-
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -536,10 +554,11 @@ void do_cmd_takeoff(int Ind, int item)
 	/* Get the item (on the floor) */
 	else
 	{
-		o_ptr = &o_list[0 - item];
+		/* We can't "takeoff" something that is on the floor */
+		return;
 	}
 
-	if( check_guard_inscription( o_ptr->note, 'T' )) {
+	if( check_guard_inscription( o_ptr->note, 't' )) {
 		msg_print(Ind, "The item's inscription prevents it.");
 		return;
 	};
@@ -585,12 +604,20 @@ void do_cmd_drop(int Ind, int item, int quantity)
 	{
 		o_ptr = &(p_ptr->inventory[item]);
 	}
-
+	else
+		return;
 	/* Get the item (on the floor) */
+	/* Impossible
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
+	*/
 
 	if( check_guard_inscription( o_ptr->note, 'd' )) {
 		msg_print(Ind, "The item's inscription prevents it.");
@@ -654,9 +681,8 @@ void do_cmd_drop_gold(int Ind, s32b amt)
 		return;
 	}
 
-	/* Setup the object */
-	/* XXX Use "gold" object kind */
-	invcopy(&tmp_obj, 488);
+	/* Use "gold" object kind */
+	invcopy(&tmp_obj, lookup_kind(TV_GOLD,SV_PLAYER_GOLD));
 
 	/* Setup the "worth" */
 	tmp_obj.pval = amt;
@@ -696,10 +722,8 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 
 	char		o_name[80];
 
-
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
-
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -710,6 +734,11 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 	/* Get the item (on the floor) */
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
 
@@ -724,15 +753,6 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 		msg_print(Ind, "The item's inscription prevents it.");
 		return;
 	};
-#if 0
-	/* Verify if needed */
-	if (!force || other_query_flag)
-	{
-		/* Make a verification */
-		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(Ind, out_val)) return;
-	}
-#endif
 
 	/* Take a turn */
 	p_ptr->energy -= level_speed(p_ptr->dun_depth);
@@ -744,7 +764,7 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 
 		/* Message */
 		msg_format(Ind, "You cannot destroy %s.", o_name);
-
+ 		
 		/* Hack -- Handle icky artifacts */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
 
@@ -764,16 +784,6 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 		return;
 	}
 
-	/* Keys cannot be destoryed */
-	if (o_ptr->tval == TV_KEY)
-	{
-		/* Message */
-		msg_format(Ind, "You cannot destory %s.", o_name);
-
-		/* Done */
-		return;
-	}
-
 	/* Cursed, equipped items cannot be destroyed */
 	if (item >= INVEN_WIELD && cursed_p(o_ptr))
 	{
@@ -783,6 +793,10 @@ void do_cmd_destroy(int Ind, int item, int quantity)
 		/* Done */
 		return;
 	}
+
+	/* Destroying from equipment? Update object flags! */
+	if (item >= INVEN_WIELD)
+		p_ptr->redraw |= (PR_OFLAGS);
 
 	/* Message */
 	msg_format(Ind, "You destroy %s.", o_name);
@@ -816,36 +830,55 @@ void do_cmd_observe(int Ind, int item)
 
 	char		o_name[80];
 
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &(p_ptr->inventory[item]);
+	/* Get the item (in the store) */
+	if (p_ptr->store_num != -1) {
+		object_type		tmp_obj;
+		o_ptr = &tmp_obj;
+		/* Fill o_ptr with correct item */
+		if (!get_store_item(Ind, item, o_ptr)) 
+		{
+			/* Disguise our bug as a feature */ 
+			msg_print(Ind,"Sorry, this item is exclusive.");
+			return;
+		}
+		
+			/* Get name */
+			object_desc_store(Ind, o_name, o_ptr, TRUE, 3);
+			/* Identify this store item */
+			object_known(o_ptr);
+	} else {
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &(p_ptr->inventory[item]);
+		}
+	
+		/* Get the item (on the floor) */
+		else
+		{
+			item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+			if (item == 0) {
+				msg_print(Ind, "There's nothing on the floor.");
+				return;
+			}
+			o_ptr = &o_list[0 - item];
+		}
+		
+		/* Get name */
+		object_desc(Ind, o_name, o_ptr, TRUE, 3);
 	}
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Require full knowledge */
-	if (!(o_ptr->ident & ID_MENTAL))
-	{
-		msg_print(Ind, "You have no special knowledge about that item.");
-		return;
-	}
-
-
-	/* Description */
-	object_desc(Ind, o_name, o_ptr, TRUE, 3);
-
-	/* Describe */
+	/* Inform */
 	msg_format(Ind, "Examining %s...", o_name);
 
+	/* Capitalize object name for header */
+	o_name[0] = toupper(o_name[0]);
+	
 	/* Describe it fully */
-	if (!identify_fully_aux(Ind, o_ptr)) msg_print(Ind, "You see nothing special.");
+	identify_fully_aux(Ind, o_ptr);
+	
+	/* Notify player */
+	Send_special_other(Ind, o_name);
 }
 
 
@@ -870,6 +903,11 @@ void do_cmd_uninscribe(int Ind, int item)
 	/* Get the item (on the floor) */
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
 
@@ -900,11 +938,10 @@ void do_cmd_uninscribe(int Ind, int item)
 void do_cmd_inscribe(int Ind, int item, cptr inscription)
 {
 	player_type *p_ptr = Players[Ind];
-
 	object_type		*o_ptr;
-
 	char		o_name[80];
-
+	s32b		price;
+	char		*c;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -915,9 +952,36 @@ void do_cmd_inscribe(int Ind, int item, cptr inscription)
 	/* Get the item (on the floor) */
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Don't allow certain inscriptions when selling */
+	if (c = strstr(inscription,"for sale")) 
+	{	
+		/* Can't sell unindentified items */
+		if (!object_known_p(Ind, o_ptr))
+		{
+			msg_print(Ind,"You must identify this item first");
+			return;
+		}
+		/* Can't sell overpriced items */
+		c += 8; /* skip "for sale" */
+		if( *c == ' ' )
+		{
+			price = atoi(c);
+			if (price > 9999999)
+			{
+				msg_print(Ind,"Your price is too high!");
+				return;
+			}
+		}		
+	}
+	
 	/* Describe the activity */
 	object_desc(Ind, o_name, o_ptr, TRUE, 3);
 
@@ -945,6 +1009,7 @@ void do_cmd_steal(int Ind, int dir)
 	cave_type *c_ptr;
 
 	int success, notice;
+	bool fail = TRUE;
 
 	/* Ghosts cannot steal */
 	if ((p_ptr->ghost) || (p_ptr->fruit_bat))
@@ -1038,6 +1103,7 @@ void do_cmd_steal(int Ind, int dir)
 					msg_format(0 - c_ptr->m_idx, "You notice %s stealing %ld gold!",
 					           p_ptr->name, amt);
 				}
+				fail = FALSE;
 			}
 		}
 		else
@@ -1051,36 +1117,43 @@ void do_cmd_steal(int Ind, int dir)
 
 			/* Get object */
 			o_ptr = &q_ptr->inventory[item];
-			forge = *o_ptr;
-
-			/* Give one item to thief */
-			forge.number = 1;
-			inven_carry(Ind, &forge);
-
-			/* Take one from target */
-			inven_item_increase(0 - c_ptr->m_idx, item, -1);
-			inven_item_optimize(0 - c_ptr->m_idx, item);
-
-			/* Tell thief what he got */
-			object_desc(Ind, o_name, &forge, TRUE, 3);
-			msg_format(Ind, "You stole %s.", o_name);
-
-			/* Easier to notice heavier objects */
-			notice += forge.weight;
-
-			/* Check for target noticing */
-			if (rand_int(100) < notice)
+			
+			/* Don't steal (nothing)s */
+			if (o_ptr->k_idx)
 			{
-				/* Make target hostile */
-				add_hostility(0 - c_ptr->m_idx, p_ptr->name);
-
-				/* Message */
-				msg_format(0 - c_ptr->m_idx, "You notice %s stealing %s!",
-				           p_ptr->name, o_name);
-			}
+				forge = *o_ptr;
+	
+				/* Give one item to thief */
+				forge.number = 1;
+				inven_carry(Ind, &forge);
+	
+				/* Take one from target */
+				inven_item_increase(0 - c_ptr->m_idx, item, -1);
+				inven_item_optimize(0 - c_ptr->m_idx, item);
+	
+				/* Tell thief what he got */
+				object_desc(Ind, o_name, &forge, TRUE, 3);
+				msg_format(Ind, "You stole %s.", o_name);
+	
+				/* Easier to notice heavier objects */
+				notice += forge.weight;
+	
+				/* Check for target noticing */
+				if (rand_int(100) < notice)
+				{
+					/* Make target hostile */
+					add_hostility(0 - c_ptr->m_idx, p_ptr->name);
+	
+					/* Message */
+					msg_format(0 - c_ptr->m_idx, "You notice %s stealing %s!",
+					           p_ptr->name, o_name);
+				}
+				fail = FALSE; 
+			}  
 		}
 	}
-	else
+	
+	if (fail)
 	{
 		/* Message */
 		msg_print(Ind, "You fail to steal anything.");
@@ -1112,6 +1185,9 @@ void do_cmd_steal(int Ind, int dir)
  */
 static bool item_tester_refill_lantern(object_type *o_ptr)
 {
+    /* Randarts are not refillable */
+    if (o_ptr->name3) return (FALSE);
+
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
@@ -1147,6 +1223,11 @@ static void do_cmd_refill_lamp(int Ind, int item)
 	/* Get the item (on the floor) */
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
 
@@ -1194,6 +1275,9 @@ static void do_cmd_refill_lamp(int Ind, int item)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+	
+	/* Hack - Force Equipment Update */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -1235,6 +1319,11 @@ static void do_cmd_refill_torch(int Ind, int item)
 	/* Get the item (on the floor) */
 	else
 	{
+		item = -cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].o_idx;
+		if (item == 0) {
+			msg_print(Ind, "There's nothing on the floor.");
+			return;
+		}
 		o_ptr = &o_list[0 - item];
 	}
 
@@ -1288,6 +1377,9 @@ static void do_cmd_refill_torch(int Ind, int item)
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+	
+	/* Hack - Force Equipment Update */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -1348,7 +1440,7 @@ void do_cmd_target(int Ind, int dir)
 	/* Set the target */
 	if (target_set(Ind, dir))
 	{
-		msg_print(Ind, "Target Selected.");
+		/*msg_print(Ind, "Target Selected.");*/
 	}
 	else
 	{
@@ -1361,7 +1453,7 @@ void do_cmd_target_friendly(int Ind, int dir)
 	/* Set the target */
 	if (target_set_friendly(Ind, dir))
 	{
-		msg_print(Ind, "Target Selected.");
+		/*msg_print(Ind, "Target Selected.");*/
 	}
 	else
 	{
@@ -1389,7 +1481,7 @@ static bool do_cmd_look_accept(int Ind, int y, int x)
 	/* Player grids */
 	if (c_ptr->m_idx < 0)
 	{
-		if (player_has_los_bold(Ind, y, x) || p_ptr->telepathy)
+        if (player_has_los_bold(Ind, y, x) || (p_ptr->telepathy == TR3_TELEPATHY))
 			return (TRUE);
 	}
 
@@ -1446,6 +1538,109 @@ static bool do_cmd_look_accept(int Ind, int y, int x)
 }
 
 
+/*
+ * Describe a floor tile (for looking and targeting routines)
+ *	
+ * if !active, activities such as tracking are disabled
+ */
+void describe_floor_tile(cave_type *c_ptr, cptr out_val, int Ind, bool active, byte cave_flag)
+{
+	player_type *p_ptr = Players[Ind];
+	player_type *q_ptr;
+	monster_type *m_ptr;
+	object_type *o_ptr;
+	char o_name[80];
+	bool found = FALSE;
+	bool self = FALSE;
+	if (c_ptr->m_idx < 0)
+	{
+		q_ptr = Players[0 - c_ptr->m_idx];
+
+		self = (0 - c_ptr->m_idx == Ind ? TRUE : FALSE); 
+
+		if (p_ptr->play_vis[0 - c_ptr->m_idx] || self)
+		{
+			if (active && !self)
+			{
+				/* Track health */
+				if (p_ptr->play_vis[0 - c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
+		
+				/* Track with cursor */
+				if (p_ptr->play_vis[0 - c_ptr->m_idx]) cursor_track(Ind, c_ptr->m_idx);
+			}
+
+		/* Format string */
+		sprintf(out_val, "%s the %s %s", q_ptr->name, p_name + p_info[q_ptr->prace].name, c_name + c_info[q_ptr->pclass].name);
+		
+		found = TRUE;
+		}
+		
+	}
+	else if (c_ptr->m_idx > 0)
+	{
+		monster_race *r_ptr = &r_info[m_list[c_ptr->m_idx].r_idx];
+
+		if (p_ptr->mon_vis[c_ptr->m_idx]) 
+		{
+			if (active)
+			{
+				/* Track health */
+				if (p_ptr->mon_vis[c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
+		
+				/* Track with cursor */
+				if (p_ptr->mon_vis[c_ptr->m_idx]) cursor_track(Ind, c_ptr->m_idx);
+			}
+					
+		/* Format string */
+		sprintf(out_val, "%s (%s)", r_name + r_ptr->name, look_mon_desc(c_ptr->m_idx));
+		
+		found = TRUE;
+		}
+	}
+	if (!found && c_ptr->o_idx)
+	{
+		if (p_ptr->obj_vis[c_ptr->o_idx])
+		{
+			o_ptr = &o_list[c_ptr->o_idx];
+	
+			/* Release Tracking */
+			if (active) p_ptr->cursor_who = 0;
+	
+			/* Obtain an object description */
+			object_desc(Ind, o_name, o_ptr, TRUE, 3);
+	
+			sprintf(out_val, "You see %s", o_name);
+			
+			found = TRUE;
+		}
+	}
+	if (!found)
+	{
+		int feat = f_info[c_ptr->feat].mimic;
+		cptr name = f_name + f_info[feat].name;
+		
+		cptr p1 = "A ";
+
+		/* Hack -- handle unknown grids */
+		if (!(cave_flag & CAVE_MARK) ) name = "unknown grid";
+		
+		if (is_a_vowel(name[0])) p1 = "An ";
+
+		/* Hack -- special description for store doors */
+		if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
+		{
+			p1 = "The entrance to the ";
+		}
+
+		/* Release Tracking */
+		if (active) p_ptr->cursor_who = 0;
+		
+		/* Message */
+		sprintf(out_val, "%s%s", p1, name);
+	}
+
+}
+
 
 /*
  * A new "look" command, similar to the "target" command.
@@ -1470,6 +1665,13 @@ void do_cmd_look(int Ind, int dir)
 	char o_name[80];
 	char out_val[160];
 
+	/* Cancel */
+	if (dir == 5 || dir == 64 + 5)
+	{
+		p_ptr->cursor_who = 0;
+		return;
+	}
+
 	/* Blind */
 	if (p_ptr->blind)
 	{
@@ -1484,10 +1686,16 @@ void do_cmd_look(int Ind, int dir)
 		return;
 	}
 
+	/* Manual mode */
+	if (dir >= 64)
+	{
+		target_free_aux(Ind, dir, FALSE);
+		return;
+	}
 
 	/* Reset "temp" array */
-	/* Only if this is the first time, or if we've been asked to reset */
-	if (!dir)
+	/* Do it Every time (unless canceled before) */
+	/* if (!dir) */
 	{
 		p_ptr->target_n = 0;
 
@@ -1509,9 +1717,12 @@ void do_cmd_look(int Ind, int dir)
 			}
 		}
 
-		/* Start near the player */
-		p_ptr->look_index = 0;
-
+		/* Only if this is the first time, or if we've been asked to reset */
+		if (!dir) {
+			/* Start near the player */
+			p_ptr->look_index = 0;
+		}
+		
 		/* Paranoia */
 		if (!p_ptr->target_n)
 		{
@@ -1537,9 +1748,12 @@ void do_cmd_look(int Ind, int dir)
 			else p_ptr->target_idx[i] = 0;
 		}
 	}
-
+	
+	/* Just be cautius */
+	if (p_ptr->look_index > p_ptr->target_n) p_ptr->look_index = p_ptr->target_n;
+	
 	/* Motion */
-	else
+	if (dir)
 	{
 		/* Reset the locations */
 		for (i = 0; i < p_ptr->target_n; i++)
@@ -1585,56 +1799,11 @@ void do_cmd_look(int Ind, int dir)
 	if (!cave[Depth]) return;
 
 	c_ptr = &cave[Depth][y][x];
-
-	if (c_ptr->m_idx < 0)
-	{
-		q_ptr = Players[0 - c_ptr->m_idx];
-
-		/* Track health */
-		if (p_ptr->play_vis[0 - c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
-
-		/* Format string */
-		sprintf(out_val, "%s the %s %s", q_ptr->name, race_info[q_ptr->prace].title, class_info[q_ptr->pclass].title);
-	}
-	else if (c_ptr->m_idx > 0)
-	{
-		monster_race *r_ptr = &r_info[m_list[c_ptr->m_idx].r_idx];
-
-		/* Track health */
-		if (p_ptr->mon_vis[c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
-
-		/* Format string */
-		sprintf(out_val, "%s (%s)", r_name + r_ptr->name, look_mon_desc(c_ptr->m_idx));
-	}
-	else if (c_ptr->o_idx)
-	{
-		o_ptr = &o_list[c_ptr->o_idx];
-
-		/* Obtain an object description */
-		object_desc(Ind, o_name, o_ptr, TRUE, 3);
-
-		sprintf(out_val, "You see %s", o_name);
-	}
-	else
-	{
-		int feat = f_info[c_ptr->feat].mimic;
-		cptr name = f_name + f_info[feat].name;
-		cptr p1 = "A ";
-
-		if (is_a_vowel(name[0])) p1 = "An ";
-
-		/* Hack -- special description for store doors */
-		if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
-		{
-			p1 = "The entrance to the ";
-		}
-
-		/* Message */
-		sprintf(out_val, "%s%s", p1, name);
-	}
-
+	
+	describe_floor_tile(c_ptr, out_val, Ind, TRUE, p_ptr->cave_flag[y][x]);
+	
 	/* Append a little info */
-	strcat(out_val, " [<dir>, q]");
+	strcat(out_val, " [<dir>, q, p]");
 
 	/* Tell the client */
 	Send_target_info(Ind, x - p_ptr->panel_col_prt, y - p_ptr->panel_row_prt, out_val);
@@ -1994,5 +2163,3 @@ void do_cmd_query_symbol(int Ind, char sym)
 	/* Display the result */
 	msg_print(Ind, buf);
 }
-
-

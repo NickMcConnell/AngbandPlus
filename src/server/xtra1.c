@@ -110,6 +110,7 @@ static void prt_stat(int Ind, int stat)
 	player_type *p_ptr = Players[Ind];
 
 	Send_stat(Ind, stat, p_ptr->stat_top[stat], p_ptr->stat_use[stat]);
+    Send_maxstat(Ind, stat, p_ptr->stat_max[stat]);
 }
 
 
@@ -219,7 +220,7 @@ static void prt_sp(int Ind)
 	player_type *p_ptr = Players[Ind];
 
 	/* Do not show mana unless it matters */
-	if (!p_ptr->mp_ptr->spell_book) Send_sp(Ind, 0, 0);
+    if (!p_ptr->cp_ptr->spell_book) Send_sp(Ind, 0, 0);
 
 	else Send_sp(Ind, p_ptr->msp, p_ptr->csp);
 }
@@ -381,7 +382,6 @@ static void prt_speed(int Ind)
 	Send_speed(Ind, i - 110);
 }
 
-
 static void prt_study(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
@@ -416,6 +416,393 @@ static void prt_stun(int Ind)
 
 	Send_stun(Ind, s);
 }
+/* !! */
+/*
+ * Obtain the "flags" for the player as if he was an item
+ */
+void    player_flags(int Ind, u32b *f1, u32b * f2, u32b *f3)
+{
+	player_type *p_ptr = Players[Ind];
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/*
+			Welcome to the bright future!
+	*/		
+	(*f1) |= p_info[p_ptr->prace].flags1;
+	(*f2) |= p_info[p_ptr->prace].flags2;
+	(*f3) |= p_info[p_ptr->prace].flags3;
+
+	if (c_info[p_ptr->pclass].flags & CF_BRAVERY_30)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
+	}
+	
+	/* MAngband-specific: Rogues & Fruit Bats */
+	if (p_ptr->pclass == CLASS_ROGUE || p_ptr->fruit_bat) *f1 |= TR1_SPEED;
+
+	/* MAngband-specific: Ghost */
+	if (p_ptr->ghost) {
+		*f3 |= TR3_SEE_INVIS;
+		*f2 |= TR2_RES_NETHR;
+		*f3 |= TR3_HOLD_LIFE;
+		*f2 |= TR2_RES_FEAR;
+		*f3 |= TR3_FREE_ACT;
+		*f1 |= TR1_INFRA;
+	}
+}
+
+/*
+ * Hack -- see below
+ */
+static const byte display_player_flag_set[4] =
+{
+	2,
+	2,
+	3,
+	1
+};
+
+/*
+ * Hack -- see below
+ */
+static const u32b display_player_flag_head[4] =
+{
+	TR2_RES_ACID,
+	TR2_RES_BLIND,
+	TR3_SLOW_DIGEST,
+	TR1_STEALTH
+};
+
+			
+static void prt_player_equippy(int Ind)
+{
+	player_type *p_ptr = Players[Ind];
+	int i;
+
+	byte a;
+	char c;
+
+	object_type *o_ptr;
+
+	/* Dump equippy chars */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	{
+		/* Object */
+		o_ptr = &p_ptr->inventory[i];
+
+		/* Skip empty objects */
+		if (!o_ptr->k_idx) {
+			a = c = 0;
+		} else {
+			/* Get attr/char for display */
+			a = k_info[o_ptr->k_idx].x_attr;
+			c = k_info[o_ptr->k_idx].x_char;
+		}
+
+		/* Dump proper character */
+		p_ptr->hist_flags[0][i-INVEN_WIELD].a = a;
+		p_ptr->hist_flags[0][i-INVEN_WIELD].c = c;
+
+	}
+}
+
+
+static void prt_player_sust_info(int Ind)
+{
+	player_type *p_ptr = Players[Ind];
+
+	int i, row, col, stat, boost;
+	object_type *o_ptr;
+	object_kind *k_ptr;
+	ego_item_type *e_ptr;
+	u32b f1, f2, f3, f1_hack = 0;
+	u32b ignore_f2, ignore_f3;
+	byte a;
+	char c;
+
+	ignore_f2 = ignore_f3 = 0L;
+
+	/* Row */
+	row = 3;
+	/* Column */
+	col = 26;
+	/* Header */
+	//c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
+	/* Process equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	{
+		/* Get the object */
+		o_ptr = &p_ptr->inventory[i];
+		/* And it's base/ego */
+		k_ptr = &k_info[o_ptr->k_idx];
+		e_ptr = &e_info[o_ptr->name2];		
+		
+		/* Clear flags */
+		f1 = f2 = f3 = 0L;
+		/* Get the "known" flags */
+		object_flags_known(Ind, o_ptr, &f1, &f2, &f3);
+		/* Hack -- assume stat modifiers are known .. because they can be calculated */
+		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
+
+		/* Hack -- make a second set of flags for "bpval" items */	
+		if (k_ptr->flags1 & TR1_PVAL_MASK) 
+			f1_hack = k_ptr->flags1;
+			
+		/* Hack -- clear out any pval bonuses that are in the base item */
+		if (o_ptr->name2)
+			f1 &= ~(k_ptr->flags1 & TR1_PVAL_MASK & ~e_ptr->flags1);
+		
+		/* Initialize color based of sign of pval. 6 -- total num of stats*/
+		for (stat = 0; stat < 6; stat++)
+		{
+			/* Default */
+			a = TERM_SLATE;
+			c = '.';
+			boost = 0;
+			
+			/* Hack -- precalculate boost */
+			if (f1 & (1<<stat))				boost += o_ptr->pval;
+			if (f1_hack & (1<<stat))		boost += o_ptr->bpval;
+				
+			/* Boost */
+			if (boost)
+			{
+				/* Default */
+				c = '*';
+				/* Good */
+				if (boost > 0)
+				{
+					/* Good */
+					a = TERM_L_GREEN;
+					/* Label boost */
+					if (boost < 10) c = I2D(boost);
+				}
+				/* Bad */
+				if (boost < 0)
+				{
+					/* Bad */
+					a = TERM_RED;
+					/* Label boost */
+					if (boost > -10) c = I2D(-(boost));
+				}
+			}
+			/* Sustain */
+			if (f2 & (1<<stat))
+			{
+				/* Dark green */
+				a = TERM_GREEN;
+				/* Convert '.' to 's' */
+				if (c == '.') c = 's';
+			}
+			/* Dump proper character */
+			p_ptr->hist_flags[stat+1][i-INVEN_WIELD].a = a;
+			p_ptr->hist_flags[stat+1][i-INVEN_WIELD].c = c;
+			//Term_putch(col, row+stat, a, c);
+		}
+		/* Advance */
+		col++;
+	}
+	/* Player flags */
+	player_flags(Ind, &f1, &f2, &f3);
+	/* Check stats */
+	for (stat = 0; stat < 6; ++stat)
+	{
+		/* Default */
+		a = TERM_SLATE;
+		c = '.';
+		/* Sustain */
+		if (f2 & (1<<stat))
+		{
+			/* Dark green "s" */
+			a = TERM_GREEN;
+			c = 's';
+		}
+		/* Dump */
+		p_ptr->hist_flags[stat+1][12].a = a;
+		p_ptr->hist_flags[stat+1][12].c = c;
+		//Term_putch(col, row+stat, a, c);
+	}
+	/* Column */
+	col = 26;
+	/* Footer */
+	//c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col);
+	/* Equippy */
+	// display_player_equippy(row+7, col);
+}
+
+static void prt_player_flag_info(int Ind)
+{
+	player_type *p_ptr = Players[Ind];
+	
+	int x, y, i, n;
+
+	int row, col;
+	
+	int realX, realY;
+
+	int set;
+	u32b head;
+	u32b flag;
+	//cptr name;
+
+
+	u32b f[4];
+	
+	byte attr = TERM_SLATE;
+	char c = '.';
+	
+	object_type *o_ptr;
+
+	realX = 0;
+	realY = 7;
+
+	/* Four columns */
+	for (x = 0; x < 4; x++)
+	{
+		/* Reset */
+		row = 11;
+		col = 20 * x;
+
+		/* Extract set */
+		set = display_player_flag_set[x];
+
+		/* Extract head */
+		head = display_player_flag_head[x];
+
+		/* Header */
+		//c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
+		
+		/* Eight rows */
+		for (y = 0; y < 8; y++)
+		{
+			/* Extract flag */
+			flag = (head << y);
+
+
+			/* Extract name */
+			//name = display_player_flag_names[x][y];
+
+			/* Header */
+			//c_put_str(TERM_WHITE, name, row, col);
+
+			/* Check equipment */
+			for (n = 6, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
+			{
+
+				/* Object */
+				o_ptr = &p_ptr->inventory[i];
+				
+				/* Default Value */
+				attr = TERM_SLATE;
+				c = '.';
+
+				/* Clear flags */
+				f[1] = f[2] = f[3] = 0L;
+
+				/* Fill in Known flags */
+				if (o_ptr->k_idx) /* don't waste time */
+				object_flags_known(Ind, o_ptr, &f[1], &f[2], &f[3]);
+
+				/* Color columns by parity */
+				if (n % 2) attr = TERM_L_WHITE;
+
+				/* Non-existant objects */
+				if (!o_ptr->k_idx) attr = TERM_L_DARK; 
+				
+				/* Hack -- Check immunities */
+				if ((x == 0) && (y < 4) &&
+				    (f[set] & ((TR2_IM_ACID) << y)))
+				{
+					attr = TERM_WHITE;
+					c = '*';
+					//c_put_str(TERM_WHITE, "*", row, col+n);
+					//p_ptr->hist_flags[realY][realX].a = TERM_WHITE;
+					//p_ptr->hist_flags[realY][realX].c = '*';
+				}
+
+				/* Check flags */
+				else if (f[set] & flag)
+				{
+					//c_put_str(TERM_WHITE, "+", row, col+n);
+					attr = TERM_WHITE;
+					c = '+';
+					//p_ptr->hist_flags[realY][realX].a = TERM_WHITE;
+					//p_ptr->hist_flags[realY][realX].c = '+';
+				}
+
+				/* Default */
+				else
+				{
+					//c_put_str(attr, ".", row, col+n);
+					//p_ptr->hist_flags[realY][realX].a = attr;
+					//p_ptr->hist_flags[realY][realX].c = c;
+				}
+				
+				p_ptr->hist_flags[realY][realX].a = attr;
+				p_ptr->hist_flags[realY][realX].c = c;
+				
+				realX++;
+			}
+
+			/* Clear */
+			f[1] = f[2] = f[3] = 0L;
+
+			/* Player flags */
+			player_flags(Ind, &f[1], &f[2], &f[3]);
+
+			/* Default */
+			//c_put_str(TERM_SLATE, ".", row, col+n);
+			p_ptr->hist_flags[realY][realX].a = TERM_SLATE;
+			p_ptr->hist_flags[realY][realX].c = '.';
+
+			/* Hack -- Check immunities */
+			if ((x == 0) && (y < 4) &&
+			    (f[set] & ((TR2_IM_ACID) << y)))
+			{
+				//c_put_str(TERM_WHITE, "*", row, col+n);
+				p_ptr->hist_flags[realY][realX].a = TERM_WHITE;
+				p_ptr->hist_flags[realY][realX].c = '*';
+			}
+
+			/* Check flags */
+			else if (f[set] & flag) {
+				//c_put_str(TERM_WHITE, "+", row, col+n);
+				p_ptr->hist_flags[realY][realX].a = TERM_WHITE;
+				p_ptr->hist_flags[realY][realX].c = '+';
+			}
+
+			/* Advance */
+			row++;
+			
+			realY++; realX = 0;
+		}
+
+		/* Footer */
+		//c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
+
+		/* Equippy */
+		//display_player_equippy(row++, col+6);
+	}
+}
+
+
+static void prt_flags(int Ind)
+{
+	/* player_type *p_ptr = Players[Ind]; */
+	int i;
+
+	prt_player_equippy(Ind);
+	prt_player_sust_info(Ind);
+	prt_player_flag_info(Ind);
+
+	for (i = 0; i < 39; i++)
+	{
+		Send_objflags(Ind, i);
+	}
+	
+}
+
 
 static void prt_history(int Ind)
 {
@@ -454,6 +841,118 @@ static void prt_skills(int Ind)
 	Send_skills(Ind);
 }
 
+/*
+ * Redraw the cursor
+ *
+ * This function must simply calculate correct offset for each player
+ * and update his cursor location
+ */
+static void cursor_redraw(int Ind)
+{
+	player_type *p_ptr = Players[Ind];
+	int vis, x, y = 0;
+
+	/* Not tracking */
+	if (p_ptr->cursor_who == 0)
+	{
+		/* Reset the cursor */
+		vis = 0;
+	}
+
+	/* Tracking a hallucinatory monster */
+	/* commented: this can't happen as 'looking' doesn't work while hallucinating */
+	/* else if (p_ptr->image)
+	{
+		
+	}
+	*/
+	/* Tracking a player */
+	else if (p_ptr->cursor_who < 0)
+	{
+		player_type *q_ptr;
+		/* Make sure we have a valid index */
+		if (0 - p_ptr->cursor_who > NumPlayers)
+		{
+			/* Invalid index -- reset the cursor */
+			Send_cursor(Ind, 0,0,0);
+			/* Reset the index */
+			p_ptr->cursor_who = 0;
+			return;
+		}
+		
+		q_ptr = Players[0 - p_ptr->cursor_who];
+
+		/* Tracking a bad player (?) */
+		if (!q_ptr)
+		{
+			/* Reset the cursor */
+			vis = 0;
+		}
+
+		/* Tracking an unseen player */
+		else if (!p_ptr->play_vis[0 - p_ptr->cursor_who])
+		{
+			/* Should not be possible */
+			vis = 0;
+		}
+
+		/* Tracking a visible player */
+		else
+		{
+			vis = 1;
+			x = q_ptr->px - p_ptr->panel_col_prt;
+			y = q_ptr->py - p_ptr->panel_row_prt;
+		}
+	}
+
+	/* Tracking a bad monster (?) */
+	else if (!m_list[p_ptr->health_who].r_idx)
+	{
+		/* Reset the cursor */
+		vis = 0;
+	}
+
+	/* Tracking an unseen monster */
+	else if (!p_ptr->mon_vis[p_ptr->health_who])
+	{
+		/* Reset cursor */
+		vis = 0;
+	}
+
+	/* Tracking a dead monster (???) */
+	else if (!m_list[p_ptr->health_who].hp < 0)
+	{
+		/* Reset cursor */
+		vis = 0;
+	}
+
+	/* Tracking a visible monster */
+	else
+	{
+		monster_type *m_ptr = &m_list[p_ptr->health_who];
+		
+		vis = 1;
+		x = m_ptr->fx - p_ptr->panel_col_prt;
+		y = m_ptr->fy - p_ptr->panel_row_prt;
+	}
+	
+	if (vis == 1) 
+	{
+		Send_cursor(Ind, vis, x, y);
+	}
+	else 
+	{
+		Send_cursor(Ind, 0, 0, 0);
+		
+		/* Cancel tracking */
+		p_ptr->cursor_who = 0;
+		/* Reset look */
+		p_ptr->look_index = 0;
+	}
+
+}
+
+
 
 /*
  * Redraw the "monster health bar"	-DRS-
@@ -474,7 +973,6 @@ static void prt_skills(int Ind)
 static void health_redraw(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
-
 #ifdef DRS_SHOW_HEALTH_BAR
 
 	/* Not tracking */
@@ -616,7 +1114,6 @@ static void health_redraw(int Ind)
 		/* Send the health */
 		Send_monster_health(Ind, len, attr);
 	}
-
 #endif
 
 }
@@ -736,7 +1233,7 @@ static void fix_spell(int Ind)
 	}
 
 	/* Warriors don't need this */
-	if (!p_ptr->mp_ptr->spell_book)
+	if (!p_ptr->cp_ptr->spell_book)
 		return;
 
 	/* Check for blindness and no lite and confusion */
@@ -748,7 +1245,7 @@ static void fix_spell(int Ind)
 	/* Scan for appropriate books */
 	for (i = 0; i < INVEN_WIELD; i++)
 	{
-		if (p_ptr->inventory[i].tval == p_ptr->mp_ptr->spell_book)
+		if (p_ptr->inventory[i].tval == p_ptr->cp_ptr->spell_book)
 		{
 			do_cmd_browse(Ind, i);
 		}
@@ -835,25 +1332,29 @@ static void calc_spells(int Ind)
 
 	int			i, j, k, levels;
 	int			num_allowed, num_known;
+	int percent_spells;
 
 	magic_type		*s_ptr;
 
-	cptr p = ((p_ptr->mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+    cptr p = ((p_ptr->cp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
+	int mtype = ((p_ptr->cp_ptr->spell_book == TV_PRAYER_BOOK) ? 1 : 0);
 
 	/* Hack -- must be literate */
-	if (!p_ptr->mp_ptr->spell_book) return;
+	if (!p_ptr->cp_ptr->spell_book) return;
 
 
 	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - p_ptr->mp_ptr->spell_first + 1;
+	levels = p_ptr->lev - p_ptr->cp_ptr->spell_first + 1;
 
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
-	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[p_ptr->mp_ptr->spell_stat]] *
-	               levels / 2);
+	/* Number of 1/100 spells per level */
+	percent_spells = adj_mag_study[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]];
+
+	/* Extract total allowed spells (rounded up) */
+	num_allowed = (((percent_spells * levels) + 50) / 100);
 
 	/* Assume none known */
 	num_known = 0;
@@ -920,7 +1421,8 @@ static void calc_spells(int Ind)
 
 			/* Message */
 			msg_format(Ind, "You have forgotten the %s of %s.", p,
-			           spell_names[p_ptr->mp_ptr->spell_type][j]);
+			           spell_names[mtype][j]);
+
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -968,9 +1470,11 @@ static void calc_spells(int Ind)
 				p_ptr->spell_learned2 &= ~(1L << (j - 32));
 			}
 
+
 			/* Message */
 			msg_format(Ind, "You have forgotten the %s of %s.", p,
-			           spell_names[p_ptr->mp_ptr->spell_type][j]);
+			           spell_names[mtype][j]);
+
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1026,7 +1530,8 @@ static void calc_spells(int Ind)
 
 			/* Message */
 			msg_format(Ind, "You have remembered the %s of %s.",
-			           p, spell_names[p_ptr->mp_ptr->spell_type][j]);
+			           p, spell_names[mtype][j]);
+
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1096,42 +1601,40 @@ static void calc_mana(int Ind)
 	int		new_mana, levels, cur_wgt, max_wgt;
 
 	object_type	*o_ptr;
+        u32b f1, f2, f3;
 
 
 	/* Hack -- Must be literate */
-	if (!p_ptr->mp_ptr->spell_book) return;
+	if (!p_ptr->cp_ptr->spell_book) return;
 
 
 	/* Extract "effective" player level */
-	levels = (p_ptr->lev - p_ptr->mp_ptr->spell_first) + 1;
+	levels = (p_ptr->lev - p_ptr->cp_ptr->spell_first) + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	new_mana = adj_mag_mana[p_ptr->stat_ind[p_ptr->mp_ptr->spell_stat]] * levels / 2;
+	new_mana = adj_mag_mana[p_ptr->stat_ind[p_ptr->cp_ptr->spell_stat]] * levels / 100;
 
 	/* Hack -- usually add one mana */
 	if (new_mana) new_mana++;
 
+    /* Get the gloves */
+    o_ptr = &p_ptr->inventory[INVEN_HANDS];
+
+    /* Examine the gloves */
+    object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Only mages are affected */
-	if (p_ptr->mp_ptr->spell_book == TV_MAGIC_BOOK)
+	if (p_ptr->cp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
-		u32b f1, f2, f3;
-
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
 
-		/* Get the gloves */
-		o_ptr = &p_ptr->inventory[INVEN_HANDS];
-
-		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3);
-
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
-		    !(f2 & TR2_FREE_ACT) &&
+		    !(f3 & TR3_FREE_ACT) &&
 		    !((f1 & TR1_DEX) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
@@ -1141,7 +1644,6 @@ static void calc_mana(int Ind)
 			new_mana = (3 * new_mana) / 4;
 		}
 	}
-
 
 	/* Assume player not encumbered by armor */
 	p_ptr->cumber_armor = FALSE;
@@ -1156,7 +1658,7 @@ static void calc_mana(int Ind)
 	cur_wgt += p_ptr->inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
-	max_wgt = p_ptr->mp_ptr->spell_weight;
+	max_wgt = p_ptr->cp_ptr->spell_weight;
 
 	/* Heavy armor penalizes mana */
 	if (((cur_wgt - max_wgt) / 10) > 0)
@@ -1188,7 +1690,8 @@ static void calc_mana(int Ind)
 		else if (!p_ptr->msp)
 		{
 			/* Reset mana */
-			p_ptr->csp = new_mana;
+	    /* disabled because horribly exploitable!!! */
+            // p_ptr->csp = new_mana;
 			p_ptr->csp_frac = 0;
 		}
 
@@ -1273,20 +1776,21 @@ static void calc_hitpoints(int Ind)
 
 	int bonus, mhp;
 
-	/* Un-inflate "half-hitpoint bonus per level" value */
-	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
+	/* Get "1/100th hitpoint bonus per level" value */
+	bonus = adj_con_mhp[p_ptr->stat_ind[A_CON]];
 
 	/* Calculate hitpoints */
 	if (p_ptr->fruit_bat) mhp = p_ptr->lev + 2;
 	
-	else mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
+	else mhp = p_ptr->player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 100);
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
-	/* Option : give (most!) mages a bonus hitpoint / lvl */
-	if (cfg_mage_hp_bonus)
-		if ((p_ptr->pclass == CLASS_MAGE) && (strcmp(p_ptr->name,"Seth"))) mhp += p_ptr->lev;
+    /* Option : give (most!) mages a bonus hitpoint / lvl */
+    if (cfg_mage_hp_bonus && (p_ptr->pclass == CLASS_MAGE) 
+    	&& (strcmp(p_ptr->name,"Seth")) )
+	mhp += p_ptr->lev;
 
 	/* Factor in the hero / superhero settings */
 	if (p_ptr->hero) mhp += 10;
@@ -1428,7 +1932,7 @@ static void calc_bonuses(int Ind)
 
 	int			old_speed;
 
-	int			old_telepathy;
+    u32b		old_telepathy;
 	int			old_see_inv;
 
 	int			old_dis_ac;
@@ -1444,8 +1948,9 @@ static void calc_bonuses(int Ind)
 	object_kind		*k_ptr;
 	ego_item_type 		*e_ptr;
 
-	u32b		f1, f2, f3;
+        u32b		f1, f2, f3;
 
+	/*** Memorize ***/
 
 	/* Save the old speed */
 	old_speed = p_ptr->pspeed;
@@ -1462,12 +1967,31 @@ static void calc_bonuses(int Ind)
 	old_dis_to_h = p_ptr->dis_to_h;
 	old_dis_to_d = p_ptr->dis_to_d;
 
+	/*** Reset ***/
+	
+   /* Start with "normal" speed */
+   p_ptr->pspeed = 110;
+
+   /* MAngband-specific: Bats get +10 speed ... they need it! */
+   if (p_ptr->fruit_bat) p_ptr->pspeed += 10;
+
+	/* Start with a single blow per turn */
+	p_ptr->num_blow = 1;
+
+	/* Start with a single shot per turn */
+	p_ptr->num_fire = 1;
+
+	/* Reset the "xtra" tval */
+	p_ptr->tval_xtra = 0;
+
+	/* Reset the "ammo" tval */
+	p_ptr->tval_ammo = 0;
+	
 	/* Clear extra blows/shots */
 	extra_blows = extra_shots = 0;
 
 	/* Clear the stat modifiers */
 	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
-
 
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
@@ -1476,7 +2000,6 @@ static void calc_bonuses(int Ind)
 	p_ptr->dis_to_h = p_ptr->to_h = 0;
 	p_ptr->dis_to_d = p_ptr->to_d = 0;
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
-
 
 	/* Clear all the flags */
 	p_ptr->aggravate = FALSE;
@@ -1491,7 +2014,7 @@ static void calc_bonuses(int Ind)
 	p_ptr->regenerate = FALSE;
 	p_ptr->feather_fall = FALSE;
 	p_ptr->hold_life = FALSE;
-	p_ptr->telepathy = FALSE;
+    p_ptr->telepathy = 0;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
@@ -1521,10 +2044,10 @@ static void calc_bonuses(int Ind)
 	p_ptr->immune_cold = FALSE;
 
 
-
+	/*** Extract race/class info ***/
+	
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = p_ptr->rp_ptr->infra;
-
 
 	/* Base skill -- disarming */
 	p_ptr->skill_dis = p_ptr->rp_ptr->r_dis + p_ptr->cp_ptr->c_dis;
@@ -1557,56 +2080,61 @@ static void calc_bonuses(int Ind)
 	p_ptr->skill_dig = 0;
 
 
-	/* Elf */
-	if (p_ptr->prace == RACE_ELF) p_ptr->resist_lite = TRUE;
+	/*** Analyze player ***/
 
-	/* Hobbit */
-	if (p_ptr->prace == RACE_HOBBIT) p_ptr->sustain_dex = TRUE;
+	/* Extract the player flags */
+	player_flags(Ind, &f1, &f2, &f3);
 
-	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) p_ptr->free_act = TRUE;
+	/* Good flags */
+	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+	if (f3 & (TR3_FEATHER)) p_ptr->feather_fall = TRUE;
+	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
-	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) p_ptr->resist_blind = TRUE;
+	/* Weird flags */
+	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) p_ptr->resist_dark = TRUE;
+	/* Bad flags */
+	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 
-	/* Half-Troll */
-	if (p_ptr->prace == RACE_HALF_TROLL) p_ptr->sustain_str = TRUE;
+	/* Immunity flags */
+	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
 
-	/* Dunadan */
-	if (p_ptr->prace == RACE_DUNADAN) p_ptr->sustain_con = TRUE;
+	/* Resistance flags */
+	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_conf = TRUE;
+	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_neth = TRUE;
+	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
 
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
-
-	/* Ghost */
-	if (p_ptr->ghost) p_ptr->see_inv = TRUE;
-	if (p_ptr->ghost) p_ptr->resist_neth = TRUE;
-	if (p_ptr->ghost) p_ptr->hold_life = TRUE;
-	if (p_ptr->ghost) p_ptr->free_act = TRUE;
-	if (p_ptr->ghost) p_ptr->see_infra += 2;
-
-	/* Start with "normal" speed */
-	p_ptr->pspeed = 110;
-
-	/* Bats get +10 speed ... they need it!*/
-	if (p_ptr->fruit_bat) p_ptr->pspeed += 10;
-
-	/* Start with a single blow per turn */
-	p_ptr->num_blow = 1;
-
-	/* Start with a single shot per turn */
-	p_ptr->num_fire = 1;
-
-	/* Reset the "xtra" tval */
-	p_ptr->tval_xtra = 0;
-
-	/* Reset the "ammo" tval */
-	p_ptr->tval_ammo = 0;
-
+	/* Sustain flags */
+	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+	if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 	/* Hack -- apply racial/class stat maxes */
 	if (p_ptr->maximize)
@@ -1621,24 +2149,24 @@ static void calc_bonuses(int Ind)
 
 
 	/* -APD- Hack -- rogues +1 speed at 5,20,35,50. this may be out of place, but.... */
-	
 	if (p_ptr->pclass == CLASS_ROGUE) 
 	{
 		if (p_ptr->lev >= 5)
 		{
 			p_ptr->pspeed += (((p_ptr->lev-5)/15)+1);
 		}
-		
 	}
 
 	/* Hack -- the dungeon master gets +50 speed. */
 	if (!strcmp(p_ptr->name,cfg_dungeon_master)) 
 	{
 		p_ptr->pspeed += 50;
-		p_ptr->telepathy = 1;
+        p_ptr->telepathy = TR3_TELEPATHY;
 	}
 
 
+	/*** Analyze equipment ***/
+	
 	/* Scan the usable inventory */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -1650,7 +2178,7 @@ static void calc_bonuses(int Ind)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Hack -- first add any "base bonuses" of the item.  A new
 		 * feature in MAngband 0.7.0 is that the magnitude of the
@@ -1738,25 +2266,31 @@ static void calc_bonuses(int Ind)
 		if (f1 & TR1_BLOWS) extra_blows += o_ptr->pval;
 
 		/* Hack -- cause earthquakes */
-		if (f1 & TR1_IMPACT) p_ptr->impact = TRUE;
+		if (f3 & TR3_IMPACT) p_ptr->impact = TRUE;
 
 		/* Boost shots */
-		if (f3 & TR3_XTRA_SHOTS) extra_shots++;
+		if (f1 & TR1_SHOTS) extra_shots++;
 
 		/* Various flags */
 		if (f3 & TR3_AGGRAVATE) p_ptr->aggravate = TRUE;
 		if (f3 & TR3_TELEPORT) p_ptr->teleport = TRUE;
 		if (f3 & TR3_DRAIN_EXP) p_ptr->exp_drain = TRUE;
 		if (f3 & TR3_BLESSED) p_ptr->bless_blade = TRUE;
-		if (f3 & TR3_XTRA_MIGHT) p_ptr->xtra_might = TRUE;
+		if (f1 & TR1_MIGHT) p_ptr->xtra_might = TRUE;
 		if (f3 & TR3_SLOW_DIGEST) p_ptr->slow_digest = TRUE;
 		if (f3 & TR3_REGEN) p_ptr->regenerate = TRUE;
-		if (f3 & TR3_TELEPATHY) p_ptr->telepathy = TRUE;
 		if (f3 & TR3_LITE) p_ptr->lite += 1;
 		if (f3 & TR3_SEE_INVIS) p_ptr->see_inv = TRUE;
 		if (f3 & TR3_FEATHER) p_ptr->feather_fall = TRUE;
-		if (f2 & TR2_FREE_ACT) p_ptr->free_act = TRUE;
-		if (f2 & TR2_HOLD_LIFE) p_ptr->hold_life = TRUE;
+        if (f2 & TR2_RES_FEAR) p_ptr->resist_fear = TRUE;
+		if (f3 & TR3_FREE_ACT) p_ptr->free_act = TRUE;
+		if (f3 & TR3_HOLD_LIFE) p_ptr->hold_life = TRUE;
+
+	/* telepathy */
+	if (f3 & TR3_TELEPATHY)
+		p_ptr->telepathy = TR3_TELEPATHY;
+	else if (p_ptr->telepathy != TR3_TELEPATHY)
+		p_ptr->telepathy |= f3;
 
 		/* Immunity flags */
 		if (f2 & TR2_IM_FIRE) p_ptr->immune_fire = TRUE;
@@ -1770,16 +2304,16 @@ static void calc_bonuses(int Ind)
 		if (f2 & TR2_RES_FIRE) p_ptr->resist_fire = TRUE;
 		if (f2 & TR2_RES_COLD) p_ptr->resist_cold = TRUE;
 		if (f2 & TR2_RES_POIS) p_ptr->resist_pois = TRUE;
-		if (f2 & TR2_RES_CONF) p_ptr->resist_conf = TRUE;
+		if (f2 & TR2_RES_CONFU) p_ptr->resist_conf = TRUE;
 		if (f2 & TR2_RES_SOUND) p_ptr->resist_sound = TRUE;
 		if (f2 & TR2_RES_LITE) p_ptr->resist_lite = TRUE;
 		if (f2 & TR2_RES_DARK) p_ptr->resist_dark = TRUE;
 		if (f2 & TR2_RES_CHAOS) p_ptr->resist_chaos = TRUE;
 		if (f2 & TR2_RES_DISEN) p_ptr->resist_disen = TRUE;
-		if (f2 & TR2_RES_SHARDS) p_ptr->resist_shard = TRUE;
+		if (f2 & TR2_RES_SHARD) p_ptr->resist_shard = TRUE;
 		if (f2 & TR2_RES_NEXUS) p_ptr->resist_nexus = TRUE;
 		if (f2 & TR2_RES_BLIND) p_ptr->resist_blind = TRUE;
-		if (f2 & TR2_RES_NETHER) p_ptr->resist_neth = TRUE;
+		if (f2 & TR2_RES_NETHR) p_ptr->resist_neth = TRUE;
 
 		/* Sustain flags */
 		if (f2 & TR2_SUST_STR) p_ptr->sustain_str = TRUE;
@@ -1816,6 +2350,8 @@ static void calc_bonuses(int Ind)
 		if (object_known_p(Ind, o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
+	
+	/*** Handle stats ***/
 
 	/* Calculate stats */
 	for (i = 0; i < 6; i++)
@@ -1881,7 +2417,7 @@ static void calc_bonuses(int Ind)
 			/* Change in INT may affect Mana/Spells */
 			else if (i == A_INT)
 			{
-				if (p_ptr->mp_ptr->spell_stat == A_INT)
+				if (p_ptr->cp_ptr->spell_stat == A_INT)
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}
@@ -1890,7 +2426,7 @@ static void calc_bonuses(int Ind)
 			/* Change in WIS may affect Mana/Spells */
 			else if (i == A_WIS)
 			{
-				if (p_ptr->mp_ptr->spell_stat == A_WIS)
+				if (p_ptr->cp_ptr->spell_stat == A_WIS)
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}
@@ -1901,6 +2437,8 @@ static void calc_bonuses(int Ind)
 		}
 	}
 
+	
+	/*** Temporary flags ***/
 
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > 50)
@@ -1982,35 +2520,28 @@ static void calc_bonuses(int Ind)
 		p_ptr->see_infra++;
 	}
 
-
 	/* Hack -- Res Chaos -> Res Conf */
+	/* Not in recent Angband!
 	if (p_ptr->resist_chaos)
 	{
 		p_ptr->resist_conf = TRUE;
 	}
-
+	*/
+	
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
 	{
 		p_ptr->resist_fear = TRUE;
 	}
 
-
-	/* Hack -- Telepathy Change */
-	if (p_ptr->telepathy != old_telepathy)
-	{
-		p_ptr->update |= (PU_MONSTERS);
-	}
-
-	/* Hack -- See Invis Change */
-	if (p_ptr->see_inv != old_see_inv)
-	{
-		p_ptr->update |= (PU_MONSTERS);
-	}
-
+	
+	/*** Analyze weight ***/
 
 	/* Extract the current weight (in tenth pounds) */
 	j = p_ptr->total_weight;
+	
+	/* Cap the weight */
+	if (j > 1<<14) j = 1<<14;
 
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit(Ind);
@@ -2032,11 +2563,9 @@ static void calc_bonuses(int Ind)
 			p_ptr->skill_stl *= 3;
 		}
 	}
-
-	/* Display the speed (if needed) */
-	if (p_ptr->pspeed != old_speed) p_ptr->redraw |= (PR_SPEED);
-
-
+	
+	/*** Apply modifier bonuses ***/
+	
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
@@ -2049,25 +2578,67 @@ static void calc_bonuses(int Ind)
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
+	
+	/*** Modify skills ***/
 
-	/* Redraw armor (if needed) */
-	if ((p_ptr->dis_ac != old_dis_ac) || (p_ptr->dis_to_a != old_dis_to_a))
-	{
-		/* Redraw */
-		p_ptr->redraw |= (PR_ARMOR);
+	/* Affect Skill -- stealth (bonus one) */
+	p_ptr->skill_stl += 1;
 
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-	}
+	/* Affect Skill -- disarming (DEX and INT) */
+	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
+	p_ptr->skill_dis += adj_int_dis[p_ptr->stat_ind[A_INT]];
 
+	/* Affect Skill -- magic devices (INT) */
+	p_ptr->skill_dev += adj_int_dev[p_ptr->stat_ind[A_INT]];
+
+	/* Affect Skill -- saving throw (WIS) */
+	p_ptr->skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+
+	/* Affect Skill -- digging (STR) */
+	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
+
+	/* Affect Skill -- disarming (Level, by Class) */
+	p_ptr->skill_dis += (p_ptr->cp_ptr->x_dis * p_ptr->lev / 10);
+
+	/* Affect Skill -- magic devices (Level, by Class) */
+	p_ptr->skill_dev += (p_ptr->cp_ptr->x_dev * p_ptr->lev / 10);
+
+	/* Affect Skill -- saving throw (Level, by Class) */
+	p_ptr->skill_sav += (p_ptr->cp_ptr->x_sav * p_ptr->lev / 10);
+
+	/* Affect Skill -- stealth (Level, by Class) */
+	p_ptr->skill_stl += (p_ptr->cp_ptr->x_stl * p_ptr->lev / 10);
+
+	/* Affect Skill -- search ability (Level, by Class) */
+	p_ptr->skill_srh += (p_ptr->cp_ptr->x_srh * p_ptr->lev / 10);
+
+	/* Affect Skill -- search frequency (Level, by Class) */
+	p_ptr->skill_fos += (p_ptr->cp_ptr->x_fos * p_ptr->lev / 10);
+
+	/* Affect Skill -- combat (normal) (Level, by Class) */
+	p_ptr->skill_thn += (p_ptr->cp_ptr->x_thn * p_ptr->lev / 10);
+
+	/* Affect Skill -- combat (shooting) (Level, by Class) */
+	p_ptr->skill_thb += (p_ptr->cp_ptr->x_thb * p_ptr->lev / 10);
+
+	/* Affect Skill -- combat (throwing) (Level, by Class) */
+	p_ptr->skill_tht += (p_ptr->cp_ptr->x_thb * p_ptr->lev / 10);
+
+	/* Limit Skill -- stealth from 0 to 30 */
+	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
+	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
+
+	/* Limit Skill -- digging from 1 up */
+	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
 
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
 
+	/*** Analyze current bow ***/
+	
 	/* Examine the "current bow" */
 	o_ptr = &p_ptr->inventory[INVEN_BOW];
-
 
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
@@ -2082,7 +2653,6 @@ static void calc_bonuses(int Ind)
 		/* Heavy Bow */
 		p_ptr->heavy_shoot = TRUE;
 	}
-
 
 	/* Compute "extra shots" if needed */
 	if (o_ptr->k_idx && !p_ptr->heavy_shoot)
@@ -2112,7 +2682,7 @@ static void calc_bonuses(int Ind)
 		}
 
 		/* Hack -- Reward High Level Rangers using Bows */
-		if ((p_ptr->pclass == 4) && (p_ptr->tval_ammo == TV_ARROW))	
+       if ((p_ptr->cp_ptr->flags & CF_EXTRA_SHOT) && (p_ptr->tval_ammo == TV_ARROW))	
 		{
 			/* Extra shot at level 20 */
 			if (p_ptr->lev >= 20) p_ptr->num_fire++;
@@ -2129,10 +2699,10 @@ static void calc_bonuses(int Ind)
 	}
 
 
+	/*** Analyze weapon ***/
 
 	/* Examine the "main weapon" */
 	o_ptr = &p_ptr->inventory[INVEN_WIELD];
-
 
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
@@ -2154,35 +2724,13 @@ static void calc_bonuses(int Ind)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
-
-		/* Analyze the class */
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
-
-			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
-
-			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
-
-			/* Paladin */
-			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
-		}
+		int div = 0;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+		div = ((o_ptr->weight < p_ptr->cp_ptr->min_weight) ? p_ptr->cp_ptr->min_weight : o_ptr->weight);
 
 		/* Access the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * p_ptr->cp_ptr->att_multiply / div);
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
@@ -2197,7 +2745,7 @@ static void calc_bonuses(int Ind)
 		p_ptr->num_blow = blows_table[str_index][dex_index];
 
 		/* Maximal value */
-		if (p_ptr->num_blow > num) p_ptr->num_blow = num;
+		if (p_ptr->num_blow > p_ptr->cp_ptr->max_attacks) p_ptr->num_blow = p_ptr->cp_ptr->max_attacks;
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
@@ -2214,7 +2762,7 @@ static void calc_bonuses(int Ind)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
+    if ((p_ptr->cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
@@ -2229,64 +2777,35 @@ static void calc_bonuses(int Ind)
 		p_ptr->icky_wield = TRUE;
 	}
 
-	/* Redraw plusses to hit/damage if necessary */
-	if ((p_ptr->dis_to_h != old_dis_to_h) || (p_ptr->dis_to_d != old_dis_to_d))
+
+	/*** Notice changes ***/
+
+	/* Note -- unlike angband, stat changes are noticed when updated (see above) */ 
+
+	/* Hack -- Telepathy Change */
+	if (p_ptr->telepathy != old_telepathy)
 	{
-		/* Redraw plusses */
-		p_ptr->redraw |= (PR_PLUSSES);
+		p_ptr->update |= (PU_MONSTERS);
 	}
 
-	/* Affect Skill -- stealth (bonus one) */
-	p_ptr->skill_stl += 1;
+	/* Hack -- See Invis Change */
+	if (p_ptr->see_inv != old_see_inv)
+	{
+		p_ptr->update |= (PU_MONSTERS);
+	}
+	
+	/* Display the speed (if needed) */
+	if (p_ptr->pspeed != old_speed) p_ptr->redraw |= (PR_SPEED);
 
-	/* Affect Skill -- disarming (DEX and INT) */
-	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
-	p_ptr->skill_dis += adj_int_dis[p_ptr->stat_ind[A_INT]];
+	/* Redraw armor (if needed) */
+	if ((p_ptr->dis_ac != old_dis_ac) || (p_ptr->dis_to_a != old_dis_to_a))
+	{
+		/* Redraw */
+		p_ptr->redraw |= (PR_ARMOR);
 
-	/* Affect Skill -- magic devices (INT) */
-	p_ptr->skill_dev += adj_int_dev[p_ptr->stat_ind[A_INT]];
-
-	/* Affect Skill -- saving throw (WIS) */
-	p_ptr->skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
-
-	/* Affect Skill -- digging (STR) */
-	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
-
-
-	/* Affect Skill -- disarming (Level, by Class) */
-	p_ptr->skill_dis += (p_ptr->cp_ptr->x_dis * p_ptr->lev / 10);
-
-	/* Affect Skill -- magic devices (Level, by Class) */
-	p_ptr->skill_dev += (p_ptr->cp_ptr->x_dev * p_ptr->lev / 10);
-
-	/* Affect Skill -- saving throw (Level, by Class) */
-	p_ptr->skill_sav += (p_ptr->cp_ptr->x_sav * p_ptr->lev / 10);
-
-	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skill_stl += (p_ptr->cp_ptr->x_stl * p_ptr->lev / 10);
-
-	/* Affect Skill -- search ability (Level, by Class) */
-	p_ptr->skill_srh += (p_ptr->cp_ptr->x_srh * p_ptr->lev / 10);
-
-	/* Affect Skill -- search frequency (Level, by Class) */
-	p_ptr->skill_fos += (p_ptr->cp_ptr->x_fos * p_ptr->lev / 10);
-
-	/* Affect Skill -- combat (normal) (Level, by Class) */
-	p_ptr->skill_thn += (p_ptr->cp_ptr->x_thn * p_ptr->lev / 10);
-
-	/* Affect Skill -- combat (shooting) (Level, by Class) */
-	p_ptr->skill_thb += (p_ptr->cp_ptr->x_thb * p_ptr->lev / 10);
-
-	/* Affect Skill -- combat (throwing) (Level, by Class) */
-	p_ptr->skill_tht += (p_ptr->cp_ptr->x_thb * p_ptr->lev / 10);
-
-
-	/* Limit Skill -- stealth from 0 to 30 */
-	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
-	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
-
-	/* Limit Skill -- digging from 1 up */
-	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+	}
 
 
 	/* Hack -- handle "xtra" mode */
@@ -2313,7 +2832,6 @@ static void calc_bonuses(int Ind)
 		p_ptr->old_heavy_shoot = p_ptr->heavy_shoot;
 	}
 
-
 	/* Take note when "heavy weapon" changes */
 	if (p_ptr->old_heavy_wield != p_ptr->heavy_wield)
 	{
@@ -2334,7 +2852,6 @@ static void calc_bonuses(int Ind)
 		/* Save it */
 		p_ptr->old_heavy_wield = p_ptr->heavy_wield;
 	}
-
 
 	/* Take note when "illegal weapon" changes */
 	if (p_ptr->old_icky_wield != p_ptr->icky_wield)
@@ -2608,11 +3125,23 @@ void redraw_stuff(int Ind)
 		p_ptr->redraw &= ~(PR_HEALTH);
 		health_redraw(Ind);
 	}
+	
+	if (p_ptr->redraw & PR_CURSOR)
+	{
+		p_ptr->redraw &= ~(PR_CURSOR);
+		cursor_redraw(Ind);
+	}
 
 	if (p_ptr->redraw & PR_HISTORY)
 	{
 		p_ptr->redraw &= ~(PR_HISTORY);
 		prt_history(Ind);
+	}
+	
+	if (p_ptr->redraw & PR_OFLAGS)
+	{
+		p_ptr->redraw &= ~(PR_OFLAGS);
+		prt_flags(Ind);
 	}
 
 	if (p_ptr->redraw & PR_VARIOUS)
@@ -2786,5 +3315,3 @@ void handle_stuff(int Ind)
 	/* Window stuff */
 	if (p_ptr->window) window_stuff(Ind);
 }
-
-

@@ -366,7 +366,7 @@ static int next_to_walls(int Depth, int y, int x)
 /*
  * Convert existing terrain type to rubble
  */
-static void place_rubble(int Depth, int y, int x)
+static void place_rubble_aux(int Depth, int y, int x)
 {
 	cave_type *c_ptr = &cave[Depth][y][x];
 
@@ -374,7 +374,48 @@ static void place_rubble(int Depth, int y, int x)
 	c_ptr->feat = FEAT_RUBBLE;
 }
 
+/*
+ * Find secondary spot for rubble
+ *
+ * Note: unlike doors, first element might generate anywhere,
+ * leaving the possibility of useless rubble. That is intenteded
+ */
+static void place_rubble(int Depth, int y, int x)
+{
+	int i,j;
+	cave_type *c_ptr = &cave[Depth][y][x];
 
+	place_rubble_aux(Depth, y, x);
+
+	for (j = -1; j < 2; j++) {
+		for (i = -1; i < 2; i++) {
+			/* Skip corners */
+			if (abs(i+j) != 1) continue; 
+			
+			/* Check Bounds */
+			if (!in_bounds(Depth, y+j, x+i)) continue;
+
+			/* Totally useless AKA Require a certain number of adjacent walls */
+			if (next_to_walls(Depth, y+j, x+i) < 2) continue;			
+			
+			/* Require wall grid */
+			if (cave_naked_bold(Depth, y+j, x+i)) continue;
+
+			/* Require usefullness -- Not nessecary, since first element sucks anyway */
+			/* if (next_to_walls(Depth, y+j*-1, x+i*-1) < 1) continue; */
+
+			/* Require an empty grid on the opposite side */
+			if (!cave_naked_bold(Depth, y+j*-1, x+i*-1)) continue;
+		
+			/* Place on the opposite side */
+			place_rubble_aux(Depth, y+j*-1, x+i*-1);
+			
+			/* Done */
+			return;		
+		}
+	}
+	/* None */
+}
 
 /*
  * Convert existing terrain type to "up stairs"
@@ -439,7 +480,7 @@ static void place_locked_door(int Depth, int y, int x)
 	cave_type *c_ptr = &cave[Depth][y][x];
 
 	/* Create locked door */
-	c_ptr->feat = FEAT_DOOR_HEAD + randint(7);
+	c_ptr->feat = FEAT_DOOR_HEAD + (byte_hack)randint(7);
 }
 
 
@@ -499,14 +540,14 @@ static void place_random_door(int Depth, int y, int x)
 	else if (tmp < 999)
 	{
 		/* Create locked door */
-		c_ptr->feat = FEAT_DOOR_HEAD + randint(7);
+		c_ptr->feat = FEAT_DOOR_HEAD + (byte_hack)randint(7);
 	}
 
 	/* Stuck doors (1/1000) */
 	else
 	{
 		/* Create jammed door */
-		c_ptr->feat = FEAT_DOOR_HEAD + 0x08 + rand_int(8);
+		c_ptr->feat = FEAT_DOOR_HEAD + 0x08 + (byte_hack)rand_int(8);
 	}
 }
 
@@ -653,7 +694,7 @@ static void alloc_object(int Depth, int set, int typ, int num)
 
 			case ALLOC_TYP_OBJECT:
 			{
-				place_object(Depth, y, x, FALSE, FALSE);
+                place_object(Depth, y, x, FALSE, FALSE, 0);
 				break;
 			}
 		}
@@ -843,7 +884,7 @@ static void vault_objects(int Depth, int y, int x, int num)
 			/* Place an item */
 			if (rand_int(100) < 75)
 			{
-				place_object(Depth, j, k, FALSE, FALSE);
+                place_object(Depth, j, k, FALSE, FALSE, 0);
 			}
 
 			/* Place gold */
@@ -1327,7 +1368,7 @@ static void build_type3(int Depth, int yval, int xval)
 		}
 
 		/* Place a treasure in the vault */
-		place_object(Depth, yval, xval, FALSE, FALSE);
+        place_object(Depth, yval, xval, FALSE, FALSE, 0);
 
 		/* Let's guard the treasure well */
 		vault_monsters(Depth, yval, xval, rand_int(2) + 3);
@@ -1544,7 +1585,7 @@ static void build_type4(int Depth, int yval, int xval)
 		/* Object (80%) */
 		if (rand_int(100) < 80)
 		{
-			place_object(Depth, yval, xval, FALSE, FALSE);
+            place_object(Depth, yval, xval, FALSE, FALSE, 0);
 		}
 
 		/* Stairs (20%) */
@@ -1627,8 +1668,8 @@ static void build_type4(int Depth, int yval, int xval)
 			vault_monsters(Depth, yval, xval + 2, randint(2));
 
 			/* Objects */
-			if (rand_int(3) == 0) place_object(Depth, yval, xval - 2, FALSE, FALSE);
-			if (rand_int(3) == 0) place_object(Depth, yval, xval + 2, FALSE, FALSE);
+            if (rand_int(3) == 0) place_object(Depth, yval, xval - 2, FALSE, FALSE, 0);
+            if (rand_int(3) == 0) place_object(Depth, yval, xval + 2, FALSE, FALSE, 0);
 		}
 
 		break;
@@ -2544,7 +2585,7 @@ void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data)
 				case '*':
 				if (rand_int(100) < 75)
 				{
-					place_object(Depth, y, x, FALSE, FALSE);
+                    place_object(Depth, y, x, FALSE, FALSE, 0);
 				}
 				else
 				{
@@ -2605,7 +2646,7 @@ void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data)
 				place_monster(Depth, y, x, TRUE, TRUE);
 				monster_level = Depth;
 				object_level = Depth + 7;
-				place_object(Depth, y, x, TRUE, FALSE);
+                place_object(Depth, y, x, TRUE, FALSE, 0);
 				object_level = Depth;
 				break;
 
@@ -2615,7 +2656,7 @@ void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data)
 				place_monster(Depth, y, x, TRUE, TRUE);
 				monster_level = Depth;
 				object_level = Depth + 20;
-				place_object(Depth, y, x, TRUE, TRUE);
+                place_object(Depth, y, x, TRUE, TRUE, 0);
 				object_level = Depth;
 				break;
 
@@ -2630,7 +2671,7 @@ void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data)
 				if (rand_int(100) < 50)
 				{
 					object_level = Depth + 7;
-					place_object(Depth, y, x, FALSE, FALSE);
+                    place_object(Depth, y, x, FALSE, FALSE, 0);
 					object_level = Depth;
 				}
 				break;
@@ -3564,14 +3605,14 @@ static void build_store(int n, int yy, int xx)
 	x1 = x0 - randint(5);
 	x2 = x0 + randint(5);
 
-	/* Hack -- make building 9's as large as possible */
-	if (n == 12)
-	{
-		y1 = y0 - 3;
-		y2 = y0 + 3;
-		x1 = x0 - 5;
-		x2 = x0 + 5;
-	}
+    /* Hack -- make building's as large as possible */
+	//if (n == 12)
+ 	//{
+        y1 = y0 - randint(3);
+        y2 = y0 + randint(3);
+        x1 = x0 - randint(5);
+        x2 = x0 + randint(5);
+  	//}
 
 	/* Build an invulnerable rectangular building */
 	for (y = y1; y <= y2; y++)
@@ -3603,7 +3644,7 @@ static void build_store(int n, int yy, int xx)
 				c_ptr->feat = FEAT_FLOOR;
 
 				/* Declare this to be a room */
-				c_ptr->info |= CAVE_ROOM | CAVE_GLOW;
+				c_ptr->info |= CAVE_ROOM | CAVE_GLOW | CAVE_ICKY;
 			}
 		}
 
@@ -3637,12 +3678,15 @@ static void build_store(int n, int yy, int xx)
 
 		for (i = 0; i < 5; i++)
 		{
+			if (trees_in_town == cfg_max_trees && cfg_max_trees != -1) break;
+			
 			y = rand_range(y1 + 1, y2 - 1);
 			x = rand_range(x1 + 1, x2 - 1);
 
 			c_ptr = &cave[0][y][x];
 
 			c_ptr->feat = FEAT_TREE;
+			trees_in_town++;
 		}
 
 		return;
@@ -3711,7 +3755,10 @@ static void build_store(int n, int yy, int xx)
 	if (n == 12)
 	{
 		int xc, yc, max_dis;
-
+		int size = (y2 - y1 + 1) * (x2 - x1 + 1); 
+      bool limit_trees = ((cfg_max_trees > 0) && (size > (cfg_max_trees / 4))); 
+      int max_chance = (limit_trees? (100 * (cfg_max_trees / 4)): (100 * size));
+        
 		/* Find the center of the forested area */
 		xc = (x1 + x2) / 2;
 		yc = (y1 + y2) / 2;
@@ -3735,10 +3782,17 @@ static void build_store(int n, int yy, int xx)
 				chance = 100 * (distance(y, x, yc, xc));
 				chance /= max_dis;
 				chance = 80 - chance;
+				chance *= size;
+
+				/* We want at most (cfg_max_trees / 4) trees */ 
+            if (limit_trees && (chance > max_chance)) chance = max_chance; 
 
 				/* Put some trees */
-				if (randint(100) < chance)
-					c_ptr->feat = FEAT_TREE;
+				if (randint(100 * size) < chance && (trees_in_town < cfg_max_trees || cfg_max_trees == -1))
+					{
+						c_ptr->feat = FEAT_TREE;
+						trees_in_town++;
+					}
 			}
 		}
 
@@ -3832,15 +3886,19 @@ static void build_store(int n, int yy, int xx)
 		c_ptr->feat = FEAT_HOME_HEAD + houses[num_houses].strength;
 
 		/* hack -- only create houses that aren't already loaded from disk */
-		if ((pick_house(0, y, x)) == -1)
+		if ((tmp = pick_house(0, y, x)) == -1)
 		{
 			/* Store door location information */
 			houses[num_houses].door_y = y;
 			houses[num_houses].door_x = x;
-			houses[num_houses].owned = 0;
+			houses[num_houses].owned[0] = '\0';
 
 			/* One more house */
 			num_houses++;
+		}
+		else
+		{
+		    c_ptr->feat = FEAT_HOME_HEAD + houses[tmp].strength;
 		}
 	}
 	else if (n == 14) // auctionhouse
@@ -3852,6 +3910,18 @@ static void build_store(int n, int yy, int xx)
 	{
 		/* Clear previous contents, add a store door */
 		c_ptr->feat = FEAT_SHOP_HEAD + n;
+		
+		/* If this is the Black Market add the "back room" */
+		if (n == 6)
+		{
+			/* At the back :) */
+			if (y == y2) y = y1; else if (y == y1) y = y2;
+			if (x == x2) x = x1; else if (x == x1) x = x2;
+			c_ptr = &cave[0][y][x];
+			/* Disabled */
+			/* c_ptr->feat = FEAT_SHOP_HEAD + 8; */
+					
+		}
 	}
 }
 
@@ -3932,7 +4002,18 @@ static void town_gen_hack(void)
 	int                 rooms[72];
 	/* int                 rooms[MAX_STORES]; */
 
-
+	/* Hack limit trees to max/4 */
+	 int size = (MAX_HGT - 2) * (MAX_WID - 2); 
+    bool limit_trees = ((cfg_max_trees > 0) && (size > (cfg_max_trees / 4))); 
+    int max_chance = (limit_trees? (100 * (cfg_max_trees / 4)): (100 * size)); 
+    int chance;
+   /* Reset counter */
+    trees_in_town = 0;
+ 	/* Calculate chance of a tree */ 
+    chance = 4 * size; 
+   /* We want at most (cfg_max_trees / 4) trees */ 
+    if (limit_trees && (chance > max_chance)) chance = max_chance;
+   
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
 
@@ -3949,14 +4030,15 @@ static void town_gen_hack(void)
 			/* Clear all features, set to "empty floor" */
 			c_ptr->feat = FEAT_DIRT;
 
-			if (rand_int(100) < 75)
-			{
-				c_ptr->feat = FEAT_GRASS;
-			}
-
-			else if (rand_int(100) < 15)
+			if (rand_int(100 * size) < chance && (cfg_max_trees == -1 || trees_in_town < cfg_max_trees))
 			{
 				c_ptr->feat = FEAT_TREE;
+				trees_in_town++;
+			}
+
+			else if (rand_int(100) < 75)
+			{
+				c_ptr->feat = FEAT_GRASS;
 			}
 		}
 	}
@@ -3973,20 +4055,11 @@ static void town_gen_hack(void)
 		place_street(1, x);
 	}
 
-#ifdef DEVEL_TOWN_COMPATIBILITY
-
-	/* -APD- place the auction house near the central stores */
-
-	auction_x = rand_int(5) + 3;
-	if ( (auction_x == 3) || (auction_x == 8) ) auction_y = rand_int(1) + 1;
-	else auction_y = (rand_int(1) * 3) + 1; // 1 or 4
-#endif
-
 	/* Prepare an Array of "remaining stores", and count them */
 	for (n = 0; n < MAX_STORES-1; n++) rooms[n] = n;
 	for (n = MAX_STORES-1; n < 16; n++) rooms[n] = 10;
 	for (n = 16; n < 68; n++) rooms[n] = 13;
-	for (n = 68; n < 71; n++) rooms[n] = 12;
+	for (n = 68; n < 71; n++) rooms[n] = 12; /* 3 forests */
 	rooms[n++] = 11;
 
 	/* Place stores */
@@ -4020,21 +4093,7 @@ static void town_gen_hack(void)
 			/* Pick a random unplaced store */
 			k = rand_int(n) + 8;
 
-#ifdef	DEVEL_TOWN_COMPATIBILITY
-			if ( (y != auction_y) || (x != auction_x) ) 
-			{
-				/* Build that store at the proper location */
-				build_store(rooms[k], y, x);
-			}
-			
-			else /* auction time! */
-			{
-				build_store(14, y, x);
-			
-			}
-#else
 			build_store(rooms[k], y, x);
-#endif
 
 			/* One less building */
 			n--;
@@ -4081,6 +4140,9 @@ static void town_gen(void)
 	int	y, x;
 	cave_type *c_ptr;
 
+	byte wall_feat;
+	if (!cfg_town_wall)	wall_feat = FEAT_PERM_CLEAR;
+	else			wall_feat = FEAT_PERM_SOLID;
 
 	/* Perma-walls -- North/South*/
 	for (x = 0; x < MAX_WID; x++)
@@ -4089,7 +4151,7 @@ static void town_gen(void)
 		c_ptr = &cave[0][0][x];
 
 		/* Clear previous contents, add "clear" perma-wall */
-		c_ptr->feat = FEAT_PERM_CLEAR;
+		c_ptr->feat = wall_feat;
 
 		/* Illuminate and memorize the walls 
 		c_ptr->info |= (CAVE_GLOW | CAVE_MARK);*/
@@ -4098,7 +4160,7 @@ static void town_gen(void)
 		c_ptr = &cave[0][MAX_HGT-1][x];
 
 		/* Clear previous contents, add "clear" perma-wall */
-		c_ptr->feat = FEAT_PERM_CLEAR;
+		c_ptr->feat = wall_feat;
 
 		/* Illuminate and memorize the walls 
 		c_ptr->info |= (CAVE_GLOW);*/
@@ -4111,7 +4173,7 @@ static void town_gen(void)
 		c_ptr = &cave[0][y][0];
 
 		/* Clear previous contents, add "clear" perma-wall */
-		c_ptr->feat = FEAT_PERM_CLEAR;
+		c_ptr->feat = wall_feat;
 
 		/* Illuminate and memorize the walls
 		c_ptr->info |= (CAVE_GLOW);*/
@@ -4120,7 +4182,7 @@ static void town_gen(void)
 		c_ptr = &cave[0][y][MAX_WID-1];
 
 		/* Clear previous contents, add "clear" perma-wall */
-		c_ptr->feat = FEAT_PERM_CLEAR;
+		c_ptr->feat = wall_feat;
 
 		/* Illuminate and memorize the walls 
 		c_ptr->info |= (CAVE_GLOW);*/
@@ -4195,6 +4257,17 @@ void dealloc_dungeon_level(int Depth)
 {
 	int i;
 
+	/* Hack to compensate for the half baked hacks below! */
+	/* Don't deallocate levels which contain houses owned by players */
+	for (i = 0; i < num_houses; i++)
+	{
+		/* House on this depth and owned? */
+		if (houses[i].depth == Depth && house_owned(i))
+		{
+			return;
+		}
+	}
+	
 	/* Delete any monsters on that level */
 	/* Hack -- don't wipe wilderness monsters */
 	if (Depth > 0) wipe_m_list(Depth);
@@ -4229,12 +4302,20 @@ void dealloc_dungeon_level(int Depth)
  */
  
  
-void generate_cave(int Depth,int auto_scum)
+void generate_cave(int Ind, int Depth, int auto_scum)
 {
 	int i, num;
+	int scum = auto_scum;
+	player_type *p_ptr = 0;
 
 	/* No dungeon yet */
 	server_dungeon = FALSE;
+
+	/* get the player context, if any */
+	if(Ind)
+	{
+		p_ptr = Players[Ind];
+	}
 
 	/* Generate */
 	for (num = 0; TRUE; num++)
@@ -4291,6 +4372,7 @@ void generate_cave(int Depth,int auto_scum)
 			/*max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
 			max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;*/
 
+				/* Try again */
 			/* Assume illegal panel */
 			/*panel_row = max_panel_rows;
 			panel_col = max_panel_cols;*/
@@ -4335,13 +4417,20 @@ void generate_cave(int Depth,int auto_scum)
 		else if (rating > 10) feeling = 8;
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
-		fprintf(stderr," New Level %d Rating %d\n",Depth*50,rating);
+		/* fprintf(stderr," New Level %d Rating %d\n",Depth*50,rating); */
 
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag) feeling = 1;
 
-		/* It takes 1000 game turns for "feelings" to recharge */
-		if ((turn - old_turn) < 1000) feeling = 0;
+		if (!cfg_ironman && p_ptr)
+		{
+			/* It takes 1000 game turns for "feelings" to recharge */
+			if ((turn - p_ptr->old_turn) < 1000)
+			{
+				feeling = 0;
+				scum = FALSE;
+			}
+		}
 
 		/* Hack -- no feeling in the town */
 		if (!Depth) feeling = 0;
@@ -4368,14 +4457,16 @@ void generate_cave(int Depth,int auto_scum)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
+		/* Auto-scum only in the dungeon!!! */
+        if ((Depth > 0) && scum && (num < 100))
 		{
-			fprintf(stderr,"auto_scum in on for this level\n");
+			/* fprintf(stderr,"auto_scum in on for this level\n"); */
 			/* Require "goodness" */
 			if ((feeling > 9) ||
 			    ((Depth >= 5) && (feeling > 8)) ||
 			    ((Depth >= 10) && (feeling > 7)) ||
 			    ((Depth >= 20) && (feeling > 6)) ||
+				/* Try again */
 			    ((Depth >= 40) && (feeling > 5)))
 			{
 				/* Give message to cheaters */
@@ -4396,7 +4487,7 @@ void generate_cave(int Depth,int auto_scum)
 
 
 		/* Message */
-		if (why) s_printf("Generation restarted (%s)\n", why);
+		if (why) plog(format("Generation restarted (%s)", why));
 
 		/* Wipe the objects */
 		wipe_o_list(Depth);
@@ -4413,13 +4504,12 @@ void generate_cave(int Depth,int auto_scum)
 			compact_monsters(32);
 	}
 
+	/* Remember when we had a level feeling if we are a player */
+	if(p_ptr)
+	{
+		p_ptr->old_turn = turn;
+	}
 
 	/* Dungeon level ready */
 	server_dungeon = TRUE;
-
-	/* Remember when this level was "created" */
-	old_turn = turn;
 }
-
-
-

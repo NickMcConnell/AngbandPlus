@@ -225,6 +225,7 @@ bool make_attack_normal(int Ind, int m_idx)
 			case RBE_EXP_20:	power =  5; break;
 			case RBE_EXP_40:	power =  5; break;
 			case RBE_EXP_80:	power =  5; break;
+			case RBE_HALLU:     power = 10; break;
 		}
 
 
@@ -618,6 +619,10 @@ bool make_attack_normal(int Ind, int m_idx)
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
+						/* Item copy */
+ 						object_type *i_ptr; 
+						object_type object_type_body;					
+					
 						/* Pick an item */
 						i = rand_int(INVEN_PACK);
 
@@ -630,9 +635,6 @@ bool make_attack_normal(int Ind, int m_idx)
 						/* Don't steal artifacts  -CFT */
 						if (artifact_p(o_ptr)) continue;
 
-						/* Don't steal keys */
-						if (o_ptr->tval == TV_KEY) continue;
-
 						/* Get a description */
 						object_desc(Ind, o_name, o_ptr, FALSE, 3);
 
@@ -640,7 +642,22 @@ bool make_attack_normal(int Ind, int m_idx)
 						msg_format(Ind, "%sour %s (%c) was stolen!",
 						           ((o_ptr->number > 1) ? "One of y" : "Y"),
 						           o_name, index_to_label(i));
-
+	
+						if	(monster_can_carry(m_idx))
+						{
+							/* Get local object */ 
+							i_ptr = &object_type_body; 
+	
+							/* Obtain local object */ 
+							COPY(i_ptr, o_ptr, object_type); 
+	
+							/* Modify number */ 
+							i_ptr->number = 1; 
+	
+							/* Carry the object */ 
+							monster_carry(Ind, m_idx, i_ptr); 
+						}
+						
 						/* Steal the items */
 						inven_item_increase(Ind, i, -1);
 						inven_item_optimize(Ind, i);
@@ -888,6 +905,9 @@ bool make_attack_normal(int Ind, int m_idx)
 						if (set_paralyzed(Ind, p_ptr->paralyzed + 3 + randint(rlev)))
 						{
 							obvious = TRUE;
+							
+							/* Hack - Make level 1 monsters who paralyze also blink */
+							if (r_ptr->level == 1) blinked = TRUE;
 						}
 					}
 
@@ -1111,6 +1131,21 @@ bool make_attack_normal(int Ind, int m_idx)
 					}
 					break;
 				}
+				
+				case RBE_HALLU:
+				{
+					/* Take damage */
+					take_hit(Ind, damage, ddesc);
+
+					/* Increase "image" */
+					if (!p_ptr->resist_chaos)
+					{
+						if (set_image(Ind, p_ptr->image + 3 + randint(rlev / 2)))
+						{
+							obvious = TRUE;
+						}
+					}
+				}
 			}
 
 
@@ -1246,5 +1281,3 @@ bool make_attack_normal(int Ind, int m_idx)
 	/* Assume we attacked */
 	return (TRUE);
 }
-
-

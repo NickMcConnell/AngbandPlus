@@ -627,13 +627,6 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 	byte a;
 	char c;
 
-#if 0
-	if (Players[Ind]->conn == NOT_CONNECTED) {
-		return;
-	}
-#endif
-
-
 	/* Get the cave */
 	c_ptr = &cave[Depth][y][x];
 	w_ptr = &p_ptr->cave_flag[y][x];
@@ -643,7 +636,7 @@ void map_info(int Ind, int y, int x, byte *ap, char *cp)
 	feat = c_ptr->feat;
 
 	/* Floors (etc) */
-	if (feat <= FEAT_INVIS)
+	if (is_boring(feat))
 	{
 		/* Memorized (or visible) floor */
 		/* Hack -- space are visible to the dungeon master */
@@ -1042,7 +1035,7 @@ void note_spot(int Ind, int y, int x)
 		if (player_can_see_bold(Ind, y, x))
 		{
 			/* Memorize normal features */
-			if (c_ptr->feat > FEAT_INVIS) 
+			if (!is_boring(c_ptr->feat)) 
 			{
 				/* Memorize */
 				*w_ptr |= CAVE_MARK;
@@ -1072,11 +1065,6 @@ void note_spot_depth(int Depth, int y, int x)
 
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		if (Players[i]->dun_depth == Depth)
 		{
 			note_spot(i, y, x);
@@ -1091,12 +1079,6 @@ void everyone_lite_spot(int Depth, int y, int x)
 	/* Check everyone */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-		/* If he's not playing, skip him */
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* If he's not here, skip him */
 		if (Players[i]->dun_depth != Depth)
 			continue;
@@ -1116,12 +1098,6 @@ void everyone_forget_spot(int Depth, int y, int x)
 	/* Check everyone */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-		/* If he's not playing, skip him */
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* If he's not here, skip him */
 		if (Players[i]->dun_depth != Depth)
 			continue;
@@ -1140,7 +1116,7 @@ void lite_spot(int Ind, int y, int x)
 
 	int dispx, dispy;
 
-	int kludge;
+	int kludge, pre_kludge;
 
 	/* Redraw if on screen */
 	if (panel_contains(y, x))
@@ -1159,19 +1135,14 @@ void lite_spot(int Ind, int y, int x)
 			/* Get the "player" char */
 			c = r_ptr->d_char;
 			
-			if (((p_ptr->chp * 95) / (p_ptr->mhp*10)) < 7) 
+			pre_kludge = (p_ptr->chp * 95) / (p_ptr->mhp*10);
+			pre_kludge = pre_kludge > 0 ? pre_kludge : 0;
+			if (pre_kludge < 7) 
 			{
-				sprintf((unsigned char *)&kludge,"%d",(p_ptr->chp * 95) / (p_ptr->mhp*10)); 
+				sprintf((unsigned char *)&kludge,"%d",pre_kludge); 
 				c = kludge;
 			}
 				
-			/*if (((p_ptr->chp * 95) / (p_ptr->mhp*10)) < 7) c = '4';*/
-			
-			if (!(strcmp(p_ptr->name,"Strider")))
-			{
-				sprintf(&c,"%d",(p_ptr->chp * 95) / (p_ptr->mhp*10));
-			}
-						
 			if (p_ptr->fruit_bat) c = 'b';
 			
 			
@@ -1957,11 +1928,6 @@ void forget_lite(int Ind)
 
 		for (j = 1; j <= NumPlayers; j++)
 		{
-			/* Make sure player is connected */
-#if 0
-			if (Players[j]->conn == NOT_CONNECTED)
-				continue;
-#endif
 
 			/* Make sure player is on the level */
 			if (Players[j]->dun_depth != Depth)
@@ -2072,11 +2038,6 @@ void update_lite(int Ind)
 
 		for (j = 1; j <= NumPlayers; j++)
 		{
-			/* Make sure player is connected */
-#if 0
-			if (Players[j]->conn == NOT_CONNECTED)
-				continue;
-#endif
 
 			/* Make sure player is on the level */
 			if (Players[j]->dun_depth != Depth)
@@ -3281,11 +3242,12 @@ void map_area(int Ind)
 			c_ptr = &cave[Depth][y][x];
 			w_ptr = &p_ptr->cave_flag[y][x];
 
-			/* All non-walls are "checked" */
-			if (c_ptr->feat < FEAT_SECRET)
+			/* All non-walls are "checked", including MAngband specifics */
+			if ((c_ptr->feat < FEAT_SECRET) || 
+				((c_ptr->feat >= FEAT_DIRT) && (c_ptr->feat < FEAT_DRAWBRIDGE)))
 			{
 				/* Memorize normal features */
-				if (c_ptr->feat > FEAT_INVIS)
+				if (!is_boring(c_ptr->feat))
 				{
 					/* Memorize the object */
 					*w_ptr |= CAVE_MARK;
@@ -3298,7 +3260,8 @@ void map_area(int Ind)
 					w_ptr = &p_ptr->cave_flag[y+ddy_ddd[i]][x+ddx_ddd[i]];
 
 					/* Memorize walls (etc) */
-					if (c_ptr->feat >= FEAT_SECRET)
+					if ((c_ptr->feat >= FEAT_SECRET) && 
+						((c_ptr->feat < FEAT_DIRT) || (c_ptr->feat >= FEAT_DRAWBRIDGE)))
 					{
 						/* Memorize the walls */
 						*w_ptr |= CAVE_MARK;
@@ -3376,7 +3339,7 @@ void wiz_lite(int Ind)
 					c_ptr->info |= (CAVE_GLOW);
 
 					/* Memorize normal features */
-					if (c_ptr->feat > FEAT_INVIS)
+					if (!is_boring(c_ptr->feat))
 					{
 						/* Memorize the grid */
 						*w_ptr |= CAVE_MARK;
@@ -3630,6 +3593,44 @@ void scatter(int Depth, int *yp, int *xp, int y, int x, int d, int m)
 }
 
 
+/*
+ * Cursor-track a new monster
+ */
+void cursor_track(int Ind, int m_idx)
+{
+	player_type *p_ptr = Players[Ind];
+
+	/* Track a new guy */
+	p_ptr->cursor_who = m_idx;
+
+	/* no Redraw first time */
+	/* p_ptr->redraw |= (PR_CURSOR); */
+
+}
+
+/*
+ * Update the cursors for anyone tracking a monster
+ */
+void update_cursor(int m_idx)
+{
+	player_type *p_ptr;
+	int i;
+
+	/* Each player */
+	for (i = 1; i <= NumPlayers; i++)
+	{
+		p_ptr = Players[i];
+
+		/* See if he is tracking this monster */
+		if (p_ptr->cursor_who == m_idx)
+		{
+			/* Redraw */
+			p_ptr->redraw |= (PR_CURSOR);
+		}
+	}
+}
+
+
 
 
 /*
@@ -3658,12 +3659,6 @@ void update_health(int m_idx)
 	for (i = 1; i <= NumPlayers; i++)
 	{
 		p_ptr = Players[i];
-
-		/* Check connection */
-#if 0
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
 
 		/* See if he is tracking this monster */
 		if (p_ptr->health_who == m_idx)

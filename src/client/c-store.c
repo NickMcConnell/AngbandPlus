@@ -166,7 +166,39 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 
 
 
+static void store_examine(void) 
+{
+        int                     i;
+        int                     item;
 
+        char            out_val[160];
+
+        /* Empty? */
+        if (store.stock_num <= 0)
+        {
+                if (store_num == 7) c_msg_print("Your home is empty.");
+                else c_msg_print("I am currently out of stock.");
+                return;
+        }
+
+        /* Find the number of objects on this and following pages */
+        i = (store.stock_num - store_top);
+
+        /* And then restrict it to the current page */
+        if (i > 12) i = 12;
+
+        /* Prompt */
+        sprintf(out_val, "Which item do you want to examine? ");
+
+        /* Get the item number to be bought */
+        if (!get_stock(&item, out_val, 0, i-1)) return;
+
+        /* Get the actual index */
+        item = item + store_top;
+
+		  /* Tell the server */
+		  Send_observe(item);
+}
 
 static void store_purchase(void)
 {
@@ -292,6 +324,12 @@ static void store_process_command(void)
                         }
                         break;
                 }
+                       /* Look (examine) */
+                case 'l':
+                {
+                        store_examine();
+                        break;
+                }
 
                         /* Get (purchase) */
                 case 'g':
@@ -303,6 +341,7 @@ static void store_process_command(void)
                         /* Drop (Sell) */
                 case 'd':
                 {
+                		if (store_num != 8)
                         store_sell();
                         break;
                 }
@@ -341,7 +380,7 @@ void display_store(void)
 {
 	char buf[1024];
 	cptr feature = "feature variable";
-
+	
 	/* The screen is "icky" */
 	screen_icky = TRUE;
 
@@ -362,54 +401,45 @@ void display_store(void)
 		case 5: feature = "Magic Shop"; break;
 		case 6: feature = "Black Market"; break;
 		case 7: feature = "Your home"; break;
+		case 8: feature = "The Back Room"; break;
 	}
 	
-	/* The "Home" is special */
-	if (store_num == 7)
+	/* Put the owner name and race */
+	if (store_num != 8)
 	{
-		/* Put the owner name */
-                put_str("Your Home", 3, 30);
+		sprintf(buf, "%s (%s)", store_owner.owner_name, p_name + race_info[store_owner.owner_race].name);
+		put_str(buf, 3, 10);
 
-                /* Label the item descriptions */
-                put_str("Item Description", 5, 3);
+		/* Show the max price in the store (above prices) */
+		sprintf(buf, "%s (%ld)", feature, (long)(store_owner.max_cost));
+		prt(buf, 3, 50);
 
-                /* If showing weights, show label */
-                if (show_weights)
-                {
-                        put_str("Weight", 5, 70);
-                }
 	}
-
-	/* Normal stores */
 	else
 	{
-                /* Put the owner name and race */
-                sprintf(buf, "%s (%s)", store_owner.owner_name, race_info[store_owner.owner_race].title);
-                put_str(buf, 3, 10);
-
-                /* Show the max price in the store (above prices) */
-                sprintf(buf, "%s (%ld)", feature, (long)(store_owner.max_cost));
-                prt(buf, 3, 50);
-
-                /* Label the item descriptions */
-                put_str("Item Description", 5, 3);
-
-                /* If showing weights, show label */
-                if (show_weights)
-                {
-                        put_str("Weight", 5, 60);
-                }
-
-                /* Label the asking price (in stores) */
-                put_str("Price", 5, 72);
-
-		/* Display the players remaining gold */
-		prt("Gold Remaining: ", 19, 53);
-
-		sprintf(buf, "%9ld", (long) p_ptr->au);
-		prt(buf, 19, 68);
-
+		/* A player owned store */
+		sprintf(buf, "%s's Store", player_owner );
+		put_str(buf, 3, 10);		
 	}
+
+	/* Label the item descriptions */
+	put_str("Item Description", 5, 3);
+
+	/* If showing weights, show label */
+	if (show_weights)
+	{
+		put_str("Weight", 5, 60);
+	}
+
+	/* Label the asking price (in stores) */
+	put_str("Price", 5, 72);
+
+	/* Display the players remaining gold */
+	prt("Gold Remaining: ", 19, 53);
+
+	sprintf(buf, "%9ld", (long) p_ptr->au);
+	prt(buf, 19, 68);
+
 
 	/* Start at the top */
 	store_top = 0;
@@ -438,23 +468,28 @@ void display_store(void)
                 /* Browse if necessary */
                 if (store.stock_num > 12)
                 {
-                        prt(" SPACE) Next page of stock", 23, 0);
+                        prt(" SPACE) Next page of stock.", 23, 0);
                 }
 
                 /* Home commands */
                 if (store_num == 7)
                 {
-                        prt(" g) Get an item.", 22, 40);
-                        prt(" d) Drop an item.", 23, 40);
+                        prt(" g) Get an item.", 22, 30);
+                        prt(" d) Drop an item.", 23, 30);
                 }
 
                 /* Shop commands XXX XXX XXX */
                 else
                 {
-                        prt(" p) Purchase an item.", 22, 40);
-                        prt(" s) Sell an item.", 23, 40);
+                        prt(" p) Purchase an item.", 22, 30);
+						/* We don't sell things in some shops  */
+						if (store_num != 8)
+						{
+                        	prt(" s) Sell an item.", 23, 30);
+                        }
                 }
-
+					 prt (" l) Look at an item.", 22, 56);
+					 
                 /* Prompt */
                 prt("You may: ", 21, 0);
 
@@ -518,5 +553,3 @@ void display_store(void)
 	/* Flush any events that happened */
 	Flush_queue();
 }
-
-

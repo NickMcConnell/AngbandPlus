@@ -28,7 +28,7 @@ static void init_arrays(void)
 	message__tail = MESSAGE_BUF;
 
 	/* Initialize room for the store's stock */
-	C_MAKE(store.stock, 24, object_type);
+    C_MAKE(store.stock, STORE_INVEN_MAX, object_type);
 }
 
 /*
@@ -49,7 +49,7 @@ static void init_arrays(void)
  * Note that the "path" must be "Angband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
  */
-static void init_stuff(void)
+void init_stuff(void)
 {
         char path[1024];
 
@@ -271,6 +271,7 @@ void client_init(char *argv1)
 	char host_name[80], trymsg[80], c;
 	u16b version = MY_VERSION;
 	s32b temp;
+	bool done = 0;
 
 	/* Setup the file paths */
 	init_stuff();
@@ -284,7 +285,7 @@ void client_init(char *argv1)
 	// Hmm trapping this here, overwrites any quit_hook that the main-xxx.c code
 	// may have. So for the windows client, we disable this. The main-win.c file
 	// does this stuff anyway [grk]
-#ifndef __MSVC__
+#ifndef WINDOWS
 	quit_aux = quit_hook;
 #endif
 
@@ -309,14 +310,16 @@ void client_init(char *argv1)
 
 
 	/* Get character name and pass */
+
 	get_char_name();
 
 	/* Capitalize the name */
 	nick[0] = toupper(nick[0]);
 
 	// Create the net socket and make the TCP connection
-	if ((Socket = CreateClientSocket(server_name, 18346)) == -1)
+	if ((Socket = CreateClientSocket(server_name, server_port)) == -1)
 	{
+	    while (!done) {
 		/* Prompt for auto-retry [grk] */
 		put_str("Couldn't connect to server, keep trying? [Y/N]", 21, 1);
 		/* Make sure the message is shown */
@@ -332,8 +335,9 @@ void client_init(char *argv1)
 
 		/* ...else, keep trying until socket connected */
 		trycount = 1;
-		while( (Socket = CreateClientSocket(server_name, 18346)) == -1)
+		while( (Socket = CreateClientSocket(server_name, server_port)) == -1)
 		{
+			if (trycount > 200) break;
 			/* Progress Message */
 			sprintf(trymsg, "Connecting to server [%i]                      ",trycount++);
 			put_str(trymsg, 21, 1);
@@ -341,6 +345,8 @@ void client_init(char *argv1)
 			Term_redraw(); /* Hmm maybe not the proper way to force an os poll */
 			Term_flush();
 		}
+		if (Socket != -1) done = 1;
+	    }
 	}
 
 	/* Create a socket buffer */
@@ -390,7 +396,7 @@ void client_init(char *argv1)
 
 	/* Connect to server */
 #ifdef UNIX_SOCKETS
-	if ((DgramConnect(Socket, server_name, 18346)) == -1)
+	if ((DgramConnect(Socket, server_name, server_port)) == -1)
 #else
 	// UDP stuffif ((DgramConnect(Socket, server_name, 18346)) == -1)
 #endif

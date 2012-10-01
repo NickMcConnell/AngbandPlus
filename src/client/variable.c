@@ -8,21 +8,24 @@ char pass[80];
 char real_name[80];
 
 char server_name[80];
+int server_port;
 
 object_type inventory[INVEN_TOTAL];	/* The client-side copy of the inventory */
 char inventory_name[INVEN_TOTAL][80];	/* The client-side copy of the inventory names */
 
 store_type store;			/* The general info about the current store */
 owner_type store_owner;			/* The current owner of the store */
-int store_prices[24];			/* The prices of the items in the store */
-char store_names[24][80];		/* The names of the stuff in the store */
+char player_owner[MAX_NAME_LEN]; /* The store owner for player owned stores */
+int store_prices[STORE_INVEN_MAX];	/* The prices of the items in the store */
+char store_names[STORE_INVEN_MAX][80];	/* The names of the stuff in the store */
 s16b store_num;				/* The current store number */
+char floor_tval;		/* Currect tval on a floor */
 
 char spell_info[26][9][80];		/* Spell information */
 
 char party_info[160];			/* Information about your party */
 
-setup_t Setup;				/* The information given to us by the server */
+server_setup_t Setup;				/* The information given to us by the server */
 client_setup_t Client_setup;		/* The information we give to the server */
 
 bool shopping;				/* Are we in a store? */
@@ -35,6 +38,7 @@ int lag_ok;				/* server understands lag-check packets */
 
 player_type player;			/* The client-side copy of some of the player information */
 player_type *p_ptr = &player;
+player_type *Players = &player;
 
 s32b exp_adv;				/* Amount of experience required to advance a level */
 
@@ -47,10 +51,13 @@ byte item_tester_tval;
 bool (*item_tester_hook)(object_type *o_ptr);
 
 int special_line_type;
+char special_line_header[80];
 
 bool inkey_base = FALSE;
 bool inkey_scan = FALSE;
 bool inkey_flag = FALSE;
+
+bool first_escape = FALSE;
 
 s16b macro__num;
 cptr *macro__pat;
@@ -93,16 +100,22 @@ s16b stat_order[6];			/* Desired order of stats */
 bool topline_icky;
 bool screen_icky;
 bool party_mode;
+bool cursor_icky;
+
+/*
+ * The player race arrays
+ */
+char *p_name;
 
 cptr race_title[] = {
 	"Human", "Half-elf", "Elf", "Hobbit",
 	"Gnome", "Dwarf", "Half-Orc", "Half-Troll",
-	"Dunadan", "High-elf"
+    "Dunadan", "High-elf"
 	};
 
 cptr class_title[] = {
 	"Warrior", "Mage", "Priest", "Rogue",
-	"Ranger", "Paladin"
+    "Ranger", "Paladin"
 	};
 
 cptr ANGBAND_DIR;
@@ -153,7 +166,7 @@ bool disturb_other;
 bool alert_hitpoint;
 bool alert_failure;
 
-bool auto_haggle;
+bool no_ghost;
 bool auto_scum;
 bool stack_allow_items;
 bool stack_allow_wands;
@@ -187,4 +200,5 @@ bool view_bright_lite;
 bool view_granite_lite;
 bool view_special_lite;
 
- 
+int char_screen_mode;
+bool target_position;

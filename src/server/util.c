@@ -6,9 +6,7 @@
 #define SERVER
 
 #include "angband.h"
-
-
-
+#include "externs.h"
 
 #ifndef HAS_MEMSET
 
@@ -272,28 +270,23 @@ errr path_parse(char *buf, int max, cptr file)
 
 
 /*
- * Hack -- acquire a "temporary" file name if possible
+ * Acquire a "temporary" file name if possible
  *
  * This filename is always in "system-specific" form.
  */
 errr path_temp(char *buf, int max)
 {
-	cptr s;
-
-	/* Temp file */
-	s = tmpnam(NULL);
-
-	/* Oops */
-	if (!s) return (-1);
-
-	/* XXX HACK because the mangband.orgs root partition (where /tmp
-	 * is located) has run out of disk space we use our own dedicated tmp
-	 * directory.
-	 */
-           buf[0] = '.';
-
-	/* Format to length */
-	strnfmt(buf+1, max-1, "%s", s);
+#ifdef WIN32
+	char prefix[] = "mng";
+	if(!GetTempPath(max,buf)) return(-1);
+	if(!GetTempFileName(buf,prefix,0,buf)) return(-1);
+#else
+	strcpy(buf,"/tmp/mangXXXXXX");
+	if(mkstemp(buf) < 0)
+	{
+		return(-1);
+	}
+#endif
 
 	/* Success */
 	return (0);
@@ -892,6 +885,30 @@ int color_char_to_attr(char c)
 	return (-1);
 }
 
+/*
+ * Convert a color to it's opposite 
+ */
+int color_opposite(int color) {
+	switch (color) {
+		case TERM_L_BLUE: 	return TERM_BLUE;
+		case TERM_L_GREEN: 	return TERM_GREEN;
+		case TERM_L_RED: 		return TERM_RED;
+		case TERM_L_WHITE: 	return TERM_SLATE;
+		case TERM_UMBER: 		return TERM_L_UMBER;
+		case TERM_ORANGE: 	return TERM_YELLOW;
+		case TERM_DARK: 		return TERM_L_DARK;
+		case TERM_VIOLET:		return ( randint(100) < 50 ? TERM_BLUE : TERM_RED );
+		/* and vice versa */
+		case TERM_BLUE: 		return TERM_L_BLUE;
+		case TERM_GREEN: 		return TERM_L_GREEN;
+		case TERM_RED: 		return TERM_L_RED;
+		case TERM_SLATE: 		return TERM_L_WHITE;
+		case TERM_L_UMBER: 	return TERM_UMBER;
+		case TERM_YELLOW: 	return TERM_ORANGE;
+		case TERM_L_DARK: 	return TERM_DARK;
+	}
+	return color;
+}
 
 
 /*
@@ -2472,13 +2489,32 @@ static void msg_flush(int x)
  */
 void msg_print(int Ind, cptr msg)
 {
+	bool log = TRUE;
+	
+	/* We don't need to log *everything* */
+	if(msg && strchr("[",*msg))
+	{
+		log = FALSE;
+	}
+
+	/* Log messages for each player, so we can dump last messages
+	 * in serer-side character dumps */
+	if(msg && Ind && log)
+	{
+		player_type *p_ptr = Players[Ind];
+		strncpy(p_ptr->msg_log[p_ptr->msg_hist_ptr], msg, 78);
+		p_ptr->msg_log[p_ptr->msg_hist_ptr++][78] = '\0';
+		/* Maintain a circular buffer */
+		if(p_ptr->msg_hist_ptr == MAX_MSG_HIST) 
+			p_ptr->msg_hist_ptr = 0;
+		plog(format("%s: %s",Players[Ind]->name,msg)); 
+	}
+	else if(msg && log)
+	{
+		plog(format("%d: %s",Ind,msg)); 
+	}; 	
+
 	/* Ahh, the beautiful simplicity of it.... --KLJ-- */
-	/* sad, but true, we have to log messages. */
-	if(Ind) {
-		plog(format("%s: %s",Players[Ind]->name,msg));
-	} else {
-		plog(format("%d: %s",Ind,msg));
-	};
 	Send_message(Ind, msg);
 }
 
@@ -2489,11 +2525,6 @@ void msg_broadcast(int Ind, cptr msg)
 	/* Tell every player */
 	for (i = 1; i <= NumPlayers; i++)
 	{
-#if 0
-		/* Skip disconnected players */
-		if (Players[i]->conn == NOT_CONNECTED) 
-			continue;
-#endif
 			
 		/* Skip the specified player */
 		if (i == Ind)
@@ -2502,6 +2533,10 @@ void msg_broadcast(int Ind, cptr msg)
 		/* Tell this one */
 	 	msg_print(i, msg);
 	 }
+	 
+	/* Send to console */
+	console_print(msg);
+	 
 }
 
 
@@ -2551,11 +2586,6 @@ void msg_print_near(int Ind, cptr msg)
 	{
 		/* Check this player */
 		p_ptr = Players[i];
-
-#if 0
-		/* Make sure this player is in the game */
-		if (p_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 		/* Don't send the message to the player who caused it */
 		if (Ind == i) continue;
@@ -2617,7 +2647,7 @@ void player_talk_aux(int Ind, cptr message)
 	else
 	{
 		/* Default name */
-		strcpy(sender, "Server Admin");
+		strcpy(sender, "");
 	}
 
 	/* Default to no search string */
@@ -2694,11 +2724,6 @@ void player_talk_aux(int Ind, cptr message)
 			/* Check this one */
 			q_ptr = Players[i];
 
-#if 0
-			/* Skip if disconnected */
-			if (q_ptr->conn == NOT_CONNECTED) continue;
-#endif
-
 			/* Check name */
 			if (!strncasecmp(q_ptr->name, search, len))
 			{
@@ -2734,7 +2759,7 @@ void player_talk_aux(int Ind, cptr message)
 		 */
 		if(strcmp( search, cfg_dungeon_master)) {
 			/* Send an error message */
-			msg_format(Ind, "Could not match name '%s'.", search);
+			if ( Ind ) msg_format(Ind, "Could not match name '%s'.", search);
 		};
 
 		/* Give up */
@@ -2784,34 +2809,21 @@ void player_talk_aux(int Ind, cptr message)
 		return;
 	}
 
-	/* Look for leading ':', but ignore "smileys" */
-	/* -APD- I don't like this new fangled talking system, reverting to the old way */
-	/*if (!strncasecmp(message, "All:", 4) ||
-	      (message[0] == ':' && !strchr(")(-", message[1])))
-	  { */
-		/* Send to everyone */
-		for (i = 1; i <= NumPlayers; i++)
+	/* Send to everyone */
+	for (i = 1; i <= NumPlayers; i++)
+	{
+		/* Send message */
+		if(Ind)
 		{
-			/* Send message */
 			msg_format(i, "[%s] %s", sender, message);
 		}
-	/*}
-	 else
-	{
-		 Send to everyone at this depth 
-		for (i = 1; i <= NumPlayers; i++)
+		else
 		{
-			q_ptr = Players[i];
-
-			 Check depth 
-			if (p_ptr->dun_depth == q_ptr->dun_depth)
-			{
-				 Send message 
-				msg_format(i, "[%s] %s", sender, message);
-			}
+			msg_format(i, "%s", message);
 		}
 	}
-	*/
+	/* Send to the console too */
+	console_print(format("[%s] %s", sender, message));
 }
 
 
@@ -2884,3 +2896,222 @@ bool is_a_vowel(int ch)
 
 	return (FALSE);
 }
+
+/*
+ * Converts a string to a terminal color byte.
+ */
+int color_text_to_attr(cptr name)
+{
+	if (my_stricmp(name, "dark")       == 0) return (TERM_DARK);
+	if (my_stricmp(name, "white")      == 0) return (TERM_WHITE);
+	if (my_stricmp(name, "slate")      == 0) return (TERM_SLATE);
+	if (my_stricmp(name, "orange")     == 0) return (TERM_ORANGE);
+	if (my_stricmp(name, "red")        == 0) return (TERM_RED);
+	if (my_stricmp(name, "green")      == 0) return (TERM_GREEN);
+	if (my_stricmp(name, "blue")       == 0) return (TERM_BLUE);
+	if (my_stricmp(name, "umber")      == 0) return (TERM_UMBER);
+	if (my_stricmp(name, "violet")     == 0) return (TERM_VIOLET);
+	if (my_stricmp(name, "yellow")     == 0) return (TERM_YELLOW);
+	if (my_stricmp(name, "lightdark")  == 0) return (TERM_L_DARK);
+	if (my_stricmp(name, "lightwhite") == 0) return (TERM_L_WHITE);
+	if (my_stricmp(name, "lightred")   == 0) return (TERM_L_RED);
+	if (my_stricmp(name, "lightgreen") == 0) return (TERM_L_GREEN);
+	if (my_stricmp(name, "lightblue")  == 0) return (TERM_L_BLUE);
+	if (my_stricmp(name, "lightumber") == 0) return (TERM_L_UMBER);
+
+	/* Oops */
+	return (-1);
+}
+
+
+/*
+ * Extract a textual representation of an attribute
+ */
+cptr attr_to_text(byte a)
+{
+	switch (a)
+	{
+		case TERM_DARK:    return ("Dark");
+		case TERM_WHITE:   return ("White");
+		case TERM_SLATE:   return ("Slate");
+		case TERM_ORANGE:  return ("Orange");
+		case TERM_RED:     return ("Red");
+		case TERM_GREEN:   return ("Green");
+		case TERM_BLUE:    return ("Blue");
+		case TERM_UMBER:   return ("Umber");
+		case TERM_L_DARK:  return ("L.Dark");
+		case TERM_L_WHITE: return ("L.Slate");
+		case TERM_VIOLET:  return ("Violet");
+		case TERM_YELLOW:  return ("Yellow");
+		case TERM_L_RED:   return ("L.Red");
+		case TERM_L_GREEN: return ("L.Green");
+		case TERM_L_BLUE:  return ("L.Blue");
+		case TERM_L_UMBER: return ("L.Umber");
+	}
+
+	/* Oops */
+	return ("Icky");
+}
+
+
+/* 
+ * Record a message in the character history
+ */
+extern void log_history_event(int Ind, char *msg)
+{
+	char buf[100];
+	char eventtime[12];
+	int i, days, hours, mins, seconds;
+	player_type *p_ptr = Players[Ind];
+	
+	/* Don't record if we have no space */
+	if (p_ptr->char_hist_ptr >= MAX_CHAR_HIST-1)
+		return;
+	
+	/* Never record duplicate entries */
+	for(i=0;i<p_ptr->char_hist_ptr;i++)
+	{
+		if(strstr(p_ptr->char_hist[i],msg) != NULL)
+			return;
+	}
+	
+	/* Convert turn real time */
+	seconds = p_ptr->turn / cfg_fps;
+	days = seconds / 86400;
+	hours = (seconds / 3600) - (24 * days);
+	mins = (seconds / 60) % 60;
+	sprintf(eventtime,"%02i:%02i:%02i",days,hours,mins);
+
+	/* Format to time, depth, clevel, message */
+	sprintf(buf,"%s   %4ift   %2i   %s",eventtime,p_ptr->dun_depth*50,p_ptr->lev,msg);
+	
+	/* Add the message to the history */
+	strncpy(p_ptr->char_hist[p_ptr->char_hist_ptr], buf, 78);
+	p_ptr->char_hist[p_ptr->char_hist_ptr++][78] = '\0';
+	
+}
+
+
+void text_out_init(int Ind) {
+	player_type	*p_ptr = Players[Ind];
+	
+	player_textout = Ind;
+	p_ptr->cur_wid = 0;
+	p_ptr->cur_hgt = 0;
+}
+
+/* 
+ * A function to add info to p_ptr->info. 
+ * You must call roff_init before issuing this.
+ */
+#ifndef PRETTY_TEXT_OUT
+void text_out(cptr buf) {
+   player_type	*p_ptr = Players[player_textout];
+   
+   /* if (!buf || buf[0] == '\n') return; */
+
+	p_ptr->info[p_ptr->cur_hgt] = buf;
+	
+	p_ptr->cur_hgt++;
+}
+#else 
+void text_out(cptr buf) {
+	int i, j, shorten, buflen;
+   player_type	*p_ptr = Players[player_textout];
+   static char line_buf[80] = {'\0'};
+   
+   bool simple = FALSE;
+   bool warped = FALSE;
+	i = j = shorten = 0;
+   buflen = strlen(buf);
+  
+
+#if 0
+	/* Add "auto-paragraph" spaces */
+	if (p_ptr->cur_wid == 0) 
+	{
+		line_buf[0] = '\0';
+		strcat(line_buf, "  ");
+		p_ptr->cur_wid += 2;
+	}
+#endif 
+ 
+   while (TRUE) {
+
+#if 0   	
+   	/* Add 1 space between stuff (auto-separate) */
+		if (buf[shorten] != ' ' && p_ptr->cur_wid) 
+		{
+		    strcat(line_buf, " ");
+		    p_ptr->cur_wid += 1;
+		} 
+#endif  
+		
+		/* We can fit the info on the same line */
+		if (buflen - shorten < 80 - p_ptr->cur_wid) 
+		{
+				/* Set to copy whole buffer */
+				j = buflen - shorten;
+				simple = TRUE;
+		}
+		/* We can't, let's find a suitable wrap point */
+		else
+		{
+			/* Default to whole line */
+			j = 0;
+			/* Find some nice space near the end */
+			for (i = shorten; i < buflen; i++)
+				if (buf[i] == ' ') 
+					if (i - shorten < 80 - p_ptr->cur_wid)
+						j = i - shorten;
+					else
+						break;
+			
+			simple = FALSE;
+			warped = TRUE;
+		}
+		
+		/* Copy first part */
+		for (i = 0; i < j; i++)
+				if (buf[i+shorten] != '\n')
+					line_buf[p_ptr->cur_wid + i] = buf[i + shorten];
+				else
+				{
+					
+					if (p_ptr->cur_hgt == 0 && p_ptr->cur_wid <= 0) 
+						p_ptr->cur_wid -= 1; //ignore, backup a bit
+					else {
+						j = i + 1;
+						simple = warped = FALSE;
+						break;
+					}
+				}
+
+		/* Advance forward */			
+		p_ptr->cur_wid += i;
+		
+		/* Fill the rest with spaces */
+		for (i = p_ptr->cur_wid; i < 80; i++)
+			line_buf[i] = ' ';
+		
+	   /* Dump it */
+	   p_ptr->info[p_ptr->cur_hgt] = string_make(line_buf);
+	   
+		/* End function for simple cases */
+		if (simple) break;
+		
+		/* Advance to next line */
+		p_ptr->cur_hgt += 1;
+		p_ptr->cur_wid = 0;
+		
+	   /* Shorten the text */
+	   shorten += j;
+			   
+		/* Handle spaces */
+		if (warped && buf[shorten] == ' ') shorten++; 
+		
+		/* Finish when we're done */
+		if (shorten >= buflen) break; 
+	}
+}
+#endif

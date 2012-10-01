@@ -30,7 +30,7 @@
  * Max sizes of the following arrays
  */
 #define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    16       /* Used with amulets (min 13) */
+#define MAX_AMULETS    26       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     60       /* Used with potions (min 60) */
@@ -79,15 +79,19 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+    "Copper", "Emerald", "Ruby", "Amethyst", "Mithril",
+    "Sapphire", "Dragon Tooth", "Sea Shell", "Flint Stone",
+    "Platinum", "Glass"
 };
 
 static byte amulet_col[MAX_AMULETS] =
 {
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
+    TERM_L_DARK, TERM_WHITE, TERM_ORANGE, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+    TERM_L_UMBER, TERM_GREEN, TERM_RED, TERM_VIOLET, TERM_L_BLUE,
+    TERM_BLUE, TERM_L_WHITE, TERM_L_BLUE, TERM_SLATE,
+    TERM_L_WHITE, TERM_WHITE
 };
 
 
@@ -124,10 +128,10 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
+    "Aluminium", "Cast Iron", "Chromium", "Copper", "Gold",
 	"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
 	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
-	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
+    "Zirconium", "Zinc", "Aluminium-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
 	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
@@ -293,6 +297,35 @@ static bool object_has_flavor(int i)
 	return (FALSE);
 }
 
+
+/* HACK! 
+ * Hard-code items for EASY_KNOW flag emulation
+ * (as suggested by PW)
+ */
+bool easy_know_p(object_type *o_ptr)
+{
+	/* Valid "tval" codes */ 
+	switch (o_ptr->tval) 
+	{ 
+	/* Some objects are easily known */ 
+	case TV_SPIKE: 
+	case TV_FOOD: 
+	case TV_SCROLL: 
+	case TV_POTION: 
+	case TV_ROD: 
+	case TV_FLASK: 
+	case TV_MAGIC_BOOK: 
+			return (TRUE); 
+	
+	/* Some objects with zero values are easily known */ 
+	case TV_RING: 
+	case TV_AMULET: return ((o_ptr->pval == 0) && (o_ptr->to_a == 0) && 
+	(o_ptr->to_d == 0) && (o_ptr->to_h == 0)); 
+	} 
+	
+	/* Nope */ 
+	return (FALSE);
+}
 
 /*
  * Certain items, if aware, are known instantly
@@ -495,13 +528,100 @@ static byte default_tval_to_char(int tval)
 		object_kind *k_ptr = &k_info[i];
 
 		/* Use the first value we find */
-		if (k_ptr->tval == tval) return (k_ptr->k_char);
+		if (k_ptr->tval == tval) return (k_ptr->d_char);
 	}
 
 	/* Default to space */
 	return (' ');
 }
 
+
+
+static void flavor_assign_fixed(void)
+{
+	int i, j;
+
+	for (i = 0; i < z_info->flavor_max; i++)
+	{
+		flavor_type *flavor_ptr = &flavor_info[i];
+
+		/* Skip random flavors */
+		if (flavor_ptr->sval == SV_UNKNOWN) continue;
+
+		for (j = 0; j < z_info->k_max; j++)
+		{
+			/* Skip other objects */
+			if ((k_info[j].tval == flavor_ptr->tval) &&
+			    (k_info[j].sval == flavor_ptr->sval))
+			{
+				/* Store the flavor index */
+				k_info[j].flavor = i;
+			}
+		}
+	}
+}
+
+
+static void flavor_assign_random(byte tval)
+{
+	int i, j;
+	int flavor_count = 0;
+	int choice;
+
+	/* Count the random flavors for the given tval */
+	for (i = 0; i < z_info->flavor_max; i++)
+	{
+		if ((flavor_info[i].tval == tval) &&
+		    (flavor_info[i].sval == SV_UNKNOWN))
+		{
+			flavor_count++;
+		}
+	}
+
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		/* Skip other object types */
+		if (k_info[i].tval != tval) continue;
+
+		/* Skip objects that already are flavored */
+		if (k_info[i].flavor != 0) continue;
+
+		/* HACK - Ordinary food is "boring" */
+		if ((tval == TV_FOOD) && (k_info[i].sval >= SV_FOOD_MIN_FOOD))
+			continue;
+
+		if (!flavor_count) quit_fmt("Not enough flavors for tval %d.", tval);
+
+		/* Select a flavor */
+		choice = rand_int(flavor_count);
+	
+		/* Find and store the flavor */
+		for (j = 0; j < z_info->flavor_max; j++)
+		{
+			/* Skip other tvals */
+			if (flavor_info[j].tval != tval) continue;
+
+			/* Skip assigned svals */
+			if (flavor_info[j].sval != SV_UNKNOWN) continue;
+
+			if (choice == 0)
+			{
+				/* Store the flavor index */
+				k_info[i].flavor = j;
+
+				/* Mark the flavor as used */
+				flavor_info[j].sval = k_info[i].sval;
+
+				/* One less flavor to choose from */
+				flavor_count--;
+
+				break;
+			}
+
+			choice--;
+		}
+	}
+}
 
 
 /*
@@ -532,16 +652,10 @@ static byte default_tval_to_char(int tval)
  * This is accomplished by the use of a saved "random seed", as in
  * "town_gen()".  Since no other functions are called while the special
  * seed is in effect, so this function is pretty "safe".
- *
- * Note that the "hacked seed" may provide an RNG with alternating parity!
  */
 void flavor_init(void)
 {
-	int		i, j;
-
-	byte	temp_col;
-
-	cptr	temp_adj;
+	int i, j;
 
 
 	/* Hack -- Use the "simple" RNG */
@@ -551,97 +665,16 @@ void flavor_init(void)
 	Rand_value = seed_flavor;
 
 
-	/* Efficiency -- Rods/Wands share initial array */
-	for (i = 0; i < MAX_METALS; i++)
-	{
-		rod_adj[i] = wand_adj[i];
-		rod_col[i] = wand_col[i];
-	}
+	flavor_assign_fixed();
 
-
-	/* Rings have "ring colors" */
-	for (i = 0; i < MAX_ROCKS; i++)
-	{
-		j = rand_int(MAX_ROCKS);
-		temp_adj = ring_adj[i];
-		ring_adj[i] = ring_adj[j];
-		ring_adj[j] = temp_adj;
-		temp_col = ring_col[i];
-		ring_col[i] = ring_col[j];
-		ring_col[j] = temp_col;
-	}
-
-	/* Amulets have "amulet colors" */
-	for (i = 0; i < MAX_AMULETS; i++)
-	{
-		j = rand_int(MAX_AMULETS);
-		temp_adj = amulet_adj[i];
-		amulet_adj[i] = amulet_adj[j];
-		amulet_adj[j] = temp_adj;
-		temp_col = amulet_col[i];
-		amulet_col[i] = amulet_col[j];
-		amulet_col[j] = temp_col;
-	}
-
-	/* Staffs */
-	for (i = 0; i < MAX_WOODS; i++)
-	{
-		j = rand_int(MAX_WOODS);
-		temp_adj = staff_adj[i];
-		staff_adj[i] = staff_adj[j];
-		staff_adj[j] = temp_adj;
-		temp_col = staff_col[i];
-		staff_col[i] = staff_col[j];
-		staff_col[j] = temp_col;
-	}
-
-	/* Wands */
-	for (i = 0; i < MAX_METALS; i++)
-	{
-		j = rand_int(MAX_METALS);
-		temp_adj = wand_adj[i];
-		wand_adj[i] = wand_adj[j];
-		wand_adj[j] = temp_adj;
-		temp_col = wand_col[i];
-		wand_col[i] = wand_col[j];
-		wand_col[j] = temp_col;
-	}
-
-	/* Rods */
-	for (i = 0; i < MAX_METALS; i++)
-	{
-		j = rand_int(MAX_METALS);
-		temp_adj = rod_adj[i];
-		rod_adj[i] = rod_adj[j];
-		rod_adj[j] = temp_adj;
-		temp_col = rod_col[i];
-		rod_col[i] = rod_col[j];
-		rod_col[j] = temp_col;
-	}
-
-	/* Foods (Mushrooms) */
-	for (i = 0; i < MAX_SHROOM; i++)
-	{
-		j = rand_int(MAX_SHROOM);
-		temp_adj = food_adj[i];
-		food_adj[i] = food_adj[j];
-		food_adj[j] = temp_adj;
-		temp_col = food_col[i];
-		food_col[i] = food_col[j];
-		food_col[j] = temp_col;
-	}
-
-	/* Potions */
-	for (i = 4; i < MAX_COLORS; i++)
-	{
-		j = rand_int(MAX_COLORS - 4) + 4;
-		temp_adj = potion_adj[i];
-		potion_adj[i] = potion_adj[j];
-		potion_adj[j] = temp_adj;
-		temp_col = potion_col[i];
-		potion_col[i] = potion_col[j];
-		potion_col[j] = temp_col;
-	}
+	flavor_assign_random(TV_RING);
+	flavor_assign_random(TV_AMULET);
+	flavor_assign_random(TV_STAFF);
+	flavor_assign_random(TV_WAND);
+	flavor_assign_random(TV_ROD);
+	flavor_assign_random(TV_FOOD);
+	flavor_assign_random(TV_POTION);
+	flavor_assign_random(TV_SCROLL);
 
 	/* Scrolls (random titles, always white) */
 	for (i = 0; i < MAX_TITLES; i++)
@@ -673,7 +706,7 @@ void flavor_init(void)
 				for (q = 0; q < s; q++)
 				{
 					/* Add the syllable */
-					strcat(tmp, syllables[rand_int(MAX_SYLLABLES)]);
+					my_strcat(tmp, syllables[rand_int(MAX_SYLLABLES)], sizeof(tmp));
 				}
 
 				/* Stop before getting too long */
@@ -683,11 +716,11 @@ void flavor_init(void)
 				strcat(buf, " ");
 
 				/* Add the word */
-				strcat(buf, tmp);
+				my_strcat(buf, tmp, sizeof(buf));
 			}
 
 			/* Save the title */
-			strcpy(scroll_adj[i], buf+1);
+			my_strcpy(scroll_adj[i], buf+1, sizeof(scroll_adj[0]));
 
 			/* Assume okay */
 			okay = TRUE;
@@ -714,9 +747,6 @@ void flavor_init(void)
 			/* Break when done */
 			if (okay) break;
 		}
-
-		/* All scrolls are white */
-		scroll_col[i] = TERM_WHITE;
 	}
 
 
@@ -724,24 +754,17 @@ void flavor_init(void)
 	Rand_quick = FALSE;
 
 	/* Analyze every object */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
 		/* Skip "empty" objects */
 		if (!k_ptr->name) continue;
 
-		/* Check for a "flavor" */
-		k_ptr->has_flavor = object_has_flavor(i);
-
 		/* No flavor yields aware */
-		/*if (!k_ptr->has_flavor) k_ptr->aware = TRUE;*/
-
-		/* Check for "easily known" */
-		k_ptr->easy_know = object_easy_know(i);
+		if (!k_ptr->flavor) k_ptr->aware = TRUE;
 	}
 }
-
 
 
 
@@ -754,7 +777,7 @@ static byte object_d_attr(int i)
 	object_kind *k_ptr = &k_info[i];
 
 	/* Flavored items */
-	if (k_ptr->has_flavor)
+	if (k_ptr->flavor)
 	{
 		/* Extract the indexx */
 		int indexx = k_ptr->sval;
@@ -774,7 +797,7 @@ static byte object_d_attr(int i)
 	}
 
 	/* Default attr if legal */
-	if (k_ptr->k_attr) return (k_ptr->k_attr);
+	if (k_ptr->d_attr) return (k_ptr->d_attr);
 
 	/* Default to white */
 	return (TERM_WHITE);
@@ -789,7 +812,7 @@ static byte object_d_char(int i)
 {
 	object_kind *k_ptr = &k_info[i];
 
-	return (k_ptr->k_char);
+	return (k_ptr->d_char);
 }
 
 
@@ -849,99 +872,147 @@ void reset_visuals(void)
 	}
 }
 
-
-
-
-
-
-
+/*
+ * Modes of object_flags_aux()
+ */
+#define OBJECT_FLAGS_RANDOM -2 /* Only known random flags -- XXX broken in mangband XXX unused in angband */
+#define OBJECT_FLAGS_FULL   -1 /* Full info */
+#define OBJECT_FLAGS_KNOWN  0 /* + Ind = Only flags known to the player */
 
 
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-	/* Base object */
-	(*f1) = k_ptr->flags1;
-	(*f2) = k_ptr->flags2;
-	(*f3) = k_ptr->flags3;
-
-	/* Artifact */
-	if (o_ptr->name1)
+	object_kind *k_ptr;
+	int Ind = mode;
+	
+	if (mode != OBJECT_FLAGS_FULL)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		/* Clear */
+		(*f1) = (*f2) = (*f3) = 0L;
 
-		(*f1) = a_ptr->flags1;
-		(*f2) = a_ptr->flags2;
-		(*f3) = a_ptr->flags3;
+		/* Must be identified */
+		if (!object_known_p(Ind, o_ptr)) return;
 	}
 
-	/* Ego-item */
-	if (o_ptr->name2)
+	if (mode != OBJECT_FLAGS_RANDOM)
 	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+		k_ptr = &k_info[o_ptr->k_idx];
 
-		(*f1) |= e_ptr->flags1;
-		(*f2) |= e_ptr->flags2;
-		(*f3) |= e_ptr->flags3;
+		/* Base object */
+		(*f1) = k_ptr->flags1;
+		(*f2) = k_ptr->flags2;
+		(*f3) = k_ptr->flags3;
+
+		if (mode == OBJECT_FLAGS_FULL)
+		{
+			/* Artifact */
+			if (o_ptr->name1)
+			{
+				artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+				(*f1) = a_ptr->flags1;
+				(*f2) = a_ptr->flags2;
+				(*f3) = a_ptr->flags3;
+			}
+		}
+
+		/* Ego-item */
+		if (o_ptr->name2)
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+			(*f1) |= e_ptr->flags1;
+			(*f2) |= e_ptr->flags2;
+			(*f3) |= e_ptr->flags3;
+		}
+
+		if (mode >= OBJECT_FLAGS_KNOWN)
+		{
+			/* Obvious artifact flags */
+			if (o_ptr->name1)
+			{
+				artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+				/* Obvious flags (pval) */
+				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
+
+				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+			}
+		}
+	}
+
+	if (mode != OBJECT_FLAGS_FULL)
+	{
+		bool spoil = FALSE;
+
+#ifdef SPOIL_ARTIFACTS
+		/* Full knowledge for some artifacts */
+		if (artifact_p(o_ptr)) spoil = TRUE;
+#endif /* SPOIL_ARTIFACTS */
+
+#ifdef SPOIL_EGO_ITEMS
+		/* Full knowledge for some ego-items */
+		if (ego_item_p(o_ptr)) spoil = TRUE;
+#endif /* SPOIL_ARTIFACTS */
+
+		/* Need full knowledge or spoilers */
+		if (!spoil && !(o_ptr->ident & ID_MENTAL)) return;
+
+		/* Artifact */
+		if (o_ptr->name1)
+		{
+
+#if 0
+	if (o_ptr->name1 == ART_RANDART)
+	{
+		a_ptr = randart_make(o_ptr);
+	}
+	else
+	{
+#endif
+		
+		
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+			(*f1) = a_ptr->flags1;
+			(*f2) = a_ptr->flags2;
+			(*f3) = a_ptr->flags3;
+
+			if (mode == OBJECT_FLAGS_RANDOM)
+			{
+				/* Hack - remove 'ignore' flags */
+				(*f3) &= ~(TR3_IGNORE_MASK);
+			}
+		}
+
+		/* Full knowledge for *identified* objects */
+		if (!(o_ptr->ident & ID_MENTAL)) return;
 	}
 
 	/* Extra powers */
 	switch (o_ptr->xtra1)
 	{
-		case EGO_XTRA_SUSTAIN:
+		case OBJECT_XTRA_TYPE_SUSTAIN:
 		{
-			/* Choose a sustain */
-			switch (o_ptr->xtra2 % 6)
-			{
-				case 0: (*f2) |= TR2_SUST_STR; break;
-				case 1: (*f2) |= TR2_SUST_INT; break;
-				case 2: (*f2) |= TR2_SUST_WIS; break;
-				case 3: (*f2) |= TR2_SUST_DEX; break;
-				case 4: (*f2) |= TR2_SUST_CON; break;
-				case 5: (*f2) |= TR2_SUST_CHR; break;
-			}
-
+			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
+			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
 			break;
 		}
 
-		case EGO_XTRA_POWER:
+		case OBJECT_XTRA_TYPE_RESIST:
 		{
-			/* Choose a power */
-			switch (o_ptr->xtra2 % 9)
-			{
-				case 0: (*f2) |= TR2_RES_BLIND; break;
-				case 1: (*f2) |= TR2_RES_CONF; break;
-				case 2: (*f2) |= TR2_RES_SOUND; break;
-				case 3: (*f2) |= TR2_RES_SHARDS; break;
-				case 4: (*f2) |= TR2_RES_NETHER; break;
-				case 5: (*f2) |= TR2_RES_NEXUS; break;
-				case 6: (*f2) |= TR2_RES_CHAOS; break;
-				case 7: (*f2) |= TR2_RES_DISEN; break;
-				case 8: (*f2) |= TR2_RES_POIS; break;
-			}
-
+			/* OBJECT_XTRA_WHAT_RESIST == 2 */
+			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
 			break;
 		}
 
-		case EGO_XTRA_ABILITY:
+		case OBJECT_XTRA_TYPE_POWER:
 		{
-			/* Choose an ability */
-			switch (o_ptr->xtra2 % 8)
-			{
-				case 0: (*f3) |= TR3_FEATHER; break;
-				case 1: (*f3) |= TR3_LITE; break;
-				case 2: (*f3) |= TR3_SEE_INVIS; break;
-				case 3: (*f3) |= TR3_TELEPATHY; break;
-				case 4: (*f3) |= TR3_SLOW_DIGEST; break;
-				case 5: (*f3) |= TR3_REGEN; break;
-				case 6: (*f2) |= TR2_FREE_ACT; break;
-				case 7: (*f2) |= TR2_HOLD_LIFE; break;
-			}
-
+			/* OBJECT_XTRA_WHAT_POWER == 3 */
+			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
 			break;
 		}
 	}
@@ -951,7 +1022,33 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 
 
 
+/*
+ * Obtain "flags" known to player
+ */
+void object_flags_known(int Ind, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+{
+	bool aware, known;
+	
+	aware = known = FALSE;	
+	/* See if the object is "aware" */
+	if (object_aware_p(Ind, o_ptr)) aware = TRUE;
 
+	/* See if the object is "known" */
+	if (object_known_p(Ind, o_ptr)) known = TRUE;
+	
+	/* See if 'un'aware OR 'un'known */
+	if (!known || (!aware && !known)) return;
+	
+	object_flags_aux(OBJECT_FLAGS_KNOWN + Ind, o_ptr, f1, f2, f3);	
+}
+
+/*
+ * Obtain the "flags" for an item
+ */
+void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+{
+	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
+}
 
 /*
  * Print a char "c" into a string "t", as if by sprintf(t, "%c", c),
@@ -1124,7 +1221,7 @@ static char *object_desc_int(char *t, sint v)
 void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 {
 	cptr		basenm, modstr;
-	int			power, indexx;
+	int		power, indexx;
 
 	bool		aware = FALSE;
 	bool		known = FALSE;
@@ -1143,14 +1240,13 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 
 	char		tmp_val[160];
 
-	u32b		f1, f2, f3;
+    u32b		f1, f2, f3;
 
 	object_kind		*k_ptr = &k_info[o_ptr->k_idx];
 
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
+    object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Assume aware and known if not a valid player */
 	if (Ind)
@@ -1176,7 +1272,6 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	/* Assume no "modifier" string */
 	modstr = "";
 
-
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
@@ -1185,13 +1280,11 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_BOTTLE:
 		case TV_JUNK:
 		case TV_SPIKE:
-		case TV_KEY:
 		case TV_FLASK:
 		case TV_CHEST:
 		{
 			break;
 		}
-
 
 			/* Missiles/ Bows/ Weapons */
 		case TV_SHOT:
@@ -1206,7 +1299,6 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 			show_weapon = TRUE;
 			break;
 		}
-
 
 			/* Armour */
 		case TV_BOOTS:
@@ -1223,24 +1315,23 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-
 			/* Lites (including a few "Specials") */
 		case TV_LITE:
 		{
 			break;
 		}
 
-
 			/* Amulets (including a few "Specials") */
 		case TV_AMULET:
 		{
 			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+	    /* if (artifact_p(o_ptr) && known) break;*/
 
 			/* Color the object */
-			modstr = amulet_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Amulet~" : "& # Amulet~";
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+            if (aware && !true_artifact_p(o_ptr)) append_name = TRUE;
+            if (!aware) basenm = "& # Amulet~";
+            else if (!true_artifact_p(o_ptr)) basenm = "& Amulet~";
 			break;
 		}
 
@@ -1249,12 +1340,13 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_RING:
 		{
 			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+	    /*if (artifact_p(o_ptr) && known) break;*/
 
 			/* Color the object */
-			modstr = ring_adj[indexx];
-			if (aware) append_name = TRUE;
-			basenm = aware ? "& Ring~" : "& # Ring~";
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
+            if (aware && !true_artifact_p(o_ptr)) append_name = TRUE;
+            if (!aware) basenm = "& # Ring~";
+            else if (!true_artifact_p(o_ptr)) basenm = "& Ring~";
 
 			/* Hack -- The One Ring */
 			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
@@ -1266,7 +1358,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_STAFF:
 		{
 			/* Color the object */
-			modstr = staff_adj[indexx];
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = aware ? "& Staff~" : "& # Staff~";
 			break;
@@ -1275,7 +1367,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_WAND:
 		{
 			/* Color the object */
-			modstr = wand_adj[indexx];
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = aware ? "& Wand~" : "& # Wand~";
 			break;
@@ -1284,7 +1376,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_ROD:
 		{
 			/* Color the object */
-			modstr = rod_adj[indexx];
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = aware ? "& Rod~" : "& # Rod~";
 			break;
@@ -1302,7 +1394,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_POTION:
 		{
 			/* Color the object */
-			modstr = potion_adj[indexx];
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = aware ? "& Potion~" : "& # Potion~";
 			break;
@@ -1314,7 +1406,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 
 			/* Color the object */
-			modstr = food_adj[indexx];
+			modstr = flavor_text + flavor_info[k_ptr->flavor].text;
 			if (aware) append_name = TRUE;
 			basenm = aware ? "& Mushroom~" : "& # Mushroom~";
 			break;
@@ -1498,8 +1590,21 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
 	{
+        /* Grab any randart name */
+#if defined(RANDARTS)
+	if (o_ptr->name1 == ART_RANDART)
+	{
+		/* Create the name */
+		randart_name(o_ptr, tmp_val);
+			
+		t = object_desc_chr(t, ' ');
+		t = object_desc_str(t, tmp_val);
+	}
+			
 		/* Grab any artifact name */
-		if (o_ptr->name1)
+	else 
+#endif
+	if (artifact_p(o_ptr))
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1642,7 +1747,7 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 		power = (o_ptr->sval % 10);
 
 		/* Apply the "Extra Might" flag */
-		if (f3 & TR3_XTRA_MIGHT) power++;
+		if (f1 & TR1_MIGHT) power++;
 
 		/* Append a special "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -1750,14 +1855,13 @@ void object_desc(int Ind, char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval < SV_LITE_DWARVEN))
+    else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval < SV_LITE_DWARVEN) && (!o_ptr->name3))
 	{
 		/* Hack -- Turns of light for normal lites */
 		t = object_desc_str(t, " (with ");
 		t = object_desc_num(t, o_ptr->pval);
 		t = object_desc_str(t, " turns of light)");
 	}
-
 
 	/* Dump "pval" flags for wearable items */
 	if (known && (f1 & TR1_PVAL_MASK))
@@ -1956,17 +2060,21 @@ void object_desc_store(int Ind, char *buf, object_type *o_ptr, int pref, int mod
 
 
 
-
+#if 0
 /*
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
+ *
+ * OBSOLETE! see: describe_item_activation in obj-info.c 
+ *
+ * this is kept for refrence purposes only -FLM
  */
 cptr item_activation(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+    u32b f1, f2, f3;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+    object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Require activation ability */
 	if (!(f3 & TR3_ACTIVATE)) return (NULL);
@@ -2000,15 +2108,15 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RINGIL:
 		{
-			return "frost ball (100) every 300 turns";
+            return "frost ball (100) every 40 turns";
 		}
 		case ART_ANDURIL:
 		{
-			return "fire ball (72) every 400 turns";
+            return "fire ball (72) every 40 turns";
 		}
 		case ART_FIRESTAR:
 		{
-			return "large fire ball (72) every 100 turns";
+            return "large fire ball (72) every 20 turns";
 		}
 		case ART_FEANOR:
 		{
@@ -2016,11 +2124,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_THEODEN:
 		{
-			return "drain life (120) every 400 turns";
+            return "drain life (120) every 40 turns";
 		}
 		case ART_TURMIL:
 		{
-			return "drain life (90) every 70 turns";
+            return "drain life (90) every 40 turns";
 		}
 		case ART_CASPANION:
 		{
@@ -2048,7 +2156,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_LOTHARANG:
 		{
-			return "cure wounds (4d7) every 3+d3 turns";
+            return "cure wounds (4d8) every 3+d3 turns";
 		}
 		case ART_CUBRAGOL:
 		{
@@ -2056,11 +2164,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_ARUNRUTH:
 		{
-			return "frost bolt (12d8) every 500 turns";
+            return "frost bolt (12d8) every 50 turns";
 		}
 		case ART_AEGLOS:
 		{
-			return "frost ball (100) every 500 turns";
+            return "frost ball (100) every 35 turns";
 		}
 		case ART_OROME:
 		{
@@ -2068,7 +2176,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_SOULKEEPER:
 		{
-			return "heal (1000) every 888 turns";
+            return "heal (1000) every 444 turns";
 		}
 		case ART_BELEGENNON:
 		{
@@ -2080,11 +2188,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_LUTHIEN:
 		{
-			return "restore life levels every 450 turns";
+            return "restore life levels every 250 turns";
 		}
 		case ART_ULMO:
 		{
-			return "teleport away every 150 turns";
+            return "teleport away every 50 turns";
 		}
 		case ART_COLLUIN:
 		{
@@ -2128,7 +2236,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_FINGOLFIN:
 		{
-			return "a magical arrow (150) every 90+d90 turns";
+            return "a magical arrow (150) every 30+d30 turns";
 		}
 		case ART_HOLHENNETH:
 		{
@@ -2136,16 +2244,20 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_GONDOR:
 		{
-			return "heal (500) every 500 turns";
+            return "heal (500) every 250 turns";
 		}
 		case ART_RAZORBACK:
 		{
-			return "star ball (150) every 1000 turns";
+            return "star ball (150) every 50 turns";
 		}
 		case ART_BLADETURNER:
 		{
 			return "berserk rage, bless, and resistance every 400 turns";
 		}
+        case ART_MEDIATOR:
+        {
+            return "star ball (150) every 50 turns";
+        }
 		case ART_GALADRIEL:
 		{
 			return "illumination every 10+d10 turns";
@@ -2156,11 +2268,15 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_THRAIN:
 		{
-			return "clairvoyance every 100+d100 turns";
+            return "detection every 30+d30 turns";
+        }
+        case ART_PALANTIR:
+        {
+            return "clairvoyance every 50+d50 turns";
 		}
 		case ART_INGWE:
 		{
-			return "dispel evil (x5) every 300+d300 turns";
+            return "dispel evil (x5) every 50+d50 turns";
 		}
 		case ART_CARLAMMAS:
 		{
@@ -2172,19 +2288,67 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_NARYA:
 		{
-			return "large fire ball (120) every 225+d225 turns";
+            return "large fire ball (120) every 20+d20 turns";
 		}
 		case ART_NENYA:
 		{
-			return "large frost ball (200) every 325+d325 turns";
+            return "large frost ball (200) every 20+d20 turns";
 		}
 		case ART_VILYA:
 		{
-			return "large lightning ball (250) every 425+d425 turns";
+            return "large lightning ball (250) every 20+d20 turns";
 		}
 		case ART_POWER:
 		{
-			return "bizarre things every 450+d450 turns";
+            return "bizarre things every 30+d30 turns";
+        }
+        case ART_ELESSAR:
+        {
+            return "heal (500) every 200 turns";
+        }
+        case ART_EVENSTAR:
+        {
+            return "restore life levels every 150 turns";
+        }
+        case ART_HIMRING:
+        {
+            return "protection from evil every 100+d100 turns";
+        }
+        case ART_GILGALAD:
+        {
+            return "starlight every 100 turns";
+        }
+        case ART_EOL:
+        {
+            return "mana bolt (10d10) every 30+d30 turns";
+        }
+        case ART_WORMTONGUE:
+        {
+            return "phase door every 20 turns";
+        }
+        case ART_HURIN:
+        {
+            return "berserk rage every 80+d80 turns";
+        }
+        case ART_GOTHMOG:
+        {
+            return "large fire ball (120) every 15 turns";
+        }
+        case ART_UMBAR:
+        {
+            return "a magical arrow (150) every 20+d20 turns";
+        }
+        case ART_NAIN:
+        {
+            return "stone to mud every 2 turns";
+        }
+        case ART_FUNDIN:
+        {
+            return "dispel evil (x5) every 100+d100 turns";
+        }
+        case ART_HARADRIM:
+        {
+            return "berserk rage every 50 turns";
 		}
 	}
 
@@ -2201,6 +2365,15 @@ cptr item_activation(object_type *o_ptr)
 	if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_THE_MOON))
 		return "sleep monsters every 100+d100 turns";
 
+    /* Some rings can be activated for resistance */
+    if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_FLAMES))
+    	return "resist fire every 150+d50 turns";
+    if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ACID))
+    	return "resist acid every 150+d50 turns";
+    if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ICE))
+    	return "resist cold every 150+d50 turns";
+    if ((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_LIGHTNING))
+    	return "resist lightning every 150+d50 turns";
 
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
@@ -2266,7 +2439,7 @@ cptr item_activation(object_type *o_ptr)
 	/* Oops */
 	return NULL;
 }
-
+#endif 
 
 /*
  * Describe a "fully identified" item
@@ -2274,373 +2447,29 @@ cptr item_activation(object_type *o_ptr)
 bool identify_fully_aux(int Ind, object_type *o_ptr)
 {
 	player_type *p_ptr = Players[Ind];
-	int i = 0;
 
-	u32b f1, f2, f3;
-
-	cptr		*info = p_ptr->info;
-
+	/* Describe it fully */
+	
 	/* Clear the info area first. */
 	memset(p_ptr->info,0,sizeof(p_ptr->info));
 
 	/* Let the player scroll through this info */
 	p_ptr->special_file_type = TRUE;
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	/* Prepare player structure for text */	
+	text_out_init(Ind);
+	
+	/* Dump info into player */
+	object_info_screen(o_ptr);
 
-	/* Mega-Hack -- describe activation */
-	if (f3 & TR3_ACTIVATE)
-	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
-		info[i++] = "...if it is being worn.";
-	}
-
-
-	/* Hack -- describe lite's */
-	if (o_ptr->tval == TV_LITE)
-	{
-		if (artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_FEANOR))
-		{
-			info[i++] = "It provides light (radius 3) forever.";
-		}
-		else if (o_ptr->sval == SV_LITE_DWARVEN)
-		{
-			info[i++] = "It provides light (radius 2) forever.";
-		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
-		{
-			info[i++] = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++] = "It provides light (radius 1) when fueled.";
-		}
-	}
-
-
-	/* And then describe it fully */
-
-	if (f1 & TR1_STR)
-	{
-		info[i++] = "It affects your strength.";
-	}
-	if (f1 & TR1_INT)
-	{
-		info[i++] = "It affects your intelligence.";
-	}
-	if (f1 & TR1_WIS)
-	{
-		info[i++] = "It affects your wisdom.";
-	}
-	if (f1 & TR1_DEX)
-	{
-		info[i++] = "It affects your dexterity.";
-	}
-	if (f1 & TR1_CON)
-	{
-		info[i++] = "It affects your constitution.";
-	}
-	if (f1 & TR1_CHR)
-	{
-		info[i++] = "It affects your charisma.";
-	}
-
-	if (f1 & TR1_STEALTH)
-	{
-		info[i++] = "It affects your stealth.";
-	}
-	if (f1 & TR1_SEARCH)
-	{
-		info[i++] = "It affects your searching.";
-	}
-	if (f1 & TR1_INFRA)
-	{
-		info[i++] = "It affects your infravision.";
-	}
-	if (f1 & TR1_TUNNEL)
-	{
-		info[i++] = "It affects your ability to tunnel.";
-	}
-	if (f1 & TR1_SPEED)
-	{
-		info[i++] = "It affects your speed.";
-	}
-	if (f1 & TR1_BLOWS)
-	{
-		info[i++] = "It affects your attack speed.";
-	}
-
-	if (f1 & TR1_BRAND_ACID)
-	{
-		info[i++] = "It does extra damage from acid.";
-	}
-	if (f1 & TR1_BRAND_ELEC)
-	{
-		info[i++] = "It does extra damage from electricity.";
-	}
-	if (f1 & TR1_BRAND_FIRE)
-	{
-		info[i++] = "It does extra damage from fire.";
-	}
-	if (f1 & TR1_BRAND_COLD)
-	{
-		info[i++] = "It does extra damage from frost.";
-	}
-
-	if (f1 & TR1_IMPACT)
-	{
-		info[i++] = "It can cause earthquakes.";
-	}
-
-	if (f1 & TR1_KILL_DRAGON)
-	{
-		info[i++] = "It is a great bane of dragons.";
-	}
-	else if (f1 & TR1_SLAY_DRAGON)
-	{
-		info[i++] = "It is especially deadly against dragons.";
-	}
-	if (f1 & TR1_SLAY_ORC)
-	{
-		info[i++] = "It is especially deadly against orcs.";
-	}
-	if (f1 & TR1_SLAY_TROLL)
-	{
-		info[i++] = "It is especially deadly against trolls.";
-	}
-	if (f1 & TR1_SLAY_GIANT)
-	{
-		info[i++] = "It is especially deadly against giants.";
-	}
-	if (f1 & TR1_SLAY_DEMON)
-	{
-		info[i++] = "It strikes at demons with holy wrath.";
-	}
-	if (f1 & TR1_SLAY_UNDEAD)
-	{
-		info[i++] = "It strikes at undead with holy wrath.";
-	}
-	if (f1 & TR1_SLAY_EVIL)
-	{
-		info[i++] = "It fights against evil with holy fury.";
-	}
-	if (f1 & TR1_SLAY_ANIMAL)
-	{
-		info[i++] = "It is especially deadly against natural creatures.";
-	}
-
-	if (f2 & TR2_SUST_STR)
-	{
-		info[i++] = "It sustains your strength.";
-	}
-	if (f2 & TR2_SUST_INT)
-	{
-		info[i++] = "It sustains your intelligence.";
-	}
-	if (f2 & TR2_SUST_WIS)
-	{
-		info[i++] = "It sustains your wisdom.";
-	}
-	if (f2 & TR2_SUST_DEX)
-	{
-		info[i++] = "It sustains your dexterity.";
-	}
-	if (f2 & TR2_SUST_CON)
-	{
-		info[i++] = "It sustains your constitution.";
-	}
-	if (f2 & TR2_SUST_CHR)
-	{
-		info[i++] = "It sustains your charisma.";
-	}
-
-	if (f2 & TR2_IM_ACID)
-	{
-		info[i++] = "It provides immunity to acid.";
-	}
-	if (f2 & TR2_IM_ELEC)
-	{
-		info[i++] = "It provides immunity to electricity.";
-	}
-	if (f2 & TR2_IM_FIRE)
-	{
-		info[i++] = "It provides immunity to fire.";
-	}
-	if (f2 & TR2_IM_COLD)
-	{
-		info[i++] = "It provides immunity to cold.";
-	}
-
-	if (f2 & TR2_FREE_ACT)
-	{
-		info[i++] = "It provides immunity to paralysis.";
-	}
-	if (f2 & TR2_HOLD_LIFE)
-	{
-		info[i++] = "It provides resistance to life draining.";
-	}
-
-	if (f2 & TR2_RES_ACID)
-	{
-		info[i++] = "It provides resistance to acid.";
-	}
-	if (f2 & TR2_RES_ELEC)
-	{
-		info[i++] = "It provides resistance to electricity.";
-	}
-	if (f2 & TR2_RES_FIRE)
-	{
-		info[i++] = "It provides resistance to fire.";
-	}
-	if (f2 & TR2_RES_COLD)
-	{
-		info[i++] = "It provides resistance to cold.";
-	}
-	if (f2 & TR2_RES_POIS)
-	{
-		info[i++] = "It provides resistance to poison.";
-	}
-
-	if (f2 & TR2_RES_LITE)
-	{
-		info[i++] = "It provides resistance to light.";
-	}
-	if (f2 & TR2_RES_DARK)
-	{
-		info[i++] = "It provides resistance to dark.";
-	}
-
-	if (f2 & TR2_RES_BLIND)
-	{
-		info[i++] = "It provides resistance to blindness.";
-	}
-	if (f2 & TR2_RES_CONF)
-	{
-		info[i++] = "It provides resistance to confusion.";
-	}
-	if (f2 & TR2_RES_SOUND)
-	{
-		info[i++] = "It provides resistance to sound.";
-	}
-	if (f2 & TR2_RES_SHARDS)
-	{
-		info[i++] = "It provides resistance to shards.";
-	}
-
-	if (f2 & TR2_RES_NETHER)
-	{
-		info[i++] = "It provides resistance to nether.";
-	}
-	if (f2 & TR2_RES_NEXUS)
-	{
-		info[i++] = "It provides resistance to nexus.";
-	}
-	if (f2 & TR2_RES_CHAOS)
-	{
-		info[i++] = "It provides resistance to chaos.";
-	}
-	if (f2 & TR2_RES_DISEN)
-	{
-		info[i++] = "It provides resistance to disenchantment.";
-	}
-
-	if (f3 & TR3_FEATHER)
-	{
-		info[i++] = "It induces feather falling.";
-	}
-	if (f3 & TR3_LITE)
-	{
-		info[i++] = "It provides permanent light.";
-	}
-	if (f3 & TR3_SEE_INVIS)
-	{
-		info[i++] = "It allows you to see invisible monsters.";
-	}
-	if (f3 & TR3_TELEPATHY)
-	{
-		info[i++] = "It gives telepathic powers.";
-	}
-	if (f3 & TR3_SLOW_DIGEST)
-	{
-		info[i++] = "It slows your metabolism.";
-	}
-	if (f3 & TR3_REGEN)
-	{
-		info[i++] = "It speeds your regenerative powers.";
-	}
-
-	if (f3 & TR3_XTRA_MIGHT)
-	{
-		info[i++] = "It fires missiles with extra might.";
-	}
-	if (f3 & TR3_XTRA_SHOTS)
-	{
-		info[i++] = "It fires missiles excessively fast.";
-	}
-
-	if (f3 & TR3_DRAIN_EXP)
-	{
-		info[i++] = "It drains experience.";
-	}
-	if (f3 & TR3_TELEPORT)
-	{
-		info[i++] = "It induces random teleportation.";
-	}
-	if (f3 & TR3_AGGRAVATE)
-	{
-		info[i++] = "It aggravates nearby creatures.";
-	}
-
-	if (f3 & TR3_BLESSED)
-	{
-		info[i++] = "It has been blessed by the gods.";
-	}
-
-	if (cursed_p(o_ptr))
-	{
-		if (f3 & TR3_PERMA_CURSE)
-		{
-			info[i++] = "It is permanently cursed.";
-		}
-		else if (f3 & TR3_HEAVY_CURSE)
-		{
-			info[i++] = "It is heavily cursed.";
-		}
-		else
-		{
-			info[i++] = "It is cursed.";
-		}
-	}
-
-
-	if (f3 & TR3_IGNORE_ACID)
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
-	if (f3 & TR3_IGNORE_ELEC)
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & TR3_IGNORE_FIRE)
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & TR3_IGNORE_COLD)
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
-	/* No special effects */
-
-	if (!i) return (FALSE);
-
-	/* Let the client know it's about to get some info */
-	Send_special_other(Ind);
-
+	/* Restore height and width of current dungeon level */
+	p_ptr->cur_hgt = MAX_HGT; 
+	p_ptr->cur_wid = MAX_WID;
+	
 	/* Gave knowledge */
-	return (TRUE);
+	return TRUE; 
+	
+	//Send_special_other(Ind, o_name);
 }
 
 
@@ -3042,4 +2871,3 @@ void display_equip(int Ind)
 		Send_equip(Ind, tmp_val[0], attr, wgt, o_ptr->tval, o_name);
 	}
 }
-

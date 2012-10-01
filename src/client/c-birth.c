@@ -13,6 +13,7 @@
 #define CLIENT
 
 #include "angband.h"
+#include "../common/md5.h"
 
 
 /*
@@ -53,12 +54,12 @@ void choose_name(void)
 
 
 /*
- * Choose the character's name
+ * Choose the character's password
  */
 void enter_password(void)
 {
 	int c;
-	char tmp[23];
+	char tmp[MAX_PASS_LEN];
 
 	/* Prompt and ask */
 	prt("Enter your password above (or hit ESCAPE).", 21, 2);
@@ -73,7 +74,16 @@ void enter_password(void)
 		move_cursor(3, 15);
 
 		/* Get an input, ignore "Escape" */
-		if (askfor_aux(tmp, 15, 1)) strcpy(pass, tmp);
+		if (askfor_aux(tmp, 15, 1)) 
+		{
+			if (!strcmp(tmp, "passwd")) 
+			{
+			    prt("Please do not use `passwd` as your password.", 22, 2);
+			    continue;
+			}
+			else
+				strcpy(pass, tmp);
+		}
 
 		/* All done */
 		break;
@@ -85,6 +95,9 @@ void enter_password(void)
 	 /* Re-Draw the name (in light blue) */
 	for (c = 0; c < strlen(pass); c++)
 		Term_putch(15+c, 3, TERM_L_BLUE, 'x');
+
+	/* Now hash that sucker! */
+	MD5Password(pass);
 
 	/* Erase the prompt, etc */
 	clear_from(20);
@@ -152,7 +165,7 @@ static void choose_race(void)
 	for (j = 0; j < MAX_RACES; j++)
 	{
 		rp_ptr = &race_info[j];
-		(void)sprintf(out_val, "%c) %s", I2A(j), rp_ptr->title);
+    		(void)sprintf(out_val, "%c) %s", I2A(j), p_name + rp_ptr->name);
 		put_str(out_val, m, l);
 		l += 15;
 		if (l > 70)
@@ -172,7 +185,7 @@ static void choose_race(void)
 		{
 			race = j;
 			rp_ptr = &race_info[j];
-			c_put_str(TERM_L_BLUE, rp_ptr->title, 5, 15);
+			c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 5, 15);
 			break;
 		}
 		else if (c == '?')
@@ -210,8 +223,8 @@ static void choose_class(void)
 	/* Display the legal choices */
 	for (j = 0; j < MAX_CLASS; j++)
 	{
-		cp_ptr = &class_info[j];
-		sprintf(out_val, "%c) %s", I2A(j), cp_ptr->title);
+		cp_ptr = &c_info[j];
+		sprintf(out_val, "%c) %s", I2A(j), c_name + cp_ptr->name);
 		put_str(out_val, m, l);
 		l += 15;
 		if (l > 70)
@@ -231,8 +244,8 @@ static void choose_class(void)
 		if ((j < MAX_CLASS) && (j >= 0))
 		{
 			class = j;
-			cp_ptr = &class_info[j];
-			c_put_str(TERM_L_BLUE, cp_ptr->title, 6, 15);
+			cp_ptr = &c_info[j];
+			c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 6, 15);
 			break;
 		}
 		else if (c == '?')
@@ -394,6 +407,9 @@ void get_char_info(void)
 
 static bool enter_server_name(void)
 {
+	bool result;
+	char *s;
+
 	/* Clear screen */
 	Term_clear();
 
@@ -404,10 +420,19 @@ static bool enter_server_name(void)
 	move_cursor(5, 1);
 
 	/* Default */
-	strcpy(server_name, "refugee.mangband.org");
+    strcpy(server_name, "localhost");
+    server_port = 18346;
 
 	/* Ask for server name */
-	return askfor_aux(server_name, 80, 0);
+	result = askfor_aux(server_name, 80, 0);
+
+	s = strchr(server_name, ':');
+	if (!s) return result;
+
+	sscanf(s, ":%d", &server_port);
+	strcpy (s, "\0");
+
+	return result;
 }
 
 /*
@@ -416,8 +441,13 @@ static bool enter_server_name(void)
  */
 bool get_server_name(void)
 {
-	int i, j, bytes, socket, offsets[20];
+	int i, j, y, bytes, socket, offsets[20];
+	bool server, info;
 	char buf[8192], *ptr, c, out_val[160];
+	int ports[30];
+	server_port = 18346;
+	/* Perhaps we already have a server name from config file ? */
+	if(strlen(server_name) > 0) return TRUE;
 
 	/* Message */
 	prt("Connecting to metaserver for server list....", 1, 1);
@@ -426,7 +456,7 @@ bool get_server_name(void)
 	Term_fresh();
 
 	/* Connect to metaserver */
-	socket = CreateClientSocket(META_ADDRESS, 8801);
+	socket = CreateClientSocket(META_ADDRESS, 8802);
 
 	/* Check for failure */
 	if (socket == -1)
@@ -448,7 +478,7 @@ bool get_server_name(void)
 
 	/* Start at the beginning */
 	ptr = buf;
-	i = 0;
+	i = y = 0;
 
 	/* Print each server */
 	while (ptr - buf < bytes)
@@ -462,31 +492,54 @@ bool get_server_name(void)
 			/* Next */
 			continue;
 		}
+		info = TRUE;
+		/* Save server entries */
+		if (*ptr == '%')
+		{
+			server = info = FALSE;
 
-		/* Save offset */
-		offsets[i] = ptr - buf;
+			/* Save port */			
+			ports[i] = atoi(ptr+1);
+		}
+		else if (*ptr != ' ') 		 
+		{
+			server = TRUE;
+			
+			/* Save offset */
+			offsets[i] = ptr - buf;
 
-		/* Format entry */
-		sprintf(out_val, "%c) %s", I2A(i), ptr);
+			/* Format entry */
+			sprintf(out_val, "%c) %s", I2A(i), ptr);
+		}
+		else
+		{
+			server = FALSE;
+			
+			/* Display notices */
+			sprintf(out_val, "%s", ptr);			
+		}
 
-		/* Strip off offending characters */
-		out_val[strlen(out_val) - 1] = '\0';
-
-		/* Print this entry */
-		prt(out_val, i + 1, 1);
-
+		if (info) {
+			/* Strip off offending characters */
+			out_val[strlen(out_val) - 1] = '\0';
+	
+			/* Print this entry */
+			prt(out_val, y + 1, 1);
+			
+			/* One more entry */
+			if (server) i++;
+			y++;
+		}
+		
 		/* Go to next metaserver entry */
 		ptr += strlen(ptr) + 1;
-
-		/* One more entry */
-		i++;
-
+	
 		/* We can't handle more than 20 entries -- BAD */
 		if (i > 20) break;
 	}
 
 	/* Prompt */
-	prt("Choose a server to connect to (Q for manual entry): ", i + 2, 1);
+	prt("Choose a server to connect to (Q for manual entry): ", y + 2, 1);
 
 	/* Ask until happy */
 	while (1)
@@ -510,6 +563,9 @@ bool get_server_name(void)
 
 	/* Extract server name */
 	sscanf(buf + offsets[j], "%s", server_name);
+	
+	/* Set port */
+	server_port = ports[j+1];
 
 	/* Success */
 	return TRUE;

@@ -15,6 +15,27 @@
 #include "angband.h"
 
 
+/* Scan all players on the level and see if at least one can find the unique */
+bool allow_unique_level(int r_idx, int Depth)
+{
+	int i;
+	
+	for (i = 1; i <= NumPlayers; i++)
+	{
+		player_type *p_ptr = Players[i];
+
+		/* Is the player on the level and did he kill the unique already ? */
+		if (!p_ptr->r_killed[r_idx] && (p_ptr->dun_depth == Depth))
+		{
+			/* One is enough */
+			return (TRUE);
+		}
+	}
+	
+	/* Yeah but we need at least ONE */
+	return (FALSE);
+}
+
 
 /*
  * Delete a monster by index.
@@ -38,6 +59,8 @@ void delete_monster_idx(int i)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	s16b this_o_idx, next_o_idx = 0;
+
 	/* Get location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -54,11 +77,6 @@ void delete_monster_idx(int i)
 	/* Remove him from everybody's view */
 	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 	{
-#if 0
-		/* Skip this player if he isn't playing */
-		if (Players[Ind]->conn == NOT_CONNECTED) continue;
-#endif
-
 		Players[Ind]->mon_vis[i] = FALSE;
 		Players[Ind]->mon_los[i] = FALSE;
 
@@ -76,6 +94,25 @@ void delete_monster_idx(int i)
 	 */
 	if (cave[Depth])
 		cave[Depth][y][x].m_idx = 0;
+		
+	/* Delete objects */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Hack -- efficiency */
+		o_ptr->held_m_idx = 0;
+
+		/* Delete the object */
+		delete_object_idx(this_o_idx);
+	}
+
 
 	/* Visual update */
 	everyone_lite_spot(Depth, y, x);
@@ -105,6 +142,73 @@ void delete_monster(int Depth, int y, int x)
 	if (c_ptr->m_idx > 0) delete_monster_idx(c_ptr->m_idx);
 }
 
+/*
+ * Move a monster from index i1 to index i2 in the monster list
+ */
+static void compact_monsters_aux(int i1, int i2)
+{
+	int y, x, Depth;
+	int Ind;
+
+	monster_type *m_ptr;
+
+	s16b this_o_idx, next_o_idx = 0;
+
+
+	/* Do nothing */
+	if (i1 == i2) return;
+
+
+	/* Old monster */
+	m_ptr = &m_list[i1];
+
+	/* Location */
+	y = m_ptr->fy;
+	x = m_ptr->fx;
+	Depth = m_ptr->dun_depth;
+	/* Update the cave */
+	/* Hack -- make sure the level is allocated, as in the wilderness
+	   it sometimes will not be */
+	if (cave[Depth])			
+		cave[Depth][y][x].m_idx = i2;
+
+
+	/* Repair objects being carried by monster */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Reset monster pointer */
+		o_ptr->held_m_idx = i2;
+	}
+	
+	/* Copy the visibility and los flags for the players */
+	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
+	{
+
+		Players[Ind]->mon_vis[i2] = Players[Ind]->mon_vis[i1];
+		Players[Ind]->mon_los[i2] = Players[Ind]->mon_los[i1];
+
+		/* Hack -- Update the target */
+		if (Players[Ind]->target_who == (int)(i1)) Players[Ind]->target_who = i2;
+
+		/* Hack -- Update the health bar */
+		if (Players[Ind]->health_who == (int)(i1)) health_track(Ind, i2);
+	}
+
+	/* Hack -- move monster */
+	COPY(&m_list[i2], &m_list[i1], monster_type);
+
+	/* Hack -- wipe hole */
+	(void)WIPE(&m_list[i1], monster_type);
+}
+
 
 /*
  * Compact and Reorder the monster list
@@ -124,9 +228,10 @@ void compact_monsters(int size)
 
 	int		cur_lev, cur_dis, chance;
 
+	s16b this_o_idx, next_o_idx = 0;
 
 	/* Message (only if compacting) */
-	if (size) s_printf("Compacting monsters...\n");
+	if (size) plog("Compacting monsters...");
 
 
 	/* Compact at least 'size' objects */
@@ -186,46 +291,12 @@ void compact_monsters(int size)
 
 		/* Skip real monsters */
 		if (m_ptr->r_idx) continue;
+		
+		/* Move last monster into open hole */
+		compact_monsters_aux(m_max - 1, i);
 
 		/* One less monster */
 		m_max--;
-
-		/* Reorder */
-		if (i != m_max)
-		{
-			int ny = m_list[m_max].fy;
-			int nx = m_list[m_max].fx;
-			int Depth = m_list[m_max].dun_depth;
-
-			/* Update the cave */
-			/* Hack -- make sure the level is allocated, as in the wilderness
-			   it sometimes will not be */
-			if (cave[Depth])			
-				cave[Depth][ny][nx].m_idx = i;
-
-			/* Structure copy */
-			m_list[i] = m_list[m_max];
-
-			/* Copy the visibility and los flags for the players */
-			for (Ind = 1; Ind < NumPlayers + 1; Ind++)
-			{
-#if 0
-				if (Players[Ind]->conn == NOT_CONNECTED) continue;
-#endif
-
-				Players[Ind]->mon_vis[i] = Players[Ind]->mon_vis[m_max];
-				Players[Ind]->mon_los[i] = Players[Ind]->mon_los[m_max];
-
-				/* Hack -- Update the target */
-				if (Players[Ind]->target_who == (int)(m_max)) Players[Ind]->target_who = i;
-
-				/* Hack -- Update the health bar */
-				if (Players[Ind]->health_who == (int)(m_max)) health_track(Ind, i);
-			}
-
-			/* Wipe the hole */
-			WIPE(&m_list[m_max], monster_type);
-		}
 	}
 
 	/* Reset "m_nxt" */
@@ -373,7 +444,7 @@ s16b m_pop(void)
 
 
 	/* Warn the player */
-	if (server_dungeon) s_printf("Too many monsters!");
+	if (server_dungeon) plog("Too many monsters!");
 
 	/* Try not to crash */
 	return (0);
@@ -457,8 +528,36 @@ s16b get_mon_num(int level)
 	long		value, total;
 
 	monster_race	*r_ptr;
+	monster_type	*m_ptr;
 
 	alloc_entry		*table = alloc_race_table;
+
+  if (cfg_ironman)
+  {
+	/* 
+	 * Ironmen don't kill townies, also don't generate any monsters on special levels..
+	 */
+	if((level == 0) || check_special_level(level)) return(0);
+  }
+
+	/* Limit the total number of townies */
+	j = 0;
+	if (level == 0)
+	{
+		for (i = m_top - 1; i >= 0; i--)
+		{
+			/* Access the index */
+			p = m_fast[i];
+
+			/* Access the monster */
+			m_ptr = &m_list[p];
+			
+			/* Count townies */
+			if (m_ptr->dun_depth == 0) j++;
+		}
+	}
+	if (j > cfg_max_townies) return(0);
+	
 
 	if (level > 0)
 	{
@@ -523,11 +622,11 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & RF1_UNIQUE) &&
+        /*if ((r_ptr->flags1 & RF1_UNIQUE) &&
 		    (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			continue;
-		}
+        }*/
 
 		/* Depth Monsters never appear out of depth */
 		/* FIXME: This might cause FORCE_DEPTH monsters to appear out of depth */
@@ -821,6 +920,114 @@ void lore_do_probe(int m_idx)
 	/*p_ptr->window |= (PW_MONSTER);*/
 }
 
+/*
+ * See if a monster can carry an object (it will pick up either way)
+ */
+bool monster_can_carry(int m_idx)
+{
+	int total_number = 0;
+	s16b this_o_idx, next_o_idx = 0;
+
+	monster_type	*m_ptr = &m_list[m_idx];
+	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Breeders and Townies can't keep */
+	if ((m_ptr->dun_depth < 1) || (r_ptr->flags2 & RF2_MULTIPLY))
+		return FALSE;
+		
+#if !defined(MAX_MONSTER_BAG)
+ 	return TRUE;
+#else	
+	/* Scan objects already being held for combination */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the next object */
+		next_o_idx = o_list[this_o_idx].next_o_idx;
+	
+		/* Count it */		
+		total_number++;
+	}
+
+	/* Chance-based responce. The closer monster to his limit, the less the chance is.
+	 *	If he reached the limit, he will not pick up 
+	 *	XXX XXX XXX -- double chance && strict limit 		
+	 */
+	if ((rand_int(MAX_MONSTER_BAG) * 2 > total_number) && (total_number < MAX_MONSTER_BAG))
+		return TRUE;
+	
+	return FALSE;
+#endif 
+}
+
+/*
+ * Make a monster carry an object
+ */
+s16b monster_carry(int Ind, int m_idx, object_type *j_ptr)
+{
+	s16b o_idx;
+
+	s16b this_o_idx, next_o_idx = 0;
+
+	monster_type *m_ptr = &m_list[m_idx];
+
+
+	/* Scan objects already being held for combination */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Check for combination */
+		if (object_similar(Ind, o_ptr, j_ptr))
+		{
+			/* Combine the items */
+			object_absorb(Ind, o_ptr, j_ptr);
+			/* Result */
+			return (this_o_idx);
+		}
+	}
+
+
+	/* Make an object */
+	o_idx = o_pop();
+
+	/* Success */
+	if (o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get new object */
+		o_ptr = &o_list[o_idx];
+
+		/* Copy object */
+		COPY(o_ptr, j_ptr, object_type);
+
+		/* Forget mark */
+		//o_ptr->marked = FALSE;
+
+		/* Forget location */
+		o_ptr->iy = o_ptr->ix = 0;
+
+		/* Link the object to the monster */
+		o_ptr->held_m_idx = m_idx;
+
+		/* Link the object to the pile */
+		o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+		/* Link the monster to the object */
+		m_ptr->hold_o_idx = o_idx;
+	}
+
+	/* Result */
+	return (o_idx);
+}
+
+
 
 /*
  * Take note that the given monster just dropped some treasure
@@ -850,6 +1057,12 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 	if (r_ptr->flags1 & RF1_DROP_GREAT) r_ptr->r_flags1 |= RF1_DROP_GREAT;
 }
 
+
+bool is_detected(u32b flag, u32b esp)
+{
+	if (esp == TR3_TELEPATHY) return TRUE;
+	return FALSE;
+}
 
 
 /*
@@ -908,6 +1121,7 @@ void update_mon(int m_idx, bool dist)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	player_type *p_ptr;
+	int d, dy, dx;
 
 	/* The current monster location */
 	int fy = m_ptr->fy;
@@ -940,12 +1154,6 @@ void update_mon(int m_idx, bool dist)
 		/* Reset the flags */
 		flag = easy = hard = FALSE;
 
-#if 0
-		/* If he's not playing, skip him */
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		/* If he's not on this depth, skip him */
 		if (p_ptr->dun_depth != Depth)
 		{
@@ -961,97 +1169,90 @@ void update_mon(int m_idx, bool dist)
 		if (!cave[Depth]) continue;
 
 		/* Calculate distance */
-		if (dist)
+
+		/* Distance components */
+		dy = (p_ptr->py > fy) ? (p_ptr->py - fy) : (fy - p_ptr->py);
+		dx = (p_ptr->px > fx) ? (p_ptr->px - fx) : (fx - p_ptr->px);
+
+		/* Approximate distance */
+		d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+
+		/* Save the distance (in a byte) */
+		m_ptr->cdis = (d < 255) ? d : 255;
+
+		/* Nearby */
+		if (m_ptr->cdis <= MAX_SIGHT)
 		{
-			int d, dy, dx;
 
-			/* Distance components */
-			dy = (p_ptr->py > fy) ? (p_ptr->py - fy) : (fy - p_ptr->py);
-			dx = (p_ptr->px > fx) ? (p_ptr->px - fx) : (fx - p_ptr->px);
-
-			/* Approximate distance */
-			d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
-
-			/* Save the distance (in a byte) */
-			m_ptr->cdis = (d < 255) ? d : 255;
-		}
-
-
-		/* Process "distant" monsters */
-#if 0
-		if (m_ptr->cdis > MAX_SIGHT)
-		{
-			/* Ignore unseen monsters */
-			if (!p_ptr->mon_vis[m_idx]) return;
-		}
-#endif
-
-		/* Process "nearby" monsters on the current "panel" */
-		if (panel_contains(fy, fx))
-		{
-			cave_type *c_ptr = &cave[Depth][fy][fx];
-			byte *w_ptr = &p_ptr->cave_flag[fy][fx];
-
-			/* Normal line of sight, and player is not blind */
-			if ((*w_ptr & CAVE_VIEW) && (!p_ptr->blind))
+			/* Process "nearby" monsters on the current "panel" */
+			if (panel_contains(fy, fx))
 			{
-				/* Use "infravision" */
-				if (m_ptr->cdis <= (byte)(p_ptr->see_infra))
+				cave_type *c_ptr = &cave[Depth][fy][fx];
+				byte *w_ptr = &p_ptr->cave_flag[fy][fx];
+	
+				/* Normal line of sight, and player is not blind */
+				if ((*w_ptr & CAVE_VIEW) && (!p_ptr->blind))
 				{
-					/* Infravision only works on "warm" creatures */
-					/* Below, we will need to know that infravision failed */
-					if (r_ptr->flags2 & RF2_COLD_BLOOD) do_cold_blood = TRUE;
-
-					/* Infravision works */
-					if (!do_cold_blood) easy = flag = TRUE;
-				}
-
-				/* Use "illumination" */
-				if ((c_ptr->info & CAVE_LITE) || (c_ptr->info & CAVE_GLOW))
-				{
-					/* Take note of invisibility */
-					if (r_ptr->flags2 & RF2_INVISIBLE) do_invisible = TRUE;
-
-					/* Visible, or detectable, monsters get seen */
-					if (!do_invisible || p_ptr->see_inv) easy = flag = TRUE;
-				}
-			}
-
-			/* Telepathy can see all "nearby" monsters with "minds" */
-			if (p_ptr->telepathy)
-			{
-				/* Empty mind, no telepathy */
-				if (r_ptr->flags2 & RF2_EMPTY_MIND)
-				{
-					do_empty_mind = TRUE;
+					/* Use "infravision" */
+					if (m_ptr->cdis <= (byte)(p_ptr->see_infra))
+					{
+						/* Infravision only works on "warm" creatures */
+						/* Below, we will need to know that infravision failed */
+						if (r_ptr->flags2 & RF2_COLD_BLOOD) do_cold_blood = TRUE;
+	
+						/* Infravision works */
+						if (!do_cold_blood) easy = flag = TRUE;
+					}
+	
+					/* Use "illumination" */
+					if ((c_ptr->info & CAVE_LITE) || (c_ptr->info & CAVE_GLOW))
+					{
+						/* Take note of invisibility */
+						if (r_ptr->flags2 & RF2_INVISIBLE) do_invisible = TRUE;
+	
+						/* Visible, or detectable, monsters get seen */
+						if (!do_invisible || p_ptr->see_inv) easy = flag = TRUE;
+					}
 				}
 	
-				/* Weird mind, occasional telepathy */
-				else if (r_ptr->flags2 & RF2_WEIRD_MIND)
+				/* Telepathy can see all "nearby" monsters with "minds" */
+	            if (is_detected(r_ptr->flags3, p_ptr->telepathy))
 				{
-					do_weird_mind = TRUE;
-					if (rand_int(100) < 10) hard = flag = TRUE;
+					/* Empty mind, no telepathy */
+					if (r_ptr->flags2 & RF2_EMPTY_MIND)
+					{
+						do_empty_mind = TRUE;
+					}
+		
+					/* Weird mind, occasional telepathy */
+					else if (r_ptr->flags2 & RF2_WEIRD_MIND)
+					{
+						do_weird_mind = TRUE;
+						/* One in 10 individuals are detectable */
+						if ((m_idx % 10) == 5) hard = flag = TRUE;
+					}
+	
+					/* Normal mind, allow telepathy */
+					else
+					{
+						hard = flag = TRUE;
+					}
+	
+					/* Apply telepathy */
+					if (hard)
+					{
+						/* Hack -- Memorize mental flags */
+						if (r_ptr->flags2 & RF2_SMART) r_ptr->r_flags2 |= RF2_SMART;
+						if (r_ptr->flags2 & RF2_STUPID) r_ptr->r_flags2 |= RF2_STUPID;
+					}
 				}
-
-				/* Normal mind, allow telepathy */
-				else
-				{
-					hard = flag = TRUE;
-				}
-
-				/* Apply telepathy */
-				if (hard)
-				{
-					/* Hack -- Memorize mental flags */
-					if (r_ptr->flags2 & RF2_SMART) r_ptr->r_flags2 |= RF2_SMART;
-					if (r_ptr->flags2 & RF2_STUPID) r_ptr->r_flags2 |= RF2_STUPID;
-				}
+	
+				/* Hack -- Wizards have "perfect telepathy" */
+				/* if (p_ptr->wizard) flag = TRUE; */
+				//if (!strcmp(p_ptr->name, cfg_dungeon_master)) flag = TRUE;
 			}
-
-			/* Hack -- Wizards have "perfect telepathy" */
-			/* if (p_ptr->wizard) flag = TRUE; */
-			if (!strcmp(p_ptr->name, cfg_dungeon_master)) flag = TRUE;
 		}
+
 
 
 		/* The monster is now visible */
@@ -1135,6 +1336,8 @@ void update_mon(int m_idx, bool dist)
 			}
 		}
 	}
+	
+	update_cursor(m_idx);
 }
 
 
@@ -1171,7 +1374,7 @@ void update_monsters(bool dist)
 void update_player(int Ind)
 {
 	player_type *p_ptr, *q_ptr = Players[Ind];
-
+	
 	int i;
 
 	/* Current player location */
@@ -1197,11 +1400,6 @@ void update_player(int Ind)
 
 		/* Reset the flags */
 		flag = easy = hard = FALSE;
-
-#if 0
-		/* Skip disconnected players */
-		if (p_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 		/* Skip players not on this depth */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
@@ -1251,7 +1449,7 @@ void update_player(int Ind)
 			}
 
 			/* Telepathy can see all players */
-			if (p_ptr->telepathy)
+            if (p_ptr->telepathy == TR3_TELEPATHY)
 			{
 				/* Visible */
 				hard = flag = TRUE;
@@ -1338,6 +1536,8 @@ void update_player(int Ind)
 			}
 		}
 	}
+
+	update_cursor(-Ind);	
 }
 
 /*
@@ -1350,13 +1550,6 @@ void update_players(void)
 	/* Update each player */
 	for (i = 1; i <= NumPlayers; i++)
 	{
-#if 0
-		player_type *p_ptr = Players[i];
-
-		/* Skip disconnected players */
-		if (p_ptr->conn == NOT_CONNECTED) continue;
-#endif
-
 		/* Update the player */
 		update_player(i);
 	}
@@ -1414,7 +1607,8 @@ static bool place_monster_one(int Depth, int y, int x, int r_idx, bool slp)
 
 
 	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->cur_num >= r_ptr->max_num))
+    if ((r_ptr->flags1 & RF1_UNIQUE) && ((!allow_unique_level(r_idx, Depth)) ||
+	(r_ptr->cur_num >= r_ptr->max_num)))
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -1538,11 +1732,6 @@ static bool place_monster_one(int Depth, int y, int x, int r_idx, bool slp)
 
 	for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 	{
-#if 0
-		if (Players[Ind]->conn == NOT_CONNECTED)
-			continue;
-#endif
-
 		Players[Ind]->mon_los[c_ptr->m_idx] = FALSE;
 		Players[Ind]->mon_vis[c_ptr->m_idx] = FALSE;
 	}
@@ -1913,12 +2102,6 @@ bool alloc_monster(int Depth, int dis, int slp)
 		{
 			p_ptr = Players[i];
 
-#if 0
-			/* Skip him if he's not playing */
-			if (p_ptr->conn == NOT_CONNECTED)
-				continue;
-#endif
-
 			/* Skip him if he's not on this depth */
 			if (p_ptr->dun_depth != Depth)
 				continue;
@@ -1970,9 +2153,9 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
-		case SUMMON_ANT:
+		case SUMMON_ANIMAL:
 		{
-			okay = ((r_ptr->d_char == 'a') &&
+			okay = ((r_ptr->flags3 & RF3_ANIMAL) &&
 			        !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
@@ -2026,6 +2209,13 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_KIN:
+		{
+			okay = ((r_ptr->d_char == summon_kin_type) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
 		case SUMMON_HI_UNDEAD:
 		{
 			okay = ((r_ptr->d_char == 'L') ||
@@ -2037,6 +2227,12 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_HI_DRAGON:
 		{
 			okay = (r_ptr->d_char == 'D');
+			break;
+		}
+
+		case SUMMON_HI_DEMON:
+		{
+			okay = (r_ptr->d_char == 'U');
 			break;
 		}
 
@@ -2087,6 +2283,7 @@ bool summon_specific(int Depth, int y1, int x1, int lev, int type)
 {
 	int i, x, y, r_idx;
 
+	if (Depth == 0) return (FALSE);
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -2149,6 +2346,8 @@ bool summon_specific_race(int Depth, int y1, int x1, int r_idx, unsigned char si
 {
 	int c, i, x, y;
 
+	if (Depth == 0) return (FALSE);
+
 	/* for each monster we are summoning */
 
 	for (c = 0; c < size; c++)
@@ -2194,8 +2393,9 @@ bool summon_specific_race_somewhere(int Depth, int r_idx, unsigned char size)
 	int			y, x;
 	int			tries = 0;
 
-	/* paranoia, make sure the level is allocated */
+	/* paranoia, make sure the level is allocated and non-Town */
 	if (!cave[Depth]) return (FALSE);
+	if (Depth == 0) return (FALSE);
 
 	/* Find a legal, distant, unoccupied, space */
 	while (tries < 50)
@@ -2236,10 +2436,14 @@ bool summon_specific_race_somewhere(int Depth, int r_idx, unsigned char size)
 bool multiply_monster(int m_idx)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
+    monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	int			i, y, x;
 
 	bool result = FALSE;
+
+    /* NO UNIQUES */
+    if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
@@ -2530,6 +2734,36 @@ int race_index(char * name)
 	for (i = 1; i <= alloc_race_size; i++)
 	{
 		if (!strcmp(&r_name[r_info[i].name],name)) return i;
+	}
+	return 0;
+}
+
+/* Takes a (partial) monster name and returns an index, or 0 if no match
+ * was found.
+ */
+int race_index_fuzzy(char * name)
+{
+	char match[MAX_CHARS];
+	char monster[MAX_CHARS];
+	char* str;
+	char* dst;
+	int i;
+
+	/* Lowercase our search string */
+	for(str=name;*str;str++) *str=tolower(*str);
+
+	/* for each monster race */
+	for (i = 1; i <= alloc_race_size; i++)
+	{
+		/* Clean up monster name */
+		dst = monster;
+		for(str=&r_name[r_info[i].name];*str;str++)
+		{
+			if (isalpha(*str) || *str==32) *dst++ = tolower(*str);
+		}
+		*dst++ = '\0';
+		/* If cleaned name matches our search string, return it */
+		if (strstr(monster,name)) return i;
 	}
 	return 0;
 }

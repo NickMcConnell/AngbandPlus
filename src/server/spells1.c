@@ -351,6 +351,13 @@ void teleport_player_level(int Ind)
 	int Depth = p_ptr->dun_depth, new_depth, new_world_x = 0, new_world_y = 0;
 	char *msg;
 
+	/* Ironmen don't teleport level */
+	if (cfg_ironman)
+	{
+		msg_print(Ind,"Nothing happens.");
+		return;
+	}
+	
 	/* sometimes go down */
 	if ((!Depth) || ((rand_int(100) < 50) && (Depth < MAX_DEPTH-1)))
 	{
@@ -773,7 +780,7 @@ static bool hates_cold(object_type *o_ptr)
  */
 static int set_acid_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_ACID) return (FALSE);
@@ -786,9 +793,9 @@ static int set_acid_destroy(object_type *o_ptr)
  */
 static int set_elec_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
 	return (TRUE);
 }
@@ -799,9 +806,9 @@ static int set_elec_destroy(object_type *o_ptr)
  */
 static int set_fire_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
 	return (TRUE);
 }
@@ -812,7 +819,7 @@ static int set_fire_destroy(object_type *o_ptr)
  */
 static int set_cold_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+        u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_COLD) return (FALSE);
@@ -909,7 +916,7 @@ static int minus_ac(int Ind)
 
 	object_type		*o_ptr = NULL;
 
-	u32b		f1, f2, f3;
+        u32b		f1, f2, f3;
 
 	char		o_name[80];
 
@@ -936,7 +943,7 @@ static int minus_ac(int Ind)
 	object_desc(Ind, o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+    object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Object resists */
 	if (f3 & TR3_IGNORE_ACID)
@@ -1607,6 +1614,7 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				/* Hack -- special message */
 				if (!quiet && player_can_see_bold(Ind, y, x))
 				{
+					if (Depth == 0) trees_in_town--;
 					msg_print(Ind, "The tree burns to the ground!");
 					obvious = TRUE;
 				}
@@ -1814,7 +1822,10 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				}
 
 				/* Destroy the wall */
-				c_ptr->feat = FEAT_DIRT;
+				if (Depth > 0)
+					c_ptr->feat = FEAT_FLOOR;
+				else
+					c_ptr->feat = FEAT_MUD;
 			}
 
 			/* Quartz / Magma with treasure */
@@ -1829,8 +1840,11 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				}
 
 				/* Destroy the wall */
-				c_ptr->feat = FEAT_DIRT;
-
+				if (Depth > 0)
+					c_ptr->feat = FEAT_FLOOR;
+				else
+					c_ptr->feat = FEAT_MUD;
+					
 				/* Place some gold */
 				place_gold(Depth, y, x);
 			}
@@ -1846,7 +1860,10 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				}
 
 				/* Destroy the wall */
-				c_ptr->feat = FEAT_DIRT;
+				if (Depth > 0)
+					c_ptr->feat = FEAT_FLOOR;
+				else
+					c_ptr->feat = FEAT_MUD;
 			}
 
 			/* Rubble */
@@ -1860,7 +1877,10 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				}
 
 				/* Destroy the rubble */
-				c_ptr->feat = FEAT_DIRT;
+				if (Depth > 0)
+					c_ptr->feat = FEAT_FLOOR;
+				else
+					c_ptr->feat = FEAT_MUD;
 
 				/* Hack -- place an object */
 				if (rand_int(100) < 10)
@@ -1873,7 +1893,7 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 					}
 
 					/* Place gold */
-					place_object(Depth, y, x, FALSE, FALSE);
+                    place_object(Depth, y, x, FALSE, FALSE, 0);
 				}
 			}
 
@@ -1899,7 +1919,10 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 				}
 
 				/* Destroy the feature */
-				c_ptr->feat = FEAT_DIRT;
+				if (Depth > 0)
+					c_ptr->feat = FEAT_FLOOR;
+				else
+					c_ptr->feat = FEAT_DIRT;
 			}
 
 			/* Forget the wall */
@@ -2005,7 +2028,7 @@ static bool project_f(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			c_ptr->info &= ~CAVE_GLOW;
 
 			/* Hack -- Forget "boring" grids */
-			if (c_ptr->feat <= FEAT_INVIS)
+			if (is_boring(c_ptr->feat))
 			{
 				/* Forget */
 				everyone_forget_spot(Depth, y, x);
@@ -2073,7 +2096,7 @@ static bool project_i(int Ind, int who, int r, int Depth, int y, int x, int dam,
 
 	cptr	note_kill = NULL;
 
-	u32b	f1, f2, f3;
+        u32b	f1, f2, f3;
 
 	char	o_name[80];
 
@@ -2099,7 +2122,7 @@ static bool project_i(int Ind, int who, int r, int Depth, int y, int x, int dam,
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Get the "plural"-ness */
 	if (o_ptr->number > 1) plural = TRUE;
@@ -2676,8 +2699,8 @@ static bool project_m(int Ind, int who, int r, int Depth, int y, int x, int dam,
 		case GF_NEXUS:
 		{
 			if (seen) obvious = TRUE;
-			if ((r_ptr->flags4 & RF4_BR_NEXU) ||
-			    prefix(name, "Nexus"))
+			if ((r_ptr->flags3 & RF3_RES_NEXU) ||
+				(r_ptr->flags4 & RF4_BR_NEXU))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
@@ -3082,7 +3105,7 @@ static bool project_m(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
-			/* Only affect undead */
+			/* Only affect evil */
 			if (r_ptr->flags3 & RF3_EVIL)
 			{
 				if (seen) obvious = TRUE;
@@ -3480,7 +3503,7 @@ static bool project_m(int Ind, int who, int r, int Depth, int y, int x, int dam,
 			else if (!quiet && dam > 0) message_pain(Ind, c_ptr->m_idx, dam);
 
 			/* Take note */
-			if (!quiet && (fear || do_fear) && (p_ptr->mon_vis[c_ptr->m_idx]))
+			if (!quiet && (fear || do_fear) && (p_ptr->mon_vis[c_ptr->m_idx]) && !(r_ptr->flags2 & RF2_WANDERER))
 			{
 				/* Sound */
 				sound(Ind, SOUND_FLEE);
@@ -3572,11 +3595,6 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 	/* Player cannot hurt himself */
 	if (0 - who == Ind) return (FALSE);
 
-#ifndef PLAYER_INTERACTION
-	/* Mega-Hack -- Players cannot hurt other players */
-	if (who <= 0) return (FALSE);
-#endif
-
 	/* Extract radius */
 	div = r + 1;
 
@@ -3612,16 +3630,12 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 
 		/* Do not become hostile if it was a healing or teleport spell */
 		
-		if ((typ != GF_HEAL_PLAYER) && (typ != GF_AWAY_ALL))
+        if ((typ != GF_HEAL_PLAYER) && (typ != GF_AWAY_ALL))
 		{
-			/* If this was intentional, make target hostile */
-			if (check_hostile(0 - who, Ind))
+			/* Only allowed if both players are hostile */
+			if (!check_hostile(Ind, 0 - who) || !check_hostile(0 - who, Ind))
 			{
-				/* Make target hostile if not already */
-				if (!check_hostile(Ind, 0 - who))
-				{
-					add_hostility(Ind, killer);
-				}
+				return(FALSE);
 			}
 			
 			/* XXX Reduce damage by 1/3 */
@@ -3747,7 +3761,7 @@ static bool project_p(int Ind, int who, int r, int Depth, int y, int x, int dam,
 		{
 			dam *= 6; dam /= (randint(6) + 6);
 		}
-		if (!p_ptr->resist_conf)
+		if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
 		{
 			(void)set_confused(Ind, p_ptr->confused + rand_int(20) + 10);
 		}
@@ -4255,6 +4269,12 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 	/* Affected location(s) */
 	cave_type *c_ptr;
 
+	/* Effect density, 1 in density frames are actually drawn */
+	int density = 5;	
+	
+	/* Disable all effect animations completely */
+	bool disableeffects = FALSE;
+
 	/* Assume the player sees nothing */
 	bool notice = FALSE;
 
@@ -4270,7 +4290,7 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 
 	/* Number of grids in the "blast area" (including the "beam" path) */
 	int grids = 0;
-
+	
 	/* Coordinates of the affected grids */
 	byte gx[256], gy[256];
 
@@ -4357,11 +4377,6 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				int dispx, dispy;
 				byte attr;
 
-#if 0
-				if (p_ptr->conn == NOT_CONNECTED)
-					continue;
-#endif
-
 				if (p_ptr->dun_depth != Depth)
 					continue;
 
@@ -4379,10 +4394,13 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 
 				attr = spell_color(typ);
 
-				p_ptr->scr_info[dispy][dispx].c = '*';
-				p_ptr->scr_info[dispy][dispx].a = attr;
-
-				Send_char(j, dispx, dispy, attr, '*');
+				/* Beams can have a slightly higher density */
+				if (randint(density>>1) == 1)
+				{
+					p_ptr->scr_info[dispy][dispx].c = '*';
+					p_ptr->scr_info[dispy][dispx].a = attr;
+					Send_char(j, dispx, dispy, attr, '*');
+				}
 			}
 		}
 
@@ -4435,11 +4453,6 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				char ch;
 				byte attr;
 
-#if 0
-				if (p_ptr->conn == NOT_CONNECTED)
-					continue;
-#endif
-
 				if (p_ptr->dun_depth != Depth)
 					continue;
 
@@ -4461,19 +4474,20 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				p_ptr->scr_info[dispy][dispx].c = ch;
 				p_ptr->scr_info[dispy][dispx].a = attr;
 
-				Send_char(j, dispx, dispy, attr, ch);
-
-				/* Hack -- Show bolt char */
-				if (dist % 2) Send_flush(j);
+				if (randint(density) == 1) 
+				{
+					Send_char(j, dispx, dispy, attr, ch);
+					Send_flush(j);
+				}
 			}
 		}
-
 		/* Clean up */
 		everyone_lite_spot(Depth, y9, x9);
 
 		/* Save the new location */
 		y = y9;
 		x = x9;
+	
 	}
 
 
@@ -4522,7 +4536,6 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 		}
 	}
 
-
 	/* Speed -- ignore "non-explosions" */
 	if (!grids) return (FALSE);
 
@@ -4538,6 +4551,7 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 			/* Dump everything with this radius */
 			for (i = gm[t]; i < gm[t+1]; i++)
 			{
+			    if(randint(density) != 1) continue;
 				/* Extract the location */
 				y = gy[i];
 				x = gx[i];
@@ -4549,11 +4563,6 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 					byte attr;
 					int k;
 					bool flag = TRUE;
-
-#if 0
-					if (p_ptr->conn == NOT_CONNECTED)
-						continue;
-#endif
 
 					if (p_ptr->dun_depth != Depth)
 						continue;
@@ -4575,7 +4584,7 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 					p_ptr->scr_info[dispy][dispx].c = '*';
 					p_ptr->scr_info[dispy][dispx].a = attr;
 
-					Send_char(j, dispx, dispy, attr, '*');
+					if (!disableeffects) Send_char(j, dispx, dispy, attr, '*');
 
 					drawn = TRUE;
 
@@ -4594,7 +4603,7 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 			for (j = 0; j < num_can_see; j++)
 			{
 				/* Show this radius and delay */
-				Send_flush(who_can_see[j]);
+				if (!disableeffects) Send_flush(who_can_see[j]);
 			}
 		}
 
@@ -4616,11 +4625,10 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 			for (j = 0; j < num_can_see; j++)
 			{
 				/* Show this radius and delay */
-				Send_flush(who_can_see[j]);
+				if (!disableeffects) Send_flush(who_can_see[j]);
 			}
 		}
 	}
-
 
 	/* Check features */
 	if (flg & PROJECT_GRID)
@@ -4752,8 +4760,3 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 	/* Return "something was noticed" */
 	return (notice);
 }
-
-
-
-
-

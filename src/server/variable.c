@@ -1,3 +1,4 @@
+
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -36,15 +37,6 @@ byte version_major = VERSION_MAJOR;
 byte version_minor = VERSION_MINOR;
 byte version_patch = VERSION_PATCH;
 byte version_extra = VERSION_EXTRA;
-
-
-/*
- * Hack -- Savefile version
- */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
 
 
 /*
@@ -109,6 +101,8 @@ s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
+byte trees_in_town;
+
 byte level_up_y[MAX_DEPTH]; 	/* Where do players start if coming up? */
 byte level_up_x[MAX_DEPTH];
 byte level_down_y[MAX_DEPTH];	/* Where do players start if going down? */
@@ -118,6 +112,10 @@ byte level_rand_x[MAX_DEPTH];
 
 s16b players_on_world[MAX_DEPTH + MAX_WILD];
 s16b *players_on_depth=&(players_on_world[MAX_WILD]);  /* How many players are at each depth */
+
+s16b special_levels[MAX_SPECIAL_LEVELS]; /* List of depths which are special static levels */
+
+char summon_kin_type;		/* Hack -- See summon_specific() */
 
 s32b turn;			/* Current game turn */
 s32b old_turn;			/* Turn when level began (feelings) */
@@ -174,18 +172,25 @@ s32b m_top = 0;			/* Monster top size */
 bool cfg_report_to_meta = 0;
 char * cfg_meta_address;
 char * cfg_report_address = NULL;
+char * cfg_bind_name = NULL;
 char * cfg_console_password = "change_me";
 char * cfg_dungeon_master = "DungeonMaster";
 bool cfg_secret_dungeon_master = 0;
 s16b cfg_fps = 12;
+s16b cfg_tcp_port = 18346;
 bool cfg_mage_hp_bonus = 1;
 bool cfg_no_steal = 0;
 bool cfg_newbies_cannot_drop = 0;
 bool cfg_door_bump_open = 1;
+s32b cfg_level_unstatic_chance = 60;
+bool cfg_random_artifacts = 0; /* No randarts by default */
+s32b cfg_retire_timer = -1;
+bool cfg_ironman = 0;
+bool cfg_town_wall = 0;
 s32b cfg_unique_respawn_time = 300;
 s32b cfg_unique_max_respawn_time = 50000;
-s32b cfg_level_unstatic_chance = 60;
-s32b cfg_retire_timer = -1;
+s16b cfg_max_townies = 100;
+s16b cfg_max_trees = 100;
 
 
 /*
@@ -236,7 +241,7 @@ bool alert_failure;			/* Alert user to various failures */
 
 /* Option Set 3 -- Game-Play */
 
-bool auto_haggle;			/* Auto-haggle in stores */
+bool no_ghost;				/* Death is permanent */
 
 bool auto_scum;				/* Auto-scum for good levels */
 
@@ -343,7 +348,7 @@ s16b panel_col_min, panel_col_max;*/
 s16b px;*/
 
 /* Targetting variables */
-s16b target_who;
+s32b target_who;
 s16b target_col;
 s16b target_row;
 
@@ -372,6 +377,9 @@ int num_houses;
 
 /* An array to access a Player's ID */
 long GetInd[MAX_ID];
+
+/* Player for doing text_out */
+int player_textout = 0;
 
 /* Current player's character name */
 /* In the player info --KLJ-- */
@@ -644,6 +652,11 @@ player_magic *mp_ptr;*/
 
 
 /*
+ * Structure (not array) of size limits
+ */
+maxima *z_info;
+
+/*
  * The vault generation arrays
  */
 header *v_head;
@@ -694,6 +707,47 @@ char *r_text;
 
 
 /*
+ * The player race arrays
+ */
+player_race *p_info;
+char *p_name;
+char *p_text;
+
+/*
+ * The player class arrays
+ */
+player_class *c_info;
+char *c_name;
+char *c_text;
+
+/*
+ * The shop owner arrays
+ */
+owner_type *b_info;
+char *b_name;
+char *b_text;
+
+/*
+ * The racial price adjustment arrays
+ */
+byte *g_info;
+char *g_name;
+char *g_text;
+
+/*
+ * The player history arrays
+ */
+hist_type *h_info;
+char *h_text;
+
+/*
+ * The object flavor arrays
+ */
+flavor_type *flavor_info;
+char *flavor_name;
+char *flavor_text;
+
+/*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
@@ -717,6 +771,7 @@ cptr ANGBAND_DIR_DATA;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_GAME;
+cptr ANGBAND_DIR_EDIT;
 
 /*
  * Various user editable text files (ascii), such as the help and greeting
@@ -790,5 +845,3 @@ bool (*get_obj_num_hook)(int k_idx);
  */
 //bool (*master_move_hook)(int Ind, char * args) = master_acquire;
 bool (*master_move_hook)(int Ind, char * args) = NULL;
-
-

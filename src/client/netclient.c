@@ -19,9 +19,9 @@
 #define CLIENT
 #include "angband.h"
 #include "netclient.h"
-// [grk] we don't need unistd.h on WIN32 in MSVC
-#ifndef __MSVC__
-# include <unistd.h>
+
+#ifndef WIN32
+#include <unistd.h>
 #endif
 
 static u32b last_keepalive;
@@ -72,6 +72,7 @@ static void Receive_init(void)
 
 	receive_tbl[PKT_QUIT]		= Receive_quit;
 	receive_tbl[PKT_STAT]		= Receive_stat;
+    receive_tbl[PKT_MAXSTAT]		= Receive_maxstat;
 	receive_tbl[PKT_HP]		= Receive_hp;
 	receive_tbl[PKT_AC]		= Receive_ac;
 	receive_tbl[PKT_INVEN]		= Receive_inven;
@@ -83,6 +84,7 @@ static void Receive_init(void)
 	receive_tbl[PKT_GOLD]		= Receive_gold;
 	receive_tbl[PKT_SP]		= Receive_sp;
 	receive_tbl[PKT_HISTORY]	= Receive_history;
+	receive_tbl[PKT_OBJFLAGS]	= Receive_objflags;
 	receive_tbl[PKT_CHAR]		= Receive_char;
 	receive_tbl[PKT_MESSAGE]	= Receive_message;
 	receive_tbl[PKT_STATE]		= Receive_state;
@@ -105,6 +107,7 @@ static void Receive_init(void)
 	receive_tbl[PKT_SPECIAL_OTHER]	= Receive_special_other;
 	receive_tbl[PKT_STORE]		= Receive_store;
 	receive_tbl[PKT_STORE_INFO]	= Receive_store_info;
+	receive_tbl[PKT_PLAYER_STORE_INFO]	= Receive_player_store_info;
 	receive_tbl[PKT_SELL]		= Receive_sell;
 	receive_tbl[PKT_TARGET_INFO]	= Receive_target_info;
 	receive_tbl[PKT_SOUND]		= Receive_sound;
@@ -116,6 +119,7 @@ static void Receive_init(void)
 	receive_tbl[PKT_PARTY]		= Receive_party;
 	receive_tbl[PKT_SKILLS]		= Receive_skills;
 	receive_tbl[PKT_PAUSE]		= Receive_pause;
+	receive_tbl[PKT_CURSOR]		= Receive_cursor;
 	receive_tbl[PKT_MONSTER_HEALTH]	= Receive_monster_health;
 	receive_tbl[PKT_KEEPALIVE]	= Receive_keepalive;
 }
@@ -127,7 +131,7 @@ static void Receive_init(void)
 int Net_setup(void)
 {
 	int n, len, done = 0;
-	long todo = sizeof(setup_t);
+	long todo = sizeof(server_setup_t);
 	char *ptr;
 
 	ptr = (char *) &Setup;
@@ -240,10 +244,19 @@ int Net_setup(void)
  */
 int Net_verify(char *real, char *nick, char *pass, int sex, int race, int class)
 {
-	int	i, n, type, result;
+	int	i, n, type, result, data_size;
 
 	Sockbuf_clear(&wbuf);
 	n = Packet_printf(&wbuf, "%c%s%s%s%hd%hd%hd", PKT_VERIFY, real, nick, pass, sex, race, class);
+
+	/* Determine the total size of the following data */
+	data_size = 12 + 64 + (TV_MAX+1 + MAX_F_IDX+1 + MAX_K_IDX+1 + MAX_R_IDX+1)*2;
+	
+	/* Send a flag to indicate we speak the new protocol */
+	Packet_printf(&wbuf, "%c%c", 'X', 'X');
+
+	/* Make sure the server knows how much data we are about to send! */
+	Packet_printf(&wbuf, "%hd", data_size);
 
 	/* Send the desired stat order */
 	for (i = 0; i < 6; i++)
@@ -256,43 +269,41 @@ int Net_verify(char *real, char *nick, char *pass, int sex, int race, int class)
 	{
 		Packet_printf(&wbuf, "%c", Client_setup.options[i]);
 	}
-
-#ifndef BREAK_GRAPHICS
+	Sockbuf_flush(&wbuf);
+	
 	/* Send the "unknown" redefinitions */
+	Packet_printf(&wbuf, "%hd", TV_MAX);
 	for (i = 0; i < TV_MAX; i++)
 	{
 		Packet_printf(&wbuf, "%c%c", Client_setup.u_attr[i], Client_setup.u_char[i]);
 	}
+	Sockbuf_flush(&wbuf);
 
 	/* Send the "feature" redefinitions */
+	Packet_printf(&wbuf, "%hd", MAX_F_IDX);
 	for (i = 0; i < MAX_F_IDX; i++)
 	{
 		Packet_printf(&wbuf, "%c%c", Client_setup.f_attr[i], Client_setup.f_char[i]);
 	}
+	Sockbuf_flush(&wbuf);
 
 	/* Send the "object" redefinitions */
+	Packet_printf(&wbuf, "%hd", MAX_K_IDX);
 	for (i = 0; i < MAX_K_IDX; i++)
 	{
 		Packet_printf(&wbuf, "%c%c", Client_setup.k_attr[i], Client_setup.k_char[i]);
 	}
+	Sockbuf_flush(&wbuf);
 
 	/* Send the "monster" redefinitions */
+	Packet_printf(&wbuf, "%hd", MAX_R_IDX);
 	for (i = 0; i < MAX_R_IDX; i++)
 	{
 		Packet_printf(&wbuf, "%c%c", Client_setup.r_attr[i], Client_setup.r_char[i]);
 	}
-#endif
+	Sockbuf_flush(&wbuf);
 
-	if (n <= 0 || Sockbuf_flush(&wbuf) <= 0)
-	{
-		plog("Can't send verify packet");
-		//return -1;
-	}
-	//		time(&last);
-
-	//		if (retries > 1)
-	//			printf("Waiting for verify response\n");
-	//	}
+	/* Now wait for a response */
 	SetTimeout(5, 0);
 	if (!SocketReadable(rbuf.sock))
 	{
@@ -554,7 +565,7 @@ int Net_start(void)
 	if (cbuf.ptr[0] == PKT_QUIT)
 	{
 		errno = 0;
-		quit(&rbuf.ptr[1]);
+		quit(&cbuf.ptr[1]);
 		return -1;
 	}
 	if (cbuf.ptr[0] != PKT_REPLY)
@@ -632,8 +643,10 @@ int Net_packet(void)
 		if (receive_tbl[type] == NULL)
 		{
 			errno = 0;
-			plog(format("Received unknown packet type (%d, %d), dropping",
-				type, prev_type));
+			/* The player really doesn't need to know about this */
+#ifdef DEBUG			
+			plog(format("Received unknown packet type (%d, %d), dropping", type, prev_type));
+#endif
 			Sockbuf_clear(&rbuf);
 			break;
 		}
@@ -1052,7 +1065,7 @@ int Receive_stat(void)
 	p_ptr->stat_use[(int) stat] = cur;
 
 	if (!screen_icky && !shopping)
-		prt_stat(stat, max, cur);
+        prt_stat(stat, max, cur, (p_ptr->stat_max[(int) stat] == 18+100));
 	else
 		if ((n = Packet_printf(&qbuf, "%c%c%hd%hd", ch, stat, max, cur)) <= 0)
 		{
@@ -1066,6 +1079,34 @@ int Receive_stat(void)
 	return 1;
 }
 
+int Receive_maxstat(void)
+{
+    int	n;
+    char	ch;
+    char	stat;
+    s16b	max;
+
+    if ((n = Packet_scanf(&rbuf, "%c%c%hd", &ch, &stat, &max)) <= 0)
+    {
+        return n;
+    }
+
+    p_ptr->stat_max[(int) stat] = max;
+
+    if (!screen_icky && !shopping)
+        prt_stat(stat, p_ptr->stat_top[(int) stat], p_ptr->stat_use[(int) stat], (max == 18+100));
+    else
+        if ((n = Packet_printf(&qbuf, "%c%c%hd", ch, stat, max)) <= 0)
+        {
+            return n;
+        }
+
+
+    /* Window stuff */
+    p_ptr->window |= (PW_PLAYER);
+
+    return 1;
+}
 int Receive_hp(void)
 {
 	int	n;
@@ -1359,6 +1400,77 @@ int Receive_sp(void)
 	return 1;
 }
 
+
+int Receive_objflags(void)
+{
+	char	ch, c;
+	int	n, x, i;
+	s16b	y;
+	byte	a;
+	
+	if ((n = Packet_scanf(&rbuf, "%c%hu", &ch, &y)) <= 0)
+	{
+		return n;
+	}
+
+	for (x = 0; x < 13; x++)
+	{
+		/* Read the char/attr pair */
+		Packet_scanf(&rbuf, "%c%c", &c, &a);
+		/* Check for bit 0x40 on the attribute */
+		if (a & 0x40)
+		{
+			/* First, clear the bit */
+			a &= ~(0x40);
+
+			/* Read the number of repetitions */
+			Packet_scanf(&rbuf, "%c", &n);
+			
+		}
+		else
+		{
+			/* No RLE, just one instance */
+			n = 1;
+		}
+
+		/* Draw a character n times */
+		for (i = 0; i < n; i++)
+		{
+				p_ptr->hist_flags[y][x+i].a = a;
+				p_ptr->hist_flags[y][x+i].c = c;
+		}
+
+		/* Reset 'x' to the correct value */
+		x += n - 1;
+
+		/* hack -- if x > 80, assume we have received corrupted data,
+		 * flush our buffers 
+		
+		if (x > 13) 
+		{
+			Sockbuf_clear(&rbuf);
+			Sockbuf_clear(&cbuf);
+		}
+		*/ 
+		
+	}
+
+	
+	/* No RLE mode
+	for (x = 0; x < 13; x++)
+	{
+		
+		Packet_scanf(&rbuf, "%c%c", &a, &c);
+		p_ptr->hist_flags[y][x].a = a;
+		p_ptr->hist_flags[y][x].c = c;
+		
+	}
+	*/
+
+	return 1;
+}
+
+
 int Receive_history(void)
 {
 	int	n;
@@ -1450,7 +1562,7 @@ int Receive_message(void)
 	{
 		ptr = strstr(talk_pend, strchr(buf, ']') + 2);
 // [grk] hack not needed for WIN32 client
-#ifndef __MSVC__
+#ifndef WINDOWS
 		ptr = strtok(ptr, "\t");
 		ptr = strtok(NULL, "\t");
 #endif
@@ -1463,11 +1575,15 @@ int Receive_message(void)
 		c_msg_print(buf);
 	}
 	else
+	{
+		c_message_add(buf);
+	}
+	/*
 		if ((n = Packet_printf(&qbuf, "%c%s", ch, buf)) <= 0)
 		{
 			return n;
 		}
-
+	*/
 	return 1;
 }
 
@@ -1774,6 +1890,7 @@ int Receive_item(void)
 	if (!screen_icky && !topline_icky)
 	{
 		c_msg_print(NULL);
+		item_tester_tval = 0;
 
 		if (!c_get_item(&item, "Which item? ", TRUE, TRUE, FALSE))
 		{
@@ -1803,8 +1920,11 @@ int Receive_spell_info(void)
 		return n;
 	}
 
-	/* Save the info */
+    /* Save the info... */
 	strcpy(spell_info[book][line], buf);
+
+    /* ... and wipe the next line */
+    if (line < 8) spell_info[book][line+1][0] = '\0';
 
 	return 1;
 }
@@ -1967,11 +2087,15 @@ int Receive_special_other(void)
 {
 	int	n;
 	char	ch;
+	char buf[80];
 
-	if ((n = Packet_scanf(&rbuf, "%c", &ch)) <= 0)
+	if ((n = Packet_scanf(&rbuf, "%c%s", &ch, buf)) <= 0)
 	{
 		return n;
 	}
+	
+	/* Set file perusal header */
+	strcpy(special_line_header, buf);
 
 	/* Set file perusal method to "other" */
 	special_line_type = SPECIAL_FILE_OTHER;
@@ -2021,11 +2145,44 @@ int Receive_store_info(void)
 	}
 
 	store.stock_num = num_items;
-	store_owner = owners[store_num][owner_num];
+	/* The shopkeeper of the BM looks after his "back room" */
+	if (store_num != 8)
+	{
+		store_owner = owners[store_num][owner_num];
+	}
+	else
+	{
+		/* BM shopkeeper looks after this */
+		store_owner = owners[6][owner_num];
+	}
 
 	/* Only enter "display_store" if we're not already shopping */
 	if (!shopping)
 		display_store();
+	else
+		display_inventory();
+
+	return 1;
+}
+
+int Receive_player_store_info(void)
+{
+	int	n;
+	char	ch;
+	s16b	owner_num, num_items;
+
+	if ((n = Packet_scanf(&rbuf, "%c%hd%s%hd", &ch, &store_num, player_owner, &num_items)) <= 0)
+	{
+		return n;
+	}
+
+	store.stock_num = num_items;
+
+	/* Only enter "display_store" if we're not already shopping */
+	if (!shopping)
+		display_store();
+	else
+		display_inventory();
 
 	return 1;
 }
@@ -2059,11 +2216,15 @@ int Receive_target_info(void)
 		return n;
 	}
 
+	if (buf[0] == '\0') target_position = TRUE;
+
 	/* Print the message */
 	prt(buf, 0, 0);
 
 	/* Move the cursor */
 	Term_gotoxy(x, y);
+	if (cursor_icky)
+		Term_consolidate_cursor(TRUE, x, y);
 
 	return 1;
 }
@@ -2096,8 +2257,44 @@ int Receive_special_line(void)
 		return n;
 	}
 
+	if (!screen_icky) return 0;
+
 	/* Maximum */
 	max_line = max;
+
+	/* Hack -- decide to go popup/fullon mode */
+	if (line == 0)
+	{	
+		if (max > (SCREEN_HGT - 2)/2 || special_line_type != SPECIAL_FILE_OTHER) 
+		{
+			/* Clear the screen */
+			Term_clear();
+	
+			/* Show a general "title" + header */
+			special_line_header[60] = '\0';
+	      prt(format("[Mangband %d.%d.%d] %60s",
+				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, special_line_header), 0, 0);
+	
+			/* Prompt (check if we have extra pages) */
+			if (max > (SCREEN_HGT - 2)) 
+				prt("[Press Space to advance, or ESC to exit.]", 23, 0);
+			else
+				prt("[Press ESC to exit.]", 23, 0);
+				
+		} else {
+			/* Clear the screen */
+			for (n = 0; n < max_line + 5; n++)
+				Term_erase(0, n, 80);
+			
+			/* Show a specific "title" -- header */
+			c_put_str(TERM_YELLOW, special_line_header, 0, 0);
+
+			/* Prompt */
+			c_put_str(TERM_L_BLUE, "[Press any key to continue]", max_line + 3, 0);
+		}
+	}
+	
+		
 
 	/* Print out the info */
 	c_put_str(attr, buf, line + 2, 0);
@@ -2115,8 +2312,8 @@ int Receive_floor(void)
 		return n;
 	}
 
-	/* Ignore for now */
-	tval = tval;
+	/* Remember for later */
+	floor_tval = tval;
 
 	return 1;
 }
@@ -2204,6 +2401,24 @@ int Receive_skills(void)
 
 	return 1;
 }
+
+int Receive_cursor(void)
+{
+	int n;
+	char ch;
+	char vis, x, y;
+
+	if ((n = Packet_scanf(&rbuf, "%c%c%c%c", &ch, &vis, &x, &y)) <= 0)
+	{
+		return n;
+	}
+	
+	if (cursor_icky)
+		Term_consolidate_cursor(vis, x, y);
+
+	return 1;
+}
+
 
 int Receive_pause(void)
 {
@@ -2502,6 +2717,18 @@ int Send_destroy(int item, int amt)
 	return 1;
 }
 
+int Send_observe(int item)
+{
+	int	n;
+
+	if ((n = Packet_printf(&wbuf, "%c%hd", PKT_OBSERVE, item)) <= 0)
+	{
+		return n;
+	}
+
+	return 1;
+}
+
 int Send_inscribe(int item, cptr buf)
 {
 	int	n;
@@ -2678,8 +2905,8 @@ int Send_msg(cptr message)
 
 	if (message && strlen(message))
 	{
-// [grk] MSVC WIN32 client hack to allow us to send messages longer than 58 chars
-#ifndef __MSVC__
+// [grk] WIN32 client hack to allow us to send messages longer than 58 chars
+#ifndef WINDOWS
 		if (strlen(talk_pend))
 			strcat(talk_pend, "\t");
 		strcat(talk_pend, message);
@@ -2690,7 +2917,7 @@ int Send_msg(cptr message)
 
 	//talk_resend = last_turns + 36;
 
-#ifndef __MSVC__
+#ifndef WINDOWS
 	if (!strlen(talk_pend)) return 1;
 #endif
 
@@ -2701,6 +2928,23 @@ int Send_msg(cptr message)
 
 	return 1;
 }
+
+int Send_pass(cptr newpass)
+{
+	int	n;
+
+	if (newpass && strlen(newpass))
+	{
+	    if ((n = Packet_printf(&wbuf, "%c%S", PKT_CHANGEPASS, newpass)) <= 0)
+	    {
+		return n;
+	    }
+	
+	}
+
+	return 1;
+}
+
 
 int Send_fire(int item, int dir)
 {
@@ -2951,6 +3195,18 @@ int Send_master(s16b command, cptr buf)
 	return 1;
 }
 
+int Send_clear(void)
+{
+	int	n;
+
+	if ((n = Packet_printf(&wbuf, "%c", PKT_CLEAR)) <= 0)
+	{
+		return n;
+	}
+
+	return 1;
+}
+
 // Update the current time, which is stored in 100 ms "ticks".
 // I hope that Windows systems have gettimeofday on them by default.
 // If not there should hopefully be some simmilar efficient call with the same
@@ -2964,9 +3220,9 @@ void update_ticks()
 	float scale = 100000;
 	int mins,hours;
 
-// [grk] We do this slightly differently on WIN32 using MSVC
+// [grk] We do this slightly differently on WIN32 
 
-#ifdef __MSVC__
+#ifdef WINDOWS
 	LPSYSTEMTIME lpst;
 	SYSTEMTIME st;
 	lpst = &st;
@@ -3035,3 +3291,4 @@ static u32b last_sent;
 		}
 	}
 }
+

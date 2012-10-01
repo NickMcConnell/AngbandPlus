@@ -138,9 +138,7 @@ struct sockaddr_un	sl_dgram_lastaddr;
 struct sockaddr_in	sl_dgram_lastaddr;
 #endif
 
-#ifdef NEW_SERVER_CONSOLE
 int ConsoleSocket;
-#endif
 
 /* Global broadcast enable variable (super-user only), default disabled */
 int			sl_broadcast_enabled = 0;
@@ -1170,7 +1168,7 @@ static void inthandler(int signum)
 static inthandler()
 #endif /* __STDC__ */
 {
-    DEB(fprintf(stderr, "Connection interrupted, timeout\n"));
+    DEB(plog("Connection interrupted, timeout"));
     (void) longjmp(env, 1);
 } /* inthandler */
 
@@ -1237,7 +1235,6 @@ char	*buf;
 	(void) signal(SIGALRM, inthandler);
 	(void) alarm(sl_timeout_s);
 	ret1 = read(fd, &buf[ret], size - ret);
-	DEB(fprintf(stderr, "Read %d bytes\n", ret1));
 	(void) alarm(0);
 	(void) signal(SIGALRM, SIG_DFL);
 	ret += ret1;
@@ -1438,8 +1435,7 @@ int	port;
     addr_in.sin_family		= AF_INET;
 #ifdef BIND_IP
     addr_in.sin_addr.s_addr	= inet_addr( BIND_IP); /* RLS */
-/* XXX */
-    fprintf( stderr, "Dgram Socket Binding By Request to %s\n",inet_ntoa(addr_in.sin_addr));
+	/* fprintf( stderr, "Dgram Socket Binding By Request to %s\n",inet_ntoa(addr_in.sin_addr)); */
 #else
     addr_in.sin_addr.s_addr	= INADDR_ANY;
 #endif
@@ -1458,7 +1454,7 @@ int	port;
     if (retval < 0)
     {
 	sl_errno = SL_EBIND;
-	fprintf( stderr, "Dgram Socket Bind Error: %d,%d\n",retval,errno);
+	plog(format("Dgram Socket Bind Error: %d,%d",retval,errno));
 	retval = errno;
 	(void) close(fd);
 	errno = retval;

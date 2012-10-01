@@ -1,6 +1,25 @@
 #include "angband.h"
+#include "netclient.h"
+#include "../common/md5.h"
 
 /* Handle all commands */
+void cmd_spike(void)
+{
+	int dir;
+
+	if (!c_get_spike()) 
+	{
+			/* Message */
+			c_msg_print("You have no spikes!");
+			return;
+	}
+
+	get_dir(&dir);
+
+	/* Send it */
+	Send_steal(dir);
+}
+
 
 void process_command()
 {
@@ -11,6 +30,9 @@ void process_command()
                 case ESCAPE:
                 case ' ':
                 {
+    			if (first_escape) 
+                	    Send_clear();
+    			first_escape = FALSE;
                         break;
                 }
 
@@ -172,6 +194,12 @@ void process_command()
                         break;
                 }
 
+		case 'I':
+                {
+                        cmd_observe();
+                        break;
+                }
+
 		case '{':
 		{
 			cmd_inscribe();
@@ -186,7 +214,8 @@ void process_command()
 
 		case 'j':
 		{
-			cmd_steal();
+			//cmd_steal();
+			cmd_spike();
 			break;
 		}
 
@@ -366,6 +395,11 @@ void process_command()
 			cmd_master();
 			break;
 		}
+		case KTRL('D'): /* 'Describe item. This means 'brag about it in chat' */
+      {
+         cmd_describe();
+         break;
+     	}
 
                 case KTRL('P'):
                 {
@@ -750,22 +784,52 @@ void cmd_destroy(void)
 		return;
 	}
 
-	/* Get an amount */
-	if (inventory[item].number > 1)
+	/* Not on-the-floor item */
+	if (item >= 0) 
 	{
-		amt = c_get_quantity("How many? ", inventory[item].number);
+		/* Get an amount */
+		if (inventory[item].number > 1)
+		{
+			amt = c_get_quantity("How many? ", inventory[item].number);
+		}
+		else amt = 1;
+	
+		/* Sanity check */
+		if (inventory[item].number == amt)
+			sprintf(out_val, "Really destroy %s? ", inventory_name[item]);
+		else
+			sprintf(out_val, "Really destroy %d of your %s? ", amt, inventory_name[item]);
+		if (!get_check(out_val)) return;
+	
 	}
-	else amt = 1;
-
-	/* Sanity check */
-	if (inventory[item].number == amt)
-		sprintf(out_val, "Really destroy %s? ", inventory_name[item]);
-	else
-		sprintf(out_val, "Really destroy %d of your %s? ", amt, inventory_name[item]);
-	if (!get_check(out_val)) return;
+	else 
+	{
+		/* BAD HACK -- always destroy only 1 item on the floor. 
+			TODO: server informs client about number of items along the lines of TV_ update
+					then it is presented here
+		*/
+		sprintf(out_val, "Really destroy ? ");
+		if (!get_check(out_val)) return;
+			
+		amt = 1;
+	} 
 
 	/* Send it */
 	Send_destroy(item, amt);
+}
+
+
+void cmd_observe(void)
+{
+	int item;
+
+	if (!c_get_item(&item, "Examine what? ", TRUE, TRUE, FALSE))
+	{
+		return;
+	}
+
+	/* Send it */
+	Send_observe(item);
 }
 
 
@@ -798,6 +862,30 @@ void cmd_uninscribe(void)
 	/* Send it */
 	Send_uninscribe(item);
 }
+
+void cmd_describe(void)
+{
+	int item;
+	char buf[80];
+
+	if (!c_get_item(&item, "Describe what? ", TRUE, TRUE, FALSE))
+	{
+		return;
+	}
+
+	buf[0] = '\0';
+	
+	/* Copy item name */
+	strcpy(buf, inventory_name[item]);		
+	
+	if (buf[0] != '\0')
+				Send_msg(buf);
+				
+	///* Get an inscription */
+	//if (get_string("Inscription: ", buf, 59))
+	//	Send_inscribe(item, buf);
+}
+
 
 void cmd_steal(void)
 {
@@ -937,6 +1025,7 @@ void cmd_eat(void)
 	Send_eat(item);
 }
 
+
 void cmd_activate(void)
 {
 	int item;
@@ -954,10 +1043,13 @@ void cmd_activate(void)
 int cmd_target(void)
 {
 	bool done = FALSE;
-	bool position = FALSE;
+	bool fail = FALSE;
 	int d;
 	char ch;
 
+	cursor_icky = TRUE;
+	target_position = FALSE;
+	
 	/* Tell the server to init targetting */
 	Send_target(0);
 
@@ -973,9 +1065,8 @@ int cmd_target(void)
 			case ESCAPE:
 			case 'q':
 			{
-				/* Clear top line */
-				prt("", 0, 0);
-				return FALSE;
+				done = fail = TRUE;
+				break;
 			}
 			case 't':
 			case '5':
@@ -983,14 +1074,22 @@ int cmd_target(void)
 				done = TRUE;
 				break;
 			}
+			case 'm':
+			{
+				target_position = FALSE;
+				/* Tell the server to reset */
+				Send_target(0);
+				/* Reset cursor stuff */
+				Term_consolidate_cursor(FALSE, 0, 0);
+				/* Clear the top line */
+				prt("", 0, 0);
+				break;
+			}
 			case 'p':
 			{
-				/* Toggle */
-				position = !position;
-
+				target_position = TRUE;
 				/* Tell the server to reset */
-				Send_target(128 + 0);
-
+				Send_target(64 + 0);
 				break;
 			}
 			default:
@@ -1002,27 +1101,42 @@ int cmd_target(void)
 					 * the player is probably trying to do 
 					 * something else, like stay alive...
 					 */
-					/* Clear the top line */
-					prt("", 0, 0);
-					return FALSE;
+					done = fail = TRUE;
+					break;
 				}
 				else
 				{
-					if (position)
-						Send_target(d + 128);	
-					else Send_target(d);
+					if (target_position)
+						Send_target(d + 64);	
+					else 
+						Send_target(d);
 				}
 				break;
 			}
 		}
 	}
+	
+	if (fail)
+	{
+		/* Clear the top line */
+		prt("", 0, 0);
+		/* Send the cancellation */
+		Send_target(255);
+	}
+	else
+	{
+		/* Send the affirmative */
+		if (target_position)
+			Send_target(64 + 5);
+		else 
+			Send_target(5);
+	}
 
-	/* Send the affirmative */
-	if (position)
-		Send_target(128 + 5);
-	else Send_target(5);
+	/* Reset cursor stuff */
+	cursor_icky = FALSE;
+	Term_consolidate_cursor(FALSE, 0, 0);
 
-	return TRUE;
+	return !fail;
 }
 
 
@@ -1040,6 +1154,9 @@ void cmd_look(void)
 	bool done = FALSE;
 	int d;
 	char ch;
+	bool position = FALSE;
+	
+	cursor_icky = TRUE;
 
 	/* Tell the server to init looking */
 	Send_look(0);
@@ -1057,20 +1174,77 @@ void cmd_look(void)
 			{
 				/* Clear top line */
 				prt("", 0, 0);
-				return;
+				done = TRUE;
+				break;
+			}
+			case 'm':
+			{
+				position = FALSE;
+				/* Tell the server to reset */
+				Send_look(0);
+				break;
+			}
+			case 'p':
+			{
+				position = TRUE;
+
+				/* Tell the server to reset */
+				Send_look(64 + 0);
+
+				break;
 			}
 			default:
 			{
 				d = keymap_dirs[ch & 0x7F];
 				if (!d) bell();
-				else Send_look(d);
+				else {
+					if (position) Send_look(d + 64);
+					else Send_look(d);
+				}
 				break;
+			}
+		}
+	}
+
+	/* Tell the server we're done looking */
+	Send_look(5);
+	
+	cursor_icky = FALSE;
+	Term_consolidate_cursor(FALSE, 0, 0);
+}
+
+void cmd_changepass(void) 
+{
+	int done = 0;
+	char pass1[MAX_PASS_LEN];
+	char pass2[MAX_PASS_LEN];
+	int pause = 0;
+	char ch;
+	pass1[0] = '\0';
+	pass2[0] = '\0';
+
+
+	if (get_string_masked("New Password: ", pass1, MAX_PASS_LEN-1)) 
+	{
+		if (get_string_masked("Confirm It: ", pass2, MAX_PASS_LEN-1)) 
+		{
+			if (!strcmp(pass1,pass2)) {
+				MD5Password(pass1);
+				Send_pass(pass1);
+				prt(" Password changed [press any key]",0,0);
+			} else {
+				prt(" Not matching [paused]",0,0);
+			}
+
+			while (!pause)
+			{
+				ch = inkey();
+				if (ch) pause = 1;
 			}
 		}
 	}
 }
 
-			
 void cmd_character(void)
 {
 	char ch = 0;
@@ -1085,10 +1259,10 @@ void cmd_character(void)
 	while (!done)
 	{
 		/* Display player info */
-		display_player(hist);
+		display_player();
 
 		/* Display message */
-		prt("[ESC to quit, h to toggle history]", 21, 24);
+		prt("[ESC to quit, h to toggle history, p to change password]", 21, 12);
 
 		/* Wait for key */
 		ch = inkey();
@@ -1097,7 +1271,14 @@ void cmd_character(void)
 		if (ch == 'h' || ch == 'H')
 		{
 			/* Toggle */
-			hist = !hist;
+			char_screen_mode++;
+			if (char_screen_mode > 2) char_screen_mode = 0;
+		}
+		
+		/* Check for "change password" */
+		if (ch == 'p' || ch == 'P') 
+		{
+			cmd_changepass();
 		}
 
 		/* Check for quit */
@@ -1125,6 +1306,9 @@ void cmd_artifacts(void)
 	/* Set the hook */
 	special_line_type = SPECIAL_FILE_ARTIFACT;
 
+	/* Set the header */
+	strcpy(special_line_header, "Artifacts");
+
 	/* Call the file perusal */
 	peruse_file();
 }
@@ -1133,6 +1317,9 @@ void cmd_uniques(void)
 {
 	/* Set the hook */
 	special_line_type = SPECIAL_FILE_UNIQUE;
+	
+	/* Set the header */
+	strcpy(special_line_header, "Uniques");
 
 	/* Call the file perusal */
 	peruse_file();
@@ -1143,6 +1330,10 @@ void cmd_players(void)
 	/* Set the hook */
 	special_line_type = SPECIAL_FILE_PLAYER;
 
+	/* Set the header */
+	strcpy(special_line_header, "Players");
+
+
 	/* Call the file perusal */
 	peruse_file();
 }
@@ -1152,6 +1343,9 @@ void cmd_high_scores(void)
 	/* Set the hook */
 	special_line_type = SPECIAL_FILE_SCORES;
 
+	/* Set the header */
+	strcpy(special_line_header, "Highscores");
+
 	/* Call the file perusal */
 	peruse_file();
 }
@@ -1160,6 +1354,9 @@ void cmd_help(void)
 {
 	/* Set the hook */
 	special_line_type = SPECIAL_FILE_HELP;
+	
+	/* Set the header */
+	strcpy(special_line_header, "Help");
 
 	/* Call the file perusal */
 	peruse_file();
@@ -1167,12 +1364,14 @@ void cmd_help(void)
 
 void cmd_message(void)
 {
-
+	//[flm] powerhack to prevent next hack:
+	bool refocus_chat = TRUE;
+#ifdef USE_SDL
+	refocus_chat = FALSE;
+#endif
 # define PMSG_TERM 4
-
 	// [hack] hack to just change the window focus in WIN32 client
-
-	if (ang_term[PMSG_TERM]) {
+	if (refocus_chat && ang_term[PMSG_TERM]) {
 		set_chat_focus();
 	} else {
 		char buf[60];
@@ -1180,7 +1379,8 @@ void cmd_message(void)
 		buf[0] = '\0';
 
 		if (get_string("Message: ", buf, 59))
-			Send_msg(buf);
+			if (buf[0] != '\0')
+				Send_msg(buf);
 	};
 }
 
@@ -1351,7 +1551,8 @@ void cmd_browse(void)
 
 	if (class == CLASS_PRIEST || class == CLASS_PALADIN)
 		item_tester_tval = TV_PRAYER_BOOK;
-	else item_tester_tval = TV_MAGIC_BOOK;
+    else 
+	item_tester_tval = TV_MAGIC_BOOK;
 
 	if (!c_get_item(&item, "Browse which book? ", FALSE, TRUE, FALSE))
 	{
@@ -1391,7 +1592,7 @@ void cmd_cast(void)
 {
 	int item;
 
-	if (class != CLASS_MAGE && class != CLASS_ROGUE && class != CLASS_RANGER)
+    if (class != CLASS_MAGE && class != CLASS_ROGUE && class != CLASS_RANGER )
 	{
 		c_msg_print("You cannot cast spells!");
 		return;
@@ -1539,6 +1740,169 @@ void cmd_master_aux_level(void)
 		c_msg_print(NULL);
 	}
 }
+void cmd_master_aux_generate_item(void)
+{
+	char i, redo_hack;
+	char buf[80];
+	s32b tmp_quan;
+	/* Process requests until done */
+	
+	/* Clear screen */
+	Term_clear();
+	
+	/* Inform server about cleared screen */
+	Send_master(MASTER_GENERATE, "ir");		
+		
+	while (1)
+	{
+		redo_hack = 0;
+		
+		/* Initialize buffer */
+		buf[0] = 'i';
+		buf[1] = '\0';
+
+		/* Describe */
+		Term_putstr(0, 2, -1, TERM_WHITE, "Generate Item");
+
+		/* Selections */
+		Term_putstr(5, 4, -1, TERM_WHITE, "(1) By number" );
+		Term_putstr(5, 5, -1, TERM_WHITE, "(2) By name" );
+		Term_putstr(5, 6, -1, TERM_WHITE, "(+) Next Item" );
+		Term_putstr(5, 7, -1, TERM_WHITE, "(-) Previous Item" );
+		Term_putstr(5, 8, -1, TERM_WHITE, "(>) Next Ego" );
+		Term_putstr(5, 9, -1, TERM_WHITE, "(<) Previous Ego" );
+		
+		Term_putstr(50, 4, -1, TERM_WHITE, "(h)it, (d)am," );
+		Term_putstr(50, 5, -1, TERM_WHITE, "(a)c,  (p)val," );
+		Term_putstr(50, 6, -1, TERM_WHITE, "(x)tra2" );
+		
+		// This is very confusing.
+//		Term_putstr(21, 8, -1, TERM_WHITE, "item/ego - SHIFT - inc/decr " );
+//		Term_putstr(34, 9, -1, TERM_WHITE, "|" );
+//		Term_putstr(32, 10, -1, TERM_WHITE, "force" );
+		
+
+//		/* Prompt */
+//		Term_putstr(0, 12, -1, TERM_WHITE, "Command: ");
+
+
+		Term_putstr(5, 10, -1, TERM_WHITE, "(g) Generate");
+		
+		Term_putstr(0, 15, -1, TERM_WHITE, "Selection: ");
+
+		/* Get a key */
+		i = inkey();
+
+		/* Leave */
+		if (i == ESCAPE) break;
+		else if (i == 'H' || i == 'D' || i == 'A' || i == 'X' || i == 'P')
+		{
+			buf[1] = 'M';
+			buf[2] = tolower(i);
+		}		
+		else if (i == 'h' || i == 'd' || i == 'a' || i == 'x' || i == 'p')
+		{
+			buf[1] = 'I';
+			buf[2] = i;
+		}		
+		else if (i == 'g')
+		{
+			buf[1] = 'd';
+			buf[2] = c_get_quantity("How much? ", 127);
+			if(!buf[2]) redo_hack = 1;
+			buf[3] = 0;
+		}
+		else if (i == 'G')
+		{
+			buf[1] = 'd';
+			buf[2] = 1;
+			buf[3] = 0;
+		}
+		else if (i == '+')
+		{
+			/* Next Item*/
+			buf[1] = 'k';
+			buf[2] = '+';
+		}
+		else if (i == '-')
+		{
+			/* Prev. Item */
+			buf[1] = 'k';
+			buf[2] = '-';
+		}
+		else if (i == '>')
+		{
+			/* Next Ego */
+			buf[1] = 'e';
+			buf[2] = '+';
+		}
+		else if (i == '<')
+		{
+			/* Prev. Ego */
+			buf[1] = 'e';
+			buf[2] = '-';
+		}
+		else if (i == '1')
+		{
+			/* Kind by number */
+			buf[1] = 'k';
+			buf[2] = '#';
+			tmp_quan = c_get_quantity("Item number? ", MAX_K_IDX);
+			if (tmp_quan > 255) 
+			{buf[3] = tmp_quan-255;buf[4] = tmp_quan-(tmp_quan-255);}
+			else
+			{buf[3] = tmp_quan;buf[4] = 0;}
+			if(!tmp_quan) redo_hack = 1;
+			buf[5] = 0;
+			
+		}
+		else if (i == '2')
+		{
+			/* Kind by name */
+			buf[1] = 'k';
+			buf[2] = 'n';
+			get_string("Enter item name: ", &buf[3], 79);
+			if(!buf[3]) redo_hack = 1;
+		}
+		else if (i == '!')
+		{
+			/* Ego by number */
+			buf[1] = 'e';
+			buf[2] = '#';
+			buf[3] = c_get_quantity("EGO id? ", MAX_E_IDX);
+			if(!buf[3]) redo_hack = 1;
+			buf[4] = 0;
+		}
+		else if (i == '@')
+		{
+			/* Ego by name */
+			buf[1] = 'e';
+			buf[2] = 'n';
+			get_string("Enter ego name: ", &buf[3], 79);
+			if(!buf[3]) redo_hack = 1;
+		}
+
+		/* Oops */
+		else
+		{
+			/* Ring bell */
+			bell(); redo_hack = 1;
+		}
+
+		/* hack -- don't do this if we hit an invalid key previously */
+		if(redo_hack) continue;
+		
+		
+		/* Clear screen again */
+		Term_clear();
+
+		/* Send choice to server */
+		Send_master(MASTER_GENERATE, buf);
+
+		/* Flush messages */
+		c_msg_print(NULL);
+	}
+}
 
 void cmd_master_aux_generate_vault(void)
 {
@@ -1626,6 +1990,9 @@ void cmd_master_aux_generate(void)
 		/* Selections */
 		Term_putstr(5, 4, -1, TERM_WHITE, "(1) Vault");
 
+		/* Selections */
+		Term_putstr(5, 5, -1, TERM_WHITE, "(2) Item");
+
 		/* Prompt */
 		Term_putstr(0, 7, -1, TERM_WHITE, "Command: ");
 
@@ -1640,6 +2007,12 @@ void cmd_master_aux_generate(void)
 		{
 			cmd_master_aux_generate_vault();
 		}
+		else if (i == '2')
+		{
+			cmd_master_aux_generate_item();
+		}
+
+
 
 		/* Oops */
 		else
@@ -2031,7 +2404,7 @@ void cmd_master_aux_summon(void)
 			{
 				buf[2] = 's';
 				buf[3] = 0;
-				get_string("Summon which mosnter or character? ", &buf[3], 79);
+				get_string("Enter (partial) monster name: ", &buf[3], 79);
 				if (!buf[3]) redo_hack = 1;
 				break;
 			}

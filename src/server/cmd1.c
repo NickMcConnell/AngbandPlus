@@ -181,10 +181,10 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+        u32b f1, f2, f3;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+        object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -278,6 +278,24 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (mult < 5) mult = 5;
 			}
 
+            /* Execute Demon */
+            if ((f1 & TR1_KILL_DEMON) &&
+                (r_ptr->flags3 & RF3_DEMON))
+            {
+                /*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DEMON;*/
+
+                if (mult < 5) mult = 5;
+            }
+
+            /* Execute Undead */
+            if ((f1 & TR1_KILL_UNDEAD) &&
+                (r_ptr->flags3 & RF3_UNDEAD))
+            {
+                /*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;*/
+
+                if (mult < 5) mult = 5;
+            }
+
 
 			/* Brand (Acid) */
 			if (f1 & TR1_BRAND_ACID)
@@ -343,6 +361,22 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
+            /* Brand (Poison) */
+            if (f1 & TR1_BRAND_POIS)
+            {
+                /* Notice immunity */
+                if (r_ptr->flags3 & RF3_IM_POIS)
+                {
+                    /*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_POIS;*/
+                }
+
+                /* Otherwise, take the damage */
+                else
+                {
+                    if (mult < 3) mult = 3;
+                }
+            }
+
 			break;
 		}
 	}
@@ -362,7 +396,7 @@ s16b tot_dam_aux_player(object_type *o_ptr, int tdam, player_type *p_ptr)
 {
 	int mult = 1;
 
-	u32b f1, f2, f3;
+        u32b f1, f2, f3;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -437,6 +471,21 @@ s16b tot_dam_aux_player(object_type *o_ptr, int tdam, player_type *p_ptr)
 					if (mult < 3) mult = 3;
 				}
 			}
+
+            /* Brand (Poison) */
+            if (f1 & TR1_BRAND_POIS)
+            {
+                /* Notice resistance */
+                if (p_ptr->resist_pois)
+                {
+                }
+
+                /* Otherwise, take the damage */
+                else
+                {
+                    if (mult < 3) mult = 3;
+                }
+            }
 
 			break;
 		}
@@ -645,10 +694,16 @@ void carry(int Ind, int pickup, int confirm)
 				/* Message */
 				msg_format(Ind, "You have %s (%c).", o_name, index_to_label(slot));
 
-
-				/*  hack so it doesnt clear the house -APD- */
-				if (o_ptr->tval == TV_KEY) houses[o_ptr->pval].owned = 2;
-
+				/* Hack - record finding artifacts in the event history */
+				if(artifact_p(o_ptr))
+				{
+					char artname[80];
+					char msg[80];
+					object_desc(0, artname, o_ptr, FALSE, 0);
+					sprintf(msg,"Found The %s",artname);					
+					log_history_event(Ind, msg);
+				}
+					
 				/* Delete original */
 				delete_object(Depth, p_ptr->py, p_ptr->px);
 
@@ -1016,7 +1071,7 @@ void py_attack_player(int Ind, int y, int x)
 
 	object_type *o_ptr;
 
-	char p_name[80];
+	char pvp_name[80];
 
 	bool do_quake = FALSE;
 
@@ -1025,23 +1080,22 @@ void py_attack_player(int Ind, int y, int x)
 	disturb(0 - c_ptr->m_idx, 0, 0);
 
 	/* Extract name */
-	strcpy(p_name, q_ptr->name);
+	strcpy(pvp_name, q_ptr->name);
 
 	/* Track player health */
 	if (p_ptr->play_vis[0 - c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
 
-	/* If target isn't already hostile toward attacker, make it so */
+	/* If target isn't hostile toward attacker, don't attack */
 	if (!check_hostile(0 - c_ptr->m_idx, Ind))
 	{
-		/* Make hostile */
-		add_hostility(0 - c_ptr->m_idx, p_ptr->name);
+		return;
 	}
 
 	/* Handle attacker fear */
 	if (p_ptr->afraid)
 	{
 		/* Message */
-		msg_format(Ind, "You are too afraid to attack %s!", p_name);
+		msg_format(Ind, "You are too afraid to attack %s!", pvp_name);
 
 		/* Done */
 		return;
@@ -1065,7 +1119,7 @@ void py_attack_player(int Ind, int y, int x)
 			sound(Ind, SOUND_HIT);
 
 			/* Messages */
-			msg_format(Ind, "You hit %s.", p_name);
+			msg_format(Ind, "You hit %s.", pvp_name);
 			msg_format(0 - c_ptr->m_idx, "%s hits you.", p_ptr->name);
 
 			/* Hack -- bare hands do one damage */
@@ -1114,15 +1168,15 @@ void py_attack_player(int Ind, int y, int x)
 				/* Confuse the monster */
 				if (q_ptr->resist_conf)
 				{
-					msg_format(Ind, "%^s is unaffected.", p_name);
+					msg_format(Ind, "%^s is unaffected.", pvp_name);
 				}
 				else if (rand_int(100) < q_ptr->lev)
 				{
-					msg_format(Ind, "%^s is unaffected.", p_name);
+					msg_format(Ind, "%^s is unaffected.", pvp_name);
 				}
 				else
 				{
-					msg_format(Ind, "%^s appears confused.", p_name);
+					msg_format(Ind, "%^s appears confused.", pvp_name);
 					set_confused(0 - c_ptr->m_idx, q_ptr->confused + 10 + rand_int(p_ptr->lev) / 5);
 				}
 			}
@@ -1134,7 +1188,7 @@ void py_attack_player(int Ind, int y, int x)
 
 				if (rand_int(100) < fear_chance)
 				{
-					msg_format(Ind, "%^s appears afraid.", p_name);
+					msg_format(Ind, "%^s appears afraid.", pvp_name);
 					set_afraid(0 - c_ptr->m_idx, q_ptr->afraid + 4 + rand_int(p_ptr->lev) / 5);
 				}
 			}
@@ -1147,7 +1201,7 @@ void py_attack_player(int Ind, int y, int x)
 			sound(Ind, SOUND_MISS);
 
 			/* Messages */
-			msg_format(Ind, "You miss %s.", p_name);
+			msg_format(Ind, "You miss %s.", pvp_name);
 			msg_format(0 - c_ptr->m_idx, "%s misses you.", p_ptr->name);
 		}
 	}
@@ -1347,7 +1401,7 @@ void py_attack_mon(int Ind, int y, int x)
 
 
 	/* Hack -- delay fear messages */
-	if (fear && p_ptr->mon_vis[c_ptr->m_idx])
+	if (fear && p_ptr->mon_vis[c_ptr->m_idx] && !(r_ptr->flags2 & RF2_WANDERER))
 	{
 		/* Sound */
 		sound(Ind, SOUND_FLEE);
@@ -1419,6 +1473,32 @@ void move_player(int Ind, int dir, int do_pickup)
 	y = p_ptr->py + ddy[dir];
 	x = p_ptr->px + ddx[dir];
 
+  if (cfg_ironman || cfg_town_wall)
+  {
+	/* 
+	 * Ironmen don't go wandering in the countryside...
+	 */
+	if (!in_bounds(Depth, y, x))
+	{
+		if(Depth == 0 && !cfg_town_wall)
+		{
+			switch(rand_int(5))
+			{
+				case 0: msg_print(Ind, "You don't feel like going to pick flowers right now."); break;
+				case 1: msg_print(Ind, "Where do you think you are going?"); break; /* [Warrior] */
+				case 2: msg_print(Ind, "Morgoth the potato farmer? - get real!"); break; /* [Warrior] */
+				case 3: msg_print(Ind, "Morgoth awaits you in the depths not in the fields."); break; 
+				case 4: msg_print(Ind, "Something draws your attention back to the stairs."); break; 
+			}	
+		}
+		else
+			msg_print(Ind, "There is a wall blocking your way.");			
+		disturb(Ind, 1, 0);
+		return;
+	}	 
+  }
+  else
+  {
 	/* Update wilderness positions */
 	if (p_ptr->dun_depth <= 0)
 	{
@@ -1503,9 +1583,9 @@ void move_player(int Ind, int dir, int do_pickup)
 			return;
 		}
 	}
+  }
 
 	
-
 	/* Examine the destination */
 	c_ptr = &cave[Depth][y][x];
 	w_ptr = &p_ptr->cave_flag[y][x];
@@ -1525,14 +1605,9 @@ void move_player(int Ind, int dir, int do_pickup)
 		player_type *q_ptr = Players[0 - c_ptr->m_idx];
 		int Ind2 = 0 - c_ptr->m_idx;
 
-#ifdef PLAYER_INTERACTION
 		/* Check for an attack */
 		if (check_hostile(Ind, Ind2))
 			py_attack(Ind, y, x);
-#else
-		/* XXX */
-		if (0);
-#endif
 
 		/* If both want to switch, do it */
 		else if ((!p_ptr->ghost && !q_ptr->ghost &&
@@ -1560,6 +1635,9 @@ void move_player(int Ind, int dir, int do_pickup)
 			/* Disturb both of them */
 			disturb(Ind, 1, 0);
 			disturb(Ind2, 1, 0);
+
+			/* Unhack both of them */
+			q_ptr->last_dir = p_ptr->last_dir = 5;
 
 			/* Re-show both grids */
 			everyone_lite_spot(Depth, p_ptr->py, p_ptr->px);
@@ -1607,7 +1685,7 @@ void move_player(int Ind, int dir, int do_pickup)
 	}
 
 	/* Player can not walk through "walls", but ghosts can */
-	else if (!p_ptr->ghost && !cave_floor_bold(Depth, y, x))
+    else if ((!p_ptr->ghost) && (!cave_floor_bold(Depth, y, x)))
 	{
 		/* Disturb the player */
 		disturb(Ind, 0, 0);
@@ -1681,7 +1759,7 @@ void move_player(int Ind, int dir, int do_pickup)
 	}
 
 	/* Ghost trying to walk into a permanent wall */
-	else if (p_ptr->ghost && c_ptr->feat >= FEAT_PERM_SOLID)
+    else if (p_ptr->ghost && c_ptr->feat == FEAT_PERM_SOLID)
 	{
 		/* Message */
 		msg_print(Ind, "The wall blocks your movement.");
@@ -1757,8 +1835,11 @@ void move_player(int Ind, int dir, int do_pickup)
 			disturb(Ind, 0, 0);
 
 			/* Hack -- Enter store */
-			command_new = '_';
-			do_cmd_store(Ind);
+			if (c_ptr->feat != FEAT_SHOP_HEAD+7)
+			{
+				command_new = '_';
+				do_cmd_store(Ind,-1);
+			}
 		}
 
 		/* Handle resurrection */
@@ -1819,7 +1900,7 @@ int see_wall(int Ind, int dir, int y, int x)
 	x += ddx[dir];
 
 	/* Ghosts run right through everything */
-	if (p_ptr->ghost) return (FALSE);
+    if (p_ptr->ghost) return (FALSE);
 
 	/* Do wilderness hack, keep running from one outside level to another */
 	if ( (!in_bounds(Depth, y, x)) && (Depth <= 0) ) return FALSE;
@@ -2179,7 +2260,7 @@ static bool run_test(int Ind)
 
 
 	/* XXX -- Ghosts never stop running */
-	if (p_ptr->ghost) return (FALSE);
+    if (p_ptr->ghost) return (FALSE);
 
 	/* No options yet */
 	option = 0;
@@ -2603,5 +2684,3 @@ void run_step(int Ind, int dir)
 	/* Move the player, using the "pickup" flag */
 	move_player(Ind, p_ptr->find_current, p_ptr->always_pickup);
 }
-
-

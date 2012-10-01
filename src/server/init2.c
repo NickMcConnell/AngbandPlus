@@ -30,7 +30,7 @@
  * that the binary image files are extremely system dependant.
  */
 
-
+#include "init.h"
 
 /*
  * Find the default paths to all of our important sub-directories.
@@ -74,11 +74,21 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR);
 
 	/* Free the sub-paths */
+/*	string_free(ANGBAND_DIR_APEX);*/
+/*	string_free(ANGBAND_DIR_BONE);*/
 	string_free(ANGBAND_DIR_DATA);
-	string_free(ANGBAND_DIR_GAME);
+	string_free(ANGBAND_DIR_EDIT);
+/*	string_free(ANGBAND_DIR_FILE);*/
+/*	string_free(ANGBAND_DIR_HELP);*/
+/*	string_free(ANGBAND_DIR_INFO);*/
 	string_free(ANGBAND_DIR_SAVE);
-	string_free(ANGBAND_DIR_TEXT);
+/*	string_free(ANGBAND_DIR_PREF);*/
 	string_free(ANGBAND_DIR_USER);
+/*	string_free(ANGBAND_DIR_XTRA);*/
+/*	string_free(ANGBAND_DIR_SCRIPT);*/
+
+	string_free(ANGBAND_DIR_GAME);
+	string_free(ANGBAND_DIR_TEXT);
 
 
 	/*** Prepare the "path" ***/
@@ -117,9 +127,25 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_DATA = string_make(path);
 
 	/* Build a path name */
-	strcpy(tail, "game");
-	ANGBAND_DIR_GAME = string_make(path);
+	strcpy(tail, "edit");
+	ANGBAND_DIR_EDIT = string_make(path);
+#if 0
+	/* Build a path name */
+	strcpy(tail, "file");
+	ANGBAND_DIR_FILE = string_make(path);
 
+	/* Build a path name */
+	strcpy(tail, "help");
+	ANGBAND_DIR_HELP = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "info");
+	ANGBAND_DIR_INFO = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "pref");
+	ANGBAND_DIR_PREF = string_make(path);
+#endif
 	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
@@ -131,7 +157,19 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
+#if 0
+	/* Build a path name */
+	strcpy(tail, "apex");
+	ANGBAND_DIR_APEX = string_make(path);
 
+	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "xtra");
+	ANGBAND_DIR_XTRA = string_make(path);
+#endif
 #endif /* VM */
 
 
@@ -226,6 +264,7 @@ static void show_news_aux(cptr why)
  */
 void show_news(void)
 {
+#if 0
 	int		fd = -1;
 
 	int		mode = 0644;
@@ -321,6 +360,7 @@ void show_news(void)
 
 	/* Close it */
 	(void)fd_close(fd);
+#endif
 }
 
 
@@ -377,10 +417,386 @@ static cptr err_str[8] =
 #endif
 
 
+/*
+ * File headers
+ */
+header z_head;
+/*header v_head;
+header f_head;
+header k_head;
+header a_head;
+header e_head;
+header r_head;*/
+header p_head;
+header c_head;
+header h_head;
+header b_head;
+header g_head;
+header flavor_head;
+
+
+
+/*** Initialize from binary image files ***/
 
 
 /*
- * Initialize the "f_info" array
+ * Initialize a "*_info" array, by parsing a binary "image" file
+ */
+static errr init_info_raw(int fd, header *head)
+{
+	header test;
+
+
+	/* Read and verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != head->v_major) ||
+	    (test.v_minor != head->v_minor) ||
+	    (test.v_patch != head->v_patch) ||
+	    (test.v_extra != head->v_extra) ||
+	    (test.info_num != head->info_num) ||
+	    (test.info_len != head->info_len) ||
+	    (test.head_size != head->head_size) ||
+	    (test.info_size != head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	COPY(head, &test, header);
+
+
+	/* Allocate the "*_info" array */
+	C_MAKE(head->info_ptr, head->info_size, char);
+
+	/* Read the "*_info" array */
+	fd_read(fd, head->info_ptr, head->info_size);
+
+	if (head->name_size)
+	{
+		/* Allocate the "*_name" array */
+		C_MAKE(head->name_ptr, head->name_size, char);
+
+		/* Read the "*_name" array */
+		fd_read(fd, head->name_ptr, head->name_size);
+	}
+
+	if (head->text_size)
+	{
+		/* Allocate the "*_text" array */
+		C_MAKE(head->text_ptr, head->text_size, char);
+
+		/* Read the "*_text" array */
+		fd_read(fd, head->text_ptr, head->text_size);
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the header of an *_info.raw file.
+ */
+static void init_header(header *head, int num, int len)
+{
+	/* Save the "version" */
+	head->v_major = VERSION_MAJOR;
+	head->v_minor = VERSION_MINOR;
+	head->v_patch = VERSION_PATCH;
+	head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	head->info_num = num;
+	head->info_len = len;
+
+	/* Save the size of "*_head" and "*_info" */
+	head->head_size = sizeof(header);
+	head->info_size = head->info_num * head->info_len;
+}
+
+
+#ifdef ALLOW_TEMPLATES
+
+/*
+ * Display a parser error message.
+ */
+static void display_parse_error(cptr filename, errr err, cptr buf)
+{
+	cptr oops;
+
+	/* Error string */
+	oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
+
+	/* Oops */
+	plog(format("Error at line %d of '%s.txt'.", error_line, filename));
+	plog(format("Record %d contains a '%s' error.", error_idx, oops));
+	plog(format("Parsing '%s'.", buf));
+/*	message_flush();*/
+
+	/* Quit */
+	quit_fmt("Error in '%s.txt' file.", filename);
+}
+
+#endif /* ALLOW_TEMPLATES */
+
+
+/*
+ * Initialize a "*_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_info(cptr filename, header *head)
+{
+	int fd;
+
+	errr err = 1;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, format("%s.txt", filename));
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_info_raw(fd, head);
+
+		/* Close it */
+		fd_close(fd);
+	}
+
+	/* Do we have to parse the *.txt file? */
+	if (err)
+	{
+		/*** Make the fake arrays ***/
+
+		/* Allocate the "*_info" array */
+		C_MAKE(head->info_ptr, head->info_size, char);
+
+		/* MegaHack -- make "fake" arrays */
+		if (z_info)
+		{
+			C_MAKE(head->name_ptr, z_info->fake_name_size, char);
+			C_MAKE(head->text_ptr, z_info->fake_text_size, char);
+		}
+
+
+		/*** Load the ascii template file ***/
+
+		/* Build the filename */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s.txt", filename));
+
+		/* Open the file */
+		fp = my_fopen(buf, "r");
+
+		/* Parse it */
+		if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
+
+		/* Parse the file */
+		err = init_info_txt(fp, buf, head, head->parse_info_txt);
+
+		/* Close it */
+		my_fclose(fp);
+
+		/* Errors */
+		if (err) display_parse_error(filename, err, buf);
+
+
+		/*** Dump the binary image file ***/
+
+		/* File type is "DATA" */
+		FILE_TYPE(FILE_TYPE_DATA);
+
+		/* Build the filename */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
+
+
+		/* Attempt to open the file */
+		fd = fd_open(buf, O_RDONLY);
+
+		/* Failure */
+		if (fd < 0)
+		{
+			int mode = 0644;
+
+			/* Grab permissions */
+			safe_setuid_grab();
+
+			/* Create a new file */
+			fd = fd_make(buf, mode);
+
+			/* Drop permissions */
+			safe_setuid_drop();
+
+			/* Failure */
+			if (fd < 0)
+			{
+				/* Complain */
+				plog_fmt("Cannot create the '%s' file!", buf);
+
+				/* Continue */
+				return (0);
+			}
+		}
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Attempt to create the raw file */
+		fd = fd_open(buf, O_WRONLY);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* Failure */
+		if (fd < 0)
+		{
+			/* Complain */
+			plog_fmt("Cannot write the '%s' file!", buf);
+
+			/* Continue */
+			return (0);
+		}
+
+		/* Dump to the file */
+		if (fd >= 0)
+		{
+			/* Dump it */
+			fd_write(fd, (cptr)head, head->head_size);
+
+			/* Dump the "*_info" array */
+			if (head->info_size > 0)
+				fd_write(fd, head->info_ptr, head->info_size);
+
+			/* Dump the "*_name" array */
+			if (head->name_size > 0)
+				fd_write(fd, head->name_ptr, head->name_size);
+
+			/* Dump the "*_text" array */
+			if (head->text_size > 0)
+				fd_write(fd, head->text_ptr, head->text_size);
+
+			/* Close */
+			fd_close(fd);
+		}
+
+
+		/*** Kill the fake arrays ***/
+
+		/* Free the "*_info" array */
+		KILL(head->info_ptr, vptr);
+
+		/* MegaHack -- Free the "fake" arrays */
+		if (z_info)
+		{
+			KILL(head->name_ptr, cptr);
+			KILL(head->text_ptr, cptr);
+		}
+
+#endif /* ALLOW_TEMPLATES */
+
+
+		/*** Load the binary image file ***/
+
+		/* Build the filename */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
+
+		/* Attempt to open the "raw" file */
+		fd = fd_open(buf, O_RDONLY);
+
+		/* Process existing "raw" file */
+		if (fd < 0) quit(format("Cannot load '%s.raw' file.", filename));
+
+		/* Attempt to parse the "raw" file */
+		err = init_info_raw(fd, head);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Error */
+		if (err) quit(format("Cannot parse '%s.raw' file.", filename));
+
+#ifdef ALLOW_TEMPLATES
+	}
+#endif /* ALLOW_TEMPLATES */
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Free the allocated memory for the info-, name-, and text- arrays.
+ */
+static errr free_info(header *head)
+{
+	if (head->info_size)
+		FREE(head->info_ptr, vptr);
+
+	if (head->name_size)
+		FREE(head->name_ptr, cptr);
+
+	if (head->text_size)
+		FREE(head->text_ptr, cptr);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "z_info" array
+ */
+static errr init_z_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&z_head, 1, sizeof(maxima));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	z_head.parse_info_txt = parse_z_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("limits", &z_head);
+
+	/* Set the global variables */
+	z_info = z_head.info_ptr;
+
+	return (err);
+}
+
+
+/*
+ * Initialize the "f_info" array (Terrain handling)
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -432,13 +848,13 @@ static errr init_f_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAME, "f_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "terrain.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'f_info.txt' file.");
+	if (!fp) quit("Cannot open 'terrain.txt' file.");
 
 	/* Parse the file */
 	err = init_f_info_txt(fp, buf);
@@ -455,13 +871,13 @@ static errr init_f_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		s_printf("Error %d at line %d of 'f_info.txt'.", err, error_line);
-		s_printf("Record %d contains a '%s' error.", error_idx, oops);
-		s_printf("Parsing '%s'.", buf);
+		plog(format("Error %d at line %d of 'terrain.txt'.", err, error_line));
+		plog(format("Record %d contains a '%s' error.", error_idx, oops));
+		plog(format("Parsing '%s'.", buf));
 		/*msg_print(NULL);*/
 
 		/* Quit */
-		quit("Error in 'f_info.txt' file.");
+		quit("Error in 'terrain.txt' file.");
 	}
 
 	/* Success */
@@ -472,7 +888,7 @@ static errr init_f_info(void)
 
 
 /*
- * Initialize the "k_info" array
+ * Initialize the "k_info" array (Object handling)
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -522,13 +938,13 @@ static errr init_k_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAME, "k_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "object.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'k_info.txt' file.");
+	if (!fp) quit("Cannot open 'object.txt' file.");
 
 	/* Parse the file */
 	err = init_k_info_txt(fp, buf);
@@ -545,13 +961,13 @@ static errr init_k_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		s_printf("Error %d at line %d of 'k_info.txt'.", err, error_line);
-		s_printf("Record %d contains a '%s' error.", error_idx, oops);
-		s_printf("Parsing '%s'.", buf);
+		plog(format("Error %d at line %d of 'object.txt'.", err, error_line));
+		plog(format("Record %d contains a '%s' error.", error_idx, oops));
+		plog(format("Parsing '%s'.", buf));
 		/*msg_print(NULL);*/
 
 		/* Quit */
-		quit("Error in 'k_info.txt' file.");
+		quit("Error in 'object.txt' file.");
 	}
 
 	/* Success */
@@ -562,7 +978,7 @@ static errr init_k_info(void)
 
 
 /*
- * Initialize the "a_info" array
+ * Initialize the "a_info" array (Artifact handling)
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -613,13 +1029,13 @@ static errr init_a_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAME, "a_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "artifact.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'a_info.txt' file.");
+	if (!fp) quit("Cannot open 'artifact.txt' file.");
 
 	/* Parse the file */
 	err = init_a_info_txt(fp, buf);
@@ -636,13 +1052,13 @@ static errr init_a_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		s_printf("Error %d at line %d of 'a_info.txt'.", err, error_line);
-		s_printf("Record %d contains a '%s' error.", error_idx, oops);
-		s_printf("Parsing '%s'.", buf);
+		plog(format("Error %d at line %d of 'artifact.txt'.", err, error_line));
+		plog(format("Record %d contains a '%s' error.", error_idx, oops));
+		plog(format("Parsing '%s'.", buf));
 		/*msg_print(NULL);*/
 
 		/* Quit */
-		quit("Error in 'a_info.txt' file.");
+		quit("Error in 'artifact.txt' file.");
 	}
 
 	/* Success */
@@ -652,7 +1068,64 @@ static errr init_a_info(void)
 
 
 /*
- * Initialize the "e_info" array
+ * Initialize the "c_info" array
+ */
+static errr init_c_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&c_head, z_info->c_max, sizeof(player_class));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	c_head.parse_info_txt = parse_c_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("p_class", &c_head);
+
+	/* Set the global variables */
+	c_info = c_head.info_ptr;
+	c_name = c_head.name_ptr;
+	c_text = c_head.text_ptr;
+
+	return (err);
+}
+
+
+
+/*
+ * Initialize the "h_info" array
+ */
+static errr init_h_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&h_head, z_info->h_max, sizeof(hist_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	h_head.parse_info_txt = parse_h_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("p_hist", &h_head);
+
+	/* Set the global variables */
+	h_info = h_head.info_ptr;
+	h_text = h_head.text_ptr;
+
+	return (err);
+}
+
+
+
+/*
+ * Initialize the "e_info" array (Ego item handling)
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -704,13 +1177,13 @@ static errr init_e_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAME, "e_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ego_item.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'e_info.txt' file.");
+	if (!fp) quit("Cannot open 'ego_item.txt' file.");
 
 	/* Parse the file */
 	err = init_e_info_txt(fp, buf);
@@ -727,13 +1200,13 @@ static errr init_e_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		s_printf("Error %d at line %d of 'e_info.txt'.", err, error_line);
-		s_printf("Record %d contains a '%s' error.", error_idx, oops);
-		s_printf("Parsing '%s'.", buf);
+		plog(format("Error %d at line %d of 'ego_item.txt'.", err, error_line));
+		plog(format("Record %d contains a '%s' error.", error_idx, oops));
+		plog(format("Parsing '%s'.", buf));
 		/*msg_print(NULL);*/
 
 		/* Quit */
-		quit("Error in 'e_info.txt' file.");
+		quit("Error in 'ego_item.txt' file.");
 	}
 
 	/* Success */
@@ -741,7 +1214,7 @@ static errr init_e_info(void)
 }
 
 /*
- * Initialize the "r_info" array
+ * Initialize the "r_info" array (Monster handling)
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -793,13 +1266,13 @@ static errr init_r_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAME, "r_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "monster.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'r_info.txt' file.");
+	if (!fp) quit("Cannot open 'monster.txt' file.");
 
 	/* Parse the file */
 	err = init_r_info_txt(fp, buf);
@@ -816,13 +1289,13 @@ static errr init_r_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		s_printf("Error %d at line %d of 'r_info.txt'.", err, error_line);
-		s_printf("Record %d contains a '%s' error.", error_idx, oops);
-		s_printf("Parsing '%s'.", buf);
+		plog(format("Error %d at line %d of 'monster.txt'.", err, error_line));
+		plog(format("Record %d contains a '%s' error.", error_idx, oops));
+		plog(format("Parsing '%s'.", buf));
 		/*msg_print(NULL);*/
 
 		/* Quit */
-		quit("Error in 'r_info.txt' file.");
+		quit("Error in 'monster.txt' file.");
 	}
 
 	/* Success */
@@ -833,7 +1306,7 @@ static errr init_r_info(void)
 
 
 /*
- * Initialize the "v_info" array
+ * Initialize the "v_info" array (Vault handling)
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -884,13 +1357,13 @@ static errr init_v_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_GAME, "v_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "vault.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'v_info.txt' file.");
+	if (!fp) quit("Cannot open 'vault.txt' file.");
 
 	/* Parse the file */
 	err = init_v_info_txt(fp, buf);
@@ -907,13 +1380,13 @@ static errr init_v_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		s_printf("Error %d at line %d of 'v_info.txt'.", err, error_line);
-		s_printf("Record %d contains a '%s' error.", error_idx, oops);
-		s_printf("Parsing '%s'.", buf);
+		plog(format("Error %d at line %d of 'vault.txt'.", err, error_line));
+		plog(format("Record %d contains a '%s' error.", error_idx, oops));
+		plog(format("Parsing '%s'.", buf));
 		/*msg_print(NULL);*/
 
 		/* Quit */
-		quit("Error in 'v_info.txt' file.");
+		quit("Error in 'vault.txt' file.");
 	}
 
 	/* Success */
@@ -921,6 +1394,32 @@ static errr init_v_info(void)
 }
 
 
+/*
+ * Initialize the "flavor_info" array
+ */
+static errr init_flavor_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&flavor_head, z_info->flavor_max, sizeof(flavor_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	flavor_head.parse_info_txt = parse_flavor_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("flavor", &flavor_head);
+
+	/* Set the global variables */
+	flavor_info = flavor_head.info_ptr;
+	flavor_name = flavor_head.name_ptr;
+	flavor_text = flavor_head.text_ptr;
+
+	return (err);
+}
 
 
 /*** Initialize others ***/
@@ -1065,16 +1564,15 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_MORNING_STAR },
 
 		{ TV_HAFTED, SV_FLAIL },
-	//	{ TV_HAFTED, SV_FLAIL },    for life.
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
 		{ TV_SCROLL, SV_SCROLL_LIFE	},
-		{ TV_SCROLL, SV_SCROLL_LIFE	},
 		{ TV_POTION, SV_POTION_BOLDNESS },
 		{ TV_POTION, SV_POTION_HEROISM },
 
+		{ TV_SCROLL, SV_SCROLL_LIFE	},
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
 		{ TV_POTION, SV_POTION_CURE_SERIOUS },
@@ -1082,7 +1580,6 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
-	//	{ TV_POTION, SV_POTION_RESTORE_EXP },
 
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_PRAYER_BOOK, 0 },
@@ -1119,6 +1616,7 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
 		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
@@ -1149,56 +1647,264 @@ static byte store_table[MAX_STORES-3][STORE_CHOICES][2] =
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
-		{ TV_WAND, SV_WAND_WONDER },
 		{ TV_STAFF, SV_STAFF_LITE },
 		{ TV_STAFF, SV_STAFF_MAPPING },
 		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
 		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
-
-		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
 		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
+
 		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
+        { TV_MAGIC_BOOK, 0 },
+        { TV_MAGIC_BOOK, 0 },
 
-		/*
-		{ TV_RING, SV_RING_RESIST_FIRE },
-		{ TV_RING, SV_RING_RESIST_COLD },
+        { TV_MAGIC_BOOK, 1 },
+        { TV_MAGIC_BOOK, 2 },
+        { TV_MAGIC_BOOK, 3 }
+	
+    }
+};
+
+static byte ironman_store_table[MAX_STORES-3][STORE_CHOICES][2] =
+{
+    {
+        /* General Store */
+
+        { TV_FOOD, SV_FOOD_RATION },
+        { TV_FOOD, SV_FOOD_RATION },
+        { TV_FOOD, SV_FOOD_RATION },
+        { TV_FOOD, SV_FOOD_RATION },
+        { TV_FOOD, SV_FOOD_RATION },
+        { TV_FOOD, SV_FOOD_BISCUIT },
+        { TV_FOOD, SV_FOOD_JERKY },
+        { TV_FOOD, SV_FOOD_JERKY },
+
+        { TV_FOOD, SV_FOOD_PINT_OF_WINE },
+        { TV_FOOD, SV_FOOD_PINT_OF_ALE },
+        { TV_LITE, SV_LITE_TORCH },
+        { TV_LITE, SV_LITE_TORCH },
+        { TV_LITE, SV_LITE_TORCH },
+        { TV_LITE, SV_LITE_TORCH },
+        { TV_LITE, SV_LITE_LANTERN },
+        { TV_LITE, SV_LITE_LANTERN },
+
+        { TV_FLASK, 0 },
+        { TV_FLASK, 0 },
+        { TV_FLASK, 0 },
+        { TV_FLASK, 0 },
+        { TV_FLASK, 0 },
+        { TV_FLASK, 0 },
+        { TV_ARROW, SV_AMMO_NORMAL },
+        { TV_ARROW, SV_AMMO_NORMAL },
+
+        { TV_SHOT, SV_AMMO_NORMAL },
+        { TV_BOLT, SV_AMMO_NORMAL },
+        { TV_BOLT, SV_AMMO_NORMAL },
+        { TV_DIGGING, SV_SHOVEL },
+        { TV_DIGGING, SV_PICK },
+        { TV_CLOAK, SV_CLOAK },
+        { TV_CLOAK, SV_CLOAK },
+        { TV_CLOAK, SV_CLOAK }
+    },
+
+    {
+        /* Armoury */
+
+        { TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
+        { TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
+        { TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+        { TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
+        { TV_HELM, SV_HARD_LEATHER_CAP },
+        { TV_HELM, SV_HARD_LEATHER_CAP },
+        { TV_HELM, SV_METAL_CAP },
+        { TV_HELM, SV_IRON_HELM },
+
+        { TV_SOFT_ARMOR, SV_ROBE },
+        { TV_SOFT_ARMOR, SV_ROBE },
+        { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+        { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+        { TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
+        { TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
+        { TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+        { TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+
+        { TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
+        { TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
+        { TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
+        { TV_HARD_ARMOR, SV_CHAIN_MAIL },
+        { TV_HARD_ARMOR, SV_CHAIN_MAIL },
+        { TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
+        { TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
+        { TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
+
+        { TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
+        { TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+        { TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+        { TV_GLOVES, SV_SET_OF_GAUNTLETS },
+        { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+        { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+        { TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
+        { TV_SHIELD, SV_SMALL_METAL_SHIELD }
+    },
+
+    {
+        /* Weaponsmith */
+
+        { TV_SWORD, SV_DAGGER },
+        { TV_SWORD, SV_MAIN_GAUCHE },
+        { TV_SWORD, SV_RAPIER },
+        { TV_SWORD, SV_SMALL_SWORD },
+        { TV_SWORD, SV_SHORT_SWORD },
+        { TV_SWORD, SV_SABRE },
+        { TV_SWORD, SV_CUTLASS },
+        { TV_SWORD, SV_TULWAR },
+
+        { TV_SWORD, SV_BROAD_SWORD },
+        { TV_SWORD, SV_LONG_SWORD },
+        { TV_SWORD, SV_SCIMITAR },
+        { TV_SWORD, SV_KATANA },
+        { TV_SWORD, SV_BASTARD_SWORD },
+        { TV_POLEARM, SV_SPEAR },
+        { TV_POLEARM, SV_AWL_PIKE },
+        { TV_POLEARM, SV_TRIDENT },
+
+        { TV_POLEARM, SV_PIKE },
+        { TV_POLEARM, SV_BEAKED_AXE },
+        { TV_POLEARM, SV_BROAD_AXE },
+        { TV_POLEARM, SV_LANCE },
+        { TV_POLEARM, SV_BATTLE_AXE },
+        { TV_HAFTED, SV_WHIP },
+        { TV_BOW, SV_SLING },
+        { TV_BOW, SV_SHORT_BOW },
+
+        { TV_BOW, SV_LONG_BOW },
+        { TV_BOW, SV_LIGHT_XBOW },
+        { TV_SHOT, SV_AMMO_NORMAL },
+        { TV_SHOT, SV_AMMO_NORMAL },
+        { TV_ARROW, SV_AMMO_NORMAL },
+        { TV_ARROW, SV_AMMO_NORMAL },
+        { TV_BOLT, SV_AMMO_NORMAL },
+        { TV_BOLT, SV_AMMO_NORMAL },
+    },
+
+    {
+        /* Temple */
+
+        { TV_HAFTED, SV_WHIP },
+        { TV_HAFTED, SV_QUARTERSTAFF },
+        { TV_HAFTED, SV_MACE },
+        { TV_HAFTED, SV_MACE },
+        { TV_HAFTED, SV_BALL_AND_CHAIN },
+        { TV_HAFTED, SV_WAR_HAMMER },
+        { TV_HAFTED, SV_LUCERN_HAMMER },
+        { TV_HAFTED, SV_MORNING_STAR },
+
+        { TV_HAFTED, SV_FLAIL },
+        { TV_HAFTED, SV_LEAD_FILLED_MACE },
+        { TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
+        { TV_SCROLL, SV_SCROLL_BLESSING },
+        { TV_SCROLL, SV_SCROLL_HOLY_CHANT },
+        { TV_SCROLL, SV_SCROLL_LIFE	},
+        { TV_POTION, SV_POTION_BOLDNESS },
+        { TV_POTION, SV_POTION_HEROISM },
+
+        /* In Ironman, temple sells healing pots */
+        { TV_POTION, SV_POTION_HEALING },
+        { TV_POTION, SV_POTION_HEALING },
+        { TV_POTION, SV_POTION_HEALING },
+        { TV_POTION, SV_POTION_CURE_SERIOUS },
+        { TV_POTION, SV_POTION_CURE_SERIOUS },
+        { TV_POTION, SV_POTION_CURE_CRITICAL },
+        { TV_POTION, SV_POTION_CURE_CRITICAL },
+        { TV_POTION, SV_POTION_RESTORE_EXP },
+
+        { TV_PRAYER_BOOK, 0 },
+        { TV_PRAYER_BOOK, 0 },
+        { TV_PRAYER_BOOK, 0 },
+        { TV_PRAYER_BOOK, 1 },
+        { TV_PRAYER_BOOK, 1 },
+        { TV_PRAYER_BOOK, 2 },
+        { TV_PRAYER_BOOK, 2 },
+        { TV_PRAYER_BOOK, 3 }
+    },
+
+    {
+        /* Alchemy shop */
+
+        { TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
+        { TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
+        { TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+        { TV_SCROLL, SV_SCROLL_IDENTIFY },
+        { TV_SCROLL, SV_SCROLL_IDENTIFY },
+        { TV_SCROLL, SV_SCROLL_IDENTIFY },
+        { TV_SCROLL, SV_SCROLL_IDENTIFY },
+        { TV_SCROLL, SV_SCROLL_LIGHT },
+
+        { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+        { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+        { TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+        { TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
+        { TV_SCROLL, SV_SCROLL_MAPPING },
+        { TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
+        { TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
+        { TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
+
+        { TV_SCROLL, SV_SCROLL_DETECT_DOOR },
+        { TV_SCROLL, SV_SCROLL_DETECT_INVIS },
+        { TV_SCROLL, SV_SCROLL_RECHARGING },
+        { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+
+        /* Alchemy stocks tele scrolls instead of useless WoR in Ironman */
+        { TV_SCROLL, SV_SCROLL_TELEPORT },
+        { TV_SCROLL, SV_SCROLL_TELEPORT },
+        { TV_SCROLL, SV_SCROLL_TELEPORT },
+        { TV_SCROLL, SV_SCROLL_TELEPORT },
+
+        { TV_POTION, SV_POTION_RESIST_HEAT },
+        { TV_POTION, SV_POTION_RESIST_COLD },
+        { TV_POTION, SV_POTION_RES_STR },
+        { TV_POTION, SV_POTION_RES_INT },
+        { TV_POTION, SV_POTION_RES_WIS },
+        { TV_POTION, SV_POTION_RES_DEX },
+        { TV_POTION, SV_POTION_RES_CON },
+        { TV_POTION, SV_POTION_RES_CHR }
+    },
+
+    {
+        /* Magic-User store */
+
+        { TV_RING, SV_RING_SEARCHING }, 
+	{ TV_RING, SV_RING_FEATHER_FALL },
 		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_FREE_ACTION },
-		{ TV_RING, SV_RING_SEE_INVIS},
-		{ TV_RING, SV_RING_STR},
-		{ TV_RING, SV_RING_INT},
-		{ TV_RING, SV_RING_DEX},
-		{ TV_RING, SV_RING_CON},
-		{ TV_RING, SV_RING_ACCURACY},
-		{ TV_RING, SV_RING_DAMAGE},
 		{ TV_AMULET, SV_AMULET_CHARISMA },
 		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
 		{ TV_AMULET, SV_AMULET_RESIST_ACID },
+        { TV_WAND, SV_WAND_SLOW_MONSTER },
+        { TV_WAND, SV_WAND_CONFUSE_MONSTER },
 
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
+        { TV_WAND, SV_WAND_MAGIC_MISSILE },
+        { TV_WAND, SV_WAND_STINKING_CLOUD },
 		{ TV_STAFF, SV_STAFF_LITE },
 		{ TV_STAFF, SV_STAFF_MAPPING },
+        { TV_STAFF, SV_STAFF_DETECT_TRAP },
 		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
-
 		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
+
+        { TV_STAFF, SV_STAFF_DETECT_INVIS },
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		*/
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
 
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 3 }
 	}
@@ -1300,6 +2006,11 @@ static errr init_other(void)
 			/* Extract the tval/sval codes */
 			int tv = store_table[i][k][0];
 			int sv = store_table[i][k][1];
+	    if (cfg_ironman)
+	    {
+		tv = ironman_store_table[i][k][0];
+		sv = ironman_store_table[i][k][1];
+	    }
 
 			/* Look for it */
 			for (k_idx = 1; k_idx < MAX_K_IDX; k_idx++)
@@ -1389,13 +2100,6 @@ static errr init_other(void)
 			}
 		}
 	}
-
-
-	/*** Pre-allocate space for the "format()" buffer ***/
-
-	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Ben Harrison", MAINTAINER);
-
 
 	/* Success */
 	return (0);
@@ -1603,6 +2307,33 @@ bool str_to_boolean(char * str)
 	return !(strcasecmp(str, "true"));
 }
 
+/*
+ * Initialize the "p_info" array
+ */
+static errr init_p_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&p_head, z_info->p_max, sizeof(player_race));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	p_head.parse_info_txt = parse_p_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("p_race", &p_head);
+
+	/* Set the global variables */
+	p_info = p_head.info_ptr;
+	p_name = p_head.name_ptr;
+	p_text = p_head.text_ptr;
+
+	return (err);
+}
+
 /* Try to set a server option.  This is handled very sloppily right now,
  * since server options are manually mapped to global variables.  Maybe
  * the handeling of this will be unified in the future with some sort of 
@@ -1619,6 +2350,10 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_meta_address = strdup(value);
 	}
+	else if (!strcmp(option,"BIND_NAME"))
+	{
+		cfg_bind_name = strdup(value);
+	}
 	else if (!strcmp(option,"REPORT_ADDRESS"))
 	{
 		cfg_report_address = strdup(value);
@@ -1630,7 +2365,8 @@ void set_server_option(char * option, char * value)
 	else if (!strcmp(option,"DUNGEON_MASTER_NAME"))
 	{
 		cfg_dungeon_master = strdup(value);
-	}
+	plog(format("Dugeon Master Set as [%s]",cfg_dungeon_master));
+    }
 	else if (!strcmp(option,"SECRET_DUNGEON_MASTER"))
 	{
 		cfg_secret_dungeon_master = str_to_boolean(value);
@@ -1640,6 +2376,15 @@ void set_server_option(char * option, char * value)
 		cfg_fps = atoi(value);
 		/* Hack -- reinstall the timer handler to match the new FPS */
 		install_timer_tick(dungeon, cfg_fps);
+	}
+	else if (!strcmp(option,"TCP_PORT"))
+	{
+		cfg_tcp_port = atoi(value);
+		/* We probably ought to do some sanity check here */
+		if (cfg_tcp_port & 0x01) /* Odd number */
+			cfg_tcp_port++;
+		if ((cfg_tcp_port > 65535) || (cfg_tcp_port < 1))
+			cfg_tcp_port = 18346;
 	}
 	else if (!strcmp(option,"MAGE_HITPOINT_BONUS"))
 	{
@@ -1657,14 +2402,6 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_door_bump_open = str_to_boolean(value);
 	}
-	else if (!strcmp(option,"BASE_UNIQUE_RESPAWN_TIME"))
-	{
-		cfg_unique_respawn_time = atoi(value);
-	}
-	else if (!strcmp(option,"MAX_UNIQUE_RESPAWN_TIME"))
-	{
-		cfg_unique_max_respawn_time = atoi(value);
-	}
 	else if (!strcmp(option,"LEVEL_UNSTATIC_CHANCE"))
 	{
 		cfg_level_unstatic_chance = atoi(value);
@@ -1673,7 +2410,37 @@ void set_server_option(char * option, char * value)
 	{
 		cfg_retire_timer = atoi(value);
 	}
-	else printf("Error : unrecognized mangband.cfg option %s\n", option);
+    else if (!strcmp(option,"ALLOW_RANDOM_ARTIFACTS"))
+    {
+        cfg_random_artifacts = str_to_boolean(value);
+    }
+    else if (!strcmp(option,"IRONMAN"))
+    {
+        cfg_ironman = str_to_boolean(value);
+    }
+    else if (!strcmp(option,"TOWN_WALL"))
+    {
+        cfg_town_wall = str_to_boolean(value);
+    }
+    else if (!strcmp(option,"BASE_UNIQUE_RESPAWN_TIME"))
+    {
+        cfg_unique_respawn_time = atoi(value);
+    }
+    else if (!strcmp(option,"MAX_UNIQUE_RESPAWN_TIME"))
+    {
+        cfg_unique_max_respawn_time = atoi(value);
+    }
+    else if (!strcmp(option,"MAX_TOWNIES"))
+    {
+        cfg_max_townies = atoi(value);
+    }
+    else if (!strcmp(option,"MAX_TREES"))
+    {
+        cfg_max_trees = atoi(value);
+    }
+
+
+	else plog(format("Error : unrecognized mangband.cfg option %s", option));
 }
 
 
@@ -1742,11 +2509,15 @@ void load_server_cfg(void)
 	/* Attempt to open the file */
 	cfg = fopen("mangband.cfg", "r");
 
-	/* Failure */
-	if (cfg < 0)
+	/* Failure, try /etc then stop trying */
+	if (cfg <= 0)
 	{
-		printf("Error : cannot open file mangband.cfg\n");
-		return;
+		cfg = fopen("/etc/mangband.cfg", "r");
+		if (cfg <= 0)
+	    	{
+			plog("Error : cannot open file mangband.cfg");
+			return;
+		}
 	}
 
 	/* Actually parse the file */
@@ -1770,40 +2541,58 @@ void load_server_cfg(void)
  */
 void init_some_arrays(void)
 {
+	/* Initialize size info */
+	plog("[Initializing array sizes...]");
+	if (init_z_info()) quit("Cannot initialize sizes");
+
 	/* Initialize feature info */
-	s_printf("[Initializing arrays... (features)]\n");
+	plog("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
 
 	/* Initialize object info */
-	s_printf("[Initializing arrays... (objects)]\n");
+	plog("[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
 
 	/* Initialize artifact info */
-	s_printf("[Initializing arrays... (artifacts)]\n");
+	plog("[Initializing arrays... (artifacts)]");
 	if (init_a_info()) quit("Cannot initialize artifacts");
 
 	/* Initialize ego-item info */
-	s_printf("[Initializing arrays... (ego-items)]\n");
+	plog("[Initializing arrays... (ego-items)]");
 	if (init_e_info()) quit("Cannot initialize ego-items");
 
 	/* Initialize monster info */
-	s_printf("[Initializing arrays... (monsters)]\n");
+	plog("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
 
-	/* Initialize feature info */
-	s_printf("[Initializing arrays... (vaults)]\n");
+	/* Initialize vault info */
+	plog("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
+	/* Initialize history info */
+	plog("[Initializing arrays... (histories)]");
+	if (init_h_info()) quit("Cannot initialize histories");
+
+	/* Initialize race info */
+	plog("[Initializing arrays... (races)]");
+	if (init_p_info()) quit("Cannot initialize races");
+
+	/* Initialize class info */
+	plog("[Initializing arrays... (classes)]");
+	if (init_c_info()) quit("Cannot initialize classes");
+
+	/* Initialize flavor info */
+	plog("[Initializing arrays... (flavors)]");
+	if (init_flavor_info()) quit("Cannot initialize flavors");
+
 	/* Initialize some other arrays */
-	s_printf("[Initializing arrays... (other)]\n");
+	plog("[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
 
 	/* Initialize some other arrays */
-	s_printf("[Initializing arrays... (alloc)]\n");
+	plog("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
 	/* Hack -- all done */
-	s_printf("[Initializing arrays... done]\n");
+	plog("[Initializing arrays... done]");
 }
-
-

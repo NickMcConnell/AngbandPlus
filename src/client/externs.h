@@ -17,8 +17,11 @@ extern s16b ddx[10];
 extern s16b ddy[10];
 extern char hexsym[16];
 extern owner_type owners[MAX_STORES][MAX_OWNERS];
+extern char *c_name;
+extern char *c_text;
+extern char *p_name;
 extern player_race race_info[MAX_RACES];
-extern player_class class_info[MAX_CLASS];
+extern player_class c_info[MAX_CLASS];
 extern option_type option_info[];
 extern cptr stat_names[6];
 extern cptr stat_names_reduced[6];
@@ -40,21 +43,24 @@ extern char pass[80];
 extern char real_name[80];
 
 extern char server_name[80];
+extern int server_port;
 
 extern object_type inventory[INVEN_TOTAL];
 extern char inventory_name[INVEN_TOTAL][80];
 
 extern store_type store;
 extern owner_type store_owner;
-extern int store_prices[24];
-extern char store_names[24][80];
+extern char player_owner[MAX_NAME_LEN];
+extern int store_prices[STORE_INVEN_MAX];
+extern char store_names[STORE_INVEN_MAX][80];
 extern s16b store_num;
 
 extern char spell_info[26][9][80];
 
 extern char party_info[160];
+extern char floor_tval;
 
-extern setup_t Setup;
+extern server_setup_t Setup;
 extern client_setup_t Client_setup;
 
 extern bool shopping;
@@ -76,10 +82,13 @@ extern byte item_tester_tval;
 extern bool (*item_tester_hook)(object_type *o_ptr);
 
 extern int special_line_type;
+extern char special_line_header[80];
 
 extern bool inkey_base;
 extern bool inkey_scan;
 extern bool inkey_flag;
+
+extern bool first_escape;
 
 extern s16b macro__num;
 extern cptr *macro__pat;
@@ -121,6 +130,7 @@ extern s16b stat_order[6];
 extern bool topline_icky;
 extern bool screen_icky;
 extern bool party_mode;
+extern bool cursor_icky;
 
 
 extern cptr race_title[];
@@ -171,7 +181,7 @@ extern bool disturb_other;
 extern bool alert_hitpoint;
 extern bool alert_failure;
 
-extern bool auto_haggle;
+extern bool no_ghost;
 extern bool auto_scum;
 extern bool stack_allow_items;
 extern bool stack_allow_wands;
@@ -205,8 +215,8 @@ extern bool view_bright_lite;
 extern bool view_granite_lite;
 extern bool view_special_lite;
 
-
-
+extern int char_screen_mode;
+extern bool target_position;
 /*
  * Not-so-Automatically generated "function declarations"
  */
@@ -242,6 +252,7 @@ extern void cmd_take_off(void);
 extern void cmd_destroy(void);
 extern void cmd_inscribe(void);
 extern void cmd_uninscribe(void);
+extern void cmd_describe(void);
 extern void cmd_steal(void);
 extern void cmd_quaff(void);
 extern void cmd_read_scroll(void);
@@ -277,16 +288,21 @@ extern void cmd_master(void);
 extern void cmd_master_aux_level(void);
 extern void cmd_master_aux_build(void);
 extern void cmd_master_aux_summon(void);
+extern void cmd_observe(void);
+extern int Send_custom_command(byte i, int item, char dir, int value);
+extern int Send_spike(int dir);
 
 /* c-files.c */
 extern void text_to_ascii(char *buf, cptr str);
 extern FILE *my_fopen(cptr file, cptr mode);
 extern errr my_fclose(FILE *fff);
+extern void init_stuff();
 extern void init_file_paths(char *path);
 extern errr process_pref_file(cptr buf);
 extern errr process_pref_file_aux(char *buf);
 extern void show_motd(void);
 extern void peruse_file(void);
+extern errr Save_options(void);
 
 /* c-init.c */
 extern void initialize_all_pref_files(void);
@@ -296,6 +312,7 @@ extern void client_init(char *argv1);
 extern s16b index_to_label(int i);
 extern bool item_tester_okay(object_type *o_ptr);
 extern bool c_get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor);
+extern bool c_get_spike(void);
 
 /* c-util.c */
 extern void move_cursor(int row, int col);
@@ -326,6 +343,7 @@ extern void prt_num(cptr header, int num, int row, int col, byte color);
 extern void prt_lnum(cptr header, s32b num, int row, int col, byte color);
 extern void interact_macros(void);
 extern void do_cmd_options(void);
+extern bool get_string_masked(cptr prompt, char *buf, int len);
 
 /* c-spell.c */
 extern void show_browse(int book);
@@ -339,7 +357,7 @@ extern void display_inventory(void);
 extern void display_store(void);
 
 /* c-xtra1.c */
-extern void prt_stat(int stat, int max, int cur);
+extern void prt_stat(int stat, int max, int cur, bool maxed);
 extern void prt_title(cptr title);
 extern void prt_level(int level, int max, int cur, int adv);
 extern void prt_gold(int gold);
@@ -363,7 +381,7 @@ extern void health_redraw(int num, byte attr);
 extern void show_inven(void);
 extern void show_equip(void);
 extern void fix_message(void);
-extern void display_player(int hist);
+extern void display_player(void);
 extern void window_stuff(void);
 
 /* c-xtra2.c */
@@ -441,8 +459,11 @@ extern int Send_purchase_house(int dir);
 extern int Send_suicide(void);
 extern int Send_options(void);
 extern int Send_master(s16b command, cptr buf);
+extern int Send_observe(int item);
+extern int Send_pass(cptr newpass);
 
-
+/* x-spell.c */
+extern cptr get_spell_name(int tval, int index);
 
 
 /*

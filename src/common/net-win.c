@@ -1,3 +1,4 @@
+#ifdef WIN32
 /*
  * This file was taken from the net-unix.c file instead of the
  * general "fill-in-the-blanks" network module.
@@ -61,9 +62,17 @@ static char sourceid[] =
 /* may need to find a replacement for netdb.h */
 /* #include <netdb.h> */
 #include <signal.h>
-#define SIGALRM	293		/* not listed in win's signal.h -GP */
+#ifdef _MSC_VER
+# define SIGALRM SIGINT /* DJL: SIGALRM (293) is greater than NSIG (23) so use this suggested fix */
+#else
+# define SIGALRM	293		/* not listed in win's signal.h -GP */
+#endif
 #include <setjmp.h>
 #include <errno.h>
+
+#if defined(__BORLANDC__)
+int errno = 0;
+#endif
 
 /* This should be complied by a std c compiler */
 /*
@@ -349,7 +358,7 @@ SetSocketNonBlocking(int fd, int flag)
 #endif
 
 #ifdef USE_IOCTL_FIONBIO
-	if (ioctlsocket(fd, FIONBIO, &flag) != SOCKET_ERROR)
+	if (ioctlsocket(fd, FIONBIO, (u_long*)&flag) != SOCKET_ERROR)
 	return 0;
     sprintf(buf, "ioctl FIONBIO failed in socklib.c line %d", __LINE__);
     perror(buf);
@@ -409,7 +418,7 @@ SetSocketBroadcast(int fd, int flag)
 		      (void *)&flag, sizeof(flag));
 } /* SetSocketBroadcast */
 
-
+
 /*
  *******************************************************************************
  *
@@ -1207,7 +1216,7 @@ DgramWrite(int fd, char *wbuf, int size)
 
 	/* if necessary, set errno */
 	if (retval == SOCKET_ERROR){
-		errno == WSAGetLastError();
+		errno = WSAGetLastError();
 		return -1;
 	}
 
@@ -2028,3 +2037,4 @@ SocketWrite(int fd, char *buf, int size)
 } /* SocketWrite */
 
 /*#endif	/*SERVER function? */
+#endif

@@ -24,10 +24,8 @@
 #ifdef WIN32
 
 # include <winsock.h>
-/* Hack - my errno doesn't include EWOULDBLOCK * - GP */
-# define EWOULDBLOCK WSAEWOULDBLOCK
 /* this next one redefines va_start and va_end, but it is necessary -GP*/
-# include <varargs.h>
+# include <stdarg.h>
 #else
 # include <unistd.h>
 # include <stdlib.h>
@@ -613,6 +611,7 @@ int Packet_scanf(va_alist)
     unsigned long	*ulptr;
     char		*cptr,
 			*str;
+    char	terminator;
     va_list		ap;
 #if !STDVA
     char		*fmt;
@@ -755,9 +754,12 @@ int Packet_scanf(va_alist)
 		    break;
 		}
 		break;
+	    case 'N':	/* Newline terminated string */
 	    case 'S':	/* Big strings */
 	    case 's':	/* Small strings */
-		max_str_size = (fmt[i] == 'S') ? MSG_LEN : MAX_CHARS;
+		terminator = '\0';
+		max_str_size = (fmt[i] == 'S' || fmt[i] == 'N') ? MSG_LEN : MAX_CHARS;
+		if (fmt[i] == 'N') terminator = '\n';
 		str = va_arg(ap, char *);
 		k = 0;
 		for (;;) {
@@ -774,11 +776,12 @@ int Packet_scanf(va_alist)
 			    failure = 3;
 			    break;
 			}
-		    }
-		    if ((str[k++] = sbuf->ptr[j++]) == '\0') {
+		}
+		if ((str[k++] = sbuf->ptr[j++]) == terminator) {
+			if(terminator != '\0') str[k-1] = '\0';
 			break;
-		    }
-		    else if (k >= max_str_size) {
+		}
+		else if (k >= max_str_size) {
 			/*
 			 * What to do now is unclear to me.
 			 * The server should drop the packet, but
@@ -799,8 +802,8 @@ int Packet_scanf(va_alist)
 			break;
 			*/
 			    /* Hack -- terminate our string and clear the sbuf -APD */
-			    str[k-1] = '\0';
-			    break;
+				str[k-1] = '\0';
+				break;
 		    }
 		}
 		if (failure != 0) {
@@ -838,4 +841,3 @@ int Packet_scanf(va_alist)
 
     return (failure) ? -1 : count;
 }
-

@@ -20,6 +20,7 @@
 
 
 /* Packet types 20-59 are info that is sent to the client */
+#define PKT_MAXSTAT		19
 #define PKT_PLUSSES		20
 #define PKT_AC			21
 #define PKT_EXPERIENCE		22
@@ -72,6 +73,7 @@
 #define PKT_PARTY		63
 #define PKT_SPECIAL_LINE	64
 
+#define PKT_PLAYER_STORE_INFO 67
 
 /* Packet types 70-116 are sent from the client */
 #define PKT_WALK		70
@@ -127,14 +129,19 @@
 #define PKT_MASTER		118 /* dungeon master commands */
 #define PKT_AUTOPHASE		119 /* automatically try to phase */
 
-/* Packet types 121-122 are more administrative stuff */
+/* Packet types 121-123 are more administrative stuff */
 #define PKT_FAILURE		121
 #define PKT_SUCCESS		122
-
+#define PKT_CLEAR		123
 
 /* Packet type 150 are hacks */
 #define PKT_FLUSH		150
+#define PKT_CURSOR 	151
 
+/* Extra packets */
+#define PKT_OBSERVE		160
+#define PKT_CHANGEPASS		162
+#define PKT_OBJFLAGS		163
 
 
 /*

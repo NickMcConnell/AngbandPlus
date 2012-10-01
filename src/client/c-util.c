@@ -14,9 +14,6 @@ static bool flush_later = FALSE;
 
 static byte macro__use[256];
 
-bool msg_flag;
-
-
 static char octify(uint i)
 {
 	return (hexsym[i%8]);
@@ -385,6 +382,7 @@ static char inkey_aux(void)
 
 	/* We are now inside a macro */
 	parse_macro = TRUE;
+	first_escape = TRUE;
 
 	/* Push the "macro complete" key */
 	if (Term_key_push(29)) return (0);
@@ -1105,7 +1103,23 @@ bool get_string(cptr prompt, char *buf, int len)
 	return (res);
 }
 
+/* Same as get_string, but with ** .. stupid code duplication :( */
+bool get_string_masked(cptr prompt, char *buf, int len)
+{
+	bool res;
 
+    /* Display prompt */
+	prt(prompt, 0, 0);
+
+	/* Ask the user for a string */
+	res = askfor_aux(buf, len, 1);
+
+	/* Clear prompt */
+	prt("", 0, 0);
+
+	/* Result */
+	return (res);
+}
 /*
  * Prompts for a keypress
  *
@@ -1236,6 +1250,12 @@ void request_command(bool shopping)
 
 			/* Command "s" -> "sell" (drop) */
 			case 's': command_cmd = 'd'; break;
+			
+			/* Command "I" -> "look" (Inspect) */
+			case 'I': command_cmd = 'l'; break;
+			
+			/* Command "x" -> "look" (examine) */
+			case 'x': command_cmd = 'l'; break;
 		}
 	}
 
@@ -1953,8 +1973,8 @@ static errr macro_dump(cptr fname)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
-	/* Append to the file */
-	fff = my_fopen(buf, "a");
+	/* Write to the file */
+	fff = my_fopen(buf, "w");
 
 	/* Failure */
 	if (!fff) return (-1);
@@ -2051,6 +2071,7 @@ void interact_macros(void)
 	int i;
 
 	char tmp[160], buf[1024];
+	char* str;
 
 	/* Screen is icky */
 	screen_icky = TRUE;
@@ -2079,12 +2100,12 @@ void interact_macros(void)
 
 
 		/* Selections */
-		Term_putstr(5,  4, -1, TERM_WHITE, "(1) Load a user pref file");
-		Term_putstr(5,  5, -1, TERM_WHITE, "(2) Dump macros");
+		Term_putstr(5,  4, -1, TERM_WHITE, "(1) Load macros");
+		Term_putstr(5,  5, -1, TERM_WHITE, "(2) Save macros");
 		Term_putstr(5,  6, -1, TERM_WHITE, "(3) Enter a new action");
 		Term_putstr(5,  7, -1, TERM_WHITE, "(4) Create a command macro");
 		Term_putstr(5,  8, -1, TERM_WHITE, "(5) Create a normal macro");
-		Term_putstr(5,  9, -1, TERM_WHITE, "(6) Create a identity macro");
+		Term_putstr(5,  9, -1, TERM_WHITE, "(6) Create an identity macro");
 		Term_putstr(5, 10, -1, TERM_WHITE, "(7) Create an empty macro");
 #if 0
 		Term_putstr(5, 12, -1, TERM_WHITE, "(X) Turn off an option (by name)");
@@ -2133,6 +2154,9 @@ void interact_macros(void)
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 70, 0)) continue;
+			
+			/* Lowercase the filename */
+			for(str=tmp;*str;str++) *str=tolower(*str);
 
 			/* Dump the macros */
 			(void)macro_dump(tmp);
@@ -2646,6 +2670,9 @@ void do_cmd_options(void)
 	/* Resend options to server */
 	Send_options();
 
+	/* Resend options to server */
+	Save_options();
+
 	/* Send a redraw request */
 	Send_redraw();
 }
@@ -2705,5 +2732,6 @@ int usleep(huge microSeconds)
 int usleep(long microSeconds)
 {
 	Sleep(microSeconds/10); /* meassured in milliseconds not microseconds*/
+	return 0;
 }
 #endif /* WIN32 */
