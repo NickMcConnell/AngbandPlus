@@ -426,6 +426,15 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 			case RBE_EXP_80:		power =	 5; break;
 		}
 
+		/* Try for Evasion */
+		if (check_specialty(SP_EVASION) & (randint(100) <= p_ptr->evasion_chance))
+		{
+			/* Message */
+			msg_print("You Evade the attack!");
+
+			/* Hack */
+			continue;
+		}
 
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev, terrain_bonus, m_idx))
@@ -450,16 +459,6 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 				msg_format("%^s is repelled.", m_name);
 
 				/* Hack -- Next attack */
-				continue;
-			}
-
-			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(3) == 1))
-			{
-				/* Message */
-				msg_print("You Evade the attack!");
-
-				/* Hack */
 				continue;
 			}
 

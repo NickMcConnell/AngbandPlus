@@ -50,7 +50,6 @@ extern byte adj_dex_blow[];
 extern byte adj_dex_safe[];
 extern byte adj_con_fix[];
 extern byte adj_con_mhp[];
-extern byte adj_str_evas[];
 extern byte adj_dex_evas[];
 extern byte blows_table[12][12];
 extern owner_type owners[MAX_STORES][MAX_B_IDX];

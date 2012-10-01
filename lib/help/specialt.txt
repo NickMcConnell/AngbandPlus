@@ -41,8 +41,9 @@ Clarity: Increases Intellegence and Wisdom and often prevents them from being
 reduced.  Available Mages, Priests, Necromancers, and Druids.
 
 Evasion: Gives a good chance to avoid melee attacks and great chance to avoid
-missile weapons such as arrows, darts, and boulders.  Available to Rogues,
-Assassins, Warriors, and Rangers.
+missile weapons such as arrows, darts, and boulders.  The chance depends on 
+dexterity and armor weight.  Available to Rogues, Assassins, Warriors, and
+Rangers.
 
 Enhance Magic: Beneficial magics become stronger and last longer.  Includes
 all powerups from spells and items (haste, elemental resistance, blessing,

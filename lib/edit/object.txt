@@ -1970,7 +1970,7 @@ N:291:Speed
 G:=:d
 I:45:31:0
 W:80:0:2:20000
-A:80/2
+A:80/4
 F:SPEED | HIDE_TYPE
 D:that affects your speed.
 
@@ -1990,9 +1990,23 @@ D:that affects your speed.
 
 ## XXX 299 XXX ##
 
-## XXX 300 XXX ##
+# Gets a random power
+N:300:Eregion
+G:=:d
+I:45:40:0
+W:80:0:2:20000
+A:80/5
+F:SPEED
+D:forged by the Noldor of Eregion; it grants speed as well as a 
+D:hidden power or resistance.
 
-## XXX 301 XXX ##
+N:301:Warfare
+G:=:d
+I:45:41:0
+W:80:0:2:20000
+A:80/5
+F:SPEED | SHOW_MODS
+D:that grants both speed and combat ability.
 
 
 ##### Amulets #####

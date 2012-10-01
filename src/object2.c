@@ -2263,6 +2263,54 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				/* Ring of Eregion */
+				case SV_RING_EREGION:
+				{
+					/* Speed (1 to 7) */
+					o_ptr->pval = randint(3) + m_bonus(4, level);
+
+					/* Maybe Extra Power */
+					if (randint(2) == 1)
+					{
+						o_ptr->xtra1 = OBJECT_XTRA_TYPE_POWER;
+						o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
+					}
+
+					/* Or Else Random Resist */
+					else
+					{
+						o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
+						o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
+					}
+
+					/* Rating boost */
+					rating += 25;
+
+					/* Mention the item */
+					if (cheat_peek) object_mention(o_ptr);
+
+					break;
+				}
+
+				/* Ring of Warfare */
+				case SV_RING_WARFARE:
+				{
+					/* Speed (1 to 7) */
+					o_ptr->pval = randint(3) + m_bonus(4, level);
+
+					/* Bonus to both Deadliness and to Skill */
+					o_ptr->to_d = 3 + randint(2) + m_bonus(5, level);
+					o_ptr->to_h = 3 + randint(2) + m_bonus(5, level);
+
+					/* Rating boost */
+					rating += 25;
+
+					/* Mention the item */
+					if (cheat_peek) object_mention(o_ptr);
+
+					break;
+				}
+
 				/* Searching */
 				case SV_RING_SEARCHING:
 				{

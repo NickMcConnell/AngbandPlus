@@ -1676,6 +1676,10 @@
 #define SV_RING_NENYA			35
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
+/* xxx */
+/* xxx */
+#define SV_RING_EREGION			40
+#define SV_RING_WARFARE			41
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS		0

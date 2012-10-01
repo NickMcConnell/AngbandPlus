@@ -3200,6 +3200,43 @@ static void calc_bonuses(void)
 		p_ptr->stat_ind[i] = ind;
 	}
 
+	/* Assume no evasion */
+	p_ptr->evasion_chance = 0;
+
+	/* Evasion AC boost */
+	if (check_specialty(SP_EVASION))
+	{
+		int cur_wgt = 0;
+		int evasion_wgt;
+		int max_bonus;
+
+		/* Weigh the armor */
+		cur_wgt += inventory[INVEN_BODY].weight;
+		cur_wgt += inventory[INVEN_HEAD].weight;
+		cur_wgt += inventory[INVEN_ARM].weight;
+		cur_wgt += inventory[INVEN_OUTER].weight;
+		cur_wgt += inventory[INVEN_HANDS].weight;
+		cur_wgt += inventory[INVEN_FEET].weight;
+
+		/* Highest weight to get any bonus */
+		evasion_wgt = 150 + (3 * p_ptr->lev);
+
+		/* Highest bonus we can get at this level */
+		max_bonus = adj_dex_evas[p_ptr->stat_ind[A_DEX]];
+
+		/* Do we get the max bonus? */
+		if (cur_wgt <= ((6 * evasion_wgt) / 10))
+		{
+			p_ptr->evasion_chance = max_bonus;
+		}
+
+		/* Do we get any bonus? */
+		else if (cur_wgt <= evasion_wgt)
+		{
+			p_ptr->evasion_chance = max_bonus / 2;
+		}
+	}
+
 
 	/*** Temporary flags ***/
 
@@ -3816,6 +3853,32 @@ static void calc_bonuses(void)
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
+
+	/* Take note when player moves his shield on and off his back. */
+	if (p_ptr->evasion_chance != p_ptr->old_evasion_chance)
+	{
+		/* Messages */
+		if (!p_ptr->old_evasion_chance)
+		{
+			msg_print("You are able to Evade attacks.");
+		}
+		else if (!p_ptr->evasion_chance)
+		{
+			msg_print("Your armor prevents you from Evading attacks.");
+		}
+		/* Mega-Hack - Mask out small changes */
+		else if (p_ptr->evasion_chance > (p_ptr->old_evasion_chance + 5))
+		{
+			msg_print("You are better able to Evade attacks.");
+		}
+		else if ((p_ptr->evasion_chance + 5) < p_ptr->old_evasion_chance)
+		{
+			msg_print("You are less able to Evade attacks.");
+		}
+
+		/* Save it */
+		p_ptr->old_evasion_chance = p_ptr->evasion_chance;
+	}
 
 	/* Take note when "heavy bow" changes */
 	if (p_ptr->old_heavy_shoot != p_ptr->heavy_shoot)

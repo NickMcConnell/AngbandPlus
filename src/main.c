@@ -557,19 +557,6 @@ int main(int argc, char *argv[])
  	safe_setuid_drop();
 #endif
 
-#ifdef USE_X11
-	/* Attempt to use the "main-x11.c" support */
-	if (!done && (!mstr || (streq(mstr, "x11"))))
-	{
-		extern errr init_x11(int, char**);
-		if (0 == init_x11(argc, argv))
-		{
-			ANGBAND_SYS = "x11";
-			done = TRUE;
-		}
-	}
-#endif
-
 #ifdef USE_XAW
 	/* Attempt to use the "main-xaw.c" support */
 	if (!done && (!mstr || (streq(mstr, "xaw"))))
@@ -578,6 +565,19 @@ int main(int argc, char *argv[])
 		if (0 == init_xaw(argc, argv))
 		{
 			ANGBAND_SYS = "xaw";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_X11
+	/* Attempt to use the "main-x11.c" support */
+	if (!done && (!mstr || (streq(mstr, "x11"))))
+	{
+		extern errr init_x11(int, char**);
+		if (0 == init_x11(argc, argv))
+		{
+			ANGBAND_SYS = "x11";
 			done = TRUE;
 		}
 	}

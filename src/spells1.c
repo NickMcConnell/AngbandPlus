@@ -4673,7 +4673,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			int dodging = 0;
 
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(2) == 1))
+			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the boulder!");
@@ -4733,7 +4733,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		case GF_SHOT:
 		{
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(2) == 1))
+			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the missile!");
@@ -4795,7 +4795,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(2) == 1))
+			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the missile!");
@@ -4861,7 +4861,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(2) == 1))
+			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the missile!");

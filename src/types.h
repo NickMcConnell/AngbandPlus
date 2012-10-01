@@ -1227,6 +1227,8 @@ struct player_type
 	s16b speed_boost;		/* Short term speed boost (Fury) */
 	s16b heighten_power;		/* Magic Intensity boose from casting (Heighten Magic) */
 	s16b mana_gain;			/* Mana gained by special means this turn */
+	byte evasion_chance;		/* Percentage to avoid attacks with evasion */
+	byte old_evasion_chance;		/* Old percentage to avoid attacks with evasion */
 };
 
 /*

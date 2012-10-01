@@ -588,7 +588,7 @@ cptr specialty_tips[255]=
 	"Increases the effects of body armor.",
 	"Improves shield AC, chance of shield deflection, and damage from shield bashes.",
 	"Reduces mana penalties for armor use.",
-	"Gives a good chance to avoid melee attacks and a great chance to avoid missile weapons.",
+	"Gives a good chance to avoid melee attacks and a great chance to avoid missile weapons when lightly armored.",
 	"Improves your saving throws.",
 	"Causes you to speed up after teleporting.  Gives resistance to hostile teleportation.",
 	"Increases AC and gives damage resistance in the dark.  Gives stealth and resist darkness.  Allows you to take actions (like reading) without light.  Reduces light radius.",
