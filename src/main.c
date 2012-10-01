@@ -29,6 +29,9 @@ static void quit_hook(cptr s)
 {
 	int j;
 
+	/* Unused parameter */
+	(void)s;
+
 	/* Scan windows */
 	for (j = ANGBAND_TERM_MAX - 1; j >= 0; j--)
 	{
@@ -61,7 +64,7 @@ extern unsigned _ovrbuffer = 0x1500;
 #endif /* USE_286 */
 
 
-#ifdef SET_UID
+#ifdef PRIVATE_USER_PATH
 
 /*
  * Create an ".angband/" directory in the users home directory.
@@ -75,11 +78,8 @@ static void create_user_dir(void)
 	char subdirpath[1024];
 
 
-	/* Drop priv's */
-	safe_setuid_drop();
-
 	/* Get an absolute path from the filename */
-	path_parse(dirpath, 1024, USER_PREF_PATH);
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
 
 	/* Create the ~/.angband/ directory */
 	mkdir(dirpath, 0700);
@@ -89,12 +89,9 @@ static void create_user_dir(void)
 
 	/* Create the directory */
 	mkdir(subdirpath, 0700);
-
-	/* Grab priv's */
-	safe_setuid_grab();
 }
 
-#endif /* SET_UID */
+#endif /* PRIVATE_USER_PATH */
 
 
 /*
@@ -130,10 +127,14 @@ static void init_stuff(void)
 
 #else /* AMIGA / VM */
 
-	cptr tail;
+	cptr tail = NULL;
+
+#ifndef FIXED_PATHS
 
 	/* Get the environment variable */
 	tail = getenv("ANGBAND_PATH");
+
+#endif /* FIXED_PATHS */
 
 	/* Use the angband_path, or a default */
 	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
@@ -174,6 +175,7 @@ static void change_path(cptr info)
 	/* Analyze */
 	switch (tolower(info[0]))
 	{
+#ifndef FIXED_PATHS
 		case 'a':
 		{
 			string_free(ANGBAND_DIR_APEX);
@@ -199,13 +201,6 @@ static void change_path(cptr info)
 		{
 			string_free(ANGBAND_DIR_INFO);
 			ANGBAND_DIR_INFO = string_make(s+1);
-			break;
-		}
-
-		case 'u':
-		{
-			string_free(ANGBAND_DIR_USER);
-			ANGBAND_DIR_USER = string_make(s+1);
 			break;
 		}
 
@@ -257,6 +252,15 @@ static void change_path(cptr info)
 		}
 
 #endif /* VERIFY_SAVEFILE */
+
+#endif /* FIXED_PATHS */
+
+		case 'u':
+		{
+			string_free(ANGBAND_DIR_USER);
+			ANGBAND_DIR_USER = string_make(s+1);
+			break;
+		}
 
 		default:
 		{
@@ -330,15 +334,15 @@ int main(int argc, char *argv[])
 
 # ifdef SAFE_SETUID
 
-#  ifdef _POSIX_SAVED_IDS
+#  if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
 
 	/* Save some info for later */
 	player_euid = geteuid();
 	player_egid = getegid();
 
-#  endif /* _POSIX_SAVED_IDS */
+#  endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
 
-#  if 0	/* XXX XXX XXX */
+#  if 0 /* XXX XXX XXX */
 
 	/* Redundant setting necessary in case root is running the game */
 	/* If not root or game not setuid the following two calls do nothing */
@@ -360,6 +364,10 @@ int main(int argc, char *argv[])
 #endif /* SET_UID */
 
 
+	/* Drop permissions */
+	safe_setuid_drop();
+
+
 #ifdef SET_UID
 
 	/* Initialize the "time" checker */
@@ -377,8 +385,12 @@ int main(int argc, char *argv[])
 	/* Get the "user name" as a default player name */
 	user_name(op_ptr->full_name, player_uid);
 
+#ifdef PRIVATE_USER_PATH
+
 	/* Create a directory for the users files. */
 	create_user_dir();
+
+#endif /* PRIVATE_USER_PATH */
 
 #endif /* SET_UID */
 
@@ -526,13 +538,6 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly), unless we are running */
-	/* the Linux-SVGALib version. */
-#ifndef USE_LSL
- 	safe_setuid_drop();
-#endif /* USE_LSL */
-
-
 #ifdef USE_GTK
 	/* Attempt to use the "main-gtk.c" support */
 	if (!done && (!mstr || (streq(mstr, "gtk"))))
@@ -573,6 +578,20 @@ int main(int argc, char *argv[])
 		}
 	}
 #endif /* USE_X11 */
+
+
+#ifdef USE_XPJ
+        /* Attempt to use the "main-xpj.c" support */
+        if (!done && (!mstr || (streq(mstr, "xpj"))))
+        {
+                extern errr init_xpj(int argc, char** argv);
+                if (0 == init_xpj(argc, argv))
+                {
+                        ANGBAND_SYS = "xpj";
+                        done = TRUE;
+                }
+        }
+#endif /* USE_XPJ */ 
 
 
 #ifdef USE_GCU
@@ -701,10 +720,18 @@ int main(int argc, char *argv[])
 #endif /* USE_VME */
 
 
-#ifndef USE_LSL
-	/* Grab privs (dropped above for X11) */
-	safe_setuid_grab();
-#endif /* USE_LSL */
+#ifdef USE_VCS
+	/* Attempt to use the "main-vcs.c" support */
+	if (!done && (!mstr || (streq(mstr, "vcs"))))
+	{
+		extern errr init_vcs(int argc, char** argv);
+		if (0 == init_vcs(argc, argv))
+		{
+			ANGBAND_SYS = "vcs";
+			done = TRUE;
+		}
+	}
+#endif /* USE_VCS */
 
 
 	/* Make sure we have a display! */
@@ -736,3 +763,4 @@ int main(int argc, char *argv[])
 }
 
 #endif /* !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) */
+

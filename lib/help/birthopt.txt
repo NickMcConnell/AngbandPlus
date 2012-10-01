@@ -43,6 +43,12 @@ Pre-Shop for some basic items [birth_start_kit]
     option allows you to save the tedium of early shopping but gives you a bad
     deal gold-wise.
 
+***** <birth_retain_squelch>
+Retain squelch settings [birth_retain_squelch]
+    If this option is set, the new character will keep the squelch settings of
+    his immediate ancestor. If it is not set, the character's squelch settings
+    will revert to the defaults.
+
 ==== Sub-Set 2 - Difficulty options ====
 
 These are options that influence the difficulty of the game. Changing any of

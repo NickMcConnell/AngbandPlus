@@ -11,8 +11,6 @@
 
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Human] ]
 R:0:0x8C/0x80
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Elf] ]
-R:0:0x8C/0x81
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Elf] ]
 R:0:0x8C/0x82
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Hobbit] ]
@@ -27,13 +25,9 @@ R:0:0x8C/0x86
 R:0:0x8C/0x87
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Dunadan] ]
 R:0:0x8C/0x88
-?:[AND [EQU $CLASS Warrior] [EQU $RACE High-Elf] ]
-R:0:0x8C/0x89
 
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Human] ]
 R:0:0x8C/0x8A
-?:[AND [EQU $CLASS Mage] [EQU $RACE Half-Elf] ]
-R:0:0x8C/0x8B
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Elf] ]
 R:0:0x8C/0x8C
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Hobbit] ]
@@ -48,13 +42,9 @@ R:0:0x8C/0x90
 R:0:0x8C/0x91
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Dunadan] ]
 R:0:0x8C/0x92
-?:[AND [EQU $CLASS Mage] [EQU $RACE High-Elf] ]
-R:0:0x8C/0x93
 
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Human] ]
 R:0:0x8C/0x94
-?:[AND [EQU $CLASS Priest] [EQU $RACE Half-Elf] ]
-R:0:0x8C/0x95
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Elf] ]
 R:0:0x8C/0x96
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Hobbit] ]
@@ -69,13 +59,9 @@ R:0:0x8C/0x9A
 R:0:0x8C/0x9B
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Dunadan] ]
 R:0:0x8C/0x9C
-?:[AND [EQU $CLASS Priest] [EQU $RACE High-Elf] ]
-R:0:0x8C/0x9D
 
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Human] ]
 R:0:0x8D/0x88
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Elf] ]
-R:0:0x8D/0x89
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Elf] ]
 R:0:0x8D/0x8A
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Hobbit] ]
@@ -90,13 +76,9 @@ R:0:0x8D/0x8E
 R:0:0x8D/0x8F
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Dunadan] ]
 R:0:0x8D/0x90
-?:[AND [EQU $CLASS Ranger] [EQU $RACE High-Elf] ]
-R:0:0x8D/0x91
 
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Human] ]
 R:0:0x8D/0x92
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Half-Elf] ]
-R:0:0x8D/0x93
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Elf] ]
 R:0:0x8D/0x94
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Hobbit] ]
@@ -111,6 +93,4 @@ R:0:0x8D/0x98
 R:0:0x8D/0x99
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Dunadan] ]
 R:0:0x8D/0x9A
-?:[AND [EQU $CLASS Paladin] [EQU $RACE High-Elf] ]
-R:0:0x8D/0x9B
 

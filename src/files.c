@@ -11,11 +11,6 @@
 #include "angband.h"
 
 /*
- * You may or may not want to use the following "#undef".
- */
-/* #undef _POSIX_SAVED_IDS */
-
-/*
  * Hack -- drop permissions
  */
 void safe_setuid_drop(void)
@@ -24,30 +19,33 @@ void safe_setuid_drop(void)
 #ifdef SET_UID
 
 # ifdef SAFE_SETUID
+ 
+#  ifdef HAVE_SETEGID
+  
+ 	if (setegid(getgid()) != 0)
+  	{
+ 		quit("setegid(): cannot set permissions correctly!");
+  	}
+  
+#  else /* HAVE_SETEGID */
+ 
+#   ifdef SAFE_SETUID_POSIX
 
-#  ifdef SAFE_SETUID_POSIX
-
-	if (setuid(getuid()) != 0)
-	{
-		quit("setuid(): cannot set permissions correctly!");
-	}
 	if (setgid(getgid()) != 0)
 	{
 		quit("setgid(): cannot set permissions correctly!");
 	}
 
-#  else /* SAFE_SETUID_POSIX */
+#   else /* SAFE_SETUID_POSIX */
 
-	if (setreuid(geteuid(), getuid()) != 0)
-	{
-		quit("setreuid(): cannot set permissions correctly!");
-	}
 	if (setregid(getegid(), getgid()) != 0)
 	{
 		quit("setregid(): cannot set permissions correctly!");
 	}
 
-#  endif /* SAFE_SETUID_POSIX */
+#   endif /* SAFE_SETUID_POSIX */
+
+#  endif /* HAVE_SETEGID */
 
 # endif /* SAFE_SETUID */
 
@@ -64,33 +62,36 @@ void safe_setuid_grab(void)
 #ifdef SET_UID
 
 # ifdef SAFE_SETUID
+  
+#  ifdef HAVE_SETEGID
+  
+ 	if (setegid(player_egid) != 0)
+  	{
+ 		quit("setegid(): cannot set permissions correctly!");
+  	}
 
-#  ifdef SAFE_SETUID_POSIX
-
-	if (setuid(player_euid) != 0)
-	{
-		quit("setuid(): cannot set permissions correctly!");
+#  else /* HAVE_SETEGID */
+ 
+#   ifdef SAFE_SETUID_POSIX
+ 
+  	if (setgid(player_egid) != 0)
+  	{
+  		quit("setgid(): cannot set permissions correctly!");
+  	}
+  
+#   else /* SAFE_SETUID_POSIX */
+  
+  	if (setregid(getegid(), getgid()) != 0)
+  	{
+  		quit("setregid(): cannot set permissions correctly!");
 	}
-	if (setgid(player_egid) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
-
-#  else /* SAFE_SETUID_POSIX */
-
-	if (setreuid(geteuid(), getuid()) != 0)
-	{
-		quit("setreuid(): cannot set permissions correctly!");
-	}
-	if (setregid(getegid(), getgid()) != 0)
-	{
-		quit("setregid(): cannot set permissions correctly!");
-	}
-
-#  endif /* SAFE_SETUID_POSIX */
-
+  
+#   endif /* SAFE_SETUID_POSIX */
+ 
+#  endif /* HAVE_SETEGID */
+  
 # endif /* SAFE_SETUID */
-
+  
 #endif /* SET_UID */
 
 }
@@ -551,17 +552,11 @@ errr process_pref_file_command(char *buf)
 			u16b type = (u16b)strtol(zz[0], NULL, 0);
 			int color = color_char_to_attr(zz[1][0]);
 
-			/* Ignore illegal types */
-			if (type >= MSG_MAX) return (1);
-
 			/* Ignore illegal colors */
 			if (color < 0) return (1);
 
-			/* Store the color */
-			message__color[type] = (byte)color;
-
 			/* Success */
-			return (0);
+			return (message_color_define(type, (byte)color));
 		}
 	}
 
@@ -2589,6 +2584,9 @@ errr file_character(cptr name, bool full)
 	cptr info[128];
 	cptr blanks = "     ";
 
+	/* Unused parameter */
+	(void)full;
+
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, name);
 
@@ -3644,34 +3642,29 @@ static void death_examine(void)
 	/* Get an item */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
+	while (TRUE)
+ 	{
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
+ 
+		/* Get the item */
 		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Fully known */
-	o_ptr->ident |= (IDENT_MENTAL);
-
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Describe */
-	message_format(MSG_GENERIC, 0, "Examining %s...", o_name);
-
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-	{
-		message(MSG_GENERIC, 0, "You see nothing special.");
-		message_flush();
+ 
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+ 
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
+ 
+		/* Describe */
+		message_format(MSG_GENERIC, 0, "Examining %s...", o_name);
+ 
+		/* Describe it fully */
+		if (!identify_fully_aux(o_ptr))
+		{
+			msg_print("You see nothing special.");
+			message_flush();
+		}
 	}
 }
 
@@ -3699,7 +3692,7 @@ static errr highscore_read(high_score *score)
 static int highscore_write(high_score *score)
 {
 	/* Write the record, note failure */
-	return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
+	return (fd_write(highscore_fd, (cptr)(score), sizeof(high_score)));
 }
 
 /*
@@ -4280,11 +4273,12 @@ static void close_game_aux(void)
 {
 	int ch;
 
-	cptr p;
+	bool wants_to_quit = FALSE;
+	cptr p; 
 
 	/* Prompt */
-	if (!cheat_wizard) p = "['i' for info, 'f' to file, 't' for scores, 'x' to examine, or ESC]";
-	else p = "['i'nfo, 'f'ile, score 't'able, e'x'amine, 'w'izard off, or ESC]";
+	if (!cheat_wizard) p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
+	else p = "[(i)nfo, (m)essages, (f)ile, (v)iew score, e(x)amine, (w)izard off, or ESC]";
 
 	/* Handle retirement */
 	if (p_ptr->total_winner) kingly();
@@ -4320,104 +4314,149 @@ static void close_game_aux(void)
 	message_flush();
 
 	/* Forever */
-	while (TRUE)
+	while (!wants_to_quit)
 	{
 		/* Describe options */
-		Term_putstr(2, 23, -1, TERM_WHITE, p);
+		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
 		ch = inkey();
 
-		/* Exit */
-		if (ch == ESCAPE)
-		{
-			if (get_check("Do you want to quit? ")) break;
-		}
-
-		/* File dump */
-		else if (ch == 'f')
-		{
-			char ftmp[80];
-
-			sprintf(ftmp, "%s.txt", op_ptr->base_name);
-
-			if (get_string("File name: ", ftmp, 80))
+		switch (ch)
+ 		{
+			/* Exit */
+			case ESCAPE:
 			{
-				if (ftmp[0] && (ftmp[0] != ' '))
+				if (get_check("Do you want to quit? "))
+					wants_to_quit = TRUE;
+ 
+				break;
+			}
+ 
+			/* File dump */
+			case 'f':
+			case 'F':
+ 			{
+				char ftmp[80];
+
+				sprintf(ftmp, "%s.txt", op_ptr->base_name);
+
+				if (get_string("File name: ", ftmp, 80))
 				{
-					errr err;
-
-					/* Save screen */
-					screen_save();
-
-					/* Dump a character file */
-					err = file_character(ftmp, FALSE);
-
-					/* Load screen */
-					screen_load();
-
-					/* Check result */
-					if (err)
+					if (ftmp[0] && (ftmp[0] != ' '))
 					{
-						message(MSG_FAIL, 0, "Character dump failed!");
-					}
-					else
-					{
-						message(MSG_SUCCEED, 0, "Character dump successful.");
-					}
+						errr err;
+ 
+						/* Save screen */
+						screen_save();
+ 
+						/* Dump a character file */
+						err = file_character(ftmp, FALSE);
+ 
+						/* Load screen */
+						screen_load();
 
-					/* Flush messages */
+						/* Check result */
+						if (err)
+						{
+							msg_print("Character dump failed!");
+						}
+						else
+						{
+							msg_print("Character dump successful.");
+						}
+ 
+						/* Flush messages */
+						message_flush();
+ 					}
+ 				}
+
+				break;
+ 			}
+
+			/* Show more info */
+			case 'i':
+			case 'I':
+			{
+				/* Save screen */
+				screen_save();
+ 
+				/* Show the character */
+				show_info();
+ 
+				/* Load screen */
+				screen_load();
+ 
+				break;
+			}
+ 
+			/* Show last messages */
+			case 'm':
+			case 'M':
+			{
+				/* Save screen */
+				screen_save();
+ 
+				/* Display messages */
+				do_cmd_messages();
+ 
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Show top scores */
+			case 'v':
+			case 'V':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Show the scores */
+				top_twenty();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Examine an item */
+			case 'x':
+			case 'X':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Clear the screen */
+				Term_clear();
+
+				/* Examine items */
+				death_examine();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Examine an item */
+			case 'w':
+			case 'W':
+			{
+				if (!cheat_wizard) continue;
+
+				if (!get_check("Confirm exiting wizard mode (will allow creation of new character)?")) 
+					continue;
+
+				cheat_wizard = FALSE;
+
+				if (!save_player())
+				{
+					message(MSG_FAIL, 0, "death save failed!");
 					message_flush();
 				}
-			}
-		}
-
-		/* Show more info */
-		else if (ch == 'i')
-		{
-			/* Save screen */
-			screen_save();
-
-			/* Show the character */
-			show_info();
-
-			/* Load screen */
-			screen_load();
-		}
-
-		/* Show top scores */
-		else if (ch == 't')
-		{
-			/* Save screen */
-			screen_save();
-
-			/* Show the scores */
-			top_twenty();
-
-			/* Load screen */
-			screen_load();
-		}
-
-		/* Examine an item */
-		else if (ch == 'x')
-		{
-			death_examine();
-		}
-
-		/* Examine an item */
-		else if (ch == 'w')
-		{
-			if (!cheat_wizard) continue;
-
-			if (!get_check("Confirm exiting wizard mode (will allow creation of new character)?")) 
-				continue;
-
-			cheat_wizard = FALSE;
-
-			if (!save_player())
-			{
-				message(MSG_FAIL, 0, "death save failed!");
-				message_flush();
 			}
 		}
 	}

@@ -1179,7 +1179,7 @@ static void store_create(void)
 
 		/* Hack -- some prefixes don't belong in regular stores */
 		if ((store_num != STORE_B_MARKET) && i_ptr->prefix_idx && 
-			!item_prefix[i_ptr->prefix_idx].store) continue;
+			!(px_info[i_ptr->prefix_idx].flags & PXF_SHOP)) continue;
 
 		/* Restore object creation level */
 		p_ptr->obj_depth = temp;

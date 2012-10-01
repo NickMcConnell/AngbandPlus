@@ -15,152 +15,6 @@
 
 #include "angband.h"
 
-
-typedef struct spell_tip
-{
-	int		index;
-	cptr	desc;
-} spell_tip;
-
-/*
- * Prints "User's tips" for various spells.  User's tips only appear after 
- * a learnt spell is browsed. -LM-
- */
-static spell_tip spell_tips[SP_MAX] = 
-{
-	{0, NULL},
-	{SP_HEAL_1,				"Reduces cuts and heals you a little."},
-	{SP_HEAL_2A,			"Reduces cuts and heals you a moderate amount."},
-	{SP_HEAL_2B,			"Eliminates cuts and heals you a moderate amount."},
-	{SP_HEAL_3,				"Reduces cuts and heals you a large amount."},
-	{SP_HEAL_4,				"Eliminates cuts and heals you a very large amount."},
-	{SP_HEAL_5,				"A large amount of healing, eliminates cuts and stunning."},	
-	{SP_HEAL_6,				"An extremely strong healing spell.  Removes cuts and stuns."},
-	{SP_RESTORE_STATS,		"Restores all stats."},
-	{SP_RESTORE_LEVEL,		"Restores experience level."},
-	{SP_CURE_FEAR,			"Removes any fear you currently feel."},
-	{SP_CURE_DISEASE,		"Rids your body of all disease."},
-	{SP_CURE_POISON_1,		"Reduces the amount of poison in your system."},
-	{SP_CURE_POISON_2,		"Removes all poison from your body."},
-	{SP_CURE_POIS_DISE,		"Removes all poison and disease from your body."},
-	{SP_CURE_BODY,			"Restores all stats, cures poison, and fully feeds you."},
-	{SP_CLEAR_MIND,			"Rids your mind of confusion and fear, cures blindness."},
-	{SP_TELE_10,			"Random minor displacement."}, 
-	{SP_TELE_MINOR,			"Random medium-range displacement."},
-	{SP_TELE_MAJOR,			"Random major displacement."},
-	{SP_TELE_OTHER,			"Teleports a line of opponents away."},
-	{SP_TELE_LEVEL,			"Immediately takes you to the next level up or down."},
-	{SP_TELE_CONTROL,		"Controlled displacement."},
-	{SP_WORD_RECALL,		"Recalls you to the town, or back into the dungeon."},
-	{SP_ALTER_REALITY,		"Regenerates the dungeon level."},
-	{SP_BOLT_MISSILE,		"Fires a bolt of mana."},
-	{SP_BOLT_ELEC,			"Fires a bolt or beam of lightning."},	
-	{SP_BOLT_FROST,			"Fires a bolt or beam of cold."},
-	{SP_BOLT_ACID,			"Fires a bolt or beam of acid."},
-	{SP_BOLT_FIRE,			"Fires a bolt or beam of fire."},
-	{SP_BOLT_SOUND,			"Fires a bolt or beam of sound."},
-	{SP_BOLT_FORCE,			"Fires a bolt or beam of force."},
-	{SP_BOLT_MANA,			"Fires a bolt or beam of pure mana."},
-	{SP_BEAM_WEAK_LITE,		"Fires a line of light.  Effects light-hating creatures."},
-	{SP_BEAM_NETHER,		"Fires an ultra-powerful beam of nether. Does not affect undead."},
-	{SP_BALL_POISON_1,		"Fires a ball of poison."},
-	{SP_BALL_POISON_2,		"Fires a large poison ball."},
-	{SP_BALL_FIRE_1,		"Fires a ball of fire."},
-	{SP_BALL_FIRE_2,		"Fires a large fire ball."},
-	{SP_BALL_FROST_1,		"Fires a ball of frost."},
-	{SP_BALL_FROST_2,		"Fires a large frost ball."},
-	{SP_BALL_SOUND,			"Fires a ball of sound."},
-	{SP_BALL_MANA,			"Fires a large, very powerful mana ball."},
-	{SP_BALL_HOLY,			"Fires a ball of holy force."},
-	{SP_BANISH,				"Teleports away all evil monsters in line of sight."},
-	{SP_BLIGHT,				"Damages all plants in line of sight, and also wounds animals."},
-	{SP_BURST_ASTRAL,		"Damages all creatures in line of sight."},
-	{SP_ANNIHILATION,		"A powerful drain life attack."},
-	{SP_DISPEL_UNDEAD_1,	"Dispels all undead in line of sight."},
-	{SP_DISPEL_UNDEAD_2,	"Dispels all undead in line of sight."},
-	{SP_DISPEL_NON_EVIL,	"Dispels all non-evil monsters in line of sight."},
-	{SP_DISPEL_EVIL_1,		"Dispels all evil monsters in line of sight."},
-	{SP_DISPEL_EVIL_2,		"Dispels all evil monsters in line of sight."},
-	{SP_WORD_HOLY,			"Strong dispel evil and healing."},
-	{SP_GENOCIDE,			"Removes all monsters of the symbol you choose from the level."},
-	{SP_MASS_GENOCIDE,		"Removes nearby monsters except uniques."},
-	{SP_EARTHQUAKE,			"Shakes the nearby dungeon, randomly swapping walls and floors."},
-	{SP_WORD_DESTRUCTION,	"Destroys objects and monsters, and banishes uniques."},
-	{SP_LIGHT_AREA,			"Permanently lights up the current room or nearby area."},
-	{SP_DARK_AREA,			"Darken the area."},
-	{SP_DETECT_MONSTERS,	"Detects monsters on the current screen that are not invisible."},
-	{SP_DETECT_EVIL,		"Detects all evil monsters, even invisible ones."},
-	{SP_DETECT_TRAP,		"Detects all traps on the current panel."},
-	{SP_DETECT_DOOR_STAIR,	"Detects all doors and stairs on the current panel."},
-	{SP_DETECT_TRAP_DOOR,	"Detects hidden traps and doors on the current screen."},
-	{SP_DETECT_ENCHANT,		"Detects magical objects on the current panel."},
-	{SP_DETECT_ALL,			"Detects everything of interest on the panel."},
-	{SP_ABSORB_HIT,			"Reverses the affect of damage (i.e. taking hits heal you)."},
-	{SP_BLESS,				"Short-duration bonus to fighting ability and armour class."},
-	{SP_CHANT,				"Medium-duration bonus to fighting ability and armour class."},
-	{SP_PRAYER,				"Long-duration bonus to fighting ability and armour class."},
-	{SP_HEROISM,			"Temporary heroism."},
-	{SP_RAGE,				"Temporary berserk rage."},
-	{SP_SHIELD,				"Temporarily increases armour class by 50."},
-	{SP_INVIS,				"Temporarily turns you invisible."},
-	{SP_RESILIENCE,			"Temporarily raises your AC by 100 and reduces all damage by 66%."},
-	{SP_SEE_INVIS,			"Temporary see invisible."},
-	{SP_PROT_EVIL,			"Temporary protection from lesser evil creatures."},
-	{SP_HASTE_SELF_1,		"Temporarily hasten yourself."},
-	{SP_HASTE_SELF_2,		"Long-duration haste spell."},
-	{SP_DESTROY_TRAP_DOOR,	"Destroys all doors and traps next to you."},
-	{SP_STONE_TO_MUD,		"Melts a wall square to floor."},
-	{SP_CREATE_DOOR,		"Creates a barrier of doors around you."},
-	{SP_CREATE_STAIR,		"Creates a randomly oriented staircase nearby."},
-	{SP_AGGRAVATE,			"Aggravates nearby monsters."},
-	{SP_CONFUSE_MONSTER,	"Attempts to confuse one monster."},
-	{SP_CONFUSE_ALL,		"Attempts to confuse all monsters in line of sight."},
-	{SP_SLEEP_MONSTER,		"Attempts to put a monster to sleep."},
-	{SP_SLEEP_ADJACENT,		"Attempts to put all adjacent monsters to sleep."},
-	{SP_SLEEP_ALL,			"Attempts to put all monsters in line of sight to sleep."},
-	{SP_SLOW_MONSTER,		"Attempts to slow a monster down."},
-	{SP_SLOW_ALL,			"Attempts to slow all monsters in line of sight."},
-	{SP_CALM_MONSTER,		"Attempts to calm a monster."},
-	{SP_CALM_ANIMALS,		"Attempts to calm all natural creatures in line of sight."},
-	{SP_CALM_NON_EVIL,		"Attempts to calm all non-evil creatures in line of sight."},
-	{SP_CALM_ALL,			"Attempts to calm all creatures in line of sight."},
-	{SP_BLIND_MONSTER,		"Attempts to blind a monster."},
-	{SP_SCARE_MONSTER,		"Attempts to frighten one monster."},
-	{SP_SCARE_UNDEAD,		"Attempts to make all undead monsters in line of sight flee."},
-	{SP_SCARE_ALL,			"Attempts to make all monsters in line of sight flee."},
-	{SP_POLY_MONSTER,		"Attempts to change a monster."},
-	{SP_SATISFY_HUNGER,		"Fully feeds you."},
-	{SP_RECHARGE_1,			"Recharges a staff, wand, rod or talisman."},
-	{SP_RECHARGE_2,			"Recharges a staff, wand, rod or talisman."},
-	{SP_RECHARGE_3,			"Powerful recharging spell."},
-	{SP_IDENTIFY,			"Standard identification of an object."},
-	{SP_IDENTIFY_PACK,		"Identify everything being carried."},
-	{SP_IDENTIFY_FULL,		"Reveals all information about a specific object."},
-	{SP_RES_FIRE,			"Opposition to fire.  Cumulative with equipment."},
-	{SP_RES_COLD,			"Opposition to cold.  Cumulative with equipment."},
-	{SP_RES_FIRE_COLD,		"Opposition to fire and frost.  Cumulative with equipment."},
-	{SP_RES_ACID_ELEC,		"Opposition to acid & electricity.  Cumulative with equipment."},
-	{SP_RES_POISON,			"Opposition to poison. Cumulative with equipment."},
-	{SP_RES_DISEASE,		"Opposition to disease. Cumulative with equipment."},
-	{SP_RES_SOUND,			"Opposition to sound."},
-	{SP_RES_ELEMENTS,		"Opposition to all elements. Cumulative with equipment."},
-	{SP_RES_GREATER,		"Resist many things. Partially cumulative with equipment."},
-	{SP_RESISTANCE,			"Opposition to all elements + poison.  Cumulative with equipment."},
-	{SP_GLYPH_WARDING,		"Places a glyph on the floor that monsters cannot pass over."},
-	{SP_REMOVE_CURSE_1,		"Removes standard curses."},
-	{SP_REMOVE_CURSE_2,		"Removes both normal and heavy curses."},
-	{SP_MAP_1,				"Maps the local area."},
-	{SP_MAP_2,				"Permanently light and detect objects on the entire level."},
-	{SP_PROBE,				"Learns about a monster's attributes and resistances."},
-	{SP_SELF_KNOW,			"Reveals all the magics that affect you."},
-	{SP_ENCHANT_WEAP,		"Adds plusses to Hit and Damage to weapons."},
-	{SP_ENCHANT_ARMR,		"Adds plusses to armour class to armour."},
-	{SP_BRAND_ARROW_ANML,	"Makes arrows extra powerful against animals."},
-	{SP_BRAND_ARROW_WOUND,	"Makes arrows sharper and more powerful."},
-	{SP_BRAND_ARROW_ELMNT,	"Imbues arrows with elemental power."},
-	{SP_BRAND_SHOT_HOLY,	"Makes your shots powerful against evil creatures."}
-};
-
 /* 
  * Checks to see if the character has access to any spell books 
  */
@@ -376,151 +230,149 @@ static void spell_info(char *p, int spell_index)
 	/* Default */
 	strcpy(p, "");
 
-	/* Analyze the spell */
+	/* XXX XXX Analyze the spell */
 	switch (spell_index)
 	{
-		case SP_HEAL_1:
+		case POW_HEAL_2D10:
 			strcpy(p, " heal 2d10"); break;
-		case SP_HEAL_2A	:
+		case POW_HEAL_4D10	:
 			strcpy(p, " heal 4d10"); break;
-		case SP_HEAL_2B:
-			strcpy(p, " heal 4d10, any cut"); break;
-		case SP_HEAL_3:
+		case POW_HEAL_6D10:
 			strcpy(p, " heal 6d10"); break;
-		case SP_HEAL_4:
+		case POW_HEAL_8D10:
 			strcpy(p, " heal 8d10, any cut"); break;
-		case SP_HEAL_5:
+		case POW_HEAL_300:
 			strcpy(p, " heal 300, any cut"); break;
-		case SP_HEAL_6:
+		case POW_HEAL_2000:
 			strcpy(p, " heal 2000, any cut"); break;
-		case SP_CURE_POISON_1:
+		case POW_CURE_POISON_1:
 			strcpy(p, " halve poison"); break;
-		case SP_TELE_10: 
+		case POW_TELE_10: 
 			strcpy(p, " range 10"); break;
-		case SP_TELE_MINOR:
+		case POW_TELE_MINOR:
 			sprintf(p, " range %d", 3 * damlev); break;
-		case SP_TELE_CONTROL: 
+		case POW_TELE_CONTROL: 
 			strcpy(p, " range 20"); break;
-		case SP_TELE_MAJOR: 
+		case POW_TELE_MAJOR: 
 			sprintf(p, " range %d", damlev * 5); break;
-		case SP_BOLT_MISSILE: 
+		case POW_BOLT_MISSILE_2: 
 			sprintf(p, " dam %dd4", (3+((damlev-1)/5))); break;
-		case SP_BOLT_ELEC: 
+		case POW_BOLT_ELEC: 
 			sprintf(p, " dam %dd8, beam %d%%", (3 + ((damlev-5) / 4)), beam_low); break;
-		case SP_BOLT_FROST: 
+		case POW_BOLT_FROST_1: 
 			sprintf(p, " dam %dd8, beam %d%%", (5 + ((damlev-5) / 4)), beam_low); break;
-		case SP_BOLT_ACID: 
+		case POW_BOLT_ACID_2: 
 			sprintf(p, " dam %dd9, beam %d%%", (6 + ((damlev-5) / 4)), beam); break;
-		case SP_BOLT_FIRE: 
+		case POW_BOLT_FIRE_2: 
 			sprintf(p, " dam %dd9, beam %d%%", (7 + ((damlev-5) / 3)), beam); break;
-		case SP_BOLT_SOUND: 
+		case POW_BOLT_SOUND: 
 			sprintf(p, " dam %dd4, beam %d%%", (3 + ((damlev-1) / 5)), beam_low); break;
-		case SP_BOLT_FORCE: 
+		case POW_BOLT_FORCE_1: 
 			sprintf(p, " dam %dd8, beam %d%%", (2 + ((damlev-5) / 4)), beam); break;
-		case SP_BOLT_MANA: 
+		case POW_BOLT_MANA: 
 			sprintf(p, " dam %dd8, beam %d%%", (6 + ((damlev-5) / 4)), beam); break;
-		case SP_BEAM_WEAK_LITE: 
+		case POW_BEAM_WEAK_LITE: 
 			strcpy(p, " dam 9d8"); break;
-		case SP_BEAM_NETHER:
+		case POW_BEAM_NETHER:
 			sprintf(p, " dam %dd4", damlev * 8); break;
-		case SP_BALL_POISON_1:
+		case POW_BALL_POISON_1:
 			sprintf(p, " dam %d, rad 2", 10 + (damlev / 2)); break;
-		case SP_BALL_POISON_2: 
+		case POW_BALL_POISON_2: 
 			sprintf(p, " dam %d, rad 3", 20 + damlev); break;
-		case SP_BALL_FIRE_1: 
+		case POW_BALL_FIRE_1: 
 			sprintf(p, " dam %d, rad %d", 60 + damlev, (p_ptr->lev < 40) ? 2 : 3); break;
-		case SP_BALL_FIRE_2: 
+		case POW_BALL_FIRE_2: 
 			sprintf(p, " dam %d, rad %d", 100 + (damlev * 2), (p_ptr->lev < 40) ? 3 : 4); break;
-		case SP_BALL_FROST_1: 
+		case POW_BALL_FROST_1: 
 			sprintf(p, " dam %d, rad %d", 35 + damlev, (p_ptr->lev < 35) ? 2 : 3); break;
-		case SP_BALL_FROST_2: 
+		case POW_BALL_FROST_2: 
 			sprintf(p, " dam %d, rad %d", 60 + (damlev * 2), (p_ptr->lev < 35) ? 3 : 4); break;
-		case SP_BALL_SOUND: 
+		case POW_BALL_SOUND: 
 			sprintf(p, " dam %d, rad 2", 30 + damlev); break;
-		case SP_BALL_MANA: 
+		case POW_BALL_MANA: 
 			sprintf(p, " dam %d, rad 3", 300 + (damlev * 2)); break;
-		case SP_BALL_HOLY:
+		case POW_BALL_HOLY:
 			{
 				int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 2 : 4)));
 				int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
 				sprintf(p, " dam %d+3d6, rad %d", x, y);
 				break;
 			}
-		case SP_BURST_ASTRAL: 
+		case POW_BURST_ASTRAL: 
 			sprintf(p, " dam 25%%"); break;
-		case SP_ANNIHILATION	:
+		case POW_DRAIN_LIFE_3:
 			strcpy(p, " dam 200"); break;
-		case SP_BLIGHT: 
+		case POW_BLIGHT: 
 			sprintf(p, " dam %d", damlev * 8); break;
-		case SP_DISPEL_UNDEAD_1:
+		case POW_DISPEL_UNDEAD_1:
 			sprintf(p, " dam d%d", 3 * damlev); break;
-		case SP_DISPEL_UNDEAD_2:
+		case POW_DISPEL_UNDEAD_2:
 			sprintf(p, " dam d%d", 4 * damlev); break;
-		case SP_DISPEL_NON_EVIL:
+		case POW_DISPEL_NON_EVIL:
 			sprintf(p, " dam d%d", 5 * damlev); break;
-		case SP_DISPEL_EVIL_1:
+		case POW_DISPEL_EVIL_3:
 			sprintf(p, " dam d%d", 3 * damlev); break;
-		case SP_DISPEL_EVIL_2:
+		case POW_DISPEL_EVIL_4:
 			sprintf(p, " dam d%d", 4 * damlev); break;
-		case SP_WORD_HOLY:
+		case POW_HOLY_2:
 			sprintf(p, " dam d%d, heal 1000", damlev * 4); break;
-		case SP_GENOCIDE: 
+		case POW_GENOCIDE: 
 			strcpy(p, " hurt 1d4 per kill"); break;
-		case SP_MASS_GENOCIDE: 
+		case POW_MASS_GENOCIDE: 
 			strcpy(p, " hurt 1d3 per kill"); break;
-		case SP_EARTHQUAKE: 
+		case POW_EARTHQUAKE: 
 			strcpy(p, " rad 10"); break;
-		case SP_WORD_DESTRUCTION: 
+		case POW_DESTRUCTION: 
 			strcpy(p, " rad 15"); break;
-		case SP_LIGHT_AREA:
+		case POW_LIGHT_AREA:
 			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
-		case SP_DARK_AREA:
+		case POW_DARK_AREA:
 			sprintf(p, " dam 2d%d, rad %d", (damlev / 2), (damlev / 10) + 1); break;
-		case SP_ABSORB_HIT: 
+		case POW_ABSORB_HIT: 
 			sprintf(p, " dur %d+d32", durlev * 2); break;
-		case SP_BLESS:
+		case POW_BLESS_1:
 			strcpy(p, " dur 12+d12"); break;
-		case SP_CHANT:
+		case POW_BLESS_2:
 			strcpy(p, " dur 24+d24"); break;
-		case SP_PRAYER:
+		case POW_BLESS_3:
 			strcpy(p, " dur 48+d48"); break;
-		case SP_HEROISM: 
+		case POW_HEROISM: 
 			strcpy(p, " dur 25+d25"); break;
-		case SP_RAGE: 
+		case POW_RAGE_1: 
 			strcpy(p, " dur 25+d25"); break;
-		case SP_SHIELD: 
+		case POW_SHIELD: 
 			strcpy(p, " dur 30+d20"); break;
-		case SP_INVIS: 
+		case POW_INVIS_2: 
 			strcpy(p, " dur 25+d25"); break;
-		case SP_RESILIENCE: 
+		case POW_RESILIENCE: 
 			strcpy(p, " dur 8+d8"); break;
-		case SP_SEE_INVIS:
+		case POW_SEE_INVIS:
 			strcpy(p, " dur 24+d24"); break;
-		case SP_PROT_EVIL:
+		case POW_PROT_EVIL:
 			sprintf(p, " dur %d+d25", durlev * 3); break;
-		case SP_HASTE_SELF_1: 
+		case POW_HASTE_SELF_1: 
 			sprintf(p, " dur %d+d20", durlev); break;
-		case SP_HASTE_SELF_2	: 
+		case POW_HASTE_SELF_2	: 
 			sprintf(p, " dur %d+d30", durlev + 30); break;
-		case SP_RES_FIRE: 
+		case POW_RES_FIRE: 
 			strcpy(p, " dur 20+d20"); break;
-		case SP_RES_COLD: 
+		case POW_RES_COLD: 
 			strcpy(p, " dur 20+d20"); break;
-		case SP_RES_FIRE_COLD:
+		case POW_RES_FIRE_COLD:
 			strcpy(p, " dur 10+d10"); break;
-		case SP_RES_ACID_ELEC: 
+		case POW_RES_ACID_ELEC: 
 			strcpy(p, " dur 20+d20"); break;
-		case SP_RES_POISON: 
+		case POW_RES_POISON: 
 			strcpy(p, " dur 20+d20"); break;
-		case SP_RES_DISEASE: 
+		case POW_RES_DISEASE: 
 			strcpy(p, " dur 20+d20"); break;
-		case SP_RES_SOUND: 
+		case POW_RES_SOUND: 
 			strcpy(p, " dur 40+d40"); break;
-		case SP_RES_ELEMENTS:
+		case POW_RES_ELEMENTS:
 			sprintf(p, " dur %d+d%d", durlev / 2, durlev / 2); break;
-		case SP_RES_GREATER:
+		case POW_RES_GREATER:
 			sprintf(p, " dur %d+d%d", durlev / 3, durlev / 3); break;
-		case SP_RESISTANCE: 
+		case POW_RESISTANCE: 
 			strcpy(p, " dur 20+d20"); break;
 	}
 }
@@ -1064,13 +916,13 @@ static void do_browse_instrument(int instrument, int lev)
 		/* Access the spell */
 		s_ptr = &instruments[instrument].contents[tune];
 
-		for (j = (SP_MAX - 1); j > 0; j--) 
+		for (j = (POW_MAX - 1); j > 0; j--) 
 		{
-			if (spell_tips[j].index == s_ptr->index) break;
+			if (power_info[j].index == s_ptr->index) break;
 		}
 
 		/* Display that spell's information. */
-		if (spell_tips[j].desc != NULL) c_roff(TERM_L_BLUE, spell_tips[j].desc);
+		if (power_info[j].desc != NULL) c_roff(TERM_L_BLUE, format("%^s.",power_info[j].desc));
 	}
 }
 
@@ -1114,13 +966,13 @@ static void do_browse_book(int book)
 		/* Access the spell */
 		s_ptr = &books[book].contents[spell];
 
-		for (j = (SP_MAX - 1); j > 0; j--) 
+		for (j = (POW_MAX - 1); j > 0; j--) 
 		{
-			if (spell_tips[j].index == s_ptr->index) break;
+			if (power_info[j].index == s_ptr->index) break;
 		}
 
 		/* Display that spell's information. */
-		if (spell_tips[j].desc != NULL) c_roff(TERM_L_BLUE, spell_tips[j].desc);
+		if (power_info[j].desc != NULL) c_roff(TERM_L_BLUE, format("%^s.",power_info[j].desc));
 	}
 }
 
@@ -1351,821 +1203,16 @@ void do_cmd_study(void)
  */
 static bool aux_spell_cast(int index)
 {
-	int dir;
-	int durat;
-
 	/* Various class flags influence things */
 	int	beam = ((cp_ptr->flags & CF_BEAM) ? p_ptr->lev : (p_ptr->lev / 2));
 	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int inflev = ((cp_ptr->flags & CF_INFLUENCE) ? p_ptr->lev + (p_ptr->lev / 2) :
 					((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 4) : p_ptr->lev));
-	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
-
-	switch (index)
-	{
-		case SP_HEAL_1:
-		{
-			(void)hp_player(damroll(2, 10));
-			(void)set_cut(p_ptr->cut - 10);
-			break;
-		}
-		case SP_HEAL_2A:
-		{
-			(void)hp_player(damroll(4, 10));
-			(void)set_cut((p_ptr->cut / 2) - 20);
-			break;
-		}
-		case SP_HEAL_2B:
-		{
-			(void)hp_player(damroll(4, 10));
-			(void)set_cut(0);
-			break;
-		}
-		case SP_HEAL_3:
-		{
-			(void)hp_player(damroll(6, 10));
-			(void)set_cut(0);
-			break;
-		}
-		case SP_HEAL_4:
-		{
-			(void)hp_player(damroll(8, 10));
-			(void)set_stun(0);
-			(void)set_cut(0);
-			break;
-		}
-		case SP_HEAL_5:
-		{
-			(void)hp_player(300);
-			(void)set_stun(0);
-			(void)set_cut(0);
-			break;
-		}
-		case SP_HEAL_6:
-		{
-			(void)hp_player(2000);
-			(void)set_stun(0);
-			(void)set_cut(0);
-			break;
-		}
-		case SP_RESTORE_STATS:
-		{
-			(void)do_res_stat(A_STR);
-			(void)do_res_stat(A_INT);
-			(void)do_res_stat(A_WIS);
-			(void)do_res_stat(A_DEX);
-			(void)do_res_stat(A_CON);
-			(void)do_res_stat(A_CHR);
-			break;
-		}
-		case SP_RESTORE_LEVEL:
-		{
-			(void)restore_exp();
-			break;
-		}
-		case SP_CURE_FEAR:
-		{
-			(void)set_afraid(0);
-			break;
-		}
-		case SP_CURE_DISEASE:
-		{
-			(void)set_diseased(0);
-			break;
-		}
-		case SP_CURE_POISON_1:
-		{
-			(void)set_poisoned(p_ptr->poisoned / 2);
-			break;
-		}
-		case SP_CURE_POISON_2:
-		{
-			(void)set_poisoned(0);
-			break;
-		}
-		case SP_CURE_POIS_DISE:
-		{
-			(void)set_poisoned(0);
-			(void)set_diseased(0);
-			break;
-		}
-		case SP_CURE_BODY:
-		{
-			(void)set_poisoned(0);
-			(void)set_food(PY_FOOD_MAX - 1);
-			(void)do_res_stat(A_STR);
-			(void)do_res_stat(A_INT);
-			(void)do_res_stat(A_WIS);
-			(void)do_res_stat(A_DEX);
-			(void)do_res_stat(A_CON);
-			(void)do_res_stat(A_CHR);
-			break;
-		}
-		case SP_CLEAR_MIND:
-		{
-			(void)set_stun(0);
-			(void)set_blind(0);
-			(void)set_afraid(0);
-			(void)set_confused(0);
-			break;
-		}
-		case SP_TELE_10: 
-		{
-			teleport_player(10);
-			break;
-		}
-		case SP_TELE_MINOR:
-		{
-			teleport_player(damlev * 3);
-			break;
-		}
-		case SP_TELE_MAJOR:
-		{
-			teleport_player(damlev * 5);
-			break;
-		}
-		case SP_TELE_OTHER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)teleport_monster(dir);
-			break;
-		}
-		case SP_TELE_LEVEL:
-		{
-			(void)teleport_player_level();
-			break;
-		}
-		case SP_TELE_CONTROL:
-		{
-			message(MSG_GENERIC, 0, "Choose a location to teleport to.");
-			message_flush();
-			dimen_door(20, 100 / damlev);
-			break;
-		}
-		case SP_WORD_RECALL:
-		{
-			set_recall();
-			break;
-		}
-		case SP_ALTER_REALITY:
-		{
-			message(MSG_EFFECT, 0, "The world changes!");
-
-			/* Leaving */
-			p_ptr->leaving = TRUE;
-
-			break;
-		}
-		case SP_BOLT_MISSILE:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(0, GF_MISSILE, dir,
-				              damroll(3 + ((damlev - 1) / 5), 4));
-			break;
-		}
-		case SP_BOLT_ELEC:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-				              damroll(3 + ((damlev - 5) / 4), 8));
-			break;
-		}
-		case SP_BOLT_FROST:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam-10, GF_COLD, dir,
-				              damroll(5 + ((damlev - 5) / 4), 8));
-			break;
-		}
-		case SP_BOLT_ACID:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam, GF_ACID, dir,
-				              damroll(6+((damlev-5)/4), 9));
-			break;
-		}
-		case SP_BOLT_FIRE:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam, GF_FIRE, dir,
-				              damroll(7+((damlev-5)/3), 9));
-			break;
-		}
-		case SP_BOLT_SOUND:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam-10, GF_SOUND, dir,
-				              damroll(3 + ((damlev - 1) / 5), 4));
-			break;
-		}
-		case SP_BOLT_FORCE:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam, GF_FORCE, dir,
-				              damroll(2+((damlev-5)/4), 8));
-			break;
-		}
-		case SP_BOLT_MANA:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(beam, GF_MANA, dir,
-				              damroll(6+((damlev-5)/4), 8));
-			break;
-		}
-		case SP_BEAM_WEAK_LITE:
-		{ 
-			if (!get_aim_dir(&dir)) return (FALSE);
-			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
-			lite_line(dir, damroll(9,8));
-			break;
-		}
-		case SP_BEAM_NETHER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_bolt_or_beam(100, GF_NETHER, dir,
-				              damroll((8 * damlev), 4));				
-			break;
-		}
-		case SP_BALL_POISON_1:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_POIS, dir, 10 + (damlev / 2), 2);
-			break;
-		}
-		case SP_BALL_POISON_2:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_POIS, dir, 20 + damlev, 3);
-			break;
-		}
-		case SP_BALL_FIRE_1:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_FIRE, dir, 60 + (damlev), (p_ptr->lev < 40) ? 2 : 3);
-			break;
-		}
-		case SP_BALL_FIRE_2:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_FIRE, dir, 100 + (damlev * 2), (p_ptr->lev < 40) ? 3 : 4);
-			break;
-		}
-		case SP_BALL_FROST_1:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_COLD, dir, 35 + (damlev), (p_ptr->lev < 35) ? 2 : 3);
-			break;
-		}
-		case SP_BALL_FROST_2:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_COLD, dir, 60 + (damlev * 2), (p_ptr->lev < 35) ? 3 : 4);
-			break;
-		}
-		case SP_BALL_SOUND:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_SOUND, dir, 30 + (damlev), 2);
-			break;
-		}
-		case SP_BALL_MANA:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_MANA, dir, 300 + (damlev * 2), 3);
-			break;
-		}
-		case SP_BALL_HOLY:
-		{
-			int x = (p_ptr->lev + (p_ptr->lev / ((holy) ? 2 : 4)));
-			int y = (((p_ptr->lev >= 30) && (holy)) ? 3 : 2);
-
-			if (!get_aim_dir(&dir)) return (FALSE);
-			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + x, y);
-			break;
-		}
-		case SP_BANISH:
-		{
-			if (banish_evil(100))
-			{
-				message(MSG_EFFECT, 0, "The power of your god banishes evil!");
-			}
-			break;
-		}
-		case SP_ANNIHILATION:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			drain_life(dir, 200);
-			break;
-		}
-		case SP_BLIGHT:
-		{
-			(void)blight(damlev * 8);
-			break;
-		}
-		case SP_BURST_ASTRAL:
-		{
-			(void)astral_burst(25);
-			break;
-		}
-		case SP_DISPEL_UNDEAD_1:
-		{
-			(void)dispel_undead(randint(damlev * 3));
-			break;
-		}
-		case SP_DISPEL_UNDEAD_2:
-		{
-			(void)dispel_undead(randint(damlev * 4));
-			break;
-		}
-		case SP_DISPEL_NON_EVIL:
-		{
-			dispel_non_evil(randint(damlev * 5));
-			break;
-		}
-		case SP_DISPEL_EVIL_1:
-		{
-			(void)dispel_evil(randint(damlev * 3));
-			break;
-		}
-		case SP_DISPEL_EVIL_2:
-		{
-			(void)dispel_evil(randint(damlev * 4));
-			break;
-		}
-		case SP_WORD_HOLY:
-		{
-			(void)dispel_evil(randint(damlev * 4));
-			(void)hp_player(1000);
-			(void)set_afraid(0);
-			(void)set_poisoned(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
-			break;
-		}
-		case SP_GENOCIDE:
-		{
-			(void)genocide();
-			break;
-		}
-		case SP_MASS_GENOCIDE:
-		{
-			(void)mass_genocide();
-			break;
-		}
-		case SP_EARTHQUAKE:
-		{
-			earthquake(p_ptr->py, p_ptr->px, 10);
-			break;
-		}
-		case SP_WORD_DESTRUCTION:
-		{
-			destroy_area(p_ptr->py, p_ptr->px, 15, TRUE);
-			break;
-		}
-		case SP_LIGHT_AREA: 
-		{
-			(void)lite_area(damroll(2, (damlev / 2)), (damlev / 10) + 1);
-			break;
-		}
-		case SP_DARK_AREA:
-		{
-			if (!p_ptr->no_blind)
-			{
-				(void)set_blind(p_ptr->blind + 3 + randint(5));
-			}
-			(void)unlite_area(damroll(2, (damlev / 2)), (damlev / 10) + 1);
-			break;
-		}
-		case SP_DETECT_MONSTERS:
-		{
-			(void)detect_monsters_normal();
-			break;
-		}
-		case SP_DETECT_EVIL:
-		{
-			(void)detect_monsters_evil();
-			break;
-		}
-		case SP_DETECT_TRAP:
-		{
-			(void)detect_traps();
-			break;
-		}
-		case SP_DETECT_TRAP_DOOR:
-		{
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-			break;
-		}
-		case SP_DETECT_DOOR_STAIR:
-		{
-			(void)detect_doors();
-			(void)detect_stairs();
-			break;
-		}
-		case SP_DETECT_ENCHANT:
-		{
-			(void)detect_objects_magic();
-			break;
-		}
-		case SP_DETECT_ALL:
-		{
-			(void)detect_all();
-			break;
-		}
-		case SP_ABSORB_HIT:
-		{
-			(void)set_absorb(p_ptr->absorb + randint(36) + 2 * durlev);
-			break;
-		}
-		case SP_BLESS:
-		{
-			(void)set_blessed(p_ptr->blessed + randint(12) + 12);
-			break;
-		}
-		case SP_CHANT:
-		{
-			(void)set_blessed(p_ptr->blessed + randint(24) + 24);
-			break;
-		}
-		case SP_PRAYER:
-		{
-			(void)set_blessed(p_ptr->blessed + randint(48) + 48);
-			break;
-		}
-		case SP_HEROISM:
-		{
-			(void)hp_player(10);
-			(void)set_hero(p_ptr->hero + randint(25) + 25);
-			(void)set_afraid(0);
-			break;
-		}
-		case SP_RAGE:
-		{
-			(void)(hp_player(10));
-			(void)(set_afraid(0));
-			(void)(set_rage(p_ptr->rage + randint(25) + 25));
-			break;
-		}
-		case SP_SHIELD:
-		{
-			(void)set_shield(p_ptr->shield + randint(20) + 30);
-			break;
-		}
-		case SP_INVIS:
-		{
-			if (p_ptr->tim_invis <= 0)
-			{
-				(void)set_tim_invis(randint(25) + 25 + durlev);
-			}
-			else
-			{
-				(void)set_tim_invis(p_ptr->tim_invis + randint(10));
-			}
-			break;
-			break;
-		}
-		case SP_RESILIENCE:
-		{
-			(void)set_resilient(p_ptr->resilient + randint(8) + 8);
-			break;
-		}
-		case SP_SEE_INVIS:
-		{
-			(void)set_tim_see_invis(p_ptr->tim_see_invis + randint(24) + 24);
-			break;
-		}
-		case SP_PROT_EVIL:
-		{
-			(void)set_protevil(p_ptr->protevil + randint(25) + 3 * durlev);
-			break;
-		}
-		case SP_HASTE_SELF_1:
-		{
-			if (!p_ptr->fast)
-			{
-				(void)set_fast(randint(20) + durlev);
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + randint(5));
-			}
-			break;
-		}
-		case SP_HASTE_SELF_2:
-		{
-			if (!p_ptr->fast)
-			{
-				(void)set_fast(randint(30) + 30 + durlev);
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + randint(10));
-			}
-			break;
-		}
-		case SP_DESTROY_TRAP_DOOR:
-		{
-			(void)destroy_doors_touch();
-			break;
-		}
-		case SP_STONE_TO_MUD:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)wall_to_mud(dir);
-			break;
-		}
-		case SP_CREATE_DOOR:
-		{
-			(void)door_creation();
-			break;
-		}
-		case SP_CREATE_STAIR:
-		{
-			(void)stair_creation();
-			break;
-		}
-		case SP_AGGRAVATE:
-		{
-			if (!get_check("Are you sure you wish to aggravate nearby monsters? ")) break;
-			aggravate_monsters(0);
-			break;
-		}
-		case SP_CONFUSE_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)confuse_monster(dir, inflev);
-			break;
-		}
-		case SP_CONFUSE_ALL:
-		{
-			(void)confuse_monsters(inflev);
-			break;
-		}
-		case SP_SLEEP_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)sleep_monster(dir, inflev);
-			break;
-		}
-		case SP_SLEEP_ADJACENT:
-		{
-			(void)sleep_monsters_touch(inflev);
-			break;
-		}
-		case SP_SLEEP_ALL:
-		{
-			(void)sleep_monsters(inflev);
-			break;
-		}
-		case SP_SLOW_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)slow_monster(dir, inflev);
-			break;
-		}
-		case SP_SLOW_ALL:
-		{
-			(void)slow_monsters(inflev);
-			break;
-		}
-		case SP_CALM_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)calm_monster(dir, inflev);
-			break;
-		}
-		case SP_CALM_ANIMALS:
-		{
-			(void)calm_animals(inflev);
-			break;
-		}
-		case SP_CALM_NON_EVIL:
-		{
-			(void)calm_non_evil(inflev);
-			break;
-		}
-		case SP_CALM_ALL:
-		{
-			(void)calm_monsters(inflev);
-			break;
-		}
-		case SP_BLIND_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			blind_monster(dir, inflev);
-			break;
-		}
-		case SP_SCARE_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)fear_monster(dir, inflev);
-			break;
-		}
-		case SP_SCARE_UNDEAD:
-		{
-			(void)turn_undead(inflev);
-			break;
-		}
-		case SP_SCARE_ALL:
-		{
-			(void)scare_monsters(inflev);
-			break;
-		}
-		case SP_POLY_MONSTER:
-		{
-			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)poly_monster(dir, inflev);
-			break;
-		}
-		case SP_SATISFY_HUNGER:
-		{
-			(void)set_food(PY_FOOD_MAX - 1);
-			break;
-		}
-		case SP_RECHARGE_1:
-		{
-			(void)recharge(p_ptr->lev);
-			break;
-		}
-		case SP_RECHARGE_2:
-		{
-			(void)recharge(15);
-			break;
-		}
-		case SP_RECHARGE_3:
-		{
-			(void)recharge(100);
-			break;
-		}
-		case SP_IDENTIFY:
-		{
-			(void)ident_spell();
-			break;
-		}
-		case SP_IDENTIFY_PACK:
-		{
-			(void)identify_pack();
-			break;
-		}
-		case SP_IDENTIFY_FULL:
-		{
-			(void)identify_fully();
-			break;
-		}
-		case SP_RES_FIRE:
-		{
-			(void)set_oppose_fire(p_ptr->oppose_cold + randint(20) + 20);
-			break;
-		}
-		case SP_RES_COLD:
-		{
-			(void)set_oppose_cold(p_ptr->oppose_fire + randint(20) + 20);
-			break;
-		}
-		case SP_RES_FIRE_COLD:
-		{
-			durat = randint(10) + 10;
-			(void)set_oppose_fire(p_ptr->oppose_fire + durat);
-			(void)set_oppose_cold(p_ptr->oppose_cold + durat);
-			break;
-		}
-		case SP_RES_ACID_ELEC:
-		{
-			durat = randint(20) + 20;
-			(void)set_oppose_acid(p_ptr->oppose_acid + durat);
-			(void)set_oppose_elec(p_ptr->oppose_elec + durat);
-			break;
-		}
-		case SP_RES_POISON:
-		{
-			(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-			break;
-		}
-		case SP_RES_DISEASE:
-		{
-			(void)set_oppose_disease(p_ptr->oppose_disease + randint(20) + 20);
-			break;
-		}
-		case SP_RES_SOUND:
-		{
-			(void)(set_tim_res_sound(p_ptr->tim_res_sound + randint(40) + 40));
-			break;
-		}
-		case SP_RES_ELEMENTS:
-		{
-			durat = randint(durlev/2) + durlev/2;
-			(void)set_oppose_acid(p_ptr->oppose_acid + durat);
-			(void)set_oppose_elec(p_ptr->oppose_elec + durat);
-			(void)set_oppose_fire(p_ptr->oppose_fire + durat);
-			(void)set_oppose_cold(p_ptr->oppose_cold + durat);
-			break;
-		}
-		case SP_RES_GREATER:
-		{
-			durat = randint(durlev/3) + durlev/3;
-			(void)(set_oppose_pois(p_ptr->oppose_pois + durat));
-			(void)(set_oppose_disease(p_ptr->oppose_disease + durat));
-			(void)(set_tim_res_lite(p_ptr->tim_res_lite + durat));
-			(void)(set_tim_res_dark(p_ptr->tim_res_dark + durat));
-			(void)(set_tim_res_confu(p_ptr->tim_res_confu + durat));
-			(void)(set_tim_res_sound(p_ptr->tim_res_sound + durat));
-			(void)(set_tim_res_shard(p_ptr->tim_res_shard + durat));
-			(void)(set_tim_res_nexus(p_ptr->tim_res_nexus + durat));
-			(void)(set_tim_res_nethr(p_ptr->tim_res_nethr + durat));
-			(void)(set_tim_res_chaos(p_ptr->tim_res_chaos + durat)); 
-			(void)(set_tim_res_water(p_ptr->tim_res_water + durat));
-			break;
-		}
-		case SP_RESISTANCE:
-		{
-			durat = randint(20) + 20;
-			(void)set_oppose_acid(p_ptr->oppose_acid + durat);
-			(void)set_oppose_elec(p_ptr->oppose_elec + durat);
-			(void)set_oppose_fire(p_ptr->oppose_fire + durat);
-			(void)set_oppose_cold(p_ptr->oppose_cold + durat);
-			(void)set_oppose_pois(p_ptr->oppose_pois + durat);
-			break;
-		}
-		case SP_GLYPH_WARDING:
-		{
-			warding_glyph();
-			break;
-		}
-		case SP_REMOVE_CURSE_1:
-		{
-			remove_curse();
-			break;
-		}
-		case SP_REMOVE_CURSE_2:
-		{
-			(void)remove_all_curse();
-			break;
-		}
-		case SP_MAP_1:
-		{
-			map_area();
-			break;
-		}
-		case SP_MAP_2:
-		{
-			wiz_lite();
-			break;
-		}
-		case SP_PROBE:
-		{
-			(void)probing();
-			break;
-		}
-		case SP_SELF_KNOW:
-		{
-			message(MSG_EFFECT, 0, "You begin to know yourself a little better...");
-			message_flush();
-			self_knowledge();
-			break;
-		}
-		case SP_ENCHANT_WEAP:
-		{
-			(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-			break;
-		}
-		case SP_ENCHANT_ARMR:
-		{
-			(void)enchant_spell(0, 0, rand_int(3) + 2);
-			break;
-		}
-		case SP_BRAND_ARROW_ANML:
-		{	
-			(void)brand_weapon(TV_ARROW,EGO_HURT_ANIMAL,FALSE);
-			break;
-		}
-		case SP_BRAND_ARROW_WOUND:
-		{	
-			(void)brand_weapon(TV_ARROW,EGO_WOUNDING,TRUE);
-			break;
-		}
-		case SP_BRAND_ARROW_ELMNT:
-		{	
-			/* 
-			 * Hack - choose random brand 
-			 * Uses the "durat" variable to avoid declaring a new one.
-			 */
-
-			durat = rand_int(4);
-			(void)brand_weapon(TV_ARROW,EGO_AMMO_ACID+durat,TRUE);
-			break;
-		}
-		case SP_BRAND_SHOT_HOLY:
-		{
-			(void)brand_weapon(TV_SHOT,EGO_HURT_EVIL,FALSE);
-			break;
-		}
-	}
+	bool ignore_me;
 
 	/* A spell was cast */
-	return (TRUE);
+	return do_power(index, 0, beam, damlev, durlev, inflev, &ignore_me);
 }
 
 /*

@@ -8,6 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+
 /*
  * This file provides an optimized random number generator.
  *
@@ -37,22 +38,29 @@
  * Some code by Randy (randy@stat.tamu.edu).
  */
 
+
+
 #include "z-rand.h"
+
 
 /*
  * Random Number Generator -- Linear Congruent RNG
  */
 #define LCRNG(X)        ((X) * 1103515245 + 12345)
 
+
+
 /*
  * Use the "simple" LCRNG
  */
 bool Rand_quick = TRUE;
 
+
 /*
  * Current "value" of the "simple" RNG
  */
 u32b Rand_value;
+
 
 /*
  * Current "index" for the "complex" RNG
@@ -63,6 +71,8 @@ u16b Rand_place;
  * Current "state" table for the "complex" RNG
  */
 u32b Rand_state[RAND_DEG];
+
+
 
 /*
  * Initialize the "complex" RNG using a new seed
@@ -91,6 +101,7 @@ void Rand_state_init(u32b seed)
 		Rand_place = j;
 	}
 }
+
 
 /*
  * Extract a "random" number from 0 to m-1, via "modulus"
@@ -137,6 +148,7 @@ u32b Rand_mod(u32b m)
 	return (r);
 }
 
+
 /*
  * Extract a "random" number from 0 to m-1, via "division"
  *
@@ -167,7 +179,7 @@ u32b Rand_div(u32b m)
 	if (Rand_quick)
 	{
 		/* Wait for it */
-		while (TRUE)
+		while (1)
 		{
 			/* Cycle the generator */
 			r = (Rand_value = LCRNG(Rand_value));
@@ -184,7 +196,7 @@ u32b Rand_div(u32b m)
 	else
 	{
 		/* Wait for it */
-		while (TRUE)
+		while (1)
 		{
 			int j;
 
@@ -209,6 +221,9 @@ u32b Rand_div(u32b m)
 	/* Use the value */
 	return (r);
 }
+
+
+
 
 /*
  * The number of entries in the "Rand_normal_table"
@@ -261,6 +276,8 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
 	32763,   32763,   32763,   32764,   32764,	32764,	 32764,	  32765,
 	32765,   32765,   32765,   32766,   32766,	32766,	 32766,	  32767,
 };
+
+
 
 /*
  * Generate a random integer number of NORMAL distribution
@@ -323,6 +340,7 @@ s16b Rand_normal(int mean, int stand)
 	return (mean + offset);
 }
 
+
 /*
  * Extract a "random" number from 0 to m-1, using the "simple" RNG.
  *
@@ -336,10 +354,10 @@ u32b Rand_simple(u32b m)
 {
 	static bool initialized = FALSE;
 	static u32b simple_rand_value;
-
 	bool old_rand_quick;
 	u32b old_rand_value;
 	u32b result;
+
 
 	/* Save RNG state */
 	old_rand_quick = Rand_quick;

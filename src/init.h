@@ -27,18 +27,15 @@
 #define PARSE_ERROR_TOO_FEW_ARGUMENTS		 9
 #define PARSE_ERROR_TOO_MANY_ARGUMENTS		10
 #define PARSE_ERROR_TOO_MANY_QUESTS			11
+#define PARSE_ERROR_INVALID_ITEM_NUMBER     12
+#define PARSE_ERROR_TOO_MANY_ENTRIES        13
+#define PARSE_ERROR_INVALID_SPELL_FREQ		14
 
-#define PARSE_ERROR_MAX						12
-
-/*
- * error tracking
- */
-extern s16b error_idx;
-extern s16b error_line;
+#define PARSE_ERROR_MAX						15
 
 typedef struct header header;
 
-typedef errr (*init_info_txt_func)(FILE *fp, char *buf, header *head);
+typedef errr (*parse_info_txt_func)(char *buf, header *head);
 
 /*
  * Template file header information (see "init.c").  16 bytes.
@@ -87,31 +84,43 @@ struct header
 	u32b text_size;		/* Size of the "text" array in bytes */
 
 	void *info_ptr;
-	void *name_ptr;
-	void *text_ptr;
+	char *name_ptr;
+	char *text_ptr;
 
-	init_info_txt_func init_info_txt;
+	parse_info_txt_func parse_info_txt;
 };
 
+extern errr init_info_txt(FILE *fp, char *buf, header *head,
+                          parse_info_txt_func parse_info_txt_line);
+
 #ifdef ALLOW_TEMPLATES
-extern errr init_z_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_v_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_f_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_k_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_a_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_e_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_r_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_u_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_p_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_c_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_h_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_b_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_g_info_txt(FILE *fp, char *buf, header *head);
-extern errr init_q_info_txt(FILE *fp, char *buf, header *head);
+
+extern errr parse_z_info(char *buf, header *head);
+extern errr parse_v_info(char *buf, header *head);
+extern errr parse_f_info(char *buf, header *head);
+extern errr parse_k_info(char *buf, header *head);
+extern errr parse_a_info(char *buf, header *head);
+extern errr parse_e_info(char *buf, header *head);
+extern errr parse_px_info(char *buf, header *head);
+extern errr parse_r_info(char *buf, header *head);
+extern errr parse_u_info(char *buf, header *head);
+extern errr parse_p_info(char *buf, header *head);
+extern errr parse_c_info(char *buf, header *head);
+extern errr parse_h_info(char *buf, header *head);
+extern errr parse_b_info(char *buf, header *head);
+extern errr parse_g_info(char *buf, header *head);
+extern errr parse_q_info(char *buf, header *head);
+
+/*
+ * Error tracking
+ */
+extern int error_idx;
+extern int error_line;
+
 #endif /* ALLOW_TEMPLATES */
 
 /*
- * *_info.txt file headers
+ * File headers
  */
 extern header z_head;
 extern header v_head;
@@ -119,6 +128,7 @@ extern header f_head;
 extern header k_head;
 extern header a_head;
 extern header e_head;
+extern header px_head;
 extern header r_head;
 extern header u_head;
 extern header p_head;

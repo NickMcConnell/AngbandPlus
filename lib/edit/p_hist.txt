@@ -1,12 +1,10 @@
-# File: h_info.txt
+# File: p_hist.txt
 
-
-# This file is used to initialize the "lib/data/h_info.raw" file, which is
+# This file is used to initialize the "lib/data/p_hist.raw" file, which is
 # used to initialize the "player history" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/h_info.raw" file.
 
 # Background information (see below)
 
@@ -31,7 +29,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 

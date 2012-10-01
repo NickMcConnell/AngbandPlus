@@ -429,6 +429,28 @@ void wipe_o_list(void)
 			artifact_aware(&a_info[o_ptr->a_idx]);
 		}
 
+		/* Quest items on quest levels */
+ 		if (o_ptr->tval == TV_QUEST)
+		{
+			quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+
+			/* Mark quest as completed */
+			q_ptr->active_level = 0;
+			p_ptr->cur_quest = 0;
+				
+			/* No reward for failed quest */
+			q_ptr->reward = 0;
+
+			/* Message */
+			message(MSG_QUEST_FAIL, 0, "You have failed in your quest!");
+
+			/* Reset fame */
+			if (p_ptr->fame) p_ptr->fame = 0;
+	
+			/* Disturb */
+			if (disturb_minor) disturb(0);
+		}
+
 		/* Monster */
 		if (o_ptr->held_m_idx)
 		{
@@ -701,6 +723,9 @@ void artifact_known(artifact_type *a_ptr)
 	/* Know the effects */
 	a_ptr->status |= A_STATUS_KNOWN;
 
+	/* Know the activation */
+	a_ptr->status |= A_STATUS_ACTIVATE;
+
 	/* Know for history's sake (unless a randart) */
 	if (!adult_rand_artifacts) a_ptr->status |= A_STATUS_MEMORY;
 }
@@ -812,7 +837,7 @@ static s32b object_value_base(object_type *o_ptr)
 	}
 
 	/* Modify according to prefix */
-	if (o_ptr->prefix_idx) value = (value * item_prefix[o_ptr->prefix_idx].cost) / 100;
+	if (o_ptr->prefix_idx) value = (value * px_info[o_ptr->prefix_idx].cost) / 100;
 
 	/* Return value */
 	return (value);
@@ -853,7 +878,7 @@ static s32b object_value_real(object_type *o_ptr)
 	value = k_ptr->cost;
 
 	/* Modify according to prefix */
-	if (o_ptr->prefix_idx) value = (value * item_prefix[o_ptr->prefix_idx].cost) / 100;
+	if (o_ptr->prefix_idx) value = (value * px_info[o_ptr->prefix_idx].cost) / 100;
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -1074,7 +1099,7 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_POLEARM:
 		{
 			int to_h_val, to_d_val;
-			item_prefix_type *px_ptr = &item_prefix[o_ptr->prefix_idx];
+			item_prefix_type *px_ptr = &px_info[o_ptr->prefix_idx];
 
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
@@ -1139,6 +1164,9 @@ static s32b object_value_real(object_type *o_ptr)
 /* Check if a player can destroy an item - and update the inscription accordingly*/
 bool destroy_check(object_type *o_ptr)
 {
+	/* Quest items cannot be destroyed */
+	if (o_ptr->tval == TV_QUEST) return FALSE;
+
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
@@ -1733,10 +1761,13 @@ static void object_mention(object_type *o_ptr)
 
 /*
  * Attempt to change an object into an ego-item -MWK-
- * Better only called by apply_magic()
- * The return value is currently unused, but a wizard might be interested in it.
+ * Better only called by apply_magic().
+ * The return value says if we picked a cursed item (if allowed) and is
+ * passed on to a_m_aux1/2().
+ * If no legal ego item is found, this routine returns 0, resulting in
+ * an unenchanted item.
  */
-static bool make_ego_item(object_type *o_ptr, bool cursed)
+static int make_ego_item(object_type *o_ptr, bool only_good)
 {
 	int i, j, level;
 
@@ -1783,9 +1814,8 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 		/* Get the actual kind */
 		e_ptr = &e_info[e_idx];
 
-		/* Test if this is a possible ego-item for value of (cursed) */
-		if (!cursed && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
-		if (cursed && !(e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
+		/* If we force good/great, don't create cursed */
+		if (only_good && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 
 		/* Test if this is a legal ego-item type for this object */
 		for (j = 0; j < 3; j++)
@@ -1810,8 +1840,8 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 		total += table[i].prob3;
 	}
 
-	/* No legal ego-items */
-	if (total <= 0) return (FALSE);
+	/* No legal ego-items -- create a normal unenchanted one */
+	if (total == 0) return (0);
 
 	/* Pick an ego-item */
 	value = rand_int(total);
@@ -1827,8 +1857,10 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	}
 
 	/* We have one */
-	o_ptr->e_idx = (byte)table[i].index;
-	return (TRUE);
+	e_idx = (byte)table[i].index;
+	o_ptr->e_idx = e_idx;
+
+	return ((e_info[e_idx].flags3 & TR3_LIGHT_CURSE) ? -2 : 2);
 }
 
 /*
@@ -2875,6 +2907,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
 		o_ptr->weight = a_ptr->weight;
+		
+		/* Add prefix */
+		o_ptr->prefix_idx = a_ptr->prefix_idx;
 
 		/* Hack -- extract the "broken" flag */
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -2910,9 +2945,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			if (power) a_m_aux_1(o_ptr, lev, power);
 			if ((power > 1) || (power < -1))
-				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE));
+			{
+				int ego_power;
+
+				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+
+				if (ego_power) power = ego_power;
+			}
+
+ 			if (power) a_m_aux_1(o_ptr, lev, power);
+
 			break;
 		}
 
@@ -2924,9 +2967,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		case TV_GLOVES:
 		case TV_BOOTS:
 		{
-			if (power) a_m_aux_2(o_ptr, lev, power);
 			if ((power > 1) || (power < -1))
-				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE));
+			{
+				int ego_power;
+
+				ego_power = make_ego_item(o_ptr, (bool)(good || great));
+
+				if (ego_power) power = ego_power;
+			}
+
+ 			if (power) a_m_aux_2(o_ptr, lev, power);
+
 			break;
 		}
 
@@ -3093,8 +3144,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			item_prefix_type *px_ptr;
 
 			/* Try to apply a random prefix */
-			l = randint(PREFIX_MAX - 1);
-			px_ptr = &item_prefix[l];
+			l = randint(z_info->px_max - 1);
+			px_ptr = &px_info[l];
 
 			/* Not a real prefix */
 			if (!px_ptr->rarity) continue;
@@ -3106,7 +3157,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			}
 
 			/* Hack - Good items must have prefixes worth more than 50% */
-			if (good && (px_ptr->cost <= 50)) continue;
+			if (good && !(px_ptr->flags & PXF_GOOD)) continue;
 
 			/* Roll for rarity */
 			if (rand_int(px_ptr->rarity) == 0)
@@ -4916,10 +4967,46 @@ bool make_fake_artifact(object_type *o_ptr, int a_idx)
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
+	o_ptr->prefix_idx = a_ptr->prefix_idx;
 
 	/* It's fully know */
 	o_ptr->ident |= IDENT_KNOWN;
 
 	/* Success */
 	return (TRUE);
+}
+
+/*
+ * Create a quest item
+ */
+void create_quest_item(int ny, int nx)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+	int k_idx;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
+	/* Acquire the "kind" index */
+	k_idx = lookup_kind(TV_QUEST, 0);
+
+	/* Oops */
+	if (!k_idx) return;
+
+	/* Create the artifact */
+	object_prep(i_ptr, k_idx);
+
+	/* Save the name */
+	i_ptr->to_a = (byte)rand_int(QUEST_NAME_1);
+	i_ptr->to_d = (byte)rand_int(QUEST_NAME_2);
+	i_ptr->to_h = (byte)rand_int(QUEST_NAME_3);
+
+	i_ptr->weight = 5 + (byte)rand_int(20);
+
+	/* Drop the artifact from heaven */
+	drop_near(i_ptr, -1, ny, nx);
 }

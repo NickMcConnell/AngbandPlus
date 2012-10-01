@@ -1,14 +1,19 @@
-#File: u_info.txt
-#
+#File: unique.txt
 
-# === Understanding u_info.txt ===
+# This file is used to initialize the "lib/raw/unique.raw" file, which is
+# used to initialize the "unique" information for the Angband game.
 
-# u_info.txt is arranged in exactly the same way as r_info.txt, with the exception
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# === Understanding unique.txt ===
+
+# unique.txt is arranged in exactly the same way as monster.txt, with the exception
 # of the R: line which replaces the G: line. The R: line contains two values - a monster
-# index pointing to the entry in r_info.txt that the unique is based on, and a colour that
-# superceeds the color in r_info.txt. 
+# index pointing to the entry in monster.txt that the unique is based on, and a colour that
+# superceeds the color in monster.txt. 
 #
-V:0.3.3
+V:0.3.4
 #
 N:1:Farmer Maggot
 R:2:w
@@ -214,7 +219,7 @@ F:HAS_LITE | MALE | NO_CALM | NO_SLEEP | ONLY_ITEM | OPEN_DOOR | PERSON |
 F:RES_COLD | RES_CONF | RES_FIRE | RES_POIS 
 S:1_IN_6 | BLIND | CAUSE_2 | CONF | HEAL | MIND_BLAST
 D:This dwarf became so obsessed by gold that Morgoth tricked him into
-D: betraying his FRIEND.
+D: betraying his friends.
 #
 N:19:Shagrat, the Orc Captain
 R:268:g

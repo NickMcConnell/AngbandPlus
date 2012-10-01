@@ -1,0 +1,122 @@
+# File: prefix.txt
+
+# This file is used to initialize the "lib/data/prefix.raw" file, which is
+# used to initialize the "prefix" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# Format:
+# N: serial number : prefix name
+# W: rarity : material : weight % : cost % 
+# P: + to hit, + to dam, + to dd, + to ds
+# F: flags 
+
+# Flags - SHOP, ARTIFACT, GOOD, determine whether the object is legal in stores, artifacts, and 
+# good items respectively.
+
+# Version stamp (required)
+
+V:0.3.4
+
+N:0:<none>
+W:1:0:100:100
+P:0:0:0:0
+F:SHOP | ARTIFACT | GOOD
+
+N:1:Broken
+W:10:0:50:1
+P:-5:-5:-9:-9
+
+N:2:Rusty
+W:10:12:100:50
+P:-2:-2:0:0
+
+N:3:Cheap
+W:15:0:100:85
+P:-1:0:0:0
+F:SHOP
+
+N:4:Hunter's
+W:15:0:100:110
+P:0:1:0:0
+F:SHOP | ARTIFACT | GOOD
+
+N:5:Quality
+W:20:0:100:130
+P:1:1:0:0
+F:SHOP | ARTIFACT | GOOD
+
+N:6:Orcish
+W:30:0:120:130
+P:0:2:0:0
+F:SHOP | ARTIFACT | GOOD
+
+N:7:Dwarven
+W:40:0:110:150
+P:0:0:0:1
+F:SHOP | ARTIFACT | GOOD
+
+N:8:Elven
+W:40:0:90:200
+P:2:0:0:0
+F:SHOP | ARTIFACT | GOOD
+
+N:9:Kobold
+W:40:0:80:80
+P:0:0:-1:-1
+F:SHOP | ARTIFACT | GOOD
+
+N:10:Rattikin
+W:40:0:80:120
+P:1:0:-1:1
+F:SHOP | ARTIFACT | GOOD
+
+N:11:Trollish
+W:45:0:160:200
+P:0:0:1:0
+F:SHOP | ARTIFACT | GOOD
+
+N:12:Felpurr
+W:45:0:90:110
+P:0:0:0:0
+F:SHOP | ARTIFACT | GOOD
+
+N:13:Hobbit
+W:50:0:60:100
+P:0:0:0:-1
+F:SHOP | ARTIFACT | GOOD
+
+N:14:Gnomish
+W:50:0:50:65
+P:0:0:-1:0
+F:SHOP | ARTIFACT | GOOD
+
+N:15:Yeek
+W:50:0:60:30
+P:-1:-1:-1:-1
+F:SHOP | ARTIFACT | GOOD
+
+N:16:Ogrish
+W:60:0:250:200
+P:-2:0:1:1
+F:ARTIFACT | GOOD
+
+N:17:Runed
+W:75:0:100:200
+P:0:5:0:0
+F:ARTIFACT | GOOD
+
+N:18:Ornamental
+W:80:12:110:350
+P:-3:-3:-1:-1
+
+N:19:Dark Elven
+W:90:0:90:250
+P:2:2:0:1
+F:ARTIFACT | GOOD
+
+N:20:Majestic
+W:150:0:120:500
+P:2:2:2:2
+F:ARTIFACT | GOOD

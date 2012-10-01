@@ -1,13 +1,10 @@
-# File: p_info.txt
+# File: p_race.txt
 
-
-# This file is used to initialize the "lib/data/p_info.raw" file, which is
+# This file is used to initialize the "lib/data/p_race.raw" file, which is
 # used to initialize the "player race" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/p_info.raw" file.
-
 
 # Format:
 # N:race number:race name
@@ -21,10 +18,9 @@
 # U:race specials
 # C:classes (numeric)
 
-
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 N:0:Human
 S:0:0:0:0:0:0

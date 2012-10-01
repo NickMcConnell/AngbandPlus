@@ -1,14 +1,12 @@
-# File: q_info.txt
+# File: quest.txt
 
-
-# This file is used to initialize the "lib/data/q_info.raw" file, which is
+# This file is used to initialize the "lib/data/quest.raw" file, which is
 # used to initialize the "quest" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/q_info.raw" file.
 
-# Note that there are a total of 64 available quests (modifiable in z_info). Any quests
+# Note that there are a total of 127 available quests (modifiable in z_info). Any quests
 # not allocated here will be available to assignment as random quests.
 
 # Format:
@@ -17,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 N:0:Fake quest
 W:0:0:0

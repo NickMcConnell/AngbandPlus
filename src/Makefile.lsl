@@ -9,7 +9,7 @@ SRCS = \
   xtra1.c xtra2.c effects.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c squelch.c\
   cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
-  store.c birth.c load.c quest.c\
+  store.c birth.c load.c quest.c powers.c\
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
@@ -21,7 +21,7 @@ OBJS = \
   xtra1.o xtra2.o effects.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o squelch.o\
   cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \
-  store.o birth.o load.o quest.o\
+  store.o birth.o load.o quest.o powers.o\
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
@@ -100,6 +100,7 @@ monster2.o: monster2.c $(INCS)
 monster3.o: monster3.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+powers.o: powers.c $(INCS)
 quest.o: quest.c $(INCS)
 randart.o: randart.c $(INCS)
 save.o: save.c $(INCS)

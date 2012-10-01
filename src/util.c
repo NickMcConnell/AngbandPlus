@@ -10,51 +10,6 @@
 
 #include "angband.h"
 
-#ifdef OLD_CRUFT
-# ifndef HAS_MEMSET
-
-/*
- * For those systems that don't have "memset()"
- *
- * Set the value of each of 'n' bytes starting at 's' to 'c', return 's'
- * If 'n' is negative, you will erase a whole lot of memory.
- */
-char *memset(char *s, int c, huge n)
-{
-	char *t;
-	for (t = s; len--; ) *t++ = c;
-	return (s);
-}
-
-# endif /* HAS_MEMSET */
-#endif /* OLD_CRUFT */
-
-#ifndef HAS_STRICMP
-
-/*
- * For those systems that don't have "stricmp()"
- *
- * Compare the two strings "a" and "b" ala "strcmp()" ignoring case.
- */
-int stricmp(cptr a, cptr b)
-{
-	cptr s1, s2;
-	char z1, z2;
-
-	/* Scan the strings */
-	for (s1 = a, s2 = b; TRUE; s1++, s2++)
-	{
-		z1 = FORCEUPPER(*s1);
-		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
-		if (z1 > z2) return (1);
-		if (!z1) return (0);
-	}
-}
-
-#endif
-
-
 #ifdef SET_UID
 
 # ifndef HAS_USLEEP
@@ -218,6 +173,7 @@ errr path_parse(char *buf, int max, cptr file)
 	struct passwd	*pw;
 	char user[128];
 
+	(void)max;
 
 	/* Assume no result */
 	buf[0] = '\0';
@@ -292,6 +248,7 @@ errr path_parse(char *buf, int max, cptr file)
 
 #endif /* SET_UID */
 
+#ifndef HAVE_MKSTEMP
 
 /*
  * Hack -- acquire a "temporary" file name if possible
@@ -315,6 +272,7 @@ static errr path_temp(char *buf, int max)
 	return (0);
 }
 
+#endif /* HAVE_MKSTEMP */
 
 /*
  * Create a new path by appending a file (or directory) to a path
@@ -394,6 +352,8 @@ errr my_fclose(FILE *fff)
 	return (0);
 }
 
+#endif /* ACORN */
+
 #ifdef HAVE_MKSTEMP
 
 FILE *my_fopen_temp(char *buf, int max)
@@ -425,9 +385,6 @@ FILE *my_fopen_temp(char *buf, int max)
 }
 
 #endif /* HAVE_MKSTEMP */
-
-#endif /* ACORN */
-
 
 /*
  * Hack -- replacement for "fgets()"
@@ -466,11 +423,8 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				/* Hack -- require room */
 				if (i + 8 >= n) break;
 
-				/* Append a space */
-				buf[i++] = ' ';
-
-				/* Append some more spaces */
-				while (!(i % 8)) buf[i++] = ' ';
+				/* Append 1-8 spaces */
+				do { buf[i++] = ' '; } while (i % 8);
 			}
 
 			/* Handle printables */
@@ -492,7 +446,6 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 	return (1);
 }
 
-
 /*
  * Hack -- replacement for "fputs()"
  *
@@ -502,6 +455,9 @@ errr my_fgets(FILE *fff, char *buf, huge n)
  */
 errr my_fputs(FILE *fff, cptr buf, huge n)
 {
+	/* Unused paramter */
+	(void)n;
+
 	/* Dump, ignore errors */
 	(void)fprintf(fff, "%s\n", buf);
 
@@ -509,9 +465,7 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 	return (0);
 }
 
-
 #ifdef ACORN
-
 
 /*
  * Most of the "file" routines for "ACORN" should be in "main-acn.c"
@@ -520,9 +474,7 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
  * and "my_fopen()" should ever create files.
  */
 
-
 #else /* ACORN */
-
 
 /*
  * Several systems have no "O_BINARY" flag
@@ -530,7 +482,6 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 #ifndef O_BINARY
 # define O_BINARY 0
 #endif /* O_BINARY */
-
 
 /*
  * Hack -- attempt to delete a file
@@ -548,7 +499,6 @@ errr fd_kill(cptr file)
 	/* Assume success XXX XXX XXX */
 	return (0);
 }
-
 
 /*
  * Hack -- attempt to move a file
@@ -571,7 +521,6 @@ errr fd_move(cptr file, cptr what)
 	return (0);
 }
 
-
 /*
  * Hack -- attempt to copy a file
  */
@@ -592,7 +541,6 @@ errr fd_copy(cptr file, cptr what)
 	/* Assume success XXX XXX XXX */
 	return (1);
 }
-
 
 /*
  * Hack -- attempt to open a file descriptor (create file)
@@ -679,7 +627,7 @@ errr fd_lock(int fd, int what)
 		if (lockf(fd, F_LOCK, 0) != 0) return (1);
 	}
 
-#  endif
+#  endif /* defined(F_ULOCK) && defined(F_LOCK) */
 
 # else
 
@@ -699,16 +647,20 @@ errr fd_lock(int fd, int what)
 		if (flock(fd, LOCK_EX) != 0) return (1);
 	}
 
-#  endif
+#  endif /* defined(LOCK_UN) && defined(LOCK_EX) */
 
-# endif
+# endif /* USG */
 
-#endif
+#else /* SET_UID */
+
+	/* Unused parameter */
+	(void)what;
+
+#endif /* SET_UID */
 
 	/* Success */
 	return (0);
 }
-
 
 /*
  * Hack -- attempt to seek on a file descriptor
@@ -940,6 +892,12 @@ void text_to_ascii(char *buf, cptr str)
 				*s++ = '\t';
 			}
 
+			/* Bell */
+			else if (*str == 'a')
+			{
+				*s++ = '\a';
+			}
+
 			/* Actual "backslash" */
 			else if (*str == '\\')
 			{
@@ -1023,6 +981,11 @@ void ascii_to_text(char *buf, cptr str)
 		{
 			*s++ = '\\';
 			*s++ = 't';
+		}
+		else if (i == '\a')
+		{
+			*s++ = '\\';
+			*s++ = 'a';
 		}
 		else if (i == '\n')
 		{
@@ -1460,12 +1423,9 @@ static char inkey_aux(void)
 		if (Term_key_push(act[--n])) return (0);
 	}
 
-
 	/* Hack -- Force "inkey()" to call us again */
 	return (0);
 }
-
-
 
 /*
  * Mega-Hack -- special "inkey_next" pointer.  XXX XXX XXX
@@ -1476,7 +1436,6 @@ static char inkey_aux(void)
  * in Angband to handle "keymaps".
  */
 static cptr inkey_next = NULL;
-
 
 #ifdef ALLOW_BORG
 
@@ -1489,7 +1448,6 @@ static cptr inkey_next = NULL;
 char (*inkey_hack)(int flush_first) = NULL;
 
 #endif /* ALLOW_BORG */
-
 
 /*
  * Get a keypress from the user.
@@ -1817,6 +1775,16 @@ void sound(int val)
  */
 
 /*
+ * The number of quarks (first quark is NULL)
+ */
+static s16b quark__num = 1;
+
+/*
+ * The array[QUARK_MAX] of pointers to the quarks
+ */
+static cptr *quark__str;
+
+/*
  * Add a new "quark" to the set of quarks.
  */
 s16b quark_add(cptr str)
@@ -1863,10 +1831,30 @@ cptr quark_str(s16b i)
 /*
  * Initialize the "quark" package
  */
-errr quark_init(void)
+errr quarks_init(void)
 {
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Free the "quark" package
+ */
+errr quarks_free(void)
+{
+	int i;
+
+	/* Free the "quarks" */
+	for (i = 1; i < quark__num; i++)
+	{
+		string_free(quark__str[i]);
+	}
+
+	/* Free the list of "quarks" */
+	C_FREE((void*)quark__str, QUARK_MAX, cptr);
 
 	/* Success */
 	return (0);
@@ -1911,6 +1899,46 @@ errr quark_init(void)
  * The "message_add()" function is rather "complex", because it must be
  * extremely efficient, both in space and time, for use with the Borg.
  */
+
+/*
+ * The next "free" index to use
+ */
+static u16b message__next;
+
+/*
+ * The index of the oldest message (none yet)
+ */
+static u16b message__last;
+
+/*
+ * The next "free" offset
+ */
+static u16b message__head;
+
+/*
+ * The offset to the oldest used char (none yet)
+ */
+static u16b message__tail;
+
+/*
+ * The array[MESSAGE_MAX] of offsets, by index
+ */
+static u16b *message__ptr;
+
+/*
+ * The array[MESSAGE_BUF] of chars, by offset
+ */
+static char *message__buf;
+
+/*
+ * The array[MESSAGE_MAX] of u16b for the types of messages
+ */
+static u16b *message__type;
+
+/*
+ * Table of colors associated to message-types
+ */
+static byte message__color[MSG_MAX];
 
 /*
  * How many messages are "available"?
@@ -1969,6 +1997,18 @@ u16b message_type(s16b age)
 byte message_color(s16b age)
 {
 	return message__color[message_type(age)];
+}
+
+errr message_color_define(u16b type, byte color)
+{
+	/* Ignore illegal types */
+	if (type >= MSG_MAX) return (1);
+
+	/* Store the color */
+	message__color[type] = color;
+
+	/* Success */
+	return (0);
 }
 
 /*
@@ -2166,7 +2206,7 @@ void message_add(cptr str, u16b type)
 /*
  * Initialize the "message" package
  */
-errr message_init(void)
+errr messages_init(void)
 {
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
@@ -2183,8 +2223,16 @@ errr message_init(void)
 	return (0);
 }
 
-
-
+/*
+ * Free the "message" package
+ */
+void messages_free(void)
+{
+	/* Free the messages */
+	C_FREE(message__ptr, MESSAGE_MAX, u16b);
+	C_FREE(message__buf, MESSAGE_BUF, char);
+	C_FREE(message__type, MESSAGE_MAX, u16b);
+}
 
 /*
  * XXX XXX XXX Important note about "colors" XXX XXX XXX

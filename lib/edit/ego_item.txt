@@ -1,12 +1,10 @@
-# File: e_info.txt
+# File: ego_item.txt
 
-
-# This file is used to initialize the "lib/raw/e_info.raw" file, which is
+# This file is used to initialize the "lib/raw/ego_item.raw" file, which is
 # used to initialize the "ego-item" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/e_info.raw" file.
 
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
@@ -22,7 +20,7 @@
 # Note that several "ego-item" types may share the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
-# === Understanding e_info.txt ===
+# === Understanding ego_item.txt ===
 
 # N: serial number : ego type
 # X: inventory slot : rating : xtra
@@ -63,7 +61,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 ### Body Armor ###
 

@@ -1869,14 +1869,7 @@ typedef struct vinfo_type vinfo_type;
  */
 struct vinfo_type
 {
-	s16b grid_0;
-	s16b grid_1;
-	s16b grid_2;
-	s16b grid_3;
-	s16b grid_4;
-	s16b grid_5;
-	s16b grid_6;
-	s16b grid_7;
+	s16b grid[8];
 
 	u32b bits_3;
 	u32b bits_2;
@@ -2070,6 +2063,9 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
+	/* Unused parameter */
+	(void)v;
+
 	return (x[a] <= x[b]);
 }
 
@@ -2083,6 +2079,9 @@ static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
 	long *x = (long*)(u);
 
 	long temp;
+
+	/* Unused parameter */
+	(void)v;
 
 	/* Swap */
 	temp = x[a];
@@ -2242,21 +2241,21 @@ errr vinfo_init(void)
 		e = queue_head++;
 
 		/* Main Grid */
-		g = vinfo[e].grid_0;
+		g = vinfo[e].grid[0];
 
 		/* Location */
 		y = GRID_Y(g);
 		x = GRID_X(g);
 
 		/* Compute grid offsets */
-		vinfo[e].grid_0 = GRID(+y,+x);
-		vinfo[e].grid_1 = GRID(+x,+y);
-		vinfo[e].grid_2 = GRID(+x,-y);
-		vinfo[e].grid_3 = GRID(+y,-x);
-		vinfo[e].grid_4 = GRID(-y,-x);
-		vinfo[e].grid_5 = GRID(-x,-y);
-		vinfo[e].grid_6 = GRID(-x,+y);
-		vinfo[e].grid_7 = GRID(-y,+x);
+		vinfo[e].grid[0] = GRID(+y,+x);
+		vinfo[e].grid[1] = GRID(+x,+y);
+		vinfo[e].grid[2] = GRID(+x,-y);
+		vinfo[e].grid[3] = GRID(+y,-x);
+		vinfo[e].grid[4] = GRID(-y,-x);
+		vinfo[e].grid[5] = GRID(-x,-y);
+		vinfo[e].grid[6] = GRID(-x,+y);
+		vinfo[e].grid[7] = GRID(-y,+x);
 
 		/* Analyze slopes */
 		for (i = 0; i < hack->num_slopes; ++i)
@@ -2287,9 +2286,9 @@ errr vinfo_init(void)
 		{
 			g = GRID(y,x+1);
 
-			if (queue[queue_tail-1]->grid_0 != g)
+			if (queue[queue_tail-1]->grid[0] != g)
 			{
-				vinfo[queue_tail].grid_0 = g;
+				vinfo[queue_tail].grid[0] = g;
 				queue[queue_tail] = &vinfo[queue_tail];
 				queue_tail++;
 			}
@@ -2306,9 +2305,9 @@ errr vinfo_init(void)
 		{
 			g = GRID(y+1,x+1);
 
-			if (queue[queue_tail-1]->grid_0 != g)
+			if (queue[queue_tail-1]->grid[0] != g)
 			{
-				vinfo[queue_tail].grid_0 = g;
+				vinfo[queue_tail].grid[0] = g;
 				queue[queue_tail] = &vinfo[queue_tail];
 				queue_tail++;
 			}
@@ -2406,9 +2405,9 @@ void forget_view(void)
  * and for each octant, allows a simple calculation to set "g"
  * equal to the proper grids, relative to "pg", in the octant.
  *
- *   for (o2 = 0; o2 < 16; o2 += 2)
+ *   for (o2 = 0; o2 < 8; o2++)
  *   ...
- *         g = pg + *((s16b*)(((byte*)(p))+o2));
+ *         g = pg + p->grid[o2];
  *   ...
  *
  * Normally, vision along the major axes is more likely than vision
@@ -2623,7 +2622,7 @@ void update_view(void)
 	/*** Step 2 -- octants ***/
 
 	/* Scan each octant */
-	for (o2 = 0; o2 < 16; o2 += 2)
+	for (o2 = 0; o2 < 8; o2++)
 	{
 		vinfo_type *p;
 
@@ -2661,7 +2660,7 @@ void update_view(void)
 			    (bits3 & (p->bits_3)))
 			{
 				/* Extract grid value XXX XXX XXX */
-				g = pg + *((s16b*)(((byte*)(p))+o2));
+				g = pg + p->grid[o2];
 
 				/* Get grid info */
 				info = fast_cave_info[g];

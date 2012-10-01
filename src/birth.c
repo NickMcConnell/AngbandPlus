@@ -544,7 +544,7 @@ static void player_outfit(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
-	start_item *e_ptr;
+	const start_item *e_ptr;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -611,8 +611,15 @@ static void player_outfit(void)
 		/* Hack	-- Give the player an object */
 		if (e_ptr->tval > 0)
 		{
-			object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
-			i_ptr->number = rand_int(e_ptr->max - e_ptr->min + 1) + e_ptr->min;
+			/* Get the object_kind */
+			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+			/* Prepare the item */
+			object_prep(i_ptr, k_idx);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
 
 			/* make ego item if necessary */
 			if (e_ptr->ego) i_ptr->e_idx = e_ptr->ego;
@@ -636,7 +643,7 @@ static void player_outfit(void)
  */
 static bool player_birth_aux_1(void)
 {
-	int k, n, i, j;
+	int k, n, j;
 
 	cptr str;
 
@@ -758,7 +765,6 @@ static bool player_birth_aux_1(void)
 	/* Clean up */
 	clear_from(15);
 
-
 	/*** Player class ***/
 
 	/* Extra info */
@@ -826,7 +832,6 @@ static bool player_birth_aux_1(void)
 	/* Clean up */
 	clear_from(15);
 
-
 	/*** Birth options ***/
 
 	/* Extra info */
@@ -856,18 +861,6 @@ static bool player_birth_aux_1(void)
 		options_birth_menu(TRUE);
 	}
 
-	/* Set adult options from birth options */
-	for (i = 0; i < OPT_BIRTH; i++)
-	{
-		op_ptr->opt_adult[i] = op_ptr->opt_birth[i];
-	}
-
-	/* Reset score options and cheat options */
-	for (i = 0; i < OPT_CHEAT; i++)
-	{
-		op_ptr->opt_cheat[i] = op_ptr->opt_score[i] = FALSE;
-	}
-
 	/* Clean up */
 	clear_from(10);
 
@@ -878,7 +871,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 6 to 15 inclusive).
  */
-static int birth_stat_costs[(15-6)+1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
+static int birth_stat_costs[(15 - 6) + 1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
 
 /*
  * Helper function for 'player_birth()'.
@@ -1008,13 +1001,13 @@ static bool player_birth_aux_2(void)
 		/* Prev stat */
 		if (ch == '8')
 		{
-			stat = (stat + 5) % 6;
+			stat = (stat + A_MAX - 1) % A_MAX;;
 		}
 
 		/* Next stat */
 		if (ch == '2')
 		{
-			stat = (stat + 1) % 6;
+			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
@@ -1286,6 +1279,9 @@ static bool player_birth_aux_3(void)
 		/* Roll for gold */
 		get_money();
 
+		/* Clear fame */
+		p_ptr->fame = 0;
+
 		/* Input loop */
 		while (TRUE)
 		{
@@ -1370,9 +1366,16 @@ static bool player_birth_aux_3(void)
 static bool player_birth_aux(void)
 {
 	char ch;
+	int i;
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return (FALSE);
+
+	/* Set adult options from birth options */
+	for (i = 0; i < OPT_BIRTH; i++)
+	{
+		op_ptr->opt_adult[i] = op_ptr->opt_birth[i];
+	}
 
 	/* Point-based */
 	if (adult_point_based)
@@ -1405,6 +1408,29 @@ static bool player_birth_aux(void)
 
 	/* Start over */
 	if (ch == 'S') return (FALSE);
+
+	/* Reset score options and cheat options */
+	for (i = 0; i < OPT_CHEAT; i++)
+	{
+		op_ptr->opt_cheat[i] = op_ptr->opt_score[i] = FALSE;
+	}
+
+	/* Unless otherwise instructed, reset squelch bits */
+	if (!adult_retain_squelch)
+	{
+		for (i = 0; i < OPT_SQUELCH; i++)
+		{
+			op_ptr->opt_squelch[i] = options_squelch[i].norm;
+		}
+		for (i = 0; i < z_info->k_max; i++)
+		{
+			k_info[i].squelch = FALSE;
+		}
+		for (i = 0; i < MAX_SQ_TYPES; i++)
+		{
+			op_ptr->squelch_level[i] = 0;
+		}
+	}
 
 	/* Accept */
 	return (TRUE);

@@ -361,51 +361,6 @@ static bool object_flavor(int k_idx)
 }
 
 /*
- * Certain items, if aware, are known instantly.
- *
- * This function is used only by "flavor_init()".
- */
-static bool object_easy_know(int i)
-{
-	object_kind *k_ptr = &k_info[i];
-
-	/* Analyze the "tval" */
-	switch (k_ptr->tval)
-	{
-		/* All objects of these types */
-		case TV_FLASK:
-		case TV_FOOD:
-		case TV_POTION:
-		case TV_SCROLL:
-		case TV_ROD:
-		case TV_TALISMAN:
-		case TV_POWDER:
-		{
-			return (TRUE);
-		}
-
-		/* "Simple" Rings, Amulets, and Lites */
-		case TV_RING:
-		case TV_AMULET:
-		case TV_LITE:
-		case TV_LITE_SPECIAL:
-		{
-			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-			return (FALSE);
-		}
-		/* Non artifact books */
-		case TV_MAGIC_BOOK:
-		{
-			if (!(books[k_ptr->sval].flags & SBF_ARTIFACT)) return (TRUE);
-			return (FALSE);
-		}
-	}
-
-	/* Nope */
-	return (FALSE);
-}
-
-/*
  * Prepare the "variable" part of the "k_info" array.
  *
  * The "color"/"metal"/"type" of an item is its "flavor".
@@ -670,9 +625,6 @@ void flavor_init(void)
 
 		/* No flavor yields aware */
 		if (!k_ptr->flavor) k_ptr->aware = TRUE;
-
-		/* Check for "easily known" */
-		k_ptr->easy_know = object_easy_know(i);
 	}
 }
 
@@ -1044,6 +996,54 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
  \
 } while (0)
 
+static cptr quest_name1[QUEST_NAME_1] =
+{
+	"Golden",
+	"Silver",
+	"Ruby",
+	"Diamond",
+	"Mithril",
+	"Priceless",
+	"Ancient",
+	"Lost",
+	"Legendary",
+	"Mystic",
+	"Grand"
+};
+
+static cptr quest_name2[QUEST_NAME_2] =
+{
+	"Amulet",
+	"Book",
+	"Crown",
+	"Orb",
+	"Ring",
+	"Scepter",
+	"Skull",
+	"Staff",
+	"Talisman",
+	"Tiara",
+	"Tome",
+	"Totem",
+	"Trinket",
+	"Diadem"
+};
+
+static cptr quest_name3[QUEST_NAME_3] =
+{
+	"Gandalf",
+	"Yendor",
+	"Vecna",
+	"Tarjan",
+	"Blackthorne",
+	"Dilmun",
+	"Xeen",
+	"the Mad Overlord",
+	"the Sanjiyan Unkara",
+	"Prospero",
+	"the Shadows"
+};
+
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
@@ -1184,6 +1184,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
+		/* Quest items have their own rules */
+		case TV_QUEST:
+		{
+			strcpy(tmp_buf,format("The %s %s of %s",quest_name1[o_ptr->to_a],
+				quest_name2[o_ptr->to_d], quest_name3[o_ptr->to_h]));
+
+			strcpy(buf, tmp_buf);
+			return;
+		}
+
 		/* Some objects are easy to describe */
 		case TV_FLASK:
 		case TV_CHEST:
@@ -1454,6 +1464,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			object_desc_str_macro(t, "The ");
 		}
 
+		/* Hack -- A single one with a prefix */
+		else if (o_ptr->prefix_idx) 
+		{
+			char prefix_name[80];
+
+			strcpy(prefix_name, px_name + px_info[o_ptr->prefix_idx].name);
+
+			if (is_a_vowel(prefix_name[0]))
+				object_desc_str_macro(t, "an ");
+			else object_desc_str_macro(t, "a ");
+		}
+		
 		/* Hack -- A single one, and next character will be a vowel */
 		else if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
 		{
@@ -1505,7 +1527,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Item prefixs */
 	if (o_ptr->prefix_idx)
 	{
-		object_desc_str_macro(t, item_prefix[o_ptr->prefix_idx].name);
+		object_desc_str_macro(t, px_name + px_info[o_ptr->prefix_idx].name);
 		object_desc_chr_macro(t, ' ');
 	}
 
@@ -2114,235 +2136,80 @@ object_desc_done:
 }
 
 /*
- * Hack -- describe an item currently in a store's inventory
- * This allows an item to *look* like the player is "aware" of it
- */
+  * Hack -- describe an item currently in a store's inventory
+  * This allows an item to *look* like the player is "aware" of it
+  */
 void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 {
+	object_type *i_ptr;
+	object_type object_type_body;
+ 
+	byte hack_flavor;
+	bool hack_aware;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+ 
+	/* Copy the object */
+	object_copy(i_ptr, o_ptr);
+ 
 	/* Save the "flavor" */
-	byte hack_flavor = k_info[o_ptr->k_idx].flavor;
+	hack_flavor = k_info[i_ptr->k_idx].flavor;
 
 	/* Save the "aware" flag */
-	bool hack_aware = k_info[o_ptr->k_idx].aware;
+	hack_aware = k_info[i_ptr->k_idx].aware;
+ 
+ 	/* Clear the flavor */
+	k_info[i_ptr->k_idx].flavor = FALSE;
+ 
+ 	/* Set the "known" flag */
+	i_ptr->ident |= (IDENT_KNOWN);
 
-	/* Save the "known" flag */
-	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
+ 	/* Force "aware" for description */
+	k_info[i_ptr->k_idx].aware = TRUE;
+ 
+ 	/* Describe the object */
+	object_desc(buf, i_ptr, pref, mode);
 
-	/* Clear the flavor */
-	k_info[o_ptr->k_idx].flavor = FALSE;
-
-	/* Set the "known" flag */
-	o_ptr->ident |= (IDENT_KNOWN);
-
-	/* Force "aware" for description */
-	k_info[o_ptr->k_idx].aware = TRUE;
-
-	/* Describe the object */
-	object_desc(buf, o_ptr, pref, mode);
-
-	/* Restore "flavor" value */
-	k_info[o_ptr->k_idx].flavor = hack_flavor;
-
-	/* Restore "aware" flag */
-	k_info[o_ptr->k_idx].aware = hack_aware;
-
-	/* Clear the known flag */
-	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
-}
-
-static cptr act_description[ACT_MAX] =
-{
-	"illumination",
-	"magic mapping",
-	"clairvoyance",
-	"protection from evil",
-	"dispel evil (x5)",
-	"heal (500)",
-	"heal (1000)",
-	"cure wounds (4d7)",
-	"haste self (20+d20 turns)",
-	"haste self (75+d75 turns)",
-	"fire bolt (9d8)",
-	"fire ball (72)",
-	"large fire ball (120)",
-	"frost bolt (6d8)",
-	"frost ball (48)",
-	"frost ball (100)",
-	"frost bolt (12d8)",
-	"large frost ball (200)",
-	"acid bolt (5d8)",
-	"recharge item I",
-	"sleep II",
-	"lightning bolt (4d8)",
-	"large lightning ball (250)",
-	"genocide",
-	"mass genocide",
-	"identify",
-	"drain life (90)",
-	"drain life (120)",
-	"bizarre things",
-	"star ball (150)",
-	"berserk rage, bless, and resistance",
-	"phase door",
-	"door and trap destruction",
-	"detection",
-	"resistance (20+d20 turns)",
-	"teleport",
-	"restore life levels",
-	"magic missile (2d6)",
-	"a magical arrow (150)",
-	"remove fear and cure poison",
-	"stinking cloud (12)",
-	"stone to mud",
-	"teleport away",
-	"word of recall",
-	"confuse monster",
-	"probing",
-	"fire branding of bolts",
-	"restoring mana",
-	"dimension door",
-	"satisfy hunger",
-	"detect enchantment",
-	"detect traps",
-	"berserk rage",
-	"mana bolt (8d8)",
-	"light bolt (4d8)",
-	"darkness bolt (4d8)",
-	"water bolt (5d7)",
-	"light branding of bolts",
-	"venom branding of shots",
-	"detect treasure",
-	"calm non-chaotic beings",
-	"call monster"
-};
+ 	/* Restore "flavor" value */
+	k_info[i_ptr->k_idx].flavor = hack_flavor;
+ 
+ 	/* Restore "aware" flag */
+	k_info[i_ptr->k_idx].aware = hack_aware;
+ }
 
 /*
  * Determine the "Activation" (if any) for an artifact
  */
 bool item_activation(char *text, int *time1, int *time2, object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
+	int j;
+	u16b act = object_activation(o_ptr);
 
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
-	
-	/* Require activation ability */
-	if (!(f3 & (TR3_ACTIVATE))) return (FALSE);
+	/* No activation */
+	if (!act) return (FALSE);
+
+	/* Paranoia */
+	if (act >= POW_MAX) return (FALSE);
+
+	for (j = (POW_MAX - 1); j > 0; j--) 
+	{
+		if (power_info[j].index == act) break;
+	}
+
+	/* Display that spell's information. */
+	if (power_info[j].desc != NULL) strcpy(text, power_info[j].desc);
 
 	/* Artifact activations */
 	if (o_ptr->a_idx)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 
-		/* Paranoia */
-		if (a_ptr->activation >= ACT_MAX) return (FALSE);
-
 		/* Some artifacts can be activated */
-		strcpy(text, act_description[a_ptr->activation]);
 		*time1 = a_ptr->time;
 		*time2 = a_ptr->randtime;
-		return (TRUE);
 	}
 
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (FALSE);
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-			strcpy (text, "breathe lightning (125+)");
-			*time1 = *time2 = 100 + (125 / 4);
-			break;
-		}
-		case SV_DRAGON_WHITE:
-		{
-			strcpy (text, "breathe frost (125+)");
-			*time1 = *time2 = 100 + (125 / 4);
-			break;
-		}
-		case SV_DRAGON_BLACK:
-		{
-			strcpy (text, "breathe acid (125+)");
-			*time1 = *time2 = 100 + (125 / 4);
-			break;
-		}
-		case SV_DRAGON_GREEN:
-		{
-			strcpy (text, "breathe poison gas (150+)");
-			*time1 = *time2 = 100 + (150 / 4);
-			break;
-		}
-		case SV_DRAGON_RED:
-		{
-			strcpy (text, "breathe fire (125+)");
-			*time1 = *time2 = 100 + (125 / 4);
-			break;
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			strcpy (text, "breathe confusion (100+)");
-			*time1 = *time2 = 100 + (100 / 4);
-			break;
-		}
-		case SV_DRAGON_GOLD:
-		{
-			strcpy (text, "breathe sound (100+)");
-			*time1 = *time2 = 100 + (100 / 4);
-			break;
-		}
-		case SV_DRAGON_SILVER:
-		{
-			strcpy (text, "breathe shards (100+)");
-			*time1 = *time2 = 100 + (100 / 4);
-			break;
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			strcpy (text, "breathe multi-hued (250+)");
-			*time1 = *time2 = 100 + (250 / 4);
-			break;
-		}
-		case SV_DRAGON_SPIRIT:
-		{
-			strcpy (text, "breathe force (250+)");
-			*time1 = *time2 = 100 + (250 / 4);
-			break;
-		}
-		case SV_DRAGON_SHADOW:
-		{
-			strcpy (text, "breathe nether (250+)");
-			*time1 = *time2 = 100 + (250 / 4);
-			break;
-		}
-		case SV_DRAGON_ETHEREAL:
-		{
-			strcpy (text, "breathe light/darkness/confusion  (250+)");
-			*time1 = *time2 = 100 + (250 / 4);
-			break;
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			strcpy (text, "breathe chaos/disenchant/plasma/sound  (350+)");
-			*time1 = *time2 = 100 + (350 / 4);
-			break;
-		}
-		case SV_DRAGON_TIME:
-		{
-			strcpy (text, "breathe time/inertia/nexus/nether  (350+)");
-			*time1 = *time2 = 100 + (350 / 4);
-			break;
-		}
-		case SV_DRAGON_POWER:
-		{
-			strcpy (text, "breathe the elements  (400+)");
-			*time1 = *time2 = 100 + (400 / 4);
-			break;
-		} 
-	}
-
-	/* Done */
 	return (TRUE);
 }
 
@@ -2369,16 +2236,78 @@ static bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info)
 	object_flags_aux(mode, o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
+	if (object_activation(o_ptr) && (object_known_p(o_ptr) || object_aware_p(o_ptr)))
 	{
 		char s[100];
 		int j = 0;
 		int k = 0;
 
-		info[i++] = "It can be activated for...";
-		(void)item_activation(s, &j, &k, o_ptr);
-		info[i++] = format("%s every %d+d%d turns", s, j, k);
-		info[i++] = "...if it is being worn.";
+		if (artifact_p(o_ptr)) 
+		{
+			info[i++] = "When activated, it...";
+		}
+		else switch (o_ptr->tval)
+		{
+			case TV_DRAG_ARMOR: info[i++] = "When activated, it..."; break;
+			case TV_TALISMAN: info[i++] = "When invoked, it..."; break;
+			case TV_ROD: info[i++] = "When zapped, it..."; break;
+			case TV_FOOD: info[i++] = "When eaten, it..."; break;
+			case TV_POTION: info[i++] = "When quaffed, it..."; break;
+			case TV_SCROLL: info[i++] = "When read, it..."; break;
+			case TV_WAND: info[i++] = "When aimed, it..."; break;
+			case TV_STAFF: default: info[i++] = "When used, it..."; break;
+		}
+
+		if ((artifact_p(o_ptr)) && (!(a_info[o_ptr->a_idx].status & A_STATUS_ACTIVATE)))
+		{
+			info[i++] = "  will do something unknown.";
+			info[i++] = "  ...if it is being worn.";
+		}
+		else
+		{
+			/* Get actual activation */
+			(void)item_activation(s, &j, &k, o_ptr);
+
+			if artifact_p(o_ptr)
+			{
+				artifact_type *a_ptr = &a_info[o_ptr->a_idx];
+
+				if (artifact_known_p(a_ptr))
+				{
+					if (k > 0) info[i++] = format("  %s, every %d+d%d turns", s, j, k);
+					else info[i++] = format("  %s, every %d turns", s, j);
+					info[i++] = "  ...if it is being worn.";
+				}
+				else
+				{
+					info[i++] = format("  %s.", s);
+					info[i++] = "  ...if it is being worn.";
+				}
+			}
+			else if (o_ptr->tval == TV_DRAG_ARMOR)
+			{
+				switch (o_ptr->sval)
+				{
+					case (SV_DRAGON_BLACK):		j = 131; break;
+					case (SV_DRAGON_BLUE):		j = 131; break;
+					case (SV_DRAGON_WHITE):		j = 131; break;
+					case (SV_DRAGON_RED):		j = 131; break;
+					case (SV_DRAGON_GREEN):		j = 137; break;
+					case (SV_DRAGON_BRONZE):	j = 125; break;
+					case (SV_DRAGON_GOLD):		j = 125; break;
+					case (SV_DRAGON_SILVER):	j = 125; break;
+					case (SV_DRAGON_MULTIHUED): j = 162; break;
+					case (SV_DRAGON_SPIRIT):	j = 162; break;
+					case (SV_DRAGON_SHADOW):	j = 162; break;
+					case (SV_DRAGON_CHAOS):		j = 187; break;
+					case (SV_DRAGON_TIME):		j = 187; break;
+					case (SV_DRAGON_POWER):		j = 200; break;
+				}
+				info[i++] = format("  %s every %d+%d turns", s, j, j);
+				info[i++] = "  ...if it is being worn.";
+			}
+			else info[i++] = format("  %s", s);
+		}
 	}
 
 	if (f3 & (TR3_IGNORE_ELEM))
@@ -2805,7 +2734,7 @@ static bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info)
 			if artifact_known_p(a_ptr) hidden = FALSE;
 		}
 	    
-		if (hidden) info[i++] = "It may have hidden powers.";
+		if (hidden) info[i++] = "It might have hidden powers.";
 	}
 
 	/* Return the number of lines */
@@ -3353,7 +3282,6 @@ void show_inven(void)
 	byte out_color[24];
 	char out_desc[24][80];
 
-
 	/* Default length */
 	len = 79 - 50;
 
@@ -3362,7 +3290,6 @@ void show_inven(void)
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
-
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)

@@ -508,8 +508,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d  timeout = %-d",
 	           o_ptr->pval, o_ptr->to_a, actual_to_h(o_ptr), actual_to_d(o_ptr), o_ptr->timeout), 6, j);
 
-	prt(format("a_idx = %-4d  e_idx = %-4d  ident = %04x  cost = %ld",
-	           o_ptr->a_idx, o_ptr->e_idx, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
+	prt(format("a_idx = %-4d  e_idx = %-4d  prefix = %-4d ident = %04x  cost = %ld",
+	           o_ptr->a_idx, o_ptr->e_idx, o_ptr->prefix_idx, o_ptr->ident, (long)object_value(o_ptr)) , 7, j);
 
 	prt_binary(f1, 9, j+2);
 	prt_binary(f3, 9, j+36);
@@ -610,7 +610,7 @@ static int wiz_create_itemtype(void)
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -723,6 +723,38 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->timeout = atoi(tmp_val);
 	wiz_display_item(o_ptr);
+}
+
+/*
+ * Tweak an item
+ */
+static void wiz_xtra_item(object_type *o_ptr)
+{
+	cptr p;
+	char tmp_val[80];
+
+	/* Hack -- leave artifacts alone */
+	if (artifact_p(o_ptr)) return;
+
+	p = "Enter new prefix index: ";
+	sprintf(tmp_val, "%d", o_ptr->prefix_idx);
+	if (!get_string(p, tmp_val, 6)) return;
+
+	if (atoi(tmp_val) < z_info->px_max)
+	{
+		o_ptr->prefix_idx = atoi(tmp_val);
+		wiz_display_item(o_ptr);
+	}
+
+	p = "Enter new ego index: ";
+	sprintf(tmp_val, "%d", o_ptr->e_idx);
+	if (!get_string(p, tmp_val, 6)) return;
+
+	if (atoi(tmp_val) < z_info->e_max)
+	{
+		o_ptr->e_idx = atoi(tmp_val);
+		wiz_display_item(o_ptr);
+	}
 }
 
 /*
@@ -1060,7 +1092,7 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(i_ptr);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
+		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [x]tra [q]uantity? ", &ch))
 			break;
 
 		if (ch == 'A' || ch == 'a')
@@ -1082,6 +1114,11 @@ static void do_cmd_wiz_play(void)
 		if (ch == 't' || ch == 'T')
 		{
 			wiz_tweak_item(i_ptr);
+		}
+
+		if (ch == 'x' || ch == 'X')
+		{
+			wiz_xtra_item(i_ptr);
 		}
 
 		if (ch == 'q' || ch == 'Q')
@@ -1204,6 +1241,7 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->to_h = a_ptr->to_h;
 	i_ptr->to_d = a_ptr->to_d;
 	i_ptr->weight = a_ptr->weight;
+	i_ptr->prefix_idx = a_ptr->prefix_idx;
 
 	/* Drop the artifact from heaven */
 	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);

@@ -17,7 +17,9 @@
 #define QMODE_SHORT  3
 #define QMODE_FULL   4
 
-#define GUILD_QUESTS		3		/* Number of quests offered at the guild at any given time */
+#define GUILD_QUESTS	3	/* Number of quests offered at the guild at any given time */
+
+#define GUILD_FAME_SPECIAL	12
 
 static int avail_quest;
 
@@ -134,6 +136,22 @@ cptr describe_quest(s16b level, int mode)
 
 	if (!q_idx) return NULL;
 
+	/* Vault quests */
+	if (q_ptr->type == QUEST_VAULT)
+	{
+		strcpy(intro, "To fulfill your task, you must retrieve the fabled treasure");
+
+		/* The location of the quest */
+		if (!depth_in_feet) strcpy(where, format("on dungeon level %d.", level));
+		else strcpy(where, format("at a depth of %d feet.", level * 50));
+
+		if (mode == QMODE_SHORT) return (format("%s.", intro));
+		else if (mode == QMODE_FULL) return (format("%s %s", intro, where));
+		else if (mode == QMODE_HALF_1) return (format("%s", intro));
+		else if (mode == QMODE_HALF_2) return (format("%s", where));
+	}
+
+	/* Monster quests */
 	strcpy(name, (monster_name_race(q_ptr->r_idx)));
 
 	/* Multiple quest monsters */
@@ -212,7 +230,7 @@ static void grant_reward(byte reward_level, byte type)
 /*
  * Actually give the character a quest
  */
-static bool place_quest(int q, int lev, int number, int difficulty)
+static bool place_mon_quest(int q, int lev, int number, int difficulty)
 {
 	int i, chance;
 	int mcount = 0;
@@ -361,6 +379,24 @@ static bool place_quest(int q, int lev, int number, int difficulty)
 }
 
 /*
+ * Actually give the character a quest
+ */
+static bool place_vault_quest(int q, int lev)
+{
+	/* Actually write the quest */
+	q_info[q].type = QUEST_VAULT;
+	q_info[q].base_level = lev;
+	q_info[q].active_level = lev;
+	q_info[q].reward = REWARD_GREAT_ITEM;
+
+	/* Set current quest */
+	p_ptr->cur_quest = lev;
+
+	/*success*/
+	return TRUE;
+}
+
+/*
  * Display the "contents" of the adventurer's guild 
  */
 void display_guild(void)
@@ -386,6 +422,9 @@ void display_guild(void)
 				/* Create the reward */
 				grant_reward(q_info[i].base_level, q_info[i].reward);
 
+				/* Grant fame bonus */
+				p_ptr->fame += randint(q_info[i].reward + 1);
+
 				/* Reset the reward */
 				q_info[i].reward = 0;
 
@@ -394,6 +433,43 @@ void display_guild(void)
 
 				/* Clear the screen */
 				Term_clear();
+
+				/* Inform the player */
+				message(MSG_STORE, 0, "A reward for your efforts is waiting outside!");
+			}
+		}
+
+		if (q_info[i].type == QUEST_VAULT)
+		{
+			/* Check to see if there's a reward */
+			if (q_info[i].reward == 0) continue;
+			else
+			{
+				int j = quest_item_slot();
+
+				if (j == -1) continue;
+
+				/* Create the reward */
+				grant_reward(q_info[i].base_level, q_info[i].reward);
+
+				/* Grant fame bonus */
+				p_ptr->fame += 5;
+
+				/* Finish the quest */
+				q_info[i].active_level = 0;
+
+				/* Reset the reward */
+				q_info[i].reward = 0;
+
+				/* Reset the quest */
+				p_ptr->cur_quest = 0;
+
+				/* Clear the screen */
+				Term_clear();
+			
+				/* Destroy the quest item in the pack */
+				inven_item_increase(j, -1);
+				inven_item_optimize(j);
 
 				/* Inform the player */
 				message(MSG_STORE, 0, "A reward for your efforts is waiting outside!");
@@ -430,6 +506,19 @@ void display_guild(void)
 				attr = TERM_ORANGE;
 				difficulty = "A difficult";
 			}
+
+			put_str(format("%c)", I2A(avail_quest)), 7+avail_quest, 0);
+			c_put_str(attr, format ("%s quest.",difficulty), 7+avail_quest, 4);
+			avail_quest++;
+		}
+
+		if (p_ptr->fame % GUILD_FAME_SPECIAL == 7)
+		{
+			byte attr;
+			cptr difficulty;
+
+			attr = TERM_VIOLET;
+			difficulty = "A special";
 
 			put_str(format("%c)", I2A(avail_quest)), 7+avail_quest, 0);
 			c_put_str(attr, format ("%s quest.",difficulty), 7+avail_quest, 4);
@@ -479,7 +568,7 @@ static int get_quest(void)
 		item = A2I(which);
 
 		/* Oops */
-		if ((item < 0) || (item > avail_quest-1 ))
+		if ((item < 0) || (item > avail_quest - 1 ))
 		{
 			/* Oops */
 			bell("Illegal guild quest choice!");
@@ -559,9 +648,13 @@ void guild_purchase(void)
 
 	if (found)
 	{
-		/* How many monsters? */
-		num = damroll(5,3)+2;
-		if (!place_quest(slot, qlev, num, guild[item])) return;
+		if (item < GUILD_QUESTS)
+		{
+			/* How many monsters? */
+			num = damroll(5,3)+2;
+			if (!place_mon_quest(slot, qlev, num, guild[item])) return;
+		}
+		else if (!place_vault_quest(slot, qlev)) return;
 	}
 
 	else message(MSG_FAIL, 0, "You can't accept any more quests!");
@@ -613,4 +706,23 @@ int quest_num(int lev)
 
 	/* No quest */
 	return 0;
+}
+
+/*
+ * Return the slot of a quest item in the inventory
+ */
+int quest_item_slot(void)
+{
+	int i;
+	object_type *o_ptr;
+
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+
+		if (o_ptr->tval == TV_QUEST) return (i);
+	}
+
+	/* No quest item */
+	return -1;
 }

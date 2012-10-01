@@ -18,7 +18,7 @@
  * This entire file is only needed for generating levels.
  * This may allow smart compilers to only load it when needed.
  *
- * Consider the "v_info.txt" file for vault generation.
+ * Consider the "vault.txt" file for vault generation.
  *
  * In this file, we use the "special" granite and perma-wall sub-types,
  * where "basic" is normal, "inner" is inside a room, "outer" is the
@@ -165,7 +165,7 @@
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	9
+#define ROOM_MAX	10
 
 /*
  * Simple structure to hold a map location
@@ -247,7 +247,8 @@ static room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
 	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (44x22) */
-	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
+	{ -1, 2, -2, 3, 10 },	/* 8 = Greater vault (66x44) */
+	{ 0, 1, -1, 1, 0 }		/* 9 = Quest vault (44x22) */
 };
 
 /*
@@ -2374,13 +2375,19 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					}
 					break;
 				}
+
+				/* Quest item */
+				case 'Q':
+				{
+					create_quest_item(y, x);
+				}
 			}
 		}
 	}
 }
 
 /*
- * Type 7 -- simple vaults (see "v_info.txt")
+ * Type 7 -- simple vaults (see "vault.txt")
  */
 static void build_type7(int y0, int x0)
 {
@@ -2414,7 +2421,7 @@ static void build_type7(int y0, int x0)
 }
 
 /*
- * Type 8 -- greater vaults (see "v_info.txt")
+ * Type 8 -- greater vaults (see "vault.txt")
  */
 static void build_type8(int y0, int x0)
 {
@@ -2442,6 +2449,33 @@ static void build_type8(int y0, int x0)
 	{
 		good_item_flag = TRUE;
 	}
+
+	/* Hack -- Build the vault */
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+}
+
+/*
+ * Type 9 -- quest vaults (see "vault.txt")
+ */
+static void build_type9(int y0, int x0)
+{
+	vault_type *v_ptr;
+
+	/* Pick a quest vault */
+	while (TRUE)
+	{
+		/* Get a random vault record */
+		v_ptr = &v_info[rand_int(z_info->v_max)];
+
+		/* Accept the first greater vault */
+		if (v_ptr->typ == 9) break;
+	}
+
+	/* Message */
+	if (cheat_room) message_format(MSG_CHEAT, 0, "Quest Vault (%s)", v_name + v_ptr->name);
+
+	/* Boost the rating */
+	rating += v_ptr->rat;
 
 	/* Hack -- Build the vault */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
@@ -2827,6 +2861,7 @@ static bool room_build(int by0, int bx0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
+		case 9: build_type9(y, x); break;
 		case 8: build_type8(y, x); break;
 		case 7: build_type7(y, x); break;
 		case 6: build_type6(y, x); break;
@@ -2876,6 +2911,7 @@ static void cave_gen(void)
 	int by, bx;
 
 	bool destroyed = FALSE;
+	bool quest_vault = FALSE;
 
 	dun_data dun_body;
 
@@ -2885,7 +2921,8 @@ static void cave_gen(void)
 	/* Possible "destroyed" level */
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
 
-	if ((adult_force_small_lev) || (randint(SMALL_LEVEL)==1))
+	if (((adult_force_small_lev) || (randint(SMALL_LEVEL)==1)) && 
+		(quest_check(p_ptr->depth) != QUEST_VAULT))
     {
 		int l, m;
 
@@ -2968,6 +3005,14 @@ static void cave_gen(void)
 			if (room_build(by, bx, 1)) continue;
 
 			/* Never mind */
+			continue;
+		}
+
+		/* First, build a quest vault if needed */
+		if ((quest_check(p_ptr->depth) == QUEST_VAULT) && (quest_item_slot() == -1) &&
+			(!quest_vault))
+		{
+			if (room_build(by, bx, 9)) quest_vault = TRUE;
 			continue;
 		}
 

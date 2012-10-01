@@ -7,6 +7,7 @@
  * Define some simple constants
  */
 
+
 /*
  * Hack -- Define NULL
  */
@@ -18,6 +19,7 @@
 # endif /* __STDC__ */
 #endif /* NULL */
 
+
 /*
  * Hack -- assist "main-acn.c" XXX XXX XXX
  */
@@ -26,6 +28,7 @@
 # define O_WRONLY	1
 # define O_RDWR		2
 #endif
+
 
 /*
  * Hack -- force definitions -- see fd_seek()
@@ -53,6 +56,7 @@
 # define F_WRLCK	2
 #endif
 
+
 /*
  * The constants "TRUE" and "FALSE"
  */
@@ -63,6 +67,9 @@
 #undef FALSE
 #define FALSE	0
 
+
+
+
 /**** Simple "Macros" ****/
 
 /*
@@ -70,6 +77,7 @@
  */
 #define FORCELOWER(A)  ((isupper((A))) ? tolower((A)) : (A))
 #define FORCEUPPER(A)  ((islower((A))) ? toupper((A)) : (A))
+
 
 /*
  * Non-typed minimum value macro
@@ -95,6 +103,7 @@
 #undef SGN
 #define SGN(a)		(((a) < 0)   ? (-1) : ((a) != 0))
 
+
 /*
  * Hack -- allow use of "ASCII" and "EBCDIC" for "indexes", "digits",
  * and "Control-Characters".
@@ -119,4 +128,7 @@
 #  define ESCAPE	'\033'
 #endif
 
+
 #endif
+
+

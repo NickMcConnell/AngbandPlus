@@ -13,7 +13,10 @@
 
 #include "h-basic.h"
 
+
+
 /**** Available constants ****/
+
 
 /*
  * The "degree" of the "complex" Random Number Generator.
@@ -21,7 +24,11 @@
  */
 #define RAND_DEG 63
 
+
+
+
 /**** Available macros ****/
+
 
 /*
  * Generates a random long integer X where O<=X<M.
@@ -30,6 +37,7 @@
  */
 #define rand_int(M) \
 	((s32b)(Rand_div(M)))
+
 
 /*
  * Generates a random long integer X where 1<=X<=M.
@@ -47,6 +55,7 @@
 #define rand_die(M) \
 	(rand_int(M) + 1)
 
+
 /*
  * Generates a random long integer X where A<=X<=B
  * The integer X falls along a uniform distribution.
@@ -63,19 +72,25 @@
 #define rand_spread(A,D) \
 	((A) + (rand_int(1+(D)+(D))) - (D))
 
+
+
 /**** Available Variables ****/
+
 
 extern bool Rand_quick;
 extern u32b Rand_value;
 extern u16b Rand_place;
 extern u32b Rand_state[RAND_DEG];
 
+
 /**** Available Functions ****/
+
 
 extern void Rand_state_init(u32b seed);
 extern u32b Rand_mod(u32b m);
 extern u32b Rand_div(u32b m);
 extern s16b Rand_normal(int mean, int stand);
 extern u32b Rand_simple(u32b m);
+
 
 #endif /* INCLUDED_Z_RAND_H */

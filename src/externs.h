@@ -68,10 +68,9 @@ extern option_type options_cheat[OPT_CHEAT];
 extern option_type options_squelch[OPT_SQUELCH];
 extern byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
-extern item_prefix_type	item_prefix[PREFIX_MAX];
 
 /* variable.c */
-extern cptr copyright[5];
+extern cptr copyright;
 extern byte version_major;
 extern byte version_minor;
 extern byte version_patch;
@@ -136,16 +135,6 @@ extern char savefile[1024];
 extern s16b macro__num;
 extern cptr *macro__pat;
 extern cptr *macro__act;
-extern s16b quark__num;
-extern cptr *quark__str;
-extern u16b message__next;
-extern u16b message__last;
-extern u16b message__head;
-extern u16b message__tail;
-extern u16b *message__ptr;
-extern char *message__buf;
-extern u16b *message__type;
-extern byte message__color[MSG_MAX];
 extern term *angband_term[ANGBAND_TERM_MAX];
 extern char angband_term_name[ANGBAND_TERM_MAX][16];
 extern byte angband_color_table[256][4];
@@ -197,6 +186,8 @@ extern artifact_type *a_info;
 extern char *a_name;
 extern ego_item_type *e_info;
 extern char *e_name;
+extern item_prefix_type *px_info;
+extern char *px_name;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
@@ -606,6 +597,11 @@ extern int object_base_to_h(object_type *o_ptr);
 extern int object_base_to_d(object_type *o_ptr);
 extern int object_base_dd(object_type *o_ptr);
 extern int object_base_ds(object_type *o_ptr);
+extern void create_quest_item(int ny, int nx);
+
+/* powers.c */
+extern info_entry power_info[POW_MAX];
+extern bool do_power(int idx, int dir, int beam, int dlev, int llev, int ilev, bool *obvious);
 
 /* quest.c */
 extern cptr describe_quest(s16b level, int mode);
@@ -613,6 +609,7 @@ extern void display_guild(void);
 extern void guild_purchase(void);
 extern byte quest_check(int lev);
 extern int quest_num(int lev);
+extern int quest_item_slot(void);
 
 /* save.c */
 extern bool save_player(void);
@@ -682,13 +679,13 @@ extern bool calm_non_evil(int power);
 extern bool calm_non_chaos(int power);
 extern bool calm_monsters(int power);
 extern void aggravate_monsters(int who);
-extern bool genocide(void);
-extern bool mass_genocide(void);
+extern void genocide(void);
+extern void mass_genocide(void);
 extern bool probing(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int r);
-extern bool lite_area(int dam, int rad);
-extern bool unlite_area(int dam, int rad);
+extern void lite_area(int dam, int rad);
+extern void unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
@@ -759,13 +756,16 @@ extern void bell(cptr reason);
 extern void sound(int val);
 extern s16b quark_add(cptr str);
 extern cptr quark_str(s16b i);
-extern errr quark_init(void);
+extern errr quarks_init(void);
+extern errr quarks_free(void);
 extern s16b message_num(void);
 extern cptr message_str(s16b age);
 extern u16b message_type(s16b age);
 extern byte message_color(s16b age);
+extern errr message_color_define(u16b type, byte color);
 extern void message_add(cptr str, u16b type);
-extern errr message_init(void);
+extern errr messages_init(void);
+extern void messages_free(void);
 extern void move_cursor(int row, int col);
 extern void message(u16b message_type, s16b extra, cptr msg);
 extern void message_format(u16b message_type, s16b extra, cptr fmt, ...);
@@ -826,18 +826,6 @@ extern bool confuse_dir(int *dp);
  * Hack -- conditional (or "bizarre") externs
  */
  
-#ifdef OLD_CRUFT
-# ifndef HAS_MEMSET
- /* util.c */
- extern char *memset(char*, int, huge);
-# endif /* HAS_MEMSET */
-#endif /* OLD_CRUFT */
-
-#ifndef HAS_STRICMP
-/* util.c */
-extern int stricmp(cptr a, cptr b);
-#endif
-
 #ifdef SET_UID
 # ifndef HAS_USLEEP
 /* util.c */
@@ -859,7 +847,7 @@ extern void repeat_check(void);
 #ifdef GJW_RANDART
 
 /* randart.c */
-extern errr do_randart(u32b randart_seed);
+extern errr do_randart(u32b randart_seed, bool full);
 
 #endif /* GJW_RANDART */
 

@@ -1,3 +1,87 @@
+Changes from 0.3.3 to 0.3.4:
+
+- Compatible with 0.3.3, 0.3.2 or 0.3.1 savefiles, with the following exceptions:
+  - Saves with randarts on art incompatible.
+  - Prefixed ego items might have changed damage dice.
+  - Spellcasters discover they have an altered spell selection.
+
+- Updated the source base to 2.9.3 (except for autoconf support), with the following major
+  changes:
+  - Improved info file support (info files have been renamed to the Vanilla scheme. q_info.txt 
+    is now quest.txt, u_info.txt is now unique.txt).
+  - Randart info now saved in the savefile.
+  - Improved tombstone menu.
+  - Several bugfixes.
+
+## Gamplay Changes ##
+
+- New birth option: "birth_retain_squelch". If this is set ON, a new character will keep the 
+  same squelch settings as his immediate ancestor. Setting this to OFF will turn reset the 
+  squelch settings with the creation of a new character. It is OFF by default.
+
+# Random Artifacts #
+
+- Activations are now completely randomized - and you can get a lot of spell/item effects that
+  the regular artifact set doesn't have (though you can't get all the possible effects). 
+
+- Random artifacts can be prefixed weapons. 
+
+# Quests #
+
+- A few changes to the quest system to make quests more interesting; play around a bit and see
+  if you can find them :).
+
+# Spells #
+
+- Priest spell selection in [Purifications and Healing] changed.
+
+- Many minor changes to spells, too numerous to list.
+
+# Items #
+
+- Completely changed how usable items are handled. Now, instead of artifacts having an activation
+  line and wands/staves/rods/etc. having hard coded abilities, all these items have a "U:" line,
+  which determines their function when used. This affects food, staves, rods, talismans, DSMs,
+  wands, potions, scrolls and artifacts. Note that powders are still hard-coded. Also, the
+  activation naming scheme has been changed to make it more standard. As a negative side-effect, 
+  artifacts no longer give colorful messages when activated. Also, note that the spells and items
+  now use the same routine for determining their powers, which means some minor distinctions
+  between very similar but non-identical effects was lost (heal 4d8/4d10 for instance).
+
+- Improved the 'I'nspect command. Now, when inspecting an identified object that can be used (or
+  aimed, zapped, eaten, etc.) you will know it's ability. Similarly, you no longer need to *ID*
+  an artifact to see it's activation - if it has a visible effect, you will know the activation
+  after you've seen it once. Note that in order to know the recharge rate of an artifact, you 
+  still have to *ID* it. (note - this knowledge survives into the artifact memory, and at the 
+  moment will show up incorrectly on randarts.)
+
+- Some weapon artifacts now have prefixes (for instance, the The Main Gauche of Maedhros is now
+  an Elven Main Gaunce). I used the Encyclopedia of Arda (http://www.glyphweb.com/arda/) as a 
+  resource to determine what race produced the Tolkeinian weapons, and used my own judgement for 
+  some others. Some artifacts changed a bit due to this.
+
+- Tweaking with an item in debug mode now allows you to create ego items and prefixed items. 
+  Note that there is no checking to see that appropriate values are assigned, so take care. 
+  Also, ego-items created in this fashion will not have random abilities.
+
+- Staves of Haste Monsters replaced by Staves of Aggravate Monsters.
+
+- Many minor changes to items, too numerous to list.
+
+- TR3_ACTIVATE removed. Artifacts now activate if they have an activation.
+
+## Non-Gameplay Changes ##
+
+- Prefix information has been moved out to a new info file, "prefix.txt". Note that the format
+  of this file is quite rudimentary and currently all prefixes are weapon prefixes - other 
+  prefix types will be added in a future version.
+
+## Bug Fixes ##
+
+- Cheat_know didn't work properly for uniques
+- Demon/Angel race abilities don't take any turns. 
+- The article for item descriptions with prefixes would sometimes be incorrect.
+
 Changes from 0.3.2 to 0.3.3:
 
 - Compatible with 0.3.2 or 0.3.1 savefiles, with the following exceptions:

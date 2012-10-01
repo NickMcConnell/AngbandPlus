@@ -1,16 +1,14 @@
-# File: v_info.txt
+# File: vault.txt
 
-
-# This file is used to initialize the "lib/raw/v_info.raw" file, which is
+# This file is used to initialize the "lib/raw/vault.raw" file, which is
 # used to initialize the "vault template" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/v_info.raw" file.
 
 # Note that the "spacing" in the "description" lines is very important!
 
-# === Understanding v_info.txt ===
+# === Understanding vault.txt ===
 
 # N:serial number:vault name
 # X:room type:rating:rows:columns
@@ -22,6 +20,7 @@
 # 'X' is for extra information - room type, rating, rows, and
 # columns. Lesser vaults are room type 7 and have a maximum x-y size
 # of 33x22; greater vaults are room type 8 and have a maximum size of 66x44.
+# Quest vaults are room type 9 and have a maximum size of 33x22.
 
 # 'D' lines describe the layout of the vault. Lines must be padded
 # with spaces to fill the dimensions specified. Vaults are described
@@ -38,6 +37,7 @@
 #    9 - monster up to 9 levels OOD and treasure up to 7 levels OOD
 #    8 - monster up to 40 levels OOD and treasure up to 20 levels OOD
 #    , - monster up to 3 levels OOD and/or treasure up to 7 levels OOD
+#    Q - Quest item (for quest vaults).
 
 # Use this to measure columns                                                                        1
 #          1         2         3         4         5         6         7         8         9         0
@@ -45,7 +45,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
 
@@ -741,3 +741,48 @@ D:%.#.....#.................#.....#.%
 D:%.#######.................#######.%
 D:%.................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:35:Quest1
+X:9:0:12:19
+D:       %%%%%       
+D:    %%%,^#^,%%%    
+D:  %%....#+#....%%  
+D: %.....&#9#&...,.% 
+D:%...,.##X+X##.,...%
+D:%.@.,.#*X8X*+^,.,.%
+D:%.,.,^+*XQX*#.,.@.%
+D:%...,.##XXX##.,...%
+D: %.,....#*#......% 
+D:  %%....#+#....%%  
+D:    %%%^^#^^%%%    
+D:       %%%%%       
+
+N:36:Quest2
+X:9:0:12:13
+D:XXXXXXXXXXXXX
+D:X,^,,,,,,,,,X
+D:X,XXXX#XXXX^X
+D:X,X,,&,,^,X,X
+D:X,X,XXXXX,X,X
+D:X,X^X^+8X&X,X
+D:X,X&+9XQX,X,X
+D:X,X,XXXXX^X,X
+D:X,X,^,&,,,X,X
+D:X^XXXXXXXXX,X
+D:X,,,,,,,,,^,X
+D:XXXXXX#XXXXXX
+
+N:37:Quest3
+X:9:0:12:16
+D:################
+D:#.............^#
+D:#.XXXXXXXXXXXX.#
+D:#.X9##,,#,,##X.#
+D:#.X#+^^^^#,,#X.#
+D:#.X#&^^#^#,,&X.#
+D:#.X##^^^^#,,,X.#
+D:#.X,+#,&##@,,X.#
+D:#.X9,##^#Q8##X.#
+D:#.XXXXX+XXXXXX.#
+D:#^.............#
+D:################

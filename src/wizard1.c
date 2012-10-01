@@ -1112,7 +1112,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	/* Write out the possible activation at the primary indention level */
 	if (art_ptr->activates)
 	{
-		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
+		fprintf(fff, "%sWhen activated, it %s\n", INDENT1, art_ptr->activation);
 	}
 
 	/* End with the miscellaneous facts */
@@ -1132,7 +1132,6 @@ static void spoil_artifact(cptr fname)
 	obj_desc_list artifact;
 
 	char buf[1024];
-
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);

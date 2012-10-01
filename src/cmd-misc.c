@@ -1777,7 +1777,7 @@ void do_cmd_use_racial(void)
 	/* Not if still recharging */
 	if (p_ptr->racial_power)
 	{
-		message(MSG_FAIL, 0, "You have to collect your energy");
+		message(MSG_FAIL, 0, "You have to collect your energy.");
 		return;
 	}
 
@@ -1793,7 +1793,7 @@ void do_cmd_use_racial(void)
 
 		case 2: /* Seraph - Light area */
 		{
-			(void)lite_area(damroll(2,2),2);
+			lite_area(damroll(2,2),2);
 			p_ptr->racial_power=50;
 			break;
 		}			
@@ -1854,8 +1854,10 @@ void do_cmd_use_racial(void)
 			p_ptr->racial_power=20;
 			break;
 		}			
-
 	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 }
 
 /*

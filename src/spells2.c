@@ -2510,13 +2510,11 @@ void aggravate_monsters(int who)
 /*
  * Delete all non-unique monsters of a given "type" from the level
  */
-bool genocide(void)
+void genocide(void)
 {
 	int i;
 
 	char typ;
-
-	bool result = FALSE;
 
 	/* Mega-Hack -- Get a monster symbol */
 	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
@@ -2543,22 +2541,15 @@ bool genocide(void)
 
 		/* Take some damage */
 		damage_player(randint(4), "the strain of casting Genocide");
-
-		/* Take note */
-		result = TRUE;
 	}
-
-	return (result);
 }
 
 /*
  * Delete all nearby (non-unique) monsters
  */
-bool mass_genocide(void)
+void mass_genocide(void)
 {
 	int i;
-
-	bool result = FALSE;
 
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
@@ -2579,12 +2570,7 @@ bool mass_genocide(void)
 
 		/* Take some damage */
 		damage_player(randint(3), "the strain of casting Mass Genocide");
-
-		/* Note effect */
-		result = TRUE;
-	}
-
-	return (result);
+	}	
 }
 
 /*
@@ -3285,7 +3271,7 @@ static void lite_room(int y1, int x1)
  * Hack -- call light around the player
  * Affect all monsters in the projection radius
  */
-bool lite_area(int dam, int rad)
+void lite_area(int dam, int rad)
 {
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
@@ -3303,16 +3289,13 @@ bool lite_area(int dam, int rad)
 
 	/* Now, lite them all up at once */
 	cave_temp_room_lite();
-
-	/* Assume seen */
-	return (TRUE);
 }
 
 /*
  * Hack -- call darkness around the player
  * Affect all monsters in the projection radius
  */
-bool unlite_area(int dam, int rad)
+void unlite_area(int dam, int rad)
 {
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
@@ -3330,9 +3313,6 @@ bool unlite_area(int dam, int rad)
 
 	/* Now, darken them all at once */
 	cave_temp_room_unlite();
-
-	/* Assume seen */
-	return (TRUE);
 }
 
 /*

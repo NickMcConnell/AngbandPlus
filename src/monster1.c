@@ -33,10 +33,9 @@ monster_race monster_temp_roff;
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_armour(int r_idx, int u_idx)
+static bool know_armour(monster_lore *l_ptr, int r_idx, int u_idx)
 {
 	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
-	monster_lore *l_ptr = get_lore_idx(r_idx, u_idx);
 	s32b level = r_ptr->level;
 
 	s32b kills = l_ptr->r_tkills;
@@ -59,10 +58,9 @@ static bool know_armour(int r_idx, int u_idx)
  * the higher the level of the monster, the fewer the attacks you need,
  * the more damage an attack does, the more attacks you need
  */
-static bool know_damage(int r_idx, int u_idx, int i)
+static bool know_damage(monster_lore *l_ptr, int r_idx, int u_idx, int i)
 {
 	monster_race *r_ptr = get_monster_fake(r_idx, u_idx);
-	monster_lore *l_ptr = get_lore_idx(r_idx, u_idx);
 
 	s32b level = r_ptr->level;
 
@@ -550,8 +548,7 @@ static void roff_main(int r_idx, int u_idx)
 			/* But we've also killed it */
 			if (dead)
 			{
-				roff(format(", but you have avenged %s!  ",
-					plural(l_ptr->r_deaths, "him", "them")));
+				roff(", but you have taken revenge!  ");
 			}
 
 			/* Unavenged */
@@ -947,7 +944,7 @@ static void roff_main(int r_idx, int u_idx)
 	}
 
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx, u_idx))
+	if (know_armour(l_ptr, r_idx, u_idx))
 	{
 		/* Armor */
 		roff(format("%^s has an armor rating of ",wd_he[msex]));
@@ -1308,7 +1305,7 @@ static void roff_main(int r_idx, int u_idx)
 			roff(q);
 
 			/* Describe damage (if known) */
-			if (d1 && d2 && know_damage(r_idx, u_idx, m))
+			if (d1 && d2 && know_damage(l_ptr, r_idx, u_idx, m))
 			{
 				/* Display the damage */
 				roff(" with damage");

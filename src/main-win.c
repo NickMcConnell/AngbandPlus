@@ -20,7 +20,7 @@
  * The Windows version has been tested to compile with Visual C++ 5.0
  * and 6.0, Cygwin 1.0, Borland C++ 5.5 command line tools, and lcc-win32.
  *
- *z
+ *
  * See also "main-dos.c" and "main-ibm.c".
  *
  *
@@ -512,12 +512,15 @@ static DIBINIT infMask;
 
 #endif /* USE_GRAPHICS */
 
+
 /*
  * Available graphic modes
  */
 #define GRAPHICS_NONE       0
 #define GRAPHICS_ORIGINAL   1
 #define GRAPHICS_ADAM_BOLT  2
+
+
 
 #ifdef USE_SOUND
 
@@ -633,13 +636,13 @@ static const byte special_key_list[] =
 	VK_UP,			/* 0x26 (KP<8>) */
 	VK_RIGHT,		/* 0x27 (KP<6>) */
 	VK_DOWN,		/* 0x28 (KP<2>) */
-	VK_SELECT,		/* 0x29 (?????) */
-	VK_PRINT,		/* 0x2A (?????) */
-	VK_EXECUTE,		/* 0x2B (?????) */
-	VK_SNAPSHOT,	/* 0x2C (?????) */
+	VK_SELECT,		/* 0x29 (?) */
+	VK_PRINT,		/* 0x2A (?) */
+	VK_EXECUTE,		/* 0x2B (?) */
+	VK_SNAPSHOT,	/* 0x2C (?) */
 	VK_INSERT,		/* 0x2D (KP<0>) */
 	VK_DELETE,		/* 0x2E (KP<.>) */
-	VK_HELP,		/* 0x2F (?????) */
+	VK_HELP,		/* 0x2F (?) */
 
 #if 0
 	VK_NUMPAD0,		/* 0x60 (KP<0>) */
@@ -1733,6 +1736,9 @@ static void Term_nuke_win(term *t)
  */
 static errr Term_user_win(int n)
 {
+	/* Unused parameter */
+	(void)n;
+
 	/* Success */
 	return (0);
 }
@@ -2374,6 +2380,10 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
+	}
+	else
+	{
+		hdcMask = NULL;
 	}
 
 # endif /* USE_TRANSPARENCY */
@@ -3143,11 +3153,14 @@ extern char (*inkey_hack)(int flush_first);
 
 static char screensaver_inkey_hack_buffer[1024];
 
-static screensaver_inkey_hack_index = 0;
-
 static char screensaver_inkey_hack(int flush_first)
 {
-	return screensaver_inkey_hack_buffer[screensaver_inkey_hack_index++];
+	static int screensaver_inkey_hack_index = 0;
+
+	if (screensaver_inkey_hack_index < sizeof(screensaver_inkey_hack_buffer))
+		return (screensaver_inkey_hack_buffer[screensaver_inkey_hack_index++]);
+	else
+		return ESCAPE;
 }
 
 #endif /* ALLOW_BORG */
@@ -4938,6 +4951,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	WNDCLASS wc;
 	HDC hdc;
 	MSG msg;
+
+	/* Unused parameter */
+	(void)nCmdShow;
 
 #ifdef USE_SAVER
 	if (lpCmdLine && ((*lpCmdLine == '-') || (*lpCmdLine == '/')))

@@ -1,6 +1,9 @@
-#File: r_info.txt
+#File: monster.txt
 #
-V:0.3.3
+#This file is currently in transition. Documentation will return in a future version.
+#
+
+V:0.3.4
 #
 N:0:<player>
 G:@:w
@@ -2140,7 +2143,7 @@ I:110:20d10:30:25:10
 W:14:3:0:1000
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
-F:ATTR_CLEAR | CHAR_CLEAR | COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP |
+F:ATTR_CLEAR | COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP |
 F:INVISIBLE | NEVER_MOVE | NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP |
 F:RES_CONF
 D:A strange creature that merges with the dungeon floor, trapping its

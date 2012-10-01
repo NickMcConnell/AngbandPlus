@@ -45,9 +45,6 @@
 ?:[EQU $RACE Human]
 %:Human.prf
 
-?:[EQU $RACE Half-Elf]
-%:Half-Elf.prf
-
 ?:[EQU $RACE Elf]
 %:Elf.prf
 
@@ -71,9 +68,6 @@
 
 ?:[EQU $RACE Dunadan]
 %:Dunadan.prf
-
-?:[EQU $RACE High-Elf]
-%:High-Elf.prf
 
 ?:[EQU $RACE Angel]
 %:Angel.prf

@@ -39,6 +39,7 @@
 
 typedef struct rand_sv_type rand_sv_type;
 typedef struct rand_tv_type rand_tv_type;
+typedef struct acts_list_type acts_list_type;
 
 struct rand_sv_type
 {
@@ -53,6 +54,13 @@ struct rand_tv_type
 	int limit;				/* Need this many of these types */
 	int num;				/* Number of objects (placeholder) */
 	rand_sv_type *typ;		/* Pointer to array of possible svals */
+};
+
+struct acts_list_type
+{
+	int act;
+	int chance;
+	int time;
 };
 
 /*
@@ -487,7 +495,7 @@ static errr init_names(void)
  * Randomly select a base item type (tval,sval).  Assign the various fields
  * corresponding to that choice.
  */
-static void choose_item(int a_idx, u32b activates)
+static void choose_item(int a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
 	int tval, sval;
@@ -496,9 +504,6 @@ static void choose_item(int a_idx, u32b activates)
 	s16b k_idx, r2;
 	byte target_level;
 	int i, j;
-
-	/* Unused (for now) */
-	activates = activates;
 
 	/* 
 	 * Look up the original artifact's base object kind to get level and
@@ -560,6 +565,7 @@ static void choose_item(int a_idx, u32b activates)
 	else
 		a_ptr->rarity -= k_ptr->chance[0];
 
+	a_ptr->prefix_idx = 0;
 	a_ptr->tval = k_ptr->tval;
 	a_ptr->sval = k_ptr->sval;
 	a_ptr->pval = k_ptr->pval;
@@ -580,17 +586,46 @@ static void choose_item(int a_idx, u32b activates)
 	/* Assign basic stats to the artifact based on its artifact level. */
 	switch (a_ptr->tval)
 	{
-		case TV_BOW: 
-		case TV_DIGGING: 
 		case TV_HAFTED:
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
-				a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) + rand_int(4));
-				a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4));
-				a_ptr->to_d += (s16b)(rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
+			/* Try to assign a prefix (one try) */
+			int pfx;
+			item_prefix_type *px_ptr;
+			bool okay = FALSE;
 
-				break;
+			/* No "bad" prefixes */
+			do 
+			{
+				pfx = randint(z_info->px_max - 1);
+				px_ptr = &px_info[pfx];
+				
+				/* Check for legality */
+				if (px_ptr->flags & PXF_ARTIFACT) okay = TRUE;
+				else okay = FALSE;
+
+				/* Check for material constraints */
+				if (px_ptr->material)
+				{
+					if (px_ptr->material != k_info[lookup_kind(a_ptr->tval, a_ptr->sval)].material)
+						okay = FALSE;
+				}
+			} while (!okay);
+
+			/* Relatively good chance for a prefix */
+			if (rand_int((px_ptr->rarity / 5) + 2) == 0) a_ptr->prefix_idx = pfx;
+			
+			/* Fall through */
+		}
+		case TV_BOW: 
+		case TV_DIGGING: 
+		{
+			a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) + rand_int(4));
+			a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4));
+			a_ptr->to_d += (s16b)(rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
+
+			break;
 		}
 		case TV_BODY_ARMOR:
 		{
@@ -1383,14 +1418,222 @@ static void do_curse(artifact_type *a_ptr)
 	if (rand_int(4) == 0) a_ptr->flags3 |= TR3_HEAVY_CURSE;
 }
 
+#define POSSIBLE_ACTS	168
+
+/* List of possible activations */
+acts_list_type acts_list[POSSIBLE_ACTS] =
+{
+	{ POW_HEAL_2D10,		1,	 3 },
+	{ POW_HEAL_4D10,		1,	 5 },
+	{ POW_HEAL_6D10,		1,	10 },
+	{ POW_HEAL_8D10,		1,	25 },
+	{ POW_HEAL_300,			2, 100 },
+	{ POW_HEAL_500,			2, 150 },
+	{ POW_HEAL_1000,		3, 200 },
+	{ POW_HEAL_2000,		4, 300 },
+	{ POW_HEAL_CURE_6D8,	2, 100 },
+	{ POW_HEAL_CURE_300,	3, 200 },
+	{ POW_HEAL_CURE_1200,	5, 350 },
+	{ POW_LIFE,				8, 400 },
+	{ POW_RESTORE_MANA,		3, 200 },
+	{ POW_RESTORE_STATS,	6, 250 },
+	{ POW_RESTORE_LEVEL,	4, 200 },
+	{ POW_RESTORE_ALL,		8, 400 },
+	{ POW_CURE_FEAR,		1,	 5 },
+	{ POW_CURE_CONFUSION,	1,	 5 },
+	{ POW_CURE_DISEASE,		1,	10 },
+	{ POW_CURE_POISON_2,	1,	10 },
+	{ POW_CURE_POIS_DISE,	2,	50 },
+	{ POW_CURE_FEAR_POIS,	1,	15 },
+	{ POW_CURE_ALL,			4, 120 },
+	{ POW_CURE_BODY,		2, 100 },
+	{ POW_CLEAR_MIND,		2,  80 },
+	{ POW_TELE_10,			1,	 3 },
+	{ POW_TELE_MINOR,		2,	50 },
+	{ POW_TELE_MAJOR,		2,	50 },
+	{ POW_TELE_OTHER,		3, 100 },
+	{ POW_TELE_LEVEL,		2,	50 },
+	{ POW_TELE_CONTROL,		3,	50 },
+	{ POW_WORD_RECALL,		3, 250 },
+	{ POW_ALTER_REALITY,	3, 250 },
+	{ POW_ARROW,			2,	20 },
+	{ POW_BOLT_MISSILE_1,	1,	10 },
+	{ POW_BOLT_ELEC,		1,	10 },
+	{ POW_BOLT_FROST_1,		1,	12 },
+	{ POW_BOLT_FROST_2,		1,	15 },
+	{ POW_BOLT_ACID_1,		1,	15 },
+	{ POW_BOLT_ACID_2,		2,	25 },
+	{ POW_BOLT_FIRE_1,		1,	20 },
+	{ POW_BOLT_FIRE_2,		2,	30 },
+	{ POW_BOLT_SOUND,		2,	30 },
+	{ POW_BOLT_FORCE_1,		2,	33 },
+	{ POW_BOLT_FORCE_2,		3,	50 },
+	{ POW_BOLT_LITE,		1,	15 },
+	{ POW_BOLT_DARK,		1,	15 },
+	{ POW_BOLT_WATER,		1,	25 },
+	{ POW_BOLT_MANA,		3,	50 },
+	{ POW_BEAM_WEAK_LITE,	2,	25 },
+	{ POW_BEAM_NETHER,		8, 500 },
+	{ POW_BALL_POISON_1,	1,	 6 },
+	{ POW_BALL_POISON_2,	3, 150 },
+	{ POW_BALL_ACID,		3, 150 },
+	{ POW_BALL_ELEC_1,		2, 150 },
+	{ POW_BALL_ELEC_2,		5, 250 },
+	{ POW_BALL_FIRE_1,		3, 200 },
+	{ POW_BALL_FIRE_2,		5, 250 },
+	{ POW_BALL_FROST_1,		2, 100 },
+	{ POW_BALL_FROST_2,		3, 150 },
+	{ POW_BALL_FROST_3,		5, 250 },
+	{ POW_BALL_SOUND,		3, 150 },
+	{ POW_BALL_MANA,		5, 350 },
+	{ POW_STAR_BEAM_W_LITE,	5, 250 },
+	{ POW_STAR_BALL_ELEC,	5, 300 },
+	{ POW_BANISH,			5, 250 },
+	{ POW_BLIGHT,			5, 250 },
+	{ POW_BURST_ASTRAL,		7, 250 },
+	{ POW_DRAIN_LIFE_1,		2,  50 },
+	{ POW_DRAIN_LIFE_2,		3,  75 },
+	{ POW_DRAIN_LIFE_3,		5, 150 },
+	{ POW_DISPEL_ALL,		8, 600 },
+	{ POW_DISPEL_UNDEAD_1,	2, 150 },
+	{ POW_DISPEL_UNDEAD_2,	3, 250 },
+	{ POW_DISPEL_NON_EVIL,	4, 200 },
+	{ POW_DISPEL_EVIL_3,	3, 100 },
+	{ POW_DISPEL_EVIL_4,	4, 200 },
+	{ POW_DISPEL_EVIL_5,	5, 300 },
+	{ POW_GENOCIDE,			6, 400 },
+	{ POW_MASS_GENOCIDE,    5, 400 },
+	{ POW_EARTHQUAKE,		3, 200 },
+	{ POW_DESTRUCTION,		5, 200 },
+	{ POW_LIGHT_AREA,		1,  10 },
+	{ POW_DARK_AREA,		1,   5 },
+	{ POW_DETECT_MONSTERS,	1,	50 },
+	{ POW_DETECT_EVIL,		1,	50 },
+	{ POW_DETECT_INVIS,		1,	50 },
+	{ POW_DETECT_TRAP,		1,	50 },
+	{ POW_DETECT_TREASURE,	1,	30 },
+	{ POW_DETECT_DOOR_STAIR,1,	50 },
+	{ POW_DETECT_TRAP_DOOR,	1,	50 },
+	{ POW_DETECT_ITEM,		1,	50 },
+	{ POW_DETECT_ENCHANT,	3, 150 },
+	{ POW_DETECT_ALL,		5, 150 },
+	{ POW_ABSORB_HIT,		5, 250 },
+	{ POW_BLESS_1,			1,	10 },
+	{ POW_BLESS_2,			1,	50 },
+	{ POW_BLESS_3,			1, 100 },
+	{ POW_HEROISM,			1,	50 },
+	{ POW_RAGE_1,			2, 100 },
+	{ POW_RAGE_2,			4, 200 },
+	{ POW_RAGE_BLESS_RESIST,6, 400 },
+	{ POW_SHIELD,			1,  50 },
+	{ POW_INVIS_1,			5, 300 },
+	{ POW_INVIS_2,			7, 400 },
+	{ POW_RESILIENCE,		8, 750 },
+	{ POW_INFRAVISION,		1, 100 },
+	{ POW_SEE_INVIS,		2, 100 },
+	{ POW_PROT_EVIL,		5, 250 },
+	{ POW_HASTE_SELF_1,		3, 100 },
+	{ POW_HASTE_SELF_2,		4, 200 },
+	{ POW_HASTE_SELF_3,		5, 300 },
+	{ POW_DISARM,			2,  50 },
+	{ POW_DEST_TRAP_DOOR_1, 2,  50 },
+	{ POW_DEST_TRAP_DOOR_2, 3, 100 },
+	{ POW_STONE_TO_MUD,		1,  20 },
+	{ POW_CREATE_DOOR,      2,  20 },
+	{ POW_CREATE_STAIR,		2,  50 },
+	{ POW_AGGRAVATE_SAFE,   1,   5 },
+	{ POW_CONFUSE_MONSTER,	1,  10 },
+	{ POW_CONFUSE_ALL,		3,  50 },
+	{ POW_SLEEP_MONSTER,	1,  10 },
+	{ POW_SLEEP_ADJACENT,	2,	30 },
+	{ POW_SLEEP_ALL,		3,  60 },
+	{ POW_SLOW_MONSTER,		2,  30 },
+	{ POW_SLOW_ALL,			3,  60 },
+	{ POW_CALM_MONSTER,		1,	30 },
+	{ POW_CALM_ANIMALS,		2,  50 },
+	{ POW_CALM_NON_EVIL,	2, 100 },
+	{ POW_CALM_NON_CHAOS,	3, 250 },
+	{ POW_CALM_ALL,			6, 500 },
+	{ POW_BLIND_MONSTER,	1,  50 },
+	{ POW_SCARE_MONSTER,	1,  10 },
+	{ POW_SCARE_UNDEAD,		2,	50 },
+	{ POW_SCARE_ALL,		3, 150 },
+	{ POW_CALL_MONSTER,		2,  30 },
+	{ POW_POLY_MONSTER,		2, 150 },
+	{ POW_SATISFY_HUNGER,	3, 750 },
+	{ POW_RECHARGE_1,		2,  50 },
+	{ POW_RECHARGE_2,		3,  50 },
+	{ POW_RECHARGE_3,		4, 100 },
+	{ POW_RECHARGE_4,		6, 200 },
+	{ POW_IDENTIFY,			2,  50 },
+	{ POW_IDENTIFY_PACK,	5, 500 },
+	{ POW_RES_FIRE,			1,  60 },
+	{ POW_RES_COLD,			1,  60 },
+	{ POW_RES_FIRE_COLD,	1, 100 },
+	{ POW_RES_ACID_ELEC,	1, 100 },
+	{ POW_RES_POISON,		1, 100 },
+	{ POW_RES_DISEASE,		1, 100 },
+	{ POW_RES_SOUND,		1, 100 },
+	{ POW_RES_ELEMENTS,		4, 100 },
+	{ POW_RES_GREATER,		8, 500 },
+	{ POW_RESISTANCE,		6, 150 },
+	{ POW_REMOVE_CURSE_1,	4, 999 },
+	{ POW_REMOVE_CURSE_2,	5, 999 },
+	{ POW_MAP_1,			3,  50 },
+	{ POW_MAP_2,			4,  75 },
+	{ POW_MAP_3,			5, 100 },	
+	{ POW_PROBE,			3,  20 },
+	{ POW_SELF_KNOW,		6, 500 },
+	{ POW_BRAND_ARROW_ANML,	4, 999 },
+	{ POW_BRAND_ARROW_WOUND,4, 999 },
+	{ POW_BRAND_ARROW_ELMNT,4, 999 },
+	{ POW_BRAND_BOLT_FIRE,	4, 999 },
+	{ POW_BRAND_BOLT_LITE,	4, 999 },
+	{ POW_BRAND_SHOT_POIS,	4, 999 },
+	{ POW_BRAND_SHOT_HOLY,	4, 999 }
+};
+
 /*
- * Scramble the artifacts. Note that if an artifact has an activation, it will be preserved by
- * artifact number.
+ * Do activation 
+ */
+static void do_activation(int a_idx)
+{
+	artifact_type *a_ptr = &a_info[a_idx];
+	int i;
+
+	while (TRUE)
+	{
+		i = rand_int(POSSIBLE_ACTS);
+		if (rand_int(acts_list[i].chance) == 0) break;
+	}
+
+	/* Assign activation times */
+	a_ptr->activation = acts_list[i].act;
+	a_ptr->time = (acts_list[i].time / 2) + randint(acts_list[i].time);
+	if (rand_int(2) == 0)
+	{ 
+		a_ptr->randtime = a_ptr->time;
+	}
+	else
+	{
+		a_ptr->randtime = 0;
+		a_ptr->time = (a_ptr->time * 3) / 2;
+	}
+
+	/* Never too long */
+	if ((a_ptr->time + a_ptr->randtime) > 1000)
+	{
+		a_ptr->time = 999;
+		a_ptr->randtime = 0;
+	}
+}
+
+/*
+ * Scramble the artifacts. 
  */
 static void scramble_artifact(int a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
-	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
 	s32b power;
 	int tries;
 	s32b ap;
@@ -1419,6 +1662,18 @@ static void scramble_artifact(int a_idx)
 		}
 	}
 
+	/* XXX XXX XXX Try to give an activation */
+	if (rand_int(100) < ((a_idx >= z_info->a_min_normal) ? 45 : 80))
+	{
+		do_activation(a_idx);
+	}
+	else
+	{
+		a_ptr->activation = 0;
+		a_ptr->time = 0;
+		a_ptr->randtime = 0;
+	}
+
 	if (a_idx >= z_info->a_min_normal)
 	{
 		/* Normal artifact - choose a random base item type.  Not too
@@ -1428,7 +1683,7 @@ static void scramble_artifact(int a_idx)
 		s32b ap2;
 		do
 		{
-			choose_item(a_idx, activates);
+			choose_item(a_idx);
 			ap2 = artifact_power(a_idx);
 			count++;
 		} while ((count < MAX_TRIES) &&
@@ -1514,8 +1769,6 @@ static void scramble_artifact(int a_idx)
 	a_ptr->cost = ap * 1000L;
 
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
-
-	if (activates) a_ptr->flags3 |= TR3_ACTIVATE;
 }
 
 /*
@@ -1595,19 +1848,30 @@ static errr scramble(void)
 	return (0);
 }
 
-static errr do_randart_aux(void)
+static errr do_randart_aux(bool full)
 {
 	errr result;
 
+	/* Generate random names */
 	if ((result = init_names()) != 0) return (result);
 
-	if ((result = scramble()) != 0) return (result);
+	if (full)
+	{
+		/* Randomize the artifacts */
+		if ((result = scramble()) != 0) return (result);
+	}
 
 	/* Success */
 	return (0);
 }
 
-errr do_randart(u32b randart_seed)
+/*
+ * Randomize the artifacts
+ *
+ * The full flag toggles between just randomizing the names and
+ * complete randomization of the artifacts.
+ */
+errr do_randart(u32b randart_seed, bool full)
 {
 	errr err;
 
@@ -1619,7 +1883,8 @@ errr do_randart(u32b randart_seed)
 	C_MAKE(names, z_info->a_max, cptr);
 	C_MAKE(kinds, z_info->a_max, s16b);
 
-	err = do_randart_aux();
+	/* Generate the random artifact (names) */
+	err = do_randart_aux(full);
 
 	/* When done, resume use of the Angband "complex" RNG.  Right
 	   now this does nothing, but later it will be important! */

@@ -161,8 +161,8 @@ monster_race *get_monster_real(monster_type *m_ptr)
 		monster_temp.x_char = r_ptr->d_char;
 		monster_temp.x_attr = u_ptr->d_attr;
 
-		/* Flags are a combination of both */
-		monster_temp.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
+		/* Flags are a combination of both, except flags1 */
+		monster_temp.flags1 = (u_ptr->flags1);		
 		monster_temp.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
 		monster_temp.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
 		monster_temp.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
@@ -236,8 +236,8 @@ monster_race *get_monster_fake(int r_idx, int u_idx)
 	monster_temp_fake.x_char = r_ptr->d_char;
 	monster_temp_fake.x_attr = u_ptr->d_attr;
 
-	/* Flags are a combination of both */
-	monster_temp_fake.flags1 = (r_ptr->flags1 | u_ptr->flags1);		
+	/* Flags are a combination of both, except flags1 */
+	monster_temp_fake.flags1 = (u_ptr->flags1);		
 	monster_temp_fake.flags2 = (r_ptr->flags2 | u_ptr->flags2);		
 	monster_temp_fake.flags3 = (r_ptr->flags3 | u_ptr->flags3);		
 	monster_temp_fake.flags4 = (r_ptr->flags4 | u_ptr->flags4);		
@@ -290,7 +290,7 @@ monster_lore *get_lore_idx(int r_idx, int u_idx)
 	lore_temp.r_sights = lu_ptr->r_sights;
 
 	/* Flags are a combination of both */
-	lore_temp.r_flags1 = (lr_ptr->r_flags1 | lu_ptr->r_flags1);		
+	lore_temp.r_flags1 = (lu_ptr->r_flags1);		
 	lore_temp.r_flags2 = (lr_ptr->r_flags2 | lu_ptr->r_flags2);		
 	lore_temp.r_flags3 = (lr_ptr->r_flags3 | lu_ptr->r_flags3);		
 	lore_temp.r_flags4 = (lr_ptr->r_flags4 | lu_ptr->r_flags4);		
@@ -327,12 +327,12 @@ void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
 		/* Learn something */
 		switch (mode)
 		{
-			case LRN_FLAG1:   if (r_ptr->flags1 & what) lr_ptr->r_flags1 |= what;  break;
-			case LRN_FLAG2:   if (r_ptr->flags2 & what) lr_ptr->r_flags2 |= what;  break;
-			case LRN_FLAG3:   if (r_ptr->flags3 & what) lr_ptr->r_flags3 |= what;  break;
-			case LRN_FLAG4:	  if (r_ptr->flags4 & what) lr_ptr->r_flags4 |= what;  break;
-			case LRN_FLAG5:   if (r_ptr->flags5 & what) lr_ptr->r_flags5 |= what;  break;
-			case LRN_FLAG6:   if (r_ptr->flags6 & what) lr_ptr->r_flags6 |= what;  break;
+			case LRN_FLAG1:   lr_ptr->r_flags1 |= (r_ptr->flags1 & what); break;
+			case LRN_FLAG2:   lr_ptr->r_flags2 |= (r_ptr->flags2 & what); break;
+			case LRN_FLAG3:   lr_ptr->r_flags3 |= (r_ptr->flags3 & what); break;
+			case LRN_FLAG4:   lr_ptr->r_flags4 |= (r_ptr->flags4 & what); break;
+			case LRN_FLAG5:   lr_ptr->r_flags5 |= (r_ptr->flags5 & what); break;
+			case LRN_FLAG6:   lr_ptr->r_flags6 |= (r_ptr->flags6 & what); break;
 			case LRN_CASTS:   if (lr_ptr->r_cast   < MAX_UCHAR) lr_ptr->r_cast++;   break;
 			case LRN_SIGHTS:  if (lr_ptr->r_sights < MAX_SHORT) lr_ptr->r_sights++; break;
 			case LRN_IGNORES: if (lr_ptr->r_ignore < MAX_UCHAR) lr_ptr->r_ignore++; break;
@@ -340,7 +340,7 @@ void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
 			case LRN_PDEATH:  if (lr_ptr->r_deaths < MAX_SHORT) lr_ptr->r_deaths++; break;
 			case LRN_MDEATH:  if (lr_ptr->r_pkills < MAX_SHORT) lr_ptr->r_pkills++;
 							  if (lr_ptr->r_tkills < MAX_SHORT) lr_ptr->r_tkills++; break;
-			case LRN_BLOWS:   if (lr_ptr->r_blows[what] < MAX_UCHAR) lr_ptr->r_blows[what]++;  break;
+			case LRN_BLOWS:   if (lr_ptr->r_blows[what] < MAX_UCHAR) lr_ptr->r_blows[what]++; break;
 			case LRN_ITEM:    if (what > lr_ptr->r_drop_item) lr_ptr->r_drop_item = (byte)what; break;
 			case LRN_GOLD:    if (what > lr_ptr->r_drop_gold) lr_ptr->r_drop_gold = (byte)what; break;
 		}
@@ -356,18 +356,17 @@ void lore_learn(monster_type *m_ptr, int mode, u32b what, bool unseen)
 		/* Learn something */
 		switch (mode)
 		{
-			case LRN_FLAG1:   if (r_ptr->flags1 & what) lr_ptr->r_flags1 |= what; 
-							  if (u_ptr->flags1 & what) lu_ptr->r_flags1 |= what;  break;
-			case LRN_FLAG2:   if (r_ptr->flags2 & what) lr_ptr->r_flags2 |= what; 
-							  if (u_ptr->flags2 & what) lu_ptr->r_flags2 |= what;  break;
-			case LRN_FLAG3:   if (r_ptr->flags3 & what) lr_ptr->r_flags3 |= what; 
-							  if (u_ptr->flags3 & what) lu_ptr->r_flags3 |= what;  break;
-			case LRN_FLAG4:   if (r_ptr->flags4 & what) lr_ptr->r_flags4 |= what; 
-							  if (u_ptr->flags4 & what) lu_ptr->r_flags4 |= what;  break;
-			case LRN_FLAG5:   if (r_ptr->flags5 & what) lr_ptr->r_flags5 |= what; 
-							  if (u_ptr->flags5 & what) lu_ptr->r_flags5 |= what;  break;
-			case LRN_FLAG6:   if (r_ptr->flags6 & what) lr_ptr->r_flags6 |= what; 
-							  if (u_ptr->flags6 & what) lu_ptr->r_flags6 |= what;  break;
+			case LRN_FLAG1:   lu_ptr->r_flags1 |= (u_ptr->flags1 & what);  break;
+			case LRN_FLAG2:   lr_ptr->r_flags2 |= (r_ptr->flags2 & what);
+							  lu_ptr->r_flags2 |= (u_ptr->flags2 & what);  break;
+			case LRN_FLAG3:   lr_ptr->r_flags3 |= (r_ptr->flags3 & what);
+							  lu_ptr->r_flags3 |= (u_ptr->flags3 & what);  break;
+			case LRN_FLAG4:   lr_ptr->r_flags4 |= (r_ptr->flags4 & what);
+							  lu_ptr->r_flags4 |= (u_ptr->flags4 & what);  break;
+			case LRN_FLAG5:   lr_ptr->r_flags5 |= (r_ptr->flags5 & what);
+							  lu_ptr->r_flags5 |= (u_ptr->flags5 & what);  break;
+			case LRN_FLAG6:   lr_ptr->r_flags6 |= (r_ptr->flags6 & what);
+							  lu_ptr->r_flags6 |= (u_ptr->flags6 & what);  break;
 			case LRN_CASTS:   if (lu_ptr->r_cast   < MAX_UCHAR) lu_ptr->r_cast++;   break;
 			case LRN_SIGHTS:  if (lu_ptr->r_sights < MAX_SHORT) lu_ptr->r_sights++;
 							  if (unique_hack)

@@ -43,11 +43,6 @@
 typedef byte byte_256[256];
 
 /*
- * An array of 256 s16b's
- */
-typedef s16b s16b_256[256];
-
-/*
  * An array of MAX_DUNGEON_WID byte's
  */
 typedef byte byte_wid[MAX_DUNGEON_WID];
@@ -60,6 +55,7 @@ typedef s16b s16b_wid[MAX_DUNGEON_WID];
 /**** Available Structs ****/
 
 typedef struct maxima maxima;
+typedef struct info_entry info_entry;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
@@ -104,28 +100,31 @@ struct maxima
 	u32b fake_name_size;
 
 	u16b f_max;		/* Max size for "f_info[]" */
-
 	u16b k_max;		/* Max size for "k_info[]" */
 	u16b a_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
-
+	u16b px_max;	/* Max size for "px_infp[]" */
 	u16b r_max;		/* Max size for "r_info[]" */
 	u16b u_max;		/* Max size for "u_info[]" */
-	
 	u16b v_max;		/* Max size for "v_info[]" */
-
 	u16b p_max;		/* Max size for "p_info[]" */
 	u16b h_max;		/* Max size for "h_info[]" */
-
 	u16b b_max;		/* Max size per element of "b_info[]" */
 	u16b c_max; 	/* Max size for "c_info[]" */
-
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
-
 	u16b q_max;		/* Max size for "q_info[]" */
 
 	u16b a_min_normal;	/* First normal artifact */
+};
+
+/*
+ * Entries for spell/activation descriptions
+ */
+struct info_entry
+{
+	byte	index;
+	cptr	desc;
 };
 
 /*
@@ -178,6 +177,8 @@ struct object_kind
 
 	s32b cost;					/* Object "base cost" */
 
+	byte activation;			/* Object "activation" */
+
 	u32b flags1;				/* Flags, set 1 */
 	u32b flags2;				/* Flags, set 2 */
 	u32b flags3;				/* Flags, set 3 */
@@ -196,8 +197,6 @@ struct object_kind
 	char x_char;				/* Desired object character */
 
 	byte flavor;				/* Special object flavor (or zero) */
-
-	bool easy_know;				/* This object is always known (if aware) */
 
 	bool aware;					/* The player is "aware" of the item's effects */
 
@@ -241,6 +240,8 @@ struct artifact_type
 
 	byte status;		/* Status of the artifact (created, etc.) */
 
+	byte prefix_idx;	/* Prefix type, if any */
+
 	byte activation;	/* Activation to use */
 	u16b time;			/* Activation time */
 	u16b randtime;		/* Activation time dice */
@@ -283,7 +284,7 @@ struct ego_item_type
  */
 struct item_prefix_type
 {
-	cptr name;			/* Name */
+	u32b name;			/* Name (offset) */
 
 	byte rarity;		/* Rarity - the higher this is, the less chance of being generated */
 	byte material;		/* Material */
@@ -297,7 +298,7 @@ struct item_prefix_type
 	u16b weight;		/* Weight (percentage) */
 	u16b cost;			/* Cost (percentage) */
 
-	bool store;			/* If true, this object can be generated in stores */
+	u32b flags;			/* Flags for prefixes */
 };
 
 /*
@@ -871,7 +872,6 @@ struct player_class
  */
 struct hist_type
 {
-	u32b unused;			/* Unused */
 	u32b text;			    /* Text (offset) */
 
 	byte roll;			    /* Frequency of this entry */
@@ -943,6 +943,8 @@ struct player_type
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
+
+	u16b fame;			/* Fame - used for quests */
 
 	s32b au;			/* Current Gold */
 

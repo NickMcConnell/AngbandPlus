@@ -214,8 +214,8 @@ void init_file_paths(char *path)
 /*
  * Hack -- help give useful error messages
  */
-s16b error_idx;
-s16b error_line;
+int error_idx;
+int error_line;
 
 /*
  * Standard error message text
@@ -234,12 +234,15 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"too few arguments",
 	"too many arguments",
 	"more than one quest per level",
+	"invalid number of items (0-99)",
+	"too many entries",
+	"invalid spell frequency"
 };
 
 #endif /* ALLOW_TEMPLATES */
 
 /*
- * *_info.txt file headers
+ * File headers
  */
 header z_head;
 header v_head;
@@ -247,6 +250,7 @@ header f_head;
 header k_head;
 header a_head;
 header e_head;
+header px_head;
 header r_head;
 header u_head;
 header p_head;
@@ -314,8 +318,7 @@ static errr init_info_raw(int fd, header *head)
 /*
  * Initialize the header of an *_info.raw file.
  */
-static void init_header(header *head, int num, int len,
-                        init_info_txt_func init_info_txt)
+static void init_header(header *head, int num, int len)
 {
 	/* Save the "version" */
 	head->v_major = VERSION_MAJOR;
@@ -330,13 +333,12 @@ static void init_header(header *head, int num, int len,
 	/* Save the size of "*_head" and "*_info" */
 	head->head_size = sizeof(header);
 	head->info_size = head->info_num * head->info_len;
-
-	/* Save a pointer to the *_info.txt parsing function */
-	head->init_info_txt = init_info_txt;
 }
 
+#ifdef ALLOW_TEMPLATES
+
 /*
- * Display an *_info.txt parser error message.
+ * Display an parser error message.
  */
 static void display_parse_error(cptr filename, errr err, char *buf)
 {
@@ -346,7 +348,7 @@ static void display_parse_error(cptr filename, errr err, char *buf)
 	oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
 
 	/* Oops */
-	message_format(MSG_GENERIC, 0, "Error %d at line %d of '%s'.", err, error_line, filename);
+	message_format(MSG_GENERIC, 0, "Error at line %d of '%s'.", error_line, filename);
 	message_format(MSG_GENERIC, 0, "Record %d contains a '%s' error.", error_idx, oops);
 	message_format(MSG_GENERIC, 0, "Parsing '%s'.", buf);
 	message_flush();
@@ -355,6 +357,8 @@ static void display_parse_error(cptr filename, errr err, char *buf)
 	quit_fmt("Error in '%s.txt' file.", filename);
 }
 
+#endif /* ALLOW_TEMPLATES */
+
 /*
  * Initialize a "*_info" array
  *
@@ -362,7 +366,7 @@ static void display_parse_error(cptr filename, errr err, char *buf)
  * even if the string happens to be empty (everyone has a unique '\0').
  */
 static errr init_info(cptr filename, header *head,
-                      void **info, void **name, void **text)
+                      void **info, char **name, char **text)
 {
 	int fd;
 
@@ -372,7 +376,6 @@ static errr init_info(cptr filename, header *head,
 
 	/* General buffer */
 	char buf[1024];
-
 
 #ifdef ALLOW_TEMPLATES
 
@@ -400,8 +403,8 @@ static errr init_info(cptr filename, header *head,
 		/* Close it */
 		fd_close(fd);
 	}
-
-	/* Do we have to parse the *_info.txt file? */
+ 
+	/* Do we have to parse the *.txt file? */
 	if (err)
 	{
 		/*** Make the fake arrays ***/
@@ -416,6 +419,9 @@ static errr init_info(cptr filename, header *head,
 		if (text)
 			C_MAKE(head->text_ptr, z_info->fake_text_size, char);
 
+		if (info) (*info) = head->info_ptr;
+		if (name) (*name) = head->name_ptr;
+		if (text) (*text) = head->text_ptr;
 
 		/*** Load the ascii template file ***/
 
@@ -429,7 +435,7 @@ static errr init_info(cptr filename, header *head,
 		if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
 
 		/* Parse the file */
-		err = head->init_info_txt(fp, buf, head);
+		err = init_info_txt(fp, buf, head, head->parse_info_txt);
 
 		/* Close it */
 		my_fclose(fp);
@@ -491,7 +497,7 @@ static errr init_info(cptr filename, header *head,
 		if (fd >= 0)
 		{
 			/* Dump it */
-			fd_write(fd, (char *)head, head->head_size);
+			fd_write(fd, (cptr)head, head->head_size);
 
 			/* Dump the "*_info" array */
 			fd_write(fd, head->info_ptr, head->info_size);
@@ -539,7 +545,10 @@ static errr init_info(cptr filename, header *head,
 
 		/* Error */
 		if (err) quit(format("Cannot parse '%s.raw' file.", filename));
+
+	#ifdef ALLOW_TEMPLATES
 	}
+	#endif /* ALLOW_TEMPLATES */
 
 	if (info) (*info) = head->info_ptr;
 	if (name) (*name) = head->name_ptr;
@@ -572,11 +581,17 @@ static errr free_info(header *head)
  */
 static errr init_z_info(void)
 {
-	/* Init the header */
-	init_header(&z_head, 1, sizeof(maxima), init_z_info_txt);
+ 	/* Init the header */
+	init_header(&z_head, 1, sizeof(maxima));
+ 
+#ifdef ALLOW_TEMPLATES
 
-	return init_info("z_info", &z_head,
-	                 (void*)&z_info, NULL, NULL);
+	/* Save a pointer to the parsing function */
+	z_head.parse_info_txt = parse_z_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("limits", &z_head, (void*)&z_info, NULL, NULL);
 }
 
 /*
@@ -585,11 +600,16 @@ static errr init_z_info(void)
 static errr init_f_info(void)
 {
 	/* Init the header */
-	init_header(&f_head, z_info->f_max, sizeof(feature_type),
-	            init_f_info_txt);
+	init_header(&f_head, z_info->f_max, sizeof(feature_type));
 
-	return init_info("f_info", &f_head,
-	                 (void*)&f_info, (void*)&f_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	f_head.parse_info_txt = parse_f_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("terrain", &f_head, (void*)&f_info, (void*)&f_name, NULL);
 }
 
 /*
@@ -598,11 +618,16 @@ static errr init_f_info(void)
 static errr init_k_info(void)
 {
 	/* Init the header */
-	init_header(&k_head, z_info->k_max, sizeof(object_kind),
-	            init_k_info_txt);
+	init_header(&k_head, z_info->k_max, sizeof(object_kind));
 
-	return init_info("k_info", &k_head,
-	                 (void*)&k_info, (void*)&k_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	k_head.parse_info_txt = parse_k_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("object", &k_head, (void*)&k_info, (void*)&k_name, NULL);
 }
 
 /*
@@ -611,11 +636,16 @@ static errr init_k_info(void)
 static errr init_a_info(void)
 {
 	/* Init the header */
-	init_header(&a_head, z_info->a_max, sizeof(artifact_type),
-	            init_a_info_txt);
+	init_header(&a_head, z_info->a_max, sizeof(artifact_type));
 
-	return init_info("a_info", &a_head,
-	                 (void*)&a_info, (void*)&a_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	a_head.parse_info_txt = parse_a_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("artifact", &a_head, (void*)&a_info, (void*)&a_name, NULL);
 }
 
 /*
@@ -624,11 +654,34 @@ static errr init_a_info(void)
 static errr init_e_info(void)
 {
 	/* Init the header */
-	init_header(&e_head, z_info->e_max, sizeof(ego_item_type),
-	            init_e_info_txt);
+	init_header(&e_head, z_info->e_max, sizeof(ego_item_type));
 
-	return init_info("e_info", &e_head,
-	                 (void*)&e_info, (void*)&e_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	e_head.parse_info_txt = parse_e_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("ego_item", &e_head, (void*)&e_info, (void*)&e_name, NULL);
+}
+
+/*
+ * Initialize the "e_info" array
+ */
+static errr init_px_info(void)
+{
+	/* Init the header */
+	init_header(&px_head, z_info->px_max, sizeof(item_prefix_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	px_head.parse_info_txt = parse_px_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("prefix", &px_head, (void*)&px_info, (void*)&px_name, NULL);
 }
 
 /*
@@ -637,11 +690,16 @@ static errr init_e_info(void)
 static errr init_r_info(void)
 {
 	/* Init the header */
-	init_header(&r_head, z_info->r_max, sizeof(monster_race),
-	            init_r_info_txt);
+	init_header(&r_head, z_info->r_max, sizeof(monster_race));
 
-	return init_info("r_info", &r_head,
-	                 (void*)&r_info, (void*)&r_name, (void*)&r_text);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	r_head.parse_info_txt = parse_r_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("monster", &r_head, (void*)&r_info, (void*)&r_name, (void*)&r_text);
 }
 
 /*
@@ -650,11 +708,16 @@ static errr init_r_info(void)
 static errr init_u_info(void)
 {
 	/* Init the header */
-	init_header(&u_head, z_info->u_max, sizeof(monster_unique),
-	            init_u_info_txt);
+	init_header(&u_head, z_info->u_max, sizeof(monster_unique));
 
-	return init_info("u_info", &u_head,
-	                 (void*)&u_info, (void*)&u_name, (void*)&u_text);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	u_head.parse_info_txt = parse_u_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("unique", &u_head, (void*)&u_info, (void*)&u_name, (void*)&u_text);
 }
 
 /*
@@ -663,10 +726,16 @@ static errr init_u_info(void)
 static errr init_v_info(void)
 {
 	/* Init the header */
-	init_header(&v_head, z_info->v_max, sizeof(vault_type),
-	            init_v_info_txt);
+	init_header(&v_head, z_info->v_max, sizeof(vault_type));
 
-	return init_info("v_info", &v_head,
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	v_head.parse_info_txt = parse_v_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("vault", &v_head,
 	                 (void*)&v_info, (void*)&v_name, (void*)&v_text);
 }
 
@@ -676,11 +745,16 @@ static errr init_v_info(void)
 static errr init_p_info(void)
 {
 	/* Init the header */
-	init_header(&p_head, z_info->p_max, sizeof(player_race),
-	            init_p_info_txt);
+	init_header(&p_head, z_info->p_max, sizeof(player_race));
 
-	return init_info("p_info", &p_head,
-	                 (void*)&p_info, (void*)&p_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	p_head.parse_info_txt = parse_p_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("p_race", &p_head, (void*)&p_info, (void*)&p_name, NULL);
 }
 
 /*
@@ -689,10 +763,16 @@ static errr init_p_info(void)
 static errr init_c_info(void)
 {
 	/* Init the header */
-	init_header(&c_head, z_info->c_max, sizeof(player_class),
-	            init_c_info_txt);
+	init_header(&c_head, z_info->c_max, sizeof(player_class));
 
-	return init_info("c_info", &c_head,
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	c_head.parse_info_txt = parse_c_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("p_class", &c_head,
 	                 (void*)&c_info, (void*)&c_name, (void*)&c_text);
 }
 
@@ -702,10 +782,16 @@ static errr init_c_info(void)
 static errr init_h_info(void)
 {
 	/* Init the header */
-	init_header(&h_head, z_info->h_max, sizeof(hist_type),
-	            init_h_info_txt);
+	init_header(&h_head, z_info->h_max, sizeof(hist_type));
 
-	return init_info("h_info", &h_head,
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	h_head.parse_info_txt = parse_h_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("p_hist", &h_head,
 	                 (void*)&h_info, NULL, (void*)&h_text);
 }
 
@@ -715,11 +801,16 @@ static errr init_h_info(void)
 static errr init_b_info(void)
 {
 	/* Init the header */
-	init_header(&b_head, MAX_STORES * z_info->b_max, sizeof(owner_type),
-	            init_b_info_txt);
+	init_header(&b_head, (u16b)(MAX_STORES * z_info->b_max), sizeof(owner_type));
 
-	return init_info("b_info", &b_head,
-	                 (void*)&b_info, (void*)&b_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	b_head.parse_info_txt = parse_b_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("shop_own", &b_head, (void*)&b_info, (void*)&b_name, NULL);
 }
 
 /*
@@ -728,11 +819,16 @@ static errr init_b_info(void)
 static errr init_g_info(void)
 {
 	/* Init the header */
-	init_header(&g_head, z_info->p_max * z_info->p_max, sizeof(byte),
-	            init_g_info_txt);
+	init_header(&g_head, (u16b)(z_info->p_max * z_info->p_max), sizeof(byte));
 
-	return init_info("g_info", &g_head,
-	                 (void*)&g_info, NULL, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	g_head.parse_info_txt = parse_g_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("cost_adj", &g_head, (void*)&g_info, NULL, NULL);
 }
 
 /*
@@ -741,11 +837,16 @@ static errr init_g_info(void)
 static errr init_q_info(void)
 {
 	/* Init the header */
-	init_header(&q_head, z_info->q_max, sizeof(quest_type), 
-		init_q_info_txt);
+	init_header(&q_head, z_info->q_max, sizeof(quest_type));
 
-	return init_info("q_info", &q_head,
-	                 (void*)&q_info, (void*)&q_name, NULL);
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	q_head.parse_info_txt = parse_q_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("quest", &q_head, (void*)&q_info, (void*)&q_name, NULL);
 }
 
 /*** Initialize others ***/
@@ -1187,10 +1288,10 @@ static errr init_other(void)
 	(void)macro_init();
 
 	/* Initialize the "quark" package */
-	(void)quark_init();
+	(void)quarks_init();
 
 	/* Initialize the "message" package */
-	(void)message_init();
+	(void)messages_init();
 
 	/*** Prepare grid arrays ***/
 
@@ -1861,6 +1962,10 @@ void init_angband(void)
 	note("[Initializing arrays... (ego-items)]");
 	if (init_e_info()) quit("Cannot initialize ego-items");
 
+	/* Initialize prefix info */
+	note("[Initializing arrays... (prefixes)]");
+	if (init_px_info()) quit("Cannot initialize prefixes");
+
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
@@ -2000,18 +2105,10 @@ void cleanup_angband(void)
 	C_FREE(temp_g, TEMP_MAX, u16b);
 
 	/* Free the messages */
-	C_FREE(message__ptr, MESSAGE_MAX, u16b);
-	C_FREE(message__buf, MESSAGE_BUF, char);
-	C_FREE(message__type, MESSAGE_MAX, u16b);
+	messages_free();
 
 	/* Free the "quarks" */
-	for (i = 1; i < quark__num; i++)
-	{
-		string_free(quark__str[i]);
-	}
-
-	/* Free the list of "quarks" */
-	C_FREE((void*)quark__str, QUARK_MAX, cptr);
+	quarks_free();
 
 	/* Free the info, name, and text arrays */
 	free_info(&q_head);

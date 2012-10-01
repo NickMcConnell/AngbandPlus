@@ -591,13 +591,13 @@ bool squelch_itemp(object_type *o_ptr)
 	/* Try to squelch junk */
 	if ((squelch_junk) && (object_value(o_ptr) == 0))
 	{
-		result = TRUE;
+		if (!artifact_p(o_ptr) && (o_ptr->tval != TV_QUEST)) result = TRUE;
 	}
 
 	/* Try to squelch by type */
 	if (k_info[o_ptr->k_idx].squelch)
 	{
-		result = TRUE;
+		if (object_aware_p(o_ptr)) result = TRUE;
 	}
 	else 
 	{
@@ -756,6 +756,9 @@ void destroy_squelched_items(void)
 			/* Hack -- skip artifacts */
 			if (artifact_p(o_ptr)) continue;
 
+			/* Mega hack -- skip quest objects */
+			if (o_ptr->tval == TV_QUEST) continue;
+
 			if (item_tester_okay(o_ptr))
 			{
 				/* Destroy item */
@@ -778,6 +781,9 @@ void destroy_squelched_items(void)
 
 		/* Hack -- skip artifacts */
 		if (artifact_p(o_ptr)) continue;
+
+		/* Mega hack -- skip quest objects */
+		if (o_ptr->tval == TV_QUEST) continue;
 
 		/* Give this item slot a shot at death */
 		if (item_tester_okay(o_ptr))

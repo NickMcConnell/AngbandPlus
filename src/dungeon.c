@@ -463,6 +463,8 @@ static void process_world(void)
 
 				/* Message */
 				message(MSG_QUEST_FAIL, 0, "You have failed in your quest!");
+
+				if (p_ptr->fame) p_ptr->fame /= 2;
 	
 				/* Disturb */
 				if (disturb_minor) disturb(0);
@@ -1068,6 +1070,7 @@ static void process_command(void)
 		case ' ':
 		case '\n':
 		case '\r':
+		case '\a':
 		{
 			break;
 		}
@@ -2503,7 +2506,7 @@ void play_game(bool new_game)
 		/* Hack -- seed for random artifacts */
 		seed_randart = rand_int(0x10000000);
 
-#endif
+#endif /* GJW_RANDART */
 
 		/* Roll up a new character */
 		player_birth();
@@ -2513,10 +2516,15 @@ void play_game(bool new_game)
 		/* Randomize the artifacts */
 		if (adult_rand_artifacts)
 		{
-			do_randart(seed_randart);
+			do_randart(seed_randart, TRUE);
 		}
 
-#endif
+#else /* GJW_RANDART */
+
+		/* Make sure random artifacts are turned off if not available */
+		adult_rand_artifacts = FALSE;
+
+#endif /* GJW_RANDART */
 
 		/* Hack -- enter the world */
 		turn = 1;

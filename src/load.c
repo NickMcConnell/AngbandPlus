@@ -224,8 +224,8 @@ static errr rd_item(object_type *o_ptr)
 		if (save_flags & 0x0020) rd_s16b(&tmp_to_h);
 		if (save_flags & 0x0040) rd_s16b(&tmp_to_d);
 
-		tmp_to_h -= item_prefix[o_ptr->prefix_idx].to_h;
-		tmp_to_d -= item_prefix[o_ptr->prefix_idx].to_d;
+		tmp_to_h -= px_info[o_ptr->prefix_idx].to_h;
+		tmp_to_d -= px_info[o_ptr->prefix_idx].to_d;
 
 		o_ptr->to_h = tmp_to_h;
 		o_ptr->to_d = tmp_to_d;
@@ -328,7 +328,7 @@ static errr rd_item(object_type *o_ptr)
 	o_ptr->weight = k_ptr->weight;
 
 	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Artifacts */
 	if (o_ptr->a_idx)
@@ -345,6 +345,9 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->ac = a_ptr->ac;
 		o_ptr->dd = a_ptr->dd;
 		o_ptr->ds = a_ptr->ds;
+
+		/* Get the new artifact prefix */
+		o_ptr->prefix_idx = a_ptr->prefix_idx;
 
 		/* Get the new artifact weight */
 		o_ptr->weight = a_ptr->weight;
@@ -783,6 +786,8 @@ static errr rd_extra(void)
 		}
 	}
 
+	if (!older_than(0,3,4)) rd_u16b(&p_ptr->fame);
+
 	rd_s32b(&p_ptr->au);
 
 	rd_s32b(&p_ptr->max_exp);
@@ -901,19 +906,11 @@ static errr rd_extra(void)
 		 * Therefore, Check for incompatible randart version - this might be 
 		 * different than the normal compatible version so have double check
 		 */
-		if (older_than(0,3,3))
+		if (older_than(0,3,4))
 		{
 			note(format("Incompatible random artifacts version!"));
 			return (-1);
 		}
-
-		/* Initialize randarts */
-		do_randart(seed_randart);
-
-#else /* GJW_RANDART */
-
-		note("Random artifacts are disabled in this binary.");
-		return (-1);
 
 #endif /* GJW_RANDART */
 
@@ -942,6 +939,129 @@ static errr rd_extra(void)
 	for (i = 0; i < tmp16u; i++) rd_s16b(&p_ptr->player_hp[i]);
 
 	return (0);
+}
+
+/*
+ * Read the random artifacts
+ */
+static errr rd_randarts(void)
+{
+
+#ifdef GJW_RANDART
+
+	int i;
+	byte tmp8u;
+	s16b tmp16s;
+	u16b tmp16u;
+	u16b artifact_count;
+	s32b tmp32s;
+	u32b tmp32u;
+
+	/* Read the number of artifacts */
+	rd_u16b(&artifact_count);
+
+	/* Alive or cheating death */
+	if (!p_ptr->is_dead || arg_wizard)
+	{
+		/* Incompatible save files */
+		if (artifact_count > z_info->a_max)
+		{
+			note(format("Too many (%u) random artifacts!", artifact_count));
+			return (-1);
+		}
+
+		/* Mark the old artifacts as "empty" */
+		for (i = 0; i < z_info->a_max; i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+			a_ptr->name = 0;
+			a_ptr->tval = 0;
+			a_ptr->sval = 0;
+		}
+
+		/* Read the artifacts */
+		for (i = 0; i < artifact_count; i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+
+			rd_byte(&a_ptr->tval);
+			rd_byte(&a_ptr->sval);
+			rd_s16b(&a_ptr->pval);
+
+			rd_s16b(&a_ptr->to_h);
+			rd_s16b(&a_ptr->to_d);
+			rd_s16b(&a_ptr->to_a);
+			rd_s16b(&a_ptr->ac);
+
+			rd_byte(&a_ptr->dd);
+			rd_byte(&a_ptr->ds);
+
+			rd_s16b(&a_ptr->weight);
+
+			rd_s32b(&a_ptr->cost);
+
+			rd_u32b(&a_ptr->flags1);
+			rd_u32b(&a_ptr->flags2);
+			rd_u32b(&a_ptr->flags3);
+			rd_u32b(&a_ptr->flags4);
+
+			rd_byte(&a_ptr->level);
+			rd_byte(&a_ptr->rarity);
+
+			rd_byte(&a_ptr->activation);
+			rd_u16b(&a_ptr->time);
+			rd_u16b(&a_ptr->randtime);
+
+			rd_byte(&a_ptr->prefix_idx);
+		}
+	}
+	else
+	{
+		/* Read the artifacts */
+		for (i = 0; i < artifact_count; i++)
+		{
+			rd_byte(&tmp8u); /* a_ptr->tval */
+			rd_byte(&tmp8u); /* a_ptr->sval */
+			rd_s16b(&tmp16s); /* a_ptr->pval */
+
+			rd_s16b(&tmp16s); /* a_ptr->to_h */
+			rd_s16b(&tmp16s); /* a_ptr->to_d */
+			rd_s16b(&tmp16s); /* a_ptr->to_a */
+			rd_s16b(&tmp16s); /* a_ptr->ac */
+
+			rd_byte(&tmp8u); /* a_ptr->dd */
+			rd_byte(&tmp8u); /* a_ptr->ds */
+
+			rd_s16b(&tmp16s); /* a_ptr->weight */
+
+			rd_s32b(&tmp32s); /* a_ptr->cost */
+
+			rd_u32b(&tmp32u); /* a_ptr->flags1 */
+			rd_u32b(&tmp32u); /* a_ptr->flags2 */
+			rd_u32b(&tmp32u); /* a_ptr->flags3 */
+			rd_u32b(&tmp32u); /* a_ptr->flags4 */
+
+			rd_byte(&tmp8u); /* a_ptr->level */
+			rd_byte(&tmp8u); /* a_ptr->rarity */
+
+			rd_byte(&tmp8u); /* a_ptr->activation */
+			rd_u16b(&tmp16u); /* a_ptr->time */
+			rd_u16b(&tmp16u); /* a_ptr->randtime */
+			rd_byte(&tmp8u); /* a_ptr->prefix */
+		}
+	}
+
+	/* Initialize only the randart names */
+	do_randart(seed_randart, FALSE);
+
+	return (0);
+
+#else /* GJW_RANDART */
+
+	note("Random artifacts are disabled in this binary.");
+	return (-1);
+
+#endif /* GJW_RANDART */
 }
 
 /* 
@@ -1558,6 +1678,16 @@ static errr rd_savefile_new_aux(void)
 			if (q_info[i].active_level || q_info[i].reward) 
 				p_ptr->cur_quest = q_info[i].base_level;
 		}
+		else if (q_info[i].type == QUEST_VAULT)
+		{
+			rd_byte(&q_info[i].reward);
+			rd_byte(&q_info[i].active_level);
+			rd_byte(&q_info[i].base_level);
+
+			/* Set current quest */
+			if (q_info[i].active_level || q_info[i].reward) 
+				p_ptr->cur_quest = q_info[i].base_level;
+		}
 	}
 	if (arg_fiddle) note("Loaded Quests");
 
@@ -1585,6 +1715,13 @@ static errr rd_savefile_new_aux(void)
 	/* Read the spell stuff */
 	if (rd_spells()) return (-1);
 	if (arg_fiddle) note("Loaded spell information");
+
+	/* Read random artifacts */
+	if ((adult_rand_artifacts) && (!older_than(0,3,4)))
+	{
+		if (rd_randarts()) return (-1);
+		if (arg_fiddle) note("Loaded Random Artifacts");
+	}
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];

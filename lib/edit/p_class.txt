@@ -1,6 +1,6 @@
-# File: c_info.txt
+# File: p_class.txt
 
-# This file is used to initialize the "lib/data/p_info.raw" file, which is
+# This file is used to initialize the "lib/data/p_class.raw" file, which is
 # used to initialize the "class" information for the EyAngband game.
 
 # Do not modify this file unless you know exactly what you are doing,
@@ -76,7 +76,7 @@
 
 # Version stamp (required)
 
-V:0.3.3
+V:0.3.4
 
 N:0:Warrior
 S:3:-2:-1:1:1:-2
@@ -86,8 +86,16 @@ I:9:0:6:30:5:0:0:0
 E:75:30:0:1:1
 E:23:16:0:1:1
 E:36:24:0:1:1
-T:Rookie|Soldier|Mercenary|Veteran|Swordsman
-T:Champion|Hero|Baron|Duke|Lord
+T:Rookie
+T:Soldier
+T:Mercenary
+T:Veteran
+T:Swordsman
+T:Champion
+T:Hero
+T:Baron
+T:Duke
+T:Lord
 F:BRAVERY_30|PSEUDO_ID5|BETTER_CRITICAL|PSEUDO_ID_HEAVY
 
 N:1:Mage
@@ -109,8 +117,16 @@ B:23:1
 E:90:0:0:1:1
 E:23:4:0:1:1
 E:70:11:0:1:1
-T:Novice|Apprentice|Trickster|Illusionist|Spellbinder
-T:Evoker|Conjurer|Warlock|Sorcerer|Mage-Lord
+T:Novice
+T:Apprentice
+T:Trickster
+T:Illusionist
+T:Spellbinder
+T:Evoker
+T:Conjurer
+T:Warlock
+T:Sorcerer
+T:Mage-Lord
 F:NO_GLOVE|ZERO_FAIL|BEAM|PSEUDO_ID1|CHOOSE_SPELLS
 
 N:2:Priest
@@ -132,8 +148,16 @@ B:23:1
 E:90:10:0:1:1
 E:21:5:0:1:1
 E:75:34:0:1:1
-T:Believer|Acolyte|Adept|Curate|Canon
-T:Lama|Patriarch|Priest|High-Priest|Archpriest
+T:Believer
+T:Acolyte
+T:Adept
+T:Curate
+T:Canon
+T:Lama
+T:Patriarch
+T:Priest
+T:High-Priest
+T:Archpriest
 F:BLESS_WEAPON|ZERO_FAIL|PSEUDO_ID4
 
 N:3:Ranger
@@ -151,8 +175,16 @@ E:90:0:0:1:1
 E:23:16:0:1:1
 E:19:13:0:1:1
 E:17:1:0:8:12
-T:Runner|Strider|Scout|Courser|Tracker
-T:Guide|Pathfinder|Low-Ranger|High-Ranger|Ranger-Lord
+T:Runner
+T:Strider
+T:Scout
+T:Courser
+T:Tracker
+T:Guide
+T:Pathfinder
+T:Low-Ranger
+T:High-Ranger
+T:Ranger-Lord
 F:EXTRA_SHOT|PSEUDO_ID2|CHOOSE_SPELLS|BETTER_SHOT
 
 N:4:Paladin
@@ -172,8 +204,16 @@ B:18:5
 E:34:3:0:1:1
 E:23:16:0:1:1
 E:70:37:0:1:1
-T:Gallant|Keeper|Protector|Defender|Warder
-T:Knight|Guardian|Low-Paladin|High-Paladin|Paladin-Lord
+T:Gallant
+T:Keeper
+T:Protector
+T:Defender
+T:Warder
+T:Knight
+T:Guardian
+T:Low-Paladin
+T:High-Paladin
+T:Paladin-Lord
 F:PSEUDO_ID3|PSEUDO_ID_HEAVY
 
 N:5:Mystic
@@ -195,8 +235,16 @@ B:23:1
 E:90:0:0:1:1
 E:90:10:0:1:1
 E:76:13:0:1:1
-T:Aspirant|Initiate|Mystic|Grand-Mystic|Seer
-T:Guru|Enlightened|Master|Grand-Master|Transcendent
+T:Aspirant
+T:Initiate
+T:Mystic
+T:Grand-Mystic
+T:Seer
+T:Guru
+T:Enlightened
+T:Master
+T:Grand-Master
+T:Transcendent
 F:NO_GLOVE|ZERO_FAIL|POWER|PSEUDO_ID1
 F:EXTRA_MANA|EXTRA_SPELL|MYSTIC_CAST|CHOOSE_SPELLS
 
@@ -209,8 +257,16 @@ E:50:0:0:1:1
 E:50:1:0:1:1
 E:23:7:0:1:1
 E:36:4:0:1:1
-T:Performer|Entertainer|Musician|Troubador|Minstrel
-T:Courtier|Poet|Bard|Master-Bard|Maestro
+T:Performer
+T:Entertainer
+T:Musician
+T:Troubador
+T:Minstrel
+T:Courtier
+T:Poet
+T:Bard
+T:Master-Bard
+T:Maestro
 F:MUSIC|PSEUDO_ID5|PSEUDO_ID_HEAVY|NO_GLOVE|LORE|INFLUENCE
 
 N:7:Spellsword
@@ -230,6 +286,14 @@ B:8:5
 E:36:6:0:1:1
 E:23:16:0:1:1
 E:70:9:0:1:1        
-T:Student|Journeyman|Spellslinger|Wizard|Warrior-Mage
-T:Knight-Mage|Spellsword|Battlemage|Scourge|Wizard-Lord
+T:Student
+T:Journeyman
+T:Spellslinger
+T:Wizard
+T:Warrior-Mage
+T:Knight-Mage
+T:Spellsword
+T:Battlemage
+T:Scourge
+T:Wizard-Lord
 F:PSEUDO_ID2|CHOOSE_SPELLS|BEAM

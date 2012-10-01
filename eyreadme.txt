@@ -1,6 +1,6 @@
 
                         ************************************
-                        **   EyAngband 0.3.3 readme file  **
+                        **   EyAngband 0.3.4 readme file  **
                         ************************************
 
 Welcome to EyAngband, the Angband varient authored by Eytan Zweig. This readme

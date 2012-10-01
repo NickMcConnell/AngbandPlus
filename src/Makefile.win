@@ -24,7 +24,7 @@ SRCS = \
   xtra1.c xtra2.c effects.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c squelch.c\
   cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
-  store.c birth.c load.c quest.c\
+  store.c birth.c load.c quest.c powers.c\
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-win.c readdib.c itsybits.c
@@ -36,7 +36,7 @@ OBJS = \
   xtra1.obj xtra2.obj effects.obj spells1.obj spells2.obj \
   melee1.obj melee2.obj save.obj files.obj squelch.obj\
   cmd-attk.obj cmd-book.obj cmd-item.obj cmd-know.obj cmd-misc.obj cmd-util.obj \
-  store.obj birth.obj load.obj quest.obj\
+  store.obj birth.obj load.obj quest.obj powers.obj\
   wizard1.obj wizard2.obj \
   generate.obj dungeon.obj init1.obj init2.obj randart.obj \
   main-win.obj readdib.obj itsybits.obj
@@ -165,7 +165,7 @@ xtra1 xtra2 spells1 spells2 +
 melee1 melee2 save files +
 cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
 store birth load1 load2 +
-wizard1 wizard2 +
+wizard1 wizard2 powers +
 generate dungeon init1 init2 randart +
 main-win readdib itsybits,+
 ..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
@@ -196,7 +196,7 @@ xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
 melee1.o32 melee2.o32 save.o32 files.o32 +
 cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
 store.o32 birth.o32 load1.o32 load2.o32 +
-wizard1.o32 wizard2.o32 +
+wizard1.o32 wizard2.o32 powers.obj +
 generate.o32 dungeon.o32 init1.o32 init2.o32 randart.o32 +
 main-win.o32 readdib.o32 itsybits.o32,+
 ..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
