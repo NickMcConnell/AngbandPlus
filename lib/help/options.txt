@@ -401,20 +401,20 @@ item.
 
      You may only change birth options when starting up a new character.
 
-***** <adult_point_based>
+***** <birth_point_based>
 Adult: Allow purchase of stats using points   [adult_point_based]    (off) :
      Allows you to buy stats using a pool of points.  Gives you extra gold for
 each point not spent.  This method allows you to raise individual stats higher
 than rolling, but does not give you total stats so great.
 
-***** <adult_auto_roller>
+***** <birth_auto_roller>
 Adult: Allow specification of minimal stats   [adult_auto_roller]    (off) :
      Allows you to specify minimum stats when creating a character.  Characters
 are randomly generated until one is found to meet your requirements.
 
      If neither of the two above options is set, you roll for stats manually.
 
-***** <adult_maximize>
+***** <birth_maximize>
 Adult: Maximize effect of race/class bonuses  [adult_maximize]       (on) :
      If maximize mode is ON, racial and class adjustments to vital statistics
 (stat) act as permanent modifiers.  A Dwarven priest will be able to raise his
@@ -422,18 +422,14 @@ inherent wisdom to 18/150, but his intelligence only to 18/40.
      Maximize mode makes races and classes play more differently, usually to the
 player's benefit; it is therefore recommended in most cases.
 
-***** <adult_preserve>
+***** <birth_preserve>
 Adult: Preserve artifacts when leaving level  [adult_preserve]       (on) :
      If preserve mode is ON, artifacts will not be lost unless you actually
 identify then abandon them.  However, you get no special feelings (which help
 you to find artifacts).  If this option is OFF, artifacts appear once and once
 only, but you get special feelings.
 
-***** <adult_ironman>
-Adult: Restrict the use of stairs/recall      [adult_ironman]        (off) :
-     Can never go up.  Can never use recall until you win the game.  No stairs
-are ever placed under you when you change levels.
-
+***** <birth_ironman>
 Ironman Play:
      "Go down into the dungeon.  Return with Morgoth's Crown or not at all."
 In Ironman mode, you can never go up any staircase, and can never return to the
@@ -443,20 +439,24 @@ immediately return to the dungeon.
 into the dungeon, or that you must use a down staircase as soon as you see it
 ("crash-dive ironman"), but they are variants on the basic theme.
 
-***** <adult_no_stores>
+Adult: Restrict the use of stairs/recall      [adult_ironman]        (off) :
+     Can never go up.  Can never use recall until you win the game.  No stairs
+are ever placed under you when you change levels.
+
+***** <birth_no_stores>
 Adult: Restrict the use of stores/home        [adult_no_stores]      (off) :
      Cannot use any stores or your home.
 
-***** <adult_no_artifacts>
+***** <birth_no_artifacts>
 Adult: Restrict creation of artifacts         [adult_no_artifacts]   (off) :
      No artifacts will appear.
 
-***** <adult_rand_artifacts>
+***** <birth_rand_artifacts>
 Adult: Randomize some of the artifacts (beta) [adult_rand_artifacts] (off) :
      Most of the artifacts will get random names and qualities.  This can make
 for a fun change of pace.
 
-***** <adult_no_stacking>
+***** <birth_no_stacking>
 Adult: Don't stack objects on the floor       [adult_no_stacking]    (off) :
      The game normally allows many objects to stack in each floor grid.
 However, some people prefer the challenge of allowing only one object to appear
@@ -464,7 +464,7 @@ in each floor grid.  Turning this option ON causes objects dropped by monsters
 to disappear if space is tight, and therefore encourages you to fight battles in
 wide-open spaces.
 
-***** <adult_take_notes>
+***** <birth_take_notes>
 Adult:  Have notes to written to a file       [adult_take_notes]     (off) :
 	Character can write notes to a specific file.  In addition, notes
 are taken automatically when: a player reaches a character level

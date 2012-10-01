@@ -440,11 +440,15 @@ bool make_attack_normal(monster_type *m_ptr)
 				continue;
 			}
 
-			/* Message - special handling for sliming attacks */
+			/* Message - special handling for sliming and insult attacks */
 			if (act)
 			{
 
 				if (method == RBM_SLIME) strcpy(msg, format("%s", act));
+				else if (method == RBM_INSULT)
+				{
+					strcpy(msg, format("%^s %s", m_name, act));
+				}
 				else
 				{
 					if (dam > p_ptr->chp / 3)
@@ -467,9 +471,6 @@ bool make_attack_normal(monster_type *m_ptr)
 				/* No effect */
 				case 0:
 				{
-					/* Message */
-					if (act) msg_format("%^s %s.", m_name, act);
-
 					/* Hack -- Assume obvious */
 					obvious = TRUE;
 
@@ -2109,15 +2110,15 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				if (blind) msg_print("You hear a soft sound.");
 				else if (do_blind)
 				{
-					msg_format("%s spits%s straight into your eyes.", m_name, desc);
+					msg_format("%^s spits%s straight into your eyes.", m_name, desc);
 				}
-				else msg_format("%s spits%s at you.", m_name, desc);
+				else msg_format("%^s spits%s at you.", m_name, desc);
 			}
 			/* All other creatures use a whip. */
 			else
 			{
 				if (blind) msg_print("You hear a crack.");
-				else msg_format("%s lashes at you with a whip%s%s.",
+				else msg_format("%^s lashes at you with a whip%s%s.",
 					m_name, add_of, desc);
 			}
 

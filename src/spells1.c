@@ -2687,15 +2687,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		case GF_MANA:
 		{
 			if (seen) obvious = TRUE;
-
-			/*breathers resist*/
-			if (r_ptr->flags4 & (RF4_BRTH_MANA))
-			{
-				note = " resists.";
-				dam *= 3; dam /= (randint(6)+6);
-				do_dist = 0;
-				if (seen) l_ptr->flags4 |= (RF4_BRTH_MANA);
-			}
 			break;
 		}
 

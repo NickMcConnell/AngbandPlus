@@ -2698,6 +2698,9 @@ bool project_arc(int who, int rad, int y0, int x0, int y1, int x1, int dam,
 	/* Diameter of source of energy is normally, but not always, 20. */
 	int source_diameter = 20;
 
+	/* Radius of zero means no fixed limit. */
+	if (rad == 0) rad = MAX_SIGHT;
+
 	/* Calculate the effective diameter of the energy source, if necessary. */
 	if (degrees < ARC_STANDARD_WIDTH)
 	{
@@ -4206,8 +4209,7 @@ bool fear_monster(int dir, int plev)
 
 bool teleport_monster(int dir)
 {
-	u32b flg = PROJECT_STOP | PROJECT_KILL;
-	return (fire_bolt_beam_special(GF_AWAY_ALL, dir, MAX_SIGHT * 5, MAX_RANGE, flg));
+	return (fire_beam(GF_AWAY_ALL, dir, MAX_SIGHT * 5));
 }
 
 

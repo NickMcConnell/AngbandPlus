@@ -269,6 +269,9 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* Determine the "value" of the items */
 	object_level = ABS(o_ptr->pval);
 
+	/*paranoia*/
+	if (object_level < 1) object_level = 1;
+
 	/*the theme of the chest is created during object generation*/
 	chesttheme = (o_ptr->xtra1);
 
@@ -300,6 +303,7 @@ static void chest_death(int y, int x, s16b o_idx)
 
 		else if (chesttheme >= 2)
 		{
+			bool good, great;
 
 			/* Regular objects in chests will become quite
 			 * rare as depth approaches 5000'.
@@ -313,10 +317,28 @@ static void chest_death(int y, int x, s16b o_idx)
 			 * max object generation level, but have no
 			 * other effect.  JG
 		 	 */
-			if (quality < 26) 			make_object(i_ptr, FALSE, FALSE, chesttheme);
-		    else if (quality < 51)  	make_object(i_ptr, TRUE, FALSE, chesttheme);
-			else if (quality < 81) 		make_object(i_ptr, FALSE, TRUE, chesttheme);
-			else 						make_object(i_ptr, TRUE, TRUE, chesttheme);
+			if (quality < 26)
+			{
+				good = FALSE;
+				great = FALSE;
+			}
+		   	else if (quality < 51)
+			{
+				good = TRUE;
+			 	great = FALSE;
+			}
+			else if (quality < 81)
+			{
+				good = FALSE;
+			 	great = TRUE;
+			}
+			else
+			{
+				good = TRUE;
+				great = TRUE;
+			}
+
+			while (!make_object(i_ptr, good, great, chesttheme)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -2016,8 +2038,6 @@ void do_cmd_alter(void)
 
 	bool more = FALSE;
 
-	monster_type *m_ptr;
-
 	/* Get a direction */
 	if (!get_rep_dir(&dir)) return;
 
@@ -2056,19 +2076,11 @@ void do_cmd_alter(void)
 		p_ptr->command_arg = 0;
 	}
 
-	/* If a monster is present, and visible, rogues may steal from it.
-	 * Otherwise, the player will simply attack.
-	 */
+	/*Is there a monster on the space?*/
 	if (cave_m_idx[y][x] > 0)
 	{
-		if (cp_ptr->flags & CF_ROGUE_COMBAT)
-		{
-			m_ptr = &mon_list[cave_m_idx[y][x]];
-			if (m_ptr->ml) py_steal(y, x);
-			else py_attack(y, x);
-		}
 		/* Attack */
-		else py_attack(y, x);
+		py_attack(y, x);
 	}
 
 	/* Tunnel through walls */

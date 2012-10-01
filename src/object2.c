@@ -3826,6 +3826,8 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
 				get_obj_num_prep();
 			}
 
+		/* Handle failure*/
+		if (!k_idx) return (FALSE);
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);

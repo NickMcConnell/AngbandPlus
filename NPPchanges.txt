@@ -1,4 +1,22 @@
-Version 0.3.?
+
+Version 0.3.3
+New features:
+Rogues may no longer steal using the alter command.
+Mana breathers no longer resist mana attacks.
+
+Bugfixes:
+
+Bugfix: Made some changes to make sure "&nothing" isn't produced, and if it is 	produced, doesn't take up a player inventory slot if they walk over it.
+Bugfix: The teleport-other spell beams again.
+Bugfix: "Lash" ranged attack descriptions are properly capitalized.
+Bugfix: Project_arc function now works properly (it was unused before).
+Bugfix: The insult attack was givng two messages, and the punctuation was wrong.
+	(code fix provided by KUSUNOSE Toru)
+Bufix: Gravity breaths could occasionally instakill a player.
+Bugfix: Pressing "?" to view help file for birth options didn't take the player directly
+	to the actual option.
+
+Version 0.3.2
 
 New features:
 In addition to '+' & '-', using 'h' & 'l' can navigate through the character screens.
@@ -370,7 +388,7 @@ and greater vaults created, when a player is killed or wins the game, and every
 time 
 the character gains a new level, but only if it is divisible by 5 (level 5, 10, 
 15, 20, 
-etc…). These notes automatically print out with the character dump. The 
+etc...). These notes automatically print out with the character dump. The 
 formatting 
 on this feature isn't perfect yet, but I plan on finishing it after I 
 incorporate 

@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.3.2"
+#define VERSION_STRING	"0.3.3"
 
 
 /*
@@ -347,7 +347,7 @@
  * More maximum values
  */
 #define MAX_SIGHT	20	/* Maximum view distance */
-#define MAX_RANGE	18	/* Maximum range (spells, etc) */
+#define MAX_RANGE	29	/* Maximum range (spells, etc) */
 
 
 

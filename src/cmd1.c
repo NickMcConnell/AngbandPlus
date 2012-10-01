@@ -527,17 +527,23 @@ static void py_pickup_aux(int o_idx)
 
 	o_ptr = &o_list[o_idx];
 
-	/* Carry the object */
-	slot = inven_carry(o_ptr);
+	/*hack - don't pickup &nothings*/
+	if (o_ptr->k_idx)
+	{
 
-	/* Get the object again */
-	o_ptr = &inventory[slot];
+		/* Carry the object */
+		slot = inven_carry(o_ptr);
 
-	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		/* Get the object again */
+		o_ptr = &inventory[slot];
 
-	/* Message */
-	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+		/* Describe the object */
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+		/* Message */
+		msg_format("You have %s (%c).", o_name, index_to_label(slot));
+	
+	}
 
 	/* Delete the object */
 	delete_object_idx(o_idx);
