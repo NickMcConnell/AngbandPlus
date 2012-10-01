@@ -706,6 +706,7 @@ static errr Term_xtra_gcu(int n, int v)
 		case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
+
 	}
 
 	/* Unknown */
@@ -763,7 +764,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	int i;
 
-	char text[81];
+	char text[213];
 
 	/* Obtain a copy of the text */
 	for (i = 0; i < n; i++) text[i] = s[i];

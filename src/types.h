@@ -1158,6 +1158,12 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+        /* Add some variables for disturb_trap_detect.  Not saved.  -BR- */
+        byte dtrap_x;           /* X location of last trap detection */
+        byte dtrap_y;           /* Y location of last trap detection */
+        byte dtrap_rad;         /* radius of last trap detection */
+
 };
 
 

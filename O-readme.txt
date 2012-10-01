@@ -1,6 +1,6 @@
 
              ****************************************************
-             **   Oangband 0.5.0   ***   The Pits of Angband   **
+             **  Oangband 0.5.0b   ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke

@@ -2247,7 +2247,7 @@ cptr spell_names[255] =
 	"Herbal Healing",
 
 	/* Primal Forces (sval 6) */
-	"Bizzard",							/* index 171 */
+	"Blizzard",							/* index 171 */
 	"Trigger Tsunami",
 	"Volcanic Eruption",
 	"Molten Lightning",
@@ -2795,7 +2795,7 @@ cptr option_text[OPT_MAX] =
 	"show_piles",                           /* OPT_show_piles */
 	NULL,  	        
 	NULL,          	
-	NULL,
+	"disturb_trap_detect",    	/* OPT_disturb_trap_detect]*/
       	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
       	NULL,      	NULL,      	NULL,      	NULL,      	NULL, /*80*/
       	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
@@ -2947,7 +2947,7 @@ cptr option_desc[OPT_MAX] =
 	"Show stacks using special attr/char",          /* OPT_show_piles */
 	NULL,       	
 	NULL,         	
-	NULL,
+	"Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
       	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
       	NULL,      	NULL,      	NULL,      	NULL,      	NULL,  /*80*/
       	NULL,      	NULL,      	NULL,      	NULL,      	NULL,
@@ -3031,7 +3031,7 @@ bool option_norm[OPT_MAX] =
 {
         FALSE,		/* OPT_rogue_like_commands */   /*0*/
 	FALSE,		/* OPT_quick_messages */
-	FALSE,		/* OPT_floor_query_flag */
+	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
@@ -3099,7 +3099,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,	        /* OPT_show_piles */
 	FALSE,  	
 	FALSE,          
-	FALSE,
+	TRUE,           /* OPT_disturb_trap_detect */
       	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
       	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,  /*80*/
       	FALSE,      	FALSE,      	FALSE,      	FALSE,      	FALSE,
@@ -3213,6 +3213,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_move,
 		OPT_disturb_near,
 		OPT_disturb_panel,
+		OPT_disturb_trap_detect,
 		OPT_disturb_state,
 		OPT_disturb_minor,
 		OPT_disturb_other,
@@ -3222,7 +3223,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_destroy_junk,
 		OPT_verify_special,
 		OPT_ring_bell,
-		255,
 		255,
 		255,
 		255

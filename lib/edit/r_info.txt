@@ -7377,9 +7377,9 @@ S:1_IN_2 |
 S:TELE_TO | BLIND | 
 S:BO_MANA | BO_NETH | BA_NETH |
 S:BR_NETH
-D:This mighty Balrog commands awesome power, his visage grave enough
-D:to shrivel your soul.  You shriek with disbelief as his mastery of
-D:death draws you to your grave.  It is truly beyond all but the
+D:This mighty Balrog commands awesome power, his visage grave enough 
+D:to shrivel your soul.  You shriek with disbelief as his mastery of 
+D:death draws you to your grave.  It is truly beyond all but the 
 D:mightiest of warriors to stand against him and live.
 
 N:511:The Defiler
@@ -7438,9 +7438,9 @@ F:IM_FIRE | IM_ELEC | NO_CONF
 S:1_IN_2 | 
 S:TPORT | BO_MANA | BLINK | BA_ACID | BA_LITE |
 S:DRAIN_MANA | TELE_AWAY 
-D:Errata is a bold and mighty mage.  Her power and guile are
-D:legendary.  Her's is the right to face the Morgoth in single combat
-D:and she will not let you stand in her way.  Defend yourself! 
+D:Errata is a bold and mighty mage.  Her power and guile are 
+D:legendary.  Her's is the right to face the Morgoth in single combat 
+D:and she will not let you stand in her way.  Defend yourself!
 
 N:514:Saruman of Many Colours
 G:p:v

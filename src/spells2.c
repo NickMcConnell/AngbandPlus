@@ -728,6 +728,11 @@ bool detect_traps(int range, bool show)
 	       }
 	}
 
+	/* Set region for disturbance */
+	p_ptr->dtrap_x=px;
+	p_ptr->dtrap_y=py;
+	p_ptr->dtrap_rad=range;
+
 	/* Found some */
 	if (num > 0)
 	{

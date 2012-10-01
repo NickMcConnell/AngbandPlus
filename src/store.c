@@ -358,16 +358,17 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	s32b offer_adjustment;
 	s32b price;
 
-
 	/* Get the value of one of the items */
 	price = object_value(o_ptr);
 
 	/* Worthless items */
 	if (price <= 0) return (0L);
 
-
 	/* Compute the racial factor */
         racial_factor = g_info[(ot_ptr->owner_race * MAX_P_IDX) + p_ptr->prace];
+
+	/* Paranoia */
+	if (!racial_factor) racial_factor=100;
 
 	/* Add in the charisma factor */
 	charisma_factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];

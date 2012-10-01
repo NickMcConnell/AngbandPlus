@@ -2113,10 +2113,20 @@ static bool run_test(void)
 	/* Where we came from */
 	prev_dir = p_ptr->run_old_dir;
 
-
 	/* Range of newly adjacent grids */
 	max = (prev_dir & 0x01) + 1;
 
+	/* break run when leaving trap detected region */
+	if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
+	{
+		if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= p_ptr->dtrap_rad) 
+		{
+		        p_ptr->dtrap_x=0;
+		        p_ptr->dtrap_y=0;
+		        p_ptr->dtrap_rad=0;
+		        return(TRUE);	  
+		}
+	}
 
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)

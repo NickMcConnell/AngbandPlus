@@ -4203,7 +4203,7 @@ static void process_monster(int m_idx, int total_wakeup_chance)
 					      }
 					      
 					      /* Hurt the monster.  Big bruisers fall hard. */
-					      if (mon_take_hit(cave_m_idx[ny][nx],
+					      if (mon_take_hit(m_idx,
 							       (1 + randint(p_ptr->lev * 3) + m_ptr->maxhp / 20), &fear, note_dies))
 						     return;
 

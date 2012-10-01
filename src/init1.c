@@ -3243,11 +3243,12 @@ errr init_g_info_txt(FILE *fp, char *buf)
 		       /* Start the string */
 		       s = buf+1;
 
-		       /* Initialize the counter to max races */
-		       j = MAX_P_IDX;
-
-		       /* Repeat */
-		       while (j-- > 0)
+		       /* Changed this to a for loop from a while loop.
+			* It appears to have been setting off an odd
+			* compiler bug in Borland C for the windows
+			* version. -BR-
+			*/
+		       for (j=MAX_P_IDX; j > 0; j--)
 		       {
                               /* Hack - get the index */
 			      i = error_idx + 1;

@@ -3032,11 +3032,13 @@ static int get_tag(int *cp, char tag)
  *   0x01 -- Verify item tester
  *   0x02 -- Marked items only
  */
-sint scan_floor(int *items, int size, int y, int x, int mode)
+bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 {
 	int this_o_idx, next_o_idx;
 
 	int num = 0;
+
+	(*item_num) = 0;
 
 	/* Sanity */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -3052,21 +3054,27 @@ sint scan_floor(int *items, int size, int y, int x, int mode)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-		/* Verify item tester */
+		/* Item tester */
 		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
 
-		/* Marked items only */
+		/* Marked */
 		if ((mode & 0x02) && !o_ptr->marked) continue;
 
 		/* Accept this item */
 		items[num++] = this_o_idx;
 
-		/* Enforce size limit */
-		if (num >= size) break;
+		/* Only one */
+		if (mode & 0x04) break;
+
+		/* XXX Hack -- Enforce limit */
+		if (num == 23) break;
 	}
 
+	/* Number of items */
+	(*item_num) = num;
+
 	/* Result */
-	return (num);
+	return (num != 0);
 }
 
 
@@ -3314,9 +3322,16 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Accept equipment */
 	if (e1 <= e2) allow_equip = TRUE;
+ 
+	/* Count "okay" floor items */
+	floor_num = 0;
 
-	/* Scan all objects in the grid */
-	floor_num = scan_floor(floor_list, 23, py, px, 0x00);
+	/* Restrict floor usage */
+	if (mode & (USE_FLOOR))
+	{
+		/* Scan all objects in the grid */
+		(void) scan_floor(floor_list, &floor_num, py, px, 0x01);
+	}
 
 	/* Full floor */
 	f1 = 0;
@@ -3497,7 +3512,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (f1 > f2) sprintf(tmp_val, " (none),");
 
 			/* List choices. */
-			else sprintf(tmp_val, " %c-%c,", I2A(f1), I2A(f2));
+			else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
 
 			/* Append */
 			strcat(out_val, tmp_val);

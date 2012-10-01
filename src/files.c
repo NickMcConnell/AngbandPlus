@@ -3988,7 +3988,7 @@ static errr enter_score(void)
   
        /* Save the version */
        sprintf(the_score.what, "%u.%u.%u",
-	      VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	      O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
 
        /* Calculate and save the points */
        sprintf(the_score.pts, "%9lu", (long)total_points());

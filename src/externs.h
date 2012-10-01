@@ -544,7 +544,7 @@ extern void show_inven(void);
 extern void show_equip(void);
 extern void toggle_inven_equip(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
-extern sint scan_floor(int *items, int size, int y, int x, int mode);
+extern bool scan_floor(int *items, int *item_num, int y, int x, int mode);
 extern void show_floor(int *floor_list, int floor_num);
 extern bool get_item_floor(int *cp, cptr pmt, cptr str, int mode);
 extern cptr object_adj(int tval, int sval);

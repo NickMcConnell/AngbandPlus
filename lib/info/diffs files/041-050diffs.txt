@@ -1,3 +1,28 @@
+Changes in 0.5.0b
+
+Bug fixes:
+- Rogue monster trap bug (monster were not hurt, but could not pass).
+- Life after death bug (rarely gave one last turn for dead characters).
+- Minimap display bug for bigscreen x > 150.
+- Temporary resist cold did not time out.
+- Stack labeling wrong when wielding from the floor.
+- Wrong version number written to high score file.
+- Text/describtion problems in a few places.
+- Stores would (rarely) generate only items of the same tval.
+
+System specific bug fixes:
+- LINUX/UNIX curses: problems with bigscreen x > 81.
+- Windows: problems with Ents and shopping (some crashes, some odd
+prices).
+
+Added:
+- Radius based magic mapping.
+- Option to disturb running outside of trap detected region.
+
+**********************************************************************
+
+Changes in 0.5.0
+
 Patches:
 - Autosquelch patch (David Blackston).  Modified.  Squelch on generate
 for non-(weapons/armor/ammo).  Squelch on ID only for

@@ -145,6 +145,11 @@ Disturb whenever map panel changes    [disturb_panel]
      This option causes you to be disturbed by the screen scrolling, as it 
      does when your character gets close to the edge of the screen.
 
+Disturb when leaving last trap detect area    [disturb_trap_detect]
+     This option causes you to be disturbed when attempting to run outside
+     the region of your last 'detect traps' spell.  It will take effect only
+     once per trap detection spell you use.
+
 Disturb whenever player state changes    [disturb_state]
      This option causes you to be disturbed whenever the player state changes, 
      including changes in hunger, resistance, confusion, etc.

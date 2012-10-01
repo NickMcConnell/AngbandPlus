@@ -1311,10 +1311,8 @@ static char inkey_aux(void)
 
 	char buf[1024];
 
-
 	/* Wait for a keypress */
 	(void)(Term_inkey(&ch, TRUE, TRUE));
-
 
 	/* End "macro action" */
 	if (ch == 30) parse_macro = FALSE;
@@ -1589,14 +1587,13 @@ char inkey(void)
 	/* Show the cursor if waiting, except sometimes in "command" mode */
 	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
 	{
-		/* Show the cursor */
-		(void)Term_set_cursor(1);
+	        /* Show the cursor */
+	        (void)Term_set_cursor(1);
 	}
 
 
 	/* Hack -- Activate main screen */
 	Term_activate(angband_term[0]);
-
 
 	/* Get a key */
 	while (!ch)
@@ -1612,12 +1609,12 @@ char inkey(void)
 		/* Hack -- Flush output once when no key ready */
 		if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
-			/* Hack -- activate proper term */
-			Term_activate(old);
+		        /* Hack -- activate proper term */
+		        Term_activate(old);
 
 			/* Flush output */
-			Term_fresh();
-
+		        Term_fresh();
+			
 			/* Hack -- activate main screen */
 			Term_activate(angband_term[0]);
 
@@ -1630,7 +1627,6 @@ char inkey(void)
 			/* Only once */
 			done = TRUE;
 		}
-
 
 		/* Hack -- Handle "inkey_base" */
 		if (inkey_base)
@@ -1734,7 +1730,6 @@ char inkey(void)
 			ch = 0;
 		}
 	}
-
 
 	/* Hack -- restore the term */
 	Term_activate(old);

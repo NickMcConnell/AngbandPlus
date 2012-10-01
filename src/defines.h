@@ -2960,6 +2960,8 @@
 #define OPT_view_special_lite		63
 #define OPT_show_piles                  67
 
+#define OPT_disturb_trap_detect         70 /*This is really quite out of order -BR-*/
+
 #define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
 #define OPT_birth_maximize              130/*(OPT_BIRTH_START+2)*/
@@ -3019,6 +3021,7 @@
 #define disturb_move			op_ptr->opt[OPT_disturb_move]
 #define disturb_near			op_ptr->opt[OPT_disturb_near]
 #define disturb_panel			op_ptr->opt[OPT_disturb_panel]
+#define disturb_trap_detect    		op_ptr->opt[OPT_disturb_trap_detect]
 #define disturb_state			op_ptr->opt[OPT_disturb_state]
 #define disturb_minor			op_ptr->opt[OPT_disturb_minor]
 #define disturb_other			op_ptr->opt[OPT_disturb_other]

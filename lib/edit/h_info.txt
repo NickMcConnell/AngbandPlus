@@ -506,5 +506,5 @@ D:rich chocolate-colored skin.
 N:76:0:90:50
 D:ridged black skin.
 N:76:0:100:50
-D:thick, almost corky skin.", 100, 76, 0, 50}
+D:thick, almost corky skin.
 

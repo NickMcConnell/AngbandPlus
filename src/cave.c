@@ -1287,10 +1287,8 @@ static byte priority(byte a, char c)
  * attempts to optimize this function where possible.
  */
 
-#define MAX_SCREEN_HGT 68
-#define MAX_SCREEN_WID 150
-
-#include <math.h>
+#define MAX_SCREEN_HGT 70
+#define MAX_SCREEN_WID 212
 
 void display_map(int *cy, int *cx)
 {
@@ -1316,8 +1314,6 @@ void display_map(int *cy, int *cx)
 	byte mx[DUNGEON_WID];
 	byte my[DUNGEON_HGT];
 
-	double fx, fy;
-
 	bool old_view_special_lite;
 	bool old_view_granite_lite;
 
@@ -1331,25 +1327,19 @@ void display_map(int *cy, int *cx)
 	view_granite_lite = FALSE;
 
 	/* Calculate which dungeon rows are covered by map rows */
-	fy = ((double) DUNGEON_HGT) / map_hgt;
 	y2 = 0;
 	for (y = 1; y <= map_hgt; y++)
 	{
-		double d = y * fy;
-		if (d - floor(d) < 0.5) y3 = floor(d);
-		else y3 = ceil(d);
+	        y3=(y*DUNGEON_HGT)/map_hgt;
 		for (j = y2; j < y3; j++) my[j] = y - 1;
 		y2 = y3;
 	}
 
 	/* Calculate which dungeon columns are covered by map columns */
-	fx = ((double) DUNGEON_WID) / map_wid;
 	x2 = 0;
 	for (x = 1; x <= map_wid; x++)
 	{
-		double d = x * fx;
-		if (d - floor(d) < 0.5) x3 = floor(d);
-		else x3 = ceil(d);
+	        x3=(x*DUNGEON_WID)/map_wid;
 		for (j = x2; j < x3; j++) mx[j] = x - 1;
 		x2 = x3;
 	}
@@ -3033,38 +3023,37 @@ void update_flow(void)
  */
 void map_area(int y, int x, bool extended)
 {
-	int i, y1, y2, x1, x2;
+	int i, y_c, x_c;
+	int rad=DETECT_RAD_DEFAULT;
 
+	if (extended) rad += 10;
 
 	/* Map around a location, if given. */
 	if ((y) && (x))
 	{
-		y1 = y - (SCREEN_HGT / 2) - (extended ? 5 : 0) - randint(5);
-		y2 = y + (SCREEN_HGT / 2) + (extended ? 5 : 0) + randint(5);
-		x1 = x - (SCREEN_WID / 2) - (extended ? 10 : 0) - randint(10);
-		x2 = x + (SCREEN_WID / 2) + (extended ? 10 : 0) + randint(10);
+	        y_c = y;
+		x_c = x;
 	}
 
 	/* Normally, pick an area to map around the player */
 	else
 	{
-		y1 = p_ptr->wy - (extended ? 5 : 0) - randint(10);
-		y2 = p_ptr->wy + SCREEN_HGT + (extended ? 5 : 0) + randint(10);
-		x1 = p_ptr->wx - (extended ? 10 : 0) - randint(20);
-		x2 = p_ptr->wx + SCREEN_WID + (extended ? 10 : 0) + randint(20);
+	        y_c = p_ptr->py;
+		x_c = p_ptr->px;
 	}
 
-	/* Efficiency -- shrink to fit legal bounds */
-	if (y1 < 1) y1 = 1;
-	if (y2 > DUNGEON_HGT-1) y2 = DUNGEON_HGT-1;
-	if (x1 < 1) x1 = 1;
-	if (x2 > DUNGEON_WID-1) x2 = DUNGEON_WID-1;
-
-	/* Scan that area */
-	for (y = y1; y < y2; y++)
+	/* Scan the maximal area of mapping */
+	for (y = y_c - rad; y <= y_c + rad; y++)
 	{
-		for (x = x1; x < x2; x++)
-		{
+ 	        for (x = x_c - rad; x <= x_c + rad; x++)
+	        {
+
+		        /* Ignore "illegal" locations */
+		        if (!in_bounds(y, x)) continue;
+
+			/* Enforce a "circular" area */
+			if (distance(y_c, x_c, y, x) > rad) continue;
+
 			/* All non-walls, trees, and rubble are "checked" */
 			if (cave_feat[y][x] < FEAT_SECRET)
 			{

@@ -3415,11 +3415,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		}
 
 
-		/* Scan for floor objects */
-		floor_num = scan_floor(floor_list, 24, y, x, 0x02);
-
-		/* Actual pile */
-		if (floor_num > 1)
+		/* Scan all objects in the grid */
+		if (scan_floor(floor_list, &floor_num, y, x, 0x02))
 		{                               
 			/* Not boring */
 			boring = FALSE;

@@ -3948,11 +3948,26 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		k_idx = get_obj_num(base);
 
 		/* Handle failure */
-		if (!k_idx) return (FALSE);
+		if (!k_idx)
+		{
+		        /* Clear any special object restriction, and prepare the standard
+                         * object allocation table.
+                         */
+		        if (get_obj_num_hook)
+			{
+                                   /* Clear restriction */
+                                   get_obj_num_hook = NULL;
+
+                                   /* Prepare allocation table */
+                                   get_obj_num_prep();
+			}
+		       
+			/* No object was created. */
+			return (FALSE);
+		}
 
 		/* Get the object kind. */
 		k_ptr = &k_info[k_idx];
-
 
 		/* Usually (67% chance) forbid very low-level objects that are 
 		 * intrinsically worthless.

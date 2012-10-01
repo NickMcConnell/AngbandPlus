@@ -967,6 +967,12 @@ static void process_world(void)
 		(void)set_shield(p_ptr->shield - 1);
 	}
 
+	/* Oppose Cold. */
+	if (p_ptr->oppose_cold)
+	{
+		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+	}
+
 	/* Oppose Acid. */
 	if (p_ptr->oppose_acid)
 	{
@@ -2730,15 +2736,19 @@ static void dungeon(void)
 			m_ptr->energy += extract_energy[m_ptr->mspeed];
 		}
 
-
 		/* Can the player move? */
 		while (p_ptr->energy >= 100 && !p_ptr->leaving)
 		{
 			/* process monster with even more energy first */
 			process_monsters(p_ptr->energy + 1);
 
-			/* Process the player */
-			process_player();
+                       /* if still alive */
+                       if (!p_ptr->leaving)
+                       {
+                               /* Process the player */
+                               process_player();
+			       
+                       }
 		}
 
 		/* Notice stuff */

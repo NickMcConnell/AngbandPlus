@@ -1004,7 +1004,6 @@ errr Term_fresh(void)
 	term_win *old = Term->old;
 	term_win *scr = Term->scr;
 
-
 	/* Do nothing unless "mapped" */
 	if (!Term->mapped_flag) return (1);
 
@@ -1244,7 +1243,6 @@ errr Term_fresh(void)
 
 	/* Actually flush the output */
 	Term_xtra(TERM_XTRA_FRESH, 0);
-
 
 	/* Success */
 	return (0);
