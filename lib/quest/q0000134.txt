@@ -6,7 +6,7 @@ Q:134:N:Dragonspine Pass
 
 
 # Definition
-Q:134:Q:3:0:0:0:40:0:134:6
+Q:134:Q:3:0:0:0:40:0:114:6
 
 # Description for quest
 ?:[LEQ $QUEST134 2]
@@ -29,7 +29,7 @@ Q:134:T:You have failed me, beware you do not do so again!
 
 
 # Floor with Bloodspike
-F:1:1:8:0:0:0:134
+F:1:1:8:0:0:0:114
 
 # Floor with Potion of Strength
 F:k:1:8:0:225

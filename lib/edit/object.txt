@@ -1339,7 +1339,7 @@ W:15:0:3:20
 A:15/1
 F:EASY_KNOW
 
-N:170:of Sustaining
+N:170:Sustaining
 G:":d
 I:40:9:0
 W:60:0:3:20000
@@ -3259,7 +3259,7 @@ F:EASY_KNOW
 
 ### Amulets ###
 
-N:423:of Perceiving
+N:423:Perceiving
 G:":d
 I:40:13:6
 W:50:0:3:25000

@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.3"
+#define VERSION_STRING	"2.9.3r1"
 
 /*
  * Current version numbers
@@ -55,7 +55,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
 #define VERSION_PATCH	3
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 
 /*

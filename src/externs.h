@@ -236,7 +236,6 @@ extern int init_flags;
 extern int highscore_fd;
 extern bool use_transparency;
 extern bool can_save;
-extern byte wild_info[DUNGEON_HGT][DUNGEON_WID];
 
 
 /*

@@ -356,7 +356,7 @@ static void roff_aux(int r_idx)
 		int fd;
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+		path_build(buf, 1024, ANGBAND_DIR_DATA, "monster.raw");
 
 		/* Open the "raw" file */
 		fd = fd_open(buf, O_RDONLY);

@@ -2079,6 +2079,7 @@ void cleanup_angband(void)
 	C_FREE(cave_m_idx, DUNGEON_HGT, s16b_wid);
 	C_FREE(cave_feat, DUNGEON_HGT, byte_wid);
 	C_FREE(cave_info, DUNGEON_HGT, byte_256);
+	C_FREE(cave_special, DUNGEON_HGT, s16b_wid);
 
 	/* Free the "update_view()" array */
 	C_FREE(view_g, VIEW_MAX, u16b);

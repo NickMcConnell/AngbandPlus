@@ -718,8 +718,3 @@ bool use_transparency = FALSE;
  */
 bool can_save = TRUE;
 
-/*
- * The array of wilderness features
- */
-byte wild_info[DUNGEON_HGT][DUNGEON_WID];
-

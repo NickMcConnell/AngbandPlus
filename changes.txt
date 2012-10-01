@@ -1,5 +1,21 @@
-Kangband 2.9.3
+Kangband 2.9.3r1
 ================
+
+Bug Fixes
+---------
+- Fixed bug preventing the wiz_create_item debug command from being
+  able to create Druid and Illusionist books.
+- Fixed problem with the names of two of the new amulets.
+- Fixed problems with Druid and Illusionists being assigned the wrong
+  list of spells.
+- Fixed problem with Bloodspike not being correctly generated in one
+  of the new quests.
+- Fixed an inaccessible area in one of the quests.
+- The "disintegrate" spell will no longer affect permanent grids.
+
+
+Kangband 2.9.3
+==============
 
 Codebase Updates
 ----------------
@@ -12,7 +28,7 @@ New / Changed Features
 ----------------------
 - Added the quests for the four empty plots included in 2.9.2r2.
   These need additional play testing.  This addition should allow
-  players to  properly import characters started in KangbandTk.
+  players to properly import characters started in KangbandTk.
 - Updated the help files for the new races, classes, terrain and
   added some other corrections.  The help files still need more work.
 - Removed the [y/n/k] pickup prompt.  Players should use the command
@@ -89,8 +105,8 @@ Bug Fixes
 - Fixed various other quest-related bugs and oddities.
 
 
-Kangband 2.9.2r1:
-=================
+Kangband 2.9.2r1
+================
 
 Codebase Updates
 ----------------
@@ -133,8 +149,8 @@ Bug Fixes
 - Various problems with the towns/quests fixed.
 
 
-Kangband 2.9.2:
-===============
+Kangband 2.9.2
+==============
 
 Codebase Updates
 ----------------
@@ -247,38 +263,38 @@ Bug Fixes
   cases (denoted below by '*'). The non-trivial mappings are as
   follows:
 
-  Kangband			Zangband
+  Kangband                        Zangband
   --------------------------------------------------------------
-  Illusion Spellbooks		Sorcery Spellbooks
-  Druid Spellbooks		Nature Spellbooks
-  Balrog*			N/A (utilized unused 8x8 tile)
-  Greater Balrog		Gothmog (duplicate)
-  Grand Master Thief*		Jack of Shadows
-  Troll Clan Chief*		Storm Troll
-  Troll King*			Ulik, the Troll
-  Troll High Priest		Spirit Troll
-  Blue Dragon Worm		Blue Worm Mass (duplicate)
-  White Dragon Worm		White Worm Mass (duplicate)
-  Red Dragon Worm		Red Dragon Mass (duplicate)
-  Black Dragon Worm		Abyss Worm Mass (duplicate)
-  Green Dragon Worm		Green Worm Mass (duplicate)
-  Multihued Dragon Worm		Giant Purple Worm (duplicate)
-  Old Sorceror			Brand
-  Black Troll			Rogrog (duplicate)
-  Python			Large Brown Snake (duplicate)
-  Eol, the Dark Elf*		Malekith
-  Maeglin, Traitor of Gondolin	Eric
-  Sea Slime			Portuguse Man-o-war
-  Sea Serpent*			Fastitolocan
-  Town Guard			Corwin
-  Guard Captain			Bleys
-  Royal Guard			Benedict
-  Eilinel, the Entrapped	Fiona
-  Easterling			Beserker
+  Illusion Spellbooks             Sorcery Spellbooks
+  Druid Spellbooks                Nature Spellbooks
+  Balrog*                         N/A (utilized unused 8x8 tile)
+  Greater Balrog                  Gothmog (duplicate)
+  Grand Master Thief*             Jack of Shadows
+  Troll Clan Chief*               Storm Troll
+  Troll King*                     Ulik, the Troll
+  Troll High Priest               Spirit Troll
+  Blue Dragon Worm                Blue Worm Mass (duplicate)
+  White Dragon Worm               White Worm Mass (duplicate)
+  Red Dragon Worm	                Red Worm Mass (duplicate)
+  Black Dragon Worm               Abyss Worm Mass (duplicate)
+  Green Dragon Worm               Green Worm Mass (duplicate)
+  Multihued Dragon Worm           Giant Purple Worm (duplicate)
+  Old Sorceror                    Brand
+  Black Troll                     Rogrog (duplicate)
+  Python                          Large Brown Snake (duplicate)
+  Eol, the Dark Elf*              Malekith
+  Maeglin, Traitor of Gondolin    Eric
+  Sea Slime                       Portuguse Man-o-war
+  Sea Serpent*                    Fastitolocan
+  Town Guard                      Corwin
+  Guard Captain                   Bleys
+  Royal Guard                     Benedict
+  Eilinel, the Entrapped          Fiona
+  Easterling                      Beserker
 
 
-Kangband 2.9.1 (Beta):
-======================
+Kangband 2.9.1 (Beta)
+=====================
 
 Codebase Updates
 ----------------
@@ -293,8 +309,8 @@ New / Changed Features
   overhaul in the next version).
 
 
-Kangband 2.8.3j (patch-level 1):
-================================
+Kangband 2.8.3j (patch-level 1)
+===============================
 
 Codebase Updates:
 -----------------
@@ -321,8 +337,8 @@ Bug Fixes
 - Various spells could destroy staircases ; fixed
 
  
-Kangband 2.8.3j:
-================
+Kangband 2.8.3j
+===============
 
 New / Changed Features
 ----------------------

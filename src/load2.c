@@ -1550,7 +1550,7 @@ static errr rd_dungeon(void)
 
 	/*** Player ***/
 
-	/* Save depth */
+	/* Load depth */
 	p_ptr->depth = depth;
 
 	/* Place player in dungeon */
