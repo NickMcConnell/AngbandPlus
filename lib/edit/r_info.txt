@@ -1,6 +1,6 @@
 #File: r_info.txt
 #
-V:0.1.3
+V:0.1.4
 #
 N:0:<player>
 G:@:w

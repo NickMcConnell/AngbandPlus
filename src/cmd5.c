@@ -1414,7 +1414,7 @@ void do_cmd_cast_or_pray(void)
 
 			case 110: /* Hunter's Arrows & Bolts */
 			{	
-				(void)brand_weapon(TV_ARROW,EGO_HURT_ANIMAL,TRUE);
+				(void)brand_weapon(TV_ARROW,EGO_HURT_ANIMAL,FALSE);
 				break;
 			}
 			case 111: /* Enchant Arrows & Bolts */
@@ -1424,7 +1424,11 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 112: /* Elemental Arrows & Bolts */
 			{	
-				/* Hack - choose random brand (not really time but the variable's there)*/
+				/* 
+				 * Hack - choose random brand 
+				 * Uses the "time" variable to avoid declaring a new one.
+				 */
+
 				time = rand_int(4);
 				(void)brand_weapon(TV_ARROW,EGO_AMMO_ACID+time,TRUE);
 				break;

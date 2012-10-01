@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.1.3"
+#define VERSION_STRING	"0.1.4"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	1
-#define VERSION_PATCH	3
+#define VERSION_PATCH	4
 #define VERSION_EXTRA	0
 
 
@@ -239,7 +239,8 @@
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
-#define USE_DEVICE      3		/* x> Harder devices x< Easier devices     */
+#define USE_DEVICE      3		/* x> Harder devices x< Easier devices */
+#define QUEST_TURNS		1000    /* Number of turns between quest failure checks */
 
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
@@ -424,6 +425,12 @@
 #define RACE_SPECIAL_DEMON	2
 
 /*
+ * How many different "levels" each race special goes through
+ */
+
+#define RACE_SPECIAL_LEVELS	11
+
+/*
  * Number of different spells in the game
  */
 #define SPELLS_TOTAL 113
@@ -458,6 +465,9 @@
 
 #define ROW_GOLD		6
 #define COL_GOLD		0	/* "AU xxxxxxxxx" */
+
+#define ROW_EQUIPPY		7
+#define COL_EQUIPPY		0   /* equippy chars */
 
 #define ROW_STAT		8
 #define COL_STAT		0	/* "xxx   xxxxxx" */
@@ -521,6 +531,14 @@
 #define QUEST_FIXED			1
 #define QUEST_GUILD			2
 
+/*
+ * Quest reward types 
+ */
+
+#define REWARD_GOLD			1
+#define REWARD_GOOD_ITEM	2
+#define REWARD_GREAT_ITEM	3
+ 
 /*
  * Legal restrictions for "summon_specific()"
  */
@@ -1226,6 +1244,10 @@
 #define SV_DRAGON_ETHEREAL		25
 #define SV_DRAGON_POWER			30
 
+/* The sval codes for TV_FLASK */
+#define SV_FLASK_LANTERN	0
+#define SV_FLASK_BURNING	1
+
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH		0
 #define SV_LITE_LANTERN		1
@@ -1794,7 +1816,7 @@
 #define PR_MANA			0x00000080L	/* Display Mana */
 #define PR_GOLD			0x00000100L	/* Display Gold */
 #define PR_DEPTH		0x00000200L	/* Display Depth */
-/* xxx */
+#define PR_EQUIPPY      0x00000400L /* Display equippy chars */
 #define PR_HEALTH		0x00000800L	/* Display Health Bar */
 #define PR_CUT			0x00001000L	/* Display Extra (Cut) */
 #define PR_STUN			0x00002000L	/* Display Extra (Stun) */
@@ -2644,6 +2666,7 @@
 #define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
 #define OPT_birth_autoscum          (OPT_BIRTH+8)
 #define OPT_birth_no_feelings		(OPT_BIRTH+9)
+#define OPT_birth_start_kit			(OPT_BIRTH+10)
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
@@ -2662,6 +2685,7 @@
 #define OPT_adult_rand_artifacts	(OPT_ADULT+7)
 #define OPT_adult_autoscum          (OPT_ADULT+8)
 #define OPT_adult_no_feelings		(OPT_ADULT+9)
+#define OPT_adult_start_kit			(OPT_ADULT+10)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -2761,6 +2785,7 @@
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
 #define birth_autoscum      	op_ptr->opt[OPT_birth_autoscum]
 #define birth_no_feelings	    op_ptr->opt[OPT_birth_no_feelings]
+#define birth_start_kit			op_ptr->opt[OPT_birth_start_kit]
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]
@@ -2779,6 +2804,7 @@
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
 #define adult_autoscum			op_ptr->opt[OPT_adult_autoscum]
 #define adult_no_feelings	    op_ptr->opt[OPT_adult_no_feelings]
+#define adult_start_kit			op_ptr->opt[OPT_adult_start_kit]
 /* xxx xxx */
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]

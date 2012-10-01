@@ -2423,8 +2423,8 @@ void do_cmd_feeling(void)
 	/* Display the feeling */
 	if (!adult_no_feelings) msg_print(do_cmd_feeling_text[feeling]);
 
-	/* Display the quest descpription for the current level */
-	quest_feel = quest_feeling(p_ptr->depth,FALSE);
+	/* Display the quest descpription for the current level (mode 3 = short)*/
+	quest_feel = describe_quest(p_ptr->depth,3);
 	if (quest_feel != NULL) msg_print(quest_feel);
 
 }

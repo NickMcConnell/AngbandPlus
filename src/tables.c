@@ -1350,7 +1350,8 @@ player_sex sex_info[MAX_SEXES] =
 	}
 };
 
-player_race_special race_special_info[2][11] =
+
+player_race_special race_special_info[2][RACE_SPECIAL_LEVELS] =
 /* Title, stat bonuses, skill bonuses, flag1, flag2, flag3, extra */
 {
 /* Angels and Demons - each line is a 5-level bracket. Extra is the index of racial ability */
@@ -1508,15 +1509,15 @@ spell_book books[SV_MAX_BOOKS] =
 			{  51, "Mana Bolt",					10,  4, 50,  12},	
 			{  52, "Cloud Kill",				12,  9, 60,  16},	
 			{  53, "Acid Ball",					20, 13, 70,  20},	
-			{  54, "Ice Storm",					35, 32, 85,  34},	
-			{  55, "Meteor Swarm",				27, 20, 75,  29},	
+			{  54, "Ice Storm",					25, 32, 85,  34},	
+			{  55, "Meteor Swarm",				33, 20, 75,  29},	
 			{  56, "Mana Storm",				42, 45, 95, 200},	
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0}
 		}
 	},
 	{
-		/* The Lore of the Hunter*/
+		/* The Lore of the Hunter (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ 110, "Hunter's Arrows & Bolts",  18, 25, 60,	 6},
@@ -1733,8 +1734,8 @@ s16b guild[GUILD_QUESTS] =
 {
 	{0},
 	{2},
-	{4},
-	{6},
+	{5},
+	{7},
 };
 
 /*
@@ -2042,7 +2043,7 @@ cptr option_text[OPT_MAX] =
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
 	"birth_autoscum",			/* OPT_birth_autoscum */
 	"birth_no_feelings",		/* OPT_birth_no_feelings */
-	NULL,						/* xxx */
+	"birth_start_kit",      	/* OPT_birth_start_kit */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2106,7 +2107,7 @@ cptr option_text[OPT_MAX] =
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
 	"adult_autoscum",			/* OPT_adult_autoscum */
 	"adult_no_feelings",		/* OPT_adult_no_feelings */
-	NULL,						/* xxx */
+	"adult_start_kit",      	/* OPT_adult_start_kit */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2306,7 +2307,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
 	"Birth: Generate better (harder) levels",	/* OPT_birth_autoscum */
 	"Birth: No level feelings",					/* OPT_birth_no_feelings */
-	NULL,										/* xxx */
+	"Birth: Pre-shop for some basic items",		/* OPT_birth_start_kit */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2370,7 +2371,7 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
 	"Adult: Generate better (harder) levels",	/* OPT_adult_autoscum */
 	"Adult: No level feelings",					/* OPT_adult_no_feelings */
-	NULL,										/* xxx */
+	"Adult: Pre-shop for some basic items",		/* OPT_adult_start_kit */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2570,7 +2571,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_rand_artifacts */
 	FALSE,		/* OPT_birth_autoscum */
 	FALSE,		/* OPT_birth_no_feelings */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_start_kit */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2803,6 +2804,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_point_based,
 		OPT_birth_auto_roller,
+		OPT_birth_start_kit,
 		OPT_birth_preserve,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
@@ -2810,7 +2812,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
 		OPT_birth_autoscum,
-		255,
 		255,
 		255,
 		255,

@@ -3027,23 +3027,6 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-		/* Hack -- Process 'I' for "info" and such */
-		if (buf[0] == 'I')
-		{
-			int hist, b_age, m_age;
-
-			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
-
-			pr_ptr->hist = hist;
-			pr_ptr->b_age = b_age;
-			pr_ptr->m_age = m_age;
-
-			/* Next... */
-			continue;
-		}
-
 		/* Hack -- Process 'H' for "Height" */
 		if (buf[0] == 'H')
 		{

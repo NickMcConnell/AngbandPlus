@@ -46,6 +46,17 @@ static birther prev;
  */
 static s16b stat_use[6];
 
+/*
+ * Additional items in the "start kit"
+ */
+start_item start_kit[5] =
+{
+	{TV_LITE, SV_LITE_LANTERN, 1, 1},
+	{TV_FLASK, SV_FLASK_LANTERN, 4, 4},
+	{TV_CLOAK, SV_CLOAK, 1, 1},
+	{TV_SCROLL, SV_SCROLL_PHASE_DOOR,1 ,1},
+	{TV_POTION, SV_POTION_CURE_LIGHT,1 ,1}
+};
 
 
 /*
@@ -403,7 +414,7 @@ static void get_money(void)
 	int gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
+	gold = (p_ptr->sc * 6) + randint(100) + ((adult_start_kit) ? 200 : 300);
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -415,8 +426,12 @@ static void get_money(void)
 		else gold -= (stat_use[i] - 8) * 10;
 	}
 
-	/* Minimum 100 gold */
-	if (gold < 100) gold = 100;
+	/* Minimum 100 gold (or 0 if using start kit)*/
+	if (!adult_start_kit)
+	{
+		if (gold < 100) gold = 100;
+	}
+	else if (gold < 0) gold = 0;
 
 	/* Save the gold */
 	p_ptr->au = gold;
@@ -450,13 +465,27 @@ static void player_wipe(void)
 		a_ptr->cur_num = 0;
 	}
 
-	/* Start with some quests */
+	/* Reset the quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		quest *q_ptr = &q_info[i];
 
 		/* Reset level */
-		q_ptr->active_level = q_ptr->base_level;
+		if (q_ptr->type == QUEST_FIXED) 
+		{
+			q_ptr->active_level = q_ptr->base_level;
+			q_ptr->cur_num = 0;
+		}
+		else
+		{
+			q_ptr->type = 0;
+			q_ptr->r_idx = 0;
+			q_ptr->base_level = 0;
+			q_ptr->active_level = 0;
+			q_ptr->cur_num = 0;
+			q_ptr->max_num = 0;
+			q_ptr->reward = 0;
+		}
 	}
 
 	/* Reset the "objects" */
@@ -477,7 +506,6 @@ static void player_wipe(void)
 		potion_alch[i].known1 = FALSE;
 		potion_alch[i].known2 = FALSE;
 	}
-
 
 	/* Reset the "monsters" */
 	for (i = 1; i < z_info->r_max; i++)
@@ -537,15 +565,45 @@ static void player_outfit(void)
 	/* Get local object */
 	i_ptr = &object_type_body;
 
-	/* Hack -- Give the player some torches */
-	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->pval = rand_range(3, 7) * 500;
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	if (adult_start_kit)
+	{
+		/* Hack -- Give the player the starting "kit" */
+		for (i = 0; i < 5; i++)
+		{
+			/* Access the item */
+			e_ptr = &start_kit[i];
+		
+			/* Get local object */
+			i_ptr = &object_type_body;
 
-	/* Hack -- Give the player three useful objects */
+			/* Hack
+			-- Give the player an object */
+			if (e_ptr->tval > 0)
+			{	
+				object_prep(i_ptr, lookup_kind(e_ptr->tval, e_ptr->sval));
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				q = rand_int(e_ptr->max - e_ptr->min) + e_ptr->min;
+				if (q < 0) q = 0;
+				for (j=0; j < q; j++) (void)inven_carry(i_ptr);
+			}
+		}
+
+	}
+
+	else
+	{	
+		/* Hack -- Give the player some torches */
+		object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+		i_ptr->number = (byte)rand_range(3, 7);
+		i_ptr->pval = rand_range(3, 7) * 500;
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);
+
+	}
+
+	/* Hack -- Give the player his equipment */
 	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
 		/* Access the item */
@@ -694,7 +752,7 @@ static bool player_birth_aux_1(void)
 	/* Set race */
 	p_ptr->prace = k;
 	rp_ptr = &p_info[p_ptr->prace];
-	for (j = 0; j < 11; j++)
+	for (j = 0; j < RACE_SPECIAL_LEVELS; j++)
 		rsp_ptr[j] = &race_special_info[(rp_ptr->special)-1][j];
 
 	/* Race */
@@ -743,8 +801,19 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(z_info->c_max);
-		if ((k >= 0) && (k < n)) break;
+		if (ch == '*')
+		{
+			while (1)
+			{
+				k = rand_int(z_info->c_max);
+
+				/* Try again if not a legal choice */
+				if (!(rp_ptr->choice & (1L << k))) continue;
+
+				break;
+			}
+		}
+ 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");
 	}
@@ -811,9 +880,9 @@ static bool player_birth_aux_1(void)
 
 
 /*
- * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+ * Initial stat costs (initial stats always range from 9 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static int birth_stat_costs[(18-9)+1] = { 0, 1, 2, 3, 5, 8, 12, 17, 23, 31 };
 
 
 /*
@@ -827,7 +896,7 @@ static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
  *
  * Each unused point is converted into 50 gold pieces.
  */
-#define POINTS 50
+#define POINTS 55
 
 static bool player_birth_aux_2(void)
 {
@@ -850,9 +919,8 @@ static bool player_birth_aux_2(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Initial stats */
-		stats[i] = 10;
+		stats[i] = 9;
 	}
-
 
 	/* Roll for base hitpoints */
 	get_extra();
@@ -862,7 +930,6 @@ static bool player_birth_aux_2(void)
 
 	/* Roll for social class */
 	get_history();
-
 
 	/* Interact */
 	while (1)
@@ -877,7 +944,7 @@ static bool player_birth_aux_2(void)
 					modify_stat_value(stats[i], cp_ptr->c_adj[i]);
 
 			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 10];
+			cost += birth_stat_costs[stats[i] - 9];
 		}
 
 		/* Restrict cost */
@@ -894,7 +961,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au = (50 * (POINTS - cost)) + 100;
+		p_ptr->au = (25* (POINTS - cost)) + ((adult_start_kit) ? 0 : 100);
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);
@@ -918,7 +985,7 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
+			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 9]);
 			put_str(buf, row + i, col + 32);
 		}
 
@@ -955,7 +1022,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > 10))
+		if ((ch == '4') && (stats[stat] > 9))
 		{
 			stats[stat]--;
 		}

@@ -11,19 +11,20 @@
  */
 
 #include "angband.h"
+   
+#define QMODE_HALF_1 1
+#define QMODE_HALF_2 2
+#define QMODE_SHORT  3
+#define QMODE_FULL   4
 
-/* 
- * Actually place a random quest in a given slot 
- */
+s16b current;
+int avail_quest;
+
 /*
  * Fix plural names of monsters
  *
  * Taken from PernAngband 
  */
-
-s16b current;
-int avail_quest;
-
 static void plural_aux(char * Name)
 {
 	int NameLen = strlen(Name);
@@ -62,7 +63,7 @@ static void plural_aux(char * Name)
 		strcpy (Name, dummy);
 		return;
 	}
-	else if ((strstr(Name, "Manes")) || (strstr(Name, "Pikachu")) || (strstr(Name, "Yeti")))
+	else if ((strstr(Name, "Manes")) || (Name[NameLen-1]=='u') || (strstr(Name, "Yeti")))
 	{
 		return;
 	}
@@ -96,18 +97,22 @@ static void plural_aux(char * Name)
 	}
 }
 
-cptr quest_feeling(s16b level, bool full)
+/*
+ * Provide a description of the quest
+ */
+cptr describe_quest(s16b level, int mode)
 {
 	int i;
 	char name[80];
-	char part1[80];
-	char part2[80];
+	char intro[80];
+	char targets[80];
+	char where[80];
 
 	/* Check quests */
 	for (i = 0; i < z_info->q_max; i++)
-	{		
+	{
 		quest *q_ptr = &q_info[i];
-	
+
 		/* Check for quest */
 		if (q_ptr->active_level == level)
 		{
@@ -118,35 +123,85 @@ cptr quest_feeling(s16b level, bool full)
 			/* Unique quest monster */
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
-				strcpy(part2,name);
+				strcpy(targets,name);
 			}
 
 			/* Multiple quest monsters */
 			else if ((q_ptr->max_num - q_ptr->cur_num) > 1)
 			{
 				plural_aux(name);
-				strcpy(part2,format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name));
+				strcpy(targets,format("%d %s",(q_ptr->max_num - q_ptr->cur_num), name));
 			}
 
 			/* One quest monster */
 			else
 			{
-				if (is_a_vowel(name[0])) strcpy(part2,format("an %s", name));
-				else strcpy(part2,format("a %s", name));
+				if (is_a_vowel(name[0])) strcpy(targets,format("an %s", name));
+				else strcpy(targets,format("a %s", name));
 			}
 
-			if (q_ptr->type == QUEST_FIXED) strcpy(part1,"For eternal glory, you must");
-			else if (q_ptr->type == QUEST_GUILD) strcpy(part1,"To fulfill your task, you must");
-			else strcpy(part1,"For some wierd reason, you should");
+			/* The type of the quest */
+			if (q_ptr->type == QUEST_FIXED) strcpy(intro,"For eternal glory, you must");
+			else if (q_ptr->type == QUEST_GUILD) strcpy(intro,"To fulfill your task, you must");
 
-			if (!full) return (format("%s kill %s.",part1,part2));
-			else return (format("%s kill %s on level %d.", part1, part2, level));
+			/* Paranoia */
+			else strcpy(intro,"For some unexplainable reason, you should");
+			
+			/* The location of the quest */
+			if (!depth_in_feet) strcpy(where,format("on dungeon level %d.", level));
+			else strcpy(where,format("at a depth of %d feet.", level*50));
+
+			if (mode == QMODE_SHORT) return (format("%s kill %s.",intro,targets));
+			else if (mode == QMODE_FULL) return (format("%s kill %s %s", intro, targets, where));
+			else if (mode == QMODE_HALF_1) return (format("%s kill %s",intro,targets));
+			else if (mode == QMODE_HALF_2) return (format("%s", where));
 		}
 	}
-
+	
+	/* Paranoia */
 	return NULL;
 }
 
+/*
+ * Give a reward to the player 
+ */
+
+static void grant_reward(byte reward_level, byte type)
+{
+	int oldlevel,i;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	oldlevel = object_level;
+	object_level = reward_level;
+
+	if (type == REWARD_GOLD) 
+	{
+		for (i = 0;i < 5;i++)
+		{
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
+			/* Make some gold */
+			if (!make_gold(i_ptr)) continue;
+
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+		}
+	}
+
+	else acquirement(p_ptr->py,p_ptr->px,1,(bool)(type == REWARD_GREAT_ITEM));
+
+	object_level = oldlevel;
+}
+
+/*
+ * Actually give the character a quest
+ */
 static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 {
 	int i, mcount, midx;
@@ -157,8 +212,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 
 	mcount = 0;
 
-	/* Monsters can be up to 5 levels out of depth */
-	lev_diff = 5 + difficulty;
+	/* Monsters can be up to 3 levels out of depth with difficulty 0 */
+	lev_diff = 3 + difficulty;
 
 	while (mcount == 0)
 	{
@@ -169,13 +224,13 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 		}
 
 		/* There's a chance of climbing up */
-		if ((lev_diff<(difficulty-5)) || lev+lev_diff==1) chance = 0;
-		else if (lev_diff>difficulty) chance = 85;
+		if ((lev_diff<(difficulty-3)) || lev+lev_diff==1) chance = 0;
+		else if (lev_diff>difficulty) chance = 80;
 		else chance = 20;
 
 		if (rand_int(100) < chance) 
 		{
-			if (lev_diff<=difficulty) number++;
+			if (lev_diff<=difficulty) number += (damroll(2,2)-1);
 			lev_diff--;
 			continue;
 		}
@@ -188,6 +243,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 
 			/* Never any monster with force depth */
 			if ((r_ptr->flags1 & RF1_FORCE_DEPTH)) continue;
+
+			/* Count an appropriate monster */
 			if (unique)
 			{
 				if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
@@ -203,11 +260,11 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 			}
 		}
 
-		/*Climb up until you find a suitable monster type */
+		/* Climb up until you find a suitable monster type */
 		if (mcount == 0)
 		{
-			/* Add a monster to balance difficulty (sort-of) */
-			number++;
+			/* Add some monsters to balance difficulty (sort-of) */
+			number += (damroll(2,2)-1);
 			lev_diff--;
 		}
 		
@@ -223,6 +280,8 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 
 		/* Never any monster with force depth */
 		if ((r_ptr->flags1 & RF1_FORCE_DEPTH)) continue;
+		
+		/* Count appropriate monsters */
 		if (unique)
 		{
 			if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
@@ -249,20 +308,68 @@ static bool place_quest(int q, int lev, int number, int difficulty, bool unique)
 	q_info[q].r_idx = i-1;
 	q_info[q].max_num = (unique) ? 1 : number;
 
+	/* Decide on reward type */
+
+	/* 100% for gold reward, modified by difficulty and dlev*/
+	chance = 100 - (difficulty*15) - (lev/3); 
+	
+	/* No negative chances */
+	if (chance < 0) chance = 0;
+
+	if (rand_int(100)<chance) q_info[q].reward = REWARD_GOLD;
+	else
+	{
+		/* 85% for good item reward, modified by difficulty and dlev*/
+		chance = 85 - (difficulty*5) - (lev/5); 
+
+		if (rand_int(100)<chance) q_info[q].reward = REWARD_GOOD_ITEM;
+
+		/* Otherwise - a great item reward */
+		else q_info[q].reward = REWARD_GREAT_ITEM;
+	}
+
 	/*success*/
 	return TRUE;
 }
 
+/*
+ * Display the "contents" of the adventurer's guild 
+ */
 
 void display_guild(void)
 {
 	int i, j;
+	cptr curquest;
 	bool legal = TRUE;
 
-	/* Put the owner name */
+	/* Describe the guild */
 	put_str("The Adventurer's Guild", 3, 30);
 
 	current = FALSE;
+
+	/* Check for outstanding rewards */
+	for (i = 0; i < z_info->q_max ; i++)
+	{
+		if (q_info[i].type == QUEST_GUILD)
+		{
+			/* Skip incomplete quests */
+			if (q_info[i].active_level) continue;
+
+			/* Check to see if there's a reward */
+			if (q_info[i].reward == 0) continue;
+			else
+			{
+				/* Inform the player */
+				msg_print("A reward for your efforts is waiting outside!");
+				
+				/* Create the reward */
+				grant_reward(q_info[i].base_level,q_info[i].reward);
+
+				/* Reset the reward */
+				q_info[i].reward = 0;
+			}
+		}
+	}
 
 	/* Check if there are no current quests */
 	for (i = 0; i < z_info->q_max ; i++)
@@ -328,11 +435,25 @@ void display_guild(void)
 	else 
 	{
 		put_str("Your Quest:", 5, 3);
-		put_str(quest_feeling(current,TRUE), 7, 3);
+		curquest = describe_quest(current,QMODE_FULL);
+
+		/* Break into two lines if necessary */
+		if (strlen(curquest) < 70) put_str(curquest, 7, 3);
+		else 
+		{
+			curquest = describe_quest(current,QMODE_HALF_1);
+			put_str(curquest, 7, 3);
+			curquest = describe_quest(current,QMODE_HALF_2);
+			put_str(curquest, 8, 3);
+		}
+
 	}
 
 }
 
+/*
+ * Choose a quest from the list
+ */
 static bool get_quest(int *com_val)
 {
 	int item;
@@ -381,7 +502,7 @@ static bool get_quest(int *com_val)
 		if (item < 0)
 		{
 			/* Oops */
-			bell("Illegal store object choice!");
+			bell("Illegal guild quest choice!");
 
 			continue;
 		}
@@ -406,12 +527,12 @@ static bool get_quest(int *com_val)
 
 
 /*
- * Buy an object from a store
+ * "Purchase" a quest from the guild
  */
 void guild_purchase(void)
 {
 	int item;
-	int i, slot, qlev;
+	int i, slot, qlev, num;
 	bool unique;
 	bool found = FALSE;
 
@@ -454,7 +575,7 @@ void guild_purchase(void)
 				return;
 			}
 		}
-		
+
 		if (!found) slot = i;
 		found = TRUE;
 	}
@@ -463,8 +584,12 @@ void guild_purchase(void)
 	{
 		unique = FALSE;
 		if (guild[item] == 99) unique = TRUE;
-		if (!place_quest(slot,qlev,(unique) ? 1 : randint(3),
-			(unique) ? 0 : guild[item],unique)) return;
+		
+		/* How many monsters? */
+
+		if (unique) num = 1;
+		else num = damroll(3,6);
+		if (!place_quest(slot,qlev,num,(unique) ? 0 : guild[item],unique)) return;
 	}
 
 	msg_print("You can't accept any more quests!");

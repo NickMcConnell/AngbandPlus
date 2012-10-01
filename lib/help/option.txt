@@ -397,7 +397,7 @@ These options are special in that they only take effect if modified before the
 beginning of the game. Once the character is created, the birth options are set
 and modifications will only affect the next character.
 
-Birth: Allow purchase of stats using points [birth_point_based]
+Allow purchase of stats using points [birth_point_based]
     Allows the player to determine exactly what stats the character will start with,
     but will lead to creation of weaker characters than by other methods.
 
@@ -407,7 +407,13 @@ Allow specification of minimal stats    [birth_auto_roller]
     is generated. Using this method can lead to better characters than
     point-based creation, but totally random rolling can create even
     better ones (though rarely).
-    
+
+Pre-Shop for some basic items [birth_start_kit]
+    The character starts with a lantern, 4 oil flasks, a scroll of phase door,
+    a cloak, and a potion of cure light wounds. On the other hand he starts with
+    100 gold less than without this option and no torches. Using this option allows
+    you to save the tedium of early shopping but gives you a bad deal gold-wise.
+
 Preserve artifacts on leaving level    [birth_preserve]
     If preserve mode is "off", you can get a level feeling that you *NEVER*
     get with preserve mode "on": a "special" feeling. This means that there 

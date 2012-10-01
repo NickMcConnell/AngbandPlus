@@ -3145,7 +3145,7 @@ void display_inven(void)
 		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
 		else
 		{
-			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].x_attr;
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
 			else attr = TERM_L_DARK;
 		}
 
@@ -3316,7 +3316,7 @@ void show_inven(void)
 		if (o_ptr->tval != TV_MAGIC_BOOK) out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
 		else
 		{
-			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].x_attr;
+			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].d_attr;
 			else out_color[k] = TERM_L_DARK;
 		}
 

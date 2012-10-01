@@ -285,6 +285,9 @@ void do_cmd_wield(void)
 
 	/* Recalculate mana */
 	p_ptr->update |= (PU_MANA);
+	
+	/* Redraw "equippy" */
+	p_ptr->redraw |= (PR_EQUIPPY);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
@@ -338,6 +341,9 @@ void do_cmd_takeoff(void)
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
+
+	/* Redraw "equippy" */
+	p_ptr->redraw |= (PR_EQUIPPY);
 }
 
 
@@ -351,7 +357,6 @@ void do_cmd_drop(void)
 	object_type *o_ptr;
 
 	cptr q, s;
-
 
 	/* Get an item */
 	q = "Drop which item? ";
@@ -391,6 +396,10 @@ void do_cmd_drop(void)
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
+
+	/* Redraw "equippy" */
+	p_ptr->redraw |= (PR_EQUIPPY);
+
 }
 
 

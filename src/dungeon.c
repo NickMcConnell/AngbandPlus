@@ -510,6 +510,41 @@ static void process_world(void)
 	/* While in the dungeon */
 	else
 	{
+		/*** Update quests ***/
+		if (!(turn % (10L * QUEST_TURNS)))
+		{
+			int i;
+
+			for (i = 0; i < z_info->q_max; i++)
+			{
+				/* Check to see it's an active quest */
+				if (q_info[i].active_level == 0) continue;
+
+				/* Don't fail quests on their level, or above them */
+				if (q_info[i].active_level >= p_ptr->depth) continue;
+				
+				/* Fixed quests don't fail */
+				if (q_info[i].type == QUEST_FIXED) continue;
+
+				/* Quests have a larger chance of failing if you are too deep */
+
+				/* Check for failure */
+				if (rand_int(100)<80)
+				{
+					/* Mark quest as completed */
+					q_info[i].active_level = 0;
+					
+					/* No reward for failed quest */
+					q_info[i].reward = 0;
+
+					msg_print("You have failed on your quest!");
+
+					if (disturb_minor) disturb(0, 0);
+				}
+			}
+		}
+
+			
 		/*** Update the Stores ***/
 
 		/* Update the stores once a day (while in dungeon) */
@@ -2329,8 +2364,8 @@ static void dungeon(void)
 	}
 
 
-	/* No stairs down from Quest */
-	if (is_quest(p_ptr->depth))
+	/* No stairs down from fixed quests */
+	if (quest_check(p_ptr->depth) == QUEST_FIXED)
 	{
 		p_ptr->create_down_stair = FALSE;
 	}
@@ -2584,6 +2619,7 @@ static void dungeon(void)
 		/* Count game turns */
 		turn++;
 	}
+
 }
 
 

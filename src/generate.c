@@ -399,7 +399,7 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		place_up_stairs(y, x);
 	}
@@ -449,7 +449,7 @@ static void alloc_stairs(int feat, int num, int walls)
 				}
 
 				/* Quest -- must go up */
-				else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+				else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || (p_ptr->depth >= MAX_DEPTH-1))
 				{
 					/* Clear previous contents, add up stairs */
 					cave_set_feat(y, x, FEAT_LESS);
@@ -2862,7 +2862,7 @@ static void cave_gen(void)
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
 
 	/* Hack -- No destroyed "quest" levels */
-	if (is_quest(p_ptr->depth)) destroyed = FALSE;
+	if (quest_check(p_ptr->depth)) destroyed = FALSE;
 
 
 	/* Actual maximum number of rooms on this level */
@@ -3551,7 +3551,6 @@ void generate_cave(void)
 		/* Wipe the monsters */
 		wipe_m_list();
 	}
-
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;

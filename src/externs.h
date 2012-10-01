@@ -54,7 +54,7 @@ extern byte extract_energy[200];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
 extern spell_book books[SV_MAX_BOOKS];
-extern player_race_special race_special_info[2][11];
+extern player_race_special race_special_info[2][RACE_SPECIAL_LEVELS];
 extern s16b guild[GUILD_QUESTS];
 extern byte chest_traps[64];
 extern cptr color_names[16];
@@ -181,7 +181,7 @@ extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_class *cp_ptr;
-extern ptr_player_race_special rsp_ptr[10];
+extern ptr_player_race_special rsp_ptr[RACE_SPECIAL_LEVELS];
 extern player_other *op_ptr;
 extern player_type *p_ptr;
 extern header *v_head;
@@ -306,7 +306,7 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
-extern bool is_quest(int level);
+extern byte quest_check(int level);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -407,6 +407,7 @@ extern errr check_time_init(void);
 extern errr check_load(void);
 extern errr check_load_init(void);
 extern void player_flags(u32b *f1, u32b *f2, u32b *f3);
+extern void print_equippy(void);
 extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
 extern bool show_file(cptr name, cptr what, int line, int mode);
@@ -569,8 +570,7 @@ extern void display_spell_list(void);
 extern void display_koff(int k_idx);
 
 /* quest.c */
-extern cptr quest_feeling(s16b level, bool full);
-extern bool do_give_quest(void);
+extern cptr describe_quest(s16b level, int mode);
 extern void display_guild(void);
 extern void guild_purchase(void);
 

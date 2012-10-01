@@ -1,6 +1,6 @@
 === Version Information ===
 
-This file was last updated for EyAngband 0.1.3.
+This file was last updated for EyAngband 0.1.4.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the EyAngband home page (httP://members.xoom.com/eytanzw/eyangband) and the

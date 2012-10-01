@@ -1358,7 +1358,7 @@ static void display_entry(int item)
 		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
 		else
 		{
-			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].x_attr;
+			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
 			else attr = TERM_L_DARK;
 		}
 
@@ -2862,7 +2862,7 @@ static void store_examine(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc_store(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
 	msg_format("Examining %s...", o_name);

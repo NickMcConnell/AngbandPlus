@@ -1657,18 +1657,26 @@ static void display_player_equippy(int y, int x)
 		/* Object */
 		o_ptr = &inventory[i];
 
-		/* Skip empty objects */
-		if (!o_ptr->k_idx) continue;
-
 		/* Get attr/char for display */
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
+
+		/* Clear the part of the screen */
+		if (!o_ptr->k_idx)
+		{
+			c = ' ';
+			a = TERM_DARK;
+		}
 
 		/* Dump */
 		Term_putch(x+i-INVEN_WIELD, y, a, c);
 	}
 }
 
+void print_equippy(void)
+{
+	display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY);
+}
 
 /*
  * Hack -- see below
@@ -2241,7 +2249,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [EyAngband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 

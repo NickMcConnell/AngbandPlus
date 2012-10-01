@@ -3015,7 +3015,7 @@ void do_cmd_activate(void)
 
 			case ACT_GENOCIDE:
 			{
-				msg_format("Your % glows deep blue...", o_name);
+				msg_format("Your %s glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
@@ -3235,16 +3235,7 @@ void do_cmd_activate(void)
 			case ACT_WOR:
 			{
 				msg_format("Your %s glows soft white...", o_name);
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 
@@ -3465,7 +3456,7 @@ void do_cmd_activate(void)
 
 void do_cmd_mix(void)
 {
-	int item1, item2, k_idx;
+	int item1, item2, k_idx, penalty;
 	int i1, i2, sv;
 	int chance, roll;
 
@@ -3539,9 +3530,11 @@ void do_cmd_mix(void)
 		if (k_idx == z_info->k_max) found = FALSE;
 	}
 	
+	/* Check again if found */
 	if (found)
 	{
 		chance = 25+(p_ptr->skill[SK_ALC])-((k_ptr->cost)/250);
+		penalty = (k_ptr->cost)/800;
 
 		/* Always 5% chance of success or failure*/
 
@@ -3549,8 +3542,13 @@ void do_cmd_mix(void)
 
 		if (chance > 96) chance = 96;
 	}
+
 	/* If there's no potion, always fail */
-	else chance = 0;
+	else 
+	{
+		chance = 0;
+		penalty = 0;
+	}
 
 	/*** Skill check ***/
 	roll = rand_int(100);	
@@ -3577,7 +3575,7 @@ void do_cmd_mix(void)
 	else 
 	{
 		msg_print("The potions explode in your hands!");
-		take_hit(damroll(4,8)+(k_ptr->cost)/800, "carelessly mixing potions");
+		take_hit(damroll(4,8)+penalty, "carelessly mixing potions");
 	}
 
 	/* Hack - make sure the potions are destroyed in order */

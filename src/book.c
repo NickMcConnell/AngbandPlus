@@ -35,7 +35,7 @@ cptr spell_tips[SPELLS_TOTAL] =
 	"Attempts to confuse one monster.",
 	"Detects hidden traps and doors on the current screen.",
 	/* Conjurings and Tricks (sval 1) */
-	"The next time you are hurt you heals instead of taking damage.",
+	"Reverses the affect of damage (i.e. taking hits heal you).",
 	"Fires a bolt or beam of lightning.",	
 	"Destroys all doors and traps next to you.",
 	"Attempts to put a monster to sleep.",
@@ -43,8 +43,8 @@ cptr spell_tips[SPELLS_TOTAL] =
 	"Random major displacement.",
 	"Fires a line of light.  Effects light-hating creatures.",
 	"Melts a wall square to floor.",
+	"Attempts to put all monsters in line of sight to sleep.",
 	/* Incantations and Illusions (sval 2) */
-	"Attempts to put all monster in line of sight to sleep.",
 	"Fully feeds you.",
 	"Minor recharging.",
 	"Fires a bolt or beam of acid.",
@@ -65,7 +65,7 @@ cptr spell_tips[SPELLS_TOTAL] =
 	"Opposition to fire.  Cumulative with equipment.",
 	"Opposition to cold.  Cumulative with equipment.",
 	"Opposition to acid & electricity.  Cumulative with equipment.",
-	"Opposition to poison.  Cumulative with equipment.",
+	"Opposition to poison.",
 	"Opposition to all elements + poison.  Cumulative with equipment.",
 	/* Mordenkainen's Escapes (sval 5) */
 	"Creates a randomly oriented staircase nearby.",
@@ -84,13 +84,13 @@ cptr spell_tips[SPELLS_TOTAL] =
 	"Temporarily increases armour class by 50.",
 	"Temporarily turns you invisible.",
 	"Long-duration haste spell.",
-	"Temporarily raises your AC by 100 and reduces all damage by 33%.",
+	"Temporarily raises your AC by 100 and reduces all damage by 66%.",
 	/* Raal's Tome of Destruction (sval 8) */
 	"Fires a bolt or beam of pure mana.",
 	"Fires a large poison ball.",
 	"Fires a large acid ball.",
 	"Fires a large frost ball.",
-	"Fires a large, unresistable ball of magic.",
+	"Fires a large, unresistable ball of magic",
 	"Fires a large, very powerful mana ball.",
 
 /* Piety Spells */
@@ -115,7 +115,7 @@ cptr spell_tips[SPELLS_TOTAL] =
 	"Opposition to fire and frost.  Cumulative with equipment.",
 	/* Chants and Blessings (sval 12) */
 	"Removes all poison from your body.",
-	"Fires an orb of holy force.",
+	"Fires a ball of holy force.",
 	"Reduces cuts and heals you a large amount.",
 	"Temporary see invisible.",
 	"Temporary protection from lesser evil creatures.",
@@ -150,10 +150,10 @@ cptr spell_tips[SPELLS_TOTAL] =
 	"Restores all stats.",
 	"Restores experience level.",
 	/* Holy Infusions (sval 17) */
-		/*repeat destroy doors */
+		/*repeat trap/door destruction */
 	"Medium strength recharging spell.",
 	"Removes both normal and heavy curses.",
-	"Adds plusses to Skill and Deadliness to weapons.",
+	"Adds plusses to Hit and Damage to weapons.",
 	"Adds plusses to armour class to armour.",
 	"Makes your shots powerful against evil creatures.",
 	/* Wrath of God (sval 18) */
@@ -183,10 +183,10 @@ cptr spell_tips[SPELLS_TOTAL] =
 
 /* Ranger Spells */
 	/* The Hunter's Lore (sval 9)*/
-	"Makes arrows and bolts extra powerful against animals",
-	"Strengthens arrows and bolts",
-		/* repeat haster self */
-	"Imbues arrows and bolts with elemental power"
+	"Makes arrows and bolts extra powerful against animals.",
+	"Strengthens arrows and bolts.",
+		/* repeat haste self */
+	"Imbues arrows and bolts with elemental power."
 
 };
 

@@ -1977,6 +1977,8 @@ void monster_death(int m_idx)
 	int completed = 0;
 	int level_total = 0;
 
+	bool fixedquest;
+
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -2139,6 +2141,7 @@ void monster_death(int m_idx)
 	/* Reset counters */
 	completed = 0;
 	level_total = 0;
+	fixedquest = FALSE;
 
 	/* Count incomplete quests */
 	for (i = 0; i < z_info->q_max; i++)
@@ -2163,6 +2166,9 @@ void monster_death(int m_idx)
 					/* Mark complete */
 					q_ptr->active_level = 0;
 
+					/* Mark fixed quests */
+					if (q_ptr->type == QUEST_FIXED) fixedquest = TRUE;
+
 					/* One complete */
 					completed++;
 				}
@@ -2179,8 +2185,17 @@ void monster_death(int m_idx)
 	/* Require all quests on this level to be completed */
 	if (completed != level_total) return;
 
+	/* Require at least one fixed quest on the level */
+	if (!fixedquest) 
+	{
+		/* Give a message */
+		msg_print("You have completed your quest - collect your reward at the guild!");
+		
+		return;
+	}
+
 	/* Need some stairs */
-	if (total)
+	else if (total)
 	{
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
@@ -2212,7 +2227,7 @@ void monster_death(int m_idx)
 
 
 	/* Nothing left, game over... */
-	else
+	else 
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;

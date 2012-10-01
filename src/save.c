@@ -790,7 +790,7 @@ static bool wr_savefile_new(void)
 		tmp8u = 0;
 
 		if (potion_alch[i].known1) tmp8u |= 0x01;
-		if (potion_alch[i].known1) tmp8u |= 0x02;
+		if (potion_alch[i].known2) tmp8u |= 0x02;
 		wr_byte(tmp8u);
 	}
 

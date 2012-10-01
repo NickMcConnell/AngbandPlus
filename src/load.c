@@ -1693,7 +1693,7 @@ static errr rd_savefile_new_aux(void)
 
 	/* Important -- Initialize the race/class */
 	rp_ptr = &p_info[p_ptr->prace];
-	for (j = 0; j < 11; j++)
+	for (j = 0; j < RACE_SPECIAL_LEVELS; j++)
 		rsp_ptr[j] = &race_special_info[(rp_ptr->special)-1][j];
 	cp_ptr = &c_info[p_ptr->pclass];
 

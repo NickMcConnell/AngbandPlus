@@ -413,6 +413,8 @@ int main(int argc, char *argv[])
 				/* Make sure it's terminated */
 				op_ptr->full_name[31] = '\0';
 
+				break;
+
  			}
 
 			case 'm':

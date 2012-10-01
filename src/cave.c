@@ -4003,9 +4003,9 @@ void disturb(int stop_search, int unused_flag)
 
 
 /*
- * Hack -- Check if a level is a "quest" level
+ * Hack -- Check if a level is a "quest" level - returns quest type
  */
-bool is_quest(int level)
+byte quest_check(int level)
 {
 	int i;
 
@@ -4016,10 +4016,10 @@ bool is_quest(int level)
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		/* Check for quest */
-		if (q_info[i].active_level == level) return (TRUE);
+		if (q_info[i].active_level == level) return (q_info[i].type);
 	}
 
 	/* Nope */
-	return (FALSE);
+	return 0;
 }
 

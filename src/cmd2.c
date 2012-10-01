@@ -2438,7 +2438,6 @@ void do_cmd_fire(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 

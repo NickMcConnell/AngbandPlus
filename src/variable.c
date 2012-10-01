@@ -473,7 +473,7 @@ cptr keymap_act[KEYMAP_MODES][256];
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-ptr_player_race_special rsp_ptr[10];
+ptr_player_race_special rsp_ptr[RACE_SPECIAL_LEVELS];
 
 /*
  * The player other record (static)

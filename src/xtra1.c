@@ -817,6 +817,9 @@ static void prt_frame_basic(void)
 	/* Current depth */
 	prt_depth();
 
+	/* Equippy chars */
+	print_equippy(); 
+
 	/* Special */
 	health_redraw();
 }
@@ -2858,9 +2861,17 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_BASIC);
 		p_ptr->redraw &= ~(PR_MISC | PR_TITLE | PR_STATS);
 		p_ptr->redraw &= ~(PR_LEV | PR_EXP | PR_GOLD);
+		p_ptr->redraw &= ~(PR_EQUIPPY);
 		p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA);
 		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH);
 		prt_frame_basic();
+	}
+
+
+	if (p_ptr->redraw & (PR_EQUIPPY))
+	{
+		p_ptr->redraw &= ~(PR_EQUIPPY);
+		print_equippy(); /* To draw / delete equippy chars */
 	}
 
 	if (p_ptr->redraw & (PR_MISC))
