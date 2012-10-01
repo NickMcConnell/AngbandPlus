@@ -1057,6 +1057,7 @@ static void wr_extra(void)
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
+	wr_s16b(p_ptr->recall_depth);
 
 	/* More info */
 	wr_s16b(0);	/* oops */

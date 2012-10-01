@@ -187,6 +187,7 @@ static int next_to_walls(int y, int x); /*prototype for next_to_walls*/
  * Maximal number of room types
  */
 #define ROOM_MAX	10
+#define ROOM_MIN     2
 
 
 
@@ -3385,8 +3386,8 @@ static bool cave_gen(void)
 	}
 
 
-	/*all levels with less than two rooms crash*/
-	if (dun->cent_n < 2)
+	/*start over on all levels with less than two rooms crash*/
+	if (dun->cent_n < ROOM_MIN)
 	{
 		if (cheat_room) msg_format("not enough rooms");
 		return (FALSE);
@@ -3498,8 +3499,8 @@ static bool cave_gen(void)
 	{
 		int small_tester = mon_gen;
 
-		mon_gen = ((i * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) +1;
-		mon_gen = ((i * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) +1;
+		mon_gen = ((mon_gen * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) +1;
+		mon_gen = ((mon_gen * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) +1;
 
 		if (mon_gen > small_tester) mon_gen = small_tester;
 		else if (cheat_hear)
@@ -3516,7 +3517,7 @@ static bool cave_gen(void)
 	/* Put some monsters in the dungeon */
 	for (i = mon_gen + k; i > 0; i--)
 	{
-		/*playtesting*/
+
 		if (!(alloc_monster(0, TRUE)))
 		{
 		if (cheat_room) msg_format("failed to place monster");

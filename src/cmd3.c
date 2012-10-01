@@ -3313,7 +3313,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 	{
 		if (r_ptr->flags2 & (RF2_PASS_WALL))
 		{
-			if (m_ptr->ml) msg_format("%s fails to set off your trap.", m_name);
+			if (m_ptr->ml) msg_format("%^s fails to set off your trap.", m_name);
 			trap_hit = FALSE;
 			message_flush();
 		}
@@ -3323,7 +3323,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 	else if ((r_ptr->flags2 & (RF2_PASS_WALL)) &&
 	          (rand_int(4) != 1))
 	{
-		if (m_ptr->ml) msg_format("%s fails to set off your trap.", m_name);
+		if (m_ptr->ml) msg_format("%^s fails to set off your trap.", m_name);
 		trap_hit = FALSE;
 		message_flush();
 	}
@@ -3347,7 +3347,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 		{
 			if (m_ptr->ml)
 			{
-				msg_format("%s tries to disarm your trap, but sets it off!", m_name);
+				msg_format("%^s tries to disarm your trap, but sets it off!", m_name);
 				message_flush();
 			}
 
@@ -3368,7 +3368,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 		{
 			if (m_ptr->ml)
 			{
-		    	msg_format("%s finds your trap and disarms it.", m_name);
+		    	msg_format("%^s finds your trap and disarms it.", m_name);
 				message_flush();
 			}
 
@@ -3388,7 +3388,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 		{
 			if (m_ptr->ml)
 			{
-				msg_format("%s avoids your trap.", m_name);
+				msg_format("%^s avoids your trap.", m_name);
 				message_flush();
 			}
 
@@ -3416,7 +3416,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 		}
 
 		/* Players sees the monster, butfailed to disarm got it's own message */
-		if ((m_ptr->ml) && (!(fail_disarm))) msg_format("%s sets off your cunning trap!", m_name);
+		if ((m_ptr->ml) && (!(fail_disarm))) msg_format("%^s sets off your cunning trap!", m_name);
 
 		/* Not seen but in line of sight */
 		else if ((player_has_los_bold(y, x)) && (!(fail_disarm)))
@@ -3525,7 +3525,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 					(r_ptr->level > randint(100)))
 				{
 					/* if in line of sight, give a message*/
-					if (m_ptr->ml) msg_format("%s is unaffected.", m_name);
+					if (m_ptr->ml) msg_format("%^s is unaffected.", m_name);
 				}
 
 				else
@@ -3534,7 +3534,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 					m_ptr->mspeed -= 10;
 
 					/* if in line of sight, give a message*/
-					if (m_ptr->ml) msg_format("%s starts moving slower.", m_name);
+					if (m_ptr->ml) msg_format("%^s starts moving slower.", m_name);
 				}
 
 				break;
@@ -3640,6 +3640,9 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x)
 	if (trap_destroyed)
 	{
 		msg_format("The trap has been destroyed");
+
+		/* Forget the trap */
+		cave_info[y][x] &= ~(CAVE_MARK);
 
 		/* Kill the trap, decrement the monster trap count. */
 		cave_set_feat(y, x, FEAT_FLOOR);

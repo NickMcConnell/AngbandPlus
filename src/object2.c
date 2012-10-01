@@ -180,7 +180,6 @@ void delete_object(int y, int x)
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
-
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -1766,13 +1765,13 @@ static bool make_artifact_special(object_type *o_ptr)
 
 	int k_idx;
 
-	int depth_check = ((chest_or_quest) ? p_ptr->depth : object_level);
+	int depth_check = ((chest_or_quest) ?  object_level : p_ptr->depth);
 
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town, unless opening a chest or creating chest item */
-	if ((!p_ptr->depth) && (!chest_or_quest)) return (FALSE);
+	if (!depth_check) return (FALSE);
 
 	/* Check the special artifacts */
 	for (i = 0; i < ART_MIN_NORMAL; ++i)
@@ -1837,13 +1836,13 @@ static bool make_artifact(object_type *o_ptr)
 {
 	int i;
 
-	int depth_check = ((chest_or_quest) ? p_ptr->depth : object_level);
+	int depth_check = ((chest_or_quest) ?  object_level : p_ptr->depth);
 
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town, unless opening a chest or creating chest item */
-	if ((!p_ptr->depth) && (!chest_or_quest)) return (FALSE);
+	if (!depth_check) return (FALSE);
 
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);
@@ -2664,7 +2663,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-
 	/* Base chance of being "good" */
 	test_good = lev + 10;
 
@@ -2676,7 +2674,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 	/* Maximal chance of being "great" */
 	if (test_great > 20) test_great = 20;
-
 
 	/* Assume normal */
 	power = 0;
@@ -2971,9 +2968,7 @@ static bool kind_is_dungeon_prayer_book(int k_idx)
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
-		/* Books -- HACK - High level books are good only
-		 * if within 5 levels of being out of depth
-		 **/
+		/* Books **/
 
 		case TV_PRAYER_BOOK:
 		{
@@ -2999,9 +2994,7 @@ static bool kind_is_dungeon_magic_book(int k_idx)
 	/* Analyze the item type */
 	switch (k_ptr->tval)
 	{
-			/* Books -- HACK - High level books are good only
-		 * if within 5 levels of being out of depth
-		 **/
+		/* Books **/
 
 		case TV_MAGIC_BOOK:
 		{
@@ -3795,16 +3788,12 @@ bool make_object(object_type *j_ptr, bool good, bool great, int objecttype)
  */
 bool make_quest_chest(object_type *j_ptr, bool good, bool great)
 {
-	int k_idx = K_IDX_LARGE_JEWELED_CHEST;
 
-	/* Prepare the object */
-	object_prep(j_ptr, k_idx);
+	/* Prepare a large jeweled chest */
+	object_prep(j_ptr, lookup_kind(TV_CHEST, SV_CHEST_JEWELED_LARGE	));
 
-	/* Apply magic (allow artifacts) */
+	/* Apply magic*/
 	apply_magic(j_ptr, object_level, TRUE, good, great);
-
-	/*hack - finish off the quest chests by applying theme to chest*/
-	j_ptr->xtra1 = (randint (10)) + 4;
 
 	/*no items inside, you just return it*/
 	j_ptr->xtra1 = 0;
@@ -5371,8 +5360,6 @@ void steal_object_from_monster(int y, int x)
 	/* Make Gold */
 	if (do_gold && (!chest) && (!do_item || (rand_int(100) < 50)))
 	{
-		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 		/*get coin type "flavor" if appropriate*/
 		coin_type = get_coin_type(r_ptr);

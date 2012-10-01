@@ -2644,7 +2644,6 @@ void update_stuff(void)
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
 
-
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 
@@ -2709,7 +2708,6 @@ void redraw_stuff(void)
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
-
 
 
 	if (p_ptr->redraw & (PR_MAP))

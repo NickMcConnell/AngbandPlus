@@ -1038,11 +1038,20 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
 
+	if (older_than(3,0,6)) p_ptr->recall_depth = p_ptr->max_depth;
+	else
+	{
+		rd_s16b(&p_ptr->recall_depth);
+	}
+
 	/* Hack -- Repair maximum player level */
 	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
 
 	/* Hack -- Repair maximum dungeon level */
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
+
+	/* Hack -- Repair recall dungeon level */
+	if (p_ptr->recall_depth < 0) p_ptr->recall_depth = 1;
 
 	/* More info */
 	strip_bytes(8);

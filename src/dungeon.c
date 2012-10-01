@@ -1001,6 +1001,7 @@ static void process_world(void)
 	{
 		/* Object */
 		o_ptr = &st_ptr->stock[i];
+		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip empty objects */
 		if (!o_ptr->k_idx) continue;
@@ -1110,7 +1111,7 @@ static void process_world(void)
 				msg_print("You feel yourself yanked downwards!");
 
 				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->depth = p_ptr->recall_depth;
 				if (p_ptr->depth < 1) p_ptr->depth = 1;
 
 				/* Leaving */
@@ -2335,6 +2336,12 @@ static void dungeon(void)
 	if (p_ptr->max_depth < p_ptr->depth)
 	{
 		p_ptr->max_depth = p_ptr->depth;
+	}
+
+	/* Track recall dungeon level */
+	if (p_ptr->recall_depth < p_ptr->depth)
+	{
+		p_ptr->recall_depth = p_ptr->depth;
 	}
 
 	/* No stairs down from fixed quests */

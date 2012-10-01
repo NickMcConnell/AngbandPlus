@@ -1798,7 +1798,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
 	"Birth: Never stack objects on the floor",	/* OPT_birth_no_stacking */
  	"Birth: Have notes written to a file",		/* OPT_birth_take_notes */
- 	"BIRTH: All levels will be generated as small",	/* OPT_birth_force_small_lev */
+ 	"Birth: All levels will be generated as small",	/* OPT_birth_force_small_lev */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */

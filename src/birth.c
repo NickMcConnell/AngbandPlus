@@ -337,17 +337,14 @@ static void get_history(void)
 {
 	int i, chart, roll, social_class;
 
-
 	/* Clear the previous history strings */
 	p_ptr->history[0] = '\0';
-
 
 	/* Initial social class */
 	social_class = randint(4);
 
 	/* Starting place */
 	chart = rp_ptr->hist;
-
 
 	/* Process the history */
 	while (chart)
@@ -364,14 +361,15 @@ static void get_history(void)
 		/* Get the textual history */
 		my_strcat(p_ptr->history, (h_text + h_info[i].text), sizeof(p_ptr->history));
 
+		/* Add a space */
+		my_strcat(p_ptr->history, " ", sizeof(p_ptr->history));
+
 		/* Add in the social class */
 		social_class += (int)(h_info[i].bonus) - 50;
 
 		/* Enter the next chart */
 		chart = h_info[i].next;
 	}
-
-
 
 	/* Verify social class */
 	if (social_class > 100) social_class = 100;
@@ -1179,7 +1177,6 @@ static bool player_birth_aux_2(void)
 
 	/* Roll for social class */
 	get_history();
-
 
 	/* Interact */
 	while (1)

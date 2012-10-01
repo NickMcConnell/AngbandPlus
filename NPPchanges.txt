@@ -1,3 +1,29 @@
+Version 0.2.1
+
+New feature:
+
+Quest rewards are now handed directly to the player, rather than
+      dropped on the floor ourside the Guild.
+
+Fixed Bugs:
+
+Bugfix:  The startup screen referred to a help file that no longer existed.
+Bugfix:  Separated recall depth from recall depth.  This was messing
+         up the quest generation code.
+Bugfix:  Fixed the quest reward code, which has numerous bugs.
+Bugfix:  Updated tiles to reflect the monsters and items I added.
+	(Although all the tilesets are still incomplete from V 3.0.3).
+Bugfix:  The game would crash when a charging rod was dropped in the home.
+Bugfix:  The name of a monster wasn't properly capitalized when they
+         set off a trap.	
+Bugfix:  Corrected the number of monsters generated on a small level.
+Bugfix:  One of the birth options wasn't formatted correctly on-screen.
+Bugfix:  Fixed the spacing when generating the player history.
+Bugfix:  Unique quests correctly display in notes patch upon completion.
+Bugfix:  Special quests now are written to notes file upon completion.
+Bugfix:	 When a monster destroyed a trap, the square was staying lit.
+
+
 Version 0.2.0 
 
 New features:
@@ -15,6 +41,7 @@ ability to set traps, set advanced monster traps, and steal items
 from monsters. (one trap to begin, and second trap at level 26)
 /*warning, failing to steal has some very negative consequences*/
 
+Made the JLE ego items and amulets a little weaker.
 Added Leon Marrick's modified help files and re-edited them for NPPAngband.
 Added throwing weapons and well balanced weapons.  They are easier to hit with & 
 they do extra damage.
@@ -22,6 +49,7 @@ Players start with equipment wielded.
 Took interactive startup menus from EYAngband.
 Added minimum depth for monsters during creation.  Weaker monsters don't appear 
 deeper.
+Added a new trap (dagger pit).
 Players don't use full energy if they use less than max# of attacks
 to kill a monster.
 Modified the file dump to include a chart of resist flags, stat increases and 

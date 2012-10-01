@@ -326,35 +326,35 @@ F:4:0x82/0x84
 # broken door
 F:5:0x82/0x85
 
-# up staircase
-F:6:0x80/0x96
-
-# down staircase
-F:7:0x80/0x99
-
 # General Store
-F:8:0x82/0x87
+F:6:0x82/0x87
 
 # Armoury
-F:9:0x82/0x88
+F:7:0x82/0x88
 
 # Weapon Smiths
-F:10:0x82/0x89
+F:8:0x82/0x89
 
 # Temple
-F:11:0x82/0x8A
+F:9:0x82/0x8A
 
 # Alchemy Shop
-F:12:0x82/0x8B
+F:10:0x82/0x8B
 
 # Magic Shop
-F:13:0x82/0x8C
+F:11:0x82/0x8C
 
 # Black Market
-F:14:0x82/0x8D
+F:12:0x82/0x8D
 
 # Home
-F:15:0x82/0x8E
+F:13:0x82/0x8E
+
+# Adventurer's Guild
+F:14:0x82/0x8C
+
+# visible trap -- dagger pit
+F:15:0x81/0x89
 
 # visible trap -- trap door
 F:16:0x81/0x8C
@@ -499,6 +499,43 @@ F:62:0x80/0x93
 
 # permanent wall -- solid (perm)
 F:63:0x80/0x93
+
+# monster trap (basic)
+F:64:0x81/0x83
+
+# monster trap (sturdy)
+F:65:0x81/0x83
+
+# monster trap (slowing)
+F:66:0x81/0x83
+
+# monster trap (confusion)
+F:67:0x81/0x83
+
+# monster trap (poison gas)
+F:68:0x81/0x83
+
+# monster trap (drain life)
+F:69:0x81/0x83
+
+# monster trap (lightning)
+F:70:0x81/0x83
+
+# monster trap (shocking)
+F:71:0x81/0x83
+
+# monster trap (portal)
+F:72:0x81/0x83
+
+# monster trap (dispel monsters)
+F:73:0x81/0x83
+
+# up staircase
+F:80:0x80/0x96
+
+# down staircase
+F:81:0x80/0x99
+
 
 
 ##### Object attr/char definitions #####
@@ -1062,6 +1099,9 @@ K:193:0x83/0x9C
 # Scroll of Trap Detection
 K:194:0x83/0x9C
 
+# Scroll of Create Monster Trap
+K:195:0x83/0x9C
+
 # Scroll of Door/Stair Location
 K:197:0x83/0x9C
 
@@ -1491,7 +1531,7 @@ K:342:0x84/0x9D
 # Large steel chest
 K:343:0x84/0x9E
 
-# Ruined chest
+# Large Jeweled chest
 K:344:0x84/0x9F
 
 # Iron Spike
@@ -1713,6 +1753,15 @@ K:421:0x85/0x85
 # Potion of *Enlightenment*
 K:422:0x85/0x85
 
+# & Throwing Axe 
+K:432:0x8B/0x94
+
+# & Throwing Hammer 
+K:433:0x8B/0x8D 
+
+# Ring of Resist Nether 
+K:434:0x84/0x81
+
 # & Mithril Shot~
 K:437:0xB6:0x8F
 
@@ -1831,7 +1880,7 @@ R:2:0xA7/0x82
 # scruffy little dog
 R:3:0x9D/0x9A
 
-# farmer maggot
+# Lotho Pimple
 R:4:0xAA/0x81
 
 # blubbering idiot
@@ -2686,7 +2735,7 @@ R:287:0xA1/0x8D
 # white wraith
 R:288:0xA3/0x9F
 
-# angel
+# Maia
 R:289:0x9D/0x8F
 
 # mim, betrayer of turin
@@ -2752,8 +2801,8 @@ R:309:0xA3/0x8D
 # purple worm
 R:310:0xAD/0x85
 
-# archangel
-R:311:0x9D/0x90
+# Maglor, Son of Feanor
+R:311:0xA7/0x9B
 
 # catoblepas
 R:312:0xAC/0x81
@@ -2869,7 +2918,7 @@ R:348:0xA3/0x93
 # fire elemental
 R:349:0x9F/0x83
 
-# cherub
+# Greater Maia
 R:350:0x9D/0x91
 
 # water elemental
@@ -3064,7 +3113,7 @@ R:413:0xA6/0x9F
 # emperor wight
 R:414:0xA4/0x83
 
-# seraph
+# Blue Wizard
 R:415:0x9D/0x92
 
 # vargo, tyrant of fire
@@ -3127,8 +3176,8 @@ R:434:0xA2/0x99
 # enchantress
 R:435:0xAB/0x96
 
-# archpriest
-R:436:0xAB/0x97
+# Maedhros, Son of Feanor
+R:436:0xA7/0x9B
 
 # sorcerer
 R:437:0xAB/0x98
@@ -3184,7 +3233,7 @@ R:453:0xA4/0x88
 # gorlim, betrayer of barahir
 R:454:0xAB/0x99
 
-# archon
+# Istar
 R:455:0x9D/0x93
 
 # glabrezu
@@ -3346,11 +3395,11 @@ R:507:0xA1/0x9E
 # fundin bluecloak
 R:508:0xA8/0x82
 
-# uriel, angel of fire
+# Arien, Maia of the Sun
 R:509:0x9D/0x94
 
-# azriel, angel of death
-R:510:0x9D/0x95
+# Azathoth, Master of Darkness
+R:510:0xAD/0x98
 
 # ancalagon the black
 R:511:0x9E/0x9A
@@ -3358,8 +3407,8 @@ R:511:0x9E/0x9A
 # nightwalker
 R:512:0xA4/0x8D
 
-# gabriel, the messenger
-R:513:0x9D/0x96
+# Evil Iggy
+R:513:0xAB/0x9C
 
 # saruman of many colours
 R:514:0xAB/0x9E
@@ -3671,10 +3720,46 @@ R:615:0xBA/0x91
 # multi-hued hound
 R:616:0xB2/0x81
 
+# Ice ogre
+R:617:0xA1/0x8D 
+
+# Two headed ogre
+R:618:0xA1/0x8D 
+
+# Great Crystal Wyrm
+R:619:0x9E/0x90
+
+# Great Time Wyrm
+R:620:0x9E/0x9B 
+
+# Great Inertia Wyrm
+R:621:0x9E/0x92
+
+# Inertia drake
+R:622:0xA6/0x89
+
+# Great Power Wyrm
+R:623:0x9E/0x9D 
+
+# Power Drake
+R:624:0xA6/0x89
+
+# Great Aether Wyrm
+R:625:0x9E/0x92
+
+# Great Ethereal Wyrm
+R:626:0x9E/0x92
+
+# Great Thunder drake
+R:627:0xA6/0x91
+
+# Half ogre
+R:628:0xA1/0x8D
 
 # Load the special player pictures
 %:xtra-new.prf
 
 # Load the flavored objects
 %:flvr-new.prf
+
 

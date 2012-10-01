@@ -1994,11 +1994,9 @@ void monster_death(int m_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2030,7 +2028,6 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
@@ -2048,7 +2045,6 @@ void monster_death(int m_idx)
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
-
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -2153,17 +2149,11 @@ void monster_death(int m_idx)
 
 				char race_name[80];
 
-				/* Not a vault quest, so get the monster race name (singular)*/
+				/* Get the monster race name (singular)*/
 				monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
 
 				/* Mark kills */
 				q_ptr->cur_num++;
-
-				/* Multiple quest monsters */
-				if ((q_ptr->max_num - q_ptr->cur_num) > 1)
-				{
-					plural_aux(race_name, sizeof(race_name));
-				}
 
 				/* Completed quest? */
 				if (q_ptr->cur_num == q_ptr->max_num)
@@ -2178,9 +2168,10 @@ void monster_death(int m_idx)
 					/* One complete */
 					completed = TRUE;
 
-					/*make a note of the completed quest, but not for fixed quests*/
-					if ((adult_take_notes) &&
-						(!((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_FIXED_U))))
+					/*make a note of the completed quest, but not for fixed or
+				     * fixed unique quests
+					 */
+					if ((adult_take_notes) && (!fixedquest))
 					{
 						char note[80];
 
@@ -2197,9 +2188,9 @@ void monster_death(int m_idx)
 
 						else
 						{
+							/* Write note */
+            				sprintf(note, "Quest: Killed %d %s", q_ptr->max_num, race_name);
 						}
-						/* Write note */
-            			sprintf(note, "Quest: Killed %d %s", q_ptr->max_num, race_name);
 
  		  				do_cmd_note(note, p_ptr->depth);
 					}
@@ -2208,9 +2199,13 @@ void monster_death(int m_idx)
 				/*let the player know how many left*/
 				else
 				{
-						int remaining;
+						int remaining = q_ptr->max_num - q_ptr->cur_num;
 
-						remaining = q_ptr->max_num - q_ptr->cur_num;
+						/* Multiple quest monsters */
+						if (remaining > 1)
+						{
+							plural_aux(race_name, sizeof(race_name));
+						}
 
 						msg_format("You have %d %s remaining to complete your quest.",
 								remaining, race_name);
@@ -2219,8 +2214,7 @@ void monster_death(int m_idx)
 		}
 
 		/* Count incomplete fixed quests */
-		if (q_ptr->active_level &&
-			((q_ptr->type == QUEST_FIXED) || (q_ptr->type == QUEST_FIXED_U))) total++;
+		if (q_ptr->active_level && (fixedquest)) total++;
 	}
 	/* Require a quest level */
 	if (!questlevel) return;

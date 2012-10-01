@@ -25,35 +25,35 @@ F:4:15/-40
 # broken door
 F:5:15/-40
 
-# up staircase
-F:6:1/-32
-
-# down staircase
-F:7:1/-50
-
 # General Store
-F:8:15/-61
+F:6:15/-61
 
 # Armoury
-F:9:2/-60
+F:7:2/-60
 
 # Weapon Smiths
-F:10:1/-59
+F:8:1/-59
 
 # Temple
-F:11:5/-58
+F:9:5/-58
 
 # Alchemy Shop
-F:12:6/-57
+F:10:6/-57
 
 # Magic Shop
-F:13:4/-56
+F:11:4/-56
 
 # Black Market
-F:14:8/-55
+F:12:8/-55
 
 # Home
-F:15:11/-54
+F:13:11/-54
+
+# Magic Shop
+F:14:4/-56
+
+# dagger pit
+F:15:2/-34
 
 # trap door
 F:16:1/-34
@@ -198,6 +198,43 @@ F:62:1/-44
 
 # permanent wall
 F:63:1/-44
+
+# monster trap (basic)
+F:64:5/-35
+
+# monster trap (sturdy)
+F:65:5/-35
+
+# monster trap (slowing)
+F:66:5/-35
+
+# monster trap (confusion)
+F:67:5/-35
+
+# monster trap (poison gas)
+F:68:5/-35
+
+# monster trap (drain life)
+F:69:5/-35
+
+# monster trap (lightning)
+F:70:5/-35
+
+# monster trap (shocking)
+F:71:5/-35
+
+# monster trap (portal)
+F:72:5/-35
+
+# monster trap (dispel monsters)
+F:73:5/-35
+
+# up staircase
+F:80:1/-32
+
+# down staircase
+F:81:1/-50
+
 
 
 # Item Graphic Definitions
@@ -759,6 +796,9 @@ K:193:0/-107
 
 # Trap Detection
 K:194:0/-107
+
+# Create Monster Trap
+K:195:0/-107
 
 # Door/Stair Location
 K:197:0/-107
@@ -1411,6 +1451,15 @@ K:421:0/-110
 # *Enlightenment*
 K:422:0/-110
 
+# & Throwing Axe 
+K:432:8/-97
+
+# & Throwing Hammer 
+K:433:14/-96
+
+# Ring of Resist Nether 
+K:434:0/-109
+
 # copper
 K:480:7/-47
 
@@ -1549,7 +1598,7 @@ R:2:15/-26
 # Scruffy little dog
 R:3:15/-89
 
-# Farmer Maggot
+# Lotho Pimple
 R:4:1/-24
 
 # Blubbering idiot
@@ -2404,7 +2453,7 @@ R:287:7/-77
 # White wraith
 R:288:1/-69
 
-# Monadic Deva
+# Maia
 R:289:3/-91
 
 # Mim, Betrayer of Turin
@@ -2470,8 +2519,8 @@ R:309:1/-72
 # Giant purple worm
 R:310:10/-9
 
-# Movanic Deva
-R:311:14/-91
+# Maglor, Son of Feanor
+R:311:3/-24
 
 # Catoblepas
 R:312:5/-15
@@ -2587,7 +2636,7 @@ R:348:2/-72
 # Fire elemental
 R:349:4/-87
 
-# Astral Deva
+# Greater Maia
 R:350:13/-91
 
 # Water elemental
@@ -2782,7 +2831,7 @@ R:413:15/-27
 # Emperor wight
 R:414:4/-69
 
-# Planetar
+# Blue Wizard
 R:415:4/-91
 
 # Vargo, Tyrant of Fire
@@ -2845,8 +2894,8 @@ R:434:4/-79
 # Enchantress
 R:435:12/-16
 
-# Archpriest
-R:436:13/-16
+# Maedhros, Son of Feanor 
+R:436:3/-24
 
 # Sorcerer
 R:437:10/-16
@@ -2902,7 +2951,7 @@ R:453:8/-69
 # Gorlim, Betrayer of Barahir
 R:454:2/-16
 
-# Solar
+# Istar
 R:455:11/-91
 
 # Glabrezu
@@ -3064,11 +3113,11 @@ R:507:5/-75
 # Fundin Bluecloak
 R:508:13/-24
 
-# Uriel, Angel of Fire
+# Arien, Maia of the Sun 
 R:509:4/-91
 
-# Azriel, Angel of Death
-R:510:8/-91
+# Azathoth, Master of Darkness 
+R:510:12/-71
 
 # Ancalagon the Black
 R:511:8/-88
@@ -3076,8 +3125,8 @@ R:511:8/-88
 # Nightwalker
 R:512:8/-69
 
-# Gabriel, the Messenger
-R:513:1/-91
+# Evil Iggy
+R:513:14/-16
 
 # Saruman of Many Colours
 R:514:10/-16
@@ -3181,6 +3230,39 @@ R:546:10/-16
 # Morgoth, Lord of Darkness
 R:547:8/-76
 
-# Nobody, the Undefined Ghost
-R:548:1/-85
+# Ice ogre
+R:617:7/-77
+
+# Two headed ogre
+R:618:7/-77
+
+# Great Crystal Wyrm
+R:619:10/-88
+
+# Great Time Wyrm
+R:620:10/-88
+
+# Great Inertia Wyrm
+R:621:10/-88
+
+# Inertia drake
+R:622:10/-28
+
+# Great Power Wyrm
+R:623:10/-88
+
+# Power Drake
+R:624:10/-28
+
+# Great Aether Wyrm
+R:625:3/-88
+
+# Great Ethereal Wyrm
+R:626:3/-88
+
+# Great Thunder drake
+R:627:6/-28
+
+# Half ogre
+R:628:7/-77
 

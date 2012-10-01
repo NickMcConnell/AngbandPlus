@@ -322,10 +322,10 @@ static void chest_death(int y, int x, s16b o_idx)
 			 * max object generation level, but have no
 			 * other effect.  JG
 		 	 */
-			if (quality < 26) 			(make_object(i_ptr, FALSE, FALSE, chesttheme));
-		    else if (quality < 51)  	(make_object(i_ptr, TRUE, FALSE, chesttheme));
-			else if (quality < 81) 		(make_object(i_ptr, FALSE, TRUE, chesttheme));
-			else 						(make_object(i_ptr, TRUE, TRUE, chesttheme));
+			if (quality < 26) 			make_object(i_ptr, FALSE, FALSE, chesttheme);
+		    else if (quality < 51)  	make_object(i_ptr, TRUE, FALSE, chesttheme);
+			else if (quality < 81) 		make_object(i_ptr, FALSE, TRUE, chesttheme);
+			else 						make_object(i_ptr, TRUE, TRUE, chesttheme);
 		}
 
 		/* Drop it in the dungeon */
@@ -1500,7 +1500,6 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Verify legality */
 	if (!do_cmd_disarm_test(y, x)) return (FALSE);
 
-
 	/* Get the trap name */
 	name = (f_name + f_info[cave_feat[y][x]].name);
 
@@ -1517,7 +1516,8 @@ static bool do_cmd_disarm_aux(int y, int x)
 	power = 5 + p_ptr->depth / 4;
 
 	/* Prevent the player's own traps granting exp. */
-	if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && (cave_feat[y][x] <= FEAT_MTRAP_TAIL)) power = 0;
+	if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+	   			 power = 0;
 
 	/* Prevent glyphs of warding granting exp. */
 	if (cave_feat[y][x] == FEAT_GLYPH) power = 0;

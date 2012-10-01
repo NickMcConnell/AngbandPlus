@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.2.0"
+#define VERSION_STRING	"0.2.1"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	3
 #define VERSION_MINOR	0
-#define VERSION_PATCH	5
+#define VERSION_PATCH	6
 #define VERSION_EXTRA	0
 
 
@@ -1473,10 +1473,6 @@
 #define SV_FOOD_WAYBREAD		37
 #define SV_FOOD_PINT_OF_ALE		38
 #define SV_FOOD_PINT_OF_WINE	39
-
-/*hack - k_idx for quest chests*/
-
-#define K_IDX_LARGE_JEWELED_CHEST	344
 
 
 /*

@@ -1783,13 +1783,13 @@ int count_monsters_made_wary (int y, int x, int player_sees)
 		/* Check path, can monster see trap? */
 		if (!projectable(m_ptr->fy, m_ptr->fx, y, x)) continue;
 
+		/*Confused monsters don't know what is going on*/
+		if (m_ptr->confused) continue;
+
 		/* May become wary if not dumb, or always if smart */
 		if ((!(r_ptr->flags2 & (RF2_STUPID)) && (rand_int(2) == 1)) ||
 			(r_ptr->flags2 & (RF2_SMART))) m_ptr->mflag |= (MFLAG_WARY);
 		else continue;
-
-		/*player doesn't know a confused monster becomes wary*/
-		if (m_ptr->confused) continue;
 
 		/* Player knows monster sees the trap being set*/
 		if ((!(m_ptr->ml)) && (player_sees)) continue;
@@ -1881,7 +1881,7 @@ void py_set_trap(int y, int x, bool count_trap)
 	if (observed >1) msg_print("You hear creatures shouting warnings about the monster trap.");
 
 	/*player knows one creature saw him set the trap*/
-	else if (observed == 1) msg_print("You hear a cretaure shoud a warning about the monster trap.");
+	else if (observed == 1) msg_print("You hear a cretaure shout a warning about the monster trap.");
 
 	/* Notify the player. */
 	else msg_print("You set a monster trap.");
@@ -1916,7 +1916,7 @@ byte choose_mtrap(void)
 	if (num >= 6) prt("    f) Lightning Trap       - (shoots a lightning bolt)", 7, 8);
 	if (num >= 7) prt("    g) Explosive Trap       - (causes area damage)", 8, 8);
 	if (num >= 8) prt("    h) Portal Trap          - (teleports monsters)", 9, 8);
-	if (num >= 9) prt("    i) Dispel Monsters Trap - (Hurt all monsters in area)", 10, 8);
+	if (num >= 9) prt("    i) Dispel Monsters Trap - (hurt all monsters in area)", 10, 8);
 
 	while (!done)
 	{

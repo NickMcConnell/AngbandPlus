@@ -839,6 +839,7 @@ struct player_type
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
+	s16b recall_depth;		/* recall depth*/
 
 	s16b max_lev;		/* Max level */
 	s16b lev;			/* Cur level */

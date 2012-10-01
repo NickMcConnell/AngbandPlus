@@ -349,6 +349,26 @@ static int toluaI_set_player_player_type_depth(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: recall_depth of class  player_type */
+static int toluaI_get_player_player_type_recall_depth(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->recall_depth);
+ return 1;
+}
+
+/* set function: recall_depth of class  player_type */
+static int toluaI_set_player_player_type_recall_depth(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->recall_depth = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: max_lev of class  player_type */
 static int toluaI_get_player_player_type_max_lev(lua_State* tolua_S)
 {
@@ -6403,6 +6423,7 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"player_type","au",toluaI_get_player_player_type_au,toluaI_set_player_player_type_au);
  tolua_tablevar(tolua_S,"player_type","max_depth",toluaI_get_player_player_type_max_depth,toluaI_set_player_player_type_max_depth);
  tolua_tablevar(tolua_S,"player_type","depth",toluaI_get_player_player_type_depth,toluaI_set_player_player_type_depth);
+ tolua_tablevar(tolua_S,"player_type","recall_depth",toluaI_get_player_player_type_recall_depth,toluaI_set_player_player_type_recall_depth);
  tolua_tablevar(tolua_S,"player_type","max_lev",toluaI_get_player_player_type_max_lev,toluaI_set_player_player_type_max_lev);
  tolua_tablevar(tolua_S,"player_type","lev",toluaI_get_player_player_type_lev,toluaI_set_player_player_type_lev);
  tolua_tablevar(tolua_S,"player_type","max_exp",toluaI_get_player_player_type_max_exp,toluaI_set_player_player_type_max_exp);

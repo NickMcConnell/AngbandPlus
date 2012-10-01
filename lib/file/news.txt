@@ -1,9 +1,9 @@
 
 
            **************************************************
-           **   NPPAngband 0.2.0    A Variant of Angband   **
+           **   NPPAngband 0.2.1    A Variant of Angband   **
            **************************************************
-	NPPAngband 0.1.0 - 0.2.0 Copyright (c) 2003 Jeff Greene
+	NPPAngband 0.1.0 - 0.2.1 Copyright (c) 2003 Jeff Greene
 		
     Based on: 	Moria:   Copyright (c) 1985 Robert Alan Koeneke
         	Umoria:   Copyright (c) 1989 James E. Wilson
@@ -13,11 +13,12 @@
                 Angband 2.7.0 - 2.8.5 by Ben Harrison
                 Angband 2.9.0 - 3.0.x by Robert Ruehlmann
 		Oangband 0.6.0 Copyright 1998-2003 Leon Marrick, Bahman Rabii
+		EYAngband 0.5.2 By Eytan Zweig
 
       Send comments, bug reports, or patches, to "nppangband@comcast.net"
       Visit NPPAngband's Web Site  at "http://home.comcast.net/~nppangband/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-      Read the online help files, especially "general.txt" and "version.txt"
+      Read the online help files, especially "general.txt".
  
 
 

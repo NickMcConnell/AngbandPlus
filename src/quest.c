@@ -227,11 +227,13 @@ cptr describe_quest(s16b level, int mode)
  */
 static void grant_reward(byte type)
 {
-	int i, j;
+	int i, x;
+
+	char o_name[80];
 
 	bool got_item = FALSE;
 
-	object_type *i_ptr;
+	object_type *i_ptr, *j_ptr;
  	object_type object_type_body;
 	store_type *st_ptr = &store[STORE_HOME];
 
@@ -241,9 +243,6 @@ static void grant_reward(byte type)
 	/*ugly, but effective hack - make extra gold, prevent chests & allow artifacts*/
 	chest_or_quest = QUEST_ITEM;
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
 	/* Create a gold reward */
 	if (type == REWARD_GOLD)
 	{
@@ -251,14 +250,31 @@ static void grant_reward(byte type)
 
 		for (i = 0; i < 3; i++)
 		{
+			/* Get local object */
+			i_ptr = &object_type_body;
+
 			/* Wipe the object */
 			object_wipe(i_ptr);
 
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			while (!make_gold(i_ptr)) continue;
 
-			/* Drop the object */
-			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+			/* Describe the object */
+			object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+
+			/* Message */
+			msg_format("You have been rewarded with %ld gold pieces.",
+			           (long)i_ptr->pval);
+			message_flush();
+
+			/* Collect the gold */
+			p_ptr->au += i_ptr->pval;
+
+			/* Redraw gold */
+			p_ptr->redraw |= (PR_GOLD);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		}
 
@@ -271,20 +287,21 @@ static void grant_reward(byte type)
 	if (type == REWARD_TAILORED)
 	{
 
-		object_type *j_ptr;
-
 		/*
 		 * First, maybe we want to give a spellbook to a spellcaster.
-		 * Hack - greater chace if a "pure" spellcaster.
+		 * Hack - greater chance if a "pure" spellcaster.
 		 */
 		if ((cp_ptr->spell_book) &&
-			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 50 : 25)))
+			(rand_int(100) < (cp_ptr->flags & CF_ZERO_FAIL ? 10 : 5)))
 		{
-			/* 50 attempts to find a useful book */
-			for (i = 0; i < 50; i++)
+			/* 25 attempts to find a useful book */
+			for (i = 0; i < 25; i++)
 			{
 
 				bool already_own = FALSE;
+
+				/* Get local object */
+				i_ptr = &object_type_body;
 
 				/* Wipe the object */
 				object_wipe(i_ptr);
@@ -300,10 +317,10 @@ static void grant_reward(byte type)
 				if (k_info[i_ptr->k_idx].tried) continue;
 
 				/* Look for item in the pack */
-				for (j = 0; j < INVEN_PACK; j++)
+				for (x = 0; x < INVEN_PACK; x++)
 				{
 					/* Get the item */
-					j_ptr = &inventory[j];
+					j_ptr = &inventory[x];
 
 					/* Nothing here */
 					if (!j_ptr->k_idx) continue;
@@ -315,9 +332,9 @@ static void grant_reward(byte type)
 				/* Look for item in home */
 				if (st_ptr->stock_num)
 				{
-					for (j = 0; j < st_ptr->stock_num; j++)
+					for (x = 0; x < st_ptr->stock_num; x++)
 					{
-						j_ptr = &st_ptr->stock[j];
+						j_ptr = &st_ptr->stock[x];
 
 						/* Nothing here */
 						if (!j_ptr->k_idx) continue;
@@ -346,13 +363,13 @@ static void grant_reward(byte type)
 			/* Find an unmaxxed stat */
 			for (i = 0; i < 100; i++)
 			{
-				j = rand_int(A_MAX);
+				x = rand_int(A_MAX);
 
 				/* Hack - reduce chance of potion of charisma */
-				if ((j == A_CHR) && (rand_int(100) >= 30)) continue;
+				if ((x == A_CHR) && (rand_int(100) >= 30)) continue;
 
 				/* Check if a random stat is maxxed */
-				if (p_ptr->stat_max[j] < (18 + 100))
+				if (p_ptr->stat_max[x] < (18 + 100))
 				{
 					found_stat = TRUE;
 					break;
@@ -370,13 +387,13 @@ static void grant_reward(byte type)
 					sval = SV_POTION_AUGMENTATION;
 				}
 				/* Small chance of potions of *enlightenment* */
-				else if (((j == A_INT) || (j == A_WIS)) && (rand_int(100) < 10))
+				else if (((x == A_INT) || (x == A_WIS)) && (rand_int(100) < 10))
 				{
 					sval = SV_POTION_STAR_ENLIGHTENMENT;
 				}
 				else
 				{
-					switch (j)
+					switch (x)
 					{
 						case A_STR: sval = SV_POTION_INC_STR; break;
 						case A_INT: sval = SV_POTION_INC_INT; break;
@@ -391,6 +408,12 @@ static void grant_reward(byte type)
 
 				if (sval)
 				{
+					/* Get local object */
+					i_ptr = &object_type_body;
+
+					/* Wipe the object */
+					object_wipe(i_ptr);
+
 					/* Make the object */
 					object_prep(i_ptr, lookup_kind(TV_POTION, sval));
 
@@ -434,10 +457,10 @@ static void grant_reward(byte type)
 				}
 
 				/* Look for item in the pack */
-				for (j = 0; j < INVEN_PACK; j++)
+				for (x = 0; x < INVEN_PACK; x++)
 				{
 					/* Get the item */
-					j_ptr = &inventory[j];
+					j_ptr = &inventory[x];
 
 					/* Nothing here */
 					if (!j_ptr->k_idx) continue;
@@ -459,9 +482,9 @@ static void grant_reward(byte type)
 				/* Look for item in home */
 				if (st_ptr->stock_num)
 				{
-					for (j = 0; j < st_ptr->stock_num; j++)
+					for (x = 0; x < st_ptr->stock_num; x++)
 					{
-						j_ptr = &st_ptr->stock[j];
+						j_ptr = &st_ptr->stock[x];
 
 						/* Nothing here */
 						if (!j_ptr->k_idx) continue;
@@ -482,19 +505,21 @@ static void grant_reward(byte type)
  				}
 			}
 
-			/* Get local object */
-			j_ptr = &object_type_body;
-
-			/* 20 attempts at an item */
-			for (j = 0; j < 20; j++)
+			/* 10 attempts at an item */
+			for (x = 0; x < 10; x++)
 			{
 
 				/* Now, produce items */
 				i = rand_int(INVEN_TOTAL - INVEN_WIELD) + INVEN_WIELD;
 
-				/* Skip second ring & lite */
-				if ((i == INVEN_RIGHT) || (i == INVEN_LITE)) continue;
-
+				/* Skip second ring & lite
+			     * since rings & jewelery are in the same theme, only count them once
+				 */
+				if ((i == INVEN_RIGHT) || (i == INVEN_LITE) || (i == INVEN_NECK))
+				{
+					x--;
+				    continue;
+				}
 				/* Pick a theme  */
 				switch (i)
 				{
@@ -509,16 +534,17 @@ static void grant_reward(byte type)
 						break;
 					}
 					case INVEN_LEFT:
-					case INVEN_NECK:
 					{
-						droptype = DROP_TYPE_JEWELRY;
+						/*note:  this theme can produce "&nothing" if object level
+						 * isn't high enough
+						 */
+						if (object_level < 60) continue;
+						else droptype = DROP_TYPE_JEWELRY;
 						break;
 					}
 					case INVEN_BODY:
 					{
-						j = rand_int(10);
-						if (j == 1) droptype = DROP_TYPE_DRAGON_ARMOR;
-						else droptype = DROP_TYPE_ARMOR;
+						droptype = DROP_TYPE_ARMOR;
 						break;
 					}
 					case INVEN_OUTER:
@@ -546,42 +572,55 @@ static void grant_reward(byte type)
 						droptype = DROP_TYPE_BOOTS;
 						break;
 					}
-						default: continue;
+
+					default: droptype = DROP_TYPE_UNTHEMED;
 				}
 
-				/*wipe the object*/
+				/* Wipe the object */
 				object_wipe(j_ptr);
 
-				/* Valid item exists? */
-				if (!make_object(j_ptr, FALSE, TRUE, droptype)) continue;
+				/* Valid item exists?  If not, don't count it*/
+				if (!make_object(j_ptr, FALSE, TRUE, droptype))
+				{
+					/*don't count this one*/
+				    x--;
+					continue;
+				}
 
 				/* Hack -- in case of artifact, mark it as not created yet */
 				if (j_ptr->name1)
-				/*always give a "special" item if it is made*/
-			 	{
-				 	if (j_ptr->name1 < ART_MIN_NORMAL)
-					{
-						i_ptr = j_ptr;
-						got_item = TRUE;
-						break;
-					}
 
-					else a_info[j_ptr->name1].cur_num = 0;
+			 	{
+					a_info[j_ptr->name1].cur_num = 0;
+				}
+
+				/* Hack -- no ammo */
+				if ((j_ptr->tval == TV_BOLT) || (j_ptr->tval == TV_ARROW) ||
+					(j_ptr->tval == TV_SHOT))
+			 	{
+					/*don't count this one*/
+				    x--;
+					continue;
 				}
 
 				/* Make sure weapon isn't too heavy */
 				if ((i == INVEN_WIELD) &&
-					(adj_str_hold[p_ptr->stat_ind[A_STR]] < j_ptr->weight / 10)) continue;
+					(adj_str_hold[p_ptr->stat_ind[A_STR]] < j_ptr->weight / 10))
+			   	{
+
+					/*don't count this one*/
+					x--;
+
+				    continue;
+				}
 
 				/*blessed weapons only for priests*/
-				if (cp_ptr->flags & CF_BLESS_WEAPON)
+				if ((i == INVEN_WIELD) && (cp_ptr->flags & CF_BLESS_WEAPON) &&
+					(!is_blessed(j_ptr)))
 				{
-					u32b f1, f2, f3;
 
-					object_flags(j_ptr, &f1, &f2, &f3);
-
-					/* Limit to legal glove types */
-					if (!(f3 & (TR3_BLESSED))) continue;
+					/*don't count this one*/
+					x--;
 				}
 
 				/* Make sure gloves won't ruin spellcasting */
@@ -592,7 +631,14 @@ static void grant_reward(byte type)
 					object_flags(j_ptr, &f1, &f2, &f3);
 
 					/* Limit to legal glove types */
-					if (!((f3 & (TR3_FREE_ACT)) || (f1 & (TR1_DEX)))) continue;
+					if (!((f3 & (TR3_FREE_ACT)) || (f1 & (TR1_DEX))))
+					{
+
+					    /*don't count this one*/
+						x--;
+
+ 						continue;
+					}
 				}
 
 				/* Hack - mark as identified */
@@ -609,8 +655,18 @@ static void grant_reward(byte type)
 				if (val[i] > diff)
 				{
 					diff = val[i];
-					i_ptr = j_ptr;
+
+					/* Get local object */
+					i_ptr = &object_type_body;
+
+					/* Wipe the object */
+					object_wipe(i_ptr);
+
+					/* Structure Copy */
+					object_copy(i_ptr, j_ptr);
+
 					got_item = TRUE;
+
 				}
 
 				/* Identical values */
@@ -619,7 +675,15 @@ static void grant_reward(byte type)
 					/* Maybe use second one */
 					if (rand_int(2))
 					{
-						i_ptr = j_ptr;
+						/* Get local object */
+						i_ptr = &object_type_body;
+
+						/* Wipe the object */
+						object_wipe(i_ptr);
+
+						/* Structure Copy */
+						object_copy(i_ptr, j_ptr);
+
 						got_item = TRUE;
 					}
 				}
@@ -640,6 +704,13 @@ static void grant_reward(byte type)
 
 		while (TRUE)
 		{
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
 			/* Make an appropriate object (if possible) */
 			if (!make_object(i_ptr, good, great, DROP_TYPE_UNTHEMED)) continue;
 
@@ -647,13 +718,11 @@ static void grant_reward(byte type)
 		}
 	}
 
-	/* It is identified */
+	/* Identify it fully */
+	object_aware(i_ptr);
 	object_known(i_ptr);
 
-	/* Identify it */
-	object_aware(i_ptr);
-
-	/* *identify* the item */
+	/* Mark the item as fully known */
 	i_ptr->ident |= (IDENT_MENTAL);
 
 	/* Handle Artifacts */
@@ -664,13 +733,76 @@ static void grant_reward(byte type)
 		 * rewards), so now it's the right time to mark it
 		 */
 		a_info[i_ptr->name1].cur_num = 1;
+
+		/* If the item was an artifact, and if the auto-note is selected, write a message. */
+   		 if (adult_take_notes)
+		{
+			int artifact_depth;
+    	    char note[160];
+			char shorter_desc[160];
+
+			/* Get a shorter description to fit the notes file */
+			object_desc(shorter_desc, sizeof(shorter_desc), i_ptr, TRUE, 0);
+
+			/* Build note and write */
+    	    sprintf(note, "Reward: %s", shorter_desc);
+
+			/*record the depth where the artifact was created*/
+			artifact_depth = i_ptr->xtra1;
+
+    	    do_cmd_note(note, artifact_depth);
+
+			/*mark item creation depth as 0, which will indicate the artifact
+			 *has been previously identified.  This prevents an artifact from showing
+			 *up on the notes list twice ifit has been previously identified.  JG
+			 */
+			i_ptr->xtra1 = 0;
+		}
 	}
 
-	/* Drop the object */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	/* Describe the object */
+	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+
+	/* Note that the pack is too full */
+	if (!inven_carry_okay(i_ptr))
+	{
+		msg_format("You have no room in your backpack for %s.", o_name);
+
+		/* Drop the object */
+		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+
+		/* Inform the player */
+		msg_print("Your reward is waiting outside!");
+
+	}
+
+	/* Give it to the player */
+	else
+	{
+		int item_new;
+
+		/* Give it to the player */
+		item_new = inven_carry(i_ptr);
+
+		/* Message */
+		msg_format("Your reward is %s (%c).", o_name, index_to_label(item_new));
+	}
+
+	message_flush();
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/*undo special item level creation*/
 	chest_or_quest = FALSE;
+
+
 }
 
 /*
@@ -1016,6 +1148,8 @@ void display_guild(void)
 
 		else if (q_info[i].type == QUEST_VAULT)
 		{
+			char note[80];
+
 			/* Check to see if there's a reward */
 			if (!q_info[i].reward) continue;
 
@@ -1030,6 +1164,11 @@ void display_guild(void)
 
 			/* Grant fame bonus */
 			p_ptr->fame += 5;
+
+			/* Write note */
+            sprintf(note, "Quest: Returned fabled treasure to the Guild.");
+
+ 		  	do_cmd_note(note, q_info[i].active_level);
 
 			/* Finish the quest */
 			q_info[i].active_level = 0;
@@ -1048,8 +1187,14 @@ void display_guild(void)
 			/* Generate object at quest level */
 			object_level = q_info[i].base_level;
 
-			/* Create the reward */
+			/* Create the reward*/
 			grant_reward(q_info[i].reward);
+
+			/* Notice stuff */
+			notice_stuff();
+
+			/* Handle stuff */
+			handle_stuff();
 
 			/* Reset object level */
 			object_level = p_ptr->depth;
@@ -1060,8 +1205,6 @@ void display_guild(void)
 			/* Clear the screen */
 			Term_clear();
 
-			/* Inform the player */
-			msg_print("A reward for your efforts is waiting outside!");
 		}
 	}
 
