@@ -1,0 +1,119 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+
+N:Town Hall;
+
+I:51:26:1:0:0:0:0
+S:24:23
+
+// Toen hall exit.
+E:24:24:5:72:29:0:0:0:0:0
+
+// Some guards
+E:23:23:7:1004:0:0:33:0:0:0
+E:25:23:7:1004:0:0:33:0:0:0
+E:22:12:7:1004:0:0:33:0:0:0
+E:26:12:7:1004:0:0:33:0:0:0
+E:23:5:7:1004:0:0:33:0:0:0
+E:25:5:7:1004:0:0:33:0:0:0
+
+// Busy townsfolks!
+E:19:17:7:1009:0:0:33:0:0:0
+E:29:13:7:1009:0:0:33:0:0:0
+E:30:18:7:1010:0:0:33:0:0:0
+E:24:6:7:1009:0:0:33:0:0:0
+E:25:10:7:1010:0:0:33:0:0:0
+
+// Officials!
+E:18:6:7:1011:0:0:33:0:0:0
+E:30:6:7:1011:0:0:33:0:0:0
+E:7:19:7:1011:0:0:33:0:0:0
+E:12:19:7:1011:0:0:33:0:0:0
+E:11:13:7:1011:0:0:33:0:0:0
+E:35:13:7:1011:0:0:33:0:0:0
+E:41:13:7:1011:0:0:33:0:0:0
+E:47:13:7:1011:0:0:33:0:0:0
+E:35:19:7:1011:0:0:33:0:0:0
+E:41:19:7:1011:0:0:33:0:0:0
+E:47:19:7:1011:0:0:33:0:0:0
+
+// The Prison Guards
+E:42:6:7:1012:0:0:33:0:0:0
+E:42:8:7:1012:0:0:33:0:0:0
+
+// Mayor Princeton
+E:24:2:7:1013:0:0:33:0:0:0
+
+// Two locked doors.
+E:43:7:3:1:999:0:11:0:0:0
+E:2:6:3:1:23:0:0:0:0:0
+
+// Town hall's basement.
+E:1:6:4:6:38:7:0:0:0:0
+
+// Town hall's prisons.
+E:44:7:4:7:2:10:0:0:0:0
+
+// Dialog
+E:23:23:1:17:0:0:39:1:0:0
+E:24:23:1:17:0:0:39:1:0:0
+E:25:23:1:17:0:0:39:1:0:0
+
+D:###################################################
+D:###################################################
+D:#######################...#########################
+D:#######################...#########################
+D:########################+##########################
+D:##################..##.....##..####################
+D:#>+......#########...+.....+...##########..########
+D:########.#########..##.....##..######......+>######
+D:########.##############...###########.###..########
+D:########.##############...###.........#############
+D:########.##############...###.#####################
+D:#####....##############...###+#####################
+D:#####.###########...............###################
+D:#####.####...####...............##...###...###...##
+D:#####.####...####.....-----.....##...###...###...##
+D:#####.#####+#####.....-w#w-.....###+#####+#####+###
+D:#####...........+.....-www-.....+................##
+D:#######+####+####.....-----.....###+#####+#####+###
+D:######...##...###...............##...###...###...##
+D:######...##...###...............##...###...###...##
+D:#######################...#########################
+D:#######################...#########################
+D:#######################...#########################
+D:#######################...#########################
+D:########################+##########################
+D:###################################################

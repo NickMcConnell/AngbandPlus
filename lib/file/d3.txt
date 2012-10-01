@@ -1,0 +1,145 @@
+N:1:1:3:0:0:0
+I:Tim the Barman;
+T:Welcome back my friend! What can I do for you?;
+A:An ale, please!:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1:2:0:0:0
+I:Tim the Barman;
+T:Welcome back! So, did you kill the rats yet?;
+A:Yes, I killed the rats...but...:0:0:0:1:11:0:0:1:3
+%
+
+N:1:1:1:0:0:0
+I:Tim the Barman;
+T:Welcome back! So, did you kill the rats yet?;
+A:I have some questions...:0:0:0:1:10:0:0:0:0
+A:Not yet. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1:0:0:0:0
+I:Tim the Barman;
+T:Welcome to my tavern! I am Tim, the barman of Udor's tavern.;
+T:What can I do for you?;
+A:An ale, please!:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Any places where I can find work?:1:1:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Tim the Barman;
+T:Here you go! (you drink your ale);
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Any places where I can find work?:1:1:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Tim the Barman;
+T:Many peoples are seeing orcs these days... and worst of all, many of;
+T:these peoples mysteriously disappeared! According to guards and officials,;
+T:this could be caused by evil plans from a guild of assassins or thieves.;
+T:They are using the peoples fear of orcs to hide their schemes. Most peoples;
+T:believe this is the best explanation...however, some peoples still claim;
+T:that the orcs are back...;
+A:An ale, please!:0:0:0:1:2:0:0:0:0
+A:Any places where I can find work?:1:1:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:1:0:0:0:0
+I:Tim the Barman;
+T:Well....hum.... how can I say....;
+T:(he starts whispering something to you...);
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Tim the Barman;
+T:Hum, well, I can't say that loudly, that wouldn't be good for business,;
+T:but... I am currently having a serious rats problem. You see, recently,;
+T:my tavern's basement has been infested with rats. Lots of them. I don't;
+T:know where they come from. This is bad! If we let them spread,;
+T:they will ruin my business and I will be forced to close this place!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Tim the Barman;
+T:But you seem to be a skilled <CLASS>... will you help me exterminate;
+T:the rats? I can't do it myself... there are too many of them, and they;
+T:are very aggressive. And if I call the town guards, everyone will know;
+T:about it, and I will be ruined! So please, go down there, and eliminate;
+T:the rats! Of course, I will reward you... I will give you 500 gold pieces;
+T:if you succeed! What do you say?;
+A:I agree.:0:0:0:1:8:0:0:1:1
+A:No, I have other things to do.:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Tim the Barman;
+T:Oh all right... I guess it's not a very prestigious job, and you're probably;
+T:looking for something more exciting... Well, if you change your mind, don't;
+T:hesitate to come back...;
+A:An ale, please!:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Tim the Barman;
+T:Great! I knew I could count on you! Here, take this key. It's a key to the;
+T:tavern's basement. Go there, and kill the rats. When you are done, please;
+T:come back to me, and I will give you the 500 golds reward.;
+A:[CONTINUE]:0:0:0:3:1200:0:9:0:0
+%
+
+N:9:0:0:0:0:0
+I:Tim the Barman;
+T:Now go, and good luck!;
+A:I have other questions first...:0:0:0:1:10:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Tim the Barman;
+T:Yes?;
+A:An ale, please!:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Tim the Barman;
+T:But?;
+A:[Tell him the story about the monstrous rat]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Tim the Barman;
+T:I can hardly believe such an horror could have been found in my tavern's;
+T:basement! Why would it come to my tavern? And more importantly, WHERE;
+T:did it come from? This is definitly no natural creature!;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Tim the Barman;
+T:This is a serious matter. What if there is more of these monsters? You must;
+T:go speak to mayor Princeton about it. You should bring him the head of;
+T:the creature, and explain him the situation. He will know what to do.;
+A:[CONTINUE]:0:0:0:3:488:500:14:0:0
+%
+
+N:14:0:0:0:0:0
+I:Tim the Barman;
+T:But in any cases, you saved my tavern! All my thanks goes to you my friend!;
+T:And of course, here's the 500 golds, like promised. You earned it well!;
+T:But please, make sure you go see the mayor about this... I have a very bad;
+T:feeling about this monster...;
+A:I shall do so. Good bye.:0:0:0:0:0:0:0:0:0
+A:I have something else to ask...:0:0:0:1:10:0:0:0:0
+%

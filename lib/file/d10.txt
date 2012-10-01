@@ -1,0 +1,23 @@
+N:1:1:2:0:0:0
+I: ;
+T:The monstrous rat has been slain, and killing it will probably make;
+T:the other rats go away. However, such a creature is not natural, and;
+T:something must have turned a normal rat into this horror.;
+A:[CONTINUE]:0:0:0:3:1201:0:2:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:Before you stands a huge rat with a sphere-shaped head, very long;
+T:and sharp teeth, and very large legs. It has long, pointed ears;
+T:and walks on two legs. This actually hardly looks like a rat,;
+T:and you wonder where such a horrible creature could come from...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You decide to take the head of the creature with you, as a proof;
+T:of your encounter with this horrible monster.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

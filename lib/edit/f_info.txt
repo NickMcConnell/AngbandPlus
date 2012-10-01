@@ -32,8 +32,6 @@ N:1:open floor
 G:.:w
 F:FLOOR | SUPPORT_LIGHT
 
-# 0x02 -> UNUSED
-
 # 0x03 --> glyph of warding
 
 N:3:glyph of warding
@@ -408,8 +406,8 @@ F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 83 --> shop -- Pet Shop (perm)
 
-N:83:Pet Shop
-G:p:B
+N:83:Licialhyd Shop
+G:L:B
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:84:stream of shallow water
@@ -425,7 +423,7 @@ G:#:U
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:87:dark pit
-G:#:D
+G: :D
 F:CAN_LEVITATE | CAN_FLY
 F:NO_WALK | SUPPORT_LIGHT
 
@@ -446,6 +444,24 @@ N:97:mountain chain
 G:^:U
 F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
+
+N:98:snow
+G:.:B
+F:FLOOR | SUPPORT_LIGHT
+
+N:99:snow-covered tree
+G:#:W
+F:CAN_FLY | SUPPORT_LIGHT
+F:WALL | NO_WALK | NO_VISION
+
+N:100:glacier chain
+G:^:b
+F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
+F:WALL | NO_WALK | NO_VISION
+
+N:101:ice wall
+G:#:b
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 N:128:Building
 G:+:U
@@ -776,8 +792,8 @@ F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 # 83 --> shop -- Pet Shop (perm)
 
-N:213:Pet Shop
-G:p:B
+N:213:Licialhyd Shop
+G:L:B
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:214:Rare Items Shop
@@ -868,3 +884,12 @@ F:FLOOR | SUPPORT_LIGHT
 N:232:dark mist
 G:.:D
 F:FLOOR | SUPPORT_LIGHT
+
+# Table/counter!
+N:233:table/counter/bench
+G:-:U
+F:WALL | NO_WALK | SUPPORT_LIGHT
+
+N:234:border
+G: :d
+F:WALL | NO_WALK | NO_VISION | PERMANENT

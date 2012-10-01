@@ -1,22 +1,40 @@
-DWARF
--------
+KOBOLD
+--------
 
-Dwarves are short, hot tempered and hardy folks. They are
-born in the undergrounds, spending their life in caves and
-mines. They are great warriors, proud of their inborn
-hardiness. Dwarves tend to shun magic, as they are already
-great with their weapons, and consider themselves strong
-enough to resist magical attacks with their constitution,
-without the need of healing or defensive magic. Finally,
-their natural homes have developped their eyes, and are
-highly resistant to blindness and have no trouble seeing
-in the dark.
+These wild, short, greenish reptilian creatures were thought 
+to be weak and ineffective. This was true in the past, often 
+used as slaves by other, stronger evil races. However, 1000 
+years ago, something unexpected happened, and kobolds united 
+together, and rebelled against their masters. These evil races 
+were defeated, and many historians associate the dissappearance 
+of the orcs and ogres to the kobolds. Kobolds are now 
+widespread in the wilderness and filthy areas such as sewers and
+the like, as well as caves and dungeons. Having lived in filthy 
+areas during most of their history, and having used all kind of 
+poisons on their weapons to make up for their small size, Kobolds 
+are the vicious masters of poison, and are nearly immune to it. 
+Not all kobolds are evil, but they are generally impatient and 
+aggressive, especially toward Devlings, which they consider 
+rivals.
 
-ADVANTAGES: +33% to Constitution
-            +25% to Strength
-	    Innate resistance to blindness
-	    Innate dark vision
+Kobolds are short, frail and weak, but they are dextrous, agile, 
+stealthy and more importantly, the masters of poisoning. They 
+use poison spells and attacks better than any other races, and 
+are also highly resistant to it. A favorite weapon amongst the
+Kobolds is the crossbow, as it allows them to attack from a
+distance safely, without exposing their frailer bodies to stronger
+races. Kobolds are considered repulsive by most races, although 
+they do have the skills to unite together in large, organized groups.
 
-DISADVANTAGES: -25% to Intelligence
-	       -10% to Dexterity
-               -1 to speed
+KOBOLD FEATURES:
+
+- +25% to Dexterity.
+- +25% to Crossbow, Agility, Stealth and Leadership skills.
+- +50% to Poison-based attack and spells.
+- +75% resistance to poison.
+
+KOBOLD PENALITIES:
+
+- -33% to Strength.
+- -33% to Constitution.
+- -33% to Charisma.

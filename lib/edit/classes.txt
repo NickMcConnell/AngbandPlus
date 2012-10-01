@@ -1,0 +1,514 @@
+# Classes definitions
+
+# N:(class name):(class id):(0 = base class 1 = Advanced class)
+# Q:(Str req):(Int req):(Wis req):(Dex req):(Con req):(Chr req)
+# R:(Req class):(Class level)
+# L:(Required skill's id):(value)
+# S:(Str bonus %):(Int bonus %):(Wis bonus %):(Dex bonus %):(Con bonus %):(Chr bonus %)
+# B:(Skill's id):(bonus %)
+# K:(Male rank 1):(Female rank 1);
+# K:(Male rank 2):(Female rank 2);
+# K:(Male rank 3):(Female rank 3);
+# K:(Male rank 4):(Female rank 4);
+# K:(Male rank 5):(Female rank 5);
+# K:(Male rank 6):(Female rank 6);
+# K:(Male rank 7):(Female rank 7);
+# K:(Male rank 8):(Female rank 8);
+# K:(Male rank 9):(Female rank 9);
+# K:(Male rank 10):(Female rank 10);
+# A:(Ability 1 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 2 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 3 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 4 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 5 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 6 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 7 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 8 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 9 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+# A:(Ability 10 name):(0 = passive, 1 = active):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = Combat feat)
+
+# You can put as many "L:", "B:" and "R:" lines as you want.
+
+# If an ability is declared as passive, the two other parameters are ignored.
+
+# Note that class 0 should NEVER be removed!
+# The Apprentice class is hard-coded to NOT have abilities, no matter what you put!
+
+# Some abilities are hard-coded to use Apprentice's abilities 7, 8, 9 and 10.
+# Do not change them for the moment.
+
+N:Apprentice:0:0
+Q:0:0:0:0:0:0
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+K:Unranked:Unranked;
+A:0:0:0:0:0
+A:0:0:0:0:0
+A:0:0:0:0:0
+A:0:0:0:0:0
+A:0:0:0:0:0
+A:0:0:0:0:0
+A:0:1:1:10000:0
+A:0:1:1:10001:0
+A:0:1:1:10002:0
+A:0:1:1:10003:0
+
+# Basic Classes
+
+N:Warrior:1:0
+Q:0:0:0:0:0:0
+S:25:0:0:0:25:0
+K:Rookie:Rookie;
+K:Mercenary:Mercenary;
+K:Soldier:Soldier;
+K:Veteran:Veteran;
+K:Swordsman:Swordswoman;
+K:Champion:Champion;
+K:Hero:Heroine;
+K:Baron:Baroness;
+K:Duke:Duchess;
+K:Lord:Lady;
+A:Spin Attack:1:0:1:1
+A:Strength:0:0:0:0
+A:Increased Life:0:0:0:0
+A:Battle Skill:0:0:0:0
+A:Accurate Strike:1:0:2:1
+A:Hardiness:0:0:0:0
+A:War Cry:1:0:3:0
+A:Counter Attack:0:1:0:0
+A:Leaping Spin:1:0:4:1
+A:Weapon Mastery:0:0:0:0
+
+N:Fighter:2:0
+Q:0:0:0:0:0:0
+S:33:0:-25:0:25:0
+K:Thug:Thug;
+K:Low Fighter:Low Fighter;
+K:Fighter:Fighter;
+K:Fighter:Fighter;
+K:High Fighter:High Fighter;
+K:High Fighter:High Fighter;
+K:Hardened:Hardened;
+K:Hardened:Hardened;
+K:Unbeatable:Unbeatable;
+K:Unbeatable:Unbeatable;
+A:Sheer Power:0:0:0:0
+A:Defensive Fighting:0:0:0:0
+A:Taunt:1:0:5:0
+A:Critical Hits:0:0:0:0
+A:Unarmed Fighting:0:0:0:0
+A:Fighter's Accuracy:0:0:0:0
+A:Defensive Power Attacks:0:0:0:0
+A:Throw:1:0:6:1
+A:Extreme Strike:1:0:7:0
+A:Fighting Mastery:0:0:0:0
+
+N:Mage:3:0
+Q:0:0:0:0:0:0
+S:-25:25:0:0:0:0
+K:Apprentice:Apprentice;
+K:Trickster:Trickster;
+K:Illusionist:Illusionist;
+K:Spellbinder:Spellbinder;
+K:Evoker:Evoker;
+K:Conjurer:Conjurer;
+K:Warlock:Witch;
+K:Sorcerer:Sorceress;
+K:Ipsissimus:Ipsissimus;
+K:Archimage:Archwitch;
+A:Mana Boost:0:0:0:0
+A:Force Field:1:0:8:0
+A:Magic Missile:1:0:9:0
+A:Spell Absorbtion:0:0:0:0
+A:Slow Down:1:0:10:0
+A:Mirror Images:1:0:11:0
+A:Damages Curse:1:0:12:0
+A:Drain Object:1:1:13:0
+A:Stone To Gold:1:1:14:0
+A:Animated Knight:1:1:15:0
+
+N:Priest:4:0
+Q:0:0:0:0:0:0
+S:0:0:25:0:0:0
+K:Believer:Believer;
+K:Acolyte:Acolyte;
+K:Adept:Adept;
+K:Curate:Curate;
+K:Canon:Canon;
+K:Priest:Priestess;
+K:High Priest:HighPriestess;
+K:Cardinal:Cardinal;
+K:Inquisitor:Inquisitor;
+K:Pope:Pope;
+A:Heal:1:0:16:0
+A:Turn Undeads:1:1:17:0
+A:Divine Blood:0:1:0:0
+A:Mace Of Heaven:1:1:18:0
+A:Dark Prayer:1:1:19:0
+A:Holy Might:1:1:20:0
+A:Harm:1:1:21:0
+A:Improved Wisdom Casting:0:1:0:0
+A:Divine Armor:1:1:22:0
+A:Godly Wrath:1:1:23:0
+
+N:Rogue:5:0
+Q:0:0:0:0:0:0
+S:0:0:0:25:0:0
+B:5:25
+B:6:25
+K:Cutpurse:Cutpurse;
+K:Robber:Robber;
+K:Burglar:Burglar;
+K:Filcher:Filcher;
+K:Sharper:Sharper;
+K:Low Thief:Low Thief;
+K:High Thief:High Thief;
+K:Master Thief:Master Thief;
+K:Assassin:Assassin;
+K:Guildmaster:Guildmistress;
+A:Hide In Shadows:1:1:24:0
+A:Backstabbing:0:0:0:0
+A:Dexterity:0:0:0:0
+A:Thievery:0:0:0:0
+A:Evasion:0:0:0:0
+A:Poison Weapon:1:1:25:0
+A:Gas Trap:1:1:26:0
+A:Poison Trap:1:1:27:0
+A:Spike Trap:1:1:28:0
+A:Rogue Mastery:0:0:0:0
+
+N:Ranger:6:0
+Q:0:0:0:0:0:0
+S:17:0:0:25:17:0
+K:Runner:Runner;
+K:Strider:Strider;
+K:Scout:Scout;
+K:Courser:Courser;
+K:Tracker:Tracker;
+K:Guide:Guide;
+K:Pathfinder:Pathfinder;
+K:Low Ranger:Low Ranger;
+K:High Ranger:High Ranger;
+K:Ranger Lord:Ranger Lady;
+A:Wilderness Lore:0:0:0:0
+A:Forestry:0:1:0:0
+A:Entangle:1:1:29:0
+A:Animal Empathy:1:1:30:0
+A:Call Animal:1:1:31:0
+A:Warp On Trees:1:1:32:0
+A:Weapon Finesse:0:0:0:0
+A:Thorned Vines:1:1:33:0
+A:Sleep Pollen:1:1:34:0
+A:Force Of Nature:1:1:35:0
+
+N:Paladin:7:0
+Q:0:0:0:0:0:0
+S:20:0:20:0:20:25
+K:Gallant:Gallant;
+K:Keeper:Keeper;
+K:Protector:Protector;
+K:Defender:Defender;
+K:Warder:Warder;
+K:Knight:Knight;
+K:Guardian:Guardian;
+K:Low Paladin:Low Paladin;
+K:High Paladin:High Paladin;
+K:Paladin Lord:Paladin Lady;
+A:Divine Strength:1:1:36:0
+A:Holy Bolt:1:1:37:0
+A:Aura of Life:0:1:0:0
+A:Smite Evil:1:1:38:1
+A:Blade Of Purity:1:1:39:0
+A:Resist Impure:0:1:0:0
+A:Feat Of Faith:1:1:40:0
+A:Retrograde Darkness:1:1:41:0
+A:Shining Armor:1:1:42:0
+A:Word Of Peace:1:1:43:0
+
+N:Monk:8:0
+Q:0:0:0:0:0:0
+S:25:0:25:0:25:0
+B:5:25
+B:18:25
+B:12:-25
+B:13:-25
+B:14:-25
+B:15:-25
+B:16:-25
+B:17:-25
+K:Initiate:Initiate;
+K:Novice:Novice;
+K:Disciple:Disciple;
+K:Immaculate:Immaculate;
+K:Master:Master;
+K:Soft Master:Soft Mistress;
+K:Hard Master:Hard Mistress;
+K:Tiger Master:TigerMistress;
+K:DragonMaster:Drag Mistress;
+K:Grand Master:GrandMistress;
+A:Unarmored Combat:0:0:0:0
+A:Spin Kick:1:1:44:1
+A:Hard Kick:1:1:45:1
+A:Grappling Throw:0:1:0:0
+A:Wisdom:0:0:0:0
+A:Ki Punch:1:1:46:1
+A:One With Body & Mind:0:0:0:0
+A:Monk Speed:0:0:0:0
+A:High Somersault:1:1:47:1
+A:Martial Arts Mastery:0:0:0:0
+
+N:Archer:9:0
+Q:0:0:0:0:0:0
+S:0:0:0:25:0:0
+K:Rookie:Rookie;
+K:Fletcher:Fletcher;
+K:GreatFletcher:GreatFletcher;
+K:Lesser Archer:Lesser Archer;
+K:Lesser Archer:Lesser Archer;
+K:Archer:Archer;
+K:Archer:Archer;
+K:Great Archer:Great Archer;
+K:Great Archer:Great Archer;
+K:MasterArcher:Mistres Ar.;
+A:Accurate Shots:0:1:0:0
+A:Called Shot:1:1:48:0
+A:Piercing Shots:0:1:0:0
+A:Chain Shot:1:1:49:0
+A:Burning Shots:0:1:0:0
+A:Venomous Shots:0:1:0:0
+A:Multiple Arrows:1:1:50:0
+A:Charged Bolt:1:1:51:0
+A:Knocking Pebbles:0:1:0:0
+A:Marksmanship:0:0:0:0
+
+# Advanced Classes
+# As of the current release, many of the advanced classes may have some hardcoded abilities, such
+# as the Elemental's Lord choice of elements, the Monster Mage's morphing abilities, etc...
+# Therefore, be careful when altering these classes! It is best not to replace them. If you wish
+# to make them unplayable, give them a required class, and make it level 11 or higher.
+
+N:High Mage:10:1
+Q:0:40:0:0:0:0
+R:3:5
+S:-25:50:0:0:0:0
+K:Apprentice:Apprentice;
+K:Trickster:Trickster;
+K:Illusionist:Illusionist;
+K:Spellbinder:Spellbinder;
+K:Evoker:Evoker;
+K:Conjurer:Conjurer;
+K:Warlock:Witch;
+K:Sorcerer:Sorceress;
+K:Ipsissimus:Ipsissimus;
+K:Archimage:Archwitch;
+A:Increased Mana:0:0:0:0
+A:Magic Blood:0:1:0:0
+A:Return Magic:0:1:0:0
+A:Archmage Spirit:0:1:0:0
+A:Counter Spell:0:1:0:0
+A:Empower Spells:0:1:0:0
+A:School Focus, Elemental:0:1:0:0
+A:School Focus, Alteration:0:1:0:0
+A:School Focus, Conjuration:0:1:0:0
+A:Spell Mastery:0:0:0:0
+
+# Note: The name of class 11 is hardcoded for now, as well as choosing elements during class change.
+# Until a future release, it is best to not remove or alter this class. If you want to make it unplayable,
+# make the required classes require a class level of 11!
+
+N:Elemental Lord:11:1
+Q:20:10:0:0:0:0
+R:1:3
+S:25:25:0:0:25:0
+K:Lesser:Lesser;
+K:Lesser:Lesser;
+K:Adept:Adept;
+K:Adept:Adept;
+K:Greater:Greater;
+K:Greater:Greater;
+K:Champion:Champion;
+K:Lord:Lady;
+K:King:Queen;
+K:Emperor:Empress;
+A:Element Ball:1:1:52:0
+A:Element Strike:1:1:53:1
+A:Shield of Element:1:1:54:0
+A:Fist of Element:1:1:55:1
+A:Piercing Spells:0:1:0:0
+A:Aura of Element:0:1:0:0
+A:Explosive Throw:1:1:56:0
+A:Wave of Element:1:1:57:0
+A:Absorb Elemental Energy:0:1:0:0
+A:Mastery Of Element:0:1:0:0
+
+# Innate learning and auto-switching to monster magics is hard-coded.
+# The morphing abilities in the menu are also hard-coded.
+# It's best not to replace or alter this class. Set a required class to level 11 to make it unplayable.
+
+N:Monster Mage:12:1
+Q:0:10:0:0:10:0
+S:0:25:0:0:25:0
+K:Apprentice:Apprentice;
+K:Monster Mage:Monster Mage;
+K:Monster Mage:Monster Mage;
+K:Monster Mage:Monster Mage;
+K:Monster Mage:Monster Mage;
+K:Monster Lord:Monster Lady;
+K:Monster Lord:Monster Lady;
+K:Monster Lord:Monster Lady;
+K:Monster Lord:Monster Lady;
+K:Monster King:Monster Queen;
+A:Monster Magics:0:1:0:0
+A:Morphing Abilities:1:1:58:0
+A:Constitution:0:0:0:0
+A:Monstrous Leadership:0:0:0:0
+A:Monstrous Martial Arts:0:0:0:0
+A:Dominate Monster:1:1:59:0
+A:Monstrous Defense:0:0:0:0
+A:Monstrous Wave:1:1:60:0
+A:Monstrous Brutality:0:1:0:0
+A:Improved Life Force:0:0:0:0
+
+N:Defender:13:1
+Q:20:0:0:0:20:0
+R:1:3
+S:33:0:0:0:33:0
+K:Buckler:Buckler;
+K:Small Shield:Small Shield;
+K:Medium Shield:Medium Shield;
+K:Large Shield:Large Shield;
+K:Tower Shield:Tower Shield;
+K:Wood Wall:Wood Wall;
+K:Stone Wall:Stone Wall;
+K:Fortress:Fortress;
+K:Castle:Castle;
+K:Mountain:Mountain;
+A:Heavy Armored Defense:0:0:0:0
+A:Iron Skin:0:1:0:0
+A:Shield Bash:1:1:61:1
+A:Shield Fighting:0:1:0:0
+A:Block Magic:0:1:0:0
+A:Great Guard:0:1:0:0
+A:Armored Health:0:0:0:0
+A:Defensive Strike:1:1:62:1
+A:Boomerang Shield:1:1:63:0
+A:Murderous Defense:0:1:0:0
+
+N:J. Warrior:14:1
+Q:20:0:20:0:0:20
+R:7:5
+S:25:0:25:0:25:33
+K:Good:Good;
+K:Just:Just;
+K:Generous:Generous;
+K:Brave:Brave;
+K:Hope Bringer:Hope Bringer;
+K:Blessed:Blessed;
+K:Justice Lord:Justice Lady;
+K:Angel:Angel;
+K:GuardianAngel:GuardianAngel;
+K:Archangel:Archangel;
+A:Shatter Evil:1:1:64:0
+A:Angelic Voice:1:1:65:0
+A:Aura Of Evil Repulsing:0:1:0:0
+A:Bless Weapon:1:1:66:0
+A:School Focus, Healing:0:1:0:0
+A:Sacred Light:1:1:67:0
+A:Slay Evil:1:1:68:0
+A:Angelic Call:1:1:69:0
+A:Protection From Evil:0:1:0:0
+A:Light Of Life:1:1:70:0
+
+N:High Monk:15:1
+Q:40:0:40:0:40:0
+R:8:10
+S:33:0:33:0:33:0
+B:5:33
+B:18:33
+B:12:-33
+B:13:-33
+B:14:-33
+B:15:-33
+B:16:-33
+B:17:-33
+K:Initied:Initied;
+K:Novice:Novice;
+K:Practiced:Practiced;
+K:Mind Fist:Mind Fist;
+K:Mind Warrior:Mind Warrior;
+K:Mind Champion:Mind Champion;
+K:Ki Master:Ki Mistress;
+K:Ki Master:Ki Mistress;
+K:Ki Lord:Ki Lady;
+K:Ki King:Ki Queen;
+A:Energy Spin:1:1:71:0
+A:Ki Blast:1:1:72:0
+A:Arms Crush:0:1:0:0
+A:Energy Punch:1:1:73:1
+A:Legs Breaking Throw:1:1:74:1
+A:Disabling Blows:0:0:0:0
+A:Energize Self:1:1:75:0
+A:Dual Wave Fist:1:1:76:0
+A:Gather Power:1:1:77:0
+A:Legendary Agility:0:0:0:0
+
+# The Capture Soul ability is automatically gained, so it's best not to replace this class.
+
+N:Soul Guardian:16:1
+Q:0:0:20:0:0:10
+S:-33:0:33:0:-25:33
+K:Wise:Wise;
+K:Sage:Sage;
+K:Great Sage:Great Sage;
+K:Soul Caller:Soul Caller;
+K:Soul Guide:Soul Guide;
+K:Soul Captor:Soul Captor;
+K:Soul Keeper:Soul Keeper;
+K:Soul Shaper:Soul Shaper;
+K:Soul Master:Soul Mistress;
+K:Soul Guardian:Soul Guardian;
+A:Soul Power:1:1:78:0
+A:Simulacrum:1:1:79:0
+A:Soul Bind:1:1:80:0
+A:Sealing Light:1:1:81:0
+A:Soul Energize:1:1:82:1
+A:Soul Guide:0:0:0:0
+A:Soul Strike:1:1:83:1
+A:Soul Shield:1:1:84:0
+A:Soul Guard:0:1:0:0
+A:Wrath Of Souls:1:1:85:0
+
+N:S. Stalker:17:1
+Q:0:0:0:30:0:0
+R:5:3
+L:6:40
+S:0:0:0:33:0:0
+B:5:33
+B:6:33
+K:Spy:Spy;
+K:Stealthy:Stealthy;
+K:Stalker:Stalker;
+K:Lesser Shade:Lesser Shade;
+K:Shade:Shade;
+K:Greater Shade:Greater Shade;
+K:Shadow Blade:Shadow Blade;
+K:Shadow Slayer:Shadow Slayer;
+K:Shadow Lord:Shadow Lady;
+K:Shadow King:Shadow Queen;
+A:Stealth Attack:1:1:86:1
+A:Displacement:0:1:0:0
+A:Shadow Cloak:1:1:87:0
+A:Shadow Ball:1:1:88:0
+A:Shadow Run:0:0:0:0
+A:Shadow Phase:1:1:89:0
+A:Dark Mist:1:1:90:0
+A:One With Shadows:0:0:0:0
+A:Shadow Magic:0:1:0:0
+A:Storm Of Shadow Edges:1:1:91:0

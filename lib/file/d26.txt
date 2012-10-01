@@ -1,0 +1,28 @@
+N:1:51:1:0:0:0
+I:Shaugma;
+T:NO!!! HOW COULD I BE BEATEN BY A PATHETIC <CLASS>?? THIS IS IMPOSSIBLE!!;
+T:UUUUAAAARRRRGGGHHH!!!;
+A:[CONTINUE]:0:0:0:9:1214:2:0:0:0
+%
+
+N:1:52:1:0:0:0
+I:Shaugma;
+T:YOU HAVE FLED, YET YOU RETURN AGAIN?? YOU ARE MORE FOOLISH THAN I;
+T:THOUGHT. NOW YOU DIE!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:52:0:0:0:0
+I:Shaugma;
+T:I SHALL TAINT THE WATER WITH EVIL!! I WILL CONSUME THE LIVING!!!;
+T:AND I WILL CONSUME YOU!! DIE, FOOLISH <CLASS>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:52:1
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:Shaugma's body starts disintegrating itself... As the demon's body;
+T:disappear, the water starts to become clear again! You should now;
+T:return to Aria, and tell her of your victory.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

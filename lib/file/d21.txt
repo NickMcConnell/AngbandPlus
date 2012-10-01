@@ -1,0 +1,139 @@
+N:1:44:1:0:0:0
+I:Jordan Shade;
+T:Welcome back, <NAME>. How may I help you today?;
+A:I have reconsidered buying the sword... [Pay 5000 golds.]:1:43:3:8:5000:9:10:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:7:0:0:0:0
+A:Tell me more of the Black Market.:0:0:0:1:4:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:40:1:0:0:0
+I:Jordan Shade;
+T:Heh heh... welcome to the black market, <NAME>! You are surprised;
+T:I know you name, huh? You see, as a high-ranked agent of the;
+T:Black Market, I have many spies and servants working for me. I know;
+T:everything that happens around here. For example, I know you are the;
+T:sole survivor of Udor's tragedy. My spies are already working on;
+T:finding out who could be behind that... But so far, we haven't found;
+T:anything I'm afraid... In any cases, my name is Jordan Shade,;
+T:high-ranked agent of the Black Market...;
+A:[CONTINUE]:0:0:0:1:2:0:0:44:1
+%
+
+N:1:0:0:0:0:0
+I:Jordan Shade;
+T:Well well, a new visitor. Welcome to the Black Market, <CLASS>. I'm;
+T:Jordan Shade, high ranked agent of the Black Market. We offers the;
+T:best quality of goods in Portralis. The prices are heavy, but it's;
+T:worth it, I can assure you. Now, if you could tell me your name,;
+T:perhaps then, we can discuss... various things...;
+A:My name is <NAME>.:0:0:0:1:2:0:0:44:1
+%
+
+N:2:0:0:0:0:0
+I:Jordan Shade;
+T:Well, <NAME>, I'm sure you and I are going to be good friends! I know;
+T:a lot of things... about the region, about Portralis... about;
+T:anything! Of course, not all information is free... but ask your;
+T:questions, and for the right price... I may have the valuable answer;
+T:you are looking for!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Jordan Shade;
+T:So, <NAME>, how can I help you?;
+A:I have reconsidered buying the sword... [Pay 5000 golds.]:1:43:3:8:5000:9:10:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:Tell me more of the Black Market.:0:0:0:1:4:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Jordan Shade;
+T:The Black Market, my friend, is the most misunderstood organization;
+T:in Portralis. Peoples thinks we're only a bunch of thieves and assassins...;
+T:they think we're an evil organization of criminals! That is a lie, my;
+T:friend. We're an organization dedicated to the good of the peoples!;
+T:We give peoples what the governement doesn't want them to get. We give;
+T:give peoples the information that the governement doesn't want to;
+T:reveal...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Jordan Shade;
+T:In other words, we are the organization that fights against the;
+T:governement for the good of peoples! Why shouldn't peoples be able;
+T:to get what they want? Why must the peoples lives in a world of;
+T:lies? Shouldn't we all be able to get what we want?;
+A:I have reconsidered buying the sword... [Pay 5000 golds.]:1:43:3:8:5000:9:10:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:But then, why do you make peoples pay ridiculous prices?:0:0:0:1:6:0:0:0:0
+A:I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Jordan Shade;
+T:Well, obviously, our agents do not work for free. Also, they must cover;
+T:some material costs... and that is all you really need to know.;
+A:I have reconsidered buying the sword... [Pay 5000 golds.]:1:43:3:8:5000:9:10:0:0
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:8:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Jordan Shade;
+T:That gnome's sword? Well, yes, of course. One of my agents;
+T:took the sword from him. As you probably noticed, this gnome's an;
+T:idiot. However, he somehow managed to get his hands on a very nice,;
+T:very sharp short sword of superior quality. This gnome's unworthy;
+T:of wielding such a nice blade!;
+A:[CONTINUE]:0:0:0:1:8:0:0:43:3
+%
+
+N:8:0:0:0:0:0
+I:Jordan Shade;
+T:If I understand, he wants his sword back... yet, he doesn't have the;
+T:guts to look for it by himself, so he sent you instead. Well... Such;
+T:a nice sword is priceless if you ask me... But if you really want;
+T:it, I can always sell it to you... for, let's say, 5000 golds?;
+T:I think it's a good price for such a valuable sword. So, are you going;
+T:to buy it?;
+A:Yes, I'll buy it. [Pay 5000 golds.]:0:0:0:8:5000:9:10:0:0
+A:Forget it.:0:0:0:1:11:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Jordan Shade;
+T:Well, I guess you really want it then... But tell me... you're not;
+T:really going to give it back to that gnome, right? I mean, it's such a nice;
+T:blade, it would be a waste to let this gnome be the wielder of such;
+T:a fine piece of weaponry. Whatever reward he promised you must not be;
+T:worth the sword. If I were you, I would just keep it...;
+A:[CONTINUE]:0:0:0:3:1205:0:12:43:4
+%
+
+N:10:0:0:0:0:0
+I:Jordan Shade;
+T:Errr... maybe you didn't hear me correctly. I said 5000 golds... Seems;
+T:like you don't have them. Come back when you have the money.;
+A:Tell me more of the Black Market.:0:0:0:1:4:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Jordan Shade;
+T:As you wish. I'll keep it for a while longer... if you ever change your;
+T:mind, come see me again.;
+A:Tell me more of the Black Market.:0:0:0:1:4:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Jordan Shade;
+T:But do whatever you want... Just don't say I didn't warn you if the;
+T:gnome's reward doesn't even cover the price you just paid...;
+A:Tell me more of the Black Market.:0:0:0:1:4:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%

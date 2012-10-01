@@ -1,0 +1,88 @@
+N:1:1017:1:0:0:0
+I:Jindar Soldier;
+T:The city is under attack! You should flee!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Jindar Soldier;
+T:Hail, citizen! How may I be of assistance?;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any rumors?:0:0:0:4:7:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Jindar Soldier;
+T:Jindar is the biggest city in the world! And it belongs to the;
+T:most powerful of the five kingdoms! If you are looking for;
+T:something, you can find it in Jindar!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Jindar Soldier;
+T:In the center of the city is the royal palace, where our king,;
+T:Julian Strongheart, rules over the whole kingdom, and unofficialy,;
+T:over all Portralis. If you keep going north of the city, you'll;
+T:reach the temple district, where the great temple of the Creator;
+T:is built. It would be wise to go there and make a prayer to the;
+T:Creator to purify your soul and bring good luck in your life!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Jindar Soldier;
+T:To the southwest and northeast are the city's slums. Unless you're;
+T:capable of defending yourself, you shouldn't go there. It's full of;
+T:thieves and thugs. Plus, the southwest slums are the home of a Kobold;
+T:clan, while the northeast are occupied by a clan of Devlings. As you;
+T:can probably guess, they're at war...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Jindar Soldier;
+T:Other than that, everywhere else in the city is safe. You will find;
+T:various shops and services all over the city. Have a good time exploring;
+T:the city! Just avoid the southwest and northeast, and everything will;
+T:be fine!;
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any rumors?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Jindar Soldier;
+T:Where should you look for work?? This is Jindar, my friend! There's;
+T:work EVERYWHERE!! Just look around, speak with a few peoples, and I'm;
+T:sure you'll find something that suits you!;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:7:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Jindar Soldier;
+T:Some Karingen scientists claims to have built walking automatons entirely;
+T:made of metal without any form of magic! I don't really believe it...;
+T:but then, I never visiter Karingen. If that was true... that would be;
+T:bad. They would make stronger, cheaper soldiers than we do, and I would;
+T:lose my job...;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any other rumors?:0:0:0:4:7:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Jindar Soldier;
+T:The other day, I was patrolling near the temple's cemetary...;
+T:I heard some strange noises... it seems it came from below the earth...;
+T:Didn't stay there for long, but I wonder what it was...;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any other rumors?:0:0:0:4:7:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

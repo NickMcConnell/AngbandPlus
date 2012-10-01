@@ -1,0 +1,46 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you approach the doors, you find a note lying on the ground...;
+T:It seems to be a letter by mayor Princeton... You read it...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Letter;
+T:<NAME>! If you read this letter, this means you are alive, and I;
+T:am glad! Thanks you for everything you've done... but it seems;
+T:the enemy's plan was much too big for us to counter. I've failed;
+T:to protect Udor... I never thought that we would suffer such a;
+T:brutal invasion... especially an invasion of orcs. We never took;
+T:orc sightings seriously... Perhaps if we would have paid a little;
+T:more attention to Clara's words... perhaps none of this would have;
+T:happened...;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Letter;
+T:But now, as I write this, the orcs are destroying the town... Not;
+T:even you can fight them now, and you should flee to the north, to;
+T:the city of Jindar. You won't be able to stop the orcs alone. You;
+T:must go to the city of Jindar, and let king Julian know about the;
+T:invasion. Commanding the largest and most powerful army in the world,;
+T:he alone can stop the orcs.;
+A:[CONTINUE]:0:0:0:1:4:0:0:39:2
+%
+
+N:4:0:0:0:0:0
+I:Letter;
+T:I am confident that you will be able to do this, <NAME>. Good luck,;
+T:and may the gods be with you!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:The letter ends here. A small map has been drawn on the back of the letter.;
+T:It shows the location of Jindar at (48,41). You can hear the sound of battle;
+T:outside. It seems they are in great number, and you won't be able to fight;
+T:them. It looks like you have no choice but to flee to the north...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

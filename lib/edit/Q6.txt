@@ -1,0 +1,93 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+
+// Town Hall's Basement
+N:Basement;
+
+I:41:15:0:0:0:0:0
+S:38:7
+
+// Return to town hall.
+E:39:7:4:2:3:6:0:0:0:0
+
+// Guards!
+E:35:10:7:1019:1:0:33:0:0:0
+E:37:10:7:1019:1:0:33:0:0:0
+E:31:3:7:1019:1:0:33:0:0:0
+E:27:6:7:1019:1:0:33:0:0:0
+E:29:6:7:1019:1:0:33:0:0:0
+E:11:6:7:1019:1:0:33:0:0:0
+E:11:8:7:1019:1:0:33:0:0:0
+E:19:6:7:1019:1:0:33:0:0:0
+E:19:8:7:1019:1:0:33:0:0:0
+E:4:12:7:1019:1:0:33:0:0:0
+
+// Some coins!
+E:35:13:6:483:50:0:14:0:14:1
+E:36:13:6:483:50:0:15:0:15:1
+E:37:13:6:483:50:0:16:0:16:1
+E:25:1:6:483:50:0:17:0:17:1
+E:26:1:6:483:50:0:18:0:18:1
+E:27:1:6:483:50:0:19:0:19:1
+E:14:1:6:483:50:0:20:0:20:1
+E:15:1:6:483:50:0:21:0:21:1
+E:16:1:6:483:50:0:22:0:22:1
+E:14:13:6:483:50:0:23:0:23:1
+E:15:13:6:483:50:0:24:0:24:1
+E:16:13:6:483:50:0:25:0:25:1
+E:9:10:6:488:100:0:26:0:26:1
+E:9:11:6:488:100:0:27:0:27:1
+E:9:12:6:488:100:0:28:0:28:1
+E:3:1:6:483:50:0:29:0:29:1
+E:5:1:6:483:50:0:30:0:30:1
+
+// Richard's Elixir
+E:4:1:6:1204:0:0:31:0:31:1
+
+D:#########################################
+D:###...########...########...#############
+D:###...########...########...#############
+D:###...#########+##########+###...########
+D:####+##########.##########...........####
+D:####.######.........################.####
+D:####.######.........#..............#.####
+D:####......+.........+..................<#
+D:####.######.........#..............#.####
+D:####.######.........################.####
+D:####.###..#####.###################...###
+D:####...+..#####+####################+####
+D:####.###..####...##################...###
+D:##############...##################...###
+D:#########################################

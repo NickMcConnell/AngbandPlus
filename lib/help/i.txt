@@ -1,15 +1,40 @@
-DUNADAN
----------
+DEMON
+-------
 
-Dunadans are a race of hardy men from the west. They are
-stronger than the regular human in every ways, and they
-are better than humans at anything they do. However, since
-they already know a little about everyting, learning is
-harder and they tend to learn skills more slowly than the
-average race.
+Demons of any kind are usually attacked on sight by most races, save 
+from the citizens of Rhyzendal, the fiendish population of the cold 
+kingdom. Looking humanoid in appearance, the citizens of Rhyzendal 
+generally have grey skin, large demon wings, short horns and a tail, 
+the most common appearance of the lesser demons which have been 
+summoned from the upper planes of hell. While no longer bound to the 
+evil of hell, and trying to become more peaceful, the demons of 
+Rhyzendal have not lost their persuasive and seductive manners, and 
+since they are known to be intelligent and cunning, other kingdoms 
+do not trust them, and are highly hesistant to trade with them, 
+preferring to leave them alone in their kingdom.
 
-ADVANTAGES: +20% to all stats
+Demons can be described as the dark counterparts of celestials. 
+Though living in the civilized world of Portralis turned them away 
+from their evil origins, they are still the masters of darkness in 
+Portralis, and no races matches their dark powers. They are also 
+completely immune to the effect of the dark. Of course, being 
+impregnated with darkness means they are extremely susceptible to 
+light. Demons once lived in the flaming planes of hell, and were 
+once immune to the effects of fire, but after living for centuries in 
+the frozen kingdom of Rhyzendal, they have lost some of their resistance 
+to fire, while gaining some resistance to cold. Demons are intelligent 
+and persuasive, and these are the main reasons why they are not trusted 
+by anyone.
 
-DISADVANTAGES: Must gain more experience to level up.
+DEMON FEATURES:
 
+- +25% to Intelligence.
+- +25% to Charisma.
+- +25% damages to Darkness-based attacks and spells.
+- 25% resistance to fire and cold.
+- 100% resistance to Darkness.
+- Starts the game with the elemental effect 'Darkness' learned.
 
+DEMON PENALITIES:
+
+- 100% weakness to Light.

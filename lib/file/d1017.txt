@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:You head upstairs to the throne, but it seems the doors to the throne;
+T:room are closely shut. Interrupting the king's meeting would be a bad;
+T:idea. Looks like you'll have to return later...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

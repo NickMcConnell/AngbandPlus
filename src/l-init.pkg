@@ -1,0 +1,1652 @@
+/* File: l-init.pkg */
+/* Package file for lua functions. */
+
+
+$#include "angband.h"
+
+typedef char* cptr;
+typedef int errr;
+
+
+/* Constants */
+
+#define TERM_DARK		0	/* 'd' */	/* 0,0,0 */
+#define TERM_WHITE		1	/* 'w' */	/* 4,4,4 */
+#define TERM_SLATE		2	/* 's' */	/* 2,2,2 */
+#define TERM_ORANGE		3	/* 'o' */	/* 4,2,0 */
+#define TERM_RED		4	/* 'r' */	/* 3,0,0 */
+#define TERM_GREEN		5	/* 'g' */	/* 0,2,1 */
+#define TERM_BLUE		6	/* 'b' */	/* 0,0,4 */
+#define TERM_UMBER		7	/* 'u' */	/* 2,1,0 */
+#define TERM_L_DARK		8	/* 'D' */	/* 1,1,1 */
+#define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
+#define TERM_VIOLET		10	/* 'v' */	/* 4,0,4 */
+#define TERM_YELLOW		11	/* 'y' */	/* 4,4,0 */
+#define TERM_L_RED		12	/* 'R' */	/* 4,0,0 */
+#define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
+#define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
+#define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
+
+#define CAVE_MARK       0x0001
+#define CAVE_GLOW       0x0002
+#define CAVE_ICKY       0x0004
+#define CAVE_ROOM       0x0008
+#define CAVE_LITE       0x0010
+#define CAVE_VIEW       0x0020
+#define CAVE_TEMP       0x0040
+#define CAVE_XTRA       0x0080
+#define CAVE_TRDT       0x0100
+
+#define INVEN_PACK              23
+
+#define BODY_WEAPON     0
+#define BODY_TORSO      1
+#define BODY_ARMS       2
+#define BODY_FINGER     3
+#define BODY_HEAD       4
+#define BODY_LEGS       5
+#define BODY_MAX        6
+
+#define PY_FOOD_MAX     15000
+#define PY_FOOD_FULL    10000
+#define PY_FOOD_ALERT   2000
+#define PY_FOOD_WEAK    1000
+#define PY_FOOD_FAINT   500
+#define PY_FOOD_STARVE  100
+
+#define PY_FOOD_100     10000
+#define PY_FOOD_90       9000
+#define PY_FOOD_80       8000
+#define PY_FOOD_70       7000
+#define PY_FOOD_60       6000
+#define PY_FOOD_50       5000
+#define PY_FOOD_40       4000
+#define PY_FOOD_30       3000
+#define PY_FOOD_20       2000
+#define PY_FOOD_10       1000
+#define PY_FOOD_0           0
+
+#define INVEN_WIELD     24 /* 3 weapons -- WEAPONS */
+#define INVEN_BOW       27 /* 1 bow -- WEAPON */
+#define INVEN_RING      28 /* 6 rings -- FINGER */
+#define INVEN_NECK      34 /* 2 amulets -- HEAD */
+#define INVEN_LITE      36 /* 1 lite -- TORSO */
+#define INVEN_BODY      37 /* 1 body -- TORSO */
+#define INVEN_OUTER     38 /* 1 cloak -- TORSO */
+#define INVEN_ARM       39 /* 3 arms -- ARMS */
+#define INVEN_HEAD      42 /* 2 heads -- HEAD */
+#define INVEN_HANDS     44 /* 3 hands -- ARMS */
+#define INVEN_FEET      47 /* 2 feets --LEGS */
+#define INVEN_AMMO      50 /* 1 quiver -- TORSO */
+#define INVEN_TOOL      51 /* 1 tool -- ARMS */
+#define INVEN_TOTAL     54
+
+#define TV_SKELETON      1
+#define TV_BOTTLE        2
+#define TV_BATERIE       4
+#define TV_SPIKE         5
+#define TV_MSTAFF        6
+#define TV_CHEST         7
+#define TV_PARCHEMENT    8
+#define TV_CORPSE        9
+#define TV_EGG          10
+#define TV_JUNK         11
+#define TV_TOOL         12
+#define TV_INSTRUMENT   14
+#define TV_BOOMERANG    15
+#define TV_SHOT         16
+#define TV_ARROW        17
+#define TV_BOLT         18
+#define TV_BOW          19
+#define TV_DIGGING      20
+#define TV_HAFTED       21
+#define TV_POLEARM      22
+#define TV_SWORD        23
+#define TV_ZELAR_WEAPON 24
+#define TV_DAGGER       25
+#define TV_AXE          26
+#define TV_BOOTS        30
+#define TV_GLOVES       31
+#define TV_HELM         32
+#define TV_CROWN        33
+#define TV_SHIELD       34
+#define TV_CLOAK        35
+#define TV_SOFT_ARMOR   36
+#define TV_HARD_ARMOR   37
+#define TV_DRAG_ARMOR   38
+#define TV_LITE         39
+#define TV_AMULET       40
+#define TV_ARM_BAND     41
+#define TV_RING         45
+#define TV_STAFF        55
+#define TV_WAND         65
+#define TV_ROD          66
+#define TV_SOUL         67
+#define TV_SCROLL       70
+#define TV_POTION       71
+#define TV_POTION2      72
+#define TV_FLASK        77
+#define TV_LICIALHYD    78
+#define TV_FOOD         80
+
+#define TV_BOOK_ELEMENTAL 81
+#define TV_BOOK_ALTERATION 82
+#define TV_BOOK_HEALING 83
+#define TV_BOOK_CONJURATION 84
+#define TV_BOOK_DIVINATION 85
+
+#define TV_HYPNOS       99
+#define TV_GOLD         100
+#define TV_RANDART      102
+#define TV_CRYSTAL      106
+#define TV_VALKYRIE_SPEAR 107
+#define TV_HELL_STAFF   126
+#define TV_SWORD_DEVASTATION 127
+
+#define GF_FIRE         1
+#define GF_COLD         2
+#define GF_ELEC         3
+#define GF_ACID         4
+#define GF_POIS         5
+#define GF_LITE         6
+#define GF_DARK         7
+#define GF_WARP         8
+#define GF_WATER        9
+#define GF_WIND         10
+#define GF_EARTH        11
+#define GF_SOUND        12
+#define GF_RADIO        13
+#define GF_CHAOS        14
+#define GF_PHYSICAL     15
+#define GF_MANA         16
+#define GF_MISSILE      17
+#define GF_FROSTFIRE    18
+#define GF_GREY         19
+#define GF_TOXIC        20
+#define GF_ARROW        37
+#define GF_PLASMA       38
+#define GF_LITE_WEAK    36
+#define GF_DARK_WEAK    39
+#define GF_CONFUSION    22
+#define GF_FORCE        23
+#define GF_INERTIA      24
+#define GF_METEOR       27
+#define GF_ICE          28
+#define GF_NETHER       31
+#define GF_DISENCHANT   32
+#define GF_NEXUS        33
+#define GF_TIME         34
+#define GF_GRAVITY      35
+#define GF_KILL_WALL    40
+#define GF_KILL_DOOR    41
+#define GF_KILL_TRAP    42
+#define GF_MAKE_WALL    45
+#define GF_MAKE_DOOR    46
+#define GF_MAKE_TRAP    47
+#define GF_OLD_CLONE    51
+#define GF_OLD_POLY             52
+#define GF_OLD_HEAL             53
+#define GF_OLD_SPEED    54
+#define GF_OLD_SLOW             55
+#define GF_OLD_CONF             56
+#define GF_OLD_SLEEP    57
+#define GF_OLD_DRAIN    58
+#define GF_AWAY_UNDEAD  61
+#define GF_AWAY_EVIL    62
+#define GF_TURN_UNDEAD  64
+#define GF_TURN_EVIL    65
+#define GF_TURN_ALL     66
+#define GF_DISP_UNDEAD  67
+#define GF_DISP_EVIL    68
+#define GF_DISP_ALL 69    
+#define GF_DISP_DEMON   70
+#define GF_DISP_LIVING  71
+#define GF_ROCKET       72
+#define GF_MAKE_GLYPH   74
+#define GF_STASIS       75
+#define GF_STONE_WALL   76
+#define GF_DEATH_RAY    77
+#define GF_STUN         78
+#define GF_HOLY_FIRE    79
+#define GF_HELL_FIRE    80
+#define GF_DISINTEGRATE 81
+#define GF_CHARM        82
+#define GF_CONTROL_UNDEAD   83
+#define GF_CONTROL_ANIMAL   84
+#define GF_PSI         85
+#define GF_PSI_DRAIN   86
+#define GF_TELEKINESIS  87
+#define GF_JAM_DOOR     88
+#define GF_DOMINATION   89
+#define GF_DISP_GOOD    90
+#define GF_IDENTIFY     91
+#define GF_RAISE        92
+#define GF_STAR_IDENTIFY 93
+#define GF_DESTRUCTION  94
+#define GF_STUN_CONF    95
+#define GF_STUN_DAM     96
+#define GF_CONF_DAM     98
+#define GF_STAR_CHARM   99
+#define GF_IMPLOSION    100
+#define GF_LAVA_FLOW    101
+#define GF_FEAR         102
+#define GF_BETWEEN_GATE 103
+#define GF_WINDS_MANA   104
+#define GF_DEATH        105
+#define GF_LITE_CONTROL 106
+#define GF_DRAGON_CONTROL 107
+/* New ones used for Curses */
+#define GF_WEAKEN 108
+#define GF_LOWER_POWER 109
+#define GF_LOWER_MAGIC 110
+#define GF_SLOW_DOWN 111
+#define GF_LIFE_BLAST 112
+#define GF_HALVE_DAMAGES 113
+#define GF_HALVE_MAGIC 114
+#define GF_HALVE_SPEED 115
+#define GF_HALVE_LEVEL 116
+#define GF_LOCK 117
+#define GF_DAMAGES_CURSE 118
+#define GF_INCOMPETENCE 119
+#define GF_RETROGRADE 120
+#define GF_DOMINATION_CURSE 122
+#define GF_SLEEP_POLLEN 123
+#define GF_WAR_BLESSING 124
+#define GF_FRAILNESS 125
+#define GF_INEPTITUDE 126
+#define GF_FEAR_CURSE 127
+#define GF_PSI_HITRATE 128
+#define GF_PSI_FEAR 129
+#define GF_REDUCE_DEF 130
+#define GF_REDUCE_HIT 131
+#define GF_REDUCE_SPEED 132
+#define GF_MORALE_BOOST 133
+#define GF_EVOLVE 134
+#define GF_UNEVOLVE 135
+#define GF_UNSUMMON 136
+#define GF_SLEEP_GAS 137
+#define GF_ANIMAL_EMPATHY 138
+#define GF_AURA_LIFE 139
+#define GF_SMITE_EVIL 140
+#define GF_RETROGRADE_DARKNESS 141
+#define GF_DOMINATE_MONSTER 142
+#define GF_SHATTER_EVIL 143
+#define GF_ANGELIC_VOICE 144
+#define GF_REPULSE_EVIL 145
+#define GF_SLAY_EVIL 146
+#define GF_SEAL_LIGHT 147
+#define GF_PARALYZE 148
+#define GF_STEALTH_ATTACK 149
+#define GF_WARCRY 150
+/* Monster attacks! */
+#define GF_LOSE_STR 151
+#define GF_LOSE_INT 152
+#define GF_LOSE_WIS 153
+#define GF_LOSE_DEX 154
+#define GF_LOSE_CON 155
+#define GF_LOSE_CHR 156
+#define GF_LOSE_ALL 157
+#define GF_LOSE_EXP 158
+#define GF_TAUNT 159
+
+#define PANEL_HGT	11
+#define PANEL_WID	33
+#define SCREEN_HGT      22
+#define SCREEN_WID      66
+#define MAX_HGT         66
+#define MAX_WID         198
+
+#define KEYMAP_MODES	2
+#define KEYMAP_MODE_ORIG	0
+#define KEYMAP_MODE_ROGUE	1
+
+#define MAX_HISCORES    100
+#define MAX_DEPTH       128
+#define LITE_MAX 128
+#define VIEW_MAX 1536
+#define TEMP_MAX 1536
+
+#define MAX_OWNERS      4
+#define MAX_SEXES            3
+#define MAX_RACES           11
+#define MAX_CLASS            34
+#define MAX_ABILITIES        340
+
+#define MAX_WILD_X 1000
+#define MAX_WILD_Y 1000
+
+#define SOUND_HIT        1
+#define SOUND_MISS       2
+#define SOUND_FLEE       3
+#define SOUND_DROP       4
+#define SOUND_KILL       5
+#define SOUND_LEVEL      6
+#define SOUND_DEATH      7
+#define SOUND_STUDY      8
+#define SOUND_TELEPORT   9
+#define SOUND_SHOOT     10
+#define SOUND_QUAFF     11
+#define SOUND_ZAP       12
+#define SOUND_WALK      13
+#define SOUND_TPOTHER   14
+#define SOUND_HITWALL   15
+#define SOUND_EAT       16
+#define SOUND_STORE1    17
+#define SOUND_STORE2    18
+#define SOUND_STORE3    19
+#define SOUND_STORE4    20
+#define SOUND_DIG       21
+#define SOUND_OPENDOOR  22
+#define SOUND_SHUTDOOR  23
+#define SOUND_TPLEVEL   24
+#define SOUND_SCROLL	25
+#define SOUND_BUY	26
+#define SOUND_SELL	27
+#define SOUND_WARN	28
+#define SOUND_ROCKET    29
+#define SOUND_N_KILL    30
+#define SOUND_U_KILL    31
+#define SOUND_QUEST     32
+#define SOUND_HEAL      33
+#define SOUND_X_HEAL    34
+#define SOUND_BITE      35
+#define SOUND_CLAW      36
+#define SOUND_M_SPELL   37
+#define SOUND_SUMMON    38
+#define SOUND_BREATH    39
+#define SOUND_BALL      40
+#define SOUND_M_HEAL    41
+#define SOUND_ATK_SPELL 42
+#define SOUND_EVIL      43
+#define SOUND_TOUCH     44
+#define SOUND_STING     45
+#define SOUND_CRUSH     46
+#define SOUND_SLIME     47
+#define SOUND_WAIL      48
+#define SOUND_WINNER    49
+#define SOUND_FIRE      50
+#define SOUND_ACID      51
+#define SOUND_ELEC      52
+#define SOUND_COLD      53
+#define SOUND_ILLEGAL   54
+#define SOUND_FAIL      55
+#define SOUND_WAKEUP    56
+#define SOUND_INVULN    57
+#define SOUND_FALL      58
+#define SOUND_PAIN      59
+#define SOUND_DESTITEM  60
+#define SOUND_MOAN      61
+#define SOUND_SHOW      62
+#define SOUND_UNUSED    63
+#define SOUND_EXPLODE   64
+#define SOUND_MAX       65
+
+#define FEAT_NONE               0x00
+#define FEAT_FLOOR              0x01
+#define FEAT_GLYPH              0x03
+#define FEAT_OPEN               0x04
+#define FEAT_BROKEN             0x05
+#define FEAT_LESS               0x06
+#define FEAT_MORE               0x07
+#define FEAT_QUEST_ENTER		0x08
+#define FEAT_QUEST_EXIT			0x09
+#define FEAT_QUEST_DOWN			0x0A
+#define FEAT_QUEST_UP			0x0B
+#define FEAT_SHAFT_DOWN         0x0D
+#define FEAT_SHAFT_UP           0x0E
+#define FEAT_DOOR_HEAD  0x20
+#define FEAT_DOOR_TAIL  0x2F
+#define FEAT_SECRET             0x30
+#define FEAT_RUBBLE             0x31
+#define FEAT_MAGMA              0x32
+#define FEAT_QUARTZ             0x33
+#define FEAT_MAGMA_H    0x34
+#define FEAT_QUARTZ_H   0x35
+#define FEAT_MAGMA_K    0x36
+#define FEAT_QUARTZ_K   0x37
+#define FEAT_WALL_EXTRA 0x38
+#define FEAT_WALL_INNER 0x39
+#define FEAT_WALL_OUTER 0x3A
+#define FEAT_WALL_SOLID 0x3B
+#define FEAT_PERM_EXTRA 0x3C
+#define FEAT_PERM_INNER 0x3D
+#define FEAT_PERM_OUTER 0x3E
+#define FEAT_PERM_SOLID 0x3F
+#define FEAT_MINOR_GLYPH 0x40
+#define FEAT_PATTERN_START 0x41
+#define FEAT_PATTERN_1  0x42
+#define FEAT_PATTERN_2  0x43
+#define FEAT_PATTERN_3  0x44
+#define FEAT_PATTERN_4  0x45
+#define FEAT_PATTERN_END 0x46
+#define FEAT_PATTERN_OLD 0x47
+#define FEAT_PATTERN_XTRA1 0x48
+#define FEAT_PATTERN_XTRA2 0x49
+#define FEAT_SHOP_HEAD  204
+#define FEAT_SHOP_TAIL  215
+#define FEAT_DEEP_WATER         187
+#define FEAT_SHAL_WATER		0x54
+#define FEAT_DEEP_LAVA		0x55
+#define FEAT_SHAL_LAVA		0x56
+#define FEAT_DARK_PIT		0x57
+#define FEAT_DIRT		0x58
+#define FEAT_GRASS		0x59
+#define FEAT_TREES		0x60
+#define FEAT_MOUNTAIN		0x61
+#define FEAT_SNOW		0x62
+#define FEAT_SNOW_TREES		0x63
+#define FEAT_GLACIER		0x64
+#define FEAT_ICE_WALL		0x65
+#define FEAT_BETWEEN            160
+#define FEAT_GLASS_WALL         188
+#define FEAT_ILLUS_WALL         189
+#define FEAT_TOWN               203
+#define FEAT_ENCOUNTER          220
+#define FEAT_FIRE_FIELD          221
+#define FEAT_COLD_FIELD          222
+#define FEAT_ELEC_FIELD          223
+#define FEAT_WEBS                225
+#define FEAT_SPIKE_TRAP          226
+#define FEAT_GAS_TRAP            227
+#define FEAT_POISON_TRAP         228
+#define FEAT_VINE_FIELD          229
+#define FEAT_THORNED_VINES       230
+#define FEAT_STORMS              231
+#define FEAT_DARK_MIST           232
+
+#define CLASS_APPRENTICE        0
+#define CLASS_WARRIOR           1
+#define CLASS_FIGHTER           2
+#define CLASS_MAGE              3
+#define CLASS_PRIEST            4
+#define CLASS_ROGUE             5
+#define CLASS_RANGER            6
+#define CLASS_PALADIN           7
+#define CLASS_MONK              8
+#define CLASS_ARCHER            9
+#define CLASS_HIGH_MAGE         10
+#define CLASS_ELEM_LORD         11
+#define CLASS_MONSTER_MAGE      12
+#define CLASS_DEFENDER          13
+#define CLASS_JUSTICE_WARRIOR   14
+#define CLASS_ZELAR             15
+#define CLASS_SOUL_GUARDIAN     16
+#define CLASS_SHADOW            17
+
+#define RACE_HUMAN              0
+#define RACE_HALF_ELF           1
+#define RACE_ELF                2
+#define RACE_DWARF              3
+#define RACE_GNOME              4
+#define RACE_KOBOLD             5
+#define RACE_DEVLING            6
+#define RACE_CELESTIAL          7
+#define RACE_DEMON              8
+#define RACE_ZULGOR             9
+#define RACE_MONSTER            10
+
+#define SEX_FEMALE              0
+#define SEX_MALE                1
+#define SEX_NEUTER              2
+
+#define A_STR   0
+#define A_INT   1
+#define A_WIS   2
+#define A_DEX   3
+#define A_CON   4
+#define A_CHR   5
+
+#define SKILL_MAX 50
+
+#define RF1_UNIQUE                      0x00000001
+#define RF1_QUESTOR                     0x00000002
+#define RF1_MALE                        0x00000004
+#define RF1_FEMALE                      0x00000008
+#define RF1_CHAR_CLEAR          0x00000010
+#define RF1_CHAR_MULTI          0x00000020
+#define RF1_ATTR_CLEAR          0x00000040
+#define RF1_ATTR_MULTI          0x00000080
+#define RF1_FORCE_DEPTH         0x00000100
+#define RF1_FORCE_MAXHP         0x00000200
+#define RF1_FORCE_SLEEP         0x00000400
+#define RF1_FORCE_EXTRA         0x00000800
+#define RF1_FRIEND              0x00001000
+#define RF1_FRIENDS             0x00002000
+#define RF1_ESCORT              0x00004000
+#define RF1_ESCORTS             0x00008000
+#define RF1_NEVER_BLOW          0x00010000
+#define RF1_NEVER_MOVE          0x00020000
+#define RF1_RAND_25             0x00040000
+#define RF1_RAND_50             0x00080000
+#define RF1_ONLY_GOLD           0x00100000
+#define RF1_ONLY_ITEM           0x00200000
+#define RF1_DROP_60             0x00400000
+#define RF1_DROP_90             0x00800000
+#define RF1_DROP_1D2            0x01000000
+#define RF1_DROP_2D2            0x02000000
+#define RF1_DROP_3D2            0x04000000
+#define RF1_DROP_4D2            0x08000000
+#define RF1_DROP_GOOD           0x10000000
+#define RF1_DROP_GREAT          0x20000000
+#define RF1_DROP_USEFUL         0x40000000
+#define RF1_DROP_CHOSEN         0x80000000
+
+#define RF2_STUPID                      0x00000001
+#define RF2_SMART                       0x00000002
+#define RF2_CAN_SPEAK            0x00000004
+#define RF2_REFLECTING                  0x00000008
+#define RF2_INVISIBLE           0x00000010
+#define RF2_COLD_BLOOD          0x00000020
+#define RF2_EMPTY_MIND          0x00000040
+#define RF2_WEIRD_MIND          0x00000080
+#define RF2_MULTIPLY            0x00000100
+#define RF2_REGENERATE          0x00000200
+#define RF2_SHAPECHANGER        0x00000400
+#define RF2_ATTR_ANY            0x00000800
+#define RF2_POWERFUL            0x00001000
+#define RF2_ELDRITCH_HORROR             0x00002000
+#define RF2_AURA_FIRE                   0x00004000
+#define RF2_AURA_ELEC                   0x00008000
+#define RF2_OPEN_DOOR           0x00010000
+#define RF2_BASH_DOOR           0x00020000
+#define RF2_PASS_WALL           0x00040000
+#define RF2_KILL_WALL           0x00080000
+#define RF2_MOVE_BODY           0x00100000
+#define RF2_KILL_BODY           0x00200000
+#define RF2_TAKE_ITEM           0x00400000
+#define RF2_KILL_ITEM           0x00800000
+#define RF2_BRAIN_1                     0x01000000
+#define RF2_BRAIN_2                     0x02000000
+#define RF2_BRAIN_3                     0x04000000
+#define RF2_BRAIN_4                     0x08000000
+#define RF2_BRAIN_5                     0x10000000
+#define RF2_BRAIN_6                     0x20000000
+#define RF2_BRAIN_7                     0x40000000
+#define RF2_BRAIN_8                     0x80000000
+
+#define RF3_ORC                         0x00000001
+#define RF3_TROLL                       0x00000002
+#define RF3_GIANT                       0x00000004
+#define RF3_DRAGON                      0x00000008
+#define RF3_DEMON                       0x00000010
+#define RF3_UNDEAD                      0x00000020
+#define RF3_EVIL                        0x00000040
+#define RF3_ANIMAL                      0x00000080
+#define RF3_GOOD                        0x00000200
+#define RF3_AURA_COLD                        0x00000400
+#define RF3_NONLIVING           0x00000800
+#define RF3_NO_FEAR                     0x10000000
+#define RF3_NO_STUN                     0x20000000
+#define RF3_NO_CONF                     0x40000000
+#define RF3_NO_SLEEP            0x80000000
+
+#define RF7_AQUATIC             0x00000081
+#define RF7_CAN_SWIM            0x00000002
+#define RF7_CAN_FLY             0x00000004
+#define RF7_FRIENDLY            0x00000008
+#define RF7_PET                 0x00000010
+#define RF7_MORTAL              0x00000020
+#define RF7_PLAYER_MONSTER      0x00000040
+#define RF7_NAZGUL              0x00000080
+#define RF7_DG_CURSE            0x00000080
+#define RF7_LEVEL_30            0x00000100
+#define RF7_LEVEL_60            0x00000200
+#define RF7_LEVEL_100           0x00000400
+#define RF7_VARIAZ              0x00000800
+#define RF7_SEDUCE_MALES        0x00002000
+#define RF7_SEDUCE_FEMALES      0x00004000
+#define RF7_TOWNSFOLK           0x00008000
+#define RF7_NEVER_MOVE_FRIENDLY 0x00010000
+#define RF7_GUARD               0x00020000
+#define RF7_NEVER_BOSS          0x00040000
+
+#define RF8_DUNGEON             0x00000001
+#define RF8_WILD_TOWN           0x00000002
+#define RF8_XXX8X02             0x00000004
+#define RF8_WILD_SHORE          0x00000008
+#define RF8_WILD_OCEAN          0x00000010
+#define RF8_WILD_WASTE          0x00000020
+#define RF8_WILD_WOOD           0x00000040
+#define RF8_WILD_VOLCANO        0x00000080
+#define RF8_XXX8X08             0x00000100
+#define RF8_WILD_MOUNTAIN       0x00000200
+#define RF8_WILD_GRASS          0x00000400
+#define RF8_CTHANGBAND          0x00001000
+#define RF8_PERNANGBAND         0x00002000
+#define RF8_ZANGBAND            0x00004000
+#define RF8_JOKEANGBAND         0x00008000
+#define RF8_ANGBAND             0x00010000
+#define RF8_WILD_TOO            0x80000000
+
+#define RF9_DROP_CORPSE         0x00000001
+#define RF9_DROP_SKELETON       0x00000002
+#define RF9_HAS_EGG             0x00000010
+#define RF9_IMPRESED            0x00000020
+#define RF9_SUSCEP_ACID         0x00000040
+#define RF9_SUSCEP_ELEC         0x00000080
+#define RF9_SUSCEP_POIS         0x00000100
+#define RF9_KILL_TREES          0x00000200
+#define RF9_WYRM_PROTECT        0x00000400
+#define RF9_DOPPLEGANGER        0x00000800
+#define RF9_ONLY_DEPTH          0x00001000
+#define RF9_SPECIAL_GENE        0x00002000
+
+#define TR1_STR                         0x00000001L     /* STR += "pval" */
+#define TR1_INT                         0x00000002L     /* INT += "pval" */
+#define TR1_WIS                         0x00000004L     /* WIS += "pval" */
+#define TR1_DEX                         0x00000008L     /* DEX += "pval" */
+#define TR1_CON                         0x00000010L     /* CON += "pval" */
+#define TR1_CHR                         0x00000020L     /* CHR += "pval" */
+#define TR1_MANA                        0x00000040L     /* Mana multipler */
+#define TR1_SPELL                       0x00000080L     /* Spell power increase */
+#define TR1_STEALTH                     0x00000100L     /* Stealth += "pval" */
+#define TR1_SHARPENED                   0x00000200L     /* Sharpened ammos */
+#define TR1_INFRA                       0x00000400L     /* Infra += "pval" */
+#define TR1_ENCHANTED                   0x00000800L     /* Just a flag */
+#define TR1_SPEED                       0x00001000L     /* Speed += "pval" */
+#define TR1_BLOWS                       0x00002000L     /* Blows += "pval" */
+#define TR1_CHAOTIC                     0x00004000L
+#define TR1_VAMPIRIC                    0x00008000L
+#define TR1_SLAY_ANIMAL         0x00010000L
+#define TR1_SLAY_EVIL           0x00020000L
+#define TR1_SLAY_UNDEAD         0x00040000L
+#define TR1_SLAY_DEMON          0x00080000L
+#define TR1_SLAY_ORC            0x00100000L
+#define TR1_SLAY_TROLL          0x00200000L
+#define TR1_SLAY_GIANT          0x00400000L
+#define TR1_SLAY_DRAGON         0x00800000L
+#define TR1_KILL_DRAGON         0x01000000L     /* Execute Dragon */
+#define TR1_VORPAL                      0x02000000L     /* Later */
+#define TR1_IMPACT                      0x04000000L     /* Cause Earthquakes */
+#define TR1_BRAND_POIS                  0x08000000L
+#define TR1_BRAND_ACID          0x10000000L
+#define TR1_BRAND_ELEC          0x20000000L
+#define TR1_BRAND_FIRE          0x40000000L
+#define TR1_BRAND_COLD          0x80000000L
+#define TR1_NULL_MASK           0x00000000L
+
+#define TR2_SUST_STR            0x00000001L
+#define TR2_SUST_INT            0x00000002L
+#define TR2_SUST_WIS            0x00000004L
+#define TR2_SUST_DEX            0x00000008L
+#define TR2_SUST_CON            0x00000010L
+#define TR2_SUST_CHR            0x00000020L
+#define TR2_INVIS                       0x00000040L     /* Invisibility */
+#define TR2_LIFE                        0x00000080L     /* Life multiplier */
+#define TR2_IM_ACID                     0x00000100L
+#define TR2_IM_ELEC                     0x00000200L
+#define TR2_IM_FIRE                     0x00000400L
+#define TR2_IM_COLD                     0x00000800L
+#define TR2_RES_WATER                   0x00001000L     /* Sensibility to fire */
+#define TR2_REFLECT                     0x00002000L     /* Reflect 'bolts' */
+#define TR2_FREE_ACT            0x00004000L     /* Free Action */
+#define TR2_HOLD_LIFE           0x00008000L     /* Hold Life */
+#define TR2_RES_ACID            0x00010000L
+#define TR2_RES_ELEC            0x00020000L
+#define TR2_RES_FIRE            0x00040000L
+#define TR2_RES_COLD            0x00080000L
+#define TR2_RES_POIS            0x00100000L
+#define TR2_RES_FEAR            0x00200000L     /* Added for Zangband */
+#define TR2_RES_LITE            0x00400000L
+#define TR2_RES_DARK            0x00800000L
+#define TR2_RES_BLIND           0x01000000L
+#define TR2_RES_CONF            0x02000000L
+#define TR2_RES_SOUND           0x04000000L
+#define TR2_RES_EARTH           0x08000000L
+#define TR2_RES_RADIO           0x10000000L
+#define TR2_RES_WIND            0x20000000L
+#define TR2_RES_CHAOS           0x40000000L
+#define TR2_RES_WARP            0x80000000L
+#define TR2_NULL_MASK           0x00000000L
+
+#define TR3_SH_FIRE                     0x00000001L     /* Immolation (Fire) */
+#define TR3_SH_ELEC                     0x00000002L     /* Electric Sheath */
+#define TR3_QUESTITEM					0x00000004L	/* quest level item -KMW- */
+#define TR3_DECAY                       0x00000008L     /* Decay */
+#define TR3_NO_TELE                     0x00000010L     /* Anti-teleportation */
+#define TR3_NO_MAGIC                    0x00000020L     /* Anti-magic */
+#define TR3_WRAITH                      0x00000040L     /* Wraithform */
+#define TR3_TY_CURSE                    0x00000080L     /* The Ancient Curse */
+#define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
+#define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
+#define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
+#define TR3_INSTA_ART           0x00000800L     /* Item must be an artifact */
+#define TR3_FEATHER                     0x00001000L     /* Feather Falling */
+#define TR3_LITE                        0x00002000L     /* Permanent Light */
+#define TR3_SEE_INVIS           0x00004000L     /* See Invisible */
+#define TR3_TELEPATHY           0x00008000L     /* Telepathy */
+#define TR3_SLOW_DIGEST         0x00010000L     /* Item slows down digestion */
+#define TR3_REGEN                       0x00020000L     /* Item induces regeneration */
+#define TR3_XTRA_MIGHT          0x00040000L     /* Bows get extra multiplier */
+#define TR3_XTRA_SHOTS          0x00080000L     /* Bows get extra shots */
+#define TR3_IGNORE_ACID         0x00100000L     /* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC         0x00200000L     /* Item ignores Elec Damage */
+#define TR3_IGNORE_FIRE         0x00400000L     /* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD         0x00800000L     /* Item ignores Cold Damage */
+#define TR3_ACTIVATE            0x01000000L     /* Item can be activated */
+#define TR3_DRAIN_EXP           0x02000000L     /* Item drains Experience */
+#define TR3_TELEPORT            0x04000000L     /* Item teleports player */
+#define TR3_AGGRAVATE           0x08000000L     /* Item aggravates monsters */
+#define TR3_BLESSED                     0x10000000L     /* Item is Blessed */
+#define TR3_CURSED                      0x20000000L     /* Item is Cursed */
+#define TR3_HEAVY_CURSE         0x40000000L     /* Item is Heavily Cursed */
+#define TR3_PERMA_CURSE         0x80000000L     /* Item is Perma Cursed */
+#define TR3_NULL_MASK           0x00000000L
+
+
+#define TR4_NEVER_BLOW          0x00000001L     /* Weapon can't attack */
+#define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
+#define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
+#define TR4_DG_CURSE            0x00000020L     /* The Ancient Morgothian Curse */
+#define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
+#define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
+#define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
+#define TR4_CLONE               0x00000200L     /* Can clone monsters */
+#define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
+#define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
+#define TR4_ONLY_WARRIOR        0x00001000L     /* Only warrior classes can use */
+#define TR4_ONLY_MAGE           0x00002000L     /* Only mage classes can use */
+#define TR4_ONLY_MALE           0x00004000L     /* Only usable to males */
+#define TR4_ONLY_FEMALE         0x00008000L
+#define TR4_BRAND_LIGHT         0x00010000L
+#define TR4_BRAND_DARK          0x00020000L
+#define TR4_BRAND_MAGIC         0x00040000L
+#define TR4_CHARGEABLE          0x00080000L
+#define TR4_INDESTRUCTIBLE      0x00100000L
+#define TR4_ETERNAL             0x00200000L
+#define TR4_SLAY_MALE           0x00400000L
+#define TR4_SLAY_FEMALE         0x00800000L
+#define TR4_ALWAYS_HIT          0x01000000L
+#define TR4_LOWER_DEF           0x02000000L
+#define TR4_LOWER_HIT           0x04000000L
+#define TR4_RETURNING           0x08000000L
+#define TR4_SAFETY              0x10000000L
+#define TR4_PROTECTION          0x20000000L
+#define TR4_ORIENTAL            0x40000000L
+#define TR4_PARRY               0x80000000L
+#define TR4_NULL_MASK           0xFFFFFFFCL
+
+#define BOSS_IMMUNE_WEAPONS  0x00000001L
+#define BOSS_IMMUNE_MAGIC    0x00000002L
+#define BOSS_DOUBLE_DAMAGES  0x00000004L
+#define BOSS_HALVE_DAMAGES   0x00000008L
+#define BOSS_CURSED_HITS     0x00000010L
+#define BOSS_DOUBLE_MAGIC    0x00000020L
+#define BOSS_RETURNING       0x00000040L
+#define CURSE_LOWER_POWER    0x00000080L
+#define CURSE_LOWER_MAGIC    0x00000100L
+#define CURSE_HALVE_HP       0x00000200L
+#define CURSE_LOCK           0x00000400L
+#define CURSE_RETURNING      0x00000800L
+#define CURSE_SLOW_DOWN      0x00001000L
+#define CURSE_HALVE_SPEED    0x00002000L
+#define CURSE_LIFE_BLAST     0x00004000L
+#define CURSE_HALVE_DAMAGES  0x00008000L
+#define CURSE_HALVE_MAGIC    0x00010000L
+#define CURSE_HALVE_LEVEL    0x00020000L
+#define CURSE_DAMAGES_CURSE  0x00040000L
+#define WAR_BLESSED          0x00080000L
+#define CURSE_FRAILNESS      0x00100000L
+#define CURSE_INEPTITUDE     0x00200000L
+#define CURSE_FEAR           0x00400000L
+#define EYE_STABBED          0x00800000L
+#define MUTILATE_LEGS        0x01000000L
+#define MUTILATE_ARMS        0x02000000L
+#define PSYCHIC_HITRATE      0x04000000L
+#define MORALE_BOOST         0x08000000L
+#define BOSS_MAGIC_RETURNING 0x10000000L
+#define TAUNTED              0x20000000L
+
+/***** Functions *****/
+
+extern void notice_stuff(void);
+extern void update_stuff(void);
+extern void redraw_stuff(void);
+extern void window_stuff(void);
+extern void handle_stuff(void);
+extern void update_and_handle(void);
+
+/* Various functions */
+extern char inkey(void);
+extern void bell();
+extern void sound(int val);
+extern void msg_print(cptr msg);
+extern void screen_save(void);
+extern void screen_load(void);
+extern void c_put_str(byte attr, cptr str, int row, int col);
+extern void put_str(cptr str, int row, int col);
+extern void c_prt(byte attr, cptr str, int row, int col);
+extern void prt(cptr str, int row, int col);
+extern void clear_from(int row);
+extern void pause_line(int row);
+extern void request_command(bool shopping);
+extern bool askfor_aux(char *buf, int len);
+extern bool get_string(cptr prompt, char *buf, int len);
+extern bool get_check(cptr prompt);
+extern bool get_com(cptr prompt, char *command);
+extern s16b get_quantity(cptr prompt, int max);
+extern errr Term_clear(void);
+extern void flush(void);
+extern int process_dialog(int dnum, FILE *fp);
+extern void show_dialog(int dialognum);
+
+/* Execute script within lua code. */
+extern bool script_do_file(cptr filename);
+
+/* Random number generator */
+extern s32b lua_randint(int num);
+
+/* More functions */
+extern int distance(int y1, int x1, int y2, int x2);
+extern bool los(int y1, int x1, int y2, int x2);
+extern bool player_can_see_bold(int y, int x);
+extern bool cave_valid_bold(int y, int x);
+extern bool no_lite(void);
+extern void move_cursor_relative(int row, int col);
+extern void print_rel(char c, byte a, int y, int x);
+extern void note_spot(int y, int x);
+extern void lite_spot(int y, int x);
+extern void prt_map(void);
+extern void display_map(int *cy, int *cx);
+extern void do_cmd_view_map(void);
+extern void forget_lite(void);
+extern void update_lite(void);
+extern void forget_view(void);
+extern void update_view(void);
+extern void forget_flow(void);
+extern void update_flow(void);
+extern void map_area(void);
+extern void wiz_lite(void);
+extern void wiz_lite_extra(void);
+extern void wiz_dark(void);
+extern void cave_set_feat(int y, int x, int feat);
+extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
+extern bool projectable(int y1, int x1, int y2, int x2);
+extern void scatter(int *yp, int *xp, int y, int x, int d, int m);
+extern void health_track(int m_idx);
+extern void monster_race_track(int r_idx);
+extern void object_kind_track(int k_idx);
+extern void disturb(int stop_search, int flush_output);
+extern bool is_quest(int level);
+extern int random_quest_number(int level);
+
+/* cmd1.c */
+extern s32b tot_dam_aux(object_type *o_ptr, s32b tdam, monster_type *m_ptr);
+extern void search(void);
+extern void carry(int pickup);
+extern void py_attack(int y, int x, int max_blow);
+extern bool player_can_enter(byte feature);
+extern void move_player(int dir, int do_pickup);
+extern void run_step(int dir);
+extern void step_effects(int y, int x, int do_pickup);
+extern void do_cmd_pet(void);
+extern void incarnate_monster_attack(s16b m_idx, int x, int y);
+extern s32b critical_hits(s32b dam, monster_type *m_ptr);
+extern bool standing_on_forest();
+
+/* cmd2.c */
+extern void do_cmd_go_up(void);
+extern void do_cmd_go_down(void);
+extern void do_cmd_search(void);
+extern void do_cmd_toggle_search(void);
+extern void do_cmd_open(void);
+extern void do_cmd_close(void);
+extern void do_cmd_tunnel(void);
+extern bool do_cmd_tunnel_aux(int y, int x, int dir);
+extern void do_cmd_disarm(void);
+extern void do_cmd_bash(void);
+extern void do_cmd_alter(void);
+extern void do_cmd_spike(void);
+extern void do_cmd_walk(int pickup);
+extern void do_cmd_stay(int pickup);
+extern void do_cmd_run(void);
+extern void do_cmd_rest(void);
+extern void do_cmd_fire(int calledshot, bool multishot);
+extern void do_cmd_throw(void);
+extern void do_cmd_boomerang(void);
+extern void do_cmd_steal();
+extern void choose_current_weapon();
+extern void use_hardcode_ability(int powernum);
+
+/* cmd3.c */
+extern void do_cmd_inven(void);
+extern void do_cmd_equip(void);
+extern void do_cmd_wield(void);
+extern void do_cmd_takeoff(void);
+extern void do_cmd_drop(void);
+extern void do_cmd_destroy(void);
+extern void do_cmd_observe(void);
+extern void do_cmd_uninscribe(void);
+extern void do_cmd_inscribe(void);
+extern void do_cmd_refill(void);
+extern void do_cmd_target(void);
+extern void do_cmd_look(void);
+extern void do_cmd_locate(void);
+extern void do_cmd_query_symbol(void);
+extern void do_cmd_racial_power(int combat_feat);
+extern bool research_mon(void);
+extern void do_cmd_sense_grid_mana();
+extern int max_carry();
+extern bool summoned_item(object_type *o_ptr);
+extern bool one_weapon_wield();
+extern bool two_weapon_wield();
+
+/* cmd4.c */
+extern void do_cmd_redraw(void);
+extern void do_cmd_change_name(void);
+extern void do_cmd_message_one(void);
+extern void do_cmd_messages(void);
+extern void do_cmd_options(void);
+extern void do_cmd_pref(void);
+extern void do_cmd_macros(void);
+extern void do_cmd_visuals(void);
+extern void do_cmd_colors(void);
+extern void do_cmd_note(void);
+extern void do_cmd_version(void);
+extern void do_cmd_feeling(void);
+extern void do_cmd_load_screen(void);
+extern void do_cmd_save_screen(void);
+extern void do_cmd_knowledge(void);
+extern void plural_aux(char * Name);
+extern void do_cmd_checkquest(void);
+extern void do_cmd_time(void);
+extern void do_cmd_options_aux(int page, cptr info);
+
+
+/* cmd5.c */
+extern void do_cmd_study(void);
+extern void mutate_player(void);
+extern bool item_tester_hook_armour(object_type *o_ptr);
+extern int use_body_power(int r_idx, bool only_number);
+
+/* cmd6.c */
+extern void do_cmd_eat_food(void);
+extern void do_cmd_quaff_potion(void);
+extern void do_cmd_read_scroll(void);
+extern void do_cmd_aim_wand(void);
+extern void do_cmd_use_staff(void);
+extern void do_cmd_zap_rod(void);
+extern void do_cmd_activate(void);
+extern void do_cmd_cut_corpse(void);
+extern void do_cmd_cure_meat(void);
+
+/* monster2.c */
+extern monster_type *summoner_monster;
+extern int get_wilderness_flag(void);
+extern void delete_monster_idx(int i);
+extern void delete_monster(int y, int x);
+extern void compact_monsters(int size);
+extern void wipe_m_list(void);
+extern s16b m_pop(void);
+extern errr get_mon_num_prep(void);
+extern s16b get_mon_num(int level);
+extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
+extern void monster_race_desc(char *desc, int r_idx);
+extern void lore_do_probe(int m_idx);
+extern void lore_treasure(int m_idx, int num_item, int num_gold);
+extern void update_mon(int m_idx, bool full);
+extern void update_monsters(bool full);
+extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm, int dur);
+extern bool place_monster(int y, int x, bool slp, bool grp, int dur);
+extern bool alloc_horde(int y, int x);
+extern bool alloc_monster(int dis, bool slp);
+extern bool summon_specific(int y1, int x1, int lev, int type, int dur);
+extern void monster_swap(int y1, int x1, int y2, int x2);
+extern bool multiply_monster(int m_idx, bool charm, bool clone);
+extern void update_smart_learn(int m_idx, int what);
+extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok, int dur);
+extern bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur);
+extern s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int monlevel, int dur);
+extern s16b player_place(int y, int x);
+extern void monster_drop_carried_objects(monster_type *m_ptr);
+extern void apply_monster_level_hp(monster_type *m_ptr);
+extern void get_boss_ability(monster_type *m_ptr, int number);
+extern bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm, int dur);
+extern s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, s32b petmaxhp, int dur);
+extern bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool charm, int dur);
+extern s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, int dur);
+extern bool summon_specific_friendly_kind(int y1, int x1, int lev, char kind, bool Group_ok, int dur);
+extern int get_mon_num_kind(int lev, char kind);
+extern bool summon_specific_friendly_name(int y1, int x1, char name[30], bool Group_ok, int dur);
+extern int get_mon_num_name(char name[30]);
+extern bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm, int dur);
+extern s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int basehp, int hit_bonus, int d_d, int d_s);
+extern bool summon_specific_kind(int y1, int x1, int lev, char kind, bool Group_ok, bool friendly, int dur);
+extern bool summon_specific_ridx(int y1, int x1, int ridx, bool Group_ok, bool friendly, int dur);
+extern void apply_monster_level_stats(monster_type *m_ptr);
+extern bool is_pet(monster_type *m_ptr);
+extern void set_pet(monster_type *m_ptr, bool pet);
+
+/* melee1.c */
+extern bool shield_has();
+extern bool sword_has();
+extern bool hafted_has();
+extern bool polearm_has();
+extern bool rod_has();
+extern bool unarmed();
+extern bool heavy_armor();
+
+/* spells1.c */
+extern s16b poly_r_idx(int r_idx);
+extern void get_pos_player(int dis, int *ny, int *nx);
+extern void teleport_to_player(int m_idx);
+extern void teleport_player_directed(int rad, int dir);
+extern void teleport_away(int m_idx, int dis);
+extern void teleport_player(int dis);
+extern void teleport_player_to(int ny, int nx);
+extern void teleport_monster_to(int m_idx, int ny, int nx);
+extern void teleport_player_level(void);
+extern void recall_player(void);
+extern void take_hit(s32b damage, cptr kb_str);
+extern void acid_dam(s32b dam, cptr kb_str);
+extern void elec_dam(s32b dam, cptr kb_str);
+extern void fire_dam(s32b dam, cptr kb_str);
+extern void cold_dam(s32b dam, cptr kb_str);
+extern bool inc_stat(int stat);
+extern bool dec_stat(int stat, int amount, int mode);
+extern bool res_stat(int stat);
+extern bool apply_disenchant(int mode);
+extern bool project_m(int who, int r, int y, int x, s32b dam, int typ);
+extern sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg);
+extern bool project(int who, int rad, int y, int x, s32b dam, int typ, int flg);
+extern bool potion_smash_effect(int who, int y, int x, int o_sval);
+extern void mutate_player(void);
+extern void generate_spell(int plev);
+extern bool unsafe;
+extern void describe_attack_fully(int type, char* r);
+
+/* spells2.c */
+extern void grow_trees(int rad);
+extern bool hp_player(int num);
+extern void warding_glyph(void);
+extern void explosive_rune(void);
+extern bool do_dec_stat(int stat, int mode);
+extern bool do_res_stat(int stat);
+extern bool do_inc_stat(int stat);
+extern void identify_pack(void);
+extern void message_pain(int m_idx, s32b dam);
+extern bool remove_curse(void);
+extern bool remove_all_curse(void);
+extern bool restore_level(void);
+extern void self_knowledge(FILE *fff);
+extern bool lose_all_info(void);
+extern bool detect_traps(void);
+extern bool detect_doors(void);
+extern bool detect_stairs(void);
+extern bool detect_treasure(void);
+extern bool detect_objects_gold(void);
+extern bool detect_objects_normal(void);
+extern bool detect_objects_magic(void);
+extern bool detect_monsters_normal(void);
+extern bool detect_monsters_invis(void);
+extern bool detect_monsters_evil(void);
+extern bool detect_monsters_xxx(u32b match_flag);
+extern bool detect_monsters_string(cptr);
+extern bool detect_monsters_nonliving(void);
+extern bool detect_all(void);
+extern void stair_creation(void);
+extern bool wall_stone(void);
+extern bool enchant(object_type *o_ptr, int n, int eflag);
+extern bool enchant_spell(int num_hit, int num_dam, int num_ac, int num_pval);
+extern bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name);
+extern bool artifact_scroll(void);
+extern bool ident_spell(void);
+extern bool identify_fully(void);
+extern bool recharge(int num);
+extern bool speed_monsters(void);
+extern bool slow_monsters(void);
+extern bool sleep_monsters(void);
+extern bool conf_monsters(void);
+extern void aggravate_monsters(int who);
+extern bool genocide(bool player_cast);
+extern bool mass_genocide(bool player_cast);
+extern bool probing(void);
+extern void change_wild_mode(void);
+extern bool banish_evil(int dist);
+extern bool dispel_evil(s32b dam);
+extern bool dispel_good(s32b dam);
+extern bool dispel_undead(s32b dam);
+extern bool dispel_monsters(s32b dam);
+extern bool dispel_living(s32b dam);
+extern bool dispel_demons(s32b dam);
+extern bool turn_undead(void);
+extern void destroy_area(int y1, int x1, int r, bool full);
+extern void earthquake(int cy, int cx, int r);
+extern void lite_room(int y1, int x1);
+extern void unlite_room(int y1, int x1);
+extern bool lite_area(s32b dam, int rad);
+extern bool unlite_area(s32b dam, int rad);
+extern bool fire_ball_beam(int typ, int dir, s32b dam, int rad);
+extern bool fire_ball(int typ, int dir, s32b dam, int rad);
+extern bool fire_bolt(int typ, int dir, s32b dam);
+extern bool fire_beam(int typ, int dir, s32b dam);
+extern bool fire_bolt_or_beam(int prob, int typ, int dir, s32b dam);
+extern bool lite_line(int dir);
+extern bool drain_life(int dir, s32b dam);
+extern bool death_ray(int dir, int plev);
+extern bool wall_to_mud(int dir);
+extern bool destroy_door(int dir);
+extern bool disarm_trap(int dir);
+extern bool wizard_lock(int dir);
+extern bool heal_monster(int dir);
+extern bool speed_monster(int dir);
+extern bool slow_monster(int dir);
+extern bool sleep_monster(int dir);
+extern bool stasis_monster(int dir);    /* Like sleep, affects undead as well */
+extern bool confuse_monster(int dir, int plev);
+extern bool stun_monster(int dir, int plev);
+extern bool fear_monster(int dir, int plev);
+extern bool scare_monsters(void);
+extern bool poly_monster(int dir);
+extern bool clone_monster(int dir);
+extern bool teleport_monster(int dir);
+extern bool door_creation(void);
+extern bool trap_creation(void);
+extern bool glyph_creation(void);
+extern bool destroy_doors_touch(void);
+extern bool sleep_monsters_touch(void);
+extern bool alchemy(void);
+extern void activate_ty_curse(void);
+extern void activate_dg_curse(void);
+extern void activate_hi_summon(void);
+extern void summon_cyber(void);
+extern void wall_breaker(void);
+extern void bless_weapon(void);
+extern bool confuse_monsters(s32b dam);
+extern bool charm_monsters(s32b dam);
+extern bool charm_animals(s32b dam);
+extern bool stun_monsters(s32b dam);
+extern bool stasis_monsters(s32b dam);
+extern bool banish_monsters(int dist);
+extern bool turn_monsters(s32b dam);
+extern bool turn_evil(s32b dam);
+extern bool deathray_monsters(void);
+extern bool charm_monster(int dir, int plev);
+extern bool star_charm_monster(int dir, int plev);
+extern bool control_one_undead(int dir, int plev);
+extern bool charm_animal(int dir, int plev);
+extern bool mindblast_monsters(s32b dam);
+extern void get_table_name(char * out_string);
+extern s32b flag_cost(object_type * o_ptr, int plusses);
+extern void alter_reality(void);
+extern void report_magics(void);
+extern void teleport_swap(int dir);
+extern void swap_position(int lty, int ltx);
+extern bool item_tester_hook_recharge(object_type *o_ptr);
+extern int  get_activation_power();
+extern bool invoke(s32b dam, int typ);
+extern bool project_hack(int typ, s32b dam);
+extern void project_meteor(int radius, int typ, s32b dam, u32b flg);
+extern bool item_tester_hook_artifactable(object_type *o_ptr);
+extern bool passwall(int dir, bool safe, bool local);
+extern bool project_hook(int typ, int dir, s32b dam, int flg);
+extern void random_misc (object_type * o_ptr, bool is_scroll);
+extern void random_plus(object_type * o_ptr, bool is_scroll);
+extern void fire_jump_ball(int typ, s32b dam, int rad, int x, int y, bool nomagic);
+extern void mass_change_allegiance(int r_idx, bool friendly);
+extern bool chain_attack(int dir, int typ, s32b dam, int rad, int range);
+extern bool chain_attack_fields(int dir, int typ, s32b dam, int rad, int range, int fldtype, int fldam);
+extern void fire_ball_specific_grid(s32b dam, int x, int y, int rad, int typ);
+extern void hard_kick(int dir, s32b dam, int range);
+
+/* xtra1.c */
+extern bool safety_check();
+extern s16b modify_stat_value(int value, int amount);
+extern int weight_limit(void);
+extern void calc_skills(int mode);
+extern void calc_stats(int mode);
+
+/* xtra2.c */
+extern bool set_powerattack(int v);
+extern bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note);
+extern bool tgt_pt(int *x,int *y);
+
+/* learn.c */
+extern bool dagger_check();
+extern bool axe_check();
+
+/* generate.c */
+extern int generate_town();
+extern int generate_quest();
+extern int generate_wilderness();
+
+/* script.c */
+extern void lua_update_monsters();
+extern void lua_update_stuff();
+extern int lua_get_aim_dir();
+extern int lua_get_rep_dir();
+extern bool lua_cave_empty_bold(int y, int x);
+extern bool get_cave_info_flag(int y, int x, u32b flag);
+extern bool lua_tgt_pt();
+
+/* Various variables */
+extern cptr copyright[5];
+extern byte version_major;
+extern byte version_minor;
+extern byte version_patch;
+extern byte version_extra;
+extern byte sf_major;
+extern byte sf_minor;
+extern byte sf_patch;
+extern byte sf_extra;
+extern u32b sf_xtra;
+extern byte z_major;
+extern byte z_minor;
+extern byte z_patch;
+extern u32b sf_when;
+extern u16b sf_lives;
+extern u16b sf_saves;
+extern bool arg_fiddle;
+extern bool arg_wizard;
+extern bool arg_sound;
+extern bool arg_graphics;
+extern bool arg_force_original;
+extern bool arg_force_roguelike;
+extern bool character_generated;
+extern bool character_dungeon;
+extern bool character_loaded;
+extern bool character_saved;
+extern bool character_icky;
+extern bool character_xtra;
+extern u32b seed_flavor;
+extern u32b seed_town;
+extern u32b seed_dungeon;
+extern s16b command_cmd;
+extern s16b command_arg;
+extern s16b command_rep;
+extern s16b command_dir;
+extern s16b command_see;
+extern s16b command_gap;
+extern s16b command_wrk;
+extern s16b command_new;
+extern s32b energy_use;
+extern bool create_up_stair;
+extern bool create_down_stair;
+extern bool create_up_shaft;
+extern bool create_down_shaft;
+extern bool msg_flag;
+extern bool alive;
+extern bool death;
+extern s16b running;
+extern s16b resting;
+extern s16b cur_hgt;
+extern s16b cur_wid;
+extern s16b dun_level;
+extern s16b old_dun_level;
+extern s16b num_repro;
+extern s16b object_level;
+extern s16b monster_level;
+extern s32b turn;
+extern s32b old_turn;
+extern bool wizard;
+extern bool use_sound;
+extern bool use_graphics;
+extern u16b total_winner;
+extern u16b panic_save;
+extern u16b noscore;
+extern s16b signal_count;
+extern bool inkey_base;
+extern bool inkey_xtra;
+extern bool inkey_scan;
+extern bool inkey_flag;
+extern s16b coin_type;
+extern bool opening_chest;
+extern bool shimmer_monsters;
+extern bool shimmer_objects;
+extern bool repair_monsters;
+extern bool repair_objects;
+extern s32b total_weight;
+extern s16b inven_nxt;
+extern s16b inven_cnt;
+extern s16b equip_cnt;
+extern s16b o_max;
+extern s16b o_cnt;
+extern s16b m_max;
+extern s16b m_cnt;
+extern s16b hack_m_idx;
+extern s16b hack_m_idx_ii;
+extern int total_friends;
+extern s32b total_friend_levels;
+extern int leaving_quest;
+extern bool multi_rew;
+extern char summon_kin_type;
+extern bool hack_mind;
+extern bool hack_mutation;
+extern bool is_autosave;
+extern int artifact_bias;
+extern bool show_inven_graph;
+extern bool show_store_graph;
+extern bool show_equip_graph;
+extern bool rogue_like_commands;
+extern bool quick_messages;
+extern bool other_query_flag;
+extern bool carry_query_flag;
+extern bool always_pickup;
+extern bool no_pickup_corpse;
+extern bool always_repeat;
+extern bool use_old_target;
+extern bool depth_in_feet;
+extern bool use_color;
+extern bool compress_savefile;
+extern bool hilite_player;
+extern bool ring_bell;
+extern bool find_ignore_stairs;
+extern bool find_ignore_doors;
+extern bool find_cut;
+extern bool find_examine;
+extern bool disturb_near;
+extern bool disturb_move;
+extern bool disturb_panel;
+extern bool disturb_state;
+extern bool disturb_minor;
+extern bool disturb_other;
+extern bool avoid_abort;
+extern bool avoid_other;
+extern bool flush_disturb;
+extern bool flush_failure;
+extern bool flush_command;
+extern bool fresh_before;
+extern bool fresh_after;
+extern bool fresh_message;
+extern bool alert_hitpoint;
+extern bool alert_failure;
+extern bool view_yellow_lite;
+extern bool view_bright_lite;
+extern bool view_granite_lite;
+extern bool view_special_lite;
+extern bool skip_mutations;
+extern bool plain_descriptions;
+extern bool stupid_monsters;
+extern bool auto_destroy;
+extern bool wear_confirm;
+extern bool confirm_stairs;
+extern bool disturb_pets;
+extern bool view_perma_grids;
+extern bool view_torch_grids;
+extern bool flow_by_sound;
+extern bool flow_by_smell;
+extern bool track_follow;
+extern bool track_target;
+extern bool stack_allow_items;
+extern bool stack_allow_wands;
+extern bool stack_force_notes;
+extern bool stack_force_costs;
+extern bool view_reduce_lite;
+extern bool view_reduce_view;
+extern bool auto_haggle;
+extern bool auto_scum;
+extern bool expand_look;
+extern bool expand_list;
+extern bool dungeon_align;
+extern bool dungeon_stair;
+extern bool smart_learn;
+extern bool smart_cheat;
+extern bool show_labels;
+extern bool show_weights;
+extern bool show_choices;
+extern bool show_details;
+extern bool testing_stack;
+extern bool testing_carry;
+extern bool cheat_peek;
+extern bool cheat_hear;
+extern bool cheat_room;
+extern bool cheat_xtra;
+extern bool cheat_know;
+extern bool cheat_live;
+extern bool last_words;
+extern bool speak_unique;
+extern bool small_levels;
+extern bool empty_levels;
+extern bool water_levels;
+extern bool always_small_level;
+extern bool flavored_attacks;
+extern bool player_symbols;
+extern byte hitpoint_warn;
+extern byte delay_factor;
+extern s16b autosave_freq;
+extern bool autosave_t;
+extern bool autosave_l;
+extern s16b feeling;
+extern s16b rating;
+extern bool good_item_flag;
+extern bool closing_flag;
+extern s16b max_panel_rows;
+extern s16b max_panel_cols;
+extern s16b panel_row;
+extern s16b panel_col;
+extern s16b panel_row_min;
+extern s16b panel_row_max;
+extern s16b panel_col_min;
+extern s16b panel_col_max;
+extern s16b panel_col_prt;
+extern s16b panel_row_prt;
+extern s16b py;
+extern s16b px;
+extern s16b global_x;
+extern s16b global_y;
+extern bool nevermiss;
+extern bool no_magic_return;
+extern bool monster_physical;
+extern bool monster_ranged;
+extern bool term_saved;
+extern bool dying;
+extern char testop[80];
+extern s16b target_who;
+extern s16b target_col;
+extern s16b target_row;
+extern s16b health_who;
+extern s16b monster_race_idx;
+extern s16b monster_type_idx;
+extern s16b object_kind_idx;
+extern int player_uid;
+extern int player_euid;
+extern int player_egid;
+extern char player_name[32];
+extern char player_base[32];
+extern char died_from[80];
+extern char history[4][60];
+extern char savefile[1024];
+extern s16b lite_n;
+extern s16b lite_y[LITE_MAX];
+extern s16b lite_x[LITE_MAX];
+extern s16b view_n;
+extern byte view_y[VIEW_MAX];
+extern byte view_x[VIEW_MAX];
+extern s16b temp_n;
+extern byte temp_y[TEMP_MAX];
+extern byte temp_x[TEMP_MAX];
+extern s16b macro__num;
+extern cptr *macro__pat;
+extern cptr *macro__act;
+extern bool *macro__cmd;
+extern char *macro__buf;
+extern s16b quark__num;
+extern cptr *quark__str;
+extern u16b message__next;
+extern u16b message__last;
+extern u16b message__head;
+extern u16b message__tail;
+extern u16b *message__ptr;
+extern char *message__buf;
+extern u32b option_flag[8];
+extern u32b option_mask[8];
+extern u32b window_flag[8];
+extern u32b window_mask[8];
+extern term *angband_term[8];
+extern object_type *o_list;
+extern monster_type *m_list;
+extern u16b max_towns;
+extern town_type *town;
+extern object_type *inventory;
+extern s16b alloc_kind_size;
+extern alloc_entry *alloc_kind_table;
+extern s16b alloc_race_size;
+extern alloc_entry *alloc_race_table;
+extern byte misc_to_attr[256];
+extern char misc_to_char[256];
+extern byte tval_to_attr[128];
+extern char tval_to_char[128];
+extern player_type p_body;
+extern player_type *p_ptr;
+extern header *v_head;
+extern vault_type *v_info;
+extern char *v_name;
+extern char *v_text;
+extern header *f_head;
+extern feature_type *f_info;
+extern char *f_name;
+extern char *f_text;
+extern header *k_head;
+extern object_kind *k_info;
+extern char *k_name;
+extern char *k_text;
+extern header *a_head;
+extern artifact_type *a_info;
+extern char *a_name;
+extern char *a_text;
+extern header *e_head;
+extern ego_item_type *e_info;
+extern char *e_name;
+extern char *e_text;
+extern header *r_head;
+extern monster_race *r_info;
+extern char *r_name;
+extern char *r_text;
+extern header *d_head;
+extern dungeon_info_type *d_info;
+extern char *d_name;
+extern char *d_text;
+extern header *t_head;
+extern trap_type *t_info;
+extern char *t_name;
+extern char *t_text;
+extern cptr ANGBAND_SYS;
+extern cptr ANGBAND_GRAF;
+extern cptr ANGBAND_DIR;
+extern cptr ANGBAND_DIR_APEX;
+extern cptr ANGBAND_DIR_BONE;
+extern cptr ANGBAND_DIR_DATA;
+extern cptr ANGBAND_DIR_EDIT;
+extern cptr ANGBAND_DIR_FILE;
+extern cptr ANGBAND_DIR_HELP;
+extern cptr ANGBAND_DIR_INFO;
+extern cptr ANGBAND_DIR_SAVE;
+extern cptr ANGBAND_DIR_USER;
+extern cptr ANGBAND_DIR_XTRA;
+extern cptr ANGBAND_DIR_PREF;
+extern cptr ANGBAND_DIR_SCRIPT;
+extern bool item_tester_full;
+extern byte item_tester_tval;
+extern bool monk_armour_aux;
+extern bool monk_notify_aux;
+extern u16b max_quests;
+extern u16b max_r_idx;
+extern u16b max_k_idx;
+extern u16b max_v_idx;
+extern u16b max_f_idx;
+extern u16b max_a_idx;
+extern u16b max_e_idx;
+extern u16b max_d_idx;
+extern u16b max_o_idx;
+extern u16b max_m_idx;
+extern u16b max_t_idx;
+extern u16b max_wf_idx;
+extern quest_type *quest;
+extern char quest_text[10][80];
+extern int quest_text_line;
+extern int init_flags;
+extern bool special_flag;
+extern bool ambush_flag;
+extern u16b no_breeds;
+extern s16b spell_num;
+extern byte dungeon_type;
+extern s16b *max_dlv;
+extern u32b total_bounties;
+extern bool generate_encounter;
+extern bool permanent_levels;
+extern bool autoroll;
+extern bool hack_allow_special;
+extern magic_spells magic_spell[30];
+extern monster_magics monster_magic[15];
+extern object_type *current_weapon;
+extern bool combatfeat;
+extern cave_type *lua_cave @ cave(int y, int x);
+extern monster_type *lua_monster @ monster(int m_idx);
+extern monster_race *lua_r_info @ m_race(int r_idx);
+extern object_type *lua_inven @ inven(int slot);
+extern bool get_monster_flag1(int r_idx, u32b flag);
+extern bool get_monster_flag2(int r_idx, u32b flag);
+extern bool get_monster_flag3(int r_idx, u32b flag);
+extern bool get_monster_flag4(int r_idx, u32b flag);
+extern bool get_monster_flag5(int r_idx, u32b flag);
+extern bool get_monster_flag6(int r_idx, u32b flag);
+extern bool get_monster_flag7(int r_idx, u32b flag);
+extern bool get_monster_flag8(int r_idx, u32b flag);
+extern bool get_monster_flag9(int r_idx, u32b flag);
+extern bool get_object_flag1(object_type *o_ptr, u32b flag);
+extern bool get_object_flag2(object_type *o_ptr, u32b flag);
+extern bool get_object_flag3(object_type *o_ptr, u32b flag);
+extern bool get_object_flag4(object_type *o_ptr, u32b flag);
+extern bool get_monster_ability(monster_type *m_ptr, u32b flag);
+extern char *get_monster_desc(monster_type *m_ptr, int mode);
+extern void plog(cptr str);
+extern bool always_hit_check();
+extern void verify_panel(void);
+extern void move_monster_spot(int m_idx, int xspot, int yspot);
+extern void anihilate_monsters();
+extern void generate_cave(void);
+extern void verify_panel_always_update(void);
+extern void check_experience(void);
+extern void gain_exp(s32b amount);
+extern void lose_exp(s32b amount);
+extern bool attack_aura(int typ, s32b dam, int rad);
+extern bool set_str_boost(int v);
+extern bool set_int_boost(int v);
+extern bool set_wis_boost(int v);
+extern bool set_dex_boost(int v);
+extern bool set_con_boost(int v);
+extern bool set_chr_boost(int v);
+extern bool set_pres(int v);
+extern bool set_mres(int v);
+extern bool set_ac_boost(int v);
+extern bool set_elem_shield(int v);
+extern bool set_powerattack(int v);
+extern bool set_invis(int v,int p);
+extern bool set_blind(int v);
+extern bool set_confused(int v);
+extern bool set_poisoned(int v);
+extern bool set_afraid(int v);
+extern bool set_paralyzed(int v);
+extern bool set_image(int v);
+extern bool set_fast(int v);
+extern bool set_slow(int v);
+extern bool set_shield(int v, int p);
+extern bool set_blessed(int v);
+extern bool set_hero(int v);
+extern bool set_shero(int v);
+extern bool set_tim_invis(int v);
+extern bool set_tim_infra(int v);
+extern bool set_stun(int v);
+extern bool set_cut(int v);
+extern bool set_food(int v);
+
+/* From z-term.h */
+extern errr Term_fresh(void);
+extern errr Term_set_cursor(int v);
+extern errr Term_gotoxy(int x, int y);
+extern errr Term_draw(int x, int y, byte a, char c);
+extern errr Term_addch(byte a, char c);
+extern errr Term_addstr(int n, byte a, cptr s);
+extern errr Term_putch(int x, int y, byte a, char c);
+extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
+extern errr Term_erase(int x, int y, int n);
+extern errr Term_clear(void);
+extern errr Term_redraw(void);
+
+/* Classes/abilities definitions */
+/* class_def and abilities_def should be equal to MAX_CLASS and MAX_CLASS*10. */
+/* feats_def is SKILL_MAX*100. */
+/* Lua doesn't like constants in array definitions, hence the static numbers. */
+extern class_def classes_def[34];
+extern ability_def abilities_def[340];
+extern ability_def feats_def[1000];

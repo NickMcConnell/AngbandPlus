@@ -38,9 +38,9 @@ in combat, and to carry heavier stuff such as powerful armors and
 heavy two-handed weapons.
 
 Effects of Strength:
-        - +5 damages bonus per points.
-        - Increase carrying capacity.
-        - +1 to multiplier for every 30 points.
+        - +5 to_d bonus per points.
+	- +1% to melee damages for every points.
+        - Increased carrying capacity.
         - +1 to_hit per two points.
         - Increase number of blows, along with dexterity.
 
@@ -55,6 +55,8 @@ any spells.
 
 Effects of Intelligence:
         - +10 mana per points.
+	- You gain 1 extra skill points for every 12 points of the
+	  average between Intelligence and Wisdom.
 
 WISDOM:
 
@@ -68,7 +70,8 @@ in wisdom, as it will always be benefical to them.
 
 Effects of Wisdom:
         - Increase resistance to effects.
-        - +1 skill points per levels for every 20 points.
+        - You gain 1 extra skill points for every 12 points of the
+	  average between Intelligence and Wisdom.
 
 DEXTERITY:
 
@@ -81,7 +84,8 @@ multiplier, making your ranged attacks much more powerful.
 
 Effects of Dexterity:
         - +10 to_hit per points.
-        - +1 to shooter multiplier for every 30 points.
+	- +5 to_d to ranged attacks.
+        - +1% to ranged damages for every points.
         - +1 to AC for every two points.
         - Increase number of blows, among with Strength.
 
@@ -110,7 +114,7 @@ Additionally, charisma help lowering the price in stores, so if
 you have a high charisma, you will pay less for items.
 
 Effects of Charisma:
-        - +1 to leader multiplier for every 30 points.
+        - Increase monsters's melee and magic attacks. 
         - +5 bonus to_hit for friendly monsters for every points
           above 5.
         - Reduce the prices in stores.
@@ -356,6 +360,14 @@ Keep in mind that you can only create spells in the town, so be wise when
 creating spells. To learn more about the various effects, consult the
 spells guide. Also, if you enjoy casting spells, take a look at some of
 the mage and high mage abilities. Some of them can be really helpful!
+
+Introduced in NewAngband 1.7.2 is a new feature allowing you to cast
+a spell using the 'p' command(as in 'prayer'). This allow you to use 
+Wisdom to cast a spell instead of mana. When using Wisdom, your spell
+will not cost mana to cast, but success is not guaranteed. And if your
+wisdom is too low and the spell's cost is too high, and you fail casting
+it, there will be consequences! Refer to the formula guide to find
+out how the success rate is calculated.
 
 RECRUITING AND BEFRIENDING MONSTERS
 -------------------------------------

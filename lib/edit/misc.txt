@@ -1,7 +1,7 @@
 # File: misc.txt
 
 # Maximum number of towns
-M:T:100
+M:T:1200
 
 # Maximum number of quests
 M:Q:1000
@@ -16,7 +16,7 @@ M:Y:66
 M:R:2470
 
 # Maximum number of items in k_info.txt
-M:K:1200
+M:K:1500
 
 # Maximum number of vaults in v_info.txt
 M:V:112
@@ -31,7 +31,7 @@ M:A:212
 M:E:140
 
 # Maximum number of dungeon types in d_info.txt
-M:D:35
+M:D:201
 
 # Maximum number of trap types in tr_info.txt
 M:U:170

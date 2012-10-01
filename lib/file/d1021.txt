@@ -1,0 +1,441 @@
+N:1:1013:1:0:0:0
+I:Navarius;
+T:You have returned, <NAME>! Have you found the Tear of Justice?;
+A:It doesn't look like it, but I found this...[Show him the red licialhyd]:2:1:29:1:29:0:0:0:0
+A:Can you repeat where I must look for it?:0:0:0:1:27:0:0:0:0
+A:What is the stone's guardian?:0:0:0:1:28:0:0:0:0
+A:Not yet. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1007:1:0:0:0
+I:Navarius;
+T:Good to see you again, <NAME>. Have you been to Avemorsh yet?;
+T:Did you find out anything?;
+A:[Tell him about Quazar and the 'Tear of Justice']:1:1012:1:1:21:0:0:0:0
+A:I have some questions...:0:0:0:1:16:0:0:0:0
+A:Not yet. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1006:1:0:0:0
+I:Navarius;
+T:Good to see you again, <NAME>. How may I help you?;
+A:I have a letter from the king...[Show him the letter]:2:1:27:1:10:0:0:0:0
+A:Tell me more of the Temple.:0:0:0:1:3:0:0:0:0
+A:Tell me more of the Creator.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1006:0:0:0:0
+I:Navarius;
+T:Welcome to the Temple! I am Navarius, high priest of the Creator, and;
+T:leader of the Temple. And who might you be?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:1006:1
+%
+
+N:2:0:0:0:0:0
+I:Navarius;
+T:Well, <NAME>, it's good to meet you. How can I assist you?;
+A:I have a letter from the king...[Show him the letter]:2:1:27:1:10:0:0:0:0
+A:Tell me more of the Temple.:0:0:0:1:3:0:0:0:0
+A:Tell me more of the Creator.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Navarius;
+T:The temple of the Creator seeks to bring happiness to the citizens of;
+T:Portralis. Whether they come from Jindar, Karingen, Ivhala, Nimbraya;
+T:or Rhyzendal, we help them when they are in need. The Creator's blessing 
+T:will bring enlightment, healing and good fortune to anyone who receives it.;
+T:But make no mistakes. We followers of the creator are not worshippers;
+T:of holy light or the greater good. After all, the Creator has a darker side;
+T:as well. As a result, we are also capable fighters or mages when we;
+T:need to fight. And we will not hesite to kill anyone who wants to destroy;
+T:our organization.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Navarius;
+T:We are the largest religious organization in all Portralis. However,;
+T:there are still a lot of peoples who do not believe in the Creator.;
+T:Most Nimbrayans, for example, believes in the Daldumarian religion,;
+T:centered on the heroic teachings of the elven god Daldumaar. There;
+T:are almost no temples of the Creator in Nimbraya. And then, you have;
+T:all other lesser cults and lesser religions, some of them being;
+T:demon worshippers. You should stay fay away from these dark cults...;
+A:Tell me more of the Creator.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Navarius;
+T:The Creator is the supreme being who created the world we live in.;
+T:The most ancient entity to exist in our world, from his being;
+T:emerged the infinite void, that contains everything. Then, he created;
+T:masses of stones and earth, then created the air we breath and the;
+T:water we drink. He then created some lesser creatures, and then,;
+T:he created the humanoid races, including humans, dwarves, elves,;
+T:kobolds, devlings, and all other intelligent races.; 
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Navarius;
+T:From the creator's hand then emerged a beam of light that struck the;
+T:females and mothers of the races. And from the other hand, a beam;
+T:of darkness struck them. Ever since that day, when a child is born,;
+T:his soul is made of light and darkness. Brighter souls will become;
+T:forces of good, while the darker ones will become servants of evil.;
+T:The very few children who did not receive the darkness became the;
+T:holy beings known as Celestials, while the few children who received;
+T:only the darkness became the Demons.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Navarius;
+T:The Creator decided that in order to maintain balance, the Celestials;
+T:and the Demons had to be isolated from the other races, so he then;
+T:created two dimmensional planes: Heaven and Hell, and banished both; 
+T:the Celestials and the Demons to their respective planes. With the;
+T:two races gone, life could go on with a balance of good and evil.;
+T:We followers of the Creator strongly believe that the balance;
+T:between good and evil must be maintained. As such, we help peoples;
+T:in need, but we are also capable warriors and wizards when we must.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Navarius;
+T:Ever since that day, the races have lived and evolved. The Creator;
+T:has been watching the balance ever since, and gave us his blessing;
+T:ever since a threat to the balance of the world appeared.;
+T:Of course, there is much more I could tell you, but perhaps it;
+T:would be better if you look for the various books and tomes about;
+T:the Creator. I do not have one with me, but if you look for them,;
+T:you will be able to learn a lot more about our religion.;
+A:But if I understand correctly, you're not really a religion of good?:0:0:0:1:9:0:0:0:0
+A:Tell me more of the Temple.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Navarius;
+T:An interesting point you're bringing up here. The Temple of the Creator;
+T:IS a good organization, in that our goal is to protect the good;
+T:and righteous part of the balance. However, there are also dark cults;
+T:and demon worshippers who also claims to serve the Creator. These cults;
+T:maintain the evil and dark side of the balance. So as long as both the;
+T:good and evil worshippers of the Creator exists, the balance shall be;
+T:maintained. We fight the evil ones, and they fight us. A fight that;
+T:has raged for centuries, and will probably never end...;
+A:Tell me more of the Temple.:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I: ;
+T:Navarius takes the letter, and starts reading it...;
+A:[CONTINUE]:0:0:0:6:1208:11:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Navarius;
+T:.....I see. This is bad news indeed... I do not believe in orcs, but I;
+T:do believe the king's theory of demon worshippers. In fact... I may;
+T:even have an idea who might be behind this...;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Navarius;
+T:Have you ever heard of the 'Avemorsh' clan? Contrary to the popular;
+T:belief that orcs were dumb and savage warriors, they instead believe;
+T:that they were an advanced race of intelligent beings, and that they;
+T:were brought down as the result of jaleousy from other races.;
+T:Avemorsh is an ancient orcish word which means 'supreme'... They named;
+T:their clan as a tribute to the fallen orcs...;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Navarius;
+T:Believing the orcs are destined to return to Portralis one day, they;
+T:performed various rituals and arcanes to try to revive the orcs...without;
+T:any success. So they looked for greater powers, and have fallen;
+T:into demon worshipping. Now, they perform various rituals, and with;
+T:each rituals, a part of their sanity is taken. They are driven more;
+T:and more into insanity by the demons of Hell... The demons may have sent;
+T:orc-like demons to trick the clan into thinking they actually succeeded,;
+T:while this is actually a trick to lure the clan closer to the will of;
+T:their dark masters...;
+A:[CONTINUE]:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Navarius;
+T:Now summoned into our plane, these orc-like demons are mercilessly;
+T:attacking innocents civilians... Yes, Avemorsh could very well be behind;
+T:this attack. Therefore, it is imperative that you go to their lair,;
+T:and find out more about this. By chance, agents of the Temple have;
+T:located several demon worshippers, including Avemorsh, so we know;
+T:where you can find their lair. It is hidden in a small forest south-west;
+T:of Jindar... around coordinates (44,45) on your map...;
+A:[CONTINUE]:0:0:0:1:15:0:0:1007:1
+%
+
+N:15:0:0:0:0:0
+I:Navarius;
+T:You have to go there, my friend, and try to find out more about this.;
+T:Try to speak with their leader and get information, but beware, as they;
+T:may not want to hear you, in which case you might have to fight them.;
+T:Finally, their clan is located deep within an underground cave, so;
+T:there might be other dangers lurking in these caves... In any case,;
+T:good luck <NAME>, and may the Creator watch over you!;
+A:I have some questions first...:0:0:0:1:16:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Navarius;
+T:Yes? Please ask.;
+A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
+A:How did you learn about Avemorsh?:0:0:0:1:18:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Navarius;
+T:It's in a small forest south-west of Jindar. Around coordinates (44,45);
+T:on the map... Beware, as it is located deep in an underground cave.;
+T:There may be other dangers on the way...;
+A:How did you learn about Avemorsh?:0:0:0:1:18:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Navarius;
+T:Ane excellent question. You see, we of the Temple are a great religious;
+T:organization. However, there also other groups that opposes us. Therefore,;
+T:we have agents working for the Temple who go outside the city, and look;
+T:for opposing cults and orders. They usually do not directly attack;
+T:these cults, but report as much information as they can. We know of many;
+T:such clans, including Avemorsh. When they become a threat, we inform;
+T:the king, so that he can take actions against them.;
+A:What other clans do you know about?:0:0:0:1:19:0:0:0:0
+A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Navarius;
+T:Well, quite a few are scattered in Jindar... However, two of them are;
+T:apparently becoming more powerful, and could eventually become a threat,;
+T:although I do not think they are involved in the current tragedy. These;
+T:are the clans of the Fallens, and the Children of the Planes. The Fallens;
+T:are a group of evil undead and demon worshippers, and the Children of the;
+T:Planes are a groups of channelers and spiritualists who summons spirits;
+T:and elementals to our plane, claiming that they will bring 'purification';
+T:to the world... Both are evil and dangerous fanatics. Be aware that the;
+T:Children is a merfolk clan, so it's very dangerous.;
+A:Where are these clans located?:0:0:0:1:20:0:0:0:0
+A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Navarius;
+T:You wish to go there? They will most likely attack you on sight. Still,;
+T:if you think you've got what it takes to stop them, the Fallens are;
+T:located at (37,30) and the Children at (58,35). But first, you should;
+T:focus on Avemorsh, as they are the ones who are most likely the current;
+T:threat. I do not believe the two others are involved at all...;
+A:Where is Avemorsh again?:0:0:0:1:17:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Navarius;
+T:The 'Tear of Justice'? So, that's what they are after! It really doesn't;
+T:surprise me that evil fanatics would be after such a holy stone...;
+A:What is the 'Tear of Justice'?:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Navarius;
+T:The 'Tear of Justice' is actually a Licialhyd... A Licialhyd which;
+T:contain great powers of holiness. It is said that the souls of many;
+T:Celestials are imbued inside this stone... It is called a 'Tear' because;
+T:of it's tear-like shape and a clear blue color. Because of it's;
+T:holy powers, it has earned the name 'Tear of Justice'. Not many peoples;
+T:knows of it's existence, as the secret has long been kept by the;
+T:priests of the Creator. If it was to fall in the wrong hand...it could;
+T:have devastating consequences...;
+A:What would be the consequences?:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Navarius;
+T:Being imbued with the powers of Heaven, if the Licialhyd was to be;
+T:activated, legions of angels and celestial beings would appear, and;
+T:they would fight all the evil of the world. This might seem like a good;
+T:thing, right? However, a powerful user of dark magic could easily;
+T:use it's powers to corrupt the stone with evil powers. And then, if;
+T:he was to activate the stone, legions of demonic creatures would;
+T:appear, and destroy our kingdoms. We must not let this happen!;
+A:What can I do?:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Navarius;
+T:You must find the Tear of Justice before Quazar does! As I said, the;
+T:existence of the stone is a secret kept by us, priests of the Creator...;
+T:Therefore, I know it's secret location... Perhaps you'll be surprised;
+T:to learn that the stone is actually inside the city of Jindar, right;
+T:under the Palace!;
+A:Under the Palace?:0:0:0:1:25:0:0:1013:1
+%
+
+N:25:0:0:0:0:0
+I:Navarius;
+T:Yes, hidden deep inside a secret cave, beneath the Palace. Since the;
+T:stone is so important, our ancestors felt that hiding the stone too;
+T:far away from the Temple would be a bad idea, as it would be difficult;
+T:to keep an eye on it. If you go behind the palace, under one of the;
+T:trees, you will find a secret switch. Press it, and a secret stairway;
+T:will be open.;
+A:[CONTINUE]:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Navarius;
+T:Be careful, as the cave is old, and probably filled with dangerous;
+T:creatures. Go down the cave, and at the bottom, you will find the;
+T:stone. Of course, it will be guarded. But I trust that you will be;
+T:able to defeat it's guardian. Now go, <NAME>! There is no time to;
+T:lose! You must not let Quazar get the stone! May the Creator's light;
+T:be with you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Navarius;
+T:It is hidden in a secret cave, beneath the Palace. Behind the palace,;
+T:you will find a secret switch under one of the trees. Press it, and;
+T:a secret stairway will appear. This is the secret entrance to the cave.;
+T:At the bottom, you will find the stone, but it will be guarded. But I;
+T:am confident that you can defeat the guardian.;
+A:What is the stone's guardian?:0:0:0:1:28:0:0:0:0
+A:Not yet. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Navarius;
+T:It is a powerful entity bound within an animated suit of full plate armor.;
+T:We call if the Knight of Balance. It is made of both light and darkness,;
+T:and is neither good, nor evil. It's balance is so great that neither light;
+T:or darkness magic will hurt it. Anything else that would disrupt or alter;
+T:physical or ethereal bodies probably won't work either. And as a magical;
+T:armor, it will probably be able to resist most other forms of magic, as well;
+T:as physical attacks. If there was an energy that is not too disruptive, and;
+T:not aligned with either good or evil, I guess it would probably be very;
+T:effective.;
+A:Can you repeat where I must look for it?:0:0:0:1:27:0:0:0:0
+A:Not yet. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Navarius;
+T:This is it, however it's...red... I fear the worse, my friend... I fear;
+T:the stone may have been already corrupted! The evil inside may already...;
+A:[CONTINUE]:0:0:0:1:30:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I: ;
+T:The red licialhyd begins shining in your hands! You sense a very unstable;
+T:power emanating from it. It shakes a bit as it beings changing colors,;
+T:and emiting colored light at the same time!;
+A:[CONTINUE]:0:0:0:1:31:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Navarius;
+T:No! The stone! We are too late! Hurry! Give me the stone, quick!!;
+T:I have to use a blessing in order to suppress it's unstable powers!;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I: ;
+T:The stone begins shaking strongly, and you end up losing your grip!;
+T:The licialhyd falls on the ground, but the priest is able to catch;
+T:it just in time, before it breaks!;
+A:[CONTINUE]:0:0:0:6:1210:33:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Navarius;
+T:Thanks the Creator, I've been able to catch it! Now! Let's perform the;
+T:ritual to stop it's activation!;
+A:[CONTINUE]:0:0:0:1:34:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I: ;
+T:Navarius begins chanting a prayer, and the unstable licialhyd is covered;
+T:in a white, glowing light! The priest recites a prayer, as the licialhyd;
+T:is starting to disappear! After a moment, the licialhyd is gone!;
+A:[CONTINUE]:0:0:0:1:36:0:0:0:0
+%
+
+N:36:0:0:0:0:0
+I:Navarius;
+T:There! It's done! The stone is gone!;
+A:Huh? But...where did it go?:0:0:0:1:37:0:0:0:0
+%
+
+N:37:0:0:0:0:0
+I:Navarius;
+T:Right in my hands, <NAME>! Now, I can activate it, and gain all it's;
+T:powers!! Thanks you for defeating the guardian for me, my powers would;
+T:have been useless against it. You've helped me a lot, <NAME>!;
+A:What?? But then...you are...:0:0:0:1:38:0:0:0:0
+%
+
+N:38:0:0:0:0:0
+I:Quazar;
+T:Yes, it's me, Quazar! And that 'priest', like the cloaked warrior, is;
+T:a projection of my spirit! How do you like it, <NAME>? Quite a useful;
+T:power, heh?;
+A:[CONTINUE]:0:0:0:1:39:0:0:1016:1
+%
+
+N:39:0:0:0:0:0
+I:Quazar;
+T:Oh, and you know, the Tear of Justice does not exist at all! I invented;
+T:that to give you a good reason to bring that red licialhyd to me! The stone;
+T:you just got is much more powerful than any holy stones you would ever find!;
+T:You see, sealed inside this red licialhyd is a great power of Chaos,;
+T:the most unstable, disruptive and unpredictable force in the universe!;
+T:And with it, I will enhance my own powers far beyond the limits of what;
+T:this world has ever seen!;
+A:[CONTINUE]:0:0:0:9:1536:40:0:0:0
+%
+
+N:40:0:0:0:0:0
+I:Quazar;
+T:Soon, I will turn this temple into my fortress, and this city;
+T:will crumble under the assaults of my orcs!! The mighty Jindar will fall!;
+T:It will be our order's triumph!;
+A:[CONTINUE]:0:0:0:1:41:0:0:0:0
+%
+
+N:41:0:0:0:0:0
+I: ;
+T:The priest disappear in front of your eyes! It seems like you have been;
+T:tricked, and now, Quazar has got what he wanted. It would be good;
+T:to inform the king now, as soon, the city will be under attack.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,14 +1,27 @@
 GNOME
 -------
 
-Gnomes looks like dwarves, but are smaller and weaker than
-the dwarves. However, they are smart and stealthy, and
-generally make very good mages, but their lack of physical
-strength and constitution makes them somewhat inept to melee
-combat.
+Cousins of the dwarves, gnomes are weaker and even smaller 
+than dwarves, but they make up for it by being intelligent and 
+creative, and are known to be fine alchemists and inventors. 
+Originally living in gnomish clans in the mountains with the 
+dwarves, Gnomes have almost all migrated to the kingdom of 
+Karingen, because this is where their skills are used the most.
 
-ADVANTAGES: +25% to Intelligence
-            +20% to Stealth skill
+Gnomes are intelligent, and also fairly tough, being cousins of the
+dwarves. Unlike dwarves, however, gnomes are rather weak physically,
+and lack the dexterity to become skilled in combat. On the other hand, 
+being very intelligent, they make very skilled wizards.
 
-DISADVANTAGES: -33% to Strength
-               -33% to Constitution
+GNOMES FEATURES:
+
+- +25% to Intelligence.
+- +10% to Constitution.
+- +25% to Spellcraft skill.
+- +50% to Alchemy skill.
+
+GNOMES PENALITIES:
+
+- -25% to Strength.
+- -25% to Dexterity.
+- -25% to Agility skill.

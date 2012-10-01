@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:You notice that behind you, the stairway has disappeared, and there;
+T:is no way to return from where you came from. It looks like there;
+T:is no turning back now...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

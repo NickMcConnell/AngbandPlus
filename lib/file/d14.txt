@@ -1,0 +1,10 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you enter the prisons, you notice that the walls are damaged, there's;
+T:piles of rubble everywhere. Clearly, this place was attacked, and the;
+T:monsters are trying to destroy the place. In front of you stands a goblin,;
+T:just like the ones you faced when you killed Gorg. It seems there may be;
+T:more of them than you originally thought... and that still doesn't explain;
+T:where they come from...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

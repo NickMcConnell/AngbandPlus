@@ -1,0 +1,513 @@
+N:1:1027:1:0:0:0
+I:Julian;
+T:I will tell you more about the red licialhyd...but now is not the time.;
+T:But I will tell you everything when the time comes...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1021:1:0:0:0
+I:Julian;
+T:The temple has returned to normal!! Praise you, <NAME>! You did it!;
+T:You actually managed to defeat Quazar!! I am so happy! Jindar is;
+T:now saved!;
+A:[CONTINUE]:0:0:0:1:51:0:0:0:0
+%
+
+N:1:1018:1:0:0:0
+I:Julian;
+T:There is no time to lose! Please, try to find any secret way inside;
+T:the temple, and see what you can do once inside! I'm counting on you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1016:1:0:0:0
+I:Julian;
+T:<NAME>, there you are! I've been sensing some strong energy waves;
+T:from the Temple! Is everything all right?;
+A:[Tell him about the red licialhyd and the fake priest...]:0:0:0:1:27:0:0:1017:1
+%
+
+N:1:1005:1:0:0:0
+I:Julian;
+T:You have returned, <NAME>! Did you find out more about this 'order'?;
+A:[Tell him about your quest to find the 'Tear']:1:1013:1:1:23:0:0:0:0
+A:I have some questions I would like to ask...:0:0:0:1:19:0:0:0:0
+A:No, not yet. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1005:0:0:0:0
+I: ;
+T:Still shaken by the conversation with the diplomat, king Julian;
+T:doesn't notice you as you approach him... He seems deeply concerned;
+T:by what just happened... Suddently, he notices you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1005:1
+%
+
+N:2:0:0:0:0:0
+I:Julian;
+T:Hum? Who are you? I do not know you, and you do not look like an envoy;
+T:from one of the other kingdoms... I wasn't expecting any visitors here.;
+T:State your name and business!;
+A:My name is <NAME>, sire. I came to inform you of important news...:0:0:0:1:3:0:0:1000:2
+%
+
+N:3:0:0:0:0:0
+I:Julian;
+T:Important news? *sigh*... I'm sorry, but I do not have time for this.;
+T:Did you see the diplomat who just left the throne room? He was an envoy;
+T:from Queen Christina of Ivhala. And he almost made a war declaration!!;
+T:Christina has lost her mind! She would never do something like that!!;
+T:THAT, my friend, is important news. More important than anything you;
+T:could tell me right now. So I am sorry, but you'll have to leave us;
+T:alone... We have a lot of things to think about right now.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Diana the Blue;
+T:...pardon me, sire, but perhaps we should still listen to what <heshe>;
+T:has to say... It may be really important. After all, they let <himher>;
+T:inside the palace for a reason...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Julian;
+T:... I guess you're right... I apologize, <NAME>, but that diplomat;
+T:really ruined my day... Well, I am listening then. What is it that you;
+T:have to tell me?;
+A:The town of Udor was destroyed.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Julian;
+T:...my agents reported some strange rumors about the destruction of a;
+T:small town south of Jindar, and I think it was Udor. So... you are;
+T:telling me that this is true... and you're a survivor, is that right?; 
+A:Yes, sire. I survived the tragedy...:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I: ;
+T:Julian pauses a moment, and thinks about the situation... he seems;
+T:very troubled by what you just said...; 
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Julian;
+T:... first, Christina turns her back on us, and now this... You said;
+T:you survived this... what was the enemy? What exactly caused this;
+T:tragedy??;
+A:They looked like......orcs.:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Julian;
+T:Orcs? ORCS?? You've got to be kidding!! Orcs have been decimated ages;
+T:ago!! That doesn't make any sense! I can't believe you came here;
+T:to tell me another one of those 'orc' stories!!;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Fitzergald the Red;
+T:Sire, shall we throw <himher> outside the palace? Those who tell;
+T:stories about orcs are nothing but liars! <HeShe> is probably just;
+T:trying to get something out of you!;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Julian;
+T:...yes, an orc story sounds unbelievable. But then again, Christina's;
+T:attitude is just as unbelievable. She's definitly up to something.;
+T:And for some reasons, my instinct tells me that Christina's attitude;
+T:and the news of Udor's destruction might be related...;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Fitzergald the Red;
+T:Sire! You don't really believe they are orcs, don't you?;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Julian;
+T:I believe <NAME> is telling the truth about Udor's destruction.;
+T:Are they really orcs? Maybe not. But there is an unknown enemy;
+T:behind that. <NAME>, do you know anything else? Did the orcs have;
+T:a leader? Were they under the leadership of a wizard? A knight?;
+T:Or someone else?;
+A:It was a Kobold by the name of Balgam. I defeated him.:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Julian;
+T:A Kobold you say? That's strange, orcs in the past used to use kobolds;
+T:as slaves... And now, they would be under the leadership of one?;
+T:That definitly doesn't sound too orcish... But did you get the chance;
+T:to speak with this Kobold? Did he reveal anything regarding his possible;
+T:affiliations?;
+A:He did mention an 'order', and that a new age of darkness was coming...:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Julian;
+T:An order? An age of darkness? Hmmm... that's interesting. They could;
+T:easily be part of some demon worshipping order. This is the kind;
+T:of things a demon worshipper would say. And that would make perfect;
+T:sense. These 'orcs' could easily be some kind of lesser demons or;
+T:something like that.;
+A:[CONTINUE]:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Julian;
+T:Well, <NAME>, this matter must be investigated further! You look like;
+T:a very skilled <CLASS>, and of course, I expect you to help us in this;
+T:matter. Since demon worshipping might be involved in this matter,;
+T:I suggest that you go to the temple, and speak with the high priest.;
+T:He is a good man of faith, but also a powerful priest of the Creator,;
+T:and has a lot of experience in dealing with demons, undeads and other;
+T:creatures of darkness.;
+A:[CONTINUE]:0:0:0:3:1208:0:17:0:0
+%
+
+N:17:0:0:0:0:0
+I:Julian;
+T:Here, I shall write you a letter containing details about what we;
+T:just spoke about. Show it to the high priest, and he will be able to;
+T:help you. If there is demon worshipping involved, the priest will;
+T:surely be able to find the culprits. Once you think you've found;
+T:who's behind this madness, return to me, so that I can take actions;
+T:to stop them. And of course, you will be greatly rewarded for your;
+T:efforts!;
+A:Thanks you, your majesty.:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Julian;
+T:Well, good luck, <NAME>! Return when you've learned more. In the;
+T:meantime... I'll have to see what to do concerning Christina's;
+T:threats... Oh, and of course, you now have the permission to enter;
+T:and leave the castle as you please. So you won't have to convince;
+T:Rolf to let you enter again.;
+A:I have some questions I would like to ask...:0:0:0:1:19:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Julian;
+T:Yes?;
+A:Where is the temple?:0:0:0:1:20:0:0:0:0
+A:Who are these two bodyguards?:0:0:0:1:21:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Julian;
+T:The temple? You do not know where the great Temple of the Creator;
+T:is? Well, it's straight to the north of the city. If you go north;
+T:of the palace, you'll eventually reach it.;
+A:Who are these two bodyguards?:0:0:0:1:21:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Julian;
+T:Fitzergald and Diana are my elite bodyguards. Powerful warriors,;
+T:with Fitzergald being a master of Fire, and Diana a master of;
+T:Electricity. And then there was Rolf, a master of Light, but...;
+T:I changed his position to guard the palace doors instead.;
+A:Why did you change his position?:0:0:0:1:22:0:0:0:0
+A:Where is the temple?:0:0:0:1:20:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Julian;
+T:Well... you probably spoke to Rolf before entering the palace, right?;
+T:He can be arrogant at times. Very arrogant. The other guards, including;
+T:Fitzergald and Diana, were very tired of his attitude. However, I could;
+T:certainly not fire him, as he does have great skill. So, I decided to;
+T:give him a position as the palace guard. Believe me, he's worth 100;
+T:men alone, and thanks to him, we haven't got any unwanted intruders;
+T:entering the palace. Rolf's powerful, and loyal... but with other peoples,;
+T:he's just too annoying.;
+A:Where is the temple?:0:0:0:1:20:0:0:0:0
+A:I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I:Julian;
+T:The 'Tear of Justice'? I've never heard of anything about a Tear of Justice!;
+T:And you are saying there is a secret cave beneath the Palace? Hmmm...;
+A:[CONTINUE]:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I: ;
+T:Julian remains silent for a moment, thinking about something...;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Julian;
+T:...I see. There is indeed an old cave beneath the Palace, and there is;
+T:indeed a secret cave behind the Palace. If the high priest says a;
+T:holy stone is inside, then you may go. But I have one favor to ask...;
+T:If you see any other unusual objects that do not look like holy stones...;
+T:please leave them in that cave.;
+A:Why is that so?:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Julian;
+T:I can't tell you anything else for the moment. Please, if you see anything;
+T:that does NOT look like a holy stone, leave it in the cave! Now go,;
+T:<NAME>...and remember what I said. Do not take anything that does not;
+T:look like a holy stone!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Julian;
+T:The...the red licialhyd? Oh...oh dear.... by the Creator, this is an;
+T:extremely bad new!;
+A:Why is that so?:0:0:0:1:28:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Julian;
+T:This stone is...;
+A:[CONTINUE]:0:0:0:1:29:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I: ;
+T:Suddently, one of the soldiers enters the throne room in a hurry. His face;
+T:is pale, and he seems terrified...;
+A:[CONTINUE]:0:0:0:1:30:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I:Soldier;
+T:Sire!! This is terrible!! The Temple!! Strange, green-skinned monsters;
+T:are appearing around it, and are attacking everyone!!;
+A:[CONTINUE]:0:0:0:1:31:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Julian;
+T:Damn!! So they already started! They actually know how to use the;
+T:licialhyd... this is very bad... Well! There's no time to lose then!;
+T:If they are now using the Temple as their stronghold, then, we must;
+T:take it back!;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I: ;
+T:As the king is speaking, a cloaked figure enters the throne room...;
+A:[CONTINUE]:0:0:0:1:33:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Quazar;
+T:Greetings your majesty. Hello, <NAME>, nice to see you again!;
+A:Quazar!!:0:0:0:1:34:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Quazar;
+T:Yes, it's me again! Well, of course, a spirit projection of me, but you;
+T:already knew that. So, your majesty, how do you like my orcs?;
+A:[CONTINUE]:0:0:0:1:35:0:0:0:0
+%
+
+N:35:0:0:0:0:0
+I:Julian;
+T:Bastard!! You're the one who is abusing the licialhyd's power, right?;
+T:You are a fool to present yourself before me like that! Fitzergald!;
+T:Diana! Get him!!;
+A:[CONTINUE]:0:0:0:1:36:0:0:0:0
+%
+
+N:36:0:0:0:0:0
+I:Quazar;
+T:You are the fool, Julian Strongheart! I am only a spirit projection of;
+T:Quazar. This is not my real body. Destroying it will do you no good,;
+T:I can always return in a new form! I especially like the priest form,;
+T:and fooling <NAME> into getting the licialhyd for me! My chaotic powers;
+T:would have been useless against the guardian, but it seems <NAME> was;
+T:able to defeat it. Again, I must thank you for the efforts you made;
+T:to get the stone for me!;
+A:[CONTINUE]:0:0:0:1:37:0:0:0:0
+%
+
+N:37:0:0:0:0:0
+I:Julian;
+T:The power of this stone is too dangerous! You'll most likely kill yourself;
+T:using it! So why don't you just give us the stone back? Then, maybe,;
+T:I'll consider letting you live...;
+A:[CONTINUE]:0:0:0:1:38:0:0:0:0
+%
+
+N:38:0:0:0:0:0
+I:Quazar;
+T:But sire... I ALREADY used the stone! The stone and I have merged together.;
+T:We are now one, unique being!;
+A:[CONTINUE]:0:0:0:1:39:0:0:0:0
+%
+
+N:39:0:0:0:0:0
+I:Julian;
+T:That...that's impossible! That is a lie! Nobody could ever merge with;
+T:such an unstable and unpredictable power!;
+A:[CONTINUE]:0:0:0:1:40:0:0:0:0
+%
+
+N:40:0:0:0:0:0
+I:Quazar;
+T:And yet, I did it! And yes, I do have powers far beyond what you can;
+T:even imagine! I have absolute control of reality itself! I can alter;
+T:everything the way *I* want! And you know what? I already turned the;
+T:Temple of the Creator into my fortress! The once sacred Temple is now;
+T:a labyrinth filled with deadly creatures, including my orcs! It is;
+T:the Temple of Quazar, the REAL creator, the REAL god!! Worship me, or;
+T:tremble before my powers!;
+A:[CONTINUE]:0:0:0:1:41:0:0:0:0
+%
+
+N:41:0:0:0:0:0
+I:Julian;
+T:We're never going to worship a fanatic like you! We'll go into your;
+T:twisted temple, and we'll kill you, Quazar!!;
+A:[CONTINUE]:0:0:0:1:42:0:0:0:0
+%
+
+N:42:0:0:0:0:0
+I:Quazar;
+T:Don't make me laugh, king Julian! Your army is way to weak to do anything!;
+T:A single of my orc champions could probably take down a few hundred of;
+T:your men before falling! And then, I can just send another one... or a;
+T:few hundred ones, for that matter!!;
+A:[CONTINUE]:0:0:0:1:43:0:0:0:0
+%
+
+N:43:0:0:0:0:0
+I:Quazar;
+T:...ah well, this talk is getting boring. I will end this spirit projection,;
+T:and continue reviving orcs, and killing your armies! Good bye, king Julian!;
+T:Good bye, <NAME>!;
+A:[CONTINUE]:0:0:0:1:44:0:0:0:0
+%
+
+N:44:0:0:0:0:0
+I: ;
+T:The cloaked man disappear before your eyes...;
+A:[CONTINUE]:0:0:0:1:45:0:0:0:0
+%
+
+N:45:0:0:0:0:0
+I:Julian;
+T:...so... he actually did it... I can hardly believe it... Fusing;
+T:with this stone's power... I never thought it was possible. But if;
+T:that's true... then I do not know if we can stop him...;
+A:[CONTINUE]:0:0:0:1:46:0:0:0:0
+%
+
+N:46:0:0:0:0:0
+I:Julian;
+T:<NAME>...first of all, thanks you for your efforts in helping our;
+T:kingdom. But in the end, we couldn't do anything. This stone's powers;
+T:were already extremely powerful, but now, I can't even imagine how;
+T:powerful one fused with it can be...;
+A:What's so special about this licialhyd?:0:0:0:1:47:0:0:0:0
+%
+
+N:47:0:0:0:0:0
+I:Julian;
+T:That would be too long to explain... Right now, we have to try our;
+T:best to save the city, though I do not know what we can really do...;
+T:But we will not surrender!! We'll fight till our last soldier!!;
+T:I know I am asking you much, but please, <NAME>, you have to help;
+T:us! Besides, that Quazar seems to have a personnal grudge against;
+T:you...he'll try to get you, so you'll be involved in this whether;
+T:you like it or not...;
+A:[CONTINUE]:0:0:0:1:48:0:0:0:0
+%
+
+N:48:0:0:0:0:0
+I:Julian;
+T:So, he says that he turned the Temple into his lair. If that's;
+T:true, then, the main entrance might be sealed, and impossible to;
+T:penetrate. However, I have heard rumors that a secret passage;
+T:that leads inside the temple exists, and that the entrance would;
+T:be hidden in the temple's graveyard. I do not know if that's true,;
+T:but it's certainly worth searching. <Name>! You have to go to the;
+T:temple's graveyard, and look for this secret entrance! It could;
+T:be anywhere, perhaps even hidden under the graves... I hate to do;
+T:this, but we have no choice.;
+A:[CONTINUE]:0:0:0:7:1002:1020:49:0:0
+%
+
+N:49:0:0:0:0:0
+I:Julian;
+T:Of course, the temple is probably surrounded by orcs right now, but;
+T:I trust that you can fight them. My men will also be fighting, so;
+T:you'll probably be able to safely reach the graveyard. If you can;
+T:find a secret entrance, then proceed inside, and look for a way;
+T:inside the Temple. I pray that the rumors are true...;
+A:I'll be going then.:0:0:0:1:50:0:0:1018:1
+%
+
+N:50:0:0:0:0:0
+I:Julian;
+T:Thanks you, <NAME>, and good luck!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:51:0:0:0:0:0
+I:Julian;
+T:But of course, let's not rejoice too quickly... You may have defeated;
+T:Quazar, but that was only one of them... we still did not find anything;
+T:about their order... Did he say anything that could point us toward;
+T:any clues about the order's whereabouts?;
+A:Before dying, he said 'by Summapal'...:0:0:0:1:52:0:0:0:0
+%
+
+N:52:0:0:0:0:0
+I:Julian;
+T:Summapal? Never heard of him...hmmm...;
+A:Your majesty... will you tell me about the red licialhyd?:0:0:0:1:53:0:0:0:0
+%
+
+N:53:0:0:0:0:0
+I:Julian;
+T:Yes, I will tell you...but not right now. It is not the time. For now,;
+T:you should rest a bit, and enjoy your victory!;
+A:[CONTINUE]:0:0:0:1:54:0:0:0:0
+%
+
+N:54:0:0:0:0:0
+I:Variaz;
+T:This is the end of the current beta version of Portralis! What is;
+T:this mysterious Red Licialhyd? And who is Summapal? And where is this;
+T:mysterious order, and what is their goal? These questions shall be;
+T:answered in a future release!;
+A:[CONTINUE]:0:0:0:1:55:0:0:1027:1
+%
+
+N:55:0:0:0:0:0
+I:Variaz;
+T:I hope you enjoyed the game as much as I enjoyed making it! :);
+T:Post all your comments/suggestions/bug reports on the Portralis;
+T:newsgroups at http://variaz.proboards3.com. You can also e-mail;
+T:me at variaz@hotmail.com.;
+T:   ;
+T:Have Fun! :);
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

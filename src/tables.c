@@ -1107,17 +1107,17 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General store */
-                { "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
-		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
+                { "Shopkeeper",       200,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Shopkeeper",       200,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Shopkeeper",       300,    170, 107,  5, 15, RACE_HALF_ELF},
+		{ "Shopkeeper",       300,    165, 107,  6, 18, RACE_HUMAN},
 	},
 	{
 		/* Armoury */
-                { "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-                { "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
-                { "Decado the Handsome",        25000,  200, 112,  4, 10, RACE_DUNADAN},
-		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
+                { "Shopkeeper",           5000,   210, 115,  5,  7, RACE_HUMAN},
+                { "Shopkeeper",          10000,  190, 111,  4,  9, RACE_DEVLING},
+                { "Shopkeeper",        25000,  200, 112,  4, 10, RACE_HUMAN},
+		{ "Shopkeeper",          30000,  200, 112,  4,  5, RACE_HUMAN},
 	},
 	{
 		/* Weapon Smith */
@@ -1171,11 +1171,11 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
         },
 
 	{
-                /* Pet Shop */
-                { "N'rak the Summoner", 100, 175, 108, 4, 12, RACE_HUMAN},
-                { "Esperion the Beastlover", 100, 120, 105, 6, 16, RACE_HIGH_ELF},
-                { "Flarim the Shopkeeper", 100, 120, 110, 7, 19, RACE_DUNADAN},
-                { "Tril-akheb the Supreme", 100, 140, 105, 6, 12, RACE_ELF},
+                /* Licialhyd Store */
+                { "Shopkeeper",       30000,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Shopkeeper",       30000,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Shopkeeper",       30000,    170, 107,  5, 15, RACE_HALF_ELF},
+		{ "Shopkeeper",       30000,    165, 107,  6, 18, RACE_HUMAN},
         },
 
 	{
@@ -1400,7 +1400,7 @@ player_race race_info[MAX_RACES] =
 		"Human",
 		{  0,  0,  0,  0,  0,  0 },
 		0,  0,  0,  0,  0,  10,  0,  0,
-                12,  100,
+                12,  1000,
 		14,  6,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
@@ -1411,7 +1411,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Elf",
                 { 0,  0,  0,  0, 0,  0 },
 		2,  3,  3,  1, 6,  11, -1,  5,
-                11,  150,
+                11,  1000,
 		24, 16,
 		66,  6, 130, 15,
 		62,  6, 100, 10,
@@ -1422,7 +1422,7 @@ player_race race_info[MAX_RACES] =
 		"Elf",
                 { 0,  0,  0,  0, 0,  0 },
 		5,  6,  6,  2, 8,  12, -5, 15,
-                10,  150,
+                10,  1000,
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
@@ -1431,32 +1431,10 @@ player_race race_info[MAX_RACES] =
 
 	},
 	{
-		"Hobbit",
-                { 0,  0,  0,  0,  0,  0 },
-		15, 18, 18, 5, 12,  15, -10, 20,
-                9,  150,
-		21, 12,
-		36,  3, 60,  3,
-		33,  3, 50,  3,
-		4,
-                0x40B,
-	},
-	{
-		"Gnome",
-                { 0,  0,  0,  0,  0, 0 },
-		10, 12, 12,  3, 6,  13, -8, 12,
-                10,  150,
-		50, 40,
-		42,  3, 90,  6,
-		39,  3, 75,  3,
-		4,
-                0x60F,
-	},
-	{
 		"Dwarf",
                 {  0, 0,  0, 0,  0, 0 },
 		2,  9,  10,  -1,  7,  10, 15,  0,
-                13,  150,
+                13,  1000,
 		35, 15,
 		48,  3, 150, 10,
 		46,  3, 120, 10,
@@ -1464,87 +1442,21 @@ player_race race_info[MAX_RACES] =
                 0x005,        
 	},
 	{
-		"Half-Orc",
-                {  0, 0,  0,  0,  0, 0 },
-		-3, -3, -3,  -1,  0, 7, 12, -5,
-                13,  150,
-		11,  4,
-		66,  1, 150,  5,
-		62,  1, 120,  5,
-		3,
-                0x18D,
-	},
-	{
-		"Half-Troll",
-                { 0, 0, 0, 0,  0, 0 },
-		-5, -8, -8, -2,  -1, 5, 20, -10,
-                14,  150,
-		20, 10,
-		96, 10, 250, 50,
-		84,  8, 225, 40,
-		3,
-                0x005,
-	},
-	{
-                "Dunadan",
-                {  0,  0,  0,  0,  0,  0 },
-		4,  5,  5,  2, 3, 13, 15, 10,
-                14,  400,
-		50, 50,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		0,
-                0x7FF,
-	},
-	{
-		"High-Elf",
-                {  0,  0,  0,  0,  0,  0 },
-		4,  20, 20,  4,  3, 14, 10, 25,
-                12,  150,
-		100, 30,
-		90, 10, 190, 20,
-		82, 10, 180, 15,
+		"Gnome",
+                { 0,  0,  0,  0,  0, 0 },
+		10, 12, 12,  3, 6,  13, -8, 12,
+                10,  1000,
+		50, 40,
+		42,  3, 90,  6,
+		39,  3, 75,  3,
 		4,
-                0x75F,
-	},
-	{
-		"Barbarian",
-                { 0, 0,  0,  0,  0, 0 },
-		-2, -10, 2,  -1,  1, 7, 12, 10,
-                13, 150,
-		14, 8,
-		82, 5, 200, 20,
-		78,  6, 190, 15,
-		0,
-                0x09D,
-        },           
-	{
-		"Half-Ogre",
-                { 0, 0, 0, 0, 0, 0 },
-		-3, -5, -5, -2, -1, 5, 20, 0,
-                14,  150,
-		40, 10,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		3,
-                0x407,
-	},
-	{
-		"Half-Giant",
-                { 0, 0, 0, 0, 0, 0 },
-		-6, -8, -6, -2, -1, 5, 25, 5,
-                15, 150,
-		40, 10,
-		100,10, 255, 65,
-		80, 10, 240, 64,
-		3,
-                0x011,
+                0x60F,
 	},
 	{
 		"Kobold",
                 { 0, 0, 0, 0, 0, 0 },
 		-2, -3, -2, -1, 1, 8, 10, -8,
-                11, 150,
+                11, 1000,
 		11,  3,
                 55,  1, 130,  5,
                 50,  1, 100,  5,
@@ -1552,58 +1464,36 @@ player_race race_info[MAX_RACES] =
                 0x009,
 	},
 	{
-		"Nibelung",
-                { 0, 0, 0, 0, 0, 0 },
-		3, 5, 10, 1, 5, 10, 9, 0,
-                13, 150,
-		40, 12,
-		43,  3, 92,  6,
-		40,  3, 78,  3,
-		5,
-                0x40F,
-	},
-	{
-		"Dark Elf",
-                { 0, 0, 0, 0, 0, 0 },
-		5, 15, 20, 3, 8, 12, -5, 10,
-                11, 150,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		5,
-                0x7DF,
-	},
-	{
-		"Vampire",
-                { 0, 0, 0, 0, 0, 0 },
-		4, 10, 10, 4, 1, 8, 5, 0,
-                13, 150,
-		100, 30,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
-		5,
+                "Devling",
+                {  0,  0,  0,  0,  0,  0 },
+                5,  5,  5,  2,  10,  10,  5,  5,
+                6,  1000,
+                2,  5,
+                42,  3, 70,  3,
+                39,  3, 70,  3,
+		0,
                 0x7FF,
 	},
 	{
-                "Ent",
-                { 0, 0, 0, 0, 0, 0 },
-                5, 5, 20, -6, 5, 4, 15, 5,
-                14, 150,
-                255, 70,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		5,
-                0x1C65,
+                "Celestial",
+                {  0,  0,  0,  0,  0,  0 },
+                10,  10,  10,  2,  2,  10,  25,  25,
+                12,  1000,
+		14,  6,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
+                0,
+                0x7FF,
 	},
+	
         {
-                "Balrog",
-
+                "Demon",
                 {  0,  0,  0,  0,  0,  0 },
                 6,  10,  10,  -5,  18,  10,  20,  0,
-                30,  1000,
-                200,  250,
-                180,  15, 220, 40,
-                160,  10, 170, 10,
+                12,  1000,
+		14,  6,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
                 3,
                 0x7DF,
         },
@@ -1612,7 +1502,7 @@ player_race race_info[MAX_RACES] =
                 "Zulgor",
                 {  0,  0,  0,  0,  0,  0 },
                 12,  10,  14,  1,  22,  10,  20,  0,
-                18,  500,
+                18,  1000,
                 14,  6,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
@@ -1621,63 +1511,15 @@ player_race race_info[MAX_RACES] =
         },
 
 	{
-                "Devling",
-                {  0,  0,  0,  0,  0,  0 },
-                5,  5,  5,  2,  10,  10,  5,  5,
-                6,  150,
-                2,  5,
-                42,  3, 70,  3,
-                39,  3, 70,  3,
-		0,
-                0x7FF,
-	},
-	{
-                "Skeleton",
-                {  0,  0,  0,  0,  0,  0 },
-                0,  0,  0,  0,  -15,  10,  0,  0,
-                12,  150,
-                14,  6,
-                72,  6, 170, 25,
-                66,  4, 140, 20,
-                0,
-                0x7FF,
-	},
-	{
-                "Celestial",
-                {  0,  0,  0,  0,  0,  0 },
-                10,  10,  10,  2,  2,  10,  25,  25,
-                12,  500,
-		14,  6,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
-                0,
-                0x7FF,
-	},
-
-	{
                 "Monster",
                 {  0,  0,  0,  0,  0,  0 },
                 30,  30,  30,  5,  30,  10,  30,  30,
-                1,  150,
+                1,  1000,
                 5,  10,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
                 0x7FF,
-	},
-
-
-        /* Special Race, only used by Hell Queens */
-	{
-                " ",
-		{  0,  0,  0,  0,  0,  0 },
-                0,  30,  30,  1,  6,  16,  -20,  0,
-                3,  150,
-		14,  6,
-		72,  6, 180, 25,
-                80,  4, 170, 20,
-                5,
-                0x000,
 	},
 
 };
@@ -1718,6 +1560,14 @@ player_class class_info[MAX_CLASS] =
         
 	{
 		"Warrior",
+		{ 5, -2, -2, 2, 2, -1},
+		25, 18, 18, 1,  14, 2, 70, 55,
+                12, 7,  10, 0,  0,  0,  45, 45,
+		9,  0
+	},
+
+	{
+		"Fighter",
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
                 12, 7,  10, 0,  0,  0,  45, 45,
@@ -1821,7 +1671,7 @@ player_class class_info[MAX_CLASS] =
                 8, 150
 	},
 	{
-                "Zelar",
+                "High Monk",
                 { 3, 6, 3, 4, 5, 1},
                 30, 40, 42, 3,  27, 15, 150, -10,
                 8,  12, 21, 0,  0,  0,  50, 0,
@@ -2914,6 +2764,22 @@ player_magic magic_info[MAX_CLASS] =
 	},
 
 	{
+		/*** Fighter ***/
+
+                TV_MAGERY_BOOK,
+		0,
+
+                A_INT,
+		0,
+
+                0,
+                0,
+                0,
+                100,
+		0,
+	},
+
+	{
 		/*** Mage ***/
 
                 TV_MAGERY_BOOK,
@@ -3105,7 +2971,7 @@ player_magic magic_info[MAX_CLASS] =
 		0,
 	},
 	{
-                /*** Zelar ***/
+                /*** High Monk ***/
 
                 TV_MAGERY_BOOK,
 		0,
@@ -3120,7 +2986,7 @@ player_magic magic_info[MAX_CLASS] =
 		0,
 	},
 	{
-                /*** Zelar ***/
+                /*** High Monk ***/
 
                 TV_MAGERY_BOOK,
 		0,
@@ -4618,862 +4484,6 @@ cptr spell_names[MAX_REALM][64] =
 };
 
 /*
- * Class titles for the player.
- *
- * The player gets a new title every five levels, so each class
- * needs only ten titles total.
- */
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
-{
-        /* Apprentice */
-	{
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-                "Unranked",
-
-	},
-        
-	/* Warrior */
-	{
-                /* Males */
-		"Rookie",
-                "Mercenary",
-                "Soldier",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
-                /* Females */
-                "Rookie",
-                "Mercenary",
-                "Soldier",
-                "Veteran",
-                "Swordswoman",
-                "Champion",
-                "Heroine",
-                "Baroness",
-                "Duchess",
-                "Lady",
-	},
-
-	/* Mage */
-	{
-                /* Males */
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
-                /* Females */
-                "Apprentice",
-                "Trickster",
-                "Illusionist",
-                "Spellbinder",
-                "Evoker",
-                "Conjurer",
-                "Witch",
-                "Sorceress",
-                "Ipsissimus",
-                "Archwitch",
-	},
-
-	/* Priest */
-	{
-                /* Males */
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-		"Priest",
-		"High Priest",
-		"Cardinal",
-		"Inquisitor",
-		"Pope",
-                /* Females */
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-                "Priestess",
-                "HighPriestess",
-		"Cardinal",
-		"Inquisitor",
-		"Pope",
-	},
-
-	/* Rogues */
-	{
-                /* Males */
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-		"Guildmaster",
-                /* Females */
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-                "Guildmistress",
-	},
-
-	/* Rangers */
-	{
-                /* Males */
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-		"Ranger Lord",
-                /* Females */
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-                "Ranger Lady",
-	},
-
-	/* Paladins */
-	{
-                /* Males */
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-		"Paladin Lord",
-                /* Females */
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-                "Paladin Lady",
-	},
-
-	/* Monk */
-	{
-                /* Males */
-		"Initiate",
-                "Novice",
-		"Disciple",
-		"Immaculate",
-		"Master",
-		"Soft Master",
-		"Hard Master",
-                "Tiger Master",
-                "DragonMaster",
-		"Grand Master",
-                /* Females */
-		"Initiate",
-                "Novice",
-		"Disciple",
-		"Immaculate",
-		"Master",
-                "Soft Mistress",
-                "Hard Mistress",
-                "TigerMistress",
-                "Drag Mistress",
-                "GrandMistress",
-	},
-
-        /* Archer */
-	{
-                /* Males */
-                "Rookie",
-                "Fletcher",
-                "GreatFletcher",
-                "Lesser Archer",
-                "Lesser Archer",
-                "Archer",
-                "Archer",
-                "Great Archer",
-                "Great Archer",
-                "MasterArcher",
-                /* Females */
-                "Rookie",
-                "Fletcher",
-                "GreatFletcher",
-                "Lesser Archer",
-                "Lesser Archer",
-                "Archer",
-                "Archer",
-                "Great Archer",
-                "Great Archer",
-                "Mistres Ar.",
-	},
-
-	/* High Mage; same as Mage */
-	{
-                /* Males */
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
-                /* Females */
-                "Apprentice",
-                "Trickster",
-                "Illusionist",
-                "Spellbinder",
-                "Evoker",
-                "Conjurer",
-                "Witch",
-                "Sorceress",
-                "Ipsissimus",
-                "Archwitch",
-	},
-
-        /* Elem Lord */
-	{
-                /* Males */
-                "Lesser",
-                "Lesser",
-                "Adept",
-                "Adept",
-                "Greater",
-                "Greater",
-                "Champion",
-                "Lord",
-                "King",
-                "Emperor",
-                /* Females */
-                "Lesser",
-                "Lesser",
-                "Adept",
-                "Adept",
-                "Greater",
-                "Greater",
-                "Champion",
-                "Lady",
-                "Queen",
-                "Empress",
-	},
-        /* Monster Mage */
-	{
-                "Apprentice",
-                "Monster Mage",
-                "Monster Mage",
-                "Monster Mage",
-                "Monster Mage",
-                "Monster Lord",
-                "Monster Lord",
-                "Monster Lord",
-                "Monster Lord",
-                "Monster King",
-                "Apprentice",
-                "Monster Mage",
-                "Monster Mage",
-                "Monster Mage",
-                "Monster Mage",
-                "Monster Lady",
-                "Monster Lady",
-                "Monster Lady",
-                "Monster Lady",
-                "MonsterQueen",
-	},
-
-        /* Defender */
-	{
-                "Buckler",
-                "Small Shield",
-                "Medium Shield",
-                "Large Shield",
-                "Tower Shield",
-                "Wood Wall",
-                "Stone Wall",
-                "Fortress",
-                "Castle",
-                "Mountain",
-                "Buckler",
-                "Small Shield",
-                "Medium Shield",
-                "Large Shield",
-                "Tower Shield",
-                "Wood Wall",
-                "Stone Wall",
-                "Fortress",
-                "Castle",
-                "Mountain",
-	},
-
-        /* Justice Warrior */
-	{
-                "Good",
-                "Just",
-                "Generous",
-                "Brave",
-                "Hope Bringer",
-                "Blessed",
-                "Justice Lord",
-                "Angel",
-                "GuardianAngel",
-                "Archangel",
-                "Good",
-                "Just",
-                "Generous",
-                "Brave",
-                "Hope Bringer",
-                "Blessed",
-                "Justice Lady",
-                "Angel",
-                "GuardianAngel",
-                "Archangel",
-
-	},
-        /* Zelar */
-	{
-                "Initied",
-                "Novice",
-                "Practiced",
-                "Mind Fister",
-                "Mind Warrior",
-                "Mind Champion",
-                "Energy Master",
-                "Energy Master",
-                "Energy Lord",
-                "Energy King",
-                "Initied",
-                "Novice",
-                "Practiced",
-                "Mind Fister",
-                "Mind Warrior",
-                "Mind Champion",
-                "Ener.Mistress",
-                "Ener.Mistress",
-                "Energy Lady",
-                "Energy Queen",
-	},
-        /* Soul Guardian */
-	{
-                "Wise",
-                "Sage",
-                "Great Sage",
-                "Soul Caller",
-                "Soul Guide",
-                "Soul Captor",
-                "Soul Keeper",
-                "Soul Shaper",
-                "Soul Master",
-                "Soul Guardian",
-                "Wise",
-                "Sage",
-                "Great Sage",
-                "Soul Caller",
-                "Soul Guide",
-                "Soul Captor",
-                "Soul Keeper",
-                "Soul Shaper",
-                "Soul Mistress",
-                "Soul Guardian",
-	},
-        /* Shadow Stalkers */
-	{
-                /* Males */
-                "Spy",
-                "Stealthy",
-                "Stalker",
-                "Lesser Shade",
-                "Shade",
-                "Greater Shade",
-                "Shadow Blade",
-                "Shadow Slayer",
-                "Shadow Lord",
-                "Shadow King",
-                /* Females */
-                "Spy",
-                "Stealthy",
-                "Stalker",
-                "Lesser Shade",
-                "Shade",
-                "Greater Shade",
-                "Shadow Blade",
-                "Shadow Slayer",
-                "Shadow Lady",
-                "Shadow Queen",
-	},
-
-
-        /* Warrior-Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Journeyman",
-		"Veteran",
-		"Enchanter",
-		"Champion",
-		"Mage-Hero",
-		"Baron Mage",
-		"Battlemage",
-		"Wizard Lord",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-
-        /* Alchemist */
-	{
-                "Student",
-                "Alchemist",
-                "Alchemist",
-                "Alchemist",
-                "Newton",
-                "Chimist",
-                "Chimist",
-                "Grand Chimist",
-                "Great Chimist",
-                "Einstein",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-        /* Possessor */
-	{
-                "Soul",
-                "Soul",
-                "Free Soul",
-                "Free Soul",
-                "Corpser",
-                "Corpser",
-                "High Corpser",
-                "High Corpser",
-                "Possessor",
-                "Possessor",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-        /* Sorceror -- Same as Mage */
-	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-                "Sorceror",
-		"Ipsissimus",
-		"Archimage",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-        /* Necromancer */
-	{
-		"Acolyte",
-		"Curser",
-		"Dark Student",
-		"Initiate",
-		"Slavemaster",
-		"Summoner",
-		"Controller",
-		"Commander",
-		"Dark Master",
-		"Night Lord",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-	  /* Magi Warriors */
-	{
-                "Rookie",
-                "Apprentice",
-                "Fighter",
-                "Magician",
-                "Warrior",
-                "Mage",
-                "Knight/Wizard",
-                "Lord",
-                "Archmage",
-                "Master",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-	/* Berserker */
-	{
-		    "Berserker",
-		    "Berserker",
-		    "Berserker",
-		    "Rage Prince",
-		    "Rage Prince",
-		    "Rage Prince",
-		    "Rage King",
-		    "Rage King",
-		    "Rage King",
-		    "God Of Rage",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-        /* Dark Lord */
-	{
-                    "Criminal",
-                    "Dark Initiate",
-                    "Dark Lover",
-                    "Dark Caller",
-                    "Dark Soldier",
-                    "Dark Captain",
-                    "Dark Champion",
-                    "Dark Prince",
-                    "Dark Master",
-                    "Dark Avatar",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-        /* Hell Queen */
-	{
-                "Mana Maiden",
-                "Mana Maiden",
-                "Mana Princess",
-                "Mana Princess",
-                "Mana Princess",
-                "Mana Princess",
-                "Mana Queen",
-                "Mana Queen",
-                "Mana Queen",
-                "Mana Empress",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-
-	},
-
-        /* Battle Master */
-	{
-                "Rookie",
-                "Warrior",
-                "Ninja",
-                "Warrior/Ninja",
-                "Champion",
-                "High Champion",
-                "Prince",
-                "King",
-                "Emperor",
-                "Battle Master",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-        },
-
-        /* Felisan */
-	{
-                "Wild Cat",
-                "Novice",
-                "Archer",
-                "Arrow Crafter",
-                "Great Archer",
-                "Master Archer",
-                "Archer Champ",
-                "Prince Archer",
-                "Master Felisan",
-                "Lord Felisan",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-        /* Fire Lords */
-	{
-                "Rookie",
-                "Soldier",
-                "Captain",
-                "Warrior",
-                "Fire Warrior",
-                "Fire Summoner",
-                "Fire Master",
-                "Fire Lord",
-                "Fire King",
-                "Fire Emperor",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-        /* Valkyrie */
-	{
-                "Sky Maiden",
-                "Sky Scout",
-                "Sky Soldier",
-                "Sky Captain",
-                "Sky Champion",
-                "Sky General",
-                "Sky Guardian",
-                "Sky Queen",
-                "Sky Empress",
-                "Heavens Avenger",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-                "MISTRESS",
-
-	},
-        /* Commander */
-	{
-                "Soldier",
-                "Corporal",
-                "Captain",
-                "Lieutenant",
-                "General",
-                "Marshal",
-                "Prince",
-                "Lord",
-                "King",
-                "Emperor",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-        /* Samurai */
-	{
-                "Trainee",
-                "Low Blade",
-                "Mid Blade",
-                "High Blade",
-                "Honorable",
-                "Wise Blade",
-                "Shin Blade",
-                "Samurai",
-                "High Samurai",
-                "MasterSamurai",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-	},
-        /* Ice Lords */
-	{
-                "Rookie",
-                "Soldier",
-                "Captain",
-                "Warrior",
-                "Ice Warrior",
-                "Ice Summoner",
-                "Ice Master",
-                "Ice Lord",
-                "Ice King",
-                "Ice Emperor",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-        /* Psychics */
-	{
-                "Novice",
-                "Initiate",
-                "Wise",
-                "LesserPsychic",
-                "LesserPsychic",
-                "Psychic",
-                "Psychic",
-                "Great Psychic",
-                "Great Psychic",
-                "Mind Master",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-                "MASTER",
-
-	},
-
-};
-
-/*
  * Hack -- the "basic" color names (see "TERM_xxx")
  */
 cptr color_names[16] =
@@ -5857,332 +4867,6 @@ option_type option_info[] =
 };
 
 
-cptr chaos_patrons[MAX_PATRON] =
-{
-	"Slortar",
-	"Mabelode",
-	"Chardros",
-	"Hionhurn",
-	"Xiombarg",
-
-	"Pyaray",
-	"Balaan",
-	"Arioch",
-	"Eequor",
-	"Narjhan",
-
-	"Balo",
-	"Khorne",
-	"Slaanesh",
-	"Nurgle",
-	"Tzeentch",
-
-	"Khaine"
-};
-
-int chaos_stats[MAX_PATRON] =
-{
-	A_CON,  /* Slortar */
-	A_CON,  /* Mabelode */
-	A_STR,  /* Chardros */
-	A_STR,  /* Hionhurn */
-	A_STR,  /* Xiombarg */
-
-	A_INT,  /* Pyaray */
-	A_STR,  /* Balaan */
-	A_INT,  /* Arioch */
-	A_CON,  /* Eequor */
-	A_CHR,  /* Narjhan */
-
-	-1,     /* Balo */
-	A_STR,  /* Khorne */
-	A_CHR,  /* Slaanesh */
-	A_CON,  /* Nurgle */
-	A_INT,  /* Tzeentch */
-
-	A_STR,  /* Khaine */
-};
-
-
-
-
-int chaos_rewards[MAX_PATRON][20] =
-{
-	/* Slortar the Old: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP,
-		REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Mabelode the Faceless: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_H_SUMMON, REW_SUMMON_M,
-		REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_WND,
-		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_ABL, REW_SER_UNDE,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GOOD_OBS
-	},
-
-	/* Chardros the Reaper: */
-	{
-		REW_WRATH, REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_H_SUMMON,
-		REW_SUMMON_M, REW_IGNORE, REW_IGNORE, REW_DESTRUCT, REW_SER_UNDE,
-		REW_GENOCIDE, REW_MASS_GEN, REW_MASS_GEN, REW_DISPEL_C, REW_GOOD_OBJ,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Hionhurn the Executioner: */
-	{
-		REW_WRATH, REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-		REW_IGNORE, REW_IGNORE, REW_SER_UNDE, REW_DESTRUCT, REW_GENOCIDE,
-		REW_MASS_GEN, REW_MASS_GEN, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
-	},
-
-	/* Xiombarg the Sword-Queen: */
-	{
-		REW_TY_CURSE, REW_TY_CURSE, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND, REW_POLY_WND,
-		REW_GENOCIDE, REW_DISPEL_C, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS,
-		REW_GAIN_ABL, REW_CHAOS_WP, REW_GAIN_EXP, REW_AUGM_ABL, REW_GOOD_OBS
-	},
-
-
-	/* Pyaray the Tentacled Whisperer of Impossible Secretes: */
-	{
-		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,
-		REW_POLY_SLF, REW_SER_DEMO, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_CHAOS_WP, REW_DO_HAVOC, REW_GOOD_OBJ, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Balaan the Grim: */
-	{
-		REW_TY_CURSE, REW_HURT_LOT, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
-		REW_SUMMON_M, REW_LOSE_EXP, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-		REW_SER_UNDE, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_GAIN_EXP,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GREA_OBS, REW_AUGM_ABL
-	},
-
-	/* Arioch, Duke of Hell: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_EXP, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-		REW_POLY_SLF, REW_MASS_GEN, REW_SER_DEMO, REW_HEAL_FUL, REW_CHAOS_WP,
-		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GAIN_EXP, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Eequor, Blue Lady of Dismay: */
-	{
-		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_CURSE_WP, REW_RUIN_ABL,
-		REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_WND,
-		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS, REW_HEAL_FUL, REW_GAIN_EXP,
-		REW_GAIN_ABL, REW_CHAOS_WP, REW_GOOD_OBS, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Narjhan, Lord of Beggars: */
-	{
-		REW_WRATH, REW_CURSE_AR, REW_CURSE_WP, REW_CURSE_WP, REW_CURSE_AR,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF,
-		REW_POLY_WND, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_AUGM_ABL,
-		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Balo the Jester: */
-	{
-		REW_WRATH, REW_SER_DEMO, REW_CURSE_WP, REW_CURSE_AR, REW_LOSE_EXP,
-		REW_GAIN_ABL, REW_LOSE_ABL, REW_POLY_WND, REW_POLY_SLF, REW_IGNORE,
-		REW_DESTRUCT, REW_MASS_GEN, REW_CHAOS_WP, REW_GREA_OBJ, REW_HURT_LOT,
-		REW_AUGM_ABL, REW_RUIN_ABL, REW_H_SUMMON, REW_GREA_OBS, REW_AUGM_ABL
-	},
-
-	/* Khorne the Bloodgod: */
-	{
-		REW_WRATH, REW_HURT_LOT, REW_HURT_LOT, REW_H_SUMMON, REW_H_SUMMON,
-		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_SER_MONS, REW_SER_DEMO,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GOOD_OBJ,
-		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_GREA_OBJ, REW_GREA_OBS
-	},
-
-	/* Slaanesh: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_SER_DEMO,
-		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_EXP,
-		REW_GAIN_EXP, REW_CHAOS_WP, REW_GAIN_ABL, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Nurgle: */
-	{
-		REW_WRATH, REW_PISS_OFF, REW_HURT_LOT, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_ABL,
-		REW_GAIN_ABL, REW_SER_UNDE, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL
-	},
-
-	/* Tzeentch: */
-	{
-		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
-		REW_LOSE_EXP, REW_IGNORE, REW_POLY_SLF, REW_POLY_SLF, REW_POLY_SLF,
-		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_CHAOS_WP, REW_GREA_OBJ,
-		REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP, REW_GAIN_EXP, REW_AUGM_ABL
-	},
-
-	/* Khaine: */
-	{
-		REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_LOSE_ABL, REW_LOSE_EXP,
-		REW_IGNORE,   REW_IGNORE,   REW_DISPEL_C, REW_DO_HAVOC, REW_DO_HAVOC,
-		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_EXP, REW_GAIN_ABL, REW_GAIN_ABL,
-		REW_SER_MONS, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GOOD_OBS
-	}
-};
-
-martial_arts ma_blows[MAX_MA] =
-{
-#ifdef VERBOSE_MARTIAL_ARTS
-	{ "You punch %s.",                          1, 0, 1, 4, 0 },
-	{ "You kick %s.",                           2, 0, 1, 6, 0 },
-	{ "You strike %s.",                         3, 0, 1, 7, 0 },
-	{ "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE },
-	{ "You hit %s with your elbow.",            7, 5, 1, 8, 0 },
-	{ "You butt %s.",                           9, 10, 2, 5, 0 },
-	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-	{ "You uppercut %s.",                       13, 12, 4, 4, 6 },
-	{ "You double-kick %s.",                    16, 15, 5, 4, 8 },
-	{ "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0 },
-	{ "You hit %s with a jump kick.",           25, 25, 5, 6, 10 },
-	{ "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0 },
-	{ "You hit %s with a circle kick.",         33, 30, 6, 8, 10 },
-	{ "You hit %s with an Iron Fist.",          37, 35, 8, 8, 10 },
-	{ "You hit %s with a flying kick.",         41, 35, 8, 10, 12 },
-	{ "You hit %s with a Dragon Fist.",         45, 35, 10, 10, 16 },
-	{ "You hit %s with a Crushing Blow.",       48, 35, 10, 12, 18 },
-#else
-	{ "You punch %s.",                          1, 0, 1, 4, 0 },
-	{ "You kick %s.",                           2, 0, 1, 6, 0 },
-	{ "You strike %s.",                         3, 0, 1, 7, 0 },
-	{ "You knee %s.",                           5, 5, 2, 3, MA_KNEE },
-	{ "You hit %s.",                            7, 5, 1, 8, 0 },
-	{ "You butt %s.",                           9, 10, 2, 5, 0 },
-	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-	{ "You uppercut %s.",                       13, 12, 4, 4, 6 },
-	{ "You double-kick %s.",                    16, 15, 5, 4, 8 },
-	{ "You hit %s.",                            20, 20, 5, 5, 0 },
-	{ "You kick %s.",                           25, 25, 5, 6, 10 },
-	{ "You hit %s.",                            29, 25, 6, 6, 0 },
-	{ "You kick %s.",                           33, 30, 6, 8, 10 },
-	{ "You punch %s.",                          37, 35, 8, 8, 10 },
-	{ "You kick %s.",                           41, 35, 8, 10, 12 },
-	{ "You punch %s.",                          45, 35, 10, 10, 16 },
-	{ "You punch %s.",                          48, 35, 10, 12, 18 },
-#endif
-};
-
-
-magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
-{
-	/* Level gained,  cost,  %fail,  name */
-	{ 1,   1,  15, "Precognition" },          /* Det. monsters/traps */
-	{ 2,   1,  20, "Neural Blast" },          /* ~MM */
-        { 3,   2,  25, "Minor Displacement" },    /* Phase/Between gate */
-	{ 7,   6,  35, "Major Displacement" },    /* Tele. Self / All */
-	{ 9,   7,  50, "Domination" },
-	{ 11,  7,  30, "Pulverise" },             /* Telekinetic "bolt" */
-	{ 13, 12,  50, "Character Armour" },      /* Psychic/physical defenses */
-	{ 15, 12,  60, "Psychometry" },
-	{ 18, 10,  45, "Mind Wave" },             /* Ball -> LOS */
-	{ 23, 15,  50, "Adrenaline Channeling" },
-	{ 25, 10,  40, "Psychic Drain" },         /* Convert enemy HP to mana */
-	{ 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
-};
-
-magic_power necro_powers[MAX_NECRO_POWERS] =
-{
-	/* Level gained,  cost,  %fail,  name */
-        {  1,   2, 10, "Call Darkness" },       /* Bolt/beam/ball/LOS of dark */
-        { 10,   6, 20, "Raise Dead" },          /* Ball */
-        { 25,  10, 25, "Summon Undead" },       /* Summon one(some) undead(s) */
-        { 30,  15, 20, "Vampirism" },           /* Bolt */
-        { 35, 100, 25, "Death" },               /* The Death word, always bolt put your HP to 1 */
-};
-
-/*
- * Textual translation of your god's "niceness".
- */
-
-cptr deity_niceness[10] = {
-  "a lovable",
-  "a friendly",
-  "an easygoing",
-  "a forgiving",
-  "an uncaring",
-  "a wary",
-  "an unforgiving",
-  "an impatient",
-  "a wrathfull",
-  "an easily angered"
-};
-
-/*
- * Textual translation of your standing with your god.
- */
-
-cptr deity_standing[11] = {
-  "cursed",
-  "persecuted",
-  "punished",
-  "despised",
-  "disliked",
-  "watched",
-  "unnoticed",
-  "noticed",
-  "rewarded",
-  "favored",
-  "championed"
-};
-
-/*
- * Textual translations of your deity's rarity. 
- */
-cptr deity_rarity[2] = {
-  "Major",
-  "Supreme"
-};
-
-deity deity_info[MAX_GODS] = {
-  { "Yavanna",   "Forest",     2, 0, RACE_ENT, 0 },
-  { "Ulmo",      "Waters",     3, 0, RACE_ELF, RACE_HUMAN },
-  { "Aule",      "Earth",      3, 0, RACE_DWARF, RACE_NIBELUNG },
-  { "Melkor",    "Darkness",   9, 0, RACE_HALF_ORC, RACE_HALF_TROLL },
-  { "Tilion",    "Moon",       4, 0, RACE_ELF, RACE_DARK_ELF },
-  { "Arien",     "Sun",        3, 0, RACE_HUMAN, 0 },
-  { "Tulkas",    "Rage",       8, 0, RACE_BARBARIAN, 0 },
-  { "Manwe",     "Winds",      5, 0, RACE_HIGH_ELF, RACE_HALF_ELF },
-  { "Varda",     "Stars",      4, 0, RACE_DUNADAN, 0 },
-
-  { "Iluvatar",  "Being",      2, 1, RACE_ELF, RACE_HUMAN },
-  { "The RNG",   "Randomness", 9, 1, RACE_HUMAN, 0 },
-  { "God",       "Holiness",   1, 1, RACE_HUMAN, RACE_DUNADAN }
-};
-
-/* jk - to hit, to dam, to ac, to stealth, to disarm, to saving throw */
-/* this concept is taken from Adom, where Thomas Biskup thought it out, */
-/* as far as I know. */
-tactic_info_type tactic_info[9] =
-{
-/*     hit  dam   ac stl  dis  sav */
-     { -10, -10, +15, +3, +15, +14, "coward"},           /* 4-4 */
-     {  -8,  -8, +10, +2,  +9,  +9, "meek"},             /* 4-3 */
-     {  -4,  -4,  +5, +1,  +5,  +5, "wary"},             /* 4-2 */
-     {  -2,  -2,  +2, +1,  +2,  +2, "careful"},          /* 4-1 */
-     {   0,   0,   0,  0,   0,   0, "normal"},           /* 4+0 */
-     {   2,   2,  -2, -1,  -2,  -3, "confident"},        /* 4+1 */
-     {   4,   4,  -5, -2,  -5,  -7, "aggressive"},       /* 4+2 */
-     {   6,   6, -10, -3, -11, -12, "furious"},          /* 4+3 */
-     {   8,  12, -25, -5, -18, -18, "berserker"}         /* 4+4 */
-};
-
 /*
  * Random artifact activations.
  */
@@ -6239,93 +4923,4 @@ activation activation_info[MAX_T_ACT] = {
   {"cure insanity",2000,167},
   {"cure mutation",2000,168},
   {"light absortion",800,169},
-};
-
-/*
- * Possible Musics.
- */
-music music_info[MAX_MUSICS] = {
-  {"singing a song of freedom",MUSIC_BETWEEN,10,40,10,1,10},
-  {"singing a charming song",MUSIC_CHARME,6,60,20,1,15},
-  {"singing a knowledge song",MUSIC_ID,6,50,5,2,10},
-  {"singing a *knowledge* song",MUSIC_STAR_ID,2,100,50,4,100}, /* Never random, only for the Harp of Master Robinton */
-  {"singing a beautiful song",MUSIC_NONE,0,0,0,1,1},
-  {"singing a hidding song",MUSIC_HIDE,20,50,8,3,6},
-  {"singing a song of brightness",MUSIC_LITE,60,20,4,1,5},
-  {"singing a immaterial song",MUSIC_SHADOW,30,50,2,5,15},
-  {"singing a godness song",MUSIC_HOLY,20,100,20,6,15},
-  {"singing a *godness* song",MUSIC_HOLY,30,100,20,5,15}, /* Never random, only for the Drum of Piemur */
-  {"singing a *charming* song",MUSIC_CHARME,20,100,20,1,15}, /* Never random, only for the Flute of Menolly */
-};
-
-/*
- * Possible movement type.
- */
-move_info_type move_info[9] =
-{
-/*    speed, searching, stealth, perception */
-    { -10,     17,        4,      20, "slug-like"},
-    {  -8,     12,        4,      16, "very slow"},
-    {  -6,      8,        3,      10, "slow"},
-    {  -3,      4,        2,       6, "leisurely"},
-    {   0,      0,        0,       0, "normal"},
-    {   1,     -4,       -1,      -4, "brisk"},
-    {   2,     -6,       -4,      -8, "fast"},
-    {   3,    -10,       -7,     -14, "very fast"},
-    {   4,    -16,      -10,     -20, "running"}
-};
-
-/*
- * Possible inscriptions type.
- */
-inscription_info_type inscription_info[MAX_INSCRIPTIONS] =
-{
-        {       /* Nothing */
-                "",
-                0,
-                TRUE,
-                0,
-        },
-        {       /* Light up the room(Adunaic) */
-                "ure nimir", /* sun shine */
-                INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
-                FALSE,
-                30,
-        },
-        {       /* Darkness in room(Adunaic) */
-                "lomi gimli", /* night stars */
-                INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
-                FALSE,
-                10,
-        },
-        {       /* Storm(Adunaic) */
-                "dulgi bawiba", /* black winds */
-                INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
-                FALSE,
-                40,
-        },
-        {       /* Protection(Sindarin) */
-                "pedo mellon a minno", /* say friend and enter */
-                INSCRIP_EXEC_MONST_WALK,
-                FALSE,
-                8,
-        },
-        {       /* Dwarves summoning(Khuzdul) */
-                "Baruk Khazad! Khazad aimenu!", /* Axes of the Dwarves, the Dwarves are upon you! */
-                INSCRIP_EXEC_ENGRAVE,
-                FALSE,
-                100,
-        },
-        {       /* Open Chasm(Nandorin) */
-                "dunna hrassa", /* black precipice */
-                INSCRIP_EXEC_MONST_WALK,
-                FALSE,
-                50,
-        },
-        {       /* Blast of Black Fire(Orkish) */
-                "burz ghash ronk", /* black fire pool */
-                INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
-                FALSE,
-                60,
-        },
 };

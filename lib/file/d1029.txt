@@ -1,0 +1,139 @@
+N:1:0:0:0:0:0
+I:Ghost of Navarius;
+T:Thanks the Creator, you have made your way here! Things have turned;
+T:out pretty...bad, haven't they? I did not expect something like that;
+T:would have happened...;
+A:Do you know what's going on??:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Ghost of Navarius;
+T:Shortly after I sent you to Avemorsh, Quazar came and killed me...;
+T:and then, he tricked you. Due to my devotion to prayers and meditation,;
+T:however, I have been able to remain in this world in the form of;
+T:a ghost. As a ghost, I have been able to follow Quazar, and learn;
+T:of his plans... It will not last long, however, so I will explain to you;
+T:what's going on... and then, I will depart.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:9:0:0
+I:Ghost of Navarius;
+T:The red licialhyd is a stone that contains the power of Chaos, the;
+T:most unstable and normally unreliable type of magic. However, Quazar;
+T:is a zulgor. He may looks like a normal man, albeit one with an odd;
+T:color of hairs and eyes, but part of his body is made of pure chaos...;
+T:...a bit like you, <NAME>. You are a zulgor yourself, made of pure;
+T:chaos. However, he is very different from you...;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Ghost of Navarius;
+T:The red licialhyd is a stone that contains the power of Chaos, the;
+T:most unstable and normally unreliable type of magic. However, Quazar;
+T:is a zulgor. He may looks like a normal man, albeit one with an odd;
+T:color of hairs and eyes, but part of his body is made of pure chaos...;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Ghost of Navarius;
+T:As a zulgor, he is unbelievably strong physically, and has great control;
+T:over the normally unpredictable force of chaos. However, this zulgor;
+T:has mastery of chaos far beyond that of a normal zulgor. Using chaos, he;
+T:is able to alter reality. He can make it so that things that exists;
+T:do not exist anymore. He can change the shape of things. He can even;
+T:bring into existance things that simply cannot exists. He has the;
+T:power to make possible what would normally be impossible, and thus;
+T:defy the laws of physics and reality...;
+A:But...does that mean that the orcs...:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Ghost of Navarius;
+T:Indeed, <NAME>. The orcs do not really exist. They are not demons;
+T:coming from the planes of Hell. They are actually an aberration of;
+T:reality. Something that should not be. And so is Quazar's temple.;
+T:As you can see, he changed the shape and appearance of the temple,;
+T:but once inside, everything is still as it was before. That is;
+T:because he altered the exterior, but not the interior.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Ghost of Navarius;
+T:But as if the power to change reality was not enough, Quazar wanted;
+T:even more power. He knew about the red licialhyd, a stone containing;
+T:chaos so powerful that normally, anyone who would activate the stone;
+T:would instantly die. Quazar could not defeat the Knight of Balance,;
+T:as the knight was completely immune to the magic of chaos. But seeing;
+T:your potential, he tricked you into defeating the Knight, and then;
+T:took my appearance to take the licialhyd from you.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Ghost of Navarius;
+T:Now, he has done the impossible: merge with the red licialhyd. Now,;
+T:there is virtually no limits to what he can acheive with that much;
+T:power. His body and the stone now makes one extremely powerful entity.;
+T:I do not believe anyone in Jindar has enough power to destroy him;
+T:now...;
+A:I will fight him!:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Ghost of Navarius;
+T:I knew you would feel this way... And I know you have accomplished;
+T:a lot so far... But the combined power of an unusual zulgor and the;
+T:stone is something that we've never seen before! However... I also;
+T:sense that you are different from other adventurers... You have been;
+T:able to survive a brutal and unexpected siege, explore deep caves;
+T:full of dangers, and even defeat the powerful Knight of Balance...;
+T:If anyone can accomplish something like defeating Quazar, that;
+T:would be you.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Ghost of Navarius;
+T:In order to reach him, you will have to enter his temple, by entering;
+T:from the exterior. Be warned that you will be inside a fortress of;
+T:chaos, and the layout, even the nature of the place, might be very;
+T:special. He magically sealed the doors of his temple, but with the last;
+T:of my powers, I will sacrifice my ghostly body in order to unseal the;
+T:doors, and allow you to enter!;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Ghost of Navarius;
+T:Make sure you are ready though. You should go to a temple store, or;
+T:an alchemical store, and buy a variety of curative potions. He will;
+T:be able to alter your mind and body with his chaos in ways that;
+T:would be too harsh to describe, so you have to be ready. Obtain;
+T:powerful magic relics, especially ones that would allow you to resist;
+T:the forces of chaos. He will most likely use that against you.;
+A:[CONTINUE]:0:0:0:1:11:0:0:1023:1
+%
+
+N:11:0:0:0:0:0
+I:Ghost of Navarius;
+T:Once you think you're ready... enter Quazar's temple. And have faith;
+T:in your abilities. Shall you succeed however...know that the fight;
+T:will not be over. Quazar is part of an order, and most likely isn't;
+T:the most powerful member. I cannot imagine what a power greater than;
+T:Quazar would be like... But let's not think about it for now. Focus;
+T:on winning this battle, and saving Jindar! May the Creator's infinite;
+T:might be with you!;
+A:[CONTINUE]:0:0:0:9:1539:12:0:0:0
+%
+
+N:12:0:0:0:0:0
+I: ;
+T:A glowing white light emanates from the ghost, and enlight the whole;
+T:temple...and then he is gone. The doors to Quazar's temple are now;
+T:open... it is now up to you to put an end to his madness.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

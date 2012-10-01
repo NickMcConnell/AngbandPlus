@@ -1,0 +1,8 @@
+N:1:0:0:0:0:0
+I: ;
+T:This place was not originally part of the prisons. It must have been;
+T:built by the orcs. To build an underground base takes time, so the orcs;
+T:must have planned this attack some time ago. They may have been around;
+T:for longer than you think...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

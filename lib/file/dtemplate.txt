@@ -1,0 +1,91 @@
+// Template for dialogs in NewAngband 1.8.0.
+// The game will always look for the first dialog block
+// that has a valid condition.
+
+N:(dialog number):(condition event):(event value):(race condition):(gender condition):(alignment condition)
+I:(Speaker's name);
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+T:Up to 10 lines of text.;
+A:(answer's name):(condition type):(condition parameter 1):(condition parameter 2):(effect):(effect param 1):(effect param 2):(effect param 3):(effect param 4):(effect param 5)
+A:(answer's name):(condition type):(condition parameter 1):(condition parameter 2):(effect):(effect param 1):(effect param 2):(effect param 3):(effect param 4):(effect param 5)
+A:(answer's name):(condition type):(condition parameter 1):(condition parameter 2):(effect):(effect param 1):(effect param 2):(effect param 3):(effect param 4):(effect param 5)
+A:(answer's name):(condition type):(condition parameter 1):(condition parameter 2):(effect):(effect param 1):(effect param 2):(effect param 3):(effect param 4):(effect param 5)
+A:(answer's name):(condition type):(condition parameter 1):(condition parameter 2):(effect):(effect param 1):(effect param 2):(effect param 3):(effect param 4):(effect param 5)
+%
+
+RACES:
+
+0. Human(default)
+1. Half-Elf
+2. Elf
+3. Dwarf
+4. Gnome
+5. Kobold
+6. Devling
+7. Celestial
+8. Demon
+9. Zulgor
+10. Monster
+
+GENDERS:
+
+1. Female
+2. Male   
+
+CONDITION TYPES FOR ANSWERS:
+
+0. None
+1. Event condition. Parameter 1 is event number, parameter 2 is event's value.
+2. Item condition. Parameter 1 is item's tval, parameter 2 is items's sval.
+3. Monster slain condition. Parameter 1 is monster's index. Parameter 2 is death count.
+4. Alignment condition. Parameter  1 is the value. If positive, alignment must 
+   be at least this value. If negative, the alignment must be at most this value.
+5. Charisma condition. Parameter 1 is the amount. To tell that answer, your 
+   Charisma must be equal or higher than that amount.
+
+EFFECTS OF ANSWERS:
+
+Param 4 is always an event, and param 5 is the event's value. When you select this
+answer, the events will be set to the specified values.
+
+0. End dialog.
+1. Go to next dialog block. Param 1 is dialog's number.
+2. End dialog and change town. Param 1 is town's number, Param 2 is x position, Param 3 is y position.
+3. Give item, go next dialog block. Param 1 is item's number. Param 2 is item's magic level(0: Normal, 1: Good, 2: Great, 3: Special 4: Artifact, param 1 becomes the artifact's number.), or gold amount. Param 3 is next dialog.
+4. Go to random dialog block. Param 1 is minimum dialog number, Param 2 is max number.
+5. Affect alignment. Param 1 is the amount. Param 2 is the next dialog.
+6. Take item, go next dialog block. Param 1 is the item's number. Param 2 is the next dialog.
+7. Alter town, go to next dialog block. Param 1 is which town, param 2 is the new town template to use. Param 3 is next dialog.
+8. Pay gold. Param 1 is the amount.  Param 2 is dialog if enough money. Param 3 is dialog if not enough money.
+9. Remove all monsters of a given race. Param 1 is the race index. Param 2 is next dialog.
+10. Make all monsters of a given race friendly or hostile. Param 1 is the race index. Set param 2 to 0 for hostile, or to 1 for friendly. Param 3 is next dialog.
+
+VARIOUS TEXT CODES:
+
+<NAME> Player's name.
+<CLASS> Player's class.
+<RACE> Player's race.
+<HeShe> He/She, depend's on player's sex.
+<heshe> Same, lower case letters.
+<ManWoman> Man/Woman
+<manwoman> man/woman
+<BoyGirl> Boy/Girl
+<boygirl> boy/girl
+<SirMadam> Sir/Madam
+<sirmadam> sir/madam
+<LadLady> Lad/Lady
+<ladlady> lad/lady
+<HimHer> Him/Her
+<himher> him/her
+<HisHer> His/Her
+<hisher> his/her
+<HeroHeroine> Hero/Heroine
+<heroheroine> hero/heroine

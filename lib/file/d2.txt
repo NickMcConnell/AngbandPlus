@@ -1,0 +1,28 @@
+N:1:0:0:0:0:0
+I:Drunk Townsfolk;
+T:*hiccup*...Huh?;
+A:Anything to see in this town?:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:3:4:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Drunk Townsfolk;
+T:Thar's onzly dis tavern... *hiccup*... Lotza brinks... *hiccup*;
+T:DA BEST PLACE IN ZE TOWN!!! *hiccup*;
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Drunk Townsfolk;
+T:Rumorze? Remorse? *hiccup*... oh, remorse... remorses are sumtin;
+T:you get when you bad... *hiccup*... that anzwers yar question?;
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Drunk Townsfolk;
+T:Zout ezt ofhere... *hiccup*...cabe..*hiccup*... sumtin inzide... *hiccup*;
+T:never went, so zont no... *hiccup*...maybe you go.;
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%

@@ -50,6 +50,14 @@
 #include "new.h"
 #include "var.h"
 
+/* Lua! */
+#include "script.h"
+
+#include "lua/lua.h"
+#include "lua/lualib.h"
+#include "lua/lauxlib.h"
+#include "lua/tolua.h"
+
 /***** Some copyright messages follow below *****/
 
 /*
@@ -100,8 +108,3 @@
 
 
 #endif
-
-/* Ugly, ugly piece of code! */
-/* Easy, easy piece of code! :) */
-/* Okay, calm down...just because my prof said global variables */
-/* weren't nice doesn't mean I have to listen to him! :) */

@@ -87,6 +87,43 @@ void do_cmd_redraw(void)
 	}
 }
 
+/* Check if we can learn a feat from a skill */
+static void check_skill_feats(int skillnum)
+{
+	int i, x;
+	int pnum = -1;
+	int skillamt = 0;
+	bool goon = TRUE;
+
+	call_lua("calc_bonuses", "()", "");
+
+	for (i = 1; i < ((SKILL_MAX * 10) - 1); i++)
+	{
+		goon = TRUE;
+		if (feats_def[i].skill == skillnum)
+		{
+			if (p_ptr->skill[skillnum] >= feats_def[i].reqskill)
+			{
+				for (x = 0; x < 36; x++)
+				{
+					if (p_ptr->abilities_powers[x] == -(i)) goon = FALSE;
+				}
+				if (goon)
+				{
+					x = 0;
+					while ((pnum == -1) && (x < 36))
+					{
+						if (p_ptr->abilities_powers[x] == 0) pnum = x;
+						x += 1;
+					}
+					if (pnum == -1) pnum = 35;
+					p_ptr->abilities_powers[pnum] = -(i);
+				}
+			}
+		}
+	}
+}
+
 
 /*
  * Hack -- change name
@@ -103,6 +140,9 @@ void do_cmd_change_name(void)
 	/* Enter "icky" mode */
 	character_icky = TRUE;
 
+	/* Reset skills page. */
+	skillspage = 0;
+
 	/* Save the screen */
 	Term_save();
 
@@ -115,7 +155,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-                if (mode == 6)
+                if (mode == 4)
 		{
 			mode = 0;
 			display_player(mode);
@@ -125,12 +165,12 @@ void do_cmd_change_name(void)
                 if (mode == 0)
                 {
                         Term_putstr(6, 22, -1, TERM_WHITE,
-                                "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+                                "['c' to change name, 'f' to file, 'z' to change mode, or ESC]");
                         Term_putstr(6, 23, -1, TERM_WHITE,
-                                "['s' to improve stats, 'k' to improve skills]");
+                                "['s' to improve stats, 't' for toggle skill/main window.]");
                 }else{
                         Term_putstr(6, 23, -1, TERM_WHITE,
-                                "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
+                                "['c' to change name, 'f' to file, 'z' to change mode, or ESC]");
                 }
 
 		/* Query */
@@ -140,13 +180,13 @@ void do_cmd_change_name(void)
 		if (c == ESCAPE) break;
 
 		/* Change name */
-		if (c == 'c')
+		if (c == 'c' && (mode == 0 || mode == 1))
 		{
 			get_name();
 		}
 
 		/* File dump */
-		else if (c == 'f')
+		else if (c == 'f' && (mode == 0 || mode == 1))
 		{
 			sprintf(tmp, "%s.txt", player_base);
 			if (get_string("File name: ", tmp, 80))
@@ -159,9 +199,329 @@ void do_cmd_change_name(void)
 		}
 
 		/* Toggle mode */
-		else if (c == 'h')
+		else if (c == 'z')
 		{
 			mode++;
+		}
+		else if (c == 't')
+		{
+			if (mode == 2) mode = 0;
+			else mode = 2;
+		}
+		/* And here starts the skills incrementation! :) */
+		else if (c == 'a' && mode == 2 && num_skills > (0 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[0 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(0 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'b' && mode == 2 && num_skills > (1 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[1 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(1 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'c' && mode == 2 && num_skills > (2 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[2 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(2 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'd' && mode == 2 && num_skills > (3 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[3 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(3 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'e' && mode == 2 && num_skills > (4 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[4 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(4 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'f' && mode == 2 && num_skills > (5 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[5 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(5 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'g' && mode == 2 && num_skills > (6 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[6 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(6 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'h' && mode == 2 && num_skills > (7 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[7 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(7 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'i' && mode == 2 && num_skills > (8 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[8 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(8 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'j' && mode == 2 && num_skills > (9 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[9 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(9 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'k' && mode == 2 && num_skills > (10 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[10 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(10 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'l' && mode == 2 && num_skills > (11 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[11 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(11 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'm' && mode == 2 && num_skills > (12 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[12 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(12 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'n' && mode == 2 && num_skills > (13 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[13 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(13 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'A' && mode == 2 && num_skills > (14 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[14 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(14 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'B' && mode == 2 && num_skills > (15 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[15 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(15 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'C' && mode == 2 && num_skills > (16 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[16 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(16 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'D' && mode == 2 && num_skills > (17 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[17 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(17 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'E' && mode == 2 && num_skills > (18 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[18 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(18 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'F' && mode == 2 && num_skills > (19 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[19 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(19 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'G' && mode == 2 && num_skills > (20 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[20 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(20 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'H' && mode == 2 && num_skills > (21 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[21 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(21 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'I' && mode == 2 && num_skills > (22 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[22 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(22 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'J' && mode == 2 && num_skills > (23 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[23 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(23 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'K' && mode == 2 && num_skills > (24 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[24 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(24 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'L' && mode == 2 && num_skills > (25 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[25 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(25 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'M' && mode == 2 && num_skills > (26 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[26 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(26 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if (c == 'N' && mode == 2 && num_skills > (27 + (28 * skillspage)))
+		{
+			if (p_ptr->skillpoints > 0)
+			{
+				p_ptr->skill_base[27 + (28 * skillspage)] += 1;
+				p_ptr->skillpoints -= 1;
+				check_skill_feats(27 + (28 * skillspage));
+                        	update_and_handle();
+                        	display_player(mode);
+			}
+		}
+		else if ((c == 'x' || c == 'X') && mode == 2)
+		{
+			skillspage += 1;
+			if ((28 * skillspage) >= num_skills) skillspage = 0;
+			display_player(mode);
 		}
 
                 /* else if (c == 't')                                  */
@@ -173,7 +533,7 @@ void do_cmd_change_name(void)
                 /* {                                                   */
                 /*         if (mode==0) do_cmd_change_movement();      */
                 /* }                                                   */
-                else if (c == 's')
+                else if (c == 's' && (mode == 0 || mode == 1))
                 {
                         if (p_ptr->statpoints <= 0) msg_print("You have no stat points left!");
                         else
@@ -189,17 +549,15 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_STR]++;
                                         p_ptr->stat_cur[A_STR]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Strength increased.");
                                 }
                                 if (d == 'I' || d == 'i')
                                 {
-                                        if (p_ptr->prace == RACE_SKELETON) msg_print("Skeletons cannot raise their intelligence!");
-                                        else
-                                        {
-                                                p_ptr->stat_max[A_INT]++;
-                                                p_ptr->stat_use[A_INT]++;
-                                                p_ptr->stat_cur[A_INT]++;
-                                                p_ptr->statpoints -= 1;
-                                        }
+                                        p_ptr->stat_max[A_INT]++;
+                                        p_ptr->stat_use[A_INT]++;
+                                        p_ptr->stat_cur[A_INT]++;
+                                        p_ptr->statpoints -= 1;
+					msg_print("Intelligence increased.");
                                 }
                                 if (d == 'W' || d == 'w')
                                 {
@@ -207,6 +565,7 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_WIS]++;
                                         p_ptr->stat_cur[A_WIS]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Wisdom increased.");
                                 }
                                 if (d == 'D' || d == 'd')
                                 {
@@ -214,6 +573,7 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_DEX]++;
                                         p_ptr->stat_cur[A_DEX]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Dexterity increased.");
                                 }
                                 if (d == 'C' || d == 'c')
                                 {                                       
@@ -221,6 +581,7 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_CON]++;
                                         p_ptr->stat_cur[A_CON]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Constitution increased.");
                                 }
                                 if (d == 'H' || d == 'h')
                                 {
@@ -228,11 +589,12 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_CHR]++;
                                         p_ptr->stat_cur[A_CHR]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Charisma increased.");
                                 }
                                 }
                                 else
                                 {
-                                msg_print("Which stat? [S]tr, [W]is, [D]ex, C[h]r?");
+                                msg_print("Which stat? [S]tr, [I]nt, [D]ex, C[h]r?");
                                 d = inkey();
                                 if (d == 'S' || d == 's')
                                 {                                        
@@ -240,13 +602,15 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_STR]++;
                                         p_ptr->stat_cur[A_STR]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Strength increased.");
                                 }
-                                if (d == 'W' || d == 'w')
+                                if (d == 'I' || d == 'i')
                                 {
-                                        p_ptr->stat_max[A_WIS]++;
-                                        p_ptr->stat_use[A_WIS]++;
-                                        p_ptr->stat_cur[A_WIS]++;
+                                        p_ptr->stat_max[A_INT]++;
+                                        p_ptr->stat_use[A_INT]++;
+                                        p_ptr->stat_cur[A_INT]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Intelligence increased.");
                                 }
                                 if (d == 'D' || d == 'd')
                                 {
@@ -254,6 +618,7 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_DEX]++;
                                         p_ptr->stat_cur[A_DEX]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Dexterity increased.");
                                 }
                                 if (d == 'H' || d == 'h')
                                 {
@@ -261,32 +626,20 @@ void do_cmd_change_name(void)
                                         p_ptr->stat_use[A_CHR]++;
                                         p_ptr->stat_cur[A_CHR]++;
                                         p_ptr->statpoints -= 1;
+					msg_print("Charisma increased.");
                                 }
 
                                 }
                                 /* update... */
                                 update_and_handle();
 
-                                /* Display the player */
-                                display_player(mode);
-                        }
-                }
-                else if (c == 'k')
-                {
-                        if (p_ptr->skillpoints <= 0) msg_print("You have no skill points left!");
-                        else
-                        {
-                                /* Call the improve_skills function from learn.c! */
-                                improve_skills();
-
-                                /* update... */
-                                update_and_handle();
+				/* Flush messages */
+				msg_print(NULL);
 
                                 /* Display the player */
                                 display_player(mode);
                         }
                 }
-
 
 		/* Oops */
 		else
@@ -1113,7 +1466,7 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
-                prt("(N/5) NewAngband Options", 9, 5);
+                prt("(P/5) Portralis Options", 9, 5);
 		/* Testing */
 		prt("(S) Stacking Options", 10, 5);
 		/* Special choices */
@@ -1126,7 +1479,7 @@ void do_cmd_options(void)
 		prt("(W) Window Flags", 14, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 16, 5);
+                /*prt("(C) Cheating Options", 16, 5);*/
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -1173,9 +1526,9 @@ void do_cmd_options(void)
 			}
 
                         /* PernAngband Options */
-                        case 'N': case 'n': case '5':
+                        case 'P': case 'n': case '5':
 			{
-                                do_cmd_options_aux(5, "NewAngband Options");
+                                do_cmd_options_aux(5, "Portralis Options");
 				break;
 			}
 
@@ -1190,12 +1543,12 @@ void do_cmd_options(void)
 			}
 
 			/* Cheating Options */
-			case 'C':
-			{
+                        /*case 'C':*/
+                        /*{*/
 				/* Spawn */
-				do_cmd_options_cheat("Cheaters never win");
-				break;
-			}
+                                /*do_cmd_options_cheat("Cheaters never win");*/
+                                /*break;*/
+                        /*}*/
 
 			case 'a':
 			case 'A':
@@ -2664,7 +3017,7 @@ void do_cmd_version(void)
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    msg_format("You are playing NewAngband %d.%d.%d.",
+    msg_format("You are playing Portralis %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
                
@@ -2709,13 +3062,6 @@ void do_cmd_feeling(void)
         if (special_flag)
 	{
                 msg_print("Looks like a special level.");
-		return;
-	}
-
-	/* No useful feeling in quests */
-        if (p_ptr->inside_quest)
-	{
-		msg_print("Looks like a typical quest level.");
 		return;
 	}
 
@@ -3823,32 +4169,6 @@ void do_cmd_checkquest(void)
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
-}
-
-void do_cmd_change_tactic(void)
-{
-   char c;
-   p_ptr->tactic++;
-   if (p_ptr->tactic>8) p_ptr->tactic = 0;
-   prt(format("During your adventures in NewAngband, you behave %s. -- more --",
-       tactic_info[p_ptr->tactic].name),0,0);
-   c = inkey();
-   p_ptr->update |= (PU_BONUS);
-   update_stuff();
-   prt("",0,0);
-}
-
-void do_cmd_change_movement(void)
-{
-   char c;
-   p_ptr->movement++;
-   if (p_ptr->movement>8) p_ptr->movement = 0;
-   prt(format("During your adventures in NewAngband, you explore %s. -- more --",
-              move_info[p_ptr->movement].name),0,0);
-   c = inkey();
-   p_ptr->update |= (PU_BONUS);
-   update_stuff();
-   prt("",0,0);
 }
 
 /*

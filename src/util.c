@@ -3581,22 +3581,21 @@ char *get_element_name(int element)
         if (element == GF_ELEC) return("Electric");
         if (element == GF_ACID) return("Acid");
         if (element == GF_POIS) return("Poison");
-        if (element == GF_NUKE) return("Nuke");
+        if (element == GF_RADIO) return("Radio");
         if (element == GF_WATER) return("Water");
         if (element == GF_CHAOS) return("Chaos");
         if (element == GF_DARK) return("Darkness");
         if (element == GF_LITE) return("Light");
-        if (element == GF_PLASMA) return("Plasma");
-        if (element == GF_SHARDS) return("Shards");
+        if (element == GF_EARTH) return("Earth");
         if (element == GF_SOUND) return("Sound");
-        if (element == GF_FORCE) return("Force");
-        if (element == GF_GRAVITY) return("Gravity");
         if (element == GF_WIND) return("Wind");
-        if (element == GF_TIME) return("Time");
-        if (element == GF_INERTIA) return("Inertia");
+	if (element == GF_WARP) return("Warp");
         if (element == GF_MISSILE) return("Missile");
         if (element == GF_PHYSICAL) return("Physical");
         if (element == GF_MANA) return("Mana");
+	if (element == GF_FROSTFIRE) return("FrostFire");
+	if (element == GF_GREY) return("Grey");
+	if (element == GF_TOXIC) return("Toxic");
         if (element == GF_REDUCE_HIT) return("Reduce Hit Rate");
         if (element == GF_REDUCE_DEF) return("Reduce Defense");
         if (element == GF_WEAKEN) return("Weaken");
@@ -3606,7 +3605,122 @@ char *get_element_name(int element)
         if (element == GF_EVOLVE) return("Evolve");
         if (element == GF_UNEVOLVE) return("Unevolve");
         if (element == GF_FEAR_CURSE) return("Demoralize");
+	if (element == GF_PARALYZE) return("Paralyze");
+	if (element == GF_CONFUSION) return("Confusion");
+	if (element == GF_OLD_CONF) return("Confuse");
+	if (element == GF_FEAR) return("Fear");
+	if (element == GF_LOSE_STR) return("Reduce Strength");
+	if (element == GF_LOSE_INT) return("Reduce Intelligence");
+	if (element == GF_LOSE_WIS) return("Reduce Wisdom");
+	if (element == GF_LOSE_DEX) return("Reduce Dexterity");
+	if (element == GF_LOSE_CON) return("Reduce Constitution");
+	if (element == GF_LOSE_CHR) return("Reduce Charisma");
+	if (element == GF_LOSE_ALL) return("Reduce Stats");
+	if (element == GF_LOSE_EXP) return("Reduce Experience");
 
         /* Default */
         return("Unknown");
+}
+
+/* Get a town's starting position! */
+int get_town_startx(int townnum)
+{
+	int startx, starty;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+
+	/* Determine the name of the file */
+	/* Town has changed!! */
+	if (p_ptr->towns[townnum] != 0)
+	{
+		sprintf(filename, "T%d.txt", p_ptr->towns[townnum]);
+	}
+	else sprintf(filename, "T%d.txt", townnum);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (p_ptr->towns[townnum] != 0)
+	{
+		sprintf(quitmessage, "Cannot open 'T%d.txt' file.", p_ptr->towns[townnum]);
+	}
+	else sprintf(quitmessage, "Cannot open 'T%d.txt' file.", townnum);
+	if (!fp) quit(quitmessage);
+
+	/* Parse the file */
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		if (buf[0] == 'S')
+		{
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+                                &startx, &starty)) return (1);
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+	return (startx);
+}
+
+int get_town_starty(int townnum)
+{
+	int startx, starty;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+
+	/* Determine the name of the file */
+	/* Town has changed!! */
+	if (p_ptr->towns[townnum] != 0)
+	{
+		sprintf(filename, "T%d.txt", p_ptr->towns[townnum]);
+	}
+	else sprintf(filename, "T%d.txt", townnum);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (p_ptr->towns[townnum] != 0)
+	{
+		sprintf(quitmessage, "Cannot open 'T%d.txt' file.", p_ptr->towns[townnum]);
+	}
+	else sprintf(quitmessage, "Cannot open 'T%d.txt' file.", townnum);
+	if (!fp) quit(quitmessage);
+
+	/* Parse the file */
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		if (buf[0] == 'S')
+		{
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+                                &startx, &starty)) return (1);
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+	return (starty);
 }

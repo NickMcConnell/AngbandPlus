@@ -1,0 +1,67 @@
+N:1:1014:1:0:0:0
+I: ;
+T:The guardian's armor has been shattered by your attack, and suddenly,;
+T:a glowing grey-colored light enlight the entire room!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:1:1014:0:0:0:0
+I: ;
+T:You enter a large room... Inside, a strange creature is standing.;
+T:It looks like a knight in full plate armor, wielding a sword and a;
+T:shield, but inside the armor, you can see nothing but some grey;
+T:light... Suddently, the creature animates itself, and begins;
+T:speaking to you!;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Knight of Balance;
+T:Welcome, <CLASS>. I am called the Knight of Balance, and I am a guardian.;
+T:Behind the doors you see on the northern wall is a powerful treasure,;
+T:which has been sealed inside this cave for generations. It is a powerful,;
+T:dangerous treasure, containing a power which could alter reality itself.;
+T:As such, I cannot let anyone have it, whether it is for good or evil.;
+T:It makes no difference to me. Anyone who wants the treasure will have;
+T:to face me.;
+A:But I need the 'Tear of Justice' to save Jindar!!:1:1013:1:1:3:0:0:0:0
+A:All right, I'm ready to fight!:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Knight of Balance;
+T:The 'Tear of Justice'? Is that how you call the treasure? I have never;
+T:heard of this name. But how you call it does not matter, nor does;
+T:your good intent, either. Nobody can take the treasure unless they;
+T:defeat me. If you want it, you need to defeat me.;
+A:All right, I'm ready to fight!:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Knight of Balance;
+T:Well done, <CLASS>. You have earned the right to possess the treasure.;
+T:However, hear my words of warning... The treasure behind this door;
+T:contains a power that is both unstable and unpredictable. This very power;
+T:cannot be used by simple magical means. Activating this stone would;
+T:probably instantly destroy you in a most painful and horrible death.;
+T:And then, the chaotic magic that would be unleashed could easily;
+T:kill thousands of other people before fading!;
+A:[CONTINUE]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Knight of Balance;
+T:Also... beware. I can sense that someone else is after the treasure...;
+T:that person already possess some powers similar to those of the treasure.;
+T:Do not let him have it, or the consequences would be far beyond your;
+T:powers, or anyone else in your city for that matter... Protect the;
+T:treasure with your life. Do not let him have it!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The grey light fades, and the doors are now unlocked... You may;
+T:now enter the treasure room!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

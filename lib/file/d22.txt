@@ -1,0 +1,166 @@
+N:1:46:2:0:0:0
+I:Evolia;
+T:Welcome back, <NAME>! It is an honor to see you again!;
+A:Tell me more of Dalunia.:0:0:0:3:50:0:4:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Is there any work for me in Fidac?:0:0:0:1:10:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:45:1:0:0:0
+I:Evolia;
+T:Welcome back, <NAME>! How may the temple of Dalunia help you?;
+A:I have lifted the curse from the ruins.:1:46:1:1:11:0:0:0:0
+A:Tell me more of Dalunia.:0:0:0:3:50:0:4:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Is there any work for me in Fidac?:0:0:0:1:10:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:45:0:0:0:0
+I:Evolia;
+T:Greetings, <CLASS>! Welcome to our temple of Dalunia. I am Evolia,;
+T:priestess of Dalunia, and protector of this town. I've never seen;
+T:you before... what would your name be?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:45:1
+%
+
+N:2:0:0:0:0:0
+I:Evolia;
+T:Well, <NAME>, I welcome you to our temple. It is a humble temple to;
+T:Dalunia... nothing like we used to have centuries ago, in the southern;
+T:Nimbrayan forests... most of the Nimbrayans now worship Daldumaar... and;
+T:sadly, our once great religion is slowly becoming a forgotten cult...;
+T:But I have faith that things will change, and that one day, our cult;
+T:will regain it's former glory!; 
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Evolia;
+T:So, <NAME>... how may the temple of Dalunia help you?;
+A:I have lifted the curse from the ruins.:1:46:1:1:11:0:0:0:0
+A:Tell me more of Dalunia.:0:0:0:3:50:0:4:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Is there any work for me in Fidac?:0:0:0:1:10:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Evolia;
+T:I'm afraid there is so much to tell... The origin of life, the appearance;
+T:of the goddess, some controversed theories and the code of the;
+T:Dalunian Priest. Here, let me give you this parchement. It contains some;
+T:general informations about our religion, and all important subjects.;
+T:Of course, there is much more to our religion, but that should give you;
+T:a good idea of what our religion is all about.;
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Is there any work for me in Fidac?:0:0:0:1:10:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Evolia;
+T:As you know, I am a priestess of Dalunia, and the protector of the peoples;
+T:of Fidac. I protect the life of the innocent peoples who lives in this;
+T:town, mainly from the living dead that comes from the nearby ruins.;
+T:You see, Fidac has been built near the site of some ancient ruins.;
+T:The ruins are a cursed place, and are haunted by walking corpses of once;
+T:living peoples. I already sent some priests to defeat the undeads, but;
+T:it seems they always rise again, no matter how many we destroy.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Evolia;
+T:Every once in a while, the walking corpses will come near the town.;
+T:At first, the attacks were rare, and my priests were able to fend them;
+T:off. However, the attacks are becoming more and more frequent. So, in;
+T:order to provide permanent protection, I created a holy barrier against;
+T:undead enemies. So far, it has worked well to repel them, however,;
+T:the barrier takes it's energy directly from the soil. And the more;
+T:energy it takes, the less fertile the soil becomes... plants are starting;
+T:to die because the barrier takes so much energy, and I don't know how;
+T:long it will last...;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Evolia;
+T:And if our barrier ends up killing the land, this means that we will;
+T:have failed in our duty of protecting nature. However, so far, we have;
+T:searched the ruins, and found no clues about where and what the source;
+T:of the undeads might be. There are rumors about an underground dungeon;
+T:or temple, but we did not find any entrance to any kind of underground;
+T:places... Some adventurers tried searching the ruins. Most found nothing,;
+T:and a few of them never came back... We will never know whether or;
+T:not they found anything...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Evolia;
+T:... but anyway, I have faith that we will find the source of evil before;
+T:it is too late. Dalunia shall guide us, and the land will be saved from;
+T:the living dead!;
+A:Tell me more of Dalunia.:0:0:0:3:50:0:4:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Is there any work for me in Fidac?:0:0:0:1:10:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:46:2:0:0:0
+I:Evolia;
+T:Now that you have lifted the curse from the ruins, Fidac is peaceful;
+T:again. I'm afraid there is not much left to do for an adventurer...;
+T:But I prefer it this way. The peoples are now safe and happy!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Evolia;
+T:Hmmm... you seem to be an adventurer, am I right? Right now, our main;
+T:concern is the ruins to the northwest, not far from the town. We are;
+T:looking for clues about the source of the undead beings... and so far,;
+T:we have found nothing. If you could go there and search the ruins, it;
+T:would be greatly appreciated. The ruins are a cursed place, and are;
+T:haunted by walking corpses of once living peoples. I already sent some;
+T:priests to defeat the undeads, but it seems they always rise again,;
+T:no matter how many we destroy.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Evolia;
+T:I can sense that you battled the forces of the undead...;
+T:and I can sense that you have put a tormented soul to rest. And I no;
+T:longer sense the evil coming from the ruins! <NAME>, you saved the;
+T:town of Fidac! You have defeated the undeads, and now, I can finally;
+T:remove the magic barrier around the town. The magic barrier was;
+T:draining the strength from the earth to remain active, and the soil;
+T:was losing it's fertility... which was a shame to us, the temple;
+T:of Dalunia.;   
+A:[CONTINUE]:0:0:0:5:2:12:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Evolia;
+T:But thanks to you, the barrier is no longer needed, and the soil will;
+T:regain it's strength! Now... As a token of our gratitude, I will now;
+T:give you one of our temple's most prized treasure... It is a mace;
+T:that has been blessed with the divine powers of Dalunia. It is a;
+T:weapon that contains the essence of the earth, and that shall strike;
+T:enemies with the wrath of nature! We are... unworthy of wielding this;
+T:weapon. We couldn't do anything against the undeads, we couldn't even;
+T:find the entrance to their lair... You are much more worthy of wielding;
+T:it than we are...;
+A:[CONTINUE]:0:0:0:3:2:4:13:46:2
+%
+
+N:13:0:0:0:0:0
+I:Evolia;
+T:Again, all our thanks goes to you, <NAME>. You will always be welcome;
+T:as one of us in Fidac! Good luck in your future adventures, <NAME>!;
+T:May Dalunia's blessing guide your path!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

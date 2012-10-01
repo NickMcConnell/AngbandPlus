@@ -2096,6 +2096,7 @@ errr Term_save(void)
 	term_win_copy(Term->mem, Term->scr, w, h);
 
 	/* Success */
+	term_saved = TRUE;
 	return (0);
 }
 
@@ -2138,6 +2139,7 @@ errr Term_load(void)
 	Term->y2 = h - 1;
 
 	/* Success */
+	term_saved = FALSE;
 	return (0);
 }
 

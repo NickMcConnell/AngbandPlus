@@ -1,0 +1,16 @@
+N:1:1003:1:0:0:0
+I: ;
+T:You have defeated the huge, slimy creature that was living;
+T:in the sewers. You suddently hear a noise, the noise of some;
+T:sort of mechanism, as if the creature's death unlocked something,;
+T:somewhere.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:As you walk in the dirty waters of the sewers, you suddently;
+T:feel a presence nearby... Though you can't see it with your eyes,;
+T:you know it's there... and probably not friendly either.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

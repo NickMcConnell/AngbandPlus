@@ -46,11 +46,11 @@ static cptr comment_2b[MAX_COMMENT_2B] =
 	"That's a pittance!  I want %s gold pieces.",
 	"That's an insult!  I want %s gold pieces.",
 	"As if!  How about %s gold pieces?",
-	"My arse!  How about %s gold pieces?",
-	"May the fleas of 1000 orcs molest you!  Try %s gold pieces.",
-	"May your most favourite parts go moldy!  Try %s gold pieces.",
-	"May Morgoth find you tasty!  Perhaps %s gold pieces?",
-	"Your mother was an Ogre!  Perhaps %s gold pieces?"
+	"No way!  How about %s gold pieces?",
+	"You bastard!  Try %s gold pieces.",
+	"Go to hell!  Try %s gold pieces.",
+	"Centuries of woe to you!  Perhaps %s gold pieces?",
+	"Never! Never, you freak!!!  Perhaps %s gold pieces?"
 };
 
 #define MAX_COMMENT_3A	2
@@ -338,135 +338,6 @@ static store_type *st_ptr = NULL;
  * We store the current "owner type" here so everyone can access it
  */
 static owner_type *ot_ptr = NULL;
-
-
-
-
-
-
-/*
- * Buying and selling adjustments for race combinations.
- * Entry[owner][player] gives the basic "cost inflation".
- */
-static byte rgold_adj[MAX_RACES][MAX_RACES] =
-{
-	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
-         HfOg, HGn, Klc, Kbd, Nbl, DkE, Drc,
-         Vampire, Spectre */
-
-	/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-          124, 120, 120, 120, 120, 120, 115,
-          105, 120 },
-
-	/* Half-Elf */
-	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-          120, 115, 108, 115, 110, 110, 120,
-          100, 125 },
-
-	/* Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-          110, 105, 125, 125, 110, 115, 108,
-          100, 125},
-
-	/* Halfling */
-	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 115,
-          115, 110, 120, 120, 120, 115, 115,
-          110, 130 },
-
-	/* Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-          110, 105, 120, 110, 110, 105, 110,
-          115, 130 },
-
-	/* Dwarf */
-	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
-          120, 115, 115, 115, 135, 125, 120,
-          120, 130 },
-
-	/* Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-          120, 125, 115, 115, 110, 120, 110,
-          125, 115 },
-
-	/* Half-Troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-          120, 120, 110, 110, 110, 115, 110,
-          120, 110 },
-
-        /* Dunedain  */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-          115, 105, 115, 120, 110, 105, 105,
-          105, 135 },
-
-	/* High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-          115, 110, 115, 125, 110, 110, 110,
-          100, 125 },
-
-	/* Human / Barbarian (copied from human) */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-          115, 120, 120, 120, 120, 115, 120,
-          115, 120 },
-
-	/* Half-Ogre: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-          120, 120, 110, 110, 110, 115, 110,
-          120, 110 },
-
-	/* Half-Giant: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-          120, 120, 110, 110, 110, 115, 110,
-          130, 120 },
-
-	/* Kobold: theoretical, copied from Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-          120, 125, 115, 115, 110, 120, 110,
-          130, 130  },
-
-	/* Nibelung: theoretical, copied from Dwarf */
-	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
-          120, 115, 115, 115, 135, 125, 120,
-          130, 130   },
-
-	/* Dark Elf */
-	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
-          120, 120, 115, 115, 101, 110, 110,
-          110, 115  },
-
-	/* Vampire: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-          120, 125, 115, 115, 110, 120, 110,
-          130, 130   },
-
-	/* Spectre: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-          120, 125, 115, 115, 110, 120, 110,
-          130, 130   },
-
-        /* Ent: theoretical, copied from Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-          110, 105, 120, 110, 110, 105, 110,
-          130, 130  },
-
-        /* Rohan's Knight: theoretical, copied from Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-          110, 105, 120, 110, 110, 105, 110,
-          130, 130  },
-
-        /* DragonRider: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-          115, 110, 115, 125, 110, 110, 110,
-          130, 130  },
-
-        /* Death Mold: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-          120, 125, 115, 115, 110, 120, 110,
-          130, 130   },
-};
-
-
-
 
 /*
  * Determine the price of an item (qty one) in a store.
@@ -878,6 +749,8 @@ static bool is_blessed(object_type *o_ptr)
  */
 static bool store_will_buy(object_type *o_ptr)
 {
+	u32b            f1, f2, f3, f4;
+
 	/* Hack -- The Home is simple */
 	if (cur_store_num == 7) return (TRUE);
 
@@ -1062,39 +935,25 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-                                                case TV_MAGERY_BOOK:
-                                                case TV_SHADOW_BOOK:
-						case TV_CHAOS_BOOK:
-                                                case TV_NETHER_BOOK:
-                                                case TV_VALARIN_BOOK:
-                                                case TV_CRUSADE_BOOK:
-                                                case TV_SIGALDRY_BOOK:
-                                                case TV_SYMBIOTIC_BOOK:
-                                                case TV_MUSIC_BOOK:
-                                                case TV_MIMIC_BOOK:
-                                                case TV_MAGIC_BOOK:
-                                                case TV_PRAYER_BOOK:
-                                                case TV_ILLUSION_BOOK:
-                                                case TV_TRIBAL_BOOK:
-                                                case TV_DRUID_BOOK:
-                                                case TV_BATTLE_BOOK:
-                                                case TV_BOOK_ELEMENTAL:
-                                                case TV_BOOK_ALTERATION:
-                                                case TV_BOOK_HEALING:
-                                                case TV_BOOK_CONJURATION:
-                                                case TV_BOOK_DIVINATION:
+                                
+                                case TV_BOOK_ELEMENTAL:
+                                case TV_BOOK_ALTERATION:
+                                case TV_BOOK_HEALING:
+                                case TV_BOOK_CONJURATION:
+                                case TV_BOOK_DIVINATION:
+				case TV_PARCHEMENT:
 					break;
 				default:
 					return (FALSE);
 			}
 			break;
-                /* Pet Shop */
+                /* Licialhyd Shop */
                 case 9:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-                                case TV_EGG:
+                                case TV_LICIALHYD:
 				break;
 				default:
 				return (FALSE);
@@ -1108,6 +967,10 @@ static bool store_will_buy(object_type *o_ptr)
 
 	/* XXX XXX XXX Ignore "worthless" items */
 	if (object_value(o_ptr) <= 0) return (FALSE);
+
+	/* Most items with a timeout cannot be sold. */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	if (o_ptr->timeout > 0 && !(f3 & TR3_ACTIVATE || o_ptr->tval == TV_SOUL)) return (FALSE);
 
 	/* Assume okay */
 	return (TRUE);
@@ -1249,19 +1112,23 @@ static int store_carry(object_type *o_ptr)
 	o_ptr->note = 0;
 
 	/* Check each existing item (try to combine) */
-	for (slot = 0; slot < st_ptr->stock_num; slot++)
+	/* Never combine Licialhyds! */
+	if (o_ptr->tval != TV_LICIALHYD)
 	{
-		/* Get the existing item */
-		j_ptr = &st_ptr->stock[slot];
-
-		/* Can the existing items be incremented? */
-		if (store_object_similar(j_ptr, o_ptr))
+		for (slot = 0; slot < st_ptr->stock_num; slot++)
 		{
-			/* Hack -- extra items disappear */
-			store_object_absorb(j_ptr, o_ptr);
+			/* Get the existing item */
+			j_ptr = &st_ptr->stock[slot];
 
-			/* All done */
-			return (slot);
+			/* Can the existing items be incremented? */
+			if (store_object_similar(j_ptr, o_ptr))
+			{
+				/* Hack -- extra items disappear */
+				store_object_absorb(j_ptr, o_ptr);
+
+				/* All done */
+				return (slot);
+			}
 		}
 	}
 
@@ -1481,7 +1348,15 @@ static void store_create(void)
 			/* Handle failure */
 			if (!i) continue;
 		}
+		/* Licialhyd shop sells ONLY licialhyds! */
+		else if (cur_store_num == STORE_LICIAL)
+		{
+			/* Uses item no. 1185. A Licialhyd. */
+                        i = 1185;
 
+			/* Handle failure */
+			if (!i) continue;
+		}
 
 		/* Normal Store */
 		else
@@ -1490,10 +1365,10 @@ static void store_create(void)
 			i = st_ptr->table[rand_int(st_ptr->table_num)];
 
 			/* Hack -- fake level for apply_magic() */
-                        if(cur_store_num == STORE_PET)
-                                level = 5 + p_ptr->lev + rand_int(30);
-                        else
-                                level = rand_range(1, STORE_OBJ_LEVEL);
+                        level = rand_range(1, STORE_OBJ_LEVEL);
+
+			/* In stores, never higher than level 30. */
+			if (level > 30) level = 30;
 		}
 
 
@@ -1507,7 +1382,7 @@ static void store_create(void)
                 /* Black Market gets better stuff. */
 		if (cur_store_num == 6)
 		{
-                        apply_magic(q_ptr, level, TRUE, TRUE, FALSE, FALSE);
+                        apply_magic(q_ptr, 30, TRUE, TRUE, FALSE, FALSE);
                 }
                 else apply_magic(q_ptr, level, FALSE, FALSE, FALSE, FALSE);
 
@@ -1516,6 +1391,15 @@ static void store_create(void)
 		{
 			if (q_ptr->sval == SV_LITE_TORCH) q_ptr->pval = FUEL_TORCH / 2;
 			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
+		}
+		/* Licialhyds vary a bit... */
+		if (q_ptr->tval == TV_LICIALHYD)
+		{
+			if (q_ptr->pval2 == LICIAL_HEALING || q_ptr->pval2 == LICIAL_MANA)
+			{
+				q_ptr->pval3 += randint(500);
+			}
+			else q_ptr->pval3 += randint(30);
 		}
 
 
@@ -1547,7 +1431,6 @@ static void store_create(void)
 			/* No "worthless" items */
 			if (object_value(q_ptr) <= 0) continue;
 		}
-
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(q_ptr);
@@ -1757,7 +1640,7 @@ static void display_entry(int pos)
 static void display_inventory(void)
 {
 	int i, k;
-
+	
 	/* Display the next 12 items */
 	for (k = 0; k < 12; k++)
 	{
@@ -1831,13 +1714,13 @@ static void display_store(void)
 	else
 	{
 		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + cur_store_num].name);
-		cptr owner_name = (ot_ptr->owner_name);
-		cptr race_name = race_info[ot_ptr->owner_race].title;
+		/*cptr owner_name = (ot_ptr->owner_name);*/
+		/*cptr race_name = race_info[ot_ptr->owner_race].title;*/
 
 		/* Put the owner name and race */
-		sprintf(buf, "%s (%s)", owner_name, race_name);
-		put_str(buf, 3, 10);
-
+		/*sprintf(buf, "%s (%s)", owner_name, race_name);*/
+		/*put_str(buf, 3, 10);*/
+		
 		/* Show the max price in the store (above prices) */
 		sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
 		prt(buf, 3, 50);
@@ -2632,7 +2515,7 @@ static void store_stole(void)
 
         /* Player tries to stole it */
         stealmod = p_ptr->abilities[(CLASS_ROGUE * 10) + 3] / 3;
-        stealmod += p_ptr->skill_stealth / 3;
+        stealmod += p_ptr->skill[6] / 3;
         if (j_ptr->pval < 1) pvalmod = 1;
         else pvalmod = j_ptr->pval;
         if (randint(100) <= p_ptr->abilities[(CLASS_ROGUE * 10) + 3]) sure_steal = TRUE;
@@ -3606,16 +3489,7 @@ static void store_sell(void)
    /* Describe */
    msg_format("Examining %s...", o_name);
 
-   /* Describe it fully */
-   if (!check_book_realm(o_ptr->tval))
-   {
-        if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
-   /* Books are read */
-   }
-   else
-   {
-        do_cmd_browse_aux(o_ptr);
-   }
+   if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
 
    return;
  }
@@ -3794,12 +3668,6 @@ static void store_process_command(void)
 
 			/*** Use various objects ***/
 
-			/* Browse a book */
-		case 'b':
-		{
-			do_cmd_browse();
-			break;
-		}
 
 			/* Inscribe an object */
 		case '{':
@@ -4002,20 +3870,7 @@ void do_cmd_store(void)
 	if (town[p_ptr->town_num].store[which].store_open >= turn)
 	{
 		msg_print("The doors are locked.");
-                if (!get_com("Try to sneak in? [Y]es, [N]o", &ch)) return;
-                if (ch == 'Y' || ch == 'y')
-                {
-                        if (randint(100) >= 50) msg_print("You successfully sneaked in!");
-                        else
-                        {
-                                msg_print("You failed to sneak in...");
-                                msg_print("The shopkeeper summons two powerful dragons!");
-                                summon_specific(py, px, 50, SUMMON_HI_DRAGON);
-                                summon_specific(py, px, 50, SUMMON_HI_DRAGON);
-                                return;
-                        }
-                }
-                else return;
+                return;
 	}
 
 	/* Calculate the number of store maintainances since the last visit */
@@ -4314,7 +4169,7 @@ void store_shuffle(int which)
 void store_maint(int town_num, int store_num)
 {
 	int 		j;
-
+	char s[80];
 	int 	old_rating = rating;
 
 	cur_store_num = store_num;
@@ -4697,51 +4552,4 @@ void do_cmd_home_trump(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
-}
-
-/* Charm the shopkeeper and he will say something... */
-void give_silly_love_message()
-{
-        int whichmessage;
-        whichmessage = rand_int(100);
-        if (whichmessage <= 10)
-        {
-            msg_print("You are so beautiful my dear! Have everything you want!");
-        }
-        else if (whichmessage <= 20)
-        {
-            msg_print("Come closer and let me kiss you!");
-        }
-        else if (whichmessage <= 30)
-        {
-            msg_print("Can we get a date some day?");
-        }
-        else if (whichmessage <= 40)
-        {
-            msg_print("Let's sleep togheter tonight!");
-        }
-        else if (whichmessage <= 50)
-        {
-            msg_print("I love you SO MUCH!!!");
-        }
-        else if (whichmessage <= 60)
-        {
-            msg_print("I am your slave! I will do anything for you!");
-        }
-        else if (whichmessage <= 70)
-        {
-            msg_print("Marylene is a troll compared to you!");
-        }
-        else if (whichmessage <= 80)
-        {
-            msg_print("You must be the world's most beautiful lady!");
-        }
-        else if (whichmessage <= 90)
-        {
-            msg_print("Why don't you come to my home tonight?");
-        }
-        else
-        {
-            msg_print("Even the god of beauty is no match for you!");
-        }
 }

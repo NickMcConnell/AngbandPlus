@@ -1,0 +1,111 @@
+N:1:7:1:0:0:0
+I:Gorg;
+T:No!! Gorg...cannot be defeated! Gorg invincible! Gorg strongest...;
+T:Gorg.... Gorg.....;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I: ;
+T:Before you stands a humanoid creature like none you've ever seen.;
+T:It's about as tall as a human man, it has a large body, green skin,;
+T:is large, tough and has a ugly porcine face and pointed teeth. It;
+T:wields a battle axe, and drools on the ground as it sees you...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:9:0:0
+I:Gorg;
+T:Oooh, look at the little <boygirl> with colored hairs! Looks like;
+T:Gorg's prayers have been heard! Gorg the Orc Warrior is hungry... he;
+T:wants fresh meat... and Gorg will behead little <boygirl>, and;
+T:make good meal!;
+A:The... Orc Warrior?:0:0:0:1:3:0:0:0:0
+%
+
+N:2:0:0:7:0:0
+I:Gorg;
+T:Oooh, look at the shiny little <boy/girl>! Looks like;
+T:Gorg's prayers have been heard! Gorg the Orc Warrior is hungry... he;
+T:wants fresh meat... and Gorg will behead little <boygirl>, and;
+T:make good meal!;
+A:The... Orc Warrior?:0:0:0:1:3:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Gorg;
+T:Oooh, look at the little <RACE>! Looks like Gorg's prayers have been;
+T:heard! Gorg the Orc Warrior is hungry... he wants fresh meat... and Gorg;
+T:will behead little <RACE>, and make good meal!;
+A:The... Orc Warrior?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:9:0:0
+I:Gorg;
+T:Yes! Gorg the Orc Warrior! Strongest! Baddest! Scaries orc! And Gorg;
+T:brought with him some of his small goblin friends! Goblins hungry too!;
+T:Gorg and Goblins wants to eat the little <boygirl>'s flesh! So, Gorg will;
+T:take big battle axe, and chop little head of little <borgirl>!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:7:0:0
+I:Gorg;
+T:Yes! Gorg the Orc Warrior! Strongest! Baddest! Scaries orc! And Gorg;
+T:brought with him some of his small goblin friends! Goblins hungry too!;
+T:Gorg and Goblins wants to eat the little <boygirl>'s flesh! So, Gorg will;
+T:take big battle axe, and chop little head of little <borgirl>!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Gorg;
+T:Yes! Gorg the Orc Warrior! Strongest! Baddest! Scariest orc! And Gorg;
+T:brought with him some of his small goblin friends! Goblins hungry too!;
+T:Gorg and Goblins wants to eat the little <RACE>'s flesh! So, Gorg will;
+T:take big battle axe, and chop little head of little <RACE>!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:You have trouble believing what he says... Could this creature really be;
+T:an orc? You have always been taught that orcs were defeated centuries ago,;
+T:and that they no longer exists today. Some peoples claims to see orcs,;
+T:but it has always been proven false... However, this big orc stands right;
+T:before you, accompanied by ten little, green creatures he called 'Goblins'.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:As you recall from what you learned about the history of Portralis, you;
+T:know that goblins were once the slaves of the orcish race, along with the;
+T:kobolds. They were similar to orcs, but much smaller and weaker. They were;
+T:defeated with the orcs, centuries ago. And now, it seems they are back as;
+T:well. What is this orc doing here? Where did he and his goblins come from?;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Gorg;
+T:Onward, my goblins! We slay the wimp, then we eat <himher>!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I: ;
+T:Gorg the Orc Warrior has been defeated. You can hardly believe you really;
+T:faced an orc in combat. This is no mere rumor this time, a real orc has;
+T:been brought back to life!! But who brought him back to life? And why?; 
+T:And more importantly: are there more orcs out there?;
+A:[CONTINUE]:0:0:0:3:1202:0:8:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:You decide to take the head of the orc, as a proof that an orc really came;
+T:back to this world. It would be wise to return see Mayor Princeton, and;
+T:tell him everything that just happened.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,20 +1,31 @@
 ELF
 -----
 
-Elves are slimmer and a little shorter than humans. They have
-pointed ears, and generally live in forests, and live in perfect
-harmony with nature and animals. Elves have a superior dexterity
-and agility compared to humans, and due to that great dexterity,
-they make good archers. However, their weaker stature also makes
-them weaker and frailer than humans, making them less suited
-for melee combat, although their natural dexterity and agility
-does give them some advantages.
+Elves are native to the southern forests of Portralis. They are 
+slightly shorter than humans, are generally frailer but more 
+dextrous, and are distinguishable from humans by their fair, 
+pale skin and pointed ears. Legends tells that originally, there 
+was no elves living on Portralis. Legend tells that their origins 
+lies in another world, in another place,  but that some of 
+them somehow ended up here. They adapted themselves to the new 
+land, and have found home in the southern forests. Though not as 
+widespread as humans, elves have significant power and influence 
+in Portralis,  especially in the magical lore. Elves are also known 
+to be the finest archers in the world.
 
-ADVANTAGES: +25% to Dexterity
-            +10% to Agility skill
+Elves are physically weaker than humans, and are also frailer. However,
+they are dextrous and agile. Also, elves are wise peoples, and have a great
+bond with nature and magic. Elvish spellcasters are greatly respected by
+their allies, and feared by their enemies. Due to their natural dexterity,
+elves also makes the finest archers in Portralis.
 
-DISADVANTAGES: -25% to Strength
-               -10% to Constitution
+ELVES FEATURES:
 
+- +25% to Dexterity.
+- +25% to Wisdom.
+- +25% to Bow, Agility and Spellcraft skills.
 
+ELVES PENALITIES:
 
+- -25% to Strength.
+- -25% to Constitution.

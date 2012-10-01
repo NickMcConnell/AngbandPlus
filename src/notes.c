@@ -128,18 +128,6 @@ void add_note_type(int note_number)
 			sprintf(player, "the %s %s", race_info[p_ptr->prace].title,
 				 class_info[p_ptr->pclass].title);
 			
-			if (p_ptr->realm1 != REALM_NONE)
-			{
-				strcat(player, " of ");
-				strcat(player, realm_names[p_ptr->realm1]);
-			}
-	 		
-			if (p_ptr->realm2 != REALM_NONE)
-			{
-				strcat(player, " and ");
-				strcat(player, realm_names[p_ptr->realm2]);
-			}
-			
 			/* Add in "character start" information */
 			sprintf(buf, "\n================================================\n");
 			sprintf(buf, "%s%s the %s\n", buf, player_name, player);

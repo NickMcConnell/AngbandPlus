@@ -1,0 +1,67 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter the throne room right in the middle of a discussion between;
+T:king Julian, and a diplomat bearing the emblem of Ivhala, escorted by;
+T:a few Ivhalian soldiers, easily recognisable by their heavy plate;
+T:armors...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Diplomat;
+T:It's just like I said, your majesty... Queen Christina of Ivhala has;
+T:decided to stop the trades with your nation. She said that she is;
+T:very disappointed with the quality of the merchandise, and that the;
+T:prices are way too high. It just cannot continue anymore. From now;
+T:on, Jindar and Ivhala shall no longer be partners!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Julian;
+T:But that's a lie! Our merchants produces fine goods at fair prices!;
+T:There has to be another reason! What in the world is Christina;
+T:thinking??;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Diplomat;
+T:Also... she has something else to say. A warning actually. She wants;
+T:you to remove all Jindar soldiers from her kingdom within one month,;
+T:or there will be...consequences...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Julian;
+T:Remove the soldiers?? But the Ivhalian mountains are full of dangerous;
+T:wild beasts! These soldiers are there to help the Ivhalian peoples!;
+T:If we remove our soldiers, the beasts will grow stronger, and the;
+T:peoples will be in danger!!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Diplomat;
+T:I am but a messenger...but I would say that if you do not comply to the;
+T:queen's request, your own peoples might be in danger... Besides, our;
+T:army is strong enough to defend our lands from the beasts. We do not need;
+T:the help of Jindar...;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Diplomat;
+T:... that's all I have to say. I delivered my message. You have one month;
+T:to comply to the queen's request... that is all.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:The messenger and his guards leaves the throne room, ignoring you as;
+T:you stand near the stairs... The king looks quite troubled by the;
+T:situation...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,20 +1,36 @@
-HOBBIT
---------
+DWARF
+-------
 
-Also known as Halflings, hobbits are small, happy folks, with
-large and furry feets. While not as strong or tough as most
-races, they are agile and stealthy, and make excellent rogues,
-scouts, spies and other similar jobs. Training with slings and
-small missile weapons also makes the hobbits slightly better at
-shooting and throwing.
+Dwarves are the hardy, short mountain peoples of Portralis. 
+They are short, but tough, and dwarven males are almost always 
+bearded. Dwarves have lived in the mountain caverns for as long 
+as history can remember, and are known to be tough, strong 
+and hard working peoples. They are also known for their fine 
+warriors and mastery of the axe. Dwarven axes are of very high 
+quality, and so are the dwarven armors. They are mostly found 
+in their mountain homelands, although some of them have chosen
+to establish themselves in the kingdom of Ivhala.
 
-ADVANTAGES: +25% to Dexterity.
-	    +33% to Stealth skill
-            +20% to Agility skill
-	    +10% to Shooting skill
-	    +10% to Throwing skill
+Dwarves are tough. They are the most hardy race of Portralis, and 
+they make the finest armors, and are also the best at wearing them. 
+They are also strong and skilled in combat, especially with axes. 
+However, although present in Ivhala, most dwarves lack social skills, 
+and will generally live in their mountains, with little contact 
+with the outside world. This makes them quick to judge other races 
+with prejudices, and they can also be rather arrogant sometimes. 
+Also, due to their short size and preference for taking hits rather 
+than dodging them, dwarves lack in speed and agility. Finally, 
+dwarves are very martial, and aren't too good with magic.
 
-DISADVANTAGES: -33% to Strength
-               -25% to Constitution
+DWARVES FEATURES:
 
+- +25% to Strength.
+- +33% to Constitution.
+- +25% to Axe and Defense skills.
+- +50% to Crafting skill.
 
+DWARVES PENALITIES:
+
+- -25% to Wisdom and Charisma.
+- -25% to Agility and Spellcraft skills.
+- -1 to speed.

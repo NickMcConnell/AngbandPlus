@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:This door is magically locked, and you doubt you can open it.;
+T:Perhaps you should come back at a later time, and see if it has;
+T:been unlocked...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

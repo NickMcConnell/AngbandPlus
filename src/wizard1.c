@@ -121,9 +121,6 @@ static grouper group_item[] =
         { TV_MAGIC_BOOK,    "Books (Magic)" },
         { TV_PRAYER_BOOK,   "Books (Prayer)" },
 
-        { TV_RUNE1,         "Runes" },
-        { TV_RUNE2,         NULL },
-
 	{ TV_CHEST,         "Chests" },
 
 	{ TV_SPIKE,         "Various" },
@@ -540,11 +537,8 @@ static const flag_desc resist_flags_desc[] =
 	{ TR2_RES_BLIND,  "Blindness" },
 	{ TR2_RES_CONF,   "Confusion" },
 	{ TR2_RES_SOUND,  "Sound" },
-	{ TR2_RES_SHARDS, "Shards" },
-	{ TR2_RES_NETHER, "Nether" },
-	{ TR2_RES_NEXUS,  "Nexus" },
+	{ TR2_RES_EARTH,  "Earth" },
 	{ TR2_RES_CHAOS,  "Chaos" },
-	{ TR2_RES_DISEN,  "Disenchantment" },
 };
 
 /*

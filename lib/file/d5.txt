@@ -1,0 +1,20 @@
+N:1:11:1:0:0:0
+I:Town Hall Worker;
+T:M...monsters in the prisons?? Oh my god!! THIS IS TERRIBLE!!;
+T:We have to run!! We have to hide!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Town Hall Worker;
+T:Yes? I'm very busy... I don't have time to talk!;
+A:Where can I find the mayor?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Town Hall Worker;
+T:From the hall, go straight up, and you will find the mayor's office.;
+T:Now, excuse me, but I'm really busy, and I must go.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

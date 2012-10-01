@@ -1,0 +1,147 @@
+N:1:43:5:0:0:0
+I:Walmus;
+T:Oh, it's you again! Thanks you for bringing back my sword! I hope;
+T:you like your new ring! Again, Walmus thanks you for what you've done!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:43:4:0:0:0
+I:Walmus;
+T:Oh, it's you! Have you found my sword yet? I can't wait to have it back!!;
+A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:What exactly will you give me in return?:0:0:0:1:9:0:0:0:0
+A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:1:43:3:0:0:0
+I:Walmus;
+T:Oh, it's you! Have you found my sword yet? I can't wait to have it back!!;
+A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:What exactly will you give me in return?:0:0:0:1:9:0:0:0:0
+A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:1:43:2:0:0:0
+I:Walmus;
+T:Oh, it's you! Have you found my sword yet? I can't wait to have it back!!;
+A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:What exactly will you give me in return?:0:0:0:1:9:0:0:0:0
+A:No, I'm still looking for it. I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:1:43:1:0:0:0
+I:Walmus;
+T:Oh, it's you again! Have you reconsidered the offer from Walmus? Will;
+T:you look for my sword?;
+A:Yes, I will do it.:0:0:0:1:7:0:0:43:2
+A:Oh yes, THE Walmus! It's a great honor!:0:0:0:1:3:0:0:43:1
+%
+
+N:1:43:0:0:0:0
+I:Walmus;
+T:Hey there, <boygirl>! I'm Walmus the Warrior! The one and only! Surely,;
+T:you must have heard of my deeds! For I am a known legend around here!;
+A:Err... never heard of you.:0:0:0:1:2:0:0:43:1
+A:Oh yes, THE Walmus! It's a great honor!:0:0:0:1:3:0:0:43:1
+%
+
+N:2:0:0:0:0:0
+I:Walmus;
+T:How could you have not heard of me?? I'm famous around here! Peoples;
+T:never forgets where Walmus goes! Know this, <boygirl>! Walmus is the;
+T:GREATEST Warrior in Fidac... no, in Portralis! So, pay a little more;
+T:respect to Walmus next time, will you?;
+A:........:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Walmus;
+T:Ahhh, I see you've heard of my great deeds! Surely, you've heard of;
+T:my great combat against the white worm masses, or my epic battle;
+T:against two fruit bats! Most peoples would be scared of such powerful;
+T:creatures! But not Walmus! Walmus is a legendary warrior who can;
+T:defeat these powerful fiends!!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Walmus;
+T:In any cases, Walmus may be a great warrior, but he's not very good;
+T:at tracking thieves... And thieves recently stole something of great;
+T:value to Walmus! Wonder why Walmus carries that big wooden club? That's;
+T:because a man stole Walmus's sword! A nice short sword with a blade;
+T:much sharper than a regular short sword! I always carried it with me,;
+T:but one day, as I was drinking some ale... poof! Gone! No more swords!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Walmus;
+T:My precious blade has been stolen... and now, I'm forced to use this;
+T:heavy and cumbersome club! Me, Walmus the Great, forced to use such a;
+T:poor man's weapon! Do you realize how humiliating my situation is?;
+T:If I do not get back my sword, how will I be able to protect the town;
+T:from the infamous fruit bats and white worm masses? These are amongst;
+T:the most dangerous creatures in the world, and Walmus cannot fight;
+T:them with a club! He needs his sword!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Walmus;
+T:Would you like to help Walmus the Warrior find his sword? Without it,; 
+T:Walmus cannot protect Fidac from the evil creatures! Please, will you; 
+T:try to find my sword, and bring it back to me? Walmus will give you a;
+T:very nice reward!!;
+A:All right, I'll try...:0:0:0:1:7:0:0:43:2
+A:Forget it! I have to time to waste with you!:0:0:0:1:8:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Walmus;
+T:Oh, thanks you my friend! Walmus is so happy someone will try to find;
+T:his sword! The thief may still be in the town. Or at least, perhaps;
+T:someone knows where to find him... You should try to ask around, and;
+T:see if you can find some clues of my sword's whereabouts. Once you;
+T:find it, return here, and I shall reward you greatly!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Walmus;
+T:What?? How dare you turn down an offer from Walmus the Great Warrior!;
+T:And have you thought of the consequences of your refusal? With the;
+T:sword, the thief will be a threat more than ever before! Please,;
+T:think about it, and reconsider my offer!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Walmus;
+T:In addition to Walmus's eternal gratitude, Walmus will give you a;
+T:ring that allows you to see the unseen! A ring that will make;
+T:invisible creatures appear before your eyes! A most valuable;
+T:piece of jewelry, isen't it?;
+A:I've found it. Here it is!:2:23:52:6:1205:10:0:0:0
+A:I'll be going now...:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Walmus;
+T:Oh! You've found my sword!! Allow me to see it... yes, YES!!!;
+T:That's it!! You've found it! Walmus thanks you for bringing him;
+T:back his sword! Thanks you, thanks you! Now, Walmus promised a;
+T:reward, didn't he? So, here you go my friend! Take this magical;
+T:ring! It's a magical ring that allows you to see the unseen! From;
+T:now on, invisible or concealed creatures will appear before your;
+T:eyes!;
+A:[CONTINUE]:0:0:0:3:447:0:11:43:5
+%
+
+N:11:0:0:0:0:0
+I:Walmus;
+T:Now, Walmus can once again protect Fidac from the evil creatures!;
+T:The townsfolks shall no longer fear the dangerous white worm masses;
+T:and fruit bats, for Walmus can now fight them!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1941,10 +1941,10 @@ static errr Term_wipe_win(int x, int y, int n)
  */
 static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 {
+	int bgcolor = 0;
 	term_data *td = (term_data*)(Term->data);
 	RECT rc;
 	HDC hdc;
-
 
 	/* Total rectangle */
 	rc.left = x * td->tile_wid + td->size_ow1;
@@ -1957,6 +1957,43 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 
 	/* Background color */
 	SetBkColor(hdc, RGB(0, 0, 0));
+
+	/* NewAngband 1.8.0: Change the background color of elites/bosses! */
+	/*if (alive && !term_saved)
+	{
+		int x1, y1;
+		for (y1 = 0; y1 < cur_hgt; y1++)
+		{
+			for (x1 = 0; x1 < cur_wid; x1++)
+			{
+				if (panel_contains(y1, x1))
+				{
+					if (((x1 - panel_col_prt) == x) && ((y1 - panel_row_prt) == y))
+					{
+						cave_type *c_ptr;
+						c_ptr = &cave[y1][x1];
+						if (c_ptr->m_idx)
+						{
+							monster_type *m_ptr = &m_list[c_ptr->m_idx];
+							if (m_ptr->ml)
+							{
+								if (m_ptr->boss == 1)
+								{ 
+									SetBkColor(hdc, RGB(0, 75, 200));
+									bgcolor = 1;
+								}
+								if (m_ptr->boss == 2)
+								{ 
+									SetBkColor(hdc, RGB(150, 0, 0));
+									bgcolor = 2;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}*/
 
 	/* Foreground color */
 	if (colors16)
@@ -2008,6 +2045,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 	else
 	{
 		/* Dump the text */
+		/* NEWANG */
 		ExtTextOut(hdc, rc.left, rc.top, ETO_OPAQUE | ETO_CLIPPED, &rc,
 	    	       s, n, NULL);
 	}
@@ -3820,11 +3858,19 @@ static void hook_quit(cptr str)
 /*
  * Init some stuff
  */
+
+/* NewAngband 1.8.0: Now supports multiple lib folders! :) */
+/* This allow you to create multiple adventures! */
+
 static void init_stuff(void)
 {
 	int i;
 
 	char path[1024];
+	char libpath[1024];
+	char buf[1024];
+	char libname[1024];
+	FILE *currentlib;
 
 
 	/* Get program name with full path */
@@ -3852,8 +3898,18 @@ static void init_stuff(void)
 		}
 	}
 
+	/* NewAngband 1.8.0: Multiple lib pahts! :) */
+	strcpy(libpath, path);
+	strcpy(libpath + i + 1, "current.lib");
+	currentlib = my_fopen(libpath, "r");
+	if (!currentlib) quit("Cannot open 'current.lib' file.");
+	my_fgets(currentlib, buf, 1024);
+	sprintf(libname, "%s\\", buf);
+	strcpy(path + i + 1, libname);
+	my_fclose(currentlib);
+
 	/* Add "lib" to the path */
-	strcpy(path + i + 1, "lib\\");
+	/*strcpy(path + i + 1, "lib\\");*/
 
 	/* Validate the path */
 	validate_dir(path);

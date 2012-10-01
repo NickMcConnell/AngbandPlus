@@ -1,173 +1,76 @@
 A BASIC GUIDE TO CRAFTING
 -------------------------
 
-Author: Drack The Sturdy, dwarven smith.
+Author: Drim The Hardy, dwarven smith and axeman.
 
-Well, the most neophyte smith should at least know some basic
-and helpful recipes to craft the most basic weapons and
-armors. Of course, I assume you know the basic of combining
-and decomposing items. In case you don't, you always combine
-stuff when you create something. And decomposing things is
-perhaps the easiest way to get your hands on some basic
-components!
+Tired of always being at the mercy of shopkeepers and their ridiculous
+prices when it comes to buying weapons and armors? Can't find the
+axe you're looking for in the dungeon you're exploring? Well, how'bout
+making your OWN axe? Or whatever weapon or armor you wish to get?
 
-Here's a few basic stuff:
+Crafting is easy actually. You need two components, and then you forge
+them together, and you will create a new piece of equipment! Of course,
+this requires some skill, so not anybody can do that. But once you know
+how, you'll never want to buy a weapon again!
 
--- Basic Stuff --
+First, the basic components. Here's a list of components you need to
+create your first weapon, and what you can make with the component:
 
-IRON ORE
-Component type: Crafting
-Skills required: n/a
-How to create: n/a
+Mace handle: Needed to create a Mace.
+Chain: Needed to forge a Flail.
+Walking Stick: Turn that into a Quarterstaff!
+Spear Shaft: Needed for Spears.
+Halberd Shaft: Needed for Halberds.
+Small Axe Handle: Well, you could make an Hand Axe. But that would be
+                  an insult to the best kind of weapon! But at least it's
+                  better than the useless short sword...
+Short Axe Handle: Short, but bigger than the small one. Needed for a
+                  battle axe. The best one-handed weapons!
+Long Axe Handle: Ah, my favorite! Makes some sweet Great Axes! The
+                 perfect weapon! The best! The greatest!!
+Brass Knuckles: Needed for any knuckles...but I prefer to use gauntlets.
+Pike Shaft: Needed for Pikes.
+Knife Hilt: Useless component to create a useless weapon. Seriously...
+            how could one specialize in DAGGERS??
+Short Sword Hilt: Needed for Short Swords. I don't see any use to this crap.
+                  Slower than a dagger, weaker than the ever popular long sword.
+                  Don't use this. Use a battle axe instead.
+Long Sword Hilt: Yawn... Long Swords... everybody has a long sword. Aren't
+                 you just tired of that Long Sword craze? Use an axe instead!
+Claymore Hilt: Needed for Claymores.
+Warhammer Handle: Needed to make warhammers.
+Rapier Hilt: Needed to make rapiers. I just don't understand rapiers. They're
+             not even sharp! Piercing sword? Bah! Use a pike instead! Forget
+             about those rapiers.
+Katana Hilt: Needed to make katanas.
+Scimitar Hilt: Needed to make scimitars. You know... the differences between
+               this and the long sword are minimal at best. Why don't you try
+               one of these instead of that same, old, boring long sword?
 
-The Iron Ore is a piece of metal used to make some items.
-Steel is a lot better for weapons, but iron also have
-it's uses. It is commonly found in the first levels of
-any caves or dungeons. Because it's a lot more common
-than steel, it is used to craft most basic weapons
-and armors.
+Once you've found your component you need an ore of metal. Any metals will do!
+Of course, some are betters than others. Bronze is useless, but steel makes
+some nice weapons. But bronze is easy for beginners though... Once you've
+got both the component and the ore, just craft your weapon!
 
-CARBON
-Component type: Alchemy
-Skills required: n/a
-How to create: n/a
+Now, for armors! It's a little different. Most of the armors are made from a
+previous type of armor, and then adding even more metal! But first, you will
+need some Leather hide, along with a Clothes pattern. Combining these two
+will result in a basic Leather Armor. With the Leather Armor, you can do
+two things:
 
-The Carbon is a chemical product. It is primarly used to
-combine with an Iron Ore to get a Steel Ore.
+Combine with another clothes pattern to get a Reinforced Leather Armor.
+Turn it into a basic mail if you get an ore to combine it with.
+Combine it with more leather to make the Heavy Leather Armor.
 
-STEEL ORE
-Component type: Crafting
-Skills required: Crafting(1)
-How to create: Iron Ore + Carbon
+If you get a heavy leather armor, you can combine it with metal to create
+a very nice suit of Plate Mail. Now, this is rather difficult to accomplish,
+but it's a damn good armor, I tell you! And if you're a master at crafting,
+you can even combine that Plate Mail with more metal of the same kind,
+and get a Full Plate armor! This is the best type of armor, but you won't
+be able to make this unless you're very good at crafting.
 
-Steel is the most commonly used metal to craft the highest
-quality weapons and armors. Forget about those old,
-obsolete iron weapons, and get the much better steel!
-It will be used to craft the higher quality weapons.
+Well, hope my little guide has been helpful. Of course, there's more to this,
+and there's most likely many components I didn't mention. Just experiment
+a bit.
 
-------------------
-
-Now that we covered some basics, how about learning how to
-create your first few items?
-
-DAGGER
-Component type: Crafting
-Skills required: Crafting(0)
-How to create: Iron Ore + Knife Hilt
-
-The most basic crafting you will ever make. Heh, very easy
-to craft, but not very powerful if you ask me. Practice, and
-then decompose this knife, so you can get a better use for
-the iron ore...
-
-SHORT SWORD
-Component type: Crafting
-Skills required: Crafting(2)
-How to create: Iron Ore + Small Sword Hilt
-
-The short sword, also known as the "Rookie's Knife", heh heh...
-Well, you can get it by combining any common iron ore with
-a small sword hilt. Can't find a hilt? Take an already made
-short sword, decompose it, and there you go, heh heh heh...
-
-LONG SWORD
-Component type: Crafting
-Skills required: Crafting(5)
-How to create: Iron Ore + Sword Hilt
-
-Ah, the good old Long Sword, the soldier's most commonly used
-weapon. A little harder to craft than a Short Sword, but a lot
-better.
-
-STEEL LONG SWORD
-Component type: Crafting
-Skills required: Crafting(8)
-How to create: Steel Ore + Sword Hilt
-
-As I told you, steel make the best weapons. Got your hand on some
-steel? Why not scrap that old iron Long Sword to make a much
-better one?
-
-METAL CAP
-Component type: Crafting
-Skills required: Crafting(5)
-How to create: Hard Leather Cap + Scrap Metal
-
-Well, got a low quality leather cap, and some low quality metal?
-Wondering what to do with them? Heh, combine them into the
-metal cap. Not too great, but it's better than mere leather.
-
-IRON HELM
-Component type: Crafting
-Skills required: Crafting(7)
-How to create: Metal Cap + Iron Ore
-
-Now that you got a basic Metal Cap, why don't you cover with
-good quality iron to make it better? The Iron Helm is a better
-and much more useful helm!
-
-STEEL HELM
-Component type: Crafting
-Skills required: Crafting(10)
-How to create: Metal Cap + Steel Ore
-
-You're a skilled smith, and you don't like the idea of
-adding iron to your metal cap? That's right, you want the
-much better steel! It offers more protection than the iron
-helm!
-
-SOFT LEATHER ARMOUR
-Component type: Crafting
-Skills required: Crafting(1)
-How to create: Clothes + Leather
-
-You're going on an adventure? You're not going to go down there
-with only your sweather, won't you? Pad it with some leather and
-you will get a nice suit of leather armor, that will give you
-some kind of basic protection.
-
-HARD LEATHER ARMOUR
-Component type: Crafting
-Skills required: Crafting(2)
-How to create: Soft Leather Armour + Leather
-
-The soft leather armour don't protect you enough? Heh, pad it
-with even more leather, and you will get a hard leather armour!
-Only slightly heavier, and offers a better protection!
-
-LEATHER SCALE MAIL
-Component type: Crafting
-Skills required: Crafting(7)
-How to create: Hard Leather Armour + Leather
-
-You like padding leather armours? How about going a little further?
-With enough skill and leather, you can create the Leather Scale
-Mail, which is a lot better that the hard leather armour! Heavier,
-yes, but worth it.
-
-METAL SCALE MAIL
-Component type: Crafting
-Skills required: Crafting(11)
-How to create: Leather Scale Mail + Scrap Metal
-
-You have your nice suit of Leather Scale Mail, and you also happen
-to have some old pieces of metal. Well, fear not, there is a way
-to combine them to make the Metal Scale Mail, which offers more
-protection than it's leather counterpart!
-
-CHAIN MAIL
-Component type: Crafting
-Skills required: Crafting(12)
-How to create: Metal Scale Mail + Iron Ore
-
-Now, you have your metal scale mail. And if you combine it with
-some iron, and use skillful crafting techniques, you can turn
-it into a nice suit of chain mail! When you craft your first
-chain mail, consider yourself a serious smith!
-
----------------------
-
-Okay, so that will be it for now. I only mentionned a few of the
-basic craftings, and there are a LOT more! And I won't even go into
-what you can do with Alchemy... I will let you experiment from now
-on!
+And remember! Axes are better than swords!

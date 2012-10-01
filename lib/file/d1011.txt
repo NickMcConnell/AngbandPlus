@@ -1,0 +1,44 @@
+N:1:0:0:0:0:0
+I:Bert the Sewers Guy;
+T:Oh, hello... company at last... Bert's quite happy! Ahh, Bert's;
+T:getting lonely sometimes down there y'know...;
+A:Who are you?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Bert the Sewers Guy;
+T:The name's Bert... I'm poor, no coins for ol'Bert... So Bert lives;
+T:in the sewers... Eat rats... hide from mean peoples... Rats are;
+T:friendly you know... and delicious too! Oh, and then, there's;
+T:the 'creature'...;
+A:I already killed the creature.:1:1003:1:1:5:0:0:0:0
+A:The 'creature'?:0:0:0:1:3:0:0:0:0
+A:I've heard enough. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Bert the Sewers Guy;
+T:Oooh, a most scary creature indeed! A huge mass of slime! Very big,;
+T:very disgusting. But Bert only saw it once... The Creature's invisible!;
+T:Eyes can't see it. It lives in the sewers, same as Bert, and eat rats;
+T:too! But it can eat peoples too, so Bert does not approach the;
+T:creature.;
+A:I already killed the creature.:1:1003:1:1:5:0:0:0:0
+A:An invisible creature...yeah, right.:0:0:0:1:4:0:0:0:0
+A:I've heard enough. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Bert the Sewers Guy;
+T:Don't believe Bert? It's your life... don't say Bert didn't warn you.;
+T:The creature will swallow you. Unless you can see the invisible...;
+A:I've heard enough. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Bert the Sewers Guy;
+T:Bah, Bert don't believe you. Creature is strong and big! Bigger;
+T:than you. Bert thinks you're lying... creature cannot die.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

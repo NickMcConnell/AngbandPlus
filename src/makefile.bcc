@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = angband.exe
+EXE_FILE = Portralis.exe
 
 
 ###################################################################
@@ -47,18 +47,32 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 
 ######################## Targets ##################################
 
+LUAOBJS = \
+  lua\lapi.obj lua\ldebug.obj lua\lmem.obj lua\lstrlib.obj lua\lvm.obj \
+  lua\lauxlib.obj lua\ldo.obj lua\lobject.obj lua\ltable.obj lua\lzio.obj \
+  lua\lbaselib.obj lua\lfunc.obj lua\lparser.obj lua\lcode.obj lua\lgc.obj \
+  lua\lopcodes.obj lua\lstate.obj lua\ltm.obj  lua\ldblib.obj lua\llex.obj \
+  lua\lstring.obj lua\ldump.obj lua\lundump.obj lua\ltablib.obj \
+  lua\tolua_map.obj lua\tolua_is.obj lua\tolua_to.obj lua\tolua_push.obj \
+  lua\tolua_event.obj
+
+TOLUAOBJS = \
+  lua\tolua.obj lua\toluabind.obj lua\liolib.obj \
+  $(LUAOBJS)
+
 OBJ = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
   variable.obj tables.obj util.obj cave.obj \
   object1.obj object2.obj traps.obj monster1.obj monster2.obj \
   xtra1.obj xtra2.obj spells1.obj spells2.obj \
   melee1.obj melee2.obj save.obj files.obj Readdib.obj \
-  cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj cmd7.obj \
+  cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
   store.obj birth.obj load2.obj learn.obj mongen.obj notes.obj \
   wizard1.obj wizard2.obj levels.obj \
-  generate.obj dungeon.obj init1.obj init2.obj \
+  generate.obj dungeon.obj init1.obj init2.obj script.obj \
+  l-init.obj l-types.obj \
   main-win.obj readdib.obj \
-  bldg.obj
+  $(LUAOBJS)
 
 all : $(EXE_FILE)
 
@@ -77,11 +91,23 @@ install: $(EXE_FILE)
 
 
 ########################### Explicit Rules ########################
-$(EXE_FILE): $(OBJ) angband.res
-	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
+$(EXE_FILE): $(OBJ) Portralis.res
+	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, Portralis.res
 
-angband.res: angband.rc
-	$(RC) -r angband.rc
+lua\tolua.exe: $(TOLUAOBJS)
+	$(LINKER) -aa -x $(TOLUAOBJS) c0x32.obj, lua\tolua.exe,, cw32.lib import32.lib
+
+Portralis.res: Portralis.rc
+	$(RC) -r Portralis.rc
+
+l-init.c: lua\tolua.exe l-init.pkg
+	lua\tolua.exe -n init -o l-init.c l-init.pkg
+
+#l-externs.c: lua\tolua.exe l-externs.pkg
+#	lua\tolua.exe -n externs -o l-externs.c l-externs.pkg
+
+l-types.c: lua\tolua.exe l-types.pkg
+	lua\tolua.exe -n types -o l-types.c l-types.pkg
 
 ########################### Implicit Rules ########################
 .c.obj:
@@ -92,4 +118,3 @@ angband.res: angband.rc
 
 .obj.exe:
 	$(CPP) $(CPPFLAGS) $<
-

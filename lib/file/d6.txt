@@ -1,0 +1,42 @@
+N:1:11:1:0:0:0
+I:Official;
+T:D...did I hear there are monsters in the prisons?? Oh please, save us!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Official;
+T:Hmmm? Yes? Pardon me, but I'm extremely busy, you see...;
+T:Please, make it quick.;
+A:Where can I find the mayor?:0:0:0:1:2:0:0:0:0
+A:Anything interesting happening around here?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Official;
+T:From the hall, go straight up, and you will find the mayor's office.;
+T:Now, excuse me, but I'm really busy, and I must go.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Official;
+T:Not much happening around here I'm afraid... Well, Clara recently;
+T:came here, and reported yet ANOTHER orc sighting! She came here;
+T:three times this month already, claiming to have seen orcs! The two;
+T:first times, we found nothing. The third time, we found out that;
+T:her 'orc' was really a kobold thief. We arrested him, but believe;
+T:it or not, she still claim to see orcs...*sigh*... When will peoples;
+T:ever learn? Orcs don't exist anymore!!;
+A:Where can I find this Clara?:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Official;
+T:She lives in a small house near the southern entrance of the town.;
+T:Hopefully she won't bother you as much as she bother us... but;
+T:anyway. Enough talking for now. I must return to work now.;
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

@@ -262,12 +262,43 @@ void do_cmd_wield(void)
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Two handed weapons can't be wielded with a shield */
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H) && (b_ptr->tval != TV_ARM_BAND))
+        if (is_weapon(o_ptr) && (inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H) && (b_ptr->tval != TV_ARM_BAND))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
            msg_format("You cannot wield your %s with a shield or another weapon.", o_name);
 	   return;
 	}
+	/* If we already have one weapon and a shield, we must not allow it. */
+        if (is_weapon(o_ptr) && (inventory[INVEN_ARM].k_idx != 0) && one_weapon_wield() && (b_ptr->tval != TV_ARM_BAND))
+	{
+        	object_desc(o_name, o_ptr, FALSE, 0);
+        	msg_format("You cannot wield a second weapon with a shield.", o_name);
+		return;
+	}
+	/* If we have one weapon, make sure it's not two-handed. */
+        if (is_weapon(o_ptr) && one_weapon_wield())
+	{
+		u32b ff1, ff2, ff3, ff4;
+        	if (inventory[INVEN_WIELD].k_idx)
+		{
+			object_type *o2_ptr = &inventory[INVEN_WIELD];
+			object_flags(o2_ptr, &ff1, &ff2, &ff3, &ff4);
+			if (ff4 & TR4_MUST2H) (void)inven_takeoff(INVEN_WIELD, 255, FALSE);
+		}
+		if (inventory[INVEN_WIELD+1].k_idx)
+		{
+			object_type *o2_ptr = &inventory[INVEN_WIELD+1];
+			object_flags(o2_ptr, &ff1, &ff2, &ff3, &ff4);
+			if (ff4 & TR4_MUST2H) (void)inven_takeoff(INVEN_WIELD+1, 255, FALSE);
+		}
+	}
+	/* We already have one weapon, trying to wield a 2-handed one. */
+	/* We cannot allow it. */
+	/*if (one_weapon_wield() && (f4 & TR4_MUST2H))
+	{
+		msg_print("You must unequip your one-handed weapon first.");
+		return;
+	}*/
 
 	i_ptr = &inventory[INVEN_WIELD];
 	
@@ -280,6 +311,13 @@ void do_cmd_wield(void)
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
 	   return;
+	}
+	/* If we already have one weapon and a shield, we must not allow it. */
+        if ((slot == INVEN_ARM) && two_weapon_wield() && (o_ptr->tval != TV_ARM_BAND))
+	{
+        	object_desc(o_name, o_ptr, FALSE, 0);
+        	msg_format("You cannot wield a shield while wielding two weapons.", o_name);
+		return;
 	}
 
         if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
@@ -311,7 +349,7 @@ void do_cmd_wield(void)
 
 	/* Take a turn */
         /* Or not? Depends on agility! ;) */
-        if (p_ptr->skill_agility < 30 || o_ptr->tval == TV_HARD_ARMOR || o_ptr->tval == TV_SOFT_ARMOR || o_ptr->tval == TV_DRAG_ARMOR) energy_use = 100;
+        if (p_ptr->skill[5] < 30 || o_ptr->tval == TV_HARD_ARMOR || o_ptr->tval == TV_SOFT_ARMOR || o_ptr->tval == TV_DRAG_ARMOR) energy_use = 100;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -342,7 +380,12 @@ void do_cmd_wield(void)
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
-        if(slot != INVEN_AMMO)
+	if((slot == INVEN_WIELD || slot == INVEN_WIELD+1) && (f4 & TR4_MUST2H))
+        {  
+		if (inventory[INVEN_WIELD].k_idx) (void)inven_takeoff(INVEN_WIELD, 255, FALSE);
+		if (inventory[INVEN_WIELD+1].k_idx) (void)inven_takeoff(INVEN_WIELD+1, 255, FALSE);
+        }
+        else if(slot != INVEN_AMMO)
         {
                 if (o_ptr->k_idx)
                 {
@@ -376,7 +419,7 @@ void do_cmd_wield(void)
 	equip_cnt++;
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
+	if (slot == INVEN_WIELD || slot == INVEN_WIELD+1)
 	{
 		act = "You are wielding";
 	}
@@ -430,11 +473,10 @@ void do_cmd_wield(void)
 	/* Recalculate mana */
 	p_ptr->update |= (PU_MANA);
 
-        /* Redraw monster hitpoint */
-        p_ptr->redraw |= (PR_MH);
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+	update_and_handle();
 }
 
 
@@ -493,8 +535,6 @@ void do_cmd_takeoff(void)
 
         /* Recalculate hitpoint */
         p_ptr->update |= (PU_HP);
-
-        p_ptr->redraw |= (PR_MH);
 }
 
 
@@ -690,39 +730,6 @@ void do_cmd_destroy(void)
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 	sound(SOUND_DESTITEM);
-
-    if (high_level_book(o_ptr))
-    {
-        bool gain_expr = FALSE;
-
-        if ((p_ptr->pclass == CLASS_WARRIOR))
-		{
-			gain_expr = TRUE;
-		}
-        else if (p_ptr->pclass == CLASS_PALADIN)
-        {
-            if (p_ptr->realm1 == REALM_VALARIN)
-            {
-                if (o_ptr->tval != TV_VALARIN_BOOK) gain_expr = TRUE;
-            }
-            else
-            {
-                if (o_ptr->tval == TV_VALARIN_BOOK) gain_expr = TRUE;
-            }
-        }
-
-        if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
-        
-        {
-            s32b tester_exp = p_ptr->max_exp / 20;
-            if (tester_exp > 10000) tester_exp = 10000;
-            if (o_ptr->sval < 3) tester_exp /= 4;
-            if (tester_exp<1) tester_exp = 1;
-
-            msg_print("You feel more experienced.");
-            gain_exp(tester_exp * amt);
-		}
-	}
 
 	/*
 	 * Hack -- If rods or wand are destroyed, the total maximum timeout or 
@@ -2223,9 +2230,6 @@ void do_cmd_auto_wield(object_type *o_ptr)
 	/* Recalculate mana */
 	p_ptr->update |= (PU_MANA);
 
-        /* Redraw monster hitpoint */
-        p_ptr->redraw |= (PR_MH);
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
@@ -2247,4 +2251,23 @@ bool summoned_item(object_type *o_ptr)
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
         if (o_ptr->timeout > 0 && !(f3 & TR3_ACTIVATE)) return (TRUE);
         return (FALSE);
+}
+
+/* Extra commands for dual wield */
+/* We are wielding one weapon. */
+bool one_weapon_wield()
+{
+        if (inventory[INVEN_WIELD].k_idx && !(inventory[INVEN_WIELD+1].k_idx)) return (TRUE);
+	if (!(inventory[INVEN_WIELD].k_idx) && inventory[INVEN_WIELD+1].k_idx) return (TRUE);
+
+	return (FALSE);
+}
+
+/* We are wielding two weapons. */
+bool two_weapon_wield()
+{
+	/* If we already have one weapon and a shield, we must not allow it. */
+        if (inventory[INVEN_WIELD].k_idx && inventory[INVEN_WIELD+1].k_idx) return (TRUE);
+
+	return (FALSE);
 }

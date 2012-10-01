@@ -1,27 +1,37 @@
 ELITES AND BOSS MONSTERS
 -----------------------------
 
-New to NewAngband 1.2.1(and higher) are the Elites and Boss monsters. 
-These are stronger monsters that will require more skill to kill than 
-normal monsters. When generated, monsters have 20% chances to become elites. 
-And an elite has 20% chances to turn into a boss. Here's a detailed 
-description of elites and bosses:
+Elites and Boss enemies are stronger versions of the regular enemies.
+20% of the time, a normal enemy will be an Elite version of that enemy.
+If the monster turns into an Elite, then there's a 20% chance that
+this Elite turn into a boss. These monsters are typically much more
+difficult to defeat than their regular counterparts, having higher
+hp, better stats, and more importantly, one or more special abilities.
+However, they are also worth more experience, and will generally
+drop one or more magic items on death. Elites can easily be recognized
+by the color of their characters, with Elites being pale pink, while
+Bosses are dark pink.
+
+Here's a description of the features of these enemies:
 
 ELITES
 --------
-- Have twice more hp than normal monster.
-- Is five levels higher than normal.
-- Have more chances to hit you.
+- Have three times more hp than normal monster.
+- Level is always the maximum possible at your current depth.
+- Get a +(level / 3)% bonus to all stats and skills.
 - Gain one randomly chosen ability.
+- You never know the level of an Elite monster.
 - Will always drop at least one magical item when killed.
 - Are worth 50% more experience.
 
 BOSSES
 --------
-- Have four times more hp than normal monster.
-- Is ten levels higher than normal.
-- Have even more chances to hit you than elites.
+- Have six times more hp than normal monster.
+- Level is always 5 points higher than the maximum possible at 
+your current depth.
+- Get a +(level)% bonus to all stats and skills.
 - Gain multiple randomly chosen ability.
+- You never know the level and the hp of a boss.
 - Will always drop at least four magical items when killed.
 - Are worth three times more experience.
 
@@ -30,22 +40,22 @@ ABILITIES
 Elites and Bosses can gain random abilities. Here's more information on these
 abilities:
 
-WEAPON IMMUNITY: These monsters aren't affected by weapons, so don't waste
-your time trying to kill them with a sword, no matter how strong your sword
-is.
+WEAPON/PHYSICAL IMMUNITY: These monsters aren't affected by any form of physical
+damages. This includes melee attacks, ranged attacks and any magic or special
+attacks that does Physical damages.
 
-MAGIC IMMUNITY: These monsters aren't affected by magical/energical attacks.
-Even pure magic won't work against them.
+MAGIC IMMUNITY: These monsters aren't affected by any elemental damages. Spells
+and special attacks that causes elemental damages will not work on these
+monsters.
 NOTE: A boss cannot get both Weapon and Magic immunity.
 
-DAMAGE RESISTANT: In addition to the damage resistance provided by the
-monster's level, these monsters will gain an additional 50% damage resistance
-for both weapons and magics.
+DAMAGE RESISTANT: These monsters will gain 50% damages reduction to all form
+of damages.
 
 DOUBLE DAMAGES: These monsters do twice more damages than they would normally
 do. This only apply to melee attacks.
 
-DOUBLE MAGIC: These monsters do twice more damages with their spells/breath.
+DOUBLE MAGIC: These monsters do twice more damages with their spells.
 
 CURSED HITS: When you're hit by a monster with this ability, you have 50%
 chances of becoming Confused, Scared and Blind, even if you're resistant
@@ -57,8 +67,3 @@ each blows you give to a monster, so beware!
 
 MAGIC RETURNING: Like returning, but for spells and magic damages.
 
-
-One last thing that is important to know is that Unique monsters cannot
-become elites or bosses. You might get happy now, because you know Variaz
-won't get any abilities, right? Don't worry, Variaz has his own, extremely
-nasty abilities...

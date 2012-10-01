@@ -1,0 +1,90 @@
+N:1:1017:1:0:0:0
+I:Adventurer;
+T:Heh... once I finish my beer, I'll show these orcs who's the boss!!;
+A:Heard anything interesting for an adventurer?:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Adventurer;
+T:Greetings, <CLASS>.;
+A:Heard anything interesting for an adventurer?:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Adventurer;
+T:Well, actually, I was exploring the wilderness, and I came across;
+T:a lake, surrounded by trees. There, I say a young celestial girl;
+T:that was looking for a sword. I wonder why would a girl her age;
+T:would need a sword, but then again, I don't know the way of the;
+T:celestials...;
+A:Where did you see her?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Adventurer;
+T:I don't remember where I saw her...hmmm... but I guess a few coins;
+T:could refresh my memory... Yes, 300 golds would refresh my memory...;
+A:[Charisma] I certainly won't pay for that! Now, tell me!!:5:10:0:1:8:0:0:0:0
+A:Here you go. [Pay 300 golds.]:0:0:0:8:300:4:5:0:0
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Adventurer;
+T:heh heh... thanks a lot. Now, here, take a look at this map... Here's;
+T:the location of the lake. (52,45). I can't guarantee the little celestial;
+T:will still be there, though... But I'm sure you will go check it out!;
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Adventurer;
+T:A bit short on money, are we? I'm sorry, but I don't reveal my secret;
+T:spots to anybody for free. Sorry.;
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Adventurer;
+T:Ever fought the nagas? These ladies are dangerous, I tell you! Their;
+T:warriors always wield a pair of sharp blades, while their archers;
+T:shoot with great accuracy... And they even have priestesses that can;
+T:summon snakes to attack their enemies! I've only seen female nagas,;
+T:never a male. And I don't know if they exist, but I've heard rumors;
+T:that they do. I wonder how is it to be a male in a obviously;
+T:female-dominated race...;
+A:Heard anything interesting for an adventurer?:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Adventurer;
+T:I should have become a mage instead of a warrior! I once visited an;
+T:underground cave... and I was attacked by a ghost! My weapons didn't;
+T:even harm it! Apparently, one who would have a magical weapon imbued;
+T:with elemental force could defeat them... but I don't have such weapons!;
+T:From now on, I think I'll carry a book of spells instead of a sword;
+T:and a bow...;
+A:Heard anything interesting for an adventurer?:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Adventurer;
+T:Hey hey, calm down! I was just trying to make a few coins... No need;
+T:to get angry over that! All right, I'll tell you... Here, take a look;
+T:at this map... The lake is right here. (52,45). Happy now?;
+A:Any rumors?:0:0:0:4:6:7:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

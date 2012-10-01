@@ -1,0 +1,129 @@
+N:1:46:2:0:0:0
+I:Townsfolk;
+T:Welcome back, <NAME>, <heroheroine> of Fidac! It is an honor!;
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Townsfolk;
+T:Welcome to Fidac, traveller! How may I help you?;
+A:Do you know anything about the stolen sword of Walmus?:1:43:2:1:9:0:0:0:0
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Townsfolk;
+T:We're a peaceful little town, near the city of Jindar, and between;
+T:other towns like Udor to the south, and Vilgor to the west. We are;
+T:a stop for those who travels to these places, and therefore, our;
+T:inn is often visited by all kind of persons. Adventurers, traders...;
+T:Lots of peoples.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Townsfolk;
+T:Protecting our town is Evolia, an elven priestess of Dalunia, the;
+T:elven goddess of nature. She lives in the temple west of the town.;
+T:It is surrounded by trees, so you can't miss it. She is a wise,;
+T:good hearted woman who always helps peoples in need, and she is the;
+T:one who helps us when evil arise from below the earth...;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:46:2:0:0:0
+I:Townsfolk;
+T:But now that you have defeated the evil, the town is safe, so I;
+T:guess Evolia will emphatise on her role as spiritual leader...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Townsfolk;
+T:Not far from the town, to the northwest lies the ruins of an old temple.;
+T:Now, it is infested with undead creatures. Sometimes, they will come near;
+T:this town, but the priestess has placed a magic barrier that prevents;
+T:undeads from entering. So as long as she protects out town, the undeads;
+T:will never attack us!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Townsfolk;
+T:I guess that's pretty much what Fidac is about... We also have a few shops,;
+T:which you may want to visit if you need supplies. You should also visit;
+T:the inn, some peoples might have some useful information for you. It's;
+T:right next to the armor shop!;
+A:Any rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:46:2:0:0:0
+I:Townsfolk;
+T:King Julian's palace in Jindar is very well guarded. Not just anybody;
+T:can enter... But I've heard rumors about a secret entrance to the;
+T:palace, hidden somewhere in Jindar...;
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Townsfolk;
+T:Apparently, there is a deep dungeon beneath the ruins to the northwest.;
+T:It is rumored that an ancient king from the past was buried there.;
+T:I wonder if this king is related to all those undead creatures...;
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Townsfolk;
+T:I have heard that the clan wars between the kobolds and the devlings has;
+T:worsened during the last months. There are more fights, and they are;
+T:more violent than ever before. It is about time that someone puts an;
+T:end to these conflicts between the two races...;
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:40:1:0:0:0
+I:Townsfolk;
+T:I have heard that the town of Udor was attacked by legions of weird;
+T:monsters, and peoples claim that they were orcs! I don't really believe;
+T:the 'orcs' thing, but... I hope they were able to repulse these creatures.;
+T:We are lucky here, the priestess protects us, but in Udor, they only;
+T:have a few guards... and they lack serious training, if you ask me.;
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:40:0:0:0:0
+I:Townsfolk;
+T:I've heard rumors about orc sightings near the town of Udor... Of course,;
+T:I don't really believe in orcs, but still... it seems like we hear more;
+T:and more strange rumors these days... I have a bad feeling about this.;  
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Townsfolk;
+T:No, I don't know anything about it. And I don't care either. Walmus;
+T:is just a fool who thinks he is so great because he killed a few;
+T:creatures. They were weak creatures that any adventurers could have killed;
+T:easily. If I were you, I wouldn't bother helping him. You'll regret;
+T:it in the end.;
+A:Tell me more of this town.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

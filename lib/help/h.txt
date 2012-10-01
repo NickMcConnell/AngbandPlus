@@ -1,16 +1,40 @@
-HALF-TROLL
-------------
+CELESTIAL
+-----------
 
-Half-Trolls are the result of human and troll breeding.
-Similar to the Half-Orcs in many ways, the Half-Trolls are
-even uglier and dumber than the Half-Orcs, but they are
-tougher and have inherited the very useful regenerative powers
-of their troll parents.
+Celestials are the holy beings that lives in the planes of heaven, 
+and represent good and justice. While the greater celestials, such 
+as archangels and divine beings rarely descend on the prime material 
+planes, prefering to assist the mortals indirectly, the lesser 
+messengers of heaven are sometimes sent to the prime material plane 
+when evil is rising in power, or to protect a kingdom from
+corruption or abuses. These celestials generally ressemble humans, 
+but have some special features, generally a glowing aura of light, 
+and have large, white angelic wings. Celestials have started to 
+appear in Portralis, and yet the reason of their appearance is 
+still unknown. Orcs, trolls and ogres have been defeated, there are 
+no sign of attacks from the planes of hell, and none of the current 
+rulers shows sign of potential corruption. And yet, Celestials have 
+been sighted, and are warning the peoples of an incoming threat... 
+of a nature that is yet unknown.
 
-ADVANTAGES: +33% to Strength
-            +33% to Constitution
-	    Innate regeneration
+Celestials are beings of pure light, and as such can use the element 
+of light much better than any other races, and are entirely protected 
+from it's effects. However, this also makes them extremely 
+vulnerable to the forces of darkness. They are also known to resist 
+lightning and wind based attacks, as living high in the heavens have 
+made them resistant to the forces of the sky. Celestials are wise and 
+charismatic beings, preferring wise advices and diplomatic solutions 
+over warfare, but they are capable fighters when the need arise.
 
-DISADVANTAGES: -50% to Intelligence
-	       -33% to Wisdom
-	       -33% to Charisma
+CELESTIAL FEATURES:
+
+- +25% to Wisdom.
+- +25% to Charisma.
+- +25% damages to Light-based attacks and spells.
+- 25% resistance to electricity and wind.
+- 100% resistance to Light.
+- Starts the game with the elemental effect 'Light' learned.
+
+CELESTIAL PENALITIES:
+
+- 100% weakness to Darkness.

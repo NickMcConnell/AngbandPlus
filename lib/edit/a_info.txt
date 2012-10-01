@@ -1,1308 +1,235 @@
 # File: a_info.txt
 
-
-# This file is used to initialize the "lib/raw/a_info.raw" file, which is
-# used to initialize the "artifact" information for the Angband game.
-
-# Do not modify this file unless you know exactly what you are doing,
-# unless you wish to risk possible system crashes and broken savefiles.
-
-# After modifying this file, delete the "lib/raw/a_info.raw" file.
-
-
-# The artifact indexes are defined in "defines.h", and must not be changed.
-
-# Artifacts 1-15 are "special", 16-63 are "armor", and 64-127 are "weapons".
-
-# Hack -- "Grond" and "Morgoth" MUST have a rarity of one, or they might
-# not be dropped when Morgoth is killed.  Note that they, like the "special"
-# artifacts, are never created "accidentally".
-
-# Artifacts now have descriptions.  Special thanks to J.R.R Tolkien, 
-# without whom the words would be unwritten, the images unconceived, 
-# the deed undone.  
-#                                            -Leon Marrick
-# Contributors: Jeff Butler, Neal Hackler, Ethan Sicotte, Pat Tracy, Divia
-
 # Version stamp (required)
 
 V:2.8.1
 
-
-
-# The Phial of Galadriel
-
-N:1:of Galadriel
-I:39:4:1
-W:1:1:10:10000
-P:0:1d1:0:0:0
-F:ACTIVATE |
-F:INSTA_ART
-D:A small crystal phial, with the light of Earendil's Star contained inside.  
-D:Its light is imperishable, and near it darkness cannot endure.
-
-
-# The Star of Elendil
-
-N:2:of Elendil
-I:39:5:1
-W:30:25:5:32500
-P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE |
-F:INSTA_ART | SPEED
-D:The shining Star of the West, a famed heirloom of Elendil's house.
-
-
-# The Arkenstone of Thrain
-# Was +2 WIS/DEX
-
-N:3:of Thrain
-I:39:6:3
-W:50:50:5:50000
-P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CHAOS |
-F:INSTA_ART | SPEED | WIS | INT
-D:A great globe seemingly filled with moonlight, the famed Heart of the 
-D:Mountain, which splinters the light that falls upon it into a thousand 
-D:glowing shards.
-
-
-# The Amulet of Carlammas
-
-N:4:of Carlammas
-I:40:10:2
-W:50:10:3:60000
-F:CON | HIDE_TYPE | 
-F:ACTIVATE | RES_FIRE | 
-F:INSTA_ART
-D:A fiery circle of bronze, with mighty spells to ward off evil.
-
-
-# The Amulet of Ingwe
-
-N:5:of Ingwe
-I:40:11:3
-W:65:30:3:90000
-F:WIS | CHR | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | ACTIVATE | 
-F:RES_ACID | RES_COLD | RES_ELEC | 
-F:INSTA_ART
-D:The ancient heirloom of Ingwe, high lord of the Vanyar, against whom nothing 
-D:of evil could stand.
-
-
-# The Necklace 'Nauglamir'
-
-N:6:'Nauglamir'
-I:40:12:3
-W:70:50:3:75000
-F:STR | CON | INT | DEX | WIS | CHR | INFRA | HIDE_TYPE | 
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | SPEED
-F:INSTA_ART
-D:A carencet of gold, set with a multitude of shining gems of 
-D:Valinor.  Despite its size, its weight seems as that of gossamer.
-
-
-# The Ring of F'lar
-
-N:7:of F'lar
-I:45:52:5
-W:50:35:2:75000
-F:STR | INT | CON | CHR | STEALTH | HIDE_TYPE |
-F:IM_FIRE | ACTIVATE
-F:TELEPATHY | SEE_INVIS | FLY |
-F:INSTA_ART
-D:The mighty ring of the Dragonrider F'lar that makes the wearer 
-D:strong, smart and healthy.  It was once a ring of power and has been 
-D:given to F'lar by Celegorm when he arrived on Arda with a full weyr 
-D:of Dragonrider.
-
-
-# The Ring of Barahir
-
-N:8:of Barahir
-I:45:32:1
-W:50:25:2:75000
-F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
-F:RES_POIS | ACTIVATE | SEE_INVIS
-F:INSTA_ART
-D:A ring shaped into twinned serpents with eyes of emerald meeting beneath 
-D:a crown of flowers, an ancient treasure of Isildur's house.
-
-
-# The Ring of Tulkas
-
-N:9:of Tulkas
-I:45:33:4
-W:70:50:2:175000
-F:STR | DEX | CON | HIDE_TYPE | 
-F:ACTIVATE | SPEED |
-F:INSTA_ART
-D:The treasure of Tulkas, most fleet and wrathful of the Valar.
-
-
-# The Ring of Power (Narya)
-
-N:10:of Power (Narya)
-I:45:34:1
-W:70:30:2:100000
-P:0:1d1:10:10:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | FREE_ACT | SEE_INVIS | 
-F:SLOW_DIGEST | REGEN | SPECIAL_GENE |
-F:SUST_STR | SUST_DEX | IM_FIRE |
-F:INSTA_ART
-D:The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
-D:Morgoth.
-
-
-# The Ring of Power (Nenya)
-
-N:11:of Power (Nenya)
-I:45:35:2
-W:80:40:2:200000
-P:0:1d1:11:11:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | REGEN | SHOW_MODS |
-F:SUST_INT | SUST_WIS | IM_COLD | 
-F:INSTA_ART
-D:The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
-D:of the three Rings of Power created by the Elves and hidden by them from 
-D:Morgoth.
-
-
-# The Ring of Power (Vilya)
-
-N:12:of Power (Vilya)
-I:45:36:3
-W:90:50:2:300000
-P:0:1d1:12:12:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | SLOW_DIGEST | REGEN |
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | 
-F:INSTA_ART
-D:The Ring of Sapphire, with clear blue gems that shine like stars, 
-D:glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
-D:one of the three Rings of Power created by the Elves and hidden by them 
-D:from Morgoth.
-
-
-# The Ring of Power (The One Ring)
-
-N:13:of Power (The One Ring)
-I:45:37:5
-W:100:100:2:5000000
-P:0:1d1:15:15:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | CURSED | HEAVY_CURSE | INVIS | BLOWS | MANA |
-F:DRAIN_EXP | SEE_INVIS | REGEN | FREE_ACT |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | PERMA_CURSE |
-F:SUST_STR | SUST_DEX | SUST_CON | 
-F:SUST_INT | SUST_WIS | SUST_CHR | 
-F:INSTA_ART
-D:"Ash nazg durbatuluk, ash nazg gimbatul, ash nazg thrakatuluk agh 
-D:burzum-ishi krimpatul". Unadorned, made of massive gold, 
-D:set with runes in the foul speech of Mordor, with power so great that it 
-D:inevitably twists and masters any earthly being who wears it.
-
-
-# The Anchor of Space-Time
-
-N:14:of Space-Time 
-I:39:14:0
-W:30:12:15:50000
-P:0:1d1:0:0:0:15
-F:INSTA_ART
-D:A powerful stone that provides a strong light for any who 
-D:wields it. It is rumored that it may even protect the wearer from 
-D:the passing of the time.
-
-
-# This artifact has a low artifact level to prevent it being worthless for
-# chars with poor magic skills.
-
-# The Stone of Lore
-
-N:15:of Lore
-I:39:15:0
-W:15:12:15:20000
-P:0:1d1:0:0:0:15
-F:ACTIVATE | SPECIAL_GENE |
-F:INSTA_ART
-D:A great emerald that fills your mind with images of knowledge and dreadful 
-D:understanding as you stare into its depths.
-
-
-
-# And here begins the new NewAngband artifacts! They will now be much more suited
-# for NewAngband. I kept the Insta_art artifacts tho, as well as the Morgoth artifacts.
-# Grond was enhanced damage-wise though...
-
-# Daggers
-N:16:'Bee Sting'
-I:25:2:1
+# Bronze Dagger 'Bee Sting'. Can be found randomly in the dungeon.
+N:1:'Bee Sting'
+I:25:1:1
 W:1:1:10:200
 P:0:1d3:10:10:0
-F:BLOWS | BRAND_POIS | LEVELS
+B:5:50:0
+F:BLOWS | LEVELS
 D:A very small dagger, coated with venom and enchanted with magical speed.
 
-N:17:'Bright Sun'
-I:25:2:2
-W:5:3:10:4500
-P:0:1d6:40:40:0
-F:BRAND_FIRE | BRAND_LIGHT | SLAY_UNDEAD | RES_LITE | RES_FIRE | LITE
-D:A nicely shaped dagger, burning with the flames of the earth, and glowing 
-D:with the light of the sun, the ultimate bane against undeads.
+# Steel Mace of Dalunia
+N:2:of Dalunia
+I:21:19:5
+W:30:45:120:60000
+P:0:6d8:60:60:0
+B:11:700:0
+R:0:0:0:0:0:10:0:0:10:0:50:0:0:0:0:0
+F:STR | CON | LIFE | SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+D:A steel mace blessed with the power of the goddess of earth, Dalunia. 
+D:Earth shall empower the wielder of this weapon, and the wrath of Dalunia 
+D:shall strike evil with the wrath of the earth.
 
-N:18:of Mistilya
-I:25:2:-1
-W:7:10:12:1700
-P:0:1d6:55:55:0
-F:CHR | BRAND_POIS | BRAND_DARK | RES_DARK | CURSED
-D:Mystilya was a dark, clever assassin. She made this dagger in order to 
-D:assassinate a powerful rival in her guild. Wether she succeeded or failed 
-D:is unknown, but you can still sense her evil spirit inside the edge of 
-D:this powerful, yet cursed dagger.
+# Masterwork Short Sword 'Aria's Soul'
+N:3:'Aria's Soul'
+I:23:42:3
+W:25:40:40:50000
+P:0:3d7:40:40:0
+B:6:500:0
+R:0:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0
+F:LITE | WIS | CHR | BLOWS | SLAY_DEMON | SLAY_UNDEAD | LEVELS | SPECIAL_GENE | ETERNAL
+D:After you defeated the demon Shaugma, Aria binded her own soul to this blade, 
+D:imbuing it with the power of holy light. The blade that was once a sword 
+D:of superior quality is now a divinely fine edge of the heavens.
 
-N:19:'Bodyguard'
-I:25:2:5
-W:15:10:12:3000
-P:0:1d4:15:15:30
-F:CON | LIFE
-D:Makes your body a lot stronger. Probably one of the weirdest enchantment 
-D:ever bestowed to a dagger.
+# Steel Shield 'Red Guard'
+N:4:'Red Guard'
+I:34:3:3
+W:10:10:120:3000
+P:10:1d3:0:0:30
+R:100:-100:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:A red-colored magical shield that will stop any flames, but will make the 
+D:wearer susceptible to cold.
 
-N:20:'Kalban's Heart'
-I:25:2:0
-W:22:15:12:15000
-P:0:1d4:90:90:0
-F:BRAND_COLD | IM_COLD | RES_DARK | SUST_CHR
-D:Kalban was a very cold-hearted prince, who ruled the northern lands 
-D:during about thirty years, until he was affected by a strange disease. 
-D:Not wanting to suffer longer, he took a dagger and commited suicide, 
-D:ending his reign over the land. Even after centuries, the dagger still 
-D:bear the coldness of it's owner's heart.
+# Steel Shield 'Blue Guard'
+N:5:'Blue Guard'
+I:34:3:3
+W:10:10:120:3000
+P:10:1d3:0:0:30
+R:-100:100:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+D:A blue-colored magical shield that stops the cold, but makes the 
+D:wearer susceptible to fire.
 
-N:21:'Orc Killer'
-I:25:2:0
-W:25:15:12:15000
-P:0:1d6:115:115:0
-F:SLAY_ORC
-D:Finely crafted to cut solid flesh, it is the perfect weapon to use against orcs.
+# Pair of Leather Boots 'Windstrider'
+N:6:'Windstrider'
+I:30:2:5
+W:15:20:10:20000
+P:5:1d1:0:0:15
+R:0:0:0:0:0:0:0:0:0:25:0:0:0:0:0:0
+F:SPEED
+D:A pair of leather boots enchanted with the wind. It will let it's wearer 
+D:run at the speed of the wind.
 
-N:22:'Arcane Stab'
-I:25:2:6
-W:30:20:12:40000
-P:0:1d6:200:200:0
-F:BRAND_MAGIC | LITE | MANA | INT
-D:The gnomish wizard Kaltop was too weak to wield powerful, heavy swords. 
-D:Instead, he took a finely crafted dagger, and enchanted it with awesome 
-D:magical abilities, thus creating the dagger known as Arcane Stab.
+# Pair of Iron Boots 'Ironfoot'
+N:7:'Ironfoot'
+I:30:12:-3
+W:30:45:200:10000
+P:30:1d1:75:75:50
+R:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0:0
+F:SPEED | ETERNAL
+D:These iron boots are extremely heavy to a point that they will greatly 
+D:slow down the wearer. However, their magic makes them extremely protective, 
+D:and they will also enhance the combat abilities of the wearer.
 
-N:23:'Lillith's Kiss'
-I:25:2:10
-W:100:120:8:2000000
-P:0:7d6:300:300:0
-F:BLOWS | LIFE | BRAND_FIRE | BRAND_POIS | SLAY_MALE | ONLY_FEMALE | 
-F:IM_FIRE | RES_DARK | RES_NETHER | CHR | SUST_CHR | ALWAYS_HIT | 
-F:LEVELS | ETERNAL
-D:Lilith was the very first succubus to come in existance. She 
-D:was the most beautiful, and no males could resist her charms. 
-D:While charmed, she used a powerful dagger to kill them in a 
-D:very painful way. Fool is the male who would dare to touch 
-D:this dagger.
-
-# --- SWORDS ---
-
-# Short Swords
-
-N:24:of the Apprentice
-I:23:10:1
-W:1:2:80:2500
-P:0:1d7:15:15:0
-F:STR | INT | WIS | DEX | CON | CHR
-D:This short sword was created in order to give young adventurers a bit 
-D:of power in every area, making their whole body a bit stronger.
-
-N:25:'Flare'
-I:23:10:0
-W:5:10:70:7000
-P:0:2d7:45:45:0
-F:BRAND_FIRE | IM_FIRE
-D:The efreet lord Khazim Abala gave this short sword to a young adventurer 
-D:who has proven himself worthy. The boy died, eaten by the yeti he 
-D:fought, but the blade used in the battle is still burning with a powerful 
-D:and magical flame.
-
-# Broad Swords
-
-N:26:'Heavy Edge'
-I:23:16:-5
-W:3:8:700:1000
-P:0:5d6:60:60:0
-F:SPEED | CURSED
-D:A cursed and very heavy sword. However, it's weight also makes it quite deadly. 
-D:For a strong user, it could be a blessing.
-
-N:27:'Evil Edge'
-I:23:16:-5
-W:20:15:150:6000
-P:0:4d5:75:75:0
-F:BRAND_ACID | BRAND_POIS | BRAND_DARK | RES_DARK | RES_NETHER | 
-F:CHR | CURSED | HEAVY_CURSE
-D:Woe will engulf anyone struck by this mighty edge. Only a dark and evil 
-D:soul would be foolish enough to use such a dark sword.
-
-N:28:'Ice Dust'
-I:23:16:3
-W:22:25:150:20000
-P:0:6d5:100:100:0
-F:BRAND_COLD | IM_COLD | LIFE | CON
-D:Made long ago during the ice age, this sword's history has been completely 
-D:forgotten. It makes the wielder tougher and immune to cold, and strike 
-D:enemies with a painful cold energy.
-
-# Long Swords
-
-N:29:'Silverias'
-I:23:17:3
-W:15:15:130:6000
-P:0:2d5:50:50:0
-F:STR | CON | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID 
-D:This sword was crafted by the half-ogre hero Kurthak to honor his 
-D:own physical abilities. It makes the wielder stronger, tougher, and 
-D:able to resist the deadly forces of nature.
-
-N:30:'Holy Light'
-I:23:17:5
-W:20:15:130:25000
-P:0:5d5:150:150:0
-F:BRAND_LIGHT | LITE | CHR | RES_LITE | SLAY_UNDEAD | SLAY_DEMON
-D:Pythemon, a renowed paladin, was sent to the deeper levels of a 
-D:dark dungeon. His mission was to slay the evil demon lord 
-D:Kistopherac. The hero succeeded in killing this evil demon, and 
-D:many peoples built statues to honor the paladin. Pythemon's 
-D:most valuable treasure is this sword, which was used to give 
-D:Kistopherac the final blow.
-
-N:31:'Breaker Of Legions'
-I:23:17:8
-W:50:30:130:70000
-P:0:10d10:240:240:0
-F:SLAY_ORC | SLAY_TROLL | BLOWS | SPEED | STR | DEX | CON
-D:Alonzo the Berserker wanted to take down an entire army 
-D:of orcs and tolls. To do so, he crafted an awesome sword, which 
-D:allowed him to massacre the army. This is how he got his title.
-
-# Katanas
-
-N:32:'Mystic Slasher'
-I:23:20:4
-W:20:15:120:40000
-P:0:6d6:130:130:0
-F:BRAND_MAGIC | BLOWS | SPEED
-D:Crafted by an unknown samurai, this katana strikes it's target 
-D:with a magical energy. The wielder also finds himself affected 
-D:by the magic, in a positive way...
-
-N:33:'Mint's Leaves'
-I:23:20:12
-W:75:80:110:250000
-P:0:16d14:350:350:0
-F:BRAND_LIGHT | LIFE | BLOWS | SLAY_UNDEAD | SLAY_DEMON | 
-F:STR | DEX | CON | SPEED | LITE | LEVELS
-D:Mint was a mighty heroine, who fought many extremely perilous 
-D:battles. To immortalize her skills, she crafted this awesome 
-D:Katana, a beautiful golden blade, glowing with a holy light, and 
-D:giving the user many advantages over the weaker foes.
-
-
-# The Massive Iron Crown of Morgoth
-# No longer have a pval of 125. Sorry! ;)
-
-N:34:of Morgoth
-I:33:50:8
-W:100:1:20:10000000
-P:0:1d1:0:0:0
-F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
-F:RES_LITE | RES_DARK | RES_CONF | RES_NEXUS | 
-F:LITE | SEE_INVIS | TELEPATHY |
-F:CURSED | HEAVY_CURSE | PERMA_CURSE |
-F:INSTA_ART
-D:Two Silmarils of Feanor blaze from the thunderous crown of twisted 
-D:iron. The corrupted metal feels at once as infernal as hellfire 
-D:and as chilling as the Outer Darkness. One protrusion from the 
-D:crown is abruptly ended where a third jewel might have shone.
-
-# Sabres and Scimitars
-
-N:35:'Righteous Thunder'
-I:23:11:2
-W:12:10:50:8000
-P:0:2d7:45:45:0
-F:BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON | SLAY_EVIL | RES_ELEC | BLOWS
-D:The fury of the heaven's sky sleeps within this sabre's edge. It 
-D:will strike any evil beings with a holy thunder, especially 
-D:undeads and demons.
-
-N:36:of the Wind
-I:23:11:10
-W:18:12:30:15000
-P:0:3d8:60:60:0
-F:BLOWS | SPEED
-D:The very essence of wind empowers this sabre. It is a very light 
-D:weapon which gives it's wielder incredible speed.
-
-N:37:'Tolmirand'
-I:23:18:3
-W:25:15:130:30000
-P:0:5d5:145:145:0
-F:STR | CON | SLAY_GIANT | LIFE | IM_FIRE
-D:This scimitar was made by the Halfling hero Jinbold, who was sent 
-D:on a quest to retrieve a powerful runestone from a Fire Giant king. 
-D:The blade he crafted gave him the strength and toughness to battle 
-D:the mighty giant, and to achieve his goal of retrieving the stone.
-
-N:38:'Harem's Torture'
-I:23:18:12
-W:45:30:130:80000
-P:0:12d10:220:220:0
-F:BRAND_POIS | BLOWS | SLAY_FEMALE | ONLY_MALE
-D:This fool weapon was enchanted by the evil sultan Aliz Bin Habah. His 
-D:pleasure was to punish the women of his harem, by mutilating or whipping 
-D:them until they begged for mercy. Always done in a most humiliating fashion, 
-D:the sultan eventually crafted this blade to make tortures and mutilations 
-D:even more painful to the poor women. It is a truly evil weapon, and only 
-D:a very cruel man could ever use it.
-
-N:39:'Rune Crescent'
-I:23:18:5
-W:50:35:30:200000
-P:0:4d5:200:200:0
-F:BRAND_MAGIC | MANA | BLOWS | LEVELS | ETERNAL | ONLY_MAGE
-D:The great sorceress Silvania wanted a weapon which would allow her to 
-D:defeat monsters impervious to her spells. She made an exceptionally 
-D:light weapon, and the edge of this scimitar is covered with dangerous 
-D:magical energy. No one can steal this blade from it's wielder, 
-D:so Silvania must have abandonned the scimitar intentionally.
-
-# Rapier
-
-N:40:'Corrosion'
-I:23:7:0
-W:15:15:40:5000
-P:0:2d6:50:50:0
-F:BRAND_ACID | IM_ACID
-D:This rapier is covered with strong and highly corrosive acid. Not 
-D:only does it gives the wielder a nice offensive power, it also 
-D:prevent any damages caused by acid.
-
-# Two-Handed Swords
-
-N:41:'Angelic Edge'
-I:23:25:7
-W:40:25:200:50000
-P:0:10d10:160:160:0
-F:STR | CHR | LIFE | BRAND_LIGHT | SLAY_UNDEAD | SLAY_DEMON | BLOWS
-D:A mighty weapon indeed, this sword is imbued with powerful 
-D:holy magic, which makes it a bane against demons and 
-D:undeads, and a blessing for it's wielder.
-
-N:42:'Dragon Slayer'
-I:23:25:8
-W:45:30:200:75000
-P:0:12d10:200:200:0
-F:STR | CON | LIFE | SLAY_DRAGON
-D:During the Flaming War, a horde of red dragons invaded the western 
-D:lands. The great emperor Tiramir forged this sword to help defeating 
-D:the dragons. While the sword gives it's wielder the strength, 
-D:toughness and power to defeat a dragon, it still require a skilled 
-D:user, and that's what the emperor realised when one of the dragons 
-D:swallowed him...
-
-N:43:'Ying Yang'
-I:23:25:0
-W:60:50:200:100000
-P:0:15d12:270:270:0
-F:BRAND_LIGHT | BRAND_DARK | LEVELS
-D:The Ying Yang represents the balance between good and evil, light 
-D:and shadow. In every good persons lies an evil side, while even the 
-D:most evil one has some sparks of goodness on the inside. This 
-D:black and white colored sword has been crafted to symbolise the 
-D:Ying Yang.
-
-# Blade Of Chaos
-N:44:'Dark Justice'
-I:23:30:0
-W:50:40:180:120000
-P:0:20d15:320:320:0
-F:BRAND_DARK
-D:A very simple sword. It's just a very strong, dark branded sword. 
-D:A *VERY* strong sword!
-
-N:45:'Kiss Of The Undeath'
-I:23:30:-10
-W:65:50:180:2000
-P:0:40d30:500:500:0
-F:DRAIN_EXP | INT | WIS | CHR | BRAND_DARK | BRAND_MAGIC | CURSED | HEAVY_CURSE
-F:PERMA_CURSE | RES_DARK
-D:The wielder of this blade slowly lose his or her memories, and 
-D:lose the power to think, feel and act on their own will. In time, 
-D:they becomes fully corrupted souls, only because they couldn't 
-D:resist the awesome power of this sword.
-
-# Paladins Swords...We're talking serious swords now! ;)
-N:46:'Divine Wrath'
-I:23:38:12
-W:50:50:110:200000
-P:0:17d15:240:240:0
-F:LIFE | STR | WIS | CHR | BRAND_LIGHT | LITE | SLAY_UNDEAD | SLAY_DEMON
-F:BLOWS | SPEED | RES_LITE | LEVELS | ETERNAL
-D:The great paladin Stelnor crafted this sword as an example to his 
-D:disciples, that with faith and devotion, one can create an 
-D:incredibly powerful and holy weapon. Stelnor passed away centuries 
-D:ago, but it is said that his spirit resides inside of this 
-D:sword...
-
-N:47:'Flame Of Purification'
-I:23:38:17
-W:80:110:110:1000000
-P:0:24d20:400:400:0
-F:BRAND_FIRE | IM_FIRE | RES_LITE | BLOWS | STR | CON | ETERNAL
-D:This blade has a burning, holy flame, that will burn the heart 
-D:of the evil.
-
-# Warlord Swords...MORE powerful swords! ;)
-
-N:48:'Curse Of The Devil'
-I:23:39:20
-W:85:90:110:1500000
-P:0:26d22:500:500:0
-F:BRAND_FIRE | BRAND_DARK | IM_FIRE | RES_DARK | STR | CON |
-F:IM_ACID | RES_COLD | RES_ELEC | RES_NETHER | RES_FEAR |
-F:BLOWS | SPEED | ETERNAL | CURSED | HEAVY_CURSE | PERMA_CURSE
-D:It is rumored that this incredibly powerful blade was given 
-D:to a greater demon by Variaz himself. The demon then used foul 
-D:magic to curse the blade, and combined with Variaz's power, it 
-D:created an extremely evil and powerful sword. The wielder of 
-D:this blade will benefit greatly from it's powers, but he or 
-D:she will be condemned to fight with the blade for eternity, 
-D:never allowed to use another weapon.
-
-N:49:'The Warrior'
-I:23:39:1
-W:90:180:100:3000000
-P:0:50d35:450:450:0
-F:BRAND_DARK | CHARGEABLE | LEVELS | ETERNAL
-D:An ancient weapon of devastation, rumored to be the container 
-D:of an ancient spirit of war...
-
-# King Swords... Only one actually.
-
-N:50:'The AllMighty'
-I:23:40:22
-W:120:200:100:5000000
-P:0:50d50:600:600:0
-F:STR | INT | WIS | DEX | CON | CHR | MANA |
-F:BRAND_MAGIC | LIFE | BLOWS | SPEED | IM_FIRE | IM_COLD |
-F:IM_ELEC | IM_ACID | RES_LITE | RES_DARK | RES_NETHER |
-F:RES_NEXUS | RES_FEAR | RES_CHAOS | RES_CONF | LEVELS |
-F:LITE | LOWER_HIT | ETERNAL
-D:Rumored to be the first weapon ever created by Variaz, this 
-D:sword is imbued with amazingly powerful magical energy. As you 
-D:hold the sword in your hand, you can feel the energy entering 
-D:your body, making you more powerful than ever before.
-
-# Great, we're finished with the swords!
-# Onto the hafted now!
-# Start with clubs!
-
-N:51:'Fiery Branch'
-I:21:1:1
-W:5:5:100:4000
-P:0:2d4:15:15:0
-F:STR | BRAND_FIRE | IM_FIRE
-D:A club burning with a glowing red fire. Strangely, the wood 
-D:doesn't seem to be consumed by the flame.
-
-N:52:of the Druids
-I:21:1:5
-W:15:10:100:12000
+# Iron Pike 'Flame Impaler'
+N:8:'Flame Impaler'
+I:22:18:2
+W:10:15:160:10000
 P:0:3d6:30:30:0
-F:BRAND_POIS | RES_POIS | MANA
-D:Also known as the 'Cobra Stick' among the druids clans, this 
-D:powerful club has the power to give it's wielder an increased 
-D:amount of magical energy, and is coated in deadly poison, 
-D:probably the venom of powerful poisonous animals.
-
-# Whips
-
-N:53:'Enslaver'
-I:21:2:1
-W:40:40:300:100000
-P:0:12d10:160:160:0
-F:BRAND_FIRE | BRAND_DARK | SLAY_ORC | SLAY_TROLL | SLAY_DEMON
-F:RES_FIRE | RES_DARK | LEVELS
-D:This giant whip was once the property of a powerful Greater Balrog, 
-D:who used it to bully his orcish and trollish underlings, as 
-D:well as other, lesser demons.
-
-# Flails
-
-N:54:'Relic Of Prayers' 
-I:21:13:5
-W:20:15:150:20000
-P:0:4d8:40:40:0
-F:STR | CON | LIFE | BRAND_LIGHT | SLAY_UNDEAD | RES_LITE | LITE
-D:Once used by the great holy priestess Malenia to defeat a 
-D:legion of powerful undead creatures, this flail glows 
-D:with a blinding light, and is a great bane of the undead.
-
-N:55:'Thunderstorm' 
-I:21:13:10
-W:45:30:150:40000
-P:0:8d10:200:200:0
-F:DEX | BLOWS | BRAND_ELEC | IM_ELEC | LEVELS
-D:Instead of a spiked ball, a big and heavy crystal of Electricity 
-D:is attached to the chain of this flail. Any creatures struck by 
-D:this mighty weapon will feel it's body shocked to the core.
-
-N:56:of Spells 
-I:21:13:1
-W:80:100:60:1000000
-P:0:15d12:400:400:0
-F:SPELL | BRAND_MAGIC | ETERNAL
-D:The origin of this weapon is unknown, but this flail has a strange 
-D:enchantment bestowed upon it. The owner of this flail will 
-D:find it's spells greatly improved while wielding it.
-
-# Two handed flail
-
-N:57:'Giant Slayer' 
-I:21:18:10
-W:55:35:280:50000
-P:0:11d8:200:200:0
-F:STR | CON | LIFE | SLAY_GIANT | RES_FIRE | RES_COLD | RES_ELEC
-D:Not only is this weapon a great bane of giants, it makes it's 
-D:wielder as strong as one.
-
-# Maces
-
-N:58:'Corrosive Basher'
-I:21:5:0
-W:5:5:120:500
-P:0:2d4:15:15:0
-F:BRAND_ACID | IM_ACID | LEVELS
-D:A mace branded with a deadly and corrosive acid. Additional
-D:magical enchantments makes the wielder of the mace immune 
-D:to the effects of acid.
-
-N:59:'War Blessing'
-I:21:5:2
-W:15:10:120:10000
-P:0:3d6:30:30:0
-F:STR | INT | WIS | DEX | CON | CHR | BLOWS | SPEED | LITE |
-F:LIFE | MANA
-D:During a contest in an arena, Arvor was to fight against 
-D:a powerful Half-Giant that was much stronger and experienced 
-D:than he was. Arvor decided to cheat, and paid a wizard to 
-D:enchant his weapon with a magical enchantment. During the 
-D:battle, Arvor found himself stronger in every aspects, feeling 
-D:stronger, wiser and tougher. However, he was still an unskilled 
-D:fighter, and the Half-Giant won. It is rumored that Arvor 
-D:simply threw the mace away afterward, angry to have lost despite 
-D:his magical weapon.
-
-N:60:'Skull Breaker'
-I:21:5:8
-W:25:15:120:25000
-P:0:6d6:120:120:0
+B:1:500:0
+R:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:STR | BLOWS
-D:Ravindor the smith wasen't too great at putting magical 
-D:enchantments on his weapons. Instead of crafting weapons with 
-D:a lot of magical powers, he specialised in the most helpful 
-D:abilites for a warrior, and bestowed them upon one of his 
-D:masterpieces of crafting, the powerful mace named 'Skull Breaker'.
+D:A red pike imbued with the power of fire. The wielder of this beautiful
+D:weapon shall gain the might of the flames.
 
-N:61:of the Flames
-I:21:5:10
-W:60:40:120:40000
-P:0:10d10:220:220:0
-F:SPEED | BLOWS | BRAND_FIRE | IM_FIRE | LEVELS
-D:This mace is said to be the second weapon forged by the efreet 
-D:lord Khazim Abala. Anyone struck by this powerful weapon will 
-D:be engulfed in flames, and will be turned into ashes.
+# Orb of Death Light
+N:9:of Death Light
+I:39:4:5
+W:20:30:2:30000
+P:0:1d1:25:25:0
+R:0:0:0:0:0:-25:25:0:0:0:0:0:0:0:0:0
+F:STR | CON | SEE_INVIS | LITE | ETERNAL | SPECIAL_GENE
+D:A golden orb that actually emits darkness, but allows it's wearer to 
+D:see everything hidden in the dark. Imbuing the wearer with dark powers, 
+D:it makes him/her resistant to darkness, and tougher. It does, however, 
+D:have the side effect of making the wearer weak against light.
 
-# Morning stars
+# Cloak 'Lightbane'
+N:10:'Lightbane'
+I:35:1:3
+W:30:35:10:20000
+P:15:1d1:30:30:20
+R:0:0:0:0:0:50:0:0:0:0:0:0:0:0:0:0
+F:CHR | SUST_CHR | LIFE | SPECIAL_GENE | ETERNAL
+D:This is the magical cloak that Cedric was wearing. It has the power 
+D:to devour the light that strikes it, thus giving it's wearer a 
+D:good protection against light. The cloak itself is also made of 
+D:very resistant material, and provides good protection, as well 
+D:as enhancing the life force and appearence of the wearer.
 
-N:62:'Eye Of Truth'
-I:21:12:3
-W:20:20:150:50000
-P:0:5d8:50:50:0
-F:INVIS | SEE_INVIS | STEALTH | RES_BLIND
-D:Used by an unknown rogue skilled in the use of hafted weapons, 
-D:the Eye Of Truth makes it's wielder invisible, able to see 
-D:the unseen, and able to walk in silence to avoid enemies.
+# Golden Crown of the Spiritualist
+N:11:of the Spiritualist
+I:33:11:6
+W:35:40:30:40000
+P:0:1d1:25:25:0
+R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:WIS | INT | MANA | SUST_WIS | SUST_INT | SPECIAL_GENE | ETERNAL
+D:A beautiful, licialhyd-incrusted golden crown, this magic relic 
+D:will make it's wearer much more enlighted, knowledgeable and 
+D:wise. The magical licialhyd on it also makes it much easier to 
+D:channel a lot of magical energy.
 
-N:63:'Sceptic Star'
-I:21:12:15
-W:60:50:90:300000
-P:0:16d13:250:250:0
-F:BRAND_ACID | BRAND_POIS | IM_ACID | RES_POIS | CHARGEABLE | ETERNAL
-D:Coated in deadly poison and highly corrosive acid, this weapon 
-D:is a bane to anyone who would be unlucky enough to be struck by 
-D:it. Because many undead creatures are immune to the effects of 
-D:poisons, the one who made the weapon made it so it can adapt itself 
-D:to the needs of the wielder.
+# Iron Long Sword 'Orcbane'
+N:12:'Orcbane'
+I:23:2:2
+W:8:10:130:10000
+P:0:3d8:15:15:0
+R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:STR | CON | SLAY_ORC | LEVELS | ETERNAL
+D:A relic from ages ago, this old sword was once used by a hero during 
+D:the wars against the orcs, and was especially enchanted to slay them 
+D:easily. Because it has not been used for centuries, this sword's 
+D:power has started to fade, but if it was to be used again, it would 
+D:be possible to return this sword to it's former glory.
 
-# War hammer
+# Adamantium Gauntlets 'Fists of the Titan'
+N:13:'Fists of the Titan'
+I:31:6:8
+W:50:60:62:100000
+P:30:1d2:200:200:100
+B:11:1000:2
+R:0:0:0:0:0:0:0:0:0:0:25:0:0:0:0:0
+F:STR | BLOWS | CHARGEABLE
+D:These magical gauntlets of steel allow their wearer to deliver powerful 
+D:earth shaking punches, as well as providing great strength. 
+D:These gloves are the dream of every martial artists.
 
-N:64:'Mauler Of Demons'
-I:21:8:6
-W:30:20:120:20000
-P:0:9d9:110:110:0
-F:STR | LITE | BRAND_LIGHT | SLAY_DEMON | RES_LITE | RES_DARK
-D:This glowing hammer has been blessed by angels, and given to the 
-D:knight Alphonse, who used it to battle the demonic hordes that 
-D:threatened his hometown. He defeated the hordes and after the 
-D:battle has been won, he gave back the hammer to the angels. 
-D:How did they lose the hammer is unknown...
+# Steel Gauntlets 'Hands of Ki'
+N:14:'Hands of Ki'
+I:31:3:3
+W:20:30:50:30000
+P:15:1d2:20:20:10
+B:17:500:0
+R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:10:0
+F:STR | DEX | ETERNAL | SPECIAL_GENE
+D:After defeating the Restless Monk, and making him realize he had forgotten 
+D:his secret technique, he claimed you've taught him a valuable lesson. 
+D:To show his gratitude, he gave you this pair of enchanted steel gauntlets.
 
-# Lord's maces...We're talking serious weapons now!
+# Steel Dagger 'Ice Shard'.
+N:15:'Ice Shard'
+I:25:3:2
+W:5:10:10:2000
+P:0:1d5:15:15:0
+B:2:200:0
+R:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:DEX
+D:A frost-covered dagger that can deliver a chilling blow to whatever it strikes.
 
-N:65:'Word Of Justice'
-I:21:18:16
-W:75:60:120:1000000
-P:0:18d16:300:300:0
-F:LITE | LIFE | BRAND_LIGHT | SLAY_UNDEAD | SLAY_DEMON | LEVELS
-D:Blessed by the greater archangels among the heavens, this 
-D:mace radiates such an holy energy that no undead or demonic 
-D:creatures could ever survive a blow inflicted with this 
-D:deadly weapon.
+# Steel Flail 'Chain of Thunder'
+N:16:'Chain of Thunder'
+I:21:3:3
+W:20:30:150:25000
+P:0:5d8:25:25:0
+B:3:800:0
+R:0:0:25:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:STR | SPEED | BLOWS | LEVELS
+D:A finely crafted flail enchanted with the power of lightning, the ball attached 
+D:to the chain is not made of metal, but rather of pure lightning. Delivers shocking 
+D:blows to the wielder's enemies, while providing the wielder greater strength, 
+D:as well as the speed of lightning.
 
-N:66:'Rune Basher'
-I:21:18:20
-W:90:80:40:1000000
-P:0:20d18:400:400:0
-F:INT | MANA | BRAND_MAGIC | LEVELS | ETERNAL
-D:Magically enchanted to be lighter, this mace amplify it's 
-D:wielder's magical energy to the extreme, allowing him or 
-D:her to cast deadlier spells.
-
-# Giant Hammer
-
-N:67:'Tarvian'
-I:21:19:20
-W:95:85:300:2000000
-P:0:30d20:450:450:0
-F:STR | DEX | CON | LIFE | SPEED | BLOWS | RES_FIRE |
-F:RES_COLD | RES_ELEC | RES_ACID | RES_POIS | RES_DARK |
-F:RES_LITE | LEVELS | ETERNAL
-D:One of the mightiest cloud giants ever born, the great 
-D:Tarvian was also an expert smith and enchanter. Seeing 
-D:his throne threatened by legions of lesser creatures, 
-D:he forged this huge and deadly hammer. After defeating 
-D:the legions, he threw the hammer away, because it's 
-D:power was too hard to fully control. Powerful must 
-D:be the one who would dare to use this hammer, who 
-D:now bear it's creator's name.
-
-# Titan Hammer, THE best bashing weapon! :)
-
-N:68:'The Slayer'
-I:21:20:25
-W:120:200:1000:5000000
-P:0:60d60:700:700:0
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | BLOWS |
-F:LITE | SLAY_EVIL | SLAY_ORC | SLAY_TROLL | SLAY_UNDEAD |
-F:SLAY_DEMON | SLAY_DRAGON | SLAY_GIANT | 
-F:BRAND_MAGIC | LEVELS | LOWER_DEF | ETERNAL
-D:The greater and ancient titans of the land predicted 
-D:that the world would eventually be threatened by the 
-D:legions of the great creator. To prepare for this, they 
-D:crafted one of the finest weapons in the world, The Slayer. 
-D:Imbued with the essence of the gods, this weapon has 
-D:the power to destroy all, and turn it's wielder into 
-D:an avatar of the gods.
-
-# And now comes the Polearms!
-# Spears!
-
-N:69:of Piercing
-I:22:2:0
-W:1:1:50:1000
-P:0:1d6:10:10:0
-F:ALWAYS_HIT
-D:An oddly enchanted spear that will become partly ethereal, 
-D:and will phase trough the enemy's armor.
-
-N:70:'Khalastan'
-I:22:2:2
-W:5:5:50:2500
-P:0:2d6:15:15:0
-F:DEX | BLOWS | SPEED | RES_ELEC
-D:Enchanted with the essence of the wind, this spear allow 
-D:it's wielder to attack with great speed, and to move as 
-D:if he or she was as light as air.
-
-N:71:of the Hunters
-I:22:2:10
-W:50:40:50:120000
-P:0:8d6:200:200:0
-F:STR | DEX | CON | LIFE | BLOWS | SLAY_ORC | SLAY_TROLL |
-F:SLAY_GIANT | SLAY_DEMON | SLAY_DRAGON | SLAY_ANIMAL | 
-F:SLAY_UNDEAD | BRAND_POIS | LEVELS
-D:Created by the Clan Of Genocide, the renowed ancient Hunters 
-D:clan, this spear is magically enchanted to be deadly against 
-D:whatever opponents it may strike. Dragon, demon or even animals 
-D:will all suffer the wrath of this spear.
-
-# Tridents
-
-N:72:'Defender'
-I:22:5:5
-W:15:10:70:15000
-P:0:3d8:30:30:50
-F:DEX | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS |
-F:RES_NETHER | RES_NEXUS | RES_DARK | RES_LITE
-D:The wielder of this finely crafted trident will find him or herself 
-D:surrounded in a magical aura, which will potect him/her from various 
-D:sources of damages.
-
-N:73:'Venomous Impaler'
-I:22:5:0
-W:25:15:70:30000
-P:0:5d10:100:100:0
-F:BRAND_POIS | RES_POIS | LOWER_HIT
-D:This trident is coated in a very strange poison that will severly 
-D:affect the reflexes of the victim. As a result, the victim will 
-D:find it much harder to hit their opponents.
-
-# Pikes
-
-N:74:'Moon Impaler'
-I:22:8:1
-W:10:10:160:15000
-P:0:3d10:30:30:0
-F:BRAND_LIGHT | BRAND_DARK | RES_LITE | RES_DARK | LITE | STEALTH
-D:This pike was crafted to honour the moon, a source of light to some, 
-D:and of shadows to others. It provides the wielder the light and 
-D:shadow of the moon.
-
-N:75:'Anika's Pole'
-I:22:8:8
-W:40:20:160:100000
-P:0:12d10:200:200:0
-F:BRAND_MAGIC | BRAND_DARK | MANA | LIFE | BLOWS | LOWER_DEF |
-F:RES_DARK | RES_NETHER
-D:Anika was a powerful Valkyrie, and a faithful defender of good and 
-D:justice. After slaying a powerful demon king, she crafted this powerful 
-D:weapon from his bones. Although it is a dark weapon, never was it 
-D:used to accomplish evil deeds.
-
-N:76:'The Magi's Pike'
-I:22:8:10
-W:80:70:1:1000000
-P:0:16d12:400:400:0
-F:BRAND_MAGIC | MANA | ALWAYS_HIT | BLOWS | LIFE | ETERNAL | LEVELS | ONLY_MAGE
-D:This pike is light beyond words, as light as a feather. Being light 
-D:does not prevent it from being extremely sharp and powerful. While 
-D:the origins of this weapons are unknown, even the strongest 
-D:warrior wouldn't challenge a sorcerer armed with this pike.
-
-# Halberds
-
-N:77:'Dragons Bane'
-I:22:15:5
-W:35:20:190:25000
-P:0:4d10:70:70:0
-F:STR | CON | KILL_DRAGON | RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS
-D:A finely crafted halberd, coated with cursed dragon blood. Any 
-D:dragons struck by this weapon will suffer from a painful, 
-D:cursed and incurable wound that will eventually kill them.
-
-N:78:'Aldor's Fury'
-I:22:15:7
-W:50:30:190:50000
-P:0:6d12:120:120:0
-F:STR | WIS | BRAND_LIGHT | SLAY_UNDEAD | SLAY_DEMON | RES_LITE | LITE
-D:Crafted by the great paladin Aldor, this halberd glow with holy 
-D:light, and has been blessed by the archangels to become a bane to 
-D:the evil minions of darkness.
-
-N:79:'The Foul's Gold'
-I:22:15:-5
-W:80:50:190:80000
-P:0:15d15:250:250:0
-F:BRAND_MAGIC | CURSED | HEAVY_CURSE | DRAIN_EXP | CHR
-D:This foul weapon has been made by the demon king Urbolyavil, and given 
-D:to a once honorable warrior named Yuovil, in order to corrupt him. 
-D:While it is an attractive weapon at first, it's wielder will become 
-D:slowly corrupted, and the first sign of the corruption is that the 
-D:wielder's temper will become quite a bit more agressive.
-
-# A Blessed Halberd!
-
-N:80:'Heaven's Lightning'
-I:22:45:12
-W:90:80:150:200000
-P:0:16d17:300:300:0
-F:BRAND_ELEC | BRAND_LIGHT | LIFE | STR | WIS | CON | CHR 
-F:LITE | RES_LITE | SLAY_UNDEAD | SLAY_DEMON | SLAY_EVIL | LEVELS | ETERNAL
-D:A holy weapon coming straight from heaven, and given to the mortals 
-D:by the angels to help defeat the evil minions of Variaz. Few evil 
-D:creatures are powerful enough to survive an assault from a warrior 
-D:armed with this powerful, holy weapon.
-
-# Heavy spears
-
-N:81:'Lancer's Guard'
-I:22:32:10
-W:20:10:250:15000
-P:0:4d5:80:80:50
-F:CON | LIFE | IM_FIRE | IM_ELEC | IM_COLD | IM_ACID | REFLECT
-D:A weapon with unknown origins, this weapon will offer a great 
-D:amount of protection to it's wielder.
-
-N:82:'Rock Impaler'
-I:22:32:0
-W:60:35:250:75000
-P:0:12d12:200:200:0
-F:BRAND_ACID | LOWER_DEF
-D:A strange weapon created by Claudius Arendul, one of history's 
-D:weirdest warriors. He absolutely wanted to prove that hardened 
-D:golems can be pierced with a spear. While it is unknown if this 
-D:weapon actually shatter hard stone, it does easily pierce trough 
-D:a monster's defense.
-
-# Adamantite Spears
-
-N:83:'Flamestrike'
-I:22:33:10
-W:70:50:150:130000
-P:0:17d17:240:240:0
-F:STR | CON | BLOWS | BRAND_FIRE | IM_FIRE | LITE
-D:A orange colored spear burning with a bright, extremely hot 
-D:flame. Wielding such a spear grants it's wielder complete 
-D:immunity to fire, as well as the strength and might of the flame.
-
-N:84:'Neutralizer'
-I:22:33:0
-W:80:60:150:250000
-P:0:20d18:300:300:0
-F:BRAND_DARK | LOWER_DEF | LOWER_HIT
-D:A spear of extremely fine crafting, it will pierce trough enemy 
-D:flesh, and curse them with a great degree of clumsiness. Such a 
-D:cursed opponent will be much easier to hit, and will have trouble 
-D:hitting you in return.
-
-# Perfect Spears
-
-N:85:'Archangel's Voice'
-I:22:36:15
-W:90:80:120:500000
-P:0:30d20:400:400:0
-F:STR | WIS | CON | CHR | LITE | BRAND_LIGHT | LIFE | RES_LITE
-F:SLAY_DEMON | SLAY_UNDEAD | CHARGEABLE | LEVELS | ETERNAL
-D:The archangel Neralriel gave this spear to the young valkyrie 
-D:princess Almaya, as her country was assaulted by a merciless 
-D:horde of demons and undeads. Blessed with great holy powers, 
-D:Almaya triumphed of the dark horde, and made herself immortal 
-D:by binding her soul to this weapon of great power.
-
-N:86:'Wind Of War'
-I:22:36:16
-W:100:90:120:750000
-P:0:40d30:500:500:0
-F:STR | DEX | CON | LIFE | SPEED | BLOWS | LOWER_DEF | LEVELS | ETERNAL
-D:Legends speak of this spear as the physical embodiement of 
-D:wind and sky. Vengeful spirits of wind are sealed within this 
-D:masterfully crafted weapon, and they unleash their wrath 
-D:at anyone unlucky enough to get struck by this spear.
-
-# Valkyrian Spear, the most powerful polearm(weapon?) in the game!
-
-N:87:'The Elder'
-I:22:37:25
-W:120:200:90:7500000
-P:0:80d80:1000:1000:100
-F:STR | INT | WIS | DEX | CON | CHR | MANA |
-F:BRAND_MAGIC | LIFE | BLOWS | SPEED | IM_FIRE | IM_COLD |
-F:IM_ELEC | IM_ACID | RES_LITE | RES_DARK | RES_NETHER |
-F:RES_NEXUS | RES_FEAR | RES_CHAOS | RES_CONF | LEVELS |
-F:LITE | ALWAYS_HIT | CHARGEABLE | ETERNAL
-D:This weapon shares a part of the force of creation itself, the 
-D:same force that animates Variaz himself. This weapon is the 
-D:most powerful weapon spoken of in tales and legends, and no 
-D:creatures can survive an attack of this dangerous, ancient 
-D:and beautiful spear.
-
-# Now comes the axes! Since it's a new type now, there aren't too many
-# of them, so there won't be so many artifacts...yet! :)
-
-# Beaked Axes
-
-N:88:of the Lumberjacks
-I:26:1:1
-W:1:2:180:1500
-P:0:2d6:15:15:0
-F:STR | CON
-D:This axe has been crafted as a symbol of the hard work of 
-D:the lumberjacks. This special axe give it's wielder the 
-D:strength and endurance required to do hard work in the forest.
-
-N:89:'Stone Cutter'
-I:26:1:0
-W:10:5:180:3000
-P:0:3d6:30:30:0
-F:LOWER_DEF
-D:An ingenious axe created by a dwarf who wanted to combine the 
-D:pick and the axe in a single weapon. In combat, this weapon is 
-D:capable of piercing the enemy's armor easily.
-
-N:90:'Corrosive Chopper'
-I:26:1:0
-W:15:10:180:5000
-P:0:4d6:45:45:0
-F:BRAND_ACID | IM_ACID
-D:Made by an apprentice dwarf smith who wanted to imitate his master's 
-D:quality Corrosive Axes, this weapon's quality is far inferior. 
-D:The apprentice compensated by giving the weapon to a powerful 
-D:sorcerer so he could enchant it. The sorcerer did, and despite not 
-D:being the greatest weapon, it's still a good weapon that would 
-D:strike fear to the heart of cowardly kobolds!
-
-# Hatchets
-
-N:91:'Totem Of War'
-I:26:6:2
-W:5:5:60:2000
-P:0:1d6:20:20:0
-F:STR | CHR
-D:This hatchet was once the property of a barbarian chief, who used 
-D:this axe for it's symbolic more than it's power. When attending 
-D:to official ceremonies, or when shouting a war cry, the chief 
-D:would always carry the axe with him, and raise it high in the sky.
-
-N:92:'Weightless Viper'
-I:26:6:4
-W:15:10:40:5000
-P:0:2d5:30:30:0
-F:BLOWS | BRAND_POIS
-D:Small, concealable, crafted in light mithril ore, this hatchet is an 
-D:attempt to create the lightest ever. In addition to the already light 
-D:weight, an enchantment and a deadly poison has been put it, which 
-D:has earned it the name Weightless Viper.
-
-N:93:of the Shamans
-I:26:6:7
-W:50:40:30:5000
-P:0:3d6:200:200:0
-F:BRAND_MAGIC | MANA | ONLY_MAGE
-D:As light as a rod, the barbarian shaman Borhuhula wanted to create an 
-D:axe that would honor the tribe's tradition with axes, while still 
-D:taking his own training in consideration. With the help of the best 
-D:smiths, this hatchet was created, and enchanted with powerful magic 
-D:that only a shaman or another wizard could draw powers from.
-
-# Battle Axes
-
-N:94:'Vengeance Of The Dwarves'
-I:26:3:3
-W:15:10:170:10000
-P:0:3d8:45:45:0
-F:STR | CON | LIFE | SLAY_ORC
-D:Three hundred years ago, orcish legions invaded the dwarves territory, 
-D:and the poor dwarves lost the battle, and their mine was destroyed. 
-D:However, there were a few survivors, and they eventually crafted this 
-D:fine axe, swearing that one day, this weapon would spill the blood 
-D:thousands of orcs.
-
-N:95:'Magma'
-I:26:3:3
-W:25:15:170:15000
-P:0:4d8:70:70:0
-F:BRAND_FIRE | IM_FIRE
-D:A battle axe of unknown origins, this finely crafted weapon has been 
-D:enchanted with strong fire magic, strong enough to give painful burns 
-D:to the enemies, while protecting the wielder from the flames.
-
-N:96:'Igor's Wrath'
-I:26:3:5
-W:40:20:170:30000
-P:0:9d9:120:120:0
-F:STR | CON | LIFE | SPEED | BLOWS | ETERNAL
-D:Igor was a mighty barbarian warrior, who was renowned for unleashing 
-D:beserking rages on the battle field. When he became old, a shaman 
-D:took his spirit, and bound it to the tribe's most finely crafted axe. 
-D:This is how this powerful weapon has been created.
-
-# Great Axes
-
-N:97:'EverStrike'
-I:26:2:0
-W:35:20:230:35000
-P:0:7d7:90:90:0
-F:ALWAYS_HIT
-D:The dwarven warrior Grumzy always knew that big and heavy axes would 
-D:be slow and inaccurate. So to remedy to this problem, Grumzy placed 
-D:a powerful enchantment on the axe, so it would never miss it's target. 
-D:The axe was eventually stolen by an orc during an invasion, but it 
-D:looks like the orcs weren't able to keep the axe safe.
-
-N:98:'Doom Knight's Pride'
-I:26:2:-5
-W:50:30:230:40000
-P:0:12d10:150:150:0
-F:BRAND_DARK | RES_DARK | CHR | CURSED
-D:Heavy, scary and powerful. What else could an evil dark knight wish for? 
-D:This great axe is a symbol of evil and war, and anyone who would 
-D:wear it would inspire fear to everyone.
-
-# Dwarven Axes
-
-N:99:'Epitome Of Hardiness'
-I:26:7:10
-W:30:20:150:25000
-P:0:5d6:60:60:0
+# Bronze Mail of the Healthy
+N:17:of the Healthy
+I:37:16:1
+W:5:10:250:5000
+P:25:1d1:10:10:20
+R:0:0:0:0:25:0:0:0:0:0:0:0:25:0:0:0
 F:CON | LIFE
-D:A mysterious axe, said to have been forged by a dwarf hermit, which gives 
-D:it's wielder amazing constitution and life force. Oddly enchanted indeed, 
-D:but extremely effective!
+D:A simple bronze mail enchanted with curative magic. It will increase it's 
+D:wearer's health and life force, as well as protecting against the effects 
+D:of poison and radiations.
 
-N:100:'DeathBane'
-I:26:7:5
-W:50:40:150:75000
-P:0:8d8:150:150:0
-F:LIFE | BRAND_LIGHT | LITE | SLAY_UNDEAD | RES_LITE | LEVELS | ETERNAL
-D:Dwarves aren't a typically clerical society, so the lich king Olvariorh 
-D:tought it would be easy to invade the dwarven mines with legions of 
-D:undead creatures. The lich was wrong, as the shamans were able to enchant 
-D:one of their finest axes with holy powers, and gave the axe to their best 
-D:warrior, who alone was able to defeat all the undeads.
+# Iron Battle Axe 'Barbarian's Viper'
+N:18:'Barbarian's Viper'
+I:26:2:2
+W:15:15:160:12000
+P:0:4d10:20:20:0
+B:5:500:0
+R:0:0:0:0:25:0:0:0:0:0:0:0:0:0:0:0
+F:DEX | SPEED | LEVELS
+D:A posion-covered battle axe that delivers quick, painful and poisonous 
+D:blows, hence it's name Barbarian Viper.
 
-N:101:'Stalker's Chop'
-I:26:7:8
-W:70:50:120:100000
-P:0:10d10:220:220:0
-F:INVIS | BRAND_MAGIC | SPEED | SEE_INVIS | STEALTH | CHARGEABLE
-D:Created by a dwarf spy, this axe is the perfect weapon for any spies, 
-D:stalkers or thieves. It makes it's wielder faster and stealthier, while 
-D:providing great offensive power and light weight. Finally, in case 
-D:something would turn out wrong, the axe has the power to adapt itself 
-D:to various situations.
+# Blue Steel-Plated Rod of the Archmage
+# Probably one of the most powerful weapons in the game.
+N:19:of the Archmage
+I:66:8:1
+W:120:200:30:2000000
+P:0:10d12:500:500:0
+B:16:50000:0
+R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:MANA | SPELL | ETERNAL
+D:Probably one of the greatest and rarest treasure to exist in all Portralis, 
+D:this most precious rod will double the power of it's wielder's spells. 
+D:Enemies hit by this rod will be struck by powerful, pure magical energy.
 
-# Warrior Axe
-
-N:102:'Black Feather'
-I:26:8:10
-W:80:60:60:200000
-P:0:12d12:250:250:0
-F:BRAND_DARK | BLOWS | RES_DARK | LEVELS | CURSED | HEAVY_CURSE | PERMA_CURSE
-D:As dark as a demon's heart...as light as a feather...as evil as 
-D:a devil emperor...as fearful as a balrog's wrath.
-
-# Dragon Axes
-
-N:103:'Wyrm's Wrath'
-I:26:14:12
-W:90:80:60:1000000
-P:0:16d14:300:300:0
-F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | BRAND_ACID | BRAND_POIS | 
-F:SLAY_DRAGON | STR | DEX | CON | SPEED | BLOWS | LIFE | ETERNAL
-D:This axe has been forged from the scales of a Great Wyrm Of Power, and 
-D:still bear the essence of the once living dragon. It is said that the 
-D:dragon's spirit is sealed inside the axe, and that the vengeful 
-D:wyrm will unleash his wrath at anyone unlucky enough to be struck by 
-D:this powerful weapon.
-
-N:104:'Wyrm's Shield'
-I:26:14:15
-W:90:80:60:1000000
-P:0:9d9:300:300:150
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | RES_POIS | FEATHER | 
-F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK | SH_FIRE | SH_ELEC |
-F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_BLIND | RES_CONF | 
-F:CON | LIFE | REFLECT | REGEN | LITE | SLAY_DRAGON | ETERNAL
-D:The soul of a Dragon Prince has been bound to this finely crafted axe. 
-D:The enchantment is such that it will make the wielder's skin just as hard 
-D:and magical as a Dragon Prince's. Such a warrior has nothing to fear 
-D:from his or her enemies, as most attacks will find themselves unsuccessful.
-
-# Dwarven King Axes
-
-N:105:'Enlightment'
-I:26:16:12
-W:80:70:260:600000
-P:0:22d16:350:350:0
-F:BRAND_LIGHT | STR | WIS | BLOWS | LITE | LIFE | LEVELS | ETERNAL
-D:Crafted by the dwarven hero Winzur, this axe's purpose was to enlight the 
-D:way, and guide the hope trough a dark Nibelung mine, who was threatening 
-D:Winzur's home. Winzur's used the powers of the axe to defeat the dark 
-D:Nibelung king, and afterwards, went away, always keeping the axe with 
-D:him. How he lost it is unknown...
-
-N:106:'Weightless Mountain'
-I:26:16:0
-W:100:120:80:1000000
-P:0:40d30:350:350:0
-F:SLAY_GIANT | CHARGEABLE | ETERNAL
-D:Dwarves are small, and facing a giant opponent can sometime be incredibly 
-D:hard. A dwarven society once found itself attacked by an army of 
-D:evil, Greater Titans, and all seemed to be lost. However, the dwarven 
-D:elders decided to go ask for the help of the other races. They went to 
-D:see some powerful Dunadan sorcerers, who enchanted an extremely big 
-D:and heavy axe to become light in the hand of it's user. This big weapon, 
-D:which defeated the entire titan army, is known to the dwarves as the 
-D:'Weightless Mountain'.
-
-# The Wrath, the best axe in the game! :)
-
-N:107:'The Wrath'
-I:26:17:20
-W:120:200:240:5000000
-P:0:65d65:800:800:-50
-F:STR | INT | WIS | DEX | CON | CHR | SPEED | BLOWS | LIFE |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
-F:LITE | BRAND_MAGIC | LEVELS | ALWAYS_HIT | CHARGEABLE | ETERNAL
-D:The ultimate symbol of the barbarians berserking abilities on the 
-D:battle field. This legendary axe will raise one's temper to the extreme 
-D:allowing him or her to easily stike any kind of foes with great power. 
-D:No armies would stand a chance against a warrior armed with such 
-D:an incredibly powerful weapon.
-
-
-# The Mighty Hammer 'Grond'
-# Was 30 pounds (?), -10 to speed
-# The weight (100 pounds) of Grond yields about -4 to speed
-# Note that it takes 18/200 strength to wield Grond correctly
-
-N:111:'Grond'
-I:21:50:2
-W:100:1:1000:500000
-P:0:20d10:5:25:10
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | NO_MAGIC |
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE | 
-F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART |
-F:LEVELS | LIFE | ACTIVATE |
-D:The mighty Hammer of the Underworld, blackened by doomspells of shattering, 
-D:whose wielder holds the lives of all Morgoth's servants in his hand.
-
-# The Phial of Undeath
-
-N:200:of Undeath
-I:39:7:-5
-W:1:1:10:0
-P:0:1d1:0:0:0
-F:CURSED | INT | WIS | CON | DEX | CHR | STR | ACTIVATE |
-F:INSTA_ART | DG_CURSE |
-D:It appears like the Phial of Galadrial at first, but wait!  It 
-D:is a cursed phail created by an evil wizard to lure adventurers 
-D:into wielding it unknowingly.
+# Steel Plate Mail of Stability
+N:20:of Stability
+I:37:6:5
+W:35:50:320:40000
+P:120:1d2:30:30:50
+R:0:0:0:0:0:0:0:0:0:0:0:0:0:25:0:0
+F:CON | RES_CONF | RES_FEAR | HOLD_LIFE | SAFETY | CHARGEABLE | ETERNAL
+D:A valuable and magical plate mail armor, this treasure will protect you 
+D:from many abnomalies and will allow you to remain stable when struck 
+D:with paralyzing attacks. It will also stabilize any chaotic forces that 
+D:would harm you.
 
 
 # The template for artifacts corpses
@@ -1312,79 +239,3 @@ I:9:1:0
 W:200:1:10:0
 P:0:1d1:0:0:0
 F:INSTA_ART 
-
-
-# The Palantir of Minas Tirith
-
-N:202:of Minas Tirith
-I:39:8:3
-W:50:20:10:60000
-P:0:1d1:0:0:0
-F:WIS | CHR | ACTIVATE | TELEPATHY
-F:INSTA_ART
-D:A shining white ball of unbreakable crystal, the ancient palantiri, 
-D:or 'far-watchers' were used by kings of Numenor and later by the Exiles 
-D:for rapid communication between distant lands.
-
-# The Amulet Of Flooding(another cool and fun amulet)
-N:206:of Flooding
-I:40:85:0
-W:3:5:3:5000
-F:INSTA_ART
-D:A mysterious blue amulet...dosen't look powerful but who knows? 
-
-# The Undead's Ring
-
-N:207:Ring
-I:45:57:3
-W:40:15:2:3000
-P:0:1d1:0:0:0
-F:RES_COLD | HOLD_LIFE | SPECIAL_GENE
-F:ACTIVATE | INSTA_ART
-D:A very mysterious ring. It has a small skull engraved on it.
-
-# The Demon's Ring
-
-N:208:Ring
-I:45:58:3
-W:40:15:2:3000
-P:0:1d1:0:0:0
-F:RES_FIRE | HOLD_LIFE | SPECIAL_GENE
-F:ACTIVATE | INSTA_ART
-D:A very mysterious ring. It has a red ruby on it.
-
-# The Long Sword 'Asmodis'
-# This is REALLY a great sword!
-
-N:209:'Asmodis'
-I:23:17:5
-W:30:45:50:225000
-P:0:6d10:20:12:0
-F:LIFE | SHOW_MODS | LEVELS | IM_FIRE | BRAND_MAGIC |
-F:STR | CON | RES_ELEC | RES_DARK | HOLD_LIFE |
-F:ACTIVATE | SPECIAL_GENE
-D:A very special sword that prevent you from burning your skin.
-D:It also have some yet never seen powers...
-
-# Emerald Sword 'Astra'
-# Special Weapon
-
-N:210:'Astra'
-I:23:41:8
-W:30:45:110:400000
-P:0:6d10:50:50:0
-F:LIFE | SHOW_MODS | LEVELS | IM_ELEC | BRAND_MAGIC |
-F:STR | DEX | CON | RES_FIRE | RES_COLD | RES_DARK | HOLD_LIFE |
-F:SPECIAL_GENE
-D:A magical sword which radiate an aura of magic...
-
-# When you beat Ryenna...
-N:211:of Dragos
-I:37:30:5
-W:75:9:120:500000
-P:50:2d4:10:10:20
-F:STR | DEX | INT | WIS | CON | CHR | IM_ELEC | FREE_ACT |
-F:LITE | HOLD_LIFE | TELEPATHY | SPEED |
-F:RES_FIRE | RES_COLD | RES_ACID | RES_DARK | RES_NEXUS |
-F:ACTIVATE | SPECIAL_GENE
-D:Ryenna had this armor. Use it to summon dragons.

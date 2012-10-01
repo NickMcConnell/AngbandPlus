@@ -1,0 +1,119 @@
+PORTRALIS STATS GUIDE
+-----------------------
+
+At the beginning of the game, all stats begins at 5. Some may be a
+little higher or lower depending on your race. Every time you gain
+a level, you will be awarded two stat points which you can use to
+increase one of your stats. To do this, go into the character's
+display('C'), and press 's'. If you have at least one stat point
+left, you will be able to raise one of your stats. Now, here's
+a detailed description of what each stats will do:
+
+STRENGTH:
+
+Strength measures how strong you are and how much you can carry. High
+strength can provide extremely powerful bonuses to melee characters.
+If you plan to be a melee specialised character, you will probably
+want to have a high strength, as it will allow you to do more damages
+in combat, and to carry heavier stuff such as powerful armors and
+heavy two-handed weapons.
+
+Effects of Strength:
+        - +5 to_d bonus per points.
+	- +1% to total melee damages for every points.
+        - Increased carrying capacity.
+        - +1 to_hit per two points.
+        - Increase number of blows, along with dexterity.
+
+INTELLIGENCE:
+
+Intelligence measures how good you are at crafting spells and using
+magic. Intelligence provides additional mana points for you to use,
+and will allow you to cast bigger spells. It is a must for any
+mana-based spellcasters. Also, having a high intelligence will allow
+you to gain extra skill points per levels, so even non-mage characters
+should consider putting some points in intelligence for the extra skills.
+
+Effects of Intelligence:
+        - +10 mana per points.
+	- You gain 1 extra skill points for every 12 points of the
+	  average between Intelligence and Wisdom.
+
+WISDOM:
+
+Widows measures a character's spiritual abilities, self-control and
+the overall maturity of the character. When casting spells, you may
+choose to not use mana points, and use wisdom-based spellcasting
+(which can represent using the power of your mind, or praying your
+god for a spell.). Using wisdom-based spells costs no mana, but trying
+to cast big spells has a chance of failure. When using the 'p' command,
+you will cast a spell using wisdom. If the spell's cost is below or
+equal to your wisdom, the spell will have 100% success rate. Otherwise,
+there will be a chance of failure which increases with the spell's cost.
+And if you try to cast a VERY expensive spell with a low wisdom... it
+may backfire! Finally, wisdom will also allow you to resist some spells
+and effects such as fear and confusion, and like intelligence, it allows
+you to gain extra skill points.
+
+Effects of Wisdom:
+        - Allow to cast bigger wisdom-based spells.
+        - Increase resistance to effects.
+        - You gain 1 extra skill points for every 12 points of the
+	  average between Intelligence and Wisdom.
+
+DEXTERITY:
+
+Dexterity measures the character's ability to aim right, to hit enemies
+and to dodge their blows more easily. Dexterity is very helpful to melee
+characters, and is a must for any archer-type character. Higher dexterity
+mean higher to_hit, which mean you will be able to land more damaging
+blows to your enemies. Also, a high dexterity will improve your shooting
+multiplier, making your ranged attacks much more powerful.
+
+Also consider the Ranger's Weapon Finesse ability when raising Dexterity.
+This ability allow you to use dexterity to do damages instead of strength.
+So if you plan on focusing on dexterity, this ability can help you get
+a high hit rate AND damages!
+
+Effects of Dexterity:
+        - +10 to_hit per points.
+	- +5% to_hit per points.
+	- +5 to_d to ranged attacks.
+        - +1% to ranged damages for every points.
+        - +1 to AC for every two points.
+        - Increase number of blows, among with Strength.
+
+CONSTITUTION:
+
+Constitution measures how tough the character is and how much damage
+he or she can take before dying. Constitution raises your hp, and having
+a high hp can be EXTREMELY helpful. All characters should consider
+putting some points into constitution, especially melee fighters who
+may need to endure a few ranged attacks before reaching the foes.
+Keep in mind that there are some life boosting abilities and items,
+and that the more hp you have, the more you will get from these bonuses.
+
+Effects of Constitution:
+        - +25 hp per points.
+        - +5% to maximum hp.
+        - 1% chance to recover from paralysis during your turn for 
+          every points.
+
+CHARISMA:
+
+Charisma measures the character's personnality, personnal charm and
+magnetism. But more importantly, it measures the character's ability
+to lead and give effective orders to others. Charisma increases
+friendly creatures ability to hit and damage enemies, and is very
+important is you plan on summoning lots of friendly creatures.
+Also, merchants likes charismatic characters a lot, and such characters
+often pay less in stores than a less charismatic character would.
+Finally, characters with high charisma may sometimes be able to get
+better dialog answers when speaking with other characters!
+
+Effects of Charisma:
+        - Increase monsters's damages of all attacks and spells. 
+        - +5 bonus to_hit for friendly monsters for every points
+          above 5.
+        - Reduce the prices in stores.
+	- May give you better dialog answers.

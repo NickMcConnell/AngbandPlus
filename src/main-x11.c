@@ -1702,12 +1702,12 @@ static infoclr *xor;
 /*
  * Color table
  */
-static infoclr *clr[16];
+static infoclr *clr[18];
 
 /*
  * Color info
  */
-static char color_info[16][8];
+static char color_info[18][8];
 
 /*
  * Forward declare
@@ -2129,7 +2129,7 @@ static errr Term_xtra_x11_react(void)
 	int i;
 
 	/* Check the colors */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < 18; i++)
 	{
 		if (Metadpy->color)
 		{
@@ -2450,7 +2450,8 @@ errr init_x11(int argc, char *argv[])
 
 
 	/* Initialize the windows */
-	for (i = 0; i < num_term; i++)
+	/*for (i = 0; i < num_term; i++)*/
+	for (i = (num_term - 1); i >= 0; i--)
 	{
 		term_data *td = &data[i];
 
@@ -2510,7 +2511,7 @@ errr init_x11(int argc, char *argv[])
 #endif /* USE_GRAPHICS */
 
 	/* Prepare normal colors */
-	for (i = 0; i < 16; ++i)
+	for (i = 0; i < 18; ++i)
 	{
 		char cname[8];
 

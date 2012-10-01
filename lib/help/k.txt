@@ -1,22 +1,76 @@
-BARBARIAN
------------
+MONSTER
+---------
 
-Barbarians are the hardy men from the north. Barbarians
-are wild, strong and tough. Their combat skills are
-amazing, and they are able to fight with any melee
-weapons, and their throwing skill is also very good.
-As great, ferocious warriors, they are fearless, but
-their magic skill leave much to be desired, as they
-completely shun magic.
+One of the numerous monsters that lives in dungeons, caves, etc...
+Playing this race is a completely different gameplay experience from
+the regular races, and it may not be a good choice if you are a
+beginner and it's your first time trough the game.
 
-ADVANTAGES: +20% to Strength
-            +20% to Constitution
-            +20% to Swords, Hafted, Polearms, Axes and Throwing
-            skills.
-            Innate resistance to fear
+THE MONSTER RACE
+------------------
 
-DISADVANTAGES: -25% to Intelligence
-               -25% to Wisdom
-	       -50% to Spellcraft and Rod skills.
+The 'Monster' race lets you incarnate a monster, but you do not get to
+change your class. Instead, you use the creature's natural abilities
+instead of learning abilities or creating spells. When using a monster's 
+natural attacks, your Martial Arts skill is used to improve the damages.
+Pay attention to your attacks strength, they make a huge difference.
+There are hundreds, perhaps thousands of creatures to choose from.
+Some are stronger, some are weaker. Note that unlike the Monster Mage's 
+morphing abilities, you will NEVER get returned damages if you use an 
+elemental natural melee attack on a magic returning boss.
+
+Many monsters also offers spells, such as bolts, balls,
+summon spells and support magic. Spellcraft skill will improve
+the damages of these magical attacks.
+
+Monsters also have access to three passive abilities where you can
+spend your earned abilities points. Here are the benefits of the
+abilities for every points you place in them.
+
+IMPROVED ATTACK: +2 to Martial Arts skill
+		 +5 to_hit
+
+IMPROVED DEFENSE: +10% natural AC to base AC(based on monster's natural AC)
+		  +2 to base AC
+		  +10 to_ac
+
+IMPROVED MAGIC: +10% spells damages.
 
 
+Monsters can be hard to play, and how you build your character will
+greatly depend on the kind of monster you chose. If you have chosen
+to play a weaker monster kind, It's up to you to choose what works 
+best for you, and it all depends on the monster you incarnate.
+
+EVOLVING
+----------
+
+Once you fight a few fights, you will notice that your monster
+probably isen't a match for the stronger monsters anymore. You can
+then use the Monster's Evolve ability, which allow you to turn into
+a more powerful monster of the same kind. To evolve, use the 'Y'
+command like you would to change your class normally.
+That way, you could rise from a Baby Red Dragon to a Young Red Dragon.
+You will never be able to change your basic kind, so if you start as
+a giant('P'), you will always be a giant. There are two exceptions
+however. A lesser dragon('d') can turn into an ancient dragon('D'),
+while a lesser demon('u') can turn into a greater demon('U'). When
+using the Evolve ability, you will be able to select a monster with
+a depth equal or lower than your current level that is the same kind
+of you.
+
+TIPS
+------
+
+When first playing as a monster, choose your kind wisely. For
+beginners, lesser dragon('d') is an obvious choice, as it will
+offer you a great mix of melee and magic power, and a good amount
+of hp. Later, you will be able to evolve into the more powerful
+Ancient Dragons('D'), which stands amongst the strongest monsters
+in the game. More experienced players might like the physically
+oriented golems('g'), or the physical immune ghost('G'). Humans('p')
+will offer a good, varied choice too.
+
+Choosing a good monster race at the beginning is crucial to your
+success, and therefore a first run with another race is recommanded
+to learn more about the various races of monsters.

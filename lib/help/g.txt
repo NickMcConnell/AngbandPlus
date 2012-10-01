@@ -1,22 +1,43 @@
-HALF-ORC
+DEVLINGS
 ----------
 
-Half-Orcs are the result of human and orc breeding. Ugly,
-unwise and somewhat stupid, Half-Orcs makes up for that
-with their very high strength and good constitution. Like
-the dwarves, they live in darkness, and thus are resistant
-to blindness and can see in the dark.
+Devlings are descendants of imps and various lesser demons. 
+Like the kobolds, these minor demons were often used as slaves 
+and minions by more powerful archfiends. But about 700 years ago, 
+a great revolt known as the Devling War erupted in the planes 
+of hell, and a battle between the devlings and the greater 
+demons raged. Details of the Devling War are rare, as not many 
+witnessed it, but it is known that devlings eventually moved out 
+of the planes of hell, and came to the prime material plane to 
+live in caves, dungeons, and sometimes in civilized kingdoms. 
+Devlings are generally red skinned, though there are also green, 
+black, purple and orange ones, about three feet tall, and have 
+short pointed ears, a tail and strong, powerful legs. Devlings 
+are known to fight in large, organized groups, and are known 
+rivals to the kobolds, although devlings can be seen in cities, 
+and are generally less aggressive than kobolds, despites their 
+demonic origins. They generally fight with long weapons like 
+spears and polearms.
 
-ADVANTAGES: +33% to Strength
-            +25% to Constitution
-	    Innate resistance to blindness
-	    Innate resistance to darkness attacks
-	    Innate dark vision
+Though devlings are small and physically weak, they are dextrous 
+and are extremely agile and quick due to their powerful legs. In 
+fact, their agility is unmatched by any other races. Also, they 
+are very skilled with polearm weapons, and have the leadership 
+skills required to lead large groups of their kind. Devlings have 
+some minor resistance to fire and darkness due to their demonic 
+origins. However, the same demonic nature that makes them resistant
+to fire and darkness also make them more susceptible to light
+than most races.
 
-DISADVANTAGES: -33% to Intelligence
-	       -25% to Wisdom
-	       -25% to Charisma
+DEVLING FEATURES:
 
+- +25% to Dexterity.
+- +25% to Polearms and Leadership skills.
+- +100% to Agility skill.
+- 25% resistance to Fire and Darkness.
 
+DEVLING PENALITIES:
 
-
+- -33% to Strength.
+- -33% to Constitution.
+- 25% weakness to Light.

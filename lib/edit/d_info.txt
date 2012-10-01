@@ -14,7 +14,7 @@
 
 # N:<index>:<name>
 # D:<long name>
-# W:<min depth>:<min depth>:<min player level>:<next dungeon>:<flags mode>:<min alloc>:<max alloc chance>
+# W:<min depth>:<min depth>:<min player level>:<quest at end>:<flags mode>:<min alloc>:<max alloc chance>
 # L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>
 # A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>
 # F:<flags>
@@ -42,7 +42,7 @@ V:2.8.1
 
 N:0:Wilderness
 D:a way to the Wilderness
-W:0:0:0:4:0:14:160
+W:0:0:0:0:0:14:160
 L:89:80:199:20:1:0
 A:96:100:56:0:56:0:57:58
 F:PRINCIPAL
@@ -51,9 +51,85 @@ F:PRINCIPAL
 # the flags(SMALL, SMALLEST, BIG, LAVA_RIVERS, NO_UP, NO_DOORS, MAZE and so on).
 # Changing anything else could have weird effects.
 
-N:4:Variaz Dungeon
-D:an entrance to Variaz Dungeon
-W:1:127:1:0:0:14:160
+N:1:North Cave
+D:an entrance to an old cave
+W:1:5:1:4:0:14:160
 L:1:100:1:0:1:0
 A:56:70:51:15:50:15:57:58
 F:PRINCIPAL
+
+N:2:Ruins of Fidac
+D:an entrance to old ruins
+W:5:20:1:12:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:UNDEAD
+
+N:3:Lake Shrine Dungeon
+D:an entrance to the lake shrine dungeon
+W:7:15:1:13:0:14:160
+L:187:60:84:40:1:0
+A:56:50:187:25:84:25:57:58
+
+N:4:Jindar Sewers
+D:an entrance to Jindar's sewers
+W:4:4:1:1001:0:14:160
+L:84:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:BIG | PRINCIPAL
+
+N:5:Underground Cave
+D:an entrance to an underground cave
+W:5:15:1:1006:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:PRINCIPAL
+
+N:6:Palace Secret Cave
+D:an entrance to a secret cave beneath the Palace
+W:10:20:1:1007:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:PRINCIPAL
+
+N:7:Graveyard's Cave
+D:a secret cave in the graveyard
+W:12:18:1:1008:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:UNDEAD | PRINCIPAL
+
+N:8:Quazar's Temple
+D:the entrance to Quazar's Temple
+W:15:30:1:1010:0:14:160
+L:1:100:1:0:1:0
+A:87:100:51:0:50:0:57:58
+F:BIG | PRINCIPAL
+
+N:9:Cave of the Fallens
+D:an entrance to dark tunnels
+W:20:30:1:14:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+F:UNDEAD | DEMON
+
+N:10:Watery Cave
+D:an entrance to a cave in the water
+W:18:32:1:15:0:14:160
+L:187:60:84:40:1:0
+A:56:50:187:25:84:25:57:58
+
+N:11:Cave in the plains
+D:an entrance to unknown caverns
+W:7:12:1:16:0:14:160
+L:1:100:1:0:1:0
+A:56:70:51:15:50:15:57:58
+
+# Dungeon #200 is the random dungeon. Do not use it!
+# Setting parameters for this dungeon is useless, because they are randomly
+# set when the dungeon is generated.
+# N:200:Random dungeon
+# D:an entrance to an unknown dungeon
+# W:1:1:1:0:0:14:160
+# L:0:0:0:0:0:0
+# A:0:0:0:0:0:0:0:0

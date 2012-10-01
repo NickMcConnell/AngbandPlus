@@ -1,0 +1,11 @@
+N:1:0:0:0:0:0
+I:Prison Guard;
+T:Huh? Who are you? What do you want?;
+A:Just visiting...:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Prison Guard;
+T:...well, there's not much to see here. I think you can leave now.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,123 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// T:(script function's name. It will be run when entering the quest/town.);
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+
+// R:(script function's name):x:y
+
+
+N:Avemorsh;
+
+I:41:20:0:16:0:0:0
+S:2:17
+
+// Quest exit.
+E:2:12:5:83:25:0:0:0:0:0
+
+// Locked door.
+// It stays locked until you start the quest.
+E:5:17:3:1:999:0:1007:0:0:0
+
+// Dialog
+// Will not display if the quest is started.
+E:4:17:1:1022:0:0:1007:0:0:0
+
+// Another dialog.
+E:6:17:1:1023:0:0:1008:0:1008:1
+
+// Some Orc Warriors.
+E:16:12:7:1023:0:20:1009:0:0:0
+E:17:12:7:1023:0:20:1009:0:0:0
+E:16:13:7:1023:0:20:1009:0:0:0
+E:17:13:7:1023:0:20:1009:0:0:0
+E:16:14:7:1023:0:20:1009:0:0:0
+E:17:14:7:1023:0:20:1009:0:0:0
+
+// Goblin Assassins
+E:13:12:7:1028:0:20:1009:0:0:0
+E:13:14:7:1028:0:20:1009:0:0:0
+E:20:16:7:1028:0:20:1009:0:0:0
+E:20:18:7:1028:0:20:1009:0:0:0
+
+// More dangerous orcs. Deathaxes and Brawlers!
+E:15:3:7:1029:0:20:1009:0:0:0
+E:11:3:7:1029:0:20:1009:0:0:0
+E:8:11:7:1029:0:20:1009:0:0:0
+E:4:1:7:1031:0:20:1009:0:0:0
+E:6:1:7:1031:0:20:1009:0:0:0
+
+// Locked door to the prayer room.
+// Needs prayer room key.
+E:30:9:3:1:28:0:0:0:0:0
+
+// Prayer room key.
+E:1:1:6:1209:0:0:1010:0:1010:1
+
+// Human Skeletons in the prayer room!
+E:29:4:6:8:0:0:0:0:0:0
+E:31:5:6:8:0:0:0:0:0:0
+E:34:6:6:8:0:0:0:0:0:0
+E:27:6:6:8:0:0:0:0:0:0
+E:31:8:6:8:0:0:0:0:0:0
+E:25:8:6:8:0:0:0:0:0:0
+
+// And finally... someone special! ;)
+E:30:4:7:1032:0:25:1009:0:0:0
+
+D:#########################################
+D:#..+...##################################
+D:####...##################....###....#####
+D:####...###...#...########...........#####
+D:#####+####...#...########..#.....#..#####
+D:#####.####...#...########...........#####
+D:#####.#####+###+#########...........#####
+D:#####...........#########..#.....#..#####
+D:########+######.#########...........#####
+D:#######...#####.##############+##########
+D:#######...#####.##############.##########
+D:#######...#####+##############.##########
+D:##<##########.....############.##########
+D:##.########....................##########
+D:##.########.#.....#######################
+D:##+########.###+#########################
+D:#...#######.###.#....####################
+D:#<...+......###......####################
+D:#...#############....####################
+D:#########################################

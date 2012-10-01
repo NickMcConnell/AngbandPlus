@@ -1,0 +1,99 @@
+N:1:1017:1:0:0:0
+I:Townsfolk;
+T:Monsters appeared around the Temple!! And the Temple has changed;
+T:into an evil fortress! I'm running away... and you should do the same!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Townsfolk;
+T:Hello! How may I help you?;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any rumors?:0:0:0:4:7:9:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Townsfolk;
+T:Jindar is the biggest city in the world! And it belongs to the;
+T:most powerful of the five kingdoms! If you are looking for;
+T:something, you can find it in Jindar!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Townsfolk;
+T:In the center of the city is the royal palace, where our king,;
+T:Julian Strongheart, rules over the whole kingdom, and unofficialy,;
+T:over all Portralis. If you keep going north of the city, you'll;
+T:reach the temple district, where the great temple of the Creator;
+T:is built. It would be wise to go there and make a prayer to the;
+T:Creator to purify your soul and bring good luck in your life!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Townsfolk;
+T:To the southwest and northeast are the city's slums. Unless you're;
+T:capable of defending yourself, you shouldn't go there. It's full of;
+T:thieves and thugs. Plus, the southwest slums are the home of a Kobold;
+T:clan, while the northeast are occupied by a clan of Devlings. As you;
+T:can probably guess, they're at war...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Townsfolk;
+T:Other than that, everywhere else in the city is safe. You will find;
+T:various shops and services all over the city. Have a good time exploring;
+T:the city! Just avoid the southwest and northeast, and everything will;
+T:be fine!;
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any rumors?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Townsfolk;
+T:Where should you look for work?? This is Jindar, my friend! There's;
+T:work EVERYWHERE!! Just look around, speak with a few peoples, and I'm;
+T:sure you'll find something that suits you!;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:7:9:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Townsfolk;
+T:For all kind of rumors, jobs and the like, you should go to the;
+T:Dragon's Head inn. It's not far from here! In fact, it's right next;
+T:to the general store in this sector of the city! You can't miss it!;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any other rumors?:0:0:0:4:7:9:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Townsfolk;
+T:Apparently, some orcs were sighted in the southwest slums. But I;
+T:don't believe it. We hear all kind of stories and rumors in the slums.;
+T:Most likely, it's just a hoax to lure some curious peoples so that;
+T:thieves can rob them.;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any other rumors?:0:0:0:4:7:9:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Townsfolk;
+T:I have heard the old licialhyd mine in the mountains to the west is;
+T:now haunted... Not sure if it's true, but I've heard many adventurers;
+T:who went there recently have never returned...;
+A:Tell me more of Jindar...:0:0:0:1:2:0:0:0:0
+A:Where should I look for work?:0:0:0:1:6:0:0:0:0
+A:Any other rumors?:0:0:0:4:7:9:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

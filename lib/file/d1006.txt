@@ -1,0 +1,72 @@
+N:1:1017:1:0:0:0
+I:Jindar Soldier;
+T:Quick! Hide somewhere in a dark alley, or flee this city! It is only;
+T:a matter of time before the orcs comes here!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Jindar Soldier;
+T:Beware, citizen... the slums are dangerous...;
+A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Jindar Soldier;
+T:There are two districts in Jindar where the poorest peoples and many;
+T:thieves and thugs lives. These are the southwest and the northeast;
+T:slums. Both south and north have their share of thugs and thieves.;
+T:The main difference is that to the south, there are kobolds, and to;
+T:the north, there are devlings. And the kobolds and devlings are;
+T:at war against each others...; 
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Jindar Soldier;
+T:But fortunately, the two generally don't attack the other races, preferring;
+T:to focus their attention against their rivals. So the real threat are;
+T:the humans, and the other races... You'll see everything in the slums.;
+T:You should probably leave this place, or you may have some unpleasant;
+T:encounters.;
+A:Any rumors?:0:0:0:4:4:5:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Jindar Soldier;
+T:Some peoples have claimed to have seen orcs or orc-like creatures in the;
+T:slums recently... Of course, we hear all kind of stories every days,;
+T:but orc rumors were rare around here. Now they're more common. Come to;
+T:think of it, they are starting to get more common in all Portralis it;
+T:seems. I wonder what's going on...;
+A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Jindar Soldier;
+T:Have you heard of Jordan Shade? I've heard he's hiding in a small town,;
+T:south of Jindar... But we searched Fidac, Udor and Vilgor, and we;
+T:haven't found him. Apparently, he is a high ranked agent, and thieves;
+T:seeks him in order to join the Black Market...hmmm... I guess we;
+T:shouldn't speak about that in public though...;
+A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Jindar Soldier;
+T:There is a 1000000 golds reward for anyone who can capture the;
+T:Blood Queen, a notorious assassin and thief, who is almost worshipped;
+T:as a goddess by some thieves in the slums. Nobody we captured ever;
+T:revealed anything about her location... I even wonder if she actually;
+T:exists at all...;
+A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

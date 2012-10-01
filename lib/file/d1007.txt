@@ -1,0 +1,33 @@
+N:1:1017:1:0:0:0
+I:Townsfolk;
+T:Monsters appeared around the Temple!! And the Temple has changed;
+T:into an evil fortress! I'm running away... and you should do the same!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Townsfolk;
+T:What do you want?;
+A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Townsfolk;
+T:Well, it's a dangerous place. And if you didn't know that, you;
+T:should leave... or you'll be the target of thieves and assassins.;
+T:I warn you, the life here is not easy... and quite short sometimes.;
+T:Leave if you value your life, that's all I can say!;
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Townsfolk;
+T:Rumors? Lots of them. Go to any taverns here, or speak to some shady;
+T:peoples, and you will hear tons of stories... That, or they'll rob;
+T:your coins.;
+A:Tell me more of the slums.:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

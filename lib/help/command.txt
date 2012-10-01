@@ -1,11 +1,5 @@
 === List of Commands ===
 
-I assume to you already know the basic commands, such as how to move
-and of course, how to access the help menu. Here's the list of commands
-of NewAngband. Most commands are common to all variants of Angband.
-
-=== Commands, updated for NewAngband 1.3.0 ===
-
  a  Aim a wand                           A  Activate an artifact
  b  (unused)                             B  Bash a door
  c  Close a door                         C  Character description
@@ -16,7 +10,7 @@ of NewAngband. Most commands are common to all variants of Angband.
  h  Hack up a corpse                     H  (unused)
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  Learn an ability
- k  Destroy an item                      K  Cure meat
+ k  Destroy an item                      K  Toggle auras/monster magics/etc...
  l  Look around                          L  Locate player on map
  m  Cast a spell / use mental power      M  Full dungeon map
  n  (unused)                             N  Name an item
@@ -28,10 +22,10 @@ of NewAngband. Most commands are common to all variants of Angband.
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  Use special powers(if any)
  v  Throw an item                        V  Version info
- w  Wear/wield equipment                 W  Monster Generator
- x  (unused)                             X  Know about your Aura(if any)
- y  (unused)                             Y  Change class
- z  Zap a rod                            Z  (unused)
+ w  Wear/wield equipment                 W  Talk to npc/monsters
+ x  (unused)                             X  Use a Licialhyd
+ y  Make a pile of gold                  Y  Change class
+ z  Zap a rod                            Z  Steal from monster
  !  Interact with system                ^A  (special - wizard command)
  @  Interact with macros                ^B  (unused)
  #  (unused)                            ^C  (special - break)
@@ -61,3 +55,90 @@ of NewAngband. Most commands are common to all variants of Angband.
  \  (special - bypass keymap)            |  Check artifacts, uniques, objects
  `  (special - escape)                   ~  Check artifacts, uniques, objects
  /  Identify symbol                      ?  Help
+
+
+=== Symbols On Your Map ===
+
+Symbols on your map can be broken down into three categories: Features of
+the dungeon such as walls, floor, doors, and traps; Objects which can be
+picked up such as treasure, weapons, magical devices, etc; and creatures
+which may or may not move about the dungeon, but are mostly harmful to your
+character's well being.
+
+Some symbols are used to represent more than one type of entity, and some
+symbols are used to represent entities in more than one category.  The "@"
+symbol (by default) is used to represent the character.
+
+It will not be necessary to remember all of the symbols and their meanings.
+The "slash" command ("/") will identify any character appearing on your map
+(see "commands.txt").
+
+Note that you can use a "user pref file" to change any of these symbols to
+something you are more comfortable with.
+   
+ 
+                Features that do not block line of sight
+ 
+  .   A floor space                   1   Entrance to General Store
+  .   A trap (hidden)                 2   Entrance to Armoury
+  ^   A trap (known)                  3   Entrance to Weapon Smith
+  ;   A glyph of warding              4   Entrance to Temple
+  '   An open door                    5   Entrance to Alchemy Shop
+  '   A broken door                   6   Entrance to Magic Shop
+  <   A staircase up                  7   Entrance to the Black Market
+  >   A staircase down                8   Entrance to your Home
+
+
+                   Features that block line of sight
+
+  #   A secret door                   #   A wall
+  +   A closed door                   %   A mineral vein
+  +   A locked door                   *   A mineral vein + treasure / Pattern
+  +   A jammed door                   :   A pile of rubble
+
+
+                             Objects
+ 
+  !   A potion (or flask)             /   A pole-arm
+  ?   A scroll (or book)              |   An edged weapon
+  ,   A mushroom (or food)            \   A hafted weapon
+  -   A wand or rod                   }   A sling, bow, or x-bow
+  _   A staff                         {   A shot, arrow, or bolt
+  =   A ring                          (   Soft armour
+  "   An amulet                       [   Hard armour
+  $   Gold or gems                    ]   Misc. armour
+  ~   Lites, Tools, Chests, etc       )   A shield
+  ~   Junk, Sticks, Skeletons, etc    
+ 
+ 
+                             Monsters
+ 
+            $   Creeping Coins      ,   Mushroom Patch
+            a   Giant Ant           A   Angelic being
+            b   Giant Bat           B   Bird
+            c   Giant Centipede     C   Canine
+            d   Dragon              D   Ancient Dragon
+            e   Floating Eye        E   Elemental
+            f   Feline              F   Dragon Fly
+            g   Golem               G   Ghost
+            h   Humanoids           H   Hybrid
+            i   Icky-Thing          I   Insect/Scorpion
+            j   Jelly               J   Snake
+            k   Kobold              K   Killer Beetle
+            l   Giant Louse         L   Lich
+            m   Mold/Plant          M   Multi-Headed Hydra
+            n   Naga                N   ??????
+            o   Orc                 O   Ogre
+            p   Human               P   Giant Human(oid)
+            q   Beast               Q   Quylthulg
+            r   Rodent              R   Reptile/Amphibian
+            s   Skeleton            S   Spider
+            t   Townsperson         T   Troll
+            u   Minor demon         U   Major demon
+            v   Vortex              V   Vampire
+            w   Worm or Worm Mass   W   Wight/Wraith
+            x   Seafolk/fish        X   Xorn/Xaren
+            y   Yeek                Y   Yeti
+            z   Zombie/Mummy        Z   Elemental Hound
+            *   Sphere/Ball         &   Devling
+

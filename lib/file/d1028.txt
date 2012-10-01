@@ -1,0 +1,21 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter the temple through the secret passage. You are very surprised;
+T:to see that inside the temple, nothing has changed at all. If the;
+T:shape of the temple changed, then it would be logical that the interior;
+T:changed as well. What you see does not make any sense at all...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:As you look around, you see a ghostly form that ressembles the high;
+T:priest Navarius. The ghost is looking at you...;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Ghost of Navarius;
+T:<NAME>... please, come to me, I have something important to say to you...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

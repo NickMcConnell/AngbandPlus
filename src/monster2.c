@@ -82,16 +82,16 @@ static cptr funny_comments[MAX_COMMENT] =
 	"Far out!"
 };
 
-
+/* Obsolete function */
 int get_wilderness_flag(void)
 {
-	int x = p_ptr->wilderness_x;
+	/*int x = p_ptr->wilderness_x;
 	int y = p_ptr->wilderness_y;
 
 	if (dun_level)
 		return (RF8_DUNGEON);
 	else
-                return (1L << wf_info[wild_map[y][x].feat].terrain_idx);
+                return (1L << wf_info[wild_map[y][x].feat].terrain_idx);*/
 }
 
 
@@ -723,11 +723,11 @@ s16b get_mon_num(int level)
                 /* It MAY not have anything to do, so there is a SMALL */
                 /* chance to find that level 127 Kobold on dungeon level */
                 /* 127... :) */
-                if (rand_int(100) <= 92 && p_ptr->lev >= 4)
+                /*if (rand_int(100) <= 92 && p_ptr->lev >= 4)
                 {
                         level += dun_level / 4;
                         level += p_ptr->lev / 4;
-                }
+                }*/
 
 		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
@@ -740,14 +740,12 @@ s16b get_mon_num(int level)
 		}
 
 		/* Occasional "nasty" monster */
-		if (rand_int(NASTY_MON) == 0)
+		/*if (rand_int(NASTY_MON) == 0)
 		{
-			/* Pick a level bonus */
 			int d = level / 4 + 2;
 
-			/* Boost the level */
 			level += ((d < 5) ? d : 5);
-		}
+		}*/
 	}
 
 
@@ -790,6 +788,52 @@ s16b get_mon_num(int level)
 
                 /* Depth Monsters never appear out of their depth */
                 if ((r_ptr->flags9 & (RF9_ONLY_DEPTH)) && (r_ptr->level != dun_level))
+		{
+			continue;
+		}
+
+		/* NO_GENERIC means monsters with dungeon id 0 will never appear. */
+		if ((dun_level) && (d_info[dungeon_type].flags1 & DF1_NO_GENERIC))
+		{
+			if (r_ptr->dunnum == 0) continue;
+		}
+
+		/* If in an UNDEAD dungeon, only generate undead monsters! */
+		if ((dun_level) && (d_info[dungeon_type].flags1 & DF1_UNDEAD))
+		{
+			if (!(r_ptr->flags3 & (RF3_UNDEAD))) continue;
+		}
+		/* If in a DEMON dungeon, only generate demon monsters! */
+		if ((dun_level) && (d_info[dungeon_type].flags1 & DF1_DEMON))
+		{
+			if (!(r_ptr->flags3 & (RF3_DEMON))) continue;
+		}
+		/* If in a DRAGON dungeon, only generate dragon monsters! */
+		if ((dun_level) && (d_info[dungeon_type].flags1 & DF1_DRAGON))
+		{
+			if (!(r_ptr->flags3 & (RF3_DRAGON))) continue;
+		}
+
+		/* In the wild, only wilderness monsters! */
+		if (p_ptr->wild_mode && !(r_ptr->flags8 & (RF8_WILD_TOO)) && !(dun_level))
+		{
+			continue;
+		}
+
+		/* Check if we're in the proper town and proper dungeon! */
+		if (p_ptr->towns[p_ptr->town_num] != 0)
+		{
+			if ((p_ptr->towns[p_ptr->town_num] != r_ptr->townnum) && (r_ptr->townnum != 0))
+			{
+				continue;
+			}
+		}
+		else if ((p_ptr->town_num != r_ptr->townnum) && (r_ptr->townnum != 0))
+		{
+			continue;
+		}
+
+		if ((p_ptr->recall_dungeon != r_ptr->dunnum) && (r_ptr->dunnum != 0))
 		{
 			continue;
 		}
@@ -1156,211 +1200,6 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 }
 
 
-
-void sanity_blast(monster_type * m_ptr, bool necro)
-{
-	bool happened = FALSE;
-	int power = 100;
-
-	if (!necro)
-	{
-		char            m_name[80];
-		monster_race    *r_ptr;
-
-		if (m_ptr != NULL) r_ptr = &r_info[m_ptr->r_idx];
-                else return;
-
-		power = (r_ptr->level)+10;
-
-		if (m_ptr != NULL)
-		{
-		monster_desc(m_name, m_ptr, 0);
-
-		if (!(r_ptr->flags1 & RF1_UNIQUE))
-		{
-			if (r_ptr->flags1 & RF1_FRIENDS)
-			power /= 2;
-		}
-		else power *= 2;
-
-		if (!hack_mind)
-			return; /* No effect yet, just loaded... */
-
-		if (!(m_ptr->ml))
-			return; /* Cannot see it for some reason */
-
-		if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
-			return; /* oops */
-
-
-
-		if (is_pet(m_ptr) && (randint(8)!=1))
-			return; /* Pet eldritch horrors are safe most of the time */
-
-
-                if (randint(power)<p_ptr->stat_ind[A_WIS])
-		{
-			return; /* Save, no adverse effects */
-		}
-
-
-		if (p_ptr->image)
-		{
-		/* Something silly happens... */
-			msg_format("You behold the %s visage of %s!",
-				funny_desc[(randint(MAX_FUNNY))-1], m_name);
-			if (randint(3)==1)
-			{
-				msg_print(funny_comments[randint(MAX_COMMENT)-1]);
-				p_ptr->image = (p_ptr->image + randint(r_ptr->level));
-			}
-			return; /* Never mind; we can't see it clearly enough */
-		}
-
-		/* Something frightening happens... */
-		msg_format("You behold the %s visage of %s!",
-			horror_desc[(randint(MAX_HORROR))-1], m_name);
-
-		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
-
-		}
-
-		/* Undead characters are 50% likely to be unaffected */
-                if (((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) || (p_ptr->prace == RACE_SKELETON))
-		{
-			if (randint(100) < (25 + (p_ptr->lev))) return;
-		}
-	}
-	else
-	{
-		msg_print("Your sanity is shaken by reading the Necronomicon!");
-	}
-        if (randint(power)<p_ptr->stat_ind[A_WIS]) /* Mind blast */
-	{
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-		}
-		if ((!p_ptr->resist_chaos) && (randint(3)==1))
-		{
-			(void) set_image(p_ptr->image + rand_int(250) + 150);
-		}
-		return;
-	}
-
-        if (randint(power)<p_ptr->stat_ind[A_WIS]) /* Lose int & wis */
-	{
-		do_dec_stat (A_INT, STAT_DEC_NORMAL);
-		do_dec_stat (A_WIS, STAT_DEC_NORMAL);
-		return;
-	}
-
-
-        if (randint(power)<p_ptr->stat_ind[A_WIS]) /* Brain smash */
-	{
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-		}
-		if (!p_ptr->free_act)
-		{
-			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
-		}
-                while (rand_int(100) > p_ptr->stat_ind[A_WIS])
-			(void)do_dec_stat(A_INT, STAT_DEC_NORMAL);	
-                while (rand_int(100) > p_ptr->stat_ind[A_WIS])
-			(void)do_dec_stat(A_WIS, STAT_DEC_NORMAL);
-		if (!p_ptr->resist_chaos)
-		{
-			(void) set_image(p_ptr->image + rand_int(250) + 150);
-		}
-		return;
-	}
-
-        if (randint(power)<p_ptr->stat_ind[A_WIS]) /* Permanent lose int & wis */
-	{
-		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
-		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
-		if (happened)
-			msg_print("You feel much less sane than before.");
-		return;
-	}
-
-
-        if (randint(power)<p_ptr->stat_ind[A_WIS]) /* Amnesia */
-	{
-
-		if (lose_all_info())
-			msg_print("You forget everything in your utmost terror!");
-		return;
-	}
-
-	/* Else gain permanent insanity */
-	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-	   ((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-	   ((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
-	{
-		/* The poor bastard already has all possible insanities! */
-		return;
-	}
-
-	while (!happened)
-	{
-		switch(randint(4))
-		{
-			case 1:
-			if (!(p_ptr->muta3 & MUT3_MORONIC))
-			{
-				msg_print("You turn into an utter moron!");
-				if (p_ptr->muta3 & MUT3_HYPER_INT)
-				{
-					msg_print("Your brain is no longer a living computer.");
-					p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-				}
-				p_ptr->muta3 |= MUT3_MORONIC;
-				happened = TRUE;
-			}
-			break;
-			case 2:
-			if (!(p_ptr->muta2 & MUT2_COWARDICE) && !(p_ptr->resist_fear))
-			{
-				msg_print("You become paranoid!");
-
-				/* Duh, the following should never happen, but anyway... */
-				if (p_ptr->muta3 & MUT3_FEARLESS)
-				{
-					msg_print("You are no longer fearless.");
-					p_ptr->muta3 &= ~(MUT3_FEARLESS);
-				}
-
-				p_ptr->muta2 |= MUT2_COWARDICE;
-				happened = TRUE;
-			}
-			break;
-			case 3:
-			if (!(p_ptr->muta2 & MUT2_HALLU) && !(p_ptr->resist_chaos))
-			{
-				msg_print("You are afflicted by a hallucinatory insanity!");
-				p_ptr->muta2 |= MUT2_HALLU;
-				happened = TRUE;
-			}
-			break;
-			default:
-			if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
-			{
-				msg_print("You become subject to fits of berserk rage!");
-				p_ptr->muta2 |= MUT2_BERS_RAGE;
-				happened = TRUE;
-			}
-			break;
-		}
-	}
-
-	p_ptr->update |= PU_BONUS;
-	handle_stuff();
-}
-
-
 /*
  * This function updates the monster record of the given monster
  *
@@ -1600,14 +1439,6 @@ void update_mon(int m_idx, bool full)
 	if (easy)
 	{
 
-    if (m_ptr->ml != old_ml)
-    {
-            if (r_ptr->flags2 & RF2_ELDRITCH_HORROR)
-            {
-                sanity_blast(m_ptr, FALSE);
-            }
-    }
-
 		/* Change */
 		if (!(m_ptr->mflag & (MFLAG_VIEW)))
 		{
@@ -1688,7 +1519,7 @@ void update_monsters(bool full)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
+bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 {
         int             i, tempint;
 
@@ -1701,9 +1532,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
-
-        /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-        if(p_ptr->wild_mode) return FALSE;
 
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -1761,19 +1589,11 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		/* Cannot create */
 		return (FALSE);
 	}
+	
 
         /* The monster is already on an unique level */
         if (r_ptr->on_saved) return (FALSE);
 
-/* Anyway that doesn't work .... hum... TO FIX -- DG */
-#if 0
-        /* Hack -- non "town" monsters are NEVER generated in town */
-        if ((!(r_ptr->flags8 & (RF8_WILD_TOWN))) && (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].terrain_idx == TERRAIN_TOWN) && !dun_level)
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-#endif
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
@@ -1796,7 +1616,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -1806,7 +1626,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -1817,7 +1637,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -1854,8 +1674,26 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
         /* Not hit by Sealing Light */
         m_ptr->seallight = 0;
 
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
+
+	/* Not summoned */
+	m_ptr->summoned = 0;
+
+	/* No lives */
+	m_ptr->lives = 0;
+
         /* No objects yet */
         m_ptr->hold_o_idx = 0;
+
+	/* Stats are set to 0 */
+	m_ptr->str = 0;
+	m_ptr->dex = 0;
+	m_ptr->mind = 0;
+	m_ptr->skill_attack = 0;
+	m_ptr->skill_magic = 0;
+	m_ptr->mana = 0;
 
         /* Not an animated monster...never will. */
         m_ptr->animated = FALSE;
@@ -1865,7 +1703,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Friendly? */
         if ( charm || (r_ptr->flags7 & RF7_PET) )
 	{
-		set_pet(m_ptr, TRUE);                
+		set_pet(m_ptr, TRUE);
 	}
 
         /* Will this monster be an elite? */
@@ -1876,6 +1714,8 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
         if (dun_level == 0) m_ptr->boss = 0;
         /* Friends aren't bosses! */
         if (is_pet(m_ptr)) m_ptr->boss = 0;
+	/* Some monsters are never bosses... */
+	if (r_ptr->flags7 & (RF7_NEVER_BOSS)) m_ptr->boss = 0;
 
 	/* Assume no sleeping */
 	m_ptr->csleep = 0;
@@ -2011,7 +1851,8 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
         /* Give the monster a level */
         tempint = dun_level;
-        m_ptr->level = randint(tempint);
+	if (m_ptr->boss >= 1) m_ptr->level = tempint;
+        else m_ptr->level = randint(tempint);
         if (p_ptr->lev >= 4) m_ptr->level += randint(3);
         /* Higher levels for lower depths...and higher player levels! */
         if (p_ptr->lev >= 4)
@@ -2019,13 +1860,11 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
                 m_ptr->level += (dun_level / 4);
                 m_ptr->level += p_ptr->lev / 4;
         }
+	/* However, a fixed level will override everything. */
+	if (r_ptr->fixedlevel > 0) m_ptr->level = r_ptr->fixedlevel;
 
-        /* Elites are 5 levels higher than the current dungeon level */
-        if (m_ptr->boss == 1) m_ptr->level = tempint + 5;
-        /* Bosses are 10 levels higher than the current dungeon level */
-        if (m_ptr->boss == 2) m_ptr->level = tempint + 10;
-        /* Arakzatrys is level 180 */
-        if (m_ptr->r_idx == 982) m_ptr->level = 180;
+        /* Bosses are 5 levels higher than the current dungeon level */
+        if (m_ptr->boss == 2) m_ptr->level += 5;
 
         /* Variaz is level 200 */
         if (m_ptr->r_idx == 1030) m_ptr->level = 200;
@@ -2035,6 +1874,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
         if (m_ptr->level <= 0) m_ptr->level = 1;
         /* if (m_ptr->level > tempint && m_ptr->boss == 0) m_ptr->level = tempint; */
         if (m_ptr->level <= 0) m_ptr->level = 1;
+
+	/* Summoned? */
+	m_ptr->summoned = dur;
+
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
@@ -2047,56 +1892,55 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	}        
         /*m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 3);*/
         m_ptr->maxhp *= m_ptr->level;
-        if (m_ptr->maxhp < 5000000) m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 30);
+        if (m_ptr->maxhp < 20000000) m_ptr->maxhp += (m_ptr->maxhp * (m_ptr->level * 5)) / 100;
         /* Three times more hp for elites... */
         if (m_ptr->boss == 1) m_ptr->maxhp *= 3;
         /* SIX TIMES more hp for bosses!!! */
         if (m_ptr->boss == 2) m_ptr->maxhp *= 6;
         if (m_ptr->maxhp < maxroll(r_ptr->hdice, r_ptr->hside) && r_ptr->flags1 & (RF1_FORCE_MAXHP)) m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-        /* Let's cap the hp at 5000000 */
-        if (m_ptr->maxhp < 0 || m_ptr->maxhp > 5000000) m_ptr->maxhp = 5000000;
-        /* Arakzatrys has 10000000 hp */
-        if (m_ptr->r_idx == 982) m_ptr->maxhp = 10000000;
-
-        /* Variaz has 20000000 hp */
-        if (m_ptr->r_idx == 1030) m_ptr->maxhp = 20000000;
+        /* Let's cap the hp at 20000000 */
+        if (m_ptr->maxhp < 0 || m_ptr->maxhp > 20000000) m_ptr->maxhp = 20000000;
 
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
 
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
+
+	if (m_ptr->boss == 1)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level / 3)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level / 3)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level / 3)) / 100);
+	}
+
+	if (m_ptr->boss == 2)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level)) / 100);
+	}
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 2)) * (6 + (m_ptr->level / 20));
-
-        /* Elites have more hit rate */
-        if (m_ptr->boss == 1) m_ptr->hitrate = m_ptr->hitrate * 5;
-
-        /* Bosses have a very high hit rate! */
-        if (m_ptr->boss == 2) m_ptr->hitrate = m_ptr->hitrate * 12;
-
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->hitrate = 15000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->hitrate = 30000;
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
 
         /* Defense! */
-        if (m_ptr->level >= 20)
-        {
-                m_ptr->defense = ((m_ptr->level * 4) + r_ptr->ac) * ((m_ptr->level / 20) + 1);
-        }
-        else m_ptr->defense = (m_ptr->level * 4) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
 
-        /* Elites have more defense */
-        if (m_ptr->boss == 1) m_ptr->defense = m_ptr->defense * 4;
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
 
-        /* Bosses have a very high defense */
-        if (m_ptr->boss == 2) m_ptr->defense = m_ptr->defense * 8;
-
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->defense = 5000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->defense = 10000;
+	if (m_ptr->boss == 1) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 5)) / 100);
+	if (m_ptr->boss == 2) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 10)) / 100);
 
         /* If the monster is an elite or a boss, give it an ability... */
         if (m_ptr->boss == 1) get_boss_ability(m_ptr, 1);
@@ -2162,12 +2006,11 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
 
-
 	/* Success */
 	return (TRUE);
 }
 
-s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
+s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int monlevel, int dur)
 {
         int             i, tempint;
         char            dummy[5];
@@ -2235,7 +2078,7 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -2245,7 +2088,7 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -2256,7 +2099,7 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -2309,7 +2152,8 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
         if (dun_level == 0) m_ptr->boss = 0;
         /* Friends aren't bosses! */
         if (is_pet(m_ptr)) m_ptr->boss = 0;
-
+	/* Some monsters are never bosses... */
+	if (r_ptr->flags7 & (RF7_NEVER_BOSS)) m_ptr->boss = 0;
 
 	/* Assume no sleeping */
 	m_ptr->csleep = 0;
@@ -2444,7 +2288,8 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 
         /* Give the monster a level */
         tempint = dun_level;
-        m_ptr->level = randint(tempint);
+	if (m_ptr->boss >= 1) m_ptr->level = tempint;
+        else m_ptr->level = randint(tempint);
         if (p_ptr->lev >= 4) m_ptr->level += randint(3);
         /* Higher levels for lower depths...and higher player levels! */
         if (p_ptr->lev >= 4)
@@ -2452,17 +2297,15 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
                 m_ptr->level += (dun_level / 4);
                 m_ptr->level += p_ptr->lev / 4;
         }
+	/* However, a fixed level will override the level. */
+	if (r_ptr->fixedlevel > 0) m_ptr->level = r_ptr->fixedlevel;
 
-        /* Will this monster be an elite? */
-        if (randint(100) >= 80 && !(r_ptr->flags1 & (RF1_UNIQUE))) m_ptr->boss = 1;
-        /* Even worse, will it be a boss? */
-        if (m_ptr->boss == 1 && randint(100) >= 80) m_ptr->boss = 2;
-        /* Elites are 5 levels higher than the current dungeon level */
-        if (m_ptr->boss == 1) m_ptr->level = tempint + 5;
-        /* Bosses are 10 levels higher than the current dungeon level */
-        if (m_ptr->boss == 2) m_ptr->level = tempint + 10;
-        /* Arakzatrys is level 180 */
-        if (m_ptr->r_idx == 982) m_ptr->level = 180;
+	/* But a level specified in an event will override ANYTHING. */
+	if (monlevel > 0) m_ptr->level = monlevel;
+
+        /* Bosses are 5 levels higher than the current dungeon level */
+        if (m_ptr->boss == 2) m_ptr->level += 5;
+
         /* Variaz is level 200 */
         if (m_ptr->r_idx == 1030) m_ptr->level = 200;
 
@@ -2472,6 +2315,12 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
         /* if (m_ptr->level > tempint && m_ptr->boss == 0) m_ptr->level = tempint; */
         if (m_ptr->level <= 0) m_ptr->level = 1;
 
+	/* Summoned? */
+	m_ptr->summoned = dur;
+
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
+
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 	{
@@ -2480,57 +2329,58 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 	else
 	{
 		m_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
-	}       
+	}        
+        /*m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 3);*/
         m_ptr->maxhp *= m_ptr->level;
-        if (m_ptr->maxhp < 5000000) m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 30);
+        if (m_ptr->maxhp < 20000000) m_ptr->maxhp += (m_ptr->maxhp * (m_ptr->level * 5)) / 100;
         /* Three times more hp for elites... */
         if (m_ptr->boss == 1) m_ptr->maxhp *= 3;
         /* SIX TIMES more hp for bosses!!! */
         if (m_ptr->boss == 2) m_ptr->maxhp *= 6;
         if (m_ptr->maxhp < maxroll(r_ptr->hdice, r_ptr->hside) && r_ptr->flags1 & (RF1_FORCE_MAXHP)) m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-        /* Let's cap the hp at 5000000 */
-        if (m_ptr->maxhp < 0 || m_ptr->maxhp > 5000000) m_ptr->maxhp = 5000000;
-        /* Arakzatrys has 10000000 hp */
-        if (m_ptr->r_idx == 982) m_ptr->maxhp = 10000000;
-        /* Variaz has 20000000 hp */
-        if (m_ptr->r_idx == 1030) m_ptr->maxhp = 20000000;
+        /* Let's cap the hp at 20000000 */
+        if (m_ptr->maxhp < 0 || m_ptr->maxhp > 20000000) m_ptr->maxhp = 20000000;
 
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
 
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
+
+	if (m_ptr->boss == 1)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level / 3)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level / 3)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level / 3)) / 100);
+	}
+
+	if (m_ptr->boss == 2)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level)) / 100);
+	}
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 2)) * (6 + (m_ptr->level / 20));
-        
-        /* Elites have more hit rate */
-        if (m_ptr->boss == 1) m_ptr->hitrate = m_ptr->hitrate * 5;
-
-        /* Bosses have a very high hit rate! */
-        if (m_ptr->boss == 2) m_ptr->hitrate = m_ptr->hitrate * 12;
-
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->hitrate = 15000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->hitrate = 30000;
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
 
         /* Defense! */
-        if (m_ptr->level >= 20)
-        {
-                m_ptr->defense = ((m_ptr->level * 4) + r_ptr->ac) * ((m_ptr->level / 20) + 1);
-        }
-        else m_ptr->defense = (m_ptr->level * 4) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
 
-        /* Elites have more defense */
-        if (m_ptr->boss == 1) m_ptr->defense = m_ptr->defense * 4;
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
 
-        /* Bosses have a very high defense */
-        if (m_ptr->boss == 2) m_ptr->defense = m_ptr->defense * 8;
-
-        /* Arakazatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->defense = 3000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->defense = 5000;
+	if (m_ptr->boss == 1) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 5)) / 100);
+	if (m_ptr->boss == 2) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 10)) / 100);
 
 
         /* If the monster is an elite or a boss, give it an ability... */
@@ -2613,7 +2463,7 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 /*
  * Attempt to place a "group" of monsters around the given location
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
+static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm, int dur)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -2681,7 +2531,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
 			if (!cave_empty_bold(my, mx)) continue;
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp, charm))
+			if (place_monster_one(my, mx, r_idx, slp, charm, dur))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -2752,18 +2602,17 @@ static bool place_monster_okay(int r_idx)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to "legal" escort types.
  */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
+bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm, int dur)
 {
 	int             i;
 	monster_race    *r_ptr = &r_info[r_idx];
 	bool (*old_get_mon_num_hook)(int r_idx);
 
         /* Treat the Mirror Images differently... */
-        if (r_idx == 1077) (void)place_monster_one_image(y, x, r_idx, slp, charm);
+        if (r_idx == 1077) (void)place_monster_one_image(y, x, r_idx, slp, charm, dur);
 
 	/* Place one monster, or fail */
-        else if (!place_monster_one(y, x, r_idx, slp, charm)) return (FALSE);
-
+        else if (!place_monster_one(y, x, r_idx, slp, charm, dur)) return (FALSE);
 
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
@@ -2773,7 +2622,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a group */
-        (void)place_monster_group(y, x, r_idx, slp, charm);
+        (void)place_monster_group(y, x, r_idx, slp, charm, dur);
 	}
 
 
@@ -2820,14 +2669,14 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			if (!z) break;
 
 			/* Place a single escort */
-                        (void)place_monster_one(ny, nx, z, slp, charm);
+                        (void)place_monster_one(ny, nx, z, slp, charm, dur);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
 			    (r_ptr->flags1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp, charm);
+				(void)place_monster_group(ny, nx, z, slp, charm, dur);
 			}
 		}
 
@@ -2848,7 +2697,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
  *
  * Attempt to find a monster appropriate to the "monster_level"
  */
-bool place_monster(int y, int x, bool slp, bool grp)
+bool place_monster(int y, int x, bool slp, bool grp, int dur)
 {
 	int r_idx;
 
@@ -2871,7 +2720,7 @@ bool place_monster(int y, int x, bool slp, bool grp)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, slp, grp, FALSE)) return (TRUE);
+	if (place_monster_aux(y, x, r_idx, slp, grp, FALSE, dur)) return (TRUE);
 
 	/* Oops */
 	return (FALSE);
@@ -2972,7 +2821,7 @@ bool alloc_horde(int y, int x)
 	while (--attempts)
 	{
 		/* Attempt to place the monster */
-		if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE)) break;
+		if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE, 0)) break;
 	}
 
 	if (attempts < 1) return FALSE;
@@ -2984,7 +2833,7 @@ bool alloc_horde(int y, int x)
 
 	for (attempts = randint(10) + 5; attempts; attempts--)
 	{
-		(void) summon_specific(m_ptr->fy, m_ptr->fx, dun_level, SUMMON_KIN);
+		(void) summon_specific(m_ptr->fy, m_ptr->fx, dun_level, SUMMON_KIN, 0);
 	}
 
 	return TRUE;
@@ -3038,7 +2887,7 @@ bool alloc_monster(int dis, bool slp)
 	{
 		if (alloc_horde(y, x))
 		{
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_print("Monster horde.");
+                        if ((cheat_hear)) msg_print("Monster horde.");
 			return (TRUE);
 		}
 	}
@@ -3047,7 +2896,7 @@ bool alloc_monster(int dis, bool slp)
 #endif /* MONSTER_HORDES */
 
 		/* Attempt to place the monster, allow groups */
-		if (place_monster(y, x, slp, TRUE)) return (TRUE);
+		if (place_monster(y, x, slp, TRUE, 0)) return (TRUE);
 
 #ifdef MONSTER_HORDES
 	}
@@ -3468,20 +3317,12 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+bool summon_specific(int y1, int x1, int lev, int type, int dur)
 {
 	int i, x, y, r_idx;
 	bool Group_ok = TRUE;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
         summoner_monster = NULL;
 
 	/* Look for a location */
@@ -3553,7 +3394,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	}
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE, 0)) return (FALSE);
 
 
 	/* Success */
@@ -3562,19 +3403,11 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 
 
-bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok)
+bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok, int dur)
 {
 	int i, x, y, r_idx;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
         summoner_monster = NULL;
 
 	/* Look for a location */
@@ -3637,7 +3470,7 @@ bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE, dur)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -3828,7 +3661,7 @@ bool multiply_monster(int m_idx, bool charm, bool clone)
                 }
 
 		/* Create a new monster (awake, no groups) */
-                result = place_monster_aux(y, x, new_race, FALSE, FALSE, charm);
+                result = place_monster_aux(y, x, new_race, FALSE, FALSE, charm, 0);
 
 		/* Done */
 		break;
@@ -3983,7 +3816,7 @@ void update_smart_learn(int m_idx, int what)
 	/* XXX XXX XXX */
 
 	/* Analyze the knowledge */
-	switch (what)
+	/*switch (what)
 	{
 		case DRS_ACID:
 		if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
@@ -4035,10 +3868,6 @@ void update_smart_learn(int m_idx, int what)
 		if (p_ptr->resist_conf) m_ptr->smart |= (SM_RES_CONF);
 		break;
 
-		case DRS_CHAOS:
-		if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
-		break;
-
 		case DRS_DISEN:
 		if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
 		break;
@@ -4070,7 +3899,7 @@ void update_smart_learn(int m_idx, int what)
 
         case DRS_REFLECT:
         if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
-	}
+	}*/
 
 #endif /* DRS_SMART_OPTIONS */
 
@@ -4136,15 +3965,60 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 void apply_monster_level_hp(monster_type *m_ptr)
 {
         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-        m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside) * m_ptr->level;
-        m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 30);
-        m_ptr->hp = m_ptr->maxhp;
 
+
+	/* Assign maximal hitpoints */
+	m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);	   
+        m_ptr->maxhp *= m_ptr->level;
+        if (m_ptr->maxhp < 20000000) m_ptr->maxhp += (m_ptr->maxhp * (m_ptr->level * 5)) / 100;
+        /* Three times more hp for elites... */
+        if (m_ptr->boss == 1) m_ptr->maxhp *= 3;
+        /* SIX TIMES more hp for bosses!!! */
+        if (m_ptr->boss == 2) m_ptr->maxhp *= 6;
+        if (m_ptr->maxhp < maxroll(r_ptr->hdice, r_ptr->hside) && r_ptr->flags1 & (RF1_FORCE_MAXHP)) m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+        /* Let's cap the hp at 20000000 */
+        if (m_ptr->maxhp < 0 || m_ptr->maxhp > 20000000) m_ptr->maxhp = 20000000;
+
+	/* And start out fully healthy */
+	m_ptr->hp = m_ptr->maxhp;
+
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
+
+	if (m_ptr->boss == 1)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level / 3)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level / 3)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level / 3)) / 100);
+	}
+
+	if (m_ptr->boss == 2)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level)) / 100);
+	}
         /* Hit rate! */
-        m_ptr->hitrate = (m_ptr->level + (m_ptr->level / 3)) * (4 + (m_ptr->level / 25));
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
 
         /* Defense! */
-        m_ptr->defense = (m_ptr->level) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
+
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
+
+	if (m_ptr->boss == 1) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 5)) / 100);
+	if (m_ptr->boss == 2) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 10)) / 100);
 }
 
 void get_boss_ability(monster_type *m_ptr, int number)
@@ -4152,12 +4026,13 @@ void get_boss_ability(monster_type *m_ptr, int number)
         while(number > 0)
         {
                 int tempint;
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
                 tempint = randint(80);
                 if (tempint >= 70 && !(m_ptr->abilities & (BOSS_IMMUNE_MAGIC)))
                 {
                         m_ptr->abilities |= (BOSS_IMMUNE_WEAPONS);
                 }
-                else if (tempint >= 60 && !(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
+                else if (tempint >= 60 && !(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)) && !(r_ptr->physres == 100))
                 {
                         m_ptr->abilities |= (BOSS_IMMUNE_MAGIC);
                 }
@@ -4190,7 +4065,7 @@ void get_boss_ability(monster_type *m_ptr, int number)
 }
 
 /* Place a monster, but not an elite, nor a boss. Used by Leaders! */
-bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
+bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm, int dur)
 {
         int             i, tempint;
 
@@ -4203,9 +4078,6 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
-
-        /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-        if(p_ptr->wild_mode) return FALSE;
 
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -4267,15 +4139,6 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
         /* The monster is already on an unique level */
         if (r_ptr->on_saved) return (FALSE);
 
-/* Anyway that doesn't work .... hum... TO FIX -- DG */
-#if 0
-        /* Hack -- non "town" monsters are NEVER generated in town */
-        if ((!(r_ptr->flags8 & (RF8_WILD_TOWN))) && (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].terrain_idx == TERRAIN_TOWN) && !dun_level)
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-#endif
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
@@ -4298,7 +4161,7 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -4308,7 +4171,7 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -4319,7 +4182,7 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -4356,6 +4219,16 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
         /* Not hit by Sealing Light */
         m_ptr->seallight = 0;
 
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
+
+	/* Not summoned */
+	m_ptr->summoned = 0;
+
+	/* No lives */
+	m_ptr->lives = 0;
+
         /* No objects yet */
         m_ptr->hold_o_idx = 0;
 
@@ -4370,14 +4243,12 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 		set_pet(m_ptr, TRUE);                
 	}
 
-        /* Will this monster be an elite? */
-        if (randint(100) >= 80 && !(r_ptr->flags1 & (RF1_UNIQUE))) m_ptr->boss = 1;
-        /* Even worse, will it be a boss? */
-        if (m_ptr->boss == 1 && randint(100) >= 80) m_ptr->boss = 2;
-        /* No bosses in towns... */
-        if (dun_level == 0) m_ptr->boss = 0;
-        /* Friends aren't bosses! */
-        if (is_pet(m_ptr)) m_ptr->boss = 0;
+        /* NOT a boss! */
+        m_ptr->boss = 0;
+
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
 
 	/* Assume no sleeping */
 	m_ptr->csleep = 0;
@@ -4510,18 +4381,35 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 
         /* Give the monster a level */
         tempint = dun_level;
-        m_ptr->level = randint(tempint);
-        m_ptr->level += randint(3);
-        /* Elites are 5 levels higher than the current dungeon level */
-        if (m_ptr->boss == 1) m_ptr->level = tempint + 5;
-        /* Bosses are 10 levels higher than the current dungeon level */
-        if (m_ptr->boss == 2) m_ptr->level = tempint + 10;
+	if (m_ptr->boss >= 1) m_ptr->level = tempint;
+        else m_ptr->level = randint(tempint);
+        if (p_ptr->lev >= 4) m_ptr->level += randint(3);
+        /* Higher levels for lower depths...and higher player levels! */
+        if (p_ptr->lev >= 4)
+        {
+                m_ptr->level += (dun_level / 4);
+                m_ptr->level += p_ptr->lev / 4;
+        }
+	/* However, a fixed level will override everything. */
+	if (r_ptr->fixedlevel > 0) m_ptr->level = r_ptr->fixedlevel;
+
+        /* Bosses are 5 levels higher than the current dungeon level */
+        if (m_ptr->boss == 2) m_ptr->level += 5;
+
+        /* Variaz is level 200 */
+        if (m_ptr->r_idx == 1030) m_ptr->level = 200;
 
         if (m_ptr->level < (dun_level / 2)) m_ptr->level = dun_level;
         if (is_pet(m_ptr) && m_ptr->r_idx == 1080) m_ptr->level = 1;
         if (m_ptr->level <= 0) m_ptr->level = 1;
-        if (m_ptr->level > tempint && m_ptr->boss == 0) m_ptr->level = tempint;
+        /* if (m_ptr->level > tempint && m_ptr->boss == 0) m_ptr->level = tempint; */
         if (m_ptr->level <= 0) m_ptr->level = 1;
+
+	/* Summoned? */
+	m_ptr->summoned = dur;
+
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
@@ -4531,31 +4419,58 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 	else
 	{
 		m_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
-	}
-        /* Twice more hp for elites... */
-        if (m_ptr->boss == 1) m_ptr->maxhp *= 2;
-        /* FOUR TIMES more hp for bosses!!! */
-        if (m_ptr->boss == 2) m_ptr->maxhp *= 4;
-        m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 3);
-        /* Uh oh...the monster is VARIAZ!! */
-        if (m_ptr->r_idx == 1030) m_ptr->maxhp *= 10;
+	}        
+        /*m_ptr->maxhp += m_ptr->maxhp * (m_ptr->level / 3);*/
+        m_ptr->maxhp *= m_ptr->level;
+        if (m_ptr->maxhp < 20000000) m_ptr->maxhp += (m_ptr->maxhp * (m_ptr->level * 5)) / 100;
+        /* Three times more hp for elites... */
+        if (m_ptr->boss == 1) m_ptr->maxhp *= 3;
+        /* SIX TIMES more hp for bosses!!! */
+        if (m_ptr->boss == 2) m_ptr->maxhp *= 6;
         if (m_ptr->maxhp < maxroll(r_ptr->hdice, r_ptr->hside) && r_ptr->flags1 & (RF1_FORCE_MAXHP)) m_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+        /* Let's cap the hp at 20000000 */
+        if (m_ptr->maxhp < 0 || m_ptr->maxhp > 20000000) m_ptr->maxhp = 20000000;
 
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
 
-	/* And start out fully healthy */
-	m_ptr->hp = m_ptr->maxhp;
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
 
+	if (m_ptr->boss == 1)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level / 3)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level / 3)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level / 3)) / 100);
+	}
+
+	if (m_ptr->boss == 2)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level)) / 100);
+	}
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 3)) * 4;
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
 
         /* Defense! */
-        if (m_ptr->level >= 25)
-        {
-                m_ptr->defense = (m_ptr->level + r_ptr->ac) * ((m_ptr->level / 25) + 1);
-        }
-        else m_ptr->defense = (m_ptr->level) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
+
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
+
+	if (m_ptr->boss == 1) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 5)) / 100);
+	if (m_ptr->boss == 2) m_ptr->defense += ((m_ptr->defense * (m_ptr->level * 10)) / 100);
 
         /* If the monster is an elite or a boss, give it an ability... */
         if (m_ptr->boss == 1) get_boss_ability(m_ptr, 1);
@@ -4623,7 +4538,7 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm)
 }
 
 /* Place monster return, but no boss! */
-s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, s32b petmaxhp)
+s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, s32b petmaxhp, int dur)
 {
         int             i;
         char            dummy[5];
@@ -4691,7 +4606,7 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -4701,7 +4616,7 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -4712,7 +4627,7 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -4745,6 +4660,16 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 
         /* NOT a boss! */
         m_ptr->boss = 0;
+
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
+
+	/* Not summoned */
+	m_ptr->summoned = 0;
+
+	/* No lives */
+	m_ptr->lives = 0;
 
         /* Not hit by Sealing Light */
         m_ptr->seallight = 0;
@@ -4782,6 +4707,12 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
         /* Give the monster a level */
         m_ptr->level = petlevel;
 
+	/* Summoned? */
+	m_ptr->summoned = dur;
+
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
+
         /* Give the hp */
         m_ptr->maxhp = petmaxhp;
 
@@ -4791,27 +4722,23 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
 
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
+
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 3)) * 4;
-
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->hitrate = 15000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->hitrate = 30000;
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
 
         /* Defense! */
-        if (m_ptr->level >= 25)
-        {
-                m_ptr->defense = (m_ptr->level + r_ptr->ac) * ((m_ptr->level / 25) + 1);
-        }
-        else m_ptr->defense = (m_ptr->level) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
 
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->defense = 3000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->defense = 5000;
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
 
 	/* Hack -- small racial variety */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
@@ -4880,7 +4807,7 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 }
 
 /* You should get the idea by now... ;) */
-bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool charm)
+bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool charm, int dur)
 {
 	int             i;
 	monster_race    *r_ptr = &r_info[r_idx];
@@ -4888,7 +4815,7 @@ bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool
 
 
 	/* Place one monster, or fail */
-        if (!place_monster_one_no_boss(y, x, r_idx, slp, charm)) return (FALSE);
+        if (!place_monster_one_no_boss(y, x, r_idx, slp, charm, dur)) return (FALSE);
 
 
 	/* Require the "group" flag */
@@ -4899,7 +4826,7 @@ bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a group */
-        (void)place_monster_group(y, x, r_idx, slp, charm);
+        (void)place_monster_group(y, x, r_idx, slp, charm, dur);
 	}
 
 
@@ -4946,14 +4873,14 @@ bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool
 			if (!z) break;
 
 			/* Place a single escort */
-                        (void)place_monster_one_no_boss(ny, nx, z, slp, charm);
+                        (void)place_monster_one_no_boss(ny, nx, z, slp, charm, dur);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
 			    (r_ptr->flags1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp, charm);
+				(void)place_monster_group(ny, nx, z, slp, charm, dur);
 			}
 		}
 
@@ -4970,7 +4897,7 @@ bool place_monster_aux_no_boss(int y, int x, int r_idx, bool slp, bool grp, bool
 
 /* The Simulacrum version of place_monster */
 /* VERY similar, except they aren't friends, nor are they imprinted */
-s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp)
+s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm, int petlevel, s32b pethp, int dur)
 {
         int             i;
         char            dummy[5];
@@ -5037,7 +4964,7 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -5047,7 +4974,7 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -5058,7 +4985,7 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -5091,6 +5018,16 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
 
         /* NOT a boss! */
         m_ptr->boss = 0;
+
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
+
+	/* Not summoned */
+	m_ptr->summoned = 0;
+
+	/* No lives */
+	m_ptr->lives = 0;
 
         /* Not hit by Sealing Light */
         m_ptr->seallight = 0;
@@ -5128,6 +5065,12 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
         /* Give the monster a level */
         m_ptr->level = petlevel;
 
+	/* Summoned? */
+	m_ptr->summoned = dur;
+
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
+
         /* Give the hp */
         m_ptr->maxhp = pethp;
 
@@ -5137,27 +5080,23 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
 
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
+
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 3)) * 4;
-
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->hitrate = 15000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->hitrate = 30000;
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
 
         /* Defense! */
-        if (m_ptr->level >= 25)
-        {
-                m_ptr->defense = (m_ptr->level + r_ptr->ac) * ((m_ptr->level / 25) + 1);
-        }
-        else m_ptr->defense = (m_ptr->level) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
 
-        /* Arakzatrys? */
-        if (m_ptr->r_idx == 982) m_ptr->defense = 3000;
-
-        /* Variaz? */
-        if (m_ptr->r_idx == 1030) m_ptr->defense = 5000;
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
 
 	/* Hack -- small racial variety */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
@@ -5218,18 +5157,10 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
         return c_ptr->m_idx;
 }
 
-bool summon_specific_friendly_kind(int y1, int x1, int lev, char kind, bool Group_ok)
+bool summon_specific_friendly_kind(int y1, int x1, int lev, char kind, bool Group_ok, int dur)
 {
 	int i, x, y, r_idx;        
 
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
         summoner_monster = NULL;
 
 	/* Look for a location */
@@ -5279,7 +5210,7 @@ bool summon_specific_friendly_kind(int y1, int x1, int lev, char kind, bool Grou
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE, dur)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -5291,10 +5222,11 @@ int get_mon_num_kind(int lev, char kind)
         int x;
         bool cansummon = FALSE;
         bool okaysignal = FALSE; /* Yes, I like this name! :) */
+	char s[80];
 
         /* Do a first check to see if it's actually possible */
         /* to summon something, to avoid enless loops */
-        for (x = 0; x <= max_r_idx; x++)
+	for (x = 0; x < max_r_idx; x++)
         {
                 monster_race *r_ptr;
 
@@ -5310,37 +5242,30 @@ int get_mon_num_kind(int lev, char kind)
         }
         if (cansummon == FALSE) return (0);
 
-        while (okaysignal == FALSE)
+        while (!okaysignal)
         {
                 monster_race *r_ptr;
                 /* Pick up a monster... */
-                choosemon = randint(max_r_idx);
-
+                choosemon = randint((max_r_idx - 1));
+		
                 r_ptr = &r_info[choosemon];
 
                 /* Make sure it's the right kind */
                 /* And not UNIQUE */
-                if ((r_ptr->d_char == kind) && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                if ((r_ptr->d_char == kind) && !(r_ptr->flags1 & (RF1_UNIQUE)) && choosemon != 0)
                 {
                         /* Check for the depth */
                         if (r_ptr->level <= lev) okaysignal = TRUE;
                 }
+
         }
         return (choosemon);
 }
 
-bool summon_specific_friendly_name(int y1, int x1, char name[30], bool Group_ok)
+bool summon_specific_friendly_name(int y1, int x1, char name[30], bool Group_ok, int dur)
 {
 	int i, x, y, r_idx;
 
-        if (summoner_monster != NULL)
-        {
-                if (summoner_monster->cdis <= p_ptr->antisummon)
-                {
-                        msg_print("Your anti-summoning field disrupt the summoning!");
-                        return FALSE;
-                }
-        }
         summoner_monster = NULL;
 
 	/* Look for a location */
@@ -5390,7 +5315,7 @@ bool summon_specific_friendly_name(int y1, int x1, char name[30], bool Group_ok)
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE)) return (FALSE);
+	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE, dur)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -5401,7 +5326,7 @@ int get_mon_num_name(char name[30])
         int x;
         bool cansummon = FALSE;
 
-        for (x = 0; x <= max_r_idx; x++)
+        for (x = 0; x < max_r_idx; x++)
         {
                 monster_race *r_ptr;
 
@@ -5422,7 +5347,7 @@ int get_mon_num_name(char name[30])
 /* Place an 'image' monster. Used by Mirror Image ability. */
 /* It should only be used with monster 1077, but can theorically be used */
 /* by any kinds of monsters. */
-bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
+bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm, int dur)
 {
         int             i;
         s32b            hppercent;
@@ -5436,9 +5361,6 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
-
-        /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-        if(p_ptr->wild_mode) return FALSE;
 
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -5500,15 +5422,6 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
         /* The monster is already on an unique level */
         if (r_ptr->on_saved) return (FALSE);
 
-/* Anyway that doesn't work .... hum... TO FIX -- DG */
-#if 0
-        /* Hack -- non "town" monsters are NEVER generated in town */
-        if ((!(r_ptr->flags8 & (RF8_WILD_TOWN))) && (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].terrain_idx == TERRAIN_TOWN) && !dun_level)
-	{
-		/* Cannot create */
-		return (FALSE);
-	}
-#endif
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
@@ -5531,7 +5444,7 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -5541,7 +5454,7 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -5552,7 +5465,7 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -5585,6 +5498,16 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
 
         /* Not a boss and no abilities... */
         m_ptr->boss = 0;
+
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
+
+	/* Not summoned */
+	m_ptr->summoned = 0;
+
+	/* No lives */
+	m_ptr->lives = 0;
 
         /* Not hit by Sealing Light */
         m_ptr->seallight = 0;
@@ -5722,6 +5645,12 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
         /* The image has your level. */
         m_ptr->level = p_ptr->lev;
 
+	/* Summoned? */
+	m_ptr->summoned = dur;
+
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
+
         /* The image has the same hp as you, more if you invest in the */
         /* Mirror Images ability. */
         m_ptr->maxhp = p_ptr->mhp;
@@ -5732,14 +5661,22 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm)
 	m_ptr->hp = m_ptr->maxhp;
 
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 3)) * 4;
+        m_ptr->hitrate = 0;
+
+	/* Stats */
+	m_ptr->str = 0;
+	m_ptr->dex = 0;
+	m_ptr->mind = 0;
+	m_ptr->skill_attack = 0;
+	m_ptr->skill_magic = 0;
+	m_ptr->mana = 0;
 
         /* Defense! */
-        if (m_ptr->level >= 25)
-        {
-                m_ptr->defense = (m_ptr->level + r_ptr->ac) * ((m_ptr->level / 25) + 1);
-        }
-        else m_ptr->defense = (m_ptr->level) + r_ptr->ac;
+        m_ptr->defense = r_ptr->ac + ((r_ptr->ac * ((m_ptr->level - 1) * 5)) / 100);
+
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
 
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
@@ -5871,7 +5808,7 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int b
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -5881,7 +5818,7 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int b
 		else
 		{
 			/* Message for cheaters */
-                        if ((cheat_hear)||(p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+                        if ((cheat_hear)) msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -5892,7 +5829,7 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int b
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-                if ((cheat_hear)||(p_ptr->precognition)) msg_format("Unique (%s).", name);
+                if ((cheat_hear)) msg_format("Unique (%s).", name);
 	}
 
 
@@ -5925,6 +5862,16 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int b
 
         /* NOT a boss! */
         m_ptr->boss = 0;
+
+	/* Not hasted nor boosted */
+	m_ptr->hasted = 0;
+	m_ptr->boosted = 0;
+
+	/* Not summoned */
+	m_ptr->summoned = 0;
+
+	/* No lives */
+	m_ptr->lives = 0;
 
         /* Not hit by Sealing Light */
         m_ptr->seallight = 0;
@@ -5968,15 +5915,30 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int b
 	/* And start out fully healthy */
         m_ptr->hp = m_ptr->maxhp;
 
+	/* Lives */
+	m_ptr->lives = r_ptr->lives;
+
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
 
+	/* Now, determine the stats! */
+	m_ptr->str = 10 + p_ptr->abilities[(CLASS_MAGE * 10) + 9];
+	m_ptr->dex = 10 + p_ptr->abilities[(CLASS_MAGE * 10) + 9];
+	m_ptr->mind = 10 + p_ptr->abilities[(CLASS_MAGE * 10) + 9];
+	m_ptr->skill_attack = 10 + p_ptr->abilities[(CLASS_MAGE * 10) + 9];
+	m_ptr->skill_magic = 10 + p_ptr->abilities[(CLASS_MAGE * 10) + 9];
+
         /* Hit rate! */
-        m_ptr->hitrate = (randint(m_ptr->level) + (m_ptr->level / 3)) * 4;
-        m_ptr->hitrate += hit_bonus;
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
+	m_ptr->hitrate += hit_bonus;
 
         /* Defense! */
         m_ptr->defense = basehp;
+
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
 
 	/* Hack -- small racial variety */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
@@ -6044,3 +6006,159 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, int b
         return c_ptr->m_idx;
 }
 
+bool summon_specific_kind(int y1, int x1, int lev, char kind, bool Group_ok, bool friendly, int dur)
+{
+	int i, x, y, r_idx;        
+
+        summoner_monster = NULL;
+
+	/* Look for a location */
+	for (i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
+
+		/* Require "empty" floor grid */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Hack -- no summon on glyph of warding */
+		 if (cave[y][x].feat == FEAT_GLYPH) continue;
+		 if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+
+                /* Nor on the between */
+                if (cave[y][x].feat == FEAT_BETWEEN) return (FALSE);
+
+		/* ... nor on the Pattern */
+		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
+		    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+			continue;
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 20) return (FALSE);
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Pick a monster, using the level calculation */
+        r_idx = get_mon_num_kind(lev, kind);
+
+        /* Do we have a valid r_idx? */
+        if (r_idx == 0) return (FALSE);
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+
+	/* Attempt to place the monster (awake, allow groups) */
+	if (friendly)
+	{ 
+		if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE, dur)) return (FALSE);
+	}
+	else if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE, dur)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
+bool summon_specific_ridx(int y1, int x1, int ridx, bool Group_ok, bool friendly, int dur)
+{
+	int i, x, y, r_idx;        
+
+        summoner_monster = NULL;
+
+	/* Look for a location */
+	for (i = 0; i < 20; ++i)
+	{
+		/* Pick a distance */
+		int d = (i / 15) + 1;
+
+		/* Pick a location */
+		scatter(&y, &x, y1, x1, d, 0);
+
+		/* Require "empty" floor grid */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Hack -- no summon on glyph of warding */
+		 if (cave[y][x].feat == FEAT_GLYPH) continue;
+		 if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+
+                /* Nor on the between */
+                if (cave[y][x].feat == FEAT_BETWEEN) return (FALSE);
+
+		/* ... nor on the Pattern */
+		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
+		    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+			continue;
+
+		/* Okay */
+		break;
+	}
+
+	/* Failure */
+	if (i == 20) return (FALSE);
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Pick a monster, using the level calculation */
+        r_idx = ridx;
+
+        /* Do we have a valid r_idx? */
+        if (r_idx == 0) return (FALSE);
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+	
+	/* Attempt to place the monster (awake, allow groups) */
+	if (friendly) 
+	{ 
+		if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, TRUE, dur)) return (FALSE); 
+	}
+	else if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE, dur)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
+/* Don't change the hp. Just the stats. */
+void apply_monster_level_stats(monster_type *m_ptr)
+{
+        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Now, determine the stats! */
+	m_ptr->str = r_ptr->str + ((r_ptr->str * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->dex = r_ptr->dex + ((r_ptr->dex * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->mind = r_ptr->mind + ((r_ptr->mind * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_attack = r_ptr->skill_attack + ((r_ptr->skill_attack * ((m_ptr->level - 1) * 5)) / 100);
+	m_ptr->skill_magic = r_ptr->skill_magic + ((r_ptr->skill_magic * ((m_ptr->level - 1) * 5)) / 100);
+
+	if (m_ptr->boss == 1)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level / 3)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level / 3)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level / 3)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level / 3)) / 100);
+	}
+
+	if (m_ptr->boss == 2)
+	{
+		m_ptr->str += ((m_ptr->str * (m_ptr->level)) / 100);
+		m_ptr->dex += ((m_ptr->dex * (m_ptr->level)) / 100);
+		m_ptr->mind += ((m_ptr->mind * (m_ptr->level)) / 100);
+		m_ptr->skill_attack += ((m_ptr->skill_attack * (m_ptr->level)) / 100);
+		m_ptr->skill_magic += ((m_ptr->skill_magic * (m_ptr->level)) / 100);
+	}
+}

@@ -1,16 +1,33 @@
 HALF-ELF
 ----------
 
-Half-Elves are a cross between a human and an elf. They share 
-the characterictics of the two races to a lesser extent. 
-Half-Elves makes better ranged attackers than melee fighters, but 
-they are far from being weak at melee combat.
+Half-Elves are a cross between an elf and a human. Outside of
+Nimbraya, there are little Half-Elves, as the Elves lives mostly
+in the southern forests of Portralis. In Nimbraya, however, they
+are very abundant, as humans and elves coexist peacefully in
+this beautiful kingdom. In the very religious kingdom of Nimbraya,
+half-elves who wish to be part of the religious community
+generally become monks instead of priests, as they are less
+magical, but stronger than normal elves. Half-Elves are therefore
+very common in Nimbraya.
 
-ADVANTAGES: +10% to Dexterity
-            +5% to Agility skill
+Half-Elves shares traits from both races. They are a little more
+dextrous, but a little frailer and weaker than humans. They tend 
+to be a little wiser, but tend to be less creative. They are good at
+spellcasting and archery, but do not learn other skills as easily
+as their human counterparts. However, the Nimbrayan tradition
+of Half-Elves monks have made martial arts a common practice
+amongst all half-elven citizens. As such, most half-elves know
+some martial arts, and they make amongst the best monks in Portralis.
 
-DISADVANTAGES: -10% to Strength
-               -5% to Constitution
+HALF-ELF FEATURES:
 
+- +10% to Dexterity.
+- +10% to Wisdom.
+- +10% to Bow, Agility and Spellcraft skills.
+- +25% to Martial Arts skill.
 
+HALF-ELF PENALITIES:
 
+- -10% to Strength.
+- -10% to Constitution.

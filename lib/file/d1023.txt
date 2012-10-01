@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:A foul smell is in the air, similar to the smell of the orcs you fought;
+T:back in Udor. It looks like the orcs may have come here before you, and;
+T:they might still be there. You'll have to proceed with caution...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

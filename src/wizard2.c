@@ -35,82 +35,14 @@ void teleport_player_town(int town)
                 for(y = 0; y < max_wild_y; y++)
                         if(p_ptr->town_num == wf_info[wild_map[y][x].feat].entrance) goto finteletown;
 finteletown:
-        p_ptr->wilderness_y = y;
-        p_ptr->wilderness_x = x;
+        p_ptr->wild_y = y;
+        p_ptr->wild_x = x;
 
-	p_ptr->inside_arena = 0;
 	leaving_quest = p_ptr->inside_quest;
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
-}
-
-
-/*
- * Hack -- Rerate Hitpoints
- */
-void do_cmd_rerate(void)
-{
-	int min_value, max_value, i, percent;
-
-#ifdef TEST
-	int fubar, mlk = 0;
-
-	for (fubar = 0; fubar < max_k_idx; fubar++)
-	{
-                if ((k_info[fubar].tval == TV_POTION)||(k_info[fubar].tval == TV_POTION2))
-		{
-			k_info[fubar].x_attr = 0xBC;
-			mlk++;
-		}
-	}
-
-	msg_format ("%d changes made.", mlk);
-
-#else /* TEST */
-
-#endif /* TEST */
-
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
-	min_value += PY_MAX_LEVEL;
-
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
-	max_value += PY_MAX_LEVEL;
-
-	player_hp[0] = p_ptr->hitdie;
-
-	/* Rerate */
-	while (1)
-	{
-		/* Collect values */
-		for (i = 1; i < PY_MAX_LEVEL; i++)
-		{
-			player_hp[i] = randint(p_ptr->hitdie);
-			player_hp[i] += player_hp[i - 1];
-		}
-
-		/* Legal values */
-		if ((player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
-	}
-
-	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
-	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
-
-	/* Update and redraw hitpoints */
-	p_ptr->update |= (PU_HP);
-	p_ptr->redraw |= (PR_HP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
 }
 
 
@@ -183,11 +115,40 @@ void wiz_create_named_art()
         /* Hack give a basic exp/exp level to an object that needs it */
         if(f4 & TR4_LEVELS)
         {
-                q_ptr->elevel = (k_ptr->level / 10) + 1;
-                q_ptr->exp = player_exp[q_ptr->elevel - 1];
+                q_ptr->level = 1;
+                q_ptr->kills = 0;
         }
 
-	random_artifact_resistance(q_ptr);
+	/* Artifact Brand! */
+	if (a_ptr->brandtype > 0)
+	{
+		q_ptr->brandtype = a_ptr->brandtype;
+		q_ptr->branddam = a_ptr->branddam;
+		q_ptr->brandrad = a_ptr->brandrad;
+	}
+	else
+	{
+		q_ptr->brandtype = 0;
+		q_ptr->branddam = 0;
+		q_ptr->brandrad = 0;
+	}
+
+	q_ptr->fireres = a_ptr->fireres;
+	q_ptr->coldres = a_ptr->coldres;
+	q_ptr->elecres = a_ptr->elecres;
+	q_ptr->acidres = a_ptr->acidres;
+	q_ptr->poisres = a_ptr->poisres;
+	q_ptr->lightres = a_ptr->lightres;
+	q_ptr->darkres = a_ptr->darkres;
+	q_ptr->warpres = a_ptr->warpres;
+	q_ptr->waterres = a_ptr->waterres;
+	q_ptr->windres = a_ptr->windres;
+	q_ptr->earthres = a_ptr->earthres;
+	q_ptr->soundres = a_ptr->soundres;
+	q_ptr->radiores = a_ptr->radiores;
+	q_ptr->chaosres = a_ptr->chaosres;
+	q_ptr->physres = a_ptr->physres;
+	q_ptr->manares = a_ptr->manares;
 
         a_ptr->cur_num = 1;
 
@@ -550,6 +511,8 @@ static tval_desc tvals[] =
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
 	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_AXE,               "Axe"                  },
+	{ TV_DAGGER,            "Dagger"               },
 	{ TV_BOW,               "Bow"                  },
         { TV_BOOMERANG,         "Boomerang"            },
 	{ TV_ARROW,             "Arrows"               },
@@ -573,7 +536,6 @@ static tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
@@ -592,6 +554,7 @@ static tval_desc tvals[] =
         { TV_BOOK_CONJURATION,  "Conjuration Books"    },
         { TV_BOOK_DIVINATION,   "Divination Books"     },
         { TV_JUNK,              "Junk"                 },
+	{ TV_LICIALHYD,         "Licialhyd"            },
 	{ 0,                    NULL                   }
 };
 
@@ -818,11 +781,11 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
         p = "Enter new 'exp level' setting: ";
-        sprintf(tmp_val, "%d", o_ptr->elevel);
+        sprintf(tmp_val, "%d", o_ptr->level);
 	if (!get_string(p, tmp_val, 5)) return;
-        o_ptr->elevel = atoi(tmp_val);
+        o_ptr->level = atoi(tmp_val);
 	wiz_display_item(o_ptr);
-        o_ptr->exp = player_exp[o_ptr->elevel - 1];
+        o_ptr->kills = 0;
 }
 
 
@@ -1381,17 +1344,6 @@ void do_cmd_wiz_cure_all(void)
 	p_ptr->chp = p_ptr->mhp;
 	p_ptr->chp_frac = 0;
 
-        /* Heal the player monster */
-        /* Get the carried monster */
-        o_ptr = &inventory[INVEN_CARRY];
-        if(o_ptr->k_idx)
-        {
-                int max;
-                r_ptr = &r_info[o_ptr->pval];
-                max = maxroll(r_ptr->hdice, r_ptr->hside);
-                o_ptr->pval2 = max;
-        }
-
 	/* Restore mana */
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
@@ -1406,7 +1358,6 @@ void do_cmd_wiz_cure_all(void)
 	(void)set_stun(0);
 	(void)set_cut(0);
 	(void)set_slow(0);
-        p_ptr->black_breath = FALSE;
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
@@ -1462,7 +1413,6 @@ static void do_cmd_wiz_jump(void)
 	/* Change level */
 	dun_level = command_arg;
 
-	p_ptr->inside_arena = 0;
 	leaving_quest = p_ptr->inside_quest;
 
 	/* Leaving an 'only once' quest marks it as failed */
@@ -1474,7 +1424,6 @@ static void do_cmd_wiz_jump(void)
 	}
 
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1521,7 +1470,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-        (void)summon_specific(py, px, dun_level, 0);
+        (void)summon_specific(py, px, dun_level, 0, 0);
 	}
 }
 
@@ -1553,7 +1502,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, 0)) break;
 	}
 }
 
@@ -1584,7 +1533,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, TRUE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, TRUE, 0)) break;
 	}
 }
 
@@ -1714,10 +1663,15 @@ void do_cmd_debug(void)
 		do_cmd_wiz_change();
 		break;
 
-                /* Change grid's mana */
+                /* Change event's value. */
                 case 'E':
-                cave[py][px].mana = command_arg;
-		break;
+                {
+			int i, j;
+			i = get_quantity("Which event? ", 30000);
+			j = get_quantity("Set to which value? ", 30000);
+			p_ptr->events[i] = j;
+			break;
+		}
 
 		/* View item info */
 		case 'f':
@@ -1732,7 +1686,14 @@ void do_cmd_debug(void)
 
 		/* Hitpoint rerating */
 		case 'h':
-                msg_format("Guard: %d", p_ptr->guardconfuse); break;
+                {
+                        int v, w, flg;
+
+                        flg = PROJECT_GRID | PROJECT_KILL;
+                        if (!tgt_pt(&v,&w)) return;
+                        project(0, 0, w, v, 20000000, GF_MANA, flg);
+			break;
+		}
 
 #ifdef MONSTER_HORDES
 		case 'H':
@@ -1767,11 +1728,6 @@ void do_cmd_debug(void)
 		/* Mutation */
 		case 'M':
 			(void) gain_random_mutation(command_arg);
-			break;
-
-		/* Specific reward */
-		case 'r':
-			(void) gain_level_reward(command_arg);
 			break;
 
                 /* Create a trap */
@@ -1826,22 +1782,6 @@ void do_cmd_debug(void)
 			break;
 		}
 
-                case 'U':
-		{
-                        p_ptr->class_extra6 |= CLASS_UNDEAD;
-                        do_cmd_wiz_named(5, TRUE);
-
-                        p_ptr->class_extra4 = 2 * p_ptr->lev;
-
-                        /* Display the hitpoints */
-                        p_ptr->update |= (PU_HP);
-                        p_ptr->redraw |= (PR_HP);
-
-                        /* Window stuff */
-                        p_ptr->window |= (PW_PLAYER);
-                        break;
-                }
-
 		/* Summon Random Monster(s) */
 		case 's':
 			if (command_arg <= 0) command_arg = 1;
@@ -1872,7 +1812,7 @@ void do_cmd_debug(void)
                 case 'X':
                         /* p_ptr->con_boost = 20;
                         (void)set_con_boost(20); */
-                        summon_specific_friendly_kind(py, px, 50, 'k', TRUE);
+                        summon_specific_friendly_kind(py, px, 50, 'k', TRUE, 0);
 			break;
 
 
@@ -1915,14 +1855,8 @@ void do_cmd_debug(void)
 		do_cmd_wiz_hack_ben();
 		break;
 
-                /* Mimic shape changing */
                 case '*':
-                p_ptr->tim_mimic=100;
-                p_ptr->mimic_form=command_arg;
-                /* Redraw title */
-                p_ptr->redraw |= (PR_TITLE);
-                /* Recalculate bonuses */
-                p_ptr->update |= (PU_BONUS);
+                	/* Nothing */
                 break;
 
                 /* Change the feature of the map */
@@ -1933,7 +1867,7 @@ void do_cmd_debug(void)
                 break;
 
                 case '/':
-                summon_specific(py,px,max_dlv[dungeon_type],command_arg);
+                summon_specific(py,px,max_dlv[dungeon_type],command_arg, 0);
                 break;
 
 		/* Not a Wizard Command */

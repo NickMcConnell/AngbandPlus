@@ -18,6 +18,16 @@ Mana Cost: The base mana cost per power points. Note that
 Fixed Cost: Spells with a fixed cost at least this amount of mana
 	    to cast. All effects that don't have a power parameter
 	    have a fixed cost.
+Can be resisted: If it says "Can be resisted: Yes", this mean the
+                 monster can resist the spell. It will then be a
+                 test between the player and the monster. First,
+                 the player will get a power equal to the sum of
+                 (intelligence + wisdom + (specialized skill * 3) + spellcraft). Then, the
+                 monster will get a power of (level + mind). Then,
+                 the player will roll a number between 1 and his/her
+                 power, and so will the monster. If the player gets
+                 a number that is equal or higher than the monster's
+                 number, the spell works. Otherwise, it fails.
 
 Information and tips on how to use the effect...
 
@@ -60,11 +70,15 @@ WARP
 Effect: Does warp damages to enemies, teleport them away.
 Mana Cost: 1
 Fixed Cost: 40
+Can be resisted: Yes(teleportation)
 Damages: Power/level
 
 This effect is a little more expensive than other elemental
 effects, but is has the added benefit of teleporting enemies
-away.
+away. The teleportation effect can be resisted though. Some enemies
+are always immune to teleportation. Uniques can never be teleported.
+Elites and bosses can be teleported, but can resist a lot more
+easily.
 
 MANA
 Effect: Does pure magical damages.
@@ -86,6 +100,7 @@ benefical and allow you to alter yourself in positive ways.
 
 REDUCE HIT RATE
 Effect: Reduce an enemy's hit rate.
+Can be resisted: Yes
 Mana Cost: 3
 
 This effect allow you to reduce an enemy's hit rate. The lesser
@@ -96,6 +111,7 @@ them to hit you.
 
 REDUCE DEFENSE
 Effect: Reduce an enemy's defense.
+Can be resisted: Yes
 Mana Cost: 1
 
 This effect allow you to reduce the defense of your enemies,
@@ -104,6 +120,7 @@ or if you use physical type elemental spells.
 
 REDUCE SPEED
 Effect: Reduce an enemy's speed.
+Can be resisted: Yes
 Mana Cost: 100
 
 This effect allow you to reduce the speed of your enemies. Fast
@@ -112,12 +129,12 @@ them down, but beware the high mana cost.
 
 REDUCE LEVEL
 Effect: Reduce an enemy's level.
+Can be resisted: Yes
 Mana Cost: 35
 
 This effect allow you to reduce the level of your enemies. This
-will weaken them in many ways, reducing their melee damages,
-their magic/breath damages and their resistance to physical
-damages.
+will weaken them in many ways, making them more susceptible
+to other alteration spells, as well as weakening their magic.
 
 LIFE BLAST
 Effect: Reduce enemy's hp by 33%.
@@ -128,11 +145,11 @@ a very high hp.
 
 LOCK
 Effect: Prevent the casting of spells.
+Can be resisted: Yes
 Fixed Cost: 250
 
 Enemies affected by a Lock spell will be unable to use their spells
-or breath attacks. Does not work against Elites, Bosses and the
-main questors(such as Variaz).
+or breath attacks. Does not work against Elites, Bosses and Uniques.
 
 HALVE POWER
 Effect: Reduce enemy's melee damages by 50%.
@@ -158,14 +175,16 @@ with you.
 
 DEMORALIZE
 Effect: Scares the monsters for a duration.
+Can be resisted: Yes
 Mana Cost: 12
 
 Makes the enemies flee from you. Very useful to send a large pack away.
 Does not work against Elites, Bosses and Uniques, as well as monsters
-that are non-living or immune to fear.
+that are non-living or immune to fear. Other enemies can resist it.
 
 RETROGRADE
 Effect: Turn an elite or boss into a normal enemy.
+Can be resisted: Yes
 Fixed Cost: 1000
 
 This effect will turn an elite or boss monster into a regular monster,
@@ -174,6 +193,7 @@ defeat.
 
 EVOLVE
 Effect: Turn a monster into a more powerful specimen of it's kind.
+Can be resisted: Yes
 Fixed Cost: 50
 
 This effect allow you to turn a weaker monster into a stronger monster.
@@ -184,12 +204,13 @@ work on Unique monsters.
 
 UN-EVOLVE
 Effect: Turn a monster into a weaker specimen of it's kind.
+Can be resisted: Yes
 Fixed Cost: 100
 
 The opposite of Evolve, this will turn a strong monster into a weaker
 monster. Use it on powerful monsters, but remember that weaker monsters
-typically gives you less experience. Does not work against Uniques and
-Bosses(but does work against Elites).
+typically gives you less experience. Does not work against Uniques, Elites
+and bosses.
 
 HASTE
 Effect: Gives you +10 to speed for a duration.
@@ -252,11 +273,13 @@ Physical Resistance effect, the mana cost rise very quickly.
 
 PARALYZE
 Effect: Stop monsters for 10 turns.
+Can be resisted: Yes
 Mana Cost: 4
 
-This effect will stop one or more enemies for 10 turns. The power of this
-effect determine it's success rate. The more powerful, the higher success
-rate. The higher the monster's level, the lower the success rate.
+This effect will stop one or more enemies for a number of turns equal to the
+spell's power. Paralyzed enemies will not be able to move, attack or cast spells.
+Elites, Bosses and Uniques can be paralyzed, but they have a much higher chance
+to resist. Monsters immune to paralysis are not affected by this spell.
 
 HEALING
 ---------
@@ -294,14 +317,6 @@ Fixed Cost: 40
 Bleeding wounds can be annoying, especially if you are low on hp. This
 effect will instantly cure any bleeding, from a simple graze to a mortal
 wound.
-
-CURE BLACK BREATH
-Effect: Cure yourself of Black Breath.
-Fixed Cost: 80
-
-Black Breath is a rare form of disease, but those who gets usually die,
-as it is incurable by normal means, and quickly degrade it's victim.
-This effect will instantly cure you from Black Breath.
 
 HEAL OTHERS
 Effect: Heal monsters.
@@ -375,11 +390,13 @@ not harm you if you step inside them.
 
 WEBS
 Effect: Conjure a field of webs to slow down enemies.
-Fixed Cost: 75
+Can be resisted: Yes(strength + dexterity is used instead of mind)
+Fixed Cost: 50
 
-Webs allow you to slow down enemies that steps into them. A large field
-of webs is a very effective way to slow down a small pack of enemies.
-Note that webs will disappear as monsters walk in them.
+Webs create masses of webs that can slow down enemies that are caught
+inside them. When a monster walks into the webs, if it fails to resist,
+it will permanently lose 2 points of speed. The web will then go away.
+The web will not go away if the monster resists.
 
 GROW TREES
 Effect: Create trees.

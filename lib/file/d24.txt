@@ -1,0 +1,82 @@
+N:1:46:1:0:0:0
+I: ;
+T:You have destroyed Zailab's cursed body. As his lich body turns into;
+T:dust, a ghost of his former self appear before you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+
+N:1:46:0:0:0:0
+I:Zailab;
+T:I AM ZAILAB THE LICH!! I WILL CURSE THIS LAND... DESTROY THE LIVING...;
+T:AND CONSUME YOUR SOUL!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Zailab;
+T:Thanks you, brave <CLASS>. By destroying my cursed body, you have freed;
+T:my soul, and I will finally rest in peace. You see, ages ago,; 
+T:I was a king, and these ruins were my castle. I was loved by my; 
+T:peoples, and I lived a very good life... But one day, a mysterious man;
+T:came into my castle. He looked like a priest, judging by his glowing; 
+T:white robes. Thinking he was serving the light, I allowed him within; 
+T:the walls of my castle. He introduced himself as Jezovhan, priest of light,; 
+T:and was willing to put his powers at my disposal.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Zailab;
+T:At first, he acted like any priests would do. He was a trusted healer;
+T:and adviser... But one day, my peoples became sick. A strange sickness;
+T:that turned their skins pale, and made them act strangely. It did not;
+T:take long before my entire kingdom got afflicted with the disease.;
+T:I summoned Jezovhan to my throne room, and asked him to put a blessing;
+T:on the river, to that peoples could drink the water and be healed.;
+T:But then, he said: "But my king, I already blessed the river! As we;
+T:speak, all these villagers are now drinking the water that I blessed...;
+T:with the light of Vaharoh!!";
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Zailab;
+T:It turned out that the priest was a worshipper of Vaharoh, the god of;
+T:treachery and corruption! All this time, the priest acted like a good;
+T:priest of light, but he was really an evil priest of Vaharoh! Before;
+T:I could say anything, the priest continued: "And you too, shall be;
+T:blessed by Vaharoh's light!". And then, he casted his foul curse!;
+T:The peoples that were infected by the sickness died, and became;
+T:mindless, walking corpses. Being a wizard, I tried to fight the priest,;
+T:but my magic was not strong enough... and he killed me.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Zailab;
+T:And then, the priest used his magic to curse my soul, and revive me;
+T:as an insane, evil lich! And then, he left the castle... leaving behind;
+T:a population of walking corpses. My kingdom was destroyed, and in my;
+T:madness, I used my dark powers to summon more undead creatures, and;
+T:create this dark labyrinth of undeath to be used as my new castle.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Zailab;
+T:... but at least, now, I can rest in peace, thanks to you. The destruction;
+T:of my cursed body will bring an end to the curse that plagued these ruins.;
+T:Remember this, my friend: do not be fooled by the light. There is good;
+T:within the darkness, and evil within the light. I do not know if Jezovhan;
+T:is still alive or not... but be careful. Do not fall in the same trap as;
+T:I did. Do not let the priests of Vaharoh fool you with their light and;
+T:their lies!;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Zailab;
+T:... farewell, <CLASS>. And remember my words!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

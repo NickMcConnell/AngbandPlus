@@ -1,0 +1,81 @@
+N:1:33:1:0:0:0
+I:Balgam;
+T:Argh... you're strong, <NAME>. Heh heh... but you are too late!;
+A:[CONTINUE]:0:0:0:1:6:0:0:40:1
+%
+
+N:1:38:1:0:0:0
+I:Balgam;
+T:Running away, <NAME>? I guess I overestimated you, coward! But this time,;
+T:you won't escape! Die, <NAME>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:38:0:0:0:0
+I:Kobold Thief;
+T:Heh heh heh... So, you managed to find me, <NAME>. Yes, I know about you!;
+T:You are the one who has been causing us trouble. As for me, I am Balgam,;
+T:the Kobold Thief! The one and only!;
+A:You're the one behind all that??:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Balgam;
+T:Surprised? Do you really think I'm just an ordinary thief? Heh heh heh...; 
+T:but to tell you the truth, I'm not really behind all that. I merely gave;
+T:orders to the orcs and goblins. I'm not the one who brought them back;
+T:to life! It's funny though... ages ago, we kobolds used to be the slaves;
+T:of the orcs. Now I'm the one who orders them around. Funny, huh?;
+A:Who brought them back to life?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balgam;
+T:heh heh heh... that would be too long to explain. There's so much happening;
+T:around you that you are not aware of. Soon, the world's most feared;
+T:creatures will come back to life... and the orcs are only the beginning!;
+T:Soon, human, dwarves, elves and all other races will unite once again;
+T:to fight against the orcs... and once again, the world will be at war,;
+T:just like centuries ago!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Balgam;
+T:heh heh heh... the new age of darkness is coming! But that is only the;
+T:beginning... so much more will happen. But unfortunately for you, you;
+T:won't see any of this... because I'm going to eliminate you! You shouldn't;
+T:have messed with our order's plans... Now, you will pay with your life!;
+A:Your order?:0:0:0:1:5:0:0:38:1
+%
+
+N:5:0:0:0:0:0
+I:Balgam;
+T:Enough talking! Die, <NAME>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Balgam;
+T:The orcs and goblins have already begun their attack on Udor! Yes, as we;
+T:speak, the town's under attack... and everything is being destroyed!!;
+A:WHAT??:0:0:0:1:7:0:0:39:1
+%
+
+N:7:0:0:0:0:0
+I:Balgam;
+T:You heard me, <NAME>! While we were fighting here, the orcs and goblins;
+T:ravaged the town hall, and went outside and started destroying everything!;
+T:But that's not all! More of them came from all directions! Soon, this town;
+T:will be in ruins... and that will be the beginning of the new age...;
+T:And our order's triumph!!;
+A:[CONTINUE]:0:0:0:7:1:2:8:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:Before you could ask any questions about the 'order', Balgam falls on;
+T:the ground. He is now dead... but if what he said is true about the;
+T:invasion, then you should get out of here as soon as possible!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:This door seems magically locked from the other side. It doesn't;
+T:looks like you'll be able to open it. Perhaps you should return;
+T:at a later time...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

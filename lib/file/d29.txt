@@ -1,0 +1,78 @@
+N:1:55:1:0:0:0
+I:The Restless Monk;
+T:Noo!! My secret technique... has been defeated! But my technique...;
+T:..it was...it was perfect!! W...why?? How did this happen??;
+A:Without your former wisdom, your technique is no longer effective.:0:0:0:1:3:0:0:0:0
+A:Maybe you're just weak.:0:0:0:1:3:0:0:0:0
+%
+
+N:1:55:0:0:0:0
+I:The Restless Monk;
+T:You!!.... How dare you enter my training room! My secret technique...;
+T:I shall never teach it to anyone! Nobody shall steal my technique!!;
+T:I will not rest... until every thieves are dead! Nobody will steal;
+T:my technique... You will not steal my technique. I will kill you!!;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:You do not have the time to answer his remark, as he quickly charges;
+T:toward you. This man is actually a zombie wearing the robes of a monk.;
+T:Despite being a zombie, he seems to have kept his agility and strength;
+T:that he had during his life. Without further words, he attacks you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:The Restless Monk;
+T:I... I remember now... I was a monk in Nimbraya...;
+T:I was so proud because I had developped a secret technique... But because;
+T:it was so powerful, I became greedy... I never wanted to show my;
+T:technique to anyone. I never wanted to teach it, let alone use it at all...;
+T:In the end... I never used it again, and I forgot it. Greed tainted my;
+T:wisdom, and I had lost the mastery of my technique. I could no longer;
+T:use it.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:The Restless Monk;
+T:But I never realized this... until now. Yes... I am sure that's why I;
+T:became a restless dead... because there was still something I had to;
+T:learn...and I finally learned it. Now that I know the truth...I can rest;
+T:in peace. Perhaps in my next life... I shall become wiser...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:The Restless Monk;
+T:...thanks you, noble <CLASS>. You have taught me a valuable lesson.;
+T:My soul shall now leave this world...but before I go, I will give you;
+T:something...;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:He begins to chant what sounds like a prayer... Suddently, you feel;
+T:something in your backpack. You look inside, and find a pair of shiny;
+T:gauntlets of steel.;
+A:[CONTINUE]:0:0:0:3:14:4:7:0:0
+%
+
+N:7:0:0:0:0:0
+I:The Restless Monk;
+T:There you go, my friend... these gauntlets... they are imbued with;
+T:a small part of my soul... and what is left of my former skill. Wear;
+T:them proudly as a trophy of your triumph. With these gauntlets... you;
+T:too shall become a great martial artist one day... Farewell, <CLASS>...;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:The rotten body of the monk falls on the ground. The necromantic force;
+T:that animated him is gone, and his soul can finally rest in peace.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

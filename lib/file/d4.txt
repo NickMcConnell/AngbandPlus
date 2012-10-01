@@ -1,0 +1,263 @@
+N:1:13:1:0:0:0
+I:Old Richard;
+T:I've heard some guards have been killed by an unknown murderer in;
+T:the town hall's basement. You fool! You attacked the guards!! Now,;
+T:they will investigate, and I'm gonna be in serious trouble! Get lost!;
+T:You've caused more trouble than you can imagine! Get lost!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:2:0:3:0:0
+I:Old Richard;
+T:Hey there! My name's Richard, and I'm THE man in this town! heh heh...;
+T:...well, at least, I used to be a great sailor, but... I guess I'm just;
+T:an old geezer now... Anyway, what's your name, <boygirl>?;
+A:My name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:1:2:0:4:0:0
+I:Old Richard;
+T:Hey there! My name's Richard, and I'm THE man in this town! heh heh...;
+T:...well, at least, I used to be a great sailor, but... I guess I'm just;
+T:an old geezer now... Anyway, what's your name, <boygirl>?;
+A:My name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:1:2:0:5:0:0
+I:Old Richard;
+T:Hey there! My name's Richard, and I'm THE man in this town! heh heh...;
+T:...well, at least, I used to be a great sailor, but... I guess I'm just;
+T:an old geezer now... Anyway, what's your name, <boygirl>?;
+A:My name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:1:2:0:6:0:0
+I:Old Richard;
+T:Hey there! My name's Richard, and I'm THE man in this town! heh heh...;
+T:...well, at least, I used to be a great sailor, but... I guess I'm just;
+T:an old geezer now... Anyway, what's your name, <boygirl>?;
+A:My name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:1:2:0:10:0:0
+I:Old Richard;
+T:Hey there! My name's Richard, and I'm THE man in this town! heh heh...;
+T:...well, at least, I used to be a great sailor, but... I guess I'm just;
+T:an old geezer now... Anyway, what's your name, <boygirl>?;
+A:My name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:1:2:0:0:1:0
+I:Old Richard;
+T:Oh my! What a cute girl you are! Come here, pretty, don't be shy!;
+T:Uncle Richie wants to play with you! (winks);
+A:Don't speak to me like that! (slap his face):0:0:0:1:4:0:0:0:0
+A:[Say Nothing]:0:0:0:1:5:0:0:0:0
+%
+
+N:1:2:0:0:2:0
+I:Old Richard;
+T:Hey there! My name's Richard, and I'm THE man in this town! heh heh...;
+T:...well, at least, I used to be a great sailor, but... I guess I'm just;
+T:an old geezer now... Anyway, what's your name, <boygirl>?;
+A:My name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:1:2:1:0:0:0
+I:Old Richard;
+T:Hey there, <NAME>! What brings you here?;
+A:I have stolen back your elixir. Here it is!:2:1:24:6:1204:20:0:0:0
+A:Why did you call the mayor a fool?:1:12:0:1:10:0:0:0:0
+A:Any ideas where I should look for work?:0:0:0:1:17:0:0:0:0
+A:Any rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Old Richard;
+T:Ow! Err... sorry 'bout that... I just can't resist when I see a beautiful;
+T:woman... ... huh... can I at least know your name? I'm sorry for being;
+T:rude to you... please forgive me.;
+A:... my name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:5:0:0:0:0:0
+I:Old Richard;
+T:...... well? ...huh, you're not interested? ... I guess you're not. Oh;
+T:well, at least I tried. I guess beautiful ladies have better to do;
+T:than spending time with an old timer like me... But... could you at;
+T:least tell me your name?;
+A:... my name is <NAME>.:0:0:0:1:6:0:0:2:1
+%
+
+N:6:0:0:0:0:0
+I:Old Richard;
+T:<NAME> heh? Well then, <NAME>, tell me about you. Why have you come to;
+T:such a small town like Udor?;
+A:I was on my way to Jindar, but decided to stop here for a short while.:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Old Richard;
+T:Hah! And that was the biggest mistake you ever made, hah hah hah!;
+T:Errr...hum... seriously, though, there's almost nothing to do around here...;
+T:...almost.;
+A:What do you mean, 'Almost'?:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Old Richard;
+T:Well, the pond is full of fishies, so I guess fishing is one fun thing;
+T:you can do. But for an adventurer like you, the old cave to the north;
+T:would be what you're looking for. Unfortunately, that fool Princeton;
+T:got is closed to the public... now, thanks to our 'great' mayor, no;
+T:adventurers comes here anymore, and that's killing our business!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Old Richard;
+T:... but anyway... Hope you find something fun to do!;
+A:Why did you call the mayor a fool?:1:12:0:1:10:0:0:0:0
+A:Any ideas where I should look for work?:0:0:0:1:17:0:0:0:0
+A:Any rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Old Richard;
+T:Why did I call him a fool? Because that's what he is!! Seriously!;
+T:He's killing our little town's economy with his stupid politics!;
+T:He closed the north cave to protect peoples? Yeah, maybe, except that;
+T:adventurers no longer come here, and no longer buy the stuff they used;
+T:to buy when exploring the caves! But the cave is only one things...;
+T:There's something else he did... something personnal!;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Old Richard;
+T:As I told you, I am now a retired sailor, and have become a fisherman.;
+T:So, to gain a few coins, I fish, and sell my little fishies. But! I used;
+T:to poor a magical elixir in the water, in order to attract lots of;
+T:fish, and then I would catch them all with my net! But then, one of the;
+T:mayor's official came, and told me I must stop using the potion, as;
+T:the mayor fear it could be hazardeous to the health of the villagers;
+T:if they ate a fish that swallowed the elixir.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Old Richard;
+T:How did he learn about my secret elixir anyway? Did he send a spy or;
+T:something? In any cases, they took away my elixir, and now I can no;
+T:longer attract tons of fishies! That damn Princeton ruined my little;
+T:business! Can't he show a little respect for an old, retired man?;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Old Richard;
+T:hmmm... you know, you look like a skilled <CLASS>. I have a favor to;
+T:ask you! Would you please infiltrate the town hall, and look for my;
+T:elixir? It is unfair that they took it from me, and I need it back!;
+T:So, what do you say, how'bout a little sneaky task, heh? Course, you;
+T:get a little reward in return! A nice little, magical ring I found;
+T:back when I was exploring the sea... So, interested?;
+A:No. I won't become a thief!:0:0:0:1:14:0:0:12:1
+A:Sounds interesting...:0:0:0:1:15:0:0:12:1
+%
+
+N:14:0:0:0:0:0
+I:Old Richard;
+T:Hah! Coward! And you call yourself a <CLASS>? You want to be an adventurer,;
+T:and won't even do a little task because you don't want to be a thief!;
+T:I guess you shouldn't kill any monsters either... that makes you a murderer!;
+T:HAHAHAHA!!! *laugh* Err... anyway, I just had to ask. Anything else I;
+T:can do for you?;
+A:Any ideas where I should look for work?:0:0:0:1:17:0:0:0:0
+A:Any rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Old Richard;
+T:Heh heh... good, good! Now, here's a little something for you. It's;
+T:a key that will open the doors to the town hall's basement. How did I;
+T:get this key? That's not important. Now, remember something. The goal;
+T:is to steal my elixir, and bring it back to me. However! You are not;
+T:a murderer, so even though the guards will try to stop you, do NOT;
+T:kill them! If you kill any of the guards, you won't get the reward.;
+T:Understood?;
+A:I understand.:0:0:0:3:1203:0:16:0:0
+%
+
+N:16:0:0:0:0:0
+I:Old Richard;
+T:Well, good luck then, <NAME>! Bring back my little potion, and you'll;
+T:get a nice little reward!;
+A:Any ideas where I should look for work?:0:0:0:1:17:0:0:0:0
+A:Any rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Old Richard;
+T:Nope. Not for an adventurer anyway. Adventurers used to come here when;
+T:the north cave was open, but that fool Princeton closed it! What an idiot!;
+T:Now, you have no more business here. Better leave this town, and try;
+T:to look somewhere else... like Jindar.;
+A:Why did you call the mayor a fool?:1:12:0:1:10:0:0:0:0
+A:Any rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Old Richard;
+T:Rumors? Well, that Clara claims to have seen an orc... again. I swear, this;
+T:woman is seriously getting on my nerves! She's always spreading all kind;
+T:of rumors about orcs and that they are back in our world. If you want;
+T:my opinion, she should go to the alchemy shop, and buy a potion of boldness.;
+T:That would cure her of her madness! Hah hah hah! *laugh*;
+A:Why did you call the mayor a fool?:1:12:0:1:10:0:0:0:0
+A:Any ideas where I should look for work?:0:0:0:1:17:0:0:0:0
+A:Any other rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Old Richard;
+T:Ever visited Karingen? They have all those fancy gadgets! And no;
+T:magic involved! All pure mechanic and technology! I've heard there;
+T:are even some inventors who have created automated constructions that;
+T:can move on their own! I've never seen any though...;
+A:Why did you call the mayor a fool?:1:12:0:1:10:0:0:0:0
+A:Any ideas where I should look for work?:0:0:0:1:17:0:0:0:0
+A:Any other rumors?:0:0:0:4:18:19:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Old Richard;
+T:You did it! Heh heh, you're a good <boygirl>, <NAME>! Thanks you! Now;
+T:I will be able to fish tons of fishies again! You've saved me! As;
+T:promised, here's the little ring I promised! As long as you wear it,;
+T:you have nothing to fear from the wrath of the sea!;
+A:[CONTINUE]:0:0:0:3:435:0:21:0:0
+%
+
+N:21:0:0:0:0:0
+I:Old Richard;
+T:And actually... I may give you even more than I promised! Here, take;
+T:this as well, I no longer need it. It's an old, magical sword I used;
+T:to wield on the sea. Now, I'm too old to fight anymore... so take it as;
+T:your reward!;
+A:[CONTINUE]:0:0:0:3:202:2:22:0:0
+%
+
+N:22:0:0:0:0:0
+I:Old Richard;
+T:Thanks you again, <NAME>! You'll make a great rogue in the future! You;
+T:would make a great pirate too! Good luck in your adventures!;
+A:[END DIALOG]:0:0:0:5:-1:0:0:0:0
+%

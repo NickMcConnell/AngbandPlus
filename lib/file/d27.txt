@@ -1,0 +1,80 @@
+N:1:53:1:0:0:0
+I:Cedric;
+T:Arg!! No!! The darkness has betrayed me!! Curse you, <CLASS>!;
+T:I'll haunt you forever!!;
+A:[CONTINUE]:0:0:0:3:10:4:3:0:0
+%
+
+N:1:53:0:0:2:0
+I:Cedric;
+T:So...you are the one who infiltrated my caves, and killed several of;
+T:my dark minions. I do not appreciate, <CLASS>, definitly not. So you;
+T:know what I will do? I will kill you, and raise you as an undead;
+T:minion under my control. My ladies! Let us kill this foolish <CLASS>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:53:0:0:1:3
+I:Cedric;
+T:So...you are the one who infiltrated my caves, and killed several of;
+T:my dark minions. I do not appreciate, <CLASS>, definitly not. So you;
+T:know what I will do? I will kill you, and raise you as an undead;
+T:minion under my control. My ladies! Let us kill this foolish <CLASS>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:53:0:0:1:4
+I:Cedric;
+T:So...you are the one who infiltrated my caves, and killed several of;
+T:my dark minions. I do not appreciate, <CLASS>, definitly not. So you;
+T:know what I will do? I will kill you, and raise you as an undead;
+T:minion under my control. My ladies! Let us kill this foolish <CLASS>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:53:0:0:1:5
+I:Cedric;
+T:So...you are the one who infiltrated my caves, and killed several of;
+T:my dark minions. I do not appreciate, <CLASS>, definitly not. So you;
+T:know what I will do? I will kill you, and raise you as an undead;
+T:minion under my control. My ladies! Let us kill this foolish <CLASS>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:53:0:0:1:6
+I:Cedric;
+T:So...you are the one who infiltrated my caves, and killed several of;
+T:my dark minions. I do not appreciate, <CLASS>, definitly not. So you;
+T:know what I will do? I will kill you, and raise you as an undead;
+T:minion under my control. My ladies! Let us kill this foolish <CLASS>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:53:0:0:1:0
+I:Cedric;
+T:Greetings, beautiful lady. I really like the way you look. You'd make;
+T:a very pleasant concubine to me, perhaps even a bride!. However, I can't;
+T:say that I appreciate you killing my dark minions. So here's my offer: ;
+T:I shall turn you into a vampire, and then, you and I can serve the forces; 
+T:of darkness together. Do not worry. It will be painless, and you will;
+T:find the form of a vampire very pleasant.;
+A:I'll never be the bride of a vampire!:0:0:0:1:2:0:0:0:0
+A:Yeah, right. Come get me, little boy!:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Cedric;
+T:Ah... a tough one, heh? That will be fun too. But you look too good.;
+T:I cannot let you espace, I must have you. It is sad that I have to knock;
+T:you down first, but do not worry, after that, you and I will be close...;
+T:forever!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I: ;
+T:Cedric's body turns into dust as the necromantic magic that animated;
+T:him fades away. On the ground lies his strange cloak, which seems to;
+T:possess unusual magic. You decide to take it.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,5 @@
+N:1:0:0:0:0:0
+I:Acolyte of Dalunia;
+T:May Dalunia guide your path!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I: ;
+T:A tunnel has been dug here recently. By the look of it, it seems to;
+T:have been dug by some sort of creature. You wonder what sort of creature;
+T:made this tunnel... and where did it come from...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

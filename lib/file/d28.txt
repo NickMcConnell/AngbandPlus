@@ -1,0 +1,27 @@
+N:1:54:1:0:0:0
+I:Volaria;
+T:I...I can't believe it... beaten by a surfacer?? But know this, <CLASS>!;
+T:Our kind will keep fighting! You may have defeated one clan, but there;
+T:are many other merfolk clans! One day, we shall wipe the surfacers from;
+T:existance, and Portralis shall be a heaven of merfolks!!;
+A:[CONTINUE]:0:0:0:3:11:4:2:0:0
+%
+
+N:1:54:0:0:0:0
+I:Volaria;
+T:Foolish <CLASS>! I am Volaria, the fiercest mermaid of the sea!;
+T:My spiritual link with spirits and elementals are unmatched.;
+T:I have no mercy for surfacers who pollute and destroy our waters,;
+T:and take pride in killing the water creatures! But now, their wrath;
+T:will take the form of evil spirits, and we shall unleash these;
+T:spirits upon you!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:With Volaria's demise, the Children of the Planes clan has been;
+T:defeated. The magical crown Volaria was wearing seems highly;
+T:valuable, so you decide to take it as your prize for your victory!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

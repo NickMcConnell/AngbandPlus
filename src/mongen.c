@@ -1459,7 +1459,7 @@ char *mon_random_description(char monattr)
         else if (monattr == 'K') strcpy(monrace, "killer beetle");
         else if (monattr == 'L') strcpy(monrace, "lich");
         else if (monattr == 'M') strcpy(monrace, "hydra");
-        else if (monattr == 'N') strcpy(monrace, "unknown monster");
+        else if (monattr == 'N') strcpy(monrace, "unknown");
         else if (monattr == 'O') strcpy(monrace, "ogre");
         else if (monattr == 'P') strcpy(monrace, "giant");
         else if (monattr == 'Q') strcpy(monrace, "quylthulg");
@@ -1476,7 +1476,7 @@ char *mon_random_description(char monattr)
         else if (monattr == '*') strcpy(monrace, "sphere");
         else if (monattr == ',') strcpy(monrace, "mushroom");
         else if (monattr == '&') strcpy(monrace, "devling");
-        else strcpy(monrace, "unknown monster");
+        else strcpy(monrace, "unknown");
 
         choosestring = randint(100);
         if (choosestring >= 90) strcpy(monadj1, "to kill you.");

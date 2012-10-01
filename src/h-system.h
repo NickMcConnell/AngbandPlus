@@ -55,10 +55,6 @@
 #endif /* MACINTOSH */
 
 
-#if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
-# include <io.h>
-#endif
-
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
     !defined(ACORN) && !defined(VM)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
@@ -105,7 +101,7 @@
 # else /* USG */
 #  include <strings.h>
 extern char *strstr();
-extern char *strchr();
+/*extern char *strchr();*/
 extern char *strrchr();
 # endif /* USG */
 

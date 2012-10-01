@@ -1,0 +1,69 @@
+N:1:1017:1:0:0:0
+I:Suspicious Man;
+T:I can't believe the orc stories were true! So, that's what orcs are...;
+T:But how is this possible??;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1002:1:0:0:0
+I:Suspicious Man;
+T:Good luck, <boygirl>! But be careful down there...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Suspicious Man;
+T:Hmmm? What do you want?;
+A:What's behind that locked door?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Suspicious Man;
+T:Just an entrance to the sewers. Nothing interesting in these;
+T:dirty waters though. There used to be a bunch of poor peoples;
+T:living in there, but those guards 'cleaned' the sewers...;
+T:...those bastards.;
+A:Can you unlock the doors?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Suspicious Man;
+T:Hmm? Why do you ask?;
+A:Actually, I'm looking for a way to enter the castle...:1:40:1:1:5:0:0:0:0
+A:I just want to explore the sewers...:0:0:0:1:4:0:0:0:0
+A:Err..nevermind. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Suspicious Man;
+T:Explore the sewers? Hey, these are SEWERS, not some kind of dungeon;
+T:full of treasures or anything. There's nothing to see down there.;
+T:Now, get lost!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Suspicious Man;
+T:Oh! And you're going to get there by the sewers?? hah hah! You sure;
+T:have some guts, <boygirl>! That's interesting... don't know what;
+T:you want to do there, but anything to bother the king ought to be;
+T:fun! Okay, just hold on a moment, I'll get the key! heh heh...;
+A:[CONTINUE]:0:0:0:1:6:0:0:1001:1
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The man goes away for a moment, and enters an house... then, a few;
+T:minutes later, he comes back...;
+A:[CONTINUE]:0:0:0:1:7:0:0:1002:1
+%
+
+N:7:0:0:0:0:0
+I:Suspicious Man;
+T:All right, here we go! The door is now unlocked. How did I get this key?;
+T:That's not important. Good luck in your plans, but do be careful down;
+T:there... there may be a few bandits, or some vermin...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

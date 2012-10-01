@@ -194,6 +194,27 @@ struct object_kind
         s16b recipe1;
         s16b recipe2;
 
+	/* Brands! */
+	s16b brandtype;
+	s32b branddam;
+	s16b brandrad;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b radiores;
+	s16b chaosres;
+	s16b physres;
+	s16b manares;
 };
 
 
@@ -240,6 +261,30 @@ struct artifact_type
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
+
+	/* Brands! */
+	/* As of NewAngband 1.8.0, a new branded weapons */
+	/* code will be used! :) */
+	s16b brandtype;
+	s32b branddam;
+	s16b brandrad;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b radiores;
+	s16b chaosres;
+	s16b physres;
+	s16b manares;
 };
 
 
@@ -296,6 +341,40 @@ struct monster_blow
 	byte d_side;
 };
 
+/* NewAngband 1.8.0 */
+/* An attack of a monster! */
+typedef struct monster_attack monster_attack;
+
+struct monster_attack
+{
+	char name[80];
+	char act[80];
+	s16b type;
+	s16b effect;
+	s16b ddice;
+	s16b dside;
+	s16b element;
+	s16b special1;
+	s16b special2;
+};
+
+/* NewAngband 1.8.0 */
+/* A spell of a monster! */
+typedef struct monster_spell monster_spell;
+
+struct monster_spell
+{
+	char name[80];
+	char act[80];
+	s16b type;
+	s16b power;
+	s16b special1;
+	s16b special2;
+	s16b special3;
+	char summchar;
+	s16b cost;
+};
+
 
 
 /*
@@ -325,6 +404,7 @@ struct monster_race
 {
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
+	char name_char[200];
 
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
@@ -391,7 +471,9 @@ struct monster_race
 	byte r_cast_inate;		/* Max number of inate spells seen */
 	byte r_cast_spell;		/* Max number of other spells seen */
 
-	byte r_blows[4];		/* Number of times each blow type was seen */
+	byte r_blows[20];		/* Number of times each blow type was seen */
+	byte r_resist[20];		/* Various resistances observed... */
+	byte r_spells[20];		/* Known monster spells */
 
 	u32b r_flags1;			/* Observed racial flags */
 	u32b r_flags2;			/* Observed racial flags */
@@ -404,6 +486,53 @@ struct monster_race
         u32b r_flags9;                  /* Observed racial flags */
 
         bool on_saved;                  /* Is the (unique) on a saved level ? */
+
+	/* New stuff for 1.8.0! */
+	
+	s16b str;
+	s16b dex;
+	s16b mind;
+	s16b skill_attack;
+	s16b skill_magic;
+	
+	s16b countertype;
+	s16b counterchance;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b radiores;
+	s16b chaosres;
+	s16b physres;
+	s16b manares;
+
+	s16b spellchance; /* Chance to cast a spell. 0 = no spell */
+
+	s16b attacks; /* Number of attacks/turn */
+	monster_attack attack[20]; /* Up to twenty type of attacks */
+	s16b spells; /* Number of spells/turn */
+	monster_spell spell[20]; /* Up to twenty different spells */
+	
+	s16b treasuretval;
+	s16b treasuresval;
+	s16b treasurechance;
+	s16b treasuremagic;
+	s16b event;
+	s16b extra1;
+	s16b extra2;
+	s16b fixedlevel;
+	s16b townnum; /* Which town is associated with this monster! */
+	s16b dunnum; /* Which dungeon is associated with this monster! */
+	s16b lives; /* How many lives the monster have! */
 };
 
 
@@ -510,6 +639,17 @@ struct cave_type
 #endif
 
         s32b field_damage;      /* If fields are present on this grid, do damages... */
+	s16b event;	/* An event for this tile? */
+	s16b eventtype; /* Parameter */
+	s16b eventextra; /* Parameter 2 */
+	s16b eventextra2; /* Parameter 3 */
+	s16b eventcond;
+	s16b eventcondval;
+	s16b eventset;
+	s16b eventsetval;
+	s16b script;
+
+	char script_name[120];
 };
 
 
@@ -560,14 +700,39 @@ struct object_type
         s32b pval3;                     /* Item extra-parameter for some special
                                            items*/
 
+	/* Resistances! */
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b chaosres;
+	s16b radiores;
+	s16b physres;
+	s16b manares;
+
+	/* Brands! */
+	/* As of NewAngband 1.8.0, a new branded weapons */
+	/* code will be used! :) */
+	s16b brandtype;
+	s32b branddam;
+	s16b brandrad;
+
 	byte discount;		/* Discount (if any) */
 
 	byte number;		/* Number of items */
 
         s32b weight;            /* Item weight */
 
-        byte elevel;            /* Item exp level */
-        s32b exp;               /* Item exp */
+        s16b level;            /* Item exp level */
+        s32b kills;               /* Item exp */
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
@@ -672,6 +837,18 @@ struct monster_type
         s16b animdam_d;                  /* Animated monster's dice damages. */
         s16b animdam_s;                  /* Animated monster's side damages. */
         s16b seallight;                  /* Hit by Sealing Light */
+
+	s16b str;
+	s16b dex;
+	s16b mind;
+	s16b skill_attack;
+	s16b skill_magic;
+	s32b mana;
+	s16b hasted;
+	s16b boosted;
+	s16b spoke;
+	s16b lives;
+	s16b summoned;
 };
 
 
@@ -977,9 +1154,6 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
-        u16b realm1;        /* First magic realm */
-        u16b realm2;        /* Second magic realm */
-        byte mimic_form;        /* Actualy transformation */
 	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
@@ -1005,29 +1179,24 @@ struct player_type
 	s16b lev;			/* Level */
 
 	s16b town_num;			/* Current town number */
-	s16b arena_number;		/* monster number in arena -KMW- */
-	s16b inside_arena;		/* Is character inside arena? */
+	char town_name[80];		/* Current town's name. */
 	s16b inside_quest;		/* Inside quest level */
-	bool exit_bldg;			/* Goal obtained in arena? -KMW- */
-	bool leftbldg;			/* did we just leave a special area? -KMW- */
+	char quest_name[80];		/* Current town's name. */
+	s16b death_dialog;		/* Dialog shown upon death. */
+	s16b eventdeath;
+	s16b eventdeathset;
 
-        s16b rewards[MAX_BACT];         /* Status of rewards in town */
-
-        s32b wilderness_x;              /* Coordinates in the wilderness */
-	s32b wilderness_y;
+        s32b wild_x;              /* Coordinates in the wilderness */
+	s32b wild_y;
         bool wild_mode;                 /* TRUE = Small map, FLASE = Big map */
 
         s32b mhp;                       /* Max hit pts */
         s32b chp;                       /* Cur hit pts */
-        u16b chp_frac;          /* Cur hit frac (times 2^16) */
+	u16b chp_frac;
 
         s32b msp;                       /* Max mana pts */
         s32b csp;                       /* Cur mana pts */
-        u16b csp_frac;          /* Cur mana frac (times 2^16) */
-
-        s32b grace;                   /* Your God's appreciation factor. */
-        s32b god_favor;               /* Last time you asked for a favor. */
-        byte pgod;                    /* Your God. */
+	u16b csp_frac;
 
 	s16b max_plv;		/* Max Player Level */
 
@@ -1035,7 +1204,6 @@ struct player_type
 	s16b stat_cur[6];	/* Current "natural" stat values */
 
 	s16b fast;			/* Timed -- Fast */
-        s16b lightspeed;                /* Timed -- Light Speed */
 	s16b slow;			/* Timed -- Slow */
 	s16b blind;			/* Timed -- Blindness */
 	s16b paralyzed;		/* Timed -- Paralysis */
@@ -1046,49 +1214,21 @@ struct player_type
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
 
-        s16b protevil;          /* Timed -- Protection from Evil*/
-        s16b protundead;        /* Timed -- Protection from Undead*/
-	s16b invuln;		/* Timed -- Invulnerable */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
-        s16b shield_power;      /* Timed -- Shield Spell Power */
+	s16b shield_power;
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
 
-	s16b oppose_acid;	/* Timed -- oppose acid */
-	s16b oppose_elec;	/* Timed -- oppose lightning */
-	s16b oppose_fire;	/* Timed -- oppose heat */
-	s16b oppose_cold;	/* Timed -- oppose cold */
-	s16b oppose_pois;	/* Timed -- oppose poison */
-        s16b oppose_ld;         /* Timed -- oppose light & dark */
-        s16b oppose_cc;         /* Timed -- oppose chaos & confusion */
-        s16b oppose_ss;         /* Timed -- oppose sound & shards */
-        s16b oppose_nex;        /* Timed -- oppose nexus */
-
-
         s16b tim_esp;       /* Timed ESP */
         s16b wraith_form;   /* Timed wraithform */
         s16b tim_ffall;     /* Timed Levitation */
-        s16b tim_fire_aura; /* Timed Fire Aura */
 
-        s16b resist_magic;  /* Timed Resist Magic (later) */
         s16b tim_invisible; /* Timed Invisibility */
         s16b tim_inv_pow;   /* Power of timed invisibility */
-        s16b tim_mimic;     /* Timed Mimic */
-        s16b tim_lite;      /* Timed Lite */
-        s16b holy;          /* Holy Aura */
-        s16b walk_water;    /* Walk over water as a god */
-        s16b tim_mental_barrier; /* Sustain Int&Wis */
-        s16b strike;        /* True Strike(+25 hit) */
-        s16b meditation;    /* Meditation(+50 mana -25 to hit/to dam) */
-        s16b tim_reflect;   /* Timed Reflection */
-        s16b tim_res_time;  /* Timed Resistance to Time */
 
-        s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
-
-        s16b chaos_patron;
         u32b muta1;
         u32b muta2;
         u32b muta3;
@@ -1103,30 +1243,10 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	s16b new_spells;	/* Number of spells available */
-
-	s16b old_spells;
-
-        s16b xtra_spells;       /* Number of xtra spell learned(via potion) */
-
-	bool old_cumber_armor;
-	bool old_cumber_glove;
-	bool old_heavy_wield;
-	bool old_heavy_shoot;
-	bool old_icky_wield;
-
 	s16b old_lite;		/* Old radius of lite (if any) */
 	s16b old_view;		/* Old radius of view (if any) */
 
 	s16b old_food_aux;	/* Old value of food */
-
-
-	bool cumber_armor;	/* Mana draining armor */
-	bool cumber_glove;	/* Mana draining gloves */
-	bool heavy_wield;	/* Heavy weapon */
-	bool heavy_shoot;	/* Heavy shooter */
-	bool icky_wield;	/* Icky weapon */
-        bool immovable;         /* Immovable character */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -1143,43 +1263,15 @@ struct player_type
 	s16b stat_ind[6];	/* Indexes into stat tables */
 	s16b stat_cnt[6];	/* Counter for temporary drains */
 	s16b stat_los[6];	/* Amount of temporary drains */
-
-	bool immune_acid;	/* Immunity to acid */
-	bool immune_elec;	/* Immunity to lightning */
-	bool immune_fire;	/* Immunity to fire */
-	bool immune_cold;	/* Immunity to cold */
-
-	bool resist_acid;	/* Resist acid */
-	bool resist_elec;	/* Resist lightning */
-	bool resist_fire;	/* Resist fire */
-	bool resist_cold;	/* Resist cold */
-	bool resist_pois;	/* Resist poison */
+	s16b stat_mut[6];	/* Stat modifications by mutations from Radio. */
 
 	bool resist_conf;	/* Resist confusion */
-	bool resist_sound;	/* Resist sound */
-	bool resist_lite;	/* Resist light */
-	bool resist_dark;	/* Resist darkness */
-	bool resist_chaos;	/* Resist chaos */
-	bool resist_disen;	/* Resist disenchant */
-	bool resist_shard;	/* Resist shards */
-	bool resist_nexus;	/* Resist nexus */
 	bool resist_blind;	/* Resist blindness */
-	bool resist_neth;	/* Resist nether */
 	bool resist_fear;	/* Resist fear */
-        bool resist_continuum;  /* Resist space-time continuum disruption */
 
-        bool sensible_fire;     /* Fire does more damage on the player */
-/* Not used and NOT coded now */
-/*        bool sensible_cold;*/   /* Cold does more damage on the player */
-/*        bool sensible_elec;*/   /* Lightning does more damage on the player */
-/*        bool sensible_acid;*/   /* Acid does more damage on the player */
-
-    bool reflect;       /* Reflect 'bolt' attacks */
-    bool sh_fire;       /* Fiery 'immolation' effect */
-    bool sh_elec;       /* Electric 'immolation' effect */
-
-    bool anti_magic;    /* Anti-magic */
-    bool anti_tele;     /* Prevent teleportation */
+        bool reflect;       /* Reflect 'bolt' attacks */
+        bool sh_fire;       /* Fiery 'immolation' effect */
+        bool sh_elec;       /* Electric 'immolation' effect */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
@@ -1203,27 +1295,23 @@ struct player_type
 	bool hold_life;		/* Resist life draining */
 	bool telepathy;		/* Telepathy */
 	bool slow_digest;	/* Slower digestion */
-	bool bless_blade;	/* Blessed blade */
 	bool xtra_might;	/* Extra might bow */
-	bool impact;		/* Earthquake blows */
 
         s16b invis;             /* Invisibility */
 
-	s16b dis_to_h;		/* Known bonus to hit */
+	s32b dis_to_h;		/* Known bonus to hit */
         s32b dis_to_d;          /* Known bonus to dam */
-	s16b dis_to_a;		/* Known bonus to ac */
+	s32b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
         s16b to_m;                      /* Bonus to mana */
         s16b to_s;                      /* Bonus to spell */
-	s16b to_h;			/* Bonus to hit */
+	s32b to_h;			/* Bonus to hit */
         s32b to_d;                      /* Bonus to dam */
-	s16b to_a;			/* Bonus to ac */
+	s32b to_a;			/* Bonus to ac */
 
-	s16b ac;			/* Base ac */
-
-        byte antisummon;        /* Radius of the anti summoning field */
+	s32b ac;			/* Base ac */
 
 	s16b see_infra;		/* Infravision range */
 
@@ -1235,34 +1323,6 @@ struct player_type
 	byte tval_ammo;		/* Correct ammo tval */
 
 	s16b pspeed;		/* Current speed */
-
-        u32b class_extra1;      /* Variable for classe */
-        u32b class_extra2;      /* Variable for classe */
-        u32b class_extra3;      /* Variable for classe */
-        u32b class_extra4;      /* Variable for classe */
-        u32b class_extra5;      /* Variable for classe */
-        u32b class_extra6;      /* Variable for classe */
-        u32b class_extra7;      /* Variable for classe */
-
-        u32b race_extra1;       /* Variable for race */
-        u32b race_extra2;       /* Variable for race */
-        u32b race_extra3;       /* Variable for race */
-        u32b race_extra4;       /* Variable for race */
-        u32b race_extra5;       /* Variable for race */
-        u32b race_extra6;       /* Variable for race */
-        u32b race_extra7;       /* Variable for race */
-
-        cptr mimic_name;
-
-        byte music;             /* Current music */
-
-        byte tactic;                  /* from 128-4 extremely coward to */
-                                      /* 128+4 berserker */
-        byte movement;                /* base movement way */
-
-        bool black_breath;      /* The Tolkien's Black Breath */
-
-        bool precognition;      /* Like the cheat mode */
 
 	/*** Pet commands ***/
 	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
@@ -1277,78 +1337,15 @@ struct player_type
 	/*** Temporary fields ***/
 
         bool leaving;                   /* True if player is leaving */
-        u32b monster_magic;             /* Monster magic type 1 */
-        u32b monster_magic2;             /* Monster magic type 2 */
-        u32b monster_magic3;             /* Monster magic type 3 */
-        u32b monster_magic4;             /* Monster magic type 4 */
         s32b ability_points;             /* Ability points */
-        s16b multiplier;                 /* Damages multiplier */
-        s16b smultiplier;                /* Shooters(bows, crossbows) multiplier! */
-        /* New Variables for new spell system! */
-        s16b elemmagic;
-        s16b battlemagic;
-        s16b healmagic;
-        s16b cursemagic;
-        s16b visionmagic;
-        s16b naturemagic;
-        s16b lmultiplier;                /* Leaders Multiplier */
+        
         s16b memorized;
         s16b elemlord;
         s16b statpoints;                 /* Stat points used to raise your stats! */
         s16b skillpoints;                /* Points to increase skills! */
-        /* Skills base values. Only those are saved in the save file. */
-        s16b skill_swords_base; /* How good you are with swords. */
-        s16b skill_hafted_base; /* How good you are with hafted weapons. */
-        s16b skill_polearms_base; /* How good you are with polearms. */
-        s16b skill_daggers_base; /* How good you are with daggers. */
-        s16b skill_axes_base; /* How good you are with axes. */
-        s16b skill_rods_base; /* How good you are with rods. */
-        s16b skill_shooting_base; /* How good you are at shooting with bows/crossbows/slings. */
-        s16b skill_throwing_base; /* How good you are at throwing stuff. */
-        s16b skill_marts_base; /* How good you are at fighting bare-handed. */
-        s16b skill_agility_base; /* Agility skill, increase your AC. */
-        s16b skill_stealth_base; /* How stealthy you are... */
-        s16b skill_spellcraft_base; /* Improve your spells, makes them more effective. */
-        s16b skill_leadership_base; /* The power of your allies! */
-        s16b skill_alchemy_base; /* Ability to make potions! */
-        s16b skill_crafting_base; /* Ability to make weapons/armors! */
-        s16b skill_combat_base; /* Ability to perform combat feats! */
-
-        /* The bonus values of the skills above! */
-        s16b skill_swords_bonus; /* How good you are with swords. */
-        s16b skill_hafted_bonus; /* How good you are with hafted weapons. */
-        s16b skill_polearms_bonus; /* How good you are with polearms. */
-        s16b skill_daggers_bonus; /* How good you are with daggers. */
-        s16b skill_axes_bonus; /* How good you are with axes. */
-        s16b skill_rods_bonus; /* How good you are with rods. */
-        s16b skill_shooting_bonus; /* How good you are at shooting with bows/crossbows/slings. */
-        s16b skill_throwing_bonus; /* How good you are at throwing stuff. */
-        s16b skill_marts_bonus; /* How good you are at fighting bare-handed. */
-        s16b skill_agility_bonus; /* Agility skill, increase your AC. */
-        s16b skill_stealth_bonus; /* How stealthy you are... */        
-        s16b skill_spellcraft_bonus; /* Improve your spells, makes them more effective. */
-        s16b skill_leadership_bonus; /* The power of your allies! */
-        s16b skill_alchemy_bonus; /* Ability to make potions! */
-        s16b skill_crafting_bonus; /* Ability to make weapons/armors! */
-        s16b skill_combat_bonus; /* Ability to perform combat feats! */
-
-        /* The final values of skills! */
-        s16b skill_swords; /* How good you are with swords. */
-        s16b skill_hafted; /* How good you are with hafted weapons. */
-        s16b skill_polearms; /* How good you are with polearms. */
-        s16b skill_daggers; /* How good you are with daggers. */
-        s16b skill_axes; /* How good you are with axes. */
-        s16b skill_rods; /* How good you are with rods. */
-        s16b skill_shooting; /* How good you are at shooting with bows/crossbows/slings. */
-        s16b skill_throwing; /* How good you are at throwing stuff. */
-        s16b skill_marts; /* How good you are at fighting bare-handed. */
-        s16b skill_agility; /* Agility skill, increase your AC. */
-        s16b skill_stealth; /* How stealthy you are... */        
-        s16b skill_spellcraft; /* Improve your spells, makes them more effective. */
-        s16b skill_leadership; /* The power of your allies! */
-        s16b skill_alchemy; /* Ability to make potions! */
-        s16b skill_crafting; /* Ability to make weapons/armors! */
-        s16b skill_combat; /* Ability to perform combat feats! */
+	s16b skill_base[SKILL_MAX];
+	s16b skill_bonus[SKILL_MAX];
+	s16b skill[SKILL_MAX];
 
         /* New variables for the new spells! */
         s16b str_boost;
@@ -1395,6 +1392,7 @@ struct player_type
         /* Level 0 = ability not learned. */
         s16b abilities[MAX_ABILITIES];
 	s16b num_abilities; /* Number of learned abilities */
+	s16b abilities_powers[36]; /* Used with "U" command. */
 
         /* Magic mode. 0 = normal spells. 1 = monster magics */
         s16b magic_mode;
@@ -1408,6 +1406,58 @@ struct player_type
 
         /* Great guard counter */
         s16b guardconfuse;
+
+	/* Are we learning monster magics or not? */
+	bool learning;
+
+	/* Start position in town */
+	s16b startx;
+	s16b starty;
+
+	/* Events */
+	s16b events[30000];
+
+	/* Resistances! */
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b chaosres;
+	s16b radiores;
+	s16b physres;
+	s16b manares;
+
+	/* Current width/height */
+	s16b cur_wid;
+	s16b cur_hgt;
+
+	/* Where to start in the wild. */
+	s16b wild_startx;
+	s16b wild_starty;
+
+	/* Where to start in a quest. If 0, use the quest's default start position. */
+	s16b questx;
+	s16b questy;
+
+	/* Power Attacks! */
+	s16b powerattack;
+        s16b powerlevel;
+	s16b num_blow2;		/* Number of blows with second weapon */
+
+	/* Alignment! */
+	/* Are you good or evil? ;) */
+	s16b alignment;
+
+	/* Have the towns changed? */
+	s16b towns[30000];
 };
 
 
@@ -1651,8 +1701,8 @@ struct dungeon_info_type {
         byte min_plev;                  /* Minimal plev needed to enter -- it's an anti-cheating mesure */
         byte mode;                      /* Mode of combinaison of the monster flags */
 
-        int min_m_alloc_level;          /* Minimal number of monsters per level */
-        int max_m_alloc_chance;         /* There is a 1/max_m_alloc_chance chance per round of creating a new monster */
+        s16b min_m_alloc_level;          /* Minimal number of monsters per level */
+        s16b max_m_alloc_chance;         /* There is a 1/max_m_alloc_chance chance per round of creating a new monster */
 
         s32b flags1;                    /* Flags 1 */
 
@@ -1667,10 +1717,11 @@ struct dungeon_info_type {
         s32b mflags9;
 
         char r_char[5];                 /* Monster race allowed */
-        int final_artifact;             /* The artifact you'll find at the bottom */
-        int final_guardian;             /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
+        s16b final_artifact;             /* The artifact you'll find at the bottom */
+        s16b final_guardian;             /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
 
         byte special_percent;           /* % of monsters affected by the flags/races allowed, to add some variety */
+	s16b quest;	/* "Quest" level at the end of the dungeon. */
 };
 
 /* A structure for inscriptions */
@@ -1687,7 +1738,7 @@ typedef struct magic_spells magic_spells;
 
 struct magic_spells
 {
-    char    name[30];
+    char    name[80];
     s16b    school[5];
     s16b    effect[5];
     s16b    shape[5];
@@ -1702,12 +1753,95 @@ struct magic_spells
     char    schar3;
     char    schar4;
     char    schar5;
-    char    sspeci1[30];
-    char    sspeci2[30];
-    char    sspeci3[30];
-    char    sspeci4[30];
-    char    sspeci5[30];
+    char    sspeci1[80];
+    char    sspeci2[80];
+    char    sspeci3[80];
+    char    sspeci4[80];
+    char    sspeci5[80];
     s16b    finalcost;
     bool    created;
 };
 
+/* NewAngband 1.8.0 */
+/* Monster Magics structure! */
+/* Pretty much the same as the above monster_spell. */
+typedef struct monster_magics monster_magics;
+
+struct monster_magics
+{
+	char name[30];
+	char act[30];
+	s16b type;
+	s16b power;
+	s16b special1;
+	s16b special2;
+	s16b special3;
+	char summchar;
+	s16b cost;
+};
+
+/* A dialog's answer. */
+typedef struct dialog_answers dialog_answers;
+
+struct dialog_answers
+{
+	char name[80];
+	s16b ctype;
+	s16b cparam1;
+	s16b cparam2;
+	s16b effect;
+	s16b eparam1;
+	s16b eparam2;
+	s16b eparam3;
+	s16b eparam4;
+	s16b eparam5;
+	s16b valid;
+};
+
+typedef struct wild_info wild_info;
+struct wild_info
+{
+        s16b town;
+	s16b feat;
+};
+
+/* Classes definitions */
+typedef struct class_def class_def;
+struct class_def
+{
+	bool created;
+	char name[80];
+	char ranksm[10][80];
+	char ranksf[10][80];
+	s16b advanced;
+	s16b req_str;
+	s16b req_int;
+	s16b req_wis;
+	s16b req_dex;
+	s16b req_con;
+	s16b req_chr;
+	s16b str_bonus;
+	s16b int_bonus;
+	s16b wis_bonus;
+	s16b dex_bonus;
+	s16b con_bonus;
+	s16b chr_bonus;
+	s16b req_skills[SKILL_MAX];
+	s16b req_classes[MAX_CLASS];
+	s16b skills_bonus[SKILL_MAX];
+};
+
+/* Abilities definitions. */
+/* Note that the last two parameters are for skill feats only. */
+/* They are not used by regular abilities. */
+typedef struct ability_def ability_def;
+struct ability_def
+{
+	char name[80];
+	s16b abtype;
+	s16b hardcode;
+	s16b powerid;
+	s16b combatfeat;
+	s16b skill;
+	s16b reqskill;
+};

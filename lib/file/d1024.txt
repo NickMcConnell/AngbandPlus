@@ -1,0 +1,84 @@
+N:1:1011:1:0:0:0
+I: ;
+T:As you give the final blow to the cloaked man... he immediately;
+T:stands up, despite the wounds you've caused him. He doesn't seem worn;
+T:out at all.;
+A:[CONTINUE]:0:0:0:1:5:0:0:1009:1
+%
+
+N:1:1011:0:0:0:0
+I: ;
+T:As you open the door, and enter the room, you notice that Avemorsh's;
+T:room of prayers is filled with dead human bodies. It seems like all the;
+T:orc worshippers have been slain. In the room stands a man shrouded in a;
+T:dark cloak. As you approach, he turns around, and look at you straight;
+T:in the eyes... or so it seems, as you cannot see the face underneath;
+T:the cloak...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Cloaked Man;
+T:hmmm... it's you.;
+A:Who are you?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Cloaked Man;
+T:...that is not important for now. We know about you, <NAME>. Do not be;
+T:so surprised. There is so much happening around you that you don't;
+T:realize yet. But I am still bothered that you managed to survive the;
+T:attack in Udor. Although to be honest... I am also very amused!;
+T:You seem to be strong, <NAME>. Please, let me see your power!;
+T:Show me your strength!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Without saying anything else, he draws his sword, and prepares to fight;
+T:you...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Cloaked Man;
+T:hmmm... not bad. I can see why Balgam was defeated. Very good, <NAME>,;
+T:you definitly live up to your title of <CLASS>.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Quazar;
+T:You may call me Quazar, and like Balgam, I am member of the 'order'...;
+T:Unfortunately though, you are already too late! I already stole the;
+T:secret that was kept by the Avemorsh clan! Now, the 'Tear of Justice';
+T:will be mine, and once tainted with darkness, death will rain upon;
+T:Portralis as our order rise to victory!;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Quazar;
+T:Oh, and you cannot stop me... You see, I am not the real Quazar,;
+T:just a projection of my own spirit! Even if you kill me, I can always;
+T:return, for my real body lives somewhere, and as long as I live, I can;
+T:always project my spirit in the form of this cloaked warrior!; 
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Quazar;
+T:Well, time for this incarnation to disappear I guess... You did your;
+T:best, <NAME>, but in the end, you can't do anything. The 'Tear of Justice';
+T:shall be mine, and our order will triumph!; 
+A:[CONTINUE]:0:0:0:1:9:0:0:1012:1
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:And before you can say anything, Quazar vanishes, and disappears...;
+T:It seems there's not much left to do, but to inform the high priest;
+T:of the situation...; 
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

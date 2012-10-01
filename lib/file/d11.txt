@@ -1,0 +1,9 @@
+N:1:0:0:0:0:0
+I: ;
+T:There is an unpleasant smell in the air... one that you cannot;
+T:identify. It stinks, as if a group of filthly creatures came;
+T:here. As you look on the ground, you can see some muddy footsteps.;
+T:Most of them are small, but a few of them are larger than that of;
+T:a human... You wonder who or what came here...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

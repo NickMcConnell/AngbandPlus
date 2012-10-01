@@ -41,81 +41,6 @@
 /*** Helper arrays for parsing ascii template files ***/
 
 /*
- * Monster Blow Methods
- */
-static cptr r_info_blow_method[] =
-{
-	"",
-	"HIT",
-	"TOUCH",
-	"PUNCH",
-	"KICK",
-	"CLAW",
-	"BITE",
-	"STING",
-	"XXX1",
-	"BUTT",
-	"CRUSH",
-	"ENGULF",
-	"CHARGE",
-	"CRAWL",
-	"DROOL",
-	"SPIT",
-	"EXPLODE",
-	"GAZE",
-	"WAIL",
-	"SPORE",
-	"XXX4",
-	"BEG",
-	"INSULT",
-	"MOAN",
-	"SHOW",
-	NULL
-};
-
-
-/*
- * Monster Blow Effects
- */
-static cptr r_info_blow_effect[] =
-{
-	"",
-	"HURT",
-	"POISON",
-	"UN_BONUS",
-	"UN_POWER",
-	"EAT_GOLD",
-	"EAT_ITEM",
-	"EAT_FOOD",
-	"EAT_LITE",
-	"ACID",
-	"ELEC",
-	"FIRE",
-	"COLD",
-	"BLIND",
-	"CONFUSE",
-	"TERRIFY",
-	"PARALYZE",
-	"LOSE_STR",
-	"LOSE_INT",
-	"LOSE_WIS",
-	"LOSE_DEX",
-	"LOSE_CON",
-	"LOSE_CHR",
-	"LOSE_ALL",
-	"SHATTER",
-	"EXP_10",
-	"EXP_20",
-	"EXP_40",
-	"EXP_80",
-	"DISEASE",
-	"TIME",
-        "XXX1",
-	NULL
-};
-
-
-/*
  * Monster race flags
  */
 static cptr r_info_flags1[] =
@@ -370,17 +295,17 @@ static cptr r_info_flags7[] =
         "VARIAZ",
         "SEDUCE_MALES",
         "SEDUCE_FEMALES",
-        "RES_WIND",
-        "RES_LITE",
-        "RES_DARK",
-        "RES_TIME",
-        "RES_INER",        
-        "RES_CHAOS",
-        "RES_GRAV",
-        "RES_FORCE",
-        "RES_NUKE",
-        "RES_SHARDS",
-        "RES_SOUND",
+        "TOWNSFOLK",
+        "NEVER_MOVE_FRIENDLY",
+        "GUARD",
+        "NEVER_BOSS",
+        "NEVER_ATTACKED",        
+        "XXX7x20",
+        "XXX7x21",
+        "XXX7x22",
+        "XXX7x23",
+        "XXX7x24",
+        "XXX7x25",
 	"XXX7X26",
 	"XXX7X27",
 	"XXX7X28",
@@ -525,7 +450,7 @@ static cptr k_info_flags2[] =
 	"IM_ELEC",
 	"IM_FIRE",
 	"IM_COLD",
-	"XXX3",
+	"RES_WATER",
 	"REFLECT",
 	"FREE_ACT",
 	"HOLD_LIFE",
@@ -540,11 +465,11 @@ static cptr k_info_flags2[] =
 	"RES_BLIND",
 	"RES_CONF",
 	"RES_SOUND",
-	"RES_SHARDS",
-	"RES_NETHER",
-	"RES_NEXUS",
+	"RES_EARTH",
+	"RES_RADIO",
+	"RES_WIND",
 	"RES_CHAOS",
-	"RES_DISEN"
+	"RES_WARP"
 };
 
 /*
@@ -686,10 +611,10 @@ static cptr d_info_flags1[] =
         "COLD",
         "NO_DOWN",
         "FORGET",
-        "XXX1",
-        "XXX1",
-        "XXX1",
-        "XXX1",
+        "UNDEAD",
+        "DEMON",
+        "DRAGON",
+        "NO_GENERIC",
         "XXX1",
         "XXX1",
         "XXX1",
@@ -1637,6 +1562,56 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Process 'B' for "Brand" (weapons & gloves) */
+		if (buf[0] == 'B')
+		{
+			int brtyp, brrad;
+			s32b brdam;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%ld:%d",
+				&brtyp, &brdam, &brrad)) return (1);
+
+			/* Save the values */
+			k_ptr->brandtype = brtyp;
+			k_ptr->branddam = brdam;
+			k_ptr->brandrad = brrad;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Resistances! */
+		if (buf[0] == 'R')
+		{
+			int res1, res2, res3, res4, res5, res6, res7, res8;
+			int res9, res10, res11, res12, res13, res14, res15, res16;
+			/* Scan for the values */
+			if (16 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        &res1, &res2, &res3, &res4, &res5, &res6, &res7, &res8, &res9, &res10, &res11, &res12, &res13, &res14, &res15, &res16)) return (1);
+
+			/* Save the values */
+                        k_ptr->fireres = res1;
+                        k_ptr->coldres = res2;
+                        k_ptr->elecres = res3;
+                        k_ptr->acidres = res4;
+                        k_ptr->poisres = res5;
+                        k_ptr->lightres = res6;
+                        k_ptr->darkres = res7;
+                        k_ptr->warpres = res8;                  
+                        k_ptr->waterres = res9;
+                        k_ptr->windres = res10;
+                        k_ptr->earthres = res11;
+                        k_ptr->soundres = res12;
+                        k_ptr->radiores = res13;
+                        k_ptr->chaosres = res14;
+                        k_ptr->physres = res15;
+                        k_ptr->manares = res16;
+
+			/* Next... */
+			continue;
+		}
+
 		/* Oops */
                 return (6);
 	}
@@ -1904,6 +1879,56 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr->to_h = th;
 			a_ptr->to_d = td;
 			a_ptr->to_a =  ta;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'B' for "Brand" (weapons & gloves) */
+		if (buf[0] == 'B')
+		{
+			int brtyp, brrad;
+			s32b brdam;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%ld:%d",
+				&brtyp, &brdam, &brrad)) return (1);
+
+			/* Save the values */
+			a_ptr->brandtype = brtyp;
+			a_ptr->branddam = brdam;
+			a_ptr->brandrad = brrad;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Resistances! */
+		if (buf[0] == 'R')
+		{
+			int res1, res2, res3, res4, res5, res6, res7, res8;
+			int res9, res10, res11, res12, res13, res14, res15, res16;
+			/* Scan for the values */
+			if (16 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        &res1, &res2, &res3, &res4, &res5, &res6, &res7, &res8, &res9, &res10, &res11, &res12, &res13, &res14, &res15, &res16)) return (1);
+
+			/* Save the values */
+                        a_ptr->fireres = res1;
+                        a_ptr->coldres = res2;
+                        a_ptr->elecres = res3;
+                        a_ptr->acidres = res4;
+                        a_ptr->poisres = res5;
+                        a_ptr->lightres = res6;
+                        a_ptr->darkres = res7;
+                        a_ptr->warpres = res8;                  
+                        a_ptr->waterres = res9;
+                        a_ptr->windres = res10;
+                        a_ptr->earthres = res11;
+                        a_ptr->soundres = res12;
+                        a_ptr->radiores = res13;
+                        a_ptr->chaosres = res14;
+                        a_ptr->physres = res15;
+                        a_ptr->manares = res16;
 
 			/* Next... */
 			continue;
@@ -2325,54 +2350,6 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 	return (1);
 }
 
-
-/*
- * Grab one (spell) flag in a monster_race from a textual string
- */
-static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
-{
-	int i;
-
-	/* Scan flags4 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, r_info_flags4[i]))
-		{
-			r_ptr->flags4 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Scan flags5 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, r_info_flags5[i]))
-		{
-			r_ptr->flags5 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Scan flags6 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, r_info_flags6[i]))
-		{
-			r_ptr->flags6 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown monster flag '%s'.", what);
-
-	/* Failure */
-	return (1);
-}
-
-
-
-
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
  */
@@ -2437,7 +2414,6 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* No version yet */
 		if (!okay) return (2);
 
-
 		/* Process 'N' for "New/Number/Name" */
 		if (buf[0] == 'N')
 		{
@@ -2476,6 +2452,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Append chars to the name */
 			strcpy(r_name + r_head->name_size, s);
+			sprintf(r_ptr->name_char, "%s%s", r_ptr->name_char, s);
 
 			/* Advance the index */
 			r_head->name_size += strlen(s);
@@ -2542,10 +2519,11 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'I')
 		{
 			int spd, hp1, hp2, aaf, ac, slp;
+			int event, xtra1, xtra2, fixlev, townum, dunum;
 
 			/* Scan for the other values */
-			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-				&spd, &hp1, &hp2, &aaf, &ac, &slp)) return (1);
+			if (12 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+				&spd, &hp1, &hp2, &aaf, &ac, &slp, &event, &xtra1, &xtra2, &fixlev, &townum, &dunum)) return (1);
 
 			/* Save the values */
 			r_ptr->speed = spd;
@@ -2554,6 +2532,12 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->aaf = aaf;
 			r_ptr->ac = ac;
 			r_ptr->sleep = slp;
+			r_ptr->event = event;
+			r_ptr->extra1 = xtra1;
+			r_ptr->extra2 = xtra2;
+			r_ptr->fixedlevel = fixlev;
+			r_ptr->townnum = townum;
+			r_ptr->dunnum = dunum;
 
 			/* Next... */
 			continue;
@@ -2578,7 +2562,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Next... */
 			continue;
-		}
+		}		
 
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
@@ -2602,62 +2586,163 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-		/* Process 'B' for "Blows" (up to four lines) */
+		/* NewAngband 1.8.0: 'B' has new functions! :) */
 		if (buf[0] == 'B')
 		{
-			int n1, n2;
+			int str, dex, mind, attack, magic, blows;
 
-			/* Find the next empty blow slot (if any) */
-			for (i = 0; i < 4; i++) if (!r_ptr->blow[i].method) break;
+			/* Scan for the values */
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+                                &str, &dex, &mind, &attack, &magic, &blows)) return (1);
+
+			/* Save the values */
+			r_ptr->str = str;
+			r_ptr->dex = dex;
+                        r_ptr->mind = mind;
+			r_ptr->skill_attack = attack;
+			r_ptr->skill_magic = magic;
+			r_ptr->attacks = blows;
+
+			/* Next... */
+			continue;
+		}
+
+		/* NewAngband 1.8.0: Process 'A' for attacks! */
+		if (buf[0] == 'A')
+		{
+			int pos;
+			char act[80];
+			char aname[80];
+			char tmp[80];
+			char c;
+			int atype, addice, adside, aelem, aspecial1, aspecial2;
+
+			/* Find the next empty attack */
+			for (i = 0; i < 20; i++) if (!r_ptr->attack[i].type) break;
 
 			/* Oops, no more slots */
-			if (i == 4) return (1);
+			if (i == 20) return (1);
 
-			/* Analyze the first field */
-			for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
-
-			/* Terminate the field (if necessary) */
-			if (*t == ':') *t++ = '\0';
-
-			/* Analyze the method */
-			for (n1 = 0; r_info_blow_method[n1]; n1++)
+			/* Read the 'act' and the 'name' */
+			pos = 2;
+			c = buf[pos];
+			strcpy(act, "");
+			strcpy(aname, "");
+			while (c != ':')
 			{
-				if (streq(s, r_info_blow_method[n1])) break;
+				sprintf(tmp, "%s%c", act, c);
+				strcpy(act, tmp);
+				pos = pos + 1;
+				c = buf[pos];
 			}
-
-			/* Invalid method */
-			if (!r_info_blow_method[n1]) return (1);
-
-			/* Analyze the second field */
-			for (s = t; *t && (*t != ':'); t++) /* loop */;
-
-			/* Terminate the field (if necessary) */
-			if (*t == ':') *t++ = '\0';
-
-			/* Analyze effect */
-			for (n2 = 0; r_info_blow_effect[n2]; n2++)
+			pos = pos + 1;
+			c = buf[pos];
+			while (c != ':')
 			{
-				if (streq(s, r_info_blow_effect[n2])) break;
+				sprintf(tmp, "%s%c", aname, c);
+				strcpy(aname, tmp);
+				pos = pos + 1;
+				c = buf[pos];
 			}
+			pos = pos + 1;
 
-			/* Invalid effect */
-			if (!r_info_blow_effect[n2]) return (1);
+			/* Scan for the other values */
+                        if (6 != sscanf(buf+pos, "%d:%dd%d:%d:%d:%d",
+				&atype, &addice, &adside, &aelem, &aspecial1, &aspecial2)) return (1);
 
-			/* Analyze the third field */
-			for (s = t; *t && (*t != 'd'); t++) /* loop */;
+			/* Save the values */
+                        strcpy(r_ptr->attack[i].name, aname);
+                        strcpy(r_ptr->attack[i].act, act);
+			r_ptr->attack[i].type = atype;
+			r_ptr->attack[i].ddice = addice;
+			r_ptr->attack[i].dside = adside;
+			r_ptr->attack[i].element = aelem;
+			r_ptr->attack[i].special1 = aspecial1;
+			r_ptr->attack[i].special2 = aspecial2;
+			
 
-			/* Terminate the field (if necessary) */
-			if (*t == 'd') *t++ = '\0';
+			/* Next... */
+			continue;
+		}
 
-			/* Save the method */
-			r_ptr->blow[i].method = n1;
+		/* Counter! */
+		if (buf[0] == 'C')
+		{
+			int ctype, cchance;
 
-			/* Save the effect */
-			r_ptr->blow[i].effect = n2;
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+                                &ctype, &cchance)) return (1);
 
-			/* Extract the damage dice and sides */
-			r_ptr->blow[i].d_dice = atoi(s);
-			r_ptr->blow[i].d_side = atoi(t);
+			/* Save the values */
+			r_ptr->countertype = ctype;
+			r_ptr->counterchance = cchance;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Lives! */
+		if (buf[0] == 'L')
+		{
+			int nlives;
+
+			/* Scan for the values */
+			if (1 != sscanf(buf+2, "%d",
+                                &nlives)) return (1);
+
+			/* Save the values */
+			r_ptr->lives = nlives;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Treasure! */
+		if (buf[0] == 'T')
+		{
+			int ttval, tsval, tchance, tmagic;
+
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+                                &ttval, &tsval, &tchance, &tmagic)) return (1);
+
+			/* Save the values */
+			r_ptr->treasuretval = ttval;
+			r_ptr->treasuresval = tsval;
+			r_ptr->treasurechance = tchance;
+			r_ptr->treasuremagic = tmagic;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Resistances! */
+		if (buf[0] == 'R')
+		{
+			int res1, res2, res3, res4, res5, res6, res7, res8;
+			int res9, res10, res11, res12, res13, res14, res15, res16;
+			/* Scan for the values */
+			if (16 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        &res1, &res2, &res3, &res4, &res5, &res6, &res7, &res8, &res9, &res10, &res11, &res12, &res13, &res14, &res15, &res16)) return (1);
+
+			/* Save the values */
+                        r_ptr->fireres = res1;
+                        r_ptr->coldres = res2;
+                        r_ptr->elecres = res3;
+                        r_ptr->acidres = res4;
+                        r_ptr->poisres = res5;
+                        r_ptr->lightres = res6;
+                        r_ptr->darkres = res7;
+                        r_ptr->warpres = res8;
+                        r_ptr->waterres = res9;
+                        r_ptr->windres = res10;
+                        r_ptr->earthres = res11;
+                        r_ptr->soundres = res12;
+                        r_ptr->radiores = res13;
+                        r_ptr->chaosres = res14;
+                        r_ptr->physres = res15;
+                        r_ptr->manares = res16;
 
 			/* Next... */
 			continue;
@@ -2690,41 +2775,79 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-		/* Process 'S' for "Spell Flags" (multiple lines) */
+		/* Magic! Chance to use it... */
+		if (buf[0] == 'M')
+		{
+			int magicchance;
+			int nummagic;
+
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+                                &magicchance, &nummagic)) return (1);
+
+			/* Save the values */
+			r_ptr->spellchance = magicchance;
+			r_ptr->spells = nummagic;
+
+			/* Next... */
+			continue;
+		}
+
+		/* NewAngband 1.8.0: Process 'S' for spells! */
 		if (buf[0] == 'S')
 		{
-			/* Parse every entry */
-			for (s = buf + 2; *s; )
+			int pos;
+			char act[80];
+			char sname[80];
+			char tmp[80];
+			char summchar;
+			char c;
+			int stype, spower, sspecial1, sspecial2, sspecial3, scost;
+
+			/* Find the next empty spell */
+			for (i = 0; i < 20; i++) if (!r_ptr->spell[i].type) break;
+
+			/* Oops, no more slots */
+			if (i == 20) return (1);
+
+			/* Read the 'act' and the 'name' */
+			pos = 2;
+			c = buf[pos];
+			strcpy(act, "");
+			strcpy(sname, "");
+			while (c != ':')
 			{
-				/* Find the end of this entry */
-				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
-
-				/* Nuke and skip any dividers */
-				if (*t)
-				{
-					*t++ = '\0';
-					while ((*t == ' ') || (*t == '|')) t++;
-				}
-
-				/* XXX XXX XXX Hack -- Read spell frequency */
-				if (1 == sscanf(s, "1_IN_%d", &i))
-				{
-					/* Extract a "frequency" */
-					r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
-
-					/* Start at next entry */
-					s = t;
-
-					/* Continue */
-					continue;
-				}
-
-				/* Parse this entry */
-				if (0 != grab_one_spell_flag(r_ptr, s)) return (5);
-
-				/* Start the next entry */
-				s = t;
+				sprintf(tmp, "%s%c", act, c);
+				strcpy(act, tmp);
+				pos = pos + 1;
+				c = buf[pos];
 			}
+			pos = pos + 1;
+			c = buf[pos];
+			while (c != ':')
+			{
+				sprintf(tmp, "%s%c", sname, c);
+				strcpy(sname, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+			pos = pos + 1;
+
+
+			/* Scan for the other values */
+			if (7 != sscanf(buf+pos, "%d:%d:%d:%d:%d:%c:%d",
+				&stype, &spower, &sspecial1, &sspecial2, &sspecial3, &summchar, &scost)) return (1);
+
+			/* Save the values */
+                        strcpy(r_ptr->spell[i].name, sname);
+                        strcpy(r_ptr->spell[i].act, act);
+			r_ptr->spell[i].type = stype;
+			r_ptr->spell[i].power = spower;
+			r_ptr->spell[i].special1 = sspecial1;
+			r_ptr->spell[i].special2 = sspecial2;
+			r_ptr->spell[i].special3 = sspecial3;
+			r_ptr->spell[i].summchar = summchar;
+			r_ptr->spell[i].cost = scost;		
 
 			/* Next... */
 			continue;
@@ -2739,39 +2862,38 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	++r_head->name_size;
 	++r_head->text_size;
 
-
 	/* XXX XXX XXX The ghost is unused */
 
 	/* Mega-Hack -- acquire "ghost" */
-	r_ptr = &r_info[max_r_idx-1];
+	/*r_ptr = &r_info[max_r_idx-1];*/
 
 	/* Acquire the next index */
-	r_ptr->name = r_head->name_size;
-	r_ptr->text = r_head->text_size;
+	/*r_ptr->name = r_head->name_size;*/
+	/*r_ptr->text = r_head->text_size;*/
 
 	/* Save some space for the ghost info */
-	r_head->name_size += 64;
-	r_head->text_size += 64;
+	/*r_head->name_size += 64;*/
+	/*r_head->text_size += 64;*/
 
 	/* Hack -- Default name/text for the ghost */
-	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
-	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
+	/*strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");*/
+	/*strcpy(r_text + r_ptr->text, "It seems strangely familiar...");*/
 
 	/* Hack -- set the char/attr info */
-	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
-	r_ptr->d_char = r_ptr->x_char = 'G';
+	/*r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;*/
+	/*r_ptr->d_char = r_ptr->x_char = 'G';*/
 
 	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_UNIQUE);
+	/*r_ptr->flags1 |= (RF1_UNIQUE);*/
 
 	/* Hack -- Try to prevent a few "potential" bugs */
-        r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
+        /*r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);*/
 
 	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->hdice = r_ptr->hside = 1;
+	/*r_ptr->hdice = r_ptr->hside = 1;*/
 
 	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->mexp = 1L;
+	/*r_ptr->mexp = 1L;*/
 
 	for (i = 1; i < max_r_idx; i++)
 	{
@@ -2782,7 +2904,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		if ((r_info[i].flags8 & RF8_WILD_TOO) && !(r_info[i].flags8 & 0x7FFFFFFE))
 			r_info[i].flags8 = 0x0463;
 	}
-
+	
 	/* No version yet */
 	if (!okay) return (2);
 
@@ -3323,7 +3445,7 @@ errr init_d_info_txt(FILE *fp, char *buf)
                         d_ptr->mindepth = min_lev;
                         d_ptr->maxdepth = max_lev;
                         d_ptr->min_plev = min_plev;
-                        d_ptr->next = next;
+                        d_ptr->quest = next;
                         d_ptr->mode = mode;
                         d_ptr->min_m_alloc_level = min_alloc;
                         d_ptr->max_m_alloc_chance = max_chance;
@@ -4041,7 +4163,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 					
 				monster_level = quest[p_ptr->inside_quest].level + monster_index;
 
-				place_monster(y, x, TRUE, FALSE);
+				place_monster(y, x, TRUE, FALSE, 0);
 
 				monster_level = level;
 			}
@@ -4051,7 +4173,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				r_info[monster_index].max_num++;
 
 				/* Place it */
-				place_monster_aux(y, x, monster_index, TRUE, FALSE, FALSE);
+				place_monster_aux(y, x, monster_index, TRUE, FALSE, FALSE, 0);
 			}
 
 			/* Object (and possible trap) */
@@ -4237,66 +4359,6 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 			{
 				strcpy(quest_text[quest_text_line], zz[2]);
 				quest_text_line++;
-			}
-
-			return (0);
-		}
-	}
-
-	/* Process "W:<command>: ..." -- info for the wilderness */
-	else if (buf[0] == 'W')
-	{
-		/* Process "W:D:<layout> */
-		/* Layout of the wilderness */
-		if (buf[2] == 'D')
-		{
-                        int x;
-                        char i;
-
-			/* Acquire the text */
-                        char *s = buf+4;
-
-			int y = *yval;
-
-                        for(x = 0; x < max_wild_x; x++)
-                        {
-                                if (1 != sscanf(s + x, "%c", &i)) return (1);
-                                wild_map[y][x].feat = wildc2i[(int)i];
-                        }
-
-			(*yval)++;
-
-			return (0);
-		}
-		/* Process "W:P:<x>:<y> - starting position in the wilderness */
-		else if (buf[2] == 'P')
-		{
-			if ((p_ptr->wilderness_x == 0) &&
-			    (p_ptr->wilderness_y == 0))
-			{
-				if (tokenize(buf+4, 2, zz) == 2)
-				{
-					p_ptr->wilderness_x = atoi(zz[0]);
-					p_ptr->wilderness_y = atoi(zz[1]);
-				}
-				else
-				{
-					return (1);
-				}
-			}
-
-			return (0);
-		}
-                /* Process "W:E:<dungeon>:<y>:<x> - entrance to the dungeon <dungeon> */
-                else if (buf[2] == 'E')
-		{
-                        if (tokenize(buf+4, 3, zz) == 3)
-                        {
-                                wild_map[atoi(zz[1])][atoi(zz[2])].entrance = 1000 + atoi(zz[0]);
-                        }
-                        else
-                        {
-                                return (1);
 			}
 
 			return (0);
@@ -4866,4 +4928,571 @@ errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax)
 
 	/* Result */
 	return (err);
+}
+
+/* Init the wilderness! */
+int init_wilderness()
+{
+	int i,j;
+	int var1, var2, var3;
+	int wid, hgt;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+	int ypos = 0;
+	int xpos = 0;
+
+	/* Clear all the wilderness array! */
+	for (i = 0; i < MAX_WILD_Y; i++)
+	{
+		for (j = 0; j < MAX_WILD_X; j++)
+		{
+			wild[j][i].town = 0;
+			wild[j][i].feat = 0;
+		}
+	}
+
+	/* Determine the name of the file */
+	sprintf(filename, "w_info.txt");
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(quitmessage, "Cannot open 'w_info.txt' file.");
+	if (!fp) quit(quitmessage);
+
+	/* Parse the file */
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		if (buf[0] == 'I')
+		{
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+                                &wid, &hgt)) return (1);
+
+			wild_max_x = wid;
+			wild_max_y = hgt;
+
+			/* Next... */
+			continue;
+		}
+		if (buf[0] == 'T')
+		{
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+                                &var1, &var2, &var3)) return (1);
+
+			wild[var1][var2].town = var3;
+
+			/* Next... */
+			continue;
+		}
+		if (buf[0] == 'S')
+		{
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+                                &var1, &var2)) return (1);
+
+			birth_wild_x = var1;
+			birth_wild_y = var2;
+			
+			/* Next... */
+			continue;
+		}
+		if (buf[0] == 'D')
+		{
+			int i;
+			for (i = 2; i < (wid+2); i++)
+			{
+				if (buf[i] == '#') wild[xpos][ypos].feat = FEAT_PERM_SOLID;
+				else if (buf[i] == 'X') wild[xpos][ypos].feat = 56;
+				else if (buf[i] == '.') wild[xpos][ypos].feat = FEAT_FLOOR;
+				else if (buf[i] == 'T') wild[xpos][ypos].feat = FEAT_TREES;
+				else if (buf[i] == 'M') wild[xpos][ypos].feat = FEAT_MOUNTAIN;
+				else if (buf[i] == 'w') wild[xpos][ypos].feat = FEAT_SHAL_WATER;
+				else if (buf[i] == 'W') wild[xpos][ypos].feat = FEAT_DEEP_WATER;
+				else if (buf[i] == 'l') wild[xpos][ypos].feat = FEAT_SHAL_LAVA;
+				else if (buf[i] == 'L') wild[xpos][ypos].feat = FEAT_DEEP_LAVA;
+				else if (buf[i] == ',') wild[xpos][ypos].feat = FEAT_GRASS;
+				else if (buf[i] == ';') wild[xpos][ypos].feat = FEAT_DIRT;
+				else if (buf[i] == '+') wild[xpos][ypos].feat = 32;
+				else if (buf[i] == '<') wild[xpos][ypos].feat = 6;
+				else if (buf[i] == '>') wild[xpos][ypos].feat = 7;
+				else if (buf[i] == '1') wild[xpos][ypos].feat = 204;
+				else if (buf[i] == '2') wild[xpos][ypos].feat = 205;
+				else if (buf[i] == '3') wild[xpos][ypos].feat = 206;
+				else if (buf[i] == '4') wild[xpos][ypos].feat = 207;
+				else if (buf[i] == '5') wild[xpos][ypos].feat = 208;
+				else if (buf[i] == '6') wild[xpos][ypos].feat = 209;
+				else if (buf[i] == '7') wild[xpos][ypos].feat = 210;
+				else if (buf[i] == '8') wild[xpos][ypos].feat = 211;
+				else if (buf[i] == '9') wild[xpos][ypos].feat = 214;
+				else if (buf[i] == '0') wild[xpos][ypos].feat = 215;
+				else if (buf[i] == '-') wild[xpos][ypos].feat = 233;
+				else if (buf[i] == 's') wild[xpos][ypos].feat = FEAT_SNOW;
+				else if (buf[i] == 't') wild[xpos][ypos].feat = FEAT_SNOW_TREES;
+				else if (buf[i] == 'G') wild[xpos][ypos].feat = FEAT_GLACIER;
+				else if (buf[i] == 'x') wild[xpos][ypos].feat = FEAT_ICE_WALL;
+				else wild[xpos][ypos].feat = FEAT_PERM_SOLID;
+
+				xpos++;
+			}
+			xpos = 0;
+			ypos++;
+
+			/* Next... */
+			continue;
+		}
+	}
+	
+	/* Close it */
+	my_fclose(fp);
+	
+	/* Success */
+	return (1);
+}
+
+/* Init skills names! */
+int init_skills_names()
+{
+	int i;
+
+	char *s, *t;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+
+	/* Determine the name of the file */
+	sprintf(filename, "skills.txt");
+
+	/* Reset number of skills. */
+	num_skills = 0;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(quitmessage, "Cannot open 'skills.txt' file.");
+	if (!fp) quit(quitmessage);
+
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Read skill names */
+		if (buf[0] == 'N')
+		{
+			int pos;
+			char sname[80];
+			char tmp[80];
+			char c;
+			int snum;
+
+			/* Read skill name */
+			pos = 2;
+			c = buf[pos];
+			strcpy(sname, "");
+			while (c != ':')
+			{
+				sprintf(tmp, "%s%c", sname, c);
+				strcpy(sname, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+			pos = pos + 1;
+
+			/* Scan for the other values */
+                        if (1 != sscanf(buf+pos, "%d",
+				&snum)) return (1);
+
+			/* Save the values */
+                        strcpy(skill_names[snum], sname);
+			num_skills += 1;			
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* Success */
+	return (0);
+}
+
+/* Init classes names! */
+int init_classes()
+{
+	int i, x;
+
+	char *s, *t;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+	int cnum = 0;
+	int currank = 0;
+	int curability = 0;
+
+	/* Clear the classes list first */
+	for (x = 0; x < MAX_CLASS; x++)
+	{
+		classes_def[x].created = FALSE;
+	}
+
+	/* Determine the name of the file */
+	sprintf(filename, "classes.txt");
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(quitmessage, "Cannot open 'classes.txt' file.");
+	if (!fp) quit(quitmessage);
+
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Read class names */
+		if (buf[0] == 'N')
+		{
+			int pos;
+			int advanced;
+			char cname[80];
+			char tmp[80];
+			char c;
+
+			/* Read skill name */
+			pos = 2;
+			c = buf[pos];
+			strcpy(cname, "");
+			while (c != ':')
+			{
+				sprintf(tmp, "%s%c", cname, c);
+				strcpy(cname, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+			pos = pos + 1;
+
+			/* Scan for the other values */
+                        if (2 != sscanf(buf+pos, "%d:%d",
+				&cnum, &advanced)) return (1);
+
+			/* Save the values */
+                        strcpy(classes_def[cnum].name, cname);
+			classes_def[cnum].advanced = advanced;
+			classes_def[cnum].created = TRUE;
+
+			/* Since it's a new record, reset some stuff. */
+			currank = 0;
+			curability = 0;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read stats requirements */
+		if (buf[0] == 'Q')
+		{
+			int strreq, intreq, wisreq, dexreq, conreq, chrreq;
+
+			/* Scan for the other values */
+                        if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+				&strreq, &intreq, &wisreq, &dexreq, &conreq, &chrreq)) return (1);
+
+			/* Save the values */
+			classes_def[cnum].req_str = strreq;
+			classes_def[cnum].req_int = intreq;
+			classes_def[cnum].req_wis = wisreq;
+			classes_def[cnum].req_dex = dexreq;
+			classes_def[cnum].req_con = conreq;
+			classes_def[cnum].req_chr = chrreq;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read required classes */
+		if (buf[0] == 'R')
+		{
+			int reqclass, classlvl;
+
+			/* Scan for the other values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+				&reqclass, &classlvl)) return (1);
+
+			/* Save the values */
+			classes_def[cnum].req_classes[reqclass] = classlvl;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read required skills */
+		if (buf[0] == 'L')
+		{
+			int reqskill, skilllvl;
+
+			/* Scan for the other values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+				&reqskill, &skilllvl)) return (1);
+
+			/* Save the values */
+			classes_def[cnum].req_skills[reqskill] = skilllvl;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read stats bonus */
+		if (buf[0] == 'S')
+		{
+			int strbonus, intbonus, wisbonus, dexbonus, conbonus, chrbonus;
+
+			/* Scan for the other values */
+                        if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+				&strbonus, &intbonus, &wisbonus, &dexbonus, &conbonus, &chrbonus)) return (1);
+
+			/* Save the values */
+			classes_def[cnum].str_bonus = strbonus;
+			classes_def[cnum].int_bonus = intbonus;
+			classes_def[cnum].wis_bonus = wisbonus;
+			classes_def[cnum].dex_bonus = dexbonus;
+			classes_def[cnum].con_bonus = conbonus;
+			classes_def[cnum].chr_bonus = chrbonus;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read skills bonus */
+		if (buf[0] == 'B')
+		{
+			int bonusskill, skillamt;
+
+			/* Scan for the other values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+				&bonusskill, &skillamt)) return (1);
+
+			/* Save the values */
+			classes_def[cnum].skills_bonus[bonusskill] = skillamt;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Read ranks names */
+		if (buf[0] == 'K')
+		{
+			int pos;
+			char rnamem[80];
+			char rnamef[80];
+			char tmp[80];
+			char c;
+
+			/* Read male title */
+			pos = 2;
+			c = buf[pos];
+			strcpy(rnamem, "");
+			while (c != ':')
+			{
+				sprintf(tmp, "%s%c", rnamem, c);
+				strcpy(rnamem, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+			pos = pos + 1;
+			/* Read female title */
+			c = buf[pos];
+			strcpy(rnamef, "");
+			while (c != ';')
+			{
+				sprintf(tmp, "%s%c", rnamef, c);
+				strcpy(rnamef, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+
+			/* Save the values */
+                        strcpy(classes_def[cnum].ranksm[currank], rnamem);
+			strcpy(classes_def[cnum].ranksf[currank], rnamef);
+
+			/* Increase the current rank. */
+			currank += 1;			
+
+			/* Next... */
+			continue;
+		}
+
+		/* Abilities for the class */
+		if (buf[0] == 'A')
+		{
+			int pos;
+			char aname[80];
+			char tmp[80];
+			char c;
+			int passive, scripted, powerid, cfeat;
+
+			/* Read skill name */
+			pos = 2;
+			c = buf[pos];
+			strcpy(aname, "");
+			while (c != ':')
+			{
+				sprintf(tmp, "%s%c", aname, c);
+				strcpy(aname, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+			pos = pos + 1;
+
+			/* Scan for the other values */
+                        if (4 != sscanf(buf+pos, "%d:%d:%d:%d",
+				&passive, &scripted, &powerid, &cfeat)) return (1);
+
+			/* Save the values */
+                        strcpy(abilities_def[(cnum * 10) + curability].name, aname);
+			abilities_def[(cnum * 10) + curability].abtype = passive;
+			abilities_def[(cnum * 10) + curability].hardcode = scripted;
+			abilities_def[(cnum * 10) + curability].powerid = powerid;
+			abilities_def[(cnum * 10) + curability].combatfeat = cfeat;
+
+			/* Advance to next ability */
+			curability += 1;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* Success */
+	return (0);
+}
+
+/* Init skill feats! */
+int init_feats()
+{
+	int i, x;
+
+	char *s, *t;
+	char filename[80];
+	char quitmessage[80];
+	FILE *fp;
+	char buf[1024];
+	int curfeat = 1;
+
+	/* Reset the feats required skills */
+	for (x = 0; x < (SKILL_MAX * 10); x++)
+	{
+		feats_def[x].skill = -1;
+	}
+
+	/* Determine the name of the file */
+	sprintf(filename, "feats.txt");
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, filename);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	sprintf(quitmessage, "Cannot open 'feats.txt' file.");
+	if (!fp) quit(quitmessage);
+
+	/* Parse */
+        while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Read the feats */
+		if (buf[0] == 'F')
+		{
+			int pos;
+			char fname[80];
+			char tmp[80];
+			char c;
+			int skill, skillreq, scripted, powerid, cfeat;
+
+			/* Read feat name */
+			pos = 2;
+			c = buf[pos];
+			strcpy(fname, "");
+			while (c != ':')
+			{
+				sprintf(tmp, "%s%c", fname, c);
+				strcpy(fname, tmp);
+				pos = pos + 1;
+				c = buf[pos];
+			}
+			pos = pos + 1;
+
+			/* Scan for the other values */
+                        if (5 != sscanf(buf+pos, "%d:%d:%d:%d:%d",
+				&skill, &skillreq, &scripted, &powerid, &cfeat)) return (1);
+
+			/* Save the values */
+                        strcpy(feats_def[curfeat].name, fname);
+			feats_def[curfeat].abtype = 1;
+			feats_def[curfeat].skill = skill;
+			feats_def[curfeat].reqskill = skillreq;
+			feats_def[curfeat].hardcode = scripted;
+			feats_def[curfeat].powerid = powerid;
+			feats_def[curfeat].combatfeat = cfeat;
+
+			/* Advance to next ability */
+			curfeat += 1;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* Success */
+	return (0);
 }

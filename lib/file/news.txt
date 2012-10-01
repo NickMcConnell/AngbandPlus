@@ -1,0 +1,22 @@
+
+     |---\   /---\   |---\   -------   |---\    /--\   |      -----   ----
+     |    | |     |  |    |     |      |    |  /    \  |        |    /
+     |---/  |     |  |---/      |      |---/   |----|  |        |    \---\
+     |      |     |  |   \      |      |   \   |    |  |        |         |
+     |       \---/   |    \     |      |    \  |    |  |----  -----  ----/
+
+      ------****************************************************------
+
+                     Created by: Variaz
+                             With gracious help from all testers
+                             and members of the forum! :)
+
+                     Version: 0.2.1 (beta)
+
+
+                     Questions/comments? Send them to:
+                            variaz@hotmail.com
+                     Or post them on the Portralis forum:
+                            http://variaz.proboards3.com
+
+           (Press '?' anytime during the game to access help menu)

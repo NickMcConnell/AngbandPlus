@@ -350,5 +350,10 @@ s32b maxroll(int num, int sides)
 	return (num * sides);
 }
 
-
-
+/* A simple random function to be called by lua. */
+s32b lua_randint(int num)
+{
+	int r;
+	r = randint(num);
+	return (r);
+}

@@ -110,7 +110,7 @@ bool los(int y1, int x1, int y2, int x2)
 
 
 	/* Paranoia -- require "safe" origin */
-	/* if (!in_bounds(y1, x1)) return (FALSE); */
+	/*if (!in_bounds(y1, x1)) return (FALSE);*/
 
 
 	/* Directly South/North */
@@ -721,7 +721,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 			
 			/* Special lighting effects */
-                        if (view_special_lite && (!p_ptr->wild_mode) && ((a == TERM_WHITE) || (graf_new && feat_supports_lighting(c_ptr->feat) && (!(c_ptr->t_idx && (c_ptr->info & CAVE_TRDT))))))
+                        if (view_special_lite && ((a == TERM_WHITE) || (graf_new && feat_supports_lighting(c_ptr->feat) && (!(c_ptr->t_idx && (c_ptr->info & CAVE_TRDT))))))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -742,7 +742,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (c_ptr->info & (CAVE_LITE))
 				{
 					/* Torch lite */
-                                        if (view_yellow_lite && (!p_ptr->wild_mode))
+                                        if (view_yellow_lite)
 					{
 						if (graf_new)
 						{
@@ -776,7 +776,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (!(c_ptr->info & (CAVE_VIEW)))
 				{
 					/* Special flag */
-                                        if (view_bright_lite && (!p_ptr->wild_mode))
+                                        if (view_bright_lite)
 					{
 						if (graf_new)
 						{
@@ -834,7 +834,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				a = t_info[c_ptr->t_idx].color;
 
 			/* Special lighting effects */
-                        if (view_granite_lite && (!p_ptr->wild_mode) &&
+                        if (view_granite_lite &&
 			   (((a == TERM_WHITE) && !graf_new) ||
                            (graf_new && feat_supports_lighting(c_ptr->feat) && (!(c_ptr->t_idx && (c_ptr->info & CAVE_TRDT))))))
 			{
@@ -857,7 +857,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (c_ptr->info & (CAVE_LITE))
 				{
 					/* Torch lite */
-                                        if (view_yellow_lite && (!p_ptr->wild_mode))
+                                        if (view_yellow_lite)
 					{
 						if (graf_new)
 						{
@@ -873,7 +873,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				}
 
 				/* Handle "view_bright_lite" */
-                                else if (view_bright_lite && (!p_ptr->wild_mode))
+                                else if (view_bright_lite)
 				{
 					/* Not viewable */
 					if (!(c_ptr->info & (CAVE_VIEW)))
@@ -1131,6 +1131,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 					(*ap) = a;
 				}
 			}
+			if (m_ptr->boss == 1)
+			{
+				(*ap) = 16;
+			}
+			if (m_ptr->boss == 2)
+			{
+				(*ap) = 17;
+			}
 
 			/* Hack -- hallucination */
 			if (p_ptr->image)
@@ -1276,13 +1284,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 				}
 			}
 		}
+#endif /* VARIABLE_PLAYER_GRAPH */
+#endif /* USE_GRAPHICS */
 
 		/* Save the info */
 		(*ap) = a;
 		(*cp) = c;
-
-#endif /* VARIABLE_PLAYER_GRAPH */
-#endif /* USE_GRAPHICS */
 
 	}
 }
@@ -1315,9 +1322,9 @@ void print_rel(char c, byte a, int y, int x)
 		/* Hack -- fake monochrome */
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-                        else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                        else if (p_ptr->shero) a = TERM_L_RED;
+			if (!use_color) a = TERM_WHITE;
+                        /*else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                        else if (p_ptr->shero) a = TERM_L_RED;*/
 		}
 
 		/* Draw the char using the attr */
@@ -1484,9 +1491,9 @@ void lite_spot(int y, int x)
 		/* Hack -- fake monochrome */
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                        else if (p_ptr->shero) a = TERM_L_RED;
+			if (!use_color) a = TERM_WHITE;
+			/*else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                        else if (p_ptr->shero) a = TERM_L_RED;*/
 		}
 
 #ifdef USE_TRANSPARENCY
@@ -1540,9 +1547,9 @@ void prt_map(void)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                                else if (p_ptr->shero) a = TERM_L_RED;
+				if (!use_color) a = TERM_WHITE;
+				/*else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                                else if (p_ptr->shero) a = TERM_L_RED;*/
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1554,9 +1561,9 @@ void prt_map(void)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                                else if (p_ptr->shero) a = TERM_L_RED;
+				if (!use_color) a = TERM_WHITE;
+				/*else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                                else if (p_ptr->shero) a = TERM_L_RED;*/
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1797,9 +1804,9 @@ void display_map(int *cy, int *cx)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) ta = TERM_WHITE;
-				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
-                                else if (p_ptr->shero) ta = TERM_L_RED;
+				if (!use_color) ta = TERM_WHITE;
+				/*else if (p_ptr->wraith_form) ta = TERM_L_DARK;
+                                else if (p_ptr->shero) ta = TERM_L_RED;*/
 			}
 
 			/* Add the character */
@@ -3675,7 +3682,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 		if ((x == x2) && (y == y2)) return (TRUE);
 
 		/* Never pass through walls */
-        if (dist && !cave_floor_bold(y, x) &&
+        if (dist && !cave_floor_bold_project(y, x) &&
             !((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
               (cave[y][x].feat >= FEAT_MINOR_GLYPH))) break;
 
@@ -3761,6 +3768,18 @@ void monster_race_track(int r_idx)
 {
 	/* Save this monster ID */
 	monster_race_idx = r_idx;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+}
+
+/*
+ * Hack -- track the given monster type
+ */
+void monster_type_track(int midx)
+{
+	/* Save this monster ID */
+	monster_type_idx = midx;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
@@ -3906,6 +3925,12 @@ void reveal_spell(int x, int y, byte rad)
 
         c_ptr = &cave[y][x];
 
+	if (p_ptr->inside_quest)
+	{
+		msg_print("You cannot use this here.");
+		return;
+	}
+
         for(j = y - rad; j < y + rad + 1; j++)
         for(i = x - rad; i < x + rad + 1; i++)
         if((distance(y, x, j, i) <= rad) && in_bounds(j,i))
@@ -3913,7 +3938,8 @@ void reveal_spell(int x, int y, byte rad)
                 c_ptr = &cave[j][i];       
                 c_ptr->info |= (CAVE_LITE);
                 c_ptr->info |= (CAVE_MARK);
-                c_ptr->info |= (CAVE_VIEW);               
+                c_ptr->info |= (CAVE_VIEW);
+                c_ptr->info |= (CAVE_GLOW);
                 lite_spot(j, i);
         }
 }

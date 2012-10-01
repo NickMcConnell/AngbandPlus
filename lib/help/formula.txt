@@ -1,0 +1,108 @@
+FORMULAS GUIDE
+----------------
+
+Last Update: Portralis 0.2
+
+This document explains how various things are calculated. This will
+help you build a better character out of these formulas. Note
+that these are basic formulas, and can be altered by items and
+abilities.
+
+MELEE WEAPONS/UNARMED ATTACKS/THROWN WEAPONS:
+
+The damages for melee characters uses the following steps:
+1. Damages = base weapon damages roll
+2. (Base roll) * (Weapon Skill + 1)
+3. +to_d% to damages
+4. +Strength% to damages
+
+So let's assume the character uses a Long Sword(2d5), with a swords
+skill of 50 and a strength of 30. He/she obtains a 10 on the weapon
+roll. With a skill of 50, damages becomes (10 * 50+1) = 510. Then,
+with Strength giving +5 to_d per points, this character gets
++150 to_d. So that gives the character +150% to damages, so the
+500 damages becomes 1275. Then, with a strength of 30, the character
+receives an extra 30% damages, raising the damages to 1658. For 
+martial arts, the base damages is 1d3, and both the dice number and 
+sides increase by 1 for every 15 points in Martial Arts skill. So
+with 0 - 15 Martial Arts, the base roll is 1d3. At 15, it becomes
+2d4. At 30, it becomes 3d6 and so on.
+
+Throwing uses the same formula, and the throwing skill. However,
+for boomerangs, only the boomerang's to_d is used in damages
+calculation, not the total to_d.
+
+BOWS/CROSSBOWS/SLINGS:
+
+The damages are calculated using the following steps:
+1. Damages = base ammo damages roll
+2. (Base roll) * Launcher's multiplier
+3. (Base roll) * (Shooting Skill + 1)
+4. +(launcher's to_d + ammo's to_d + (Dexterity * 5))% to damages
+5. +Dexterity% to damages
+
+So by shooting an arrow(1d4) with a Long Bow(x3), with a Dexterity
+of 30 and a Shooting skill of 50, if you obtain a 4 on the ammo
+roll, the roll will become (4x3) = 12. Then, 12 * 50 = 600. Then,
+dexterity gives +5 to shooting's to_d per points, so this gives
+a +150% increase to damages. 600 becomes 1500. Then, 30 dexterity
+gives 30% bonus, so 1500 becomes 1950.
+
+ATTACK SPELLS
+
+(Spell's power/(casting stat - 5)) + 10% damages per spellcraft points.
+
+This formula apply to all magic attack abilities as well. So a character
+using mana-casting and with 45 Intelligence, casting a spell that does 
+20 damages/stat with a spellcraft skill of 0 will do 800 damages. 
+With a spellcraft skill of 100, the character will do 8000 damages. 
+For standard mana/wisdom-based casting, your character will most likely
+choose the Elemental skill, which boost spells by 20% instead of 10%.
+In this case, you would do 16000 damages with an Elemental skill of 100!
+
+WISDOM-BASED CASTING SUCCESS RATE
+
+A new feature in Portralis is to allow the use of wisdom to cast
+a spell. You can do this using the 'p' command. You will then select
+a spell as you normally would. The advantage to this is that the
+spell will cost no mana to cast, but the success rate is not always
+guaranteed. Here's how the success rate is determined:
+
+Wisdom >= spell's cost
+
+If your wisdom is equal or higher than the spell's cost, you get
+automatic success.
+
+Wisdom < spell's cost
+
+A Casting Strength is determined, and will be rolled against the
+spell's cost.
+
+Casting Strength = (Wisdom - 5) * 5
+
+Two random numbers will be returned. The first number is a random
+number between 1 and the Casting Strength. The second is a number
+between 1 and the spell's mana cost. If the first number is higher
+or equal, you win the roll, and the spell is cast. Otherwise,
+you fail casting the spell.
+
+Spell's cost is more than three times the casting force:
+
+If you try to cast a very costly spell with a low casting strength,
+be aware that the spell becomes "risky". If you fail casting a risky
+spell, you will take damages equal to the spell's cost, you will
+be confused for 5 turns and your wisdom will be lowered by 5 points.
+
+If you plan on using Wisdom-based spellcasting, don't forget that
+the Priest has the "Improved Wisdom Casting" ability!
+
+REFLECTING ITEMS
+
+Some items gives you the ability to reflect monster spells. In order
+to determine if a spell will be reflected, each items you wear gives
+you a reflective power of 10/pval. Then, it's a contest between
+this power versus the monster's level + mind stat, with two numbers
+from 1 to (power) being rolled, and you win the contest if your
+number is higher. If you win, the spell is reflected back to the
+monster, and it will take the damages of it's spell, while you
+won't take any.

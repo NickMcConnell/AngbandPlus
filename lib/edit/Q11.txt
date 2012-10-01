@@ -1,0 +1,82 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+
+N:Temple of Dalunia;
+
+I:41:30:1:0:0:0:0
+S:20:27
+
+// Quest exit.
+E:20:28:5:48:28:0:0:0:0:0
+
+// Evolia
+E:20:8:7:1207:0:0:0:0:0:0
+
+// A few acolytes...
+E:16:12:7:1208:0:3:0:0:0:0
+E:24:12:7:1208:0:3:0:0:0:0
+E:16:14:7:1208:0:3:0:0:0:0
+E:24:14:7:1208:0:3:0:0:0:0
+
+D:#########################################
+D:#########################################
+D:#########################################
+D:#########################################
+D:##############TTTTTTTTTTTTT##############
+D:#############TTTTTTTTTTTTTTT#############
+D:############TTTwwwwwwwwwwwTTT############
+D:###########TTTwwwwwwwwwwwwwTTT###########
+D:##########TTTww...........wwTTT##########
+D:#########TTTww.....---.....wwTTT#########
+D:########TTTww...............wwTTT########
+D:########TTwww..---.....---..wwwTT########
+D:########TTwww...............wwwTT########
+D:########TTwww..---.....---..wwwTT########
+D:########TTTww...............wwTTT########
+D:#########TTTww.---.....---.wwTTT#########
+D:##########TTTw.............wTTT##########
+D:###########TTTw...........wTTT###########
+D:############TTTw.........wTTT############
+D:#############TTTwww...wwwTTT#############
+D:##############TTTTT...TTTTT##############
+D:###############TTTT...TTTT###############
+D:###############TTTT...TTTT###############
+D:###############TTTT...TTTT###############
+D:################TTTT.TTTT################
+D:#################TTT.TTT#################
+D:#################TTT.TTT#################
+D:#################TTT.TTT#################
+D:####################+####################
+D:#########################################

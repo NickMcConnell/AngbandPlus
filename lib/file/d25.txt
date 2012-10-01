@@ -1,0 +1,303 @@
+N:1:48:2:0:0:-3
+I:Aria;
+T:I can feel you have comitted many sins that you did not repent for...;
+T:Please, leave me alone! I...I...please, just leave me!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:48:1:0:0:-3
+I:Aria;
+T:I can feel you have comitted many sins that you did not repent for...;
+T:Please, leave me alone! I...I...please, just leave me!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:48:0:0:0:-3
+I: ;
+T:You meet a small girl of about three feet tall with shining blond hairs,;
+T:golden eyes and a pair of white wings. But as you approach, she says:;
+T:I can feel you have comitted many sins that you did not repent for...;
+T:Please, leave me alone! I...I...please, just leave me!!";
+T:She turns her back to you... It seems she can sense that you have;
+T:done wrong actions, and does not want to speak to you.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:51:1:0:0:0
+I:Aria;
+T:The water! It... it has returned to normal!! This mean that... That;
+T:you succeeded!! You defeated Shaugma!!;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:1:50:1:0:0:0
+I:Aria;
+T:The doors are now unlocked. Please, proceed with caution...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:48:2:0:0:0
+I:Aria;
+T:Hello again... I hope my blade helped you in your adventures...;
+T:You are much more worthy of wielding it than I do...;
+A:Please, unseal the shrine's door. I shall defeat Shaugma.:0:0:0:1:15:0:0:0:0
+A:Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:48:1:0:0:0
+I:Aria;
+T:Hello again... Please, you should leave me now... I'm just a failure...;
+T:I can't do anything for you. Sorry.;
+A:Could this be your sword? [Show her the Masterwork Short Sword]:2:23:52:1:13:0:0:0:0
+A:I am a <CLASS>. If you unseal the doors, I will defeat Shaugma.:0:0:0:1:12:0:0:0:0
+A:Perhaps I can look for your sword? What does it looks like?:0:0:0:1:10:0:0:0:0
+A:Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:48:0:0:0:0
+I: ;
+T:You meet a small girl of about three feet tall with shining blond hairs,;
+T:golden eyes and a pair of white wings. You can feel an aura of goodness;
+T:surrounding her, as if she was blessed by the heavens... She seems;
+T:troubled by something...;
+A:[CONTINUE]:0:0:0:1:2:0:0:48:1
+%
+
+N:2:0:0:0:0:0
+I:Aria;
+T:G...greetings, stranger, I.. I am Aria. I am a Celestial, coming from;
+T:heaven to stop an evil...but... alas, I've failed to my duty. But it;
+T:doesn't concern you I guess... I won't bother you with this...;
+A:What's wrong?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Aria;
+T:I...I... *she starts crying*..*sob*.. I did something terrible!! This;
+T:lake...it's now doomed... Shau.. *sob*...Shaugma, he...he...;
+A:Who's Shaugma?:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Aria pauses for a moment, and takes a deep breath... She calms down,;
+T:and starts explaining things more slowly...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Aria;
+T:The great Archangels of heaven sent me here in the mortal realm in order;
+T:to destroy the demon Shaugma. Shaugma is a special demon, in that he has;
+T:no physical form. It is an energy that can possess another living being,;
+T:and turn them into monsters. By chance, we managed to capture the;
+T:demon, and seal him inside a licialhyd. The shrine in the middle of;
+T:the lake is a place where blessed water flows, and if the licialhyd was;
+T:to be placed in the blessed water, the demon would have been destroyed;
+T:for good!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Aria;
+T:However...things turned out... disastrous. When I arrived near the lake,;
+T:I was attacked by a group of bandits. They took me by surprise, and;
+T:stole my precious blade before I could draw it! But they were evil;
+T:vermins... They wanted me to be their slave... They wanted to abuse me,;
+T:and threatened to kill me if I didn't obey! There was no way to outrun;
+T:them... There was only one thing left for me to do... I took the;
+T:licialhyd, and... and I... I unleashed it's power on the bandits, turning;
+T:them to dust... but in the process... I freed the demon Shaugma!;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Aria;
+T:He laughed at my weakness, and before my eyes, he possessed the body;
+T:of an octopus that was living in the lake, and it became a giant,;
+T:horrible monster! The monster tainted the water with evil, and went;
+T:deep at the bottom of the lake, saying that soon, the tainted;
+T:water would spread trough earth and plants, and will kill thousands;
+T:of living beings!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Aria;
+T:The demon turned the shrine into a lair of evil... All of this is;
+T:my fault... And now, I have been forbidden to return to heaven until;
+T:I destroy Shaugma! But...but... I don't know how to capture him again.;
+T:And I cannot go inside his lair without my sword, as it is now filled;
+T:with evil creatures. So for now... I used some of my holy power to;
+T:seal the doors of the shrine, to prevent the evil creatures from;
+T:coming to the surface... but that won't return the water to normal...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Aria;
+T:...well, that's it. That's the story of my failure... My sword has been;
+T:stolen, the demon is free... and I cannot do anything about it. I will;
+T:never return to heavens... I will stay here in the mortal realm forever...;
+A:Could this be your sword? [Show her the Masterwork Short Sword]:2:23:52:1:13:0:0:0:0
+A:I am a <CLASS>. If you unseal the doors, I will defeat Shaugma.:0:0:0:1:12:0:0:0:0
+A:Perhaps I can look for your sword? What does it looks like?:0:0:0:1:10:0:0:0:0
+A:Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Aria;
+T:You... you would do this? Thanks you... but the bandits are probably;
+T:far away now... They probably sold my sword or something. But if you;
+T:want to know... My sword is a short sword, however, it is much sharper;
+T:than a normal short sword, and also lighter and almost indestructible.;
+T:It is a short sword of superior quality... Also, the bandits fled to;
+T:the southwest, if this can help you...;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Aria;
+T:...however... I have nothing to give you in return if you bring me back;
+T:my sword... If you ever find it... you might as well keep it. I am not;
+T:worthy of it.;
+A:I am a <CLASS>. If you unseal the doors, I will defeat Shaugma.:0:0:0:1:12:0:0:0:0
+A:Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Aria;
+T:No, this is too risky! Shaugma is too powerful... and if I unseal the;
+T:doors, his evil minions will come on the surface, and will cause;
+T:terror and destruction! No, I cannot do that... I'm sorry. But...;
+T:thanks you for offering to help me.;
+A:Perhaps I can look for your sword? What does it looks like?:0:0:0:1:10:0:0:0:0
+A:Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Aria;
+T:Oh! This...this blade! It's... it's my sword!! W...where did you find it?;
+A:[Tell her the whole story.]:0:0:0:1:14:0:0:48:2
+%
+
+N:14:0:0:0:0:0
+I:Aria;
+T:I see... The gnome probably got the sword from one of the thieves,,,;
+T:...only so that another thief could steal it again. But anyway...;
+T:Thanks you for finding my sword... but please keep it. You went;
+T:trough all this trouble to get it, you deserve to keep it. I am not;
+T:worthy of it... But I'm sure it will prove a useful treasure to you.;
+T:Take care of it... do not repeat my mistakes... do not become a;
+T:failure like me,,,;
+A:Please, unseal the shrine's door. I shall defeat Shaugma.:0:0:0:1:15:0:0:0:0
+A:I'll take care of it. Farewell.:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Aria;
+T:N...no! I... I can't. If I unseal the doors, the evil will come to the;
+T:surface, and will attack everything and everyone! This is too dangereous!!;
+A:Somebody must stop him! If you cannot, I will!:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Aria;
+T:But... but Shaugma, he...;
+A:Please, I insist, Aria. Open the doors. It is the right thing to do.:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Aria;
+T:....you....you may be right... Heavens are not sending me any help... And;
+T:I am too weak to fight. You, on the other hand... you who could retrieve;
+T:my sword... You may me my last hope of ever regaining heavens...;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Aria;
+T:...all right. I will now unseal the doors... I...I am impressed by your;
+T:courage... Perhaps you do have what it takes do defeat the demon!;
+T:Good luck..err.. I don't think I asked for your name yet. How may I call;
+T:you?;
+A:My name is <NAME>.:0:0:0:1:19:0:0:50:1
+%
+
+N:19:0:0:0:0:0
+I:Aria;
+T:Well, <NAME>, I wish you good luck in your battle against Shaugma...;
+T:The battle will not be easy...but.... but I feel you can do it.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Aria;
+T:I had some doubts in your skill at first...but now, you have shown me;
+T:what courage is all about. By the way, do you still carry my blade;
+T:with you?;
+A:Yes, I still carry it.:2:23:52:6:1205:21:0:0:0
+A:No, I don't have it.:0:0:0:1:25:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Aria;
+T:... I took a decision. Even with Shaugma's death... even though I could;
+T:return to heaven... I will not. You did a lot for me... and now, it's;
+T:my turn to help you...;
+T:(She takes the sword in her hands. The blade starts glowing...);
+A:[CONTINUE]:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Aria;
+T:I shall now bind my soul to this blade. I will become one with the;
+T:sword's edge, and it will become a blessed blade of the heavens.;
+A:But... you'll die, won't you?:0:0:0:9:1212:23:0:49:1
+%
+
+N:23:0:0:0:0:0
+I:Aria;
+T:...not really. Though my body will disappear, my soul will forever remain;
+T:inside the edge of the blade. Do not worry about me. I am not strong enough;
+T:to be a knight of the heavens. I am physically small and weak, and I;
+T:lack the courage to do what you did. Now... I will bind my soul...;
+T:(She holds the blade tight, and her body becomes a glowing light!);
+A:[CONTINUE]:0:0:0:3:3:4:24:0:0
+%
+
+N:24:0:0:0:0:0
+I: ;
+T:The light lasts for a minute... and when it stops, Aria is gone. The sword;
+T:falls on the ground. It's edge is now golden, it's hilt became silver,;
+T:and the sword is glowing with a white, holy light. Aria has bound herself;
+T:forever inside this blade, and it has become a powerful, heavenly sword,;
+T:which is now rightfully yours!;
+A:[END DIALOG]:0:0:0:5:2:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Aria;
+T:Please return here with the sword... I have a reward for you, but you need;
+T:to have the sword with you!;
+A:I will return with the sword then.:0:0:0:0:0:0:0:0:0
+A:Actualy... I no longer have it at all...:0:0:0:9:1212:26:0:49:1
+%
+
+N:26:0:0:0:0:0
+I:Aria;
+T:(she looks disappointed)... oh, I see... In this case, I'm afraid I don't;
+T:have any rewards then... sorry... but at least, I can now return to heavens.;
+T:Know that on this day, you defeated a powerful demon, and saved many lives.;
+T:I am certain this act of goodness will bring you luck in the future!;
+A:[CONTINUE]:0:0:0:1:27:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I:Aria;
+T:Farewell, <NAME>... it's been good to know you. May the light be with you!;
+T:(A glowing column of light surrounds Aria, as she fly up in the sky and;
+T:disappear in a blinding flash of light. She has returned to heavens, thanks;
+T:to your skill and bravery.);
+A:[END DIALOG]:0:0:0:5:2:0:0:0:0
+%

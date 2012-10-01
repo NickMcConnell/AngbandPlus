@@ -1,0 +1,61 @@
+N:1:1017:1:0:0:0
+I:Cook;
+T:Orcs are attacking? Oh no! If they capture me, they'll cook me up!;
+T:And I'll be a cooked cook! Quite ironic, is it?;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Cook;
+T:Huh? What? Oh non! Don't tell me the king's having another special;
+T:dinner tonight? Oh dear! And the kitchen's all in disorder too!!;
+A:Calm down. There's nothing to prepare right now.:0:0:0:1:2:0:0:0:0
+A:Yes, and he wants it ready by two hours!:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Cook;
+T:Oh? Really? I am relieved! For a minute, I thought I was done for!;
+T:Well, huh... what can I do for you then?;
+A:Tell me about yourself.:0:0:0:1:5:0:0:0:0
+A:Any rumors?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Cook;
+T:WHAT?? TWO HOURS?!!? But....but... but it's impossible!! I will never;
+T:have the time to clean the kitchen!!;
+A:Heh heh... relax, it's just a joke!:0:0:0:1:4:0:0:0:0
+A:Your problem. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Cook;
+T:.......hmph... you're not funny. You really scared me! Get lost, and;
+T:never do these stupid jokes again!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Cook;
+T:Well, I'm the king's cook. I prepare the king's meals... I guess;
+T:there's not much more to tell about me.;
+A:Any rumors?:0:0:0:1:6:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Cook;
+T:Rumors? Oh, well, I'm afraid this ain't the place for rumors! If you;
+T:want to hear good stories, though, I suggest you stop at the;
+T:'Unbeliever's Lodge', an inn in the temple district, north of the city.;
+T:You'll have to search for it though, as the temple wouldn't like a;
+T:public inn to have that kind of name. You'll meet lot of peoples there...;
+T:But I warn you: most of them are ahteists, anti-Creator unbelievers...;
+T:But I met quite a few adventurers there, and they had quite a few;
+T:good stories. I wonder if they are true...;
+A:Tell me about yourself.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

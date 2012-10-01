@@ -1,0 +1,127 @@
+
+
+N:(number):(name)
+G:g:W
+I:(speed):(hit dice):(vision):(base AC):(disposition to attack):(event):(event value when killed):(dialog):(Fixed Level):(town num):(dungeon num)
+W:(depth):(rarity):(weight):(exp. value)
+B:(Str):(Dex):(Mind):(Attack skill):(Magic Skill):(Blows)
+E:(weapon slots):(body slots):(arms slots):(finger slots):(heads slots):(legs slots)
+C:(counter type):(chance)
+T:(item tval):(item sval):(chance to drop):(magic)
+A:(act):(name):type:dmg:element:special:special2
+A:(act):(name):type:dmg:element:special:special2
+A:(act):(name):type:dmg:element:special:special2
+A:(act):(name):type:dmg:element:special:special2
+R:(Fire):(Cold):(Elec):(Acid):(Poison):(Light):(Dark):(Warp):(Water):(Wind):(Earth):(Sound):(Radio):(Chaos):(Physical):(Mana)
+F:
+M:(chance to use magic):(num spells)
+S:(act):(name):type:power:special1:special2:special3:summchar:cost
+S:(act):(name):type:power:special1:special2:special3:summchar:cost
+S:(act):(name):type:power:special1:special2:special3:summchar:cost
+S:(act):(name):type:power:special1:special2:special3:summchar:cost
+S:(act):(name):type:power:special1:special2:special3:summchar:cost
+D:
+
+Attack (name) can be set to ! if you don't want to give the attack a name.
+
+Elements:
+1. Fire
+2. Cold
+3. Elec
+4. Acid
+5. Poison
+6. Light
+7. Dark
+8. Warp
+9. Water
+10. Wind
+11. Earth
+12. Sound
+13. Radio
+14. Chaos
+15. Physical
+16. Mana
+17. Missile
+18. FrostFire
+19. Grey
+20. Toxic
+55. Slow
+56. Confuse
+57. Sleep(paralyze)
+102. Fear
+151. Reduce Strength
+152. Reduce Intelligence
+153. Reduce Wisdom
+154. Reduce Dexterity
+155. Reduce Constitution
+156. Reduce Charisma
+157. Reduce Stats
+158. Reduce Experience
+
+(Magic):
+0. Normal
+1. Good
+2. Magic
+3. Special
+
+Attacks types:
+1. Normal. Can have special effects:
+	1. Drain Strength. Special2 is amount.
+        2. Drain Intelligence. Special2 is amount.
+	3. Drain Wisdom. Special2 is amount.
+	4. Drain Dexterity. Special2 is amount.
+	5. Drain Constitution. Special2 is amount.
+	6. Drain Charisma. Special2 is amount.
+	7. Drain All Stats. Special2 is amount.
+        8. Drain experience. Special2 is amount.
+2. Animated damages(only for animated monsters, like the Animated Knight)
+3. Ranged attack. Special is radius. Special2 is the chance of firing.
+999. Scripted attack. The attack's name is the function's name.
+1000. Ranged script attack. The attack's name is the function's name.
+
+Spells type:
+
+1. Bolt, special1 is the element.                        \ special3 can be set to 1 if you
+2. Ball, special1 is the element, special2 is the radius./ don't want the power to increase
+                                                           with level!
+3. Healing
+4. Haste
+5. Boost, based on special1:
+	1. Strength
+	2. Dexterity
+	3. Mind
+	4. Attack skill
+	5. Magic skill
+	6. All stats
+	7. All skills
+	8. All stats and skills
+6. Summon Kind, special1 is the number, summchar is the race char.
+7. Summon Specific, power is the monster's id, special1 is the number.
+8. Phase door. Power is the distance.
+999. Scripted spell. Spell's name is name of the script. These spells cannot be learned.
+
+Counters type:
+1. Block Melee: Attempt to block your melee attack. Depends on the
+		monster's hit rate.
+2. Block Magic: Attempt to block your spells. Depend on monster's mind.
+3. Block Melee/Magic: Attempt to block either melee or magic attacks.
+4. *Block* Melee: 100% to block melee attacks.
+5. *Block* Magic: 100% to block magic attacks.
+6. *Block* Melee/Magic: 100% chance to block anything.
+7. Return Melee: Return physical melee damages you deal.
+8. Return Magic: Return magic damages you deal.
+9. Returning: Return both melee and magic damages you deal.
+10. Block & Return Melee: Block and return physical melee damages you deal.
+11. Block & Return Magic: Block and return magic damages you deal.
+12. Block & Returning: Block and return both melee and magic damages you deal.
+13. *Block* & Return Melee: Block(100%) and return physical melee damages you deal.
+14. *Block* & Return Magic: Block(100%) and return magic damages you deal.
+15. *Block* & Returning: Block(100%) and return both melee and magic damages you deal.
+16. Block ranged attacks. Based on monster's dexterity versus yours.
+17. Block ranged and melee attacks.
+18. Block ranged and magic attacks.
+19. Block ranged, melee and magic attacks.
+20. *Block* ranged attacks.
+21. *Block* ranged and melee attacks.
+22. *Block* ranged and magic attacks.
+23. *Block* ranged, melee and magic attacks.

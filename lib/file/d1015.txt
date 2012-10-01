@@ -1,0 +1,31 @@
+N:1:1017:1:0:0:0
+I:Treasury Guard;
+T:Bah! The orcs can come if they want. We won't let them get our treasures!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Treasury Guard;
+T:Yes? What is it?;
+A:What's behind the door you're guarding?:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Treasury Guard;
+T:This is the treasury room, where magical weapons, armors and lots;
+T:of money is kept. Only authorized peoples can enter the room. And;
+T:don't even think about forcing the door. It's magically protected,;
+T:and can only be opened if one has the key.;
+A:[Lie] I have been given permission to enter. Can you open the door?:0:0:0:1:3:0:0:0:0
+A:I see. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Treasury Guard;
+T:Heh heh... nice try, but you see, we don't actually have the key!;
+T:If you really have permission to enter this room, you should already;
+T:have the key. And you don't. This means that you'd better leave,;
+T:or you'll be in trouble if you ever lie again.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

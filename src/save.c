@@ -547,6 +547,28 @@ static void wr_item(object_type *o_ptr)
         wr_s32b(o_ptr->pval2);
         wr_s32b(o_ptr->pval3);
 
+	/* Resistances! */
+	wr_s16b(o_ptr->fireres);
+	wr_s16b(o_ptr->coldres);
+	wr_s16b(o_ptr->elecres);
+	wr_s16b(o_ptr->acidres);
+	wr_s16b(o_ptr->poisres);
+	wr_s16b(o_ptr->lightres);
+	wr_s16b(o_ptr->darkres);
+	wr_s16b(o_ptr->warpres);
+	wr_s16b(o_ptr->waterres);
+	wr_s16b(o_ptr->windres);
+	wr_s16b(o_ptr->earthres);
+	wr_s16b(o_ptr->soundres);
+	wr_s16b(o_ptr->chaosres);
+	wr_s16b(o_ptr->radiores);
+	wr_s16b(o_ptr->physres);
+	wr_s16b(o_ptr->manares);
+
+	wr_s16b(o_ptr->brandtype);
+	wr_s32b(o_ptr->branddam);
+	wr_s16b(o_ptr->brandrad);
+
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
         wr_s32b(o_ptr->weight);
@@ -579,8 +601,8 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->xtra2);
 
         /* Write the exp/exp level */
-        wr_byte(o_ptr->elevel);
-        wr_s32b(o_ptr->exp);
+        wr_s16b(o_ptr->level);
+        wr_s32b(o_ptr->kills);
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -601,7 +623,7 @@ static void wr_item(object_type *o_ptr)
 	{
 		wr_string("");
 	}
-
+	
 }
 
 
@@ -634,6 +656,17 @@ static void wr_monster(monster_type *m_ptr)
         wr_s16b(m_ptr->animdam_d);
         wr_s16b(m_ptr->animdam_s);
         wr_s16b(m_ptr->seallight);
+	wr_s16b(m_ptr->str);
+	wr_s16b(m_ptr->dex);
+	wr_s16b(m_ptr->mind);
+	wr_s16b(m_ptr->skill_attack);
+	wr_s16b(m_ptr->skill_magic);
+	wr_s32b(m_ptr->mana);
+        wr_s16b(m_ptr->hasted);
+        wr_s16b(m_ptr->boosted);
+	wr_s16b(m_ptr->spoke);
+	wr_s16b(m_ptr->lives);
+	wr_s16b(m_ptr->summoned);
 }
 
 
@@ -671,6 +704,66 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_blows[1]);
 	wr_byte(r_ptr->r_blows[2]);
 	wr_byte(r_ptr->r_blows[3]);
+	wr_byte(r_ptr->r_blows[4]);
+	wr_byte(r_ptr->r_blows[5]);
+	wr_byte(r_ptr->r_blows[6]);
+	wr_byte(r_ptr->r_blows[7]);
+	wr_byte(r_ptr->r_blows[8]);
+	wr_byte(r_ptr->r_blows[9]);
+	wr_byte(r_ptr->r_blows[10]);
+	wr_byte(r_ptr->r_blows[11]);
+	wr_byte(r_ptr->r_blows[12]);
+	wr_byte(r_ptr->r_blows[13]);
+	wr_byte(r_ptr->r_blows[14]);
+	wr_byte(r_ptr->r_blows[15]);
+	wr_byte(r_ptr->r_blows[16]);
+	wr_byte(r_ptr->r_blows[17]);
+	wr_byte(r_ptr->r_blows[18]);
+	wr_byte(r_ptr->r_blows[19]);
+
+	/* Seen resistances of each type */
+	wr_byte(r_ptr->r_resist[0]);
+	wr_byte(r_ptr->r_resist[1]);
+	wr_byte(r_ptr->r_resist[2]);
+	wr_byte(r_ptr->r_resist[3]);
+	wr_byte(r_ptr->r_resist[4]);
+	wr_byte(r_ptr->r_resist[5]);
+	wr_byte(r_ptr->r_resist[6]);
+	wr_byte(r_ptr->r_resist[7]);
+	wr_byte(r_ptr->r_resist[8]);
+	wr_byte(r_ptr->r_resist[9]);
+	wr_byte(r_ptr->r_resist[10]);
+	wr_byte(r_ptr->r_resist[11]);
+	wr_byte(r_ptr->r_resist[12]);
+	wr_byte(r_ptr->r_resist[13]);
+	wr_byte(r_ptr->r_resist[14]);
+	wr_byte(r_ptr->r_resist[15]);
+	wr_byte(r_ptr->r_resist[16]);
+	wr_byte(r_ptr->r_resist[17]);
+	wr_byte(r_ptr->r_resist[18]);
+	wr_byte(r_ptr->r_resist[19]);
+
+	/* Known spells */
+	wr_byte(r_ptr->r_spells[0]);
+	wr_byte(r_ptr->r_spells[1]);
+	wr_byte(r_ptr->r_spells[2]);
+	wr_byte(r_ptr->r_spells[3]);
+	wr_byte(r_ptr->r_spells[4]);
+	wr_byte(r_ptr->r_spells[5]);
+	wr_byte(r_ptr->r_spells[6]);
+	wr_byte(r_ptr->r_spells[7]);
+	wr_byte(r_ptr->r_spells[8]);
+	wr_byte(r_ptr->r_spells[9]);
+	wr_byte(r_ptr->r_spells[10]);
+	wr_byte(r_ptr->r_spells[11]);
+	wr_byte(r_ptr->r_spells[12]);
+	wr_byte(r_ptr->r_spells[13]);
+	wr_byte(r_ptr->r_spells[14]);
+	wr_byte(r_ptr->r_spells[15]);
+	wr_byte(r_ptr->r_spells[16]);
+	wr_byte(r_ptr->r_spells[17]);
+	wr_byte(r_ptr->r_spells[18]);
+	wr_byte(r_ptr->r_spells[19]);
 
 	/* Memorize flags */
 	wr_u32b(r_ptr->r_flags1);
@@ -923,9 +1016,6 @@ static void wr_extra(void)
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
-        wr_u16b(p_ptr->realm1);
-        wr_u16b(p_ptr->realm2);
-        wr_byte(p_ptr->mimic_form);
 	wr_byte(0);     /* oops */
 
 	wr_byte(p_ptr->hitdie);
@@ -940,6 +1030,7 @@ static void wr_extra(void)
 	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cur[i]);
         for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cnt[i]);
         for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_los[i]);
+	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_mut[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -952,34 +1043,25 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->lev);
 
 	wr_s16b(p_ptr->town_num); /* -KMW- */
+	wr_string(p_ptr->town_name);
 
 	/* Write arena and rewards information -KMW- */
-	wr_s16b(p_ptr->arena_number);
-	wr_s16b(p_ptr->inside_arena);
 	wr_s16b(p_ptr->inside_quest);
-	wr_byte(p_ptr->exit_bldg);
-	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+	wr_string(p_ptr->quest_name);
+	wr_s16b(p_ptr->death_dialog);
+	wr_s16b(p_ptr->eventdeath);
+	wr_s16b(p_ptr->eventdeathset);
 
 	wr_s16b(p_ptr->oldpx);
 	wr_s16b(p_ptr->oldpy);
 
-	/* Save builing rewards */
-	wr_s16b(MAX_BACT);
-
-	for (i = 0; i < MAX_BACT; i++) wr_s16b(p_ptr->rewards[i]);
-
         wr_s32b(p_ptr->mhp);
         wr_s32b(p_ptr->chp);
-        wr_u16b(p_ptr->chp_frac);
+	wr_u16b(p_ptr->chp_frac);
 
         wr_s32b(p_ptr->msp);
         wr_s32b(p_ptr->csp);
-        wr_u16b(p_ptr->csp_frac);
-
-        /* Gods */
-        wr_s32b(p_ptr->grace);
-        wr_s32b(p_ptr->god_favor);
-        wr_byte(p_ptr->pgod);
+	wr_u16b(p_ptr->csp_frac);
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
@@ -1012,9 +1094,6 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->stun);
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->image);
-	wr_s16b(p_ptr->protevil);
-        wr_s16b(p_ptr->protundead);
-	wr_s16b(p_ptr->invuln);
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
@@ -1025,42 +1104,18 @@ static void wr_extra(void)
         wr_s16b(p_ptr->recall_dungeon);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
-	wr_s16b(p_ptr->oppose_fire);
-	wr_s16b(p_ptr->oppose_cold);
-	wr_s16b(p_ptr->oppose_acid);
-	wr_s16b(p_ptr->oppose_elec);
-	wr_s16b(p_ptr->oppose_pois);
-        wr_s16b(p_ptr->oppose_ld);
-        wr_s16b(p_ptr->oppose_cc);
-        wr_s16b(p_ptr->oppose_ss);
-        wr_s16b(p_ptr->oppose_nex);
 
     wr_s16b(p_ptr->tim_esp);
     wr_s16b(p_ptr->wraith_form);
     wr_s16b(p_ptr->tim_ffall);
-    wr_s16b(p_ptr->tim_fire_aura);
-    wr_s16b(p_ptr->resist_magic);
     wr_s16b(p_ptr->tim_invisible);
     wr_s16b(p_ptr->tim_inv_pow);
-    wr_s16b(p_ptr->tim_mimic);
-    wr_s16b(p_ptr->lightspeed);
-    wr_s16b(p_ptr->tim_lite);
-    wr_s16b(p_ptr->holy);
-    wr_s16b(p_ptr->walk_water);
-    wr_s16b(p_ptr->tim_mental_barrier);
-    wr_s16b(p_ptr->immov_cntr);
-    wr_s16b(p_ptr->strike);
-    wr_s16b(p_ptr->meditation);
-    wr_s16b(p_ptr->tim_reflect);
-    wr_s16b(p_ptr->tim_res_time);
 
-    wr_s16b(p_ptr->chaos_patron);
     wr_u32b(p_ptr->muta1);
     wr_u32b(p_ptr->muta2);
     wr_u32b(p_ptr->muta3);
 
 	wr_byte(p_ptr->confusing);
-        wr_byte(p_ptr->black_breath);     /* oops */
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
@@ -1068,41 +1123,14 @@ static void wr_extra(void)
 	wr_byte(p_ptr->special);
 	wr_byte(special_flag);
         wr_byte(p_ptr->allow_one_death);
-        wr_s16b(p_ptr->xtra_spells);
 
         wr_u16b(no_breeds);
 
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
 
-        /* Auxilliary variables */
-        wr_u32b(p_ptr->class_extra1);
-        wr_u32b(p_ptr->class_extra2);
-        wr_u32b(p_ptr->class_extra3);
-        wr_u32b(p_ptr->class_extra4);
-        wr_u32b(p_ptr->class_extra5);
-        wr_u32b(p_ptr->class_extra6);
-        wr_u32b(p_ptr->class_extra7);
-
-        wr_u32b(p_ptr->race_extra1);
-        wr_u32b(p_ptr->race_extra2);
-        wr_u32b(p_ptr->race_extra3);
-        wr_u32b(p_ptr->race_extra4);
-        wr_u32b(p_ptr->race_extra5);
-        wr_u32b(p_ptr->race_extra6);
-        wr_u32b(p_ptr->race_extra7);
-
         wr_u16b(p_ptr->body_monster);
         wr_byte(p_ptr->disembodied);
-
-        /* The music */
-        wr_byte(p_ptr->music);
-
-        /* The tactic */
-        wr_byte(p_ptr->tactic);
-
-        /* The movement */
-        wr_byte(p_ptr->movement);
 
         /* The bounties */
 	for (i = 0; i < MAX_BOUNTIES; i++) {
@@ -1149,38 +1177,23 @@ static void wr_extra(void)
         /* Write the magic spells! */
         wr_magic_spells();
 
-        /* Monster Magics */
-        wr_u32b(p_ptr->monster_magic);
-        wr_u32b(p_ptr->monster_magic2);
-        wr_u32b(p_ptr->monster_magic3);
-        wr_u32b(p_ptr->monster_magic4);
+	/* Write the monster magics! */
+	wr_monster_magics();
+
+	/* Write random dungeon! */
+	wr_random_dungeon();
+
+        /* Players skills/abilities */
         wr_s32b(p_ptr->ability_points);
-        wr_s16b(p_ptr->elemmagic);
-        wr_s16b(p_ptr->battlemagic);
-        wr_s16b(p_ptr->healmagic);
-        wr_s16b(p_ptr->cursemagic);
-        wr_s16b(p_ptr->visionmagic);
-        wr_s16b(p_ptr->naturemagic);
         wr_s16b(p_ptr->memorized);
         wr_s16b(p_ptr->elemlord);
         wr_s16b(p_ptr->statpoints);
         wr_s16b(p_ptr->skillpoints);
-        wr_s16b(p_ptr->skill_swords_base);
-        wr_s16b(p_ptr->skill_hafted_base);
-        wr_s16b(p_ptr->skill_polearms_base);
-        wr_s16b(p_ptr->skill_daggers_base);
-        wr_s16b(p_ptr->skill_axes_base);
-        wr_s16b(p_ptr->skill_rods_base);
-        wr_s16b(p_ptr->skill_shooting_base);
-        wr_s16b(p_ptr->skill_throwing_base);
-        wr_s16b(p_ptr->skill_marts_base);
-        wr_s16b(p_ptr->skill_agility_base);
-        wr_s16b(p_ptr->skill_stealth_base);
-        wr_s16b(p_ptr->skill_spellcraft_base);
-        wr_s16b(p_ptr->skill_leadership_base);
-        wr_s16b(p_ptr->skill_alchemy_base);
-        wr_s16b(p_ptr->skill_crafting_base);
-        wr_s16b(p_ptr->skill_combat_base);
+
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		wr_s16b(p_ptr->skill_base[i]);
+	}
 
         wr_s16b(p_ptr->str_boost);
         wr_s16b(p_ptr->str_boost_dur);
@@ -1217,10 +1230,19 @@ static void wr_extra(void)
         for (i = 0; i < MAX_CLASS; ++i) wr_s16b(p_ptr->class_kills[i]);
         for (i = 0; i < MAX_ABILITIES; ++i) wr_s16b(p_ptr->abilities[i]);
         wr_s16b(p_ptr->num_abilities);
+	for (i = 0; i < 36; ++i) wr_s16b(p_ptr->abilities_powers[i]);
         wr_s16b(p_ptr->magic_mode);
         wr_byte(p_ptr->auraon);
         wr_s32b(p_ptr->deathcount);
         wr_s16b(p_ptr->guardconfuse);
+	wr_byte(p_ptr->learning);
+	wr_s16b(p_ptr->startx);
+	wr_s16b(p_ptr->starty);
+	wr_s16b(p_ptr->cur_wid);
+	wr_s16b(p_ptr->cur_hgt);
+	wr_s16b(p_ptr->alignment);
+	for (i = 0; i < 30000; ++i) wr_s16b(p_ptr->events[i]);
+	for (i = 0; i < 30000; ++i) wr_s16b(p_ptr->towns[i]);
 }
 
 
@@ -1470,47 +1492,6 @@ static void wr_dungeon(void)
 
 	/* Note that this will induce two wasted bytes */
 	count = 0;
-	prev_s16b = 0;
-
-	/* Dump the cave */
-	for (y = 0; y < cur_hgt; y++)
-	{
-		for (x = 0; x < cur_wid; x++)
-		{
-			/* Get the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract a byte */
-                        tmp16s = c_ptr->inscription;
-			
-			/* If the run is broken, or too full, flush it */
-			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
-			{
-				wr_byte((byte)count);
-				wr_u16b(prev_s16b);
-				prev_s16b = tmp16s;
-				count = 1;
-			}
-
-			/* Continue the run */
-			else
-			{
-				count++;
-			}
-		}
-	}
-
-	/* Flush the data (if any) */
-	if (count)
-	{
-		wr_byte((byte)count);
-		wr_u16b(prev_s16b);
-	}
-
-	/*** Simple "Run-Length-Encoding" of cave ***/
-
-	/* Note that this will induce two wasted bytes */
-	count = 0;
 	prev_char = 0;
 
 	/* Dump the cave */
@@ -1588,7 +1569,387 @@ static void wr_dungeon(void)
                 wr_u32b(prev_s32b);
 	}
 
+	/*** Simple "Run-Length-Encoding" of cave ***/
 
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->event;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+	
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventtype;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventextra;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+	
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventextra2;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventcond;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventcondval;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventset;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->eventsetval;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->script;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/* Write the scripts names */
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+			
+			wr_string(c_ptr->script_name);
+		}
+	}
 
 	/* Compact the objects */
 	compact_objects(0);
@@ -1720,7 +2081,7 @@ static bool wr_savefile_new(void)
 
 
 	/* Write the boolean "options" */
-	wr_options();
+        /*wr_options();*/
 
 
 	/* Dump the number of "messages" */
@@ -1741,14 +2102,13 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
         /* Dump the ghosts info */
-        for (i = 0; i < MAX_GHOSTS; i++)
+        /*for (i = 0; i < MAX_GHOSTS; i++)
                 wr_string(ghost_file[i]);
 
         for(i = 0; i < MAX_GHOSTS; i++)
         {
                 monster_race *r_ptr;
 
-                /* Load the ghost */
                 r_ptr = &r_info[GHOST_R_IDX_HEAD + i];
 
                 wr_string(r_name + r_ptr->name);
@@ -1798,7 +2158,7 @@ static bool wr_savefile_new(void)
 
                 wr_s16b(r_ptr->max_num);
                 wr_byte(r_ptr->cur_num);
-        }
+        }*/
 
 	/* Dump the object memory */
 	tmp16u = max_k_idx;
@@ -1834,22 +2194,11 @@ static bool wr_savefile_new(void)
 	}
 
 	/* Dump the position in the wilderness */
-	wr_s32b(p_ptr->wilderness_x);
-	wr_s32b(p_ptr->wilderness_y);
+	wr_s32b(p_ptr->wild_x);
+	wr_s32b(p_ptr->wild_y);
+	wr_s16b(p_ptr->wild_startx);
+	wr_s16b(p_ptr->wild_starty);
         wr_byte(p_ptr->wild_mode);
-
-	wr_s32b(max_wild_x);
-	wr_s32b(max_wild_y);
-
-	/* Dump the wilderness seeds */
-        for (i = 0; i < max_wild_x; i++)
-	{
-                for (j = 0; j < max_wild_y; j++)
-		{
-                        wr_u32b(wild_map[j][i].seed);
-                        wr_u16b(wild_map[j][i].entrance);
-		}
-	}
 
 	/* Dump the random artifacts */
 	tmp16u = MAX_RANDARTS;
@@ -1885,14 +2234,6 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
                 wr_byte(t_info[i].ident);
-	}
-
-        /* Hack -- Dump the inscriptions */
-        tmp16u = MAX_INSCRIPTIONS;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-                wr_byte(inscription_info[i].know);
 	}
 
 	/* Write the "extra" information */
@@ -2500,3 +2841,91 @@ void wr_magic_spells()
         }
 }
 
+/* Write the monster magics! */
+void wr_monster_magics()
+{
+        int x;
+        for (x = 0; x <= 15; x++)
+        {
+                monster_magics *mspell_ptr = &monster_magic[x];
+                wr_string(mspell_ptr->name);
+		wr_string(mspell_ptr->act);
+                wr_s16b(mspell_ptr->type);
+                wr_s16b(mspell_ptr->power);
+		wr_s16b(mspell_ptr->special1);
+		wr_s16b(mspell_ptr->special2);
+		wr_s16b(mspell_ptr->special3);
+                wr_byte(mspell_ptr->summchar);
+		wr_s16b(mspell_ptr->cost);
+        }
+}
+
+/* Save options to options.prf */
+void save_options(void)
+{
+        char name[1024];
+
+        /* Construct filename */
+        path_build(name, 1024, ANGBAND_DIR_PREF, "options.prf");
+   
+        /* Open the file */
+        fff = my_fopen(name, "wb");
+
+        /* Save the options */
+        wr_options();
+
+        /* Done */
+        my_fclose(fff);
+}
+
+/* Save the random dungeon! */
+void wr_random_dungeon()
+{
+	dungeon_info_type *d_ptr;
+	d_ptr = &d_info[200];
+	
+	wr_u32b(d_ptr->name);
+	wr_u32b(d_ptr->text);
+        wr_s16b(d_ptr->floor1);
+        wr_byte(d_ptr->floor_percent1);
+        wr_s16b(d_ptr->floor2);
+        wr_byte(d_ptr->floor_percent2);
+        wr_s16b(d_ptr->floor3);
+        wr_byte(d_ptr->floor_percent3);
+        wr_s16b(d_ptr->outer_wall);
+        wr_s16b(d_ptr->inner_wall);
+        wr_s16b(d_ptr->fill_type1);
+        wr_byte(d_ptr->fill_percent1);
+        wr_s16b(d_ptr->fill_type2);
+        wr_byte(d_ptr->fill_percent2);
+        wr_s16b(d_ptr->fill_type3);
+        wr_byte(d_ptr->fill_percent3);
+        wr_s16b(d_ptr->mindepth);
+        wr_s16b(d_ptr->maxdepth);
+        wr_byte(d_ptr->principal);
+        wr_byte(d_ptr->next);
+        wr_byte(d_ptr->min_plev);
+        wr_byte(d_ptr->mode);
+
+        wr_s16b(d_ptr->min_m_alloc_level);
+        wr_s16b(d_ptr->max_m_alloc_chance);
+
+        /*d_ptr->flags1;*/
+
+        /*d_ptr->mflags1;
+        d_ptr->mflags2;
+        d_ptr->mflags3;
+        d_ptr->mflags4;
+        d_ptr->mflags5;
+        d_ptr->mflags6;
+        d_ptr->mflags7;
+        d_ptr->mflags8;
+        d_ptr->mflags9;*/
+
+        /* d_ptr->r_char[5]; */
+        wr_s16b(d_ptr->final_artifact);
+        wr_s16b(d_ptr->final_guardian);
+
+        wr_byte(d_ptr->special_percent);
+	wr_s16b(d_ptr->quest);
+}

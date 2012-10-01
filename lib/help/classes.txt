@@ -7,14 +7,30 @@ BASIC CLASSES
 WARRIOR:
         Strength: +25%
         Constitution: +25%
-        Intelligence: -25%
+        -20% to maximum mana.
 
 The warrior is an adept of melee combat. Swords, axes, spears, maces,
 warriors use different kind of weapons, and can perform various combat
 techniques to defeat their opponents. Warriors need to be strong and
 healthy, but because they greatly focus in these traits, they tend to
-be not too smart, and thus they have less mana available, meaning they
-will have an harder time casting spells.
+neglect magical study, and therefore are not too good at spellcasting.
+
+FIGHTER:
+        Strength: +33%
+        Constitution: +25%
+        Wisdom: -25%
+        -50% to maximum mana.
+
+The fighter is also an adept of melee combat, but he is very different
+from the warrior. While the warrior is a disciplined soldier who uses
+combat techniques to defeat opponents, the fighter just fight for
+personnal enjoyment, with violence and aggressivity. They fight
+with whatever weapon they can find, including their own fists, and
+will either use brute strength and sheer power, or they will taunt
+their opponents into attacking and losing control. Fighters are by no means
+noble or honorable, in fact, most of them are street thugs or bullies
+who learn to fight by themselves. Most of them shun magic, as they would 
+rather fight than read a book.
 
 MAGE:
         Strength: -25%
@@ -78,11 +94,11 @@ assist him/her in defeating evil monsters.
 
 MONK:
         Strength: +25%
-        Wisdom: +33%
+        Wisdom: +25%
         Constitution: +25%
         Agility skill: +25%
         Martial Arts skill: +25%
-        +1 to speed for every 10 levels.
+	All melee weapons skills: -25%
         Immune to paralysis.
 
 The monk is a wise warrior who renounce to the material world in order to
@@ -90,10 +106,13 @@ find inner peace and tranquility. Skilled in various martial arts styles,
 the monk is an adept at fighting without any weapons or armors. They learn
 various fighting techniques, and learn to defend themselves even without
 armor. Spiritually enlighted, the monk learn skills quickly, and their
-speed, strength and mastery of self makes them dangerous opponents.
+speed, strength and mastery of self makes them dangerous opponents. However,
+due to their intense focus on martial arts, as well as their oath to renounce
+to using weapons, makes them less skilled with melee weapons than the average
+warrior.
 
 ARCHER:
-        Dexterity: +50%
+        Dexterity: +25%
 
 The archer is a master of the bow and arrows(or crossbow and bolts).
 Considered cowardly by the warriors, archers prefers to strike their
@@ -110,23 +129,22 @@ HIGH MAGE:
 Requirements: Mage level 5, Intelligence: 40
 
         Intelligence: +50%
-        Strength: -50%
-        Constitution: -20%
+        Strength: -25%
 
 The high mage is a more experienced and more skilled mage. Having
 dedicated a good portion of his/her life to create powerful spells,
 their spells are nearly unequalled in power, and the high mages are
 feared by all. However, having dedicated their life to their studies,
 they have renounced to martial training, and therefore, they are
-physically very weak and frail. But make no mistakes, their spells
-more than make up for their frail bodies!
+physically weak. But make no mistakes, their spells more than make 
+up for their frail bodies!
 
 ELEMENTAL LORD:
 Requirements: Warrior level 3, Strength: 20, Intelligence: 10
 
         Strength: +25%
         Constitution: +25%
-        Intelligence: +17%
+        Intelligence: +25%
 
 Elemental Lords are mysterious warriors of superior skill who imbued
 their bodies with elemental energy. The Elemental Lord chooses one
@@ -178,7 +196,7 @@ Requirements: Paladin level 5, Strength: 20, Wisdom: 20, Charisma: 20
         Resistant to fear.
         Sustained wisdom.
         Sustained charisma.
-        Emits a small aura of light.
+        Emits light without light source.
 
 Justice Warriors are the supreme defenders of good and justice. They
 hate evil beyond anything else, and dedicate their life to the killing
@@ -186,31 +204,28 @@ of demons, undeads and other evil creatures. Even more virtuous and
 blessed than the paladin, the Justice Warrior is greatly respected by
 his/her friends, and greatly feared by his/her foes.
 
-ZELAR:
-Requirements: Monk level 10, Strength: 40, Wisdom: 40, Dexterity: 40
-        Constitution: 20
+HIGH MONK:
+Requirements: Monk level 10, Strength: 40, Wisdom: 40, Constitution: 40
 
         Strength: +33%
-        Dexterity: +33%
         Constitution: +33%
         Wisdom: +33%
-        +1 to speed for every 10 levels.
         Resistant to confusion.
         Resistant to fear.
         Sustained strength.
-        Sustained dexterity.
-        Sustained intelligence.
         Sustained wisdom.
         Sustained constitution.
         Agility skill: +33%
         Martial Arts skill: +33%
+	All melee weapon skills: -33%
 
-Zelars are an ancient order of monks who have achieved complete mastery
-over their bodies and inner energy. They can channel this energy to
-perform various amazing feats and combat techniques, and are extremely
-dangerous to face in combat. From healing their wounds and magical
-energy to emanating deadly waves of energy from their fists and feet,
-the Zelars are the ultimate masters of unarmed combat.
+High Monks are monks who have achieved complete mastery over their bodies, 
+mind and inner energy. They can channel this energy to perform various 
+amazing feats and combat techniques, and are extremely dangerous to face 
+in combat. From healing their wounds and magical energy to emanating deadly 
+waves of energy from their fists and feet, the High Monks are the ultimate 
+masters of unarmed combat. However, so much dedication makes them not very
+good with other melee weapons.
 
 SOUL GUARDIAN:
 Requirements: Wisdom: 20, Charisma: 10
@@ -231,12 +246,12 @@ Requirements: Wisdom: 20, Charisma: 10
 	hp is at most 20% of it's max hp. Uniques must be at
 	most 5%. Even if the monster is weak enough, success
 	is not guaranteed, and the outcome depends on your
-	wisdom and the monster's level. If you succeed, the
-	soul will appear in your inventory as an eternal item.
+	wisdom versus the monster's level and mind stat. If you 
+	succeed, the soul will appear in your inventory as an eternal item.
 
 Soul Guardians are wise men and women who conjure, capture and invoke
 the souls of the living. They protect the souls of their friends and
-loved ones, while capturing and reshape the soul of their enemies.
+loved ones, while capturing and reshaping the souls of their enemies.
 While physically frail, Soul Guardians prevail by capturing the souls
 of their enemies, and draw their powers from captured souls. Some
 guardians are able to recreate a creature from a soul, while others

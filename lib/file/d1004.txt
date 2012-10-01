@@ -1,0 +1,120 @@
+N:1:1017:1:0:0:0
+I:Rolf;
+T:You're still there? What are you waiting for? Go smash these bastards!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1000:2:0:0:0
+I:Rolf;
+T:Looks like the king allowed to come and leave as you please...;
+T:Don't cause any trouble.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1000:1:0:0:0
+I:Rolf;
+T:Well, I unlocked the doors. Aren't you supposed to enter the palace now?;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Rolf;
+T:No unauthorized peoples enters the palace. Now get lost.;
+A:But I need to see the king!:1:40:1:1:3:0:0:0:0
+A:Who are you?:0:0:0:1:2:0:0:0:0
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Rolf;
+T:Who I am? My name's Rolf, and I'm one of the royal elite guards.;
+T:I have been placed here in order to keep little idiot commoners away;
+T:from the palace. And that means you! Now, get out of here! You have;
+T:no business in the palace!;
+A:But I need to see the king!:1:40:1:1:3:0:0:0:0
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Rolf;
+T:Really? And why is that so?;
+A:The town of Udor has been attacked!:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Rolf;
+T:...Udor...huh...where's Udor? Never heard of it. Must be a small town;
+T:lost in the land of 'who knows where'... So, what is it? Birds? Ants?;
+T:Rats maybe? I mean, anything as little as a rat can scare off those;
+T:little villagers lost in the nowhere!;
+A:[Charisma] I am very serious. Let me pass.:5:20:0:1:9:0:0:0:0
+A:The town has been attacked by orcs.:0:0:0:1:5:0:0:0:0
+A:The town has been attacked by bandits.:0:0:0:1:6:0:0:0:0
+A:Wild animals attacked the town.:0:0:0:1:7:0:0:0:0
+A:Nevermind. I'm leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Rolf;
+T:Orcs? ORCS??? HAHAHAHAHAAHAHAHAHA!!!! *loud laugh*;
+T:Yes, yes, of course, orcs! I should have known... Orcs are everywhere;
+T:these days, heh? I'm sure everyone in the city is actually an orc;
+T:in disguise! However, I know one thing for sure: there are no orcs in; 
+T:the palace. So there's no need for you to enter. Now get lost.;
+A:I have a proof right here! [Show him Gorg's Head]:2:1:22:1:8:0:0:0:0
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Rolf;
+T:Bandits you say? Wait a minute... are you insinuating that YOU attacked;
+T:the town?? Oh, I get it! You scared a few villagers, and now you aim;
+T:for something BIGGER! And what's bigger than Jindar's palace, heh?;
+T:heh heh heh... seriously though, even lowly village guards can handle pesky;
+T:bandits. No need to disturb the king about that. Now, get out of here!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Rolf;
+T:Just as I thought! Birds, ants and rats ravaged an entire town! Of course,;
+T:you can't expect much of a fight from lowly townsfolks... Well, rest;
+T:assured that we keep the palace clean from ants and rats. None of them;
+T:inside! That means we do not need your help, and you can return to that;
+T:little 'Udor' of yours... Good bye!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Rolf;
+T:Ewww! What's that ugly green thing? Oh wait! I get it! It's a wax replica;
+T:of your face!! HAHAHA! Yes, your face and that thing are identical!;
+T:Wow, one ugly was already bad, now two! Get out of here!! Now!!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Rolf;
+T:hmmm... well, you don't look THAT threatening after all... nothing I can't;
+T:stop! haha! Well, hmmm... okay, I will let you enter, if you give me a;
+T:little gift of let's say...hmmm... 1000 golds?;
+A:WHAT??:0:0:0:1:10:0:0:0:0
+A:You're not funny.:0:0:0:1:11:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Rolf;
+T:HAH HAH HAH!! And you fell for it, too! heh heh... oh, all right, I believe;
+T:you... And as I said, you're not very threatening anyway... Okay, here.;
+T:I will open the doors. But don't cause any troubles, or you'll regret it!;
+A:[END DIALOG]:0:0:0:0:0:0:0:1000:1
+%
+
+N:11:0:0:0:0:0
+I:Rolf;
+T:...awww, too bad, I thought you'd fall for it... oh well. All right, I;
+T:believe you... you're not much of a threat anyway. So, I'll unlock the;
+T:doors, and let you enter. But if you cause any trouble, you'll be dead.;
+T:Got it?;
+A:[END DIALOG]:0:0:0:0:0:0:0:1000:1
+%

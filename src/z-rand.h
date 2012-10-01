@@ -82,6 +82,7 @@ extern s32b Rand_div(u32b m);
 extern s16b randnor(int mean, int stand);
 extern s32b damroll(int num, int sides);
 extern s32b maxroll(int num, int sides);
+extern s32b lua_randint(int num);
 
 
 #endif

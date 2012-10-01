@@ -1,0 +1,347 @@
+N:1:11:1:0:0:0
+I:Mayor Princeton;
+T:Please! You have to slay the monsters before they come upstairs!;
+T:There is no time to lose!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:8:1:0:0:0
+I:Mayor Princeton;
+T:Hello again, <NAME>! Did you speak to Clara yet?;
+A:Apparently, the kobold thief spoke about an 'order'...:1:10:1:1:28:0:0:0:0
+A:Tell me more about Udor.:0:0:0:1:3:0:0:0:0
+A:Tell me more about you.:0:0:0:1:7:0:0:0:0
+A:No, not yet. I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:5:1:0:0:0
+I:Mayor Princeton;
+T:Hello again, <NAME>! Did you find anything about the monster?;
+A:Not the rat, but... I found another monster...[Show him the orc's head]:2:1:22:1:18:0:0:0:0
+A:Tell me more about Udor.:0:0:0:1:3:0:0:0:0
+A:Tell me more about you.:0:0:0:1:7:0:0:0:0
+A:No, not yet. I will go now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:3:1:0:0:0
+I:Mayor Princeton;
+T:Hello again, <NAME>! What can I do for you?;
+A:I have something to show you...[Show him the head]:2:1:21:1:11:0:0:0:0
+A:Tell me more about Udor.:0:0:0:1:3:0:0:0:0
+A:Tell me more about you.:0:0:0:1:7:0:0:0:0
+A:Do you have any work for me?:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Mayor Princeton;
+T:Greetings, <CLASS>! My name is Joachim Princeton, and I welcome you;
+T:to my fair village. As you may have guessed, I am the mayor of Udor.;
+T:And who might you be?;
+A:My name is <NAME>.:0:0:0:1:2:0:0:3:1
+%
+
+
+N:2:0:0:0:0:0
+I:Mayor Princeton;
+T:Well, <NAME>, glad to meet you! How may I help you?;
+A:I have something to show you...[Show him the head]:2:1:21:1:11:0:0:0:0
+A:Tell me more about Udor.:0:0:0:1:3:0:0:0:0
+A:Tell me more about you.:0:0:0:1:7:0:0:0:0
+A:Do you have any work for me?:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Mayor Princeton;
+T:Udor was founded about 300 years ago. It's a fairly young town. It all;
+T:started in the mountain kingdom of Ivhala, in a Licialhyd mine. Working;
+T:in the mines were poor workers, and they were forced to do hard and;
+T:dangerous labors. In return, they received a few coins, barely enough;
+T:to buy a descent meal at the end of the day. Many peoples died in the;
+T:mines due to poor conditions...;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Mayor Princeton;
+T:But one day, the miners decided to revolt, and fight for their rights!;
+T:They asked for more human conditions, and for higher salaries. Naturally,;
+T:the king of Ivhala back then, King Browen II, refused to comply to the;
+T:request of the workers, and sent his soldiers to force the workers to;
+T:return to work! A fight errupted... and unfortunately, the workers were;
+T:losing the battle...;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Mayor Princeton;
+T:Many workers were forced to return to the mines, but a few decided to;
+T:keep fighting. Eventually, they were forced to flee Ivhala. They managed to;
+T:leave the kingdom, and eventually entered the kingdom of Jindar. They;
+T:travelled for several months, until they finally came here. And they;
+T:decided to build a new town, and start a new life, away from the mountains;
+T:and the mines.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Mayor Princeton;
+T:And thus, Udor was born. The town was named after the leader of the revolt.;
+T:And since then, the town grew into a nice little town, where peoples lives;
+T:in peace.;
+A:Tell me more about you.:0:0:0:1:7:0:0:0:0
+A:Do you have any work for me?:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Mayor Princeton;
+T:Me? Well, I am mayor Joachim Princeton. I am the ruler of Udor and I;
+T:take care of all the administrative stuff with the help of my officials.;
+T:In other words, I do what the mayor of a town must do. I was born in;
+T:Udor, and this town means a lot to me. So I always try to do my best to;
+T:maintain the peace and tranquility of our little town.;
+A:Tell me more about Udor.:0:0:0:1:3:0:0:0:0
+A:Do you have any work for me?:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Mayor Princeton;
+T:Work? Hmmm... well, I could certainly hire someone to help me with;
+T:administrative tasks, but I'm sure that's not what's you're looking for...;
+T:Work for an adventurer, unfortunately, I do not have. No monsters around;
+T:here... and for the common thieves and bandits, my guards do a fine job.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Mayor Princeton;
+T:Udor is not really a place for adventurers, you see... Well, adventurers;
+T:used to come here more often when the north cave was open, but I had it;
+T:closed as it was a dangerous place, and sometimes wild creatures would;
+T:come out, and attack my peoples. Although the town is much safer now,;
+T:not many adventurers come here anymore...;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Mayor Princeton;
+T:Though I guess you could always go to the tavern, and speak with Tim.;
+T:He is the tavern's barman, and he always know the latest rumors, so he;
+T:may have heard of something that could interest you. I guess you have;
+T:nothing to lose.;
+A:Tell me more about Udor.:0:0:0:1:3:0:0:0:0
+A:Tell me more about you.:0:0:0:1:7:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Mayor Princeton;
+T:By the gods! What is this?? What...what kind of creature is that? Where did;
+T:you get this...horror?;
+A:[Tell him the whole story]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Mayor Princeton;
+T:I see... but where could this creature come from? There is no den of;
+T:monsters around here! ...well, except perhaps the north cave, but the;
+T:entrance has been closed! But then, if what you tell me is true, the;
+T:creature was able to dig tunnels, so I guess it could have dug a;
+T:subterran passage to the tavern's basement...;
+A:[CONTINUE]:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Mayor Princeton;
+T:... I see... Well, <NAME>, this is bad news indeed. I will have no choice;
+T:but to reopen the north cave, and have this matter investigated... We;
+T:cannot let another monster like that attack the villagers! If there's;
+T:more of them, they must be eliminated!;
+A:[CONTINUE]:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Mayor Princeton;
+T:...say, <NAME>... would you like to help us in this matter? Since you;
+T:were able to defeat the monster, you have proven yourself being a;
+T:worthy <CLASS>. Therefore, I believe you are skilled enough to do this;
+T:job. Would you please accept to help Udor and it's citizens?;
+A:Yes, I accept. After all, I came here in search of adventure...:0:0:0:1:15:0:0:0:0
+A:No, I am not interested.:0:0:0:1:16:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Mayor Princeton;
+T:I knew I could count on you! I will have the north cave's gates unsealed;
+T:so you can enter the north cave, and investigate. Be careful though...;
+T:The cave is full of wild creatures and bloodthirsty bandits! But I am;
+T:sure you will know how to handle them!;
+A:[CONTINUE]:0:0:0:1:17:0:0:5:1
+%
+
+N:16:0:0:0:0:0
+I:Mayor Princeton;
+T:I see... I understand. After all, this is a risky task... But please,;
+T:think about it more seriously... and remember that whatever you do;
+T:for our town will not go unrewarded!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Mayor Princeton;
+T:Find out where the monster come from, and then come back here. Let me;
+T:know what you find out. Good luck, <NAME>! I am counting on you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Mayor Princeton;
+T:By the gods! Wha...what is THIS?? What kind of monster is that??;
+A:[Describe him the Orc...]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Mayor Princeton;
+T:...an orc?? That can't be! Everyone knows orcs were defeated centuries;
+T:ago! You disappoint me, <NAME>... I never thought you would start;
+T:spreading rumors about the existance of orcs! This monster is not an orc...;
+T:This monster is..... is......;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Mayor Princeton;
+T:........;
+A:[CONTINUE]:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I: ;
+T:He pauses a moment. He is clearly as confused as you are concerning the;
+T:nature of the monster, and doesn't know what to say. He clearly do not;
+T:want to believe this creature could be an orc... but he also realize;
+T:that this creature is like none he ever saw...;
+A:[CONTINUE]:0:0:0:1:22:0:0:0:0
+%
+
+N:22:0:0:0:0:0
+I:Mayor Princeton;
+T:...well... assuming this 'orc' is really that... why would it come here?;
+T:The orcs would want revenge against the major human, dwarf and elven;
+T:cities, not a lost town like Udor! Why would they come here?? This doesn't;
+T:even make sense! This creature is certainly ugly, perhaps even uglier than;
+T:that weird rat you slew... but that doesn't make it an orc!;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Mayor Princeton;
+T:...... then again, we did not expect a mutant rat to show up in our town;
+T:either. And I'm sure both are related. They must come from the same place,;
+T:but where?;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I:Mayor Princeton;
+T:...well, I guess we have to start searching for clues. And I know someone;
+T:who may have some information. Maybe you've heard of than woman, Clara.;
+T:She's well known in this town, as she always claims to see orcs and other;
+T:weird creatures. Until now, everything she said has been proven false, and;
+T:her latest 'orc' turned out to be a Kobold thief. However, this time, it;
+T:seems real monsters have started appearing in the town. And perhaps she;
+T:has some information that could interest us...;
+A:[CONTINUE]:0:0:0:1:26:0:0:8:1
+%
+
+N:26:0:0:0:0:0
+I:Mayor Princeton;
+T:So, <NAME>, your next task will be to meet Clara, and question her about;
+T:her orc sightings. She lives in a small house, near the house you rented;
+T:while you stay here. I do not know if she is involved in this, or is she's;
+T:just raving, but we have nothing to lose. Ask her about the orcs, and try;
+T:to retreive any valuable information. Then, come back here, and we shall;
+T:discuss what to do next.;
+A:[CONTINUE]:0:0:0:1:27:0:0:9:1
+%
+
+N:27:0:0:0:0:0
+I:Mayor Princeton;
+T:Good luck, <NAME>! I'm counting on you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Mayor Princeton;
+T:An order?;
+A:Yes. He said that his order will rule... or something like that.:0:0:0:1:29:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Mayor Princeton;
+T:Strange... my guards told me nothing of that! So, I guess the next step will;
+T:be to question that kobold then. Perhaps he...;
+A:[CONTINUE]:0:0:0:1:30:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I: ;
+T:You are suddently interrupted by a guard, who runs inside the room in panic.;
+A:[CONTINUE]:0:0:0:1:31:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Guard;
+T:M... monsters! Monsters are invading the prisons!!;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I:Mayor Princeton;
+T:WHAT?? Monsters in the prisons??;
+A:[CONTINUE]:0:0:0:1:33:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Guard;
+T:Lots of them! Small, green creatures like none we've ever seen! They have;
+T:killed most of the guards already... and will surely invade the town hall;
+T:if we don't stop them!;
+A:[CONTINUE]:0:0:0:1:34:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Mayor Princeton;
+T:Darn! I didn't see this one coming! And the kobold thief? Has he been killed;
+T:as well?;
+A:[CONTINUE]:0:0:0:1:35:0:0:0:0
+%
+
+N:35:0:0:0:0:0
+I:Guard;
+T:For some reasons, they did not kill the kobold. They even allowed him to;
+T:escape! He must have fled somewhere below, where the monsters come from!;
+A:[CONTINUE]:0:0:0:1:36:0:0:0:0
+%
+
+N:36:0:0:0:0:0
+I:Mayor Princeton;
+T:That kobold must have been involved in this! Please, <NAME>, you have;
+T:to go down there, and slay the monsters! We have no time to contact;
+T:Jindar, so you are our only hope! Slay the monsters, and if you can,;
+T:try to find that kobold! If he shows resistance... kill him. We can't;
+T:take any chances! Go the large central room, and take the door to the;
+T:top-right. This will lead you to the prisons.;
+A:All right. I'll be going now.:0:0:0:1:37:0:0:11:1
+%
+
+N:37:0:0:0:0:0
+I:Mayor Princeton;
+T:Thanks you, <NAME>. Know that your efforts are greatly appreciated.;
+T:When everything is finished, I promise you a great reward! Good luck,;
+T:and may the gods protect you!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

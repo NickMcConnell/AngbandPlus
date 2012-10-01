@@ -1,15 +1,25 @@
 HUMAN
 -------
 
-Humans are the most abundant race in the world. They rule the
-major kingdoms and empires. Because there are humans everywhere,
-they often come in contacts with the other races, and humans
-are known for being a fertile specie, being able to breed with
-elves, orcs and others. A human does not possess any particular
-abilities, nor do they possess any signifiant disadvantages, but
-since they have a short life span compared to most other races,
-they tend to learn things a bit quicker.
+Humans are the predominant race in Portralis. They are everywhere, 
+in every kingdoms, except perhaps Rhyzendal. From major cities to 
+small, rural towns, to wild forests and jungles, to mountains, 
+humans are found in every single parts of the world. They were 
+the first to arrive in Portralis milleniums ago, and ever since 
+they built the first kingdom of Jindar, they have been the most 
+widespread and possibly the most powerful of the races.
 
-ADVANTAGES: Gain levels a bit faster than other races
+Physically, humans are pretty average, and have no particular strength
+or weaknesses. However, they tend to learn easily and quickly, and will 
+generally become very skilled at whatever profession they choose. Also, 
+humans are known to be creative, and are known to make good scientists, 
+crafters and alchemists. This ability to create and adapt makes humans
+known to be a very intelligent race. They are also very diplomatic, and
+know how to persuade and rule their peoples, as well as all other races.
 
-DISADVANTAGES: -None
+HUMAN FEATURES:
+
+- +1 skill point every 3 levels.
+- +25% bonus to Intelligence.
+- +25% bonus to Charisma.
+- +25% bonus to Alchemy, Crafting and Leadership skills.

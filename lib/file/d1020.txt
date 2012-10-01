@@ -1,0 +1,100 @@
+N:1:0:0:0:0:0
+I:Priest of the Creator;
+T:Blessing of the Creator upon you! How may I assist you?;
+A:Tell me more of the Temple.:0:0:0:1:2:0:0:0:0
+A:Tell me more of the Creator.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Priest of the Creator;
+T:The temple of the Creator seeks to bring happiness to the citizens of;
+T:Portralis. Whether they come from Jindar, Karingen, Ivhala, Nimbraya;
+T:or Rhyzendal, we help them when they are in need. The Creator's blessing 
+T:will bring enlightment, healing and good fortune to anyone who receives it.;
+T:But make no mistakes. We followers of the creator are not worshippers;
+T:of holy light or the greater good. After all, the Creator has a darker side;
+T:as well. As a result, we are also capable fighters or mages when we;
+T:need to fight. And we will not hesite to kill anyone who wants to destroy;
+T:our organization.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Priest of the Creator;
+T:We are the largest religious organization in all Portralis. However,;
+T:there are still a lot of peoples who do not believe in the Creator.;
+T:Most Nimbrayans, for example, believes in the Daldumarian religion,;
+T:centered on the heroic teachings of the elven god Daldumaar. There;
+T:are almost no temples of the Creator in Nimbraya. And then, you have;
+T:all other lesser cults and lesser religions, some of them being;
+T:demon worshippers. You should stay fay away from these dark cults...;
+A:Tell me more of the Creator.:0:0:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Priest of the Creator;
+T:The Creator is the supreme being who created the world we live in.;
+T:The most ancient entity to exist in our world, from his being;
+T:emerged the infinite void, that contains everything. Then, he created;
+T:masses of stones and earth, then created the air we breath and the;
+T:water we drink. He then created some lesser creatures, and then,;
+T:he created the humanoid races, including humans, dwarves, elves,;
+T:kobolds, devlings, and all other intelligent races.; 
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Priest of the Creator;
+T:From the creator's hand then emerged a beam of light that struck the;
+T:females and mothers of the races. And from the other hand, a beam;
+T:of darkness struck them. Ever since that day, when a child is born,;
+T:his soul is made of light and darkness. Brighter souls will become;
+T:forces of good, while the darker ones will become servants of evil.;
+T:The very few children who did not receive the darkness became the;
+T:holy beings known as Celestials, while the few children who received;
+T:only the darkness became the Demons.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Priest of the Creator;
+T:The Creator decided that in order to maintain balance, the Celestials;
+T:and the Demons had to be isolated from the other races, so he then;
+T:created two dimmensional planes: Heaven and Hell, and banished both; 
+T:the Celestials and the Demons to their respective planes. With the;
+T:two races gone, life could go on with a balance of good and evil.;
+T:We followers of the Creator strongly believe that the balance;
+T:between good and evil must be maintained. As such, we help peoples;
+T:in need, but we are also capable warriors and wizards when we must.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Priest of the Creator;
+T:Ever since that day, the races have lived and evolved. The Creator;
+T:has been watching the balance ever since, and gave us his blessing;
+T:ever since a threat to the balance of the world appeared.;
+T:Of course, there is much more I could tell you, but perhaps it;
+T:would be better if you look for the various books and tomes about;
+T:the Creator. I do not have one with me, but if you look for them,;
+T:you will be able to learn a lot more about our religion.;
+A:But if I understand correctly, you're not really a religion of good?:0:0:0:1:8:0:0:0:0
+A:Tell me more of the Temple.:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Priest of the Creator;
+T:An interesting point you're bringing up here. The Temple of the Creator;
+T:IS a good organization, in that our goal is to protect the good;
+T:and righteous part of the balance. However, there are also dark cults;
+T:and demon worshippers who also claims to serve the Creator. These cults;
+T:maintain the evil and dark side of the balance. So as long as both the;
+T:good and evil worshippers of the Creator exists, the balance shall be;
+T:maintained. We fight the evil ones, and they fight us. A fight that;
+T:has raged for centuries, and will probably never end...;
+A:Tell me more of the Temple.:0:0:0:1:2:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

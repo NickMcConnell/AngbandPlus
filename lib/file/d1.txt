@@ -1,0 +1,115 @@
+N:1:0:0:0:0:0
+I:Townsfolk;
+T:Hello! How may I help you?;
+A:Anything to see in this town?:0:0:0:1:2:0:0:0:0
+A:Where can I find some work?:0:0:0:1:12:0:0:0:0
+A:Any rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Townsfolk;
+T:Well, not much I'm afraid. We have a few shops, and you could;
+T:also take a drink to the tavern, if so you wish. And then there's;
+T:that old Richard, who lives by the water. Used to be a sailor,;
+T:now he is a mere fisherman who fish in a small pond of water!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Townsfolk;
+T:Other than that, well, there was once the old caves to the north,;
+T:but because it was full of wild beasts and bandits, walls were built;
+T:to close the access to the caves, so peoples wouldn't go there anymore;
+T:and beasts and bandits would stay away from our town.;  
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Townsfolk;
+T:Finally, there's the town hall. Mayor Princeton is a good guy, and has;
+T:been the mayor for almost 10 years already. He did his best to maintain;
+T:Udor as a peaceful rural town, and he so far, he has quite succeeded.;
+T:If you're looking for work, perhaps you should go see him. He may have;
+T:a job for someone like you.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Townsfolk;
+T:Any other questions?;
+A:Where can I find some work?:0:0:0:1:12:0:0:0:0
+A:Any rumors?:0:0:0:4:6:8:0:0:0
+A:No, thanks. Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Townsfolk;
+T:More and more peoples claims to see orcs these days... It's strange...;
+T:Of course, ever since they were defeated milleniums ago, a few peoples;
+T:always claimed to have seen some orc survivors, although this has always;
+T:been proven wrong. Also, have you heard rumors that amongst the new peoples;
+T:who claims to see orcs, many of them disappeared? It's quite scary!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Townsfolk;
+T:I have heard the barman is having vermin problems in the tavern. I've also;
+T:heard some peoples complaining of an increasing number of rats and rodents;
+T:around the town. Could it be that the tavern is having a serious rat;
+T:problem?;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Townsfolk;
+T:Aparently, some of the town's guards opened the north walls, and went down;
+T:the old caves, to patrol the underground, and make sure everything was;
+T:correct... they never came back. This is bad! Normally, our guards can;
+T:handle the common wild beasts and bandits rather easily... Could there;
+T:be something really dangerous down there? I prefer not thinking too much;
+T:about it...;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Townsfolk;
+T:But I bet this is only rumors, and that if peoples disappear, it must be;
+T:a group of assassins or thieves or something like that who hide their;
+T:schemes behind orc stories... Anyway... do you have any other questions?;
+A:Anything to see in this town?:0:0:0:1:2:0:0:0:0
+A:Where can I find some work?:0:0:0:1:12:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Townsfolk;
+T:If that's the case though, the barman probably won't speak too much about;
+T:it. That would not be good for business... Any other questions?;
+A:Anything to see in this town?:0:0:0:1:2:0:0:0:0
+A:Where can I find some work?:0:0:0:1:12:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Townsfolk;
+T:Any other questions?;
+A:Anything to see in this town?:0:0:0:1:2:0:0:0:0
+A:Where can I find some work?:0:0:0:1:12:0:0:0:0
+A:Any other rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Townsfolk;
+T:Well... for an adventurer like you, I'm afraid you won't find much around;
+T:here. You could always go to the town hall, and see if the mayor has;
+T:anything for you. Otherwise... well, perhaps Udor is just not for you.;
+T:Do you have any other questions?;
+A:Anything to see in this town?:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:6:8:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

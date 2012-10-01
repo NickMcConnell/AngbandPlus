@@ -352,10 +352,17 @@ s16b panel_col_prt, panel_row_prt;
 s16b py;
 s16b px;
 
+/* Global variables for coordinates. */
+/* Used mostly by lua scripts. */
+s16b global_x;
+s16b global_y;
+
 /* NEWANGBAND Variables! */
 bool nevermiss;
 bool no_magic_return;
 bool monster_physical;
+bool monster_ranged;
+bool term_saved;
 bool dying;
 char testop[80];
 
@@ -375,6 +382,11 @@ s16b health_who;
  * Monster race to track
  */
 s16b monster_race_idx;
+
+/*
+ * Monster type to track
+ */
+s16b monster_type_idx;
 
 /*
  * Object kind to track
@@ -562,7 +574,9 @@ byte angband_color_table[256][4] =
 	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+	{0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
+	{0x00, 247, 194, 236},	        /* ELITE PINK!! */
+	{0x00, 251, 0, 150},	        /* BOSS PINK!! */
 };
 
 
@@ -832,6 +846,9 @@ char *wf_name;
 char *wf_text;
 int wildc2i[256];
 
+/* NewAngband 1.8.0 */
+wild_info *w_info;
+
 /*
  * The player monster race arrays
  */
@@ -926,6 +943,13 @@ cptr ANGBAND_DIR_USER;
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_XTRA;
+
+/*
+ * User options
+ */
+cptr ANGBAND_DIR_PREF;
+
+cptr ANGBAND_DIR_SCRIPT;
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
@@ -1154,9 +1178,6 @@ u32b total_bounties;
 /* The real realm array */
 magic_type realm_info[MAX_REALM][64];
 
-/* The Doppleganger index in m_list */
-s16b doppleganger;
-
 /* To allow wilderness encounters */
 bool generate_encounter;
 
@@ -1196,3 +1217,33 @@ bool zang_monsters, joke_monsters, pern_monsters, cth_monsters;
  * Our spells! :)
  */
 magic_spells magic_spell[30];
+
+/*
+ * Our Monster Magics! :)
+ */
+monster_magics monster_magic[15];
+
+/* Wilderness! */
+wild_info wild[MAX_WILD_X][MAX_WILD_Y];
+
+/* Current weapon. Needed for dual wielding code! ;) */
+object_type *current_weapon;
+
+/* Doing a combatfeat */
+bool combatfeat;
+
+/* Wilderness variables. */
+s16b wild_max_x;
+s16b wild_max_y;
+s16b birth_wild_x;
+s16b birth_wild_y;
+
+/* Skills names and available skills. */
+char skill_names[SKILL_MAX][80];
+s16b num_skills;
+s16b skillspage;
+
+/* Classes def and abilities... */
+class_def classes_def[MAX_CLASS];
+ability_def abilities_def[MAX_CLASS * 10];
+ability_def feats_def[SKILL_MAX * 10];

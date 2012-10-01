@@ -1,0 +1,49 @@
+# Active feats definitions
+
+
+# F:(Feat's name):(skill):(skill req):(0 = Scripted 1 = Hardcoded):(power's id if active):(1 = combat feat)
+
+# This is the active feats that you gain by raising skills, such as the Sword Spin feat,
+# For example, if you wanted to create a new "Sword Slice" feat that has a required
+# Swords skill of 80, the syntax would look like something like this:
+
+# F:Sword Slice:12:80:0:100
+
+# There is no maximum fats a skill can have. Some can have more, some can have less.
+
+# Please note that this is only the active feats. The passive ones need not to be
+# defined anywhere, they can be directly coded in passive.lua or anywhere else
+# just by doing a simplecondition, and then applying the bonus.
+
+F:Power Attack, Level 1:0:20:1:1000:0
+F:Power Attack, Level 2:0:40:1:1001:0
+F:Power Attack, Level 3:0:60:1:1002:0
+F:Enchanted Blood:1:10:1:1003:0
+F:Mana Shield:1:40:1:1004:0
+F:Sharpen Ammos:2:20:1:1005:0
+F:Jump:5:1:1:1006:1
+F:Hide:6:10:1:1007:0
+F:Shadowblink:6:20:1:1008:0
+F:Dual Strike:8:40:1:1009:1
+F:Heal Troops:9:5:1:1010:0
+F:Morale Boost:9:20:1:1011:0
+F:Decompose Item:10:1:1:1012:0
+F:Decompose Item:11:1:1:1012:0
+F:Combine Item:10:1:1:1013:0
+F:Combine Item:11:1:1:1013:0
+F:Sword Spin:12:20:1:1014:1
+F:Smash:13:15:1:1015:1
+F:Dizzy Smash:13:40:1:1016:1
+F:Shattering Blow:13:70:1:1017:1
+F:Thrust:14:5:1:1018:1
+F:Eyes Stab:15:30:1:1019:1
+F:Fatal Stab:15:80:1:1020:0
+F:Chop:16:10:1:1021:1
+F:Mutilate Legs:16:40:1:1022:0
+F:Mutilate Arms:16:70:1:1023:0
+F:Power Punch:18:15:1:1024:1
+F:Stunning Blow:18:60:1:1025:1
+F:Sharpen Arrows:19:15:1:1026:0
+F:Arc Shooting:19:30:1:1027:0
+F:Sharpen Bolts:20:15:1:1028:0
+F:Sharpen Shots:21:15:1:1029:0

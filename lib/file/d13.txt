@@ -1,0 +1,140 @@
+N:1:42:1:0:0:0
+I:Clara;
+T:Oh, you have returned! Does this mean you have reconsidered helping;
+T:me? The orcs are here! They are watching us... they are planning;
+T:something evil!!;
+A:...you may be right after all... I have a few questions to ask you...:1:9:1:1:7:0:0:0:0
+A:I've already told you! There's NO ORCS around here!:1:9:0:1:6:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Clara;
+T:An adventurer! I'm so happy you're here! My name is Clara... You see...;
+T:I am in great danger... and the whole town is as well! Will you hear;
+T:my plea?;
+A:It must be about the orcs, right? I have questions for you about this...:1:9:1:1:7:0:0:0:0
+A:What's going on?:1:9:0:1:2:0:0:0:0
+A:I have no time for this.:1:9:0:1:3:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Clara;
+T:Nobody around here wants to believe me, but... the Orcs are back in;
+T:this world! I swear I saw an orc wandering near the town. It was big!;
+T:It was green! It was so ugly, so scary! It could only be an orc!;
+T:It looked at me with evil eyes, as if it wanted to decapitate me with;
+T:it's sharp blade... oooh, I was so scared! I fled as quickly as I could!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Clara;
+T:I see... then, we will all die...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Clara;
+T:But now that you're here, you will find this orc and slay it, right?;
+A:Your story sounds absurd... orcs do not exist anymore!:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Clara;
+T:That's what everyone tells me, but... but I swear I saw an orc! I swear;
+T:it was one of those mean, green orcs! And there must be more of them!;
+T:Hundreds! Perhaps even thousands of orcs! We must flee the village as;
+T:soon as possible!!;
+A:Clara... there are NO ORCS around here!:0:0:0:1:6:0:0:42:1
+%
+
+N:6:0:0:0:0:0
+I:Clara;
+T:They are hiding... they will show up soon! Very soon! I tell you! Orcs;
+T:will come, and kill everyone... and destroy our town!;
+A:[LEAVE]:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Clara;
+T:Questions? Does this mean that someone finally believes my story? Please;
+T:ask your questions! I'll ge glad to answer them!;
+A:Please describe that 'orc' you saw.:0:0:0:1:8:0:0:0:0
+A:Where did you last see an orc?:0:0:0:1:10:0:0:0:0
+A:Tell me about that Kobold thief.:0:0:0:1:11:0:0:0:0
+A:I'm done. I'll be leaving now.:0:0:0:1:15:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Clara;
+T:It was green, tall, had an ugly face, and was very aggressive. It had;
+T:a huge sword, and was wearing an heavy suit of armor. A most terrifying;
+T:creature! None of our guards would even stand a chance against such;
+T:a monster.;
+A:A sword? Are you sure it wasn't an axe?:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Clara;
+T:Absolutely. It was definitely a huge sword, nothing like an axe. Although;
+T:there may more than one orc around here... another orc may use an axe.;
+A:Where did you last see an orc?:0:0:0:1:10:0:0:0:0
+A:Tell me about that Kobold thief.:0:0:0:1:11:0:0:0:0
+A:I'm done. I'll be leaving now.:0:0:0:1:15:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Clara;
+T:The last time I saw an orc was near the town hall. It was sneaking around;
+T:the building, as if it was searching for something... Perhaps it was;
+T:looking for a way to infiltrate the town hall? I'm sure that's it!; 
+A:Please describe that 'orc' you saw.:0:0:0:1:8:0:0:0:0
+A:Tell me about that Kobold thief.:0:0:0:1:11:0:0:0:0
+A:I'm done. I'll be leaving now.:0:0:0:1:15:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Clara;
+T:The kobold? Oh, yes, that kobold. One night, I saw something outside the;
+T:window... it was a greenish creature. I immediately thought it was an;
+T:orc, so I screamed, and called the guards. I don't think the kobold;
+T:knew that I saw him, and was surprised. He tried to run away, but the;
+T:guards were able to catch him. They threw him in the jail at the town;
+T:hall. The guards told me not worry, as it was just a kobold and that;
+T:there are no orcs around here.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Clara;
+T:But how can I be safe? I know that in the past, Kobolds used to be the;
+T:slaves of the orcs! That kobold must have been working for one of the;
+T:orcs! And being that I'm the only one who knows there are orcs around;
+T:here... the kobold must have been sent to kill me! I'm sure of it!;
+A:Did the kobold say anything when he was arrested?:0:0:0:1:13:0:0:10:1
+%
+
+N:13:0:0:0:0:0
+I:Clara;
+T:I believe he did shout something, yes. He said something like:;
+T:"Our order shall rule... this is the beginning of the end."... or;
+T:something like that. The guards didn't pay attention though... So I;
+T:don't know if they questioned him about that.;
+A:Where's the Kobold now?:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Clara;
+T:They sent him to the jail in the town hall. I'm sure he's still there...;
+T:You could probably get to question him, if you had a permission from the;
+T:mayor...;
+A:Please describe that 'orc' you saw.:0:0:0:1:8:0:0:0:0
+A:Where did you last see an orc?:0:0:0:1:10:0:0:0:0
+A:I'm done. I'll be leaving now.:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Clara;
+T:Good bye! And be careful... you never know when an orc will show up...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

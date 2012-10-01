@@ -321,6 +321,28 @@ static void rd_item(object_type *o_ptr)
         /* Special pval */
         rd_s32b(&o_ptr->pval3);
 
+	/* Resistances! */
+	rd_s16b(&o_ptr->fireres);
+	rd_s16b(&o_ptr->coldres);
+	rd_s16b(&o_ptr->elecres);
+	rd_s16b(&o_ptr->acidres);
+	rd_s16b(&o_ptr->poisres);
+	rd_s16b(&o_ptr->lightres);
+	rd_s16b(&o_ptr->darkres);
+	rd_s16b(&o_ptr->warpres);
+	rd_s16b(&o_ptr->waterres);
+	rd_s16b(&o_ptr->windres);
+	rd_s16b(&o_ptr->earthres);
+	rd_s16b(&o_ptr->soundres);
+	rd_s16b(&o_ptr->chaosres);
+	rd_s16b(&o_ptr->radiores);
+	rd_s16b(&o_ptr->physres);
+	rd_s16b(&o_ptr->manares);
+
+	rd_s16b(&o_ptr->brandtype);
+	rd_s32b(&o_ptr->branddam);
+	rd_s16b(&o_ptr->brandrad);
+
         rd_byte(&o_ptr->discount);
         rd_byte(&o_ptr->number);
         rd_s32b(&o_ptr->weight);
@@ -358,21 +380,8 @@ static void rd_item(object_type *o_ptr)
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-        if(!p_older_than(4,0,3))
-        {
-                rd_byte(&o_ptr->elevel);
-                rd_s32b(&o_ptr->exp);
-        }
-        else
-        {
-                if(f4 & TR4_LEVELS)
-                {
-                        k_ptr = &k_info[o_ptr->k_idx];
-
-                        o_ptr->elevel = (k_ptr->level / 10) + 1;
-                        o_ptr->exp = player_exp[o_ptr->elevel - 1];
-                }
-        }
+        rd_s16b(&o_ptr->level);
+        rd_s32b(&o_ptr->kills);
 
 	/* Inscription */
 	rd_string(buf, 128);
@@ -516,6 +525,7 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->dd = old_dd;
 		o_ptr->ds = old_ds;
 	}
+	
         /* OOOHHHHH NOO!!!!!! YOU'RE DEAD!!! TOOOO BAD! :) */
         if (death)
         {
@@ -558,6 +568,17 @@ static void rd_monster(monster_type *m_ptr)
         rd_s16b(&m_ptr->animdam_d);
         rd_s16b(&m_ptr->animdam_s);
         rd_s16b(&m_ptr->seallight);
+	rd_s16b(&m_ptr->str);
+	rd_s16b(&m_ptr->dex);
+	rd_s16b(&m_ptr->mind);
+	rd_s16b(&m_ptr->skill_attack);
+	rd_s16b(&m_ptr->skill_magic);
+	rd_s32b(&m_ptr->mana);
+	rd_s16b(&m_ptr->hasted);
+	rd_s16b(&m_ptr->boosted);
+	rd_s16b(&m_ptr->spoke);
+	rd_s16b(&m_ptr->lives);
+	rd_s16b(&m_ptr->summoned);
 }
 
 
@@ -601,6 +622,66 @@ static void rd_lore(int r_idx)
         rd_byte(&r_ptr->r_blows[1]);
         rd_byte(&r_ptr->r_blows[2]);
         rd_byte(&r_ptr->r_blows[3]);
+	rd_byte(&r_ptr->r_blows[4]);
+        rd_byte(&r_ptr->r_blows[5]);
+        rd_byte(&r_ptr->r_blows[6]);
+        rd_byte(&r_ptr->r_blows[7]);
+	rd_byte(&r_ptr->r_blows[8]);
+        rd_byte(&r_ptr->r_blows[9]);
+        rd_byte(&r_ptr->r_blows[10]);
+        rd_byte(&r_ptr->r_blows[11]);
+	rd_byte(&r_ptr->r_blows[12]);
+        rd_byte(&r_ptr->r_blows[13]);
+        rd_byte(&r_ptr->r_blows[14]);
+        rd_byte(&r_ptr->r_blows[15]);
+	rd_byte(&r_ptr->r_blows[16]);
+        rd_byte(&r_ptr->r_blows[17]);
+        rd_byte(&r_ptr->r_blows[18]);
+        rd_byte(&r_ptr->r_blows[19]);
+
+	/* Resistances seen of each type */
+        rd_byte(&r_ptr->r_resist[0]);
+        rd_byte(&r_ptr->r_resist[1]);
+        rd_byte(&r_ptr->r_resist[2]);
+        rd_byte(&r_ptr->r_resist[3]);
+	rd_byte(&r_ptr->r_resist[4]);
+        rd_byte(&r_ptr->r_resist[5]);
+        rd_byte(&r_ptr->r_resist[6]);
+        rd_byte(&r_ptr->r_resist[7]);
+	rd_byte(&r_ptr->r_resist[8]);
+        rd_byte(&r_ptr->r_resist[9]);
+        rd_byte(&r_ptr->r_resist[10]);
+        rd_byte(&r_ptr->r_resist[11]);
+	rd_byte(&r_ptr->r_resist[12]);
+        rd_byte(&r_ptr->r_resist[13]);
+        rd_byte(&r_ptr->r_resist[14]);
+        rd_byte(&r_ptr->r_resist[15]);
+	rd_byte(&r_ptr->r_resist[16]);
+        rd_byte(&r_ptr->r_resist[17]);
+        rd_byte(&r_ptr->r_resist[18]);
+        rd_byte(&r_ptr->r_resist[19]);
+
+	/* Known spells */
+        rd_byte(&r_ptr->r_spells[0]);
+        rd_byte(&r_ptr->r_spells[1]);
+        rd_byte(&r_ptr->r_spells[2]);
+        rd_byte(&r_ptr->r_spells[3]);
+	rd_byte(&r_ptr->r_spells[4]);
+        rd_byte(&r_ptr->r_spells[5]);
+        rd_byte(&r_ptr->r_spells[6]);
+        rd_byte(&r_ptr->r_spells[7]);
+	rd_byte(&r_ptr->r_spells[8]);
+        rd_byte(&r_ptr->r_spells[9]);
+        rd_byte(&r_ptr->r_spells[10]);
+        rd_byte(&r_ptr->r_spells[11]);
+	rd_byte(&r_ptr->r_spells[12]);
+        rd_byte(&r_ptr->r_spells[13]);
+        rd_byte(&r_ptr->r_spells[14]);
+        rd_byte(&r_ptr->r_spells[15]);
+	rd_byte(&r_ptr->r_spells[16]);
+        rd_byte(&r_ptr->r_spells[17]);
+        rd_byte(&r_ptr->r_spells[18]);
+        rd_byte(&r_ptr->r_spells[19]);
 
         /* Memorize flags */
         rd_u32b(&r_ptr->r_flags1);
@@ -936,9 +1017,6 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
-        rd_u16b(&p_ptr->realm1);
-        rd_u16b(&p_ptr->realm2);
-        rd_byte(&p_ptr->mimic_form);
 	rd_byte(&tmp8u);        /* oops */
 
 	/* Special Race/Class info */
@@ -953,18 +1031,11 @@ static void rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
-        if(!p_older_than(4,0,2))
-        {
-                for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cnt[i]);
-                for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_los[i]);
-        }
-        else
-        {
-                for (i = 0; i < 6; ++i) p_ptr->stat_cnt[i] = 0;
-                for (i = 0; i < 6; ++i) p_ptr->stat_los[i] = 0;
-        }
+        for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cnt[i]);
+        for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_los[i]);
+	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_mut[i]);
 
-	strip_bytes(24);        /* oops */
+	strip_bytes(24);
 
 	rd_s32b(&p_ptr->au);
 
@@ -975,25 +1046,17 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->lev);
 
         rd_s16b(&p_ptr->town_num);
+	rd_string(p_ptr->town_name, 80);
 
         /* Read arena and rewards information */
-        rd_s16b(&p_ptr->arena_number);
-        rd_s16b(&p_ptr->inside_arena);
         rd_s16b(&p_ptr->inside_quest);
-        rd_byte(&p_ptr->exit_bldg);
-        rd_byte(&p_ptr->leftbldg);
+	rd_string(p_ptr->quest_name, 80);
+	rd_s16b(&p_ptr->death_dialog);
+	rd_s16b(&p_ptr->eventdeath);
+	rd_s16b(&p_ptr->eventdeathset);
 
         rd_s16b(&p_ptr->oldpx);
         rd_s16b(&p_ptr->oldpy);
-
-        rd_s16b(&tmp16s);
-
-        if (tmp16s > MAX_BACT)
-        {
-                note(format("Too many (%d) building rewards!", tmp16s));
-        }
-
-        for (i = 0; i < tmp16s; i++) rd_s16b(&p_ptr->rewards[i]);
 
         rd_s32b(&p_ptr->mhp);
         rd_s32b(&p_ptr->chp);
@@ -1002,11 +1065,6 @@ static void rd_extra(void)
         rd_s32b(&p_ptr->msp);
         rd_s32b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
-
-        /* Gods */
-        rd_s32b(&p_ptr->grace);
-        rd_s32b(&p_ptr->god_favor);
-        rd_byte(&p_ptr->pgod);
 
 	rd_s16b(&p_ptr->max_plv);
         {
@@ -1048,9 +1106,6 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->stun);
 	rd_s16b(&p_ptr->poisoned);
 	rd_s16b(&p_ptr->image);
-	rd_s16b(&p_ptr->protevil);
-        rd_s16b(&p_ptr->protundead);
-	rd_s16b(&p_ptr->invuln);
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);
@@ -1061,43 +1116,18 @@ static void rd_extra(void)
         rd_s16b(&p_ptr->recall_dungeon);
         rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
-	rd_s16b(&p_ptr->oppose_fire);
-	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_acid);
-	rd_s16b(&p_ptr->oppose_elec);
-	rd_s16b(&p_ptr->oppose_pois);
-        rd_s16b(&p_ptr->oppose_ld);
-        rd_s16b(&p_ptr->oppose_cc);
-        rd_s16b(&p_ptr->oppose_ss);
-        rd_s16b(&p_ptr->oppose_nex);
 
         rd_s16b(&p_ptr->tim_esp);
         rd_s16b(&p_ptr->wraith_form);
         rd_s16b(&p_ptr->tim_ffall);
-        rd_s16b(&p_ptr->tim_fire_aura);
-        rd_s16b(&p_ptr->resist_magic);
         rd_s16b(&p_ptr->tim_invisible);
         rd_s16b(&p_ptr->tim_inv_pow);
-        rd_s16b(&p_ptr->tim_mimic);
-        rd_s16b(&p_ptr->lightspeed);
-        rd_s16b(&p_ptr->tim_lite);
-        rd_s16b(&p_ptr->holy);
-        rd_s16b(&p_ptr->walk_water);
-        rd_s16b(&p_ptr->tim_mental_barrier);
-        rd_s16b(&p_ptr->strike);
-        rd_s16b(&p_ptr->meditation);
-        rd_s16b(&p_ptr->tim_reflect);
-        rd_s16b(&p_ptr->tim_res_time);
 
-        rd_s16b(&p_ptr->immov_cntr);
-
-        rd_s16b(&p_ptr->chaos_patron);
         rd_u32b(&p_ptr->muta1);
         rd_u32b(&p_ptr->muta2);
         rd_u32b(&p_ptr->muta3);
 
 	rd_byte(&p_ptr->confusing);
-        rd_byte(&p_ptr->black_breath);  /* Status of Black Breath. */
 	rd_byte(&tmp8u);        /* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
@@ -1105,42 +1135,15 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->special);
 	rd_byte(&special_flag);
         rd_byte(&p_ptr->allow_one_death);
-        rd_s16b(&p_ptr->xtra_spells);
 
         rd_u16b(&no_breeds);
 
         /* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
 
-        /* Aux variables */
-        rd_u32b(&p_ptr->class_extra1);
-        rd_u32b(&p_ptr->class_extra2);
-        rd_u32b(&p_ptr->class_extra3);
-        rd_u32b(&p_ptr->class_extra4);
-        rd_u32b(&p_ptr->class_extra5);
-        rd_u32b(&p_ptr->class_extra6);
-        rd_u32b(&p_ptr->class_extra7);
-
-        rd_u32b(&p_ptr->race_extra1);
-        rd_u32b(&p_ptr->race_extra2);
-        rd_u32b(&p_ptr->race_extra3);
-        rd_u32b(&p_ptr->race_extra4);
-        rd_u32b(&p_ptr->race_extra5);
-        rd_u32b(&p_ptr->race_extra6);
-        rd_u32b(&p_ptr->race_extra7);
-
         /* Read the incarnation things */
         rd_u16b(&p_ptr->body_monster);
         rd_byte(&p_ptr->disembodied);
-
-        /* Read the music */
-        rd_byte(&p_ptr->music);
-
-        /* Read the tactic */
-        rd_byte(&p_ptr->tactic);
-
-        /* Read the movement */
-        rd_byte(&p_ptr->movement);
 
         for (i = 0; i < MAX_BOUNTIES; i++)
         {
@@ -1189,38 +1192,23 @@ static void rd_extra(void)
         /* Magic Spells! */
         rd_magic_spells();
 
-        /* Monster Magics */
-        rd_u32b(&p_ptr->monster_magic);
-        rd_u32b(&p_ptr->monster_magic2);
-        rd_u32b(&p_ptr->monster_magic3);
-        rd_u32b(&p_ptr->monster_magic4);
+	/* Monster Magics! */
+	rd_monster_magics();
+
+	/* Random dungeon! */
+	rd_random_dungeon();
+
+        /* Player skills/abilities */
         rd_s32b(&p_ptr->ability_points);
-        rd_s16b(&p_ptr->elemmagic);
-        rd_s16b(&p_ptr->battlemagic);
-        rd_s16b(&p_ptr->healmagic);
-        rd_s16b(&p_ptr->cursemagic);
-        rd_s16b(&p_ptr->visionmagic);
-        rd_s16b(&p_ptr->naturemagic);
         rd_s16b(&p_ptr->memorized);
         rd_s16b(&p_ptr->elemlord);
         rd_s16b(&p_ptr->statpoints);
         rd_s16b(&p_ptr->skillpoints);
-        rd_s16b(&p_ptr->skill_swords_base);
-        rd_s16b(&p_ptr->skill_hafted_base);
-        rd_s16b(&p_ptr->skill_polearms_base);
-        rd_s16b(&p_ptr->skill_daggers_base);
-        rd_s16b(&p_ptr->skill_axes_base);
-        rd_s16b(&p_ptr->skill_rods_base);
-        rd_s16b(&p_ptr->skill_shooting_base);
-        rd_s16b(&p_ptr->skill_throwing_base);
-        rd_s16b(&p_ptr->skill_marts_base);
-        rd_s16b(&p_ptr->skill_agility_base);
-        rd_s16b(&p_ptr->skill_stealth_base);
-        rd_s16b(&p_ptr->skill_spellcraft_base);
-        rd_s16b(&p_ptr->skill_leadership_base);
-        rd_s16b(&p_ptr->skill_alchemy_base);
-        rd_s16b(&p_ptr->skill_crafting_base);
-        rd_s16b(&p_ptr->skill_combat_base);
+
+	for (i = 0; i < SKILL_MAX; i++)
+	{
+		rd_s16b(&p_ptr->skill_base[i]);
+	}
 
         rd_s16b(&p_ptr->str_boost);
         rd_s16b(&p_ptr->str_boost_dur);
@@ -1257,10 +1245,19 @@ static void rd_extra(void)
         for (i = 0; i < MAX_CLASS; ++i) rd_s16b(&p_ptr->class_kills[i]);
         for (i = 0; i < MAX_ABILITIES; ++i) rd_s16b(&p_ptr->abilities[i]);
         rd_s16b(&p_ptr->num_abilities);
+	for (i = 0; i < 36; ++i) rd_s16b(&p_ptr->abilities_powers[i]);
         rd_s16b(&p_ptr->magic_mode);
         rd_byte(&p_ptr->auraon);
         rd_s32b(&p_ptr->deathcount);
         rd_s16b(&p_ptr->guardconfuse);
+	rd_byte(&p_ptr->learning);
+	rd_s16b(&p_ptr->startx);
+	rd_s16b(&p_ptr->starty);
+	rd_s16b(&p_ptr->cur_wid);
+	rd_s16b(&p_ptr->cur_hgt);
+	rd_s16b(&p_ptr->alignment);
+	for (i = 0; i < 30000; ++i) rd_s16b(&p_ptr->events[i]);
+	for (i = 0; i < 30000; ++i) rd_s16b(&p_ptr->towns[i]);
 }
 
 
@@ -1462,13 +1459,14 @@ static errr rd_dungeon(void)
 	if (!dun_level && !p_ptr->inside_quest)
 	{
 		/* Init the wilderness */
-		process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+		/*process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid);*/
 
 		/* Init the town */
-		xstart = 0;
+		/*xstart = 0;
 		ystart = 0;
 		init_flags = 0;
-		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid);*/
+		/*generate_cave();*/
 	}
 
 
@@ -1671,36 +1669,6 @@ static errr rd_dungeon(void)
                 /* Load the dungeon data */
                 for (x = y = 0; y < ymax; )
                 {
-                        /* Grab RLE info */
-                        rd_byte(&count);
-                        rd_s16b(&tmp16s);
-
-                        /* Apply the RLE info */
-                        for (i = count; i > 0; i--)
-                        {
-                                /* Access the cave */
-                                c_ptr = &cave[y][x];
-
-                                /* Extract "inscription" */
-                                c_ptr->inscription = tmp16s;
-
-                                /* Advance/Wrap */
-                                if (++x >= xmax)
-                                {
-                                        /* Wrap */
-                                        x = 0;
-
-                                        /* Advance/Wrap */
-                                        if (++y >= ymax) break;
-                                }
-                        }
-                }
-
-                /*** Run length decoding ***/
-
-                /* Load the dungeon data */
-                for (x = y = 0; y < ymax; )
-                {
                        /* Grab RLE info */
                        rd_byte(&count);
                        rd_byte(&tmp8u);
@@ -1752,6 +1720,283 @@ static errr rd_dungeon(void)
 					/* Advance/Wrap */
 					if (++y >= ymax) break;
 				}
+			}
+		}
+
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->event = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventtype = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventextra = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventextra2 = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventcond = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventcondval = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventset = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->eventsetval = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+                        rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->script = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
+		/* Read scripts! */
+		for (y = 0; y < cur_hgt; y++)
+		{
+			for (x = 0; x < cur_wid; x++)
+			{
+				/* Get the cave */
+				c_ptr = &cave[y][x];
+			
+				rd_string(c_ptr->script_name, 120);
 			}
 		}
 
@@ -1993,8 +2238,8 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Then the options */
-	rd_options();
-	if (arg_fiddle) note("Loaded Option Flags");
+        /*rd_options();*/
+        /*if (arg_fiddle) note("Loaded Option Flags");*/
 
 
 	/* Then the "messages" */
@@ -2027,14 +2272,13 @@ static errr rd_savefile_new_aux(void)
 	if (arg_fiddle) note("Loaded Monster Memory");
 
         /* Init the ghost & player monsters */
-        for(i = 0; i < MAX_GHOSTS; i++)
+        /*for(i = 0; i < MAX_GHOSTS; i++)
                 rd_string(ghost_file[i], 20);
 
         for(i = 0; i < MAX_GHOSTS; i++)
         {
                 monster_race *r_ptr;
 
-                /* Load the ghost */
                 r_ptr = &r_info[GHOST_R_IDX_HEAD + i];
 
                 rd_string(r_name + r_ptr->name, 80);
@@ -2085,15 +2329,14 @@ static errr rd_savefile_new_aux(void)
                 rd_s16b(&r_ptr->max_num);
                 rd_byte(&r_ptr->cur_num);
 
-                /* If not defined, create one from a bone file */
                 if(ghost_file[i][0] == 0)
                 {
                         init_ghost_info(i);
                 }
-        }
+        } */
 #ifndef USE_GHOSTS
-        for(i = 0; i < MAX_GHOSTS; i++)
-                ghost_file[i][0] = 0;
+        /*for(i = 0; i < MAX_GHOSTS; i++)
+                ghost_file[i][0] = 0;*/
 #endif /* USE_GHOSTS */
 
 	/* Object Memory */
@@ -2124,26 +2367,10 @@ static errr rd_savefile_new_aux(void)
 	/*
 	 * Initialize arena and rewards information
 	 */
-	p_ptr->arena_number = 0;
-	p_ptr->inside_arena = 0;
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
-	p_ptr->exit_bldg = TRUE;
 
 	/* Start in town 1 */
 	p_ptr->town_num = 1;
-
-	p_ptr->wilderness_x = 4;
-	p_ptr->wilderness_y = 4;
-
-	/* Init the wilderness seeds */
-	for (i = 0; i < max_wild_x; i++)
-	{
-		for (j = 0; j < max_wild_y; j++)
-		{
-                        wild_map[j][i].seed = rand_int(0x10000000);
-		}
-	}
 
         {
 		u16b max_towns_load;
@@ -2193,39 +2420,11 @@ static errr rd_savefile_new_aux(void)
 		}
 
 		/* Position in the wilderness */
-		rd_s32b(&p_ptr->wilderness_x);
-		rd_s32b(&p_ptr->wilderness_y);
-                if(!p_older_than(4,0,4))
-                {
-                        rd_byte(&p_ptr->wild_mode);
-                }else{
-                        p_ptr->wild_mode = FALSE;
-                }
-
-		/* Size of the wilderness */
-		rd_s32b(&wild_x_size);
-		rd_s32b(&wild_y_size);
-
-		/* Incompatible save files */
-                if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
-		{
-			note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
-			return (23);
-		}
-
-		/* Load the wilderness seeds */
-		for (i = 0; i < wild_x_size; i++)
-		{
-			for (j = 0; j < wild_y_size; j++)
-			{
-                                rd_u32b(&wild_map[j][i].seed);
-                                if(!p_older_than(4,0,7))
-                                {
-                                        rd_u16b(&tmp16u);
-                                        wild_map[j][i].entrance = tmp16u;
-                                }
-			}
-		}
+		rd_s32b(&p_ptr->wild_x);
+		rd_s32b(&p_ptr->wild_y);
+		rd_s16b(&p_ptr->wild_startx);
+		rd_s16b(&p_ptr->wild_starty);
+		rd_byte(&p_ptr->wild_mode);
         }
 
 	if (arg_fiddle) note("Loaded Quests");
@@ -2290,23 +2489,6 @@ static errr rd_savefile_new_aux(void)
         }
         if (arg_fiddle) note("Loaded Traps");
         }
-
-        /* Load the inscription knowledge */
-        rd_u16b(&tmp16u);
-
-        /* Incompatible save files */
-        if (tmp16u > MAX_INSCRIPTIONS)
-        {
-                note(format("Too many (%u) inscriptions!", tmp16u));
-                return (24);
-        }
-
-        /* Read the inscription flag */
-        for (i = 0; i < tmp16u; i++)
-        {
-                rd_byte(&inscription_info[i].know);
-        }
-        if (arg_fiddle) note("Loaded Inscriptions");
 
 
 	/* Read the extra stuff */
@@ -2411,42 +2593,52 @@ static errr rd_savefile_new_aux(void)
 	}
         else if (death)
 	{
+		int x, y;
 		/* Dead players have no dungeon */
                 note("You have lost all your items!!!");
                 no_more_items();
                 p_ptr->au = p_ptr->au / 2;
                 p_ptr->chp = 1;
-                p_ptr->inside_quest = FALSE;
-                p_ptr->arena_number = 0;
-                p_ptr->inside_arena = 0;
+                p_ptr->inside_quest = 0;
                 p_ptr->cut = 0;
                 p_ptr->stun = 0;
                 p_ptr->poisoned = 0;
-                p_ptr->black_breath = 0;
+		p_ptr->confused = 0;
+		p_ptr->afraid = 0;
+		p_ptr->blind = 0;
                 p_ptr->word_recall = 0;
                 p_ptr->food = 5000;
                 /* max_dlv[p_ptr->recall_dungeon] -= 2;*/
                 /* if (max_dlv[p_ptr->recall_dungeon] < 0) max_dlv[p_ptr->recall_dungeon] = 0;*/
                 restore_level();
                 dun_level = 0;
+		/* Restart to the latest town's startx/starty */
+		for (x = 0; x < wild_max_x; x++)
+		{
+			for (y = 0; y < wild_max_y; y++)
+			{
+				if (wild[x][y].town == p_ptr->town_num)
+				{
+					p_ptr->wild_x = x;
+					p_ptr->wild_y = y;
+				}
+			}
+		}
+		if (p_ptr->wild_mode || p_ptr->recall_dungeon == 200)
+		{
+			p_ptr->startx = get_town_startx(p_ptr->town_num);
+			p_ptr->starty = get_town_starty(p_ptr->town_num);
+			if (p_ptr->recall_dungeon == 200) p_ptr->recall_dungeon = 0;
+		}
+
                 /* If a vampire, revive at night! */
                 if (p_ptr->prace == RACE_VAMPIRE)
                 {
                         turn = (10L * TOWN_DAWN / 2) + 1;
                 }
 
-                note("Generating new dungeon...");
-                generate_cave();
-                no_more_kills();
-                px = 99;
-                py = 33;
-                
-                /* ... let's save ONE useful item?? */              
-                /* if (p_ptr->current_ability != 0)                 */
-                /* {                                                */
-                /*         create_ability(p_ptr->current_ability);  */
-                /*         p_ptr->current_ability = 0;              */
-                /* }                                                */
+                p_ptr->leaving = TRUE;
+		/*generate_cave();*/
 
                 death = FALSE;
 
@@ -2492,6 +2684,8 @@ static errr rd_savefile_new_aux(void)
 	/* Hack -- no ghosts */
 	r_info[max_r_idx-1].max_num = 0;
 
+	/* Reset current weapon. */
+	current_weapon = &inventory[INVEN_WIELD];
 
 	/* Success */
 	return (0);
@@ -2504,6 +2698,9 @@ static errr rd_savefile_new_aux(void)
 errr rd_savefile_new(void)
 {
 	errr err;
+
+        /* First, load the options */
+        load_options();
 
 	/* The savefile is a binary file */
 	fff = my_fopen(savefile, "rb");
@@ -2524,7 +2721,7 @@ errr rd_savefile_new(void)
 	return (err);
 }
 
-/* Write the spells! */
+/* Read the spells! */
 void rd_magic_spells()
 {
         int x, i;
@@ -2552,4 +2749,93 @@ void rd_magic_spells()
                 rd_s16b(&spell_ptr->finalcost);
                 rd_byte(&spell_ptr->created);
         }
+}
+
+/* Read monster magics! */
+void rd_monster_magics()
+{
+        int x;
+        for (x = 0; x <= 15; x++)
+        {
+                monster_magics *mspell_ptr = &monster_magic[x];
+                rd_string(mspell_ptr->name, 30);
+		rd_string(mspell_ptr->act, 30);
+                rd_s16b(&mspell_ptr->type);
+                rd_s16b(&mspell_ptr->power);
+		rd_s16b(&mspell_ptr->special1);
+		rd_s16b(&mspell_ptr->special2);
+		rd_s16b(&mspell_ptr->special3);
+                rd_byte(&mspell_ptr->summchar);
+		rd_s16b(&mspell_ptr->cost);
+        }
+}
+
+/* Load the user options */
+void load_options(void)
+{
+        char name[1024];
+  
+        /* Construct name */
+        path_build(name, 1024, ANGBAND_DIR_PREF, "options.prf");
+
+        /* Open the file */
+        fff = my_fopen(name, "rb");
+
+        /* Read the options */
+        rd_options();
+
+        /* Done */
+        my_fclose(fff);
+}
+
+/* Load the random dungeon! */
+void rd_random_dungeon()
+{
+	dungeon_info_type *d_ptr;
+	d_ptr = &d_info[200];
+	
+	rd_u32b(&d_ptr->name);
+	rd_u32b(&d_ptr->text);
+        rd_s16b(&d_ptr->floor1);
+        rd_byte(&d_ptr->floor_percent1);
+        rd_s16b(&d_ptr->floor2);
+        rd_byte(&d_ptr->floor_percent2);
+        rd_s16b(&d_ptr->floor3);
+        rd_byte(&d_ptr->floor_percent3);
+        rd_s16b(&d_ptr->outer_wall);
+        rd_s16b(&d_ptr->inner_wall);
+        rd_s16b(&d_ptr->fill_type1);
+        rd_byte(&d_ptr->fill_percent1);
+        rd_s16b(&d_ptr->fill_type2);
+        rd_byte(&d_ptr->fill_percent2);
+        rd_s16b(&d_ptr->fill_type3);
+        rd_byte(&d_ptr->fill_percent3);
+        rd_s16b(&d_ptr->mindepth);
+        rd_s16b(&d_ptr->maxdepth);
+        rd_byte(&d_ptr->principal);
+        rd_byte(&d_ptr->next);
+        rd_byte(&d_ptr->min_plev);
+        rd_byte(&d_ptr->mode);
+
+        rd_s16b(&d_ptr->min_m_alloc_level);
+        rd_s16b(&d_ptr->max_m_alloc_chance);
+
+        /*d_ptr->flags1;*/
+
+        /*d_ptr->mflags1;
+        d_ptr->mflags2;
+        d_ptr->mflags3;
+        d_ptr->mflags4;
+        d_ptr->mflags5;
+        d_ptr->mflags6;
+        d_ptr->mflags7;
+        d_ptr->mflags8;
+        d_ptr->mflags9;*/
+
+        /* d_ptr->r_char[5]; */
+        rd_s16b(&d_ptr->final_artifact);
+        rd_s16b(&d_ptr->final_guardian);
+
+        rd_byte(&d_ptr->special_percent);
+	rd_s16b(&d_ptr->quest);
 }

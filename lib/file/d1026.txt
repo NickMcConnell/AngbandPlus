@@ -1,0 +1,11 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you arrive near the temple, you notice that it's structure has;
+T:completely changed! The temple's shape has been changed, walls now;
+T:surroung it, and the water has turned into lava! Orc soldiers are;
+T:now defending the temple, and fighting the Jindar soldiers. You;
+T:are not sure you understand what happened, and how Quazar could have;
+T:changed the entire temple so quickly... Some powerful magic must be;
+T:at work here!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

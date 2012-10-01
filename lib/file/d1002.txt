@@ -1,0 +1,74 @@
+N:1:1017:1:0:0:0
+I:Innkeeper;
+T:So... orc stories were true after all... this is very bad...;
+T:However, even in hard times, it's business as usual. How may I;
+T:help you?;
+A:A beer, please!:0:0:0:1:2:0:0:0:0
+A:Any places where I can find work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Innkeeper;
+T:Welcome back my friend! What can I do for you?;
+A:A beer, please!:0:0:0:1:2:0:0:0:0
+A:Any places where I can find work?:0:0:0:1:3:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Innkeeper;
+T:Here you go! (you drink your beer);
+A:Any rumors?:0:0:0:1:3:0:0:0:0
+A:Any places where I can find work?:1:1:0:1:4:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Innkeeper;
+T:You're an adventurer, right? In this case, the first place to look;
+T:would be right here! Have you spoken with some of the peoples here;
+T:yet? I'm sure some of them would have interesting offers for you.;
+A:A beer, please!:0:0:0:1:2:0:0:0:0
+A:Any rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Innkeeper;
+T:There are rumors of strange noises that can be heard in the temple's;
+T:cemetary. I personally think that peoples should avoid this kind of;
+T:places. You know... the dead tend to come back to life when disturbed...;
+T:Better let them rest in peace, and leave them alone.;
+A:A beer, please!:0:0:0:1:2:0:0:0:0
+A:Any places where I can find work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Innkeeper;
+T:Jindar would be the 'City of Rumors' if you ask me. So many stories to;
+T:hear, so many things to see, so many peoples to meet! If you are looking;
+T:for work, just explore the city. Enter some of the buildings and houses...;
+T:speak with the peoples there. Listen to the rumors... I'm sure it'll bring;
+T:you luck in the end!;
+A:A beer, please!:0:0:0:1:2:0:0:0:0
+A:Any places where I can find work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Innkeeper;
+T:North of Jindar is the small town of Ophelia. Named after a young woman;
+T:passionate of nature and beauty who lived there a long time ago...;
+T:You should go there sometime, and listen to the local legend of Ophelia.;
+T:It's a nice story to hear... a bid sad though.;
+A:A beer, please!:0:0:0:1:2:0:0:0:0
+A:Any places where I can find work?:0:0:0:1:3:0:0:0:0
+A:Any other rumors?:0:0:0:4:4:6:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%

@@ -731,14 +731,8 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are sensitive to cold.";
 		if (r_ptr->flags3 & RF3_RES_TELE)
 			info[i++] = "You are resistant to teleportation.";
-		if (r_ptr->flags3 & RF3_RES_NETH)
-			info[i++] = "You are resistant to nether.";
 		if (r_ptr->flags3 & RF3_RES_WATE)
 			info[i++] = "You are resistant to water.";
-		if (r_ptr->flags3 & RF3_RES_PLAS)
-			info[i++] = "You are resistant to plasma.";
-		if (r_ptr->flags3 & RF3_RES_WATE)
-			info[i++] = "You are resistant to nexus.";
 		if (r_ptr->flags3 & RF3_RES_DISE)
 			info[i++] = "You are resistant to disease.";
 		/* Not implemented */
@@ -996,401 +990,21 @@ void self_knowledge(FILE *fff)
 
 	if (p_ptr->muta1)
 	{
-		if (p_ptr->muta1 & MUT1_SPIT_ACID)
+		/*if (p_ptr->muta1 & MUT1_SPIT_ACID)
 		{
 			info[i++] = "You can spit acid (dam lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_BR_FIRE)
-		{
-			info[i++] = "You can breathe fire (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
-		{
-			info[i++] = "Your gaze is hypnotic.";
-		}
-		if (p_ptr->muta1 & MUT1_TELEKINES)
-		{
-			info[i++] = "You are telekinetic.";
-		}
-		if (p_ptr->muta1 & MUT1_VTELEPORT)
-		{
-			info[i++] = "You can teleport at will.";
-		}
-		if (p_ptr->muta1 & MUT1_MIND_BLST)
-		{
-			info[i++] = "You can Mind Blast your enemies (3 to 12d3 dam).";
-		}
-		if (p_ptr->muta1 & MUT1_RADIATION)
-		{
-			info[i++] = "You can emit hard radiation at will (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
-		{
-			info[i++] = "You can drain life from a foe like a vampire (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MET)
-		{
-			info[i++] = "You can smell nearby precious metal.";
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MON)
-		{
-			info[i++] = "You can smell nearby monsters.";
-		}
-		if (p_ptr->muta1 & MUT1_BLINK)
-		{
-			info[i++] = "You can teleport yourself short distances.";
-		}
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
-		{
-			info[i++] = "You can consume solid rock.";
-		}
-		if (p_ptr->muta1 & MUT1_SWAP_POS)
-		{
-			info[i++] = "You can switch locations with another being.";
-		}
-		if (p_ptr->muta1 & MUT1_SHRIEK)
-		{
-			info[i++] = "You can emit a horrible shriek (dam 4 * lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_ILLUMINE)
-		{
-			info[i++] = "You can emit bright light.";
-		}
-		if (p_ptr->muta1 & MUT1_DET_CURSE)
-		{
-			info[i++] = "You can feel the danger of evil magic.";
-		}
-		if (p_ptr->muta1 & MUT1_BERSERK)
-		{
-			info[i++] = "You can drive yourself into a berserk frenzy.";
-		}
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
-		{
-			info[i++] = "You can polymorph yourself at will.";
-		}
-		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
-		{
-			info[i++] = "You can turn ordinary items to gold.";
-		}
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
-		{
-			info[i++] = "You can cause mold to grow near you.";
-		}
-		if (p_ptr->muta1 & MUT1_RESIST)
-		{
-			info[i++] = "You can harden yourself to the ravages of the elements.";
-		}
-		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
-		{
-			info[i++] = "You can bring down the dungeon around your ears.";
-		}
-		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
-		{
-			info[i++] = "You can consume magic energy for your own use.";
-		}
-		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
-		{
-			info[i++] = "You can feel the strength of the magics affecting you.";
-		}
-		if (p_ptr->muta1 & MUT1_STERILITY)
-		{
-			info[i++] = "You can cause mass impotence.";
-		}
-		if (p_ptr->muta1 & MUT1_PANIC_HIT)
-		{
-			info[i++] = "You can run for your life after hitting something.";
-		}
-		if (p_ptr->muta1 & MUT1_DAZZLE)
-		{
-			info[i++] = "You can emit confusing, blinding radiation.";
-		}
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
-		{
-			info[i++] = "Your eyes can fire laser beams (dam 2 * lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_RECALL)
-		{
-			info[i++] = "You can travel between town and the depths.";
-		}
-		if (p_ptr->muta1 & MUT1_BANISH)
-		{
-			info[i++] = "You can send evil creatures directly to Hell.";
-		}
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
-		{
-			info[i++] = "You can freeze things with a touch (dam 3 * lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_LAUNCHER)
-		{
-			info[i++] = "You can hurl objects with great force.";
-		}
+		}*/
+		
 	}
 
 	if (p_ptr->muta2)
 	{
-		if (p_ptr->muta2 & MUT2_BERS_RAGE)
-		{
-			info[i++] = "You are subject to berserker fits.";
-		}
-		if (p_ptr->muta2 & MUT2_COWARDICE)
-		{
-			info[i++] = "You are subject to cowardice.";
-		}
-		if (p_ptr->muta2 & MUT2_RTELEPORT)
-		{
-			info[i++] = "You are teleporting randomly.";
-		}
-		if (p_ptr->muta2 & MUT2_ALCOHOL)
-		{
-			info[i++] = "Your body produces alcohol.";
-		}
-		if (p_ptr->muta2 & MUT2_HALLU)
-		{
-			info[i++] = "You have a hallucinatory insanity.";
-		}
-		if (p_ptr->muta2 & MUT2_FLATULENT)
-		{
-			info[i++] = "You are subject to uncontrollable flatulence.";
-		}
-		if (p_ptr->muta2 & MUT2_PROD_MANA)
-		{
-			info[i++] = "You are producing magical energy uncontrollably.";
-		}
-		if (p_ptr->muta2 & MUT2_ATT_DEMON)
-		{
-			info[i++] = "You attract demons.";
-		}
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
-		{
-			info[i++] = "You have a scorpion tail (poison, 3d7).";
-		}
-		if (p_ptr->muta2 & MUT2_HORNS)
-		{
-			info[i++] = "You have horns (dam. 2d6).";
-		}
-		if (p_ptr->muta2 & MUT2_BEAK)
-		{
-			info[i++] = "You have a beak (dam. 2d4).";
-		}
-		if (p_ptr->muta2 & MUT2_SPEED_FLUX)
-		{
-			info[i++] = "You move faster or slower randomly.";
-		}
-		if (p_ptr->muta2 & MUT2_BANISH_ALL)
-		{
-			info[i++] = "You sometimes cause nearby creatures to vanish.";
-		}
-		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
-		{
-			info[i++] = "You sometimes feed off of the light around you.";
-		}
-		if (p_ptr->muta2 & MUT2_TRUNK)
-		{
-			info[i++] = "You have an elephantine trunk (dam 1d4).";
-		}
-		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
-		{
-			info[i++] = "You attract animals.";
-		}
-		if (p_ptr->muta2 & MUT2_TENTACLES)
-		{
-			info[i++] = "You have evil looking tentacles (dam 2d5).";
-		}
-		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
-		{
-			info[i++] = "You occasionally are surrounded with raw chaos.";
-		}
-		if (p_ptr->muta2 & MUT2_NORMALITY)
-		{
-			info[i++] = "You may be mutated, but you're recovering.";
-		}
-		if (p_ptr->muta2 & MUT2_WRAITH)
-		{
-			info[i++] = "You fade in and out of physical reality.";
-		}
-		if (p_ptr->muta2 & MUT2_POLY_WOUND)
-		{
-			info[i++] = "Your health is subject to chaotic forces.";
-		}
-		if (p_ptr->muta2 & MUT2_WASTING)
-		{
-			info[i++] = "You have a horrible wasting disease.";
-		}
-		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
-		{
-			info[i++] = "You attract dragons.";
-		}
-		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
-		{
-			info[i++] = "Your mind randomly expands and contracts.";
-		}
-		if (p_ptr->muta2 & MUT2_NAUSEA)
-		{
-			info[i++] = "You have a seriously upset stomach.";
-		}
-		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
-		{
-			info[i++] = "Chaos deities give you gifts.";
-		}
-		if (p_ptr->muta2 & MUT2_WALK_SHAD)
-		{
-			info[i++] = "You occasionally stumble into other shadows.";
-		}
-		if (p_ptr->muta2 & MUT2_WARNING)
-		{
-			info[i++] = "You receive warnings about your foes.";
-		}
-		if (p_ptr->muta2 & MUT2_INVULN)
-		{
-			info[i++] = "You occasionally feel invincible.";
-		}
-		if (p_ptr->muta2 & MUT2_SP_TO_HP)
-		{
-			info[i++] = "Your blood sometimes rushes to your muscles.";
-		}
-		if (p_ptr->muta2 & MUT2_HP_TO_SP)
-		{
-			info[i++] = "Your blood sometimes rushes to your head.";
-		}
-		if (p_ptr->muta2 & MUT2_DISARM)
-		{
-			info[i++] = "You occasionally stumble and drop things.";
-		}
+		
 	}
 
 	if (p_ptr->muta3)
 	{
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
-		{
-			info[i++] = "You are superhumanly strong (+4 STR).";
-		}
-		if (p_ptr->muta3 & MUT3_PUNY)
-		{
-			info[i++] = "You are puny (-4 STR).";
-		}
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-			info[i++] = "Your brain is a living computer (+4 INT/WIS).";
-		}
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-			info[i++] = "You are moronic (-4 INT/WIS).";
-		}
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-			info[i++] = "You are very resilient (+4 CON).";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
-		{
-			info[i++] = "You are extremely fat (+2 CON, -2 speed).";
-		}
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-			info[i++] = "You are albino (-4 CON).";
-		}
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			info[i++] = "Your flesh is rotting (-2 CON, -1 CHR).";
-		}
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
-		{
-			info[i++] = "Your voice is a silly squeak (-4 CHR).";
-		}
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-			info[i++] = "Your face is featureless (-1 CHR).";
-		}
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			info[i++] = "Your appearance is masked with illusion.";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_EYES)
-		{
-                        info[i++] = "You have an extra pair of eyes.";
-		}
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
-		{
-			info[i++] = "You are resistant to magic.";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-		{
-			info[i++] = "You make a lot of strange noise (-3 stealth).";
-		}
-		if (p_ptr->muta3 & MUT3_INFRAVIS)
-		{
-			info[i++] = "You have remarkable infravision (+3).";
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-			info[i++] = "You have an extra pair of legs (+3 speed).";
-		}
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-			info[i++] = "Your legs are short stubs (-3 speed).";
-		}
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-			info[i++] = "Electricity is running through your veins.";
-		}
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-#if 0
-			/* Unnecessary, actually... */
-			info[i++] = "Your body is enveloped in flames.";
-#endif
-		}
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
-		{
-			info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
-		}
-		if (p_ptr->muta3 & MUT3_SCALES)
-		{
-			info[i++] = "Your skin has turned into scales (-1 CHR, +10 AC).";
-		}
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
-		{
-			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
-		}
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			info[i++] = "You have wings.";
-		}
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			/* Unnecessary */
-		}
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-			info[i++] = "Your body is very limber (+3 DEX).";
-		}
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-			info[i++] = "Your joints ache constantly (-3 DEX).";
-		}
-		if (p_ptr->muta3 & MUT3_RES_TIME)
-		{
-			info[i++] = "You are protected from the ravages of time.";
-		}
-		if (p_ptr->muta3 & MUT3_VULN_ELEM)
-		{
-			info[i++] = "You are susceptible to damage from the elements.";
-		}
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			info[i++] = "Your movements are precise and forceful (+1 STL).";
-		}
-		if (p_ptr->muta3 & MUT3_SUS_STATS)
-		{
-			/* Unnecessary */
-		}
+		
 	}
 
         if (p_ptr->allow_one_death)
@@ -1445,17 +1059,9 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are in a battle rage.";
 	}
-	if (p_ptr->protevil)
-	{
-		info[i++] = "You are protected from evil.";
-	}
 	if (p_ptr->shield)
 	{
 		info[i++] = "You are protected by a mystic shield.";
-	}
-	if (p_ptr->invuln)
-	{
-		info[i++] = "You are temporarily invulnerable.";
 	}
 	if (p_ptr->wraith_form)
 	{
@@ -1468,10 +1074,6 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->searching)
 	{
 		info[i++] = "You are looking around very carefully.";
-	}
-	if (p_ptr->new_spells)
-	{
-		info[i++] = "You can learn some spells/prayers.";
 	}
 	if (p_ptr->word_recall)
 	{
@@ -1525,119 +1127,13 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are surrounded with electricity.";
 	}
-	if (p_ptr->anti_magic)
-	{
-		info[i++] = "You are surrounded by an anti-magic shell.";
-	}
-	if (p_ptr->anti_tele)
-	{
-		info[i++] = "You cannot teleport.";
-	}
 	if (p_ptr->lite)
 	{
 		info[i++] = "You are carrying a permanent light.";
 	}
-
-	if (p_ptr->immune_acid)
-	{
-		info[i++] = "You are completely immune to acid.";
-	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
-	{
-		info[i++] = "You resist acid exceptionally well.";
-	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
-	{
-		info[i++] = "You are resistant to acid.";
-	}
-
-	if (p_ptr->immune_elec)
-	{
-		info[i++] = "You are completely immune to lightning.";
-	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
-	{
-		info[i++] = "You resist lightning exceptionally well.";
-	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
-	{
-		info[i++] = "You are resistant to lightning.";
-	}
-
-	if (p_ptr->immune_fire)
-	{
-		info[i++] = "You are completely immune to fire.";
-	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
-	{
-		info[i++] = "You resist fire exceptionally well.";
-	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
-	{
-		info[i++] = "You are resistant to fire.";
-	}
-        else if (p_ptr->sensible_fire)
-	{
-                info[i++] = "You are very sensible to fire.";
-	}
-
-	if (p_ptr->immune_cold)
-	{
-		info[i++] = "You are completely immune to cold.";
-	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
-	{
-		info[i++] = "You resist cold exceptionally well.";
-	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
-	{
-		info[i++] = "You are resistant to cold.";
-	}
-
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
-	{
-		info[i++] = "You resist poison exceptionally well.";
-	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
-	{
-		info[i++] = "You are resistant to poison.";
-	}
-
-	if (p_ptr->resist_lite)
-	{
-		info[i++] = "You are resistant to bright light.";
-	}
-	if (p_ptr->resist_dark)
-	{
-		info[i++] = "You are resistant to darkness.";
-	}
 	if (p_ptr->resist_conf)
 	{
 		info[i++] = "You are resistant to confusion.";
-	}
-	if (p_ptr->resist_sound)
-	{
-		info[i++] = "You are resistant to sonic attacks.";
-	}
-	if (p_ptr->resist_disen)
-	{
-		info[i++] = "You are resistant to disenchantment.";
-	}
-	if (p_ptr->resist_chaos)
-	{
-		info[i++] = "You are resistant to chaos.";
-	}
-	if (p_ptr->resist_shard)
-	{
-		info[i++] = "You are resistant to blasts of shards.";
-	}
-	if (p_ptr->resist_nexus)
-	{
-		info[i++] = "You are resistant to nexus attacks.";
-	}
-	if (p_ptr->resist_neth)
-	{
-		info[i++] = "You are resistant to nether forces.";
 	}
 	if (p_ptr->resist_fear)
 	{
@@ -1646,10 +1142,6 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->resist_blind)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
-	}
-        if (p_ptr->resist_continuum)
-	{
-                info[i++] = "The space-time continuum can be disrupted near you.";
 	}
 
 	if (p_ptr->sustain_str)
@@ -1676,10 +1168,6 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "Your charisma is sustained.";
 	}
-        if (p_ptr->black_breath)
-        {
-                info[i++] = "You suffer from Black Breath.";
-        }
 
 	if (f1 & (TR1_STR))
 	{
@@ -1964,20 +1452,10 @@ void report_magics(void)
 		info2[i]  = report_magics_aux(p_ptr->shero);
 		info[i++] = "You are in a battle rage";
 	}
-	if (p_ptr->protevil)
-	{
-		info2[i]  = report_magics_aux(p_ptr->protevil);
-		info[i++] = "You are protected from evil";
-	}
 	if (p_ptr->shield)
 	{
 		info2[i]  = report_magics_aux(p_ptr->shield);
 		info[i++] = "You are protected by a mystic shield";
-	}
-	if (p_ptr->invuln)
-	{
-		info2[i]  = report_magics_aux(p_ptr->invuln);
-		info[i++] = "You are invulnerable";
 	}
 	if (p_ptr->wraith_form)
 	{
@@ -1993,31 +1471,6 @@ void report_magics(void)
 	{
 		info2[i]  = report_magics_aux(p_ptr->word_recall);
 		info[i++] = "You waiting to be recalled";
-	}
-	if (p_ptr->oppose_acid)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_acid);
-		info[i++] = "You are resistant to acid";
-	}
-	if (p_ptr->oppose_elec)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_elec);
-		info[i++] = "You are resistant to lightning";
-	}
-	if (p_ptr->oppose_fire)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_fire);
-		info[i++] = "You are resistant to fire";
-	}
-	if (p_ptr->oppose_cold)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_cold);
-		info[i++] = "You are resistant to cold";
-	}
-	if (p_ptr->oppose_pois)
-	{
-		info2[i]  = report_magics_aux(p_ptr->oppose_pois);
-		info[i++] = "You are resistant to poison";
 	}
 
 	/* Save the screen */
@@ -2900,7 +2353,7 @@ void stair_creation(void)
 	delete_object(py, px);
 
 	/* Create a staircase */
-	if (p_ptr->inside_arena || p_ptr->inside_quest)
+	if (p_ptr->inside_quest)
 	{
 		/* arena or quest */
 		msg_print("There is no effect!");
@@ -3273,7 +2726,6 @@ void curse_artifact(object_type * o_ptr)
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_TY_CURSE;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_AGGRAVATE;
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_DRAIN_EXP;
-        if (randint(3)==1) o_ptr-> art_flags4 |= TR4_BLACK_BREATH;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_TELEPORT;
 	else if (randint(3)==1) o_ptr->art_flags3 |= TR3_NO_TELE;
 	if (p_ptr->pclass != CLASS_WARRIOR && (randint(3)==1))
@@ -3286,121 +2738,7 @@ void random_plus(object_type * o_ptr, bool is_scroll)
 {
 	int this_type = (o_ptr->tval<TV_BOOTS?23:19);
 
-	if (artifact_bias == BIAS_WARRIOR)
-	{
-		if (!(o_ptr->art_flags1 & TR1_STR))
-		{
-			o_ptr->art_flags1 |= TR1_STR;
-			if (randint(2)==1) return; /* 50% chance of being a "free" power */
-		}
-
-		if (!(o_ptr->art_flags1 & TR1_CON))
-		{
-			o_ptr->art_flags1 |= TR1_CON;
-			if (randint(2)==1) return;
-		}
-
-		if (!(o_ptr->art_flags1 & TR1_DEX))
-		{
-			o_ptr->art_flags1 |= TR1_DEX;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_MAGE)
-	{
-		if (!(o_ptr->art_flags1 & TR1_INT))
-		{
-			o_ptr->art_flags1 |= TR1_INT;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_PRIESTLY)
-	{
-		if (!(o_ptr->art_flags1 & TR1_WIS))
-		{
-			o_ptr->art_flags1 |= TR1_WIS;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_RANGER)
-	{
-		if (!(o_ptr->art_flags1 & TR1_CON))
-		{
-			o_ptr->art_flags1 |= TR1_CON;
-			if (randint(2)==1) return; /* 50% chance of being a "free" power */
-		}
-
-		if (!(o_ptr->art_flags1 & TR1_DEX))
-		{
-			o_ptr->art_flags1 |= TR1_DEX;
-			if (randint(2)==1) return;
-		}
-
-		if (!(o_ptr->art_flags1 & TR1_STR))
-		{
-			o_ptr->art_flags1 |= TR1_STR;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_ROGUE)
-	{
-		if (!(o_ptr->art_flags1 & TR1_STEALTH))
-		{
-			o_ptr->art_flags1 |= TR1_STEALTH;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_STR)
-	{
-		if (!(o_ptr->art_flags1 & TR1_STR))
-		{
-			o_ptr->art_flags1 |= TR1_STR;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_WIS)
-	{
-		if (!(o_ptr->art_flags1 & TR1_WIS))
-		{
-			o_ptr->art_flags1 |= TR1_WIS;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_INT)
-	{
-		if (!(o_ptr->art_flags1 & TR1_INT))
-		{
-			o_ptr->art_flags1 |= TR1_INT;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_DEX)
-	{
-		if (!(o_ptr->art_flags1 & TR1_DEX))
-		{
-			o_ptr->art_flags1 |= TR1_DEX;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_CON)
-	{
-		if (!(o_ptr->art_flags1 & TR1_CON))
-		{
-			o_ptr->art_flags1 |= TR1_CON;
-			if (randint(2)==1) return;
-		}
-	}
-	else if (artifact_bias == BIAS_CHR)
-	{
-		if (!(o_ptr->art_flags1 & TR1_CHR))
-		{
-			o_ptr->art_flags1 |= TR1_CHR;
-			if (randint(2)==1) return;
-		}
-	}
-
-
-	switch (randint(this_type))
+	switch (randint(23))
 	{
 	case 1: case 2:
 		o_ptr->art_flags1 |= TR1_STR;
@@ -3477,290 +2815,89 @@ void random_plus(object_type * o_ptr, bool is_scroll)
 	}
 }
 
-
-void random_resistance (object_type * o_ptr, bool is_scroll, int specific)
+/* Simplified for NewAngband 1.8.0. */
+void random_resistance (object_type * o_ptr)
 {
-  if (!specific) /* To avoid a number of possible bugs */
-  {
-    if (artifact_bias == BIAS_ACID)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_ACID))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_ACID;
-	    if (randint(2)==1) return;
-	}
-    if (randint(BIAS_LUCK)==1 && !(o_ptr->art_flags2 & TR2_IM_ACID))
-	{
-	    o_ptr->art_flags2 |= TR2_IM_ACID;
-	    if (randint(2)==1) return;
-	}
-    }
-    else if (artifact_bias == BIAS_ELEC)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_ELEC))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_ELEC;
-	    if (randint(2)==1) return;
-	}
-    if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR &&
-        ! (o_ptr->art_flags3 & TR3_SH_ELEC))
-        {
-            o_ptr->art_flags2 |= TR3_SH_ELEC;
-            if (randint(2)==1) return;
-        }
-    if (randint(BIAS_LUCK)==1 && !(o_ptr->art_flags2 & TR2_IM_ELEC))
-	{
-	    o_ptr->art_flags2 |= TR2_IM_ELEC;
-	    if (randint(2)==1) return;
-	}
-    }
-    else if (artifact_bias == BIAS_FIRE)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_FIRE))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_FIRE;
-	    if (randint(2)==1) return;
-	}
-    if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR &&
-        ! (o_ptr->art_flags3 & TR3_SH_FIRE))
-        {
-            o_ptr->art_flags2 |= TR3_SH_FIRE;
-            if (randint(2)==1) return;
-        }
-    if (randint(BIAS_LUCK)==1 && !(o_ptr->art_flags2 & TR2_IM_FIRE))
-	{
-	    o_ptr->art_flags2 |= TR2_IM_FIRE;
-	    if (randint(2)==1) return;
-	}
-    }
-    else if (artifact_bias == BIAS_COLD)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_COLD))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_COLD;
-	    if (randint(2)==1) return;
-	}
-    if (randint(BIAS_LUCK)==1 && !(o_ptr->art_flags2 & TR2_IM_COLD))
-	{
-	    o_ptr->art_flags2 |= TR2_IM_COLD;
-	    if (randint(2)==1) return;
-	}
-    }
-    else if (artifact_bias == BIAS_POIS)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_POIS))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_POIS;
-	    if (randint(2)==1) return;
-	}
-    }
-    else if (artifact_bias == BIAS_WARRIOR)
-    {
-	if (randint(3)!=1 && (!(o_ptr->art_flags2 & TR2_RES_FEAR)))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_FEAR;
-	    if (randint(2)==1) return;
-	}
-    if ((randint(3)==1) && (!(o_ptr->art_flags3 & TR3_NO_MAGIC)))
-    {
-        o_ptr->art_flags3 |= TR3_NO_MAGIC;
-        if (randint(2)==1) return;
-    }
-    }
-    else if (artifact_bias == BIAS_NECROMANTIC)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_NETHER))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_NETHER;
-	    if (randint(2)==1) return;
-	}
-	if (!(o_ptr->art_flags2 & TR2_RES_POIS))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_POIS;
-	    if (randint(2)==1) return;
-	}
-	if (!(o_ptr->art_flags2 & TR2_RES_DARK))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_DARK;
-	    if (randint(2)==1) return;
-	}
-    }
-    else if (artifact_bias == BIAS_CHAOS)
-    {
-	if (!(o_ptr->art_flags2 & TR2_RES_CHAOS))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_CHAOS;
-	    if (randint(2)==1) return;
-	}
-	if (!(o_ptr->art_flags2 & TR2_RES_CONF))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_CONF;
-	    if (randint(2)==1) return;
-	}
-	if (!(o_ptr->art_flags2 & TR2_RES_DISEN))
-	{
-	    o_ptr->art_flags2 |= TR2_RES_DISEN;
-	    if (randint(2)==1) return;
-	}
-    }
-  }
+	int whichres = randint(19);
+	int resamount;
 
-    switch (specific?specific:randint(41))
-    {
-    case 1:
-    if (randint(WEIRD_LUCK)!=1)
-        random_resistance(o_ptr, is_scroll, specific);
-	else
+	resamount = o_ptr->pval * 2;
+
+	switch (whichres)
 	{
-	o_ptr->art_flags2 |= TR2_IM_ACID;
-/*  if (is_scroll) msg_print("It looks totally incorruptible."); */
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_ACID;
+		case 1:
+			o_ptr->fireres += resamount;
+			if (o_ptr->fireres > 100) o_ptr->fireres = 100;
+			break;
+		case 2:
+			o_ptr->coldres += resamount;
+			if (o_ptr->coldres > 100) o_ptr->coldres = 100;
+			break;
+		case 3:
+			o_ptr->elecres += resamount;
+			if (o_ptr->elecres > 100) o_ptr->elecres = 100;
+			break;
+		case 4:
+			o_ptr->acidres += resamount;
+			if (o_ptr->acidres > 100) o_ptr->acidres = 100;
+			break;
+		case 5:
+			o_ptr->poisres += resamount;
+			if (o_ptr->poisres > 100) o_ptr->poisres = 100;
+			break;
+		case 6:
+			o_ptr->lightres += resamount;
+			if (o_ptr->lightres > 100) o_ptr->lightres = 100;
+			break;
+		case 7:
+			o_ptr->darkres += resamount;
+			if (o_ptr->darkres > 100) o_ptr->darkres = 100;
+			break;
+		case 8:
+			o_ptr->warpres += resamount;
+			if (o_ptr->warpres > 100) o_ptr->warpres = 100;
+			break;
+		case 9:
+			o_ptr->waterres += resamount;
+			if (o_ptr->waterres > 100) o_ptr->waterres = 100;
+			break;
+		case 10:
+			o_ptr->windres += resamount;
+			if (o_ptr->windres > 100) o_ptr->windres = 100;
+			break;
+		case 11:
+			o_ptr->earthres += resamount;
+			if (o_ptr->earthres > 100) o_ptr->earthres = 100;
+			break;
+		case 12:
+			o_ptr->soundres += resamount;
+			if (o_ptr->soundres > 100) o_ptr->soundres = 100;
+			break;
+		case 13:
+			o_ptr->chaosres += resamount;
+			if (o_ptr->chaosres > 100) o_ptr->chaosres = 100;
+			break;
+		case 14:
+			o_ptr->radiores += resamount;
+			if (o_ptr->radiores > 100) o_ptr->radiores = 100;
+			break;
+		case 15:
+			o_ptr->physres += resamount;
+			if (o_ptr->physres > 100) o_ptr->physres = 100;
+			break;
+		case 16:
+			o_ptr->art_flags2 |= TR2_RES_FEAR;
+			break;
+		case 17:
+			o_ptr->art_flags2 |= TR2_RES_BLIND;
+			break;
+		case 18:
+			o_ptr->art_flags2 |= TR2_RES_CONF;
+			break;
+		case 19:
+			o_ptr->art_flags4 |= TR4_SAFETY;
+			break;
 	}
-	break;
-    case 2:
-    if (randint(WEIRD_LUCK)!=1)
-	    random_resistance(o_ptr, is_scroll, specific);
-	else
-	{
-	o_ptr->art_flags2 |= TR2_IM_ELEC;
-/*  if (is_scroll) msg_print("It looks completely grounded."); */
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_ELEC;
-	}
-	break;
-    case 3:
-    if (randint(WEIRD_LUCK)!=1)
-	    random_resistance(o_ptr, is_scroll, specific);
-	else
-	{
-	o_ptr->art_flags2 |= TR2_IM_COLD;
-/*  if (is_scroll) msg_print("It feels very warm."); */
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_COLD;
-	}
-	break;
-    case 4:
-    if (randint(WEIRD_LUCK)!=1)
-	    random_resistance(o_ptr, is_scroll, specific);
-	else
-	{
-	o_ptr->art_flags2 |= TR2_IM_FIRE;
-/*  if (is_scroll) msg_print("It feels very cool."); */
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_FIRE;
-	}
-	break;
-    case 5: case 6: case 13:
-	o_ptr->art_flags2 |= TR2_RES_ACID;
-/*  if (is_scroll) msg_print("It makes your stomach rumble."); */
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_ACID;
-	break;
-    case 7: case 8: case 14:
-	o_ptr->art_flags2 |= TR2_RES_ELEC;
-/*  if (is_scroll) msg_print("It makes you feel grounded."); */
-    if (!(artifact_bias))
-	    artifact_bias = BIAS_ELEC;
-	break;
-    case 9: case 10: case 15:
-	o_ptr->art_flags2 |= TR2_RES_FIRE;
-/*  if (is_scroll) msg_print("It makes you feel cool!");*/
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_FIRE;
-	break;
-    case 11: case 12: case 16:
-	o_ptr->art_flags2 |= TR2_RES_COLD;
-/*  if (is_scroll) msg_print("It makes you feel full of hot air!");*/
-	if (!(artifact_bias))
-	    artifact_bias = BIAS_COLD;
-	break;
-    case 17: case 18:
-	o_ptr->art_flags2 |= TR2_RES_POIS;
-/*  if (is_scroll) msg_print("It makes breathing easier for you."); */
-	if (!(artifact_bias) && randint(4)!=1)
-	    artifact_bias = BIAS_POIS;
-	else if (!(artifact_bias) && randint(2)==1)
-	    artifact_bias = BIAS_NECROMANTIC;
-	else if (!(artifact_bias) && randint(2)==1)
-	    artifact_bias = BIAS_ROGUE;
-	break;
-    case 19: case 20:
-	o_ptr->art_flags2 |= TR2_RES_FEAR;
-/*  if (is_scroll) msg_print("It makes you feel brave!"); */
-	if (!(artifact_bias) && randint(3)==1)
-	    artifact_bias = BIAS_WARRIOR;
-	break;
-    case 21:
-	o_ptr->art_flags2 |= TR2_RES_LITE;
-/*  if (is_scroll) msg_print("It makes everything look darker.");*/
-	break;
-    case 22:
-	o_ptr->art_flags2 |= TR2_RES_DARK;
-/*  if (is_scroll) msg_print("It makes everything look brigher.");*/
-	break;
-    case 23: case 24:
-	o_ptr->art_flags2 |= TR2_RES_BLIND;
-/*  if (is_scroll) msg_print("It makes you feel you are wearing glasses.");*/
-	break;
-    case 25: case 26:
-	o_ptr->art_flags2 |= TR2_RES_CONF;
-/*  if (is_scroll) msg_print("It makes you feel very determined.");*/
-	if (!(artifact_bias) && randint(6)==1)
-	    artifact_bias = BIAS_CHAOS;
-	break;
-    case 27: case 28:
-	o_ptr->art_flags2 |= TR2_RES_SOUND;
-/*  if (is_scroll) msg_print("It makes you feel deaf!");*/
-	break;
-    case 29: case 30:
-	o_ptr->art_flags2 |= TR2_RES_SHARDS;
-/*  if (is_scroll) msg_print("It makes your skin feel thicker.");*/
-	break;
-    case 31: case 32:
-	o_ptr->art_flags2 |= TR2_RES_NETHER;
-/*  if (is_scroll) msg_print("It makes you feel like visiting a graveyard!");*/
-	if (!(artifact_bias) && randint(3)==1)
-	    artifact_bias = BIAS_NECROMANTIC;
-	break;
-    case 33: case 34:
-	o_ptr->art_flags2 |= TR2_RES_NEXUS;
-/*  if (is_scroll) msg_print("It makes you feel normal.");*/
-	break;
-    case 35: case 36:
-	o_ptr->art_flags2 |= TR2_RES_CHAOS;
-/*  if (is_scroll) msg_print("It makes you feel very firm.");*/
-	if (!(artifact_bias) && randint(2)==1)
-	    artifact_bias = BIAS_CHAOS;
-	break;
-    case 37: case 38:
-	o_ptr->art_flags2 |= TR2_RES_DISEN;
-/*  if (is_scroll) msg_print("It is surrounded by a static feeling.");*/
-	break;
-    case 39:
-    if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
-        o_ptr->art_flags3 |= TR3_SH_ELEC;
-    else
-	    random_resistance(o_ptr, is_scroll, specific);
-    if (!(artifact_bias))
-	    artifact_bias = BIAS_ELEC;
-    break;
-    case 40:
-    if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
-        o_ptr->art_flags3 |= TR3_SH_FIRE;
-    else
-	    random_resistance(o_ptr, is_scroll, specific);
-    if (!(artifact_bias))
-        artifact_bias = BIAS_FIRE;
-    break;
-    case 41:
-    if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CLOAK ||
-        o_ptr->tval == TV_HELM || o_ptr->tval == TV_HARD_ARMOR)
-        o_ptr->art_flags2 |= TR2_REFLECT;
-    else
-	    random_resistance(o_ptr, is_scroll, specific);
-    break;
-    }
 }
 
 void random_misc (object_type * o_ptr, bool is_scroll)
@@ -4549,7 +3686,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 				has_pval = TRUE;
 				break;
 			case 3: case 4:
-				random_resistance(o_ptr, a_scroll, FALSE);
+				random_resistance(o_ptr);
 				break;
 			case 5:
 				random_misc(o_ptr, a_scroll);
@@ -5832,7 +4969,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+		if (!p_ptr->resist_blind)
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -6549,8 +5686,8 @@ bool dark_lord_aura(s32b dam, int rad)
 	int flg = PROJECT_GRID | PROJECT_KILL;
         int x;
         s32b dambonus = 0;
-        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
-        rad += p_ptr->skill_spellcraft / 30;
+        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Hook into the "project()" function */
@@ -6568,8 +5705,8 @@ bool valkyrie_aura(s32b dam, int rad)
 	int flg = PROJECT_GRID | PROJECT_KILL;
         int x;
         s32b dambonus = 0;
-        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
-        rad += p_ptr->skill_spellcraft / 30;
+        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Hook into the "project()" function */
@@ -6584,8 +5721,9 @@ bool elem_lord_aura(s32b dam, int rad)
 	int flg = PROJECT_GRID | PROJECT_KILL;
         int x;
         s32b dambonus = 0;
-        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
-        rad += p_ptr->skill_spellcraft / 30;
+
+        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Hook into the "project()" function */
@@ -6652,18 +5790,18 @@ bool attack_aura(int typ, s32b dam, int rad)
 	int flg = PROJECT_GRID | PROJECT_KILL;
         int x;
         s32b dambonus = 0;
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
-        rad += p_ptr->skill_spellcraft / 30;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Hook into the "project()" function */
@@ -6701,8 +5839,8 @@ bool spin_attack()
                 return (TRUE);
         }
         
-        dam = weapon_damages();
-        dam *= p_ptr->abilities[(CLASS_WARRIOR * 10)];
+	call_lua("weapon_damages", "", "l", &dam);
+        dam += ((dam * ((p_ptr->abilities[(CLASS_WARRIOR * 10)] - 1) * 20)) / 100);
         if (dam < 0) dam = 0;
 
 	/* Hook into the "project()" function */
@@ -6726,15 +5864,7 @@ bool glacial_spin()
                 return (TRUE);
         }
         
-        dam = damroll(o_ptr->dd, o_ptr->ds);
-        if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_SWORD_DEVASTATION) dam *= (p_ptr->skill_swords + 1);
-        if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_HELL_STAFF) dam *= (p_ptr->skill_hafted + 1);
-        if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_VALKYRIE_SPEAR) dam *= (p_ptr->skill_polearms + 1);
-        if (o_ptr->tval == TV_ROD) dam *= (p_ptr->skill_rods + 1);
-        if (o_ptr->tval == TV_DAGGER) dam *= (p_ptr->skill_daggers + 1);
-        if (o_ptr->tval == TV_AXE) dam *= (p_ptr->skill_axes + 1);
-        dam += o_ptr->to_d;
-        dam *= p_ptr->multiplier;
+	call_lua("weapon_damages", "", "l", &dam);
         dam *= 4;
         if (dam < 0) dam = 0;
 
@@ -6759,8 +5889,8 @@ bool sword_spin()
                 return (TRUE);
         }
         
-        dam = weapon_damages();
-        dam *= 5;
+	call_lua("weapon_damages", "", "l", &dam);
+        dam += (dam / 2);
         if (dam < 0) dam = 0;
 
 	/* Hook into the "project()" function */
@@ -6796,18 +5926,18 @@ bool fire_ball(int typ, int dir, s32b dam, int rad)
 		tx = target_col;
 		ty = target_row;
 	}
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
-        rad += p_ptr->skill_spellcraft / 30;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
@@ -6838,18 +5968,18 @@ bool fire_druid_ball(int typ, int dir, s32b dam, int rad)
 		tx = target_col;
 		ty = target_row;
 	}
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
-        rad += p_ptr->skill_spellcraft / 30;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
@@ -6881,18 +6011,18 @@ bool fire_ball_beam(int typ, int dir, s32b dam, int rad)
 		tx = target_col;
 		ty = target_row;
 	}
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
-        rad += p_ptr->skill_spellcraft / 30;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
@@ -6907,8 +6037,6 @@ void teleport_swap(int dir)
 	monster_type * m_ptr;
 	monster_race * r_ptr;
 
-        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
-	
 	if ((dir == 5) && target_okay())
 	{
 		tx = target_col;
@@ -6961,26 +6089,7 @@ void teleport_swap(int dir)
 			lite_spot(ty, tx);
 			
 			/* Redraw the new grid */
-			lite_spot(py, px);
-
-                        /* Execute the inscription */
-                        c_ptr = &cave[m_ptr->fy][m_ptr->fx];
-                        if (c_ptr->inscription)
-                        {
-                                if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_MONST_WALK)
-                                {
-                                        execute_inscription(c_ptr->inscription, m_ptr->fy, m_ptr->fx);
-                                }
-                        }
-                        c_ptr = &cave[py][px];
-                        if (c_ptr->inscription)
-                        {
-                                msg_format("There is an inscription here: %s", inscription_info[c_ptr->inscription].text);
-                                if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_WALK)
-                                {
-                                        execute_inscription(c_ptr->inscription, py, px);
-                                }
-                        }
+			lite_spot(py, px);                        
 			
 			/* Check for new panel (redraw map) */
 			verify_panel();
@@ -7006,8 +6115,6 @@ void swap_position(int lty, int ltx)
 	cave_type * c_ptr;
 	monster_type * m_ptr;
 	monster_race * r_ptr;
-
-        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
 	
 	c_ptr = &cave[ty][tx];
 	
@@ -7131,15 +6238,15 @@ bool fire_bolt(int typ, int dir, s32b dam)
         int x;
         s32b dambonus = 0;
 
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
         dam += dambonus;
@@ -7157,15 +6264,15 @@ bool fire_druid_bolt(int typ, int dir, s32b dam)
         int x;
         s32b dambonus = 0;
 
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
         dam += dambonus;
@@ -7184,15 +6291,15 @@ bool fire_druid_beam(int typ, int dir, s32b dam)
         int x;
         s32b dambonus = 0;
 
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
         dam += dambonus;
@@ -7210,15 +6317,15 @@ bool fire_beam(int typ, int dir, s32b dam)
         int x;
         s32b dambonus = 0;
 
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
         dam += dambonus;
@@ -7379,9 +6486,7 @@ bool teleport_monster(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_KILL;
 
-        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return FALSE;}
-
-	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
+	return (project_hook(GF_WARP, dir, MAX_SIGHT * 5, flg));
 }
 
 
@@ -7445,60 +6550,6 @@ bool sleep_monsters_touch(void)
 }
 
 
-void call_chaos(void)
-{
-	int Chaos_type, dummy, dir;
-	int plev = p_ptr->lev;
-	bool line_chaos = FALSE;
-
-	int hurt_types[30] =
-	{
-		GF_ELEC,      GF_POIS,    GF_ACID,    GF_COLD,
-		GF_FIRE,      GF_MISSILE, GF_ARROW,   GF_PLASMA,
-		GF_HOLY_FIRE, GF_WATER,   GF_LITE,    GF_DARK,
-		GF_FORCE,     GF_INERTIA, GF_MANA,    GF_METEOR,
-		GF_ICE,       GF_CHAOS,   GF_NETHER,  GF_DISENCHANT,
-		GF_SHARDS,    GF_SOUND,   GF_NEXUS,   GF_CONFUSION,
-		GF_TIME,      GF_GRAVITY, GF_ROCKET,  GF_NUKE,
-		GF_HELL_FIRE, GF_DISINTEGRATE
-	};
-
-	Chaos_type = hurt_types[randint(30) - 1];
-	if (randint(4) == 1) line_chaos = TRUE;
-
-#if 0
-	/* Probably a meaningless line, a remnant from earlier code */
-	while (Chaos_type > GF_GRAVITY && Chaos_type < GF_ROCKET);
-#endif
-
-	if (randint(6) == 1)
-	{
-		for (dummy = 1; dummy < 10; dummy++)
-		{
-			if (dummy-5)
-			{
-				if (line_chaos)
-					fire_beam(Chaos_type, dummy, 75);
-				else
-					fire_ball(Chaos_type, dummy, 75, 2);
-			}
-		}
-	}
-	else if (randint(3)==1)
-	{
-		fire_ball(Chaos_type, 0, 300, 8);
-	}
-	else
-	{
-		if (!get_aim_dir(&dir)) return;
-		if (line_chaos)
-			fire_beam(Chaos_type, dir, 150);
-		else
-			fire_ball(Chaos_type, dir, 150, 3 + (plev/35));
-	}
-}
-
-
 /*
  * Activate the evil Topi Ylinen curse
  * rr9: Stop the nasty things when a Cyberdemon is summoned
@@ -7520,7 +6571,7 @@ void activate_ty_curse(void)
 			activate_hi_summon();
 			if (randint(6) != 1) break;
 		case 7: case 8: case 9: case 18:
-			(void) summon_specific(py, px, dun_level, 0);
+			(void) summon_specific(py, px, dun_level, 0, 0);
 			if (randint(6) != 1) break;
 		case 10: case 11: case 12:
 			msg_print("You feel your life draining away...");
@@ -7599,11 +6650,6 @@ void activate_dg_curse(void)
 		case 10: case 11: case 12:
 			msg_print("You feel your life draining away...");
                         lose_exp(p_ptr->exp / 12);
-                        if(rand_int(2))
-                        {
-                                msg_print("You feel the coldness of the black breath attacking you!");
-                                p_ptr->black_breath = TRUE;
-                        }
                         if (randint(8) != 1) break;
                 case 13: case 14: case 15:
                         if (p_ptr->free_act && (randint(100) < p_ptr->stat_ind[A_WIS]))
@@ -7680,46 +6726,46 @@ void activate_hi_summon(void)
 		switch(randint(26) + (dun_level / 20) )
 		{
 			case 1: case 2:
-				(void) summon_specific(py, px, dun_level, SUMMON_ANT);
+				(void) summon_specific(py, px, dun_level, SUMMON_ANT, 0);
 				break;
 			case 3: case 4:
-				(void) summon_specific(py, px, dun_level, SUMMON_SPIDER);
+				(void) summon_specific(py, px, dun_level, SUMMON_SPIDER, 0);
 				break;
 			case 5: case 6:
-				(void) summon_specific(py, px, dun_level, SUMMON_HOUND);
+				(void) summon_specific(py, px, dun_level, SUMMON_HOUND, 0);
 				break;
 			case 7: case 8:
-				(void) summon_specific(py, px, dun_level, SUMMON_HYDRA);
+				(void) summon_specific(py, px, dun_level, SUMMON_HYDRA, 0);
 				break;
 			case 9: case 10:
-				(void) summon_specific(py, px, dun_level, SUMMON_ANGEL);
+				(void) summon_specific(py, px, dun_level, SUMMON_ANGEL, 0);
 				break;
 			case 11: case 12:
-				(void) summon_specific(py, px, dun_level, SUMMON_UNDEAD);
+				(void) summon_specific(py, px, dun_level, SUMMON_UNDEAD, 0);
 				break;
 			case 13: case 14:
-				(void) summon_specific(py, px, dun_level, SUMMON_DRAGON);
+				(void) summon_specific(py, px, dun_level, SUMMON_DRAGON, 0);
 				break;
 			case 15: case 16:
-				(void) summon_specific(py, px, dun_level, SUMMON_DEMON);
+				(void) summon_specific(py, px, dun_level, SUMMON_DEMON, 0);
 				break;
 			case 17:
-				(void) summon_specific(py, px, dun_level, SUMMON_WRAITH);
+				(void) summon_specific(py, px, dun_level, SUMMON_WRAITH, 0);
 				break;
 			case 18: case 19:
-				(void) summon_specific(py, px, dun_level, SUMMON_UNIQUE);
+				(void) summon_specific(py, px, dun_level, SUMMON_UNIQUE, 0);
 				break;
 			case 20: case 21:
-				(void) summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD);
+				(void) summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD, 0);
 				break;
 			case 22: case 23:
-				(void) summon_specific(py, px, dun_level, SUMMON_HI_DRAGON);
+				(void) summon_specific(py, px, dun_level, SUMMON_HI_DRAGON, 0);
 				break;
 			case 24: case 25:
-				(void) summon_specific(py, px, 100, SUMMON_CYBER);
+				(void) summon_specific(py, px, 100, SUMMON_CYBER, 0);
 				break;
 			default:
-				(void) summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0);
+				(void) summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0, 0);
 		}
 	}
 }
@@ -7732,7 +6778,7 @@ void summon_cyber(void)
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		(void)summon_specific(py, px, 100, SUMMON_CYBER);
+		(void)summon_specific(py, px, 100, SUMMON_CYBER, 0);
 	}
 }
 
@@ -7743,7 +6789,7 @@ void summon_dragon_riders()
 
         for (i = 0; i < max_dr; i++)
 	{
-                (void)summon_specific(py, px, 100, SUMMON_DRAGONRIDER);
+                (void)summon_specific(py, px, 100, SUMMON_DRAGONRIDER, 0);
 	}
 }
 
@@ -8042,7 +7088,7 @@ bool mindblast_monsters(s32b dam)
  */
 bool banish_monsters(int dist)
 {
-	return (project_hack(GF_AWAY_ALL, dist));
+	return (project_hack(GF_WARP, dist));
 }
 
 
@@ -8105,8 +7151,6 @@ void change_wild_mode(void)
          * A mold can't go into small scale mode, it's impossible for me to find
          * a good way to handle blinking on such a small map
          */
-        if(!p_ptr->immovable)
-        {
                 p_ptr->wild_mode = !p_ptr->wild_mode;
 
                 if (autosave_l)
@@ -8119,7 +7163,6 @@ void change_wild_mode(void)
 
                 /* Leaving */
                 p_ptr->leaving = TRUE;
-        }
 }
 
 
@@ -8377,15 +7420,15 @@ bool chain_attack(int dir, int typ, s32b dam, int rad, int range)
 
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
-        if (typ != GF_PHYSICAL && typ != GF_STEALTH_ATTACK)
+        if (typ != GF_PHYSICAL && typ != GF_STEALTH_ATTACK && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
         dam += dambonus;
@@ -8533,15 +7576,15 @@ bool chain_attack_fields(int dir, int typ, s32b dam, int rad, int range, int fld
         s32b dambonus = 0;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
-        if (typ != GF_PHYSICAL)
+        if (typ != GF_PHYSICAL && typ != GF_LIFE_BLAST)
         {
                 if (typ == GF_MISSILE)
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 2)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 5)) / 100;
                 }
                 else
                 {
-                        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+                        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
                 }
         }
         dam += dambonus;
@@ -8724,8 +7767,9 @@ bool lava_burst()
 }
 
 /* New and useful Monk ability, but may also be used by other classes... */
-bool hard_kick(int dir, s32b dam, int range)
+void hard_kick(int dir, s32b dam, int range)
 {
+	int hit;
         int thecount = 0;
         int m_idx = 0;
         cave_type *c_ptr;
@@ -8737,21 +7781,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {       
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8762,21 +7813,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy + 1);
-                                }           
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8787,21 +7845,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy + 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8812,21 +7877,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8837,21 +7909,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8862,21 +7941,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy - 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8887,21 +7973,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy - 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8912,21 +8005,28 @@ bool hard_kick(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy - 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8936,6 +8036,7 @@ bool hard_kick(int dir, s32b dam, int range)
 /* The Smash feat! */
 bool smash(int dir, s32b dam, int range)
 {
+	int hit;
         int thecount = 0;
         int m_idx = 0;
         cave_type *c_ptr;
@@ -8947,22 +8048,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {       
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8973,22 +8081,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy + 1);
-                                }           
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -8999,22 +8114,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy + 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9025,22 +8147,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9051,22 +8180,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9077,22 +8213,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9103,22 +8246,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9129,22 +8279,29 @@ bool smash(int dir, s32b dam, int range)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        m_ptr->defense -= (m_ptr->defense / 10);
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				m_ptr->defense -= (m_ptr->defense / 10);
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9154,6 +8311,9 @@ bool smash(int dir, s32b dam, int range)
 /* The Dizzy Smash feat! */
 bool dizzy_smash(int dir, s32b dam, int range)
 {
+	int hit;
+	int ppower;
+	int mpower;
         int thecount = 0;
         int m_idx = 0;
         cave_type *c_ptr;
@@ -9164,23 +8324,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {       
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9190,23 +8368,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy + 1);
-                                }           
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9216,23 +8412,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy + 1);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9242,23 +8456,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9268,23 +8500,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9294,23 +8544,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx - thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9320,23 +8588,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9346,23 +8632,41 @@ bool dizzy_smash(int dir, s32b dam, int range)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[13] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0) m_ptr->confused = 5;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        /* Can't push away if dead */
-                        if (m_ptr->hp <= 0) return (TRUE);
-                        while (thecount < range)
-                        {
-                                thecount += 1;
-                                c_ptr = &cave[m_ptr->fy - thecount][m_ptr->fx + thecount];
-                                if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
-                                c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
-                                c_ptr->feat == FEAT_GRASS))
-                                {
-                                        move_monster_spot(m_idx, m_ptr->fx + 1, m_ptr->fy - 1);
-                                }
-                                else return (TRUE);
-                        }
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+				if (randint(ppower) >= randint(mpower))
+				{
+                        		if (m_ptr->boss <= 0 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+					{
+						msg_print("Enemy has been confused!");
+						m_ptr->confused = 5;
+					}
+				}
+
+                        	/* Can't push away if dead */
+                        	if (m_ptr->hp <= 0) return (TRUE);
+                        	while (thecount < range)
+                        	{
+                                	thecount += 1;
+                                	c_ptr = &cave[m_ptr->fy + thecount][m_ptr->fx - thecount];
+                                	if (!c_ptr->m_idx && (c_ptr->feat == FEAT_FLOOR || c_ptr->feat == FEAT_SHAL_WATER ||
+                                	c_ptr->feat == FEAT_DEEP_WATER || c_ptr->feat == FEAT_SHAL_LAVA || c_ptr->feat == FEAT_DEEP_LAVA ||
+                                	c_ptr->feat == FEAT_GRASS))
+                                	{       
+                                        	move_monster_spot(m_idx, m_ptr->fx - 1, m_ptr->fy + 1);
+                                	}
+                                	else return (TRUE);
+                        	}
+			}
+			else msg_print("You miss the monster.");
                         update_and_handle();
                 }
         }
@@ -9477,9 +8781,12 @@ bool shattering_blow(int dir)
 /* The Power Punch feat! */
 bool power_punch(int dir)
 {
+	int hit;
         int m_idx = 0;
+	s32b mdam;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
+	call_lua("monk_damages", "", "l", &mdam);
         if (dir == 1)
         {
                 c_ptr = &cave[py + 1][px - 1];
@@ -9487,9 +8794,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 2)
@@ -9499,9 +8812,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 3)
@@ -9511,9 +8830,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 4)
@@ -9523,9 +8848,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 6)
@@ -9535,9 +8866,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 7)
@@ -9547,9 +8884,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 8)
@@ -9559,9 +8902,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 9)
@@ -9571,9 +8920,15 @@ bool power_punch(int dir)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         m_idx = c_ptr->m_idx;
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, p_ptr->to_d * 5, 0);
-                        m_ptr->defense -= (m_ptr->defense / 4);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam * 2, 0);
+				nevermiss = FALSE;
+                        	m_ptr->defense -= (m_ptr->defense / 4);
+                        	update_and_handle();
+			}
                 }
         }
 
@@ -9582,9 +8937,14 @@ bool power_punch(int dir)
 /* The Stunning Blow feat! */
 bool stunning_blow(int dir)
 {
+	int hit;
         int m_idx = 0;
+	int ppower = 0;
+	int mpower = 0;
+	s32b mdam;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
+	call_lua("monk_damages", "", "l", &mdam);
         if (dir == 1)
         {
                 c_ptr = &cave[py + 1][px - 1];
@@ -9593,16 +8953,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 2)
@@ -9613,16 +8981,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 3)
@@ -9633,16 +9009,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 4)
@@ -9653,16 +9037,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 6)
@@ -9673,16 +9065,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 7)
@@ -9693,16 +9093,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 8)
@@ -9713,16 +9121,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
         if (dir == 9)
@@ -9733,16 +9149,24 @@ bool stunning_blow(int dir)
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
                         m_idx = c_ptr->m_idx;
-                        if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE))
-                        {
-                                if (randint(100) <= 33)
-                                {
-                                        msg_print("You give the monster a Stunning Blow!");
-                                        m_ptr->mspeed = 0;
-                                }
-                                else msg_print("You failed to stun the monster.");
-                        }
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				ppower = p_ptr->skill[18] + p_ptr->stat_ind[A_STR];
+				mpower = m_ptr->level + m_ptr->str;
+                        	if (m_ptr->boss <= 0 && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags3 & (RF3_NO_STUN)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+                                        	msg_print("You give the monster a Stunning Blow!");
+                                        	m_ptr->seallight = 3;
+					}
+                        	}
+				nevermiss = TRUE;
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, mdam, 0);
+				nevermiss = FALSE;
+                        	update_and_handle();
+			}
                 }
         }
 
@@ -9751,6 +9175,7 @@ bool stunning_blow(int dir)
 /* The Eye Stab feat! */
 bool eye_stab(int dir)
 {
+	int hit;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
         if (dir == 1)
@@ -9759,14 +9184,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9776,14 +9211,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9793,14 +9238,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9810,14 +9265,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9827,14 +9292,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9844,14 +9319,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9861,14 +9346,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9878,14 +9373,24 @@ bool eye_stab(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (!(m_ptr->abilities & (EYE_STABBED)))
-                        {
-                                msg_print("You stab the monster's eyes!");
-                                m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                m_ptr->defense -= (m_ptr->defense / 4);
-                                m_ptr->abilities |= (EYE_STABBED);
-                        }
-                        else msg_print("You already blinded this monster!");
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				{
+                        		if (!(m_ptr->abilities & (EYE_STABBED)))
+                        		{
+                                		msg_print("You stab the monster's eyes!");
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
+                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->abilities |= (EYE_STABBED);
+                        		}
+                        		else msg_print("You already blinded this monster!");
+				}
+				else msg_print("This monster is unaffected.");
+			}
+			else msg_print("You miss.");
                         update_and_handle();
                 }
         }
@@ -9897,6 +9402,7 @@ bool eye_stab(int dir)
 /* Dangerous... */
 bool fatal_stab(int dir, object_type *o_ptr)
 {
+	int hit;
         int percentage = 10;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
@@ -9907,21 +9413,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 2)
@@ -9931,21 +9442,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 3)
@@ -9955,21 +9471,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 4)
@@ -9979,21 +9500,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 6)
@@ -10003,21 +9529,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 7)
@@ -10027,21 +9558,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 8)
@@ -10051,21 +9587,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
         if (dir == 9)
@@ -10075,21 +9616,26 @@ bool fatal_stab(int dir, object_type *o_ptr)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
                         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                percentage += (o_ptr->pval * 10);
-                                if (percentage > 90) percentage = 90;
-                                if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
-                        }
-                        msg_print("You force the dagger into the monster's body!");
-                        m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
-                        m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
-                        if (!(r_ptr->flags1 & (RF1_QUESTOR)))
-                        {
-                                m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
-                        }
-                        m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
-                        update_and_handle();
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	percentage += (o_ptr->pval * 10);
+                                	if (percentage > 90) percentage = 90;
+                                	if (((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) && percentage > 30) percentage = 30;
+                        	}
+                        	msg_print("You force the dagger into the monster's body!");
+                        	m_ptr->hitrate -= ((m_ptr->hitrate * percentage) / 100);
+                        	m_ptr->defense -= ((m_ptr->defense * percentage) / 100);
+                        	if (!(r_ptr->flags1 & (RF1_QUESTOR)))
+                        	{
+                                	m_ptr->mspeed -= ((m_ptr->mspeed * percentage) / 100);
+                        	}
+                        	m_ptr->hp -= ((m_ptr->hp * percentage) / 100);
+                        	update_and_handle();
+			}
+			else msg_print("You miss.");
                 }
         }
 
@@ -10196,6 +9742,9 @@ bool axe_chop(int dir, s32b dam)
 /* The Mutilate Legs feat! */
 bool mutilate_legs(int dir, s32b dam)
 {
+	int hit;
+	int ppower = 0;
+	int mpower = 0;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
         if (dir == 1)
@@ -10204,11 +9753,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10218,11 +9780,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10232,11 +9807,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10246,11 +9834,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10260,11 +9861,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10274,11 +9888,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10288,11 +9915,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10302,11 +9942,24 @@ bool mutilate_legs(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_LEGS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_LEGS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10317,6 +9970,9 @@ bool mutilate_legs(int dir, s32b dam)
 /* The Mutilate Arms feat! */
 bool mutilate_arms(int dir, s32b dam)
 {
+	int hit;
+	int ppower = 0;
+	int mpower = 0;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
         if (dir == 1)
@@ -10325,12 +9981,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10340,12 +10008,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10355,12 +10035,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10370,12 +10062,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10385,12 +10089,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10400,12 +10116,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10415,12 +10143,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10430,12 +10170,24 @@ bool mutilate_arms(int dir, s32b dam)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race    *r_ptr = &r_info[m_ptr->r_idx]; 
-                        fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
-                        if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
-                        {
-                                m_ptr->abilities |= (MUTILATE_ARMS);
-                        }
+                        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+			{
+				nevermiss = TRUE; 
+                        	fire_ball_spot(m_ptr->fx, m_ptr->fy, GF_PHYSICAL, dam, 0);
+				nevermiss = FALSE;
+                        	if (m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        	{
+					if (randint(ppower) >= randint(mpower))
+					{
+						m_ptr->abilities |= (MUTILATE_ARMS);
+						msg_print("You mutilate the enemy!");
+					}
+                        	}
+			}
                         update_and_handle();
                 }
         }
@@ -10649,7 +10401,7 @@ void makefriend(monster_type *m_ptr, int m_idx)
 
         recruitprice = m_ptr->level * 100;
 
-        if (p_ptr->skill_leadership >= 50) recruitbonus += 1;
+        if (p_ptr->skill[9] >= 50) recruitbonus += 1;
 
         /* Must have a minimal charisma... */
         /* Bosses cannot be befriended */
@@ -10720,7 +10472,7 @@ void give_approval_message()
         else if (whichone >= 60) msg_print("May our frienship be eternal!");
         else if (whichone >= 50) msg_print("Let's be friends and have fun!");
         else if (whichone >= 40) msg_print("All right, I will accompany you!");
-        else if (whichone >= 30) msg_print("Together we shall defeat Variaz!");
+        else if (whichone >= 30) msg_print("Together we shall defeat all enemies!");
         else if (whichone >= 20) msg_print("We're friends now! No one can defeat us!");
         else if (whichone >= 10) msg_print("Let's make peace and become friends!");
         else msg_print("Sure! I'l be glad to be your partner!");
@@ -10748,7 +10500,7 @@ bool solid_block(cave_type *c_ptr)
 
 /* Based on Genocide, destroy *ALL* monsters!! */
 /* Used when you defeat Variaz! */
-bool anihilate_monsters()
+void anihilate_monsters()
 {
 	int     i;
 	bool    result = FALSE;
@@ -10761,9 +10513,6 @@ bool anihilate_monsters()
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
-
-                /* Skip friendly monsters! */
-                if (is_pet(m_ptr)) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -10790,7 +10539,7 @@ bool anihilate_monsters()
 		result = TRUE;
 	}
 
-	return (result);
+	return;
 }
 
 /* Blood suck from Vampires! */
@@ -10985,9 +10734,8 @@ bool accurate_strike(int dir)
                 return (TRUE);
         }
         
-        dam = weapon_damages();
-        dam += p_ptr->to_d;
-        dam *= (p_ptr->abilities[(CLASS_WARRIOR * 10) + 4] / 2) + 1;
+        call_lua("weapon_damages", "", "l", &dam);
+        dam += ((dam * ((p_ptr->abilities[(CLASS_WARRIOR * 10) + 4] - 1) * 10)) / 100);
         if (dam < 0) dam = 0;
 
         /* Never miss! :) */
@@ -11090,9 +10838,8 @@ void counter_attack(monster_type *m_ptr)
                 return;
         }
         
-        dam = weapon_damages();
-        dam += p_ptr->to_d;
-        dam *= ((p_ptr->abilities[(CLASS_WARRIOR * 10) + 7] / 2) + 1);
+        call_lua("weapon_damages", "", "l", &dam);
+        dam += ((dam * ((p_ptr->abilities[(CLASS_WARRIOR * 10) + 7] - 1) * 20)) / 100);
         if (dam < 0) dam = 0;
 
         msg_print("You counter attack!");
@@ -11116,14 +10863,13 @@ void leaping_spin()
                 return;
         }
         
-        dam = weapon_damages();
-        dam += p_ptr->to_d;
-        dam *= ((p_ptr->abilities[(CLASS_WARRIOR * 10) + 8] / 2) + 1);
+        call_lua("weapon_damages", "", "l", &dam);
+        dam += ((dam * ((p_ptr->abilities[(CLASS_WARRIOR * 10) + 8] - 1) * 10)) / 100);
         if (dam < 0) dam = 0;
 
         msg_print("You jump high!");
         if (!tgt_pt(&ii,&ij)) return;
-        if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) || (distance(ij,ii,py,px) > (5 + (p_ptr->abilities[(CLASS_WARRIOR * 10) + 8] / 10))))
+        if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) || (distance(ij,ii,py,px) > (3 + (p_ptr->abilities[(CLASS_WARRIOR * 10) + 8] / 10))))
         {
               msg_print("You can't jump there...");
         }
@@ -11171,7 +10917,7 @@ bool godly_wrath()
 
         amt = o_ptr->number;
 
-        if (!(o_ptr->tval == TV_FOOD || o_ptr->tval == TV_LITE || o_ptr->tval == TV_CRYSTAL || o_ptr->tval == TV_POTION || o_ptr->tval == TV_POTION2 || (o_ptr->ident & (IDENT_BROKEN))))
+        if (!(o_ptr->tval == TV_FOOD || o_ptr->tval == TV_LITE || o_ptr->tval == TV_CRYSTAL || o_ptr->tval == TV_LICIALHYD || o_ptr->tval == TV_POTION || o_ptr->tval == TV_POTION2 || (o_ptr->ident & (IDENT_BROKEN))))
         {
                 if (!(o_ptr->pval >= (22 - (p_ptr->abilities[(CLASS_PRIEST * 10) + 9] / 5))))
                 {
@@ -11263,17 +11009,21 @@ bool aura_of_life()
 	int flg = PROJECT_GRID | PROJECT_KILL;
         int x, rad;
         s32b dam, dambonus = 0;
+	int spellstat;
+
+	spellstat = (p_ptr->stat_ind[A_WIS] - 5);
+	if (spellstat < 0) spellstat = 0;
 
         /* Heal yourself a little! :) */
         p_ptr->chp += p_ptr->abilities[(CLASS_PALADIN * 10) + 2] * 3;
         if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
 
-        dam = (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] * 10) * p_ptr->lev;
+        dam = (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] * 10) * spellstat;
         rad = 3 + (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] / 20);
 
-        dambonus = (dam * (p_ptr->skill_spellcraft * 6)) / 100;
+        dambonus = (dam * (p_ptr->skill[1] * 10)) / 100;
 
-        rad += p_ptr->skill_spellcraft / 30;
+        rad += p_ptr->skill[1] / 30;
         dam += dambonus;
 
 	/* Hook into the "project()" function */
@@ -11298,9 +11048,8 @@ bool smite_evil(int dir)
                 return (TRUE);
         }
         
-        dam = weapon_damages();
-        dam += p_ptr->to_d;
-        dam *= (p_ptr->abilities[(CLASS_PALADIN * 10) + 3]);
+        call_lua("weapon_damages", "", "l", &dam);
+	dam += ((dam * ((p_ptr->abilities[(CLASS_PALADIN * 10) + 3] - 1) * 50)) / 100);
         if (dam < 0) dam = 0;
 
         if (dir == 1)
@@ -11406,8 +11155,8 @@ bool word_of_peace()
                 /* Skip friendly monsters! */
                 if (is_pet(m_ptr)) continue;
 
-                /* Skip questors */
-                if (r_ptr->flags1 & RF1_QUESTOR) continue;
+                /* Skip uniques */
+                if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
                 /* Skip undeads and demons */
                 if (r_ptr->flags3 & RF3_UNDEAD) continue;
@@ -11464,10 +11213,8 @@ bool element_strike(int dir)
                 return (TRUE);
         }
         
-        dam = weapon_damages();
-        dam += p_ptr->to_d;
-        dam = dam / 2;
-        dam *= (((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 1]) / 2)+1);
+        call_lua("weapon_damages", "", "l", &dam);
+	dam += ((dam * ((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 1] - 1) * 10)) / 100);
         if (dam < 0) dam = 0;
 
         if (dir == 1)
@@ -11568,10 +11315,8 @@ void elem_wave()
         }
 
 
-        dam = weapon_damages();
-        dam += p_ptr->to_d;
-        dam = dam / 2;
-        dam *= (((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 7]) / 2)+1);
+        call_lua("weapon_damages", "", "l", &dam);
+	dam += ((dam * ((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 7] - 1) * 10)) / 100);
         if (dam < 0) dam = 0;
 
         if (!get_rep_dir(&dir)) return;
@@ -11594,6 +11339,7 @@ bool aura_repulse_evil(int rad)
 /* Zelar's leg breaking throw! */
 bool zelar_leg_throw(int dir)
 {
+	int hit;
         cave_type *c_ptr;
         c_ptr = &cave[py][px];
 
@@ -11603,10 +11349,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11616,10 +11364,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11629,10 +11379,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11642,10 +11394,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11655,10 +11409,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11668,10 +11424,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11681,10 +11439,12 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
@@ -11694,13 +11454,246 @@ bool zelar_leg_throw(int dir)
                 if (c_ptr->m_idx)
                 {
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-                        if (player_hit_monster(m_ptr, 0))
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
                         {
                                 zelar_leg_throw_execute(m_ptr);
                         }
+			else msg_print("You missed the monster.");
                         update_and_handle();
                 }
         }
 
         return (TRUE);
+}
+
+/* Remove all non-friendly monsters of a given type. */
+void anihilate_monsters_specific(int r_idx)
+{
+	int     i;
+	int     msec = delay_factor * delay_factor * delay_factor;
+
+	/* Delete the monsters of that "type" */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type    *m_ptr = &m_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Delete the monster if we must */
+		if (m_ptr->r_idx == r_idx) delete_monster_idx(i);
+
+		/* Visual feedback */
+		move_cursor_relative(py, px);
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		/* Handle */
+		handle_stuff();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Delay */
+		Term_xtra(TERM_XTRA_DELAY, msec);
+	}
+
+}
+
+void fire_jump_ball(int typ, s32b dam, int rad, int x, int y, bool nomagic)
+{
+        int flg = PROJECT_GRID | PROJECT_KILL;
+	if (nomagic) no_magic_return = TRUE;
+	(void)project(0, rad, y, x, dam, typ, flg);
+	no_magic_return = FALSE;
+}
+
+/* Fighter's throw! */
+bool fighter_throw(int dir)
+{
+	int hit;
+        cave_type *c_ptr;
+        c_ptr = &cave[py][px];
+
+        if (dir == 1)
+        {
+                c_ptr = &cave[py + 1][px - 1];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 2)
+        {
+                c_ptr = &cave[py + 1][px];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 3)
+        {
+                c_ptr = &cave[py + 1][px + 1];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 4)
+        {
+                c_ptr = &cave[py][px - 1];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 6)
+        {
+                c_ptr = &cave[py][px + 1];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 7)
+        {
+                c_ptr = &cave[py - 1][px - 1];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 8)
+        {
+                c_ptr = &cave[py - 1][px];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+        if (dir == 9)
+        {
+                c_ptr = &cave[py - 1][px + 1];
+                if (c_ptr->m_idx)
+                {
+			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
+                        call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
+			if (hit == 1)
+                        {
+                                fighter_throw_execute(m_ptr);
+                        }
+			else msg_print("You missed the monster.");
+                        update_and_handle();
+                }
+        }
+
+        return (TRUE);
+}
+
+/* Make all monsters of a given kind friendly or hostile */
+void mass_change_allegiance(int r_idx, bool friendly)
+{
+	int     i;
+	int     msec = delay_factor * delay_factor * delay_factor;
+
+	/* Change allegiance! */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type    *m_ptr = &m_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Delete the monster if we must */
+		if (m_ptr->r_idx == r_idx)
+		{
+			if (friendly) set_pet(m_ptr, TRUE);
+			else set_pet(m_ptr, FALSE);
+		}
+
+		/* Visual feedback */
+		move_cursor_relative(py, px);
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		/* Handle */
+		handle_stuff();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Delay */
+		Term_xtra(TERM_XTRA_DELAY, msec);
+	}
+
+}
+
+/* Projection on a spcific grid */
+void fire_ball_specific_grid(s32b dam, int x, int y, int rad, int typ)
+{
+	int flg = PROJECT_GRID | PROJECT_KILL;
+
+	/* Hook into the "project()" function */
+        (void)project(0, rad, y, x, dam, typ, flg);
+
+	/* Return */
+	return;
 }

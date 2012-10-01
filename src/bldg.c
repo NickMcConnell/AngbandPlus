@@ -622,7 +622,7 @@ static bool inn_comm(int cmd)
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
-                        if ((p_ptr->prace!=RACE_VAMPIRE)&&(p_ptr->mimic_form!=MIMIC_VAMPIRE)){
+                        if ((p_ptr->prace!=RACE_VAMPIRE)){
                                 msg_print("The barkeep gives you some gruel and a beer.");
                                 msg_print(NULL);
                                 (void) set_food(PY_FOOD_MAX - 1);
@@ -632,7 +632,7 @@ static bool inn_comm(int cmd)
 
 		case BACT_REST: /* Rest for the night */
 			dawnval = ((turn % (10L * TOWN_DAWN)));
-                        if ((p_ptr->prace==RACE_VAMPIRE)||(p_ptr->mimic_form==MIMIC_VAMPIRE)){
+                        if ((p_ptr->prace==RACE_VAMPIRE)){
                         if (dawnval < 50000) {  /* nighttime */
 				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
 				{
@@ -1223,7 +1223,7 @@ static bool compare_weapons(void)
 
 	i_ptr = &inventory[INVEN_WIELD];
 	object_copy(i_ptr, o1_ptr);
-	calc_bonuses();
+
 
 	list_weapon(o1_ptr,i,2);
 	compare_weapon_aux1(o1_ptr, 2, i+8);
@@ -1233,14 +1233,12 @@ static bool compare_weapons(void)
 		object_copy(i_ptr, orig_ptr);
 	else
 		object_copy(i_ptr, o2_ptr);
-	calc_bonuses();
 
 	list_weapon(o2_ptr,i,40);
 	compare_weapon_aux1(o2_ptr, 40, i+8);
 
 	i_ptr = &inventory[INVEN_WIELD];
 	object_copy(i_ptr, orig_ptr);
-	calc_bonuses();
 
 	inven_item_increase(INVEN_PACK, -1);
 	inven_item_optimize(INVEN_PACK);
@@ -1895,10 +1893,6 @@ static void bldg_process_command(building_type *bldg, int i)
                                 p_ptr->chp-=1000;
                                 if(p_ptr->chp<=0)p_ptr->chp=1;                        
 			break;
-                case BACT_MIMIC_NORMAL:
-                        set_mimic(0,0);
-                        paid = TRUE;
-                        break;
 
                 case BACT_VIEW_BOUNTIES:
                         show_bounties();
@@ -2096,7 +2090,7 @@ void do_cmd_bldg(void)
 	msg_print(NULL);
 
 	/* Reinit wilderness to activate quests ... */
-        wilderness_gen(TRUE);
+        
         py = y;
         px = x;
 

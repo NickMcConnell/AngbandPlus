@@ -1,0 +1,5 @@
+# Portralis races
+
+N:(race's name):(race's id)
+S:(stat number):(percentile bonus)
+K:(skill number):(percentile bonus)

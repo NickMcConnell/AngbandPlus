@@ -1,0 +1,110 @@
+N:1:1021:1:0:0:0
+I: ;
+T:After a seemingly endless battle... Quazar finally falls on the ground.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:1:1021:0:9:0:0
+I: ;
+T:Before you stands Quazar in his real form. He looks like a tall man,;
+T:with odd red and copper hairs. His eyes are the same color...;
+A:[CONTINUE]:0:0:0:1:11:0:0:0:0
+%
+
+N:1:1021:0:0:0:0
+I: ;
+T:Before you stands Quazar in his real form. He looks like a tall man,;
+T:with odd red and copper hairs. His eyes are the same color...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Quazar;
+T:Welcome to my Temple, <NAME>! I see you managed to come;
+T:here all by yourself. That is impressive, you are very strong, I will;
+T:give you that. You must be the strongest <RACE> in Portralis! But;
+T:even if your powers are great, they are limited by the boundaries;
+T:of reality. Mine, however, goes far beyond that!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Quazar;
+T:As you probably know by now, the orcs do not really exist... they are;
+T:merely an aberration of reality! A twist that made the once powerful;
+T:race of orcs come back to Portralis to kill everyone, and avenge their;
+T:pride! Of course, that's what they claim, but in reality, they are;
+T:only my personnal servants... and good ones at that! And it's the same;
+T:thing for this temple! A big twist of reality that serves as my home!;
+T:Isn't that nice, <NAME>?;
+A:I will defeat you, Quazar!:0:0:0:1:4:0:0:0:0
+A:You're mad. Prepare to die.:0:0:0:1:4:0:0:0:0
+A:Your little 'twists' are weak. Let me show you TRUE power!!:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Quazar;
+T:huh huh huh... either you're underestimating me, or you're overestimating;
+T:yourself. You have no idea how powerful I am now, fused with the stone!;
+T:You cannot even imagine my strength, my powers that goes beyond all;
+T:boundaries, all laws, all entities! I can alter everything...and everyone!;
+T:I have no limits, I can do as I please!;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Quazar;
+T:But since you're still skeptical... let me demonstrate my powers!;
+T:Let me twist your body and your soul! Let me show you TRUE chaos!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Quazar;
+T:*pant*, *pant*... no! This...this is impossible!! How... how can I lose?;
+T:My power is beyond the boundaries of reality!! I cannot possibly die!!;
+T:heh heh... I... will use my powers...to fake my death!! I will remain;
+T:alive!! By Summapal, I shall not die!!;
+A:[CONTINUE]:0:0:0:1:7:0:0:1017:0
+%
+
+N:7:0:0:0:0:0
+I: ;
+T:Quazar concentrates, and begins accumulating power! But he is too weak,;
+T:and cannot control the energy. The energy he accumulated begins tearing;
+T:his body apart!!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Quazar;
+T:UWAAAAHHH!!! THIS CAN'T BE!!!! ARRRRRRR!!!!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:Quazar's body begins disintegrating itself! Beams of red light emerges;
+T:from the disintegrating body... and suddently, an explosion of energy;
+T:completely turns the body to dust! The wounded body of Quazar could;
+T:no longer hold the stone's energy, and has exploded.;
+A:[CONTINUE]:0:0:0:7:1002:1002:10:0:0
+%
+
+N:10:0:0:0:0:0
+I: ;
+T:There is nothing but some ashes left. The red licialhyd is nowhere to;
+T:be found... Now that Quazar and the stone are destroyed, hopefully;
+T:the temple will return to normal...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Quazar;
+T:Welcome to my Temple, fellow zulgor <NAME>! I see you managed to come;
+T:here all by yourself. That is impressive, you are very strong, I will;
+T:give you that. After all, aren't we zulgors the mightiest race in Portralis?;
+T:But your powers are limited to strength and chaos magic... mine are;
+T:even greater! They go beyond the boundaries of reality!!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%

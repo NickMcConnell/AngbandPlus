@@ -1,0 +1,1177 @@
+/* File: l-types.pkg */
+/* Package file for lua functions. */
+
+
+$#include "angband.h"
+
+typedef char* cptr;
+typedef int errr;
+
+struct header
+{
+	byte	v_major;
+	byte	v_minor;
+	byte	v_patch;
+	byte	v_extra;
+
+
+	u16b	info_num;
+
+	u16b	info_len;
+
+
+	u32b	head_size;
+
+	u32b	info_size;
+
+	u32b	name_size;
+
+	u32b	text_size;
+};
+
+struct feature_type
+{
+        u32b name;
+        u32b text;
+
+        byte mimic;
+
+        u32b flags1;
+
+        byte extra;
+
+	s16b unused;
+
+	byte d_attr;
+	char d_char;
+
+
+	byte x_attr;
+	char x_char;
+};
+
+
+struct object_kind
+{
+	u32b name;
+	u32b text;
+
+	byte tval;
+	byte sval;
+
+        s32b pval;
+
+	s16b to_h;
+	s16b to_d;
+	s16b to_a;
+
+	s16b ac;
+
+	byte dd;
+	byte ds;
+
+        s32b weight;
+
+	s32b cost;
+
+	u32b flags1;
+	u32b flags2;
+	u32b flags3;
+        u32b flags4;
+
+	byte locale[4];
+	byte chance[4];
+
+	byte level;
+	byte extra;
+
+
+	byte d_attr;
+	char d_char;
+
+
+	byte x_attr;
+	char x_char;
+
+
+	byte flavor;
+
+	bool easy_know;
+
+
+	bool aware;
+
+	bool tried;
+
+        bool know;
+        s16b recipe1;
+        s16b recipe2;
+
+	s16b brandtype;
+	s32b branddam;
+	s16b brandrad;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b radiores;
+	s16b chaosres;
+	s16b physres;
+	s16b manares;
+};
+
+struct artifact_type
+{
+	u32b name;
+	u32b text;
+
+	byte tval;
+	byte sval;
+
+	s16b pval;
+
+	s16b to_h;
+	s16b to_d;
+	s16b to_a;
+
+	s16b ac;
+
+	byte dd;
+	byte ds;
+
+	s16b weight;
+
+	s32b cost;
+
+	u32b flags1;
+	u32b flags2;
+	u32b flags3;
+        u32b flags4;
+
+	byte level;
+	byte rarity;
+	byte cur_num;
+	byte max_num;
+
+	s16b brandtype;
+	s32b branddam;
+	s16b brandrad;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b radiores;
+	s16b chaosres;
+	s16b physres;
+	s16b manares;
+};
+
+struct ego_item_type
+{
+	u32b name;
+	u32b text;
+
+	byte slot;
+	byte rating;
+
+	byte level;
+	byte rarity;
+
+	byte max_to_h;
+	byte max_to_d;
+	byte max_to_a;
+
+	byte max_pval;
+
+	s32b cost;
+
+	u32b flags1;
+	u32b flags2;
+	u32b flags3;
+        u32b flags4;
+};
+
+struct monster_attack
+{
+	char name[80];
+	char act[80];
+	s16b type;
+	s16b effect;
+	s16b ddice;
+	s16b dside;
+	s16b element;
+	s16b special1;
+	s16b special2;
+};
+
+struct monster_spell
+{
+	char name[80];
+	char act[80];
+	s16b type;
+	s16b power;
+	s16b special1;
+	s16b special2;
+	s16b special3;
+	char summchar;
+	s16b cost;
+};
+
+struct monster_race
+{
+	u32b name;
+	u32b text;
+	char name_char[200];
+
+	byte hdice;
+	byte hside;
+
+	s16b ac;
+
+	s16b sleep;
+	byte aaf;
+	byte speed;
+
+	s32b mexp;
+
+        s32b weight;
+
+	byte freq_inate;
+	byte freq_spell;
+
+	u32b flags1;
+	u32b flags2;
+	u32b flags3;
+	u32b flags4;
+	u32b flags5;
+	u32b flags6;
+	u32b flags7;
+	u32b flags8;
+	u32b flags9;
+
+        monster_blow blow[4];
+
+        byte body_parts[BODY_MAX];
+
+        byte level;
+	byte rarity;
+
+
+	byte d_attr;
+	char d_char;
+
+
+	byte x_attr;
+	char x_char;
+
+
+        s16b max_num;
+
+	byte cur_num;
+
+
+	s16b r_sights;
+	s16b r_deaths;
+
+	s16b r_pkills;
+	s16b r_tkills;
+
+	byte r_wake;
+	byte r_ignore;
+
+	byte r_xtra1;
+	byte r_xtra2;
+
+	byte r_drop_gold;
+	byte r_drop_item;
+
+	byte r_cast_inate;
+	byte r_cast_spell;
+
+	byte r_blows[20];
+	byte r_resist[20];
+	byte r_spells[20];
+
+	u32b r_flags1;
+	u32b r_flags2;
+	u32b r_flags3;
+	u32b r_flags4;
+	u32b r_flags5;
+	u32b r_flags6;
+	u32b r_flags7;
+        u32b r_flags8;
+        u32b r_flags9;
+
+        bool on_saved;
+	
+	s16b str;
+	s16b dex;
+	s16b mind;
+	s16b skill_attack;
+	s16b skill_magic;
+	
+	s16b countertype;
+	s16b counterchance;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b radiores;
+	s16b chaosres;
+	s16b physres;
+	s16b manares;
+
+	s16b spellchance;
+
+	s16b attacks;
+	monster_attack attack[20];
+	s16b spells;
+	monster_spell spell[20];
+	
+	s16b treasuretval;
+	s16b treasuresval;
+	s16b treasurechance;
+	s16b treasuremagic;
+	s16b event;
+	s16b extra1;
+	s16b extra2;
+	s16b fixedlevel;
+	s16b townnum;
+	s16b dunnum;
+	s16b lives;
+};
+
+struct vault_type
+{
+	u32b name;
+	u32b text;
+
+	byte typ;
+
+	byte rat;
+
+	byte hgt;
+	byte wid;
+
+        s16b lvl;
+        byte dun_type;
+
+        s16b mon[10];
+        int item[3];
+};
+
+
+struct trap_type {
+  s16b probability;
+  s16b another;
+  s16b p1valinc;
+  byte difficulty;
+  byte minlevel;
+  byte color;
+  u32b flags;
+  bool ident;
+  s16b known;
+  s16b name;
+  s16b dd;
+  s16b ds;
+  s16b text;
+};
+
+struct cave_type
+{
+	s16b info;
+
+	byte feat;
+
+	s16b o_idx;
+
+	s16b m_idx;
+
+	s16b t_idx;
+	
+        s16b special;
+
+        s16b inscription;
+
+        byte mana;
+
+	byte mimic;
+
+
+	byte cost;
+	byte when;
+
+
+        s32b field_damage;
+	s16b event;
+	s16b eventtype;
+	s16b eventextra;
+	s16b eventextra2;
+	s16b eventcond;
+	s16b eventcondval;
+	s16b eventset;
+	s16b eventsetval;
+	s16b script;
+
+	char script_name[120];
+};
+
+
+struct object_type
+{
+	s16b k_idx;
+
+	byte iy;
+	byte ix;
+
+	byte tval;
+	byte sval;
+
+        s32b pval;
+        s32b pval2;
+        s32b pval3;
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b chaosres;
+	s16b radiores;
+	s16b physres;
+	s16b manares;
+
+	s16b brandtype;
+	s32b branddam;
+	s16b brandrad;
+
+	byte discount;
+
+	byte number;
+
+        s32b weight;
+
+        s16b level;
+        s32b kills;
+
+	byte name1;
+	byte name2;
+
+        s32b xtra1;
+	byte xtra2;
+
+	s16b to_h;
+	s16b to_d;
+	s16b to_a;
+
+	s16b ac;
+
+	byte dd;
+	byte ds;
+
+	s16b timeout;
+
+	byte ident;
+
+	byte marked;
+
+	u16b note;
+    u16b art_name;
+
+    u32b art_flags1;
+    u32b art_flags2;
+    u32b art_flags3;
+    u32b art_flags4;
+
+	
+	s16b next_o_idx;
+
+	s16b held_m_idx;
+};
+
+
+struct monster_type
+{
+	s16b r_idx;
+
+	byte fy;
+	byte fx;
+
+        s32b hp;
+        s32b maxhp;
+
+	s16b csleep;
+
+	byte mspeed;
+	byte energy;
+
+	byte stunned;
+	byte confused;
+	byte monfear;
+
+	byte cdis;
+
+	byte mflag;
+
+	bool ml;
+
+	s16b hold_o_idx;
+
+	u32b smart;
+
+        bool imprinted;
+        s16b level;
+        s16b angered_pet;
+        s16b boss;
+        u32b abilities;
+        s16b friend;
+        s16b hitrate;
+        s16b defense;
+        bool animated;
+        s16b animdam_d;
+        s16b animdam_s;
+        s16b seallight;
+
+	s16b str;
+	s16b dex;
+	s16b mind;
+	s16b skill_attack;
+	s16b skill_magic;
+	s32b mana;
+	s16b hasted;
+	s16b boosted;
+	s16b spoke;
+	s16b lives;
+	s16b summoned;
+};
+
+struct alloc_entry
+{
+	s16b index;
+
+	byte level;
+	byte prob1;
+	byte prob2;
+	byte prob3;
+
+	u16b total;
+};
+
+struct option_type
+{
+	bool	*o_var;
+
+	byte	o_norm;
+
+	byte	o_page;
+
+	byte	o_set;
+	byte	o_bit;
+
+	cptr	o_text;
+	cptr	o_desc;
+};
+
+
+struct owner_type
+{
+	cptr owner_name;
+
+	s16b max_cost;
+
+	byte max_inflate;
+	byte min_inflate;
+
+	byte haggle_per;
+
+	byte insult_max;
+
+	byte owner_race;
+};
+
+
+struct store_type
+{
+	byte type;
+
+	byte owner;
+	byte extra;
+
+	s16b insult_cur;
+
+	s16b good_buy;
+	s16b bad_buy;
+
+	s32b store_open;
+
+	s32b last_visit;
+
+	s16b table_num;
+	s16b table_size;
+	s16b *table;
+
+	byte stock_num;
+	s16b stock_size;
+	object_type *stock;
+};
+
+
+
+/*
+ * Player sex info
+ */
+
+struct player_sex
+{
+	cptr title;
+	
+	cptr winner;
+};
+
+
+/*
+ * Player racial info
+ */
+
+struct player_race
+{
+	cptr title;
+
+	s16b r_adj[6];
+
+	s16b r_dis;
+	s16b r_dev;
+	s16b r_sav;
+	s16b r_stl;
+	s16b r_srh;
+	s16b r_fos;
+	s16b r_thn;
+	s16b r_thb;
+
+	byte r_mhp;
+        u16b r_exp;
+
+	byte b_age;
+	byte m_age;
+
+	byte m_b_ht;
+	byte m_m_ht;
+	byte m_b_wt;
+	byte m_m_wt;
+
+	byte f_b_ht;
+	byte f_m_ht;
+	byte f_b_wt;
+	byte f_m_wt;
+
+	byte infra;
+
+        u32b choice;
+
+};
+
+struct player_class
+{
+	cptr title;
+
+	s16b c_adj[6];
+
+	s16b c_dis;
+	s16b c_dev;
+	s16b c_sav;
+	s16b c_stl;
+	s16b c_srh;
+	s16b c_fos;
+	s16b c_thn;
+	s16b c_thb;
+
+	s16b x_dis;
+	s16b x_dev;
+	s16b x_sav;
+	s16b x_stl;
+	s16b x_srh;
+	s16b x_fos;
+	s16b x_thn;
+	s16b x_thb;
+
+	s16b c_mhp;
+	s16b c_exp;
+};
+
+struct player_type
+{
+	s16b oldpy;
+	s16b oldpx;
+
+
+	byte psex;
+	byte prace;
+	byte pclass;
+	byte oops;
+
+	byte hitdie;
+        u16b expfact;                          
+
+	byte maximize;
+	byte preserve;
+        byte special;
+        byte allow_one_death;
+
+	s16b age;
+	s16b ht;
+	s16b wt;
+	s16b sc;
+
+
+	s32b au;
+
+	s32b max_exp;
+	s32b exp;
+	u16b exp_frac;
+
+	s16b lev;
+
+	s16b town_num;
+	char town_name[80];
+	s16b inside_quest;
+	char quest_name[80];
+	s16b death_dialog;
+	s16b eventdeath;
+	s16b eventdeathset;
+
+        s32b wild_x;
+	s32b wild_y;
+        bool wild_mode;
+
+        s32b mhp;
+        s32b chp;
+	u16b chp_frac;
+
+        s32b msp;
+        s32b csp;
+	u16b csp_frac;
+
+	s16b max_plv;
+
+	s16b stat_max[6];
+	s16b stat_cur[6];
+
+	s16b fast;
+	s16b slow;
+	s16b blind;
+	s16b paralyzed;
+	s16b confused;
+	s16b afraid;
+	s16b image;
+	s16b poisoned;
+	s16b cut;
+	s16b stun;
+
+	s16b hero;
+	s16b shero;
+	s16b shield;
+	s16b shield_power;
+	s16b blessed;
+	s16b tim_invis;
+	s16b tim_infra;
+
+        s16b tim_esp;
+        s16b wraith_form;
+        s16b tim_ffall;
+
+        s16b tim_invisible;
+        s16b tim_inv_pow;
+
+        u32b muta1;
+        u32b muta2;
+        u32b muta3;
+
+        s16b recall_dungeon;
+	s16b word_recall;
+
+        s32b energy;
+
+	s16b food;
+
+	byte confusing;
+	byte searching;
+
+	s16b old_lite;
+	s16b old_view;
+
+	s16b old_food_aux;
+
+	s16b cur_lite;
+
+
+	u32b notice;
+	u32b update;
+	u32b redraw;
+	u32b window;
+
+	s16b stat_use[6];
+	s16b stat_top[6];
+
+	s16b stat_add[6];
+	s16b stat_ind[6];
+	s16b stat_cnt[6];
+	s16b stat_los[6];
+	s16b stat_mut[6];
+
+	bool resist_conf;
+	bool resist_blind;
+	bool resist_fear;
+
+
+        bool reflect;
+        bool sh_fire;
+        bool sh_elec;
+
+	bool sustain_str;
+	bool sustain_int;
+	bool sustain_wis;
+	bool sustain_dex;
+	bool sustain_con;
+	bool sustain_chr;
+
+	bool aggravate;
+	bool teleport;
+
+	bool exp_drain;
+
+        bool climb;
+        bool fly;
+        bool ffall;
+        bool lite;
+	bool free_act;
+	bool see_inv;
+	bool regenerate;
+	bool hold_life;
+	bool telepathy;
+	bool slow_digest;
+	bool xtra_might;
+
+        s16b invis;
+
+	s32b dis_to_h;
+        s32b dis_to_d;
+	s32b dis_to_a;
+
+	s16b dis_ac;
+
+        s16b to_m;
+        s16b to_s;
+	s32b to_h;
+        s32b to_d;
+	s32b to_a;
+
+	s32b ac;
+
+	s16b see_infra;
+
+	s16b num_blow;
+	s16b num_fire;
+
+	byte tval_xtra;
+
+	byte tval_ammo;
+
+	s16b pspeed;
+
+	byte pet_follow_distance;
+	byte pet_open_doors;
+	byte pet_pickup_items;
+
+        u16b body_monster;
+        bool disembodied;
+        byte body_parts[30];
+
+
+        bool leaving;
+        s32b ability_points;
+        
+        s16b memorized;
+        s16b elemlord;
+        s16b statpoints;
+        s16b skillpoints;
+	s16b skill_base[SKILL_MAX];
+	s16b skill_bonus[SKILL_MAX];
+	s16b skill[SKILL_MAX];
+
+        s16b str_boost;
+        s16b str_boost_dur;
+        s16b int_boost;
+        s16b int_boost_dur;
+        s16b wis_boost;
+        s16b wis_boost_dur;
+        s16b dex_boost;
+        s16b dex_boost_dur;
+        s16b con_boost;
+        s16b con_boost_dur;
+        s16b chr_boost;
+        s16b chr_boost_dur;
+
+        s16b pres;
+        s16b pres_dur;
+        s16b mres;
+        s16b mres_dur;
+        s16b ac_boost;
+        s16b ac_boost_dur;
+        s16b elem_shield;
+
+        s16b elemental;
+        u32b elemental_effects;
+        s16b alteration;
+        u32b alteration_effects;
+        s16b healing;
+        u32b healing_effects;
+        s16b conjuration;
+        u32b conjuration_effects;
+        s16b divination;
+        u32b divination_effects;
+
+        s16b class_level[MAX_CLASS];
+        s16b class_kills[MAX_CLASS];
+
+        s16b abilities[MAX_ABILITIES];
+	s16b num_abilities;
+	s16b abilities_powers[36];
+
+        s16b magic_mode;
+
+        bool auraon;
+
+        s32b deathcount;
+
+        s16b guardconfuse;
+
+	bool learning;
+
+	s16b startx;
+	s16b starty;
+
+	s16b events[30000];
+
+	s16b fireres;
+	s16b coldres;
+	s16b elecres;
+	s16b acidres;
+	s16b poisres;
+	s16b lightres;
+	s16b darkres;
+	s16b warpres;
+	s16b waterres;
+	s16b windres;
+	s16b earthres;
+	s16b soundres;
+	s16b chaosres;
+	s16b radiores;
+	s16b physres;
+	s16b manares;
+
+	s16b cur_wid;
+	s16b cur_hgt;
+
+	s16b wild_startx;
+	s16b wild_starty;
+
+	s16b questx;
+	s16b questy;
+
+	s16b powerattack;
+        s16b powerlevel;
+	s16b num_blow2;
+
+	s16b alignment;
+
+	s16b towns[30000];
+};
+
+
+/* Border */
+struct border_type 
+{
+	byte 	north[MAX_WID];
+	byte 	south[MAX_WID];
+	byte 	east[MAX_HGT];
+	byte 	west[MAX_HGT];
+	byte	north_west;
+	byte	north_east;
+	byte	south_west;
+	byte	south_east;
+};
+
+struct dungeon_info_type {
+        u32b name;
+        u32b text;
+        s16b floor1;
+        byte floor_percent1;
+        s16b floor2;
+        byte floor_percent2;
+        s16b floor3;
+        byte floor_percent3;
+        s16b outer_wall;
+        s16b inner_wall;
+        s16b fill_type1;
+        byte fill_percent1;
+        s16b fill_type2;
+        byte fill_percent2;
+        s16b fill_type3;
+        byte fill_percent3;
+        s16b mindepth;
+        s16b maxdepth;
+        bool principal;
+        byte next;
+        byte min_plev;
+        byte mode;
+
+        s16b min_m_alloc_level;
+        s16b max_m_alloc_chance;
+
+        s32b flags1;
+
+        s32b mflags1;
+        s32b mflags2;
+        s32b mflags3;
+        s32b mflags4;
+        s32b mflags5;
+        s32b mflags6;
+        s32b mflags7;
+        s32b mflags8;
+        s32b mflags9;
+
+        char r_char[5];
+        s16b final_artifact;
+        s16b final_guardian;
+
+        byte special_percent;
+	s16b quest;
+};
+
+struct magic_spells
+{
+    char    name[80];
+    s16b    school[5];
+    s16b    effect[5];
+    s16b    shape[5];
+    s32b    power[5];
+    s16b    radius[5];
+    s16b    type[5];
+    s16b    manacost[5];
+
+    char    schar1;
+    char    schar2;
+    char    schar3;
+    char    schar4;
+    char    schar5;
+    char    sspeci1[80];
+    char    sspeci2[80];
+    char    sspeci3[80];
+    char    sspeci4[80];
+    char    sspeci5[80];
+    s16b    finalcost;
+    bool    created;
+};
+
+struct monster_magics
+{
+	char name[30];
+	char act[30];
+	s16b type;
+	s16b power;
+	s16b special1;
+	s16b special2;
+	s16b special3;
+	char summchar;
+	s16b cost;
+};
+
+
+struct dialog_answers
+{
+	char name[80];
+	s16b ctype;
+	s16b cparam1;
+	s16b cparam2;
+	s16b effect;
+	s16b eparam1;
+	s16b eparam2;
+	s16b eparam3;
+	s16b eparam4;
+	s16b eparam5;
+	s16b valid;
+};
+
+struct wild_info
+{
+        s16b town;
+	s16b feat;
+};
+
+struct class_def
+{
+	char name[80];
+	char ranksm[10][80];
+	char ranksf[10][80];
+	s16b advanced;
+	s16b req_str;
+	s16b req_int;
+	s16b req_wis;
+	s16b req_dex;
+	s16b req_con;
+	s16b req_chr;
+	s16b str_bonus;
+	s16b int_bonus;
+	s16b wis_bonus;
+	s16b dex_bonus;
+	s16b con_bonus;
+	s16b chr_bonus;
+	s16b req_skills[SKILL_MAX];
+	s16b req_classes[MAX_CLASS];
+	s16b skills_bonus[SKILL_MAX];
+};
+
+struct ability_def
+{
+	char name[80];
+	s16b abtype;
+	s16b hardcode;
+	s16b powerid;
+	s16b combatfeat;
+	s16b skill;
+	s16b reqskill;
+};

@@ -1,0 +1,29 @@
+N:1:1017:1:0:0:0
+I:Official;
+T:Oh dear!! Monsters in the city!??! This...this is terrible!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Official;
+T:Hmmm? I'm quite busy... what do you want?;
+A:I'm looking for the throne room, to meet the king.:0:0:0:1:2:0:0:0:0
+A:What do you do here?:0:0:0:1:3:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Official;
+T:It's directly north of the palace's entrance. If you have any business;
+T:with the king, you should already know that. Now excuse me, but I have;
+T:a lot of work to do.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Official;
+T:*sigh*...look, I have no time for small talks. What do I do here? Help;
+T:the king with administrative tasks. Lots of them. So please, leave me;
+T:alone, I have a lot of work to do.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
