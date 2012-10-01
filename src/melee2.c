@@ -676,7 +676,7 @@ static int choose_attack_spell(int m_idx)
 		}
 
 		/* Haste self if we aren't already somewhat hasted (rarely) */
-		else if (has_haste && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
+		else if (has_haste && (rand_int(100) < (20 + m_ptr->bspeed - m_ptr->mspeed)))
 		{
 			/* Choose haste spell */
 			sf1_mask = (SRF1_HASTE_MASK);
@@ -1758,15 +1758,15 @@ static bool make_attack_spell(int m_idx)
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s concentrates on %s body.", m_name, m_poss);
 			}
 
-			/* Allow quick speed increases to base+10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			/* Allow quick speed increases to base + 10 */
+			if (m_ptr->mspeed < m_ptr->bspeed + 10)
 			{
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s starts moving faster.", m_name);
 				m_ptr->mspeed += 10;
 			}
 
-			/* Allow small speed increases to base+20 */
-			else if (m_ptr->mspeed < r_ptr->speed + 20)
+			/* Allow small speed increases to base + 20 */
+			else if (m_ptr->mspeed < m_ptr->bspeed + 20)
 			{
 				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s starts moving faster.", m_name);
 				m_ptr->mspeed += 2;
@@ -2872,6 +2872,7 @@ static bool get_moves(int m_idx, int mm[5])
 	int x2 = p_ptr->px;
 
 	bool done = FALSE;
+	bool pack = FALSE;
 
 #ifdef MONSTER_FLOW
 
@@ -2889,8 +2890,10 @@ static bool get_moves(int m_idx, int mm[5])
 	x = m_ptr->fx - x2;
 
 	/* Normal animal packs try to get the player out of corridors. */
-	if (adult_smart_packs && (r_ptr->flags4 & RF4_ANIMAL) && (r_ptr->flags1 & RF1_FRIENDS) &&
-	    !((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
+	if (adult_smart_packs && (r_ptr->flags4 & RF4_ANIMAL) &&
+	    !((r_ptr->flags2 & RF2_PASS_WALL) || (r_ptr->flags2 & RF2_KILL_WALL)) &&
+		((r_ptr->flags1 & RF1_GRP_9) || (r_ptr->flags1 & RF1_GRP_18) || 
+		 (r_ptr->flags1 & RF1_GRP_27)))
 	{
 		int i, room = 0;
 
@@ -2942,7 +2945,8 @@ static bool get_moves(int m_idx, int mm[5])
 
 	/* Monster groups try to surround the player */
 	if (!done && adult_smart_packs && 
-		((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_PEERS)))
+		((r_ptr->flags1 & RF1_GRP_9) || (r_ptr->flags1 & RF1_GRP_18) || 
+		(r_ptr->flags1 & RF1_GRP_27)))
 	{
 		int i;
 
@@ -2986,7 +2990,7 @@ static bool get_moves(int m_idx, int mm[5])
 	if (y < 0) move_val += 8;
 	if (x > 0) move_val += 4;
 
-	/* Prevent the diamond maneuvre */
+	/* Prevent the diamond manuvere */
 	if (ay > (ax << 1))
 	{
 		move_val++;
@@ -3220,7 +3224,7 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
  * Technically, need to check for monster in the way combined
  * with that monster being in a wall (or door?) XXX
  */
-static void process_monster(int m_idx)
+static void monster_action(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = get_monster_real(m_ptr);
@@ -3250,84 +3254,6 @@ static void process_monster(int m_idx)
 	mon_not_see_player = check_player_visibility(m_idx);
 
 	i = 0;
-
-	/* Handle "bleeding" */
-	if (m_ptr->bleeding)
-	{
-		int d = 1 + (m_ptr->maxhp / 50); 
-		if (d > m_ptr->bleeding) d = m_ptr->bleeding;
-
-		/* Exit if the monster dies */
-		if (mon_take_hit(m_idx, d, &xxx," bleeds to death.")) return;
-
-		/* Hack -- Recover from bleeding */
-		if (m_ptr->bleeding > d)
-		{
-			/* Recover somewhat */
-			m_ptr->bleeding -= d;
-		}
-
-		/* Fully recover */
-		else
-		{
-			/* Recover fully */
-			m_ptr->bleeding = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer bleeding.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
-	/* Handle "poisoned" */
-	if (m_ptr->poisoned)
-	{
-		int d = (m_ptr->poisoned) / 10; 
-		if (d < 1) d = 1;
-
-		/* Exit if the monster dies */
-		if (mon_take_hit(m_idx, d, &xxx," dies of poison.")) return;
-
-		/* Hack -- Recover from bleeding */
-		if (m_ptr->poisoned > d)
-		{
-			/* Recover somewhat */
-			m_ptr->poisoned -= d;
-		}
-
-		/* Fully recover */
-		else
-		{
-			/* Recover fully */
-			m_ptr->poisoned = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer poisoned.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
 
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -3365,7 +3291,7 @@ static void process_monster(int m_idx)
 		/* Hack -- See if monster "notices" player */
 		if ((notice * notice * notice) <= p_ptr->noise)
 		{
-			int d = 1;
+			d = 1;
 
 			/* Wake up faster near the player */
 			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
@@ -3408,195 +3334,6 @@ static void process_monster(int m_idx)
 
 		/* Still sleeping */
 		if (m_ptr->csleep) return;
-	}
-
-	/* Handle "stun" */
-	if (m_ptr->stunned)
-	{
-		int d = 1;
-
-		/* Make a "saving throw" against stun */
-		if (rand_int(5000) < ((r_ptr->level * r_ptr->level) - m_ptr->stunned))
-		{
-			/* Recover fully */
-			d = m_ptr->stunned;
-		}
-
-		/* Hack -- Recover from stun */
-		if (m_ptr->stunned > d)
-		{
-			/* Recover somewhat */
-			m_ptr->stunned -= d;
-		}
-
-		/* Fully recover */
-		else
-		{
-			/* Recover fully */
-			m_ptr->stunned = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer stunned.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
-	/* Handle confusion */
-	if (m_ptr->confused)
-	{
-		int d = randint(r_ptr->level / 10 + 1);
-
-		/* Still confused */
-		if (m_ptr->confused > d)
-		{
-			/* Reduce the confusion */
-			m_ptr->confused -= d;
-		}
-
-		/* Recovered */
-		else
-		{
-			/* No longer confused */
-			m_ptr->confused = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer confused.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
-	/* Handle blindness */
-	if (m_ptr->blinded)
-	{
-		int d = randint(r_ptr->level / 10 + 1);
-
-		/* Still blinded */
-		if (m_ptr->blinded > d)
-		{
-			/* Reduce the confusion */
-			m_ptr->blinded -= d;
-		}
-
-		/* Recovered */
-		else
-		{
-			/* No longer blinded */
-			m_ptr->blinded = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer blinded.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
-	/* Handle "fear" */
-	if (m_ptr->monfear)
-	{
-		/* Amount of "boldness" */
-		int d = randint(r_ptr->level / 10 + 1);
-
-		/* Still afraid */
-		if (m_ptr->monfear > d)
-		{
-			/* Reduce the fear */
-			m_ptr->monfear -= d;
-		}
-
-		/* Recover from fear, take note if seen */
-		else
-		{
-			/* No longer afraid */
-			m_ptr->monfear = 0;
-
-			/* Visual note */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-				char m_poss[80];
-
-				/* Get the monster name/poss */
-				monster_desc(m_name, m_ptr, 0);
-				monster_desc(m_poss, m_ptr, 0x22);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s recovers %s courage.", m_name, m_poss);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
-	}
-
-	/* Handle "calm" */
-	if (m_ptr->calmed)
-	{
-		/* Amount of "anger" */
-		int d = randint(r_ptr->level/10 + adj_chr_calm[p_stat(A_CHR)]);
-
-		/* Handle aggravate */
-		if (p_ptr->aggravate) d = m_ptr->calmed;
-
-		/* Still calmed */
-		if (m_ptr->calmed > d)
-		{
-			/* Reduce the passivity */
-			m_ptr->calmed -= d;
-		}
-
-		/* Recover from passivity, take note if seen */
-		else
-		{
-			/* No longer calm */
-			m_ptr->calmed = 0;
-
-			/* Visual note */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Get the monster name/poss */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-				message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer calm.", m_name);
-
-				/* Hack -- Update the health bar */
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
 	}
 
 	/* Get the origin */
@@ -3764,26 +3501,31 @@ static void process_monster(int m_idx)
 		/* Monster destroys walls (and doors) */
 		else if (r_ptr->flags2 & (RF2_KILL_WALL))
 		{
-			/* Eat through walls/doors/rubble */
-			do_move = TRUE;
-
-			/* Monster destroyed a wall */
-			did_kill_wall = TRUE;
-
-			/* Forget the wall */
-			cave_info[ny][nx] &= ~(CAVE_MARK);
-
-			/* Notice */
-			cave_set_feat(ny, nx, FEAT_FLOOR);
-
-			/* Check line of sight */
-			if (trap_lock(ny, nx))
+			if (rand_int(100) < r_ptr->level * 2)
 			{
-				delete_trap(ny, nx);
-			}
+				/* Eat through walls/doors/rubble */
+				do_move = TRUE;
 
-			/* Note changes to viewable region */
-			if (player_has_los_bold(ny, nx)) do_view = TRUE;
+				/* Monster destroyed a wall */
+				did_kill_wall = TRUE;
+
+				/* Forget the wall */
+				cave_info[ny][nx] &= ~(CAVE_MARK);
+
+				/* Notice */
+				cave_set_feat(ny, nx, FEAT_FLOOR);
+
+				/* Check for traps */
+				if (trap_lock(ny, nx))
+				{
+					delete_trap(ny, nx);
+				}
+
+				/* Note changes to viewable region */
+				if (player_has_los_bold(ny, nx)) do_view = TRUE;
+			}
+			/* Waste a turn */
+			else do_turn = TRUE;
 		}
 
 		/* Handle doors and secret doors */
@@ -4031,9 +3773,7 @@ static void process_monster(int m_idx)
 
 			/* Possible disturb */
 			if (m_ptr->ml &&
-			    (disturb_move ||
-			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
-			      disturb_near)))
+			    (disturb_move || ((m_ptr->mflag & (MFLAG_VIEW)) && disturb_near)))
 			{
 				/* Disturb */
 				disturb(0);
@@ -4345,46 +4085,19 @@ static void process_monster(int m_idx)
  * normal things.
  *
  * When the player is resting, virtually 90% of the processor time is spent
- * in this function, and its children, "process_monster()" and "make_move()".
+ * in this function, and its child, "monster_action()".
+ *
+ * (Note - the above was written before the split of status/action handling.)
  *
  * Most of the rest of the time is spent in "update_view()" and "lite_spot()",
  * especially when the player is running.
- *
- * Note the special "MFLAG_BORN" flag, which prevents monsters from doing
- * anything during the game turn in which they are created.  This flag is
- * optimized via the "repair_mflag_born" flag.
- *
- * Note the special "MFLAG_NICE" flag, which prevents "nasty" monsters from
- * using any of their spell attacks until the player gets a turn.  This flag
- * is optimized via the "repair_mflag_nice" flag.
  */
-void process_monsters(byte minimum_energy)
+void process_monsters_action(byte minimum_energy)
 {
 	int i;
-	int fy, fx;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
-
-	/* Repair "born" flags */
-	if (repair_mflag_born)
-	{
-		/* Clear flag */
-		repair_mflag_born = FALSE;
-
-		/* Process the monsters */
-		for (i = 1; i < m_max; i++)
-		{
-			/* Get the monster */
-			m_ptr = &m_list[i];
-
-			/* Ignore "dead" monsters */
-			/* if (!m_ptr->r_idx) continue; */
-
-			/* Clear "born" flag */
-			m_ptr->mflag &= ~(MFLAG_BORN);
-		}
-	}
 
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
@@ -4398,49 +4111,30 @@ void process_monsters(byte minimum_energy)
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Ignore "born" monsters XXX XXX */
-		if (m_ptr->mflag & (MFLAG_BORN)) continue;
-
 		/* Not enough energy to move */
 		if (m_ptr->energy < minimum_energy) continue;
 
 		/* Use up "some" energy */
 		m_ptr->energy -= 100;
 
-		/* Heal monster? XXX XXX XXX */
-
 		/* Get the race */
 		r_ptr = get_monster_real(m_ptr);
-
-		/* Monsters is bleeding or poisoned */
-		if ((m_ptr->bleeding) || (m_ptr->poisoned))
-		{
-			/* Process the monster */
-			process_monster(i);
-
-			/* Continue */
-			continue;
-		}
 
 		/* Monsters can "sense" the player */
 		if (m_ptr->cdis <= r_ptr->aaf)
 		{
 			/* Process the monster */
-			process_monster(i);
+			monster_action(i);
 
 			/* Continue */
 			continue;
 		}
 
-		/* Get the location */
-		fx = m_ptr->fx;
-		fy = m_ptr->fy;
-
 		/* Monsters can "see" the player (backwards) XXX XXX */
-		if (player_has_los_bold(fy, fx))
+		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
 			/* Process the monster */
-			process_monster(i);
+			monster_action(i);
 
 			/* Continue */
 			continue;
@@ -4452,12 +4146,12 @@ void process_monsters(byte minimum_energy)
 		if (adult_flow_by_sound)
 		{
 			/* Check the flow (normal aaf is about 20) */
-			if ((cave_when[fy][fx] == cave_when[p_ptr->py][p_ptr->px]) &&
-			    (cave_cost[fy][fx] < MONSTER_FLOW_DEPTH) &&
-			    (cave_cost[fy][fx] < r_ptr->aaf))
+			if ((cave_when[m_ptr->fy][m_ptr->fx] == cave_when[p_ptr->py][p_ptr->px]) &&
+			    (cave_cost[m_ptr->fy][m_ptr->fx] < MONSTER_FLOW_DEPTH) &&
+			    (cave_cost[m_ptr->fy][m_ptr->fx] < r_ptr->aaf))
 			{
 				/* Process the monster */
-				process_monster(i);
+				monster_action(i);
 
 				/* Continue */
 				continue;
@@ -4466,5 +4160,324 @@ void process_monsters(byte minimum_energy)
 
 #endif /* MONSTER_FLOW */
 
+	}
+}
+
+/*
+ * Process all the "live" monsters, once per game turn.
+ *
+ * During each game turn, we scan through the list of all the "live" monsters,
+ * (backwards, so we can excise any "freshly dead" monsters), energizing each
+ * monster, and allowing fully energized monsters to move, attack, pass, etc.
+ *
+ * Handle monster "status".
+ * Note that "sleeping" isn't handled here, because monsters 
+ * waking up counts as an "action"; therefore, it is handled 
+ * within monster_action()
+ */
+void process_monsters_status(void)
+{
+	int i, d;
+
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+
+	bool xxx = FALSE;
+
+	/* Every 10 game turns */
+	if (turn % 10) return;
+
+	/* Handle "leaving" */
+	if (p_ptr->leaving) return;
+
+	/* Process the monsters (backwards) */
+	for (i = m_max - 1; i >= 1; i--)
+	{
+		/* Get the monster */
+		m_ptr = &m_list[i];
+
+		/* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Get the race */
+		r_ptr = get_monster_real(m_ptr);
+
+		/* Allow regeneration (if needed) */
+		if (m_ptr->hp < m_ptr->maxhp)
+		{
+			int regen_rate = BASE_MON_REGEN;
+
+			/* Regenerating monsters */
+			if (r_ptr->flags2 & RF2_REGENERATE) regen_rate /= 2;
+
+			/* Check for regeneration */
+			if (!(turn % regen_rate))
+			{
+				/* Hack -- Base regeneration */
+				d = m_ptr->maxhp / 100;
+
+				/* Hack -- Minimal regeneration rate */
+				if (!d) d = 1;
+
+				/* Hack -- Regenerate */
+				m_ptr->hp += d;
+
+				/* Do not over-regenerate */
+				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+				/* Redraw (later) if needed */
+				if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+			}
+		}
+
+		/* Handle "bleeding" */
+		if (m_ptr->bleeding)
+		{
+			d = 1 + (m_ptr->maxhp / 50); 
+			if (d > m_ptr->bleeding) d = m_ptr->bleeding;
+
+			/* Hurt the monster, stop processing it if it dies */
+			if (mon_take_hit(i, d, &xxx," bleeds to death.")) continue;
+
+			/* Hack -- Recover from bleeding */
+			if (m_ptr->bleeding > d) m_ptr->bleeding -= d;
+
+			/* Fully recover */
+			else
+			{
+				/* Recover fully */
+				m_ptr->bleeding = 0;
+
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer bleeding.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Handle "poisoned" */
+		if (m_ptr->poisoned)
+		{
+			d = (m_ptr->poisoned) / 10; 
+			if (d < 1) d = 1;
+
+			/* Hurt the monster, stop processing it if it dies */
+			if (mon_take_hit(i, d, &xxx," dies of poison.")) continue;
+
+			/* Hack -- Recover from bleeding */
+			if (m_ptr->poisoned > d) m_ptr->poisoned -= d;
+
+
+			/* Fully recover */
+			else
+			{
+				/* Recover fully */
+				m_ptr->poisoned = 0;
+
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer poisoned.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Handle "stun" */
+		if (m_ptr->stunned)
+		{
+			d = 1;
+
+			/* Make a "saving throw" against stun */
+			if (rand_int(5000) < ((r_ptr->level * r_ptr->level) - m_ptr->stunned))
+			{
+				/* Recover fully */
+				d = m_ptr->stunned;
+			}
+
+			/* Hack -- Recover from stun */
+			if (m_ptr->stunned > d)	m_ptr->stunned -= d;
+
+			/* Fully recover */
+			else
+			{
+				/* Recover fully */
+				m_ptr->stunned = 0;
+
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer stunned.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Handle confusion */
+		if (m_ptr->confused)
+		{
+			d = randint(r_ptr->level / 10 + 1);
+
+			/* Still confused */
+			if (m_ptr->confused > d) m_ptr->confused -= d;
+
+			/* Recovered */
+			else
+			{
+				/* No longer confused */
+				m_ptr->confused = 0;
+
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer confused.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Handle blindness */
+		if (m_ptr->blinded)
+		{
+			d = randint(r_ptr->level / 10 + 1);
+
+			/* Still blinded */
+			if (m_ptr->blinded > d) m_ptr->blinded -= d;
+
+			/* Recovered */
+			else
+			{
+				/* No longer blinded */
+				m_ptr->blinded = 0;
+
+				/* Message if visible */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer blinded.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Handle "fear" */
+		if (m_ptr->monfear)
+		{
+			/* Amount of "boldness" */
+			d = randint(r_ptr->level / 10 + 1);
+
+			/* Still afraid */
+			if (m_ptr->monfear > d)	m_ptr->monfear -= d;
+
+			/* Recover from fear, take note if seen */
+			else
+			{
+				/* No longer afraid */
+				m_ptr->monfear = 0;
+
+				/* Visual note */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+					char m_poss[80];
+
+					/* Get the monster name/poss */
+					monster_desc(m_name, m_ptr, 0);
+					monster_desc(m_poss, m_ptr, 0x22);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s recovers %s courage.", m_name, m_poss);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Handle "calm" */
+		if (m_ptr->calmed)
+		{
+			/* Amount of "anger" */
+			d = randint(r_ptr->level/10 + adj_chr_calm[p_stat(A_CHR)]);
+
+			/* Handle aggravate */
+			if (p_ptr->aggravate) d = m_ptr->calmed;
+
+			/* Still calmed */
+			if (m_ptr->calmed > d) m_ptr->calmed -= d;
+
+			/* Recover from passivity, take note if seen */
+			else
+			{
+				/* No longer calm */
+				m_ptr->calmed = 0;
+
+				/* Visual note */
+				if (m_ptr->ml)
+				{
+					char m_name[80];
+
+					/* Get the monster name/poss */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Dump a message */
+					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s is no longer calm.", m_name);
+
+					/* Hack -- Update the health bar */
+					if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
+				}
+			}
+		}
+
+		/* Monster speeds restore slowly */
+		if (turn % 200) continue;
+
+		/* Monster speed correcting */
+		if (m_ptr->mspeed != m_ptr->bspeed)
+		{
+			if (m_ptr->mspeed > m_ptr->bspeed) m_ptr->mspeed--;
+			else m_ptr->mspeed++;
+		}
 	}
 }

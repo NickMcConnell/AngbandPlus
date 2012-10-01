@@ -281,7 +281,6 @@ info_entry power_info[POW_MAX] =
 	{POW_DRAGON_WHITE,		"breathes frost (125+)"},
 	{POW_DRAGON_RED,		"breathes fire (125+)"},
 	{POW_DRAGON_GREEN,		"breathes poison gas (150+)"},
-	{POW_DRAGON_BRONZE,		"breathes confusion (100+)"},
 	{POW_DRAGON_GOLD,		"breathes sound (100+)"},
 	{POW_DRAGON_SILVER,		"breathes shards (100+)"},
 	{POW_DRAGON_MH,			"breathes multi-hued (250+)"},
@@ -2281,7 +2280,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_DRAGON_WHITE:
 		case POW_DRAGON_RED:	
 		case POW_DRAGON_GREEN:
-		case POW_DRAGON_BRONZE:
 		case POW_DRAGON_GOLD:		
 		case POW_DRAGON_SILVER:
 		case POW_DRAGON_MH:	
@@ -2341,14 +2339,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 					break;
 				}
 
-				case POW_DRAGON_BRONZE:
-				{
-					breath = "confusion";
-					typ = GF_CONFUSION;
-					power = 100;
-					break;
-				}
-
 				case POW_DRAGON_GOLD:
 				{
 					breath = "sound";
@@ -2367,7 +2357,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 				case POW_DRAGON_MH:
 				{
-					chance = rand_int(8);
+					chance = rand_int(7);
 					switch (chance)
 					{
 						case 0:	breath = "fire";		typ = GF_FIRE; break;
@@ -2376,8 +2366,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 						case 3:	breath = "acid";		typ = GF_ACID; break;
 						case 4:	breath = "poison gas";	typ = GF_POIS;	break;
 						case 5:	breath = "shards";		typ = GF_SHARD; break;
-						case 6:	breath = "confusion";	typ = GF_CONFUSION; break;
-						case 7:	breath = "sound";		typ = GF_SOUND; break;
+						case 6:	breath = "sound";		typ = GF_SOUND; break;
 					}
 					power = 250;
 					break;

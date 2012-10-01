@@ -92,7 +92,6 @@ bool inkey_flag;		/* See the "inkey()" function */
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
-bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
 bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
 bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
@@ -238,6 +237,7 @@ char angband_sound_name[MSG_MAX][16] =
 	"dsm",
 	"teleport",
 	"tplevel",
+	"spell_fail",
 	"tpother",
 	"hitwall",
 	"store",
@@ -267,7 +267,8 @@ char angband_sound_name[MSG_MAX][16] =
 	"summon",
 	"describe",
 	"detect",
-	"ffall"
+	"ffall",
+	"room_desc"
 };
 
 /*

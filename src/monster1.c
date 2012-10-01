@@ -399,21 +399,25 @@ int collect_mon_group(u32b flags1, cptr vp[64])
 
 	/* Collect innate */
 	n = 0;
-	if (flags1 & (RF1_ESCORTS))
+	if (flags1 & (RF1_GRP_ESCORT))
 	{
-		if (flags1 & (RF1_MANY)) vp[n++] = "many escorts";
-		else vp[n++] = "escorts";
+		if (flags1 & (RF1_GRP_27)) vp[n++] = "many escorts";
+		else if (flags1 & (RF1_GRP_18)) vp[n++] = "escorts";
+		else if (flags1 & (RF1_GRP_9)) vp[n++] = "a few escorts";
 	}
-	if (flags1 & (RF1_FRIENDS))
+	else if (flags1 & (RF1_GRP_PEER))
 	{
-		if (flags1 & (RF1_MANY)) vp[n++] = "many similar companions";
-		else vp[n++] = "similar companions";
+		if (flags1 & (RF1_GRP_27)) vp[n++] = "many companions";
+		else if (flags1 & (RF1_GRP_18)) vp[n++] = "companions";
+		else if (flags1 & (RF1_GRP_9)) vp[n++] = "a few companions";
 	}
-	if (flags1 & (RF1_PEERS))
+	else 
 	{
-		if (flags1 & (RF1_MANY)) vp[n++] = "many companions";
-		else vp[n++] = "companions";
+		if (flags1 & (RF1_GRP_27)) vp[n++] = "many similar companions";
+		else if (flags1 & (RF1_GRP_18)) vp[n++] = "similar companions";
+		else if (flags1 & (RF1_GRP_9)) vp[n++] = "a few similar companions";
 	}
+
 	if (flags1 & (RF1_COMPANION)) vp[n++] = "a unique companion";
 
 	return n;
@@ -512,8 +516,8 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	}
 
 	/* Extract a gender (if applicable) */
-	if (r_ptr->flags1 & (RF1_FEMALE)) msex = 2;
-	else if (r_ptr->flags1 & (RF1_MALE)) msex = 1;
+	if (r_ptr->flags4 & (RF4_FEMALE)) msex = 2;
+	else if (r_ptr->flags4 & (RF4_MALE)) msex = 1;
 
 	/* Obtain a copy of the "known" flags */
 	flags1 = (r_ptr->flags1 & l_ptr->flags1);
@@ -526,15 +530,16 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 
 	/* Assume some "obvious" flags */
 	if (r_ptr->flags1 & (RF1_UNIQUE))		flags1 |= (RF1_UNIQUE);
-	if (r_ptr->flags1 & (RF1_MALE))			flags1 |= (RF1_MALE);
-	if (r_ptr->flags1 & (RF1_FEMALE))		flags1 |= (RF1_FEMALE);
+	if (r_ptr->flags4 & (RF4_MALE))			flags4 |= (RF4_MALE);
+	if (r_ptr->flags4 & (RF4_FEMALE))		flags4 |= (RF4_FEMALE);
 
 	/* Assume some "creation" flags */
 	if (r_ptr->flags1 & (RF1_COMPANION))	flags1 |= (RF1_COMPANION);
-	if (r_ptr->flags1 & (RF1_FRIENDS))		flags1 |= (RF1_FRIENDS);
-	if (r_ptr->flags1 & (RF1_PEERS))		flags1 |= (RF1_PEERS);
-	if (r_ptr->flags1 & (RF1_ESCORTS))		flags1 |= (RF1_ESCORTS);
-	if (r_ptr->flags1 & (RF1_MANY))			flags1 |= (RF1_MANY);
+	if (r_ptr->flags1 & (RF1_GRP_9))		flags1 |= (RF1_GRP_9);
+	if (r_ptr->flags1 & (RF1_GRP_18))		flags1 |= (RF1_GRP_18);
+	if (r_ptr->flags1 & (RF1_GRP_27))		flags1 |= (RF1_GRP_27);
+	if (r_ptr->flags1 & (RF1_GRP_PEER))		flags1 |= (RF1_GRP_PEER);
+	if (r_ptr->flags1 & (RF1_GRP_ESCORT))	flags1 |= (RF1_GRP_ESCORT);
 
 	/* Killing a monster reveals some properties */
 	if (l_ptr->r_tkills)

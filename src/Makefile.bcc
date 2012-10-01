@@ -49,7 +49,6 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 
 OBJ = \
   main-win.obj \
-  readdib.obj \
   birth.obj \
   cave.obj \
   cmd-attk.obj \

@@ -2052,8 +2052,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				s1 = "It is ";
 
 				/* Hack -- take account of gender */
-				if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
-				else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
+				if (r_ptr->flags4 & (RF4_FEMALE)) s1 = "She is ";
+				else if (r_ptr->flags4 & (RF4_MALE)) s1 = "He is ";
 
 				/* Use a preposition */
 				s2 = "carrying ";

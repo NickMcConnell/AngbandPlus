@@ -1966,7 +1966,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	}
 
 	/* Uniques get a higher resistance level */
-	if (m_ptr->u_idx) resist = 10;
+	if (m_ptr->u_idx) resist = 5;
 
 	/* Analyze the damage type */
 	switch (typ)
@@ -2414,7 +2414,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Attempt to polymorph (see below) */
 			do_poly = TRUE;
 
-			/* Powerful monsters can resist, uniques are immune */
+			/* Powerful monsters can resist */
 			if ((m_ptr->u_idx) ||
 				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
 			{

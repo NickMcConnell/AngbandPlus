@@ -128,7 +128,7 @@ void do_cmd_equip(void)
 	/* Hack -- Process normal keys */
 	else
 	{
-		/* Hack -- Use "display" mode */
+		/* Enter "display" mode */
 		p_ptr->command_see = TRUE;
 	}
 }
@@ -2060,7 +2060,6 @@ static void do_cmd_activate_aux(int item)
 			case (SV_DRAGON_WHITE):		j = 131; break;
 			case (SV_DRAGON_RED):		j = 131; break;
 			case (SV_DRAGON_GREEN):		j = 137; break;
-			case (SV_DRAGON_BRONZE):	j = 125; break;
 			case (SV_DRAGON_GOLD):		j = 125; break;
 			case (SV_DRAGON_SILVER):	j = 125; break;
 			case (SV_DRAGON_MULTIHUED): j = 162; break;
@@ -2358,9 +2357,6 @@ void do_cmd_mix(void)
 	
 		/* Prepare the ojbect */
 		object_prep(to_ptr, k_idx);
-
-		/* Mark the potion */
-		to_ptr->ident |= IDENT_MODIFIED;
 
 		drop_near(to_ptr, -1, p_ptr->py, p_ptr->px); /* drop the object */
 		potion_alch[sv].known1 = TRUE;

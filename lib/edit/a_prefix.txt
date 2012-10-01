@@ -17,50 +17,50 @@
 
 # Version stamp (required)
 
-V:0.4.5
+V:0.4.6
 
 N:0:<none>
 W:1:0:100:100
-P:0:0
+P:0
 F:SHOP | GOOD
 
 # Armor prefixes
 
 N:1:Damaged
 W:20:0:90:1
-P:-15:-2
+P:-15
 
 N:2:Rusty
 W:15:12:100:50
-P:-2:-1
+P:-2
 
 N:3:Quality
 W:30:0:90:130
-P:0:1
+P:0
 F:SHOP | GOOD
 
 N:4:Golden
 W:45:12:120:250
-P:-2:0
+P:-2
 F:GOOD
 
 N:5:Mithril
 W:55:12:75:300
-P:2:1
+P:2
 F:GOOD
 
 N:6:Adamantite
 W:65:12:130:350
-P:5:0
+P:5
 F:GOOD
 
 N:7:Silk
 W:55:5:50:300
-P:-1:0
+P:-1
 F:GOOD
 
 N:8:Studded
 W:20:11:115:125
-P:1:0
+P:1
 F:GOOD | SHOP
 

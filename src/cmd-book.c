@@ -145,13 +145,13 @@ static s16b spell_chance(int book, int spell, int sub, bool music)
 	}
 
 	/* Heavy armor */
-	if (p_ptr->cumber_armor) 
+	if (p_ptr->cumber_armor_cast) 
 	{
-		if (p_ptr->cumber_armor < 60) chance += 1;
-		if ((p_ptr->cumber_armor >= 60) && (p_ptr->cumber_armor < 90)) chance += 2;
-		if ((p_ptr->cumber_armor >= 90) && (p_ptr->cumber_armor < 105)) chance += 3;
-		if ((p_ptr->cumber_armor >= 105) && (p_ptr->cumber_armor < 120)) chance += 4;
-		if (p_ptr->cumber_armor >= 120) chance += 5 + ((p_ptr->cumber_armor - 120) / 10);
+		if (p_ptr->cumber_armor_cast < 60) chance += 1;
+		if ((p_ptr->cumber_armor_cast >= 60) && (p_ptr->cumber_armor_cast < 90)) chance += 2;
+		if ((p_ptr->cumber_armor_cast >= 90) && (p_ptr->cumber_armor_cast < 105)) chance += 3;
+		if ((p_ptr->cumber_armor_cast >= 105) && (p_ptr->cumber_armor_cast < 120)) chance += 4;
+		if (p_ptr->cumber_armor_cast >= 120) chance += 5 + ((p_ptr->cumber_armor_cast - 120) / 10);
 	}
 
 	/* Stunning makes spells harder */
@@ -686,6 +686,7 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 	char choice;
 
 	char out_val[160];
+
 
 	/* Get the spell, if available */
 	if (repeat_pull(sn)) 
@@ -1399,6 +1400,7 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 
 	/* Nothing chosen yet */
 	bool flag = FALSE;
+	bool redraw = TRUE;
 
 	magic_type *s_ptr = &books[book].contents[spell];
 
@@ -1419,19 +1421,61 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 	/* Erase memorized sub-spell */
 	*ss = 0;
 
+	/* No redraw yet */
+	if (!always_show_lists) 
+	{
+		redraw = FALSE;
+
+		/* Build a prompt */
+		strnfmt(out_val, 78, "(spells %c-%c, *=List, ESC=exit) What spell power? ",
+			I2A(0), I2A(max));
+	}
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) What spell power? ",
+	else strnfmt(out_val, 78, "(spells %c-%c, ESC=exit) What spell power? ",
 		I2A(0), I2A(max));
 
-	/* Save screen */
-	screen_save();
+	if (always_show_lists)
+	{
+		/* Save screen */
+		screen_save();
 
-	/* Display a list of spells */
-	print_sub_spells(book, spell, from, to, 0, 30);
+		/* Display a list of spells */
+		print_sub_spells(book, spell, from, to, 0, 30);
+	}
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
+		/* Request redraw */
+		if (!always_show_lists && ((choice == ' ') || (choice == '*') || (choice == '?')))
+		{
+			/* Hide the list */
+			if (redraw)
+			{
+				/* Load screen */
+				screen_load();
+
+				/* Hide list */
+				redraw = FALSE;
+			}
+
+			/* Show the list */
+			else
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save screen */
+				screen_save();
+
+				/* Display a list of spells */
+				print_sub_spells(book, spell, from, to, 0, 30);
+			}
+
+			/* Ask again */
+			continue;
+		}
+
 		/* Lowercase */
 		choice = tolower(choice);
 
@@ -1449,8 +1493,13 @@ static bool sub_spell_menu(int book, int spell, int *ss, int from, int to)
 		flag = TRUE;
 	}
 
-	/* Load screen */
-	screen_load();
+
+	/* Restore the screen */
+	if (always_show_lists || (!always_show_lists && redraw))
+	{
+		/* Load screen */
+		screen_load();
+	}
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -1493,11 +1542,11 @@ static void do_cast(int book, bool force_menu)
 
 	magic_type *s_ptr;
 
-	/* Save screen */
-	screen_save();
-
 	if (always_show_lists)
 	{
+		/* Save screen */
+		screen_save();
+
 		/* Display a list of spells */
 		print_spells(book, FALSE, 0, 1, 14);
 	}

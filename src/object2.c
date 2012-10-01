@@ -5293,16 +5293,6 @@ s16b actual_to_h(object_type *o_ptr)
 		}
 	}
 
-	else if (o_ptr->tval == TV_BODY_ARMOR)
-	{
-		/* Note - can never raise the to-hit above 0 */
-		if (o_ptr->prefix_idx) 
-		{
-			int i = (o_ptr->to_h + apx_info[o_ptr->prefix_idx].to_h);
-			return ((i > 0) ? 0 : i);
-		}
-	}
-
 	return o_ptr->to_h;
 }
 

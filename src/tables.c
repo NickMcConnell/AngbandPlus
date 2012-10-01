@@ -276,6 +276,44 @@ byte adj_str_blow[A_RANGE] =
 };
 
 /*
+ * Stat Table (STR) -- armor weight limit
+ */
+byte adj_str_armor[A_RANGE] =
+{
+	2	/* 0 */,
+	2	/* 1 */,
+	2	/* 2 */,
+	3	/* 3 */,
+	3	/* 4 */,
+	4	/* 5 */,
+	6	/* 6 */,
+	8	/* 7 */,
+	10	/* 8 */,
+	13	/* 9 */,
+	16	/* 10 */,
+	19  /* 11 */,
+	22	/* 12 */,
+	23	/* 13 */,
+	24	/* 14 */,
+	25	/* 15 */,
+	26	/* 16 */,
+	27	/* 17 */,
+	28	/* 18 */,
+	29	/* 19 */,
+	30	/* 20 */,
+	32	/* 21 */,
+	34	/* 22 */,
+	36	/* 23 */,
+	38	/* 24 */,
+	40	/* 25 */,
+	50	/* 26 */,
+	60	/* 27 */,
+	70	/* 28 */,
+	80	/* 29 */,
+	90	/* 30 */
+};
+
+/*
  * Stat Table (INT) -- Magic devices
  */
 byte adj_int_dev[A_RANGE] =
@@ -655,48 +693,6 @@ byte adj_con_mhp[A_RANGE] =
 	128 + 25	/* 30 */
 };
 
-#ifdef ALLOW_HAGGLE
-
-/*
- * Stat Table (CHR) -- payment percentages
- */
-byte adj_chr_gold[A_RANGE] =
-{
-	130	/* 0 */,
-	125	/* 1 */,
-	122	/* 2 */,
-	120	/* 3 */,
-	118	/* 4 */,
-	116	/* 5 */,
-	114	/* 6 */,
-	112	/* 7 */,
-	110	/* 8 */,
-	108	/* 9 */,
-	106	/* 10 */,
-	104	/* 11 */,
-	103	/* 12 */,
-	102	/* 13 */,
-	101	/* 14 */,
-	100	/* 15 */,
-	98	/* 16 */,
-	96	/* 17 */,
-	94	/* 18 */,
-	92	/* 19 */,
-	90	/* 20 */,
-	88	/* 21 */,
-	86	/* 22 */,
-	85	/* 23 */,
-	84	/* 24 */,
-	83	/* 25 */,
-	82	/* 26 */,
-	81	/* 27 */,
-	80	/* 28 */,
-	80	/* 29 */,
-	80	/* 30 */
-};
-
-#else /* ALLOW_HAGGLE */
-
 /*
  * Stat Table (CHR) -- payment percentages
  */
@@ -734,8 +730,6 @@ byte adj_chr_gold[A_RANGE] =
 	80	/* 29 */,
 	80	/* 30 */
 };
-
-#endif 
 
 /*
  * Stat Table (CHR) -- monster calmed recovery
@@ -1461,7 +1455,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_SLOW_ALL,			"Slow All",					19, 20, 33 },
 			{ POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 },
 			{ POW_IDENTIFY_PACK,	"Identify Pack",			21, 24, 80 },
-			{ POW_TELE_OTHER,		"Teleport Others",			23,  8, 60 },
+			{ POW_TELE_OTHER,		"Teleport Other",			23,  8, 60 },
 			{ POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 },
 			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 65 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1955,7 +1949,7 @@ option_type options[OPT_NORMAL] =
 	{"auto_more",			"Automatically clear '-more-' prompts",		FALSE},
 	{"view_monster_lite",	"Allow monsters to have light radius",		TRUE },
 	{"verify_leave_quest",	"Verify before descending from quest level",TRUE },
-	{"auto_haggle",			"Auto-haggle in stores",					TRUE },
+	{"always_show_lists",	"Always show lists in item/spell selection",TRUE },
 	{"display_room_desc",	"Display room descriptions",				FALSE},
 	{"display_insc_msg",	"Display inscriptions in messages",			FALSE},
 	{"display_recharge_msg","Display messages upon recharge",			TRUE },
@@ -1963,7 +1957,6 @@ option_type options[OPT_NORMAL] =
 	{"spellbook_menu",		"Alternate spellbook interface",			FALSE},
 	{"trap_under_object",	"Traps are hidden by objects",				TRUE },
 	{"view_player_color",	"Use special colors for the player",		TRUE },
-	{"always_show_lists",	"Always show lists in item/spell selection",TRUE }
 };
 
 option_type options_birth[OPT_BIRTH] =
@@ -2091,12 +2084,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_stack_force_costs,
 		OPT_scroll_target,
 		OPT_display_room_desc,
-#ifdef ALLOW_HAGGLE
-		OPT_auto_haggle,
-#else /* ALLOW_HAGGLE */
-		255,
-#endif /* ALLOW_HAGGLE */
 		OPT_inscribe_unique,
+		255,
 		255,
 		255,
 		255,

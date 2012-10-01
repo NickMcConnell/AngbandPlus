@@ -27,7 +27,7 @@
 # lines; namely, the ones that identify the monster (such as UNDEAD or
 # HUMANOID) and not ones that determine monster abilities.
 
-V:0.4.5
+V:0.4.6
 
 # Person types #
 

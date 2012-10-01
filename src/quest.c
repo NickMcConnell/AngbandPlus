@@ -332,7 +332,7 @@ static void grant_reward(int reward_level, byte type)
 				if (i_ptr->tval != TV_MUSIC) continue;
 
 				/* A dungeon instrument */
-				if (j_ptr->pval < 2) continue;
+				if (i_ptr->pval < 2) continue;
 
 				/* Look for item in the music slot */
 				j_ptr = &inventory[INVEN_MUSIC];
@@ -453,6 +453,9 @@ static void grant_reward(int reward_level, byte type)
 			/* First, figure out the best price for each slot */
 			for (i = INVEN_WIELD; i < INVEN_MUSIC; i++)
 			{
+				/* Skip second ring */
+				if (i == INVEN_RIGHT) continue;
+
 				price[i] = 0;
 
 				/* First, the item actually in the slot */
@@ -460,8 +463,18 @@ static void grant_reward(int reward_level, byte type)
 	
 				if (j_ptr->k_idx) price[i] = object_value(j_ptr);
 
-				/* HACK - for the second ring, look only at the wielded item */
-				if (i == INVEN_RIGHT) continue;
+				/* Handle ring */
+				if (i == INVEN_LEFT)
+				{
+					/* Compare to second ring */
+					j_ptr = &inventory[INVEN_RIGHT];
+	
+					if (j_ptr->k_idx)
+					{
+						/* Compare prices */
+						if (object_value(j_ptr) > price[i]) price[i] = object_value(j_ptr);
+					}
+				}
 
 				/* Look for item in the pack */
 				for (j = 0; j < INVEN_PACK; j++)
@@ -515,6 +528,9 @@ static void grant_reward(int reward_level, byte type)
 			/* Now, produce items */
 			for (i = INVEN_WIELD; i < INVEN_MUSIC; i++)
 			{
+				/* Skip second ring */
+				if (i == INVEN_RIGHT) continue;
+
 				/* Prepare a fake item slot */
 				j_ptr = &selection[i];
 
@@ -532,7 +548,7 @@ static void grant_reward(int reward_level, byte type)
 						break;
 					}
 					case INVEN_BOW: tval = TV_BOW; break;
-					case INVEN_LEFT: case INVEN_RIGHT: tval = TV_RING; break;
+					case INVEN_LEFT: tval = TV_RING; break;
 					case INVEN_LITE: tval = TV_LITE; break;
 					case INVEN_NECK: tval = TV_AMULET; break;
 					case INVEN_BODY: 
@@ -565,7 +581,7 @@ static void grant_reward(int reward_level, byte type)
 					}
 
 					/* Hack -- in case of artifact, mark it as not created yet */
-					if (artifact_p(i_ptr)) a_info[i_ptr->a_idx].status &= ~(A_STATUS_CREATED);
+					if (artifact_p(j_ptr)) a_info[j_ptr->a_idx].status &= ~(A_STATUS_CREATED);
 
 					/* 
 					 * Ensure correct tval.
@@ -626,8 +642,8 @@ static void grant_reward(int reward_level, byte type)
 					if (price[i]) val[i] = (object_value(j_ptr) - price[i]);
 					else val[i] = 20 * object_value(j_ptr);
 
-					/* Don't accept items that are worse than the old ones */
-					if (val[i] < 0) continue;
+					/* Don't accept items that aren't better than the old ones */
+					if (val[i] <= 0) continue;
 
 					/* We have our item for the slot */
 					break;
@@ -637,6 +653,9 @@ static void grant_reward(int reward_level, byte type)
 			/* Now, pick actual item */
 			for (i = INVEN_WIELD; i < INVEN_MUSIC; i++)
 			{
+				/* Skip second ring */
+				if (i == INVEN_RIGHT) continue;
+
 				/* Choose the slot */
 				j_ptr = &selection[i];
 

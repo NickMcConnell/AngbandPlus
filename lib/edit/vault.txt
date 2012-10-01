@@ -46,7 +46,7 @@
 
 # Version stamp (required)
 
-V:0.4.5
+V:0.4.6
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
 

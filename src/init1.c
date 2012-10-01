@@ -125,8 +125,6 @@ static cptr r_info_flags1[32] =
 {
 	"UNIQUE",
 	"EGO",
-	"MALE",
-	"FEMALE",
 	"ATTR_MIMIC",
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
@@ -136,11 +134,13 @@ static cptr r_info_flags1[32] =
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",	
 	"MULTIPLY",
-	"COMPANION",	
-	"FRIENDS",
-	"ESCORTS",	
-	"PEERS",
-	"MANY",
+	"XXX1",
+	"COMPANION",
+	"GRP_9",	
+	"GRP_18",
+	"GRP_27",
+	"GRP_ESCORT",
+	"GRP_PEER",
 	"RAND_25",		
 	"RAND_50",		
 	"ONLY_GOLD",	
@@ -270,8 +270,8 @@ static cptr r_info_flags4[32] =
 	"XXX13",
 	"XXX14",
 	"XXX15",
-	"XXX16",
-	"XXX17"
+	"MALE",
+	"FEMALE",
 };
 
 /*
@@ -867,7 +867,6 @@ static cptr k_info_act[POW_MAX] =
 	"DRAGON_WHITE",
 	"DRAGON_RED",
 	"DRAGON_GREEN",
-	"DRAGON_BRONZE",
 	"DRAGON_GOLD",
 	"DRAGON_SILVER",
 	"DRAGON_MH",
@@ -2995,18 +2994,17 @@ errr parse_apx_info(char *buf, header *head)
 	/* Process 'P' (one line only) */
 	else if (buf[0] == 'P')
 	{
-		int ac, th;
+		int ac;
 
 		/* There better be a current wpx_ptr */
 		if (!apx_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the other values */
-		if (2 != sscanf(buf+2, "%d:%d",
-			            &ac, &th)) return (PARSE_ERROR_GENERIC);
+		if (1 != sscanf(buf+2, "%d",
+			            &ac)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		apx_ptr->ac = ac;
-		apx_ptr->to_h = th;
 	}
 
 	/* Process 'F' for flags */
@@ -4794,32 +4792,20 @@ errr parse_b_info(char *buf, header *head)
 	else /* Process 'I' for "Info" (one line only) */
 	if (buf[0] == 'I')
 	{
-		int race, gld, max, min, hgl, tol;
+		int race, gld, inf;
 
 		/* There better be a current ot_ptr */
 		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-		                &race, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+		                &race, &gld, &inf)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		ot_ptr->owner_race = race;
 		ot_ptr->max_cost = gld;
 
-#ifdef ALLOW_HAGGLE
-
-		ot_ptr->max_inflate = max;
-		ot_ptr->min_inflate = min;
-		ot_ptr->haggle_per = hgl;
-		ot_ptr->insult_max = tol;
-
-#else /* ALLOW_HAGGLE */
-
-		ot_ptr->inflate = min;
-
-#endif /* ALLOW_HAGGLE */
-
+		ot_ptr->inflate = inf;
 	}
 	else
 	{

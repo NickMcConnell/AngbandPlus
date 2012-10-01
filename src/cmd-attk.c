@@ -58,6 +58,44 @@ static bool test_hit_combat(int chance, int ac, int vis)
 	/* Assume miss */
 	return (FALSE);
 }
+/*
+ * Determine if the player "hits" a monster (shooting/throwing).
+ *
+ * Should be unified with normal combat.
+ *
+ * Note -- Always miss 5%, always hit 5%, otherwise random.
+ */
+static bool test_hit_ranged(int chance, int ac, int vis)
+{
+	int k;
+
+	/* Percentile dice */
+	k = rand_int(100);
+
+	/* Hack -- Instant miss or hit */
+	if (k < 10) return ((k < 5) ? TRUE : FALSE);
+
+	/* No point in continuing if you don't have the skill */
+	if (chance <= 0) return (FALSE);
+
+	/* Basic chance to hit */
+	chance *= 4;
+
+	/* Invisible monsters are harder to hit */
+	if (!vis) ac *= 2;
+
+	/* High ACs are harder to hit */
+	if (ac > 5 + (chance / 2)) chance -= (chance / 4);
+
+	/* No point in continuing if you don't have the skill */
+	if (!chance) return (FALSE);
+
+	/* Power competes against armor */
+	if (rand_int(chance) >= ac) return (TRUE);
+
+	/* Assume miss */
+	return (FALSE);
+}
 
 /*
  * Critical hits (from objects fired by player)
@@ -1112,12 +1150,9 @@ void py_attack(int y, int x)
 	while (num++ < p_ptr->num_blow)
 	{
 		/* Check for evasion */
-		if ((r_ptr->flags2 & RF2_EVASIVE) && (rand_int(3) == 0))
+		if ((r_ptr->flags2 & RF2_EVASIVE) && (!m_ptr->csleep) && (rand_int(3) == 0))
 		{
 			message_format(MSG_MISS, m_ptr->r_idx, "%^s magically evades your blow!", m_name);
-
-			/* Wake it up */
-			m_ptr->csleep = 0;
 
 			/* Anger it */
 			m_ptr->calmed = 0;
@@ -2785,7 +2820,7 @@ void do_cmd_fire(void)
 			}
 
 			/* Did we hit it (penalize distance travelled) */
-			if (test_hit_combat(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit_ranged(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -3053,7 +3088,7 @@ void do_cmd_throw(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_combat(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit_ranged(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 

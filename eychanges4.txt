@@ -1,10 +1,67 @@
+Changes from 0.4.5b to 0.4.6:
+
+## Non-Gameplay Changes ##
+
+- Completely removed all remnants of the haggling code.
+
+# Windows only #
+
+- Renamed the windows executable to "EyAngband.exe". If you want to keep your
+  old .ini settings, you'll need to rename angband.ini to eyangband.ini.
+
+## Gameplay Changes ##
+
+# Combat #
+
+- Heavier armor no longer carries an intrinsic to-hit penalty. Instead, the 
+  to-hit penalty depends on your strength; weaker characters will suffer
+  severe penalties from relatively light armor, while very strong characters
+  could wear any armor with no penalty.
+
+# Items #
+
+- 'I'nspecting an object will now tell you how many blows and how much average
+  damage you can expect to do with this weapon (in your character's current
+  condition). At the moment this only works for melee weapons, not bows and
+  arrows.
+
+- Mushroom colors changed to better match mushroom patches.
+
+- Bronze dragon plate mail no longer exists; Multi-hued DSM can no longer
+  produce confusion breath, nor does it provide confusion resistance.
+
+# Monsters #
+
+- Changed the way monster statuses are handled; now all statuses occur
+  at the same time for all monsters.
+  
+- Monsters who have the REGENERATE flag will now regenerate faster than other 
+  monsters, instead of regenerating more HP each time at the same rate.
+
+- Monster hasting/slowing will now eventually wear off.
+
+- Monsters with EVADE will no longer evade hits when asleep.
+
+- Changed the way group flags work. There are now three flags, GRP_9, GRP_18, and
+  GRP_27, that determine the size of the group. If GRP_ESCORT is also present, 
+  escorts will be generated. If GRP_PEER is also present, peers will be generated.
+
+- Low-level monster with KILL_WALL now take some time to dig through walls. 
+
+## Bug fixes ##
+
+- Temporary resistances now work correctly.
+
+- Fixed some more bugs with quest rewards (thanks Jaroslav Sladek)
+
+- Fixed behavior of always_show_lists.
+
+- Fixed bug which prevented updates of monster recall term window while querying
+  symbols.
+
+- Fixed sound list.
+
 Changes from 0.4.5 to 0.4.5b:
-
-- Savefiles compatible from 0.4.4/b, but there may be irregularities, 
-  especially with existing monsters and rewards for any incomplete quests.
-
-- Buggy savefiles suffering from the "lost artifacts" bug of 0.4.5 will be 
-  corrected, and work perfectly under the new version! (thanks Jaroslav Sladek).
 
 ## Gameplay Changes ##
 
@@ -13,20 +70,17 @@ Changes from 0.4.5 to 0.4.5b:
 
 ## Bug fixes ##
 
-- Fixed several bugs to do with quest reward generation:
-  - Fixed *major* bug that caused quest rewards to mark artifacts as created even
-    if the player wasn't given them. (thanks Jaroslav Sladek).
-  - Fixed several bugs that caused the game to give wrong reward type (thanks Jaroslav Sladek).
-  - No more torch/brass lantern quest rewards.
-  - It is now possible to get personalized rewards for special quests.
-
-- Fixed bug preventing the spell info from showing up while browsing spellbooks.
+- Fixed bug with histories of stacked items (thanks Jaroslav Sladek).
 
 - Some random resistances didn't work correctly.
 
-- Fixed bug with histories of stacked items (thanks Jaroslav Sladek).
-
 - Incorrect items will no longer be pseduo-ID'd.
+
+- No more torch/brass lantern quest rewards.
+
+- Fixed bug preventing the spell info from showing up while browsing spellbooks.
+
+- Fixed bug with rewards for special quests.
 
 - Fixed bug calculating percentages in old autoroller.
 
@@ -41,6 +95,9 @@ Changes from 0.4.4b to 0.4.5:
 - Various code improvements from Angband CVS.
 
 ## Gameplay changes ##
+
+- Added new, Zangband-style weighted autoroller as a birth option (in addition
+  to old autoroller).
 
 - Now, items you can't afford will have their price greyed out in the stores.
   (Patch by Pav Lucistnik).
@@ -62,9 +119,12 @@ Changes from 0.4.4b to 0.4.5:
 - Rewrote quest reward code from scratch; it should now be a lot more 
   accurate in giving better items.
 
+- Any command which requires an item/spell choice always displays the 
+  possibilities.
+
 # Items #
 
-- Reworked chests. Now, they will generate 1-4 items from some general theme.
+- Reworked chests. Now, they will generate 3-5 items from some general theme.
   These items are no longer necessarily excellent.
 
 # Classes #
@@ -108,11 +168,22 @@ Changes from 0.4.4b to 0.4.5:
 
 - Minor changes to the Cockatrice.
 
+## Non-gameplay changes ##
+ 
+- Improved the HTML screenshot code to support player colors and "mimic"
+  monsters, as well as show all mutil-hued monsters in the color they
+  were when the shot was taken.
+   
 ## Bug fixes ##
 
 - Staves of probing now properly identified on use.
 
+- Fixed bug which caused resistances to work incorrectly as they approached 
+  (but not reached) the cap. (Thanks Jaroslav Sladek for fix).
+
 - Fixed potential overflows with monster conditions.
+
+- Fixed bug with traps in darkness.
 
 - Fixed bug that could rarely invalidate savefiles or crash the game.
 
@@ -127,13 +198,23 @@ Changes from 0.4.4b to 0.4.5:
 - Shattered and Blasted weapons/armor are no longer partially fixed on
   reload.
 
-- Fixed scrolls of elemental brand.
-
-- Creeping gems corrected.
-
 - Earthquakes properly remove traps, now.
 
 - Fixed incorrect prefixes on certain artifacts. 
+
+- Birth option to retain squelch now always works correctly.
+
+- Context sensitive help now works correctly during character generation.
+
+- Creeping gems corrected.
+
+- Fixed scrolls of elemental brand.
+
+- Staffs of starlight now work correctly.
+
+- Mages have the HAS_LIGHT flag instead of the erroneus HURT_LIGHT.
+
+- Fixed bows of extra might.
 
 Changes from 0.4.4 to 0.4.4b:
 

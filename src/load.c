@@ -396,6 +396,8 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
 	rd_byte(&m_ptr->mspeed);
+	if (older_than(0,4,6)) m_ptr->bspeed = m_ptr->mspeed;
+	else rd_byte(&m_ptr->bspeed);
 	rd_byte(&m_ptr->energy);
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);

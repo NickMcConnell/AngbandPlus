@@ -178,6 +178,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
+	wr_byte(m_ptr->bspeed);
 	wr_byte(m_ptr->energy);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);

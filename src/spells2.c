@@ -1262,9 +1262,6 @@ static bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Failure */
 	if (!res) return (FALSE);
 
-	/* Mark object */
-	o_ptr->ident |= IDENT_MODIFIED;
-
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -1511,9 +1508,6 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 	message_format(MSG_ITEM_BONUS, o_ptr->k_idx, "Your %s %s", o_name, act);
 
 	if (add_plus) enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-
-	/* Mark object */
-	o_ptr->ident |= IDENT_MODIFIED;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2037,10 +2031,10 @@ void aggravate_monsters(int who)
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
 			/* Speed up (instantly) to racial base + 10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			if (m_ptr->mspeed < m_ptr->bspeed + 10)
 			{
 				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 10;
+				m_ptr->mspeed = m_ptr->bspeed + 10;
 				speed = TRUE;
 			}
 		}

@@ -44,15 +44,15 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.5b"
+#define VERSION_STRING	"0.4.6"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	4
-#define VERSION_PATCH	5
-#define VERSION_EXTRA	1
+#define VERSION_PATCH	6
+#define VERSION_EXTRA	0
 
 /*
  * Maximum value storable in a "byte" (hard-coded)
@@ -279,7 +279,8 @@
 #define QUEST_TURNS		1200	/* Number of turns between quest failure checks */
 #define FEELING_RATE	100		/* Amount of turns needed to get a level feeling */
 #define INVIS_DELAY		3		/* Duration of invisiblity nullification (in 10*turns) */
-
+#define BASE_MON_REGEN	100		/* Base monster regeneration speed */
+#define INTEREST_OFFSET	10		/* Amount of levels OOD before a history is interesting */
 /*
  * Constants relating to player "conditions" 
  */
@@ -1513,7 +1514,6 @@
 #define SV_DRAGON_WHITE			 3
 #define SV_DRAGON_RED			 4
 #define SV_DRAGON_GREEN			 5
-#define SV_DRAGON_BRONZE		 6
 #define SV_DRAGON_GOLD			 7
 #define SV_DRAGON_SILVER		 8
 #define SV_DRAGON_MULTIHUED		 9
@@ -1896,18 +1896,21 @@
 #define SV_FOOD_CONFUSION		 3
 #define SV_FOOD_HALLUCINATION	 4
 #define SV_FOOD_PARALYSIS		 5
-#define SV_FOOD_WEAKNESS		 6
-#define SV_FOOD_SICKNESS		 7
+#define SV_FOOD_NAIVITY			 6
+#define SV_FOOD_STUPIDITY		 7
 #define SV_FOOD_DISEASE			 8
-#define SV_FOOD_CURE_POISON		 9
-#define SV_FOOD_CURE_DISEASE	10
-#define SV_FOOD_CURE_CONFUSION	11
-#define SV_FOOD_CURE_SERIOUS	12
-#define SV_FOOD_CLEAR_MIND		13
-#define SV_FOOD_RESTORE_STR		14
-#define SV_FOOD_RESTORE_CON		15
-#define SV_FOOD_RESTORE_DEX		16
-#define SV_FOOD_RESTORING		17
+#define SV_FOOD_DEFORMITY		 9
+#define SV_FOOD_CURE_POISON		10
+#define SV_FOOD_CURE_DISEASE	11
+#define SV_FOOD_CURE_CONFUSION	12
+#define SV_FOOD_CURE_LIGHT		13
+#define SV_FOOD_CURE_SERIOUS	14
+#define SV_FOOD_STONE_SKIN		15
+#define SV_FOOD_CLEAR_MIND		16
+#define SV_FOOD_RESTORE_STR		17
+#define SV_FOOD_RESTORE_CON		18
+#define SV_FOOD_RESTORE_DEX		19
+#define SV_FOOD_RESTORING		20
 /* regular food */
 #define SV_FOOD_APPLE			30
 #define SV_FOOD_JERKY			31
@@ -1919,7 +1922,7 @@
 
 /* "Sval" limits -- first "normal" food, number of mushrooms */
 #define SV_FOOD_MIN_FOOD		30
-#define SV_FOOD_MAX_SHROOM		18
+#define SV_FOOD_MAX_SHROOM		21
 
 /* The "sval" codes for TV_MAGIC_BOOK */
 #define SV_BOOK_MAGE1			 0
@@ -2095,12 +2098,6 @@
 			(SBF_MYSTIC | SBF_MAGIC | SBF_PRAYER | SBF_CODEX | SBF_NECRONOM)
 
 /*
- * Bit flags for spells
- */
-#define SSF_DIR			0x01
-#define SSF_SCALE		0x02
-
-/*
  * Bit flags for the "enchant()" function
  */
 #define ENCH_TOHIT	0x01
@@ -2258,11 +2255,10 @@
 #define IDENT_SENSE		0x01	/* Item has been "sensed" */
 #define IDENT_EMPTY		0x02	/* Item charges are known */
 #define IDENT_KNOWN		0x04	/* Item abilities are known */
-#define IDENT_MODIFIED	0x08	/* Item has been altered by the player */
+/* xxx */
 #define IDENT_MENTAL	0x10	/* Item information is known */
-#define IDENT_CURSED	0x20	/* Item is temporarily cursed */
-#define IDENT_BROKEN	0x40	/* Item is permanently worthless */
-#define IDENT_FIXED		0x80	/* Item price is fixed (used in haggling */
+#define IDENT_CURSED	0x40	/* Item is temporarily cursed */
+#define IDENT_BROKEN	0x80	/* Item is permanently worthless */
 
 /*
  * The special inscriptions.
@@ -2576,7 +2572,6 @@
  */
 #define MFLAG_VIEW	0x01	/* Monster is in line of sight */
 /* xxx */
-#define MFLAG_BORN	0x10	/* Monster is still being born */
 #define MFLAG_NICE	0x20	/* Monster is still being nice */
 #define MFLAG_SHOW	0x40	/* Monster is recently memorized */
 #define MFLAG_MARK	0x80	/* Monster is currently memorized */
@@ -2588,22 +2583,22 @@
  */
 #define RF1_UNIQUE			0x00000001	/* Force creation of unique Monster */
 #define RF1_EGO				0x00000002	/* Force creation of ego monster */
-#define RF1_MALE			0x00000004	/* Male gender */
-#define RF1_FEMALE			0x00000008	/* Female gender */
-#define RF1_ATTR_MIMIC		0x00000010	/* Gains a random color for mimics*/
-#define RF1_ATTR_CLEAR		0x00000020	/* Absorbs color */
-#define RF1_ATTR_MULTI		0x00000040	/* Changes color */
-#define RF1_CHAR_CLEAR		0x00000080	/* Absorbs character */
-#define RF1_STUPID			0x00000100	/* Monster is stupid */
-#define RF1_SMART			0x00000200	/* Monster is smart */
-#define RF1_FORCE_MAXHP		0x00000400	/* Start with max hitpoints */
-#define RF1_FORCE_SLEEP		0x00000800	/* Start out sleeping */
-#define RF1_MULTIPLY		0x00001000	/* Monster reproduces */
-#define RF1_COMPANION		0x00002000	/* Arrive with a unique from same level */
-#define RF1_FRIENDS			0x00004000	/* Arrive with a group of friends */
-#define RF1_ESCORTS			0x00008000	/* Arrive with a group of escorts */
-#define RF1_PEERS			0x00010000	/* Arrive with a group of similar ego-type */
-#define RF1_MANY			0x00020000	/* Make groups larger */
+#define RF1_ATTR_MIMIC		0x00000004	/* Gains a random color for mimics*/
+#define RF1_ATTR_CLEAR		0x00000008	/* Absorbs color */
+#define RF1_ATTR_MULTI		0x00000010	/* Changes color */
+#define RF1_CHAR_CLEAR		0x00000020	/* Absorbs character */
+#define RF1_STUPID			0x00000040	/* Monster is stupid */
+#define RF1_SMART			0x00000080	/* Monster is smart */
+#define RF1_FORCE_MAXHP		0x00000100	/* Start with max hitpoints */
+#define RF1_FORCE_SLEEP		0x00000200	/* Start out sleeping */
+#define RF1_MULTIPLY		0x00000400	/* Monster reproduces */
+#define RF1_XXX1			0x00000800	
+#define RF1_COMPANION		0x00001000	/* Arrive with a unique from same level */
+#define RF1_GRP_9			0x00002000	/* Arrive with a group of 9 */
+#define RF1_GRP_18			0x00004000	/* Arrive with a group of 18 */
+#define RF1_GRP_27			0x00008000	/* Arrive with a group of 24 */
+#define RF1_GRP_ESCORT		0x00010000	/* Arrive with a group of escorts */
+#define RF1_GRP_PEER		0x00020000	/* Arrive with a group of similar ego-type */
 #define RF1_RAND_25			0x00040000	/* Moves randomly (25%) */
 #define RF1_RAND_50			0x00080000	/* Moves randomly (50%) */
 #define RF1_ONLY_GOLD		0x00100000	/* Drop only gold */
@@ -2724,8 +2719,8 @@
 #define RF4_XXX13			0x08000000
 #define RF4_XXX14			0x10000000
 #define RF4_XXX15			0x20000000
-#define RF4_XXX16			0x40000000
-#define RF4_XXX17			0x80000000
+#define RF4_MALE			0x40000000	/* Male gender */
+#define RF4_FEMALE			0x80000000	/* Female gender */
 
 /*
  * New monster race bit flags
@@ -3069,7 +3064,7 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
-#define OPT_NORMAL					63 /* Regular options */
+#define OPT_NORMAL					62 /* Regular options */
 #define OPT_BIRTH					19 /* Birth/adult options */
 #define OPT_CHEAT					9  /* Cheat/score options */
 #define OPT_SQUELCH					2  /* Squelch options */
@@ -3133,7 +3128,7 @@
 #define OPT_auto_more				51
 #define OPT_view_monster_lite		52
 #define OPT_verify_leave_quest		53
-#define OPT_auto_haggle				54
+#define OPT_always_show_lists		54
 #define OPT_display_room_desc		55
 #define OPT_display_insc_msg		56
 #define OPT_display_recharge_msg	57
@@ -3141,7 +3136,6 @@
 #define OPT_spellbook_menu			59
 #define OPT_trap_under_object		60
 #define OPT_view_player_color		61
-#define OPT_always_show_lists		62
 
 /*
  * Option indexes (birth and adult)
@@ -3241,7 +3235,7 @@
 #define auto_more				op_ptr->opt[OPT_auto_more]
 #define view_monster_lite		op_ptr->opt[OPT_view_monster_lite]
 #define verify_leave_quest		op_ptr->opt[OPT_verify_leave_quest]
-#define auto_haggle				op_ptr->opt[OPT_auto_haggle]
+#define always_show_lists		op_ptr->opt[OPT_always_show_lists]
 #define display_room_desc		op_ptr->opt[OPT_display_room_desc]
 #define display_insc_msg		op_ptr->opt[OPT_display_insc_msg]
 #define display_recharge_msg	op_ptr->opt[OPT_display_recharge_msg]
@@ -3249,7 +3243,6 @@
 #define spellbook_menu			op_ptr->opt[OPT_spellbook_menu]
 #define trap_under_object		op_ptr->opt[OPT_trap_under_object]
 #define view_player_color		op_ptr->opt[OPT_view_player_color]
-#define always_show_lists		op_ptr->opt[OPT_always_show_lists]
 #define birth_point_based		op_ptr->opt_birth[OPT_birth_point_based]
 #define birth_auto_roller		op_ptr->opt_birth[OPT_birth_auto_roller]
 #define birth_preserve			op_ptr->opt_birth[OPT_birth_preserve]
@@ -3997,27 +3990,26 @@ extern int PlayerUID;
 #define POW_DRAGON_WHITE		258
 #define POW_DRAGON_RED			259
 #define POW_DRAGON_GREEN		260
-#define POW_DRAGON_BRONZE		261
-#define POW_DRAGON_GOLD			262
-#define POW_DRAGON_SILVER		263
-#define POW_DRAGON_MH			264
-#define POW_DRAGON_SPIRIT		265
-#define POW_DRAGON_SHADOW		266
-#define POW_DRAGON_ETHER		267
-#define POW_DRAGON_CHAOS		268
-#define POW_DRAGON_TIME			269
-#define POW_DRAGON_POWER		270
-#define POW_RISK_HACK			271
-#define POW_WONDER_HACK			272
-#define POW_MUSIC_LYRE			273
-#define POW_MUSIC_HORN			274
-#define POW_MUSIC_FLUTE			275
-#define POW_MUSIC_LUTE			276
-#define POW_MUSIC_DRUM			277
-#define POW_MUSIC_HARP			278
+#define POW_DRAGON_GOLD			261
+#define POW_DRAGON_SILVER		262
+#define POW_DRAGON_MH			263
+#define POW_DRAGON_SPIRIT		264
+#define POW_DRAGON_SHADOW		265
+#define POW_DRAGON_ETHER		266
+#define POW_DRAGON_CHAOS		267
+#define POW_DRAGON_TIME			268
+#define POW_DRAGON_POWER		269
+#define POW_RISK_HACK			270
+#define POW_WONDER_HACK			271
+#define POW_MUSIC_LYRE			272
+#define POW_MUSIC_HORN			273
+#define POW_MUSIC_FLUTE			274
+#define POW_MUSIC_LUTE			275
+#define POW_MUSIC_DRUM			276
+#define POW_MUSIC_HARP			277
 
 /* Total number of powers in the game + 1 */
-#define POW_MAX					279
+#define POW_MAX					278
 
 /* 
  * Hack - variables defined in order to be compatible with the general main*.c files.

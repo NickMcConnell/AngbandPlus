@@ -1974,6 +1974,9 @@ void do_cmd_query_symbol(void)
 		/* Extract a race */
 		r_idx = who[i].r_idx;
 
+		/* Hack -- track this monster race */
+		monster_track(who[i].r_idx, who[i].u_idx);
+
 		/* Hack -- Handle stuff */
 		handle_stuff();
 

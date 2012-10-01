@@ -1809,6 +1809,53 @@ static int weight_limit(void)
 }
 
 /*
+ * Calculates the amount of blows achieved with a certain (normally the current) weapon.
+ */
+int calc_blows(object_type *o_ptr)
+{
+	int wgt_val = 0;
+	int wgt_index;
+
+	int blows;
+
+	/* Heavy weapons */
+	if (adj_str_hold[p_stat(A_STR)] < actual_weight(o_ptr) / 10)
+	{
+		return 1;
+	}
+
+	/* Enforce a minimum "weight" (tenth pounds) */
+	if (o_ptr->k_idx) 
+	{
+		wgt_val = (actual_weight(o_ptr) / 10);
+
+		if (wgt_val > 29) wgt_val = 29;
+
+		/* Boost digging skill by weapon weight */
+		p_ptr->skill[SK_DIG] += (actual_weight(o_ptr) / 10);
+	}
+
+	/* Calculate weight index */
+	wgt_index = wght_str_blows[wgt_val][p_stat(A_STR)] + cp_ptr->attack_factor;
+
+	blows = blows_table[wgt_index][p_stat(A_DEX)];
+
+	/* Require at least one blow */
+	if (blows < 1) blows = 1;
+
+	/* Add in the "bonus blows" */
+	blows += p_ptr->extra_blows;
+
+	/* If enraged, provide an extra blow */
+	if (p_ptr->rage) blows++;
+
+	/* Require at least one blow (Check again in case of negative extra blows) */
+	if (blows < 1) blows = 1;
+
+	return (blows);
+}
+
+/*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
  * and temporary spell effects.
@@ -1843,7 +1890,6 @@ static void calc_bonuses(void)
 	int old_dis_ac;
 	int old_dis_to_a;
 
-	int extra_blows;
 	int extra_shots;
 	int extra_might;
 
@@ -1890,7 +1936,7 @@ static void calc_bonuses(void)
 
 	/* Reset "blow" info */
 	p_ptr->num_blow = 1;
-	extra_blows = 0;
+	p_ptr->extra_blows = 0;
 
 	/* Reset "fire" info */
 	p_ptr->num_fire = 0;
@@ -2065,7 +2111,7 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
 
 		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
+		if (f1 & (TR1_BLOWS)) p_ptr->extra_blows += o_ptr->pval;
 
 		/* Affect shots */
 		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
@@ -2567,37 +2613,8 @@ static void calc_bonuses(void)
 	/* Normal weapons or Unarmed combat */
 	if (!p_ptr->heavy_wield)
 	{
-		int wgt_val = 0;
-		int wgt_index;
-
-		/* Enforce a minimum "weight" (tenth pounds) */
-		if (o_ptr->k_idx) 
-		{
-			wgt_val = (actual_weight(o_ptr) / 10);
-
-			if (wgt_val > 29) wgt_val = 29;
-
-			/* Boost digging skill by weapon weight */
-			p_ptr->skill[SK_DIG] += (actual_weight(o_ptr) / 10);
-		}
-
-		/* Calculate weight index */
-		wgt_index = wght_str_blows[wgt_val][p_stat(A_STR)] + cp_ptr->attack_factor;
-
 		/* Use the blows tables */
-		p_ptr->num_blow = blows_table[wgt_index][p_stat(A_DEX)];
-
-		/* Require at least one blow */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
-
-		/* If enraged, provide an extra blow */
-		if (p_ptr->rage) p_ptr->num_blow++;
-
-		/* Require at least one blow (Check again in case of negative extra blows) */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+		p_ptr->num_blow = calc_blows(o_ptr);
 	}
 
 	/* Assume okay */
@@ -2617,6 +2634,38 @@ static void calc_bonuses(void)
 
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
+	}
+
+	/*** Analyze armor ***/
+
+	/* Examine the "current weapon" */
+	o_ptr = &inventory[INVEN_BODY];
+
+	p_ptr->cumber_armor_melee =
+		((actual_weight(o_ptr) / 10 > adj_str_armor[p_stat(A_STR)]) ? TRUE : FALSE);
+
+	/* Take note when "glove state" changes */
+	if (p_ptr->old_cumber_armor_melee != p_ptr->cumber_armor_melee)
+	{
+		/* Message */
+		if (p_ptr->cumber_armor_melee)
+		{
+			message(MSG_EFFECT, 0, "You are not strong enough to fight well with this armor");
+		}
+		else
+		{
+			message(MSG_EFFECT, 0, "Your no longer feel constrained in your melee abilities");
+		}
+
+		/* Save it */
+		p_ptr->old_cumber_armor_melee = p_ptr->cumber_armor_melee;
+	}
+
+	/* Reduce to-hit */
+	if (p_ptr->cumber_armor_melee)
+	{
+		p_ptr->to_h -= 1 + ((actual_weight(o_ptr) / 10) - adj_str_armor[p_stat(A_STR)]) / 3;
+		p_ptr->dis_to_h -= 1 + ((actual_weight(o_ptr) / 10) - adj_str_armor[p_stat(A_STR)]) / 3;
 	}
 
 	/*** Analyze stuff that disturbs spellcasting ***/
@@ -2673,7 +2722,7 @@ static void calc_bonuses(void)
 		int cur_wgt;
 
 		/* Assume player not encumbered by armor */
-		p_ptr->cumber_armor = 0;
+		p_ptr->cumber_armor_cast = 0;
 
 		/* Weigh the armor */
 		cur_wgt = 0;
@@ -2686,21 +2735,21 @@ static void calc_bonuses(void)
 
 		/* Heavy armor penalty */
 		if ((cur_wgt - cp_ptr->spell_weight) > 0)
-			p_ptr->cumber_armor = cur_wgt - cp_ptr->spell_weight;
+			p_ptr->cumber_armor_cast = cur_wgt - cp_ptr->spell_weight;
 
 		/* Take note when "armor state" changes */
-		if (p_ptr->old_cumber_armor != p_ptr->cumber_armor)
+		if (p_ptr->old_cumber_armor_cast != p_ptr->cumber_armor_cast)
 		{
 			/* Message */
-			if (p_ptr->old_cumber_armor == 0)
+			if (p_ptr->old_cumber_armor_cast == 0)
 			{
 				message(MSG_EFFECT, 0, "The weight of your armor encumbers your movement.");
 			}
-			else if (p_ptr->cumber_armor > p_ptr->old_cumber_armor)
+			else if (p_ptr->cumber_armor_cast > p_ptr->old_cumber_armor_cast)
 			{
 				message(MSG_EFFECT, 0, "The weight of your armor encumbers you further.");
 			}
-			else if (p_ptr->cumber_armor == 0)
+			else if (p_ptr->cumber_armor_cast == 0)
 			{
 				message(MSG_EFFECT, 0, "You feel able to move completely freely.");
 			}
@@ -2710,7 +2759,7 @@ static void calc_bonuses(void)
 			}
 
 			/* Save it */
-			p_ptr->old_cumber_armor = p_ptr->cumber_armor;
+			p_ptr->old_cumber_armor_cast = p_ptr->cumber_armor_cast;
 		}
 	}
 

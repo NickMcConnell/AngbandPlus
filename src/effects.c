@@ -1276,7 +1276,7 @@ bool set_shield(int v)
 	{
 		if (!p_ptr->shield)
 		{
-			message(MSG_EFFECT, 0, "A mystic shield forms around your body!");
+			message(MSG_EFFECT, 0, "You feel your skin harden!");
 			notice = TRUE;
 		}
 	}
@@ -1286,7 +1286,7 @@ bool set_shield(int v)
 	{
 		if (p_ptr->shield)
 		{
-			message(MSG_EFFECT, 0, "Your mystic shield crumbles away.");
+			message(MSG_EFFECT, 0, "Your skin loses its toughness.");
 			notice = TRUE;
 		}
 	}
@@ -1964,6 +1964,9 @@ bool set_tim_res(int type, int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_CONDITION);

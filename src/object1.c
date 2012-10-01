@@ -150,18 +150,20 @@ static byte rod_col[MAX_METALS];
  */
 static cptr food_adj[SV_FOOD_MAX_SHROOM] =
 {
-	"Blue", "Dark Blue", "Grey", "Grey Spotted", "Pink",
-	"Red", "Yellow", "Golden", "Orange", "Orange Spotted",
-	"Green", "Green Spotted", "Purple", "Violet", "Dark Green",
-	"White", "Brown", "Purple Spotted"
+	"Grey", "Grey Spotted", "Rough Grey", "Yellow", "Golden", 
+	"Yellow Spotted", "Pink", "Red", "Red Spotted", "Orange", 
+	"Orange Spotted", "Smooth Orange", "Green", "Green Spotted", "Verdant", 
+	"Purple", "Violet", "Purple Spotted", "Blue", "Dark Blue", 
+	"Blue Spotted"
 };
 
 static byte food_col[SV_FOOD_MAX_SHROOM] =
 {
-	TERM_BLUE, TERM_BLUE, TERM_SLATE, TERM_SLATE, TERM_L_RED,
-	TERM_L_RED, TERM_YELLOW, TERM_YELLOW, TERM_ORANGE, TERM_ORANGE,
-	TERM_L_GREEN, TERM_L_GREEN, TERM_VIOLET, TERM_VIOLET, TERM_GREEN,
-	TERM_WHITE, TERM_UMBER, TERM_VIOLET
+	TERM_SLATE, TERM_SLATE, TERM_SLATE, TERM_YELLOW, TERM_YELLOW, 
+	TERM_YELLOW, TERM_L_RED, TERM_L_RED, TERM_L_RED, TERM_ORANGE, 
+	TERM_ORANGE, TERM_ORANGE, TERM_L_GREEN, TERM_L_GREEN, TERM_L_GREEN, 
+	TERM_VIOLET, TERM_VIOLET,	TERM_VIOLET, TERM_BLUE, TERM_BLUE, 
+	TERM_BLUE
 };
 
 /*

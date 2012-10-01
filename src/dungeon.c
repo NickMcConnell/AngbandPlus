@@ -399,51 +399,6 @@ static void regenmana(int percent)
 }
 
 /*
- * Regenerate the monsters (once per 100 game turns)
- *
- * XXX XXX XXX Should probably be done during monster turns.
- */
-static void regen_monsters(void)
-{
-	int i, frac;
-
-	/* Regenerate everyone */
-	for (i = 1; i < m_max; i++)
-	{
-		/* Check the i'th monster */
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr;
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		r_ptr = get_monster_real(m_ptr);
-
-		/* Allow regeneration (if needed) */
-		if (m_ptr->hp < m_ptr->maxhp)
-		{
-			/* Hack -- Base regeneration */
-			frac = m_ptr->maxhp / 100;
-
-			/* Hack -- Minimal regeneration rate */
-			if (!frac) frac = 1;
-
-			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
-
-			/* Hack -- Regenerate */
-			m_ptr->hp += frac;
-
-			/* Do not over-regenerate */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-		}
-	}
-}
-
-/*
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
@@ -596,9 +551,6 @@ static void process_world(void)
 		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
 	
-	/* Hack -- Check for creature regeneration */
-	if (!(turn % 100)) regen_monsters();
-
 	/*** Damage over Time ***/
 
 	/* Take damage from poison */
@@ -2071,14 +2023,14 @@ static void process_player(void)
 			/* Repair "nice" flags */
 			if (repair_mflag_nice)
 			{
+				monster_type *m_ptr;
+
 				/* Clear flag */
 				repair_mflag_nice = FALSE;
 
 				/* Process monsters */
 				for (i = 1; i < m_max; i++)
 				{
-					monster_type *m_ptr;
-
 					/* Get the monster */
 					m_ptr = &m_list[i];
 
@@ -2090,14 +2042,14 @@ static void process_player(void)
 			/* Repair "mark" flags */
 			if (repair_mflag_mark)
 			{
+				monster_type *m_ptr;
+
 				/* Reset the flag */
 				repair_mflag_mark = FALSE;
 
 				/* Process the monsters */
 				for (i = 1; i < m_max; i++)
 				{
-					monster_type *m_ptr;
-
 					/* Get the monster */
 					m_ptr = &m_list[i];
 
@@ -2183,7 +2135,6 @@ static void dungeon(void)
 	shimmer_objects = TRUE;
 
 	/* Reset repair flags */
-	repair_mflag_born = TRUE;
 	repair_mflag_nice = TRUE;
 	repair_mflag_show = TRUE;
 	repair_mflag_mark = TRUE;
@@ -2390,7 +2341,7 @@ static void dungeon(void)
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
 			/* process monster with even more energy first */
-			process_monsters((byte)(p_ptr->energy + 1));
+			process_monsters_action((byte)(p_ptr->energy + 1));
 
 			/* if still alive */
 			if (!p_ptr->leaving)
@@ -2421,8 +2372,8 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-		/* Process all of the monsters */
-		process_monsters(100);
+		/* Process all of the monsters. */
+		process_monsters_action(100);
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2447,6 +2398,9 @@ static void dungeon(void)
 
 		/* Process the world */
 		process_world();
+
+		/* Process the monster statuses */
+		process_monsters_status();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();

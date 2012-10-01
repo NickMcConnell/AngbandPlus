@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.4.5
+V:0.4.6
 
 # Maximum number of feature types
 M:F:42

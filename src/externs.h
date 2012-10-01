@@ -30,6 +30,7 @@ extern byte adj_str_wgt[A_RANGE];
 extern byte adj_str_hold[A_RANGE];
 extern byte adj_str_dig[A_RANGE];
 extern byte adj_str_blow[A_RANGE];
+extern byte adj_str_armor[A_RANGE];
 extern byte adj_int_dev[A_RANGE];
 extern byte adj_int_dis[A_RANGE];
 extern byte adj_int_alc[A_RANGE];
@@ -117,7 +118,6 @@ extern bool inkey_scan;
 extern bool inkey_flag;
 extern bool shimmer_monsters;
 extern bool shimmer_objects;
-extern bool repair_mflag_born;
 extern bool repair_mflag_nice;
 extern bool repair_mflag_show;
 extern bool repair_mflag_mark;
@@ -466,7 +466,8 @@ extern byte object_resist(object_type *o_ptr, int res_type);
 extern byte object_resist_known(object_type *o_ptr, int res_type);
 extern void weapon_slays(object_type *o_ptr, byte *slays);
 extern void weapon_slays_known(object_type *o_ptr, byte *slays);
-extern void screen_object(object_type *o_ptr, bool flavor);
+extern void analyze_weapon(object_type *o_ptr);
+extern void screen_object(object_type *o_ptr, bool real);
 extern void list_object(object_type *o_ptr, int mode);
 extern void display_object_history(object_type *o_ptr);
 extern bool history_interesting(object_type *o_ptr);
@@ -485,7 +486,8 @@ extern errr rd_savefile(void);
 extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
-extern void process_monsters(byte minimum_energy);
+extern void process_monsters_action(byte minimum_energy);
+extern void process_monsters_status(void);
 
 /* monster1.c */
 extern void describe_monster(int r_idx, int u_idx, bool spoilers);
@@ -827,6 +829,7 @@ extern void monster_track(int r_idx, int u_idx);
 extern void artifact_track(int a_idx);
 extern void object_kind_track(int k_idx);
 extern void object_actual_track(object_type *o_ptr);
+extern int calc_blows(object_type *o_ptr);
 extern void notice_stuff(void);
 extern void update_stuff(void);
 extern void redraw_stuff(void);

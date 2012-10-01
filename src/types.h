@@ -365,7 +365,6 @@ struct armor_prefix_type
 	byte rarity;		/* Rarity - the higher this is, the less chance of being generated */
 	byte material;		/* Material */
 
-	s16b to_h;			/* Modifier to hit */
 	s16b ac;			/* Modifier to base ac */
 
 	u16b weight;		/* Weight (percentage) */
@@ -735,6 +734,8 @@ struct monster_type
 	s16b csleep;		/* Inactive counter */
 
 	byte mspeed;		/* Monster "speed" */
+	byte bspeed;		/* Monster "base speed" */
+
 	byte energy;		/* Monster "energy" */
 
 	byte stunned;		/* Monster is stunned */
@@ -826,17 +827,7 @@ struct owner_type
 	s16b max_cost;		/* Purse limit */
 	byte owner_race;	/* Owner race */
 
-#ifdef ALLOW_HAGGLE
-	byte max_inflate;	/* Inflation (max) */
-	byte min_inflate;	/* Inflation (min) */
-
-	byte haggle_per;	/* Haggle unit */
-
-	byte insult_max;	/* Insult limit */
-#else /* ALLOW_HAGGLE */
 	byte inflate;		/* Inflation */
-#endif /* ALLOW_HAGGLE */
-
 };
 
 /*
@@ -846,16 +837,6 @@ struct owner_type
 struct store_type
 {
 	byte owner;				/* Owner index */
-
-#ifdef ALLOW_HAGGLE
-
-	s16b insult_cur;		/* Insult counter */
-
-	s16b good_buy;			/* Number of "good" buys */
-	s16b bad_buy;			/* Number of "bad" buys */
-
-	s32b store_open;		/* Closed until this turn */
-#endif
 
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */
@@ -1251,7 +1232,8 @@ struct player_type
 
 	s16b old_spells;
 
-	u16b old_cumber_armor; /* Amount */
+	u16b old_cumber_armor_cast; /* Amount */
+	bool old_cumber_armor_melee; /* Amount */
 	bool old_cumber_glove;
 	bool old_heavy_wield;
 	bool old_heavy_shoot;
@@ -1262,7 +1244,8 @@ struct player_type
 
 	s16b old_food_aux;	/* Old value of food */
 
-	u16b cumber_armor;	/* Mana draining armor - amount */
+	u16b cumber_armor_cast; /* Amount */
+	bool cumber_armor_melee; /* Amount */
 	bool cumber_glove;	/* Mana draining gloves */
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
@@ -1345,6 +1328,7 @@ struct player_type
 
 	u32b noise;			/* Derived from stealth */
 
+	s16b extra_blows;	/* Number of extra blows */
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
 

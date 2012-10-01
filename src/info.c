@@ -1807,8 +1807,16 @@ void screen_object(object_type *o_ptr, bool real)
 	/* Actually display the item */
 	list_object(o_ptr, OBJECT_INFO_KNOWN);
 
-	/* Display object history */
-	if (real) display_object_history(o_ptr);
+	/* Real objects (not recall) */
+	if (real) 
+	{
+		/* Weapon Analysis */
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_HAFTED) ||
+			(o_ptr->tval == TV_POLEARM)) analyze_weapon(o_ptr);	
+
+		/* Display object history */
+		display_object_history(o_ptr);
+	}
 
 	/* Display item name */
 	obj_top(o_ptr, real);
@@ -1860,6 +1868,53 @@ static bool outlist(cptr header, const cptr *list)
 
 	/* Something was printed */
 	return (TRUE);
+}
+
+/*
+ * Hack -- display an object kind in the current window
+ *
+ * Include list of usable spells for readable books
+ */
+void analyze_weapon(object_type *o_ptr)
+{
+	int i;
+	int dam = 0;
+	int blows = calc_blows(o_ptr);
+	byte slays[SL_MAX];
+	bool any_slay = FALSE;
+
+	dam = ((actual_ds(o_ptr) + 1) * 5 * actual_dd(o_ptr));
+	dam += (actual_to_d(o_ptr) + p_ptr->to_d) * 10;
+
+	text_out("\nUsing this weapon, you will, in your current condition, be able to score ");
+	text_out_c(TERM_L_GREEN, format("%d ", blows));
+	if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
+	else text_out("blow per round, averaging a damage of ");
+
+	/* No, do the slays */
+	weapon_slays_known(o_ptr, slays);
+
+	/* Slays */
+	for (i = 0; i < SL_MAX; i++)
+	{
+		if (slays[i])
+		{
+			int dam_slay = dam * slays[i] / 10;
+
+			any_slay = TRUE;
+
+			if (dam_slay % 10)
+				text_out_c(TERM_L_GREEN, format("%d.%d", dam_slay / 10, dam_slay % 10));
+			else text_out_c(TERM_L_GREEN, format("%d", dam_slay / 10));
+			text_out(format(" %s, ",  slay_names[i]));
+		}
+	}
+
+	if (dam % 10) text_out_c(TERM_L_GREEN, format("%d.%d", dam / 10, dam % 10));
+	else text_out_c(TERM_L_GREEN, format("%d", dam / 10));
+		
+	if (any_slay) text_out(" vs. non-affected monsters.\n"); 
+	else text_out(" vs. any monster.\n"); 
 }
 
 /* 
@@ -2388,7 +2443,7 @@ void list_object(object_type *o_ptr, int mode)
 	
 		anything |= alch_title_out;
 	}
-
+	
 	/* Nothing was printed */
 	if (!random && !anything) text_out("You know nothing worth noting about this item.  ");
 
@@ -2534,7 +2589,7 @@ bool history_interesting(object_type *o_ptr)
 		return FALSE;
 
 	/* Objects OOD by more than ten levels are interesting */
-	if ((o_ptr->origin_dlvl + 10) < k_info[o_ptr->k_idx].level) return TRUE;
+	if ((o_ptr->origin_dlvl + INTEREST_OFFSET) < k_info[o_ptr->k_idx].level) return TRUE;
 
 	return FALSE;
 }
@@ -2573,16 +2628,16 @@ void stack_histories(object_type *o_ptr, object_type *j_ptr)
 	}
 
 	/* If the first object has an exceptionally interesting history */
-	else if ((o_ptr->origin_u_idx) ||
-	    (o_ptr->origin_dlvl + 10 > k_info[o_ptr->k_idx].level))
+	else if ((o_ptr->origin_u_idx + INTEREST_OFFSET) ||
+	    (o_ptr->origin_dlvl > k_info[o_ptr->k_idx].level))
 	{
 		/* Use the first item's history */
 		action = KEEP_O;
 	}
 
 	/* If the second object has an exceptionally interesting history */
-	else if ((j_ptr->origin_u_idx) ||
-	    (j_ptr->origin_dlvl + 10> k_info[j_ptr->k_idx].level))
+	else if ((j_ptr->origin_u_idx + INTEREST_OFFSET) ||
+	    (j_ptr->origin_dlvl > k_info[j_ptr->k_idx].level))
 	{
 		/* Use the second item's history */
 		action = KEEP_J;
@@ -2676,3 +2731,4 @@ void display_koff(object_type *o_ptr)
 	/* Display item name */
 	obj_top(o_ptr, term_obj_real);
 }
+

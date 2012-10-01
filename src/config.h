@@ -149,11 +149,6 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow "haggling" in stores
- */
-/* #define ALLOW_HAGGLE */
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS

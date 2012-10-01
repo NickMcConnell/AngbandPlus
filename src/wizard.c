@@ -2484,7 +2484,7 @@ static void spoil_mon_calc_aux(monster_list_entry *who, int n, int fset, u32b fl
 	u16b y_flag_u[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	u16b x_flag_u[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	/* Acid resistance */
+	/* Check flag */
 	for (i = 0; i < n; i++)
 	{
 		monster_race *r_ptr = get_monster_fake(who[i].r_idx, 0, who[i].u_idx);
@@ -2708,10 +2708,40 @@ static void spoil_mon_calc(cptr fname)
 	spoil_mon_calc_aux(who, n, 3, RF3_NO_BLIND, full);
 
 	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "No Fear\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_NO_FEAR, full);
+
+	fprintf(fff, "\n------------------\n");
 	fprintf(fff, "Res Conf\n");
 	fprintf(fff, "------------------\n");
 
 	spoil_mon_calc_aux(who, n, 3, RF3_RES_CONF, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "No Stun\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_NO_STUN, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "No Sleep\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_NO_SLEEP, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "No Cut\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 3, RF3_NO_CUT, full);
+
+	fprintf(fff, "\n------------------\n");
+	fprintf(fff, "See invisible\n");
+	fprintf(fff, "------------------\n");
+
+	spoil_mon_calc_aux(who, n, 2, RF2_SEE_INVIS, full);
 
 	/* End it */
 	fprintf(fff, "\n");
