@@ -3572,3 +3572,41 @@ int test_monster_name (cptr name)
 	}
 	return (0);
 }
+
+/* New function to get the name of a specific element/type! */
+char *get_element_name(int element)
+{
+        if (element == GF_FIRE) return("Fire");
+        if (element == GF_COLD) return("Cold");
+        if (element == GF_ELEC) return("Electric");
+        if (element == GF_ACID) return("Acid");
+        if (element == GF_POIS) return("Poison");
+        if (element == GF_NUKE) return("Nuke");
+        if (element == GF_WATER) return("Water");
+        if (element == GF_CHAOS) return("Chaos");
+        if (element == GF_DARK) return("Darkness");
+        if (element == GF_LITE) return("Light");
+        if (element == GF_PLASMA) return("Plasma");
+        if (element == GF_SHARDS) return("Shards");
+        if (element == GF_SOUND) return("Sound");
+        if (element == GF_FORCE) return("Force");
+        if (element == GF_GRAVITY) return("Gravity");
+        if (element == GF_WIND) return("Wind");
+        if (element == GF_TIME) return("Time");
+        if (element == GF_INERTIA) return("Inertia");
+        if (element == GF_MISSILE) return("Missile");
+        if (element == GF_PHYSICAL) return("Physical");
+        if (element == GF_MANA) return("Mana");
+        if (element == GF_REDUCE_HIT) return("Reduce Hit Rate");
+        if (element == GF_REDUCE_DEF) return("Reduce Defense");
+        if (element == GF_WEAKEN) return("Weaken");
+        if (element == GF_REDUCE_SPEED) return("Reduce Speed");
+        if (element == GF_RETROGRADE) return("Retrograde");
+        if (element == GF_LOCK) return("Lock");
+        if (element == GF_EVOLVE) return("Evolve");
+        if (element == GF_UNEVOLVE) return("Unevolve");
+        if (element == GF_FEAR_CURSE) return("Demoralize");
+
+        /* Default */
+        return("Unknown");
+}

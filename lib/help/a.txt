@@ -1,0 +1,15 @@
+HUMAN
+-------
+
+Humans are the most abundant race in the world. They rule the
+major kingdoms and empires. Because there are humans everywhere,
+they often come in contacts with the other races, and humans
+are known for being a fertile specie, being able to breed with
+elves, orcs and others. A human does not possess any particular
+abilities, nor do they possess any signifiant disadvantages, but
+since they have a short life span compared to most other races,
+they tend to learn things a bit quicker.
+
+ADVANTAGES: Gain levels a bit faster than other races
+
+DISADVANTAGES: -None

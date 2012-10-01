@@ -1,0 +1,22 @@
+  |\    | |----- |        |   /\   |\    |  /----  |---\   /\   |\    | |---\
+  | \   | |      |        |  /  \  | \   | /       |   |  /  \  | \   | |    |
+  |  \  | |---   |        | /----\ |  \  | |  ---\ |   / /----\ |  \  | |    |
+  |   \ | |       \  /\  /  |    | |   \ | |     | |   \ |    | |   \ | |    |
+  |    \| |-----   \/  \/   |    | |    \|  \----/ |---/ |    | |    \| |---/
+
+      ------******         THE FALL OF THE CREATOR        ******------
+
+
+                     Author: Variaz
+                             With gracious help from all testers
+                             and members of the forum! :)
+
+                     Version: 1.7.1
+
+
+                     Questions/comments? Send them to:
+                            variaz@hotmail.com
+                     Or post them on the NewAngband forum:
+                            http://variaz.proboards3.com
+
+           (Press '?' anytime during the game to access help menu)

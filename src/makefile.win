@@ -6,8 +6,8 @@
 
 # change this to suit your taste
 
-CC = c:\borland\bcc55\bin\bcc32.exe +bcc32.cfg
-CC32 = c:\borland\bcc55\bin\bcc32.exe +bcc32.cfg
+CC = c:\borland\bcc55\bin\bcc32.exe +bccw16.cfg
+CC32 = c:\borland\bcc55\bin\bcc32.exe +bccw32.cfg
 LINK = c:\borland\bcc55\bin\ilink32.exe
 LINK32 = c:\borland\bcc55\bin\ilink32.exe
 RC = c:\borland\bcc55\bin\brc32.exe
@@ -25,7 +25,7 @@ SRCS = \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c \
   store.c birth.c load2.c notes.c \
-  wizard1.c wizard2.c levels.c \
+  wizard1.c wizard2.c levels.c learn.c mongen.c \
   generate.c dungeon.c init1.c init2.c \
   main-win.c readdib.c \
   bldg.c
@@ -38,7 +38,7 @@ OBJS = \
   melee1.obj melee2.obj save.obj files.obj \
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj cmd7.obj \
   store.obj birth.obj load2.obj notes.obj \
-  wizard1.obj wizard2.obj levels.obj \
+  wizard1.obj wizard2.obj levels.obj learn.obj mongen.obj\
   generate.obj dungeon.obj init1.obj init2.obj \
   main-win.obj readdib.obj \
   bldg.obj
@@ -51,7 +51,7 @@ OBJS32 = \
   melee1.o32 melee2.o32 save.o32 files.o32 \
   cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 cmd7.o32 \
   store.o32 birth.o32 load2.o32 notes.o32 \
-  wizard1.o32 wizard2.o32 levels.o32 \
+  wizard1.o32 wizard2.o32 levels.o32 learn.o32 mongen.o32 \
   generate.o32 dungeon.o32 init1.o32 init2.o32 \
   main-win.o32 readdib.o32 \
   bldg.o32
@@ -158,8 +158,8 @@ readdib.obj: ..\ext-win\src\readdib.c ..\ext-win\src\readdib.h
 
 angband: $(OBJS) ..\ext-win\src\angband.rc
 	$(LINK) /L$(LIBDIR) @&&|
--Twe -P -d -x -Gn -Oc -yx4096 +
-c0wl+
+-P -d -x -Gn -Oc +
+c0w32 +
 z-util z-virt z-form z-rand z-term +
 variable tables util cave +
 object1 object2 traps monster1 monster2 +
@@ -167,10 +167,10 @@ xtra1 xtra2 spells1 spells2 +
 melee1 melee2 save files +
 cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 cmd7 +
 store birth load2 notes +
-wizard1 wizard2 levels +
+wizard1 wizard2 levels learn mongen +
 generate dungeon init1 init2 +
 main-win readdib bldg,+
-..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
+..\angband.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
 |
 	$(RC) -31 ..\ext-win\src\angband.rc ..\angband.exe
 
@@ -195,7 +195,7 @@ xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
 melee1.o32 melee2.o32 save.o32 files.o32 +
 cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 cmd7.o32 +
 store.o32 birth.o32 load2.o32 notes.o32 +
-wizard1.o32 wizard2.o32 levels.o32 +
+wizard1.o32 wizard2.o32 levels.o32 learn.o32 mongen.o32 +
 generate.o32 dungeon.o32 init1.o32 init2.o32 +
 main-win.o32 readdib.o32 bldg.o32,+
 ..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def

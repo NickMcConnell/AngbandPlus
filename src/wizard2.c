@@ -120,7 +120,7 @@ void do_cmd_rerate(void)
  * Create the artifact of the specified number -- DAN
  *
  */
-static void wiz_create_named_art()
+void wiz_create_named_art()
 {
 	object_type forge;
 	object_type *q_ptr;
@@ -573,22 +573,6 @@ static tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-        { TV_VALARIN_BOOK,      "Valarin Spellbook"    },
-        { TV_MAGERY_BOOK,       "Magery Spellbook"     },
-        { TV_SHADOW_BOOK,       "Shadow Spellbook"     },
-	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
-        { TV_NETHER_BOOK,       "Nether Spellbook"     },
-        { TV_CRUSADE_BOOK,      "Crusade Spellbook"    },
-        { TV_SIGALDRY_BOOK,     "Sigaldry Spellbook",  },
-        { TV_SYMBIOTIC_BOOK,    "Symbiotic Spellbook", },
-        { TV_TRIBAL_BOOK,       "Tribal Spellbook"     },
-        { TV_DRUID_BOOK,        "Elemental Stone"      },
-        { TV_MUSIC_BOOK,        "Music Book"           },
-        { TV_MAGIC_BOOK,        "Book of Spells"       },
-        { TV_PRAYER_BOOK,       "Holy Book"            },
-        { TV_ILLUSION_BOOK,     "Book of Illusions"    },
-        { TV_MIMIC_BOOK,        "Book of Lore"         },
-        { TV_BATTLE_BOOK,       "Battle Spellbook"     },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
@@ -597,13 +581,17 @@ static tval_desc tvals[] =
         { TV_BATERIE,           "Essence"              },
         { TV_PARCHEMENT,        "Parchement"           },
         { TV_INSTRUMENT,        "Musical Instrument"   },
-        { TV_RUNE1,             "Rune 1"               },
-        { TV_RUNE2,             "Rune 2"               },
         { TV_HELL_STAFF,        "Hell Staff"           },
         { TV_SWORD_DEVASTATION, "Sword Of Devastation" },
         { TV_CRYSTAL,           "Magic Crystal"        },
         { TV_VALKYRIE_SPEAR,    "Valkyrie Spear"       },
-        { TV_ABILITY,           "Ability"              },
+        { TV_ZELAR_WEAPON,      "Zelar Weapon"         },
+        { TV_BOOK_ELEMENTAL,    "Elemental Books"      },
+        { TV_BOOK_ALTERATION,   "Alteration Books"     },
+        { TV_BOOK_HEALING,      "Healing Books"        },
+        { TV_BOOK_CONJURATION,  "Conjuration Books"    },
+        { TV_BOOK_DIVINATION,   "Divination Books"     },
+        { TV_JUNK,              "Junk"                 },
 	{ 0,                    NULL                   }
 };
 
@@ -770,13 +758,13 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
         p = "Enter new 'pval2' setting: ";
-        sprintf(tmp_val, "%d", o_ptr->pval2);
+        sprintf(tmp_val, "%ld", o_ptr->pval2);
 	if (!get_string(p, tmp_val, 5)) return;
         o_ptr->pval2 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
         p = "Enter new 'pval3' setting: ";
-        sprintf(tmp_val, "%d", o_ptr->pval3);
+        sprintf(tmp_val, "%ld", o_ptr->pval3);
 	if (!get_string(p, tmp_val, 5)) return;
         o_ptr->pval3 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -821,6 +809,12 @@ static void wiz_tweak_item(object_type *o_ptr)
         sprintf(tmp_val, "%d", o_ptr->sval);
 	if (!get_string(p, tmp_val, 5)) return;
         o_ptr->sval = atoi(tmp_val);
+	wiz_display_item(o_ptr);
+
+        p = "Enter new 'xtra1' setting: ";
+        sprintf(tmp_val, "%d", o_ptr->xtra1);
+	if (!get_string(p, tmp_val, 5)) return;
+        o_ptr->xtra1 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
         p = "Enter new 'exp level' setting: ";
@@ -880,21 +874,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+                        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
 		else if (ch == 'g' || ch == 'g')
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, FALSE, TRUE, FALSE);
+                        apply_magic(q_ptr, dun_level, FALSE, TRUE, FALSE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
 		else if (ch == 'e' || ch == 'e')
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE);
+                        apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE, FALSE);
 		}
 	}
 
@@ -1321,7 +1315,7 @@ static void wiz_create_item(void)
 	object_prep(q_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
 	drop_near(q_ptr, -1, py, px);
@@ -1351,7 +1345,7 @@ static void wiz_create_item_2(void)
         object_prep(q_ptr, a_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
 	drop_near(q_ptr, -1, py, px);
@@ -1387,10 +1381,6 @@ void do_cmd_wiz_cure_all(void)
 	p_ptr->chp = p_ptr->mhp;
 	p_ptr->chp_frac = 0;
 
-        /* Cure insanity of player */
-        p_ptr->csane = p_ptr->msane;
-        p_ptr->csane_frac = 0;
-
         /* Heal the player monster */
         /* Get the carried monster */
         o_ptr = &inventory[INVEN_CARRY];
@@ -1405,9 +1395,6 @@ void do_cmd_wiz_cure_all(void)
 	/* Restore mana */
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
-
-        /* Restore tank */
-        p_ptr->ctp = p_ptr->mtp;
 
 	/* Cure stuff */
 	(void)set_blind(0);
@@ -1569,13 +1556,6 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
         if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
 	}
 }
-static void do_cmd_summon_variaz(bool slp)
-{
-         p_ptr->chp = -20;
-         
-}
-
-
 
 /*
  * Summon a creature of the specified type
@@ -1752,7 +1732,7 @@ void do_cmd_debug(void)
 
 		/* Hitpoint rerating */
 		case 'h':
-		do_cmd_rerate(); break;
+                msg_format("Guard: %d", p_ptr->guardconfuse); break;
 
 #ifdef MONSTER_HORDES
 		case 'H':
@@ -1886,9 +1866,13 @@ void do_cmd_debug(void)
 
                 case 'V':
                         p_ptr->ability_points += 10000;
+                        p_ptr->class_level[p_ptr->pclass] = 10;
+                        p_ptr->skillpoints += 200;
 			break;
                 case 'X':
-                        get_hellqueen_history();
+                        /* p_ptr->con_boost = 20;
+                        (void)set_con_boost(20); */
+                        summon_specific_friendly_kind(py, px, 50, 'k', TRUE);
 			break;
 
 
@@ -1920,6 +1904,12 @@ void do_cmd_debug(void)
 		do_cmd_wiz_zap();
 		break;
 
+                /* Bye bye items! ;) */
+                case 'Z':
+                        no_more_items();
+		break;
+
+
 		/* Hack -- whatever I desire */
 		case '_':
 		do_cmd_wiz_hack_ben();
@@ -1934,16 +1924,6 @@ void do_cmd_debug(void)
                 /* Recalculate bonuses */
                 p_ptr->update |= (PU_BONUS);
                 break;
-
-                /* Gain a fate */
-                case '+':
-                {
-                int i;
-                gain_fate(command_arg);
-                for(i = 0; i < MAX_FATES; i++)
-                        fates[i].know = TRUE;
-                break;
-                }
 
                 /* Change the feature of the map */
                 case 'F':

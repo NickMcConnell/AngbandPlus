@@ -1,0 +1,21 @@
+NIBELUNG
+----------
+
+Nibelungs are the dark and evil cousins of the dwarves.
+Very similar to dwarves in many ways, these more evil
+inviduals fell into darkness, and thus resist darkness
+attacks better than the normal dwarf. However, because
+they are evil and their sense of leadership leaves much
+to be desired, they have a penality to their charisma.
+
+ADVANTAGES: +33% to Constitution
+            +25% to Strength
+	    Innate resistance to blindness
+	    Innate dark vision
+	    Innate resistance to darkness attacks
+
+DISADVANTAGES: -25% to Intelligence
+	       -10% to Charisma
+	       -10% to Dexterity
+	       -10% to Wisdom
+               -1 to speed

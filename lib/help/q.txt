@@ -1,0 +1,30 @@
+VAMPIRE
+---------
+
+Vampires are undeads who were once living humans, elves
+and other humanoid races. Either having been bitten by
+a vampire lord, or having been turned into vampires by
+powerful necromancers, these undead creatures roams the
+darkness in search for blood. As undeads, they possesses
+many resistances and have an innate regeneration. However,
+vampires get little from normal food, and must drink
+the blood of their opponents to survive, which means
+approaching them and drinking their fresh blood.
+
+ADVANTAGES: +25% to darkness type attacks.
+            Cannot be poisoned, stunned and cannot bleed.
+	    Innate immunity to cold
+	    Innate resistance to darkness, nether, chaos and poison
+	    Innate resistance to fear, confusion and black breath
+	    Innate resistance to experience draining
+	    Innate regeneration
+	    Innate dark vision
+
+DISADVANTAGES: Must drink blood from opponents to eat. To do so, they
+	       use the "Drain Life" ability. It's a physical attack,
+	       and it heals the vampire AND feed him 30 hp and 100 food
+	       per levels. It also deals 30 physical damages/level to
+	       the enemy.
+
+	       Cannot wear a light source.
+	       Vampires are damaged by day light in the town.

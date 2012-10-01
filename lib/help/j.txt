@@ -1,0 +1,19 @@
+HIGH ELF
+----------
+
+High Elves are the elder, immortal cousins of the elves
+who lives for a very, very long time. Their knowledge is very
+high, and their eternal life span allowed them to master
+all the skills available to them. Therefore, unlike normal
+elves, they receive a bonus to all skills. However, because
+their knowledge is already pretty high, they tend to learn
+skills slower than the regular elves.
+
+ADVANTAGES: +25% to Dexterity
+            +20% to all skills
+	    +5 to all skills
+
+DISADVANTAGES: -10% to Strength
+               -10% to Constitution
+               Only gain 1 skill point per levels.
+

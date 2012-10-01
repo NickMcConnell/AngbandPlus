@@ -4658,7 +4658,7 @@ static void try_door(int y, int x)
 static bool room_build(int y, int x, int typ)
 {
 	/* Restrict level */
-	if ((dun_level < roomdep[typ]) && !ironman_rooms) return (FALSE);
+        if ((dun_level < roomdep[typ])) return (FALSE);
 
 	/* Restrict "crowded" rooms */
 	if (dun->crowded && ((typ == 5) || (typ == 6))) return (FALSE);
@@ -5041,7 +5041,7 @@ void replace_all_friends()
         /* Scan every saved pet */
         for (i = 0; i < max_m_idx; i++)
         {
-                if((km_list[i].r_idx) && (km_list[i].imprinted))
+                if((km_list[i].r_idx) && (km_list[i].imprinted || km_list[i].friend))
                 {
                         int y = py, x = px;
                         cave_type *c_ptr;
@@ -5060,10 +5060,12 @@ void replace_all_friends()
                         m_ptr->fy = y;
                         m_ptr->fx = x;
                         m_ptr->hold_o_idx = 0;
+                        if (km_list[i].friend == 1) m_ptr->imprinted = TRUE;
 
                         /* Erase the old monster */
                         km_list[i].r_idx = 0;
                         km_list[i].imprinted = FALSE;
+                        km_list[i].friend = 0;
                 }
         }
 }
@@ -5078,7 +5080,7 @@ void save_all_friends()
         /* Scan every monster */
         for (i = 0; i < max_m_idx; i++)
         {
-                if((m_list[i].r_idx) && (m_list[i].imprinted))
+                if((m_list[i].r_idx) && (m_list[i].imprinted || m_list[i].friend))
                 {
                         /* Actualy save the monster */
                         km_list[i] = m_list[i];
@@ -5527,7 +5529,7 @@ static bool cave_gen(void)
         int i, j, k, y, x, y1, x1, branch;
 
 	int max_vault_ok = 2;
-        int duntype;
+        int duntype, dunwill;
 
 	bool destroyed = FALSE;
 	bool empty_level = FALSE;
@@ -5535,7 +5537,10 @@ static bool cave_gen(void)
 	bool cavern = FALSE;
 
 	dun_data dun_body;
-        duntype = randint(100);
+        dunwill = randint(100);
+        
+        if (dun_level >= 30) duntype = randint(250);
+        else duntype = randint(200);
 
         /* Fill the arrays of floors and walls in the good proportions */
         for (i = 0; i < 100; i++)
@@ -5547,7 +5552,7 @@ static bool cave_gen(void)
                 lim3 = lim2 + d_info[dungeon_type].floor_percent3;
 
                 /* Mega-HACK -- if a druid request a flooded level, he/she obtains it */
-                if((p_ptr->pclass == CLASS_DRUID) && (p_ptr->class_extra6 & CLASS_FLOOD_LEVEL))
+                if(p_ptr->class_extra6 & CLASS_FLOOD_LEVEL)
                 {
                         if (i < 33)
                                 floor_type[i] = FEAT_DEEP_WATER;
@@ -5556,34 +5561,189 @@ static bool cave_gen(void)
                 }
                 else
                 {
-                        if (i < lim1)
-                                floor_type[i] = d_info[dungeon_type].floor1;
-                        else if (i < lim2)
-                                floor_type[i] = d_info[dungeon_type].floor2;
-                        else if (i < lim3)
-                                floor_type[i] = d_info[dungeon_type].floor3;
+                        /* Sometimes generate a special level (20%) */
+                        if (dunwill <= 20)
+                        {
+                                /* Magma */
+                                if (duntype > 200)
+                                {
+                                        if (i < lim1)
+                                                floor_type[i] = FEAT_SHAL_LAVA;
+                                        else if (i < lim2)
+                                                floor_type[i] = FEAT_DEEP_LAVA;
+                                        else if (i < lim3)
+                                                floor_type[i] = FEAT_DEEP_LAVA;
+                                }
+                                /* Jungle/Bayou */
+                                else if (duntype >= 150)
+                                {
+                                        if (i < lim1)
+                                                floor_type[i] = FEAT_GRASS;
+                                        else if (i < lim2)
+                                                floor_type[i] = FEAT_SHAL_WATER;
+                                        else if (i < lim3)
+                                                floor_type[i] = FEAT_DEEP_WATER;
+                                }
+                                /* Water Cave */
+                                else if (duntype >= 100)
+                                {
+                                        if (i < lim1)
+                                                floor_type[i] = FEAT_SHAL_WATER;
+                                        else if (i < lim2)
+                                                floor_type[i] = FEAT_SHAL_WATER;
+                                        else if (i < lim3)
+                                                floor_type[i] = FEAT_DEEP_WATER;
+                                }
+                                /* Mountain */
+                                else if (duntype >= 50)
+                                {
+                                        if (i < lim1)
+                                                floor_type[i] = FEAT_DIRT;
+                                        else if (i < lim2)
+                                                floor_type[i] = FEAT_DIRT;
+                                        else if (i < lim3)
+                                                floor_type[i] = FEAT_DIRT;
+                                }                
+                                /* Vast Ocean */
+                                else
+                                {
+                                        if (i < lim1)
+                                                floor_type[i] = FEAT_SHAL_WATER;
+                                        else if (i < lim2)
+                                                floor_type[i] = FEAT_DEEP_WATER;
+                                        else if (i < lim3)
+                                                floor_type[i] = FEAT_DEEP_WATER;
+                                }                
+                        }
+                        else
+                        {
+                                                
+                                if (i < lim1)
+                                        floor_type[i] = d_info[dungeon_type].floor1;
+                                else if (i < lim2)
+                                        floor_type[i] = d_info[dungeon_type].floor2;
+                                else if (i < lim3)
+                                        floor_type[i] = d_info[dungeon_type].floor3;
+                        }
                 }
 
                 lim1 = d_info[dungeon_type].fill_percent1;
                 lim2 = lim1 + d_info[dungeon_type].fill_percent2;
                 lim3 = lim2 + d_info[dungeon_type].fill_percent3;
-                if (i < lim1)
-                        fill_type[i] = d_info[dungeon_type].fill_type1;
-                else if (i < lim2)
-                        fill_type[i] = d_info[dungeon_type].fill_type2;
-                else if (i < lim3)
-                        fill_type[i] = d_info[dungeon_type].fill_type3;
+                        /* Sometimes generate a special level (20%) */
+                        if (dunwill <= 20)
+                        {
+                                /* Magma */
+                                if (duntype > 200)
+                                {
+                                        if (i < lim1)
+                                                fill_type[i] = FEAT_DEEP_LAVA;
+                                        else if (i < lim2)
+                                                fill_type[i] = FEAT_DEEP_LAVA;
+                                        else if (i < lim3)
+                                                fill_type[i] = FEAT_DEEP_LAVA;
+                                }
+                                /* Jungle/Bayou */
+                                else if (duntype >= 150)
+                                {
+                                        if (i < lim1)
+                                                fill_type[i] = FEAT_TREES;
+                                        else if (i < lim2)
+                                                fill_type[i] = FEAT_TREES;
+                                        else if (i < lim3)
+                                                fill_type[i] = FEAT_TREES;
+                                }
+                                /* Water Cave */
+                                else if (duntype >= 100)
+                                {
+                                        if (i < lim1)
+                                                fill_type[i] = FEAT_MOUNTAIN;
+                                        else if (i < lim2)
+                                                fill_type[i] = FEAT_MOUNTAIN;
+                                        else if (i < lim3)
+                                                fill_type[i] = FEAT_MOUNTAIN;
+                                }
+                                /* Mountain */
+                                else if (duntype >= 50)
+                                {
+                                        if (i < lim1)
+                                                fill_type[i] = FEAT_MOUNTAIN;
+                                        else if (i < lim2)
+                                                fill_type[i] = FEAT_MOUNTAIN;
+                                        else if (i < lim3)
+                                                fill_type[i] = FEAT_TREES;
+                                }                
+                                /* Vast Ocean */
+                                else
+                                {
+                                        if (i < lim1)
+                                                fill_type[i] = FEAT_DEEP_WATER;
+                                        else if (i < lim2)
+                                                fill_type[i] = FEAT_DEEP_WATER;
+                                        else if (i < lim3)
+                                                fill_type[i] = FEAT_DEEP_WATER;
+                                }                
+                        }
+                        else
+                        {
+                                                
+                                if (i < lim1)
+                                        fill_type[i] = d_info[dungeon_type].fill_type1;
+                                else if (i < lim2)
+                                        fill_type[i] = d_info[dungeon_type].fill_type2;
+                                else if (i < lim3)
+                                        fill_type[i] = d_info[dungeon_type].fill_type3;
+                        }
+
 
         }
 
         /* Mega hack -- remove the druid flood request */
-        if((p_ptr->pclass == CLASS_DRUID) && (p_ptr->class_extra6 & CLASS_FLOOD_LEVEL))
+        if(p_ptr->class_extra6 & CLASS_FLOOD_LEVEL)
         {
                 p_ptr->class_extra6 &= ~(CLASS_FLOOD_LEVEL);
         }
-
-        feat_wall_outer = d_info[dungeon_type].outer_wall;
-        feat_wall_inner = d_info[dungeon_type].inner_wall;
+                        /* Sometimes generate a special level (20%) */
+                        if (dunwill <= 20)
+                        {
+                                /* Magma */
+                                if (duntype > 200)
+                                {
+                                        feat_wall_outer = FEAT_DEEP_LAVA;
+                                        feat_wall_inner = FEAT_DEEP_LAVA;
+                                        
+                                }
+                                /* Jungle/Bayou */
+                                else if (duntype >= 150)
+                                {
+                                        feat_wall_outer = feat_wall_outer;
+                                        feat_wall_inner = FEAT_TREES;
+                                        
+                                }
+                                /* Water Cave */
+                                else if (duntype >= 100)
+                                {
+                                        feat_wall_outer = feat_wall_outer;
+                                        feat_wall_inner = FEAT_MOUNTAIN;
+                                }
+                                /* Mountain */
+                                else if (duntype >= 50)
+                                {
+                                        feat_wall_outer = feat_wall_outer;
+                                        feat_wall_inner = FEAT_TREES;
+                                }                
+                                /* Vast Ocean */
+                                else
+                                {
+                                        feat_wall_outer = FEAT_DEEP_WATER;
+                                        feat_wall_inner = FEAT_DEEP_WATER;
+                                }                
+                        }
+                        else
+                        {
+                                feat_wall_outer = d_info[dungeon_type].outer_wall;
+                                feat_wall_inner = d_info[dungeon_type].inner_wall;                                                
+                        }
 
 	/* Set the correct monster hook */
 	set_mon_num_hook();
@@ -5713,13 +5873,13 @@ static bool cave_gen(void)
 		}
 
 		/* Attempt an "unusual" room */
-		if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
+                if ((rand_int(DUN_UNUSUAL) < dun_level))
 		{
                         /* Roll for room type */
-                        k = (ironman_rooms ? 0 : rand_int(100));
+                        k = (rand_int(100));
 
                         /* Attempt a very unusual room */ /* test hack */
-                        if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
+                        if ((rand_int(DUN_UNUSUAL) < dun_level))
 			{
 #ifdef FORCE_V_IDX
                                 if (room_build(y, x, 8)) continue;
@@ -6112,131 +6272,6 @@ static bool cave_gen(void)
 		(void)alloc_monster(0, TRUE);
 	}
 
-        for(i = 0; i < MAX_FATES; i++)
-        {
-                if(((!fates[i].serious)&&(randint(2)==1)) || (fates[i].serious))
-                if((fates[i].fate)&&(fates[i].level == dun_level))
-                {
-                fate_flag = TRUE;
-                
-                switch(fates[i].fate)
-                {
-                        case FATE_FIND_O:
-                        {
-                                int oy = py + 1;
-                                int ox = px;
-                                object_type *q_ptr, forge;
-                                
-                                /* Get local object */
-                                q_ptr = &forge;
-
-                                /* Mega-Hack */
-                                object_prep(q_ptr, fates[i].o_idx);
-
-                                /* Mega-Hack */
-                                apply_magic(q_ptr, dun_level, TRUE, TRUE, fates[i].serious);
-
-                                get_pos_player(10, &oy, &ox);
-
-                                /* Drop it from the heaven */
-                                drop_near(q_ptr, -1, oy, ox);
-
-                                fates[i].fate = FATE_NONE;
-                                break;
-                        }
-                        case FATE_FIND_R:
-                        {
-                                int oy = py + 1;
-                                int ox = px;
-                                
-                                get_pos_player(10, &oy, &ox);
-
-                                place_monster_one(oy, ox, fates[i].r_idx, fates[i].serious, FALSE);
-
-                                fates[i].fate = FATE_NONE;
-                                break;
-                        }
-                        case FATE_FIND_A:
-                        {
-                                int oy = py + 1;
-                                int ox = px;
-                                
-                                get_pos_player(10, &oy, &ox);
-
-                                if (a_info[fates[i].a_idx].cur_num == 0)
-				{
-                                        artifact_type *a_ptr = &a_info[fates[i].a_idx];
-                                        object_type *q_ptr, forge;
-                                        int I_kind;
-
-					/* Get local object */
-					q_ptr = &forge;
-
-					/* Wipe the object */
-					object_wipe(q_ptr);
-
-					/* Acquire the "kind" index */
-					I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-					/* Create the artifact */
-					object_prep(q_ptr, I_kind);
-
-					/* Save the name */
-                                        q_ptr->name1 = fates[i].a_idx;
-
-					/* Extract the fields */
-					q_ptr->pval = a_ptr->pval;
-					q_ptr->ac = a_ptr->ac;
-					q_ptr->dd = a_ptr->dd;
-					q_ptr->ds = a_ptr->ds;
-					q_ptr->to_a = a_ptr->to_a;
-					q_ptr->to_h = a_ptr->to_h;
-					q_ptr->to_d = a_ptr->to_d;
-					q_ptr->weight = a_ptr->weight;
-
-					/* Hack -- acquire "cursed" flag */
-					if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-					random_artifact_resistance(q_ptr);
-
-                                        a_info[fates[i].a_idx].cur_num = 1;
-
-					/* Drop the artifact from heaven */
-                                        drop_near(q_ptr, -1, oy, ox);
-				}
-                                
-
-                                fates[i].fate = FATE_NONE;
-                                break;
-                        }
-                        case FATE_DIE:
-                                msg_print("You stumble on a little rock on the floor.");
-                                msg_print("You break your skull on the floor.");
-                                p_ptr->chp = 0;
-                                take_hit(1, "stupid fall");
-                                fates[i].fate = FATE_NONE;
-                                break;
-                }
-                }
-        }
-        /* Re scan the list to eliminate the inutile fate */
-        for(i = 0; i < MAX_FATES; i++)
-        {
-                switch(fates[i].fate)
-                {
-                        case FATE_FIND_A:
-                        {
-                                if(a_info[fates[i].a_idx].cur_num == 1) fates[i].fate = FATE_NONE;
-                                break;
-                        }
-                        case FATE_FIND_R:
-                        {
-                                if((r_info[fates[i].r_idx].cur_num == 1)&&(r_info[fates[i].r_idx].flags1 & RF1_UNIQUE)) fates[i].fate = FATE_NONE;
-                                break;
-                        }
-                }
-        }
-
 	/* Place some traps in the dungeon */
         alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k * 2));
 
@@ -6251,7 +6286,7 @@ static bool cave_gen(void)
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
 
         /* Put some altars */
-        alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_ALTAR, randnor(DUN_AMT_ALTAR, 3));
+        /* alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_ALTAR, randnor(DUN_AMT_ALTAR, 3)); */
 
         /* Put some between gates */
         alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_BETWEEN, randnor(DUN_AMT_BETWEEN, 3));
@@ -6799,7 +6834,7 @@ msg_print(NULL);
 					object_wipe(q_ptr);
 					object_prep(q_ptr, k_idx);
 
-                                        apply_magic(q_ptr, v_ptr->lvl, TRUE, TRUE, FALSE);
+                                        apply_magic(q_ptr, v_ptr->lvl, TRUE, TRUE, FALSE, FALSE);
 
                                         o_idx = o_pop();
 					o_ptr = &o_list[o_idx];
@@ -7037,9 +7072,6 @@ void generate_cave(void)
 
                 /* No ambush here yet */
                 ambush_flag = FALSE;
-
-                /* No fated level here yet */
-                fate_flag = FALSE;
 
 		/* Build the arena -KMW- */
 		if (p_ptr->inside_arena)
@@ -7287,7 +7319,7 @@ break;
         if(!p_ptr->wild_mode) replace_all_friends();
 
         /* HACK -- Reinitialize Druid's Level Drain */
-        if(p_ptr->pclass == CLASS_DRUID) p_ptr->class_extra5 = FALSE;
+        /* if(p_ptr->pclass == CLASS_DRUID) p_ptr->class_extra5 = FALSE; */
 
 #ifdef USE_PYTHON
         perform_event(EVENT_GENERATE_LVL, Py_BuildValue("(i)", dun_level));

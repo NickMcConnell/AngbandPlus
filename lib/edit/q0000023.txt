@@ -1,0 +1,74 @@
+# q0000021.txt
+
+# Name
+Q:23:N:Ryenna, Queen Of Battle
+
+# Definition
+Q:23:Q:6:0:0:0:75:135:0:6
+
+# Description for quest
+?:[LEQ $QUEST23 2]
+Q:23:T:A powerful woman known as Ryenna, once a brave protector   
+Q:23:T:of our town, has suddently turned against us. Variaz has   
+Q:23:T:surely controlled her mind! You must stop her at all costs!
+Q:23:T:A shame we have to kill such a fine lady, but we have no
+Q:23:T:choices...
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST23 3]
+Q:23:T:Thanks for helping us once again, even if Ryenna was one
+Q:23:T:of our strongest and bravest warriors...
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST23 5]
+Q:23:T:Too bad you couldn't stop her... 
+?:1
+
+# Floor
+F:.:1:8
+
+# Permanent wall
+F:X:61:6
+
+# Deep Water
+F:W:187:6
+
+# Shallow Water
+F:w:84:6
+
+# Looked door
+F:+:38:6
+
+# up staircase
+F:<:6:6
+
+# Floor with Ryenna
+F:U:84:6:1080
+
+F:a:1:6:0:395
+F:b:1:6:0:396
+F:c:1:6:0:397
+
+F:p:1:6:0:0:0:207
+F:r:1:6:0:0:0:208
+
+# Dungeon layout
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X................................X
+D:X................................X
+D:X................................X
+D:X................................X
+D:X<..............................UX
+D:X................................X
+D:X................................X
+D:X................................X
+D:X................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Starting position
+P:5:2
+

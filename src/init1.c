@@ -110,7 +110,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_80",
 	"DISEASE",
 	"TIME",
-        "INSANITY",
+        "XXX1",
 	NULL
 };
 
@@ -368,19 +368,19 @@ static cptr r_info_flags7[] =
         "LEVEL_60",
         "LEVEL_100",
         "VARIAZ",
-        "XXX7X13",
-        "XXX7X14",
-        "XXX7X15",
-        "XXX7X16",
-        "XXX7X17",
-        "XXX7X18",
-        "XXX7X19",        
-	"XXX7X20",
-	"XXX7X21",
-	"XXX7X22",
-	"XXX7X23",
-	"XXX7X24",
-	"XXX7X25",
+        "SEDUCE_MALES",
+        "SEDUCE_FEMALES",
+        "RES_WIND",
+        "RES_LITE",
+        "RES_DARK",
+        "RES_TIME",
+        "RES_INER",        
+        "RES_CHAOS",
+        "RES_GRAV",
+        "RES_FORCE",
+        "RES_NUKE",
+        "RES_SHARDS",
+        "RES_SOUND",
 	"XXX7X26",
 	"XXX7X27",
 	"XXX7X28",
@@ -483,9 +483,9 @@ static cptr k_info_flags1[] =
         "MANA",
         "SPELL",
 	"STEALTH",
-	"SEARCH",
+        "XX1X",
 	"INFRA",
-	"TUNNEL",
+        "XX2X",
 	"SPEED",
 	"BLOWS",
 	"CHAOTIC",
@@ -612,17 +612,17 @@ static cptr k_info_flags4[] =
         "BRAND_MAGIC",
         "CHARGEABLE",
         "INDESTRUCTIBLE",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4",
-        "XXX4"
+        "ETERNAL",
+        "SLAY_MALE",
+        "SLAY_FEMALE",
+        "ALWAYS_HIT",
+        "LOWER_DEF",
+        "LOWER_HIT",
+        "RETURNING",
+        "SAFETY",
+        "PROTECTION",
+        "ORIENTAL",
+        "PARRY"
 };
 
 /*
@@ -1515,16 +1515,24 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-			int tval, sval, pval;
+                        int tval, sval, pval;
+                        int rec1 = 0;
+                        int rec2 = 0;
 
 			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-				&tval, &sval, &pval)) return (1);
+                        if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+                                &tval, &sval, &pval, &rec1, &rec2))
+                                {
+                                        if (3 != sscanf(buf+2, "%d:%d:%d",
+                                        &tval, &sval, &pval)) return (1);
+                                }
 
 			/* Save the values */
 			k_ptr->tval = tval;
 			k_ptr->sval = sval;
 			k_ptr->pval = pval;
+                        k_ptr->recipe1 = rec1;
+                        k_ptr->recipe2 = rec2;
 
 			/* Next... */
 			continue;
@@ -1629,9 +1637,8 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Oops */
-		return (6);
+                return (6);
 	}
 
 
@@ -2394,7 +2401,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	r_head->text_size = 0;
 
 	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
+        while (0 == my_fgets(fp, buf, 1024))
 	{
 		/* Advance the line number */
 		error_line++;
@@ -4113,7 +4120,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				object_prep(o_ptr, object_index);
 
 				/* Apply magic (no messages, no artifacts) */
-                                apply_magic(o_ptr, dun_level, FALSE, TRUE, FALSE);
+                                apply_magic(o_ptr, dun_level, FALSE, TRUE, FALSE, FALSE);
 
 				drop_near(o_ptr, -1, y, x);
 			}
@@ -4740,10 +4747,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Wilderness */
 			else if (streq(b+1, "WILDERNESS"))
 			{
-				if (vanilla_town)
-					sprintf(tmp, "NONE");
-				else
-					sprintf(tmp, "NORMAL");
+                                sprintf(tmp, "NORMAL");
 				v = tmp;
 			}
 		}

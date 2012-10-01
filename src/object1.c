@@ -31,9 +31,9 @@
 #define MAX_AMULETS    29       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     40       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     66       /* Used with potions (min 60) */
+#define MAX_COLORS     69       /* Used with potions (min 60) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     54       /* Used with scrolls (min 48) */
+#define MAX_TITLES     56       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
 
 
@@ -208,7 +208,7 @@ static cptr potion_adj[MAX_COLORS] =
 	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
 	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
 	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
-	"Manly", "Stinking", "Oily Black", "Ichor", "Ivory White", "Sky Blue",
+        "Manly", "Stinking", "Oily Black", "Ichor", "Ivory White", "Sky Blue", "Clear Pink", "Viscous Ochre", "Bright Red",
 };
 
 static byte potion_col[MAX_COLORS] =
@@ -391,6 +391,11 @@ static bool object_easy_know(int i)
                 case TV_SYMBIOTIC_BOOK:
                 case TV_BATTLE_BOOK:
                 case TV_WORLD_BOOK:
+                case TV_BOOK_ELEMENTAL:
+                case TV_BOOK_ALTERATION:
+                case TV_BOOK_HEALING:
+                case TV_BOOK_CONJURATION:
+                case TV_BOOK_DIVINATION:
 		{
 			return (TRUE);
 		}
@@ -399,13 +404,12 @@ static bool object_easy_know(int i)
 		case TV_FLASK:
                 case TV_EGG:
                 case TV_JUNK:
-                case TV_FIRESTONE:
 		case TV_BOTTLE:
 		case TV_SKELETON:
                 case TV_CORPSE:
                 case TV_HYPNOS:
 		case TV_SPIKE:
-                case TV_ABILITY:
+                case TV_SOUL:
 		{
 			return (TRUE);
 		}
@@ -1223,7 +1227,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_SKELETON:
 		case TV_BOTTLE:
                 case TV_JUNK:
-                case TV_FIRESTONE:
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
@@ -1244,11 +1247,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_DAGGER:
+                case TV_AXE:
                 case TV_ROD:
 		case TV_DIGGING:
                 case TV_HELL_STAFF:
                 case TV_SWORD_DEVASTATION:
                 case TV_VALKYRIE_SPEAR:
+                case TV_ZELAR_WEAPON:
 		{
 			show_weapon = TRUE;
 			break;
@@ -1262,6 +1268,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_CROWN:
 		case TV_HELM:
 		case TV_SHIELD:
+                case TV_ARM_BAND:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -1276,11 +1283,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			break;
 		}
-                case TV_ABILITY:
-		{
-			break;
-		}
-
 
 		/* Amulets (including a few "Specials") */
 		case TV_AMULET:
@@ -1391,6 +1393,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                                 basenm = "& Crystal~";
 			else
                                 basenm = aware ? "& Crystal~" : "& Crystal~";
+			break;
+                }
+        case TV_SOUL:
+                {
+                        append_name = FALSE; 
+                        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB) 
+                                basenm = "& Soul~";                                            
+                        else                                                                   
+                                basenm = aware ? "& Soul~" : "& Soul~";                        
 			break;
                 }
 
@@ -1552,9 +1563,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
             case TV_BATERIE:
 		{
 			modstr = basenm;
-                        basenm = "& Essence~ of #";
+                        /*basenm = "& Essence~ of #";*/
 			break;
-		}
+                }
 
             case TV_PARCHEMENT:
 		{
@@ -1562,13 +1573,45 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                         basenm = "& Parchement~ - #";
 			break;
 		}
+            /* Spells effects books! :) */
+            case TV_BOOK_ELEMENTAL:
+		{
+			modstr = basenm;
+                        basenm = "& Book of Elemental Magic~ #";
+			break;
+		}
+            case TV_BOOK_ALTERATION:
+		{
+			modstr = basenm;
+                        basenm = "& Book of Alteration Magic~ #";
+			break;
+		}
+            case TV_BOOK_HEALING:
+		{
+			modstr = basenm;
+                        basenm = "& Book of Healing Magic~ #";
+			break;
+		}
+            case TV_BOOK_CONJURATION:
+		{
+			modstr = basenm;
+                        basenm = "& Book of Conjuration Magic~ #";
+			break;
+		}
+            case TV_BOOK_DIVINATION:
+		{
+			modstr = basenm;
+                        basenm = "& Book of Divination Magic~ #";
+			break;
+		}
+
 
 
 			/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{
 			strcpy(buf, basenm);
-			return;
+                        return;
 		}
 
                 case TV_CORPSE:
@@ -1595,7 +1638,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 {
                         monster_race* r_ptr = &r_info[o_ptr->pval];
 			modstr = basenm;
-                        basenm = format("& %s~ (%d hp)",r_name + r_ptr->name,o_ptr->pval2);
+                        basenm = format("& %s~ (Hp: %ld/%ld)",r_name + r_ptr->name,o_ptr->pval2,o_ptr->xtra1);
                         break;
                 }
 
@@ -1916,11 +1959,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_DAGGER:
+                case TV_AXE:
                 case TV_ROD:
 		case TV_DIGGING:
                 case TV_HELL_STAFF:
                 case TV_SWORD_DEVASTATION:
                 case TV_VALKYRIE_SPEAR:
+                case TV_ZELAR_WEAPON:
 
 		/* Append a "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -2024,13 +2070,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
         if((f1 & TR1_MANA)&&(known)){
                 t = object_desc_chr(t, '(');
-                t = object_desc_num(t, 100 * o_ptr->pval / 5);
+                t = object_desc_num(t, 100 * o_ptr->pval / 10);
                 t = object_desc_str(t, "%)");
         }
 
         if((known)&&(f2 & TR2_LIFE)){
                 t = object_desc_chr(t, '(');
-                t = object_desc_num(t, 100 * o_ptr->pval / 5);
+                t = object_desc_num(t, 100 * o_ptr->pval / 10);
                 t = object_desc_str(t, "%)");
         }
 
@@ -2071,20 +2117,59 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         else if (o_ptr->name1 == ART_ASMODIS)
 	{
                 t = object_desc_str(t, " (Energy: ");
-                t = object_desc_num(t, o_ptr->asmodis_energy);
+                t = object_desc_num(t, o_ptr->xtra2);
+                t = object_desc_str(t, ")");
+	}
+        else if (o_ptr->tval == TV_EGG || o_ptr->tval == TV_HYPNOS)
+	{
+                t = object_desc_str(t, " (Level: ");
+                t = object_desc_num(t, o_ptr->pval3);
+                t = object_desc_str(t, ")");
+	}
+        else if (o_ptr->tval == TV_CORPSE)
+	{
+                t = object_desc_str(t, " (Life: ");
+                t = object_desc_num(t, o_ptr->pval3);
                 t = object_desc_str(t, ")");
 	}
 
-
         /* Another hack for NewAngband... */
-        else if ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_SWORD_DEVASTATION || o_ptr->tval == TV_VALKYRIE_SPEAR || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_ROD || o_ptr->tval == TV_HELL_STAFF) && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
+        else if ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_DAGGER || o_ptr->tval == TV_AXE || o_ptr->tval == TV_SWORD_DEVASTATION || o_ptr->tval == TV_VALKYRIE_SPEAR || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_ROD || o_ptr->tval == TV_HELL_STAFF || o_ptr->tval == TV_ZELAR_WEAPON) && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
 	{
                 t = object_desc_str(t, " (Dur: ");
                 t = object_desc_num(t, o_ptr->pval3);
                 t = object_desc_str(t, ")");
 	}
+        /* NewAngband 1.3.0: Shields have a blocking % */
+        else if (o_ptr->tval == TV_SHIELD)
+	{
+                int blockchance = 0;
+                blockchance = ((o_ptr->sval * 10) / 2) + (o_ptr->pval * 2);
+                if (blockchance > 75) blockchance = 75;
+                t = object_desc_str(t, " (Block: ");
+                t = object_desc_num(t, blockchance);
+                t = object_desc_str(t, "%)");
+	}
 
-
+        else if (o_ptr->tval == TV_SOUL)
+	{
+                cptr monstername;
+                monster_race* r_ptr = &r_info[o_ptr->pval];
+                monstername = format("%s", r_name + r_ptr->name);
+                
+                t = object_desc_str(t, " (");
+                t = object_desc_str(t, monstername);
+                t = object_desc_str(t, ")");
+	}
+        /* Parry flag? */
+        if (f4 & (TR4_PARRY))
+	{
+                int blockchance = 0;
+                blockchance = 10 + (o_ptr->pval * 2);
+                t = object_desc_str(t, " (Parry: ");
+                t = object_desc_num(t, blockchance);
+                t = object_desc_str(t, "%)");
+	}
 
 
 	/* Dump "pval" flags for wearable items */
@@ -2095,7 +2180,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, p1);
 
 		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
+                t = object_desc_int(t, o_ptr->pval);
 
 		/* Do not display the "pval" flags */
 		if (f3 & (TR3_HIDE_TYPE))
@@ -2104,11 +2189,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
+                else if (f1 & (TR1_SPEED)) 
+                {
 			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
-		}
+                        t = object_desc_str(t, " to speed");
+                } 
 
 		/* Attack speed */
 		else if (f1 & (TR1_BLOWS))
@@ -2127,24 +2212,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_str(t, " to stealth");
 		}
 
-		/* Search */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
-		}
-
 		/* Infravision */
 		else if (f1 & (TR1_INFRA))
 		{
 			/* Dump " to infravision" */
 			t = object_desc_str(t, " to infravision");
-		}
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Nothing */
 		}
 
 		/* Finish the display */
@@ -2156,7 +2228,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         if (known && o_ptr->timeout && (o_ptr->name2!=EGO_MSTAFF_POWER) && (o_ptr->tval!=TV_EGG))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
-		t = object_desc_str(t, " (charging)");
+                if (f3 & TR3_ACTIVATE || o_ptr->tval == TV_SOUL) t = object_desc_str(t, " (charging)");
+                else t = object_desc_str(t, " (summoned)");
 	}
 
         /* Indicate "stoped" eggs XXX XXX XXX */
@@ -3111,6 +3184,18 @@ cptr item_activation(object_type *o_ptr,byte num)
 				return NULL;
 		}
 	}
+        if (o_ptr->tval == TV_SOFT_ARMOR)
+	{
+		switch(o_ptr->sval)
+		{
+                        case 19:
+                        case 20:
+                        case 21:
+                                return "???";
+			default:
+				return NULL;
+		}
+	}
 
 
 
@@ -3189,6 +3274,7 @@ bool identify_fully_aux(object_type *o_ptr)
         u32b f1, f2, f3, f4;
 
 	cptr            info[128];
+        char            idesc[50];
 
 
 	/* Extract the flags */
@@ -3241,6 +3327,9 @@ bool identify_fully_aux(object_type *o_ptr)
                 /* Add a blank line */
                 info[i++] = "";
         }
+        sprintf(idesc, get_item_type_name(o_ptr));
+        info[i++] = idesc;
+        info[i++] = "";
 
         if (f4 & TR4_COULD2H) info[i++] = "It can be wielded two-handed.";
         if (f4 & TR4_MUST2H) info[i++] = "It must be wielded two-handed.";
@@ -3294,12 +3383,6 @@ bool identify_fully_aux(object_type *o_ptr)
         {
                 info[i++] = "It is indestructible.";
         }
-        if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SAFETY)
-        {
-                info[i++] = "It prevent 'Stun', 'Heavy Stun' and 'Knock Out'.";
-                info[i++] = "It cannot be used with an HP boosting ability.";
-        }
-
 
 	/* And then describe it fully */
 
@@ -3332,17 +3415,9 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your stealth.";
 	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "It affects your searching.";
-	}
 	if (f1 & (TR1_INFRA))
 	{
 		info[i++] = "It affects your infravision.";
-	}
-	if (f1 & (TR1_TUNNEL))
-	{
-		info[i++] = "It affects your ability to tunnel.";
 	}
 	if (f1 & (TR1_SPEED))
 	{
@@ -3430,6 +3505,14 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_SLAY_ANIMAL))
 	{
 		info[i++] = "It is especially deadly against natural creatures.";
+	}
+        if (f4 & (TR4_SLAY_MALE))
+	{
+                info[i++] = "It is especially deadly against males.";
+	}
+        if (f4 & (TR4_SLAY_FEMALE))
+	{
+                info[i++] = "It is especially deadly against females.";
 	}
         if (f1 & (TR1_MANA))
 	{
@@ -3698,6 +3781,30 @@ bool identify_fully_aux(object_type *o_ptr)
         {
                 info[i++] = "It does extra damages from pure magic.";
         }
+        if (f4 & (TR4_ALWAYS_HIT))
+	{
+                info[i++] = "It gives you 100% chances to hit monsters.";
+	}
+        if (f4 & (TR4_LOWER_DEF))
+	{
+                info[i++] = "It reduces monsters defense.";
+	}
+        if (f4 & (TR4_LOWER_HIT))
+	{
+                info[i++] = "It reduces monsters hit rate.";
+	}
+        if (f4 & (TR4_RETURNING))
+	{
+                info[i++] = "It never deplete itself.";
+	}
+        if (f4 & (TR4_SAFETY))
+        {
+                info[i++] = "It prevent 'Stun', 'Heavy Stun' and 'Knock Out'.";
+        }
+        if (f4 & (TR4_PROTECTION))
+	{
+                info[i++] = "It reduces damages you take by 50%, physical and magical.";
+	}
 
         if (f4 & (TR4_CHARGEABLE))
         {
@@ -3749,7 +3856,18 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
                 info[i++] = "It can clone monsters.";
 	}
-
+        if (f4 & (TR4_ETERNAL))
+        {
+                info[i++] = "It is eternal and will not disappear when you die.";
+        }
+        /*if (f4 & (TR4_ORIENTAL))
+        {
+                info[i++] = "It is a foreign oriental weapon.";
+        }*/
+        if (f4 & (TR4_PARRY))
+        {
+                info[i++] = "It can parry blows from enemies.";
+        }
 
 
 	/* No special effects */
@@ -3899,10 +4017,13 @@ s16b wield_slot(object_type *o_ptr)
 		case TV_POLEARM:
                 case TV_MSTAFF:
 		case TV_SWORD:
+                case TV_DAGGER:
+                case TV_AXE:
                 case TV_ROD:
                 case TV_HELL_STAFF:
                 case TV_SWORD_DEVASTATION:
                 case TV_VALKYRIE_SPEAR:
+                case TV_ZELAR_WEAPON:
 		{
                         return get_slot(INVEN_WIELD);
 		}
@@ -3942,6 +4063,7 @@ s16b wield_slot(object_type *o_ptr)
 		}
 
 		case TV_SHIELD:
+                case TV_ARM_BAND:
 		{
                         return get_slot(INVEN_ARM);
 		}
@@ -3965,10 +4087,6 @@ s16b wield_slot(object_type *o_ptr)
                 case TV_HYPNOS:
 		{
                         return get_slot(INVEN_CARRY);
-		}
-                case TV_ABILITY:
-		{
-                        return get_slot(INVEN_ABILITY);
 		}
 
 
@@ -4044,7 +4162,6 @@ cptr mention_use(int i)
                 case INVEN_CARRY: p = "Carrying"; break;
                 case INVEN_AMMO:  p = "Quiver"; break;
                 case INVEN_TOOL:  p = "Using"; break;
-                case INVEN_ABILITY:  p = "Ability"; break;
 		default:          p = "In pack"; break;
 	}
 
@@ -4053,7 +4170,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+                if ((max_carry() * 2) < o_ptr->weight / 10)
 		{
 			p = "Just lifting";
 		}
@@ -4144,7 +4261,7 @@ cptr describe_use(int i)
 
 bool check_book_realm(const int book_tval)
 {
-        if(p_ptr->pclass != CLASS_SORCERER || p_ptr->pclass != CLASS_HELLQUEEN || !ability(43))
+        if(p_ptr->pclass != CLASS_SORCERER || p_ptr->pclass != CLASS_HELLQUEEN)
         {
                 return ((p_ptr->realm1 == book_tval - TV_VALARIN_BOOK + 1) ||
                         (p_ptr->realm2 == book_tval - TV_VALARIN_BOOK + 1));
@@ -4172,7 +4289,7 @@ bool item_tester_okay(object_type *o_ptr)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Hack -- ignore "gold" */
-	if (o_ptr->tval == TV_GOLD) return (FALSE);
+        /* if (o_ptr->tval == TV_GOLD) return (FALSE); */
 
 	/* Check the tval */
 	if (item_tester_tval)
@@ -4537,10 +4654,10 @@ void show_equip(void)
 	object_type     *o_ptr;
 	char            tmp_val[80];
 	char            o_name[80];
-        int             out_index[INVEN_ABILITY - INVEN_WIELD],
-                        out_rindex[INVEN_ABILITY - INVEN_WIELD];
-        byte            out_color[INVEN_ABILITY - INVEN_WIELD];
-        char            out_desc[INVEN_ABILITY - INVEN_WIELD][81];
+        int             out_index[INVEN_TOOL - INVEN_WIELD],
+                        out_rindex[INVEN_TOOL - INVEN_WIELD];
+        byte            out_color[INVEN_TOOL - INVEN_WIELD];
+        char            out_desc[INVEN_TOOL - INVEN_WIELD][81];
         u32b f1, f2, f3, f4;
 
 
@@ -6090,7 +6207,7 @@ void object_gain_level(object_type *o_ptr)
 
         /* First it can gain some tohit and todam */
         if((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) ||
-           (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF) || (o_ptr->tval == TV_HELL_STAFF) || (o_ptr->tval == TV_SWORD_DEVASTATION) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_VALKYRIE_SPEAR))
+           (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_DAGGER) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_MSTAFF) || (o_ptr->tval == TV_HELL_STAFF) || (o_ptr->tval == TV_SWORD_DEVASTATION) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_VALKYRIE_SPEAR) || (o_ptr->tval == TV_ZELAR_WEAPON))
         {
                 o_ptr->to_h += randint((o_ptr->elevel / 13) + 1);
                 o_ptr->to_d += randint((o_ptr->elevel / 13) + 1);
@@ -6424,18 +6541,6 @@ void do_cmd_make_item(object_type *o_ptr)
              msg_print("Your item just gained a new ability!");
              p_ptr->au -= 10000;
         }
-        if (whichpower == 35 && p_ptr->au >= 5000)
-        {
-             o_ptr->art_flags1 |= TR1_SEARCH;
-             msg_print("Your item just gained a new ability!");
-             p_ptr->au -= 5000;
-        }
-        if (whichpower == 36 && p_ptr->au >= 7500)
-        {
-             o_ptr->art_flags1 |= TR1_TUNNEL;
-             msg_print("Your item just gained a new ability!");
-             p_ptr->au -= 7500;
-        }
         if (whichpower == 37 && p_ptr->au >= 6000)
         {
              o_ptr->art_flags3 |= TR3_LITE;
@@ -6573,7 +6678,6 @@ void do_cmd_breed(void)
         int finalbreed, breed1, breed2, bonus1, bonus2, finalbonus;
         int item;
 	object_type     *o_ptr;
-        object_kind *k_ptr = &k_info[o_ptr->k_idx];
         object_type   forge;
         object_type   *q_ptr;
 
@@ -6603,7 +6707,8 @@ void do_cmd_breed(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
+        /* Generated monsters are tricky */
+        if (o_ptr->pval >= 1200) o_ptr->pval = o_ptr->pval / 10;
         breed1 = o_ptr->pval;
         bonus1 = o_ptr->pval3;
         inven_item_increase(item, -1);
@@ -6629,9 +6734,12 @@ void do_cmd_breed(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+        /* Generated monsters are tricky */
+        if (o_ptr->pval >= 1200) o_ptr->pval = o_ptr->pval / 10;
         breed2 = o_ptr->pval;
         bonus2 = o_ptr->pval3;
-        finalbonus = ((bonus1 + bonus2) / 2);
+        if (bonus1 >= bonus2) finalbonus = bonus1 + 1;
+        else finalbonus = bonus2 + 1;
         /* Cannot breed without two parents! */
         if (breed1 == 0 || breed2 == 0)
         {
@@ -6654,13 +6762,81 @@ void do_cmd_breed(void)
         q_ptr->pval = 10;
         q_ptr->pval2 = finalbreed;
         q_ptr->pval3 = finalbonus;
-        /* Devaluate the egg */
-        k_ptr->cost = 0;
 
         /* These objects are "storebought" */
         q_ptr->ident |= IDENT_STOREB;
+        q_ptr->ident |= IDENT_BROKEN;
 
         (void)inven_carry(q_ptr, FALSE);
         object_desc(o_name, q_ptr, TRUE, 3);
         msg_format("The monsters layed %s!", o_name);
+}
+
+char *get_item_type_name(object_type *o_ptr)
+{
+        char tname[30];
+        char retval[50];
+
+        if (o_ptr->tval == TV_SWORD) strcpy(tname, "Sword");
+        else if (o_ptr->tval == TV_HAFTED) strcpy(tname, "Hafted");
+        else if (o_ptr->tval == TV_POLEARM) strcpy(tname, "Polearm");
+        else if (o_ptr->tval == TV_AXE) strcpy(tname, "Axe");
+        else if (o_ptr->tval == TV_DAGGER) strcpy(tname, "Dagger");
+        else if (o_ptr->tval == TV_ROD) strcpy(tname, "Rod");
+        else if (o_ptr->tval == TV_WAND) strcpy(tname, "Wand");
+        else if (o_ptr->tval == TV_STAFF) strcpy(tname, "Staff");
+        else if (o_ptr->tval == TV_SCROLL) strcpy(tname, "Scroll");
+        else if (o_ptr->tval == TV_POTION || o_ptr->tval == TV_POTION2) strcpy(tname, "Potion");
+        else if (o_ptr->tval == TV_RING) strcpy(tname, "Ring");
+        else if (o_ptr->tval == TV_AMULET) strcpy(tname, "Amulet");
+        else if (o_ptr->tval == TV_SOFT_ARMOR) strcpy(tname, "Soft Armor");
+        else if (o_ptr->tval == TV_HARD_ARMOR) strcpy(tname, "Hard Armor");
+        else if (o_ptr->tval == TV_DRAG_ARMOR) strcpy(tname, "Dragon Armor");
+        else if (o_ptr->tval == TV_CLOAK) strcpy(tname, "Cloak");
+        else if (o_ptr->tval == TV_HELM) strcpy(tname, "Helmet");
+        else if (o_ptr->tval == TV_CROWN) strcpy(tname, "Crown");
+        else if (o_ptr->tval == TV_SHIELD) strcpy(tname, "Shield");
+        else if (o_ptr->tval == TV_ARM_BAND) strcpy(tname, "Bracers");
+        else if (o_ptr->tval == TV_BOOTS) strcpy(tname, "Boots");
+        else if (o_ptr->tval == TV_CRYSTAL) strcpy(tname, "Crystal");
+        else if (o_ptr->tval == TV_TOOL) strcpy(tname, "Tool");
+        else if (o_ptr->tval == TV_DIGGING) strcpy(tname, "Digging Tool");
+        else if (o_ptr->tval == TV_LITE) strcpy(tname, "Light Source");
+        else if (o_ptr->tval == TV_FOOD) strcpy(tname, "Food");
+        else if (o_ptr->tval == TV_BOTTLE) strcpy(tname, "Empty Bottle");
+        else if (o_ptr->tval == TV_BATERIE) strcpy(tname, "Ingredient");
+        else if (o_ptr->tval == TV_SPIKE) strcpy(tname, "Spike");
+        else if (o_ptr->tval == TV_SKELETON) strcpy(tname, "Skeleton");
+        else if (o_ptr->tval == TV_CORPSE) strcpy(tname, "Corpse");
+        else if (o_ptr->tval == TV_PARCHEMENT) strcpy(tname, "Parchement");
+        else if (o_ptr->tval == TV_JUNK) strcpy(tname, "Junk");
+        else if (o_ptr->tval == TV_BOOMERANG) strcpy(tname, "Boomerang");
+        else if (o_ptr->tval == TV_BOW && o_ptr->sval < 10) strcpy(tname, "Sling");
+        else if (o_ptr->tval == TV_BOW && o_ptr->sval < 20) strcpy(tname, "Bow");
+        else if (o_ptr->tval == TV_BOW && o_ptr->sval >= 20) strcpy(tname, "Crossbow");
+        else if (o_ptr->tval == TV_SHOT) strcpy(tname, "Shot");
+        else if (o_ptr->tval == TV_ARROW) strcpy(tname, "Arrow");
+        else if (o_ptr->tval == TV_BOLT) strcpy(tname, "Bolt");
+        else if (o_ptr->tval == TV_GLOVES) strcpy(tname, "Gloves");
+        else if (o_ptr->tval == TV_EGG) strcpy(tname, "Egg");
+        else if (o_ptr->tval == TV_MSTAFF) strcpy(tname, "Mage Staff");
+        else if (o_ptr->tval == TV_CHEST) strcpy(tname, "Chest");
+        else if (o_ptr->tval == TV_ZELAR_WEAPON) strcpy(tname, "Claws");
+        else if (o_ptr->tval == TV_SOUL) strcpy(tname, "Soul");
+        else if (o_ptr->tval == TV_FLASK) strcpy(tname, "Flask Of Oil");
+        else if (o_ptr->tval == TV_BOOK_ELEMENTAL) strcpy(tname, "Elemental Spellbook");
+        else if (o_ptr->tval == TV_BOOK_ALTERATION) strcpy(tname, "Alteration Spellbook");
+        else if (o_ptr->tval == TV_BOOK_CONJURATION) strcpy(tname, "Conjuration Spellbook");
+        else if (o_ptr->tval == TV_BOOK_HEALING) strcpy(tname, "Healing Spellbook");
+        else if (o_ptr->tval == TV_BOOK_DIVINATION) strcpy(tname, "Divination Spellbook");
+        else if (o_ptr->tval == TV_HYPNOS) strcpy(tname, "Pet in a Crystal");
+        else if (o_ptr->tval == TV_GOLD) strcpy(tname, "Gold");
+        else if (o_ptr->tval == TV_RANDART) strcpy(tname, "Artifact");
+        else if (o_ptr->tval == TV_VALKYRIE_SPEAR) strcpy(tname, "Valkyrie Spear(polearm)");
+        else if (o_ptr->tval == TV_SWORD_DEVASTATION) strcpy(tname, "Sword of Devastation");
+        else if (o_ptr->tval == TV_HELL_STAFF) strcpy(tname, "Hell Staff");
+        else strcpy(tname, "Misc. Item");
+
+        sprintf(retval, "Type: %s", tname);
+        return (retval);
 }

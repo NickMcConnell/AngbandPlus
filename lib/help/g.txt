@@ -1,0 +1,22 @@
+HALF-ORC
+----------
+
+Half-Orcs are the result of human and orc breeding. Ugly,
+unwise and somewhat stupid, Half-Orcs makes up for that
+with their very high strength and good constitution. Like
+the dwarves, they live in darkness, and thus are resistant
+to blindness and can see in the dark.
+
+ADVANTAGES: +33% to Strength
+            +25% to Constitution
+	    Innate resistance to blindness
+	    Innate resistance to darkness attacks
+	    Innate dark vision
+
+DISADVANTAGES: -33% to Intelligence
+	       -25% to Wisdom
+	       -25% to Charisma
+
+
+
+

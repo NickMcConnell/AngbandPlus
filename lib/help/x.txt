@@ -1,0 +1,102 @@
+MONSTER
+---------
+
+A rebellious monster, who decided to turn against his master
+and try to destroy him. The Monster race is completely different
+from the other races, and the gameplay is not the same. If you
+are a beginner to NewAngband, this race is not recommended.
+
+THE MONSTER RACE
+------------------
+
+From version 1.2.0, NewAngband allowed you to play as a monster. The
+gameplay of a monster is much different from a regular player. During
+the birth, you'll be given a monster body for you to incarnate. Choose
+your monster wisely, as the race of the monster is important. You can
+get detailed info about your monster by using the '‚' command.
+
+The 'Monster' race lets you incarnate a monster, but you do not get to
+change your class. Instead, you use the creature's natural abilities
+instead of learning abilities or creating spells. Most creatures have
+natural attacks, and have up to four unarmed blows, with damages
+varying from creatures to creatures. When using a monster's natural
+attacks, your Martial Arts skill is used to improve the damages.
+Pay attention to your attacks strength, they make a huge difference.
+There are hundreds, perhaps thousands of creatures to choose from.
+Some are stronger, some are weaker. Some monsters are allowed the
+use of weapons. If you decide to give up your natural attacks in
+favor of a weapon, then raise the appropriate skills. Note that
+unlike the Monster Mage's morphing abilities, you will NEVER get
+returned damages if you use an elemental natural attack on a magic
+returning boss.
+
+Many monsters also offers natural spells, such as bolts, balls,
+summon spells, support magic and the powerful breath attacks.
+Bolt and ball spells have base damages of (level/2)d(level/2),
+while breaths have base damages equal to your current hp. Because
+monsters have a great amount of hp, your breath attacks will
+be your most powerful magics. Spellcraft skill will improve
+the damages of these magical attacks.
+
+Monsters also have access to three passive abilities where you can
+spend your earned abilities points. Here are the benefits of the
+abilities for every points you place in them.
+
+IMPROVED ATTACK: +2 to Martial Arts skill
+		 +5 to_hit
+
+IMPROVED DEFENSE: +10% natural AC to base AC(based on monster's natural AC)
+		  +2 to base AC
+		  +10 to_ac
+
+IMPROVED MAGIC: +10% spells/breaths damages.
+
+
+Monsters are hard to play, and how you build your character will
+greatly depend on the kind of monster you chose. If you have chosen
+to play a weaker monster kind, such as the kobold family, you might
+want to spend more points on Improved Defense as you will have less
+hp to deal with strong monsters. If you would rather play a dragon,
+then Improved Attack will make you really powerful, while
+Improved Magic will make your breath attacks very powerful. It's up
+to you to choose what works best for you, and it all depends on the
+monster you incarnate.
+
+EVOLVING
+----------
+
+Once you fight a few fights, you will notice that your monster
+probably isen't a match for the stronger monsters anymore. You can
+then use the Monster's Evolve ability, which allow you to turn into
+a more powerful monster of the same kind. To evolve, use the 'Y'
+command like you would to change your class normally.
+That way, you could rise from a Baby Red Dragon to a Young Red Dragon.
+You will never be able to change your basic kind, so if you start as
+a giant('P'), you will always be a giant. There are two exceptions
+however. A lesser dragon('d') can turn into an ancient dragon('D'),
+while a lesser demon('u') can turn into a greater demon('U'). When
+using the Evolve ability, you will be able to select a monster with
+a depth equal or lower than your current level that is the same kind
+of you.
+
+TIPS
+------
+
+When first playing as a monster, choose your kind wisely. For
+beginners, lesser dragon('d') is an obvious choice, as it will
+offer you a great mix of melee and magic power, and a good amount
+of hp. Later, you will be able to evolve into the more powerful
+Ancient Dragons('D'), which stands amongst the strongest monsters
+in the game. More experienced players might like the physically
+oriented golems('g'), or the spellcasting liches('L'). Humans('p')
+will offer a good, varied choice too. Some kinds are probably
+left to those seeking a challenge, such as orc('o') or kobold('k').
+
+Also, unlike the previous versions, the experience required to
+level does not increase as you evolve into stronger monsters.
+So a Baby Red Dragon requires the same amount of experience to
+level up than an Ancient Red Dragon.
+
+Lastly, remember you can only play monsters from the basic r_info,
+and not from the Monster Generator. So don't be sad if you cannot
+play as a Pink Spotted Arachnoid! :)

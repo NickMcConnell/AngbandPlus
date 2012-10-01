@@ -1,0 +1,45 @@
+ABILITIES
+-----------
+
+In NewAngband 1.1.0(you may not have played this version for long...),
+class abilties were introduced to the game. However, documentation is
+missing for them, so here it is.
+
+WHAT IS A CLASS ABILITY?
+--------------------------
+A class ability is a power you can gain from a class. Each characters
+got ability points(AP). During the game, you may press 'J' to get access
+to the abilities your character can gain. The choice depend on which
+class you play. If you have enough ability points, you may purchase
+abilities.
+
+HOW DOES ABILITIES WORK
+-------------------------
+Once purchased, the selected ability will appear as an item in your
+inventory. Just equip it as you would equip a sword. You may equip up
+to two abilities. Once equipped, you will gain access to their power.
+It's as simple as that! :)
+
+HOW DO I GAIN ABILITY POINTS?
+-------------------------------
+You gain ability points by killing monsters. When you kill a monster,
+the amount of AP you receive is equal to the experience value of the
+monster divided by three(so if the monster is worth 300 exp, you will
+gain 100 AP).
+
+CAN I LOSE ABILITIES?
+-----------------------
+Unless you voluntary drop them on the ground, no. They are indestructible,
+eternal items.
+
+TIPS AND TRICKS
+-----------------
+- The Warrior ability "Weapon Mastery" allow any class to perform with any
+weapons.
+- The mage's "Mana +30" will allow any class to get spell points.
+- "Monster Magics" are useful when you have a lot of hp...
+- Stats boosting abilities are useful for changing into classes you can't
+have yet.
+- "Wraith Form" has the same effect as the expensive ring of Wraith Form.
+
+It's up to you to discover mroe about abilities. Good luck, and have fun!

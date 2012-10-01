@@ -1,0 +1,98 @@
+# q0000021.txt
+
+# Name
+Q:24:N:The Priest
+
+# Definition
+Q:24:Q:6:0:0:0:90:135:0:6
+
+# Description for quest
+?:[LEQ $QUEST24 2]
+Q:24:T:A priest of Variaz came to this city. We tried to stop him,  
+Q:24:T:but in vain. His powers are strange. We have never seen a  
+Q:24:T:priest with such powers. Our spies report that the priest 
+Q:24:T:is hidden in a cave, near the town hall. By all means,
+Q:24:T:adventurer, get rid of this evil man!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST24 3]
+Q:24:T:So you did it? Really? WOW! I never expected a priest of 
+Q:24:T:his power could ever be destroyed. Thanks a lot! You
+Q:24:T:may be the one who will save us from Variaz!
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST24 5]
+Q:24:T:You failed? It's no big surprise... It's annoying, because
+Q:24:T:I doubt anyone else in this town is a match for the priest...
+?:1
+
+# Floor
+F:.:1:8
+
+# Floor(can't warp)
+F:,:1:6
+
+# Permanent wall
+F:X:61:6
+
+# Permanent wall
+F:#:56:6
+
+# Deep Water
+F:W:187:6
+
+# Shallow Water
+F:w:84:6
+
+# Looked door
+F:+:38:6
+
+# up staircase
+F:<:6:6
+
+# Floor with Left Eye
+F:A:1:6:1096
+# Floor with Right Eye
+F:B:1:6:1097
+# Floor with Doom Wall
+F:C:1:6:1098
+# Floor with The Priest
+F:D:1:6:1099
+# Floor with Major Servant of Variaz
+F:E:1:6:1036
+
+F:a:1:6:0:971
+F:b:1:6:0:972
+F:c:1:6:0:973
+F:d:1:6:0:86
+
+F:p:1:6:0:0:0:207
+F:r:1:6:0:0:0:208
+
+# Dungeon layout
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXEE,,EEE,,EE#<XXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXEE,,,D,,,EEXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX,,,,,,,,,,,XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXEE,,,,,,,EEXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXEE,,,,,,,EEXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX#XXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXcXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX#XXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXAXCXBXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX...........XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX#XXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXdXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:20
+

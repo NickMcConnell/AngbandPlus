@@ -430,8 +430,8 @@ static cptr image_monster_hack = \
  * Hack -- Legal monster codes for IBM pseudo-graphics
  */
 static cptr image_monster_hack_ibm = \
-"ƒ„…†‡ˆ‰ŠŽ‘’•–™š›œžŸ¡¥¨©ª¯°²³´µ¶·¸¾ÇÌÑÔÕ×ÙÝÞßàáâãåèéæêëìíîïðñòóôõö÷øùúûüýþ";
-
+/*"ƒ„…†‡ˆ‰ŠŽ‘’•–™š›œžŸ¡¥¨©ª¯°²³´µ¶·¸¾ÇÌÑÔÕ×ÙÝÞßàáâãåèéæêëìíîïðñòóôõö÷øùúûüýþ";*/
+"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*
  * Mega-Hack -- Hallucinatory monster
@@ -479,7 +479,9 @@ static cptr image_object_hack = \
 "?/|\\\"!$()_-=[]{},~";
 
 static cptr image_object_hack_ibm = \
-"€“”—¤¦«­®º»¼½ÀÁÂÃÄÈÉÊËÍÎÓÚç";
+"?/|\\\"!$()_-=[]{},~";
+/*"
+€“”—¤¦«­®º»¼½ÀÁÂÃÄÈÉÊËÍÎÓÚç";*/
 
 /*
  * Mega-Hack -- Hallucinatory object
@@ -1184,13 +1186,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								a = TERM_VIOLET;
 							break;
-						case CLASS_CHAOS_WARRIOR:
-							do
-							{
-								a = randint(15);
-							}
-							while (a == TERM_DARK);
-							break;
 						case CLASS_MAGE:
                                                 case CLASS_ALCHEMIST:
 						case CLASS_HIGH_MAGE:
@@ -1207,7 +1202,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_BLUE;
 							c = 248;
 							break;
-                                                case CLASS_DRUID:
 						case CLASS_RANGER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_GREEN;
@@ -1220,8 +1214,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								a = TERM_L_DARK;
 							break;
-                                                case CLASS_MIMIC:
-                                                case CLASS_BEASTMASTER:
 						case CLASS_WARRIOR:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
@@ -1229,8 +1221,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_UMBER;
 							break;
 						case CLASS_MONK:
-                                                case CLASS_HARPER:
-						case CLASS_MINDCRAFTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
 							else
@@ -1267,9 +1257,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_HALF_GIANT:
 							c = 145;
 							break;
-                                                case RACE_RKNIGHT:
-							c = 229;
-							break;
 						case RACE_KOBOLD:
 							c = 204;
 							break;
@@ -1279,22 +1266,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_DARK_ELF:
 							c = 223;
 							break;
-                                                case RACE_DRAGONRIDER:
-							if (p_ptr->lev < 20)
-								c = 240;
-							else if (p_ptr->lev < 40)
-								c = 22;
-							else
-								c = 137;
-							break;
                                                 case RACE_ENT:
 							c = 6;
 							break;
 						case RACE_VAMPIRE:
 							c = 217;
-							break;
-						case RACE_SPECTRE:
-							c = 241;
 							break;
 					}
 				}
@@ -1590,7 +1566,7 @@ void prt_map(void)
 	}
 
 	/* Display player */
-	lite_spot(py, px);
+        lite_spot(py, px);
 
 	/* Restore the cursor */
 	(void)Term_set_cursor(v);
@@ -3920,4 +3896,24 @@ int random_quest_number(int level)
 
 	/* Nope */
 	return 0;
+}
+
+/* NEWANGBAND: Reveal function, used by the Reveal spells! */
+void reveal_spell(int x, int y, byte rad)
+{
+        int i,j;
+        cave_type *c_ptr;
+
+        c_ptr = &cave[y][x];
+
+        for(j = y - rad; j < y + rad + 1; j++)
+        for(i = x - rad; i < x + rad + 1; i++)
+        if((distance(y, x, j, i) <= rad) && in_bounds(j,i))
+        {
+                c_ptr = &cave[j][i];       
+                c_ptr->info |= (CAVE_LITE);
+                c_ptr->info |= (CAVE_MARK);
+                c_ptr->info |= (CAVE_VIEW);               
+                lite_spot(j, i);
+        }
 }

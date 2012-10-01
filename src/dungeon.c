@@ -149,12 +149,8 @@ static void sense_inventory(void)
 	{
 		case CLASS_WARRIOR:
                 case CLASS_POSSESSOR:
-                case CLASS_MIMIC:
-                case CLASS_BEASTMASTER:
-                case CLASS_POWERMAGE:
                 case CLASS_ARCHER:
                 case CLASS_DARK_LORD:
-                case CLASS_LICH:
                 case CLASS_HELLQUEEN:
 		{
 			/* Good sensing */
@@ -168,7 +164,6 @@ static void sense_inventory(void)
 		}
 
                 case CLASS_MAGE:
-                case CLASS_RUNECRAFTER:
                 case CLASS_HIGH_MAGE:
                 case CLASS_SORCERER:
                 case CLASS_ALCHEMIST:
@@ -180,7 +175,6 @@ static void sense_inventory(void)
 			break;
 		}
 
-                case CLASS_HARPER:
 		case CLASS_PRIEST:
 		{
 			/* Good (light) sensing */
@@ -228,7 +222,6 @@ static void sense_inventory(void)
 			break;
 		}
 
-                case CLASS_DRUID:
 		case CLASS_WARRIOR_MAGE:
 		{
 
@@ -239,42 +232,10 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_MINDCRAFTER:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(55000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_CHAOS_WARRIOR:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Changed! */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
 		case CLASS_MONK:
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ILLUSIONIST: /* Added -KMW- */
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -305,6 +266,8 @@ static void sense_inventory(void)
 			case TV_HAFTED:
 			case TV_POLEARM:
 			case TV_SWORD:
+                        case TV_DAGGER:
+                        case TV_AXE:
 			case TV_BOOTS:
 			case TV_GLOVES:
 			case TV_HELM:
@@ -314,6 +277,7 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+                        case TV_ZELAR_WEAPON:
 			{
 				okay = TRUE;
 				break;
@@ -563,6 +527,19 @@ static void regenhp(int percent)
                 {
                         p_ptr->chp_frac = new_chp_frac;
                 }
+                /* Divine Blood priest ability! */
+                if (p_ptr->abilities[(CLASS_PRIEST * 10) + 2] >= 1)
+                {
+                        p_ptr->chp += p_ptr->abilities[(CLASS_PRIEST * 10) + 2] * 5;
+                }
+
+
+                /* Skeletons regenrate even quicker than normal... */
+                if (p_ptr->prace == RACE_SKELETON)
+                {
+                        /* Actually very quickly... */
+                        p_ptr->chp += p_ptr->mhp / 10;
+                }
 
                 /* Fully healed */
                 if (p_ptr->chp >= p_ptr->mhp)
@@ -594,6 +571,14 @@ static void regenmana(int percent)
 
 	old_csp = p_ptr->csp;
 	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+
+        /* Wielding a rod with a high skill? */
+        if (rod_has() && p_ptr->skill_rods >= 30)
+        {
+                new_mana *= 2;
+                new_mana += 1;
+        }
+
 	p_ptr->csp += new_mana >> 16;	/* div 65536 */
 	/* check for overflow */
 	if ((p_ptr->csp < 0) && (old_csp > 0))
@@ -610,6 +595,12 @@ static void regenmana(int percent)
 	{
 		p_ptr->csp_frac = new_mana_frac;
 	}
+        /* Magic Blood high-mage ability! */
+        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 1] >= 1)
+        {
+                p_ptr->csp += p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 1] * 3;
+        }
+
 
 	/* Must set frac to zero even if equal */
 	if (p_ptr->csp >= p_ptr->msp)
@@ -1013,7 +1004,6 @@ static void check_music()
         }
 
         /* Music singed by player */
-        if(p_ptr->pclass != CLASS_HARPER) return;
         if(!p_ptr->class_extra1) return;
 
         s_ptr = &realm_info[REALM_MUSIC][p_ptr->class_extra2];
@@ -1061,9 +1051,6 @@ static void process_world(void)
 
         /* Handle class special actions */
         gere_class_special();
-
-        /* Check the fate */
-        if((randint(50000)==666) && (p_ptr->lev > 10)) gain_fate(0);
 
         /*** Is the wielded monsters still hypnotised ***/
         o_ptr = &inventory[INVEN_CARRY];
@@ -1388,7 +1375,7 @@ static void process_world(void)
         /* Drown in deep water unless the player have levitation or water walking */
         else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->    walk_water)
 	{
-		if (total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
+                if (total_weight > ((max_carry() * 100) / 2))
 		{
 			/* Take damage */
 			msg_print("You are drowning!");
@@ -1408,13 +1395,13 @@ static void process_world(void)
 	{
 		/* Player can walk through trees */
                 if ((cave[py][px].feat == FEAT_TREES) &&
-                    ((p_ptr->pclass==CLASS_DRUID) || (p_ptr->pclass==CLASS_RANGER) || (p_ptr->prace==RACE_ENT)))
+                    ((p_ptr->pclass==CLASS_RANGER) || (p_ptr->prace==RACE_ENT) || p_ptr->abilities[(CLASS_RANGER * 10) + 1] >= 1))
 		{
 			/* Do nothing */
 		}
 
-                else if ((cave[py][px].feat >= FEAT_ALTAR_HEAD) &&
-                   (cave[py][px].feat <= FEAT_ALTAR_TAIL))
+                else if (((cave[py][px].feat >= FEAT_ALTAR_HEAD) &&
+                   (cave[py][px].feat <= FEAT_ALTAR_TAIL)) || cave[py][px].feat == FEAT_SPIKE_TRAP || cave[py][px].feat == FEAT_GAS_TRAP || cave[py][px].feat == FEAT_POISON_TRAP || cave[py][px].feat == FEAT_VINE_FIELD || cave[py][px].feat == FEAT_THORNED_VINES || cave[py][px].feat == FEAT_STORMS || cave[py][px].feat == FEAT_DARK_MIST)
                 {
                         /* Do nothing */
                 }
@@ -1423,22 +1410,14 @@ static void process_world(void)
 		    !(p_ptr->wraith_form) &&
                     (!p_ptr->fly || !(f_info[cave[py][px].feat].flags1 & FF1_CAN_FLY)) &&
                     (!p_ptr->climb || !(f_info[cave[py][px].feat].flags1 & FF1_CAN_CLIMB)) &&
-		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
+                    ((p_ptr->chp > ((p_ptr->lev)/5))))
 		{
 			cptr dam_desc;
 
 			cave_no_regen = TRUE;
 
-			if (p_ptr->prace == RACE_SPECTRE)
-			{
-				msg_print("Your molecules feel disrupted!");
-				dam_desc = "density";
-			}
-			else
-			{
-				msg_print("You are being crushed!");
-				dam_desc = "solid rock";
-			}
+                        msg_print("You are being crushed!");
+                        dam_desc = "solid rock";
 
 			take_hit(1 + ((p_ptr->lev)/5), dam_desc);
 		}
@@ -1485,8 +1464,8 @@ static void process_world(void)
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
 
-                        /* DragonRider takes more food */
-                        if (p_ptr->prace==RACE_DRAGONRIDER) i += 10;
+                        /* Hell Queens... */
+                        if (p_ptr->pclass == CLASS_HELLQUEEN) i -= 100;
 
                         /* Invisibility consume a lot of food */
                         i += p_ptr->invis / 2;
@@ -1509,11 +1488,12 @@ static void process_world(void)
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
 
-			/* Magi Warriors take more food */
-                  if (p_ptr->pclass==CLASS_MAGIWARRIOR) i += 15;
-
 			/* Minimal digestion */
-			if (i < 1) i = 1;
+                        if (p_ptr->prace == RACE_SKELETON)
+                        {
+                                i = 0;
+                        }
+                        else if (i < 1) i = 1;
 
 			/* Digest some food */
 			(void)set_food(p_ptr->food - i);
@@ -1581,13 +1561,9 @@ static void process_world(void)
 	else
 	{
 		/* Regeneration ability */
-                if (p_ptr->regenerate || ability(10))
+                if (p_ptr->regenerate)
 		{
-                        if (ability(10))
-                        {
-                                regen_amount = regen_amount * 4;
-                        }
-                        else regen_amount = regen_amount * 2;
+                        regen_amount = regen_amount * 2;
 		}
 	}
 
@@ -1693,6 +1669,12 @@ static void process_world(void)
 
 
 	/*** Timeout Various Things ***/
+
+        /* Restore the Great Guard counter */
+        if (p_ptr->guardconfuse > 0)
+        {
+                p_ptr->guardconfuse -= 1;
+        }
 
 	/* Handle temporary stat drains */
 	for (i = 0; i < 6; i++)
@@ -2064,10 +2046,66 @@ static void process_world(void)
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
+                /* Monsters heals MUCH faster */
+                if (p_ptr->prace == RACE_MONSTER)
+                {
+                        adjust += 1;
+                        adjust *= 5;
+                }
+
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
+        /* The temporary stats boosts from spells! :) */
+        /* Strength */
+        if (p_ptr->str_boost_dur)
+	{
+                (void)set_str_boost(p_ptr->str_boost_dur - 1);
+	}
+        /* Intelligence */
+        if (p_ptr->int_boost_dur)
+	{
+                (void)set_int_boost(p_ptr->int_boost_dur - 1);
+	}
+        /* Wisdom */
+        if (p_ptr->wis_boost_dur)
+	{
+                (void)set_wis_boost(p_ptr->wis_boost_dur - 1);
+	}
+        /* Dexterity */
+        if (p_ptr->dex_boost_dur)
+	{
+                (void)set_dex_boost(p_ptr->dex_boost_dur - 1);
+	}
+        /* Constitution */
+        if (p_ptr->con_boost_dur)
+	{
+                (void)set_con_boost(p_ptr->con_boost_dur - 1);
+	}
+        /* Charisma */
+        if (p_ptr->chr_boost_dur)
+	{
+                (void)set_chr_boost(p_ptr->chr_boost_dur - 1);
+	}
+
+        /* Temporary resistances + ac boost! */
+        if (p_ptr->pres_dur)
+	{
+                (void)set_pres(p_ptr->pres_dur - 1);
+	}
+        if (p_ptr->mres_dur)
+	{
+                (void)set_mres(p_ptr->mres_dur - 1);
+	}
+        if (p_ptr->ac_boost_dur)
+	{
+                (void)set_ac_boost(p_ptr->ac_boost_dur - 1);
+	}
+        if (p_ptr->elem_shield)
+	{
+                (void)set_elem_shield(p_ptr->elem_shield - 1);
+	}
 
         /* Every 1500 turns, warn about any Black Breath not gotten from an equipped
          * object, and stop any resting. -LM-
@@ -2728,8 +2766,18 @@ static void process_world(void)
 			/* Notice changes */
                         if (!(o_ptr->timeout))
                         {
-				recharged_notice(o_ptr);
-                                j++;
+                                if (f3 & (TR3_ACTIVATE))
+                                {
+                                        recharged_notice(o_ptr);
+                                        j++;
+                                }
+                                else
+                                {
+                                        inven_item_increase(i, -1);
+                                        inven_item_describe(i);
+                                        inven_item_optimize(i);
+                                        j++;                                        
+                                }
                         }
 		}
 
@@ -2791,6 +2839,17 @@ static void process_world(void)
                         if (!(o_ptr->timeout)) j++;
 		}
 
+                /* Examine all charging souls */
+                if ((o_ptr->tval == TV_SOUL) && (o_ptr->timeout))
+		{
+			/* Charge it */
+                        o_ptr->timeout--;
+
+			/* Notice changes */
+                        if (!(o_ptr->timeout)) j++;
+		}
+
+
 		/* Decay objects in pack */
                 if (decays(o_ptr))
 		{
@@ -2836,11 +2895,19 @@ static void process_world(void)
                                 monster_type *m_ptr;
                                 monster_race *r_ptr;
 
+                                r_ptr = &r_info[o_ptr->pval2];
+                                if (r_ptr->level > (p_ptr->lev * 2))
+                                {
+                                        msg_format("Your egg cannot hatch until you reach level %d !", r_ptr->level / 2);
+                                }
+                                else
+                                {
+
                                 mx=px;
                                 my=py+1;
                                 get_pos_player(5, &my, &mx);
                                 msg_print("Your egg hatchs!");
-                                place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, TRUE);
+                                place_monster_aux_no_boss(my, mx, o_ptr->pval2, FALSE, FALSE, TRUE);
 
                                 m_ptr = &m_list[cave[my][mx].m_idx];
                                 m_ptr->level = o_ptr->pval3;
@@ -2853,6 +2920,7 @@ static void process_world(void)
                                 inven_item_describe(i);
                                 inven_item_optimize(i);
                                 j++;
+                                }
 			}
                 }
 	}
@@ -3239,8 +3307,9 @@ static void process_command(void)
 			break;
 		}
                 case 'W':
-		{
-			break;
+                {
+                        open_monster_generator();
+                        break;
 		}
 
 
@@ -3281,11 +3350,21 @@ static void process_command(void)
 		}
                 case 'Y':
 		{
-                        do_cmd_change_class();
+                        if (p_ptr->prace == RACE_MONSTER) do_cmd_evolve();
+                        else do_cmd_change_class();
 			break;
 		}
-
-
+                case 'y':
+		{
+                        make_gold_pile();
+			break;
+		}
+                case '‚':
+		{
+                        know_body_monster();
+			break;
+		}
+                
 
 		/*** Various commands ***/
 
@@ -3306,7 +3385,8 @@ static void process_command(void)
                 /* Know about your Dark Aura(Dark Lords) */
                 case 'X':
 		{
-                        do_cmd_dark_aura_info();
+                        /* do_cmd_dark_aura_info(); */
+                        msg_format("Your lord element: %d %s", p_ptr->elemlord, get_element_name(p_ptr->elemlord));
 			break;
 		}
 
@@ -3366,7 +3446,7 @@ static void process_command(void)
 		/* Begin Running -- Arg is Max Distance */
 		case '.':
 		{
-                        if(!p_ptr->wild_mode) do_cmd_run();
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101) do_cmd_run();
 			break;
 		}
 
@@ -3404,7 +3484,14 @@ static void process_command(void)
 			do_cmd_toggle_search();
 			break;
 		}
-
+                /* Pickup corpses(and other non-pickable/pikable items) */
+                case 'Š':
+                {
+                        no_pickup_corpse = FALSE;
+                        py_pickup_floor(TRUE);
+                        no_pickup_corpse = TRUE;
+                        break;
+                }
 
 		/*** Stairs and Doors and Chests and Traps ***/
 
@@ -3432,7 +3519,7 @@ static void process_command(void)
 		/* Go up staircase */
 		case '<':
 		{
-                        if(!p_ptr->wild_mode && !dun_level)
+                    /*    if(!p_ptr->wild_mode && !dun_level)
                         {
                                 if (!vanilla_town)
                                 {
@@ -3451,7 +3538,7 @@ static void process_command(void)
                                         }
                                 }
                         }
-                        else
+                        else */
                                 do_cmd_go_up();
 			break;
 		}
@@ -3529,52 +3616,20 @@ static void process_command(void)
 		/* Gain new spells/prayers */
 		case 'G':
 		{
-                        if (p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_HELLQUEEN)
-                                msg_print("You don't have to learn spells!");
-                        else
-                                do_cmd_study();
-			break;
-		}
-
-		/* Browse a book */
-		case 'b':
-		{
-                        do_cmd_browse();
+                        do_cmd_study();
 			break;
 		}
 
 		/* Cast a spell */
 		case 'm':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
 			{
                                 if (p_ptr->anti_magic)
 				{
 					cptr which_power = "magic";
-                                        if (p_ptr->pclass == CLASS_MINDCRAFTER || ability(28))
-						which_power = "psionic powers";
-                                        else if (p_ptr->pclass == CLASS_BEASTMASTER)
-                                                which_power = "summoning powers";
-                                        else if (p_ptr->pclass == CLASS_ALCHEMIST || ability(34))
-                                                which_power = "alchemist powers";
-                                        else if (p_ptr->pclass == CLASS_MIMIC || ability(33))
-                                                which_power = "mimic powers";
-                                        else if (p_ptr->pclass == CLASS_HARPER)
-                                                which_power = "singing abilities";
-                                        else if (mp_ptr->spell_book == TV_VALARIN_BOOK)
-						which_power = "prayer";
-                                        else if (p_ptr->pclass == CLASS_RUNECRAFTER || ability(37))
-                                                which_power = "combining abilities";
-                                        else if (p_ptr->pclass == CLASS_ARCHER || ability(45))
-                                                which_power = "forging abilities";
-                                        else if (p_ptr->pclass == CLASS_POSSESSOR || ability(39))
-                                                which_power = "transfering abilities";
-                                        else if (p_ptr->pclass == CLASS_NECRO)
-                                                which_power = "necromantic powers";
-                                        else if (p_ptr->pclass == CLASS_MONSTER_MAGE || ability(80))
-                                                which_power = "monster magics";
 
 					msg_format("An anti-magic shell disrupts your %s!", which_power);
 
@@ -3582,34 +3637,16 @@ static void process_command(void)
 				}
 				else
 				{
-                                        char ch;
-                                        if (p_ptr->pclass == CLASS_MINDCRAFTER || ability(28))
-						do_cmd_mindcraft();
-                                        else if (p_ptr->pclass == CLASS_BEASTMASTER)
-                                                do_cmd_beastmaster();
-                                        else if (p_ptr->pclass == CLASS_ALCHEMIST || ability(34))
-                                                do_cmd_alchemist();
-                                        else if (p_ptr->pclass == CLASS_MIMIC || ability(33))
-                                                do_cmd_mimic();
-                                        else if (p_ptr->pclass == CLASS_POWERMAGE || ability(35))
-                                                do_cmd_powermage();
-                                        else if (p_ptr->pclass == CLASS_RUNECRAFTER || ability(37))
-                                                do_cmd_rune();
-                                        else if (p_ptr->pclass == CLASS_ARCHER || ability(45))
-                                                do_cmd_archer();
-                                        else if (p_ptr->pclass == CLASS_POSSESSOR || ability(39))
-                                                do_cmd_possessor();
-                                        else if (p_ptr->pclass == CLASS_MONSTER_MAGE || ability(80))
-                                                use_monster_power(TRUE, FALSE);
-                                        else if (p_ptr->pclass == CLASS_HELLQUEEN)
+                                        if (p_ptr->body_monster != 0)
+                                                use_symbiotic_power(p_ptr->body_monster, TRUE, FALSE);
+                                        else if (p_ptr->magic_mode == 1)
                                         {
-                                                if (!get_com("[M]agic or M[o]nster Magic?", &ch)) break;
-                                                if (ch == 'M' || ch == 'm') do_cmd_cast();
-                                                else if (ch == 'O' || ch == 'o') use_monster_power(TRUE, FALSE);
+                                                use_monster_power(TRUE, FALSE);
                                         }
-
 					else
-						do_cmd_cast();
+                                        {
+                                                do_cmd_cast();
+                                        }
 				}
 			}
 			else
@@ -3638,7 +3675,7 @@ static void process_command(void)
 		/* Cut up a corpse */
 		case 'h':
 		{
-                        if(!p_ptr->wild_mode) do_cmd_cut_corpse();
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101) do_cmd_cut_corpse();
 			break;
 		}
 
@@ -3652,7 +3689,8 @@ static void process_command(void)
                 /* Steal an item form a monster */
                 case 'Z':
                 {
-                        if(!p_ptr->wild_mode) do_cmd_steal();
+                        if (p_ptr->inside_quest) msg_print("You can't steal in quest mode!");
+                        else if(!p_ptr->wild_mode && p_ptr->body_monster != 1101) do_cmd_steal();
                         break;
                 }
 
@@ -3675,7 +3713,7 @@ static void process_command(void)
 		/* Activate an artifact */
 		case 'A':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
 				do_cmd_activate();
@@ -3704,7 +3742,12 @@ static void process_command(void)
 
 		/* Fire an item */
 		case 'f':
-		{
+                {       if (p_ptr->body_monster == 1101)
+                        {
+                                msg_print("You can't use that while in a rock shape!");
+                        }
+                        else
+                        {
                         if(!p_ptr->wild_mode)
                         {
 			if (!p_ptr->inside_arena)
@@ -3714,7 +3757,7 @@ static void process_command(void)
                                 if(j_ptr->tval==TV_BOOMERANG)
                                         do_cmd_boomerang();
                                 else
-                                        do_cmd_fire();
+                                        do_cmd_fire(0, FALSE);
                         }
                         else
 			{
@@ -3722,13 +3765,14 @@ static void process_command(void)
 				msg_print(NULL);
 			}
                         }
+                        }
 			break;
 		}
 
 		/* Throw an item */
 		case 'v':
-		{
-                        if(!p_ptr->wild_mode)
+                {
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
                                 do_cmd_throw();
@@ -3737,14 +3781,14 @@ static void process_command(void)
 				msg_print("You're in the arena now. This is hand-to-hand!");
 				msg_print(NULL);
 			}
-                        }
+                        } 
 			break;
 		}
 
 		/* Aim a wand */
 		case 'a':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
                         if (!p_ptr->inside_arena)
 				do_cmd_aim_wand();
@@ -3760,7 +3804,7 @@ static void process_command(void)
 		/* Zap a rod */
 		case 'z':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
 				do_cmd_zap_rod();
@@ -3776,7 +3820,7 @@ static void process_command(void)
 		/* Quaff a potion */
 		case 'q':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
 				do_cmd_quaff_potion();
@@ -3792,7 +3836,7 @@ static void process_command(void)
 		/* Read a scroll */
 		case 'r':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
 				do_cmd_read_scroll();
@@ -3808,7 +3852,7 @@ static void process_command(void)
 		/* Use a staff */
 		case 'u':
 		{
-                        if(!p_ptr->wild_mode)
+                        if(!p_ptr->wild_mode && p_ptr->body_monster != 1101)
                         {
 			if (!p_ptr->inside_arena)
 				do_cmd_use_staff();
@@ -3824,15 +3868,25 @@ static void process_command(void)
 		/* Use racial power */
 		case 'U':
 		{
+                        if (p_ptr->body_monster == 1101)
+                        {
+                                msg_print("You turn back into your real form!");
+                                p_ptr->body_monster = 0;
+                                update_and_handle();
+                                energy_use = 100;
+                        }
+                        else
+                        {
                         if(!p_ptr->wild_mode)
                         {
 			if (!p_ptr->inside_arena)
-				do_cmd_racial_power();
+                                do_cmd_racial_power(FALSE);
 			else
 			{
 				msg_print("The arena absorbs all attempted magic!");
 				msg_print(NULL);
 			}
+                        }
                         }
                         break;
 		}
@@ -3840,17 +3894,7 @@ static void process_command(void)
                 /* Sacrifice at an altar */
                 case 'O':
                 {
-                        if(!p_ptr->wild_mode)
-                        {
-                         if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                         {
-                                 msg_print("Chaos Warriors cannot sacrifice to other gods");
-                         }
-                         else
-                         {
-                                 do_cmd_sacrifice();
-                         }
-                        }
+                         do_cmd_sacrifice();
                          break;
                 }
 		
@@ -3886,11 +3930,9 @@ static void process_command(void)
 			break;
 		}
 
-                /* Engrave the floor */
                 case 'x':
                 {
-                        if(!p_ptr->wild_mode) do_cmd_sense_grid_mana();
-                        if(!p_ptr->wild_mode) do_cmd_engrave();
+                        scan_targetting();
                         break;
                 }
 
@@ -4133,7 +4175,7 @@ static void process_player(void)
 		if (resting == -1)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
+                        if ((p_ptr->chp >= p_ptr->mhp) &&
                 (p_ptr->csp >= p_ptr->msp))
 			{
 				disturb(0, 0);
@@ -4154,7 +4196,7 @@ static void process_player(void)
                         max = maxroll(r_ptr->hdice, r_ptr->hside);
 
 			/* Stop resting */
-			if (p_ptr->chp != p_ptr->mhp) stop = FALSE;
+                        if (p_ptr->chp != p_ptr->mhp && !(p_ptr->chp > p_ptr->mhp)) stop = FALSE;
 			if (p_ptr->csp != p_ptr->msp) stop = FALSE;
                         if (o_ptr->pval2 != max) stop = FALSE;
 			if (p_ptr->blind || p_ptr->confused) stop = FALSE;
@@ -4281,8 +4323,14 @@ static void process_player(void)
 		/* Paralyzed or Knocked Out */
 		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
 		{
-			/* Take a turn */
-			energy_use = 100;
+                        /* Your constitution MAY save you... */
+                        if (randint(100) <= p_ptr->stat_ind[A_CON])
+                        {
+                                msg_print("You stand up!");
+                                p_ptr->paralyzed = FALSE;
+                                p_ptr->stun -= 50;
+                        }
+                        else energy_use = 100; /* Take a turn */
 		}
 
 		/* Resting */
@@ -4357,6 +4405,8 @@ static void process_player(void)
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
 
+                        /* We won, no more monsters! */
+                        if (total_winner) anihilate_monsters();
 
 			/* Shimmer monsters if needed */
 			if (!avoid_other && shimmer_monsters)
@@ -5039,7 +5089,7 @@ void play_game(bool new_game)
 		/* Hack -- enter the world */
                 /* Mega-hack Vampires and Spectres start in the dungeon */
                 /* Dark Lords too!! */
-                if ((p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE) || (p_ptr->pclass == CLASS_DARK_LORD))
+                if ((p_ptr->prace == RACE_VAMPIRE) || (p_ptr->pclass == CLASS_DARK_LORD))
                         turn = (10L * TOWN_DAWN / 2) + 1;
                 else
                         turn = 1;
@@ -5088,12 +5138,6 @@ void play_game(bool new_game)
 
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-
-        /* Hack - if note file exists, load it */
-        if (!new_game && take_notes)
-        {
-		add_note_type(NOTE_ENTER_DUNGEON);
-        }
 
 	/* Generate a dungeon level if needed */
         if (!character_dungeon) generate_cave();
@@ -5223,16 +5267,9 @@ void play_game(bool new_game)
 				p_ptr->chp = p_ptr->mhp;
 				p_ptr->chp_frac = 0;
 
-                                /* Heal sanity */
-                                p_ptr->csane = p_ptr->msane;
-                                p_ptr->csane_frac = 0;
-
         			/* Restore spell points */
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
-
-                                /* Restore tank points */
-                                p_ptr->ctp = p_ptr->mtp;
 
 				/* Hack -- Healing */
 				(void)set_blind(0);

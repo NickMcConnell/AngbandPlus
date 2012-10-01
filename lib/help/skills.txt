@@ -1,0 +1,705 @@
+NEWANGBAND SKILLS GUIDE
+-------------------------
+
+The purpose of this guide is to learn more about the different skills,
+and what special feats they give you.
+
+--------------------------------------------------------------------
+
+SWORDS:
+The sword is probably the most popular weapon. There are many
+types of swords, including Long Swords, Broad Swords, Katanas
+and Sabers. Boosting your skill with the swords makes you
+better at using them, allowing you to deal much more damages.
+
+Effects: -Extra damages = Base sword damages * Swords skill level
+
+Swords are the most abundant weapons in the game. They offer
+a wide array of choices, and the most powerful sword, the
+King's Sword, is a one-handed weapon and is very dangerous.
+Choosing the swords skill is a good choice if you wish to
+combine a good offense with a good defense.
+
+SPECIAL FEATS:
+
+- Parry(Passive, 10 points): With enough training, one can learn
+to block enemy attacks with a sword.
+	
+Effects: 10% chances to block an attack, cumulative with shield
+bonus. Maximum blocking chance is still 75%.
+
+
+- Sword Spin(Active, 20 points): A well trained warrior can use
+this ability to hit multiple foes surrounding him. 
+	
+Effects: Perform a spin attack, and damage enemies surrounding
+you. The damages are higher than a normal attack, but only a single
+blow is given to an enemy.
+
+	
+- Fencer's Spirit(Passive, 50 points): After a long training, a
+warrior can eventually learn to use a sword with a greatly
+superior accuracy. Such a warrior will have an easy time hitting
+most foes in combat.
+
+Effects: Double your to_hit while wielding a sword.
+
+--------------------------------------------------------------------
+
+HAFTED:
+Hafted weapons include maces, morning stars, war hammers and other
+blunt weapons. While not as common and popular as swords, hafted
+weapons offers both good one-handed weapons and two-handed weapons.
+Their main advantage lies in the fact that blows from blunt weapons
+delivers a lot of impact, and some very useful feats can be performed
+to take advantage of this.
+
+Effects: -Extra damages = Base hafted weapon damages * Hafted skill level
+
+Hafted weapons offers a nice alternative to the swords. There are some
+very good one-handed weapons, and some powerful two-handed weapons as well.
+While the one-handed weapons aren't as good as those in the Swords, and the
+two-handed in the Polearms, Hafted weapons offers some unique and powerful 
+abilities to a skilled user.
+
+SPECIAL FEATS:
+
+- Smash(Active, 15 points): A warrior using this ability can deliver
+a blow with such an impact that not only will it do more damages,
+it will shatter a part of target's defense while knocking them away.
+
+Effects: Enemy is damaged, and is knocked away, allowing you to avoid
+direct physical contact. The enemy will also lose 10% of it's defense.
+
+- Dizzy Smash(Active, 40 points): This ability is similar to Smash,
+except that it is focused on target's head instead of entire body.
+The enemy will not lose defense, but has a chance to become confused
+for a few turns after the attack.
+
+Effects: Enemy is damaged, and is knocked away, allowing you to avoid
+direct physical contact. The enemy is also confused for a few turns.
+Note that Elites and Bosses cannot be confused. Dizzy Smash does
+more damages than Smash.
+
+- Shattering Blow(Active, 70 points): A very well trained warrior
+can use his or her weapon to deliver a blow with a lot of impact, and
+focus the impact on target's armor, scales and/or bones. By doing so,
+the target's armor, scales and bones will shatter, and the victim
+will become extremely vulnerable.
+
+Effects: Reduce target's defense to 0. Note that this attack doesn't
+knock the enemy away, and doesn't do any damages, so use it wisely!
+
+--------------------------------------------------------------------
+
+POLEARMS:
+Polearms are spears, halberds and other, similar weapons. Most of them
+are two-handed weapons, and are great for dealing a lot of damages.
+Polearms are known for being able to strike foes from a short distance. 
+
+Effects: -Extra damages = Base polearm weapon damages * Polearms skill level
+
+Polearms are probably the most deadly weapons in the game. The drawback to
+this is that they are two-handed, and you won't be able to use a shield
+most of the time. You will eventually get the ability to parry with polearms,
+but this is nowhere near as good as using a powerful shield. However,
+the last spear ability, Impale, is extremely deadly if you have high
+strength.
+
+SPECIAL FEATS:
+
+- Thrust(Active, 5 points): A warrior trained in polearms can strike a foe
+from a short distance. This allow him or her to strike the opponents before
+they come close, possibly killing them.
+
+Effects: Thrust will attack from a short distance. If there is an enemy
+next to you, and another one behind it, you can strike both of them at once!
+Thrust only gives one blow, but it does more damages than a regular blow.
+
+
+- Parry(Passive, 25 points): Polearms are long, and are therefore excellent
+weapons to parry attacks from enemies. They are even better than swords,
+as they are held with both hands, offering more stability when they come
+in contact with the enemy's weapon.
+
+Effects: 20% chances to block an enemy's attack. NOT cumulative with shield
+bonus. If you use a one-handed polearm, and a shield, only the shield bonus
+will be counted.
+
+	
+- Impale(Passive, 90 points): A master of the polearms can use all his or
+her strength to pierce trough an opponent's body, and slay the vital organs.
+This gives the victim an atrocious, generally fatal wound.
+
+Effects: Double your multiplier. If you have high strength, this can be
+extremely deadly.
+
+--------------------------------------------------------------------
+
+DAGGERS:
+Daggers are short bladed weapons, ressembling swords, but much smaller
+and concealable. Usually not the warrior's favorite weapon, daggers
+can be used much quicker than swords due to their light weight, and
+because they are small, they can easily pierce trough a target's armor.
+
+Effects: -Extra damages = Base dagger weapon damages * Daggers skill level
+
+Daggers are fun weapons, and can also become quite deadly should you
+choose to train in this skill. Daggers aren't powerful, but they give
+the wielder a lot of attacks per rounds, making them quite useful,
+especially defense piercing or hit rate lowering daggers.
+
+SPECIAL FEATS:
+
+- Piercing Stab(Passive, 5 points): Because of their size, a dagger can
+easily pierce trough a target's armor. This allow a trained warrior to
+hit the opponent's vital parts more easily.
+
+Effects: 25% bonus to your hit rate when striking with a dagger.
+
+- Eye Stab(Active, 30 points): Stabbing with a dagger is quick and easy,
+but this also allow a warrior to easily strike specific parts of the body. 
+By stabbing the target's eyes, they will be blinded, greatly lowering their
+attack rating, and because they can't see, they will have trouble dodging,
+and will lose a potion of their defense.
+
+Effects: Reduce target's attack rating by 50% and defense by 25%. Note that 
+this ability will only work on humanoid opponents, such as humans, elves, 
+orcs, trolls. The only exception are the Eye type monsters, who will also 
+suffer from this attack.
+
+- Fatal Stab(Active, 80 points): Taking advantage of the fact that daggers
+are extremely easy to draw out, this dangerous and vicious technique
+consists in quickly stabbing an opponent's vital point, and force the
+dagger hard so that it will remain in the victim's body. The infection
+and pain is incredible, and the target will become severly wounded and
+unable to fight due to the pain.
+
+Effects: To use this technique, you must sacrifice a dagger in your
+inventory to struck it into the monster's mody. The more powerful
+the dagger, the better this will work. The monster will instantly
+lose 10% of it's attack rating, defense, hp and speed, and will
+lose an extra 10% for every extra pval the weapon has, up to a maximum
+of 90%. Elites, Bosses and Uniques will only lose up to 30%.
+Questors such as Variaz will only lose 10%, and their speed will not 
+be lowered.
+
+--------------------------------------------------------------------
+
+AXES:
+Axes could be best described as a mix between an edged weapon and an
+hafted weapon, as the top, while heavy, does not give the impact of
+an hafted weapon, but is very sharp, although not as sharp as a
+sword would be. Nevertheless, axes are very strong weapons, and
+they vary in size and weight. There are the small, light, one-handed
+axes and the heavy, two-handed battle axes. Axes are very popular
+amongst barbarians and dwarves.
+
+Effects: -Extra damages = Base axe weapon damages * Axe skill level
+
+The axes are the jack-of-all-trades of all weapons. They combine several
+advantages of the swords, hafted and polearms weapons. For instance, you
+will find good one-handed axes and good two-handed axes, although they
+might not be as powerful as their swords or polearms counterparts. However,
+both types are good, so if you like switching between one-handed
+and two-handed weapons, then the axes are for you.
+
+SPECIAL FEATS:
+
+- Chop(Active, 10 points): The first thing a warrior must learn about the
+axe is that it is a chopping weapon. Knowing that, a trained warrior can
+perform a very strong chopping attack that will damage opponent's armor,
+and give a painful blow.
+
+Effects: Does damages, and reduce target's defense by 25%. This ability
+does more damages than a normal attack, but only gives one blow.
+
+- Mutilate Legs(Active, 40 points): Executioners often uses axes to mutilate
+a prisoner during a torture session. While it is a barbaric and violent
+act, barbarians themselves have no objections on doing that on an opponent,
+one of the reasons the axe is popular amongst them. In fact, they have learned
+to cut off their opponents various body parts during combat. The ability
+to mutilate the opponent's legs is one of them. Dwarves, due to their small
+size and their inborn slowness, tend to enjoy using this technique.
+
+Effects: Does damages, and prevent monster from moving. Note that it only
+prevent the monster from moving, it does not prevent it to attack or cast
+spells. Does not work against weapon immune monsters, and questors such
+as Variaz are unaffected.
+
+- Mutilate Arms(Active, 70 points): Another mutilation of the barbarians
+consists in mutilating the target's arms, claws and hands. By doing so,
+the target will be unable to use physical attacks.
+
+Effects: Does damages, and prevent monster from using physical attacks.
+They can still use their magical attacks. Does not work against elites,
+bosses and uniques.
+
+--------------------------------------------------------------------
+
+RODS:
+Rods are similar to wands, but are a little bigger, and can be used as a
+weapon. Rods aren't powerful, but the fact that they make spellcasting
+much easier encourage some wizards to train to use them effectively.
+Should their magic be useless against a foe, they will still be able to
+use their rod as a secondary weapon. 
+
+Effects: -Extra damages = Base rod damages * Rods skill level
+         - +1 damage/level per skill points to rods magic attacks.
+
+This skill is mostly useful to mages or warrior/mage type characters. Don't
+invest in this skill if you don't plan to use magical attacks. Otherwise,
+while the rods aren't too powerful as weapons, they offer special abilities
+to those who know how to use them correctly.
+
+SPECIAL FEATS:
+
+- Infinite Charges(Passive, 15 points): Those trained to use a rod can learn
+to control the amount of power used in the activation. They learn how to
+use enough power to fully activate the crystal, while not depleting it's
+energy.
+
+Effects: When you zap a rod, your crystal will not lose it's charges.
+
+
+- Amplifed Recovery(Passive, 30 points): When casting spells, the user of
+the rod can use it to amplify his or her magical energy. This allow the
+user to regenerate his or her mana at an accelerated rate.
+
+Effects: You recover your mana quicker.
+
+	
+- Improved Spellcasting(Passive, 70 points): A master of the rod can use it
+to charge up magic spells before casting them. This allow the spells to be
+much more powerful than they would normally be.
+
+Effects: You receive a 50% bonus on your Spellcraft skill. This can really
+help improving your spells!
+
+--------------------------------------------------------------------
+
+SHOOTING:
+Shooting an enemy from a safe distance has always been considered a good
+killing technique. There are many types of ranged weapons: Bows, Crossbows
+and Slings. This skill allow you to become good at using all of them.
+
+Effects: -Extra damages = Base ammos damages * Shooting skill level
+
+While ranged attacks aren't as strong as melee attacks, they are much safer,
+as melee combat can be extremely risky. If you wish to invest in this skill,
+consider putting more points in your Dexterity, so you will have a higher
+Shooter Multiplier to furthermore increase the damages of your shots. Some
+abilities such as Multiple Arrows can also help increasing the damages A LOT.
+
+SPECIAL FEATS:
+
+- Sharpen Ammos(Active, 20 points): It's a fact that arrows, bolts and
+pebbles aren't very strong weapons. However, a talented marksman can learn
+to sharpen his or her arrows to make them more deadly.
+
+Effects: Increase the damages of your arrows by adding an extra dice, and an
+extra dice side(so if you use this on a 1d4 arrow, you will now have a 2d5
+arrow).
+
+- Quick Shots(Passive, 40 points): After a long training, a skilled marksman
+will learn the ability to shoot arrows at a great speed!
+
+Effects: You get 1 extra shot.
+
+- Returning Shots(passive, 70 points): Probably the most spectacular feat
+a marksman can perform is the Returning Shot. By performing this special
+ability, the shot will hit the enemy, and will come back to the user
+afterwards.
+
+Effects: You won't deplete your ammos while shooting. This allow you to use
+those strong Special ammos without fear of losing them. Note that this
+feat will not work with Multiple Arrows.
+
+--------------------------------------------------------------------
+
+THROWING:
+Although the art of throwing is not as evolved as the art of shooting, some
+warriors, usually the strongest ones, prefers to throw strong weapons using
+nothing more than brute strength over using bows and arrows. Finding enough
+weapons to throw is harder than finding a lot of arrows, but throwing a
+powerful weapon can be extremely deadly. 
+
+Effects: -Extra damages = Base item damages * Throwing skill level
+
+Throwing skill can be used to throw boomerangs or any items. Finding a good
+number of great items to throw can be hard, but this is usually more powerful
+than shooting, especially if you have a high strength. Another point of view
+would be that there is ALWAYS something to throw. If your skill is high
+enough, you can do some damages by throwing some weak items at enemies,
+such as useless pieces of armors, potions or weak weapons. This may allow
+you to finish off some weaker enemies from a safe distance.
+
+This skill is also needed to improve the effect of throwing explosive potions
+made using the Alchemy skill.
+
+SPECIAL FEATS:
+
+- Power throw(passive, 25 points): A warrior trained in the art of throwing
+can learn to throw objects with more strength than usual.
+
+Effects: When throwing, you receive a +1 bonus to multiplier.
+
+- Quick throw(passive, 50 points): A particularly talented warrior can
+eventually become good enough to throw a weapon at a very high speed,
+allowing him or her to immediatly throw another one, or to escape.
+
+Effects: Throwing will only take half a move. This is useful if you wish to
+use hit and run tactics, or if you wish to throw another weapon right away.
+
+- Shattering throw(passive, 70 points): A warrior trained in the art of
+throwing can learn the ability to throw weapons with such as great
+impact that it will damage the target's armor.
+
+Effects: Enemies struck by thrown items will lose 50% of their defense.
+If you throw more than one item, the effect will still be applied. This
+can be very useful to make enemies easier to hit, and best of all,
+it's a free and passive ability!
+
+--------------------------------------------------------------------
+
+MARTIAL ARTS:
+Martial arts have been taught for generations among the various monk orders.
+They consist in a variety of bare-handed fighting techniques, allowing the
+monk to perform some very powerful unarmed attacks. Due to the war against
+the mighty God Of The Void, these once well guarded secrets are now
+available for every warriors to learn.
+
+Effects: When using no weapons:
+         - +2 to hit per skill points(not with a shield, +1 with armor)
+         - +5 to_damages per skill points(not with a shield, 2 with armor)
+         - Additional damages = to_damages * (martial arts skill / 10)
+         (not with a shield)
+         - +1 blows for every 10 points
+         - +2 AC for every skill points(if not wearing armor)
+
+Martial arts offers a nice alternative to weapons. While you won't get all
+the bonuses awarded for wielding a weapon, the extra to_hit and blows bonus
+from the skill will compensate for this.Note that this skill also allow you
+to use claws and wrist spikes. When you equip a claw, you will not receive
+the bonuses to hit and to damages awarded by the skill, and the damages done
+will be calculated the same as any other weapons. However, if your skill
+is very high, you will be better off with no weapons at all. The same applies
+to shields, but you can still wear arm bands without any penalities. To
+benefit fully from the skill, it is best not to wear armor, and therefore,
+the monk's Unarmored Combat ability will become very useful. Monks and
+Zelars are two excellent classes to support this skill.
+
+Martial arts is also the skill that will boost your melee attacks when
+playing as a Monster, or while morphed into a monster. If you plan on
+playing the Monster race, or on morphing a lot, consider the Martial Arts
+skill!
+
+SPECIAL FEATS:
+
+- Power Punch(Active, 15 points): A warrior trained in martial arts is able
+to infuse his or her fists with inner energy, allowing him or her to deliver
+a very powerful punch that will also reduce target's defense.
+
+Effects: Deliver a punch that deals 5 times normal damages and reduce enemy's
+defense by 25%. In other words, the more you use it, the easier it is to
+damage your foes with melee attacks!
+
+- Block & Dodge(Passive, 40 points): The art of dodging and blocking is very
+important to the monk, who generally shun armors and shields. A well trained
+monk will learn to avoid blows from enemies by either blocking with arms, or
+dodging.
+
+Effects: Gives you a 25% chances to avoid any attacks. Note that if you wear
+heavy armor, you will not get this bonus.
+
+- Stunning Blow(Active, 80 points): One of the monk's most feared ability
+is the Stunning Blow. By using a complex martial arts technique, the monk
+will paralyze any foes with a single blow.
+
+Effects: 33% chances to reduce enemy's speed to 0. This will not work on 
+uniques, elites and bosses.
+
+--------------------------------------------------------------------
+
+AGILITY:
+Agility measures the character's aptitude at moving. An agile warrior is able
+move more quickly, and can use his or her agility to dodge enemy blows more
+easily. Investing in this skill will make you much better at avoiding
+attacks from enemies.
+
+Effects: - Adds a multiplier to base AC for every 6 points.
+         - +3 bonus to_ac per points.
+         - +1 to speed for every 5 points.
+
+Agility is a great skill to invest in. Investing a lot in agility will
+greatly improve your AC, and make you very hard to hit in battle. The
+better your armor, the more effective this skill will be.
+
+SPECIAL FEATS:
+
+- Jump(Active, 1 points): Everyone can jump, but only an agile warrior can jump
+very high and very far. By developping natural agility, a warrior can perform
+amazing leaps in the air!
+
+Effects: At first, this ability doesn't allow you to jump very far. However,
+for every 10 points in Agility, you will gain an extra radius for jumping.
+The more agile you are, the farther you can jump. Note that to be able to
+jump somewhere, the grid must be visible. You cannot enter unexplored grids
+this way. Let's face it, you DON'T jump in the unknown.
+
+- Quick Swap(Passive, 30 points): An agile warrior is quick to draw the right
+weapon in battle. This ability allow a trained warrior to change equipement
+at great speed. 
+
+Effects: Changing your equipement won't take you any moves, except for
+body armors.
+
+- Evade Magic(Passive, 70 points): Warriors with great agility have such
+great reflexes and jumping abilities that they can sometime dodge a deadly
+magical attack that would be directed toward them.
+
+Effects: 33% chances to evade an enemy's magical or breath attack.
+
+--------------------------------------------------------------------
+
+STEALTH:
+Stealth is the skill measuring how good a character is at moving without
+making noise. This allow you to move without waking up enemies, or to
+sneak into a shop and steal stuff more easily.
+
+Effects: - Allow you to move without being noticed by monsters.
+	 - Improve your chances of avoiding enemies while invisible.
+         - Increase your odds at stealing from shops. 
+
+Stealth can be useful for moving without waking up sleeping enemies, or
+even avoiding woken enemies as well. Or, it can be useful to avoid
+waking up a large pack that would easily kill you. Finally, stealing is
+always nice, and you will be able to get more items for free!
+
+SPECIAL FEATS:
+
+- Hide(Active, 10 points): A master of stealth can quickly hide nearby,
+either in shadows, or behind an object, allowing to temporarly escape the
+sight of an enemy.
+
+Effects: Your become invisible for 5 turns. It's a very short duration, but
+it can be useful if you are chased by a strong enemy.
+
+- Run Away(Active, 20 points): Stealth masters can learn the ability to run
+away without making any noise. However, the moves aren't as calculated, and
+are somewhat inaccurate, as long as you can escape the sight of the enemy.
+
+Effects: Allow you to phase away. This is similar to a phase door scroll, but it's
+completly free!
+
+- Backstab(Passive, 30 points): Stealthy thieves are known for backstabing
+their enemies. A high stealth will allow a thief to learn this clever art.
+
+Effects: Allow you to perform backstabs on sleeping enemies.
+
+--------------------------------------------------------------------
+
+SPELLCRAFT:
+The ancient mystic art of magic has been practiced for many centuries. Even
+after all that time, very few understands the true secrets of magic, and
+intense research and study is required to be able to use it to it's full
+potential.
+
+Effects: - Increase the damages of magical attacks. This includes any
+         non-physical attacks: spells, monster magics, rods, magic using
+         abilities, etc...
+         - Increase the radius of area-of-effects type spells for every 30
+         points.
+
+Spellcraft is extremely useful for spellcasters, or any users of magical
+attacks. Not only will it makes your spells much more effective, it will
+also increase the radius of your spells if you raise it high enough. High
+spellcraft + spell boosting abilities will make your spells devastating.
+Note that chain attacks such as Tidal Wave or Apocalyptic Blast doesn't
+get the increased radius.
+
+SPECIAL FEATS:
+
+- Enchanted Blood(Active, 10 points): A wizard using this ability can take
+out a portion of his or her own blood to recover some magical energy.
+
+Effects: You can use any amount of hp with this ability. You will gain in mana
+what you lose in hp.
+
+- Mana Shield(Active, 40 points): A sorcerer can use this ability to
+sacrifice his entire magical energy to surround himself with a shield of
+magical energy.
+
+Effects: By using this, you will lose all your mana, and you will gain
+some hp beyond your maximum hp. This can be very useful to take extra hits
+from enemies. Note that the effects will be gone if you gain a level.
+
+- Mystic Blood(Passive, 80 points): The most powerful sorcerers are said
+to have magical or divine blood running trough their veins. This blood is
+said to give them a natural advantage over all other magic users.
+
+Effects: You gain a 25% bonus to your maximum mana.
+
+--------------------------------------------------------------------
+
+LEADERSHIP:
+Leadership measure a character's ability to lead a group, or even an
+entire army. Generals, military commanders, kings and any other leaders
+knows that to make an army effective, you need to be a skilled leader
+who knows how to get the best from his or her soldiers.
+
+Effects: - Increase the damages of both melee and magical attacks from
+           friendly monsters.
+         - Gives friendly monsters a better chance to hit.
+
+Leadership makes friendly monsters more powerful. If you like to use
+summon spells, or recruit creatures, this skill can really help you
+getting the best out of them. A character with a high leadership can
+overwhelm the enemy with a large number of creatures, or a small
+group of very strong creatures.
+
+SPECIAL FEATS:
+
+- Heal Troops(Active, 5 points): Troops gets wounded on the battlefield.
+It is a fact. Learning the art of healing the wounded is necessary to
+win any battles.
+
+Effects: Heals 10 hp/level on a monster.  
+
+- Morale Boost(Active, 20 points): Slow and lazy soldiers have never been
+useful on the battlefield. By giving them a morale boost, this makes them
+act faster and better.
+
+Effects: All friendly creatures around you, in a radius of 3, get their
+speed boosted by 25%. Their hit rate is also raised by 50%.
+
+- Improved Recruiting(Passive, 50 points): Leading an army is one thing.
+Building an army is another. A skilled leader must learn the most
+effective ways to convince soldiers to join his or her army.
+
+Effects: Improve your success rate with Hire/Befriend command.
+
+--------------------------------------------------------------------
+
+ALCHEMY:
+Your skill at brewing potions from various components, and possibly
+some other alchemical items as well. Some alchemists use their skills
+to make curative potions, while evil alchemists are skilled at making
+deadly poisons. Some war alchemists also brew instable, explosive
+potions to throw at their enemies.
+
+Effects: - Allow you to create alchemical items.
+	 - Increase damages of explosive potions.
+	 - Increase effectiveness of healing potions.
+
+Alchemy gives you the use of the "Combine Items" command, which allow
+you to combine two items into one item. If you combine two items,
+you will need to have a sufficient alchemical skill to actually
+succeed in making it. For instance, the potion of cure critical
+wounds has a depth of 5, so you need half the depth in alchemical
+skill, rounded down(so in this case, you would need a skill of 2).
+
+Unless you are specialising in throwing explosive potions, you
+shouldn't invest too much points in this ability, as placing too
+many points will be useless. Place a few points, then see if you
+can create some stuff. Only place more if you can't. You will be
+much better spreading your points between this skill and the
+Crafting skill, as some items require both skills.
+
+And about alchemical recipes...it's up to you to find them!
+
+SPECIAL FEATS:
+
+- Decompose Item(Active, 1 point): Items are made from various
+components. By using various processes and techniques, you can
+disassemble one item to get the components it was originally
+made from. Not all items can be decomposed.
+
+Effects: Destroy an item, and place it's two components in your
+inventory. Some items cannot be crafted, and will not give you
+any components.
+
+--------------------------------------------------------------------
+
+CRAFTING:
+Your skill at crafting various weapons, armors and objects from
+various components. A skilled smith will be able to create many
+types of weapons and armors, and even some unique weapons only
+available to the most talented.
+
+Effects: - Allow you to create weapons, armors and other items.
+	   - Improve quality of crafted weapons and armors.
+
+Crafting, like Alchemy, gives you the use of the "Combine Items" 
+command, which allow you to combine two items into one item. It
+works exactly the same way, except it's your Crafting skill
+that will be used. Like the Alchemy, don't place too many points
+in it, or it will be wasted. Instead, spread your points between
+this and Alchemy skill, and take a weapon skill to actually use
+the weapons you craft!
+
+As mentionned above, some items require the use of both skills.
+For instance, the Poison Dagger require both a dagger(crafting)
+and a potion of poison(alchemy). The poison dagger has a depth
+of 10, so it's skill requirements is 5. Since it uses both
+skills, the cost will be splitted in two, rounded down, so the
+poison dagger would require an Alchemy skill of 2 and a Crafting
+skill of 2 to be created.
+
+And about crafting combinations...it's up to you to find them!
+
+NOTE: If you use a magical item for crafting, the resulted item
+(if any) will NOT be magical, so be warned!
+
+SPECIAL FEATS:
+
+- Decompose Item(Active, 1 point): Items are made from various
+components. By using various processes and techniques, you can
+disassemble one item to get the components it was originally
+made from. Not all items can be decomposed.
+
+Effects: Destroy an item, and place it's two components in your
+inventory. Some items cannot be crafted, and will not give you
+any components.
+
+--------------------------------------------------------------------
+
+COMBAT FEATS:
+Combat is not merely about swinging a sword in the strongest and
+fastest way. It's about combining one's abilities with other attacks
+to create devastating combos. This skill measure the amount of
+special attacks you may combine with your normal attacks.
+
+Effects: - 20% chance to sacrifice a blow to perform a special attack
+        instead of a normal attack. So for every 5 points, you can
+        do it one time with 100% success rate.
+
+This skill allow you to replace your normal blows by special abilities.
+When striking an enemy, if your skill is high enough, you will be asked
+if you would like to replace a normal blow by a special ability. If you
+say yes, the standard special abilities menu will be shown, and you will
+choose one of your abilities, which will not take any moves. Not all
+abilities may be used though, only those related to combat or melee
+attacks. For instance, you may replace a normal blow by a Spin Attack,
+but not by a Force Field. Generally, combat-like abilities can all be
+used(with a few exceptions), while spell-like abilities cannot.
+You will be able to replace as many blows as you want, as long as you
+have the skill for it.
+
+Before spending lots of points in this skill, consider two important
+things. The first one is, how many blows do you have? There is no
+point in spending 50 skill points in this skill if you only have one
+blow. And the second is: do you have any special attacks and are they
+strong enough to sacrifice a normal attack? If all you have is a
+Spin Attack with 1 ability point, chances are you're better with a
+normal attack.
+
+However, if used correctly, this skill can turn a melee character
+into an extremely dangerous killer!
+
+NOTE: All abilities that you can use with skill are noted in the
+abilities guide. Consult it if you don't which abilities work!
+
+SPECIAL FEATS:
+
+- None.

@@ -1885,27 +1885,7 @@ static void bldg_process_command(building_type *bldg, int i)
 			}
 			break;
                 }
-                case BACT_BUYFIRESTONE:
-                        amt = get_quantity("How many firestones (10 gold each)? ", 1000);
-			if (amt > 0)
-			{
-                                bcost=amt*10;
-                                if(p_ptr->au>=bcost){
-                                paid=TRUE;
-                                msg_print("You have bought some firestones !");
-
-                                /* Hack -- Give the player Firestone! */
-                                q_ptr = &forge;
-                                object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
-                                q_ptr->number = amt;
-                                object_aware(q_ptr);
-                                object_known(q_ptr);
-                                drop_near(q_ptr, -1, py, px);
-                                }else msg_print("You do not have the gold!");
-			}
-			break;
                 case BACT_COMEBACKTIME:
-                        if(p_ptr->prace==RACE_DRAGONRIDER){
                                 if (do_res_stat(A_STR)) paid = TRUE;
                                 if (do_res_stat(A_INT)) paid = TRUE;
                                 if (do_res_stat(A_WIS)) paid = TRUE;
@@ -1913,8 +1893,7 @@ static void bldg_process_command(building_type *bldg, int i)
                                 if (do_res_stat(A_CON)) paid = TRUE;
                                 if (do_res_stat(A_CHR)) paid = TRUE;
                                 p_ptr->chp-=1000;
-                                if(p_ptr->chp<=0)p_ptr->chp=1;
-                        }else msg_print("Hum .. you are NOT a DragonRider , you need a dragon to go between !");
+                                if(p_ptr->chp<=0)p_ptr->chp=1;                        
 			break;
                 case BACT_MIMIC_NORMAL:
                         set_mimic(0,0);
@@ -1979,49 +1958,7 @@ static void bldg_process_command(building_type *bldg, int i)
                         else msg_print("You do not have enough gold!");
 
                         break;
-                case 51:
-                        msg_print("So you found my home!");
-                        if (p_ptr->psex == SEX_MALE)
-                        {
-                                msg_print("You know, I know all about ladies!");
-                                msg_print("Yup! Everything!");
-                                msg_print("Here! Take this! This will help you getting them to come to you!!");
-                                create_ability(150);
-                                msg_print("If you need another one, come back again!");
-                        }
-                        else
-                        {
-                                msg_print("WOW! You sure are a pretty lady!");
-                                msg_print("How about a date with me?");
-                                msg_print("What? You'd rather have Variaz kill you than getting out with me??");
-                                msg_print("Ah then, forget it...");
-                        }
-                        break;
 
-
-                case BACT_DIVINATION:
-                {
-                        int i, count = 0;
-                        bool something = FALSE;
-
-                        while(count < 1000)
-                        {
-                                count++;
-                                i = rand_int(MAX_FATES);
-                                if(!fates[i].fate) continue;
-                                if(fates[i].know) continue;
-                                msg_print("You know a little more of your fate.");
-
-                                fates[i].know = TRUE;
-                                something = TRUE;
-                                break;
-                        }
-
-                        if(!something) msg_print("Well, you have no fate, anyway I'll keep your money!");
-
-                        paid = TRUE;
-                        break;
-                }
 	}
 
 	if (paid)

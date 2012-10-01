@@ -255,12 +255,6 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                o_ptr->pval = 0;
                break;
             }
-                                case RBE_SANITY:
-                                 {
-                                   msg_print("You feel your sanity slipping away!");
-                                   take_sanity_hit(dam, "eating an insane monster");
-                                   break;
-                                 }
             /* Unlife is bad to eat */
 			   case RBE_EXP_10:
             {
@@ -703,8 +697,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
  */
 static bool item_tester_hook_eatable(object_type *o_ptr)
 {
-        if (((o_ptr->tval==TV_FIRESTONE)&&(p_ptr->prace==RACE_DRAGONRIDER))||
-        (o_ptr->tval==TV_FOOD)||(o_ptr->tval==TV_CORPSE)) return (TRUE);
+        if ((o_ptr->tval==TV_FOOD) || (o_ptr->tval==TV_CORPSE)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -725,7 +718,14 @@ void do_cmd_eat_food(void)
 
         bool destroy = TRUE;
 
-        /* Restrict choices to food and firestone */
+        /* Skeletons doN't have to eat at all! */
+        if (p_ptr->prace == RACE_SKELETON)
+        {
+                msg_print("As a skeleton, you can't eat!");
+                return;
+        }
+
+        /* Restrict choices to food */
         item_tester_hook = item_tester_hook_eatable;
 
 	/* Get an item */
@@ -984,32 +984,8 @@ void do_cmd_eat_food(void)
                         break;
                 }
 	}
-        }else if(o_ptr->tval==TV_FIRESTONE){
-        switch(o_ptr->sval){
-                case SV_FIRE_SMALL:
-		{
-                        if(p_ptr->ctp<p_ptr->mtp){
-                                msg_print("Grrrmfff ...");
-                                p_ptr->ctp+=4;
-                                if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
-                                p_ptr->redraw |= (PR_TANK);
-                                ident = TRUE;
-                        }else msg_print("You can't eat more firestone you vomit !");
-			break;
-		}
-                case SV_FIRESTONE:
-		{
-                        if(p_ptr->ctp<p_ptr->mtp){
-                                msg_print("Grrrrmmmmmmfffffff ...");
-                                p_ptr->ctp+=10;
-                                if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
-                                p_ptr->redraw |= (PR_TANK);
-                                ident = TRUE;
-                        }else msg_print("You can't eat more firestone you vomit !");
-			break;
-		}
         }
-        }else{
+        else{
                 r_ptr = &r_info[o_ptr->pval2];
 		switch (o_ptr->sval)
       {
@@ -1111,16 +1087,10 @@ void do_cmd_eat_food(void)
 	/* Food can feed the player */
         if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
-		/* Reduced nutritional benefit */
-                (void)set_food(p_ptr->food + (fval / 10));
-		msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
+                /* No effect */
+                msg_print("Normal food has no effect on you.");
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
-	}
-        else if (p_ptr->prace == RACE_SPECTRE)
-	{
-		msg_print("The food of mortals is poor sustenance for you.");
-                set_food(p_ptr->food + ((fval) / 20));
 	}
 	else
 	{
@@ -1633,7 +1603,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_DETONATIONS:
 		{
 			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
+                        take_hit((300 * p_ptr->skill_alchemy), "a potion of Detonation");
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
 			ident = TRUE;
@@ -1743,7 +1713,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) ident = TRUE;
+                        if (hp_player(damroll(2, 8) * (p_ptr->skill_alchemy+1))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
                         
@@ -1752,7 +1722,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
+                        if (hp_player(damroll(4, 8) * (p_ptr->skill_alchemy+1))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
@@ -1762,7 +1732,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) ident = TRUE;
+                        if (hp_player(damroll(6, 8) * (p_ptr->skill_alchemy+1))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -1774,7 +1744,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+                        if (hp_player(300) * (p_ptr->skill_alchemy+1)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -1786,7 +1756,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_STAR_HEALING:
 		{
-			if (hp_player(1200)) ident = TRUE;
+                        if (hp_player(1200) * (p_ptr->skill_alchemy+1)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -1800,7 +1770,7 @@ void do_cmd_quaff_potion(void)
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
-			hp_player(5000);
+                        hp_player(5000 * (p_ptr->skill_alchemy+1));
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -1995,14 +1965,13 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURING:
 		{
-			if (hp_player(50)) ident = TRUE;
+                        if (hp_player(50) * (p_ptr->skill_alchemy +1)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
-                        if (heal_insanity(50)) ident = TRUE;
                         
 			break;
 		}
@@ -2015,25 +1984,25 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_NEW_LIFE:
+                case SV_POTION_STONESKIN:
 		{
-			do_cmd_rerate();
-			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-			{
-				msg_print("You are cured of all mutations.");
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-				p_ptr->update |= PU_BONUS;
-				handle_stuff();
-			}
-			ident = TRUE;
+                        p_ptr->ac_boost = 500;
+                        (void)set_ac_boost(50);
+                        ident = TRUE;
                         
 			break;
 		}
-                case SV_POTION_BLOOD:
+                case SV_POTION_FULL_RESTORE:
                       {
-                        msg_print("You feel the blood of life running through your veins!");
+                        msg_print("You are completely healed!");
+                        p_ptr->chp = p_ptr->mhp;
+                        set_blind(0);
+                        set_confused(0);
+                        set_poisoned(0);
+                        set_stun(0);
+                        set_cut(0);
+                        update_and_handle();
                         ident = TRUE;
-                        p_ptr->allow_one_death++;
                         
                         break;
                       }
@@ -2152,6 +2121,15 @@ void do_cmd_quaff_potion(void)
                         update_and_handle();
                         break;
                 }
+                case SV_POTION_MOLOTOV:
+		{
+                        msg_print("Explosions rupture your body!");
+                        take_hit((30 * p_ptr->skill_alchemy), "a potion of Molotov Cocktail");
+                        (void)set_stun(p_ptr->stun + 30);
+                        (void)set_cut(p_ptr->cut + 100);
+			ident = TRUE;
+			break;
+		}
 
 
 
@@ -2183,18 +2161,6 @@ void do_cmd_quaff_potion(void)
                                 ident=TRUE;
                         }
                         
-                        break;
-                case SV_POTION2_CURE_LIGHT_SANITY:
-                        heal_insanity(damroll(4,8));
-                        break;
-                case SV_POTION2_CURE_SERIOUS_SANITY:
-                        heal_insanity(damroll(8,8));
-                        break;
-                case SV_POTION2_CURE_CRITICAL_SANITY:
-                        heal_insanity(damroll(12,8));
-                        break;
-                case SV_POTION2_CURE_SANITY:
-                        heal_insanity(damroll(10,100));
                         break;
         }
 
@@ -2555,24 +2521,6 @@ void do_cmd_read_scroll(void)
                                 msg_print("Recall NOT reseted(bad dungeon or level).");
 			break;
                 }
-                case SV_SCROLL_DIVINATION:
-                {
-                        int i, count = 0;
-
-                        while(count < 1000)
-                        {
-                                count++;
-                                i = rand_int(MAX_FATES);
-                                if(!fates[i].fate) continue;
-                                if(fates[i].know) continue;
-                                msg_print("You know a little more of your fate.");
-
-                                fates[i].know = TRUE;
-                                ident = TRUE;
-                                break;
-                        }
-                        break;
-                }
 		case SV_SCROLL_DARKNESS:
 		{
 			if (!(p_ptr->resist_blind) && !(p_ptr->resist_dark))
@@ -2801,7 +2749,9 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_SATISFY_HUNGER:
 		{
-			if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
+                        if (p_ptr->prace == RACE_VAMPIRE || p_ptr->prace == RACE_SKELETON)
+                        msg_print("This scroll does not work for you!");
+                        else if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
 			break;
 		}
 
@@ -2968,6 +2918,25 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
+                case SV_SCROLL_ETERNALITY:
+		{
+                        (void) object_eternality();
+			ident = TRUE;
+			break;
+		}
+                case 57:
+		{
+                        (void) make_item_magic();
+			ident = TRUE;
+			break;
+		}
+                case 58:
+		{
+                        (void) recharge_crystal();
+			ident = TRUE;
+			break;
+		}
+
 
 	}
         }else{
@@ -3108,7 +3077,7 @@ void do_cmd_use_staff(void)
 
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HELLQUEEN))
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_HELLQUEEN))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -3123,7 +3092,7 @@ void do_cmd_use_staff(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+        chance = p_ptr->stat_ind[A_INT] * 3;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -3562,7 +3531,7 @@ void do_cmd_aim_wand(void)
 
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_LICH) || (p_ptr->pclass == CLASS_HELLQUEEN))
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_HELLQUEEN))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -3577,7 +3546,7 @@ void do_cmd_aim_wand(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+        chance = p_ptr->stat_ind[A_INT] * 3;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -3715,21 +3684,21 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+                        fire_ball(GF_POIS, dir, (p_ptr->lev * 15), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+                        fire_bolt_or_beam(20, GF_MISSILE, dir, 15);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(3, 8));
+                        fire_bolt_or_beam(20, GF_ACID, dir, (p_ptr->lev * 15));
 			ident = TRUE;
 			break;
 		}
@@ -3743,42 +3712,42 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+                        fire_bolt_or_beam(20, GF_FIRE, dir, (p_ptr->lev * 25));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+                        fire_bolt_or_beam(20, GF_COLD, dir, (p_ptr->lev * 25));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+                        fire_ball(GF_ACID, dir, (p_ptr->lev * 30), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+                        fire_ball(GF_ELEC, dir, (p_ptr->lev * 30), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+                        fire_ball(GF_FIRE, dir, (p_ptr->lev * 30), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+                        fire_ball(GF_COLD, dir, (p_ptr->lev * 30), 2);
 			ident = TRUE;
 			break;
 		}
@@ -3798,14 +3767,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+                        fire_ball(GF_FIRE, dir, (p_ptr->lev * 40), 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+                        fire_ball(GF_COLD, dir, (p_ptr->lev * 40), 3);
 			ident = TRUE;
 			break;
 		}
@@ -3816,31 +3785,31 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+                                        fire_ball(GF_ACID, dir, (p_ptr->lev * 40), 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+                                        fire_ball(GF_ELEC, dir, (p_ptr->lev * 40), 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+                                        fire_ball(GF_FIRE, dir, (p_ptr->lev * 40), 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+                                        fire_ball(GF_COLD, dir, (p_ptr->lev * 40), 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+                                        fire_ball(GF_POIS, dir, (p_ptr->lev * 40), 3);
 					break;
 				}
 			}
@@ -3858,7 +3827,7 @@ void do_cmd_aim_wand(void)
 		case SV_WAND_ROCKETS:
 		{
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 75 + (randint(50)), 2);
+                        fire_ball(GF_ROCKET, dir, (p_ptr->lev * 50), 2);
 			ident = TRUE;
 			break;
 		}
@@ -3955,14 +3924,14 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_MISSILE && rodtype == 0)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 4));
-                                o_ptr->pval -= 1;
+                                fire_bolt_or_beam(20, GF_MISSILE, dir, 20 + p_ptr->skill_rods);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_MISSILE && rodtype == 1)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_ball(GF_MISSILE, dir, 5, 2);
-                                o_ptr->pval -= 1;
+                                fire_ball(GF_MISSILE, dir, 10 + p_ptr->skill_rods, 2);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_MISSILE && rodtype == 2)
                         {
@@ -3971,14 +3940,14 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_ENERGY && rodtype == 0)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(6, 8));
-                                o_ptr->pval -= 1;
+                                fire_bolt_or_beam(20, GF_MISSILE, dir, p_ptr->lev * (40 + p_ptr->skill_rods));
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_ENERGY && rodtype == 1)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_ball(GF_MISSILE, dir, 30, 2);
-                                o_ptr->pval -= 1;
+                                fire_ball(GF_MISSILE, dir, p_ptr->lev * (30 + p_ptr->skill_rods), 2);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_ENERGY && rodtype == 2)
                         {
@@ -3987,14 +3956,14 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_FIRE && rodtype == 0)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_bolt_or_beam(20, GF_FIRE, dir, damroll(8, 8));
-                                o_ptr->pval -= 1;
+                                fire_bolt_or_beam(20, GF_FIRE, dir, p_ptr->lev * (60 + p_ptr->skill_rods));
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_FIRE && rodtype == 1)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_ball(GF_FIRE, dir, 45, 2);
-                                o_ptr->pval -= 1;
+                                fire_ball(GF_FIRE, dir, p_ptr->lev * (50 + p_ptr->skill_rods), 2);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_FIRE && rodtype == 2)
                         {
@@ -4003,14 +3972,14 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_COLD && rodtype == 0)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_bolt_or_beam(20, GF_COLD, dir, damroll(8, 8));
-                                o_ptr->pval -= 1;
+                                fire_bolt_or_beam(20, GF_COLD, dir, p_ptr->lev * (60 + p_ptr->skill_rods));
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_COLD && rodtype == 1)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_ball(GF_COLD, dir, 45, 2);
-                                o_ptr->pval -= 1;
+                                fire_ball(GF_COLD, dir, p_ptr->lev * (50 + p_ptr->skill_rods), 2);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_COLD && rodtype == 2)
                         {
@@ -4019,14 +3988,14 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_ELEC && rodtype == 0)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_bolt_or_beam(20, GF_ELEC, dir, damroll(8, 8));
-                                o_ptr->pval -= 1;
+                                fire_bolt_or_beam(20, GF_ELEC, dir, p_ptr->lev * (60 + p_ptr->skill_rods));
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_ELEC && rodtype == 1)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_ball(GF_ELEC, dir, 45, 2);
-                                o_ptr->pval -= 1;
+                                fire_ball(GF_ELEC, dir, p_ptr->lev * (50 + p_ptr->skill_rods), 2);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_ELEC && rodtype == 2)
                         {
@@ -4035,14 +4004,14 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_MAGIC && rodtype == 0)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_bolt_or_beam(20, GF_MANA, dir, damroll(20, 10));
-                                o_ptr->pval -= 1;
+                                fire_bolt_or_beam(20, GF_MANA, dir, p_ptr->lev * (100 + p_ptr->skill_rods));
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_MAGIC && rodtype == 1)
                         {
                                 if (!get_aim_dir(&dir)) return;
-                                fire_ball(GF_MANA, dir, 120, 2);
-                                o_ptr->pval -= 1;
+                                fire_ball(GF_MANA, dir, p_ptr->lev * (65 + p_ptr->skill_rods), 2);
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_MAGIC && rodtype == 2)
                         {
@@ -4058,9 +4027,9 @@ void do_cmd_zap_rod(void)
                         }
                         if (o_ptr->sval == SV_CRYSTAL_RECALL && rodtype == 2)
                         {
-                                msg_print("You use your rod to return to the town!");
-                                p_ptr->word_recall = 1;
-                                o_ptr->pval -= 1;
+                                msg_print("You use your rod to recall to the town!");
+                                p_ptr->word_recall = 15;
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_PHASING && rodtype == 0)
                         {
@@ -4073,7 +4042,7 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_PHASING && rodtype == 2)
                         {
                                 teleport_player(10);
-                                o_ptr->pval -= 1;
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         if (o_ptr->sval == SV_CRYSTAL_HEALING && rodtype == 0)
                         {
@@ -4086,8 +4055,8 @@ void do_cmd_zap_rod(void)
                         if (o_ptr->sval == SV_CRYSTAL_HEALING && rodtype == 2)
                         {
                                 msg_print("You heal yourself!");
-                                (void)hp_player(300);
-                                o_ptr->pval -= 1;
+                                (void)hp_player(p_ptr->lev * (10 + p_ptr->skill_rods));
+                                if (p_ptr->skill_rods < 15) o_ptr->pval -= 1;
                         }
                         energy_use = 100;
 
@@ -4311,7 +4280,7 @@ void do_cmd_activate(void)
         }
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+        chance = p_ptr->stat_ind[A_INT] * 3;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -4326,8 +4295,6 @@ void do_cmd_activate(void)
 	}
 
 	/* Roll for usage */
-        if((p_ptr->pclass == CLASS_HARPER)&&(o_ptr->tval == TV_INSTRUMENT));
-        else
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 	{
 		if (flush_failure) flush();
@@ -4441,7 +4408,7 @@ void do_cmd_activate(void)
 
         else if (o_ptr->tval == TV_CROWN && o_ptr->sval == SV_PROMOTION_CROWN)
 	{
-                if (p_ptr->psex == SEX_MALE && p_ptr->stat_ind[A_STR] >= 23 && p_ptr->stat_ind[A_CON] >= 23 && p_ptr->stat_ind[A_DEX] >= 19)
+                if (p_ptr->psex == SEX_MALE && p_ptr->stat_ind[A_STR] >= 60 && p_ptr->stat_ind[A_CON] >= 60 && p_ptr->stat_ind[A_DEX] >= 40)
                 {
                 cptr str;
                 msg_print("You are promoted to a Battle Master!");
@@ -4456,7 +4423,7 @@ void do_cmd_activate(void)
         }
         else if (o_ptr->tval == TV_HELM && o_ptr->sval == SV_VALKYRIAN_HELM)
 	{
-                if (p_ptr->psex == SEX_FEMALE && p_ptr->stat_ind[A_STR] >= 18 && p_ptr->pclass == CLASS_WARRIOR)
+                if (p_ptr->psex == SEX_FEMALE && p_ptr->stat_ind[A_STR] >= 60)
                 {
                 cptr str;
                 msg_print("You just became a Valkyrie!");
@@ -4984,7 +4951,6 @@ void do_cmd_activate(void)
 			{
                                 msg_print("Your sword glows an intense white...");
                                 hp_player(7000);
-                                heal_insanity(50);
                                 set_blind(0);
                                 set_poisoned(0);
                                 set_confused(0);
@@ -5383,8 +5349,8 @@ void do_cmd_activate(void)
                         case ART_UNDEAD_RING:
                         {
                                 cptr str;
-                                msg_print("Your skin become very pale...You no longer have blood...YOU TURNED INTO A SPECTRE!!");
-                                p_ptr->prace = RACE_SPECTRE;
+                                msg_print("Your skin become very pale...You no longer have blood...YOU TURNED INTO A VAMPIRE!!");
+                                p_ptr->prace = RACE_VAMPIRE;
                                 rp_ptr = &race_info[p_ptr->prace];
                                 str = rp_ptr->title;
                                 c_put_str(TERM_L_BLUE, str, 1, 0);
@@ -5394,24 +5360,18 @@ void do_cmd_activate(void)
                         {
                                 if (p_ptr->prace == RACE_BENEMAL)
                                 {
-                                        cptr str;
-                                        msg_print("Your skin become redder...YOU BECAME A BALROG!!");
-                                        p_ptr->prace = RACE_DEMON;
-                                        rp_ptr = &race_info[p_ptr->prace];
-                                        str = rp_ptr->title;
-                                        c_put_str(TERM_L_BLUE, str, 1, 0);
-                                        p_ptr->expfact = 1000;
-                                        get_history();
+                                        msg_print("The ring has no effect on you.");
                                 }
                                 else
                                 {
                                         cptr str;
-                                        msg_print("You feel your body transforming...you became a Benemal!!");
+                                        msg_print("You feel your body transforming...you became a Zuldar!!");
                                         p_ptr->prace = RACE_BENEMAL;
                                         rp_ptr = &race_info[p_ptr->prace];
                                         str = rp_ptr->title;
                                         c_put_str(TERM_L_BLUE, str, 1, 0);
                                         p_ptr->expfact = 600;
+                                        check_experience();
                                         get_history();
                                 }        
                         }
@@ -6664,7 +6624,6 @@ static bool activate_random_artifact(object_type * o_ptr)
                         gain_random_mutation(0);
                         break;
                 case ACT_CURE_INSANITY:
-                        heal_insanity(damroll(10,10));
                         break;
                 case ACT_CURE_MUT:
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
@@ -6864,29 +6823,8 @@ void do_cmd_asmodis(object_type *o_ptr)
         char ch = 0;
         int energy_amount = 0;
         int dir;
-        while (TRUE)
-        {
-                 if (!get_com("[R]elease for dsamages, [C]onvert into AP  ?", &ch))
-                 {
-                          break;
-                 }
-
-                 if (ch == 'R' || ch == 'r')
-                 {
-                          energy_amount = get_quantity("Use how much energy(energy = damages)? ", o_ptr->asmodis_energy);
-                          if (!get_aim_dir(&dir)) return;
-                          fire_beam(GF_MANA, dir, energy_amount);
-                          o_ptr->asmodis_energy -= energy_amount;
-                          break;
-                 }
-
-                 if (ch == 'C' || ch == 'c')
-                 {
-                          energy_amount = get_quantity("Use how much energy? ", o_ptr->asmodis_energy);
-                          msg_format("You converted %d energy points into %d ability points!", energy_amount, energy_amount / 10);
-                          p_ptr->ability_points += energy_amount / 10;
-                          o_ptr->asmodis_energy -= energy_amount;
-                          break;
-                 }
-        }
+        energy_amount = get_quantity("Use how much energy(energy = damages)? ", o_ptr->xtra2);
+        if (!get_aim_dir(&dir)) return;
+        fire_beam(GF_MANA, dir, energy_amount);
+        o_ptr->xtra2 -= energy_amount;
 }

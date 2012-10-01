@@ -1,0 +1,20 @@
+HOBBIT
+--------
+
+Also known as Halflings, hobbits are small, happy folks, with
+large and furry feets. While not as strong or tough as most
+races, they are agile and stealthy, and make excellent rogues,
+scouts, spies and other similar jobs. Training with slings and
+small missile weapons also makes the hobbits slightly better at
+shooting and throwing.
+
+ADVANTAGES: +25% to Dexterity.
+	    +33% to Stealth skill
+            +20% to Agility skill
+	    +10% to Shooting skill
+	    +10% to Throwing skill
+
+DISADVANTAGES: -33% to Strength
+               -25% to Constitution
+
+

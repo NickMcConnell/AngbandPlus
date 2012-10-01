@@ -1,0 +1,20 @@
+KOBOLD
+--------
+
+Kobolds are small green creatures, similar to a goblin.
+Weak, repulsive, stinky, vicious are all words that fits to
+describe a kobold. Kobolds are quick and stealthy, but they
+are weak, frail and other races tend to shun them for the
+mere fact that they are weak and repulsive. They generally
+hide in filthy areas, and as such have acquired a natural
+resistance to poison.
+
+ADVANTAGES: +20% to stealth skill
+	    +20% to agility skill
+	    +1 to speed
+            +25% damages to poison type attacks
+	    Innate resistance to poison attacks
+
+DISADVANTAGES: -50% to Strength
+               -50% to Constitution
+	       -50% to Charisma

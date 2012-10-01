@@ -1,0 +1,16 @@
+HALF-TROLL
+------------
+
+Half-Trolls are the result of human and troll breeding.
+Similar to the Half-Orcs in many ways, the Half-Trolls are
+even uglier and dumber than the Half-Orcs, but they are
+tougher and have inherited the very useful regenerative powers
+of their troll parents.
+
+ADVANTAGES: +33% to Strength
+            +33% to Constitution
+	    Innate regeneration
+
+DISADVANTAGES: -50% to Intelligence
+	       -33% to Wisdom
+	       -33% to Charisma

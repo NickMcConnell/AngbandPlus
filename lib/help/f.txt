@@ -1,0 +1,22 @@
+DWARF
+-------
+
+Dwarves are short, hot tempered and hardy folks. They are
+born in the undergrounds, spending their life in caves and
+mines. They are great warriors, proud of their inborn
+hardiness. Dwarves tend to shun magic, as they are already
+great with their weapons, and consider themselves strong
+enough to resist magical attacks with their constitution,
+without the need of healing or defensive magic. Finally,
+their natural homes have developped their eyes, and are
+highly resistant to blindness and have no trouble seeing
+in the dark.
+
+ADVANTAGES: +33% to Constitution
+            +25% to Strength
+	    Innate resistance to blindness
+	    Innate dark vision
+
+DISADVANTAGES: -25% to Intelligence
+	       -10% to Dexterity
+               -1 to speed

@@ -1,0 +1,75 @@
+# q0000021.txt
+
+# Name
+Q:21:N:Seaneyen, Legendary Water Creature
+
+# Definition
+Q:21:Q:6:0:0:0:60:135:0:6
+
+# Description for quest
+?:[LEQ $QUEST21 2]
+Q:21:T:A legendary sea monster known as Seaneyen has once again  
+Q:21:T:shown up in our city! Variaz surely waked it up to destroy  
+Q:21:T:our town! It is up to you my friend to stop it if you can! 
+Q:21:T:We all count on you! May the gods protect you!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST21 3]
+Q:21:T:You are a true hero! You saved us all!
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST21 5]
+Q:21:T:You are not to blame if you fled. Seaneyen is so powerful... 
+?:1
+
+# Floor
+F:.:1:8
+
+# Permanent wall
+F:X:61:6
+
+# Deep Water
+F:W:187:6
+
+# Shallow Water
+F:w:84:6
+
+# Looked door
+F:+:38:6
+
+# up staircase
+F:<:6:6
+
+# Floor with Seaneyen
+F:U:84:6:1079
+
+F:a:1:6:0:395
+F:b:1:6:0:396
+F:c:1:6:0:397
+
+F:p:1:6:0:0:0:207
+F:r:1:6:0:0:0:208
+
+# Dungeon layout
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XWWW............w.............WWWX
+D:XWW............www.............WWX
+D:XW............wwwww.............WX
+D:X............wwwwwww.............X
+D:X...........wwwwUwwww............X
+D:X............wwwwwww.............X
+D:X.............wwwww..............X
+D:X..............www...............X
+D:X...............w................X
+D:XW...........X+X+X+X............WX
+D:XWW..........+.+.+.+...........WWX
+D:XWWW.........XXX<XXX..........WWWX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Starting position
+P:11:16
+

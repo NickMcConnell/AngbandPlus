@@ -129,7 +129,6 @@ static grouper group_item[] =
 	{ TV_SPIKE,         "Various" },
 	{ TV_LITE,          NULL },
 	{ TV_FLASK,         NULL },
-        { TV_FIRESTONE,     NULL },
 	{ TV_BOTTLE,        NULL },
 	{ TV_SKELETON,      NULL },
 
@@ -478,9 +477,9 @@ static flag_desc stat_flags_desc[] =
 static flag_desc pval_flags1_desc[] =
 {
 	{ TR1_STEALTH,    "Stealth" },
-	{ TR1_SEARCH,     "Searching" },
+        /* { TR1_SEARCH,     "Searching" }, */
 	{ TR1_INFRA,      "Infravision" },
-	{ TR1_TUNNEL,     "Tunneling" },
+        /* { TR1_TUNNEL,     "Tunneling" }, */
 	{ TR1_BLOWS,      "Attacks" },
 	{ TR1_SPEED,      "Speed" }
 };
@@ -2337,94 +2336,6 @@ static char* get_tval_name(int tval)
 }
 
 /*
- * Create a spoiler file for bateries
- */
-static void spoil_bateries(cptr fname)
-{
-        int i, b;
-
-	char buf[1024];
-        char ttt[300];
-        char desc1[80], desc2[80];
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Open the file */
-	fff = my_fopen(buf, "w");
-
-	/* Oops */
-	if (!fff)
-	{
-		msg_print("Cannot create spoiler file.");
-		return;
-	}
-
-	/* Dump the header */
-        sprintf(buf, "Batery Spoilers for PernAngband Version %d.%d.%d",
-                FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
-	spoiler_underline(buf);
-
-        spoil_out("\n\n");
-
-        for(i = 0; i < MAX_ALCHEMIST_RECIPES; i++)
-        {
-                object_type *o_ptr, *q_ptr, forge;
-                object_kind *k_ptr;
-                ego_item_type *e_ptr;
-
-                if(!alchemist_recipes[i].sval_baterie) continue;
-
-                o_ptr = &forge;
-                object_prep(o_ptr, lookup_kind(TV_BATERIE, alchemist_recipes[i].sval_baterie));
-                k_ptr = &k_info[o_ptr->k_idx];
-
-                sprintf(ttt, "Essence of %s :\n", k_name + k_ptr->name);
-                spoil_out(ttt);
-
-                spoil_out("Can be used to make :\n");
-                for(b = 0; b < 9; b++)
-                        if(alchemist_recipes[i].ego[b].ego){
-                                e_ptr = &e_info[alchemist_recipes[i].ego[b].ego];
-                                sprintf(ttt, "-       %s %s with %d essence%s\n", get_tval_name(alchemist_recipes[i].ego[b].which), e_name + e_ptr->name, alchemist_recipes[i].ego[b].ego_num, (alchemist_recipes[i].ego[b].ego_num)?"s":"");
-                                spoil_out(ttt);
-                        }
-
-                spoil_out("\n");
-
-                for(b = 0; b < 9; b++)
-                        if(alchemist_recipes[i].item[b].ctval)
-                        {
-                                o_ptr = &forge;
-                                object_prep(o_ptr, lookup_kind(alchemist_recipes[i].item[b].ctval, alchemist_recipes[i].item[b].csval));
-                                object_desc_store(desc1, o_ptr, 1, 0);
-                                q_ptr = &forge;
-                                object_prep(q_ptr, lookup_kind(alchemist_recipes[i].item[b].etval, alchemist_recipes[i].item[b].esval));
-                                object_desc_store(desc2, q_ptr, 1, 0);
-                                sprintf(ttt, "Convert %s into %s with %d essence%s\n", desc1, desc2, alchemist_recipes[i].item[b].num, (alchemist_recipes[i].item[b].num)?"s":"");
-                                spoil_out(ttt);
-                        }
-
-                spoil_out("\n---------------------------------------\n\n");
-        }
-
-	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
-	{
-		msg_print("Cannot close spoiler file.");
-		return;
-	}
-
-	/* Message */
-	msg_print("Successfully created a spoiler file.");
-}
-
-
-
-/*
  * Forward declare
  */
 extern void do_cmd_spoilers(void);
@@ -2462,7 +2373,6 @@ void do_cmd_spoilers(void)
 		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
-                prt("(5) Brief Batery Info (bat-info.spo)", 9, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -2498,12 +2408,6 @@ void do_cmd_spoilers(void)
 		else if (i == '4')
 		{
 			spoil_mon_info("mon-info.spo");
-		}
-
-                /* Option (5) */
-                else if (i == '5')
-		{
-                        spoil_bateries("bat-info.spo");
 		}
 
 		/* Oops */

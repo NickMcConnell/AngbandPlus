@@ -1,0 +1,77 @@
+# q0000020.txt
+
+# Name
+Q:2:N:Doom Palace
+
+# Definition
+Q:2:Q:6:0:0:0:40:135:0:6
+
+# Description for quest
+?:[LEQ $QUEST2 2]
+Q:2:T:My informers told me about a strange place called the
+Q:2:T:Doom Palace. I really don't know what is to be found
+Q:2:T:there, but who knows? Perhaps you will find something
+Q:2:T:interesting?
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST2 3]
+Q:20:T:Thanks you very much my friend! You saved us! Take this
+Q:20:T:scroll as your reward.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST2 5]
+Q:20:T:I don't know how you escaped from The Executioner's lair 
+Q:20:T:but I sent another person to kill him.
+?:1
+
+# Floor
+F:.:1:6
+
+# Permanent wall
+F:X:61:4
+
+# Mountain
+F:M:97:4
+
+# Looked door
+F:+:38:6
+
+# up staircase
+F:<:6:8
+
+# Floor with The Executioner
+F:U:1:6:1067
+
+F:a:1:6:0:395
+F:b:1:6:0:396
+F:c:1:6:0:397
+
+F:p:1:6:0:0:0:207
+F:r:1:6:0:0:0:208
+
+# Dungeon layout
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...............................pX
+D:XXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXX
+D:X.......X..............X.........X
+D:X....a..X..............X..c..<...X
+D:X.......X..............X....r....X
+D:X.......X......a.......X.........X
+D:X.......X..............X.........X
+D:X......cX..............Xc........X
+D:X.......X..............X.........X
+D:X.......X......bU......X.........X
+D:X...a...XXXXXXXX.XXXXXXX..a......X
+D:X..............XMX...............X
+D:X................................X
+D:X........b..............a........X
+D:X................................X
+D:X........................b.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

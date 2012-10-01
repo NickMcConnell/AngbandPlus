@@ -42,8 +42,8 @@
 /* Added for PernAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 1
-#define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_MINOR 7
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 
@@ -129,7 +129,7 @@
 #define QUEST_SHELOB         6
 #define QUEST_SAURON         8
 #define QUEST_MORGOTH        9
-#define QUEST_MARYLENE       11
+#define QUEST_ARAKZATRYS     11
 #define QUEST_VARIAZ         12
 
 #define MAX_BOUNTIES        24
@@ -145,7 +145,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES      11
+#define MAX_STORES      12
 
 /*
  * Number of buildings
@@ -156,7 +156,7 @@
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES_PER_TOWN 12
-#define MAX_STORE_TYPES     11
+#define MAX_STORE_TYPES     12
 
 #define STORE_GENERAL   0
 #define STORE_ARMOURY   1
@@ -169,6 +169,7 @@
 #define STORE_BOOK      8
 #define STORE_PET       9
 #define STORE_RARE      10
+#define STORE_RODS      11
 
 
 #define BUILDING_NON_MEMBER 0
@@ -188,12 +189,15 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           27
+#define MAX_RACES           25
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            39
+#define MAX_CLASS            34
+
+/* Maximum number of abilities. Should theorically be MAX_CLASS * 10 */
+#define MAX_ABILITIES        340
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -370,8 +374,8 @@
 /*
  * Size of memory reserved for initialization of some arrays
  */
-#define FAKE_NAME_SIZE  40 * 1024L
-#define FAKE_TEXT_SIZE 120 * 1024L
+#define FAKE_NAME_SIZE  80 * 1024L
+#define FAKE_TEXT_SIZE 240 * 1024L
 
 
 /*
@@ -567,7 +571,7 @@
 /*
  * Player constants
  */
-#define PY_MAX_EXP      9999999999L       /* Maximum exp */
+#define PY_MAX_EXP      999999999L       /* Maximum exp */
 #define PY_MAX_GOLD     999999999L      /* Maximum gold */
 #define PY_MAX_LEVEL    100              /* Maximum level */
 
@@ -678,12 +682,11 @@ and tables.c --TY */
 #define INVEN_CARRY     49 /* 1 carried monster -- TORSO */
 #define INVEN_AMMO      50 /* 1 quiver -- TORSO */
 #define INVEN_TOOL      51 /* 1 tool -- ARMS */
-#define INVEN_ABILITY   52 /* 1 ability */
 
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL     53
+#define INVEN_TOTAL     54
 
 /*
  * A "stack" of items is limited to less than 100 items (hard-coded).
@@ -729,64 +732,62 @@ and tables.c --TY */
 #define RACE_NIBELUNG           14
 #define RACE_DARK_ELF           15
 #define RACE_VAMPIRE            16
-#define RACE_SPECTRE            17
-#define RACE_ENT                18
-#define RACE_RKNIGHT            19
-#define RACE_DRAGONRIDER        20
-#define RACE_YEEK               21
-#define RACE_DEMON              22
-#define RACE_SKATT              23
-#define RACE_BENEMAL            24
-#define RACE_DEVLING            25
-#define RACE_DEMONUNDEAD        26
+#define RACE_ENT                17
+#define RACE_DEMON              18
+#define RACE_BENEMAL            19
+#define RACE_DEVLING            20
+#define RACE_SKELETON           21
+#define RACE_CELESTIAL          22
+#define RACE_MONSTER            23
+#define RACE_DEMONUNDEAD        24
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
 
-/* Male Classes */
-#define CLASS_WARRIOR           0
-#define CLASS_MAGE              1
-#define CLASS_PRIEST            2
-#define CLASS_ROGUE             3
-#define CLASS_RANGER            4
-#define CLASS_PALADIN           5
-#define CLASS_WARRIOR_MAGE      6
-#define CLASS_CHAOS_WARRIOR     7
-#define CLASS_MONK              8
-#define CLASS_MINDCRAFTER       9
-#define CLASS_HIGH_MAGE         10
-#define CLASS_MIMIC             11
-#define CLASS_BEASTMASTER       12
-#define CLASS_ALCHEMIST         13
-#define CLASS_HARPER            14
-#define CLASS_POWERMAGE         15
-#define CLASS_RUNECRAFTER       16
-#define CLASS_POSSESSOR         17
-#define CLASS_SORCERER          18
-#define CLASS_ARCHER            19
-#define CLASS_ILLUSIONIST       20
-#define CLASS_DRUID             21
-#define CLASS_NECRO             22
-#define CLASS_MAGIWARRIOR       23
-#define CLASS_BERSERKER         24
-#define CLASS_DARK_LORD         25 /* Very...vicious. Males only */
-#define CLASS_JUSTICE_WARRIOR   26
-#define CLASS_LICH              27
-#define CLASS_LEADER            28
-#define CLASS_APPRENTICE        29
-/* Special classes */
-#define CLASS_HELLQUEEN         30 /* Strongest Magic Users! Females only */
-#define CLASS_MASTER            31 /* BATTLE Masters, not magic! Males Only */
-/* More normal classes... */
-#define CLASS_ZELAR             32
-#define CLASS_SKATTER           33 /* Only one race can play as a Skatter! */
-#define CLASS_ASSASSIN          34
-#define CLASS_FIRE_LORD         35
-/* You need an item to change into it */
-#define CLASS_VALKYRIE          36 /* Pretty strong warriors! Females only */
-#define CLASS_COMMANDER         37 /* Upgraded Leader class! */
-#define CLASS_MONSTER_MAGE      38 /* Learn and use monsters attacks! */
+/* Basic Classes */
+#define CLASS_APPRENTICE        0
+#define CLASS_WARRIOR           1
+#define CLASS_MAGE              2
+#define CLASS_PRIEST            3
+#define CLASS_ROGUE             4
+#define CLASS_RANGER            5
+#define CLASS_PALADIN           6
+#define CLASS_MONK              7
+#define CLASS_ARCHER            8
+
+/* Advanced Classes */
+#define CLASS_HIGH_MAGE         9
+#define CLASS_ELEM_LORD         10
+#define CLASS_MONSTER_MAGE      11
+#define CLASS_DEFENDER          12
+#define CLASS_JUSTICE_WARRIOR   13
+#define CLASS_ZELAR             14
+#define CLASS_SOUL_GUARDIAN     15
+#define CLASS_SHADOW            16
+
+/* Old, obsolete classes, with constants */
+/* still there due to laziness! ;) */
+
+#define CLASS_HUNTER            70
+#define CLASS_WARRIOR_MAGE      50
+#define CLASS_ALCHEMIST         51
+#define CLASS_POSSESSOR         52
+#define CLASS_SORCERER          53
+#define CLASS_NECRO             54
+#define CLASS_MAGIWARRIOR       55
+#define CLASS_BERSERKER         56
+#define CLASS_DARK_LORD         57 
+#define CLASS_HELLQUEEN         59
+#define CLASS_MASTER            60     
+#define CLASS_SKATTER           62
+#define CLASS_FIRE_LORD         64
+#define CLASS_VALKYRIE          65
+#define CLASS_COMMANDER         66
+#define CLASS_SAMURAI           68
+#define CLASS_ICE_LORD          69
+#define CLASS_PSYCHIC           71
+#define CLASS_LEADER            72
 
 /*** Screen Locations ***/
 
@@ -820,7 +821,7 @@ and tables.c --TY */
 #define ROW_AC                  14
 #define COL_AC                  0       /* "Cur AC xxxxx" */
 
-#define ROW_HP                  15
+#define ROW_HP                  16
 #define COL_HP                  0       /* "HP xxxxx/xxxxx" */
 
 #define ROW_SANITY              16      /* "Sanity  100%" */
@@ -978,6 +979,17 @@ and tables.c --TY */
 /*** xxx(lots see f_info.txt) used xxx ***/
 #define FEAT_TOWN               203
 #define FEAT_ENCOUNTER          220
+#define FEAT_FIRE_FIELD          221
+#define FEAT_COLD_FIELD          222
+#define FEAT_ELEC_FIELD          223
+#define FEAT_WEBS                225
+#define FEAT_SPIKE_TRAP          226
+#define FEAT_GAS_TRAP            227
+#define FEAT_POISON_TRAP         228
+#define FEAT_VINE_FIELD          229
+#define FEAT_THORNED_VINES       230
+#define FEAT_STORMS              231
+#define FEAT_DARK_MIST           232
 
 /*
  * Wilderness terrains
@@ -1507,7 +1519,6 @@ and tables.c --TY */
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* For DragonRiders */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
@@ -1527,6 +1538,9 @@ and tables.c --TY */
 #define TV_HAFTED       21      /* Priest Weapons */
 #define TV_POLEARM      22      /* Axes and Pikes */
 #define TV_SWORD        23      /* Edged Weapons */
+#define TV_ZELAR_WEAPON 24      /* Weapons for Zelars! */
+#define TV_DAGGER       25      /* Daggers */
+#define TV_AXE          26      /* Axes */
 #define TV_BOOTS        30      /* Boots */
 #define TV_GLOVES       31      /* Gloves */
 #define TV_HELM         32      /* Helms */
@@ -1538,15 +1552,24 @@ and tables.c --TY */
 #define TV_DRAG_ARMOR   38      /* Dragon Scale Mail */
 #define TV_LITE         39      /* Lites (including Specials) */
 #define TV_AMULET       40      /* Amulets (including Specials) */
+#define TV_ARM_BAND     41      /* Arm bands */
 #define TV_RING         45      /* Rings (including Specials) */
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66
+#define TV_SOUL         67
 #define TV_SCROLL       70
 #define TV_POTION       71
 #define TV_POTION2      72      /* Second set of potion */
 #define TV_FLASK        77
 #define TV_FOOD         80
+/* New tvals for effects books! :) */
+#define TV_BOOK_ELEMENTAL 81
+#define TV_BOOK_ALTERATION 82
+#define TV_BOOK_HEALING 83
+#define TV_BOOK_CONJURATION 84
+#define TV_BOOK_DIVINATION 85
+
 #define TV_HYPNOS       99      /* To wield monsters !:) */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 #define TV_RANDART      102     /* Random Artifacts */
@@ -1554,7 +1577,6 @@ and tables.c --TY */
 #define TV_RUNE2        105      /* Modifier runes */
 #define TV_CRYSTAL      106     /* NEW: Magic crystals to use with rods */
 #define TV_VALKYRIE_SPEAR 107   /* Valkyrie Spears, created by Valkyries */
-#define TV_ABILITY      108
 #define TV_WORLD_BOOK   109
 #define TV_MIMIC_BOOK   110
 #define TV_VALARIN_BOOK 111
@@ -1581,10 +1603,6 @@ and tables.c --TY */
 /* The "sval" codes for TV_MSTAFF */
 #define SV_MSTAFF 1
 
-/* The "sval" codes for TV_FIRESTONE */
-#define SV_FIRESTONE  3
-#define SV_FIRE_SMALL 6
-
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
 #define SV_AMMO_NORMAL                   1	/* shots, arrows, bolts */
@@ -1609,6 +1627,8 @@ and tables.c --TY */
 #define SV_SLING                         2	/* (x2) */
 #define SV_SHORT_BOW                    12	/* (x2) */
 #define SV_LONG_BOW                     13	/* (x3) */
+#define SV_ELVEN_BOW                    14      /* (x4) */
+#define SV_HIELF_BOW                    15      /* (x5) */
 #define SV_LIGHT_XBOW                   23	/* (x3) */
 #define SV_HEAVY_XBOW                   24	/* (x4) */
 
@@ -2049,12 +2069,13 @@ and tables.c --TY */
 #define SV_SCROLL_NOTHING               53
 #define SV_SCROLL_SPELL                 54
 #define SV_SCROLL_REPAIR                55
+#define SV_SCROLL_ETERNALITY            56
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
 #define SV_POTION_APPLE_JUICE            1
 #define SV_POTION_SLIME_MOLD             2
-#define SV_POTION_BLOOD                  3
+#define SV_POTION_FULL_RESTORE           3
 #define SV_POTION_SLOWNESS               4
 #define SV_POTION_SALT_WATER             5
 #define SV_POTION_POISON                 6
@@ -2114,11 +2135,12 @@ and tables.c --TY */
 #define SV_POTION_RESISTANCE            60
 #define SV_POTION_CURING                61
 #define SV_POTION_INVULNERABILITY       62
-#define SV_POTION_NEW_LIFE              63
+#define SV_POTION_STONESKIN             63
 #define SV_POTION_STAR_MUTATION         64
 #define SV_POTION_SEX_CHANGING          65
 #define SV_POTION_POWER                 66
 #define SV_POTION_UNCHARISMA            67
+#define SV_POTION_MOLOTOV               68
 
 /* The "sval" codes for TV_POTION2 */
 #define SV_POTION2_MIMIC_ABOMINATION     1
@@ -2250,7 +2272,6 @@ and tables.c --TY */
 #define CAVE_TEMP       0x0040    /* temp flag */
 #define CAVE_XTRA       0x0080    /* misc flag */
 #define CAVE_TRDT       0x0100    /* trap detected */
-
 
 /*
  * Bit flags for the "project()" function
@@ -2717,6 +2738,7 @@ and tables.c --TY */
 #define GF_NEXUS        33
 #define GF_TIME         34
 #define GF_GRAVITY      35
+#define GF_WIND         36
 #define GF_KILL_WALL    40
 #define GF_KILL_DOOR    41
 #define GF_KILL_TRAP    42
@@ -2777,6 +2799,49 @@ and tables.c --TY */
 #define GF_DEATH        105
 #define GF_LITE_CONTROL 106
 #define GF_DRAGON_CONTROL 107
+/* New ones used for Curses */
+#define GF_WEAKEN 108
+#define GF_LOWER_POWER 109
+#define GF_LOWER_MAGIC 110
+#define GF_SLOW_DOWN 111
+#define GF_LIFE_BLAST 112
+#define GF_HALVE_DAMAGES 113
+#define GF_HALVE_MAGIC 114
+#define GF_HALVE_SPEED 115
+#define GF_HALVE_LEVEL 116
+#define GF_LOCK 117
+#define GF_DAMAGES_CURSE 118
+#define GF_INCOMPETENCE 119 /* Yeah, the name is funny, isen't it? ;) */
+#define GF_RETROGRADE 120
+#define GF_PHYSICAL 121 /* This one actually count as a physical attack */
+#define GF_DOMINATION_CURSE 122
+#define GF_SLEEP_POLLEN 123
+#define GF_WAR_BLESSING 124
+#define GF_FRAILNESS 125
+#define GF_INEPTITUDE 126
+#define GF_FEAR_CURSE 127
+#define GF_PSI_HITRATE 128
+#define GF_PSI_FEAR 129
+#define GF_REDUCE_DEF 130
+#define GF_REDUCE_HIT 131
+#define GF_REDUCE_SPEED 132
+#define GF_MORALE_BOOST 133
+#define GF_EVOLVE 134
+#define GF_UNEVOLVE 135
+#define GF_UNSUMMON 136
+#define GF_SLEEP_GAS 137
+#define GF_ANIMAL_EMPATHY 138
+#define GF_AURA_LIFE 139
+#define GF_SMITE_EVIL 140
+#define GF_RETROGRADE_DARKNESS 141
+#define GF_DOMINATE_MONSTER 142
+#define GF_SHATTER_EVIL 143
+#define GF_ANGELIC_VOICE 144
+#define GF_REPULSE_EVIL 145
+#define GF_SLAY_EVIL 146
+#define GF_SEAL_LIGHT 147
+#define GF_PARALYZE 148
+#define GF_STEALTH_ATTACK 149
 
 /*
  * Some things which induce learning
@@ -2885,9 +2950,9 @@ and tables.c --TY */
 #define TR1_MANA                        0x00000040L     /* Mana multipler */
 #define TR1_SPELL                       0x00000080L     /* Spell power increase */
 #define TR1_STEALTH                     0x00000100L     /* Stealth += "pval" */
-#define TR1_SEARCH                      0x00000200L     /* Search += "pval" */
+#define TR1_SHARPENED                   0x00000200L     /* Sharpened ammos */
 #define TR1_INFRA                       0x00000400L     /* Infra += "pval" */
-#define TR1_TUNNEL                      0x00000800L     /* Tunnel += "pval" */
+#define TR1_ENCHANTED                   0x00000800L     /* Just a flag */
 #define TR1_SPEED                       0x00001000L     /* Speed += "pval" */
 #define TR1_BLOWS                       0x00002000L     /* Blows += "pval" */
 #define TR1_CHAOTIC                     0x00004000L
@@ -3000,6 +3065,17 @@ and tables.c --TY */
 #define TR4_BRAND_MAGIC         0x00040000L     /* Magic brand */
 #define TR4_CHARGEABLE          0x00080000L     /* Weapon is chargeable */
 #define TR4_INDESTRUCTIBLE      0x00100000L     /* Weapon is indestructible */
+#define TR4_ETERNAL             0x00200000L     /* Item is eternal */
+#define TR4_SLAY_MALE           0x00400000L     /* Male Killer */
+#define TR4_SLAY_FEMALE         0x00800000L     /* Female Killer */
+#define TR4_ALWAYS_HIT          0x01000000L     /* 100% chances to hit */
+#define TR4_LOWER_DEF           0x02000000L     /* Lower monsters defense */
+#define TR4_LOWER_HIT           0x04000000L     /* Lower monsters hit rate */
+#define TR4_RETURNING           0x08000000L     /* Returning ammos */
+#define TR4_SAFETY              0x10000000L     /* Prevent stuns */
+#define TR4_PROTECTION          0x20000000L     /* Reduce damages 50% */
+#define TR4_ORIENTAL            0x40000000L     /* Oriental Weapon */
+#define TR4_PARRY               0x80000000L     /* Allow blocking on certain weapons */
 #define TR4_NULL_MASK           0xFFFFFFFCL
 
 
@@ -3010,7 +3086,7 @@ and tables.c --TY */
 #define TR1_PVAL_MASK   \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
      TR1_CON | TR1_CHR | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
+         TR1_STEALTH | TR1_INFRA | \
      TR1_SPEED | TR1_BLOWS | TR1_MANA | TR1_SPELL)
 
 /*** Features flags -- DG ***/
@@ -3352,6 +3428,19 @@ and tables.c --TY */
 #define RF7_LEVEL_60            0x00000200  /* Monster is always level 60 */
 #define RF7_LEVEL_100           0x00000400  /* Monster is always level 100 */
 #define RF7_VARIAZ              0x00000800  /* That monster is VARIAZ!! */
+#define RF7_SEDUCE_MALES        0x00002000  /* Have an easy time with males! */
+#define RF7_SEDUCE_FEMALES      0x00004000  /* Every man's dream! :) */
+#define RF7_RES_WIND            0x00008000  /* Resistance to wind */
+#define RF7_RES_LITE            0x00010000  /* Resistance to light */
+#define RF7_RES_DARK            0x00020000  /* Resistance to darkness */
+#define RF7_RES_TIME            0x00040000  /* Resistance to time */
+#define RF7_RES_INER            0x00080000  /* Resistance to inertia */
+#define RF7_RES_CHAOS           0x00100000  /* Resistance to chaos */
+#define RF7_RES_GRAV            0x00200000  /* Resistance to gravity */
+#define RF7_RES_FORCE           0x00400000  /* Resistance to force */
+#define RF7_RES_NUKE            0x00800000  /* Resistance to nuclear */
+#define RF7_RES_SHARDS          0x01000000  /* Resistance to shards */
+#define RF7_RES_SOUND           0x02000000  /* Resistance to sound */
 
 /*
  * Monster race flags
@@ -3910,7 +3999,6 @@ extern int PlayerUID;
 #define BACT_GREET                  32
 #define BACT_RECALL                 33
 #define BACT_TELEPORT_LEVEL         34
-#define BACT_BUYFIRESTONE           35
 #define BACT_COMEBACKTIME           36
 #define BACT_MIMIC_NORMAL           37
 #define BACT_VIEW_BOUNTIES          38
@@ -4030,18 +4118,6 @@ extern int PlayerUID;
 #define MAX_MUSIC               23
 #define MAX_MUSICS              11
 
-/*
- * Fate
- */
-#define MAX_FATES               200
-
-#define FATE_NONE               0
-#define FATE_FIND_O             1
-#define FATE_NO_DIE_MORTAL      2
-#define FATE_FIND_A             3
-#define FATE_FIND_R             4
-#define FATE_FIND_V             5
-#define FATE_DIE                6
 
 /*
  * Runes definition
@@ -4181,9 +4257,130 @@ extern int PlayerUID;
 #define GRAPHICS_ORIGINAL   1
 #define GRAPHICS_ADAM_BOLT  2
 
-/* New SVAL codes for abilities */
+/* BOSS ABILITES!!! */
+#define BOSS_IMMUNE_WEAPONS  0x00000001L
+#define BOSS_IMMUNE_MAGIC    0x00000002L
+#define BOSS_DOUBLE_DAMAGES  0x00000004L
+#define BOSS_HALVE_DAMAGES   0x00000008L
+#define BOSS_CURSED_HITS     0x00000010L
+#define BOSS_DOUBLE_MAGIC    0x00000020L
+#define BOSS_RETURNING       0x00000040L
+/* These aren't really 'abilities', but Curses flags */
+#define CURSE_LOWER_POWER    0x00000080L
+#define CURSE_LOWER_MAGIC    0x00000100L
+#define CURSE_HALVE_HP       0x00000200L /* Unused? */
+#define CURSE_LOCK           0x00000400L
+#define CURSE_RETURNING      0x00000800L
+#define CURSE_SLOW_DOWN      0x00001000L
+#define CURSE_HALVE_SPEED    0x00002000L
+#define CURSE_LIFE_BLAST     0x00004000L
+#define CURSE_HALVE_DAMAGES  0x00008000L
+#define CURSE_HALVE_MAGIC    0x00010000L
+#define CURSE_HALVE_LEVEL    0x00020000L
+#define CURSE_DAMAGES_CURSE  0x00040000L
+#define WAR_BLESSED          0x00080000L
+#define CURSE_FRAILNESS      0x00100000L
+#define CURSE_INEPTITUDE     0x00200000L
+#define CURSE_FEAR           0x00400000L
+#define EYE_STABBED          0x00800000L
+#define MUTILATE_LEGS        0x01000000L
+#define MUTILATE_ARMS        0x02000000L
+#define PSYCHIC_HITRATE      0x04000000L
+#define MORALE_BOOST         0x08000000L
+#define BOSS_MAGIC_RETURNING 0x10000000L
 
-#define A_BATTLE_BONUS   1
-#define A_EXTRA_ATTACK   2
-#define A_HP_50          3
-#define A_WEAPON_MASTERY 4
+/* Constants for Called Shots! */
+#define CALLED_NONE 0 /* Probably won't be used */
+#define CALLED_LEGS 1
+#define CALLED_ARMS 2
+#define CALLED_HEAD 3
+
+/* Constants for elemental spells */
+#define ELEM_MISSILE    0x00000001L
+#define ELEM_FIRE       0x00000002L
+#define ELEM_COLD       0x00000004L
+#define ELEM_ELEC       0x00000008L
+#define ELEM_ACID       0x00000010L
+#define ELEM_POIS       0x00000020L
+#define ELEM_LITE       0x00000040L
+#define ELEM_DARK       0x00000080L
+#define ELEM_PHYSICAL   0x00000100L
+#define ELEM_NETHER     0x00000200L
+#define ELEM_NEXUS      0x00000400L
+#define ELEM_PLASMA     0x00000800L
+#define ELEM_NUKE       0x00001000L
+#define ELEM_WATER      0x00002000L
+#define ELEM_CHAOS      0x00004000L
+#define ELEM_INERTIA    0x00008000L
+#define ELEM_TIME       0x00010000L
+#define ELEM_SHARDS     0x00020000L
+#define ELEM_SOUND      0x00040000L
+#define ELEM_WARP       0x00080000L
+#define ELEM_MANA       0x00100000L
+#define ELEM_FORCE      0x00200000L
+#define ELEM_GRAVITY    0x00400000L
+#define ELEM_WIND       0x00800000L
+
+/* Constants for Alteration spells */
+#define ALTER_REDUCE_HIT    0x00000001L
+#define ALTER_REDUCE_DEF    0x00000002L
+#define ALTER_REDUCE_SPEED  0x00000004L
+#define ALTER_REDUCE_LEVEL  0x00000008L
+#define ALTER_LIFE_BLAST    0x00000010L
+#define ALTER_LOCK          0x00000020L
+#define ALTER_HALVE_POWER   0x00000040L
+#define ALTER_HALVE_MAGIC   0x00000080L
+#define ALTER_WAR_BLESSING  0x00000100L
+#define ALTER_DEMORALIZE    0x00000200L
+#define ALTER_RETROGRADE    0x00000400L
+#define ALTER_EVOLVE        0x00000800L
+#define ALTER_UNEVOLVE      0x00001000L
+#define ALTER_HASTE         0x00002000L
+#define ALTER_RAISE_STR     0x00004000L
+#define ALTER_RAISE_INT     0x00008000L
+#define ALTER_RAISE_WIS     0x00010000L
+#define ALTER_RAISE_DEX     0x00020000L
+#define ALTER_RAISE_CON     0x00040000L
+#define ALTER_RAISE_CHR     0x00080000L
+#define ALTER_BLESSING      0x00100000L
+#define ALTER_HASTE_OTHER   0x00200000L
+#define ALTER_PHYS_RESIST   0x00400000L
+#define ALTER_MAGIC_RESIST  0x00800000L
+#define ALTER_STONESKIN     0x01000000L
+#define ALTER_PARALYZE      0x02000000L
+
+/* Constants for Healing spells */
+#define HEAL_HEAL               0x00000001L
+#define HEAL_RESTORE_STATS      0x00000002L
+#define HEAL_RESTORE_STATUS     0x00000004L
+#define HEAL_CURE_BLEEDING      0x00000008L
+#define HEAL_CURE_BLACK_BREATH  0x00000010L
+#define HEAL_HEAL_OTHERS        0x00000020L
+#define HEAL_REVIVE_MONSTER     0x00000040L
+#define HEAL_ENERGIZE           0x00000080L
+#define HEAL_SATISFY_HUNGER     0x00000100L
+
+/* Constants for Conjuration spells */
+#define CONJ_SUMMON_KIND        0x00000001L
+#define CONJ_SUMMON_SPECIFIC    0x00000002L
+#define CONJ_FIRE_FIELD         0x00000004L
+#define CONJ_COLD_FIELD         0x00000008L
+#define CONJ_ELEC_FIELD         0x00000010L
+#define CONJ_WEBS               0x00000020L
+#define CONJ_GROW_TREES         0x00000040L
+#define CONJ_THORNS             0x00000080L
+#define CONJ_STORMS             0x00000100L
+#define CONJ_ITEM               0x00000200L
+#define CONJ_MAGIC_ITEM         0x00000400L
+#define CONJ_SPECIAL_ITEM       0x00000800L
+
+/* Constants for Divinations spells! */
+#define DIVI_DETECT_MONSTERS    0x00000001L
+#define DIVI_DETECT_OBJECTS     0x00000002L
+#define DIVI_DETECT_DOORS       0x00000004L
+#define DIVI_DETECT_STAIRS      0x00000008L
+#define DIVI_DETECT_TRAPS       0x00000010L
+#define DIVI_TELEPATHY          0x00000020L
+#define DIVI_IDENTIFY           0x00000040L
+#define DIVI_SCAN_MONSTER       0x00000080L
+#define DIVI_REVEAL             0x00000100L

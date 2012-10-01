@@ -19,7 +19,7 @@
  * and which also do at least 20 damage, or, sometimes, N damage.
  * This is used only to determine "cuts" and "stuns".
  */
-static int monster_critical(int dice, int sides, int dam)
+static int monster_critical(int dice, int sides, s32b dam)
 {
 	int max = 0;
 	int total = dice * sides;
@@ -152,7 +152,7 @@ bool carried_make_attack_normal(int r_idx)
 		bool obvious = FALSE;
 
 		int power = 0;
-		int damage = 0;
+                s32b damage = 0;
 
 		cptr act = NULL;
 
@@ -471,14 +471,6 @@ bool carried_make_attack_normal(int r_idx)
 					break;
 				}
 
-                                case RBE_SANITY:
-                                {
-                                        obvious = TRUE;
-
-                                        take_sanity_hit(damage, ddesc);
-                                        break;
-                                }
-
 				case RBE_POISON:
 				{
 					/* Take some damage */
@@ -689,7 +681,7 @@ bool carried_make_attack_normal(int r_idx)
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+                                        else if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -722,7 +714,7 @@ bool carried_make_attack_normal(int r_idx)
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+                                        else if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -1209,6 +1201,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 	int i, j, k, tmp, ac, rlev;
 	int do_cut, do_stun;
+        int mon_att_bonus = 0;
 
 	s32b gold;
 
@@ -1219,10 +1212,18 @@ bool make_attack_normal(int m_idx, byte divis)
 	char m_name[80];
 
 	char ddesc[80];
+	char ch;
+
 
 	bool blinked;
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
 	bool explode = FALSE;
+
+        u32b f1, f2, f3, f4;
+
+        o_ptr = &inventory[INVEN_WIELD];
+
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -1230,8 +1231,8 @@ bool make_attack_normal(int m_idx, byte divis)
 	/* ...nor if friendly */
 	if (is_pet(m_ptr))  return FALSE;
 
-        /* Cannot attack the player if mortal and player fated to never die by the ... */
-        if((r_ptr->flags7 & RF7_MORTAL)&&(p_ptr->no_mortal)) return (FALSE);
+        /* If the arms are mutilated...no attacks, right? Right. */
+        if (m_ptr->abilities & (MUTILATE_ARMS)) return FALSE;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -1257,7 +1258,7 @@ bool make_attack_normal(int m_idx, byte divis)
 		bool obvious = FALSE;
 
 		int power = 0;
-		int damage = 0;
+                s32b damage = 0;
 
 		cptr act = NULL;
 
@@ -1285,41 +1286,94 @@ bool make_attack_normal(int m_idx, byte divis)
 		switch (effect)
 		{
 			case RBE_HURT:      power = 60; break;
-			case RBE_POISON:    power =  5; break;
-			case RBE_UN_BONUS:  power = 20; break;
-			case RBE_UN_POWER:  power = 15; break;
-			case RBE_EAT_GOLD:  power =  5; break;
-			case RBE_EAT_ITEM:  power =  5; break;
-			case RBE_EAT_FOOD:  power =  5; break;
-			case RBE_EAT_LITE:  power =  5; break;
-			case RBE_ACID:      power =  0; break;
-			case RBE_ELEC:      power = 10; break;
-			case RBE_FIRE:      power = 10; break;
-			case RBE_COLD:      power = 10; break;
-			case RBE_BLIND:     power =  2; break;
-			case RBE_CONFUSE:   power = 10; break;
-			case RBE_TERRIFY:   power = 10; break;
-			case RBE_PARALYZE:  power =  2; break;
-			case RBE_LOSE_STR:  power =  0; break;
-			case RBE_LOSE_DEX:  power =  0; break;
-			case RBE_LOSE_CON:  power =  0; break;
-			case RBE_LOSE_INT:  power =  0; break;
-			case RBE_LOSE_WIS:  power =  0; break;
-			case RBE_LOSE_CHR:  power =  0; break;
-			case RBE_LOSE_ALL:  power =  2; break;
+                        case RBE_POISON:    power = 60; break;
+                        case RBE_UN_BONUS:  power = 60; break;
+                        case RBE_UN_POWER:  power = 60; break;
+                        case RBE_EAT_GOLD:  power = 60; break;
+                        case RBE_EAT_ITEM:  power = 60; break;
+                        case RBE_EAT_FOOD:  power = 60; break;
+                        case RBE_EAT_LITE:  power = 60; break;
+                        case RBE_ACID:      power = 60; break;
+                        case RBE_ELEC:      power = 60; break;
+                        case RBE_FIRE:      power = 60; break;
+                        case RBE_COLD:      power = 60; break;
+                        case RBE_BLIND:     power = 60; break;
+                        case RBE_CONFUSE:   power = 60; break;
+                        case RBE_TERRIFY:   power = 60; break;
+                        case RBE_PARALYZE:  power =  60; break;
+                        case RBE_LOSE_STR:  power =  60; break;
+                        case RBE_LOSE_DEX:  power =  60; break;
+                        case RBE_LOSE_CON:  power =  60; break;
+                        case RBE_LOSE_INT:  power =  60; break;
+                        case RBE_LOSE_WIS:  power =  60; break;
+                        case RBE_LOSE_CHR:  power =  60; break;
+                        case RBE_LOSE_ALL:  power =  60; break;
 			case RBE_SHATTER:   power = 60; break;
-			case RBE_EXP_10:    power =  5; break;
-			case RBE_EXP_20:    power =  5; break;
-			case RBE_EXP_40:    power =  5; break;
-			case RBE_EXP_80:    power =  5; break;
-			case RBE_DISEASE:   power =  5; break;
-			case RBE_TIME:      power =  5; break;
+                        case RBE_EXP_10:    power = 60; break;
+                        case RBE_EXP_20:    power = 60; break;
+                        case RBE_EXP_40:    power = 60; break;
+                        case RBE_EXP_80:    power = 60; break;
+                        case RBE_DISEASE:   power = 60; break;
+                        case RBE_TIME:      power = 60; break;
                         case RBE_SANITY:    power = 60; break;
 		}
+                /* Higher level monsters have a better hit rate */
+                power += (m_ptr->level / 2);
+                /* Elites are better at hitting you... */
+                if (m_ptr->boss == 1) power += 30;
+                /* Bosses are *GREAT* at hitting you! */
+                if (m_ptr->boss == 2) power += 100;
 
+                /* Can Variaz miss? No, of course... */
+                if (m_ptr->r_idx == 1030) power += 2500;
+
+                /* Monk's grappling throw! */
+                if (p_ptr->abilities[(CLASS_MONK * 10) + 3] >= 1 && unarmed())
+                {
+                        char askstring[100];
+                        sprintf(askstring, "Attempt to grab and throw %s? [y/n]", m_name); 
+                        get_com(askstring, &ch);
+                        if (ch == 'y' || ch == 'Y')
+                        {
+                                if ((p_ptr->stat_ind[A_STR] * 100) >= r_ptr->weight)
+                                {
+                                        if (player_hit_monster(m_ptr, ((p_ptr->abilities[(CLASS_MONK * 10) + 3] - 1) * 10)))
+                                        {
+                                                monk_throw_counter(m_ptr);
+                                                return (FALSE);
+                                        }
+                                        else
+                                        {
+                                                msg_print("You failed to grab the monster...");
+                                                mon_att_bonus = m_ptr->hitrate * 2;
+                                        }
+                                }
+                                else
+                                {
+                                        msg_print("The monster is too heavy.");
+                                        mon_att_bonus = m_ptr->hitrate * 2;
+                                }
+                        }
+
+                }
+
+                /* Zelar's arms crush */
+                if (p_ptr->abilities[(CLASS_ZELAR * 10) + 2] >= 1 && unarmed())
+                {
+                        int bonus = p_ptr->abilities[(CLASS_ZELAR * 10) + 2] * 20;
+
+                        if (player_hit_monster(m_ptr, bonus) && m_ptr->boss < 1 && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                        {
+                                s32b dam = (p_ptr->to_d / 4) * ((p_ptr->abilities[(CLASS_ZELAR * 10) + 2] / 2)+1);
+                                msg_print("You grab your foes's arms(or means of attack), and crush them!");
+                                m_ptr->abilities |= (MUTILATE_ARMS);
+                                (void)project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_PHYSICAL, PROJECT_GRID | PROJECT_KILL);
+                                return (FALSE);
+                        }
+                }
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+                if (!effect || monster_hit_player(m_ptr, mon_att_bonus))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -1544,7 +1598,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 			/* Message */
 			if (act) msg_format("%^s %s", m_name, act);
-
+                        
                         /* The undead can give the player the Black Breath with
                          * a sucessful blow. Uniques have a better chance. -LM-
                          * Nazgul have a 25% chance
@@ -1575,26 +1629,165 @@ bool make_attack_normal(int m_idx, byte divis)
                                 msg_print("You feel the Black Breath slowly draining you of life...");
                                 p_ptr->black_breath = TRUE;
                         }
-
+                        
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
 
 			/* Roll out the damage */
-                        if ((p_ptr->pclass == CLASS_ZELAR || ability(82)) && randint(100) >= 50)
+                        if ((p_ptr->body_monster == 1101) && randint(100) <= 90)
                         {
-                                if (randint(200) >= 100) msg_print("You block! No damages!");
-                                else msg_print("You dodge! No damages!");
-                        }
-                        else if ((p_ptr->pclass == CLASS_VALKYRIE || p_ptr->pclass == CLASS_DARK_LORD) && randint(100) >= 50)
-                        {
-                                msg_print("You absord the damages!");
+                                msg_print("You weren't hit!");
                         }
 
-                        else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));
+                        else if (unarmed() && p_ptr->skill_marts >= 40 && !heavy_armor())
+                        {
+                                int blockchance = 0;
+
+                                /* Block chance is 25%...or is it? */
+                                blockchance = 25 + p_ptr->abilities[(CLASS_ZELAR * 10) + 9];
+
+                                /* Max is 75% */
+                                if (blockchance > 75) blockchance = 75;
+
+                                /* Now, try to block */
+                                if (randint(100) < blockchance) msg_print("You avoid the hit!");
+
+                                /* Failed to block... too bad! */
+                                else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));
+                        }                
+
+                        else if (polearm_has() && p_ptr->skill_polearms >= 25 && !shield_has())
+                        {
+                                int blockchance = 0;
+
+                                /* Block chance is 20%. */
+                                blockchance = 20;
+
+                                /* If a Polearm has PARRY, add the bonus! */
+                                if (f4 & (TR4_PARRY)) blockchance = blockchance + (10 + (o_ptr->pval * 2));
+
+                                /* Now, try to block */
+                                if (randint(100) < blockchance) msg_print("You block!");
+
+                                /* Failed to block... too bad! */
+                                else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));
+                        }                
+
+                        /* Check for a shield... */
+                        else if (shield_has() || p_ptr->skill_swords >= 10)
+                        {
+                                int blockchance = 0;
+                                o_ptr = &inventory[INVEN_ARM];
+
+                                if (o_ptr)
+                                {
+                                        /* Calculate the blocking chances */
+                                        blockchance = ((o_ptr->sval * 10) / 2);
+
+                                        /* Magic Shields are better at blocking... */
+                                        blockchance += (o_ptr->pval * 2);
+
+                                        /* Defender is the master of shields! */
+                                        if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += p_ptr->abilities[(CLASS_DEFENDER * 10) + 3];
+                                }
+                                if (sword_has()) blockchance += 10;
+
+                                /* Maximum blocking chance is 75% */
+                                if (blockchance > 75) blockchance = 75;
+
+                                /* Now, try to block */
+                                if (randint(100) < blockchance) msg_print("You block!");
+
+                                /* Failed to block... too bad! */
+                                else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));
+                        }
+                        /* Last ressort, the PARRY flag! */
+                        else if (f4 & (TR4_PARRY))                                                   
+                        {                                                                                           
+                                int blockchance = 0;                                                                 
+                                                                                                                     
+                                /* Block chance is 10% + pval * 2. */                                                
+                                blockchance = 10 + (o_ptr->pval * 2);                                                
+                                                                                                                     
+                                /* Maximum blocking chance is 75% */                                                 
+                                if (blockchance > 75) blockchance = 75;                                              
+                                                                                                                       
+                                /* Now, try to block */                                                              
+                                if (randint(100) < blockchance) msg_print("You block!");                             
+                                                                                                                    
+                                /* Failed to block... too bad! */                                                    
+                                else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2))); 
+                        }                                                                                           
+
+                        else damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));                        
+                        /* Some elites/bosses may cause double damages... */
+                        if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
+                        if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
+                        else if (m_ptr->abilities & (CURSE_LOWER_POWER)) damage -= damage / 4;
+
+                        /* Attack hurts 50% more if seduced! */
+                        if (seduction(m_ptr) == TRUE) damage += (damage / 2);                        
 
                         /* Sometime reduce the damage */
                         damage /= divis;
 
+                        /* Oh! We have been hit, but the monster was cursed! */
+                        if (m_ptr->abilities & (CURSE_DAMAGES_CURSE))
+                        {
+                                m_ptr->hp -= damage * p_ptr->abilities[(CLASS_MAGE * 10) + 6];
+                        }
+
+                        /* Defender's Iron Skin applies BEFORE resistance */
+                        if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] >= 1)
+                        {
+                                damage -= p_ptr->abilities[(CLASS_DEFENDER * 10) + 1] * 20;
+                                if (damage < 0) damage = 0;
+                        }
+
+                        /* Justice Warrior's protection from evil! */
+                        if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
+                        {
+                                int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
+                                if (reduction > 75) reduction = 75;
+                                damage -= ((damage * reduction) / 100);
+                                damage -= (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5);
+                        }
+
+                        /* Physical resistance...and it apply AFTER the Damages Curse! :) */
+                        if (p_ptr->pres_dur > 0)
+                        {
+                                s32b damagepercent;
+                                damagepercent = (damage * p_ptr->pres) / 100;
+                                damage -= damagepercent; 
+                        }
+
+                        /* This is actually quite unfair, but Variaz is a god... */
+                        if (m_ptr->r_idx == 1030 && damage > 0)
+                        {
+                                msg_print("Variaz grabs you and shout: 'Now, you're going to suffer deeply, mortal!'");
+                                msg_print("A painful energy wave, coming from Variaz's crushing hand, torture you!");
+                                no_more_items_variaz();
+                                msg_print("You have lost all your possessions and abilities!");
+                                msg_print("Your body has been greatly cursed!");
+                                p_ptr->stat_cur[A_STR] = 3;
+                                p_ptr->stat_cur[A_INT] = 3;
+                                p_ptr->stat_cur[A_WIS] = 3;
+                                p_ptr->stat_cur[A_DEX] = 3;
+                                p_ptr->stat_cur[A_CON] = 3;
+                                p_ptr->stat_cur[A_CHR] = 3;
+                                msg_print("You became terribly weak, stupid and ugly!");
+                                msg_print("After cursing you, Variaz crush you with his mighty hand, and you explode into tiny chunks!");
+                                update_and_handle();
+                                take_hit((p_ptr->chp + 1), "Variaz, God Of The Void");
+                        }
+                        /* Some Elites/Bosses can cause weird effects on the player... */
+                        if ((m_ptr->abilities & (BOSS_CURSED_HITS)) && randint(100) >= 50 && damage > 0)
+                        {
+                                msg_print("The monster cursed you!");
+                                set_confused(10);
+                                set_afraid(10);
+                                set_blind(10);
+                        }
 			/* Apply appropriate damage */
 			switch (effect)
 			{
@@ -1624,14 +1817,6 @@ bool make_attack_normal(int m_idx, byte divis)
 					break;
 				}
 
-                                case RBE_SANITY:
-                                {
-                                        obvious = TRUE;
-
-                                        take_sanity_hit(damage, ddesc);
-                                        break;
-                                }
-
 				case RBE_POISON:
 				{
 					/* Take some damage */
@@ -1639,7 +1824,7 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+                                        if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && !(seduction(m_ptr)))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
 						{
@@ -1736,7 +1921,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					obvious = TRUE;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
+                                        if (!p_ptr->paralyzed && !(seduction(m_ptr)) &&
 					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 					                      p_ptr->lev)))
 					{
@@ -1790,7 +1975,7 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
+                                        if (!p_ptr->paralyzed && !(seduction(m_ptr)) &&
 					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 					                      p_ptr->lev)))
 					{
@@ -2078,7 +2263,7 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+                                        if (!p_ptr->resist_blind || (seduction(m_ptr) == TRUE))
 					{
 						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
 						{
@@ -2099,7 +2284,7 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf)
+                                        if (!p_ptr->resist_conf || (seduction(m_ptr) == TRUE))
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{
@@ -2120,12 +2305,12 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Increase "afraid" */
-					if (p_ptr->resist_fear)
+                                        if (p_ptr->resist_fear && !(seduction(m_ptr)))
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+                                        else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -2154,12 +2339,12 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Increase "paralyzed" */
-					if (p_ptr->free_act)
+                                        if (p_ptr->free_act && !(seduction(m_ptr)))
 					{
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+                                        else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -2299,7 +2484,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
                                         damage_armor();
 
-					if (p_ptr->hold_life && (rand_int(100) < 95))
+                                        if (p_ptr->hold_life && (rand_int(100) < 95) && !(seduction(m_ptr)))
 					{
 						msg_print("You keep hold of your life force!");
 					}
@@ -2329,7 +2514,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
                                         damage_armor();
 
-					if (p_ptr->hold_life && (rand_int(100) < 90))
+                                        if (p_ptr->hold_life && (rand_int(100) < 90) && !(seduction(m_ptr)))
 					{
 						msg_print("You keep hold of your life force!");
 					}
@@ -2359,7 +2544,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
                                         damage_armor();
 
-					if (p_ptr->hold_life && (rand_int(100) < 75))
+                                        if (p_ptr->hold_life && (rand_int(100) < 75) && !(seduction(m_ptr)))
 					{
 						msg_print("You keep hold of your life force!");
 					}
@@ -2389,7 +2574,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
                                         damage_armor();
 
-					if (p_ptr->hold_life && (rand_int(100) < 50))
+                                        if (p_ptr->hold_life && (rand_int(100) < 50) && !(seduction(m_ptr)))
 					{
 						msg_print("You keep hold of your life force!");
 					}
@@ -2417,7 +2602,7 @@ bool make_attack_normal(int m_idx, byte divis)
                                         damage_armor();
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+                                        if (!(p_ptr->resist_pois || p_ptr->oppose_pois) || (seduction(m_ptr) == TRUE))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
 						{
@@ -2570,7 +2755,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					if (!(r_ptr->flags3 & RF3_IM_FIRE))
 					{
 						msg_format("%^s is suddenly very hot!", m_name);
-						if (mon_take_hit(m_idx, damroll(2,6), &fear,
+                                                if (mon_take_hit(m_idx, p_ptr->lev * 10, &fear,
 						    " turns into a pile of ash."))
 						{
 							blinked = FALSE;
@@ -2589,7 +2774,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					if (!(r_ptr->flags3 & RF3_IM_ELEC))
 					{
 						msg_format("%^s gets zapped!", m_name);
-						if (mon_take_hit(m_idx, damroll(2,6), &fear,
+                                                if (mon_take_hit(m_idx, p_ptr->lev * 10, &fear,
 						    " turns into a pile of cinder."))
 						{
 							blinked = FALSE;
@@ -2633,11 +2818,24 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					/* Message */
 					msg_format("%^s misses you.", m_name);
+
+                                        /* Counter attack? */
+                                        if (p_ptr->abilities[(CLASS_WARRIOR * 10) + 7] >= 1) counter_attack(m_ptr);
 				}
 
 				break;
 			}
 		}
+                /* Elemental Shield! */
+                /* Applies after everything! */
+                if (p_ptr->elem_shield > 0)
+                {
+                        s32b dam;
+                        dam = (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 2] * 30) * p_ptr->lev;
+                        no_magic_return = TRUE;
+                        (void)project(0, 0, m_ptr->fy, m_ptr->fx, dam, p_ptr->elemlord, PROJECT_GRID | PROJECT_KILL);
+                        no_magic_return = FALSE;
+                }
 
 
 		/* Analyze "visible" monsters only */
@@ -2684,10 +2882,12 @@ void damage_armor()
 {
         object_type *o_ptr;
         o_ptr = &inventory[INVEN_BODY];
+        /* This does not apply to monsters... */
+        if (p_ptr->prace == RACE_MONSTER) return;
         if (o_ptr && randint(100) >= 90)
         {
                 /* Artifacts and special items cannot be damaged */
-                if (!o_ptr->name1 && o_ptr->name2 != 131)
+                if (!o_ptr->name1 && o_ptr->name2 != 131 && !(o_ptr->art_flags4 & (TR4_INDESTRUCTIBLE)) && o_ptr->xtra1 != 1)
                 {
                 msg_print("Your armor was damaged!");
                 o_ptr->ac -= 1;
@@ -2700,4 +2900,75 @@ void damage_armor()
                 }
         }
         handle_stuff();
+}
+
+/* Check if the player has a shield. */
+/* You can only block with Shields, not arm bands... */
+bool shield_has()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_ARM];
+
+        if (o_ptr->tval == TV_SHIELD) return (TRUE);
+        else return (FALSE);
+}
+
+/* Check if the player has a sword. */
+bool sword_has()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_WIELD];
+
+        if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_SWORD_DEVASTATION) return (TRUE);
+        else return (FALSE);
+}
+
+/* Check if the player has a hafted weapon. */
+bool hafted_has()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_WIELD];
+
+        if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_HELL_STAFF) return (TRUE);
+        else return (FALSE);
+}
+
+/* Check if the player has a polearm. */
+bool polearm_has()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_WIELD];
+
+        if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_VALKYRIE_SPEAR) return (TRUE);
+        else return (FALSE);
+}
+
+/* Check if the player has a rod. */
+bool rod_has()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_WIELD];
+
+        if (o_ptr->tval == TV_ROD) return (TRUE);
+        else return (FALSE);
+}
+
+/* Check if the player has a weapon equipped. */
+bool unarmed()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_WIELD];
+
+        if (o_ptr->tval == 0) return (TRUE);
+        else return (FALSE);
+}
+
+/* Check if the player has a heavy armor. */
+bool heavy_armor()
+{
+        object_type *o_ptr;
+        o_ptr = &inventory[INVEN_BODY];
+
+        if (o_ptr->tval != TV_HARD_ARMOR && o_ptr->tval != TV_DRAG_ARMOR) return (TRUE);
+        else return (FALSE);
 }

@@ -1,0 +1,19 @@
+# q_morgot.txt
+
+# Name
+Q:12:N:Variaz, God Of The Void
+
+# Definition
+Q:12:Q:1:0:0:1:127:1030:0:2
+
+# Description for quest
+?:[LEQ $QUEST12 2]
+Q:12:T:This is it. The time has come for you to put an end to all the
+Q:12:T:troubles of the world. You must reach the last level of the
+Q:12:T:dungeon and kill Variaz, the mighty god of the Void! He is the
+Q:12:T:source of all problems and it's him who transformed the world
+Q:12:T:into a world full of monsters. However, how can you defeat
+Q:12:T:someone who can't be killed by a mortal...perhaps you're not
+Q:12:T:just a mere mortal after all? If so, prove it! Good luck!!
+?:1
+

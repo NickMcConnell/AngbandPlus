@@ -1,0 +1,47 @@
+# File: misc.txt
+
+# Maximum number of towns
+M:T:100
+
+# Maximum number of quests
+M:Q:1000
+
+# Maximum x size of the wilderness
+M:X:101
+
+# Maximum y size of the wilderness
+M:Y:66
+
+# Maximum number of monsters in r_info.txt
+M:R:2470
+
+# Maximum number of items in k_info.txt
+M:K:1200
+
+# Maximum number of vaults in v_info.txt
+M:V:112
+
+# Maximum number of terrain features in f_info.txt
+M:F:250
+
+# Maximum number of artifacts in a_info.txt
+M:A:212
+
+# Maximum number of ego-items in e_info.txt
+M:E:140
+
+# Maximum number of dungeon types in d_info.txt
+M:D:35
+
+# Maximum number of trap types in tr_info.txt
+M:U:170
+
+# Maximum number of trap types in wf_info.txt
+M:W:25
+
+# Maximum size for "o_list[]"
+M:O:1024
+
+# Maximum size for "m_list[]"
+M:M:768
+

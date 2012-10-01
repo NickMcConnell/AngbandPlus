@@ -1,0 +1,64 @@
+ELITES AND BOSS MONSTERS
+-----------------------------
+
+New to NewAngband 1.2.1(and higher) are the Elites and Boss monsters. 
+These are stronger monsters that will require more skill to kill than 
+normal monsters. When generated, monsters have 20% chances to become elites. 
+And an elite has 20% chances to turn into a boss. Here's a detailed 
+description of elites and bosses:
+
+ELITES
+--------
+- Have twice more hp than normal monster.
+- Is five levels higher than normal.
+- Have more chances to hit you.
+- Gain one randomly chosen ability.
+- Will always drop at least one magical item when killed.
+- Are worth 50% more experience.
+
+BOSSES
+--------
+- Have four times more hp than normal monster.
+- Is ten levels higher than normal.
+- Have even more chances to hit you than elites.
+- Gain multiple randomly chosen ability.
+- Will always drop at least four magical items when killed.
+- Are worth three times more experience.
+
+ABILITIES
+-----------
+Elites and Bosses can gain random abilities. Here's more information on these
+abilities:
+
+WEAPON IMMUNITY: These monsters aren't affected by weapons, so don't waste
+your time trying to kill them with a sword, no matter how strong your sword
+is.
+
+MAGIC IMMUNITY: These monsters aren't affected by magical/energical attacks.
+Even pure magic won't work against them.
+NOTE: A boss cannot get both Weapon and Magic immunity.
+
+DAMAGE RESISTANT: In addition to the damage resistance provided by the
+monster's level, these monsters will gain an additional 50% damage resistance
+for both weapons and magics.
+
+DOUBLE DAMAGES: These monsters do twice more damages than they would normally
+do. This only apply to melee attacks.
+
+DOUBLE MAGIC: These monsters do twice more damages with their spells/breath.
+
+CURSED HITS: When you're hit by a monster with this ability, you have 50%
+chances of becoming Confused, Scared and Blind, even if you're resistant
+to these effects.
+
+RETURNING: If you hit a monster with this ability with a melee weapon, you
+will receive 50% of the damages you caused with your weapon. This apply to
+each blows you give to a monster, so beware!
+
+MAGIC RETURNING: Like returning, but for spells and magic damages.
+
+
+One last thing that is important to know is that Unique monsters cannot
+become elites or bosses. You might get happy now, because you know Variaz
+won't get any abilities, right? Don't worry, Variaz has his own, extremely
+nasty abilities...

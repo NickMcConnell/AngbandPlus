@@ -1,0 +1,66 @@
+POISONOUS POTIONS
+-----------------
+
+Written by an anonymous person...
+
+I like alchemy for one thing: poisons. Toxic potions, mixing
+unhealthy mushrooms to taint fresh water... Who am I?
+None of your business...but if you're interested in my
+findings, read further!
+
+POTION OF POISON
+Component type: Alchemy
+Skills required: Alchemy(1)
+How to create: Potion Of Water + Mushroom Of Poison
+
+This potion will cause pain and aches to anyone who drink
+it. Poor it into someone's glass of water or wine, and see
+the result! Or throw it in the face of your enemies, and
+have some fun!
+
+POTION OF BOOZE
+Component type: Alchemy
+Skills required: Alchemy(0)
+How to create: Potion Of Water + Mushroom Of Confusion
+
+The wonderful potion of booze if a funny thing indeed! I
+once used it on a serious scholar, and guess what? He
+started to dance, tell jokes and do tons of gross stuff
+in his confusion! Have fun with this one! Oh, and did
+I mention you can also throw it for some interesting
+effects?
+
+
+Heh heh, hope you have some fun...but maybe you need some ideas
+as to what to do with your poison? Heh heh, here's an idea,
+my favorite weapon!
+
+POISON DAGGER
+Component type: Crafting
+Skills required: Crafting(2), Alchemy(2)
+How to create: Dagger + Potion Of Poison
+
+Well, it's a dagger coated in poison. What's more lovable than
+that anyway? Easy to hide, and attack quickly with a venomous
+sting! Kinda make you snake-like, heh?
+
+
+Okay, so you accidentaly poisoned yourself, and now you want an
+antidote. Fear not! Just use the blessed water on the mushrooms!
+
+MUSHROOM OF CURE POISON
+Component type: Alchemy
+Skills required: Alchemy(5)
+How to create: Mushroom Of Poison + Drops Of Blessed Water
+
+An antidote mushroom. Of course, I don't have a use for it, as
+I never poison myself, but for neophyte...it could be useful.
+
+MUSHROOM OF CURE CONFUSION
+Component type: Alchemy
+Skills required: Alchemy(5)
+How to create: Mushroom Of Confusion + Drops Of Blessed Water
+
+(sigh)...I just found out that there is a way to stop the
+confusing fun of the mushroom of confusion and the potion
+of booze. Oh, boy do I hate that blessed water!!

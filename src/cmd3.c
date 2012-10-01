@@ -49,7 +49,7 @@ void do_cmd_inven(void)
 	j = total_weight;
 
 	/* Extract the "weight limit" (in tenth pounds) */
-    i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+    i = max_carry() * 100;
 
     capacity_tester = i + (i/10) - 1;
 
@@ -60,7 +60,7 @@ void do_cmd_inven(void)
 #else
     sprintf(out_val, "Inventory: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
            total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+       (total_weight * 100) / ((max_carry() * 100) / 2));
 #endif
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -115,7 +115,7 @@ void do_cmd_equip(void)
 	/* Build a prompt */
    sprintf(out_val, "Equipment: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
            total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+       (total_weight * 100) / ((max_carry() * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -167,7 +167,7 @@ void do_cmd_wield(void)
 	object_type forge;
 	object_type *q_ptr;
 
-        object_type *o_ptr, *i_ptr;
+        object_type *o_ptr, *i_ptr, *b_ptr;
 
 	cptr act;
 
@@ -197,6 +197,20 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+        /* Sex only flags */
+        if ((f4 & (TR4_ONLY_FEMALE)) && (p_ptr->psex != SEX_FEMALE))
+        {
+                msg_print("Only females may use this!");
+                return;
+        }
+        if ((f4 & (TR4_ONLY_MALE)) && (p_ptr->psex != SEX_MALE))
+        {
+                msg_print("Only males may use this!");
+                return;
+        }
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
@@ -214,6 +228,20 @@ void do_cmd_wield(void)
 		/* Cancel the command */
 		return;
 	}
+        /* Prevent wielding into a summoned slot */
+        if (summoned_item(&inventory[slot]))
+        {
+		/* Describe it */
+		object_desc(o_name, &inventory[slot], FALSE, 0);
+
+		/* Message */
+                msg_format("The %s you are %s cannot be removed.",
+		           o_name, describe_use(slot));
+
+		/* Cancel the command */
+		return;
+                        
+        }
 
     if ((cursed_p(o_ptr)) && (wear_confirm)
         && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE)) && (p_ptr->pclass != CLASS_DARK_LORD)))
@@ -228,14 +256,16 @@ void do_cmd_wield(void)
             return;
     }
 
+        b_ptr = &inventory[INVEN_ARM];
+
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Two handed weapons can't be wielded with a shield */
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H))
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H) && (b_ptr->tval != TV_ARM_BAND))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
-	   msg_format("You cannot wield your %s with a shield.", o_name);
+           msg_format("You cannot wield your %s with a shield or another weapon.", o_name);
 	   return;
 	}
 
@@ -245,14 +275,14 @@ void do_cmd_wield(void)
         object_flags(i_ptr, &f1, &f2, &f3, &f4);
 
 	/* Prevent shield from being put on if wielding 2H */
-        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H))
+        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H) && (o_ptr->tval != TV_ARM_BAND))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
 	   return;
 	}
 
-        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H))
+        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
 	{
 	   if (!get_check("Are you sure you want to restrict your fighting? "))
             return;
@@ -261,7 +291,7 @@ void do_cmd_wield(void)
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
 	{
            if (!get_check("Are you sure you want to use this weapon with a shield?"))
             return;
@@ -280,7 +310,8 @@ void do_cmd_wield(void)
 	}
 
 	/* Take a turn */
-	energy_use = 100;
+        /* Or not? Depends on agility! ;) */
+        if (p_ptr->skill_agility < 30 || o_ptr->tval == TV_HARD_ARMOR || o_ptr->tval == TV_SOFT_ARMOR || o_ptr->tval == TV_DRAG_ARMOR) energy_use = 100;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -446,10 +477,16 @@ void do_cmd_takeoff(void)
 		/* Nope */
 		return;
 	}
+        /* Summoned items cannot be removed this way. */
+        if (summoned_item(o_ptr))
+        {
+                msg_print("You cannot remove this item.");
+                return;
+        }
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+        energy_use = 50;
 
 	/* Take off the item */
         (void)inven_takeoff(item, 255, FALSE);
@@ -495,6 +532,15 @@ void do_cmd_drop(void)
 	{
 		/* Oops */
 		msg_print("Hmmm, it seems to be cursed.");
+
+		/* Nope */
+		return;
+	}
+        /* Cannot remove summoned items. */
+        if ((item >= INVEN_WIELD) && summoned_item(o_ptr))
+	{
+		/* Oops */
+                msg_print("You cannot remove this item.");
 
 		/* Nope */
 		return;
@@ -613,7 +659,7 @@ void do_cmd_destroy(void)
 	energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+        if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
 		cptr feel = "special";
 
@@ -737,26 +783,25 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+        if (o_ptr->tval == TV_SOUL) describe_soul(o_ptr);
+        else
+        {
+                /* Require full knowledge */
+                if (!(o_ptr->ident & (IDENT_MENTAL)))
+                {
+                        msg_print("You have no special knowledge about that item.");
+                        return;
+                }
+                /* Description */
+                object_desc(o_name, o_ptr, TRUE, 3);
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
-	{
-		msg_print("You have no special knowledge about that item.");
-		return;
-	}
+                /* Describe */
+                msg_format("Examining %s...", o_name);
 
-
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Describe */
-	msg_format("Examining %s...", o_name);
-
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+                /* Describe it fully */
+                if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+        } 
 }
-
-
 
 /*
  * Remove the inscription from an object
@@ -1341,6 +1386,7 @@ static cptr ident_info[] =
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
 	"~:A tool (or miscellaneous item)",
+        "&:Devling",
 	NULL
 };
 
@@ -1908,7 +1954,7 @@ void do_cmd_sense_grid_mana()
         energy_use = 200;
 
         /* Base chance of success */
-        chance = p_ptr->skill_dev;
+        chance = p_ptr->stat_ind[A_INT];
 
         /* Confusion hurts skill */
         if (p_ptr->confused) chance = chance / 2;
@@ -1932,17 +1978,13 @@ void do_cmd_sense_grid_mana()
         }
 
         /* Try to give an "average" value */
-        i = (101 - p_ptr->skill_dev) / 2;
+        i = (101 - p_ptr->stat_ind[A_INT]) / 2;
         i = (i < 1)?1:(i > 50)?50:i;
 
         if(wizard)
         {
                 msg_format("Grid's mana: %d\n", cave[py][px].mana);
                 msg_format("Average grid's mana: %d\n", (cave[py][px].mana / i) * i);
-        }
-        else if(p_ptr->pclass == CLASS_DRUID)
-        {
-                msg_format("Grid's mana: %d\n", cave[py][px].mana);
         }
         else
         {
@@ -1956,7 +1998,7 @@ void do_cmd_auto_wield(object_type *o_ptr)
 
 	object_type forge;
 	object_type *q_ptr;
-    object_type *i_ptr;
+    object_type *i_ptr, *b_ptr;
 
 	cptr act;
 
@@ -1980,6 +2022,20 @@ void do_cmd_auto_wield(object_type *o_ptr)
 		/* Cancel the command */
 		return;
 	}
+        /* Prevent wielding into a summoned slot */
+        if (summoned_item(&inventory[slot]))
+	{
+		/* Describe it */
+		object_desc(o_name, &inventory[slot], FALSE, 0);
+
+		/* Message */
+                msg_format("The %s you are %s cannot be removed.",
+		           o_name, describe_use(slot));
+
+		/* Cancel the command */
+		return;
+	}
+
 
     if ((cursed_p(o_ptr)) && (wear_confirm)
         && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE)) && (p_ptr->pclass != CLASS_DARK_LORD)))
@@ -1994,11 +2050,13 @@ void do_cmd_auto_wield(object_type *o_ptr)
             return;
     }
 
+        b_ptr = &inventory[INVEN_ARM];
+
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Two handed weapons can't be wielded with a shield */
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H))
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H) && (b_ptr->tval != TV_ARM_BAND))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a shield.", o_name);
@@ -2011,14 +2069,14 @@ void do_cmd_auto_wield(object_type *o_ptr)
         object_flags(i_ptr, &f1, &f2, &f3, &f4);
 
 	/* Prevent shield from being put on if wielding 2H */
-        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H))
+        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H) && (o_ptr->tval != TV_ARM_BAND))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
 	   return;
 	}
 
-        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H))
+        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H) && (o_ptr->tval != TV_ARM_BAND))
 	{
 	   if (!get_check("Are you sure you want to restrict your fighting? "))
             return;
@@ -2170,4 +2228,23 @@ void do_cmd_auto_wield(object_type *o_ptr)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+}
+
+/* New function for calculating the maximum weight(in deca pounds) */
+/* The old adj_str_wgt was outdated, and we need a new function for */
+/* NewAngband 1.6.0 */
+int max_carry()
+{
+        int i;
+        i = 15 + (p_ptr->stat_ind[A_STR] / 2);
+
+        return(i);
+}
+
+bool summoned_item(object_type *o_ptr)
+{
+        u32b f1, f2, f3, f4;
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        if (o_ptr->timeout > 0 && !(f3 & TR3_ACTIVATE)) return (TRUE);
+        return (FALSE);
 }

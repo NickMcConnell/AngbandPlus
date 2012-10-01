@@ -1,0 +1,2569 @@
+NEWANGBAND 1.7.1 COMPLETE ABILITIES GUIDE
+-------------------------------------------
+
+This guide deals about every abilities for every classes. This
+is a must for everyone, as it contains the basic of all abilities
+in the game. Each classes have 10 abilities. Each of them is
+described, has information about how raising it helps, and also
+offers some advice on how to use it properly.
+
+WARRIOR
+---------
+
+1. Spin Attack(Active, level 1, combat feat)
+
+Effect: Damage all enemies around you.
+Damages: Normal attack damages(branded weapons are not counted)
+Radius: 1
+Type: Physical
+Extra points: +1 multiplier to damages
+
+Spin attack does physical damages to enemies around you. It can be
+useful is you are surrounded, and it's also a helpful ability to
+defeat the physical returning bosses, as special physical attacks
+such as this one or physical-type spells are not returned to you.
+It can also become quite powerful should you decide to invest
+some points into it.
+
+2. Strength(Passive, level 1)
+
+Effect: Increase your strength by 3%
+Extra points: +3% additional strength bonus
+
+This passive ability adds some percentile bonus to your strength.
+While your strength can become impressive if you put a lot of
+points into this ability, having too much strength can become
+useless later in the game. A good idea would be to put less
+points into strength, and invest in this ability to compensate.
+This allow you to put more points into other stats, while
+keeping a high strength.
+
+3. Increased Life(Passive, level 1)
+
+Effect: Increase your maximum hp by 3%
+Extra points: +3% additional hp bonus
+
+This passive ability adds some percentile bonus to your hp.
+If you play a melee character, you will most likely want to put
+some points into this ability, as it is a great way to reach
+a high amount of hp, which will be helpful to survive melee
+and magic attacks from later monsters. This ability can also
+help out magic users, although magic users can make some
+physical or magic resistance spells instead.
+
+4. Battle Skill(Passive, level 1)
+
+Effect: Increase your to_hit and to_dam by 10
+Extra points: +10 additional to_hit and to_dam bonuses
+
+This passive ability adds some to_hit and to_dam bonuses. This
+ability is a good alternative to raising your dexterity. In
+addition, it will also give some boost to your damages.
+Warrior Mage type characters could use this ability to get their
+desired to_hit, while raising intelligence instead of dexterity.
+
+5. Accurate Strike(Active, level 1, combat feat)
+
+Effect: Attack that never miss.
+Damages: Normal attack damages(branded weapons are not counted)
+Radius: None(single enemy)
+Type: Physical
+Extra points: +1 multiplier to damages for every 2 points
+
+The main feature of this ability is that it never miss. And if you 
+put many points into this ability, it can become powerful as
+well. It's also good to put at least a single point into this
+ability early in the game, if your to_hit is not very high.
+Like all other physical special abilities, it can be used to
+defeat the physical damages returning bosses.
+
+6. Hardiness(Passive, level 1)
+
+Effect: Gives +15 bonus to_ac
+Extra points: +15 additional to_ac bonus
+
+This passive ability adds some to_ac bonus. Of course, the best way
+to get a very high AC is to raise your agility skill and combine it
+with good armor, but if defense isen't your main concern, yet you
+want to have a good amount of it, this ability can help you. +15
+to_ac is good, and putting only a few points into this ability
+can make a good difference early in the game.
+
+7. War Cry(Active, level 6)
+
+Effect: Scare nearby enemies
+Duration: 5
+Radius: 3
+Type: Demoralize
+Extra points: +1 to duration
+
+War Cry uses a demoralize type effect to scare nearby enemies. Does not
+work against elites, bosses and uniques. Nonliving and fear
+resistant monsters will also not be affected. This ability is very good
+when you are surrounded, and the enemies are too powerful for you.
+The duration is short at first, but if you put a few points into
+it, it can become very useful as an emergency ability.
+
+8. Counter Attack(Passive, level 6)
+
+Effect: Strike the monster when it miss you.
+Damages: Normal attack damages(branded weapons are not counted)
+Type: Physical
+Extra points: +1 multiplier to damages for every 2 points.
+
+Counter attack is a passive ability that makes it dangerous for enemies
+to attack you. This ability is very good for characters who focus a
+lot on defense. Every time the enemy miss you, you strike back. If you
+have a lot of AC, you will benefit a lot from this ability.
+
+9. Leaping Spin(Active, level 6, combat feat)
+
+Effect: Jump, then perform a spin attack upon landing.
+Damages: Normal attack damages(branded weapons are not counted)
+Jump Radius: 5
+Type: Physical
+Extra points: +1 multiplier to damages for every 2 points.
+	      +1 to jump radius for every 10 points.
+
+Leaping spin has two main uses. The first one is to jump to an enemy
+group, and damage multiple enemies at once. The second is to be used
+as an escaping ability to flee powerful monsters. While not as powerful
+as the regular Spin Attack, it has more uses than Spin Attack, and is
+a more versatile ability.
+
+10. Weapon Mastery(Passive, level 10)
+
+Effect: Gives +2 to all melee weapon skills(rods excluded)
+Extra points: +2 additional points to melee weapons skills
+
+This powerful passive ability gives you a +2 bonus to all weapon
+skills. With this ability, you can become very good with any kind of
+weapons. However, note that there comes a point where putting too much
+points into a single weapon skill does not benefit that much. You might
+not notice the difference between having 150 swords skill and 250
+during a melee attack. So, before wasting all your AP into this ability,
+think about how much you should put, and how much you should keep
+for other abilities. Or you could mainly rely on this ability to boost
+your weapon skills high, and place your skill points into another skill.
+
+
+MAGE
+------
+
+1. Mana Boost(Passive, level 1)
+
+Effect: Increase your maximum mana by 20.
+Extra points: 20 additional mana
+
+This passive ability increases your maximum mana by a fixed value. This
+ability is very helpful early in the game, as it can give the needed
+boost in your mana. However, later in the game, you might want to raise
+the High Mage's Increased Mana ability, as it will provide greater bonuses 
+in the long run. Nevertheless, this one will help you getting the spells 
+you need in the beginning.
+
+2. Force Field(Active, level 1)
+
+Effect: Gives you 25% resistance to physical and magical attacks.
+Duration: 5
+Extra points: +2 to duration, +1% resistance for every 5 points.
+
+Mage characters typically don't have as much hp as melee characters, and
+this ability is meant to help them overcome that somewhat. The resistance
+starts at 25% and has short duration, but the duration can rise quickly.
+Of course, when you have a very high amount of mana, you may want to make
+your own protection spells using the Physical Resistance and Magic
+Resistance effects, but this one gives you both resistances, can get
+a very good duration and cost absolutely no mana to use. Because of that,
+this is a nice ability that you can get early and that any characters can
+benefit from.
+
+3. Magic Missile(Active, level 1)
+
+Effect: Cast a magic missile bolt at a single enemy.
+Damages: 15/level
+Type: Missile
+Extra points: +15 damages/level
+
+This magic missile spell is the most basic type of spell you could ever
+imagine, however, it cost no mana to cast, and if you put a lot of
+points into it, it can become quite powerful. Missile is part physical,
+part magical, so your spellcraft will not work at full potential with
+this spell, and the physical damages reduction for high level monsters
+will apply to half of the damages. Nevertheless, this ability should 
+not be overlooked, as a free spell like this one can be used to kill 
+lesser enemies, and allow you to fill your spell slots with bigger 
+spells for bigger enemies.
+
+4. Spell Absorbtion(Passive, level 1)
+
+Effect: Regain mana from enemy spells(10% of spell damages)
+Extra points: +10% absorbtion
+
+This passive ability allow you to regain mana when an enemy cast an
+offensive spell at you. Note that this ability does not prevent any
+damages, and you will still suffer damages from enemy attacks.
+Also note that if you use resistance spells, you will take less
+damages, but that also mean you will recover less mana. If you have
+a good hp, and you place some points into this ability, it can
+become an effective way to recover your mana in the middle of a
+battle!
+
+5. Slow Down(Active, level 1)
+
+Effect: Cast a ball that slow down one enemy by 5%.
+Radius: 0
+Extra points: +1% speed reduction for every two points.
+	      +1 to radius for every 20 points.
+
+This ability is similar to the old curse spell "Slow Down" from
+NewAngband 1.6.0. It reduce the speed of the enemies by a percentile
+value. At first, 5% is not much, but if you put a couple of points
+into it, it will become more powerful, and it's radius will increase.
+Spellcraft will also help increasing the radius. This ability is
+very useful to slow down large packs of enemies at higher level. 
+Note that it does not work against elites and bosses, as well as the 
+main questors. Also, it will only work once on a particular enemy.
+
+6. Mirror Images(Active, level 1)
+
+Effect: Create illusions to distract foes.
+Number: 3
+Level: Same as yours
+Hp: Same as yours
+Extra points: +10% hp per points.
+	      +1 illusion for every 5 points.
+
+This ability will create several illusions of yourself, with the
+same level and hp as you. The more points you place in this ability,
+the more hp they will have, and the more illusions there will be.
+The images are meant to be used as a decoy to distract foes, and
+allow you to escape, or move away and cast spells while your
+illusions gets pummeled. Note however that this ability is not very
+effective to avoid magical attacks, so it probably won't protect you
+from enemies breaths. Also, if you like this ability, try having
+a high hp to make your illusions more durable.
+
+7. Damages Curse(Active, level 6)
+
+Effect: Curse an enemy to damage itself when damaging you.
+Damages: Monster's attack damages.
+Radius: 0
+Extra points: +1 damages multiplier.
+	      +1 to radius for every 20 points.
+
+This ability curse one monster(or more, depending on spellcraft and
+the level of this ability) to take damages as it attacks you. This
+ability can be very useful if you put some points into it. But a
+great feature of this ability is that nothing can resist the returned
+damages, so this ability can be very useful to kill a monster
+immune to physical attacks or one that returns damages. If you plan
+to use this ability a lot, make sure you have a good hp, as you will
+still take damages from enemy attacks. This is one of the few cursing
+spells that will actually works against ANYTHING, including the main 
+questors.
+
+8. Drain Object(Active, level 6)
+
+Effect: Drain an item's power to regain your mana.
+Amount: 50 mana per pval points
+Extra points: +20 to mana recovery per pval points
+
+This ability allow you to drain an item's power to recover your mana.
+Of course, doing so will permanently weaken the item, but since there
+are plently of magic items you won't use, this can be a good way to
+use them, especially if you use a lot of big, mana consuming spells.
+Note that this ability will not work with self-made magic items. Also
+note that if you use this on stacked items such as magic arrows, they
+will ALL lose their power.
+
+9. Stone To Gold(Active, level 6)
+
+Effect: Turn an item into gold.
+Amount: 10% of item's base cost value
+Extra points: +10% item's cost value gold
+
+Turning objects into gold has always been a dream, and it can finally
+come true! By using this ability, you can sacrifice an item, and turn
+it into gold. The amount you gain is based on the item's base cost value,
+not on it's calculated value. This means that turning a special item
+into gold will not give you more than turning a normal item. This
+ability will not work on self-made or store brought items.
+
+10. Animated Knight(Active, level 10)
+
+Effect: Construct a magically animated knight from various items.
+Level: Same as yours
+Hp: Varies(depends on what you use)
+Extra points: +1 multiplier to monster's hp
+	      +2 to monster's level
+              +5% to base dice damages(you don't have to reconstruct 
+	      the knight for this bonus to apply)
+
+This ability allow you to construct a knight from various pieces of
+equipement. You will need five pieces of equipement: a weapon, a
+hard armor, an helm, gauntlets and boots. The amount of defense
+of the items will determine it's hp and defense, and the weapon's
+power will determine the knight's base damages. Any bonuses
+to_hit will be added to the monster's hit rate. The knight will
+be marked as an imprinted monster, so it will not leave you when you
+go to another dungeon level. If you place many points in this ability
+and use strong weapons, the knight can become a very dangerous
+opponent. To maximise it's damages, you should also raise your
+leadership skill and your charisma.
+
+PRIEST
+--------
+
+1. Heal(Active, level 1)
+
+Effect: Restore your hp.
+Healing: 10/level
+Extra points: +1 healing/level for every 2 points
+	      With 15 points or higher, this will also cure bleeding
+	      and poison.
+
+This ability allow you to restore your hp for free. Healing spells
+are fairly costly to create, so this ability is very useful to heal
+yourself without spending the mana for it. Melee characters and
+warrior/mage type characters will benefit a lot from this ability.
+If you place at least 15 points in this ability, it will also cure
+bleeding and poison.
+
+2. Turn Undeads(Active, level 1)
+
+Effect: Destroy undead creatures around you.
+Radius: 10
+Maximum undead level: 2
+Damages to elites/bosses/uniques: 40/level
+Extra points: +2 to maximum undead level
+	      +40 damages/level to undead elites/bosses/uniques
+
+Turn Undeads will affect all undead creatures around you in a radius of 10
+(more if you have high spellcraft skill). If the affected creatures are
+equal or inferior to the maximum undead level, they will be destroyed. 
+How many points you should place in this ability can be a hard
+choice. Putting 100 points is probably worthless, unless you enjoy using
+this ability against elite, boss and unique undeads. You could combine
+this ability with a level weakening effect to make turning easier, meaning
+you would need less points in this ability. It is up to you to find what
+works best for you. It is also good to know that you will not share the
+damages of Turn Undeads if you use it on magic returning bosses.
+
+3. Divine Blood(Passive, level 1)
+
+Effect: - Improve all stats by 1%
+        - Improve Hp regeneration
+Regenration bonus: +5 hp per turns
+Extra points: +1% to stats
+              +5 to regenerated hp
+
+Divine Blood is a jack-of-all-trades stats boosting ability, in that it
+will increase all your stats, but by a much lesser amount than other
+stat boosting abilities such as the warrior's Strength ability. However,
+Divine Blood also provide increased regeneration that can be a real help
+in the beginning, and can still be very useful later in the game.
+
+4. Mace Of Heaven(Active, level 1)
+
+Effect: Conjure a powerful, light-branded mace weapon.
+Damages: 2d4
+To_hit, to_dam: +1 per levels
+Abilities: Light Branded, Indestructible
+Duration: 10
+Extra points: +1d1 base damages for every 4 points.
+	      +2 to duration
+
+The mace is the traditional weapon of good priests, and this ability allow
+them to make a prayer to the holy gods, who will answer them by sending
+the priest a powerful, holy weapon. With only one point, this will summon
+a 2d4 mace with Light Brand, and it's also a little lighter than the common 
+mace. If you put a lot of points, the mace then becomes a very potent weapon. 
+When using this ability, it will unequip your current weapon, and the mace 
+will appear in your wielding slot, and you won't be able to unequip it until 
+is disappear by itself. Make sure you raise your Hafted weapon skill if you 
+plan on using this ability.
+
+5. Dark Prayer(Active, level 1)
+
+Effect: All stats(except wisdom) are raised by 5%, at the cost of half
+	your max hit points.
+Duration: 5
+Extra points: +5% to stats
+	      +1 to duration
+
+By praying the dark gods, they will empower you, but at the price of your
+life. When using this ability, you will instantly lose an amount of hp
+equal to half your MAXIMUM hit points, so don't use this when you are
+low on health. After that, your stats will be raised temporarly, and the
+bonus can be extremely useful if you place several points in this ability.
+A useful ability, as long as you use it wisely.
+
+6. Holy Might(Active, level 1)
+
+Effect: Gives you Blessing, Haste and 20% resistance to physical attacks.
+Duration: 5
+Extra points: +1 to duration
+	      +1% physical resistance for every 3 points.
+
+This ability allow to get both Blessing(raise to_h and AC) and Haste
+(speed +10), as well as giving you a 20% physical resistance. This ability
+is very useful to any type of melee characters, as it instantly sets them
+ready for the battle ahead. Both Haste and Blessing are very helpful,
+and a 20% resistance to melee attacks can never hurt. And if you decide
+to invest in this ability, the resistance can improve as well.
+
+7. Harm(Active, level 6)
+
+Effect: Does magic damages to a close enemy.
+Damages: 20/level
+Type: Mana
+Extra points: +20 damages/level
+
+The opposite of Heal, Harm will cause damages to an enemy close to you.
+The damages done are very high, especially with a lot of points, and
+spellcraft skill can raise the damages. However, note that this attack
+has no range, and the enemy must be close to you for this to work, so
+it can be a risky ability. If you plan to use it a lot, having a good
+hp and AC can help you in case a monster would hit you.
+
+8. Forbidden Ritual(Active, level 6)
+
+Effect: Summon a large group of lesser demons.
+Number: 20
+Level: Varies
+Hp: Varies
+Extra points: Improve the type of demons you summon.
+	      With 50 or more points, major demons can also
+	      start to appear.
+
+By using this ability, the priest calls the dark gods to assist him. To use
+this ability, you will need to have at least 200 points of mana, and you
+will lose it all when you use this spell, as a sacrifice. Once done, a group
+of lesser demons will appear to assist you. The higher your level, the better
+the demons. This ability is very useful, as it will always summon a
+considerable number of minions. A very useful ability for those who like to
+use summoning spells, or who just need descent cannon fodder. To make this
+ability more powerful, raise your Leadership skill and your Charisma.
+
+9. Divine Armor(Active, level 6)
+
+Effect: Temporarely raise your AC.
+Duration: 5
+AC Bonus: 30
+Extra points: +30 to AC
+	      +1 to duration
+
+This ability allow you to raise your AC by a good amount for a while. If you
+plan on engaging powerful melee opponents, this can be a good ability to use
+before the battle, to ensure that the monsters will have trouble hitting
+you. If you have a high agility and great armor, and then add this bonus,
+you can become VERY hard to hit.
+
+10. Godly Wrath(Passive, level 10)
+
+Effect: All monsters are cursed in various ways:
+	- Level is halved
+	- Hp is halved
+	- Hit rate is halved, defense becomes 0
+	- Non-Unique monsters receive the Lock curse.
+Tribute: Item with pval 22+ 
+Extra points: -1 to tribute's pval for every 5 points
+
+This ability allow you to conjure the wrath of the gods to strike upon your
+foes. But you will have to offer a magical item as a tribute. The item's pval
+must be very high, but it becomes less when you invest points in this ability.
+Once the sacrifice completed, all monsters in the current dungeon level will
+receive the above curses, elites, bosses and uniques included. Only the main
+questors will not be affected. This ability is very powerful, however, you
+will have to invest points into it if you plan to use it often, as items with
+a pval of 20+ are extremely rare, and cannot be obtained until VERY late in
+the game. This ability will not work with self-made items.
+
+ROGUE
+-------
+
+1. Hide In Shadows(Active, level 1)
+
+Effect: Makes you invisible and raise your AC.
+Invisibility Strength: 10
+AC bonus: +10
+Duration: 10
+Extra points: +1 to duration
+	      +1 to invisibility strength
+	      +10 bonus AC
+
+This ability gives you invisibility for a duration, as well as a bonus to AC.
+This ability is useful to make your way past enemy ranks without fighting, and 
+if you happen to fight them, you will have an increased AC to avoid blows more 
+easily. Note that higher level enemies will have an easier time spotting you
+while invisible.
+
+2. Backstabbing(Passive, level 1)
+
+Effect: Improve the effectiveness of backstab attacks.
+Bonus to backstab: +1 multiplier to backstab damages
+Extra points: +1 multiplier to backstab damages.
+
+When your Stealth skill reaches 30, you gain the ability to backstab sleeping
+enemies for three times normal damages(or fleeing enemies for half normal
+backstab damages). With this ability, you can raise the damages of backstab
+attacks. Don't place points in this ability if you don't plan to raise your 
+Stealth skill.
+
+3. Dexterity(Passive, level 1)
+
+Effect: Increase your dexterity by 3%
+Extra points: +3% additional dexterity bonus
+
+This passive ability adds some percentile bonus to your dexterity.
+This ability works the same way as the warrior's Strength ability,
+except it raises Dexterity instead. Unless you play as a marksman
+type character, having too much dexterity is not that benefical,
+so one strategy would be to use this ability to get your high
+dexterity, and save stat points for other stats such as Strength
+or Intelligence.
+
+4. Thievery(Passive, level 1)
+
+Effect: Increase your chances of stealing.
+Extra points: Increase chances of stealing.
+
+This passive ability increase your odds of stealing in shops, but also
+items from monsters. Often will you find some nice, very expensive items
+in shops, especially the Black Market. Instead of buying that special
+cloak that gives you +160% life and +16 extra blows, why not steal it?
+If you raise this ability high, you can greatly raise your odds of
+stealing. With 100 points, your odds are 100%! But remember that in
+the Black Market, you will never find the best items in the game, so
+consider that before investing all your points in this ability.
+
+5. Spike Trap(Active, level 1)
+
+Effect: Set a trap on the floor.
+Damages: Weapon's damages * 3(max roll)/level
+Type: Physical
+Extra points: +1 multiplier to weapon's damages
+
+This ability allow the rogue to set a trap on the floor. When an enemy
+walks on the trap, a spike will rise and will impale the enemy. This
+mechanical device is made from a polearm, so you will need to sacrifice
+a polearm-type weapon to make the trap. You can use any polearms,
+including self-made or manually enchanted ones. The stronger the
+polearm, the better the trap. This ability is most useful in narrow
+corridors, as monsters are sure to walk in your trap.
+
+6. Poison Weapon(Active, level 1)
+
+Effect: Put a poison brand on a non-magical weapon.
+Extra points: For every 14 points, you can put a Slay brand on your
+	      weapon(Dragon Slaying, Demon Slaying, etc...).
+
+With only one point, this ability allow you to make a weapon a lot
+stronger by adding a poison brand. If you invest some points, you can
+put one or more slay brands on your weapon. While this ability does
+not work with magical items, it can be extremely useful early in the
+game. If you use item conjuration spells or abilities(such as the
+Priest's Mace Of Heaven), you can use this ability to enhance these
+weapons, making them a lot better. Investing a lot of points in this
+ability might not be useful however, so you probably shouldn't
+waste all your points here.
+
+7. Gas Trap(Active, level 6)
+
+Effect: Set a gas trap on the floor that will put enemies to sleep.
+Radius: 3
+Extra points: Improves trap's success rate
+	      +1 to radius for every 20 points.
+
+This ability allow the rogue to set a gas trap on the floor. When an enemy
+walks on the trap, a sleeping gas will be released, and it will put monsters
+to sleep. Whether the trap works or not depends on the monster's level
+versus ability level. Using this on higher level enemies will be much harder,
+unless you placed several points in this ability. This ability is mostly
+useful to backstabbing characters, because it will allow them to do so more
+often, but it can be useful for weaker characters who must slow down some
+powerful monsters. It will cost 500 golds to set a gas trap, to cover the
+trap's material cost, so make sure you have some gold on you if you plan
+on using this. This will not work on uniques and bosses(but elites can be
+affected), and on sleep resistant monsters.
+
+8. Poison Trap(Active, level 6)
+
+Effect: Set a poisoning trap on the floor.
+Damages: Weapon's damages(max roll)/level(max roll)
+Type: Poison
+Extra points: +1 multiplier to weapon's damages.
+
+Much like the Spike Trap, this one works in a similar way, except it does
+poison-type damages. A poison-branded weapon is required to make the trap,
+so make sure you have one(you can use Poison Weapon to add poison brand). 
+The damages increase may seem less than the Spike Trap, but keep in mind 
+that physical attacks suffers from the monster physical damages reduction 
+at higher levels(in fact, the poison trap is a little stronger at higher 
+levels, but there are also a lot of poison-resistant enemies). Use the 
+spike trap on enemies immune to magic  or resistant to poison, and use this 
+one on the other enemies. Or specialise into either, and compensate with 
+melee attacks or spells.
+
+9. Evasion(Passive, level 6)
+
+Effect: Increase your AC bonus and allow you to evade magical attacks.
+Bonus to AC: 10
+Chance to evade magic: 5%
+Extra points: +10 to AC
+	      +1% to evade magical attacks(up to a maximum of 75%)
+
+This passive ability allow you to get a bonus to your AC, but the greatest
+benefit is the ability to avoid magical attacks and breaths from enemies.
+However, in order to make this ability really effective, you will need to
+invest a couple of points into it, as 5% chance to evade is not much. If
+you are only interested in the AC bonus, then the warrior's Hardiness or
+the priest's Divine Armor can do it better. This ability doesn't override
+the Evade Magic feat from the agility skill, although both tests are done
+separatly.
+
+10. Rogue Mastery(Passive, level 10)
+
+Effect: Gives +2 to stealth and agility skills
+Extra points: +2 additional points to stealth and agility skills
+
+Stealth and agility are the rogue's hallmark, and this ability is there to
+honour these abilities. Working the same way as the warrior's Weapon
+Mastery, this passive ability gives a boost to both Stealth and Agility
+skills. You can use this ability to boost the skills, and keep your skill
+points for other skills, or you can use this to further raise the already
+high skills, turning you in an invisible, untouchable stalker!
+
+RANGER
+--------
+
+1. Wilderness Lore(Passive, level 1)
+
+Effect: Helps you know more about your surroundings.
+Radius: 3
+Extra points: +1 to radius for every 4 points.
+	      +1 to infravision for every 3 points.
+	      With 20 or more points, you gain Telepathy.
+
+Wilderness lore acts like if you were casting a Reveal type spell around
+yourself as you walk. It's a free, passive ability that can very well
+replace a torch or any other light sources. At higher level, it can be
+useful to know where exactly you are going, and it's also extremely
+useful to see all monsters, allowing you to elaborate plans to defeat
+them more easily.
+
+2. Forestry(Passive, level 1)
+
+Effect: Increase your combat ability in forests/grass areas. Allow you to
+	  walk trough trees.
+Bonus to_hit: +20
+Bonus to_dam: +20
+Bonus to_ac: +20
+Bonus to speed: +1
+Bonus to stealth: +1
+Extra points: +20 to_hit, to_dam and to_ac.
+	      +1 to stealth.
+	      +1 to speed for every 3 points.
+
+The rangers are keepers of the forest and wilderness, and this ability allow
+them to do so in a very effective way. Although this ability won't always be
+active(as is only work when standing on grass or trees), the bonuses are
+quite signifiant. Whenever you enter a dungeon level full of trees and grass,
+this ability will become extremely powerful.
+
+3. Entangle(Active, level 1)
+
+Effect: Create a field of entangling vines to slow down enemies.
+Radius: 1
+Extra points: +1 to radius for every 5 points.
+
+This ability allow you to summon vine fields. Enemies only have a 25% chance
+of successfully walking trough a vine field, so it will make their movement
+harder(note that they may move more than once depending on their speed, so the
+vines will slow them down, but not completely stop them). This ability is useful 
+to ranged attackers, who can summon a vine field, and then shoot the slowed 
+enemies from a distance. Note that elites, bosses and uniques will have a 60% 
+chance of walking trough a vine field, and giants('P'), ancient dragons('D') 
+and plants/molds('m') aren't affected.
+
+4. Animal Empathy(Active, level 1)
+
+Effect: Charm animals around you, or make elites/boss/unique animals flee.
+Radius: 5
+Success rate: 25%
+Extra points: +2% to success rate.
+	      +1 to radius for every 10 points.
+
+This ability allow you to make enemy animals around you friendly, or strike fear
+in elite/boss/unique animals. While it only work on monsters marked as ANIMALS,
+it can be very useful against some animals who travel in large packs, such as
+hounds. Since the success rate increase by 2% for every points, investing tons
+of points in this ability is probably not needed, unless you want to increase
+it's radius. To make this ability even more useful, increase your Leadership
+skill and Charisma, so that charmed animals will be able to do great damages!
+
+5. Call Animal(Active, level 1)
+
+Effect: Summon an animal to fight on your side.
+Extra points: Allow you to summon stronger animals.
+
+This ability allow you to summon a single animal to fight on your side. While
+it will only summon one animal, you can use it multiple times, and create
+yourself a small army. How many points you place in this ability is up to you,
+but if you get higher mana, you might be better creating your own summoning
+spells later in the game. If you only want the animals as a decoy, then only
+one of very few points might be needed. You can try placing more points if you
+use the monster generator, as it will generate more types of animals. If you 
+plan on using this ability, make sure you raise your Leadership skill and 
+Charisma, as it will make your animals a lot better.
+
+6. Warp On Trees(Active, level 1)
+
+Effect: Allow you to teleport to a nearby tree.
+Radius: 5
+Extra points: +1 to radius for every two points.
+
+This ability allow you to teleport yourself to a nearby tree, allowing you
+to flee from deadly enemy encounters. This ability can be extremely useful 
+on forest levels, or if you combine it with the "Grow Trees" spell from the 
+school of Conjuration. At first, the radius of this ability is not very
+high, but it can become quite good should you invest some points into it.
+
+7. Summon Nymphs(Active, level 6)
+
+Effect: Summon a beautiful, gentle nymph that can heal you.
+Number: 1
+Healing: 2/level of the nymph.
+Extra points: +1 summoned nymph for every 5 points.
+
+This ability allow you to call forth a nymph, a benevolent faerical creature
+from the woods. The nymph herself is weak, and will not fight, but she will
+cast healing spells on yourself. This can be extremely useful, especially if
+you summon multiple nymphs. If they all cast their spells on you, you can
+use this ability to get your required healing, and entirely forget about
+creating healing spells, especially considering the fact that receiving
+healing won't take you any moves. Unlike other summoning spells, this one
+doesn't require you to raise your Leadership skill, as the nymphs will not
+fight, and their healing spells have a fixed healing amount.
+
+8. Thorned Vines(Active, level 6)
+
+Effect: Conjure fields of thorned vines to injure your foes.
+Damages: 5/level
+Type: Shards
+Radius: 2
+Extra points: +5 damages/level
+		+1 to radius for every 30 points.
+
+This ability allow you to place thorned vines on the floor. Enemies passing
+trough the fields will take shards type damages. This ability is good to
+stop a horde of small enemies, but if you invest many points into it, it can
+become good to stop any kind of enemies. The radius will increase over time,
+although not much, but a starting radius of 2 is good, considering this
+ability cost no mana to use.
+
+9. Sleep Pollen(Active, level 6)
+
+Effect: Sends sleeping pollen in the air around you, and put enemies to sleep.
+Radius: 3
+Extra points: Improves success rate.
+		+1 to radius for every 10 points.
+
+This ability allow you to cast a circle of sleeping pollen, and put enemies
+around you to sleep. This ability can be quite useful if you are surrounded
+by powerful enemies, or if you combine this with backstabbing abilities. The
+success rate depends on the enemy's level, although no normal enemies are
+completely immune to it. Sleep resistance does not affect this ability.
+This ability will not work against elites, bosses and uniques.
+
+10. Force Of Nature(Active, level 10)
+
+Effect: Temporarely raise your Strength, Dexterity and Constitution.
+Stats bonus: +3
+Duration: 10
+Extra points: +3 to stats bonus.
+		+1 to duration for every two points.
+
+This ability allow you to empower yourself with the essence of nature, raising
+your main combat stats, that is, Strength, Dexterity and Constitution. While
+this ability can only be used on grass or trees type terrains, the bonuses are
+considerable. If you place a couple of points in this ability, you will notice
+your combat ability becoming very powerful. The duration is not too long, but
+is probably enough to kill quite a couple of foes, especially if you have speed
+bonuses. The best way to use this ability is to combine it with the Grow Trees
+spell, as it will allow you to use it more often.
+
+PALADIN
+---------
+
+1. Divine Strength(Active, level 1)
+
+Effect: Temporarely raise your strength.
+Bonus to strength: +2
+Duration: 5
+Extra points: +2 to strength. 
+		+1 to duration.
+
+This ability allow to temporarely raise your strength. This ability can be very
+useful, as with only 15 points, you can get yourself an extra multiplier to your
+damages. This can be very useful early in the game, so you can focus on other
+stats such as Dexterity and Constitution, while getting a good Strength bonus
+when you need it. The duration is short at first, but with a couple of points,
+it will be enough to defeat a few foes before fading. And you can cast it anytime.
+
+2. Holy Bolt(Active, level 1)
+
+Effect: Cast a holy bolt of light at your enemies.
+Damages: 5/level
+Type: Light
+Extra points: +5 damages/level
+
+This ability allow you to cast a bolt of Light energy to your enemies. This is
+a useful ability to take care of the monsters immune to physical attacks, or
+if you want a fairly strong and reliable ranged attack. Also, there aren't so
+many monsters that resists Light based attacks, so it will work fine on most
+enemies. And if you place a couple of points into it, and raise your Spellcraft
+skill, it can become a potent, free attack spell.
+
+3. Aura Of Life(Passive, level 1)
+
+Effect: Heal yourself and friendly monsters around you. Also damage undeads.
+Healing on self: 3
+Healing on friendly monsters or damages to undeads: 10/level
+Radius: 3
+Extra points: +3 to healing.
+		+10 healing on friendly monsters or damages to undead/level.
+		+1 to radius for every 20 points.
+
+This ability has many functions. The first one is to gradually recover some
+hp while moving. The second is to heal friendly monsters around you, if you
+have any. And finally, if there are any undeads around you, they will take
+some damages. This ability can be quite useful, especially if you like having
+lot of monsters with you, or if you want to be able to destroy undeads more
+easily. Magic damages returning undeads will not return damages done by your
+aura. Spellcraft will help raising the damages and healing on other monsters,
+but will not affect the healing on yourself.
+
+4. Smite Evil(Active, level 1, combat feat)
+
+Effect: A melee attack that damages evil creatures and scare them.
+Damages: Normal attack damages(branded weapons are not counted)
+Maximum monster level for fear: 3
+Extra points: +1 multiplier to damages.
+		+3 to maximum level for fear.
+
+Smite Evil will cause damages to evil creatures, and if their level is low
+enough, it will scare them with 100% success rate. This attack will work on
+any enemies, including elites, bosses and uniques, although the main questors
+will never be affected by the fear. This attack does physical damages, so any
+resistance to physical damages will apply, but like other physical special
+attacks, damages returning bosses will not return damages. This ability will
+not work on enemies that are not marked as Evil.
+
+5. Blade Of Purity(Active, level 1)
+
+Effect: Conjure a undead and demon slaying sword.
+Damages: 2d5
+To_hit, to_dam: +1 per levels
+Abilities: Undead Slayer, Demon Slayer, Indestructible
+Duration: 10
+Extra points: +1d1 base damages for every 4 points.
+	      +2 to duration
+
+Very similar to the priest's Mace Of Heaven, this ability will allow you to
+get a sword that has both undead and demon slaying abilities. The sword's
+power will also improve as you place points in this ability, and if you
+invest a lot of points, it can become quite strong. Even one point will
+provide you with a reliable sword and can be useful early in the game,
+especially against undeads and demons.
+
+6. Resist Impure(Passive, level 1)
+
+Effect: Resistance to poison, nuke, darkness, nether and chaos attacks.
+Resistance: 25%
+Extra points: +2% resistance.
+
+This passive ability grants you resistance to many impure type of magic spells,
+as mentionned above. No items can give you immunity to the types mentionned
+above, so should you decide to invest some points in this ability, you will
+eventually become immune to five more attacks types. Furthermore, if you have
+more than 100% resistance, you will actually be healed. So if you have let's
+say 150% resistance to a 5000 damages poison breath, you will get healed for 2500
+hp.
+
+7. Feat Of Faith(Active, level 6)
+
+Effect: Gain blessing, bonus ac and a great bonus to your Strength and Dexterity.
+Bonus to Strength and Dexterity: +5
+Bonus to AC: +100
+Duration: 2
+Extra points: +5 to Strength and Dexterity.
+		+100 bonus to AC.
+
+This ability will give you enormous bonuses, but it will only last for one or
+two actions, depending on your speed. This ability is mostly useful when you are
+about to face a powerful and tough enemy, who would otherwise be too difficult
+to hit or too hard to damage. Use it before you strike an enemy, but keep in
+mind that while your defensive abilities are greatly augmented, the monster
+might still be able to hit you.
+
+8. Retrograde Darkness(Active, level 6)
+
+Effect: Turn an elite/boss undead or demon into a normal monster.
+Maximum monster level: 3
+Radius: 0
+Extra points: +3 to maximum monster level.
+		+1 to radius for every 10 points.
+
+This ability will turn elite and boss undeads/demons into nothing more than
+normal monsters. Combined to the fact that this attack has a radius, it can
+be very useful when you encounter large packs of undeads or demons, has these
+groups often have at least one elite or boss. This is also useful when
+fighting monsters that can summon monsters, as they might summon undead or
+demonic elites and bosses. In the later parts of the game, some bosses are
+extremely hard to kill, and having this free ability can save your life.
+
+9. Shining Armor(Active, level 6)
+
+Effect: Non-magical armor gain various abilities and enhancements.
+Base AC bonus: +5
+To_hit, to_dam, to_ac: +2
+Pval: 1
+Abilities: Permanent light, Indestructible.
+Extra points: +5 to base AC.
+	      +1 to_hit, to_dam, to_ac.
+		+1 to pval for every 4 points.
+		Extra abilities gained:
+		5+ points: Resistance to light.
+		10+ points: Resistance to darkness and nether.
+		25+ points: Gain Safety ability.
+		40+ points: Gain life boosting ability.
+		70+ points: Gain Protection ability.
+
+This ability will bless an armor with divine power, and will turn it into a
+powerful one. Should you decide to invest points in this ability, in can
+become very powerful, especially if you get both safety and life boosting
+ability. You may even gain the Protection ability(all form of damages reduced
+by half) if you focus on this ability. To maximize it's use, you should raise
+your Agility skill, so the base AC bonus of this ability will become very
+useful.
+
+10. Word Of Peace(Active, level 10)
+
+Effect: All evil non-undead, non-demon creatures becomes friendly. Destroy
+	demons and undeads.
+Maximum monster level for peace: 3
+Extra points: +3 to maximum level.	      
+
+By using this ability, all creatures in the dungeon marked as evil that aren't
+undeads or demons will become friendly toward you. This will not work on
+elites and bosses, but it will work on non-questor uniques. This affect
+the whole dungeon level you're in, and it cost nothing to use, so you
+really have nothing to worry about. To make this ability more powerful, 
+you should raise your Charisma and your leadership skill. This will not 
+work on creatures that aren't marked as evil.
+
+MONK
+------
+
+1. Unarmored Combat(Passive, level 1)
+
+Effect: Gives you a bonus to your base AC.
+Bonus to base AC: +4
+Extra points: +4 to base AC. 
+
+This passive ability allow you to increase your base AC while not wearing
+any armor. While the bonus might not seem so great, keep in mind that it
+is the BASE AC that is increased, and that it is compatible with the
+agility skill. If you raise both this ability and your agility skill, your
+AC can become very high, and if you invest a lot in this ability, it may
+become even better than the strongest suits of armor. Combined with the
+bonus of the martial arts skill, this ability can easily help you forget
+about wearing any kind of armor.
+
+2. Spin Kick(Active, level 1, combat feat)
+
+Effect: Does physical damages to enemies around you.
+Damages: to_d
+Radius: 1
+Type: Physical
+Extra points: +1 multiplier to damages.
+
+Spin kick does physical damages to enemies around you. It can be
+useful is you are surrounded, and it's also a helpful ability to
+defeat the physical returning bosses, as special physical attacks
+such as this one or physical-type spells are not returned to you.
+It can also become quite powerful should you decide to invest
+some points into it. This ability works exactly the same as the
+warrior's Spin Attack, but it is entirely based on your to_d, so
+in order to use it properly, make sure your Martial Arts skill
+is high enough.
+
+3. Hard Kick(Active, level 1, combat feat)
+
+Effect: Does physical damages and sends the enemy away.
+Damages: to_d
+Distance: 3
+Type: Physical
+Extra points: +1 multiplier to damages for every 3 points.
+		+1 to distance for every 10 points.
+
+This ability allow you to give a single enemy a blow with so much
+force that it will be knocked away. This ability also do physical
+damages, and it can become fairly powerful with many points. Should
+you decide to invest a couple of points into it, you will notice
+that you can keep knocking the enemy away, while slowly killing it
+and it will never be able to hit you because you keep using the
+Hard Kick. Make sure you have a good Martial Arts skill to maximize
+the damage potential of this ability.
+
+4. Grappling Throw(Passive, level 1)
+
+Effect: When an enemy attacks, grab it and throw it away.
+Damages: to_d
+Radius: 3
+Type: Physical
+Extra points: +10 to_hit on throwing to_hit test.
+		+1 multiplier to damages for every 4 points.
+		+1 to radius for every 20 points.
+
+When you get attacked, you will be prompted whether or not you want to 
+attempt a throw attack. If you decide to try it, there will be a regular 
+to_hit test. If you succeed, you will grab the enemy and throw it away, 
+dealing some damages in the process as well. However, if you fail, the
+monster will get a bonus to it's hit rate for the next attack. It is
+important to know that this is not a damages dealing ability, but
+rather a defensive ability, although it can do some nice damages. Also
+note that if the enemy is too heavy, you will not be able to throw it.
+Increasing your strength allow you to throw heavier creatures.
+
+5. Wisdom(Passive, level 1)
+
+Effect: Increase your wisdom by 3%
+Extra points: +3% additional wisdom bonus
+
+This passive ability adds some percentile bonus to your wisdom.
+Wisdom will give you bonus skill points if you raise it high enough,
+and raising this ability can be the key to get an impressive amount
+of skill points. How much points you place in this ability depends
+on how much you value skill points. You could put less points into
+wisdom and use this ability to compensate, or you could place a lot
+of points into wisdom and raise this skill to gain tons of skill
+points every levels!
+
+6. Ki Punch(Active, level 1, combat feat)
+
+Effect: Punch attack infused with inner energy.
+Damages: to_d
+Type: Missile
+Extra points: +1 multiplier to damages for every 2 points.
+
+This ability allow you to strike an ennemy with a punch that does
+missile-type damages(half-physical, half-magical). The main features of
+this ability is that first of all, it never miss, and second, it can be
+used against any kinds of opponents. Do note however that magic returning
+bosses will return damages from this ability. Should you focus a lot
+in this ability, it can become quite powerful, and while Martial Arts
+skill should be the main way of empowering it, Spellcraft can also
+slightly improve it as well.
+
+7. One With Body & Mind(Passive, level 6)
+
+Effect: Increase both your hp and mana.
+Bonus: +15 to hp and mana.
+Extra points: +15 additional points to hp and mana.
+
+This passive ability raise both your hp and your mana. If you use a lot
+of magic, or simply need more hp(and probably both), then this ability
+can be very helpful. By raising both stats, you will get the mana to
+cast powerful spells without reducing your capacity to survive blows
+from enemies.
+
+8. Monk Speed(Passive, level 6)
+
+Effect: Increase your speed while unarmored.
+Bonus: +1 to speed.
+Extra points: +1 to speed for every two points.
+
+This passive ability raises your speed. Speed is very important later
+in the game when enemies starts becoming very fast and hard to avoid.
+Although this ability requires you to be unarmored, high speed will
+usually more than make up for it, especially if you placed points
+in Unarmored Combat ability.
+
+9. High Somersault(Active, level 6, combat feat)
+
+Effect: Perform a sommersault kick, and move away.
+Damages: to_d
+Radius: 3
+Extra points: +1 multiplier to damages.
+
+This ability would be best described as a hit and run type ability.
+You hit the enemy with a powerful kick, and then jump a short distance
+away. This can be very useful to hit a strong, quick monster and
+escape immediately after. And it is also an excellent way to take down
+a powerful boss that return physical damages.
+
+10. Martial Arts Mastery(Passive, level 10)
+
+Effect: Gives +2 to martial arts skill.
+Extra points: +2 additional points to martial arts skill
+
+Similar to the other mastery abilities such as Weapon Mastery or Rogue Mastery,
+this passive ability gives you a bonus to your martial arts skill. If you want
+to get the highest possible Martial Arts skill, then you will want to place
+points in this ability. Having a very high Martial Arts skill will make your
+unarmed attacks extremely devastating.
+
+ARCHER
+--------
+
+1. Accurate Shots(Passive, level 1)
+
+Effect: Increase the hit rate of your ammos.
+Bonus to_hit when shooting: +20
+Extra points: +20 to_hit when shooting.
+
+This passive ability allow you to shoot your arrows with greater precision and
+accuracy, resulting in a better hit rate. If you have trouble harming your
+enemies with your ranged attacks, then placing a few points in this ability
+might be able to help you. This ability will be most useful if you use
+Called Shot, as the hit rate for called shots is much lower, so this ability
+will help make it a little better.
+
+2. Called Shot(Active, level 1)
+
+Effect: Shoot at legs, arms or head.
+Penality to_hit: -75% to_hit
+Extra points: -1% to hit rate penality.
+		Improve effects of called shots.
+
+This ability allow you to make a called shot to an opponent. You can select one
+of three body parts of a creature, and depending on what you choose the effect
+will vary. If you targe the legs, the monster will lose speed. If you target
+arms, the monster will lose hit rate. And if you target head, your shot will do
+five times more damages. Note that when performing a called shot, your to_hit 
+will be greatly reduced, so be sure to consider that. If you want to use 
+called shots, yet don't want to place lot of points into it, the Accurate Shots 
+ability can help you get a higher bonus to_hit. Note that the base effect of 
+called shots are based on your shooting skill, so make sure it is high if you 
+want them to be effective.
+
+3. Piercing Shots(Passive, level 1)
+
+Effect: Your shots will lower target's defense.
+Amount: 2
+Extra points: +2 to defense penality.
+
+This passive ability allow you to fire shots that will reduce the enemy's defense. 
+Since it is a passive ability, it will apply to all your shots, so any archers 
+will greatly benefit from this ability. The more you will hit, the easier it will 
+be to hit your opponents. It will work against any kind of enemies, elites, bosses 
+and uniques included. This ability is cumulative with the reduce hit rate ability 
+of your ammos.
+
+4. Chain Shot(Active, level 1)
+
+Effect: A shot that can hit multiple enemies.
+Range: 5
+Extra points: +1 multiplier to damages for every 4 points.
+		+1 to range.
+
+This ability allow you to shoot a shot that will hit multiple enemies in it's
+trajectory, just like a chain attack spell. At first, the range is short, but
+with only a few points it can become quite descent. While this ability is
+very useful, especially in narrow corridors, note that it will do less damages
+than a regular shot, and branded ammos are not counted. How much points you
+place in this ability is up to you, depending if you want to use it as your
+main attack ability or not.
+
+5. Burning Shots(Passive, level 1)
+
+Effect: Your shots will deal fire damages to their target.
+Fire damages: 20/level
+Extra points: +20 fire damages/level
+
+This passive ability will make your shots deal some fire damages to their target.
+The damages are cumulative with the physical damages, so it is really bonus damages.
+This ability can be very useful to take down enemies immune to weapons/physical
+attacks. Note that the fire damages will not be returned by magic returning bosses.
+Also note that this ability is not enhanced by spellcraft skill.
+
+6. Venomous Shots(Passive, level 1)
+
+Effect: Your shots will deal poison damages to their target.
+Poison damages: 20/level
+Extra points: +20 poison damages/level
+
+This passive ability will make your shots deal some poison damages to their target.
+The damages are cumulative with the physical damages, so it is really bonus damages.
+This ability can be very useful to take down enemies immune to weapons/physical
+attacks. Note that the poison damages will not be returned by magic returning bosses.
+Also note that this ability is not enhanced by spellcraft skill. Kobold archers
+should consider this ability over the burning shots, as they get a natural affinity
+for poison-type attacks.
+
+7. Multiple Arrows(Active, level 6)
+
+Effect: You can shoot multiple arrows at once.
+Maximum number: 2
+Extra points: +1 to maximum shots number for every 5 points.
+
+This ability allow you to increase the number of shots you shoot at once.
+When shooting arrows, you will be prompted how many arrows you want to shoot.
+The more you shoot, the greater the damages, although you have to be careful,
+as this will deplete your arrows supply more quickly. Note that if you shoot
+more than one arrow, the returning shots ability from the shooting skill will
+not apply. This ability will only work with bows and arrows. It does not work
+with crossbows and slings.
+
+8. Charged Bolt(Active, level 6)
+
+Effect: Shoot an explosive, high-velocity bolt.
+Damages: Base shots damages
+Type: Fire
+Radius: 1
+Extra points: +1 multiplier to damages for every 2 points.
+		+1 to radius for every 30 points.
+
+This ability allow you to shoot a charged, explosive bolt that will do fire
+damages over a radius when hitting a target. This can be very useful if you
+are confronted to a large group of enemies, or if you need magic damages
+to defeat a weapon immune boss. This ability will only work for crossbows
+and bolts. It will not work for bows and slings.
+
+9. Knocking Pebbles(Passive, level 6)
+
+Effect: Pebbles you shoot have a chance to confuse foes.
+Duration: 5
+Extra points: Improved chance of confusing enemies.
+
+This passive ability will give your pebbles a chance to confuse struck
+enemies. To determine whether or not the monster is confused, a test
+involving your shooting skill and this ability's level versus the
+monster's level will be required, so the higher your shooting skill,
+the greater your success rate with this ability. Elites, bosses and
+uniques will be much harder to confuse. Questors and elites/bosses
+immune to weapons/physical cannot be confused. This ability will only
+work for slings and pebbles. It will not work for bows and crossbows.
+
+10. Marksmanship(Passive, level 10)
+
+Effect: Gives +2 to shooting skill.
+Extra points: +2 additional points to shooting skill.
+
+Similar to the other mastery abilities such as Weapon Mastery or Rogue Mastery,
+this passive ability gives you a bonus to your shooting skill. If you want
+to have a very high shooting skill, and thus have devastating ranged attacks,
+then investing points in this ability is a great way to do so. Or, you can
+spend your skill points in other skills, and use this ability to get your
+desired shooting skill.
+
+
+HIGH-MAGE
+-----------
+
+1. Increased Mana(Passive, level 1)
+
+Effect: Increase your maximum mana by 3%
+Extra points: +3% additional mana bonus
+
+This passive ability adds some percentile bonus to your mana. It is very 
+similar to the warrior's Increased Life ability in concept. If you decide
+to play a pure spellcaster type character, then this ability will become
+invaluable to create the most powerful spells. You may want to raise the
+mage's Mana Boost early in the game, and when you change to High-Mage
+start placing points in this ability. This way, the bonus you get from
+Increased Mana will apply to the bonus from Mana Boost.
+
+2. Magic Blood(Passive, level 1)
+
+Effect: Increase your mana recovery rate.
+Mana Recovery: +3
+Extra points: +3 to mana recovery.
+
+This passive ability allow you to recover your mana at a faster rate.
+Should you decide to invest some points into it, it can become very useful,
+especially since it can turn some spells into free spells. If you can get
+your hands on several powerful mana boosting items, you could decide to
+put less points into Increased Mana and more into this. Or, you could
+have a lower mana but use this ability to recover it faster.
+
+3. Return Magic(Passive, level 1)
+
+Effect: Monsters take damage when casting spells.
+Damage taken: Damages of original spell.
+Extra points: +1 multiplier to returned original spell damages.
+
+This passive ability allow you to return magic damages taken from spells 
+to the monsters. The damages start the same as the original damages, but 
+if you place points in this ability, it can become quite deadly. Note
+however that you are not immune to magic, and that you will still take 
+damages from the monster's spell. The returned damages are considered
+magic attacks, so monsters immune to magic will take no damages. Magic
+returning monsters will not return damages from this ability.
+
+4. Archmage Spirit(Passive, level 1)
+
+Effect: Increase the number of spells you can create.
+Extra spells: 1
+Extra points: +1 extra spell for every 5 points.
+
+This passive ability increase the number of spells you can create.
+Normally, you cannot create more than 12 spells, but if you place a few
+points in this ability, you can increase the number of spells. This can
+be very useful if you find yourself lacking some spells with only 12
+slots. But before placing several points into this, remember that there
+you can always create multi-effect spells, and that sometimes it is
+better to create a multi-effect spell than using more than one slot.
+
+5. Counter Spell(Passive, level 1)
+
+Effect: Gives you a chance to stop an enemy's spell.
+Extra points: Improved chance of countering enemy's spell.
+
+This passive ability gives you a chance to stop an enemy's spell. When
+countering a spell, there will be a test opposing your level + this
+ability's level versus the monster's level. If you succeed, the enemy's
+spell will be countered. If you fail, you will lose 20% of your 
+mana. When an enemy cast a spell, you may choose to attempt to counter
+the spell or not. Try to save this for powerful enemies. If a weak
+enemy is casting a fire bolt, taking the damages is probably the best
+thing to do. However, if a powerful unique tries to summon ancient
+dragons, this may be fatal to you, and countering the spell might be
+just what you need to do.
+
+6. Empower Spells(Passive, level 1)
+
+Effect: Improve the power of your spells.
+Bonus to spell power: 3%
+Extra points: +3% power increase.
+
+This passive ability allow you to empower the effect of your spells.
+When you cast a spell, you will be asked if you wish to empower your
+spell or not. If you choose so, the power of the spell will be
+augmented, meaning that damage spells will do more damages, alterations
+will be more effective, summoning spells will summon more creatures
+and so on. However, know that an empowered spell will cost three times
+more mana to cast, so if you plan on using empowered spells, make sure
+you invest enough points in the ability for the extra mana cost to be
+worth it.
+
+7. School Focus: Elemental(Passive, level 6)
+
+Effect: Reduce the creation cost of elemental spells.
+Cost reduction: 1%
+Additonal cost reduction: 3
+Extra points: +1% cost reduction(up to a maximum of 75%).
+		+3 additional cost reduction.
+
+This passive ability will make the creation cost of Elemental spells
+cheaper, allowing you to create more powerful spells for a lesser amount
+of mana. The Elemental school of spells specialise exclusively in direct
+attack spells. Choose this ability if you enjoy creating powerful and
+devastating spells of destruction.
+
+8. School Focus: Alteration(Passive, level 6)
+
+Effect: Reduce the creation cost of alteration spells.
+Cost reduction: 1%
+Additonal cost reduction: 3
+Extra points: +1% cost reduction(up to a maximum of 75%).
+		+3 additional cost reduction.
+
+This passive ability will make the creation cost of Alteration spells
+cheaper, allowing you to create more powerful spells for a lesser amount
+of mana. The Alteration school of spells include various disabling and
+status inflicting spells, such as spells that reduce hit rate, defense,
+level, speed or scare enemies away. Also include positive alterations,
+such as stats boosting spells, physical and magic resistance and extra
+bonus to AC. If you like this kind of spells, then this ability is for you.
+
+9. School Focus: Conjuration(Passive, level 6)
+
+Effect: Reduce the creation cost of conjuration spells.
+Cost reduction: 1%
+Additonal cost reduction: 3
+Extra points: +1% cost reduction(up to a maximum of 75%).
+		+3 additional cost reduction.
+
+This passive ability will make the creation cost of Conjuration spells
+cheaper, allowing you to create more powerful spells for a lesser amount
+of mana. The Conjuration school of spells offer spells that can summon
+creatures or items to help you. Also contains spells that create elemental
+fields that damage enemies. If you enjoy summoning monsters or creating
+powerful elemental fields, focusing in Conjuration might be a good idea.
+
+10. Spell Mastery(Passive, level 10)
+
+Effect: Gives +2 to spellcraft skill.
+Extra points: +2 additional points to spellcraft skill
+
+Similar to the other mastery abilities such as Weapon Mastery or Rogue Mastery,
+this passive ability gives you a bonus to your spellcraft skill. If you
+want your spellcraft skill to become extremely high, and thus cast devastating
+offensive spells, then you should consider raising this skill. Or, you could
+use this ability to get your desired spellcraft while spending your skill
+points on other skills.
+
+ELEMENTAL LORD
+----------------
+
+1. <Element> Ball(Active, level 1)
+
+Effect: Cast a ball spell of your chosen element.
+Damages: 10/level
+Type: Varie
+Radius: 1
+Extra points: +10 damages/level.
+		+1 to radius for every 20 points.
+
+This ability allow you to cast a ball of your chosen element at your enemies.
+It costs no mana, and if you invest some points into it, it can become very
+powerful. If you enjoy this ability, having a high Spellcraft skill can
+empower it further. Because Elemental Lords are more combat-oriented, this
+ability can make up for the lack of spells.
+
+2. <Element> Strike(Active, level 1, combat feat)
+
+Effect: A melee attack that does elemental damages.
+Damages: Half normal attack damages(branded weapons are not counted)
+Type: Varie
+Extra points: +1 multiplier to damages for every two points.
+
+This ability allow you to perform a special melee attack that will do damages
+of your chosen elemental type. Because Elemental Lords are melee fighters, this
+attack can become extremely deadly. First of all, it's an always-hit attack.
+Second, it's considered a magical attack, so full damages will apply, unlike
+physical attacks. And third, it allow you to take down the monsters immune
+to weapons and physical attacks. The base damages may seem less than a normal
+attack, but consider that at higher level, there won't be any damages reduction
+against high level monsters.
+
+3. Shield Of <Element>(Active, level 1)
+
+Effect: Absorb all damages from the chosen element. Also deals elemental
+	damages to all monsters who would attack you with melee attacks.
+Damages: 30/level
+Type: Varie
+Duration: 10
+Extra points: +30 damages/level.
+		+1 to duration.
+
+This ability allow you to create a magical shield around you that will cause
+elemental damages to melee attackers, as well as making you immune to your
+chosen element. It is very useful when you get yourself surrounded, or if you
+have a lot of armor and wish to take on a physical immune monster. It is also
+useful if you are slow or unable to move(either knocked out or paralyzed).
+And of course, if you are about to face a monster who use magical attacks of
+your element, it will make their spells useless. Magic damages from this
+ability are not returned by magic returning bosses.
+
+4. Fist Of <Element>(Active, level 1, combat feat)
+
+Effect: Powerful punch imbued with elemental energy.
+Damages: half to_d
+Type: Varie
+Extra points: +1 multiplier to damages for every points.
+		+1 to radius for every 40 points.
+
+This ability allow you to deliver a powerful punch attack based on your to_d
+bonus. This ability is intended for Martial Arts characters, so your
+Martial Arts skill should be high if you plan on using this ability a lot. The
+damages may seem lesser than the monk's Ki Punch, but remember that this one
+deals pure elemental damages, which isn't resisted by high level monsters.
+Also, if you invest a lot of points in this ability, it will gain a radius,
+which can be very devastating. Spellcraft skill can also help raising the
+damages.
+
+5. Piercing Spells: <Element>(Passive, level 1)
+
+Effect: Offensive spells from your chosen element bypass enemy abilities.
+Chance to bypass Halve Damages ability: 10%
+Chance to bypass natural resistance: 5%
+Chance to bypass Magic Returning ability: 5%
+Chance to bypass Magic Immune ability: 1%
+Extra points: +3% chances to bypass Halve Damages.
+		+2% chances to bypass natural resistances.
+		+2% chances to bypass Magic Returning resistances.
+		+1% chances to bypass Magic Immune ability.
+
+This passive ability gives your spells and magic attacks a chance to bypass
+the enemy's resistances and abilities that might prevent your spells from
+working. This ability can benefit greatly to pretty much any characters
+who uses some kind of magic attacks or spells. These monsters abilities are
+the bane of many characters, and raising this ability can be a good way to
+give you a chance to actually defeat a boss that might be otherwise
+impossible to kill. It will also give you an edge on the later questors,
+as they tend to resist pretty much any kind of magic.
+
+6. Aura Of <Element>(Passive, level 1)
+
+Effect: Damages enemies around you as you move.
+Damages: 5/level
+Type: Varie
+Radius: 2
+Extra points: +5 damages/level
+		+1 to radius for every 30 points.
+
+This passive ability will cause damages to enemies around you as you move.
+This can be very useful, especially if you decide to invest points, as it
+will weaken your enemies as you run away, and then once they are weakened,
+you can turn back and face them. It is also useful when moving trough
+large group of enemies. Also note that the damages from this ability are
+not returned, so it can be useful to take down bosses that are immune to
+physical and magic returning. Spellcraft will help raising the power and
+radius of this ability.
+NOTE: When you gain this ability, it will not automaticly activate.
+To activate, use "Turn on your aura.". Use it again to turn it off. Useful
+for preventing your pets from being hurt.
+
+7. Explosive Throw(Active, level 6)
+
+Effect: Throw a weapon that will explode, causing major elemental damages.
+Damages: ((Weapon damages/level * melee multiplier)+weapon's to_d*10)*pval
+Type: Varie
+Radius: 3
+Extra points: +1 multiplier to damages for every 2 points.
+		+1 to radius for every 20 points.
+
+This ability allow you to sacrifice a weapon and throw it to enemies, so
+that it will explode and kill them. This ability can be extremely deadly,
+especially if you invest a lot of points into it and if you use powerful
+weapons. The drawback to this is that you actually need to get your hands
+on a magic weapon, and it must have at least a pval of 1, otherwise it
+will not do any damages. Also, you cannot use self-made weapons, such as
+a weapon enchanted with a Magic Item scroll. If you plan on focusing on
+this ability, raising your Spellcraft will help doing more damages and
+get a larger radius.
+
+8. Wave Of <Element>(Active, level 6)
+
+Effect: An elemental chain attack that can hit multiple enemies in a row.
+Damages: Half normal attack damages(branded weapons are not counted)
+Type: Varie
+Range: 30
+Extra points: +1 multiplier to damages for every two points.
+
+This ability allow you to throw a wave of elemental energy that is based
+on your weapon's power. This is a useful ability if you plan to focus on
+your melee skills. This ability will give you both the ranged attacks
+and magical attacks needed to defeat your opponents. This ability is most
+useful when used in narrow corridors, and your Spellcraft skill can help
+raising the damages as well.
+
+9. Absorb Elemental Energy(Passive, level 6)
+
+Effect: You have a chance of absorbing enemies spells and breaths, and
+	get healed instead of damaged.
+Chance of absorbing: 1%
+Chance of absorbing chosen element: 5%
+Extra points: +1% chance of absorbing.
+		+5% chance to absorb chosen element.
+
+This passive ability allow you to absorb spells and breaths from your
+enemies. When you get hit by a spell, if successful, all damages will
+be void and you will actually get healed. Chances of absorbing spells
+of your chosen element are higher. Note that missile and mana type
+spells will not be absorbed by this ability.
+
+10. Mastery Of <Element>(Passive, level 10)
+
+Effect: Damages from your chosen element are augmented.
+Bonus damages: +5%
+Extra points: +5% damages.
+
+This passive ability allow you to make all your spells and elemental
+attacks do more damages if they are of your chosen element. Since
+most of the Elemental Lord's special attacks are elemental-based,
+investing points in this ability will always be helpful. It will be
+even more helpful if you cast a lot of offensive spells, as this will
+make them more powerful, and it is cumulative with any Spellcraft
+bonus.
+
+MONSTER MAGE
+--------------
+
+1. Monster Magics(Active, level 1)
+
+Effect: Allow you to learn and use monster magics.
+Extra points: +10% to monster magics damages.
+
+This ability is the main spellcasting power of the Monster Mage class. 
+This ability replaces the 'm' command with it's very own spellcasting
+system. Monster Mages can naturally cast and learn monster magics,
+but other classes will need at least one point in this ability. If you
+plan on using monster magics, make sure you build your character
+accordingly. Magical breath attacks are your strongest powers, and
+their damages are based on your current hp, so make sure you have
+a good constitution. There are many advantages of using Monster
+Magics over regular spells, although you won't have as much control
+over the effects of the spells. On the other hand, all monster
+magics cost a mere 5 mana to cast. Remember that once you get this
+ability, you will gain the ability to switch between monster magics
+and regular spells, so if you need a spell to back you up, you can
+have it!
+
+2. Morphing Abilities(Active/Passive, level 1)
+
+Effect: Allow you to turn into a monster.
+Maximum monster depth: 2
+Maximum monster level: 3
+Extra points: +2 to maximum monster depth.
+		+3 to maximum monster level.
+		+5% to morphed powers damages.
+
+This ability allow you to turn into a monster of your choice. You
+gain the ability to 'Memorize' a creature. Once you memorize a
+creature, you can assume it's shape at any times, for as long as
+you wish. You will then be able to use their various powers. Like
+your regular monster magics, monsters breaths are their strongest
+powers, and are based on your current hp. Unlike your regular
+shape, your hp will not be calculated using your constitution,
+but using your level, so you don't need a high constitution if
+you plan to morph a lot. Note that life boosting abilities
+will not affect your hp while morphed, it is entirely based
+on your level and which monster you are morphing into. Many monsters 
+will not have access to weapons, so if you plan on morphing a lot, 
+raising your Martial Arts skill is needed in order to fight in 
+melee effectively. Monsters with stronger melee attacks will, of 
+course, make you much more effective in combat.
+WARNING: If you use elemental melee attacks, magic returning
+monsters WILL return damages!!
+
+3. Constitution(Passive, level 1)
+
+Effect: Increase your constitution by 3%
+Extra points: +3% additional constitution bonus
+
+This passive ability adds some percentile bonus to your constitution.
+This ability can allow your constitution to reach very high scores,
+meaning you will get much more hp. This is a very useful ability for
+any classes, and it is especially useful to Monster Mages, as their
+magical breath attacks are based on their hp. It is up to you to decide
+how much hp you need, but generally, it's a good idea to have a lot
+of it later in the game.
+
+4. Monstrous Leadership(Passive, level 1)
+
+Effect: Increase your Leadership skill while morphed.
+Bonus to Leadership: +3
+Extra points: +3 to Leadership skill.
+
+This passive ability increases your Leadership skill while being
+morphed. This is a very useful ability if you plan on using a lot
+of summoned creatures to defeat your foes. Of course, being only
+effective while morphed, you have to build your character
+accordingly should you decide to focus in this ability. A monster
+with summoning abilities is the best choice to use with this
+ability. Since there are less of those monsters early in the
+game, you may wish to wait before placing points in this.
+
+5. Monstrous Martial Arts(Passive, level 1)
+
+Effect: Increase your Martial Arts skill while morphed.
+Bonus to Martial Arts: +2
+Extra points: +2 to Martial Arts skill.
+
+This passive ability increases your Martial Arts skill while being
+morphed. If morphing is your trade, then this ability will increase
+your melee fighting ability a lot. Unarmed monster attacks are
+greatly affected by your Martial Arts skill, and morphing into a
+monster with better attacks will result is much greater damages.
+
+6. Dominate Monster(Active, level 1)
+
+Effect: Make a monster friendly toward you.
+Maximum monster level: 2
+Chance: 50%
+Extra points: +2 to maximum monster level.
+		+1% chance for every 2 points.
+
+This ability allow you to turn a monster into an ally. This can be
+a very useful way of making a monster join should it be too tough
+to defeat otherwise, especially if your Leadership skill is good.
+If you like this ability, you may want to consider the Monstrous
+Leadership ability to easily raise your Leadership skill. This
+ability does not work on uniques, elites and bosses.
+
+7. Monstrous Defense(Passive, level 6)
+
+Effect: Gives you a bonus to your base AC while morphed.
+Bonus to base AC: +10% of Morphed creature's base AC
+Extra points: +10% of Morphed creature's base AC.
+
+This passive ability gives you a bonus to your AC. Because many
+monsters are restricted in their equipment, and therefore you can't
+always have a good armor while morphed, this ability can largely 
+make up for it. It raises your base AC, so Agility skill will help
+making the bonus even higher. The bonus depends on the creature
+you morphed into. If you morph into a creature with higher base AC,
+you will get a higher bonus to your base AC.
+
+8. Monstrous Wave(Active, level 6)
+
+Effect: Emits a wave of energy that can damage multiple enemies.
+Damages: First melee attack damages(Martial Arts bonus applies).
+Type: Depends on first attack's type.
+Range: 5
+Extra points: +1 multiplier to damages for every 2 points.
+
+This ability allow you to throw a short-ranged wave of energy at
+your enemies. It is a chain attack, and thus can hit multiple
+enemies. The damages are based on your form's first melee attack,
+and the type varies depending on the attack's type. If you
+wish to use this skill, make sure your Martial Arts skill is high,
+as it will greatly raise the damages done by this ability.
+
+9. Monstrous Brutality(Passive, level 6)
+
+Effect: Your melee attacks damages enemy hit rate and defense.
+Amount: 10
+Extra points: +10 to hit rate and defense loss.
+
+This passive ability makes your unarmed attacks more effective by
+giving them the ability to cut trough an enemy's defense and hit
+rate, making them easier to hit, and they will have a harder time
+hitting you. It can be very useful if your own defense or hit
+rate is not too high, or if you just want to get an edge over
+powerful foes. Uniques, elites and bosses, while affected, will 
+only lose 10% the amount a normal enemy would lose. Note that
+you need to perform a successful hit rate test to actually hit
+with this ability, and it is done separatly from the normal
+melee attack. Even if you attack with magical damages, you need
+to perform the test for this ability to trigger.
+
+10. Improved Life Force(Passive, level 10)
+
+Effect: The maximum hp limit is increased.
+Hp limit: +3%
+Extra points: +3% to maximum hp limit.
+
+This passive ability increases your life limit. Normally, the maximum 
+life is 30000, but with this ability, you can make it higher. Later 
+in the game, you will be able to morph into very big creatures, and 
+you may wish to go over the 30000 hp cap. This ability works even if 
+you don't morph, so if you somehow reach the 30000 hp limit otherwise, 
+it can go even higher!
+
+DEFENDER
+----------
+
+1. Heavy Armored Defense(Passive, level 1)
+
+Effect: Increase your to_ac bonus while wearing hard or dragon armor.
+AC bonus: Base armor defense.
+Extra points: +(Base armor defense) to AC.
+
+This passive ability makes your heavy armors more effective by giving
+you an AC bonus based on it. This can be very useful, especially if
+you get a high defense, special armor, in which case your AC can
+become phenomenal should this ability be high enough. While the AC
+bonus of this ability is not affected by Agility, raising your
+Agility can be a good way to further improve your already impressive
+defense.
+
+2. Iron Skin(Passive, level 1)
+
+Effect: Reduce damages you take from melee attacks.
+Damages reduction: -20
+Extra points: -20 to damages taken.
+
+This passive ability allow you to shrug off some damages from melee
+attacks. It can be very useful, as the weaker enemies will do no
+damages and the stronger enemies will do less, so they will pose
+less of a threat. If you combine this with a physical resistance
+spell or ability, you can become near-immune to physical attacks
+or at least highly resistant! Note that Iron Skin applies before
+any resistance spells.
+
+3. Shield Bash(Active, level 1, combat feat)
+
+Effect: Does physical damages and sends the enemy away.
+Physical Damages: Shield's defense/level * multiplier.
+Distance: 2
+Extra points: +(Shield's defense)/level physical damages.
+		+1 to distance for every 20 points.
+
+This ability allow you to deal some physical damages to enemies while
+sending them away, keeping you out of harm's way. The main use of this
+ability is of course to keep the enemy away, but should you get a
+strong shield and a high multiplier, it can also become a fairly
+good damage dealing attack, and it can be used safely against damages
+returning bosses.
+
+4. Shield Fighting(Passive, level 1)
+
+Effect: Improve your combat abilities when using a shield.
+Bonus to_hit and to_dam: +15
+Bonus to_ac: +10
+Bonus to blocking chance: +1%
+Extra points: +15 to_hit and to_dam.
+		+10 to_ac.
+		+1% chance to block(the maximum is still 75%).
+
+This passive ability gives you multiple bonuses to your combat abilities
+while using a shield. While some of the strongest weapons are two-handed,
+many powerful weapons are one-handed. If you choose this ability, the
+Swords and Axes weapons are recommended. The best one-handed swords are
+stronger than the best one-handed axes, but axes are more common. This
+ability will also give you a small bonus to blocking chance, so if you
+are using a smaller shield, it can help compensate the lesser blocking
+chance.
+
+5. Block Magic(Passive, level 1)
+
+Effect: Allow you to block magic attacks with your shield.
+Maximum blocked damages: 75
+Extra points: +75 to maximum blocked damages.
+
+This passive ability allow you to block magic attacks with your shield.
+Blocked magical attacks will get reduced damages, the higher this ability,
+the more damages will be reduced. The amount of blocked damages rise
+rather quickly, and you probably don't need to place that many points
+in this ability. Nevertheless, this can easily replace any magic
+resistance spells should you invest some points. The chance to block is
+equal to your normal blocking chance.
+
+6. Great Guard(Passive, level 1)
+
+Effect: Absorb great damages. You may get confused in the process.
+Maximum prevented damages: 300
+Extra points: +300 to maximum prevented damages.
+
+This ability allow you to absorb damages from any sources, which can be 
+anything: a melee attack, a breath attack or even damages from traps or 
+any other sources. This ability is very powerful, however, there is a 
+chance that if you use it, you may end up confused. Whenever you would 
+take damages, you will be asked whether or not you want to guard these 
+damages. If you do, they will be reduced by a certain amount depending
+on how much points you invested in Great Guard. When you use great
+guard, you have 20% chance of getting confused if you use it again.
+If you use it again, another 20% is added, and so on. The chance
+of getting confused is reduced by 1 every turns.
+
+7. Armored Health(Passive, level 6)
+
+Effect: Gain an hp bonus while wearing hard or dragon armor.
+Hp bonus: armor's AC.
+Extra points: +(armor's AC) to hp.
+
+This passive ability gives you a bonus to your maximum hp equal to your
+armor's AC value. Should you decide to invest some points in this
+ability, it can become very effective, especially if you have a hard
+armor with a very high defense. If you want to place your stat points
+in Strength rather than Constitution, this can be a good way to
+compensate for your hp.
+
+8. Defensive Strike(Active, level 6, combat feat)
+
+Effect: Does physical damages based on your defense.
+Damages: Total AC * 100
+Extra points: +1 multiplier to damages.
+
+Defensive Strike allow you to deal physical damages to your opponents
+based on how much defense you have. If you have a very high defense,
+this ability can deal a very large amount of damages. You may wish to
+combine this abilities with Heavy Armored Defense, which can greatly
+improve your AC, so this attack will do a lot more damages. Like
+other special physical attacks, damages from this ability will not
+be returned by elites and bosses.
+
+9. Boomerang Shield(Active, level 6)
+
+Effect: Throw your shield to deal physical damages.
+Damages: (Shield's AC + shield's to_ac) * Throwing Skill * Multiplier
+Extra points: +1 multiplier to damages.
+
+This ability allow you to use your shield as an offensive ranged
+weapon. This ability is a useful ranged attack that you can use as
+many times as you want, and it can also be used to defeat physical
+returning bosses from a safe distance. If you plan on using this
+ability, make sure you have a good Throwing skill, as it will make
+this ability a lot more powerful.
+
+10. Murderous Defense(Passive, level 10)
+
+Effect: Gain defense and physical resistance when you kill foes.
+Defense Gained: Monster's level
+Resistance gained: 1%
+Duration: 20
+Extra points: +1 multiplier to defense gained.
+		+1% physical resistance per kills for every four points.
+
+This passive ability allow you to gain defense as you kill more and
+more foes. When you kill a monster, you will gain a temporary bonus
+to your defense and physical resistance for 20 turns. If you kill
+another monster, then you will get another, cumulative bonus, and
+the turns will reset to 20. The more you kill, the more defended
+you become, and if you place many points in this ability, it can
+quickly boost your defense. The maximum defense bonus you can get
+this way is 30000, and you can get up to 100% physical resistance
+if you kill enough! This ability will not work if you kill
+friendly creatures.
+
+JUSTICE WARRIOR
+-----------------
+
+1. Shatter Evil(Active, level 1)
+
+Effect: Evil beings receive great damages. Makes undeads and demons flee.
+Damages: 20/level
+Radius: 2
+Extra points: +20 damages/level.
+		+1 to radius for every 30 points.
+
+This ability deals magical damages to evil monsters. Furthermore, if the
+monster is an undead or a demon, it will be striked with fear for
+10 turns. This ability can be very powerful, as it does great damages,
+is a radius, ranged attack and it does not cost any mana. A high Spellcraft
+skill will greatly raise the damages of this ability. Do note however 
+that monsters that are not marked as Evil will not take any damages from 
+this ability, and that unique, elites and boss undeads and demons will
+not be scared.
+
+2. Angelic Voice(Active, level 1)
+
+Effect: Evil enemies around you becomes friendly.
+Radius: 15
+Extra points: Improved chance of making evil enemies friendly.
+
+By using this ability, you will be able to make all evil non-unique, 
+non-boss monsters around you friendly. The chance of success depends on
+this ability's level and your charisma versus the monster's level. The
+higher this ability, the better the chance of success. If you plan
+on using this ability, raising your Leadership skill might be a good
+idea, as it will make your friendly monsters much stronger. This
+ability does not work on non-evil monsters.
+
+3. Aura Of Evil Repulsing(Passive, level 1)
+
+Effect: You gain an aura that scare away evil creatures.
+Duration: 5
+Radius: 2
+Extra points: Improved chance of scaring evil creatures.
+		+1 to duration for every two points.
+		+1 to radius for every 10 points.
+
+This passive ability gives you an aura that will repulse evil creatures
+around you. Whenever an evil creature approach you, there is a chance that
+it will be scared for 5 turns, more if you invested some points in this
+ability. It can be very useful if you face a large pack of strong enemies,
+or if you are low on hp and want to be safer. Uniques, elites and bosses
+aren't affected, as well as non-evil monsters. Resistance to fear does
+not prevent this ability from working.
+
+4. Bless Weapon(Active, level 1)
+
+Effect: Allow you to imbue a non-magical weapon with magical properties.
+Bonus to_hit and to_damage: +2
+Pval: 1
+Abilities: Light Branded, Permanent Light, Indestructible.
+Extra points: +1 to pval for every five points.
+		+2 to_hit and to_damage.
+		+1 dice sides to damages for every ten points.
+		Extra abilities gained:
+		5+ points: Resistance to light.
+		10+ points: Gain Strength boosting ability.
+		15+ points: Gain Dexterity boosting ability.
+		20+ points: Gain Demon and Undead slaying brands.
+		30+ points: Gain Extra Blows ability.
+		40+ points: Gain defense reducing ability.
+		50+ points: Gain life boosting ability, +1 dice.
+		60+ points: Gain hit rate reducing ability.
+
+This ability allow you to imbue a non-magical weapon with magical
+properties. It can be very useful if you don't have many powerful weapons,
+or if you keep dying and losing items and you want to instantly get
+a new magical weapon. And if you invest many points in this ability,
+it will be very powerful, as more and more abilities will appear
+on your weapon.
+
+5. School Focus: Healing(Passive, level 1)
+
+Effect: Reduce the creation cost of healing spells.
+Cost reduction: 1%
+Additonal cost reduction: 3
+Extra points: +1% cost reduction(up to a maximum of 75%).
+		+3 additional cost reduction.
+
+This passive ability will make the creation cost of Healing spells
+cheaper, allowing you to create more powerful spells for a lesser amount
+of mana. The Healing school of spells offer spells that can heal you
+or restore your attributes, and very powerful healing spells cost a
+lot to cast, so by placing points in this ability, you will be able
+to create better spells for a much lesser amount of mana.
+
+6. Sacred Light(Active, level 1)
+
+Effect: Does Light type damages to enemies around you.
+Damages: 10/level
+Type: Light
+Radius: 3
+Extra points: +10 damages/level.
+		+1 to radius for every 20 points.
+
+This ability allow you to deal Light damages to enemies around you.
+Because the damages are fairly good and it costs no mana, this can
+be a good replacement to offensive spells, should your character
+decide to focus more on combat stats such as Strength and
+Constitution. Having a high Spellcraft skill will make this
+ability more powerful.
+
+7. Slay Evil(Active, level 6)
+
+Effect: A bolt spell that may instantly kill an evil creature
+	 or deal damages.
+Chance to kill: 1%
+Damages: 30/level
+Extra points: +30 damages/level.
+		+1% chance to kill.
+
+This ability will cast a bolt spell at your enemies, which may
+instantly kill them. Should it fail to kill the target, it will
+still take a powerful blow, which might be enough to kill it
+anyway. Uniques, elites and bosses will never be instantly
+killed, although they will take full damages. Magic returning
+bosses will not return damages dealt by this ability. This
+ability will not work on non-evil creatures.
+
+8. Angelic Call(Active, level 6)
+
+Effect: Summon angels to fight on your side.
+Number: 15
+Extra points: Allow you to summon stronger angels.
+
+This ability allow you to summon angels to fight on your side.
+If you have a good Leadership skill and Charisma, this ability
+can be very useful, as having allies is a good way to avoid hits
+while they cause the damages for you. How many points you place
+in this ability depends on how strong you want your angels to be.
+Enabling the monster generator will allow you to have a greater
+choice of angels available.
+
+9. Protection From Evil(Passive, level 6)
+
+Effect: Evil creatures deals less damages to you.
+Damages reduction: 1%
+Additonal damages reduction: 5
+Extra points: +1% reduction(up to a maximum of 75%).
+		+5 additonal damages reduction.
+
+This passive ability reduce the damages you take from evil
+enemies. It protects you from both melee attacks and spells. This
+can be a very useful ability, as many of the most powerful enemies
+are evil, and their attacks will be much less of a threat should
+you invest points in this ability. Damages from non-evil enemies
+will not be reduced.
+
+10. Light Of Life(Active, level 10)
+
+Effect: Does light damages to enemies around you based on your hp.
+Damages: Current hp
+Type: Light
+Radius: 5
+Extra points: +1 multiplier to damages.
+		+1 to radius for every 30 points.
+
+This ability allow you to emit a strong circle of light that deals
+damages to enemies around you. The damages are based on your
+current hp, so to use this ability effectively, you must have
+a good hp. Raising your Constitution to a high level might be a
+good idea should you decide to focus in this ability. Do note
+that damages are based on your current hp, so if you get hurt,
+this ability will get weaker.
+
+ZELAR
+-------
+
+1. Energy Spin(Active, level 1)
+
+Effect: A spin kick attack that does magical damages.
+Damages: half your to_d
+Radius: 1
+Type: Mana
+Extra points: +1 multiplier to damages.
+		+1 to radius for every 30 points.
+
+This ability is similar to the Spin Kick monk ability, except it
+does mana type damages. Mana cannot be resisted except by elites
+and bosses resistant to all form of magic. If you have a very
+high Martial Arts skill, this ability can be extremely useful
+and powerful. Not only will it deal damages to monsters immune
+to physical, it won't be affected by the high level monsters
+resistance to physical damages. And finally, it will gain radius
+if you place many points.
+
+2. Wave Kick(Active, level 1)
+
+Effect: Throw a powerful wave of energy at your enemies.
+Damages: to_d
+Range: 10
+Type: Mana
+Extra points: +1 multiplier to damages.
+		+1 to range for every two points.
+
+This ability will throw a wave of energy that is based on your
+to_damage bonus. This is a very powerful ability that can deal
+a lot of damages if your Martial Arts skill is high enough.
+Having a high spellcraft skill can also help raising the
+damages of this ability.
+
+3. Arms Crush(Passive, level 1)
+
+Effect: Block an enemy attack, and crush it's arms(or claws).
+Damages: 1/4 to_d
+Extra points: +1 multiplier to damages for every two points.
+		Improved chance of breaking arms.
+
+This passive ability will allow you to interrupt an enemy's
+attack, and break it's arms(or other form of physical attack).
+This will give them the "Mutilate Arms" status, which mean
+they won't be able to attack anymore. The chance to hit is
+dependant on your to_hit, and if you place more points in
+this ability, you will have a higher chance of breaking
+arms. This ability will not work against elites, bosses
+and uniques, or if you are wielding a weapon.
+
+4. Energy Punch(Active, level 1, combat feat)
+
+Effect: A very powerful punch attack that does magical damages.
+Damages: to_d
+Type: Mana
+Extra points: +1 multiplier to damages.
+
+This ability will deliver a punch of great power to your enemies.
+Plus, it does mana-type damages, so only elites and bosses resistant
+or immune to all magical attacks will resist it. It never miss,
+it is not affected by the monster level physical damages reduction,
+and it's very powerful.
+
+5. Legs Breaking Throw(Active, level 1, combat feat)
+
+Effect: Grab an enemy, disable it's legs, and throw it away.
+Damages: half to_d
+Distance: 3
+Extra points: +1 multiplier to damages for every four points.
+		Allow you to throw heavier enemies.
+
+This ability allow you to grab an enemy and throw it away, while
+breaking it's legs. It will also deal some damages, although this
+shouldn't be used as a main damaging ability, but rather as a
+defensive ability against stronger monsters. Elites, bosses and
+uniques cannot have their legs broken, but they can be thrown
+like any other monsters.
+
+6. Disabling Blows(Passive, level 1)
+
+Effect: Unarmed attacks reduce hit rate, defense and speed.
+Hit Rate and Defense reduction: 15
+Speed reduction: 1
+Extra points: +15 hit rate and defense reduction.
+		+1 speed reduction for every two points.
+
+This passive ability allow all your unarmed attacks to reduce
+hit rate, defense and speed of your enemies. This can be very
+useful, as if you don't kill your enemies, they won't be able
+to counter-attack as easily, and they might not do it at all.
+This will not work on bosses immune to physical attacks, nor
+will it work against uniques, but it works against anything
+else.
+
+7. Energize Self(Active, level 6)
+
+Effect: Restore hp, mana, and cure all bleeding.
+Hp healed: 10/level
+Mana healed: 5/level
+Extra points: +2 hp healed/level.
+		+1 mana healed/level for every two points.
+
+This ability allow you to restore both your hp, mana and cure
+all bleeding you may have. This ability is clearly better than
+the priest's Heal, however, it is also A LOT harder to obtain
+than the other one. If you don't actually need the mana healing,
+or don't wish to build a Zelar character, the priest's heal
+will probably be enough to do the job.
+
+8. Dual Wave Fist(Active, level 6)
+
+Effect: Throw two waves of energy, which can be thrown in any
+	direction.
+Damages: half to_d
+Range: 10
+Type: Mana
+Extra points: +1 multiplier to damages for every two points.
+
+This ability allow you to throw two waves of energy, which can
+be thrown in any directions. This is great if there are two
+powerful enemies, and you want to strike them both in the same
+move. And if there are more than one enemy in a direction,
+this can also be very useful. You could also throw both energy 
+waves at one enemy, if there is only one, very powerful enemy.
+
+9. Gather Power(Active, level 6)
+
+Effect: Briefly gather a lot of power to deliver a mighty blow.
+Bonus to Strength: +20
+Duration: 2
+Extra points: +20 to Strength.
+
+This ability allow you to briefly raise your strength to deliver
+a very powerful attack. It takes one move, but your next attack
+will more than make up for it. You won't be able to do more than
+one attack, but it might be enough to kill your foe.
+
+10. Legendary Agility(Passive, level 10)
+
+Effect: Raises your Agility skill, improve dodging.
+Bonus to Agility skill: +3
+Bonus to dodge: 1%
+Extra points: +3 to Agility skill.
+		+1% chance to dodge(up to a maximum of 75%).
+
+This passive ability not only gives a huge boost to your agility
+skill, it will also increase your chance of dodging enemy blows.
+With your Martial Arts skill high enough, you get a 25% chance to
+dodge blows. With this ability, it can get even higher. This is
+a very good ability to combine with the Monk's Unarmored Combat,
+or if you just want the dodge bonus to complement your dodging.
+
+SOUL GUARDIAN
+---------------
+
+1. Soul Power(Active, level 1)
+
+Effect: Draw magical powers from a captured soul.
+Extra points: Offensive damages: +10%.
+		Improve the effect of some other spells.
+
+This ability allow you to use magical powers from a captured
+soul. The spells available are those that the monster was able
+to use, so if you captured a Baby Red Dragon soul, you can use
+the "Breathe Fire" power. The damages done by offensive spells
+vary greatly from monsters to monsters, the damages being
+determined by the depth and hp of a monster. Keep in mind that
+breaths are the strongest attack magics.
+NOTE: For this ability, you can use a soul even if it's charging.
+
+2. Simulacrum(Active, level 1)
+
+Effect: Recreate a creature from a soul.
+Hp: Monster's hp roll * level
+Level: Same as yours
+Number: 1
+Extra points: +1 creature for every 10 points.
+		+2 to level.
+
+This ability allow you to reincarnate a monster from a soul.
+This ability can a very powerful source of friendly
+creatures, as it possesses many advantages over a regular
+summon spell. With many points in it, the level can become
+extremely high, and so can the hp of the creature. Also,
+for every 10 points, you get to summon another creature.
+Also, you can place the creature anywhere you want, so you
+can place it in many strategic spots. However, when you use
+this ability, your soul will need to recharge itself for
+10 turns, so you cannot use this ability immediately after
+with the same soul. You may still use it for abilities that 
+does not require a fully charged soul, such as Soul Power. 
+If you plan on using this ability, make sure you have a high 
+charisma and leadership skill.
+
+3. Soul Bind(Active, level 1)
+
+Effect: Bind a soul to an non-magical item to make it magical.
+Pval: 1
+Extra points: +1 to pval for every 3 points.
+
+By using this ability, you can bind a monster's soul to an
+item, so it will gain new abilities. The abilities gained
+depends on the original abilities of the monster. For
+instance, if you bind the soul of a light resistant monster,
+your item will provide you with light resistance, as well
+as a light source. If the monster was using fire melee
+attacks, a weapon will gain fire brand. If the monster has
+very strong melee attacks, it will enhance your weapons
+base damages. It all depends on which soul you use to create 
+the item. Note that once bound, you will lose the captured
+soul.
+
+4. Sealing Light(Active, level 1)
+
+Effect: Seal monsters actions.
+Radius: 5
+Duration: 10
+Extra points: +1 to duration for every 2 points.
+		+1 to radius for every 20 points.
+		Improved success rate.
+
+This ability allow you to seal actions of a monster by using
+a soul. When using this ability, there will be a test between
+the monster's level and the soul's depth. If you are successful,
+the monster will become completely paralyzed for the duration
+of the ability. When using this ability, the soul will need
+to recharge for 5 turns. Elites, bosses and uniques, while not
+immune, will be harder to seal. Main questors are immune to it.
+
+5. Soul Energize(Active, level 1)
+
+Effect: Recover mana from a soul.
+Amount: Soul's hp / 3.
+Extra points: +10% to mana recovery.
+
+This ability allow you to restore an amount of your mana from
+a soul. If you use a lot of magic spells, this ability can be
+very useful if you run out of mana. You can use it if you use
+a lot of expensive spells, so you will replenish your lost
+mana easily. Note that when using this ability, the soul will
+need to recharge for 15 turns.
+
+6. Soul Guide(Passive, level 1)
+
+Effect: Increase your wisdom and charisma.
+Amount: 2%
+Extra points: +2% to wisdom and charisma.
+
+This passive ability allow you to raise both your wisdom and
+charisma by a fair amount. While you won't gain as much as
+the pure stats enhancing abilities, this one will raise two
+of them by a good amount. This can be useful if you are
+using lots of summoned creatures, and want access to a greater
+amount of skill points.
+
+7. Soul Strike(Active, level 6, combat feat)
+
+Effect: A soul-empowered melee attack that does magic damages.
+Damages: Half normal attack damages(branded weapons are not counted).
+Additional damages: Soul's hp.
+Extra points: +10% to additional damages.
+
+This ability allow you to strike with a melee attack that does
+pure magic damages. When using this ability, you will be asked to
+choose a soul. Once chosen, it will add an amount of damages equal
+to the soul's hp. Soul Guardians are not warriors, and this ability
+is good in that it doesn't require a great weapon skill to be
+useful. So if you have multiple blows and a some points in combat 
+feats skill, it can deal quite a bit of damages.
+
+8. Soul Shield(Active, level 6)
+
+Effect: Gain bonus AC and magic resistance from a soul.
+AC Bonus: Half soul's base AC.
+Magic Resistance: Half of soul's depth.
+Duration: 10
+Extra points: +1 multiplier to AC bonus.
+		+1% of current magic resistance bonus.(max 75%)
+		+1 to duration.
+
+This ability allow you to temporarely protect yourself against
+physical attacks by increasing your AC, and against magical attacks
+by giving you magic resistance. To use it, you will need to select
+a soul you captured. Depending on the soul, the amount of bonus
+you will get will vary. This ability can be very useful, especially
+since Soul Guardians have low hp, it will help reduce the damages
+you receive. Note that when placing extra points, you will not
+gain +1% magic resistance. Instead, the current bonus to magic
+resistance will augment by 1%. This essencially mean that with 100
+points in this ability, you will get twice the magic resistance.
+When using this ability, the soul will need to recharge for as
+long as the duration of the shield.
+
+9. Soul Guard(Passive, level 6)
+
+Effect: Use a soul to prevent great damages.
+Damages prevented: Soul's max hp
+Extra points: +20% to damages prevented.
+
+This ability allow you to prevent an enormous amount of damages
+that might be dealt to you by using a soul. Similar to the Defender's
+Great Guard, this ability can be used to stop any source of damages,
+be it melee attacks, magic/breath attacks, traps or any other
+sources. The more powerful the soul you use, the more you will
+prevent. The soul will need to recharge for 60 turns.
+
+10. Wrath Of Souls(Active, level 10)
+
+Effect: Free a soul to unleash a powerful, destructive chain attack.
+Damages: Soul's max hp.
+Range: 30
+Type: Mana
+Radius: 2
+Extra points: +1 multiplier to damages.
+		+1 to radius for every 30 points.
+
+When using this powerful ability, you will need to sacrifice one of
+your captured souls. This ability can be extremely devastating, but
+the fact that you need to sacrifice a soul can make you hesitate to
+use it often. However, it's very powerful, especially with high
+spellcraft skill, and it's a radius chain attack, making it even
+deadlier. Furthermore, the damages from this ability are NOT returned
+by returning bosses, so that makes it even more useful, as you can
+easily decimate entire hordes of enemies instantly. Use it wisely,
+but if there is a large horde you can't defeat, this ability might
+just be what you need.
+
+SHADOW STALKER
+----------------
+
+1. Stealth Attack(Active, level 1, combat feat)
+
+Effect: When invisible trough a special ability(like Hide in Shadows),
+	  this attack will use your Stealth skill to calculate damages
+	  instead of the regular weapon skills.
+Damages: Normal attack damages(branded weapons are not counted)
+Type: Physical
+Extra points: +1 multiplier to damages.
+
+This ability allow the Shadow Stalker to make a good use of his/her 
+stealth, by using it to calculate damages instead of regular weapon 
+skills. This ability also has the advantage of allowing you to use any 
+weapons with only one skill, which is a great feature. However, note 
+that this ability will do no damages to monsters that have the 
+INVISIBLE ability, so you should still put some points into a weapon 
+skill in case you encounter an invisible enemy. Also note that this 
+ability requires you to use a special ability to become invisible
+(like Hide in Shadows or Shadow Cloak). If you are wearing a ring 
+of invisibility, it will not grant you the power to use 
+Stealth Attack!
+
+2. Displacement(Passive, level 1)
+
+Effect: You appear as a displaced image, and you are difficult to hit.
+Extra points: Increased chance of avoiding blows.
+
+This passive ability allow you to avoid physical blows from enemies.
+This can be very effective, as it allow even a character with mediocre
+AC to have a good chance of avoiding physical blows. Or, you can
+combine this with a very high AC to make you extremely difficult to hit.
+
+3. Shadow Cloak(Active, level 1)
+
+Effect: Become temporarely invisible.
+Invisibility strength: 20
+Duration: 10
+Extra points: +2 to duration.
+		+3 to invisibility strength.
+
+Shadow Cloak gives you temporary invisibility, and allow you to use
+abilities such as Stealth Attack. While the invisibility is better and 
+last longer than the Rogue's Hide in Shadows, Shadow Cloak will not
+give you any bonuses to AC. Take that in consideration before choosing
+to focus in either abilities.
+
+4. Shadow Ball(Active, level 1)
+
+Effect: When invisible, turn the shadows into a ball of darkness.
+Damages: Stealth/level
+Type: Darkness
+Radius: 2
+Extra points: +10% to damages.
+		+1 to radius for every 30 points.
+
+This ability allow you to cast a ball of darkness at your enemies.
+The damages are based entirely on your stealth skill, so if you want
+this ability to be useful, you will need a high stealth skill. Also,
+you need to be under a temporary invisibility spell or ability(such
+as Hide in Shadows or Shadow Cloak) to be able to use this ability.
+
+5. Shadow Run(Passive, level 1)
+
+Effect: Increase your speed when invisible trough a special ability.
+Speed increase: +1
+Extra points: +1 to speed.
+
+This ability allow you to become much faster when using a temporary
+invisibility spell or ability. However, note that while the bonus to
+speed of this ability seems quite high, it will NEVER exceed your
+invisibility's strength. So if you use Shadow Cloak and get an
+invisibility strength of 3, the maximum speed bonus of this ability
+will be 3. Placing some points in this ability will allow you to
+get quite a bit faster, but don't invest too much if your
+invisibility is not powerful.
+
+6. Shadow Phase(Active, level 1)
+
+Effect: Allow you to teleport to an unlit grid.
+Radius: 3
+Hit points loss: 25% of maximum hp.
+Extra points: +1 to radius for every two points.
+
+This ability allow you to teleport to an unlit grid of your choice,
+within the ability's radius. This can be useful to escape dangerous
+situations, but note that the fact that grids must be unlit make
+it a risky ability, in that you never know what's on the grid you
+teleport to. You cannot teleport on walls or monsters, so be aware
+that this ability might not ALWAYS allow you to escape, unless you
+know where you're going. Note that when you use this, you will use
+a portion of your hp, so be careful not to abuse it, and use it
+only if you need it.
+
+7. Dark Mist(Active, level 6)
+
+Effect: Cover an area with a dark mist, making it harder for enemies
+	to see and hit you, and making it easier for you to hit them.
+Hit Rate penality: -25%
+Defense penality: -25%
+Chance of erratical move: 25%
+Radius: 1
+Extra points: +1 to radius for every five points.
+		+1% hit rate/defense penality for every two points.
+		+1% chance of erratical move.
+
+This ability will create fields of dark mist. Enemies in the mist
+will suffer from reduced hit rate and defense, and will move
+erraticaly. If you have trouble hitting enemies, avoiding blows
+or you simply want to confuse their ranks, this ability can be
+very useful. Elites, bosses and uniques will not suffer from 
+the erriatical moves, but will still be affected by the mist's 
+penalities.
+
+8. One With Shadows(Passive, level 6)
+
+Effect: Become extremely agile, dextrous and receive bonus AC
+	when invisible trough a special ability.
+Bonus to agility skill: Stealth / 4
+Bonus to dexterity: Stealth / 4
+Bonus to AC: Stealth
+Extra points: +10% to bonuses.
+
+This passive ability will give you bonuses to agility, dexterity
+and AC based on your Stealth skill when invisible trough a special
+ability(such as Shadow Cloak or Hide in Shadows). This will make
+you much more competent in combat, and if you wear a good armor,
+combined with the AC bonus, it might give you a very good AC due
+to the agility skill bonus.
+
+9. Shadow Magic(Passive, level 6)
+
+Effect: When you become invisible trough a special ability, gain
+	a mana bonus based on your stealth skill, that may exceed
+	your maximum mana.
+Mana bonus: Stealth
+Extra points: +10% to mana bonus.
+
+This passive ability will give you bonus mana when you become
+invisible trough an ability, such as Shadow Cloak. This allow
+you to potentially gain quite a good amount of mana without
+raising your intelligence stat. When you become invisible,
+you will immediatly gain the mana, and it can become higher
+than your maximum mana. Note that once the invisibility ends,
+your mana will return to it's maximum amount if it became
+higher due to this ability.
+
+10. Storm Of Shadow Edges(Active, level 10)
+
+Effect: When invisible trough a special ability, attack within
+	a short distance over a small radius.
+Damages: Half normal weapon damages.
+Range: 3
+Radius: 1
+Type: Darkness
+Extra points: +1 multiplier to damages for every 3 points.
+
+This ability allow you to select a point on the map. From this
+point, a radius 1 darkness attack will occur, based on your
+base weapon damages. This can not only be very powerful, but
+it's also useful to defeat enemies immune to melee weapons.
+Note that the weapon damages use regular weapon skills, and
+not your stealth skill.

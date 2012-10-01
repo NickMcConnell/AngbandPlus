@@ -2511,20 +2511,6 @@ static void process_ghost_race(int ghost_race, int r_idx)
                         r_ptr->flags3 |= RF3_HURT_LITE;
                         break;
                 }
-                case RACE_SPECTRE:
-                {
-                        r_ptr->flags3 |= RF3_RES_NETH;
-                        r_ptr->flags3 |= RF3_IM_POIS;
-                        r_ptr->flags3 |= RF3_IM_COLD;
-                        r_ptr->flags2 |= RF2_INVISIBLE;
-                        r_ptr->flags2 |= RF2_PASS_WALL;
-                        break;
-                }
-                case RACE_RKNIGHT:
-                {
-                        r_ptr->speed += 10;
-                        break;
-                }
                 case RACE_ENT:
                 {
                         r_ptr->flags3 |= RF3_SUSCEP_FIRE;
@@ -2532,18 +2518,6 @@ static void process_ghost_race(int ghost_race, int r_idx)
 
 			for (n = 0; n < 4; n++)
                                 r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 3;
-                        break;
-                }
-                case RACE_DRAGONRIDER:
-                {
-                        r_ptr->flags3 |= RF3_DRAGONRIDER;
-                        r_ptr->flags3 |= RF3_IM_ACID;
-                        r_ptr->flags3 |= RF3_IM_ELEC;
-                        r_ptr->flags3 |= RF3_IM_FIRE;
-                        r_ptr->flags3 |= RF3_IM_COLD;
-                        r_ptr->flags3 |= RF3_IM_POIS;
-
-                        r_ptr->flags4 |= RF4_BR_FIRE;
                         break;
                 }
 	}
@@ -2562,7 +2536,6 @@ static void process_ghost_class(int ghost_class, int r_idx)
 	{
 		/* Warrior */
 		case 0:
-                case CLASS_MIMIC:
 		{
 			if (r_ptr->freq_spell <= 10) r_ptr->freq_spell = 5;
 			else r_ptr->freq_spell -= 5;
@@ -2583,46 +2556,10 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 			break;
 		}
-                /* Beastmaster */
-                case CLASS_BEASTMASTER:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-			r_ptr->hdice = 5 * r_ptr->hdice / 4;
-                        r_ptr->ac += r_ptr->level / 10;
-
-			for (n = 0; n < 4; n++)
-			{
-				if (r_ptr->blow[n].effect != RBE_HURT)
-				{
-					r_ptr->blow[n].effect = RBE_HURT;
-
-					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
-					break;
-				}
-			}
-
-                        r_ptr->flags6 |= RF6_S_MONSTER;
-                        r_ptr->flags6 |= RF6_S_MONSTERS;
-                        r_ptr->flags6 |= RF6_S_ANT;
-                        r_ptr->flags6 |= RF6_S_SPIDER;
-                        r_ptr->flags6 |= RF6_S_RNG;
-                        r_ptr->flags6 |= RF6_S_CYBER;
-                        r_ptr->flags6 |= RF6_S_HOUND;
-                        r_ptr->flags6 |= RF6_S_WRAITH;
-                        r_ptr->flags6 |= RF6_S_DRAGON;
-                        r_ptr->flags6 |= RF6_S_HI_DRAGON;
-
-			break;
-		}
 		/* Mage */
 		case 1:
                 case CLASS_ALCHEMIST:
                 case CLASS_HIGH_MAGE:
-                case CLASS_POWERMAGE:
-                case CLASS_RUNECRAFTER:
-                case CLASS_HARPER:
                 case CLASS_POSSESSOR:
 		{
 			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
@@ -2653,7 +2590,6 @@ static void process_ghost_class(int ghost_class, int r_idx)
 		}
 		/* Priest */
 		case 2:
-                case CLASS_MINDCRAFTER:
 		{
 			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
 			else r_ptr->freq_spell += 5;
@@ -2747,7 +2683,6 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 			break;
 		}
-                case CLASS_LICH:
                 case CLASS_SORCERER:
                 case CLASS_HELLQUEEN:
 		{
@@ -2803,20 +2738,6 @@ static void process_ghost_class(int ghost_class, int r_idx)
                         if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
                         if (r_ptr->level > 40) r_ptr->speed += 5;
                         if (r_ptr->speed > 150) r_ptr->speed = 150;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
-			break;
-		}
-		/* Mage */
-                case CLASS_CHAOS_WARRIOR:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        if (r_ptr->level >= 50) r_ptr->flags4 |= (RF4_BA_CHAO);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
 
 			r_ptr->flags6 |= (RF6_BLINK);
                         if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
@@ -3290,13 +3211,19 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
+                { TV_SOFT_ARMOR, 1 },
+                { TV_SOFT_ARMOR, 1 },
 
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_DIGGING, SV_SHOVEL }
+                { TV_DIGGING, SV_SHOVEL },
+
+                { TV_SOFT_ARMOR, 17 },
+                { TV_SOFT_ARMOR, 17 },
+                { TV_BOOTS, 14 },
+                { TV_BOOTS, 14 }
+
 	},
 
 	{
@@ -3372,8 +3299,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* Weaponsmith */
 
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
+                { TV_DAGGER, 2 },
+                { TV_DAGGER, 2 },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
 
@@ -3393,12 +3320,12 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_TRIDENT },
 
 		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_BEAKED_AXE },
-		{ TV_POLEARM, SV_BROAD_AXE },
+                { TV_AXE, 1 },
+                { TV_AXE, 5 },
 		{ TV_POLEARM, SV_LANCE },
 
-		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_POLEARM, SV_HATCHET },
+                { TV_AXE, 3 },
+                { TV_AXE, 5 },
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SHORT_BOW },
 
@@ -3420,7 +3347,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOW, SV_SHORT_BOW },
-		{ TV_SWORD, SV_DAGGER },
+                { TV_DAGGER, 2 },
 
 		{ TV_SWORD, SV_TANTO },
 		{ TV_SWORD, SV_RAPIER },
@@ -3432,8 +3359,11 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_LONG_SWORD },
                 { TV_SWORD, SV_SCIMITAR },
 
-                { TV_SWORD, SV_TIN_SWORD }
-	},
+                { TV_SWORD, SV_TIN_SWORD },
+                { TV_AXE, 6 },
+                { TV_AXE, 6 },
+                { TV_AXE, 1 }
+        },
 
 	{
 		/* Temple */
@@ -3450,8 +3380,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_BLESSING },
-		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
+                { TV_POTION, SV_POTION_CURE_LIGHT },
+                { TV_POTION, SV_POTION_CURE_LIGHT },
 
 		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
@@ -3468,15 +3398,15 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-                { TV_VALARIN_BOOK, 0 },
-                { TV_VALARIN_BOOK, 0 },
-                { TV_VALARIN_BOOK, 1 },
-                { TV_VALARIN_BOOK, 1 },
+                { TV_BOOK_HEALING, 0 },
+                { TV_BOOK_HEALING, 0 },
+                { TV_BOOK_HEALING, 0 },
+                { TV_BOOK_HEALING, 0 },
 
-                { TV_VALARIN_BOOK, 2 },
-                { TV_VALARIN_BOOK, 2 },
-                { TV_VALARIN_BOOK, 3 },
-                { TV_VALARIN_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_MACE },
@@ -3498,15 +3428,15 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
                 { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-                { TV_PRAYER_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
         },
 
 	{
@@ -3572,13 +3502,11 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
                 { TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
 
-                { TV_POTION, SV_POTION_INC_STR },
-                { TV_POTION, SV_POTION_INC_DEX },
-                { TV_POTION, SV_POTION_INC_INT },
-                { TV_POTION, SV_POTION_INC_WIS },
+                { TV_SCROLL, SV_SCROLL_REPAIR },
+                { TV_SCROLL, SV_SCROLL_REPAIR },
+		{ TV_SCROLL, SV_SCROLL_BLESSING },
+                { TV_SCROLL, SV_SCROLL_HOLY_CHANT }
 
-                { TV_POTION, SV_POTION_INC_CON },
-                { TV_POTION, SV_POTION_INC_CHR }
 
 	},
 
@@ -3625,25 +3553,20 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_ROD, SV_ROD_POWER },
                 { TV_CRYSTAL, SV_CRYSTAL_MISSILE },
 
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_REMOVE_CURSE },
-		{ TV_STAFF, SV_STAFF_CURE_LIGHT },
-		{ TV_STAFF, SV_STAFF_PROBING },
+                { TV_BOOK_ELEMENTAL, 0 },
+                { TV_BOOK_ELEMENTAL, 0 },
+                { TV_BOOK_ELEMENTAL, 0 },
+                { TV_BOOK_ELEMENTAL, 0 },
 
-                { TV_MAGERY_BOOK, 0 },
-                { TV_MAGERY_BOOK, 1 },
-                { TV_MAGERY_BOOK, 2 },
-                { TV_MAGERY_BOOK, 3 },
+                { TV_BOOK_ELEMENTAL, 1 },
+                { TV_BOOK_ELEMENTAL, 1 },
+                { TV_BOOK_ELEMENTAL, 2 },
+                { TV_BOOK_ELEMENTAL, 2 },
 
-		{ TV_MAGIC_BOOK, 0 },
-                { TV_MAGIC_BOOK, 1 },
-                { TV_MAGIC_BOOK, 2 },
-                { TV_MAGIC_BOOK, 3 },
-
-                { TV_ILLUSION_BOOK, 0 },
-                { TV_ILLUSION_BOOK, 1 },
-                { TV_ILLUSION_BOOK, 2 },
-                { TV_ILLUSION_BOOK, 3 },
+                { TV_BOOK_ELEMENTAL, 3 },
+                { TV_BOOK_ELEMENTAL, 3 },
+                { TV_BOOK_ELEMENTAL, 4 },
+                { TV_BOOK_ELEMENTAL, 4 },
 
                 { TV_AMULET, SV_AMULET_INTELLIGENCE },
                 { TV_AMULET, SV_AMULET_WISDOM },
@@ -3654,6 +3577,11 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_AMULET, SV_AMULET_LITE },
                 { TV_AMULET, SV_AMULET_HOLD_LIFE },
                 { TV_AMULET, SV_AMULET_LITE },
+
+                { TV_BOOK_ELEMENTAL, 5 },
+                { TV_BOOK_ELEMENTAL, 5 },
+                { TV_BOOK_CONJURATION, 0 },
+                { TV_BOOK_CONJURATION, 0 }
 
 	},
 
@@ -3731,57 +3659,57 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 	{
 		/* Bookstore */
-                { TV_MAGERY_BOOK, 0 },
-                { TV_MAGERY_BOOK, 1 },
-                { TV_MAGERY_BOOK, 2 },
-                { TV_MAGERY_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_SHADOW_BOOK, 0 },
-                { TV_SHADOW_BOOK, 1 },
-                { TV_SHADOW_BOOK, 2 },
-                { TV_SHADOW_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-		{ TV_CHAOS_BOOK, 0 },
-                { TV_CHAOS_BOOK, 1 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_TRIBAL_BOOK, 0 },
-                { TV_TRIBAL_BOOK, 1 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_NETHER_BOOK, 0 },
-                { TV_NETHER_BOOK, 1 },
-                { TV_NETHER_BOOK, 2 },
-                { TV_NETHER_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_CRUSADE_BOOK, 0 },           /* +16 */
-                { TV_CRUSADE_BOOK, 1 },
+                { 0, 0 },           /* +16 */
+                { 0, 0 },
 
-                { TV_DRUID_BOOK, 0 },
-                { TV_DRUID_BOOK, 1 },
-                { TV_DRUID_BOOK, 2 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_SIGALDRY_BOOK, 0 },
-                { TV_SIGALDRY_BOOK, 0 },
-                { TV_SIGALDRY_BOOK, 1 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_ILLUSION_BOOK, 0 },
-                { TV_ILLUSION_BOOK, 1 },
-                { TV_ILLUSION_BOOK, 2 },
-                { TV_ILLUSION_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_VALARIN_BOOK, 0 },
-                { TV_VALARIN_BOOK, 1 },
-                { TV_VALARIN_BOOK, 2 },
-                { TV_VALARIN_BOOK, 3 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_MUSIC_BOOK, 0 },
-                { TV_MUSIC_BOOK, 0 },
-                { TV_MUSIC_BOOK, 1 },
-                { TV_MUSIC_BOOK, 1 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
-                { TV_SYMBIOTIC_BOOK, 0 },
-                { TV_SYMBIOTIC_BOOK, 0 },
-                { TV_BATTLE_BOOK, 0 },
-                { TV_BATTLE_BOOK, 1 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 
         },
 
@@ -3830,14 +3758,14 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
                 /* Rare Items Shop */
 
-                { TV_RING, SV_RING_PRECONITION },
+                { TV_BOOK_CONJURATION, 10 },
                 { TV_RING, SV_RING_WRAITH },
                 { TV_RING, SV_RING_SPEED },
                 { TV_RING, SV_RING_LORDLY },
 
-                { TV_AMULET, SV_AMULET_RESISTANCE },
+                { TV_SCROLL, 57 },
                 { TV_AMULET, SV_AMULET_REFLECTION },
-                { TV_AMULET, SV_AMULET_NO_TELE },
+                { TV_SCROLL, SV_SCROLL_ETERNALITY },
                 { TV_RING, SV_RING_ATTACKS },
 
                 { TV_DRAG_ARMOR, SV_DRAGON_GOLD },
@@ -3845,32 +3773,75 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
                 { TV_DRAG_ARMOR, SV_DRAGON_BALANCE },
                 { TV_DRAG_ARMOR, SV_DRAGON_POWER },
 
-                { TV_SCROLL, SV_SCROLL_ARTIFACT },
-                { TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT },
-                { TV_SCROLL, SV_SCROLL_INCARNATION },
-                { TV_SCROLL, SV_SCROLL_DEINCARNATION },
+                { TV_SCROLL, 57 },
+                { TV_SCROLL, 57 },
+                { TV_BOOK_ALTERATION, 2 },
+                { TV_BOOK_ALTERATION, 14 },
 
-                { TV_WAND, SV_WAND_DUNGEON_GENERATION },
+                { TV_BOOK_ALTERATION, 15 },
                 { TV_RING, SV_RING_SAFETY },
-                { TV_WAND, SV_WAND_ROCKETS },
-                { TV_WAND, SV_WAND_WALL_CREATION },
+                { TV_SCROLL, 57 },
+                { TV_BOOK_ALTERATION, 16 },
 
                 { TV_STAFF, SV_STAFF_WISHING },
-                { TV_STAFF, SV_STAFF_POWER },
+                { TV_BOOK_ALTERATION, 17 },
                 { TV_HELM, SV_DRAGON_HELM },
                 { TV_SHIELD, SV_DRAGON_SHIELD },
 
-                { TV_BATTLE_BOOK, 2 },
-                { TV_BATTLE_BOOK, 3 },
-                { TV_HARD_ARMOR, HELLQUEEN_PLATE },
-                { TV_HELM, SV_VALKYRIAN_HELM },
+                { TV_BOOK_ALTERATION, 18 },
+                { TV_BOOK_ALTERATION, 19 },
+                { TV_HARD_ARMOR, 33 },
+                { TV_SCROLL, 57 },
 
                 { TV_POTION, SV_POTION_SEX_CHANGING },
                 { TV_POTION, SV_POTION_SEX_CHANGING },
                 { TV_POTION, SV_POTION_SEX_CHANGING },
-                { TV_HELL_STAFF, 1 },
+                { TV_BOOK_HEALING, 6 },
 
 
+	},
+	{
+                /* Rods/Crystals shop */
+
+                { TV_ROD, SV_ROD_BEAM },
+                { TV_ROD, SV_ROD_BEAM },
+                { TV_ROD, SV_ROD_BEAM },
+                { TV_ROD, SV_ROD_BALL },
+
+                { TV_ROD, SV_ROD_BALL },
+                { TV_ROD, SV_ROD_BALL },
+                { TV_ROD, SV_ROD_POWER },
+                { TV_ROD, SV_ROD_POWER },
+
+                { TV_ROD, SV_ROD_POWER },
+                { TV_CRYSTAL, SV_CRYSTAL_MISSILE },
+                { TV_CRYSTAL, SV_CRYSTAL_MISSILE },
+                { TV_CRYSTAL, SV_CRYSTAL_MISSILE },
+
+                { TV_CRYSTAL, SV_CRYSTAL_FIRE },
+                { TV_CRYSTAL, SV_CRYSTAL_FIRE },
+                { TV_CRYSTAL, SV_CRYSTAL_COLD },
+                { TV_CRYSTAL, SV_CRYSTAL_COLD },
+
+                { TV_CRYSTAL, SV_CRYSTAL_ELEC },
+                { TV_CRYSTAL, SV_CRYSTAL_ELEC },
+                { TV_CRYSTAL, SV_CRYSTAL_ENERGY },
+                { TV_CRYSTAL, SV_CRYSTAL_ENERGY },
+
+                { TV_CRYSTAL, SV_CRYSTAL_PHASING },
+                { TV_CRYSTAL, SV_CRYSTAL_PHASING },
+                { TV_SCROLL, 58 },
+                { TV_SCROLL, 58 },
+
+                { TV_SCROLL, 58 },
+                { TV_SCROLL, 58 },
+                { 0, 0 },
+                { 0, 0 },
+
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
+                { 0, 0 },
 	},
 
 };

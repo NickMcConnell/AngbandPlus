@@ -1,0 +1,64 @@
+HUNTING WEAPONS
+---------------
+
+Written by Shayla The Huntress
+
+As a hunter, I generally like to use weapons that allow me
+to strike down my preys from a safe distance. There are
+various of those weapons, and you can easily create them
+if you have some skill in the art of weapon crafting. They
+are simple and very effective!
+
+SPEAR
+Component type: Crafting
+Skills required: Crafting(2)
+How to create: Iron Spike + Wood Pole
+
+The spear, a great weapon for hunting! Allow you to trust
+your foes from a short distance, so you can easily finish
+them off in close combat afterwards. Unlike most polearms,
+the simple spear is one-handed, and can be used with some
+sort of shield.
+
+FINE STEEL SPEAR
+Component type: Crafting
+Skills required: Crafting(5)
+How to create: Spear + Steel Ore
+
+Steel is a fine metal, and I found a way to combine the
+simple one-handed spear into this fine piece of crafting.
+Much better than the common spear, and still one-handed,
+this weapon is my favorite of all!
+
+This is for the melee weapons I use. Now, of course, I am
+trained with ranged weapons. Here's how you can create
+them in a most simple way:
+
+SHORT BOW
+Component type: Crafting
+Skills required: Crafting(1)
+How to create: Wooden Parts + Rope
+
+The most basic bow you could ever create. A simple bow,
+with fairly good range, good for anyone who starts learning
+how to shoot. You may wish to upgrade to the long bow
+though...
+
+LONG BOW
+Component type: Crafting
+Skills required: Crafting(5)
+How to create: Short Bow + Short Bow
+
+You just made two nice short bows. Now, unmake them, and
+use their combined parts to make one, bigger bow. You get
+the long bow! Fires faster, stronger and better! Any
+serious marksman should get this!
+
+SLING
+Component type: Crafting
+Skills required: Crafting(0)
+How to create: Leather + Rope
+
+The sling is not the best ranged weapon, but some hunters
+like it. I guess it has it's uses to one skilled with such
+a weapon... It can also be used as a toy for kids!

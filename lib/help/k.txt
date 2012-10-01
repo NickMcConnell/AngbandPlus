@@ -1,0 +1,22 @@
+BARBARIAN
+-----------
+
+Barbarians are the hardy men from the north. Barbarians
+are wild, strong and tough. Their combat skills are
+amazing, and they are able to fight with any melee
+weapons, and their throwing skill is also very good.
+As great, ferocious warriors, they are fearless, but
+their magic skill leave much to be desired, as they
+completely shun magic.
+
+ADVANTAGES: +20% to Strength
+            +20% to Constitution
+            +20% to Swords, Hafted, Polearms, Axes and Throwing
+            skills.
+            Innate resistance to fear
+
+DISADVANTAGES: -25% to Intelligence
+               -25% to Wisdom
+	       -50% to Spellcraft and Rod skills.
+
+

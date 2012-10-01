@@ -55,7 +55,7 @@ OBJS =
   store.o birth.o load2.o notes.o 
   wizard1.o wizard2.o levels.o 
   generate.o dungeon.o init1.o init2.o 
-  bldg.o 
+  bldg.o learn.o mongen.o
   main-cap.o main-gcu.o main-x11.o main-xaw.o main-ibm.o main.o
 
 
@@ -285,6 +285,8 @@ wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
 levels.o: levels.c $(INCS)
+learn.o: levels.c $(INCS)
+mongen.o: levels.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
 z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h

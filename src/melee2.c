@@ -234,7 +234,7 @@ static void get_enemy_dir(monster_type *m_ptr, int *mm)
 * Hack, based on mon_take_hit... perhaps all monster attacks on
 * other monsters should use this?
 */
-static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
+static void mon_take_hit_mon(int m_idx, s32b dam, bool *fear, cptr note)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
 	
@@ -256,6 +256,7 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	if (m_ptr->hp < 0)
         {
                 /* ((r_ptr->flags1 & RF1_UNIQUE)) */
+                /* Useless part of code... It's here for HUGE HUGE HUGE historical reasons! ;) */
                 if (tempint == 0)
 		{
                         m_ptr->hp = -1;
@@ -306,7 +307,6 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			}
 
 #ifdef PET_GAIN_EXP
-                if(p_ptr->pclass == CLASS_BEASTMASTER || p_ptr->pclass == CLASS_LEADER || p_ptr->pclass == CLASS_COMMANDER)
                 {
 		/* Maximum player level */
 		div = p_ptr->max_plv;
@@ -329,8 +329,17 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			p_ptr->exp_frac = new_exp_frac;
 		}
 
+                /* New for 1.5.0...*/
+                new_exp = new_exp / 10;
+
+                /* Friends are worth no experience! */
+                if (is_pet(m_ptr))
+                {
+                        new_exp = 0;
+                }
+
 		/* Gain experience */
-                gain_exp(new_exp);
+                gain_exp_kill(new_exp, m_ptr);
                 }
 #endif
 			
@@ -821,12 +830,112 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
  * Stop if we hit a monster
  * Affect monsters and the player
  */
-static void bolt(int m_idx, int typ, int dam_hp)
+static void bolt(int m_idx, int typ, s32b dam_hp)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
+        bool absorb = FALSE;
+        monster_type *m_ptr = &m_list[m_idx];
+        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+        no_magic_return = TRUE;
+        dam_hp += ((dam_hp * ((m_ptr->level - 1) * 3)) / 100);
+        if (m_ptr->abilities & (CURSE_HALVE_MAGIC)) dam_hp -= dam_hp / 2;
+        else if (m_ptr->abilities & (CURSE_LOWER_MAGIC)) dam_hp -= dam_hp / 4;
+        if (p_ptr->prace == RACE_SKELETON) dam_hp = dam_hp / 10;
+
+        /* Can you block magic attacks? */
+        if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 4] >= 1 && shield_has())
+        {
+                int blockchance;
+                object_type *o_ptr = &inventory[INVEN_ARM];
+
+                blockchance = ((o_ptr->sval * 10) / 2);
+                blockchance += (o_ptr->pval * 2);
+                if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += p_ptr->abilities[(CLASS_DEFENDER * 10) + 3];
+                if (blockchance > 75) blockchance = 75;
+                if (randint(100) < blockchance)
+                {
+                        msg_print("You block the magic attack!");
+                        dam_hp -= (p_ptr->abilities[(CLASS_DEFENDER * 10) + 4] * 75);
+                        if (dam_hp < 0) dam_hp = 0;
+                }
+        }
+        /* Justice Warrior's protection from evil! :) */
+        if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
+        {
+                int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
+                if (reduction > 75) reduction = 75;
+                dam_hp -= ((dam_hp * reduction) / 100);
+                dam_hp -= p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5;
+        }
+
+        /* Magic resistance! :) */
+        if (p_ptr->mres_dur > 0)
+        {
+                s32b damfract;
+                damfract = (dam_hp * p_ptr->mres) / 100;
+                dam_hp -= damfract;
+        }
+        /* Paldin's Resist Impure! :) */
+        if ((typ == GF_POIS || typ == GF_NUKE || typ == GF_DARK || typ == GF_NETHER || typ == GF_CHAOS) && p_ptr->abilities[(CLASS_PALADIN * 10) + 5] >= 1)
+        {
+                s32b damfract;
+                damfract = (dam_hp * ((p_ptr->abilities[(CLASS_PALADIN * 10) + 5] * 2) + 25)) / 100;
+                dam_hp -= damfract;
+                if (dam_hp < 0)
+                {
+                        dam_hp *= -1;
+                        p_ptr->chp += dam_hp;
+                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+                        update_and_handle();
+                }
+        }
+        /* Elemental Lord's Shield Of Element! */
+        if (p_ptr->elem_shield > 0 && typ == p_ptr->elemlord)
+        {
+                dam_hp = 0;
+        }
+
+
+        /* Absorb the mana! :) */
+        if (p_ptr->abilities[(CLASS_MAGE * 10) + 3] >= 1)
+        {
+                s32b damfract;
+                damfract = (dam_hp * (p_ptr->abilities[(CLASS_MAGE * 10) + 3] * 10)) / 100;
+                p_ptr->csp += damfract;
+                if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+                update_and_handle();
+        }
+        /* Absorb the hp! :) */
+        if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8] >= 1)
+        {
+                int chance;
+                chance = p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8];
+                if (typ == p_ptr->elemlord) chance *= 5;
+                if (randint(100) <= chance)
+                {
+                        msg_print("You absorb the energy!");
+                        p_ptr->chp += dam_hp;
+                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+                        absorb = TRUE;
+                        update_and_handle();
+                }
+        }
+
 	
 	/* Target the player with a bolt attack */
-	(void)project(m_idx, 0, py, px, dam_hp, typ, flg);
+        if (absorb != TRUE) (void)project(m_idx, 0, py, px, dam_hp, typ, flg);
+
+        /* Haha..now, let's return the damages!! */
+        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2] >= 1)
+        {
+                flg = PROJECT_GRID | PROJECT_KILL;
+                msg_print("You return the damages!");
+                no_magic_return = TRUE;
+                (void)project(0, 0, m_ptr->fy, m_ptr->fx, (dam_hp * p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2]), GF_MANA, flg);
+                no_magic_return = FALSE;
+        }
+        no_magic_return = FALSE;
 }
 
 
@@ -1019,7 +1128,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	}
 	
 	/* Still hurt badly, couldn't flee, attempt to heal */
-	if (m_ptr->hp < m_ptr->maxhp / 3)
+        if ((m_ptr->hp < m_ptr->maxhp / 3) || m_ptr->r_idx == 1125)
 	{
 		/* Choose heal spell if possible */
 		if (heal_num) return (heal[rand_int(heal_num)]);
@@ -1084,19 +1193,119 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
  * Pass over any monsters that may be in the way
  * Affect grids, objects, monsters, and the player
  */
-static void breath(int m_idx, int typ, int dam_hp, int rad)
+static void breath(int m_idx, int typ, s32b dam_hp, int rad)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	
+        bool absorb = FALSE;
+
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	
+
+        no_magic_return = TRUE;
 	/* Determine the radius of the blast */
 	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
-        if (m_ptr->r_idx == 1030 || m_ptr->r_idx == 1089) dam_hp += 5000;
-	
+        dam_hp += ((dam_hp * ((m_ptr->level - 1) * 3)) / 100);
+        if (m_ptr->r_idx == 982) dam_hp += 1000;
+        if (m_ptr->r_idx == 1030) dam_hp += 5000;
+        /* Lower Magic curse... */
+        if (m_ptr->abilities & (CURSE_HALVE_MAGIC)) dam_hp -= dam_hp / 2;
+        else if (m_ptr->abilities & (CURSE_LOWER_MAGIC)) dam_hp -= dam_hp / 4;
+        if (p_ptr->prace == RACE_SKELETON) dam_hp = dam_hp / 10;
+
+        /* Can you block magic attacks? */
+        if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 4] >= 1 && shield_has())
+        {
+                int blockchance;
+                object_type *o_ptr = &inventory[INVEN_ARM];
+
+                blockchance = ((o_ptr->sval * 10) / 2);
+                blockchance += (o_ptr->pval * 2);
+                if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) blockchance += p_ptr->abilities[(CLASS_DEFENDER * 10) + 3];
+                if (blockchance > 75) blockchance = 75;
+                if (randint(100) < blockchance)
+                {
+                        msg_print("You block the magic attack!");
+                        dam_hp -= (p_ptr->abilities[(CLASS_DEFENDER * 10) + 4] * 75);
+                        if (dam_hp < 0) dam_hp = 0;
+                }
+        }
+
+        /* Justice Warrior's protection from evil! :) */
+        if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
+        {
+                int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
+                if (reduction > 75) reduction = 75;
+                dam_hp -= ((dam_hp * reduction) / 100);
+                dam_hp -= p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5;
+        }
+
+        /* Magic resistance! :) */
+        if (p_ptr->mres_dur > 0)
+        {
+                s32b damfract;
+                damfract = (dam_hp * p_ptr->mres) / 100;
+                dam_hp -= damfract;
+        }
+        /* Paldin's Resist Impure! :) */
+        if ((typ == GF_POIS || typ == GF_NUKE || typ == GF_DARK || typ == GF_NETHER || typ == GF_CHAOS) && p_ptr->abilities[(CLASS_PALADIN * 10) + 5] >= 1)
+        {
+                s32b damfract;
+                damfract = (dam_hp * ((p_ptr->abilities[(CLASS_PALADIN * 10) + 5] * 2) + 25)) / 100;
+                dam_hp -= damfract;
+                if (dam_hp < 0)
+                {
+                        dam_hp *= -1;
+                        p_ptr->chp += dam_hp;
+                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+                        update_and_handle();
+                }
+        }
+        /* Elemental Lord's Shield Of Element! */
+        if (p_ptr->elem_shield > 0 && typ == p_ptr->elemlord)
+        {
+                dam_hp = 0;
+        }
+
+
+        /* Absorb the mana! :) */
+        if (p_ptr->abilities[(CLASS_MAGE * 10) + 3] >= 1)
+        {
+                s32b damfract;
+                damfract = (dam_hp * (p_ptr->abilities[(CLASS_MAGE * 10) + 3] * 10)) / 100;
+                p_ptr->csp += damfract;
+                if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+                update_and_handle();
+        }
+        /* Absorb the hp! :) */
+        if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8] >= 1)
+        {
+                int chance;
+                chance = p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8];
+                if (typ == p_ptr->elemlord) chance *= 5;
+                if (randint(100) <= chance)
+                {
+                        msg_print("You absorb the energy!");
+                        p_ptr->chp += dam_hp;
+                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+                        absorb = TRUE;
+                        update_and_handle();
+                }
+        }
+
 	/* Target the player with a ball attack */
-	(void)project(m_idx, rad, py, px, dam_hp, typ, flg);
+        if (absorb != TRUE) (void)project(m_idx, 0, py, px, dam_hp, typ, flg);
+
+        /* Haha..now, let's return the damages!! */
+        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2] >= 1)
+        {
+                flg = PROJECT_GRID | PROJECT_KILL;
+                msg_print("You return the damages!");
+                no_magic_return = TRUE;
+                (void)project(0, 0, m_ptr->fy, m_ptr->fx, (dam_hp * p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 2]), GF_MANA, flg);
+                no_magic_return = FALSE;
+        }
+
+        no_magic_return = FALSE;
 }
 
 
@@ -1105,17 +1314,29 @@ static void breath(int m_idx, int typ, int dam_hp, int rad)
  * Pass over any monsters that may be in the way
  * Affect grids, objects, monsters, and the player
  */
-static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int rad)
+static void monst_breath_monst(int m_idx, int y, int x, int typ, s32b dam_hp, int rad)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 	
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	
+
+        no_magic_return = TRUE;
 	/* Determine the radius of the blast */
 	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+
+        if (is_pet(m_ptr))
+        {
+                int x;
+                for (x = 0; x <= p_ptr->skill_leadership; x++)
+                {
+                        dam_hp += dam_hp / 75;                
+                }
+                dam_hp *= p_ptr->lmultiplier;
+        }
 	
 	(void)project(m_idx, rad, y, x, dam_hp, typ, flg);
+        no_magic_return = FALSE;
 }
 
 
@@ -1124,11 +1345,25 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
  * Stop if we hit a monster
  * Affect monsters and the player
  */
-static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
+static void monst_bolt_monst(int m_idx, int y, int x, int typ, s32b dam_hp)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
+
+        monster_type *m_ptr = &m_list[m_idx];
+
+        no_magic_return = TRUE;
+        if (is_pet(m_ptr))
+        {
+                int x;
+                for (x = 0; x <= p_ptr->skill_leadership; x++)
+                {
+                        dam_hp += dam_hp / 75;                
+                }
+                dam_hp *= p_ptr->lmultiplier;
+        }
 	
 	(void)project(m_idx, 0, y, x, dam_hp, typ, flg);
+        no_magic_return = FALSE;
 }
 
 
@@ -1316,7 +1551,7 @@ static bool monst_spell_monst(int m_idx)
 				else if (blind) msg_format("%^s shoots something.", m_name);
 				else msg_format("%^s fires a rocket at %s.", m_name, t_name);
 				monst_breath_monst(m_idx, y, x, GF_ROCKET,
-					((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4)), 2);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2), 2);
 				break;
 			}
 			
@@ -1378,7 +1613,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes acid at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_ACID,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1391,7 +1626,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes lightning at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_ELEC,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1404,7 +1639,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes fire at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_FIRE,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1417,7 +1652,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes frost at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_COLD,
-					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1430,7 +1665,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes gas at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_POIS,
-					((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1443,7 +1678,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes nether at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_NETHER,
-					((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1456,7 +1691,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes light at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_LITE,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1469,7 +1704,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes darkness at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_DARK,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1482,7 +1717,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes confusion at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_CONFUSION,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1495,7 +1730,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes sound at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_SOUND,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1508,7 +1743,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes chaos at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_CHAOS,
-					((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1521,7 +1756,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes disenchantment at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_DISENCHANT,
-					((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1534,7 +1769,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes nexus at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_NEXUS,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1547,7 +1782,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes time at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_TIME,
-					((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1560,7 +1795,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes inertia at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_INERTIA,
-					((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1573,7 +1808,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes gravity at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_GRAVITY,
-					((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1586,7 +1821,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes shards at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_SHARDS,
-					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1599,7 +1834,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes plasma at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_PLASMA,
-					((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1612,7 +1847,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes force at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_FORCE,
-					((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1625,7 +1860,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes magical energy at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_MANA,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1638,7 +1873,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s casts a ball of radiation at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_NUKE,
-					(rlev + damroll(10, 6)), 2);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2), 2);
 				break;
 			}
 			
@@ -1651,7 +1886,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes toxic waste at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_NUKE,
-					((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1664,7 +1899,7 @@ static bool monst_spell_monst(int m_idx)
                                 else msg_format("%^s invokes a raw Chaos upon %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_CHAOS,
-					(rlev * 2) + damroll(10, 10), 4);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2), 4);
 				break;
 			}
 			
@@ -1677,7 +1912,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s breathes disintegration at %s.", m_name, t_name);
 				sound(SOUND_BREATH);
 				monst_breath_monst(m_idx, y, x, GF_DISINTEGRATE,
-					((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)),0);
+                                        damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 				break;
 			}
 			
@@ -1688,7 +1923,8 @@ static bool monst_spell_monst(int m_idx)
 				if (!see_either) msg_print ("You hear someone mumble.");
 				else if (blind) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts an acid ball at %s.", m_name, t_name);
-				monst_breath_monst(m_idx, y, x, GF_ACID, randint(rlev * 3) + 15, 2);
+                                monst_breath_monst(m_idx, y, x, GF_ACID,
+                                (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 				break;
 			}
 			
@@ -1700,7 +1936,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles.", m_name);
 					else msg_format("%^s casts a lightning ball at %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_ELEC, randint(rlev * 3 / 2) + 8, 2);
+                                        monst_breath_monst(m_idx, y, x, GF_ELEC, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 					break;
 			}
 			
@@ -1712,7 +1948,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles.", m_name);
 					else msg_format("%^s casts a fire ball at %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_FIRE, randint(rlev * 7 / 2) + 10, 2);
+                                        monst_breath_monst(m_idx, y, x, GF_FIRE, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 					break;
 			}
 			
@@ -1724,7 +1960,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles.", m_name);
 					else msg_format("%^s casts a frost ball at %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_COLD, randint(rlev * 3 / 2) + 10, 2);
+                                        monst_breath_monst(m_idx, y, x, GF_COLD, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 					break;
 			}
 			
@@ -1736,7 +1972,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles.", m_name);
 					else msg_format("%^s casts a stinking cloud at %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_POIS, damroll(12, 2), 2);
+                                        monst_breath_monst(m_idx, y, x, GF_POIS, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 					break;
 			}
 			
@@ -1748,7 +1984,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles.", m_name);
 					else msg_format("%^s casts a nether ball at %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_NETHER, (50 + damroll(10, 10) + rlev), 2);
+                                        monst_breath_monst(m_idx, y, x, GF_NETHER, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 					break;
 			}
 			
@@ -1761,7 +1997,7 @@ static bool monst_spell_monst(int m_idx)
 					if (blind) msg_format("%^s mumbles.", m_name);
 					else msg_format("%^s gestures fluidly at %s.", m_name, t_name);
 					msg_format("%^s is engulfed in a whirlpool.", t_name);
-					monst_breath_monst(m_idx, y, x, GF_WATER, randint(rlev * 5 / 2) + 50, 4);
+                                        monst_breath_monst(m_idx, y, x, GF_WATER, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 4);
 					break;
 			}
 			
@@ -1773,7 +2009,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles powerfully.", m_name);
 					else msg_format("%^s invokes a mana storm upon %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_MANA, (rlev * 5) + damroll(10, 10), 4);
+                                        monst_breath_monst(m_idx, y, x, GF_MANA, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 4);
 					break;
 			}
 			
@@ -1785,7 +2021,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) msg_format("%^s mumbles powerfully.", m_name);
 					else msg_format("%^s invokes a darkness storm upon %s.", m_name, t_name);
-					monst_breath_monst(m_idx, y, x, GF_DARK, (rlev * 5) + damroll(10, 10), 4);
+                                        monst_breath_monst(m_idx, y, x, GF_DARK, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 4);
 					break;
 			}
 			
@@ -1930,7 +2166,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 				{
 					bool fear;
-					mon_take_hit_mon(t_idx, damroll(3, 8), &fear, " is destroyed.");
+                                        mon_take_hit_mon(t_idx, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
 				break;
@@ -1950,7 +2186,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 				{
 					bool fear;
-					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, " is destroyed.");
+                                        mon_take_hit_mon(t_idx, (damroll((m_ptr->level / 2) + 5, (m_ptr->level / 2) + 5) / 2), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
 				break;
@@ -1970,7 +2206,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 				{
 					bool fear;
-					mon_take_hit_mon(t_idx, damroll(10, 15), &fear, " is destroyed.");
+                                        mon_take_hit_mon(t_idx, (damroll((m_ptr->level / 2) + 10, (m_ptr->level / 2) + 10) / 2), &fear, " is destroyed.");
 				}
                                 wake_up = TRUE;
 				break;
@@ -1990,7 +2226,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 				{
 					bool fear;
-					mon_take_hit_mon(t_idx, damroll(15, 15), &fear, " is destroyed.");
+                                        mon_take_hit_mon(t_idx, (damroll((m_ptr->level / 2) + 15, (m_ptr->level / 2) + 15) / 2), &fear, " is destroyed.");
 				}
 				wake_up = TRUE;
 				break;
@@ -2003,7 +2239,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a acid bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_ACID,
-					damroll(7, 8) + (rlev / 3));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2014,7 +2250,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a lightning bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_ELEC,
-					damroll(4, 8) + (rlev / 3));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2025,7 +2261,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a fire bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_FIRE,
-					damroll(9, 8) + (rlev / 3));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2036,7 +2272,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a frost bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_COLD,
-					damroll(6, 8) + (rlev / 3));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2054,7 +2290,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a nether bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_NETHER,
-					30 + damroll(5, 5) + (rlev * 3) / 2);
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2065,7 +2301,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a water bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_WATER,
-					damroll(10, 10) + (rlev));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2076,7 +2312,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a mana bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_MANA,
-					randint(rlev * 7 / 2) + 50);
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2087,7 +2323,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a plasma bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_PLASMA,
-					10 + damroll(8, 7) + (rlev));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2098,7 +2334,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts an ice bolt at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_ICE,
-					damroll(6, 6) + (rlev));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2109,7 +2345,7 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a magic missile at %s.", m_name, t_name);
 				monst_bolt_monst(m_idx, y, x, GF_MISSILE,
-					damroll(2, 6) + (rlev / 3));
+                                        (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 				break;
 			}
 			
@@ -2301,66 +2537,76 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_HEAL */
 		case 160+2:
 			{
-				disturb(1, 0);
-				
-				/* Message */
-				if (blind || !see_m)
-				{
-					msg_format("%^s mumbles.", m_name);
-				}
-				else
-				{
-					msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
-				}
-				
-				/* Heal some */
-				m_ptr->hp += (rlev * 6);
-				
-				/* Fully healed */
-				if (m_ptr->hp >= m_ptr->maxhp)
-				{
-					/* Fully healed */
-					m_ptr->hp = m_ptr->maxhp;
-					
-					/* Message */
-					if (seen)
-					{
-						msg_format("%^s looks completely healed!", m_name);
-					}
-					else
-					{
-						msg_format("%^s sounds completely healed!", m_name);
-					}
-				}
-				
-				/* Partially healed */
-				else
-				{
-					/* Message */
-					if (seen)
-					{
-						msg_format("%^s looks healthier.", m_name);
-					}
-					else
-					{
-						msg_format("%^s sounds healthier.", m_name);
-					}
-				}
-				
-				/* Redraw (later) if needed */
-				if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				
-				/* Cancel fear */
-				if (m_ptr->monfear)
-				{
-					/* Cancel fear */
-					m_ptr->monfear = 0;
-					
-					/* Message */
-					if (see_m) msg_format("%^s recovers %s courage.", m_name, m_poss);
-				}
-				
-				break;
+				disturb(1, 0);				        
+			 
+			 /* Message */
+			 if (blind)
+			 {
+				 msg_format("%^s mumbles.", m_name);
+			 }
+			 else
+			 {
+                                 if (m_ptr->r_idx == 1125)
+                                 {
+                                        msg_format("%^s heals you!", m_name);
+                                 }
+                                 else msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
+			 }
+			 
+			 /* Heal some */
+                         if (m_ptr->r_idx == 1125)
+                         {
+                                p_ptr->chp += m_ptr->level;
+                                if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+                                update_and_handle();
+                         }
+                         else m_ptr->hp += m_ptr->level * 20;
+			 
+			 /* Fully healed */
+                         if ((m_ptr->hp >= m_ptr->maxhp) && m_ptr->r_idx != 1125)
+			 {
+				 /* Fully healed */
+				 m_ptr->hp = m_ptr->maxhp;
+				 
+				 /* Message */
+				 if (seen)
+				 {
+					 msg_format("%^s looks completely healed!", m_name);
+				 }
+				 else
+				 {
+					 msg_format("%^s sounds completely healed!", m_name);
+				 }
+			 }
+			 
+			 /* Partially healed */
+			 else
+			 {
+				 /* Message */
+                                 if (seen && m_ptr->r_idx != 1125)
+				 {
+					 msg_format("%^s looks healthier.", m_name);
+				 }
+                                 else if (m_ptr->r_idx != 1125)
+				 {
+					 msg_format("%^s sounds healthier.", m_name);
+				 }
+			 }
+			 
+			 /* Redraw (later) if needed */
+			 if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			 
+			 /* Cancel fear */
+			 if (m_ptr->monfear)
+			 {
+				 /* Cancel fear */
+				 m_ptr->monfear = 0;
+				 
+				 /* Message */
+				 msg_format("%^s recovers %s courage.", m_name, m_poss);
+			 }
+
+			 break;
 			}
 			
 			/* RF6_XXX2X6 */
@@ -3083,15 +3329,15 @@ bool make_attack_spell(int m_idx)
 	/* Assume "projectable" */
 	bool direct = TRUE;
 
+        /* Locked monsters cannot cast spells! */
+        if (m_ptr->abilities & (CURSE_LOCK)) return (FALSE);
+
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
 
 	/* Cannot cast spells when nice */
 	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
 	if (is_pet(m_ptr)) return (FALSE);
-
-        /* Cannot attack the player if mortal and player fated to never die by the ... */
-        if((r_ptr->flags7 & RF7_MORTAL)&&(p_ptr->no_mortal)) return (FALSE);
 
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
@@ -3293,10 +3539,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s shoots something.", m_name);
 			 else msg_format("%^s fires a rocket.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 breath(m_idx, GF_ROCKET,
-				 ((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4)), 2);
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2), 2);
 			 update_smart_learn(m_idx, DRS_SHARD);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_ROCKET)))
                                  {
@@ -3314,10 +3561,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s makes a strange noise.", m_name);
 			 else msg_format("%^s fires an arrow.", m_name);
-			 bolt(m_idx, GF_ARROW, damroll(1, 6));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ARROW, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
                          /* Learn the spell? */
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_ARROW_1)))
                                  {
@@ -3335,10 +3583,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s makes a strange noise.", m_name);
 			 else msg_format("%^s fires an arrow!", m_name);
-			 bolt(m_idx, GF_ARROW, damroll(3, 6));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ARROW, (damroll((m_ptr->level / 2) + 5, (m_ptr->level / 2) + 5) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
                          /* Learn the spell? */
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_ARROW_2)))
                                  {
@@ -3356,10 +3605,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s makes a strange noise.", m_name);
 			 else msg_format("%^s fires a missile.", m_name);
-			 bolt(m_idx, GF_ARROW, damroll(5, 6));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ARROW, (damroll((m_ptr->level / 2) + 10, (m_ptr->level / 2) + 10) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
                          /* Learn the spell? */
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_ARROW_3)))
                                  {
@@ -3377,10 +3627,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s makes a strange noise.", m_name);
 			 else msg_format("%^s fires a missile!", m_name);
-			 bolt(m_idx, GF_ARROW, damroll(7, 6));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ARROW, (damroll((m_ptr->level / 2) + 15, (m_ptr->level / 2) + 15) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
                          /* Learn the spell? */
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_ARROW_4)))
                                  {
@@ -3398,10 +3649,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes acid.", m_name);
-			 breath(m_idx, GF_ACID,
-				 ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_ACID,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_ACID);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_ACID)))
                                  {
@@ -3419,10 +3671,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes lightning.", m_name);
-			 breath(m_idx, GF_ELEC,
-				 ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_ELEC,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_ELEC);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_ELEC)))
                                  {
@@ -3440,10 +3693,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes fire.", m_name);
-			 breath(m_idx, GF_FIRE,
-				 ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_FIRE,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_FIRE);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_FIRE)))
                                  {
@@ -3461,10 +3715,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes frost.", m_name);
-			 breath(m_idx, GF_COLD,
-				 ((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_COLD,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_COLD);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_COLD)))
                                  {
@@ -3482,10 +3737,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes gas.", m_name);
-			 breath(m_idx, GF_POIS,
-				 ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_POIS,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_POIS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_POIS)))
                                  {
@@ -3504,10 +3760,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes nether.", m_name);
-			 breath(m_idx, GF_NETHER,
-				 ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_NETHER,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_NETH);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_NETH)))
                                  {
@@ -3525,10 +3782,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes light.", m_name);
-			 breath(m_idx, GF_LITE,
-				 ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_LITE,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_LITE);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_LITE)))
                                  {
@@ -3546,10 +3804,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes darkness.", m_name);
-			 breath(m_idx, GF_DARK,
-				 ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_DARK,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_DARK);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_DARK)))
                                  {
@@ -3567,10 +3826,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes confusion.", m_name);
-			 breath(m_idx, GF_CONFUSION,
-				 ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_CONFUSION,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_CONF);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_CONF)))
                                  {
@@ -3588,10 +3848,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes sound.", m_name);
-			 breath(m_idx, GF_SOUND,
-				 ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_SOUND,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_SOUND);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_SOUN)))
                                  {
@@ -3609,10 +3870,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes chaos.", m_name);
-			 breath(m_idx, GF_CHAOS,
-				 ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_CHAOS,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_CHAOS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_CHAO)))
                                  {
@@ -3630,10 +3892,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes disenchantment.", m_name);
-			 breath(m_idx, GF_DISENCHANT,
-				 ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_DISENCHANT,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_DISEN);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_DISE)))
                                  {
@@ -3651,10 +3914,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes nexus.", m_name);
-			 breath(m_idx, GF_NEXUS,
-				 ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_NEXUS,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_NEXUS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_NEXU)))
                                  {
@@ -3672,9 +3936,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes time.", m_name);
-			 breath(m_idx, GF_TIME,
-				 ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_TIME,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_TIME)))
                                  {
@@ -3692,9 +3957,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes inertia.", m_name);
-			 breath(m_idx, GF_INERTIA,
-				 ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_INERTIA,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_INER)))
                                  {
@@ -3712,9 +3978,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes gravity.", m_name);
-			 breath(m_idx, GF_GRAVITY,
-				 ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_GRAVITY,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_GRAV)))
                                  {
@@ -3732,10 +3999,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes shards.", m_name);
-			 breath(m_idx, GF_SHARDS,
-				 ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_SHARDS,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_SHARD);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_SHAR)))
                                  {
@@ -3753,9 +4021,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes plasma.", m_name);
-			 breath(m_idx, GF_PLASMA,
-				 ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_PLASMA,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_PLAS)))
                                  {
@@ -3773,9 +4042,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes force.", m_name);
-			 breath(m_idx, GF_FORCE,
-				 ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_FORCE,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_WALL)))
                                  {
@@ -3793,9 +4063,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes magical energy.", m_name);
-			 breath(m_idx, GF_MANA,
-				 ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_MANA,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_MANA)))
                                  {
@@ -3813,9 +4084,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a ball of radiation.", m_name);
-			 breath(m_idx, GF_NUKE, (rlev + damroll(10, 6)), 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_NUKE, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_POIS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BA_NUKE)))
                                  {
@@ -3833,10 +4105,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes toxic waste.", m_name);
-			 breath(m_idx, GF_NUKE,
-				 ((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3)),0);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_NUKE,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
 			 update_smart_learn(m_idx, DRS_POIS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_NUKE)))
                                  {
@@ -3854,9 +4127,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles frighteningly.", m_name);
                          else msg_format("%^s invokes a raw chaos.", m_name);
-			 breath(m_idx, GF_CHAOS, (rlev * 2) + damroll(10, 10), 4);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_CHAOS, damroll(m_ptr->level / 2, m_ptr->level / 2), 4);
 			 update_smart_learn(m_idx, DRS_CHAOS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_CHAO)))
                                  {
@@ -3874,9 +4148,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s breathes.", m_name);
 			 else msg_format("%^s breathes disintegration.", m_name);
-			 breath(m_idx, GF_DISINTEGRATE,
-				 ((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)),0);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_DISINTEGRATE,
+                                 damroll(m_ptr->level / 2, m_ptr->level / 2),0);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic & (RF4_BR_DISI)))
                                  {
@@ -3896,10 +4171,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts an acid ball.", m_name);
-			 breath(m_idx, GF_ACID,
-				 randint(rlev * 3) + 15, 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_ACID,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_ACID);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_ACID)))
                                  {
@@ -3917,10 +4193,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a lightning ball.", m_name);
-			 breath(m_idx, GF_ELEC,
-				 randint(rlev * 3 / 2) + 8, 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_ELEC,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_ELEC);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_ELEC)))
                                  {
@@ -3938,10 +4215,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a fire ball.", m_name);
-			 breath(m_idx, GF_FIRE,
-				 randint(rlev * 7 / 2) + 10, 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_FIRE,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_FIRE);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_FIRE)))
                                  {
@@ -3959,10 +4237,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a frost ball.", m_name);
-			 breath(m_idx, GF_COLD,
-				 randint(rlev * 3 / 2) + 10, 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_COLD,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_COLD);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_COLD)))
                                  {
@@ -3980,10 +4259,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a stinking cloud.", m_name);
-			 breath(m_idx, GF_POIS,
-				 damroll(12, 2), 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_POIS,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_POIS);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_POIS)))
                                  {
@@ -4001,10 +4281,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a nether ball.", m_name);
-			 breath(m_idx, GF_NETHER,
-				 (50 + damroll(10, 10) + rlev), 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_NETHER,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 2);
 			 update_smart_learn(m_idx, DRS_NETH);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_NETH)))
                                  {
@@ -4022,10 +4303,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s gestures fluidly.", m_name);
-			 msg_print("You are engulfed in a whirlpool.");
-			 breath(m_idx, GF_WATER,
-				 randint(rlev * 5 / 2) + 50, 4);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         msg_print("You are engulfed in a whirlpool.");
+                         breath(m_idx, GF_WATER,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 4);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_WATE)))
                                  {
@@ -4043,9 +4325,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			 else msg_format("%^s invokes a mana storm.", m_name);
-			 breath(m_idx, GF_MANA,
-				 (rlev * 5) + damroll(10, 10), 4);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_MANA,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 4);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic4 & (RF5_BA_MANA)) && (m_ptr->r_idx == 1030 || m_ptr->r_idx == 1089))
                                  {
@@ -4069,10 +4352,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			 else msg_format("%^s invokes a darkness storm.", m_name);
-			 breath(m_idx, GF_DARK,
-				 (rlev * 5) + damroll(10, 10), 4);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         breath(m_idx, GF_DARK,
+                                 (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), 4);
 			 update_smart_learn(m_idx, DRS_DARK);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BA_DARK)))
                                  {
@@ -4097,7 +4381,9 @@ bool make_attack_spell(int m_idx)
 				 
 				 /* Basic message */
 				 msg_format("%^s draws psychic energy from you!", m_name);
-				 
+
+                                 if (counterspell(m_ptr)) return (FALSE);
+
 				 /* Attack power */
 				 r1 = (randint(rlev) / 2) + 1;
 				 
@@ -4157,14 +4443,16 @@ bool make_attack_spell(int m_idx)
 				 msg_format("%^s gazes deep into your eyes.", m_name);
 			 }
 			 
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
 				 msg_print("Your mind is blasted by psionic energy.");
-				 
+
+                                 if (counterspell(m_ptr)) return (FALSE);
+
 				 if (!p_ptr->resist_conf)
 				 {
 					 (void)set_confused(p_ptr->confused + rand_int(4) + 4);
@@ -4174,8 +4462,6 @@ bool make_attack_spell(int m_idx)
 				 {
 					 (void) set_image(p_ptr->image + rand_int(250) + 150);
 				 }
-				 
-                                 take_sanity_hit(damroll(8, 8), ddesc);
 			 }
 			 break;
 		 }
@@ -4194,14 +4480,14 @@ bool make_attack_spell(int m_idx)
 				 msg_format("%^s looks deep into your eyes.", m_name);
 			 }
 			 
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
 				 msg_print("Your mind is blasted by psionic energy.");
-                                 take_sanity_hit(damroll(12,15), ddesc);
+                                 if (counterspell(m_ptr)) return (FALSE);
 				 if (!p_ptr->resist_blind)
 				 {
 					 (void)set_blind(p_ptr->blind + 8 + rand_int(8));
@@ -4216,9 +4502,9 @@ bool make_attack_spell(int m_idx)
 				 }
 				 (void)set_slow(p_ptr->slow + rand_int(4) + 4);
 				 
-				 while (rand_int(100) > p_ptr->skill_sav)
+                                 while (rand_int(100) > p_ptr->stat_ind[A_WIS])
 					 (void)do_dec_stat(A_INT, STAT_DEC_NORMAL);
-				 while (rand_int(100) > p_ptr->skill_sav)
+                                 while (rand_int(100) > p_ptr->stat_ind[A_WIS])
 					 (void)do_dec_stat(A_WIS, STAT_DEC_NORMAL);
 				 
 				 if (!p_ptr->resist_chaos)
@@ -4236,16 +4522,17 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s points at you and curses.", m_name);
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
-				 curse_equipment(33, 0);
-				 take_hit(damroll(3, 8), ddesc);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 curse_equipment(33, 0);
+                                 take_hit((damroll(m_ptr->level / 2, m_ptr->level / 2) / 2), ddesc);
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_CAUSE_1)))
                                  {
@@ -4264,16 +4551,17 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s points at you and curses horribly.", m_name);
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
-				 curse_equipment(50, 5);
-				 take_hit(damroll(8, 8), ddesc);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 curse_equipment(50, 5);
+                                 take_hit((damroll((m_ptr->level / 2) + 5, (m_ptr->level / 2) + 5) / 2), ddesc);
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_CAUSE_2)))
                                  {
@@ -4292,16 +4580,17 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles loudly.", m_name);
 			 else msg_format("%^s points at you, incanting terribly!", m_name);
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
-				 curse_equipment(80, 15);
-				 take_hit(damroll(10, 15), ddesc);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 curse_equipment(80, 15);
+                                 take_hit((damroll((m_ptr->level / 2) + 10, (m_ptr->level / 2) + 10) / 2), ddesc);
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_CAUSE_3)))
                                  {
@@ -4320,16 +4609,17 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s screams the word 'DIE!'", m_name);
 			 else msg_format("%^s points at you, screaming the word DIE!", m_name);
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
-				 take_hit(damroll(15, 15), ddesc);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 take_hit((damroll((m_ptr->level / 2) + 15, (m_ptr->level / 2) + 15) / 2), ddesc);
 				 (void)set_cut(p_ptr->cut + damroll(10, 10));
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_CAUSE_4)))
                                  {
@@ -4347,10 +4637,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a acid bolt.", m_name);
-			 bolt(m_idx, GF_ACID, damroll(7, 8) + (rlev / 3));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ACID, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_ACID);
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_ACID)))
                                  {
@@ -4368,10 +4659,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a lightning bolt.", m_name);
-			 bolt(m_idx, GF_ELEC, damroll(4, 8) + (rlev / 3));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ELEC, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_ELEC);
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_ELEC)))
                                  {
@@ -4389,10 +4681,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a fire bolt.", m_name);
-			 bolt(m_idx, GF_FIRE, damroll(9, 8) + (rlev / 3));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_FIRE, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_FIRE);
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_FIRE)))
                                  {
@@ -4410,10 +4703,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a frost bolt.", m_name);
-			 bolt(m_idx, GF_COLD, damroll(6, 8) + (rlev / 3));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_COLD, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_COLD);
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_COLD)))
                                  {
@@ -4428,7 +4722,22 @@ bool make_attack_spell(int m_idx)
 		 /* RF5_BO_POIS */
 	 case 128+20:
 		 {
-			 /* XXX XXX XXX */
+			 disturb(1, 0);
+			 if (blind) msg_format("%^s mumbles.", m_name);
+                         else msg_format("%^s casts a poison bolt.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_POIS, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
+                         update_smart_learn(m_idx, DRS_POIS);
+			 update_smart_learn(m_idx, DRS_REFLECT);
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
+                         {
+                                 if (!(p_ptr->monster_magic2 & (RF5_BO_POIS)))
+                                 {
+                                        msg_print("You just learned a new monster magic!");
+                                        p_ptr->monster_magic2 |= RF5_BO_POIS;
+                                 }
+                         }
+
 			 break;
 		 }
 		 
@@ -4438,10 +4747,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a nether bolt.", m_name);
-			 bolt(m_idx, GF_NETHER, 30 + damroll(5, 5) + (rlev * 3) / 2);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_NETHER, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_NETH);
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_NETH)))
                                  {
@@ -4459,9 +4769,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a water bolt.", m_name);
-			 bolt(m_idx, GF_WATER, damroll(10, 10) + (rlev));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_WATER, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_WATE)))
                                  {
@@ -4479,9 +4790,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a mana bolt.", m_name);
-			 bolt(m_idx, GF_MANA, randint(rlev * 7 / 2) + 50);
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_MANA, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_MANA)))
                                  {
@@ -4499,9 +4811,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a plasma bolt.", m_name);
-			 bolt(m_idx, GF_PLASMA, 10 + damroll(8, 7) + (rlev));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_PLASMA, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_PLAS)))
                                  {
@@ -4519,10 +4832,11 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts an ice bolt.", m_name);
-			 bolt(m_idx, GF_ICE, damroll(6, 6) + (rlev));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_ICE, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_COLD);
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BO_ICEE)))
                                  {
@@ -4540,9 +4854,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a magic missile.", m_name);
-			 bolt(m_idx, GF_MISSILE, damroll(2, 6) + (rlev / 3));
+                         if (counterspell(m_ptr)) return (FALSE);
+                         bolt(m_idx, GF_MISSILE, (damroll(m_ptr->level / 2, m_ptr->level / 2) / 2));
 			 update_smart_learn(m_idx, DRS_REFLECT);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_MISSILE)))
                                  {
@@ -4561,20 +4876,21 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			 else msg_format("%^s casts a fearful illusion.", m_name);
-			 if (p_ptr->resist_fear)
+                         if (p_ptr->resist_fear && !(seduction(m_ptr)))
 			 {
 				 msg_print("You refuse to be frightened.");
 			 }
-			 else if (rand_int(100) < p_ptr->skill_sav)
+                         else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_print("You refuse to be frightened.");
 			 }
 			 else
 			 {
-				 (void)set_afraid(p_ptr->afraid + rand_int(4) + 4);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 (void)set_afraid(p_ptr->afraid + rand_int(4) + 4);
 			 }
 			 update_smart_learn(m_idx, DRS_FEAR);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_SCARE)))
                                  {
@@ -4593,20 +4909,21 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s casts a spell, burning your eyes!", m_name);
-			 if (p_ptr->resist_blind)
+                         if (p_ptr->resist_blind && !(seduction(m_ptr)))
 			 {
 				 msg_print("You are unaffected!");
 			 }
-			 else if (rand_int(100) < p_ptr->skill_sav)
+                         else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
-				 (void)set_blind(12 + rand_int(4));
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 (void)set_blind(12 + rand_int(4));
 			 }
 			 update_smart_learn(m_idx, DRS_BLIND);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_BLIND)))
                                  {
@@ -4625,20 +4942,21 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
 			 else msg_format("%^s creates a mesmerising illusion.", m_name);
-			 if (p_ptr->resist_conf)
+                         if (p_ptr->resist_conf && !(seduction(m_ptr)))
 			 {
 				 msg_print("You disbelieve the feeble spell.");
 			 }
-			 else if (rand_int(100) < p_ptr->skill_sav)
+                         else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_print("You disbelieve the feeble spell.");
 			 }
 			 else
 			 {
-				 (void)set_confused(p_ptr->confused + rand_int(4) + 4);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 (void)set_confused(p_ptr->confused + rand_int(4) + 4);
 			 }
 			 update_smart_learn(m_idx, DRS_CONF);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_CONF)))
                                  {
@@ -4656,20 +4974,21 @@ bool make_attack_spell(int m_idx)
 			 if (!direct) break;
 			 disturb(1, 0);
 			 msg_format("%^s drains power from your muscles!", m_name);
-			 if (p_ptr->free_act)
+                         if (p_ptr->free_act && !(seduction(m_ptr)))
 			 {
 				 msg_print("You are unaffected!");
 			 }
-			 else if (rand_int(100) < p_ptr->skill_sav)
+                         else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_print("You resist the effects!");
 			 }
 			 else
 			 {
-				 (void)set_slow(p_ptr->slow + rand_int(4) + 4);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 (void)set_slow(p_ptr->slow + rand_int(4) + 4);
 			 }
 			 update_smart_learn(m_idx, DRS_FREE);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_SLOW)))
                                  {
@@ -4688,20 +5007,21 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s stares deep into your eyes!", m_name);
-			 if (p_ptr->free_act)
+                         if (p_ptr->free_act && !(seduction(m_ptr)))
 			 {
 				 msg_print("You are unaffected!");
 			 }
-			 else if (rand_int(100) < p_ptr->skill_sav)
+                         else if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_format("You resist the effects!");
 			 }
 			 else
 			 {
-				 (void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 (void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
 			 }
 			 update_smart_learn(m_idx, DRS_FREE);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic2 & (RF5_HOLD)))
                                  {
@@ -4727,7 +5047,9 @@ bool make_attack_spell(int m_idx)
 			 {
 				 msg_format("%^s concentrates on %s body.", m_name, m_poss);
 			 }
-			 
+
+                         if (counterspell(m_ptr)) return (FALSE);
+
 			 /* Allow quick speed increases to base+10 */
 			 if (m_ptr->mspeed < r_ptr->speed + 10)
 			 {
@@ -4741,7 +5063,7 @@ bool make_attack_spell(int m_idx)
 				 msg_format("%^s starts moving faster.", m_name);
 				 m_ptr->mspeed += 2;
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_HASTE)))
                                  {
@@ -4759,20 +5081,21 @@ bool make_attack_spell(int m_idx)
 		 {
 			 disturb(1, 0);
 			 msg_format("%^s invokes the Hand of Doom!", m_name);
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_format("You resist the effects!");
 			 }
 			 else
 			 {
-				 int dummy = (((s32b) ((65 + randint(25)) * (p_ptr->chp))) / 100);
-				 msg_print("Your feel your life fade away!");
-				 take_hit(dummy, m_name);
+                                 int dummy = (((s32b) ((65 + randint(25)) * (p_ptr->chp))) / 100);
+                                 if (counterspell(m_ptr)) return (FALSE);
+                                 msg_print("Your feel your life fade away!");
+                                 take_hit(dummy, m_name);
 				 curse_equipment(100, 20);
 				 
 				 if (p_ptr->chp < 1) p_ptr->chp = 1;
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_HAND_DOOM)))
                                  {
@@ -4796,14 +5119,28 @@ bool make_attack_spell(int m_idx)
 			 }
 			 else
 			 {
-				 msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
+                                 if (m_ptr->r_idx == 1125)
+                                 {
+                                        msg_format("%^s heals you!", m_name);
+                                 }
+                                 else msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
 			 }
 			 
 			 /* Heal some */
-			 m_ptr->hp += (rlev * 6);
-			 
+                         if (m_ptr->r_idx == 1125)
+                         {
+                                p_ptr->chp += m_ptr->level * 2;
+                                if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
+                                update_and_handle();
+                         }
+                         else
+                         {
+                                if (counterspell(m_ptr)) return (FALSE);
+                                m_ptr->hp += m_ptr->level * 20;
+                         }
+
 			 /* Fully healed */
-			 if (m_ptr->hp >= m_ptr->maxhp)
+                         if ((m_ptr->hp >= m_ptr->maxhp) && m_ptr->r_idx != 1125)
 			 {
 				 /* Fully healed */
 				 m_ptr->hp = m_ptr->maxhp;
@@ -4823,11 +5160,11 @@ bool make_attack_spell(int m_idx)
 			 else
 			 {
 				 /* Message */
-				 if (seen)
+                                 if (seen && m_ptr->r_idx != 1125)
 				 {
 					 msg_format("%^s looks healthier.", m_name);
 				 }
-				 else
+                                 else if (m_ptr->r_idx != 1125)
 				 {
 					 msg_format("%^s sounds healthier.", m_name);
 				 }
@@ -4845,7 +5182,7 @@ bool make_attack_spell(int m_idx)
 				 /* Message */
 				 msg_format("%^s recovers %s courage.", m_name, m_poss);
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_HEAL)))
                                  {
@@ -4868,8 +5205,9 @@ bool make_attack_spell(int m_idx)
 		 {
 			 disturb(1, 0);
 			 msg_format("%^s blinks away.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 teleport_away(m_idx, 10);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_BLINK)))
                                  {
@@ -4886,8 +5224,9 @@ bool make_attack_spell(int m_idx)
 		 {
 			 disturb(1, 0);
 			 msg_format("%^s teleports away.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 teleport_away(m_idx, MAX_SIGHT * 2 + 5);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_TPORT)))
                                  {
@@ -4905,8 +5244,9 @@ bool make_attack_spell(int m_idx)
 			 if (!direct) break;
 			 disturb(1, 0);
 			 msg_format("%^s commands you to return.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 teleport_player_to(m_ptr->fy, m_ptr->fx);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_TELE_TO)))
                                  {
@@ -4924,8 +5264,9 @@ bool make_attack_spell(int m_idx)
 			 if (!direct) break;
 			 disturb(1, 0);
 			 msg_format("%^s teleports you away.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 teleport_player(100);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_TELE_AWAY)))
                                  {
@@ -4944,11 +5285,12 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles strangely.", m_name);
 			 else msg_format("%^s gestures at your feet.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 if (p_ptr->resist_nexus)
 			 {
 				 msg_print("You are unaffected!");
 			 }
-			 else if (rand_int(100) < p_ptr->skill_sav)
+                         else if (rand_int(100) < p_ptr->stat_ind[A_WIS])
 			 {
 				 msg_print("You resist the effects!");
 			 }
@@ -4967,8 +5309,9 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s gestures in shadow.", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 (void)unlite_area(0, 3);
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_DARKNESS)))
                                  {
@@ -4987,8 +5330,9 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
 			 else msg_format("%^s casts a spell and cackles evilly.", m_name);
-			 (void)trap_creation();
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         (void)trap_creation();
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_TRAPS)))
                                  {
@@ -5006,8 +5350,8 @@ bool make_attack_spell(int m_idx)
 			 if (!direct) break;
 			 disturb(1, 0);
 			 msg_format("%^s tries to blank your mind.", m_name);
-			 
-			 if (rand_int(100) < p_ptr->skill_sav)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         if (rand_int(100) < p_ptr->stat_ind[A_WIS] && !(seduction(m_ptr)))
 			 {
 				 msg_print("You resist the effects!");
 			 }
@@ -5028,12 +5372,13 @@ bool make_attack_spell(int m_idx)
 				disturb(1, 0);
                                 if (blind) msg_format("%^s mumbles.", m_name);
                                 else msg_format("%^s magically codes some software bugs.", m_name);
-				for (k = 0; k < 6; k++)
+                                if (counterspell(m_ptr)) return (FALSE);
+                                for (k = 0; k < 6; k++)
 				{
                                         count += summon_specific(y, x, rlev, SUMMON_BUG);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
-                                 if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                                 if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                                  {
                                          if (!(p_ptr->monster_magic3 & (RF6_S_BUG)))
                                          {
@@ -5051,12 +5396,13 @@ bool make_attack_spell(int m_idx)
 				disturb(1, 0);
                                 if (blind) msg_format("%^s mumbles.", m_name);
                                 else msg_format("%^s magically codes some RNGs.", m_name);
-				for (k = 0; k < 6; k++)
+                                if (counterspell(m_ptr)) return (FALSE);
+                                for (k = 0; k < 6; k++)
 				{
                                         count += summon_specific(y, x, rlev, SUMMON_RNG);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
-                                 if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                                 if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                                  {
                                          if (!(p_ptr->monster_magic3 & (RF6_S_RNG)))
                                          {
@@ -5074,12 +5420,13 @@ bool make_attack_spell(int m_idx)
 				disturb(1, 0);
                                 if (blind) msg_format("%^s mumbles.", m_name);
                                 else msg_format("%^s magically summons a DragonRider!", m_name);
-				for (k = 0; k < 1; k++)
+                                if (counterspell(m_ptr)) return (FALSE);
+                                for (k = 0; k < 1; k++)
 				{
                                          count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
-                                 if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                                 if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                                  {
                                          if (!(p_ptr->monster_magic3 & (RF6_S_DRAGONRIDER)))
                                          {
@@ -5101,13 +5448,13 @@ bool make_attack_spell(int m_idx)
 				 ((r_ptr->flags1) & RF1_UNIQUE ?
 				 "minions" : "kin"));
 			 summon_kin_type = r_ptr->d_char; /* Big hack */
-			 
+                         if (counterspell(m_ptr)) return (FALSE);
 			 for (k = 0; k < 6; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_KIN);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_KIN)))
                                  {
@@ -5126,9 +5473,10 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons Cyberdemons!", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 if (blind && count) msg_print("You hear heavy steps nearby.");
 			 summon_cyber();
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_CYBER)))
                                  {
@@ -5146,12 +5494,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons help!", m_name);
+                         if (counterspell(m_ptr)) return (FALSE);
 			 for (k = 0; k < 1; k++)
 			 {
 				 count += summon_specific(y, x, rlev, 0);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_MONSTER)))
                                  {
@@ -5169,12 +5518,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons monsters!", m_name);
-			 for (k = 0; k < 8; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 8; k++)
 			 {
 				 count += summon_specific(y, x, rlev, 0);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_MONSTERS)))
                                  {
@@ -5192,12 +5542,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons ants.", m_name);
-			 for (k = 0; k < 6; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 6; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_ANT);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_ANT)))
                                  {
@@ -5215,12 +5566,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons spiders.", m_name);
-			 for (k = 0; k < 6; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 6; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_SPIDER)))
                                  {
@@ -5238,12 +5590,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons hounds.", m_name);
-			 for (k = 0; k < 6; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 6; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_HOUND);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_HOUND)))
                                  {
@@ -5261,12 +5614,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons hydras.", m_name);
-			 for (k = 0; k < 6; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 6; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_HYDRA)))
                                  {
@@ -5284,12 +5638,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons an angel!", m_name);
-			 for (k = 0; k < 1; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 1; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_ANGEL);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_ANGEL)))
                                  {
@@ -5307,12 +5662,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
-			 for (k = 0; k < 1; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 1; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_DEMON);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_DEMON)))
                                  {
@@ -5330,12 +5686,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons an undead adversary!", m_name);
-			 for (k = 0; k < 1; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 1; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_UNDEAD)))
                                  {
@@ -5353,12 +5710,13 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons a dragon!", m_name);
-			 for (k = 0; k < 1; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 1; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_DRAGON);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_DRAGON)))
                                  {
@@ -5376,7 +5734,8 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons greater undead!", m_name);
-			 for (k = 0; k < 8; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 8; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 			 }
@@ -5384,7 +5743,7 @@ bool make_attack_spell(int m_idx)
 			 {
 				 msg_print("You hear many creepy things appear nearby.");
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_HI_UNDEAD)))
                                  {
@@ -5402,7 +5761,8 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons ancient dragons!", m_name);
-			 for (k = 0; k < 8; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 8; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
 			 }
@@ -5410,7 +5770,7 @@ bool make_attack_spell(int m_idx)
 			 {
 				 msg_print("You hear many powerful things appear nearby.");
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_HI_DRAGON)))
                                  {
@@ -5428,7 +5788,7 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
                          else msg_format("%^s magically summons Wraith!", m_name);
-			 
+                         if (counterspell(m_ptr)) return (FALSE);
 			 
 			 for (k = 0; k < 8; k++)
 			 {
@@ -5447,7 +5807,7 @@ bool make_attack_spell(int m_idx)
 			 {
 				 msg_print("You hear immortal beings appear nearby.");
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || ability(79)) && p_ptr->chp >= 0)
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1) && p_ptr->chp >= 0)
                          {
                                  if (!(p_ptr->monster_magic3 & (RF6_S_WRAITH)))
                                  {
@@ -5465,7 +5825,8 @@ bool make_attack_spell(int m_idx)
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
 			 else msg_format("%^s magically summons special opponents!", m_name);
-			 for (k = 0; k < 8; k++)
+                         if (counterspell(m_ptr)) return (FALSE);
+                         for (k = 0; k < 8; k++)
 			 {
 				 count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
 			 }
@@ -5477,13 +5838,14 @@ bool make_attack_spell(int m_idx)
 			 {
 				 msg_print("You hear many powerful things appear nearby.");
 			 }
-                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE && ability(79) && p_ptr->monster_magic3 & (RF6_S_HI_DRAGON) &&
-                         p_ptr->monster_magic3 & (RF6_S_HI_UNDEAD) && p_ptr->to_d >= 100 && p_ptr->prace == RACE_BENEMAL) && p_ptr->chp >= 0)
+                         /* Must be Level 50 to learn this one... */
+                         if ((p_ptr->pclass == CLASS_MONSTER_MAGE && p_ptr->abilities[(CLASS_MONSTER_MAGE * 10)] >= 1 && p_ptr->monster_magic3 & (RF6_S_HI_DRAGON) &&
+                         p_ptr->monster_magic3 & (RF6_S_HI_UNDEAD) && p_ptr->lev >= 50) && p_ptr->chp >= 0)
                          {
-                                 if (!(p_ptr->monster_magic4 & (RF6_S_UNIQUE)))
+                                 if (!(p_ptr->monster_magic3 & (RF6_S_UNIQUE)))
                                  {
-                                        msg_print("You learned a secret type D monster magic!");
-                                        p_ptr->monster_magic4 |= RF6_S_UNIQUE;
+                                        msg_print("You just learned a new monster magic!");
+                                        p_ptr->monster_magic3 |= RF6_S_UNIQUE;
                                  }
                          }
 
@@ -5560,15 +5922,21 @@ static int mon_will_run(int m_idx)
 	u32b p_val, m_val;
 	
 #endif
-	
+
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
 	
 	/* Friends don't run away */
 	if (is_pet(m_ptr)) return (FALSE);
-	
+
 	/* All "afraid" monsters will run away */
 	if (m_ptr->monfear) return (TRUE);
+
+        /* The monsters have no moral at all! ;) */
+        return (FALSE);
+
+        /* The next lines of code are useless... */
+        /* Why would a monster run away from a pathetic player anyway? ;) */
 	
 #ifdef ALLOW_TERROR
 	
@@ -6072,7 +6440,7 @@ static bool get_moves(int m_idx, int *mm)
 	}
 	else
 	{
-		if (!done && mon_will_run(m_idx))
+                if (mon_will_run(m_idx))
 		{
 			/* Try to find safe place */
 			if (!find_safety(m_idx, &y, &x))
@@ -6343,7 +6711,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		bool obvious = FALSE;
 
 		int power = 0;
-		int damage = 0;
+                s32b damage = 0;
 
 		cptr act = NULL;
 
@@ -6379,41 +6747,41 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		switch (effect)
 		{
 		case RBE_HURT:          power = 60; break;
-		case RBE_POISON:        power =  5; break;
-		case RBE_UN_BONUS:      power = 20; break;
-		case RBE_UN_POWER:      power = 15; break;
-		case RBE_EAT_GOLD:      power =  5; break;
-		case RBE_EAT_ITEM:      power =  5; break;
-		case RBE_EAT_FOOD:      power =  5; break;
-		case RBE_EAT_LITE:      power =  5; break;
-		case RBE_ACID:          power =  0; break;
-		case RBE_ELEC:          power = 10; break;
-		case RBE_FIRE:          power = 10; break;
-		case RBE_COLD:          power = 10; break;
-		case RBE_BLIND:         power =  2; break;
-		case RBE_CONFUSE:       power = 10; break;
-		case RBE_TERRIFY:       power = 10; break;
-		case RBE_PARALYZE:      power =  2; break;
-		case RBE_LOSE_STR:      power =  0; break;
-		case RBE_LOSE_DEX:      power =  0; break;
-		case RBE_LOSE_CON:      power =  0; break;
-		case RBE_LOSE_INT:      power =  0; break;
-		case RBE_LOSE_WIS:      power =  0; break;
-		case RBE_LOSE_CHR:      power =  0; break;
-		case RBE_LOSE_ALL:      power =  2; break;
+                case RBE_POISON:        power = 60; break;
+                case RBE_UN_BONUS:      power = 60; break;
+                case RBE_UN_POWER:      power = 60; break;
+                case RBE_EAT_GOLD:      power = 60; break;
+                case RBE_EAT_ITEM:      power = 60; break;
+                case RBE_EAT_FOOD:      power = 60; break;
+                case RBE_EAT_LITE:      power = 60; break;
+                case RBE_ACID:          power = 60; break;
+                case RBE_ELEC:          power = 60; break;
+                case RBE_FIRE:          power = 60; break;
+                case RBE_COLD:          power = 60; break;
+                case RBE_BLIND:         power = 60; break;
+                case RBE_CONFUSE:       power = 60; break;
+                case RBE_TERRIFY:       power = 60; break;
+                case RBE_PARALYZE:      power = 60; break;
+                case RBE_LOSE_STR:      power = 60; break;
+                case RBE_LOSE_DEX:      power = 60; break;
+                case RBE_LOSE_CON:      power = 60; break;
+                case RBE_LOSE_INT:      power = 60; break;
+                case RBE_LOSE_WIS:      power = 60; break;
+                case RBE_LOSE_CHR:      power = 60; break;
+                case RBE_LOSE_ALL:      power = 60; break;
 		case RBE_SHATTER:       power = 60; break;
-		case RBE_EXP_10:        power =  5; break;
-		case RBE_EXP_20:        power =  5; break;
-		case RBE_EXP_40:        power =  5; break;
-		case RBE_EXP_80:        power =  5; break;
-		case RBE_DISEASE:       power =  5; break;
-		case RBE_TIME:          power =  5; break;
+                case RBE_EXP_10:        power = 60; break;
+                case RBE_EXP_20:        power = 60; break;
+                case RBE_EXP_40:        power = 60; break;
+                case RBE_EXP_80:        power = 60; break;
+                case RBE_DISEASE:       power = 60; break;
+                case RBE_TIME:          power = 60; break;
                 case RBE_SANITY:        power = 60; break;
 		}
-		
+                power += (m_ptr->level / 2);
 		
 		/* Monster hits*/
-		if (!effect || check_hit2(power, rlev,ac))
+                if (!effect || monster_hit_monster(m_ptr, t_ptr))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -6593,7 +6961,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 					break;
 				}
 			}
-			
+
 			/* Message */
 			if (act)
 			{
@@ -6607,9 +6975,17 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 			obvious = TRUE;
 			
 			/* Roll out the damage */
-                        damage = damroll((d_dice + (m_ptr->level / 2)), (d_side + (m_ptr->level / 2)));
-			
-			pt = GF_MISSILE;
+                        if (m_ptr->animated)
+                        {
+                                d_dice = m_ptr->animdam_d + (((m_ptr->animdam_d * (p_ptr->abilities[(CLASS_MAGE * 10) + 9] - 1)) * 5) / 100);
+                                d_side = m_ptr->animdam_s + (((m_ptr->animdam_s * (p_ptr->abilities[(CLASS_MAGE * 10) + 9] - 1)) * 5) / 100);
+                        }
+                        if (is_pet(m_ptr)) damage = (((damroll(d_dice, d_side)) * (p_ptr->skill_leadership + 1)) + damroll((m_ptr->level / 2), (m_ptr->level / 2))) * p_ptr->lmultiplier;
+                        /* else damage = (damroll(d_dice, d_side)) + damroll((m_ptr->level / 2), (m_ptr->level / 2)); */
+                        /* In Monster VS Monster battles, enemies hits harder... */
+                        else damage = (damroll(d_dice, d_side) * (m_ptr->level + 1)) + damroll((m_ptr->level / 2), (m_ptr->level / 2));
+
+                        pt = GF_PHYSICAL;
 			
 			/* Apply appropriate damage */
 			switch (effect)
@@ -6746,6 +7122,9 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 			if (pt)
 			{
+                                /* A monster performing a(maybe) physical attack. */
+                                monster_physical = TRUE;
+                                no_magic_return = TRUE;
 				/* Do damage if not exploding */
 				if (!explode)
 				{
@@ -6789,6 +7168,9 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 					}
 					
 				}
+                                /* The attack has ended. */
+                                no_magic_return = FALSE;
+                                monster_physical = FALSE;
 			}
 		}
 		
@@ -6881,9 +7263,10 @@ static bool player_invis(monster_type * m_ptr)
 	s16b inv, mlv;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-        inv = p_ptr->invis;
+        inv = p_ptr->invis + (p_ptr->skill_stealth / 5);
 
-	mlv = (s16b) r_ptr->level;
+        mlv = (s16b) r_ptr->level + (m_ptr->level / 3);
+        mlv -= (p_ptr->skill_stealth / 2);
 
 	if (r_ptr->flags3 & RF3_NO_SLEEP)
 		mlv += 10;
@@ -6907,6 +7290,8 @@ static bool player_invis(monster_type * m_ptr)
 		inv = 0;
 	if (r_ptr->flags2 & RF2_INVISIBLE)
                 inv = 0;
+        if (p_ptr->body_monster == 1101 && m_ptr->r_idx != 1030)
+                inv = 32765;
         if (mlv < 1)
                 mlv = 1;
         return (inv >= randint(mlv*2));
@@ -6950,6 +7335,11 @@ static void process_monster(int m_idx, bool is_friend)
 	cave_type       *c_ptr;
 	
 	monster_type    *y_ptr;
+
+        bool            field_dam = FALSE;
+        int             fieldtype = 0;
+        int             field_dam_amount = 0;
+
 	
 	bool            do_turn;
 	bool            do_move;
@@ -6969,7 +7359,14 @@ static void process_monster(int m_idx, bool is_friend)
 	inv = player_invis(m_ptr);
 
         if(r_ptr->flags9 & RF9_DOPPLEGANGER) doppleganger = m_idx;
-	
+
+        /* If the monster is sealed by Sealing Light, don't do anything */
+        if (m_ptr->seallight > 0)
+        {
+                m_ptr->seallight -= 1;
+                return;
+        }
+
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
 	{
@@ -7123,7 +7520,7 @@ static void process_monster(int m_idx, bool is_friend)
                 (r_ptr->flags1 & (RF1_QUESTOR)) && !(r_ptr->flags7 & RF7_PET))
 		gets_angry = TRUE;
 	
-        if ((gets_angry && p_ptr->pclass != CLASS_LEADER && p_ptr->pclass != CLASS_COMMANDER && p_ptr->pclass != CLASS_VALKYRIE && !ability(62))
+        if ((gets_angry && p_ptr->pclass != CLASS_LEADER && p_ptr->pclass != CLASS_COMMANDER && p_ptr->pclass != CLASS_VALKYRIE && p_ptr->pclass != CLASS_DARK_LORD && p_ptr->pclass != CLASS_HELLQUEEN && p_ptr->pclass != CLASS_MASTER && p_ptr->prace != RACE_MONSTER && m_ptr->friend == 0 && !(p_ptr->pclass == CLASS_NECRO && r_ptr->flags3 & RF3_UNDEAD))
         || (gets_angry && r_ptr->flags1 & (RF1_QUESTOR)))
 	{
 		char m_name[80];
@@ -7137,8 +7534,9 @@ static void process_monster(int m_idx, bool is_friend)
 	if (m_ptr->monfear)
 	{
 		/* Amount of "boldness" */
-		int d = randint(r_ptr->level / 10 + 1);
-		
+                /* int d = randint(r_ptr->level / 10 + 1); */
+                int d = 1;
+
 		/* Still afraid */
 		if (m_ptr->monfear > d)
 		{
@@ -7174,7 +7572,7 @@ static void process_monster(int m_idx, bool is_friend)
 	
 	
 	/* Attempt to "multiply" if able and allowed */
-	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO))
+        if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO) && !(is_pet(m_ptr)))
 	{
 		int k, y, x;
 		
@@ -7283,18 +7681,26 @@ static void process_monster(int m_idx, bool is_friend)
 	mm[0] = mm[1] = mm[2] = mm[3] = 0;
 	mm[4] = mm[5] = mm[6] = mm[7] = 0;
 
+        c_ptr = &cave[m_ptr->fy][m_ptr->fx];
 
 	/* Confused -- 100% random */
-        if (m_ptr->confused || (inv==TRUE))
+        if ((m_ptr->confused || (inv==TRUE)) && !leader_class())
 	{
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
+
+        /* The Dark Mist */
+        else if (c_ptr->feat == FEAT_DARK_MIST && randint(100) <= (25 + p_ptr->abilities[(CLASS_SHADOW * 10) + 6]) && m_ptr->boss < 1 && !(r_ptr->flags1 & RF1_UNIQUE))
+        {
+		/* Try four "random" directions */
+		mm[0] = mm[1] = mm[2] = mm[3] = 5;                
+        }
 	
 	/* 75% random movement */
 	else if ((r_ptr->flags1 & (RF1_RAND_50)) &&
 		(r_ptr->flags1 & (RF1_RAND_25)) &&
-		(rand_int(100) < 75))
+                (rand_int(100) < 75) && !leader_class())
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -7306,7 +7712,7 @@ static void process_monster(int m_idx, bool is_friend)
 	
 	/* 50% random movement */
 	else if ((r_ptr->flags1 & (RF1_RAND_50)) &&
-		(rand_int(100) < 50))
+                (rand_int(100) < 50) && !leader_class())
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -7317,7 +7723,7 @@ static void process_monster(int m_idx, bool is_friend)
 	
 	/* 25% random movement */
 	else if ((r_ptr->flags1 & (RF1_RAND_25)) &&
-		(rand_int(100) < 25))
+                (rand_int(100) < 25) && !leader_class())
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
@@ -7326,24 +7732,24 @@ static void process_monster(int m_idx, bool is_friend)
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
 
-        else if (is_pet(m_ptr) && (m_ptr->imprinted) && (p_ptr->pclass == CLASS_LEADER || p_ptr->pclass == CLASS_COMMANDER || ability(78)))
+        else if (is_pet(m_ptr) && (m_ptr->imprinted) && ((p_ptr->pclass == CLASS_LEADER || p_ptr->pclass == CLASS_COMMANDER || p_ptr->pclass == CLASS_VALKYRIE || p_ptr->pclass == CLASS_DARK_LORD || p_ptr->pclass == CLASS_HELLQUEEN || p_ptr->pclass == CLASS_MASTER || p_ptr->prace == RACE_MONSTER || m_ptr->friend == 1)))
         {
                 int                     Power = -1;
-                int                     num = 0, dir = 0 , i;
+                int                     num = 0, i;
                 int                     dire;
-                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
                 int             powers[36];
                 char            power_desc[36][80];
                 char            ch = 0;
 
                 bool            flag, redraw;
-                int             ask, plev = p_ptr->lev;
+                int             ask;
 
-                char            choice, tmpstr;
+                char            choice;
 
                 char            out_val[160];
                 char m_name[80];
+                char ch2 = 0;
 			
                 /* Extract monster name */
                 monster_desc(m_name, m_ptr, 0);
@@ -7352,9 +7758,20 @@ static void process_monster(int m_idx, bool is_friend)
 
                 /* List the powers */
                 strcpy(power_desc[num],"Move/Attack");powers[num++]=1;
-                strcpy(power_desc[num],"Skill/Magic");powers[num++]=2;
+                /* strcpy(power_desc[num],"Skill/Magic");powers[num++]=2; */
                 strcpy(power_desc[num],"Don't Move");powers[num++]=3;
-                strcpy(power_desc[num],"Turn in crystal");powers[num++]=4;
+                /* Friends don't like to be treated like mere pets! */
+                if (m_ptr->friend == 0 || p_ptr->pclass == CLASS_LEADER)
+                {
+                        strcpy(power_desc[num],"Turn in crystal");powers[num++]=4;
+                }
+                strcpy(power_desc[num],"Do on your own");powers[num++]=5;
+                /* On the other hands, friends have other advantages... */
+                /* But then, true leaders can have them too! */
+                if (m_ptr->friend == 1 || p_ptr->pclass == CLASS_LEADER) { strcpy(power_desc[num],"Level Up");powers[num++]=6;}
+                if (m_ptr->friend == 1 || p_ptr->pclass == CLASS_LEADER) { strcpy(power_desc[num],"Speak");powers[num++]=7;}
+                /* Leaders/Leadership ability */
+                if (p_ptr->pclass == CLASS_LEADER) { strcpy(power_desc[num],"Evolve Monster");powers[num++]=8;}
 
                 if(!num) {msg_print("This monster seems to be truly incompetent!");return;}
 
@@ -7368,13 +7785,17 @@ static void process_monster(int m_idx, bool is_friend)
                 if (num <= 26)
                 {
                         /* Build a prompt (accept all spells) */
-                        strnfmt(out_val, 78, "(%s is ready. Cur hp: %d/%d. %c-%c, *=List, ESC=exit) Command? ",
-                                m_name, m_ptr->hp, m_ptr->maxhp, I2A(0), I2A(num - 1));
+                        msg_format("(%s is ready. Cur hp: %ld. Press a key to continue...)", m_name, m_ptr->hp);
+                        move_cursor_relative(m_ptr->fy, m_ptr->fx);
+                        ch2 = inkey();
+                        strnfmt(out_val, 78, "(Command? %c-%c, *=List, ESC=exit)", I2A(0), I2A(num - 1));
                 }
                 else
-                {                        
-                        strnfmt(out_val, 78, "(%s is ready. Cur hp: %d/%d. %c-%c, *=List, ESC=exit) Command? ",
-                                m_name, m_ptr->hp, m_ptr->maxhp, I2A(0), '0' + num - 27);
+                {
+                        msg_format("(%s is ready. Cur hp: %ld. Press a key to continue...)", m_name, m_ptr->hp);
+                        move_cursor_relative(m_ptr->fy, m_ptr->fx);
+                        ch2 = inkey();                        
+                        strnfmt(out_val, 78, "(Command? %c-%c, *=List, ESC=exit)", I2A(0), '0' + num - 27);
                 }
 
                 /* Get a spell from the user */
@@ -7499,7 +7920,7 @@ static void process_monster(int m_idx, bool is_friend)
                 if (!flag) 
                 {
                         energy_use = 0;
-                        return num;
+                        return;
                 }
 
                 switch(Power)
@@ -7567,12 +7988,25 @@ static void process_monster(int m_idx, bool is_friend)
                         
                                 break;
                         case 2:
-                                pet_skills(m_idx);
+                                /* Must see the monster before using it's skills! */
+                                if (m_ptr->ml) pet_skills(m_idx);
                                 break;
                         case 3:
                                 break;
                         case 4:
                                 turn_in_crystal(m_ptr);
+                                break;
+                        case 5:
+                                m_ptr->imprinted = FALSE;
+                                break;
+                        case 6:
+                                levelup_friend(m_ptr);
+                                break;
+                        case 7:
+                                monster_speak(m_ptr);
+                                break;
+                        case 8:
+                                do_cmd_evolve_monster(m_ptr);
                                 break;
                 
                 }
@@ -7693,6 +8127,175 @@ static void process_monster(int m_idx, bool is_friend)
                                 /* Notice */
                                 cave_set_feat(ny, nx, FEAT_GRASS);
 		}
+
+                /* NEWANGBAND: Vines!! */
+                else if (cave[ny][nx].feat == FEAT_VINE_FIELD)
+		{
+                        if (r_ptr->d_char == 'P' && r_ptr->d_char == 'D' && r_ptr->d_char == 'm')
+                        do_move = TRUE;
+                        else
+                        {
+                                int randchance = 0;
+                                if ((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) randchance = 40;
+                                else randchance = 75;
+                                if (randint(100) > randchance) do_move = TRUE;
+                        }
+		}
+
+
+                /* NEWANGBAND: FIELDS!!! */
+                /* Are every monsters stupid enough to cross them or what? */
+                else if ((cave[ny][nx].feat == FEAT_FIRE_FIELD))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_FIRE;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+		}
+                else if ((cave[ny][nx].feat == FEAT_COLD_FIELD))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_COLD;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+		}
+                else if ((cave[ny][nx].feat == FEAT_ELEC_FIELD))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_ELEC;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+		}
+                else if ((cave[ny][nx].feat == FEAT_SPIKE_TRAP))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_PHYSICAL;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+
+                                /* The trap triggered, it disappear. */
+                                cave[ny][nx].feat = FEAT_FLOOR;
+
+                                update_and_handle();
+		}
+                else if ((cave[ny][nx].feat == FEAT_GAS_TRAP))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_SLEEP_GAS;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+
+                                /* The trap triggered, it disappear. */
+                                cave[ny][nx].feat = FEAT_FLOOR;
+
+                                update_and_handle();
+		}
+                else if ((cave[ny][nx].feat == FEAT_POISON_TRAP))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_POIS;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+
+                                /* The trap triggered, it disappear. */
+                                cave[ny][nx].feat = FEAT_FLOOR;
+
+                                update_and_handle();
+		}
+
+                else if ((cave[ny][nx].feat == FEAT_WEBS))
+		{
+                                /* The monster is stupid, and will walk trough! */
+                                do_move = TRUE;
+
+                                /* Slow it down! */
+                                /* Unless it's a spider...or Variaz! */
+                                if (m_ptr->mspeed > 0 && r_ptr->d_char != 'S' && m_ptr->r_idx != 1030)
+                                        m_ptr->mspeed -= 2;
+                                if (m_ptr->mspeed <= 0) m_ptr->mspeed = 0;
+
+                                /* Webs WILL vanish! */
+                                cave[ny][nx].feat = FEAT_FLOOR;
+
+                                /* Update */
+                                update_and_handle();
+		}
+                else if ((cave[ny][nx].feat == FEAT_THORNED_VINES))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_SHARDS;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+		}
+                else if ((cave[ny][nx].feat == FEAT_STORMS))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+
+                                /* Notice there is a field... */
+                                field_dam = TRUE;
+
+                                /* Check the field type... */
+                                fieldtype = GF_WIND;
+
+                                /* How much damages will the monster take? */
+                                field_dam_amount = c_ptr->field_damage;
+		}
+                else if ((cave[ny][nx].feat == FEAT_DARK_MIST))
+		{
+                                /* Cross the field... */
+                                do_move = TRUE;
+		}
+
 
 		/* Hack -- player 'in' wall */
 		else if ((ny == py) && (nx == px))
@@ -8062,7 +8665,9 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Do not move */
 			do_move = FALSE;
 		}
-		
+
+                /* No legs, no moves! */
+                if (m_ptr->abilities & (MUTILATE_LEGS)) do_move = FALSE;
 		
 		
 		/* Creature has been allowed move */
@@ -8105,6 +8710,18 @@ static void process_monster(int m_idx, bool is_friend)
 			
 			/* Redraw the new grid */
 			lite_spot(ny, nx);
+
+                        /* Was there a field here? */
+                        if (field_dam)
+                        {
+                                /* There is a field? Hurt the monster then! */
+                                no_magic_return = TRUE;
+                                nevermiss = TRUE;
+                                if (fieldtype == GF_SLEEP_GAS) corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 3 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 6] / 20), fieldtype);
+                                else corpse_explode(field_dam_amount, m_ptr->fx, m_ptr->fy, 0, fieldtype);
+                                no_magic_return = FALSE;
+                                nevermiss = FALSE;
+                        }
 
                         /* Execute the inscription -- MEGA HACK -- */
                         if (c_ptr->inscription == INSCRIP_CHASM)
@@ -8426,7 +9043,7 @@ void process_monsters(void)
 
 
 	/* Hack -- calculate the "player noise" */
-	noise = (1L << (30 - p_ptr->skill_stl));
+        noise = (1L << (30 - (p_ptr->skill_stealth / 3)));
 
 
 	/* Process the monsters (backwards) */
@@ -8567,3 +9184,189 @@ void process_monsters(void)
 	}
 }
 
+bool leader_class()
+{
+        if (p_ptr->pclass == CLASS_LEADER || p_ptr->pclass == CLASS_COMMANDER || p_ptr->pclass == CLASS_VALKYRIE || p_ptr->pclass == CLASS_DARK_LORD || p_ptr->prace == RACE_MONSTER) return (TRUE);
+        else return (FALSE);
+}
+
+/* Level up a friend! */
+void levelup_friend(monster_type *m_ptr)
+{
+        int apamount = 0;
+        char ch;
+        apamount = m_ptr->level * 100;
+        msg_format("You will need %d golds to raise the level...", apamount);
+        get_com("Level Up? [y/n]", &ch);
+        if (ch == 'y' || ch == 'Y')
+        {
+                if (p_ptr->au >= apamount)
+                {
+                        msg_print("Your friend gained a level!");
+                        m_ptr->level += 1;
+                        apply_monster_level_hp(m_ptr);
+                        p_ptr->au -= apamount;
+                        update_and_handle();
+                }
+                else msg_print("You need more money...");
+        }
+}
+
+/* Speak with your friends! :) */
+void monster_speak(monster_type *m_ptr)
+{
+        int thespeech = 0;
+        monster_race    *r_ptr = &r_info[m_ptr->r_idx];        
+        if (r_ptr->flags3 & (RF3_DRAGON))
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("I never tought smaller beings could be so nice!");
+                else if (thespeech >= 80) msg_print("Let me crush our foes!");
+                else if (thespeech >= 70) msg_print("Don't you have a few FireStones for me?");
+                else if (thespeech >= 60) msg_print("We dragons generally don't like lesser beings, but...you're the exception!");
+                else if (thespeech >= 50) msg_print("The last foe I ate tasted really bad you know!");
+                else if (thespeech >= 40) msg_print("I have heard that Variaz can summon dragons at will...");
+                else if (thespeech >= 30) msg_print("I am hungry...Those orcs are too small as preys!");
+                else if (thespeech >= 20) msg_print("Some peoples like to kill us for fun...Hope you're not like that!");
+                else if (thespeech >= 10) msg_print("Have you heard of Mana Maidens? Very powerful sorceresses...");
+                else msg_print("I hope I'm not too big for you...");
+        }
+        else if (r_ptr->flags3 & (RF3_DEMON))
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("So that's what friendship is all about...Nice!");
+                else if (thespeech >= 80) msg_print("You're the first one I meet who cares about us...");
+                else if (thespeech >= 70) msg_print("Demons aren't truly evil...they kill because they must.");
+                else if (thespeech >= 60) msg_print("Never let Devlings outnumber you!");
+                else if (thespeech >= 50) msg_print("Hell? Where is that?");
+                else if (thespeech >= 40) msg_print("Mana Maidens used to use the Demon's Ring for something...");
+                else if (thespeech >= 30) msg_print("Heard about The Executioner? He is very powerful, but dislike cold.");
+                else if (thespeech >= 20) msg_print("Darkness doesn't always mean 'Evil'!");
+                else if (thespeech >= 10) msg_print("Demons and angels...The eternal war...");
+                else msg_print("I finally discovered the meaning of 'Friend'!");
+        }
+        else if (r_ptr->flags3 & (RF3_UNDEAD))
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("I died once, but you won't let me die twice! I know that!");
+                else if (thespeech >= 80) msg_print("You know what? I was wearing a Demon's Ring when I died!");
+                else if (thespeech >= 70) msg_print("My biggest dream? To be as powerful as Dracula!");
+                else if (thespeech >= 60) msg_print("Watch out, undeads like myself may carry the Black Breath!");
+                else if (thespeech >= 50) msg_print("What I was? I was an adventurer, just like you!");
+                else if (thespeech >= 40) msg_print("Being dead isen't that scary you know!");
+                else if (thespeech >= 30) msg_print("Pain? Why, we undeads do not feel pain!");
+                else if (thespeech >= 20) msg_print("Use an Amulet Of Undead! Then, we'll be like brothers!");
+                else if (thespeech >= 10) msg_print("Not all of us are stupid, you know!");
+                else msg_print("My grave was made of nice stone...You don't care, huh?");
+        }
+        else if (r_ptr->flags3 & (RF3_TROLL))
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("Me...want....kill...");
+                else if (thespeech >= 80) msg_print("Trolls...................smart!");
+                else if (thespeech >= 70) msg_print("Stone Trolls...........nice.");
+                else if (thespeech >= 60) msg_print("Mana Maidens....so smart...so cute...but less than trolls.");
+                else if (thespeech >= 50) msg_print("Me.....hungry.....Wanna eat.........Sauron.");
+                else if (thespeech >= 40) msg_print("I regenerate!! I know that!! But....what does it mean?");
+                else if (thespeech >= 30) msg_print("Me strong!!!");
+                else if (thespeech >= 20) msg_print("Me............huh..........forgot.");
+                else if (thespeech >= 10) msg_print("I don't understand......You say you're not a monster?");
+                else msg_print("Trolls have gods.......but gods don't have trolls, so gods no smart.");
+        }
+        else if (r_ptr->flags3 & (RF3_ORC))
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("The best way to make friends? Combat of course!");
+                else if (thespeech >= 80) msg_print("Trap Weapons...How can you be cruel enough to use that skill?");
+                else if (thespeech >= 70) msg_print("Swords, axes, maces, polearms...I want them all!!");
+                else if (thespeech >= 60) msg_print("No offense, but I think you're not strong enough...");
+                else if (thespeech >= 50) msg_print("Those Mana Maidens girls don't even know how to use a weapon!");
+                else if (thespeech >= 40) msg_print("Our Shamans are wise, but cowards.");
+                else if (thespeech >= 30) msg_print("A friend of the orcs is a powerful warrior!");
+                else if (thespeech >= 20) msg_print("Variaz? I have heard he has a very cheap close combat ability...");
+                else if (thespeech >= 10) msg_print("Rings Of Safety...pfff, only cowards needs that!");
+                else msg_print("Amulets Of Golem...Golems have the strength, not the skill. I have both!");
+        }
+        else if (r_ptr->flags3 & (RF3_ORC))
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("The best way to make friends? Combat of course!");
+                else if (thespeech >= 80) msg_print("Trap Weapons...How can you be cruel enough to use that skill?");
+                else if (thespeech >= 70) msg_print("Swords, axes, maces, polearms...I want them all!!");
+                else if (thespeech >= 60) msg_print("No offense, but I think you're not strong enough...");
+                else if (thespeech >= 50) msg_print("Those Mana Maidens girls don't even know how to use a weapon!");
+                else if (thespeech >= 40) msg_print("Our Shamans are wise, but cowards.");
+                else if (thespeech >= 30) msg_print("A friend of the orcs is a powerful warrior!");
+                else if (thespeech >= 20) msg_print("Variaz? I have heard he has a very cheap close combat ability...");
+                else if (thespeech >= 10) msg_print("Rings Of Safety...pfff, only cowards needs that!");
+                else msg_print("Amulets Of Golem...Golems have the strength, not the skill. I have both!");
+        }
+        /* Cheater! */
+        else if (m_ptr->r_idx == 1030)
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("So...you managed to get me in your team. Nice work, cheater!");
+                else if (thespeech >= 80) msg_print("The God Of The Void helping a mortal...what am I doing?");
+                else if (thespeech >= 70) msg_print("WHAT? ToME IS BETTER THAN NEWANG??? WATCH YOUR TONGUE!!!");
+                else if (thespeech >= 60) msg_print("NewAngband is the greatest variant!");
+                else if (thespeech >= 50) msg_print("Utumno...Wow, nice...and boring too! No wonder why it's dead.");
+                else if (thespeech >= 40) msg_print("A bug? No, you must be dreaming.");
+                else if (thespeech >= 30) msg_print("Don't forget to visit the official web page!");
+                else if (thespeech >= 20) msg_print("Well, how about fighting against each others?");
+                else if (thespeech >= 10) msg_print("You know, if you don't defeat me, you can't win...");
+                else msg_print("e_info? Don't you know it's still used???");
+        }
+        else
+        {
+                thespeech = randint(100);
+                if (thespeech >= 90) msg_print("Hey, you're a good pal after all!");
+                else if (thespeech >= 80) msg_print("Mana Maidens were once simple Mages or Sorceresses...");
+                else if (thespeech >= 70) msg_print("Why are you crying? Because you can't turn me into a crystal?");
+                else if (thespeech >= 60) msg_print("Let's kill all those pesky little monsters...Why are you looking at me like that?");
+                else if (thespeech >= 50) msg_print("We're the best friends in the world!");
+                else if (thespeech >= 40) msg_print("A good Class/Ability combo is the key to winning!");
+                else if (thespeech >= 30) msg_print("You REALLY wanted me in your team, didn't you?");
+                else if (thespeech >= 20) msg_print("Let's take a little break, ok?");
+                else if (thespeech >= 10) msg_print("You're my best friend so far!");
+                else msg_print("Huh? Didn't hear you... What were you saying?");
+        }
+}
+
+/* Are we seduced by the monster? */
+bool seduction(monster_type *m_ptr)
+{
+        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+        if (p_ptr->psex == SEX_MALE && (r_ptr->flags7 & (RF7_SEDUCE_MALES))) return (TRUE);
+        else if (p_ptr->psex == SEX_FEMALE && (r_ptr->flags7 & (RF7_SEDUCE_FEMALES))) return (TRUE);
+        else if (p_ptr->psex == SEX_NEUTER && ((r_ptr->flags7 & (RF7_SEDUCE_MALES)) || (r_ptr->flags7 & (RF7_SEDUCE_MALES)))) return (TRUE);
+        else return (FALSE);
+}
+
+bool counterspell(monster_type *m_ptr)
+{
+        char ch;
+        if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4] >= 1)
+        {
+
+        get_com("Attempt to counter spell? [y/n]", &ch);
+        if (ch == 'y' || ch == 'Y')
+        {
+                if (randint((p_ptr->lev + p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4])) >= randint(m_ptr->level))
+                {
+                        msg_print("You successfully countered the spell!");
+                        return (TRUE);
+                }
+                else
+                {
+                        msg_print("You failed to counter the spell.");
+                        p_ptr->csp -= (p_ptr->msp / 5);
+                        if (p_ptr->csp < 0) p_ptr->csp = 0;
+                        update_and_handle();
+                        return (FALSE);
+                }
+        }
+        
+        }
+        return (FALSE);
+}

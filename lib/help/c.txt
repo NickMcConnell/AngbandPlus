@@ -1,0 +1,20 @@
+ELF
+-----
+
+Elves are slimmer and a little shorter than humans. They have
+pointed ears, and generally live in forests, and live in perfect
+harmony with nature and animals. Elves have a superior dexterity
+and agility compared to humans, and due to that great dexterity,
+they make good archers. However, their weaker stature also makes
+them weaker and frailer than humans, making them less suited
+for melee combat, although their natural dexterity and agility
+does give them some advantages.
+
+ADVANTAGES: +25% to Dexterity
+            +10% to Agility skill
+
+DISADVANTAGES: -25% to Strength
+               -10% to Constitution
+
+
+

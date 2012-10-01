@@ -1,0 +1,15 @@
+# q_morgot.txt
+
+# Name
+Q:11:N:Arakzatrys The Absolute
+
+# Definition
+Q:11:Q:1:0:0:1:120:982:0:2
+
+# Description for quest
+?:[LEQ $QUEST11 2]
+Q:11:T:Gigantic...terrifying...divinely powerful...unknown
+Q:11:T:entity of absolute destruction... Little is known
+Q:11:T:about the creature known as 'Arakzatrys'...
+?:1
+

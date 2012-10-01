@@ -195,6 +195,8 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 	HDC hDC;
 	BOOL bCoreHead = FALSE;
 
+        lpFileName = "./lib/xtra/graf/16x16.bmp";
+
 	/* Open the file and get a handle to it's BITMAPINFO */
 	fh = OpenFile(lpFileName, &of, OF_READ);
 	if (fh == -1)

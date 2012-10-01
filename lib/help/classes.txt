@@ -1,0 +1,261 @@
+NEWANGBAND CLASSES
+--------------------
+
+BASIC CLASSES
+-------------
+
+WARRIOR:
+        Strength: +25%
+        Constitution: +25%
+        Intelligence: -25%
+
+The warrior is an adept of melee combat. Swords, axes, spears, maces,
+warriors use different kind of weapons, and can perform various combat
+techniques to defeat their opponents. Warriors need to be strong and
+healthy, but because they greatly focus in these traits, they tend to
+be not too smart, and thus they have less mana available, meaning they
+will have an harder time casting spells.
+
+MAGE:
+        Strength: -25%
+        Intelligence: +25%
+
+The mage is a smart individual, who is skilled in the art of spellcasting.
+They spend their life studying magic, and learn to create many powerful
+spells. Mages generally have low strength, and therefore doesn't make
+good melee fighters. That's why mages often use summoning spells to
+conjure various creatures to fight for them. The spells of a mage can do
+many things: hurl a devastating fireball, heal wounds, summon creatures,
+detect creatures, see hidden areas, and much more.
+
+PRIEST:
+        Wisdom: +25%
+
+The priest is a wise and pious character who prays to his or her god or
+goddess. The priest is both a spellcaster and a warrior, and their
+main purpose is to protect and defend their church. Therefore, a priest
+learn many protective and curative abilities. They can also conjure
+divine energy to empower their bodies, and some even perform some strange
+rituals that can have surprising effects.
+
+ROGUE:
+        Dexterity: +25%
+        Agility skill: +25%
+        Stealth skill: +25%
+
+The rogue is a clever, cunning, agile and stealthy character. The rogue lurks
+in the shadow, obtaining his/her goods by stealing, and are good at killing
+enemies in their sleep. A rogue learn to setup multiple kind of traps to
+defeat their unsuspecting opponents. Dexterity, stealth and agility is the
+rogue's trademark, making them good melee fighters even if they don't have
+the warrior's strength. And the rogue also has more brain than a warrior,
+and make a better magic user.
+
+RANGER:
+        Strength: +17%
+        Dexterity: +25%
+        Constitution: +17%
+
+The ranger is a protector of nature and balance. He/she lives in the forest,
+and is in perfect symbiosis with plants and animals. Almost as good at
+fighting as the warriors and more dextrous, the ranger can call upon
+the forces of nature to animate the plants or summon animals. Rangers
+are versatile characters who can adapt themselves to all kind of
+situations.
+
+PALADIN:
+        Strength: +20%
+        Wisdom: +20%
+        Constitution: +20%
+        Charisma: +25%
+        Resistant to fear.
+
+The paladin is a holy crusader who fights in the name of good and justice.
+Invested with the mission of destroying all things evil, the paladin is
+a skilled, fearless warrior who inspire courage and faith to his/her allies.
+The paladin, like the priest, can call upon special and divine abilities to
+assist him/her in defeating evil monsters.
+
+MONK:
+        Strength: +25%
+        Wisdom: +33%
+        Constitution: +25%
+        Agility skill: +25%
+        Martial Arts skill: +25%
+        +1 to speed for every 10 levels.
+        Immune to paralysis.
+
+The monk is a wise warrior who renounce to the material world in order to
+find inner peace and tranquility. Skilled in various martial arts styles,
+the monk is an adept at fighting without any weapons or armors. They learn
+various fighting techniques, and learn to defend themselves even without
+armor. Spiritually enlighted, the monk learn skills quickly, and their
+speed, strength and mastery of self makes them dangerous opponents.
+
+ARCHER:
+        Dexterity: +50%
+
+The archer is a master of the bow and arrows(or crossbow and bolts).
+Considered cowardly by the warriors, archers prefers to strike their
+opponents from a safe distance. They learn various techniques, some of
+consisting in shooting flaming arrows, armor-piercing shots or disable
+legs or arms from a safe distance. Their dexterity is very high, as
+they need a lot of it to make good shots from a great distance.
+
+
+ADVANCED CLASSES
+----------------
+
+HIGH MAGE:
+Requirements: Mage level 5, Intelligence: 40
+
+        Intelligence: +50%
+        Strength: -50%
+        Constitution: -20%
+
+The high mage is a more experienced and more skilled mage. Having
+dedicated a good portion of his/her life to create powerful spells,
+their spells are nearly unequalled in power, and the high mages are
+feared by all. However, having dedicated their life to their studies,
+they have renounced to martial training, and therefore, they are
+physically very weak and frail. But make no mistakes, their spells
+more than make up for their frail bodies!
+
+ELEMENTAL LORD:
+Requirements: Warrior level 3, Strength: 20, Intelligence: 10
+
+        Strength: +25%
+        Constitution: +25%
+        Intelligence: +17%
+
+Elemental Lords are mysterious warriors of superior skill who imbued
+their bodies with elemental energy. The Elemental Lord chooses one
+of the many magical elements, and seeks to master it. They use various
+combat techniques centered around their element, and are good at casting
+spells, especially spells of their chosen element.
+
+MONSTER MAGE:
+Requirements: Intelligence: 10, Constitution: 10
+
+        Intelligence: +25%
+        Constitution: +25%
+
+Monster Mages have observed the various kind of monsters, and seeks to
+imitate them and their attacks. The Monster Mage can learn the spells
+of the monsters, and has the unique ability to morph into a specific
+monster of his or her choice. Once morphed, the Monster Mage seeks to
+master this form and become as good as the real creature, if not better.
+Some monster mages restrain from morphing, learning other abilities,
+such as magically imitating a dragon's fire breath or mind controlling
+creatures...
+
+DEFENDER:
+Requirements: Warrior level 3, Strength: 20, Constitution: 20
+
+        Strength: +33%
+        Constitution: +33%
+        Bonus to_ac: experience level * 2
+        Resistant to fear.
+        Resistant to confusion.
+        Immune to paralysis.
+
+Defenders are warriors who lives by the principle that the best offense
+lies in the best defense. The defender is adept at fighting in heavy
+armor and using a shield. They learn to fight better using their shield,
+learn to wear their armor in an efficient way, and learn other combat
+techniques centered around their great defense. That makes the defender
+not only a strong warrior, but also extremely hard to kill.
+
+JUSTICE WARRIOR:
+Requirements: Paladin level 5, Strength: 20, Wisdom: 20, Charisma: 20
+
+        Strength: +25%
+        Constitution: +25%
+        Wisdom: +25%
+        Charisma: +33%
+        Resistant to light.
+        Resistant to experience draining.
+        Resistant to fear.
+        Sustained wisdom.
+        Sustained charisma.
+        Emits a small aura of light.
+
+Justice Warriors are the supreme defenders of good and justice. They
+hate evil beyond anything else, and dedicate their life to the killing
+of demons, undeads and other evil creatures. Even more virtuous and
+blessed than the paladin, the Justice Warrior is greatly respected by
+his/her friends, and greatly feared by his/her foes.
+
+ZELAR:
+Requirements: Monk level 10, Strength: 40, Wisdom: 40, Dexterity: 40
+        Constitution: 20
+
+        Strength: +33%
+        Dexterity: +33%
+        Constitution: +33%
+        Wisdom: +33%
+        +1 to speed for every 10 levels.
+        Resistant to confusion.
+        Resistant to fear.
+        Sustained strength.
+        Sustained dexterity.
+        Sustained intelligence.
+        Sustained wisdom.
+        Sustained constitution.
+        Agility skill: +33%
+        Martial Arts skill: +33%
+
+Zelars are an ancient order of monks who have achieved complete mastery
+over their bodies and inner energy. They can channel this energy to
+perform various amazing feats and combat techniques, and are extremely
+dangerous to face in combat. From healing their wounds and magical
+energy to emanating deadly waves of energy from their fists and feet,
+the Zelars are the ultimate masters of unarmed combat.
+
+SOUL GUARDIAN:
+Requirements: Wisdom: 20, Charisma: 10
+
+        Wisdom: +33%
+        Charisma: +33%
+	Strength: -33%
+	Constitution: -25%
+	Resistant to confusion.
+	Resistant to fear.
+	Immune to experience draining.
+	Sustained wisdom.
+	Sustained charisma.
+	
+	Upon gaining the first class level of the Soul Guardian,
+	you permanently gain the "Capture Soul" ability. This
+	ability allow you to turn a monster into a soul if it's
+	hp is at most 20% of it's max hp. Uniques must be at
+	most 5%. Even if the monster is weak enough, success
+	is not guaranteed, and the outcome depends on your
+	wisdom and the monster's level. If you succeed, the
+	soul will appear in your inventory as an eternal item.
+
+Soul Guardians are wise men and women who conjure, capture and invoke
+the souls of the living. They protect the souls of their friends and
+loved ones, while capturing and reshape the soul of their enemies.
+While physically frail, Soul Guardians prevail by capturing the souls
+of their enemies, and draw their powers from captured souls. Some
+guardians are able to recreate a creature from a soul, while others
+bind the souls to inanimate objects, turning them into powerful
+magic items.
+
+SHADOW STALKER:
+Requirements: Rogue level 3, Dexterity: 30, Stealth skill: 40
+
+	Dexterity: +33%
+	Agility skill: +33%
+	Stealth skill: +33%
+	Sustained dexterity.
+
+Shadow Stalkers are dark individuals who makes one with the shadows.
+Their great stealth allow them to move silently without being noticed,
+allowing them to use deadly sneak attacks when their foes expect them
+the less. But being one with the shadows, Shadow Stalkers are far
+from mundane assassins. They learn to control and shape the shadows,
+using them to create illusions, hide and deceive their foes. Some
+even draw magical darkness from the shades, and use it to combat their
+enemies.

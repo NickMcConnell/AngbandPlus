@@ -93,7 +93,7 @@ void do_cmd_redraw(void)
  */
 void do_cmd_change_name(void)
 {
-	char	c;
+        char    c,d;
 
 	int		mode = 0;
 
@@ -109,6 +109,9 @@ void do_cmd_change_name(void)
 	/* Forever */
 	while (1)
 	{
+                /* Do an update_and_handle! */
+                update_and_handle();
+                
 		/* Display the player */
 		display_player(mode);
 
@@ -123,8 +126,8 @@ void do_cmd_change_name(void)
                 {
                         Term_putstr(6, 22, -1, TERM_WHITE,
                                 "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
-                        Term_putstr(16, 23, -1, TERM_WHITE,
-                                "['t' to change tactics, 'e' change to movement]");
+                        Term_putstr(6, 23, -1, TERM_WHITE,
+                                "['s' to improve stats, 'k' to improve skills]");
                 }else{
                         Term_putstr(6, 23, -1, TERM_WHITE,
                                 "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
@@ -161,15 +164,130 @@ void do_cmd_change_name(void)
 			mode++;
 		}
 
-                else if (c == 't')
+                /* else if (c == 't')                                  */
+                /* {                                                   */
+                /*         if (mode==0) (void)do_cmd_change_tactic();  */
+                /* }                                                   */
+                                                                       
+                /* else if (c == 'e')                                  */
+                /* {                                                   */
+                /*         if (mode==0) do_cmd_change_movement();      */
+                /* }                                                   */
+                else if (c == 's')
                 {
-                        if (mode==0) (void)do_cmd_change_tactic();
+                        if (p_ptr->statpoints <= 0) msg_print("You have no stat points left!");
+                        else
+                        {
+                                if (p_ptr->prace != RACE_MONSTER)
+                                {
+
+                                msg_print("Which stat? [S]tr, [I]nt, [W]is, [D]ex, [C]on, C[h]r?");
+                                d = inkey();
+                                if (d == 'S' || d == 's')
+                                {                                        
+                                        p_ptr->stat_max[A_STR]++;
+                                        p_ptr->stat_use[A_STR]++;
+                                        p_ptr->stat_cur[A_STR]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'I' || d == 'i')
+                                {
+                                        if (p_ptr->prace == RACE_SKELETON) msg_print("Skeletons cannot raise their intelligence!");
+                                        else
+                                        {
+                                                p_ptr->stat_max[A_INT]++;
+                                                p_ptr->stat_use[A_INT]++;
+                                                p_ptr->stat_cur[A_INT]++;
+                                                p_ptr->statpoints -= 1;
+                                        }
+                                }
+                                if (d == 'W' || d == 'w')
+                                {
+                                        p_ptr->stat_max[A_WIS]++;
+                                        p_ptr->stat_use[A_WIS]++;
+                                        p_ptr->stat_cur[A_WIS]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'D' || d == 'd')
+                                {
+                                        p_ptr->stat_max[A_DEX]++;
+                                        p_ptr->stat_use[A_DEX]++;
+                                        p_ptr->stat_cur[A_DEX]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'C' || d == 'c')
+                                {                                       
+                                        p_ptr->stat_max[A_CON]++;
+                                        p_ptr->stat_use[A_CON]++;
+                                        p_ptr->stat_cur[A_CON]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'H' || d == 'h')
+                                {
+                                        p_ptr->stat_max[A_CHR]++;
+                                        p_ptr->stat_use[A_CHR]++;
+                                        p_ptr->stat_cur[A_CHR]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                }
+                                else
+                                {
+                                msg_print("Which stat? [S]tr, [W]is, [D]ex, C[h]r?");
+                                d = inkey();
+                                if (d == 'S' || d == 's')
+                                {                                        
+                                        p_ptr->stat_max[A_STR]++;
+                                        p_ptr->stat_use[A_STR]++;
+                                        p_ptr->stat_cur[A_STR]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'W' || d == 'w')
+                                {
+                                        p_ptr->stat_max[A_WIS]++;
+                                        p_ptr->stat_use[A_WIS]++;
+                                        p_ptr->stat_cur[A_WIS]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'D' || d == 'd')
+                                {
+                                        p_ptr->stat_max[A_DEX]++;
+                                        p_ptr->stat_use[A_DEX]++;
+                                        p_ptr->stat_cur[A_DEX]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+                                if (d == 'H' || d == 'h')
+                                {
+                                        p_ptr->stat_max[A_CHR]++;
+                                        p_ptr->stat_use[A_CHR]++;
+                                        p_ptr->stat_cur[A_CHR]++;
+                                        p_ptr->statpoints -= 1;
+                                }
+
+                                }
+                                /* update... */
+                                update_and_handle();
+
+                                /* Display the player */
+                                display_player(mode);
+                        }
+                }
+                else if (c == 'k')
+                {
+                        if (p_ptr->skillpoints <= 0) msg_print("You have no skill points left!");
+                        else
+                        {
+                                /* Call the improve_skills function from learn.c! */
+                                improve_skills();
+
+                                /* update... */
+                                update_and_handle();
+
+                                /* Display the player */
+                                display_player(mode);
+                        }
                 }
 
-                else if (c == 'e')
-                {
-                        if (mode==0) do_cmd_change_movement();
-                }
+
 		/* Oops */
 		else
 		{
@@ -2530,16 +2648,8 @@ void do_cmd_note(void)
 	/* Ignore empty notes */
 	if (!buf[0] || (buf[0] == ' ')) return;
 
-	if (take_notes)
-	{
-		/* Add note to file */
-		add_note(buf, ' ');
-	}
-	else
-	{
-		/* Add note to message recall */
-		msg_format("Note: %s", buf);
-	}
+        /* Add note to message recall */
+        msg_format("Note: %s", buf);
 }
 
 
@@ -2594,12 +2704,6 @@ void do_cmd_feeling(void)
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
-
-        /* Feeling of the fate */
-        if ((fate_flag) && (!special_flag) && (!p_ptr->inside_quest))
-	{
-                msg_print("You feel that you will meet your fate here.");
-	}
 
         /* No useful feeling in special levels */
         if (special_flag)
@@ -3600,122 +3704,6 @@ static void do_cmd_knowledge_quests(void)
         fd_kill(file_name);
 }
 
-
-/*
- * Print fate status
- */
-static void do_cmd_knowledge_fates(void)
-{
-	FILE *fff;
-	char file_name[1024];
-	int i;
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-        for (i = 0; i < MAX_FATES; i++)
-	{
-                if((fates[i].fate) && (fates[i].know))
-                {
-                        if(fates[i].serious)
-                        {
-                                fprintf(fff, "You are fated to ");
-                        }
-                        else
-                        {
-                                fprintf(fff, "You may ");
-                        }
-                        switch(fates[i].fate)
-                        {
-                                case FATE_FIND_O:
-                                {
-                                        object_type *o_ptr, forge;
-                                        char desc[80];
-
-                                        o_ptr = &forge;
-                                        object_prep(o_ptr, fates[i].o_idx);
-                                        object_desc_store(desc, o_ptr, 1, 0);
-
-                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
-                                        break;
-                                }
-                                case FATE_FIND_A:
-                                {
-                                        object_type *q_ptr, forge;
-                                        char desc[80];
-                                        artifact_type *a_ptr = &a_info[fates[i].a_idx];
-                                        int I_kind;
-
-					/* Get local object */
-					q_ptr = &forge;
-
-					/* Wipe the object */
-					object_wipe(q_ptr);
-
-					/* Acquire the "kind" index */
-					I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-					/* Create the artifact */
-					object_prep(q_ptr, I_kind);
-
-					/* Save the name */
-                                        q_ptr->name1 = fates[i].a_idx;
-
-					/* Extract the fields */
-					q_ptr->pval = a_ptr->pval;
-					q_ptr->ac = a_ptr->ac;
-					q_ptr->dd = a_ptr->dd;
-					q_ptr->ds = a_ptr->ds;
-					q_ptr->to_a = a_ptr->to_a;
-					q_ptr->to_h = a_ptr->to_h;
-					q_ptr->to_d = a_ptr->to_d;
-					q_ptr->weight = a_ptr->weight;
-
-					/* Hack -- acquire "cursed" flag */
-					if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-					random_artifact_resistance(q_ptr);
-
-                                        object_desc_store(desc, q_ptr, 1, 0);
-
-                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
-                                        break;
-                                }
-                                case FATE_FIND_R:
-                                {
-                                        char desc[80];
-
-                                        monster_race_desc(desc, fates[i].r_idx);
-                                        fprintf(fff, "meet %s on level %d.\n", desc, fates[i].level);
-                                        break;
-                                }
-                                case FATE_DIE:
-                                {
-                                        fprintf(fff, "die on level %d.\n", fates[i].level);
-                                        break;
-                                }
-                                case FATE_NO_DIE_MORTAL:
-                                {
-                                        fprintf(fff, "never to die by the hand of a mortal being.\n");
-                                        break;
-                                }
-                        }
-                }                        
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-        show_file(file_name, "Fate status", 0, 0);
-
-	/* Remove the file */
-        fd_kill(file_name);
-}
-
 /* Show the notefile */
 void do_cmd_knowledge_notes(void)
 {
@@ -3759,10 +3747,7 @@ void do_cmd_knowledge(void)
 		prt("(5) Display mutations", 8, 5);
 		prt("(6) Display current pets", 9, 5);
 		prt("(7) Display current quests", 10, 5);
-                prt("(8) Display current fates", 11, 5);
-                prt("(9) Display known traps", 12, 5);
-                if (take_notes)
-                        prt("(0) Display notes", 13, 5);
+                prt("(8) Display known traps", 11, 5);
 
 		/* Prompt */
                 prt("Command: ", 14, 0);
@@ -3796,17 +3781,8 @@ void do_cmd_knowledge(void)
 		case '7': /* Quests */
 			do_cmd_knowledge_quests();
 			break;
-                case '8': /* Fates */
-                        do_cmd_knowledge_fates();
-			break;
-                case '9': /* Traps */
+                case '8': /* Traps */
                         do_cmd_knowledge_traps();
-			break;
-                case '0': /* Notes */
-		        if (take_notes)
-                          do_cmd_knowledge_notes();
-			else
-			  bell();
 			break;
 		default: /* Unknown option */
 			bell();

@@ -326,7 +326,7 @@ static bool player_handle_missile_trap(s16b num, s16b tval, s16b sval, s16b dd, 
    o_ptr = &forge;
    object_prep(o_ptr, k_idx);
    o_ptr->number = num;
-   apply_magic(o_ptr, max_dlv[dungeon_type], FALSE, FALSE, FALSE);
+   apply_magic(o_ptr, max_dlv[dungeon_type], FALSE, FALSE, FALSE, FALSE);
    object_desc(i_name, o_ptr, TRUE, 0);
 
    if (num == 1)
@@ -822,7 +822,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
                {
                    msg_print("You feel as if you had a nightmare!");
                }
-               else if (rand_int(100) < p_ptr->skill_sav)
+               else if (rand_int(100) < p_ptr->stat_ind[A_WIS])
                {
                    msg_print("You remember having a nightmare!");
                }
@@ -985,7 +985,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
       case TRAP_OF_NEW:
          {
             /* if we're on a floor or on a door, place a new trap */
-            if ((item == -1) || (item == -2))
+            /*if ((item == -1) || (item == -2))
             {
 		  place_trap(y, x);
                   if (player_has_los_bold(x, y))
@@ -995,10 +995,10 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
                   }
                }
             else
-            {
+            {*/
                /* re-trap the chest */
-	       place_trap(y, x);
-            }
+               place_trap(y, x);
+            /*}*/
             msg_print("You hear a noise, and then it's echo.");
             ident=FALSE;
          }
@@ -1175,13 +1175,13 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
       case TRAP_OF_POISON_ARROW_IV:
          ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_HEAVY, 12, 16, 40+randint(70), "Poison Seeker Bolt Trap"); break;
       case TRAP_OF_DAGGER_I:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_BROKEN_DAGGER, 4, 8, 0, "Dagger Trap"); break;
+         ident = player_handle_missile_trap(1, TV_DAGGER, 1, 4, 8, 0, "Dagger Trap"); break;
       case TRAP_OF_DAGGER_II:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_DAGGER, 10, 8, 0, "Dagger Trap"); break;
+         ident = player_handle_missile_trap(1, TV_DAGGER, 2, 10, 8, 0, "Dagger Trap"); break;
       case TRAP_OF_POISON_DAGGER_I:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_BROKEN_DAGGER, 4, 8, 15+randint(20), "Poison Dagger Trap"); break;
+         ident = player_handle_missile_trap(1, TV_DAGGER, 1, 4, 8, 15+randint(20), "Poison Dagger Trap"); break;
       case TRAP_OF_POISON_DAGGER_II:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_DAGGER, 10, 8, 20+randint(30), "Poison Dagger Trap"); break;
+         ident = player_handle_missile_trap(1, TV_DAGGER, 2, 10, 8, 20+randint(30), "Poison Dagger Trap"); break;
 
       /*
        * multiple missile traps
@@ -1205,13 +1205,13 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
       case TRAP_OF_POISON_ARROWS_IV:
          ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_HEAVY, 12, 16, 40+randint(70), "Poison Seeker Bolt Trap"); break;
       case TRAP_OF_DAGGERS_I:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_BROKEN_DAGGER, 4, 8, 0, "Dagger Trap"); break;
+         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_DAGGER, 1, 4, 8, 0, "Dagger Trap"); break;
       case TRAP_OF_DAGGERS_II:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_DAGGER, 10, 8, 0, "Dagger Trap"); break;
+         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_DAGGER, 2, 10, 8, 0, "Dagger Trap"); break;
       case TRAP_OF_POISON_DAGGERS_I:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_BROKEN_DAGGER, 4, 8, 15+randint(20), "Poison Dagger Trap"); break;
+         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_DAGGER, 1, 4, 8, 15+randint(20), "Poison Dagger Trap"); break;
       case TRAP_OF_POISON_DAGGERS_II:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_DAGGER, 10, 8, 20+randint(30), "Poison Dagger Trap"); break;
+         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_DAGGER, 2, 10, 8, 20+randint(30), "Poison Dagger Trap"); break;
 
       case TRAP_OF_DROP_ITEMS:
          {
@@ -1412,25 +1412,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 	   
       /* Trap of Tanker Drain */
       case TRAP_OF_TANKER_DRAIN:
-         if (p_ptr->ctp>0)
-         {
-            p_ptr->ctp = 0;
-            p_ptr->redraw |= (PR_TANK);
-            msg_print("You sense a great loss.");
-            ident=TRUE;
-         }
-         else
-         {
-	    /* no sense saying this unless you never have tanker point */
-	    if (p_ptr->mtp==0)
-            {
-               msg_format("Suddenly you feel glad you're only a %s",rp_ptr->title);
-            }
-            else
-            {
-               msg_print("Your head feels dizzy for a moment.");
-            }
-         }
+         /* Must be removed in the future... */
          break;
       
       /* Trap of Divine Anger */

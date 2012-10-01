@@ -1069,43 +1069,49 @@ static void display_player_middle(void)
 	if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
 	/* Dump the bonuses to hit/dam */
-	prt_num("+ To Hit    ", show_tohit, 9, 1, TERM_L_BLUE);
-	prt_num("+ To Damage ", show_todam, 10, 1, TERM_L_BLUE);
+        prt_num("+ To Hit    ", show_tohit, 8, 1, TERM_L_BLUE);
+        prt_num("+ To Damage ", show_todam, 9, 1, TERM_L_BLUE);
 
 	/* Dump the armor class bonus */
-	prt_num("+ To AC     ", p_ptr->dis_to_a, 11, 1, TERM_L_BLUE);
+        prt_num("+ To AC     ", p_ptr->dis_to_a, 10, 1, TERM_L_BLUE);
 
 	/* Dump the total armor class */
-	prt_num("  Base AC   ", p_ptr->dis_ac, 12, 1, TERM_L_BLUE);
-        prt_num("  Ability P ", p_ptr->ability_points, 13, 1, TERM_L_GREEN);
-        prt_num("  Multiplier ", p_ptr->multiplier, 14, 1, TERM_L_GREEN);
+        /* prt_num("  Base AC   ", p_ptr->dis_ac, 11, 1, TERM_L_BLUE); */
+        prt_num("  Ability P ", p_ptr->ability_points, 11, 1, TERM_L_GREEN);
+        prt_num("  Multiplier ", p_ptr->multiplier, 12, 1, TERM_L_GREEN);
+        prt_num("  Shooter Mul", p_ptr->smultiplier, 13, 1, TERM_L_GREEN);
+        prt_num("  Leaders Mul", p_ptr->lmultiplier, 14, 1, TERM_L_GREEN);
 
-	prt_num("Level      ", (int)p_ptr->lev, 9, 28, TERM_L_GREEN);
+        prt_num("Level      ", (int)p_ptr->lev, 6, 28, TERM_L_GREEN);
 
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		prt_lnum("Experience ", p_ptr->exp, 10, 28, TERM_L_GREEN);
+                prt_lnum("Experience ", p_ptr->exp, 7, 28, TERM_L_GREEN);
 	}
 	else
 	{
-		prt_lnum("Experience ", p_ptr->exp, 10, 28, TERM_YELLOW);
+                prt_lnum("Experience ", p_ptr->exp, 7, 28, TERM_YELLOW);
 	}
 
-	prt_lnum("Max Exp    ", p_ptr->max_exp, 11, 28, TERM_L_GREEN);
+        prt_lnum("Max Exp    ", p_ptr->max_exp, 8, 28, TERM_L_GREEN);
 
 	if (p_ptr->lev >= PY_MAX_LEVEL)
 	{
-		put_str("Exp to Adv.", 12, 28);
-		c_put_str(TERM_L_GREEN, "    *****", 12, 28+11);
+                put_str("Exp to Adv.", 9, 28);
+                c_put_str(TERM_L_GREEN, "    *****", 9, 28+11);
 	}
 	else
 	{
 		prt_lnum("Exp to Adv.",
 		         (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
-		         12, 28, TERM_L_GREEN);
+                         9, 28, TERM_L_GREEN);
 	}
 
-	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
+        prt_lnum("Gold       ", p_ptr->au, 10, 28, TERM_L_GREEN);
+        prt_lnum("Stat Points ", p_ptr->statpoints, 11, 28, TERM_L_GREEN);
+        prt_lnum("Skill Points", p_ptr->skillpoints, 12, 28, TERM_L_GREEN);
+        prt_lnum("Class Level ", p_ptr->class_level[p_ptr->pclass], 13, 28, TERM_L_GREEN);
+        prt_lnum("Class Kills ", p_ptr->class_kills[p_ptr->pclass], 14, 28, TERM_L_GREEN);
 
         if(p_ptr->class_extra6 & CLASS_UNDEAD)
         {
@@ -1255,9 +1261,8 @@ static cptr likert(int x, int y)
 static void display_player_various(void)
 {
     int         tmp, tmp2, damdice, damsides, dambonus, blows;
-	int			xthn, xthb, xfos, xsrh;
-	int			xdis, xdev, xsav, xstl;
-	cptr		desc;
+        cptr            desc; 
+        char sdesc[20];
     int         muta_att = 0, i;
 
 	object_type		*o_ptr;
@@ -1267,16 +1272,6 @@ static void display_player_various(void)
 	if (p_ptr->muta2 & MUT2_BEAK)      muta_att++;
 	if (p_ptr->muta2 & MUT2_TRUNK)     muta_att++;
 	if (p_ptr->muta2 & MUT2_TENTACLES) muta_att++;
-
-	/* Fighting Skill (with current weapon) */
-	o_ptr = &inventory[INVEN_WIELD];
-	tmp = p_ptr->to_h + o_ptr->to_h;
-	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
-
-	/* Shooting Skill (with current bow and normal missile) */
-	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
-	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 
      /* Average damage per round */
@@ -1290,46 +1285,69 @@ static void display_player_various(void)
 
      /* Basic abilities */
 
-	xdis = p_ptr->skill_dis;
-	xdev = p_ptr->skill_dev;
-	xsav = p_ptr->skill_sav;
-	xstl = p_ptr->skill_stl;
-	xsrh = p_ptr->skill_srh;
-	xfos = p_ptr->skill_fos;
+        put_str("Swords    :", 16, 1);
+        sprintf(sdesc, "%d", p_ptr->skill_swords);
+        c_put_str(TERM_L_BLUE, sdesc, 16, 15);
 
+        put_str("Hafted    :", 17, 1);
+        sprintf(sdesc, "%d", p_ptr->skill_hafted);
+        c_put_str(TERM_L_BLUE, sdesc, 17, 15);
 
-	put_str("Fighting    :", 16, 1);
-	desc = likert(xthn, 12);
-	c_put_str(likert_color, desc, 16, 15);
+        put_str("Polearms  :", 18, 1);
+        sprintf(sdesc, "%d", p_ptr->skill_polearms);
+        c_put_str(TERM_L_BLUE, sdesc, 18, 15);
 
-	put_str("Bows/Throw  :", 17, 1);
-	desc = likert(xthb, 12);
-	c_put_str(likert_color, desc, 17, 15);
+        put_str("Daggers   :", 19, 1);
+        sprintf(sdesc, "%d", p_ptr->skill_daggers);
+        c_put_str(TERM_L_BLUE, sdesc, 19, 15);
 
-	put_str("Saving Throw:", 18, 1);
-	desc = likert(xsav, 6);
-	c_put_str(likert_color, desc, 18, 15);
+        put_str("Axes      :", 20, 1);
+        sprintf(sdesc, "%d", p_ptr->skill_axes);
+        c_put_str(TERM_L_BLUE, sdesc, 20, 15);
+                                       
+        put_str("Rods      :", 21, 1);
+        sprintf(sdesc, "%d", p_ptr->skill_rods);
+        c_put_str(TERM_L_BLUE, sdesc, 21, 15);
 
-	put_str("Stealth     :", 19, 1);
-	desc = likert(xstl, 1);
-	c_put_str(likert_color, desc, 19, 15);
+        put_str("Shooting  :", 16, 19);
+        sprintf(sdesc, "%d", p_ptr->skill_shooting);
+        c_put_str(TERM_L_BLUE, sdesc, 16, 33);
 
+        put_str("Throwing  :", 17, 19);
+        sprintf(sdesc, "%d", p_ptr->skill_throwing);
+        c_put_str(TERM_L_BLUE, sdesc, 17, 33);
 
-	put_str("Perception  :", 16, 28);
-	desc = likert(xfos, 6);
-	c_put_str(likert_color, desc, 16, 42);
+        put_str("M. Arts   :", 18, 19);
+        sprintf(sdesc, "%d", p_ptr->skill_marts);
+        c_put_str(TERM_L_BLUE, sdesc, 18, 33);
 
-	put_str("Searching   :", 17, 28);
-	desc = likert(xsrh, 6);
-	c_put_str(likert_color, desc, 17, 42);
+        put_str("Agility   :", 19, 19);
+        sprintf(sdesc, "%d", p_ptr->skill_agility);
+        c_put_str(TERM_L_BLUE, sdesc, 19, 33);
 
-	put_str("Disarming   :", 18, 28);
-	desc = likert(xdis, 8);
-	c_put_str(likert_color, desc, 18, 42);
+        put_str("Stealth   :", 20, 19);
+        sprintf(sdesc, "%d", p_ptr->skill_stealth);
+        c_put_str(TERM_L_BLUE, sdesc, 20, 33);
 
-	put_str("Magic Device:", 19, 28);
-	desc = likert(xdev, 6);
-	c_put_str(likert_color, desc, 19, 42);
+        put_str("Spellcraft:", 21, 19);
+        sprintf(sdesc, "%d", p_ptr->skill_spellcraft);
+        c_put_str(TERM_L_BLUE, sdesc, 21, 33);
+                  
+        put_str("Leadership:", 16, 37);
+        sprintf(sdesc, "%d", p_ptr->skill_leadership);
+        c_put_str(TERM_L_BLUE, sdesc, 16, 51);
+
+        put_str("Alchemy:", 17, 37);
+        sprintf(sdesc, "%d", p_ptr->skill_alchemy);
+        c_put_str(TERM_L_BLUE, sdesc, 17, 51);
+
+        put_str("Crafting:", 18, 37);
+        sprintf(sdesc, "%d", p_ptr->skill_crafting);
+        c_put_str(TERM_L_BLUE, sdesc, 18, 51);
+
+        put_str("Combat Feats:", 19, 37);
+        sprintf(sdesc, "%d", p_ptr->skill_combat);
+        c_put_str(TERM_L_BLUE, sdesc, 19, 51);
 
 
 	put_str("Blows/Round:", 16, 55);
@@ -1337,25 +1355,39 @@ static void display_player_various(void)
                 put_str(format("%d", p_ptr->num_blow), 16, 69);
         else
                 put_str(format("%d+%d", p_ptr->num_blow, muta_att), 16, 69);
+        o_ptr = &inventory[INVEN_WIELD];
+        if (p_ptr->prace == RACE_MONSTER && o_ptr->tval == 0) put_str(format("n/a"), 16, 69);
 
 	put_str("Shots/Round:", 17, 55);
 	put_str(format("%d", p_ptr->num_fire), 17, 69);
 
         put_str("Wpn.dmg/Rnd:", 18, 55);    /* From PsiAngband */
 
-        if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
+        if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON] || (p_ptr->body_monster > 0 && unarmed()))
         {
                 if (r_info[p_ptr->body_monster].flags1 & RF1_NEVER_BLOW)
                         desc = "nil!";
                 else
                 {
+                        monster_race *r_ptr;
                         tmp = tmp2 = 0;
+                        r_ptr = &r_info[p_ptr->body_monster];
                         for (i = 0; i < blows; i++)
                         {
-                                tmp += r_info[p_ptr->body_monster].blow[i].d_dice;
-                                tmp2 += maxroll(r_info[p_ptr->body_monster].blow[i].d_dice,
-                                                       r_info[p_ptr->body_monster].blow[i].d_side);
+                                /* tmp += r_info[p_ptr->body_monster].blow[i].d_dice;                 */
+                                /* tmp2 += maxroll(r_info[p_ptr->body_monster].blow[i].d_dice,        */
+                                /*                       r_info[p_ptr->body_monster].blow[i].d_side); */
                         }
+                        /* This ugly piece of code actually works... */
+                        if (r_ptr->blow[0].d_dice != 0) tmp += ((r_ptr->blow[0].d_dice * (p_ptr->skill_marts + 1)) + p_ptr->lev / 2) * p_ptr->multiplier;
+                        if (r_ptr->blow[1].d_dice != 0) tmp += ((r_ptr->blow[1].d_dice * (p_ptr->skill_marts + 1)) + p_ptr->lev / 2) * p_ptr->multiplier;
+                        if (r_ptr->blow[2].d_dice != 0) tmp += ((r_ptr->blow[2].d_dice * (p_ptr->skill_marts + 1)) + p_ptr->lev / 2) * p_ptr->multiplier;
+                        if (r_ptr->blow[3].d_dice != 0) tmp += ((r_ptr->blow[3].d_dice * (p_ptr->skill_marts + 1)) + p_ptr->lev / 2) * p_ptr->multiplier;
+                        if (r_ptr->blow[0].d_dice != 0 && r_ptr->blow[0].d_side != 0) tmp2 += ((((r_ptr->blow[0].d_dice) * (r_ptr->blow[0].d_side)) * (p_ptr->skill_marts + 1)) + ((p_ptr->lev / 2) * (p_ptr->lev / 2))) * p_ptr->multiplier;
+                        if (r_ptr->blow[1].d_dice != 0 && r_ptr->blow[1].d_side != 0) tmp2 += ((((r_ptr->blow[1].d_dice) * (r_ptr->blow[1].d_side)) * (p_ptr->skill_marts + 1)) + ((p_ptr->lev / 2) * (p_ptr->lev / 2))) * p_ptr->multiplier;
+                        if (r_ptr->blow[2].d_dice != 0 && r_ptr->blow[2].d_side != 0) tmp2 += ((((r_ptr->blow[2].d_dice) * (r_ptr->blow[2].d_side)) * (p_ptr->skill_marts + 1)) + ((p_ptr->lev / 2) * (p_ptr->lev / 2))) * p_ptr->multiplier;
+                        if (r_ptr->blow[3].d_dice != 0 && r_ptr->blow[3].d_side != 0) tmp2 += ((((r_ptr->blow[3].d_dice) * (r_ptr->blow[3].d_side)) * (p_ptr->skill_marts + 1)) + ((p_ptr->lev / 2) * (p_ptr->lev / 2))) * p_ptr->multiplier;
+
                         if (dambonus > 0)
                         {
                                 tmp += dambonus;
@@ -1382,13 +1414,6 @@ static void display_player_various(void)
 
 	put_str("Infra-Vision:", 19, 55);
 	put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69);
-
-   /* jk - add tactic */
-   put_str("Tactic:",20, 55);
-   c_put_str(TERM_L_BLUE, tactic_info[p_ptr->tactic].name, 20, 69);
-/* jk - add movement */
-   put_str("Explor:",21,55);
-   c_put_str(TERM_L_BLUE, move_info[p_ptr->movement].name, 21, 69);
 }
 
 
@@ -1412,27 +1437,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 		if (p_ptr->lev > 39)
 			(*f2) |= (TR2_RES_FEAR);
 		break;
-	case CLASS_CHAOS_WARRIOR:
-                if (p_ptr->lev > 24)
-			(*f2) |= (TR2_RES_CHAOS);
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
-		break;
 	case CLASS_MONK:
-		if ((p_ptr->lev > 9) && !monk_heavy_armor())
-			(*f1) |= TR1_SPEED;
-		if ((p_ptr->lev>24) && !monk_heavy_armor())
-			(*f2) |= (TR2_FREE_ACT);
-		break;
-	case CLASS_MINDCRAFTER:
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 39)
-			(*f3) |= (TR3_TELEPATHY);
+                (*f1) |= TR1_SPEED;
+                (*f2) |= (TR2_FREE_ACT);
 		break;
 	default:
 		; /* Do nothing */
@@ -1515,44 +1522,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 		(*f2) |= (TR2_RES_POIS);
 		(*f2) |= (TR2_RES_COLD);
 		break;
-	case RACE_SPECTRE:
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 34)
-			(*f3) |= TR3_TELEPATHY;
-		break;
 
-        case RACE_DRAGONRIDER:
-            (*f3) |= TR3_FEATHER;
-        if (p_ptr->lev > 3)
-        {
-            (*f3) |= TR3_TELEPATHY;
-        }
-        if (p_ptr->lev > 4)
-        {
-            (*f2) |= (TR2_RES_FIRE);
-        }
-        if (p_ptr->lev > 9)
-        {
-            (*f2) |= (TR2_RES_COLD);
-        }
-        if (p_ptr->lev > 14)
-        {
-            (*f2) |= (TR2_RES_ACID);
-        }
-        if (p_ptr->lev > 19)
-        {
-            (*f2) |= (TR2_RES_ELEC);
-        }
-        if (p_ptr->lev > 34)
-        {
-            (*f2) |= (TR2_RES_POIS);
-        }
-        break;
 
         case RACE_ENT:
         (*f3) |= (TR3_SLOW_DIGEST);
@@ -1565,10 +1535,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
         {
             (*f3) |= TR3_TELEPATHY;
         }
-        break;
-
-        case RACE_RKNIGHT:
-        (*f1) |= TR1_SPEED;
         break;
 
 	default:
@@ -2218,13 +2184,13 @@ static void display_player_stat_info(void)
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "Stat", row-1, stat_col);
 	c_put_str(TERM_BLUE, "Intrnl", row-1, stat_col+5);
-    c_put_str(TERM_L_BLUE, "Rce Cls Mod", row-1, stat_col+12);
+        c_put_str(TERM_L_BLUE, "Rce Cls Mod", row-1, stat_col+12);
 	c_put_str(TERM_L_GREEN, "Actual", row-1, stat_col+24);
 	c_put_str(TERM_YELLOW, "Currnt", row-1, stat_col+31);
   
 	/* Display the stats */
 	for (i = 0; i < 6; i++)
-	{
+        {       
 		/* Calculate equipment adjustment */
 		e_adj = 0;
       
@@ -2251,7 +2217,7 @@ static void display_player_stat_info(void)
       
 		/* Internal "natural" max value.  Maxes at 18/100 */
 		/* This is useful to see if you are maxed out     */
-		cnv_stat(p_ptr->stat_max[i], buf);
+                cnv_stat(p_ptr->stat_max[i], buf);
 		c_put_str(TERM_BLUE, buf, row+i, stat_col+5);
       
 		/* Race, class, and equipment modifiers */
@@ -2263,7 +2229,7 @@ static void display_player_stat_info(void)
 		c_put_str(TERM_L_BLUE, buf, row+i, stat_col+20);
       
 		/* Actual maximal modified value */
-		cnv_stat(p_ptr->stat_top[i], buf);
+                cnv_stat(p_ptr->stat_top[i], buf);
 		c_put_str(TERM_L_GREEN, buf, row+i, stat_col+24);
       
 		/* Only display stat_use if not maximal */
@@ -2276,7 +2242,7 @@ static void display_player_stat_info(void)
 			else
 				colour=TERM_YELLOW;
 
-			cnv_stat(p_ptr->stat_use[i], buf);
+                        cnv_stat(p_ptr->stat_use[i], buf);
 			c_put_str(colour, buf, row+i, stat_col+31);
 		}
 	}
@@ -2828,15 +2794,13 @@ void display_player(int mode)
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 		/* Name, Sex, Race, Class */
-		put_str("Name        :", 2, 1);
-		put_str("Sex         :", 3, 1);
-		put_str("Race        :", 4, 1);
-		put_str("Class       :", 5, 1);
-                put_str("Body        :", 6, 1);
+                put_str("Name        :", 2, 1);
+                put_str("Sex         :", 3, 1);
+                put_str("Race        :", 4, 1);
+                put_str("Class       :", 5, 1);
+                /*put_str("Body        :", 6, 1);*/
                 if (p_ptr->realm1 || p_ptr->realm2)
                         put_str("Magic       :", 7, 1);
-                if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                        put_str("Patron      :", 8, 1);
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
 		if (p_ptr->body_monster != 0)
@@ -2857,20 +2821,36 @@ void display_player(int mode)
                 if (p_ptr->pclass != 255) c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
                 else c_put_str(TERM_RED, "Special", 4, 15);
                 if (p_ptr->pclass == CLASS_HELLQUEEN) c_put_str(TERM_GREEN, cp_ptr->title, 5, 15);
+		    else if (p_ptr->pclass == CLASS_ELEM_LORD)
+        		{
+                		char s[80];
+                		char e[80];
+                		char f[80];
+                		if (p_ptr->psex == SEX_FEMALE) sprintf(s, "Lady");
+                		else sprintf(s, "Lord");
+                		sprintf(e, get_element_name(p_ptr->elemlord));
+                                sprintf(f, "%s %s", e, s);
+                		c_put_str(TERM_L_BLUE, f, 5, 15);
+        		}
+        
+                else if (p_ptr->prace == RACE_MONSTER) c_put_str(TERM_L_BLUE, "Monster", 5, 15);
                 else c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
-                c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 6, 15);
+                if (p_ptr->body_monster != 0)
+                {
+                        c_put_str(TERM_L_BLUE, "           ", 4, 15);
+                        c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 4, 15);
+                }
                 if (p_ptr->realm1)
                         c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],7,15);
-                if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-                        c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 8, 15);
-                else if (p_ptr->realm2)
+                if (p_ptr->realm2)
                         c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],8,15);
 
 		/* Age, Height, Weight, Social */
 		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);
 		prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);
 		prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);
-		prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);
+                /*prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);*/
+                prt_num("Death Count  ", p_ptr->deathcount, 5, 32, TERM_L_BLUE);
 
 		/* Display the stats */
 		for (i = 0; i < 6; i++)
@@ -2893,7 +2873,7 @@ void display_player(int mode)
 				value = p_ptr->stat_use[i];
 
 				/* Obtain the current stat (modified) */
-				cnv_stat(value, buf);
+                                cnv_stat(value, buf);
 
 				/* Display the current stat (modified) */
 				c_put_str(colour, buf, 2 + i, 66);
@@ -2902,7 +2882,7 @@ void display_player(int mode)
 				value = p_ptr->stat_top[i];
 
 				/* Obtain the maximum stat (modified) */
-				cnv_stat(value, buf);
+                                cnv_stat(value, buf);
 
 				/* Display the maximum stat (modified) */
 				c_put_str(TERM_L_GREEN, buf, 2 + i, 73);
@@ -2915,7 +2895,7 @@ void display_player(int mode)
 				put_str(stat_names[i], 2 + i, 61);
 
 				/* Obtain the current stat (modified) */
-				cnv_stat(p_ptr->stat_use[i], buf);
+                                cnv_stat(p_ptr->stat_use[i], buf);
 
 				/* Display the current stat (modified) */
 				c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
@@ -2939,7 +2919,7 @@ void display_player(int mode)
 		/* Display "various" info */
 		else
 		{
-			put_str("(Miscellaneous Abilities)", 15, 25);
+                        put_str("(   ----- Skills -----   )", 15, 25);
 
 			display_player_various();
 		}
@@ -3125,11 +3105,6 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Arena Levels:       ON");
 	else
 		fprintf(fff, "\n Arena Levels:       OFF");
-
-	if (vanilla_town)
-		fprintf(fff, "\n Vanilla Town:       ON");
-	else
-                fprintf(fff, "\n Vanilla Town:       OFF");
 
         if (seed_dungeon)
                 fprintf(fff, "\n Persistent Dungeons:       ON");
@@ -4018,6 +3993,9 @@ void do_cmd_suicide(void)
 		}
 	}
 
+        /* Increase Death Count */
+        p_ptr->deathcount += 1;
+
 	/* Stop playing */
 	alive = FALSE;
 
@@ -4112,7 +4090,6 @@ long total_points(void)
 	if (p_ptr->maximize) mult -= 15;
         if (auto_scum) mult -= 50;
 	if (stupid_monsters) mult -= 50;
-	if (vanilla_town)    mult += 30; /* Vanilla town is harder */
         if (small_levels)    mult += ((always_small_level) ? 20 : 50);
 	if (empty_levels)    mult += 10;
         if (water_levels)    mult += 10; /* Watter levels are generaly harder */
@@ -4357,15 +4334,15 @@ void make_bones(byte used)
 			fprintf(fp, "%d\n", p_ptr->pclass);
                         fprintf(fp, "%s\n", desc);
                         fprintf(fp, "%d\n", friend);
-			fprintf(fp, "%d\n", p_ptr->mhp);
-                        fprintf(fp, "%d\n", p_ptr->msp);
+                        fprintf(fp, "%ld\n", p_ptr->mhp);
+                        fprintf(fp, "%ld\n", p_ptr->msp);
                         fprintf(fp, "%d\n", max_dl);
                         fprintf(fp, "%ld\n", p_ptr->max_exp);
                         fprintf(fp, "%d\n", p_ptr->lev);
                         fprintf(fp, "%d\n", p_ptr->ac);
                         fprintf(fp, "%d\n", p_ptr->to_a);
                         fprintf(fp, "%d\n", p_ptr->to_h);
-                        fprintf(fp, "%d\n", p_ptr->to_d);
+                        fprintf(fp, "%ld\n", p_ptr->to_d);
                         fprintf(fp, "%d\n", p_ptr->invis);
                         fprintf(fp, "%d\n", p_ptr->regenerate);
                         fprintf(fp, "%d\n", p_ptr->ffall);
@@ -4467,7 +4444,9 @@ static void print_tomb(void)
 		/* Normal */
 		else
 		{
-			p =  player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+                        int gendervar = 0;
+                        if (p_ptr->psex == SEX_FEMALE) gendervar = 10;
+                        p =  player_title[p_ptr->pclass][(p_ptr->class_level[p_ptr->pclass])-1/10+ gendervar];
 		}
 
 		center_string(buf, player_name);
@@ -5592,11 +5571,6 @@ void close_game(void)
                 /* Handle retirement */
                 if (total_winner) 
                 { 
-                        /* Write a note, if that option is on */
-                        if (take_notes)
-                        {
-                                add_note_type(NOTE_WINNER);
-                        }
                         kingly();
                 }
 
@@ -5612,25 +5586,6 @@ void close_game(void)
 		/* Show more info */
 		show_info();
 
-                /* Write a note */
-                if (take_notes)
-                {
-			char long_day[30];
-			char buf[80];
-			time_t ct = time((time_t*)NULL);
-			
-			/* Get the date */
-			strftime(long_day, 30, 
-				"%Y-%m-%d at %H:%M:%S", localtime(&ct));
-			
-			/* Create string */
-			sprintf(buf, "\n%s was killed by %s on %s\n", player_name,
-				 died_from, long_day);
-			
-			/* Output to the notes file */
-			output_note(buf);
-                }
-
 		/* Handle score, show Top scores */
 		top_twenty();
 	}
@@ -5642,12 +5597,6 @@ void close_game(void)
 
 		/* Save the game */
 		do_cmd_save_game();
-
-                /* If note-taking enabled, write session end to notes file */
-                if (take_notes)
-                {
-			add_note_type(NOTE_SAVE_GAME);
-                }
 
 		/* Prompt for scores XXX XXX XXX */
 		prt("Press Return (or Escape).", 0, 40);
@@ -5662,10 +5611,6 @@ void close_game(void)
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-
-        /* Close the notes file */
-        if (take_notes)
-               my_fclose(notes_file);
 
 	/* Allow suspending now */
 	signals_handle_tstp();
@@ -6209,16 +6154,82 @@ void do_cmd_story(void)
 	screen_load();
 }
 
-void show_itemmake_prices(void)
+void edit_background(void)
+{
+        int i, a;
+        char tmp[60];
+
+	/* Clear last line */
+	clear_from(22);
+	clear_from(15);
+
+        put_str("(Character Background)", 15, 25);
+
+        for (i = 0; i < 4; i++)
+        {
+                clear_from(i + 16);
+        }
+
+
+	/* Prompt and ask */
+        prt("Edit background. Press enter to get to next line.", 23, 2);
+
+	/* Ask until happy */
+        for (a = 0; a < 4; a++)
+	{
+		/* Go to the "name" field */
+                move_cursor(a + 16, 10);
+
+		/* Get an input, ignore "Escape" */
+                if (askfor_aux(tmp, 59)) strcpy(history[a], tmp);
+	}
+
+	/* Erase the prompt, etc */
+	clear_from(22);
+}
+
+void display_help_file(char filename[20])
 {
 	/* Save screen */
 	screen_save();
 
 	/* Peruse the main help file */
-        (void)show_file("itemmake.txt", NULL, 0, 0);
+        (void)show_file(filename, NULL, 0, 0);
 
 	/* Load screen */
 	screen_load();
 }
 
+/*
+ * Save the game when dying! Prevents cheating! :)
+ */
+void do_cmd_save_death()
+{
+        /* Save the current level if in a persistent level */
+        save_dungeon();
+
+	/* Clear messages */
+	msg_print(NULL);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Message */
+	prt("Saving game...", 0, 0);
+
+	/* Refresh */
+	Term_fresh();
+
+	/* Forbid suspend */
+	signals_ignore_tstp();
+
+	/* Save the player */
+        save_player();
+
+	/* Allow suspend again */
+	signals_handle_tstp();
+
+	/* Refresh */
+	Term_fresh();
+}
 

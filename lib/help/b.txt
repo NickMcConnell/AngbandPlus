@@ -1,0 +1,16 @@
+HALF-ELF
+----------
+
+Half-Elves are a cross between a human and an elf. They share 
+the characterictics of the two races to a lesser extent. 
+Half-Elves makes better ranged attackers than melee fighters, but 
+they are far from being weak at melee combat.
+
+ADVANTAGES: +10% to Dexterity
+            +5% to Agility skill
+
+DISADVANTAGES: -10% to Strength
+               -5% to Constitution
+
+
+

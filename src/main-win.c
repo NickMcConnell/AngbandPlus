@@ -1155,8 +1155,6 @@ static int new_palette(void)
 }
 
 
-#ifdef USE_GRAPHICS
-
 /*
  * Initialize graphics
  */
@@ -1194,10 +1192,10 @@ static bool init_graphics()
 		}
 
 		/* Access the bitmap file */
-		path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, name);
+                path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, name);
 
 		/* Load the bitmap or quit */
-		if (!ReadDIB(data[0].w, buf, &infGraph))
+                if (!ReadDIB(data[0].w, buf, &infGraph))
 		{
 			plog_fmt("Cannot read bitmap file '%s'", name);
 			return (FALSE);
@@ -1238,7 +1236,6 @@ static bool init_graphics()
 	return (can_use_graphics);
 }
 
-#endif USE_GRAPHICS
 
 /*
  * Initialize sound
@@ -2707,7 +2704,11 @@ static void process_menus(WORD wCmd)
 			else
 			{
 				memset(&ofn, 0, sizeof(ofn));
-				ofn.lStructSize = sizeof(ofn);
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0500)
+				ofn.lStructSize = sizeof(OPENFILENAME) - (sizeof(void*) + 2 * sizeof(DWORD));
+#else // old headers
+				ofn.lStructSize = sizeof(OPENFILENAME);
+#endif                                
 				ofn.hwndOwner = data[0].w;
 				ofn.lpstrFilter = "Save Files (*.)\0*\0";
 				ofn.nFilterIndex = 1;
@@ -2779,6 +2780,11 @@ static void process_menus(WORD wCmd)
 		/* Abort */
 		case IDM_FILE_ABORT:
 		{
+                        if (dying)
+                        {
+                                plog("Cannot abort when you're about to die, you cheater!!");
+                                break;
+                        }
 			if (game_in_progress && character_generated)
 			{
 				/* XXX XXX XXX */

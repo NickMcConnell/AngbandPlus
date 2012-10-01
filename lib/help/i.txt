@@ -1,0 +1,15 @@
+DUNADAN
+---------
+
+Dunadans are a race of hardy men from the west. They are
+stronger than the regular human in every ways, and they
+are better than humans at anything they do. However, since
+they already know a little about everyting, learning is
+harder and they tend to learn skills more slowly than the
+average race.
+
+ADVANTAGES: +20% to all stats
+
+DISADVANTAGES: Must gain more experience to level up.
+
+

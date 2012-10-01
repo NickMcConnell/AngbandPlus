@@ -48,6 +48,7 @@
  * Now, include some other stuff
  */
 #include "new.h"
+#include "var.h"
 
 /***** Some copyright messages follow below *****/
 
@@ -100,6 +101,7 @@
 
 #endif
 
-int avariable, zelartype;
-
-
+/* Ugly, ugly piece of code! */
+/* Easy, easy piece of code! :) */
+/* Okay, calm down...just because my prof said global variables */
+/* weren't nice doesn't mean I have to listen to him! :) */

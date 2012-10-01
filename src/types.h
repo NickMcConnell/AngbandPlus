@@ -191,6 +191,9 @@ struct object_kind
 	bool tried;			/* The player has "tried" one of the items */
 
         bool know;                      /* extractable flag for the alchemist */
+        s16b recipe1;
+        s16b recipe2;
+
 };
 
 
@@ -506,6 +509,7 @@ struct cave_type
 
 #endif
 
+        s32b field_damage;      /* If fields are present on this grid, do damages... */
 };
 
 
@@ -551,9 +555,9 @@ struct object_type
 	byte sval;			/* Item sub-type (from kind) */
 
         s32b pval;                      /* Item extra-parameter */
-        s16b pval2;                     /* Item extra-parameter for some special
+        s32b pval2;                     /* Item extra-parameter for some special
                                            items*/
-        s16b pval3;                     /* Item extra-parameter for some special
+        s32b pval3;                     /* Item extra-parameter for some special
                                            items*/
 
 	byte discount;		/* Discount (if any) */
@@ -568,7 +572,7 @@ struct object_type
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
-	byte xtra1;			/* Extra info type */
+        s32b xtra1;                     /* Extra info type */
 	byte xtra2;			/* Extra info index */
 
 	s16b to_h;			/* Plusses to hit */
@@ -597,7 +601,6 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
-        s16b asmodis_energy;    /* Use with 'Asmodis' sword */
 };
 
 
@@ -620,8 +623,8 @@ struct monster_type
 	byte fy;			/* Y location on map */
 	byte fx;			/* X location on map */
 
-        s16b hp;                        /* Current Hit points */
-        s16b maxhp;                     /* Max Hit points */
+        s32b hp;                        /* Current Hit points */
+        s32b maxhp;                     /* Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
 
@@ -657,9 +660,18 @@ struct monster_type
 
 #endif
 
-        bool imprinted;                  /* Is the monster imprinted(if he can)? */
-        s16b level;
+        bool imprinted;                  /* Is the monster imprinted(if it can)? */
+        s16b level;                      /* The monster's level */
         s16b angered_pet;                /* You made your pet angry, you... */
+        s16b boss;                       /* 0=Normal, 1=Elite, 2=Boss */
+        u32b abilities;                  /* The monster's special ability(ies) */
+        s16b friend;                     /* The monster is your friend! */
+        s16b hitrate;                    /* The monster's hit rate! */
+        s16b defense;                    /* The monster's defense! */
+        bool animated;                   /* Monster is animated. */
+        s16b animdam_d;                  /* Animated monster's dice damages. */
+        s16b animdam_s;                  /* Animated monster's side damages. */
+        s16b seallight;                  /* Hit by Sealing Light */
 };
 
 
@@ -1005,22 +1017,13 @@ struct player_type
 	s32b wilderness_y;
         bool wild_mode;                 /* TRUE = Small map, FLASE = Big map */
 
-	s16b mhp;			/* Max hit pts */
-	s16b chp;			/* Cur hit pts */
-	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+        s32b mhp;                       /* Max hit pts */
+        s32b chp;                       /* Cur hit pts */
+        u16b chp_frac;          /* Cur hit frac (times 2^16) */
 
-	s16b msp;			/* Max mana pts */
-	s16b csp;			/* Cur mana pts */
-	u16b csp_frac;		/* Cur mana frac (times 2^16) */
-
-        s16b msane;                   /* Max sanity */
-        s16b csane;                   /* Cur sanity */
-        u16b csane_frac;              /* Cur sanity frac */
-
-        s16b mtp;                       /* Max tank pts */
-        s16b ctp;                       /* Cur tank pts */
-        s16b tp_aux1;                   /* aux1 tank pts */
-        s16b tp_aux2;                   /* aux2 tank pts */
+        s32b msp;                       /* Max mana pts */
+        s32b csp;                       /* Cur mana pts */
+        u16b csp_frac;          /* Cur mana frac (times 2^16) */
 
         s32b grace;                   /* Your God's appreciation factor. */
         s32b god_favor;               /* Last time you asked for a favor. */
@@ -1207,7 +1210,7 @@ struct player_type
         s16b invis;             /* Invisibility */
 
 	s16b dis_to_h;		/* Known bonus to hit */
-	s16b dis_to_d;		/* Known bonus to dam */
+        s32b dis_to_d;          /* Known bonus to dam */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
@@ -1215,7 +1218,7 @@ struct player_type
         s16b to_m;                      /* Bonus to mana */
         s16b to_s;                      /* Bonus to spell */
 	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to dam */
+        s32b to_d;                      /* Bonus to dam */
 	s16b to_a;			/* Bonus to ac */
 
 	s16b ac;			/* Base ac */
@@ -1223,17 +1226,6 @@ struct player_type
         byte antisummon;        /* Radius of the anti summoning field */
 
 	s16b see_infra;		/* Infravision range */
-
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
-	s16b skill_tht;		/* Skill: To hit (throwing) */
-	s16b skill_dig;		/* Skill: Digging */
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
@@ -1268,8 +1260,6 @@ struct player_type
                                       /* 128+4 berserker */
         byte movement;                /* base movement way */
 
-        bool no_mortal;         /* Fated to never die by the hand of a mortal being */
-
         bool black_breath;      /* The Tolkien's Black Breath */
 
         bool precognition;      /* Like the cheat mode */
@@ -1293,9 +1283,131 @@ struct player_type
         u32b monster_magic4;             /* Monster magic type 4 */
         s32b ability_points;             /* Ability points */
         s16b multiplier;                 /* Damages multiplier */
-        s16b current_ability;            /* Currently used ability */
-        s16b slave_ryenna;               /* Ryenna as a slave? */
+        s16b smultiplier;                /* Shooters(bows, crossbows) multiplier! */
+        /* New Variables for new spell system! */
+        s16b elemmagic;
+        s16b battlemagic;
+        s16b healmagic;
+        s16b cursemagic;
+        s16b visionmagic;
+        s16b naturemagic;
+        s16b lmultiplier;                /* Leaders Multiplier */
+        s16b memorized;
+        s16b elemlord;
+        s16b statpoints;                 /* Stat points used to raise your stats! */
+        s16b skillpoints;                /* Points to increase skills! */
+        /* Skills base values. Only those are saved in the save file. */
+        s16b skill_swords_base; /* How good you are with swords. */
+        s16b skill_hafted_base; /* How good you are with hafted weapons. */
+        s16b skill_polearms_base; /* How good you are with polearms. */
+        s16b skill_daggers_base; /* How good you are with daggers. */
+        s16b skill_axes_base; /* How good you are with axes. */
+        s16b skill_rods_base; /* How good you are with rods. */
+        s16b skill_shooting_base; /* How good you are at shooting with bows/crossbows/slings. */
+        s16b skill_throwing_base; /* How good you are at throwing stuff. */
+        s16b skill_marts_base; /* How good you are at fighting bare-handed. */
+        s16b skill_agility_base; /* Agility skill, increase your AC. */
+        s16b skill_stealth_base; /* How stealthy you are... */
+        s16b skill_spellcraft_base; /* Improve your spells, makes them more effective. */
+        s16b skill_leadership_base; /* The power of your allies! */
+        s16b skill_alchemy_base; /* Ability to make potions! */
+        s16b skill_crafting_base; /* Ability to make weapons/armors! */
+        s16b skill_combat_base; /* Ability to perform combat feats! */
 
+        /* The bonus values of the skills above! */
+        s16b skill_swords_bonus; /* How good you are with swords. */
+        s16b skill_hafted_bonus; /* How good you are with hafted weapons. */
+        s16b skill_polearms_bonus; /* How good you are with polearms. */
+        s16b skill_daggers_bonus; /* How good you are with daggers. */
+        s16b skill_axes_bonus; /* How good you are with axes. */
+        s16b skill_rods_bonus; /* How good you are with rods. */
+        s16b skill_shooting_bonus; /* How good you are at shooting with bows/crossbows/slings. */
+        s16b skill_throwing_bonus; /* How good you are at throwing stuff. */
+        s16b skill_marts_bonus; /* How good you are at fighting bare-handed. */
+        s16b skill_agility_bonus; /* Agility skill, increase your AC. */
+        s16b skill_stealth_bonus; /* How stealthy you are... */        
+        s16b skill_spellcraft_bonus; /* Improve your spells, makes them more effective. */
+        s16b skill_leadership_bonus; /* The power of your allies! */
+        s16b skill_alchemy_bonus; /* Ability to make potions! */
+        s16b skill_crafting_bonus; /* Ability to make weapons/armors! */
+        s16b skill_combat_bonus; /* Ability to perform combat feats! */
+
+        /* The final values of skills! */
+        s16b skill_swords; /* How good you are with swords. */
+        s16b skill_hafted; /* How good you are with hafted weapons. */
+        s16b skill_polearms; /* How good you are with polearms. */
+        s16b skill_daggers; /* How good you are with daggers. */
+        s16b skill_axes; /* How good you are with axes. */
+        s16b skill_rods; /* How good you are with rods. */
+        s16b skill_shooting; /* How good you are at shooting with bows/crossbows/slings. */
+        s16b skill_throwing; /* How good you are at throwing stuff. */
+        s16b skill_marts; /* How good you are at fighting bare-handed. */
+        s16b skill_agility; /* Agility skill, increase your AC. */
+        s16b skill_stealth; /* How stealthy you are... */        
+        s16b skill_spellcraft; /* Improve your spells, makes them more effective. */
+        s16b skill_leadership; /* The power of your allies! */
+        s16b skill_alchemy; /* Ability to make potions! */
+        s16b skill_crafting; /* Ability to make weapons/armors! */
+        s16b skill_combat; /* Ability to perform combat feats! */
+
+        /* New variables for the new spells! */
+        s16b str_boost;
+        s16b str_boost_dur;
+        s16b int_boost;
+        s16b int_boost_dur;
+        s16b wis_boost;
+        s16b wis_boost_dur;
+        s16b dex_boost;
+        s16b dex_boost_dur;
+        s16b con_boost;
+        s16b con_boost_dur;
+        s16b chr_boost;
+        s16b chr_boost_dur;
+
+        /* Resistance spells, ac boost... */
+        s16b pres;
+        s16b pres_dur;
+        s16b mres;
+        s16b mres_dur;
+        s16b ac_boost;
+        s16b ac_boost_dur;
+        s16b elem_shield;
+
+        /* Schools used for spellmaking! */
+        s16b elemental;
+        u32b elemental_effects;
+        s16b alteration;
+        u32b alteration_effects;
+        s16b healing;
+        u32b healing_effects;
+        s16b conjuration;
+        u32b conjuration_effects;
+        s16b divination;
+        u32b divination_effects;
+
+        /* Class levels for the various classes... */
+        s16b class_level[MAX_CLASS];
+        /* Class kills for the various classes... */
+        s16b class_kills[MAX_CLASS];
+
+
+        /* The level of current abilities. */
+        /* Level 0 = ability not learned. */
+        s16b abilities[MAX_ABILITIES];
+	s16b num_abilities; /* Number of learned abilities */
+
+        /* Magic mode. 0 = normal spells. 1 = monster magics */
+        s16b magic_mode;
+
+        /* Elemental Lord's aura: on or off? */
+        bool auraon;
+
+        /* Death count! */
+        /* Note I made it a 32b value. You will NEED that much! :) */
+        s32b deathcount;
+
+        /* Great guard counter */
+        s16b guardconfuse;
 };
 
 
@@ -1503,22 +1615,6 @@ struct random_spell {
   bool untried;           /* Is the spell was tried? */
 };
 
-/* A structure to describe the fate of the player */
-typedef struct fate fate;
-struct fate {
-        byte fate;      /* Which fate */
-        byte level;     /* On which level */
-        byte serious;   /* Is it sure? */
-        s16b o_idx;     /* Object to find */
-        s16b e_idx;     /* Ego-Item to find */
-        s16b a_idx;     /* Artifact to find */
-        s16b v_idx;     /* Vault to find */
-        s16b r_idx;     /* Monster to find */
-        s16b count;     /* Number of things */
-        s16b time;      /* Turn before */
-        bool know;      /* Has it been predicted? */
-};
-
 /* A structure for movements */
 typedef struct move_info_type move_info_type;
 struct move_info_type {
@@ -1585,3 +1681,33 @@ struct inscription_info_type {
         bool know;                      /* Is the inscription know ? */
         byte mana;                      /* Grid mana needed */
 };
+
+/* A structure made for our spells! :) */
+typedef struct magic_spells magic_spells;
+
+struct magic_spells
+{
+    char    name[30];
+    s16b    school[5];
+    s16b    effect[5];
+    s16b    shape[5];
+    s32b    power[5];
+    s16b    radius[5];
+    s16b    type[5];
+    s16b    manacost[5];
+    /* Very, very, very ugly piece of code... */
+    /* But it's simpler and it works! */
+    char    schar1;
+    char    schar2;
+    char    schar3;
+    char    schar4;
+    char    schar5;
+    char    sspeci1[30];
+    char    sspeci2[30];
+    char    sspeci3[30];
+    char    sspeci4[30];
+    char    sspeci5[30];
+    s16b    finalcost;
+    bool    created;
+};
+

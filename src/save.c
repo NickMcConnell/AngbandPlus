@@ -544,8 +544,8 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
         wr_s32b(o_ptr->pval);
-        wr_s16b(o_ptr->pval2);
-        wr_s16b(o_ptr->pval3);
+        wr_s32b(o_ptr->pval2);
+        wr_s32b(o_ptr->pval3);
 
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
@@ -575,13 +575,12 @@ static void wr_item(object_type *o_ptr)
 	wr_s16b(o_ptr->held_m_idx);
 
 	/* Extra information */
-	wr_byte(o_ptr->xtra1);
+        wr_s32b(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
 
         /* Write the exp/exp level */
         wr_byte(o_ptr->elevel);
         wr_s32b(o_ptr->exp);
-        wr_s16b(o_ptr->asmodis_energy);
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -614,8 +613,8 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->r_idx);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
-	wr_s16b(m_ptr->hp);
-	wr_s16b(m_ptr->maxhp);
+        wr_s32b(m_ptr->hp);
+        wr_s32b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
 	wr_byte(m_ptr->energy);
@@ -626,6 +625,15 @@ static void wr_monster(monster_type *m_ptr)
         wr_byte(m_ptr->imprinted);
         wr_s16b(m_ptr->level);
         wr_s16b(m_ptr->angered_pet);
+        wr_s16b(m_ptr->boss);
+        wr_u32b(m_ptr->abilities);
+        wr_s16b(m_ptr->friend);
+        wr_s16b(m_ptr->hitrate);
+        wr_s16b(m_ptr->defense);
+        wr_byte(m_ptr->animated);
+        wr_s16b(m_ptr->animdam_d);
+        wr_s16b(m_ptr->animdam_s);
+        wr_s16b(m_ptr->seallight);
 }
 
 
@@ -960,22 +968,13 @@ static void wr_extra(void)
 
 	for (i = 0; i < MAX_BACT; i++) wr_s16b(p_ptr->rewards[i]);
 
-	wr_s16b(p_ptr->mhp);
-	wr_s16b(p_ptr->chp);
-	wr_u16b(p_ptr->chp_frac);
+        wr_s32b(p_ptr->mhp);
+        wr_s32b(p_ptr->chp);
+        wr_u16b(p_ptr->chp_frac);
 
-	wr_s16b(p_ptr->msane);
-	wr_s16b(p_ptr->csane);
-	wr_u16b(p_ptr->csane_frac);
-
-	wr_s16b(p_ptr->msp);
-	wr_s16b(p_ptr->csp);
-	wr_u16b(p_ptr->csp_frac);
-
-        wr_s16b(p_ptr->mtp);
-        wr_s16b(p_ptr->ctp);
-        wr_s16b(p_ptr->tp_aux1);
-        wr_s16b(p_ptr->tp_aux2);
+        wr_s32b(p_ptr->msp);
+        wr_s32b(p_ptr->csp);
+        wr_u16b(p_ptr->csp_frac);
 
         /* Gods */
         wr_s32b(p_ptr->grace);
@@ -1063,7 +1062,6 @@ static void wr_extra(void)
 	wr_byte(p_ptr->confusing);
         wr_byte(p_ptr->black_breath);     /* oops */
 	wr_byte(0);     /* oops */
-        wr_byte(fate_flag);
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
@@ -1071,8 +1069,6 @@ static void wr_extra(void)
 	wr_byte(special_flag);
         wr_byte(p_ptr->allow_one_death);
         wr_s16b(p_ptr->xtra_spells);
-
-        wr_byte(vanilla_town);
 
         wr_u16b(no_breeds);
 
@@ -1107,9 +1103,6 @@ static void wr_extra(void)
 
         /* The movement */
         wr_byte(p_ptr->movement);
-
-        /* The fate */
-        wr_byte(p_ptr->no_mortal);
 
         /* The bounties */
 	for (i = 0; i < MAX_BOUNTIES; i++) {
@@ -1153,13 +1146,81 @@ static void wr_extra(void)
 	/* Current turn */
 	wr_s32b(turn);
 
+        /* Write the magic spells! */
+        wr_magic_spells();
+
         /* Monster Magics */
         wr_u32b(p_ptr->monster_magic);
         wr_u32b(p_ptr->monster_magic2);
         wr_u32b(p_ptr->monster_magic3);
         wr_u32b(p_ptr->monster_magic4);
         wr_s32b(p_ptr->ability_points);
-        wr_s16b(p_ptr->current_ability);
+        wr_s16b(p_ptr->elemmagic);
+        wr_s16b(p_ptr->battlemagic);
+        wr_s16b(p_ptr->healmagic);
+        wr_s16b(p_ptr->cursemagic);
+        wr_s16b(p_ptr->visionmagic);
+        wr_s16b(p_ptr->naturemagic);
+        wr_s16b(p_ptr->memorized);
+        wr_s16b(p_ptr->elemlord);
+        wr_s16b(p_ptr->statpoints);
+        wr_s16b(p_ptr->skillpoints);
+        wr_s16b(p_ptr->skill_swords_base);
+        wr_s16b(p_ptr->skill_hafted_base);
+        wr_s16b(p_ptr->skill_polearms_base);
+        wr_s16b(p_ptr->skill_daggers_base);
+        wr_s16b(p_ptr->skill_axes_base);
+        wr_s16b(p_ptr->skill_rods_base);
+        wr_s16b(p_ptr->skill_shooting_base);
+        wr_s16b(p_ptr->skill_throwing_base);
+        wr_s16b(p_ptr->skill_marts_base);
+        wr_s16b(p_ptr->skill_agility_base);
+        wr_s16b(p_ptr->skill_stealth_base);
+        wr_s16b(p_ptr->skill_spellcraft_base);
+        wr_s16b(p_ptr->skill_leadership_base);
+        wr_s16b(p_ptr->skill_alchemy_base);
+        wr_s16b(p_ptr->skill_crafting_base);
+        wr_s16b(p_ptr->skill_combat_base);
+
+        wr_s16b(p_ptr->str_boost);
+        wr_s16b(p_ptr->str_boost_dur);
+        wr_s16b(p_ptr->int_boost);
+        wr_s16b(p_ptr->int_boost_dur);
+        wr_s16b(p_ptr->wis_boost);
+        wr_s16b(p_ptr->wis_boost_dur);
+        wr_s16b(p_ptr->dex_boost);
+        wr_s16b(p_ptr->dex_boost_dur);
+        wr_s16b(p_ptr->con_boost);
+        wr_s16b(p_ptr->con_boost_dur);
+        wr_s16b(p_ptr->chr_boost);
+        wr_s16b(p_ptr->chr_boost_dur);
+        wr_s16b(p_ptr->pres);
+        wr_s16b(p_ptr->pres_dur);
+        wr_s16b(p_ptr->mres);
+        wr_s16b(p_ptr->mres_dur);
+        wr_s16b(p_ptr->ac_boost);
+        wr_s16b(p_ptr->ac_boost_dur);
+        wr_s16b(p_ptr->elem_shield);
+
+        wr_s16b(p_ptr->elemental);
+        wr_u32b(p_ptr->elemental_effects);
+        wr_s16b(p_ptr->alteration);
+        wr_u32b(p_ptr->alteration_effects);
+        wr_s16b(p_ptr->healing);
+        wr_u32b(p_ptr->healing_effects);
+        wr_s16b(p_ptr->conjuration);
+        wr_u32b(p_ptr->conjuration_effects);
+        wr_s16b(p_ptr->divination);
+        wr_u32b(p_ptr->divination_effects);
+
+        for (i = 0; i < MAX_CLASS; ++i) wr_s16b(p_ptr->class_level[i]);
+        for (i = 0; i < MAX_CLASS; ++i) wr_s16b(p_ptr->class_kills[i]);
+        for (i = 0; i < MAX_ABILITIES; ++i) wr_s16b(p_ptr->abilities[i]);
+        wr_s16b(p_ptr->num_abilities);
+        wr_s16b(p_ptr->magic_mode);
+        wr_byte(p_ptr->auraon);
+        wr_s32b(p_ptr->deathcount);
+        wr_s16b(p_ptr->guardconfuse);
 }
 
 
@@ -1173,10 +1234,12 @@ static void wr_dungeon(void)
 
 	byte tmp8u;
 	u16b tmp16s;
+        u32b tmp32s;
 
 	byte count;
 	byte prev_char;
 	s16b prev_s16b;
+        s32b prev_s32b;
 
 	cave_type *c_ptr;
 
@@ -1484,6 +1547,47 @@ static void wr_dungeon(void)
 		wr_byte((byte)count);
 		wr_byte((byte)prev_char);
 	}
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+        prev_s32b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+                        tmp32s = c_ptr->field_damage;
+			
+			/* If the run is broken, or too full, flush it */
+                        if ((tmp32s != prev_s32b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+                                wr_u32b(prev_s32b);
+                                prev_s32b = tmp32s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+                wr_u32b(prev_s32b);
+	}
+
 
 
 	/* Compact the objects */
@@ -1543,21 +1647,6 @@ void save_dungeon(void)
 
         /* Done */
         my_fclose(fff);
-}
-
-static void wr_fate(int i)
-{
-        wr_byte(fates[i].fate);
-        wr_byte(fates[i].level);
-        wr_byte(fates[i].serious);
-        wr_s16b(fates[i].o_idx);
-        wr_s16b(fates[i].e_idx);
-        wr_s16b(fates[i].a_idx);
-        wr_s16b(fates[i].v_idx);
-        wr_s16b(fates[i].r_idx);
-        wr_s16b(fates[i].count);
-        wr_s16b(fates[i].time);
-        wr_byte(fates[i].know);
 }
 
 /*
@@ -1788,14 +1877,6 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
-	}
-
-        /* Hack -- Dump the fates */
-        tmp16u = MAX_FATES;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-                wr_fate(i);
 	}
 
         /* Hack -- Dump the traps */
@@ -2389,4 +2470,33 @@ bool load_player(void)
 	return (FALSE);
 }
 
+/* Write the spells! */
+void wr_magic_spells()
+{
+        int x, i;
+        for (x = 0; x <= 29; x++)
+        {
+                magic_spells *spell_ptr = &magic_spell[x];
+                wr_string(spell_ptr->name);
+                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->school[i]);
+                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->effect[i]);
+                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->shape[i]);
+                for (i = 0; i < 5; ++i) wr_s32b(spell_ptr->power[i]);
+                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->radius[i]);
+                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->type[i]);
+                for (i = 0; i < 5; ++i) wr_s16b(spell_ptr->manacost[i]);
+                wr_byte(spell_ptr->schar1);
+                wr_byte(spell_ptr->schar2);
+                wr_byte(spell_ptr->schar3);
+                wr_byte(spell_ptr->schar4);
+                wr_byte(spell_ptr->schar5);
+                wr_string(spell_ptr->sspeci1);
+                wr_string(spell_ptr->sspeci2);
+                wr_string(spell_ptr->sspeci3);
+                wr_string(spell_ptr->sspeci4);
+                wr_string(spell_ptr->sspeci5);
+                wr_s16b(spell_ptr->finalcost);
+                wr_byte(spell_ptr->created);
+        }
+}
 

@@ -14,7 +14,7 @@ OBJS = \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   store.o birth.o wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
-  bldg.o levels.o \
+  bldg.o levels.o learn.o mongen.o \
   main-ibm.o main.o
 
 
@@ -33,14 +33,14 @@ GLIBS= -lgrx20
 
 # Name of Program
 
-PROGRAM = angband.exe makepref.exe gredit.exe
+PROGRAM = angibm.exe makepref.exe gredit.exe
 
 
 all: $(PROGRAM)
 
 # Generate binary file
 
-angband.exe: $(OBJS)
+angibm.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
 
 gredit.exe: gredit.o

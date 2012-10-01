@@ -1,0 +1,483 @@
+NEWANGBAND 1.7.0 SPELLS GUIDE
+-------------------------------
+
+NewAngband 1.7.0 introduces a whole new spell system, that is
+completely different from the previous one. In the new system,
+you actually create your own spells based on various effects.
+Refer to the Newbies Guide to learn how to create your spells.
+The purpose of this guide is to give information on the various
+effects available for each schools of spells. Descriptions
+follows the following template:
+
+NAME OF THE SPELL
+Effect: What the spell does.
+Mana Cost: The base mana cost per power points. Note that
+	   many spells halve or multiply this base cost when
+	   calculating the total cost. This only gives you
+	   a basic idea of the effect's cost.
+Fixed Cost: Spells with a fixed cost at least this amount of mana
+	    to cast. All effects that don't have a power parameter
+	    have a fixed cost.
+
+Information and tips on how to use the effect...
+
+
+ELEMENTAL
+-----------
+
+Elemental spells all do the same thing. They cause damages to
+enemies. A different element will cause a different type of
+damages. Here are some of the more particular elements that
+are worth mentionning. All the others work in the same way,
+just a different type of element that will work better or
+worse on certain types of enemies.
+
+MISSILE
+Effect: Does half magic, half physical damages to enemies.
+Damages: Power/level
+Mana Cost: 1
+
+The magic missile type does both magic and physical damages.
+It can work on any kind of enemies, but be warned that due
+to the resistance to physical of high level enemies, this
+will eventually do less damages than pure elemental spells.
+Monsters immune to physical attacks takes half the damages,
+and so does monsters immune to magic attacks. Spellcraft
+does improve this effect, but by a much lesser amount than 
+regular elemental spells.
+
+PHYSICAL
+Effect: Does physical damages to enemies.
+Damages: Power/level
+Mana Cost: 1
+
+This does physical damages. It's main use is to damage monsters
+immune to magical attacks. Note that the resistance to physical
+attacks of high level enemies still apply. Spellcraft does not
+make this effect more powerful.
+
+WARP
+Effect: Does warp damages to enemies, teleport them away.
+Mana Cost: 1
+Fixed Cost: 40
+Damages: Power/level
+
+This effect is a little more expensive than other elemental
+effects, but is has the added benefit of teleporting enemies
+away.
+
+MANA
+Effect: Does pure magical damages.
+Damages: Power/level
+Mana Cost: 1
+
+This effect does pure magic damages. No monsters can resist it.
+On the other hand, it is more expensive than other elemental
+effects.
+
+ALTERATION
+------------
+
+Alteration effects alter the reality of beings in either good or
+bad ways. It can be used to lower a monster's hit rate, defense,
+level, speed. Or, it can be used to prevent or weaken their
+actions, such as attacking or casting. Or, some alterations are
+benefical and allow you to alter yourself in positive ways.
+
+REDUCE HIT RATE
+Effect: Reduce an enemy's hit rate.
+Mana Cost: 3
+
+This effect allow you to reduce an enemy's hit rate. The lesser
+their hit rate, the more they will miss you. This effect can be
+especially useful if you have a high defense, this will make
+enemies miss a lot more, maybe even making it impossible for
+them to hit you.
+
+REDUCE DEFENSE
+Effect: Reduce an enemy's defense.
+Mana Cost: 1
+
+This effect allow you to reduce the defense of your enemies,
+making them easier to hit. Useful if you fight in melee combat,
+or if you use physical type elemental spells.
+
+REDUCE SPEED
+Effect: Reduce an enemy's speed.
+Mana Cost: 100
+
+This effect allow you to reduce the speed of your enemies. Fast
+opponents are very deadly, and this effect is a good way to slow
+them down, but beware the high mana cost.
+
+REDUCE LEVEL
+Effect: Reduce an enemy's level.
+Mana Cost: 35
+
+This effect allow you to reduce the level of your enemies. This
+will weaken them in many ways, reducing their melee damages,
+their magic/breath damages and their resistance to physical
+damages.
+
+LIFE BLAST
+Effect: Reduce enemy's hp by 33%.
+Fixed Cost: 25
+
+Reduces enemy's hp by 33%. Effective when used on enemies with
+a very high hp.
+
+LOCK
+Effect: Prevent the casting of spells.
+Fixed Cost: 250
+
+Enemies affected by a Lock spell will be unable to use their spells
+or breath attacks. Does not work against Elites, Bosses and the
+main questors(such as Variaz).
+
+HALVE POWER
+Effect: Reduce enemy's melee damages by 50%.
+Fixed Cost: 80
+
+Make melee attacks do only half of their damages. Useful if you do
+a lot of melee combat against powerful enemies.
+
+HALVE MAGIC
+Effect: Reduce enemy's magic damages by 50%.
+Fixed Cost: 80
+
+Make magic/breath attacks do only half of their damages. Useful if the
+enemy spells are hurting you badly.
+
+WAR BLESSING
+Effect: Improve the combat abilities of friendly monsters.
+Fixed Cost: 30
+
+Gives more hit rate and defense to friendly monsters. Useful if you are
+playing a summoner based character and have a lot of monsters to fight
+with you.
+
+DEMORALIZE
+Effect: Scares the monsters for a duration.
+Mana Cost: 12
+
+Makes the enemies flee from you. Very useful to send a large pack away.
+Does not work against Elites, Bosses and Uniques, as well as monsters
+that are non-living or immune to fear.
+
+RETROGRADE
+Effect: Turn an elite or boss into a normal enemy.
+Fixed Cost: 1000
+
+This effect will turn an elite or boss monster into a regular monster,
+and will strip it from all it's abilities, making them A LOT easier to
+defeat.
+
+EVOLVE
+Effect: Turn a monster into a more powerful specimen of it's kind.
+Fixed Cost: 50
+
+This effect allow you to turn a weaker monster into a stronger monster.
+For example, if you use this on a Baby Red Dragon, it might turn into
+a Mature Red Dragon. It is best used on friendly monsters, although you
+might want to fight a stronger monster to get more experience. Does not
+work on Unique monsters.
+
+UN-EVOLVE
+Effect: Turn a monster into a weaker specimen of it's kind.
+Fixed Cost: 100
+
+The opposite of Evolve, this will turn a strong monster into a weaker
+monster. Use it on powerful monsters, but remember that weaker monsters
+typically gives you less experience. Does not work against Uniques and
+Bosses(but does work against Elites).
+
+HASTE
+Effect: Gives you +10 to speed for a duration.
+Mana Cost: 3
+
+This effect gives you a temporary bonus to speed of +10. Very useful
+when you need to be faster than your enemies.
+
+RAISE <STAT>
+Effect: Increase your stats by the spell's power.
+Mana Cost: 5
+
+There are six separate effects of this kind, one for each of the six
+main stats. They can be extremely useful to compensate for your
+lower stats. A mage could use it to raise Strength and become better
+in melee combat. A warrior could use it to boost Dexterity if he/she
+miss often, or further raise his/her Strength. You could also give
+yourself a boost to wisdom, and if you gain a level while having a
+higher wisdom, you may gain more skill points! There are many
+possibilities, and it's up to you to experiment.
+
+BLESSING
+Effect: Raises your to_hit bonus and your AC for a duration.
+Mana Cost: 5
+
+Blessing can be very useful if you have a lower AC or if you have
+problems hitting your enemies. If you are about to face a dangerous
+opponent in melee combat, using this might help.
+
+HASTE OTHER
+Effect: Raise a monster's speed.
+Fixed Cost: 30
+
+This will raise a monster's speed, and make it faster. Obviously, this
+spell is intended to be used on friendly creatures to makes them faster.
+
+PHYSICAL RESISTANCE
+Effect: Reduce damages from melee attacks by a percentage from 1 to 100%.
+Mana Cost: 1
+
+This effect will make you resistant to melee attacks. It can be very
+useful if you do a lot of melee combat. Note that the mana cost of this
+effect rise very quickly.
+
+MAGIC RESISTANCE
+Effect: Reduce damages from magic/breath attacks by a percentage from 1 to 100%.
+Mana Cost: 1
+
+This effect will make you resistant to magic attacks. Use it if you are
+fighting monsters with very strong breath attacks or spells. Like the
+Physical Resistance effect, the mana cost rise very quickly.
+
+STONESKIN
+Effect: Reduce damages from magic/breath attacks by a percentage from 1 to 100%.
+Mana Cost: 1
+
+This effect will make you resistant to magic attacks. Use it if you are
+fighting monsters with very strong breath attacks or spells. Like the
+Physical Resistance effect, the mana cost rise very quickly.
+
+PARALYZE
+Effect: Stop monsters for 10 turns.
+Mana Cost: 4
+
+This effect will stop one or more enemies for 10 turns. The power of this
+effect determine it's success rate. The more powerful, the higher success
+rate. The higher the monster's level, the lower the success rate.
+
+HEALING
+---------
+
+Healing effects allow you to heal your wounds, cure poison, bleeding
+and other negative effects. Some effects also allow you to heal
+friendly monsters, and if you have the mana for it, you can even
+revive the dead!
+
+HEAL
+Effect: Restore your hp.
+Mana Cost: 1
+
+This effect restores your hp by an amount equal to power/level. Weak
+healing effects are very cheap, but powerful ones are very costly.
+
+RESTORE STATS
+Effect: Restore your stats.
+Fixed Cost: 40
+
+This effect will restore all drained stats. It is always useful to
+have this effect ready, as stat drains can severly weaken you.
+
+RESTORE STATUS
+Effect: Cure yourself from various status.
+Fixed Cost: 40
+
+This effect will cure bad status such as poison, confusion, blindness,
+fear and others.
+
+CURE BLEEDING
+Effect: Cure yourself of bleeding wounds.
+Fixed Cost: 40
+
+Bleeding wounds can be annoying, especially if you are low on hp. This
+effect will instantly cure any bleeding, from a simple graze to a mortal
+wound.
+
+CURE BLACK BREATH
+Effect: Cure yourself of Black Breath.
+Fixed Cost: 80
+
+Black Breath is a rare form of disease, but those who gets usually die,
+as it is incurable by normal means, and quickly degrade it's victim.
+This effect will instantly cure you from Black Breath.
+
+HEAL OTHERS
+Effect: Heal monsters.
+Mana Cost: 1
+
+This effect will heal another creature. Use it on fiendly monsters that
+are about to die.
+
+REVIVE MONSTER
+Effect: Revive a dead monster.
+Fixed Cost: 200
+
+This effect allow you to bring a dead monster back to life. If you use
+it on a monster that was previously hostile, it will become friendly
+once revived.
+
+ENERGIZE
+Effect: Recover 25% of your mana.
+Fixed Cost: 0
+
+This powerful effect restore 25% of your mana. Extremely useful, especially
+if combined in a multi-effect spell, but the book to learn this effect
+is extremely rare...
+
+SATISFY HUNGER
+Effect: Instantly feeds you.
+Fixed Cost: 80
+
+This effect will set your food to "Full". If you have a satisfy hunger
+spell, you no longer need to carry rations.
+
+CONJURATION
+-------------
+
+The school of Conjuration deals with all that concerns summoning. A mage
+who studies this school will learn to summon creatures, items or even
+conjure the powers of nature in the form of elemental fields.
+
+SUMMON KIND
+Effect: Summon monsters of a specific kind.
+Mana Cost: 3
+
+When creating a spell with this effect, you will have to choose which
+type of monster you want to summon. To do so, just type the letter that
+corresponds to the type of monsters you want('o' is an orc, 'D' is an
+ancient dragon, etc...). Raising the power of this effect will allow
+stronger monsters to appear.
+
+SUMMON SPECIFIC
+Effect: Summon a specific monster.
+
+When creating a spell with this effect, you will have to choose which
+monster you want to summon. You will have to enter the name of the
+monster you want to summon. You must enter it fully, and correctly,
+otherwise the effect won't work. So, by entering "Mature Red Dragon",
+you will be able to conjure Mature Red Dragons. This effect is more
+expensive than Summon Kind, but is a lot more powerful, because
+you are guaranteed of getting the monster you want. Note that
+Unique monsters cannot be summoned.
+
+ELEMENTAL FIELDS/STORMS/THORNED VINES
+Effect: Conjure an elemental field that will cause damages to enemies
+	that steps into it.
+Mana Cost: 2
+
+Powerful elemental fields are rather expensive, but they are extremely
+useful and powerful. These fields are permanent, and will deal damages
+the same way Elemental spells do when a monster step on a field. A
+field with a large radius is very dangerous! Note that fields will
+not harm you if you step inside them.
+
+WEBS
+Effect: Conjure a field of webs to slow down enemies.
+Fixed Cost: 75
+
+Webs allow you to slow down enemies that steps into them. A large field
+of webs is a very effective way to slow down a small pack of enemies.
+Note that webs will disappear as monsters walk in them.
+
+GROW TREES
+Effect: Create trees.
+Fixed Cost: 75
+
+This effect allow you to create trees, just like you create other fields.
+Trees will block the way(although some monsters can walk trough them) and
+allow you to escape. Be careful not to trap yourself with your own trees!
+If you focus in Ranger abilities, this effect will be VERY useful!
+
+CONJURE ITEM/CONJURE MAGIC ITEM/CONJURE SPECIAL ITEM
+Effect: Conjure an item that will appear in one of your inventory slots.
+
+When creating a spell with this effect, you will have to enter the name
+of the item you want to summon. Be careful to type it correctly! Once
+typed, you will be able to summon this item for a certain number of
+turns. If you conjure a sword, your current weapon will be taken off,
+and the conjured item will take it's place. You cannot unequip a
+summoned item until the duration of the spell has expired. Also, not
+all type of items can be summoned. The items you can summon are
+weapons, body armors, boots, helms, gauntlets, shields and cloaks.
+Rings and amulets cannot be summoned. Of course, the better the item
+the higher the mana cost. The magic item conjuration will always
+summon a magic item. The special item conjuration will always
+summon a powerful special item, but costs a LOT of mana!
+
+DIVINATION
+------------
+
+This school offers spells that are more utilitary, such as spells that
+detect monsters, traps, doors, objects. It also offers spells that will
+identify items, give information on a creature or reveal a portion of
+the map.
+
+DETECT MONSTERS
+Effect: Show all nearby monsters on the map for one turn.
+Fixed Cost: 10
+
+This effect will reveal all nearby monsters for one turn. This can be
+extremely useful to know what you are about to face.
+
+DETECT OBJECTS
+Effect: Show all nearby items on the map for one turn.
+Fixed Cost: 10
+
+This effect will reveal all nearby items for one turn. This can be
+useful to know what treasures lies around before going there.
+
+DETECT DOORS
+Effect: Show all nearby doors on the map for one turn.
+Fixed Cost: 10
+
+This effect will reveal all nearby doors for one turn, so you can
+know where the doors are placed.
+
+DETECT STAIRS
+Effect: Show all nearby stairs on the map for one turn.
+Fixed Cost: 10
+
+This effect will reveal all nearby stairs for one turn. This can
+be very useful to find stairs quickly, saving a lot of time!
+
+DETECT TRAPS
+Effect: Show all nearby traps on the map for one turn.
+Fixed Cost: 10
+
+This effect will reveal all nearby traps for one turn, so you can
+avoid them more easily.
+
+TELEPATHY
+Effect: Makes you telepathic for a duration.
+Mana Cost: 5
+
+This effect will temporarely give you the Telepathy ability. While
+telepathic, you will be able to see all nearby enemies, unless they
+are resistant to telepathy. Very useful to know what you're going
+to fight.
+
+IDENTIFY
+Effect: Identify all items in your inventory.
+Fixed Cost: 10
+
+This effect will identify all your items. If you have this, you won't
+need the scrolls anymore.
+
+SCAN MONSTER
+Effect: Gives detailed information about a monster.
+Fixed Cost: 40
+
+This effect will give you detailed information about a monster. It can
+be very useful to know the hit rate and defense of enemies, or to know
+the hp of a boss monster.
+
+REVEAL
+Effect: Reveal a portion of the map.
+Fixed Cost: 20
+
+This effect will permanently reveal a portion of the map, depending on
+the radius. It will remain revealed forever, and you will be able to see
+the monsters that are in the area. A large radius version of this effect
+can be extremely useful!

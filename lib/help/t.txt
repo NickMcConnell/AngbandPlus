@@ -1,0 +1,26 @@
+ZULGOR
+--------
+
+Zulgors are mysterious inviduals ressembling humans a lot.
+They are said to be the cross between a human and a demon, but
+others think they are a pure spawn of chaos. These invividuals
+are recognised by their bicolor hairs, usually black and white,
+red and purple or green and blue. And while they may looks
+like simple humans, their feats tells otherwise. Their strength
+and constitution are very high, and their intelligence is amazing.
+They are also fast on feets, resist the effects of chaos and
+are strangely attractive physically. Outclassing humans, these
+spawns of chaos are unstable beings. Because of that, they
+have to take extra time to master their own bodies, and that
+means they take more time go gain experience than the regular
+race, and they learn skills at a slower rate.
+
+ADVANTAGES: +50% to Intelligence, Constitution, Dexterity, Charisma
+            +100% to Strength
+	    +1 to speed
+            Innate resistance to chaos
+            +25% damages to chaos-based attacks.
+
+DISADVANTAGES: Need more experience to gain levels
+               Only gain 1 skill points per levels instead of 2.
+

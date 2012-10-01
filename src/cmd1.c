@@ -77,7 +77,7 @@ bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-s16b critical_shot(int weight, int plus, int dam)
+s32b critical_shot(int weight, int plus, s32b dam)
 {
 	int i, k;
 
@@ -116,7 +116,7 @@ s16b critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-s16b critical_norm(int weight, int plus, int dam)
+s32b critical_norm(int weight, int plus, s32b dam)
 {
 	int i, k;
 
@@ -169,7 +169,7 @@ s16b critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+s32b tot_dam_aux(object_type *o_ptr, s32b tdam, monster_type *m_ptr)
 {
 	int mult = 1;
 
@@ -189,9 +189,13 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_DAGGER:
+                case TV_AXE:
 		case TV_DIGGING:
                 case TV_HELL_STAFF:
                 case TV_SWORD_DEVASTATION:
+                case TV_VALKYRIE_SPEAR:
+                case TV_ZELAR_WEAPON:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
@@ -202,7 +206,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
-				if (mult < 2) mult = 2;
+                                if (mult < 4) mult = 4;
 			}
 
 			/* Slay Evil */
@@ -214,31 +218,30 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
-				if (mult < 2) mult = 2;
+                                if (mult < 4) mult = 4;
 			}
 
 			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) &&
-			    (r_ptr->flags3 & (RF3_UNDEAD)))
+                        if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
-				if (mult < 3) mult = 3;
+                                if (mult < 6) mult = 6;
 			}
 
-			/* Slay Demon */
-			if ((f1 & (TR1_SLAY_DEMON)) &&
-			    (r_ptr->flags3 & (RF3_DEMON)))
+                        /* Slay Demon */
+                        if ((f1 & (TR1_SLAY_DEMON)) &&
+                            (r_ptr->flags3 & (RF3_DEMON)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DEMON);
+                                        r_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
-				if (mult < 3) mult = 3;
+                                if (mult < 6) mult = 6;
 			}
 
 			/* Slay Orc */
@@ -250,7 +253,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_ORC);
 				}
 
-				if (mult < 3) mult = 3;
+                                if (mult < 6) mult = 6;
 			}
 
 			/* Slay Troll */
@@ -264,7 +267,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 
 
-				if (mult < 3) mult = 3;
+                                if (mult < 6) mult = 6;
 			}
 
 			/* Slay Giant */
@@ -276,7 +279,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
-				if (mult < 3) mult = 3;
+                                if (mult < 6) mult = 6;
 			}
 
 			/* Slay Dragon  */
@@ -288,7 +291,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 3) mult = 3;
+                                if (mult < 6) mult = 6;
 			}
 
 			/* Execute Dragon */
@@ -300,11 +303,32 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 5) mult = 5;
+                                if (mult < 10) mult = 10;
 
-				if ((o_ptr->name1 == ART_AEGLIN) &&
-				    strstr(r_name + r_ptr->name, "Fafner"))
-					mult *= 3;
+			}
+
+                        /* Slay Male */
+                        if ((f4 & (TR4_SLAY_MALE)) &&
+                            (r_ptr->flags1 & (RF1_MALE)))
+			{
+				if (m_ptr->ml)
+				{
+                                        r_ptr->r_flags1 |= (RF1_MALE);
+				}
+
+                                if (mult < 6) mult = 6;
+			}
+
+                        /* Slay Female */
+                        if ((f4 & (TR4_SLAY_FEMALE)) &&
+                            (r_ptr->flags1 & (RF1_FEMALE)))
+			{
+				if (m_ptr->ml)
+				{
+                                        r_ptr->r_flags1 |= (RF1_FEMALE);
+				}
+
+                                if (mult < 6) mult = 6;
 			}
 
 
@@ -338,7 +362,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+                        if ((f1 & (TR1_BRAND_ELEC)))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -367,7 +391,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+                        if ((f1 & (TR1_BRAND_FIRE)))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -396,7 +420,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+                        if ((f1 & (TR1_BRAND_COLD)))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -453,14 +477,23 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
                         /* Brand (Light) */
-                        if (f4 & (TR4_BRAND_LIGHT))
+                        if ((f4 & (TR4_BRAND_LIGHT)))
 			{
-                                /* Notice susceptibility */
-                                if (r_ptr->flags3 & (RF3_HURT_LITE))
+				/* Notice immunity */
+                                if (r_ptr->flags7 & (RF7_RES_LITE))
 				{
 					if (m_ptr->ml)
 					{
-                                                r_ptr->r_flags3 |= (RF3_SUSCEP_COLD);
+                                                r_ptr->r_flags7 |= (RF7_RES_LITE);
+					}
+				}
+                                
+                                /* Notice susceptibility */
+                                else if (r_ptr->flags3 & (RF3_HURT_LITE))
+				{
+					if (m_ptr->ml)
+					{
+                                                r_ptr->r_flags3 |= (RF3_HURT_LITE);
 					}
                                         if (mult < 6) mult = 6;
 				}
@@ -472,16 +505,13 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
                         /* Brand (Darkness) */
-                        if (f4 & (TR4_BRAND_DARK))
+                        if ((f4 & (TR4_BRAND_DARK)))
 			{
 				/* Notice immunity */
-                                if (r_ptr->flags3 & (RF3_RES_NETH) || r_ptr->flags3 & (RF3_DEMON) || r_ptr->flags3 & (RF3_UNDEAD))
+                                if (r_ptr->flags3 & (RF3_DEMON) || r_ptr->flags3 & (RF3_UNDEAD) || r_ptr->flags7 & (RF7_RES_DARK))
 				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
-					}
-				}
+                                        /* Does nothing */
+                                }
 
 				/* Otherwise, take the damage */
 				else
@@ -490,25 +520,34 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
                         /* Brand (Magic) */
-                        if (f4 & (TR4_BRAND_MAGIC))
+                        if ((f4 & (TR4_BRAND_MAGIC)))
 			{
                                 if (mult < 4) mult = 4;      
 			}
-                        
-
-                        /* Assassination for Assassins */
-                        if (p_ptr->pclass == CLASS_ASSASSIN || ability(72))
+                        /* Banishing(undeads) */
+                        if ((p_ptr->pclass == CLASS_PALADIN || p_ptr->pclass == CLASS_JUSTICE_WARRIOR) &&
+                            (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
-                                mult += 4;
-			}
-                        if (ability(51))
-                        {
-                                if (p_ptr->csp >= 50)
-                                {
-                                        mult *= 4;
-                                }
-                        }
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= (RF3_UNDEAD);
+				}
 
+                                if (mult < 3) mult += 3;
+			}
+
+                        /* Banishing(demons) */
+                        if ((p_ptr->pclass == CLASS_PALADIN || p_ptr->pclass == CLASS_JUSTICE_WARRIOR) &&
+                            (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= (RF3_DEMON);
+				}
+
+                                if (mult < 3) mult += 3;
+			}
+                        
                         /* Sword Of Devastation */
                         if (o_ptr->tval == TV_SWORD_DEVASTATION)
 			{
@@ -542,7 +581,7 @@ void search(void)
 	cave_type *c_ptr;
 
 	/* Start with base search ability */
-	chance = p_ptr->skill_srh;
+        chance = (p_ptr->stat_ind[A_INT] / 2) + (p_ptr->stat_ind[A_DEX] / 2);
 
 	/* Penalize various conditions */
 	if (p_ptr->blind || no_lite()) chance = chance / 10;
@@ -719,10 +758,9 @@ void touch_zap_player(monster_type *m_ptr)
 
 static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 {
-	int             k, bonus, chance;
 	int             n_weight = 0;
+        s32b            k;
 	monster_type    *m_ptr = &m_list[m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 	char            m_name[80];
 
 	int             dss, ddd;
@@ -769,13 +807,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
-
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
 	/* Test for hit */
-	if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+        if (player_hit_monster(m_ptr, 0))
 	{
 		/* Sound */
 		sound(SOUND_HIT);
@@ -893,7 +926,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x, 
 		bool obvious = FALSE;
 
 		int power = 0;
-		int damage = 0;
+                s32b damage = 0;
 
 		cptr act = NULL;
 
@@ -1398,7 +1431,6 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 
 
         if(!p_ptr->body_monster) return;
-
         c_ptr = &cave[y][x];
 
         r_ptr = &r_info[p_ptr->body_monster];
@@ -1430,7 +1462,8 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 		bool obvious = FALSE;
 
 		int power = 0;
-		int damage = 0;
+                int dummy = 0;
+                s32b damage = 0;
 
 		cptr act = NULL;
 
@@ -1490,10 +1523,11 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 		case RBE_TIME:          power =  5; break;
                 case RBE_SANITY:        power = 60; break;
 		}
-		
+                power += p_ptr->to_h;
 		
 		/* Monster hits*/
-		if (!effect || check_hit2(power, rlev,ac))
+                /* if (!effect || check_hit2(power, rlev,ac)) */
+                if (dummy == 0)
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -1679,10 +1713,13 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 			obvious = TRUE;
 			
 			/* Roll out the damage */
-                        damage = damroll(d_dice, d_side) + p_ptr->to_d;
+                        /* Modified for NewAngband... to be MORE powerful!! ;) */
+                        /* damage = damroll(d_dice + p_ptr->lev / 2, d_side + p_ptr->lev / 2) + p_ptr->to_d; */
+                        damage = (damroll(d_dice, d_side) * (p_ptr->skill_marts + 1)) + damroll(p_ptr->lev / 2, p_ptr->lev / 2) + p_ptr->to_d;
+                        damage *= p_ptr->multiplier;
 			
-			pt = GF_MISSILE;
-			
+                        pt = GF_PHYSICAL;
+                        if (p_ptr->prace == RACE_MONSTER) no_magic_return = TRUE;
 			/* Apply appropriate damage */
 			switch (effect)
 			{
@@ -1695,8 +1732,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 				
 			case RBE_HURT:
                         case RBE_SANITY:
-				{
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+				{                                        
 					break;
 				}
 				
@@ -1821,7 +1857,30 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
                                 /* Do damage if not exploding */
                                 project(0, 0, t_ptr->fy, t_ptr->fx,
                                         (pt == GF_OLD_SLEEP ? p_ptr->lev * 2 : damage), pt, PROJECT_KILL | PROJECT_STOP);
-				
+
+                                /* Monstrous Brutality! */
+                                if (p_ptr->abilities[(CLASS_MONSTER_MAGE * 10) + 8] >= 1 && player_hit_monster(t_ptr, 0))
+                                {
+                                        int loss = p_ptr->abilities[(CLASS_MONSTER_MAGE * 10) + 8] * 10;
+                                        if (t_ptr->boss >= 1 || tr_ptr->flags1 & (RF1_UNIQUE))
+                                        {
+                                                char tmpmsg[80];
+                                                t_ptr->hitrate -= (loss / 10);
+                                                t_ptr->defense -= (loss / 10);
+                                                sprintf(tmpmsg, "%s has lost %d hit rate and defense!", t_name, (loss / 10));
+                                                msg_print(tmpmsg);
+                                        }
+                                        else
+                                        {
+                                                char tmpmsg[80];
+                                                t_ptr->hitrate -= loss;
+                                                t_ptr->defense -= loss;
+                                                sprintf(tmpmsg, "%s has lost %d hit rate and defense!", t_name, loss);
+                                                msg_print(tmpmsg);
+                                        }
+                                }
+
+
 				if (touched)
 				{
 					/* Aura fire */
@@ -1889,7 +1948,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath, int x
 				}
 			}
 		}
-		
+                no_magic_return = FALSE;
 		
 		/* Analyze "visible" monsters only */
 		if (visible)
@@ -1951,7 +2010,8 @@ static void flavored_attack(int percent, char* output) {
  */
 void py_attack(int y, int x, int max_blow)
 {
-	int		num = 0, k, bonus, chance;
+        int             num = 0;
+        s32b            k;
 
 	cave_type       *c_ptr = &cave[y][x];
 
@@ -1977,7 +2037,31 @@ void py_attack(int y, int x, int max_blow)
         u32b            f1, f2, f3, f4; /* A massive hack -- life-draining weapons */
 	bool            no_extra = FALSE;
         int             weap;
+        int             totalcombo = 0;
+        int             maxcombo = 0;
+        int             oldpy = py;
+        int             oldpx = px;
+        char            ch;
 
+        /* First and foremost, determine the maximum combos the */
+        /* player can do(if any) */
+        if (p_ptr->skill_combat >= 1)
+        {
+                int combatskill = p_ptr->skill_combat;
+                while (combatskill >= 5)
+                {
+                        maxcombo += 1;
+                        combatskill -= 5;
+                }
+                {
+                        int combochance = combatskill * 20;
+
+                        if (combochance > 0 && randint(100) <= combochance)
+                        {
+                                maxcombo += 1;
+                        }
+                }
+        }
 
 	/* Disturb the player */
 	disturb(0, 0);
@@ -1992,7 +2076,7 @@ void py_attack(int y, int x, int max_blow)
         if (perform_event(EVENT_ATTACK, Py_BuildValue("()"))) return;
 #endif
 
-	if (p_ptr->pclass == CLASS_ROGUE)
+        if (p_ptr->skill_stealth >= 30)
 	{
 		if ((m_ptr->csleep) && (m_ptr->ml))
 		{
@@ -2004,10 +2088,6 @@ void py_attack(int y, int x, int max_blow)
 			stab_fleeing = TRUE;
 		}
 	}
-
-	/* Disturb the monster */
-	m_ptr->csleep = 0;
-
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -2074,9 +2154,13 @@ void py_attack(int y, int x, int max_blow)
 	/* Access the weapon */
         o_ptr = &inventory[INVEN_WIELD + weap];
 
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+        /* No weapon found? Go for natural attacks then... */
+        /*if (o_ptr->tval == 0 && p_ptr->prace == RACE_MONSTER)*/
+        if (o_ptr->tval == 0 && p_ptr->body_monster != 0)
+        {
+                incarnate_monster_attack(c_ptr->m_idx, &fear, &mdeath, y, x);
+                return;
+        }
 
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
@@ -2088,10 +2172,38 @@ void py_attack(int y, int x, int max_blow)
         if((max_blow >= 0) && (num_blow > max_blow)) num_blow = max_blow;
 
 	/* Attack once for each legal blow */
-        while (num++ < num_blow)
+        while (num++ < num_blow && c_ptr->m_idx && px == oldpx && py == oldpy)
 	{
-		/* Test for hit */
-		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+                int daggerbonus = 0;
+                bool usedcombo = FALSE;
+
+                /* Maybe the player want to use a special move instead...*/
+                /* Offer the choice...if possible. */
+                if (totalcombo < maxcombo && !mdeath)
+                {
+                        get_com("Do you wish to use a special ability? [y/n/no[t] this turn]", &ch);
+
+                        if (ch == 'y' || ch == 'Y')
+                        {
+                                do_cmd_racial_power(TRUE);
+                                usedcombo = TRUE;
+                                totalcombo += 1;
+                        }
+
+                        if (ch == 't' || ch == 'T')
+                        {
+                                totalcombo = maxcombo;
+                        }
+                }
+
+                /* Piercing Stab passive feat */
+                if (dagger_check() == TRUE && p_ptr->skill_daggers >= 5) daggerbonus = p_ptr->to_d / 4;
+
+                if (!usedcombo)
+                {
+
+                /* Test for hit */
+                if (player_hit_monster(m_ptr, daggerbonus))
 		{
 			/* Sound */
 			sound(SOUND_HIT);
@@ -2137,145 +2249,24 @@ void py_attack(int y, int x, int max_blow)
 				else
 					drain_result = 0;
 			}
-
 			if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_VORPAL_BLADE)?3:6) == 1))
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
-                        if ((p_ptr->pclass == CLASS_MONK || ability(27)) && monk_empty_hands())
-			{
-				int special_effect = 0, stun_effect = 0, times = 0;
-				martial_arts * ma_ptr = &ma_blows[0], * old_ptr = &ma_blows[0];
-				int resist_stun = 0;
-				if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
-				if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
-				if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
-				if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
-					resist_stun += 88;
-
-				for (times = 0; times < (p_ptr->lev<7?1:p_ptr->lev/7); times++)
-				/* Attempt 'times' */
-				{
-					do
-					{
-						ma_ptr = &ma_blows[(randint(MAX_MA))-1];
-					}
-					while ((ma_ptr->min_level > p_ptr->lev)
-					    || (randint(p_ptr->lev)<ma_ptr->chance));
-
-					/* keep the highest level attack available we found */
-					if ((ma_ptr->min_level > old_ptr->min_level) &&
-					    !(p_ptr->stun || p_ptr->confused))
-					{
-						old_ptr = ma_ptr;
-
-						if (wizard && cheat_xtra)
-						{
-							msg_print("Attack re-selected.");
-						}
-					}
-					else
-					{
-						ma_ptr = old_ptr;
-					}
-				}
-
-				k = damroll(ma_ptr->dd, ma_ptr->ds);
-                                /* Hitting Variaz with a weapon...GREAT idea! */
-                                if (m_ptr->r_idx == 1030 && randint(100) >= 50)
-                                {
-                                        no_more_items();
-                                        p_ptr->chp -= k;
-                                        update_and_handle();
-                                }
-                                else if (m_ptr->r_idx == 1030)
-                                {
-                                        p_ptr->chp -= k;
-                                        update_and_handle();
-                                }
-
-
-				if (ma_ptr->effect == MA_KNEE)
-				{
-					if (r_ptr->flags1 & RF1_MALE)
-					{
-						msg_format("You hit %s in the groin with your knee!", m_name);
-						sound(SOUND_PAIN);
-						special_effect = MA_KNEE;
-					}
-					else
-						msg_format(ma_ptr->desc, m_name);
-				}
-
-				else if (ma_ptr->effect == MA_SLOW)
-				{
-					if (!((r_ptr->flags1 & RF1_NEVER_MOVE)
-					    || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
-					{
-						msg_format("You kick %s in the ankle.", m_name);
-						special_effect = MA_SLOW;
-					}
-					else msg_format(ma_ptr->desc, m_name);
-				}
-				else
-				{
-					if (ma_ptr->effect)
-					{
-						stun_effect = (ma_ptr->effect/2) + randint(ma_ptr->effect/2);
-					}
-
-					msg_format(ma_ptr->desc, m_name);
-				}
-
-				k = critical_norm(p_ptr->lev * (randint(10)), ma_ptr->min_level, k);
-
-				if ((special_effect == MA_KNEE) && ((k + p_ptr->to_d) < m_ptr->hp))
-				{
-					msg_format("%^s moans in agony!", m_name);
-					stun_effect = 7 + randint(13);
-					resist_stun /= 3;
-				}
-
-				else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d) < m_ptr->hp))
-				{
-					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-					    (randint(p_ptr->lev) > r_ptr->level) &&
-					    m_ptr->mspeed > 60)
-					{
-						msg_format("%^s starts limping slower.", m_name);
-						m_ptr->mspeed -= 10;
-					}
-				}
-
-				if (stun_effect && ((k + p_ptr->to_d) < m_ptr->hp))
-				{
-					if (p_ptr->lev > randint(r_ptr->level + resist_stun + 10))
-					{
-						if (m_ptr->stunned)
-                                                        msg_format("%^s is still stunned.", m_name);
-						else
-							msg_format("%^s is stunned.", m_name);
-
-						m_ptr->stunned += (stun_effect);
-					}
-				}
-			}
-
 			/* Handle normal weapon */
-			else if (o_ptr->k_idx)
+                        if (o_ptr->k_idx)
 			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-                                k *= p_ptr->multiplier;
+                                k = weapon_damages();
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 
 				if (backstab)
 				{
 					backstab = FALSE;
-					k *= (3 + (p_ptr->lev / 40));
+                                        k *= (3 + p_ptr->abilities[(CLASS_ROGUE * 10) + 1]);
 				}
 				else if (stab_fleeing)
 				{
-					k = ((3 * k) / 2);
+                                        k *= (3 + p_ptr->abilities[(CLASS_ROGUE * 10) + 1]) / 2;
 				}
 
 				if ((p_ptr->impact && ((k > 50) || randint(7)==1)) ||
@@ -2284,6 +2275,49 @@ void py_attack(int y, int x, int max_blow)
 					do_quake = TRUE;
 				}
 
+				/* Lower defense? */
+                        if (o_ptr->art_flags4 & (TR4_LOWER_DEF))
+                        {
+                                    int defamount;
+                                    char m_name[80];
+
+                                    /* Get "the monster" or "it" */
+                                    monster_desc(m_name, m_ptr, 0);
+
+                                    defamount = (damroll(o_ptr->dd, o_ptr->ds) * p_ptr->multiplier) / 10;
+                                    if (m_ptr->defense <= 0) defamount = 0;
+                                    msg_format("%s loses %d defense!", m_name, defamount);
+                                    m_ptr->defense -= defamount;
+                                    if (m_ptr->defense <= 0) m_ptr->defense = 0;
+                        }
+                        /* Lower hit rate? */
+                        if (o_ptr->art_flags4 & (TR4_LOWER_HIT))
+                        {
+                                    int hitamount;
+                                    char m_name[80];
+
+                                    /* Get "the monster" or "it" */
+                                    monster_desc(m_name, m_ptr, 0);
+
+                                    hitamount = (damroll(o_ptr->dd, o_ptr->ds) * p_ptr->multiplier) / 10;
+                                    if (m_ptr->hitrate <= 0) hitamount = 0;
+                                    msg_format("%s loses %d hit rate!", m_name, hitamount);
+                                    m_ptr->hitrate -= hitamount;
+                                    if (m_ptr->hitrate <= 0) m_ptr->hitrate = 0;
+                        }
+                        /* Zelar's Disabling Blows! */
+                        if (unarmed() && p_ptr->abilities[(CLASS_ZELAR * 10) + 5] >= 1)
+                        {
+                                int defreduction = (p_ptr->abilities[(CLASS_ZELAR * 10) + 5] * 15);
+                                int speedreduction = 1 + (p_ptr->abilities[(CLASS_ZELAR * 10) + 5] / 2);
+
+                                if (!(m_ptr->abilities & (BOSS_IMMUNE_WEAPONS)) && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                                {
+                                        m_ptr->hitrate -= defreduction;
+                                        m_ptr->defense -= defreduction;
+                                        m_ptr->mspeed -= speedreduction;
+                                }
+                        }
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
 
 				if (vorpal_cut)
@@ -2308,32 +2342,21 @@ void py_attack(int y, int x, int max_blow)
 					while (randint((o_ptr->name1 == ART_VORPAL_BLADE)?2:4)==1);
 				}
 
-				k += o_ptr->to_d;
-                                /* Hitting Variaz with a weapon...GREAT idea! */
-                                if (m_ptr->r_idx == 1030 && randint(100) >= 50)
-                                {
-                                        no_more_items();
-                                        p_ptr->chp -= k;
-                                        update_and_handle();
-                                }
-                                else if (m_ptr->r_idx == 1030)
-                                {
-                                        p_ptr->chp -= k;
-                                        update_and_handle();
-                                }
+                                /* Hitting Variaz with a weapon...GREAT idea!         */
+                                /* if (m_ptr->r_idx == 1030)                          */
+                                /* {                                                  */
+                                /*        take_hit((k / 25), "Variaz's deadly aura"); */
+                                /*        update_and_handle();                        */
+                                /* }                                                  */
 
                                 /* Mega Hack -- Hitting Nazgul is REALY dangerous(ideas from Akhronath) */
                                 if(r_ptr->flags7 & RF7_NAZGUL)
                                 {
+
                                         if((!o_ptr->name2) && (!o_ptr->name1))
                                         {
-                                                msg_print("Your weapon *DISINTEGRATES*!");
+                                                msg_print("Your weapon is ineffective!");
                                                 k = 0;
-                                                inven_item_increase(INVEN_WIELD + weap, -1);
-                                                inven_item_optimize(INVEN_WIELD + weap);
-
-                                                /* To stop attacking */
-                                                num = num_blow;
                                         }
                                         else if(o_ptr->name2)
                                         {
@@ -2342,17 +2365,6 @@ void py_attack(int y, int x, int max_blow)
                                                         msg_print("The Ringwraith is IMPERVIOUS to the mundane weapon.");
                                                         k = 0;
                                                 }
-
-                                                /* 25% chance of getting destroyed */
-                                                if(magik(25))
-                                                {
-                                                        msg_print("Your weapon is destroyed !");
-                                                        inven_item_increase(INVEN_WIELD + weap, -1);
-                                                        inven_item_optimize(INVEN_WIELD + weap);
-
-                                                        /* To stop attacking */
-                                                        num = num_blow;
-                                                }
                                         }
                                         else if(o_ptr->name1)
                                         {
@@ -2360,19 +2372,6 @@ void py_attack(int y, int x, int max_blow)
                                                 {
                                                         msg_print("The Ringwraith is IMPERVIOUS to the mundane weapon.");
                                                         k = 0;
-                                                }
-
-                                                apply_disenchant(INVEN_WIELD + weap);
-
-                                                /* 5% chance of getting destroyed */
-                                                if(magik(5))
-                                                {
-                                                        msg_print("Your weapon is destroyed !");
-                                                        inven_item_increase(INVEN_WIELD + weap, -1);
-                                                        inven_item_optimize(INVEN_WIELD + weap);
-
-                                                        /* To stop attacking */
-                                                        num = num_blow;
                                                 }
                                         }
 
@@ -2399,13 +2398,45 @@ void py_attack(int y, int x, int max_blow)
 			}
 
 			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
-                        /* Special Astra sword... */
-                        if (o_ptr->name1 == ART_ASTRA) k += p_ptr->chp;
+                        k += p_ptr->dis_to_d;
 
                         /* Penalty for could-2H when having a shield */
                         if ((f4 & TR4_COULD2H) && inventory[INVEN_ARM].k_idx)
                              k /= 2;
+
+                        /* Monster's level reduce damages! */
+                        k = monster_damage_reduction(k, m_ptr, FALSE);
+
+                                /* Bosses/Elites can be immune to weapons... */
+                                if (m_ptr->abilities & (BOSS_RETURNING))
+                                {
+                                        int returndamages;
+                                        returndamages = k / 2;
+                                        msg_print("You hurt yourself!");
+                                        take_hit(returndamages, "A monster ability");
+                                }
+                                if (m_ptr->abilities & (BOSS_HALVE_DAMAGES))
+                                {
+                                        k = k / 2;
+                                }
+                                if (m_ptr->abilities & (BOSS_IMMUNE_WEAPONS))
+                                {
+                                        k = 0;
+                                        msg_print("The monster seems to be immune...");
+                                }
+                                /* Arakzatrys is very resistant... */
+                                if (m_ptr->r_idx == 982)
+                                {
+                                        k = (k / 3);
+                                }
+
+                                /* Variaz is REALLY resistant, but not immune anymore... */
+                                if (m_ptr->r_idx == 1030)
+                                {
+                                        k = (k / 5);
+                                        /* if (k >= 5000) k = 5000; */
+                                }
+
 
 			/* No negative damage */
 			if (k < 0) k = 0;
@@ -2413,14 +2444,12 @@ void py_attack(int y, int x, int max_blow)
                         /* Asmodis Sword... */
                         if (o_ptr->name1 == ART_ASMODIS)
                         {
-                                o_ptr->asmodis_energy += k;
+                                o_ptr->xtra2 += k;
                         }
 
 			/* Message */
 			if (!(backstab || stab_fleeing))
 			{
-				if (!(p_ptr->pclass == CLASS_MONK && monk_empty_hands()))
-                                {
                                         if (strchr("vwjmelX,.*", r_ptr->d_char)) {
                                           msg_format("You hit %s.", m_name);
                                         } else {
@@ -2429,7 +2458,6 @@ void py_attack(int y, int x, int max_blow)
                                           flavored_attack((100*k)/m_ptr->maxhp, buff);
                                           msg_format(buff, m_name);
                                         }
-                                }
 			}
 			else if (backstab)
 				msg_format("You cruelly stab the helpless, sleeping %s!",
@@ -2447,15 +2475,6 @@ void py_attack(int y, int x, int max_blow)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
 			{
-                                /* Hack -- High-level warriors can spread their attacks out
-                                 * among weaker foes.
-                                 */
-                                if ((p_ptr->pclass == CLASS_WARRIOR) &&
-                                        (p_ptr->lev > 34) && (num < num_blow) &&
-                                        (energy_use))
-                                {
-                                        energy_use = energy_use * num / num_blow;
-                                }
 				mdeath = TRUE;
 				break;
 			}
@@ -2600,6 +2619,8 @@ void py_attack(int y, int x, int max_blow)
 			/* Message */
 			msg_format("You miss %s.", m_name);
 		}
+                } /* End of combo checks */
+                update_and_handle();
 	}
         }
         else
@@ -2770,7 +2791,7 @@ bool player_can_enter(byte feature)
 	bool pass_wall;
 
 	/* Player can not walk through "walls" unless in Shadow Form */
-	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+        if (p_ptr->wraith_form)
 		pass_wall = TRUE;
 	else
 		pass_wall = FALSE;
@@ -2780,7 +2801,7 @@ bool player_can_enter(byte feature)
 	{
 		case FEAT_DEEP_WATER:
 			{
-				int wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
+                                int wt = (max_carry() * 100) / 2;
 				if ((total_weight < wt) || (p_ptr->ffall))
 					return (TRUE);
 				else
@@ -2811,7 +2832,7 @@ bool player_can_enter(byte feature)
 
 		case FEAT_TREES:
 			{
-                                if ((p_ptr->ffall)||(p_ptr->prace==RACE_ENT)||(p_ptr->mimic_form==MIMIC_ENT)||(p_ptr->pclass==CLASS_RANGER)||(p_ptr->pclass==CLASS_DRUID))
+                                if ((p_ptr->ffall)||(p_ptr->prace==RACE_ENT)||(p_ptr->mimic_form==MIMIC_ENT)||(p_ptr->pclass==CLASS_RANGER)|| (p_ptr->abilities[(CLASS_RANGER * 10) + 1] >= 1))
 					return (TRUE);
 				else
 					return (FALSE);
@@ -2851,7 +2872,6 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 	cave_type *c_ptr;
 	monster_type *m_ptr;
-        monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 	char m_name[80];
 
@@ -2860,31 +2880,8 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 	bool oktomove = TRUE;
 
-        /* Hack - random movement */
         if (p_ptr->disembodied)
                 tmp = dir;
-        else
-        if ((r_ptr->flags1 & RF1_RAND_25) && (r_ptr->flags1 & RF1_RAND_50))
-        {
-                if (randint(100) < 75)
-                        tmp = randint(9);
-                else
-                        tmp = dir;
-        }
-        else if (r_ptr->flags1 & RF1_RAND_50)
-        {
-                if (randint(100) < 50)
-                        tmp = randint(9);
-                else
-                        tmp = dir;
-        }
-        else if (r_ptr->flags1 & RF1_RAND_25)
-        {
-                if (randint(100) < 25)
-                        tmp = randint(9);
-                else
-                        tmp = dir;
-        }
         else
                 tmp = dir;
   
@@ -3002,7 +2999,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+        if (p_ptr->wraith_form)
 		p_can_pass_walls = TRUE;
 
 	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
@@ -3085,7 +3082,7 @@ void move_player_aux(int dir, int do_pickup, int run)
         else if (c_ptr->feat == FEAT_TREES)
 	{
                 oktomove = FALSE;
-                if ((p_ptr->pclass == CLASS_DRUID) || (p_ptr->pclass == CLASS_RANGER) || (p_ptr->mimic_form == MIMIC_ENT) || (p_ptr->prace == RACE_ENT) || p_ptr->fly || p_can_pass_walls) oktomove=TRUE;
+                if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->mimic_form == MIMIC_ENT) || (p_ptr->prace == RACE_ENT) || p_ptr->fly || p_can_pass_walls || p_ptr->abilities[(CLASS_RANGER * 10) + 1] >= 1) oktomove=TRUE;
 	}
 
 	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
@@ -3284,6 +3281,16 @@ void move_player_aux(int dir, int do_pickup, int run)
 		/* Check for new panel (redraw map) */
 		verify_panel();
 
+		/* Auras! */
+		/* The Paladin's Aura Of Life! :) */
+                if (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] >= 1) aura_of_life();
+
+		/* Elemental Lord's aura! */
+                if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] >= 1 && p_ptr->auraon) elem_lord_aura((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] * 5) * p_ptr->lev, 2 + (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] / 30));
+
+                /* Justice Warrior's Aura Of Evil Repulsing! */
+                if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 2] >= 1) aura_repulse_evil(2 + (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 2] / 20));
+
                 /* For get everything when requested hehe I'm *NASTY* */
                 if (dun_level && (d_info[dungeon_type].flags1 & DF1_FORGET))
                 {
@@ -3301,8 +3308,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == rand_int(50 - p_ptr->skill_fos)))
+                if (randint(100) < ((p_ptr->stat_ind[A_INT] / 5) + (p_ptr->stat_ind[A_DEX] / 5)))
 		{
 			search();
 		}
@@ -3425,6 +3431,8 @@ void move_player_aux(int dir, int do_pickup, int run)
 void move_player(int dir, int do_pickup)
 {
         move_player_aux(dir, do_pickup, 0);
+        /* Do an update */
+        update_and_handle();
 }
 
 
@@ -4843,7 +4851,7 @@ void do_cmd_damage_weapon(void)
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
-        if (randint(100) >= 85 && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
+        if (randint(100) >= 95 && o_ptr->xtra1 != 1 && o_ptr->name1 == 0 && !(f4 & TR4_INDESTRUCTIBLE))
         {
                 o_ptr->pval3 -= 1;
                 msg_print("The weapon was damaged.");
@@ -4856,3 +4864,239 @@ void do_cmd_damage_weapon(void)
         }
 }
 
+/* High level monsters take less damages... */
+s32b monster_damage_reduction(s32b damages, monster_type *m_ptr, bool magicattack)
+{
+        s32b modifier, modifierb, finalresult;
+
+        if (m_ptr->level >= 10)
+        {
+                modifier = (m_ptr->level / 10);
+                if (modifier < 1) modifier = 0;
+                /* 80% damages reduction is enough... */
+                if (modifier > 8) modifier = 8;
+        }
+        else modifier = 0;
+
+        /* Check the amount of damages we have... */
+        if (damages <= 0 || modifier == 0)
+        {
+                finalresult = damages;
+                return finalresult;
+        }
+        modifierb = ((damages * modifier) / 10);
+        finalresult = (damages - modifierb);
+
+        return finalresult;
+}
+
+/* A very simple hit rate system...yet, it's effective! */
+bool player_hit_monster(monster_type *m_ptr, int bonus)
+{
+        int phit, proll, mroll;
+        int mistpenalities = 25 + (p_ptr->abilities[(CLASS_SHADOW * 10) + 6] / 2);
+        cave_type *c_ptr;
+
+        /* First, let's calculate the player's hit rate! */
+        phit = (p_ptr->lev + p_ptr->to_h) + bonus;
+
+        /* Somehow, we should not miss this attack... */
+        if (nevermiss == TRUE) return (TRUE);
+
+        /* If the hit rate is negative or 0, well, give up, you can't hit! ;) */
+        if (phit <= 0) return (FALSE);
+
+        /* Now, let's roll the dices! Player's hit rate VS monster's def */
+        proll = randint(phit);
+        mroll = randint(m_ptr->defense);
+
+        /* Enemies in the dark mist are easier to hit! */
+        c_ptr = &cave[m_ptr->fy][m_ptr->fx];
+        if (c_ptr->feat == FEAT_DARK_MIST)
+        {
+                int rollpenality;
+                rollpenality = mroll * (mistpenalities / 100);
+                mroll -= rollpenality;
+        }
+
+        if (proll >= mroll) return (TRUE);
+        else if (always_hit_check()) return (TRUE);
+        else return (FALSE);
+}
+
+/* How a monster hit you is not much more complicated... */
+bool monster_hit_player(monster_type *m_ptr, int bonus)
+{
+        int pdef, proll, mroll;
+        int mistpenalities = 25 + (p_ptr->abilities[(CLASS_SHADOW * 10) + 6] / 2);
+        cave_type *c_ptr;
+
+        /* First, let's calculate the player's defense! */
+        pdef = p_ptr->ac + p_ptr->to_a;
+
+        /* Now, let's roll the dices! Player's def VS monster's hit rate */
+        proll = randint(pdef);
+        mroll = randint((m_ptr->hitrate + bonus));
+
+        /* Enemies in the dark mist fight less well. */
+        c_ptr = &cave[m_ptr->fy][m_ptr->fx];
+        if (c_ptr->feat == FEAT_DARK_MIST)
+        {
+                int rollpenality;
+                rollpenality = mroll * (mistpenalities / 100);
+                mroll -= rollpenality;
+        }
+
+        /* Do we have the Displacement ability? */
+        if (p_ptr->abilities[(CLASS_SHADOW * 10) + 1] >= 1)
+        {
+                int disroll = randint((p_ptr->abilities[(CLASS_SHADOW * 10) + 1] * 10));
+                int dismroll = randint(((m_ptr->hitrate + bonus) / 2));
+
+                if (disroll >= dismroll) return (FALSE);
+        }
+
+        if (mroll >= proll) return (TRUE);
+        else return (FALSE);
+}
+
+/* And a monster hitting another monster... */
+bool monster_hit_monster(monster_type *m_ptr, monster_type *t_ptr)
+{
+        int tdef, mroll, troll;
+        int hitbonus = 0;
+
+        /* First, let's calculate the target's defense! */
+        tdef = t_ptr->defense;
+
+        /* Calculate hitbonus...if any */
+        if (is_pet(m_ptr))
+        {
+                hitbonus += p_ptr->skill_leadership * 2;
+                hitbonus += (p_ptr->stat_ind[A_CHR] - 5) * 5;
+                if (hitbonus < 0) hitbonus = 0;
+        }
+
+        /* Now, let's roll the dices! Attacker's hit rate VS target's def */
+        mroll = randint((m_ptr->hitrate + hitbonus));
+        troll = randint(tdef);
+        if (mroll >= troll) return (TRUE);
+        else return (FALSE);
+}
+
+bool always_hit_check()
+{
+        u32b f1, f2, f3, f4;
+        int i;
+        object_type *o_ptr;
+
+        i = 24;
+        while (i <= 52)
+        {
+                /* Get the item */
+                o_ptr = &inventory[i];
+
+                /* Examine the item */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+                /* Check for the ALWAYS_HIT flag */
+                if (o_ptr->k_idx && (f4 & (TR4_ALWAYS_HIT)))
+                {
+                        return (TRUE);
+                }
+
+                i++;
+        }
+        /* Default */
+        return (FALSE);
+}        
+
+bool protection_check()
+{
+        u32b f1, f2, f3, f4;
+        int i;
+        object_type *o_ptr;
+
+        i = 24;
+        while (i <= 52)
+        {
+                /* Get the item */
+                o_ptr = &inventory[i];
+
+                /* Examine the item */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+                /* Check for the PROTECTION flag */
+                if (o_ptr->k_idx && (f4 & (TR4_PROTECTION)))
+                {
+                        return (TRUE);
+                }
+
+                i++;
+        }
+        /* Default */
+        return (FALSE);
+}        
+
+bool standing_on_forest()
+{
+        cave_type *c_ptr;
+        c_ptr = &cave[py][px];
+        if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_GRASS) return (TRUE);
+
+        /* Default */
+        return (FALSE);
+}
+
+/* New Monster Mage ability! :) */
+void monstrous_wave()
+{
+        int dir, typ;
+        s32b dam;
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+
+        dam = (damroll(r_ptr->blow[0].d_dice, r_ptr->blow[0].d_side) * (p_ptr->skill_marts + 1)) + damroll(p_ptr->lev / 2, p_ptr->lev / 2) + p_ptr->to_d;
+        dam *= p_ptr->multiplier;
+        dam *= ((p_ptr->abilities[(CLASS_MONSTER_MAGE * 10) + 7] / 2)+1);
+
+        /* Default type */
+        typ = GF_PHYSICAL;
+
+        switch (r_ptr->blow[0].effect)
+        {
+                case RBE_POISON:        typ = GF_POIS; break;
+                case RBE_ACID:          typ = GF_ACID; break;
+                case RBE_ELEC:          typ = GF_ELEC; break;
+                case RBE_FIRE:          typ = GF_FIRE; break;
+                case RBE_COLD:          typ = GF_COLD; break;
+                case RBE_CONFUSE:       typ = GF_CONFUSION; break;
+                case RBE_TIME:          typ = GF_TIME; break;
+        }
+
+        /* Actually cast the wave! */
+        if (!get_rep_dir(&dir)) return; 
+        chain_attack(dir, typ, dam, 0, 5);
+        energy_use = 100;
+}
+
+/* A function used to calculate base weapons damages(not counting brands) */
+s32b weapon_damages()
+{
+        s32b k;
+        object_type *o_ptr = &inventory[INVEN_WIELD];
+
+        k = damroll(o_ptr->dd, o_ptr->ds);
+        k *= 5;
+        if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_SWORD_DEVASTATION) k *= (p_ptr->skill_swords + 1);
+        if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_MSTAFF || o_ptr->tval == TV_HELL_STAFF) k *= (p_ptr->skill_hafted + 1);
+        if (o_ptr->tval == TV_POLEARM || o_ptr->tval == TV_VALKYRIE_SPEAR) k *= (p_ptr->skill_polearms + 1);
+        if (o_ptr->tval == TV_DAGGER) k *= (p_ptr->skill_daggers + 1);
+        if (o_ptr->tval == TV_AXE) k *= (p_ptr->skill_axes + 1);
+        if (o_ptr->tval == TV_ROD) k *= (p_ptr->skill_rods + 1);
+        if (o_ptr->tval == TV_ZELAR_WEAPON) k *= (p_ptr->skill_marts + 1);
+        k += o_ptr->to_d;
+        k *= p_ptr->multiplier;
+        k += p_ptr->to_d;
+
+        return (k);
+}

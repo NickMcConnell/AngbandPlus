@@ -1,0 +1,15 @@
+# q_morgot.txt
+
+# Name
+Q:9:N:Morgoth, Lord of Darkness
+
+# Definition
+Q:9:Q:1:0:0:1:100:862:0:2
+
+# Description for quest
+?:[LEQ $QUEST9 2]
+Q:9:T:Your second great quest is to defeat Morgoth, the most powerful
+Q:9:T:of all the Dark Lords. Only after his death will you be able to go
+Q:9:T:to the deepest levels of Variaz Dungeon. Good luck!
+?:1
+
