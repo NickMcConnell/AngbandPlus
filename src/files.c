@@ -337,11 +337,19 @@ errr process_pref_file_command(char *buf)
 		}
 	}
 
+	/* Process "B:<k_idx>:inscription */
+	else if (buf[0] == 'B')
+	{
+		if(2 == tokenize(buf + 2, 2, zz))
+		{
+			add_autoinscription(strtol(zz[0], NULL, 0), zz[1]);
+			return (0);
+		}
+	}
 
 	/* Process "Q:<idx>:<tval>:<sval>:<y|n>"  -- squelch bits   */
 	/* and     "Q:<idx>:<val>"                -- squelch levels */
 	/* and     "Q:<val>"                      -- auto_destroy   */
-
 	else if (buf[0] == 'Q')
 	{
 		i = tokenize(buf+2, 4, zz);
@@ -3084,20 +3092,15 @@ errr file_character(cptr name, bool full)
 	/*dump notes to character file*/
 	if (adult_take_notes)
 	{
-		char buff[1024];
  	 	int holder;
 
 		/*close the notes file for writing*/
 		my_fclose(notes_file);
 
 		/*get the path for the notes file*/
-		path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
-
-		/*open notes file for reading*/
-		notes_file = my_fopen(buff, "r");
+		notes_file = my_fopen(notes_fname, "r");
 
 		do
-
 		{
 
 			/*get a character from the notes file*/
@@ -3107,7 +3110,6 @@ errr file_character(cptr name, bool full)
 			if (holder != EOF) fprintf(fff, "%c", holder);
 
 		}
-
 		while (holder != EOF);
 
 		/*aesthetics*/
@@ -3119,7 +3121,7 @@ errr file_character(cptr name, bool full)
 		my_fclose(notes_file);
 
 		/*re-open for appending*/
-		notes_file = my_fopen(buff, "a");
+		notes_file = my_fopen(notes_fname, "a");
 
 	}
 
@@ -5284,8 +5286,7 @@ void close_game(void)
 		my_fclose(notes_file);
 
 		/* Delete the notes file */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, NOTES_FILENAME);
-		fd_kill(buf);
+		fd_kill(notes_fname);
 	}
 
 	/* Hack -- Decrease "icky" depth */

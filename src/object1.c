@@ -11,12 +11,13 @@
 #include "angband.h"
 
 
+
+
 /*
  * Max sizes of the following arrays.
  */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
-
 
 /*
  * Syllables for scrolls (must be 1-4 letters each).
@@ -275,12 +276,13 @@ void flavor_init(void)
 	/* Analyze every object */
 	for (i = 1; i < z_info->k_max; i++)
 	{
+
 		object_kind *k_ptr = &k_info[i];
 
-		/* Skip "empty" objects */
+		/*Skip "empty" objects*/
 		if (!k_ptr->name) continue;
 
-		/* No flavor yields aware */
+		/*No flavor yields aware*/
 		if (!k_ptr->flavor) k_ptr->aware = TRUE;
 	}
 }
@@ -875,6 +877,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Allow flavors to be hidden when aware */
 	if (aware && !show_flavors) flavor = FALSE;
 
+	/* We have seen the object */
+	if (aware) k_ptr->everseen = TRUE;
+
 	/* Object is in the inventory of a store */
 	if (o_ptr->ident & IDENT_STORE)
 	{
@@ -885,6 +890,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		aware = TRUE;
 		known = TRUE;
 	}
+
+	/* Player has now seen the item
+	 *
+	 * This code must be exactly here to properly handle objects in
+	 * stores (fake assignment to "aware", see above) and unaware objects
+	 * in the dungeon.
+	 */
+	if (aware) k_ptr->everseen = TRUE;
 
 	/* Assume no name appending */
 	append_name = FALSE;
@@ -900,7 +913,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	/* Assume no "modifier" string */
 	modstr = "";
-
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -1638,9 +1650,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (mode < 3) goto object_desc_done;
 
 	/* Use standard inscription */
-	if (o_ptr->note)
+	if (o_ptr->obj_note)
 	{
-		u = quark_str(o_ptr->note);
+		u = quark_str(o_ptr->obj_note);
 	}
 
 	/* Use nothing */
@@ -2993,10 +3005,10 @@ static bool get_item_allow(int item)
 	}
 
 	/* No inscription */
-	if (!o_ptr->note) return (TRUE);
+	if (!o_ptr->obj_note) return (TRUE);
 
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
+	s = strchr(quark_str(o_ptr->obj_note), '!');
 
 	/* Process preventions */
 	while (s)
@@ -3068,10 +3080,10 @@ static int get_tag(int *cp, char tag)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip empty inscriptions */
-		if (!o_ptr->note) continue;
+		if (!o_ptr->obj_note) continue;
 
 		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->note), '@');
+		s = strchr(quark_str(o_ptr->obj_note), '@');
 
 		/* Process all tags */
 		while (s)
@@ -3865,4 +3877,3 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Result */
 	return (item);
 }
-

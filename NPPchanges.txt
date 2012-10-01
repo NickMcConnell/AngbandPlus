@@ -1,5 +1,114 @@
-NPPAngband 0.4.0
+NPPAngband 0.4.1
 
+New features:
+Player speed display color changes color if slowed or hasted.
+Rogue/Brigand player ghosts only get the summon/thief spell if they are over level 50.
+The study notification tells the player how many spells they can gain (by Diego Gonzalez).
+Temporary resists are displayed on screen.  (by Diego Gonzalez).
+Added a prompt to confirm prices for potions of healing and life.
+Slightly changed the price of some services.
+With XP_Toggle option on, display says "next instead of "exp".
+Made a player ghost template for Kurt Tannert.
+Lessened the maximum depth enforcement for certain nests/pits.  Came up 
+with a new way to enforce quests for nests/pits contain challenging types of monsters.
+Made the nests/pit quests slightly less difficult.
+Changed the configuration of a couple vaults.
+Monsters on level quests are marked as quest monsters, so they don't get 
+affected by destruction/banishment just like other quest monsters.
+On occasions where the player is prompted to enter a name for a random 
+artifact and does not enter anything, a random one is assigned.
+Made it a little harder for randarts to have immunities.
+Made randart quest rewards a little less powerful and more rare.
+Made most "in-game" randarts a little less powerful.
+Made the "order dungeon spellbook" service more expensive.
+Only 50% of the monsters on themed quest levels are asleep.
+Increased the possibility of stores carrying unusual items.
+Increased the possibility of generating themed dungeon levels.
+Fixed some instances where the monster list was not updated properly.
+Raised the price to fireproof spellbooks.
+Reduced the number of treasure drops for hydras.
+Added an item "autoinscribe" feature coded by David Vestal.
+Items only show up on the squelch and knowledge screens after the player 
+has actually seen them.
+Made custom artifact rewards less likely, as well as making artifacts as 
+quest rewards a little less likely to be created.
+Added a new, rare *Paur gauntlet with all 5 temporary elemental resists.
+Made the following changes to themed levels:
+-smaller levels
+-less monsters
+-monsters more consistently challenging
+Elemental dragon armor and shields now also activate for temporary elemental 
+resists as well as elemental breath.
+Added a color patch that supports up to 128 different colors in the game.
+Added an additional 16 base colors.
+Made the custom artifact quest reward less common.
+Changes the number of artifact rarity rolls from 4 to 2 when doing quest 
+rewards (this makes artifact rewards less common as quest rewards).
+Chaos resist prevents a player from getting confused.
+The temple now sells identify scrolls.
+Added mass identify staff, plus mass identify spell and prayer.
+Added a rod of *identify* and rod of mass identify.
+Assigned the stairs tilesets to up and down shafts
+Changes the frequency of the various dragon scale armor ego-types.
+Monster information now displays in the monster sub-window and the 
+player scrolls through monsters in the knowledge screens (patch provided by Cyrus Dolph)
+Added new player birth options, birth_no_store_services, birth_no_player_ghosts, birth_no_xtra_artifacts, and 
+birth_no_quests for people who want a more “4gai Vanilla Angband-ish” game.
+Added Eytan Zwieg’s increase hp when player gains levels patch.
+Experience gain from monster death is re-calculated and reduces when the increase causes the player to gain
+a level (to limit a low-level player jumping many levels when killing a quest or OOD monster).
+Made monster missile attacks (arrows, shots, bolts, boulders) 
+occasionally miss or bounce off the shield, and AC helps reduce damage from these attacks.
+
+Fixed bugs:
+Monsters were casting spells after every melee attack.
+The player ghost names of Pedro Gomez-Esteban and Diego Gonzalez were 
+not displaying properly.
+Confused monsters who never move occasionally moved.
+Potions of resistance were not giving player all 5 temporary resists.
+Cleaned up the service display for purchasing dungeon spellbooks and 
+added the price of each book.
+Hidden mimics no longer are counted in the monster display list.
+Corrected the spelling of "sapphire"
+Corrected the pluralized form of "swordsman" to "Swordsmen".
+Themed levels had more monsters than intended due to a formula error.
+Monster display window was listing hidden mimics.
+Monsters holding Quest artifacts can no longer be killed by monsters 
+with the RF2_KILL_BODY flag.
+Fixed the Tiles/graphics modes.
+Re-named creeping sapphires, rubies, opals, and diamonds to fix the plural form.
+Some objects without activations was displaying "It activates for " when they were inspected.
+Spaces with monster traps were being counted as "empty" floor spaces.
+Monsters pushed into a new space what had a trap on it were not being 
+checked to set off the trap.
+In the IBM build, dead character savefiles would not load.
+When the player left a vault quest level with the artifact, they could 
+return to the same depth before they visited the guild, and the game would generate a new quest vault with a copy of the artifact.
+Fixed a bug that occasionally shortened a monster name (code fix provided by David Vestal).
+The cause-hunger spell was missing from monster lore.
+The number of attacks indicated when inspecting a weapon was still 
+occasionally different than the actual blows with the weapon in some obscure situations.
+Fixed a typo in the description of the nightwalker.
+Reduced the amount of some of the higher level coins.
+Fixed a bug in the monster flow code that was causing the game to 
+crash on RISC-OS ports.
+Resist Poison Activation was activating for resist cold.
+Notetaking feature was using one file for all characters on UNIX 
+systems. 
+Down shafts were still occasionally being built one level above quest levels.
+The messages about "fleeing in terror" are followed by a message that 
+makes sense if they keep heading straight for the player.
+Fixed the description for probing to indicate it requires a target.
+Made the damage for staves and rods of light 6d8, consistent with the descriptions.
+Fixed some inconsistent words in the quest help file.
+Rings of poison and nether resistance had the same TVAL/SVAL combination.
+Some of the tilesets in the Windows version were obsolete files.
+Corrected the written note for when player ghosts were killed.
+The object level during store object creation was wrong, mmaking
+some items harder to find than they should have been.
+
+
+NPPAngband 0.4.0
 
 New features
 Re-did dragon scale mail objects are dragon, medium dragon, ancient, 

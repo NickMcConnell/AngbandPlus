@@ -326,6 +326,23 @@ have intrinsic abilities.
                saving throw due to his divine alliance.  His primary stats
                are Strength and Charisma, although Wisdom is necessary for 
                his spells.
+
+          Brigand:
+               A Brigand is a thief, who simply wants to plunder the pits of 
+               Angband to steal its greatest treasures.  He is close behind 
+               the warrior in melee.  He is a very good at disarming of traps 
+               and locks, no device being impossible for him to overcome, and 
+               has the highest stealth of all classes, which can frequently let 
+               him choose his fights.  His dungeon survival skills are better 
+               than average, and he has a fast, detailed pseudo-ID.  The 'P' 
+               command alows a brigand can attempt to steal from monsters, 
+               and the 'O' command lets the brigand set traps for unsuspecting 
+               monsters.  As the brigand gains levels, he can create an 
+               increasing variety of traps by using the 'O' command on an 
+               existing monster trap.  He is exceptionally gifted with a 
+               sling, and gets an extra shot with a sling when he reaches 
+               level 26.
+
  
 
 === Stats ===
@@ -524,7 +541,7 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
   Rogue      45(+15) 32(+10) 28(+10)  5(+0)  32(+0)  24(+0)  55(+40) 60(+30)
   Ranger     30(+8)  32(+10) 28(+10)  3(+0)  24(+0)  16(+0)  56(+30) 72(+45)
   Paladin    20(+7)  25(+10) 25(+11)  1(+0)  12(+0)   2(+0)  68(+35) 40(+30)
-  Brigand    45(+15) 24(+10) 28(+10)  4(+0)  22(+0)  14(+0)  70(+40) 60(+35)
+  Brigand    45(+15) 24(+10) 28(+10)  7(+0)  22(+0)  14(+0)  70(+40) 60(+35)
 
 For character classes, there are two figures: the first figure is the base 
 level of the ability, while the second figure (in parentheses) is the bonus

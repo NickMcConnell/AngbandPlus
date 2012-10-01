@@ -729,9 +729,9 @@ static void wr_item(const object_type *o_ptr)
 	wr_u32b(o_ptr->xtra2);
 
 	/* Save the inscription (if any) */
-	if (o_ptr->note)
+	if (o_ptr->obj_note)
 	{
-		wr_string(quark_str(o_ptr->note));
+		wr_string(quark_str(o_ptr->obj_note));
 	}
 	else
 	{
@@ -747,7 +747,7 @@ static void wr_item(const object_type *o_ptr)
 #define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY | \
 						MFLAG_SLOWER | MFLAG_FASTER | MFLAG_ALWAYS_CAST | \
 						MFLAG_AGGRESSIVE | MFLAG_ATTACKED_BAD | \
-						MFLAG_HIT_BY_SPELL | MFLAG_HIT_BY_MELEE | MFLAG_QUEST)
+						MFLAG_HIT_BY_RANGED | MFLAG_HIT_BY_MELEE | MFLAG_QUEST)
 
 
 /*
@@ -850,7 +850,7 @@ static void wr_xtra(int k_idx)
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
 
-	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
+	if (k_ptr->everseen) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 
@@ -1142,6 +1142,16 @@ static void wr_extra(void)
 		wr_byte(tmp8u);
 	}
 
+	/*Write the current number of auto-inscriptions*/
+	wr_u16b(inscriptionsCount);
+
+	/*Write the autoinscriptions array*/
+	for(i = 0; i < inscriptionsCount; i++)
+	{
+		wr_s16b(inscriptions[i].kindIdx);
+		wr_string(quark_str(inscriptions[i].inscriptionIdx));
+	}
+
 	/* Store the bones file selector, if the player is not dead. -LM- */
 	wr_byte(bones_selector);
 
@@ -1239,6 +1249,8 @@ static void wr_randarts(void)
 
 	wr_u16b(begin);
 	wr_u16b(z_info->art_max);
+	wr_u16b(z_info->art_norm_max);
+
 
 	for (i = begin; i < z_info->art_max; i++)
 	{
@@ -1281,18 +1293,17 @@ static void wr_randarts(void)
  */
 static void wr_notes(void)
 {
+	char end_note[80];
+
 	/* Paranoia */
 	if (adult_take_notes && notes_file)
 	{
-		char buff[1024];
     	char tmpstr[100];
 
     	my_fclose(notes_file);
 
-    	path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
-
-    	/* Re-open for readding */
-    	notes_file = my_fopen(buff, "r");
+      	/* Re-open for readding */
+    	notes_file = my_fopen(notes_fname, "r");
 
     	while (TRUE)
     	{
@@ -1313,11 +1324,13 @@ static void wr_notes(void)
     	my_fclose(notes_file);
 
     	/* Re-open for appending */
-    	notes_file = my_fopen(buff, "a");
+    	notes_file = my_fopen(notes_fname, "a");
   	}
 
+	my_strcpy(end_note, NOTES_MARK, sizeof(end_note));
+
   	/* Always write NOTES_MARK */
-  	wr_string(NOTES_MARK);
+  	wr_string(end_note);
 }
 
 /*
@@ -1518,7 +1531,6 @@ static bool wr_savefile_new(void)
 
 	/* Operating system */
 	wr_u32b(sf_xtra);
-
 
 	/* Time file last saved */
 	wr_u32b(sf_when);

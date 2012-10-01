@@ -26,6 +26,7 @@ bottom of the screen is displayed a list of commonly-used commands.
      - 'g' or 'p': get/purchase an item.
      - 'd' or 's': drop/sell an item.
      - 'l': look at an item (display any special properties, read spellbooks)
+     - 'v': Toggle between store inventory and services
 
 The General Store ("1"):
      Sells foods, drinks, cloaks, torches, lamps, oil, shovels, picks, spikes,
@@ -34,20 +35,41 @@ others.
 
 The Armoury ("2"):
      Buys and sells every kind of armour.
+     Offers service to enchant armor up to +20 with no chance of failure.
 
 The Weaponsmith's Shop ("3"):
      Buys and sells melee weapons, missile launchers, and ammunition.
+     Offers a service to enchant weapon to hit up to +20 with no chance of failure.
+     Offers a service to enchant weapon to damage up to +20 with no chance of failure.
+     Offers a service to brand a weapon with either flame or frost brand.
+     Offers a service to brand ammunition with either flame, frost, or poison brand.
 
 The Temple ("4"):
      Buys and sells blunt weapons, healing and restoration supplies, prayer
 books, and various other holy items.
+     Offers a service to cure critical wounds.
+     Offers a service to restore life levels (restore current exp to maximum exp).
+     Offers a service to remove light curses from all weapons and armor.
+     Offers a service to remove heavy curses from all weapons and armor.
+     Offers a service to create a potion of healing.
+     Offers a service to create a potion of life.
+     Offers a service to create a dungeon prayer book.
+     Offers a service to make a prayer book fireproof.
+     
 
 The Alchemy Shop ("5"):
      Buys and sells potions and scrolls.
+     Offers a service to restore any player stat.
+     Offers a service to increase any player stat up to 18/100.
 
 The Magic Shop ("6"):
      Buys and sells magic books, rings, amulets, wands, rods, and staffs.  Also
 buys potions and scrolls.
+     Offers a service to recharge a wand, staff, or rod with no chance of failure.
+     Offers a service to identify any item.
+     Offers a service to *identify* any item.
+     Offers a service to create a dungeon magic book.
+     Offers a service to make a spell book fireproof.
 
 The Black Market ("7"):
      The Black Market will buy and sell anything at extortionate prices.
@@ -61,7 +83,9 @@ need later.
 The Adventurer's Guild ("9"):
      Here you may take on quests and recieve rewards when you have completed
 a quest.
-
+     Offers a service to create a random artifact for the player.
+     Offers a service to give information about a quest monster.
+     Offers a service to abandon (automatically fail) a quest.
 
 --- Buying and Selling ---
 
@@ -110,8 +134,6 @@ Shopkeepers can retire and be replaced:
      Shopkeepers do retire, but only rarely.  The new shopkeeper has no
 knowledge of your previous reputation, and no memory of any past insults.  He
 puts everything in the store on sale.
-
-
 
 
 

@@ -660,7 +660,7 @@ static void player_outfit(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-	p_ptr->redraw |= (PR_EQUIPPY);
+	p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);;
 }
 
 /* Locations of the tables on the screen */
@@ -1135,17 +1135,16 @@ static bool player_birth_aux_1(void)
 		{
 			k_info[i].squelch = SQUELCH_NEVER;
 		}
+		/*Clear the squelch bytes*/
 		for (i = 0; i < SQUELCH_BYTES; i++)
 		{
 			squelch_level[i] = SQUELCH_NONE;
 		}
-	}
-
-	/* Clear the ego-item squelching flags */
-	for (i = 0; i < z_info->e_max; i++)
-	{
-		e_info[i].everseen = FALSE;
-		e_info[i].squelch = FALSE;
+		/* Clear the ego-item squelching flags */
+		for (i = 0; i < z_info->e_max; i++)
+		{
+			e_info[i].squelch = FALSE;
+		}
 	}
 
 	/* Clear */
@@ -1383,7 +1382,7 @@ static bool player_birth_aux_3(void)
 		Term_putstr(5, 7, -1, TERM_WHITE,
 		            "not meet the minimum values for any stats specified below.");
 		Term_putstr(5, 8, -1, TERM_WHITE,
-		            "Note that stats are not independant, so it is not possible to");
+		            "Note that stats are not independent, so it is not possible to");
 		Term_putstr(5, 9, -1, TERM_WHITE,
 		            "get perfect (or even high) values for all your stats.");
 
@@ -1866,15 +1865,13 @@ void player_birth(void)
  	{
 
  	  	/* Variables */
- 	  	char buff[1024];
  	  	char long_day[25];
  	  	time_t ct = time((time_t*)0);
 
- 	  	/* Build the path to the notes file */
-    	path_build(buff, sizeof(buff), ANGBAND_DIR_FILE,  NOTES_FILENAME);
+ 	  	/* Open the file (notes_file and notes_fname are global) */
+ 	  	notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
 
- 	  	/* Open the file (notes_file is global) */
- 	  	notes_file = my_fopen(buff, "w");
+		if (!notes_file) quit("Can't create the notes file");
 
  	  	/* Get date */
  	  	(void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));

@@ -4,6 +4,14 @@
      You use the '{' and '}' keys to inscribe and uninscribe objects.  The
 inscription on an object can have all sorts of effects.
 
+You can also have items automatically inscribed for you by going to the 
+squelch and autoinscriptions menu ("=" followed by "s") and set an autoinscriiption
+for an object type.  Every object of that certain type the player picks 
+up will be automatically inscribed for the player.  Note that an auto-inscription of
+an object type also prevents an item from being squelched by the quality sqelching 
+feature.  This is useful if the player wants to, for example, squelch all good and
+below hafted weapons but doesn't want to quality squelch average maces of disruption.
+
 To designate a main and backup weapon:
      Inscribe both with "@w0".  The 'X' command will replace whatever melee
 weapon you are wielding with another so inscribed.  You may also inscribe these

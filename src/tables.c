@@ -1310,7 +1310,7 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			SPELL_MASS_SLEEP,
 			SPELL_FIRE_BALL,
 			SPELL_DETECT_ENCHANTMENT,
-			-1,
+			SPELL_MASS_IDENTIFY,
 			-1,
 			-1,
 		},
@@ -1457,7 +1457,7 @@ const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 			PRAYER_PERCEPTION,
 			PRAYER_PROBING,
 			PRAYER_CLAIRVOYANCE,
-			-1,
+			PRAYER_MASS_IDENTIFY,
 			-1,
 			-1,
 		},
@@ -1593,7 +1593,10 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Word of Destruction",
 		"Mass Banishment",
 		"Chaos Strike",
-		"Mana Storm"
+		"Mana Storm",
+
+		/* Misc Spell in Sorcery and Evocations */
+		"Mass Identify",
 	},
 
 
@@ -1676,7 +1679,8 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Word of Recall",
 		"Alter Reality",
 
-		"(blank)",
+		/* Misc spell in Godly Insights...*/
+		"Mass Identify",
 		"(blank)",
 		"(blank)",
 		"(blank)",
@@ -1784,7 +1788,7 @@ cptr feeling_themed_level[LEV_THEME_TAIL] =
 	"dragon",
 	"ancient dragon",
 	"jelly",
-	"lessor cave dweller",
+	"lesser cave dweller",
 	"animal",
 	"humanoid",
 	"minor demon",
@@ -1809,14 +1813,14 @@ cptr color_names[16] =
 	"Green",
 	"Blue",
 	"Umber",
-	"Light Dark",
-	"Light Slate",
+	"LightDark",
+	"LightSlate",
 	"Violet",
 	"Yellow",
-	"Light Red",
-	"Light Green",
-	"Light Blue",
-	"Light Umber",
+	"LightRed",
+	"LightGreen",
+	"LightBlue",
+	"LightUmber",
 };
 
 
@@ -2041,10 +2045,10 @@ cptr option_text[OPT_MAX] =
  	"birth_take_notes",			/* OPT_birth_auto_notes */
  	"birth_force_small_lev",	/* OPT_birth_force_small_lev */
 	"birth_retain_squelch", 	/* OPT_birth_retain_squelch */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"birth_no_quests",			/* OPT_birth_no_quests*/
+	"birth_no_player ghosts",	/* OPT_birth_no_player ghosts*/
+	"birth_no_store_services",	/* OPT_birth_no_store_services*/
+	"birth_no_xtra_artifacts",	/* OPT_birth_no_xtra_artifacts*/
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2105,10 +2109,10 @@ cptr option_text[OPT_MAX] =
 	"adult_take_notes",			/* OPT_adult_auto_notes */
 	"adult_force_small_lev",	/* OPT_adult_force_small_lev*/
 	"adult_retain_squelch",		/* OPT_adult_retain_squelch */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"adult_no_quests",			/* OPT_adult_no_quests*/
+	"adult_no_player ghosts",	/* OPT_adult_no_player ghosts*/
+	"adult_no_store_services",	/* OPT_adult_no_store_services*/
+	"adult_no_xtra_artifacts",	/* OPT_adult_no_xtra_artifacts*/
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2305,10 +2309,10 @@ cptr option_desc[OPT_MAX] =
  	"Birth: Have notes written to a file",		/* OPT_birth_take_notes */
  	"Birth: All levels will be generated as small",	/* OPT_birth_force_small_lev */
 	"Birth: Retain squelch settings",			/*OPT_birth_retain_squelch*/
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Birth: Disable quests",					/* OPT_birth_no_quests*/
+	"Birth: Disable player ghosts",				/* OPT_birth_no_player ghosts*/
+	"Birth: Disable store services",			/* OPT_birth_no_store_services*/
+	"Birth: Disable extra artifacts",			/* OPT_birth_no_xtra_artifacts*/
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2369,10 +2373,10 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Have notes to written to a file",	/* OPT_adult_take_notes */
 	"Adult: All levels generated small",		/* OPT_adult_force_small_lev */
 	"Adult: Retain squelch settings",			/* OPT_adult_retain_squelch*/
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Adult: Disable quests",					/* OPT_adult_no_quests*/
+	"Adult: Disable player ghosts",				/* OPT_adult_no_player ghosts*/
+	"Adult: Disable store services",			/* OPT_adult_no_store_services*/
+	"Adult: Disable extra artifacts",			/* OPT_adult_no_xtra_artifacts*/
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2569,10 +2573,10 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_birth_take_notes */
 	FALSE,		/* OPT_birth_force_small_lev */
 	FALSE,		/* OPT_birth_retain_squelch */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_no_quests*/
+	FALSE,		/* OPT_birth_no_player ghosts*/
+	FALSE,		/* OPT_birth_no_store_services*/
+	FALSE,		/* OPT_birth_no_xtra_artifacts*/
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2633,10 +2637,10 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_adult_take_notes */
 	FALSE,		/* OPT_adult_force_small_lev*/
 	FALSE,		/* OPT_adult_retain_squelch */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_no_quests */
+	FALSE,		/* OPT_adult_no_player ghosts */
+	FALSE,		/* OPT_adult_no_store_services */
+	FALSE,		/* OPT_adult_no_xtra_artifacts */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2833,10 +2837,10 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	 	OPT_birth_take_notes,
 		OPT_birth_force_small_lev,
 		OPT_birth_retain_squelch,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_birth_no_quests,
+		OPT_birth_no_player_ghosts,
+		OPT_birth_no_store_services,
+		OPT_birth_no_xtra_artifacts,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -3221,4 +3225,7 @@ byte spell_desire_RF7[32][8] =
 	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
 	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_WRAITH  */
 };
+
+
+
 

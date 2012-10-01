@@ -48,7 +48,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.4.0"
+#define VERSION_STRING	"0.4.1"
 
 
 /*
@@ -56,7 +56,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	4
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -263,6 +263,11 @@
 #define QUARK_MAX	512
 
 /*
+ * OPTION: Maximum number of autoinscriptions(see "object1.c")
+ */
+#define AUTOINSCRIPTIONS_MAX 216
+
+/*
  * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
  */
@@ -292,10 +297,10 @@
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
-#define STORE_TURNOVER	9		/* Normal shop turnover, per day */
+#define STORE_TURNOVER	12		/* Normal shop turnover, per day */
 #define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
 #define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
-#define STORE_SHUFFLE	250		/* 1/Chance (per day) of an owner changing */
+#define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
 
 /*
@@ -408,7 +413,7 @@
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 64
+#define PY_MAX_SPELLS 65
 
 /*
  * Number of spells per book
@@ -459,6 +464,7 @@
 #define SPELL_MASS_SLEEP                30
 #define SPELL_FIRE_BALL                 31
 #define SPELL_DETECT_ENCHANTMENT        32
+#define SPELL_MASS_IDENTIFY				64
 
 
 /* Resistances of Scarabtarices */
@@ -549,6 +555,7 @@
 #define PRAYER_PERCEPTION              33
 #define PRAYER_PROBING                 34
 #define PRAYER_CLAIRVOYANCE            35
+#define PRAYER_MASS_IDENTIFY		   58
 
 /* Purifications and Healing */
 #define PRAYER_CURE_SERIOUS_WOUNDS2    36
@@ -685,31 +692,28 @@
 #define ROW_STAT		8
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
-#define ROW_AC			14
+#define ROW_RESIST		14
+#define COL_RESIST		0	/* "Resistances " */
+
+#define ROW_AC			15
 #define COL_AC			0	/* "Cur AC xxxxx" */
 
-#define ROW_MAXHP		15
-#define COL_MAXHP		0	/* "Max HP xxxxx" */
+#define ROW_HP			16
+#define COL_HP			0	/* "HP xxxxxxxxx" */
 
-#define ROW_CURHP		16
-#define COL_CURHP		0	/* "Cur HP xxxxx" */
+#define ROW_SP			17
+#define COL_SP			0	/* "SP xxxxxxxxx" */
 
-#define ROW_MAXSP		17
-#define COL_MAXSP		0	/* "Max SP xxxxx" */
-
-#define ROW_CURSP		18
-#define COL_CURSP		0	/* "Cur SP xxxxx" */
-
-#define ROW_INFO		19
+#define ROW_INFO		18
 #define COL_INFO		0	/* "xxxxxxxxxxxx" monster health bar*/
 
-#define ROW_MON_MANA	20
+#define ROW_MON_MANA	19
 #define COL_MON_MANA	0	/* "xxxxxxxxxxxx" monster mana bar*/
 
-#define ROW_CUT			21
+#define ROW_CUT			20
 #define COL_CUT			0	/* <cut> */
 
-#define ROW_STUN		22
+#define ROW_STUN		21
 #define COL_STUN		0	/* <stun> */
 
 #define ROW_HUNGRY		(Term->hgt - 1)
@@ -734,10 +738,10 @@
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY		(Term->hgt - 1)
-#define COL_STUDY		64	/* "Study" */
+#define COL_STUDY		60	/* "Study" */
 
 #define ROW_DEPTH		(Term->hgt - 1)
-#define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+#define COL_DEPTH		71	/* "Lev NNN" / "NNNN ft" */
 
 
 /*** General index values ***/
@@ -889,7 +893,7 @@
 #define GF_OLD_SLEEP	57
 #define GF_OLD_DRAIN	58
 #define GF_SPORE		59
-
+#define GF_MASS_IDENTIFY 60
 
 /*
  * Some constants for the "learn" code.  These generalized from the
@@ -1341,6 +1345,7 @@
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
 #define SV_RING_LIGHTNING		38
+#define SV_RING_RESIST_NETHER	39
 
 
 /* The "sval" codes for TV_STAFF */
@@ -1374,6 +1379,7 @@
 #define SV_STAFF_BANISHMENT		27
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
+#define SV_STAFF_MASS_IDENTIFY	30
 
 
 /* The "sval" codes for TV_WAND */
@@ -1436,6 +1442,8 @@
 #define SV_ROD_ELEC_BALL		25
 #define SV_ROD_FIRE_BALL		26
 #define SV_ROD_COLD_BALL		27
+#define SV_ROD_STAR_IDENTIFY	28
+#define SV_ROD_MASS_IDENTIFY	29
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -1588,7 +1596,7 @@
 #define SV_GOLD_SILVER			6
 #define SV_GOLD_GOLD			11
 #define SV_GOLD_OPALS			12
-#define SV_GOLD_SAPHIRES		13
+#define SV_GOLD_SAPPHIRES		13
 #define SV_GOLD_RUBIES			14
 #define SV_GOLD_DIAMOND			15
 #define SV_GOLD_MITHRIL			17
@@ -1807,6 +1815,7 @@
  */
 #define PN_COMBINE		0x00000001L	/* Combine the pack */
 #define PN_REORDER		0x00000002L	/* Reorder the pack */
+#define PN_AUTOINSCRIBE	0x00000004L	/* Autoinscribe items */
 /* xxx (many) */
 
 
@@ -1856,7 +1865,7 @@
 #define PR_STATE		0x00100000L	/* Display Extra (State) */
 #define PR_SPEED		0x00200000L	/* Display Extra (Speed) */
 #define PR_STUDY		0x00400000L	/* Display Extra (Study) */
-/* xxx */
+#define PR_RESIST		0X00800000L	/* Display Resistances */
 #define PR_EXTRA		0x01000000L	/* Display Extra Info */
 #define PR_BASIC		0x02000000L	/* Display Basic Info */
 /* xxx */
@@ -2385,7 +2394,7 @@
 #define OBJECT_XTRA_SIZE_LOW_RESIST	4
 
 /*Chance of adding additional flags after the first one*/
-#define EXTRA_FLAG_CHANCE			15
+#define EXTRA_FLAG_CHANCE			20
 
 #define EGO_AMMO_FLAME		99
 #define EGO_AMMO_FROST		100
@@ -2546,7 +2555,7 @@
 #define MFLAG_ALWAYS_CAST	0x00004000  /* Monster will cast a spell first opportunity */
 #define MFLAG_ATTACKED_BAD	0x00008000  /* Monster has been sneak attacked */
 #define MFLAG_AGGRESSIVE	0x00010000  /* Monster will act aggresively towards the player */
-#define MFLAG_HIT_BY_SPELL	0x00020000  /* Monster has been hit with a spell*/
+#define MFLAG_HIT_BY_RANGED	0x00020000  /* Monster has been hit with a spell*/
 #define MFLAG_HIT_BY_MELEE	0x00040000	/* Monster was just meleed by player last turn*/
 
 
@@ -3144,8 +3153,12 @@
 #define LEV_THEME_UNDEAD			24	/*undead*/
 #define LEV_THEME_TAIL				25
 
+#define PIT_LEVEL_BOOST				6
+#define NEST_LEVEL_BOOST			5
+#define PIT_NEST_QUEST_BOOST		8
 
-
+#define THEMED_LEVEL_NO_QUEST_BOOST	7
+#define THEMED_LEVEL_QUEST_BOOST	10
 
 
 
@@ -3263,7 +3276,10 @@
 #define OPT_birth_take_notes        (OPT_BIRTH+9)
 #define OPT_birth_force_small_lev	(OPT_BIRTH+10)
 #define OPT_birth_retain_squelch	(OPT_BIRTH+11)
-
+#define OPT_birth_no_quests			(OPT_BIRTH+12)
+#define OPT_birth_no_player_ghosts	(OPT_BIRTH+13)
+#define OPT_birth_no_store_services	(OPT_BIRTH+14)
+#define OPT_birth_no_xtra_artifacts (OPT_BIRTH+15)
 
 /* xxx xxx */
 #define OPT_cheat_peek				(OPT_CHEAT+0)
@@ -3285,6 +3301,10 @@
 #define OPT_adult_take_notes        (OPT_ADULT+9)
 #define OPT_adult_force_small_lev   (OPT_ADULT+10)
 #define OPT_adult_retain_squelch	(OPT_ADULT+11)
+#define OPT_adult_no_quests			(OPT_ADULT+12)
+#define OPT_adult_no_player_ghosts	(OPT_ADULT+13)
+#define OPT_adult_no_store_services	(OPT_ADULT+14)
+#define OPT_adult_no_xtra_artifacts (OPT_ADULT+15)
 /* xxx xxx */
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
@@ -3387,6 +3407,11 @@
 #define birth_take_notes        op_ptr->opt[OPT_birth_take_notes]
 #define	birth_force_small_lev	op_ptr->opt[OPT_birth_force_small_lev]
 #define birth_retain_squelch	op_ptr->opt[OPT_birth_retain_squelch]
+#define birth_no_quests			op_ptr->opt[OPT_birth_no_quests]
+#define birth_no_player ghosts	op_ptr->opt[OPT_birth_no_player_ghosts]
+#define birth_no_store_services	op_ptr->opt[OPT_birth_no_store_services]
+#define birth_no_xtra_artifacts	op_ptr->opt[OPT_birth_no_xtra_artifacts]
+
 
 /* xxx xxx */
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
@@ -3408,6 +3433,10 @@
 #define adult_take_notes		op_ptr->opt[OPT_adult_take_notes]
 #define	adult_force_small_lev	op_ptr->opt[OPT_adult_force_small_lev]
 #define adult_retain_squelch	op_ptr->opt[OPT_adult_retain_squelch]
+#define adult_no_quests			op_ptr->opt[OPT_adult_no_quests]
+#define adult_no_player_ghosts	op_ptr->opt[OPT_adult_no_player_ghosts]
+#define adult_no_store_services	op_ptr->opt[OPT_adult_no_store_services]
+#define adult_no_xtra_artifacts	op_ptr->opt[OPT_adult_no_xtra_artifacts]
 #define hp_changes_color  		op_ptr->opt[OPT_hp_changes_color]
 #define verify_leave_quest 		op_ptr->opt[OPT_verify_leave_quest]
 #define mark_squelch_items		op_ptr->opt[OPT_mark_squelch_items]
@@ -3653,6 +3682,13 @@
 #define cave_floor_bold(Y,X) \
 	(!(cave_info[Y][X] & (CAVE_WALL)))
 
+/*
+ * Determine if a "legal" grid is a "monster_trap" grid
+ */
+#define cave_mon_trap_bold(Y,X) \
+	 ((cave_feat[Y][X] >= FEAT_MTRAP_HEAD) && \
+	  (cave_feat[Y][X] <= FEAT_MTRAP_TAIL))
+
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
@@ -3669,10 +3705,12 @@
  *
  * Line 1 -- forbid doors, rubble, seams, walls
  * Line 2 -- forbid player/monsters
+ * Line 3 -- forbid monster traps
  */
 #define cave_empty_bold(Y,X) \
 	(cave_floor_bold(Y,X) && \
-	 (cave_m_idx[Y][X] == 0))
+	 (cave_m_idx[Y][X] == 0) && \
+	 (!cave_mon_trap_bold(Y,X)))
 
 /*
  * Determine if a "legal" grid is an "naked" floor grid
@@ -3694,18 +3732,11 @@
 	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL))
 
 /*
- * Determine if a "legal" grid is a "shop" grid
+ * Determine if a "legal" grid is a "trap" grid
  */
 #define cave_trap_bold(Y,X) \
 	 ((cave_feat[Y][X] >= FEAT_TRAP_HEAD) && \
 	  (cave_feat[Y][X] <= FEAT_TRAP_TAIL))
-
-/*
- * Determine if a "legal" grid is a "monster_trap" grid
- */
-#define cave_mon_trap_bold(Y,X) \
-	 ((cave_feat[Y][X] >= FEAT_MTRAP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_MTRAP_TAIL))
 
 /*
  * Determine if a "legal" grid is a "wall" grid
@@ -4019,7 +4050,6 @@
  */
 #define NASTY_MON	(auto_scum ? 30 : 40)	/* 1/chance of inflated monster level */
 
-#define NOTES_FILENAME "_notes_.txt"
 /*
  * Special note used to mark the end of the notes section in the savefile
  */
@@ -4040,3 +4070,42 @@
 #define EDITING_BUFFER_GET(T,i) \
 (((i) < (T)->pos) ? (T)->buf[(i)]: (T)->buf[(i) + (T)->gap_size])
 
+/*
+ * Get the index of a shaded color in angband_color_table.
+ * base_color must be between 0 and 15. These are the TERM_* constants.
+ * shade must be between 0 and 7 (8 shades supported, 0 is the base color).
+ * 16 shades could be supported but the values returned are in the range 0-127
+ * to avoid clashes with graphic or big_tile modes (bit 0x80 is reserved)
+ * All shades will look like the base color in 16 color ports.
+ */
+#define MAKE_EXTENDED_COLOR(base_color, shade) \
+((((shade) << 4) | ((base_color) & 0x0F)) & 0x7F)
+
+/*
+ * Get the base color of a given extended color (shade).
+ * Values returned are in the range 0-15 (TERM_*). See above.
+ */
+#define GET_BASE_COLOR(ext_color) ((ext_color) & 0x0F)
+
+/*
+ * Get the shade number of a given extended color.
+ * Values returned are in the range 0-7. See above.
+ */
+#define GET_SHADE(ext_color) (((ext_color) >> 4) & 0x07)
+
+/*
+ * Number of base colors. These are the TERM_* constants
+ */
+#define MAX_BASE_COLORS 16
+
+/*
+ * Number of shades, including the shade 0 (base colors)
+ */
+#define MAX_SHADES 8
+
+/*
+ * These are the return values of squelch_itemp()
+ */
+#define SQUELCH_FAILED -1
+#define SQUELCH_NO      0
+#define SQUELCH_YES     1

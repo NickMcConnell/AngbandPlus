@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 ##### Rings #####
@@ -37,15 +37,15 @@ G:=:B
 D:Aquamarine
 
 N:5:45
-G:=:B
+G:=:B1
 D:Azurite
 
 N:6:45
-G:=:G
+G:=:G1
 D:Beryl
 
 N:7:45
-G:=:r
+G:=:r1
 D:Bloodstone
 
 N:8:45
@@ -65,11 +65,11 @@ G:=:w
 D:Diamond
 
 N:12:45
-G:=:g
+G:=:g1
 D:Emerald
 
 N:13:45
-G:=:G
+G:=:G1
 D:Fluorite
 
 N:14:45
@@ -89,7 +89,7 @@ G:=:u
 D:Jasper
 
 N:18:45
-G:=:b
+G:=:b1
 D:Lapis Lazuli
 
 N:19:45
@@ -125,11 +125,11 @@ G:=:W
 D:Quartzite
 
 N:27:45
-G:=:R
+G:=:R1
 D:Rhodonite
 
 N:28:45
-G:=:r
+G:=:r1
 D:Ruby
 
 N:29:45
@@ -137,7 +137,7 @@ G:=:b
 D:Sapphire
 
 N:30:45
-G:=:y
+G:=:y1
 D:Tiger Eye
 
 N:31:45
@@ -145,11 +145,11 @@ G:=:y
 D:Topaz
 
 N:32:45
-G:=:B
+G:=:B1
 D:Turquoise
 
 N:33:45
-G:=:U
+G:=:U1
 D:Zircon
 
 N:34:45
@@ -161,11 +161,11 @@ G:=:U
 D:Bronze
 
 N:36:45
-G:=:y
+G:=:y1
 D:Gold
 
 N:37:45
-G:=:D
+G:=:D1
 D:Obsidian
 
 N:38:45
@@ -173,7 +173,7 @@ G:=:W
 D:Silver
 
 N:39:45
-G:=:u
+G:=:u1
 D:Tortoise Shell
 
 N:40:45
@@ -200,7 +200,7 @@ G:":y
 D:Amber
 
 N:45:40
-G:":U
+G:":U1
 D:Driftwood
 
 N:46:40
@@ -232,7 +232,7 @@ G:":U
 D:Bronze
 
 N:53:40
-G:":s
+G:":s1
 D:Pewter
 
 N:54:40
@@ -260,7 +260,7 @@ G:":U
 D:Copper
 
 N:60:40
-G:":u
+G:":u1
 D:Carved Oak
 
 N:61:40
@@ -284,13 +284,12 @@ G:":s
 D:Flint Stone
 
 N:66:40
-G:":B
+G:":B1
 D:Sea Shell
 
 N:67:40
 G:":W
 D:Mother-of-Pearl
-
 
 ##### Staves #####
 
@@ -327,7 +326,7 @@ G:_:U
 D:Dogwood
 
 N:76:55
-G:_:U
+G:_:U1
 D:Elm
 
 N:77:55
@@ -371,7 +370,7 @@ G:_:u
 D:Pine
 
 N:87:55
-G:_:r
+G:_:r1
 D:Redwood
 
 N:88:55
@@ -379,7 +378,7 @@ G:_:r
 D:Rosewood
 
 N:89:55
-G:_:U
+G:_:U1
 D:Spruce
 
 N:90:55
@@ -391,7 +390,7 @@ G:_:U
 D:Teak
 
 N:92:55
-G:_:u
+G:_:U1
 D:Walnut
 
 N:93:55
@@ -423,7 +422,7 @@ G:_:s
 D:Ashen
 
 N:100:55
-G:_:U
+G:_:U1
 D:Gnarled
 
 N:101:55
@@ -470,7 +469,7 @@ G:-:W
 D:Molybdenum
 
 N:111:65
-G:-:U
+G:-:U1
 D:Nickel
 
 N:112:65
@@ -506,7 +505,7 @@ G:-:W
 D:Zinc
 
 N:120:65
-G:-:B
+G:-:B1
 D:Aluminum-Plated
 
 N:121:65
@@ -514,7 +513,7 @@ G:-:U
 D:Copper-Plated
 
 N:122:65
-G:-:y
+G:-:y1
 D:Gold-Plated
 
 N:123:65
@@ -538,7 +537,7 @@ G:-:W
 D:Zinc-Plated
 
 N:128:65
-G:-:B
+G:-:B1
 D:Mithril-Plated
 
 N:129:65
@@ -546,7 +545,7 @@ G:-:B
 D:Mithril
 
 N:130:65
-G:-:u
+G:-:u1
 D:Runed
 
 N:131:65
@@ -593,7 +592,7 @@ G:-:w
 D:Chromium
 
 N:141:66
-G:-:U
+G:-:U1
 D:Copper
 
 N:142:66
@@ -649,19 +648,19 @@ G:-:W
 D:Zinc
 
 N:155:66
-G:-:B
+G:-:B1
 D:Aluminum-Plated
 
 N:156:66
-G:-:U
+G:-:U1
 D:Copper-Plated
 
 N:157:66
-G:-:y
+G:-:y1
 D:Gold-Plated
 
 N:158:66
-G:-:U
+G:-:U1
 D:Nickel-Plated
 
 N:159:66
@@ -681,7 +680,7 @@ G:-:W
 D:Zinc-Plated
 
 N:163:66
-G:-:B
+G:-:B1
 D:Mithril-Plated
 
 N:164:66
@@ -709,7 +708,7 @@ G:-:s
 D:Lead
 
 N:170:66
-G:-:s
+G:-:s1
 D:Lead-Plated
 
 N:171:66
@@ -724,7 +723,7 @@ D:Pewter
 ##### Mushrooms #####
 
 N:173:80
-G:,:b
+G:,:b1
 D:Blue
 
 N:174:80
@@ -744,11 +743,11 @@ G:,:b
 D:Dark Blue
 
 N:178:80
-G:,:g
+G:,:g1
 D:Dark Green
 
 N:179:80
-G:,:r
+G:,:r1
 D:Dark Red
 
 N:180:80
@@ -818,11 +817,11 @@ D:Light Brown
 
 # Fixed: slime mold juice
 N:195:75:2
-G:!:g
+G:!:g1
 D:Icky Green
 
 N:196:75
-G:!:B
+G:!:B1
 D:Azure
 
 N:197:75
@@ -830,7 +829,7 @@ G:!:b
 D:Blue
 
 N:198:75
-G:!:b
+G:!:b1
 D:Blue Speckled
 
 N:199:75
@@ -862,7 +861,7 @@ G:!:U
 D:Copper Speckled
 
 N:206:75
-G:!:r
+G:!:r1
 D:Crimson
 
 N:207:75
@@ -874,7 +873,7 @@ G:!:b
 D:Dark Blue
 
 N:209:75
-G:!:g
+G:!:g1
 D:Dark Green
 
 N:210:75
@@ -882,7 +881,7 @@ G:!:r
 D:Dark Red
 
 N:211:75
-G:!:y
+G:!:y1
 D:Gold Speckled
 
 N:212:75
@@ -906,7 +905,7 @@ G:!:W
 D:Hazy
 
 N:217:75
-G:!:v
+G:!:v1
 D:Indigo
 
 N:218:75
@@ -914,23 +913,23 @@ G:!:B
 D:Light Blue
 
 N:219:75
-G:!:G
+G:!:G1
 D:Light Green
 
 N:220:75
-G:!:r
+G:!:v1
 D:Magenta
 
 N:221:75
-G:!:b
+G:!:b1
 D:Metallic Blue
 
 N:222:75
-G:!:r
+G:!:r1
 D:Metallic Red
 
 N:223:75
-G:!:g
+G:!:g1
 D:Metallic Green
 
 N:224:75
@@ -986,15 +985,15 @@ G:!:D
 D:Smoky
 
 N:237:75
-G:!:o
+G:!:o1
 D:Tangerine
 
 N:238:75
-G:!:v
+G:!:v1
 D:Violet
 
 N:239:75
-G:!:r
+G:!:r1
 D:Vermilion
 
 N:240:75
@@ -1006,11 +1005,11 @@ G:!:y
 D:Yellow
 
 N:242:75
-G:!:v
+G:!:v1
 D:Violet Speckled
 
 N:243:75
-G:!:R
+G:!:R1
 D:Pungent
 
 N:244:75
@@ -1026,11 +1025,11 @@ G:!:y
 D:Oily Yellow
 
 N:247:75
-G:!:g
+G:!:g1
 D:Gloopy Green
 
 N:248:75
-G:!:v
+G:!:v1
 D:Shimmering
 
 N:249:75
@@ -1038,7 +1037,7 @@ G:!:r
 D:Coagulated Crimson
 
 N:250:75
-G:!:y
+G:!:y1
 D:Yellow Speckled
 
 N:251:75
@@ -1056,165 +1055,215 @@ G:?:w
 N:253:70
 G:?:w
 
+
 N:254:70
 G:?:w
+
 
 N:255:70
 G:?:w
 
+
 N:256:70
 G:?:w
+
 
 N:257:70
 G:?:w
 
+
 N:258:70
 G:?:w
+
 
 N:259:70
 G:?:w
 
+
 N:260:70
 G:?:w
+
 
 N:261:70
 G:?:w
 
+
 N:262:70
 G:?:w
+
 
 N:263:70
 G:?:w
 
+
 N:264:70
 G:?:w
+
 
 N:265:70
 G:?:w
 
+
 N:266:70
 G:?:w
+
 
 N:267:70
 G:?:w
 
+
 N:268:70
 G:?:w
+
 
 N:269:70
 G:?:w
 
+
 N:270:70
 G:?:w
+
 
 N:271:70
 G:?:w
 
+
 N:272:70
 G:?:w
+
 
 N:273:70
 G:?:w
 
+
 N:274:70
 G:?:w
+
 
 N:275:70
 G:?:w
 
+
 N:276:70
 G:?:w
+
 
 N:277:70
 G:?:w
 
+
 N:278:70
 G:?:w
+
 
 N:279:70
 G:?:w
 
+
 N:280:70
 G:?:w
+
 
 N:281:70
 G:?:w
 
+
 N:282:70
 G:?:w
+
 
 N:283:70
 G:?:w
 
+
 N:284:70
 G:?:w
+
 
 N:285:70
 G:?:w
 
+
 N:286:70
 G:?:w
+
 
 N:287:70
 G:?:w
 
+
 N:288:70
 G:?:w
+
 
 N:289:70
 G:?:w
 
+
 N:290:70
 G:?:w
+
 
 N:291:70
 G:?:w
 
+
 N:292:70
 G:?:w
+
 
 N:293:70
 G:?:w
 
+
 N:294:70
 G:?:w
+
 
 N:295:70
 G:?:w
 
+
 N:296:70
 G:?:w
+
 
 N:297:70
 G:?:w
 
+
 N:298:70
 G:?:w
+
 
 N:299:70
 G:?:w
 
+
 N:300:70
 G:?:w
+
 
 N:301:70
 G:?:w
 
+
 N:302:70
 G:?:w
+
 
 ####### A couple more potions#######
 
 N:303:75
-G:!:r
+G:!:r1
 D:Sparkling Red
 
 N:304:75
-G:!:B
+G:!:B1
 D:Sky Blue
 
 N:305:75
-G:!:y
+G:!:y1
 D:Bubbling Yellow
 
 N:306:75
@@ -1222,11 +1271,11 @@ G:!:g
 D:Sparkling Green
 
 N:307:75
-G:!:y
+G:!:y1
 D:Sparkling Gold
 
 N:308:75
-G:!:v
+G:!:v1
 D:Dark Purple
 
 N:309:75

@@ -527,6 +527,30 @@ Adult: 	Retain squelch settings		      [birth_retain_squelch]  (off) :
     his immediate ancestor. If it is not set, the character's squelch settings
     will revert to the defaults.
 
+***** <birth_no_quests>
+Adult: 	Disable quests			      [birth_no_quests]       (off) :
+    If this option is set, the adventurer's guild will not assign quests to the
+    player.  The two fixed quests, kill Sauron and Morgoth, are unaffected.
+
+***** <birth_no_player ghosts>
+Adult: 	Disable player ghosts		      [birth_no_player ghosts] (off) :
+    If this option is set, no player ghosts will be generated.
+
+***** <birth_no_store_services>
+Adult: 	Disable store services		      [birth_no_store_services](off) :
+    If this option is set, the stores will not offer any services.  Note that,
+    if the birth_no_stores option is set to true, the stores are always closed
+    and this option has no effect.
+
+***** <birth_no_xtra_artifacts>
+Adult: 	Disable extra artifacts		      [birth_no_xtra_artifacts](off) :
+    If this option is set, no additional artifacts are created during game play.
+    Note that the standard artifact set, or any alternate set of artifacts 
+    created with the birth_rand_artifacts option, are unaffected.  This option
+    just prevents additional artifacts from being created in mid-game.
+    If birth_no_artifacts option is set to true, no artifacts are generated and
+    this option has no effect.
+
 --- Option Set #7:  Cheat ---
 
 ***** <cheat_peek>
@@ -574,6 +598,41 @@ useful information.  The best thing about these windows is that they are
 
 --- Miscellaneous Options ---
 
+Item Squelch and Autoinscribe Menus:
+     The squelching menu is a place where the player can specify certain items
+to be automatically destroyed when walked over.  Each item the player has seen
+in the game can be set with one of four squelch or pickup options:
+
+No-Squelch    - This option defers to never_pickup option for whether to pick
+                picked up an object or not.  The object is not squelched.
+Never Pickup  - The object is not squelched, but this specific item is never 
+                picked up regardless of the setting of the never_pickup option.
+Always Pickup - The object is not squelched, but this specific item is always 
+                picked up regardless of the setting of the never_pickup option.
+Squelch       - Squelch the object when the player walks over it.  Artifacts 
+                can not be squelched.
+
+Enter Autoinscription - An inscription can be entered for a specific object type.
+                Whenever an item is picked up or bought at a store by the player
+                this inscription is automatically inscribed on an item.  Note 
+                that entering any item auto inscription also prevents this 
+                item from a quelity squelch when the item is identified 
+                (useful for preserving average maces of disruption when hafted 
+                weapons are set to squelch average and below}.
+
+Quality squelching sub menu:  Categories of items (shields, swords) can be 
+set to automatically be destroyed when either identified or pseudo-identified 
+as cursed, average or below, good or below, or all but artifacts.  The option
+to squelch open chests can also be set at this screen.  Note that items with
+an auto inscription are not quality squelched.
+
+Ego-item squelching sub-menu: allows the player to set certain ego-items as 
+exempt from squelching if the object category is set to 'all but artifact'.
+
+This screen also has options to load or append the squelch settings to a file.
+
+See options.txt for several game options that supplement the Squelch Menus.
+
 Hitpoint warning:
      If non-zero, is the percentage of maximal hitpoints (x10) at which you
 start to get special warnings.  It is also used as the cut-off for using red to
@@ -597,14 +656,5 @@ them to a file that will.
 Append options to a file:
      Saves options to file.  See the preferences section for help on what
 filename to use (the file "user.prf" usually works).
-
-
-
-
-
-
-
-
-
 
 

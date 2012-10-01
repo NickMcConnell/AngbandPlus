@@ -2432,6 +2432,8 @@ static void	artifact_prep(s16b k_idx, int a_idx)
 			a_ptr->flags2 |= e_ptr->flags2;
 			a_ptr->flags3 |= e_ptr->flags3;
 
+			break;
+
 		}
 
 		/*break for the switch a_ptr->tval*/
@@ -2823,11 +2825,16 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 		}
 		case CAT_RESISTS:
 		{
+			byte choice;
+
 			/*resists are added by depth*/
-			byte choice = randint(((a_ptr->level > 52) ? 52 : a_ptr->level));
+			byte highest = ((a_ptr->level > 52) ? 52 : a_ptr->level);
 
 			/*occasionally increase the level*/
-			while (one_in_(20)) choice += 3;
+			while (one_in_(10)) highest += 3;
+
+			/*make the selection*/
+			choice = randint(highest);
 
 			/*add resists, the power of which depends on artifact depth*/
 			if (choice <= 18)
@@ -2852,7 +2859,7 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 				if (add_one_resist(a_ptr, TR2_HIGH_RESIST)) break;
 			}
 			/*add an immunity if all else has failed or the number is high enough*/
-			(void)add_one_resist(a_ptr, TR2_IMMUNE_ALL);
+			if (choice > 50) (void)add_one_resist(a_ptr, TR2_IMMUNE_ALL);
 
 			break;
 		}
@@ -3778,7 +3785,8 @@ bool make_one_randart(object_type *o_ptr, int art_power, bool tailored)
 			if (get_string("Enter a name for your artifact: ", buf, sizeof(buf)))
 			{
 
-				my_strcpy(tmp, format("'%^s'", buf), MAX_LEN_ART_NAME);
+				/*The additional check is because players sometimes hit return accidentally*/
+				if (strlen(buf) > 0) my_strcpy(tmp, format("'%^s'", buf), MAX_LEN_ART_NAME);
 			}
 		}
 	}

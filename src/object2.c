@@ -341,7 +341,7 @@ void compact_objects(int size)
 			if (!o_ptr->k_idx) continue;
 
 			/* Hack -- High level objects start out "immune" */
-			if (k_ptr->level > cur_lev) continue;
+			if ((k_ptr->level > cur_lev) && (k_ptr->squelch != SQUELCH_ALWAYS)) continue;
 
 			/* Monster */
 			if (o_ptr->held_m_idx)
@@ -356,7 +356,7 @@ void compact_objects(int size)
 				x = m_ptr->fx;
 
 				/* Monsters protect their objects */
-				if (rand_int(100) < 90) continue;
+				if ((rand_int(100) < 90) && (k_ptr->squelch != SQUELCH_ALWAYS)) continue;
 			}
 
 			/* Dungeon */
@@ -368,7 +368,8 @@ void compact_objects(int size)
 			}
 
 			/* Nearby objects start out "immune" */
-			if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis)) continue;
+			if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis) &&
+				(k_ptr->squelch != SQUELCH_ALWAYS)) continue;
 
 			/* Saving throw */
 			chance = 90;
@@ -1330,13 +1331,13 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 
 	/* Hack -- Require compatible inscriptions */
-	if (o_ptr->note != j_ptr->note)
+	if (o_ptr->obj_note != j_ptr->obj_note)
 	{
 		/* Normally require matching inscriptions */
 		if (!stack_force_notes) return (0);
 
 		/* Never combine different inscriptions */
-		if (o_ptr->note && j_ptr->note) return (0);
+		if (o_ptr->obj_note && j_ptr->obj_note) return (0);
 	}
 
 
@@ -1415,7 +1416,7 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
 
 	/* Hack -- Blend "notes" */
-	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
+	if (j_ptr->obj_note != 0) o_ptr->obj_note = j_ptr->obj_note;
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
@@ -1865,17 +1866,17 @@ static bool make_artifact(object_type *o_ptr)
 	/* No artifacts in the town, unless opening a chest or creating chest item */
 	if (!depth_check) return (FALSE);
 
-	/* First try to create a randart */
-	if (can_be_randart(o_ptr))
+	/* First try to create a randart, if allowed */
+	if ((can_be_randart(o_ptr)) && (!adult_no_xtra_artifacts))
 	{
 		/*occasionally make a randart*/
 		if(one_in_(depth_check + 50))
 		{
 			/*artifact power is based on depth*/
-			int randart_power = 15 + depth_check;
+			int randart_power = 10 + depth_check;
 
 			/*occasional power boost*/
-			while (one_in_(15)) randart_power += 15;
+			while (one_in_(25)) randart_power += 25;
 
 			/*
 			 * Make a randart.  This should always succeed, unless
@@ -2013,6 +2014,7 @@ static void charge_staff(object_type *o_ptr)
 		case SV_STAFF_BANISHMENT:		o_ptr->pval = randint(2)  + 1; break;
 		case SV_STAFF_EARTHQUAKES:		o_ptr->pval = randint(5)  + 3; break;
 		case SV_STAFF_DESTRUCTION:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_STAFF_MASS_IDENTIFY:	o_ptr->pval = randint(5) + 5; break;
 	}
 }
 
@@ -2873,8 +2875,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Get one roll if excellent */
 	if (power >= 2) rolls = 1;
 
-	/* Get four rolls if good and great flags are true */
-	if ((good) && (great)) rolls = 4;
+	/*
+	 * Get four rolls if good and great flags are true,
+	 * only 2 for quests ince they are so repetitive
+	 */
+	if ((good) && (great))
+	{
+		if (object_generation_mode == OB_GEN_MODE_QUEST) rolls = 2;
+		else rolls = 4;
+	}
 
 	/* Get no rolls if not allowed */
 	if (!okay || o_ptr->name1) rolls = 0;
@@ -3466,6 +3475,7 @@ static bool kind_is_temple(int k_idx)
 		{
 			if (allow_altered_inventory) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_REMOVE_CURSE) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_BLESSING) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_HOLY_CHANT) return (TRUE);
 			return (FALSE);
@@ -3803,6 +3813,8 @@ static bool kind_is_great(int k_idx)
 		case TV_SCROLL:
 		{
 			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return (TRUE);
+			if ((k_ptr->sval == SV_SCROLL_CREATE_RANDART) &&
+			    (!adult_no_xtra_artifacts))   return (TRUE);
 			return (FALSE);
 		}
 
@@ -4185,7 +4197,8 @@ static bool kind_is_scroll(int k_idx)
 		case TV_SCROLL:
 		{
 			if (k_ptr->sval == SV_SCROLL_ACQUIREMENT) return (TRUE);
-			if (k_ptr->sval == SV_SCROLL_CREATE_RANDART) return (TRUE);
+			if ((k_ptr->sval == SV_SCROLL_CREATE_RANDART) &&
+			    (!adult_no_xtra_artifacts))   return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_BANISHMENT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_MASS_BANISHMENT) return (TRUE);
@@ -4314,6 +4327,7 @@ static bool kind_is_rod_wand_staff(int k_idx)
 			if (k_ptr->sval == SV_STAFF_POWER) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_HOLINESS) return (TRUE);
 			if (k_ptr->sval == SV_STAFF_BANISHMENT) return (TRUE);
+			if (k_ptr->sval == SV_STAFF_MASS_IDENTIFY) return (TRUE);
 			if ((k_ptr->sval == SV_STAFF_DESTRUCTION) &&
 				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			return (FALSE);
@@ -4332,6 +4346,8 @@ static bool kind_is_rod_wand_staff(int k_idx)
 			if (k_ptr->sval == SV_ROD_HEALING) return (TRUE);
 			if (k_ptr->sval == SV_ROD_RESTORATION) return (TRUE);
 			if (k_ptr->sval == SV_ROD_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_ROD_STAR_IDENTIFY) return (TRUE);
+			if (k_ptr->sval == SV_ROD_MASS_IDENTIFY) return (TRUE);
 			if ((k_ptr->sval == SV_ROD_TELEPORT_AWAY) &&
 				((k_ptr->level + 20) >= object_level )) return (TRUE);
 			return (FALSE);
@@ -4478,6 +4494,8 @@ static bool kind_is_good(int k_idx)
 		{
 			if (k_ptr->sval == SV_SCROLL_ACQUIREMENT) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return (TRUE);
+			if ((k_ptr->sval == SV_SCROLL_CREATE_RANDART) &&
+			    (!adult_no_xtra_artifacts))   return (TRUE);
 			return (FALSE);
 		}
 
@@ -4829,7 +4847,10 @@ bool make_gold(object_type *j_ptr)
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
 
 	/*chests containing gold are very lucritive*/
-	if (object_generation_mode) j_ptr->pval += ((randint(4) + randint(4) + object_level / 4 ) * 50);
+	if (object_generation_mode > 0)
+	{
+		j_ptr->pval += ((randint(4) + randint(4) + object_level / 4 ) * 50);
+	}
 
 	/* Success */
 	return (TRUE);
@@ -5216,7 +5237,7 @@ void place_quest_artifact(int y, int x)
 	/* Wipe the object */
 	object_wipe(i_ptr);
 
-	/* Make a quest chest (should never fail) */
+	/* Make a quest artifact (should never fail) */
 	create_quest_artifact(i_ptr);
 
 	/* Give it to the floor */
@@ -5545,7 +5566,7 @@ void inven_item_optimize(int item)
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-		p_ptr->redraw |= (PR_EQUIPPY);
+		p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);
 	}
 }
 
@@ -5726,6 +5747,9 @@ s16b inven_carry(object_type *o_ptr)
 
 	/* Use that slot */
 	i = j;
+
+	/* Apply an autoinscription */
+	apply_autoinscription(o_ptr);
 
 	/* Reorder the pack */
 	if (i < INVEN_PACK)

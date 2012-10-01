@@ -64,7 +64,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 # Here is the list of 'Special' artifacts - Amulets, Light Sources, Rings.
@@ -2056,5 +2056,17 @@ F:INSTA_ART | SHOW_MODS
 D:The mighty Hammer of the Underworld, blackened by doomspells of
 D: shattering, whose wielder holds the lives of all Morgoth's servants
 D: in his hand.
+
+
+# The Set of Gauntlets 'Paurannon'
+
+N:140:'Paurannon'
+I:31:2:0
+W:40:80:25:50000
+P:2:1d1:0:0:25
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+A:RESIST:100:100
+D:A set of handgear with multiple elements across its knuckleguards.
 
 

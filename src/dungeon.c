@@ -245,7 +245,7 @@ static void sense_inventory(void)
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 
-		int squelch = 0;
+		int squelch = SQUELCH_NO;
 
 		o_ptr = &inventory[i];
 
@@ -305,9 +305,7 @@ static void sense_inventory(void)
 			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
 			           o_name, index_to_label(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL],
- 				    ((squelch == 1) ? "(Squelched)" :
- 				    ((squelch == -1) ? "(Squelch Failed)" : "")));
+			           inscrip_text[feel - INSCRIP_NULL], squelch_to_label(squelch));
 		}
 
 		/* Sense the object */
@@ -509,10 +507,10 @@ static void recharged_notice(object_type *o_ptr)
 	cptr s;
 
 	/* No inscription */
-	if (!o_ptr->note) return;
+	if (!o_ptr->obj_note) return;
 
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
+	s = strchr(quark_str(o_ptr->obj_note), '!');
 
 	/* Process notification request. */
 	while (s)
@@ -1305,8 +1303,14 @@ static void process_world(void)
 	}
 
 	/* Delayed level feelings */
-	if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % p_ptr->skill_srh)))
+	if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100)))
 	{
+
+		int chance;
+
+		/*players notice strongholds sooner*/
+		if (feeling < LEV_THEME_HEAD) chance = 80;
+		else chance = 40;
 
 		/* After sufficient time, can learn about the level */
 		if ((rand_int(80) < p_ptr->skill_srh) &&
@@ -2411,7 +2415,7 @@ static void process_player(void)
 			allow_altered_inventory += 15;
 
 			/*most likely unnecessary boundry control*/
-			if (allow_altered_inventory > 60) allow_altered_inventory = 60;
+			if (allow_altered_inventory > 100) allow_altered_inventory = 100;
 
 			/*unmark the square*/
 			cave_info[p_ptr->py][p_ptr->px] &= ~(CAVE_MARKED);
@@ -2703,7 +2707,7 @@ static void dungeon(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_RESIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
@@ -2918,6 +2922,15 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
+
+	/* Process the "user.scb" autoinscriptions file */
+	(void)process_pref_file("user.scb");
+
+	/* Process the "classes.prf" file */
+	(void)process_pref_file("classes.prf");
+
+	/* Process the "races.prf" file */
+	(void)process_pref_file("races.prf");
 
 	/* Get the "PLAYER.prf" filename */
 	(void)strnfmt(buf, sizeof(buf), "%s.prf", op_ptr->base_name);

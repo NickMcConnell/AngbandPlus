@@ -35,6 +35,9 @@
 #define QUEST_SLOT_VAULT		3
 #define QUEST_SLOT_MAX			4
 
+/*Monsters only appear so deep*/
+#define MAX_MIN_DEPTH			76
+
 /* Quest Titles*/
 static cptr quest_title[QUEST_SLOT_MAX] =
 {
@@ -214,13 +217,9 @@ void plural_aux(char *name, size_t max)
 	{
 		strcpy (&(name[name_len - 5]), "culi");
 	}
-	else if (streq(&(name[name_len - 3]), "men"))
+	else if (streq(&(name[name_len - 4]), "sman"))
 	{
-		strcpy (&(name[name_len - 3]), "man");
-	}
-	else if (streq(&(name[name_len - 3]), "men"))
-	{
-		strcpy (&(name[name_len - 3]), "man");
+		strcpy (&(name[name_len - 4]), "smen");
 	}
 	else if (streq(&(name[name_len - 4]), "lman"))
 	{
@@ -556,6 +555,9 @@ static void grant_reward_object(byte type)
 
 	byte artifact_marker = 0;
 
+	/* Check for outstanding rewards */
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
 	object_type *i_ptr;
    	object_type *j_ptr;
  	object_type object_type_body;
@@ -573,7 +575,7 @@ static void grant_reward_object(byte type)
 	/*ugly, but effective hack - make extra gold, prevent chests & allow artifacts*/
 	object_generation_mode = OB_GEN_MODE_QUEST;
 
-	if (type == REWARD_RANDART)
+	if ((type == REWARD_RANDART) && (!adult_no_xtra_artifacts))
 	{
 		s16b k_idx = 0;
 		char title[40];
@@ -651,7 +653,7 @@ static void grant_reward_object(byte type)
 		message_flush();
 
 		/*actually create the Randart, mark it if so, if not, make a tailored reward*/
-		if (make_one_randart(i_ptr, p_ptr->fame, TRUE))
+		if (make_one_randart(i_ptr, ((p_ptr->fame + q_ptr->base_level) / 2), TRUE))
 		{
 			got_item = TRUE;
 		}
@@ -1249,7 +1251,7 @@ static bool place_mon_quest(int lev)
 	/*boundry control*/
 	if (max_depth > (MAX_DEPTH - 15)) max_depth = MAX_DEPTH - 15;
 	if (min_depth < 1) min_depth = 1;
-	if (min_depth > 76) min_depth = 76;
+	if (min_depth > MAX_MIN_DEPTH) min_depth = MAX_MIN_DEPTH;
 
 	/*get the average ddifficulty spanning 5 levele for monsters*/
 	max_diff = min_diff = min_diff_unique = max_diff_unique = 0;
@@ -1454,8 +1456,9 @@ static bool place_mon_quest(int lev)
 		if (rand_int(100) < chance) q_ptr->reward = REWARD_GOOD_ITEM;
 
 		/* First roll for tailored award */
-		else if ((!adult_no_artifacts) &&
-			     (65 + damroll(6,15) < p_ptr->fame)) q_ptr->reward = REWARD_RANDART;
+		else if (((!adult_no_artifacts) || (!adult_no_xtra_artifacts)) &&
+		((65 + damroll(6,15) < p_ptr->fame)) && (one_in_(3)))
+			q_ptr->reward = REWARD_RANDART;
 
 		/* First roll for tailored award */
 		else if (15 + damroll(6,15) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
@@ -1469,6 +1472,192 @@ static bool place_mon_quest(int lev)
 }
 
 /*
+ * Make sure a quest will be a challenge by making sure we aren't assigning a
+ * monster theme where all the monsters are already in depth.
+ */
+static bool check_pit_nest_depth(int lev, byte theme)
+{
+	bool return_value = FALSE;
+
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
+	int i, max_depth;
+
+	alloc_entry *table = alloc_race_table;
+
+	/*set the hook*/
+	get_mon_hook(theme);
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	max_depth = lev + PIT_NEST_QUEST_BOOST;
+
+	/*Monsters only go so high*/
+	if (lev > MAX_MIN_DEPTH) lev = MAX_MIN_DEPTH;
+
+	/* Go through each one */
+	for (i = 0; i < alloc_race_size; i++)
+	{
+		monster_race *r_ptr;
+
+		int r_idx;
+
+		/* Hack -- No town monsters are acceptable */
+		if (table[i].level <= 0) continue;
+
+		/* Get the "r_idx" of the chosen monster */
+		r_idx = table[i].index;
+
+		/* Get the actual race */
+		r_ptr = &r_info[r_idx];
+
+		/*No player ghosts*/
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
+
+		/*Pits or nests do not allow uniques*/
+		if ((q_ptr->type == QUEST_NEST) || (q_ptr->type == QUEST_PIT))
+		{
+			if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		}
+
+		/* Make sure there is at least one monster out of depth. */
+		if ((table[i].level > lev) && (table[i].level < max_depth))
+		{
+			return_value = TRUE;
+
+			/*No need to continue, we only need one*/
+			break;
+		}
+
+	}
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	return (return_value);
+
+}
+
+
+
+/*
+ * Make sure a quest will be a challenge by making sure we aren't assigning a
+ * monster theme where all the monsters are already in depth.
+ */
+static bool check_theme_depth(int lev, byte theme)
+{
+	bool return_value = FALSE;
+
+	int i;
+	int max_depth, min_depth;
+	u32b max_diff, max_diff_unique;
+
+	alloc_entry *table = alloc_race_table;
+
+	/*set the hook*/
+	get_mon_hook(theme);
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Factor in the boost */
+	max_depth = lev + THEMED_LEVEL_QUEST_BOOST;
+	min_depth = lev;
+
+	/*don't make it too easy if the player isn't diving very fast*/
+	if (p_ptr->depth < p_ptr->max_lev)
+	{
+		min_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
+		max_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
+	}
+
+	/*boundry control*/
+	if (max_depth > (MAX_DEPTH - 15)) max_depth = MAX_DEPTH - 15;
+	if (min_depth > MAX_MIN_DEPTH) min_depth = MAX_MIN_DEPTH;
+
+	/*get the average difficulty spanning 5 levels for monsters*/
+	max_diff = max_diff_unique = 0;
+
+	/*first get the total of the 5 levels*/
+	for (i = 0; i < 5; i++)
+	{
+		/*put some boundry control on the highest level*/
+		max_diff += mon_power_ave[max_depth + i][CREATURE_NON_UNIQUE];
+		max_diff_unique += mon_power_ave[max_depth + i][CREATURE_UNIQUE];
+	}
+
+	/*now get the average*/
+	max_diff /= 5;
+	max_diff_unique /= 5;
+
+	/* Go through each one */
+	for (i = 0; i < alloc_race_size; i++)
+	{
+		monster_race *r_ptr;
+
+		int r_idx;
+
+		/* Hack -- No town monsters are acceptable */
+		if (table[i].level <= 0) continue;
+
+		/* Get the "r_idx" of the chosen monster */
+		r_idx = table[i].index;
+
+		/* Get the actual race */
+		r_ptr = &r_info[r_idx];
+
+		/*enforce a maximum depth*/
+		if (r_ptr->level > max_depth) continue;
+
+		/*No player ghosts*/
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
+
+		/* Uniques only for unique quests*/
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/*get the right difficulty*/
+			if (r_ptr->mon_power > max_diff_unique) continue;
+			if (r_ptr->mon_power < mon_power_ave[min_depth][CREATURE_UNIQUE]) continue;
+
+			/* no dead ones*/
+			if (r_ptr->cur_num >= r_ptr->max_num) continue;
+
+			/*Make sure it is reasonably hard*/
+
+		}
+		/*other monsters based on difficulty*/
+		else
+		{
+			/*get the right difficulty*/
+			if (r_ptr->mon_power > max_diff) continue;
+			if (r_ptr->mon_power < mon_power_ave[min_depth][CREATURE_NON_UNIQUE]) continue;
+
+		}
+
+		/*Found one*/
+		return_value = TRUE;
+
+		/*No need to continue, we only need one*/
+		break;
+
+	}
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	return (return_value);
+
+}
+
+
+/*
  * Actually give the character a vault quest
  */
 static bool place_pit_nest_quest(int lev)
@@ -1476,29 +1665,56 @@ static bool place_pit_nest_quest(int lev)
 
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
+	int tries = 0;
+	int i;
+
+	bool checked_theme_yet[LEV_THEME_HEAD];
+
+	/*start with false, meaning we haven't checked it yet*/
+	for (i = 0; i < LEV_THEME_HEAD; i++) checked_theme_yet[i] = FALSE;
+
 	/*50% chance of a pit or nest*/
 	if one_in_(2) q_ptr->type = QUEST_PIT;
 	else q_ptr->type = QUEST_NEST;
 
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
-	if ((!adult_no_artifacts) &&
-		(35 + damroll(3,20) < p_ptr->fame)) q_ptr->reward = REWARD_RANDART;
+	if (((!adult_no_artifacts) || (!adult_no_xtra_artifacts)) &&
+		((35 + damroll(5,20) < p_ptr->fame)) && (one_in_(3)))
+			q_ptr->reward = REWARD_RANDART;
 	else if (25 + damroll(3,20) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 	else q_ptr->reward = REWARD_GREAT_ITEM;
 
-	/*Get the actual theme for either the pit or nest*/
-	if (q_ptr->type == QUEST_PIT) q_ptr->theme = get_pit_theme(lev + 6);
-	/*nests, but disallow jelly pits*/
-	else while (TRUE)
+	while (TRUE)
 	{
-		q_ptr->theme = get_nest_theme(lev + 6);
-		/*hack - re-try if jelly pit*/
+		/*
+		 * We get 5000 tries at this, but it should only fail
+		 * if somebody wasn't careful while editing around the monster list.
+		 */
+		if ((tries++) > 5000) return (FALSE);
+
+		/*Get the actual theme for either the pit or nest*/
+		if (q_ptr->type == QUEST_PIT) q_ptr->theme = get_pit_theme(lev + 3);
+		else q_ptr->theme = get_nest_theme(lev + 3);
+
+		/*hack - never do jelly quests*/
 		if (q_ptr->theme == LEV_THEME_JELLY) continue;
+
+		/*We don't want to run through check_theme_depth a bunch of times*/
+		if (checked_theme_yet[q_ptr->theme] == TRUE) continue;
+
+		/*make sure there are hard enough monsters*/
+		if (!check_pit_nest_depth(q_ptr->base_level, q_ptr->theme))
+		{
+			/*mark it as checked*/
+			checked_theme_yet[q_ptr->theme] = TRUE;
+
+			/*next try*/
+			continue;
+		}
 
 		/*found a good theme*/
 		break;
-
 	}
 
 	/* Set current quest */
@@ -1518,17 +1734,54 @@ static bool place_level_quest(int lev)
 
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
+	int i;
+	int tries = 0;
+
+	bool checked_theme_yet[LEV_THEME_HEAD];
+
+	/*start with false, meaning we haven't checked it yet*/
+	for (i = 0; i < LEV_THEME_HEAD; i++) checked_theme_yet[i] = FALSE;
+
 	/* Actually write the quest */
 	q_ptr->type = QUEST_THEMED_LEVEL;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
-	if ((!adult_no_artifacts) &&
-		(30 + damroll(3,20) < p_ptr->fame)) q_ptr->reward = REWARD_RANDART;
+	if (((!adult_no_artifacts) || (!adult_no_xtra_artifacts)) &&
+	    (30 + damroll(5,20) < p_ptr->fame))  q_ptr->reward = REWARD_RANDART;
 	else if (20 + damroll(3,10) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 	else q_ptr->reward = REWARD_GREAT_ITEM;
 
-	/*Get the actual theme*/
-	q_ptr->theme = get_level_theme(lev + 8);
+	while (TRUE)
+	{
+		/*
+		 * We get 5000 tries at this, but it should only fail
+		 * if somebody wasn't careful while editing around the monster list.
+		 */
+		if ((tries++) > 5000) return (FALSE);
+
+		/*Get the actual theme*/
+		q_ptr->theme = get_level_theme(lev + THEMED_LEVEL_QUEST_BOOST / 2);
+
+		/*hack - never do jelly quests*/
+		if (q_ptr->theme == LEV_THEME_JELLY) continue;
+
+		/*We don't want to run through check_tmeme_depth a bunch of times*/
+		if (checked_theme_yet[q_ptr->theme] == TRUE) continue;
+
+		/*make sure there are hard enough monsters*/
+		if (!check_theme_depth(lev, q_ptr->theme))
+		{
+			/*mark it as checked*/
+			checked_theme_yet[q_ptr->theme] = TRUE;
+
+			/*next try*/
+			continue;
+		}
+
+		/*found a good theme*/
+		break;
+
+	}
 
 	/* Set current quest */
 	p_ptr->cur_quest = lev;
@@ -1551,8 +1804,9 @@ static bool place_vault_quest(int lev)
 	q_ptr->type = QUEST_VAULT;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
-	if ((!adult_no_artifacts) &&
-		(50 + damroll(3,20) < p_ptr->fame)) q_ptr->reward = REWARD_RANDART;
+	if ((!adult_no_artifacts) &&  (!adult_no_xtra_artifacts) &&
+		((50 + damroll(5,20) < p_ptr->fame)) && (one_in_(3)))
+			q_ptr->reward = REWARD_RANDART;
 	else if (20 + damroll(3,20) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 	else q_ptr->reward = REWARD_GREAT_ITEM;
 
@@ -1663,7 +1917,7 @@ void display_guild(void)
 			artifact_wipe(o_ptr->name1, TRUE);
 
 			/* Destroy the quest item in the pack */
-			inven_item_increase(j, -1);
+			inven_item_increase(j, -255);
 			inven_item_optimize(j);
 		}
 	}
@@ -1867,6 +2121,13 @@ void guild_purchase(void)
 		return;
 	}
 
+	/*Honor the no quests option*/
+	if (adult_no_quests)
+	{
+		msg_print("Nothing happens!");
+		return;
+	}
+
 	/* Get level for quest - if never been in dungeon at 50', otherwise 2-3 levels deeper */
 	if (!p_ptr->max_depth) qlev = 1;
 	else qlev = p_ptr->max_depth + 1 + randint(2);
@@ -1914,13 +2175,14 @@ void guild_purchase(void)
 	{
 		s16b choice;
 
-		/* Get a choice*/
-		choice = max_quest_choice[get_menu_choice(num_quests, prompt)];
+		/*Prompt the player for a quest choice*/
+		choice = get_menu_choice(num_quests, prompt);
 
 		/* Quit if no quest chosen */
 		if (choice == -1) return;
 
-		item = choice;
+		/* Get a choice*/
+		item = max_quest_choice[choice];
 	}
 
 	/*hack - automatically a monster quest*/
@@ -1929,21 +2191,37 @@ void guild_purchase(void)
 	/*place a monster quest*/
 	if (item == QUEST_SLOT_MONSTER)
 	{
-		if (!place_mon_quest(qlev)) return;
+		if (!place_mon_quest(qlev))
+		{
+			guild_quest_wipe();
+			return;
+		}
 	}
 	/*Place a vault quest*/
 	else if (item == QUEST_SLOT_VAULT)
 	{
-		if (!place_vault_quest(qlev)) return;
+		if (!place_vault_quest(qlev))
+		{
+			guild_quest_wipe();
+			return;
+		}
 	}
 	else if (item == QUEST_SLOT_LEVEL)
 	{
-		if (!place_level_quest(qlev)) return;
+		if (!place_level_quest(qlev))
+		{
+			guild_quest_wipe();
+			return;
+		}
 	}
 	/*Nest or Pit quests*/
 	else if (item == QUEST_SLOT_PIT_NEST)
 	{
-		if (!place_pit_nest_quest(qlev)) return;
+		if (!place_pit_nest_quest(qlev))
+		{
+			guild_quest_wipe();
+			return;
+		}
 	}
 
 	/* Clear screen */
@@ -2084,7 +2362,7 @@ void quest_fail(void)
 			object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 			/*create the note*/
-			sprintf(note, "Failed a quest to return %s to the Guild", o_name);
+			sprintf(note, "Quest: Failed to return %s to the Guild", o_name);
 
 			/*clear out the artifact*/
 			artifact_wipe(QUEST_ART_SLOT, TRUE);
@@ -2099,7 +2377,7 @@ void quest_fail(void)
 			/*Get the theme*/
 			my_strcpy(mon_theme, feeling_themed_level[q_ptr->theme], sizeof(mon_theme));
 
-			my_strcpy(note, "Failed to clear out ", sizeof(note));
+			my_strcpy(note, "Quest: Failed to clear out ", sizeof(note));
 
 			/*make the grammar proper*/
 			if (is_a_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
@@ -2132,8 +2410,8 @@ void quest_fail(void)
 			{
 				/*write note*/
 				if monster_nonliving(r_ptr)
-				sprintf(note, "Failed a quest to destroy %s", race_name);
-				else sprintf(note, "Failed a quest to kill %s", race_name);
+				sprintf(note, "Quest: Failed to destroy %s", race_name);
+				else sprintf(note, "Quest: Failed to kill %s", race_name);
 			}
 
 			else

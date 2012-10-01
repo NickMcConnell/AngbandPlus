@@ -213,13 +213,21 @@ static void prt_exp(void)
 	{
 		exp_display = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) -
 									p_ptr->exp);
+
+		/*Print experience label*/
+		put_str("NEXT ", ROW_EXP, 0);
 	}
 
-	else exp_display = p_ptr->exp;
+	else
+	{
+
+		exp_display = p_ptr->exp;
+
+		/*Print experience label*/
+		put_str("EXP ", ROW_EXP, 0);
+	}
 
 	sprintf(out_val, "%8ld", exp_display);
-
-	put_str("EXP ", ROW_EXP, 0);
 
 	c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
 
@@ -277,13 +285,66 @@ static void prt_equippy(void)
 
 
 /*
+ * Prints resistance flags
+ */
+static void prt_resistances(void)
+{
+  	byte color[50];
+  	char chr[50], tmpstr[2];
+  	int i, n = 0;
+
+  	if (p_ptr->oppose_acid && !p_ptr->immune_acid)
+  	{
+    	color[n] = TERM_SLATE;
+    	chr[n++] = 'A';
+  	}
+
+  	if (p_ptr->oppose_elec && !p_ptr->immune_elec)
+  	{
+    	color[n] = TERM_L_BLUE;
+    	chr[n++] = 'E';
+  	}
+
+  	if (p_ptr->oppose_fire && !p_ptr->immune_fire)
+  	{
+    	color[n] = TERM_RED;
+    	chr[n++] = 'F';
+  	}
+
+  	if (p_ptr->oppose_cold && !p_ptr->immune_cold)
+  	{
+    	color[n] = TERM_WHITE;
+    	chr[n++] = 'C';
+  	}
+
+  	if (p_ptr->oppose_pois && !p_ptr->immune_pois)
+  	{
+    	color[n] = TERM_GREEN;
+    	chr[n++] = 'P';
+  	}
+
+  	/* Clear the row */
+  	put_str("           ", ROW_RESIST, COL_RESIST);
+
+  	/* Print up to 12 flags */
+  	for (i = 0; (i < n) && (i < 12); i++)
+  	{
+    	tmpstr[0] = chr[i];
+    	tmpstr[1] = '\0';
+    	c_put_str(color[i], tmpstr, ROW_RESIST, COL_RESIST + i);
+  	}
+}
+
+
+
+/*
  * Prints current AC
  */
 static void prt_ac(void)
 {
 	char tmp[32];
 
-	put_str("Cur AC ", ROW_AC, COL_AC);
+	put_str("AC ", ROW_AC, COL_AC);
 	sprintf(tmp, "%5d", p_ptr->dis_ac + p_ptr->dis_to_a);
 	c_put_str(TERM_L_GREEN, tmp, ROW_AC, COL_AC + 7);
 }
@@ -295,27 +356,19 @@ static void prt_ac(void)
 static void prt_hp(void)
 {
 	char tmp[32];
-
+	int len;
 	byte color;
 
+	put_str("HP          ", ROW_HP, COL_HP);
 
-	put_str("Max HP ", ROW_MAXHP, COL_MAXHP);
+	len = sprintf(tmp, "%d:%d", p_ptr->chp, p_ptr->mhp);
 
-	sprintf(tmp, "%5d", p_ptr->mhp);
-	color = TERM_L_GREEN;
+	c_put_str(TERM_L_GREEN, tmp, ROW_HP, COL_HP + 12 - len);
 
-	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
+	/* Done? */
+	if (p_ptr->chp >= p_ptr->mhp) return;
 
-
-	put_str("Cur HP ", ROW_CURHP, COL_CURHP);
-
-	sprintf(tmp, "%5d", p_ptr->chp);
-
-	if (p_ptr->chp >= p_ptr->mhp)
-	{
-		color = TERM_L_GREEN;
-	}
-	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+	if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
 	{
 		color = TERM_YELLOW;
 	}
@@ -324,7 +377,10 @@ static void prt_hp(void)
 		color = TERM_RED;
 	}
 
-	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);
+	/* Show current hitpoints using another color */
+	sprintf(tmp, "%d", p_ptr->chp);
+
+	c_put_str(color, tmp, ROW_HP, COL_HP + 12 - len);
 }
 
 
@@ -335,29 +391,22 @@ static void prt_sp(void)
 {
 	char tmp[32];
 	byte color;
-
+	int len;
 
 	/* Do not show mana unless it matters */
 	if (!cp_ptr->spell_book) return;
 
 
-	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
+	put_str("SP          ", ROW_SP, COL_SP);
 
-	sprintf(tmp, "%5d", p_ptr->msp);
-	color = TERM_L_GREEN;
+	len = sprintf(tmp, "%d:%d", p_ptr->csp, p_ptr->msp);
 
-	c_put_str(color, tmp, ROW_MAXSP, COL_MAXSP + 7);
+	c_put_str(TERM_L_GREEN, tmp, ROW_SP, COL_SP + 12 - len);
 
+	/* Done? */
+	if (p_ptr->csp >= p_ptr->msp) return;
 
-	put_str("Cur SP ", ROW_CURSP, COL_CURSP);
-
-	sprintf(tmp, "%5d", p_ptr->csp);
-
-	if (p_ptr->csp >= p_ptr->msp)
-	{
-		color = TERM_L_GREEN;
-	}
-	else if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+	if (p_ptr->csp > (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
 	{
 		color = TERM_YELLOW;
 	}
@@ -366,8 +415,11 @@ static void prt_sp(void)
 		color = TERM_RED;
 	}
 
-	/* Show mana */
-	c_put_str(color, tmp, ROW_CURSP, COL_CURSP + 7);
+
+	/* Show current mana using another color */
+	sprintf(tmp, "%d", p_ptr->csp);
+
+	c_put_str(color, tmp, ROW_SP, COL_SP + 12 - len);
 }
 
 
@@ -636,6 +688,16 @@ static void prt_state(void)
 	c_put_str(attr, text, ROW_STATE, COL_STATE);
 }
 
+/*
+ * Hack - Modify the color based on speed bonuses. -DG-
+ */
+static byte analyze_speed_bonuses(byte default_attr)
+{
+	if (p_ptr->slow)	return (TERM_ORANGE);
+	else if (p_ptr->fast)	return (TERM_VIOLET);
+	else	return (default_attr);
+}
+
 
 /*
  * Prints the speed of a character.			-CJS-
@@ -653,32 +715,31 @@ static void prt_speed(void)
 	/* Fast */
 	if (i > 110)
 	{
-		attr = TERM_L_GREEN;
+		attr = analyze_speed_bonuses(TERM_L_GREEN);
 		sprintf(buf, "Fast (+%d)", (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
-		attr = TERM_L_UMBER;
+		attr = analyze_speed_bonuses(TERM_L_UMBER);
 		sprintf(buf, "Slow (-%d)", (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-10s", buf), ROW_SPEED, COL_SPEED);
 }
 
 
 static void prt_study(void)
 {
+	char buf[32] = "";
+
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", ROW_STUDY, COL_STUDY);
+		sprintf(buf, "Study (%d)", p_ptr->new_spells);
 	}
-	else
-	{
-		put_str("     ", ROW_STUDY, COL_STUDY);
-	}
+	put_str(format("%-10s", buf), ROW_STUDY, COL_STUDY);
 }
 
 
@@ -945,6 +1006,9 @@ static void prt_frame_basic(void)
 
 	/* All Stats */
 	for (i = 0; i < A_MAX; i++) prt_stat(i);
+
+	/* Resistances */
+	prt_resistances();
 
 	/* Armor */
 	prt_ac();
@@ -1696,17 +1760,21 @@ static void calc_hitpoints(void)
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
+		int i = 100;
+
+		/* Get percentage of maximum hp */
+		if (p_ptr->mhp) i = ((100 * p_ptr->chp) / p_ptr->mhp);
+
 		/* Save new limit */
 		p_ptr->mhp = mhp;
 
-		/* Enforce new limit */
-		if (p_ptr->chp >= mhp)
-		{
-			p_ptr->chp = mhp;
-			p_ptr->chp_frac = 0;
-		}
+		/* Update current maximum hp */
+		p_ptr->chp = ((i * p_ptr->mhp) / 100) + (((i * p_ptr->mhp) % 100 >= 50)	? 1 : 0);
 
-		/* Display hitpoints (later) */
+		/* Hack - any change in max hitpoint resets frac */
+		p_ptr->chp_frac = 0;
+
+		/* Dihplay hp later */
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
@@ -1853,6 +1921,8 @@ static int weight_limit(void)
  */
 static void calc_bonuses(void)
 {
+
+
 	int i, j, hold;
 
 	int old_speed;
@@ -2794,6 +2864,15 @@ void notice_stuff(void)
 		p_ptr->notice &= ~(PN_REORDER);
 		reorder_pack();
 	}
+
+	if(p_ptr->notice & PN_AUTOINSCRIBE)
+	{
+		p_ptr->notice &= ~(PN_AUTOINSCRIBE);
+		autoinscribe_pack();
+		autoinscribe_ground();
+	}
+
+
 }
 
 
@@ -2917,6 +2996,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_LEV | PR_EXP | PR_GOLD);
 		p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA);
 		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH | PR_MON_MANA);
+		p_ptr->redraw &= ~(PR_RESIST);
 		prt_frame_basic();
 	}
 
@@ -2954,6 +3034,12 @@ void redraw_stuff(void)
 		prt_stat(A_DEX);
 		prt_stat(A_CON);
 		prt_stat(A_CHR);
+	}
+
+	if (p_ptr->redraw & (PR_RESIST))
+	{
+	  p_ptr->redraw &= ~(PR_RESIST);
+	  prt_resistances();
 	}
 
 	if (p_ptr->redraw & (PR_ARMOR))

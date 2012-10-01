@@ -271,13 +271,15 @@ extern void (*text_out_hook)(byte a, cptr str);
 extern int text_out_wrap;
 extern int text_out_indent;
 extern bool use_transparency;
+extern char notes_fname[1024];
 extern FILE *notes_file;
 extern byte recent_failed_thefts;
+extern autoinscription* inscriptions;
+extern u16b inscriptionsCount;
 extern byte num_trap_on_level;
 extern byte bones_selector;
 extern int r_ghost;
 extern char ghost_name[80];
-
 extern char g_vault_name[80];
 
 
@@ -529,6 +531,7 @@ extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
 
 /* obj-info.c */
+extern int get_num_blows(const object_type *o_ptr, u32b f1);
 extern bool object_info_out(const object_type *o_ptr);
 extern void object_info_screen(const object_type *o_ptr);
 
@@ -542,7 +545,6 @@ extern void strip_name(char *buf, int k_idx);
 extern void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int mode);
 extern void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx);
 extern void object_desc_spoil(char *buf, size_t max, const object_type *o_ptr, int pref, int mode);
-extern void describe_item_activation(const object_type *o_ptr);
 extern void identify_random_gen(const object_type *o_ptr);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
@@ -559,6 +561,7 @@ extern void show_equip(void);
 extern void show_floor(const int *floor_list, int floor_num);
 extern void toggle_inven_equip(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
+
 
 /* object2.c */
 extern void excise_object_idx(int o_idx);
@@ -618,7 +621,6 @@ extern void reorder_pack(void);
 extern void steal_object_from_monster(int y, int x);
 extern void create_quest_item(int ny, int nx);
 extern byte allow_altered_inventory;
-
 
 /* quest.c */
 extern void plural_aux(char *name, size_t max);
@@ -693,11 +695,15 @@ extern bool detect_monsters_invis(void);
 extern bool detect_monsters_evil(void);
 extern bool detect_all(void);
 extern void stair_creation(void);
+extern bool item_tester_hook_ided_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
+extern bool item_tester_hook_wieldable_ided_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_wieldable_weapon(const object_type *o_ptr);
+extern bool item_tester_hook_ided_armour(const object_type *o_ptr);
 extern bool item_tester_hook_armour(const object_type *o_ptr);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern int do_ident_item(int item, object_type *o_ptr);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool item_tester_hook_recharge(const object_type *o_ptr);
@@ -767,10 +773,30 @@ extern bool curse_armor(void);
 extern bool curse_weapon(void);
 extern bool brand_object(object_type *o_ptr, byte brand_type, bool do_enchant);
 extern bool brand_weapon(bool enchant);
+extern bool item_tester_hook_ided_ammo(const object_type *o_ptr);
 extern bool item_tester_hook_ammo(const object_type *o_ptr);
 extern bool brand_ammo(bool enchant);
 extern bool brand_bolts(bool enchant);
 extern void ring_of_power(int dir);
+extern void identify_and_squelch_pack(void);
+extern bool mass_identify(int rad);
+
+
+/* squlech.c */
+extern byte squelch_level[SQUELCH_BYTES];
+extern void do_cmd_squelch_autoinsc(void);
+extern int squelch_itemp(object_type *o_ptr, byte feeling, bool fullid);
+extern int do_squelch_item(int squelch, int item, object_type *o_ptr);
+extern void rearrange_stack(int y, int x);
+extern void do_squelch_pile(int y, int x);
+extern int get_autoinscription_index(s16b k_idx);
+extern void autoinscribe_ground(void);
+extern void autoinscribe_pack(void);
+extern int remove_autoinscription(s16b kind);
+extern int add_autoinscription(s16b kind, cptr inscription);
+extern int apply_autoinscription(object_type *o_ptr);
+extern char *squelch_to_label(int squelch);
+
 
 /* store.c */
 extern bool item_tester_hook_randart(const object_type *o_ptr);
@@ -876,6 +902,7 @@ extern int editing_buffer_delete(editing_buffer *eb_ptr);
 extern void editing_buffer_clear(editing_buffer *eb_ptr);
 extern void editing_buffer_get_all(editing_buffer *eb_ptr, char buf[], size_t max_size);
 extern int editing_buffer_put_str(editing_buffer *eb_ptr, const char *str, int n);
+extern cptr get_ext_color_name(byte ext_color);
 
 
 /* xtra1.c */
@@ -889,6 +916,7 @@ extern void handle_stuff(void);
 
 /* xtra2.c */
 extern bool set_blind(int v);
+extern bool allow_player_confusion(void);
 extern bool set_confused(int v);
 extern bool set_poisoned(int v);
 extern bool set_afraid(int v);
@@ -934,15 +962,6 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
-
-
-/* squlech.c */
-extern byte squelch_level[SQUELCH_BYTES];
-extern void do_cmd_squelch(void);
-extern int squelch_itemp(object_type *o_ptr, byte feeling, bool fullid);
-extern int do_squelch_item(int squelch, int item, object_type *o_ptr);
-extern void rearrange_stack(int y, int x);
-extern void do_squelch_pile(int y, int x);
 
 
 /*

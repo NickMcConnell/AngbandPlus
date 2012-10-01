@@ -764,9 +764,14 @@ bool use_transparency = FALSE;
 
 
 /*
- * File for taking notes
+ * Buffer to hold the current notes file name
  */
 
+char notes_fname[1024];
+
+/*
+ * File for taking notes
+ */
 FILE *notes_file;
 
 
@@ -778,6 +783,10 @@ byte num_trap_on_level;
 
 /*occasionally allow chance of different inventory in a store*/
 byte allow_altered_inventory;
+
+
+autoinscription* inscriptions = 0;
+u16b inscriptionsCount = 0;
 
 
 /* The bones file a restored player ghost should use to collect extra

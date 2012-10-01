@@ -16,8 +16,9 @@ send him comments, or make sure your bug report gets heard, email
 "nppangband@comcast.net".
      The Angband newsgroup is at "news:rec.games.roguelike.angband"; it's filled
 with helpful folks.  If you want to talk about Angband or ask for help, this
-discussion forum is the place to go.  The NPPAngband forum at the NPP Fan Site is:
-http://nppangband.tannert.net/forums/index.php
+discussion forum is the place to go.  The NPP Fan Site with an NPP-specific 
+newsgroup is:
+http://www.tannert.net/nppangband.
 
 
 --- The main screen ---
@@ -71,13 +72,6 @@ slain character one last time.  Here you can:
      - see the high score table, 
      - fully identify individual items, and
      - make final notes to the character dump.
-
-
-
-
-
-
-
 
 
 

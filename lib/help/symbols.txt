@@ -11,8 +11,8 @@ Features that do not block line of sight
      ;   A glyph of warding               4   Entrance to Temple
      '   An open door                     5   Entrance to Alchemy Shop
      '   A broken door                    6   Entrance to Magic Shop
-     <   A staircase up                   7   Entrance to the Black Market
-     >   A staircase down                 8   Entrance to your Home
+     <   A staircase or shaft up          7   Entrance to the Black Market
+     >   A staircase or shaft down        8   Entrance to your Home
 					            9   Entrance to the Adventurer's Guild
 
 Features that block line of sight
@@ -68,9 +68,5 @@ the command '%'.  You may review what a symbol means by typing '/'.
 
      Angband can also use graphics instead of text to display your surroundings;
 unfortunately, no convenient listing of them yet exists.
-
-
-
-
 
 

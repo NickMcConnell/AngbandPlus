@@ -1,12 +1,12 @@
 === Version Information ===
 
-This file was last updated for Angband 3.0.1. and NPPAngband 0.4.0
+This file was last updated for Angband 3.0.1. and NPPAngband 0.4.1
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://www.thangorodrim.net") for the most
 up to date information about Angband.  The NPPAngband home page is 
 http://home.comcast.net/~nppangband/, and the NPPAngband fan site is 
-http://nppangband.tannert.net/forums/index.php.
+http://www.tannert.net/nppangband.
 
 Angband 3.0.1 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time

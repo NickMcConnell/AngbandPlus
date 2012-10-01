@@ -1,0 +1,29 @@
+# File: classes.prf
+
+#
+# This file loads specific class "sub-files"
+#
+
+?:[EQU $CLASS Warrior]
+%:Warrior.prf
+
+?:[EQU $CLASS Mage]
+%:Mage.prf
+
+?:[EQU $CLASS Priest]
+%:Priest.prf
+
+?:[EQU $CLASS Rogue]
+%:Rogue.prf
+
+?:[EQU $CLASS Ranger]
+%:Ranger.prf
+
+?:[EQU $CLASS Paladin]
+%:Paladin.prf
+
+?:[EQU $CLASS Brigand]
+%:Brigand.prf
+
+?:1
+

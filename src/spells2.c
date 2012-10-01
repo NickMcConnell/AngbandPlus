@@ -618,7 +618,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->resist_confu)
 	{
-		info[i++] = "You are resistant to confusion.";
+		info[i++] = "You are resistant to confusion attacks.";
 	}
 	if (p_ptr->resist_sound)
 	{
@@ -639,6 +639,11 @@ void self_knowledge(void)
 	if (p_ptr->resist_chaos)
 	{
 		info[i++] = "You are resistant to chaos.";
+	}
+	if (((p_ptr->resist_confu) && (!p_ptr->resist_chaos)) ||
+		((!p_ptr->resist_confu) && (p_ptr->resist_chaos)))
+	{
+		info[i++] = "You are resistant being confused.";
 	}
 	if (p_ptr->resist_disen)
 	{
@@ -1283,6 +1288,7 @@ bool detect_objects_normal(void)
 		/* Detect "real" objects */
 		if (o_ptr->tval != TV_GOLD)
 		{
+
 			/* Hack -- memorize it */
 			o_ptr->marked = TRUE;
 
@@ -1695,6 +1701,25 @@ void stair_creation(void)
 	place_random_stairs(py, px);
 }
 
+/*
+ * Hook to specify "weapon"
+ */
+bool item_tester_hook_wieldable_ided_weapon(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		{
+			if (object_known_p(o_ptr)) return (TRUE);
+			else return (FALSE);
+		}
+	}
+
+	return (FALSE);
+}
+
 
 /*
  * Hook to specify "weapon"
@@ -1736,6 +1761,59 @@ bool item_tester_hook_weapon(const object_type *o_ptr)
 
 	return (FALSE);
 }
+
+/*
+ * Hook to specify "weapon"
+ */
+bool item_tester_hook_ided_weapon(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			if (object_known_p(o_ptr)) return (TRUE);
+			else return (FALSE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+
+/*
+ * Hook to specify "armour"
+ */
+bool item_tester_hook_ided_armour(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		{
+			if (object_known_p(o_ptr)) return (TRUE);
+			else return (FALSE);
+		}
+	}
+
+	return (FALSE);
+}
+
 
 
 /*
@@ -2008,11 +2086,9 @@ bool ident_spell(void)
 {
 	int item;
 
-	int squelch = 0;
+	int squelch;
 
 	object_type *o_ptr;
-
-	char o_name[80];
 
 	cptr q, s;
 
@@ -2036,71 +2112,8 @@ bool ident_spell(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Identify it */
-	object_aware(o_ptr);
-	object_known(o_ptr);
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Squelch it? */
-	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, TRUE);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
-	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-
-	msg_format("In your pack: %s (%c).  %s",
-	           o_name, index_to_label(item),
-			   ((squelch == 1) ? "(Squelched)" :
-			    ((squelch == -1) ? "(Squelch Failed)" : "")));
- 	}
-	else
-	{
-		msg_format("On the ground: %s.  %s",
-		           o_name,
-			   ((squelch == 1) ? "(Squelched)" :
-			    ((squelch == -1) ? "(Squelch Failed)" : "")));
-	}
-
-	/* If the item was an artifact, and if the auto-note is selected, write a message. */
-    if ((adult_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 1))
-	{
-		int artifact_depth;
-        char note[120];
-		char shorter_desc[120];
-
-		/* Get a shorter description to fit the notes file */
-		object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, TRUE, 0);
-
-		/* Build note and write */
-        sprintf(note, "Found %s", shorter_desc);
-
-		/*record the depth where the artifact was created*/
-		artifact_depth = o_ptr->xtra1;
-
-        do_cmd_note(note, artifact_depth);
-
-		/*mark item creation depth 0, which will indicate the artifact
-		 *has been previously identified.  This prevents an artifact from showing
-		 *up on the notes list twice ifthe artifact had been previously identified.  JG
-		 */
-		o_ptr->xtra1 = 0 ;
-	}
+	/* Identify the object and get squelch setting */
+	squelch = do_ident_item(item, o_ptr);
 
 	/* Now squelch it if needed */
 	do_squelch_item(squelch, item, o_ptr);
@@ -2120,11 +2133,9 @@ bool identify_fully(void)
 {
 	int item;
 
-	int squelch = 0;
+	int squelch;
 
 	object_type *o_ptr;
-
-	char o_name[80];
 
 	cptr q, s;
 
@@ -2148,80 +2159,17 @@ bool identify_fully(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Identify it */
-	object_aware(o_ptr);
-	object_known(o_ptr);
-
-	/* Squelch it? */
-	if (item < INVEN_WIELD)
-		squelch = squelch_itemp(o_ptr, 0, TRUE);
+	/* Identify the object and get the squelch setting */
+	squelch = do_ident_item(item, o_ptr);
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
 
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
 	/* Handle stuff */
-	handle_stuff();
-
-	/* Description */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
-	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).  %s",
-           o_name, index_to_label(item),
-		   ((squelch == 1) ? "(Squelched)" :
-		    ((squelch == -1) ? "(Squelch Failed)" : "")));
- 	}
-	else
-	{
-		msg_format("On the ground: %s.",
-		           o_name);
-	}
-
-	/* If the item was an artifact, and if the auto-note is selected, write a message. */
-    if ((adult_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 1))
-
-		{
-			int artifact_depth;
-        	char note[120];
-			char shorter_desc[120];
-
-			/* Get a shorter description to fit the notes file */
-			object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, TRUE, 0);
-
-			/* Build note and write */
-        	sprintf(note, "Found %s", shorter_desc);
-
-			/*record the depth where the artifact was created*/
-			artifact_depth = o_ptr->xtra1;
-
-           	do_cmd_note(note, artifact_depth);
-
-			/*mark item creation depth as 0, which will indicate the artifact
-			 *has been previously identified.  This prevents an artifact from showing
-			 *up on the notes list twice ifit has been previously identified.  JG
-			 */
-			o_ptr->xtra1 = 0;
-
-         }
+ 	handle_stuff();
 
 	/* Now squelch it if needed */
-    if (squelch == 1)
+    if (squelch == SQUELCH_YES)
 	{
     	do_squelch_item(squelch, item, o_ptr);
     }
@@ -3283,6 +3231,15 @@ void destroy_area(int y1, int x1, int r, bool full)
 				continue;
 			}
 
+			/* Hack -- Quest monsters are unaffected */
+			else if (cave_m_idx[y][x] > 0)
+			{
+				monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+				if (m_ptr->mflag & (MFLAG_QUEST)) continue;
+			}
+
+
 			/* Hack -- Skip the epicenter */
 			if ((y == y1) && (x == x1)) continue;
 
@@ -4200,7 +4157,7 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 bool lite_line(int dir)
 {
 	u32b flg = PROJECT_BEAM | PROJECT_GRID;
-	return (fire_bolt_beam_special(GF_LITE_WEAK, dir, damroll(4, 5),
+	return (fire_bolt_beam_special(GF_LITE_WEAK, dir, damroll(6, 8),
 	                               MAX_RANGE, flg));
 }
 
@@ -4564,6 +4521,24 @@ bool brand_weapon(bool enchant)
 	return (brand_object(o_ptr, brand_type, enchant));
 }
 
+/*
+ * Hook to specify "ammo"
+ */
+bool item_tester_hook_ided_ammo(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			if (object_known_p(o_ptr)) return (TRUE);
+			else return FALSE;
+		}
+	}
+
+	return (FALSE);
+}
 
 /*
  * Hook to specify "ammo"
@@ -4725,5 +4700,163 @@ void ring_of_power(int dir)
 			break;
 		}
 	}
+}
+
+/*
+ * Identifies all objects in the equipment and inventory.
+ * Applies quality/ego-item squelch in the inventory.
+ */
+void identify_and_squelch_pack(void)
+{
+  	int item, squelch;
+	object_type *o_ptr;
+
+	/* Identify equipment */
+	for (item = INVEN_WIELD; item < INVEN_TOTAL; item++)
+	{
+		/* Get the object */
+		o_ptr = &inventory[item];
+
+		/* Ignore empty objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore known objects */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Identify it */
+		(void)do_ident_item(item, o_ptr);
+	}
+
+	/* Identify inventory */
+	for (item = 0; item < INVEN_WIELD; item++)
+	{
+	  	while (TRUE)
+		{
+	  		/* Get the object */
+			o_ptr = &inventory[item];
+
+			/* Ignore empty objects */
+			if (!o_ptr->k_idx) break;
+
+			/* Ignore known objects */
+			if (object_known_p(o_ptr)) break;
+
+			/* Identify it and get the squelch setting */
+			squelch = do_ident_item(item, o_ptr);
+
+			/*
+			 * If the object was squelched, keep analyzing
+			 * the same slot (the inventory was displaced). -DG-
+			 */
+			if (squelch != SQUELCH_YES) break;
+
+			/* Now squelch the object */
+			do_squelch_item(squelch, item, o_ptr);
+		}
+	}
+}
+
+/* Mass-identify handler */
+bool mass_identify (int rad)
+{
+	/* Direct the ball to the player */
+  	target_set_location(p_ptr->py, p_ptr->px);
+
+	/* Cast the ball spell */
+	fire_ball(GF_MASS_IDENTIFY, 5, 0, rad);
+
+  	/* Identify equipment and inventory, apply quality squelch */
+  	identify_and_squelch_pack();
+
+	/* This spell always works */
+	return (TRUE);
+}
+
+
+/*
+ * Execute some common code of the identify spells.
+ * "item" is used to print the slot occupied by an object in equip/inven.
+ * ANY negative value assigned to "item" can be used for specifying an object
+ * on the floor (they don't have a slot, example: the code used to handle
+ * GF_MASS_IDENTIFY in project_o).
+ * It returns the value returned by squelch_itemp.
+ * The object is NOT squelched here.
+ */
+int do_ident_item(int item, object_type *o_ptr)
+{
+	char o_name[80];
+	int squelch = SQUELCH_NO;
+
+	/* Identify it */
+	object_aware(o_ptr);
+	object_known(o_ptr);
+
+	/* Apply an autoinscription, if necessary */
+	apply_autoinscription(o_ptr);
+
+	/* Squelch it? */
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, TRUE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Description */
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+	/* Describe */
+	if (item >= INVEN_WIELD)
+	{
+		msg_format("%^s: %s (%c).",
+			describe_use(item), o_name, index_to_label(item));
+	}
+	else if (item >= 0)
+	{
+		msg_format("In your pack: %s (%c).  %s",
+			o_name, index_to_label(item),
+			squelch_to_label(squelch));
+ 	}
+	else
+	{
+		msg_format("On the ground: %s.  %s", o_name,
+			squelch_to_label(squelch));
+	}
+
+	/*
+	 * If the item was an artifact, and if the auto-note is selected,
+	 * write a message.
+	 */
+    	if ((adult_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 1))
+	{
+		int artifact_depth;
+        	char note[120];
+		char shorter_desc[120];
+
+		/* Get a shorter description to fit the notes file */
+		object_desc(shorter_desc, sizeof(shorter_desc), o_ptr, TRUE, 0);
+
+		/* Build note and write */
+        	sprintf(note, "Found %s", shorter_desc);
+
+		/* Record the depth where the artifact was created */
+		artifact_depth = o_ptr->xtra1;
+
+        	do_cmd_note(note, artifact_depth);
+
+		/*
+		 * Mark item creation depth 0, which will indicate the artifact
+		 * has been previously identified.  This prevents an artifact
+		 * from showing up on the notes list twice ifthe artifact had
+		 * been previously identified.  JG
+		 */
+		o_ptr->xtra1 = 0 ;
+	}
+
+	return (squelch);
 }
 

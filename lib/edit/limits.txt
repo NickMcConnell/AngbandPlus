@@ -13,14 +13,14 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 # Maximum number of feature types
 M:F:86
 
 # Maximum number of object kinds
-M:K:441
+M:K:444
 
 # 
 # Maximum number of total artifacts (special + normal + pre-made random + in-game random)
@@ -31,7 +31,7 @@ M:K:441
 # reads M:A:special:normal:random
 # changing these numbers will almost always break savefile compatibility
 #
-M:A:18:122:35
+M:A:18:123:35
 
 # Maximum number of ego-item types
 M:E:145
@@ -40,7 +40,7 @@ M:E:145
 M:R:656
 
 # Maximum number of permanant maintainer ghost templates (in *angband/lib/bones)
-M:G:18
+M:G:19
 
 # Maximum number of vaults
 M:V:55

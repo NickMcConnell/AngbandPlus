@@ -491,16 +491,18 @@ static bool auto_pickup_okay(const object_type *o_ptr)
 	if (!inven_carry_okay(o_ptr)) return (FALSE);
 
 	/*object is marked to not pickup*/
-	if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) return (FALSE);
+	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) &&
+	    object_aware_p(o_ptr)) return (FALSE);
 
 	/*object is marked to not pickup*/
-	if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) return (TRUE);
+	if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) &&
+	    object_aware_p(o_ptr)) return (TRUE);
 
 	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
+	if (!o_ptr->obj_note) return (FALSE);
 
 	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
+	s = strchr(quark_str(o_ptr->obj_note), '=');
 
 	/* Process inscription */
 	while (s)
@@ -721,10 +723,10 @@ void py_pickup(int pickup)
 		}
 
 		/*some items are marked to never pickup*/
-		if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP)
+		if ((k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP)
+		    && object_aware_p(o_ptr))
 		{
 			do_not_pickup = TRUE;
-
 		}
 
 		/* Test for auto-pickup */
@@ -1172,7 +1174,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0E:
 		{
 			msg_print("You are surrounded by a gas of scintillating colors!");
-			if (!p_ptr->resist_confu)
+			if (allow_player_confusion())
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -1326,7 +1328,6 @@ void py_attack(int y, int x)
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
-		message_flush();
 
 		/* Some monsters are great at dodging  -EZ- */
 		if ((r_ptr->flags2 & (RF2_EVASIVE)) && (!was_asleep) &&
@@ -1364,8 +1365,6 @@ void py_attack(int y, int x)
 				/* Message */
 				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 			}
-
-			message_flush();
 
 			/* If this was the first hit, make some noise */
 			hits++;

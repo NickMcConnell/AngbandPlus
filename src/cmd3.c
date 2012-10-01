@@ -288,7 +288,7 @@ void do_cmd_wield(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-	p_ptr->redraw |= (PR_EQUIPPY);
+	p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);
 }
 
 
@@ -399,29 +399,14 @@ void do_cmd_drop(void)
  */
 static bool item_tester_hook_destroy(const object_type *o_ptr)
 {
-	cptr s;
 
 	if (artifact_p(o_ptr))
 	{
     	/* Ignore known or sensed artifacts */
     	if ((object_known_p(o_ptr)) ||
-			(o_ptr->ident & (IDENT_SENSE)))	return (FALSE);
-	}
-
-	/* No inscription */
-	if (!o_ptr->note) return (TRUE);
-
-	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->note), '!');
-
-	/* Process inscription */
-	while (s)
-	{
-		/* Ignore objects with inscriptions "!k" and "!*" */
-		if (s[1] == 'k' || s[1] == '*') return (FALSE);
-
-		/* Find another '!' */
-		s = strchr(s + 1, '!');
+			(o_ptr->discount == INSCRIP_SPECIAL) ||
+		    (o_ptr->discount == INSCRIP_TERRIBLE) ||
+		    (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)) return (FALSE);
 	}
 
 	return (TRUE);
@@ -501,7 +486,10 @@ void do_cmd_destroy(void)
 	{
 		int result;
 
+		/* Check for known ego-items */
 		strnfmt(out_val, sizeof(out_val), "Really Destroy %s? ", o_name);
+
+		/* Check for known ego-items */
 		if (ego_item_p(o_ptr) && object_known_p(o_ptr))
 		{
 			result = get_check_other(out_val, 'E');
@@ -519,10 +507,13 @@ void do_cmd_destroy(void)
 				e_ptr->squelch = TRUE;
 
 				/* message */
-				msg_format("Ego-item type %s set to be squelched upon identification.", e_name + e_ptr->name);
+				msg_format("Ego-item type %s is now set to be squelched upon identification.", e_name + e_ptr->name);
 			}
 		}
-		else
+
+		/* Check for aware objects */
+		else if (object_aware_p(o_ptr) &&
+		    	!(k_info[o_ptr->k_idx].flags3 & (TR3_INSTA_ART)))
 		{
 
 			result = get_check_other(out_val, 's');
@@ -549,28 +540,25 @@ void do_cmd_destroy(void)
 				/* Create the object */
 				object_prep(i_ptr, o_ptr->k_idx);
 
-				/* It's fully known */
-				i_ptr->ident |= IDENT_KNOWN;
-
 				/*make it plural*/
 				i_ptr->number = 2;
 
-				/*make it look realistic*/
-				apply_magic_fake(i_ptr);
-
 				/*now describe with correct amount*/
-				object_desc(o_name2, sizeof(o_name2), o_ptr, FALSE, 0);
+				object_desc(o_name2, sizeof(o_name2), i_ptr, FALSE, 0);
 
 				/*set to squelch*/
 				k_ptr->squelch = SQUELCH_ALWAYS;
 
 				/* Message - no good routine for extracting the plain name*/
-				msg_format("The obejct type %^s has been set to always be squelched.", o_name2);
+				msg_format("All %^s will always be squelched.", o_name2);
 
 				/*Mark the view to be updated*/
-				p_ptr->update |= (PU_UPDATE_VIEW);
+				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);;
 			}
 		}
+
+		/* Unaware object, simple yes/no prompt */
+		else if (!get_check(out_val)) return;
 	}
 
 	/* Take a turn */
@@ -606,7 +594,7 @@ void do_cmd_destroy(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		p_ptr->redraw |= (PR_EQUIPPY);
+		p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);;
 
 		/* Done */
 		return;
@@ -706,17 +694,51 @@ void do_cmd_uninscribe(void)
 	}
 
 	/* Nothing to remove */
-	if (!o_ptr->note)
+	if (!o_ptr->obj_note)
 	{
 		msg_print("That item had no inscription to remove.");
 		return;
 	}
 
+	/* Remove the inscription */
+	o_ptr->obj_note = 0;
+
+	/*The object kind has an autoinscription*/
+	if (object_aware_p(o_ptr) &&
+	    !(k_info[o_ptr->k_idx].flags3 & (TR3_INSTA_ART)) &&
+	    (get_autoinscription_index(o_ptr->k_idx) != -1))
+	{
+		char tmp_val[160];
+		char o_name2[80];
+
+		/*make a fake object so we can give a proper message*/
+		object_type *i_ptr;
+		object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Wipe the object */
+		object_wipe(i_ptr);
+
+		/* Create the object */
+		object_prep(i_ptr, o_ptr->k_idx);
+
+		/*make it plural*/
+		i_ptr->number = 2;
+
+		/*now describe with correct amount*/
+		object_desc(o_name2, sizeof(o_name2), i_ptr, FALSE, 0);
+
+		/* Prompt */
+		strnfmt(tmp_val, sizeof(tmp_val), "Remove automatic inscription for %s?", o_name2);
+
+		/* Auto-Inscribe if they want that */
+		if (get_check(tmp_val)) remove_autoinscription(o_ptr->k_idx);
+	}
+
 	/* Message */
 	msg_print("Inscription removed.");
-
-	/* Remove the inscription */
-	o_ptr->note = 0;
 
 	/* Combine the pack */
 	p_ptr->notice |= (PN_COMBINE);
@@ -769,17 +791,53 @@ void do_cmd_inscribe(void)
 	strcpy(tmp, "");
 
 	/* Use old inscription */
-	if (o_ptr->note)
+	if (o_ptr->obj_note)
 	{
 		/* Start with the old inscription */
-		strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->note));
+		strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->obj_note));
 	}
 
 	/* Get a new inscription (possibly empty) */
 	if (get_string("Inscription: ", tmp, sizeof(tmp)))
 	{
+		char tmp_val[160];
+		char o_name2[80];
+
+		/*make a fake object so we can give a proper message*/
+		object_type *i_ptr;
+		object_type object_type_body;
+
 		/* Save the inscription */
-		o_ptr->note = quark_add(tmp);
+		o_ptr->obj_note = quark_add(tmp);
+
+		/* Add an autoinscription? */
+		if (object_aware_p(o_ptr) &&
+		    !(k_info[o_ptr->k_idx].flags3 & (TR3_INSTA_ART)))
+		{
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
+			/* Create the object */
+			object_prep(i_ptr, o_ptr->k_idx);
+
+			/*make it plural*/
+			i_ptr->number = 2;
+
+
+			/*now describe with correct amount*/
+			object_desc(o_name2, sizeof(o_name2), i_ptr, FALSE, 0);
+
+			/* Prompt */
+			strnfmt(tmp_val, sizeof(tmp_val), "Automatically inscribe all %s with %s?",
+					o_name2, tmp);
+
+			/* Auto-Inscribe if they want that */
+			if (get_check(tmp_val)) add_autoinscription(o_ptr->k_idx, tmp);
+		}
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);

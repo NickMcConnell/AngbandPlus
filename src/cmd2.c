@@ -49,7 +49,7 @@ void do_cmd_go_up(void)
         (((quest == QUEST_VAULT) && (quest_item_slot() == -1)) ||
 		 (quest == QUEST_PIT) || quest == QUEST_NEST || (quest == QUEST_THEMED_LEVEL)))
 	{
-		sprintf(out_val, "Really fail your special quest? ");
+		sprintf(out_val, "Really fail your quest? ");
 		if (!get_check(out_val)) return;
 	}
 
@@ -2865,6 +2865,9 @@ void do_cmd_fire(void)
 				/* Assume a default death */
 				cptr note_dies = " dies.";
 
+				/*Mark the monster as attacked by the player*/
+				m_ptr->mflag |= (MFLAG_HIT_BY_RANGED);
+
 				if (monster_nonliving(r_ptr))
 				{
 					/* Special note at death */
@@ -3628,6 +3631,9 @@ void do_cmd_throw(void)
 				/* Assume a default death */
 				cptr note_dies = " dies.";
 
+				/*Mark the monster as attacked by the player*/
+				m_ptr->mflag |= (MFLAG_HIT_BY_RANGED);
+
 				/* Some monsters get "destroyed" */
 				if (monster_nonliving(r_ptr))
 				{
@@ -3765,7 +3771,7 @@ void do_cmd_throw(void)
 	if (i_ptr->ident & IDENT_PERFECT_BALANCE) j = 0;
 	else j = (hit_body ? breakage_chance(i_ptr) : 0);
 
-	/*hack - throwing weapons have a lessor chance*/
+	/*hack - throwing weapons have a lesser chance*/
 	if (f3 & (TR3_THROWING)) j /= 2;
 
 	/* Drop (or break) near that location */

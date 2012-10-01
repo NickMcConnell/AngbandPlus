@@ -98,7 +98,7 @@ Ego-Weapons and Armours:
 items, and are feared by great and meek.
 
 Dragon Scale Mail and Shields:
-     These extremely rare pieces of armour come in many different colors, each
+     These extremely rare pieces of armour come in many different types, each
 protecting you against the relevant dragons.  They also occasionally allow you
 to breathe as dragons do!
 
@@ -153,7 +153,6 @@ work, and more potent methods are needed.
      If you wear or wield a cursed item, you will immediately feel deathly cold,
 and the item will be marked "cursed".
      Shopkeepers will refuse to buy any item that is known to be cursed.
-
 
 
 ====== Monsters ======
@@ -243,11 +242,6 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Breath Powerfully : Dragon breaths have a larger blast angle, and do.
        a hihger amount of damage per monster HP with certain kinds of breaths.
      - Blows : Monsters can do great damage and inflict nasty effects in melee.
-
-
-
-
-
 
 
 

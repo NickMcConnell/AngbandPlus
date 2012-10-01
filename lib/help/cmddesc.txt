@@ -445,8 +445,3 @@ Screen -> Usage, and make sure that the program runs in full-screen mode.
 
 
 
-
-
-
-
-

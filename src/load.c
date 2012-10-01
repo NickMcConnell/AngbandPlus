@@ -38,10 +38,6 @@
  * by a monster will reduce the shield by that amount.  XXX XXX XXX
  */
 
-
-
-
-
 /*
  * Local "savefile" pointer
  */
@@ -61,6 +57,9 @@ static u32b	v_check = 0L;
  * Hack -- simple "checksum" on the encoded bytes
  */
 static u32b	x_check = 0L;
+
+static u16b new_artifacts;
+static u16b art_norm_count;
 
 
 /*
@@ -258,7 +257,9 @@ static errr rd_item(object_type *o_ptr)
 
 	/* Paranoia */
 	if ((o_ptr->k_idx < 0) || (o_ptr->k_idx >= z_info->k_max))
+	{
 		return (-1);
+	}
 
 	/* Location */
 	rd_byte(&o_ptr->iy);
@@ -308,7 +309,7 @@ static errr rd_item(object_type *o_ptr)
 	rd_string(buf, sizeof(buf));
 
 	/* Save the inscription */
-	if (buf[0]) o_ptr->note = quark_add(buf);
+	if (buf[0]) o_ptr->obj_note = quark_add(buf);
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -320,7 +321,7 @@ static errr rd_item(object_type *o_ptr)
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
-	/* Ensure that rods and wands get the appropriate pvals,
+ 	/* Ensure that rods and wands get the appropriate pvals,
 	 * and transfer rod charges to timeout.
 	 * this test should only be passed once, the first
 	 * time the file is open with ROD/WAND stacking code
@@ -377,14 +378,27 @@ static errr rd_item(object_type *o_ptr)
 	{
 		artifact_type *a_ptr;
 
+		/*hack - adjust if new artifact*/
+		if (o_ptr->name1 >= art_norm_count)
+		{
+
+			o_ptr->name1 += new_artifacts;
+		}
+
 		/* Paranoia */
-		if (o_ptr->name1 >= z_info->art_max) return (-1);
+		if (o_ptr->name1 >= z_info->art_max)
+		{
+	    	return (-1);
+		}
 
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->name1];
 
 		/* Verify that artifact */
-		if (a_ptr->tval + a_ptr->sval == 0) o_ptr->name1 = 0;
+		if (a_ptr->tval + a_ptr->sval == 0)
+		{
+			o_ptr->name1 = 0;
+		}
 	}
 
 	/* Paranoia */
@@ -393,7 +407,10 @@ static errr rd_item(object_type *o_ptr)
 		ego_item_type *e_ptr;
 
 		/* Paranoia */
-		if (o_ptr->name2 >= z_info->e_max) return (-1);
+		if (o_ptr->name2 >= z_info->e_max)
+		{
+		    return (-1);
+		}
 
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
@@ -1098,6 +1115,25 @@ static errr rd_extra(void)
 		i++;
 	}
 
+	if (!older_than(0,4,1))
+	{
+
+		/*Write the current number of auto-inscriptions*/
+		rd_u16b(&inscriptionsCount);
+
+		/*Write the autoinscriptions array*/
+		for(i = 0; i < inscriptionsCount; i++)
+		{
+			char tmp[80];
+
+			rd_s16b(&inscriptions[i].kindIdx);
+
+			rd_string(tmp, 80);
+
+			inscriptions[i].inscriptionIdx = quark_add(tmp);
+		}
+	}
+
 	/* The number of the bone file (if any) that player ghosts should use to
 	 * reacquire a name, sex, class, and race.
 	 */
@@ -1226,21 +1262,33 @@ static errr rd_randarts(void)
 	/* Read the number of artifacts */
 	rd_u16b(&begin);
 	rd_u16b(&artifact_count);
+	if (!older_than(0,4,1)) rd_u16b(&art_norm_count);
+	else art_norm_count = z_info->art_norm_max;
 
 	/* Alive or cheating death */
 	if (!p_ptr->is_dead || arg_wizard)
 	{
 		/* Incompatible save files */
-		if (artifact_count > z_info->art_max)
+		if ((artifact_count > z_info->art_max) || (art_norm_count > z_info->art_norm_max))
 		{
-			note(format("Too many (%u) random artifacts!", artifact_count));
+			note(format("Too many (%u) artifacts!", artifact_count));
 			return (-1);
 		}
+		/*Mark any new added artifacts*/
+		if (art_norm_count < z_info->art_norm_max)
+		{
+			new_artifacts = z_info->art_norm_max - art_norm_count;
+		}
+		else new_artifacts = 0;
 
 		/* Mark the old artifacts as "empty" */
 		for (i = begin; i < z_info->art_max; i++)
 		{
 			artifact_type *a_ptr = &a_info[i];
+
+			/*hack - if a new "normal artifact has been added in mid-game, don't erase it*/
+			if ((i >= art_norm_count) && (i < z_info->art_norm_max)) continue;
+
 			a_ptr->tval = 0;
 			a_ptr->sval = 0;
 			a_ptr->name[0] = '\0';
@@ -1249,7 +1297,11 @@ static errr rd_randarts(void)
 		/* Read the artifacts */
 		for (i = begin; i < artifact_count; i++)
 		{
+
 			artifact_type *a_ptr = &a_info[i];
+
+			/*hack - if a new "normal artifact has been added in mid-game, don't erase it*/
+			if ((i >= art_norm_count) && (i < z_info->art_norm_max)) continue;
 
 			rd_string (a_ptr->name, MAX_LEN_ART_NAME);
 
@@ -1318,17 +1370,14 @@ static errr rd_randarts(void)
  */
 static bool rd_notes(void)
 {
-	int alive = !p_ptr->is_dead || arg_wizard;
+	int alive = (!p_ptr->is_dead || arg_wizard);
 	char tmpstr[100];
 
 	if (alive && adult_take_notes)
 	{
-		char buff[1024];
+		/* Create the tempfile (notes_file & notes_fname are global) */
+		notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
 
-		path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
-
-		/* Create the tempfile */
-		notes_file = my_fopen(buff, "w");
 		if (!notes_file)
 		{
 			note("Can't create a temporary file for notes");
@@ -1338,9 +1387,10 @@ static bool rd_notes(void)
 		/* Append the notes in the savefile to the tempfile*/
 		while (TRUE)
 		{
+
 			rd_string(tmpstr, sizeof(tmpstr));
 			/* Found the end? */
-			if (strcmp(tmpstr, NOTES_MARK) == 0)
+			if (strstr(tmpstr, NOTES_MARK))
 			break;
 			fprintf(notes_file, "%s\n", tmpstr);
 		}
@@ -1351,10 +1401,14 @@ static bool rd_notes(void)
 	{
 		while (TRUE)
 		{
+
 			rd_string(tmpstr, sizeof(tmpstr));
+
 			/* Found the end? */
-			if (strcmp(tmpstr, NOTES_MARK) == 0)
-			break;
+			if (strstr(tmpstr, NOTES_MARK))
+			{
+				break;
+			}
 		}
 	}
 
@@ -1403,7 +1457,7 @@ static errr rd_inventory(void)
 		}
 
 		/* Hack -- verify item */
-		if (!i_ptr->k_idx) return (-1);
+		if (!i_ptr->k_idx)	return (-1);
 
 		/* Verify slot */
 		if (n >= INVEN_TOTAL) return (-1);
@@ -2068,6 +2122,7 @@ static errr rd_savefile_new_aux(void)
 	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &c_info[p_ptr->pclass];
 
+
 	/* Important -- Initialize the magic */
 	mp_ptr = &cp_ptr->spells;
 
@@ -2124,8 +2179,6 @@ static errr rd_savefile_new_aux(void)
 		note("Invalid encoded checksum");
 		return (-1);
 	}
-
-	r_info[z_info->r_max].max_num = 0;
 
 	/* Success */
 	return (0);
@@ -2406,9 +2459,16 @@ bool load_player(void)
 		/* Player is dead */
 		if (p_ptr->is_dead)
 		{
+			/*note, add or_true to the arg wixard if statement to resurrect character*/
 			/* Cheat death (unless the character retired) */
 			if (arg_wizard)
 			{
+				/*heal the player*/
+				hp_player(2000);
+
+				/* Forget death */
+				p_ptr->is_dead = FALSE;
+
 				/* A character was loaded */
 				character_loaded = TRUE;
 

@@ -69,7 +69,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -308,7 +308,7 @@ A:3/1
 
 
 N:24:Soft Studded Leather~
-G:(:U
+G:(:U1
 I:36:5:0
 W:3:0:90:35
 P:5:1d1:0:0:0
@@ -324,7 +324,7 @@ A:5/1
 
 
 N:26:Hard Studded Leather~
-G:(:U
+G:(:U1
 I:36:7:0
 W:10:0:110:200
 P:7:1d2:-1:0:0
@@ -364,7 +364,7 @@ A:25/1
 
 
 N:31:Augmented Chain Mail~
-G:[:s
+G:[:s1
 I:37:6:0
 W:30:0:270:900
 P:16:1d4:-2:0:0
@@ -380,7 +380,7 @@ A:30/1
 
 
 N:33:Metal Brigandine Armour~
-G:[:s
+G:[:s1
 I:37:9:0
 W:35:0:290:1100
 P:19:1d4:-3:0:0
@@ -429,7 +429,7 @@ F:IGNORE_ACID
 
 
 N:39:Mithril Plate Mail~
-G:[:B
+G:[:B1
 I:37:25:0
 W:60:0:300:15000
 P:35:2d4:-3:0:0
@@ -474,7 +474,7 @@ A:15/1:35/2
 
 
 N:44:& Large Metal Shield~
-G:):s
+G:):s1
 I:34:5:0
 W:30:0:120:200
 P:5:1d3:0:0:0
@@ -534,7 +534,7 @@ D:A set of armor made from the scales of a great wyrm.
 
 
 N:50:Dragon Scale Shield~
-G:[:o
+G:):o
 I:41:1:0
 W:30:0:30:5000
 P:3:1d1:0:0:5
@@ -544,7 +544,7 @@ D:A shield made from the scales of a young dragon.
 
 
 N:51:Medium Dragon Scale Shield~
-G:[:U
+G:):U
 I:41:2:0
 W:40:0:40:20000
 P:7:1d1:0:0:5
@@ -554,7 +554,7 @@ D:A shield made from the scales of a medium dragon.
 
 
 N:52:Ancient Dragon Scale Shield~
-G:[:R
+G:):R
 I:41:3:0
 W:60:0:60:40000
 P:10:1d1:0:0:10
@@ -564,7 +564,7 @@ D:A shield made from the scales of an ancient dragon.
 
 
 N:53:Great Wyrm Scale Shield~
-G:[:v
+G:):v
 I:41:4:0
 W:90:0:80:80000
 P:12:1d1:0:0:15
@@ -973,7 +973,7 @@ F:TUNNEL | SHOW_MODS
 
 
 N:97:& Pick~
-G:\:s
+G:\:s1
 I:20:4:1
 W:5:0:150:50
 P:0:1d3:0:0:0
@@ -1010,7 +1010,7 @@ A:10/1:30/2
 
 
 N:101:& Iron Helm~
-G:]:s
+G:]:s1
 I:32:5:0
 W:20:0:75:75
 P:5:1d3:0:0:0
@@ -1092,7 +1092,7 @@ F:SHOW_MODS
 
 
 N:110:& Long Bow~
-G:}:U
+G:}:U1
 I:19:13:0
 W:10:0:40:120
 P:0:0d0:0:0:0
@@ -1110,7 +1110,7 @@ F:SHOW_MODS
 
 
 N:112:& Heavy Crossbow~
-G:}:s
+G:}:s1
 I:19:24:0
 W:30:0:200:300
 P:0:0d0:0:0:0
@@ -1119,7 +1119,7 @@ F:SHOW_MODS
 
 
 N:113:& Rounded Pebble~
-G:{:s
+G:{:s1
 I:16:0:0
 W:0:0:4:1
 P:0:1d2:0:0:0
@@ -1223,7 +1223,7 @@ A:3/1:20/2
 
 
 N:123:& Pair~ of Hard Leather Boots
-G:]:U
+G:]:U1
 I:30:3:0
 W:5:0:40:12
 P:3:1d1:0:0:0
@@ -1250,7 +1250,7 @@ A:1/1:25/2
 
 
 N:126:& Set~ of Gauntlets
-G:]:U
+G:]:W
 I:31:2:0
 W:10:0:25:35
 P:2:1d1:0:0:0
@@ -1648,7 +1648,7 @@ F:RES_POIS | EASY_KNOW
 
 N:168:Resist Nether
 G:=:d
-I:45:20:0
+I:45:39:0
 W:40:0:2:16000
 P:0:0d0:0:0:0
 A:45/2
@@ -1846,8 +1846,8 @@ W:5:0:50:250
 P:0:1d2:0:0:0
 A:5/1
 D:It lights up an area with a radius of 2 squares, plus the entire room
-D: if you are currently in one.  This inflicts 2d8 points of damage on
-D: any light-sensitive creatures within the radius of the spell. 
+D: if you are currently in one.  This inflicts  4d8 points of damage on
+D: any light-sensitive creatures within the radius of the spell.
 
 
 N:189:Magic Mapping
@@ -1987,9 +1987,9 @@ I:55:23:0
 W:30:0:50:2000
 P:0:1d2:0:0:0
 A:30/1
-D:It probes all monsters within line of sight, giving information both
-D: on the current hit points of the monsters and many of their
-D: characteristics and abilities. 
+D:It probes a selected monster within line of sight, giving information
+D: both on the current hit points of the monsters and many of their
+D: characteristics and abilities.
 
 
 N:204:Dispel Evil
@@ -2391,7 +2391,7 @@ G:-:d
 I:66:2:10
 W:50:0:15:13000
 P:0:1d1:0:0:0
-A:50/8
+A:40/4
 F:IGNORE_ELEC | EASY_KNOW
 D:It reveals all normal (magical but non-hidden) powers of one object. 
 D: (The spell may be aborted without using up a charge.)
@@ -2447,10 +2447,9 @@ W:40:0:15:4000
 P:0:1d1:0:0:0
 A:40/4
 F:EASY_KNOW
-D:It probes all monsters within line of sight, giving information both
-D: on the current hit points of the monsters and many of their
-D: characteristics and abilities (excluding melee, spellcasting, and
-D: breath attacks). 
+D:It probes a selected monster within line of sight,  giving information
+D: both on the current hit points of the monsters and many of their
+D: characteristics and abilities.
 
 
 N:247:Curing
@@ -3863,7 +3862,7 @@ D: temporary sources  of resistance.
 ##### Chests #####
 
 N:372:& Small wooden chest~
-G:~:s
+G:~:U
 I:7:1:0
 W:5:0:200:20
 P:0:2d3:0:0:0
@@ -3880,7 +3879,7 @@ F:IGNORE_ACID | IGNORE_FIRE
 
 
 N:374:& Small steel chest~
-G:~:s
+G:~:s1
 I:7:3:0
 W:45:0:250:200
 P:0:2d4:0:0:0
@@ -3889,7 +3888,7 @@ F:IGNORE_ACID | IGNORE_FIRE
 
 
 N:375:& Large wooden chest~
-G:~:s
+G:~:U
 I:7:5:0
 W:15:0:500:60
 P:0:2d5:0:0:0
@@ -3906,7 +3905,7 @@ F:IGNORE_ACID | IGNORE_FIRE
 
 
 N:377:& Large steel chest~
-G:~:s
+G:~:s1
 I:7:7:0
 W:55:0:750:250
 P:0:2d6:0:0:0
@@ -4250,105 +4249,105 @@ P:0:0d0:0:0:0
 N:407:silver
 G:$:s
 I:100:4:0
-W:1:0:0:6
+W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:408:silver
 G:$:s
 I:100:5:0
-W:1:0:0:7
+W:1:0:0:6
 P:0:0d0:0:0:0
 
 
 N:409:silver
 G:$:s
 I:100:6:0
-W:1:0:0:8
+W:1:0:0:7
 P:0:0d0:0:0:0
 
 
 N:410:garnets
 G:$:r
 I:100:7:0
-W:1:0:0:9
+W:1:0:0:8
 P:0:0d0:0:0:0
 
 
 N:411:garnets
 G:$:r
 I:100:8:0
-W:1:0:0:10
+W:1:0:0:9
 P:0:0d0:0:0:0
 
 
 N:412:gold
 G:$:y
 I:100:9:0
-W:1:0:0:12
+W:1:0:0:10
 P:0:0d0:0:0:0
 
 
 N:413:gold
 G:$:y
 I:100:10:0
-W:1:0:0:14
+W:1:0:0:11
 P:0:0d0:0:0:0
 
 
 N:414:gold
 G:$:y
 I:100:11:0
-W:1:0:0:16
+W:1:0:0:12
 P:0:0d0:0:0:0
 
 
 N:415:opals
 G:$:W
 I:100:12:0
-W:1:0:0:18
+W:1:0:0:14
 P:0:0d0:0:0:0
 
 
 N:416:sapphires
 G:$:b
 I:100:13:0
-W:1:0:0:20
+W:1:0:0:16
 P:0:0d0:0:0:0
 
 
 N:417:rubies
 G:$:r
 I:100:14:0
-W:1:0:0:24
+W:1:0:0:18
 P:0:0d0:0:0:0
 
 
 N:418:diamonds
 G:$:w
 I:100:15:0
-W:1:0:0:28
+W:1:0:0:20
 P:0:0d0:0:0:0
 
 
 N:419:emeralds
 G:$:g
 I:100:16:0
-W:1:0:0:32
+W:1:0:0:25
 P:0:0d0:0:0:0
 
 
 N:420:mithril
 G:$:B
 I:100:17:0
-W:1:0:0:40
+W:1:0:0:32
 P:0:0d0:0:0:0
 
 
 N:421:adamantite
 G:$:G
 I:100:18:0
-W:1:0:0:80
+W:1:0:0:50
 P:0:0d0:0:0:0
 
 
@@ -4528,5 +4527,41 @@ I:1:2:0
 W:0:0:2:0
 P:0:1d1:0:0:0
 F:EASY_KNOW
+
+
+N:441:Mass Identify
+G:_:d
+I:55:30:0
+W:40:0:50:1000
+P:0:1d2:0:0:0
+A:40/1
+D:It reveals all normal (magical but non-hidden) powers of all the
+D: player's equipment, player inventory, and all objects on the floor
+D: within a 3 square radius.
+
+
+N:442:*Identify*
+G:-:d
+I:66:28:50
+W:50:0:15:35000
+P:0:1d1:0:0:0
+A:50/8
+F:IGNORE_ELEC | EASY_KNOW
+D:It reveals all normal and hidden powers of one object, and also
+D: permanently implants this knowledge into your mind, so that you will
+D: never forget it even if hit by magical amnesia.  (The spell may be
+D: aborted without zapping the rod.)
+
+
+N:443:Mass Identify
+G:-:d
+I:66:29:50
+W:60:0:15:35000
+P:0:1d1:0:0:0
+A:60/8
+F:IGNORE_ELEC
+D:It reveals all normal (magical but non-hidden) powers of all the
+D: player's equipment, player inventory, and all objects on the floor
+D: within a 3 square radius.
 
 

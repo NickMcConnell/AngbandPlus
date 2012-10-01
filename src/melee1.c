@@ -1214,7 +1214,7 @@ bool make_attack_normal(monster_type *m_ptr)
 					take_hit(dam, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_confu)
+					if (allow_player_confusion())
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{
@@ -3819,7 +3819,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				if (!p_ptr->resist_confu)
+				if (allow_player_confusion())
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -3854,7 +3854,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
 				}
-				if (!p_ptr->resist_confu)
+				if (allow_player_confusion())
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -4030,7 +4030,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack, int py, int px)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
 			else msg_format("%^s creates a mesmerising illusion.", m_name);
-			if (p_ptr->resist_confu)
+			if (!allow_player_confusion())
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}

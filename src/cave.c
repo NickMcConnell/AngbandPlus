@@ -990,6 +990,16 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		}
 	}
 
+	/*Reveal the square with the right cheat option*/
+	if (cave_info[y][x] & (CAVE_MARKED))
+	{
+		if (cheat_xtra)
+		{
+			a = TERM_L_BLUE;
+		}
+	}
+
+
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
 	(*tcp) = c;
@@ -3660,9 +3670,9 @@ void update_noise(bool full, byte which_flow)
 				/*Monsters at this site need to re-consider their targets*/
 				if (cave_m_idx[y2][x2] > 0)
 				{
-					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+					monster_type *m_ptr = &mon_list[cave_m_idx[y2][x2]];
 
-					/*always a target Y is a target x*/
+					/*always a target Y for each target x*/
 					if (m_ptr->target_x)
 					{
 
@@ -3935,7 +3945,7 @@ void wiz_lite(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
 }
 
 
@@ -4729,7 +4739,7 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 		nx = rand_spread(x, d);
 
 		/* Ignore annoying locations */
-		if (!in_bounds_fully(y, x)) continue;
+		if (!in_bounds_fully(ny, nx)) continue;
 
 		/* Ignore "excessively distant" locations */
 		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;

@@ -1063,6 +1063,25 @@ static errr init_flavor_info(void)
 	return (err);
 }
 
+static void autoinscribe_clean(void)
+{
+	if(inscriptions)
+	{
+		FREE(inscriptions);
+	}
+
+	inscriptions = 0;
+	inscriptionsCount = 0;
+}
+
+void autoinscribe_init(void)
+{
+	/* Paranoia */
+	autoinscribe_clean();
+
+	C_MAKE(inscriptions, AUTOINSCRIPTIONS_MAX, autoinscription);
+}
+
 
 /*
  * Initialize some other arrays
@@ -1079,6 +1098,9 @@ static errr init_other(void)
 
 	/* Initialize the "quark" package */
 	(void)quarks_init();
+
+	/* Initialize autoinscriptions */
+	(void)autoinscribe_init();
 
 	/* Initialize the "message" package */
 	(void)messages_init();
@@ -1670,19 +1692,6 @@ void init_angband(void)
 	/* Close it */
 	fd_close(fd);
 
-	/*** Verify the creation of the notes file ***/
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, NOTES_FILENAME);
-
-	fp = my_fopen(buf, "w");
-
-	if (!fp)
-	{
-		char why[1024];
-		strnfmt(why, sizeof(why), "Cannot create the '%s' file!", buf);
-		quit(why);
-	}
-	my_fclose(fp);
-
 	/*** Initialize some arrays ***/
 
 	/* Initialize size info */
@@ -1806,6 +1815,9 @@ void cleanup_angband(void)
 	/* Free the player inventory */
 	FREE(inventory);
 
+	/*Clean the Autoinscribe*/
+	autoinscribe_clean();
+
 	/* Free the lore, monster, and object lists */
 	FREE(l_list);
 	FREE(mon_list);
@@ -1853,6 +1865,7 @@ void cleanup_angband(void)
 	free_info(&k_head);
 	free_info(&f_head);
 	free_info(&z_head);
+	free_info(&n_head);
 
 	/* Free the format() buffer */
 	vformat_kill();

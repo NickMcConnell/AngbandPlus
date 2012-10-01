@@ -40,14 +40,12 @@ user-preference files, which tend to be used by porters to customize the game in
 ways that they think users of their system will appreciate.  For example, "user-
 mac.prf" includes a bunch of extra macros.
 
-
 Your character's savefile
      Always contains your current options and window settings.  Never contains
 macros, keymaps, or visual preferences (these all need to be saved in an
 external file).
 
      Many players need no other preference files and can stop reading here.
-
 
 "lib/pref/font.prf":  The basic text-mode preference file.
      Links to font.xxx.prf, which defines the exact colors for all spells and
@@ -236,4 +234,5 @@ Interact with multimedia:  (command '!') :
      Some ports of this game (but not all) will play sounds and music.  If your
 port is one of them, you can adjust volumes, turn sounds off and on entirely,
 and tweak various other things.
+
 

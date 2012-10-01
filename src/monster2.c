@@ -646,7 +646,7 @@ s16b get_mon_num(int level)
 	/*enforce a mininum depth on monsters,
 	 *which slowly drops if no monsters are available.
 	 */
-	if (!(get_mon_num_hook)) mindepth = level / 5;
+	if ((!(get_mon_num_hook)) || (quest_level)) mindepth = level / 5;
 	else mindepth = level / 7;
 
 	do
@@ -683,6 +683,10 @@ s16b get_mon_num(int level)
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				bool do_continue = FALSE;
+
+				/*No player ghosts if the option is set*/
+				if ((r_ptr->flags2 & RF2_PLAYER_GHOST) &&
+					(adult_no_player_ghosts)) continue;
 
 				/* Check quests for uniques*/
 				for (x = 0; x < z_info->q_max; x++)
@@ -811,7 +815,6 @@ void display_monlist(void)
 
 	u16b *race_counts;
 
-
 	/* Allocate the array */
 	C_MAKE(race_counts, z_info->r_max, u16b);
 
@@ -822,6 +825,9 @@ void display_monlist(void)
 
 		/* Only visible monsters */
 		if (!m_ptr->ml) continue;
+
+		/*hidden mimics don't count*/
+		if (m_ptr->mimic_k_idx) continue;
 
 		/* Bump the count for this race */
 		race_counts[m_ptr->r_idx]++;
@@ -1511,8 +1517,6 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
-
-
 			/* Visible */
 			if (flag)
 			{
@@ -1555,6 +1559,9 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
+			/* Window stuff */
+			p_ptr->window |= PW_MONLIST;
+
 		}
 	}
 
@@ -1583,6 +1590,9 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
+			/* Window stuff */
+			p_ptr->window |= PW_MONLIST;
+
 		}
 	}
 
@@ -1605,9 +1615,6 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
-			/* Window stuff */
-			p_ptr->window |= PW_MONLIST;
-
 		}
 	}
 
@@ -1629,9 +1636,6 @@ void update_mon(int m_idx, bool full)
 					disturb(1, 0);
 				}
 			}
-
-			/* Window stuff */
-			p_ptr->window |= PW_MONLIST;
 
 		}
 	}
@@ -1692,8 +1696,8 @@ static s16b get_mimic_k_idx(const monster_race *r_ptr)
 			if (strstr(name, " gold"))       	return (lookup_kind(TV_GOLD, SV_GOLD_GOLD));
 			if (strstr(name, " mithril"))    	return (lookup_kind(TV_GOLD, SV_GOLD_MITHRIL));
 			if (strstr(name, " opal"))    		return (lookup_kind(TV_GOLD, SV_GOLD_OPALS));
-			if (strstr(name, " saphire"))    	return (lookup_kind(TV_GOLD, SV_GOLD_SAPHIRES));
-			if (strstr(name, " rubies"))    	return (lookup_kind(TV_GOLD, SV_GOLD_RUBIES));
+			if (strstr(name, " sapphire"))    	return (lookup_kind(TV_GOLD, SV_GOLD_SAPPHIRES));
+			if (strstr(name, " ruby"))    		return (lookup_kind(TV_GOLD, SV_GOLD_RUBIES));
 			if (strstr(name, " diamond"))    	return (lookup_kind(TV_GOLD, SV_GOLD_DIAMOND));
 			if (strstr(name, " adamantite ")) 	return (lookup_kind(TV_GOLD, SV_GOLD_ADAMANTITE));
 			break;
@@ -1980,16 +1984,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 	monster_type *m_ptr;
 
-
 	/* Monsters */
 	m1 = cave_m_idx[y1][x1];
 	m2 = cave_m_idx[y2][x2];
 
-
 	/* Update grids */
 	cave_m_idx[y1][x1] = m2;
 	cave_m_idx[y2][x2] = m1;
-
 
 	/* Monster 1 */
 	if (m1 > 0)

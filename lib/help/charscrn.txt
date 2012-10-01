@@ -72,7 +72,7 @@ Second row:
 
 --- Attributes screen ---
 
-     Press '+/1', and your character screens display attributes of known
+     Press '+/-', and your character screens display attributes of known
 (identified) equipped objects, and objects stored in the home, shown under 
 the same indexes that are used when displaying your equipment.  The '@' lists 
 attributes and modifiers that you posses intrinsically.  If you are an Elf, 
@@ -119,14 +119,6 @@ Attributes:
      - Blows : plus = affects the number of melee blows you get
      - Shots : plus = affects the speed at which you fire missiles
      - Might : plus = increases your missile weapon damage multiplier
-
-
-
-
-
-
-
-
 
 
 

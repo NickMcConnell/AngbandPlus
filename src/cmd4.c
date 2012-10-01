@@ -10,6 +10,9 @@
 
 #include "angband.h"
 
+/* String used to show a color sample */
+#define COLOR_SAMPLE "###"
+
 /*max length of note output*/
 #define LINEWRAP	75
 
@@ -31,6 +34,7 @@ struct monster_list_entry
 
 	byte amount;
 };
+
 
 
 /*
@@ -220,7 +224,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY | PR_RESIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
@@ -1080,7 +1084,7 @@ void do_cmd_options(void)
 		prt("(W) Window flags", 12, 5);
 
 		/* Squelch menus */
-		prt("(I) Item Squelch Menus", 13, 5);
+		prt("(S) Item Squelch and Autoinscribe Menus", 13, 5);
 
 		/* Load and Append */
 		prt("(L) Load a user pref file", 14, 5);
@@ -1147,10 +1151,10 @@ void do_cmd_options(void)
 			do_cmd_options_win();
 		}
 
-		/* Squelching menus */
-		else if ((ch == 'I') || (ch == 'i'))
+		/* Squelching and autoinscription menus */
+		else if ((ch == 'S') || (ch == 's'))
 		{
-			do_cmd_squelch();
+			do_cmd_squelch_autoinsc();
 		}
 
 		/* Load a user pref file */
@@ -1889,7 +1893,143 @@ void do_cmd_macros(void)
 	screen_load();
 }
 
+/*
+ * Asks to the player for an extended color. It is done in two steps:
+ * 1. Asks for the base color.
+ * 2. Asks for a specific shade.
+ * It erases the given line.
+ * If the user press ESCAPE no changes are made to attr.
+ */
+static void askfor_shade(byte *attr, int y)
+{
+ 	byte base, shade, temp;
+  	bool changed = FALSE;
+  	char *msg, *pos;
+  	int ch;
 
+  	/* Start with the given base color */
+  	base = GET_BASE_COLOR(*attr);
+
+  	/* 1. Query for base color */
+  	while (1)
+  	{
+    	/* Clear the line */
+    	Term_erase(0, y, 255);
+
+    	/* Format the query */
+    	msg = format("1. Choose base color (use arrows) " COLOR_SAMPLE
+					" %s (attr = %d) ", color_names[base], base);
+
+   	 	/* Display it */
+  	  	c_put_str(TERM_WHITE, msg, y, 0);
+
+    	/* Find the sample */
+    	pos = strstr(msg, COLOR_SAMPLE);
+
+    	/* Show it using the proper color */
+    	c_put_str(base, COLOR_SAMPLE, y, pos - msg);
+
+    	/* Place the cursor at the end of the message */
+    	Term_gotoxy(strlen(msg), y);
+
+    	/* Get a command */
+    	ch = inkey();
+
+    	/* Cancel */
+    	if (ch == ESCAPE)
+    	{
+      		/* Clear the line */
+      		Term_erase(0, y, 255);
+      		return;
+    	}
+
+    	/* Accept the current base color */
+    	if ((ch == '\r') || (ch == '\n')) break;
+
+    	/* Move to the previous color if possible */
+    	if ((ch == '4') && (base > 0))
+    	{
+     		--base;
+      		/* Reset the shade, see below */
+     	 	changed = TRUE;
+      		continue;
+    	}
+
+    	/* Move to the next color if possible */
+    	if ((ch == '6') && (base < MAX_BASE_COLORS - 1))
+    	{
+      		++base;
+      		/* Reset the shade, see below */
+      		changed = TRUE;
+      		continue;
+    	}
+  	}
+
+  	/* The player selected a different base color, start from shade 0 */
+  	if (changed)	shade = 0;
+  	/* We assume that the player is editing the current shade, go there */
+  	else		shade = GET_SHADE(*attr);
+
+  	/* 2. Query for specific shade */
+  	while (1)
+  	{
+    	/* Clear the line */
+    	Term_erase(0, y, 255);
+
+    	/* Create the real color */
+    	temp = MAKE_EXTENDED_COLOR(base, shade);
+
+    	/* Format the message */
+    	msg = format("2. Choose shade (use arrows) " COLOR_SAMPLE
+			" %s (attr = %d) ", get_ext_color_name(temp), temp);
+
+    	/* Display it */
+    	c_put_str(TERM_WHITE, msg, y, 0);
+
+    	/* Find the sample */
+    	pos = strstr(msg, COLOR_SAMPLE);
+
+    	/* Show it using the proper color */
+    	c_put_str(temp, COLOR_SAMPLE, y, pos - msg);
+
+    	/* Place the cursor at the end of the message */
+    	Term_gotoxy(strlen(msg), y);
+
+    	/* Get a command */
+    	ch = inkey();
+
+    	/* Cancel */
+    	if (ch == ESCAPE)
+    	{
+      		/* Clear the line */
+      		Term_erase(0, y, 255);
+      		return;
+    	}
+
+    	/* Accept the current shade */
+    	if ((ch == '\r') || (ch == '\n')) break;
+
+    	/* Move to the previous shade if possible */
+    	if ((ch == '4') && (shade > 0))
+    	{
+      		--shade;
+      		continue;
+    	}
+
+    	/* Move to the next shade if possible */
+    	if ((ch == '6') && (shade < MAX_SHADES - 1))
+    	{
+      		++shade;
+      		continue;
+    	}
+ 	}
+
+  	/* Assign the selected shade */
+  	*attr = temp;
+
+  	/* Clear the line. It is needed to fit in the current UI */
+  	Term_erase(0, y, 255);
+}
 
 /*
  * Interact with "visuals"
@@ -2277,7 +2417,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/a/A/c/C/'s'hade): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2292,6 +2432,10 @@ void do_cmd_visuals(void)
 				if (cx == 'A') r_ptr->x_attr = (byte)(ca - 1);
 				if (cx == 'c') r_ptr->x_char = (byte)(cc + 1);
 				if (cx == 'C') r_ptr->x_char = (byte)(cc - 1);
+				if (cx == 's')
+				{
+				  askfor_shade(&r_ptr->x_attr, 22);
+				}
 			}
 		}
 
@@ -2348,7 +2492,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/a/A/c/C/'s'hade): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2363,6 +2507,10 @@ void do_cmd_visuals(void)
 				if (cx == 'A') k_info[k].x_attr = (byte)(ca - 1);
 				if (cx == 'c') k_info[k].x_char = (byte)(cc + 1);
 				if (cx == 'C') k_info[k].x_char = (byte)(cc - 1);
+				if (cx == 's')
+				{
+				  askfor_shade(&k_info[k].x_attr, 22);
+				}
 			}
 		}
 
@@ -2419,7 +2567,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/a/A/c/C/'s'hade): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2434,6 +2582,10 @@ void do_cmd_visuals(void)
 				if (cx == 'A') f_info[f].x_attr = (byte)(ca - 1);
 				if (cx == 'c') f_info[f].x_char = (byte)(cc + 1);
 				if (cx == 'C') f_info[f].x_char = (byte)(cc - 1);
+				if (cx == 's')
+				{
+				  askfor_shade(&f_info[f].x_attr, 22);
+				}
 			}
 		}
 
@@ -2491,7 +2643,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/a/A/c/C/'s'hade): ");
 
 				/* Get a command */
 				cx = inkey();
@@ -2506,6 +2658,10 @@ void do_cmd_visuals(void)
 				if (cx == 'A') flavor_info[f].x_attr = (byte)(ca - 1);
 				if (cx == 'c') flavor_info[f].x_char = (byte)(cc + 1);
 				if (cx == 'C') flavor_info[f].x_char = (byte)(cc - 1);
+				if (cx == 's')
+				{
+				  askfor_shade(&flavor_info[f].x_attr, 22);
+				}
 			}
 		}
 
@@ -2538,12 +2694,470 @@ void do_cmd_visuals(void)
 
 
 /*
+ * Asks to the user for specific color values.
+ * Returns TRUE if the color was modified.
+ */
+static bool askfor_color_values(int idx)
+{
+  	char str[10];
+
+  	int k, r, g, b;
+
+  	/* Get the default value */
+  	sprintf(str, "%d", angband_color_table[idx][1]);
+
+  	/* Query, check for ESCAPE */
+  	if (!get_string("Red (0-255) ", str, sizeof(str))) return FALSE;
+
+  	/* Convert to number */
+  	r = atoi(str);
+
+  	/* Check bounds */
+  	if (r < 0) r = 0;
+  	if (r > 255) r = 255;
+
+  	/* Get the default value */
+  	sprintf(str, "%d", angband_color_table[idx][2]);
+
+  	/* Query, check for ESCAPE */
+  	if (!get_string("Green (0-255) ", str, sizeof(str))) return FALSE;
+
+  	/* Convert to number */
+  	g = atoi(str);
+
+  	/* Check bounds */
+  	if (g < 0) g = 0;
+  	if (g > 255) g = 255;
+
+  	/* Get the default value */
+  	sprintf(str, "%d", angband_color_table[idx][3]);
+
+ 	/* Query, check for ESCAPE */
+  	if (!get_string("Blue (0-255) ", str, sizeof(str))) return FALSE;
+
+ 	/* Convert to number */
+  	b = atoi(str);
+
+  	/* Check bounds */
+  	if (b < 0) b = 0;
+  	if (b > 255) b = 255;
+
+  	/* Get the default value */
+  	sprintf(str, "%d", angband_color_table[idx][0]);
+
+  	/* Query, check for ESCAPE */
+  	if (!get_string("Extra (0-255) ", str, sizeof(str))) return FALSE;
+
+  	/* Convert to number */
+  	k = atoi(str);
+
+  	/* Check bounds */
+  	if (k < 0) k = 0;
+  	if (k > 255) k = 255;
+
+  	/* Do nothing if the color is not modified */
+  	if ((k == angband_color_table[idx][0]) &&
+        (r == angband_color_table[idx][1]) &&
+        (g == angband_color_table[idx][2]) &&
+        (b == angband_color_table[idx][3])) return FALSE;
+
+  	/* Modify the color table */
+ 	angband_color_table[idx][0] = k;
+ 	angband_color_table[idx][1] = r;
+ 	angband_color_table[idx][2] = g;
+  	angband_color_table[idx][3] = b;
+
+  	/* Notify the changes */
+  	return TRUE;
+}
+
+
+/* These two are used to place elements in the grid */
+#define COLOR_X(idx) (((idx) / MAX_BASE_COLORS) * 5 + 1)
+#define COLOR_Y(idx) ((idx) % MAX_BASE_COLORS + 6)
+
+/* We only can edit a portion of the color table */
+#define MAX_COLORS 128
+
+/* Hack - Note the cast to "int" to prevent overflow */
+#define IS_BLACK(idx) \
+((int)angband_color_table[idx][1] + (int)angband_color_table[idx][2] + \
+ (int)angband_color_table[idx][3] == 0)
+
+/* We show black as dots to see the shape of the grid */
+#define BLACK_SAMPLE "..."
+
+/*
+ * The screen used to modify the color table. Only 128 colors can be modified.
+ * The remaining entries of the color table are reserved for graphic mode.
+ */
+static void modify_colors(void)
+{
+	int x, y, idx, old_idx;
+	char ch;
+	char msg[100];
+
+	/* Flags */
+ 	bool do_move, do_update;
+
+  	/* Clear the screen */
+  	Term_clear();
+
+  	/* Draw the color table */
+  	for (idx = 0; idx < MAX_COLORS; idx++)
+  	{
+    	/* Get coordinates, the x value is adjusted to show a fake cursor */
+    	x = COLOR_X(idx) + 1;
+    	y = COLOR_Y(idx);
+
+    	/* Show a sample of the color */
+    	if (IS_BLACK(idx)) c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
+    	else c_put_str(idx, COLOR_SAMPLE, y, x);
+  	}
+
+  	/* Show screen commands and help */
+  	y = 2;
+  	x = 42;
+  	c_put_str(TERM_WHITE, "Commands:", y, x);
+  	c_put_str(TERM_WHITE, "ESC: Return", y + 2, x);
+  	c_put_str(TERM_WHITE, "Arrows: Move to color", y + 3, x);
+  	c_put_str(TERM_WHITE, "k,K: Incr,Decr extra value", y + 4, x);
+  	c_put_str(TERM_WHITE, "r,R: Incr,Decr red value", y + 5, x);
+  	c_put_str(TERM_WHITE, "g,G: Incr,Decr green value", y + 6, x);
+  	c_put_str(TERM_WHITE, "b,B: Incr,Decr blue value", y + 7, x);
+  	c_put_str(TERM_WHITE, "c: Copy from color", y + 8, x);
+  	c_put_str(TERM_WHITE, "v: Set specific values", y + 9, x);
+  	c_put_str(TERM_WHITE, "First column: base colors", y + 11, x);
+  	c_put_str(TERM_WHITE, "Second column: first shade, etc.", y + 12, x);
+
+  	c_put_str(TERM_WHITE, "Shades look like base colors in 16 color ports.",
+      			23, 0);
+
+  	/* Hack - We want to show the fake cursor */
+  	do_move = TRUE;
+	do_update = TRUE;
+
+  	/* Start with the first color */
+  	idx = 0;
+
+  	/* Used to erase the old position of the fake cursor */
+  	old_idx = -1;
+
+  	while (1)
+  	{
+    	/* Movement request */
+    	if (do_move)
+    	{
+
+      		/* Erase the old fake cursor */
+      		if (old_idx >= 0)
+      		{
+				/* Get coordinates */
+				x = COLOR_X(old_idx);
+				y = COLOR_Y(old_idx);
+
+				/* Draw spaces */
+				c_put_str(TERM_WHITE, " ", y, x);
+				c_put_str(TERM_WHITE, " ", y, x + 4);
+      		}
+
+      		/* Show the current fake cursor */
+      		/* Get coordinates */
+      		x = COLOR_X(idx);
+      		y = COLOR_Y(idx);
+
+      		/* Draw the cursor */
+      		c_put_str(TERM_WHITE, ">", y, x);
+      		c_put_str(TERM_WHITE, "<", y, x + 4);
+
+      		/* Format the name of the color */
+      		my_strcpy(msg, format("Color = %d (0x%02X), Name = %s", idx, idx,
+	    	get_ext_color_name(idx)), sizeof(msg));
+
+      		/* Show the name and some whitespace */
+      		c_put_str(TERM_WHITE, format("%-40s", msg), 2, 0);
+    	}
+
+    	/* Color update request */
+    	if (do_update)
+    	{
+      		/* Get coordinates, adjust x */
+      		x = COLOR_X(idx) + 1;
+      		y = COLOR_Y(idx);
+
+      		/* Hack - Redraw the sample if needed */
+      		if (IS_BLACK(idx)) c_put_str(TERM_WHITE, BLACK_SAMPLE, y, x);
+      		else c_put_str(idx, COLOR_SAMPLE, y, x);
+
+      		/* Notify the changes in the color table to the terminal */
+      		Term_xtra(TERM_XTRA_REACT, 0);
+
+      		/* The user is playing with white, redraw all */
+      		if (idx == TERM_WHITE) Term_redraw();
+
+      		/* Or reduce flickering by redrawing the changes only */
+      		else Term_redraw_section(x, y, x + 2, y);
+    	}
+
+    	/* Common code, show the values in the color table */
+    	if (do_move || do_update)
+    	{
+      		/* Format the view of the color values */
+		  	my_strcpy(msg, format("K = %d / R,G,B = %d, %d, %d",
+	    			angband_color_table[idx][0],
+	    			angband_color_table[idx][1],
+	    			angband_color_table[idx][2],
+					angband_color_table[idx][3]), sizeof(msg));
+
+			/* Show color values and some whitespace */
+      		c_put_str(TERM_WHITE, format("%-40s", msg), 4, 0);
+
+    	}
+
+    	/* Reset flags */
+    	do_move = FALSE;
+    	do_update = FALSE;
+    	old_idx = -1;
+
+    	/* Get a command */
+    	if (!get_com("Command: Modify colors ", &ch)) break;
+
+    	switch(ch)
+    	{
+      		/* Down */
+      		case '2':
+			{
+	  			/* Check bounds */
+	  			if (idx + 1 >= MAX_COLORS) break;
+
+	  			/* Erase the old cursor */
+	  			old_idx = idx;
+
+	  			/* Get the new position */
+	  			++idx;
+
+	  			/* Request movement */
+	  			do_move = TRUE;
+	  			break;
+			}
+
+      		/* Up */
+      		case '8':
+			{
+
+				/* Check bounds */
+	  			if (idx - 1 < 0) break;
+
+	  			/* Erase the old cursor */
+	  			old_idx = idx;
+
+	  			/* Get the new position */
+	  			--idx;
+
+	  			/* Request movement */
+	  			do_move = TRUE;
+	  			break;
+			}
+
+      		/* Left */
+      		case '4':
+			{
+	  			/* Check bounds */
+	  			if (idx - 16 < 0) break;
+
+	  			/* Erase the old cursor */
+	  			old_idx = idx;
+
+	  			/* Get the new position */
+	  			idx -= 16;
+
+	  			/* Request movement */
+	  			do_move = TRUE;
+	  			break;
+			}
+
+	  		/* Right */
+      		case '6':
+			{
+	  			/* Check bounds */
+	  			if (idx + 16 >= MAX_COLORS) break;
+
+	  			/* Erase the old cursor */
+	  			old_idx = idx;
+
+	  			/* Get the new position */
+	  			idx += 16;
+
+	  			/* Request movement */
+	  			do_move = TRUE;
+	  			break;
+			}
+
+			/* Copy from color */
+      		case 'c':
+			{
+	  			char str[10];
+	  			int src;
+
+	  			/* Get the default value, the base color */
+	  			sprintf(str, "%d", GET_BASE_COLOR(idx));
+
+	  			/* Query, check for ESCAPE */
+	  			if (!get_string(format("Copy from color (0-%d, def. base) ",
+					MAX_COLORS - 1), str, sizeof(str))) break;
+
+	  			/* Convert to number */
+	  			src = atoi(str);
+
+	  			/* Check bounds */
+	  			if (src < 0) src = 0;
+	  			if (src >= MAX_COLORS) src = MAX_COLORS - 1;
+
+	  			/* Do nothing if the colors are the same */
+	  			if (src == idx) break;
+
+	  			/* Modify the color table */
+	  			angband_color_table[idx][0] = angband_color_table[src][0];
+	  			angband_color_table[idx][1] = angband_color_table[src][1];
+	  			angband_color_table[idx][2] = angband_color_table[src][2];
+	  			angband_color_table[idx][3] = angband_color_table[src][3];
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+      		/* Increase the extra value */
+      		case 'k':
+			{
+	  			/* Get a pointer to the proper value */
+	  			byte *k_ptr = &angband_color_table[idx][0];
+
+	  			/* Modify the value */
+	  			*k_ptr = (byte)(*k_ptr + 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+      		/* Decrease the extra value */
+      		case 'K':
+			{
+
+	  			/* Get a pointer to the proper value */
+	  			byte *k_ptr = &angband_color_table[idx][0];
+
+	  			/* Modify the value */
+	  			*k_ptr = (byte)(*k_ptr - 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+      		/* Increase the red value */
+      		case 'r':
+			{
+	  			/* Get a pointer to the proper value */
+	  			byte *r_ptr = &angband_color_table[idx][1];
+
+	  			/* Modify the value */
+	  			*r_ptr = (byte)(*r_ptr + 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+      		/* Decrease the red value */
+      		case 'R':
+			{
+
+	  			/* Get a pointer to the proper value */
+	  			byte *r_ptr = &angband_color_table[idx][1];
+
+	  			/* Modify the value */
+	  			*r_ptr = (byte)(*r_ptr - 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+	  		/* Increase the green value */
+      		case 'g':
+			{
+	  			/* Get a pointer to the proper value */
+	  			byte *g_ptr = &angband_color_table[idx][2];
+
+	  			/* Modify the value */
+	  			*g_ptr = (byte)(*g_ptr + 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+	  		/* Decrease the green value */
+      		case 'G':
+			{
+	  			/* Get a pointer to the proper value */
+	  			byte *g_ptr = &angband_color_table[idx][2];
+
+	  			/* Modify the value */
+	  			*g_ptr = (byte)(*g_ptr - 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+	  		/* Increase the blue value */
+      		case 'b':
+			{
+	  			/* Get a pointer to the proper value */
+	  			byte *b_ptr = &angband_color_table[idx][3];
+
+	  			/* Modify the value */
+	  			*b_ptr = (byte)(*b_ptr + 1);
+
+				/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+      		/* Decrease the blue value */
+      		case 'B':
+			{
+	  			/* Get a pointer to the proper value */
+	  			byte *b_ptr = &angband_color_table[idx][3];
+
+				/* Modify the value */
+	  			*b_ptr = (byte)(*b_ptr - 1);
+
+	  			/* Request update */
+	  			do_update = TRUE;
+	  			break;
+			}
+
+	  		/* Ask for specific values */
+      		case 'v':
+			{
+	  			do_update = askfor_color_values(idx);
+	  			break;
+			}
+    	}
+  	}
+}
+
+
+/*
  * Interact with "colors"
  */
 void do_cmd_colors(void)
 {
 	int ch;
-	int cx;
 
 	int i;
 
@@ -2551,14 +3165,11 @@ void do_cmd_colors(void)
 
 	char buf[1024];
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact until done */
 	while (1)
@@ -2681,72 +3292,7 @@ void do_cmd_colors(void)
 		/* Edit colors */
 		else if (ch == '3')
 		{
-			static byte a = 0;
-
-			/* Prompt */
-			prt("Command: Modify colors", 8, 0);
-
-			/* Hack -- query until done */
-			while (1)
-			{
-				cptr name;
-
-				/* Clear */
-				clear_from(10);
-
-				/* Exhibit the normal colors */
-				for (i = 0; i < 16; i++)
-				{
-					/* Exhibit this color */
-					Term_putstr(i*4, 20, -1, a, "###");
-
-					/* Exhibit all colors */
-					Term_putstr(i*4, 22, -1, (byte)i, format("%3d", i));
-				}
-
-				/* Describe the color */
-				name = ((a < 16) ? color_names[a] : "undefined");
-
-				/* Describe the color */
-				Term_putstr(5, 10, -1, TERM_WHITE,
-				            format("Color = %d, Name = %s", a, name));
-
-				/* Label the Current values */
-				Term_putstr(5, 12, -1, TERM_WHITE,
-				            format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
-				                   angband_color_table[a][0],
-				                   angband_color_table[a][1],
-				                   angband_color_table[a][2],
-				                   angband_color_table[a][3]));
-
-				/* Prompt */
-				Term_putstr(0, 14, -1, TERM_WHITE,
-				            "Command (n/N/k/K/r/R/g/G/b/B): ");
-
-				/* Get a command */
-				cx = inkey();
-
-				/* All done */
-				if (cx == ESCAPE) break;
-
-				/* Analyze */
-				if (cx == 'n') a = (byte)(a + 1);
-				if (cx == 'N') a = (byte)(a - 1);
-				if (cx == 'k') angband_color_table[a][0] = (byte)(angband_color_table[a][0] + 1);
-				if (cx == 'K') angband_color_table[a][0] = (byte)(angband_color_table[a][0] - 1);
-				if (cx == 'r') angband_color_table[a][1] = (byte)(angband_color_table[a][1] + 1);
-				if (cx == 'R') angband_color_table[a][1] = (byte)(angband_color_table[a][1] - 1);
-				if (cx == 'g') angband_color_table[a][2] = (byte)(angband_color_table[a][2] + 1);
-				if (cx == 'G') angband_color_table[a][2] = (byte)(angband_color_table[a][2] - 1);
-				if (cx == 'b') angband_color_table[a][3] = (byte)(angband_color_table[a][3] + 1);
-				if (cx == 'B') angband_color_table[a][3] = (byte)(angband_color_table[a][3] - 1);
-
-				/* Hack -- react to changes */
-				Term_xtra(TERM_XTRA_REACT, 0);
-
-				/* Hack -- redraw */
-				Term_redraw();
-			}
+			modify_colors();
 		}
 
 #endif /* ALLOW_COLORS */
@@ -3039,6 +3585,8 @@ void ghost_challenge(void)
 
 	msg_format("%^s, the %^s %s", ghost_name, r_name + r_ptr->name,
 		do_cmd_challenge_text[rand_int(14)]);
+
+	message_flush();
 }
 
 
@@ -3184,18 +3732,14 @@ void do_cmd_load_screen(void)
 /*display the notes file*/
 static void do_cmd_knowledge_notes(void)
 {
-	char buff[1024];
 
 	/*close the notes file for writing*/
 	my_fclose(notes_file);
 
-	path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
-
-	/* Display the file contents */
- 	show_file(buff, "Notes", 0, 0);
+	show_file(notes_fname, "Notes", 0, 0);
 
 	/*re-open for appending*/
-	notes_file = my_fopen(buff, "a");
+	notes_file = my_fopen(notes_fname, "a");
 
 }
 
@@ -3326,7 +3870,7 @@ static int collect_objects(int grp_cur, int object_idx[])
 		if (!(k))  continue;
 
 		/* Require objects ever seen*/
-		if (!(k_ptr->everseen || k_ptr->aware)) continue;
+		if (!(k_ptr->aware && k_ptr->everseen)) continue;
 
 		/* Check for object in the group */
 		if (k_ptr->tval == group_tval)
@@ -4385,6 +4929,9 @@ static void do_cmd_knowledge_monsters(void)
 		/* Display a list of monsters in the current group */
 		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top, grp_cur);
 
+		/* Track selected monster, to enable recall in sub-win*/
+		p_ptr->monster_race_idx = mon_idx[mon_cur].r_idx;
+
 		/* Prompt */
 		prt("<dir>, 'r' to recall, ESC", 23, 0);
 
@@ -4429,6 +4976,9 @@ static void do_cmd_knowledge_monsters(void)
 			{
 				/* Move the cursor */
 				browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, monster_count);
+
+				/*Update to a new monster*/
+				p_ptr->window |= (PW_MONSTER);
 
 				break;
 			}

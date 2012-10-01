@@ -94,7 +94,7 @@ typedef struct start_item start_item;
 typedef struct names_type names_type;
 typedef struct flavor_type flavor_type;
 typedef struct editing_buffer editing_buffer;
-
+typedef struct autoinscription autoinscription;
 
 /**** Available structs ****/
 
@@ -200,7 +200,6 @@ struct object_kind
 
 
 	u16b flavor;		/* Special object flavor (or zero) */
-
 
 	bool aware;			/* The player is "aware" of the item's effects */
 
@@ -514,7 +513,7 @@ struct object_type
 
 	byte marked;		/* Object is marked */
 
-	u16b note;			/* Inscription index */
+	u16b obj_note;		/* Inscription index */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
@@ -1213,4 +1212,12 @@ struct names_type
 	u16b lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
 	u16b ltotal[S_WORD+1][S_WORD+1];
 };
+
+/*Information for object auto-inscribe*/
+struct autoinscription
+{
+	s16b	kindIdx;
+	s16b	inscriptionIdx;
+};
+
 

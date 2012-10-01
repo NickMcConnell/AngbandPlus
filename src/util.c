@@ -4204,10 +4204,10 @@ void request_command(bool shopping)
 		if (!o_ptr->k_idx) continue;
 
 		/* No inscription */
-		if (!o_ptr->note) continue;
+		if (!o_ptr->obj_note) continue;
 
 		/* Find a '^' */
-		s = strchr(quark_str(o_ptr->note), '^');
+		s = strchr(quark_str(o_ptr->obj_note), '^');
 
 		/* Process preventions */
 		while (s)
@@ -4313,61 +4313,8 @@ int color_char_to_attr(char c)
 }
 
 
-/*
- * Converts a string to a terminal color byte.
- */
-int color_text_to_attr(cptr name)
-{
-	if (my_stricmp(name, "dark")       == 0) return (TERM_DARK);
-	if (my_stricmp(name, "white")      == 0) return (TERM_WHITE);
-	if (my_stricmp(name, "slate")      == 0) return (TERM_SLATE);
-	if (my_stricmp(name, "orange")     == 0) return (TERM_ORANGE);
-	if (my_stricmp(name, "red")        == 0) return (TERM_RED);
-	if (my_stricmp(name, "green")      == 0) return (TERM_GREEN);
-	if (my_stricmp(name, "blue")       == 0) return (TERM_BLUE);
-	if (my_stricmp(name, "umber")      == 0) return (TERM_UMBER);
-	if (my_stricmp(name, "violet")     == 0) return (TERM_VIOLET);
-	if (my_stricmp(name, "yellow")     == 0) return (TERM_YELLOW);
-	if (my_stricmp(name, "lightdark")  == 0) return (TERM_L_DARK);
-	if (my_stricmp(name, "lightwhite") == 0) return (TERM_L_WHITE);
-	if (my_stricmp(name, "lightred")   == 0) return (TERM_L_RED);
-	if (my_stricmp(name, "lightgreen") == 0) return (TERM_L_GREEN);
-	if (my_stricmp(name, "lightblue")  == 0) return (TERM_L_BLUE);
-	if (my_stricmp(name, "lightumber") == 0) return (TERM_L_UMBER);
-
-	/* Oops */
-	return (-1);
-}
 
 
-/*
- * Extract a textual representation of an attribute
- */
-cptr attr_to_text(byte a)
-{
-	switch (a)
-	{
-		case TERM_DARK:    return ("Dark");
-		case TERM_WHITE:   return ("White");
-		case TERM_SLATE:   return ("Slate");
-		case TERM_ORANGE:  return ("Orange");
-		case TERM_RED:     return ("Red");
-		case TERM_GREEN:   return ("Green");
-		case TERM_BLUE:    return ("Blue");
-		case TERM_UMBER:   return ("Umber");
-		case TERM_L_DARK:  return ("L.Dark");
-		case TERM_L_WHITE: return ("L.Slate");
-		case TERM_VIOLET:  return ("Violet");
-		case TERM_YELLOW:  return ("Yellow");
-		case TERM_L_RED:   return ("L.Red");
-		case TERM_L_GREEN: return ("L.Green");
-		case TERM_L_BLUE:  return ("L.Blue");
-		case TERM_L_UMBER: return ("L.Umber");
-	}
-
-	/* Oops */
-	return ("Icky");
-}
 
 
 
@@ -5060,5 +5007,152 @@ int editing_buffer_put_str(editing_buffer *eb_ptr, const char *str, int n)
   	}
 
   	return (p_str - str);
+}
+
+
+/*
+ * Returns a string which contains the name of a extended color.
+ * Examples: "Dark", "Red1", "Yellow5", etc.
+ * IMPORTANT: the returned string is statically allocated so it must *not* be
+ * freed and its value changes between calls to this function.
+ */
+cptr get_ext_color_name(byte ext_color)
+{
+  	static char buf[25];
+
+  	if (GET_SHADE(ext_color) > 0)
+	{
+    	strnfmt(buf, sizeof(buf), "%s%d", color_names[GET_BASE_COLOR(ext_color)],
+		GET_SHADE(ext_color));
+  	}
+  	else
+  	{
+    	strnfmt(buf, sizeof(buf), "%s", color_names[GET_BASE_COLOR(ext_color)]);
+  	}
+
+  	return buf;
+}
+
+
+/*
+ * Converts a string to a terminal color byte.
+ */
+int color_text_to_attr(cptr name)
+{
+  	int i, len, base, shade;
+
+	/* Optimize name searching. See below */
+  	static byte len_names[MAX_BASE_COLORS];
+
+  	/* Separate the color name and the shade number */
+  	/* Only letters can be part of the name */
+  	for (i = 0; isalpha(name[i]); i++) ;
+
+  	/* Store the start of the shade number */
+  	len = i;
+
+  	/* Check for invalid characters in the shade part */
+  	while (name[i])
+  	{
+    	/* No digit, exit */
+    	if (!isdigit(name[i])) return (-1);
+    	++i;
+  	}
+
+  	/* Initialize the shade */
+  	shade = 0;
+
+  	/* Only analyze the shade if there is one */
+  	if (name[len])
+  	{
+    	/* Convert to number */
+    	shade = atoi(name + len);
+
+    	/* Check bounds */
+    	if ((shade < 0) || (shade > MAX_SHADES - 1)) return (-1);
+  	}
+
+  	/* Extra, allow the use of strings like "r1", "U5", etc. */
+  	if (len == 1)
+  	{
+    	/* Convert one character, check sanity */
+    	if ((base = color_char_to_attr(name[0])) == -1) return (-1);
+
+    	/* Build the extended color */
+    	return (MAKE_EXTENDED_COLOR(base, shade));
+  	}
+
+  	/* Hack - Initialize the length array once */
+  	if (!len_names[0])
+  	{
+    	for (base = 0; base < MAX_BASE_COLORS; base++)
+    	{
+      	/* Store the length of each color name */
+      	len_names[base] = (byte)strlen(color_names[base & 0x0F]);
+    	}
+  	}
+
+  	/* Find the name */
+  	for (base = 0; base < MAX_BASE_COLORS; base++)
+  	{
+    	/* Somewhat optimize the search */
+    	if (len != len_names[base]) continue;
+
+    	/* Compare only the found name */
+    	if (my_strnicmp(name, color_names[base & 0x0F], len) == 0)
+    	{
+      		/* Build the extended color */
+      		return (MAKE_EXTENDED_COLOR(base, shade));
+    	}
+  	}
+
+  	/* We can not find it */
+  	return (-1);
+}
+
+
+static char *short_color_names[MAX_BASE_COLORS] =
+{
+  "Dark",
+  "White",
+  "Slate",
+  "Orange",
+  "Red",
+  "Green",
+  "Blue",
+  "Umber",
+  "L.Dark",
+  "L.Slate",
+  "Violet",
+  "Yellow",
+  "L.Red",
+  "L.Green",
+  "L.Blue",
+  "L.Umber"
+};
+
+/*
+ * Extract a textual representation of an attribute
+ */
+cptr attr_to_text(byte a)
+{
+  char *base;
+
+  base = short_color_names[GET_BASE_COLOR(a)];
+
+#if DO_YOU_WANT_THIS_IN_MONSTER_SPOILERS_Q
+
+  if (GET_SHADE(a) > 0)
+  {
+    static char buf[25];
+
+    strnfmt(buf, sizeof(buf), "%s%d", base, GET_SHADE(a));
+
+    return (buf);
+  }
+
+#endif
+
+  return (base);
 }
 

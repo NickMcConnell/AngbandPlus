@@ -315,24 +315,53 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 
 
 /*return the number of blows a player gets with a weapon*/
-static int get_num_blows(const object_type *o_ptr, u32b f1)
+int get_num_blows(const object_type *o_ptr, u32b f1)
 {
 
 	int i, str_index, dex_index, blows, div_weight;
 
 	int str = 0;
 	int dex = 0;
+	int str_add = 0;
+	int dex_add = 0;
+
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+
+		u32b wf1, wf2, wf3;
+		object_type *i_ptr = &inventory[i];
+
+		/* Hack -- do not apply wielded "weapon" bonuses */
+		if (i == INVEN_WIELD) continue;
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags_known(i_ptr, &wf1, &wf2, &wf3);
+
+		/* Affect stats */
+		if (wf1 & (TR1_STR)) str_add += i_ptr->pval;
+		if (wf1 & (TR1_DEX)) dex_add += i_ptr->pval;
+	}
+
+	/* add in the strength of the examined weapon*/
+	if (f1 & (TR1_STR)) str_add += o_ptr->pval;
+
+	/* add in the dex of the examined weapon*/
+	if (f1 & (TR1_DEX)) dex_add += o_ptr->pval;
 
 	/* Calculate stats */
 	for (i = 0; i < A_MAX; i++)
 	{
 		int add, use, ind;
 
+		/*stat modifiers from equipment later*/
+		if 		(i == A_STR) add = str_add;
+		else if (i == A_DEX) add = dex_add;
 		/*only do dex and strength*/
-		if ((i != A_STR) && (i != A_DEX)) continue;
-
-		/*stats from equipment to be added in later*/
-		add = 0;
+		else continue;
 
 		/* Maximize mode */
 		if (adult_maximize)
@@ -358,37 +387,8 @@ static int get_num_blows(const object_type *o_ptr, u32b f1)
 		else dex = ind;
 	}
 
-	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-
-		u32b wf1, wf2, wf3;
-		object_type *i_ptr = &inventory[i];
-
-		/* Hack -- do not apply wielded "weapon" bonuses */
-		if (i == INVEN_WIELD) continue;
-
-		/* Skip non-objects */
-		if (!i_ptr->k_idx) continue;
-
-		/* Extract the item flags */
-		object_flags_known(i_ptr, &wf1, &wf2, &wf3);
-
-		/* Affect stats */
-		if (wf1 & (TR1_STR)) str += i_ptr->pval;
-		if (wf1 & (TR1_DEX)) dex += i_ptr->pval;
-
-	}
-
 	/* Enforce a minimum "weight" (tenth pounds) */
 	div_weight = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
-
-	/* add in the strength of the examined weapon*/
-	if (f1 & (TR1_STR)) str += o_ptr->pval;
-
-	/* Maximal and maximal value */
-	if (str > 37) str = 37;
-	if (str < 0) str = 0;
 
 	/* Get the strength vs weight */
 	str_index = (adj_str_blow[str] * cp_ptr->att_multiply / div_weight);
@@ -396,13 +396,6 @@ static int get_num_blows(const object_type *o_ptr, u32b f1)
 	/* Maximal value */
 	if (str_index > 11) str_index = 11;
 	if (str_index < 0) str_index = 0;
-
-	/* add in the dex of the examined weapon*/
-	if (f1 & (TR1_DEX)) dex += o_ptr->pval;
-
-	/* Maximal and maximal value */
-	if (dex > 37) dex = 37;
-	if (dex < 0) dex = 0;
 
 	/* Index by dexterity */
 	dex_index = (adj_dex_blow[dex]);
@@ -600,6 +593,266 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 }
 
 
+static cptr act_description[ACT_MAX] =
+{
+	"illumination",
+	"magic mapping",
+	"clairvoyance",
+	"protection from evil",
+	"dispel evil (x5)",
+	"heal (500)",
+	"heal (1000)",
+	"cure wounds (4d7)",
+	"haste self (20+d20 turns)",
+	"haste self (75+d75 turns)",
+	"fire bolt (9d8)",
+	"fire ball (72)",
+	"large fire ball (120)",
+	"frost bolt (6d8)",
+	"frost ball (48)",
+	"frost ball (100)",
+	"frost bolt (12d8)",
+	"large frost ball (200)",
+	"acid bolt (5d8)",
+	"recharge item I",
+	"sleep II",
+	"lightning bolt (4d8)",
+	"large lightning ball (250)",
+	"banishment",
+	"mass banishment",
+	"*identify*",
+	"drain life (90)",
+	"drain life (120)",
+	"bizarre things",
+	"star ball (150)",
+	"berserk rage, bless, and resistance",
+	"phase door",
+	"door and trap destruction",
+	"detection",
+	"resistance (20+d20 turns)",
+	"teleport",
+	"restore life levels",
+	"magic missile (2d6)",
+	"a magical arrow (150)",
+	"remove fear and cure poison",
+	"stinking cloud (12)",
+	"stone to mud",
+	"teleport away",
+	"word of recall",
+	"confuse monster",
+	"probing",
+	"fire branding of bolts",
+	"starlight (10d8)",
+	"mana bolt (12d8)",
+	"berserk rage (50+d50 turns)",
+	"resist acid (20+d20 turns)",
+	"resist electricity (20+d20 turns)",
+	"resist fire (20+d20 turns)",
+	"resist cold (20+d20 turns)",
+	"resist poison (20+d20 turns)"
+};
+
+/*
+ * Determine the "Activation" (if any) for an artifact
+ */
+static void describe_item_activation(const object_type *o_ptr, char *random_name, size_t max)
+{
+	u32b f1, f2, f3;
+
+	u16b value;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Require activation ability */
+	if (!(f3 & TR3_ACTIVATE)) return;
+
+	/* Artifact activations */
+	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		bool drag_armor = FALSE;
+
+		/* Paranoia */
+		if (a_ptr->activation >= ACT_MAX)
+		{
+			if ((a_ptr->tval == TV_DRAG_ARMOR) ||
+				(a_ptr->tval == TV_DRAG_SHIELD))
+			     drag_armor = TRUE;
+			else return;
+		}
+
+		/* Some artifacts can be activated */
+		if (!drag_armor)
+		{
+			my_strcat(random_name, act_description[a_ptr->activation], max);
+
+			/* Output the number of turns */
+			if (a_ptr->time && a_ptr->randtime)
+				my_strcat(random_name, format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime), max);
+			else if (a_ptr->time)
+				my_strcat(random_name, format(" every %d turns", a_ptr->time), max);
+			else if (a_ptr->randtime)
+				my_strcat(random_name, format(" every d%d turns", a_ptr->randtime), max);
+
+			return;
+		}
+	}
+
+	/* Now do the rings */
+	if (o_ptr->tval == TV_RING)
+	{
+		/* Branch on the sub-type */
+		switch (o_ptr->sval)
+		{
+			case SV_RING_ACID:
+			{
+				my_strcat(random_name, "acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns", max);
+				break;
+			}
+			case SV_RING_FLAMES:
+			{
+				my_strcat(random_name, "fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns", max);
+				break;
+			}
+			case SV_RING_ICE:
+			{
+				my_strcat(random_name, "cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns", max);
+				break;
+			}
+
+			case SV_RING_LIGHTNING:
+			{
+				my_strcat(random_name, "electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns", max);
+				break;
+			}
+		}
+
+		return;
+	}
+
+	/* Require dragon scale mail */
+	if ((o_ptr->tval != TV_DRAG_ARMOR) &&
+		(o_ptr->tval != TV_DRAG_SHIELD)) return;
+
+	/*Bigger the dragon scale mail, the bigger the damage & re-charge*/
+	value = o_ptr->sval;
+
+	/*Armor is more powerful than shields*/
+	if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
+
+	/* Branch on the sub-type */
+	switch (o_ptr->name2)
+	{
+
+		case EGO_DRAGON_BLUE:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("electricity resistance (10+d10 turns) and breathe lightning (%d) every %d+d%d turns", value, value, value), max);
+
+			break;
+		}
+		case EGO_DRAGON_WHITE:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("cold resistance (10+d10 turns) and breathe frost (%d) every %d+d%d turns", value, value, value), max);
+
+			break;
+		}
+		case EGO_DRAGON_BLACK:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("acid resistance (10+d10 turns) and breathe acid (%d) every %d+d%d turns", value, value, value), max);
+
+			break;
+		}
+		case EGO_DRAGON_GREEN:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("poison resistance (10+d10 turns) and breathe poison gas (%d) every %d+d%d turns", value, value, value), max);
+
+			break;
+		}
+		case EGO_DRAGON_RED:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("fire resistance (10+d10 turns) and breathe fire (%d) every %d+d%d turns", value, value, value), max);
+
+			break;
+		}
+		case EGO_DRAGON_MULTIHUED:
+		{
+			value *= 75;
+
+			my_strcat(random_name, format("resistance (20+d20 turns) and breathe multi-hued (%d) every %d+d%d turns", value,
+ 							(value * 3 / 4), (value * 3 / 4)), max);
+
+			break;
+		}
+		case EGO_DRAGON_BRONZE:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("breathe confusion (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		case EGO_DRAGON_GOLD:
+		{
+			value *= 50;
+
+			my_strcat(random_name, format("breathe sound (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		case EGO_DRAGON_CHAOS:
+		{
+			value *= 60;
+
+			my_strcat(random_name, format("breathe chaos/disenchant (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		case EGO_DRAGON_LAW:
+		{
+			value *= 60;
+
+			my_strcat(random_name, format("breathe sound/shards (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		case EGO_DRAGON_BALANCE:
+		{
+			value *= 75;
+
+			my_strcat(random_name, format("breathe balance (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		case EGO_DRAGON_PSEUDO:
+		{
+			value *= 65;
+
+			my_strcat(random_name, format("breathe light/darkness (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		case EGO_DRAGON_POWER:
+		{
+			value *= 100;
+
+			my_strcat(random_name, format("breathe the elements (%d) every %d+d%d turns", value, value, value), max);
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+}
+
+
+
 /*
  * Describe an object's activation, if any.
  */
@@ -608,11 +861,28 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 	/* Check for the activation flag */
 	if (f3 & TR3_ACTIVATE)
 	{
-		p_text_out("It activates for ");
-		describe_item_activation(o_ptr);
-		p_text_out(".  ");
+		char act_desc[120];
 
-		return (TRUE);
+		u16b size;
+
+		my_strcpy(act_desc, "It activates for ", sizeof(act_desc));
+
+		/*get the size of the file*/
+		size = strlen(act_desc);
+
+		describe_item_activation(o_ptr, act_desc, sizeof(act_desc));
+
+		/*if the previous function added length, we have an activation, so print it out*/
+		if (strlen(act_desc) > size)
+		{
+
+			my_strcat(act_desc, format(".  "), sizeof(act_desc));
+
+			/*print it out*/
+			p_text_out(act_desc);
+
+			return (TRUE);
+		}
 	}
 
 	/* No activation */

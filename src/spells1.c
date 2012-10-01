@@ -462,6 +462,7 @@ static byte spell_color(int type)
 		case GF_PLASMA:		return (TERM_RED);
 		case GF_METEOR:		return (TERM_RED);
 		case GF_ICE:		return (TERM_WHITE);
+		case GF_MASS_IDENTIFY:	return (TERM_WHITE);
 	}
 
 	/* Standard "color" */
@@ -603,7 +604,6 @@ void take_hit(int dam, cptr kb_str)
 		p_ptr->leaving = TRUE;
 
 		/* Write a note */
-
 		if (adult_take_notes)
 		{
 			time_t ct = time((time_t*)0);
@@ -2243,8 +2243,34 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 
 				break;
 			}
-		}
 
+			/* Mass-identify */
+			case GF_MASS_IDENTIFY:
+			{
+			  	int squelch;
+
+				/* Ignore hidden objects */
+			  	if (!o_ptr->marked) continue;
+
+				/*Don't identify gold*/
+				if (o_ptr->tval == TV_GOLD) continue;
+
+				/* Ignore known objects */
+				if (object_known_p(o_ptr)) continue;
+
+			  	/* Identify object and get squelch setting */
+				/* Note the first argument */
+			  	squelch = do_ident_item(-1, o_ptr);
+
+				/* Redraw purple dots */
+				lite_spot(y, x);
+
+				/* Squelch? */
+				if (squelch == SQUELCH_YES) do_kill = TRUE;
+
+ 				break;
+			}
+		}
 
 		/* Attempt to destroy the object */
 		if (do_kill)
@@ -2430,7 +2456,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	m_ptr->mflag |= (MFLAG_ACTV);
 
 	/*Mark the monster as attacked by the player*/
-	if (who < 0) m_ptr->mflag |= (MFLAG_HIT_BY_SPELL);
+	if (who < 0) m_ptr->mflag |= (MFLAG_HIT_BY_RANGED);
 
 	/* Analyze the damage type */
 	switch (typ)
@@ -3926,8 +3952,41 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Arrow -- no dodging XXX */
 		case GF_ARROW:
 		{
-			if (blind) msg_print("You are hit by something sharp!");
-			take_hit(dam, killer);
+			/* Test for a miss or armour deflection. */
+			if ((p_ptr->ac + ((p_ptr->to_a < 150) ? p_ptr->ac + p_ptr->to_a : 150)) >
+			     randint((10 + r_ptr->level) * 5))
+			{
+				if ((p_ptr->ac > 9) && (one_in_(2)))
+				{
+					msg_print("It glances off your armour.");
+				}
+				else msg_print("It misses.");
+
+				/* No damage. */
+				dam = 0;
+			}
+
+			/* Test for a deflection. */
+			else if ((inventory[INVEN_ARM].k_idx) &&
+				(inventory[INVEN_ARM].ac  > rand_int(50)))
+			{
+				{
+					msg_print("It ricochets off your shield.");
+				}
+
+				/* No damage. */
+				dam = 0;
+			}
+
+			/* Reduce damage if missile did not get deflected. */
+			else dam -= (dam * ((p_ptr->ac + (p_ptr->to_a < 150) ?
+				                 p_ptr->ac + p_ptr->to_a : 150)) / 250);
+
+			if (dam)
+			{
+				if (blind) msg_print("You are hit by something sharp!");
+				take_hit(dam, killer);
+			}
 			break;
 		}
 
@@ -3981,7 +4040,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
 			}
-			if (!p_ptr->resist_confu)
+			if (allow_player_confusion())
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
@@ -3997,7 +4056,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
+			if (allow_player_confusion())
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -4067,7 +4126,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
 			}
-			if (!p_ptr->resist_confu)
+			if (allow_player_confusion())
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}

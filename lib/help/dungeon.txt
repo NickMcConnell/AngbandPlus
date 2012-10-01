@@ -148,6 +148,3 @@ spends half that time in darkness and the other half in light.
      Every time it takes a turn, every monster aware of you recovers from
 temporary conditions.  Every 100 game turns, they regenerate hitpoints.
 
-
-
-

@@ -537,18 +537,14 @@ void place_random_stairs(int y, int x)
 	{
 		cave_set_feat(y, x, FEAT_MORE);
 	}
-	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-			 (p_ptr->depth >= MAX_DEPTH-1))
+	else if ((quest_check(p_ptr->depth)) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		if (one_in_(2))	cave_set_feat(y, x, FEAT_LESS);
 		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
 	}
 	else if (one_in_(2))
 	{
-		if ((quest_check(p_ptr->depth + 1) == QUEST_FIXED) ||
-			(quest_check(p_ptr->depth + 1) == QUEST_FIXED_U) ||
-		 	(p_ptr->depth <= 1))
+		if ((quest_check(p_ptr->depth + 1)) || (p_ptr->depth <= 1))
 			cave_set_feat(y, x, FEAT_MORE);
 		else if (one_in_(2)) cave_set_feat(y, x, FEAT_MORE);
 		else cave_set_feat(y, x, FEAT_MORE_SHAFT);
@@ -2058,7 +2054,7 @@ byte get_nest_theme(int nestlevel)
 	/* Hack -- Choose a nest type */
 	whatnest = randint(nestlevel) + mindepth;
 
-	if ((whatnest <= 25)  && (nestlevel <= 25))
+	if ((whatnest <= 25)  && (nestlevel <= 35))
 	{
 		/*coins, jelly, or kobolds/yeeks/orcs*/
 		if (one_in_(3))			return LEV_THEME_CREEPING_COIN;
@@ -2067,9 +2063,10 @@ byte get_nest_theme(int nestlevel)
 	}
 
 	/*hydras or young dragons*/
-	else if ((whatnest <= 50) && (nestlevel <= 50))
+	else if (whatnest <= 50)
 	{
-		if (one_in_(2))			return LEV_THEME_DRAGON_YOUNG;
+		if (one_in_(3))			return LEV_THEME_CAVE_DWELLER;
+		else if (one_in_(2))	return LEV_THEME_DRAGON_YOUNG;
 		else					return LEV_THEME_HYDRA;
 	}
 
@@ -2102,16 +2099,17 @@ byte get_pit_theme(int pitlevel)
 	whatpit = randint(pitlevel) + mindepth;
 
 	/* Orc pit */
-	if ((whatpit <= 20) && (pitlevel <= 25))
+	if ((whatpit <= 20) && (pitlevel <= 35))
 	{
 		if (one_in_(2))	return LEV_THEME_CREEPING_COIN;
 		else 			return LEV_THEME_ORC;
 	}
 
 	/*troll or ogre*/
-	else if ((whatpit <= 35)  && (pitlevel <= 35))
+	else if ((whatpit <= 35)  && (pitlevel <= 45))
 	{
-		if (one_in_(2))	return LEV_THEME_TROLL;
+		if (one_in_(3))			return LEV_THEME_CAVE_DWELLER;
+		else if (one_in_(2))	return LEV_THEME_TROLL;
 		else			return LEV_THEME_OGRE;
 	}
 	else if ((whatpit <= 50) && (p_ptr->depth <= 60))
@@ -2239,7 +2237,8 @@ static void build_type_nest(int y0, int x0)
 	for (i = 0; i < 64; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + (is_quest_level ? 8 : 5));
+		what[i] = get_mon_num(p_ptr->depth +
+							  (is_quest_level ? PIT_NEST_QUEST_BOOST : NEST_LEVEL_BOOST));
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -2304,7 +2303,7 @@ static void build_type_nest(int y0, int x0)
 	harder_nest_check = r_info[what[63]].level - p_ptr->depth;
 
 	/*Hack - make some pits harder if deeper*/
-	if ((randint(100) < harder_nest_check) || (is_quest_level))
+	if (randint(100) < harder_nest_check)
 	{
 		/* Use the top 8 entries */
 		for (i = 0; i < 32; i++)
@@ -2469,7 +2468,8 @@ static void build_type_pit(int y0, int x0)
 	for (i = 0; i < 16; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + (is_quest_level ? 8 : 6));
+		what[i] = get_mon_num(p_ptr->depth +
+							  (is_quest_level ? PIT_NEST_QUEST_BOOST : PIT_LEVEL_BOOST));
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -2516,8 +2516,8 @@ static void build_type_pit(int y0, int x0)
 	 */
 	harder_pit_check = r_info[what[15]].level - p_ptr->depth;
 
-	/*Hack - make some pits harder if deeper, or a quest level*/
-	if ((randint(100) < harder_pit_check) || (is_quest_level))
+	/*Hack - make some pits harder if deeper*/
+	if (randint(100) < harder_pit_check)
 	{
 		/* Use the top 8 entries */
 		for (i = 0; i < 8; i++)
@@ -4082,16 +4082,17 @@ static void place_marked_squares(void)
 	 * Start with 100 since we are dealing with int variables.
 	 * This will be reduced later
 	 */
-	j = 100;
+	j = 0;
+
 
 	/*factor in dungeon size*/
-	j = ((j * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) + 10;
-	j = ((j * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) + 10;
+	j += ((100 * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT);
+	j += ((100 * p_ptr->cur_map_wid) / MAX_DUNGEON_WID);
 
 	/*divide by 10*/
 	j /= 10;
 
-	/* Place some objects */
+	/* Mark some squares */
 	for (k = 0; k < j; k++)
 	{
 		bool is_room;
@@ -4434,9 +4435,9 @@ byte get_level_theme(s16b orig_theme_num)
 	else if ((theme_depth <= 35)  && (orig_theme_num <= 40))
 	{
 		/*Trolls or Ogres, or a mixture of cave dwellers*/
-		if (one_in_(3))	return (LEV_THEME_CAVE_DWELLER);
-		if (one_in_(2))	return (LEV_THEME_TROLL);
-		else			return (LEV_THEME_OGRE);
+		if (one_in_(3))			return (LEV_THEME_CAVE_DWELLER);
+		else if (one_in_(2))	return (LEV_THEME_TROLL);
+		else					return (LEV_THEME_OGRE);
 	}
 
 	else if ((theme_depth <= 50) && (orig_theme_num <= 60))
@@ -4490,31 +4491,70 @@ byte get_level_theme(s16b orig_theme_num)
 	}
 }
 
-#define THEMED_LEV_MON_TYPE_MAX	64
+#define MON_RARE_FREQ	15
+#define MON_LESS_FREQ	50
+
+/*
+ *Helper function for max number of creatures on a themed level.
+ This function is for non-uniques only.
+ */
+static byte max_themed_monsters(const monster_race *r_ptr, u32b max_power)
+{
+	/*first off, handle uniques*/
+	if (r_ptr->flags1 & RF1_UNIQUE) return (r_ptr->max_num);
+
+	/*don't allow 99 of the out of depth monsters*/
+	if (r_ptr->level > p_ptr->depth + 3)
+	{
+		int lev_ood = p_ptr->depth - r_ptr->level;
+
+		/*Too strong*/
+		if (r_ptr->mon_power > max_power) return (0);
+
+		else if (lev_ood > 5) return (MON_RARE_FREQ);
+		else return (MON_LESS_FREQ);
+	}
+	else if ((r_ptr->level < p_ptr->depth - 5) && (r_ptr->level < 75))
+	{
+		int lev_ood = p_ptr->depth - r_ptr->level;
+
+		/*Too weak*/
+		if (r_ptr->mon_power < max_power / 20) return (0);
+
+		else if (r_ptr->mon_power < max_power / 10) return (MON_RARE_FREQ);
+		else if (lev_ood > 5) return (MON_LESS_FREQ);
+	}
+	/*The rigth depth*/
+	return (r_ptr->max_num);
+}
 
 /*
  * Generate a themed dungeon level
  *
  * Note that "dun_body" adds about 4000 bytes of memory to the stack.
  */
-
 static bool build_themed_level(void)
 {
 	int i;
+	int r_idx;
+	monster_race *r_ptr;
 	int by, bx;
 	byte is_quest_level = FALSE;
+	long value;
+	int total = 0;
+	int max_depth;
+	u32b max_diff, max_diff_unique;
+	u32b highest_power = 0;
+
+	alloc_entry *table = alloc_race_table;
 
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
-
-	s16b what[THEMED_LEV_MON_TYPE_MAX];
 
 	byte level_theme;
 
 	dun_data dun_body;
 
-	u16b monster_number;
-
-	u16b max_monster_types = THEMED_LEV_MON_TYPE_MAX;
+	u16b monster_number, potential_monsters;
 
 	/* Global data */
 	dun = &dun_body;
@@ -4522,9 +4562,9 @@ static bool build_themed_level(void)
 	/*check if we need a quest*/
 	if (quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL) is_quest_level = TRUE;
 
-	/* Always a dungeon of 5 * 15 blocks*/
+	/* Always a dungeon of 5 * 10 blocks*/
 	p_ptr->cur_map_hgt = MAX_DUNGEON_HGT * 5 / 6;
-	p_ptr->cur_map_wid = MAX_DUNGEON_WID * 5 / 6;
+	p_ptr->cur_map_wid = MAX_DUNGEON_WID * 5 / 9;
 
 	/* Hack -- Start with basic granite */
 	basic_granite();
@@ -4566,7 +4606,7 @@ static bool build_themed_level(void)
 	}
 
 	/*start over on all themed levels with less than 6 rooms due to inevitable crash*/
-	if (dun->cent_n < 6)
+	if (dun->cent_n < 4)
 	{
 		if (cheat_room) msg_format("not enough rooms");
 		return (FALSE);
@@ -4598,95 +4638,190 @@ static bool build_themed_level(void)
 	/*get the hook*/
 	get_mon_hook(level_theme);
 
-	/*select 64 eligible monsters from the theme*/
 	/* Prepare allocation table */
 	get_mon_num_prep();
 
-	/* Pick some monster types -
-	 * notice we must make sure uniques aren't placed twice
-	 * and that the array has plenty of non-unique monsters
-	 */
-	for (i = 0; i < THEMED_LEV_MON_TYPE_MAX; i++)
+	/* Monsters can be up to 7 levels out of depth, 10 for a quest */
+	max_depth = p_ptr->depth +
+				(is_quest_level ? THEMED_LEVEL_QUEST_BOOST : THEMED_LEVEL_NO_QUEST_BOOST);
+
+	/*don't make it too easy if the player isn't diving very fast*/
+	if (p_ptr->depth < p_ptr->max_lev)
 	{
-		/* Get an eligible monster type */
-		what[i] = get_mon_num(p_ptr->depth + (is_quest_level ? 5 : 3));
+		max_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
 	}
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
+	/*boundry control*/
+	if (max_depth > (MAX_DEPTH - 15)) max_depth = MAX_DEPTH - 15;
 
-	/* Prepare allocation table */
-	get_mon_num_prep();
+	/*get the average difficulty spanning 5 levels for monsters*/
+	max_diff = max_diff_unique = 0;
 
-	/* Sort the entries XXX XXX XXX */
-	for (i = 0; i < THEMED_LEV_MON_TYPE_MAX - 1; i++)
+	/*first get the total of the 5 levels*/
+	for (i = 0; i < 5; i++)
 	{
-		u16b j;
-
-		/* Sort the entries */
-		for (j = 0; j < THEMED_LEV_MON_TYPE_MAX - 1; j++)
-		{
-			int i1 = j;
-			int i2 = j + 1;
-
-			int p1 = r_info[what[i1]].level;
-			int p2 = r_info[what[i2]].level;
-
-			/* Bubble */
-			if (p1 > p2)
-			{
-				int tmp = what[i1];
-				what[i1] = what[i2];
-				what[i2] = tmp;
-			}
-		}
+		/*put some boundry control on the highest level*/
+		max_diff += mon_power_ave[max_depth + i][CREATURE_NON_UNIQUE];
+		max_diff_unique += mon_power_ave[max_depth + i][CREATURE_UNIQUE];
 	}
+
+	/*now get the average*/
+	max_diff /= 5;
+	max_diff_unique /= 5;
 
 	/* Quest levels are a little more crowded than non-quest levels*/
-	if (is_quest_level) monster_number = 325;
-	else monster_number = 275;
+	if (is_quest_level) monster_number = 275;
+	else monster_number = 250;
 
- 	/* Reduce the number as monsters get more powerful*/
-	monster_number -= (p_ptr->depth / 2) - randint(p_ptr->depth / 2);
+	/* Reduce the number as monsters get more powerful*/
+	monster_number -= ((p_ptr->depth / 3) + randint(p_ptr->depth / 3));
 
 	/*boundry control*/
 	if (monster_number > (z_info->m_max	- 25)) monster_number = z_info->m_max - 25;
 
-	/*place the monsters in the dungeon*/
+	/*start the counter for potential monsters*/
+	potential_monsters = 0;
+
+	/*
+	 * Process the probabilities, starting from the back forward
+	 */
+	for (i = alloc_race_size - 1; i >= 0; i--)
+	{
+
+		/* Default */
+		table[i].prob3 = 0;
+
+		/* Monster is not a part of this theme*/
+		if (table[i].prob2 == 0) continue;
+
+		/* Get the "r_idx" of the chosen monster */
+		r_idx = table[i].index;
+
+		/* Get the actual race */
+		r_ptr = &r_info[r_idx];
+
+		/*enforce a maximum depth*/
+		if (r_ptr->level > max_depth) continue;
+
+		/*no player ghosts*/
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
+
+		/* Uniques only for unique quests*/
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/*get the right difficulty*/
+			if (r_ptr->mon_power > max_diff_unique) continue;
+
+			/* no dead ones*/
+			if (r_ptr->cur_num >= r_ptr->max_num) continue;
+		}
+		/*other monsters based on difficulty*/
+		else
+		{
+			/*get the right difficulty*/
+			if (r_ptr->mon_power > max_diff) continue;
+		}
+
+		/*hack - no town monsters*/
+		if (table[i].level <= 0) continue;
+
+		/* Depth Monsters never appear in quests*/
+		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) continue;
+
+		/* Accept the monster*/
+		table[i].prob3 = table[i].prob2;
+
+		/*limit the probability of weaker or stronger monsters*/
+		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+		{
+			byte num;
+
+			/*once we have enough monsters, start limiting the weaker ones*/
+			if (potential_monsters > (monster_number * 3)) num = max_themed_monsters(r_ptr, max_diff);
+			else num = r_ptr->max_num;
+
+			/*reduce the probability*/
+			if (num == MON_RARE_FREQ) table[i].prob3 /= 10;
+			else if (num == MON_LESS_FREQ) table[i].prob3 /= 3;
+			else if (!num) table[i].prob3 = 0;
+
+			potential_monsters += num;
+		}
+
+		/*but always allow uniques*/
+		else potential_monsters += 1;
+
+		/* Total */
+		total += table[i].prob3;
+
+		/*record the most powerful monster*/
+		if (r_ptr->mon_power > highest_power) highest_power = r_ptr->mon_power;
+	}
+
+	/*no eligible creatures - should never happen*/
+	if (!total)
+	{
+		/* Remove restriction */
+		get_mon_num_hook = NULL;
+
+		/* Prepare allocation table */
+		get_mon_num_prep();
+
+    	/* No monsters - no themed level */
+		return (FALSE);
+
+	}
+
+ 	/*place the monsters in the dungeon*/
 	while (mon_cnt < monster_number)
 	{
-		int z = rand_int(max_monster_types);
-		int r_idx = what[z];
-		monster_race *r_ptr;
 		int y, x;
+		bool dont_use = FALSE;
 
-		/*hack - make sure we don't place uniques twice*/
+		/* Pick a monster */
+		value = rand_int(total);
+
+		/* Find the monster */
+		for (i = 0; i < alloc_race_size; i++)
+		{
+			/* Found the entry */
+			if (value < table[i].prob3) break;
+
+			/* Decrement */
+			value = value - table[i].prob3;
+		}
+
+		/* Get the "r_idx" of the chosen monster */
+		r_idx = table[i].index;
+
+		/* Get the actual race */
 		r_ptr = &r_info[r_idx];
 
 		/*don't attempt to re-place duplicate unique entries*/
-		if (r_ptr->cur_num >= r_ptr->max_num)
+		if (r_ptr->cur_num >= r_ptr->max_num) dont_use = TRUE;
+
+		/*No more of this type of monster on the level, the monster type has been restricted*/
+		if ((table[i].prob3 < table[i].prob2)  &&
+			(r_ptr->cur_num >= max_themed_monsters(r_ptr, max_diff)))
 		{
+			dont_use = TRUE;
+		}
+
+		/*not a monster*/
+		if (!r_idx) dont_use = TRUE;
+
+		if (dont_use)
+		{
+			/*Take out the weakest monster and repeat*/
+			total -= table[i].prob3;
+			table[i].prob3 = 0;
+
 			/*we have maxed out all possible types of monsters*/
-			if (max_monster_types < 1) break;
-
-			/*
-			 * Eliminate that slot as a choice by taking the monster in
-			 * the last slot and placing it in the current slot.
-			 */
-			what[z] = what[max_monster_types - 1];
-
-			/*zero out the last slot (probably unnecessary)*/
-			what[max_monster_types - 1] = 0;
-
-			/*shorten the list by one*/
-			max_monster_types--;
+			if (total < 1) break;
 
 			/*go back to the beginning*/
 			continue;
 		}
-
-		/*not a monster*/
-		if (!r_idx) continue;
 
 		/* Pick a location */
 		while (TRUE)
@@ -4714,8 +4849,18 @@ static bool build_themed_level(void)
 			break;
 		}
 
-		/* Attempt to place the monster, allow sleeping, groups*/
-		(void)place_monster_aux(y, x, r_idx, TRUE, TRUE);
+		/* Attempt to place the monster, allow sleeping, don't allow groups*/
+		(void)place_monster_aux(y, x, r_idx, TRUE, FALSE);
+
+		/*Don't bother with mimics*/
+		if (cave_m_idx[y][x] > 0)
+		{
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+			/*Clear the mimic flag*/
+			m_ptr->mimic_k_idx = 0;
+			m_ptr->mflag &= ~(MFLAG_MIMIC);
+		}
 	}
 
 	/*final preps if this is a quest level*/
@@ -4735,16 +4880,33 @@ static bool build_themed_level(void)
 				if (cave_m_idx[y][x] > 0)
 				{
 					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+					monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 					/*mark it as a quest monster*/
 					m_ptr->mflag |= (MFLAG_QUEST);
 
+					if (!(r_ptr->flags1 & RF1_UNIQUE))
+					{
+						m_ptr->mflag |= (MFLAG_FASTER);
+						calc_monster_speed(m_ptr->fy, m_ptr->fx);
+					}
+
 					/*increase the max_num counter*/
 					q_ptr->max_num ++;
+
+					/*Not many of them sleeping, others lightly sleeping*/
+					if (one_in_(2)) m_ptr->csleep = 0;
+					else m_ptr->csleep /= 2;
 				}
 			}
 		}
 	}
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 	return (TRUE);
 
@@ -4785,6 +4947,16 @@ static bool cave_gen(void)
 
 	/* Possible "destroyed" level */
 	if ((p_ptr->depth > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
+
+	/*
+	 * If we have visited the quest level, and found the
+	 * artifact, don't re-create the vault.
+	 */
+	if (quest_on_level == QUEST_VAULT)
+	{
+		/*We have the artifact, but we haven't gone back to the guild yet*/
+		if (quest_item_slot() > -1) quest_on_level = 0;
+	}
 
 	/*see if we need a quest room*/
 	if (quest_on_level)
@@ -5445,7 +5617,7 @@ void generate_cave(void)
 	 	 * but make sure the player isn't scumming
 		 * or we are on a fixed quest level.
 	 	 */
-		else if(((p_ptr->depth >= 15) && (allow_altered_inventory) &&
+		else if(((p_ptr->depth >= 10) && (allow_altered_inventory) &&
 	    		 (one_in_(THEMED_LEVEL_CHANCE)) && (allow_themed_levels) &&
 			 	 (!quest_check(p_ptr->depth))) ||
 				(quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL))
@@ -5528,11 +5700,12 @@ void generate_cave(void)
 				num++;
 
 				/* Require "goodness", but always accept themed levels */
-				if (((feeling > 9) && (feeling < LEV_THEME_HEAD)) ||
-				    ((p_ptr->depth >= 5) && (feeling > 8)) ||
-				    ((p_ptr->depth >= 10) && (feeling > 7)) ||
-				    ((p_ptr->depth >= 20) && (feeling > 6)) ||
-				    ((p_ptr->depth >= 40) && (feeling > 5)))
+				if ((feeling < LEV_THEME_HEAD) &&
+					((feeling > 9) ||
+				     ((p_ptr->depth >= 5) && (feeling > 8)) ||
+				     ((p_ptr->depth >= 10) && (feeling > 7)) ||
+				     ((p_ptr->depth >= 20) && (feeling > 6)) ||
+				     ((p_ptr->depth >= 40) && (feeling > 5))))
 				{
 					/* Give message to cheaters */
 					if (cheat_room || cheat_hear ||

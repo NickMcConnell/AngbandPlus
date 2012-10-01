@@ -235,1315 +235,1327 @@ F:80:1/-32
 # down staircase
 F:81:1/-50
 
+# up shaft
+F:82:1/-32
 
+# down shaft
+F:83:1/-50
 
 # Item Graphic Definitions
 
 # & Phial~
-R:1:11/-111
+K:1:11/-111
 
 # & Star~
-R:2:11/-101
+K:2:11/-101
 
 # & Arkenstone~
-R:3:11/-125
+K:3:11/-125
 
 # & Amulet~
-R:4:0/-126
+K:4:0/-126
 
 # & Amulet~
-R:5:0/-126
+K:5:0/-126
 
 # & Necklace~
-R:6:0/-126
+K:6:0/-126
 
 # & Gem~
-R:10:11/-101
+K:10:11/-101
 
 # & Ring~
-R:11:0/-109
+K:11:0/-109
 
 # & Ring~
-R:12:0/-109
+K:12:0/-109
 
 # & Ring~
-R:13:0/-109
+K:13:0/-109
 
 # & Ring~
-R:14:0/-109
+K:14:0/-109
 
 # & Ring~
-R:15:0/-109
+K:15:0/-109
 
 # & Ring~
-R:16:11/-109
+K:16:11/-109
 
 # & Mighty Hammer~
-R:19:8/-96
+K:19:8/-96
 
 # & Massive Iron Crown~
-R:20:8/-117
+K:20:8/-117
 
 # & Filthy Rag~
-R:21:8/-124
+K:21:8/-124
 
 # & Robe~
-R:22:6/-124
+K:22:6/-124
 
 # Soft Leather Armour~
-R:23:15/-124
+K:23:15/-124
 
 # Soft Studded Leather~
-R:24:15/-124
+K:24:15/-124
 
 # Hard Leather Armour~
-R:25:15/-124
+K:25:15/-124
 
 # Hard Studded Leather~
-R:26:15/-124
+K:26:15/-124
 
 # Leather Scale Mail~
-R:27:15/-124
+K:27:15/-124
 
 # Rusty Chain Mail~
-R:28:4/-124
+K:28:4/-124
 
 # Metal Scale Mail~
-R:29:2/-124
+K:29:2/-124
 
 # Chain Mail~
-R:30:2/-124
+K:30:2/-124
 
 # Augmented Chain Mail~
-R:31:2/-124
+K:31:2/-124
 
 # Double Chain Mail~
-R:32:2/-124
+K:32:2/-124
 
 # Metal Brigandine Armour~
-R:33:2/-124
+K:33:2/-124
 
 # Partial Plate Armour~
-R:34:9/-124
+K:34:9/-124
 
 # Metal Lamellar Armour~
-R:35:9/-124
+K:35:9/-124
 
 # Full Plate Armour~
-R:36:9/-124
+K:36:9/-124
 
 # Ribbed Plate Armour~
-R:37:9/-124
+K:37:9/-124
 
 # Mithril Chain Mail~
-R:38:14/-124
+K:38:14/-124
 
 # Mithril Plate Mail~
-R:39:14/-124
+K:39:14/-124
 
 # Adamantite Plate Mail~
-R:40:13/-124
+K:40:13/-124
 
 # & Small Leather Shield~
-R:41:15/-106
+K:41:15/-106
 
 # & Small Metal Shield~
-R:42:2/-106
+K:42:2/-106
 
 # & Large Leather Shield~
-R:43:15/-106
+K:43:15/-106
 
 # & Large Metal Shield~
-R:44:2/-106
+K:44:2/-106
 
 # & Shield~ of Deflection
-R:45:14/-106
+K:45:14/-106
 
 # Dragon Scale Mail~
-R:46:2/-124
+K:46:2/-124
 
 # Medium Dragon Scale Mail~
-R:47:6/-124
+K:47:6/-124
 
 # Ancient Dragon Scale Mail~
-R:48:1/-124
+K:48:1/-124
 
 # Great Wyrm Scale Mail~
-R:49:4/-124
+K:49:4/-124
 
 # Dragon Scale Shield~
-R:50:5/-124
+K:50:5/-124
 
 # Medium Dragon Scale Shield~
-R:51:10/-124
+K:51:10/-124
 
 # Ancient Dragon Scale Shield~
-R:52:3/-124
+K:52:3/-124
 
 # Great Wyrm Scale Shield~
-R:53:14/-124
+K:53:14/-124
 
 # & Broken Dagger~
-R:54:8/-98
+K:54:8/-98
 
 # & Broken Sword~
-R:55:8/-98
+K:55:8/-98
 
 # & Dagger~
-R:56:9/-98
+K:56:9/-98
 
 # & Main Gauche~
-R:57:9/-98
+K:57:9/-98
 
 # & Rapier~
-R:58:9/-98
+K:58:9/-98
 
 # & Small Sword~
-R:59:9/-98
+K:59:9/-98
 
 # & Short Sword~
-R:60:9/-98
+K:60:9/-98
 
 # & Sabre~
-R:61:9/-98
+K:61:9/-98
 
 # & Cutlass~
-R:62:9/-98
+K:62:9/-98
 
 # & Broad Sword~
-R:63:9/-98
+K:63:9/-98
 
 # & Long Sword~
-R:64:9/-98
+K:64:9/-98
 
 # & Scimitar~
-R:65:9/-98
+K:65:9/-98
 
 # & Katana~
-R:66:9/-98
+K:66:9/-98
 
 # & Bastard Sword~
-R:67:9/-98
+K:67:9/-98
 
 # & Two-Handed Sword~
-R:68:9/-98
+K:68:9/-98
 
 # & Executioner's Sword~
-R:69:4/-98
+K:69:4/-98
 
 # & Blade~ of Chaos
-R:70:10/-98
+K:70:10/-98
 
 # & Spear~
-R:71:2/-97
+K:71:2/-97
 
 # & Awl-Pike~
-R:72:2/-97
+K:72:2/-97
 
 # & Trident~
-R:73:11/-97
+K:73:11/-97
 
 # & Pike~
-R:74:2/-97
+K:74:2/-97
 
 # & Beaked Axe~
-R:75:2/-97
+K:75:2/-97
 
 # & Broad Axe~
-R:76:2/-97
+K:76:2/-97
 
 # & Throwing Axe~
-R:77:8/-97
+K:77:8/-97
 
 # & Glaive~
-R:78:2/-97
+K:78:2/-97
 
 # & Halberd~
-R:79:2/-97
+K:79:2/-97
 
 # & Scythe~
-R:80:2/-97
+K:80:2/-97
 
 # & Battle Axe~
-R:81:2/-97
+K:81:2/-97
 
 # & Great Axe~
-R:82:2/-97
+K:82:2/-97
 
 # & Lochaber Axe~
-R:83:8/-97
+K:83:8/-97
 
 # & Scythe~ of Slicing
-R:84:4/-97
+K:84:4/-97
 
 # & Whip~
-R:85:8/-96
+K:85:8/-96
 
 # & Quarterstaff~
-R:86:15/-96
+K:86:15/-96
 
 # & Mace~
-R:87:8/-96
+K:87:8/-96
 
 # & Ball-and-Chain~
-R:88:8/-96
+K:88:8/-96
 
 # & War Hammer~
-R:89:8/-96
+K:89:8/-96
 
 # & Lucerne Hammer~
-R:90:14/-96
+K:90:14/-96
 
 # & Throwing Hammer~
-R:91:14/-96
+K:91:14/-96
 
 # & Morning Star~
-R:92:8/-96
+K:92:8/-96
 
 # & Flail~
-R:93:8/-96
+K:93:8/-96
 
 # & Lead-Filled Mace~
-R:94:8/-96
+K:94:8/-96
 
 # & Mace~ of Disruption
-R:95:10/-96
+K:95:10/-96
 
 # & Shovel~
-R:96:2/-105
+K:96:2/-105
 
 # & Pick~
-R:97:2/-105
+K:97:2/-105
 
 # & Mattock~
-R:98:6/-105
+K:98:6/-105
 
 # & Hard Leather Cap~
-R:99:7/-117
+K:99:7/-117
 
 # & Metal Cap~
-R:100:2/-117
+K:100:2/-117
 
 # & Iron Helm~
-R:101:2/-117
+K:101:2/-117
 
 # & Steel Helm~
-R:102:9/-117
+K:102:9/-117
 
 # & Iron Crown~
-R:103:2/-117
+K:103:2/-117
 
 # & Golden Crown~
-R:104:11/-117
+K:104:11/-117
 
 # & Jewel Encrusted Crown~
-R:105:10/-117
+K:105:10/-117
 
 # & Cloak~
-R:106:5/-120
+K:106:5/-120
 
 # & Shadow Cloak~
-R:107:8/-120
+K:107:8/-120
 
 # & Sling~
-R:108:7/-113
+K:108:7/-113
 
 # & Short Bow~
-R:109:15/-113
+K:109:15/-113
 
 # & Long Bow~
-R:110:15/-113
+K:110:15/-113
 
 # & Light Crossbow~
-R:111:2/-113
+K:111:2/-113
 
 # & Heavy Crossbow~
-R:112:2/-113
+K:112:2/-113
 
 # & Rounded Pebble~
-R:113:2/-114
+K:113:2/-114
 
 # & Iron Shot~
-R:114:2/-114
+K:114:2/-114
 
 # & Mithril Shot~
-R:115:2/-114
+K:115:2/-114
 
 # & Arrow~
-R:116:15/-114
+K:116:15/-114
 
 # & Seeker Arrow~
-R:117:13/-114
+K:117:13/-114
 
 # & Mithril Arrow~
-R:118:13/-114
+K:118:13/-114
 
 # & Bolt~
-R:119:2/-114
+K:119:2/-114
 
 # & Seeker Bolt~
-R:120:14/-114
+K:120:14/-114
 
 # & Mithril Bolt~
-R:121:14/-114
+K:121:14/-114
 
 # & Pair~ of Soft Leather Boots
-R:122:15/-122
+K:122:15/-122
 
 # & Pair~ of Hard Leather Boots
-R:123:15/-122
+K:123:15/-122
 
 # & Pair~ of Metal Shod Boots
-R:124:2/-122
+K:124:2/-122
 
 # & Set~ of Leather Gloves
-R:125:15/-118
+K:125:15/-118
 
 # & Set~ of Gauntlets
-R:126:15/-118
+K:126:15/-118
 
 # & Set~ of Cesti
-R:127:9/-118
+K:127:9/-118
 
 # & Wooden Torch~
-R:128:7/-100
+K:128:7/-100
 
 # & Brass Lantern~
-R:129:15/-115
+K:129:15/-115
 
 # DOOM
-R:130:0/-126
+K:130:0/-126
 
 # Teleportation
-R:131:0/-126
+K:131:0/-126
 
 # Adornment
-R:132:0/-126
+K:132:0/-126
 
 # Slow Digestion
-R:133:0/-126
+K:133:0/-126
 
 # Resist Acid
-R:134:0/-126
+K:134:0/-126
 
 # Searching
-R:135:0/-126
+K:135:0/-126
 
 # Wisdom
-R:136:0/-126
+K:136:0/-126
 
 # Charisma
-R:137:0/-126
+K:137:0/-126
 
 # the Magi
-R:138:0/-126
+K:138:0/-126
 
 # Sustenance
-R:139:0/-126
+K:139:0/-126
 
 # ESP
-R:140:0/-126
+K:140:0/-126
 
 # Resistance
-R:141:0/-126
+K:141:0/-126
 
 # Regeneration
-R:142:0/-126
+K:142:0/-126
 
 # Devotion
-R:143:0/-126
+K:143:0/-126
 
 # Weaponmastery
-R:144:0/-126
+K:144:0/-126
 
 # Trickery
-R:145:0/-126
+K:145:0/-126
 
 # Infravision
-R:146:0/-126
+K:146:0/-126
 
 # Resist Lightning
-R:147:0/-126
+K:147:0/-126
 
 # Woe
-R:148:0/-109
+K:148:0/-109
 
 # Aggravate Monster
-R:149:0/-109
+K:149:0/-109
 
 # Weakness
-R:150:0/-109
+K:150:0/-109
 
 # Stupidity
-R:151:0/-109
+K:151:0/-109
 
 # Teleportation
-R:152:0/-109
+K:152:0/-109
 
 # Slow Digestion
-R:153:0/-109
+K:153:0/-109
 
 # Feather Falling
-R:154:0/-109
+K:154:0/-109
 
 # Resist Fire
-R:155:0/-109
+K:155:0/-109
 
 # Resist Cold
-R:156:0/-109
+K:156:0/-109
 
 # Sustain Strength
-R:157:0/-109
+K:157:0/-109
 
 # Sustain Intelligence
-R:158:0/-109
+K:158:0/-109
 
 # Sustain Wisdom
-R:159:0/-109
+K:159:0/-109
 
 # Sustain Constitution
-R:160:0/-109
+K:160:0/-109
 
 # Sustain Dexterity
-R:161:0/-109
+K:161:0/-109
 
 # Sustain Charisma
-R:162:0/-109
+K:162:0/-109
 
 # Protection
-R:163:0/-109
+K:163:0/-109
 
 # Acid
-R:164:0/-109
+K:164:0/-109
 
 # Flames
-R:165:0/-109
+K:165:0/-109
 
 # Ice
-R:166:0/-109
+K:166:0/-109
 
 # Resist Poison
-R:167:0/-109
+K:167:0/-109
 
 # Resist Nether
-R:168:0/-109
+K:168:0/-109
 
 # Free Action
-R:169:0/-109
+K:169:0/-109
 
 # See Invisible
-R:170:0/-109
+K:170:0/-109
 
 # Searching
-R:171:0/-109
+K:171:0/-109
 
 # Strength
-R:172:0/-109
+K:172:0/-109
 
 # Intelligence
-R:173:0/-109
+K:173:0/-109
 
 # Dexterity
-R:174:0/-109
+K:174:0/-109
 
 # Constitution
-R:175:0/-109
+K:175:0/-109
 
 # Accuracy
-R:176:0/-109
+K:176:0/-109
 
 # Damage
-R:177:0/-109
+K:177:0/-109
 
 # Slaying
-R:178:0/-109
+K:178:0/-109
 
 # Speed
-R:179:0/-109
+K:179:0/-109
 
 # Lightning
-R:180:0/-109
+K:180:0/-109
 
 # Darkness
-R:181:0/-102
+K:181:0/-102
 
 # Slowness
-R:182:0/-102
+K:182:0/-102
 
 # Haste Monsters
-R:183:0/-102
+K:183:0/-102
 
 # Summoning
-R:184:0/-102
+K:184:0/-102
 
 # Teleportation
-R:185:0/-102
+K:185:0/-102
 
 # Perception
-R:186:0/-102
+K:186:0/-102
 
 # Starlight
-R:187:0/-102
+K:187:0/-102
 
 # Light
-R:188:0/-102
+K:188:0/-102
 
 # Magic Mapping
-R:189:0/-102
+K:189:0/-102
 
 # Treasure Location
-R:190:0/-102
+K:190:0/-102
 
 # Object Location
-R:191:0/-102
+K:191:0/-102
 
 # Trap Location
-R:192:0/-102
+K:192:0/-102
 
 # Door/Stair Location
-R:193:0/-102
+K:193:0/-102
 
 # Detect Invisible
-R:194:0/-102
+K:194:0/-102
 
 # Detect Evil
-R:195:0/-102
+K:195:0/-102
 
 # Cure Light Wounds
-R:196:0/-102
+K:196:0/-102
 
 # Curing
-R:197:0/-102
+K:197:0/-102
 
 # Healing
-R:198:0/-102
+K:198:0/-102
 
 # the Magi
-R:199:0/-102
+K:199:0/-102
 
 # Sleep Monsters
-R:200:0/-102
+K:200:0/-102
 
 # Slow Monsters
-R:201:0/-102
+K:201:0/-102
 
 # Speed
-R:202:0/-102
+K:202:0/-102
 
 # Probing
-R:203:0/-102
+K:203:0/-102
 
 # Dispel Evil
-R:204:0/-102
+K:204:0/-102
 
 # Power
-R:205:0/-102
+K:205:0/-102
 
 # Holiness
-R:206:0/-102
+K:206:0/-102
 
 # Banishment
-R:207:0/-102
+K:207:0/-102
 
 # Earthquakes
-R:208:0/-102
+K:208:0/-102
 
 # *Destruction*
-R:209:0/-102
+K:209:0/-102
 
 # Heal Monster
-R:210:0/-99
+K:210:0/-99
 
 # Haste Monster
-R:211:0/-99
+K:211:0/-99
 
 # Clone Monster
-R:212:0/-99
+K:212:0/-99
 
 # Teleport Other
-R:213:0/-99
+K:213:0/-99
 
 # Disarming
-R:214:0/-99
+K:214:0/-99
 
 # Trap/Door Destruction
-R:215:0/-99
+K:215:0/-99
 
 # Stone to Mud
-R:216:0/-99
+K:216:0/-99
 
 # Light
-R:217:0/-99
+K:217:0/-99
 
 # Sleep Monster
-R:218:0/-99
+K:218:0/-99
 
 # Slow Monster
-R:219:0/-99
+K:219:0/-99
 
 # Confuse Monster
-R:220:0/-99
+K:220:0/-99
 
 # Scare Monster
-R:221:0/-99
+K:221:0/-99
 
 # Drain Life
-R:222:0/-99
+K:222:0/-99
 
 # Polymorph
-R:223:0/-99
+K:223:0/-99
 
 # Stinking Cloud
-R:224:0/-99
+K:224:0/-99
 
 # Magic Missile
-R:225:0/-99
+K:225:0/-99
 
 # Acid Bolts
-R:226:0/-99
+K:226:0/-99
 
 # Lightning Bolts
-R:227:0/-99
+K:227:0/-99
 
 # Fire Bolts
-R:228:0/-99
+K:228:0/-99
 
 # Frost Bolts
-R:229:0/-99
+K:229:0/-99
 
 # Acid Balls
-R:230:0/-99
+K:230:0/-99
 
 # Lightning Balls
-R:231:0/-99
+K:231:0/-99
 
 # Fire Balls
-R:232:0/-99
+K:232:0/-99
 
 # Cold Balls
-R:233:0/-99
+K:233:0/-99
 
 # Wonder
-R:234:0/-99
+K:234:0/-99
 
 # Annihilation
-R:235:0/-99
+K:235:0/-99
 
 # Dragon's Flame
-R:236:0/-99
+K:236:0/-99
 
 # Dragon's Frost
-R:237:0/-99
+K:237:0/-99
 
 # Dragon's Breath
-R:238:0/-99
+K:238:0/-99
 
 # Trap Location
-R:239:0/-108
+K:239:0/-108
 
 # Door/Stair Location
-R:240:0/-108
+K:240:0/-108
 
 # Perception
-R:241:0/-108
+K:241:0/-108
 
 # Recall
-R:242:0/-108
+K:242:0/-108
 
 # Illumination
-R:243:0/-108
+K:243:0/-108
 
 # Magic Mapping
-R:244:0/-108
+K:244:0/-108
 
 # Detection
-R:245:0/-108
+K:245:0/-108
 
 # Probing
-R:246:0/-108
+K:246:0/-108
 
 # Curing
-R:247:0/-108
+K:247:0/-108
 
 # Healing
-R:248:0/-108
+K:248:0/-108
 
 # Restoration
-R:249:0/-108
+K:249:0/-108
 
 # Speed
-R:250:0/-108
+K:250:0/-108
 
 # Stone to Mud
-R:251:0/-99
+K:251:0/-99
 
 # Teleport Other
-R:252:0/-108
+K:252:0/-108
 
 # Disarming
-R:253:0/-108
+K:253:0/-108
 
 # Light
-R:254:0/-108
+K:254:0/-108
 
 # Sleep Monster
-R:255:0/-108
+K:255:0/-108
 
 # Slow Monster
-R:256:0/-108
+K:256:0/-108
 
 # Drain Life
-R:257:0/-108
+K:257:0/-108
 
 # Polymorph
-R:258:0/-108
+K:258:0/-108
 
 # Acid Bolts
-R:259:0/-108
+K:259:0/-108
 
 # Lightning Bolts
-R:260:0/-108
+K:260:0/-108
 
 # Fire Bolts
-R:261:0/-108
+K:261:0/-108
 
 # Frost Bolts
-R:262:0/-108
+K:262:0/-108
 
 # Acid Balls
-R:263:0/-108
+K:263:0/-108
 
 # Lightning Balls
-R:264:0/-108
+K:264:0/-108
 
 # Fire Balls
-R:265:0/-108
+K:265:0/-108
 
 # Cold Balls
-R:266:0/-108
+K:266:0/-108
 
 # Darkness
-R:267:0/-107
+K:267:0/-107
 
 # Aggravate Monster
-R:268:0/-107
+K:268:0/-107
 
 # Curse Armor
-R:269:0/-107
+K:269:0/-107
 
 # Curse Weapon
-R:270:0/-107
+K:270:0/-107
 
 # Summon Monster
-R:271:0/-107
+K:271:0/-107
 
 # Summon Undead
-R:272:0/-107
+K:272:0/-107
 
 # Summon Unique
-R:273:0/-107
+K:273:0/-107
 
 # Trap Creation
-R:274:0/-107
+K:274:0/-107
 
 # Phase Door
-R:275:0/-107
+K:275:0/-107
 
 # Teleportation
-R:276:0/-107
+K:276:0/-107
 
 # Teleport Level
-R:277:0/-107
+K:277:0/-107
 
 # Word of Recall
-R:278:0/-107
+K:278:0/-107
 
 # Identify
-R:279:0/-107
+K:279:0/-107
 
 # *Identify*
-R:280:0/-107
+K:280:0/-107
 
 # Remove Curse
-R:281:0/-107
+K:281:0/-107
 
 # *Remove Curse*
-R:282:0/-107
+K:282:0/-107
 
 # Enchant Armor
-R:283:0/-107
+K:283:0/-107
 
 # Enchant Weapon To-Hit
-R:284:0/-107
+K:284:0/-107
 
 # Enchant Weapon To-Dam
-R:285:0/-107
+K:285:0/-107
 
 # *Enchant Armor*
-R:286:0/-107
+K:286:0/-107
 
 # *Enchant Weapon*
-R:287:0/-107
+K:287:0/-107
 
 # Recharging
-R:288:0/-107
+K:288:0/-107
 
 # *Recharging*
-R:289:0/-107
+K:289:0/-107
 
 # Light
-R:290:0/-107
+K:290:0/-107
 
 # Magic Mapping
-R:291:0/-107
+K:291:0/-107
 
 # Treasure Detection
-R:292:0/-107
+K:292:0/-107
 
 # Object Detection
-R:293:0/-107
+K:293:0/-107
 
 # Trap Detection
-R:294:0/-107
+K:294:0/-107
 
 # Door/Stair Location
-R:295:0/-107
+K:295:0/-107
 
 # Detect Invisible
-R:296:0/-107
+K:296:0/-107
 
 # Satisfy Hunger
-R:297:0/-107
+K:297:0/-107
 
 # Blessing
-R:298:0/-107
+K:298:0/-107
 
 # Holy Chant
-R:299:0/-107
+K:299:0/-107
 
 # Holy Prayer
-R:300:0/-107
+K:300:0/-107
 
 # Monster Confusion
-R:301:0/-107
+K:301:0/-107
 
 # Protection from Evil
-R:302:0/-107
+K:302:0/-107
 
 # Rune of Protection
-R:303:0/-107
+K:303:0/-107
 
 # Trap/Door Destruction
-R:304:0/-107
+K:304:0/-107
 
 # Create Monster Trap
-R:305:0/-107
+K:305:0/-107
 
 # *Destruction*
-R:306:0/-107
+K:306:0/-107
 
 # Dispel Undead
-R:307:0/-107
+K:307:0/-107
 
 # Create Artifact
-R:308:0/-107
+K:308:0/-107
 
 # Banishment
-R:309:0/-107
+K:309:0/-107
 
 # Mass Banishment
-R:310:0/-107
+K:310:0/-107
 
 # Acquirement
-R:311:0/-107
+K:311:0/-107
 
 # *Acquirement*
-R:312:0/-107
+K:312:0/-107
 
 # Water
-R:313:0/-110
+K:313:0/-110
 
 # Apple Juice
-R:314:0/-110
+K:314:0/-110
 
 # Slime Mold Juice
-R:315:0/-110
+K:315:0/-110
 
 # Slowness
-R:316:0/-110
+K:316:0/-110
 
 # Salt Water
-R:317:0/-110
+K:317:0/-110
 
 # Poison
-R:318:0/-110
+K:318:0/-110
 
 # Blindness
-R:319:0/-110
+K:319:0/-110
 
 # Confusion
-R:320:0/-110
+K:320:0/-110
 
 # Sleep
-R:321:0/-110
+K:321:0/-110
 
 # Lose Memories
-R:322:0/-110
+K:322:0/-110
 
 # Drain Mana
-R:323:0/-110
+K:323:0/-110
 
 # Ruination
-R:324:0/-110
+K:324:0/-110
 
 # Weakness
-R:325:0/-110
+K:325:0/-110
 
 # Stupidity
-R:326:0/-110
+K:326:0/-110
 
 # Naivety
-R:327:0/-110
+K:327:0/-110
 
 # Clumsiness
-R:328:0/-110
+K:328:0/-110
 
 # Sickliness
-R:329:0/-110
+K:329:0/-110
 
 # Ugliness
-R:330:0/-110
+K:330:0/-110
 
 # Detonations
-R:331:0/-110
+K:331:0/-110
 
 # Death
-R:332:0/-110
+K:332:0/-110
 
 # Infravision
-R:333:0/-110
+K:333:0/-110
 
 # Detect Invisible
-R:334:0/-110
+K:334:0/-110
 
 # Slow Poison
-R:335:0/-110
+K:335:0/-110
 
 # Neutralize Poison
-R:336:0/-110
+K:336:0/-110
 
 # Boldness
-R:337:0/-110
+K:337:0/-110
 
 # Speed
-R:338:0/-110
+K:338:0/-110
 
 # Resist Heat
-R:339:0/-110
+K:339:0/-110
 
 # Resist Cold
-R:340:0/-110
+K:340:0/-110
 
 # Heroism
-R:341:0/-110
+K:341:0/-110
 
 # Berserk Strength
-R:342:0/-110
+K:342:0/-110
 
 # Cure Light Wounds
-R:343:0/-110
+K:343:0/-110
 
 # Cure Serious Wounds
-R:344:0/-110
+K:344:0/-110
 
 # Cure Critical Wounds
-R:345:0/-110
+K:345:0/-110
 
 # Healing
-R:346:0/-110
+K:346:0/-110
 
 # *Healing*
-R:347:0/-110
+K:347:0/-110
 
 # Life
-R:348:0/-110
+K:348:0/-110
 
 # Restore Mana
-R:349:0/-110
+K:349:0/-110
 
 # Restore Life Levels
-R:350:0/-110
+K:350:0/-110
 
 # Restore Strength
-R:351:0/-110
+K:351:0/-110
 
 # Restore Intelligence
-R:352:0/-110
+K:352:0/-110
 
 # Restore Wisdom
-R:353:0/-110
+K:353:0/-110
 
 # Restore Dexterity
-R:354:0/-110
+K:354:0/-110
 
 # Restore Constitution
-R:355:0/-110
+K:355:0/-110
 
 # Restore Charisma
-R:356:0/-110
+K:356:0/-110
 
 # Strength
-R:357:0/-110
+K:357:0/-110
 
 # Intelligence
-R:358:0/-110
+K:358:0/-110
 
 # Wisdom
-R:359:0/-110
+K:359:0/-110
 
 # Dexterity
-R:360:0/-110
+K:360:0/-110
 
 # Constitution
-R:361:0/-110
+K:361:0/-110
 
 # Charisma
-R:362:0/-110
+K:362:0/-110
 
 # Augmentation
-R:363:0/-110
+K:363:0/-110
 
 # Enlightenment
-R:364:0/-110
+K:364:0/-110
 
 # *Enlightenment*
-R:365:0/-110
+K:365:0/-110
 
 # Self Knowledge
-R:366:0/-110
+K:366:0/-110
 
 # Experience
-R:367:0/-110
+K:367:0/-110
 
 # Resist Acid
-R:368:0/-109
+K:368:0/-109
 
 # Resist Electricity
-R:369:0/-109
+K:369:0/-109
 
 # Resist Poison
-R:370:0/-109
+K:370:0/-109
 
 # Resistance
-R:371:0/-109
+K:371:0/-109
 
 # & Small wooden chest~
-R:372:2/-121
+K:372:2/-121
 
 # & Small iron chest~
-R:373:2/-121
+K:373:2/-121
 
 # & Small steel chest~
-R:374:2/-121
+K:374:2/-121
 
 # & Large wooden chest~
-R:375:2/-121
+K:375:2/-121
 
 # & Large iron chest~
-R:376:2/-121
+K:376:2/-121
 
 # & Large steel chest~
-R:377:2/-121
+K:377:2/-121
 
 # & Large Jeweled chest~
-R:378:2/-121
+K:378:2/-121
 
 # Poison
-R:379:0/-112
+K:379:0/-112
 
 # Blindness
-R:380:0/-112
+K:380:0/-112
 
 # Paranoia
-R:381:0/-112
+K:381:0/-112
 
 # Confusion
-R:382:0/-112
+K:382:0/-112
 
 # Hallucination
-R:383:0/-112
+K:383:0/-112
 
 # Paralysis
-R:384:0/-112
+K:384:0/-112
 
 # Weakness
-R:385:0/-112
+K:385:0/-112
 
 # Sickness
-R:386:0/-112
+K:386:0/-112
 
 # Stupidity
-R:387:0/-112
+K:387:0/-112
 
 # Naivety
-R:388:0/-112
+K:388:0/-112
 
 # Unhealth
-R:389:0/-112
+K:389:0/-112
 
 # Disease
-R:390:0/-112
+K:390:0/-112
 
 # Cure Poison
-R:391:0/-112
+K:391:0/-112
 
 # Cure Blindness
-R:392:0/-112
+K:392:0/-112
 
 # Cure Paranoia
-R:393:0/-112
+K:393:0/-112
 
 # Cure Confusion
-R:394:0/-112
+K:394:0/-112
 
 # Cure Serious Wounds
-R:395:0/-112
+K:395:0/-112
 
 # Restore Strength
-R:396:0/-112
+K:396:0/-112
 
 # Restore Constitution
-R:397:0/-112
+K:397:0/-112
 
 # Restoring
-R:398:0/-112
+K:398:0/-112
 
 # & Ration~ of Food
-R:399:15/-119
+K:399:15/-119
 
 # & Slime Mold~
-R:400:5/-119
+K:400:5/-119
 
 # & Piece~ of Elvish Waybread
-R:401:14/-119
+K:401:14/-119
 
 # & Flask~ of oil
-R:402:11/-110
+K:402:11/-110
 
 # & Iron Spike~
-R:403:9/-103
+K:403:9/-103
 
 # copper
-R:404:7/-47
+K:404:7/-47
 
 # copper
-R:405:7/-47
+K:405:7/-47
 
 # copper
-R:406:7/-47
+K:406:7/-47
 
 # silver
-R:407:2/-47
+K:407:2/-47
 
 # silver
-R:408:2/-47
+K:408:2/-47
 
 # silver
-R:409:2/-47
+K:409:2/-47
 
 # garnets
-R:410:4/-47
+K:410:4/-47
 
 # garnets
-R:411:4/-47
+K:411:4/-47
 
 # gold
-R:412:11/-47
+K:412:11/-47
 
 # gold
-R:413:11/-47
+K:413:11/-47
 
 # gold
-R:414:11/-47
+K:414:11/-47
 
 # opals
-R:415:9/-47
+K:415:9/-47
 
 # sapphires
-R:416:6/-47
+K:416:6/-47
 
 # rubies
-R:417:4/-47
+K:417:4/-47
 
 # diamonds
-R:418:1/-47
+K:418:1/-47
 
 # emeralds
-R:419:5/-47
+K:419:5/-47
 
 # mithril
-R:420:14/-47
+K:420:14/-47
 
 # adamantite
-R:421:13/-47
+K:421:13/-47
 
 # [Magic for Beginners]
-R:422:12/-123
+K:422:12/-123
 
 # [Conjurings and Tricks]
-R:423:12/-123
+K:423:12/-123
 
 # [Incantations and Illusions]
-R:424:12/-123
+K:424:12/-123
 
 # [Sorcery and Evocations]
-R:425:12/-123
+K:425:12/-123
 
 # [Resistances of Scarabtarices]
-R:426:4/-123
+K:426:4/-123
 
 # [Raal's Tome of Destruction]
-R:427:4/-123
+K:427:4/-123
 
 # [Mordenkainen's Escapes]
-R:428:4/-123
+K:428:4/-123
 
 # [Tenser's Transformations]
-R:429:4/-123
+K:429:4/-123
 
 # [Kelek's Grimoire of Power]
-R:430:4/-123
+K:430:4/-123
 
 # [Beginners Handbook]
-R:431:13/-123
+K:431:13/-123
 
 # [Words of Wisdom]
-R:432:13/-123
+K:432:13/-123
 
 # [Chants and Blessings]
-R:433:13/-123
+K:433:13/-123
 
 # [Exorcism and Dispelling]
-R:434:13/-123
+K:434:13/-123
 
 # [Ethereal Openings]
-R:435:5/-123
+K:435:5/-123
 
 # [Godly Insights]
-R:436:5/-123
+K:436:5/-123
 
 # [Purifications and Healing]
-R:437:5/-123
+K:437:5/-123
 
 # [Holy Infusions]
-R:438:5/-123
+K:438:5/-123
 
 # [Wrath of God]
-R:439:5/-123
+K:439:5/-123
 
 # & Broken Bone~
-R:440:1/-104
+K:440:1/-104
 
+# Mass Identify
+K:441:0/-102
+
+# *Identify*
+K:442:0/-108
+
+# Mass Identify
+K:443:0/-108
 
 # The following things should use the "S:<code>:<attr>/<char>" mechanism
 
@@ -3338,5 +3350,3 @@ R:654:13/-69
 
 # Deathlord
 R:655:4/-85
-
-

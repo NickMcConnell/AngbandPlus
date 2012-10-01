@@ -16,9 +16,6 @@ go deeper in the dungeon. A player must kill Sauron at 4950 feet in order to be
 able to meet Morgoth. Defeating Morgoth, or completing both quests, wins the
 game. These quests are unchanged for every game.
 
-NPPAngband version 0.2.0 has incorporated the EYAngband style quest system,
-which work as follows:
-
 FIXED UNIQUE QUESTS:
 
 This is unchanged from Angband. The player always has two fixed quests,
@@ -42,7 +39,7 @@ Guild. Initially, a player can choose only monster quest.  After the player has
 gone as deep as level 5 (250') they may choose a quest to clear out a pit or 
 nest.  After the player has gone as deep as  level 10 (250') they may choose 
 a quest to clear an entire level of a particular type of monster.  Occasionally, 
-the player has the choice of a special (artifact) quest. The guild will never 
+the player has the choice of a vault (artifact) quest. The guild will never 
 assign more than one optional quest at any time. Upon completion of an 
 optional quest, the guild gives a reward to the player.
 
@@ -76,7 +73,7 @@ killed or the quest fails. Since Uniques tend to be more difficult to kill than
 regular creatures, this type of quest tends to be more difficult than monster
 quests.
 
-SPECIAL, or ARTIFACT QUESTS:
+VAULT, or ARTIFACT QUESTS:
 
 This quest is to go to a specified depth, retrieve an artifact and return 
 it to the guild, which is being held by a monster inside a small vault on a 
@@ -105,9 +102,9 @@ THEMED LEVEL QUESTS:
 
 This quest is a more difficult version of the Monster Pit/Nest quests.  Instead of
 95 creatures in a pit or nest specified depth, and entire level is full between 
-195 - 320 monsters of a partcular theme.  
+195 - 275 monsters of a partcular theme.  
 Since there are so many like creatures bunched so closely together, a creature
-from inside one of these special pits/nests will not attempt to summon more 
+from inside one of these themed levels will not attempt to summon more 
 creatures to the battle.  This tends to be the most difficult type of quest, 
 increases your player fame by the greatest amount, and offers the most lucrative 
 rewards.  Voluntarily leaving a themed level results in immediate 

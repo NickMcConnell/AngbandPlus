@@ -4,6 +4,16 @@
 static void do_qual_squelch(void);
 static int do_ego_item_squelch(void);
 
+typedef struct tval_insc_desc tval_insc_desc;
+
+struct tval_insc_desc
+{
+	int        tval;
+	cptr       desc;
+};
+
+
+
 
 /*
  * This stores the various squelch levels for the secondary squelching.
@@ -127,6 +137,50 @@ static tval_desc tvals[] =
 	{0, NULL}
 };
 
+static cptr get_autoinscription(s16b kindIdx)
+{
+	int i;
+
+	for(i = 0; i < inscriptionsCount; i++)
+	{
+		if(kindIdx == inscriptions[i].kindIdx)
+		{
+			return quark_str(inscriptions[i].inscriptionIdx);
+		}
+	}
+
+	return 0;
+}
+
+static int do_cmd_autoinscribe_item(s16b k_idx)
+{
+	char tmp[80] = "";
+	cptr curInscription = get_autoinscription(k_idx);
+
+	if(curInscription)
+	{
+		strncpy(tmp, curInscription, sizeof(tmp));
+		tmp[sizeof(tmp) - 1] = 0;
+	}
+
+	/* Get a new inscription (possibly empty) */
+	if(get_string("Autoinscription: ", tmp, sizeof(tmp)))
+	{
+		/* Save the inscription */
+		add_autoinscription(k_idx, tmp);
+
+		/* Inscribe stuff */
+		p_ptr->notice |= (PN_AUTOINSCRIBE);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		return 1;
+	}
+
+	return 0;
+}
+
+
+
 /*
  * This subroutine actually handles the squelching menus.
  */
@@ -169,16 +223,20 @@ static int do_cmd_squelch_aux(void)
 	max_num = num;
 
 	prt("Commands:", 3, 30);
-	prt("[a-t]: Go to item squelching sub-menu.", 5, 30);
+	prt("[a-t]: Go to item squelching and autoinscribing sub-menu.", 5, 30);
 	prt("Q    : Go to quality squelching sub-menu*.", 6, 30);
 	prt("E    : Go to ego-item squelching sub_menu.", 7, 30);
 	prt("S    : Save squelch values to pref file.", 8, 30);
 	prt("L    : Load squelch values from pref file.", 9, 30);
-	prt("ESC  : Back to options menu.", 10, 30);
-	prt("     :*includes squelching opened chests.", 12, 30);
+	prt("B    : Save autoinscriptions to pref file.", 10, 30);
+	prt("G    : Load autoinscriptions from pref file.", 11, 30);
+
+
+	prt("ESC  : Back to options menu.", 12, 30);
+	prt("     :*includes squelching opened chests.", 14, 30);
 
 	/* Choose! */
-	if (!get_com("Item Squelching Main Menu: ", &ch)) return (0);
+	if (!get_com("Item Squelching and Autoinscription Main Menu: ", &ch)) return (0);
 
 	if (ch=='Q')
 	{
@@ -195,10 +253,10 @@ static int do_cmd_squelch_aux(void)
 	else if (ch=='S')
 	{
 	 	/* Prompt */
-	  	prt("Command: Dump Squelch Info", 12, 30);
+	  	prt("Command: Dump Squelch Info", 17, 30);
 
 	  	/* Prompt */
-	  	prt("File: ", 13, 30);
+	  	prt("File: ", 18, 30);
 
 	  	/* Default filename */
 	  	sprintf(ftmp, "%s.squ", op_ptr->base_name);
@@ -253,7 +311,7 @@ static int do_cmd_squelch_aux(void)
 		  		 my_fclose(fff);
 
 		  		 /* Ending message */
-		  		 prt("Squelch file saved successfully.  (Hit a key.)", 15, 30);
+		  		 prt("Squelch file saved successfully.  (Hit a key.)", 17, 30);
 		  		 get_com("", &sq);
 			}
 
@@ -263,10 +321,10 @@ static int do_cmd_squelch_aux(void)
 	else if (ch=='L')
 	{
 	 	/* Prompt */
-	 	prt("Command: Load squelch info from file", 12, 30);
+	 	prt("Command: Load squelch info from file", 16, 30);
 
 	 	/* Prompt */
-	 	prt("File: ", 13, 30);
+	 	prt("File: ", 17, 30);
 
 	 	/* Default filename */
 	 	sprintf(ftmp, "%s.squ", op_ptr->base_name);
@@ -278,19 +336,102 @@ static int do_cmd_squelch_aux(void)
 	    	if (process_pref_file(ftmp))
 	    	{
 	    		/* Mention failure */
-	      		prt("Failed to load squelch file!  (Hit a key.)", 15, 30);
+	      		prt("Failed to load squelch file!  (Hit a key.)", 17, 30);
+	    	}
+	    	else
+	    	{
+	      		/* Mention success */
+	      		prt("Squelch data loaded!  (Hit a key.)", 17, 30);
+	    	}
+			get_com("", &sq);
+	  	}
+
+	}
+
+	if (ch=='B')
+	{
+	 	/* Prompt */
+	  	prt("Command: Dump Autoinscribe Info", 16, 30);
+
+	  	/* Prompt */
+	  	prt("File: ", 17, 30);
+
+	  	/* Default filename */
+	  	strcpy(ftmp, op_ptr->base_name);
+
+	  	/* Get a filename */
+	  	if (askfor_aux(ftmp, 80))
+	    {
+	      	/* Build the filename */
+	      	path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
+
+	      	/* Drop priv's */
+	      	safe_setuid_drop();
+
+	      	/* Overwrite the file */
+	      	fff = my_fopen(buf, "w");
+
+	      	/* Grab priv's */
+	      	safe_setuid_grab();
+
+	      	/* Test for success */
+	      	if (fff && inscriptions)
+			{
+		  		/* Start dumping */
+		  		fprintf(fff, "# Format: B:[Item Kind]:[Inscription]\n\n");
+
+		  		for (i = 0; i < inscriptionsCount; i++)
+		 		{
+					object_kind *k_ptr = &k_info[inscriptions[i].kindIdx];
+
+					/* Write a comment for the autoinscription*/
+					fprintf(fff, "# Autoinscription for %s\n",
+						k_name + k_ptr->name);
+					/* Dump the autoinscribe info */
+					fprintf(fff, "B:%d:%s\n\n",
+						inscriptions[i].kindIdx,
+						quark_str(inscriptions[i].inscriptionIdx));
+		 		}
+
+		  		/* Close */
+		  		my_fclose(fff);
+
+		  		/* Ending message */
+		  		prt("Autoinscribe file saved successfully.  (Hit a key.)", 16, 30);
 	      		get_com("", &sq);
+			}
+	    }
+	}
+	else if (ch=='G')
+	{
+	 	/* Prompt */
+	 	prt("Command: Load Autoinscribe info from file", 16, 30);
+
+	 	/* Prompt */
+	 	prt("File: ", 17, 30);
+
+	 	/* Default filename */
+	 	strcpy(ftmp, op_ptr->base_name);
+
+	 	/* Ask for a file (or cancel) */
+	 	if (askfor_aux(ftmp, 80))
+	  	{
+	    	/* Process the given filename */
+	    	if (process_pref_file(ftmp))
+	    	{
+	    		/* Mention failure */
+	      		prt("Failed to load autoinscribe file!  (Hit a key.)", 16, 30);
 	    	}
 
 	    	else
 	    	{
 	      		/* Mention success */
-	      		prt("Squelch data loaded!  (Hit a key.)", 15, 30);
-	      		get_com("", &sq);
+	      		prt("Autoinscribe data loaded!  (Hit a key.)", 16, 30);
 	    	}
+			get_com("", &sq);
 	  	}
-
 	}
+
 
 	else
  	{
@@ -333,7 +474,7 @@ static int do_cmd_squelch_aux(void)
 				if (k_ptr->tval == TV_GOLD) continue;
 
 				/*haven't seen the item yet*/
-				if (!k_ptr->aware) continue;
+				if (!k_ptr->everseen) continue;
 
 				choice[num++] = i;
 			}
@@ -382,8 +523,7 @@ static int do_cmd_squelch_aux(void)
 				for (num = 0; num < max_num; num++)
 				{
 					object_kind *k_ptr = &k_info[choice[num]];
-
-					k_ptr->everseen |= k_ptr->aware;
+					cptr curStr;
 
 					/* Reduce flickering */
 					if (!display_all && num != active && num != old_active)
@@ -397,6 +537,14 @@ static int do_cmd_squelch_aux(void)
 					/* Acquire the "name" of object "i" */
 					strip_name(buf, choice[num]);
 
+					/*Print out the autoinscription*/
+					if (num == active)
+					{
+						curStr = get_autoinscription(choice[active]);
+						c_put_str(TERM_WHITE,
+						format("Current Autoinscription: %-40s", curStr ? curStr : "[None]"),
+						4,	39);
+					}
 
 					/*get the color and character*/
 
@@ -460,6 +608,9 @@ static int do_cmd_squelch_aux(void)
 				prt("+/-     Toggle Selection", 2, 55);
 				c_put_str(TERM_L_RED,"CTRL-S: Squelch", 3, 0);
 				prt("Use direction keys to Navigate list; or enter a letter", 3, 22);
+				/*header text*/
+				c_put_str(TERM_WHITE, "Enter: New autoinscription", 4, 10);
+
 			}
 
 			display_all = 0;
@@ -560,6 +711,11 @@ static int do_cmd_squelch_aux(void)
 				else bell("");
 
 	    	}
+
+			else if (ch == 13)
+			{
+				do_cmd_autoinscribe_item(choice[active]);
+			}
 
 			else if (ch == '4')
 			{
@@ -887,9 +1043,7 @@ static void do_qual_squelch(void)
 }
 
 #define MAX_EGO_ROWS 19
-#define MAX_EGO_COLS 79
 
-/* This MUST be sorted by tval */
 static tval_desc raw_tvals[] =
 {
 	{TV_SKELETON, "Skeletons"},
@@ -942,9 +1096,9 @@ static const char *strip_ego_name(const char *name)
 }
 
 /*
- * Utility function used to find tval names.
+ * Utility function used to find/sort tval names.
  */
-static int tval_searching_func(const void *a_ptr, const void *b_ptr)
+static int tval_comp_func(const void *a_ptr, const void *b_ptr)
 {
 	int a = ((tval_desc *)a_ptr)->tval;
 	int b = ((tval_desc *)b_ptr)->tval;
@@ -1001,7 +1155,7 @@ static void display_ego_item(ego_item_type *e_ptr, int y, int x, bool active)
     	key.tval = tval_table[i];
     	key.desc = NULL;
     	result = bsearch(&key, raw_tvals, NUM_RAW_TVALS, sizeof(raw_tvals[0]),
-		tval_searching_func);
+							tval_comp_func);
     	if (result) name = result->desc;
     	/* Paranoia */
     	else	name = "????";
@@ -1045,7 +1199,7 @@ static void display_ego_item(ego_item_type *e_ptr, int y, int x, bool active)
  * Utility function used for sorting an array of ego-item indices by
  * ego-item name.
  */
-static int ego_sorting_func(const void *a_ptr, const void *b_ptr)
+static int ego_comp_func(const void *a_ptr, const void *b_ptr)
 {
   	s16b a = *(s16b *)a_ptr;
   	s16b b = *(s16b *)b_ptr;
@@ -1066,6 +1220,16 @@ static int do_ego_item_squelch(void)
 	ego_item_type *e_ptr;
  	s16b *choice;
 
+	/* Hack - Used to sort the tval table for the first time */
+	static bool sort_tvals = TRUE;
+
+	/* Sort the tval table if needed */
+	if (sort_tvals)
+	{
+	  qsort(raw_tvals, NUM_RAW_TVALS, sizeof(raw_tvals[0]), tval_comp_func);
+	  sort_tvals = FALSE;
+	}
+
  	/* Alloc the array of ego indices */
  	C_MAKE(choice, alloc_ego_size, s16b);
 
@@ -1084,7 +1248,7 @@ static int do_ego_item_squelch(void)
 	}
 
   	/* Quickly sort the array by ego-item name */
-  	qsort(choice, max_num, sizeof(choice[0]), ego_sorting_func);
+  	qsort(choice, max_num, sizeof(choice[0]), ego_comp_func);
 
   	/* Display the whole screen */
   	display_all = TRUE;
@@ -1122,7 +1286,9 @@ static int do_ego_item_squelch(void)
       		if (last < max_num - 1) c_put_str(TERM_WHITE, "-more-", 22, 4);
 
       		/* Page foot */
-      		msg = "Navigation: 2, 8, 3, 9, 1, 7 or movement keys";
+      		msg = "Navigation: 2, 8, 3, 9, 1, 7 or movement keys"
+			" - Shorcut: First letter";
+
       		c_put_str(TERM_WHITE, msg, 23, 0);
     	}
 
@@ -1238,14 +1404,52 @@ static int do_ego_item_squelch(void)
 	  			display_all = 1;
 	  			break;
 			}
+
+			/* Compare with the first letter of ego-item names */
+			default:
+			{
+				const char *name;
+
+				/* Ignore strange characters */
+			  	if (!isgraph((unsigned char)ch)) break;
+
+				/* Check for seen ego-items */
+				for (i = 0; i < max_num; i++)
+				{
+				  	/* Get the ego-item */
+				  	e_ptr = &e_info[choice[i]];
+
+					/* Get its name */
+					name = e_name + e_ptr->name;
+
+					/* Strip the name */
+					name = strip_ego_name(name);
+
+					/* Compare first letter, case insen. */
+					if (toupper((unsigned char)name[0]) ==
+					    toupper((unsigned char)ch)) break;
+				}
+
+				/* Found one? */
+				if (i >= max_num) break;
+
+				/* Jump there */
+				active = i;
+				/* Adjust visual bounds */
+				/* Try to put the found ego in the first row */
+				last = MIN(active + MAX_EGO_ROWS - 1,
+				    max_num - 1);
+				first = MAX(last - MAX_EGO_ROWS + 1, 0);
+				/* Redraw all */
+				display_all = 1;
+				break;
+			}
     	}
   	}
-
-  	/* Free resources */
-  	FREE(choice);
-  	return 0;
+ 	/* Free resources */
+ 	FREE(choice);
+ 	return 0;
 }
-
 
 
 /*
@@ -1293,13 +1497,12 @@ void init_tv_to_type(void)
   tv_to_type[TV_PRAYER_BOOK]=TYPE_BOOK;
 }
 
-void do_cmd_squelch(void)
+void do_cmd_squelch_autoinsc(void)
 {
 
 	int flag;
 	int x, y;
 	init_tv_to_type();
-
 
 	flag=1;
 
@@ -1318,20 +1521,11 @@ void do_cmd_squelch(void)
 		}
 	}
 
-
 	/* Restore the screen */
 	Term_load();
 
 	return;
 }
-
-/*
- * These are the return values of squelch_itemp()
- */
-
-#define SQUELCH_FAILED -1
-#define SQUELCH_NO      0
-#define SQUELCH_YES     1
 
 /*
  * Determines if an object is going to be squelched on identification.
@@ -1355,10 +1549,10 @@ int squelch_itemp(object_type *o_ptr, byte feelings, bool fullid)
   	/*never squelch quest items*/
   	if (o_ptr->ident & IDENT_QUEST) return result;
 
-	/* Squelch some ego items */
-	if ((ego_item_p(o_ptr)) && (e_info[o_ptr->name2].squelch))
+	/* Squelch some ego items if known */
+	if (fullid && (ego_item_p(o_ptr)) && (e_info[o_ptr->name2].squelch))
 	{
-		return ((o_ptr->note) ? SQUELCH_FAILED: SQUELCH_YES);
+		return ((o_ptr->obj_note) ? SQUELCH_FAILED: SQUELCH_YES);
 	}
 
   	/* Check to see if the object is eligible for squelching on id. */
@@ -1449,7 +1643,7 @@ int squelch_itemp(object_type *o_ptr, byte feelings, bool fullid)
   	if (result==SQUELCH_NO) return result;
 
   	/* Squelching will fail on an artifact */
-  	if ((artifact_p(o_ptr)) || (o_ptr->note)) result = SQUELCH_FAILED;
+  	if ((artifact_p(o_ptr)) || (o_ptr->obj_note)) result = SQUELCH_FAILED;
 
   	return result;
 }
@@ -1467,7 +1661,7 @@ int do_squelch_item(int squelch, int item, object_type *o_ptr)
 	/*hack - never squelch quest items*/
 	if (o_ptr->ident & IDENT_QUEST) return 0;
 
-  	if (item>0)
+  	if (item >= 0)
 	{
     	inven_item_increase(item, -o_ptr->number);
     	inven_item_optimize(item);
@@ -1586,5 +1780,151 @@ void do_squelch_pile(int y, int x)
 }
 
 
+int get_autoinscription_index(s16b k_idx)
+{
+	int i;
 
+	for(i = 0; i < inscriptionsCount; i++)
+	{
+		if(k_idx == inscriptions[i].kindIdx)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+
+/*Put the autoinscription on an object*/
+int apply_autoinscription(object_type *o_ptr)
+{
+	char o_name[80];
+	cptr note = get_autoinscription(o_ptr->k_idx);
+	cptr existingInscription = quark_str(o_ptr->obj_note);
+
+	/* Don't inscribe unaware objects */
+	if (!note || !object_aware_p(o_ptr))
+	{
+		return 0;
+	}
+
+	/* Don't re-inscribe if it's already correctly inscribed */
+	if(existingInscription && streq(note, existingInscription))
+	{
+		return 0;
+	}
+
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+	o_ptr->obj_note = note[0] == 0 ? 0 : quark_add(note);
+	msg_format("You autoinscribe %s.", o_name);
+
+	return 1;
+}
+
+
+int remove_autoinscription(s16b kind)
+{
+	int i = get_autoinscription_index(kind);
+
+	/* It's not here, */
+	if(i == -1) return 0;
+
+	while(i < inscriptionsCount - 1)
+	{
+
+		inscriptions[i] = inscriptions[i+1];
+		i++;
+	}
+
+	inscriptionsCount--;
+
+	return 1;
+}
+
+
+
+
+int add_autoinscription(s16b kind, cptr inscription)
+{
+	int index;
+
+	if(kind == 0)
+	{
+		/* paranoia */
+		return 0;
+	}
+
+	if(!inscription || inscription[0] == 0)
+	{
+		return remove_autoinscription(kind);
+	}
+
+	index = get_autoinscription_index(kind);
+
+	if(index == -1)
+	{
+		index = inscriptionsCount;
+	}
+
+	if(index >= AUTOINSCRIPTIONS_MAX)
+	{
+		msg_format("This inscription (%s) cannot be added, "
+			"because the inscription array is full!", inscription);
+		return 0;
+	}
+
+	inscriptions[index].kindIdx = kind;
+	inscriptions[index].inscriptionIdx = quark_add(inscription);
+
+	if(index == inscriptionsCount)
+	{
+		/* Only increment count if inscription added to end of array */
+		inscriptionsCount++;
+	}
+
+	return 1;
+}
+
+
+void autoinscribe_ground(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	s16b this_o_idx, next_o_idx = 0;
+
+	/* Scan the pile of objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the next object */
+		next_o_idx = o_list[this_o_idx].next_o_idx;
+
+		/* Apply an autoinscription */
+		apply_autoinscription(&o_list[this_o_idx]);
+	}
+}
+
+void autoinscribe_pack(void)
+{
+	int i;
+
+	for (i = INVEN_PACK; i > 0; i--)
+	{
+		/* Skip empty items */
+		if(!inventory[i].k_idx) continue;
+
+		apply_autoinscription(&inventory[i]);
+	}
+}
+
+/* Convert the values returned by squelch_itemp to string */
+char *squelch_to_label(int squelch)
+{
+  	if (squelch == SQUELCH_YES) return ("(Squelched)");
+
+	if (squelch == SQUELCH_FAILED) return ("(Squelch Failed)");
+
+	return ("");
+}
 

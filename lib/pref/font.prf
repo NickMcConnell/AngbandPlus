@@ -22,6 +22,8 @@
 
 %:font-xxx.prf
 
+##### Load the Shades #####
+%:shades.prf
 
 ##### System Specific Subfiles #####
 

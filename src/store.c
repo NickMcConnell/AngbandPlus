@@ -381,8 +381,8 @@ static u32b service_price[STORE_SERVICE_MAX] =
 	125,				/*  SERVICE_ENCHANT_ARMOR   	*/
 	125,				/*  SERVICE_ENCHANT_TO_HIT   	*/
 	125,				/*  SERVICE_ENCHANT_TO_DAM   	*/
-	25000,				/*  SERVICE_ELEM_BRAND_WEAP   	*/
-	12500,				/*  SERVICE_ELEM_BRAND_AMMO   	*/
+	35000,				/*  SERVICE_ELEM_BRAND_WEAP   	*/
+	17500,				/*  SERVICE_ELEM_BRAND_AMMO   	*/
 	175, 				/*  SERVICE_RECHARGING   		*/
 	75, 				/*  SERVICE_IDENTIFY   			*/
 	4500,		 		/*  SERVICE_IDENTIFY_FULLY		*/
@@ -393,14 +393,14 @@ static u32b service_price[STORE_SERVICE_MAX] =
 	700, 				/*  SERVICE_RESTORE_STAT   		*/
 	37500L, 			/*  SERVICE_INCREASE_STAT   	*/
 	750000L,			/*  SERVICE_CREATE_RANDART   	*/
-	10000L,				/*	SERVICE_DUN_PRAYER_BOOK		*/
-	10000L,				/*	SERVICE_DUN_MAGIC_BOOK		*/
+	25000L,				/*	SERVICE_DUN_PRAYER_BOOK		*/
+	25000L,				/*	SERVICE_DUN_MAGIC_BOOK		*/
 	150,				/*	SERVICE_PROBE_QUEST_MON		*/
-	17500L,				/*	SERVICE_BUY_HEALING_POTION		*/
-	100000L,			/*	SERVICE_BUY_LIFE_POTION		*/
+	20000L,				/*	SERVICE_BUY_HEALING_POTION	*/
+	125000L,			/*	SERVICE_BUY_LIFE_POTION		*/
 	0,					/*  SERVICE_ABANDON_QUEST */
-	50000L,				/* SERVICE_FIREPROOF_PBOOK */
-	50000L				/* SERVICE_FIREPROOF_MBOOK */
+	100000L,			/*  SERVICE_FIREPROOF_PBOOK */
+	100000L				/*  SERVICE_FIREPROOF_MBOOK */
 };
 
 /*
@@ -1080,7 +1080,7 @@ static int store_carry(object_type *o_ptr)
 	if (value <= 0) return (-1);
 
 	/* Erase the inscription */
-	o_ptr->note = 0;
+	o_ptr->obj_note = 0;
 
 	/* Remove special inscription, if any */
 	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -1275,8 +1275,8 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			/*only keep in the general store*/
-			if (which != STORE_GENERAL) return (FALSE);
+			/*only keep in the general store or weaponsmith*/
+			if ((which != STORE_GENERAL) && (which != STORE_WEAPON)) return (FALSE);
 			if (k_ptr->sval == SV_AMMO_NORMAL)
 			{
 				/*only normal ammo that isn't enchanted*/
@@ -1291,6 +1291,7 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 			if (which != STORE_TEMPLE) return (FALSE);
 			if (k_ptr->sval == SV_POTION_CURE_CRITICAL) return (TRUE);
 			if (k_ptr->sval == SV_POTION_RESTORE_EXP) return (TRUE);
+			if (k_ptr->sval == SV_POTION_HEROISM) return (TRUE);
 			return (FALSE);
 		}
 		case TV_SCROLL:
@@ -1299,7 +1300,9 @@ static bool keep_in_stock(const object_type *o_ptr, int which)
 			if (which != STORE_ALCHEMY) return (FALSE);
 			if (k_ptr->sval == SV_SCROLL_PHASE_DOOR) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_SATISFY_HUNGER) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_IDENTIFY) return (TRUE);
 			if (k_ptr->sval == SV_SCROLL_WORD_OF_RECALL) return (TRUE);
+			if (k_ptr->sval == SV_SCROLL_HOLY_CHANT) return (TRUE);
 			return (FALSE);
 
 		}
@@ -1393,10 +1396,10 @@ static void store_create(void)
 	for (tries = 0; tries < 10; tries++)
 	{
 
-		s16b obj_level;
+		s16b magic_level;
 
 		/* Pick a level for object/creation */
-		object_level = 10 + (p_ptr->lev / 2) + rand_int(p_ptr->lev);
+		magic_level = 15 + (p_ptr->lev / 2) + rand_int(p_ptr->lev);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -1411,12 +1414,12 @@ static void store_create(void)
 		 */
 		if ((store_num == STORE_B_MARKET) || (allow_altered_inventory))
 		{
-		 	obj_level = object_level;
+		 	object_level = magic_level;
 		}
-		else obj_level = 100;
+		else object_level = 100;
 
 		/* Pick a random object */
-		k_idx = get_obj_num(obj_level);
+		k_idx = get_obj_num(object_level);
 
 		/* Handle failure - but this should never happen*/
 		if (!k_idx) continue;
@@ -1424,15 +1427,8 @@ static void store_create(void)
 		/* Prepare the object */
 		object_prep(i_ptr, k_idx);
 
-		/*
-		 *Lower the object_generation level for
-		 * apply_magic, except for the
-		 * black market
-		 */
-		if (store_num != STORE_B_MARKET) object_level -= 10;
-
 		/* Apply magic (dis-allow artifacts) */
-		apply_magic(i_ptr, object_level, FALSE, FALSE, FALSE);
+		apply_magic(i_ptr, magic_level, FALSE, FALSE, FALSE);
 
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
@@ -2793,9 +2789,9 @@ static void store_service_aux(s16b choice)
 			/* Enchant armor if requested */
 			if (choice == SERVICE_ENCHANT_ARMOR)
 			{
-				item_tester_hook = item_tester_hook_armour;
+				item_tester_hook = item_tester_hook_ided_armour;
 			}
-			else item_tester_hook = item_tester_hook_weapon;
+			else item_tester_hook = item_tester_hook_ided_weapon;
 
 			/* Get an item */
 			q = "Enchant which item? ";
@@ -2822,7 +2818,7 @@ static void store_service_aux(s16b choice)
 			 * We will eventually run into the u32 variable max number, so
 			 * cut off the + allowed
 			 */
-			if (add_to >= 20)
+			if (add_to >= 15)
 			{
 				msg_format("%s %s cannot be enchanted any further",
 	           ((item >= 0) ? "Your" : "The"), o_name);
@@ -2841,7 +2837,7 @@ static void store_service_aux(s16b choice)
 			/* Greater to-hit and to-dam makes things more expensive*/
 			while (add_to >= counter)
 			{
-				price += (price * 7) / 20;
+				price += (price * 8) / 10;
 
 				counter ++;
 			}
@@ -2897,10 +2893,10 @@ static void store_service_aux(s16b choice)
 			/* Enchant weapon if requested */
 			if (choice == SERVICE_ELEM_BRAND_WEAP)
 			{
-				item_tester_hook = item_tester_hook_wieldable_weapon;
+				item_tester_hook = item_tester_hook_wieldable_ided_weapon;
 			}
 			/*Ammo*/
-			else item_tester_hook = item_tester_hook_ammo;
+			else item_tester_hook = item_tester_hook_ided_ammo;
 
 			/* Get an item */
 			q = "Brand which item? ";
@@ -3006,7 +3002,10 @@ static void store_service_aux(s16b choice)
 			/*Wands, and Staffs*/
 			else
 			{
-				price += (o_ptr->pval * price) / 5;
+				price += o_ptr->pval * price;
+
+				/*Bigger charage for a stack of staffs or wands*/
+				if (o_ptr->number > 1) price += (o_ptr->number - 1) * price;
 			}
 
 			/*Too expensive*/
@@ -3059,6 +3058,10 @@ static void store_service_aux(s16b choice)
 			/*Too expensive*/
 			if (check_gold(price)) return;
 
+			strnfmt(prompt, sizeof(prompt), "Spend %d gold to cure critical wounds? ",
+							price);
+			if (!get_check(prompt)) break;
+
 			/*Heal the player, note if they actually need healing*/
 			if (hp_player(damroll(8, 10))) healed = TRUE;
 			if (set_blind(0)) healed = TRUE;
@@ -3077,6 +3080,10 @@ static void store_service_aux(s16b choice)
 		{
 			/*Too expensive*/
 			if (check_gold(price)) return;
+
+			strnfmt(prompt, sizeof(prompt), "Spend %d gold to restore life levels? ",
+							price);
+			if (!get_check(prompt)) break;
 
 			/*We restored the player*/
 			if (restore_level()) p_ptr->au -= price;
@@ -3195,7 +3202,7 @@ static void store_service_aux(s16b choice)
 		{
 			s32b o_value;
 
-			if (adult_no_artifacts)
+			if ((adult_no_artifacts) || (adult_no_xtra_artifacts))
 			{
 				msg_print("Nothing happens.");
 				break;
@@ -3239,7 +3246,7 @@ static void store_service_aux(s16b choice)
 			o_value = p_ptr->fame / 2 + MAX((k_ptr->cost / 2000), p_ptr->fame / 5);
 
 		   	/*Hack - add in any to-hit and to-value, since they will be erased*/
-			o_value += o_ptr->to_h + o_ptr->to_d + o_ptr->to_a;
+			o_value += (o_ptr->to_h + o_ptr->to_d + o_ptr->to_a / 2);
 
 			/*actually create the Randart, or handle failure*/
 			if (make_one_randart(o_ptr, o_value, TRUE))
@@ -3292,6 +3299,8 @@ static void store_service_aux(s16b choice)
 			/* Check the stats for need */
 			for (i = SV_BOOK_MIN_GOOD; i < BOOKS_PER_REALM; i++)
 			{
+				u32b fakeprice = get_service_price(choice);
+
 				/*get the proper book*/
 				k_idx = lookup_kind(serv_tval, i);
 
@@ -3304,6 +3313,8 @@ static void store_service_aux(s16b choice)
 				/*Don't allow books that shouldn't be in the game*/
 				if (k_ptr->flags3 & TR3_IRONMAN_ONLY) continue;
 
+				fakeprice += (k_ptr->cost * 8);
+
 				book_sval[num_books] = k_idx;
 
 				/*print out the book*/
@@ -3311,8 +3322,12 @@ static void store_service_aux(s16b choice)
 				    TERM_L_GREEN: TERM_L_RED,
 				    format(" %c) %s ",
 				      store_to_label(num_books),
-				      k_name + k_ptr->name),
- 									 10 + num_books, 30);
+				      k_name + k_ptr->name), 7 + num_books, 20);
+
+				/*print out the price*/
+				c_put_str((serv_tval == TV_PRAYER_BOOK) ?
+				    TERM_L_GREEN: TERM_L_RED,
+				    format("%10d", fakeprice), 7 + num_books, 60);
 
 				/*Increase book counter*/
 				num_books++;
@@ -3331,7 +3346,7 @@ static void store_service_aux(s16b choice)
 			/*get the book kind*/
 			k_ptr = &k_info[k_idx];
 
-			price += (k_ptr->cost * 7);
+			price += (k_ptr->cost * 8);
 
 			/*Too expensive*/
 			if (check_gold(price)) break;
@@ -3473,6 +3488,10 @@ static void store_service_aux(s16b choice)
 
 			/*Too expensive*/
 			if (check_gold(price)) break;
+
+			strnfmt(prompt, sizeof(prompt), "Spend %d gold to purchase a %s? ",
+							price, (k_name + k_ptr->name));
+			if (!get_check(prompt)) break;
 
 			/*charge the player*/
 			p_ptr->au -= price;
@@ -3855,7 +3874,7 @@ static void store_purchase(void)
 				           (long)price);
 
 				/* Erase the inscription */
-				i_ptr->note = 0;
+				i_ptr->obj_note = 0;
 
 				/* Remove special inscription, if any */
 				if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -3893,7 +3912,7 @@ static void store_purchase(void)
 					int i;
 
 					/* Shuffle */
-					if (rand_int(STORE_SHUFFLE / 10) == 0)
+					if (one_in_(STORE_SHUFFLE))
 					{
 						/* Message */
 						msg_print("The shopkeeper retires.");
@@ -4123,7 +4142,7 @@ static void store_sell(void)
 		if (choice == 0)
 		{
 			/*Do we squelch the item upon identification*/
-			int squelch = 0;
+			int squelch = SQUELCH_NO;
 
 			/* Say "okay" */
 			say_comment_1();
@@ -4141,7 +4160,7 @@ static void store_sell(void)
 			dummy = object_value(i_ptr) * i_ptr->number;
 
 			/* Erase the inscription */
-			i_ptr->note = 0;
+			i_ptr->obj_note = 0;
 
 			/* Remove special inscription, if any */
 			if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -4159,7 +4178,7 @@ static void store_sell(void)
 			/* Window stuff */
 			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
-			p_ptr->redraw |= (PR_EQUIPPY);
+			p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST);
 
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -4207,12 +4226,11 @@ static void store_sell(void)
 			 * Check to see if anything left in the pack should be squelched.
 			 * We must make sure to do this before the item is sold
 			 */
-			if (squelch == 1)
+			if (squelch == SQUELCH_YES)
 			{
 				msg_format("In your pack: %s (%c).  %s",
           					 o_name, index_to_label(item),
-		   					((squelch == 1) ? "(Squelched)" :
-		    				((squelch == -1) ? "(Squelch Failed)" : "")));
+		   					squelch_to_label(squelch));
 
     			do_squelch_item(squelch, item, o_ptr);
     		}
@@ -4729,8 +4747,10 @@ void do_cmd_store(void)
 	/* Save the store number */
 	store_num = which;
 
+
 	/*find out of the store sells services*/
-	for (i = 0; i < STORE_SERVICE_MAX; i++)
+	/*But, remember the game option for no store services*/
+	if (!adult_no_store_services) for (i = 0; i < STORE_SERVICE_MAX; i++)
 	{
 		if (service_store[i] == store_num) store_has_services = TRUE;
 	}

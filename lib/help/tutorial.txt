@@ -22,8 +22,6 @@ reading the help, or by experimenting, whichever you prefer.
      To exit this tutorial, hit escape.  When ready to continue, type '?' to
 open up help, then press '1', then '2'.
 
-
-
      Okay, time to get playing!  Pick up an inexpensive weapon (store 3), some
 flasks of oil (store 1) or a sling and some shots (store 3), some light armour
 (stores 1 and 2), and some phase door scrolls and potions of cure light wounds
@@ -47,10 +45,5 @@ you can learn spells, practice them in safe places.  If you have questions, the
 '?' key is there to help.
 
 Have fun!
-
-
-
-
-
 
 

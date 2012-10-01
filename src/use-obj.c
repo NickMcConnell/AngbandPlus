@@ -54,7 +54,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_CONFUSION:
 		{
-			if (!p_ptr->resist_confu)
+			if (allow_player_confusion())
 			{
 				if (set_confused(p_ptr->confused + rand_int(10) + 10))
 				{
@@ -272,7 +272,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_CONFUSION:
 		{
-			if (!p_ptr->resist_confu)
+			if (allow_player_confusion())
 			{
 				if (set_confused(p_ptr->confused + rand_int(20) + 15))
 				{
@@ -727,15 +727,11 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 		case SV_POTION_RESISTANCE:
 		{
 			int act_time = randint(30) + 30;
-			if((set_oppose_acid(p_ptr->oppose_acid + act_time)) ||
-			   (set_oppose_elec(p_ptr->oppose_elec + act_time)) ||
-			   (set_oppose_fire(p_ptr->oppose_fire + act_time)) ||
-			   (set_oppose_cold(p_ptr->oppose_cold + act_time)) ||
-			   (set_oppose_pois(p_ptr->oppose_pois + act_time)))
-
-			{
-				*ident = TRUE;
-			}
+			if(set_oppose_acid(p_ptr->oppose_acid + act_time)) *ident = TRUE;
+			if(set_oppose_elec(p_ptr->oppose_elec + act_time)) *ident = TRUE;
+			if(set_oppose_fire(p_ptr->oppose_fire + act_time)) *ident = TRUE;
+			if(set_oppose_cold(p_ptr->oppose_cold + act_time)) *ident = TRUE;
+			if(set_oppose_pois(p_ptr->oppose_pois + act_time)) *ident = TRUE;
 			break;
 		}
 
@@ -1063,10 +1059,16 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			object_type object_type_body;
 
 			/*artifact power is based on depth*/
-			int randart_power = 15 + p_ptr->depth;
+			int randart_power = 10 + p_ptr->depth;
+
+			if ((adult_no_artifacts) || (adult_no_xtra_artifacts))
+			{
+				msg_print("Nothing happens.");
+				break;
+			}
 
 			/*occasional power boost*/
-			while (one_in_(15)) randart_power += 15;
+			while (one_in_(25)) randart_power += 25;
 
 			/* Get local object */
 			i_ptr = &object_type_body;
@@ -1354,6 +1356,14 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
+
+		case SV_STAFF_MASS_IDENTIFY:
+		{
+		  	mass_identify(3);
+			*ident = TRUE;
+		  	break;
+		}
+
 	}
 
 	return (use_charge);
@@ -1658,7 +1668,9 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Get a direction (unless KNOWN not to need it) */
-	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
+	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) &&
+		 (o_ptr->sval != SV_ROD_STAR_IDENTIFY) &&
+	 	 (o_ptr->sval != SV_ROD_MASS_IDENTIFY)) || !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1914,6 +1926,18 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		case SV_ROD_COLD_BALL:
 		{
 			fire_ball(GF_COLD, dir, 96, 2);
+			*ident = TRUE;
+			break;
+		}
+		case SV_ROD_STAR_IDENTIFY:
+		{
+			if (!identify_fully()) used_charge = FALSE;
+			*ident = TRUE;
+			break;
+		}
+		case SV_ROD_MASS_IDENTIFY:
+		{
+			mass_identify(3);
 			*ident = TRUE;
 			break;
 		}
@@ -2349,7 +2373,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FIREBRAND:
 			{
 				msg_format("Your %s glows deep red...", o_name);
-				(void)brand_bolts(TRUE);
+				if (!brand_bolts(TRUE)) return FALSE;
 				break;
 			}
 
@@ -2400,7 +2424,7 @@ static bool activate_object(object_type *o_ptr)
 			}
 			case ACT_RES_POIS:
 			{
-				msg_format("Your %s glows light blue...", o_name);
+				msg_format("Your %s glows light green...", o_name);
 				(void)set_oppose_cold(p_ptr->oppose_elec + randint(20) + 20);
 				break;
 			}
@@ -2436,6 +2460,7 @@ static bool activate_object(object_type *o_ptr)
 	{
 
 		u16b value = o_ptr->sval;
+		int time_2 = randint(10) + 10;
 
 		if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
 
@@ -2451,6 +2476,9 @@ static bool activate_object(object_type *o_ptr)
 
 				msg_print("You breathe lightning.");
 				fire_arc(GF_ELEC, dir, value, 0, 30);
+
+				set_oppose_elec(p_ptr->oppose_elec + time_2);
+
 				o_ptr->timeout = rand_int(value) + (value);
 				break;
 			}
@@ -2461,6 +2489,9 @@ static bool activate_object(object_type *o_ptr)
 
 				msg_print("You breathe frost.");
 				fire_arc(GF_COLD, dir, value, 0, 30);
+
+				set_oppose_cold(p_ptr->oppose_cold + time_2);
+
 				o_ptr->timeout = rand_int(value) + (value);
 				break;
 			}
@@ -2471,6 +2502,9 @@ static bool activate_object(object_type *o_ptr)
 
 				msg_print("You breathe acid.");
 				fire_arc(GF_ACID, dir, value, 0, 30);
+
+				set_oppose_acid(p_ptr->oppose_acid + time_2);
+
 				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
@@ -2481,6 +2515,9 @@ static bool activate_object(object_type *o_ptr)
 
 				msg_print("You breathe poison gas.");
 				fire_arc(GF_POIS, dir, value, 0, 30);
+
+				set_oppose_pois(p_ptr->oppose_pois + time_2);
+
 				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
@@ -2491,6 +2528,9 @@ static bool activate_object(object_type *o_ptr)
 
 				msg_print("You breathe fire.");
 				fire_arc(GF_FIRE, dir, value, 0, 30);
+
+				set_oppose_fire(p_ptr->oppose_fire + time_2);
+
 				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
@@ -2510,6 +2550,15 @@ static bool activate_object(object_type *o_ptr)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, value, 0, 30);
+
+				/* Increase the bonus to resistances */
+				time_2 = randint(20) + 20;
+				set_oppose_elec(p_ptr->oppose_elec + time_2);
+				set_oppose_cold(p_ptr->oppose_cold + time_2);
+				set_oppose_acid(p_ptr->oppose_acid + time_2);
+				set_oppose_pois(p_ptr->oppose_pois + time_2);
+				set_oppose_fire(p_ptr->oppose_fire + time_2);
+
 				o_ptr->timeout = rand_int(value * 3 / 4) + (value * 3 / 4);
 				break;
 			}
@@ -2717,260 +2766,6 @@ bool use_object(object_type *o_ptr, bool *ident)
 	return (used);
 }
 
-
-static cptr act_description[ACT_MAX] =
-{
-	"illumination",
-	"magic mapping",
-	"clairvoyance",
-	"protection from evil",
-	"dispel evil (x5)",
-	"heal (500)",
-	"heal (1000)",
-	"cure wounds (4d7)",
-	"haste self (20+d20 turns)",
-	"haste self (75+d75 turns)",
-	"fire bolt (9d8)",
-	"fire ball (72)",
-	"large fire ball (120)",
-	"frost bolt (6d8)",
-	"frost ball (48)",
-	"frost ball (100)",
-	"frost bolt (12d8)",
-	"large frost ball (200)",
-	"acid bolt (5d8)",
-	"recharge item I",
-	"sleep II",
-	"lightning bolt (4d8)",
-	"large lightning ball (250)",
-	"banishment",
-	"mass banishment",
-	"*identify*",
-	"drain life (90)",
-	"drain life (120)",
-	"bizarre things",
-	"star ball (150)",
-	"berserk rage, bless, and resistance",
-	"phase door",
-	"door and trap destruction",
-	"detection",
-	"resistance (20+d20 turns)",
-	"teleport",
-	"restore life levels",
-	"magic missile (2d6)",
-	"a magical arrow (150)",
-	"remove fear and cure poison",
-	"stinking cloud (12)",
-	"stone to mud",
-	"teleport away",
-	"word of recall",
-	"confuse monster",
-	"probing",
-	"fire branding of bolts",
-	"starlight (10d8)",
-	"mana bolt (12d8)",
-	"berserk rage (50+d50 turns)",
-	"resist acid (20+d20 turns)",
-	"resist electricity (20+d20 turns)",
-	"resist fire (20+d20 turns)",
-	"resist cold (20+d20 turns)",
-	"resist poison (20+d20 turns)"
-};
-
-
-
-/*
- * Determine the "Activation" (if any) for an artifact
- */
-void describe_item_activation(const object_type *o_ptr)
-{
-	u32b f1, f2, f3;
-
-	u16b value;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Require activation ability */
-	if (!(f3 & TR3_ACTIVATE)) return;
-
-	/* Artifact activations */
-	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
-	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-		bool drag_armor = FALSE;
-
-		/* Paranoia */
-		if (a_ptr->activation >= ACT_MAX)
-		{
-			if ((a_ptr->tval == TV_DRAG_ARMOR) ||
-				(a_ptr->tval == TV_DRAG_SHIELD))
-			     drag_armor = TRUE;
-			else return;
-		}
-
-		/* Some artifacts can be activated */
-		if (!drag_armor)
-		{
-			text_out(act_description[a_ptr->activation]);
-
-			/* Output the number of turns */
-			if (a_ptr->time && a_ptr->randtime)
-				text_out(format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime));
-			else if (a_ptr->time)
-				text_out(format(" every %d turns", a_ptr->time));
-			else if (a_ptr->randtime)
-				text_out(format(" every d%d turns", a_ptr->randtime));
-
-			return;
-		}
-	}
-
-	/* Now do the rings */
-	if (o_ptr->tval == TV_RING)
-	{
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_RING_ACID:
-			{
-				text_out("acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns");
-				break;
-			}
-			case SV_RING_FLAMES:
-			{
-				text_out("fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns");
-				break;
-			}
-			case SV_RING_ICE:
-			{
-				text_out("cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns");
-				break;
-			}
-
-			case SV_RING_LIGHTNING:
-			{
-				text_out("electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns");
-				break;
-			}
-		}
-
-		return;
-	}
-
-	/* Require dragon scale mail */
-	if ((o_ptr->tval != TV_DRAG_ARMOR) &&
-		(o_ptr->tval != TV_DRAG_SHIELD)) return;
-
-	/*Bigger the dragon scale mail, the bigger the damage & re-charge*/
-	value = o_ptr->sval;
-
-	/*Armor is more powerful than shields*/
-	if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
-
-	/* Branch on the sub-type */
-	switch (o_ptr->name2)
-	{
-
-		case EGO_DRAGON_BLUE:
-		{
-			value *= 50;
-
-			text_out(format("breathe lightning (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_WHITE:
-		{
-			value *= 50;
-
-			text_out(format("breathe frost (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_BLACK:
-		{
-			value *= 50;
-
-			text_out(format("breathe acid (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_GREEN:
-		{
-			value *= 50;
-
-			text_out(format("breathe poison gas (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_RED:
-		{
-			value *= 50;
-
-			text_out(format("breathe fire (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_MULTIHUED:
-		{
-			value *= 75;
-
-			text_out(format("breathe multi-hued (%d) every %d+d%d turns", value,
-							(value * 3 / 4), (value * 3 / 4)));
-			break;
-		}
-		case EGO_DRAGON_BRONZE:
-		{
-			value *= 50;
-
-			text_out(format("breathe confusion (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_GOLD:
-		{
-			value *= 50;
-
-			text_out(format("breathe sound (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_CHAOS:
-		{
-			value *= 60;
-
-			text_out(format("breathe chaos/disenchant (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_LAW:
-		{
-			value *= 60;
-
-			text_out(format("breathe sound/shards (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_BALANCE:
-		{
-			value *= 75;
-
-			text_out(format("breathe balance (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_PSEUDO:
-		{
-			value *= 65;
-
-			text_out(format("breathe light/darkness (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		case EGO_DRAGON_POWER:
-		{
-			value *= 100;
-
-			text_out(format("breathe the elements (%d) every %d+d%d turns", value, value, value));
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-}
 
 #ifdef MACINTOSH
 static int i = 0;

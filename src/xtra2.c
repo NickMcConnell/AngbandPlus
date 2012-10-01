@@ -75,6 +75,16 @@ bool set_blind(int v)
 	return (TRUE);
 }
 
+/* Players with chaos or confusion resistance don't get confused*/
+bool allow_player_confusion(void)
+{
+	if (p_ptr->resist_confu) return (FALSE);
+	if (p_ptr->resist_chaos) return (FALSE);
+
+	/*Don't have the right resists*/
+	return (TRUE);
+}
+
 
 /*
  * Set "p_ptr->confused", notice observable changes
@@ -896,6 +906,9 @@ bool set_oppose_acid(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -957,6 +970,9 @@ bool set_oppose_elec(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1020,6 +1036,9 @@ bool set_oppose_fire(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1080,6 +1099,9 @@ bool set_oppose_cold(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1142,6 +1164,9 @@ bool set_oppose_pois(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1283,6 +1308,9 @@ bool set_stun(int v)
 
 	/* Redraw the "stun" */
 	p_ptr->redraw |= (PR_STUN);
+
+	/* Redraw resistances */
+	p_ptr->redraw |= (PR_RESIST);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1903,8 +1931,8 @@ int get_coin_type(const monster_race *r_ptr)
 		if (strstr(name, " gold ")) return (SV_GOLD_GOLD);
 		if (strstr(name, " mithril ")) return (SV_GOLD_MITHRIL);
 		if (strstr(name, " opal")) return (SV_GOLD_OPALS);
-		if (strstr(name, " saphire")) return (SV_GOLD_SAPHIRES);
-		if (strstr(name, " rubies")) return (SV_GOLD_RUBIES);
+		if (strstr(name, " sapphire")) return (SV_GOLD_SAPPHIRES);
+		if (strstr(name, " ruby")) return (SV_GOLD_RUBIES);
 		if (strstr(name, " diamond")) return (SV_GOLD_DIAMOND);
 		if (strstr(name, " adamantite ")) return (SV_GOLD_ADAMANTITE);
 
@@ -1914,8 +1942,8 @@ int get_coin_type(const monster_race *r_ptr)
 		if (strstr(name, " Gold ")) return (SV_GOLD_GOLD);
 		if (strstr(name, " Mithril ")) return (SV_GOLD_MITHRIL);
 		if (strstr(name, " Opal")) return (SV_GOLD_OPALS);
-		if (strstr(name, " Saphire")) return (SV_GOLD_SAPHIRES);
-		if (strstr(name, " Rubies")) return (SV_GOLD_RUBIES);
+		if (strstr(name, " Sapphire")) return (SV_GOLD_SAPPHIRES);
+		if (strstr(name, " Ruby")) return (SV_GOLD_RUBIES);
 		if (strstr(name, " Diamond")) return (SV_GOLD_DIAMOND);
 		if (strstr(name, " Adamantite ")) return (SV_GOLD_ADAMANTITE);
 	}
@@ -2148,20 +2176,17 @@ void monster_death(int m_idx, int who)
 	/* Update monster list window */
 	p_ptr->window |= PW_MONLIST;
 
-	/* Only process dungeon kills */
-	if (!p_ptr->depth) return;
-
 	/* Count incomplete quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		quest_type *q_ptr = &q_info[i];
 
 		/*
-		 * Hack - don't count if player didn't kill
+		 * Hack - don't count if player didn't kill, or on a town level
 		 * This assumes only a player can kill quest monsters!!!!!
-		 * This line is also ugly codeing. :)
+		 * This line is also ugly coding. :)
 		 */
-		if (who != -1) continue;
+		if ((who != -1) || (!p_ptr->depth)) continue;
 
 		/* Quest level? */
 		if ((q_ptr->active_level == p_ptr->depth) && (p_ptr->depth > 0))
@@ -2325,15 +2350,28 @@ void monster_death(int m_idx, int who)
 		char note2[120];
  		char real_name[120];
 
-		/* Get the monster's real name for the notes file */
-		monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
+		/*write note for player ghosts*/
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			my_strcpy(note2, format("Destroyed %^s, the %^s", ghost_name, r_name + r_ptr->name), sizeof (note2));
+		}
 
-		/* Write note */
-       	if monster_nonliving(r_ptr) sprintf(note2, "Destroyed %s", real_name);
-		else sprintf(note2, "Killed %s", real_name);
+		/*All other uniques*/
+		else
+		{
+			/* Get the monster's real name for the notes file */
+			monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
+
+			/* Write note */
+       		if monster_nonliving(r_ptr) my_strcpy(note2, format("Destroyed %s", real_name), sizeof (note2));
+			else my_strcpy(note2, format("Killed %s", real_name), sizeof (note2));
+		}
 
  		do_cmd_note(note2, p_ptr->depth);
 	}
+
+	/* Only process dungeon kills */
+	if (!p_ptr->depth) return;
 
 	/* Require a quest level */
 	if (!questlevel) return;
@@ -2392,6 +2430,54 @@ void monster_death(int m_idx, int who)
 			fprintf(notes_file, "============================================================\n");
       	}
 	}
+}
+
+
+/*Helper function to calculate the monster experience*/
+static s32b calc_mon_exp(const monster_race *r_ptr)
+{
+	/*calculate the monster experience*/
+	s32b new_exp = ((long)r_ptr->mexp * r_ptr->level) / p_ptr->lev;
+
+	s16b new_level = p_ptr->max_lev;
+
+	/*not a full point of experience to gain*/
+	if (new_exp < 1) return (0);
+
+	/*
+	 * Check to make sure player is at level 50, so no adjustmetn necessary,
+	 * also prevents next line from crashing the game
+	 */
+	while (new_level < PY_MAX_LEVEL)
+	{
+		s32b remaining_exp;
+		s32b net_exp_gain;
+
+		/*
+		 * Player is not gaining a new max level
+		 * (in the player_exp chart level 1 exp-to-gain-next-level is at slot 0)
+		 */
+		if ((p_ptr->exp + new_exp) <=
+		    (player_exp[new_level - 1] * p_ptr->expfact / 100L)) break;
+
+		/*just checking this again*/
+		if (new_exp < 1) break;
+
+		/*figure out the remainder*/
+		net_exp_gain = (p_ptr->exp + new_exp) -
+					   (player_exp[new_level - 1] * p_ptr->expfact / 100L);
+
+		/*add one level*/
+		new_level++;
+
+		/*player is going up a max level, adjust*/
+		remaining_exp = ((long)net_exp_gain * (new_level - 1)) / new_level;
+
+		/*slightly reduce new experience*/
+		new_exp -= (net_exp_gain - remaining_exp);
+	}
+
+	return (new_exp);
 }
 
 /*
@@ -2489,16 +2575,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
-
 		/* Player level */
 		divider = p_ptr->lev;
 
 		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / divider;
+		new_exp = calc_mon_exp(r_ptr);
 
 		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % divider)
-		                * 0x10000L / divider) + p_ptr->exp_frac;
+		new_exp_frac = (((long)r_ptr->mexp * r_ptr->level) % divider) + p_ptr->exp_frac;
 
 		/* Keep track of experience */
 		if (new_exp_frac >= 0x10000L)
@@ -2524,7 +2608,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 	    	r_ptr->max_num = 0;
 
 			/* reputation bonus, except for the town unique */
- 			if (r_ptr->level) p_ptr->fame++;
+ 			if (r_ptr->level > p_ptr->lev) p_ptr->fame++;
 		}
 
 		/* When the player kills a player ghost, the bones file that

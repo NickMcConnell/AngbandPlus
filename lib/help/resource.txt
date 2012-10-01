@@ -18,7 +18,7 @@ http://home.comcast.net/~nppangband/
 	The NPPAngband web site.
 
 The NPPAngband forum at the NPP Fan Site is:
-http://nppangband.tannert.net/forums/index.php
+http://www.tannert.net/nppangband
 
 http://ftp.sunet.se/pub/games/Angband/
      The largest repository of Angband files.
@@ -26,7 +26,8 @@ http://ftp.sunet.se/pub/games/Angband/
 http://angband.oook.cz/index.php
      A major Angband website, including news, discussion, information, and
 various nifty utilities.  Go to "http://angband.oook.cz/ladder.php" to see the
-top scores for many variants of Angband.
+top scores for many variants of Angband.  There you can post your NPPAngband
+character as well.
 
 http://www.harris.ukgateway.net/angband/code.html
      Put a code on the bottom of your posts that describes exactly how you play
@@ -45,11 +46,6 @@ to this link, download mirc, and use it to connect to one of the Worldirc
 servers (note:  You do have to use a worldirc server).  Then join the channel
 #angband.  You'll know you've got it right when you see other people (the
 channel is always occupied).
-
-
-
-
-
 
 
 

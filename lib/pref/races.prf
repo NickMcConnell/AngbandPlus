@@ -1,0 +1,43 @@
+# File: races.prf
+
+#
+# This file loads specific race "sub-files" 
+#
+
+?:[EQU $RACE Human]
+%:Human.prf
+
+?:[EQU $RACE Half-Elf]
+%:Half-Elf.prf
+
+?:[EQU $RACE Elf]
+%:Elf.prf
+
+?:[EQU $RACE Hobbit]
+%:Hobbit.prf
+
+?:[EQU $RACE Gnome]
+%:Gnome.prf
+
+?:[EQU $RACE Dwarf]
+%:Dwarf.prf
+
+?:[EQU $RACE Half-Orc]
+%:Half-Orc.prf
+
+# "Half-Troll.prf" is too long for stupid 8.3 filenames,
+# so try to load the shortened filename too.
+?:[EQU $RACE Half-Troll]
+%:Half-Troll.prf
+%:H-Troll.prf
+
+?:[EQU $RACE Dunadan]
+%:Dunadan.prf
+
+?:[EQU $RACE High-Elf]
+%:High-Elf.prf
+
+?:[EQU $RACE Kobold]
+%:Kobold.prf
+?:1
+

@@ -573,10 +573,10 @@ static void spoil_mon_desc(cptr fname)
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-	        "----", "---", "---", "---", "--", "--", "-----------");
+	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+	        "----", "---", "---", "---", "--", "--", "------------");
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -656,7 +656,7 @@ static void spoil_mon_desc(cptr fname)
 		strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
+		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 		        nam, lev, rar, spd, hp, ac, exp);
 	}
 

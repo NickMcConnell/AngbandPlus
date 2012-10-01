@@ -449,6 +449,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		else if (spower < 35) vp[vn++] = "cause critical wounds";
 		else vp[vn++] = "cause mortal wounds";
 	}
+	if (l_ptr->flags6 & (RF6_HUNGER))		vp[vn++] = "cause hunger";
 	if (l_ptr->flags6 & (RF6_SCARE))		vp[vn++] = "terrify";
 	if (l_ptr->flags6 & (RF6_BLIND))		vp[vn++] = "blind";
 	if (l_ptr->flags6 & (RF6_CONF))		vp[vn++] = "confuse";
@@ -465,7 +466,11 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->flags7 & (RF7_S_KIN))
 		{
 			if (r_ptr->flags1 & (RF1_UNIQUE))
-				vp[vn++] = "its minions";
+			{
+				if (r_ptr->flags1 & (RF1_FEMALE)) vp[vn++] = "her minions";
+				else if (r_ptr->flags1 & (RF1_MALE)) vp[vn++] = "his minions";
+				else vp[vn++] = "its minions";
+			}
 			else
 				vp[vn++] = "similar monsters";
 		}
@@ -1838,7 +1843,7 @@ static void process_ghost_race(int ghost_race, int r_idx)
 
 	}
 
-	/*is it a troll name?*/
+	/*is it an elf name?*/
 	if ((strstr(racename, "elf")) || (strstr(racename, "ELF")))
 	{
 		r_ptr->flags3 &= ~(RF3_HURT_LITE);
@@ -2001,7 +2006,7 @@ static void process_ghost_class(int ghost_class, int r_idx)
 
 		if (r_ptr->blow[0].effect == RBE_HURT) r_ptr->blow[0].effect = RBE_EAT_GOLD;
 		if (r_ptr->blow[1].effect == RBE_HURT) r_ptr->blow[1].effect = RBE_EAT_ITEM;
-		r_ptr->flags7 |= (RF7_S_THIEF);
+		if (dun_level > 50) r_ptr->flags7 |= (RF7_S_THIEF);
 
 		r_ptr->aaf += r_ptr->aaf / 3;
 	}
@@ -2218,7 +2223,8 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	char		path[1024];
 
 	/* Paranoia. */
-	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (TRUE);
+	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (FALSE);
+	if (adult_no_player_ghosts) return (FALSE);
 
 	/* Hack -- If the ghost has a sex, then it must already have been prepared. */
 	if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE))

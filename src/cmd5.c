@@ -1122,12 +1122,12 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_RESISTANCE:
 		{
-			int time = randint(20) + 20;
-			(void)set_oppose_acid(p_ptr->oppose_acid + time);
-			(void)set_oppose_elec(p_ptr->oppose_elec + time);
-			(void)set_oppose_fire(p_ptr->oppose_fire + time);
-			(void)set_oppose_cold(p_ptr->oppose_cold + time);
-			(void)set_oppose_pois(p_ptr->oppose_pois + time);
+			int time_2 = randint(20) + 20;
+			(void)set_oppose_acid(p_ptr->oppose_acid + time_2);
+			(void)set_oppose_elec(p_ptr->oppose_elec + time_2);
+			(void)set_oppose_fire(p_ptr->oppose_fire + time_2);
+			(void)set_oppose_cold(p_ptr->oppose_cold + time_2);
+			(void)set_oppose_pois(p_ptr->oppose_pois + time_2);
 			break;
 		}
 
@@ -1203,6 +1203,14 @@ static bool cast_mage_spell(int spell)
 			return enchant_spell(rand_int(4) + plev / 20,
 			                     rand_int(4) + plev / 20, 0);
 		}
+
+		case SPELL_MASS_IDENTIFY:
+		{
+			mass_identify(3);
+
+			break;
+		}
+
 	}
 
 	/* Success */
@@ -1611,6 +1619,13 @@ static bool cast_priest_spell(int spell)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
+
+			break;
+		}
+
+		case PRAYER_MASS_IDENTIFY:
+		{
+			mass_identify(3);
 
 			break;
 		}
