@@ -125,6 +125,7 @@ static tval_desc tvals[] =
 	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"    },
 	{ TV_HARD_ARMOR,	"Hard Armor"           },
 	{ TV_SOFT_ARMOR,	"Soft Armor"           },
+	{ TV_DIGGING,	        "Tools"                },
 	{ 0,			NULL }
 };
 

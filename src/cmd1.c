@@ -1770,9 +1770,11 @@ void move_player(int dir, int do_pickup)
 					}
 
 					/* Smart enough to sense trouble. */
-					else if ((!p_ptr->resist_fire) && 
-						(!p_ptr->oppose_fire) && 
-						(!p_ptr->immune_fire))
+					else if (((!p_ptr->resist_fire) && (!p_ptr->oppose_fire) && 
+						  (!p_ptr->immune_fire)) ||
+						 (((!p_ptr->resist_fire) || (!p_ptr->oppose_fire)) && 
+						  (!p_ptr->immune_fire) && (p_ptr->chp <= 100)) ||
+						 ((!p_ptr->immune_fire) && (p_ptr->chp <= 30)))
 					{
 						if (!get_check("The heat of the lava scalds you!  Really enter? "))
 						{
@@ -1876,22 +1878,6 @@ void move_player(int dir, int do_pickup)
 				  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
 				{
 					msg_print("You inspect your cunning trap.");
-				}
-
-				/* Warn when leaving trap detected region */
-				if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
-				{
-					if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= p_ptr->dtrap_rad) 
-					{
-							p_ptr->dtrap_x=0;
-							p_ptr->dtrap_y=0;
-							p_ptr->dtrap_rad=0;
-							msg_print("*Leaving trap detect region!*");
-
-							/* Redraw DTrap Status */
-							p_ptr->redraw |= (PR_DTRAP);
-
-					}
 				}
 			}
 		}
@@ -2248,24 +2234,6 @@ static bool run_test(void)
 
 	/* Range of newly adjacent grids */
 	max = (prev_dir & 0x01) + 1;
-
-	/* break run when leaving trap detected region */
-	if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
-	{
-		if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= (p_ptr->dtrap_rad - 1)) 
-		{
-			p_ptr->dtrap_x=0;
-			p_ptr->dtrap_y=0;
-			p_ptr->dtrap_rad=0;
-			msg_print("*Leaving trap detect region!*");
-
-			/* Redraw DTrap Status */
-			p_ptr->redraw |= (PR_DTRAP);
-
-			/* Break Run */
-			return(TRUE);
-		}
-	}
 
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)

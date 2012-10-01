@@ -2322,6 +2322,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_DRAIN_MANA))	vp[vn++] = "drain mana";
+		if (flags6 & (RF6_DISPEL))	vp[vn++] = "dispel magic";
 		if (flags6 & (RF6_MIND_BLAST))	vp[vn++] = "cause mind blasting";
 		if (flags6 & (RF6_BRAIN_SMASH))	vp[vn++] = "cause brain smashing";
 		if (flags6 & (RF6_WOUND))

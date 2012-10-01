@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:0.6.1
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by
@@ -628,14 +628,14 @@ N:88:of *Slay* Animal
 X:24:20
 W:0:0:0:7000
 C:0:0:0:2
-F:INT | SLAY_ANIMAL | REGEN
+F:INT | SLAY_ANIMAL | REGEN | SLAY_KILL
 D:This weapon withers animals, increases intelligence, and hastens recovery.
 
 N:89:of *Slay* Evil
 X:24:20
 W:0:0:0:6500
 C:0:0:0:2
-F:WIS | SLAY_EVIL | BLESSED
+F:WIS | SLAY_EVIL | BLESSED | SLAY_KILL
 D:This holy weapon is peerless in combat with evil creatures, increases 
 D:wisdom, and is blessed.
 
@@ -643,7 +643,7 @@ N:90:of *Slay* Undead
 X:24:24
 W:0:0:0:7500
 C:0:0:0:2
-F:WIS | SLAY_UNDEAD | SEE_INVIS
+F:WIS | SLAY_UNDEAD | SEE_INVIS | SLAY_KILL
 D:This weapon dispels undead as you strike them, increases wisdom, and allows 
 D:you to see monsters that are normally invisible.
 
@@ -651,7 +651,7 @@ N:91:of *Slay* Demon
 X:24:18
 W:0:0:0:5500
 C:0:0:0:2
-F:INT | SLAY_DEMON | RES_FIRE
+F:INT | SLAY_DEMON | RES_FIRE | SLAY_KILL
 D:This weapon smites down demons with holy wrath, increases intelligence, 
 D:and protects against the element of fire.
 
@@ -659,14 +659,14 @@ N:92:of *Slay* Orc
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
-F:DEX | SLAY_ORC
+F:DEX | SLAY_ORC | SLAY_KILL
 D:This weapon wreaks orcish armies and increases dexterity.
 
 N:93:of *Slay* Troll
 X:24:15
 W:0:0:0:4750
 C:0:0:0:2
-F:STR | SLAY_TROLL
+F:STR | SLAY_TROLL | SLAY_KILL
 D:This weapon pierces the tough hides of trolls with ease, and you feel 
 D:mighty as you swing it.
 
@@ -674,7 +674,7 @@ N:94:of *Slay* Giant
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
-F:STR | SLAY_GIANT
+F:STR | SLAY_GIANT | SLAY_KILL
 D:This weapon loans you some of the strength of giants, and cripples them with 
 D:every deadly blow.
 
@@ -682,7 +682,7 @@ N:95:of *Slay* Dragon
 X:24:20
 W:0:0:0:6500
 C:0:0:0:3
-F:CON | SLAY_DRAGON
+F:CON | SLAY_DRAGON | SLAY_KILL
 D:This weapon is a mighty dragonbane, and increases constitution.
 
 # 96 (unused)

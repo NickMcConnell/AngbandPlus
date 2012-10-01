@@ -1,0 +1,49 @@
+Specialties:
+- Reworked Fury to provide a temporary, quickly decaying speed boost
+  when damaged
+- Druid Power Strikes occur a little less often.
+- Power Strikes (from Druid Power Strike or Warrior Martial Arts)
+  don't always try to confuse anymore.
+- Evasion: max bonus is now based on Dex (and capped by player level
+  at low levels).  The result is a little less at level 1, about the
+  same at level 10-15, a lot less until stat gain, and about the same
+  for a maxed out character.
+- Evasion: allowed armor weight is now based on purely on Strength.
+- Athletics and Clarity now give +2 stat bonuses.  Bug fix: stat
+  bonuses actually apply now.
+- Harmony now restores a fraction of your max hitpoints (4-10% based
+  on the mana cost of the spell).
+- Soul Siphon gives a LOT more mana for high level monster kills.
+- Soul Siphon has lower mana burn damage potential (and fixed a mana
+  burn bug).
+- Unlight bug fix: grants resist darkness.
+- Magic Resistance bug fix: was adding too much to saving throws.
+
+Items:
+- Added an explicit "SLAY_KILL" flag for weapons of *Slay* foo.  Could
+  potentially put it on other items.
+- Made Wands of Clone Monster very rare, deep items.
+- Added 2 artifact short bows (Amrod and Amras) from Angband.
+- Added squelch on ID for digging tools.
+
+Monsters:
+- Added monster "DISPEL" spell (adapated from Hengband) for Morgoth,
+  Sauron, the Mouth of Sauron, Vecna, and Hand drujs.  Does allow a
+  (hard) save, but can also regain mana for the caster.  Due to lack
+  of playtesting, this spell is currently not cast very often.
+- Reduced monster archery damage by 17.5%
+- Reworked Living Dungeons (less hps, but more damage and spit acid)
+
+Misc:
+- More generous warnings when trying to enter lava.
+- Reduced the ranges of all player abilities to teleport monsters.
+
+Other Bug Fixes:
+- Occasional display bug in max mana when ending shapeshifts.
+- Weapon weight allowances fixed (were too high for high level
+  characters).
+- Corrected trap detection warning after teleport.
+- Fixed some incorrect shield bash damage values on certain artifact 
+  shields (were too low).
+- Fixed a bug causing the saving throw bonuses from temporary magic 
+  defenses to be too good.

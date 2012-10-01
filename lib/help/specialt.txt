@@ -41,8 +41,9 @@ Clarity: Increases Intellegency and Wisdom and often prevents them from being
 reduced.  Available Mages, Priests, Necromancers, and Druids.
 
 Evasion: Increases armor class of characters wearing light armor.  The
-allowed weight and maximum bonus increase with player level.  Available to
-Rogues, Assassins, Warriors, and Rangers.
+allowed weight increases with strength and maximum bonus increases
+with dexterity (and player level at low levels).  Available to Rogues,
+Assassins, Warriors, and Rangers.
 
 Extend Magic: Beneficial magics last longer.  Includes all powerups from 
 spells and items (haste, elemental resistance, blessing, etc).  Available
@@ -60,9 +61,9 @@ Fast Casting: Speeds the casting of all spells, but especially those well
 below the caster's level.  Available to Mages, Priests, Necromancers, and
 Druids.
 
-Fury: Allows faster movement immediately after taking damage.  The benefit 
-is directly proportional to the total damage inflicted from all sources.
-Available to Warriors, Priests, Paladins, Assassins, and Rangers.
+Fury: Allows faster movement for a short time after taking damage.
+The benefit increases with the damage taken.  Available to Warriors,
+Priests, Paladins, Assassins, and Rangers.
 
 Harmony: Gain hit points whenever you cast any spell.  Available to Priests
 and Druids.

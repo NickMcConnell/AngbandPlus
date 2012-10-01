@@ -1302,7 +1302,7 @@ void do_cmd_cast_or_pray(void)
 			case 28:	/* Teleport Other */
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)teleport_monster(dir);
+				(void)teleport_monster(dir, 45 + (plev/2));
 				break;
 			}
 			case 29:	/* Haste Self */
@@ -1774,7 +1774,7 @@ void do_cmd_cast_or_pray(void)
 			case 97: /* Teleport Other */
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)teleport_monster(dir);
+				(void)teleport_monster(dir, 45 + (plev/3));
 				break;
 			}
 			case 98: /* Teleport Level */
@@ -1837,7 +1837,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 106: /* Banishment */
 			{
-				if (banish_evil(100))
+				if (banish_evil(80))
 				{
 					msg_print("The power of your god banishes evil!");
 				}
@@ -2124,7 +2124,7 @@ void do_cmd_cast_or_pray(void)
 			case 147:  /* teleport monster */
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)teleport_monster(dir);
+				(void)teleport_monster(dir, 45 + (plev/3));
 				break;
 			}
 			case 148:  /* poison bolt */
@@ -2661,7 +2661,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 232: /* banish evil */
 			{
-				(void)banish_evil(100);
+				(void)banish_evil(80);
 				break;
 			}
 			case 233: /* shadow barrier */
@@ -2768,7 +2768,7 @@ void do_cmd_cast_or_pray(void)
 			case 246: /* teleport away */
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)teleport_monster(dir);
+				(void)teleport_monster(dir, 45 + (plev/3));
 				break;
 			}
 			case 247: /* smash undead */
@@ -2875,7 +2875,22 @@ void do_cmd_cast_or_pray(void)
 		p_ptr->csp -= s_ptr->smana;
 
 		/* Specialty ability Harmony */
-		if (check_specialty(SP_HARMONY)) (void)hp_player(s_ptr->smana);
+		if (check_specialty(SP_HARMONY))
+		{
+		  	int frac, boost;
+
+			/* Percentage of max hp to be regained */
+			frac = 3 + (s_ptr->smana / 3);
+
+			/* Cap at 10 % */
+			if (frac > 10) frac = 10;
+
+			/* Calculate fractional bonus */
+			boost = (frac * p_ptr->mhp) / 100;
+
+			/* Apply bonus */
+			(void)hp_player(boost);
+		}
 	}
 
 	/* Over-exert the player */
@@ -3362,7 +3377,7 @@ void do_cmd_specialty(void)
 	{
 
 		/* Query */
-		msg_print("Would you like to 'L'earn a specialty or 'V'iew your specialties (l/v)?");
+		msg_print("'L'earn a specialty or 'V'iew your specialties (l/v)?");
 
 		/* Interact and choose. */
 		while(1)
@@ -3387,7 +3402,7 @@ void do_cmd_specialty(void)
 			else if (answer == ESCAPE) return;
 
 			/* Reprompt */
-			else msg_print("Type 'l' to learn a specialty, 'v' to view your specialties, or ESC to cancel");
+			else msg_print("'l' to learn a specialty, 'v' to view specialties, ESC to cancel");
 		}
 
 	}

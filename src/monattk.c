@@ -2068,7 +2068,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_print("You hear something grunt with exertion.");
 			else msg_format("%^s hurls a boulder at you.", m_name);
-			mon_bolt(m_idx, GF_ROCK, get_dam(spower * 4, 10));
+			mon_bolt(m_idx, GF_ROCK, get_dam((spower * 10) / 3, 10));
 			break;
 		}
 
@@ -2081,7 +2081,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			else if (spower < 15) msg_format("%^s slings a leaden pellet at you.", m_name);
 			else msg_format("%^s slings a seeker shot at you.", m_name);
 
-			mon_bolt(m_idx, GF_SHOT, get_dam(spower * 4, 10));
+			mon_bolt(m_idx, GF_SHOT, get_dam((spower * 10) / 3, 10));
 			break;
 		}
 
@@ -2105,7 +2105,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				else msg_format("%^s fires a seeker arrow.", m_name);
 			}
 
-			mon_bolt(m_idx, GF_ARROW, get_dam(spower * 4, 10));
+			mon_bolt(m_idx, GF_ARROW, get_dam((spower * 10) / 3, 10));
 			break;
 		}
 
@@ -2129,7 +2129,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				else msg_format("%^s fires a seeker bolt.", m_name);
 			}
 
-			mon_bolt(m_idx, GF_ARROW, get_dam(spower * 4, 10));
+			mon_bolt(m_idx, GF_ARROW, get_dam((spower * 10) / 3, 10));
 			break;
 		}
 
@@ -3599,9 +3599,148 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			break;
 		}
 
-		/* RF6_XXX6 */
+		/* RF4_DISPEL */
 		case 160+16:
 		{
+			int r1 = 0;
+
+			disturb(1, 0);
+
+			if (!blind) msg_format("%^s dispels magic.", m_name);
+			else if (spower < 40) msg_format("%^s mumbles.", m_name);
+			else if (spower < 90) msg_format("%^s murmurs deeply.", m_name);
+			else msg_format("%^s chants powerfully.", m_name);
+
+			if (p_ptr->fast && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_fast(0);
+				r1 += 2;
+			}
+			if (p_ptr->protevil && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_protevil(0);
+				r1 += 2;
+			}
+			if (p_ptr->magicdef && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_extra_defences(0);
+				r1 += 2;
+			}
+			if (p_ptr->hero && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_hero(0);
+				r1 += 2;
+			}
+			if (p_ptr->shero && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_shero(0);
+				r1 += 2;
+			}
+			if (p_ptr->shield && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_shield(0);
+				r1 += 2;
+			}
+			if (p_ptr->blessed && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_blessed(0);
+				r1 += 2;
+			}
+			if (p_ptr->tim_invis && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_tim_invis(0);
+				r1 += 2;
+			}
+			if (p_ptr->tim_infra && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_tim_infra(0);
+				r1 += 2;
+			}
+			if (p_ptr->tim_esp && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_tim_esp(0);
+				r1 += 2;
+			}
+			if (p_ptr->superstealth && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_superstealth(0);
+				r1 += 2;
+			}
+			if (p_ptr->ele_attack && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_ele_attack(0, 0);
+				r1 += 2;
+			}
+			if (p_ptr->oppose_acid && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_oppose_acid(0);
+				r1 += 2;
+			}
+			if (p_ptr->oppose_elec && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_oppose_elec(0);
+				r1 += 2;
+			}
+			if (p_ptr->oppose_fire && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_oppose_fire(0);
+				r1 += 2;
+			}
+			if (p_ptr->oppose_cold && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_oppose_cold(0);
+				r1 += 2;
+			}
+			if (p_ptr->oppose_pois && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_oppose_pois(0);
+				r1 += 2;
+			}
+			if (p_ptr->word_recall && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				set_recall(0);
+				r1 += 2;
+			}
+			if ((p_ptr->special_attack & (ATTACK_CONFUSE)) && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+				msg_print("Your hands stop glowing.");
+				r1 += 2;
+			}
+			if ((p_ptr->special_attack & (ATTACK_BLKBRTH)) && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
+				msg_print("Your hands stop radiating Night.");
+				r1 += 2;
+			}
+			if ((p_ptr->special_attack & (ATTACK_FLEE)) && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				p_ptr->special_attack &= ~(ATTACK_FLEE);
+				msg_print("You forget your escape plan.");
+				r1 += 2;
+			}
+			if ((p_ptr->special_attack & (ATTACK_SUPERSHOT)) && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				p_ptr->special_attack &= ~(ATTACK_SUPERSHOT);
+				msg_print("Your ready crossbow bolt seems less dangerous.");
+				r1 += 2;
+			}
+			if ((p_ptr->special_attack & (ATTACK_HOLY)) && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				p_ptr->special_attack &= ~(ATTACK_HOLY);
+				msg_print("Your Holy attack dissipates.");
+				r1 += 2;
+			}
+			if (SCHANGE && (rand_int(spower) > p_ptr->skill_sav))
+			{
+				shapechange(SHAPE_NORMAL);
+				r1 += 2;
+			}
+
+			/* Replenish monster mana */
+			if ( r1 > r_ptr->mana - m_ptr->mana) m_ptr->mana = r_ptr->mana;
+			else m_ptr->mana += r1;
+
 			break;
 		}
 

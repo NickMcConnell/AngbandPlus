@@ -1351,7 +1351,7 @@ bool set_stun(int v)
 		notice = TRUE;
 	}
 
-	/* Decrease cut */
+	/* Decrease stun */
 	else if (new_aux < old_aux)
 	{
 		/* Describe the state */
@@ -2367,7 +2367,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		       (r_ptr->flags3 & (RF3_UNDEAD)) || 
 		       (r_ptr->flags2 & (RF2_STUPID)))))
 		{
-			p_ptr->mana_gain += 2 + (r_ptr->level/20);
+			p_ptr->mana_gain += 2 + (m_ptr->maxhp / 30);
 		}
 
 		/* Increase the noise level slightly. */

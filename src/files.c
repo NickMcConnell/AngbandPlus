@@ -1495,6 +1495,12 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 		p_ptr->resist_lite = TRUE;
 	}
 
+	/* Specialty ability Unight */
+	if (check_specialty(SP_UNLIGHT))
+	{
+		p_ptr->resist_dark = TRUE;
+	}
+
 	if (shape)
 	{
 

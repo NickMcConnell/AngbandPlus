@@ -1256,6 +1256,7 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 void monster_swap(int y1, int x1, int y2, int x2)
 {
 	int m1, m2;
+	bool player_moved = FALSE;
 
 	monster_type *m_ptr;
 
@@ -1289,15 +1290,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Move player */
 		p_ptr->py = y2;
 		p_ptr->px = x2;
-
-		/* Update the panel */
-		p_ptr->update |= (PU_PANEL);
-
-		/* Update the visuals (and monster distances) */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+		player_moved = TRUE;
 	}
 
 	/* Monster 2 */
@@ -1319,7 +1312,12 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Move player */
 		p_ptr->py = y1;
 		p_ptr->px = x1;
+		player_moved = TRUE;
+	}
 
+	/* Did the player move? */
+	if (player_moved)
+	{
 		/* Update the panel */
 		p_ptr->update |= (PU_PANEL);
 
@@ -1328,8 +1326,25 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
-	}
 
+		/* Warn when leaving trap detected region */
+		if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
+		{
+			if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= (p_ptr->dtrap_rad - 1)) 
+			{
+				p_ptr->dtrap_x=0;
+				p_ptr->dtrap_y=0;
+				p_ptr->dtrap_rad=0;
+				msg_print("*Leaving trap detect region!*");
+
+				/* Disturb to break runs */
+				disturb(0, 0);
+
+				/* Redraw DTrap Status */
+				p_ptr->redraw |= (PR_DTRAP);
+			}
+		}
+	}
 
 	/* Redraw */
 	lite_spot(y1, x1);

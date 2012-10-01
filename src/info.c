@@ -225,7 +225,7 @@ cptr obj_special_info[6][50] =
 		"",		/* Heal Monster */
 		"",		/* Haste Monster */
 		"",		/* Clone Monster */
-		"",		/* Teleport Away */
+		"(distance: 55-80)",		/* Teleport Away */
 		"(chance: 95%)",		/* Disarming */
 		"",		/* Door Destruction */
 		"",		/* Stone to Mud */
@@ -283,7 +283,7 @@ cptr obj_special_info[6][50] =
 		"",				/* Restoration */
 		"",				/* Speed */
 		"",				/*  */
-		"",				/* Teleport Away */
+		"(distance: 45-60+)",				/* Teleport Away */
 		"(chance: 95%)",		/* Disarming */
 		"(damage: 4 - 20)",	/* Light */
 		"",				/* Sleep Monster */
@@ -588,8 +588,8 @@ cptr specialty_tips[255]=
 	"Increases the effects of body armor.",
 	"Improves shield AC, chance of shield deflection, and damage from shield bashes.",
 	"Reduces mana penalties for armor use.",
-	"Increases your armor class when you wear light armor.  Allowed armor and maximum bonus increase with player level.",
-	"Increases your saving throws.",
+	"Increases your armor class when you wear light armor.  Allowed armor increases with strength and the maximum bonus increases with dexterity and player level.",
+	"Improves your saving throws.",
 	"Gives a chance to resist hostile teleportation attacks; gives immunity to hostile teleport level.",
 	"Increases stealth, provides resistance to darkness, and allows you to take actions (like reading) without light.  Reduces light radius.",
 	"","","","","","","","","","","","","",
@@ -606,15 +606,15 @@ cptr specialty_tips[255]=
 	"Increases spell casting speed, especially for low level spells from high level casters.",
 	"Gives you mana when monsters cast spells.",
 	"Increases the power of your caster-level dependent spells.",
-	"Gives you mana when you slay monsters.",
+	"Gives you mana when you slay monsters.  May cause damage when overloaded.",
 	"Causes you to gain hit points when casting spells.",
 	"","","","","","","","","","","","","",
 	"Increases and partially sustains Dexterity and Constitution.",
 	"Increases and partially sustains Intelligence and Wisdom.",
 	"",
-	"Allows you to move faster immediately after being damaged.",
-	"Improves mana regeneration; cumulative with other forms of regneration.",
-	"Improves hit point regeneration; cumulative with other forms of regneration.",
+	"Allows you to move faster after being damaged.",
+	"Improves mana regeneration; cumulative with other forms of regeneration.",
+	"Improves hit point regeneration; cumulative with other forms of regeneration.",
 	"Allows you to have two monster traps at a time.",
 	"Increases light radius and damage dealt to undead creatures, and grants resistance to light.",
 	"","","","","","","","","","","","",
@@ -1321,7 +1321,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_ULMO:
 		{
-			return "teleport away every 75 turns";
+			return "teleport away every 75 turns (distance: 45-60+)";
 		}
 		case ACT_AVAVIR:
 		{
@@ -1516,7 +1516,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_RANDOM_TELEPORT_AWAY:
 		{
-			return "teleport away every 110 turns";
+			return "teleport away every 110 turns (distance: 45-60+)";
 		}
 		case ACT_RANDOM_HEROISM:
 		{
@@ -2007,7 +2007,17 @@ void identify_fully_aux(object_type *o_ptr)
 		if (f1 & (TR1_SLAY_GIANT)) attr_num++;
 		if (f1 & (TR1_SLAY_DRAGON)) attr_num++;
 
-		roff("It slays", 3, 77);
+		/* Special message for Kill brands */
+		if (f1 & (TR1_SLAY_KILL))
+		{
+		        roff("It is the great bane of", 3, 77);
+		}
+
+		/* Ordinary message for Slay brands */
+		else
+		{
+		        roff("It slays", 3, 77);
+		}
 
 		/* Loop for number of attributes in this group. */
 		for (j = 0; j < 8; j++)
@@ -2565,7 +2575,7 @@ void self_knowledge(void)
 			info[i++] = "You are wearing the body of a vampire.";
 			break;
 		case SHAPE_WYRM:
-			info[i++] = "You are wearing the body of a small dragon.";
+			info[i++] = "You are wearing the body of a dragon.";
 			break;
 		case SHAPE_BEAR:
 			info[i++] = "You are wearing the body of a bear.";
@@ -3250,6 +3260,7 @@ void spell_info(char *p, int spell_index)
 			break;
 		case 25: strcpy(p, " dam 20+d30"); break;
 		case 26: sprintf(p, " dam %d, rad 2", 30 + plev); break;
+		case 28: sprintf(p, " dist %d", 45 + (plev/2)); break;
 		case 29: sprintf(p, " dur %d+d20", plev); break;
 		case 30: sprintf(p, " dam %d, rad 2", 55 + plev); break;
 		case 31: sprintf(p, " radius %d", 2); break;
@@ -3299,6 +3310,7 @@ void spell_info(char *p, int spell_index)
 		case 94: sprintf(p, " dam d%d, heal 300", plev * 4); break;
 		case 95: strcpy(p, " range 10"); break;
 		case 96: sprintf(p, " range %d", 4 * plev); break;
+		case 97: sprintf(p, " dist %d", 45 + (plev/3)); break;
 		case 107: strcpy(p, " heal 700, any cut"); break;
 		case 117: sprintf(p, " dam %d, rad 3", 2 * plev); break;
 		case 118: sprintf(p, " dam %d", 3 * plev / 2); break;
@@ -3320,6 +3332,7 @@ void spell_info(char *p, int spell_index)
 			break;
 		case 144: strcpy(p, " dur 20+d20"); break;
 		case 146: sprintf(p, " dam %dd8, beam %d", 5+plev/5, beam_low); break;
+		case 147: sprintf(p, " dist %d", 45 + (plev/3)); break;
 		case 148: sprintf(p, " dam %dd8, beam %d%%", 5+plev/4, beam_low); break;
 		case 149: strcpy(p, " dur 20+d20"); break;
 		case 150: strcpy(p, " radius 10"); break;
@@ -3380,6 +3393,7 @@ void spell_info(char *p, int spell_index)
 		case 242: strcpy(p, " hurt 3d6"); break;
 		case 243: strcpy(p, " dur 10+d20"); break;
 		case 245: strcpy(p, " radius 15"); break;
+		case 246: sprintf(p, " dist %d", 45 + (plev/3)); break;
 		case 247: sprintf(p, " dam %d+d50", plev * 3); break;
 		case 249: sprintf(p, " dam %d, rad %d", 11 * plev / 2, plev/7); break;
 		case 250: sprintf(p, " dur 30+d40"); break;

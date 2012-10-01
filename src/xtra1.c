@@ -2226,7 +2226,7 @@ sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
 	else
 	{
 		/* Maximum compfortable weight depends on class and level */
-		max_weight = wp_ptr->max_1 + ((p_ptr->lev * wp_ptr->max_50) / 50);
+		max_weight = wp_ptr->max_1 + ((p_ptr->lev * (wp_ptr->max_50 - wp_ptr->max_1)) / 50);
 
 		/* Too heavy */
 		if (weight > max_weight)
@@ -3117,6 +3117,33 @@ static void calc_bonuses(void)
 	/*** Analyze shapechanges - statistics only ***/
 	shape_change_stat();
 
+	/*** (Most) Specialty Abilities ***/
+
+	/* Physical stat boost */
+	if (check_specialty(SP_ATHLETICS))
+	{
+		p_ptr->stat_add[A_DEX] += 2;
+		p_ptr->stat_add[A_CON] += 2;
+	}
+
+	/* Mental stat boost */
+	if (check_specialty(SP_CLARITY))
+	{
+		p_ptr->stat_add[A_INT] += 2;
+		p_ptr->stat_add[A_WIS] += 2;
+	}
+
+	/* Unlight stealth boost */
+	if (check_specialty(SP_UNLIGHT))
+	{
+		p_ptr->skill_stl += 4;
+	}
+
+	/* Speed Boost (Fury) */
+	if (p_ptr->speed_boost)
+	{
+		p_ptr->pspeed += (p_ptr->speed_boost + 5) / 10;
+	}
 
 	/*** Handle stats ***/
 
@@ -3157,6 +3184,46 @@ static void calc_bonuses(void)
 	}
 
 
+	/* Evasion AC boost */
+	if (check_specialty(SP_EVASION))
+	{
+		int cur_wgt = 0;
+		int evasion_wgt;
+		int max_bonus;
+
+		/* Weigh the armor */
+		cur_wgt += inventory[INVEN_BODY].weight;
+		cur_wgt += inventory[INVEN_HEAD].weight;
+		cur_wgt += inventory[INVEN_ARM].weight;
+		cur_wgt += inventory[INVEN_OUTER].weight;
+		cur_wgt += inventory[INVEN_HANDS].weight;
+		cur_wgt += inventory[INVEN_FEET].weight;
+
+		/* Highest weight to get any bonus */
+		evasion_wgt = 100 + adj_str_evas[p_ptr->stat_ind[A_STR]];
+
+		/* Highest bonus we can get at this level */
+		max_bonus = 2 * adj_dex_evas[p_ptr->stat_ind[A_DEX]];
+
+		/* Sanity check for very low level characters */
+		if (max_bonus > (5 * p_ptr->lev)) max_bonus = (5 * p_ptr->lev); 
+
+		/* Do we get the max bonus? */
+		if (cur_wgt < evasion_wgt / 2)
+		{
+			p_ptr->to_a += max_bonus;
+                        p_ptr->dis_to_a += max_bonus;
+		}
+
+		/* Do we get any bonus? */
+		else if (cur_wgt < evasion_wgt)
+		{
+			p_ptr->to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
+			p_ptr->dis_to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
+		}
+	}
+
+
 	/*** Temporary flags ***/
 
 	/* Apply temporary "stun".  */
@@ -3175,14 +3242,11 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_d -= 5;
 	}
 
-	/* Heightened magical defenses.   Halves the difference between saving 
-	 * throw and 100.  */
+	/* Heightened magical defenses.   Saving Throw effect added later */
 	if (p_ptr->magicdef)
 	{
 		p_ptr->to_a += 25;
 		p_ptr->dis_to_a += 25;
-
-		if (p_ptr->skill_sav <= 100) p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
 
 		p_ptr->resist_blind = TRUE;
 		p_ptr->resist_confu = TRUE;
@@ -3259,63 +3323,6 @@ static void calc_bonuses(void)
 		p_ptr->see_infra = p_ptr->see_infra + 3;
 	}
 
-
-	/*** Specialty Abilities ***/
-
-	/* Specialty magic resistance; gives great saving throws even above 100 */
-	if (check_specialty(SP_MAGIC_RESIST))
-	{
-		if (p_ptr->skill_sav <= 80) p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
-		else p_ptr->skill_sav += 10;		
-	}
-	if (check_specialty(SP_ATHLETICS))
-	{
-		p_ptr->stat_add[A_DEX]++;
-		p_ptr->stat_add[A_CON]++;
-	}
-	if (check_specialty(SP_CLARITY))
-	{
-		p_ptr->stat_add[A_INT]++;
-		p_ptr->stat_add[A_WIS]++;
-	}
-	if (check_specialty(SP_UNLIGHT))
-	{
-		p_ptr->skill_stl += 4;
-	}
-	if (check_specialty(SP_EVASION))
-	{
-		int cur_wgt = 0;
-		int evasion_wgt;
-		int max_bonus;
-
-		/* Weigh the armor */
-		cur_wgt += inventory[INVEN_BODY].weight;
-		cur_wgt += inventory[INVEN_HEAD].weight;
-		cur_wgt += inventory[INVEN_ARM].weight;
-		cur_wgt += inventory[INVEN_OUTER].weight;
-		cur_wgt += inventory[INVEN_HANDS].weight;
-		cur_wgt += inventory[INVEN_FEET].weight;
-
-		/* Highest weight to get any bonus */
-		evasion_wgt = 150 + (3 * p_ptr->lev);
-
-		/* Highest bonus we can get at this level */
-		max_bonus = 15 + (4 * p_ptr->lev);
-
-		/* Do we get the max bonus? */
-		if (cur_wgt < evasion_wgt / 2)
-		{
-			p_ptr->to_a += max_bonus;
-                        p_ptr->dis_to_a += max_bonus;
-		}
-
-		/* Do we get any bonus? */
-		else if (cur_wgt < evasion_wgt)
-		{
-			p_ptr->to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
-			p_ptr->dis_to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
-		}
-	}
 
 	/*** Special flags ***/
 
@@ -3420,6 +3427,22 @@ static void calc_bonuses(void)
 	/* Limit Skill -- stealth from 0 to 30 */
 	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
 	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
+
+	/*** Special Saving Throw boosts are calculated after other bonuses ***/
+
+	/* Specialty magic resistance; gives great saving throws even above 100 */
+	if (check_specialty(SP_MAGIC_RESIST))
+	{
+		if (p_ptr->skill_sav <= 80) p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
+		else p_ptr->skill_sav += 10;		
+	}
+
+	/* Heightened magical defenses.   Halves the difference between saving 
+	 * throw and 100.  */
+	if (p_ptr->magicdef)
+	{
+		if (p_ptr->skill_sav <= 100) p_ptr->skill_sav += (100 - p_ptr->skill_sav) / 2;
+	}
 
 	/*** Analyze shapechanges - everything but statistics ***/
 	shape_change_main();

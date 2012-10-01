@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.6.0"
+#define VERSION_STRING	"0.6.1"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -67,7 +67,7 @@
  */
 #define O_VERSION_MAJOR	0
 #define O_VERSION_MINOR	6
-#define O_VERSION_PATCH	0
+#define O_VERSION_PATCH	1
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -1019,6 +1019,8 @@
 #define ART_BARD			180
 #define ART_CUBRAGOL		181
 #define ART_BUCKLAND		182
+#define ART_AMROD		183
+#define ART_AMRAS		184
 
 
 /* Non-wearable artifacts that can recharge in the backpack. */
@@ -2448,7 +2450,7 @@
 #define TR1_SLAY_TROLL		0x00200000L	/* Weapon slays troll */
 #define TR1_SLAY_GIANT		0x00400000L	/* Weapon slays giant */
 #define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
-#define TR1_XXX4			0x02000000L /* Was kill dragon. -LM- */
+#define TR1_SLAY_KILL		0x02000000L /* Weapon has strong slays -BR- */
 #define TR1_THROWING		0x02000000L /* Weapon can be thrown. -LM- */
 #define TR1_PERFECT_BALANCE	0x04000000L /* Weapon is perfectly balanced. -LM- */
 #define TR1_BRAND_POIS		0x08000000L /* Weapon has poison brand */
@@ -2791,7 +2793,7 @@
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET		0x00004000	/* Cause amnesia */
 #define RF6_DRAIN_MANA		0x00008000	/* Drain Mana */
-#define RF6_XXX4			0x00010000	/*  */
+#define RF6_DISPEL		0x00010000	/* Dispel Magic */
 #define RF6_XXX5			0x00020000	/*  */
 #define RF6_MIND_BLAST		0x00040000	/* Blast Mind */
 #define RF6_BRAIN_SMASH		0x00080000	/* Smash Brain */
@@ -2878,7 +2880,7 @@
 
 #define RF6_HARASS_MASK \
 	(RF6_DARKNESS | RF6_TRAPS | RF6_FORGET | RF6_HUNGER | RF6_DRAIN_MANA | \
-         RF6_SCARE | RF6_BLIND | RF6_CONF | RF6_SLOW | RF6_HOLD)
+         RF6_SCARE | RF6_BLIND | RF6_CONF | RF6_SLOW | RF6_HOLD | RF6_DISPEL)
 
 #define RF7_HARASS_MASK \
 	(0L)

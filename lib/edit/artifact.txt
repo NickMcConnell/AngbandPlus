@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.6.0
+V:0.6.1
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -452,7 +452,7 @@ D:of the Elements.
 N:44:of Thorin
 I:34:3:3
 W:45:6:70:80000
-P:5:1d2:0:0:21:0
+P:5:1d3:0:0:21:0
 F:STR | CON | HIDE_TYPE | 
 F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
 D:Envoking the strength and endurance of Thorin, King under the Mountain, 
@@ -464,7 +464,7 @@ D:this little metal shield is proof against the Element of Earth.
 N:45:of Celegorm
 I:34:4:0
 W:30:4:110:18000
-P:6:1d3:0:0:20:0
+P:6:1d4:0:0:20:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 D:This shield emblazoned with a multitude of creatures unseen for ages 
 D:once protected Celegorm, Lord of Himlad; around it a mystic balance lies, 
@@ -499,7 +499,7 @@ D:runes to keep all wounds and harm from him".
 N:48:of Gil-Galad
 I:34:10:3
 W:70:4:80:65000
-P:14:1d3:0:0:16:34
+P:14:1d4:0:0:16:34
 F:LITE | CHR | RES_ELEC | RES_ACID | HIDE_TYPE | 
 F:SUST_WIS | SUST_CHR | ACTIVATE
 D:The legendary shield of Gil-Galad, who fought his way to the gates of 
@@ -784,7 +784,7 @@ I:31:2:0
 W:10:25:25:13000
 P:2:1d1:0:0:12:54
 F:RES_COLD | ACTIVATE
-D:A set of handgear so icy as to be able to fire frost bolts.
+D:A set of handgear which freezes your opponents.
 
 
 # The Set of Mail Gauntlets 'Pauraegen'
@@ -804,7 +804,7 @@ I:31:2:0
 W:10:25:25:12000
 P:2:1d1:0:0:12:56
 F:RES_ACID | ACTIVATE
-D:A set of handgear so acidic that it may fire bolts of acid.
+D:A set of handgear able to infuse your attacks with acid.
 
 
 # The Set of Steel Gauntlets 'Camlost'
@@ -1534,8 +1534,6 @@ D:returning.
 
 # Artifact 152 is unused
 
-# Artifact 153 is unused
-
 # Artifact 154 is unused
 
 # Artifact 155 is unused
@@ -1793,9 +1791,29 @@ D:A sling granting extraordinary clarity of mind amidst darkness and
 D:confusion, and which hurls shot with deadly speed.
 
 
-# Artifact 183 is unused
+# The Short Bow of Amrod
 
-# Artifact 184 is unused
+N:183:of Amrod
+I:19:12:2
+W:25:10:30:9000
+P:0:0d0:12:15:0:0
+F:STR | CON | MIGHT2 |
+F:RES_FIRE | RES_ELEC | RES_COLD | REGEN
+D:A hunter's bow used for sport and war across the plains of East 
+D:Beleriand.  It remembers the fury of the sons of Feanor.
+
+
+# The Short Bow of Amras
+
+N:184:of Amras
+I:19:12:1
+W:25:10:30:9000
+P:0:0d0:12:15:0:0
+F:INT | WIS | DEX | SHOTS | MIGHT1 | SPEED |
+F:RES_FIRE | RES_ELEC | RES_COLD | SLOW_DIGEST
+D:A cunningly bow, crafted by the Noldor of old.  It remembers the 
+D:wiles of the sons of Feanor.
+
 
 # Artifact 185 is unused
 

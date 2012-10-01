@@ -1046,6 +1046,15 @@ static void process_world(void)
 		}
 	}
 
+	/* Decay special speed boost */
+	if (p_ptr->speed_boost)
+	{
+		if (p_ptr->speed_boost > 10) p_ptr->speed_boost -= 10;
+		else p_ptr->speed_boost = 0;
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+	}
 
 	/*** Process Light ***/
 
@@ -2128,17 +2137,18 @@ static void special_mana_gain(void)
                         p_ptr->mana_gain -= p_ptr->msp - p_ptr->csp;
 			p_ptr->csp = p_ptr->msp;
 		}
+	
 		/*
 		 * Hack - If there is a lot of mana left, it can do damage
 		 * Mega-Hack - Restrict to Necromancers to make it affect Soul Siphon
 		 * and not Power Siphon.
 		 */
-		if ((p_ptr->mana_gain > p_ptr->lev) && (p_ptr->pclass == CLASS_MAGE))
+		if ((p_ptr->mana_gain > p_ptr->lev) && (p_ptr->pclass == CLASS_NECRO))
 		{
-                        msg_print("You absorb too much mana!");
-			take_hit(randint(p_ptr->mana_gain), "mana burn");
+			msg_print("You absorb too much mana!");
+			take_hit(damroll(2, 8), "mana burn");
 		}
-	
+
 		/* Paranioa */
 		if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
 	
@@ -2402,10 +2412,6 @@ static void process_player(void)
 
 		/*** Hack - handle special mana gain ***/
 		special_mana_gain();
-
-		/* HACK - Apply and reset special energy gain */
-		p_ptr->energy += p_ptr->energy_gain;
-		p_ptr->energy_gain = 0;
 
 		/*** Clean up ***/
 

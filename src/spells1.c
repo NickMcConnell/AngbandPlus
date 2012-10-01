@@ -850,6 +850,7 @@ void take_hit(int dam, cptr kb_str)
 
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
 
+	int max_speed_boost = 25 + ((3 * p_ptr->lev) / 2);
 
 	/* Paranoia */
 	if (p_ptr->is_dead) return;
@@ -862,16 +863,16 @@ void take_hit(int dam, cptr kb_str)
 	p_ptr->chp -= dam;
 
 	/* Specialty Ability Fury (not already maxxed) */
-	if (check_specialty(SP_FURY) && (p_ptr->energy_gain < 50))
+	if (check_specialty(SP_FURY) && (p_ptr->speed_boost < max_speed_boost))
 	{
-		/* Add energy */
-		p_ptr->energy_gain += (dam * 200) / p_ptr->mhp;
+		/* Increase Speed Boost */
+		p_ptr->speed_boost += 1 + ((dam * 100) / p_ptr->mhp);
 
-		/* Cap of 50 from Fury */
-		if (p_ptr->energy_gain > 50)
-		{
-			p_ptr->energy_gain = 50;
-		}
+		/* Level dependent cap on Fury */
+		p_ptr->speed_boost = (p_ptr->speed_boost > max_speed_boost ? max_speed_boost : p_ptr->speed_boost);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
 	}
 
 	/* Display the hitpoints */

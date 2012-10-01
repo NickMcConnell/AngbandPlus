@@ -373,7 +373,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_ANIMAL);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_ANIMAL) && (mul < 20)) mul = 20;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 20)) mul = 20;
 				else if (mul < 17) mul = 17;
 			}
 
@@ -387,7 +387,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_EVIL) && (mul < 17)) mul = 17;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 17)) mul = 17;
 				else if (mul < 15) mul = 15;
 			}
 
@@ -400,7 +400,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
-				if (o_ptr->name2 == EGO_KILL_UNDEAD)
+				if (f1 & (TR1_SLAY_KILL))
 				{
 					if ((check_specialty(SP_HOLY_LIGHT)) && (mul < 27)) mul = 27;
 					else if (mul < 25) mul = 25;
@@ -421,7 +421,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_DEMON) && (mul < 25)) mul = 25;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
 				else if (mul < 20) mul = 20;
 			}
 
@@ -433,7 +433,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_ORC);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_ORC) && (mul < 25)) mul = 25;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
 				else if (mul < 20) mul = 20;
 			}
 
@@ -445,7 +445,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_TROLL) && (mul < 25)) mul = 25;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
 				else if (mul < 20) mul = 20;
 			}
 
@@ -457,7 +457,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_GIANT);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_GIANT) && (mul < 25)) mul = 25;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
 				else if (mul < 20) mul = 20;
 			}
 
@@ -469,7 +469,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_DRAGON) && (mul < 25)) mul = 25;
+				if ((f1 & (TR1_SLAY_KILL)) && (mul < 25)) mul = 25;
 				else if (mul < 20) mul = 20;
 			}
 
@@ -618,8 +618,8 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 	bool power_strike = FALSE;
 
         /* Specialty Ability */
-        if ((check_specialty(SP_POWER_STRIKE) || check_specialty(SP_MARTIAL_ARTS))
-		&& (rand_int(6) == 0))
+        if ((check_specialty(SP_MARTIAL_ARTS) && (rand_int(6) == 0))
+	    || (check_specialty(SP_POWER_STRIKE) && (rand_int(8) == 0)))
 	{
 		power_strike = TRUE;
 	}
@@ -677,7 +677,7 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 	else damage = damroll(dd, ds);
 
 	/* Druids can also confuse monsters. */
-	if (power_strike || (power > rand_int(500) + 25))
+	if ((power_strike && (rand_int(3) != 0)) || (power > rand_int(500) + 25))
 	{
 		/* Use the special druid confusion attack. */
 		p_ptr->special_attack |= (ATTACK_DRUID_CONFU);
@@ -1327,8 +1327,8 @@ void do_cmd_fire(void)
 	int damage = 0;
 
 	/* Assume no weapon of velocity or accuracy bonus. */
-	int special_dam = 0;
-	int special_hit = 0;
+	bool special_dam = FALSE;
+	bool special_hit = FALSE;
 
 	object_type *o_ptr;
 	object_type *j_ptr;
@@ -1414,37 +1414,30 @@ void do_cmd_fire(void)
 	/* Sound */
 	sound(SOUND_SHOOT);
 
-	/* Missile launchers of Velocity and Accuracy sometimes "supercharge" */
-	if ((o_ptr->name2 == EGO_VELOCITY) || (o_ptr->name2 == EGO_ACCURACY))
+	/* Missile launchers of Velocity sometimes "supercharge" */
+	if ((o_ptr->name2 == EGO_VELOCITY) && (rand_int(20) == 0))
 	{
-		/* Occasional boost to shot. */
-		if (o_ptr->name2 == EGO_VELOCITY)
-		{
-			if (rand_int(20) == 0) special_dam = TRUE;
-		}
-		else if (o_ptr->name2 == EGO_ACCURACY)
-		{
-			if (rand_int(6) == 0) special_hit = TRUE;
-		}
+		object_desc(o_name, o_ptr, FALSE, 0);
 
-		if (special_hit || special_dam)
-		{
-			object_desc(o_name, o_ptr, FALSE, 0);
+		/* Set special damage */
+		special_dam = TRUE;
 
-			/* Give a hint to the player. */
-			if (!object_known_p(o_ptr)) 
-			{
-				msg_format("You feel a strange aura of power around your %s.", o_name);
-			}
-			else if (special_dam)
-			{
-				msg_format("Your %s feels strangely powerful.");
-			}
-			else
-			{
-				/* No message for known special_hit */
-			}
-		}
+		/* Give a hint to the player. */
+		if (!object_known_p(o_ptr)) msg_format("You feel a strange aura of power around your %s.", o_name);
+		else msg_format("Your %s feels very powerful.", o_name);
+	}
+
+	/* Missile launchers of Accuracy sometimes "supercharge" */
+	if ((o_ptr->name2 == EGO_ACCURACY) && (rand_int(6) == 0))
+	{
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Set special accuracy */
+		special_hit = TRUE;
+
+		/* Give a hint to the player. */
+		if (!object_known_p(o_ptr)) msg_format("You feel a strange aura of power around your %s.", o_name);
+		else msg_format("Your %s feels very accurate.", o_name);
 	}
 
 	/* Fire ammo of backbiting, and it will turn on you.  -LM- */
@@ -1455,7 +1448,10 @@ void do_cmd_fire(void)
 
 		/* Calculate damage. */
 		damage = damroll(p_ptr->ammo_mult * i_ptr->dd * randint(2), i_ptr->ds * 4);
-		damage += special_dam;
+		if (special_dam)
+		{
+			damage += 15;
+		}
 
 		/* Inflict both normal and wound damage. */
 		take_hit(damage, "ammo of backbiting");

@@ -1219,7 +1219,7 @@ struct player_type
         byte dtrap_rad;         /* radius of last trap detection */
 
 	/* Helper variables for some specialty abilities */
-	s16b energy_gain;		/* Energy gained by special means this turn */
+	s16b speed_boost;		/* Short term speed boost (Fury) */
 	s16b mana_gain;			/* Mana gained by special means this turn */
 };
 

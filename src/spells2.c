@@ -495,11 +495,19 @@ void do_cmd_unchange(void)
 	/* Hack - refund mana (2/3 mana when shapeshifted). */
 	if (p_ptr->csp > 0)
 	{
+		/* Hack - Recalculate mana now, even though we will */
+		/* update it fully, to ensure the refund to current */
+		/* mana doesn't get cleared */
 		p_ptr->msp *= 3;
 		p_ptr->msp /= 2;
+
+		/* Refund current mana */
 		p_ptr->csp *= 3;
 		p_ptr->csp /= 2;
 		if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+
+		/* Display mana later */
+		p_ptr->redraw |= (PR_MANA);
 	}
 
 	/* Recalculate mana. */
@@ -4679,10 +4687,10 @@ bool dispel_a_dragon(int dir, int dam)
 	return (project_hook(GF_DISP_DRAGON, dir, dam, flg));
 }
 
-bool teleport_monster(int dir)
+bool teleport_monster(int dir, int dist)
 {
 	int flg = PROJECT_BEAM | PROJECT_KILL;
-	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
+	return (project_hook(GF_AWAY_ALL, dir, dist, flg));
 }
 
 

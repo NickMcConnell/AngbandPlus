@@ -2184,7 +2184,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_TELEPORT_AWAY:
 		{
-			if (teleport_monster(dir)) ident = TRUE;
+			if (teleport_monster(dir, 55 + (plev/2))) ident = TRUE;
 			break;
 		}
 
@@ -2714,7 +2714,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
-			if (teleport_monster(dir)) ident = TRUE;
+			if (teleport_monster(dir, 45 + (plev/3))) ident = TRUE;
 			break;
 		}
 
@@ -3651,7 +3651,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your trident glows deep red...");
 			if (!get_aim_dir(&dir)) return;
-			teleport_monster(dir);
+			teleport_monster(dir, 45 + (plev/3));
 			o_ptr->timeout = 75;
 			break;
 		}
@@ -4093,7 +4093,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("You weave a pattern of rejection and denial.");
 			if (!get_aim_dir(&dir)) return;
-			(void)teleport_monster(dir);
+			(void)teleport_monster(dir, 55 + (plev/2));
 			o_ptr->timeout = 110;
 			break;
 		}
@@ -4318,7 +4318,7 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_BANISH_EVIL:
 		{
 			msg_print("A mighty hand drives your foes from you!");
-			(void)banish_evil(100);
+			(void)banish_evil(80);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -4370,7 +4370,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small acidic dragon.");
+				msg_print("You become an acidic dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4386,7 +4386,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small storm dragon.");
+				msg_print("You become a storm dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4402,7 +4402,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small icy dragon.");
+				msg_print("You become an icy dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4418,7 +4418,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small fire dragon.");
+				msg_print("You become a fire dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4434,7 +4434,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small poisonous dragon.");
+				msg_print("You become a poisonous dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4450,7 +4450,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small but powerful dragon.");
+				msg_print("You become a powerful dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4475,7 +4475,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small glowing dragon.");
+				msg_print("You become a glowing dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4494,7 +4494,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small dragon of Order.");
+				msg_print("You become a dragon of Order.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4513,7 +4513,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small mystifying dragon.");
+				msg_print("You become a mystifying dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4529,7 +4529,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small dragon with a deafening roar.");
+				msg_print("You become a dragon with a deafening roar.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4545,7 +4545,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small dragon of Chaos.");
+				msg_print("You become a dragon of Chaos.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4564,7 +4564,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small dragon of Balance.");
+				msg_print("You become a dragon of Balance.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
@@ -4587,7 +4587,7 @@ void do_cmd_activate(void)
 		{
 			if ((p_ptr->schange) != SHAPE_WYRM)
 			{
-				msg_print("You become a small but wonderous dragon.");
+				msg_print("You become a wonderous dragon.");
 				shapechange(SHAPE_WYRM);
 			}
 			else
