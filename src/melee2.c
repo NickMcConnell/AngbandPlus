@@ -2972,9 +2972,6 @@ static bool get_moves(int m_idx, int mm[5])
 		/* Extract the new "pseudo-direction" */
 		y = m_ptr->fy - y2;
 		x = m_ptr->fx - x2;
-
-		/* Done */
-		done = TRUE;
 	}
 
 	/* Check for no move */
@@ -3985,6 +3982,9 @@ static void process_monster(int m_idx)
 			{
 				/* Allow movement */
 				do_move = TRUE;
+
+				/* Update visuals */
+				p_ptr->window |= (PW_VISIBLE);
 
 				/* Monster ate another monster */
 				did_kill_body = TRUE;

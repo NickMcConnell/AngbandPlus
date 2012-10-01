@@ -26,9 +26,10 @@ info_entry power_info[POW_MAX] =
 	{POW_HEAL_3,			"reduces cuts and heals you a large amount"},
 	{POW_HEAL_4,			"heals you a very large amount, eliminates cuts and stunning"},
 	{POW_HEAL_5,			"heals you fully, eliminates cuts and stunning"},	
-	{POW_HEAL_CURE_1,		"heals a moderate amount, cures negative effects"},	
-	{POW_HEAL_CURE_2,		"heals a large amount, cures negative effects"},	
-	{POW_HEAL_CURE_3,		"heals you a very large amount, cures negative effects"},	
+	{POW_HEAL_CURE_1,		"heals a some damage, cures stunning effects and reduces cuts"},	
+	{POW_HEAL_CURE_2,		"heals a moderate amount, cures negative effects"},	
+	{POW_HEAL_CURE_3,		"heals a large amount, cures negative effects"},	
+	{POW_HEAL_CURE_4,		"heals you a very large amount, cures negative effects"},	
 	{POW_LIFE,				"restores you to perfect health and condition"},	
 	{POW_RESTORE_MANA,		"restores mana to full level"},
 	{POW_RESTORE_MANA_INT,	"restores mana to full level, and also restores intelligence"},
@@ -52,17 +53,18 @@ info_entry power_info[POW_MAX] =
 	{POW_CURE_FEAR,			"removes any fear you currently feel"},
 	{POW_CURE_CONFUSION,	"removes any confusion you currently feel"},
 	{POW_CURE_DISEASE,		"rids your body of all disease"},
-	{POW_CURE_POISON_1,		"reduces the amount of poison in your system"},
-	{POW_CURE_POISON_2,		"removes all poison from your body"},
+	{POW_CURE_POISON,		"removes all poison from your body"},
 	{POW_CURE_POIS_DISE,	"removes all poison and disease from your body"},
 	{POW_CURE_FEAR_POIS,	"removes fear from your mind and poison from your body"},
+	{POW_CURE_TAINT,		"removes a temporary unholy taint from your soul"},
 	{POW_CURE_ALL,			"removes all poison, disease, fear, cuts, stunning and confusion"},
 	{POW_CURE_BODY,			"restores all stats, cures poison, and fully feeds you"},
 	{POW_CLEAR_MIND,		"rids your mind of confusion and fear, cures blindness"},
 	{POW_TELE_10,			"displaces you a short distance away"}, 
 	{POW_TELE_MINOR,		"displaces you a medium distance away"},
 	{POW_TELE_MAJOR,		"displaces you a major distance away"},
-	{POW_TELE_OTHER,		"teleports a line of opponents away"},
+	{POW_TELE_OTHER,		"teleports an opponent away"},
+	{POW_TELE_OTHER_BEAM,	"teleports a line of opponents away"},
 	{POW_TELE_LEVEL,		"immediately takes you to the next level up or down"},
 	{POW_TELE_CONTROL,		"displaces you to somewhere you choose"},
 	{POW_WORD_RECALL,		"recalls you to the town, or back into the dungeon"},
@@ -263,6 +265,7 @@ info_entry power_info[POW_MAX] =
 	{POW_HALLUCINATE,		"causes you to hallucinate"},
 	{POW_DISEASE,			"infects you with a disease"},
 	{POW_DEFORM,			"deforms you and swaps your stats"},
+	{POW_TAINT,				"places an evil taint on your soul"},
 	{POW_LOSE_STR,			"lowers your strength"},
 	{POW_LOSE_INT,			"lowers your intelligence"},
 	{POW_LOSE_WIS,			"lowers your wisdom"},		
@@ -290,6 +293,12 @@ info_entry power_info[POW_MAX] =
 	{POW_DRAGON_POWER,		"breathes the elements (400+)"},
 	{POW_RISK_HACK,			"either kills or rewards you"},
 	{POW_WONDER_HACK,		"creates a random effect"},
+	{POW_MUSIC_LYRE,		"Emulate the skillful ballads of a lyre"},
+	{POW_MUSIC_HORN,		"Emulate the powerful tones of a horn"},
+	{POW_MUSIC_FLUTE,		"Emulate the gentle melodies of a flute"},
+	{POW_MUSIC_LUTE,		"Emulate the jolly dances of a lute"},
+	{POW_MUSIC_DRUM,		"Emulate the rousing tempos of a drum"},
+	{POW_MUSIC_HARP,		"Emulate the soothing songs of a harp"}
 };
 
 /*
@@ -328,7 +337,7 @@ static void ring_of_power(int dir)
 			message(MSG_EFFECT, 0, "You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
-			project_all(GF_DISP_ALL, 1000);
+			project_los(GF_DISP_ALL, 1000);
 
 			break;
 		}
@@ -366,6 +375,8 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 {
 	int durat, i;
 	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
+
+	if (p_ptr->taint) holy = FALSE;
 
 	/* We haven't seen anything yet */
 	*obvious = FALSE;
@@ -406,15 +417,21 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_HEAL_CURE_1:
 		{
+			if (heal_player(15, 20)) *obvious = TRUE;
+			if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
+			if (set_stun(0)) *obvious = TRUE;
+			break;
+		}
+		case POW_HEAL_CURE_2:
+		{
 			if (heal_player(25, 30)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
-			if (set_poisoned(0)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_CURE_2:
+		case POW_HEAL_CURE_3:
 		{
 			if (heal_player(60, 40)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
@@ -425,7 +442,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_HEAL_CURE_3:
+		case POW_HEAL_CURE_4:
 		{
 			if (heal_player(90, 100)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
@@ -611,12 +628,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (set_diseased(0)) *obvious = TRUE;
 			break;
 		}
-		case POW_CURE_POISON_1:
-		{
-			if (set_poisoned(p_ptr->poisoned / 2)) *obvious = TRUE;
-			break;
-		}
-		case POW_CURE_POISON_2:
+		case POW_CURE_POISON:
 		{
 			if (set_poisoned(0)) *obvious = TRUE;
 			break;
@@ -631,6 +643,16 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			if (set_afraid(0)) *obvious = TRUE;
 			if (set_poisoned(0)) *obvious = TRUE;
+			break;
+		}
+		case POW_CURE_TAINT:
+		{
+			if ((p_ptr->taint_inv) || (p_ptr->taint > dlev * 25))
+			{
+				message(MSG_FAIL, 0, "The taint on your soul is too powerful at the moment!");
+				*obvious = TRUE;
+			}
+			else if (set_taint(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_CURE_ALL:
@@ -684,7 +706,13 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_TELE_OTHER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (fire_bolt(GF_AWAY_ALL, dir, MAX_SIGHT * 5)) *obvious = TRUE;
+			if (fire_ball(GF_AWAY_ALL, dir, MAX_SIGHT * 5, 0)) *obvious = TRUE;
+			break;
+		}
+		case POW_TELE_OTHER_BEAM:
+		{
+			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			if (fire_beam(GF_AWAY_ALL, dir, MAX_SIGHT * 5)) *obvious = TRUE;
 			break;
 		}
 		case POW_TELE_LEVEL:
@@ -988,6 +1016,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_BEAM_NETHER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+			(void)set_taint(p_ptr->taint + 3000);
 			(void)fire_beam(GF_NETHER, dir,	damroll((8 * dlev), 4));
 			*obvious = TRUE;
 			break;
@@ -1108,7 +1137,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_BANISH:
 		{
-			if (project_all(GF_AWAY_EVIL, 100))
+			if (project_los(GF_AWAY_EVIL, 100))
 			{
 				message(MSG_EFFECT, 0, "The power of your god banishes evil!");
 				*obvious = TRUE;
@@ -1138,71 +1167,90 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_BLIGHT:
 		{
-			if (project_all(GF_DISP_PLANT, dlev * 8)) *obvious = TRUE;
-			if (project_all(GF_DISP_ANIMAL, dlev / 10)) *obvious = TRUE;
+			if (project_los(GF_DISP_PLANT, dlev * 8)) *obvious = TRUE;
+			if (project_los(GF_DISP_ANIMAL, dlev / 10)) *obvious = TRUE;
 			break;
 		}
 		case POW_BURST_ASTRAL:
 		{
-			if (project_all(GF_ASTRAL, 25)) *obvious = TRUE;
+			if (project_los(GF_ASTRAL, 25)) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_ALL:
 		{
-			if (project_all(GF_DISP_ALL, dlev * 6)) *obvious = TRUE;
+			if (project_los(GF_DISP_ALL, dlev * 6)) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_UNDEAD_1:
 		{
-			if (project_all(GF_DISP_UNDEAD, randint(dlev * 3))) *obvious = TRUE;
+			if (project_los(GF_DISP_UNDEAD, randint(dlev * 3))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_UNDEAD_2:
 		{
-			if (project_all(GF_DISP_UNDEAD, randint(dlev * 4))) *obvious = TRUE;
+			if (project_los(GF_DISP_UNDEAD, randint(dlev * 4))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_NON_EVIL:
 		{
-			if (project_all(GF_DISP_NON_EVIL, randint(dlev * 5))) *obvious = TRUE;
+			if (project_los(GF_DISP_NON_EVIL, randint(dlev * 5))) *obvious = TRUE;
+			if (set_taint(p_ptr->taint + 2500)) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_3:
 		{
-			if (project_all(GF_DISP_EVIL, randint(dlev * 3))) *obvious = TRUE;
+			if (project_los(GF_DISP_EVIL, randint(dlev * 3))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_4:
 		{
-			if (project_all(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
+			if (project_los(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
 			break;
 		}
 		case POW_DISPEL_EVIL_5:
 		{
-			if (project_all(GF_DISP_EVIL, randint(dlev * 5))) *obvious = TRUE;
+			if (project_los(GF_DISP_EVIL, randint(dlev * 5))) *obvious = TRUE;
 			break;
 		}
 		case POW_HOLY_1:
 		{
-			if (project_all(GF_DISP_EVIL, randint(dlev * 6))) *obvious = TRUE;
-			if (set_protevil(p_ptr->protevil + randint(25) + (llev * 3))) *obvious = TRUE;
-			if (hp_player(50)) *obvious = TRUE;
-			if (set_afraid(0)) *obvious = TRUE;
-			if (set_diseased(0)) *obvious = TRUE;
-			if (set_poisoned(0)) *obvious = TRUE;
-			if (set_stun(0)) *obvious = TRUE;
-			if (set_cut(0)) *obvious = TRUE;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "You are punished for your mockery of holyness!");
+				damage_player(50, "A tainted soul");
+				*obvious = TRUE;
+			}
+			else
+			{
+				if (project_los(GF_DISP_EVIL, randint(dlev * 6))) *obvious = TRUE;
+				if (set_protevil(p_ptr->protevil + randint(25) + (llev * 3))) *obvious = TRUE;
+				if (heal_player(20, 20)) *obvious = TRUE;
+				if (set_afraid(0)) *obvious = TRUE;
+				if (set_diseased(0)) *obvious = TRUE;
+				if (set_poisoned(0)) *obvious = TRUE;
+				if (set_stun(0)) *obvious = TRUE;
+				if (set_cut(0)) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_HOLY_2:
 		{
-			if (project_all(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
-			if (hp_player(1000)) *obvious = TRUE;
-			if (set_afraid(0)) *obvious = TRUE;
-			if (set_diseased(0)) *obvious = TRUE;
-			if (set_poisoned(0)) *obvious = TRUE;
-			if (set_stun(0)) *obvious = TRUE;
-			if (set_cut(0)) *obvious = TRUE;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "You are punished for your mockery of holyness!");
+				damage_player(50, "A tainted soul");
+				*obvious = TRUE;
+			}
+			else
+			{
+				if (project_los(GF_DISP_EVIL, randint(dlev * 4))) *obvious = TRUE;
+				if (hp_player(1000)) *obvious = TRUE;
+				if (set_afraid(0)) *obvious = TRUE;
+				if (set_diseased(0)) *obvious = TRUE;
+				if (set_poisoned(0)) *obvious = TRUE;
+				if (set_stun(0)) *obvious = TRUE;
+				if (set_cut(0)) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_GENOCIDE:
@@ -1545,7 +1593,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_CONFUSE_ALL:
 		{
-			if (project_all(GF_OLD_CONF, ilev)) *obvious = TRUE;
+			if (project_los(GF_OLD_CONF, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SLEEP_MONSTER:
@@ -1561,7 +1609,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_SLEEP_ALL:
 		{
-			if (project_all(GF_OLD_SLEEP, ilev)) *obvious = TRUE;
+			if (project_los(GF_OLD_SLEEP, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SLOW_MONSTER:
@@ -1572,32 +1620,32 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_SLOW_ALL:
 		{
-			if (project_all(GF_OLD_SLOW, ilev)) *obvious = TRUE;
+			if (project_los(GF_OLD_SLOW, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_MONSTER:
 		{
 			if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
-			if (fire_bolt(GF_OLD_CALM, dir, ilev)) *obvious = TRUE;
+			if (fire_bolt(GF_OLD_CALM, dir, ((3 * ilev) / 2))) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_ANIMALS:
 		{
-			if (project_all(GF_CALM_ANIMALS, ilev)) *obvious = TRUE;
+			if (project_los(GF_CALM_ANIMALS, ((3 * ilev) / 2))) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_NON_EVIL:
 		{
-			if (project_all(GF_CALM_NON_EVIL, ilev)) *obvious = TRUE;
+			if (project_los(GF_CALM_NON_EVIL, ((3 * ilev) / 2))) *obvious = TRUE;
 			break;
 		}
 		case POW_CALM_NON_CHAOS:
 		{
-			if (project_all(GF_CALM_NON_CHAOS, 100)) *obvious = TRUE;
+			if (project_los(GF_CALM_NON_CHAOS, 100)) *obvious = TRUE;
 		}
 		case POW_CALM_ALL:
 		{
-			if (project_all(GF_OLD_CALM, ilev)) *obvious = TRUE;
+			if (project_los(GF_OLD_CALM, ((3 * ilev) / 2))) *obvious = TRUE;
 			break;
 		}
 		case POW_BLIND_MONSTER:
@@ -1614,12 +1662,12 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_SCARE_UNDEAD:
 		{
-			if (project_all(GF_TURN_UNDEAD, ilev)) *obvious = TRUE;
+			if (project_los(GF_TURN_UNDEAD, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_SCARE_ALL:
 		{
-			if (project_all(GF_TURN_ALL, ilev)) *obvious = TRUE;
+			if (project_los(GF_TURN_ALL, ilev)) *obvious = TRUE;
 			break;
 		}
 		case POW_CALL_MONSTER:
@@ -1819,7 +1867,11 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_GLYPH_HOLY:
 		{
-			if (!warding_glyph(WG_GLYPH_HOLY))
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "No holy authority answers your request.");
+			}
+			else if (!warding_glyph(WG_GLYPH_HOLY))
 			{
 				message(MSG_FAIL, 0, "The floor glows for a moment, but nothing happens.");
 			}
@@ -1873,7 +1925,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_PROBE_ALL:
 		{
-			if (project_all(GF_PROBE, 0))
+			if (project_los(GF_PROBE, 0))
 			{
 				message(MSG_GENERIC, 0, "That's all.");
 				*obvious = TRUE;
@@ -2131,6 +2183,14 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (p_ptr->ht<20) p_ptr->ht = 20;
 			if (p_ptr->ht<20) p_ptr->ht = 20;
 			*obvious = TRUE;
+			break;
+		}
+		case POW_TAINT:
+		{
+			if (!p_ptr->blessed)
+			{
+				if(set_taint(p_ptr->taint + rand_int(100) + 150)) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_LOSE_STR:
@@ -2404,6 +2464,37 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			 */
 			break;
 		}
+		case POW_MUSIC_LYRE:
+		{
+			do_play(SV_MUSIC_LYRE, 5);
+			break;
+		}
+		case POW_MUSIC_HORN:
+		{
+			do_play(SV_MUSIC_HORN, 5);
+			break;
+		}
+		case POW_MUSIC_FLUTE:
+		{
+			do_play(SV_MUSIC_FLUTE, 5);
+			break;
+		}
+		case POW_MUSIC_LUTE:
+		{
+			do_play(SV_MUSIC_LUTE, 5);
+			break;
+		}
+		case POW_MUSIC_DRUM:
+		{
+			do_play(SV_MUSIC_DRUM, 5);
+			break;
+		}
+		case POW_MUSIC_HARP:
+		{
+			do_play(SV_MUSIC_HARP, 5);
+			break;
+		}
+
 	}
 
 	return (TRUE);

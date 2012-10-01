@@ -14,6 +14,8 @@
 
 #ifdef USE_LSL
 
+#include "main.h"
+
 /* Standard C header files */
 #include <stdio.h>
 #include <stdlib.h>
@@ -625,10 +627,15 @@ errr term_text_svgalib(int x, int y, int n, unsigned char a, cptr s)
  * Low-level graphics routine (assumes valid input)
  * Draw n chars at location (x,y) with value s and attribute a
  ***************************************************************************/
-errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp)
+errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp,
+                       const byte *tap, const char *tcp)
 {
 	int i;
 	int x2, y2;
+
+	/* Unused parameters */
+	(void)tap;
+	(void)tcp;
 
 	for (i = 0; i < n; i++)
 	{
@@ -715,14 +722,20 @@ static void term_nuke_svgalib(term *t)
 }
 
 
+const char help_lsl[] = "SVGA (low level graphics) library";
+
+
 /****************************************************************************
  * Hook SVGAlib routines into term.c
  ***************************************************************************/
-errr init_lsl(void)
+errr init_lsl(int argc, char **argv)
 {
 	char path[1024];
 	term *t = &term_screen_body;
 
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	if (arg_graphics)
 	{

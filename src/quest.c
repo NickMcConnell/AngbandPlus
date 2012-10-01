@@ -254,7 +254,7 @@ static void grant_reward(byte reward_level, byte type)
 			/* Sometimes give inappropriate rewards */
 			if (i > p_ptr->fame) force_item = rand_int(p_ptr->fame);
 
-			if (force_item < 4) break;
+			if (force_item < 2) break;
 
 			/* Relatively expensive items are always appropriate */
 			if ((i_ptr->number * object_value(i_ptr)) > price_threshold) break;
@@ -510,7 +510,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 		message(MSG_FAIL, 0, "There are no elligable monsters to quest for");
 
 		/* XXX XXX Free the "monster_idx" array */
-		C_KILL(monster_idx, z_info->r_max, int);
+		KILL(monster_idx);
 
 		return FALSE;
 	}
@@ -560,7 +560,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	}
 
 	/* XXX XXX Free the "monster_idx" array */
-	C_KILL(monster_idx, z_info->r_max, int);
+	KILL(monster_idx);
 
 	/*success*/
 	return TRUE;

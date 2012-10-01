@@ -1610,6 +1610,11 @@ static bool get_stock(int *com_val, cptr pmt)
 			/* Success */
 			return (TRUE);
 		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
+		}
 	}
 
 	/* Assume failure */
@@ -2327,10 +2332,6 @@ static bool do_purchase(object_type *o_ptr, s32b *price)
 	/* Extract the starting offer and final offer */
 	*price = price_item(o_ptr, ot_ptr->inflate, FALSE) * o_ptr->number;
 
-	/* Message summary */
-	message(MSG_STORE, 0, "You quickly agree upon the price.");
-	message_flush();
-
 	/* Display Offer */
 	put_str(format("Price :  %ld", (long)*price), 1, 0);
 
@@ -2353,10 +2354,6 @@ static bool do_sell(object_type *o_ptr, s32b *price)
 
 	/* Sell the whole pile */
 	*price *= o_ptr->number;
-
-	/* Message summary */
-	message(MSG_STORE, 0, "You quickly agree upon the price.");
-	message_flush();
 
 	/* Display Offer */
 	put_str(format("Offer :  %ld", (long)*price), 1, 0);
@@ -3384,14 +3381,14 @@ void do_cmd_store(void)
 		/* Browse if necessary */
 		if (st_ptr->stock_num > 12)
 		{
-			prt(" SPACE) Next page of stock", 23, 0);
+			prt(" SPACE) Next page of stock.", 23, 0);
 		}
 
 		/* Commands */
 		if (store_num != STORE_GUILD)
 		{	
-			prt(" g) Get/Purchase an item.", 22, 31);
-			prt(" d) Drop/Sell an item.", 23, 31);
+			prt(" g) Get/Purchase an item.", 22, 29);
+			prt(" d) Drop/Sell an item.", 23, 29);
 
 			/* Add in the eXamine option */
 			if (rogue_like_commands)

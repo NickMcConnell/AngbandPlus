@@ -269,11 +269,7 @@ extern bool los(int y1, int x1, int y2, int x2);
 extern bool no_lite(void);
 extern bool cave_valid_bold(int y, int x);
 extern bool feat_supports_lighting(byte feat);
-#ifdef USE_TRANSPARENCY
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
-#else /* USE_TRANSPARENCY */
-extern void map_info(int y, int x, byte *ap, char *cp);
-#endif /* USE_TRANSPARENCY */
 extern void map_info_default(int y, int x, byte *ap, char *cp);
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
@@ -320,6 +316,7 @@ extern void print_spells(int book, bool music, int lev, int y, int x);
 extern byte count_spells (int book);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
+extern void do_play(int instrument, int lev);
 extern void do_cmd_magic(void);
 
 /* cmd-item.c */
@@ -404,6 +401,7 @@ extern bool set_blind(int v);
 extern bool set_confused(int v);
 extern bool set_poisoned(int v);
 extern bool set_diseased(int v);
+extern bool set_taint(int v);
 extern bool set_afraid(int v);
 extern bool set_paralyzed(int v);
 extern bool set_image(int v);
@@ -426,6 +424,7 @@ extern bool set_tim_res(int type, int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
+extern void display_player_status(void);
 
 /* files.c */
 extern void text_screenshot(cptr name);
@@ -445,13 +444,16 @@ extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void process_player_name(bool sf);
 extern void get_name(void);
 extern void display_scores(int from, int to);
+extern void display_scores_aux(int from, int to, int note, high_score *score);
+extern errr enter_score(time_t death_time);
+extern void top_twenty(void);
 extern errr predict_score(void);
 extern void close_game(void);
 extern void exit_game_panic(void);
 extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
-extern void display_scores_aux(int from, int to, int note, high_score *score);
+
 
 /* generate.c */
 extern void generate_cave(void);
@@ -459,7 +461,6 @@ extern void generate_cave(void);
 /* info.c */
 extern void display_player_equippy(int y, int x);
 extern void display_player(byte mode);
-extern void display_player_status(void);
 extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern byte object_resist(object_type *o_ptr, int res_type);
 extern byte object_resist_known(object_type *o_ptr, int res_type);
@@ -561,6 +562,8 @@ extern void delete_object(int y, int x);
 extern void compact_objects(int size);
 extern void wipe_o_list(void);
 extern s16b o_pop(void);
+extern object_type* get_first_object(int y, int x);
+extern object_type* get_next_object(object_type *o_ptr);
 extern errr get_obj_num_prep(void);
 extern s16b get_obj_num(int level);
 extern void artifact_aware(artifact_type *a_ptr);
@@ -685,7 +688,7 @@ extern bool brand_weapon(byte weapon_type, int brand_type, bool add_plus);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
-extern bool project_all(int typ, int dam);
+extern bool project_los(int typ, int dam);
 extern void aggravate_monsters(int who);
 extern void genocide(void);
 extern void mass_genocide(void);
@@ -742,14 +745,15 @@ extern bool mon_glyph_check(int m_idx, int y, int x);
 /* util.c */
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
+extern void repeat_clear (void);
 extern void repeat_check(void);
 extern errr path_parse(char *buf, int max, cptr file);
 extern errr path_build(char *buf, int max, cptr path, cptr file);
 extern FILE *my_fopen(cptr file, cptr mode);
 extern FILE *my_fopen_temp(char *buf, int max);
 extern errr my_fclose(FILE *fff);
-extern errr my_fgets(FILE *fff, char *buf, huge n);
-extern errr my_fputs(FILE *fff, cptr buf, huge n);
+extern errr my_fgets(FILE *fff, char *buf, size_t n);
+extern errr my_fputs(FILE *fff, cptr buf, size_t n);
 extern errr fd_kill(cptr file);
 extern errr fd_move(cptr file, cptr what);
 extern errr fd_copy(cptr file, cptr what);
@@ -757,12 +761,12 @@ extern int fd_make(cptr file, int mode);
 extern int fd_open(cptr file, int flags);
 extern errr fd_lock(int fd, int what);
 extern errr fd_seek(int fd, long n);
-extern errr fd_read(int fd, char *buf, huge n);
-extern errr fd_write(int fd, cptr buf, huge n);
+extern errr fd_read(int fd, char *buf, size_t n);
+extern errr fd_write(int fd, cptr buf, size_t n);
 extern errr fd_close(int fd);
 extern errr check_modification_date(int fd, cptr template_file);
-extern void text_to_ascii(char *buf, cptr str);
-extern void ascii_to_text(char *buf, cptr str);
+extern void text_to_ascii(char *buf, int len, cptr str);
+extern void ascii_to_text(char *buf, int len, cptr str);
 extern sint macro_find_exact(cptr pat);
 extern errr macro_add(cptr pat, cptr act);
 extern errr macro_init(void);
@@ -847,6 +851,7 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
+extern void do_player_death(void);
 
 /*
  * Hack -- conditional (or "bizarre") externs

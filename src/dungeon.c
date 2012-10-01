@@ -743,6 +743,15 @@ static void process_world(void)
 	if (p_ptr->rage)			(void)set_rage(p_ptr->rage - 1);
 	if (p_ptr->blessed)			(void)set_blessed(p_ptr->blessed - 1);
 	if (p_ptr->shield)			(void)set_shield(p_ptr->shield - 1);
+	if (p_ptr->stability)		(void)set_stability(p_ptr->stability - 1);
+
+	/* Taint */
+	if (p_ptr->taint_inv)
+	{
+		if (p_ptr->taint < 5) set_taint(5);
+		else if (!rand_int(20)) set_taint(p_ptr->taint + 1);
+	}
+	else if (p_ptr->taint) (void)set_taint(p_ptr->taint - 1);
 
 	/* Hack - don't heal confusion if "insane" */
 	if ((p_ptr->confused) && (p_ptr->confused <= PY_CONF_INSANE))
@@ -2106,8 +2115,8 @@ static void dungeon(void)
 	int i;
 
 	/* Hack -- enforce illegal panel */
-	p_ptr->wy = p_ptr->cur_hgt;
-	p_ptr->wx = p_ptr->cur_wid;
+	p_ptr->wy = p_ptr->cur_map_hgt;
+	p_ptr->wx = p_ptr->cur_map_wid;
 
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
@@ -2356,7 +2365,7 @@ static void dungeon(void)
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Optional fresh */
-		if (fresh_after) Term_fresh();
+		if (fresh_after) Term_fresh(); 
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
@@ -2477,9 +2486,6 @@ void play_game(bool new_game)
 	{
 		quit("main window is too small");
 	}
-
-	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
 
 	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(0);
@@ -2632,6 +2638,15 @@ void play_game(bool new_game)
 	{
 		/* Process the level */
 		dungeon();
+
+		/* Hack - allow death screensaves (before deleting everything */
+		if (p_ptr->playing && p_ptr->is_dead)
+		{
+			if (get_check("Dump the screen? "))
+			{
+				do_cmd_save_screen_html();
+			}
+		}
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();

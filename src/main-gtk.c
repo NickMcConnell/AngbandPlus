@@ -13,6 +13,8 @@
 
 #ifdef USE_GTK
 
+#include "main.h"
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -70,7 +72,7 @@ static bool game_in_progress = FALSE;
 /*
  * Number of active terms
  */
-static int num_term = MAX_TERM_DATA;
+static int num_term = 1;
 
 
 /*
@@ -126,25 +128,38 @@ static errr Term_wipe_gtk(int x, int y, int n)
 
 
 /*
+ * Set foreground color
+ */
+static void set_foreground_color(term_data *td, byte a)
+{
+	static unsigned int failed = 0;
+
+	GdkColor color;
+
+	color.red   = angband_color_table[a][1] * 256;
+	color.green = angband_color_table[a][2] * 256;
+	color.blue  = angband_color_table[a][3] * 256;
+
+	g_assert(td->pixmap != NULL);
+	g_assert(td->drawing_area->window != 0);
+
+	if (gdk_colormap_alloc_color(gdk_colormap_get_system(), &color,
+								 FALSE, TRUE))
+		gdk_gc_set_foreground(td->gc, &color);
+	else if (!failed++)
+		g_print("Couldn't allocate color.\n");
+}
+
+
+/*
  * Draw some textual characters.
  */
 static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
 {
 	int i;
 	term_data *td = (term_data*)(Term->data);
-	GdkColor color;
-
-	color.red = angband_color_table[a][1] * 256;
-	color.green = angband_color_table[a][2] * 256;
-	color.blue = angband_color_table[a][3] * 256;
-
-	g_assert(td->pixmap != NULL);
-	g_assert(td->drawing_area->window != 0);
-
-	if (!gdk_colormap_alloc_color(gdk_colormap_get_system(), &color, TRUE, FALSE))
-		g_print("Couldn't allocate color.");
-
-	gdk_gc_set_foreground(td->gc, &color);
+	
+	set_foreground_color(td, a);
 
 	/* Clear the line */
 	Term_wipe_gtk(x, y, n);
@@ -227,20 +242,8 @@ static errr Term_curs_gtk(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
 
-	GdkColor color;
-
-	color.red = angband_color_table[TERM_YELLOW][1] * 256;
-	color.green = angband_color_table[TERM_YELLOW][2] * 256;
-	color.blue = angband_color_table[TERM_YELLOW][3] * 256;
-
-	g_assert(td->pixmap != NULL);
-	g_assert(td->drawing_area->window != 0);
-
-	if (!gdk_colormap_alloc_color(gdk_colormap_get_system(), &color, TRUE, FALSE))
-		g_print("Couldn't allocate color.");
-
-	gdk_gc_set_foreground(td->gc, &color);
-
+	set_foreground_color(td, TERM_YELLOW);
+	
 	gdk_draw_rectangle(td->pixmap, td->gc, FALSE,
 	                   x * td->font_wid, y * td->font_hgt, td->font_wid - 1, td->font_hgt - 1);
 
@@ -259,7 +262,7 @@ static void save_game_gtk(void)
 {
 	if (game_in_progress && character_generated)
 	{
-		if (!inkey_flag || !can_save)
+		if (!inkey_flag)
 		{
 			plog("You may not do that right now.");
 			return;
@@ -381,7 +384,10 @@ static void change_font_event_handler(GtkWidget *widget, gpointer user_data)
 
 static void file_ok_callback(GtkWidget *widget, GtkWidget *file_selector)
 {
-	strcpy(savefile, gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector)));
+	char *f = gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector));
+
+	strncpy(savefile, f, sizeof(savefile)-1);
+	savefile[sizeof(savefile)-1] = '\0';
 
 	gtk_widget_destroy(file_selector);
 
@@ -708,6 +714,10 @@ static void init_gtk_window(term_data *td, int i)
 	                0, 0, 0, 0,
 					td->cols * td->font_wid, td->rows * td->font_hgt);
 }
+
+
+const char help_gtk[] =
+	"GTK for X11, subopts -n<windows> and standard GTK options";
 
 
 /*

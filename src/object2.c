@@ -169,22 +169,14 @@ void delete_object_idx(int o_idx)
  */
 void delete_object(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	/* Paranoia */
 	if (!in_bounds(y, x)) return;
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Wipe the object */
 		object_wipe(o_ptr);
 
@@ -518,6 +510,32 @@ s16b o_pop(void)
 
 	/* Oops */
 	return (0);
+}
+
+/*
+ * Get the first object at a dungeon location
+ * or NULL if there isn't one.
+ */
+object_type* get_first_object(int y, int x)
+{
+	s16b o_idx = cave_o_idx[y][x];
+
+	if (o_idx) return (&o_list[o_idx]);
+	
+	/* No object */
+	return (NULL);
+}
+
+/*
+ * Get the next object in a stack or
+ * NULL if there isn't one.
+ */
+object_type* get_next_object(object_type *o_ptr)
+{
+	if (o_ptr->next_o_idx) return (&o_list[o_ptr->next_o_idx]);
+
+	/* No more objects */
+	return (NULL);
 }
 
 /*
@@ -1807,7 +1825,7 @@ static int make_ego_item(object_type *o_ptr, bool only_good)
 		if (only_good && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 
 		/* Test if this is a legal ego-item type for this object */
-		for (j = 0; j < 3; j++)
+		for (j = 0; j < EGO_TVALS_MAX; j++)
 		{
 			/* Require identical base type */
 			if (o_ptr->tval == e_ptr->tval[j])
@@ -2131,15 +2149,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	{
 		case TV_DIGGING:
 		{
-			/* Very good */
-			if (power > 1)
-			{
-				/* Special Ego-item */
-				o_ptr->e_idx = EGO_DIGGING;
-			}
-
 			/* Very bad */
-			else if (power < -1)
+			if (power < -1)
 			{
 				/* Hack -- Horrible digging bonus */
 				o_ptr->pval = 0 - (5 + randint(5));
@@ -3509,31 +3520,34 @@ bool make_mimic(object_type *j_ptr, byte a, char c)
  */
 bool make_gold(object_type *j_ptr, int coin_type)
 {
-	int i;
+	int sval;
+	int k_idx;
 
 	s32b base;
 
 	/* Hack -- Pick a Treasure variety */
-	i = ((randint(p_ptr->obj_depth + 2) + 2) / 2) - 1;
+	sval = ((randint(p_ptr->obj_depth + 2) + 2) / 2) - 1;
 
 	/* Apply "extra" magic */
 	if (rand_int(GREAT_OBJ) == 0)
 	{
-		i += randint(p_ptr->obj_depth + 1);
+		sval += randint(p_ptr->obj_depth + 1);
 	}
 
 	/* Hack -- Creeping Coins only generate "themselves" */
-
-	if (coin_type) i = coin_type;
+	if (coin_type) sval = coin_type;
 
 	/* Do not create "illegal" Treasure Types */
-	if (i >= MAX_GOLD) i = MAX_GOLD - 1;
+	if (sval < 1) sval = 1;
+	if (sval >= MAX_GOLD) sval = MAX_GOLD;
+
+	k_idx = lookup_kind(TV_GOLD, sval);
 
 	/* Prepare a gold object */
-	object_prep(j_ptr, z_info->k_min_gold + i);
+	object_prep(j_ptr, k_idx);
 
 	/* Hack -- Base coin cost */
-	base = k_info[z_info->k_min_gold + i].cost;
+	base = k_info[k_idx].cost;
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));
@@ -3661,7 +3675,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	int dy, dx;
 	int ty, tx;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	char o_name[80];
 
@@ -3731,16 +3745,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			k = 0;
 
 			/* Scan objects in that grid */
-			for (this_o_idx = cave_o_idx[ty][tx]; this_o_idx; this_o_idx = next_o_idx)
+			for (o_ptr = get_first_object(ty, tx); o_ptr; o_ptr = get_next_object(o_ptr))
 			{
-				object_type *o_ptr;
-
-				/* Get the object */
-				o_ptr = &o_list[this_o_idx];
-
-				/* Get the next object */
-				next_o_idx = o_ptr->next_o_idx;
-
 				/* Check for possible combination */
 				if (object_similar(o_ptr, j_ptr)) comb = TRUE;
 
@@ -3805,8 +3811,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Random locations */
 		else
 		{
-			ty = rand_int(p_ptr->cur_hgt);
-			tx = rand_int(p_ptr->cur_wid);
+			ty = rand_int(p_ptr->cur_map_hgt);
+			tx = rand_int(p_ptr->cur_map_wid);
 		}
 
 		/* Require floor space */

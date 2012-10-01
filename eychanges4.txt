@@ -1,3 +1,163 @@
+Changes from 0.4.3 to 0.4.4:
+
+- No savefile compatibility to earlier versions.
+
+## Gameplay Changes ##
+
+- Added Vanilla-style Bigscreen support.
+
+- Tweaked quest reward generation to give less inappropriate items.
+
+- The message list now compresses similar messages.
+
+- Removed unnecessary messages while buying/selling.
+
+- You now get the option to create an HTML screen dump upon death.
+
+- Broken doors are now dark umber.
+
+- Experience drain from chaos attakcs is now dependant on the amount of 
+  damage done. This balances early chaos breathers (choas cockroaches, chaos
+  nagas).
+
+- Added a new gameplay effect: "taint". Tainted players can no longer benifit
+  from bless, chant, prayer and protection from evil, and they will suffer
+  some damage from casting holy word. Also, they will suffer a small reduction
+  the amount healed from most potions/spells. There are items that cause taint;
+  the longer you wear them, the taint increases; once you remove them, the 
+  taint will wear off slowly. Demons are permanently tainted.
+
+- Rewrote the condition term window; it now makes better use of the available 
+  space, and reports all temporary conditions (including resistances). Note 
+  that invisibility and taint, which can either be permanent or temporary,
+  are always reported; invisibility because permanent invisibility can be
+  temporarily cancelled and thus you need to know when it's on, and taint 
+  because it can remain even if the cause of the taint is removed.
+
+- Item/monster room chances tweaked.
+
+- Reduced the EXP bonus for disarming.
+
+# Races #
+
+- Demons are now permanently tainted. Their experience penalty is lowered.
+
+# Spells #
+
+- Minor reorganization of priest spells - slow poison replaced by cleanse taint,
+  chant and sanctuary now 6th level spells.
+
+- Casting spells from the necronomicon taints you temporarily.
+
+- Bard spells tweaked; several mana costs reduced, levels lowered, and 
+  the durations for calming spells increased. Also, the harp gains a 
+  new spell: "attraction", which teleports a monster to melee range (like a 
+  wand of call monster) 
+
+- There now are two types of teleport other: the teleport other mage/priest 
+  spell now teleports a single opponent, but can work "over the head" of 
+  other monsters: i.e. you can target monsters behind other monsters. The 
+  bard spell, wand and talisman teleport a line of monsters away, like the 
+  old spell.
+
+# Items #
+
+- New item: scroll of unholyness, which causes temporary tainting (unless you
+  are blessed).
+
+- Scroll of curse equipment shallower. This will actually benefit the player
+  early on, as most players will find it sooner thereby reducing the risk from
+  un-ID'd scrolls.
+
+- Removed item: potion of slow poison.
+
+- New ego-weapons of unholyness.
+
+- Several artifacts now cause tainting.
+
+- Several ego-items now cause tainting.
+
+- Added an artifact musical instrument.
+
+- Potions of cure serious wounds now cure stunning. 
+
+- Potions of cure critical wounds no longer cure poison.
+
+- Potions of neutralize poison made cheaper.
+
+- Elven Waybread now rarer and slightly deeper; also worth more money.
+
+- Harps now weigh less.
+
+# Monsters #
+
+- New attack effect: HALLU (hallucination).
+
+- ROT and RUST attacks more likely to hit.
+
+- New monsters (from Vanilla 3.0.0): Aranea, Elder aranea, Silent Watcher, Doombat,
+  Bat of Gorgoroth, Bronze Golem, Bone Golem, Shardstorm. Note that Aranea and 
+  Elder Aranea are blue in EyAngband rather than red because there are already
+  several red spider types. Bone Golems in Ey are white.
+
+- The colossus is now a unique (based on an iron golem).
+
+- Removed monsters: Giant red tick, Giant Red Scorpion, killer red beetle, 
+  Magma Elemental, giant red ant. All of them were nearly identical to other
+  monsters, causing an over-ambundance of boring fire monsters.
+
+- Atlas the titan is now a greater titan (and he has self-healing/summoning 
+  abilities); he is also worth more EXP. He casts spells a lot less frequently
+  than normal titans, though, so it shouldn't be too unbalancing.
+
+- Sirens, chaos vortics, Oberon the Faery King, and will o' the wisps now have 
+  hallucination attacks.
+
+- Unspeakable horror drop reduced somewhat. Greater horror drop improved.
+
+- Disenchanter bats toned up slightly.
+
+- Barbzu toned down slightly.
+
+- Clockwork warriors are now dark blue.
+
+- Various minor tweaks to monsters.
+
+## Non-gameplay changes ##
+
+- Removed unused "alert_failure" option.
+
+- Included all the new main*.c files from Angband 3.0.0.
+
+- Various code improvements from Angband 3.0.0.
+
+- Moved the player death routines (but not the highscore handling) out of
+  files.c to xtra2.c.
+
+## Bug fixes ##
+
+- Fixed a bug creating chests under quest items.
+
+- Monster memory no longer falsely mentions that monsters can avoid traps.
+
+- Monsters are no longer invisible when you are hallucinating (but their
+  symbols of course are random).
+
+- Slings of the buckland can now be generated.
+
+- Diggers of earthquakes can no be generated.
+
+- Fixed bug with bard fail rates.
+
+- Earthquake/Destruction should no longer leave phantom doors/traps.
+
+- Stability now wears out properly.
+
+- The monster list term window now properly updated after monsters are killed
+  by other monsters.
+
+- The PDSM 'Tortureskin' loses some abilities it had by error.
+
 Changes from 0.4.2 to 0.4.3:
 
 - 0.4.1/b and 0.4.2 savefiles are compatible, but:

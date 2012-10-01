@@ -28,7 +28,7 @@
  * A real normally takes from 4 to 10 bytes
  * A vptr normally takes 4 (rarely 8) bytes
  *
- * Note that some files have already been included by "h-include.h"
+ * Note that some files have already been included by "h-system.h"
  * These include <stdio.h> and <sys/types>, which define some types
  * In particular, "bool", "byte", "uint", and "huge" may be defined
  * already, possibly using "typedefs" of various kinds, and possibly
@@ -86,11 +86,6 @@ typedef int errr;
 #undef bool
 #define bool bool_hack
 
-
-/* Note that "signed char" is not always "defined" */
-/* So always use "s16b" to hold small signed values */
-/* A signed byte of memory */
-/* typedef signed char syte; */
 
 /* Note that unsigned values can cause math problems */
 /* An unsigned byte of memory */

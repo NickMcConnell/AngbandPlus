@@ -683,7 +683,7 @@ char *vformat(cptr fmt, va_list vp)
 		if (len < format_len-1) break;
 
 		/* Grow the buffer */
-		C_KILL(format_buf, format_len, char);
+		KILL(format_buf);
 		format_len = format_len * 2;
 		C_MAKE(format_buf, format_len, char);
 	}
@@ -694,7 +694,7 @@ char *vformat(cptr fmt, va_list vp)
 
 void vformat_kill(void)
 {
-	C_KILL(format_buf, format_len, char);
+	KILL(format_buf);
 }
 
 
@@ -719,32 +719,6 @@ uint strnfmt(char *buf, uint max, cptr fmt, ...)
 	/* Return the number of bytes written */
 	return (len);
 }
-
-
-/*
- * Do a vstrnfmt (see above) into a buffer of unknown size.
- * Since the buffer size is unknown, the user better verify the args.
- */
-uint strfmt(char *buf, cptr fmt, ...)
-{
-	uint len;
-
-	va_list vp;
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
-
-	/* Build the string, assume 32K buffer */
-	len = vstrnfmt(buf, 32767, fmt, vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
-	/* Return the number of bytes written */
-	return (len);
-}
-
-
 
 
 /*
@@ -840,5 +814,3 @@ void core_fmt(cptr fmt, ...)
 	/* Call core() */
 	core(res);
 }
-
-

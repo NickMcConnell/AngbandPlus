@@ -298,22 +298,14 @@ bool no_lite(void)
  */
 bool cave_valid_bold(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	/* Forbid perma-grids */
 	if (cave_perma_bold(y, x)) return (FALSE);
 
 	/* Check objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Forbid artifact grids */
 		if (artifact_p(o_ptr)) return (FALSE);
 	}
@@ -566,11 +558,7 @@ bool feat_supports_lighting(byte feat)
  * tiles should be handled differently.  One possibility would be to
  * extend feature_type with attr/char definitions for the different states.
  */
-#ifdef USE_TRANSPARENCY
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
-#else /* USE_TRANSPARENCY */
-void map_info(int y, int x, byte *ap, char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	byte a;
 	char c;
@@ -580,7 +568,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	feature_type *f_ptr;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	s16b m_idx;
 	s16b t_idx;
@@ -809,13 +797,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 	}
 
-#ifdef USE_TRANSPARENCY
-
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
 	(*tcp) = c;
-
-#endif /* USE_TRANSPARENCY */
 
 	/* Traps */
 	if (trap_under_object && (t_idx > 0))
@@ -836,16 +820,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
@@ -1035,7 +1011,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 	feature_type *f_ptr;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	s16b m_idx;
 	s16b t_idx;
@@ -1214,16 +1190,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
@@ -1460,11 +1428,7 @@ void print_rel(char c, byte a, int y, int x)
 	vx = kx + COL_MAP;
 
 	/* Hack -- Queue it */
-#ifdef USE_TRANSPARENCY
 	Term_queue_char(vx, vy, a, c, 0, 0);
-#else /* USE_TRANSPARENCY */
-	Term_queue_char(vx, vy, a, c);
-#endif /* USE_TRANSPARENCY */
 
 }
 
@@ -1501,7 +1465,7 @@ void note_spot(int y, int x)
 {
 	byte info;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	/* Get cave info */
 	info = cave_info[y][x];
@@ -1510,13 +1474,8 @@ void note_spot(int y, int x)
 	if (!(info & (CAVE_SEEN))) return;
 
 	/* Hack -- memorize objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorize objects */
 		o_ptr->marked = TRUE;
 	}
@@ -1556,13 +1515,8 @@ void note_spot(int y, int x)
  */
 void lite_spot(int y, int x)
 {
-	byte a;
-	char c;
-
-#ifdef USE_TRANSPARENCY
-	byte ta;
-	char tc;
-#endif /* USE_TRANSPARENCY */
+	byte a, ta;
+	char c, tc;
 
 	unsigned ky, kx;
 	unsigned vy, vx;
@@ -1585,24 +1539,11 @@ void lite_spot(int y, int x)
 	/* Location in window */
 	vx = kx + COL_MAP;
 
-#ifdef USE_TRANSPARENCY
-
 	/* Hack -- redraw the grid */
 	map_info(y, x, &a, &c, &ta, &tc);
 
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c, ta, tc);
-
-#else /* USE_TRANSPARENCY */
-
-	/* Hack -- redraw the grid */
-	map_info(y, x, &a, &c);
-
-	/* Hack -- Queue it */
-	Term_queue_char(vx, vy, a, c);
-
-#endif /* USE_TRANSPARENCY */
-
 }
 
 /*
@@ -1614,13 +1555,8 @@ void lite_spot(int y, int x)
  */
 void prt_map(void)
 {
-	byte a;
-	char c;
-
-#ifdef USE_TRANSPARENCY
-	byte ta;
-	char tc;
-#endif /* USE_TRANSPARENCY */
+	byte a, ta;
+	char c, tc;
 
 	int y, x;
 	int vy, vx;
@@ -1635,25 +1571,14 @@ void prt_map(void)
 	{
 		for (x = p_ptr->wx, vx = COL_MAP; vx < tx; vx++, x++)
 		{
-
-#ifdef USE_TRANSPARENCY
+			/* Check bounds */
+			if (!in_bounds(y, x)) continue;
 
 			/* Determine what is there */
 			map_info(y, x, &a, &c, &ta, &tc);
 
 			/* Hack -- Queue it */
 			Term_queue_char(vx, vy, a, c, ta, tc);
-
-#else /* USE_TRANSPARENCY */
-
-			/* Determine what is there */
-			map_info(y, x, &a, &c);
-
-			/* Hack -- Queue it */
-			Term_queue_char(vx, vy, a, c);
-
-#endif /* USE_TRANSPARENCY */
-
 		}
 	}
 }
@@ -1782,12 +1707,8 @@ void display_map(int *cy, int *cx)
 	map_wid = Term->wid - 2;
 
 	/* Prevent accidents */
-	if (map_hgt > p_ptr->cur_hgt) map_hgt = p_ptr->cur_hgt;
-	if (map_wid > p_ptr->cur_wid) map_wid = p_ptr->cur_wid;
-
-	/* Silliness XXX XXX XXX */
-	if ((cy != NULL) && (map_hgt > SCREEN_HGT)) map_hgt = SCREEN_HGT;
-	if ((cx != NULL) && (map_wid > SCREEN_WID)) map_wid = SCREEN_WID;
+	if (map_hgt > p_ptr->cur_map_hgt) map_hgt = p_ptr->cur_map_hgt;
+	if (map_wid > p_ptr->cur_map_wid) map_wid = p_ptr->cur_map_wid;
 
 	/* Prevent accidents */
 	if ((map_wid < 1) || (map_hgt < 1)) return;
@@ -1842,24 +1763,15 @@ void display_map(int *cy, int *cx)
 	}
 
 	/* Analyze the actual map */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
-			row = (y * map_hgt / p_ptr->cur_hgt);
-			col = (x * map_wid / p_ptr->cur_wid);
-
-#ifdef USE_TRANSPARENCY
+			row = (y * map_hgt / p_ptr->cur_map_hgt);
+			col = (x * map_wid / p_ptr->cur_map_wid);
 
 			/* Get the attr/char at that map location */
 			map_info(y, x, &ta, &tc, &ta, &tc);
-
-#else /* USE_TRANSPARENCY */
-
-			/* Get the attr/char at that map location */
-			map_info(y, x, &ta, &tc);
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Get the priority of that attr/char */
 			tp = priority(ta, tc);
@@ -1877,8 +1789,8 @@ void display_map(int *cy, int *cx)
 	}
 
 	/* Player location */
-	row = (p_ptr->py * map_hgt / p_ptr->cur_hgt);
-	col = (p_ptr->px * map_wid / p_ptr->cur_wid);
+	row = (p_ptr->py * map_hgt / p_ptr->cur_map_hgt);
+	col = (p_ptr->px * map_wid / p_ptr->cur_map_wid);
 
 	/*** Make sure the player is visible ***/
 
@@ -2727,10 +2639,8 @@ errr vinfo_init(void)
 		quit("Incorrect bit masks!");
 	}
 
-
 	/* Kill hack */
-	KILL(hack, vinfo_hack);
-
+	KILL(hack);
 
 	/* Success */
 	return (0);
@@ -3270,9 +3180,9 @@ void forget_flow(void)
 	if (!flow_save) return;
 
 	/* Check the entire dungeon */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Forget the old data */
 			cave_cost[y][x] = 0;
@@ -3329,9 +3239,9 @@ void update_flow(void)
 	if (flow_save++ == 255)
 	{
 		/* Cycle the flow */
-		for (y = 0; y < p_ptr->cur_hgt; y++)
+		for (y = 0; y < p_ptr->cur_map_hgt; y++)
 		{
-			for (x = 0; x < p_ptr->cur_wid; x++)
+			for (x = 0; x < p_ptr->cur_map_wid; x++)
 			{
 				int w = cave_when[y][x];
 				cave_when[y][x] = (w >= 128) ? (w - 128) : 0;
@@ -3428,15 +3338,15 @@ void map_area(void)
 
 	/* Pick an area to map */
 	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy+SCREEN_HGT + randint(10);
+	y2 = p_ptr->wy + SCREEN_HGT + randint(10);
 	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx+SCREEN_WID + randint(20);
+	x2 = p_ptr->wx + SCREEN_WID + randint(20);
 
 	/* Efficiency -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;
-	if (y2 > p_ptr->cur_hgt-1) y2 = p_ptr->cur_hgt-1;
+	if (y2 > p_ptr->cur_map_hgt-1) y2 = p_ptr->cur_map_hgt-1;
 	if (x1 < 1) x1 = 1;
-	if (x2 > p_ptr->cur_wid-1) x2 = p_ptr->cur_wid-1;
+	if (x2 > p_ptr->cur_map_wid-1) x2 = p_ptr->cur_map_wid-1;
 
 	/* Scan that area */
 	for (y = y1; y < y2; y++)
@@ -3517,10 +3427,10 @@ void wiz_lite(void)
 	}
 
 	/* Scan all normal grids */
-	for (y = 1; y < p_ptr->cur_hgt-1; y++)
+	for (y = 1; y < p_ptr->cur_map_hgt-1; y++)
 	{
 		/* Scan all normal grids */
-		for (x = 1; x < p_ptr->cur_wid-1; x++)
+		for (x = 1; x < p_ptr->cur_map_wid-1; x++)
 		{
 			/* Process all non-walls */
 			if ((cave_feat[y][x] < FEAT_SECRET) || (cave_feat[y][x] > FEAT_PERM_SOLID))
@@ -3570,9 +3480,9 @@ void wiz_dark(void)
 	int i, y, x;
 
 	/* Forget every grid */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Process the grid */
 			cave_info[y][x] &= ~(CAVE_MARK);
@@ -3612,9 +3522,9 @@ void town_illuminate(bool daytime)
 	int y, x, i;
 
 	/* Apply light or darkness */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Interesting grids */
 			if (cave_feat[y][x] > FEAT_FLOOR)
@@ -3655,9 +3565,9 @@ void town_illuminate(bool daytime)
 	}
 
 	/* Handle shop doorways */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Track shop doorways */
 			if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&

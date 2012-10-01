@@ -16,9 +16,6 @@
  * To use this file, you must define "USE_GCU" in the Makefile.
  *
  *
- * Hack -- note that "angband.h" is included AFTER the #ifdef test.
- * This was necessary because of annoying "curses.h" silliness.
- *
  * Note that this file is not "intended" to support non-Unix machines,
  * nor is it intended to support VMS or other bizarre setups.
  *
@@ -51,10 +48,15 @@
 
 #ifdef USE_GCU
 
+#include "main.h"
+
 /*
- * Hack -- play games with "bool"
+ * Hack -- play games with "bool" and "term"
  */
 #undef bool
+
+/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+#define term System_term
 
 /*
  * Include the proper "header" file
@@ -64,6 +66,8 @@
 #else
 # include <curses.h>
 #endif
+
+#undef term
 
 /*
  * Try redefining the colors at startup.
@@ -509,6 +513,11 @@ static errr Term_xtra_gcu_alive(int v)
 }
 
 
+#ifdef USE_NCURSES
+const char help_gcu[] = "NCurses, for terminal console";
+#else /* USE_NCURSES */
+const char help_gcu[] = "Curses, for terminal console";
+#endif /* USE_NCURSES */
 
 
 /*
@@ -875,7 +884,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 #endif
 
 		/* Draw a normal character */
-		waddch(td->win, s[i]);
+		waddch(td->win, (byte)s[i]);
 	}
 
 	/* Success */
@@ -951,7 +960,7 @@ static void hook_quit(cptr str)
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char *argv[])
+errr init_gcu(int argc, char **argv)
 {
 	int i;
 

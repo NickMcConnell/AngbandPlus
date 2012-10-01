@@ -54,6 +54,7 @@
 
 #ifdef USE_IBM
 
+#include "main.h"
 
 /*
  * Use a "virtual" screen to "buffer" screen writes.
@@ -871,21 +872,16 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
-#ifdef USE_TRANSPARENCY
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
+static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp,
+                          const byte *tap, const char *tcp)
 {
 	register int i;
 	register byte attr;
 	register byte *dest;
 
-#ifdef USE_TRANSPARENCY
-	/* Unused parameter */
+	/* Unused parameters */
 	(void)tap;
 	(void)tcp;
-#endif /* USE_TRANSPARENCY */
 
 #ifdef USE_CONIO
 
@@ -1194,6 +1190,8 @@ void enable_graphic_font(const char *font)
 #endif /* ALLOW_GRAPH */
 
 
+const char help_ibm[] = "IBM Visual Display Support";
+
 
 /*
  * Initialize the IBM "visual module"
@@ -1205,7 +1203,7 @@ void enable_graphic_font(const char *font)
  * into an 8 bit value, without losing much precision, by using the 2
  * most significant bits as the least significant bits in the new value.
  */
-errr init_ibm(void)
+errr init_ibm(int argc, char **argv)
 {
 	int i;
 	int mode;
@@ -1213,6 +1211,10 @@ errr init_ibm(void)
 	term *t = &term_screen_body;
 
 	union REGS r;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Check for "Windows" */
 	if (getenv("windir"))

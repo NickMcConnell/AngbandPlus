@@ -1051,7 +1051,7 @@ bool do_disarm_trap(int y, int x)
 	{
 		if (trap_player(y, x))
 		{
-			int exp = p_ptr->depth + (diff * 2);
+			int exp = 1 + (p_ptr->depth / 2) + (diff * 2);
 
 			/* Message */
 			message_format(MSG_DISARM_SUCCEED, 0, "You have disarmed the %s.", name);

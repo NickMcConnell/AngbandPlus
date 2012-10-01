@@ -3789,12 +3789,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				else if (p_ptr->hold_life)
 				{
 					message(MSG_EFFECT, 0, "You feel your life slipping away!");
-					lose_exp(200 + (p_ptr->exp/500));
+					lose_exp(200 + (p_ptr->exp / 500));
 				}
 				else
 				{
 					message(MSG_EFFECT, 0, "You feel your life draining away!");
-					lose_exp(200 + (p_ptr->exp/50));
+					lose_exp(200 + (p_ptr->exp / 50));
 				}
 			}
 			take_hit(dam, killer);
@@ -3847,12 +3847,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 					else if (p_ptr->hold_life)
 					{
 						message(MSG_EFFECT, 0, "You feel your life slipping away!");
-						lose_exp(500 + (p_ptr->exp/500));
+						lose_exp((dam * 12 + (p_ptr->exp / 50)) / 10);
 					}
 					else
 					{
 						message(MSG_EFFECT, 0, "You feel your life draining away!");
-						lose_exp(5000 + (p_ptr->exp/50));
+						lose_exp(dam * 12 + (p_ptr->exp / 50));
 					}
 				}
 			}

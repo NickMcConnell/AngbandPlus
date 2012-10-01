@@ -37,13 +37,10 @@
 
 #ifdef USE_XPJ
 
+#include "main.h"
 
 #ifndef USE_GRAPHICS
 #error Must have USE_GRAPHICS compile-time flag on.
-#endif
-
-#ifndef USE_TRANSPARENCY
-#error Must have USE_TRANSPARENCY compile-time flag on.
 #endif
 
 /*
@@ -70,7 +67,7 @@
 
 
 
-/* Rest of the dependancies */
+/* Rest of the dependencies */
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -1330,13 +1327,11 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
  *
  * Also appears in "main-xaw.c".
  */
-static void react_keypress(XKeyEvent *xev)
+static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
-
-	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -2847,7 +2842,7 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 	/* Failure */
 	if (Res == NULL)
 	{
-		C_KILL(Data, total, char);
+		KILL(Data);
 		fclose(fp);
 
 		return (NULL);
@@ -2858,7 +2853,7 @@ static XImage *ReadFONT(Display *dpy, char *Name, u16b size)
 	j = 16;
 
 	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Count lines */
 		num++;
@@ -3187,10 +3182,17 @@ static errr term_data_init(term_data *td, int i)
 }
 
 
+const char help_xpj[] = "X11 Projected View, subopts -d<display> -n<windows>"
+#ifdef USE_GRAPHICS
+                " -s(moothRescale)"
+#endif
+                ;
+
+
 /*
  * Initialization function for an "XPJ" module to Angband
  */
-errr init_xpj(int argc, char *argv[])
+errr init_xpj(int argc, char **argv)
 {
 	int i, j;
 

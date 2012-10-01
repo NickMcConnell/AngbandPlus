@@ -569,8 +569,8 @@ static void display_player_xtra_info(void)
 
 	/* Burden */
 	sprintf(buf, "%ld.%ld lbs",
-	        p_ptr->total_weight / 10,
-	        p_ptr->total_weight % 10);
+	        p_ptr->total_weight / 10L,
+	        p_ptr->total_weight % 10L);
 	Term_putstr(col, 16, -1, TERM_WHITE, "Burden");
 	Term_putstr(col+8, 16, -1, TERM_L_GREEN,
 	            format("%10s", buf));
@@ -859,12 +859,12 @@ static const c_flag_desc flag_list[3][12] =
 		{1, TR1_MANA,				 0, "     Mana:"},
 		{1, TR1_HEALTH,				 0, "   Health:"},
 		{1, TR1_MIGHT,				 0, "    Might:"},
+		{3, TR3_TAINT,				 0, "    Taint:"},
 		{3,	TR3_DISRUPT,			 0, "  Disrupt:"},
 		{3, TR3_DRAIN_ITEM,			 0, "Drn Items:"},
 		{3, TR3_DRAIN_EXP,			 0, "Drn   Exp:"},
 		{3, TR3_TELEPORT,			 0, " Teleport:"},
 		{3, TR3_AGGRAVATE,			 0, "Aggravate:"},
-		{99,0, 0,						"          "},
 		{99,0, 0,						"          "}
 	}
 };
@@ -1542,235 +1542,6 @@ void display_player(byte mode)
 }
 
 /*
- * Prints some status information on the screen.
- */
-void display_player_status(void)
-{
-	int h,w;
-	int col = 0;
-	int row = 0;
-
-	(void)Term_get_size(&w, &h);
-
-	/* Erase screen */
-	clear_from(0);
-
-	/* Left column */
-	put_str("Current Effects:", row++, col);
-
-	/* Shield */
-	if (p_ptr->shield)
-	{
-		c_put_str(TERM_L_GREEN, "Shield", row, col);
-		row++;
-	}
-
-	/* Blessing */
-	if (p_ptr->blessed)
-	{
-		c_put_str(TERM_L_GREEN, "Blessed", row, col);
-		row++;
-	}
-
-	/* Heroism */
-	if (p_ptr->hero)
-	{
-		c_put_str(TERM_L_GREEN, "Heroism", row, col);
-		row++;
-	}
-
-	/* Stability */
-	if (p_ptr->stability)
-	{
-		c_put_str(TERM_L_GREEN, "Stability", row, col);
-		row++;
-	}
-
-	/* Berserk */
-	if (p_ptr->rage)
-	{
-		c_put_str(TERM_L_GREEN, "Berserk", row, col);
-		row++;
-	}
-
-	/* Protection from evil */
-	if (p_ptr->protevil)
-	{
-		c_put_str(TERM_L_GREEN, "Prot. Evil", row, col);
-		row++;
-	}
-
-	/* Resilient */
-	if (p_ptr->resilient)
-	{
-		c_put_str(TERM_L_GREEN, "Resilient", row, col);
-		row++;
-	}
-
-	/* Fast */
-	if (p_ptr->fast)
-	{
-		c_put_str(TERM_L_GREEN, "Fast", row, col);
-		row++;
-	}
-
-	/* Absorb hit */
-	if (p_ptr->absorb)
-	{
-		c_put_str(TERM_L_GREEN, "Absorb Hit", row, col);
-		row++;
-	}
-
-	/* Right column */
-	if (row > 1) col = 14; /* use left column if no good effects */
-	row = 1;
-
-	/* Blindness */
-	if (p_ptr->blind) 
-	{
-		c_put_str(TERM_L_RED, "Blind", row, col);
-		row++;
-	}
-
-	/* Confusion */
-	if (p_ptr->confused > PY_CONF_INSANE)
-	{
-		c_put_str(TERM_L_RED, "Insane", row, col);
-		row++;
-	}
-	else if (p_ptr->confused > PY_CONF_BEFUDDLE)
-	{
-		c_put_str(TERM_L_RED, "Befuddled", row, col);
-		row++;
-	}
-	else if (p_ptr->confused > PY_CONF_CONFUSE)
-	{
-		c_put_str(TERM_L_RED, "Confused", row, col);
-		row++;
-	}
-	else if (p_ptr->confused)
-	{
-		c_put_str(TERM_L_RED, "Perplexed", row, col);
-		row++;
-	}
-
-	/* Poison */
-	if (p_ptr->poisoned)
-	{
-		c_put_str(TERM_L_RED, "Poisoned", row, col);
-		row++;
-	}
-
-	/* Diseased */
-	if (p_ptr->diseased)
-	{
-		c_put_str(TERM_L_RED, "Diseased", row, col);
-		row++;
-	}
-
-	/* Fear */
-	if (p_ptr->afraid > PY_FEAR_PANIC)
-	{
-		c_put_str(TERM_L_RED, "Panic", row, col);
-		row++;
-	}
-	else if (p_ptr->afraid > PY_FEAR_TERROR)
-	{
-		c_put_str(TERM_L_RED, "Terrified", row, col);
-		row++;
-	}
-	else if (p_ptr->afraid > PY_FEAR_AFRAID)
-	{
-		c_put_str(TERM_L_RED, "Afraid", row, col);
-		row++;
-	}
-	else if (p_ptr->afraid)
-	{
-		c_put_str(TERM_L_RED, "Wary", row, col);
-		row++;
-	}
-
-	/* Paralyzation */
-	if (p_ptr->paralyzed) 
-	{
-		c_put_str(TERM_L_RED, "Paralyzed", row, col);
-		row++;
-	}
-
-	/* Hallucination */
-	if (p_ptr->image)
-	{
-		c_put_str(TERM_L_RED, "Hallucination", row, col);
-		row++;
-	}
-	
-	/* Slow */
-	if (p_ptr->slow)
-	{
-		c_put_str(TERM_L_RED, "Slowed", row, col);
-		row++;
-	}
-
-	/* Stunning */
-	if (p_ptr->stun > PY_STUN_KO)
-	{
-		c_put_str(TERM_L_RED, "Knocked Out", row, col);
-		row++;
-	}
-	else if (p_ptr->stun > PY_STUN_HEAVY)
-	{
-		c_put_str(TERM_L_RED, "Heavy Stun", row, col);
-		row++;
-	}
-	else if (p_ptr->stun)
-	{
-		c_put_str(TERM_L_RED, "Stunned", row, col);
-		row++;
-	}
-
-	/* Cuts */
-	if (p_ptr->cut > PY_CUT_MORTAL)
-	{
-		c_put_str(TERM_L_RED, "Mortal wound", row, col);
-		row++;
-	}
-	else if (p_ptr->cut > PY_CUT_DEEP)
-	{
-		c_put_str(TERM_L_RED, "Deep gash   ", row, col);
-		row++;
-	}
-	else if (p_ptr->cut > PY_CUT_SEVERE)
-	{
-		c_put_str(TERM_L_RED, "Severe cut  ", row, col);
-		row++;
-	}
-	else if (p_ptr->cut > PY_CUT_NASTY)
-	{
-		c_put_str(TERM_L_RED, "Nasty cut   ", row, col);
-		row++;
-	}
-	else if (p_ptr->cut > PY_CUT_BAD)
-	{
-		c_put_str(TERM_L_RED, "Bad cut     ", row, col);
-		row++;
-	}
-	else if (p_ptr->cut > PY_CUT_LIGHT)
-	{
-		c_put_str(TERM_L_RED, "Light cut   ", row, col);
-		row++;
-	}
-	else if (p_ptr->cut)
-	{
-		c_put_str(TERM_L_RED, "Graze", row, col);
-		row++;
-	}
-
-	if (!col && (row == 1))
-	put_str("None", row++, col);
-
-}
-
-/*
  * Pair together a constant flag with a textual description.
  *
  * Note that it sometimes more efficient to actually make an array
@@ -1907,7 +1678,8 @@ static const o_flag_desc bad_flags3_desc[] =
 	{ TR3_TELEPORT,		"random teleportation" },
 	{ TR3_AGGRAVATE,	"aggravation" },
 	{ TR3_DRAIN_EXP,	"experience drain" },
-	{ TR3_DRAIN_ITEM,	"item drain" }
+	{ TR3_DRAIN_ITEM,	"item drain" },
+	{ TR3_TAINT,		"a taint" }
 };
 
 /*
@@ -1920,7 +1692,6 @@ static const o_flag_desc bad_flags3_desc[] =
  *
  * The possibly updated description pointer is returned.
  */
-
 static cptr *spoiler_flag_aux(const u32b art_flags, const o_flag_desc *flag_x_ptr,
                               cptr *desc_x_ptr, const int n_elmnts)
 {
@@ -2183,15 +1954,18 @@ void list_object(object_type *o_ptr, int mode)
 		{
 			if (o_ptr->pval > 0) 
 			{
-				text_out_c(TERM_L_GREEN,format("+%d ", o_ptr->pval));
+				text_out_c(TERM_L_GREEN, format("+%d ", o_ptr->pval));
 				text_out("to ");
 			}
 			else if (o_ptr->pval < 0) 
 			{
-				text_out_c(TERM_RED,format("%d ", o_ptr->pval));
+				text_out_c(TERM_RED, format("%d ", o_ptr->pval));
 				text_out("to ");
 			}
-			else text_out("It modifies ");
+			else
+			{
+				text_out("It modifies ");
+			}
 		
 			anything |= outlist(NULL, list);
 		}

@@ -13,7 +13,7 @@
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
 # superceeds the color in monster.txt. 
 
-V:0.4.3
+V:0.4.4
 
 N:1:Farmer Maggot
 R:2:w
@@ -224,7 +224,7 @@ F:NO_CALM | ONLY_ITEM | OPEN_DOOR | PERSON | TAKE_ITEM | WARRIOR
 D:A short and swarthy Easterling.
 
 N:19:Nar, the dwarf
-R:261:y
+R:260:y
 I:110:40d10:25:60:25
 W:17:2:0:9000
 B:HIT:HURT:3d5
@@ -277,7 +277,7 @@ D:Another of Morgoth's servants, this orc is strong and cunning.  He is ugly
 D: and scarred from many power struggles.
 
 N:23:Bolg, son of Azog
-R:286:r
+R:285:r
 I:120:50d10:20:50:20
 W:20:4:0:7500
 B:HIT:HURT:3d6
@@ -303,7 +303,7 @@ F:RES_CONF | RES_FIRE | RES_POIS | PICK_LOCK
 D:A large and powerful orc, captain of one of Saruman's orcish regiments.
 
 N:25:Azog, king of the Uruk-Hai
-R:301:r
+R:300:r
 I:120:90d10:20:80:20
 W:22:4:0:10000
 B:HIT:HURT:5d5
@@ -315,7 +315,7 @@ D:He is also known as the King of Khazad-dum.  His ego is renowned to be
 D: bigger than his head.
 
 N:26:Jenny Greenteeth
-R:309:G
+R:308:G
 I:110:50d10:35:45:20
 W:23:4:0:10000
 B:BITE:POISON:4d6
@@ -343,7 +343,7 @@ S:1_IN_8 | BO_FIRE | HASTE | HEAL
 D:This tiny night dwarf is as greedy for gold as his brother, Alberich.
 
 N:28:Ibun, Son of Mim
-R:320:o
+R:319:o
 I:110:78d10:20:70:10
 W:24:2:0:12000
 B:HIT:HURT:3d6
@@ -358,7 +358,7 @@ D:One of the last of the petty dwarves.  Ibun is a tricky sorcerous little
 D: being, full of mischief.
 
 N:29:Khim, Son of Mim
-R:320:o
+R:319:o
 I:110:78d10:20:70:10
 W:24:2:0:12000
 B:HIT:HURT:3d6
@@ -373,7 +373,7 @@ D:One of the last of the petty dwarves.  Khim is a tricky sorcerous little
 D: being, full of mischief.
 
 N:30:Sangahyando of Umbar
-R:319:u
+R:318:u
 I:110:75d10:25:80:25
 W:24:2:0:10000
 B:HIT:HURT:4d6
@@ -387,7 +387,7 @@ S:1_IN_4 | FORGET | SLOW
 D:A Black Numenorean with a blacker heart.
 
 N:31:Angamaite of Umbar
-R:319:u
+R:318:u
 I:110:75d10:25:80:25
 W:24:2:0:10000
 B:HIT:HURT:4d6
@@ -401,7 +401,7 @@ S:1_IN_4 | FORGET | SLOW
 D:A Black Numenorean who hates the men of the west.
 
 N:32:Ulwarth, son of Ulfang
-R:340:U
+R:338:U
 I:110:8d100:20:40:40
 W:26:4:0:8000
 B:HIT:HURT:4d6
@@ -412,7 +412,7 @@ F:ONLY_ITEM | OPEN_DOOR | PERSON | TAKE_ITEM | WARRIOR
 D:A short and swarthy Easterling.
 
 N:33:Bigfoot
-R:341:b
+R:339:b
 I:110:9d100:20:65:10
 W:26:4:0:7000
 B:CRUSH:HURT:5d6
@@ -423,7 +423,7 @@ F:MALE | NO_SLEEP | DROP_90 | ONLY_ITEM
 D:A legendary sasquatch, Bigfoot is the largest of his species. 
 
 N:34:Mim, betrayer of Turin
-R:351:o
+R:348:o
 I:120:10d100:20:80:20
 W:27:4:0:35000
 B:HIT:HURT:3d8
@@ -439,20 +439,8 @@ D:The last of his race, Mim is a Petty-Dwarf.  Petty-dwarves are strange
 D: creatures, powerful in sorcery and originating in the East.  They have
 D: been hunted to extinction by high elves.
 
-N:35:Uldor the Accursed
-R:361:U
-I:110:10d100:20:70:40
-W:28:4:0:9000
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:3d5
-F:BASH_DOOR | DROP_1D2 | DROP_GOOD | EVIL | FORCE_MAXHP | HAS_LITE |
-F:MALE | ONLY_ITEM | OPEN_DOOR | PERSON | TAKE_ITEM | WARRIOR
-D:An evil and cunning man from the East.
-
-N:36:Beorn, the Shape-Changer
-R:360:D
+N:35:Beorn, the Shape-Changer
+R:358:D
 I:120:12d100:25:60:25
 W:28:4:0:28000
 B:BITE:HURT:4d8
@@ -468,8 +456,20 @@ D: take kindly to strangers - and when in bear's shape, as on this occasion,
 D: the nature of the animal within asserts itself when his territory is
 D: intruded upon.
 
+N:36:Uldor the Accursed
+R:359:U
+I:110:10d100:20:70:40
+W:28:4:0:9000
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:3d5
+F:BASH_DOOR | DROP_1D2 | DROP_GOOD | EVIL | FORCE_MAXHP | HAS_LITE |
+F:MALE | ONLY_ITEM | OPEN_DOOR | PERSON | TAKE_ITEM | WARRIOR
+D:An evil and cunning man from the East.
+
 N:37:Draebor, the imp
-R:362:v
+R:360:v
 I:120:52d10:20:50:20
 W:28:5:0:40000
 B:HIT:POISON:3d4
@@ -483,7 +483,7 @@ S:TELE_TO | TPORT
 D:An intensely irritating git of a monster.
 
 N:38:Scuttle
-R:372:W
+R:370:W
 I:120:10d100:15:80:20
 W:29:3:0:40000
 B:BITE:HURT:8d6
@@ -494,7 +494,7 @@ F:RES_ACID | RES_CONF | RES_POIS | WEIRD_MIND
 D:Once the pet of a titan, this beetle has grown to immense size.
 
 N:39:Shelob, Spider of Darkness
-R:410:D
+R:408:D
 I:110:11d100:8:80:80
 W:32:3:0:75000
 B:STING:LOSE_STR:1d4
@@ -513,7 +513,7 @@ D: Ungol, but occasionally goes out foraging for food to feed her voracious
 D: appetite.
 
 N:40:Lokkak, the ogre chieftain
-R:386:g
+R:384:g
 I:120:13d100:20:100:20
 W:33:2:0:40000
 B:HIT:HURT:6d6
@@ -525,7 +525,7 @@ D:An ogre renowned for acts of surpassing cruelty, Lokkak quickly became the
 D: leader of a large band of violent ogres.
 
 N:41:Ulfang the Black
-R:433:U
+R:430:U
 I:120:95d10:20:90:40
 W:34:5:0:20000
 B:HIT:HURT:5d5
@@ -537,7 +537,7 @@ F:MALE | NO_CALM | ONLY_ITEM | OPEN_DOOR | PERSON | TAKE_ITEM | WARRIOR
 D:A short and swarthy Easterling dressed in Black.
 
 N:42:Bert the stone troll
-R:296:s
+R:295:s
 I:110:10d100:20:70:50
 W:34:7:0:30000
 B:HIT:HURT:5d5
@@ -550,7 +550,7 @@ D:Big, brawny, powerful and with a taste for human.  He has friends called
 D: Bill and Tom.
 
 N:43:Bill the stone troll
-R:296:s
+R:295:s
 I:110:10d100:20:70:50
 W:34:7:0:30000
 B:HIT:HURT:5d5
@@ -563,7 +563,7 @@ D:Big, brawny, powerful and with a taste for human.  He has friends called
 D: Bert and Tom.
 
 N:44:Tom the stone troll
-R:296:s
+R:295:s
 I:110:10d100:20:70:50
 W:34:7:0:30000
 B:HIT:HURT:5d5
@@ -575,8 +575,23 @@ F:RES_COLD | RES_POIS | TAKE_ITEM | HUMANOID | MOVE_BODY
 D:Big, brawny, powerful and with a taste for human.  He has friends called
 D: Bert and Bill.
 
-N:45:Lorgan, chief of the Easterlings
-R:462:R
+N:45:The colossus
+R:303:G
+I:100:35d100:12:140:10
+W:36:4:0:45000
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:BASH_DOOR | COLD_BLOOD | EMPTY_MIND | FORCE_MAXHP | NO_CUT | NO_FEAR |
+F:NO_SLEEP | RES_COLD | RES_CONF | RES_ELEC | RES_FIRE | RES_POIS |
+F:DROP_1D2 | DROP_GOOD
+D:An enormous construct resembling a titan made from iron.  It strides
+D: purposefully towards you, swinging its slow fists with earth-shattering
+D: power.
+
+N:46:Lorgan, chief of the Easterlings
+R:459:R
 I:120:15d100:25:100:10
 W:36:2:0:90000
 B:HIT:HURT:6d6
@@ -590,8 +605,8 @@ S:1_IN_4 | S_MONSTERS | TELE_TO
 D:A mighty warrior from the east, Lorgan hates everything that he cannot
 D: control.
 
-N:46:The Queen Ant
-R:472:v
+N:47:The Queen Ant
+R:469:v
 I:120:15d100:30:100:10
 W:37:2:0:74000
 B:BITE:HURT:2d12
@@ -604,8 +619,22 @@ F:RES_CONF | WEIRD_MIND | NO_TRAP
 S:1_IN_2 | S_KIN
 D:She's upset because you hurt her children.
 
-N:47:Castamir the Usurper
-R:486:R
+N:48:Vargo, Tyrant of Fire
+R:483:r
+I:120:15d100:12:50:50
+W:38:3:0:95000
+B:HIT:FIRE:4d6
+B:HIT:FIRE:4d6
+B:HIT:FIRE:4d6
+B:HIT:FIRE:4d6
+F:BASH_DOOR | EMPTY_MIND | EVIL | FORCE_MAXHP | FORCE_SLEEP | HAS_LITE |
+F:KILL_BODY | KILL_ITEM | NO_BLIND | NO_SLEEP | NEVER_FAIL | RAND_25 |
+F:RES_CONF | RES_FIRE | RES_POIS | NO_CUT | NO_TRAP | HURT_COLD
+S:1_IN_4 | BA_FIRE | BO_PLAS
+D:A towering fire elemental, Vargo burns everything beyond recognition.
+
+N:49:Castamir the Usurper
+R:484:R
 I:120:85d10:20:90:40
 W:38:5:0:60800
 B:HIT:HURT:5d5
@@ -619,22 +648,8 @@ S:1_IN_2 | BO_COLD | BO_ELEC | BO_FIRE | BO_ICEE | HEAL | TRAPS3
 D:A Black Numenorean who usurped the throne of Gondor, he is treacherous and
 D: evil.
 
-N:48:Vargo, Tyrant of Fire
-R:485:r
-I:120:15d100:12:50:50
-W:38:3:0:95000
-B:HIT:FIRE:4d6
-B:HIT:FIRE:4d6
-B:HIT:FIRE:4d6
-B:HIT:FIRE:4d6
-F:BASH_DOOR | EMPTY_MIND | EVIL | FORCE_MAXHP | FORCE_SLEEP | HAS_LITE |
-F:KILL_BODY | KILL_ITEM | NO_BLIND | NO_SLEEP | NEVER_FAIL | RAND_25 |
-F:RES_CONF | RES_FIRE | RES_POIS | NO_CUT | NO_TRAP | HURT_COLD
-S:1_IN_4 | BA_FIRE | BO_PLAS
-D:A towering fire elemental, Vargo burns everything beyond recognition.
-
-N:49:Kavlax the Many-Headed
-R:495:v
+N:50:Kavlax the Many-Headed
+R:493:v
 I:120:12d100:20:80:30
 W:39:3:0:150000
 B:BITE:HURT:2d12
@@ -650,8 +665,8 @@ S:BR_NEXU | BR_SHAR | BR_SOUN
 D:A large dragon with a selection of heads, all shouting and arguing as they
 D: look for prey, but each with its own deadly breath weapon.
 
-N:50:Waldern, King of Water
-R:496:s
+N:51:Waldern, King of Water
+R:494:s
 I:120:18d100:12:45:50
 W:39:3:0:150000
 B:HIT:HURT:5d5
@@ -665,8 +680,8 @@ S:1_IN_4 | BA_COLD | BA_WATER | BO_ICEE | BO_WATER
 D:A towering water elemental, Waldern is master of all things liquid.
 D: Wave after wave drowns your frail body.
 
-N:51:Uvatha the Horseman
-R:510:D
+N:52:Uvatha the Horseman
+R:508:D
 I:120:12d90:90:55:10
 W:40:3:0:80000
 B:HIT:HURT:6d6
@@ -680,10 +695,10 @@ F:UNDEAD
 D:A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs
 D: to taste your blood.
 
-N:52:Medusa, the Gorgon
-R:511:v
+N:53:Medusa, the Gorgon
+R:509:v
 I:120:24d90:30:100:5
-W:40:3:0:300000
+W:40:4:0:300000
 B:GAZE:EXP_4
 B:GAZE:PARALYZE
 B:HIT:HURT:8d6
@@ -697,22 +712,8 @@ D:One of the original three ugly sisters.  Her face could sink a thousand
 D: ships.  Her scales rattle as she slithers towards you, venom dripping from
 D: her ghastly mouth.
 
-N:53:Rogrog the Black Troll
-R:519:D
-I:120:18d100:20:70:50
-W:41:5:0:90000
-B:HIT:HURT:6d6
-B:HIT:HURT:6d6
-B:BITE:HURT:2d10
-B:SPIT:ACID:3d8
-F:BASH_DOOR | DROP_3D2 | DROP_GOOD | ESCORTS | EVIL | FORCE_MAXHP | MALE |
-F:NO_CALM | ONLY_ITEM | OPEN_DOOR | REGENERATE | RES_ACID | RES_COLD |
-F:RES_POIS | TAKE_ITEM | HUMANOID
-D:A massive and cruel troll of great power, drool slides caustically down
-D: his muscular frame.  Despite his bulk, he strikes with stunning speed.
-
 N:54:Gorlim, Betrayer of Barahir
-R:518:s
+R:516:s
 I:120:15d100:20:110:40
 W:41:3:0:150000
 B:HIT:HURT:8d6
@@ -726,8 +727,22 @@ S:1_IN_2 | BO_MANA | BO_WATER | CAUSE_3
 D:This once-mighty warrior was so dominated by Morgoth's power that he
 D: became little more than a mindless creature of evil.
 
-N:55:Adunaphel the Quiet
-R:531:D
+N:55:Rogrog the Black Troll
+R:517:D
+I:120:18d100:20:70:50
+W:41:4:0:90000
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:BITE:HURT:2d10
+B:SPIT:ACID:3d8
+F:BASH_DOOR | DROP_3D2 | DROP_GOOD | ESCORTS | EVIL | FORCE_MAXHP | MALE |
+F:NO_CALM | ONLY_ITEM | OPEN_DOOR | REGENERATE | RES_ACID | RES_COLD |
+F:RES_POIS | TAKE_ITEM | HUMANOID
+D:A massive and cruel troll of great power, drool slides caustically down
+D: his muscular frame.  Despite his bulk, he strikes with stunning speed.
+
+N:56:Adunaphel the Quiet
+R:529:D
 I:120:19d100:90:60:10
 W:42:3:0:250000
 B:HIT:HURT:6d6
@@ -743,8 +758,8 @@ S:FORGET | HOLD | SCARE | S_MONSTER
 D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the
 D: power of the rings.
 
-N:56:Black Annis
-R:535:D
+N:57:Black Annis
+R:533:D
 I:120:16d100:12:50:50
 W:43:4:0:250000
 B:BITE:LOSE_STR:4d8
@@ -760,8 +775,8 @@ S:S_DEMON | S_HORROR | BRAIN_SMASH | FORGET | CAUSE_4 | TPORT | HEAL
 D:The most ancient and evil of the hags, Black Annis is known for her craving
 D: for human flesh.
 
-N:57:Quaker, Master of Earth
-R:536:u
+N:58:Quaker, Master of Earth
+R:534:u
 I:110:17d100:10:97:90
 W:43:4:0:100000
 B:HIT:HURT:6d6
@@ -776,8 +791,8 @@ S:1_IN_6 | BA_ACID | BO_ACID
 D:A towering stone elemental stands before you.  The walls and ceiling are
 D: reduced to rubble as Quaker advances.
 
-N:58:Ariel, Queen of Air
-R:542:B
+N:59:Ariel, Queen of Air
+R:540:B
 I:130:25d100:12:50:50
 W:44:4:0:250000
 B:HIT:CONFUSE:1d4
@@ -792,8 +807,8 @@ S:1_IN_5 | BA_COLD | BA_ELEC | BO_ELEC
 D:A towering air elemental, Ariel, the sorceress, avoids your blows
 D: with her extreme speed.
 
-N:59:Akhorahil the Blind
-R:549:D
+N:60:Akhorahil the Blind
+R:547:D
 I:120:22d100:90:70:10
 W:45:3:0:250000
 B:HIT:HURT:7d6
@@ -810,8 +825,8 @@ D:A mighty sorcerer King, Akhorahil was blind in life.  With powerful
 D: enchantments, he created jewelled eyes that enabled him to see better than
 D: any ordinary man ever could.
 
-N:60:Scatha the Worm
-R:554:W
+N:61:Scatha the Worm
+R:552:W
 I:120:20d100:20:110:70
 W:46:2:0:100000
 B:BITE:COLD:4d14
@@ -826,8 +841,8 @@ D:An ancient and wise Dragon.  Scatha has grown clever over the long years.
 D: His scales are covered with frost, and his breath sends a shower of ice
 D: into the air.
 
-N:61:Itangast the Fire Drake
-R:558:R
+N:62:Itangast the Fire Drake
+R:556:R
 I:120:22d100:20:100:70
 W:47:4:0:140000
 B:CLAW:HURT:4d10
@@ -841,8 +856,8 @@ S:1_IN_4 | BR_FIRE | CAUSE_3 | CONF
 D:A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of
 D: smoke curl up from his nostrils as he regards you with disdain.
 
-N:62:Smaug the Golden
-R:562:R
+N:63:Smaug the Golden
+R:560:R
 I:120:24d100:20:100:70
 W:48:2:0:200000
 B:CLAW:HURT:4d12
@@ -858,8 +873,8 @@ D: cunning and intelligence.  His speed through air is matched by few other
 D: dragons and his dragonfire is what legends are made of: he was believed to
 D: have been the greatest dragon still surviving into the Third Age.
 
-N:63:The Hoard
-R:565:v
+N:64:The Hoard
+R:564:v
 I:130:24d100:5:75:10
 W:49:2:0:100000
 B:HIT:HURT:5d12
@@ -874,8 +889,8 @@ S:1_IN_7 | S_KIN
 D:A great pile of coins, gems and jewelry, all coming towards you on
 D: thousands of little legs
 
-N:64:Eol, the Dark Elf
-R:566:D
+N:65:Eol, the Dark Elf
+R:565:D
 I:130:80d30:20:100:60
 W:49:3:0:200000
 B:HIT:HURT:3d8
@@ -891,8 +906,8 @@ D:One of the darkest of the Dark Elves. He used his foul sorcery to seduce
 D: the Noldorin princess, Aredhel, and then murdered her when she sought
 D: to escape back to Gondolin.
 
-N:65:The Balrog of Moria
-R:568:v
+N:66:The Balrog of Moria
+R:567:v
 I:130:30d100:20:100:80
 W:50:3:0:250000
 B:HIT:FIRE:6d12
@@ -908,8 +923,8 @@ D:A huge balrog surrounded by raging pillars of fire, this is indeed a
 D: terrible opponent.  Wielding a great whip of fire and a blazing sword, his
 D: fury blisters your skin and melts your flesh!
 
-N:66:Harowen the Black Hand
-R:570:B
+N:67:Harowen the Black Hand
+R:569:B
 I:140:25d100:40:90:0
 W:51:3:0:102000
 B:TOUCH:EAT_GOLD:5d5
@@ -923,8 +938,8 @@ S:1_IN_6 | TRAPS3
 D:He is a master of disguise, an expert of stealth, a genius at traps, and
 D: moves with blinding speed.  Check your pockets!
 
-N:67:Ji Indur Dawndeath
-R:572:D
+N:68:Ji Indur Dawndeath
+R:571:D
 I:120:32d100:90:70:10
 W:52:4:0:150000
 B:HIT:HURT:8d7
@@ -939,8 +954,8 @@ S:1_IN_3 | BA_FIRE | BA_NETH | BLIND | CAUSE_3 | HOLD | SCARE | S_UNDEAD
 D:This Ringwraith was a weak-minded sorcerer-king who fell easily under
 D: Sauron's power.
 
-N:68:The Phoenix
-R:574:r
+N:69:The Phoenix
+R:573:r
 I:120:36d100:60:130:0
 W:53:3:0:240000
 B:HIT:FIRE:9d12
@@ -955,8 +970,8 @@ S:S_KIN
 D:A massive glowing eagle bathed in flames.  The searing heat chars your
 D: skin and melts your armour.
 
-N:69:Khamul the Easterling
-R:575:D
+N:70:Khamul the Easterling
+R:574:D
 I:120:35d100:90:100:10
 W:53:3:0:265000
 B:HIT:HURT:10d10
@@ -972,8 +987,8 @@ S:CAUSE_4 | HOLD | SCARE | S_KIN | S_UNDEAD | TELE_LEVEL
 D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in
 D: combat awesome and his form twisted by evil cunning.
 
-N:70:Thuringwethil, the vampire messenger
-R:580:D
+N:71:Thuringwethil, the vampire messenger
+R:579:D
 I:130:40d100:20:145:10
 W:55:4:0:400000
 B:BITE:HURT:5d8
@@ -990,8 +1005,8 @@ D:Chief messenger between Sauron and Morgoth, she is surely the most deadly
 D: of her vampire race.  At first she is charming to meet, but her wings and
 D: eyes give away her true nature.
 
-N:71:The Lernaean Hydra
-R:583:w
+N:72:The Lernaean Hydra
+R:582:w
 I:120:45d100:20:140:20
 W:55:2:0:550000
 B:BITE:POISON:8d6
@@ -1008,8 +1023,8 @@ D:A massive legendary hydra.  It has twelve powerful heads.  Its many eyes
 D: stare at you as clouds of smoke and poisonous vapour rise from its
 D: seething form. It grows new heads as fast as you chop them off.
 
-N:72:First True Horror
-R:586:r
+N:73:First True Horror
+R:585:r
 I:130:55d100:40:160:10
 W:56:3:0:1200000
 B:HIT:FIRE:9d12
@@ -1026,8 +1041,8 @@ S:1_IN_2 | BA_FIRE | BLIND | BLINK_TO | BO_FIRE | BO_MANA | BR_FIRE |
 S:S_HORROR | TELE_TO
 D:A horror beyond all horrors, this entity can not be described, only feared.
 
-N:73:Second True Horror
-R:589:D
+N:74:Second True Horror
+R:588:D
 I:130:60d100:40:170:10
 W:57:3:0:1400000
 B:HIT:BLIND:10d5
@@ -1044,8 +1059,8 @@ S:1_IN_2 | BA_NETH | BLIND | BLINK | BO_MANA | BO_NETH | BR_NETH |
 S:S_HORROR | TELE_TO
 D:A horror beyond all horrors, this entity can not be described, only feared.
 
-N:74:Baphomet the Minotaur Lord
-R:592:v
+N:75:Baphomet the Minotaur Lord
+R:591:v
 I:130:47d100:30:120:30
 W:58:4:0:400000
 B:BUTT:HURT:12d13
@@ -1059,7 +1074,7 @@ S:1_IN_6 | ARROW_4 | BA_ELEC | BO_MANA | BO_PLAS | BR_FORCE | SLOW
 D:A fearsome bull-headed monster, Baphomet swings a mighty axe as he curses
 D: all that defy him.
 
-N:75:Fundin Bluecloak
+N:76:Fundin Bluecloak
 R:595:B
 I:130:50d100:25:195:10
 W:59:2:0:600000
@@ -1078,7 +1093,7 @@ D: earned a high position in the church, and his skill with both weapon and
 D: spell only justify his position further.  His combination of both dwarven
 D: strength and priestly wisdom are a true match for any adventurer.
 
-N:76:The Cat Lord
+N:77:The Cat Lord
 R:596:r
 I:130:48d100:100:200:0
 W:59:3:0:400000
@@ -1092,8 +1107,8 @@ F:RES_CONF | RES_FIRE | RES_POIS | NO_TRAP
 S:1_IN_3 | BLINK_TO
 D:Master of all things feline, the Cat Lord moves with catlike stealth.
 
-N:77:Saruman of Many Colours
-R:599:v
+N:78:Saruman of Many Colours
+R:598:v
 I:120:50d100:100:100:0
 W:60:1:0:650000
 B:HIT:UN_BONUS:6d8
@@ -1112,12 +1127,12 @@ D: seeks to emulate him and breeds orcs and trolls to fight for him.  He
 D: searches forever for the One Ring, to become a mighty Sorcerer-King of the
 D: world.
 
-N:78:Oberon, the Faery King
-R:601:D
+N:79:Oberon, the Faery King
+R:600:D
 I:130:55d100:90:100:10
 W:61:3:0:600000
 B:HIT:CONFUSE:6d5
-B:HIT:CONFUSE:6d5
+B:HIT:HALLU:6d5
 B:TOUCH:LOSE_WIS:4d4
 B:TOUCH:LOSE_INT:4d4
 F:BASH_DOOR | COLD_BLOOD | DROP_2D2 | DROP_3D2 | DROP_GOOD | EVIL |
@@ -1131,8 +1146,8 @@ S:TELE_TO
 D:The dark lord of all faeries, members of both the unseelie and seelie courts
 D: respond when he commands.
 
-N:79:Hoarmurath of Dir
-R:608:D
+N:80:Hoarmurath of Dir
+R:607:D
 I:120:45d100:90:100:10
 W:64:3:0:600000
 B:HIT:HURT:9d9
@@ -1148,8 +1163,8 @@ S:HOLD | MIND_BLAST | SCARE | S_UNDEAD
 D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost
 D: for a life of everlasting torment.
 
-N:80:Third True Horror
-R:609:u
+N:81:Third True Horror
+R:608:u
 I:130:75d100:40:180:10
 W:64:4:0:1600000
 B:HIT:UN_BONUS:6d8
@@ -1165,10 +1180,10 @@ S:1_IN_2 | BLIND | BLINK | BO_MANA | BR_DARK | HEAL | S_HORROR | S_KIN |
 S:TELE_TO
 D:A horror beyond all horrors, this entity can not be described, only feared.
 
-N:81:Atlas, the Titan
-R:623:s
+N:82:Atlas, the Titan
+R:619:s
 I:120:60d100:30:160:15
-W:68:3:0:800000
+W:68:3:0:1100000
 B:HIT:CONFUSE:13d13
 B:HIT:CONFUSE:13d13
 B:HIT:SHATTER:13d13
@@ -1177,11 +1192,12 @@ F:BASH_DOOR | DROP_4D2 | DROP_GOOD | EVIL | FORCE_MAXHP | FORCE_SLEEP |
 F:HUMANOID | HURT_ROCK | KILL_BODY | KILL_WALL | MALE | NO_CALM |
 F:ONLY_ITEM | OPEN_DOOR | RES_ACID | RES_COLD | RES_ELEC | RES_FIRE |
 F:RES_POIS | SMART | TAKE_ITEM | NO_TRAP
+S:1_IN_15
 D:The strongest of all the Titans. Legend has it that he used to hold the sky
 D: up; and the mountain range that now does so bears his name.
 
-N:82:Imhotep
-R:625:R
+N:83:Imhotep
+R:624:R
 I:130:65d100:20:125:50
 W:69:4:0:850000
 B:HIT:DISEASE:6d8
@@ -1198,7 +1214,7 @@ D: to achieve total domination of the world. Fortunately for you, he is still co
 D: his power; had he achieved his full strength, even Morgoth would be no match for his
 D: fury.
 
-N:83:Glaurung, Father of the Dragons
+N:84:Glaurung, Father of the Dragons
 R:626:R
 I:130:75d100:20:125:70
 W:70:3:0:900000
@@ -1216,7 +1232,7 @@ D: powerful. Though this is no longer so, he still has full command over
 D: his brood and can command them to appear whenever he so wishes.  He is
 D: the definition of dragonfire.
 
-N:84:Tselakus, the Dreadlord
+N:85:Tselakus, the Dreadlord
 R:633:r
 I:130:65d100:20:150:10
 W:73:2:0:900000
@@ -1236,7 +1252,7 @@ D: and destruction.  Tselakus is a being of sneering contempt, laughing at
 D: your pitiful efforts to defy him.  Mighty claws rend reality as he
 D: annihilates all in his path to your soul!
 
-N:85:Draugluin, Sire of All Werewolves
+N:86:Draugluin, Sire of All Werewolves
 R:637:r
 I:130:70d100:80:90:90
 W:76:2:0:600000
@@ -1251,7 +1267,7 @@ S:1_IN_3 | SCARE | S_HOUND | S_MONSTERS | S_KIN
 D:Draugluin provides Sauron with a fearsome personal guard.  He is an
 D: enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 
-N:86:Maeglin, the Traitor of Gondolin
+N:87:Maeglin, the Traitor of Gondolin
 R:639:D
 I:130:55d100:70:120:20
 W:77:4:0:800000
@@ -1270,7 +1286,7 @@ D: and more. His greed for gold led him to betray the Hidden Kingdom of
 D: Gondlin to Morgoth's forces. He is a mighty warrior himself, and some of
 D: Morgoth's greatest servants answer to his call.
 
-N:87:The Negative Astral Hound
+N:88:The Negative Astral Hound
 R:641:D
 I:130:100d40:30:100:0
 W:78:3:0:900000
@@ -1287,7 +1303,7 @@ S:1_IN_4 | BR_CHAO | BR_DISE | BR_NETH
 D:A canine form of pure negativity, you feel as if facing half of a great
 D: entity.
 
-N:88:The Positive Astral Hound
+N:89:The Positive Astral Hound
 R:642:w
 I:130:100d40:30:100:0
 W:78:3:0:900000
@@ -1304,7 +1320,7 @@ S:1_IN_4 | BR_FORCE | BR_GRAV | BR_MANA
 D:A canine form of pure existance, you feel as if facing half of a great
 D: entity.
 
-N:89:Pazuzu, Lord of Air
+N:90:Pazuzu, Lord of Air
 R:644:b
 I:140:55d100:40:125:10
 W:79:2:0:1100000
@@ -1320,7 +1336,7 @@ S:1_IN_3 | BA_ELEC | BO_ELEC | BO_MANA | MIND_BLAST | S_HI_DEMON
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you
 D: as he decides your fate.
 
-N:90:The Behemoth
+N:91:The Behemoth
 R:646:r
 I:120:180d100:100:200:10
 W:80:2:0:1100000
@@ -1336,7 +1352,7 @@ S:1_IN_6 | BR_SOUN
 D:A gargantuan beast, crushing all in its path as it moves towards you. Its
 D: powerful bellow can be heard for miles.
 
-N:91:The Tarrasque
+N:92:The Tarrasque
 R:647:v
 I:130:85d100:50:185:20
 W:81:2:0:1250000
@@ -1352,10 +1368,10 @@ S:1_IN_2 | BR_COLD | BR_DISE | BR_FIRE
 D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable
 D: and immune to magic.  Fear its anger, for its devastation is unmatched!
 
-N:92:Kronos, Lord of the Titans
+N:93:Kronos, Lord of the Titans
 R:648:v
 I:120:70d100:30:150:15
-W:82:3:0:1200000
+W:82:3:0:1300000
 B:HIT:CONFUSE:12d12
 B:HIT:CONFUSE:12d12
 B:HIT:CONFUSE:12d12
@@ -1369,7 +1385,7 @@ S:S_MONSTERS | TELE_TO
 D:The lord of the Titans, he has broken loose from his confinement in
 D: the nether hells to seek revenge on the world.
 
-N:93:Cerberus, Guardian of Hades
+N:94:Cerberus, Guardian of Hades
 R:649:D
 I:130:75d100:80:110:10
 W:83:2:0:1250000
@@ -1384,7 +1400,7 @@ S:1_IN_4 | BRAIN_SMASH | BR_FIRE | BR_POIS | HEAL | SCARE | S_HOUND
 D:A three-headed hell hound of fearsome aspect.  Flame burns merrily from its
 D: hide as it snarls and roars its defiance.
 
-N:94:Lungorthin, the Balrog of White Fire
+N:95:Lungorthin, the Balrog of White Fire
 R:650:w
 I:130:80d100:20:125:80
 W:84:2:0:1400000
@@ -1402,7 +1418,7 @@ D:A massive form cloaked in flame.  Lungorthin stares balefully at you with
 D: eyes that smoulder red.  The dungeon floor where he stands is scorched by
 D: the heat of his body.
 
-N:95:Lord Voldemort
+N:96:Lord Voldemort
 R:651:s
 I:120:65d100:60:90:35
 W:85:2:0:1500000
@@ -1418,7 +1434,7 @@ D:A great master of dark magic, he and his followers reigned terror on the
 D: magic-using community for years until one of his curses backfired and he
 D: was forced into hiding.
 
-N:96:Omarax the Eye Tyrant
+N:97:Omarax the Eye Tyrant
 R:652:v
 I:130:65d100:30:80:10
 W:86:4:0:1500000
@@ -1434,7 +1450,7 @@ D:A disembodied eye, floating in the air.  His gaze seems to shred your
 D: soul and his spells crush your will.  He is ancient, his history steeped
 D: in forgotten evils, his atrocities numerous and sickening.
 
-N:97:Chun the Unavoidable
+N:98:Chun the Unavoidable
 R:653:o
 I:130:85d100:100:150:0
 W:87:2:0:1500000
@@ -1451,7 +1467,7 @@ S:1_IN_5 | BLINK_TO | CAUSE_4 | HOLD | SCARE | TELE_AWAY | TRAPS3
 D:Relentless in pursuit of his victims, Chun wears a cloak made from the
 D: eyeballs of those he kills.
 
-N:98:Ungoliant, the Unlight
+N:99:Ungoliant, the Unlight
 R:654:D
 I:120:130d100:8:160:80
 W:88:1:0:1750000
@@ -1471,7 +1487,7 @@ D: in all living light into her bloated body.  She is always ravenously
 D: hungry and would even eat herself to avoid starvation.  She is rumoured to
 D: have a foul and deadly breath.
 
-N:99:Feagwath, the Undead Sorcerer
+N:100:Feagwath, the Undead Sorcerer
 R:655:y
 I:130:50d100:20:85:50
 W:89:2:0:1800000
@@ -1489,7 +1505,7 @@ S:TELE_TO | TRAPS3
 D:A stench of corruption and decay surrounds this sorcerer, who has clearly
 D: risen from the dead to continue his foul plots and schemes.
 
-N:100:Gothmog, the High Captain of Balrogs
+N:101:Gothmog, the High Captain of Balrogs
 R:656:v
 I:130:80d100:100:140:0
 W:90:1:0:1750000
@@ -1509,7 +1525,7 @@ D: for slaying three High Kings of the Noldor Elves, and he has never been
 D: defeated in combat.  With his whip of flame and awesome fiery breath he
 D: saved his master from Ungoliant's rage.
 
-N:101:Archimago
+N:102:Archimago
 R:657:v
 I:130:70d100:60:100:10
 W:91:3:0:1900000
@@ -1525,7 +1541,7 @@ S:CAUSE_3 | HOLD | TELE_TO | TRAPS3
 D:A guileful enchanter, who will stop at no trickery or evil in order to
 D: prevent you from carrying out your quest.
 
-N:102:The Witch-King of Angmar
+N:103:The Witch-King of Angmar
 R:658:D
 I:130:60d100:90:120:10
 W:92:3:0:1900000
@@ -1545,7 +1561,7 @@ D: spells are lethal and his combat blows crushingly hard.  He moves at
 D: speed, and commands legions of evil to do his bidding.  It is said that he
 D: is fated never to die by the hand of mortal man.
 
-N:103:Vecna, the Emperor Lich
+N:104:Vecna, the Emperor Lich
 R:659:v
 I:130:60d100:100:100:0
 W:93:3:0:2000000
@@ -1564,7 +1580,7 @@ S:TPORT
 D:The greatest of all undead sorcerers, even the gods once feared him.
 D: This ancient shadow of death wilts every living thing it passes.
 
-N:104:The Great Storm of Unmagic
+N:105:The Great Storm of Unmagic
 R:660:v
 I:130:75d100:50:40:0
 W:94:3:0:2000000
@@ -1581,7 +1597,7 @@ S:1_IN_3 | BLINK | BR_CHAO | BR_DISE | BR_TIME | DRAIN_MANA | S_KIN
 D:Howling through the disintegrating dungeon, this awesome whirlpool of
 D: Unmagic rips the enchantments from everything it touches.
 
-N:105:Ancalagon the Black
+N:106:Ancalagon the Black
 R:661:D
 I:130:100d100:20:125:70
 W:95:4:0:2000000
@@ -1598,7 +1614,7 @@ S:1_IN_3 | BR_ACID | BR_COLD | BR_ELEC | BR_FIRE | BR_POIS | S_HI_DRAGON
 D:Named "Rushing Jaws", the greatest and most terrible of all dragonkind,
 D: his power dismayed even the Valar for a time.
 
-N:106:Cantoras, the Skeletal Lord
+N:107:Cantoras, the Skeletal Lord
 R:662:w
 I:140:75d100:20:120:80
 W:96:2:0:2500000
@@ -1616,7 +1632,7 @@ D:A legion of evil undead druj animating the skeleton of a once mighty
 D: sorcerer.  His power is devastating and his speed unmatched in the
 D: underworld.  Flee his wrath!
 
-N:107:The Shrike
+N:108:The Shrike
 R:663:s
 I:140:100d100:100:160:0
 W:97:1:0:3000000
@@ -1637,7 +1653,7 @@ D: Even at rest, it's silvery surface seems to shift and move like mercury
 D: suspended in midair. Sharp blades protrude from its forehead, four wrists,
 D: elbows, knees, back and thorax.
 
-N:108:Qlzqqlzuup, the Emperor Quylthulg
+N:109:Qlzqqlzuup, the Emperor Quylthulg
 R:664:v
 I:130:50d100:30:1:0
 W:98:3:0:3000000
@@ -1650,7 +1666,7 @@ D:A gigantic seething mass of flesh, Qlzqqlzuup changes colours in front
 D: of your eyes.  Pulsating first one colour then the next, it knows only it
 D: must bring help to protect itself.
 
-N:109:Sauron, the Sorcerer
+N:110:Sauron, the Sorcerer
 R:665:v
 I:130:105d100:100:160:0
 W:99:1:0:3000000
@@ -1671,7 +1687,7 @@ D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments,
 D: he created the One Ring.  His eyes glow with power and his gaze seeks to
 D: destroy your soul.  He has many servants, and rarely fights without them.
 
-N:110:Morgoth, Lord of Darkness
+N:111:Morgoth, Lord of Darkness
 R:666:D
 I:140:200d100:100:150:0
 W:100:1:0:6000000

@@ -280,7 +280,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), 23, COL_DEPTH);
+	prt(format("%7s", depths), ROW_DEPTH, COL_DEPTH);
 }
 
 /*
@@ -1836,7 +1836,6 @@ static void calc_bonuses(void)
 	/* Save the old vision stuff */
 	old_telepathy = p_ptr->telepathy;
 	old_see_inv = p_ptr->see_inv;
-	old_invis = p_ptr->invis;
 
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
@@ -1853,6 +1852,9 @@ static void calc_bonuses(void)
 		old_stat_use[i] = p_ptr->stat_use[i];
 	}
 
+	/* Save some other stuff */
+	old_invis = p_ptr->invis;
+	
 	/*** Reset ***/
 
 	/* Reset player speed */
@@ -1886,6 +1888,7 @@ static void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
+	p_ptr->taint_inv = FALSE;
 	p_ptr->item_drain = FALSE;
 	p_ptr->bless_blade = FALSE;
 	p_ptr->disrupt = FALSE;
@@ -1975,6 +1978,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_DISRUPT)) p_ptr->disrupt = TRUE;
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+	if (f3 & (TR3_TAINT)) p_ptr->taint_inv = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 	if (f3 & (TR3_DRAIN_ITEM)) p_ptr->item_drain = TRUE;
 
@@ -2069,6 +2073,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_DISRUPT)) p_ptr->disrupt = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+		if (f3 & (TR3_TAINT)) p_ptr->taint_inv = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 		if (f3 & (TR3_DRAIN_ITEM)) p_ptr->item_drain = TRUE;
 
@@ -2314,6 +2319,12 @@ static void calc_bonuses(void)
 	{
 		p_ptr->tim_flag1 |= TR1_STEALTH;
 		/* Actual stealth affect appears later */
+	}
+
+	/* Temporary taint */
+	if (p_ptr->taint)
+	{
+		p_ptr->tim_flag3 |= TR3_TAINT;
 	}
 
 	/* Fear */
@@ -2750,6 +2761,9 @@ static void calc_bonuses(void)
 		{
 			message(MSG_EFFECT, 0, "You become visible again.");
 		}
+
+		/* Window stuff */
+		p_ptr->window |= (PW_CONDITION);
 	}
 
 	/* Redraw speed (if needed) */

@@ -72,6 +72,8 @@
 
 #ifdef USE_DOS
 
+#include "main.h"
+
 #include <allegro.h>
 
 #ifdef USE_MOD_FILES
@@ -311,7 +313,6 @@ static void term_data_link(term_data *td);
 static void dos_dump_screen(void);
 static void dos_quit_hook(cptr str);
 static bool init_windows(void);
-errr init_dos(void);
 #ifdef USE_SOUND
 static bool init_sound(void);
 static errr Term_xtra_dos_sound(int v);
@@ -319,11 +320,7 @@ static void play_song(void);
 #endif /* USE_SOUND */
 #ifdef USE_GRAPHICS
 static bool init_graphics(void);
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
-# endif /* USE_TRANSPARENCY */
 #endif /* USE_GRAPHICS */
 
 
@@ -1203,11 +1200,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
  * "ap[i]" and "cp[i]" values, but we must map the resulting value
  * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1217,12 +1210,7 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 
 	int x1, y1;
 	int x2, y2;
-
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Size */
 	w = td->tile_wid;
@@ -1239,7 +1227,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 		x2 = (cp[i] & 0x7F) * w;
 		y2 = (ap[i] & 0x7F) * h;
 
-# ifdef USE_TRANSPARENCY
 		x3 = (tcp[i] & 0x7F) * w;
 		y3 = (tap[i] & 0x7F) * h;
 
@@ -1248,13 +1235,6 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 
 		/* Blit the tile to the screen */
 		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# else /* USE_TRANSPARENCY */
-
-		/* Blit the tile to the screen */
-		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
-
-# endif /* USE_TRANSPARENCY */
 
 		/* Advance (window) */
 		x1 += w;
@@ -2095,6 +2075,9 @@ static void play_song(void)
 #endif /* USE_SOUND */
 
 
+const char help_dos[] = "DOS module with graphics and sound support";
+
+
 /*
  * Attempt to initialize this file
  *
@@ -2108,7 +2091,7 @@ static void play_song(void)
  * We should attempt to "share" bitmaps (and fonts) between windows
  * with the same "tile" size.  XXX XXX XXX
  */
-errr init_dos(void)
+errr init_dos(int argc, char **argv)
 {
 	term_data *td;
 
@@ -2116,6 +2099,10 @@ errr init_dos(void)
 
 	int screen_wid;
 	int screen_hgt;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Initialize the Allegro library (never fails) */
 	if (allegro_init()) return (-1);

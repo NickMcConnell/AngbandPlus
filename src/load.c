@@ -804,6 +804,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->stun);
 	rd_s16b(&p_ptr->poisoned);
 	rd_s16b(&p_ptr->diseased);
+	rd_s16b(&p_ptr->taint);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
 	rd_s16b(&p_ptr->resilient);
@@ -818,7 +819,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->tim_stealth);
 	rd_s16b(&p_ptr->tim_invis);
-	if (!older_than(0,4,1)) rd_s16b(&p_ptr->stability);
+	rd_s16b(&p_ptr->stability);
 	rd_s16b(&p_ptr->racial_power);
 
 	/* Read resistances */
@@ -896,28 +897,15 @@ static errr rd_spells(void)
 	for (i =0; i < tmp16u1; i++)
 	{
 		rd_byte(&tmp8u); /* The spellbook's index */
-		if (older_than(0, 4, 1)) strip_bytes(6);
-		else
-		{
-			rd_u16b(&p_ptr->spell_learned[tmp8u]);
-			rd_u16b(&p_ptr->spell_forgotten[tmp8u]);
-		}
+		rd_u16b(&p_ptr->spell_learned[tmp8u]);
+		rd_u16b(&p_ptr->spell_forgotten[tmp8u]);
 	}
 	for (i = 0; i < SV_BOOK_MAX * MAX_BOOK_SPELLS; i++)
 	{
 		if (i<tmp16u2) 
 		{
-			if (older_than(0, 4, 1))
-			{
-				strip_bytes(2);
-				p_ptr->spell_order[i][0] = 99;
-				p_ptr->spell_order[i][1] = 99;
-			}
-			else
-			{
-				rd_byte(&p_ptr->spell_order[i][0]);
-				rd_byte(&p_ptr->spell_order[i][1]);
-			}
+			rd_byte(&p_ptr->spell_order[i][0]);
+			rd_byte(&p_ptr->spell_order[i][1]);
 		}
 		else 
 		/* Fill in the array */
@@ -1079,8 +1067,8 @@ static errr rd_dungeon(void)
 	rd_s16b(&depth);
 	rd_s16b(&py);
 	rd_s16b(&px);
-	rd_byte(&p_ptr->cur_hgt);
-	rd_byte(&p_ptr->cur_wid);
+	rd_byte(&p_ptr->cur_map_hgt);
+	rd_byte(&p_ptr->cur_map_wid);
 
 	/* Ignore illegal dungeons */
 	if ((depth < 0) || (depth >= MAX_DEPTH))
@@ -1090,15 +1078,15 @@ static errr rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-	if ((p_ptr->cur_hgt > MAX_DUNGEON_HGT) || (p_ptr->cur_wid > MAX_DUNGEON_WID))
+	if ((p_ptr->cur_map_hgt > MAX_DUNGEON_HGT) || (p_ptr->cur_map_wid > MAX_DUNGEON_WID))
 	{
 		/* XXX XXX XXX */
-		note(format("Ignoring illegal dungeon size (%d,%d).", p_ptr->cur_hgt, p_ptr->cur_wid));
+		note(format("Ignoring illegal dungeon size (%d,%d).", p_ptr->cur_map_hgt, p_ptr->cur_map_wid));
 		return (0);
 	}
 
 	/* Ignore illegal dungeons */
-	if ((px < 0) || (px >= p_ptr->cur_wid) || (py < 0) || (py >= p_ptr->cur_hgt))
+	if ((px < 0) || (px >= p_ptr->cur_map_wid) || (py < 0) || (py >= p_ptr->cur_map_hgt))
 	{
 		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (-1);
@@ -1107,7 +1095,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < p_ptr->cur_hgt; )
+	for (x = y = 0; y < p_ptr->cur_map_hgt; )
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -1120,13 +1108,13 @@ static errr rd_dungeon(void)
 			cave_info[y][x] = tmp8u;
 
 			/* Advance/Wrap */
-			if (++x >= p_ptr->cur_wid)
+			if (++x >= p_ptr->cur_map_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= p_ptr->cur_hgt) break;
+				if (++y >= p_ptr->cur_map_hgt) break;
 			}
 		}
 	}
@@ -1134,7 +1122,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < p_ptr->cur_hgt; )
+	for (x = y = 0; y < p_ptr->cur_map_hgt; )
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -1147,13 +1135,13 @@ static errr rd_dungeon(void)
 			cave_set_feat(y, x, tmp8u);
 
 			/* Advance/Wrap */
-			if (++x >= p_ptr->cur_wid)
+			if (++x >= p_ptr->cur_map_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= p_ptr->cur_hgt) break;
+				if (++y >= p_ptr->cur_map_hgt) break;
 			}
 		}
 	}
@@ -1391,9 +1379,9 @@ static errr rd_savefile_new_aux(void)
 	note(format("Loading a %d.%d.%d savefile...",
 	            sf_major, sf_minor, sf_patch));
 
-	if (older_than(0,4,0))
+	if (older_than(0,4,4))
 	{
-		note("Not compatible with old savefiles!");
+		note("Not compatible with 0.4.3 or older savefiles!");
 		return (-1);
 	}
 
@@ -1623,7 +1611,6 @@ static errr rd_savefile_new_aux(void)
 			note("Error reading dungeon data");
 			return (-1);
 		}
-
 	}
 
 	/* Save the checksum */

@@ -233,7 +233,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 	"value out of bounds",
 	"too few arguments",
 	"too many arguments",
-	"more than one quest per level",
+	"non-sequential quest levels",
 	"invalid number of items (0-99)",
 	"too many entries",
 	"invalid spell frequency"
@@ -305,6 +305,7 @@ static errr init_info_raw(int fd, header *head)
 		/* Read the "*_name" array */
 		fd_read(fd, head->name_ptr, head->name_size);
 	}
+	else head->name_ptr = NULL;
 
 	if (head->text_size)
 	{
@@ -314,6 +315,7 @@ static errr init_info_raw(int fd, header *head)
 		/* Read the "*_text" array */
 		fd_read(fd, head->text_ptr, head->text_size);
 	}
+	else head->text_ptr = NULL;
 
 	/* Success */
 	return (0);
@@ -369,8 +371,7 @@ static void display_parse_error(cptr filename, errr err, char *buf)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_info(cptr filename, header *head,
-                      void **info, char **name, char **text)
+static errr init_info(cptr filename, header *head)
 {
 	int fd;
 
@@ -407,7 +408,7 @@ static errr init_info(cptr filename, header *head,
 		/* Close it */
 		fd_close(fd);
 	}
- 
+
 	/* Do we have to parse the *.txt file? */
 	if (err)
 	{
@@ -416,16 +417,12 @@ static errr init_info(cptr filename, header *head,
 		/* Allocate the "*_info" array */
 		C_MAKE(head->info_ptr, head->info_size, char);
 
-		/* Hack -- make "fake" arrays */
-		if (name)
+		/* MegaHack -- make "fake" arrays */
+		if (z_info)
+		{
 			C_MAKE(head->name_ptr, z_info->fake_name_size, char);
-
-		if (text)
 			C_MAKE(head->text_ptr, z_info->fake_text_size, char);
-
-		if (info) (*info) = head->info_ptr;
-		if (name) (*name) = head->name_ptr;
-		if (text) (*text) = head->text_ptr;
+		}
 
 		/*** Load the ascii template file ***/
 
@@ -462,7 +459,7 @@ static errr init_info(cptr filename, header *head,
 		if (fd < 0)
 		{
 			int mode = 0644;
-			
+
 			/* Grab permissions */
 			safe_setuid_grab();
 
@@ -519,16 +516,16 @@ static errr init_info(cptr filename, header *head,
 		/*** Kill the fake arrays ***/
 
 		/* Free the "*_info" array */
-		C_KILL(head->info_ptr, head->info_size, char);
+		KILL(head->info_ptr);
 
-		/* Hack -- Free the "fake" arrays */
-		if (name)
-			C_KILL(head->name_ptr, z_info->fake_name_size, char);
+		/* MegaHack -- Free the "fake" arrays */
+		if (z_info)
+		{
+			KILL(head->name_ptr);
+			KILL(head->text_ptr);
+		}
 
-		if (text)
-			C_KILL(head->text_ptr, z_info->fake_text_size, char);
-
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 		/*** Load the binary image file ***/
 
@@ -550,13 +547,9 @@ static errr init_info(cptr filename, header *head,
 		/* Error */
 		if (err) quit(format("Cannot parse '%s.raw' file.", filename));
 
-	#ifdef ALLOW_TEMPLATES
+#ifdef ALLOW_TEMPLATES
 	}
-	#endif /* ALLOW_TEMPLATES */
-
-	if (info) (*info) = head->info_ptr;
-	if (name) (*name) = head->name_ptr;
-	if (text) (*text) = head->text_ptr;
+#endif /* ALLOW_TEMPLATES */
 
 	/* Success */
 	return (0);
@@ -567,14 +560,9 @@ static errr init_info(cptr filename, header *head,
  */
 static errr free_info(header *head)
 {
-	if (head->info_ptr)
-		C_FREE(head->info_ptr, head->info_size, char);
-
-	if (head->name_ptr)
-		C_FREE(head->name_ptr, head->name_size, char);
-
-	if (head->text_ptr)
-		C_FREE(head->text_ptr, head->text_size, char);
+	if (head->info_ptr)	FREE(head->info_ptr);
+	if (head->name_ptr)	FREE(head->name_ptr);
+	if (head->text_ptr)	FREE(head->text_ptr);
 
 	/* Success */
 	return (0);
@@ -585,6 +573,8 @@ static errr free_info(header *head)
  */
 static errr init_z_info(void)
 {
+	errr err;
+
  	/* Init the header */
 	init_header(&z_head, 1, sizeof(maxima));
  
@@ -595,7 +585,12 @@ static errr init_z_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("limits", &z_head, (void*)&z_info, NULL, NULL);
+	err = init_info("limits", &z_head);
+
+	/* Set the global variables */
+	z_info = z_head.info_ptr;
+
+	return (err);
 }
 
 /*
@@ -603,6 +598,8 @@ static errr init_z_info(void)
  */
 static errr init_f_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&f_head, z_info->f_max, sizeof(feature_type));
 
@@ -613,7 +610,13 @@ static errr init_f_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("terrain", &f_head, (void*)&f_info, (void*)&f_name, NULL);
+	err = init_info("terrain", &f_head);
+
+	/* Set the global variables */
+	f_info = f_head.info_ptr;
+	f_name = f_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -621,6 +624,8 @@ static errr init_f_info(void)
  */
 static errr init_d_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&d_head, z_info->d_max, sizeof(desc_type));
 
@@ -631,7 +636,14 @@ static errr init_d_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("rooms", &d_head, (void*)&d_info, (void*)&d_name, (void*)&d_text);
+	err = init_info("rooms", &d_head);
+
+	/* Set the global variables */
+	d_info = d_head.info_ptr;
+	d_name = d_head.name_ptr;
+	d_text = d_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -639,6 +651,8 @@ static errr init_d_info(void)
  */
 static errr init_k_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&k_head, z_info->k_max, sizeof(object_kind));
 
@@ -649,7 +663,13 @@ static errr init_k_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("object", &k_head, (void*)&k_info, (void*)&k_name, NULL);
+	err = init_info("object", &k_head);
+
+	/* Set the global variables */
+	k_info = k_head.info_ptr;
+	k_name = k_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -657,6 +677,8 @@ static errr init_k_info(void)
  */
 static errr init_a_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&a_head, z_info->a_max, sizeof(artifact_type));
 
@@ -667,7 +689,13 @@ static errr init_a_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("artifact", &a_head, (void*)&a_info, (void*)&a_name, NULL);
+	err = init_info("artifact", &a_head);
+
+	/* Set the global variables */
+	a_info = a_head.info_ptr;
+	a_name = a_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -675,6 +703,8 @@ static errr init_a_info(void)
  */
 static errr init_e_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&e_head, z_info->e_max, sizeof(ego_item_type));
 
@@ -685,7 +715,13 @@ static errr init_e_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("ego_item", &e_head, (void*)&e_info, (void*)&e_name, NULL);
+	err = init_info("ego_item", &e_head);
+
+	/* Set the global variables */
+	e_info = e_head.info_ptr;
+	e_name = e_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -693,6 +729,8 @@ static errr init_e_info(void)
  */
 static errr init_wpx_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&wpx_head, z_info->wpx_max, sizeof(weapon_prefix_type));
 
@@ -703,7 +741,13 @@ static errr init_wpx_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("w_prefix", &wpx_head, (void*)&wpx_info, (void*)&wpx_name, NULL);
+	err = init_info("w_prefix", &wpx_head);
+
+	/* Set the global variables */
+	wpx_info = wpx_head.info_ptr;
+	wpx_name = wpx_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -711,6 +755,8 @@ static errr init_wpx_info(void)
  */
 static errr init_apx_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&apx_head, z_info->apx_max, sizeof(armor_prefix_type));
 
@@ -721,7 +767,13 @@ static errr init_apx_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("a_prefix", &apx_head, (void*)&apx_info, (void*)&apx_name, NULL);
+	err = init_info("a_prefix", &apx_head);
+
+	/* Set the global variables */
+	apx_info = apx_head.info_ptr;
+	apx_name = apx_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -729,6 +781,8 @@ static errr init_apx_info(void)
  */
 static errr init_w_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&w_head, z_info->w_max, sizeof(trap_widget));
 
@@ -739,7 +793,13 @@ static errr init_w_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("trap", &w_head, (void*)&w_info, (void*)&w_name, NULL);
+	err = init_info("trap", &w_head);
+
+	/* Set the global variables */
+	w_info = w_head.info_ptr;
+	w_name = w_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -747,6 +807,8 @@ static errr init_w_info(void)
  */
 static errr init_r_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&r_head, z_info->r_max, sizeof(monster_race));
 
@@ -757,7 +819,14 @@ static errr init_r_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("monster", &r_head, (void*)&r_info, (void*)&r_name, (void*)&r_text);
+	err = init_info("monster", &r_head);
+
+	/* Set the global variables */
+	r_info = r_head.info_ptr;
+	r_name = r_head.name_ptr;
+	r_text = r_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -765,6 +834,8 @@ static errr init_r_info(void)
  */
 static errr init_u_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&u_head, z_info->u_max, sizeof(monster_unique));
 
@@ -775,7 +846,14 @@ static errr init_u_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("unique", &u_head, (void*)&u_info, (void*)&u_name, (void*)&u_text);
+	err = init_info("unique", &u_head);
+
+	/* Set the global variables */
+	u_info = u_head.info_ptr;
+	u_name = u_head.name_ptr;
+	u_text = u_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -783,6 +861,8 @@ static errr init_u_info(void)
  */
 static errr init_s_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&s_head, z_info->s_max, sizeof(monster_special));
 
@@ -793,7 +873,14 @@ static errr init_s_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("ego_mon", &s_head, (void*)&s_info, (void*)&s_name, (void*)&s_text);
+	err = init_info("ego_mon", &s_head);
+
+	/* Set the global variables */
+	s_info = s_head.info_ptr;
+	s_name = s_head.name_ptr;
+	s_text = s_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -801,6 +888,8 @@ static errr init_s_info(void)
  */
 static errr init_v_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&v_head, z_info->v_max, sizeof(vault_type));
 
@@ -811,8 +900,14 @@ static errr init_v_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("vault", &v_head,
-	                 (void*)&v_info, (void*)&v_name, (void*)&v_text);
+	err = init_info("vault", &v_head);
+
+	/* Set the global variables */
+	v_info = v_head.info_ptr;
+	v_name = v_head.name_ptr;
+	v_text = v_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -820,6 +915,8 @@ static errr init_v_info(void)
  */
 static errr init_p_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&p_head, z_info->p_max, sizeof(player_race));
 
@@ -830,7 +927,13 @@ static errr init_p_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("p_race", &p_head, (void*)&p_info, (void*)&p_name, NULL);
+	err = init_info("p_race", &p_head);
+
+	/* Set the global variables */
+	p_info = p_head.info_ptr;
+	p_name = p_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -838,6 +941,8 @@ static errr init_p_info(void)
  */
 static errr init_c_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&c_head, z_info->c_max, sizeof(player_class));
 
@@ -848,8 +953,14 @@ static errr init_c_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("p_class", &c_head,
-	                 (void*)&c_info, (void*)&c_name, (void*)&c_text);
+	err = init_info("p_class", &c_head);
+
+	/* Set the global variables */
+	c_info = c_head.info_ptr;
+	c_name = c_head.name_ptr;
+	c_text = c_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -857,6 +968,8 @@ static errr init_c_info(void)
  */
 static errr init_h_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&h_head, z_info->h_max, sizeof(hist_type));
 
@@ -867,8 +980,13 @@ static errr init_h_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("p_hist", &h_head,
-	                 (void*)&h_info, NULL, (void*)&h_text);
+	err = init_info("p_hist", &h_head);
+
+	/* Set the global variables */
+	h_info = h_head.info_ptr;
+	h_text = h_head.text_ptr;
+
+	return (err);
 }
 
 /*
@@ -876,6 +994,8 @@ static errr init_h_info(void)
  */
 static errr init_b_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&b_head, (u16b)(MAX_STORES * z_info->b_max), sizeof(owner_type));
 
@@ -886,7 +1006,13 @@ static errr init_b_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("shop_own", &b_head, (void*)&b_info, (void*)&b_name, NULL);
+	err = init_info("shop_own", &b_head);
+
+	/* Set the global variables */
+	b_info = b_head.info_ptr;
+	b_name = b_head.name_ptr;
+
+	return (err);
 }
 
 /*
@@ -894,6 +1020,8 @@ static errr init_b_info(void)
  */
 static errr init_g_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&g_head, (u16b)(z_info->p_max * z_info->p_max), sizeof(byte));
 
@@ -904,7 +1032,12 @@ static errr init_g_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("cost_adj", &g_head, (void*)&g_info, NULL, NULL);
+	err = init_info("cost_adj", &g_head);
+
+	/* Set the global variables */
+	g_info = g_head.info_ptr;
+
+	return (err);
 }
 
 /*
@@ -912,6 +1045,8 @@ static errr init_g_info(void)
  */
 static errr init_q_info(void)
 {
+	errr err;
+
 	/* Init the header */
 	init_header(&q_head, z_info->q_max, sizeof(quest_type));
 
@@ -922,7 +1057,13 @@ static errr init_q_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("quest", &q_head, (void*)&q_info, (void*)&q_name, NULL);
+	err = init_info("quest", &q_head);
+
+	/* Set the global variables */
+	q_info = q_head.info_ptr;
+	q_name = q_head.name_ptr;
+
+	return (err);
 }
 
 /*** Initialize others ***/
@@ -1166,8 +1307,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_SATISFY_HUNGER },
 		{ TV_POTION, SV_POTION_CURE_POISON },
 		{ TV_POTION, SV_POTION_CURE_POISON },
-		{ TV_POTION, SV_POTION_SLOW_POISON },
-		{ TV_POTION, SV_POTION_SLOW_POISON },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_STEALTH },
 		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_POTION, SV_POTION_BOLDNESS },
 		{ TV_POTION, SV_POTION_BOLDNESS },
@@ -1193,7 +1334,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
-		{ TV_POTION, SV_POTION_STEALTH },
+		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_STARTLE},
 		{ TV_POWDER, SV_POWDER_SLEEP},
@@ -1572,10 +1713,10 @@ static errr init_alloc(void)
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
@@ -1659,10 +1800,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
@@ -1740,10 +1881,10 @@ static errr init_alloc(void)
 	/*** Analyze ego_item allocation info ***/
 
 	/* Clear the "aux" array */
-	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_ego_table" */
 	alloc_ego_size = 0;
@@ -1847,27 +1988,13 @@ static void note(cptr str)
 
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
- *
- * XXX XXX XXX This function is "messy" because various things
- * may or may not be initialized, but the "plog()" and "quit()"
- * functions are "supposed" to work under any conditions.
  */
 static void init_angband_aux(cptr why)
 {
-	/* Why */
-	plog(why);
-
-	/* Explain */
-	plog("The 'lib' directory is probably missing or broken.");
-
-	/* More details */
-	plog("Perhaps the archive was not extracted correctly.");
-
-	/* Explain */
-	plog("See the 'README' file for more information.");
-
-	/* Quit with error */
-	quit("Fatal Error.");
+	quit_fmt("%s\n\n%s", why,
+	         "The 'lib' directory is probably missing or broken.\n"
+	         "Perhaps the archive was not extracted correctly.\n"
+	         "See the 'readme.txt' file for more information.");
 }
 
 /*
@@ -1967,7 +2094,7 @@ void init_angband(void)
 		int i = 0;
 
 		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
+		while (0 == my_fgets(fp, buf, sizeof(buf)))
 		{
 			/* Display and advance */
 			Term_putstr(0, i++, -1, TERM_WHITE, buf);
@@ -2131,22 +2258,22 @@ void cleanup_angband(void)
 		string_free(macro__act[i]);
 	}
 
-	C_FREE((void*)macro__pat, MACRO_MAX, cptr);
-	C_FREE((void*)macro__act, MACRO_MAX, cptr);
+	FREE((void*)macro__pat);
+	FREE((void*)macro__act);
 
 	/* Free the keymaps */
 	for (i = 0; i < KEYMAP_MODES; ++i)
 	{
-		for (j = 0; j < 256; ++j)
+		for (j = 0; j < (int)N_ELEMENTS(keymap_act[i]); ++j)
 		{
 			string_free(keymap_act[i][j]);
 		}
 	}
 
 	/* Free the allocation tables */
-	C_FREE(alloc_ego_table, alloc_ego_size, alloc_entry);
-	C_FREE(alloc_race_table, alloc_race_size, alloc_entry);
-	C_FREE(alloc_kind_table, alloc_kind_size, alloc_entry);
+	FREE(alloc_ego_table);
+	FREE(alloc_race_table);
+	FREE(alloc_kind_table);
 
 	if (store)
 	{
@@ -2157,49 +2284,49 @@ void cleanup_angband(void)
 			store_type *st_ptr = &store[i];
 
 			/* Free the store inventory */
-			C_FREE(st_ptr->stock, st_ptr->stock_size, object_type);
+			FREE(st_ptr->stock);
 
 			/* No "legal items" for the black market or home */
 			if ((i == STORE_B_MARKET) || (i == STORE_HOME)) continue;
 
 			/* Free the legal item choices */
-			C_FREE(st_ptr->table, STORE_CHOICES, s16b);
+			FREE(st_ptr->table);
 		}
 	}
 
 	/* Free the stores */
-	C_FREE(store, MAX_STORES, store_type);
+	FREE(store);
 
 	/* Free the player inventory */
-	C_FREE(inventory, INVEN_MAX, object_type);
+	FREE(inventory);
 
 	/* Free the lore, monster, and object lists */
-	C_FREE(lr_list, z_info->r_max, monster_lore);
-	C_FREE(lu_list, z_info->u_max, monster_lore);
-	C_FREE(t_list, z_info->t_max, trap_type);
-	C_FREE(m_list, z_info->m_max, monster_type);
-	C_FREE(o_list, z_info->o_max, object_type);
+	FREE(lr_list);
+	FREE(lu_list);
+	FREE(t_list);
+	FREE(m_list);
+	FREE(o_list);
 
 #ifdef MONSTER_FLOW
 
 	/* Flow arrays */
-	C_FREE(cave_when, MAX_DUNGEON_HGT, byte_wid);
-	C_FREE(cave_cost, MAX_DUNGEON_HGT, byte_wid);
+	FREE(cave_when);
+	FREE(cave_cost);
 
 #endif /* MONSTER_FLOW */
 
 	/* Free the cave */
-	C_FREE(cave_o_idx, MAX_DUNGEON_HGT, s16b_wid);
-	C_MAKE(cave_t_idx, MAX_DUNGEON_HGT, s16b_wid);
-	C_FREE(cave_m_idx, MAX_DUNGEON_HGT, s16b_wid);
-	C_FREE(cave_feat, MAX_DUNGEON_HGT, byte_wid);
-	C_FREE(cave_info, MAX_DUNGEON_HGT, byte_256);
+	FREE(cave_o_idx);
+	FREE(cave_t_idx);
+	FREE(cave_m_idx);
+	FREE(cave_feat);
+	FREE(cave_info);
 
 	/* Free the "update_view()" array */
-	C_FREE(view_g, VIEW_MAX, u16b);
+	FREE(view_g);
 
 	/* Free the temp array */
-	C_FREE(temp_g, TEMP_MAX, u16b);
+	FREE(temp_g);
 
 	/* Free the messages */
 	messages_free();

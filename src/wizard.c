@@ -111,6 +111,8 @@ static void do_cmd_wiz_hack_ben(void)
 			{
 				byte a = TERM_RED;
 
+				if (!in_bounds_fully(y, x)) continue;
+
 				/* Display proper cost */
 				if (cave_cost[y][x] != i) continue;
 
@@ -557,11 +559,11 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt_binary(f1, 9, j+2);
 	prt_binary(f3, 9, j+36);
-	prt("f .....AFFECT................SUST.  sfrtsiglLITEIGN..ehs....ddtadlhp f", 10, j);
-	prt("l siwdcc..ssidsbsmhm........siwdcc  leeeenlu1234end..zdh....riegrccc l", 11, j);
-	prt("a tnieoh..trniplhaei........tnieoh  daglevoc....lei..keo....nslgnuuu a", 12, j);
-	prt("g rtsxna..lcfgeoonlg........rtsxna  gteeiiwk....els..ntm....irererrr g", 13, j);
-	prt("s ........t.r.ewtath..............  shnpns......mee..oyo....tppaxsss s", 14, j);
+	prt("f .....AFFECT................SUST.  sfrtsiglLITEIGN..ehs...tddtadlhp f", 10, j);
+	prt("l siwdcc..ssidsbsmhm........siwdcc  leeeenlu1234end..zdh...ariegrccc l", 11, j);
+	prt("a tnieoh..trniplhaei........tnieoh  daglevoc....lei..keo...inslgnuuu a", 12, j);
+	prt("g rtsxna..lcfgeoonlg........rtsxna  gteeiiwk....els..ntm...nirererrr g", 13, j);
+	prt("s ........t.r.ewtath..............  shnpns......mee..oyo...ttppaxsss s", 14, j);
 	prt("1 ........h.a.dss.ht..............  tr..v........mn..wpd....mt.vpeee 3", 15, j);
 
 	prt_binary(f2, 17, j+2);
@@ -626,18 +628,9 @@ static tval_desc_type tvals[31] =
 };
 
 /*
- * Hack -- title for each column
- *
- * This will not work with "EBCDIC", I would think.  XXX XXX XXX
- *
- */
-static char head[3] =
-{ 'a', 'A', ',' };
-
-/*
  * Get an object kind for creation (or zero)
  *
- * List up to 57 choices in three columns
+ * List up to 63 choices in three columns
  */
 static int wiz_create_itemtype(void)
 {
@@ -649,6 +642,10 @@ static int wiz_create_itemtype(void)
 	char ch;
 
 	int choice[64];
+	static const char choice_name[] = "abcdefghijklmnopqrstu"
+	                                  "ABCDEFGHIJKLMNOPQRSTU"
+	                                  "0123456789:;<=>?@%&*(";
+	const char *cp;
 
 	char buf[160];
 
@@ -656,11 +653,11 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 60) && tvals[num].tval; num++)
+	for (num = 0; (num < 63) && tvals[num].tval; num++)
 	{
-		row = 2 + (num % 20);
-		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
+		row = 2 + (num % 21);
+		col = 30 * (num / 21);
+		ch  = choice_name[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
@@ -672,9 +669,7 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
+	if ((cp = strchr(choice_name, ch)) != NULL)	num = cp - choice_name;
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -689,7 +684,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 64) && (i < z_info->k_max); i++)
+	for (num = 0, i = 1; (num < 63) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -705,7 +700,7 @@ static int wiz_create_itemtype(void)
 			/* Prepare it */
 			row = 2 + (num % 21);
 			col = 30 * (num / 21);
-			ch = head[num/21] + (num%21);
+			ch  = choice_name[num];
 
 			/* Get the "name" of object "i" */
 			strip_name(buf, i);
@@ -726,9 +721,7 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 21)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 21)) num = ch - head[1] + 21;
-	if ((ch >= head[2]) && (ch < head[2] + 21)) num = ch - head[2] + 42;
+	if ((cp = strchr(choice_name, ch)) != NULL)	num = cp - choice_name;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -1661,6 +1654,8 @@ static void do_cmd_wiz_query(void)
 		{
 			byte a = TERM_RED;
 
+			if (!in_bounds_fully(y, x)) continue;
+
 			/* Given mask, show only those grids */
 			if (mask && !(cave_info[y][x] & mask)) continue;
 
@@ -2001,7 +1996,7 @@ static void spoil_obj_desc(cptr fname)
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, z_info->k_max, u16b);
+	KILL(who);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2148,7 +2143,7 @@ static void spoil_artifact(cptr fname)
 
 			text_out(format("Level %u, Rarity %u, %d.%d lbs, %ld Gold.\n\n",
 				a_ptr->level, a_ptr->rarity,
-				a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost));
+				a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost));
 		}
 	}
 
@@ -2307,7 +2302,7 @@ static void spoil_mon_desc(cptr fname)
 	fprintf(fff, "\n");
 
 	/* Free the "who" array */
-	C_KILL(who, M_LIST_ITEMS, monster_list_entry);
+	KILL(who);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2464,7 +2459,7 @@ static void spoil_mon_info(cptr fname)
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, M_LIST_ITEMS, monster_list_entry);
+	KILL(who);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))

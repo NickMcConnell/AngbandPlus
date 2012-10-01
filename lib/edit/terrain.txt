@@ -32,7 +32,7 @@
 
 # Version stamp (required)
 
-V:0.4.3
+V:0.4.4
 
 # 0x00 --> <darkness>
 
@@ -62,7 +62,7 @@ G:':U
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:':u
 
 # 0x06 --> closed door
 

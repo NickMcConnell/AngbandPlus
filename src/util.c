@@ -393,7 +393,7 @@ FILE *my_fopen_temp(char *buf, int max)
  *
  * Process tabs, strip internal non-printables
  */
-errr my_fgets(FILE *fff, char *buf, huge n)
+errr my_fgets(FILE *fff, char *buf, size_t n)
 {
 	huge i = 0;
 
@@ -453,7 +453,7 @@ errr my_fgets(FILE *fff, char *buf, huge n)
  *
  * Perhaps this function should handle internal weirdness.
  */
-errr my_fputs(FILE *fff, cptr buf, huge n)
+errr my_fputs(FILE *fff, cptr buf, size_t n)
 {
 	/* Unused paramter */
 	(void)n;
@@ -688,7 +688,7 @@ errr fd_seek(int fd, long n)
 /*
  * Hack -- attempt to read data from a file descriptor
  */
-errr fd_read(int fd, char *buf, huge n)
+errr fd_read(int fd, char *buf, size_t n)
 {
 	/* Verify the fd */
 	if (fd < 0) return (-1);
@@ -721,7 +721,7 @@ errr fd_read(int fd, char *buf, huge n)
 /*
  * Hack -- Attempt to write data to a file descriptor
  */
-errr fd_write(int fd, cptr buf, huge n)
+errr fd_write(int fd, cptr buf, size_t n)
 {
 	/* Verify the fd */
 	if (fd < 0) return (-1);
@@ -843,13 +843,16 @@ static int dehex(char c)
  *
  * To be safe, "buf" should be at least as large as "str".
  */
-void text_to_ascii(char *buf, cptr str)
+void text_to_ascii(char *buf, int len, cptr str)
 {
 	char *s = buf;
 
 	/* Analyze the "ascii" string */
 	while (*str)
 	{
+		/* Check if the buffer is long enough */
+		if (s >= buf + len - 1) break;
+
 		/* Backslash codes */
 		if (*str == '\\')
 		{
@@ -950,10 +953,8 @@ void text_to_ascii(char *buf, cptr str)
  * Hack -- convert a string into a printable form
  *
  * This function will not work on non-ascii systems.
- *
- * To be safe, "buf" should be at least four times as large as "str".
  */
-void ascii_to_text(char *buf, cptr str)
+void ascii_to_text(char *buf, int len, cptr str)
 {
 	char *s = buf;
 
@@ -962,6 +963,10 @@ void ascii_to_text(char *buf, cptr str)
 	{
 		byte i = (byte)(*str++);
 
+		/* Check if the buffer is long enough */
+		/* HACK - always assume worst case (hex-value + '\0') */
+		if (s >= buf + len - 5) break;
+ 
 		if (i == ESCAPE)
 		{
 			*s++ = '\\';
@@ -1674,7 +1679,6 @@ char inkey(void)
 		/* Treat back-quote as escape */
 		if (ch == '`') ch = ESCAPE;
 
-
 		/* End "macro trigger" */
 		if (parse_under && (ch <= 32))
 		{
@@ -1854,7 +1858,7 @@ errr quarks_free(void)
 	}
 
 	/* Free the list of "quarks" */
-	C_FREE((void*)quark__str, QUARK_MAX, cptr);
+	FREE((void*)quark__str);
 
 	/* Success */
 	return (0);
@@ -1935,10 +1939,24 @@ static char *message__buf;
  */
 static u16b *message__type;
 
+/* 
+ * The array[MESSAGE_MAX] of u16b for the count of messages 
+ */ 
+static u16b *message__count; 
+   
+
 /*
  * Table of colors associated to message-types
  */
 static byte message__color[MSG_MAX];
+
+/*
+ * Calculate the index of a message
+ */
+static s16b message_age2idx(s16b age)
+{
+	return ((message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX);
+}
 
 /*
  * How many messages are "available"?
@@ -1946,7 +1964,7 @@ static byte message__color[MSG_MAX];
 s16b message_num(void)
 {
 	/* Determine how many messages are "available" */
-	return (message__next + MESSAGE_MAX - message__last) % MESSAGE_MAX;
+	return (message_age2idx((s16b)(message__last - 1)));
 }
 
 /*
@@ -1954,6 +1972,7 @@ s16b message_num(void)
  */
 cptr message_str(s16b age)
 {
+	static char buf[1024];
 	s16b x;
 	s16b o;
 	cptr s;
@@ -1962,13 +1981,20 @@ cptr message_str(s16b age)
 	if ((age < 0) || (age >= message_num())) return ("");
 
 	/* Get the "logical" index */
-	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+	x = message_age2idx(age);
 
 	/* Get the "offset" for the message */
 	o = message__ptr[x];
 
 	/* Get the message text */
 	s = &message__buf[o];
+
+	/* HACK - Handle repeated messages */
+	if (message__count[x] > 1)
+	{
+		strnfmt(buf, 1024, "%s <%dx>", s, message__count[x]);
+		s = buf;
+	}
 
 	/* Return the message text */
 	return (s);
@@ -1981,14 +2007,29 @@ u16b message_type(s16b age)
 {
 	s16b x;
 
-	/* Forgotten messages have no special color */
-	if ((age < 0) || (age >= message_num())) return (TERM_WHITE);
+	/* Paranoia */
+	if (!message__type) return (MSG_GENERIC);
+
+	/* Forgotten messages are generic */
+	if ((age < 0) || (age >= message_num())) return (MSG_GENERIC);
 
 	/* Get the "logical" index */
-	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+	x = message_age2idx(age);
 
 	/* Return the message type */
 	return (message__type[x]);
+}
+
+/*
+ * Recall the "color" of a message type
+ */
+byte message_type_color(u16b type)
+{
+	byte color = message__color[type];
+
+	if (color == TERM_DARK) color = TERM_WHITE;
+
+	return (color);
 }
 
 /*
@@ -1996,7 +2037,7 @@ u16b message_type(s16b age)
  */
 byte message_color(s16b age)
 {
-	return message__color[message_type(age)];
+	return message_type_color(message_type(age));
 }
 
 errr message_color_define(u16b type, byte color)
@@ -2021,16 +2062,12 @@ errr message_color_define(u16b type, byte color)
  * We must not attempt to optimize using a message index or buffer space
  * which is "far away" from the most recent entries, or we will lose a lot
  * of messages when we "expire" the old message index and/or buffer space.
- *
- * We attempt to minimize the use of "string compare" operations in this
- * function, because they are expensive when used in mass quantities.
  */
 void message_add(cptr str, u16b type)
 {
 	int n, k, i, x, o;
 
 	cptr s;
-	cptr t;
 	cptr u;
 	char *v;
 
@@ -2046,6 +2083,27 @@ void message_add(cptr str, u16b type)
 	if (n >= MESSAGE_BUF / 4) return;
 
 	/*** Step 2 -- Attempt to optimize ***/
+
+	/* Get the "logical" last index */
+	x = message_age2idx(0);
+
+	/* Get the "offset" for the last message */
+	o = message__ptr[x];
+
+	/* Get the message text */
+	s = &message__buf[o];
+
+	/* Last message repeated? */
+	if (streq(str, s))
+	{
+		/* Increase the message count */
+		message__count[x]++;
+
+		/* Success */
+		return;
+	}
+
+	/*** Step 3 -- Attempt to optimize ***/
 
 	/* Limit number of messages to check */
 	k = message_num() / 4;
@@ -2081,11 +2139,8 @@ void message_add(cptr str, u16b type)
 		/* Get the old string */
 		old = &message__buf[o];
 
-		/* Inline 'streq(str, old)' */
-		for (s = str, t = old; (*s == *t) && *s; ++s, ++t) /* loop */ ;
-
 		/* Continue if not equal */
-		if (*s) continue;
+		if (!streq(str, old)) continue;
 
 		/* Get the next available message index */
 		x = message__next;
@@ -2106,11 +2161,14 @@ void message_add(cptr str, u16b type)
 		/* Store the message type */
 		message__type[x] = type;
 
+		/* Store the message count */
+		message__count[x] = 1;
+
 		/* Success */
 		return;
 	}
 
-	/*** Step 3 -- Ensure space before end of buffer ***/
+	/*** Step 4 -- Ensure space before end of buffer ***/
 
 	/* Kill messages, and wrap, if needed */
 	if (message__head + (n + 1) >= MESSAGE_BUF)
@@ -2142,7 +2200,7 @@ void message_add(cptr str, u16b type)
 		message__head = 0;
 	}
 
-	/*** Step 4 -- Ensure space for actual characters ***/
+	/*** Step 5 -- Ensure space for actual characters ***/
 
 	/* Kill messages, if needed */
 	if (message__head + (n + 1) > message__tail)
@@ -2171,7 +2229,7 @@ void message_add(cptr str, u16b type)
 		}
 	}
 
-	/*** Step 5 -- Grab a new message index ***/
+	/*** Step 6 -- Grab a new message index ***/
 
 	/* Get the next available message index */
 	x = message__next;
@@ -2186,7 +2244,7 @@ void message_add(cptr str, u16b type)
 		if (++message__last == MESSAGE_MAX) message__last = 0;
 	}
 
-	/*** Step 6 -- Insert the message text ***/
+	/*** Step 7 -- Insert the message text ***/
 
 	/* Assign the starting address */
 	message__ptr[x] = message__head;
@@ -2201,6 +2259,9 @@ void message_add(cptr str, u16b type)
 
 	/* Store the message type */
 	message__type[x] = type;
+
+	/* Store the message count */
+	message__count[x] = 1;
 }
 
 /*
@@ -2212,6 +2273,7 @@ errr messages_init(void)
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 	C_MAKE(message__type, MESSAGE_MAX, u16b);
+	C_MAKE(message__count, MESSAGE_MAX, u16b);
 
 	/* Init the message colors to white */
 	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
@@ -2229,9 +2291,10 @@ errr messages_init(void)
 void messages_free(void)
 {
 	/* Free the messages */
-	C_FREE(message__ptr, MESSAGE_MAX, u16b);
-	C_FREE(message__buf, MESSAGE_BUF, char);
-	C_FREE(message__type, MESSAGE_MAX, u16b);
+	FREE(message__ptr);
+	FREE(message__buf);
+	FREE(message__type);
+	FREE(message__count);
 }
 
 /*
@@ -2345,7 +2408,7 @@ static void msg_print_aux(u16b type, cptr msg)
 	int n;
 	char *t;
 	char buf[1024];
-	byte color = TERM_WHITE;
+	byte color;
 
 	/* Hack -- Reset */
 	if (!msg_flag) message_column = 0;
@@ -2395,12 +2458,8 @@ static void msg_print_aux(u16b type, cptr msg)
 	/* Analyze the buffer */
 	t = buf;
 
-	/* Get the color of the message (if legal) */
-	if (message__color)
-		color = message__color[type];
-
-	/* HACK -- no "black" messages */
-	if (color == TERM_DARK) color = TERM_WHITE;
+	/* Get the color of the message */
+	color = message_type_color(type);
 
 	/* Split message */
 	while (n > 72)
@@ -2976,7 +3035,6 @@ s16b get_quantity(cptr prompt, int max)
 {
 	int amt = 1;
 
-
 	/* Use "command_arg" */
 	if (p_ptr->command_arg)
 	{
@@ -3215,7 +3273,6 @@ void request_command(bool shopping)
 		/* Clear top line */
 		prt("", 0, 0);
 
-
 		/* Command Count */
 		if (ch == '0')
 		{
@@ -3244,7 +3301,7 @@ void request_command(bool shopping)
 				}
 
 				/* Actual numeric data */
-				else if (ch >= '0' && ch <= '9')
+				else if (isdigit(ch))
 				{
 					/* Stop count at 9999 */
 					if (p_ptr->command_arg >= 1000)
@@ -3536,6 +3593,18 @@ bool repeat_pull(int *what)
 	return (TRUE);
 }
 
+void repeat_clear(void)
+{
+	/* Start over from the failed pull */
+	if (repeat__idx)
+		repeat__cnt = --repeat__idx;
+	/* Paranoia */
+	else
+		repeat__cnt = repeat__idx;
+
+	return;
+}
+
 /*
  * Repeat previous command, or begin memorizing new command.
  */
@@ -3637,7 +3706,7 @@ void build_gamma_table(int gamma)
 		 * value and diff have been scaled by 256
 		 */
 		n = 1;
-		value = 256 * 256;
+		value = 256L * 256L;
 		diff = ((long)gamma_helper[i]) * (gamma - 256);
 
 		while (diff)

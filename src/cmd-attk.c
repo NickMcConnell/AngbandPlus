@@ -896,7 +896,7 @@ static void py_pickup(int pickup)
 
 		/*
 		 * Query for picking up/destroying floor items
-		 * XXX XXX XXX Very nasty hack regarding rogue_like_commands
+		 * XXX XXX Ugly hack regarding rogue_like_commands
 		 */
 		if (pickup_query)
 		{
@@ -1721,7 +1721,7 @@ static bool run_test(void)
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
 	{
-		s16b this_o_idx, next_o_idx = 0;
+		object_type *o_ptr;
 
 		/* New direction */
 		new_dir = cycle[chome[prev_dir] + i];
@@ -1740,20 +1740,11 @@ static bool run_test(void)
 		}
 
 		/* Visible objects abort running */
-		for (this_o_idx = cave_o_idx[row][col]; this_o_idx; this_o_idx = next_o_idx)
+		for (o_ptr = get_first_object(row, col); o_ptr; o_ptr = get_next_object(o_ptr))
 		{
-			object_type *o_ptr;
-
-			/* Get the object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Get the next object */
-			next_o_idx = o_ptr->next_o_idx;
-
 			/* Visible object */
 			if (o_ptr->marked) return (TRUE);
 		}
-
 
 		/* Assume unknown */
 		inv = TRUE;

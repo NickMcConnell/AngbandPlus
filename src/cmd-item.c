@@ -1074,7 +1074,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			if ((object_aware_p(o_ptr)) && (rand_int(100) < 50))
 			{
 				message(MSG_EFFECT, 0, "You took one risk too many.");
-				damage_player(5000, "a potion of Risk");
+				damage_player(5000, "a potion of risk");
 			}
 			else
 			{

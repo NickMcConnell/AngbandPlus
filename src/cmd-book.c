@@ -104,7 +104,7 @@ static s16b spell_chance(int book, int spell, int sub, bool music)
 	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2)) / 2;
 	chance -= 3 * (adj_mag_stat[stat_factor] - 1);
 
-	mana = spell_mana(book, spell, sub, FALSE);
+	mana = spell_mana(book, spell, sub, music);
 
 	/* Not enough mana to cast */
 	if (mana > p_ptr->csp)
@@ -258,8 +258,6 @@ static void spell_info(char *p, int spell_index)
 			strcpy(p, " heal 60%, any cut"); break;
 		case POW_HEAL_5:
 			strcpy(p, " heal 90%, any cut"); break;
-		case POW_CURE_POISON_1:
-			strcpy(p, " halve poison"); break;
 		case POW_TELE_10: 
 			strcpy(p, " range 10"); break;
 		case POW_TELE_MINOR:
@@ -702,6 +700,11 @@ static int get_spell(int *sn, int *ss, cptr prompt, int book, bool known, bool a
 			/* Success */
 			return (TRUE);
 		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
+		}
 	}
 
 	if (!allow_all)
@@ -865,6 +868,11 @@ static int get_tune(int *sn, cptr prompt, int instrument, int lev, bool allow_al
 		{
 			/* Success */
 			return (TRUE);
+		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
 		}
 	}
 
@@ -1601,7 +1609,8 @@ static void do_cast(int book, bool force_menu)
 				{
 					message(MSG_EFFECT, 0, "You feel your life draining away!");
 					lose_exp(200 + (p_ptr->exp/25));
-				}				
+				}
+				set_taint(p_ptr->taint + 2000);
 				break;
 			}
 		}
@@ -1662,7 +1671,7 @@ static void do_cast(int book, bool force_menu)
 /*
  * Play a tune
  */
-static void do_play(int instrument, int lev)
+void do_play(int instrument, int lev)
 {
 	int tune;
 	int chance;

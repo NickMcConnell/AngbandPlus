@@ -65,7 +65,7 @@ static int check_m_hit(int power, int level)
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
-	/* Check for negative AC (should be impossible, but still...) */
+	/* Check for negative AC */
 	if (ac < 0) return (TRUE);
 
 	/* Power and Level compete against Armor */
@@ -115,7 +115,7 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, j, k, tmp, rlev;
+	int i, k, tmp, rlev;
 	int do_cut, do_stun;
 
 	s32b gold;
@@ -146,7 +146,7 @@ bool make_attack_normal(int m_idx)
 	blinked = FALSE;
 
 	/* Scan through all four blows */
-	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+	for (ap_cnt = 0; ap_cnt < MONSTER_BLOW_MAX; ap_cnt++)
 	{
 		bool visible = FALSE;
 		bool obvious = FALSE;
@@ -187,6 +187,7 @@ bool make_attack_normal(int m_idx)
 			case RBE_COLD:		power = 10; break;
 			case RBE_CONFUSE:	power = 10; break;
 			case RBE_TERRIFY:	power = 10; break;
+			case RBE_HALLU: 	power = 10; break;
 			case RBE_EAT_GOLD:	power =  5; break;
 			case RBE_EAT_ITEM:	power =  5; break;
 			case RBE_EAT_FOOD:	power =  5; break;
@@ -196,12 +197,12 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_2:		power =  5; break;
 			case RBE_EXP_3:		power =  5; break;
 			case RBE_EXP_4:		power =  5; break;
+			case RBE_RUST:		power =  3; break;
+			case RBE_ROT:		power =  3; break;
 			case RBE_DISEASE:	power =  2; break;
 			case RBE_BLIND:		power =  2; break;
 			case RBE_PARALYZE:	power =  2; break;
 			case RBE_LOSE_ALL:	power =  2; break;
-			case RBE_RUST:		power =  0; break;
-			case RBE_ROT:		power =  0; break;
 			case RBE_LOSE_STR:	power =  0; break;
 			case RBE_LOSE_DEX:	power =  0; break;
 			case RBE_LOSE_CON:	power =  0; break;
@@ -484,6 +485,12 @@ bool make_attack_normal(int m_idx)
 						if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) &&
 							(o_ptr->pval > 0))
 						{
+							/* Calculate healed hitpoints */
+							int heal = rlev * o_ptr->pval * o_ptr->number;
+
+							/* Don't heal more than max hp */
+							heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
+
 							/* Message */
 							message(MSG_ITEM_DAMAGE, 0, "Energy drains from your pack!");
 
@@ -491,12 +498,10 @@ bool make_attack_normal(int m_idx)
 							obvious = TRUE;
 
 							/* Heal */
-							j = rlev;
-							m_ptr->hp += j * o_ptr->pval * o_ptr->number;
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-							/* Redraw (later) if needed */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+							m_ptr->hp += heal;
+ 
+ 							/* Redraw (later) if needed */
+							if (p_ptr->health_who == m_idx)	p_ptr->redraw |= (PR_HEALTH);
 
 							/* Uncharge */
 							o_ptr->pval = 0;
@@ -808,6 +813,26 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				case RBE_HALLU:
+				{
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Increase "image" */
+					if (!resist_effect(RS_CHS))
+					{
+						if (set_image(p_ptr->image + 3 + randint(rlev / 2)))
+						{
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player */
+					update_smart_learn(m_idx, DRS_RES_CHAOS);
+
+					break;
+				}
+
 				case RBE_BLIND:
 				{
 					/* Take damage */
@@ -1079,7 +1104,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = (p_ptr->exp / 33);
+						s32b d = ((3 * p_ptr->exp) / 100);
 						if (p_ptr->hold_life)
 						{
 							message(MSG_EFFECT, 0, "You feel your life slipping away!");

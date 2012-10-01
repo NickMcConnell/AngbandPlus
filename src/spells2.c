@@ -1957,7 +1957,7 @@ bool recharge(int num)
  *
  * Note that affected monsters are NOT auto-tracked by this usage.
  */
-bool project_all(int typ, int dam)
+bool project_los(int typ, int dam)
 {
 	int i, x, y;
 
@@ -2172,6 +2172,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 				/* Delete objects */
 				delete_object(y, x);
+
+				/* Delete traps */
+				delete_trap(y, x);
 
 				/* Wall (or floor) type */
 				t = rand_int(200);
@@ -2519,6 +2522,9 @@ void earthquake(int cy, int cx, int r)
 
 				/* Delete objects */
 				delete_object(yy, xx);
+
+				/* Delete traps */
+				delete_trap(y, x);
 
 				/* Wall (or floor) type */
 				t = (floor ? rand_int(100) : 200);

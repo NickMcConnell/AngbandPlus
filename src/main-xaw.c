@@ -36,6 +36,7 @@
 
 #ifdef USE_XAW
 
+#include "main.h"
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -184,12 +185,8 @@ struct AngbandPart
 	/* Tiles */
 	XImage *tiles;
 
-#ifdef USE_TRANSPARENCY
-
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
-
-#endif
 
 #endif /* USE_GRAPHICS */
 
@@ -345,9 +342,9 @@ AngbandClassRec angbandClassRec =
 	{
 		/* change_sensitive     */      XtInheritChangeSensitive,
 
-#ifndef OLDXAW
+#if XawVersion >= 7000000L
 		/* extension            */      NULL
-#endif /* OLDXAW */
+#endif /* XawVersion >= 7000000L */
 
 	},
 	/* Angband class fields initialization */
@@ -421,22 +418,14 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
-
-
+                              const byte *ap, const char *cp,
+                              const byte *tap, const char *tcp)
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
-
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -444,7 +433,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 	int k,l;
 
 	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
+
 
 	/* Figure out where to place the text */
 	y = (y * widget->angband.fontheight + widget->angband.internal_border);
@@ -458,8 +447,6 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		/* For extra speed - cache these values */
 		x1 = (c&0x7F) * widget->angband.fontwidth;
 		y1 = (a&0x7F) * widget->angband.fontheight;
-
-#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
@@ -518,19 +505,6 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 			          widget->angband.fontwidth,
 			          widget->angband.fontheight);
 		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(XtDisplay(widget), XtWindow(widget),
-		          widget->angband.gc[0],
-		          widget->angband.tiles,
-		          x1, y1,
-		          x, y,
-		          widget->angband.fontwidth,
-		          widget->angband.fontheight);
-
-#endif /* USE_TRANSPARENCY */
 
 		x += widget->angband.fontwidth;
 	}
@@ -1091,13 +1065,11 @@ static void react_redraw(Widget widget,
  *
  * Also appears in "main-x11.c".
  */
-static void react_keypress(XKeyEvent *xev)
+static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
-
-	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -1453,21 +1425,13 @@ static errr Term_text_xaw(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp,
 	const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
 	/* Draw the pictures */
-# ifdef USE_TRANSPARENCY
 	AngbandOutputPict(td->widget, x, y, n, ap, cp, tap, tcp);
-# else /* USE_TRANSPARENCY */
-	AngbandOutputPict(td->widget, x, y, n, ap, cp);
-# endif /* USE_TRANSPARENCY */
 
 	/* Success */
 	return (0);
@@ -1649,12 +1613,20 @@ static errr term_data_init(term_data *td, Widget topLevel,
 }
 
 
+const char help_xaw[] = "X11 Athena Widget, subopts -d<display> -n<windows>"
+#ifdef USE_GRAPHICS
+                        " -s(moothRescale)"
+#endif
+                        "\n           and standard X11 toolkit options"
+                        ;
+
+
 /*
  * Initialization function for an X Athena Widget module to Angband
  *
  * We should accept "-d<dpy>" requests in the "argv" array.  XXX XXX XXX
  */
-errr init_xaw(int argc, char *argv[])
+errr init_xaw(int argc, char **argv)
 {
 	int i;
 	Widget topLevel;
@@ -1670,10 +1642,7 @@ errr init_xaw(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1818,7 +1787,6 @@ errr init_xaw(int argc, char *argv[])
 			            td->widget->angband.fontheight);
 		}
 
-#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency temp storage*/
 		for (i = 0; i < num_term; i++)
 		{
@@ -1846,8 +1814,6 @@ errr init_xaw(int argc, char *argv[])
 			        td->widget->angband.fontheight, 8, 0);
 
 		}
-#endif /* USE_TRANSPARENCY */
-
 
 		/* Free tiles_raw? XXX XXX */
 	}

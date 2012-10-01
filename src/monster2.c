@@ -927,7 +927,7 @@ void update_mon(int m_idx, bool full)
 		}
 
 		/* Normal line of sight, and not blind or hallucinating*/
-		if (player_has_los_bold(fy, fx) && !p_ptr->blind && !p_ptr->image)
+		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
 		{
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
@@ -2066,8 +2066,8 @@ bool alloc_monster(int dis, bool slp)
 	while (--attempts_left)
 	{
 		/* Pick a location */
-		y = rand_int(p_ptr->cur_hgt);
-		x = rand_int(p_ptr->cur_wid);
+		y = rand_int(p_ptr->cur_map_hgt);
+		x = rand_int(p_ptr->cur_map_wid);
 
 		/* Require "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;

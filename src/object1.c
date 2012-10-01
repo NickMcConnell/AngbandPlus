@@ -2272,7 +2272,8 @@ void display_inven(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		if (o_ptr->tval != TV_MAGIC_BOOK) attr = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK) 
+			attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 		else
 		{
 			if (cp_ptr->spell_book[o_ptr->sval]) attr = k_info[o_ptr->k_idx].d_attr;
@@ -2343,7 +2344,7 @@ void display_equip(void)
 		n = strlen(o_name);
 
 		/* Get inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -2435,7 +2436,8 @@ void show_inven(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		if (o_ptr->tval != TV_MAGIC_BOOK) out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		if (o_ptr->tval != TV_MAGIC_BOOK)
+			out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 		else
 		{
 			if (cp_ptr->spell_book[o_ptr->sval]) out_color[k] = k_info[o_ptr->k_idx].d_attr;
@@ -2542,7 +2544,7 @@ void show_equip(void)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the description */
 		strcpy(out_desc[k], o_name);
@@ -2659,7 +2661,7 @@ void show_floor(int *floor_list, int floor_num)
 		out_index[k] = i;
 
 		/* Get inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		out_color[k] = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -3032,6 +3034,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Success */
 			return (TRUE);
+		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
 		}
 	}
 

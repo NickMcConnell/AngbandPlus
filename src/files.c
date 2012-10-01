@@ -33,58 +33,6 @@ static byte conv_color[16] =
 	'U',
 };
 
-/*
- * Clean up a line for recording via cmovie or html dump
- */
-static void cmovie_clean_line(int y, char *abuf, char *cbuf)
-{
-	const byte *ap = Term->scr->a[y];
-	const char *cp = Term->scr->c[y];
-
-	byte a;
-	char c;
-
-	int x;
-	int wid, hgt;
-	int screen_wid, screen_hgt;
-
-	/* Retrieve current screen size */
-	Term_get_size(&wid, &hgt);
-
-	/* Calculate the size of dungeon map area */
-	screen_wid = wid - (COL_MAP + 1);
-	screen_hgt = hgt - (ROW_MAP + 1);
-
-	/* For the time being, assume 80 column display XXX XXX XXX */
-	for (x = 0; x < wid; x++)
-	{
-		/* Convert dungeon map into default attr/chars */
-		if (!character_icky &&
-                    ((x - COL_MAP) >= 0) &&
-		    ((x - COL_MAP) < screen_wid) &&
-		    ((y - ROW_MAP) >= 0) &&
-		    ((y - ROW_MAP) < screen_hgt))
-		{
-			/* Retrieve default attr/char */
-                        map_info_default(y + p_ptr->wy - ROW_MAP, x + p_ptr->wx - COL_MAP, &a, &c);
-
-			abuf[x] = conv_color[a & 0xf];
-
-			if (c == '\0') cbuf[x] = ' ';
-			else cbuf[x] = c;
-		}
-
-		else
-		{
-			abuf[x] = conv_color[ap[x] & 0xf];
-			cbuf[x] = cp[x];
-		}
-	}
-
-	/* Null-terminate the prepared strings */
-	abuf[x] = '\0';
-	cbuf[x] = '\0';
-}
 
 /*
  * Hack -- save a screen dump to a file
@@ -99,6 +47,11 @@ void text_screenshot(cptr name)
 	FILE *fff;
 
 	char buf[1024];
+
+	int wid, hgt;
+
+	/* Retrieve current screen size */
+	Term_get_size(&wid, &hgt);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, name);
@@ -122,10 +75,10 @@ void text_screenshot(cptr name)
 	screen_save();
 
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < wid; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
@@ -144,12 +97,11 @@ void text_screenshot(cptr name)
 	/* Skip a line */
 	fprintf(fff, "\n");
 
-
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < wid; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
@@ -181,7 +133,12 @@ void text_screenshot(cptr name)
 void html_screenshot(cptr name)
 {
 	int y, x;
+	int yy = p_ptr->wy - ROW_MAP;
+	int xx = p_ptr->wx - COL_MAP;
 	int wid, hgt;
+
+	byte *ap;
+	char *cp;
 
 	byte a = 0, oa = TERM_WHITE;
 	char c = ' ';
@@ -229,7 +186,39 @@ void html_screenshot(cptr name)
 	/* Dump the screen */
 	for (y = 0; y < hgt; y++)
 	{
-		cmovie_clean_line(y, abuf, cbuf);
+		ap = Term->scr->a[y];
+		cp = Term->scr->c[y];
+
+		/* For each line... */
+		for (x = 0; x < wid; x++)
+		{
+			/* Convert dungeon map into default attr/chars */
+			if (!character_icky &&
+				((x - COL_MAP) >= 0) && ((x - COL_MAP) < SCREEN_WID) &&
+				((y - ROW_MAP) >= 0) &&	((y - ROW_MAP) < SCREEN_HGT) && 
+				((y - ROW_MAP) < p_ptr->cur_map_hgt))
+			{
+				if (!in_bounds(y + yy, x + xx)) continue;
+
+				/* Retrieve default attr/char */
+				map_info_default(y + yy, x + xx, &a, &c);
+
+				abuf[x] = conv_color[a & 0xf];
+
+				if (c == '\0') cbuf[x] = ' ';
+				else cbuf[x] = c;
+			}
+
+			else
+			{
+				abuf[x] = conv_color[ap[x] & 0xf];
+				cbuf[x] = cp[x];
+			}
+		}
+
+		/* Null-terminate the prepared strings */
+		abuf[x] = '\0';
+		cbuf[x] = '\0';
 
 		/* Dump each row */
 		for (x = 0; x < wid; x++)
@@ -614,7 +603,7 @@ errr process_pref_file_command(char *buf)
 			j = (byte)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if ((j < 0) || (j >= 256)) return (1);
+			if ((j < 0) || (j >= (int)N_ELEMENTS(misc_to_attr))) return (1);
  			misc_to_attr[j] = n1;
 			misc_to_char[j] = n2;
 			return (0);
@@ -628,7 +617,7 @@ errr process_pref_file_command(char *buf)
 		{
 			j = (byte)strtol(zz[0], NULL, 0) % 128;
 			n1 = strtol(zz[1], NULL, 0);
-			if ((j < 0) || (j >= 128)) return (1);
+			if ((j < 0) || (j >= (int)N_ELEMENTS(tval_to_attr))) return (1);
 			if (n1) tval_to_attr[j] = n1;
 			return (0);
 		}
@@ -637,7 +626,7 @@ errr process_pref_file_command(char *buf)
 	/* Process "A:<str>" -- save an "action" for later */
 	else if (buf[0] == 'A')
 	{
-		text_to_ascii(macro_buffer, buf+2);
+		text_to_ascii(macro_buffer, sizeof(macro_buffer), buf+2);
 		return (0);
 	}
 
@@ -645,7 +634,7 @@ errr process_pref_file_command(char *buf)
 	else if (buf[0] == 'P')
 	{
 		char tmp[1024];
-		text_to_ascii(tmp, buf+2);
+		text_to_ascii(tmp, sizeof(tmp), buf+2);
 		macro_add(tmp, macro_buffer);
 		return (0);
 	}
@@ -662,7 +651,7 @@ errr process_pref_file_command(char *buf)
 		mode = strtol(zz[0], NULL, 0);
 		if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
 
-		text_to_ascii(tmp, zz[1]);
+		text_to_ascii(tmp, sizeof(tmp), zz[1]);
 		if (!tmp[0] || tmp[1]) return (1);
 		i = (byte)(tmp[0]);
 
@@ -1060,7 +1049,7 @@ static errr process_pref_file_aux(cptr name)
 	if (!fp) return (-1);
 
 	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Count lines */
 		line++;
@@ -1331,7 +1320,7 @@ errr check_time_init(void)
 	check_time_flag = TRUE;
 
 	/* Parse the file */
-	while (0 == my_fgets(fp, buf, 80))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
@@ -1453,7 +1442,7 @@ errr check_load_init(void)
 	(void)gethostname(thishost, (sizeof thishost) - 1);
 
 	/* Parse it */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		int value;
 
@@ -1962,8 +1951,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	Term_get_size(&wid, &hgt);
 
 	/* Copy the filename */
-	strcpy(filename, name);
-
+	strncpy(filename, name, sizeof(filename));
+	filename[sizeof(filename)-1] = '\0';
+ 
 	n = strlen(filename);
 
 	/* Extract the tag from the filename */
@@ -2021,7 +2011,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	while (TRUE)
 	{
 		/* Read a line or stop */
-		if (my_fgets(fff, buf, 1024)) break;
+		if (my_fgets(fff, buf, sizeof(buf))) break;
 
 		/* XXX Parse "menu" items */
 		if (prefix(buf, "***** "))
@@ -2099,7 +2089,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		while (next < line)
  		{
 			/* Get a line */
- 			if (my_fgets(fff, buf, 1024)) break;
+ 			if (my_fgets(fff, buf, sizeof(buf))) break;
 
 			/* Skip tags/links */
 			if (prefix(buf, "***** ")) continue;
@@ -2115,7 +2105,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			if (!i) line = next;
 
 			/* Get a line of the file or stop */
-			if (my_fgets(fff, buf, 1024)) break;
+			if (my_fgets(fff, buf, sizeof(buf))) break;
 
 			/* Hack -- skip "special" lines */
 			if (prefix(buf, "***** ")) continue;
@@ -2437,315 +2427,6 @@ static long total_points(void)
 }
 
 /*
- * Centers a string within a 31 character string
- */
-static void center_string(char *buf, cptr str)
-{
-	int i, j;
-
-	/* Total length */
-	i = strlen(str);
-
-	/* Necessary border */
-	j = 15 - i / 2;
-
-	/* Mega-Hack */
-	sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
-}
-
-/*
- * Hack - save the time of death
- */
-static time_t death_time = (time_t)0;
-
-/*
- * Display a "tomb-stone"
- */
-static void print_tomb(void)
-{
-	cptr p;
-
-	char tmp[160];
-
-	char buf[1024];
-
-	FILE *fp;
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
-
-	/* Open the News file */
-	fp = my_fopen(buf, "r");
-
-	/* Dump */
-	if (fp)
-	{
-		int i = 0;
-
-		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
-		{
-			/* Display and advance */
-			put_str(buf, i++, 0);
-		}
-
-		/* Close */
-		my_fclose(fp);
-	}
-
-	/* King or Queen */
-	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
-	{
-		p = "Magnificent";
-	}
-
-	/* Normal */
-	else
-	{
-#ifndef PREVENT_LOAD_C_TEXT
-		p = c_text+cp_ptr->title[(p_ptr->lev-1)/5];
-#else /* PREVENT_LOAD_C_TEXT */
-		p = " ";
-#endif /* PREVENT_LOAD_C_TEXT */
-	}
-
-	center_string(buf, op_ptr->full_name);
-	put_str(buf, 6, 11);
-
-	center_string(buf, "the");
-	put_str(buf, 7, 11);
-
-	center_string(buf, p);
-	put_str(buf, 8, 11);
-
-	center_string(buf, c_name + cp_ptr->name);
-	put_str(buf, 10, 11);
-
-	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
-	center_string(buf, tmp);
-	put_str(buf, 11, 11);
-
-	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
-	center_string(buf, tmp);
-	put_str(buf, 12, 11);
-
-	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
-	center_string(buf, tmp);
-	put_str(buf, 13, 11);
-
-	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
-	center_string(buf, tmp);
-	put_str(buf, 14, 11);
-
-	sprintf(tmp, "by %s.", p_ptr->died_from);
-	center_string(buf, tmp);
-	put_str(buf, 15, 11);
-
-
-	sprintf(tmp, "%-.24s", ctime(&death_time));
-	center_string(buf, tmp);
-	put_str(buf, 17, 11);
-}
-
-/*
- * Hack - Know inventory and home items upon death
- */
-static void death_knowledge(void)
-{
-	int i;
-
-	object_type *o_ptr;
-
-	store_type *st_ptr = &store[STORE_HOME];
-
-	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-
-		/* Fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
-	}
-
-	/* Hack -- Know everything in the home */
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-
-		/* Fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
-	}
-
-	/* Hack -- Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-}
-
-/*
- * Display some character info
- */
-static void show_info(void)
-{
-	int i, j, k;
-
-	object_type *o_ptr;
-
-	store_type *st_ptr = &store[STORE_HOME];
-
-	/* Display player */
-	display_player(0);
-
-	/* Prompt for inventory */
-	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
-
-	/* Allow abort at this point */
-	if (inkey() == ESCAPE) return;
-
-	/* Show equipment and inventory */
-
-	/* Equipment -- if any */
-	if (p_ptr->equip_cnt)
-	{
-		Term_clear();
-		item_tester_full = TRUE;
-		show_equip();
-		prt("You are using: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
-	}
-
-	/* Inventory -- if any */
-	if (p_ptr->inven_cnt)
-	{
-		Term_clear();
-		item_tester_full = TRUE;
-		show_inven();
-		prt("You are carrying: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
-	}
-
-	/* Home -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Display contents of the home */
-		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
-		{
-			/* Clear screen */
-			Term_clear();
-
-			/* Show 12 items */
-			for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
-			{
-				byte attr;
-
-				char o_name[80];
-				char tmp_val[80];
-
-				/* Get the object */
-				o_ptr = &st_ptr->stock[i];
-
-				/* Print header, clear line */
-				sprintf(tmp_val, "%c) ", I2A(j));
-				prt(tmp_val, j+2, 4);
-
-				/* Get the object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
-
-				/* Get the inventory color */
-				attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-				/* Display the object */
-				c_put_str(attr, o_name, j+2, 7);
-			}
-
-			/* Caption */
-			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
-
-			/* Wait for it */
-			if (inkey() == ESCAPE) return;
-		}
-	}
-}
-
-/*
- * Special version of 'do_cmd_examine'
- */
-static void death_examine(void)
-{
-	int item;
-
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	cptr q, s;
-
-	/* Set text_out hook */
-	text_out_hook = text_out_to_screen;
-
-	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
-
-	while (TRUE)
- 	{
-		/* Clear the screen */
-		Term_clear();
-
-		/* Reset "display" mode */
-		p_ptr->command_see = TRUE;
-
-		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
- 
-		/* Get the item */
-		o_ptr = &inventory[item];
- 
-		/* Fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
- 
-		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
- 
-		/* Begin recall */
-		Term_gotoxy(0, 1);
-
-		/* Actually display the item */
-		list_object(o_ptr, OBJECT_INFO_KNOWN);
-
-		object_desc_store(o_name, o_ptr, TRUE, 3);
-
-		/* Clear the top line */
-		Term_erase(0, 0, 255);
-
-		/* Reset the cursor */
-		Term_gotoxy(0, 0);
-
-		/* Dump the name */
-		Term_addstr(-1, TERM_L_BLUE, o_name);
-
-		(void) inkey();
-	}
-}
-
-/*
  * Seek score 'i' in the highscore file
  */
 static int highscore_seek(int i)
@@ -2969,12 +2650,12 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Another line of info */
 			sprintf(out_val, "               Killed by %s on %s %d",
-			        the_score.how, "Dungeon Level", cdun);
+			        the_score.how, "dungeon level", cdun);
 
 			/* Hack -- some people die in the town */
 			if (!cdun)
 			{
-				sprintf(out_val, "               Killed by %s in the Town",
+				sprintf(out_val, "               Killed by %s in the town",
 				        the_score.how);
 			}
 
@@ -3051,7 +2732,7 @@ static int score_idx = -1;
  *
  * Assumes "signals_ignore_tstp()" has been called.
  */
-static errr enter_score(void)
+errr enter_score(time_t death_time)
 {
 #ifndef SCORE_CHEATERS
  	int j;
@@ -3129,14 +2810,8 @@ static errr enter_score(void)
 	sprintf(the_score.turns, "%9lu", (long)turn);
 	the_score.turns[9] = '\0';
 
-#ifdef HIGHSCORE_DATE_HACK
-	/* Save the date in a hacked up form (9 chars) */
-	sprintf(the_score.day, "%-.6s %-.2s",
-	        ctime(&death_time) + 4, ctime(&death_time) + 22);
-#else
 	/* Save the date in standard encoded form (9 chars) */
 	strftime(the_score.day, 10, "@%Y%m%d", localtime(&death_time));
-#endif
 
 	/* Save the player name (15 chars) */
 	sprintf(the_score.who, "%-.15s", op_ptr->full_name);
@@ -3187,7 +2862,7 @@ static errr enter_score(void)
  *
  * Assumes "signals_ignore_tstp()" has been called.
  */
-static void top_twenty(void)
+void top_twenty(void)
 {
 	/* Clear screen */
 	Term_clear();
@@ -3295,248 +2970,6 @@ errr predict_score(void)
 }
 
 /*
- * Change the player into a Winner
- */
-static void kingly(void)
-{
-	/* Hack -- retire in town */
-	p_ptr->depth = 0;
-
-	/* Fake death */
-	strcpy(p_ptr->died_from, "Ripe Old Age");
-
-	/* Restore the experience */
-	p_ptr->exp = p_ptr->max_exp;
-
-	/* Restore the level */
-	p_ptr->lev = p_ptr->max_lev;
-
-	/* Hack -- Instant Gold */
-	p_ptr->au += 10000000L;
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Display a crown */
-	put_str("#", 1, 34);
-	put_str("#####", 2, 32);
-	put_str("#", 3, 34);
-	put_str(",,,  $$$  ,,,", 4, 28);
-	put_str(",,=$   \"$$$$$\"   $=,,", 5, 24);
-	put_str(",$$        $$$        $$,", 6, 22);
-	put_str("*>         <*>         <*", 7, 22);
-	put_str("$$         $$$         $$", 8, 22);
-	put_str("\"$$        $$$        $$\"", 9, 22);
-	put_str("\"$$       $$$       $$\"", 10, 23);
-	put_str("*#########*#########*", 11, 24);
-	put_str("*#########*#########*", 12, 24);
-
-	/* Display a message */
-	put_str("Veni, Vidi, Vici!", 15, 26);
-	put_str("I came, I saw, I conquered!", 16, 21);
-	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22);
-
-	/* Flush input */
-	flush();
-
-	/* Wait for response */
-	pause_line(23);
-}
-
-/*
- * Handle character death
- */
-static void close_game_aux(void)
-{
-	int ch;
-
-	bool wants_to_quit = FALSE;
-	cptr p; 
-
-	/* Prompt */
-	if (!cheat_wizard) p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
-	else p = "[(i)nfo, (m)essages, (f)ile, (v)iew score, e(x)amine, (w)izard off, or ESC]";
-
-	/* Handle retirement */
-	if (p_ptr->total_winner) kingly();
-
-	/* Save dead player */
-	if (cheat_no_save)
-	{
-		message(MSG_CHEAT, 0, "Cheat mode enabled - no death save!");
-		message_flush();
-	}
-	else if (!save_player())
-	{
-		message(MSG_FAIL, 0, "death save failed!");
-		message_flush();
-	}
-
-	/* Get time of death */
-	(void)time(&death_time);
-
-	/* You are dead */
-	print_tomb();
-
-	/* Hack - Know everything upon death */
-	death_knowledge();
-
-	/* Enter player in high score list */
-	enter_score();
-
-	/* Flush all input keys */
-	flush();
-
-	/* Flush messages */
-	message_flush();
-
-	/* Forever */
-	while (!wants_to_quit)
-	{
-		/* Describe options */
-		Term_putstr(1, 23, -1, TERM_WHITE, p);
-
-		/* Query */
-		ch = inkey();
-
-		switch (ch)
- 		{
-			/* Exit */
-			case ESCAPE:
-			{
-				if (get_check("Do you want to quit? "))
-					wants_to_quit = TRUE;
- 
-				break;
-			}
- 
-			/* File dump */
-			case 'f':
-			case 'F':
- 			{
-				char ftmp[80];
-
-				sprintf(ftmp, "%s.txt", op_ptr->base_name);
-
-				if (get_string("File name: ", ftmp, 80))
-				{
-					if (ftmp[0] && (ftmp[0] != ' '))
-					{
-						errr err;
- 
-						/* Save screen */
-						screen_save();
- 
-						/* Dump a character file */
-						err = file_character(ftmp, FALSE);
- 
-						/* Load screen */
-						screen_load();
-
-						/* Check result */
-						if (err)
-						{
-							message(MSG_GENERIC, 0, "Character dump failed!");
-						}
-						else
-						{
-							message(MSG_GENERIC, 0, "Character dump successful.");
-						}
- 
-						/* Flush messages */
-						message_flush();
- 					}
- 				}
-
-				break;
- 			}
-
-			/* Show more info */
-			case 'i':
-			case 'I':
-			{
-				/* Save screen */
-				screen_save();
- 
-				/* Show the character */
-				show_info();
- 
-				/* Load screen */
-				screen_load();
- 
-				break;
-			}
- 
-			/* Show last messages */
-			case 'm':
-			case 'M':
-			{
-				/* Save screen */
-				screen_save();
- 
-				/* Display messages */
-				do_cmd_messages();
- 
-				/* Load screen */
-				screen_load();
-
-				break;
-			}
-
-			/* Show top scores */
-			case 'v':
-			case 'V':
-			{
-				/* Save screen */
-				screen_save();
-
-				/* Show the scores */
-				top_twenty();
-
-				/* Load screen */
-				screen_load();
-
-				break;
-			}
-
-			/* Examine an item */
-			case 'x':
-			case 'X':
-			{
-				/* Save screen */
-				screen_save();
-
-				/* Examine items */
-				death_examine();
-
-				/* Load screen */
-				screen_load();
-
-				break;
-			}
-
-			/* Examine an item */
-			case 'w':
-			case 'W':
-			{
-				if (!cheat_wizard) continue;
-
-				if (!get_check("Confirm exiting wizard mode (will allow creation of new character)?")) 
-					continue;
-
-				cheat_wizard = FALSE;
-
-				if (!save_player())
-				{
-					message(MSG_FAIL, 0, "death save failed!");
-					message_flush();
-				}
-			}
-		}
-	}
-}
-
-/*
  * Close up the current game (player may or may not be dead)
  *
  * This function is called only from "main.c" and "signals.c".
@@ -3581,7 +3014,7 @@ void close_game(void)
 	if (p_ptr->is_dead)
 	{
 		/* Auxiliary routine */
-		close_game_aux();
+		do_player_death();
 	}
 
 	/* Still alive */
@@ -3663,6 +3096,9 @@ void exit_game_panic(void)
  */
 static void handle_signal_suspend(int sig)
 {
+	/* Protect errno from library calls in signal handler */
+	int save_errno = errno;
+
 	/* Disable handler */
 	(void)signal(sig, SIG_IGN);
 
@@ -3690,6 +3126,9 @@ static void handle_signal_suspend(int sig)
 
 	/* Restore handler */
 	(void)signal(sig, handle_signal_suspend);
+
+	/* Restore errno */
+	errno = save_errno;
 }
 
 /*
@@ -3708,6 +3147,9 @@ static void handle_signal_suspend(int sig)
  */
 static void handle_signal_simple(int sig)
 {
+	/* Protect errno from library calls in signal handler */
+	int save_errno = errno;
+
 	/* Disable handler */
 	(void)signal(sig, SIG_IGN);
 
@@ -3777,6 +3219,9 @@ static void handle_signal_simple(int sig)
 
 	/* Restore handler */
 	(void)signal(sig, handle_signal_simple);
+
+	/* Restore errno */
+	errno = save_errno;
 }
 
 /*

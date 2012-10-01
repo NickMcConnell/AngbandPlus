@@ -26,12 +26,13 @@
 #define PARSE_ERROR_OUT_OF_BOUNDS			 8
 #define PARSE_ERROR_TOO_FEW_ARGUMENTS		 9
 #define PARSE_ERROR_TOO_MANY_ARGUMENTS		10
-#define PARSE_ERROR_TOO_MANY_QUESTS			11
+#define PARSE_ERROR_NON_SEQUENTIAL_QUESTS	11
 #define PARSE_ERROR_INVALID_ITEM_NUMBER     12
 #define PARSE_ERROR_TOO_MANY_ENTRIES        13
 #define PARSE_ERROR_INVALID_SPELL_FREQ		14
+#define PARSE_ERROR_VAULT_TOO_BIG			15
 
-#define PARSE_ERROR_MAX						15
+#define PARSE_ERROR_MAX						16
 
 typedef struct header header;
 
@@ -75,9 +76,9 @@ struct header
 
 	u16b info_len;		/* Size of each "info" record */
 
-	u16b head_size;		/* Size of the "header" in bytes */
+	u32b head_size;		/* Size of the "header" in bytes */
 
-	u16b info_size;		/* Size of the "info" array in bytes */
+	u32b info_size;		/* Size of the "info" array in bytes */
 
 	u32b name_size;		/* Size of the "name" array in bytes */
 

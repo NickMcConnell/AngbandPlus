@@ -71,6 +71,7 @@
 
 #ifdef USE_XXX
 
+#include "main.h"
 
 /*
  * Extra data to associate with each "window"
@@ -542,7 +543,8 @@ static errr Term_text_xxx(int x, int y, int n, byte a, const char *cp)
  * This function is only used if one of the "higher_pict" and/or
  * "always_pict" flags are set.
  */
-static errr Term_pict_xxx(int x, int y, int n, const byte *ap, const char *cp)
+static errr Term_pict_xxx(int x, int y, int n, const byte *ap, const char *cp,
+                          const byte *tap, const char *tcp)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -638,11 +640,18 @@ static void term_data_link(int i)
 }
 
 
+/*
+ * Help message.
+ *   1st line = max 68 chars.
+ *   Start next lines with 11 spaces, as in main-xaw.c.
+ */
+cptr help_xxx = "Describe XXX, subopts -describe suboptions here";
+
 
 /*
  * Initialization function
  */
-errr init_xxx(void)
+errr init_xxx(int argc, char **argv)
 {
 	int i;
 
@@ -731,7 +740,7 @@ int main(int argc, char *argv[])
 	/* Process command line arguments XXX XXX XXX */
 
 	/* Initialize the windows */
-	if (init_xxx() != 0) quit("Oops!");
+	if (init_xxx(argc, argv) != 0) quit("Oops!");
 
 	/* XXX XXX XXX */
 	ANGBAND_SYS = "xxx";

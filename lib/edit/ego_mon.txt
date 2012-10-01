@@ -8,10 +8,10 @@
 
 # === Understanding ego_mon.txt ===
 
+#
 
-#
-V:0.4.3
-#
+V:0.4.4
+
 N:1:<human>
 W:1
 
@@ -48,3 +48,7 @@ X:MAGE | ROGUE
 
 N:10:<vargr>
 W:4
+
+N:11:<kyrrus>
+W:6
+X:WARRIOR | ROGUE

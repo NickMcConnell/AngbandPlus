@@ -45,30 +45,30 @@
 
 # Version stamp (required)
 
-V:0.4.3
+V:0.4.4
 
-N:1:2:5:4
+N:1:2:5:5
 A:
 B:graveyard
 D:Animal skulls line 
 R:ANIMAL
 S:YES
 
-N:1:2:10:8
+N:1:2:10:10
 A:
 B:mausoleum
 D:Skulls line 
 R:UNDEAD
 S:YES
 
-N:1:2:12:6
+N:1:2:12:10
 A:
 B:
 D:Claw marks cover 
 G:q
 S:YES
 
-N:1:2:14:15
+N:1:2:14:30
 A:
 B:
 D:Hieroglyphics cover 
@@ -89,28 +89,28 @@ D:Giant spiderwebs cover
 G:S
 S:YES
 
-N:1:2:24:4
+N:1:2:24:8
 A:
 B:crypt
 D:Stone caskets line 
 R:UNDEAD
 S:YES
 
-N:1:2:28:20
+N:1:2:27:20
 A:
 B:
 D:Deep gouges cover 
 R:DRAGON
 S:YES
 
-N:1:2:32:4
+N:1:2:31:4
 A:
 B:
 D:Scratch marks cover 
 G:f
 S:YES
 
-N:1:2:40:3
+N:1:2:39:3
 A:
 B:
 D:Delicate mushrooms cover 
@@ -150,9 +150,10 @@ A:
 B:library
 D:Empty bookshelves line 
 K:70
+R:MAGE
 S:YES
 
-N:1:2:61:15
+N:1:2:60:15
 A:
 B:library
 D:Crowded bookshelves line 
@@ -160,7 +161,7 @@ K:90
 R:MAGE
 S:YES
 
-N:1:2:63:3
+N:1:2:62:3
 A:
 B:laboratory
 D:Laboratory equipment lines 
@@ -168,7 +169,7 @@ K:75
 R:MAGE
 S:YES
 
-N:1:2:65:5
+N:1:2:64:5
 A:
 B:weapons room
 D:Weapon racks line 
@@ -176,7 +177,7 @@ K:21
 R:WARRIOR
 S:YES
 
-N:1:2:67:5
+N:1:2:66:5
 A:
 B:weapons room
 D:Weapon racks line 
@@ -184,7 +185,7 @@ K:22
 R:WARRIOR
 S:YES
 
-N:1:2:70:5
+N:1:2:68:5
 A:
 B:weapons room
 D:Weapon racks line 
@@ -192,18 +193,34 @@ K:23
 R:WARRIOR
 S:YES
 
-N:1:2:72:3
+N:1:2:69:15
+A:
+B:weapons room
+D:Weapon racks line 
+K:23
+G:|
+S:YES
+
+N:1:2:71:3
 A:
 B:cloakroom
 D:Cloaks hang from 
 K:35
 S:YES
 
-N:1:2:74:5
+N:1:2:73:5
 A:
 B:armoury
 D:Armour lines 
 K:36
+S:YES
+
+N:1:2:74:40
+A:
+B:armoury
+D:Armour lines 
+K:36
+G:[
 S:YES
 
 N:1:2:76:3

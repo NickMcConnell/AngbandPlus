@@ -300,8 +300,8 @@ static void new_player_spot(void)
 	while (TRUE)
 	{
 		/* Pick a legal spot */
-		y = rand_range(1, p_ptr->cur_hgt - 2);
-		x = rand_range(1, p_ptr->cur_wid - 2);
+		y = rand_range(1, p_ptr->cur_map_hgt - 2);
+		x = rand_range(1, p_ptr->cur_map_wid - 2);
 
 		/* Must be a "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
@@ -407,8 +407,8 @@ static void alloc_stairs(int feat, int num, int walls)
 			for (j = 0; !flag && j <= 3000; j++)
 			{
 				/* Pick a random grid */
-				y = rand_int(p_ptr->cur_hgt);
-				x = rand_int(p_ptr->cur_wid);
+				y = rand_int(p_ptr->cur_map_hgt);
+				x = rand_int(p_ptr->cur_map_wid);
 
 				/* Require "naked" floor grid */
 				if (!cave_naked_bold(y, x)) continue;
@@ -464,8 +464,8 @@ static void alloc_object(int set, int typ, int num)
 			bool room;
 
 			/* Location */
-			y = rand_int(p_ptr->cur_hgt);
-			x = rand_int(p_ptr->cur_wid);
+			y = rand_int(p_ptr->cur_map_hgt);
+			x = rand_int(p_ptr->cur_map_wid);
 
 			/* Require "naked" floor grid */
 			if (!cave_naked_bold(y, x)) continue; 
@@ -530,8 +530,8 @@ static void build_streamer(int feat, int chance)
 	int y, x, dir;
 
 	/* Hack -- Choose starting point */
-	y = rand_spread(p_ptr->cur_hgt / 2, 10);
-	x = rand_spread(p_ptr->cur_wid / 2, 15);
+	y = rand_spread(p_ptr->cur_map_hgt / 2, 10);
+	x = rand_spread(p_ptr->cur_map_wid / 2, 15);
 
 	/* Choose a random compass direction */
 	dir = ddd[rand_int(8)];
@@ -587,8 +587,8 @@ static void destroy_level(void)
 	for (n = 0; n < randint(5); n++)
 	{
 		/* Pick an epi-center */
-		x1 = rand_range(5, p_ptr->cur_hgt-1 - 5);
-		y1 = rand_range(5, p_ptr->cur_wid-1 - 5);
+		x1 = rand_range(5, p_ptr->cur_map_hgt-1 - 5);
+		y1 = rand_range(5, p_ptr->cur_map_wid-1 - 5);
 
 		/* Big area of affect */
 		for (y = (y1 - 15); y <= (y1 + 15); y++)
@@ -1062,8 +1062,9 @@ static void get_room_info(int y, int x)
 		/* Save index */
 		room_info[room].section[j++] = i;
 		
-		/* Place monster if needed */
-		if ((d_info[i].r_flag) || (d_info[i].r_s_flag) || (d_info[i].r_char))
+		/* Usually place monster if needed */
+		if (((d_info[i].r_flag) || (d_info[i].r_s_flag) || (d_info[i].r_char)) &&
+			rand_int(100) < 85)
 		{
 			room_info_mon_flag = d_info[i].r_flag -1;
 			room_info_mon_s_flag = d_info[i].r_s_flag -1;
@@ -1087,7 +1088,7 @@ static void get_room_info(int y, int x)
 		}
 
 		/* Place objects if needed */
-		if (d_info[i].tval)
+		if ((d_info[i].tval) &&	rand_int(100) < 85)
 		{
 			room_info_kind_tval = d_info[i].tval;
 
@@ -2682,6 +2683,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case 'Q':
 				{
 					create_quest_item(y, x);
+					break;
 				}
 
 				/* Chest */
@@ -3255,14 +3257,14 @@ static void cave_gen(void)
 
 		while (TRUE)
 		{
-			l = randint(MAX_DUNGEON_HGT / SCREEN_HGT);
-			m = randint(MAX_DUNGEON_WID / SCREEN_WID);
+			l = randint(MAX_DUNGEON_HGT / (2 * PANEL_HGT));
+			m = randint(MAX_DUNGEON_WID / (2 * PANEL_WID));
 
-			p_ptr->cur_hgt = l * SCREEN_HGT;
-			p_ptr->cur_wid = m * SCREEN_WID;
+			p_ptr->cur_map_hgt = l * (2 * PANEL_HGT);
+			p_ptr->cur_map_wid = m * (2 * PANEL_WID);
 			
 			/* Exit if less than normal dungeon */
-			if ((p_ptr->cur_hgt < MAX_DUNGEON_HGT) || (p_ptr->cur_wid < MAX_DUNGEON_WID)) break;
+			if ((p_ptr->cur_map_hgt < MAX_DUNGEON_HGT) || (p_ptr->cur_map_wid < MAX_DUNGEON_WID)) break;
 		}
 
 		if (cheat_room) message_format(MSG_CHEAT, 0, "A 'small' dungeon level (%dx%d).", m, l);
@@ -3272,14 +3274,14 @@ static void cave_gen(void)
 	else
 	{
 	/* Full-sized dungeon */
-		p_ptr->cur_hgt = MAX_DUNGEON_HGT;
-		p_ptr->cur_wid = MAX_DUNGEON_WID;
+		p_ptr->cur_map_hgt = MAX_DUNGEON_HGT;
+		p_ptr->cur_map_wid = MAX_DUNGEON_WID;
 	}
 
 	/* Hack -- Start with basic granite */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Create granite wall */
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
@@ -3290,8 +3292,8 @@ static void cave_gen(void)
 	if (quest_check(p_ptr->depth)) destroyed = FALSE;
 
 	/* Actual maximum number of rooms on this level */
-	dun->row_rooms = p_ptr->cur_hgt / BLOCK_HGT;
-	dun->col_rooms = p_ptr->cur_wid / BLOCK_WID;
+	dun->row_rooms = p_ptr->cur_map_hgt / BLOCK_HGT;
+	dun->col_rooms = p_ptr->cur_map_wid / BLOCK_WID;
 
 	/* Initialize 'zeroeth' room description */
 	room_info[0].seen = FALSE;
@@ -3383,7 +3385,7 @@ static void cave_gen(void)
 	}
 
 	/* Special boundary walls -- Top */
-	for (x = 0; x < p_ptr->cur_wid; x++)
+	for (x = 0; x < p_ptr->cur_map_wid; x++)
 	{
 		y = 0;
 
@@ -3392,16 +3394,16 @@ static void cave_gen(void)
 	}
 
 	/* Special boundary walls -- Bottom */
-	for (x = 0; x < p_ptr->cur_wid; x++)
+	for (x = 0; x < p_ptr->cur_map_wid; x++)
 	{
-		y = p_ptr->cur_hgt-1;
+		y = p_ptr->cur_map_hgt-1;
 
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
 
 	/* Special boundary walls -- Left */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
 		x = 0;
 
@@ -3410,9 +3412,9 @@ static void cave_gen(void)
 	}
 
 	/* Special boundary walls -- Right */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		x = p_ptr->cur_wid-1;
+		x = p_ptr->cur_map_wid-1;
 
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
@@ -3499,12 +3501,12 @@ static void cave_gen(void)
 	new_player_spot();
 
 	/* To make small levels a bit more playable */
-	if (p_ptr->cur_hgt < MAX_DUNGEON_HGT || p_ptr->cur_wid < MAX_DUNGEON_WID)
+	if (p_ptr->cur_map_hgt < MAX_DUNGEON_HGT || p_ptr->cur_map_wid < MAX_DUNGEON_WID)
 	{
 		int small_tester = mon_gen;
 
-		mon_gen = ((i * p_ptr->cur_hgt) / MAX_DUNGEON_HGT) +1;
-		mon_gen = ((i * p_ptr->cur_wid) / MAX_DUNGEON_WID) +1;
+		mon_gen = ((i * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) +1;
+		mon_gen = ((i * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) +1;
 
 		if (mon_gen > small_tester) mon_gen = small_tester;
 		else if (cheat_hear)
@@ -3545,8 +3547,8 @@ static void cave_gen(void)
 				/* Pick a location */
 				while (TRUE)
 				{
-					y = rand_int(p_ptr->cur_hgt);
-					x = rand_int(p_ptr->cur_wid);
+					y = rand_int(p_ptr->cur_map_hgt);
+					x = rand_int(p_ptr->cur_map_wid);
 
 					if (cave_naked_bold(y, x)) break;
 				}
@@ -3700,8 +3702,8 @@ static void town_gen_hack(void)
 	while (TRUE)
 	{
 		/* Pick a location at least "three" from the outer walls */
-		y = rand_range(3, p_ptr->cur_hgt - 4);
-		x = rand_range(3, p_ptr->cur_wid - 4);
+		y = rand_range(3, p_ptr->cur_map_hgt - 4);
+		x = rand_range(3, p_ptr->cur_map_wid - 4);
 
 		/* Require a "naked" floor grid */
 		if (cave_naked_bold(y, x)) break;
@@ -3756,8 +3758,8 @@ static void town_gen(void)
 	room_info[0].seen = FALSE;
 
 	/* Restrict to single-screen size */
-	p_ptr->cur_hgt = SCREEN_HGT;
-	p_ptr->cur_wid = SCREEN_WID;
+	p_ptr->cur_map_hgt = (2 * PANEL_HGT);
+	p_ptr->cur_map_wid = (2 * PANEL_WID);
 
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
@@ -3780,9 +3782,9 @@ static void town_gen(void)
 	}
 
 	/* Hack -- Start with permanent rock */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Create granite wall */
 			cave_set_feat(y, x, FEAT_PERM_SOLID);
@@ -3790,9 +3792,9 @@ static void town_gen(void)
 	}
 	
 	/* Place some floors */
-	for (y = 1; y < p_ptr->cur_hgt-1; y++)
+	for (y = 1; y < p_ptr->cur_map_hgt-1; y++)
 	{
-		for (x = 1; x < p_ptr->cur_wid-1; x++)
+		for (x = 1; x < p_ptr->cur_map_wid-1; x++)
 		{
 			/* Create empty floor */
 			cave_set_feat(y, x, FEAT_FLOOR);

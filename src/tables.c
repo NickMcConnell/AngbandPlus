@@ -1229,17 +1229,17 @@ player_race_special race_special_info[2][RACE_SPECIAL_LEVELS] =
 		{ "Archangel",	{4,2,3,0,4,3}	,{0,0,16,22,0,0,0, 8,3,0,0,0},0x90000000L,0x00000007L,0x00000057L,5}
 	},
 	{ /*Demon*/
-		{ "Lemure",		{0,0,0,0, 0, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000000L,0x00000000L,0},
-		{ "Quasit",		{1,0,0,1, 1, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00000000L,0},
-		{ "Imp",		{2,2,0,2, 2,-1}	,{0,0, 2, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00000000L,0},
-		{ "Tengu",		{3,3,0,3, 2,-1}	,{0,0, 4, 1, -1,0,0, 1, 1, 0,0,0},0x00000000L,0x0000000CL,0x00000000L,6},
-		{ "Bodak",      {3,3,0,3, 3,-1}	,{0,0, 6, 3, -2,0,0, 3, 1, 1,0,0},0x04000000L,0x0000000CL,0x00000000L,7},
-		{ "Vrock",      {3,3,1,3, 4,-1}	,{0,0, 8, 5, -4,0,0, 5, 2, 2,0,0},0x04000000L,0x0000000CL,0x00000000L,7},
-		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,0,10, 7, -5,0,0, 6, 3, 2,0,0},0x44000000L,0x0000000CL,0x00000000L,7},
-		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,0,13, 9, -7,0,0, 7, 3, 3,0,0},0x44000000L,0x0000000CL,0x00000000L,8},
-		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,0,16,11, -8,0,0, 8, 4, 3,0,0},0x44000000L,0x0000000CL,0x00000004L,8},
-		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,0,19,13, -9,0,0, 9, 5, 4,0,0},0x44000000L,0x0000000CL,0x00000004L,8},
-		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,0,22,15,-10,0,0,10, 5, 4,0,0},0x44000000L,0x0000000CL,0x00000004L,9}
+		{ "Lemure",		{0,0,0,0, 0, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000000L,0x00800000L,0},
+		{ "Quasit",		{1,0,0,1, 1, 0}	,{0,0, 0, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00800000L,0},
+		{ "Imp",		{2,2,0,2, 2,-1}	,{0,0, 2, 0,  0,0,0, 0, 0, 0,0,0},0x00000000L,0x00000004L,0x00800000L,0},
+		{ "Tengu",		{3,3,0,3, 2,-1}	,{0,0, 4, 1, -1,0,0, 1, 1, 0,0,0},0x00000000L,0x0000000CL,0x00800000L,6},
+		{ "Bodak",      {3,3,0,3, 3,-1}	,{0,0, 6, 3, -2,0,0, 3, 1, 1,0,0},0x04000000L,0x0000000CL,0x00800000L,7},
+		{ "Vrock",      {3,3,1,3, 4,-1}	,{0,0, 8, 5, -4,0,0, 5, 2, 2,0,0},0x04000000L,0x0000000CL,0x00800000L,7},
+		{ "Hezrou",		{4,3,1,3, 5,-2}	,{0,0,10, 7, -5,0,0, 6, 3, 2,0,0},0x44000000L,0x0000000CL,0x00800000L,7},
+		{ "Glabrezu",   {4,3,1,3, 5,-2}	,{0,0,13, 9, -7,0,0, 7, 3, 3,0,0},0x44000000L,0x0000000CL,0x00800000L,8},
+		{ "Nalfeshnee", {5,4,2,3, 6,-2}	,{0,0,16,11, -8,0,0, 8, 4, 3,0,0},0x44000000L,0x0000000CL,0x00800004L,8},
+		{ "Pit Fiend",	{5,4,2,3, 6,-3}	,{0,0,19,13, -9,0,0, 9, 5, 4,0,0},0x44000000L,0x0000000CL,0x00800004L,8},
+		{ "Balrog",		{6,5,2,4, 7,-4}	,{0,0,22,15,-10,0,0,10, 5, 4,0,0},0x44000000L,0x0000000CL,0x00800004L,9}
 	}	
 };
 
@@ -1278,10 +1278,10 @@ spell_book instruments[SV_MUSIC_MAX] =
 		/* Flute (sval 2) */
 		0,
 		{
-			{ POW_HEAL_1,			"Lesser Healing Melody",		 2,  2, 20 },
-			{ POW_POLY_MONSTER,		"Changing Melody",				15, 10, 40 },
-			{ POW_HEAL_3,			"Greater Healing Melody",		20, 14, 40 },
-			{ POW_CURE_POIS_DISE,	"Curing Melody",				35, 50, 90 },
+			{ POW_HEAL_2,			"Lesser Healing Melody",		 4,  5, 20 },
+			{ POW_POLY_MONSTER,		"Changing Melody",				12, 10, 40 },
+			{ POW_HEAL_3,			"Greater Healing Melody",		15, 14, 40 },
+			{ POW_CURE_POIS_DISE,	"Curing Melody",				30, 50, 90 },
 			{ POW_WORD_RECALL,		"Recall Melody",				40, 75, 80 },
 			{ POW_INVIS_2,			"Unseen Melody",				45, 45, 80 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
@@ -1310,7 +1310,7 @@ spell_book instruments[SV_MUSIC_MAX] =
 			{ POW_SCARE_ALL,		"Fear Tempo",					 8, 15, 30 },
 			{ POW_HASTE_SELF_1,		"Fast Tempo",					15, 15, 40 },
 			{ POW_SLOW_ALL,			"Slow Tempo",					28, 40, 60 },
-			{ POW_TELE_OTHER,		"Away Tempo",					32, 25, 60 },
+			{ POW_TELE_OTHER_BEAM,	"Away Tempo",					32, 25, 60 },
 			{ POW_BANISH,			"Banish Tempo",					45, 40, 70 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
@@ -1320,12 +1320,27 @@ spell_book instruments[SV_MUSIC_MAX] =
 		/* Harp (sval 5) */
 		0,
 		{
-			{ POW_CALM_MONSTER,		"Song of Calmness",				 1,  4, 20 },
-			{ POW_CALM_ANIMALS,		"Song of Soothing the Beast",	10, 30, 60 },
-			{ POW_CALM_NON_EVIL,	"Song of Peace",				20, 45, 80 },
-			{ POW_CALM_ALL,			"Song of Great Peace",			30, 65, 90 },
-			{ POW_HEAL_4,			"Song of Health",				45, 85, 85 },
-			{ POW_DISPEL_EVIL_3,	"Song of Holyness",				50,	30, 75 },
+			{ POW_CALM_MONSTER,		"Song of Calmness",				 1,  3, 20 },
+			{ POW_CALL_MONSTER,		"Song of Attraction",			 4,  6, 20 },
+			{ POW_CALM_ANIMALS,		"Song of Soothing the Beast",	 8, 15, 60 },
+			{ POW_CALM_NON_EVIL,	"Song of Peace",				15, 35, 80 },
+			{ POW_CALM_ALL,			"Song of Great Peace",			25, 45, 90 },
+			{ POW_HEAL_4,			"Song of Health",				40, 50, 85 },
+			{ POW_DISPEL_EVIL_4,	"Song of Holyness",				50,	30, 75 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
+		}
+	},
+	{
+		/* Pipes of pan (sval 6) */
+		0,
+		{
+			{ POW_MUSIC_LYRE,		"Sounds of the Lyre",			25,  0,  5 },
+			{ POW_MUSIC_HORN,		"Sounds of the Horn",			25,  0,  5 },
+			{ POW_MUSIC_FLUTE,		"Sounds of the Flute",			25,  0,  5 },
+			{ POW_MUSIC_LUTE,		"Sounds of the Lute",			25,  0,  5 },
+			{ POW_MUSIC_DRUM,		"Sounds of the Drum",			25,  0,  5 },
+			{ POW_MUSIC_HARP,		"Sounds of the Harp",			25,  0,  5 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
@@ -1446,7 +1461,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_SLOW_ALL,			"Slow All",					19, 20, 33 },
 			{ POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 },
 			{ POW_IDENTIFY_PACK,	"Identify Pack",			21, 24, 80 },
-			{ POW_TELE_OTHER,		"Teleport Others",			23, 12, 60 },
+			{ POW_TELE_OTHER,		"Teleport Others",			23,  8, 60 },
 			{ POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 },
 			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 65 },
 			{ 0, NULL, 99,  0, 0 }
@@ -1551,7 +1566,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_LIGHT_AREA,		"Call Light",				 3,  2, 25 },
 			{ POW_DETECT_TRAP,		"Find Traps",				 3,  3, 27 },
 			{ POW_DETECT_DOOR_STAIR,"Detect Doors/Stairs",		 3,  3, 27 },
-			{ POW_CURE_POISON_1,	"Slow Poison",				 3,  3, 28 },
+			{ POW_CURE_TAINT,		"Cleanse Taint",			 3,  3, 28 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1562,8 +1577,8 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_SCARE_MONSTER,	"Scare Monster",			 5,  4, 29 },
 			{ POW_TELE_MINOR,		"Portal",					 5,  4, 30 },
 			{ POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32 },
-			{ POW_BLESS_2,			"Chant",					 5,  5, 34 },
-			{ POW_SLEEP_ADJACENT,	"Sanctuary",				 7,  5, 36 },
+			{ POW_SLEEP_ADJACENT,	"Sanctuary",				 6,  5, 36 },
+			{ POW_BLESS_2,			"Chant",					 6,  5, 34 },
 			{ POW_SATISFY_HUNGER,	"Satisfy Hunger",			 7,  5, 38 },
 			{ POW_REMOVE_CURSE_1,	"Remove Curse",				 7,  6, 38 },
 			{ POW_RES_FIRE_COLD,	"Resist Heat and Cold",		 7,  7, 38 },
@@ -1574,7 +1589,7 @@ spell_book books[SV_BOOK_MAX] =
 		/* Chants and Blessings (sval 12) */
 		SBF_PRAYER,
 		{
-			{ POW_CURE_POISON_2,	"Neutralize Poison",		 9,  6, 38 },
+			{ POW_CURE_POISON,		"Neutralize Poison",		 9,  6, 38 },
 			{ POW_BALL_HOLY,		"Orb of Draining",			 9,  7, 38 },
 			{ POW_HEAL_3,			"Cure Critical Wounds",		 9,  7, 40 },
 			{ POW_CURE_DISEASE,		"Cure Disease",				10,  7, 40 },
@@ -1606,7 +1621,7 @@ spell_book books[SV_BOOK_MAX] =
 		{ 
 			{ POW_TELE_10,			"Blink",					 3,  3, 50 },
 			{ POW_TELE_MAJOR,		"Teleport Self",			10, 10, 50 },
-			{ POW_TELE_OTHER,		"Teleport Other",			20, 20, 80 },
+			{ POW_TELE_OTHER,		"Teleport Other",			20, 15, 80 },
 			{ POW_TELE_LEVEL,		"Teleport Level",			30, 40, 75 },
 			{ POW_WORD_RECALL,		"Word of Recall",			35, 50, 75 },
 			{ POW_ALTER_REALITY,	"Alter Reality",			40, 60, 75 },
@@ -1909,7 +1924,6 @@ option_type options[OPT_NORMAL] =
 	{"disturb_panel",		"Disturb whenever map panel changes",		TRUE },
 	{"disturb_state",		"Disturb whenever player state changes",	TRUE },
 	{"disturb_minor",		"Disturb whenever boring things happen",	TRUE },
-	{"alert_failure",		"Alert user to various failures",			FALSE},
 	{"verify_destroy",		"Verify destruction of objects",			TRUE },
 	{"use_command",			"Allow unified use command",				FALSE},
 	{"expand_look",			"Expand the power of the look command",		TRUE },
@@ -2051,10 +2065,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_panel,
 		OPT_disturb_state,
 		OPT_disturb_minor,
-		OPT_alert_failure,
 		OPT_display_recharge_msg,
 		OPT_auto_more,
 		OPT_ring_bell,
+		255,
 		255,
 		255,
 		255,

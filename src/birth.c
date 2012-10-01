@@ -936,7 +936,7 @@ static bool get_player_race()
 	for (i = 0; i < RACE_SPECIAL_LEVELS; i++)
 		rsp_ptr[i] = &race_special_info[(rp_ptr->special) - 1][i];
 
-	C_FREE(races, z_info->p_max, birth_menu);
+	FREE(races);
 
 	/* Success */
 	return (TRUE);
@@ -1021,7 +1021,7 @@ static bool get_player_class(void)
 	/* Set class */
 	cp_ptr = &c_info[p_ptr->pclass];
 
-	C_FREE(classes, z_info->c_max, birth_menu);
+	FREE(classes);
 
 	return (TRUE);
 }

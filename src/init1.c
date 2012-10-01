@@ -113,6 +113,7 @@ static cptr r_info_blow_effect[] =
 	"DISEASE",
 	"RUST",
 	"ROT",
+	"HALLU",
 	NULL
 };
 
@@ -589,7 +590,7 @@ static cptr k_info_flags3[32] =
 	"XXX3",
 	"XXX4",
 	"XXX5",
-	"XXX6",
+	"TAINT",
 	"DRAIN_ITEM",
 	"DISRUPT",
 	"TELEPORT",
@@ -614,6 +615,7 @@ static cptr k_info_act[POW_MAX] =
 	"HEAL_CURE_1",
 	"HEAL_CURE_2",
 	"HEAL_CURE_3",
+	"HEAL_CURE_4",
 	"LIFE",
 	"RESTORE_MANA",
 	"RESTORE_MANA_INT",
@@ -637,10 +639,10 @@ static cptr k_info_act[POW_MAX] =
 	"CURE_FEAR",
 	"CURE_CONFUSION",
 	"CURE_DISEASE",
-	"CURE_POISON_1",
-	"CURE_POISON_2",
+	"CURE_POISON",
 	"CURE_POIS_DISE",
 	"CURE_FEAR_POIS",
+	"CURE_TAINT",
 	"CURE_ALL",
 	"CURE_BODY",
 	"CLEAR_MIND",
@@ -648,6 +650,7 @@ static cptr k_info_act[POW_MAX] =
 	"TELE_MINOR",
 	"TELE_MAJOR",
 	"TELE_OTHER",
+	"TELE_OTHER_BEAM",
 	"TELE_LEVEL",
 	"TELE_CONTROL",
 	"WORD_RECALL",
@@ -848,6 +851,7 @@ static cptr k_info_act[POW_MAX] =
 	"HALLUCINATE",
 	"DISEASE",
 	"DEFORM",
+	"TAINT",
 	"LOSE_STR",
 	"LOSE_INT",
 	"LOSE_WIS",
@@ -874,7 +878,13 @@ static cptr k_info_act[POW_MAX] =
 	"DRAGON_TIME",
 	"DRAGON_POWER",
 	"RISK_HACK",
-	"WONDER_HACK"
+	"WONDER_HACK",
+	"MUSIC_LYRE",
+	"MUSIC_HORN",
+	"MUSIC_FLUTE",	
+	"MUSIC_LUTE",
+	"MUSIC_DRUM",
+	"MUSIC_HARP"
 };
 
 /*** Initialize from ascii template files ***/
@@ -937,8 +947,9 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
 		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
 
 		/* Parse the line */
-		if ((err = (*parse_info_txt_line)(buf, head)) != 0)
-			return (err);
+		err = (*parse_info_txt_line)(buf, head);
+
+		if (err != 0) return (err);
 	}
 
 	/* Complete the "name" and "text" sizes */
@@ -1013,8 +1024,7 @@ static u32b add_name(header *head, cptr buf)
  */
 errr parse_z_info(char *buf, header *head)
 {
-	/* Unused parameter */
-	(void)head;
+	maxima *z_info = head->info_ptr;
 
 	/* Hack - Verify 'M/S:x:' format */
 	if (!buf[2]) return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
@@ -1305,17 +1315,6 @@ errr parse_z_info(char *buf, header *head)
 			/* Save the value */
 			z_info->a_min_normal = min_norm;
 		}
-		/* Process 'G' for "Minimum normal gold" index" */
-		if (buf[2] == 'G')
-		{
-			int min_gold;
-
-			/* Scan for the value */
-			if (1 != sscanf(buf+4, "%d", &min_gold)) return (PARSE_ERROR_GENERIC);
-
-			/* Save the value */
-			z_info->k_min_gold = min_gold;
-		}
 	}
 	else
 	{
@@ -1367,7 +1366,7 @@ errr parse_v_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		v_ptr = &v_info[i];
+		v_ptr = (vault_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(v_ptr->name = add_name(head, s)))
@@ -1405,6 +1404,16 @@ errr parse_v_info(char *buf, header *head)
 		v_ptr->rat = rat;
 		v_ptr->hgt = hgt;
 		v_ptr->wid = wid;
+
+		/* Check for maximum vault sizes */
+		if ((v_ptr->typ == 7) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
+
+		if ((v_ptr->typ == 8) && ((v_ptr->wid > 66) || (v_ptr->hgt > 44)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
+
+		if ((v_ptr->typ == 9) && ((v_ptr->wid > 33) || (v_ptr->hgt > 22)))
+			return (PARSE_ERROR_VAULT_TOO_BIG);
 	}
 	else
 	{
@@ -1456,7 +1465,7 @@ errr parse_f_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		f_ptr = &f_info[i];
+		f_ptr = f_ptr = (feature_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(f_ptr->name = add_name(head, s)))
@@ -1585,7 +1594,7 @@ errr parse_d_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		d_ptr = &d_info[i];
+		d_ptr = (desc_type*)head->info_ptr + i;
 
 		/* Scan for the values */
 		if (4 != sscanf(buf, "N:%d:%d:%d:%d",
@@ -1899,7 +1908,7 @@ errr parse_k_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		k_ptr = &k_info[i];
+		k_ptr = (object_kind*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(k_ptr->name = add_name(head, s)))
@@ -2245,7 +2254,7 @@ errr parse_a_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		a_ptr = &a_info[i];
+		a_ptr = (artifact_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(a_ptr->name = add_name(head, s)))
@@ -2521,7 +2530,7 @@ errr parse_e_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		e_ptr = &e_info[i];
+		e_ptr = (ego_item_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(e_ptr->name = add_name(head, s)))
@@ -2554,17 +2563,16 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'X' for "Xtra" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int slot, rate, xtra;
+		int rate, xtra;
 
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &slot, &rate, &xtra)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &rate, &xtra)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
-		e_ptr->slot = slot;
 		e_ptr->rating = rate;
 		e_ptr->xtra = xtra;
 	}
@@ -2590,7 +2598,7 @@ errr parse_e_info(char *buf, header *head)
 		cur_t++;
 
 		/* only three T: lines allowed */
-		if (cur_t > 3) return (PARSE_ERROR_GENERIC);
+		if (cur_t > EGO_TVALS_MAX) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'C' for "creation" */
@@ -2776,7 +2784,7 @@ errr parse_wpx_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		wpx_ptr = &wpx_info[i];
+		wpx_ptr = (weapon_prefix_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(wpx_ptr->name = add_name(head, s)))
@@ -2955,7 +2963,7 @@ errr parse_apx_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		apx_ptr = &apx_info[i];
+		apx_ptr = (armor_prefix_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(apx_ptr->name = add_name(head, s)))
@@ -3096,7 +3104,7 @@ errr parse_w_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		w_ptr = &w_info[i];
+		w_ptr = (trap_widget*)head->info_ptr + i;;
 
 		/* Store the name */
 		if (!(w_ptr->name = add_name(head, s)))
@@ -3291,7 +3299,7 @@ errr parse_r_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		r_ptr = &r_info[i];
+		r_ptr = (monster_race*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(r_ptr->name = add_name(head, s)))
@@ -3380,7 +3388,7 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->mexp = exp;
 	}
 	
-	/* Process 'B' for "Blows" (up to four lines) */
+	/* Process 'B' for "Blows" */
 	else if (buf[0] == 'B')
 	{
 		int n1, n2;
@@ -3389,10 +3397,10 @@ errr parse_r_info(char *buf, header *head)
 		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Find the next empty blow slot (if any) */
-		for (i = 0; i < 4; i++) if (!r_ptr->blow[i].method) break;
+		for (i = 0; i < MONSTER_BLOW_MAX; i++) if (!r_ptr->blow[i].method) break;
 
 		/* Oops, no more slots */
-		if (i == 4) return (PARSE_ERROR_GENERIC);
+		if (i == MONSTER_BLOW_MAX) return (PARSE_ERROR_GENERIC);
 
 		/* Analyze the first field */
 		for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
@@ -3607,7 +3615,7 @@ errr parse_u_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		u_ptr = &u_info[i];
+		u_ptr = (monster_unique*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(u_ptr->name = add_name(head, s)))
@@ -3929,7 +3937,7 @@ errr parse_s_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		s_ptr = &s_info[i];
+		s_ptr = (monster_special*)head->info_ptr + i;
 
 #ifdef MONSTER_EGO_DEV
 		/* Reset attr and char */
@@ -4268,7 +4276,7 @@ errr parse_p_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		pr_ptr = &p_info[i];
+		pr_ptr = (player_race*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(pr_ptr->name = add_name(head, s)))
@@ -4596,7 +4604,7 @@ errr parse_c_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		pc_ptr = &c_info[i];
+		pc_ptr = (player_class*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(pc_ptr->name = add_name(head, s)))
@@ -4895,7 +4903,7 @@ errr parse_h_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		h_ptr = &h_info[i];
+		h_ptr = (hist_type*)head->info_ptr + i;
 
 		/* Scan for the values */
 		if (4 != sscanf(buf, "N:%d:%d:%d:%d",
@@ -4989,7 +4997,7 @@ errr parse_b_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		ot_ptr = &b_info[i];
+		ot_ptr = (owner_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(ot_ptr->owner_name = add_name(head, t)))
@@ -5075,7 +5083,7 @@ errr parse_g_info(char *buf, header *head)
 			error_idx = i;
 
 			/* Point at the "info" */
-			g_ptr = &g_info[i];
+			g_ptr = (byte*)head->info_ptr + i;
 
 			/* Find the colon before the subindex */
 			s = strchr(s, ':');
@@ -5115,6 +5123,8 @@ errr parse_q_info(char *buf, header *head)
 	/* Current entry */
 	static quest_type *q_ptr = NULL;
 
+	static int prev_lev = 0;
+
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
 	{
@@ -5143,7 +5153,7 @@ errr parse_q_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		q_ptr = &q_info[i];
+		q_ptr = (quest_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(q_ptr->name = add_name(head, s)))
@@ -5159,13 +5169,17 @@ errr parse_q_info(char *buf, header *head)
 		if (!q_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-		                &lev, &idx, &max)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%d",&lev, &idx, &max)) return (PARSE_ERROR_GENERIC);
 
-		if (quest_check(lev) == QUEST_FIXED) return (PARSE_ERROR_TOO_MANY_QUESTS);
+		/* Check quests */
+		for (i = 0; i < error_idx; i++)
+		{
+			/* Check for quest */
+			if (lev <= prev_lev) return (PARSE_ERROR_NON_SEQUENTIAL_QUESTS);
+		}
 
 		/* Save the values */
-		q_ptr->base_level = q_ptr->active_level = lev;
+		prev_lev = q_ptr->base_level = q_ptr->active_level = lev;
 		q_ptr->r_idx = idx;
 		q_ptr->max_num = max;
 		q_ptr->type = QUEST_FIXED;

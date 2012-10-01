@@ -54,8 +54,15 @@ bool heal_player(int perc, int min)
 {
 	int i;
 
+	/* Taint */
+	if (p_ptr->taint)
+	{
+		min = (3 * min) / 4;
+		perc = (4 * perc) / 5;
+	}
+
 	/* No healing */
-	if (!perc) return (FALSE);
+	if ((perc <= 0) && (min <= 0)) return (FALSE);
 
 	/* No healing needed */
 	if (p_ptr->chp >= p_ptr->mhp) return (FALSE);
@@ -168,6 +175,9 @@ void lose_exp(s32b amount)
 
 	/* Check Experience */
 	check_experience();
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 }
 
 /*
@@ -186,6 +196,9 @@ bool restore_exp(void)
 
 		/* Check the experience */
 		check_experience();
+
+		/* Window stuff */
+		p_ptr->window |= (PW_CONDITION);
 
 		/* Did something */
 		return (TRUE);
@@ -247,6 +260,9 @@ void scramble_stats(void)
 	p_ptr->stat_cur[jj] = cur1;
 
 	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 }
 
 /*
@@ -298,6 +314,9 @@ static bool inc_stat(int stat)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_CONDITION);
 
 		/* Success */
 		return (TRUE);
@@ -362,6 +381,9 @@ static bool dec_stat(int stat, int amount, bool permanent)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_CONDITION);
 	}
 
 	/* Done */
@@ -382,6 +404,9 @@ static bool res_stat(int stat)
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_CONDITION);
 
 		/* Success */
 		return (TRUE);
@@ -758,7 +783,6 @@ bool set_poisoned(int v)
 	return (TRUE);
 }
 
-
 /*
  * Set "p_ptr->diseased", notice observable changes
  */
@@ -800,6 +824,57 @@ bool set_diseased(int v)
 
 	/* Redraw the "diseased" */
 	p_ptr->redraw |= (PR_DISEASED);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->taint", notice observable changes
+ */
+bool set_taint(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->taint)
+		{
+			/* Hack - no message for demons */
+			if (rp_ptr->special != RACE_SPECIAL_DEMON) 
+				message(MSG_EFFECT, 0, "You feel a dark taint descending upon your soul!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->taint)
+		{
+			message(MSG_EFFECT, 0, "The taint on your soul lightens.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->taint = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_CONDITION);
@@ -1252,8 +1327,16 @@ bool set_blessed(int v)
 	{
 		if (!p_ptr->blessed)
 		{
-			message(MSG_EFFECT, 0, "You feel righteous!");
-			notice = TRUE;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "The taint on your soul outweighs the blessing.");
+				return (TRUE);
+			}
+			else 
+			{
+				message(MSG_EFFECT, 0, "You feel righteous!");
+				notice = TRUE;
+			}
 		}
 	}
 
@@ -1408,8 +1491,16 @@ bool set_protevil(int v)
 	{
 		if (!p_ptr->protevil)
 		{
-			message(MSG_EFFECT, 0, "You feel safe from evil!");
-			notice = TRUE;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "You must first defeat the evil within!");
+				return (TRUE);
+			}
+			else 
+			{
+				message(MSG_EFFECT, 0, "You feel safe from evil!");
+				notice = TRUE;
+			}
 		}
 	}
 
@@ -1514,7 +1605,7 @@ bool set_absorb(int v)
 		}
 		else if (v > 400)
 		{
-			message(MSG_EFFECT, 0, "Your arua of magical light reaches full intensity!");
+			message(MSG_EFFECT, 0, "Your aura of magical light reaches full intensity!");
 		}
 	}
 
@@ -1595,6 +1686,9 @@ bool set_tim_see_invis(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1643,6 +1737,11 @@ bool set_tim_invis(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* 
+	 * Note - no need to flag PW_CONDITION because it's updated
+	 * when p_ptr->invis changes 
+	 */
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1689,6 +1788,9 @@ bool set_stability(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1759,6 +1861,9 @@ bool set_tim_infra(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1808,6 +1913,9 @@ bool set_tim_stealth(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1853,6 +1961,9 @@ bool set_tim_res(int type, int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_CONDITION);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2428,4 +2539,127 @@ bool set_food(int v)
 
 	/* Result */
 	return (TRUE);
+}
+
+#define COL_WIDTH	22
+
+/*
+ * Prints some status information on the screen.
+ */
+void display_player_status(void)
+{
+	int h, w;
+	int col = 0;
+	int row = 1;
+	int i = 0;
+	int j;
+	cptr conds[25];
+
+	(void)Term_get_size(&w, &h);
+
+	/* Erase screen */
+	clear_from(0);
+
+	/* Title */
+	put_str("Current Effects:", 0, 0);
+
+	/* Good effects */
+	if (p_ptr->shield)		conds[i++] = "Shield";
+	if (p_ptr->blessed)		conds[i++] = "Blessed";
+	if (p_ptr->hero)		conds[i++] = "Heroism";
+	if (p_ptr->stability)	conds[i++] = "Stability";
+	if (p_ptr->rage)		conds[i++] = "Berserk";
+	if (p_ptr->protevil)	conds[i++] = "Prot. Evil";
+	if (p_ptr->resilient)	conds[i++] = "Resilient";
+	if (p_ptr->fast)		conds[i++] = "Hasted";
+	if (p_ptr->absorb)		conds[i++] = "Absorb Hit";
+	if (p_ptr->invis)		conds[i++] = "Invisible";
+	if (p_ptr->tim_infra)	conds[i++] = "Infravision Bonus";
+	if (p_ptr->tim_stealth)	conds[i++] = "Stealth Bonus";
+	if (p_ptr->tim_see_invis) conds[i++] = "Sense Invisible";
+
+	for (j = 0; j < i; j++)
+	{
+		if (row >= h)
+		{
+			row = 1;
+			col += COL_WIDTH;
+
+			if (col >= (w - COL_WIDTH - 1)) break;
+		}
+		
+		c_put_str(TERM_L_GREEN, conds[j], row++, col);
+	}
+
+	/* Resistances */
+	i = 0;
+
+	for (j = 0; j < RS_MAX; j++)
+	{
+		if (p_ptr->tim_res[j]) conds[i++] = resist_names[j];
+	}
+
+	for (j = 0; j < i; j++)
+	{
+		if (row >= h)
+		{
+			row = 1;
+			col += COL_WIDTH;
+
+			if (col >= (w - COL_WIDTH - 1)) break;
+		}
+		
+		c_put_str(TERM_L_GREEN, format("Res. %^s Bonus",conds[j]), row++, col);
+	}
+
+	/* Bad effects */
+	i = 0;
+	
+	if (p_ptr->blind)							 conds[i++] = "Blind";
+	if (p_ptr->confused > PY_CONF_INSANE)		 conds[i++] = "Insane";
+	else if (p_ptr->confused > PY_CONF_BEFUDDLE) conds[i++] = "Befuddled";
+	else if (p_ptr->confused > PY_CONF_CONFUSE)	 conds[i++] = "Confused";
+	else if (p_ptr->confused)					 conds[i++] = "Perplexed";
+	if (p_ptr->poisoned)						 conds[i++] = "Poisoned";
+	if (p_ptr->diseased)						 conds[i++] = "Diseased";
+	if (p_ptr->afraid > PY_FEAR_PANIC)			 conds[i++] = "Panic";
+	else if (p_ptr->afraid > PY_FEAR_TERROR)	 conds[i++] = "Terrified";
+	else if (p_ptr->afraid > PY_FEAR_AFRAID)	 conds[i++] = "Afraid";
+	else if (p_ptr->afraid)						 conds[i++] = "Wary";
+	if (p_ptr->paralyzed)						 conds[i++] = "Paralyzed";
+	if (p_ptr->image)							 conds[i++] = "Hallucinating";
+	if (p_ptr->slow)							 conds[i++] = "Slowed";
+	if (p_ptr->stun > PY_STUN_KO)				 conds[i++] = "Knocked Out";
+	else if (p_ptr->stun > PY_STUN_HEAVY)		 conds[i++] = "Heavy Stun";
+	else if (p_ptr->stun)						 conds[i++] = "Stunned";
+	if (p_ptr->cut > PY_CUT_MORTAL)				 conds[i++] = "Mortal Wound";
+	else if (p_ptr->cut > PY_CUT_DEEP)			 conds[i++] = "Deep Gash";
+	else if (p_ptr->cut > PY_CUT_SEVERE)		 conds[i++] = "Severe Cut";
+	else if (p_ptr->cut > PY_CUT_NASTY)			 conds[i++] = "Nasty Cut";
+	else if (p_ptr->cut > PY_CUT_BAD)			 conds[i++] = "Bad Cut";
+	else if (p_ptr->cut > PY_CUT_LIGHT)			 conds[i++] = "Light Cut";
+	else if (p_ptr->cut)					     conds[i++] = "Graze";
+	if (p_ptr->taint)							 conds[i++] = "Tainted";
+	for (j = 0; j < A_MAX; j++)
+	{
+		if (p_ptr->stat_cur[j] < p_ptr->stat_max[j]) conds[i++] = desc_stat_neg[j];
+	}
+	if (p_ptr->exp < p_ptr->max_exp) conds[i++] = "Exp. Drained";
+
+	/* Bad effects */
+	for (j = 0; j < i; j++)
+	{
+		if (row >= h)
+		{
+			row = 1;
+			col += COL_WIDTH;
+
+			if (col >= (w - COL_WIDTH - 1)) break;
+		}
+		
+		c_put_str(TERM_L_RED, format("%^s",conds[j]), row++, col);
+	}
+
+	if (!col && (row == 1)) put_str("None", row++, col);
+
 }

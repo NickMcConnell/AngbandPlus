@@ -24,13 +24,13 @@
  * See also "main-dos.c" and "main-ibm.c".
  *
  *
- * The "lib/user/pref-win.prf" file contains keymaps, macro definitions,
+ * The "lib/pref/pref-win.prf" file contains keymaps, macro definitions,
  * and/or color redefinitions.
  *
- * The "lib/user/font-win.prf" contains attr/char mappings for use with the
+ * The "lib/pref/font-win.prf" contains attr/char mappings for use with the
  * normal "*.fon" font files in the "lib/xtra/font/" directory.
  *
- * The "lib/user/graf-win.prf" contains attr/char mappings for use with the
+ * The "lib/pref/graf-win.prf" contains attr/char mappings for use with the
  * special "*.bmp" bitmap files in the "lib/xtra/graf/" directory, which
  * are activated by a menu item.
  *
@@ -38,7 +38,7 @@
  * Compiling this file, and using the resulting executable, requires
  * several extra files not distributed with the standard Angband code.
  * If "USE_GRAPHICS" is defined, then "readdib.h" and "readdib.c" must
- * be placed into "src/", and the "8X8.BMP" bitmap file must be placed
+ * be placed into "src/", and the "8x8.bmp" bitmap file must be placed
  * into "lib/xtra/graf".  In any case, some "*.fon" files (including
  * "8X13.FON" if nothing else) must be placed into "lib/xtra/font/".
  * If "USE_SOUND" is defined, then some special library (for example,
@@ -501,14 +501,10 @@ static bool can_use_graphics = FALSE;
  */
 static DIBINIT infGraph;
 
-#ifdef USE_TRANSPARENCY
-
 /*
  * The global bitmap mask
  */
 static DIBINIT infMask;
-
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -561,9 +557,6 @@ static cptr ANGBAND_DIR_XTRA_FONT;
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr ANGBAND_DIR_XTRA_HELP;
-#if USE_MUSIC
-static cptr ANGBAND_DIR_XTRA_MUSIC;
-#endif /* USE_MUSIC */
 
 /*
  * The "complex" color values
@@ -1203,6 +1196,9 @@ static void load_sound_prefs(void)
 
 	for (i = 0; i < SOUND_MAX; i++)
 	{
+		/* Ignore empty sound strings */
+		if (!angband_sound_name[i][0]) continue;
+
 		GetPrivateProfileString("Sound", angband_sound_name[i], "", tmp, 1024, ini_path);
 
 		num = tokenize_whitespace(tmp, SAMPLE_MAX, zz);
@@ -1243,7 +1239,6 @@ static int new_palette(void)
 	HDC hdc;
 	int i, nEntries;
 	int pLogPalSize;
-	int lppeSize;
 	LPLOGPALETTE pLogPal;
 	LPPALETTEENTRY lppe;
 
@@ -1254,7 +1249,6 @@ static int new_palette(void)
 	if (!paletted) return (TRUE);
 
 	/* No bitmap */
-	lppeSize = 0;
 	lppe = NULL;
 	nEntries = 0;
 
@@ -1266,8 +1260,7 @@ static int new_palette(void)
 	/* Use the bitmap */
 	if (hBmPal)
 	{
-		lppeSize = 256 * sizeof(PALETTEENTRY);
-		lppe = (LPPALETTEENTRY)ralloc(lppeSize);
+		lppe = ralloc(256 * sizeof(PALETTEENTRY));
 		nEntries = GetPaletteEntries(hBmPal, 0, 255, lppe);
 		if ((nEntries == 0) || (nEntries > 220))
 		{
@@ -1275,7 +1268,7 @@ static int new_palette(void)
 			plog("Please switch to high- or true-color mode.");
 
 			/* Cleanup */
-			rnfree(lppe, lppeSize);
+			free(lppe);
 
 			/* Fail */
 			return (FALSE);
@@ -1331,14 +1324,14 @@ static int new_palette(void)
 	}
 
 	/* Free something */
-	if (lppe) rnfree(lppe, lppeSize);
+	if (lppe) free(lppe);
 
 	/* Create a new palette, or fail */
 	hNewPal = CreatePalette(pLogPal);
 	if (!hNewPal) quit("Cannot create palette!");
 
 	/* Free the palette */
-	rnfree(pLogPal, pLogPalSize);
+	free(pLogPal);
 
 	/* Main window */
 	td = &data[0];
@@ -1418,8 +1411,6 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-#ifdef USE_TRANSPARENCY
-
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
 			/* Access the mask file */
@@ -1432,8 +1423,6 @@ static bool init_graphics(void)
 				return (FALSE);
 			}
 		}
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Activate a palette */
 		if (!new_palette())
@@ -2314,11 +2303,7 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2327,15 +2312,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int i;
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2;
-
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
 
 	HDC hdcMask;
-
-# endif /* USE_TRANSPARENCY */
-
 	HDC hdc;
 	HDC hdcSrc;
 	HBITMAP hbmSrcOld;
@@ -2374,8 +2353,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
@@ -2385,8 +2362,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	{
 		hdcMask = NULL;
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, x2 += w2)
@@ -2401,8 +2376,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		/* Location of bitmap cell */
 		x1 = col * w1;
 		y1 = row * h1;
-
-# ifdef USE_TRANSPARENCY
 
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
@@ -2443,9 +2416,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 			}
 		}
 		else
-
-# endif /* USE_TRANSPARENCY */
-
 		{
 			/* Perfect size */
 			if ((w1 == w2) && (h1 == h2))
@@ -2470,16 +2440,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
 		DeleteDC(hdcMask);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -2503,11 +2469,8 @@ static void windows_map_aux(void)
 	char c;
 	int x, min_x, max_x;
 	int y, min_y, max_y;
-
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
 
 #ifdef ZANGBAND
 
@@ -2547,20 +2510,12 @@ static void windows_map_aux(void)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-#ifdef USE_TRANSPARENCY
 			map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-			map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
 			{
-#ifdef USE_TRANSPARENCY
 				Term_pict_win(x - min_x, y - min_y, 1, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-				Term_pict_win(x - min_x, y - min_y, 1, &a, &c);
-#endif /* USE_TRANSPARENCY */
 			}
 		}
 	}
@@ -2904,14 +2859,13 @@ static void setup_menus(void)
 	}
 
 	/* A character available */
-	if (game_in_progress && character_generated && inkey_flag && can_save)
+	if (game_in_progress && character_generated && inkey_flag)
 	{
 		/* Menu "File", Item "Save" */
 		EnableMenuItem(hm, IDM_FILE_SAVE, MF_BYCOMMAND | MF_ENABLED);
 	}
 
-	if (!game_in_progress || !character_generated ||
-	    (inkey_flag && can_save))
+	if (!game_in_progress || !character_generated || inkey_flag)
 	{
 		/* Menu "File", Item "Exit" */
 		EnableMenuItem(hm, IDM_FILE_EXIT, MF_BYCOMMAND | MF_ENABLED);
@@ -3112,8 +3066,8 @@ static void check_for_save_file(LPSTR cmd_line)
 	/* Next arg */
 	p = strchr(s, ' ');
 
-	/* Tokenize, advance */
-	if (p) *p++ = '\0';
+	/* Tokenize */
+	if (p) *p = '\0';
 
 	/* Extract filename */
 	strcat(savefile, s);
@@ -3262,7 +3216,7 @@ static void start_screensaver(void)
 	 * automatically restart.
 	 */
 
-	screensaver_inkey_hack_buffer[j++] = '6'; /* Cheat options */
+	screensaver_inkey_hack_buffer[j++] = '7'; /* Cheat options */
 
 	/* Cursor down to "cheat live" */
 	for (i = 0; i < OPT_cheat_live - OPT_CHEAT; i++)
@@ -3394,8 +3348,7 @@ static void process_menus(WORD wCmd)
 		/* Save game */
 		case IDM_FILE_SAVE:
 		{
-			if (game_in_progress && character_generated &&
-			    inkey_flag && can_save)
+			if (game_in_progress && character_generated && inkey_flag)
 			{
 				/* Hack -- Forget messages */
 				msg_flag = FALSE;
@@ -3479,7 +3432,7 @@ static void process_menus(WORD wCmd)
 			if (game_in_progress && character_generated)
 			{
 				/* Paranoia */
-				if (!inkey_flag || !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					break;
@@ -4103,7 +4056,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		{
 			if (game_in_progress && character_generated)
 			{
-				if (!inkey_flag || !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					return 0;
@@ -4676,6 +4629,10 @@ static void hack_quit(cptr str)
  */
 static void hook_plog(cptr str)
 {
+#ifdef USE_SAVER
+	if (screensaver_active) return;
+#endif /* USE_SAVER */
+
 	/* Warning */
 	if (str)
 	{
@@ -4697,17 +4654,17 @@ static void hook_quit(cptr str)
 #endif /* USE_SOUND */
 
 
-	/* Give a warning */
-	if (str)
-	{
-		MessageBox(data[0].w, str, "Error",
-		           MB_ICONEXCLAMATION | MB_OK | MB_ICONSTOP);
-	}
-
 #ifdef USE_SAVER
 	if (!screensaver_active)
 #endif /* USE_SAVER */
 	{
+	   	/* Give a warning */
+   		if (str)
+	   	{
+   			MessageBox(data[0].w, str, "Error",
+   			           MB_ICONEXCLAMATION | MB_OK | MB_ICONSTOP);
+	   	}
+
 		/* Save the preferences */
 		save_prefs();
 	}
@@ -4729,11 +4686,8 @@ static void hook_quit(cptr str)
 #ifdef USE_GRAPHICS
 	if (infGraph.hPalette) DeleteObject(infGraph.hPalette);
 	if (infGraph.hBitmap) DeleteObject(infGraph.hBitmap);
-
-#ifdef USE_TRANSPARENCY
 	if (infMask.hPalette) DeleteObject(infMask.hPalette);
 	if (infMask.hBitmap) DeleteObject(infMask.hBitmap);
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -4767,10 +4721,6 @@ static void hook_quit(cptr str)
 	string_free(ANGBAND_DIR_XTRA_GRAF);
 	string_free(ANGBAND_DIR_XTRA_SOUND);
 	string_free(ANGBAND_DIR_XTRA_HELP);
-
-#ifdef USE_MUSIC
-	string_free(ANGBAND_DIR_XTRA_MUSIC);
-#endif /* USE_MUSIC */
 
 #ifdef HAS_CLEANUP
 	cleanup_angband();
@@ -4916,19 +4866,6 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_XTRA_SOUND);
 
 #endif /* USE_SOUND */
-
-#ifdef USE_MUSIC
-
-	/* Build the "music" path */
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "music");
-
-	/* Allocate the path */
-	ANGBAND_DIR_XTRA_MUSIC = string_make(path);
-
-	/* Validate the "music" directory */
-	validate_dir(ANGBAND_DIR_XTRA_MUSIC);
-
-#endif /* USE_MUSIC */
 
 	/* Build the "help" path */
 	path_build(path, 1024, ANGBAND_DIR_XTRA, "help");

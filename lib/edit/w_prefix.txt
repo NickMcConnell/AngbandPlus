@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:0.4.3
+V:0.4.4
 
 N:0:<none>
 W:1:0:100:100
@@ -116,33 +116,34 @@ W:60:0:250:200
 P:-2:0:1:1
 F:GOOD
 
-N:19:Runed
+N:19:Kyrral
+W:60:0:110:125
+P:0:0:0:0
+K:11:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+F:SHOP | GOOD
+
+N:20:Runed
 W:75:0:100:200
 P:0:5:0:0
 F:GOOD
 
-N:20:Ornamental
+N:21:Ornamental
 W:80:12:110:350
 P:-3:-3:-1:-1
 
-N:21:Silver
+N:22:Silver
 W:80:12:100:200
 P:0:0:0:0
 K:0:0:0:0:12:0:0:0:0:0:12:0:0:0:0:0:0:0
 F:GOOD
 
-N:22:Dark Elven
+N:23:Dark Elven
 W:90:0:90:250
 P:2:2:0:1
 F:GOOD
 
-N:23:Majestic
+N:24:Majestic
 W:150:0:120:500
 P:2:2:1:2
 F:GOOD
 
-N:24:Kyrral
-W:60:0:110:125
-P:0:0:0:0
-K:11:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
-F:SHOP | GOOD

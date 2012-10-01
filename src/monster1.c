@@ -103,7 +103,7 @@ static int collect_mon_special(u32b flags1, u32b flags2, cptr vp[64])
 	if (flags2 & (RF2_KILL_BODY)) vp[n++] = "destroy weaker monsters";
 	if (flags2 & (RF2_TAKE_ITEM)) vp[n++] = "pick up objects";
 	if (flags2 & (RF2_KILL_ITEM)) vp[n++] = "destroy objects";
-	if (flags2 & (RF2_NO_TRAP))	  vp[n++] = "avoid traps";
+/*	if (flags2 & (RF2_NO_TRAP))	  vp[n++] = "avoid traps"; */
 
 	return n;
 }
@@ -370,6 +370,7 @@ static void describe_mon_attacks(int method, int effect, cptr method_text[1], cp
 		case RBE_COLD:		effect_text[0] = "freeze"; break;
 		case RBE_RUST:		effect_text[0] = "rust"; break;
 		case RBE_ROT:		effect_text[0] = "rot"; break;
+		case RBE_HALLU:		effect_text[0] = "cause hallucinations"; break;
 		case RBE_BLIND:		effect_text[0] = "blind"; break;
 		case RBE_CONFUSE:	effect_text[0] = "confuse"; break;
 		case RBE_TERRIFY:	effect_text[0] = "terrify"; break;
@@ -469,7 +470,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		l_ptr->r_wake = l_ptr->r_ignore = MAX_UCHAR;
 
 		/* Observe "maximal" attacks */
-		for (m = 0; m < 4; m++)
+		for (m = 0; m < MONSTER_BLOW_MAX; m++)
 		{
 			/* Examine "actual" blows */
 			if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
@@ -1273,7 +1274,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	}
 
 	/* Count the number of "known" attacks */
-	for (n = 0, m = 0; m < 4; m++)
+	for (n = 0, m = 0; m < MONSTER_BLOW_MAX; m++)
 	{
 		/* Skip non-attacks */
 		if (!r_ptr->blow[m].method) continue;
@@ -1283,7 +1284,7 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 	}
 
 	/* Examine (and count) the actual attacks */
-	for (r = 0, m = 0; m < 4; m++)
+	for (r = 0, m = 0; m < MONSTER_BLOW_MAX; m++)
 	{
 		int d1, d2;
 
@@ -1609,5 +1610,5 @@ void display_visible(void)
 	}
 
 	/* XXX XXX Free the "who" array */
-	C_FREE(who, m_max, monster_list_entry);
+	FREE(who);
 }

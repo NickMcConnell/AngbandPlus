@@ -673,11 +673,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 static bool modify_panel(int wy, int wx)
 {
 	/* Verify wy, adjust if needed */
-	if (wy > p_ptr->cur_hgt - SCREEN_HGT) wy = p_ptr->cur_hgt - SCREEN_HGT;
+	if (p_ptr->cur_map_hgt < SCREEN_HGT) wy = 0;
+	else if (wy > p_ptr->cur_map_hgt - SCREEN_HGT) wy = p_ptr->cur_map_hgt - SCREEN_HGT;
 	else if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (wx > p_ptr->cur_wid - SCREEN_WID) wx = p_ptr->cur_wid - SCREEN_WID;
+	if (p_ptr->cur_map_wid < SCREEN_WID) wx = 0;
+	if (wx > p_ptr->cur_map_wid - SCREEN_WID) wx = p_ptr->cur_map_wid - SCREEN_WID;
 	else if (wx < 0) wx = 0;
 
 	/* React to changes */
@@ -1435,7 +1437,7 @@ void saturate_mon_list(monster_list_entry *who, int *count, bool allow_base, boo
 
 	(*count) = counter;
 
-	C_FREE(temp_list, M_LIST_ITEMS, monster_list_entry);
+	FREE(temp_list);
 }
 
 /*** Targetting Code ***/
@@ -1758,7 +1760,7 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
  */
 static bool target_set_interactive_accept(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	/* Player grids are always interesting */
 	if (cave_m_idx[y][x] < 0) return (TRUE);
@@ -1776,16 +1778,8 @@ static bool target_set_interactive_accept(int y, int x)
 	}
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized object */
 		if (o_ptr->marked) return (TRUE);
 	}
@@ -1847,6 +1841,9 @@ static void target_set_interactive_prepare(int mode)
 	{
 		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
+			/* Check bounds */
+			if (!in_bounds_fully(y, x)) continue;
+
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
 
@@ -2663,11 +2660,11 @@ bool target_set_interactive(int mode)
 				if (scroll_target)
 				{
 					/* Slide into legality */
-					if (x >= p_ptr->cur_wid - 1) x--;
+					if (x >= p_ptr->cur_map_wid - 1) x--;
 					else if (x <= 0) x++;
 
 					/* Slide into legality */
-					if (y >= p_ptr->cur_hgt - 1) y--;
+					if (y >= p_ptr->cur_map_hgt - 1) y--;
 					else if (y <= 0) y++;
 
 					/* Adjust panel if needed */
@@ -2744,6 +2741,11 @@ bool get_aim_dir(int *dp)
 		if (!(*dp == 5 && !target_okay()))
 		{
 			return (TRUE);
+		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
 		}
 	}
 
@@ -2946,4 +2948,551 @@ bool confuse_dir(int *dp)
 
 	/* Not confused */
 	return (FALSE);
+}
+
+/*
+ * Centers a string within a 31 character string
+ */
+static void center_string(char *buf, cptr str)
+{
+	int i, j;
+
+	/* Total length */
+	i = strlen(str);
+
+	/* Necessary border */
+	j = 15 - i / 2;
+
+	/* Mega-Hack */
+	sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
+}
+
+/*
+ * Display a "tomb-stone"
+ */
+static void print_tomb(time_t death_time)
+{
+	cptr p;
+
+	char tmp[160];
+
+	char buf[1024];
+
+	FILE *fp;
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
+
+	/* Open the News file */
+	fp = my_fopen(buf, "r");
+
+	/* Dump */
+	if (fp)
+	{
+		int i = 0;
+
+		/* Dump the file to the screen */
+		while (0 == my_fgets(fp, buf, sizeof(buf)))
+		{
+			/* Display and advance */
+			put_str(buf, i++, 0);
+		}
+
+		/* Close */
+		my_fclose(fp);
+	}
+
+	/* King or Queen */
+	if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	{
+		p = "Magnificent";
+	}
+
+	/* Normal */
+	else
+	{
+#ifndef PREVENT_LOAD_C_TEXT
+		p = c_text+cp_ptr->title[(p_ptr->lev-1)/5];
+#else /* PREVENT_LOAD_C_TEXT */
+		p = " ";
+#endif /* PREVENT_LOAD_C_TEXT */
+	}
+
+	center_string(buf, op_ptr->full_name);
+	put_str(buf, 6, 11);
+
+	center_string(buf, "the");
+	put_str(buf, 7, 11);
+
+	center_string(buf, p);
+	put_str(buf, 8, 11);
+
+	center_string(buf, c_name + cp_ptr->name);
+	put_str(buf, 10, 11);
+
+	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
+	center_string(buf, tmp);
+	put_str(buf, 11, 11);
+
+	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
+	center_string(buf, tmp);
+	put_str(buf, 12, 11);
+
+	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
+	center_string(buf, tmp);
+	put_str(buf, 13, 11);
+
+	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	center_string(buf, tmp);
+	put_str(buf, 14, 11);
+
+	sprintf(tmp, "by %s.", p_ptr->died_from);
+	center_string(buf, tmp);
+	put_str(buf, 15, 11);
+
+	sprintf(tmp, "%-.24s", ctime(&death_time));
+	center_string(buf, tmp);
+	put_str(buf, 17, 11);
+}
+
+/*
+ * Hack - Know inventory and home items upon death
+ */
+static void death_knowledge(void)
+{
+	int i;
+
+	object_type *o_ptr;
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	/* Hack -- Know everything in the inven/equip */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Aware and Known */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+	}
+
+	/* Hack -- Know everything in the home */
+	for (i = 0; i < st_ptr->stock_num; i++)
+	{
+		o_ptr = &st_ptr->stock[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Aware and Known */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+	}
+
+	/* Hack -- Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+}
+
+/*
+ * Display some character info
+ */
+static void show_info(void)
+{
+	int i, j, k;
+
+	object_type *o_ptr;
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	/* Display player */
+	display_player(0);
+
+	/* Prompt for inventory */
+	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
+
+	/* Allow abort at this point */
+	if (inkey() == ESCAPE) return;
+
+	/* Show equipment and inventory */
+
+	/* Equipment -- if any */
+	if (p_ptr->equip_cnt)
+	{
+		Term_clear();
+		item_tester_full = TRUE;
+		show_equip();
+		prt("You are using: -more-", 0, 0);
+		if (inkey() == ESCAPE) return;
+	}
+
+	/* Inventory -- if any */
+	if (p_ptr->inven_cnt)
+	{
+		Term_clear();
+		item_tester_full = TRUE;
+		show_inven();
+		prt("You are carrying: -more-", 0, 0);
+		if (inkey() == ESCAPE) return;
+	}
+
+	/* Home -- if anything there */
+	if (st_ptr->stock_num)
+	{
+		/* Display contents of the home */
+		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
+		{
+			/* Clear screen */
+			Term_clear();
+
+			/* Show 12 items */
+			for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
+			{
+				byte attr;
+
+				char o_name[80];
+				char tmp_val[80];
+
+				/* Get the object */
+				o_ptr = &st_ptr->stock[i];
+
+				/* Print header, clear line */
+				sprintf(tmp_val, "%c) ", I2A(j));
+				prt(tmp_val, j+2, 4);
+
+				/* Get the object description */
+				object_desc(o_name, o_ptr, TRUE, 3);
+
+				/* Get the inventory color */
+				attr = tval_to_attr[o_ptr->tval % N_ELEMENTS(tval_to_attr)];
+
+				/* Display the object */
+				c_put_str(attr, o_name, j+2, 7);
+			}
+
+			/* Caption */
+			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
+
+			/* Wait for it */
+			if (inkey() == ESCAPE) return;
+		}
+	}
+}
+
+/*
+ * Special version of 'do_cmd_examine'
+ */
+static void death_examine(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
+	/* Get an item */
+	q = "Examine which item? ";
+	s = "You have nothing to examine.";
+
+	while (TRUE)
+ 	{
+		/* Clear the screen */
+		Term_clear();
+
+		/* Reset "display" mode */
+		p_ptr->command_see = TRUE;
+
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
+ 
+		/* Get the item */
+		o_ptr = &inventory[item];
+ 
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+ 
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
+ 
+		/* Begin recall */
+		Term_gotoxy(0, 1);
+
+		/* Actually display the item */
+		list_object(o_ptr, OBJECT_INFO_KNOWN);
+
+		object_desc_store(o_name, o_ptr, TRUE, 3);
+
+		/* Clear the top line */
+		Term_erase(0, 0, 255);
+
+		/* Reset the cursor */
+		Term_gotoxy(0, 0);
+
+		/* Dump the name */
+		Term_addstr(-1, TERM_L_BLUE, o_name);
+
+		(void) inkey();
+	}
+}
+
+/*
+ * Change the player into a Winner
+ */
+static void kingly(void)
+{
+	/* Hack -- retire in town */
+	p_ptr->depth = 0;
+
+	/* Fake death */
+	strcpy(p_ptr->died_from, "Ripe Old Age");
+
+	/* Restore the experience */
+	p_ptr->exp = p_ptr->max_exp;
+
+	/* Restore the level */
+	p_ptr->lev = p_ptr->max_lev;
+
+	/* Hack -- Instant Gold */
+	p_ptr->au += 10000000L;
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Display a crown */
+	put_str("#", 1, 34);
+	put_str("#####", 2, 32);
+	put_str("#", 3, 34);
+	put_str(",,,  $$$  ,,,", 4, 28);
+	put_str(",,=$   \"$$$$$\"   $=,,", 5, 24);
+	put_str(",$$        $$$        $$,", 6, 22);
+	put_str("*>         <*>         <*", 7, 22);
+	put_str("$$         $$$         $$", 8, 22);
+	put_str("\"$$        $$$        $$\"", 9, 22);
+	put_str("\"$$       $$$       $$\"", 10, 23);
+	put_str("*#########*#########*", 11, 24);
+	put_str("*#########*#########*", 12, 24);
+
+	/* Display a message */
+	put_str("Veni, Vidi, Vici!", 15, 26);
+	put_str("I came, I saw, I conquered!", 16, 21);
+	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22);
+
+	/* Flush input */
+	flush();
+
+	/* Wait for response */
+	pause_line(23);
+}
+
+/*
+ * Handle character death
+ */
+void do_player_death(void)
+{
+	int ch;
+
+	bool wants_to_quit = FALSE;
+	cptr p; 
+
+	time_t death_time;
+
+	/* Prompt */
+	if (!cheat_wizard) p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
+	else p = "[(i)nfo, (m)essages, (f)ile, (v)iew score, e(x)amine, (w)izard off, or ESC]";
+
+	/* Handle retirement */
+	if (p_ptr->total_winner) kingly();
+
+	/* Save dead player */
+	if (cheat_no_save)
+	{
+		message(MSG_CHEAT, 0, "Cheat mode enabled - no death save!");
+		message_flush();
+	}
+	else if (!save_player())
+	{
+		message(MSG_FAIL, 0, "death save failed!");
+		message_flush();
+	}
+
+	/* Get time of death */
+	(void)time(&death_time);
+
+	/* You are dead */
+	print_tomb(death_time);
+
+	/* Hack - Know everything upon death */
+	death_knowledge();
+
+	/* Enter player in high score list */
+	enter_score(death_time);
+
+	/* Flush all input keys */
+	flush();
+
+	/* Flush messages */
+	message_flush();
+
+	/* Forever */
+	while (!wants_to_quit)
+	{
+		/* Describe options */
+		Term_putstr(1, 23, -1, TERM_WHITE, p);
+
+		/* Query */
+		ch = inkey();
+
+		switch (ch)
+ 		{
+			/* Exit */
+			case ESCAPE:
+			{
+				if (get_check("Do you want to quit? "))
+					wants_to_quit = TRUE;
+ 
+				break;
+			}
+ 
+			/* File dump */
+			case 'f':
+			case 'F':
+ 			{
+				char ftmp[80];
+
+				sprintf(ftmp, "%s.txt", op_ptr->base_name);
+
+				if (get_string("File name: ", ftmp, 80))
+				{
+					if (ftmp[0] && (ftmp[0] != ' '))
+					{
+						errr err;
+ 
+						/* Save screen */
+						screen_save();
+ 
+						/* Dump a character file */
+						err = file_character(ftmp, FALSE);
+ 
+						/* Load screen */
+						screen_load();
+
+						/* Check result */
+						if (err)
+						{
+							message(MSG_GENERIC, 0, "Character dump failed!");
+						}
+						else
+						{
+							message(MSG_GENERIC, 0, "Character dump successful.");
+						}
+ 
+						/* Flush messages */
+						message_flush();
+ 					}
+ 				}
+
+				break;
+ 			}
+
+			/* Show more info */
+			case 'i':
+			case 'I':
+			{
+				/* Save screen */
+				screen_save();
+ 
+				/* Show the character */
+				show_info();
+ 
+				/* Load screen */
+				screen_load();
+ 
+				break;
+			}
+ 
+			/* Show last messages */
+			case 'm':
+			case 'M':
+			{
+				/* Save screen */
+				screen_save();
+ 
+				/* Display messages */
+				do_cmd_messages();
+ 
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Show top scores */
+			case 'v':
+			case 'V':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Show the scores */
+				top_twenty();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Examine an item */
+			case 'x':
+			case 'X':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Examine items */
+				death_examine();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Examine an item */
+			case 'w':
+			case 'W':
+			{
+				if (!cheat_wizard) continue;
+
+				if (!get_check("Confirm exiting wizard mode (will allow creation of new character)?")) 
+					continue;
+
+				cheat_wizard = FALSE;
+
+				if (!save_player())
+				{
+					message(MSG_FAIL, 0, "death save failed!");
+					message_flush();
+				}
+			}
+		}
+	}
 }

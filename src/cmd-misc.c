@@ -114,11 +114,11 @@ void do_cmd_locate(void)
 
 		/* Verify the row */
 		if (y2 < 0) y2 = 0;
-		if (y2 > p_ptr->cur_hgt - SCREEN_HGT) y2 = p_ptr->cur_hgt - SCREEN_HGT;
+		if (y2 > p_ptr->cur_map_hgt - SCREEN_HGT) y2 = p_ptr->cur_map_hgt - SCREEN_HGT;
 
 		/* Verify the col */
 		if (x2 < 0) x2 = 0;
-		if (x2 > p_ptr->cur_wid - SCREEN_WID) x2 = p_ptr->cur_wid - SCREEN_WID;
+		if (x2 > p_ptr->cur_map_wid - SCREEN_WID) x2 = p_ptr->cur_map_wid - SCREEN_WID;
 
 		/* Handle "changes" */
 		if ((p_ptr->wy != y2) || (p_ptr->wx != x2))
@@ -1340,39 +1340,74 @@ void do_cmd_use_racial(void)
 		/*Angel Powers*/
 		case 1: /* Cherub - Detect Evil */
 		{
-			(void)detect_monsters_evil();
-			p_ptr->racial_power = 50;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
+			}
+			else
+			{
+				(void)detect_monsters_evil();
+				p_ptr->racial_power = 50;
+			}
 			break;
 		}			
 
 		case 2: /* Seraph - Light area */
 		{
-			lite_area(damroll(2, 2), 2);
-			p_ptr->racial_power = 50;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
+			}
+			else
+			{
+				lite_area(damroll(2, 2), 2);
+				p_ptr->racial_power = 50;
+			}
 			break;
 		}			
 
 		case 3: /* Deva/Planeter - Spear of Light */
 		{
-			if (!get_aim_dir(&dir)) return;
-			message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
-			lite_line(dir, damroll(6, 8));
-			p_ptr->racial_power = 25;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
+			}
+			else
+			{
+				if (!get_aim_dir(&dir)) return;
+				message(MSG_EFFECT, 0, "A line of blue shimmering light appears.");
+				lite_line(dir, damroll(6, 8));
+				p_ptr->racial_power = 25;
+			}
 			break;
 		}			
 
 		case 4: /* Archon - Orb of Draining */
 		{
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + 50, 3);
-			p_ptr->racial_power = 15;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
+			}
+			else
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_HOLY_ORB, dir, damroll(3, 6) + 50, 3);
+				p_ptr->racial_power = 15;
+			}
 			break;
 		}			
 
 		case 5: /* Angel/Archangel - Protection From Evil */
 		{
-			(void)set_protevil(p_ptr->protevil + randint(25) + 30);
-			p_ptr->racial_power = 150;
+			if (p_ptr->taint)
+			{
+				message(MSG_FAIL, 0, "The taint on your soul prevents you from using your abilities!");
+			}
+			else
+			{
+				(void)set_protevil(p_ptr->protevil + randint(25) + 30);
+				p_ptr->racial_power = 150;
+			}
 			break;
 		}	
 		
@@ -1423,6 +1458,8 @@ void do_cmd_view_map(void)
 {
 	int cy, cx;
 
+	cptr prompt = "Hit any key to continue";
+	
 	/* Save screen */
 	screen_save();
 
@@ -1438,8 +1475,8 @@ void do_cmd_view_map(void)
 	/* Display the map */
 	display_map(&cy, &cx);
 
-	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	/* Show the prompt */
+	put_str(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Hilite the player */
 	Term_gotoxy(cx, cy);

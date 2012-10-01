@@ -130,7 +130,6 @@ struct maxima
 	u16b t_max;		/* Max size for "t_list[]" */
 
 	u16b a_min_normal;	/* First normal artifact */
-	u16b k_min_gold;	/* First gold */
 };
 
 /*
@@ -305,7 +304,6 @@ struct ego_item_type
 {
 	u32b name;			/* Name (offset) */
 
-	byte slot;			/* Standard slot value */
 	byte rating;		/* Rating boost */
 
 	byte level;			/* Minimum level */
@@ -1179,6 +1177,7 @@ struct player_type
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
 	s16b diseased;		/* Timed -- Diseased */
+	s16b taint;			/* Timed -- Taint */
 
 	s16b protevil;		/* Timed -- Protection */
 	s16b resilient;		/* Timed -- Resilience */
@@ -1235,8 +1234,8 @@ struct player_type
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
 
-	byte cur_hgt;			/* Current dungeon level hight */
-	byte cur_wid;			/* Current dungeon level width */
+	byte cur_map_hgt;		/* Current dungeon level hight */
+	byte cur_map_wid;		/* Current dungeon level width */
 
 	s32b total_weight;		/* Total weight being carried */
 
@@ -1347,6 +1346,7 @@ struct player_type
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */
 	bool item_drain;	/* Item draining */
+	bool taint_inv;		/* You have a tainting item */
 
 	bool bless_blade;	/* Blessed blade */
 

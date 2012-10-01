@@ -1113,7 +1113,7 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* XXX XXX Free the "object_idx" array */
-	C_KILL(object_idx, z_info->a_max, int);
+	KILL(object_idx);
 }
 
 /*
@@ -1312,7 +1312,7 @@ static void do_cmd_knowledge_monsters(void)
 	}
 
 	/* XXX XXX Free the "mon_idx" array */
-	C_KILL(mon_idx, M_LIST_ITEMS, monster_list_entry);
+	KILL(mon_idx);
 }
 
 /*
@@ -1539,7 +1539,7 @@ static void do_cmd_knowledge_objects(void)
 	}
 
 	/* XXX XXX Free the "object_idx" array */
-	C_KILL(object_idx, z_info->k_max, int);
+	KILL(object_idx);
 }
 
 /*
@@ -1912,7 +1912,7 @@ void do_cmd_query_symbol(void)
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
-		C_FREE(who, M_LIST_ITEMS, monster_list_entry);
+		FREE(who);
 
 		return;
 	}
@@ -1944,7 +1944,7 @@ void do_cmd_query_symbol(void)
 	if (query != 'y')
 	{
 		/* XXX XXX Free the "who" array */
-		C_FREE(who, M_LIST_ITEMS, monster_list_entry);
+		FREE(who);
 
 		return;
 	}
@@ -2042,5 +2042,5 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 	/* Free the "who" array */
-	C_FREE(who, M_LIST_ITEMS, monster_list_entry);
+	FREE(who);
 }

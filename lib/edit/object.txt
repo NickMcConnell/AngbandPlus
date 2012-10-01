@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:0.4.3
+V:0.4.4
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -164,7 +164,7 @@ W:10:0:1:65
 X:1:2d3:100
 A:10/1
 F:EASY_KNOW
-U:CURE_POISON_2
+U:CURE_POISON
 
 N:11:Cure Disease
 G:,:d
@@ -275,9 +275,9 @@ F:EASY_KNOW
 N:23:& Piece~ of Elvish Waybread
 G:,:B
 I:80:34:7500
-W:5:0:3:10
+W:10:0:3:50
 X:1:1d1:100
-A:5/2:15/2:25/1
+A:10/3:15/3:25/2
 F:EASY_KNOW
 
 N:24:& Piece~ of Ambrosia
@@ -1979,7 +1979,7 @@ G:?:d
 I:70:2:0
 W:5:0:5:0
 X:2:1d1:50
-A:5/1
+A:3/1
 F:EASY_KNOW
 U:CURSE_EQUIP_1
 
@@ -2028,214 +2028,223 @@ A:10/2
 F:EASY_KNOW
 U:CREATE_TRAP
 
-N:219:Phase Door
+N:219:Unholyness
 G:?:d
 I:70:8:0
+W:5:0:5:0
+X:2:1d1:50
+A:5/1
+F:EASY_KNOW
+U:TAINT
+
+N:220:Phase Door
+G:?:d
+I:70:9:0
 W:1:0:5:15
 X:2:1d1:50
 A:1/1
 F:EASY_KNOW
 U:TELE_10
 
-N:220:Teleportation
+N:221:Teleportation
 G:?:d
-I:70:9:0
+I:70:10:0
 W:10:0:5:40
 X:2:1d1:50
 A:10/1
 F:EASY_KNOW
 U:TELE_MINOR
 
-N:221:Teleport Level
+N:222:Teleport Level
 G:?:d
-I:70:10:0
+I:70:11:0
 W:20:0:5:50
 X:2:1d1:50
 A:20/1
 F:EASY_KNOW
 U:TELE_LEVEL
 
-N:222:Word of Recall
+N:223:Word of Recall
 G:?:d
-I:70:11:0
+I:70:12:0
 W:5:0:5:150
 X:2:1d1:50
 A:5/1
 F:EASY_KNOW
 U:WORD_RECALL
 
-N:223:Alter Reality
+N:224:Alter Reality
 G:?:d
-I:70:12:0
+I:70:13:0
 W:30:0:5:800
 X:2:1d1:50
 A:30/5
 F:EASY_KNOW
 U:ALTER_REALITY
 
-N:224:Identify
+N:225:Identify
 G:?:d
-I:70:13:0
+I:70:14:0
 W:1:0:5:50
 X:2:1d1:50
 A:1/1:5/1:10/1:30/1
 F:EASY_KNOW
 U:IDENTIFY
 
-N:225:*Identify*
+N:226:*Identify*
 G:?:d
-I:70:14:0
+I:70:15:0
 W:30:0:5:1000
 X:2:1d1:50
 A:20/1:35/1:65/1:90/1
 F:EASY_KNOW
 U:IDENTIFY_FULL
 
-N:226:Remove Curse
+N:227:Remove Curse
 G:?:d
-I:70:15:0
+I:70:16:0
 W:10:0:5:100
 X:2:1d1:50
 A:10/1
 F:EASY_KNOW
 U:REMOVE_CURSE_1
 
-N:227:*Remove Curse*
+N:228:*Remove Curse*
 G:?:d
-I:70:16:0
+I:70:17:0
 W:50:0:5:8000
 X:2:1d1:50
 A:50/2
 F:EASY_KNOW
 U:REMOVE_CURSE_2
 
-N:228:Enchant Armor
-G:?:d
-I:70:17:0
-W:15:0:5:125
-X:2:1d1:50
-A:15/1
-F:EASY_KNOW
-U:ENCHANT_ARMOR_1
-
-N:229:Enchant Weapon To-Hit
+N:229:Enchant Armor
 G:?:d
 I:70:18:0
 W:15:0:5:125
 X:2:1d1:50
 A:15/1
 F:EASY_KNOW
-U:ENCHANT_WEAPON_HIT
+U:ENCHANT_ARMOR_1
 
-N:230:Enchant Weapon To-Dam
+N:230:Enchant Weapon To-Hit
 G:?:d
 I:70:19:0
 W:15:0:5:125
 X:2:1d1:50
 A:15/1
 F:EASY_KNOW
-U:ENCHANT_WEAPON_DAM
+U:ENCHANT_WEAPON_HIT
 
-N:231:*Enchant Armor*
+N:231:Enchant Weapon To-Dam
 G:?:d
 I:70:20:0
+W:15:0:5:125
+X:2:1d1:50
+A:15/1
+F:EASY_KNOW
+U:ENCHANT_WEAPON_DAM
+
+N:232:*Enchant Armor*
+G:?:d
+I:70:21:0
 W:50:0:5:500
 X:2:1d1:50
 A:50/1:50/1
 F:EASY_KNOW
 U:ENCHANT_ARMOR_2
 
-N:232:*Enchant Weapon*
+N:233:*Enchant Weapon*
 G:?:d
-I:70:21:0
+I:70:22:0
 W:50:0:5:500
 X:2:1d1:50
 A:50/1
 F:EASY_KNOW
 U:ENCHANT_WEAPON
 
-N:233:Recharging
+N:234:Recharging
 G:?:d
-I:70:22:0
+I:70:23:0
 W:40:0:5:200
 X:2:1d1:50
 A:40/1
 F:EASY_KNOW
 U:RECHARGE_3
 
-N:234:Elemental Brand
+N:235:Elemental Brand
 G:?:d
-I:70:23:0
+I:70:24:0
 W:45:0:5:2500
 X:2:1d1:50
 A:45/3
 F:EASY_KNOW
 U:BRAND_WEAPON_ELMNT
 
-N:235:Light
+N:236:Light
 G:?:d
-I:70:24:0
+I:70:25:0
 W:0:0:5:15
 X:2:1d1:50
 A:0/1:3/1:10/1
 F:EASY_KNOW
 U:LIGHT_AREA
 
-N:236:Magic Mapping
+N:237:Magic Mapping
 G:?:d
-I:70:25:0
+I:70:26:0
 W:5:0:5:40
 X:2:1d1:50
 A:5/1
 F:EASY_KNOW
 U:MAP_1
 
-N:237:Treasure Detection
-G:?:d
-I:70:26:0
-W:0:0:5:15
-X:2:1d1:50
-A:0/1
-F:EASY_KNOW
-U:DETECT_TREASURE
-
-N:238:Object Detection
+N:238:Treasure Detection
 G:?:d
 I:70:27:0
 W:0:0:5:15
 X:2:1d1:50
 A:0/1
 F:EASY_KNOW
-U:DETECT_ITEM
+U:DETECT_TREASURE
 
-N:239:Trap Detection
+N:239:Object Detection
 G:?:d
 I:70:28:0
+W:0:0:5:15
+X:2:1d1:50
+A:0/1
+F:EASY_KNOW
+U:DETECT_ITEM
+
+N:240:Trap Detection
+G:?:d
+I:70:29:0
 W:5:0:5:35
 X:2:1d1:50
 A:5/1:10/1
 F:EASY_KNOW
 U:DETECT_TRAP
 
-N:240:Door/Stair Location
+N:241:Door/Stair Location
 G:?:d
-I:70:29:0
+I:70:30:0
 W:5:0:5:35
 X:2:1d1:50
 A:5/1:10/1:15/1
 F:EASY_KNOW
 U:DETECT_DOOR_STAIR
 
-N:241:Detect Invisible
+N:242:Detect Invisible
 G:?:d
-I:70:30:0
+I:70:31:0
 W:1:0:5:15
 X:2:1d1:50
 A:1/1
 F:EASY_KNOW
 U:DETECT_INVIS
 
-N:242:Absorb Hit
+N:243:Absorb Hit
 G:?:d
 I:70:32:0
 W:40:0:5:200
@@ -2244,7 +2253,7 @@ A:40/2:50/2
 F:EASY_KNOW
 U:ABSORB_HIT
 
-N:243:Blessing
+N:244:Blessing
 G:?:d
 I:70:33:0
 W:1:0:5:15
@@ -2253,7 +2262,7 @@ A:1/1
 F:EASY_KNOW
 U:BLESS_1
 
-N:244:Holy Chant
+N:245:Holy Chant
 G:?:d
 I:70:34:0
 W:10:0:5:40
@@ -2262,7 +2271,7 @@ A:10/1
 F:EASY_KNOW
 U:BLESS_2
 
-N:245:Holy Prayer
+N:246:Holy Prayer
 G:?:d
 I:70:35:0
 W:25:0:5:80
@@ -2271,7 +2280,7 @@ A:25/1
 F:EASY_KNOW
 U:BLESS_3
 
-N:246:Protection from Evil
+N:247:Protection from Evil
 G:?:d
 I:70:37:0
 W:30:0:5:50
@@ -2280,7 +2289,7 @@ A:30/1
 F:EASY_KNOW
 U:PROT_EVIL
 
-N:247:Rune of Protection
+N:248:Rune of Protection
 G:?:d
 I:70:38:0
 W:60:0:5:500
@@ -2289,7 +2298,7 @@ A:60/2:90/4
 F:EASY_KNOW
 U:GLYPH_WARDING
 
-N:248:Trap/Door Destruction
+N:249:Trap/Door Destruction
 G:?:d
 I:70:39:0
 W:10:0:5:50
@@ -2298,7 +2307,7 @@ A:10/1
 F:EASY_KNOW
 U:DEST_TRAP_DOOR_2
 
-N:249:*Destruction*
+N:250:*Destruction*
 G:?:d
 I:70:41:0
 W:40:0:5:250
@@ -2307,7 +2316,7 @@ A:40/1
 F:EASY_KNOW
 U:DESTRUCTION
 
-N:250:Dispel Undead
+N:251:Dispel Undead
 G:?:d
 I:70:42:0
 W:40:0:5:200
@@ -2316,7 +2325,7 @@ A:40/1
 F:EASY_KNOW
 U:DISPEL_UNDEAD_1
 
-N:251:Genocide
+N:252:Genocide
 G:?:d
 I:70:44:0
 W:40:0:5:750
@@ -2325,7 +2334,7 @@ A:40/4
 F:EASY_KNOW
 U:GENOCIDE
 
-N:252:Mass Genocide
+N:253:Mass Genocide
 G:?:d
 I:70:45:0
 W:50:0:5:1000
@@ -2334,7 +2343,7 @@ A:50/4
 F:EASY_KNOW
 U:MASS_GENOCIDE
 
-N:253:Acquirement
+N:254:Acquirement
 G:?:d
 I:70:46:0
 W:20:0:5:100000
@@ -2343,7 +2352,7 @@ A:20/8
 F:EASY_KNOW
 U:ACQUIRE_1
 
-N:254:*Acquirement*
+N:255:*Acquirement*
 G:?:d
 I:70:47:0
 W:60:0:5:200000
@@ -2354,7 +2363,7 @@ U:ACQUIRE_2
 
 ##### Potions #####
 
-N:255:Water
+N:256:Water
 G:!:d
 I:75:0:1
 W:0:0:4:1
@@ -2363,7 +2372,7 @@ A:0/1:0/1
 F:EASY_KNOW
 P:0:1d1:0:0:0
 
-N:256:Apple Juice
+N:257:Apple Juice
 G:!:d
 I:75:1:2
 W:0:0:4:1
@@ -2372,7 +2381,7 @@ A:0/1
 F:EASY_KNOW
 P:0:1d1:0:0:0
 
-N:257:Slime Mold Juice
+N:258:Slime Mold Juice
 G:!:d
 I:75:2:3
 W:0:0:4:2
@@ -2381,7 +2390,7 @@ A:0/1
 F:EASY_KNOW
 P:0:1d1:0:0:0
 
-N:258:Slowness
+N:259:Slowness
 G:!:d
 I:75:4:1
 W:1:0:4:0
@@ -2391,7 +2400,7 @@ F:EASY_KNOW
 P:0:1d1:0:0:0
 U:SLOW_SELF
 
-N:259:Salt Water
+N:260:Salt Water
 G:!:d
 I:75:5:2
 W:0:0:4:0
@@ -2401,7 +2410,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:NAUSEA
 
-N:260:Poison
+N:261:Poison
 G:!:d
 I:75:6:1
 W:3:0:4:0
@@ -2411,7 +2420,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:POISON_SELF
 
-N:261:Blindness
+N:262:Blindness
 G:!:d
 I:75:7:2
 W:0:0:4:0
@@ -2421,7 +2430,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:BLIND_SELF
 
-N:262:Disease
+N:263:Disease
 G:!:d
 I:75:8:1
 W:3:0:4:0
@@ -2431,7 +2440,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:DISEASE
 
-N:263:Confusion
+N:264:Confusion
 G:!:d
 I:75:9:1
 W:0:0:4:0
@@ -2441,7 +2450,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:CONFUSE_SELF
 
-N:264:Sleep
+N:265:Sleep
 G:!:d
 I:75:10:1
 W:0:0:4:0
@@ -2451,7 +2460,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:PARALYZE
 
-N:265:Lose Life Levels
+N:266:Lose Life Levels
 G:!:d
 I:75:11:3
 W:10:0:4:0
@@ -2461,7 +2470,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_EXP
 
-N:266:Deformity
+N:267:Deformity
 G:!:d
 I:75:12:3
 W:25:0:4:0
@@ -2471,7 +2480,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:DEFORM
 
-N:267:Ruination
+N:268:Ruination
 G:!:d
 I:75:13:6
 W:40:0:4:0
@@ -2481,7 +2490,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:RUINATION
 
-N:268:Weakness
+N:269:Weakness
 G:!:d
 I:75:14:1
 W:3:0:4:0
@@ -2491,7 +2500,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_STR
 
-N:269:Stupidity
+N:270:Stupidity
 G:!:d
 I:75:15:1
 W:20:0:4:0
@@ -2501,7 +2510,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_INT
 
-N:270:Naivety
+N:271:Naivety
 G:!:d
 I:75:16:1
 W:20:0:4:0
@@ -2511,7 +2520,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_WIS
 
-N:271:Clumsiness
+N:272:Clumsiness
 G:!:d
 I:75:17:1
 W:5:0:4:0
@@ -2521,7 +2530,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_DEX
 
-N:272:Sickliness
+N:273:Sickliness
 G:!:d
 I:75:18:1
 W:10:0:4:0
@@ -2531,7 +2540,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_CON
 
-N:273:Ugliness
+N:274:Ugliness
 G:!:d
 I:75:19:1
 W:20:0:4:0
@@ -2541,7 +2550,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LOSE_CHR
 
-N:274:Detonations
+N:275:Detonations
 G:!:d
 I:75:20:5
 W:60:0:4:8000
@@ -2551,7 +2560,7 @@ P:0:25d25:0:0:0
 F:EASY_KNOW
 U:DETONATE
 
-N:275:Death
+N:276:Death
 G:!:d
 I:75:21:7
 W:55:0:4:0
@@ -2561,7 +2570,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:KILL_SELF
 
-N:276:Risk
+N:277:Risk
 G:!:d
 I:75:22:5
 W:40:0:4:0
@@ -2571,7 +2580,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:RISK_HACK
 
-N:277:Stealth
+N:278:Stealth
 G:!:d
 I:75:23:2
 W:5:0:4:40
@@ -2581,7 +2590,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:STEALTH
 
-N:278:Infra-vision
+N:279:Infra-vision
 G:!:d
 I:75:24:1
 W:3:0:4:20
@@ -2591,7 +2600,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:INFRAVISION
 
-N:279:Detect Invisible
+N:280:Detect Invisible
 G:!:d
 I:75:25:1
 W:3:0:4:40
@@ -2601,7 +2610,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:SEE_INVIS
 
-N:280:Speed
+N:281:Speed
 G:!:d
 I:75:26:2
 W:1:0:4:75
@@ -2611,7 +2620,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:HASTE_SELF_1
 
-N:281:Satisfy Hunger
+N:282:Satisfy Hunger
 G:!:d
 I:75:27:2
 W:5:0:4:100
@@ -2621,7 +2630,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:SATISFY_HUNGER
 
-N:282:Boldness
+N:283:Boldness
 G:!:d
 I:75:28:1
 W:1:0:4:10
@@ -2631,7 +2640,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:CURE_FEAR
 
-N:283:Heroism
+N:284:Heroism
 G:!:d
 I:75:29:1
 W:1:0:4:35
@@ -2641,7 +2650,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:HEROISM
 
-N:284:Berserk Strength
+N:285:Berserk Strength
 G:!:d
 I:75:30:2
 W:6:0:4:350
@@ -2651,7 +2660,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:RAGE_1
 
-N:285:Cure Light Wounds
+N:286:Cure Light Wounds
 G:!:d
 I:75:31:1
 W:0:0:4:15
@@ -2661,7 +2670,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:HEAL_1
 
-N:286:Cure Serious Wounds
+N:287:Cure Serious Wounds
 G:!:d
 I:75:32:1
 W:3:0:4:40
@@ -2669,9 +2678,9 @@ X:3:1d1:100
 A:3/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-U:HEAL_2
+U:HEAL_CURE_1
 
-N:287:Cure Critical Wounds
+N:288:Cure Critical Wounds
 G:!:d
 I:75:33:2
 W:5:0:4:100
@@ -2679,9 +2688,9 @@ X:3:1d1:100
 A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-U:HEAL_CURE_1
+U:HEAL_CURE_2
 
-N:288:Healing
+N:289:Healing
 G:!:d
 I:75:34:3
 W:15:0:4:300
@@ -2689,9 +2698,9 @@ X:3:1d1:100
 A:15/1:60/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-U:HEAL_CURE_2
+U:HEAL_CURE_3
 
-N:289:*Healing*
+N:290:*Healing*
 G:!:d
 I:75:35:5
 W:40:0:4:1500
@@ -2699,9 +2708,9 @@ X:3:1d1:100
 A:40/4:80/2
 P:0:1d1:0:0:0
 F:EASY_KNOW
-U:HEAL_CURE_3
+U:HEAL_CURE_4
 
-N:290:Life
+N:291:Life
 G:!:d
 I:75:36:8
 W:60:0:4:5000
@@ -2711,25 +2720,15 @@ P:0:1d1:0:0:0
 F:EASY_KNOW
 U:LIFE
 
-N:291:Slow Poison
-G:!:d
-I:75:37:1
-W:1:0:4:25
-X:3:1d1:100
-A:1/1
-P:0:1d1:0:0:0
-F:EASY_KNOW
-U:CURE_POISON_1
-
 N:292:Neutralize Poison
 G:!:d
 I:75:38:2
-W:5:0:4:75
+W:5:0:4:65
 X:3:1d1:100
 A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-U:CURE_POISON_2
+U:CURE_POISON
 
 N:293:Cure Disease
 G:!:d
@@ -3153,7 +3152,7 @@ W:20:0:10:350
 X:13:1d1:25
 A:20/1
 P:0:1d1:0:0:0
-U:TELE_OTHER
+U:TELE_OTHER_BEAM
 
 N:337:Call Monster
 G:-:d
@@ -3810,7 +3809,7 @@ X:8:1d1:10
 A:45/2
 P:0:1d1:0:0:0
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-U:TELE_OTHER
+U:TELE_OTHER_BEAM
 
 N:407:Disarming
 G:`:d
@@ -4234,7 +4233,7 @@ F:CHR | HIDE_TYPE | IGNORE_ELEM
 N:451:& Harp~
 G:/:v
 I:50:5:1
-W:3:0:50:300
+W:3:0:40:300
 X:6:1d1:50
 A:3/3:20/1:40/1:60/1
 F:CHR | HIDE_TYPE | IGNORE_ELEM
@@ -4667,12 +4666,21 @@ W:40:0:75:10000
 X:13:1d1:0
 P:0:1d1:0:0:0
 
+# The Pipes of pan
+
+N:505:Pipes
+G:/:o
+I:50:6:5
+W:85:0:10:1000000
+X:6:1d1:0
+P:0:1d1:0:0:0
+F:CHR | HIDE_TYPE | IGNORE_ELEM
+
 #### The Quest Artifact #####
 
-N:505:Quest Item
+N:506:Quest Item
 G:$:v
 I:5:0:0
 W:0:0:10:0
 X:16:1d1:0
 P:0:1d1:0:0:0
-

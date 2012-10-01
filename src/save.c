@@ -516,6 +516,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->stun);
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->diseased);
+	wr_s16b(p_ptr->taint);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
 	wr_s16b(p_ptr->resilient);
@@ -624,8 +625,8 @@ static void wr_dungeon(void)
 	wr_u16b(p_ptr->depth);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
-	wr_byte(p_ptr->cur_hgt);
-	wr_byte(p_ptr->cur_wid);
+	wr_byte(p_ptr->cur_map_hgt);
+	wr_byte(p_ptr->cur_map_wid);
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -634,9 +635,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Extract the important cave_info flags */
 			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
@@ -672,9 +673,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < p_ptr->cur_hgt; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < p_ptr->cur_wid; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Extract a byte */
 			tmp8u = cave_feat[y][x];

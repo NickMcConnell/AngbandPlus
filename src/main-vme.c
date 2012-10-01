@@ -53,6 +53,7 @@ SM20616@vm.lanet.lv or SD30066@vm.lanet.lv
 
 #if defined(USE_VME) || defined(VM)
 
+#include "main.h"
 
 /*
  * Convert EBCDIC to ASCII
@@ -351,10 +352,13 @@ static errr Term_xtra_vm(int n, int v)
 }
 
 
+const char help_vme[] = "VM/ESA";
+
+
 /*
  * Initialize the VM/CNSconsole.
  */
-errr init_vme(void)
+errr init_vme(int argc, char **argv)
 {
 	register i;
 
@@ -363,6 +367,10 @@ errr init_vme(void)
 	short blank = ' ';
 
 	static int done = FALSE;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Paranoia -- Already done */
 	if (done) return (-1);
@@ -554,7 +562,8 @@ void InitConsole(void)
 	/* Test PSS */
 	system("desbuf");
 	system("query display (stack");
-	gets(pss);
+	pss[0] = '\0';
+	fgets(pss, sizeof(pss), stdin);
 	i=1;
 	if (pss[63]!='P') i=0;
 	if (pss[64]!='S') i=0;
