@@ -73,12 +73,16 @@ extern byte option_page[4][16];
 /* variable.c */
 extern u32b life_drained;
 extern u32b psi_flags;
+extern u16b dungeon_aura_type,dungeon_aura_level;
 extern int fade_dam;
 extern psi_aux *pa_ptr;
 extern bool no_rating_bonus;
 extern bool fade_dam_on;
 extern int meta_psi_lev;
 extern char *_killer;
+extern int no_fw,fw_x[100],fw_y[100];
+extern int town_special;
+extern bool bale_clone_hack;
 
 extern cptr copyright[5];
 extern byte version_major;
@@ -289,6 +293,7 @@ extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
 
 /* cmd2.c */
+extern void do_cmd_racial_power();
 extern void do_cmd_go_up(void);
 extern void do_cmd_go_down(void);
 extern void do_cmd_search(void);
@@ -343,6 +348,13 @@ extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
 
 /* cmd5.c */
+extern void show_durations();
+extern void show_aura();
+extern void do_balefire_effects(int effect);
+extern void time_travel(bool forward);
+extern int get_balefire_effect();
+extern int get_psi_cost(int spell);
+extern int amplify_dam(int dam);
 extern void do_cmd_psi(void);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
@@ -542,6 +554,7 @@ extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 
 /* spells2.c */
+extern bool project_los(int typ,int dam);
 extern bool hp_player(int num);
 extern void warding_glyph(void);
 extern bool do_dec_stat(int stat);

@@ -1,4 +1,4 @@
-Psionic Angband 1.0.6:
+Psionic Angband 1.0.7:
 an attempt at documentation
 
 Brief Summary:
@@ -6,7 +6,7 @@ Brief Summary:
 exception of magic missile and other early attacks) are mainly utility and
 defense.  The result is that mages rely on hand to hand, but cautiously
 until getting globe of invulnerability (GOI) which makes the end-game silly.
-The class of the psioncist attempts to rectify this in several ways.  First,
+The class of the psionicist attempts to rectify this in several ways.  First,
 psionicists are weaker fighters than mages and have no GOI.  Also, many mage
 attacks become useless since every monster is resistant to them at high
 levels and their damage remains relatively constant.  Most psionic attacks
@@ -34,9 +34,9 @@ to read the fine print has already resulted in one YASD.
  A psionic "spell book" is called a focus and a psionic "spell" is a power.
 There are 18 different psionic foci, divided into 6 disciplines and 3
 levels (not to be confused with every other kind of level).  Wielding a
-focus (in the amulet slot) gives you various boni and allows you to use
+focus (in the amulet slot) gives you various bonuses and allows you to use
 its powers.  They are destroyed only by electricity , but level 2 & 3
-foci get saves.  Higher level foci give better boni when wielded and
+foci get saves.  Higher level foci give better bonuses when wielded and
 are necessary for certain powers.
 
 A few general things.  Psionicists are worse fighters than mages and have a
@@ -60,6 +60,9 @@ Telepathy:
 I - +2 wis,chr
   Mind Thrust - the equivalent of magic missile +
     stunning/confusion/fear/sleep
+  Empathy - If successful, it makes the affected monsters more
+    vulnerable to telepathic attacks.  It also cancels the penalties
+    for attack animals or stupid monsters.
   Mental Barrier - sust int,wis - res fear,conf, and a few monster spells
   Intimidate - like mage's fear but stronger
   Sleep - ditto
@@ -105,6 +108,9 @@ I - +2 AC
 II - +5 AC, +2 dex
   Probability Travel - temporarily can teleport level at will with '<' and '>'
   Banishment - teleport other in a beam (just like everyone else)
+  Steal Time - a bolt of time that gives you all or part of a free turn depending
+    on how much damage it does.
+  Time Control - temporary haste, effective even while already hasted
 
 III - +10 AC, +6 dex, random teleportation (as ring of teleportation)
   Recall - another staple
@@ -115,7 +121,10 @@ III - +10 AC, +6 dex, random teleportation (as ring of teleportation)
 Psychometabolism:
 I - +2 con - sust str,con
   Cell Adjustment - minor but efficient healing
-  Adrenaline Contol - like berserk but better
+  Adrenaline Control - like berserk but better.  When it ends, though, you
+    risk a "crash," causing slowness and other unpleasant effects.  It and
+    biofeedback cancel each other out, and that's a relatively safe way to
+    end it.
   Biofeedback - 1/2 damage from most physical attacks
   Energy containment - resist fire,cold,elec,acid,poison
 
@@ -132,6 +141,9 @@ III - +3 str,con,dex - sust str,con,dex - hold life
 Psychokinesis:
 I - res force
   Project Force - a beam of force with "fading damage" (important: see below)
+  Force Wall - creates a temporary wall of force that bolts and monsters
+    can't cross.  It costs more to maintain the further away it is.  The '#'
+    command will let you destroy them.
   Inertial Barrier - 1/2 dam from monster breaths
   Sonic Boom - radius 5, sound attack
   Detonate - like meteor storm, radius 2.
@@ -152,11 +164,14 @@ I
   Receptacle - drain charges to get mana (note: it's best to not to drain
     wands halfway with this power - now they do damage when they explode)
   Psychic Surgery - restore int,wis,exp - remove fear
+  Intensify - Every level of intensification increases the mana costs of
+    all of your powers by 50% and their damages and durations by a third.
+    i.e. level 3 would double damage and increase costs by 150%.  There is
+    a small cost to maintain it.  Cast intensify again to end it.
 
 II
   Splice - do several powers in a row - cast it again to end a splice early.
   Ultrablast - a large psionic ball centered on yourself.
-  Time Control - haste, but effective even if already hasted.
 
 III
   Psychic Drain - a psionic attack that gives you mana.  It costs roughly
@@ -175,6 +190,7 @@ I - +3 searching
   Reveal Secrets - detect doors, traps, stairs
   Clairvoyance - magic mapping
   Awareness - temporary telepathy
+  Metaphysical Analysis - describes all temporary magical effects and level auras
 
 II - +4 searching, res blind
   Read Object - identify
@@ -182,64 +198,65 @@ II - +4 searching, res blind
 III - +5 searching, res blind, telepathy
   Read Aura - *identify*
   Analyze Monster - get full monster recall if it fails its save
-  Precognition - you notice OOD items/monsters and vaults on level creation
+  Precognition - You notice out of depth items/monsters and vaults on level 
+    creation.  It also gives warnings for cannibalize.
 
 Note: Normally, psionicists get feelings about objects the same way as mages.
 When wielding a clairsentience focus, they get feelings as warriors
 (far better).
 
-Note: Included in the lib\edit directory is "r_info2.txt," an experimental
-version where many monsters have psionic attacks.  Use at your own risk.
-
 Certain attacks lose approximately 1/3 of their damage after each monster.
 They are currently project force, psychic drain and life draining.
 
 Certain powers cause you to lose (or gain) part of a turn.  Normally, one
-action takes 100 energy.  There are some exceptions: shooting a bow when
-you have 2 shots/round costs 50 energy per shot.  Basically gaining or
-losing 1 energy is equivalent to gaining or losing 1% of a turn.
-
-Time Shift - gain 5d(level) energy
-Dimension Door - lose (60 - level) energy.  100 more if the destination
-  is bad.  (i.e. "You fail to exit the astral plane correctly.")
-Psychic Drain - lose d150 energy
-Complete Healing - lose 350 - 2*level energy
+action takes 100 energy.  There are some exceptions: for example, shooting
+ a bow when you have 2 shots/round costs 50 energy per shot.  Basically, 
+gaining or losing 1 energy is equivalent to gaining or losing 1% of a turn.
+These powers are as follows:
+ Time Shift - Gain 5d(level) energy.
+ Dimension Door - Lose (60 - level) energy.  100 more if the destination
+   is bad.  (i.e. "You fail to exit the astral plane correctly.")
+ Psychic Drain - Lose d150 energy.
+ Complete Healing - Lose 350 - 2*level energy.
 
 Certain temporary powers do damage if their duration becomes too long.
 This only happens if you try to "save up" a large amount of adrenaline
 control, for example.  When you take damage, the duration of the spell
-will be reduced.
+will be reduced.  The effects are as follows:
+ Time Control - hits you with a ball of time
+ Shadowform - hits you with a nether ball
+ Adrenaline Control - simply does damage
+ Biofeedback - reduces duration without doing damage
+ Inertial Barrier - hits you with inertia (what else?)
+ Awareness - causes you to space out for a little while (lose d200 energy)
+   The percent chance of this each turn is (# of turns of awareness left)
+   divided by 1000, rounded down.  After you receive the message the first
+   time and until awareness wears off or you quit, it's abbreviated as a
+   period.
 
-Time Control - hits you with a ball of time
-Shadowform - hits you with a nether ball
-Adrenaline Control - simply does damage
-Biofeedback - reduces duration without doing damage
-Inertial Barrier - hits you with inertia (what else?)
-Awareness - causes you to space out for a little while (lose d200 energy)
-  The percent chance of this each turn is (# of turns of awareness left)
-  divided by 1000, rounded down.  After you receive the message the first
-  time and until awareness wears off or you quit, it's abbreviated as a
-  period.
-
-Three other powers can also kill you:
+Three other powers can also kill you: 
 Receptacle, Cannibalize and Death Field.
+It should be obvious why.
 
 Here are the other changes, largely unrelated to psionics:
--Keldon Jones's monster AI patch was added (ver 0.1.1).
+-Keldon Jones's monster AI patch was added (ver 0.1.1) and changed so that
+  all pack monsters (not just animals) will try to draw the player out of
+  corridors.
 -Many monsters have psionics.  If you're not playing a psionicist, this
-  could be dangerous.
+  could be dangerous.  More on this later.
 -Most dragons' melee attacks are much stronger.
 -The black market generates deeper items the deeper you go.
--OOD monsters in vaults no longer contribute to level feelings.
+-Out of depth  monsters in vaults no longer contribute to level feelings.
 -Ctrl-J is a new debugging command.  Note: setting the value of "oops" to 0
 and then saving will wipe out temporary psionic effects.
 -A more powerful heal spell has been added for monsters.
--Greg Wooledge's random artifacts (0.6.0) have been added
--the random artifact generator has been changed slightly
--temporary resistances have a chance of vanishing if built up too much.
-There is a (# of turns of resistance left) divided by 256 (rounded down)
-percent chance each turn of this happening.  This is in response to
-energy containment.
+-Greg Wooledge's random artifacts (0.6.0) have been added.
+-The random artifact generator has been changed slightly (making it
+ incompatible with non-psiband savefiles with GW random artifacts).
+-Temporary resistances have a chance of vanishing if built up too much.
+ There is a (# of turns of resistance left) divided by 64 (rounded down)
+ percent chance each turn of this happening.  This is in response to
+ energy containment.
 -'C' shows average weapon damage, not counting to_hit and slays
 -missiles show average damage when the appropriate launcher is used
 (again, not counting to hit and slays, which are now more significant)
@@ -249,12 +266,12 @@ energy containment.
 -The autoroller is about 1000 times faster in maximize mode.
 -Cheat_know doesn't say 32767 kills any more (a side effect of analyze monster).
 -Certain level generation constants have been slightly changed.
-(OOD items/monster and vaults are more common)
+(Out of depth items/monster and vaults are more common)
 
 Future changes:
 -Right now, few monsters actually have the new heal spell. (You can add it by
-adding HEAL2 to their spell lists).  It also maybe too powerful when combined
-with monster AI.
+adding HEAL2 to their spell lists).  It also is maybe too powerful when
+combined with monster AI.
 -The domination interface could still use improvement.
 -Exclusively psionic monsters should be added (like mind flayers).
 -Psionicists may still be overpowered at high levels and probably favor
@@ -272,6 +289,9 @@ ftp://export.andrew.cmu.edu/angband/Variant
 The files are p_exe???.zip, p_src???.zip, p_doc???.txt and p_dif???.txt
 (??? is the appropriate version.)  Immediately after uploading,
 they are in the /angband/Incoming directory, where they are invisible.
+Also of possible interest is "pziband," a merger of psiband and
+zangband.  The filenames are the same, except with "pz" instead of "p_",
+and the version, as of this writing, is 1.1.0. (ex: pzexe110.zip)
 
 Note to programmers:
 Psionic angband adds several internal features to the game.
@@ -288,85 +308,130 @@ Psionic angband adds several internal features to the game.
  -I think that lib/edit/*_info.txt files can have entries out of
   order now, but that may not be true for all.
 
-Credits:  Thanks to Keldon Jones, the author of Kamband (whose name
-I don't know) and Greg Wooledge for allowing me to use parts of their
-code (monster AI, automatic control of dominated monsters and random
-artifacts respectively).  Thanks to Cam Moore, Neal Stangis and many
-others for bug reports, suggestions and support.  Finally, I appreciate
-the efforts of those who compile this for platforms other than DOS.
+Note on monster psionics:
+Monsters also have psionic attacks now, which can be quite deadly
+if not resisted.  The attacks also come in three levels of power
+(independant of damage).  The first is easily resisted and generally
+causes few special effects like confusion or stunning.   The second
+and third levels of psionic attacks are resisted with more difficulty
+and are more likely to cause side effects.  The third is particularly
+dangerous as every point of damage it does risks causing an effect
+randomly chosen from confusion, stun, paralysis, slow, int/wis drain,
+mana drain and amnesia.  The particular spells that monsters have 
+available are as follows (L denotes monster level): Psychic Crush (3dL
+damage, level 2), Psionic Blast (3dL damage, level 1, a ball spell),
+Mind Wrack(1d(2dL) dmg, level 3), Psychic Wave (Ld4 dmg, level 2) and
+breathing insanity (monster hp/4 dmg, max 800, level 1).  To resist all
+of these, resist confusion, sustain int/wis and being paralyzed help.
+Being berserk, confused or stunned hurts and having telepathy or enhanced
+int or wis will help if you manage to resist or hurt if you don't.
+Some people think that monster psionics are too powerful and that the
+psionicist class doesn't need them as a counter-balance; in that case,
+there is a file called r_info.old in the lib/edit directory with almost
+no monster psionics.  Simply copy this over r_info.txt and delete r_info.raw
+from lib/data to eliminate these attacks.
+
+Credits:  Thanks to Keldon Jones, Ivan Tkechev and Greg Wooledge for
+allowing me to use parts of their code (monster AI, automatic control
+of dominated monsters and random artifacts respectively).  Thanks
+to Cam Moore, Neal Stangis, and many others for bug reports, suggestions
+and support.  Finally, I appreciate the efforts of those who compile
+this for platforms other than DOS.
 
 History:
-1.0.6 - based on angband 2.8.3
-	added Keldon Jones's monster AI (ver 0.1.1)
-        telepathic attacks are more effective against high level monsters
-	the pet code for kamband was stolen for dominated monsters, meaning that
-	  you no longer have to (or can) micromanage them any more.
-        dragons fight better
-        the RES_PSI item flag is more useful
-        some monsters have the RES_PSI and IM_PSI flags
-	"Known bugs / Future changes" was replaced with "Future changes."
-        cannibalize has a confirm prompt and precognition warns about it
-        spells with durations were weakened
-        deep foci are more shallow and rarer
-        the awareness float message has been abbreviated
-        the awareness high happens earlier
-        when domination ends you risk a psychic attack from the monster
-        adrenaline overdose does more damage
-        energy containment ends early more often and doesn't last as long
-        biofeedback speeds regeneration and has other minor effects
-        certain monster attacks risk causing amnesia
-        metapsionic foci work
-        monster psionics are weaker and more dependent on monster level
-        they are also standard - r_info.old is without psionics
+1.0.7 - Balefire is now more true to the original idea.  This means that it
+	  is more powerful (less resisted) and has very dangerous side effects.
+        Pet displacement now works.
+        Time control was moved to psychokinesis.
+        Several new powers were added: empathy, intensify, metaphysical
+          analysis, wall of force and time bolt.
+        It is now based on the final version of 2.8.3.
+	Monster psionics were weakened and paralyzed characters resist
+	  mental attacks better now.
+	Telepathic attacks against undead and demons
+	Monster AI is now optional.
+	A new option/command was added to order your pets to follow you
+	  (instead of going after other monsters).
+	Adrenaline control is slightly weaker, is incompatible with
+	  biofeedback and risks cutting out suddenly and causing "crashes"
+	  when it ends.
+	High level psionicists have weaker melee skill.
+	Being hungry is more debilitating and more spells cause it.
+	Added a command to remove force walls ('U').
+	Added detonate and ultrablast side effects.
+	Balefire is cheaper and other PK attacks are more expensive.
+
+1.0.6 - Based on angband 2.8.3
+        Added Keldon Jones's monster AI (ver 0.1.1)
+        Telepathic attacks are more effective against high level monsters.
+        The pet code for kamband was stolen for dominated monsters, meaning 
+          that you no longer have to (or can) micromanage them any more.
+        Dragons fight better.
+        Stunned monsters aren't helpless (a la gw-angband).
+        The RES_PSI item flag is more useful.
+        Some monsters have the RES_PSI and IM_PSI flags.
+        Cannibalize has a confirm prompt and precognition warns about it.
+        Spells with durations were weakened.
+        Deep foci are more shallow and rarer.
+        The awareness "float" message has been abbreviated.
+        The awareness high happens earlier.
+        When domination ends you risk a psychic attack from the monster.
+        Adrenaline overdose does more damage.
+        Energy containment ends early more often and doesn't last as long.
+        Biofeedback speeds regeneration and has other minor effects.
+        Certain monster attacks risk causing amnesia.
+        Metapsionic foci work.
+        Monster psionics are weaker and more dependent on monster level.
+        They are also standard - r_info.old is without psionics.
         OOD monsters in jelly pits, zoos and graveyards no longer
-          contribute to level feeling - instead there is a fixed bonus
-        semantic changes, typos fixed, spell descriptions updated, etc..
-        failure rates no longer have a 5% minimum
+          contribute to level feeling - instead there is a fixed bonus.
+        Semantic changes, typos fixed, spell descriptions updated, etc..
+        Failure rates no longer have a 5% minimum.
 
-1.0.6 alpha - implements some of the 1.0.6 changes and is only released
-        on the amiga
+1.0.6 alpha - Implements some of the 1.0.6 changes and is only released
+          on the amiga.
 
-1.0.5 - precognition now works
-        fixed bug where monsters couldn't become confused (whoops)
-        buffering powers is now dangerous
-        RES_PSI and IM_PSI were introduced as monster flags
-        RES_PSI, META_PSI1 and META_PSI2 were introduced as item flags
+1.0.5 - Precognition now works.
+        Fixed bug where monsters couldn't become confused.
+        Buffering powers is now dangerous.
+        RES_PSI and IM_PSI were introduced as monster flags.
+        RES_PSI, META_PSI1 and META_PSI2 were introduced as item flags.
          (metapsionics flags work like binary, for "META_PSI3" use both)
-        several new psionic attacks were added for monsters (although
-          few monsters actually have them)
-        psychic drain was toned down
-        temporary resistances have a chance of vanishing if you build them
-          up too much
-        confused monsters are more susceptible to psionic attacks
-        domination wears off faster and the cursor is less buggy
-        telepathic attacks have internal probabilities changed
-        this documentation is more comprehensive
+        Several new psionic attacks were added for monsters (although
+          few monsters actually have them).
+        Psychic drain was toned down.
+        Temporary resistances have a chance of vanishing if you build them
+          up too much.
+        Confused monsters are more susceptible to psionic attacks.
+        Domination wears off faster and the cursor is less buggy.
+        Telepathic attacks have internal probabilities changed.
+        This documentation is more comprehensive.
 
-1.0.4 - the random artifact version is now 0.6.0
-        the random artifact generator now loads a fresh artifact list
+1.0.4 - The random artifact version is now 0.6.0.
+        The random artifact generator now loads a fresh artifact list
          whenever it fails to create an appropriate one (instead of
-         reprocessing the old one)
+         reprocessing the old one).
 
-1.0.3 - replaces "focuses" with "foci" and other semantic changes
-        fixes average damage
-        uniques resist a few special attacks better and recover faster from
-          being stunned
-        the "deep" foci are now rarer
-        psionic foci are pre-*identified*
-        the black market level now has a minimum
-        a few autoroller bugs were fixed
-        a few internal changes will facilitate eventual random uniques
-        NO_PSI_ERASE is no longer the default
-        the HEAL2 spell no longer results in hp overflow
+1.0.3 - Replaces "focuses" with "foci" and other semantic changes.
+        Fixes average damage.
+        Uniques resist a few special attacks better and recover faster from
+          being stunned.
+        The "deep" foci are now rarer.
+        Psionic foci are pre-*identified*.
+        The black market level now has a minimum.
+        A few autoroller bugs were fixed.
+        A few internal changes will facilitate eventual random uniques.
+        NO_PSI_ERASE is no longer the default.
+        The HEAL2 spell no longer results in hp overflow.
 
-1.0.2 - fixes almost every remaining bug introduced in ver 1.0.0
-        (thanks to Cam Moore) - one might call it "semi-stable"
+1.0.2 - Fixes almost every remaining bug introduced in ver 1.0.0
+        (thanks to Cam Moore) - one might call it "semi-stable."
 
-1.0.1 - fixes random severe bugs (like not wielding foci)
+1.0.1 - Fixes random severe bugs (like not wielding foci).
 
-1.0.0 - brings psionic angband to angband 2.8.2, random artifacts 0.5.1
-        makes psionicists more balanced, introduces fading damage
-        introduces several bugs in the port
+1.0.0 - Brings psionic angband to angband 2.8.2, random artifacts 0.5.1.
+        Makes psionicists more balanced, introduces fading damage.
+        Introduces several bugs in the port.
 
 unnumbered - psi_exe.zip and psi_src.zip existed based on angband 2.8.1
 

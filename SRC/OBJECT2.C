@@ -4094,7 +4094,7 @@ void inven_item_optimize(int item)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -4817,7 +4817,7 @@ bool spell_okay(int spell, bool known)
 	return (!known);
 }
 
-
+#define a(x) amplify_dam(x)
 
 /*
  * Extra information on a spell		-DRS-
@@ -4832,58 +4832,76 @@ void spell_info(char *p, int spell)
 	/* Default */
 	strcpy(p, "");
 
-   /* Psionic powers */
+	/* Psionic powers */
 	if (mp_ptr->spell_book == TV_PSI_BOOK)
-	{
-		int plev = p_ptr->lev;
-		switch (spell)
-		{
-		   case 0: sprintf(p," dam %dd4",1 + plev / 4); break; /*MThrust*/
-	      case 1: sprintf(p," dur d%d",20 + 2 * plev); break; /*MBarrier*/
-		   case 2: sprintf(p," dam %dd9", plev); break;     /*PCrush*/
-		   case 5: sprintf(p," dam %d",5 * plev); break;       /*PBlast*/
-	      case 6: sprintf(p," dam 2d%d",plev); break;         /*MWrack*/
+	  {
+	    int plev = p_ptr->lev;
+	    switch (spell)
+	      {
+	      case 0: sprintf(p," dam %dd4",a(1 + plev / 4)); break; /*MThrust*/
+	      case 1: if (plev > 25) sprintf(p," LOS"); else
+		sprintf(p," rad %d",plev / 5); break;           /*Empathy*/
+	      case 2: sprintf(p," dur d%d",a(20 + 2 * plev)); break; /*MBarrier*/
+	      case 3: sprintf(p," dam %dd9", a(plev)); break;        /*PCrush*/
+		/* 4 = intimidate , 5 = sleep */
+	      case 6: sprintf(p," dam %d",a(5 * plev)); break;       /*PBlast*/
+	      case 7: sprintf(p," dam 2d%d",a(plev)); break;         /*MWrack*/
+		/* 8 = domination, 9 = amnesia */
+		
+	      case 10:sprintf(p," range %d",a(10)); break;                /*Blink*/
+	      case 11:sprintf(p," range %d",a(5 * plev)); break;      /*Tport*/
+	      case 12:sprintf(p," range %d",a(plev + 2)); break;      /*DDoor*/
+	      case 13:sprintf(p," dur %d + d%d",a(plev/8 - 3),a(5));break; /*PTravel*/
+		/* 14 = teleport other, 15 = recall*/
+	      case 16: sprintf(p," dur %d+d%d",a(plev),a(20)); break;     /*TControl*/
+	      case 17: sprintf(p," dam 10d%d",a(plev)); break;        /*T Bolt*/
+	      case 18: sprintf(p," dur dd%d",a(plev + 100)); break;   /*TSAnch*/
+	      case 19: sprintf(p," (5d%d)%%",a(plev)); break;         /*TShift*/
+		
+	      case 20: sprintf(p," heal %dd6",a(plev / 2)); break;  /*CellAdj*/
+		/* 21 = satisfy hunger */
+	      case 22: sprintf(p," dur %d+d%d",a(plev),a(20)); break;     /*Adren*/
+	      case 23: sprintf(p," dur d%d",a(10 + plev)); break;   /*Biofeed*/
+	      case 24: sprintf(p," dur dd%d",a(12 + plev)); break;  /*Shadow*/
+	      case 25: sprintf(p," dam %dd10",a(plev)); break;      /*DrainL*/
+		/* 26 = double pain */
+	      case 27: sprintf(p," dur %d+d%d",a(10),a(20)); break; /*EnergyC*/
+	      case 28: sprintf(p," dam 15d(6d%d)",a(plev)); break;  /*DeathF*/
+		/* 29 = complete healing */
+		
+	      case 30: sprintf(p," dam 3d%d",a(plev)); break;        /* LControl */
+		/* 31 = wall of force */
+	      case 32: sprintf(p," dur d%d",a(20 + plev / 2)); break; /*Inertia*/
+	      case 33: if (plev > 30) plev = 30 + (plev - 30) / 4;
+		sprintf(p," dam 3d%d",a(plev)); break;                 /*PForce*/
+	      case 34: if (plev > 30) plev = 30 + (plev - 30) / 4;
+		sprintf(p," dam %d",a(30+plev*2)); break;              /*SonicB*/
+	      case 35: if (plev > 30) plev = 30 + (plev - 30) / 2;
+		sprintf(p," dam %dd9",a(plev)); break;                 /*Disin*/
+	      case 36: sprintf(p," dam %d",a(plev*9 - 36)); break;  /*SoCold*/
+	      case 37: sprintf(p," dam %d",a(plev*15 - 65)); break; /*FireE*/
+	      case 38: if (plev > 40) plev = 40;
+		sprintf(p," dam 15d%d",a(plev)); break;      /*Detonate*/
+	      case 39: sprintf(p," dam 5d%d",a(p_ptr->chp)); break; /*Balefire*/
 
-		   case 9:sprintf(p," range 10"); break;                /*Blink*/
-		   case 10:sprintf(p," range %d",5 * plev); break;      /*Tport*/
-         case 11:sprintf(p," range %d",plev + 2); break;      /*DDoor*/
-	      case 12:sprintf(p," dur %d + d5",plev/8 - 3);break; /*PTravel*/
-	      case 15:sprintf(p," dur dd%d",plev + 100); break;    /*TSAnch*/
-	      case 16:sprintf(p," (5d%d)%%",plev); break;          /*TShift*/
+		/* 40 = cannibalize */
+	      case 41: sprintf(p, " +(1 to %d)/3",(plev + 7) / 8); /*Intensify*/
+		break;
+		/* 42 = splice, 43 = receptacle, 44 = empower */
+	      case 45: sprintf(p," dam %dd6",a(plev/2)); break;   /*PDrain*/
+		/* 46 = psychic surgery */
+	      case 47: sprintf(p," dam 40d%d",a(plev)); break;      /*Ublast*/
+	      case 48: sprintf(p," dam 100d%d",a(plev)); break;     /*Ublast2*/
 
-	      case 17: sprintf(p," heal %dd6",plev / 2); break;  /*CellAdj*/
-	      case 19: sprintf(p," dur %d+d20",plev); break;     /*Adren*/
-	      case 20: sprintf(p," dur d%d",10 + plev); break;   /*Biofeed*/
-	      case 21: sprintf(p," dur dd%d",12 + plev); break;  /*Shadow*/
-	      case 22: sprintf(p," dam %dd10",plev); break;      /*DrainL*/
-	      case 24: sprintf(p," dur 10+d20"); break;          /*EnergyC*/
-	      case 25: sprintf(p," dam 15d(6d%d)",plev); break;  /*DeathF*/
-
-	      case 28: sprintf(p," dur d%d",20 + plev / 2); break;   /*Inertia*/
-         case 29: if (plev > 30) plev = 30;
-	               sprintf(p," dam 3d%d",plev); break;       /*PForce*/
-         case 30: if (plev > 30) plev = 30;
-	               sprintf(p," dam %d",30+plev*2); break;    /*SonicB*/
-         case 31: if (plev > 30) plev = 30;
-	               sprintf(p," dam %dd9",plev); break;       /*Disin*/
-	      case 32: sprintf(p," dam %d",plev*9 - 36); break;  /*SoCold*/
-	      case 33: sprintf(p," dam %d",plev*15 - 65); break; /*FireE*/
-	      case 34: sprintf(p," dam 20d%d",plev); break;      /*Detonate*/
-	      case 35: sprintf(p," dam 5d%d",p_ptr->chp); break; /*Balefire*/
-#if 0
-         case 38: sprintf(p," d%d/charge",plev); break;     /*Recep*/
-#endif
-	      case 40: sprintf(p," dam %dd6",plev / 2); break;   /*PDrain*/
-	      case 42: sprintf(p," dur %d+d20",plev); break;     /*TControl*/
-	      case 43: sprintf(p," dam 40d%d",plev); break;      /*Ublast*/
-	      case 44: sprintf(p," dam 100d%d",plev); break;     /*Ublast2*/
-
-	      case 46: sprintf(p," dur %d+d80",plev * plev / 5); break; /*Aware*/
-	      case 51: sprintf(p," dur d%d",plev); break;        /*Precog*/
-
-		}
-   }
-
+		/* 49 = detect monsters */
+	      case 50: sprintf(p," dur %d+d%d",a(plev*plev/5),a(80)); break; /*Aware*/
+		/* 51 = reveal secrets, 52 = clairvoyance, 53 = metaphysical
+		   analysis, 54 = read object, 55 = read aura */
+	      case 56: sprintf(p," dur d%d",a(plev)); break;        /*Precog*/
+		/* 57 = analyze monster */
+	      }
+	  }
+	
 	/* Mage spells */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
@@ -4962,6 +4980,8 @@ void spell_info(char *p, int spell)
 	}
 }
 
+#undef a
+
 
 /*
  * Print a list of spells (for browsing or casting or viewing)
@@ -5032,7 +5052,7 @@ void print_spells(byte *spells, int num, int y, int x)
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), spell_names[mp_ptr->spell_type][spell],
-		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
+		        s_ptr->slevel, get_psi_cost(spell), spell_chance(spell), comment);
 		prt(out_val, y + i + 1, x);
 	}
 

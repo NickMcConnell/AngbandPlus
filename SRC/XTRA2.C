@@ -1696,7 +1696,7 @@ void check_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -1727,7 +1727,7 @@ void check_experience(void)
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -2158,7 +2158,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		if (!(m_ptr->status & STATUS_BALE_CLONE))
+		  if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))

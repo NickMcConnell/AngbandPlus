@@ -353,7 +353,7 @@ static void regenhp(int percent)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -399,7 +399,7 @@ static void regenmana(int percent)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -451,14 +451,32 @@ static void regen_monsters(void)
 	}
 }
 
-
+int square_root(int x) /* not very accurate... */
+{
+  int a = 0,b = 0x40000000;
+  while (b)
+  {
+    while (x < (a+b))
+      {
+	a >>= 1;
+	b >>= 2;
+	if (!b) return a;
+      }
+    x -= a + b;
+    a >>= 1;
+    a |= b;
+    b >>= 2;
+  }
+  return a; /* << 8 */
+}
+   
 
 /*
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
 {
-	int i, j;
+	int i, j, k;
 
 	int regen_amount;
 
@@ -623,8 +641,8 @@ static void process_world(void)
 		}
 
 		/* Take damage */
-      if (!pa_ptr->biofeedback)
-		take_hit(i, "a fatal wound");
+		if (!pa_ptr->biofeedback)
+		  take_hit(i, "a fatal wound");
 	}
 
 
@@ -638,6 +656,9 @@ static void process_world(void)
 		{
 			/* Basic digestion rate based on speed */
 			i = extract_energy[p_ptr->pspeed] * 2;
+
+			if (pa_ptr->adrenaline) i *= 5;
+			if (pa_ptr->biofeedback) i *= 2;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -730,7 +751,8 @@ static void process_world(void)
 	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
 
-   if (pa_ptr->biofeedback) regen_amount += randint(0x400) + regen_amount;
+	/* Biofeedback helps (psi) */
+	if (pa_ptr->biofeedback) regen_amount += randint(0x400) + regen_amount;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -834,36 +856,36 @@ static void process_world(void)
 	/* Oppose Acid */
 	if (p_ptr->oppose_acid)
 	{
-      if ((p_ptr->oppose_acid >> 6) > randint(100)) p_ptr->oppose_acid = 1;
-		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
+	  if ((p_ptr->oppose_acid >> 6) > randint(100)) p_ptr->oppose_acid = 1;
+	  (void)set_oppose_acid(p_ptr->oppose_acid - 1);
 	}
 
 	/* Oppose Lightning */
 	if (p_ptr->oppose_elec)
 	{
-      if ((p_ptr->oppose_elec >> 6) > randint(100)) p_ptr->oppose_elec = 1;
-		(void)set_oppose_elec(p_ptr->oppose_elec - 1);
+	  if ((p_ptr->oppose_elec >> 6) > randint(100)) p_ptr->oppose_elec = 1;
+	  (void)set_oppose_elec(p_ptr->oppose_elec - 1);
 	}
 
 	/* Oppose Fire */
 	if (p_ptr->oppose_fire)
 	{
-      if ((p_ptr->oppose_fire >> 6) > randint(100)) p_ptr->oppose_fire = 1;
-		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
+	  if ((p_ptr->oppose_fire >> 6) > randint(100)) p_ptr->oppose_fire = 1;
+	  (void)set_oppose_fire(p_ptr->oppose_fire - 1);
 	}
 
 	/* Oppose Cold */
 	if (p_ptr->oppose_cold)
 	{
-      if ((p_ptr->oppose_cold >> 6) > randint(100)) p_ptr->oppose_cold = 1;
-		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
+	  if ((p_ptr->oppose_cold >> 6) > randint(100)) p_ptr->oppose_cold = 1;
+	  (void)set_oppose_cold(p_ptr->oppose_cold - 1);
 	}
 
 	/* Oppose Poison */
 	if (p_ptr->oppose_pois)
 	{
-      if ((p_ptr->oppose_pois >> 6) > randint(100)) p_ptr->oppose_pois = 1;
-		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	   if ((p_ptr->oppose_pois >> 6) > randint(100)) p_ptr->oppose_pois = 1;
+	   (void)set_oppose_pois(p_ptr->oppose_pois - 1);
 	}
 
 
@@ -895,67 +917,139 @@ static void process_world(void)
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
-      if (pa_ptr->biofeedback) adjust += adjust + 10;
+ 		if (pa_ptr->biofeedback) adjust += adjust + 10;
 
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
-   if (p_ptr->oops)
-   {
-      if (pa_ptr->awareness)
-	if (!--pa_ptr->awareness) 
-	{
-	   msg_print("You suddenly feel alone.");
-      float_dot = FALSE;
-      p_ptr->update |= PU_BONUS;
-      handle_stuff();
-	}
-      if (pa_ptr->adrenaline)
-      {
-        if (!--pa_ptr->adrenaline)
-	   msg_print("Your heart slows down to normal.");
-        p_ptr->update |= PU_BONUS | PU_HP;
-        handle_stuff();
-      }
-      if (pa_ptr->biofeedback) 
-	if (!--pa_ptr->biofeedback)
-	   msg_print("Your veins return to normal.");
-      if (pa_ptr->shadow_form) 
-	if (!--pa_ptr->shadow_form)
-	  msg_print("You resume corporeal form.");
-      if (pa_ptr->inertial_barrier) 
-	if (!--pa_ptr->inertial_barrier)
-	  msg_print("The inertial barrier dissipates.");
-      if (pa_ptr->prob_travel)
-	if (!--pa_ptr->prob_travel) 
-	  msg_print("You return to reality.");
-      if (pa_ptr->precognition)
-	if (!--pa_ptr->precognition)
-	  msg_print("The future recedes out of sight.");
-      if (pa_ptr->ts_anchor)
-	if (!--pa_ptr->ts_anchor)
-	  msg_print("Your block on extra-dimensional spaces unravels.");
-      if (pa_ptr->mental_barrier)
-	if (!--pa_ptr->mental_barrier)
-        {
-	  msg_print("Your psionic defenses go down.");
-          p_ptr->update |= PU_BONUS;
-          handle_stuff();
-         }
-   if ((pa_ptr->awareness >> 10) > rand_int(100))
-   {
-      if (float_dot) msg_print(".");
-      else
-      {
-        msg_print("Your mind temporarily floats out of your body.");
-        msg_print("This message will now be abbreviated by a period.");
-        float_dot = TRUE;
-      }
-      p_ptr->energy -= randint(200);
-   }
-   }
-
+ 
+ 	if (p_ptr->oops)
+ 	  {
+ 	    if (pa_ptr->awareness)
+ 	      if (!--pa_ptr->awareness) 
+ 		{
+ 		  msg_print("You suddenly feel alone.");
+ 		  float_dot = FALSE;
+ 		  p_ptr->update |= PU_BONUS;
+ 		  handle_stuff();
+ 		}
+ 	    if (pa_ptr->adrenaline)
+ 	      {
+                bool sudden = FALSE,crash = FALSE;
+ 		if (!--pa_ptr->adrenaline)
+ 		  if (!rand_int(3))
+ 		    {
+ 		      crash = TRUE;
+ 		      msg_print("Your adrenaline runs out, leaving you tired and weak.");
+ 		    }
+ 		  else
+ 		    msg_print("Your heart slows down to normal.");
+ 		else
+ 		  if (!rand_int(500))
+ 		    {
+ 		      msg_print("Your adrenaline suddenly runs out!");
+ 		      pa_ptr->adrenaline = 0;
+ 		      sudden = TRUE;
+ 		      if (!rand_int(2)) crash = TRUE;
+ 		    }
+ 		if (crash)
+ 		  {
+ 		    if (sudden)
+ 		      msg_print("You start to tremble as your blood sugar crashes.");
+ 		    set_slow(p_ptr->slow + rand_int(rand_int(32)));
+ 		    if (!rand_int(4)) set_paralyzed(p_ptr->paralyzed + rand_int(5));
+ 		    if (!rand_int(3)) set_stun(p_ptr->stun + rand_int(30));
+		    set_food(p_ptr->food - randint(p_ptr->food) - randint(500));
+		    if (p_ptr->food < PY_FOOD_STARVE + 50) set_food(PY_FOOD_STARVE + 50);
+ 		    if (sudden)
+ 		      {
+ 			if (!rand_int(4)) dec_stat(A_CON,randint(70),FALSE);
+ 			if (!rand_int(8)) dec_stat(A_STR,randint(40),FALSE);
+ 		      }
+ 		  }
+ 		p_ptr->update |= PU_BONUS | PU_HP;
+ 		handle_stuff();
+ 	      }
+ 	    if (pa_ptr->biofeedback) 
+ 	      if (!--pa_ptr->biofeedback)
+ 		msg_print("Your veins return to normal.");
+ 	    if (pa_ptr->shadow_form) 
+ 	      if (!--pa_ptr->shadow_form)
+ 		msg_print("You resume corporeal form.");
+ 	    if (pa_ptr->inertial_barrier) 
+ 	      if (!--pa_ptr->inertial_barrier)
+ 		msg_print("The inertial barrier dissipates.");
+ 	    if (pa_ptr->prob_travel)
+ 	      if (!--pa_ptr->prob_travel) 
+ 		msg_print("You return to reality.");
+ 	    if (pa_ptr->precognition)
+ 	      if (!--pa_ptr->precognition)
+ 		msg_print("The future recedes out of sight.");
+ 	    if (pa_ptr->ts_anchor)
+ 	      if (!--pa_ptr->ts_anchor)
+ 		msg_print("Your block on extra-dimensional spaces unravels.");
+ 	    if (pa_ptr->mental_barrier)
+ 	      if (!--pa_ptr->mental_barrier)
+ 		{
+ 		  msg_print("Your psionic defenses go down.");
+ 		  p_ptr->update |= PU_BONUS;
+ 		  handle_stuff();
+ 		}
+ 	    if ((pa_ptr->awareness >> 10) > rand_int(100))
+ 	      {
+ 		if (float_dot) msg_print(".");
+ 		else
+ 		  {
+ 		    msg_print("Your mind temporarily floats out of your body.");
+ 		    msg_print("This message will now be abbreviated by a period.");
+ 		    float_dot = TRUE;
+ 		  }
+ 		p_ptr->energy -= randint(200);
+ 	      }
+ 	    if (pa_ptr->intensify)
+	      {
+		i = p_ptr->csp_frac - (0x10000 * pa_ptr->intensify * pa_ptr->intensify) / 100;
+		if (i < 0)
+		  {
+		    if (p_ptr->csp == 0)
+		      {
+			msg_print("You can't maintain your psychic intensification any more!");
+			pa_ptr->intensify = 0;
+			p_ptr->csp_frac = 0;
+		      }
+		    else
+		      {
+			p_ptr->csp--;
+			p_ptr->csp_frac = i + 0x10000;
+		      }
+		  }
+	      }
+	    
+	    for (i=0 ; i<no_fw ; i++)
+	      {
+		j = distance(p_ptr->py,p_ptr->px,fw_y[i],fw_x[i]);
+		j = square_root(j * (0x1000000 / p_ptr->lev));
+		j *= 0x10;
+		k = p_ptr->csp_frac - j;
+		while (k < 0)
+		  if (p_ptr->csp == 0)
+		    {
+		      k = 0;
+		      msg_print("You can't maintain your walls of force any more!");
+		      for (; no_fw > i ; no_fw--)
+			cave_feat[fw_y[no_fw-1]][fw_x[no_fw-1]] = FEAT_FLOOR;
+		      p_ptr->redraw |= PR_MAP;
+		    }
+		else
+		  {
+		    p_ptr->csp--;
+		    k += 0x10000;
+		  }
+		p_ptr->csp_frac = k;
+	      } 
+ 	  }
+ 	
 
 
 	/*** Process Light ***/
@@ -1711,6 +1805,10 @@ static void process_command(void)
 			break;
 		}
 
+	case 'U':
+	  do_cmd_racial_power();
+	  break;
+
 		/* Character description */
 		case 'C':
 		{
@@ -2444,20 +2542,9 @@ static void dungeon(void)
 	character_xtra++;
 
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	/* Clear */
+	Term_clear();
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-
-	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
 
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2468,11 +2555,6 @@ static void dungeon(void)
 	/* Update stuff */
 	update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
 
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
@@ -2480,11 +2562,26 @@ static void dungeon(void)
 	/* Fully update the flow */
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
+	/* Redraw dungeon */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
 	/* Update stuff */
 	update_stuff();
 
 	/* Redraw stuff */
 	redraw_stuff();
+
+	/* Redraw stuff */
+	window_stuff();
 
 
 	/* Hack -- Decrease "xtra" depth */
@@ -2707,8 +2804,6 @@ void play_game(bool new_game)
 	/* Process old character */
 	if (!new_game)
 	{
-		/* Process the player name */
-		process_player_name(FALSE);
 	}
 
 	/* Init RNG */
@@ -2766,6 +2861,17 @@ void play_game(bool new_game)
 		turn = 1;
 	}
 
+	/* Normal machine (process player name) */
+	if (savefile[0])
+	{
+		process_player_name(FALSE);
+	}
+
+	/* Weird machine (process player name, pick savefile name) */
+	else
+	{
+		process_player_name(TRUE);
+	}
 
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
@@ -2786,7 +2892,7 @@ void play_game(bool new_game)
 
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);

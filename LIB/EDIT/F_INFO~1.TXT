@@ -368,5 +368,6 @@ M:60
 
 # 0x40 -> force wall
 
-N:64:force wall
-G:#:b
+#N:64:force wall
+#G:;:w
+#M:60

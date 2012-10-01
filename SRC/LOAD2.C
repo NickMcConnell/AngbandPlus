@@ -89,6 +89,8 @@ static bool older_than(byte x, byte y, byte z)
 	return (FALSE);
 }
 
+static bool older_extra(byte extra)
+{return (sf_extra < extra);}
 
 /*
  * Hack -- Show information on the screen, one line at a time.
@@ -531,9 +533,23 @@ static void rd_item(object_type *o_ptr)
 
 		rd_byte(&o_ptr->marked);
 	}
-
-	/* Old flags */
-	strip_bytes(12);
+#if 0
+   if (older_extra(1))
+   {
+     o_ptr->art_flags1 = 0;
+     o_ptr->art_flags2 = 0;
+     o_ptr->art_flags3 = 0;
+     strip_bytes(12);
+   }
+   else
+   {
+     rd_u32b(&o_ptr->art_flags1);
+     rd_u32b(&o_ptr->art_flags2);
+     rd_u32b(&o_ptr->art_flags3);
+   }
+#else
+   strip_bytes(12);
+#endif
 
 	/* Old version */
 	if (older_than(2,8,0))
@@ -568,6 +584,16 @@ static void rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
 
+#if 0
+   /* Ditto for random artifact name */
+   if (older_extra(1))
+     o_ptr->art_name = 0;
+   else
+   {
+     rd_string(buf, 128);
+	  if (buf[0]) o_ptr->art_name = quark_add(buf);
+   }
+#endif
 
 	/* Mega-Hack -- handle "dungeon objects" later */
 	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
@@ -871,9 +897,17 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
 	rd_byte(&tmp8u);
-	if (tmp8u & 1) m_ptr->smart |= SM_AMNESIA1;
-	if (tmp8u & 2) m_ptr->smart |= SM_AMNESIA2;
-	if (tmp8u & 4) m_ptr->smart |= SM_DOMINATE;
+	rd_u32b(&m_ptr->smart);
+	if (older_extra(1))
+	  {
+	    m_ptr->mana = 0; /* change in future */
+	    m_ptr->status = 0;
+	  }
+	else
+	  {
+	    rd_u16b(&m_ptr->mana);
+	    rd_u16b(&m_ptr->status);
+	  }
 }
 
 
@@ -1239,18 +1273,31 @@ static void rd_ghost(void)
 	}
 }
 
-static void rd_psi_aux()
+static errr rd_psi_aux()
 {
-	rd_s16b(&pa_ptr->awareness);
-        rd_s16b(&pa_ptr->adrenaline);
-	rd_s16b(&pa_ptr->biofeedback);
-	rd_s16b(&pa_ptr->shadow_form);
-	rd_s16b(&pa_ptr->inertial_barrier);
-	rd_s16b(&pa_ptr->prob_travel);
-	rd_s16b(&pa_ptr->precognition);
-	rd_s16b(&pa_ptr->mental_barrier);
-	rd_s16b(&pa_ptr->ts_anchor);
-	rd_s16b(&pa_ptr->your_mom_is_fat);
+  int i;
+  rd_s16b(&pa_ptr->awareness);
+  rd_s16b(&pa_ptr->adrenaline);
+  rd_s16b(&pa_ptr->biofeedback);
+  rd_s16b(&pa_ptr->shadow_form);
+  rd_s16b(&pa_ptr->inertial_barrier);
+  rd_s16b(&pa_ptr->prob_travel);
+  rd_s16b(&pa_ptr->precognition);
+  rd_s16b(&pa_ptr->mental_barrier);
+  rd_s16b(&pa_ptr->ts_anchor);
+  rd_s16b(&pa_ptr->intensify);
+  rd_s32b((s32b *)&no_fw);
+  if ((no_fw < 0) || (no_fw > 100))
+    {
+      note("Error - bad value for \"number of force walls\"");
+      return 1;
+    }
+  for (i = 0 ; i < no_fw ; i++)
+    {
+      rd_s32b((s32b *)&fw_x[i]);
+      rd_s32b((s32b *)&fw_y[i]);
+    }
+  return 0;
 }
 
 
@@ -1279,12 +1326,17 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->oops);	/* oops */
 
+	if (older_extra(1))
+	    p_ptr->pspec = (p_ptr->pclass == CLASS_PSIONICIST ? 0xAAA : 0);
+	else
+	  rd_u32b(&p_ptr->pspec);
+
 	/* Repair psex (2.8.1 beta) */
 	if (p_ptr->psex > MAX_SEXES - 1) p_ptr->psex = MAX_SEXES - 1;
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
-	rd_byte(&p_ptr->expfact);
+	rd_u16b(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1379,8 +1431,8 @@ static errr rd_extra(void)
 
    if (p_ptr->oops)
    {
-     rd_psi_aux();
-     i = 28;
+     if (rd_psi_aux()) return 1;
+     i = 24;
    }
    else 
    {
@@ -1393,7 +1445,7 @@ static errr rd_extra(void)
      pa_ptr->precognition = 0;
      pa_ptr->mental_barrier = 0;
      pa_ptr->ts_anchor = 0;
-     pa_ptr->your_mom_is_fat = 0;
+     pa_ptr->intensify = 0;
      i = 48;
    }
 
@@ -2256,8 +2308,8 @@ static errr rd_dungeon(void)
 	rd_s16b(&px);
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
-	rd_u16b(&tmp16u);
-	rd_u16b(&tmp16u);
+	rd_u16b(&dungeon_aura_type);
+	rd_u16b(&dungeon_aura_level);
 
 
 	/* Ignore illegal dungeons */

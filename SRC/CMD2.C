@@ -2488,13 +2488,13 @@ void do_cmd_fire(void)
 						/* Message */
 						msg_format("%^s flees in terror!", m_name);
 					}
-					if (m_ptr->smart & SM_DOMINATE) {
+                                        if (m_ptr->status & STATUS_DOMINATE) {
 					  char m_name[80];
 
 					  monster_desc(m_name, m_ptr, 0x80);
 
 					  msg_format("%^s howls in rebellion!", m_name);
-					  m_ptr->smart &= ~SM_DOMINATE;
+                                          m_ptr->status &= ~STATUS_DOMINATE;
 					}
 				}
 			}
@@ -2779,13 +2779,13 @@ void do_cmd_throw(void)
 						/* Message */
 						msg_format("%^s flees in terror!", m_name);
 					}
-					if (m_ptr->smart & SM_DOMINATE) {
+                                        if (m_ptr->status & STATUS_DOMINATE) {
 					  char m_name[80];
 
 					  monster_desc(m_name, m_ptr, 0x80);
 
 					  msg_format("%^s howls in rebellion!", m_name);
-					  m_ptr->smart &= ~SM_DOMINATE;
+                                          m_ptr->status &= ~STATUS_DOMINATE;
 					}
 				}
 			}
@@ -2802,4 +2802,273 @@ void do_cmd_throw(void)
 	drop_near(i_ptr, j, y, x);
 }
 
+
+
+/*
+ * Allow user to choose a power (racial / mutation) to activate
+ */
+void do_cmd_racial_power(void)
+{
+    int                     i = 0;
+
+    int                     Power = -1;
+    int                     num = 0;
+
+    int             powers[36];
+    char            power_desc[36][80];
+
+    bool            flag, redraw;
+    int             ask;
+
+	char            choice;
+
+    char            out_val[160];
+
+
+    int pets = 0, pet_ctr = 0;
+    bool all_pets = FALSE;
+    monster_type * m_ptr;
+
+    for (num = 0; num < 36; num++)
+    {
+        powers[num] = 0;
+        strcpy (power_desc[num], "");
+    }
+
+    num = 0;
+
+    if (p_ptr->confused)
+    {
+        msg_print("You are too confused to use any powers!");
+        p_ptr->energy_use = 0;
+        return;
+    }
+
+    /* Calculate pets */
+    /* Process the monsters (backwards) */
+    for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+	{
+		/* Access the monster */
+        m_ptr = &m_list[pet_ctr];
+        if (m_ptr->status & STATUS_DOMINATE)
+            pets++;
+        }
+
+    if (pets > 0)
+    {
+        strcpy(power_desc[num], "dismiss pets");
+        powers[num++] = POWER_DISMISS_PETS;
+    }
+
+    /* Add option to destroy force walls */
+    if (no_fw)
+      {
+	strcpy(power_desc[num], "end all force walls");
+	powers[num++] = POWER_END_ALL_FORCE_WALLS;
+	if (no_fw > 1)
+	  {
+	    strcpy(power_desc[num],"end one force wall");
+	    powers[num++] = POWER_END_ONE_FORCE_WALL;
+	  }
+      }
+
+    if (!num)
+      {
+	msg_print("You have no powers to activate.");
+	p_ptr->energy_use = 0;
+	return;
+      }
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+
+	/* Build a prompt (accept all spells) */
+    strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which power? ",
+        I2A(0), I2A(num - 1));
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+            /* Show the list */
+			if (!redraw)
+			{
+                byte y = 1, x = 13;
+                int ctr = 0;
+                char dummy[80];
+
+                strcpy (dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+                prt ("", y++, x);
+
+                while (ctr < num)
+                {
+                    sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
+                    prt(dummy, y + ctr, x);
+                    ctr++;
+                }
+                prt ("", y + ctr, x);
+
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+			}
+
+	    /* Redo asking */
+			continue;
+		}
+
+        if (choice == '\r' && num == 1)
+        {
+            choice = 'a';
+        }
+
+
+		/* Note verify */
+		ask = (isupper(choice));
+
+		/* Lowercase */
+		if (ask) choice = tolower(choice);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell(NULL);
+			continue;
+		}
+
+		/* Save the spell index */
+        Power = powers[i];
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+            strnfmt(tmp_val, 78, "Use %s? ", power_desc[i]);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+
+	/* Restore the screen */
+	if (redraw) Term_load();
+
+	/* Abort if needed */
+    if (!flag) 
+    {
+        p_ptr->energy_use = 0;
+        return;
+    }
+
+    p_ptr->energy_use = 100;
+
+        switch (powers[i])
+        {
+	case POWER_DISMISS_PETS:
+	  {
+            int Dismissed = 0;
+	    
+	    p_ptr->energy_use = 0;
+            if (get_check("Dismiss all pets? ")) all_pets = TRUE;
+	    
+            /* Process the monsters (backwards) */
+	    for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+            {
+                /* Access the monster */
+                m_ptr = &m_list[pet_ctr];
+                if (m_ptr->status & STATUS_DOMINATE) /* Get rid of it! */
+                {
+		  bool delete_this = FALSE;
+		  if (all_pets)
+		    delete_this = TRUE;
+		  else
+                    {
+		      char friend_name[80], check_friend[80];
+		      monster_desc(friend_name, m_ptr, 0x80);
+		      sprintf(check_friend, "Dismiss %s? ", friend_name);
+		      
+		      if (get_check(check_friend))
+			delete_this = TRUE;
+                    }
+		  
+		  if (delete_this)
+                    {
+		      delete_monster_idx(pet_ctr);
+		      Dismissed++;
+                    }		  
+                }
+            }
+	    msg_format("You have dismissed %d pet%s.", Dismissed,
+		       (Dismissed==1?"":"s"));
+	  }
+
+	case POWER_END_ALL_FORCE_WALLS:
+	  p_ptr->energy_use = 25;
+	  msg_format("You have destroyed %d force walls.",no_fw);
+	  while (no_fw)
+	    {
+	      no_fw--;
+	      cave_feat[fw_y[no_fw]][fw_x[no_fw]] = FEAT_FLOOR;
+	    }
+	  break;
+
+	case POWER_END_ONE_FORCE_WALL:
+	  {
+	    /* is there any reason for this to apply to glyphs? */
+	    int x,y;
+	    p_ptr->energy_use = 0;
+	    if (!tgt_pt(&y,&x)) break;
+	    if (cave_feat[y][x] != FEAT_FORCE_WALL) break;
+	    for (i=0 ; i<no_fw ; i++)
+	      if (fw_x[i] == x && fw_y[i] == y) break;
+	    if (i == no_fw)
+	      {
+		msg_print("Force wall accounting error.");
+		break;
+	      }
+	    cave_feat[y][x] = FEAT_FLOOR;
+	    no_fw--;
+	    fw_x[i] = fw_x[no_fw];
+	    fw_y[i] = fw_y[no_fw];
+	    p_ptr->energy_use = 25;
+	    msg_print("You remove one of your walls of force.");
+	    break;
+	  }
+            default:
+                p_ptr->energy_use = 0;
+                msg_format("Power %s not implemented. Oops.", powers[i]);
+        }
+
+	/* Success */
+    return;
+}
 

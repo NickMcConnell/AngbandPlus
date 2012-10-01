@@ -10,8 +10,8 @@
 
 #include "angband.h"
 
-
-
+static int bale_effect = 0;
+int blast_center_x,blast_center_y;
 
 /*
  * Helper function -- return a "nearby" race for polymorphing
@@ -359,18 +359,21 @@ static byte spell_color(int type)
 		case GF_MISSILE:	return (TERM_VIOLET);
 		case GF_ACID:		return (TERM_SLATE);
 		case GF_ELEC:		return (TERM_BLUE);
+	        case GF_BALEFIRE:
 		case GF_FIRE:		return (TERM_RED);
 		case GF_COLD:		return (TERM_WHITE);
 		case GF_POIS:		return (TERM_GREEN);
 		case GF_HOLY_ORB:	return (TERM_L_DARK);
 		case GF_MANA:		return (TERM_L_DARK);
 		case GF_ARROW:		return (TERM_WHITE);
+	        case GF_EMPATHY:
+	        case GF_DOMINATE:
 		case GF_WATER:		return (TERM_SLATE);
  		case GF_PSI:
 		case GF_NETHER:		return (TERM_L_GREEN);
- 		case GF_PSI2:
-      case GF_PSI3:
-      case GF_DOMINATE:
+	        case GF_PSI2:
+	        case GF_PSI3:
+	        case GF_AMNESIA:
 		case GF_CHAOS:		return (TERM_VIOLET);
 		case GF_DISENCHANT:	return (TERM_VIOLET);
 		case GF_NEXUS:		return (TERM_L_RED);
@@ -477,7 +480,7 @@ void take_hit(int dam, cptr kb_str)
 	p_ptr->redraw |= (PR_HP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
@@ -573,8 +576,6 @@ static bool hates_acid(object_type *o_ptr)
 		{
 			return (TRUE);
 		}
-		case TV_PSI_BOOK:
-                  return (rand_int(3) < (o_ptr->sval % 3));
 	}
 
 	return (FALSE);
@@ -593,6 +594,8 @@ static bool hates_elec(object_type *o_ptr)
 		{
 			return (TRUE);
 		}
+		case TV_PSI_BOOK:
+                  return (rand_int(3) > (o_ptr->sval % 3));
 	}
 
 	return (FALSE);
@@ -860,7 +863,7 @@ static int minus_ac(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Item was damaged */
 	return (TRUE);
@@ -1032,7 +1035,7 @@ bool inc_stat(int stat)
 
 
 /*
- * Decreases a stat by an amount indended to vary from 0 to 100 percent.
+ * Decreases a stat by an amount intended to vary from 0 to 100 percent.
  *
  * Note that "permanent" means that the *given* amount is permanent,
  * not that the new value becomes permanent.  This may not work exactly
@@ -1261,7 +1264,7 @@ bool apply_disenchant(int mode)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Notice */
 	return (TRUE);
@@ -1377,6 +1380,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Ignore most effects */
 		case GF_ACID:
 		case GF_ELEC:
+	        case GF_BALEFIRE: /* ? */  
 		case GF_FIRE:
 		case GF_COLD:
 		case GF_PLASMA:
@@ -1764,6 +1768,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 			/* Fire -- Flammable objects */
 			case GF_FIRE:
+		        case GF_BALEFIRE:   /* more ? */
 			{
 				if (hates_fire(o_ptr))
 				{
@@ -1945,6 +1950,28 @@ static int no_psi_attacks(monster_race *r_ptr)
   return x;
 }
 
+static bool psi_backlash(int m_idx,int dam)
+{
+  monster_type *m_ptr = &m_list[m_idx];
+  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+  char m_name[80];
+
+  if (((r_ptr->flags3 & RF3_UNDEAD) ||
+       (r_ptr->flags3 & RF3_DEMON)) &&
+      (r_ptr->level > p_ptr->lev/2) && 
+      !randint(2))
+      {
+	monster_desc(m_name,m_ptr,0);
+	msg_format("%^s%s corrupted mind backlashes your attack!",
+		   m_name, (m_ptr->ml ? "'s" : "s"));
+	project(m_idx,0,p_ptr->py,p_ptr->px,dam / 3,
+		(r_ptr->flags1 & RF1_UNIQUE) ?
+		(r_ptr->level < 20 ? GF_PSI : (r_ptr->level < 40 ? GF_PSI2 : GF_PSI3)) :
+		(r_ptr->level < 30 ? GF_PSI : (r_ptr->level  < 70 ? GF_PSI2 : GF_PSI3)), 0);
+	return TRUE;
+      }
+  return FALSE;
+}		
 
 /*
  * Helper function for "project()" below.
@@ -2001,7 +2028,7 @@ static int no_psi_attacks(monster_race *r_ptr)
  */
 bool project_m(int who, int r, int y, int x, int dam, int typ)
 {
-	int tmp;
+	int tmp,m_idx;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -2013,6 +2040,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Were the effects "obvious" (if seen)? */
 	bool obvious = FALSE;
+
+	/* For dominated monsters */
+	bool get_angry = FALSE;
 
 	/* Were the effects "irrelevant"? */
 	bool skipped = FALSE;
@@ -2060,7 +2090,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Obtain monster info */
-	m_ptr = &m_list[cave_m_idx[y][x]];
+	m_ptr = &m_list[m_idx = cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
@@ -2091,358 +2121,463 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		note_dies = " is destroyed.";
 	}
 
+	if (((who == 0) || (who == -1)) 
+	    && (m_ptr->status & STATUS_DOMINATE)) {
+	  /* Grrr? */
+	  switch (typ) {
+	  case GF_AWAY_UNDEAD:
+	  case GF_AWAY_EVIL:
+	  case GF_AWAY_ALL:
+	  case GF_OLD_HEAL:
+	  case GF_OLD_SPEED:
+	  case GF_DARK_WEAK:
+	  case GF_DOMINATE:
+	    break;             /* none of the above anger */
+	  case GF_KILL_WALL:
+            if (r_ptr->flags3 & (RF3_HURT_ROCK))
+	      get_angry = TRUE;
+            break;
+	  case GF_HOLY_ORB:
+            /* if (!(r_ptr->flags3 & (RF3_GOOD))) */
+	      get_angry = TRUE;
+            break;
+	  case GF_TURN_UNDEAD:
+	  case GF_DISP_UNDEAD:
+	    if (r_ptr->flags3 & RF3_UNDEAD)
+	      get_angry = TRUE;
+	    break;
+	  case GF_TURN_EVIL:
+	  case GF_DISP_EVIL:
+	    if (r_ptr->flags3 & RF3_EVIL)
+	      get_angry = TRUE;
+	    break;
+	  case GF_PSI: case GF_PSI_DRAIN: case GF_PSI2: case GF_PSI3: case GF_AMNESIA:
+	    if (!(r_ptr->flags2 & (RF2_EMPTY_MIND)))
+	      get_angry = TRUE;
+	    break;
+	  case GF_OLD_POLY:
+	  case GF_OLD_CLONE:
+	    if (randint(8) == 1)
+	      get_angry = TRUE;
+	    break;
+	  case GF_LITE:
+	  case GF_LITE_WEAK:
+	    if (r_ptr->flags3 & RF3_HURT_LITE)
+	      get_angry = TRUE;
+	    break;
+	  default:
+	    get_angry = TRUE;
+	  }
+   }
 
 	/* Analyze the damage type */
 	switch (typ)
 	{
-		/* PSIONICS */
-		case GF_PSI:
-      case GF_PSI_DRAIN:
+	  /* PSIONICS */
+	case GF_PSI:
+	case GF_PSI_DRAIN:
+	  {
+	    if (seen) obvious = TRUE;
+	    note_dies = " collapses, a mindless husk.";
+
+	    if (r_ptr->flags3 & RF3_RES_PSI)
+	      if (rand_int(3))
 		{
-			if (seen) obvious = TRUE;
-			note_dies = " collapses, a mindless husk.";
-
-         if (r_ptr->flags3 & RF3_RES_PSI)
-           if (rand_int(3))
-           {
-             resist = TRUE;
-             r_ptr->r_flags3 |= RF3_RES_PSI;
-           }
-
-         if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
-         {
-           note = " is unaffected.";
-           dam = 0;
-           break;
-         }
-
-         if (randint(100) < r_ptr->level) resist = TRUE;
-
-         if (r_ptr->flags1 & RF1_UNIQUE) if (rand_int(3)) resist = TRUE;
-
-			if (r_ptr->flags2 & RF2_SMART)
-			{
-           for (tmp = no_psi_attacks(r_ptr) ; tmp ; tmp--)
-           {
-             if (!rand_int(4)) resist = TRUE;
-             if (tmp > 2) if (!rand_int(3)) dam >>= 1;
-           }
-			  if (!resist) dam += dam / 2;
-			}
-
-			if (r_ptr->flags2 & RF2_WEIRD_MIND)
-			  if (randint(100) < 80) resist = TRUE;
-			    else {dam *= 3; dam /= 4;}
-			  
-			if (r_ptr->flags3 & RF3_UNDEAD) 
-			 {dam *= 2; dam /= 3;}
-
-			if ((r_ptr->flags2 & RF2_STUPID) ||
-			   (r_ptr->flags3 & RF3_ANIMAL))
-			{
-			   note = " is too stupid to be hurt.";
-			   dam /= 4;
-			}
-
-         if (((m_ptr->confused > 0) && !rand_int(3)) ||
-             ((m_ptr->confused > 20) && !rand_int(3)) ||
-             ((m_ptr->confused > 50) && !rand_int(3)))
-         {
-           resist = FALSE;
-           dam = dam * (3 + randint(7)) / 4;
-         }
-
-			if (resist)
-			{   
-			   note = " resists.";
-			   dam /= 3;
-			   if (randint(100) < 10) do_conf = randint(8);
-			}
-			else
-			if (randint(dam>20?20:dam) > randint(r_ptr->level))
-			{
-			   do_stun = randint(6);
-			   do_conf = randint(20);
-			   do_sleep = rand_int(2) ? randint(randint(90)) : 0;
-			   do_fear = randint(15);
-			}
-
-	 if (typ == GF_PSI_DRAIN)
-	   life_drained += min(damroll(6,r_ptr->level) >> 1,
-	     dam * 3 / (3 + randint(5)));
-      break;
+		  resist = TRUE;
+		  r_ptr->r_flags3 |= RF3_RES_PSI;
 		}
 
-		case GF_PSI2:
+	    if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+	      {
+		note = " is unaffected.";
+		dam = 0;
+		break;
+	      }
+
+	    if (randint(100) < r_ptr->level) resist = TRUE;
+
+	    if (r_ptr->flags1 & RF1_UNIQUE) if (rand_int(3)) resist = TRUE;
+	 
+	    if (r_ptr->flags2 & RF2_SMART)
+	      {
+		for (tmp = no_psi_attacks(r_ptr) ; tmp ; tmp--)
+		  {
+		    if (!rand_int(4)) resist = TRUE;
+		    if (tmp > 2) if (!rand_int(3)) dam >>= 1;
+		  }
+		if (!resist) dam += dam / 2;
+	      }
+	 
+	    if (r_ptr->flags2 & RF2_WEIRD_MIND)
+	      if (randint(100) < 80) resist = TRUE;
+	      else {dam *= 3; dam /= 4;}
+	 	 
+	    if (m_ptr->status & (STATUS_EMPATHY | STATUS_DOMINATE))
+	      {
+		dam *= 2;
+		if (rand_int(2)) resist = FALSE;
+	      }
+	    else
+	      if ((r_ptr->flags2 & RF2_STUPID) ||
+		  (r_ptr->flags3 & RF3_ANIMAL))
 		{
-			if (seen) obvious = TRUE;
-			note_dies = " collapses, a mindless husk.";
-			
-         if (r_ptr->flags3 & RF3_RES_PSI)
-           if (rand_int(2))
-           {
-             resist = TRUE;
-             r_ptr->r_flags3 |= RF3_RES_PSI;
-           }
-
-         if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
-         {
-           note = " is unaffected.";
-           dam = 0;
-           break;
-         }
-
-         if (randint(100 + 5 * p_ptr->lev) < randint(110 + r_ptr->level))
-             resist = TRUE;
-         if (r_ptr->flags1 & RF1_UNIQUE)
-            if (!rand_int(3)) resist = TRUE;
-
-			if (r_ptr->flags2 & RF2_SMART)
-			{
-           for (tmp = no_psi_attacks(r_ptr) ; tmp ; tmp--)
-           {
-             if (!rand_int(6)) resist = TRUE;
-             if (tmp > 2) if (!rand_int(5)) dam >>= 1;
-           }
-			  if (!resist) dam += dam / 2;
-			}
-
-			if (r_ptr->flags2 & RF2_WEIRD_MIND)
-			  {
-			    if (randint(100) < 60) resist = TRUE;
-			    if (randint(100) < 40) dam >>= 1;
-			  }
-			  
-			if (r_ptr->flags3 & RF3_UNDEAD)
-			  {dam *= 2; dam /= 3;}
-
-			if ((r_ptr->flags2 & RF2_STUPID) ||
-			   (r_ptr->flags3 & RF3_ANIMAL))
-			{
-			   note = " is too stupid to be hurt.";
-			   dam /= 3;
-			}
-
-         if (((m_ptr->confused > 0) && !rand_int(3)) ||
-             ((m_ptr->confused > 20) && !rand_int(3)) ||
-             ((m_ptr->confused > 50) && !rand_int(3)))
-         {
-           resist = FALSE;
-           dam = dam * (3 + randint(7)) / 4;
-         }
-
-			if (resist)
-			{   
-			   note = " resists.";
-			   dam /= 3;
-			   if (randint(100) < 10) do_conf = randint(10);
-			   if (randint(100) < 5) do_stun = randint(6);
-			}
-			else
-                        if (randint(dam / 2) > randint(r_ptr->level + (r_ptr->flags1 &
-           RF1_UNIQUE ? r_ptr->level : 0)) + randint(30))
-			{
-			do_stun = randint(randint(dam >> 1));
-			do_conf = damroll(dam,5) / 7;
-			do_fear = rand_int(2) ? randint(dam) : 0;
-			
-			if ((randint(p_ptr->lev) > ((r_ptr->flags1 & RF1_UNIQUE)
-			  ? r_ptr->level * 2 + 10 : r_ptr->level))
-			    && (m_ptr->mspeed > 60))
-			  m_ptr->mspeed -= 10;
-			}
-			break;
+		  note = " is too stupid to be hurt.";
+		  dam /= 4;
 		}
+	    
+	    if (psi_backlash(m_idx,dam)) resist = TRUE;
 
-		case GF_PSI3:
+	    if (((m_ptr->confused > 0) && !rand_int(3)) ||
+		((m_ptr->confused > 20) && !rand_int(3)) ||
+		((m_ptr->confused > 50) && !rand_int(3)))
+	      {
+		resist = FALSE;
+		dam = dam * (3 + randint(7)) / 4;
+	      }
+	 
+	    if (resist)
+	      {   
+		note = " resists.";
+		dam /= 3;
+		if (randint(100) < 10) do_conf = randint(8);
+	      }
+	    else
+	      if (randint(dam>20?20:dam) > randint(r_ptr->level))
 		{
-			if (seen) obvious = TRUE;
-			note_dies = " collapses, a mindless husk.";
-			
-         if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
-         {
-           dam = 0;
-           note = " is unaffected.";
-           break;
-         }
+		  do_stun = randint(6);
+		  do_conf = randint(20);
+		  do_sleep = rand_int(2) ? randint(randint(90)) : 0;
+		  do_fear = randint(15);
+		}
+	 
+	    if (typ == GF_PSI_DRAIN)
+	      life_drained += min(damroll(6,r_ptr->level) >> 1,
+				  dam * 3 / (3 + randint(5)));
+	    break;
+	  }
+		
+	case GF_PSI2:
+	  {
+	    if (seen) obvious = TRUE;
+	    note_dies = " collapses, a mindless husk.";
+	    
+	    if (r_ptr->flags3 & RF3_RES_PSI)
+	      if (rand_int(2))
+		{
+		  resist = TRUE;
+		  r_ptr->r_flags3 |= RF3_RES_PSI;
+		}
+	    
+	    if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+	      {
+		note = " is unaffected.";
+		dam = 0;
+		break;
+	      }
+	    
+	    if (randint(100 + 5 * p_ptr->lev) < randint(110 + r_ptr->level))
+	      resist = TRUE;
+	    if (r_ptr->flags1 & RF1_UNIQUE)
+	      if (!rand_int(3)) resist = TRUE;
+	    
+	    if (r_ptr->flags2 & RF2_SMART)
+	      {
+		for (tmp = no_psi_attacks(r_ptr) ; tmp ; tmp--)
+		  {
+		    if (!rand_int(6)) resist = TRUE;
+		    if (tmp > 2) if (!rand_int(5)) dam >>= 1;
+		  }
+		if (!resist) dam += dam / 2;
+	      }
+	    
+	    if (r_ptr->flags2 & RF2_WEIRD_MIND)
+	      {
+		if (randint(100) < 60) resist = TRUE;
+		if (randint(100) < 40) dam >>= 1;
+	      }
+	    
+	    if (m_ptr->status & (STATUS_EMPATHY | STATUS_DOMINATE))
+	      {
+		dam *= 2;
+		if (rand_int(2)) resist = FALSE;
+	      }
+	    else
+	    if ((r_ptr->flags2 & RF2_STUPID) ||
+		(r_ptr->flags3 & RF3_ANIMAL))
+	      {
+		note = " is too stupid to be hurt.";
+		dam /= 3;
+	      }
+	    
+	    if (rand_int(3)) 
+	      if (psi_backlash(m_idx,dam))
+		if (rand_int(3)) resist = TRUE;
 
-         if (r_ptr->flags3 & RF3_RES_PSI)
-           if (!rand_int(3))
-           {
-             resist = TRUE;
-             r_ptr->r_flags3 |= RF3_RES_PSI;
-           }
+	    if (((m_ptr->confused > 0) && !rand_int(3)) ||
+		((m_ptr->confused > 20) && !rand_int(3)) ||
+		((m_ptr->confused > 50) && !rand_int(3)))
+	      {
+		resist = FALSE;
+		dam = dam * (3 + randint(7)) / 4;
+	      }
+	    
+	    if (resist)
+	      {   
+		note = " resists.";
+		dam /= 3;
+		if (randint(100) < 10) do_conf = randint(10);
+		if (randint(100) < 5) do_stun = randint(6);
+	      }
+	    else
+	      if (randint(dam / 2) > 
+		  randint(r_ptr->level + (r_ptr->flags1 & RF1_UNIQUE ? r_ptr->level : 0)) 
+		  + randint(30))
+		{
+		  do_stun = randint(randint(dam >> 1));
+		  do_conf = damroll(dam,5) / 7;
+		  do_fear = rand_int(2) ? randint(dam) : 0;
+		  
+		  if ((randint(p_ptr->lev) > 
+		       ((r_ptr->flags1 & RF1_UNIQUE) ? r_ptr->level * 2 + 10 : r_ptr->level))
+		      && (m_ptr->mspeed > 60))
+		    m_ptr->mspeed -= 10;
+		}
+	    break;
+	  }
+	  
+	case GF_PSI3:
+	  {
+	    if (seen) obvious = TRUE;
+	    note_dies = " collapses, a mindless husk.";
+	    
+	    if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+	      {
+		dam = 0;
+		note = " is unaffected.";
+		break;
+	      }
+	    
+	    if (r_ptr->flags3 & RF3_RES_PSI)
+	      if (!rand_int(3))
+		{
+		  resist = TRUE;
+		  r_ptr->r_flags3 |= RF3_RES_PSI;
+		}
+	    
+	    if (randint(300 + p_ptr->lev) < 
+		(r_ptr->level + (r_ptr->flags1 & RF1_UNIQUE ? randint(r_ptr->level) : 0))
+		+ randint(100))
+	      resist = TRUE;
+	    
+	    if (r_ptr->flags2 & RF2_SMART)
+	      {
+		for (tmp = no_psi_attacks(r_ptr) ; tmp ; tmp--)
+		  {
+		    if (!rand_int(6)) resist = TRUE;
+		    if (tmp > 2) if (!rand_int(5)) dam >>= 1;
+		  }
+		if (!resist) dam += dam / 2;
+	      }
+	    
+	    if (r_ptr->flags2 & RF2_WEIRD_MIND)
+	      {
+		if (randint(100) < 60) resist = TRUE;
+		if (randint(100) < 40) dam >>= 2;
+	      }
+		  		  		  
+		  if (m_ptr->status & (STATUS_EMPATHY | STATUS_DOMINATE))
+		  {
+		    dam *= 2;
+		    if (rand_int(2)) resist = FALSE;
+		  }
+		  else
+		  if ((r_ptr->flags2 & RF2_STUPID) ||
+		      (r_ptr->flags3 & RF3_ANIMAL))
+		  {
+		    note = " is too stupid to be hurt.";
+		    dam /= 2;
+		  }
 
-         if (randint(300 + p_ptr->lev) < (r_ptr->level + (r_ptr->flags1 &
-           RF1_UNIQUE ? randint(r_ptr->level) : 0)) + randint(100))
-           resist = TRUE;
-
-			if (r_ptr->flags2 & RF2_SMART)
-			{
-           for (tmp = no_psi_attacks(r_ptr) ; tmp ; tmp--)
-           {
-             if (!rand_int(6)) resist = TRUE;
-             if (tmp > 2) if (!rand_int(5)) dam >>= 1;
-           }
-			  if (!resist) dam += dam / 2;
-			}
-
-			if (r_ptr->flags2 & RF2_WEIRD_MIND)
-			  {
-			    if (randint(100) < 60) resist = TRUE;
-			    if (randint(100) < 40) dam >>= 2;
-			  }
-			  
-			if (r_ptr->flags3 & RF3_UNDEAD)
-			  {dam *= 2; dam /= 3;}
-
-			if ((r_ptr->flags2 & RF2_STUPID) ||
-			   (r_ptr->flags3 & RF3_ANIMAL))
-			{
-			   note = " is too stupid to be hurt.";
-			   dam /= 2;
-			}
-
-         if (((m_ptr->confused > 0) && !rand_int(3)) ||
-             ((m_ptr->confused > 20) && !rand_int(3)) ||
-             ((m_ptr->confused > 50) && !rand_int(3)))
-         {
-           resist = FALSE;
-           dam = dam * (3 + randint(7)) / 4;
-         }
-
-			if (resist)
-			{   
-			   note = " resists.";
-			   dam /= 2;
-			   if (randint(100) < 30) do_conf = randint(15);
-			   if (randint(100) < 15) do_stun = randint(8);
-			}
-			else
-			if (dam + damroll(2,dam) > randint(r_ptr->level + (r_ptr->flags1 &
-			  RF1_UNIQUE ? r_ptr->level : 0)) + randint(30))
-			{
+		  if (rand_int(2))
+		    if (psi_backlash(m_idx,dam)) 
+		      if (rand_int(2))
+			  resist = TRUE;
+	    
+		  if (((m_ptr->confused > 0) && !rand_int(3)) ||
+		      ((m_ptr->confused > 20) && !rand_int(3)) ||
+		      ((m_ptr->confused > 50) && !rand_int(3)))
+		    {
+		      resist = FALSE;
+		      dam = dam * (3 + randint(7)) / 4;
+		    }
+		  
+		  if (resist)
+		    {   
+		      note = " resists.";
+		      dam /= 2;
+		      if (randint(100) < 30) do_conf = randint(15);
+		      if (randint(100) < 15) do_stun = randint(8);
+		    }
+		  else
+		    if (dam + damroll(2,dam) > 
+			randint(r_ptr->level + (r_ptr->flags1 & RF1_UNIQUE ? r_ptr->level : 0))
+			+ randint(30))
+		      {
 			if (rand_int(3))  do_stun = randint(dam);
 			if (rand_int(5))  do_conf = randint(damroll(dam,13));
 			if (rand_int(2)) do_fear = randint(dam * 3);
 			
-			if ((randint(dam * 5) > ((r_ptr->flags1 & RF1_UNIQUE)
-			  ? r_ptr->level * 2 + 10 : r_ptr->level) + randint(40))
-			    && (m_ptr->mspeed > 60))
+			if ((randint(dam * 5) >
+			     ((r_ptr->flags1 & RF1_UNIQUE) ? r_ptr->level * 2 + 10 : r_ptr->level)
+			     + randint(40)) && (m_ptr->mspeed > 60))
 			  m_ptr->mspeed -= 10; /* message ? */
-			}
-			break;
+		      }
+		  break;
+	  }
+	  
+	  /* Analyze Monster */
+	case GF_ANALYZE:
+	  {
+	    if (seen) obvious = TRUE;
+	    if (randint(dam * (m_ptr->status & STATUS_EMPATHY ? 3 : 1) > randint(r_ptr->level)))
+	      {
+		note = " has been successfully analyzed.";
+		r_ptr->r_xtra1 = 1;
+	      }
+	    else
+	      note = " resists your psionic probe.";
+	    dam = 0;
+	    break;
+	  }
+	  
+	  /* Amnesia */
+	case GF_AMNESIA:
+	  {
+	    if (seen) obvious = TRUE;
+	    if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+	      {
+		note = " is unaffected.";
+		dam = 0;
+		break;
+	      }
+
+	      if (r_ptr->flags3 & RF3_RES_PSI)
+		if (rand_int(2))
+		  {
+		    resist = TRUE;
+		    r_ptr->r_flags3 |= RF3_RES_PSI;
+		  }
+
+	    if (rand_int(3)) 
+	      if (psi_backlash(m_idx,dam))
+		if (rand_int(4)) resist = TRUE;
+
+	      if (randint(dam) > 
+		  randint(r_ptr->level + (r_ptr->flags1 & RF1_UNIQUE ? r_ptr->level + 10 : 0)))
+		{
+		  tmp = (m_ptr->status & STATUS_AMNESIA1 ? 1 : 0) +
+		    (m_ptr->status & STATUS_AMNESIA2 ? 2 : 0);
+		  switch (tmp)
+		    {
+		    case 0:
+		      note = " loses its short-term memory.";
+		      break;
+		    case 1:
+		      note = " begins drooling and staring off into space.";
+		      break;
+		    case 2:
+		      note = " starts forgetting basic motor skills.";
+		      m_ptr->mspeed -= randint(9);
+		      break;
+		    case 3:
+		      note = " can't forget any more!";
+		      tmp--;
+		      break;
+		    }
+		  /* forget everything learned and other influences */
+		  m_ptr->status = ++tmp * STATUS_AMNESIA1;
+		  do_sleep = 100;
+		  if (rand_int(2)) m_ptr->confused += randint(dam / 3);
+		  if (rand_int(2)) m_ptr->stunned += randint(dam / 5);
+		  m_ptr->monfear = 0;
+		}
+	      else
+		note = " holds onto its memories!";
+	      dam = 0;
+	      break;
+	    }
+
+	    case GF_EMPATHY:
+	      if (seen) obvious = TRUE;
+	      if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+		{
+		  dam = 0;
+		  note = " is unaffected.";
+		  break;
+		}
+	      if (psi_backlash(m_idx,damroll(dam,r_ptr->level))) dam = 0;
+	      dam *= 10 + (r_ptr->flags2 & RF2_SMART ? -4 : 0) +
+		(r_ptr->flags2 & RF2_WEIRD_MIND ? -4 : 0) +
+		(r_ptr->flags3 & RF3_UNDEAD ? -4 : 0) +
+		(r_ptr->flags3 & RF3_RES_PSI ? -5 : 0) +
+		(r_ptr->flags3 & RF3_ANIMAL ? 5 : 0) +
+		(r_ptr->flags3 & RF2_STUPID ? 3 : 0) +
+		(r_ptr->flags1 & RF1_UNIQUE ? -9 : 0) +
+		(p_ptr->aggravate ? -4 : 0);
+	      if (dam < 0) dam = 0;
+	      if (dam > 300) dam = 300;
+	      if (randint(dam) > r_ptr->level * 7)
+		{
+		  note = "'s mind lies open and vulnerable!";
+		  m_ptr->status |= STATUS_EMPATHY;
+		}
+	      else
+		note = " resists.";
+	      dam = 0;
+	      break;
+	       
+	  case GF_PAIN:
+	    {
+	      if (seen) obvious = TRUE;
+	      if (randint(dam) > r_ptr->level + ((r_ptr->flags1 & RF1_UNIQUE) ?
+						 r_ptr->level / 4 : 0))
+		{
+		  note = " lets out an deafening roar of agony!";
+		  dam = m_ptr->hp / 2;
+		  if (dam > 1000) if (rand_int(50)) dam = 1000;
+		}
+	      else
+		{
+		  note = " is unaffected!";
+		  dam = 0;
+		}
+	      break;
+	    }
+
+	    /* Domination */
+	  case GF_DOMINATE:
+	    {
+	      if (m_ptr->status & STATUS_DOMINATE) break;
+	      if (seen) obvious = TRUE;
+	      if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
+		{
+		  note = " is unaffected.";
+		  dam = 0;
+		  break;
 		}
 
-		/* Analyze Monster */
-      case GF_ANALYZE:
-      {
-         if (seen) obvious = TRUE;
-         if (randint(dam) > randint(r_ptr->level))
-           {
-             note = " has been successfully analyzed.";
-             r_ptr->r_xtra1 = 1;
-           }
-         else
-           note = " resists your psionic probe.";
-         dam = 0;
-         break;
-      }
-
-      /* Amnesia */
-      case GF_AMNESIA:
-      {
-         if (seen) obvious = TRUE;
-         if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
-         {
-           note = " is unaffected.";
-           dam = 0;
-           break;
-         }
-
-         if (r_ptr->flags3 & RF3_RES_PSI)
-           if (rand_int(2))
-           {
-             resist = TRUE;
-             r_ptr->r_flags3 |= RF3_RES_PSI;
-           }
-
-         if (randint(dam) > randint(r_ptr->level + (r_ptr->flags1 &
-           RF1_UNIQUE ? r_ptr->level + 10 : 0)))
-         {
-            tmp = (m_ptr->smart & SM_AMNESIA1 ? 1 : 0) +
-                  (m_ptr->smart & SM_AMNESIA2 ? 2 : 0);
-            switch (tmp)
-            {
-              case 0:
-                note = " loses its short-term memory.";
-                break;
-              case 1:
-                note = " begins drooling and staring off into space.";
-                break;
-              case 2:
-                note = " starts forgetting basic motor skills.";
-                m_ptr->mspeed -= randint(9);
-                break;
-              case 3:
-                note = " can't forget any more!";
-                tmp--;
-                break;
-            }
-            /* forget everything learned and other influences */
-            m_ptr->smart = ++tmp * SM_AMNESIA1;
-            do_sleep = 100;
-            m_ptr->confused += randint(dam / 3);
-            m_ptr->stunned += randint(dam / 5);
-            m_ptr->monfear = 0;
-         }
-         else
-           note = " holds onto its memories!";
-        dam = 0;
-        break;
-      }
-
-      case GF_PAIN:
-      {
-	 if (seen) obvious = TRUE;
-	 if (randint(dam) > r_ptr->level + ((r_ptr->flags1 & RF1_UNIQUE) ?
-	   r_ptr->level / 4 : 0))
-	 {
-	   note = " lets out an deafening roar of agony!";
-	   dam = m_ptr->hp / 2;
-	   if (dam > 1000) dam = 1000;
-	 }
-	 else
-	 {
-	   note = " is unaffected!";
-	   dam = 0;
-	 }
-	 break;
-      }
-
-      /* Domination */
-      case GF_DOMINATE:
-      {
-        if (seen) obvious = TRUE;
-         if ((r_ptr->flags3 & RF3_IM_PSI) || (r_ptr->flags2 & RF2_EMPTY_MIND))
-         {
-           note = " is unaffected.";
-           dam = 0;
-           break;
-         }
-
-        if (!(r_ptr->flags3 & RF3_RES_PSI) &&
-          (randint(dam) > r_ptr->level + (r_ptr->flags1 & RF1_UNIQUE ?
-           r_ptr->level : 0)))
-        {
-          m_ptr->smart |= SM_DOMINATE;
-          note = " awaits your mental commands.";
-        }
-        else
-          note = " resists.";
-        dam = 0;
-        break;
-      }
+	      if (!(r_ptr->flags3 & RF3_RES_PSI) &&
+		  (randint(dam * (m_ptr->status & STATUS_EMPATHY ? 2 : 1)) > r_ptr->level + 
+		   (r_ptr->flags1 & RF1_UNIQUE ? r_ptr->level : 0)))
+		{
+		  m_ptr->status |= STATUS_DOMINATE;
+		  note = " awaits your mental commands.";
+		}
+	      else
+		note = " resists.";
+	      dam = 0;
+	      break;
+	    }
 
 		/* Magic Missile -- pure damage */
 		case GF_MISSILE:
@@ -2490,7 +2625,73 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Cold */
+	case GF_BALEFIRE: /* half fire, half time */
+	  {
+	    int resists = 0;
+	    if ((m_ptr->status & STATUS_BALE_CLONE) && (m_ptr->mflag & MFLAG_BORN))
+	      return FALSE;
+	    if (seen) obvious = TRUE;
+	    note_dies = " vanishes!";
+
+	    resists = get_balefire_effect();
+	    if (resists) bale_effect = resists;
+	    if (bale_effect & BALE_ABORT)
+	      {
+		msg_print("The balefire never happened!");
+		skipped = TRUE;
+	      }
+
+	    if (bale_effect & BALE_CLONE)
+	      {
+		msg_format("A past version of %s materializes into being.",m_name);
+		bale_effect &= ~BALE_CLONE;
+		bale_clone_hack = TRUE;
+		multiply_monster(m_idx);
+	      }
+
+	    if (bale_effect & BALE_HEAL)
+	      {
+		msg_format("%^s jumps back to a healthier point in its existance.",m_name);
+		bale_effect &= ~BALE_HEAL;
+		m_ptr->hp += dam;
+		note = " looks healthier.";
+		if (m_ptr->hp > m_ptr->maxhp)
+		  {
+		    m_ptr->hp = m_ptr->maxhp;
+		    note = " looks completely healed.";
+		  }
+		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
+		dam = 0;
+	      }
+
+	    if (bale_effect & BALE_KILL)
+	      {
+		msg_format("Your balefire tries to remove %s from existance completely!",m_name);
+		dam *= 10;
+		bale_effect &= ~BALE_KILL;
+	      }
+
+	    if (r_ptr->flags3 & RF3_IM_FIRE) resists++;
+	    if (r_ptr->flags4 & RF4_BR_TIME) resists++;
+
+	    if (!(bale_effect & BALE_HEAL))
+	    switch (resists)
+	      {
+	      case 0:
+		break;
+	      case 1:
+		dam /= 3;
+		note = "resists somewhat.";
+		break;
+	      case 2:
+		dam /= 9;
+		note = "resists a lot.";
+		break;
+	      }
+	    break;
+	  }
+
+	    /* Cold */
 		case GF_COLD:
 		{
 			if (seen) obvious = TRUE;
@@ -2622,6 +2823,13 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 2; dam /= (randint(6)+6);
 			}
+			if (((r_ptr->flags1 & RF1_UNIQUE)?10:0) + rand_int(r_ptr->level)
+			    > rand_int(50))
+			  {
+			    note = " resists.";
+			    dam >>= 1;
+			    do_stun = 0;
+			  }
 			break;
 		}
 
@@ -2678,18 +2886,18 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
-            do_stun = 0;
- 			}
-           if (((r_ptr->flags1 & RF1_UNIQUE)?10:0) + rand_int(r_ptr->level)
-             > rand_int(50))
-           {
-              note = " resists.";
-              dam >>= 1;
-              do_stun = 0;
-            }
+				do_stun = 0;
+  			}
+			if (((r_ptr->flags1 & RF1_UNIQUE)?10:0) + rand_int(r_ptr->level)
+			    > rand_int(50))
+			  {
+			    note = " resists.";
+			    dam >>= 1;
+			    do_stun = 0;
+			  }
 			break;
 		}
-
+		
 		/* Inertia -- breathers resist */
 		case GF_INERTIA:
 		{
@@ -2705,12 +2913,17 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Time -- breathers resist */
 		case GF_TIME:
 		{
-			if (seen) obvious = TRUE;
+			if (seen) obvious = TRUE;		      
 			if (r_ptr->flags4 & (RF4_BR_TIME))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+			else
+			  {
+			    m_ptr->energy = 0;
+			    life_drained += min(dam,m_ptr->hp);
+			  }
 			break;
 		}
 
@@ -2793,14 +3006,14 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				obvious = FALSE;
 				dam = 0;
 			}
-         else
-           if (((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->level >
-                        20 + randint(180))) && (rand_int(2)))
-                        {
-                          note = " resists.";
-                          dam >>= 1;
-                        } else
-                                life_drained += dam;
+			else
+			  if (((r_ptr->flags1 & RF1_UNIQUE) || 
+			       (r_ptr->level > 20 + randint(180))) && (rand_int(2)))
+			    {
+			      note = " resists.";
+			      dam >>= 1;
+			    } else
+			      life_drained += dam;
 			break;
 		}
 
@@ -3335,6 +3548,13 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	if (skipped) return (FALSE);
 
 
+       /* Now anger it if appropriate */
+       if (get_angry == TRUE && ((who == -1) || (who == 0)))
+	 {
+	   msg_format("%^s gets angry!", m_name);
+	   m_ptr->status &= ~STATUS_DOMINATE;
+	 }
+
 	/* "Unique" monsters cannot be polymorphed */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
 
@@ -3670,166 +3890,180 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
        }
 
 
-	/* Analyze the damage */
-	switch (typ)
-	{
-       /* Psionics */
-       case GF_PSI:
-       if (fuzzy) msg_print("Your mind is hit by mental energy!");
+       /* Analyze the damage */
+       switch (typ)
+	 {
+	   /* Psionics */
+	 case GF_PSI:
+	   if (fuzzy) msg_print("Your mind is hit by mental energy!");
 
-       if (f1 & TR1_INT) dam = dam * (12 + randint(6)) / 12;
-       if (f1 & TR1_WIS) dam = dam * (12 + randint(6)) / 12;
-       if (p_ptr->telepathy) dam = dam * (6 + randint(6)) / 6;
 
-       if (psi_flags & RES_PSI) resist1
-       if (pa_ptr->mental_barrier) resist1
-       if (rand_int(100) < p_ptr->skill_sav) resist1
-       if (p_ptr->sustain_int) if (rand_int(2)) resist1
-       if (p_ptr->sustain_wis) if (rand_int(2)) resist1
-       if (p_ptr->resist_confu) if (rand_int(3)) resist1
+	   if (psi_flags & RES_PSI) resist1;
+	   if (pa_ptr->mental_barrier) resist1;
+	   if (rand_int(100) < p_ptr->skill_sav) resist1;
+	   if (p_ptr->sustain_int) if (rand_int(2)) resist1;
+	   if (p_ptr->sustain_wis) if (rand_int(2)) resist1;
+	   if (p_ptr->resist_confu) if (rand_int(3)) resist1;
 
-       if (!rand_int(p_ptr->confused ? 3 : 12))
-       {
-         msg_print("Your mind is caught completely unguarded!");
-         resist = FALSE;
-         dam = dam * randint(randint(24)) / 3;
-       }
-       if (!resist) set_confused(p_ptr->confused + rand_int(20) + 10);
-       take_hit(dam,killer);
-       break;
+	   if (p_ptr->confused && !rand_int(3))
+	     {
+	       msg_print("Your mind is caught completely unguarded!");
+	       resist = FALSE;
+	       dam = dam * randint(randint(24)) / 3;
+	     }
+	   if (!resist) set_confused(p_ptr->confused + rand_int(20) + 10);
+	   if (f1 & TR1_INT) dam = dam * (9 + randint(9)) / 12;
+	   if (f1 & TR1_WIS) dam = dam * (9 + randint(9)) / 12;
+	   if (p_ptr->telepathy) dam = dam * (6 + randint(6)) / 6;
+	   take_hit(dam,killer);
+	   break;
 
-       case GF_PSI2:
-       case GF_PSI3:
+	 case GF_PSI2:
+	 case GF_PSI3:
+	   {
+	     int mlev = m_ptr ? r_info[m_ptr->r_idx].level : 50;
+	     if (fuzzy) msg_print("Your brain is struck with powerful psychic energy!");
 
-       if (fuzzy) msg_print("Your brain is struck with psychic energy!");
+	     if (rand_int(rand_int(100 + mlev )) < rand_int(p_ptr->skill_sav)) resist2;
+	     if (p_ptr->sustain_int) if (!rand_int(5)) resist2;
+	     if (p_ptr->sustain_wis) if (!rand_int(5)) resist2;
+	     if (psi_flags & RES_PSI)
+	       if (rand_int(100) < p_ptr->skill_sav) resist2;
+	     if (pa_ptr->mental_barrier)
+	       if (rand_int(mlev) < rand_int(p_ptr->lev * 3 / 2))
+		 resist2;
+	     if (p_ptr->resist_confu) if (!rand_int(3)) resist2;
+	
+	     if (p_ptr->paralyzed && !((p_ptr->shero) && rand_int(2)) &&
+		 !((p_ptr->confused) && rand_int(6))) /* note: or meditating */
+	       {
+		 if (resist)
+		   {
+		     msg_print("Your willpower stops the attack cold!");
+		     dam = 0;
+		     break;
+		   }
+		 else
+		   resist2;
+	       }
+						  
+	    if (p_ptr->shero)
+	      if (rand_int(100) >= p_ptr->skill_sav)
+		{resist = FALSE; dam = dam * (6 + randint(6)) / 6;}
 
-       if (rand_int(rand_int(100 + (m_ptr ? r_info[m_ptr->r_idx].level : 50)))
-          < rand_int(p_ptr->skill_sav)) resist2
-       if (p_ptr->sustain_int) if (!rand_int(9)) resist2
-       if (p_ptr->sustain_wis) if (!rand_int(9)) resist2
-       if (psi_flags & RES_PSI)
-        if (rand_int(100) < p_ptr->skill_sav) resist2
-       if (pa_ptr->mental_barrier)
-        if (rand_int(r_info[m_ptr->r_idx].level) < rand_int(p_ptr->lev))
-          resist2
-       if (p_ptr->resist_confu) if (!rand_int(4)) resist2
+	    if ((rand_int(rand_int(rand_int(mlev)))
+		 > damroll(2,p_ptr->lev)) || p_ptr->confused)
+	      {
+		msg_print("Your mind is caught completely unguarded!");
+		if (rand_int(3)) resist = FALSE;
+		dam = dam * randint(randint(20)) / 3;
+	      }
 
-       if (p_ptr->shero)
-        if (rand_int(100) >= p_ptr->skill_sav)
-         {resist = FALSE; dam = dam * (6 + randint(6)) / 6;}
+	    if (resist)
+	      {
+		if (p_ptr->telepathy) dam = dam * (3 + randint(6)) / 9;
+		if (f1 & TR1_INT) dam = dam * (8 + randint(4)) / 8;
+		if (f1 & TR1_WIS) dam = dam * 8 / (8 + randint(8));
+	      }
+	    else
+	      {
+		if (p_ptr->telepathy) dam = dam * (6 + randint(6)) / 6;
+		if (f1 & TR1_INT) dam = dam * (6 + randint(7)) / 8;
+		if (f1 & TR1_WIS) dam = dam * 8 / (6 + randint(7));
+	      }
 
-       if ((rand_int(rand_int(rand_int(m_ptr?r_info[m_ptr->r_idx].level:50)))
-             > rand_int(p_ptr->lev)) || p_ptr->confused)
-       {
-          msg_print("Your mind is caught completely unguarded!");
-          if (rand_int(3)) resist = FALSE;
-          dam = dam * randint(randint(20)) / 3;
-       }
+	    if ((typ == GF_PSI2) && !resist)
+	      {
+		if ((!p_ptr->resist_confu) || rand_int(2))
+		  set_confused(p_ptr->confused + rand_int(rand_int(100)));
+		if (!rand_int(3)) set_slow(p_ptr->slow + 4 + rand_int(4));
+		if (!rand_int(p_ptr->paralyzed + 3))
+		  set_paralyzed(p_ptr->paralyzed + randint(3));
+		if (!rand_int(3)) set_stun(p_ptr->stun + damroll(randint(6),20));
+		if (rand_int(2)) if (!p_ptr->resist_fear || rand_int(2))
+		  set_afraid(p_ptr->afraid + rand_int(4) + 4);
+		if (!rand_int(7))
+		  mana_lost = p_ptr->csp * (100 - randint(randint(100))) / 100;
+		if (!rand_int(7)) dec_stat(A_INT,randint(100),!rand_int(5));
+		if (!rand_int(7)) dec_stat(A_WIS,randint(100),!rand_int(5));
+		if (!rand_int(20))
+		  {
+		    msg_print("Your memories fade away.");
+		    lose_all_info();
+		  }
+	      }
 
-       if (resist)
-       {
-         if (p_ptr->telepathy) dam = dam * (3 + randint(6)) / 9;
-         if (f1 & TR1_INT) dam = dam * (8 + randint(6)) / 8;
-         if (f1 & TR1_WIS) dam = dam * 8 / (8 + randint(6));
-       }
-       else
-       {
-         if (p_ptr->telepathy) dam = dam * (6 + randint(6)) / 6;
-         if (f1 & TR1_INT) dam = dam * (6 + randint(7)) / 8;
-         if (f1 & TR1_WIS) dam = dam * 8 / (6 + randint(7));
-       }
+	    if (typ == GF_PSI3)
+	      {
+		k = dam;
+		if (resist) k -= p_ptr->lev;
 
-       if ((typ == GF_PSI2) && !resist)
-       {
-         if ((!p_ptr->resist_confu) || rand_int(2))
-           set_confused(p_ptr->confused + rand_int(rand_int(100)));
-         if (rand_int(3)) set_slow(p_ptr->slow + 4 + rand_int(4));
-         if (!rand_int(3)) set_paralyzed(p_ptr->paralyzed + 1 + rand_int(4));
-         if (rand_int(3)) set_stun(p_ptr->stun + damroll(randint(6),20));
-         if (rand_int(2)) if (!p_ptr->resist_fear || rand_int(2))
-           set_afraid(p_ptr->afraid + rand_int(4) + 4);
-         if (!rand_int(8))
-         {
-           mana_lost = p_ptr->csp * (100 - randint(randint(100))) / 100;
-         }
-         if (!rand_int(8)) dec_stat(A_INT,randint(100),!rand_int(5));
-         if (!rand_int(8)) dec_stat(A_WIS,randint(100),!rand_int(5));
-         if (!rand_int(25))
-         {
-           msg_print("Your memories fade away.");
-           lose_all_info();
-         }
-       }
+		while (k > 0)
+		  {
+		    k--;
+		    switch (rand_int(24))
+		      {
+		      case 0:
+		      case 1:
+		      case 2:
+		      case 3:
+		      case 4:
+		      case 5:
+		      case 6:
+		      case 7:
+			if ((!p_ptr->resist_confu) || rand_int(2))
+			  set_confused(p_ptr->confused + rand_int(5));
+			if (rand_int(10)) break;
+		      case 8:
+		      case 9:
+		      case 10:
+		      case 11:
+			set_slow(p_ptr->slow + randint(2));
+			if (rand_int(10)) break;
+		      case 12:
+		      case 13:
+		      case 14:
+		      case 15:
+			if (!rand_int(p_ptr->paralyzed + 1))
+			  set_paralyzed(p_ptr->paralyzed + rand_int(rand_int(5)));
+			if (rand_int(10)) break;
+		      case 16:
+		      case 17:
+			set_stun(p_ptr->stun + randint(20));
+			if (rand_int(10)) break;
+		      case 18:
+		      case 19:
+			if ((!p_ptr->resist_fear) || rand_int(2))
+			  set_afraid(p_ptr->afraid + 1);
+			if (rand_int(6)) break;
+		      case 20:
+			mana_lost += randint(randint(randint(p_ptr->csp * 100))) / 100;
+			if (rand_int(3)) break;
+		      case 21:
+			dec_stat(A_INT,randint(rand_int(100)),!rand_int(5));
+			if (rand_int(2)) break;
+		      case 22:
+			dec_stat(A_WIS,randint(rand_int(100)),!rand_int(5));
+			if (rand_int(3)) break;
+			break;
+		      case 23:
+			lose_some_info();
+			break;
+		      }
+		  }
+	      }
 
-       if (typ == GF_PSI3)
-       {
-         k = dam;
-         if (resist) k -= p_ptr->lev;
-
-         while (k > 0)
-         {
-           k--;
-           switch (rand_int(24))
-           {
-             case 0:
-             case 1:
-             case 2:
-             case 3:
-             case 4:
-             case 5:
-             case 6:
-             case 7:
-                     if ((!p_ptr->resist_confu) || rand_int(2))
-                        set_confused(p_ptr->confused + rand_int(10));
-                     if (rand_int(10)) break;
-             case 8:
-             case 9:
-             case 10:
-             case 11:
-                     set_slow(p_ptr->slow + randint(2));
-                     if (rand_int(10)) break;
-             case 12:
-             case 13:
-             case 14:
-             case 15:
-                     set_paralyzed(p_ptr->paralyzed + rand_int(rand_int(5)));
-                     if (rand_int(10)) break;
-             case 16:
-             case 17:
-                     set_stun(p_ptr->stun + randint(20));
-                     if (rand_int(10)) break;
-             case 18:
-             case 19:
-                     if ((!p_ptr->resist_fear) || rand_int(2))
-                       set_afraid(p_ptr->afraid + 1);
-                     if (rand_int(6)) break;
-            case 20:
-                    mana_lost += randint(randint(randint(p_ptr->csp * 100))) / 100;
-                    if (rand_int(3)) break;
-            case 21:
-                    dec_stat(A_INT,randint(rand_int(100)),!rand_int(5));
-                    if (rand_int(2)) break;
-            case 22:
-                    dec_stat(A_WIS,randint(rand_int(100)),!rand_int(5));
-                    if (rand_int(3)) break;
-                    break;
-            case 23:
-                    lose_some_info();
-                    break;
-            }
-         }
-       }
-
-       if (mana_lost)
-       {
-           p_ptr->csp -= mana_lost;
-           if (p_ptr->csp < 0) p_ptr->csp = 0;
-           p_ptr->redraw |= PR_MANA;
-           p_ptr->window |= PW_PLAYER;
-           msg_print("Your mana drains away.");
-       }
-       take_hit(dam,killer);
-       break;
+	    if (mana_lost)
+	      {
+		p_ptr->csp -= mana_lost;
+		if (p_ptr->csp < 0) p_ptr->csp = 0;
+		p_ptr->redraw |= PR_MANA;
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		msg_print("Your mana drains away.");
+	      }
+	    take_hit(dam,killer);
+	    break;
+	  }
 
        case GF_AMNESIA:
           if (randint(100) >= p_ptr->skill_sav)
@@ -3911,9 +4145,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_ARROW:
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
-	      if (pa_ptr->shadow_form) dam /= 3;
-         if (pa_ptr->biofeedback) dam /= 2;
-	      if (pa_ptr->inertial_barrier) dam /= 2;
+			if (pa_ptr->shadow_form) dam /= 3;
+			if (pa_ptr->biofeedback) dam /= 2;
+			if (pa_ptr->inertial_barrier) dam /= 2;
 			take_hit(dam, killer);
 			break;
 		}
@@ -4017,8 +4251,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_SHARD:
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
-	      if (pa_ptr->shadow_form) dam /= 3;
-         if (pa_ptr->biofeedback) dam /= 2;
+			if (pa_ptr->shadow_form) dam /= 3;
+			if (pa_ptr->biofeedback) dam /= 2;
 			if (p_ptr->resist_shard)
 			{
 				dam *= 6; dam /= (randint(6) + 6);
@@ -4035,8 +4269,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_SOUND:
 		{
 			if (fuzzy) msg_print("You are hit by something loud!");
-         if (pa_ptr->biofeedback) dam /= 2;
-	      if (pa_ptr->inertial_barrier) dam /= 3;
+			if (pa_ptr->biofeedback) dam /= 2;
+			if (pa_ptr->inertial_barrier) dam /= 3;
 			if (p_ptr->resist_sound)
 			{
 				dam *= 5; dam /= (randint(6) + 6);
@@ -4478,8 +4712,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Encoded "radius" info (see above) */
 	byte gm[16];
 
-   /* Initializing fade_dam counter */
+	/* Initializing fade_dam counter */
 	if (fade_dam_on) fade_dam = dam;
+
+	/* Initializing bale_effect */
+	bale_effect = 0;
 
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))
@@ -4633,6 +4870,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Save the "blast epicenter" */
 	y2 = y;
 	x2 = x;
+
+	blast_center_y = y;
+	blast_center_x = x;
 
 	/* Start the "explosion" */
 	gm[0] = 0;
@@ -4832,6 +5072,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 			/* Affect the monster in the grid */
 			if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+			
+			/* Hack - allow balefire abort */
+			if (bale_effect & BALE_ABORT) return FALSE;
 		}
 
 		/* Player affected one monster (without "jumping") */
@@ -4877,6 +5120,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		}
 	}
 
+	/* Balefire effects? */
+	do_balefire_effects(bale_effect);
 
 	/* Return "something was noticed" */
 	return (notice);

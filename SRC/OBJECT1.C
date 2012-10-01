@@ -723,8 +723,13 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= e_ptr->flags2;
 		(*f3) |= e_ptr->flags3;
 	}
-
+#if 0
+	(*f1) |= o_ptr->art_flags1;
+	(*f2) |= o_ptr->art_flags2;
+	(*f3) |= o_ptr->art_flags3;
+#endif
 	/* Extra powers */
+/*        if (!o_ptr->art_name) */
 	switch (o_ptr->xtra1)
 	{
 		case OBJECT_XTRA_TYPE_SUSTAIN:
@@ -804,11 +809,16 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f2) = a_ptr->flags2;
 		(*f3) = a_ptr->flags3;
 	}
-
+#if 0
+	(*f1) |= o_ptr->art_flags1;
+	(*f2) |= o_ptr->art_flags2;
+	(*f3) |= o_ptr->art_flags3;
+#endif
 	/* Full knowledge for *identified* objects */
 	if (!(o_ptr->ident & IDENT_MENTAL)) return;
 
 	/* Extra powers */
+/*        if (!o_ptr->art_name)*/
 	switch (o_ptr->xtra1)
 	{
 		case OBJECT_XTRA_TYPE_SUSTAIN:
@@ -2480,8 +2490,8 @@ bool identify_fully_aux(object_type *o_ptr)
  	if (f2 & TR2_RES_INERT)
  	 info[i++] = "It provides resistance to inertia.";
 
- 	if (f2 & TR2_RES_GRAVT)
- 	 info[i++] = "It provides resistance to gravity.";
+/*        if (f2 & TR2_RES_GRAVT)
+         info[i++] = "It provides resistance to gravity."; */
 
     if (f2 & TR2_RES_PSI)
      info[i++] = "It provides resistance to mental attacks.";
@@ -2975,9 +2985,6 @@ void display_inven(void)
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
-
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
 
@@ -3047,9 +3054,6 @@ void display_equip(void)
 
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -3149,9 +3153,6 @@ void show_inven(void)
 
 		/* Acquire inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) out_color[k] = TERM_WHITE;
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -3258,9 +3259,6 @@ void show_equip(void)
 
 		/* Acquire inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) out_color[k] = TERM_WHITE;
 
 		/* Save the description */
 		strcpy(out_desc[k], o_name);

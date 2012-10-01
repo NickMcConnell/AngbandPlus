@@ -7,14 +7,16 @@
 #
 # This file is included by any platform which uses the "standard" Angband
 # bitmap file (a 32x32 collection of 8x8 bitmaps), including "pref-ami.prf",
-# "pref-mac.prf", and "pref-win.prf".
+# "pref-mac.prf", "pref-win.prf", "pref-dos.prf", and "pref-x11.prf".
 #
 # Adapted from the file "graf-ami.prf", provided, along with the original
 # pixmap file itself, by Lars Haugseth <larshau@ifi.uio.no>.
 #
 
 
+
 ##### Special attr/char values #####
+
 
 ## # Unused (@)
 ## S:0x00:0x00/0x40
@@ -305,7 +307,9 @@ S:0xFE:0x8B/0x81
 S:0xFF:0x8B/0x81
 
 
-### Feature attr/char definitions
+
+##### Feature attr/char definitions #####
+
 
 # nothing
 F:0:0x81/0x80
@@ -501,7 +505,8 @@ F:63:0x80/0x95
 
 
 
-### Object attr/char definitions
+##### Object attr/char definitions #####
+
 
 # something
 K:0:0x01/0x20
@@ -1813,7 +1818,8 @@ K:511:0x82/0x87
 
 
 
-### Monster attr/char definitions
+##### Monster attr/char definitions #####
+
 
 # Player
 R:0:0x8C/0x80
@@ -3460,4 +3466,6 @@ R:546:0x9D/0x8A
 R:547:0x92/0x9E
 
 
+# Load the special player pictures
+%:xtra-xxx.prf
 

@@ -36,7 +36,7 @@ bool hp_player(int num)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 		/* Heal 0-4 */
 		if (num < 5)
@@ -242,6 +242,15 @@ void identify_pack(void)
 		object_aware(o_ptr);
 		object_known(o_ptr);
 	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -888,7 +897,7 @@ bool lose_some_info()
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Mega-Hack -- Forget the map */
 	if (!rand_int(10)) wiz_dark();
@@ -955,7 +964,7 @@ bool lose_all_info(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Mega-Hack -- Forget the map */
 	wiz_dark();
@@ -1766,7 +1775,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Success */
 	return (TRUE);
@@ -1888,7 +1897,7 @@ bool ident_spell(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1964,7 +1973,7 @@ bool identify_fully(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2214,6 +2223,8 @@ static bool project_hack(int typ, int dam)
 	return (obvious);
 }
 
+bool project_los(int typ,int dam)
+{return project_hack(typ,dam);}
 
 /*
  * Speed monsters

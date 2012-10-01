@@ -333,6 +333,10 @@ static void prt_depth(void)
 	{
 		strcpy(depths, "Town");
 	}
+	else if (depth_in_feet)
+	{
+		sprintf(depths, "%d ft", p_ptr->depth * 50);
+	}
 	else
 	{
 		sprintf(depths, "Lev %d", p_ptr->depth);
@@ -898,9 +902,9 @@ static void fix_equip(void)
 
 
 /*
- * Hack -- display flags in sub-windows
+ * Hack -- display player in sub-windows (mode 0)
  */
-static void fix_pflags(void)
+static void fix_player_0(void)
 {
 	int j;
 
@@ -913,40 +917,7 @@ static void fix_pflags(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_SPELL))) continue;
-
-		/* Activate */
-		Term_activate(angband_term[j]);
-
-		/* Display flags */
-		display_player(1);
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
-	}
-}
-
-
-/*
- * Hack -- display character in sub-windows
- */
-static void fix_player(void)
-{
-	int j;
-
-	/* Scan windows */
-	for (j = 0; j < 8; j++)
-	{
-		term *old = Term;
-
-		/* No window */
-		if (!angband_term[j]) continue;
-
-		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_PLAYER))) continue;
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER_0))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -962,6 +933,39 @@ static void fix_player(void)
 	}
 }
 
+
+
+/*
+ * Hack -- display player in sub-windows (mode 1)
+ */
+static void fix_player_1(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_PLAYER_1))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display flags */
+		display_player(1);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
 
 
 /*
@@ -1496,7 +1500,7 @@ static void calc_mana(void)
 		p_ptr->redraw |= (PR_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 
@@ -1576,7 +1580,7 @@ static void calc_hitpoints(void)
 		p_ptr->redraw |= (PR_HP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 }
 
@@ -1786,26 +1790,40 @@ static void calc_bonuses(void)
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
 
-   psi_flags = 0;
-   meta_psi_lev = 0;
+	psi_flags = 0;
+	meta_psi_lev = 0;
+
+	/* Hunger effects (psi) */
+	if (p_ptr->food < PY_FOOD_ALERT)
+	  {
+	    p_ptr->pspeed--;
+	    p_ptr->to_h--;
+	    p_ptr->stat_add[A_STR]--;
+	  }
+	if (p_ptr->food < PY_FOOD_WEAK)
+	  {
+	    p_ptr->pspeed--;
+	    p_ptr->to_h--;
+	    for (i=0 ; i<6 ; i++) p_ptr->stat_add[i]--;
+	  }
 
         if (pa_ptr->adrenaline)
 	{
-	  i = p_ptr->lev / 5;
+	  i = p_ptr->lev / 7;
 	  if (i>5) i = 5;
 	  p_ptr->stat_add[A_CON] += i;
 	  p_ptr->stat_add[A_STR] += i;
-	  p_ptr->stat_add[A_DEX] += i;
+	  p_ptr->stat_add[A_DEX] += (i + 1) / 2;
 		p_ptr->to_h += 12;
-		p_ptr->dis_to_h += 12;
+		p_ptr->dis_to_h += 24;
           if (pa_ptr->adrenaline & 1)
 	  {
 		p_ptr->to_d += 8;
-		p_ptr->dis_to_d += 8;
+		p_ptr->dis_to_d += 16;
 	  }
           if (pa_ptr->adrenaline & 2)
 		extra_blows++;
-	  p_ptr->to_a -= 10;
+	  p_ptr->to_a -= 20;
 	  p_ptr->dis_to_a -= 10;
 	}
 
@@ -1893,7 +1911,7 @@ static void calc_bonuses(void)
 		if (f3 & TR3_PSEUDO_ID)    psi_flags |= PSI_PSEUDO_ID;
 		if (f2 & TR2_RES_FORCE)     psi_flags |= RES_FORCE;
 		if (f2 & TR2_RES_INERT)   psi_flags |= RES_INERT;
-		if (f2 & TR2_RES_GRAVT)   psi_flags |= RES_GRAVT;
+                if (f3 & TR3_FEATHER)   psi_flags |= RES_GRAVT; /* hack */
       if (f2 & TR2_RES_PSI)     psi_flags |= RES_PSI;
 
       meta_psi_lev = max(meta_psi_lev, ((f2 & TR2_META_PSI1) ? 1 : 0) +
@@ -2468,7 +2486,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 
 		/* Notice changes */
@@ -2478,7 +2496,7 @@ static void calc_bonuses(void)
 			p_ptr->redraw |= (PR_STATS);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		}
 
 		/* Notice changes */
@@ -2538,7 +2556,7 @@ static void calc_bonuses(void)
 		p_ptr->redraw |= (PR_ARMOR);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
 	/* Hack -- handle "xtra" mode */
@@ -2721,6 +2739,13 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
 	}
+
+
+	if (p_ptr->update & (PU_PANEL))
+	{
+		p_ptr->update &= ~(PU_PANEL);
+		verify_panel();
+	}
 }
 
 
@@ -2740,15 +2765,6 @@ void redraw_stuff(void)
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 
-
-
-	/* Hack -- clear the screen */
-	if (p_ptr->redraw & (PR_WIPE))
-	{
-		p_ptr->redraw &= ~(PR_WIPE);
-		msg_print(NULL);
-		Term_clear();
-	}
 
 
 	if (p_ptr->redraw & (PR_MAP))
@@ -2959,18 +2975,18 @@ void window_stuff(void)
 		fix_equip();
 	}
 
-	/* Display pflags */
-	if (p_ptr->window & (PW_SPELL))
+	/* Display player (mode 0) */
+	if (p_ptr->window & (PW_PLAYER_0))
 	{
-		p_ptr->window &= ~(PW_SPELL);
-		fix_pflags();
+		p_ptr->window &= ~(PW_PLAYER_0);
+		fix_player_0();
 	}
 
-	/* Display player */
-	if (p_ptr->window & (PW_PLAYER))
+	/* Display player (mode 1) */
+	if (p_ptr->window & (PW_PLAYER_1))
 	{
-		p_ptr->window &= ~(PW_PLAYER);
-		fix_player();
+		p_ptr->window &= ~(PW_PLAYER_1);
+		fix_player_1();
 	}
 
 	/* Display overhead view */

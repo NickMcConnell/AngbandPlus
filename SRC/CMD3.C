@@ -269,7 +269,7 @@ void do_cmd_wield(void)
 	p_ptr->update |= (PU_MANA);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 }
 
 
@@ -999,8 +999,8 @@ void do_cmd_locate(void)
 		}
 	}
 
-	/* Recenter map */
-	verify_panel();
+	/* Verify panel */
+	p_ptr->update |= (PU_PANEL);
 
 	/* Handle stuff */
 	handle_stuff();

@@ -517,7 +517,7 @@ void py_pickup(int pickup)
 			p_ptr->redraw |= (PR_GOLD);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
@@ -1071,14 +1071,17 @@ void move_player(int dir, int do_pickup)
 
 	/* Hack -- attack monsters */
 	if (cave_m_idx[y][x] > 0)
+          if (!(m_list[cave_m_idx[y][x]].status & STATUS_DOMINATE))
 	{
-      if (!(m_list[cave_m_idx[y][x]].smart & SM_DOMINATE))
 		/* Attack */
 		py_attack(y, x);
+
+                /* Don't move */
+                return;
 	}
 
 	/* Player can not walk through "walls" */
-	else if ((!cave_floor_bold(y, x)) && (!pa_ptr->shadow_form))
+        if ((!cave_floor_bold(y, x)) && (!pa_ptr->shadow_form))
 	{
 		/* Disturb the player */
 		disturb(0, 0);

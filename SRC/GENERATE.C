@@ -3257,6 +3257,31 @@ static void town_gen_hack(void)
 
 	int rooms[MAX_STORES];
 
+	if (town_special & TOWN_MESSAGE)
+	  {
+	    town_special &= ~TOWN_MESSAGE;
+	    switch (town_special)
+	      {
+	      case TOWN_DEAD_PAST:
+		msg_print("You've arrived hundreds of years before the town was built!");
+		msg_print("You fashion a makeshift hut to store your belongings.");
+		break;
+	      case TOWN_DEAD_FUTURE:
+		msg_print("You stumble over the ruins of the town.");
+		msg_print("They appear to have been abandonned for centuries.");
+		msg_print("You fashion a makeshift hut to store your belongings.");
+		break;
+	      case TOWN_WEIRD:
+		msg_print("Different language / different stores / ?");
+		msg_print("You arrive in an undefined town.");
+		break;
+	      case 0:
+		msg_print("What a relief!");
+		msg_print("You're back in the present and it all seems relatively normal...");
+		break;
+	      }
+	    /* empty_house() */
+	  }
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
@@ -3268,6 +3293,15 @@ static void town_gen_hack(void)
 	/* Prepare an Array of "remaining stores", and count them */
 	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
 
+	switch (town_special)
+	  {
+	  case TOWN_DEAD_FUTURE:
+	  case TOWN_DEAD_PAST:
+	    for (n=1 ; n<MAX_STORES ; n++) rooms[n] = -1;
+	    rooms[0] = 6;
+	    break;
+	  }
+
 	/* Place two rows of stores */
 	for (y = 0; y < 2; y++)
 	{
@@ -3276,9 +3310,10 @@ static void town_gen_hack(void)
 		{
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : rand_int(n));
-
+			
 			/* Build that store at the proper location */
-			build_store(rooms[k], y, x);
+			if (rooms[k] != -1)
+			  build_store(rooms[k], y, x);
 
 			/* Shift the stores down, remove one store */
 			rooms[k] = rooms[--n];
@@ -3412,6 +3447,10 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
+	/* Wipe out force walls and level auras */
+	no_fw = 0;
+	dungeon_aura_type = 0;
+	dungeon_aura_level = 0;
 
 	/* Generate */
 	for (num = 0; TRUE; num++)

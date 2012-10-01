@@ -18,11 +18,16 @@
 static int d_tgt_x,d_tgt_y;
 bool summon_friendly = FALSE;
 
-#include <go32.h>
-#include <sys/farptr.h>
-
 static int min(int a,int b) {return (a<b) ? a : b;}
 
+/*
+#ifdef MSDOS
+#include <go32.h>
+#include <sys/farptr.h>
+#endif
+*/
+
+/*
 static cptr r_flags456[] =
  {
  	"SHRIEK",
@@ -124,7 +129,7 @@ static cptr r_flags456[] =
  	"S_WRAITH",
  	"S_UNIQUE"
  };
-
+*/
 #ifdef DRS_SMART_OPTIONS
 
 
@@ -203,9 +208,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (smart_learn)
 	{
 		/* Hack -- Occasionally forget player status */
-       /* Especially if influenced... */
- 		if (m_ptr->smart && (rand_int(m_ptr->smart & SM_INFLUENCE ? 210 -
- 	      r_ptr->level * 2 : 100) < 1)) m_ptr->smart = 0L;
+		if (m_ptr->smart && (rand_int(100) < 1)) m_ptr->smart = 0L;
 
 		/* Use the memorized flags */
 		smart = m_ptr->smart;
@@ -254,7 +257,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 	/* Nothing known */
 	if (!smart) return;
-   if (smart & SM_DOMINATE) return;
+	if (m_ptr->status & STATUS_DOMINATE) return;
 
 
 	if (smart & (SM_IMM_ACID))
@@ -503,12 +506,6 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx) {
   *ry = p_ptr->py;
   *rx = p_ptr->px;
 
-  /* Call pets. */
-/*
-  if (p_ptr->pets_notice) {
-    return;
-  }*/
-
   /* Paranoia */
   if (sy < 0 || sy >= DUNGEON_WID || sx < 0 || sy >= DUNGEON_HGT) {
     return;
@@ -525,7 +522,7 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx) {
 
     for (j = sx-rad; j <= sx+rad; j++) {
       if (cave_m_idx[sy-rad][j] > 0 && 
-	  !(m_list[cave_m_idx[sy-rad][j]].smart & SM_DOMINATE)) {
+	  !(m_list[cave_m_idx[sy-rad][j]].status & STATUS_DOMINATE)) {
 	*ry = sy-rad;
 	*rx = j;
 	return;
@@ -536,12 +533,12 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx) {
 
     for (i = sy-(rad-1); i <= sy+(rad-1); i++) {
       if (cave_m_idx[i][sx-rad] > 0 &&
-	  !(m_list[cave_m_idx[i][sx-rad]].smart & SM_DOMINATE)) {
+	  !(m_list[cave_m_idx[i][sx-rad]].status & STATUS_DOMINATE)) {
 	*ry = i;
 	*rx = sx-rad;
 	return;
       } else if (cave_m_idx[i][sx+rad] > 0 &&
-		 !(m_list[cave_m_idx[i][sx+rad]].smart & SM_DOMINATE)) {
+		 !(m_list[cave_m_idx[i][sx+rad]].status & STATUS_DOMINATE)) {
 	*ry = i;
 	*rx = sx+rad;
 	return;
@@ -552,7 +549,7 @@ static void find_target_nearest(int sy, int sx, int range, int* ry, int* rx) {
 
     for (j = sx-rad; j <= sx+rad; j++) {
       if (cave_m_idx[sy+rad][j] > 0 &&
-	  !(m_list[cave_m_idx[sy+rad][j]].smart & SM_DOMINATE)) {
+	  !(m_list[cave_m_idx[sy+rad][j]].status & STATUS_DOMINATE)) {
 	*ry = sy+rad;
 	*rx = j;
 	return;
@@ -573,7 +570,7 @@ static void bolt(int m_idx, int typ, int dam_hp)
 
 	int flg = PROJECT_STOP | PROJECT_KILL;
 
-    if (m_list[m_idx].smart & SM_DOMINATE)
+    if (m_list[m_idx].status & STATUS_DOMINATE)
  	(void)project(m_idx, 0, d_tgt_y, d_tgt_x, dam_hp, typ, flg);
     else
 	/* Target the player with a bolt attack */
@@ -588,304 +585,306 @@ static void bolt(int m_idx, int typ, int dam_hp)
  */
 static void breath(int m_idx, int typ, int dam_hp)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
+  int py = p_ptr->py;
+  int px = p_ptr->px;
 
-	int rad;
+  int rad;
 
-	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+  int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+  monster_type *m_ptr = &m_list[m_idx];
+  monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Determine the radius of the blast */
-	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
-
-    if (m_list[m_idx].smart & SM_DOMINATE)
+  /* Determine the radius of the blast */
+  rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+  if (m_list[m_idx].status & STATUS_DOMINATE)
     {
- 	   (void)project(m_idx, rad, d_tgt_y, d_tgt_x, dam_hp, typ, flg);
-       return;
+      (void)project(m_idx, rad, d_tgt_y, d_tgt_x, dam_hp, typ, flg);
+      return;
     }
-
-    if ((typ != GF_PSI) && (typ != GF_PSI2) && (typ != GF_PSI3))
+ 
+  if ((typ != GF_PSI) && (typ != GF_PSI2) && (typ != GF_PSI3))
     if (pa_ptr->inertial_barrier) dam_hp /= 2;
 
-	/* Target the player with a ball attack */
-	(void)project(m_idx, rad, py, px, dam_hp, typ, flg);
-}
 
+  /* Target the player with a ball attack */
+  (void)project(m_idx, rad, py, px, dam_hp, typ, flg);
+}
+ 
 /*
- * Cast a breath (or ball) attack at the player
- * Pass over any monsters that may be in the way
- * Affect grids, objects, monsters, and the player
-*/
+  * Cast a breath (or ball) attack at the player
+  * Pass over any monsters that may be in the way
+  * Affect grids, objects, monsters, and the player
+ */
 static void ball(int m_idx, int typ, int dam_hp)
 {
- 	int py = p_ptr->py;
- 	int px = p_ptr->px;
-
- 	int rad;
-
- 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-
- 	monster_type *m_ptr = &m_list[m_idx];
- 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
- 	/* Determine the radius of the blast */
- 	rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
-
-    if (m_list[m_idx].smart & SM_DOMINATE)
+  int py = p_ptr->py;
+  int px = p_ptr->px;
+ 
+  int rad;
+ 
+  int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+ 
+  monster_type *m_ptr = &m_list[m_idx];
+  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+ 
+  /* Determine the radius of the blast */
+  rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+ 
+  if (m_list[m_idx].status & STATUS_DOMINATE)
     {
- 	   (void)project(m_idx, rad, d_tgt_y, d_tgt_x, dam_hp, typ, flg);
-       return;
+      (void)project(m_idx, rad, d_tgt_y, d_tgt_x, dam_hp, typ, flg);
+      return;
     }
+  
+  /* Target the player with a ball attack */
+  (void)project(m_idx, rad, py, px, dam_hp, typ, flg);
 
- 	/* Target the player with a ball attack */
- 	(void)project(m_idx, rad, py, px, dam_hp, typ, flg);
 }
 
 static void ball0(int m_idx,int typ, int dam_hp,bool dom)
 {
-    project(m_idx,0,(dom ? d_tgt_y : p_ptr->py),(dom ? d_tgt_x : p_ptr->px),
-    dam_hp, typ, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
+  project(m_idx,0,(dom ? d_tgt_y : p_ptr->py),(dom ? d_tgt_x : p_ptr->px),
+	  dam_hp, typ, PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
 }
-
+ 
 /*
- * Return TRUE if a spell is good for hurting the player (directly).
- */
+  * Return TRUE if a spell is good for hurting the player (directly).
+  */
 static bool spell_attack(byte spell)
 {
-	/* All RF4 spells hurt (except for shriek) */
-	if (spell < 128 && spell > 96) return (TRUE);
-
-	/* Various "ball" spells */
-	if (spell >= 128 && spell <= 128 + 8) return (TRUE);
-
-	/* "Cause wounds" and "bolt" spells */
-	if (spell >= 128 + 12 && spell <= 128 + 27) return (TRUE);
-
-	/* Doesn't hurt */
-	return (FALSE);
+  /* All RF4 spells hurt (except for shriek) */
+  if (spell < 128 && spell > 96) return (TRUE);
+ 
+ 	/* Various "ball" spells */
+  if (spell >= 128 && spell <= 128 + 8) return (TRUE);
+ 
+  /* "Cause wounds" and "bolt" spells */
+  if (spell >= 128 + 12 && spell <= 128 + 27) return (TRUE);
+ 
+  /* Doesn't hurt */
+  return (FALSE);
 }
-
+ 
 /*
- * Return TRUE if a spell is good for escaping.
- */
+  * Return TRUE if a spell is good for escaping.
+  */
 static bool spell_escape(byte spell)
 {
-	/* Blink or Teleport */
-	if (spell == 160 + 4 || spell == 160 + 5) return (TRUE);
-
-	/* Teleport the player away */
-	if (spell == 160 + 9 || spell == 160 + 10) return (TRUE);
-
-	/* Isn't good for escaping */
-	return (FALSE);
+  /* Blink or Teleport */
+  if (spell == 160 + 4 || spell == 160 + 5) return (TRUE);
+ 
+ 	/* Teleport the player away */
+  if (spell == 160 + 9 || spell == 160 + 10) return (TRUE);
+ 
+  /* Isn't good for escaping */
+  return (FALSE);
 }
-
+ 
 /*
- * Return TRUE if a spell is good for annoying the player.
- */
+  * Return TRUE if a spell is good for annoying the player.
+  */
 static bool spell_annoy(byte spell)
 {
-	/* Shriek */
-	if (spell == 96 + 0) return (TRUE);
-
-	/* Brain smash, et al */
-	if (spell >= 128 + 9 && spell <= 128 + 11) return (TRUE);
-
-	/* Scare, confuse, blind, slow, paralyze */
-	if (spell >= 128 + 27 && spell <= 128 + 31) return (TRUE);
-
-	/* Teleport to */
-	if (spell == 160 + 8) return (TRUE);
-
-	/* Darkness, make traps, cause amnesia */
-	if (spell >= 160 + 12 && spell <= 160 + 14) return (TRUE);
-
-	/* Doesn't annoy */
-	return (FALSE);
+  /* Shriek */
+  if (spell == 96 + 0) return (TRUE);
+ 
+ 	/* Brain smash, et al */
+  if (spell >= 128 + 9 && spell <= 128 + 11) return (TRUE);
+ 
+  /* Scare, confuse, blind, slow, paralyze */
+  if (spell >= 128 + 27 && spell <= 128 + 31) return (TRUE);
+ 
+  /* Teleport to */
+  if (spell == 160 + 8) return (TRUE);
+ 
+  /* Darkness, make traps, cause amnesia */
+  if (spell >= 160 + 12 && spell <= 160 + 14) return (TRUE);
+ 
+  /* Doesn't annoy */
+  return (FALSE);
 }
-
+ 
 /*
- * Return TRUE if a spell summons help.
- */
+  * Return TRUE if a spell summons help.
+  */
 static bool spell_summon(byte spell)
 {
-	/* All summon spells */
-	if (spell >= 160 + 18) return (TRUE);
-
-	/* Doesn't summon */
-	return (FALSE);
+  /* All summon spells */
+  if (spell >= 160 + 18) return (TRUE);
+ 
+ 	/* Doesn't summon */
+  return (FALSE);
 }
-
+ 
 /*
- * Return TRUE if a spell is good in a tactical situation.
- */
+  * Return TRUE if a spell is good in a tactical situation.
+  */
 static bool spell_tactic(byte spell)
 {
-	/* Blink */
-	if (spell == 160 + 4) return (TRUE);
-
-	/* Not good */
-	return (FALSE);
+  /* Blink */
+  if (spell == 160 + 4) return (TRUE);
+ 
+ 	/* Not good */
+  return (FALSE);
 }
-
+ 
 /*
- * Return TRUE if a spell hastes.
- */
+  * Return TRUE if a spell hastes.
+  */
 static bool spell_haste(byte spell)
 {
-	/* Haste self */
-	if (spell == 160 + 0) return (TRUE);
-
-	/* Not a haste spell */
-	return (FALSE);
+  /* Haste self */
+  if (spell == 160 + 0) return (TRUE);
+ 
+ 	/* Not a haste spell */
+  return (FALSE);
 }
-
+ 
 /*
- * Return TRUE if a spell is good for healing.
- */
+  * Return TRUE if a spell is good for healing.
+  */
 static bool spell_heal(byte spell)
 {
-	/* Heal */
-	if (spell == 160 + 2) return (TRUE);
-
-	/* No healing */
-	return (FALSE);
+  /* Heal */
+  if (spell == 160 + 2) return (TRUE);
+ 
+ 	/* No healing */
+  return (FALSE);
 }
-
+ 
 /*
- * Have a monster choose a spell from a list of "useful" spells.
- *
- * Note that this list does NOT include spells that will just hit
- * other monsters, and the list is restricted when the monster is
- * "desperate".  Should that be the job of this function instead?
- *
- * Stupid monsters will just pick a spell randomly.  Smart monsters
- * will choose more "intelligently".
- *
- * Use the helper functions above to put spells into categories.
- *
- * This function may well be an efficiency bottleneck.
- */
+  * Have a monster choose a spell from a list of "useful" spells.
+  *
+  * Note that this list does NOT include spells that will just hit
+  * other monsters, and the list is restricted when the monster is
+  * "desperate".  Should that be the job of this function instead?
+  *
+  * Stupid monsters will just pick a spell randomly.  Smart monsters
+  * will choose more "intelligently".
+  *
+  * Use the helper functions above to put spells into categories.
+  *
+  * This function may well be an efficiency bottleneck.
+  */
 static int choose_attack_spell(int m_idx, byte spells[], byte num)
 {
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	byte escape[96], escape_num = 0;
-	byte attack[96], attack_num = 0;
-	byte summon[96], summon_num = 0;
-	byte tactic[96], tactic_num = 0;
-	byte annoy[96], annoy_num = 0;
-	byte haste[96], haste_num = 0;
-	byte heal[96], heal_num = 0;
-
-	int i, py = p_ptr->py, px = p_ptr->px;
-
-	/* Stupid monsters choose randomly */
-	if (r_ptr->flags2 & (RF2_STUPID))
-	{
-		/* Pick at random */
-		return (spells[rand_int(num)]);
-	}
-
-	/* Categorize spells */
-	for (i = 0; i < num; i++)
-	{
-		/* Escape spell? */
-		if (spell_escape(spells[i])) escape[escape_num++] = spells[i];
-
-		/* Attack spell? */
-		if (spell_attack(spells[i])) attack[attack_num++] = spells[i];
-
-		/* Summon spell? */
-		if (spell_summon(spells[i])) summon[summon_num++] = spells[i];
-
-		/* Tactical spell? */
-		if (spell_tactic(spells[i])) tactic[tactic_num++] = spells[i];
-
-		/* Annoyance spell? */
-		if (spell_annoy(spells[i])) annoy[annoy_num++] = spells[i];
-
-		/* Haste spell? */
-		if (spell_haste(spells[i])) haste[haste_num++] = spells[i];
-
-		/* Heal spell? */
-		if (spell_heal(spells[i])) heal[heal_num++] = spells[i];
-	}
-
-	/*** Try to pick an appropriate spell type ***/
-
-	/* Hurt badly or afraid, attempt to flee */
-	if ((m_ptr->hp < m_ptr->maxhp / 3) || m_ptr->monfear)
-	{
-		/* Choose escape spell if possible */
-		if (escape_num) return (escape[rand_int(escape_num)]);
-	}
-
-	/* Still hurt badly, couldn't flee, attempt to heal */
-	if (m_ptr->hp < m_ptr->maxhp / 3)
-	{
-		/* Choose heal spell if possible */
-		if (heal_num) return (heal[rand_int(heal_num)]);
-	}
-
-	/* Player is close and we have attack spells, blink away */
-	if ((distance(py, px, m_ptr->fy, m_ptr->fx) < 4) && attack_num &&
-	    (rand_int(100) < 75))
-	{
-		/* Choose tactical spell */
-		if (tactic_num) return (tactic[rand_int(tactic_num)]);
-	}
-
-	/* We're hurt (not badly), try to heal */
-	if ((m_ptr->hp < m_ptr->maxhp * 3 / 4) && (rand_int(100) < 75))
-	{
-		/* Choose heal spell if possible */
-		if (heal_num) return (heal[rand_int(heal_num)]);
-	}
-
-	/* Summon if possible (sometimes) */
-	if (summon_num && (rand_int(100) < 50))
-	{
-		/* Choose summon spell */
-		return (summon[rand_int(summon_num)]);
-	}
-
-	/* Attack spell (most of the time) */
-	if (attack_num && (rand_int(100) < 85))
-	{
-		/* Choose attack spell */
-		return (attack[rand_int(attack_num)]);
-	}
-
-	/* Try another tactical spell (sometimes) */
-	if (tactic_num && (rand_int(100) < 50))
-	{
-		/* Choose tactic spell */
-		return (tactic[rand_int(tactic_num)]);
-	}
-
-	/* Haste self if we aren't already somewhat hasted (rarely) */
-	if (haste_num && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
-	{
-		/* Choose haste spell */
-		return (haste[rand_int(haste_num)]);
-	}
-
-	/* Annoy player (most of the time) */
-	if (annoy_num && (rand_int(100) < 85))
-	{
-		/* Choose annoyance spell */
-		return (annoy[rand_int(annoy_num)]);
-	}
-
-	/* Choose no spell */
-	return (0);
+  monster_type *m_ptr = &m_list[m_idx];
+  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+ 
+  byte escape[96], escape_num = 0;
+  byte attack[96], attack_num = 0;
+  byte summon[96], summon_num = 0;
+  byte tactic[96], tactic_num = 0;
+  byte annoy[96], annoy_num = 0;
+  byte haste[96], haste_num = 0;
+  byte heal[96], heal_num = 0;
+ 
+  int i, py = p_ptr->py, px = p_ptr->px;
+ 
+  /* Stupid monsters choose randomly */
+  if (r_ptr->flags2 & (RF2_STUPID))
+    {
+      /* Pick at random */
+      return (spells[rand_int(num)]);
+    }
+ 
+  /* Categorize spells */
+  for (i = 0; i < num; i++)
+    {
+      /* Escape spell? */
+      if (spell_escape(spells[i])) escape[escape_num++] = spells[i];
+ 
+      /* Attack spell? */
+      if (spell_attack(spells[i])) attack[attack_num++] = spells[i];
+ 
+      /* Summon spell? */
+      if (spell_summon(spells[i])) summon[summon_num++] = spells[i];
+ 
+      /* Tactical spell? */
+      if (spell_tactic(spells[i])) tactic[tactic_num++] = spells[i];
+ 
+      /* Annoyance spell? */
+      if (spell_annoy(spells[i])) annoy[annoy_num++] = spells[i];
+ 
+      /* Haste spell? */
+      if (spell_haste(spells[i])) haste[haste_num++] = spells[i];
+ 
+      /* Heal spell? */
+      if (spell_heal(spells[i])) heal[heal_num++] = spells[i];
+    }
+ 
+  /*** Try to pick an appropriate spell type ***/
+ 
+  /* Hurt badly or afraid, attempt to flee */
+  if ((m_ptr->hp < m_ptr->maxhp / 3) || m_ptr->monfear)
+    {
+      /* Choose escape spell if possible */
+      if (escape_num) return (escape[rand_int(escape_num)]);
+    }
+ 
+  /* Still hurt badly, couldn't flee, attempt to heal */
+  if (m_ptr->hp < m_ptr->maxhp / 3)
+    {
+      /* Choose heal spell if possible */
+      if (heal_num) return (heal[rand_int(heal_num)]);
+    }
+ 
+  /* Player is close and we have attack spells, blink away */
+  if ((distance(py, px, m_ptr->fy, m_ptr->fx) < 4) && attack_num &&
+      (rand_int(100) < 75))
+    {
+      /* Choose tactical spell */
+      if (tactic_num) return (tactic[rand_int(tactic_num)]);
+    }
+ 
+  /* We're hurt (not badly), try to heal */
+  if ((m_ptr->hp < m_ptr->maxhp * 3 / 4) && (rand_int(100) < 75))
+    {
+      /* Choose heal spell if possible */
+      if (heal_num) return (heal[rand_int(heal_num)]);
+    }
+ 
+  /* Summon if possible (sometimes) */
+  if (summon_num && (rand_int(100) < 50))
+    {
+      /* Choose summon spell */
+      return (summon[rand_int(summon_num)]);
+    }
+ 
+  /* Attack spell (most of the time) */
+  if (attack_num && (rand_int(100) < 85))
+    {
+      /* Choose attack spell */
+      return (attack[rand_int(attack_num)]);
+    }
+ 
+  /* Try another tactical spell (sometimes) */
+  if (tactic_num && (rand_int(100) < 50))
+    {
+      /* Choose tactic spell */
+      return (tactic[rand_int(tactic_num)]);
+    }
+ 
+  /* Haste self if we aren't already somewhat hasted (rarely) */
+  if (haste_num && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
+    {
+      /* Choose haste spell */
+      return (haste[rand_int(haste_num)]);
+    }
+ 
+  /* Annoy player (most of the time) */
+  if (annoy_num && (rand_int(100) < 85))
+    {
+      /* Choose annoyance spell */
+      return (annoy[rand_int(annoy_num)]);
+    }
+ 
+  /* Choose no spell */
+  return (0);
 }
-	
+
+
 /*
  * Creatures can cast spells, shoot missiles, and breathe.
  *
@@ -962,7 +961,7 @@ bool make_attack_spell(int m_idx)
 	/* Extract the "see-able-ness" */
 	bool seen = (!blind && m_ptr->ml);
 
- 	/* Assume "normal" target */
+	/* Assume "normal" target */
 	bool normal = TRUE;
 
 	/* Assume "projectable" */
@@ -988,15 +987,15 @@ bool make_attack_spell(int m_idx)
 	if (!chance) return (FALSE);
 
 	/* Only do spells occasionally */
-	if (rand_int(100) >= 2 * chance) return (FALSE);
+	if (rand_int(100) >= (old_ai ? 1 : 2) * chance) return (FALSE);
 
 	/* Sometimes forbid inate attacks (breaths) */
-	if (rand_int(100) >= chance) no_inate = TRUE;
+	if (!old_ai) if (rand_int(100) >= chance) no_inate = TRUE;
 
   	/* Pets target enemies. */
 	/* Make sure that player isn't targetted by pet. */
 
-	if (m_ptr->smart & SM_DOMINATE)
+	if (m_ptr->status & STATUS_DOMINATE)
 	{
 	  find_target_nearest(m_ptr->fy, m_ptr->fx, r_ptr->aaf, &py, &px);
 	  if (py == p_ptr->py && px == p_ptr->px) return FALSE;
@@ -1055,6 +1054,7 @@ bool make_attack_spell(int m_idx)
 #endif
 
 	/* Check for a clean bolt shot */
+   if (!old_ai)
 	if (!(r_ptr->flags2 & (RF2_STUPID)) && 
 	    !clean_shot(m_ptr->fy, m_ptr->fx, py, px))
 	{
@@ -1068,26 +1068,26 @@ bool make_attack_spell(int m_idx)
 	}
 
    /* lose 1/3, 2/3 or all of spells because of amnesia */
- 	i = (m_ptr->smart & SM_AMNESIA1 ? 1 : 0) +
-        (m_ptr->smart & SM_AMNESIA2 ? 2 : 0);
+ 	i = (m_ptr->status & STATUS_AMNESIA1 ? 1 : 0) +
+        (m_ptr->status & STATUS_AMNESIA2 ? 2 : 0);
 
-  	/* Extract the "inate" spells */
-  	for (k = 0; k < 32; k++)
-  	{
+	/* Extract the "inate" spells */
+	for (k = 0; k < 32; k++)
+	{
  		if (f4 & (1L << k)) if (rand_int(3) >= i) spell[num++] = k + 32 * 3;
-  	}
-  
-  	/* Extract the "normal" spells */
-  	for (k = 0; k < 32; k++)
-  	{
+	}
+
+	/* Extract the "normal" spells */
+	for (k = 0; k < 32; k++)
+	{
  		if (f5 & (1L << k)) if (rand_int(3) >= i) spell[num++] = k + 32 * 4;
-  	}
-  
-  	/* Extract the "bizarre" spells */
-  	for (k = 0; k < 32; k++)
-  	{
+	}
+
+	/* Extract the "bizarre" spells */
+	for (k = 0; k < 32; k++)
+	{
  		if (f6 & (1L << k)) if (rand_int(3) >= i) spell[num++] = k + 32 * 5;
-  	}
+	}
 
 	/* No spells left */
 	if (!num) return (FALSE);
@@ -1108,11 +1108,12 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Choose a spell to cast */
-	thrown_spell = choose_attack_spell(m_idx, spell, num);
+        thrown_spell = old_ai ? spell[rand_int(num)] :
+	   choose_attack_spell(m_idx, spell, num);
 
-    /* Dominated - pick a spell and target (not anymore*/
+    /* Dominated - pick a spell and target (not anymore)*/
     /*
- 	if (m_ptr->smart & SM_DOMINATE)
+ 	if (m_ptr->status & STATUS_DOMINATE)
     {
        char buf[30];
        dom = TRUE;
@@ -1143,6 +1144,7 @@ bool make_attack_spell(int m_idx)
 	if (r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
 
 	/* Check for spell failure (inate attacks never fail) */
+   if (!old_ai)
 	if ((thrown_spell >= 128) && (rand_int(100) < failrate))
 	{
 		/* Message */
@@ -1151,7 +1153,7 @@ bool make_attack_spell(int m_idx)
 		return (TRUE);
 	}
 
-   summon_friendly = (m_ptr->smart & SM_DOMINATE) != 0;
+   summon_friendly = (m_ptr->status & STATUS_DOMINATE) != 0;
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -1167,16 +1169,16 @@ bool make_attack_spell(int m_idx)
 		}
 
  		/* RF4_P_BLAST */
-  		case 96+1:
-  		{
+		case 96+1:
+		{
  			disturb(1,0);
           msg_format("%^s unleashes a blast of psychic energy.",m_name);
           ball(m_idx,GF_PSI,damroll(3,rlev));
-  		}
-  
+		}
+
  		/* RF4_P_CRUSH */
-  		case 96+2:
-  		{
+		case 96+2:
+		{
           disturb(1,0);
  			if (!seen)
  			{
@@ -1188,12 +1190,12 @@ bool make_attack_spell(int m_idx)
              msg_format("'I crush your head!'");
  			}
           ball0(m_idx,GF_PSI2,damroll(3,rlev),dom);
-  			break;
-  		}
-  
+			break;
+		}
+
  		/* RF4_M_WRACK */
-  		case 96+3:
-  		{
+		case 96+3:
+		{
  			if (!seen)
  			{
  				msg_print("You feel something focusing on your mind.");
@@ -1202,10 +1204,10 @@ bool make_attack_spell(int m_idx)
  			{
  				msg_format("%^s's eyes glow red and pain wracks your mind.", m_name);
  			}
-          ball0(m_idx,GF_PSI3,randint(damroll(3,rlev)),dom);
+          ball0(m_idx,GF_PSI3,randint(damroll(2,rlev)),dom);
 
-  			break;
-  		}
+			break;
+		}
 
 		/* RF4_ARROW_1 */
 		case 96+4:
@@ -1478,23 +1480,23 @@ bool make_attack_spell(int m_idx)
 		}
 
  		/* RF4_BR_INSA */
-  		case 96+28:
-  		{
+		case 96+28:
+		{
  			disturb(1,0);
           msg_format("%^s breathes insanity.", m_name);
           breath(m_idx,GF_PSI,min(800,m_ptr->hp / 4));
-  			break;
-  		}
-  
+			break;
+		}
+
  		/* RF4_P_WAVE */
-  		case 96+29:
-  		{
+		case 96+29:
+		{
  			disturb(1,0);
           msg_format("%^s casts a wave of psionic energy.",m_name);
           project(m_idx,0,(dom ? d_tgt_y : py),(dom ? d_tgt_x : px),
            damroll(rlev,4), GF_PSI2, PROJECT_BEAM | PROJECT_THRU |
            PROJECT_KILL);
-  		}
+		}
 
 		/* RF4_XXX7X4 */
 		case 96+30:
@@ -1660,7 +1662,7 @@ bool make_attack_spell(int m_idx)
 				p_ptr->redraw |= (PR_MANA);
 
 				/* Window stuff */
-				p_ptr->window |= (PW_SPELL | PW_PLAYER);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 				/* Heal the monster */
 				if (m_ptr->hp < m_ptr->maxhp)
@@ -1699,9 +1701,9 @@ bool make_attack_spell(int m_idx)
 
  			if ((rand_int(100) < p_ptr->skill_sav) ||
               ((rand_int(100) < p_ptr->skill_sav) && (psi_flags & RES_PSI)))
-         {
-     			msg_print("You resist the effects!");
-         }
+			{
+				msg_print("You resist the effects!");
+			}
 			else
            if ((pa_ptr->mental_barrier > 0) && rand_int(3))
  	          msg_print("Your mental barrier deflects the attack.");
@@ -2062,8 +2064,8 @@ bool make_attack_spell(int m_idx)
 			}
  			else if ((rand_int(100) < p_ptr->skill_sav) ||
               ((rand_int(100) < p_ptr->skill_sav) && (psi_flags & RES_PSI)))
-  			{
-  				msg_format("You resist the effects!");
+			{
+				msg_format("You resist the effects!");
  			} else
           	  if ((pa_ptr->mental_barrier > 0) && rand_int(4))
  	             msg_print("Your mental barrier deflects the attack.");
@@ -2159,7 +2161,72 @@ bool make_attack_spell(int m_idx)
 				else
 				{
 					msg_format("%^s sounds healthier.", m_name);
+			}
+			}
+
+			/* Redraw (later) if needed */
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Cancel fear */
+			if (m_ptr->monfear)
+			{
+				/* Cancel fear */
+				m_ptr->monfear = 0;
+
+				/* Message */
+				msg_format("%^s recovers %s courage.", m_name, m_poss);
+		}
+
+			break;
+		}
+
+                 /* RF6_HEAL2 */
+  		case 160+3:
+		{
+			disturb(1, 0);
+
+			/* Message */
+			if (blind)
+			{
+				msg_format("%^s mumbles.", m_name);
+			}
+			else
+			{
+           msg_format(
+           "%^s fades out of existence and rematerializes far healthier.",
+            m_name);
+			}
+
+                         /* Heal some (int avoids overflow) */
+                         k = m_ptr->hp;
+                         k += m_ptr->maxhp * rlev / (50 + randint(400));
+
+			/* Fully healed */
+                         if (k >= m_ptr->maxhp)
+			{
+				/* Fully healed */
+				m_ptr->hp = m_ptr->maxhp;
+
+				/* Message */
+				if (seen)
+				{
+					msg_format("%^s looks REALLY healthy!", m_name);
 				}
+				else
+				{
+					msg_format("%^s sounds REALLY healthy!", m_name);
+				}
+			}
+
+			/* Partially healed */
+			else
+			{
+				/* Message */
+				if (seen)
+                  msg_format("%^s looks much healthier.", m_name);
+				else
+                  msg_format("%^s sounds much healthier.", m_name);
+                                 m_ptr->hp = k;
 			}
 
 			/* Redraw (later) if needed */
@@ -2177,71 +2244,6 @@ bool make_attack_spell(int m_idx)
 
 			break;
 		}
-
-                 /* RF6_HEAL2 */
-  		case 160+3:
-  		{
- 			disturb(1, 0);
-
- 			/* Message */
- 			if (blind)
- 			{
- 				msg_format("%^s mumbles.", m_name);
- 			}
- 			else
- 			{
-           msg_format(
-           "%^s fades out of existence and rematerializes far healthier.",
-            m_name);
- 			}
-
-                         /* Heal some (int avoids overflow) */
-                         k = m_ptr->hp;
-                         k += m_ptr->maxhp * rlev / (50 + randint(400));
-
- 			/* Fully healed */
-                         if (k >= m_ptr->maxhp)
- 			{
- 				/* Fully healed */
- 				m_ptr->hp = m_ptr->maxhp;
-
- 				/* Message */
- 				if (seen)
- 				{
- 					msg_format("%^s looks REALLY healthy!", m_name);
- 				}
- 				else
- 				{
- 					msg_format("%^s sounds REALLY healthy!", m_name);
- 				}
- 			}
-
- 			/* Partially healed */
- 			else
- 			{
- 				/* Message */
- 				if (seen)
-                  msg_format("%^s looks much healthier.", m_name);
- 				else
-                  msg_format("%^s sounds much healthier.", m_name);
-                                 m_ptr->hp = k;
- 			}
-
- 			/* Redraw (later) if needed */
- 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
- 			/* Cancel fear */
- 			if (m_ptr->monfear)
- 			{
- 				/* Cancel fear */
- 				m_ptr->monfear = 0;
-
- 				/* Message */
- 				msg_format("%^s recovers %s courage.", m_name, m_poss);
- 			}
-
-  			break;
-  		}
 
 		/* RF6_BLINK */
 		case 160+4:
@@ -2763,7 +2765,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	y1 = m_ptr->fy;
 	x1 = m_ptr->fx;
 
-   /* The player is not currently near the monster grid */
+	/* The player is not currently near the monster grid */
 	if (cave_when[y1][x1] < cave_when[py][px])
 	{
 		/* The player has never been near the monster grid */
@@ -3081,19 +3083,19 @@ static bool get_moves(int m_idx, int mm[5])
 	int y, ay, x, ax;
 
 	int move_val = 0;
-   int y2 = py;
+	int y2 = py;
 	int x2 = px;
 	bool done = FALSE;
 
 
 	/* Choose the appropriate target for pets. */
-	if (m_ptr->smart & SM_DOMINATE)
+	if (m_ptr->status & STATUS_DOMINATE) if (!pet_call)
 	  find_target_nearest(m_ptr->fy, m_ptr->fx, r_ptr->aaf, &py, &px);
-   y2=py; x2=px;
+	y2=py; x2=px;
 
 #ifdef MONSTER_FLOW
 	/* Flow towards the player */
-	if (flow_by_sound && !(m_ptr->smart & SM_DOMINATE))
+	if (flow_by_sound && !(m_ptr->status & STATUS_DOMINATE))
 	{
 		/* Flow towards the player */
 		(void)get_moves_aux(m_idx, &y2, &x2);
@@ -3105,14 +3107,14 @@ static bool get_moves(int m_idx, int mm[5])
 	x = m_ptr->fx - x2;
 
 
-   if (!(m_ptr->smart & SM_DOMINATE))
-   {
-	/* Animal packs try to get the player out of corridors */
-/*	if ((r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL))*/
-   if (r_ptr->flags1 & RF1_FRIENDS) /* all pack monsters */
-	{
+	if (!(m_ptr->status & STATUS_DOMINATE) && !old_ai)
+	  {
+	    /* Animal packs try to get the player out of corridors */
+	    /*	if ((r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL))*/
+	    if (r_ptr->flags1 & RF1_FRIENDS) /* all pack monsters */
+	      {
 		int i, room = 0;
-
+		
 		/* Count room grids next to player */
 		for (i = 0; i < 8; i++)
 		{
@@ -3175,11 +3177,11 @@ static bool get_moves(int m_idx, int mm[5])
 	{
 		/* Try to find safe place */
 		if (!find_safety(m_idx, &y, &x))
-		{
-			/* This is not a very "smart" method XXX XXX */
-			y = (-y);
-			x = (-x);
-		}
+	{
+		/* This is not a very "smart" method XXX XXX */
+		y = (-y);
+		x = (-x);
+	}
 		else
 		{
 			/* Attempt to avoid the player */
@@ -3384,47 +3386,27 @@ static bool get_moves(int m_idx, int mm[5])
 	}
    /* Old domination interface - replaced with kamband automatic pets */
 
-    if (m_ptr->smart & SM_DOMINATE)
-    {
-       char cmd,old_cu,old_cv;
-       int rlev = r_info[m_ptr->r_idx].level;
-       if ((randint(p_ptr->lev * 10 + 500) < rlev)
-          || ((r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) && !rand_int(8)))
-       {
-         m_ptr->smart &= ~SM_DOMINATE;
-         if ((rand_int(150) < rlev) || !rand_int(5) ||
-           ((r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) && rand_int(2)))
-         {
-           msg_print("Your domination is sharply broken!");
-           project(m_idx,0,p_ptr->py,p_ptr->px,damroll(5,rlev),
-            (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) ?
-            (rlev < 20 ? GF_PSI : (rlev < 40 ? GF_PSI2 : GF_PSI3)) :
-            (rlev < 30 ? GF_PSI : (rlev < 70 ? GF_PSI2 : GF_PSI3)), 0);
-         }
-         /* else msg_print(format("%s glowers at you.")); */
-         return TRUE;
-       }
        /*
-       move_cursor_relative(m_ptr->fy,m_ptr->fx);
-       old_cu = Term->scr->cu;
-       old_cv = Term->scr->cv;
-       Term->scr->cu = 0;
-       Term->scr->cv = 1;
-       Term_fresh();
-       if (!panel_contains(m_ptr->fy,m_ptr->fx)) return TRUE;
-       #ifdef MSDOS
-       _farpokeb(_dos_ds,0xB8001 + ((m_ptr->fy - p_ptr->wy) * 80 +
-      	(m_ptr->fx - p_ptr->wx)) * 2,r_info[m_ptr->r_idx].x_attr + 0x80);
-       #endif
-       mm[0] = get_com("Move dominated monster.",&cmd) ?
-              target_dir(cmd) : 0;
-       if (mm[0] == 5) mm[0] = 0;
-       Term->scr->cu = old_cu;
-       Term->scr->cv = old_cv;
-       }
-*/
-	/* Want to move */
-	return (TRUE);
+	 move_cursor_relative(m_ptr->fy,m_ptr->fx);
+	 old_cu = Term->scr->cu;
+	 old_cv = Term->scr->cv;
+	 Term->scr->cu = 0;
+	 Term->scr->cv = 1;
+	 Term_fresh();
+	 if (!panel_contains(m_ptr->fy,m_ptr->fx)) return TRUE;
+	 #ifdef MSDOS
+	 _farpokeb(_dos_ds,0xB8001 + ((m_ptr->fy - p_ptr->wy) * 80 +
+	 (m_ptr->fx - p_ptr->wx)) * 2,r_info[m_ptr->r_idx].x_attr + 0x80);
+	 #endif
+	 mm[0] = get_com("Move dominated monster.",&cmd) ?
+	 target_dir(cmd) : 0;
+	 if (mm[0] == 5) mm[0] = 0;
+	 Term->scr->cu = old_cu;
+	 Term->scr->cv = old_cv;
+       */
+
+    /* Want to move */
+    return (TRUE);
 }
 
 
@@ -3591,16 +3573,67 @@ static void process_monster(int m_idx)
 		if (m_ptr->csleep) return;
 	}
 
+	if (m_ptr->status & STATUS_DOMINATE)
+	  {
+	    /* char cmd,old_cu,old_cv; */
+	    int rlev = r_info[m_ptr->r_idx].level;
+	    if ((randint(p_ptr->lev * 1000 + 5000) < randint(rlev))
+		|| ((r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) && !rand_int(200)))
+	      {
+		m_ptr->status &= ~STATUS_DOMINATE;
+		if ((rand_int(150) < rlev) || !rand_int(5) ||
+		    ((r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) && rand_int(2)))
+		  {
+		    msg_print("Your domination is sharply broken!");
+		    project(m_idx,0,p_ptr->py,p_ptr->px,damroll(5,rlev),
+			    (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) ?
+			    (rlev < 20 ? GF_PSI : (rlev < 40 ? GF_PSI2 : GF_PSI3)) :
+			    (rlev < 30 ? GF_PSI : (rlev < 70 ? GF_PSI2 : GF_PSI3)), 0);
+		  }
+		/* else msg_print(format("%s glowers at you.")); */
+	      }
+	  }
+     
+	if (m_ptr->status & STATUS_AMNESIA)
+	  if (((r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE) && !rand_int(40))
+	      || !rand_int(400))
+	    {
+	      /* keep message? */
+	      char m_name[80];
+	      int tmp;
+	      monster_desc(m_name,m_ptr,0);
+	      msg_format("%^s recovers some of its memories.",m_name);
+	      tmp = ((m_ptr->status & STATUS_AMNESIA1 ? 1 : 0) +
+		     (m_ptr->status & STATUS_AMNESIA2 ? 2 : 0));
+	      m_ptr->status &= ~STATUS_AMNESIA;
+	      if (tmp == 3) m_ptr->mspeed = r_info[m_ptr->r_idx].speed;
+	      tmp--;
+	      m_ptr->status |= ((tmp & 1) ? STATUS_AMNESIA1 : 0) +
+		((tmp & 2) ? STATUS_AMNESIA2 : 0);
+	    }
+ 	 
+	if (m_ptr->status & STATUS_EMPATHY)
+	  {
+	    int lev = r_info[m_ptr->r_idx].level;
+	    if (randint(lev * lev) > randint(p_ptr->lev * p_ptr->lev))
+	      {
+		char m_name[80];
+		monster_desc(m_name,m_ptr,0);
+		msg_format("%^s stops sharing its feelings.",m_name);
+		m_ptr->status &= ~STATUS_EMPATHY;
+	      }
+	  }
 
 	/* Handle "stun" */
 	if (m_ptr->stunned)
 	{
 		int d = 1;
 
-       /* Uniques get a special save (psi) */
-       if (r_ptr->flags1 & RF1_UNIQUE)
-         while (randint(12) * randint(18) < r_ptr->level) d += randint(4);
-
+		/* Uniques get a special save (psi) */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		
+  while (randint(12) * randint(18) < r_ptr->level) d += randint(4);
+		
 		/* Make a "saving throw" against stun */
 		if (rand_int(5000) <= r_ptr->level * r_ptr->level)
 		{
@@ -4030,7 +4063,7 @@ static void process_monster(int m_idx)
 		/* The player is in the way.  Attack him. */
 		if (do_move && (cave_m_idx[ny][nx] < 0))
 		{
-         if (!(m_ptr->smart & SM_DOMINATE))
+         if (!(m_ptr->status & STATUS_DOMINATE))
 			/* Do the attack */
 			(void)make_attack_normal(m_idx);
 
@@ -4067,8 +4100,8 @@ static void process_monster(int m_idx)
  			      do_move = did_kill_body = TRUE;
 
          /* monster-monster combat occurs if either one is dominated */
-          if ((m_ptr->smart & SM_DOMINATE) ^
-              (n_ptr->smart & SM_DOMINATE))
+          if ((m_ptr->status & STATUS_DOMINATE) ^
+              (n_ptr->status & STATUS_DOMINATE))
  	        if (!did_kill_body)
  	      {
              monst_attack_monst(m_idx,cave_m_idx[ny][nx]);
@@ -4079,7 +4112,7 @@ static void process_monster(int m_idx)
             if (did_kill_body)
 				/* Kill the monster */
 				delete_monster(ny, nx);
-		}
+			}
 
 		/* A monster is in the way */
 		if (do_move && (cave_m_idx[ny][nx] > 0))
@@ -4093,8 +4126,8 @@ static void process_monster(int m_idx)
 			if ((r_ptr->flags2 & (RF2_MOVE_BODY)) &&
 			    (compare_monsters(m_ptr, n_ptr) > 0) &&
 			    (cave_floor_bold(m_ptr->fy, m_ptr->fx)) &&
-			    !(m_ptr->smart & SM_DOMINATE) &&
-			    !(n_ptr->smart & SM_DOMINATE))
+			    !(m_ptr->status & STATUS_DOMINATE) &&
+			    !(n_ptr->status & STATUS_DOMINATE))
 			{
 				/* Allow movement */
 				do_move = TRUE;
@@ -4124,9 +4157,9 @@ static void process_monster(int m_idx)
 			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 			      disturb_near)))
 			{
-            /* if (!(m_ptr->smart & SM_DOMINATE)) ??? */
 				/* Disturb */
-				disturb(0, 0);
+			  if (!(m_ptr->status & STATUS_DOMINATE))
+			    disturb(0, 0);
 			}
 
 

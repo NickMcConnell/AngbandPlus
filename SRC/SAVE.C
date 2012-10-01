@@ -715,12 +715,15 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->ident);
 
 	wr_byte(o_ptr->marked);
-
-	/* Old flags */
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
-
+#if 0
+    wr_u32b(o_ptr->art_flags1);
+    wr_u32b(o_ptr->art_flags2);
+    wr_u32b(o_ptr->art_flags3);
+#else
+    wr_u32b(0);
+    wr_u32b(0);
+    wr_u32b(0);
+#endif
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
 
@@ -737,6 +740,18 @@ static void wr_item(object_type *o_ptr)
 	{
 		wr_string("");
 	}
+
+   #if 0
+	/* If it is a "new" named artifact, save the name */        
+	if (o_ptr->art_name)
+	{
+        wr_string(quark_str(o_ptr->art_name));
+	}
+	else
+	{
+		wr_string("");
+	}
+   #endif
 }
 
 
@@ -756,12 +771,15 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-   #if 1
-   	wr_byte((m_ptr->smart & SM_DOMINATE ? 4 : 0) + (m_ptr->smart & 
-	 SM_AMNESIA2 ? 2 : 0) + (m_ptr->smart & SM_AMNESIA1 ? 1 : 0));
-   #else
 	wr_byte(0);
-   #endif
+#if 0
+    	wr_byte((m_ptr->smart & SM_DOMINATE ? 4 : 0) + 
+		(m_ptr->smart & SM_AMNESIA2 ? 2 : 0) + 
+		(m_ptr->smart & SM_AMNESIA1 ? 1 : 0));
+#endif
+	wr_u32b(m_ptr->smart);
+	wr_u16b(m_ptr->mana);
+	wr_u16b(m_ptr->status);	
 }
 
 
@@ -1019,16 +1037,23 @@ static void wr_ghost(void)
 
 static void wr_psi_aux()
 {
-	wr_s16b(pa_ptr->awareness);
-        wr_s16b(pa_ptr->adrenaline);
-	wr_s16b(pa_ptr->biofeedback);
-	wr_s16b(pa_ptr->shadow_form);
-	wr_s16b(pa_ptr->inertial_barrier);
-	wr_s16b(pa_ptr->prob_travel);
-	wr_ability(precognition);
-	wr_ability(mental_barrier);
-	wr_ability(ts_anchor);
-	wr_ability(your_mom_is_fat);
+  int i;
+  wr_s16b(pa_ptr->awareness);
+  wr_s16b(pa_ptr->adrenaline);
+  wr_s16b(pa_ptr->biofeedback);
+  wr_s16b(pa_ptr->shadow_form);
+  wr_s16b(pa_ptr->inertial_barrier);
+  wr_s16b(pa_ptr->prob_travel);
+  wr_ability(precognition);
+  wr_ability(mental_barrier);
+  wr_ability(ts_anchor);
+  wr_ability(intensify);
+  wr_s32b(no_fw);
+  for (i=0 ; i<no_fw ; i++)
+    {
+      wr_s32b(fw_x[i]);
+      wr_s32b(fw_y[i]);
+    }
 }
 
 #undef wr_ability
@@ -1054,9 +1079,10 @@ static void wr_extra(void)
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
 	wr_byte(p_ptr->oops);	/* oops */
+	wr_u32b(p_ptr->pspec);
 
 	wr_byte(p_ptr->hitdie);
-	wr_byte(p_ptr->expfact);
+	wr_u16b(p_ptr->expfact);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
@@ -1143,16 +1169,14 @@ static void wr_extra(void)
    if (p_ptr->oops)
    {
       wr_psi_aux();
-      i = 7;
+      i = 6;
    }
    else
      i = 12;
+
 #ifdef GJW_RANDART
-	/* Future use */
-	wr_u32b(seed_randart);
+   wr_u32b(seed_randart);
    i--;
-#else
-	/* Future use */
 #endif
 
 	for (; i ; i--) wr_u32b(0L);
@@ -1216,8 +1240,9 @@ static void wr_dungeon(void)
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
-	wr_u16b(0);
-	wr_u16b(0);
+
+	wr_u16b(dungeon_aura_type);
+	wr_u16b(dungeon_aura_level);
 
 
 	/*** Simple "Run-Length-Encoding" of cave ***/

@@ -497,7 +497,13 @@ struct object_type
 	byte marked;		/* Object is marked */
 
 	u16b note;			/* Inscription index */
+   #if 0
+    u16b art_name;      /* Artifact name (random artifacts) */
 
+    u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
+    u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
+    u32b art_flags3;        /* Flags, set 3  Zangband */
+   #endif
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
@@ -539,6 +545,9 @@ struct monster_type
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
+
+  u16b mana;        /* No joke */
+  u16b status;      /* Monster flags */
 
 #ifdef WDT_TRACK_OPTIONS
 
@@ -805,16 +814,16 @@ struct player_other
 typedef struct psi_aux psi_aux;
 struct psi_aux
 {
-	s16b awareness;
-	s16b biofeedback;
-        s16b adrenaline;
-	s16b shadow_form;
-	s16b inertial_barrier;
-	s16b prob_travel;
-	s16b precognition;
-	s16b mental_barrier;
-	s16b ts_anchor;
-	s16b your_mom_is_fat;
+  s16b awareness;
+  s16b biofeedback;
+  s16b adrenaline;
+  s16b shadow_form;
+  s16b inertial_barrier;
+  s16b prob_travel;
+  s16b precognition;
+  s16b mental_barrier;
+  s16b ts_anchor;
+  s16b intensify;
 };
 
 /*
@@ -837,15 +846,17 @@ struct player_type
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
 	byte oops;			/* Unused */
+  u32b pspec;                    /* specialty (psi) */
 
 	byte hitdie;		/* Hit dice (sides) */
-	byte expfact;		/* Experience factor */
+	u16b expfact;		/* Experience factor */
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
 #ifdef GJW_RANDART
 	byte random_artifacts;	/* Random artifacts */
 #endif
+        u16b padding;
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -1104,4 +1115,29 @@ struct player_type
 	s16b pspeed;		/* Current speed */
 };
 
+/* For Monk martial arts */
+
+typedef struct martial_arts martial_arts;
+
+struct martial_arts
+{
+    cptr    desc;    /* A verbose attack description */
+    int     min_level;  /* Minimum level to use */
+    int     chance;     /* Chance of 'success' */
+    int     dd;        /* Damage dice */
+    int     ds;        /* Damage sides */
+    int     effect;     /* Special effects */
+};
+
+
+
+/* Mindcrafters */
+
+typedef struct mindcraft_power mindcraft_power;
+struct mindcraft_power {
+      int min_lev;
+      int mana_cost;
+      int fail;
+      cptr name;
+};
 

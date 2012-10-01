@@ -50,12 +50,12 @@
 #define VERSION_MINOR	8
 #define VERSION_PATCH	3
 
-#define PSI_VERSION "1.0.6"
+#define PSI_VERSION "1.0.7"
 
 /*
- * This value is not currently used
+ * This value is used for psiband savefile compatibility purposes
  */
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 
 /*
@@ -141,7 +141,7 @@
 /*
  * Maximum array bounds for template based arrays
  */
-#define MAX_F_IDX	64	/* Max size for "f_info[]" */
+#define MAX_F_IDX       65      /* Max size for "f_info[]" */
 #define MAX_K_IDX	512	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
@@ -243,6 +243,27 @@
 #define STORE_SHUFFLE	4		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		700	/* Number of turns between turnovers */
 
+/*
+ * Balefire effects
+ */
+
+#define TOWN_FINE         0
+#define TOWN_DEAD_PAST    1
+#define TOWN_DEAD_FUTURE  2
+#define TOWN_WEIRD        3
+#define TOWN_MASK         3
+#define TOWN_MESSAGE      4
+
+#define BALE_ALTER       1
+#define BALE_HISTORY     2
+#define BALE_TIME_TRAVEL 4
+#define BALE_TIME_ATTACK 8
+#define BALE_ABORT       16
+#define BALE_SUMMON      32
+#define BALE_HOLE        64
+#define BALE_KILL        128
+#define BALE_HEAL        256
+#define BALE_CLONE       512
 
 /*
  * Misc constants
@@ -423,8 +444,7 @@
 #define CLASS_RANGER	4
 #define CLASS_PALADIN	5
 #define CLASS_PSIONICIST        6
-
-
+#define CLASS_MONK              7
 
 /*** Screen Locations ***/
 
@@ -528,6 +548,8 @@
 #define SUMMON_HI_DRAGON	22
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
+#define SUMMON_TIME             41
+#define SUMMON_HOLE             42
 
 
 /*
@@ -603,7 +625,8 @@
 #define GF_PAIN         76
 #define GF_DOMINATE     77
 #define GF_ANALYZE      78
-
+#define GF_EMPATHY      79
+#define GF_BALEFIRE     80
 
 /*
  * Some constants for the "learn" code
@@ -694,6 +717,7 @@
 #define FEAT_PERM_OUTER	0x3E
 #define FEAT_PERM_SOLID	0x3F
 
+#define FEAT_FORCE_WALL 0x40
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1689,7 +1713,8 @@
 /* xxx (many) */
 #define PU_MONSTERS	0x10000000L	/* Update monsters */
 #define PU_DISTANCE	0x20000000L	/* Update distances */
-/* xxx (many) */
+/* xxx */
+#define PU_PANEL	0x80000000L	/* Update panel */
 
 
 /*
@@ -1721,20 +1746,17 @@
 /* xxx */
 #define PR_EXTRA	0x01000000L	/* Display Extra Info */
 #define PR_BASIC	0x02000000L	/* Display Basic Info */
-#define PR_MAP		0x04000000L	/* Display Map */
-#define PR_WIPE		0x08000000L	/* Hack -- Total Redraw */
 /* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
+#define PR_MAP		0x08000000L	/* Display Map */
+/* xxx (many) */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
  */
 #define PW_INVEN	0x00000001L	/* Display inven/equip */
 #define PW_EQUIP	0x00000002L	/* Display equip/inven */
-#define PW_SPELL	0x00000004L	/* Display spell list */
-#define PW_PLAYER	0x00000008L	/* Display character */
+#define PW_PLAYER_0	0x00000004L	/* Display player (basic) */
+#define PW_PLAYER_1	0x00000008L	/* Display player (extra) */
 /* xxx */
 /* xxx */
 #define PW_MESSAGE	0x00000040L	/* Display messages */
@@ -1764,7 +1786,6 @@
 #define CAVE_VIEW	0x20 	/* view flag */
 #define CAVE_TEMP	0x40 	/* temp flag */
 #define CAVE_WALL	0x80 	/* wall flag */
-
 
 
 /*** Object flags ***/
@@ -1804,10 +1825,13 @@
 #define SM_OPP_FIRE		0x00000004
 #define SM_OPP_COLD		0x00000008
 #define SM_OPP_POIS		0x00000010
+
+/*
 #define SM_AMNESIA1     0x00000020
 #define SM_AMNESIA2     0x00000040
 #define SM_DOMINATE     0x00000080
 #define SM_INFLUENCE (SM_AMNESIA1 + SM_AMNESIA2 + SM_DOMINATE)
+*/
 
 #define SM_IMM_XXX5		0x00000100
 #define SM_IMM_XXX6		0x00000200
@@ -1834,6 +1858,12 @@
 #define SM_RES_CHAOS	0x40000000
 #define SM_RES_DISEN	0x80000000
 
+#define STATUS_AMNESIA1 0x1
+#define STATUS_AMNESIA2 0x2
+#define STATUS_AMNESIA (STATUS_AMNESIA1 + STATUS_AMNESIA2)
+#define STATUS_DOMINATE 0x4
+#define STATUS_EMPATHY  0x8
+#define STATUS_BALE_CLONE    0x10
 
 /*
  * As of 2.7.8, the "object flags" are valid for all objects, and as
@@ -1896,7 +1926,7 @@
 #define TR2_META_PSI2	0x00000080L	/* Metapsionics 2 */
 #define TR2_RES_PSI             0x00000100L     /* Resist Psionics*/
 #define TR2_RES_FORCE   0x00000200L     /* Resist Force */
-#define TR2_RES_GRAVT   0x00000400L     /* Resist Gravity */
+/* #define TR2_RES_GRAVT   0x00000400L     Resist Gravity */
 #define TR2_RES_INERT   0x00000800L     /* Resist Inertia */
 #define TR2_IM_ACID			0x00001000L	/* Immunity to acid */
 #define TR2_IM_ELEC			0x00002000L	/* Immunity to elec */
@@ -2002,6 +2032,7 @@
  */
 #define MFLAG_VIEW	0x01	/* Monster is in line of sight */
 /* xxx */
+
 #define MFLAG_BORN	0x10	/* Monster is still being born */
 #define MFLAG_NICE	0x20	/* Monster is still being nice */
 #define MFLAG_SHOW	0x40	/* Monster is recently memorized */
@@ -2298,7 +2329,7 @@
 #define OPT_use_old_target			4
 #define OPT_always_pickup			5
 #define OPT_always_repeat			6
-#define OPT_show_flavors			7
+#define OPT_depth_in_feet			7
 #define OPT_stack_force_notes		8
 #define OPT_stack_force_costs		9
 #define OPT_show_labels				10
@@ -2306,7 +2337,7 @@
 #define OPT_show_choices			12
 #define OPT_show_details			13
 #define OPT_ring_bell				14
-#define OPT_inventory_colors		15
+#define OPT_show_flavors			15
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
 #define OPT_run_cut_corners			18
@@ -2335,8 +2366,8 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
-/* xxx */
-/* xxx */
+#define OPT_pet_call             44
+#define OPT_old_ai               45
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2368,7 +2399,7 @@
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
-#define show_flavors			op_ptr->opt[OPT_show_flavors]
+#define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
 #define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
 #define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
 #define show_labels				op_ptr->opt[OPT_show_labels]
@@ -2376,7 +2407,7 @@
 #define show_choices			op_ptr->opt[OPT_show_choices]
 #define show_details			op_ptr->opt[OPT_show_details]
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
-#define inventory_colors		op_ptr->opt[OPT_inventory_colors]
+#define show_flavors			op_ptr->opt[OPT_show_flavors]
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
@@ -2405,8 +2436,8 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
-/* xxx */
-/* xxx */
+#define pet_call              op_ptr->opt[OPT_pet_call]
+#define old_ai                op_ptr->opt[OPT_old_ai]
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -2588,9 +2619,11 @@
  *
  * Note the use of the new "CAVE_WALL" flag.
  */
+     //#define cave_floor_bold(Y,X) \
+//	(!(cave_info[Y][X] & (CAVE_WALL)))
 #define cave_floor_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)))
-
+     (!(cave_info[Y][X] & CAVE_WALL) && \
+      (cave_feat[Y][X] != FEAT_FORCE_WALL))
 /*
  * Determine if a "legal" grid is a "clean" floor grid
  *
@@ -2759,4 +2792,6 @@ extern int PlayerUID;
 #define RES_GRAVT     8
 #define RES_PSI       16
 
-
+#define POWER_END_ONE_FORCE_WALL -1
+#define POWER_END_ALL_FORCE_WALLS -2
+#define POWER_DISMISS_PETS -3

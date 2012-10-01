@@ -1533,10 +1533,10 @@ player_class class_info[MAX_CLASS] =
    {
 		"Psionicist",
 		{-5, 3, 1, 1, -2, 1},
-		30, 36, 20, 2,  16, 20, 34, 20,
-      7,  13, 12,  0,  0,  0,  11, 11,
-      -1, 50
-	}
+		15, 30, 20, 2,  16, 20, 50, 25,
+		15,  13, 12,  0,  0,  1,  5, 11,
+		-1, 50
+   }
 
 };
 
@@ -2108,7 +2108,8 @@ player_magic magic_info[MAX_CLASS] =
 		{
 			/* Telepathy */
 
-	      {  2,  1, 12,   3}, /* MThrust */
+                        {  2,  1, 12,   3}, /* MThrust */
+                        {  3,  3, 20,   3}, /* Empathy */
 			{  5,  1, 40,   4}, /* MBarrier */
 			{  7,  7, 40,   3}, /* PCrush */
 			{  7,  2, 15,   4}, /* Intimidate */
@@ -2116,7 +2117,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 12, 14, 66,   7}, /* PBlast */
 			{ 12,  4, 30,   20}, /* MWrack */
 			{ 18, 21, 70,   32}, /* Dominate */
-	      { 22, 30, 50,   45}, /* Amnesia */
+                        { 22, 30, 50,   45}, /* Amnesia */
 
 			/* Psychoportation */
 
@@ -2125,8 +2126,10 @@ player_magic magic_info[MAX_CLASS] =
 			{ 10,  5, 44,   6}, /* DDoor */
 			{ 15, 30, 70,  20}, /* PTravel */
 			{ 20, 15, 42,  14}, /* TOther */
-			{ 25, 15, 70,  24}, /* Recall */
-			{ 35, 30, 50,  30}, /* TSAnchor */
+			{ 25, 15, 70,  24}, /* Recall */                         
+			{ 30, 25, 60,  15}, /* TControl */
+                        { 32, 64, 60,  52}, /* Steal Time */
+			{ 35, 80, 50,  30}, /* TSAnchor */
 			{ 40, 20, 54,  55}, /* TShift */
 
 			/* Psychometabolism */
@@ -2144,33 +2147,35 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Psychokinesis */
 
-		   {  4,  3, 40,   4}, /* Light */
+                        {  4,  3, 40,   4}, /* Light */
+                        {  6,  8, 30,   7}, /* Force Wall */
 			{  8,  3, 30,   4}, /* IBarrier */
 			{  9,  8, 20,   4}, /* PForce */
 			{ 10, 17, 30,   7}, /* Sound */
 			{ 15, 28, 40,   8}, /* Disin */
 			{ 19, 40, 43,   9}, /* SoCold */
 			{ 24, 50, 55,  12}, /* FireE*/
-			{ 28, 60, 60,  15}, /* Detonate */
-			{ 31,100, 70,  20}, /* Balefire */
+			{ 28, 88, 60,  25}, /* Detonate */
+			{ 33, 35, 70,  30}, /* Balefire */
 
 			/* Metapsionics */
 
 			{  5,  3, 20,   4}, /* Cannibal */
+                        {  5,  6, 50,   9}, /* Intensify */
 			{ 17,  1, 25,   7}, /* Splice */
 			{ 19,  1, 30,   4}, /* Recep */
 			{ 22, 30, 20,   7}, /* Empower */
 			{ 24, 10, 30,   9}, /* PDrain */
 			{ 28, 50, 40,  11}, /* PSurgery */
-			{ 30, 25, 60,  15}, /* TControl */
 			{ 40,100, 60,  15}, /* UBlast */
 			{ 49,255, 60, 255}, /* *U* Blast */
 
-	 /* Clairsentience */
+                        /* Clairsentience */
 			{ 1,   1,  5,   3}, /* DMonst */
 			{ 4,   1, 30,   6}, /* Aware */
 			{ 5,   3, 40,   5}, /* RSecrets */
 			{ 9,   6, 54,   5}, /* Clairv */
+                        { 10,  1, 40,  15}, /* M.Analysis */
 			{ 14, 15, 70,   8}, /* Id */
 			{ 20, 50, 40,  50}, /* Precog */
 			{ 30, 24, 40,  24}, /* AMonster */
@@ -2179,13 +2184,6 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
@@ -2226,12 +2224,12 @@ u32b spell_flags[3][9][2] =
 	},
   	{
       /*** Psionic Foci ***/
-		{ 0x000001ff, 0x00000000 },  /* Telepathy */
-		{ 0x0001fe00, 0x00000000 },  /* Psychoportation */
-		{ 0x07fe0000, 0x00000000 },  /* Psychometabolism */
-		{ 0xf8000000, 0x0000000f },  /* Psychokinesis */
-		{ 0x00000000, 0x00001ff0 },  /* Metapsionics */
-		{ 0x00000000, 0x001fe000 },  /* Clairsentience */
+                { 0x000003ff, 0x00000000 },  /* Telepathy (0-9) */
+                { 0x000ffc00, 0x00000000 },  /* Psychoportation (10-19) */
+                { 0x3ff00000, 0x00000000 },  /* Psychometabolism (20-29) */
+                { 0xc0000000, 0x000000ff },  /* Psychokinesis (30-39) */
+                { 0x00000000, 0x0001ff00 },  /* Metapsionics (40-48) */
+                { 0x00000000, 0x03fe0000 },  /* Clairsentience (49-57) */
 
 		{ 0x00000000, 0x00000000 },
 		{ 0x00000000, 0x00000000 },
@@ -2417,95 +2415,91 @@ cptr spell_names[3][64] =
 		"(blank)",
 		"(blank)",
 		"(blank)"
- 	},
-
-    {
-  /*** PSIONIC POWERS ***/
-  /* Telepathy */
-
-    "Mind Thrust",
-    "Mental Barrier",
-    "Psychic Crush (2)",
-    "Intimidate",
-    "Sleep",
-    "Psionic Blast",
-    "Mind Wrack (2)",
-    "Domination (3)",
-    "Amnesia (3)",
-
-  /* Psychoportation */
-
-    "Blink",
-    "Teleport",
-    "Dimension Door",
-    "Probability Travel (2)",
-    "Banishment (2)",
-    "Recall (3)",
-    "Time/Space Anchor",
-    "Time Shift (3)",
-
-  /* Psychometabolism */
-
-    "Cell Adjustment",
-    "Satisfy Hunger",
-    "Adrenaline Control",
-    "Biofeedback",
-    "Shadowform (3)",
-    "Drain Life (2)",
-    "Double Pain (3)",
-    "Energy Containment",
-    "Death Field (2)",
-    "Complete Healing (2)",
-
-  /* Psychokinesis */
-
-    "Light Control",
-    "Inertial Barrier",
-    "Project Force",
-    "Sonic Boom",
-    "Disintegrate (2)",
-    "Sphere of Cold (2)",
-    "Fire Eruption (2)",
-    "Detonate",
-    "Balefire (3)",
-
-  /* Metapsionics */
-
-    "Cannibalize",
-    "Splice (2)",
-    "Receptacle",
-    "Empower",
-    "Psychic Drain (3)",
-    "Psychic Surgery",
-    "Time Control (2)",
-    "Ultrablast (2)",
-    "*Ultrablast* (3)",
-
-  /* Clairsentience */
-
-    "Detect Monsters",
-    "Awareness",
-    "Reveal Secrets",
-    "Clairvoyance",
-    "Read Object (2)",
-    "Read Aura (3)",
-    "Precognition (3)",
-    "Analyze Monster (3)",
-
-    "(blank)",
-    "(blank)",
-    "(blank)",
-    "(blank)",
-    "(blank)",
-
-    "(blank)",
-    "(blank)",
-    "(blank)",
-    "(blank)",
-    "(blank)",
-
-    "(blank)"
-  }
+	}, 
+	{
+	  /*** PSIONIC POWERS ***/
+	  /* Telepathy */
+ 
+	  "Mind Thrust",
+	  "Empathy",
+	  "Mental Barrier",
+	  "Psychic Crush (2)",
+	  "Intimidate",
+	  "Sleep",
+	  "Psionic Blast",
+	  "Mind Wrack (2)",
+	  "Domination (3)",
+	  "Amnesia (3)",
+ 
+    /* Psychoportation */
+ 
+	  "Blink",
+	  "Teleport",
+	  "Dimension Door",
+	  "Probability Travel (2)",
+	  "Banishment (2)",
+	  "Recall (3)",
+	  "Time Control (2)",
+	  "Time Bolt (2)",
+	  "Time/Space Anchor",
+	  "Time Shift (3)",
+ 
+   /* Psychometabolism */
+ 
+	  "Cell Adjustment",
+	  "Satisfy Hunger",
+	  "Adrenaline Control",
+	  "Biofeedback",
+	  "Shadowform (3)",
+	  "Drain Life (2)",
+	  "Double Pain (3)",
+	  "Energy Containment",
+	  "Death Field (2)",
+	  "Complete Healing (2)",
+ 
+   /* Psychokinesis */
+ 
+	  "Light Control",
+	  "Wall of Force",
+	  "Inertial Barrier",
+	  "Project Force",
+	  "Sonic Boom",
+	  "Disintegrate (2)",
+	  "Sphere of Cold (2)",
+	  "Fire Eruption (2)",
+	  "Detonate",
+	  "Balefire (3)",
+ 
+	  /* Metapsionics */
+ 
+	  "Cannibalize",
+	  "Intensify",
+	  "Splice (2)",
+	  "Receptacle",
+	  "Empower",
+	  "Psychic Drain (3)",
+	  "Psychic Surgery",
+	  "Ultrablast (2)",
+	  "*Ultrablast* (3)",
+ 
+	  /* Clairsentience */
+ 
+	  "Detect Monsters",
+	  "Awareness",
+	  "Reveal Secrets",
+	  "Clairvoyance",
+	  "Metaphysical Awareness",
+	  "Read Object (2)",
+	  "Read Aura (3)",
+	  "Precognition (3)",
+	  "Analyze Monster (3)",
+ 
+	  "(blank)",
+	  "(blank)",
+	  "(blank)",
+	  "(blank)",
+	  "(blank)"
+	}
 };
 
 
@@ -2755,8 +2749,8 @@ cptr window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
-	"Display player flags",
-	"Display player screen",
+	"Display player (basic)",
+	"Display player (extra)",
 	NULL,
 	NULL,
 	"Display messages",
@@ -2800,7 +2794,7 @@ cptr option_text[OPT_MAX] =
 	"use_old_target",			/* OPT_use_old_target */
 	"always_pickup",			/* OPT_always_pickup */
 	"always_repeat",			/* OPT_always_repeat */
-	"show_flavors",				/* OPT_show_flavors */
+	"depth_in_feet",			/* OPT_depth_in_feet */
 	"stack_force_notes",		/* OPT_stack_force_notes */
 	"stack_force_costs",		/* OPT_stack_force_costs */
 	"show_labels",				/* OPT_show_labels */
@@ -2808,7 +2802,7 @@ cptr option_text[OPT_MAX] =
 	"show_choices",				/* OPT_show_choices */
 	"show_details",				/* OPT_show_details */
 	"ring_bell",				/* OPT_ring_bell */
-	"inventory_colors",			/* OPT_inventory_colors */
+	"show_flavors",				/* OPT_flavors */
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
@@ -2837,8 +2831,8 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
-	NULL,						/* xxx track_follow */
-	NULL,						/* xxx track_target */
+   "pet_call",             /* OPT_pet_call */
+   "old_ai",               /* OPT_old_ai */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2872,15 +2866,15 @@ cptr option_desc[OPT_MAX] =
 	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
 	"Repeat obvious commands",					/* OPT_always_repeat */
-	"Always display object flavors",			/* OPT_show_flacors */
+	"Show dungeon level in feet",				/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
 	"Merge discounts when stacking",			/* OPT_stack_force_costs */
-	"Show labels in object listings",			/* OPT_show_labels */
-	"Show weights in object listings",			/* OPT_show_weights */
-	"Show choices in certain sub-windows",		/* OPT_show_choices */
-	"Show details in certain sub-windows",		/* OPT_show_details */
+	"Show labels in equipment listings",		/* OPT_show_labels */
+	"Show weights in all object listings",		/* OPT_show_weights */
+	"Show choices in inven/equip windows",		/* OPT_show_choices */
+	"Show details in monster descriptions",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
-	"Use color for inventory listings",			/* OPT_inventory_colors */
+	"Show flavors in object descriptions",		/* OPT_show_flacors */
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
@@ -2909,8 +2903,8 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+   "Pets and dominated monsters follow you",    /* OPT_pet_call */
+   "Monsters use old AI",                       /* OPT_no_ai */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2921,7 +2915,7 @@ cptr option_desc[OPT_MAX] =
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
 	NULL,										/* xxx */
 	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after various things",			/* OPT_fresh_after */
+	"Flush output after various things",		/* OPT_fresh_after */
 	NULL,										/* xxx */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
@@ -2944,7 +2938,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	FALSE,		/* OPT_always_repeat */
-	FALSE,		/* OPT_show_flavors */
+	FALSE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
@@ -2952,7 +2946,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
 	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_inventory_colors */
+	TRUE,		/* OPT_show_flavors */
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
@@ -2981,8 +2975,8 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_call_pet */
+	FALSE,		/* OPT_old_ai */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -3019,15 +3013,15 @@ byte option_page[4][16] =
 		OPT_use_old_target,
 		OPT_always_pickup,
 		OPT_always_repeat,
-		OPT_show_flavors,
+		OPT_depth_in_feet,
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
 		OPT_show_labels,
 		OPT_show_weights,
 		OPT_show_choices,
 		OPT_show_details,
-		OPT_ring_bell,
-		OPT_inventory_colors
+		OPT_show_flavors,
+		OPT_ring_bell
 	},
 
 	/*** Disturbance ***/

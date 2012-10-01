@@ -1374,9 +1374,6 @@ static void display_entry(int item)
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
 
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
-
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
@@ -1407,9 +1404,6 @@ static void display_entry(int item)
 
 		/* Acquire inventory color */
 		attr = tval_to_attr[o_ptr->tval & 0x7F];
-
-		/* Disable inventory colors */
-		if (!inventory_colors) attr = TERM_WHITE;
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -2417,6 +2411,9 @@ static void store_purchase(void)
 				/* Buying an object makes you aware of it */
 				object_aware(i_ptr);
 
+				/* Combine / Reorder the pack (later) */
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
 				/* Clear the "fixed" flag from the object */
 				i_ptr->ident &= ~(IDENT_FIXED);
 
@@ -2713,7 +2710,7 @@ static void store_sell(void)
 			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 			/* Window stuff */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 			/* Get local object */
 			i_ptr = &object_type_body;

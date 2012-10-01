@@ -10,12 +10,34 @@
 
 #include "angband.h"
 
+/* counter, increased by GF_PSI_DRAIN and GF_OLD_DRAIN */
 u32b life_drained = 0;
+
+/* New flags to reflect player status */
 u32b psi_flags = 0;
-int fade_dam = 0,meta_psi_lev = 0;
+int meta_psi_lev = 0;
+
+/* Not implemented yet */
+u16b dungeon_aura_type = 0,dungeon_aura_level = 0;
+
+/* Fading damage counter */
+int fade_dam = 0;
 bool fade_dam_on = FALSE;
-bool no_rating_bonus = FALSE; /* Turned on during vault generation */
+
+/* Fake "killer" used for project with who = -2 */
 char *_killer;
+
+/* Force wall list */
+int no_fw = 0,fw_x[100],fw_y[100];
+
+/* Turned on during vault generation */
+bool no_rating_bonus = FALSE; 
+
+/* indicates that generated monsters are balefire clones */
+bool bale_clone_hack = FALSE; 
+
+/* Town status (destroyed, etc...) */
+int town_special = 0;
 
 /*
  * Hack -- Link a copyright message into the executable
@@ -78,6 +100,7 @@ s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
+int town_special;               /* For a destroyed town */
 #ifdef GJW_RANDART
 u32b seed_randart;		/* Hack -- consistent random artifacts */
 #endif

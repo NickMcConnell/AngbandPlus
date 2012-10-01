@@ -408,6 +408,10 @@ s16b get_mon_num(int level)
 
 	alloc_entry *table = alloc_race_table;
 
+	if (((town_special & TOWN_MASK) == TOWN_DEAD_FUTURE) ||
+	    ((town_special & TOWN_MASK) == TOWN_DEAD_PAST))
+	  if (level == 0)
+	    level = 1;
 
 	/* Boost the level */
 	if (level > 0)
@@ -423,7 +427,7 @@ s16b get_mon_num(int level)
 		}
 
 		/* Occasional "nasty" monster */
-		if (rand_int(NASTY_MON) == 0)
+		while (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
 			int d = level / 4 + 2;
@@ -727,7 +731,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		}
 
 		/* Show pets */
-		if (m_ptr->smart & SM_DOMINATE) {
+		if (m_ptr->status & STATUS_DOMINATE) {
 		  strcat(desc, " (dominated)");
 		}
 
@@ -1029,7 +1033,7 @@ void update_mon(int m_idx, bool full)
 			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
 
 			/* Disturb on appearance */
-			if (disturb_move && !(m_ptr->smart & SM_DOMINATE)) disturb(1, 0);
+			if (disturb_move && !(m_ptr->status & STATUS_DOMINATE)) disturb(1, 0);
 		}
 	}
 
@@ -1049,7 +1053,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Disturb on disappearance */
-			if (disturb_move && !(m_ptr->smart & SM_DOMINATE)) disturb(1, 0);
+			if (disturb_move && !(m_ptr->status & STATUS_DOMINATE)) disturb(1, 0);
 		}
 	}
 
@@ -1064,7 +1068,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag |= (MFLAG_VIEW);
 
 			/* Disturb on appearance */
-			if (disturb_near && !(m_ptr->smart & SM_DOMINATE)) disturb(1, 0);
+			if (disturb_near && !(m_ptr->status & STATUS_DOMINATE)) disturb(1, 0);
 		}
 	}
 
@@ -1078,7 +1082,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
 			/* Disturb on disappearance */
-			if (disturb_near && !(m_ptr->smart & SM_DOMINATE)) disturb(1, 0);
+			if (disturb_near && !(m_ptr->status & STATUS_DOMINATE)) disturb(1, 0);
 		}
 	}
 }
@@ -1223,8 +1227,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y2;
 		p_ptr->px = x2;
 
-		/* Check for new panel (redraw map) */
-		verify_panel();
+		/* Update the panel */
+		p_ptr->update |= (PU_PANEL);
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
@@ -1256,8 +1260,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->py = y1;
 		p_ptr->px = x1;
 
-		/* Check for new panel (redraw map) */
-		verify_panel();
+		/* Update the panel */
+		p_ptr->update |= (PU_PANEL);
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
@@ -1408,6 +1412,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Hack -- "unique" monsters must be "unique" */
+	if (!bale_clone_hack)
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
 		/* Cannot create */
@@ -1434,8 +1439,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
                            msg_format("Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
-         if (!no_rating_bonus)
-			rating += (r_ptr->level - p_ptr->depth) * 2;
+			if (!no_rating_bonus)
+			  rating += (r_ptr->level - p_ptr->depth) * 2;
 		}
 
 		/* Normal monsters */
@@ -1446,8 +1451,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
                            msg_format("Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
-         if (!no_rating_bonus)
-			rating += (r_ptr->level - p_ptr->depth);
+			if (!no_rating_bonus)
+			  rating += (r_ptr->level - p_ptr->depth);
 		}
 	}
 
@@ -1528,7 +1533,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
 
-   if (summon_friendly) n_ptr->smart |= SM_DOMINATE;
+	if (summon_friendly) n_ptr->status |= STATUS_DOMINATE;
+	if (bale_clone_hack) n_ptr->status |= STATUS_BALE_CLONE;
+	bale_clone_hack = FALSE;
 
 	/* Success */
 	return (TRUE);
@@ -1894,6 +1901,8 @@ static bool summon_specific_okay(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	cptr name = (r_name + r_ptr->name);
+
 	bool okay = FALSE;
 
 
@@ -1986,12 +1995,22 @@ static bool summon_specific_okay(int r_idx)
 			okay = (r_ptr->flags1 & (RF1_UNIQUE));
 			break;
 		}
-	}
+		
+	case SUMMON_TIME:
+	  {
+	    okay = (strstr(name,"Time") != NULL);
+	    break;
+	  }
 
+	case SUMMON_HOLE:
+	  {
+	    okay = (strstr(name,"Space/time anomaly") != NULL);
+	    break;
+	  }
+	}
 	/* Result */
 	return (okay);
 }
-
 
 /*
  * Place a monster (of the specified "type") near the given
@@ -2094,18 +2113,19 @@ bool multiply_monster(int m_idx)
 
 	bool result = FALSE;
 
-   summon_friendly = (m_ptr->smart & SM_DOMINATE) != 0;
+   summon_friendly = (m_ptr->status & STATUS_DOMINATE) != 0;
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
 	{
-		int d = 1;
+		int d = bale_clone_hack ? 5 : 1;
 
 		/* Pick a location */
 		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d, 0);
 
 		/* Require an "empty" floor grid */
-		if (!cave_empty_bold(y, x)) continue;
+		if (!(r_info[m_ptr->r_idx].flags2 & (RF2_KILL_WALL | RF2_PASS_WALL)))
+		  if (!cave_empty_bold(y, x)) continue;
 
 		/* Create a new monster (awake, no groups) */
 		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
