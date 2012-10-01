@@ -1,7 +1,7 @@
 
 
                           ***********************
-                          **  EyAngband 0.3.5  **
+                          **  EyAngband 0.3.6  **
                           ***********************
                                By Eytan Zweig
 
@@ -10,12 +10,13 @@
        Angband 2.0 - 2.6.2:  Alex Cutler, Andy Astrand, Sean Marsh,
                              Geoff Hill, Charles Teague, Charles Swiger
      Angband 2.7.0 - 2.8.5:  Ben Harrison
-     Angband 2.9.0 - 2.9.2:  Robert Ruehlmann
+     Angband 2.9.0 - 2.9.3:  Robert Ruehlmann
 
 	
         Send comments, bug reports, and patches, to "eytanzw@yahoo.com"
-       	EyAngband Home Page at "http://members.xoom.com/eytanz/eyangband"
+        EyAngband Home Page at "http://eyangband.sourceforge.net"
 
         Angband Home Page at "http://thangorodrim.angband.org/"
         Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+
 

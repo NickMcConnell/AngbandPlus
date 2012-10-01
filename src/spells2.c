@@ -1851,6 +1851,12 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 	/* Mark object */
 	o_ptr->ident |= IDENT_MODIFIED;
 
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
 	/* Something happened */
 	return (TRUE);
 }

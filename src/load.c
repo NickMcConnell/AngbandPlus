@@ -981,7 +981,7 @@ static errr rd_randarts(void)
 		for (i = 0; i < z_info->a_max; i++)
 		{
 			artifact_type *a_ptr = &a_info[i];
-			a_ptr->name = 0;
+			if (!(a_ptr->flags3 & TR3_DONT_RANDOMIZE)) a_ptr->name = 0;
 			a_ptr->tval = 0;
 			a_ptr->sval = 0;
 		}

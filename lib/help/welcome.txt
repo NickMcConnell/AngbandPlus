@@ -30,7 +30,7 @@ EyAngband's official home page is httP://members.xoom.com/eytanz/eyangband
 where the newest versions can be found, and also some additional 
 documentation. You'd also might wanted to see the Official Angband Home 
 Page ("http://thangorodrim.angband.org/") for up to date information about
-all the different Angband varients and versinos.
+all the different Angband variants and versions.
 
 You can email compliments, complaints, suggestions, bug reports, and patches
 to me ("eytanze@yahoo.com"), and you can post interesting experiences and

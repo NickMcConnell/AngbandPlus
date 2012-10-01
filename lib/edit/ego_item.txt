@@ -61,7 +61,7 @@
 
 # Version stamp (required)
 
-V:0.3.5
+V:0.3.6
 
 ### Body Armor ###
 
@@ -451,7 +451,7 @@ X:34:15:0
 W:30:4:0:7000
 C:4:8:0:2
 T:31:2:99
-F:STR | BLOWS | SHOW_MODS | AGGRAVATE | HIDE_TYPE
+F:STR | BLOWS | DISRUPT | SHOW_MODS | AGGRAVATE | HIDE_TYPE
 
 N:55:of Weakness
 X:34:0:0

@@ -437,6 +437,8 @@ void monster_death(int m_idx)
 	{
 		/* Build magical stairs */
 		build_quest_stairs(y, x);
+
+		p_ptr->fame += 10;
 	}
 
 	/* Nothing left, game over... */
@@ -447,6 +449,8 @@ void monster_death(int m_idx)
 
 		/* Redraw the "title" */
 		p_ptr->redraw |= (PR_TITLE);
+
+		p_ptr->fame += 50;
 
 		/* Congratulations */
 		message(MSG_QUEST_SUCCEED, TRUE, "*** CONGRATULATIONS ***");
@@ -557,7 +561,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (m_ptr->u_idx) u_info[m_ptr->u_idx].dead = TRUE;
+		if (m_ptr->u_idx)
+		{
+			u_info[m_ptr->u_idx].dead = TRUE;
+
+			/* reputation bonus */
+ 			if (u_info[m_ptr->u_idx].level) p_ptr->fame++;
+		}
 		
 		/* Recall even invisible uniques*/
 		if (m_ptr->ml || (m_ptr->u_idx))

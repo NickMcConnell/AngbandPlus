@@ -1748,7 +1748,7 @@ static bool player_birth_quick(void)
 	/* Load the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
-		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = old_char.stat[i];
+		p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i] = old_char.stat[i];
 	}
 
 	/* Load the history */

@@ -136,166 +136,6 @@ void do_cmd_equip(void)
 }
 
 /*
- * Determine which equipment slot (if any) an item likes
- */
-static s16b wield_slot(object_type *o_ptr)
-{
-	/* Slot for equipment */
-	switch (o_ptr->tval)
-	{
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (INVEN_WIELD);
-		}
-
-		case TV_BOW:
-		{
-			return (INVEN_BOW);
-		}
-
-		case TV_RING:
-		{
-			int slot;
-
-			cptr q, s;
-			
-			object_type *i_ptr = &inventory[INVEN_RIGHT];
-			object_type *j_ptr = &inventory[INVEN_LEFT];
-	
-			/* Right hand is free - pick it first */
-			if (!i_ptr->k_idx) return (INVEN_RIGHT);
-
-			/* Left hand is free - pick it */
-			if (!j_ptr->k_idx) return (INVEN_LEFT);
-
-			/* 
-			 * Both hands are full - time to see if we can decide where to put it ourselves 
-			 * If not obvious, prefer left hand to right hand for swapping.
-			 */
-
-			/* Both rings are cursed, choose arbitrarily (will fail later anyway) */
-			if (cursed_p(i_ptr) && cursed_p(j_ptr)) return (INVEN_LEFT);
-
-			/* Left ring is cursed, but right one isn't */
-			if (!cursed_p(i_ptr) && cursed_p(j_ptr)) return (INVEN_RIGHT);
-
-			/* Right ring is cursed, but left one isn't */
-			if (cursed_p(i_ptr) && !cursed_p(j_ptr)) return (INVEN_LEFT);
-
-			/* Rings are of the same type, choice might be easy */
-			if ((i_ptr->sval == j_ptr->sval) && object_known_p(i_ptr) && object_known_p(j_ptr))
-			{
-				switch (i_ptr->sval)
-				{
-					case SV_RING_PROTECTION:
-					case SV_RING_LIGHTNING:
-					case SV_RING_ACID:
-					case SV_RING_FLAMES:
-					case SV_RING_ICE:
-					{
-						/* Prefer the ring with lower ac bonus */
-						if (i_ptr->to_a < j_ptr->to_a) return (INVEN_RIGHT);
-						else return (INVEN_LEFT);
-					}
-					case SV_RING_ACCURACY:
-					case SV_RING_DAMAGE:
-					case SV_RING_SLAYING:
-					{
-						/* Don't auto-choose ambiguous rings (only applies to slaying) */
-						if (((i_ptr->to_h < j_ptr->to_h) && (i_ptr->to_d > j_ptr->to_d)) ||
-							((i_ptr->to_h > j_ptr->to_h) && (i_ptr->to_d < j_ptr->to_d)))
-						{
-							break;
-						}
-						else
-						{
-							/* Prefer the ring with lower bonuses */
-							if ((i_ptr->to_h < j_ptr->to_h) || (i_ptr->to_d < j_ptr->to_d))
-								return (INVEN_RIGHT);
-							else return (INVEN_LEFT);
-						}
-					}
-					default:
-					{
-						/* 
-						 * For most cases, just prefer the ring with lower pval
-						 * Note that this works fine for rings with no pval
-						 */
-						if (i_ptr->pval < j_ptr->pval) return (INVEN_RIGHT);
-						else return (INVEN_LEFT);
-					}
-				}
-			}
-			
-			/* Since we haven't chosen automatically, choose interactively */
-
-			/* Restrict the choices */
-			item_tester_tval = TV_RING;
-
-			/* Choose a ring from the equipment only */
-			q = "Replace which ring? ";
-			s = "Oops.";
-			if (!get_item(&slot, q, s, USE_EQUIP)) return (0);
-			
-			return (slot);
-		}
-
-		case TV_AMULET:
-		{
-			return (INVEN_NECK);
-		}
-
-		case TV_LITE:
-		case TV_LITE_SPECIAL:
-		{
-			return (INVEN_LITE);
-		}
-
-		case TV_DRAG_ARMOR:
-		case TV_BODY_ARMOR:
-		{
-			return (INVEN_BODY);
-		}
-
-		case TV_CLOAK:
-		{
-			return (INVEN_OUTER);
-		}
-
-		case TV_SHIELD:
-		{
-			return (INVEN_ARM);
-		}
-
-		case TV_HEADGEAR:
-		{
-			return (INVEN_HEAD);
-		}
-
-		case TV_GLOVES:
-		{
-			return (INVEN_HANDS);
-		}
-
-		case TV_BOOTS:
-		{
-			return (INVEN_FEET);
-		}
-
-		case TV_MUSIC:
-		{
-			if (cp_ptr->flags & CF_MUSIC) return (INVEN_MUSIC);
-		}
-	}
-
-	/* No slot available */
-	return (0);
-}
-
-/*
  * The "wearable" tester
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
@@ -1301,9 +1141,9 @@ static void do_cmd_quaff_potion_aux(int item)
 
 			/* Found a match */
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval1)) 
-				item_known1 = k_ptr->aware;
+				item_known1 = (k_ptr->tried || k_ptr->aware);
 			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval2)) 
-				item_known2 = k_ptr->aware;
+				item_known1 = (k_ptr->tried || k_ptr->aware);
 		}
 
 		/* 
@@ -2220,6 +2060,7 @@ static void do_cmd_activate_aux(int item)
 			case (SV_DRAGON_GOLD):		j = 125; break;
 			case (SV_DRAGON_SILVER):	j = 125; break;
 			case (SV_DRAGON_MULTIHUED): j = 162; break;
+			case (SV_DRAGON_ETHEREAL):	j = 162; break;
 			case (SV_DRAGON_SPIRIT):	j = 162; break;
 			case (SV_DRAGON_SHADOW):	j = 162; break;
 			case (SV_DRAGON_CHAOS):		j = 187; break;

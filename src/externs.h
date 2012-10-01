@@ -525,6 +525,7 @@ extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
 extern cptr mention_use(int i);
 extern cptr describe_use(int i);
+extern s16b wield_slot(object_type *o_ptr);
 extern bool wearable_p(object_type *o_ptr);
 extern bool ammo_p(object_type *o_ptr);
 extern bool item_tester_okay(object_type *o_ptr);

@@ -463,7 +463,10 @@ void take_hit(int damage, cptr ddesc)
 	{
 		if (p_ptr->absorb > damage)
 		{
-			message_format(MSG_EFFECT, 0, "you have absorbed %d damage.", damage);
+			/* Message */
+			if (cheat_wizard) message_format(MSG_EFFECT, 0, "you have absorbed %s damage.", damage);
+			else message(MSG_EFFECT, 0, "you have absorbed all the damage.");
+
 			hp_player(damage);
 			set_absorb(p_ptr->absorb - damage);
 		}
@@ -471,7 +474,10 @@ void take_hit(int damage, cptr ddesc)
 		{
 			int ab_limit = p_ptr->absorb * 2;
 
-			message_format(MSG_EFFECT, 0, "you have absorbed %d damage.", p_ptr->absorb);
+			/* Message */
+			if (cheat_wizard) message_format(MSG_EFFECT, 0, "you have absorbed %s damage.", damage);
+			else message(MSG_EFFECT, 0, "you have absorbed some damage.");
+
 			if (damage > ab_limit) damage_player(damage - ab_limit, ddesc);
 			else hp_player(ab_limit - damage);
 			set_absorb(0);

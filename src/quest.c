@@ -194,34 +194,176 @@ cptr describe_quest(s16b level, int mode)
  */
 static void grant_reward(byte reward_level, byte type)
 {
-	int i;
+	int i, j;
 	bool great = ((type == REWARD_GREAT_ITEM) ? TRUE : FALSE);
+	u32b f1, f2, f3, f4;
 
-	object_type *i_ptr;
+	object_type *i_ptr, *j_ptr;
 	object_type object_type_body;
 
 	/* Generate object at quest level */
-	p_ptr->obj_depth  = reward_level;
+	p_ptr->obj_depth = reward_level;
 
+	/* Get local object */
+	i_ptr = &object_type_body;
+	
+	/* Create a gold reward */
 	if (type == REWARD_GOLD) 
 	{
 		for (i = 0; i < 5; i++)
 		{
-			/* Get local object */
-			i_ptr = &object_type_body;
-
 			/* Wipe the object */
 			object_wipe(i_ptr);
 
 			/* Make some gold */
 			if (!make_gold(i_ptr, 0)) continue;
 
-			/* Drop it in the dungeon */
+			/* Drop the object */
 			drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
 		}
 	}
+	/* Create an item reward */
+	else
+	{
+		s32b price_threshold = ((p_ptr->au * (10 + p_ptr->fame)) / 100);
+		int force_item = rand_int(p_ptr->fame);
 
-	else acquirement(p_ptr->py, p_ptr->px, 1, great, FALSE);
+		/* Boundary check */
+		if (price_threshold < p_ptr->au) 
+			price_threshold = (p_ptr->au < 100000 ? 100000 : p_ptr->au);
+
+		/* 100 attempts at finding a decent item */
+		for (i = 0; i < 100; i++)
+		{
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
+			/* Make a good (or great) object (if possible) */
+			if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
+
+			/* It is identified */
+			object_known(i_ptr);
+
+			/* Sometimes give inappropriate rewards */
+			if (i > p_ptr->fame) force_item = rand_int(p_ptr->fame);
+
+			if (force_item < 4) break;
+
+			/* Relatively expensive items are always appropriate */
+			if ((i_ptr->number * object_value(i_ptr)) > price_threshold) break;
+
+			/* Check for appropriateness */
+			if (i_ptr->tval == TV_MAGIC_BOOK)
+			{
+				/* Spellbooks - first, check if you can use them */
+				if (!cp_ptr->spell_book[i_ptr->sval]) continue;
+
+				/* Sometimes, check if we already have them */
+				if (rand_int(p_ptr->fame) < 7)	break;
+
+				/* Look for item in the pack */
+				for (j = 0; j < INVEN_PACK; j++)
+				{
+					/* Get the item */
+					j_ptr = &inventory[j];
+
+					/* If we already have this book, don't create another copy */
+					if ((j_ptr->tval == i_ptr->tval) && (j_ptr->sval == i_ptr->sval)) continue;
+				}
+
+				break;
+			}
+			else if (wearable_p(i_ptr) && (i_ptr->tval != TV_RING))
+			{
+				/* Wearable items - compare to item already in slot */
+				j = wield_slot(i_ptr);
+
+				j_ptr = &inventory[j];
+
+				/* Compare value of the item with the old item */
+				if (j_ptr->k_idx)
+				{
+					if (object_value(i_ptr) <= ((object_value(j_ptr) * (90 + p_ptr->fame)) / 100))
+						continue;
+				}
+				
+				/* Sometimes, more sophisticated checks */
+				if (rand_int(p_ptr->fame) < 5) break;
+
+				/* Weapons - additional checks */
+				if (j == INVEN_WIELD)
+				{
+					object_flags(i_ptr, &f1, &f2, &f3, &f4);
+
+					if (cp_ptr->flags & CF_BLESS_WEAPON)
+					{
+						/* Limit to legal weapon types */
+						if ((i_ptr->tval != TV_HAFTED) && !(f4 & TR4_BLESSED)) continue;
+					}
+					
+					/* Too heavy */
+					if (adj_str_hold[p_stat(A_STR)] < actual_weight(i_ptr) / 10) continue;
+				}
+
+				/* Gloves - additional checks */
+				if (j == INVEN_HANDS)
+				{
+					object_flags(i_ptr, &f1, &f2, &f3, &f4);
+
+					if (cp_ptr->flags & CF_NO_GLOVE)
+					{
+						/* Limit to legal glove types */
+						if (!(f2 & (TR2_FREE_ACT)) && !((i_ptr->pval > 0) && 
+							((f1 & (TR1_DEX)) || (f1 & (TR1_MANA)))))							
+							continue;
+					}
+				}
+
+				break;
+			}
+			else if ((i_ptr->tval == TV_RING))
+			{
+				/* Rings - compare to cheapest of worn rings */
+				j = (object_value(&inventory[INVEN_LEFT]) > object_value(&inventory[INVEN_RIGHT]))
+					? INVEN_LEFT : INVEN_RIGHT;
+
+				j_ptr = &inventory[j];
+
+				if (!j_ptr->k_idx) break;
+
+				/* Compare value of the item with the old item */
+				if (object_value(i_ptr) <= ((object_value(j_ptr) * (90 + p_ptr->fame)) / 100))
+					continue;
+				
+				break;
+			}
+			else if (ammo_p(i_ptr))
+			{
+				/* If you can't use the ammo, inappropriate */
+				if (p_ptr->ammo_tval != i_ptr->tval) continue;
+
+				/* If you can, appropriate */
+				break;
+			}
+
+			/* Other item types are always appropriate */
+			break;
+		}
+
+		/* Complete identification */
+		object_aware(i_ptr);
+
+		if (artifact_p(i_ptr))
+		{
+			artifact_type *a_ptr = &a_info[i_ptr->a_idx];
+
+			/* Describe it fully */
+			if artifact_known_p(a_ptr) identify_fully_aux(i_ptr);
+		}
+
+		/* Drop the object */
+		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	}
 
 	/* Reset object level */
 	p_ptr->obj_depth  = p_ptr->depth;
@@ -343,6 +485,7 @@ static bool place_mon_quest(int q, int lev, int number, int difficulty)
 	q_info[q].active_level = lev;
 	q_info[q].r_idx = monster_idx[i];
 	q_info[q].max_num = number;
+	q_info[q].cur_num = 0;
 	q_info[q].started = FALSE;
 
 	/* Set current quest */
@@ -388,6 +531,8 @@ static bool place_vault_quest(int q, int lev)
 	q_info[q].base_level = lev;
 	q_info[q].active_level = lev;
 	q_info[q].reward = REWARD_GREAT_ITEM;
+	q_info[q].cur_num = q_info[q].max_num = 0;
+	q_info[q].started = 0;
 
 	/* Set current quest */
 	p_ptr->cur_quest = lev;
@@ -402,7 +547,9 @@ static bool place_vault_quest(int q, int lev)
 void display_guild(void)
 {
 	int i, j;
-	cptr q_out;
+	byte attr;
+	cptr p, q_out;
+	int count = 0;
 
 	/* Describe the guild */
 	put_str("The Adventurer's Guild", 3, 30);
@@ -467,7 +614,7 @@ void display_guild(void)
 				/* Clear the screen */
 				Term_clear();
 			
-				/* Destroy the quest item in the pack */
+				/* Destroy a potion in the pack */
 				inven_item_increase(j, -1);
 				inven_item_optimize(j);
 
@@ -477,68 +624,152 @@ void display_guild(void)
 		}
 	}
 
+	/* Player's title */
+	if (p_ptr->fame > 110) p = "oh glorious one";
+	else if (p_ptr->fame > 80) p = "oh great one";
+	else if (p_ptr->fame > 50)
+	{
+		if (p_ptr->psex == SEX_MALE) p = "my lord";
+		else p = "my lady";
+	}
+	else if (p_ptr->fame > 25)
+	{
+		if (p_ptr->psex == SEX_MALE) p = "sir";
+		else p = "madam";
+	}
+	else if (p_ptr->fame > 10)
+	{
+		if (!op_ptr->full_name[0])
+		{
+			p = c_name + cp_ptr->name;
+		}
+		else p = op_ptr->full_name;
+	}
+	else p = p_name + rp_ptr->name;
+
+	/* Introduction */
+	put_str(format("Welcome to the Adventurer's Guild, %s.", p), 5, 3);
+
+	/* Player's reputation */
+	switch (p_ptr->fame / 5)
+	{
+		case 0:
+		{
+			attr = TERM_RED;
+			p = "poor";
+			break;
+		}
+		case 1:
+		case 2:
+		case 3:
+		{
+			attr = TERM_YELLOW;
+			p = "fair";
+			break;
+		}
+		case 4:
+		case 5:
+		case 6:
+		{
+			attr = TERM_YELLOW;
+			p = "good";
+			break;
+		}
+		case 7:
+		case 8:
+		{
+			attr = TERM_YELLOW;
+			p = "very good";
+			break;
+		}
+		case 9:
+		case 10:
+		{
+			attr = TERM_L_GREEN;
+			p = "excellent";
+			break;
+		}
+		case 11:
+		case 12:
+		case 13:
+		{
+			attr = TERM_L_GREEN;
+			p = "superb";
+			break;
+		}
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		{
+			attr = TERM_L_GREEN;
+			p = "heroic";
+			break;
+		}
+		default:
+		{
+			attr = TERM_L_GREEN;
+			p = "legendary";
+			break;
+		}
+	}
+
+	/* Quest count */
+	put_str("You might be interested to know that your current reputation is", 6, 3);
+	c_put_str(attr, p, 6, 67);
+
 	/* Label the quest descriptions */
 	if (!p_ptr->cur_quest)
 	{
 		/* Not Currently in a quest */
-		put_str("Available Quests:", 5, 3);
+		put_str("Available Quests:", 8, 3);
 
 		avail_quest = 0;
 
 		for (j = 0;j < GUILD_QUESTS; j++)
 		{
-	
-			byte attr;
-			cptr difficulty;
-
 			if (guild[j] <= 3)
 			{
 				attr = TERM_L_GREEN;
-				difficulty = "An easy";
+				p = "An easy";
 			}
 			else if (guild[j] <= 7)
 			{
 				attr = TERM_YELLOW;
-				difficulty = "A moderate";
+				p = "A moderate";
 			}
 			else
 			{
 				attr = TERM_ORANGE;
-				difficulty = "A difficult";
+				p = "A difficult";
 			}
 
-			put_str(format("%c)", I2A(avail_quest)), 7+avail_quest, 0);
-			c_put_str(attr, format ("%s quest.",difficulty), 7+avail_quest, 4);
+			put_str(format("%c)", I2A(avail_quest)), 10 + avail_quest, 0);
+			c_put_str(attr, format ("%s quest.", p), 10 + avail_quest, 4);
 			avail_quest++;
 		}
 
 		if (p_ptr->fame % GUILD_FAME_SPECIAL == 7)
 		{
-			byte attr;
-			cptr difficulty;
-
-			attr = TERM_VIOLET;
-			difficulty = "A special";
-
-			put_str(format("%c)", I2A(avail_quest)), 7+avail_quest, 0);
-			c_put_str(attr, format ("%s quest.",difficulty), 7+avail_quest, 4);
+			put_str(format("%c)", I2A(avail_quest)), 10 + avail_quest, 0);
+			c_put_str(TERM_VIOLET, "A speical quest.", 10 + avail_quest, 4);
 			avail_quest++;
 		}
 	}
 
 	else 
 	{
-		put_str("Your Quest:", 5, 3);
+		put_str("Your current quest:", 8, 3);
 		q_out = describe_quest(p_ptr->cur_quest, QMODE_FULL);
 
 		/* Break into two lines if necessary */
-		if (strlen(q_out) < 70) put_str(q_out, 7, 3);
+		if (strlen(q_out) < 70) put_str(q_out, 10, 3);
 		else 
 		{
 			q_out = describe_quest(p_ptr->cur_quest, QMODE_HALF_1);
-			put_str(q_out, 7, 3);
+			put_str(q_out, 10, 3);
 			q_out = describe_quest(p_ptr->cur_quest, QMODE_HALF_2);
-			put_str(q_out, 8, 3);
+			put_str(q_out, 11, 3);
 		}
 	}
 }
@@ -605,8 +836,8 @@ void guild_purchase(void)
 	if (item == -1) return;
 	
 	/* Get level for quest - most likely on the next level but can be deeper */
-	qlev = p_ptr->max_depth + 1 + rand_int(5)-2;
-	if (qlev < p_ptr->max_depth + 1) qlev = p_ptr->max_depth + 1;
+	if (!p_ptr->max_depth) qlev = 1;
+	else qlev = p_ptr->max_depth + 1 + randint(2);
 
 	if (qlev >= MAX_DEPTH) 
 	{
@@ -629,17 +860,6 @@ void guild_purchase(void)
 			continue;
 		}
 
-		if (q_info[i].type == QUEST_GUILD)
-		{
-			/* skip completed random quests */
-			if (!q_info[i].active_level) continue;
-			else 
-			{
-				message(MSG_FAIL, 0, "You already have an assigned quest!");
-				return;
-			}
-		}
-
 		slot = i;
 		found = TRUE;
 		
@@ -651,7 +871,7 @@ void guild_purchase(void)
 		if (item < GUILD_QUESTS)
 		{
 			/* How many monsters? */
-			num = damroll(5,3)+2;
+			num = damroll(4,4) + 1 + (p_ptr->fame / 30);
 			if (!place_mon_quest(slot, qlev, num, guild[item])) return;
 		}
 		else if (!place_vault_quest(slot, qlev)) return;
@@ -725,4 +945,27 @@ int quest_item_slot(void)
 
 	/* No quest item */
 	return -1;
+}
+
+/*
+ * Fail your quest
+ */
+void quest_fail(void)
+{
+	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+
+	/* Mark quest as completed */
+	q_ptr->active_level = 0;
+	p_ptr->cur_quest = 0;
+				
+	/* No reward for failed quest */
+	q_ptr->reward = 0;
+
+	/* Message */
+	message(MSG_QUEST_FAIL, 0, "You have failed in your quest!");
+
+	if (p_ptr->fame) p_ptr->fame /= 2;
+	
+	/* Disturb */
+	if (disturb_minor) disturb(0);
 }
