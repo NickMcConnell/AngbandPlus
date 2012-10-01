@@ -1200,7 +1200,7 @@ static errr term_force_font(term_data *td, cptr name)
 
 
 	/* Save new font name */
-	td->font_file = string_make(base_font);
+	td->font_file = string_make(buf);
 
 	/* Load the new font or quit */
 	if (!AddFontResource(buf))
@@ -2207,7 +2207,7 @@ static void init_windows(void)
 
 
 	/* Need these before term_getsize gets called */
-	data[0].dwStyle = (WS_OVERLAPPED | WS_THICKFRAME | WS_SYSMENU |
+	data[0].dwStyle = (WS_OVERLAPPED | WS_SYSMENU |
 	                   WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION |
 	                   WS_VISIBLE);
 	data[0].dwExStyle = 0;
