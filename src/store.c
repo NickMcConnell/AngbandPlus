@@ -347,45 +347,54 @@ static owner_type *ot_ptr = NULL;
  */
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
-	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
+	/*Hum, HfE, Elf, Hob, Gno, Dwa, HfO, HfT, Dun, HiE, Mai, SFa, Ent*/
 
 	/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
+	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 105, 110, 115},
 
 	/* Half-Elf */
-	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
+	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 105, 115, 105},
 
 	/* Elf */
-	{ 110, 105, 100, 105, 110, 130, 125, 130, 110, 100},
+	{ 110, 105, 100, 105, 110, 130, 125, 130, 110, 100, 105, 115, 100},
 
 	/* Hobbit */
-	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
+	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 105, 110, 105},
 
 	/* Gnome */
-	{ 110, 110, 110, 105,  95, 110, 115, 125, 115, 110},
+	{ 110, 110, 110, 105,  95, 110, 115, 125, 115, 110, 105, 110, 105},
 
 	/* Dwarf */
-	{ 105, 115, 130, 105, 105,  95, 120, 125, 105, 130},
+	{ 105, 115, 130, 105, 105,  95, 120, 125, 105, 130, 105, 120, 125},
 
 	/* Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 90, 105, 115, 125},
+	{ 115, 120, 125, 115, 115, 120, 90, 105, 115, 125, 115, 115, 130},
 
 	/* Half-Troll */
-	{ 125, 120, 115, 110, 110, 130, 105, 85, 125, 115},
+	{ 125, 120, 115, 110, 110, 120, 105, 85, 125, 115, 115, 115, 115},
 
 	/* Dunedain  */
-	{ 100, 105, 105, 110, 110, 110, 120, 125, 100, 105},
+	{ 100, 105, 105, 110, 110, 110, 120, 125, 100, 105, 105, 100, 115},
 
 	/* High_Elf */
-	{ 110, 105, 100, 105, 110, 130, 125, 130, 110, 100}
+	{ 110, 105, 100, 105, 110, 130, 125, 130, 110, 100, 105, 100, 100},
 
+	/* Maia */
+	{ 105, 105, 105, 105, 105, 105, 110, 110, 105, 105, 100, 105, 105},
+
+	/* Shadow Fairy */
+	{ 110, 115, 115, 115, 110, 120, 115, 120, 110, 125, 105,  95, 110},
+
+	/* Ent */
+	{ 115, 105, 100, 105, 105, 125, 130, 120, 115, 100, 105, 110, 100}
 };
 
 
 
 
 /*
- * Determine the price of an object (qty one) in a store.  Altered in Oangband.
+ * Determine the price of an object (qty one) in a store.  Altered in 
+ * Oangband.
  *
  * This function takes into account the player's charisma, and the
  * shop-keepers friendliness, and the shop-keeper's base greed, but
@@ -415,7 +424,6 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	/* Add in the charisma factor */
 	charisma_factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
-
 	/* Shop is buying */
 	if (flip)
 	{
@@ -424,18 +432,18 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 					 charisma_factor * greed);
 
 		/* Never get "silly" */
-		if (offer_adjustment > 100) offer_adjustment = 100;
+		if (offer_adjustment > 100L) offer_adjustment = 100L;
 	}
 
 	/* Shop is selling */
 	else
 	{
 		/* Calculate the offer adjustment (x100). */
-		offer_adjustment = (racial_factor * charisma_factor * 
-					 greed) / 10000L;
+		offer_adjustment = 1L * (long)racial_factor * charisma_factor * 
+					 greed / 10000L;
 
 		/* Never get "silly" */
-		if (offer_adjustment < 100) offer_adjustment = 100;
+		if (offer_adjustment < 100L) offer_adjustment = 100L;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -490,11 +498,21 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
+		/* The Black Market sells potions and scrolls in *quantity*.  This 
+		 * allows certain utility objects to be actually worth using. -LM-
+		 */
 		case TV_POTION:
 		case TV_SCROLL:
 		{
-			if (cost < 61L) size += mass_roll(3, 5);
-			if (cost < 241L) size += mass_roll(1, 5);
+			if ((store_num == 6) && (randint(2) == 1))
+			{
+				if (cost < 400L) size += mass_roll(15,3);
+			}
+			else
+			{
+				if (cost < 61L) size += mass_roll(3, 5);
+				if (cost < 241L) size += mass_roll(1, 5);
+			}
 			break;
 		}
 
@@ -567,7 +585,7 @@ static void mass_produce(object_type *o_ptr)
 	 */
 
 	/* Hack -- determine the maximum possible purse available at any one store. */
-	if (store_num == 1) max_purse = 300;
+	if (store_num == 1) max_purse = 450;
 	if (store_num == 4) max_purse = 15000;
 	else max_purse = 30000;
 
@@ -856,6 +874,23 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_POTION:
 				case TV_HAFTED:
 				break;
+
+				/* Hack -- The temple will buy known blessed swords and 
+				 * polearms. -LM-
+				 */
+				case TV_SWORD:
+				case TV_POLEARM:
+				{
+					u32b f1, f2, f3;
+
+					/* Extract the item flags */
+					object_flags(o_ptr, &f1, &f2, &f3);
+
+					if (f3 & (TR3_BLESSED) && object_known_p(o_ptr)) 
+						break;
+					else return (FALSE);
+				}
+
 				default:
 				return (FALSE);
 			}
@@ -929,7 +964,7 @@ static bool store_will_buy(object_type *o_ptr)
  *
  * Note that this is a hacked up version of "inven_carry()".
  *
- * Also note that it may not correctly "adapt" to "knowledge" bacoming
+ * Also note that it may not correctly "adapt" to "knowledge" becoming
  * known, the player may have to pick stuff up and drop it again.
  */
 static int home_carry(object_type *o_ptr)
@@ -1223,10 +1258,11 @@ static void store_delete(void)
 		if ((st_ptr->stock[what].tval != TV_BOLT) && (st_ptr->stock[what].tval != TV_ARROW) && (st_ptr->stock[what].tval != TV_SHOT)) num = 1;
 	}
 
-	/* Hack -- decrement the total timeouts and charges of rods and wands. -LM- */
+	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. -LM- */
 	if ((st_ptr->stock[what].tval == TV_ROD) || (st_ptr->stock[what].tval == TV_WAND))
 	{
 		st_ptr->stock[what].pval -= num * st_ptr->stock[what].pval / st_ptr->stock[what].number;
+
 	}
 
 	/* Actually destroy (part of) the object */
@@ -1266,7 +1302,7 @@ static void store_create(void)
 			/* Pick a level for object/magic.  Now depends partly 
 			 * on player level. -LM-
 			 */
-			level = 5 + p_ptr->lev / 3 + rand_int(30);
+			level = 5 + p_ptr->lev / 2 + rand_int(30);
 
 			/* Random object kind (biased towards given level) */
 			k_idx = get_obj_num(level);
@@ -1306,6 +1342,11 @@ static void store_create(void)
 
 		/* Mega-Hack -- no chests in stores */
 		if (i_ptr->tval == TV_CHEST) continue;
+
+		/* Mega-Hack -- No early Longbows. -LM- */
+		if ((i_ptr->tval == TV_BOW) && (i_ptr->sval == SV_LONG_BOW) &&
+			(p_ptr->lev < 10)) continue;
+
 
 		/* Prune the black market */
 		if (store_num == 6)
@@ -1440,8 +1481,8 @@ static void display_entry(int item)
 		object_desc(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
-		/* Acquire inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		attr = proc_list_color_hack(o_ptr);
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -1451,8 +1492,11 @@ static void display_entry(int item)
 		{
 			/* Only show the weight of a single object */
 			int wgt = o_ptr->weight;
-			sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(out_val, y, 68);
+
+			if (use_metric) sprintf(out_val, "%3d.%d kg", make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
+
+			put_str(out_val, y, 67);
 		}
 	}
 
@@ -1471,8 +1515,8 @@ static void display_entry(int item)
 		object_desc_store(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
 
-		/* Acquire inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		attr = proc_list_color_hack(o_ptr);
 
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
@@ -1482,7 +1526,8 @@ static void display_entry(int item)
 		{
 			/* Only show the weight of a single object */
 			int wgt = o_ptr->weight;
-			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
+			if (use_metric) sprintf(out_val, "%3d.%d kg", make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
 			put_str(out_val, y, 61);
 		}
 
@@ -1494,7 +1539,7 @@ static void display_entry(int item)
 
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld F", (long)x);
-			put_str(out_val, y, 68);
+			put_str(out_val, y, 67);
 		}
 
 		/* Display a "taxed" cost */
@@ -1507,8 +1552,10 @@ static void display_entry(int item)
 			if (!noneedtobargain(x)) x += x / 10;
 
 			/* Actually draw the price (with tax) */
-			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
+			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1)) sprintf(out_val, "%9ld avg", (long)x);
+			else sprintf(out_val, "%9ld  ", (long)x);
+
+			put_str(out_val, y, 67);
 		}
 
 		/* Display a "haggle" cost */
@@ -1519,7 +1566,7 @@ static void display_entry(int item)
 
 			/* Actually draw the price (not fixed) */
 			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
+			put_str(out_val, y, 67);
 		}
 	}
 }
@@ -1572,7 +1619,7 @@ static void store_prt_gold(void)
 	prt("Gold Remaining: ", 19, 53);
 
 	sprintf(out_val, "%9ld", (long)p_ptr->au);
-	prt(out_val, 19, 68);
+	prt(out_val, 19, 67);
 }
 
 
@@ -1628,7 +1675,7 @@ static void display_store(void)
 		}
 
 		/* Label the asking price (in stores) */
-		put_str("Price", 5, 72);
+		put_str("Price", 5, 71);
 	}
 
 	/* Display the current gold */
@@ -2188,6 +2235,11 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 	*price = 0;
 
+	/* Objects that the player makes himself are heavily discounted.  Let 
+	 * him know this. -LM-
+	 */
+	if (o_ptr->discount == 80) 
+		msg_print("This item looks homemade.  I cannot offer much for it.");
 
 	/* Obtain the starting offer and the final offer */
 	cur_ask = price_item(o_ptr, ot_ptr->max_inflate, TRUE);
@@ -2441,9 +2493,8 @@ static void store_purchase(void)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
-	/* Hack -- If a rod or wand, allocate total maximum
-	 * timeouts or charges between those purchased and 
-	 * left on the shelf. -LM-
+	/* Hack -- If a rod or wand, allocate total maximum timeouts or charges 
+	 * between those purchased and left on the shelf. -LM-
 	 */
 	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 	{
@@ -2624,6 +2675,19 @@ static void store_purchase(void)
 		{
 			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
 			o_ptr->pval -= i_ptr->pval;
+
+			/* Hack -- Rods also need to have their timeouts distributed.  
+			 * The dropped stack will accept all time remaining to charge 
+			 * up to its maximum.
+		 	 */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+			{
+				if (i_ptr->pval > o_ptr->timeout) 
+					i_ptr->timeout = o_ptr->timeout;
+				else i_ptr->timeout = i_ptr->pval;
+
+				if (amt < o_ptr->number) o_ptr->timeout -= i_ptr->timeout;
+			}
 		}
 
 
@@ -2705,6 +2769,9 @@ static void store_sell(void)
 		/* Only allow items the store will buy */
 		item_tester_hook = store_will_buy;
 	}
+
+	/* Start off in equipment mode. -LM- */
+	p_ptr->command_wrk = (USE_INVEN);
 
 	/* Get an item */
 	s = "You have nothing that I want.";
@@ -2896,6 +2963,19 @@ static void store_sell(void)
 		{
 			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
 			if (o_ptr->number > amt) o_ptr->pval -= i_ptr->pval;
+
+			/* Hack -- Rods also need to have their timeouts distributed.  
+			 * The dropped stack will accept all time remaining to charge 
+			 * up to its maximum.
+		 	 */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+			{
+				if (i_ptr->pval > o_ptr->timeout) 
+					i_ptr->timeout = o_ptr->timeout;
+				else i_ptr->timeout = i_ptr->pval;
+
+				if (amt < o_ptr->number) o_ptr->timeout -= i_ptr->timeout;
+			}
 		}
 
 		/* Describe */
@@ -2928,6 +3008,41 @@ static void store_sell(void)
 	}
 }
 
+
+/* 
+ * Get an object in a store to inspect.  Original code by -JDL- (from Zangband).
+ */
+static void store_inspect(void)
+{
+	int         item;
+
+	object_type *o_ptr;
+
+	char        out_val[160];
+
+
+	/* Empty? */
+	if (st_ptr->stock_num <= 0)
+	{
+		if (store_num == STORE_HOME)
+			msg_print("Your home is empty.");
+		else
+			msg_print("I am currently out of stock.");
+		return;
+	}
+
+	/* Prompt */
+	sprintf(out_val, "Examine which item? ");
+
+	/* Get the item number to be examined */
+	if (!get_stock(&item, out_val)) return;
+
+	/* Get the actual item */
+	o_ptr = &st_ptr->stock[item];
+
+	/* Examine the item. */
+	do_cmd_observe(o_ptr, (store_num == STORE_HOME ? TRUE : FALSE));
+}
 
 
 /*
@@ -3074,7 +3189,7 @@ static void store_process_command(void)
 			/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe();
+			store_inspect();
 			break;
 		}
 
@@ -3341,6 +3456,7 @@ void do_cmd_store(void)
 
 		/* Basic commands */
 		prt(" ESC) Exit from Building.", 22, 0);
+		prt("   I) Inspect an object.", 23, 0);
 
 		/* Browse if necessary */
 		if (st_ptr->stock_num > 12)

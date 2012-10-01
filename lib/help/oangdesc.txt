@@ -1,0 +1,78 @@
+
+                        Welcome to Opinion Angband!
+
+     Opinion Angband, or Oangband for short, is one of the many variants of 
+Angband.  It was created to accomplish exactly two things:  Teach L.M. C
+programming, and turn a new conception of non-magical combat into a game you
+can enjoy.  As you will shortly discover, however, Oangband has developed a 
+life of its own.  A selection of features includes:
+
+
+-The elimination of years of slow HP and damage inflation, and a "tabula rasa" 
+approach to game balance in general.  
+
+-A fundamentally altered conception of physical combat.
+
+-A radically revised magical system, offering you the chance to play any of 
+four spellcasters, any of four warrior-spellcasters, or the pure warrior we 
+all know and love.
+
+-Very much more varied classes.  Mages are great with magical items, Rogues 
+steal and set traps, Assassins whip poisoned knives at their foes, Paladins 
+smite with elemental powers, Priests evoke the power of Holy Light, and 
+Necromancers just blast everything in sight.  
+
+-Races are also more differentiated.  There are three new races, including 
+one designed especially for new players.
+
+-More ways to combat monsters.  Now you really can start and win the game 
+relying on magic, melee, shooting, throwing, or magical devices to do 
+damage to your foes.
+
+-All sorts of new monster nastiness.  Dragons are dangerous once more, 
+Undead have a deadly touch, Trolls will gleefully pelt you to death with 
+boulders, and those Zephyr Hounds are *nuts*.
+
+-Enhanced object description and learning code.
+
+-dungeon features that affect movement, sighting, and combat.
+
+-exciting chests and nasty traps.
+
+-More varied dungeons, including "Interesting Rooms", new room types, and 
+themed levels.
+
+-One-slot wand and rod stacking, arc spells, themed random artifacts, and 
+player ghosts that challenge you to mortal combat.
+
+-New just about everything.  Whether it be Wands of Storms, the Dark Elven 
+Smith Eol, Shields of Night and Day, Athelas, new vaults, rods of Northwinds, 
+Large Jeweled Chests, or activatable rings, Oangband has novelty enough for 
+anyone.
+
+-And Angband-compatible savefiles.
+
+
+If you feel the need for more detail, I'd suggest just perusing the help 
+files.  If you like, you will find a .diff file In the "lib/info" folder that 
+lists (most) of the changes between Oangband 0.3.2 and 0.4.0, in more detail 
+than you really want to know.  A complete listing of Oangband .diffs files can 
+be found at the Oangband development site.
+
+
+=== The Jaded Angband Player's Guide to Oangband ===
+
+-Don't think a whip will instantly make you a combat machine.
+-Don't ignore combat magic and spells that hinder monsters.
+-Melee requires as much backpack space as magic.
+-Don't try to melee or shoot with the pros if you haven't the Skill to swing it.
+-Forget about blows.  Everybody gets two for a long time.
+-don't ignore infravision, searching, and perception.
+-Don't go into autopilot and sell every damage-dealing wand, staff, or rod you 
+ see.
+-Useful utility magics aren't only found in spellbooks and rods.
+-And never, never, never, think this game is fair.  It's not.
+
+
+Leon Marrick, maintainer of Oangband version 0.4.0
+

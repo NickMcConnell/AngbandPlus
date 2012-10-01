@@ -271,6 +271,211 @@ static byte convert_owner[24] =
 	3, 2, 0, 2, 1, 2, 3, 0
 };
 
+	
+/*
+ * Artifact conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6 -LM-
+ */
+static byte conv_arti[128] = 
+{
+	0,
+	ART_GALADRIEL,
+	ART_ELENDIL,
+	ART_THRAIN,
+	ART_CARLAMMAS,
+	ART_INGWE,
+	ART_DWARVES,
+	ART_BOROMIR,
+	ART_FARAMIR,
+	ART_BARAHIR,
+	ART_TULKAS,			/* old artifact index 10 */
+	ART_NARYA,
+	ART_NENYA,
+	ART_VILYA,
+	ART_POWER,
+	ART_STONE_LORE,
+
+	ART_RAZORBACK,
+	ART_BLADETURNER,
+	0,
+	ART_SOULKEEPER,
+	ART_ISILDUR,		/* 20  */
+	ART_ROHIRRIM,
+	ART_BELEGENNON,
+	ART_CELEBORN,
+	ART_ARVEDUI,
+	ART_CASPANION,
+	ART_HIMRING,
+	ART_HITHLOMIR,
+	ART_THALKETTOTH,
+
+	ART_ELEMENTS,
+	ART_THORIN,			/* 30 */
+	ART_CELEGORM,
+	ART_ANARION,
+	ART_GIL_GALAD,
+
+	ART_MORGOTH,
+	ART_BERUTHIEL,
+	ART_THRANDUIL,
+	ART_THENGEL,
+	ART_HAMMERHAND,
+	ART_DOR,
+	ART_HOLHENNETH,		/* 40 */
+	ART_GORLIM,
+	ART_GONDOR,
+	ART_NUMENOR,
+
+	ART_VALINOR,
+	ART_HOLCOLLETH,
+	ART_THINGOL,
+	ART_THORONGIL,
+	ART_COLANNON,
+	ART_LUTHIEN,
+	ART_TUOR,			/* 50 */
+	0,
+
+	ART_CAMBELEG,
+	ART_CAMMITHRIM,
+	ART_EOL,
+	ART_PAURNIMMEN,
+	ART_PAURAEGEN,
+	ART_PAURNEN,
+	ART_CAMLOST,
+	ART_FINGOLFIN,
+
+	ART_FEANOR,			/* 60 */
+	ART_DAL,
+	ART_THROR,
+	ART_NEVRAST,
+
+	ART_MAEDHROS,
+	ART_ANGRIST,
+	ART_NARTHANC,
+	ART_NIMTHANC,
+	ART_DETHANC,
+	ART_RILIA,
+	ART_BELANGIL,		/* 70 */
+	ART_CALRIS,
+	ART_ARUNRUTH,
+	ART_GLAMDRING,
+	ART_AEGLIN,
+	ART_ORCRIST,
+	ART_GURTHANG,
+	ART_ZARCUTHRA,
+	ART_MORMEGIL,
+	ART_GONDRICAM,
+	ART_CRISDURIAN,		/* 80 */
+	ART_AGLARANG,
+	ART_RINGIL,
+	ART_ANDURIL,
+	ART_ANGUIREL,
+	ART_ELVAGIL,
+	ART_FORASGIL,
+	ART_CARETH,
+	ART_STING,
+	ART_HARADEKKET,
+	ART_GILETTAR,		/* 90 */
+	ART_DOOMCALLER,
+	0,
+
+	ART_THEODEN,
+	ART_PAIN,
+	ART_OSONDIR,
+	ART_TIL,
+	ART_AEGLOS,
+	ART_OROME,
+	ART_NIMLOTH,
+	ART_EORLINGAS,		/* 100 */
+	ART_DURIN,
+	ART_EONWE,
+	ART_BALLI,
+	ART_LOTHARANG,
+	ART_MUNDWINE,
+	ART_BARUKKHELED,
+	ART_WRATH,
+	ART_ULMO,
+	ART_AVAVIR,
+	0,				/* 110 */
+
+	ART_GROND,
+	ART_TOTILA,
+	ART_THUNDERFIST,
+	ART_BLOODSPIKE,
+	ART_FIRESTAR,
+	ART_TARATOL,
+	ART_AULE,
+	ART_NAR,
+	ART_ERIRIL,
+	ART_OLORIN,			/* 120 */
+	ART_DEATHWREAKER,
+	ART_TURMIL,
+
+	ART_HARAD,
+	ART_BELTHRONDING,
+	ART_BARD,
+	ART_CUBRAGOL,
+	ART_BUCKLAND		/* 127 */
+};
+
+/*
+ * Object conversion -- pre-Oangband 0.3.6 to Oangband 0.3.6. -LM-
+ */
+static int obj_index_conv[] = 
+{
+	  0,   1,   2,   3,   4,   5,   6,   7,   8,   9, 
+	 10,  11,  12,  13,  14,  15,  16,  17,  18,  19, 
+	 20,  29,  30,  31,  32,  33,  34,  35,  36,  37, 
+	  0,  61,  58,   0,  56,  50,  70,  65,  45,  52, 
+	 68,  60,  57,  44,  47,  51,  48,  42,  78,  72, 
+	 83,  88,  82,  75,  73,  78,  85,  90,   0, 105, 
+	108, 110, 109, 103,  97, 100, 115, 120, 117,   0, 
+	106, 112, 125, 130, 131, 134, 135, 127, 142, 143, 
+	146, 147, 138, 139, 150, 151, 152, 153, 154, 155, 
+	  0, 159, 160, 161, 167, 168, 170, 171, 175, 176, 
+	177, 181, 180, 182, 183, 184, 185, 188, 192, 193, 
+	190, 195, 197, 198, 200, 201, 203, 205, 211, 209, 
+	207, 196, 253, 230, 233, 237, 238, 240, 245, 247, 
+	246, 248, 284, 286, 287, 273, 291, 283, 264, 266, 
+	268, 269, 267, 280, 281, 262, 278, 277, 279, 260, 
+	263, 289, 288, 276, 261, 282, 270, 271, 272, 274, 
+	275, 265, 290, 308, 309, 307, 303, 305, 306, 304, 
+	311, 310, 302, 337, 338, 336, 332, 333, 343, 360, 
+	334, 344,   0,   0, 324, 328, 329, 330, 356, 345, 
+	358, 335, 346, 347, 348,   0,   0, 349, 366, 367, 
+	365, 350, 321, 327, 359, 339, 342, 364, 320, 357, 
+	352, 362, 341, 323, 340, 322, 325, 353, 353, 355, 
+	331, 361, 382, 381, 380, 428, 396, 422, 429, 397, 
+	423, 430, 398, 324, 433, 401, 427, 414, 419, 400, 
+	415, 416, 417, 432, 439, 391, 387, 389, 386, 409, 
+	384, 431, 425, 426, 393, 385, 436, 412, 413, 408, 
+	421, 410, 411, 405, 406, 407, 420, 404, 434, 462,
+	472, 474, 473, 461, 468, 455, 456, 464, 465, 463, 
+	467, 460, 470, 457, 466, 458, 459, 476, 478, 477, 
+	469, 475, 479,   0, 471,   0,   0,   0, 480, 484, 
+	512, 510, 511, 504, 528, 503, 508, 529, 507, 502, 
+	521, 520, 516, 514, 522, 501, 513, 506, 515, 517, 
+	524, 523, 500, 527, 525, 519, 505, 526, 509, 518, 
+	530, 531, 532, 533, 485, 481, 482, 483, 616, 617,
+	618, 619, 620, 621, 622, 623, 626, 627, 628, 629, 
+	630, 569, 568, 575, 571, 572, 583, 589, 591, 590, 
+	587, 585, 584, 586, 581, 582, 593, 595, 594, 592, 
+	588, 573, 570, 576, 577, 578, 579, 596, 597, 598, 
+	599,   0,   0,   0,   0,   0,   0,   0,   0, 638, 
+	639, 641, 642, 644, 643, 648, 647, 646, 645,   0, 
+	213, 214, 215, 216, 217, 218, 220, 222, 224, 225, 
+	227, 228, 229,   0,   0, 403, 395, 402, 435, 418, 
+	419, 438, 437,   0,   0,   0,   0,   0,   0,   0, 
+	650, 651, 652, 653, 654, 655, 656, 657, 658, 660, 
+	661, 662, 663, 664, 665, 666, 667, 668, 670, 671, 
+	672, 673, 674, 675, 676, 677, 678, 680, 681, 682, 
+	683, 684, 685, 686, 687, 688,   0,   0,   0,   0, 
+	  0,   0,   0,   0,   0,   0,   0, 747, 739, 740, 
+	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 
+	  0,   0,   0,   0,   0,   0,   0,   0, 731, 732, 
+	733, 734, 735, 736, 737, 738, 741, 742, 743, 744, 
+	745, 746
+};
+
 
 /*
  * Old pre-2.7.4 inventory slot values
@@ -415,7 +620,7 @@ static byte convert_ego_item[128] =
 	EGO_ELVENKIND,		/* 87 = EGO_ELVENKIND (XXX) */
 	0,					/* 88 */
 	0,					/* 89 */
-	0,				/* Was extra attacks. -LM- */
+	0,				/* Extra attack ego-items are lost. */
 	EGO_AMAN,			/* 91 = EGO_AMAN */
 	0,					/* 92 */
 	0,					/* 93 */
@@ -443,7 +648,7 @@ static byte convert_ego_item[128] =
 	0,					/* 115 */
 	EGO_SLOWNESS,		/* 116 = EGO_SLOWNESS */
 	EGO_NOISE,			/* 117 = EGO_NOISE */
-	EGO_ANNOYANCE,		/* 118 = EGO_GREAT_MASS */
+	EGO_TORMENT,		/* 118 = EGO_GREAT_MASS */
 	0,					/* 119 */
 	EGO_BACKBITING,		/* 120 = EGO_BACKBITING */
 	0,					/* 121 */
@@ -478,6 +683,9 @@ static byte convert_ego_item[128] =
  * are converted.  It also changed how artifact and object activations 
  * work, so code is included to properly translate old-style activatable 
  * items. -LM-
+ *
+ * Oangband 0.3.6 changed the object and artifact indexes, so old items 
+ * must be converted to new. -LM-
  */
 static void rd_item(object_type *o_ptr)
 {
@@ -596,7 +804,34 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
+	if ((o_older_than(0, 3, 6)) && (o_ptr->k_idx >= 445) && 
+		(o_ptr->k_idx <= 479)) return;
+
+
+	/* Hack - fix a couple svals Oangband changed/deleted along the way. */
+	if (o_older_than(0, 3, 6))
+	{
+		if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == 4))
+			o_ptr->sval = 5;
+		if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == 28))
+			o_ptr->sval = SV_BATTLE_AXE;
+		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == 1))
+			o_ptr->sval = 2;
+		if ((o_ptr->tval == TV_SHOT) && (o_ptr->sval == 0))
+			o_ptr->sval = 1;
+		if ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == 6))
+			o_ptr->sval = SV_SHADOW_CLOAK;
+		if ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == 6))
+			o_ptr->sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
+		if ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == 5))
+			o_ptr->sval = SV_SET_OF_CESTI;
+		if ((o_ptr->tval == TV_GOLD) && (o_ptr->sval > 11))
+			o_ptr->sval = 11;
+	}
+
+	/* Object indexes changed in Oangband 0.3.6.  Convert old to new. */
+	if (o_older_than(0, 3, 6)) 
+		o_ptr->k_idx = lookup_kind(o_ptr->tval, o_ptr->sval);
 
 
 	/* Obtain the "kind" template */
@@ -646,11 +881,9 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->dd = k_ptr->dd;
 		o_ptr->ds = k_ptr->ds;
 
-		/* Acquire correct weight */
-		o_ptr->weight = k_ptr->weight;
+		/* Acquire correct weight, unless an artifact. */
+		if (!o_ptr->name1) o_ptr->weight = k_ptr->weight;
 
-		/* Paranoia */
-		o_ptr->name1 = o_ptr->name2 = 0;
 
 		/* All done */
 		return;
@@ -771,10 +1004,29 @@ static void rd_item(object_type *o_ptr)
 	}
 
 
-	/* Paranoia */
+	/* Verify, convert artifacts if needed. */
 	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr;
+
+		/* Hack -- shift a few old artifact indexes. */
+		if ((o_older_than(0, 2, 0)) && (o_ptr->name1 < 14) && 
+			(o_ptr->name1 > 7)) o_ptr->name1++;
+
+		/* Artifact indexes changed in Oangband 0.3.6. Convert old to new. */
+		if (o_older_than(0, 3, 6)) 
+		{
+			if (o_ptr->name1 < 128)
+			{
+				/* Convert normal artifacts using a table. */
+				o_ptr->name1 = conv_arti[o_ptr->name1];
+			}
+			else
+			{
+				/* Hack -- shift random artifact indexes. */
+				o_ptr->name1 += 82;
+			}
+		}
 
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->name1];
@@ -803,8 +1055,8 @@ static void rd_item(object_type *o_ptr)
 	if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
 		 o_ptr->ds = k_ptr->ds;
 
-	/* Acquire standard weight */
-	o_ptr->weight = k_ptr->weight;
+	/* Acquire standard weight, unless an ego-item. */
+	if (!o_ptr->name2) o_ptr->weight = k_ptr->weight;
 
 	/* Starting with Oangband 0.3.0, dragon scale mail activations are assigned 
 	 * to the object like any other quality.  Perform this task for old dragon 
@@ -815,71 +1067,20 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
 		switch (o_ptr->sval)
 		{
-			case SV_DRAGON_BLACK:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_BLACK;
+			case SV_DRAGON_BLACK: o_ptr->xtra2 = ACT_DRAGON_BLACK; break;
+			case SV_DRAGON_BLUE: o_ptr->xtra2 = ACT_DRAGON_BLUE; break;
+			case SV_DRAGON_WHITE: o_ptr->xtra2 = ACT_DRAGON_WHITE; break;
+			case SV_DRAGON_RED: o_ptr->xtra2 = ACT_DRAGON_RED; break;
+			case SV_DRAGON_GREEN: o_ptr->xtra2 = ACT_DRAGON_GREEN; break;
+			case SV_DRAGON_MULTIHUED: o_ptr->xtra2 = ACT_DRAGON_MULTIHUED; 
 				break;
-			}
-			case SV_DRAGON_BLUE:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_BLUE;
-				break;
-			}
-			case SV_DRAGON_WHITE:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_WHITE;
-				break;
-			}
-			case SV_DRAGON_RED:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_RED;
-				break;
-			}
-			case SV_DRAGON_GREEN:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_GREEN;
-				break;
-			}
-			case SV_DRAGON_MULTIHUED:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_MULTIHUED;
-				break;
-			}
-			case SV_DRAGON_SHINING:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_SHINING;
-				break;
-			}
-			case SV_DRAGON_LAW:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_LAW;
-				break;
-			}
-			case SV_DRAGON_BRONZE:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_BRONZE;
-				break;
-			}
-			case SV_DRAGON_GOLD:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_GOLD;
-				break;
-			}
-			case SV_DRAGON_CHAOS:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_CHAOS;
-				break;
-			}
-			case SV_DRAGON_BALANCE:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_BALANCE;
-				break;
-			}
-			case SV_DRAGON_POWER:
-			{
-				o_ptr->xtra2 = ACT_DRAGON_POWER;
-				break;
-			}
+			case SV_DRAGON_SHINING: o_ptr->xtra2 = ACT_DRAGON_SHINING; break;
+			case SV_DRAGON_LAW: o_ptr->xtra2 = ACT_DRAGON_LAW; break;
+			case SV_DRAGON_BRONZE: o_ptr->xtra2 = ACT_DRAGON_BRONZE; break;
+			case SV_DRAGON_GOLD: o_ptr->xtra2 = ACT_DRAGON_GOLD; break;
+			case SV_DRAGON_CHAOS: o_ptr->xtra2 = ACT_DRAGON_CHAOS; break;
+			case SV_DRAGON_BALANCE: o_ptr->xtra2 = ACT_DRAGON_BALANCE; break;
+			case SV_DRAGON_POWER: o_ptr->xtra2 = ACT_DRAGON_POWER; break;
 		}
 	}
 
@@ -923,19 +1124,12 @@ static void rd_item(object_type *o_ptr)
 			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 		}
 
-		/* Starting with Oangband 0.3.0, which artifacts have activations is 
-		 * no longer hard-coded, so activations need to be transferred.  
-		 * Perform this task for old-style artifacts. -LM-
-		 */
-		if (o_older_than(0, 3, 0))
+		/* If artifact index includes an activation, assign it. -LM- */
+		if (a_ptr->activation)
 		{
-			if (a_ptr->activation)
-			{
-				o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
-				o_ptr->xtra2 = a_ptr->activation;
-			}
+			o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+			o_ptr->xtra2 = a_ptr->activation;
 		}
-
 	}
 
 	/* Ego items */
@@ -1000,7 +1194,10 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-	rd_byte(&tmp8u);
+
+	/* Oangband 0.3.3 added monster stasis. */
+	if (o_older_than(0, 3, 3)) rd_byte(&tmp8u);
+	else rd_byte(&m_ptr->stasis);
 }
 
 
@@ -1376,7 +1573,7 @@ static void rd_ghost(void)
 /* String-handling function from Greg Wooledge's random artifact generator. */
 static char *my_strdup (const char *s)
 {
-	char *t = malloc (strlen (s) + 1);
+	char *t = malloc(strlen (s) + 1);
 	if (t) strcpy (t, s);
 	return t;
 }
@@ -1416,12 +1613,12 @@ static int convert_saved_names(void)
 
 
 	/* Convert our names array into an a_name structure for later use. */
-	name_size = 0;
+	name_size = 1;
 	for (i = 0; i < MAX_A_IDX; i++)
 	{
-		name_size += strlen (names[i]) + 2;	/* skip first char */
+		name_size += strlen(names[i]) + 1;	/* skip first char */
 	}
-	if ((a_base = malloc (name_size)) == NULL)
+	if ((a_base = ralloc(name_size)) == NULL)
 	{
 		note("Memory allocation error");
 		return 1;
@@ -1431,18 +1628,18 @@ static int convert_saved_names(void)
 	a_next = a_base + 1;	/* skip first char */
 	for (i = 0; i < MAX_A_IDX; i++)
 	{
-		strcpy (a_next, names[i]);
+		strcpy(a_next, names[i]);
 		if (a_info[i].tval > 0)		/* skip unused! */
 			a_info[i].name = a_next - a_base;
-		a_next += strlen (names[i]) + 1;
+		a_next += strlen(names[i]) + 1;
 	}
 
 
 	/* Free some of our now unneeded memory. */
 	KILL (a_name, char);
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
 	{
-		free (names[i]);
+		free(names[i]);
 	}
 	a_name = a_base;
 
@@ -1548,8 +1745,16 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->shield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->tim_invis);
+	if (!o_older_than(0, 3, 5)) 
+	{
+		rd_s16b(&p_ptr->tim_esp);
+		rd_s16b(&p_ptr->superstealth);
+		rd_s16b(&p_ptr->ele_attack);
+	}
 	rd_s16b(&p_ptr->word_recall);
 	rd_s16b(&p_ptr->see_infra);
+
+
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->oppose_fire);
 	rd_s16b(&p_ptr->oppose_cold);
@@ -1561,13 +1766,20 @@ static errr rd_extra(void)
 	if (older_than(2, 7, 7)) strip_bytes(34);
 
 
+	if (!o_older_than(0, 3, 5))
+	{
+		/* Bit flags for various attack modifiers. */
+		rd_u32b(&p_ptr->special_attack);
+	}
+	else
+	{
+		rd_byte(&tmp8u);	/* Old confusing attack */
+	}
 
-	rd_byte(&p_ptr->confusing);
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 
-	rd_byte(&tmp8u);
-	p_ptr->black_breath = tmp8u; /* Status of Black Breath. */
+	rd_byte(&p_ptr->black_breath);	/* Status of Black Breath. */
 
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
@@ -1584,12 +1796,21 @@ static errr rd_extra(void)
 	/* Find out how many thefts have already occured on this level. -LM- */
 	rd_byte(&number_of_thefts_on_level);
 
-	/* Find out whether a monster trap exists or not. -LM- */
-	rd_byte(&monster_trap_on_level);
+	/* Read number of monster traps on level. -LM- */
+	rd_byte(&num_trap_on_level);
+
+	/* Read number of glyphs on level. -LM- */
+	rd_byte(&num_glyph_on_level);
+
+	/* Is the level themed and, if so, which theme is it? -LM- */
+	rd_byte(&p_ptr->themed_level);
+
+	/* What themed levels have already appeared? -LM- */
+	rd_u32b(&p_ptr->themed_level_appeared);
 
 
 	/* Future use */
-	for (i = 0; i < 45; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 39; i++) rd_byte(&tmp8u);
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1675,6 +1896,7 @@ static errr rd_inventory(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+
 	/* Read until done */
 	while (1)
 	{
@@ -1702,7 +1924,7 @@ static errr rd_inventory(void)
 		}
 
 		/* Hack -- verify item */
-		if (!i_ptr->k_idx) return (53);
+		if (!i_ptr->k_idx) return(53);
 
 		/* Hack -- convert old slot numbers */
 		if (older_than(2, 7, 4)) n = convert_slot(n);
@@ -2039,7 +2261,8 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 
 
 		/* Hack -- convert old "dungeon" objects */
-		if ((i_ptr->k_idx >= 445) && (i_ptr->k_idx <= 479))
+		if ((older_than(2,8,3)) && (i_ptr->k_idx >= 445) && 
+			(i_ptr->k_idx <= 479))
 		{
 			byte feat = FEAT_FLOOR;
 
@@ -2676,9 +2899,16 @@ static errr rd_savefile_new_aux(void)
 #endif
 
 
-	/* Mention the savefile version */
-	note(format("Loading a %d.%d.%d savefile...",
-	            sf_major, sf_minor, sf_patch));
+	/* Mention the savefile version if not current */
+	if (o_older_than(O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH))
+	{
+		if ((o_sf_major == 0) && (o_sf_minor == 2))
+			msg_format("Loading an Angband %d.%d.%d savefile.",
+			sf_major, sf_minor, sf_patch);
+		else msg_format("Loading an Oangband %d.%d.%d savefile.",
+			o_sf_major, o_sf_minor, o_sf_patch);
+		msg_print(NULL);
+	}
 
 
 	/* Hack -- Warn about "obsolete" versions */
@@ -2687,7 +2917,7 @@ static errr rd_savefile_new_aux(void)
 		note("Warning -- converting obsolete save file.");
 	}
 
-	/* Strip the version bytes */
+	/* Strip the Angband version bytes */
 	strip_bytes(4);
 
 	/* Hack -- decrypt */
@@ -2711,17 +2941,8 @@ static errr rd_savefile_new_aux(void)
 	/* Number of times played */
 	rd_u16b(&sf_saves);
 
-
-	/* Read the Oangband version information. */
-	rd_byte(&o_sf_major);
-	rd_byte(&o_sf_minor);
-	rd_byte(&o_sf_patch);
-	rd_byte(&o_sf_extra);
-
-	/* Assign a version number of 0.2.0 to savefiles from Angband or 
-	 * before Oangband 0.3.0.
-	 */
-	if (o_sf_minor == 0) o_sf_minor = 2;
+	/* Strip the Oangband version bytes */
+	strip_bytes(4);
 
 
 	/* Later use (always zero) */
@@ -2807,13 +3028,28 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		byte tmp8u;
+		int obj_index;
 
-		object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr;
+
+		/* Object indexes changed in Oangband 0.3.6.  Convert old to new. */
+		if (o_older_than(0, 3, 6)) 
+		{
+			obj_index = obj_index_conv[i];
+		}
+		else 
+		{
+			obj_index = i;
+		}
+
+		/* Obtain the "kind" template */
+		k_ptr = &k_info[obj_index];
 
 		rd_byte(&tmp8u);
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		k_ptr->known_effect = (tmp8u & 0x04) ? TRUE: FALSE;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -2856,7 +3092,7 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (total_artifacts > MAX_A_IDX)
 	{
-		note(format("Too many (%u) artifacts!", tmp16u));
+		note(format("Too many (%u) artifacts!", total_artifacts));
 		return (24);
 	}
 
@@ -2868,7 +3104,7 @@ static errr rd_savefile_new_aux(void)
 		for (i = 0; i < total_artifacts; i++)
 		{
 			rd_byte(&tmp8u);
-			a_info[i].cur_num = tmp8u;
+			a_info[conv_arti[i]].cur_num = tmp8u;
 			rd_byte(&tmp8u);
 			rd_byte(&tmp8u);
 			rd_byte(&tmp8u);
@@ -2888,66 +3124,79 @@ static errr rd_savefile_new_aux(void)
 		/* Read the artifact info. */
 		for (i = 0; i < total_artifacts; i++)
 		{
-			/* Most regular artifact info is stored in a_info.raw. */
-			if (i < ART_MIN_RANDOM)
+			int j;
+
+			/* Most regular artifact info is stored in a_info.raw.  0.3.X 
+			 * savefiles have 127 regular artifacts, with indexes that need 
+			 * converting, and newer savefiles have 209, with up-to-date 
+			 * indexes.
+			 */
+			if (i < (o_older_than(0,3,6) ? 128 : ART_MIN_RANDOM))
 			{
 				rd_byte(&tmp8u);
-				a_info[i].cur_num = tmp8u;
+				if (o_older_than(0,3,6)) 
+					a_info[conv_arti[i]].cur_num = tmp8u;
+				else a_info[i].cur_num = tmp8u;
 				rd_byte(&tmp8u);
 				rd_byte(&tmp8u);
 				rd_byte(&tmp8u);
 			}
+
+
 			/* But random artifacts are specific to each player. */
 			else
 			{
-				rd_u16b(&tmp16u);
-				a_info[i].name = tmp16u;
-				rd_u16b(&tmp16u);
-				a_info[i].text = tmp16u;
-
-				rd_byte(&tmp8u);
-				a_info[i].tval = tmp8u;
-				rd_byte(&tmp8u);
-				a_info[i].sval = tmp8u;
-				rd_u16b(&tmp16u);
-				a_info[i].pval = tmp16u;
+				/* Hack - Shift random artifacts for 0.3.X savefiles. */
+				if (o_older_than(0,3,6)) j = i + 82;
+				else j = i;
 
 				rd_u16b(&tmp16u);
-				a_info[i].to_h = tmp16u;
+				a_info[j].name = tmp16u;
 				rd_u16b(&tmp16u);
-				a_info[i].to_d = tmp16u;
-				rd_u16b(&tmp16u);
-				a_info[i].to_a = tmp16u;
+				a_info[j].text = tmp16u;
 
 				rd_byte(&tmp8u);
-				a_info[i].dd = tmp8u;
+				a_info[j].tval = tmp8u;
 				rd_byte(&tmp8u);
-				a_info[i].ds = tmp8u;
+				a_info[j].sval = tmp8u;
+				rd_u16b(&tmp16u);
+				a_info[j].pval = tmp16u;
 
 				rd_u16b(&tmp16u);
-				a_info[i].ac = tmp16u;
+				a_info[j].to_h = tmp16u;
 				rd_u16b(&tmp16u);
-				a_info[i].weight = tmp16u;
+				a_info[j].to_d = tmp16u;
+				rd_u16b(&tmp16u);
+				a_info[j].to_a = tmp16u;
+
+				rd_byte(&tmp8u);
+				a_info[j].dd = tmp8u;
+				rd_byte(&tmp8u);
+				a_info[j].ds = tmp8u;
+
+				rd_u16b(&tmp16u);
+				a_info[j].ac = tmp16u;
+				rd_u16b(&tmp16u);
+				a_info[j].weight = tmp16u;
 
 				rd_u32b(&tmp32u);
-				a_info[i].cost = tmp32u;
+				a_info[j].cost = tmp32u;
 
 				rd_u32b(&tmp32u);
-				a_info[i].flags1 = tmp32u;
+				a_info[j].flags1 = tmp32u;
 				rd_u32b(&tmp32u);
-				a_info[i].flags2 = tmp32u;
+				a_info[j].flags2 = tmp32u;
 				rd_u32b(&tmp32u);
-				a_info[i].flags3 = tmp32u;
+				a_info[j].flags3 = tmp32u;
 
 				rd_byte(&tmp8u);
-				a_info[i].level = tmp8u;
+				a_info[j].level = tmp8u;
 				rd_byte(&tmp8u);
-				a_info[i].rarity = tmp8u;
-
+				a_info[j].rarity = tmp8u;
 				rd_byte(&tmp8u);
-				a_info[i].cur_num = tmp8u;
+				a_info[j].cur_num = tmp8u;
 				rd_byte(&tmp8u);
-				a_info[i].activation = tmp8u;
+				a_info[j].activation = tmp8u;
 
 				/* Extra space. */
 				rd_u32b(&tmp32u);
@@ -2967,17 +3216,15 @@ static errr rd_savefile_new_aux(void)
 		/* Find out how many random artifacts have stored names. */
 		rd_u16b(&num_of_random_arts);
 
-
 		/* Verify that number, and warn the chap who modified the game that 
 		 * he still has work to do on failure.
 		 */
 		if (num_of_random_arts != (MAX_A_IDX - ART_MIN_RANDOM))
 		{
-			note(format("Number of stored random artifact names (%d) 
-				does not match the number of random artifacts in your 
-				copy of Oangband (%d).", num_of_random_arts, 
-				MAX_A_IDX - ART_MIN_RANDOM));
+			note(format("Number of stored random artifact names (%d) does not", num_of_random_arts));
+			note(format("match the number of random artifacts in your copy of Oangband (%d).", MAX_A_IDX - ART_MIN_RANDOM));
 		}
+
 
 		/* Otherwise, add the new names to the a_name structure. */
 		else
@@ -2989,9 +3236,9 @@ static errr rd_savefile_new_aux(void)
 		}
 	}
 
-
 	/* Read the extra stuff */
 	if (rd_extra()) return (25);
+
 	if (arg_fiddle) note("Loaded extra information");
 
 	/* Important -- Initialize the sex */
@@ -3115,3 +3362,55 @@ errr rd_savefile_new(void)
 }
 
 
+/*
+ * Open the savefile chosen earlier, and read and save Angband and 
+ * Oangband version information.  This code is awfully hackish, but it 
+ * can be adopted for any additional variant version information. -LM-
+ */
+errr rd_version_info(void)
+{
+	int fd;
+
+	/* Open the savefile */
+	fd = fd_open(savefile, O_RDONLY);
+
+	/* No file.  Report error. */
+	if (!fd) return (-1);
+
+	fd_read(fd, (char*)&sf_major, 1);
+	fd_read(fd, (char*)&sf_minor, 1);
+	fd_read(fd, (char*)&sf_patch, 1);
+	fd_read(fd, (char*)&sf_extra, 1);
+
+	/* Close the file */
+	fd_close(fd);
+
+
+	/* Open the file */
+	fff = my_fopen(savefile, "rb");
+
+	strip_bytes(4);
+
+	/* Hack -- decrypt */
+	xor_byte = sf_extra;
+
+	strip_bytes(12);
+
+	/* Read the Oangband version information. */
+	rd_byte(&o_sf_major);
+	rd_byte(&o_sf_minor);
+	rd_byte(&o_sf_patch);
+	rd_byte(&o_sf_extra);
+
+	/* Assign a version number of 0.2.0 to savefiles from Angband or 
+	 * before Oangband 0.3.0.
+	 */
+	if ((o_sf_major == 0) && (o_sf_minor == 0)) o_sf_minor = 2;
+
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Success. */
+	return(0);
+}

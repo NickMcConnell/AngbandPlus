@@ -77,6 +77,9 @@ struct hist_type
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
  *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
+ *   Maia          --> 25 --> 26 --> 67 --> 68
+ *   Shadow Fairy  --> 28 --> 29 --> 69 --> 70 --> 71 --> 72
+ *   Ent           --> 31 --> 32 --> 74 --> 75 --> 76
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
@@ -126,11 +129,11 @@ static hist_type bg[] =
 	{"Bum.  ", 20, 11, 3, 55},
 	{"Tavern Owner.  ", 30, 11, 3, 80},
 	{"Miller.  ", 40, 11, 3, 90},
-	{"Home Owner.  ", 50, 11, 3, 100},
+	{"Farmer.  ", 50, 11, 3, 100},
 	{"Burglar.  ", 80, 11, 3, 110},
 	{"Shiriff.  ", 95, 11, 3, 115},
-	{"Mayor.  ", 99, 11, 3, 125},
-	{"Clan Elder.  ", 100, 11, 3, 140},
+	{"Shire-Historian.  ", 99, 11, 3, 125},
+	{"Mayor.  ", 100, 11, 3, 140},
 
 	{"You are one of several children of a Gnome ", 85, 13, 14, 45},
 	{"You are the only child of a Gnome ", 100, 13, 14, 55},
@@ -172,7 +175,58 @@ static hist_type bg[] =
 	{"Shaman.  ", 99, 23, 62, 65},
 	{"Clan Chief.  ", 100, 23, 62, 80},
 
-	{"You have dark brown eyes, ", 20, 50, 51, 50},
+
+	{"You are a unnoticed minion of ", 		10, 25, 26, 20},
+	{"You are a minor servant of ", 		25, 25, 26, 30},
+	{"You are a subject of ", 			45, 25, 26, 40},
+	{"You have attached yourself to ", 		65, 25, 26, 50},
+	{"You are associated with ", 			85, 25, 26, 65},
+	{"You are a notable follower of ", 		95, 25, 26, 80},
+	{"You are a celebrated assistant to ", 	100, 25, 26, 100},
+
+	{"Nessa.  ",	20, 26, 67, 55},
+	{"Vana.  ",		40, 26, 67, 60},
+	{"Tulkas.  ",	50, 26, 67, 65},
+	{"Mandos.  ",	80, 26, 67, 75},
+	{"Nienna.  ",	90, 26, 67, 80},
+	{"Varda.  ",	95, 26, 67, 90},
+	{"Manwe.  ", 	100, 26, 67, 95},
+
+
+	{"You are the bastard child of a Shadow-Fairy ", 10, 28, 29, 35},
+	{"You are one of several children of a Shadow-Fairy ", 30, 28, 29, 45},
+	{"You are the second child of a Shadow-Fairy ", 55, 28, 29, 50},
+	{"You are the first child of a Shadow-Fairy ", 80, 28, 29, 55},
+	{"You are the only child of a Shadow-Fairy ", 100, 28, 29, 60},
+
+	{"whose identity you are uncertain of.",  5, 29, 8, 25},
+	{"Captive.  ", 20, 29, 69, 35},
+	{"Fighter.  ", 40, 29, 69, 45},
+	{"Ranger.  ", 50, 29, 69, 50},
+	{"Scribe.  ", 70, 29, 69, 65},
+	{"Witch.  ", 83, 29, 69, 75},
+	{"Alchemist.  ", 93, 29, 69, 90},
+	{"Lady.  ", 98, 29, 69, 110},
+	{"Queen.  ", 100, 29, 69, 140},
+
+
+	{"You are the lost offspring of ", 25, 31, 32, 40},
+	{"You are the wandering offspring of ", 50, 31, 32, 50},
+	{"You are the only offspring of ", 75, 31, 32, 60},
+	{"You are the beloved offspring of ", 100, 31, 32, 70},
+
+
+	{"an Ent whose name you have no recollection of.  ", 10, 32, 74, 35},
+	{"a solitary Ent.  ", 35, 32, 74, 50},
+	{"a member of a farflung Entish band.  ", 55, 32, 74, 60},
+	{"a leader of a prosperous community of Ents.  ", 70, 32, 74, 70},
+	{"an Entish Forestwarden.  ", 81, 32, 74, 80},
+	{"a respected Entish sage.  ", 91, 32, 74, 90},
+	{"an Entwife whose memory men cherish.  ", 96, 32, 74, 100},
+	{"Fangorn himself.  ", 199, 32, 74, 110},
+
+
+	{"You have dark brown eyes, ", 25, 50, 51, 50},
 	{"You have brown eyes, ", 60, 50, 51, 50},
 	{"You have hazel eyes, ", 70, 50, 51, 50},
 	{"You have green eyes, ", 80, 50, 51, 50},
@@ -188,6 +242,7 @@ static hist_type bg[] =
 	{"auburn hair, ", 80, 52, 53, 50},
 	{"red hair, ", 90, 52, 53, 50},
 	{"blond hair, ", 100, 52, 53, 50},
+
 
 	{"and a very dark complexion.", 10, 53, 0, 50},
 	{"and a dark complexion.", 30, 53, 0, 50},
@@ -243,7 +298,64 @@ static hist_type bg[] =
 
 	{"ulcerous skin.", 33, 66, 0, 50},
 	{"scabby skin.", 66, 66, 0, 50},
-	{"leprous skin.", 100, 66, 0, 50}
+	{"leprous skin.", 100, 66, 0, 50},
+
+
+	{"In the past, you dwelt on earth in the form of ",	100, 67, 68, 50},
+
+	{"various animals.",			25, 68, 0, 50},
+	{"a spirit of forest and river.",	55, 68, 0, 55},
+	{"a beneficent but unseen force.",	70, 68, 0, 60},
+	{"a wise and ancient counselor.",	96, 68, 0, 70},
+	{"a Wizard of legend.",			100, 68, 0, 80},
+
+
+	{"You have black eyes, straight ", 10, 69, 70, 50},
+	{"You have dark brown eyes, straight ", 25, 50, 70, 50},
+	{"You have brown eyes, straight ", 60, 69, 70, 50},
+	{"You have hazel eyes, straight ", 70, 69, 70, 50},
+	{"You have green eyes, straight ", 80, 69, 70, 50},
+	{"You have blue eyes, straight ", 90, 69, 70, 50},
+	{"You have blue-gray eyes, straight ", 100, 69, 70, 50},
+
+	{"grey hair ", 30, 70, 71, 50},
+	{"pure white hair ", 70, 70, 71, 50},
+	{"pale yellow hair ", 80, 70, 71, 50},
+	{"grey-white hair ", 90, 70, 71, 50},
+	{"pale brown hair ", 100, 70, 71, 50},
+
+	{"that barely covers your shoulders, ", 30, 71, 72, 50},
+	{"that reaches to your arms, ", 60, 71, 72, 55},
+	{"that flows down to your waist, ", 90, 71, 72, 60},
+	{"that forms a shining waterfall from head to foot, ", 100, 71, 72, 75},
+
+	{"and an extremely fair complexion.", 20, 72, 0, 50},
+	{"and a milky complexion.", 35, 72, 0, 50},
+	{"and a pearly complexion.", 50, 72, 0, 50},
+	{"and a pale complexion.", 85, 72, 0, 50},
+	{"and an utterly white complexion.", 100, 72, 0, 50},
+
+
+	{"You have ", 100, 74, 75, 50},
+
+	{"three fingers and toes, and are covered in ", 5, 75, 76, 50},
+	{"four fingers and toes, and are covered in ", 20, 75, 76, 50},
+	{"five fingers and toes, and are covered in ", 40, 75, 76, 50},
+	{"six fingers and toes, and are covered in ", 60, 75, 76, 50},
+	{"seven fingers and toes, and are covered in ", 80, 75, 76, 50},
+	{"eight fingers and toes, and are covered in ", 95, 75, 76, 50},
+	{"nine fingers and toes, and are covered in ", 100, 75, 76, 50},
+
+	{"scaly brown skin.", 10, 76, 0, 50},
+	{"rough brown skin.", 20, 76, 0, 50},
+	{"smooth grey skin.", 30, 76, 0, 50},
+	{"dark green skin.", 40, 76, 0, 50},
+	{"mossy skin.", 50, 76, 0, 50},
+	{"deep brown skin.", 60, 76, 0, 50},
+	{"pale brown, flaky skin.", 70, 76, 0, 50},
+	{"rich chocolate-colored skin.", 80, 76, 0, 50},
+	{"ridged black skin.", 90, 76, 0, 50},
+	{"thick, almost corky skin.", 100, 76, 0, 50}
 };
 
 
@@ -650,6 +762,25 @@ static void get_history(void)
 			break;
 		}
 
+
+		case RACE_MAIA:
+		{
+			chart = 25;
+			break;
+		}
+
+		case RACE_S_FAIRY:
+		{
+			chart = 28;
+			break;
+		}
+
+		case RACE_ENT:
+		{
+			chart = 31;
+			break;
+		}
+
 		default:
 		{
 			chart = 0;
@@ -788,7 +919,7 @@ static void get_money(void)
 
 	/* She charmed the banker into it! -CJS- */
 	/* Mum and Dad figure she won't blow it on beer! -LM- */
-	if (p_ptr->psex == SEX_FEMALE) gold += 50; /* restored by LM */
+	if (p_ptr->psex == SEX_FEMALE) gold += 50; /* restored in Oangband. */
 
 	/* Save the gold */
 	p_ptr->au = gold;
@@ -911,7 +1042,7 @@ static void player_wipe(void)
 
 
 	/* Hack -- Well fed player */
-	p_ptr->food = PY_FOOD_FULL - 1;
+	p_ptr->food = PY_FOOD_MAX - 1;
 
 
 	/* None of the spells have been learned yet */
@@ -960,7 +1091,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Ranger */
 		{ TV_DRUID_BOOK, 0 },
 		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
+		{ TV_BOW, SV_SHORT_BOW }
 	},
 
 	{
@@ -1045,6 +1176,16 @@ static void player_outfit(void)
 		object_known(i_ptr);
 		(void)inven_carry(i_ptr);
 	}
+
+	/* Hack - Rangers start off with some arrows. -LM- */
+	if (p_ptr->pclass == CLASS_RANGER)
+	{
+		object_prep(i_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+		i_ptr->number = 25;
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);
+	}
 }
 
 
@@ -1097,7 +1238,7 @@ static bool player_birth_aux()
 
 	/*** Player sex ***/
 
-	/* Extra info.  Made moe verbose by LM. */
+	/* Extra info.  Made more verbose by LM. */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Females start with more money, and weigh less, but otherwise");
 	Term_putstr(5, 16, -1, TERM_WHITE,
@@ -1113,14 +1254,14 @@ static bool player_birth_aux()
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		put_str(buf, 20 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
 	while (1)
 	{
 		sprintf(buf, "Choose a sex (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+		put_str(buf, 19, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -1155,14 +1296,14 @@ static bool player_birth_aux()
 
 		/* Display */
 		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		put_str(buf, 20 + (n/4), 2 + 17 * (n%4));
 	}
 
 	/* Choose */
 	while (1)
 	{
 		sprintf(buf, "Choose a race (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+		put_str(buf, 19, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -1201,21 +1342,18 @@ static bool player_birth_aux()
 		str = cp_ptr->title;
 
 		/* Verify legality.  Altered in Oangband to use a table. */
-		/* if (!(rp_ptr->choice & (1L << n))) mod = " (*)"; */
-
-	/*	k = legal_class[p_ptr->prace][n];*/
 		if (!(legal_class[p_ptr->prace][n])) mod = " (*)";
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
+		put_str(buf, 20 + (n/3), 2 + 20 * (n%3));
 	}
 
 	/* Get a class */
 	while (1)
 	{
 		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+		put_str(buf, 19, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -1228,6 +1366,7 @@ static bool player_birth_aux()
 
 	/* Set class */
 	p_ptr->pclass = k;
+
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
 

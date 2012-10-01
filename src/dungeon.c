@@ -158,8 +158,8 @@ static void sense_inventory(void)
 
 		case CLASS_ROGUE:
 		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			/* Good sensing */
+			if (0 != rand_int(25000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -170,8 +170,8 @@ static void sense_inventory(void)
 
 		case CLASS_RANGER:
 		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
+			/* Acceptable (light) sensing */
+			if (0 != rand_int(30000L / (plev + 20))) return;
 
 			/* Done */
 			break;
@@ -179,7 +179,7 @@ static void sense_inventory(void)
 
 		case CLASS_PALADIN:
 		{
-			/* Bad sensing */
+			/* Decent sensing */
 			if (0 != rand_int(80000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
@@ -191,8 +191,8 @@ static void sense_inventory(void)
 
 		case CLASS_DRUID:
 		{
-			/* Mediocre (light) sensing */
-			if (0 != rand_int(60000L / (plev + 5))) return;
+			/* Wretched (light) sensing */
+			if (0 != rand_int(360000L / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -209,8 +209,8 @@ static void sense_inventory(void)
 
 		case CLASS_ASSASSIN:
 		{
-			/* Okay sensing */
-			if (0 != rand_int(30000L / (plev * plev + 40))) return;
+			/* Good sensing */
+			if (0 != rand_int(25000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -433,7 +433,7 @@ static void regen_monsters(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Monsters suffering from the Black Breath cannot regenerate. -LM- */
-		if (repair_mflag_blbr)
+		if (m_ptr->black_breath)
 		{
 			continue;
 		}
@@ -462,6 +462,44 @@ static void regen_monsters(void)
 	}
 }
 
+/*
+ * If player has inscribed the object with "!!", let him know when it's 
+ * recharged. -LM-
+ */
+static void recharged_notice(object_type *o_ptr)
+{
+	char o_name[80];
+
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return;
+
+	/* Find a '!' */
+	s = strchr(quark_str(o_ptr->note), '!');
+
+	/* Process notification request. */
+	while (s)
+	{
+		/* Find another '!' */
+		if (s[1] == '!')
+		{
+			/* Describe (briefly) */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
+			/* Notify the player */
+			if (o_ptr->number > 1) 
+				msg_format("Your %s are recharged.", o_name);
+			else msg_format("Your %s is recharged.", o_name);
+
+			/* Done. */
+			return;
+		}
+
+		/* Keep looking for '!'s */
+		s = strchr(s + 1, '!');
+	}
+}
 
 
 /*
@@ -609,8 +647,8 @@ static void process_world(void)
 
 	/*** Process the monsters ***/
 
-	/* Check for creature generation */
-	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
+	/* Check for creature generation, except on themed levels */
+	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (!p_ptr->themed_level))
 	{
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
@@ -665,6 +703,9 @@ static void process_world(void)
 		{
 			/* Basic digestion rate based on speed */
 			i = extract_energy[p_ptr->pspeed] * 2;
+
+			/* Half-trolls eat a lot.  -LM- */
+			if (p_ptr->prace == RACE_HALF_TROLL) i += 5;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -774,19 +815,51 @@ static void process_world(void)
 	/* Hack -- Hallucinating */
 	if (p_ptr->image)
 	{
-		(void)set_image(p_ptr->image - 1);
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) 
+			(void)set_image(p_ptr->image - 2);
+		else (void)set_image(p_ptr->image - 1);
 	}
 
 	/* Blindness */
 	if (p_ptr->blind)
 	{
-		(void)set_blind(p_ptr->blind - 1);
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) 
+			(void)set_blind(p_ptr->blind - 2);
+
+		else (void)set_blind(p_ptr->blind - 1);
 	}
 
-	/* Times see-invisible */
+	/* Timed see-invisible */
 	if (p_ptr->tim_invis)
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
+	}
+
+	/* Timed Telepathy */
+	if (p_ptr->tim_esp)
+	{
+		(void)set_tim_esp(p_ptr->tim_esp - 1);
+	}
+
+	/* Timed near-complete stealth -LM- */
+	if (p_ptr->superstealth)
+	{
+		(void)set_superstealth(p_ptr->superstealth - 1);
+
+		/* Warn the player that he's going to be revealed soon. */
+		if (p_ptr->superstealth == 5) 
+			msg_print("You sense your mantle of shadow fading...");
+	}
+
+	/* Timed temporary elemental brands. -LM- */
+	if (p_ptr->ele_attack)
+	{
+		p_ptr->ele_attack--;
+
+		/* Clear all temporary elemental brands. */
+		if (!p_ptr->ele_attack) set_ele_attack(0, 0);
 	}
 
 	/* Timed infra-vision */
@@ -798,19 +871,29 @@ static void process_world(void)
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
-		(void)set_paralyzed(p_ptr->paralyzed - 1);
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) 
+			(void)set_paralyzed(p_ptr->paralyzed - 2);
+
+		else (void)set_paralyzed(p_ptr->paralyzed - 1);
 	}
 
 	/* Confusion */
 	if (p_ptr->confused)
 	{
-		(void)set_confused(p_ptr->confused - 1);
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) (void)set_confused(p_ptr->confused - 2);
+
+		else (void)set_confused(p_ptr->confused - 1);
 	}
 
 	/* Afraid */
 	if (p_ptr->afraid)
 	{
-		(void)set_afraid(p_ptr->afraid - 1);
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) (void)set_afraid(p_ptr->afraid - 2);
+
+		else (void)set_afraid(p_ptr->afraid - 1);
 	}
 
 	/* Fast */
@@ -822,15 +905,16 @@ static void process_world(void)
 	/* Slow */
 	if (p_ptr->slow)
 	{
-		(void)set_slow(p_ptr->slow - 1);
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) (void)set_slow(p_ptr->slow - 2);
+
+		else (void)set_slow(p_ptr->slow - 1);
 	}
 
-	/* Protection from evil.  Priests get it permenantly at level 50. -LM- */
+	/* Protection from evil. */
 	if (p_ptr->protevil)
 	{
-		if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->lev == 50)) {;}
-
-		else (void)set_protevil(p_ptr->protevil - 1);
+		(void)set_protevil(p_ptr->protevil - 1);
 	}
 
 	/* Increased Magical Defences. -LM- */
@@ -885,7 +969,7 @@ static void process_world(void)
 	}
 
 	/* Oppose Cold. Ents always oppose cold. -LM- */
-	if ((p_ptr->oppose_acid) && (p_ptr->schange != SHAPE_ENT))
+	if ((p_ptr->oppose_cold) && (p_ptr->schange != SHAPE_ENT))
 	{
 		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
 	}
@@ -904,8 +988,11 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
-		/* Hobbits are sturdy. -LM- */
+		/* Hobbits are sturdy. */
 		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) adjust = 3 * adjust / 2;
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -916,6 +1003,9 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) adjust = 3 * adjust / 2;
+
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
 	}
@@ -925,8 +1015,11 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
-		/* Hobbits are sturdy. -LM- */
+		/* Hobbits are sturdy. */
 		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+
+		/* Maiar recover quickly from anything. */
+		if (p_ptr->prace == RACE_MAIA) adjust = 3 * adjust / 2;
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
@@ -935,10 +1028,10 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
-	/* Every 1500 turns, warn about any Black Breath not gotten from an equipped 
+	/* Every 500 turns, warn about any Black Breath not gotten from an equipped 
 	 * object, and stop any resting. -LM-
 	 */
-	if (!(turn % 3000) && (p_ptr->black_breath))
+	if (!(turn % 5000) && (p_ptr->black_breath))
 	{
 		u32b f1, f2, f3;
 
@@ -1051,8 +1144,12 @@ static void process_world(void)
 			/* Recharge */
 			o_ptr->timeout--;
 
-			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
+			/* Notice changes, provide message if object is inscribed. */
+			if (!(o_ptr->timeout)) 
+			{
+				recharged_notice(o_ptr);
+				j++;
+			}
 		}
 	}
 
@@ -1065,7 +1162,7 @@ static void process_world(void)
 
 	/* Recharge rods.  Rods now use timeout to control charging status, 
 	 * and each charging rod in a stack decreases the stack's timeout by 
-	 * one. -LM-
+	 * one per turn. -LM-
 	 */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
@@ -1088,8 +1185,12 @@ static void process_world(void)
 			/* Boundary control. */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 
-			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
+			/* Notice changes, provide message if object is inscribed. */
+			if (!(o_ptr->timeout)) 
+			{
+				recharged_notice(o_ptr);
+				j++;
+			}
 		}
 	}
 
@@ -1121,7 +1222,7 @@ static void process_world(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Recharge rods on the ground */
+		/* Recharge rods on the ground.  No messages. */
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
 			/* Charge it */
@@ -1309,12 +1410,8 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
-#ifdef ALLOW_REPEAT /* TNB */
-
-	/* Handle repeating the last command */
+	/* Handle repeating the last command -TNB- */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT */
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -1380,7 +1477,6 @@ static void process_command(void)
 #endif
 
 
-
 		/*** Inventory Commands ***/
 
 		/* Wear/wield equipment */
@@ -1431,7 +1527,7 @@ static void process_command(void)
 		/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe();
+			do_cmd_observe(NULL, 0);
 			break;
 		}
 
@@ -1483,17 +1579,17 @@ static void process_command(void)
 			break;
 		}
 
-		/* Hold still */
+		/* Hold still for a turn.  Pickup objects if auto-pickup is true. */
 		case ',':
 		{
 			do_cmd_hold();
 			break;
 		}
 
-		/* Stay still */
+		/* Always pick up objects. */
 		case 'g':
 		{
-			do_cmd_stay();
+			do_cmd_pickup();
 			break;
 		}
 
@@ -1597,14 +1693,14 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			do_cmd_cast();
+			do_cmd_cast_or_pray();
 			break;
 		}
 
 		/* Pray a prayer */
 		case 'p':
 		{
-			do_cmd_pray();
+			do_cmd_cast_or_pray();
 			break;
 		}
 
@@ -2103,7 +2199,6 @@ static void process_player(void)
 		/* Redraw stuff (if needed) */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Place the cursor on the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
@@ -2560,6 +2655,9 @@ static void dungeon(void)
 
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
+
+	/* Announce a player ghost challenge. -LM- */
+	if (bones_selector) ghost_challenge();
 
 
 	/*** Process this dungeon level ***/

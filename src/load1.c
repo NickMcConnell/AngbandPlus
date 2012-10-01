@@ -315,6 +315,17 @@ static s16b convert_slot(int old)
 }
 
 
+/*
+ * Information to convert old ego-items and artifacts to new. -LM-
+ */
+typedef struct old_name old_name;
+
+struct old_name
+{
+	bool artifact;
+	byte new_name;
+};
+
 
 /*
  * Hack -- convert the old "name2" fields into the new name1/name2 fields.
@@ -322,192 +333,198 @@ static s16b convert_slot(int old)
  * Note that the entries below must map one-to-one onto the old "SN_*"
  * defines, shown in the comments after the new values.
  *
- * Note that this code relies on the fact that there are only 128 ego-items
- * and only 128 artifacts in the new system.
+ * Extra field added to allow artifact indexes greater than 128. -LM-
  */
-static byte convert_old_names[180] =
+static old_name convert_old_names[180] =
 {
-	0,						/* 0 = SN_NULL */
-	EGO_RESISTANCE,			/* 1 = SN_R */
-	EGO_RESIST_ACID,		/* 2 = SN_RA */
-	EGO_RESIST_FIRE,		/* 3 = SN_RF */
-	EGO_RESIST_COLD,		/* 4 = SN_RC */
-	EGO_RESIST_ELEC,		/* 5 = SN_RL */
-	EGO_HA,					/* 6 = SN_HA */
-	EGO_DF,					/* 7 = SN_DF */
-	EGO_SLAY_ANIMAL,		/* 8 = SN_SA */
-	EGO_SLAY_DRAGON,		/* 9 = SN_SD */
-	EGO_SLAY_EVIL,			/* 10 = SN_SE */
-	EGO_SLAY_UNDEAD,		/* 11 = SN_SU */
-	EGO_BRAND_FIRE,			/* 12 = SN_FT */
-	EGO_BRAND_COLD,			/* 13 = SN_FB */
-	EGO_FREE_ACTION,		/* 14 = SN_FREE_ACTION */
-	EGO_SLAYING,			/* 15 = SN_SLAYING */
-	EGO_CLUMSINESS,			/* 16 = SN_CLUMSINESS */
-	EGO_WEAKNESS,			/* 17 = SN_WEAKNESS */
-	EGO_SLOW_DESCENT,		/* 18 = SN_SLOW_DESCENT */
-	EGO_SPEED,				/* 19 = SN_SPEED */
-	EGO_STEALTH,			/* 20 = SN_STEALTH */
-	EGO_SLOWNESS,			/* 21 = SN_SLOWNESS */
-	EGO_NOISE,				/* 22 = SN_NOISE */
-	EGO_ANNOYANCE,			/* 23 = SN_GREAT_MASS */
-	EGO_INTELLIGENCE,		/* 24 = SN_INTELLIGENCE */
-	EGO_WISDOM,				/* 25 = SN_WISDOM */
-	EGO_SERENITY,		/* 26 = SN_INFRAVISION */
-	EGO_MIGHT,				/* 27 = SN_MIGHT */
-	EGO_LORDLINESS,			/* 28 = SN_LORDLINESS */
-	EGO_MAGI,				/* 29 = SN_MAGI */
-	EGO_BEAUTY,				/* 30 = SN_BEAUTY */
-	EGO_SEEING,				/* 31 = SN_SEEING */
-	EGO_REGENERATION,		/* 32 = SN_REGENERATION */
-	EGO_STUPIDITY,			/* 33 = SN_STUPIDITY */
-	EGO_NAIVETY,			/* 34 = SN_DULLNESS */
-	0,						/* 35 = SN_BLINDNESS */
-	0,						/* 36 = SN_TIMIDNESS */
-	0,						/* 37 = SN_TELEPORTATION */
-	EGO_UGLINESS,			/* 38 = SN_UGLINESS */
-	EGO_PROTECTION,			/* 39 = SN_PROTECTION */
-	EGO_IRRITATION,			/* 40 = SN_IRRITATION */
-	EGO_VULNERABILITY,		/* 41 = SN_VULNERABILITY */
-	EGO_ENVELOPING,			/* 42 = SN_ENVELOPING */
-	EGO_BRAND_FIRE,			/* 43 = SN_FIRE */
-	EGO_HURT_EVIL,			/* 44 = SN_SLAY_EVIL */
-	EGO_HURT_DRAGON,		/* 45 = SN_DRAGON_SLAYING */
-	0,						/* 46 = SN_EMPTY */
-	0,						/* 47 = SN_LOCKED */
-	0,						/* 48 = SN_POISON_NEEDLE */
-	0,						/* 49 = SN_GAS_TRAP */
-	0,						/* 50 = SN_EXPLOSION_DEVICE */
-	0,						/* 51 = SN_SUMMONING_RUNES */
-	0,						/* 52 = SN_MULTIPLE_TRAPS */
-	0,						/* 53 = SN_DISARMED */
-	0,						/* 54 = SN_UNLOCKED */
-	EGO_HURT_ANIMAL,		/* 55 = SN_SLAY_ANIMAL */
-	ART_GROND + 128,		/* 56 = SN_GROND */
-	ART_RINGIL + 128,		/* 57 = SN_RINGIL */
-	ART_AEGLOS + 128,		/* 58 = SN_AEGLOS */
-	ART_ARUNRUTH + 128,		/* 59 = SN_ARUNRUTH */
-	ART_MORMEGIL + 128,		/* 60 = SN_MORMEGIL */
-	EGO_MORGUL,				/* 61 = SN_MORGUL */
-	ART_ANGRIST + 128,		/* 62 = SN_ANGRIST */
-	ART_GURTHANG + 128,		/* 63 = SN_GURTHANG */
-	ART_CALRIS + 128,		/* 64 = SN_CALRIS */
-	EGO_ACCURACY,			/* 65 = SN_ACCURACY */
-	ART_ANDURIL + 128,		/* 66 = SN_ANDURIL */
-	EGO_SLAY_ORC,			/* 67 = SN_SO */
-	EGO_POWER,				/* 68 = SN_POWER */
-	ART_DURIN + 128,		/* 69 = SN_DURIN */
-	ART_AULE + 128,			/* 70 = SN_AULE */
-	EGO_WEST,				/* 71 = SN_WEST */
-	EGO_BLESS_BLADE,		/* 72 = SN_BLESS_BLADE */
-	EGO_SLAY_DEMON,			/* 73 = SN_SDEM */
-	EGO_SLAY_TROLL,			/* 74 = SN_ST */
-	ART_BLOODSPIKE + 128,	/* 75 = SN_BLOODSPIKE */
-	ART_THUNDERFIST + 128,	/* 76 = SN_THUNDERFIST */
-	EGO_WOUNDING,			/* 77 = SN_WOUNDING */
-	ART_ORCRIST + 128,		/* 78 = SN_ORCRIST */
-	ART_GLAMDRING + 128,	/* 79 = SN_GLAMDRING */
-	ART_STING + 128,		/* 80 = SN_STING */
-	EGO_LITE,				/* 81 = SN_LITE */
-	EGO_AGILITY,			/* 82 = SN_AGILITY */
-	EGO_BACKBITING,			/* 83 = SN_BACKBITING */
-	ART_DOOMCALLER + 128,	/* 84 = SN_DOOMCALLER */
-	EGO_SLAY_GIANT,			/* 85 = SN_SG */
-	EGO_TELEPATHY,			/* 86 = SN_TELEPATHY */
-	0,						/* 87 = SN_DRAGONKIND */
-	0,						/* 88 = SN_NENYA */
-	0,						/* 89 = SN_NARYA */
-	0,						/* 90 = SN_VILYA */
-	EGO_AMAN,				/* 91 = SN_AMAN */
-	ART_BELEGENNON + 128,	/* 92 = SN_BELEGENNON */
-	ART_FEANOR + 128,		/* 93 = SN_FEANOR */
-	ART_ANARION + 128,		/* 94 = SN_ANARION */
-	ART_ISILDUR + 128,		/* 95 = SN_ISILDUR */
-	ART_FINGOLFIN + 128,	/* 96 = SN_FINGOLFIN */
-	EGO_ELVENKIND,			/* 97 = SN_ELVENKIND */
-	ART_SOULKEEPER + 128,	/* 98 = SN_SOULKEEPER */
-	ART_DOR + 128,			/* 99 = SN_DOR_LOMIN */
-	ART_MORGOTH + 128,		/* 100 = SN_MORGOTH */
-	ART_BELTHRONDING + 128,	/* 101 = SN_BELTHRONDING */
-	ART_DAL + 128,			/* 102 = SN_DAL */
-	ART_EOL + 128,		/* 103 = SN_PAURHACH */
-	ART_PAURNIMMEN + 128,	/* 104 = SN_PAURNIMMEN */
-	ART_PAURAEGEN + 128,	/* 105 = SN_PAURAEGEN */
-	ART_CAMMITHRIM + 128,	/* 106 = SN_CAMMITHRIM */
-	ART_CAMBELEG + 128,		/* 107 = SN_CAMBELEG */
-	ART_HOLHENNETH + 128,	/* 108 = SN_HOLHENNETH */
-	ART_PAURNEN + 128,		/* 109 = SN_PAURNEN */
-	ART_AEGLIN + 128,		/* 110 = SN_AEGLIN */
-	ART_CAMLOST + 128,		/* 111 = SN_CAMLOST */
-	ART_NIMLOTH + 128,		/* 112 = SN_NIMLOTH */
-	ART_NAR + 128,			/* 113 = SN_NAR */
-	ART_BERUTHIEL + 128,	/* 114 = SN_BERUTHIEL */
-	ART_GORLIM + 128,		/* 115 = SN_GORLIM */
-	ART_NARTHANC + 128,		/* 116 = SN_NARTHANC */
-	ART_NIMTHANC + 128,		/* 117 = SN_NIMTHANC */
-	ART_DETHANC + 128,		/* 118 = SN_DETHANC */
-	ART_GILETTAR + 128,		/* 119 = SN_GILETTAR */
-	ART_RILIA + 128,		/* 120 = SN_RILIA */
-	ART_BELANGIL + 128,		/* 121 = SN_BELANGIL */
-	ART_BALLI + 128,		/* 122 = SN_BALLI */
-	ART_LOTHARANG + 128,	/* 123 = SN_LOTHARANG */
-	ART_FIRESTAR + 128,		/* 124 = SN_FIRESTAR */
-	ART_ERIRIL + 128,		/* 125 = SN_ERIRIL */
-	ART_CUBRAGOL + 128,		/* 126 = SN_CUBRAGOL */
-	ART_BARD + 128,			/* 127 = SN_BARD */
-	ART_COLLUIN + 128,		/* 128 = SN_COLLUIN */
-	ART_HOLCOLLETH + 128,	/* 129 = SN_HOLCOLLETH */
-	ART_TOTILA + 128,		/* 130 = SN_TOTILA */
-	ART_PAIN + 128,			/* 131 = SN_PAIN */
-	ART_ELVAGIL + 128,		/* 132 = SN_ELVAGIL */
-	ART_AGLARANG + 128,		/* 133 = SN_AGLARANG */
-	ART_ROHIRRIM + 128,		/* 134 = SN_ROHIRRIM */
-	ART_EORLINGAS + 128,	/* 135 = SN_EORLINGAS */
-	ART_BARUKKHELED + 128,	/* 136 = SN_BARUKKHELED */
-	ART_WRATH + 128,		/* 137 = SN_WRATH */
-	ART_HARADEKKET + 128,	/* 138 = SN_HARADEKKET */
-	ART_MUNDWINE + 128,		/* 139 = SN_MUNDWINE */
-	ART_GONDRICAM + 128,	/* 140 = SN_GONDRICAM */
-	ART_ZARCUTHRA + 128,	/* 141 = SN_ZARCUTHRA */
-	ART_CARETH + 128,		/* 142 = SN_CARETH */
-	ART_FORASGIL + 128,		/* 143 = SN_FORASGIL */
-	ART_CRISDURIAN + 128,	/* 144 = SN_CRISDURIAN */
-	ART_COLANNON + 128,		/* 145 = SN_COLANNON */
-	ART_HITHLOMIR + 128,	/* 146 = SN_HITHLOMIR */
-	ART_THALKETTOTH + 128,	/* 147 = SN_THALKETTOTH */
-	ART_ARVEDUI + 128,		/* 148 = SN_ARVEDUI */
-	ART_THRANDUIL + 128,	/* 149 = SN_THRANDUIL */
-	ART_THENGEL + 128,		/* 150 = SN_THENGEL */
-	ART_HAMMERHAND + 128,	/* 151 = SN_HAMMERHAND */
-	ART_CELEGORM + 128,		/* 152 = SN_CELEGORM */
-	ART_THROR + 128,		/* 153 = SN_THROR */
-	ART_MAEDHROS + 128,		/* 154 = SN_MAEDHROS */
-	ART_OLORIN + 128,		/* 155 = SN_OLORIN */
-	ART_ANGUIREL + 128,		/* 156 = SN_ANGUIREL */
-	ART_THORIN + 128,		/* 157 = SN_THORIN */
-	ART_CELEBORN + 128,		/* 158 = SN_CELEBORN */
-	ART_OROME + 128,		/* 159 = SN_OROME */
-	ART_EONWE + 128,		/* 160 = SN_EONWE */
-	ART_GONDOR + 128,		/* 161 = SN_GONDOR */
-	ART_THEODEN + 128,		/* 162 = SN_THEODEN */
-	ART_THINGOL + 128,		/* 163 = SN_THINGOL */
-	ART_THORONGIL + 128,	/* 164 = SN_THORONGIL */
-	ART_LUTHIEN + 128,		/* 165 = SN_LUTHIEN */
-	ART_TUOR + 128,			/* 166 = SN_TUOR */
-	ART_ULMO + 128,			/* 167 = SN_ULMO */
-	ART_OSONDIR + 128,		/* 168 = SN_OSONDIR */
-	ART_TURMIL + 128,		/* 169 = SN_TURMIL */
-	ART_CASPANION + 128,	/* 170 = SN_CASPANION */
-	ART_TIL + 128,			/* 171 = SN_TIL */
-	ART_DEATHWREAKER + 128,	/* 172 = SN_DEATHWREAKER */
-	ART_AVAVIR + 128,		/* 173 = SN_AVAVIR */
-	ART_TARATOL + 128,		/* 174 = SN_TARATOL */
-	ART_RAZORBACK + 128,	/* 175 = SN_RAZORBACK */
-	ART_BLADETURNER + 128,	/* 176 = SN_BLADETURNER */
-	0,						/* 177 = SN_SHATTERED */
-	0,						/* 178 = SN_BLASTED */
-	0,				/* Used to be ego_attacks */
+	{ 0,					0 },			/* 0 = SN_NULL */
+	{ EGO_RESISTANCE,			0 },		/* 1 = SN_R */
+	{ EGO_RESIST_ACID,		0 },	/* 2 = SN_RA */
+	{ EGO_RESIST_FIRE,		0 },	/* 3 = SN_RF */
+	{ EGO_RESIST_COLD,		0 },	/* 4 = SN_RC */
+	{ EGO_RESIST_ELEC,		0 },	/* 5 = SN_RL */
+	{ EGO_HA,				0 },			/* 6 = SN_HA */
+	{ EGO_DF,				0 },			/* 7 = SN_DF */
+	{ EGO_SLAY_ANIMAL,		0 },	/* 8 = SN_SA */
+	{ EGO_SLAY_DRAGON,		0 },	/* 9 = SN_SD */
+	{ EGO_SLAY_EVIL,			0 },		/* 10 = SN_SE */
+	{ EGO_SLAY_UNDEAD,		0 },	/* 11 = SN_SU */
+	{ EGO_BRAND_FIRE,			0 },		/* 12 = SN_FT */
+	{ EGO_BRAND_COLD,			0 },		/* 13 = SN_FB */
+	{ EGO_FREE_ACTION,		0 },	/* 14 = SN_FREE_ACTION */
+	{ EGO_SLAYING,			0 },		/* 15 = SN_SLAYING */
+	{ EGO_CLUMSINESS,			0 },		/* 16 = SN_CLUMSINESS */
+	{ EGO_WEAKNESS,			0 },		/* 17 = SN_WEAKNESS */
+	{ EGO_SLOW_DESCENT,		0 },	/* 18 = SN_SLOW_DESCENT */
+	{ EGO_SPEED,			0 },		/* 19 = SN_SPEED */
+	{ EGO_STEALTH,			0 },		/* 20 = SN_STEALTH */
+	{ EGO_SLOWNESS,			0 },		/* 21 = SN_SLOWNESS */
+	{ EGO_NOISE,			0 },		/* 22 = SN_NOISE */
+	{ EGO_TORMENT,			0 },		/* 23 = SN_GREAT_MASS */
+	{ EGO_INTELLIGENCE,		0 },	/* 24 = SN_INTELLIGENCE */
+	{ EGO_WISDOM,			0 },		/* 25 = SN_WISDOM */
+	{ EGO_SERENITY,			0 },	/* 26 = SN_INFRAVISION */
+	{ EGO_MIGHT,			0 },		/* 27 = SN_MIGHT */
+	{ EGO_LORDLINESS,			0 },		/* 28 = SN_LORDLINESS */
+	{ EGO_MAGI,				0 },		/* 29 = SN_MAGI */
+	{ EGO_BEAUTY,			0 },		/* 30 = SN_BEAUTY */
+	{ EGO_SEEING,			0 },		/* 31 = SN_SEEING */
+	{ EGO_REGENERATION,		0 },	/* 32 = SN_REGENERATION */
+	{ EGO_STUPIDITY,			0 },		/* 33 = SN_STUPIDITY */
+	{ EGO_NAIVETY,			0 },		/* 34 = SN_DULLNESS */
+	{ 0,					0 },			/* 35 = SN_BLINDNESS */
+	{ 0,					0 },			/* 36 = SN_TIMIDNESS */
+	{ 0,					0 },			/* 37 = SN_TELEPORTATION */
+	{ EGO_UGLINESS,			0 },		/* 38 = SN_UGLINESS */
+	{ EGO_PROTECTION,			0 },		/* 39 = SN_PROTECTION */
+	{ EGO_IRRITATION,			0 },		/* 40 = SN_IRRITATION */
+	{ EGO_VULNERABILITY,		0 },		/* 41 = SN_VULNERABILITY */
+	{ EGO_ENVELOPING,			0 },		/* 42 = SN_ENVELOPING */
+	{ EGO_BRAND_FIRE,			0 },		/* 43 = SN_FIRE */
+	{ EGO_HURT_EVIL,			0 },		/* 44 = SN_SLAY_EVIL */
+	{ EGO_HURT_DRAGON,		0 },	/* 45 = SN_DRAGON_SLAYING */
+	{ 0,					0 },			/* 46 = SN_EMPTY */
+	{ 0,					0 },			/* 47 = SN_LOCKED */
+	{ 0,					0 },			/* 48 = SN_POISON_NEEDLE */
+	{ 0,					0 },			/* 49 = SN_GAS_TRAP */
+	{ 0,					0 },			/* 50 = SN_EXPLOSION_DEVICE */
+	{ 0,					0 },			/* 51 = SN_SUMMONING_RUNES */
+	{ 0,					0 },			/* 52 = SN_MULTIPLE_TRAPS */
+	{ 0,					0 },			/* 53 = SN_DISARMED */
+	{ 0,					0 },			/* 54 = SN_UNLOCKED */
+	{ EGO_HURT_ANIMAL,		0 },	/* 55 = SN_SLAY_ANIMAL */
+	{ ART_GROND,			1 },	/* 56 = SN_GROND */
+	{ ART_RINGIL,			1 },	/* 57 = SN_RINGIL */
+	{ ART_AEGLOS,			1 },	/* 58 = SN_AEGLOS */
+	{ ART_ARUNRUTH,		1 },		/* 59 = SN_ARUNRUTH */
+	{ ART_MORMEGIL,		1 },		/* 60 = SN_MORMEGIL */
+	{ EGO_MORGUL,			0 },		/* 61 = SN_MORGUL */
+	{ ART_ANGRIST,		1 },		/* 62 = SN_ANGRIST */
+	{ ART_GURTHANG,		1 },		/* 63 = SN_GURTHANG */
+	{ ART_CALRIS,		1 },	/* 64 = SN_CALRIS */
+	{ EGO_ACCURACY,		0 },		/* 65 = SN_ACCURACY */
+	{ ART_ANDURIL,		1 },		/* 66 = SN_ANDURIL */
+	{ EGO_SLAY_ORC,		0 },		/* 67 = SN_SO */
+	{ EGO_POWER,			0 },		/* 68 = SN_POWER */
+	{ ART_DURIN,		1 },	/* 69 = SN_DURIN */
+	{ ART_AULE,			1 },		/* 70 = SN_AULE */
+	{ EGO_WEST,			0 },		/* 71 = SN_WEST */
+	{ EGO_BLESS_BLADE,		0 },	/* 72 = SN_BLESS_BLADE */
+	{ EGO_SLAY_DEMON,		0 },		/* 73 = SN_SDEM */
+	{ EGO_SLAY_TROLL,		0 },		/* 74 = SN_ST */
+	{ ART_BLOODSPIKE,		1 },	/* 75 = SN_BLOODSPIKE */
+	{ ART_THUNDERFIST,		1 },	/* 76 = SN_THUNDERFIST */
+	{ EGO_WOUNDING,		0 },		/* 77 = SN_WOUNDING */
+	{ ART_ORCRIST,		1 },		/* 78 = SN_ORCRIST */
+	{ ART_GLAMDRING,	1 },	/* 79 = SN_GLAMDRING */
+
+	{ ART_STING,		1 },	/* 80 = SN_STING */
+	{ EGO_LITE,			0 },		/* 81 = SN_LITE */
+	{ EGO_AGILITY,		0 },		/* 82 = SN_AGILITY */
+	{ EGO_BACKBITING,		0 },		/* 83 = SN_BACKBITING */
+	{ ART_DOOMCALLER,	1 },	/* 84 = SN_DOOMCALLER */
+	{ EGO_SLAY_GIANT,		0 },		/* 85 = SN_SG */
+	{ EGO_TELEPATHY,		0 },		/* 86 = SN_TELEPATHY */
+	{ 0,				0 },			/* 87 = SN_DRAGONKIND */
+	{ 0,				0 },			/* 88 = SN_NENYA */
+	{ 0,				0 },			/* 89 = SN_NARYA */
+	{ 0,				0 },			/* 90 = SN_VILYA */
+	{ EGO_AMAN,			0 },		/* 91 = SN_AMAN */
+	{ ART_BELEGENNON,	1 },	/* 92 = SN_BELEGENNON */
+	{ ART_FEANOR,		1 },	/* 93 = SN_FEANOR */
+	{ ART_ANARION,	1 },		/* 94 = SN_ANARION */
+	{ ART_ISILDUR,	1 },		/* 95 = SN_ISILDUR */
+	{ ART_FINGOLFIN,	1 },	/* 96 = SN_FINGOLFIN */
+	{ EGO_ELVENKIND,		1 },		/* 97 = SN_ELVENKIND */
+	{ ART_SOULKEEPER,	1 },	/* 98 = SN_SOULKEEPER */
+	{ ART_DOR,		1 },		/* 99 = SN_DOR_LOMIN */
+	{ ART_MORGOTH,	1 },		/* 100 = SN_MORGOTH */
+	{ ART_BELTHRONDING,	1 },	/* 101 = SN_BELTHRONDING */
+	{ ART_DAL,		1 },		/* 102 = SN_DAL */
+	{ ART_EOL,		1 },	/* 103 = SN_PAURHACH */
+	{ ART_PAURNIMMEN,	1 },	/* 104 = SN_PAURNIMMEN */
+	{ ART_PAURAEGEN,	1 },	/* 105 = SN_PAURAEGEN */
+	{ ART_CAMMITHRIM,	1 },	/* 106 = SN_CAMMITHRIM */
+	{ ART_CAMBELEG,	1 },		/* 107 = SN_CAMBELEG */
+	{ ART_HOLHENNETH,	1 },	/* 108 = SN_HOLHENNETH */
+	{ ART_PAURNEN,	1 },		/* 109 = SN_PAURNEN */
+
+	{ ART_AEGLIN,		1 },	/* 110 = SN_AEGLIN */
+	{ ART_CAMLOST,	1 },		/* 111 = SN_CAMLOST */
+	{ ART_NIMLOTH,	1 },		/* 112 = SN_NIMLOTH */
+	{ ART_NAR,		1 },		/* 113 = SN_NAR */
+	{ ART_BERUTHIEL,	1 },	/* 114 = SN_BERUTHIEL */
+
+	{ ART_GORLIM,		1 },	/* 115 = SN_GORLIM */
+	{ ART_NARTHANC,	1 },		/* 116 = SN_NARTHANC */
+	{ ART_NIMTHANC,	1 },		/* 117 = SN_NIMTHANC */
+	{ ART_DETHANC,	1 },		/* 118 = SN_DETHANC */
+	{ ART_GILETTAR,	1 },		/* 119 = SN_GILETTAR */
+
+
+	{ ART_RILIA,	1 },	/* 120 = SN_RILIA */
+	{ ART_BELANGIL,	1 },	/* 121 = SN_BELANGIL */
+	{ ART_BALLI,	1 },	/* 122 = SN_BALLI */
+	{ ART_LOTHARANG,	1 },	/* 123 = SN_LOTHARANG */
+	{ ART_FIRESTAR,	1 },	/* 124 = SN_FIRESTAR */
+	{ ART_ERIRIL,	1 },	/* 125 = SN_ERIRIL */
+
+	{ ART_CUBRAGOL,	1 },	/* 126 = SN_CUBRAGOL */
+	{ ART_BARD,		1 },	/* 127 = SN_BARD */
+	{ ART_VALINOR,	1 },	/* 128 = SN_COLLUIN */
+	{ ART_HOLCOLLETH,	1 },/* 129 = SN_HOLCOLLETH */
+	{ ART_TOTILA,	1 },	/* 130 = SN_TOTILA */
+	{ ART_PAIN,		1 },	/* 131 = SN_PAIN */
+	{ ART_ELVAGIL,	1 },	/* 132 = SN_ELVAGIL */
+	{ ART_AGLARANG,	1 },	/* 133 = SN_AGLARANG */
+	{ ART_ROHIRRIM,	1 },	/* 134 = SN_ROHIRRIM */
+	{ ART_EORLINGAS,	1 },/* 135 = SN_EORLINGAS */
+	{ ART_BARUKKHELED,1 },	/* 136 = SN_BARUKKHELED */
+	{ ART_WRATH,	1 },	/* 137 = SN_WRATH */
+	{ ART_HARADEKKET,	1 },/* 138 = SN_HARADEKKET */
+	{ ART_MUNDWINE,	1 },	/* 139 = SN_MUNDWINE */
+	{ ART_GONDRICAM,	1 },/* 140 = SN_GONDRICAM */
+	{ ART_ZARCUTHRA,	1 },/* 141 = SN_ZARCUTHRA */
+	{ ART_CARETH,	1 },	/* 142 = SN_CARETH */
+	{ ART_FORASGIL,	1 },	/* 143 = SN_FORASGIL */
+	{ ART_CRISDURIAN,	1 },	/* 144 = SN_CRISDURIAN */
+	{ ART_COLANNON,	1 },	/* 145 = SN_COLANNON */
+	{ ART_HITHLOMIR,	1 },	/* 146 = SN_HITHLOMIR */
+	{ ART_THALKETTOTH,1 },	/* 147 = SN_THALKETTOTH */
+	{ ART_ARVEDUI,	1 },	/* 148 = SN_ARVEDUI */
+	{ ART_THRANDUIL,	1 },	/* 149 = SN_THRANDUIL */
+	{ ART_THENGEL,	1 },	/* 150 = SN_THENGEL */
+	{ ART_HAMMERHAND,	1 },	/* 151 = SN_HAMMERHAND */
+	{ ART_CELEGORM,	1 },	/* 152 = SN_CELEGORM */
+	{ ART_THROR,	1 },	/* 153 = SN_THROR */
+	{ ART_MAEDHROS,	1 },	/* 154 = SN_MAEDHROS */
+	{ ART_OLORIN,	1 },	/* 155 = SN_OLORIN */
+	{ ART_ANGUIREL,	1 },	/* 156 = SN_ANGUIREL */
+	{ ART_THORIN,	1 },	/* 157 = SN_THORIN */
+	{ ART_CELEBORN,	1 },	/* 158 = SN_CELEBORN */
+	{ ART_OROME,	1 },	/* 159 = SN_OROME */
+	{ ART_EONWE,	1 },	/* 160 = SN_EONWE */
+	{ ART_GONDOR,	1 },	/* 161 = SN_GONDOR */
+	{ ART_THEODEN,	1 },	/* 162 = SN_THEODEN */
+	{ ART_THINGOL,	1 },	/* 163 = SN_THINGOL */
+	{ ART_THORONGIL,	1 },	/* 164 = SN_THORONGIL */
+	{ ART_LUTHIEN,	1 },	/* 165 = SN_LUTHIEN */
+	{ ART_TUOR,		1 },	/* 166 = SN_TUOR */
+	{ ART_ULMO,		1 },	/* 167 = SN_ULMO */
+	{ ART_OSONDIR,	1 },	/* 168 = SN_OSONDIR */
+	{ ART_TURMIL,	1 },	/* 169 = SN_TURMIL */
+	{ ART_CASPANION,	1 },	/* 170 = SN_CASPANION */
+	{ ART_TIL,		1 },	/* 171 = SN_TIL */
+	{ ART_DEATHWREAKER,1 },	/* 172 = SN_DEATHWREAKER */
+	{ ART_AVAVIR,	1 },	/* 173 = SN_AVAVIR */
+	{ ART_TARATOL,	1 },	/* 174 = SN_TARATOL */
+	{ ART_RAZORBACK,	1 },	/* 175 = SN_RAZORBACK */
+	{ ART_BLADETURNER,1 },	/* 176 = SN_BLADETURNER */
+	{ 0,			1 },			/* 177 = SN_SHATTERED */
+	{ 0,			1 },			/* 178 = SN_BLASTED */
+	{ 0,			1 }	/* Used to be ego_attacks */
 };
+
 
 
 /*
@@ -1156,13 +1173,13 @@ static errr rd_item_old(object_type *o_ptr)
 
 
 	/* Analyze the old "special name" */
-	old_names = convert_old_names[old_names];
+	old_names = convert_old_names[old_names].new_name;
 
 	/* It is an artifact */
-	if (old_names >= 128)
+	if (convert_old_names[old_names].artifact)
 	{
 		/* Extract the artifact index */
-		o_ptr->name1 = (old_names - MAX_E_IDX);
+		o_ptr->name1 = (old_names);
 	}
 
 	/* It is an ego-item (or a normal item) */
@@ -1569,7 +1586,7 @@ static byte old_art_order[] =
 	ART_ERIRIL,
 	ART_CUBRAGOL,
 	ART_BARD,
-	ART_COLLUIN,
+	ART_VALINOR,
 	ART_HOLCOLLETH,
 	ART_TOTILA,
 	ART_PAIN,

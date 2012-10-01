@@ -92,6 +92,9 @@
  *
  * 23 Jan 98   SWD      282     Hacked more on sub-windows.  Now links, with
  *                              warnings.  Seems to work.
+ *
+ * 01 Nov 98   AGA      2.8.3   Adjusted for 2.8.3/Oangband sources.
+ *                    Oangband  typos corrected.
  */
 
 #include <signal.h>
@@ -323,8 +326,8 @@ static errr Term_wipe_pipe_emx(int x, int y, int n);
 static errr Term_text_pipe_emx(int x, int y, int n, unsigned char a, cptr s);
 static void Term_init_pipe_emx(term *t);
 static void Term_nuke_pipe_emx(term *t);
-static FILE *initPipe(char *name);
-static void initPipeTerm(termPipe *pipe, char *name, term **term);
+static FILE *initPipe(const char *name);
+static void initPipeTerm(termPipe *pipe, const char *name, term **term);
 
 /*
  * Main initialization function
@@ -334,7 +337,7 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termPipe term_screen[MAX_TERM_DATA];
+static termPipe term_screen_aga[MAX_TERM_DATA];
 
 
 /*
@@ -735,11 +738,11 @@ static void Term_nuke_pipe_emx(term *t)
 	}
 }
 
-static void initPipeTerm(termPipe *pipe, char *name, term **termTarget)
+static void initPipeTerm(termPipe *pipe, const char *name, term **termTarget)
 {
 	term *t;
 
-	t=(term*)pipe;
+	t=&pipe->t;
 
 	if ((pipe->out=initPipe(name))!=NULL)
 	{
@@ -777,11 +780,11 @@ errr init_emx(void)
 	for (i = MAX_TERM_DATA-1; i > 0; --i)
 	{
 		const char *name = angband_term_name[i];
-		initPipeTerm(&term_screen[i], name, &angband_term[i]);
+		initPipeTerm(&term_screen_aga[i], name, &angband_term[i]);
 	}
 
 	/* Initialize main window */
-	t = (term*)(&term_screen[0]);
+	t = &term_screen_aga[0].t;
 
 	/* Initialize the term -- big key buffer */
 	term_init(t, 80, 24, 1024);
@@ -797,7 +800,7 @@ errr init_emx(void)
 	t->xtra_hook = Term_xtra_emx;
 
 	/* Save it */
-	term_screen = t;
+	angband_term[0] = t;
 
 	/* Activate it */
 	Term_activate(t);
@@ -806,7 +809,7 @@ errr init_emx(void)
 	return (0);
 }
 
-static FILE *initPipe(char *name)
+static FILE *initPipe(const char *name)
 {
 	char buf[256];
 	FILE *fi;
@@ -1047,7 +1050,7 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termWindow term_screen[MAX_TERM_DATA];
+static termWindow term_screen_aga[MAX_TERM_DATA];
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -1141,11 +1144,11 @@ errr init_emx(void)
 	int i;
 
 	/* Initialize the windows */
-	emx_init_term(&term_screen[0],  NULL, &angband_term[0], 0);
+	emx_init_term(&term_screen_aga[0],  NULL, &angband_term[0], 0);
 
 	for (i = 1; i < MAX_TERM_DATA; ++i)
 	{
-		emx_init_term(&term_screen[i], term_screen[0].instance, &angband_term[i], i);
+		emx_init_term(&term_screen_aga[i], term_screen_aga[0].instance, &angband_term[i], i);
 	}
 
 	/* Activate main window */
@@ -1185,7 +1188,7 @@ static void quit_hook(cptr s)
 			term_nuke(angband_term[i]);
 			emx_nuke(((termWindow*)angband_term[i])->instance);
 		}
-	]
+	}
 
 	/* Shut down window system - doesn't return */
 	emx_endPM(s);

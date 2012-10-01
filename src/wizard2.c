@@ -779,7 +779,7 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(i_ptr);
 
 			/* Create an object */
-			make_object(i_ptr, good, great, 0);
+			make_object(i_ptr, good, great, FALSE);
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
@@ -1244,7 +1244,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, p_ptr->depth, 0);
+		(void)summon_specific(py, px, FALSE, p_ptr->depth, 0);
 	}
 }
 
@@ -1657,7 +1657,7 @@ void do_cmd_debug(void)
 		/* Magic Mapping */
 		case 'm':
 		{
-			map_area();
+			map_area(0, 0, FALSE);
 			break;
 		}
 

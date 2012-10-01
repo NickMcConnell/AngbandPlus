@@ -1,4 +1,4 @@
-31
+45
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Aegis'
 'Eternal Bastion'
@@ -9,10 +9,13 @@ of Zarmengad
 'Ever-Faithful'
 'Wardian'
 'All-Defier'
+of Khazad-dum
 'Indomitable'
 'Thunderforge'
 'Stalwart'
 'Fear Naught'
+of Eldamar
+of Tasarinan
 'Nonpareil'
 'Valkyrie'
 'Shining Citadel'
@@ -24,6 +27,7 @@ of Fire and Ice
 'Hero's Oath'
 of Hadrian
 'Masada'
+'Indomitable'
 of the Westlands
 of Beren
 of Celebrimbor
@@ -31,3 +35,14 @@ of Celebrimbor
 'Taranzor'
 'Ealrohir'
 'Staunch Defender'
+of Beorn
+of Argonnath
+of the Stewards
+'Radiant Hope'
+of Belegost
+of Mardil
+of Hurin
+of Ecthelion
+'Ninniach'
+of Azaghal
+'Astaldo'

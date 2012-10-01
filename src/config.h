@@ -213,7 +213,8 @@
 #define ALLOW_FEAR
 
 /*
- * OPTION: Allow monsters to "flee" from strong players
+ * OPTION: Allow monsters to "flee" from strong players.  This takes a 
+ * fair amount of processor time. 
  */
 #define ALLOW_TERROR
 
@@ -228,7 +229,6 @@
 /*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
  */
 #define ALLOW_OLD_SAVEFILES
 
@@ -241,21 +241,21 @@
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
+ * needed, saving ?K, but slowing down the display of object descriptions.
  */
-#define DELAY_LOAD_K_TEXT
+/* #define DELAY_LOAD_K_TEXT */
 
 /*
  * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
+ * needed, saving ?K, but slowing down the display of artifact descriptions.
  */
-#define DELAY_LOAD_A_TEXT
+/* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
+ * needed, saving ?K, but slowing down the display of ego-item descriptions.
  */
-#define DELAY_LOAD_E_TEXT
+/* #define DELAY_LOAD_E_TEXT */
 
 /*
  * OPTION: Delay the loading of the "r_text" array until it is actually
@@ -268,6 +268,11 @@
  * needed, saving ~1K, but "destroying" the "vault" generation.
  */
 /* #define DELAY_LOAD_V_TEXT */
+
+/*
+ * OPTION: Do not generate themed levels. -LM-
+ */
+/* #define NO_THEMED_LEVELS */
 
 
 /*
@@ -497,6 +502,11 @@
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
 # define DELAY_LOAD_R_TEXT
+# define DELAY_LOAD_A_TEXT
+# define DELAY_LOAD_E_TEXT
+# define DELAY_LOAD_K_TEXT
+# define NO_THEMED_LEVELS
+# undef ALLOW_TERROR
 #endif
 
 
@@ -516,7 +526,6 @@
 # define VERIFY_TIMESTAMP
 #endif
 
-
 /*
  * OPTION: Repeat last command -- TNB
  */
@@ -531,3 +540,4 @@
  * OPTION: Make disarming traps easy -- TNB
  */
 #define ALLOW_EASY_DISARM
+

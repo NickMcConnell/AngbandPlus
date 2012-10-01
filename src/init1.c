@@ -472,8 +472,8 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
+	"TWO_HANDED_REQ",
+	"TWO_HANDED_DES",
 	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",
@@ -702,6 +702,172 @@ errr init_v_info_txt(FILE *fp, char *buf)
 	/* Success */
 	return (0);
 }
+
+
+/*
+ * Initialize the "t_info" array, by parsing an ascii "template" file.  
+ * Load only the selected themed level into memory (this allows an arbi-
+ * trarily large t_info.txt file). -LM-
+ * Otherwise, code is essentially that of "init_v_info_txt".
+ */
+errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
+{
+	int i;
+
+	/* Assume we cannot start collecting data yet. */
+	bool can_use = FALSE;
+
+	char *s;
+
+	/* Current entry */
+	vault_type *t_ptr = NULL;
+
+#ifndef NO_THEMED_LEVELS	/* Themed levels and old machines don't mix. */
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	t_head->name_size = 0;
+	t_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (1);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* If correct themed level found, start processing information. */
+			if (i == chosen_level) can_use = TRUE;
+			else 
+			{
+				can_use = FALSE;
+				continue;
+			}
+
+			/* Verify information */
+			if (i <= error_idx) return (4);
+
+			/* Verify information */
+			if (i >= t_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			t_ptr = &t_info[i];
+
+			/* Hack -- Verify space */
+			if (t_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+			if (!t_ptr->name) t_ptr->name = ++t_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(t_name + t_head->name_size, s);
+
+			/* Advance the index */
+			t_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current t_ptr */
+		if ((can_use) && (!t_ptr)) return (3);
+
+
+		/* Process 'M' for special themed level feeling. */
+		if (buf[0] == 'M')
+		{
+			/* Accept only correct themed level information. */
+			if (!can_use) continue;
+
+			/* Acquire the text */
+			s = buf+2;
+
+			/* Copy the message */
+			strcpy(themed_feeling, s);
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Accept only correct themed level information. */
+			if (!can_use) continue;
+
+			/* Acquire the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (t_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+
+			/* Advance and Save the text index */
+			if (!t_ptr->text) t_ptr->text = ++t_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(t_text + t_head->text_size, s);
+
+			/* Advance the index */
+			t_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* Eventually, the correct themed level must be found. */
+	if (!t_ptr) return (3);
+
+
+	/* Complete the "name" and "text" sizes */
+	++t_head->name_size;
+	++t_head->text_size;
+
+#endif
+
+	/* Success */
+	return (0);
+}
+
+
+
 
 
 
@@ -1073,8 +1239,6 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		if (!k_ptr) return (3);
 
 
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -1096,8 +1260,6 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 
 		/* Process 'G' for "Graphics" (one line only) */
@@ -1429,8 +1591,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		if (!a_ptr) return (3);
 
 
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -1453,7 +1613,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-#endif
 
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
@@ -1719,8 +1878,6 @@ errr init_e_info_txt(FILE *fp, char *buf)
 		if (!e_ptr) return (3);
 
 
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -1742,8 +1899,6 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 		/* Process 'X' for "Xtra" (one line only) */
 		if (buf[0] == 'X')
@@ -1789,12 +1944,26 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &th, &td, &ta, &pv)) return (1);
+				&th, &td, &ta, &pv)) return (1);
 
-			e_ptr->max_to_h = th;
-			e_ptr->max_to_d = td;
-			e_ptr->max_to_a = ta;
-			e_ptr->max_pval = pv;
+			/* Process various values to allow penalties. -LM- */
+
+			if ((th < 0) && (th > -128)) e_ptr->max_to_h = 128 + ABS(th);
+			else if (th < 129) e_ptr->max_to_h = th;
+			else e_ptr->max_to_h = 0;
+
+			if ((td < 0) && (td > -128)) e_ptr->max_to_d = 128 + ABS(td);
+			else if (td < 129) e_ptr->max_to_d = td;
+			else e_ptr->max_to_d = 0;
+
+			if ((ta < 0) && (ta > -128)) e_ptr->max_to_a = 128 + ABS(ta);
+			else if (ta < 129) e_ptr->max_to_a = ta;
+			else e_ptr->max_to_a = 0;
+
+			if ((pv < 0) && (pv > -128)) e_ptr->max_pval = 128 + ABS(pv);
+			else if (pv < 129) e_ptr->max_pval = pv;
+			else e_ptr->max_pval = 0;
+
 
 			/* Next... */
 			continue;
@@ -1939,7 +2108,9 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 
 
 /*
- * Initialize the "r_info" array, by parsing an ascii "template" file
+ * Initialize the "r_info" array, by parsing an ascii "template" file.
+ * This function can also reload a specific monster, if given a racial index.  
+ * This is used to reinitialize player ghosts. -LM- 
  */
 errr init_r_info_txt(FILE *fp, char *buf)
 {

@@ -224,7 +224,10 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Weight */
-	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
+	if (use_metric) sprintf(wgt, "%3d.%d", make_metric(i_ptr->weight) / 10, 
+		make_metric(i_ptr->weight) % 10);
+	else sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
+
 }
 
 
@@ -941,9 +944,14 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
-	        a_ptr->level, a_ptr->rarity,
-	        a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+	if (use_metric) sprintf(misc_desc, "Level %u, Rarity %u, %d.%d kgs, 
+		%ld Gold", a_ptr->level, a_ptr->rarity,
+		make_metric(a_ptr->weight) / 10, make_metric(a_ptr->weight) % 10, 
+		a_ptr->cost);
+
+	else sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, 
+		%ld Gold", a_ptr->level, a_ptr->rarity,
+		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
 }
 
 /*
@@ -1452,7 +1460,7 @@ static cptr wd_lhe[3] =
 
 /*
  * Buffer text to the given file. (-SHAWN-)
- * This is basically c_roff() from mon-desc.c with a few changes.
+ * This is basically c_roff() from util.c with a few changes.
  */
 static void spoil_out(cptr str)
 {

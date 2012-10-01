@@ -1,7 +1,7 @@
 
 
              ****************************************************
-             **   Oangband 0.3.1   ***   The Pits of Angband   **
+             **   Oangband 0.4.0   ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -12,8 +12,8 @@
                  Geoff Hill, Charles Teague, Charles Swiger
 
                Angband  2.8.3: Copyright (c) 1997 Ben Harrison
-               Oangband 0.3.1: Copyright (c) 1998 Leon Marrick
+               Oangband 0.4.0: Copyright (c) 1999 Leon Marrick
 
       Send comments, bug reports, and patches to "leon2m@sprintmail.com".
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
-    Read the online help files, especially "general.txt" and "version.txt".
+       The Oangband home page is "http://home.sprintmail.com/~leon2m/".

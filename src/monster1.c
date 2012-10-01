@@ -26,7 +26,7 @@ static cptr wd_his[3] =
  */
 static char *wd_rarity(byte rarity, bool unique)
 {
-	static char rarity_desc[20];
+	static char rarity_desc[40];
 
 	if (unique)
 	{
@@ -34,7 +34,8 @@ static char *wd_rarity(byte rarity, bool unique)
 		else if (rarity == 2) strcpy(rarity_desc, "often encountered");
 		else if (rarity == 3) strcpy(rarity_desc, "fairly often encountered");
 		else if (rarity == 4) strcpy(rarity_desc, "infrequently encountered");
-		else if ((rarity == 5) || (rarity == 6)) strcpy(rarity_desc, "seldom encountered");
+		else if ((rarity == 5) || (rarity == 6)) 
+			strcpy(rarity_desc, "seldom encountered");
 		else if (rarity < 10) strcpy(rarity_desc, "very seldom encountered");
 		else strcpy(rarity_desc, "almost never encountered");
 	}
@@ -44,7 +45,8 @@ static char *wd_rarity(byte rarity, bool unique)
 		else if (rarity == 2) strcpy(rarity_desc, "common");
 		else if (rarity == 3) strcpy(rarity_desc, "fairly common");
 		else if (rarity == 4) strcpy(rarity_desc, "not very common");
-		else if ((rarity == 5) || (rarity == 6)) strcpy(rarity_desc, "fairly rare");
+		else if ((rarity == 5) || (rarity == 6)) 
+			strcpy(rarity_desc, "fairly rare");
 		else if (rarity < 10) strcpy(rarity_desc, "rare");
 		else strcpy(rarity_desc, "extremely rare");
 	}
@@ -74,6 +76,9 @@ static bool know_armour(int r_idx)
 	s32b level = r_ptr->level;
 
 	s32b kills = r_ptr->r_tkills;
+
+	/* Rangers learn quickly. -LM- */
+	if (p_ptr->pclass == CLASS_RANGER) kills *= 2;
 
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
@@ -106,6 +111,9 @@ static bool know_damage(int r_idx, int i)
 	s32b d2 = r_ptr->blow[i].d_side;
 
 	s32b d = d1 * d2;
+
+	/* Hack -- Rangers learn quickly. -LM- */
+	if (p_ptr->pclass == CLASS_RANGER) level = 10 + 3 * level / 2;
 
 	/* Normal monsters */
 	if ((4 + level) * a > 80 * d) return (TRUE);
@@ -187,7 +195,7 @@ static void roff_aux(int r_idx)
 		/* XXX XXX XXX */
 
 		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_type);
+		COPY(&save_mem, r_ptr, monster_race);
 
 		/* Hack -- Maximal kills */
 		r_ptr->r_tkills = MAX_SHORT;
@@ -295,27 +303,27 @@ static void roff_aux(int r_idx)
 		{
 			/* Killed ancestors */
 			roff(format("%^s has slain %d of your ancestors",
-			            wd_he[msex], r_ptr->r_deaths));
+			            wd_he[msex], r_ptr->r_deaths), 0, 0);
 
 			/* But we've also killed it */
 			if (dead)
 			{
 				roff(format(", but you have avenged %s!  ",
-				            plural(r_ptr->r_deaths, "him", "them")));
+				            plural(r_ptr->r_deaths, "him", "them")), 0, 0);
 			}
 
 			/* Unavenged (ever) */
 			else
 			{
 				roff(format(", who %s unavenged.  ",
-				            plural(r_ptr->r_deaths, "remains", "remain")));
+				            plural(r_ptr->r_deaths, "remains", "remain")), 0, 0);
 			}
 		}
 
 		/* Dead unique who never hurt us */
 		else if (dead)
 		{
-			roff("You have slain this foe.  ");
+			roff("You have slain this foe.  ", 0, 0);
 		}
 	}
 
@@ -324,27 +332,27 @@ static void roff_aux(int r_idx)
 	{
 		/* Dead ancestors */
 		roff(format("%d of your ancestors %s been killed by this creature, ",
-		            r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")));
+			r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")), 0, 0);
 
 		/* Some kills this life */
 		if (r_ptr->r_pkills)
 		{
 			roff(format("and you have exterminated at least %d of the creatures.  ",
-			            r_ptr->r_pkills));
+				r_ptr->r_pkills), 0, 0);
 		}
 
 		/* Some kills past lives */
 		else if (r_ptr->r_tkills)
 		{
 			roff(format("and %s have exterminated at least %d of the creatures.  ",
-			            "your ancestors", r_ptr->r_tkills));
+				"your ancestors", r_ptr->r_tkills), 0, 0);
 		}
 
 		/* No kills */
 		else
 		{
 			roff(format("and %s is not ever known to have been defeated.  ",
-			            wd_he[msex]));
+				wd_he[msex]), 0, 0);
 		}
 	}
 
@@ -355,23 +363,22 @@ static void roff_aux(int r_idx)
 		if (r_ptr->r_pkills)
 		{
 			roff(format("You have killed at least %d of these creatures.  ",
-			            r_ptr->r_pkills));
+				r_ptr->r_pkills), 0, 0);
 		}
 
 		/* Killed some last life */
 		else if (r_ptr->r_tkills)
 		{
 			roff(format("Your ancestors have killed at least %d of these creatures.  ",
-			            r_ptr->r_tkills));
+				r_ptr->r_tkills), 0, 0);
 		}
 
 		/* Killed none */
 		else
 		{
-			roff("No battles to the death are recalled.  ");
+			roff("No battles to the death are recalled.  ", 0, 0);
 		}
 	}
-
 
 	/* Descriptions */
 	if (show_details)
@@ -443,18 +450,24 @@ static void roff_aux(int r_idx)
 #endif
 
 		/* Dump it */
-		roff(buf);
-		roff("  ");
+		roff(buf, 0, 0);
+		roff("  ", 0, 0);
 	}
 
 
 	/* Nothing yet */
 	old = FALSE;
 
+
+	/* Player ghosts may have unique descriptions. -LM- */
+	if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (ghost_string_type == 2))
+		roff(format("%s  ", ghost_string), 0, 0);
+
+
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		roff(format("%^s lives in the town", wd_he[msex]));
+		roff(format("%^s lives in the town", wd_he[msex]), 0, 0);
 		old = TRUE;
 	}
 	else if (r_ptr->r_tkills)
@@ -462,15 +475,18 @@ static void roff_aux(int r_idx)
 		if (depth_in_feet)
 		{
 			roff(format("%^s is %s, normally found at depths of %d feet",
-			            wd_he[msex], wd_rarity(r_ptr->rarity, r_ptr->flags1 & (RF1_UNIQUE)), r_ptr->level * 50));
+				wd_he[msex], wd_rarity(r_ptr->rarity, 
+				r_ptr->flags1 & (RF1_UNIQUE)), r_ptr->level * 50), 0, 0);
 		}
 		else
 		{
 			roff(format("%^s is %s, normally found on dungeon level %d",
-			            wd_rarity(r_ptr->rarity, r_ptr->flags1 & (RF1_UNIQUE)), wd_he[msex], r_ptr->level));
+				wd_he[msex], wd_rarity(r_ptr->rarity, 
+					r_ptr->flags1 & (RF1_UNIQUE)), r_ptr->level), 0, 0);
 		}
 		old = TRUE;
 	}
+
 
 
 	/* Describe movement */
@@ -479,15 +495,15 @@ static void roff_aux(int r_idx)
 		/* Introduction */
 		if (old)
 		{
-			roff(", and ");
+			roff(", and ", 0, 0);
 		}
 		else
 		{
-			roff(format("%^s ", wd_he[msex]));
+			roff(format("%^s ", wd_he[msex]), 0, 0);
 			old = TRUE;
 		}
-		if (flags1 & (RF1_NEVER_MOVE)) roff("acts");
-		else roff("moves");
+		if (flags1 & (RF1_NEVER_MOVE)) roff("acts", 0, 0);
+		else roff("moves", 0, 0);
 
 		/* Random-ness */
 		if ((flags1 & (RF1_RAND_50)) || (flags1 & (RF1_RAND_25)))
@@ -495,40 +511,41 @@ static void roff_aux(int r_idx)
 			/* Adverb */
 			if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 			{
-				roff(" extremely");
+				roff(" extremely", 0, 0);
 			}
 			else if (flags1 & (RF1_RAND_50))
 			{
-				roff(" somewhat");
+				roff(" somewhat", 0, 0);
 			}
 			else if (flags1 & (RF1_RAND_25))
 			{
-				roff(" a bit");
+				roff(" a bit", 0, 0);
 			}
 
 			/* Adjective */
-			roff(" erratically");
+			roff(" erratically", 0, 0);
 
 			/* Hack -- Occasional conjunction */
-			if (r_ptr->speed != 110) roff(", and");
+			if (r_ptr->speed != 110) roff(", and", 0, 0);
 		}
 
 		/* Speed */
 		if (r_ptr->speed > 110)
 		{
-			if (r_ptr->speed > 130) roff(" incredibly");
-			else if (r_ptr->speed > 120) roff(" very");
-			roff(" quickly");
+			if (r_ptr->speed > 130) roff(" incredibly", 0, 0);
+			else if (r_ptr->speed > 120) roff(" very", 0, 0);
+			else if (r_ptr->speed < 116) roff(" moderately", 0, 0);
+			roff(" quickly", 0, 0);
 		}
 		else if (r_ptr->speed < 110)
 		{
-			if (r_ptr->speed < 90) roff(" extremely");
-			else if (r_ptr->speed < 100) roff(" very");
-			roff(" slowly");
+			if (r_ptr->speed < 90) roff(" extremely", 0, 0);
+			else if (r_ptr->speed < 100) roff(" very", 0, 0);
+			roff(" slowly", 0, 0);
 		}
 		else
 		{
-			roff(" at normal speed");
+			roff(" at normal speed", 0, 0);
 		}
 	}
 
@@ -538,22 +555,22 @@ static void roff_aux(int r_idx)
 		/* Introduce */
 		if (old)
 		{
-			roff(", but ");
+			roff(", but ", 0, 0);
 		}
 		else
 		{
-			roff(format("%^s ", wd_he[msex]));
+			roff(format("%^s ", wd_he[msex]), 0, 0);
 			old = TRUE;
 		}
 
 		/* Describe */
-		roff("does not deign to chase intruders");
+		roff("does not deign to chase intruders", 0, 0);
 	}
 
 	/* End this sentence */
 	if (old)
 	{
-		roff(".  ");
+		roff(".  ", 0, 0);
 		old = FALSE;
 	}
 
@@ -564,25 +581,25 @@ static void roff_aux(int r_idx)
 		/* Introduction */
 		if (flags1 & (RF1_UNIQUE))
 		{
-			roff("Killing this");
+			roff("Killing this", 0, 0);
 		}
 		else
 		{
-			roff("A kill of this");
+			roff("A kill of this", 0, 0);
 		}
 
 		/* Describe the "quality" */
-		if (flags3 & (RF3_ANIMAL)) roff(" natural");
-		if (flags3 & (RF3_EVIL)) roff(" evil");
-		if (flags3 & (RF3_UNDEAD)) roff(" undead");
+		if (flags3 & (RF3_ANIMAL)) roff(" natural", 0, 0);
+		if (flags3 & (RF3_EVIL)) roff(" evil", 0, 0);
+		if (flags3 & (RF3_UNDEAD)) roff(" undead", 0, 0);
 
 		/* Describe the "race" */
-		if (flags3 & (RF3_DRAGON)) roff(" dragon");
-		else if (flags3 & (RF3_DEMON)) roff(" demon");
-		else if (flags3 & (RF3_GIANT)) roff(" giant");
-		else if (flags3 & (RF3_TROLL)) roff(" troll");
-		else if (flags3 & (RF3_ORC)) roff(" orc");
-		else roff(" creature");
+		if (flags3 & (RF3_DRAGON)) roff(" dragon", 0, 0);
+		else if (flags3 & (RF3_DEMON)) roff(" demon", 0, 0);
+		else if (flags3 & (RF3_GIANT)) roff(" giant", 0, 0);
+		else if (flags3 & (RF3_TROLL)) roff(" troll", 0, 0);
+		else if (flags3 & (RF3_ORC)) roff(" orc", 0, 0);
+		else roff(" creature", 0, 0);
 
 		/* Group some variables */
 		if (TRUE)
@@ -600,7 +617,7 @@ static void roff_aux(int r_idx)
 			/* Mention the experience */
 			roff(format(" is worth %ld.%02ld point%s",
 			            (long)i, (long)j,
-			            (((i == 1) && (j == 0)) ? "" : "s")));
+			            (((i == 1) && (j == 0)) ? "" : "s")), 0, 0);
 
 			/* Take account of annoying English */
 			p = "th";
@@ -617,23 +634,69 @@ static void roff_aux(int r_idx)
 
 			/* Mention the dependance on the player's level */
 			roff(format(" for a%s %lu%s level character.  ",
-			            q, (long)i, p));
+			            q, (long)i, p), 0, 0);
 		}
 	}
+	/* If no kills, known racial information should still be displayed. -LM- */
+	else if ((flags3 & (RF3_ANIMAL)) || (flags3 & (RF3_EVIL)) || 
+		(flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_DRAGON)) || 
+		(flags3 & (RF3_DEMON)) || (flags3 & (RF3_GIANT)) || 
+		(flags3 & (RF3_TROLL)) || (flags3 & (RF3_ORC)))
+	{
+		bool add = FALSE;
 
+		/* Pronoun. */
+		if (flags1 & (RF1_UNIQUE)) 
+			roff(format("^%s is a", wd_he[msex]), 0, 0);
+		else roff("It is a", 0, 0);
+
+		/* Describe the "quality" */
+		if (flags3 & (RF3_ANIMAL)) 
+		{
+			roff(" natural", 0, 0);
+			add = TRUE;
+		}
+		if (flags3 & (RF3_EVIL))	
+		{
+			if (add) roff(" evil", 0, 0);
+			else roff("n evil", 0, 0);
+			add = TRUE;
+		}
+		if (flags3 & (RF3_UNDEAD)) 
+		{
+			if (add) roff(" undead", 0, 0);
+			else roff("n undead", 0, 0);
+			add = TRUE;
+		}
+
+		/* Describe the "race" */
+		if (flags3 & (RF3_DRAGON)) roff(" dragon", 0, 0);
+		else if (flags3 & (RF3_DEMON)) roff(" demon", 0, 0);
+		else if (flags3 & (RF3_GIANT)) roff(" giant", 0, 0);
+		else if (flags3 & (RF3_TROLL)) roff(" troll", 0, 0);
+		else if (flags3 & (RF3_ORC)) 
+		{
+			if (add) roff(" orc", 0, 0);
+			else roff("n orc", 0, 0);
+		}
+		else roff(" creature", 0, 0);
+
+		/* End sentence. */
+		roff(".  ", 0, 0);
+	}
 
 	/* Describe escorts */
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
 	{
 		roff(format("%^s usually appears with escorts.  ",
-		            wd_he[msex]));
+		            wd_he[msex]), 0, 0);
 	}
 
 	/* Describe friends */
 	else if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
 	{
 		roff(format("%^s usually appears in groups.  ",
-		            wd_he[msex]));
+		            wd_he[msex]), 0, 0);
 	}
 
 
@@ -644,7 +707,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_BOULDER))		vp[vn++] = "throw a boulder";
 	if (flags4 & (RF4_ARROW_5))		vp[vn++] = "fire a seeker arrow";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire a little arrow";
-	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire a arrow";
+	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire an arrow";
 	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile";
 	if (flags4 & (RF4_ARROW_4))		vp[vn++] = "fire missiles";
 
@@ -652,24 +715,23 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" may ");
-			else if (n < vn-1) roff(", ");
-			else roff(" or ");
+			if (n == 0) roff(" may ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" or ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 
 		/* End */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
-
 
 	/* Collect breaths */
 	vn = 0;
@@ -705,18 +767,18 @@ static void roff_aux(int r_idx)
 		breath = TRUE;
 
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" may breathe ");
-			else if (n < vn-1) roff(", ");
-			else roff(" or ");
+			if (n == 0) roff(" may breathe ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" or ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 	}
 
@@ -797,29 +859,29 @@ static void roff_aux(int r_idx)
 		/* Intro */
 		if (breath)
 		{
-			roff(", and is also");
+			roff(", and is also", 0, 0);
 		}
 		else
 		{
-			roff(format("%^s is", wd_he[msex]));
+			roff(format("%^s is", wd_he[msex]), 0, 0);
 		}
 
 		/* Verb Phrase */
-		roff(" magical, casting spells");
+		roff(" magical, casting spells", 0, 0);
 
 		/* Adverb */
-		if (flags2 & (RF2_SMART)) roff(" intelligently");
+		if (flags2 & (RF2_SMART)) roff(" intelligently", 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" which ");
-			else if (n < vn-1) roff(", ");
-			else roff(" or ");
+			if (n == 0) roff(" which ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" or ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 	}
 
@@ -836,18 +898,18 @@ static void roff_aux(int r_idx)
 		/* Describe the spell frequency */
 		if (m > 100)
 		{
-			roff(format("; 1 time in %d", 100 / n));
+			roff(format("; 1 time in %d", 100 / n), 0, 0);
 		}
 
 		/* Guess at the frequency */
 		else if (m)
 		{
 			n = ((n + 9) / 10) * 10;
-			roff(format("; about 1 time in %d", 100 / n));
+			roff(format("; about 1 time in %d", 100 / n), 0, 0);
 		}
 
 		/* End this sentence */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
@@ -856,21 +918,21 @@ static void roff_aux(int r_idx)
 	{
 		/* Armor */
 		roff(format("%^s has an armor rating of %d",
-		            wd_he[msex], r_ptr->ac));
+		            wd_he[msex], r_ptr->ac), 0, 0);
 
 		/* Maximized hitpoints */
 		if (flags1 & (RF1_FORCE_MAXHP))
 		{
 
 			roff(format(" and a life rating of %d.  ",
-			            r_ptr->hdice * r_ptr->hside));
+			            r_ptr->hdice * r_ptr->hside), 0, 0);
 		}
 
 		/* Variable hitpoints */
 		else
 		{
 			roff(format(" and a life rating of %dd%d.  ",
-			            r_ptr->hdice, r_ptr->hside));
+			            r_ptr->hdice, r_ptr->hside), 0, 0);
 		}
 	}
 
@@ -891,49 +953,49 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" can ");
-			else if (n < vn-1) roff(", ");
-			else roff(" and ");
+			if (n == 0) roff(" can ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" and ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 
 		/* End */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
 	/* Describe special abilities. */
 	if (flags2 & (RF2_INVISIBLE))
 	{
-		roff(format("%^s is invisible.  ", wd_he[msex]));
+		roff(format("%^s is invisible.  ", wd_he[msex]), 0, 0);
 	}
 	if (flags2 & (RF2_COLD_BLOOD))
 	{
-		roff(format("%^s is cold blooded.  ", wd_he[msex]));
+		roff(format("%^s is cold blooded.  ", wd_he[msex]), 0, 0);
 	}
 	if (flags2 & (RF2_EMPTY_MIND))
 	{
-		roff(format("%^s is not detected by telepathy.  ", wd_he[msex]));
+		roff(format("%^s is not detected by telepathy.  ", wd_he[msex]), 0, 0);
 	}
 	if (flags2 & (RF2_WEIRD_MIND))
 	{
-		roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+		roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]), 0, 0);
 	}
 	if (flags2 & (RF2_MULTIPLY))
 	{
-		roff(format("%^s breeds explosively.  ", wd_he[msex]));
+		roff(format("%^s breeds explosively.  ", wd_he[msex]), 0, 0);
 	}
 	if (flags2 & (RF2_REGENERATE))
 	{
-		roff(format("%^s regenerates quickly.  ", wd_he[msex]));
+		roff(format("%^s regenerates quickly.  ", wd_he[msex]), 0, 0);
 	}
 
 
@@ -948,22 +1010,22 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" is hurt by ");
-			else if (n < vn-1) roff(", ");
-			else roff(" and ");
+			if (n == 0) roff(" is hurt by ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" and ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 
 		/* End */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
@@ -979,22 +1041,22 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" resists ");
-			else if (n < vn-1) roff(", ");
-			else roff(" and ");
+			if (n == 0) roff(" resists ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" and ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 
 		/* End */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
@@ -1010,22 +1072,22 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" resists ");
-			else if (n < vn-1) roff(", ");
-			else roff(" and ");
+			if (n == 0) roff(" resists ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" and ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 
 		/* End */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
@@ -1040,22 +1102,22 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		roff(format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]), 0, 0);
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" cannot be ");
-			else if (n < vn-1) roff(", ");
-			else roff(" or ");
+			if (n == 0) roff(" cannot be ", 0, 0);
+			else if (n < vn-1) roff(", ", 0, 0);
+			else roff(" or ", 0, 0);
 
 			/* Dump */
-			roff(vp[n]);
+			roff(vp[n], 0, 0);
 		}
 
 		/* End */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
@@ -1112,7 +1174,7 @@ static void roff_aux(int r_idx)
 		}
 
 		roff(format("%^s %s intruders, which %s may notice from %d feet.  ",
-		            wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf));
+		            wd_he[msex], act, wd_he[msex], 10 * r_ptr->aaf), 0, 0);
 	}
 
 
@@ -1123,7 +1185,7 @@ static void roff_aux(int r_idx)
 		sin = FALSE;
 
 		/* Intro */
-		roff(format("%^s may carry", wd_he[msex]));
+		roff(format("%^s may carry", wd_he[msex]), 0, 0);
 
 		/* Count maximum drop */
 		n = MAX(r_ptr->r_drop_gold, r_ptr->r_drop_item);
@@ -1131,20 +1193,20 @@ static void roff_aux(int r_idx)
 		/* One drop (may need an "n") */
 		if (n == 1)
 		{
-			roff(" a");
+			roff(" a", 0, 0);
 			sin = TRUE;
 		}
 
 		/* Two drops */
 		else if (n == 2)
 		{
-			roff(" one or two");
+			roff(" one or two", 0, 0);
 		}
 
 		/* Many drops */
 		else
 		{
-			roff(format(" up to %d", n));
+			roff(format(" up to %d", n), 0, 0);
 		}
 
 
@@ -1172,14 +1234,14 @@ static void roff_aux(int r_idx)
 		if (r_ptr->r_drop_item)
 		{
 			/* Handle singular "an" */
-			if ((sin) && (!(r_ptr->flags1 & (RF1_DROP_CHEST)))) roff("n");
+			if ((sin) && (!(r_ptr->flags1 & (RF1_DROP_CHEST)))) roff("n", 0, 0);
 			sin = FALSE;
 
 			/* Dump "object(s)" */
-			if (p) roff(p);
-			if (r_ptr->flags1 & (RF1_DROP_CHEST)) roff(" chest");
-			else roff(" object");
-			if (n != 1) roff("s");
+			if (p) roff(p, 0, 0);
+			if (r_ptr->flags1 & (RF1_DROP_CHEST)) roff(" chest", 0, 0);
+			else roff(" object", 0, 0);
+			if (n != 1) roff("s", 0, 0);
 
 			/* Conjunction replaces variety, if needed for "gold" below */
 			p = " or";
@@ -1192,17 +1254,17 @@ static void roff_aux(int r_idx)
 			if (!p) sin = FALSE;
 
 			/* Handle singular "an" */
-			if (sin) roff("n");
+			if (sin) roff("n", 0, 0);
 			sin = FALSE;
 
 			/* Dump "treasure(s)" */
-			if (p) roff(p);
-			roff(" treasure");
-			if (n != 1) roff("s");
+			if (p) roff(p, 0, 0);
+			roff(" treasure", 0, 0);
+			if (n != 1) roff("s", 0, 0);
 		}
 
 		/* End this sentence */
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 
@@ -1308,15 +1370,15 @@ static void roff_aux(int r_idx)
 		/* Introduce the attack description */
 		if (!r)
 		{
-			roff(format("%^s can ", wd_he[msex]));
+			roff(format("%^s can ", wd_he[msex]), 0, 0);
 		}
 		else if (r < n-1)
 		{
-			roff(", ");
+			roff(", ", 0, 0);
 		}
 		else
 		{
-			roff(", and ");
+			roff(", and ", 0, 0);
 		}
 
 
@@ -1324,22 +1386,22 @@ static void roff_aux(int r_idx)
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
-		roff(p);
+		roff(p, 0, 0);
 
 
 		/* Describe the effect (if any) */
 		if (q)
 		{
 			/* Describe the attack type */
-			roff(" to ");
-			roff(q);
+			roff(" to ", 0, 0);
+			roff(q, 0, 0);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, m))
 			{
 				/* Display the damage */
-				roff(" with damage");
-				roff(format(" %dd%d", d1, d2));
+				roff(" with damage", 0, 0);
+				roff(format(" %dd%d", d1, d2), 0, 0);
 			}
 		}
 
@@ -1351,38 +1413,38 @@ static void roff_aux(int r_idx)
 	/* Finish sentence above */
 	if (r)
 	{
-		roff(".  ");
+		roff(".  ", 0, 0);
 	}
 
 	/* Notice lack of attacks */
 	else if (flags1 & (RF1_NEVER_BLOW))
 	{
-		roff(format("%^s has no physical attacks.  ", wd_he[msex]));
+		roff(format("%^s has no physical attacks.  ", wd_he[msex]), 0, 0);
 	}
 
 	/* Or describe the lack of knowledge */
 	else
 	{
-		roff(format("Nothing is known about %s attack.  ", wd_his[msex]));
+		roff(format("Nothing is known about %s attack.  ", wd_his[msex]), 0, 0);
 	}
 
 
 	/* Notice "Quest" monsters */
 	if (flags1 & (RF1_QUESTOR))
 	{
-		roff("You feel an intense desire to kill this monster...  ");
+		roff("You feel an intense desire to kill this monster...  ", 0, 0);
 	}
 
 
 	/* All done */
-	roff("\n");
+	roff("\n", 0, 0);
 
 
 	/* Cheat -- know everything */
 	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
 	{
 		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_type);
+		COPY(r_ptr, &save_mem, monster_race);
 	}
 }
 
@@ -1492,14 +1554,177 @@ void display_roff(int r_idx)
 }
 
 
-/* Add various attributes depending on race.  Not currently used. -LM- */
-/* static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr) */
+/* Add various player ghost attributes depending on race. -LM- */
+static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	int dun_level = r_ptr->level;
+	byte n;
 
-/* Add various attributes depending on class. -LM- */
+	switch(ghost_race)
+	{
+		/* Human */
+		case 0:
+		{
+			/* No differences */
+			break;
+		}
+		/* Half-Elf */
+		case 1:
+		{
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 3;
+			r_ptr->aaf += 2;
+			r_ptr->hdice = 6 * r_ptr->hdice / 7;
+			break;
+		}
+		/* Elf */
+		case 2:
+		{
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 5;
+			r_ptr->aaf += 4;
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+				r_ptr->flags3 &= ~(RF3_HURT_LITE);
+			break;
+		}
+		/* Hobbit */
+		case 3:
+		{	
+			r_ptr->hdice = 3 * r_ptr->hdice / 4;
+
+			if (randint(3) == 1)
+			{
+				for (n = 0; n < 4; n++)
+				{
+					if (r_ptr->blow[n].effect == RBE_HURT)
+					{
+						if (randint(2) == 1) 
+							r_ptr->blow[n].effect = RBE_EAT_GOLD;
+						else r_ptr->blow[n].effect = RBE_EAT_ITEM;
+	
+						r_ptr->blow[n].d_side = 
+							2 * r_ptr->blow[n].d_side / 3;
+						break;
+					}
+				}
+			}
+			else
+			{
+				if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+				if (dun_level <= 15) r_ptr->flags4 |= (RF4_ARROW_1);
+				else if (dun_level <= 30) r_ptr->flags4 |= (RF4_ARROW_2);
+				else r_ptr->flags4 |= (RF4_ARROW_5);
+			}
+
+			break;
+		}
+		/* Gnome */
+		case 4:
+		{
+			r_ptr->flags6 |= (RF6_BLINK);
+			r_ptr->flags3 |= (RF3_NO_SLEEP);
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+			break;
+		}
+		/* Dwarf */
+		case 5:
+		{
+			r_ptr->hdice = 6 * r_ptr->hdice / 5;
+			break;
+		}
+		/* Half-Orc */
+		case 6:
+		{
+			r_ptr->flags3 |= (RF3_ORC);
+			break;
+		}
+		/* Half-Troll */
+		case 7:
+		{
+			if (r_ptr->freq_spell > 5) 
+			r_ptr->freq_spell /= 2;
+
+			r_ptr->flags4 |= (RF4_BOULDER);
+			r_ptr->flags3 |= (RF3_TROLL);
+
+			r_ptr->hdice = 3 * r_ptr->hdice / 2;
+			r_ptr->aaf -= 2;
+
+			r_ptr->ac += r_ptr->level / 10 + 10;
+
+			if (m_ptr->mspeed < 111) m_ptr->mspeed -= 2;
+			else m_ptr->mspeed -= 4;
+
+			for (n = 0; n < 4; n++)
+			{
+				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
+			}
+
+			break;
+		}
+		/* Dunadan */
+		case 8:
+		{
+			r_ptr->ac += r_ptr->level / 10 + 5;
+
+			for (n = 0; n < 4; n++)
+			{
+				if (randint(2) == 1) 
+					r_ptr->blow[n].d_side = 6 * r_ptr->blow[n].d_side / 5;
+			}
+			break;
+		}
+		/* High-Elf */
+		case 9:
+		{
+			r_ptr->ac += r_ptr->level / 10 + 2;
+
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 8;
+			r_ptr->aaf += 5;
+			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+				r_ptr->flags3 &= ~(RF3_HURT_LITE);
+			break;
+		}
+
+		/* Maia */
+		case 10:
+		{
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 5;
+			r_ptr->ac += r_ptr->level / 10 + 5;
+			r_ptr->aaf += 4;
+			r_ptr->hdice = 5 * r_ptr->hdice / 4;
+			break;
+		}
+
+		/* Shadow Fairy */
+		case 11:
+		{
+			if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_BLIND);
+			else r_ptr->flags2 |= (RF2_INVISIBLE);
+			r_ptr->hdice = 3 * r_ptr->hdice / 4;
+			r_ptr->flags3 |= (RF3_HURT_LITE);
+			break;
+		}
+
+		/* Ent */
+		case 12:
+		{
+			r_ptr->flags3 |= (RF3_ANIMAL);
+			r_ptr->hdice = 4 * r_ptr->hdice / 3;
+			if (r_ptr->flags3 & (RF3_IM_FIRE)) 
+				r_ptr->flags3 &= ~(RF3_IM_FIRE);
+			break;
+		}
+	}
+}
+
+/* Add various attributes player ghost depending on class. -LM- */
 static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 	int dun_level = r_ptr->level;
+	byte n;
 
 	/* Note the care taken to make sure that all monsters that get spells 
 	 * can also cast them, since not all racial templates include spells.
@@ -1515,13 +1740,24 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			r_ptr->hdice = 5 * r_ptr->hdice / 4;
 			r_ptr->ac += r_ptr->level / 10 + 5;
 
+			for (n = 0; n < 4; n++)
+			{
+				if (r_ptr->blow[n].effect != RBE_HURT)
+				{
+					r_ptr->blow[n].effect = RBE_HURT;
+
+					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
+					break;
+				}
+			}
+
 			break;
 		}
 		/* Mage */
 		case 1:
 		{
 			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 6;
+			else r_ptr->freq_spell += 10;
 
 			if (dun_level < 15) r_ptr->flags5 |= (RF5_MISSILE);
 			else if (dun_level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
@@ -1530,11 +1766,19 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			else if (dun_level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
 			else if (dun_level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
 
-			if (dun_level >= 20) r_ptr->flags6 |= (RF6_HASTE);
-			if (dun_level > 40) m_ptr->mspeed += 5;
+			if (dun_level > 19) r_ptr->flags6 |= (RF6_HASTE);
+			if (dun_level > 39) m_ptr->mspeed += 5;
 			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
 
+			r_ptr->flags6 |= (RF6_BLINK);
+			if (dun_level > 45) r_ptr->flags6 |= (RF6_TPORT);
+
 			r_ptr->hdice = 2 * r_ptr->hdice / 3;
+
+			for (n = 0; n < 4; n++)
+			{
+				if (randint(3) == 1) r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+			}
 			
 			break;
 		}
@@ -1544,13 +1788,13 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
 			else r_ptr->freq_spell += 5;
 
-			if (dun_level <= 15) r_ptr->flags5 |= (RF5_CAUSE_1);
-			else if (dun_level <= 30) r_ptr->flags5 |= (RF5_CAUSE_2);
-			else if (dun_level <= 45) r_ptr->flags5 |= (RF5_CAUSE_3);
-			else if (dun_level <= 60) r_ptr->flags5 |= (RF5_CAUSE_4);
+			if (dun_level < 15) r_ptr->flags5 |= (RF5_CAUSE_1);
+			else if (dun_level < 30) r_ptr->flags5 |= (RF5_CAUSE_2);
+			else if (dun_level < 45) r_ptr->flags5 |= (RF5_CAUSE_3);
+			else if (dun_level < 60) r_ptr->flags5 |= (RF5_CAUSE_4);
 			else r_ptr->flags6 |= (RF6_S_MONSTERS);
 
-			if (dun_level > 50) r_ptr->flags6 |= (RF6_HEAL);
+			if (dun_level > 20) r_ptr->flags6 |= (RF6_HEAL);
 
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
 
@@ -1561,11 +1805,25 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		{
 			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
 
-			if (dun_level <= 30) r_ptr->flags6 |= (RF6_HASTE);
-			else if (dun_level > 30) m_ptr->mspeed += 5;
+			if (dun_level > 15) r_ptr->flags6 |= (RF6_HASTE);
+			if (dun_level > 35) m_ptr->mspeed += 5;
 			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
 
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
 			r_ptr->flags6 |= (RF6_TRAPS);
+
+			for (n = 0; n < 4; n++)
+			{
+				if (r_ptr->blow[n].effect == RBE_HURT)
+				{
+					if (randint(2) == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
+					else r_ptr->blow[n].effect = RBE_EAT_ITEM;
+
+					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+					break;
+				}
+			}
 
 			break;
 		}
@@ -1663,7 +1921,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
  * Once a monster with the flag "PLAYER_GHOST" is generated, it needs to have 
  * a little color added, if it hasn't been prepared before.  This function uses 
  * a bones file to get a name, give the ghost a gender, and add a few features 
- * depending on the class (but not race) of the slain adventurer.  -LM-
+ * depending on the race and class of the slain adventurer.  -LM-
  */
 bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 {
@@ -1673,10 +1931,9 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	FILE		*fp;
-
 	bool		err = FALSE;
-
 	char		path[1024];
+
 
 	/* Paranoia. */
 	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (TRUE);
@@ -1684,14 +1941,15 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/* Hack -- If the ghost has a sex, then it must already have been prepared. */
 	if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE)) return (TRUE);
 
-	/* Hack -- No easy player ghosts, unless the ghost is from a savefile 
-	 * or a test is being performed.  This also makes player ghosts much 
-	 * rarer, and effectively (almost) prevents more than one from being 
-	 * on a level.
+	/* Hack -- No easy player ghosts, unless the ghost is from a savefile.  
+	 * This also makes player ghosts much rarer, and effectively (almost) 
+	 * prevents more than one from being on a level.
 	 */
-	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE) && 
-		(p_ptr->noscore == FALSE)) return (FALSE);
+	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE)) 
+		return (FALSE);
 
+	/* Store the index of the base race. */
+	r_ghost = r_idx;
 
 	/* Choose a bones file.  Use the variable bones_selector if it has any 
 	 * information in it (this allows saved ghosts to reacquire all special 
@@ -1736,18 +1994,31 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/* No bones file found, so no Ghost is made. */
 	if (!fp) return (FALSE);
 
-	/* XXX XXX XXX Scan the file */
-	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name, 
-		&ghost_sex, &ghost_race, &ghost_class) != 4);
+
+	/* XXX XXX XXX Scan the file (new style) */
+	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d\n%d:%[^\n]", ghost_name, 
+		&ghost_sex, &ghost_race, &ghost_class, &ghost_string_type, ghost_string) != 6);
+
+	if (err)
+	{
+		ghost_string_type = 0;
+
+		/* Close, open, and reread the file (old style). */
+		my_fclose(fp);
+		fp = my_fopen(path, "r");
+		err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name, 
+			&ghost_sex, &ghost_race, &ghost_class) != 4);
+	}
 
 	/* Hack -- broken file */
 	if (err) return (FALSE);
+
 
 	/* Close the file */
 	my_fclose(fp);
 
 
-	/*** Process the bones file name and store it in a global variable. ***/
+	/*** Process the ghost name and store it in a global variable. ***/
 
 	/* XXX XXX XXX Find the first comma, or end of string */
 	for (i = 0; (i < 16) && (ghost_name[i]) && (ghost_name[i] != ','); i++);
@@ -1777,8 +2048,8 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/* Sanity check. */
 	if (ghost_race >= MAX_RACES) ghost_race = rand_int(MAX_RACES);
 
-	/* And use the ghost race to gain some flags.  Not currently used. */
-	/* process_ghost_race(ghost_race, r_idx, m_ptr); */
+	/* And use the ghost race to gain some flags. */
+	process_ghost_race(ghost_race, r_idx, m_ptr);
 
 
 	/*** Process class. ***/
@@ -1790,14 +2061,14 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	process_ghost_class(ghost_class, r_idx, m_ptr);
 
 
-	/* Hack -- increase the rating */
+	/* Hack -- increase the level feeling */
 	rating += 10;
 
 	/* A ghost makes the level special */
 	good_item_flag = TRUE;
 
-	/* Player ghosts are "seen" whenever generated, to conform with previous 
-	 * practice.
+	/* Hack - Player ghosts are "seen" whenever generated, to conform with  
+	 * previous practice.
 	 */
 	if (from_savefile == FALSE) r_ptr->r_sights = 1;
 

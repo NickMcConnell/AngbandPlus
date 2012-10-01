@@ -42,3 +42,316 @@
 ?:1
 
 
+
+
+# Automatic keymap dump
+
+# Keymap '2'
+
+A:+1
+C:1:^B
+
+
+# Keymap '3'
+
+A:Q
+C:1:^C
+
+
+# Keymap '4'
+
+A:k
+C:1:^D
+
+
+# Keymap '8'
+
+A:+4
+C:1:\b
+
+
+# Keymap '10'
+
+A:+2
+C:1:\n
+
+
+# Keymap '11'
+
+A:+8
+C:1:^K
+
+
+# Keymap '12'
+
+A:+6
+C:1:^L
+
+
+# Keymap '14'
+
+A:+3
+C:1:^N
+
+
+# Keymap '20'
+
+A:T
+C:1:^T
+
+
+# Keymap '21'
+
+A:+9
+C:1:^U
+
+
+# Keymap '25'
+
+A:+7
+C:1:^Y
+
+
+# Keymap '35'
+
+A:S
+C:1:#
+
+
+# Keymap '39'
+
+A:R*\r
+C:1:'
+
+
+# Keymap '44'
+
+A:.
+C:1:,
+
+
+# Keymap '46'
+
+A:,
+C:1:.
+
+
+# Keymap '49'
+
+A:;1
+C:1:1
+
+
+# Keymap '50'
+
+A:;2
+C:1:2
+
+
+# Keymap '51'
+
+A:;3
+C:1:3
+
+
+# Keymap '52'
+
+A:;4
+C:1:4
+
+
+# Keymap '53'
+
+A:,
+C:1:5
+
+
+# Keymap '54'
+
+A:;6
+C:1:6
+
+
+# Keymap '55'
+
+A:;7
+C:1:7
+
+
+# Keymap '56'
+
+A:;8
+C:1:8
+
+
+# Keymap '57'
+
+A:;9
+C:1:9
+
+
+# Keymap '66'
+
+A:.1
+C:1:B
+
+
+# Keymap '72'
+
+A:.4
+C:1:H
+
+
+# Keymap '74'
+
+A:.2
+C:1:J
+
+
+# Keymap '75'
+
+A:.8
+C:1:K
+
+
+# Keymap '76'
+
+A:.6
+C:1:L
+
+
+# Keymap '78'
+
+A:.3
+C:1:N
+
+
+# Keymap '80'
+
+A:b
+C:1:P
+
+
+# Keymap '83'
+
+A:j
+C:1:S
+
+
+# Keymap '84'
+
+A:t
+C:1:T
+
+
+# Keymap '85'
+
+A:.9
+C:1:U
+
+
+# Keymap '87'
+
+A:L
+C:1:W
+
+
+# Keymap '88'
+
+A:w0
+C:1:X
+
+
+# Keymap '89'
+
+A:.7
+C:1:Y
+
+
+# Keymap '90'
+
+A:u
+C:1:Z
+
+
+# Keymap '97'
+
+A:z
+C:1:a
+
+
+# Keymap '98'
+
+A:;1
+C:1:b
+
+
+# Keymap '102'
+
+A:B
+C:1:f
+
+
+# Keymap '104'
+
+A:;4
+C:1:h
+
+
+# Keymap '106'
+
+A:;2
+C:1:j
+
+
+# Keymap '107'
+
+A:;8
+C:1:k
+
+
+# Keymap '108'
+
+A:;6
+C:1:l
+
+
+# Keymap '110'
+
+A:;3
+C:1:n
+
+
+# Keymap '116'
+
+A:f
+C:1:t
+
+
+# Keymap '117'
+
+A:;9
+C:1:u
+
+
+# Keymap '120'
+
+A:l
+C:1:x
+
+
+# Keymap '121'
+
+A:;7
+C:1:y
+
+
+# Keymap '122'
+
+A:a
+C:1:z
+
+
+
+
+

@@ -1,6 +1,8 @@
 /* File: util.c */
 
-/* Functions, etc. for various machines that need them.
+/* Functions, etc. for various machines that need them.  Basic text-handing 
+ * functions.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -703,7 +705,6 @@ errr fd_chop(int fd, huge n)
 	return (0);
 }
 
-
 /*
  * Hack -- attempt to read data from a file descriptor
  */
@@ -779,6 +780,7 @@ errr fd_close(int fd)
 	if (fd < 0) return (-1);
 
 	/* Close */
+	/* fclose(file_descriptors[fd]); */
 	(void)close(fd);
 
 	/* Assume success XXX XXX XXX */
@@ -2419,7 +2421,6 @@ void put_str(cptr str, int row, int col)
 }
 
 
-
 /*
  * Display a string on the screen using an attribute, and clear
  * to the end of the line.
@@ -2454,13 +2455,15 @@ void prt(cptr str, int row, int col)
  * a "wrap" to the next line.  Advance the cursor as needed so sequential
  * calls to this function will work correctly.
  *
+ * Accept values for left and right margins. -LM-
+ *
  * Once this function has been called, the cursor should not be moved
  * until all the related "c_roff()" calls to the window are complete.
  *
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
  */
-void c_roff(byte a, cptr str)
+void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 {
 	int x, y;
 
@@ -2472,8 +2475,22 @@ void c_roff(byte a, cptr str)
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
 
-	/* Obtain the cursor */
+	/* Accept right margin if provided and legal. */
+	if ((r_margin) && (r_margin <= w)) w = r_margin;
+
+	/* Obtain the cursor. */
 	(void)Term_locate(&x, &y);
+
+	/* If cursor is left of the left margin,... */
+	if ((l_margin) && (x < l_margin)) 
+	{
+		/* ...move it to the left margin. */
+		move_cursor(y, l_margin);
+
+		/* Increment column count. */
+		x = l_margin;
+	}
+
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -2484,7 +2501,7 @@ void c_roff(byte a, cptr str)
 		if (*s == '\n')
 		{
 			/* Wrap */
-			x = 0;
+			x = l_margin;
 			y++;
 
 			/* Clear line, move cursor */
@@ -2492,7 +2509,7 @@ void c_roff(byte a, cptr str)
 		}
 
 		/* Clean up the char */
-		ch = (isprint(*s) ? *s : ' ');
+		ch = (isprint(*s) ? *s : (*s == '\n' ? '\0' : ' '));
 
 		/* Wrap words as needed */
 		if ((x >= w - 1) && (ch != ' '))
@@ -2526,7 +2543,7 @@ void c_roff(byte a, cptr str)
 			Term_erase(n, y, 255);
 
 			/* Wrap */
-			x = 0;
+			x = l_margin;
 			y++;
 
 			/* Clear line, move cursor */
@@ -2555,10 +2572,10 @@ void c_roff(byte a, cptr str)
 /*
  * As above, but in "white"
  */
-void roff(cptr str)
+void roff(cptr str, byte l_margin, byte r_margin)
 {
 	/* Spawn */
-	c_roff(TERM_WHITE, str);
+	c_roff(TERM_WHITE, str, l_margin, r_margin);
 }
 
 
@@ -2746,14 +2763,14 @@ s16b get_quantity(cptr prompt, int max)
 #ifdef ALLOW_REPEAT /* TNB */
 
 		/* Get the item index */
-		else if ((max != 1) && allow_quantity && repeat_pull(&amt)) {
+		else if ((max != 1) && repeat_pull(&amt)) {
 		}
 
 #endif /* ALLOW_REPEAT */
 
 
 	/* Prompt if needed */
-	else if ((max != 1) && allow_quantity)
+	else if (max != 1)
 	{
 		char tmp[80];
 
@@ -2943,7 +2960,7 @@ void request_command(bool shopping)
 	/* No "argument" yet */
 	p_ptr->command_arg = 0;
 
-	/* No "direction" yet */
+	/* No "direction" yet, unless repeated. */
 	p_ptr->command_dir = 0;
 
 
@@ -3189,7 +3206,6 @@ void request_command(bool shopping)
 		}
 	}
 
-
 	/* Hack -- erase the message line. */
 	prt("", 0, 0);
 }
@@ -3305,7 +3321,6 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 #endif
 
 
-#ifdef ALLOW_REPEAT /* TNB */
 
 #define REPEAT_MAX             20
 
@@ -3342,6 +3357,9 @@ bool repeat_pull(int *what)
        return (TRUE);
 }
 
+/*
+ * From Tim Baker's Easy Patch.
+ */
 void repeat_check(void)
 {
        int             what;
@@ -3380,5 +3398,78 @@ void repeat_check(void)
        }
 }
 
-#endif /* ALLOW_REPEAT */
+
+/* 
+ * Convert an input from tenths of a pound to tenths of a kilogram. -LM-
+ */
+int make_metric(int wgt)
+{
+	int metric_wgt;
+
+	/* Convert to metric values, using normal rounding. */
+	metric_wgt = wgt * 10 / 22;
+	if ((wgt * 10) % 22 > 10) metric_wgt++;
+
+	return metric_wgt;
+}
+
+
+/*
+ * Accept values for y and x (considered as the endpoints of lines) between 
+ * 0 and 32, and return an angle in degrees (divided by two). -LM-
+ *
+ * This table's input and output needs some processing:
+ *
+ * Because this table gives degrees for a whole circle, up to radius 17, its 
+ * origin is at (x,y) = (16, 16).  Therefore, the input code needs to find 
+ * the origin grid (where the lines being compared come from), and then map 
+ * it to table grid 16,16.  Do not, however, actually try to compare the 
+ * angle of a line that begins and ends at the origin with any other line - 
+ * it is impossible mathematically, and the table will return the value "255".
+ *
+ * The output of this table also needs to be massaged, in order to avoid the 
+ * discontinuity at 0/180 degrees.  This can be done by:
+ *   rotate = 90 - first value 
+ *   this rotates the first input to the 90 degree line)
+ *   tmp = ABS(second value + rotate) % 180
+ *   diff = ABS(90 - tmp) = the angular difference (divided by two) between 
+ *   the first and second values.
+ */
+byte get_angle_to_grid[33][33] = 
+{
+	{  67,  66,  66,  65,  63,  62,  61,  60,  58,  57,  55,  54,  52,  50,  49,  47,  45,  43,  41,  40,  38,  36,  35,  33,  32,  30,  29,  28,  27,  25,  24,  24,  22 },
+	{  68,  67,  66,  65,  64,  63,  62,  60,  59,  58,  56,  54,  52,  51,  49,  47,  45,  43,  41,  39,  38,  36,  34,  32,  31,  30,  28,  27,  26,  25,  24,  22,  21 },
+	{  69,  68,  67,  66,  65,  64,  63,  61,  60,  58,  57,  55,  53,  51,  49,  47,  45,  43,  41,  39,  37,  35,  33,  32,  30,  29,  27,  26,  25,  24,  22,  21,  21 },
+	{  70,  70,  69,  67,  66,  65,  64,  62,  61,  59,  57,  56,  54,  51,  49,  47,  45,  43,  41,  39,  36,  34,  33,  31,  29,  28,  26,  25,  24,  22,  21,  20,  20 },
+	{  72,  71,  70,  69,  67,  66,  65,  63,  62,  60,  58,  56,  54,  52,  50,  47,  45,  43,  40,  38,  36,  34,  32,  30,  28,  27,  25,  24,  22,  21,  20,  19,  18 },
+	{  73,  72,  71,  70,  69,  67,  66,  65,  63,  61,  59,  57,  55,  53,  50,  48,  45,  42,  40,  37,  35,  33,  31,  29,  27,  25,  24,  22,  21,  20,  19,  18,  17 },
+	{  74,  73,  72,  71,  70,  69,  67,  66,  64,  62,  60,  58,  56,  53,  51,  48,  45,  42,  39,  37,  34,  32,  30,  28,  26,  24,  22,  21,  20,  19,  18,  17,  16 },
+	{  75,  75,  74,  73,  72,  70,  69,  67,  66,  64,  62,  60,  57,  54,  51,  48,  45,  42,  39,  36,  33,  30,  28,  26,  24,  22,  21,  20,  18,  17,  16,  15,  15 },
+	{  77,  76,  75,  74,  73,  72,  71,  69,  67,  66,  63,  61,  58,  55,  52,  49,  45,  41,  38,  35,  32,  29,  27,  24,  22,  21,  19,  18,  17,  16,  15,  14,  13 },
+	{  78,  77,  77,  76,  75,  74,  73,  71,  69,  67,  65,  63,  60,  57,  53,  49,  45,  41,  37,  33,  30,  27,  25,  22,  21,  19,  17,  16,  15,  14,  13,  13,  12 },
+	{  80,  79,  78,  78,  77,  76,  75,  73,  72,  70,  67,  65,  62,  58,  54,  50,  45,  40,  36,  32,  28,  25,  22,  20,  18,  17,  15,  14,  13,  12,  12,  11,  10 },
+	{  81,  81,  80,  79,  79,  78,  77,  75,  74,  72,  70,  67,  64,  60,  56,  51,  45,  39,  34,  30,  26,  22,  20,  18,  16,  15,  13,  12,  11,  11,  10,   9,   9 },
+	{  83,  83,  82,  81,  81,  80,  79,  78,  77,  75,  73,  71,  67,  63,  58,  52,  45,  38,  32,  27,  22,  19,  17,  15,  13,  12,  11,  10,   9,   9,   8,   7,   7 },
+	{  85,  84,  84,  84,  83,  82,  82,  81,  80,  78,  77,  75,  72,  67,  62,  54,  45,  36,  28,  22,  18,  15,  13,  12,  10,   9,   8,   8,   7,   6,   6,   6,   5 },
+	{  86,  86,  86,  86,  85,  85,  84,  84,  83,  82,  81,  79,  77,  73,  67,  58,  45,  32,  22,  17,  13,  11,   9,   8,   7,   6,   6,   5,   5,   4,   4,   4,   4 },
+	{  88,  88,  88,  88,  88,  87,  87,  87,  86,  86,  85,  84,  83,  81,  77,  67,  45,  22,  13,   9,   7,   6,   5,   4,   4,   3,   3,   3,   2,   2,   2,   2,   2 },
+	{  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90, 255,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 },
+	{  92,  92,  92,  92,  92,  93,  93,  93,  94,  94,  95,  96,  97,  99, 103, 113, 135, 158, 167, 171, 173, 174, 175, 176, 176, 177, 177, 177, 178, 178, 178, 178, 178 },
+	{  94,  94,  94,  94,  95,  95,  96,  96,  97,  98,  99, 101, 103, 107, 113, 122, 135, 148, 158, 163, 167, 169, 171, 172, 173, 174, 174, 175, 175, 176, 176, 176, 176 },
+	{  95,  96,  96,  96,  97,  98,  98,  99, 100, 102, 103, 105, 108, 113, 118, 126, 135, 144, 152, 158, 162, 165, 167, 168, 170, 171, 172, 172, 173, 174, 174, 174, 175 },
+	{  97,  97,  98,  99,  99, 100, 101, 102, 103, 105, 107, 109, 113, 117, 122, 128, 135, 142, 148, 153, 158, 161, 163, 165, 167, 168, 169, 170, 171, 171, 172, 173, 173 },
+	{  99,  99, 100, 101, 101, 102, 103, 105, 106, 108, 110, 113, 116, 120, 124, 129, 135, 141, 146, 150, 154, 158, 160, 162, 164, 165, 167, 168, 169, 169, 170, 171, 171 },
+	{ 100, 101, 102, 102, 103, 104, 105, 107, 108, 110, 113, 115, 118, 122, 126, 130, 135, 140, 144, 148, 152, 155, 158, 160, 162, 163, 165, 166, 167, 168, 168, 169, 170 },
+	{ 102, 103, 103, 104, 105, 106, 107, 109, 111, 113, 115, 117, 120, 123, 127, 131, 135, 139, 143, 147, 150, 153, 155, 158, 159, 161, 163, 164, 165, 166, 167, 167, 168 },
+	{ 103, 104, 105, 106, 107, 108, 109, 111, 113, 114, 117, 119, 122, 125, 128, 131, 135, 139, 142, 145, 148, 151, 153, 156, 158, 159, 161, 162, 163, 164, 165, 166, 167 },
+	{ 105, 105, 106, 107, 108, 110, 111, 113, 114, 116, 118, 120, 123, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152, 154, 156, 158, 159, 160, 162, 163, 164, 165, 165 },
+	{ 106, 107, 108, 109, 110, 111, 113, 114, 116, 118, 120, 122, 124, 127, 129, 132, 135, 138, 141, 143, 146, 148, 150, 152, 154, 156, 158, 159, 160, 161, 162, 163, 164 },
+	{ 107, 108, 109, 110, 111, 113, 114, 115, 117, 119, 121, 123, 125, 127, 130, 132, 135, 138, 140, 143, 145, 147, 149, 151, 153, 155, 156, 158, 159, 160, 161, 162, 163 },
+	{ 108, 109, 110, 111, 113, 114, 115, 117, 118, 120, 122, 124, 126, 128, 130, 133, 135, 137, 140, 142, 144, 146, 148, 150, 152, 153, 155, 156, 158, 159, 160, 161, 162 },
+	{ 110, 110, 111, 113, 114, 115, 116, 118, 119, 121, 123, 124, 126, 129, 131, 133, 135, 137, 139, 141, 144, 146, 147, 149, 151, 152, 154, 155, 156, 158, 159, 160, 160 },
+	{ 111, 112, 113, 114, 115, 116, 117, 119, 120, 122, 123, 125, 127, 129, 131, 133, 135, 137, 139, 141, 143, 145, 147, 148, 150, 151, 153, 154, 155, 156, 158, 159, 159 },
+	{ 112, 113, 114, 115, 116, 117, 118, 120, 121, 122, 124, 126, 128, 129, 131, 133, 135, 137, 139, 141, 142, 144, 146, 148, 149, 150, 152, 153, 154, 155, 157, 158, 159 },
+	{ 113, 114, 114, 115, 117, 118, 119, 120, 122, 123, 125, 126, 128, 130, 131, 133, 135, 137, 139, 140, 142, 144, 145, 147, 148, 150, 151, 152, 153, 155, 156, 157, 158 }
+};
+
 

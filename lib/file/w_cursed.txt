@@ -1,4 +1,4 @@
-12
+18
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Fighting Cock'
 'Ravenslayer'
@@ -12,3 +12,9 @@ of Angmar
 of Barad-dur
 of the Necromancer
 of Dol Guldur
+of Forodwaith
+of Caranthir
+'Fell Fire'
+of Amlach
+'Feadorthang'
+'Umarth'

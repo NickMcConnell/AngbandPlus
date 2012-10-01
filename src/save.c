@@ -757,7 +757,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-	wr_byte(0);
+	wr_byte(m_ptr->stasis);
 }
 
 
@@ -767,10 +767,6 @@ static void wr_monster(monster_type *m_ptr)
 static void wr_lore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-
-	/* Hack -- Player ghosts are always unknown to new characters. -LM- */
-	if ((p_ptr->is_dead) && (r_ptr->flags2 & (RF2_PLAYER_GHOST))) r_ptr->r_sights = 0;
 
 	/* Count sights/deaths/kills */
 	wr_s16b(r_ptr->r_sights);
@@ -819,7 +815,7 @@ static void wr_lore(int r_idx)
 
 
 /*
- * Write an "xtra" record
+ * Write an "xtra" record.  Records knowledge of object kinds.
  */
 static void wr_xtra(int k_idx)
 {
@@ -829,6 +825,7 @@ static void wr_xtra(int k_idx)
 
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->known_effect) tmp8u |= 0x04;
 
 	wr_byte(tmp8u);
 }
@@ -1107,6 +1104,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->shield);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
+	wr_s16b(p_ptr->tim_esp);
+	wr_s16b(p_ptr->superstealth);
+	wr_s16b(p_ptr->ele_attack);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
@@ -1116,7 +1116,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
 
-	wr_byte(p_ptr->confusing);
+	wr_u32b(p_ptr->special_attack); /* Attack modifier flags. */
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->black_breath);	/* Now used to store Black Breath. */
@@ -1132,14 +1132,23 @@ static void wr_extra(void)
 	/* Store the number of thefts on the level. -LM- */
 	wr_byte(number_of_thefts_on_level);
 
-	/* Store whether a monster trap exists on this level. -LM- */
-	wr_byte(monster_trap_on_level);
+	/* Store number of monster traps on this level. -LM- */
+	wr_byte(num_trap_on_level);
+
+	/* Store number of glyphs on this level. -LM- */
+	wr_byte(num_glyph_on_level);
+
+	wr_byte(p_ptr->themed_level); /* Stores the current themed level. -LM- */
+
+	/* Stores what themed levels have already appeared. -LM- */
+	wr_u32b(p_ptr->themed_level_appeared);
 
 
 	/* Future use */
-
 	wr_byte(0);
-	for (i = 0; i < 11; i++) wr_u32b(0L);
+	wr_byte(0);
+	wr_byte(0);
+	for (i = 0; i < 9; i++) wr_u32b(0L);
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
@@ -1779,11 +1788,8 @@ bool save_player(void)
  */
 bool load_player(void)
 {
-	int fd = -1;
-
 	errr err = 0;
 
-	byte vvv[4];
 
 #ifdef VERIFY_TIMESTAMP
 	struct stat	statbuf;
@@ -1863,7 +1869,7 @@ bool load_player(void)
 
 #endif
 
-
+#ifdef VERIFY_TIMESTAMP
 	/* Okay */
 	if (!err)
 	{
@@ -1875,36 +1881,28 @@ bool load_player(void)
 
 		/* Message (below) */
 		if (err) what = "Cannot open savefile";
-	}
 
-	/* Process file */
-	if (!err)
-	{
-
-#ifdef VERIFY_TIMESTAMP
 		/* Get the timestamp */
 		(void)fstat(fd, &statbuf);
-#endif
-
-		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
-
-		/* What */
-		if (err) what = "Cannot read savefile";
 
 		/* Close the file */
 		fd_close(fd);
 	}
+#endif
+
+	/* Collect the Angband and Oangband version information. */
+	if (!err)
+	{
+		/* Read file. */
+		err = rd_version_info();
+
+		/* Describe errors */
+		if (err == -1) what = "Cannot open savefile";
+	}
 
 	/* Process file */
 	if (!err)
 	{
-		/* Extract version */
-		sf_major = vvv[0];
-		sf_minor = vvv[1];
-		sf_patch = vvv[2];
-		sf_extra = vvv[3];
-
 		/* Very old savefiles */
 		if ((sf_major == 5) && (sf_minor == 2))
 		{
@@ -1985,13 +1983,16 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((version_major != sf_major) ||
-		    (version_minor != sf_minor) ||
-		    (version_patch != sf_patch))
+		if ((o_version_major != o_sf_major) ||
+		    (o_version_minor != o_sf_minor) ||
+		    (o_version_patch != o_sf_patch))
 		{
 			/* Message */
-			msg_format("Converted a %d.%d.%d savefile.",
-			           sf_major, sf_minor, sf_patch);
+			if ((o_sf_major == 0) && (o_sf_minor == 2))
+				msg_format("Converted an Angband %d.%d.%d savefile.",
+				sf_major, sf_minor, sf_patch);
+			else msg_format("Converted an Oangband %d.%d.%d savefile.",
+				o_sf_major, o_sf_minor, o_sf_patch);
 			msg_print(NULL);
 		}
 
@@ -2055,8 +2056,12 @@ bool load_player(void)
 
 
 	/* Message */
-	msg_format("Error (%s) reading %d.%d.%d savefile.",
-	           what, sf_major, sf_minor, sf_patch);
+	if ((o_sf_major == 0) && (o_sf_minor == 2))
+		msg_format("Error (%s) reading an Angband %d.%d.%d savefile.",
+		what, sf_major, sf_minor, sf_patch);
+	else msg_format("Error (%s) reading an Oangband %d.%d.%d savefile.",
+		what, o_sf_major, o_sf_minor, o_sf_patch);
+
 	msg_print(NULL);
 
 	/* Oops */

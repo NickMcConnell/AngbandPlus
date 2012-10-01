@@ -14,9 +14,6 @@
 
 #include "angband.h"
 
-/* Race type to use when making clone or symbol nests or pits.  From Zangband. */
-int template_race;
-
 /*
  * Note that Level generation is *not* an important bottleneck,
  * though it can be annoyingly slow on older machines...  Thus
@@ -112,9 +109,10 @@ int template_race;
 #define DUN_ROOMS			50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL		200	/* (Level + 3)/chance of unusual room */
 #define DUN_INTERESTING  	22	/* 1/chance of interesting room (type 7) -LM- */
-#define DUN_DEST			24	/* 1/chance of having a destroyed level */
+#define DUN_DEST			30	/* 1/chance of having a destroyed level */
 #define EMPTY_LEVEL_CHANCE 	16  	/* 1/chance of being 'empty'.  From Zangband. */
 #define LIGHT_EMPTY  		4  	/* 3/# chance of arena level being lit, max. */
+#define THEMED_LEVEL_CHANCE	120	/* 1/# chance of a themed level. */
 
 
 /*
@@ -182,6 +180,18 @@ int template_race;
  */
 #define ROOM_MAX	10
 
+
+/*
+ * Race type to use when making clone or symbol nests or pits.  From Zangband.
+ */
+int template_race;
+
+
+/*
+ * Default pointer to monster generation restriction functions, used in 
+ * themed levels if no other restrcition applies. -LM-
+ */
+static bool (*get_mon_num_hook_temp)(int r_idx);
 
 
 /*
@@ -271,6 +281,22 @@ static room_data room[ROOM_MAX] =
 	{ 0, 1, -1, 1, 5 },		/* 8 = Lesser vault (33x22) */
 	{ -1, 2, -2, 3, 10 }		/* 9 = Greater vault (66x44) */
 };
+
+
+/*
+ * Holds index, height, width, min_depth, and max_depth information about 
+ * each currently available themed level. -LM-
+ */
+static byte themed_levels[THEME_MAX][5] = 
+{
+	{ 1, 66, 198, 35,  70 },
+	{ 2, 66, 198, 40,  80 },
+	{ 3, 66, 198, 30,  60 },
+	{ 4, 66, 198, 60, 255 },
+	{ 5, 66, 198, 20,  45 },
+	{ 6, 66, 198, 20,  80 }
+};
+
 
 
 
@@ -608,7 +634,7 @@ static void alloc_object(int set, int typ, int num)
 
 			case ALLOC_TYP_OBJECT:
 			{
-				place_object(y, x, FALSE, FALSE, 0);
+				place_object(y, x, FALSE, FALSE, FALSE);
 				break;
 			}
 		}
@@ -803,7 +829,7 @@ static void vault_objects(int y, int x, int num)
 			/* Place an item */
 			if (rand_int(100) < 75)
 			{
-				place_object(j, k, FALSE, FALSE, 0);
+				place_object(j, k, FALSE, FALSE, FALSE);
 			}
 
 			/* Place gold */
@@ -1348,7 +1374,7 @@ static void build_type3(int y0, int x0)
 			generate_hole(y1b, x1a, y2b, x2a, FEAT_SECRET);
 
 			/* Place a treasure in the vault */
-			place_object(y0, x0, FALSE, FALSE, 0);
+			place_object(y0, x0, FALSE, FALSE, FALSE);
 
 			/* Let's guard the treasure well */
 			vault_monsters(y0, x0, rand_int(2) + 3);
@@ -1488,7 +1514,7 @@ static void build_type4(int y0, int x0)
 			/* Object (80%) */
 			if (rand_int(100) < 80)
 			{
-				place_object(y0, x0, FALSE, FALSE, 0);
+				place_object(y0, x0, FALSE, FALSE, FALSE);
 			}
 
 			/* Stairs (20%) */
@@ -1552,8 +1578,8 @@ static void build_type4(int y0, int x0)
 				vault_monsters(y0, x0 + 2, randint(2));
 
 				/* Objects */
-				if (rand_int(3) == 0) place_object(y0, x0 - 2, FALSE, FALSE, 0);
-				if (rand_int(3) == 0) place_object(y0, x0 + 2, FALSE, FALSE, 0);
+				if (rand_int(3) == 0) place_object(y0, x0 - 2, FALSE, FALSE, FALSE);
+				if (rand_int(3) == 0) place_object(y0, x0 + 2, FALSE, FALSE, FALSE);
 			}
 
 			break;
@@ -1668,7 +1694,6 @@ static bool vault_aux_jelly(int r_idx)
 	return (TRUE);
 }
 
-
 /*
  * Helper function for "monster nest (animal)"
  */
@@ -1685,7 +1710,6 @@ static bool vault_aux_animal(int r_idx)
 	/* Okay */
 	return (TRUE);
 }
-
 
 /*
  * Helper function for "monster nest (undead)"
@@ -1715,10 +1739,11 @@ static bool vault_aux_kennel(int r_idx)
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
 	/* Require a Zephyr Hound or a dog */
-	return ((r_ptr->d_char == 'Z') || (r_ptr->d_char == 'C'));
+	if (!strchr("ZC", r_ptr->d_char)) return (FALSE);
 
+	/* Okay */
+	return (TRUE);
 }
-
 
 /*
  * Helper function for "monster nest (clone)".  From Zangband.
@@ -1727,7 +1752,6 @@ static bool vault_aux_clone(int r_idx)
 {
 	return (r_idx == template_race);
 }
-
 
 /*
  * Helper function for "monster nest (symbol clone)".  From Zangband.
@@ -1755,7 +1779,6 @@ static bool vault_aux_orc(int r_idx)
 	return (TRUE);
 }
 
-
 /*
  * Helper function for "monster pit (troll)"
  */
@@ -1772,7 +1795,6 @@ static bool vault_aux_troll(int r_idx)
 	/* Okay */
 	return (TRUE);
 }
-
 
 /*
  * Helper function for "monster pit (giant)"
@@ -1821,7 +1843,6 @@ static bool vault_aux_dragon(int r_idx)
 	return (TRUE);
 }
 
-
 /*
  * Helper function for "monster pit (demon)"
  */
@@ -1839,13 +1860,81 @@ static bool vault_aux_demon(int r_idx)
 	return (TRUE);
 }
 
-/* Make the monster allocation table preparer aware of a racial restriction. */
+
+
+
+/*** Monster restriction functions not currently used for nests and pits ***/
+
+/*
+ * Restrict monsters to giants, ogres, orcs, and trolls
+ */
+static bool vault_aux_moria(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require giants, ogres, orcs, or trolls */
+	if (!strchr("POoT", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Hack - select beings of the four basic elements. -LM-
+ */
+static bool vault_aux_elemental(int r_idx)
+{
+	u32b breaths_allowed;
+	monster_race *r_ptr = &r_info[r_idx];
+
+
+	/* Demons are always welcome. */
+	if ((required_race == 'U') || (required_race == 'u')) return (TRUE);
+
+	/* Certain names are a givaway. */
+	if (strstr(r_name + r_ptr->name, "Fire") || 
+		strstr(r_name + r_ptr->name, "Hell") || 
+		strstr(r_name + r_ptr->name, "Frost") || 
+		strstr(r_name + r_ptr->name, "Cold") || 
+		strstr(r_name + r_ptr->name, "Acid") || 
+		strstr(r_name + r_ptr->name, "Water") || 
+		strstr(r_name + r_ptr->name, "Energy")) return(TRUE);
+
+	/* Otherwise, try selecting by breath attacks. */
+	breaths_allowed = (RF4_BR_ACID | RF4_BR_ELEC |
+		RF4_BR_FIRE | RF4_BR_COLD);
+
+	/* Must have at least one of the required breath attacks */
+	if (!(r_ptr->flags4 & breaths_allowed)) return (FALSE);
+
+	/* Okay */
+	return(TRUE);
+}
+
+/*
+ * Make the monster allocation table preparer aware of any racial restriction.
+ * Uniques are rare, but possible.  One themed level requires special 
+ * treatment. -LM-
+ */
 static bool vault_aux_racial(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+	/* Usually decline unique monsters. */
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (rand_int(5) != 0)) return (FALSE);
+
 	/* Require monsters of the race currently specified. */
 	if (!strchr(&required_race, r_ptr->d_char)) return (FALSE);
+
+
+	/* Special case:  Elemental war themed level. */
+	if (p_ptr->themed_level == THEME_ELEMENTAL)
+	{
+		return (vault_aux_elemental(r_idx));
+	}
 
 	/* Okay */
 	return (TRUE);
@@ -1937,12 +2026,16 @@ static void build_type5(int y0, int x0)
 	/* From Zangband. */
 	else if (tmp < 40)	/* Monster Nest -- symbol or racial clone. */
 	{
-		do  { template_race = randint(MAX_R_IDX); }
-			while ((r_info[template_race].flags1 & RF1_UNIQUE)
-				|| (((r_info[template_race].level) + randint(5)) >
-				(p_ptr->depth + randint(5))));
+		/* Find a non-unique monster close to current level. */
+		do
+		{
+			template_race = randint(MAX_R_IDX);
+		}
+		while ((r_info[template_race].flags1 & RF1_UNIQUE) || 
+			(ABS(r_info[template_race].level - p_ptr->depth) > 5));
 
-		if ((randint(2) == 1) && (p_ptr->depth >= (15 + randint(15))))
+		/* Fill vault with either a single monster or members of a race */
+		if ((rand_int(2) == 1) && (p_ptr->depth > 15 + rand_int(15)))
 		{
 			name = "symbol clone";
 			get_mon_num_hook = vault_aux_symbol;
@@ -2019,8 +2112,10 @@ static void build_type5(int y0, int x0)
 	/* Increase the level rating */
 	rating += 10;
 
-	/* (Sometimes) Cause a "special feeling" (for "Monster Nests").  Altered in Oangband. */
-	if ((randint(50) >= p_ptr->depth) && (randint(2) == 1))
+	/* (Sometimes) Cause a "special feeling" (for "Monster Nests").  
+	 * Altered in Oangband.
+	 */
+	if ((randint(50) >= p_ptr->depth) && (rand_int(2) == 0))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2050,10 +2145,10 @@ static void build_type5(int y0, int x0)
  * Monster types in the pit
  *   orc pit	(Dungeon Level 5 and deeper)
  *   troll pit	(Dungeon Level 20 and deeper)
- *   giant pit	(Dungeon Level 37 and deeper)
- *   clone pit	(Dungeon Level 54 and deeper)
- *   dragon pit	(Dungeon Level 68 and deeper)
- *   demon pit	(Dungeon Level 80 and deeper)
+ *   giant pit	(Dungeon Level 35 and deeper)
+ *   clone pit	(Dungeon Level 50 and deeper)
+ *   dragon pit	(Dungeon Level 70 and deeper)
+ *   demon pit	(Dungeon Level 70 and deeper)
  *
  * The inside room in a monster pit appears as shown below, where the
  * actual monsters in each location depend on the type of the pit
@@ -2127,7 +2222,7 @@ static void build_type6(int y0, int x0)
 
 	/* Choose a pit type.  Modified in Oangband. */
 	tmp = randint(p_ptr->depth);
-	if ((p_ptr->depth >= 20) && (randint(3) == 1)) tmp += 10;
+	if ((p_ptr->depth > 19) && (rand_int(3) == 0)) tmp += 10;
 	if (tmp > 100) tmp = randint(100);
 
 
@@ -2167,17 +2262,21 @@ static void build_type6(int y0, int x0)
 		/* Message */
 		name = "ordered clones";
 
-		do  { template_race = randint(MAX_R_IDX); }
-			while ((r_info[template_race].flags1 & RF1_UNIQUE)
-				|| (((r_info[template_race].level) + randint(5)) >
-					(p_ptr->depth + randint(5))));
+		do
+		{
+			template_race = randint(MAX_R_IDX);
+		}
+		while ((r_info[template_race].flags1 & RF1_UNIQUE) || 
+			(ABS(r_info[template_race].level - p_ptr->depth) > 5));
 
 		/* Restrict selection */
 		get_mon_num_hook = vault_aux_symbol;
 	}
 
-	/* Dragon pit. Dragons are at least as tough as demons, so they now appear as deep. -LM- */
-	else if (randint(3) != 1)
+	/* Dragon pit. Dragons are at least as tough as demons, so they now 
+	 * appear as deep. -LM-
+	 */
+	else if (rand_int(3) != 0)
 	{
 		/* Pick dragon type */
 		switch (rand_int(7))
@@ -2281,7 +2380,9 @@ static void build_type6(int y0, int x0)
 		get_mon_num_hook = vault_aux_dragon;
 	}
 
-	/* Demon pit.  Appears at the same level as dragon pits do, one-half as often. -LM- */
+	/* Demon pit.  Appears at the same level as dragon pits do, one-half as 
+	 * often. -LM-
+	 */
 	else
 	{
 		/* Message */
@@ -2430,6 +2531,8 @@ static int create_specific_race(char race, int gen_level, int level_boost)
 
 	bool empty = FALSE;
 
+	
+
 	/* Activate the racial restriction. */
 	required_race = race;
 
@@ -2461,8 +2564,8 @@ static int create_specific_race(char race, int gen_level, int level_boost)
 	}
 
 
-	/* Remove restriction */
-	get_mon_num_hook = NULL;
+	/* Apply default restriction (usually none). */
+	get_mon_num_hook = get_mon_num_hook_temp;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
@@ -2492,21 +2595,85 @@ static int create_specific_race(char race, int gen_level, int level_boost)
 		}
 	}
 
-	/* Return the toughest (or next toughest, for variety) monster. */
-	return (what[5 + randint(2)]);
+	/* Return one of the tougher monsters available. */
+	return (what[5 + rand_int(3)]);
+}
+
+
+/*
+ * Apply any special restrictions on monsters in vaults and themed levels. -LM-
+ */
+static void get_tl_mon_restrictions(void)
+{
+	/* Most themed levels require monster restrictions. */
+	switch (p_ptr->themed_level)
+	{
+		case THEME_ELEMENTAL:
+		{
+			get_mon_num_hook_temp = vault_aux_elemental;
+			break;
+		}
+		case THEME_DRAGON:
+		{
+			get_mon_num_hook_temp = vault_aux_dragon;
+			vault_aux_dragon_mask4 = 0;
+			break;
+		}
+		case THEME_WILDERNESS:
+		{
+			get_mon_num_hook_temp = vault_aux_animal;
+			break;
+		}
+		case THEME_DEMON:
+		{
+			get_mon_num_hook_temp = vault_aux_demon;
+			break;
+		}
+		case THEME_MORIA:
+		{
+			get_mon_num_hook_temp = vault_aux_moria;
+			break;
+		}
+		case THEME_WARLORDS:
+		{
+			break;
+		}
+	}
+
+	/* Start applying the restriction immediately. */
+	get_mon_num_hook = get_mon_num_hook_temp;
+
+	/* Prepare allocation table */
+	if (get_mon_num_hook) get_mon_num_prep();
 }
 
 
 
+
+
+
 /*
- * Hack -- fill in "vault" rooms
+ * Hack -- fill in "vault" rooms and themed levels
  */
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool light, bool icky)
 {
 	int dx, dy, x, y;
 	int temp;
 
+	bool placed = FALSE;
+
 	cptr t;
+
+	/* Default monster restriction, if any. */
+	get_mon_num_hook_temp = NULL;
+
+	/* Themed levels usually require monster restrictions that take effect 
+	 * if no other restrictions are currently in force. -LM-
+	 */
+	if (p_ptr->themed_level)
+	{
+		get_tl_mon_restrictions();
+	}
 
 
 	/* Place dungeon features and objects */
@@ -2515,11 +2682,22 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 			/* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			if (p_ptr->themed_level)
+			{
+				y = y0 + dy;
+				x = x0 + dx;
+			}
+			else
+			{
+				y = y0 - (ymax / 2) + dy;
+				x = x0 - (xmax / 2) + dx;
+			}
 
 			/* Hack -- skip "non-grids" */
-			if (*t == ' ') continue;
+			if (*t == ' ') 
+			{
+				continue;
+			}
 
 			/* Lay down a floor */
 			cave_set_feat(y, x, FEAT_FLOOR);
@@ -2532,10 +2710,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 			/* Analyze the grid */
 			switch (*t)
 			{
-				/* Granite wall (outer) */
+				/* Granite wall (outer) or outer edge of dungeon level. */
 				case '%':
 				{
-					cave_set_feat(y, x, FEAT_WALL_OUTER);
+					if (p_ptr->themed_level)
+						cave_set_feat(y, x, FEAT_PERM_SOLID);
+					else
+						cave_set_feat(y, x, FEAT_WALL_OUTER);
 					break;
 				}
 				/* Granite wall (inner) */
@@ -2587,7 +2768,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 				{
 					if (rand_int(100) < 50)
 					{
-						place_object(y, x, FALSE, FALSE, 0);
+						place_object(y, x, FALSE, FALSE, FALSE);
 					}
 					else
 					{
@@ -2607,6 +2788,26 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					place_trap(y, x);
 					break;
 				}
+				/* Up stairs (and player location in themed level).  */
+				case '<':
+				{
+					cave_set_feat(y, x, FEAT_LESS);
+
+					/* Place player only in themed level, and only once. */
+					if ((p_ptr->themed_level) && (!placed))
+					{
+						player_place(y, x);
+						placed = TRUE;
+					}
+
+					break;
+				}
+				/* Down stairs. */
+				case '>':
+				{
+					cave_set_feat(y, x, FEAT_MORE);
+					break;
+				}
 			}
 		}
 	}
@@ -2618,8 +2819,16 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 			/* Extract the grid */
-			x = x0 - (xmax/2) + dx;
-			y = y0 - (ymax/2) + dy;
+			if (p_ptr->themed_level)
+			{
+				y = y0 + dy;
+				x = x0 + dx;
+			}
+			else
+			{
+				y = y0 - (ymax / 2) + dy;
+				x = x0 - (xmax / 2) + dx;
+			}
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2638,9 +2847,9 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 				 * (A little hack:  interesting rooms don't have
 				 * quite as tough monsters).
 				 */
-				place_monster_aux(y, x, 
-					create_specific_race(*t, light ? p_ptr->depth : p_ptr->depth + 3, 30), 
-						FALSE, FALSE);
+				place_monster_aux(y, x, create_specific_race(*t, 
+					light ? p_ptr->depth : p_ptr->depth + 3, 
+					light ? 10 : 30), FALSE, FALSE);
 			}
 
 
@@ -2650,7 +2859,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 				/* An ordinary monster, object (sometimes good), or trap. -LM- */
 				case '1':
 				{
-					if (randint(3) == 1)
+					if (rand_int(3) == 0)
 					{
 						place_monster(y, x, TRUE, TRUE);
 					}
@@ -2658,10 +2867,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					 * guaranteed "good" quality objects, but perhaps 
 					 * it's better that it does at least sometimes.
 					 */
-					else if (randint(2) == 1)
+					else if (rand_int(2) == 0)
 					{
-						if (randint(4) == 1) place_object(y, x, TRUE, FALSE, 0);
-						else place_object(y, x, FALSE, FALSE, 0);
+						if (rand_int(5) == 0) place_object(y, x, TRUE, FALSE, FALSE);
+						else place_object(y, x, FALSE, FALSE, FALSE);
 
 					}
 					else
@@ -2682,7 +2891,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 				case '3':
 				{
 					object_level = p_ptr->depth + 3;
-					place_object(y, x, FALSE, FALSE, 0);
+					place_object(y, x, FALSE, FALSE, FALSE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2698,7 +2907,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					if (rand_int(100) < 50)
 					{
 						object_level = p_ptr->depth + 4;
-						place_object(y, x, FALSE, FALSE, 0);
+						place_object(y, x, FALSE, FALSE, FALSE);
 						object_level = p_ptr->depth;
 					}
 					break;
@@ -2707,7 +2916,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 				case '5':
 				{
 					object_level = p_ptr->depth + 7;
-					place_object(y, x, FALSE, FALSE, 0);
+					place_object(y, x, FALSE, FALSE, FALSE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2723,7 +2932,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 				case '7':
 				{
 					object_level = p_ptr->depth + 15;
-					place_object(y, x, FALSE, FALSE, 0);
+					place_object(y, x, FALSE, FALSE, FALSE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2742,7 +2951,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 5;
-					place_object(y, x, TRUE, FALSE, 0);
+					place_object(y, x, TRUE, FALSE, FALSE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2754,7 +2963,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
 					object_level = p_ptr->depth + 15;
-					place_object(y, x, TRUE, TRUE, 0);
+					place_object(y, x, TRUE, TRUE, FALSE);
 					object_level = p_ptr->depth;
 					break;
 				}
@@ -2928,6 +3137,23 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 			}
 		}
 	}
+
+	/* Clear any default monster restrictions. -LM- */
+	get_mon_num_hook_temp = NULL;
+
+	/* Clear any current monster restrictions. -LM- */
+	if (get_mon_num_hook)
+	{
+		get_mon_num_hook = NULL;
+		get_mon_num_prep();
+	}
+
+	/* Ensure that the player is always placed in a themed level. -LM- */
+	if ((p_ptr->themed_level) && (!placed))
+	{
+		new_player_spot();
+	}
+
 }
 
 
@@ -2939,15 +3165,15 @@ static void build_type7(int y0, int x0)
 	vault_type *v_ptr;
 	int i;
 
-	/* Pick a interesting room at random.  Our patience gives out after 100 tries. */
+	/* Pick an interesting room at random.  Our patience gives out after 100 tries. */
 	for(i = 0; i < 100; i++)
 	{
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
 		/* Accept the first interesting room that is acceptable for this depth. -LM- */
-		if ((v_ptr->typ == 7) && (v_ptr->min_lev < p_ptr->depth + 1) && 
-			(v_ptr->max_lev > p_ptr->depth - 1)) break;
+		if ((v_ptr->typ == 7) && (v_ptr->min_lev <= p_ptr->depth) && 
+			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
 
 	/* Boost the rating */
@@ -2955,7 +3181,7 @@ static void build_type7(int y0, int x0)
 
 	/* Hack -- Build the interesting room (sometimes lit). */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-		p_ptr->depth <= randint(35), FALSE);
+		p_ptr->depth < rand_int(37), FALSE);
 }
 
 /*
@@ -2973,8 +3199,8 @@ static void build_type8(int y0, int x0)
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
 		/* Accept the first lesser vault that is acceptable for this depth. -LM- */
-		if ((v_ptr->typ == 8) && (v_ptr->min_lev < p_ptr->depth + 1) && 
-			(v_ptr->max_lev > p_ptr->depth - 1)) break;
+		if ((v_ptr->typ == 8) && (v_ptr->min_lev <= p_ptr->depth) && 
+			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
 
 	/* Message */
@@ -3468,7 +3694,73 @@ static bool room_build(int by0, int bx0, int typ)
 
 
 /*
- * Generate a new dungeon level.  Zangband's code for creating empty levels added.
+ * Creation of themed levels.  Use a set of flags to ensure that no level is 
+ * built more than once.  Store the current themed level number for later 
+ * reference.  Hack -- use a hardcoded table to obtain certain information we 
+ * need before initializing the t_info arrays.  -LM-
+ *
+ * see "lib/edit/t_info.txt".  
+ */
+static bool build_themed_level(void)
+{
+	byte i, choice;
+
+	vault_type *t_ptr;
+
+
+	/* Pick a themed level at random.  Our patience gives out after 40 tries. */
+	for(i = 0; i < 40; i++)
+	{
+		/* Select a random themed level record. */
+		choice = randint(THEME_MAX);
+
+		/* Accept the first themed level, among those not already generated,
+		 * able to be generated at this depth.
+		 */
+		if ((!(p_ptr->themed_level_appeared & (1L << (choice - 1)))) && 
+			(themed_levels[choice - 1][3] <= p_ptr->depth) && 
+			(themed_levels[choice - 1][4] >= p_ptr->depth)) break;
+
+		/* Admit failure. */
+		if (i == 39) return (FALSE);
+	}
+
+	/* Give the player something to read. */
+	msg_print("Please wait.  This may take a little while.");
+
+
+	/* Initialize the info arrays for the chosen themed level only.  Do 
+	 * not build the themed level if forbidden, or if an error occurs.
+	 */
+	if (init_t_info(choice)) return (FALSE);
+
+	/* Access the chosen themed level */
+	t_ptr = &t_info[choice];
+
+
+	/* Indicate that the player is on the selected themed level. */
+	p_ptr->themed_level = choice;
+
+	/* Hack -- Build the themed level. */
+	build_vault(0, 0, themed_levels[choice - 1][1], 
+		themed_levels[choice - 1][2], t_text + t_ptr->text, FALSE, FALSE);
+
+	/* Indicate that this theme is built, and should not appear again. */
+	p_ptr->themed_level_appeared |= (1L << (choice - 1));
+
+
+	/* Kill the themed level arrays */
+	kill_t_info();
+
+	/* Success. */
+	return (TRUE);
+}
+
+
+
+/*
+ * Generate a new dungeon level.  Zangband's code for creating empty levels 
+ * added.  It is possible for a themed level to be generated. -LM-
  *
  * Note that "dun_body" adds about 4000 bytes of memory to the stack.
  */
@@ -3489,13 +3781,27 @@ static void cave_gen(void)
 	/* Assume level is normal */
 	empty_level = FALSE;
 
-	if ((randint(EMPTY_LEVEL_CHANCE) == 1) && empty_levels && p_ptr->depth >= 8)
+
+	/* It is possible for levels to be themed. -LM- */
+	if ((rand_int(THEMED_LEVEL_CHANCE) == 0) && (p_ptr->depth >= 20) && 		((turn - old_turn) >= 1000) && build_themed_level())
+	{
+		/* Message. */
+		if (cheat_room) msg_print("Themed level.");
+
+		/* Nothing more to do. */
+		return;
+	}
+
+	/* It is possible for levels to be empty.  From Zangband. */
+	if ((rand_int(EMPTY_LEVEL_CHANCE) == 0) && empty_levels && 
+		p_ptr->depth > 7)
 	{
 		empty_level = TRUE;
 		if (cheat_room) msg_print("Arena level.");
 	}
 
-	/* Hack -- Start with basic granite */
+
+	/* Hack -- Start with basic granite (or floor, if empty) */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
@@ -4027,6 +4333,10 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
+
+	/* Assume level is not themed. -LM- */
+	p_ptr->themed_level = 0;
+
 	/* Generate */
 	for (num = 0; TRUE; num++)
 	{
@@ -4087,7 +4397,6 @@ void generate_cave(void)
 
 		/* Nothing good here yet */
 		rating = 0;
-
 
 		/* Build the town */
 		if (!p_ptr->depth)
@@ -4188,8 +4497,9 @@ void generate_cave(void)
 	/* Remember when this level was "created" */
 	old_turn = turn;
 
-	/* Reset the number of monster traps and thefts on the level. -LM- */
-	monster_trap_on_level = 0;
+	/* Reset the number of traps, glyphs, and thefts on the level. -LM- */
+	num_trap_on_level = 0;
+	num_glyph_on_level = 0;
 	number_of_thefts_on_level = 0;
 }
 

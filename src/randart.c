@@ -10,8 +10,8 @@
  *
  * Copyright (c) 1998 Leon Marrick
  *
- * I owe thanks to Greg Wooledge for his support and code and to W. Sheldon 
- * Simms for his Tolkienesque random name generator.
+ * I owe thanks to Greg Wooledge for his support and string-handling code 
+ * and to W. Sheldon Simms for his Tolkienesque random name generator.
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -34,7 +34,7 @@ static int max_potential = 0;
 static byte add_pval_later1 = 0;
 static byte add_pval_later2 = 0;
 
-/* Global variable indicating if the random naming routine is unavailable. */
+/* Global variable indicating that the random naming routine is unavailable. */
 static bool find_all_names = FALSE;
 
 
@@ -139,7 +139,9 @@ static char *names[MAX_A_IDX];
 
 
 
-/* Debit an artifact's account. */
+/* 
+ * Debit an artifact's account.
+ */
 static bool take_money(bool on_credit, int cost)
 {
 	/* Take the money. */
@@ -162,7 +164,9 @@ static bool take_money(bool on_credit, int cost)
 
 
 
-/* Grant the quality asked for, if the artifact can afford it. */
+/* 
+ * Grant the quality asked for, if the artifact can afford it.
+ */
 static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
@@ -883,19 +887,20 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 
 
 
-/* Assign a tval and sval, grant a certain amount of potential to be used 
+/* 
+ * Assign a tval and sval, grant a certain amount of potential to be used 
  * for acquiring powers, and determine rarity and native depth.
  */
 static void initialize_artifact(int a_idx)
 {
-	int i, tval_selection, sval_selection;
+	int i;
+	int index, freq, rarity;
 	int base_object_depth, base_object_rarity;
 	int artifact_depth, artifact_rarity;
 
 	int power_of_base_object = 0;
 	int base_object_activation = 0;
 
-	int tval, sval, k_idx;
 
 	object_kind *k_ptr;
 	artifact_type *a_ptr = &a_info[a_idx];
@@ -930,526 +935,172 @@ static void initialize_artifact(int a_idx)
 	 * reduce artifact power by will be calculated.  If the base object has
 	 * an activation, it will be preserved (at least initially).
 	 */
-	tval_selection = rand_int(100);
-	sval_selection = rand_int(100);
-
-	if (tval_selection < 11)
+	while(TRUE)
 	{
-		tval = TV_BOW;
+		/* Acquire an object at random */
+		index = rand_int(MAX_K_IDX);
+		k_ptr = &k_info[index];
 
-		if (sval_selection < 20)
-		{
-			sval = SV_SLING;
-		}
-		else if (sval_selection < 40)
-		{
-			sval = SV_SHORT_BOW;
-		}
-		else if (sval_selection < 60)
-		{
-			sval = SV_LONG_BOW;
-		}
-		else if (sval_selection < 80)
-		{
-			sval = SV_LIGHT_XBOW;
-		}
-		else
-		{
-			sval = SV_HEAVY_XBOW;
-			power_of_base_object = 750;
-		}
-	}
+		/* Skip "empty" objects */
+		if (!k_ptr->name) continue;
 
-	else if (tval_selection < 22)
-	{
-		tval = TV_HAFTED;
+		/* Skip objects that are not weapons or armour. */
+		if ((k_ptr->tval != TV_BOW) && (k_ptr->tval != TV_HAFTED) && 
+			(k_ptr->tval != TV_POLEARM) && (k_ptr->tval != TV_SWORD) && 
+			(k_ptr->tval != TV_BOOTS) && (k_ptr->tval != TV_GLOVES) && 
+			(k_ptr->tval != TV_HELM) && (k_ptr->tval != TV_CROWN)&& 
+			(k_ptr->tval != TV_SHIELD) && (k_ptr->tval != TV_CLOAK) && 
+			(k_ptr->tval != TV_SOFT_ARMOR) && (k_ptr->tval != TV_HARD_ARMOR) 
+			&& (k_ptr->tval != TV_DRAG_ARMOR))
+		{
+			continue;
+		}
 
-		if (sval_selection < 10)
-		{
-			sval = SV_WHIP;
-		}
-		else if (sval_selection < 20)
-		{
-			sval = SV_QUARTERSTAFF;
-		}
-		else if (sval_selection < 27)
-		{
-			sval = SV_THROWING_HAMMER;
-			power_of_base_object = 500;
-		}
-		else if (sval_selection < 37)
-		{
-			sval = SV_MACE;
-		}
-		else if (sval_selection < 47)
-		{
-			sval = SV_WAR_HAMMER;
-		}
-		else if (sval_selection < 57)
-		{
-			sval = SV_LUCERN_HAMMER;
-		}
-		else if (sval_selection < 67)
-		{
-			sval = SV_MORNING_STAR;
-		}
-		else if (sval_selection < 77)
-		{
-			sval = SV_FLAIL;
-		}
-		else if (sval_selection < 87)
-		{
-			sval = SV_LEAD_FILLED_MACE;
-		}
-		else if (sval_selection < 94)
-		{
-			sval = SV_TWO_HANDED_FLAIL;
-			power_of_base_object = 250;
-		}
-		else
-		{
-			sval = SV_MACE_OF_DISRUPTION;
-			power_of_base_object = 500;
-		}
-	}
 
-	else if (tval_selection < 33)
-	{
- 		tval = TV_POLEARM;
+		/*** Determine rarity.  Method:  adding fractions ***/
+		freq = 0;
 
-		if (sval_selection < 7)
+		/* Scan all four allocation chance values */
+		for (i = 0; i < 4; i++) 
 		{
-			sval = SV_SPEAR;
-		}
-		else if (sval_selection < 14)
-		{
-			sval = SV_TRIDENT;
-		}
-		else if (sval_selection < 21)
-		{
-			sval = SV_PIKE;
-		}
-		else if (sval_selection < 28)
-		{
-			sval = SV_BEAKED_AXE;
-		}
-		else if (sval_selection < 35)
-		{
-			sval = SV_BROAD_AXE;
-		}
-		else if (sval_selection < 42)
-		{
-			sval = SV_GLAIVE;
-		}
-		else if (sval_selection < 49)
-		{
-			sval = SV_THROWING_AXE;
-			power_of_base_object = 500;
-		}
-		else if (sval_selection < 56)
-		{
-			sval = SV_HALBERD;
-		}
-		else if (sval_selection < 63)
-		{
-			sval = SV_SCYTHE;
-			power_of_base_object = 250;
-		}
-		else if (sval_selection < 70)
-		{
-			sval = SV_LANCE;
-		}
-		else if (sval_selection < 77)
-		{
-			sval = SV_BATTLE_AXE;
-		}
-		else if (sval_selection < 84)
-		{
-			sval = SV_GREAT_AXE;
-			power_of_base_object = 500;
-		}
-		else if (sval_selection < 91)
-		{
-			sval = SV_LOCHABER_AXE;
-			power_of_base_object = 500;
-		}
-		else
-		{
-			sval = SV_SCYTHE_OF_SLICING;
-			power_of_base_object = 750;
-		}
-	}
+			/* Skip empty values. */
+			if (k_ptr->chance[i] == 0) continue;
 
-	else if (tval_selection < 44)
-	{
- 		tval = TV_SWORD;
+			/* Sum relative chances of object being made. */
+			freq += (1000 / k_ptr->chance[i]);
+		}
+		if (!freq) continue;
+		rarity = 1000 / freq;
 
-		if (sval_selection < 8)
-		{
-			sval = SV_DAGGER;
-		}
-		if (sval_selection < 13)
-		{
-			sval = SV_MAIN_GAUCHE;
-		}
-		else if (sval_selection < 20)
-		{
-			sval = SV_RAPIER;
-		}
-		else if (sval_selection < 27)
-		{
-			sval = SV_SMALL_SWORD;
-		}
-		else if (sval_selection < 34)
-		{
-			sval = SV_SHORT_SWORD;
-		}
-		else if (sval_selection < 41)
-		{
-			sval = SV_SABRE;
-		}
-		else if (sval_selection < 48)
-		{
-			sval = SV_CUTLASS;
-		}
-		else if (sval_selection < 55)
-		{
-			sval = SV_BROAD_SWORD;
-		}
-		else if (sval_selection < 62)
-		{
-			sval = SV_LONG_SWORD;
-		}
-		else if (sval_selection < 69)
-		{
-			sval = SV_SCIMITAR;
-		}
-		else if (sval_selection < 76)
-		{
-			sval = SV_KATANA;
-		}
-		else if (sval_selection < 83)
-		{
-			sval = SV_BASTARD_SWORD;
-		}
-		else if (sval_selection < 90)
-		{
-			sval = SV_TWO_HANDED_SWORD;
-		}
-		else if (sval_selection < 96)
-		{
-			sval = SV_EXECUTIONERS_SWORD;
-			power_of_base_object = 500;
-		}
-		else
-		{
-			sval = SV_BLADE_OF_CHAOS;
-			power_of_base_object = 1000;
-		}
-	}
-
-	else if (tval_selection < 52)
-	{
- 		tval = TV_SHIELD;
-
-		if (sval_selection < 22)
-		{
-			sval = SV_SMALL_LEATHER_SHIELD;
-		}
-		else if (sval_selection < 44)
-		{
-			sval = SV_SMALL_METAL_SHIELD;
-		}
-		else if (sval_selection < 66)
-		{
-			sval = SV_LARGE_LEATHER_SHIELD;
-		}
-		else if (sval_selection < 88)
-		{
-			sval = SV_LARGE_METAL_SHIELD;
-		}
-		else
-		{
-			sval = SV_SHIELD_OF_DEFLECTION;
-			power_of_base_object = 500;
-		}
-	}
-
-	else if (tval_selection < 56)
-	{
- 		tval = TV_HELM;
-
-		if (sval_selection < 25)
-		{
-			sval = SV_HARD_LEATHER_CAP;
-		}
-		else if (sval_selection < 50)
-		{
-			sval = SV_METAL_CAP;
-		}
-		else if (sval_selection < 75)
-		{
-			sval = SV_IRON_HELM;
-		}
-		else
-		{
-			sval = SV_STEEL_HELM;
-		}
-	}
-
-	else if (tval_selection < 60)
-	{
- 		tval = TV_CROWN;
-
-		if (sval_selection < 33)
-		{
-			sval = SV_IRON_CROWN;
-		}
-		else if (sval_selection < 67)
-		{
-			sval = SV_GOLDEN_CROWN;
-		}
-		else
-		{
-			sval = SV_JEWELED_CROWN;
-		}
-	}
-
-	else if (tval_selection < 68)
-	{
- 		tval = TV_BOOTS;
-
-		if (sval_selection < 34)
-		{
-			sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
-		}
-		else if (sval_selection < 67)
-		{
-			sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
-		}
-		else
-		{
-			sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
-		}
-	}
-
-	else if (tval_selection < 76)
-	{
- 		tval = TV_CLOAK;
-
-		if (sval_selection < 66)
-		{
-			sval = SV_CLOAK;
-		}
-		else
-		{
-			sval = SV_SHADOW_CLOAK;
-		}
-	}
-
-	else if (tval_selection < 84)
-	{
- 		tval = TV_GLOVES;
-
-		if (sval_selection < 34)
-		{
-			sval = SV_SET_OF_LEATHER_GLOVES;
-		}
-		else if (sval_selection < 67)
-		{
-			sval = SV_SET_OF_GAUNTLETS;
-		}
-		else
-		{
-			sval = SV_SET_OF_CESTI;
-		}
-	}
-
-	else if (tval_selection < 89)
-	{
- 		tval = TV_SOFT_ARMOR;
-
-		if (sval_selection < 10)
-		{
-			sval = SV_ROBE;
-		}
-		else if (sval_selection < 28)
-		{
-			sval = SV_SOFT_LEATHER_ARMOR;
-		}
-		else if (sval_selection < 46)
-		{
-			sval = SV_SOFT_STUDDED_LEATHER;
-		}
-		else if (sval_selection < 64)
-		{
-			sval = SV_HARD_LEATHER_ARMOR;
-		}
-		else if (sval_selection < 82)
-		{
-			sval = SV_HARD_STUDDED_LEATHER;
-		}
-		else
-		{
-			sval = SV_LEATHER_SCALE_MAIL;
-		}
-	}
-
-	else if (tval_selection < 97)
-	{
- 		tval = TV_HARD_ARMOR;
-
-		if (sval_selection < 10)
-		{
-			sval = SV_METAL_SCALE_MAIL;
-		}
-		else if (sval_selection < 19)
-		{
-			sval = SV_CHAIN_MAIL;
-		}
-		else if (sval_selection < 27)
-		{
-			sval = SV_AUGMENTED_CHAIN_MAIL;
-		}
-		else if (sval_selection < 35)
-		{
-			sval = SV_DOUBLE_CHAIN_MAIL;
-		}
-		else if (sval_selection < 43)
-		{
-			sval = SV_BAR_CHAIN_MAIL;
-		}
-		else if (sval_selection < 51)
-		{
-			sval = SV_METAL_BRIGANDINE_ARMOUR;
-			power_of_base_object = 250;
-		}
-		else if (sval_selection < 59)
-		{
-			sval = SV_PARTIAL_PLATE_ARMOUR;
-			power_of_base_object = 300;
-		}
-		else if (sval_selection < 68)
-		{
-			sval = SV_METAL_LAMELLAR_ARMOUR;
-			power_of_base_object = 350;
-		}
-		else if (sval_selection < 75)
-		{
-			sval = SV_FULL_PLATE_ARMOUR;
-			power_of_base_object = 400;
-		}
-		else if (sval_selection < 82)
-		{
-			sval = SV_RIBBED_PLATE_ARMOUR;
-			power_of_base_object = 450;
-		}
-		else if (sval_selection < 88)
-		{
-			sval = SV_MITHRIL_CHAIN_MAIL;
-			power_of_base_object = 750;
-		}
-		else if (sval_selection < 94)
-		{
-			sval = SV_MITHRIL_PLATE_MAIL;
-			power_of_base_object = 1000;
-		}
-		else
-		{
-			sval = SV_ADAMANTITE_PLATE_MAIL;
-			power_of_base_object = 750;
-		}
-	}
-
-	else
-	{
- 		tval = TV_DRAG_ARMOR;
-
-		if (sval_selection < 10)
-		{
-			sval = SV_DRAGON_BLACK;
-			power_of_base_object = 1250;
-			base_object_activation = ACT_DRAGON_BLACK;
-		}
-		else if (sval_selection < 20)
-		{
-			sval = SV_DRAGON_BLUE;
-			power_of_base_object = 1250;
-			base_object_activation = ACT_DRAGON_BLUE;
-		}
-		else if (sval_selection < 30)
-		{
-			sval = SV_DRAGON_WHITE;
-			power_of_base_object = 1250;
-			base_object_activation = ACT_DRAGON_WHITE;
-		}
-		else if (sval_selection < 40)
-		{
-			sval = SV_DRAGON_RED;
-			power_of_base_object = 1350;
-			base_object_activation = ACT_DRAGON_RED;
-		}
-		else if (sval_selection < 48)
-		{
-			sval = SV_DRAGON_GREEN;
-			power_of_base_object = 1500;
-			base_object_activation = ACT_DRAGON_GREEN;
-		}
-		else if (sval_selection < 54)
-		{
-			sval = SV_DRAGON_MULTIHUED;
-			power_of_base_object = 2500;
-			base_object_activation = ACT_DRAGON_MULTIHUED;
-		}
-		else if (sval_selection < 61)
-		{
-			sval = SV_DRAGON_SHINING;
-			power_of_base_object = 1500;
-			base_object_activation = ACT_DRAGON_SHINING;
-		}
-		else if (sval_selection < 67)
-		{
-			sval = SV_DRAGON_LAW;
-			power_of_base_object = 1750;
-			base_object_activation = ACT_DRAGON_LAW;
-		}
-		else if (sval_selection < 76)
-		{
-			sval = SV_DRAGON_BRONZE;
-			power_of_base_object = 1250;
-			base_object_activation = ACT_DRAGON_BRONZE;
-		}
-		else if (sval_selection < 85)
-		{
-			sval = SV_DRAGON_GOLD;
-			power_of_base_object = 1250;
-			base_object_activation = ACT_DRAGON_GOLD;
-		}
-		else if (sval_selection < 91)
-		{
-			sval = SV_DRAGON_CHAOS;
-			power_of_base_object = 1750;
-			base_object_activation = ACT_DRAGON_CHAOS;
-		}
-		else if (sval_selection < 96)
-		{
-			sval = SV_DRAGON_BALANCE;
-			power_of_base_object = 2250;
-			base_object_activation = ACT_DRAGON_BALANCE;
-		}
-		else
-		{
-			sval = SV_DRAGON_POWER;
-			power_of_base_object = 3000;
-			base_object_activation = ACT_DRAGON_POWER;
-		}
+		/* Accept object if it passes the rarity roll. */
+		if (rand_int(rarity) == 0) break;
 	}
 
 
-	/* Get the base object. */
-	k_idx = lookup_kind(tval, sval);
+	/* Determine "power" and get activation of base object. */
+	switch (k_ptr->tval)
+	{
+		case TV_BOW:
+		{
+			if (k_ptr->sval == SV_HEAVY_XBOW) power_of_base_object = 750;
+			break;
+		}
 
-	k_ptr = &k_info[k_idx];
+		case TV_HAFTED:
+		{
+			if (k_ptr->sval == SV_THROWING_HAMMER) 
+				power_of_base_object = 1000;
+			if (k_ptr->sval == SV_MACE_OF_DISRUPTION) 
+				power_of_base_object = 500;
+			break;
+		}
+
+		case TV_POLEARM:
+		{
+			if (k_ptr->sval == SV_THROWING_AXE) 
+				power_of_base_object = 1000;
+			if (k_ptr->sval == SV_SCYTHE_OF_SLICING) 
+				power_of_base_object = 750;
+			break;
+		}
+
+		case TV_SWORD:
+		{
+			if (k_ptr->sval == SV_EXECUTIONERS_SWORD) 
+				power_of_base_object = 500;
+			if (k_ptr->sval == SV_BLADE_OF_CHAOS) 
+				power_of_base_object = 1000;
+			break;
+		}
+
+		case TV_SHIELD:
+		{
+			if (k_ptr->sval == SV_SHIELD_OF_DEFLECTION) 
+				power_of_base_object = 500;
+			break;
+		}
+
+		case TV_HARD_ARMOR:
+		{
+			if (k_ptr->sval == SV_MITHRIL_CHAIN_MAIL) 
+				power_of_base_object = 500;
+			if (k_ptr->sval == SV_MITHRIL_PLATE_MAIL) 
+				power_of_base_object = 700;
+			if (k_ptr->sval == SV_ADAMANTITE_PLATE_MAIL) 
+				power_of_base_object = 500;
+			break;
+		}
+
+		case TV_DRAG_ARMOR:
+		{
+			if (k_ptr->sval == SV_DRAGON_BLACK)
+			{
+				power_of_base_object = 1250;
+				base_object_activation = ACT_DRAGON_BLACK;
+			}
+			if (k_ptr->sval == SV_DRAGON_BLUE)
+			{
+				power_of_base_object = 1250;
+				base_object_activation = ACT_DRAGON_BLUE;
+			}
+			if (k_ptr->sval == SV_DRAGON_WHITE)
+			{
+				power_of_base_object = 1250;
+				base_object_activation = ACT_DRAGON_WHITE;
+			}
+			if (k_ptr->sval == SV_DRAGON_RED)
+			{
+				power_of_base_object = 1350;
+				base_object_activation = ACT_DRAGON_RED;
+			}
+			if (k_ptr->sval == SV_DRAGON_GREEN)
+			{
+				power_of_base_object = 1500;
+				base_object_activation = ACT_DRAGON_GREEN;
+			}
+			if (k_ptr->sval == SV_DRAGON_MULTIHUED)
+			{
+				power_of_base_object = 2000;
+				base_object_activation = ACT_DRAGON_MULTIHUED;
+			}
+			if (k_ptr->sval == SV_DRAGON_SHINING)
+			{
+				power_of_base_object = 1500;
+				base_object_activation = ACT_DRAGON_SHINING;
+			}
+			if (k_ptr->sval == SV_DRAGON_LAW)
+			{
+				power_of_base_object = 1750;
+				base_object_activation = ACT_DRAGON_LAW;
+			}
+			if (k_ptr->sval == SV_DRAGON_BRONZE)
+			{
+				power_of_base_object = 1250;
+				base_object_activation = ACT_DRAGON_BRONZE;
+			}
+			if (k_ptr->sval == SV_DRAGON_GOLD)
+			{
+				power_of_base_object = 1250;
+				base_object_activation = ACT_DRAGON_GOLD;
+			}
+			if (k_ptr->sval == SV_DRAGON_CHAOS)
+			{
+				power_of_base_object = 1750;
+				base_object_activation = ACT_DRAGON_CHAOS;
+			}
+			if (k_ptr->sval == SV_DRAGON_BALANCE)
+			{
+				power_of_base_object = 2250;
+				base_object_activation = ACT_DRAGON_BALANCE;
+			}
+			if (k_ptr->sval == SV_DRAGON_POWER)
+			{
+				power_of_base_object = 3000;
+				base_object_activation = ACT_DRAGON_POWER;
+			}
+			break;
+		}
+	}
 
 
 	/* Store the base values of a bunch of data.  To avoid unbalancing the 
@@ -1457,8 +1108,8 @@ static void initialize_artifact(int a_idx)
 	 * Dragon scale mail activations are preserved.  Base object cost is 
 	 * preserved if sufficiently high.
 	 */
-	a_ptr->tval = tval;
-	a_ptr->sval = sval;
+	a_ptr->tval = k_ptr->tval;
+	a_ptr->sval = k_ptr->sval;
 	a_ptr->to_h = k_ptr->to_h / 2;
 	a_ptr->to_d = k_ptr->to_d / 2;
 	a_ptr->to_a = k_ptr->to_a / 2;
@@ -1566,6 +1217,7 @@ static void initialize_artifact(int a_idx)
 	if (a_ptr->tval == TV_SHIELD) artifact_rarity /= 2;
 	if ((a_ptr->tval == TV_SOFT_ARMOR) || (a_ptr->tval == TV_HARD_ARMOR))
 		artifact_rarity /= 2;
+	if (a_ptr->tval == TV_CLOAK) artifact_rarity *= 2;
 	if ((a_ptr->tval == TV_HELM) || (a_ptr->tval == TV_CROWN)) 
 		artifact_rarity = 2 * artifact_rarity / 3;
 	if (a_ptr->tval == TV_BOOTS) artifact_rarity += 5;
@@ -1578,7 +1230,8 @@ static void initialize_artifact(int a_idx)
 	a_ptr->rarity = artifact_rarity;
 }
 
-/* Pick an initial set of qualities, based on a theme.  Also add a bonus to 
+/* 
+ * Pick an initial set of qualities, based on a theme.  Also add a bonus to 
  * armour class, Skill, and Deadliness.
  */
 static void choose_basic_theme(int a_idx)
@@ -2549,7 +2202,7 @@ static void choose_basic_theme(int a_idx)
 		case TV_BOOTS:
 		{
 			/* ...with a bonus to armour class, and... */
-			a_ptr->to_a += (7 + randint(7) + potential / 1500);
+			a_ptr->to_a += (6 + randint(5) + potential / 1500);
 
 
 			/* ...that makes he who wears me run like the wind. */
@@ -2858,7 +2511,7 @@ static void choose_basic_theme(int a_idx)
 		case TV_GLOVES:
 		{
 			/* ...with a bonus to armour class, and... */
-			a_ptr->to_a += (8 + randint(6) + potential / 1500);
+			a_ptr->to_a += (7 + randint(5) + potential / 1500);
 
 
 			/* ...that grant increased combat prowess. */
@@ -3004,7 +2657,8 @@ static void choose_basic_theme(int a_idx)
 
 
 
-/* Grant extra abilities, until object's units of exchange are all used up.  
+/* 
+ * Grant extra abilities, until object's units of exchange are all used up.  
  * This function can be quite random - indeed needs to be - because of all 
  * the possible themed random artifacts.
  */
@@ -3530,8 +3184,9 @@ static void haggle_till_done(int a_idx)
 
 
 
-/* Envoke perilous magics, and curse the artifact beyound redemption!  I had 
- * such fun coding this...
+/* 
+ * Envoke perilous magics, and curse the artifact beyound redemption!  I 
+ * had such fun coding this...
  */
 static void make_terrible(int a_idx)
 {
@@ -3773,8 +3428,9 @@ static void make_terrible(int a_idx)
 
 
 
-/* Clean up the artifact by removing illogical combinations of powers.  Adopted 
- * from Greg Wooledge's random artifact creation code.
+/* 
+ * Clean up the artifact by removing illogical combinations of powers.  
+ * Adopted from Greg Wooledge's random artifact creation code.
  */
 static void remove_contradictory(int a_idx)
 {
@@ -3802,7 +3458,9 @@ static void remove_contradictory(int a_idx)
 
 
 
-/* String-handling function from Greg Wooledge's random artifact generator. */
+/* 
+ * String-handling function from Greg Wooledge's random artifact generator.
+ */
 static char *my_strdup (const char *s)
 {
 	char *t = malloc (strlen (s) + 1);
@@ -3811,9 +3469,11 @@ static char *my_strdup (const char *s)
 }
 
 
-/* Use W. Sheldon Simms' random name generator.  This function builds
-   probability tables which are used later on for letter selection.  It
-   relies on the ASCII character set. */
+/* 
+ * Use W. Sheldon Simms' random name generator.  This function builds
+ * probability tables which are used later on for letter selection.  It
+ * relies on the ASCII character set.
+ */
 static void build_prob(void)
 {
 	int c_prev, c_cur, c_next;
@@ -3824,7 +3484,7 @@ static void build_prob(void)
 	 * rest of the code that random names are unavailable on failure.
 	 */
 	path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
-	if ((f = fopen (buf, "r")) == NULL)
+	if ((f = my_fopen(buf, "r")) == NULL)
 	{
 		find_all_names = TRUE;
 		return;
@@ -3862,10 +3522,11 @@ static void build_prob(void)
 
 
 
-/* Use W. Sheldon Simms' random name generator.  Generate a random word using
-   the probability tables we built earlier.  Relies on the ASCII character
-   set.  Relies on European vowels (a, e, i, o, u).  The generated name should
-   be copied/used before calling this function again. */
+/* Use W. Sheldon Simms' random name generator.  Generate a random word 
+ * using the probability tables we built earlier.  Relies on the ASCII 
+ * character set.  Relies on European vowels (a, e, i, o, u).  The generated 
+ * name should be copied/used before calling this function again.
+ */
 static char *make_word(void)
 {
 	static char word_buf [90];
@@ -3924,7 +3585,9 @@ static char *make_word(void)
 }
 
 
-/* Find a name from any of various text files. */
+/* 
+ * Find a name from any of various text files.
+ */
 static char *find_word(int a_idx)
 {
 	static char art_name[81];
@@ -3976,7 +3639,9 @@ static char *find_word(int a_idx)
 }
 
 
-
+/* 
+ * Name an artifact, using one of two methods.
+ */
 static void name_artifact(int a_idx)
 {
 	char *word;
@@ -4010,7 +3675,9 @@ static void name_artifact(int a_idx)
 }
 
 
-/* Design a random artifact. */
+/* 
+ * Design a random artifact.
+ */
 static void design_random_artifact(int a_idx)
 {
 	/* Initialize the artifact, and assign it a potential. */
@@ -4038,8 +3705,9 @@ static void design_random_artifact(int a_idx)
 
 
 
-/* Fill in the temporary array of artifact names, and then convert it into an 
- * a_name structure.  Adapted from Greg Wooledge's random artifacts.
+/*
+ * Fill in the temporary array of artifact names, and then convert it into 
+ * an a_name structure.  Adapted from Greg Wooledge's random artifacts.
  */
 static int convert_names(void)
 {
@@ -4059,32 +3727,32 @@ static int convert_names(void)
 
 
 	/* Convert our names array into an a_name structure for later use. */
-	name_size = 0;
+	name_size = 1;
 	for (i = 0; i < MAX_A_IDX; i++)
 	{
-		name_size += strlen (names[i]) + 2;	/* skip first char */
+		name_size += strlen (names[i]) + 1;	/* skip first char */
 	}
-	if ((a_base = malloc (name_size)) == NULL)
+	if ((a_base = ralloc(name_size)) == NULL)
 	{
-		msg_format ("Memory allocation error");
+		msg_format("Memory allocation error");
 		return 1;
 	}
 
 	a_next = a_base + 1;	/* skip first char */
 	for (i = 0; i < MAX_A_IDX; i++)
 	{
-		strcpy (a_next, names[i]);
+		strcpy(a_next, names[i]);
 		if (a_info[i].tval > 0)		/* skip unused! */
 			a_info[i].name = a_next - a_base;
-		a_next += strlen (names[i]) + 1;
+		a_next += strlen(names[i]) + 1;
 	}
 
 
 	/* Free some of our now unneeded memory. */
 	KILL (a_name, char);
-	for (i = 0; i < MAX_A_IDX - 1; i++)
+	for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
 	{
-		free (names [i]);
+		free(names[i]);
 	}
 	a_name = a_base;
 
@@ -4092,10 +3760,11 @@ static int convert_names(void)
 }
 
 
-/* Initialize all the random artifacts in the artifact array.  This function 
+/* 
+ * Initialize all the random artifacts in the artifact array.  This function 
  * is only called when a player is born.  Because various sub-functions use 
  * player information, it must be called after the player has been generated 
- * or player information has been loaded.
+ * and player information has been loaded.
  */
 void initialize_random_artifacts(void)
 {
@@ -4127,12 +3796,3 @@ void initialize_random_artifacts(void)
 	/* Complain if naming fails. */
 	if (err) msg_print("Warning - random artifact naming failed!");
 }
-
-
-
-
-
-
-
-
-

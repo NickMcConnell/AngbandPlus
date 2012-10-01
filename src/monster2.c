@@ -53,16 +53,19 @@ void delete_monster_idx(int i)
 	/* Monster is gone */
 	cave_m_idx[y][x] = 0;
 
-	/* Total Hack -- If the monster was a player ghost, remove it 
-	 * from the monster memory, set its kills to zero, and clear 
-	 * its bones file selector. -LM-
+	/* Total Hack -- If the monster was a player ghost, remove it from 
+	 * the monster memory, ensure that it never appears again, clear 
+	 * its bones file selector and allow the next ghost to speak. -LM-
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
 		r_ptr->r_sights = 0;
-		r_ptr->r_pkills = 0;
+		r_ptr->r_pkills = 1;
 		r_ptr->r_tkills = 0;
 		bones_selector = 0;
+		ghost_has_spoken = FALSE;
+
+		/* ghost_string_type = 0; */
 	}
 
 	/* Delete objects */
@@ -271,6 +274,16 @@ void wipe_m_list(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Total Hack -- Clear player ghost information. -LM- */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			r_ptr->r_sights = 0;
+			r_ptr->r_pkills = 1;
+			r_ptr->r_tkills = 0;
+			bones_selector = 0;
+			ghost_has_spoken = FALSE;
+		}
+
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
 
@@ -428,20 +441,20 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 10 + 2;
+			int d = level / 10 + 1;
 
 			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+			level += ((d < 6) ? d : 6);
 		}
 
 		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			int d = level / 10 + 1;
 
 			/* Boost the level */
-			level += ((d < 5) ? d : 5);
+			level += ((d < 6) ? d : 6);
 		}
 	}
 
@@ -933,7 +946,7 @@ void update_mon(int m_idx, bool full)
 
 
 	/* Nearby */
-	if (d <= MAX_SIGHT)
+	if (d <= (p_ptr->themed_level ? MAX_SIGHT / 2 : MAX_SIGHT))
 	{
 		/* Basic telepathy */
 		if (p_ptr->telepathy)
@@ -1144,11 +1157,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
-
-	/* Option -- allow carrying */
-	if (!testing_carry) return (0);
-
 
 	/* Scan objects already being held for combination */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1425,7 +1433,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	r_ptr = &r_info[r_idx];
 
 
-	/* Hack -- Demons & creatures who breath fire cannot appear on water. -LM- */
+	/* Hack -- Demons & creatures who breathe fire cannot appear on water. -LM- */
 	if ((cave_feat[y][x] == FEAT_WATER) && ((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BR_FIRE)))) return (FALSE);
 
 	/* Hack -- Only creatures resistant to fire may appear on lava. -LM- */
@@ -1513,6 +1521,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Save the race */
 	n_ptr->r_idx = r_idx;
+
 
 	/* If the monster is a player ghost, perform various manipulations on it, 
 	 * and forbid ghost creation if something goes wrong. -LM-
@@ -1802,7 +1811,6 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 		}
 	}
 
-
 	/* Success */
 	return (TRUE);
 }
@@ -1974,6 +1982,30 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_ELEMENTAL:
+		{
+			okay = (r_ptr->d_char == 'E');
+			break;
+		}
+
+		case SUMMON_VORTEX:
+		{
+			okay = (r_ptr->d_char == 'v');
+			break;
+		}
+
+		case SUMMON_HYBRID:
+		{
+			okay = (r_ptr->d_char == 'H');
+			break;
+		}
+
+		case SUMMON_BIRD:
+		{
+			okay = (r_ptr->d_char == 'B');
+			break;
+		}
+
 		case SUMMON_THIEF:
 		{
 			/* Scan through all four blows */
@@ -2017,16 +2049,17 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int y1, int x1, int lev, int type)
+bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 {
-	int i, x, y, r_idx;
+	int i, x, y, d, r_idx;
 
 
 	/* Look for a location */
-	for (i = 0; i < 20; ++i)
+	for (i = 0; i < (scattered ? 40 : 20); ++i)
 	{
 		/* Pick a distance */
-		int d = (i / 10) + 1;
+		if (scattered) d = rand_int(6) + 1;
+		else d = (i / 10) + 1;
 
 		/* Pick a location */
 		scatter(&y, &x, y1, x1, d, 0);

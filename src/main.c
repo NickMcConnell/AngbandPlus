@@ -1,6 +1,7 @@
 /* File: main.c */
 
 /* system-specific variations and special features, command-line arguments.
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,

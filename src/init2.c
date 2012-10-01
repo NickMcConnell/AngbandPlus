@@ -1416,7 +1416,7 @@ static errr init_r_info(void)
 	/* Parse it */
 	if (!fp) quit("Cannot open 'r_info.txt' file.");
 
-	/* Parse the file */
+	/* Parse the file (all monsters) */
 	err = init_r_info_txt(fp, buf);
 
 	/* Close it */
@@ -1768,6 +1768,135 @@ static errr init_v_info(void)
 }
 
 
+/*
+ * Initialize the "t_info" array.  Code from "init_v_info". -LM-
+ * Unlike other, similar arrays, that for themed levels is not written to a 
+ * binary file, since themed levels are neither important enough to warrant 
+ * the use of extra space, nor used often enough to worry excessively about 
+ * speed.
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+errr init_t_info(byte chosen_level)
+{
+	errr err;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+#ifndef NO_THEMED_LEVELS	/* Themed levels and old machines don't mix. */
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(t_head, header);
+
+	/* Save the "version" */
+	t_head->v_major = O_VERSION_MAJOR;
+	t_head->v_minor = O_VERSION_MINOR;
+	t_head->v_patch = O_VERSION_PATCH;
+	t_head->v_extra = 0;
+
+	/* Save the "record" information */
+	t_head->info_num = MAX_V_IDX;
+	t_head->info_len = sizeof(vault_type);
+
+	/* Save the size of "v_head" and "v_info" */
+	t_head->head_size = sizeof(header);
+	t_head->info_size = t_head->info_num * t_head->info_len;
+
+
+	/*** Make the fake arrays ***/
+
+	/* Fake the size of "v_name" and "v_text" */
+	fake_name_size = 20 * 1024L;
+	fake_text_size = 60 * 1024L;
+
+	/* Allocate the "t_info" array */
+	C_MAKE(t_info, t_head->info_num, vault_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(t_name, fake_name_size, char);
+	C_MAKE(t_text, fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it, canceling on failure. */
+	if (!fp) return(TRUE);
+
+	/* Parse the file */
+	err = init_t_info_txt(fp, buf, chosen_level);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Non-critical error: t_info.txt is unusable.");
+		msg_format("Error %d at line %d of 't_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Failure */
+		return(TRUE);
+	}
+
+
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+
+	/* Success */
+	return (0);
+
+#else
+
+	/* No themed levels allowed if compiler option forbids them. */
+	return(1);
+
+#endif
+}
+
+/*
+ * Release memory used to store information about a themed level. -LM-
+ */
+void kill_t_info(void)
+{
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "t_info" array */
+	C_KILL(t_info, t_head->info_num, vault_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(t_name, fake_name_size, char);
+	C_KILL(t_text, fake_text_size, char);
+}
+
+
+
+
+
 
 
 /*** Initialize others ***/
@@ -1852,8 +1981,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+		{ TV_GLOVES, SV_SET_OF_MAIL_GAUNTLETS },
+		{ TV_SHIELD, SV_WICKER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
@@ -1863,27 +1992,27 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		/* Weaponsmith */
 
 		{ TV_SWORD, SV_DAGGER },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_MAIN_GAUCHE },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SWORD, SV_SABRE },
 		{ TV_SWORD, SV_CUTLASS },
-		{ TV_POLEARM, SV_GLAIVE },
 
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
 		{ TV_SWORD, SV_KATANA },
 		{ TV_SWORD, SV_BASTARD_SWORD },
-		{ TV_POLEARM, SV_SPEAR },
 		{ TV_SWORD, SV_TWO_HANDED_SWORD },
+		{ TV_POLEARM, SV_SPEAR },
 		{ TV_POLEARM, SV_TRIDENT },
 
 		{ TV_POLEARM, SV_PIKE },
 		{ TV_POLEARM, SV_BEAKED_AXE },
 		{ TV_POLEARM, SV_BROAD_AXE },
-		{ TV_POLEARM, SV_LANCE },
+		{ TV_POLEARM, SV_DART },
 		{ TV_POLEARM, SV_BATTLE_AXE },
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SLING },
@@ -1908,7 +2037,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_MACE },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
 		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
+		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
 
 		{ TV_HAFTED, SV_FLAIL },
@@ -1957,7 +2086,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
 		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },

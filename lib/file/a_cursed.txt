@@ -1,4 +1,4 @@
-13
+17
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Travail
 of the Earls
@@ -12,4 +12,8 @@ of Cirith Ungol
 'Midnight'
 of Gorgoroth
 'Arad Yrch'
-of the Dwimorberg
+of the Dwimmorberg
+of Avathar
+'Choking Shadow'
+'Thauruial'
+'Moruth'

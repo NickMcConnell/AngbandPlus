@@ -2536,9 +2536,47 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+	if (p_ptr->themed_level) msg_format("%s", themed_feeling);
+	else msg_print(do_cmd_feeling_text[feeling]);
 }
 
+
+
+
+/*
+ * Array of feeling strings
+ */
+static cptr do_cmd_challenge_text[14] =
+{
+	"challenges you from beyond the grave!",
+	"thunders 'Prove worthy of your traditions - or die ashamed!'.",
+	"desires to test your mettle!",
+	"has risen from the dead to test you!",
+	"roars 'Fight, or know yourself for a coward!'.",
+	"summons you to a duel of life and death!",
+	"desires you to know that you face a mighty champion of yore!",
+	"demands that you prove your worthiness in combat!",
+	"calls you unworthy of your ancestors!",
+	"challenges you to a deathmatch!",
+	"walks Middle-Earth once more!",
+	"challenges you to demonstrate your prowess!",
+	"demands you prove yourself here and now!",
+	"asks 'Can ye face the best of those who came before?'."
+};
+
+
+
+
+/* 
+ * Personalize, randomize, and announce the challenge of a player ghost. -LM-
+ */
+void ghost_challenge(void)
+{
+	monster_race *r_ptr = &r_info[r_ghost];
+
+	msg_format("%^s, the %^s %s", ghost_name, r_name + r_ptr->name, 
+		do_cmd_challenge_text[rand_int(14)]);
+}
 
 
 

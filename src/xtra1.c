@@ -393,7 +393,8 @@ static void prt_depth(void)
 	}
 	else if (depth_in_feet)
 	{
-		sprintf(depths, "%d ft", p_ptr->depth * 50);
+		if (use_metric) sprintf(depths, "%d m", p_ptr->depth * 15);
+		else sprintf(depths, "%d ft", p_ptr->depth * 50);
 	}
 	else
 	{
@@ -809,15 +810,30 @@ static void health_redraw(void)
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
+		/* Black Breath -LM- */
+		if (m_ptr->black_breath) attr = TERM_L_DARK;
+
+		/* Stasis -LM- */
+		if (m_ptr->stasis) attr = TERM_GREEN;
+
+
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
 		/* Default to "unknown" */
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
-		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+		/* Dump the current "health" (handle monster stunning, confusion) */
+		if (m_ptr->confused) 
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "cccccccccc");
+		else if (m_ptr->stunned) 
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "ssssssssss");
+		else
+			Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
+
+
+	
 }
 
 
@@ -1205,7 +1221,7 @@ static void calc_spells(void)
 
 	magic_type *s_ptr;
 
-	cptr p = ((mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
+	cptr p = "";
 
 
 	/* Hack -- must be literate */
@@ -1217,6 +1233,11 @@ static void calc_spells(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
+	/* Determine magic description. */
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK) p = "spell";
+	if (mp_ptr->spell_book == TV_PRAYER_BOOK) p = "prayer";
+	if (mp_ptr->spell_book == TV_DRUID_BOOK) p = "druidic lore";
+	if (mp_ptr->spell_book == TV_NECRO_BOOK) p = "ritual";
 
 	/* Determine the number of spells allowed */
 	levels = p_ptr->lev - mp_ptr->spell_first + 1;
@@ -1224,15 +1245,20 @@ static void calc_spells(void)
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
+
 	/* Extract total allowed spells */
 	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
 	               levels / 2);
+
+	/* Boundary control. -LM- */
+	if (num_allowed > mp_ptr->spell_number) num_allowed = mp_ptr->spell_number;
+
 
 	/* Assume none known */
 	num_known = 0;
 
 	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < mp_ptr->spell_number; j++)
 	{
 		/* Count known spells */
 		if ((j < 32) ?
@@ -1293,7 +1319,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[mp_ptr->spell_book - TV_MAGIC_BOOK][j]);
+			           spell_names[s_ptr->index]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1315,6 +1341,9 @@ static void calc_spells(void)
 
 		/* Skip unknown spells */
 		if (j >= 99) continue;
+
+		/* Get the spell */
+		s_ptr = &mp_ptr->info[j];
 
 		/* Forget it (if learned) */
 		if ((j < 32) ?
@@ -1343,7 +1372,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[mp_ptr->spell_book - TV_MAGIC_BOOK][j]);
+			           spell_names[s_ptr->index]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1399,7 +1428,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[mp_ptr->spell_book - TV_MAGIC_BOOK][j]);
+			           p, spell_names[s_ptr->index]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1411,7 +1440,7 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < mp_ptr->spell_number; j++)
 	{
 		/* Access the spell */
 		s_ptr = &mp_ptr->info[j];
@@ -1441,9 +1470,9 @@ static void calc_spells(void)
 		if (p_ptr->new_spells)
 		{
 			/* Message */
-			msg_format("You can learn %d more %s%s.",
-			           p_ptr->new_spells, p,
-			           (p_ptr->new_spells != 1) ? "s" : "");
+			msg_format("You can learn %d more %s%s.", p_ptr->new_spells, p, 
+				((p_ptr->new_spells != 1) && 
+				(mp_ptr->spell_book != TV_DRUID_BOOK)) ? "s" : "");
 		}
 
 		/* Save the new_spells value */
@@ -1478,8 +1507,8 @@ static void calc_mana(void)
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
-	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
+	/* Extract total mana, using standard rounding. */
+	msp = (adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels + 5) / 10;
 
 	/* The weak spellcasters get half as much mana (rounded up) in Oangband. */
 	switch (p_ptr->pclass)
@@ -1498,8 +1527,8 @@ static void calc_mana(void)
 		}
 	}
 
-	/* Hack -- usually add two mana */
-	if (msp) msp += 2;
+	/* Hack -- usually add one mana */
+	if (msp) msp++;
 
 
 	/* Only mage and Necromancer-type spellcasters are affected by gloves. -LM- */
@@ -1518,9 +1547,10 @@ static void calc_mana(void)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Normal gloves hurt mage or necro-type spells.  Now, only 
-		 * Free Action stops this effect. -LM- */
+		 * Free Action or magic mastery stops this effect. -LM-
+		 */
 		if (o_ptr->k_idx &&
-		    !(f3 & (TR3_FREE_ACT)))
+		    !(f3 & (TR3_FREE_ACT)) && !(f1 & (TR1_MAGIC_MASTERY)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -1546,10 +1576,7 @@ static void calc_mana(void)
 	/* Determine the weight allowance */
 	max_wgt = mp_ptr->spell_weight;
 
-	/* Heavy armor penalizes mana by a percentage, plus a (much smaller) 
-	 * straight amount).  Depending on the class, this penalty can be quite 
-	 * severe.  No more "do-everything" chars!  -LM-
-	 */
+	/* Heavy armor penalizes mana by a percentage.  -LM- */
 	if (((cur_wgt - max_wgt) / 10) > 0)
 	{
 		/* Encumbered */
@@ -1863,15 +1890,16 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 			break;
 		}
 
-		/* Paladin.  Can use 15 lb weapons without penalty at level 1, and 40 lb weapons without penalty at 50th level. */
+		/* Paladin.  Can use 15 lb weapons without penalty at level 1, and 45 lb weapons without penalty at 50th level. */
 		case CLASS_PALADIN:
 		{
 			add_skill = 25 + p_ptr->lev - (weight / 6);
 			if (add_skill > 0) add_skill = 0;
-			if (add_skill < -15) add_skill = -15;
+			if (add_skill < -10) add_skill = -10;
 
 			/* Paladin penalty for non-blessed edged weapons. */
-			if (((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) && ((!p_ptr->bless_blade)))
+			if (((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) 
+				&& ((!p_ptr->bless_blade)))
 			{
 				add_skill -= 4 + p_ptr->lev / 3;
 
@@ -1946,6 +1974,16 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 			}
 			break;
 		}
+
+		/* Ents do not love axes (and similar weapons). */
+		case RACE_ENT:
+		{
+			if (o_ptr->tval == TV_POLEARM)
+			{
+				add_skill -= 3 + p_ptr->lev / 7;
+			}
+			break;
+		}
 	}
 	return (add_skill);
 }
@@ -1981,8 +2019,19 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			}
 			break;
 		}
+
+		/* Druids get a small bonus with slings. */
+		case CLASS_DRUID:
+		{
+			if (p_ptr->ammo_tval == TV_SHOT)
+			{
+				add_skill = p_ptr->lev / 7;
+			}
+		}
 	}
-		/* Now, special racial abilities and limitations are considered.  The choice of race can be of some significance. */
+		/* Now, special racial abilities and limitations are considered.  The 
+		 * choice of race can be of some significance.
+		 */
 	switch (prace)
 	{
 		/* Other races may do better overall, but humans aren't bad with xbows. */
@@ -2116,7 +2165,7 @@ static void shape_change_main(void)
 		case SHAPE_MOUSE:
 		{
 			p_ptr->skill_stl = (30 + p_ptr->skill_stl) / 2;
-			p_ptr->see_infra += 1;
+			p_ptr->see_infra += 2;
 			p_ptr->aggravate = FALSE;
 			p_ptr->to_a -= 5;
 			p_ptr->dis_to_a -= 5;
@@ -2129,7 +2178,7 @@ static void shape_change_main(void)
 		}
 		case SHAPE_FERRET:
 		{
-			p_ptr->see_infra += 1;
+			p_ptr->see_infra += 2;
 			p_ptr->regenerate = TRUE;
 			p_ptr->to_d -= 10;
 			p_ptr->dis_to_d -= 10;
@@ -2141,7 +2190,7 @@ static void shape_change_main(void)
 		}
 		case SHAPE_HOUND:
 		{
-			p_ptr->see_infra += 2;
+			p_ptr->see_infra += 3;
 			p_ptr->telepathy = TRUE;
 			p_ptr->skill_dev /= 2;
 			break;
@@ -2217,7 +2266,7 @@ static void shape_change_main(void)
 		}
 		case SHAPE_VAMPIRE:
 		{
-			p_ptr->see_infra += 1;
+			p_ptr->see_infra += 3;
 			if (p_ptr->cur_lite >= 3) p_ptr->cur_lite = 2;
 			p_ptr->see_inv = TRUE;
 			p_ptr->hold_life = TRUE;
@@ -2251,6 +2300,8 @@ static void shape_change_main(void)
  * I have added class-specific modifiers to Skill and enforced a max
  * of one blow/rnd for weapons too heavy to wield effectively. -LM-
  *
+ * This function calls itself if the player's STR stat changes. -LM-
+ *
  * See also calc_mana() and calc_hitpoints().
  *
  * Take note of the new "speed code", in particular, a very strong
@@ -2275,6 +2326,8 @@ static void calc_bonuses(void)
 	int old_telepathy;
 	int old_see_inv;
 
+	int temp_armour;
+
 	int old_dis_ac;
 	int old_dis_to_a;
 
@@ -2290,6 +2343,12 @@ static void calc_bonuses(void)
 	object_type *o_ptr;
 
 	u32b f1, f2, f3;
+
+
+	/* Hack - If the player's usage of his shield changes, we must 
+	 * recalculate various things. -LM-
+	 */
+	calc_again:
 
 
 	/*** Memorize ***/
@@ -2420,9 +2479,6 @@ static void calc_bonuses(void)
 	/* Elf */
 	if (p_ptr->prace == RACE_ELF) p_ptr->resist_lite = TRUE;
 
-	/* Hobbit */
-	if (p_ptr->prace == RACE_HOBBIT) p_ptr->sustain_dex = TRUE;
-
 	/* Gnome */
 	if (p_ptr->prace == RACE_GNOME) p_ptr->free_act = TRUE;
 
@@ -2442,12 +2498,35 @@ static void calc_bonuses(void)
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
 
+	/* Ent */
+	if (p_ptr->prace == RACE_ENT) 
+	{
+		/* Ents dig like maniacs, but only with their hands. */
+		if (!inventory[INVEN_WIELD].k_idx) 
+			p_ptr->skill_dig += p_ptr->lev * 10;
+
+		/* Ents get tougher and stronger as they age, but lose dexterity. */
+		if (p_ptr->lev > 25) p_ptr->stat_add[A_STR]++;
+		if (p_ptr->lev > 40) p_ptr->stat_add[A_STR]++;
+		if (p_ptr->lev > 45) p_ptr->stat_add[A_STR]++;
+
+		if (p_ptr->lev > 25) p_ptr->stat_add[A_DEX]--;
+		if (p_ptr->lev > 40) p_ptr->stat_add[A_DEX]--;
+		if (p_ptr->lev > 45) p_ptr->stat_add[A_DEX]--;
+
+		if (p_ptr->lev > 25) p_ptr->stat_add[A_CON]++;
+		if (p_ptr->lev > 40) p_ptr->stat_add[A_CON]++;
+		if (p_ptr->lev > 45) p_ptr->stat_add[A_CON]++;
+	}
+
+
 	/* Warrior */
 	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
 		if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
 		if (p_ptr->lev >= 45) p_ptr->regenerate = TRUE;
 	}
+
 
 	/*** Analyze equipment ***/
 
@@ -2554,17 +2633,29 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-		/* Modify the base armor class */
-		p_ptr->ac += o_ptr->ac;
+
+		/* Modify the base armor class.  Shields worn on back are penalized. */
+		if ((p_ptr->shield_on_back) && (i == INVEN_ARM)) 
+			temp_armour = o_ptr->ac / 3;
+		else temp_armour = o_ptr->ac;
+
+		p_ptr->ac += temp_armour;
 
 		/* The base armor class is always known */
-		p_ptr->dis_ac += o_ptr->ac;
+		p_ptr->dis_ac += temp_armour;
 
-		/* Apply the bonuses to armor class */
-		p_ptr->to_a += o_ptr->to_a;
+		/* Apply the bonuses to armor class.  Shields worn on back are 
+		 * penalized.
+		 */
+		if ((p_ptr->shield_on_back) && (i == INVEN_ARM)) 
+			temp_armour = o_ptr->to_a / 2;
+		else temp_armour = o_ptr->to_a;
+
+		p_ptr->to_a += temp_armour;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+		if (object_known_p(o_ptr)) p_ptr->dis_to_a += temp_armour;
+
 
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
@@ -2580,6 +2671,18 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
+
+	/* Hack -- clear a few flags for certain races. -LM- */
+
+	/* The Shadow Fairy's saving grace */
+	if ((p_ptr->prace == RACE_S_FAIRY) && (p_ptr->aggravate)) 
+	{
+		p_ptr->skill_stl -= 3;
+		p_ptr->aggravate = FALSE;
+	}
+
+	/* Nothing, but nothing, can make an Ent lightfooted. -LM- */
+	if (p_ptr->prace == RACE_ENT) p_ptr->ffall = FALSE;
 
 
 	/*** Analyze shapechanges - statistics only ***/
@@ -2728,17 +2831,11 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost.  More useful now. -LM- */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra = p_ptr->see_infra + 2;
+		p_ptr->see_infra = p_ptr->see_infra + 3;
 	}
 
 
 	/*** Special flags ***/
-
-	/* Hack -- Res chaos -> Res confu.  No longer the case in Oangband. */
-	/* if (p_ptr->resist_chaos) */
-
-	/* p_ptr->resist_confu = TRUE;*/
-
 
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
@@ -2771,13 +2868,11 @@ static void calc_bonuses(void)
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 
 	/*** Modify skills ***/
@@ -2798,32 +2893,41 @@ static void calc_bonuses(void)
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
-	/* Affect Skill -- disarming (Level, by Class) */
-	p_ptr->skill_dis += (cp_ptr->x_dis * p_ptr->lev / 10);
+	/* Affect Skill -- disarming (Level, by Class and Race) */
+	p_ptr->skill_dis += (cp_ptr->cx_dis * p_ptr->lev / 50);
+	p_ptr->skill_dis += (rp_ptr->rx_dis * p_ptr->lev / 50);
 
-	/* Affect Skill -- magic devices (Level, by Class) */
-	p_ptr->skill_dev += (cp_ptr->x_dev * p_ptr->lev / 10);
+	/* Affect Skill -- magic devices (Level, by Class and Race) */
+	p_ptr->skill_dev += (cp_ptr->cx_dev * p_ptr->lev / 50);
+	p_ptr->skill_dev += (rp_ptr->rx_dev * p_ptr->lev / 50);
 
-	/* Affect Skill -- saving throw (Level, by Class) */
-	p_ptr->skill_sav += (cp_ptr->x_sav * p_ptr->lev / 10);
+	/* Affect Skill -- saving throw (Level, by Class and Race) */
+	p_ptr->skill_sav += (cp_ptr->cx_sav * p_ptr->lev / 50);
+	p_ptr->skill_sav += (rp_ptr->rx_sav * p_ptr->lev / 50);
 
-	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skill_stl += (cp_ptr->x_stl * p_ptr->lev / 100);
+	/* Affect Skill -- stealth (Level, by Class and Race) */
+	p_ptr->skill_stl += (cp_ptr->cx_stl * p_ptr->lev / 50);
+	p_ptr->skill_stl += (rp_ptr->rx_stl * p_ptr->lev / 50);
 
-	/* Affect Skill -- search ability (Level, by Class) */
-	p_ptr->skill_srh += (cp_ptr->x_srh * p_ptr->lev / 10);
+	/* Affect Skill -- search ability (Level, by Class and Race) */
+	p_ptr->skill_srh += (cp_ptr->cx_srh * p_ptr->lev / 50);
+	p_ptr->skill_srh += (rp_ptr->rx_srh * p_ptr->lev / 50);
 
-	/* Affect Skill -- search frequency (Level, by Class) */
-	p_ptr->skill_fos += (cp_ptr->x_fos * p_ptr->lev / 10);
+	/* Affect Skill -- search frequency (Level, by Class and Race) */
+	p_ptr->skill_fos += (cp_ptr->cx_fos * p_ptr->lev / 50);
+	p_ptr->skill_fos += (rp_ptr->rx_fos * p_ptr->lev / 50);
 
-	/* Affect Skill -- combat (melee) (Level, by Class) */
-	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 10);
+	/* Affect Skill -- combat (melee) (Level, by Class and Race) */
+	p_ptr->skill_thn += (cp_ptr->cx_thn * p_ptr->lev / 50);
+	p_ptr->skill_thn += (rp_ptr->rx_thn * p_ptr->lev / 50);
 
-	/* Affect Skill -- combat (shooting) (Level, by Class) */
-	p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 10);
+	/* Affect Skill -- combat (shooting) (Level, by Class and Race) */
+	p_ptr->skill_thb += (cp_ptr->cx_thb * p_ptr->lev / 50);
+	p_ptr->skill_thb += (rp_ptr->rx_thb * p_ptr->lev / 50);
 
-	/* Affect Skill -- combat (throwing) (Level, by Class) */
-	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 10);
+	/* Affect Skill -- combat (throwing) (Level, by Class and Race) */
+	p_ptr->skill_tht += (cp_ptr->cx_thb * p_ptr->lev / 50);
+	p_ptr->skill_tht += (rp_ptr->rx_thb * p_ptr->lev / 50);
 
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
@@ -2940,10 +3044,10 @@ static void calc_bonuses(void)
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
 				/* Extra shot at level 20 */
-				if (p_ptr->lev >= 20) p_ptr->num_fire++;
+				if (p_ptr->lev > 19) p_ptr->num_fire++;
 
 				/* Extra shot at level 40 */
-				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+				if (p_ptr->lev > 39) p_ptr->num_fire++;
 			}
 
 			/* Hack -- Rangers are also decent with slings and xbows. -LM- */
@@ -2951,13 +3055,13 @@ static void calc_bonuses(void)
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
 				/* Extra shot at level 25 */
-				if (p_ptr->lev >= 25) p_ptr->num_fire++;
+				if (p_ptr->lev > 24) p_ptr->num_fire++;
 			}
 			if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->ammo_tval == TV_BOLT))
 			{
 				/* Extra shot at level 45 */
-				if (p_ptr->lev >= 45) p_ptr->num_fire++;
+				if (p_ptr->lev > 44) p_ptr->num_fire++;
 			}
 
 
@@ -2966,13 +3070,13 @@ static void calc_bonuses(void)
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
 				/* Extra shot at level 35 */
-				if (p_ptr->lev >= 35) p_ptr->num_fire++;
+				if (p_ptr->lev > 34) p_ptr->num_fire++;
 			}
 			if ((p_ptr->pclass == CLASS_WARRIOR) &&
 			    (p_ptr->ammo_tval == TV_BOLT))
 			{
 				/* Extra shot at level 40 */
-				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+				if (p_ptr->lev > 39) p_ptr->num_fire++;
 			}
 
 
@@ -2981,13 +3085,13 @@ static void calc_bonuses(void)
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
 				/* Extra shot at level 20 */
-				if (p_ptr->lev >= 20) p_ptr->num_fire++;
+				if (p_ptr->lev > 19) p_ptr->num_fire++;
 			}
 			if ((p_ptr->pclass == CLASS_ROGUE) &&
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
 				/* Extra shot at level 40 */
-				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+				if (p_ptr->lev > 39) p_ptr->num_fire++;
 			}
 
 			/* See formula "do_cmd_fire" in "cmd2.c" for Assassin bonus
@@ -2998,7 +3102,7 @@ static void calc_bonuses(void)
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
 
-	/* Add all class and race-specific bonuses and penalties to missile Skill. -LM- */
+	/* Add all class and race-specific adjustments to missile Skill. -LM- */
 	p_ptr->skill_thb += add_special_missile_skill (p_ptr->pclass, p_ptr->prace, o_ptr->weight, o_ptr);
 
 
@@ -3007,15 +3111,13 @@ static void calc_bonuses(void)
 	/* Examine the "current weapon" */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Assume that the player is not a Priest or Paladin wielding an
-	 * edged weapon. 
-	 */
+	/* Assume that the player is not a Priest wielding an edged weapon. */
 	p_ptr->icky_wield = FALSE;
 
-	/* Assume not heavy */
+	/* Assume the weapon is not too heavy */
 	p_ptr->heavy_wield = FALSE;
 
-	/* It is hard to hold a heavy weapon */
+	/* Inflict heavy weapon penalties. */
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy weapon */
@@ -3034,47 +3136,19 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		int effective_weight = 0, mul = 6;
 
-		/* Analyze the class.  The need for this may be eliminated eventually. -LM-*/
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR: num = 4; wgt = 30; mul = 5; break;
+		/* Enforce a minimum weight of three pounds. */
+		effective_weight = (o_ptr->weight < 30 ? 30 : o_ptr->weight);
 
-			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 30; mul = 2; break;
 
-			/* Priest */
-			case CLASS_PRIEST:  num = 4; wgt = 30; mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:   num = 4; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-			case CLASS_RANGER:  num = 4; wgt = 30; mul = 4; break;
-
-			/* Paladin */
-			case CLASS_PALADIN: num = 4; wgt = 30; mul = 4; break;
-
-			/* Druid */
-			case CLASS_DRUID: num = 4; wgt = 30; mul = 2; break;
-
-			/* Necromancer */
-			case CLASS_NECRO: num = 4; wgt = 30; mul = 2; break;
-
-			/* Assassin */
-			case CLASS_ASSASSIN: num = 4; wgt = 30; mul = 3; break;
-		}
-
-		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
-
-		/* Access the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+		/* Compare strength and weapon weight. */
+		str_index = mul * adj_str_blow[p_ptr->stat_ind[A_STR]] / 
+			effective_weight;
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
+
 
 		/* Index by dexterity */
 		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
@@ -3082,28 +3156,25 @@ static void calc_bonuses(void)
 		/* Maximal value */
 		if (dex_index > 11) dex_index = 11;
 
+
 		/* Use the blows table */
 		p_ptr->num_blow = blows_table[str_index][dex_index];
 
-		/* Maximal value.  No longer necessary. -LM- */
-		if (p_ptr->num_blow > num) p_ptr->num_blow = num;
-
-		/* Require at least one blow */
+		/* Paranoia - require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+
 
 		/* Boost digging skill by weapon weight */
 		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
-	else if ((!o_ptr->k_idx) && (p_ptr->pclass == CLASS_DRUID))
-	{
-		/* Grant an extra blow to Druids fighting barehanded. -LM- */
-		p_ptr->num_blow += 1;
-	}
 
-	/* Add all other class and race-specific bonuses and penalties to melee
-	 * Skill. -LM-
-	 */
-	p_ptr->skill_thn += add_special_melee_skill (p_ptr->pclass, p_ptr->prace, o_ptr->weight, o_ptr);
+	/* Everyone gets two blows if not wielding a weapon. -LM- */
+	else if (!o_ptr->k_idx) p_ptr->num_blow = 2;
+
+
+	/* Add all other class and race-specific adjustments to melee Skill. -LM- */
+	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, p_ptr->prace, 
+		o_ptr->weight, o_ptr);
 
 
 	/*** Notice changes ***/
@@ -3134,6 +3205,32 @@ static void calc_bonuses(void)
 		/* Notice changes */
 		if (p_ptr->stat_ind[i] != old_stat_ind[i])
 		{
+			/* Change in STR may affect how shields are used.  -LM- */
+			if ((i == A_STR) && (inventory[INVEN_ARM].k_idx))
+			{
+				/* Access the wield slot */
+				o_ptr = &inventory[INVEN_WIELD];
+
+				/* Extract the flags */
+				object_flags(o_ptr, &f1, &f2, &f3);
+
+				/* Analyze weapon for two-handed-use. */
+				if (f3 & (TR3_TWO_HANDED_REQ) || 
+					(f3 & (TR3_TWO_HANDED_DES) && 
+					(p_ptr->stat_ind[A_STR] < 
+					29 + (o_ptr->weight / 50 > 8 ? 
+					8 : o_ptr->weight / 50))))
+				{
+					p_ptr->shield_on_back = TRUE;
+
+				}
+				else p_ptr->shield_on_back = FALSE;
+
+				/* Hack - recalculate bonuses again. */
+				if (p_ptr->old_shield_on_back != 
+					p_ptr->shield_on_back) goto calc_again;
+			}
+
 			/* Change in CON affects Hitpoints */
 			if (i == A_CON)
 			{
@@ -3255,6 +3352,25 @@ static void calc_bonuses(void)
 
 		/* Save it */
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
+	}
+
+	/* Take note when player moves his shield on and off his back. -LM- */
+	if (p_ptr->old_shield_on_back != p_ptr->shield_on_back)
+	{
+		/* Messages */
+		if (p_ptr->shield_on_back)
+		{
+			msg_print("You are carrying your shield on your back.");
+		}
+		else if (inventory[INVEN_ARM].k_idx)
+		{
+			msg_print("You are carrying your shield in your hand.");
+		}
+
+		/* No message for players no longer carrying a shield. */
+
+		/* Save it */
+		p_ptr->old_shield_on_back = p_ptr->shield_on_back;
 	}
 }
 

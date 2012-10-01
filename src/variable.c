@@ -47,7 +47,7 @@ byte o_version_patch = O_VERSION_PATCH;
 byte sf_major;			/* Savefile's "version_major" */
 byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
+byte sf_extra;			/* Savefile's "version_extra". Used for enryption */
 
 /*
  * Savefile version - Oangband reckoning
@@ -55,7 +55,7 @@ byte sf_extra;			/* Savefile's "version_extra" */
 byte o_sf_major;			/* Savefile's "version_major" */
 byte o_sf_minor;			/* Savefile's "version_minor" */
 byte o_sf_patch;			/* Savefile's "version_patch" */
-byte o_sf_extra;			/* Savefile's "version_extra" */
+byte o_sf_extra;			/* Savefile's "version_extra".  Not currently used */
 
 /*
  * Savefile information
@@ -117,7 +117,6 @@ bool opening_chest;		/* Hack -- prevent chest generation */
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
-bool repair_mflag_blbr;	/* Hack -- repair monster flags (black breath) */
 bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
 bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
@@ -484,6 +483,14 @@ char *v_name;
 char *v_text;
 
 /*
+ * The themed level generation arrays. -LM-
+ */
+header *t_head;
+vault_type *t_info;
+char *t_name;
+char *t_text;
+
+/*
  * The terrain feature arrays
  */
 header *f_head;
@@ -573,7 +580,7 @@ cptr ANGBAND_DIR_FILE;
 cptr ANGBAND_DIR_HELP;
 
 /*
- * Help files (spoilers) for the online help (ascii)
+ * Miscellanious text files, also contains any spoilers.
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_INFO;
@@ -642,6 +649,11 @@ bool (*get_obj_num_hook)(int k_idx);
 
 
 /*
+ * Themed levels generate their own feeling mesaages. -LM-
+ */
+char themed_feeling[80];
+
+/*
  * The type of object the item generator should make, if specified. -LM-
  */
 byte required_tval = 0;
@@ -659,11 +671,30 @@ char required_race = '\0';
  */
 byte bones_selector;
 
+/*
+ * The player ghost template index. -LM-
+ */
+int r_ghost;
+
 /* 
  * The player ghost name is stored here for quick reference by the 
  * description function.  -LM-
  */
 char ghost_name[80];
+
+/*
+ * The type (if any) of the player ghost's personalized string, and 
+ * the string itself. -LM-
+ */
+int ghost_string_type = 0;
+char ghost_string[80];
+
+/*
+ * Variable to insure that ghosts say their special message only once.  
+ * This variable is deliberately not saved, so reloaded ghosts may speak 
+ * again. -LM-
+ */
+bool ghost_has_spoken = FALSE;
 
 
 /*
@@ -675,19 +706,21 @@ s16b autosave_freq;			/* Autosave frequency */
 
 
 /*
- * Is the player partly through trees or rubble? -LM-  Monsters are handled 
- * more simply:  They have a 33% or 50% chance of walking through.
+ * Is the player partly through trees or rubble and, if so, in which 
+ * direction is he headed?  Monsters are handled more simply:  They have 
+ * a 33% or 50% chance of walking through. -LM-
  */
-bool player_is_crossing;
+byte player_is_crossing;
 
 
 /*
- * Two variables that limit rogue stealing and creation of traps.
+ * Two variables that limit rogue stealing and creation of traps.  The 
+ * third prevents Priests from using the "sea of runes" trick.  
+ * Cleared when a level is created. -LM-
  */
 byte number_of_thefts_on_level;
-byte monster_trap_on_level;
-
-
+byte num_trap_on_level;
+byte num_glyph_on_level;
 
 
 

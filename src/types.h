@@ -175,7 +175,7 @@ struct feature_type
 /*
  * Information about object "kinds", including player knowledge.
  *
- * Only "aware" and "tried" are saved in the savefile
+ * Only "aware", "tried", and "known" are saved in the savefile.
  */
 struct object_kind
 {
@@ -226,6 +226,8 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+	bool known_effect;	/* Item's effects when used are known. -LM- */
 };
 
 
@@ -533,6 +535,10 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
 
+	byte stasis;		/* Monster is held in stasis. -LM- */
+
+	bool black_breath;	/* Monster suffers from the Black Breath -LM- */
+
 	byte cdis;			/* Current dis from player */
 
 	byte mflag;			/* Extra monster flags */
@@ -667,15 +673,15 @@ struct store_type
 
 
 /*
- * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells,  1 for priest-spells, 
- * 2 for druid-spells, and 3 for necro-spells. -LM-
+ * Spell information.  Index only controls effects; position in spellbook 
+ * is controlled by values in the array "book_start_index".
  */
 struct magic_type
 {
+	byte index;			/* The internal spell index. */
 	byte slevel;		/* Required level (to learn) */
 	byte smana;			/* Required mana (to cast) */
-	byte sfail;			/* Minimum chance of failure */
+	byte sfail;			/* Base chance of failure */
 	byte sexp;			/* Encoded experience bonus */
 };
 
@@ -687,12 +693,13 @@ struct magic_type
  */
 struct player_magic
 {
-	s16b spell_book;		/* Tval of spell books (if any) */
-	s16b spell_xtra;		/* Something for later */
-	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_realm;		/* Spell Realm (if any)  */
-	s16b spell_first;		/* Level of first spell */
-	s16b spell_weight;	/* Weight that hurts spells */
+	byte spell_book;		/* Tval of spell books (if any) */
+	byte spell_stat;		/* Stat for spells (if any) */
+	byte spell_realm;		/* Spell Realm (if any)  */
+	byte spell_first;		/* Level of first spell */
+	s16b spell_weight;	/* Max armour weight to avoid mana penalties */
+	byte spell_number;		/* Total available spells for that class. */
+	byte book_start_index[11];	/* Index of 1st spell for all books. */
 	magic_type info[64];	/* The available spells */
 };
 
@@ -716,36 +723,43 @@ struct player_race
 {
 	cptr title;			/* Type of race */
 
-	s16b r_adj[6];		/* Racial stat bonuses */
+	s16b r_adj[6];		/* Racial stat modifiers */
 
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
+	s16b r_dis;			/* base disarming */
+	s16b r_dev;			/* base magic devices */
+	s16b r_sav;			/* base saving throw */
+	s16b r_stl;			/* base stealth */
+	s16b r_srh;			/* base search ability */
+	s16b r_fos;			/* base search frequency */
+	s16b r_thn;			/* base combat (melee) */
+	s16b r_thb;			/* base combat (missile and throwing) */
+
+	s16b rx_dis;		/* extra disarming */
+	s16b rx_dev;		/* extra magic devices */
+	s16b rx_sav;		/* extra saving throws */
+	s16b rx_stl;		/* extra stealth */
+	s16b rx_srh;		/* extra searching ability */
+	s16b rx_fos;		/* extra searching frequency */
+	s16b rx_thn;		/* extra to hit (melee) */
+	s16b rx_thb;		/* extra to hit (missile and throwing) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
-	byte b_age;			/* base age */
-	byte m_age;			/* mod age */
+	u16b b_age;			/* base age */
+	u16b m_age;			/* mod age */
 
 	byte m_b_ht;		/* base height (males) */
 	byte m_m_ht;		/* mod height (males) */
-	byte m_b_wt;		/* base weight (males) */
-	byte m_m_wt;		/* mod weight (males) */
+	u16b m_b_wt;		/* base weight (males) */
+	u16b m_m_wt;		/* mod weight (males) */
 
 	byte f_b_ht;		/* base height (females) */
 	byte f_m_ht;		/* mod height (females)	  */
-	byte f_b_wt;		/* base weight (females) */
-	byte f_m_wt;		/* mod weight (females) */
+	u16b f_b_wt;		/* base weight (females) */
+	u16b f_m_wt;		/* mod weight (females) */
 
 	byte infra;			/* Infra-vision	range */
-
-	byte choice;		/* Legal class choices */
 };
 
 
@@ -764,17 +778,17 @@ struct player_class
 	s16b c_stl;			/* class stealth */
 	s16b c_srh;			/* class searching ability */
 	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
+	s16b c_thn;			/* class to hit (melee) */
+	s16b c_thb;			/* class to hit (missile and throwing) */
 
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
+	s16b cx_dis;		/* extra disarming */
+	s16b cx_dev;		/* extra magic devices */
+	s16b cx_sav;		/* extra saving throws */
+	s16b cx_stl;		/* extra stealth */
+	s16b cx_srh;		/* extra searching ability */
+	s16b cx_fos;		/* extra searching frequency */
+	s16b cx_thn;		/* extra to hit (melee) */
+	s16b cx_thb;		/* extra to hit (missile and throwing) */
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
@@ -880,7 +894,7 @@ struct player_type
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
 
-	s16b protevil;		/* Timed -- Protection */
+	s16b protevil;		/* Timed -- Protection from evil */
 	s16b magicdef;		/* Timed -- Magical Defenses */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
@@ -888,6 +902,9 @@ struct player_type
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infravision */
+	s16b tim_esp;		/* Timed -- ESP */
+	s16b superstealth;	/* Timed -- Complete steath. -LM- */
+	s16b ele_attack;		/* Timed -- Temporary Elemental attacks -LM- */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -901,8 +918,12 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 
-	byte confusing;		/* Hands glowing with Confusion or Night */
+	u32b special_attack;	/* Special attack capacity -LM- */
 	byte searching;		/* Currently searching */
+
+	byte themed_level;	/* Player in a themed level?  Which one? */
+	u32b themed_level_appeared;
+	/* Flags indicating which themed levels have already appeared. -LM- */
 
 	u32b spell_learned1;	/* Spell flags */
 	u32b spell_learned2;	/* Spell flags */
@@ -985,6 +1006,8 @@ struct player_type
 
 	bool old_cumber_armor;
 	bool old_cumber_glove;
+	bool old_shield_on_back;
+
 	bool old_heavy_wield;
 	bool old_heavy_shoot;
 	bool old_icky_wield;
@@ -996,9 +1019,10 @@ struct player_type
 
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
-	bool heavy_wield;	/* Heavy weapon */
-	bool heavy_shoot;	/* Heavy shooter */
-	bool icky_wield;	/* Icky weapon */
+	bool shield_on_back;	/* Player carrying a shield on his back. -LM- */
+	bool heavy_wield;		/* Heavy weapon */
+	bool heavy_shoot;		/* Heavy shooter */
+	bool icky_wield;		/* Icky weapon */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 

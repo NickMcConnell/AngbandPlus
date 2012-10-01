@@ -1,4 +1,4 @@
-28
+41
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Jehovah's Wrath'
 'Durindana'
@@ -12,14 +12,12 @@ of the Eagle Lord
 'Azriel's Own'
 of Amadis
 'Stenador'
+of Daurin
 'Slepnir'
 'Hrunting'
 'Justicar'
 of the Tir nan Og
-of Eldamar
-of Tasarinan
 of Beorn
-of Khazad-dum
 of Tristram
 'Perrianath'
 'Guthwine'
@@ -28,3 +26,18 @@ of Tristram
 'Menelvagor'
 of Bladorthin
 of Eorl
+of Bayard
+'Hound of Battle'
+'Hope and Glory'
+of Ithilen
+of Cuchulain
+'Balisarda'
+'Caliburn'
+'Cortana'
+'Gungnir'
+of Voronwe
+of Tol Eressea
+'Telchar's Own'
+of Sulimo
+of Telperion
+of Arvernien

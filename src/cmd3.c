@@ -4,6 +4,7 @@
  * object, inscribing, refuelling, (l)ooking around the screen and 
  * Looking around the dungeon, help info on textual chars ("8" is the home, 
  * etc.), monster memory interface, stealing and setting monster traps.
+ * 
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -38,7 +39,13 @@ void do_cmd_inven(void)
 	item_tester_full = FALSE;
 
 	/* Insert the total burden and character capacity into a string. -LM- */
-	sprintf(string, "(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
+	if (use_metric) sprintf(string, 
+		"(Inventory) burden %d.%d kg (%d%% of capacity). Command: ",
+		make_metric(p_ptr->total_weight) / 10, 
+		make_metric(p_ptr->total_weight) % 10, 
+		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+	else sprintf(string, 
+		"(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
 		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
 
@@ -94,7 +101,13 @@ void do_cmd_equip(void)
 
 
 	/* Insert the total burden and character capacity into a string. -LM- */
-	sprintf(string, "(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
+	if (use_metric) sprintf(string, 
+		"(Equipment) burden %d.%d kg (%d%% of capacity). Command: ",
+		make_metric(p_ptr->total_weight) / 10, 
+		make_metric(p_ptr->total_weight) % 10, 
+		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+	else sprintf(string, 
+		"(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
 		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
 		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
 
@@ -150,6 +163,8 @@ void do_cmd_wield(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	u32b f1, f2, f3;
+
 	cptr act;
 
 	cptr q, s;
@@ -185,8 +200,13 @@ void do_cmd_wield(void)
 	}
 
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -201,7 +221,6 @@ void do_cmd_wield(void)
 		/* Cancel the command */
 		return;
 	}
-
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -247,6 +266,45 @@ void do_cmd_wield(void)
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
+
+
+	/* If he wields a weapon that requires two hands, or hasn't the 
+	 * strength to wield a weapon that is usually wielded with both hands
+	 * one-handed (normally requires 18/140 to 18/160 STR), the 
+	 * character will automatically carry any equipped shield on his back. -LM-
+	 */
+	if ((slot == INVEN_WIELD) && (inventory[INVEN_ARM].k_idx))
+	{
+		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) && 
+			(p_ptr->stat_ind[A_STR] < 
+			25 + (o_ptr->weight / 50 > 11 ? 11 : o_ptr->weight / 50))))
+		{
+			p_ptr->shield_on_back = TRUE;
+		}
+		else p_ptr->shield_on_back = FALSE;
+	}
+
+	/* A character using both hands to wield his melee weapon will use his 
+	 * back to carry an equipped shield. -LM-
+	 */
+	if ((slot == INVEN_ARM) && (inventory[INVEN_WIELD].k_idx))
+	{
+		/* Access the wield slot */
+		i_ptr = &inventory[INVEN_WIELD];
+
+		/* Extract the flags */
+		object_flags(i_ptr, &f1, &f2, &f3);
+
+
+		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) && 
+			(p_ptr->stat_ind[A_STR] < 
+			29 + (i_ptr->weight / 50 > 8 ? 8 : i_ptr->weight / 50))))
+		{
+			p_ptr->shield_on_back = TRUE;
+		}
+		else p_ptr->shield_on_back = FALSE;
+
+	}
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
@@ -310,7 +368,7 @@ void do_cmd_takeoff(void)
 
 	if (DRUID_SCHANGE)
 	{
-		msg_print("You cannot take off equipment while shapechanged!");
+		msg_print("You cannot take off equipment while shapechanged.");
 		msg_print("Use the ']' command to return to your normal form.");
 		return;
 	}
@@ -347,6 +405,9 @@ void do_cmd_takeoff(void)
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
+
+	/* Ensure that the shield hand is used, if a shield is available. -LM- */
+	if (wield_slot(o_ptr) == INVEN_WIELD) p_ptr->shield_on_back = FALSE;
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
@@ -404,6 +465,9 @@ void do_cmd_drop(void)
 		/* Nope */
 		return;
 	}
+
+	/* Ensure that the shield hand is used, if a shield is available. -LM- */
+	if (wield_slot(o_ptr) == INVEN_WIELD) p_ptr->shield_on_back = FALSE;
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -485,8 +549,8 @@ void do_cmd_destroy(void)
 		/* Hack -- Handle icky artifacts */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
 
-		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
+		/* Hack -- inscribe the artifact, if not identified. */
+		if (!object_known_p(o_ptr)) o_ptr->note = quark_add(feel);
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -536,53 +600,188 @@ void do_cmd_destroy(void)
 
 
 /*
- * Observe an item which has been *identify*-ed
+ * Display specialized object information.  -LM-
+ *
+ * Unidentified:
+ *      Weapons and armour -> description of specific object type (dagger, 
+ *        etc.).
+ *      Others -> descrtiption only of general object kind (scroll, etc.)
+ * Identified or aware:
+ *      Artifacts -> artifact-specific description.
+ *      Most objects -> description of specific object type.
+ *      Scrolls, potions, spellbooks, rings, and amulets -> description  
+ *        only of general object kind.
+ * *Identified*:
+ *      All -> description of object type or artifact description, 
+ *        complete listing of attributes and flags.
+ *
+ * Objects may also be members of a class with known effects.  If so, 
+ * extra information about effects when used will appear if the effects 
+ * can be quantified.
+ *
+ * Boolean value "is_home" only takes effect if player is in some store.
  */
-void do_cmd_observe(void)
+void do_cmd_observe(object_type *o_ptr, bool is_home)
 {
 	int item;
+	int y, x;
+	int i;
 
-	object_type *o_ptr;
+	bool aware, known, known_effects, mental;
+	bool in_store = FALSE;
+
+	object_kind *k_ptr;
 
 	char o_name[80];
+
+	char info_text[512];
+	char *object_kind_info;
 
 	cptr q, s;
 
 
-	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	/* Initialize object description. */
+	strcpy(info_text, "");
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
+
+	/* Determine if called in a normal store. */
+	if ((o_ptr) && (!is_home)) in_store = TRUE;
+
+	/* If not called in a store, we must get an object to inspect. */
+	if (!o_ptr)
 	{
-		o_ptr = &inventory[item];
+		/* Get an item */
+		q = "Examine which item? ";
+		s = "You have nothing to examine.";
+		if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the item (in the pack) */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+
+		/* Get the item (on the floor) */
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
 	}
 
-	/* Get the item (on the floor) */
+
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
+
+
+	/* Create and output a status message (hack - not in stores). */
+	if (!in_store)
+	{
+		object_desc(o_name, o_ptr, TRUE, 3);
+		msg_format("Examining %s...", o_name);
+	}
+
+
+	/* What is our level of knowledge about the object? */
+	aware = object_aware_p(o_ptr);
+	known = (object_known_p(o_ptr) || in_store);
+	known_effects = k_ptr->known_effect;
+	mental = o_ptr->ident & (IDENT_MENTAL);
+
+	/* Hack - Avoid giving away too much info in normal stores about objects 
+	 * other than weapons and armour (no sneaky learning about wand damages!).
+	 */
+	if ((in_store) && ((!k_ptr->known_effect) && 
+		((o_ptr->tval < TV_SHOT) || (o_ptr->tval > TV_DRAG_ARMOR))))
+	{
+		known = TRUE;
+		mental = FALSE;
+	}
+
+	/* Object is fully known - give maximal information. */
+	if (mental)
+	{
+		/* Get the specific object type's information. */
+		object_info(info_text, o_ptr, in_store);
+
+		/* No object kind info. */
+		object_kind_info = "";
+	}
+
+	/* Object or object type is identified - show all basic information. */
+	else if ((known) || (aware))
+	{
+		/* Get the specific object type's information, if any. */
+		object_info(info_text, o_ptr, in_store);
+
+		/* Get information about the general object kind. */
+		object_kind_info = format("%s", obj_class_info[o_ptr->tval]);
+	}
+
+
+	/* Nothing is known about the object or object type - show only 
+	 * information about the general object kind.
+	 */
 	else
 	{
-		o_ptr = &o_list[0 - item];
+		/* Get information about the general object kind. */
+		object_kind_info = format("%s", obj_class_info[o_ptr->tval]);
 	}
 
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
+	/* Save screen */
+	screen_save();
+
+	/* Erase the screen */
+	Term_clear();
+
+
+	/* Label the information. */
+	roff("Item Information:", 3, 0);
+	for (i = 0; i < 3; i++) roff("\n", 0, 0);
+
+	/* Object type or artifact information. */
+	c_roff(TERM_L_BLUE, info_text, 3, 77);
+
+
+	/* Fully identified objects. */
+	if (mental)
 	{
-		msg_print("You have no special knowledge about that item.");
-		return;
+		for (i = 0; i < 3; i++) roff("\n", 0, 0);
+
+		/* Fully describe the object flags and attributes. */
+		identify_fully_aux(o_ptr);
+
+		/* Obtain the cursor location */
+		(void)Term_locate(&x, &y);
+
+		/* Hack -- attempt to stay on screen. */
+		for (i = y; i < 24; i++)
+		{
+			/* No more space! */
+			if (i > 22) break;
+
+			/* Advance one line. */
+			roff("\n", 0, 0);
+
+			/* Enough clear space.  Done. */
+			if (i == (y + 2)) break;
+		}
+	}
+	else
+	{
+		/* Spacing. */
+		for (i = 0; i < 9; i++) roff("\n", 0, 0);
+		/* Object kind information. */
+		roff(object_kind_info, 3, 77);
+		for (i = 0; i < 3; i++) roff("\n", 0, 0);
 	}
 
+	/* The exit sign. */
+	roff("(Press any key to continue.)", 25, 0);
+	(void)inkey();
 
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Describe */
-	msg_format("Examining %s...", o_name);
-
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -1591,6 +1790,7 @@ void py_steal(int y, int x)
 	/* Determine how much protection the monster has. */
 	theft_protection = (7 * (r_ptr->level + 2) / 4);
 	theft_protection += (m_ptr->mspeed - p_ptr->pspeed);
+	if (theft_protection < 1) theft_protection = 1;
 
 	/* Send a thief to catch a thief. */
 	for (i = 0; i < 4; i++)
@@ -1602,38 +1802,50 @@ void py_steal(int y, int x)
 	}
 	if (thief) theft_protection += 30;
 
-	if ((m_ptr->csleep) && (theft_protection > 0)) theft_protection = 3 * theft_protection / 5;
+	if (m_ptr->csleep) theft_protection = 3 * theft_protection / 5;
+
+	/* Special player stealth magics aid stealing, but are lost in the process. */
+	if (p_ptr->superstealth)
+	{
+		theft_protection = 3 * theft_protection / 5;
+
+		msg_print("You emerge from the shadows and stand revealed once more.");
+		p_ptr->superstealth = 0;
+	}
 
 	/* The more you steal on a level, the more wary the monsters. */
 	theft_protection += number_of_thefts_on_level * 15;
 
 	/* Did the theft succeed?  */
-	if ((theft_protection > 0) && (randint(theft_protection) < filching_power)) success = TRUE;
+	if (randint(theft_protection) < filching_power) success = TRUE;
 
 
 	/* If the theft succeeded, determine the value of the purse. */
 	if (success)
 	{
-		purse = randint(3 * (r_ptr->level + 2) / 2);
+		purse = (r_ptr->level + 1) + randint(3 * (r_ptr->level + 1) / 2);
 
 		/* Uniques are juicy targets. */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) purse *= 3;
 
 		/* But some monsters are dirt poor. */
 		if (!((r_ptr->flags1 & (RF1_DROP_60)) || 
-		    (r_ptr->flags1 & (RF1_DROP_90)) || 
-		    (r_ptr->flags1 & (RF1_DROP_1D2)) || 
-		    (r_ptr->flags1 & (RF1_DROP_2D2)) || 
-		    (r_ptr->flags1 & (RF1_DROP_3D2)) || 
-		    (r_ptr->flags1 & (RF1_DROP_4D2)))) purse = 0;
+			(r_ptr->flags1 & (RF1_DROP_90)) || 
+			(r_ptr->flags1 & (RF1_DROP_1D2)) || 
+			(r_ptr->flags1 & (RF1_DROP_2D2)) || 
+			(r_ptr->flags1 & (RF1_DROP_3D2)) || 
+			(r_ptr->flags1 & (RF1_DROP_4D2)))) purse = 0;
 
 		/* Some monster races are far better to steal from than others. */
 		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') || 
-		    (r_ptr->d_char == 'p') || (r_ptr->d_char == 'D') || 
-		    (r_ptr->d_char == 'h')) purse *= 2 + randint(3);
+			(r_ptr->d_char == 'p') || (r_ptr->d_char == 'h')) 
+			purse *= 2 + randint(3) + randint(r_ptr->level / 20);
 		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') || 
-		    (r_ptr->d_char == 'O') || (r_ptr->d_char == 'T')) 
-			purse *= 1 + randint(2);
+			(r_ptr->d_char == 'O') || (r_ptr->d_char == 'T') ||
+			(r_ptr->d_char == 'n') || (r_ptr->d_char == 'W') ||
+			(r_ptr->d_char == 'k') || (r_ptr->d_char == 'L') ||
+			(r_ptr->d_char == 'V') || (r_ptr->d_char == 'y')) 
+			purse *= 1 + randint(3) + randint(r_ptr->level / 30);
 
 		/* Pickings are scarce in a land of many thieves. */
 		purse *= (p_ptr->depth + 5) / (p_ptr->max_depth + 5);
@@ -1669,7 +1881,7 @@ void py_steal(int y, int x)
 		else 
 		{
 			monster_desc(m_name, m_ptr, 0);
-			msg_format("You have aroused %^s.", m_name);
+			msg_format("You have aroused %s.", m_name);
 		}
 	}
 
@@ -1714,7 +1926,7 @@ void py_set_trap(int y, int x)
 {
 
 	/* Paranoia -- Forbid more than one trap being set. */
-	if (monster_trap_on_level > 0)
+	if (num_trap_on_level > 0)
 	{
 		msg_print("You must disarm your existing trap to free up your equipment.");
 		return;
@@ -1726,7 +1938,7 @@ void py_set_trap(int y, int x)
 	msg_print("You set a monster trap.");
 
 	/* Increment the number of monster traps. */
-	monster_trap_on_level++;
+	num_trap_on_level++;
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);

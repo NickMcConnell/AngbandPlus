@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.3.1"
+#define VERSION_STRING	"0.4.0"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -66,10 +66,10 @@
  * Current Oangband version numbers.
  */
 #define O_VERSION_MAJOR	0
-#define O_VERSION_MINOR	3
-#define O_VERSION_PATCH	1
+#define O_VERSION_MINOR	4
+#define O_VERSION_PATCH	0
 
-/* Cuurently unused. */
+/* Currently unused. */
 #define O_VERSION_EXTRA	0
 
 /*
@@ -112,14 +112,14 @@
 
 
 /*
- * Number of grids in each dungeon (horizontally)
+ * Number of grids in each dungeon (from top to bottom)
  * Must be a multiple of SCREEN_HGT
  * Must be less or equal to 256
  */
 #define DUNGEON_HGT		66
 
 /*
- * Number of grids in each dungeon (vertically)
+ * Number of grids in each dungeon (from left to right)
  * Must be a multiple of SCREEN_WID
  * Must be less or equal to 256
  */
@@ -134,7 +134,7 @@
 /*
  * Total number of owners per store (see "store.c", etc)
  */
-#define MAX_OWNERS	4
+#define MAX_OWNERS	6
 
 /*
  * Store number of the player's home (see "store.c", etc)
@@ -150,7 +150,7 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           10
+#define MAX_RACES           13
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -168,21 +168,25 @@
  * Maximum array bounds for template based arrays
  */
 #define MAX_F_IDX	73	/* Max size for "f_info[]" */
-#define MAX_K_IDX	512	/* Max size for "k_info[]" */
-#define MAX_A_IDX	168	/* Max size for "a_info[]" */
+#define MAX_K_IDX	755	/* Max size for "k_info[]" */
+#define MAX_A_IDX	250	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	560	/* Max size for "r_info[]" */
+#define MAX_R_IDX	585	/* Max size for "r_info[]" */
 #define MAX_V_IDX	150	/* Max size for "v_info[]" */
+
+/* The value for "MAX_R_IDX" cannot be increased unless the monster array is 
+ * broken up or is allowed 32 bit indexes.
+ */
 
 
 /*
  * Hack -- first normal and random artifact in the artifact list.  
- * All of the artifacts with indexes from 1 to 15 are special (lights, 
- * rings, amulets), the ones from 16 to 127 are normal, and the ones 
- * from 128 to 167 are random.
+ * All of the artifacts with indexes from 1 to 22 are special (lights, 
+ * rings, amulets), the ones from 23 to 209 are normal, and the ones from 
+ * 210 to 249 are random.
  */
-#define ART_MIN_NORMAL		16
-#define ART_MIN_RANDOM		128
+#define ART_MIN_NORMAL		23
+#define ART_MIN_RANDOM		210
 
 
 
@@ -268,6 +272,31 @@
 #define MAX_SHORT       32767
 
 
+
+/*** Oangband Themed Levels ***/
+
+/*
+ * No current theme (player is on a normal level)
+ */
+#define THEME_NONE		0
+
+/*
+ * Themed level indices.  Used to activate any theme-specific code. 
+ * See generate.c for the table of themed level information.
+ */
+#define THEME_ELEMENTAL		1
+#define THEME_DRAGON		2
+#define THEME_WILDERNESS	3
+#define THEME_DEMON		4
+#define THEME_MORIA		5
+#define THEME_WARLORDS		6
+
+/*
+ * Current number of defined themes.  The maximum theoretical number is 32.
+ */
+#define THEME_MAX			6
+
+
 /*
  * Store constants
  */
@@ -293,11 +322,11 @@
 #define USE_DEVICE      3		/* x> Harder devices x< Easier devices     */
 
 /*
- * There is a 1/20 (5%) chance of inflating the requested object_level
+ * There is a 1/25 (4%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ	20
+#define GREAT_OBJ	25
 
 /*
  * There is a 1/40 (2.5%) chance of inflating the requested monster_level
@@ -319,7 +348,7 @@
  * More maximum values
  */
 #define MAX_SIGHT	20	/* Maximum view distance */
-#define MAX_RANGE	18	/* Maximum range (spells, etc) */
+#define MAX_RANGE	20	/* Maximum range (spells, etc) */
 
 
 
@@ -436,22 +465,25 @@
 /*
  * Player sex constants (hard-coded by save-files, arrays, etc)
  */
-#define SEX_FEMALE		0
+#define SEX_FEMALE	0
 #define SEX_MALE		1
 
 /*
  * Player race constants (hard-coded by save-files, arrays, etc)
  */
 #define RACE_HUMAN		0
-#define RACE_HALF_ELF	1
-#define RACE_ELF		2
+#define RACE_HALF_ELF		1
+#define RACE_ELF			2
 #define RACE_HOBBIT		3
 #define RACE_GNOME		4
 #define RACE_DWARF		5
-#define RACE_HALF_ORC	6
-#define RACE_HALF_TROLL	7
-#define RACE_DUNADAN	8
-#define RACE_HIGH_ELF	9
+#define RACE_HALF_ORC		6
+#define RACE_HALF_TROLL		7
+#define RACE_DUNADAN		8
+#define RACE_HIGH_ELF		9
+#define RACE_MAIA			10
+#define RACE_S_FAIRY		11
+#define RACE_ENT			12
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -467,11 +499,11 @@
 #define CLASS_ASSASSIN	8
 
 /* Different realms here.  From Sangband */
-#define NONE	0
-#define MAGE	1
-#define PRIEST	2
-#define DRUID	3
-#define NECRO	4
+#define REALM_NONE		0
+#define REALM_SORCERY		1
+#define REALM_PIETY		2
+#define REALM_NATURE		3
+#define REALM_NECROMANTIC	4
 
 /*** Screen Locations ***/
 
@@ -566,7 +598,7 @@
 /*
  * Legal restrictions for "summon_specific()"
  */
-#define SUMMON_ANT			11
+#define SUMMON_ANT		11
 #define SUMMON_SPIDER		12
 #define SUMMON_HOUND		13
 #define SUMMON_HYDRA		14
@@ -578,7 +610,11 @@
 #define SUMMON_HI_DRAGON	22
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
-#define SUMMON_THIEF		35
+#define SUMMON_ELEMENTAL	33
+#define SUMMON_VORTEX		34
+#define SUMMON_HYBRID		35
+#define SUMMON_BIRD		36
+#define SUMMON_THIEF		38
 
 
 /*
@@ -622,8 +658,8 @@
 #define GF_MAKE_WALL	36
 #define GF_MAKE_DOOR	37
 #define GF_MAKE_TRAP	38
-#define GF_XXX5			39
-#define GF_XXX6			40
+#define GF_HOLD		39
+#define GF_HOLD_UNDEAD	40
 #define GF_AWAY_UNDEAD	41
 #define GF_AWAY_EVIL	42
 #define GF_AWAY_ALL		43
@@ -636,7 +672,7 @@
 #define GF_DISP_DEMON		50
 #define GF_DISP_DRAGON		51
 #define GF_DISP_ALL		53
-
+#define GF_DISP_SMALL_ALL	54
 #define GF_OLD_CLONE	55
 #define GF_OLD_POLY		56
 #define GF_OLD_HEAL		57
@@ -774,135 +810,158 @@
 #define ART_POWER			14
 
 /* Dragon Scale */
-#define ART_RAZORBACK		16
-#define ART_BLADETURNER		17
+#define ART_RAZORBACK		22
+#define ART_BLADETURNER		23
 
 /* Hard Armour */
-#define ART_SOULKEEPER		19
-#define ART_ISILDUR		20
-#define ART_ROHIRRIM		21
-#define ART_BELEGENNON		22
-#define ART_CELEBORN		23
-#define ART_ARVEDUI		24
-#define ART_CASPANION		25
-#define ART_HIMRING		26
+#define ART_SOULKEEPER		26
+#define ART_ISILDUR		27
+#define ART_ROHIRRIM		28
+#define ART_BELEGENNON		29
+#define ART_CELEBORN		30
+#define ART_ARVEDUI		31
+#define ART_CASPANION		32
 
 /* Soft Armour */
-#define ART_HITHLOMIR		27
-#define ART_THALKETTOTH		28
+#define ART_HIMRING		36
+#define ART_HITHLOMIR		37
+#define ART_THALKETTOTH		38
 
 /* Shields */
-#define ART_ELEMENTS		29
-#define ART_THORIN		30
-#define ART_CELEGORM		31
-#define ART_ANARION		32
-#define ART_GIL_GALAD		33
+#define ART_ELEMENTS		43
+#define ART_THORIN		44
+#define ART_CELEGORM		45
+#define ART_ANARION		46
+#define ART_EARENDIL		47
+#define ART_GIL_GALAD		48
 
 /* Helms and Crowns */
-#define ART_MORGOTH			34
-#define ART_BERUTHIEL		35
-#define ART_THRANDUIL		36
-#define ART_THENGEL			37
-#define ART_HAMMERHAND		38
-#define ART_DOR				39
-#define ART_HOLHENNETH		40
-#define ART_GORLIM			41
-#define ART_GONDOR			42
-#define ART_NUMENOR			43
+#define ART_MORGOTH			51
+#define ART_BERUTHIEL			52
+#define ART_THRANDUIL			53
+#define ART_THENGEL			54
+#define ART_HAMMERHAND			55
+#define ART_DOR				56
+#define ART_HOLHENNETH			57
+#define ART_GORLIM			58
+
+#define ART_GONDOR			61
+#define ART_NUMENOR			62
 
 /* Cloaks */
-#define ART_COLLUIN			44
-#define ART_HOLCOLLETH		45
-#define ART_THINGOL			46
-#define ART_THORONGIL		47
-#define ART_COLANNON		48
-#define ART_LUTHIEN			49
-#define ART_TUOR			50
+#define ART_VALINOR			66
+#define ART_HOLCOLLETH			67
+#define ART_THINGOL			68
+#define ART_THORONGIL			69
+#define ART_COLANNON			70
+#define ART_LUTHIEN			71
+#define ART_TUOR				72
 
 /* Gloves */
-#define ART_CAMBELEG		52
-#define ART_CAMMITHRIM		53
-#define ART_EOL			54
-#define ART_PAURNIMMEN		55
-#define ART_PAURAEGEN		56
-#define ART_PAURNEN			57
-#define ART_CAMLOST			58
-#define ART_FINGOLFIN		59
+#define ART_CAMBELEG		77
+#define ART_CAMMITHRIM		78
+#define ART_EOL			79
+#define ART_PAURNIMMEN		80
+#define ART_PAURAEGEN		81
+#define ART_PAURNEN		82
+#define ART_CAMLOST		83
+#define ART_FINGOLFIN		84
 
 /* Boots */
-#define ART_FEANOR			60
-#define ART_DAL				61
-#define ART_THROR			62
+#define ART_FEANOR		89
+#define ART_DAL			90
+#define ART_THROR			91
+#define ART_NEVRAST		92
+#define ART_GIMLI			93
 
 /* Swords */
-#define ART_MAEDHROS		64
-#define ART_ANGRIST			65
-#define ART_NARTHANC		66
-#define ART_NIMTHANC		67
-#define ART_DETHANC			68
-#define ART_RILIA			69
-#define ART_BELANGIL		70
-#define ART_CALRIS			71
-#define ART_ARUNRUTH		72
-#define ART_GLAMDRING		73
-#define ART_AEGLIN			74
-#define ART_ORCRIST			75
-#define ART_GURTHANG		76
-#define ART_ZARCUTHRA		77
-#define ART_MORMEGIL		78
-#define ART_GONDRICAM		79
-#define ART_CRISDURIAN		80
-#define ART_AGLARANG		81
-#define ART_RINGIL			82
-#define ART_ANDURIL			83
-#define ART_ANGUIREL		84
-#define ART_ELVAGIL			85
-#define ART_FORASGIL		86
-#define ART_CARETH			87
-#define ART_STING			88
-#define ART_HARADEKKET		89
-#define ART_GILETTAR		90
-#define ART_DOOMCALLER		91
+#define ART_MAEDHROS		97
+#define ART_ANGRIST			98
+#define ART_NARTHANC		99
+#define ART_NIMTHANC		100
+#define ART_DETHANC			101
+#define ART_RILIA			102
+#define ART_BELANGIL		103
+#define ART_CALRIS			104
+#define ART_ARUNRUTH		105
+#define ART_GLAMDRING		106
+#define ART_AEGLIN		107
+#define ART_ORCRIST		108
+#define ART_GURTHANG		109
+#define ART_ZARCUTHRA		110
+#define ART_MORMEGIL		111
+#define ART_GONDRICAM		112
+#define ART_CRISDURIAN		113
+#define ART_AGLARANG		114
+#define ART_RINGIL		115
+#define ART_ANDURIL		116
+#define ART_ANGUIREL		117
+#define ART_ELVAGIL		118
+#define ART_FORASGIL		119
+#define ART_CARETH		120
+#define ART_STING			121
+#define ART_HARADEKKET		122
+#define ART_GILETTAR		123
+#define ART_DOOMCALLER		124
 
 /* Polearms */
-#define ART_THEODEN			93
-#define ART_PAIN			94
-#define ART_OSONDIR			95
-#define ART_TIL				96
-#define ART_AEGLOS			97
-#define ART_OROME			98
-#define ART_NIMLOTH			99
-#define ART_EORLINGAS		100
-#define ART_DURIN			101
-#define ART_EONWE			102
-#define ART_BALLI			103
-#define ART_LOTHARANG		104
-#define ART_MUNDWINE		105
-#define ART_BARUKKHELED		106
-#define ART_WRATH			107
-#define ART_ULMO			108
-#define ART_AVAVIR			109
+#define ART_THEODEN		133
+#define ART_PAIN			134
+#define ART_OSONDIR		135
+#define ART_TIL			136
+#define ART_AEGLOS		137
+#define ART_OROME			138
+#define ART_NIMLOTH		139
+#define ART_EORLINGAS		140
+#define ART_DURIN			141
+#define ART_EONWE			142
+#define ART_BALLI			143
+#define ART_LOTHARANG		144
+#define ART_MUNDWINE		145
+#define ART_BARUKKHELED		146
+#define ART_WRATH			147
+#define ART_ULMO			148
+#define ART_AVAVIR		149
 
 /* Hafted */
-#define ART_GROND			111
-#define ART_TOTILA			112
-#define ART_THUNDERFIST		113
-#define ART_BLOODSPIKE		114
-#define ART_FIRESTAR		115
-#define ART_TARATOL			116
-#define ART_AULE			117
-#define ART_NAR				118
-#define ART_ERIRIL			119
-#define ART_OLORIN			120
-#define ART_DEATHWREAKER	121
-#define ART_TURMIL			122
+#define ART_GROND			158
+#define ART_TOTILA			159
+#define ART_THUNDERFIST		160
+#define ART_BLOODSPIKE		161
+#define ART_FIRESTAR		162
+#define ART_TARATOL			163
+#define ART_AULE			164
+#define ART_NAR				165
+#define ART_ERIRIL			166
+#define ART_OLORIN			167
+#define ART_DEATHWREAKER	168
+#define ART_TURMIL		169
 
 /* Bows */
-#define ART_HARAD			123
-#define ART_BELTHRONDING	124
-#define ART_BARD			125
-#define ART_CUBRAGOL		126
-#define ART_DAVID			127
+#define ART_HARAD			178
+#define ART_BELTHRONDING	179
+#define ART_BARD			180
+#define ART_CUBRAGOL		181
+#define ART_BUCKLAND		182
+
+
+/* Non-wearable artifacts that can recharge in the backpack. */
+
+#define ART_STAFF_SARUMAN		149
+#define ART_STAFF_WINDS			150
+#define ART_STAFF_MENELTARMA		151
+#define ART_STAFF_RADAGAST		152
+
+#define ART_WAND_ILKORIN		154
+#define ART_WAND_GANDALF		155
+#define ART_WAND_COMMAND		156
+#define ART_WAND_ULPION			157
+
+#define ART_ROD_DELVING			159
+#define ART_ROD_SHADOW			160
+#define ART_ROD_AIR			161
+#define ART_ROD_PORTALS			162
+
 
 
 
@@ -922,7 +981,7 @@
 #define EGO_RESIST_COLD		7
 #define EGO_RESISTANCE		8
 #define EGO_ELVENKIND		9
-/* xxx */
+#define EGO_DWARVEN		10
 #define EGO_PERMANENCE		11
 /* xxx */
 /* xxx */
@@ -972,7 +1031,7 @@
 #define EGO_SLAYING		49
 #define EGO_AGILITY		50
 #define EGO_POWER			51
-/* xxx */
+#define EGO_MAGIC_MASTERY	52	/* Added in Oangband. */
 /* xxx */
 #define EGO_WEAKNESS		54
 #define EGO_CLUMSINESS		55
@@ -985,7 +1044,7 @@
 #define EGO_STABILITY		60	/* Added in Oangband. */
 #define EGO_NOISE			61
 #define EGO_SLOWNESS		62
-#define EGO_ANNOYANCE		63
+#define EGO_TORMENT		63
 
 /* Weapons */
 #define EGO_HA			64
@@ -1001,7 +1060,7 @@
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
 #define EGO_BRAND_POIS		76	/* Added in Oangband. */
-/* xxx */
+#define EGO_BALROG		77	/* Added in Oangband. */
 /* xxx */
 /* xxx */
 #define EGO_SLAY_ANIMAL		80
@@ -1060,14 +1119,13 @@
 
 
 
-/*** Activation Indexes. -LM- ***/
-/* Special Artifacts.  Not all actually activate. */
+/*** Activation Indexes.  Max is 255. -LM- ***/
+/* Special Artifact activations. */
 #define ACT_GALADRIEL			1
 #define ACT_ELENDIL			2
 #define ACT_THRAIN			3
 #define ACT_CARLAMMAS			4
 #define ACT_INGWE				5
-#define ACT_DWARVES			6
 #define ACT_BOROMIR			7
 #define ACT_FARAMIR			8
 #define ACT_BARAHIR			9
@@ -1078,116 +1136,70 @@
 #define ACT_POWER				14
 #define ACT_STONE_LORE			15
 
-/* Armour Artifacts.  Not all actually activate. */
-#define ACT_RAZORBACK			16
-#define ACT_BLADETURNER			17
-#define ACT_SOULKEEPER			19
-#define ACT_ISILDUR			20
-#define ACT_ROHIRRIM			21
-#define ACT_BELEGENNON			22
-#define ACT_CELEBORN			23
-#define ACT_ARVEDUI			24
-#define ACT_CASPANION			25
-#define ACT_HIMRING			26
-#define ACT_HITHLOMIR			27
-#define ACT_THALKETTOTH			28
-#define ACT_ELEMENTS			29
-#define ACT_THORIN			30
-#define ACT_CELEGORM			31
-#define ACT_ANARION			32
-#define ACT_GIL_GALAD			33
-#define ACT_MORGOTH			34
-#define ACT_BERUTHIEL			35
-#define ACT_THRANDUIL			36
-#define ACT_THENGEL			37
-#define ACT_HAMMERHAND			38
-#define ACT_DOR				39
-#define ACT_HOLHENNETH			40
-#define ACT_GORLIM			41
-#define ACT_GONDOR			42
-#define ACT_NUMENOR			43
-#define ACT_COLLUIN			44
-#define ACT_HOLCOLLETH			45
-#define ACT_THINGOL			46
-#define ACT_THORONGIL			47
-#define ACT_COLANNON			48
-#define ACT_LUTHIEN			49
-#define ACT_TUOR				50
-#define ACT_CAMBELEG			52
-#define ACT_CAMMITHRIM			53
-#define ACT_EOL				54
-#define ACT_PAURNIMMEN			55
-#define ACT_PAURAEGEN			56
-#define ACT_PAURNEN			57
-#define ACT_CAMLOST			58
-#define ACT_FINGOLFIN			59
-#define ACT_FEANOR			60
-#define ACT_DAL				61
-#define ACT_THROR				62
 
-/* Artifact Weapons.  Not all actually activate.  */
-#define ACT_MAEDHROS			64
-#define ACT_ANGRIST			65
+/* Armour Activations. */
+#define ACT_RAZORBACK			22
+#define ACT_BLADETURNER			23
+#define ACT_SOULKEEPER			24
+#define ACT_BELEGENNON			25
+#define ACT_CELEBORN			26
+#define ACT_CASPANION			27
+#define ACT_HIMRING			28
+
+#define ACT_ELEMENTS			32
+#define ACT_EARENDIL			33
+#define ACT_GIL_GALAD			34
+
+#define ACT_HOLHENNETH			37
+#define ACT_GONDOR			38
+
+#define ACT_VALINOR			41
+#define ACT_HOLCOLLETH			42
+#define ACT_THINGOL			43
+#define ACT_COLANNON			44
+#define ACT_LUTHIEN			45
+
+#define ACT_CAMMITHRIM			52
+#define ACT_EOL				53
+#define ACT_PAURNIMMEN			54
+#define ACT_PAURAEGEN			55
+#define ACT_PAURNEN			56
+#define ACT_FINGOLFIN			57
+
+#define ACT_FEANOR			61
+#define ACT_DAL				62
+#define ACT_GIMLI				63
+
+
+/* Artifact Weapon Activations.  */
 #define ACT_NARTHANC			66
 #define ACT_NIMTHANC			67
 #define ACT_DETHANC			68
 #define ACT_RILIA				69
 #define ACT_BELANGIL			70
-#define ACT_CALRIS			71
-#define ACT_ARUNRUTH			72
-#define ACT_GLAMDRING			73
-#define ACT_AEGLIN			74
-#define ACT_ORCRIST			75
-#define ACT_GURTHANG			76
-#define ACT_ZARCUTHRA			77
-#define ACT_MORMEGIL			78
-#define ACT_GONDRICAM			79
-#define ACT_CRISDURIAN			80
-#define ACT_AGLARANG			81
-#define ACT_RINGIL			82
-#define ACT_ANDURIL			83
-#define ACT_ANGUIREL			84
-#define ACT_ELVAGIL			85
-#define ACT_FORASGIL			86
-#define ACT_CARETH			87
-#define ACT_STING				88
-#define ACT_HARADEKKET			89
-#define ACT_GILETTAR			90
-#define ACT_DOOMCALLER			91
-#define ACT_THEODEN			93
-#define ACT_PAIN				94
-#define ACT_OSONDIR			95
-#define ACT_TIL				96
-#define ACT_AEGLOS			97
-#define ACT_OROME				98
-#define ACT_NIMLOTH			99
-#define ACT_EORLINGAS			100
-#define ACT_DURIN				101
-#define ACT_EONWE				102
-#define ACT_BALLI				103
-#define ACT_LOTHARANG			104
-#define ACT_MUNDWINE			105
-#define ACT_BARUKKHELED			106
-#define ACT_WRATH				107
-#define ACT_ULMO				108
-#define ACT_AVAVIR			109
-#define ACT_GROND				111
-#define ACT_TOTILA			112
-#define ACT_THUNDERFIST			113
-#define ACT_BLOODSPIKE			114
-#define ACT_FIRESTAR			115
-#define ACT_TARATOL			116
-#define ACT_AULE				117
-#define ACT_NAR				118
-#define ACT_ERIRIL			119
-#define ACT_OLORIN			120
-#define ACT_DEATHWREAKER		121
-#define ACT_TURMIL			122
-#define ACT_HARAD				123
-#define ACT_BELTHRONDING		124
-#define ACT_BARD				125
-#define ACT_CUBRAGOL			126
-#define ACT_DAVID				127
+#define ACT_ARUNRUTH			71
+#define ACT_RINGIL			72
+#define ACT_ANDURIL			73
+
+#define ACT_THEODEN			78
+#define ACT_AEGLOS			79
+#define ACT_OROME				80
+#define ACT_EONWE				81
+#define ACT_LOTHARANG			82
+#define ACT_ULMO				83
+#define ACT_AVAVIR			84
+
+#define ACT_TOTILA			89
+#define ACT_FIRESTAR			90
+#define ACT_TARATOL			91
+#define ACT_ERIRIL			92
+#define ACT_OLORIN			93
+#define ACT_TURMIL			94
+
+#define ACT_HARAD				99
+#define ACT_CUBRAGOL			100
+#define ACT_BUCKLAND			101
+
 
 /* Random Artifacts */
 #define ACT_RANDOM_FIRE1		135
@@ -1258,18 +1270,18 @@
 
 /* Dragon Scale Mails */
 #define ACT_DRAGON_BLUE				200
-#define ACT_DRAGON_WHITE				201
-#define ACT_DRAGON_BLACK				202
-#define ACT_DRAGON_GREEN				203
+#define ACT_DRAGON_WHITE			201
+#define ACT_DRAGON_BLACK			202
+#define ACT_DRAGON_GREEN			203
 #define ACT_DRAGON_RED				204
 #define ACT_DRAGON_MULTIHUED			205
-#define ACT_DRAGON_BRONZE				206
+#define ACT_DRAGON_BRONZE			206
 #define ACT_DRAGON_GOLD				207
-#define ACT_DRAGON_CHAOS				208
+#define ACT_DRAGON_CHAOS			208
 #define ACT_DRAGON_LAW				209
 #define ACT_DRAGON_BALANCE			210
 #define ACT_DRAGON_SHINING			211
-#define ACT_DRAGON_POWER				212
+#define ACT_DRAGON_POWER			212
 
 /* Rings and Amulets */
 #define ACT_RING_ACID				220
@@ -1277,6 +1289,9 @@
 #define ACT_RING_FIRE				222
 #define ACT_RING_COLD				223
 #define ACT_AMULET_ESCAPING			224
+
+/* Ego-items */
+#define ACT_BALROG_WHIP				245
 
 
 
@@ -1371,12 +1386,13 @@
 #define SV_DWARVEN_PICK		6
 
 /* The "sval" values for TV_HAFTED */
-#define SV_WHIP				2	/* 1d6 */
-#define SV_QUARTERSTAFF			3	/* 1d9 */
-#define SV_THROWING_HAMMER		4	/* 2d3 */
+#define SV_WHIP				2	/* 1d5 */
+#define SV_QUARTERSTAFF			3	/* 1d7 */
+#define SV_THROWING_HAMMER		4	/* 2d4 */
 #define SV_MACE				5	/* 2d4 */
+#define SV_BALL_AND_CHAIN		6	/* 2d4 */
 #define SV_WAR_HAMMER			8	/* 3d3 */
-#define SV_LUCERN_HAMMER		10	/* 2d5 */
+#define SV_SPIKED_CLUB			10	/* 1d7 */
 #define SV_MORNING_STAR			12	/* 2d6 */
 #define SV_FLAIL				13	/* 2d6 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
@@ -1386,19 +1402,20 @@
 
 /* The "sval" values for TV_POLEARM */
 #define SV_SPEAR				2	/* 1d6 */
-#define SV_TRIDENT			5	/* 1d9 */
-#define SV_PIKE				8	/* 2d5 */
+#define SV_THRUSTING_SPEAR		3	/* 1d7 */
+#define SV_TRIDENT			5	/* 1d8 */
+#define SV_PIKE				8	/* 1d11 */
 #define SV_BEAKED_AXE			10	/* 2d6 */
 #define SV_BROAD_AXE			11	/* 2d6 */
-#define SV_GLAIVE				13	/* 2d6 */
-#define SV_THROWING_AXE			14	/* 1d6 */
-#define SV_HALBERD			15	/* 3d4 */
+#define SV_GLAIVE				13	/* 3d4 */
+#define SV_THROWING_AXE			14	/* 2d3 */
+#define SV_HALBERD			15	/* 3d5 */
 #define SV_SCYTHE				17	/* 5d3 */
 #define SV_LANCE				20	/* 2d8 */
 #define SV_BATTLE_AXE			22	/* 2d8 */
 #define SV_GREAT_AXE			25	/* 4d4 */
-#define SV_LOCHABER_AXE			28	/* 3d8 */
-#define SV_SCYTHE_OF_SLICING		30	/* 8d4 */
+#define SV_DART				28	/* 1d5 */
+#define SV_SCYTHE_OF_SLICING		30	/* 7d3 */
 
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_SWORD			2	/* 1d2 */
@@ -1409,6 +1426,7 @@
 #define SV_SHORT_SWORD			10	/* 1d7 */
 #define SV_SABRE				11	/* 1d7 */
 #define SV_CUTLASS			12	/* 1d7 */
+#define SV_FALCHION			15	/* 2d4 */
 #define SV_BROAD_SWORD			16	/* 2d5 */
 #define SV_LONG_SWORD			17	/* 2d5 */
 #define SV_SCIMITAR			18	/* 2d5 */
@@ -1419,15 +1437,20 @@
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
 
 /* The "sval" codes for TV_SHIELD */
+#define SV_WICKER_SHIELD		1
 #define SV_SMALL_LEATHER_SHIELD	2
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD	4
 #define SV_LARGE_METAL_SHIELD		5
+#define SV_KNIGHTS_SHIELD		6
+#define SV_BODY_SHIELD			7
 #define SV_SHIELD_OF_DEFLECTION	10
+
 
 /* The "sval" codes for TV_HELM */
 #define SV_HARD_LEATHER_CAP		2
 #define SV_METAL_CAP			3
+#define SV_BARBUT				4
 #define SV_IRON_HELM			5
 #define SV_STEEL_HELM			6
 
@@ -1438,17 +1461,22 @@
 #define SV_MORGOTH			50
 
 /* The "sval" codes for TV_BOOTS */
+#define SV_PAIR_OF_LEATHER_SANDALS		1
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS	3
-#define SV_PAIR_OF_METAL_SHOD_BOOTS		6
+#define SV_PAIR_OF_METAL_SHOD_BOOTS		4
+#define SV_PAIR_OF_DWARVEN_BOOTS		5
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK				1
+#define SV_ELVEN_CLOAK			2
 #define SV_SHADOW_CLOAK			4
+#define SV_ETHEREAL_CLOAK		6
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES	1
-#define SV_SET_OF_GAUNTLETS		2
+#define SV_SET_OF_MAIL_GAUNTLETS	2
+#define SV_SET_OF_STEEL_GAUNTLETS	2
 #define SV_SET_OF_CESTI			4
 
 /* The "sval" codes for TV_SOFT_ARMOR */
@@ -1564,7 +1592,7 @@
 #define SV_STAFF_TELEPORTATION	4
 #define SV_STAFF_IDENTIFY		5
 #define SV_STAFF_REMOVE_CURSE		6
-#define SV_STAFF_STARLITE		7
+#define SV_STAFF_STARLIGHT		7
 #define SV_STAFF_LITE			8
 #define SV_STAFF_MAPPING		9
 #define SV_STAFF_DETECT_GOLD		10
@@ -1591,6 +1619,11 @@
 #define SV_STAFF_MSTORM			31
 #define SV_STAFF_STARBURST		32
 #define SV_STAFF_MASS_CONFU		33
+
+#define SV_STAFF_GANDALF		40
+#define SV_STAFF_WINDS			41
+#define SV_STAFF_MENELTARMA		42
+#define SV_STAFF_RADAGAST		43
 
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_HEAL_MONSTER		0
@@ -1625,6 +1658,11 @@
 #define SV_WAND_STRIKING		29
 #define SV_WAND_STORMS			30
 
+#define SV_WAND_ILKORIN		40
+#define SV_WAND_SARUMAN		41
+#define SV_WAND_UNMAKING	42
+#define SV_WAND_ULPION		43
+
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP		0
 #define SV_ROD_DETECT_DOOR		1
@@ -1632,6 +1670,7 @@
 #define SV_ROD_RECALL			3
 #define SV_ROD_ILLUMINATION		4
 #define SV_ROD_MAPPING			5
+/* xxx (aimed) */
 #define SV_ROD_PROBING			7
 #define SV_ROD_CURING			8
 #define SV_ROD_HEALING			9
@@ -1657,6 +1696,13 @@
 #define SV_ROD_NORTHWINDS		29
 #define SV_ROD_DRAGONFIRE		30
 #define SV_ROD_GLAURUNGS		31
+#define SV_ROD_ROUSE_LEVEL		32
+
+#define SV_ROD_DELVING		40
+#define SV_ROD_SHADOW		41
+#define SV_ROD_AIR		42
+#define SV_ROD_PORTALS		43
+
 
 /* The "sval" codes for TV_SCROLL */
 
@@ -1708,6 +1754,7 @@
 #define SV_SCROLL_MASS_GENOCIDE			45
 #define SV_SCROLL_ACQUIREMENT			46
 #define SV_SCROLL_STAR_ACQUIREMENT		47
+#define SV_SCROLL_ELE_ATTACKS			48
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
@@ -1803,10 +1850,29 @@
 #define SV_FOOD_ATHELAS			40
 #define SV_FOOD_BEORNING		41
 
+/* The "sval" codes for TV_GOLD -LM- */
+#define SV_COPPER				1
+#define SV_SILVER				2
+#define SV_GARNETS			3
+#define SV_GOLD				4
+#define SV_OPALS				5
+#define SV_SAPPHIRES			6
+#define SV_RUBIES				7
+#define SV_DIAMONDS			8
+#define SV_EMERALDS			9
+#define SV_MITHRIL			10
+#define SV_ADAMANTITE			11
+
 /*
- * Special "sval" limit -- first "normal" food
+ * Special "sval" limit -- first "normal" food (no longer requires a flavor)
  */
 #define SV_FOOD_MIN_FOOD	32
+
+/*
+ * Maximum base AC of current shield types (used in deflecting missiles and bolts)
+ */
+#define MAX_SHIELD_BASE_AC		12
+
 
 /*
  * Special "sval" limit -- first "aimed" rod
@@ -1823,6 +1889,16 @@
  */
 #define SV_BOOK_MIN_GOOD	4
 
+/*
+ * Special "sval" limit -- maximum allowed spellbook sval (used to prevent 
+ * illegal access to tables)
+ */
+#define SV_BOOK_MAX		8
+
+/*
+ * Special "sval" limit -- max treasure sval (used in function "make_gold")
+ */
+#define SV_GOLD_MAX		11
 
 
 /*** Monster blow constants ***/
@@ -1902,23 +1978,28 @@
 /*
  * Bit flags for the "project()" function
  *
- *   JUMP: Jump directly to the target location (this is a hack)
- *   BEAM: Work as a beam weapon (affect every grid passed through)
- *   THRU: Continue "through" the target (used for "bolts"/"beams")
- *   STOP: Stop as soon as we hit a monster (used for "bolts")
- *   GRID: Affect each grid in the "blast area" in some way
- *   ITEM: Affect each object in the "blast area" in some way
- *   KILL: Affect each monster in the "blast area" in some way
- *   HIDE: Hack -- disable "visual" feedback from projection
+ *   JUMP:  Jump directly to the target location (this is a hack)
+ *   BEAM:  Work as a beam weapon (affect every grid passed through)
+ *   ARC:   Act as an arc spell (a portion of a caster-centered ball) -LM-
+ *   THRU:  Continue "through" the target (used for "bolts"/"beams")
+ *   STOP:  Stop as soon as we hit a monster (used for "bolts")
+ *   GRID:  Affect each grid in the "blast area" in some way
+ *   ITEM:  Affect each object in the "blast area" in some way
+ *   KILL:  Affect each monster in the "blast area" in some way
+ *   PLAY:  Explicitly affect the player   -LM-
+ *   HIDE:  Hack -- disable "visual" feedback from projection
  */
-#define PROJECT_JUMP	0x01
-#define PROJECT_BEAM	0x02
-#define PROJECT_THRU	0x04
-#define PROJECT_STOP	0x08
-#define PROJECT_GRID	0x10
-#define PROJECT_ITEM	0x20
-#define PROJECT_KILL	0x40
-#define PROJECT_HIDE	0x80
+#define PROJECT_JUMP	0x0001
+#define PROJECT_BEAM	0x0002
+/*  */
+#define PROJECT_ARC	0x0008
+#define PROJECT_THRU	0x0010
+#define PROJECT_STOP	0x0020
+#define PROJECT_GRID	0x0040
+#define PROJECT_ITEM	0x0080
+#define PROJECT_KILL	0x0100
+#define PROJECT_PLAY	0x0200
+#define PROJECT_HIDE	0x0400
 
 
 /*
@@ -2053,7 +2134,28 @@
 
 
 /*
- * Values for shapechanges.  From Sangband. -LM-
+ * Bit flags for the "p_ptr->special_attack" variable. -LM-
+ *
+ * Note:  The elemental and poison attacks should be managed using the 
+ * function "set_ele_attack", in spell2.c.  This provides for timeouts and
+ * prevents the player from getting more than one at a time.
+ */
+#define ATTACK_CONFUSE		0x00000001
+#define ATTACK_BLKBRTH		0x00000002
+#define ATTACK_FLEE		0x00000004
+#define ATTACK_SUPERSHOT	0x00000008
+#define ATTACK_ACID		0x00000010
+#define ATTACK_ELEC		0x00000020
+#define ATTACK_FIRE		0x00000040
+#define ATTACK_COLD		0x00000080
+#define ATTACK_POIS		0x00000100
+#define ATTACK_HOLY		0x00000200
+
+#define ATTACK_DRUID_CONFU	0x00010000
+
+
+/*
+ * Values for shapechanges.  From Sangband.
  */
 #define SHAPE_NORMAL 0			/* Unaltered form. */
 #define SHAPE_MOUSE 1
@@ -2092,12 +2194,19 @@
 /*
  * Chest trap flags (see "tables.c")
  */
-#define CHEST_LOSE_STR		0x01
-#define CHEST_LOSE_CON		0x02
-#define CHEST_POISON		0x04
-#define CHEST_PARALYZE		0x08
-#define CHEST_EXPLODE		0x10
-#define CHEST_SUMMON		0x20
+#define CHEST_LOSE_STR		0x0001
+#define CHEST_LOSE_CON		0x0002
+#define CHEST_POISON		0x0004
+#define CHEST_PARALYZE		0x0008
+#define CHEST_EXPLODE		0x0010
+#define CHEST_SUMMON		0x0020
+#define CHEST_SCATTER		0x0040
+#define CHEST_E_SUMMON		0x0080
+#define CHEST_BIRD_STORM	0x0100
+#define CHEST_H_SUMMON		0x0200
+#define CHEST_RUNES_OF_EVIL	0x0400
+
+
 
 
 /*
@@ -2238,7 +2347,7 @@
 #define TR2_RES_DISEN		0x80000000L	/* Resist disenchant */
 
 #define TR3_SLOW_DIGEST		0x00000001L	/* Slow digest */
-#define TR3_FEATHER	 		0x00000002L	/* Feather Falling */
+#define TR3_FEATHER	 	0x00000002L	/* Feather Falling */
 #define TR3_LITE			0x00000004L	/* Perma-Light */
 #define TR3_REGEN			0x00000008L	/* Regeneration */
 #define TR3_TELEPATHY		0x00000010L	/* Telepathy */
@@ -2248,7 +2357,7 @@
 #define TR3_XXX1			0x00000100L
 #define TR3_XXX2			0x00000200L
 #define TR3_XXX3			0x00000400L
-#define TR3_XXX4			0x00000800L
+#define TR3_XXX4			0x00000800L 
 #define TR3_IMPACT			0x00001000L	/* Earthquake blows */
 #define TR3_TELEPORT		0x00002000L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x00004000L	/* Aggravate monsters */
@@ -2257,8 +2366,10 @@
 #define TR3_IGNORE_ELEC		0x00020000L	/* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE		0x00040000L	/* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD		0x00080000L	/* Item ignores Cold Damage */
-#define TR3_XXX5			0x00100000L	/* (reserved) */
-#define TR3_XXX6			0x00200000L	/* (reserved) */
+#define TR3_TWO_HANDED_REQ		0x00100000L
+	/* Weapon can only be used effectively two-handed. -LM- */
+#define TR3_TWO_HANDED_DES		0x00200000L
+	/* Only very strong players can wield this weapon one-handed. -LM- */
 #define TR3_BLESSED			0x00400000L	/* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L	/* Item can be activated */
 #define TR3_INSTA_ART		0x01000000L	/* Item makes an artifact */
@@ -2449,7 +2560,7 @@
 #define RF4_SHRIEK			0x00000001	/* Shriek for help */
 #define RF4_XXX2				0x00000002	/* (?) */
 #define RF4_BOULDER			0x00000004	/* Throw a boulder. -LM- */
-#define RF4_ARROW_5			0x00000008	/* Fire an arrow (heavy) */
+#define RF4_ARROW_5			0x00000008	/* Fire an arrow (heavy) -LM- */
 #define RF4_ARROW_1			0x00000010	/* Fire an arrow (light) */
 #define RF4_ARROW_2			0x00000020	/* Fire an arrow (medium) */
 #define RF4_ARROW_3			0x00000040	/* Fire missiles (light) */
@@ -2617,6 +2728,8 @@
 
 /*** Option Definitions ***/
 
+#define OPT_MAX	64
+
 /*
  * Indexes
  */
@@ -2634,8 +2747,9 @@
 #define OPT_show_weights			11
 #define OPT_show_choices			12
 #define OPT_show_details			13
-#define OPT_ring_bell				14
+#define OPT_metric				14
 #define OPT_show_flavors			15
+
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
 #define OPT_run_cut_corners			18
@@ -2650,31 +2764,26 @@
 #define OPT_alert_failure			27
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
-#define OPT_allow_quantity			30
-#ifdef ALLOW_EASY_OPEN					 /* TNB */
-#define OPT_easy_open				31
-#else
- /* xxx */
-#endif /* ALLOW_EASY_OPEN */
+#define OPT_ring_bell				30
+/* xxx */
+
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
-#define OPT_testing_stack			34
-#define OPT_testing_carry			35
+#define OPT_easy_open				34
+#define OPT_easy_disarm 			35
 #define OPT_expand_look				36
 #define OPT_expand_list				37
 #define OPT_view_perma_grids	 		38
 #define OPT_view_torch_grids			39
 #define OPT_dungeon_align			40
 #define OPT_dungeon_stair			41
-#define OPT_flow_by_sound			42
-#define OPT_flow_by_smell			43
-#ifdef ALLOW_EASY_DISARM 				/* TNB */
-#define OPT_easy_disarm 			44
-/* xxx */
-#endif /* ALLOW_EASY_DISARM */
+#define OPT_empty_levels			42
+#define OPT_flow_by_sound			43
+#define OPT_flow_by_smell			44
 /* xxx */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
+
 #define OPT_view_reduce_lite		48
 #define OPT_hidden_player			49
 #define OPT_avoid_abort				50
@@ -2684,14 +2793,14 @@
 /* xxx */
 #define OPT_fresh_before			55
 #define OPT_fresh_after				56
-#define OPT_empty_levels			57
+/* xxx */
 #define OPT_compress_savefile		58
 #define OPT_hilite_player			59
 #define OPT_view_yellow_lite		60
 #define OPT_view_bright_lite		61
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
-#define OPT_MAX						64
+
 
 
 /*
@@ -2711,8 +2820,9 @@
 #define show_weights			op_ptr->opt[OPT_show_weights]
 #define show_choices			op_ptr->opt[OPT_show_choices]
 #define show_details			op_ptr->opt[OPT_show_details]
-#define ring_bell				op_ptr->opt[OPT_ring_bell]
+#define use_metric			op_ptr->opt[OPT_metric]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
+
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
@@ -2727,16 +2837,13 @@
 #define alert_failure			op_ptr->opt[OPT_alert_failure]
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
-#define allow_quantity			op_ptr->opt[OPT_allow_quantity]
-#ifdef ALLOW_EASY_OPEN /* TNB */
-#define easy_open                      op_ptr->opt[OPT_easy_open]
-#else
+#define ring_bell				op_ptr->opt[OPT_ring_bell]
 /* xxx */
-#endif /* ALLOW_EASY_OPEN */
+
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
-#define testing_stack			op_ptr->opt[OPT_testing_stack]
-#define testing_carry			op_ptr->opt[OPT_testing_carry]
+#define easy_open                      op_ptr->opt[OPT_easy_open]  /* TNB */
+#define easy_disarm                    op_ptr->opt[OPT_easy_disarm]  /* TNB */
 #define expand_look				op_ptr->opt[OPT_expand_look]
 #define expand_list				op_ptr->opt[OPT_expand_list]
 #define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
@@ -2745,13 +2852,11 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
-#ifdef ALLOW_EASY_DISARM /* TNB */
-#define easy_disarm                    op_ptr->opt[OPT_easy_disarm]
-/* xxx */
-#endif /* ALLOW_EASY_DISARM */
+#define empty_levels			op_ptr->opt[OPT_empty_levels]
 /* xxx */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
+
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
 #define hidden_player			op_ptr->opt[OPT_hidden_player]
 #define avoid_abort				op_ptr->opt[OPT_avoid_abort]
@@ -2761,7 +2866,7 @@
 /* xxx */
 #define fresh_before			op_ptr->opt[OPT_fresh_before]
 #define fresh_after				op_ptr->opt[OPT_fresh_after]
-#define empty_levels			op_ptr->opt[OPT_empty_levels]
+/* xxx */
 #define compress_savefile		op_ptr->opt[OPT_compress_savefile]
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
 #define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]

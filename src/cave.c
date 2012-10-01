@@ -2875,15 +2875,6 @@ void update_flow(void)
 	/* Hack -- disabled */
 	if (!flow_by_sound) return;
 
-	/* Hack -- If the level is empty, this function will go into an infinate loop.  
-	 * Since I don't know quite why (although it has something to do with 
-	 * MONSTER_FLOW_DEPTH resetting to 1 after it reaches 24), don't want to tinker 
-	 * with this code, have found out that this code slows down substantially when 
-	 * the level is empty (since there are more grids to consider) and figure that 
-	 * a monster doesn't need too much help to find the char in an empty level 
-	 * anyway, monsters don't flow in arenas. -LM-
-	 */
-	if (empty_level) return;
 
 	/*** Cycle the flow ***/
 
@@ -2932,8 +2923,8 @@ void update_flow(void)
 		ty = flow_y[flow_head];
 		tx = flow_x[flow_head];
 
-		/* Forget that entry (with wrap) */
-		if (++flow_head == TEMP_MAX) flow_head = 0;
+		/* Forget that entry (with wrap) -TNB- */
+		if (++flow_head == FLOW_MAX) flow_head = 0;
 
 		/* Child cost */
 		n = cave_cost[ty][tx] + 1;
@@ -2982,21 +2973,35 @@ void update_flow(void)
 
 
 /*
- * Map the current panel (plus some) ala "magic mapping"
+ * Map around a given point, or the current panel (plus some) 
+ * ala "magic mapping".  Staffs of magic mapping map more than 
+ * rods do, because staffs effect larger areas in general.
  *
  * We must never attempt to map the outer dungeon walls, or we
  * might induce illegal cave grid references.
  */
-void map_area(void)
+void map_area(int y, int x, bool extended)
 {
-	int i, x, y, y1, y2, x1, x2;
+	int i, y1, y2, x1, x2;
 
 
-	/* Pick an area to map */
-	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy+SCREEN_HGT + randint(10);
-	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx+SCREEN_WID + randint(20);
+	/* Map around a location, if given. -LM- */
+	if ((y) && (x))
+	{
+		y1 = y - (SCREEN_HGT / 2) - (extended ? 5 : 0) - randint(5);
+		y2 = y + (SCREEN_HGT / 2) + (extended ? 5 : 0) + randint(5);
+		x1 = x - (SCREEN_WID / 2) - (extended ? 10 : 0) - randint(10);
+		x2 = x + (SCREEN_WID / 2) + (extended ? 10 : 0) + randint(10);
+	}
+
+	/* Normally, pick an area to map around the player */
+	else
+	{
+		y1 = p_ptr->wy - (extended ? 5 : 0) - randint(10);
+		y2 = p_ptr->wy + SCREEN_HGT + (extended ? 5 : 0) + randint(10);
+		x1 = p_ptr->wx - (extended ? 10 : 0) - randint(20);
+		x2 = p_ptr->wx + SCREEN_WID + (extended ? 10 : 0) + randint(20);
+	}
 
 	/* Efficiency -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;

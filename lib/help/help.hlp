@@ -1,30 +1,23 @@
-    Welcome to the Angband Online Help System,
-             as revised for Oangband.
+              Welcome to the Oangband Online Help System.
 
- (If you are new to Angband,  start with option #1)
- (If you are new to Oangband, start with option #9)
+    (1) The Fundamentals                                   (general.hlp)
+    (2) Creating a Character                               (birth.hlp)
+    (3) Commands and Options                               (command.hlp)
+    (4) Magic and Combat                                   (combat.hlp)
+    (5) Exploring the Dungeon                              (explore.hlp)
 
-Please choose one of the following online help files:
 
-    (1) Getting Started                        (general.txt)
 
-    (2) Creating a Character                   (birth.txt)
-    (3) Commands and their Descriptions        (command.txt)
-    (4) Exploring the Dungeon                  (dungeon.txt)
-    (5) Attacking and Defending                (combat.txt)
-    (6) Option Descriptions                    (option.txt)
-    (7) Getting More Out of the Game           (playing.txt)
-    (8) Version Information                    (version.txt)
-    (9) Oangband Changes (short)               (oangband.hlp)
-    (0) Oangband Changes (long)                (oangband.txt)
 
-***** [1] general.txt
-***** [2] birth.txt
-***** [3] command.txt
-***** [4] dungeon.txt
-***** [5] combat.txt
-***** [6] option.txt
-***** [7] playing.txt
-***** [8] version.txt
-***** [9] oangband.hlp
-***** [0] oangband.txt
+
+Help Commands:
+       ?     : leave the online help
+       ESC   : return to previous document or menu
+       space : advance one page
+       -     : back up one half page
+
+***** [1] general.hlp
+***** [2] birth.hlp
+***** [3] command.hlp
+***** [4] combat.hlp
+***** [5] explore.hlp

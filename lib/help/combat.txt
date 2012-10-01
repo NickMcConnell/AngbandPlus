@@ -1,30 +1,53 @@
-=== Attacking and Defending.  Last revised for Oangband 0.3.1 ===
+============================== Non-magical Combat =============================
 
-     This file explains the basics of attacking monsters and protecting from the
-many, many nasty things they can do to you.  It also includes some information
-on special weapons and armor, your monster memory, and how Rogues set traps and 
-steal.  A list of druid blows and the damage they do is included at the end.  By 
-deliberate policy, this file leaves a lot of information out.  Half the fun is 
-discovery...
+     Without using magic, you may attack monsters hand-to-hand (melee), with 
+missile weapons, or by throwing objects at them.  Rogues may steal from monsters 
+and druids use various barehanded attacks.
 
 
-=== Attacking Monsters ===
+-- Theory of Non-magical Combat --
 
-There are four ways you can inflict damage on monsters:  melee (hand-to-hand) 
-combat, firing missiles and throwing objects, using magical items, and casting 
-spells/praying prayers.  
+     Oangband non-magical combat takes some getting used to.  However you attack 
+a monster, whether in melee or by shooting or throwing missiles, the weapon or 
+object's base number of damage dice are _cumulatively multiplied_ by any and all 
+applicable modifiers.  Actual damage is determined by rolling the final number 
+of dice.
+
+Example:
+-you hit a critter with a dagger (1d4):  roll one die.
+-it's a weapon of slay Troll, and critter is a Troll:  roll two dice.
+-you get a critical hit for 2x damage:  roll four dice.
+-you have a total bonus to Deadliness of 100%:  roll eight dice.
+
+roll eight dice, each of four sides, and you'll end up doing something close 
+to 20 points of damage.
+
 
 -- Melee Combat --
 
-     Melee can do more damage per turn than any other form of attack, and the
-basic equipment (a weapon) is easy to find.  On the other hand, melee only works
-against adjacent monsters and takes a great deal of training and equipment to
+     Melee can do more damage per turn than any other form of attack, and the 
+basic equipment (a weapon) is easy to find.  On the other hand, melee only works 
+against adjacent monsters and takes a great deal of training and equipment to 
 come into its own deeper in the dungeon.  As you will shortly discover, up-
 grading to weapons with higher base damages is vital but heavy weapons are very 
 hard to master.  You will have to find a compromise, depending on class, exper-
-ience level, and available equipment.  Magical aids to combat (Bless, Heroism, 
-and Berserk) can make all the difference when fighting tough monsters.
+ience level, and available equipment (use the 'C'haracter screen to see how 
+various weapons affect your melee skill).  Magical aids to combat (Bless, 
+Heroism, and Berserk) can make all the difference when fighting tough monsters.
 
+
+     Managing Weapons and Shields:
+          Most melee weapons fit comfortably in one hand, keeping your shield 
+          arm free.  If you have a shield on your arm, you can automatically 
+          take advantage of opportunities to bash, gain a significant amount 
+          of standard protection (shield have a high base armour class), and 
+          sometimes even deflect non-magical missiles or partially protect 
+          against shards.  
+          Other weapons require two hands (but many of these can be wielded in 
+          one hand by very strong players).  Any shield worn is transferred to 
+          your back.  This reduces armour protection, removes the special shield 
+          abilities above, but has no effect on magical resistances or other 
+          attributes.
      Attacking:
          If you move your character into a square containing a monster, you will 
          attack that monster.  If you are wielding no weapon, and are not a
@@ -34,58 +57,71 @@ and Berserk) can make all the difference when fighting tough monsters.
 
      Number of Blows:
          On your character screen ('C') is displayed the number of blows you can 
-         get per turn.  If you are wielding no weapon, or your weapon is too 
-         heavy for you to wield properly, you get one blow (unless you are a 
-         Druid).  Otherwise, you get between two and four blows, depending 
-         solely on weapon weight, Dexterity, and Strength.
+         get per turn.  If you are wielding no weapon, you get two blows.  If 
+         your weapon is too heavy for you to wield properly, you get one blow.
+         Otherwise, you get between two and four blows, depending solely on 
+         weapon weight, Dexterity, and Strength.
 
      Your Weapon:
          All weapons have damage dice, displayed after their name.  When you hit
-         a monster with a Dagger (1d4), you will do between 1 and 4 points of
-         damage (we assume no bonuses for this example).  In addition to damage
-         dice, weapons may also have magical bonuses to Skill and to Deadliness
-         (e.g. a Dagger (1d4) (+6, +5)), and various elemental brands and 
-         monster slaying abilities (e.g. a Dagger of Fire (1d4) (+10, +10)).
+         a monster with a Dagger (1d4), you start off rolling one die with four 
+         sides.  In addition to damage dice, weapons may also have magical 
+         bonuses to Skill and to Deadliness (e.g. a Dagger (1d4) (+6, +5)), and 
+         various brands and slays (e.g. a Dagger of Fire (1d4) (+10, +10)).  For 
+         full information on possible weapon qualities, see the help file 
+         "equip.txt".
 
      What Happens When You Hit a Monster:
-         If you hit a monster with a dagger, you are rolling one die with four 
-         sides (1d4).  One after the other, critical hits, brands/slays, and the 
-         Deadliness bonus multiply the number of dice you roll.  Get a good hit
-         in with a Dagger of Fire while wearing a Ring of Deadliness, and you 
-         can easily end up rolling 6 dice or more (6d4).  Let's look at the 
-         damage dice multipliers in turn:
+         If you hit a monster with a dagger, you start off rolling one die.  One 
+         after the other, critical hits, brands/slays, and the Deadliness bonus 
+         multiply the number of dice you roll.  Get a good hit in with a Dagger 
+         of Fire while wearing a Ring of Deadliness, and you can easily end up 
+         rolling 6 dice or more (6d4).  Let's look at the damage dice multi-
+         pliers in turn:
 
-     Combat Skill:     (formerly called the plus to hit)
-         Again on the Character screen is shown your fighting skill, a combin-
-         ation of innate abilities and bonuses from stats and equipment.  Not 
-         merely does this skill allow you even to hit a monster, it also deter-
-         mines how often you get critical hits, which are absolutely vital in 
-         Oangband.  You know you just got a critical hit when you get any combat
-         message other than "you hit" (or punch) "the <<monster name>>".
+     Combat Skill:
+         Your total combat skill not only allows you even to hit a monster, but 
+         also determines how often you get critical hits.  The more skilled you 
+         are, the better those critical hits.  Although critical hits are vital 
+         for any serious fighter using any weapon in Oangband, weapons with low 
+         base damages (less than 2d5) benefit even more (up to twice as much).  
+         It is quite easy for a Rogue to stick a dagger in his foe for four or 
+         six times normal damage.  You know you just got a critical hit when you 
+         get any combat message other than "you hit" (or punch) "the <<monster 
+         name>>".
 
      Brands and Slays:
-         Some remarkable weapons do extra damage to particular kinds of 
-         monsters; a Dagger of Fire, for instance, would do extra damage to 
-         creatures not immune to fire.  Same story for all the other special
-         brands you may find.  Slays, in contrast, do extra damage to particular 
-         kinds of monsters, so wield that mace of Orc Slaying if you come upon
-         any orcs.
+         Some remarkable weapons do extra damage to various kinds of monsters; 
+         a Dagger of Fire, for instance, would do extra damage to creatures not 
+         immune to fire.  Same story for all the other special brands you may 
+         find.  Slays, in contrast, do extra damage to particular monster races,
+         so wield that Mace of Orc Slaying if you come upon any orcs.  Only the 
+         best applicable ego-quality is used; they do not combine.
 
      Deadliness:    (formerly called the plus to damage)
          As you descend deeper into the dungeon, a character relying on melee
-         will need to play careful attention to Deadliness.  The first few 
-         plusses to Deadliness increase damage by about half a point per plus, 
-         but later on they increase the damage done by a hit by 2% each.  2% 
-         doesn't seem like much, but it adds up; high-level characters have been 
-         known to triple the damage they do on every blow with the Deadliness 
-         multiplier alone.
+         will need to play careful attention to Deadliness.  It acts as a 
+         percentage bonus (you may inspect your current bonus on the character 
+         screen).  High-level characters may have bonuses of 200% displayed on 
+         their character screens, and therefore triple the number of dice they 
+         roll on every blow with the Deadliness multiplier alone.
 
-     Special Note:
+     Shield Bashes:
+         When fighting hand-to-hand, you will occasionally get in a shield bash, 
+         if you are wearing a shield on your arm.  The frequency of shield 
+         bashes depends on Dexterity, melee combat skill, and the level of 
+         monster you are fighting.  Warriors and Paladins get in more shield 
+         bashes.  The effectiveness of shield bashes depends mostly on strength 
+         and shield size and weight.  When you bash a monster, you will inflict 
+         damage, and possibly stunning or even confusion.  You may also stumble, 
+         and lose normal melee blows.
+
+     Special Notes:
          In order to attack a creature that you can't see in a wall or door, you 
-         must issue the Tunnel or alter adject grid command.
+         must issue the Tunnel or alter adjacent grid command.
 
 
--- Shooting Missiles and Throwing Objects --
+-- Shooting Missiles --
 
 Shooting missiles:
      Ranged fire with missile launchers is a non-magical method of doing damage
@@ -103,7 +139,7 @@ the difference, but note that Berserkers make lousy archers and throwers.
      Attacking:
          You shoot at a monster by typing 'f' (or 't' in the roguelike command 
          set), then selecting a missile you would like to fire.  This activates 
-         the targetting interface described in the help file on commands.  
+         the targeting interface described in the help file "cmddesc.txt".  
 
      Number of Shots:
          On your character screen ('C') is displayed the number of shots you can 
@@ -118,8 +154,11 @@ the difference, but note that Berserkers make lousy archers and throwers.
          melee weapons, launchers can have plusses to Skill and to Deadliness.
          Unlike such weapons, they can have bonuses to shots, bonuses to their 
          damage multiplier, and cannot impart slays and brands.  Ammo also can 
-         have bonuses to Skill and to Deadliness, and occasionally posses the 
-         same kinds of slays and brands you can find on melee weapons.
+         have bonuses to Skill and to Deadliness, and occasionally possess the 
+         same kinds of slays and brands you can find on melee weapons.  For 
+         full information on possible missile weapon and ammo qualities, see the 
+         help file "equip.txt".
+
 
      What Happens When You Hit a Monster:
          Here, archery and melee are virtually identical, with the biggest 
@@ -130,19 +169,21 @@ the difference, but note that Berserkers make lousy archers and throwers.
          the long run.
 
 
-Throwing Objects:
+--- Throwing Objects ---
+
      Throwing objects requires less skill than using missile weapons, and can 
 be an important combat method in Oangband.  On the other hand, most thrown 
 objects do not benefit from Skill and Deadliness bonuses from other equipped 
 items.  For novice adventurers, throwing flasks of oil can be a life-saver, 
-and there are rumors of objects deep in the dungeon that can do large amounts 
+and there are rumours of objects deep in the dungeon that can do large amounts 
 of damage when thrown.  Perhaps the most effective use of a high throwing skill 
-is whipping daggers, spears, throwing axes, and throwing hammers at your foes.  
+is whipping daggers, darts, spears, throwing axes, and throwing hammers at your 
+foes.  Such items do benefit from other Skill and Deadliness bonuses.
 
      Attacking:
          To throw an object, you use the 'v' command and select any item in 
          your backpack, on your person, or on the floor.  This activates the 
-         targetting interface described in the help file on commands.
+         targeting interface described in the help file "cmddesc.txt".
   
      Number of Throws:
          You may never throw more than one item per turn.
@@ -168,481 +209,6 @@ is whipping daggers, spears, throwing axes, and throwing hammers at your foes.
          but throwing weapons only do so rarely.
 
 
--- Using Magical Devices --
-
-     Wands, staffs, and rods are an important part of many adventurers's 
-arsenals, and are critical for mages.  The lower-level items are quite easy to
-use, the higher-level items can do quite a bit of damage, but they take up a
-lot of space in your backpack.  In addition to these items, certain rare rings 
-can be 'A'ctivated and there are rumors of armors and artifacts that can unleash 
-enormous destruction.
-     Mages are the masters of magical items.  Not merely can they use them with
-greater confidence than anyone else, but they can eventually use them faster and
-recharge them more safely.
-     If you use wands and staffs, keep your eyes open for scrolls of recharging.
-Be warned, recharging is not a sure deal...  Also, keep stopping by the Black
-Market; since some items are most useful in quantity, this store will occasion-
-ally sell three or four such objects at a time.  At present, there is one kind  
-of equipment item that can increase magical items skill.
-
-
--- Spells and Prayers --
-
-     All classes but Warriors can learn spells or prayers, and the pure spell-
-casters (mages, priests, druids, and necromancers) possess quite significant 
-powers, even though many of the most unbalancing Angband spells have taken a 
-cost or usefulness hit.  There are four magical realms available, and each has 
-a synposis of its own in the help file on character birth.
-     In Oangband, it is far easier to confuse, slow, frighten, turn, or sleep 
-most monsters, and many creatures (including uniques) are now newly vulnerable.  With skill and patience, you can badly hinder even formidable opponents.  On 
-the other hand, many monster races have at least one intrinsic immunity, high-
-level monsters are still very difficult to reduce, all attacks of this type are 
-chancy, and the monster AI is capable of dealing with at least some of your new 
-tricks.
-
-     Note that you may see your bolts wizz about and your balls explode in vivid 
-color by setting the "delay factor", found in options, to (for most machines) 
-between two and four.
-
-
-=== Defending Against Attacks ===
-
-     Monsters have all sorts of ways to hinder, damage, reduce, annoy, or even 
-kill your character.  As you move down deeper into the dungeon in search of 
-better items, you will need to steadily improve your defences against pure
-damage, wounds, cuts, and stunning, bolts, balls, and breaths of various kinds, 
-reductions of exp and stats, theft, and a variety of miscellanious magical 
-attacks.
-
-
--- Pure Damage --
-
-     Virtually all monsters can lower your hit points, and if you lose too many, 
-you die.  Fortunately, this is also the attack most easily guarded against.  
-Your armor class (or AC) is a number that describes the amount and the quality 
-of the armor you are wearing.  The higher your armor class, the less likely you 
-are to be hit by any melee blow, and the fewer HPs any sucessful standard hit will cost you.  Armour class has no effect on magical attacks.
-
-     Your Armor:
-              Each piece of armour has a base armor value, which, like the 
-         damage from weapons, is assumed to be known by the player, and possibly 
-         a magical bonus, which will not be displayed unless the armor has been 
-         identified.  Add the two together, and you have the total protective 
-         value of the item; for example, a Chain Mail (-2) [14, +6] increases 
-         your armor class by 20.  Note the "(-2)".  It is a penalty to Skill.  
-              Above a certain weight limit, all spellcasters lose mana for 
-         wearing heavy armor, although the penalty falls less heavily on 
-         Priests, less still on Rogues, Rangers, and Assassins, and least on 
-         Paladins.  Unlike in Angband, this penalty is as important for high-
-         level characters as it was when they first started adventuring.  In 
-         addition, Mages and Necromancers lose a chunk of mana if they wear 
-         gloves that do not provide free action.
-
-
--- Cuts, Poison, and Stunning --
-
-     Many monsters can inflict special kinds of physical damage on you, such as
-opening wounds, and poisoning or stunning you.  After you start earning a little
-money, plow some of it back into potions of cure Serious and Critical Wounds, 
-and keep one or the other handy at all times.  If a monster manages to Heavy 
-Stun you, teleport away!
-
-
--- Bolt, Ball, and Breath attacks --
-
-     Just as spellcasters can do damage to monsters using many different kinds 
-of magic, so too can monsters get some of their own back.  In the course of a
-complete game, you will face roughly a score of different ranged attack types, 
-only a few of which you cannot resist.
-
-     Fire, Acid, Electricity, and Cold are the basic elemental attacks.  Before
-you descend below 2000', be wearing items that protect against all four, because 
-the maximum damage they can do to you is very high.  Unlike with other attack 
-types, you can resist, double resist, and be immune to the elements.  If you 
-wear two pieces of armor with resist fire, you will not have double resistance 
-to fire.  If you are wearing one (or more) pieces of armor that resist fire and 
-have also cast a spell, quaffed a potion, or otherwise gained temporary fire 
-resistance, you have temporary double resistance.  Immunity to any of the ele-
-ments is hard to get.
-     Poison is deadly, and not so easy to gain resistance to.  You are 
-tempting fate if you wander much below 2400' without it.  You can double-resist
-poison.
-     Darkness, Light, Shards, and Sound can be moderately dangerous if unresis-
-ted, but monsters that breath any of them powerfully are rare enough that you 
-can concentrate on more urgent issues.  Keep a eye open, though...
-     A fair number of creatures breath Nether, but you don't have to have it 
-covered until roughly 2750'.
-     Chaos is deadly.  Don't cruise below 3500' without it covered.
-
-     Be warned:  Some kinds of attacks cannot be resisted!  Fortunately, they
-have low damage limits.
-
-
--- Reductions of Experience and Stats --
-
-    Even when your character is starting out, there are rare traps and monsters 
-capable of lowering his stats and draining his exp.  In addition, a strong 
-elemental attack can occasionally lower a stat.  Slowly, these dangers increase,
-until, below 2750' for exp loss and 4500' for stat loss, it becomes very 
-important that you find objects that provide hold life and sustain at least 
-your critical stats.  Until you get to the abyssal depths, though, these attacks
-aren't too bad, because you can quaff a potion of Restore Life or restore a stat
-(you will not infrequently find all of these in town) when the loss become too 
-serious to ignore.
-
-
--- Theft --
-
-     Nobody is more annoying than a thief.  You've just found that cool spell-
-book or nifty weapon, and now it's gone.  You can gain a significent degree of 
-protection from theft by increasing Dexerity, and can always collect your stuff 
-from the thief's corpse.  Unfortunately, thieves are smart enough to stash away 
-the money they take from you.
-
-
--- Miscellanious magical attacks --
-
-     There are many monsters capable of casting spells to blind, confuse, slow, 
-and paralyse you, plus quite a few other nasty tricks I will not mention.  Find
-some objects that give you Free Action and See Invisible somewhere between 1500' 
-and 2000'.  Your Saving throw protects against these and other attacks, and you
-can raise this survival skill by increasing Wisdom.
-
-It is rumoured that certain undead possess a very deadly touch...
-The same rumors whisper that Athelas has remarkable curative properties...
-
-
-=== Ego-Weapons ===
-
-     Some rare weapons have special abilities.  These are called ego weapons, 
-and are feared by great and meek.  The help file on character birth, has a 
-section called "Special qualities and Immunities that your Character may 
-Possess" with more information about some of the abilities mentioned below.
-
---- Melee Weapons ---
-
-Holy Avenger:
-     Among the most powerful weapons in the dungeon, and the great friend of 
-     Priests and Paladins, a Holy Avenger will increase your wisdom and armour 
-     class, is always blessed (so pious characters may wield even a sword or 
-     polearm without penalty), slays evil, demons, and the undead, allows you 
-     to see the unseen, and will sustain a random stat.
-
-Defender:
-     Strong companion in peril, a Defender weapon improves your stealth and 
-     armour class.  It grants see invisible, feather falling, free action, 
-     regeneration, and resistance to fire, frost, acid, and electricity.  It 
-     sustains a random stat.
-
-Blessed Blade:
-     A priest or paladin may wield a blessed blade of any type without penalty, 
-     and greatly appreciate the bonus to wisdom it provides.  These weapons also 
-     have one extra random power.
-
-Weapon of Westernesse:
-     Made by the Dunadain of old, these weapons are the bane of orcs, trolls, 
-     and giants.  They grant see invisible and free action, and offer a bonus 
-     to the fighting stats.
-
-Elemental Branded Weapons, and Weapons of Poison:
-     Each of the four elemental attacks has a corresponding weapon which will 
-     do double damage against creatures not resistant to that element.  These 
-     weapons are labelled "of Melting", "of Shocking", "of Burning", "of 
-     Freezing" and "of Poisoning", corresponding to acid, lightning, fire, cold,
-     and poison.
-
-Weapons of Slay and *Slay* Animal:
-     A Slay Animal weapon is a special purpose weapon whose sole intent is
-     to destroy all the dangerous natural creatures in the world.  They do 1.7x 
-     damage against such monsters.  Some powerful weapons of this type not only 
-     do double damage against animals, but also increase intelligence and rege-
-     neration speed.
-
-Weapons of Slay and *Slay* Evil:
-     A Slay Evil weapon does 1.5x damage against the many evil creatures that 
-     inhabit the dungeons.  Some powerful weapons of this type do 1.7x damage, 
-     are blessed blades, and increase wisdom.
-
-Weapons of Slay and *Slay* Undead:
-     These weapons do double damage against the undead.  Some powerful weapons 
-     of this type do 2.5x damage, increase wisdom, and grant see invisible.
-
-Weapons of Slay and *Slay* Demon:
-     These weapons do double damage against demons.  Some powerful weapons of 
-     this type do 2.5x damage and increase intelligence.
-
-Weapons of Slay and *Slay* Orc:
-     These weapons do double damage against orcs.  Some powerful weapons of 
-     this type do 2.5x damage and increase dexerity.
-
-Weapons of Slay and *Slay* Troll:
-     These weapons do double damage against trolls.  Some powerful weapons of 
-     this type do 2.5x damage and increase strength.
-
-Weapons of Slay and *Slay* Giant:
-     These weapons do double damage against giants.  Some powerful weapons of 
-     this type do 2.5x damage and increase strength.
-
-Weapons of Slay and *Slay* Dragon:
-     These weapons do double damage against dragons.  Some powerful weapons of 
-     this type do 2.5x damage and increase constitution.
-
-Perfectly Balanced weapons:
-     Any throwing weapon, if also an ego weapon, may display a name such as 
-     "A Balanced Spear of Slay Evil".  Such weapons can be thrown hard and fast.
-
-Weapons of Digging:
-     Shovels and Picks may sometimes possess such high bonuses to tunnelling 
-     skill that they merit this name. 
-
-Weapons of Morgul.
-     These blades are so foully cursed with evil that it is rumored that it is
-     very difficult to remove them.  Beware!
-
-
---- Missile Weapons and Ammo ---
-
-Launchers of Accuracy.
-     These launchers have an unnaturally high Skill bonus, making them extremely 
-     accurate.
-
-Launchers of Velocity.
-     These launchers do an unnaturally high amount of damage due to their high 
-     Deadliness bonus.
-
-Launchers of Extra Shots.
-     These launchers allow the wielder to shoot more rapidly than normal.
-
-Launchers of Extra Might.
-     These launchers have a higher damage multiplier than normally made items 
-     of their type.  Most increase the multiplier by one, and some by two.
-
-Ammo of Hurt Animal.
-    This ammo does x1.7 damage against natural denizens of the dungeon.
-
-Ammo of Hurt Evil.
-    This ammo does x1.5 damage against evil creatures in the dungeon.
-
-Ammo of Hurt Dragon.
-    This ammo does double damage against dragons.
-
-Ammo of Flame.
-    This ammo does double damage against creatures not resistant to fire.
-
-Ammo of Frost.
-    This ammo does double damage against creatures not resistant to cold.
-
-Ammo of Acid
-    This ammo does double damage against creatures not resistant to acid.
-
-Ammo of Electricity
-    This ammo does double damage against creatures not resistant to electricity.
-
-Ammo of Poison
-    This ammo does double damage against creatures not resistant to poison.
-
-Ammo of Wounding.
-    This ammo boosts the Skill and Deadliness numbers of the shooter.
-
---- Other special weapons ---
-
-     Any melee weapon or ammo may have unusually high numbers of sides to its 
-damage dice.  Combine this with powerful magics, and you have a mighty combat 
-tool indeed.
-
-     Apart from these there are some very rare and well made items in the
-dungeon. These include Blades of Chaos, Maces of Disruption, and Scythes of 
-Slicing.  They can also be ego weapons.  For example, a Blade of Chaos (Holy 
-Avenger) is a potentially game-winning weapon.
-
-There are rumors of rare, unique artifact weapons which are even more powerful 
-than ego weapons.  While some artifact weapons are standard, and you may already 
-know of their fame, others will certainly be unfamiliar to you and will need to 
-be fully identified (*identified*).
-
-
-=== Ego-Armours ===
-
-Armours and Shields:
-
-of Resist Acid.
-     A character using such an object will take only one third normal damage
-     from any acid thrown upon him.  In addition, armor so enchanted will
-     resist the acid's effects and not be damaged by it.
- 
-of Resist Lightning.
-     A character using a resist lightning object will take only one third
-     damage from electrical attacks.
- 
-of Resist Fire.
-     A character using a resist fire object will take only one third damage
-     from heat and fire.
- 
-of Resist Cold.
-     A character using a resist cold object will take only one third damage
-     from frost and cold.
- 
-of Resistance.
-     A character wearing armor with this ability will have resistance to
-     Acid, Cold, Fire, and Lightning as explained in each part above.
- 
-of Elvenkind.
-     This is the same as Resistance armour, only generally better enchanted.
-     It will make you more stealthy.  This armor can also possess an extra 
-     resistances beyond the four basic elemental ones.
- 
-Shields of Night and Day.
-     These provide protection from light and darkness attacks.
-
-Robes of Permanence.
-     These robes are designed especially for wizards.  Just like Elvenkind
-     armor, they provide resistance to fire, cold, acid, and electricity and
-     cannot be damaged by acid.  They sustain all of your stats and protect
-     you from a good deal of all experience draining.  Also like Elvenkind
-     armor, they can have additional special resistances.  These robes are
-     so good that their owners are rarely killed, perhaps explaining the
-     incredible rarity.
-
-Dragon Scale Mails.
-     These extremely rare pieces of armour come in many different colors,
-     each protecting you against the relevent dragons.  Naturally they are
-     all resistant to acid damage.  They also occasionally allow you to
-     breathe as a dragon would!
-
-Ego Helms:
-----------
-Stat Boosting Helms.
-     There are magical helms found in the dungeon that have the ability
-     to boost the wearer's intelligence, wisdom, or charisma.  Helms of 
-     Beauty are the ones that boost charisma.  In addition to boosting 
-     the relevant stat these helms will also prevent that stat from being 
-     drained.
-
-Helm of the Magi.
-     This is the great helm of the wizards.  The wearer will have an
-     increased (and sustained) intelligence, and will also be given 
-     resistance against fire, frost, acid, and lightning.  These valuable
-     helms may also have additional properties.
-
-Helm of Might.
-     This is the great helm of the warriors.  The wearer will have an
-     increased and sustained strength, dexterity, and constitution, 
-     and will also be immune to any foe's attempt to slow or paralyze 
-     him or her.
-
-Helm of Lordliness.
-     This is the great helm of the paladins.  The wearer will have an
-     increased and sustained wisdom and charisma.
-
-Helm of Seeing.
-     This is the great helm of the rogues.  The wearer will be able to see
-     even invisible creatures, and will have an increased ability to locate
-     traps and secret doors.  It is also rumored that the wearer of such a
-     helm will not be able to be blinded.
-
-Helm of Tranquillity.
-     Offers protection from confusion and sound.
-
-Helm of Light.
-     In addition to providing a permanent light source for the wearer, this 
-     helm also provides resistance against light-based attacks.
-
-Helm of Telepathy.
-     This helm grants the wearer the power of telepathy.
-
-Helm of Regeneration.
-     This helm will help you regenerate hit points and mana more quickly
-     than normal, allowing you to fight longer before needing to rest.  You
-     will use food faster than normal while wearing this helm because of
-     the regenerative effects.
- 
-Ego Cloaks:
------------
-Cloak of Protection.
-     This finely made cloak will come with an unnaturally high enchantment
-     and is not affected by elemental based attacks.
-
-Cloak of Stealth.
-     This cloak will increase the wearer's stealth, making the wearer less
-     likely to wake up sleeping monsters.
-
-Cloak of Aman.
-     These exceptionally rare cloaks combine the properties of Cloaks of
-     Protection and Cloaks of Stealth, and are rumored to have properties
-     beyond even those!
-
-Cloaks of Shard Protection
-     These protect against shard blasts.
-
-Ego Gloves:
------------
-Gloves of Free Action.
-     The wearer of these gloves will find himself resistant to paralyzing
-     attacks as well as some slowing attacks.  Because of the special 
-     nature of these gloves, necromantic and sorcery magic users may wear 
-     these gloves without incurring a mana penalty.   
-
-Gloves of Slaying.
-     These gloves will increase the wearer's fighting ability by boosting
-     the wearer's Skill and Deadliness values.
-
-Gloves of Agility.
-     These gloves will increase the wearer's dexterity.
-
-Gloves of Power.
-     These gloves will boost the wearer's strength as well as the wearer's
-     Skill and Deadliness numbers.
-
-Ego Boots:
-----------
-Boots of Slow Descent.
-     These boots protect the wearer from the effects of small falls.
-
-Boots of Stealth.
-     These boots increase the wearer's stealth, like a Cloak of Stealth.
-
-Boots of Free Action.
-     The wearer of these boots will find himself resistant to paralyzing
-     attacks as well as some slowing attacks.
-
-Boots of Stability
-     These boots protect against nexus and certain forms of involuntary movement.
-
-Boots of Speed.
-     The wearer of these boots will become unnaturally quick!
-
-Apart from these there are some very rare, and well made armours in the
-dungeon with not necessarily any special abilities. These include Shields of
-Deflection, Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain Mail,
-and Shadow Cloaks.  The first four cannot be damaged by acid because of the
-quality metals they contain.
-
-There are rumors of incredibly rare "artifact" armours which are even more 
-powerful than ego armour.  Some artifact weapons are standard, and you may 
-already know of their fame, while others will certainly be unfamiliar to you 
-and will need to be fully identified (*identified*).
-
-
-=== Monster Memories ===
-
-There are hundreds of different creatures in the pits of Angband, many of
-which have the same letter symbol and color on the screen.  The exact species
-of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, Angband
-automatically keeps track of your experiences with a particular creature.
-This feature is called the monster memory.  You monster memory recalls the
-particular attacks of each creature (whether or not technically a monster)
-which you have suffered, as well as recalling if you have observed them to
-multiply or move erratically, or drop treasure, etc.  Otherwise you would
-simply have to take notes, which is an unnecessary bother.
-
-If you have killed enough of a particular creature, or suffered enough
-attacks, recalling the monster memory may also provide you with information
-not otherwise available, such as a armor class or hit dice.  These are not
-explained, but may be useful to give the relative danger of each creature.
-This memory can be passed on to a new character even after you die by means
-of a reduced save file.
-
 
 === How to Steal and Set Traps ===
 
@@ -652,12 +218,12 @@ to steal.  If you target a totally bare floor square, you will set a monster
 trap.
      Stealing is lucrative but risky.  All monsters that drop anything will have 
 at least some treasure on them.  Humans, humanoids, and dragons are the juiciest 
-targets, and most other smart bipedal creatures are fairly well-off too; the 
-higher the monster level, the larger the purse.  Uniques are especially rich.  
-High-level monsters and other thieves are harder to steal from, but sleeping 
-monsters are easier.  But burglary is not all fun and games.  Every time you 
-steal on a level, the monsters get warier.  Steal too often, and you may very 
-quickly get hunted down.
+targets, and most other smart bipedal creatures, nagas, or wraiths are fairly 
+well-off too; the higher the monster level, the larger the purse.  Uniques are 
+especially rich.  High-level monsters and other thieves are harder to steal 
+from, but sleeping monsters are easier.  But burglary is not all fun and games.
+Every time you steal on a level, the monsters get warier.  Steal too often, 
+and you may very quickly get hunted down.
      Monster traps are trivial to set and disarm.  They do a reasonable amount 
 of damage, increasing with player level and monster HPs, but seldom kill a 
 monster of any power outright.  Traps may be disarmed or flown over.  Only one 
@@ -670,15 +236,15 @@ able to make any more on that level.
 
 Name        number of dice, sides to each die
 
-"punch",                 1, 4
-"kick",                  2, 3
-"knee",                  1,10
-"chop",                  2, 6
-"uppercut",              3, 5
-"boot",                  3, 8
-"bang on",               5, 5
+"punch",                 1, 5
+"kick",                  2, 4
+"knee",                  1,12
+"chop",                  2, 7
+"uppercut",              3, 6
+"boot",                  3, 9
+"bang on",               6, 4
 "slam",                  4, 9
-"grapple with",         12, 3
+"grapple with",         13, 3
 "hammer",                9, 6
 "head butt",             3,24
 "strangle",              8,10
@@ -690,3 +256,8 @@ Name        number of dice, sides to each die
 "blizzard gouge",       14,11
 "tsunami whirl",         7,26
 "stormwind chop",       10,22
+
+There are twenty possible druid attacks.  The highest level attack a druid is 
+capable of depends on his experience level:  for example, a 25th level druid 
+can use the first 10 attack types.  In combat, druids will automatically pick 
+one at random, biased towards those with the largest damage.

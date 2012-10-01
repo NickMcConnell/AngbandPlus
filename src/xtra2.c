@@ -710,7 +710,7 @@ bool set_extra_defences(int v)
 	{
 		if (p_ptr->magicdef)
 		{
-			msg_print("Your magical vulnerablity falls to its normal value.");
+			msg_print("Your magical defences fall to their normal values.");
 			notice = TRUE;
 		}
 	}
@@ -739,7 +739,7 @@ bool set_extra_defences(int v)
  * Set "p_ptr->tim_invis", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
- * "p_ptr->tim_image" affects monster visibility.
+ * "p_ptr->tim_invis" affects monster visibility.
  */
 bool set_tim_invis(int v)
 {
@@ -789,6 +789,112 @@ bool set_tim_invis(int v)
 	/* Result */
 	return (TRUE);
 }
+
+/*
+ * Set "p_ptr->tim_esp", notice observable changes
+ *
+ * Note the use of "PU_MONSTERS", which is needed because
+ * "p_ptr->tim_esp" affects monster visibility.
+ */
+bool set_tim_esp(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if ((!p_ptr->tim_esp) && (!p_ptr->telepathy))
+		{
+			msg_print("You feel your conciousness expand!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if ((p_ptr->tim_esp) && (!p_ptr->telepathy))
+		{
+			msg_print("You feel your conciousness contract.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_esp = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters XXX */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->superstealth", notice observable changes
+ */
+bool set_superstealth(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->superstealth)
+		{
+			msg_print("You are mantled in shadow from ordinary eyes!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->superstealth)
+		{
+			msg_print("You are exposed to common sight once more.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->superstealth = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
 
 
 /*
@@ -1144,7 +1250,7 @@ bool set_stun(int v)
 		new_aux = 0;
 	}
 
-	/* Increase cut */
+	/* Increase stun */
 	if (new_aux > old_aux)
 	{
 		/* Describe the state */
@@ -1167,7 +1273,7 @@ bool set_stun(int v)
 			/* Knocked out */
 			case 3:
 			{
-				msg_print("You have been knocked out.");
+				msg_print("You have been knocked out!");
 				break;
 			}
 		}
@@ -1792,18 +1898,22 @@ static int get_coin_type(monster_race *r_ptr)
 	if (r_ptr->d_char == '$')
 	{
 		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (2);
-		if (strstr(name, " silver ")) return (5);
-		if (strstr(name, " gold ")) return (10);
-		if (strstr(name, " mithril ")) return (16);
-		if (strstr(name, " adamantite ")) return (17);
+		if (strstr(name, " copper ")) return (lookup_kind(TV_GOLD, SV_COPPER));
+		if (strstr(name, " silver ")) return (lookup_kind(TV_GOLD, SV_SILVER));
+		if (strstr(name, " gold ")) return (lookup_kind(TV_GOLD, SV_GOLD));
+		if (strstr(name, " mithril ")) 
+			return (lookup_kind(TV_GOLD, SV_MITHRIL));
+		if (strstr(name, " adamantite ")) 
+			return (lookup_kind(TV_GOLD, SV_ADAMANTITE));
 
 		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (2);
-		if (strstr(name, "Silver ")) return (5);
-		if (strstr(name, "Gold ")) return (10);
-		if (strstr(name, "Mithril ")) return (16);
-		if (strstr(name, "Adamantite ")) return (17);
+		if (strstr(name, "Copper ")) return (lookup_kind(TV_GOLD, SV_COPPER));
+		if (strstr(name, "Silver ")) return (lookup_kind(TV_GOLD, SV_SILVER));
+		if (strstr(name, "Gold ")) return (lookup_kind(TV_GOLD, SV_GOLD));
+		if (strstr(name, "Mithril ")) 
+			return (lookup_kind(TV_GOLD, SV_MITHRIL));
+		if (strstr(name, "Adamantite ")) 
+			return (lookup_kind(TV_GOLD, SV_ADAMANTITE));
 	}
 
 	/* Assume nothing */
@@ -1858,7 +1968,6 @@ void monster_death(int m_idx)
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2103,15 +2212,27 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	char	path[1024];
 
+
+	/* Monsters in stasis are invulnerable. -LM- */
+	if (m_ptr->stasis) return (FALSE);
+
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
+	/* Hack - Cancel any special player stealth magics. -LM- */
+	if (p_ptr->superstealth)
+	{
+		msg_print("You emerge from the shadows and stand revealed once more.");
+		p_ptr->superstealth = 0;
+	}
+
+
 	/* Complex message. Moved from melee and archery, now allows spell and 
-       * magical items damage to be debugged by wizards.  -LM- */
+       * magical items damage to be debugged by wizards.  -LM-
+	 */
 	if (p_ptr->wizard)
 	{
 		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
@@ -3165,7 +3286,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				else
 				{
 					/* Message */
-					sprintf(out_val, "%s%s%sa pile of %d items [l,%s]",
+					if (rogue_like_commands) sprintf(out_val, 
+						"%s%s%sa pile of %d items [x,%s]",
+						s1, s2, s3, floor_num, info);
+					else sprintf(out_val, 
+						"%s%s%sa pile of %d items [l,%s]",
 						s1, s2, s3, floor_num, info);
 				}
 
@@ -3176,7 +3301,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				query = inkey();
 
 				/* Display list of items (query == "el", not "won") */
-				if ((floor_num > 1) && ((query == 'l') || (query == ' ') || (query == '*') || (query == '?')))
+				if ((floor_num > 1) && 
+					((rogue_like_commands ? (query == 'x') : (query == 'l')) || 
+					(query == ' ') || (query == '*') || (query == '?')))
+
 				{
 					/* Save screen */
 					screen_save();

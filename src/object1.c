@@ -1,10 +1,10 @@
 /* File: object1.c */
 
 /* Object flavors, colors, easy-know, display of modifiers (eg. "(+2 to 
- * strength)"), naming, puralizations, etc., artifact and DSM activation 
- * descriptions, text for full info screen, what items go where in equip-
- * ment, equipment-related strings, etc., and inventory management and 
- * display functions.
+ * strength)"), naming, puralizations, etc., what items 
+ * go where in equipment, equipment-related strings, etc., and inventory 
+ * management and display functions.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -28,15 +28,17 @@
 
 
 /*
- * Max sizes of the following arrays.  Slightly enlarged for Oangband.
+ * Max sizes of the following arrays.  Numbers *must* be at least one 
+ * greater than the highest sval index for that object type.  Values 
+ * correct for Oangband 0.4.0.
  */
-#define MAX_ROCKS      44       /* Used with rings (min 38) */
-#define MAX_AMULETS    19       /* Used with amulets (min 13) */
-#define MAX_WOODS      36       /* Used with staffs (min 30) */
-#define MAX_METALS     35       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     65       /* Used with potions (min 60) */
-#define MAX_SHROOM     23       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
+#define MAX_ROCKS      49       /* Used with rings (min 38) */
+#define MAX_AMULETS    30       /* Used with amulets (min 15) */
+#define MAX_WOODS      51       /* Used with staffs (min 44) */
+#define MAX_METALS     51       /* Used with wands/rods (min 44/44) */
+#define MAX_COLORS     84       /* Used with potions (min 60) */
+#define MAX_SHROOM     25       /* Used with mushrooms (min 20) */
+#define MAX_TITLES     60       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
 
 
@@ -46,28 +48,30 @@
 
 static cptr ring_adj[MAX_ROCKS] =
 {
-	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
-	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
-	"Emerald", "Fluorite", "Garnet", "Granite", "Hemitite", "Jade",
-	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
-	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
-	"Rhodonite", "Ruby", "Sapphire", "Tanzanite", "Tiger Eye", "Topaz",
-	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
-	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite"
+	"Adamantite", "Agate", "Alexandrite", "Amethyst", "Aquamarine", 
+	"Azurite", "Beryl", "Bloodstone", "Bronze", "Calcite", 
+	"Carnelian", "Corundum", "Diamond", "Emerald", "Engagement", 
+	"Fluorite", "Garnet", "Gold", "Granite", "Hematite", 
+	"Jade", "Jasper", "Jet", "Lapis Lazuli", "Malachite", 
+	"Marble", "Mithril", "Moonstone", "Mother-of-Pearl", "Nephrite", 
+	"Obsidian", "Onyx", "Opal", "Pearl", "Platinum", 
+	"Quartz", "Quartzite", "Rhodonite", "Ruby", "Sapphire", 
+	"Serpent", "Silver", "Steel", "Tanzanite", "Tiger Eye", 
+	"Topaz", "Tortoise Shell", "Turquoise", "Zircon"
 };
 
 static byte ring_col[MAX_ROCKS] =
 {
-	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
-	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
-	TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_L_GREEN,
-	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW, TERM_YELLOW,
-	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN
+	TERM_L_GREEN, TERM_VIOLET, TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, 
+	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_YELLOW, TERM_WHITE, 
+	TERM_RED, TERM_RED, TERM_WHITE, TERM_GREEN, TERM_YELLOW, 
+	TERM_L_GREEN, TERM_RED, TERM_YELLOW, TERM_SLATE, TERM_L_DARK, 
+	TERM_L_GREEN, TERM_UMBER, TERM_L_DARK, TERM_BLUE, TERM_GREEN, 
+	TERM_WHITE, TERM_L_BLUE, TERM_L_WHITE, TERM_WHITE, TERM_GREEN, 
+	TERM_L_DARK, TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, 
+	TERM_WHITE, TERM_L_WHITE, TERM_L_RED, TERM_RED, TERM_BLUE, 
+	TERM_BLUE, TERM_L_WHITE, TERM_WHITE, TERM_YELLOW, TERM_L_UMBER, 
+	TERM_L_UMBER, TERM_UMBER, TERM_L_BLUE, TERM_YELLOW
 };
 
 
@@ -77,18 +81,22 @@ static byte ring_col[MAX_ROCKS] =
 
 static cptr amulet_adj[MAX_AMULETS] =
 {
-	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
-	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
-	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Serpentine", "Horn", "Cochineal"
+	"Agate", "Amber", "Azure", "Bead", "Bone", 
+	"Brass", "Bronze", "Cochineal", "Copper", "Coral", 
+	"Crystal", "Dragon's Claw", "Driftwood", "Enameled", "Faceted", 
+	"Gold", "Golden", "Horn", "Ivory", "Jade", 
+	"Jeweled", "Obsidian", "Pewter", "Scarab", "Serpentine", 
+	"Shark's Tooth", "Silver", "Stained Glass", "Starstone", "Tortoise Shell"
 };
 
 static byte amulet_col[MAX_AMULETS] =
 {
-	TERM_ORANGE, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
-	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_GREEN, TERM_L_WHITE, TERM_RED
+	TERM_L_WHITE, TERM_ORANGE, TERM_L_BLUE, TERM_L_GREEN, TERM_WHITE, 
+	TERM_YELLOW, TERM_ORANGE, TERM_RED, TERM_L_UMBER, TERM_WHITE, 
+	TERM_L_WHITE, TERM_L_GREEN, TERM_UMBER, TERM_BLUE, TERM_L_WHITE, 
+	TERM_YELLOW, TERM_YELLOW, TERM_WHITE, TERM_WHITE, TERM_GREEN, 
+	TERM_VIOLET, TERM_L_DARK, TERM_SLATE, TERM_UMBER, TERM_GREEN, 
+	TERM_SLATE, TERM_WHITE, TERM_VIOLET, TERM_L_BLUE, TERM_L_UMBER
 };
 
 
@@ -98,24 +106,32 @@ static byte amulet_col[MAX_AMULETS] =
 
 static cptr staff_adj[MAX_WOODS] =
 {
-	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
-	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
-	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
-	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
-	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen", "Ivory", "Willow", "Cherry", "Palmwood"
+	"Applewood", "Ash", "Aspen", "Balsa", "Bamboo", 
+	"Banyan", "Baobab", "Beech", "Birch", "Butternut", 
+	"Cedar", "Cherry", "Cottonwood", "Cypress", "Dogwood", 
+	"Elm", "Eucalyptus", "Fir", "Golden", "Hazel", 
+	"Hawthorn", "Hemlock", "Hickory", "Holly", "Ironwood", 
+	"Ivory", "Laurel", "Linden" "Locust", "Mahogany", 
+	"Maple", "Mallorn", "Mistletoe", "Mulberry", "Oak", 
+	"Olive", "Palmwood", "Poplar", "Pine", "Redwood", 
+	"Rosewood", "Rowan", "Runed", "Sequoia", "Silver", 
+	"Spruce", "Sycamore", "Teak", "Walnut", "Willow", 
+	"Yew"
 };
 
 static byte staff_col[MAX_WOODS] =
 {
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
-	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
-	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, TERM_L_WHITE, TERM_SLATE, TERM_RED, TERM_L_UMBER
+	TERM_L_GREEN, TERM_L_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, 
+	TERM_L_UMBER, TERM_SLATE, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW, 
+	TERM_L_UMBER, TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, 
+	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_YELLOW, TERM_L_UMBER, 
+	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, 
+	TERM_UMBER, TERM_SLATE, TERM_WHITE, TERM_L_UMBER, TERM_UMBER, 
+	TERM_L_UMBER, TERM_YELLOW, TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, 
+	TERM_L_GREEN, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_RED, 
+	TERM_L_RED, TERM_UMBER, TERM_UMBER, TERM_L_WHITE, TERM_L_UMBER, 
+	TERM_L_UMBER, TERM_L_DARK, TERM_UMBER, TERM_L_UMBER, TERM_SLATE, 
+	TERM_L_DARK
 };
 
 
@@ -125,25 +141,32 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Antimony", "Cast Iron", "Chromium", "Copper", "Electrum",
-	"Galvorn", "Gold", "Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
-	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
-	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
-	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
-	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
+	"Admantium", "Admantium-plated", "Aluminum", "Antimony", "Beryllium", 
+	"Billon", "Bismuth", "Brass", "Bronze", "Carbonized", 
+	"Cast Iron", "Chromium", "Cobalt", "Copper", "Copper-plated", 
+	"Corundum", "Damascened", "Electrum", "Galvorn", "Tarnished", 
+	"Gold", "Iridescent", "Iron", "Ivory", "Jeweled", 
+	"Lead", "Lithium", "Magnesium", "Mithril", "Molybdenum", 
+	"Nickel", "Palladium", "Platinum", "Pewter", "Rodium", 
+	"Runed", "Rusty", "Sapphire", "Silver", "Silver-plated", 
+	"Steel", "Tin", "Tin-plated", "Titanium", "Tombac", 
+	"Tungsten", "Uridium", "Wrought Iron", "Zirconium", "Zinc", 
+	"Zinc-plated"
 };
 
 static byte wand_col[MAX_METALS] =
 {
-	TERM_L_BLUE, TERM_SLATE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, 
-	TERM_L_WHITE, TERM_L_DARK, TERM_YELLOW,
-	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
-	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
-	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
+	TERM_L_GREEN, TERM_L_GREEN, TERM_L_BLUE, TERM_SLATE, TERM_L_BLUE, 
+	TERM_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_ORANGE, TERM_L_DARK, 
+	TERM_L_DARK, TERM_WHITE, TERM_BLUE, TERM_UMBER, TERM_UMBER, 
+	TERM_RED, TERM_L_BLUE, TERM_L_WHITE, TERM_L_DARK, TERM_GREEN, 
+	TERM_YELLOW, TERM_VIOLET, TERM_SLATE, TERM_WHITE, TERM_VIOLET, 
+	TERM_SLATE, TERM_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_WHITE, 
+	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_SLATE, TERM_WHITE, 
+	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_L_WHITE, TERM_L_WHITE, 
+	TERM_WHITE, TERM_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_YELLOW, 
+	TERM_WHITE, TERM_L_GREEN, TERM_L_DARK, TERM_L_WHITE, TERM_SLATE, 
+	TERM_SLATE
 };
 
 
@@ -164,19 +187,20 @@ static byte rod_col[MAX_METALS];
 static cptr food_adj[MAX_SHROOM] =
 {
 	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
-	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
-	"Grey", "Light Blue", "Light Green", "Violet", "Red",
-	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
-	"Greasy", "Fuzzy", "Red"
+	"Dark Green", "Dark Red", "Yellow", "Furry", "Fuzzy", 
+	"Green", "Greasy", "Grey", "Light Blue", "Light Green", 
+	"Pink", "Purple Blotched", "Red", "Red Spotted", "Slimy", 
+	"Tan", "Violet", "White", "White Spotted", "Wrinkled",
+	
 };
 
 static byte food_col[MAX_SHROOM] =
 {
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
-	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
-	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
-	TERM_L_WHITE, TERM_WHITE, TERM_L_RED
+	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_WHITE, 
+	TERM_GREEN, TERM_L_WHITE, TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, 
+	TERM_L_RED, TERM_VIOLET, TERM_RED, TERM_L_RED, TERM_SLATE, 
+	TERM_L_UMBER, TERM_VIOLET, TERM_WHITE, TERM_WHITE, TERM_UMBER
 };
 
 
@@ -189,35 +213,44 @@ static byte food_col[MAX_SHROOM] =
 static cptr potion_adj[MAX_COLORS] =
 {
 	"Clear", "Light Brown", "Icky Green", "xxx",
-	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
-	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
-	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
-	"Green Speckled", "Grey", "Grey Speckled", "Hazy", "Indigo",
-	"Light Blue", "Light Green", "Magenta", "Metallic Blue", "Metallic Red",
-	"Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
-	"Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
-	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
-	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
-	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold", "Cobalt",
-	"Frothing", "Turgid", "Limpid", "Muddy"
+
+	"Amber", "Ashen", "Auburn", "Azure", "Black", 
+	"Blue", "Blue Speckled", "Brown", "Brown Speckled", "Bubbling", 
+	"Carnation", "Chartreuse", "Chocolate-brown", "Clear Blue", "Clotted Red", 
+	"Cloudy", "Cobalt", "Copper Speckled", "Crimson", "Cyan", 
+	"Dark Blue", "Dark Green", "Dark Red", "Dirty", "Frothing", 
+	"Gloopy Green", "Gold", "Gold Speckled", "Golden Brown", "Green", 
+	"Greenish", "Grey", "Grey Speckled", "Hazy", "Indigo", 
+	"Ivory White", "Lavender", "Light Blue", "Light Green", "Limpid", 
+	"Lincoln Green", "Magenta", "Maroon", "Metallic Blue", "Metallic Red", 
+	"Metallic Purple", "Misty", "Moldy", "Muddy", "Myrtle Green", 
+	"Oily Yellow", "Orange", "Orange Speckled", "Peach", "Pink", 
+	"Pearl-grey", "Puce", "Pungent", "Purple", "Purple Speckled", 
+	"Red", "Red Speckled", "Tyrian Purple", "Rosy", "Sea-blue", 
+	"Shimmering", "Shining", "Sickly Green", "Silver Speckled", "Smoky", 
+	"Tangerine", "Tawny", "Turgid", "Umber", "Violet", 
+	"Vermilion", "Viscous Pink", "White", "Yellow", "Yellow Dappled"
 };
 
 static byte potion_col[MAX_COLORS] =
 {
 	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
-	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
-	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
-	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_GREEN, TERM_SLATE, TERM_SLATE, TERM_L_WHITE, TERM_VIOLET,
-	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_BLUE, TERM_RED,
-	TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_ORANGE, TERM_ORANGE,
-	TERM_L_RED, TERM_L_RED, TERM_VIOLET, TERM_VIOLET, TERM_VIOLET,
-	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
-	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
-	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_MULTI, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_BLUE, TERM_SLATE,
-	TERM_SLATE, TERM_WHITE, TERM_UMBER
+	TERM_ORANGE, TERM_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK, 
+	TERM_BLUE, TERM_BLUE, TERM_UMBER, TERM_UMBER, TERM_L_WHITE, 
+	TERM_L_RED, TERM_L_GREEN, TERM_UMBER, TERM_L_BLUE, TERM_RED, 
+	TERM_SLATE, TERM_L_BLUE, TERM_UMBER, TERM_L_RED, TERM_L_BLUE, 
+	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_L_UMBER, TERM_SLATE, 
+	TERM_GREEN, TERM_YELLOW, TERM_YELLOW, TERM_L_UMBER, TERM_GREEN, 
+	TERM_L_GREEN, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_BLUE, 
+	TERM_L_WHITE, TERM_VIOLET, TERM_L_BLUE, TERM_L_GREEN, TERM_WHITE, 
+	TERM_GREEN, TERM_RED, TERM_RED, TERM_BLUE, TERM_RED, 
+	TERM_VIOLET, TERM_L_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_GREEN, 
+	TERM_YELLOW, TERM_ORANGE, TERM_ORANGE, TERM_L_RED, TERM_L_RED, 
+	TERM_WHITE, TERM_UMBER, TERM_L_GREEN, TERM_VIOLET, TERM_VIOLET, 
+	TERM_RED, TERM_RED, TERM_VIOLET, TERM_L_RED, TERM_BLUE, 
+	TERM_YELLOW, TERM_WHITE, TERM_L_GREEN, TERM_L_WHITE, TERM_L_DARK, 
+	TERM_ORANGE, TERM_SLATE, TERM_L_UMBER, TERM_UMBER, TERM_VIOLET, 
+	TERM_L_RED, TERM_L_RED, TERM_WHITE, TERM_YELLOW, TERM_YELLOW
 };
 
 
@@ -227,26 +260,23 @@ static byte potion_col[MAX_COLORS] =
 
 static cptr syllables[MAX_SYLLABLES] =
 {
-	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
-	"arg", "arze", "ash", "aus", "ban", "bar", "bat", "bek",
-	"bie", "bin", "bit", "bjor", "blu", "bot", "bu",
-	"byt", "can", "comp", "con", "cos", "cre", "czra", "dalf", "dan",
-	"den", "der", "doe", "dok", "dora", "eep", "el", "eng", "er", "ere", "erk",
-	"esh", "evs", "fa", "fid", "fin", "flit", "for", "fri", "fu", "gan",
-	"gar", "glen", "gop", "gre", "ha", "he", "hyd", "i",
-	"ing", "ion", "ip", "ish", "it", "ite", "iv", "jo",
-	"kho", "kli", "klis", "la", "lech", "man", "mar",
-	"me", "mi", "mic", "mik", "mon", "mung", "mur", "nag", "nej",
-	"nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
-	"od", "ood", "org", "orn", "ox", "oxy", "pay", "pet",
-	"ple", "plu", "po", "pot", "prok", "qua", "qur", "re", "rea", "rhov",
-	"ri", "ro", "rog", "rok", "rol", "sa", "san", "sat",
-	"see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
-	"sno", "so", "sol", "sri", "sta", "sun", "ta", "tab",
-	"tem", "ther", "ti", "tox", "trol", "tue", "turs", "u",
-	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
-	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
-	"yerg", "yp", "zun", "tri", "blaa",
+	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app", "arg", "arze", 
+	"ash", "aus", "ban", "bar", "bat", "bek", "bie", "bin", "bit", "bjor", 
+	"blu", "bot", "bu", "byt", "can", "comp", "con", "cos", "cre", "czra", 
+	"dalf", "dan", "den", "der", "doe", "dok", "dora", "eep", "el", "eng", 
+	"er", "ere", "erk", "esh", "evs", "fa", "fid", "fin", "flit", "for", 
+	"fri", "fu", "gan", "gar", "glen", "gop", "gre", "ha", "he", "hyd", 
+	"i", "ing", "ion", "ip", "ish", "it", "ite", "iv", "jo", "kho", 
+	"kli", "klis", "la", "lech", "man", "mar", "me", "mi", "mic", "mik", 
+	"mon", "mung", "mur", "nag", "nej", "nelg", "nep", "ner", "nes", "nis", 
+	"nih", "nin", "o", "od", "ood", "org", "orn", "ox", "oxy", "pay", 
+	"pet","ple", "plu", "po", "pot", "prok", "qua", "qur", "re", "rea", 
+	"rhov", "ri", "ro", "rog", "rok", "rol", "sa", "san", "sat","see", 
+	"sef", "seh", "shu", "ski", "sna", "sne", "snik","sno", "so", "sol", 
+	"sri", "sta", "sun", "ta", "tab", "tem", "ther", "ti", "tox", "trol", 
+	"tue", "turs", "u", "ulk", "um", "un", "uni", "ur", "val", "viv", 
+	"vly", "vom", "wah", "wed", "werg", "wex", "whon", "wun", "x", "yerg", 
+	"yp", "zun", "tri", "blaa"
 };
 
 
@@ -411,6 +441,8 @@ static bool object_easy_know(int i)
  * This is accomplished by the use of a saved "random seed", as in
  * "town_gen()".  Since no other functions are called while the special
  * seed is in effect, so this function is pretty "safe".
+ *
+ * Hack -- color useless spellbooks of the player's realm grey. -LM-
  */
 void flavor_init(void)
 {
@@ -617,6 +649,40 @@ void flavor_init(void)
 		/* Check for "easily known" */
 		k_ptr->easy_know = object_easy_know(i);
 	}
+
+
+	/* Hack -- Spellbooks of the player's realm with no useable spells 
+	 * appear grey. -LM-
+	 */
+	if (mp_ptr->spell_book)
+	{
+		for (i = 0; i <= SV_BOOK_MAX; i++)
+		{
+			object_kind *k_ptr = &k_info[lookup_kind(mp_ptr->spell_book, i)];
+			if (mp_ptr->book_start_index[i] == 
+			mp_ptr->book_start_index[i+1]) k_ptr->d_attr = TERM_SLATE;
+		}
+	}
+}
+
+
+/*
+ * Get the inventory color for an object.
+ *
+ * Hack - set the listing color of a spellbook with no useable spells to grey -LM-
+ */
+byte proc_list_color_hack(object_type *o_ptr)
+{
+	/* Hack -- Spellbooks with no useable spells are grey. */
+	if ((mp_ptr->spell_book == o_ptr->tval)
+		&& (mp_ptr->book_start_index[o_ptr->sval] == 
+		mp_ptr->book_start_index[o_ptr->sval + 1]))
+	{
+		return (TERM_SLATE);
+	}
+
+	/* Otherwise, get the color normally. */
+	else return(tval_to_attr[o_ptr->tval & 0x7F]);
 }
 
 
@@ -974,10 +1040,14 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * Special Lite's use the "k_info" base-name (Phial, Star, or Arkenstone),
  * plus the artifact name, just like any other artifact, if known.
  *
- * Special Ring's and Amulet's, if not "aware", use the same code as normal
+ * Special Rings and Amulets, if not "aware", use the same code as normal
  * rings and amulets, and if "aware", use the "k_info" base-name (Ring or
  * Amulet or Necklace).  They will NEVER "append" the "k_info" name.  But,
  * they will append the artifact name, just like any artifact, if known.
+ *
+ * Special Wands, Rods, and Staffs will be identified even if they are 
+ * only aware, not fully identified.  Of course, charges will not be shown. 
+ * -LM- 
  *
  * None of the Special Rings/Amulets are "EASY_KNOW", though they could be,
  * at least, those which have no "pluses", such as the three artifact lites.
@@ -1009,6 +1079,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	int power;
 
+	bool easy_know;
 	bool aware;
 	bool known;
 
@@ -1046,6 +1117,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* See if the object is "known" */
 	known = (object_known_p(o_ptr) ? TRUE : FALSE);
 
+	easy_know = FALSE;
+
 	/* See if the object is "flavored" */
 	flavor = (k_ptr->flavor ? TRUE : FALSE);
 
@@ -1066,7 +1139,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Assume no "modifier" string */
 	modstr = "";
-
 
 	/* Analyze the object */
 	switch (o_ptr->tval)
@@ -1154,6 +1226,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Staffs */
 		case TV_STAFF:
 		{
+			/* Hack -- Known artifacts */
+			if (artifact_p(o_ptr) && aware)
+			{
+				easy_know = TRUE;
+				break;
+			}
+
 			/* Color the object */
 			modstr = staff_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
@@ -1165,6 +1244,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Wands */
 		case TV_WAND:
 		{
+			/* Hack -- Known artifacts */
+			if (artifact_p(o_ptr) && aware)
+			{
+				easy_know = TRUE;
+				break;
+			}
+
 			/* Color the object */
 			modstr = wand_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
@@ -1176,6 +1262,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Rods */
 		case TV_ROD:
 		{
+			/* Hack -- Known artifacts */
+			if (artifact_p(o_ptr) && aware)
+			{
+				easy_know = TRUE;
+				break;
+			}
+
 			/* Color the object */
 			modstr = rod_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
@@ -1298,7 +1391,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && artifact_p(o_ptr))
+		else if (artifact_p(o_ptr) && ((known) || ((easy_know) && (aware))))
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1342,7 +1435,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && artifact_p(o_ptr))
+		else if (artifact_p(o_ptr) && ((known) || ((easy_know) && (aware))))
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1407,8 +1500,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
+	/* Hack -- Append "Artifact" or "Special" names. */
+	if ((known) || ((easy_know) && (aware)))
 	{
 		/* Grab any artifact name */
 		if (o_ptr->name1)
@@ -1459,7 +1552,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* May be "disarmed" */
 		else if (o_ptr->pval < 0)
 		{
-			if (chest_traps[o_ptr->pval])
+			if (chest_traps[0 - o_ptr->pval])
 			{
 				tail = " (disarmed)";
 			}
@@ -1481,23 +1574,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 					break;
 				}
 				case CHEST_LOSE_STR:
-				{
-					tail = " (Poison Needle)";
-					break;
-				}
 				case CHEST_LOSE_CON:
 				{
 					tail = " (Poison Needle)";
 					break;
 				}
 				case CHEST_POISON:
+				case CHEST_PARALYZE:
 				{
 					tail = " (Gas Trap)";
 					break;
 				}
-				case CHEST_PARALYZE:
+				case CHEST_SCATTER:
 				{
-					tail = " (Gas Trap)";
+					tail = " (A Strange Rune)";
 					break;
 				}
 				case CHEST_EXPLODE:
@@ -1506,8 +1596,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 					break;
 				}
 				case CHEST_SUMMON:
+				case CHEST_E_SUMMON:
+				case CHEST_H_SUMMON:
+				case CHEST_BIRD_STORM:
 				{
 					tail = " (Summoning Runes)";
+					break;
+				}
+				case CHEST_RUNES_OF_EVIL:
+				{
+					tail = " (Gleaming Black Runes)";
 					break;
 				}
 				default:
@@ -1628,12 +1726,33 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Show the armor class info */
 		if (show_armour)
 		{
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, b1);
-			object_desc_num_macro(t, o_ptr->ac);
-			object_desc_chr_macro(t, ',');
-			object_desc_int_macro(t, o_ptr->to_a);
-			object_desc_chr_macro(t, b2);
+			/* Hack - Special case to make it clear what wearing a shield on 
+			 * the back does to its protective value. -LM-
+			 */
+			if ((p_ptr->shield_on_back) && (o_ptr == &inventory[INVEN_ARM]))
+			{
+				object_desc_chr_macro(t, ' ');
+				object_desc_chr_macro(t, b1);
+				object_desc_num_macro(t, o_ptr->ac / 3);
+				object_desc_chr_macro(t, p1);
+				object_desc_num_macro(t, o_ptr->ac);
+				object_desc_chr_macro(t, p2);
+				object_desc_chr_macro(t, ',');
+				object_desc_int_macro(t, o_ptr->to_a / 2);
+				object_desc_chr_macro(t, p1);
+				object_desc_int_macro(t, o_ptr->to_a);
+				object_desc_chr_macro(t, p2);
+				object_desc_chr_macro(t, b2);
+			}
+			else
+			{
+				object_desc_chr_macro(t, ' ');
+				object_desc_chr_macro(t, b1);
+				object_desc_num_macro(t, o_ptr->ac);
+				object_desc_chr_macro(t, ',');
+				object_desc_int_macro(t, o_ptr->to_a);
+				object_desc_chr_macro(t, b2);
+			}
 		}
 
 		/* No base armor, but does increase armor */
@@ -1871,8 +1990,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		v = "tried";
 	}
 
-	/* Note the discount, if any */
-	else if (o_ptr->discount)
+	/* Note the discount, if any.  No annoying inscription for homemade 
+	 * branded items. -LM-
+	 */
+	else if ((o_ptr->discount) && (o_ptr->discount != 80))
 	{
 		char *q = tmp_val;
 		object_desc_num_macro(q, o_ptr->discount);
@@ -1937,1056 +2058,6 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 
-
-/*
- * Determine the "Activation" (if any) for an artifact
- * Return a string, or NULL for "no activation"
- */
-cptr item_activation(object_type *o_ptr)
-{
-	u32b f1, f2, f3;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Require activation ability */
-	if (o_ptr->xtra1 != OBJECT_XTRA_TYPE_ACTIVATION) return (NULL);
-
-	/* Some objects and artifacts can be activated */
-	switch (o_ptr->xtra2)
-	{
-		case ACT_GALADRIEL:
-		{
-			return "illumination (2d15 damage) every 10+d10 turns";
-		}
-		case ACT_ELENDIL:
-		{
-			return "magic mapping every 40+d40 turns";
-		}
-		case ACT_THRAIN:
-		{
-			return "clairvoyance every 100+d100 turns";
-		}
-		case ACT_CARLAMMAS:
-		{
-			return "protection from evil every 225+d225 turns";
-		}
-		case ACT_INGWE:
-		{
-			return "dispel evil (x4) every 300+d300 turns";
-		}
-		case ACT_BOROMIR:
-		{
-			return "frighten monsters every 40+d40 turns";
-		}
-		case ACT_FARAMIR:
-		{
-			return "dispel small life every 55+d55 turns";
-		}
-		case ACT_TULKAS:
-		{
-			return "haste self (75+d75 turns) every 150+d150 turns";
-		}
-		case ACT_NARYA:
-		{
-			return "large fire ball (225) every 275+d275 turns";
-		}
-		case ACT_NENYA:
-		{
-			return "large frost ball (250) every 325+d325 turns";
-		}
-		case ACT_VILYA:
-		{
-			return "large lightning ball (275) every 375+d375 turns";
-		}
-		case ACT_POWER:
-		{
-			return "bizarre things every 450+d450 turns";
-		}
-		case ACT_STONE_LORE:
-		{
-			return "perilous identify every turn";
-		}
-		case ACT_RAZORBACK:
-		{
-			return "star ball (150) every 1000 turns";
-		}
-		case ACT_BLADETURNER:
-		{
-			return "heroism, bless, and resistance every 400 turns";
-		}
-		case ACT_SOULKEEPER:
-		{
-			return "heal (1000) every 888 turns";
-		}
-		case ACT_BELEGENNON:
-		{
-			return "phase door every 2 turns";
-		}
-		case ACT_CELEBORN:
-		{
-			return "genocide every 500 turns";
-		}
-		case ACT_CASPANION:
-		{
-			return "door destruction every turn";
-		}
-		case ACT_HIMRING:
-		{
-			return "protection from evil every 200 + d200 turns";
-		}
-		case ACT_ELEMENTS:
-		{
-			return "protection from the elements every 160 turns";
-		}
-		case ACT_GIL_GALAD:
-		{
-			return "blinding light every 250 turns";
-		}
-		case ACT_HOLHENNETH:
-		{
-			return "detection every 55+d55 turns";
-		}
-		case ACT_GONDOR:
-		{
-			return "heal (500) every 500 turns";
-		}
-		case ACT_COLLUIN:
-		{
-			return "resistance (20+d20 turns) every 175 turns";
-		}
-		case ACT_HOLCOLLETH:
-		{
-			return "Sleep II every 55 turns";
-		}
-		case ACT_THINGOL:
-		{
-			return "recharge magical device every 70 turns";
-		}
-		case ACT_COLANNON:
-		{
-			return "teleport (100) every 45 turns";
-		}
-		case ACT_LUTHIEN:
-		{
-			return "restore life levels every 450 turns";
-		}
-		case ACT_CAMMITHRIM:
-		{
-			return "magic missile (2d6) every 2 turns";
-		}
-		case ACT_EOL:
-		{
-			return "mana bolt (9d8) every 7+d7 turns";
-		}
-		case ACT_PAURNIMMEN:
-		{
-			return "frost bolt (6d8) every 6+d6 turns";
-		}
-		case ACT_PAURAEGEN:
-		{
-			return "lightning bolt (4d8) every 4+d4 turns";
-		}
-		case ACT_PAURNEN:
-		{
-			return "acid bolt (5d8) every 5+d5 turns";
-		}
-		case ACT_FINGOLFIN:
-		{
-			return "instant tunnelling every 3+d3 turns";
-		}
-		case ACT_FEANOR:
-		{
-			return "haste self (20+d20 turns) every 200 turns";
-		}
-		case ACT_DAL:
-		{
-			return "remove fear and cure poison every 5 turns";
-		}
-		case ACT_NARTHANC:
-		{
-			return "fire bolt (6d8) every 7+d7 turns";
-		}
-		case ACT_NIMTHANC:
-		{
-			return "frost bolt (5d8) every 6+d6 turns";
-		}
-		case ACT_DETHANC:
-		{
-			return "lightning bolt (4d8) every 5+d5 turns";
-		}
-		case ACT_RILIA:
-		{
-			return "stinking cloud (12) every 4+d4 turns";
-		}
-		case ACT_BELANGIL:
-		{
-			return "frost ball (3 * level / 2) every 5+d5 turns";
-		}
-		case ACT_ARUNRUTH:
-		{
-			return "frost bolt (12d8) every 300 turns";
-		}
-		case ACT_RINGIL:
-		{
-			return "frost storm (150) every 200 turns";
-		}
-		case ACT_ANDURIL:
-		{
-			return "fire ball (145) every 200 turns";
-		}
-		case ACT_THEODEN:
-		{
-			return "drain life (120) every 400 turns";
-		}
-		case ACT_AEGLOS:
-		{
-			return "frost ball (100) every 500 turns";
-		}
-		case ACT_OROME:
-		{
-			return "stone to mud every 5 turns";
-		}
-		case ACT_EONWE:
-		{
-			return "mass genocide every 1000 turns";
-		}
-		case ACT_LOTHARANG:
-		{
-			return "cure wounds (4d12) every 3+d3 turns";
-		}
-		case ACT_ULMO:
-		{
-			return "teleport away every 75 turns";
-		}
-		case ACT_AVAVIR:
-		{
-			return "word of recall every 200 turns";
-		}
-		case ACT_TOTILA:
-		{
-			return "confuse monster every 15 turns";
-		}
-		case ACT_FIRESTAR:
-		{
-			return "large fire ball (125) every 150 turns";
-		}
-		case ACT_TARATOL:
-		{
-			return "haste self (20+d20 turns) every 100+d100 turns";
-		}
-		case ACT_ERIRIL:
-		{
-			return "identify every 10 turns";
-		}
-		case ACT_OLORIN:
-		{
-			return "probing every 20 turns";
-		}
-		case ACT_TURMIL:
-		{
-			return "drain life (90) every 70 turns";
-		}
-		case ACT_HARAD:
-		{
-			return "a deadly shot every 200+d200 turns";
-		}
-		case ACT_CUBRAGOL:
-		{
-			return "fire branding of bolts every 400 turns";
-		}
-		case ACT_DAVID:
-		{
-			return "elemental branding of any missile every 999 turns";
-		}
-
-
-		case ACT_RANDOM_FIRE1:
-		{
-			return "fire bolt (3 + level / 8)d8 every 7+d7 turns";
-		}
-		case ACT_RANDOM_FIRE2:
-		{
-			return "sphere of fire (100) every 300 turns";
-		}
-		case ACT_RANDOM_FIRE3:
-		{
-			return "fire storm (150) every 800 turns";
-		}
-		case ACT_RANDOM_COLD1:
-		{
-			return "frost bolt (3 + level / 8)d8 every 7+d7 turns";
-		}
-		case ACT_RANDOM_COLD2:
-		{
-			return "sphere of frost (100) every 300 turns";
-		}
-		case ACT_RANDOM_COLD3:
-		{
-			return "frost storm (150) every 800 turns";
-		}
-		case ACT_RANDOM_ACID1:
-		{
-			return "acid bolt (3 + level / 8)d8 every 7+d7 turns";
-		}
-		case ACT_RANDOM_ACID2:
-		{
-			return "sphere of acid (100) every 300 turns";
-		}
-		case ACT_RANDOM_ACID3:
-		{
-			return "acid storm (160) every 800 turns";
-		}
-		case ACT_RANDOM_ELEC1:
-		{
-			return "electricity bolt (3 + level / 8)d8 every 7+d7 turns";
-		}
-		case ACT_RANDOM_ELEC2:
-		{
-			return "ball lightning (100) every 300 turns";
-		}
-		case ACT_RANDOM_ELEC3:
-		{
-			return "lightning strike (130+25) every 800 turns";
-		}
-		case ACT_RANDOM_POIS1:
-		{
-			return "poison dart (3 + level / 10)d8 every 22+d22 turns";
-		}
-		case ACT_RANDOM_POIS2:
-		{
-			return "poison cloud (130) every 500 turns";
-		}
-		case ACT_RANDOM_LIGHT1:
-		{
-			return "blinding ball of light (50) every 250 turns";
-		}
-		case ACT_RANDOM_LIGHT2:
-		{
-			return "dispel light-hating (175) every 700 turns";
-		}
-
-		case ACT_RANDOM_DISPEL_UNDEAD:
-		{
-			return "dispel undead (100) every 300 turns";
-		}
-		case ACT_RANDOM_DISPEL_EVIL:
-		{
-			return "dispel evil (100) every 400 turns";
-		}
-		case ACT_RANDOM_SMITE_UNDEAD:
-		{
-			return "dispel an undead (level / 4)d33 every 200 turns";
-		}
-		case ACT_RANDOM_SMITE_DEMON:
-		{
-			return "dispel a demon (level / 4)d33 every 200 turns";
-		}
-		case ACT_RANDOM_SMITE_DRAGON:
-		{
-			return "dispel a dragon (level / 4)d33 every 200 turns";
-		}
-		case ACT_RANDOM_HOLY_ORB:
-		{
-			return "holy orb (60) every 175 turns";
-		}
-		case ACT_RANDOM_BLESS:
-		{
-			return "blessing (24+d24) every 200 turns";
-		}
-		case ACT_RANDOM_FRIGHTEN_ALL:
-		{
-			return "frighten adversaries every 120+d120 turns";
-		}
-		case ACT_RANDOM_HEAL1:
-		{
-			return "heal (5d20) every 85 turns";
-		}
-		case ACT_RANDOM_HEAL2:
-		{
-			return "heal (7d40) every 225 turns";
-		}
-		case ACT_RANDOM_HEAL3:
-		{
-			return "heal (10d60) every 500 turns";
-		}
-		case ACT_RANDOM_CURE:
-		{
-			return "cure ailments every 500 turns";
-		}
-		case ACT_RANDOM_PROT_FROM_EVIL:
-		{
-			return "protection from evil (24+d24) every 250 turns";
-		}
-		case ACT_RANDOM_CHAOS:
-		{
-			return "chaos ball (d300) every 600 turns";
-		}
-		case ACT_RANDOM_SHARD_SOUND:
-		{
-			return "shard or sound ball (150) every 600 turns";
-		}
-		case ACT_RANDOM_NETHR:
-		{
-			return "nether orb (100) every 400 turns";
-		}
-		case ACT_RANDOM_LINE_LIGHT:
-		{
-			return "ray of light (4d7) every 6+d6 turns";
-		}
-		case ACT_RANDOM_STARLIGHT:
-		{
-			return "starlight (4d7) every 8+d8 turns";
-		}
-		case ACT_RANDOM_EARTHQUAKE:
-		{
-			return "earthquake (radius 10) every 40+d40 turns";
-		}
-		case ACT_RANDOM_IDENTIFY:
-		{
-			return "identify every 30 turns";
-		}
-		case ACT_RANDOM_SPEED:
-		{
-			return "haste self (20+d20) every 120+d120 turns";
-		}
-		case ACT_RANDOM_TELEPORT_AWAY:
-		{
-			return "teleport away every 110 turns";
-		}
-		case ACT_RANDOM_HEROISM:
-		{
-			return "heroism every 200 turns";
-		}
-		case ACT_RANDOM_STORM_DANCE:
-		{
-			return "storm dance every 300 turns";
-		}
-		case ACT_RANDOM_RESIST_ELEMENTS:
-		{
-			return "resistance to the elements every 400 turns";
-		}
-		case ACT_RANDOM_RESIST_ALL:
-		{
-			return "resistance every 400 turns";
-		}
-		case ACT_RANDOM_TELEPORT1:
-		{
-			return "teleport self (30) every 10+d10 turns";
-		}
-		case ACT_RANDOM_TELEPORT2:
-		{
-			return "major displacement (200) every 80 turns";
-		}
-		case ACT_RANDOM_RECALL:
-		{
-			return "recall every 350 turns";
-		}
-		case ACT_RANDOM_REGAIN:
-		{
-			return "restore level every 800 turns";
-		}
-		case ACT_RANDOM_RESTORE:
-		{
-			return "restore stats every 800 turns";
-		}
-		case ACT_RANDOM_SHIELD:
-		{
-			return "magic shield every 400 turns";
-		}
-		case ACT_RANDOM_BRAND_MISSILE:
-		{
-			return "brand missiles every 999 turns";
-		}
-		case ACT_RANDOM_SUPER_SHOOTING:
-		{
-			return "an especially deadly shot every 200+d200 turns";
-		}
-		case ACT_RANDOM_DETECT_MONSTERS:
-		{
-			return "detect monsters every 4+d4 turns";
-		}
-		case ACT_RANDOM_DETECT_EVIL:
-		{
-			return "detect evil every 4+d4 turns";
-		}
-		case ACT_RANDOM_DETECT_ALL:
-		{
-			return "detection every 30+d30 turns";
-		}
-		case ACT_RANDOM_MAGIC_MAP:
-		{
-			return "sense surroundings every 30+d30 turns";
-		}
-		case ACT_RANDOM_DETECT_D_S_T:
-		{
-			return "detect traps, doors, and stairs every 10+d10 turns";
-		}
-		case ACT_RANDOM_CONFU_FOE:
-		{
-			return "strong confuse monster every 250 turns";
-		}
-		case ACT_RANDOM_SLEEP_FOE:
-		{
-			return "strong sleep monster every 250 turns";
-		}
-		case ACT_RANDOM_TURN_FOE:
-		{
-			return "strong frighten monster every 250 turns";
-		}
-		case ACT_RANDOM_SLOW_FOE:
-		{
-			return "strong slow monster every 250 turns";
-		}
-		case ACT_RANDOM_BANISH_EVIL:
-		{
-			return "banish evil every 400 turns";
-		}
-		case ACT_RANDOM_DISARM:
-		{
-			return "disarming every 7+d7 turns";
-		}
-		case ACT_RANDOM_CONFU_FOES:
-		{
-			return "confuse monsters every 300 turns";
-		}
-		case ACT_RANDOM_SLEEP_FOES:
-		{
-			return "sleep monsters every 300 turns";
-		}
-		case ACT_RANDOM_TURN_FOES:
-		{
-			return "frighten monsters every 300 turns";
-		}
-		case ACT_RANDOM_SLOW_FOES:
-		{
-			return "slow monsters every 300 turns";
-		}
-
-		case ACT_DRAGON_BLUE:
-		{
-			return "breathe lightning (130) every 350+d350 turns";
-		}
-		case ACT_DRAGON_WHITE:
-		{
-			return "breathe frost (140) every 350+d350 turns";
-		}
-		case ACT_DRAGON_BLACK:
-		{
-			return "breathe acid (150) every 350+d350 turns";
-		}
-		case ACT_DRAGON_GREEN:
-		{
-			return "breathe poison gas (150) every 350+d350 turns";
-		}
-		case ACT_DRAGON_RED:
-		{
-			return "breathe fire (160) every 350+d350 turns";
-		}
-		case ACT_DRAGON_MULTIHUED:
-		{
-			return "breathe an element or poison (190) every 350+d350 turns";
-		}
-		case ACT_DRAGON_BRONZE:
-		{
-			return "breathe confusion (130) every 300+d300 turns";
-		}
-		case ACT_DRAGON_GOLD:
-		{
-			return "breathe sound (130) every 300+d300 turns";
-		}
-		case ACT_DRAGON_CHAOS:
-		{
-			return "breathe chaos/disenchant (180) every 300+d300 turns";
-		}
-		case ACT_DRAGON_LAW:
-		{
-			return "breathe sound/shards (190) every 300+d300 turns";
-		}
-		case ACT_DRAGON_BALANCE:
-		{
-			return "breathe balance (210) every 300+d300 turns";
-		}
-		case ACT_DRAGON_SHINING:
-		{
-			return "breathe light/darkness (160) every 300+d300 turns";
-		}
-		case ACT_DRAGON_POWER:
-		{
-			return "breathe the elements (240) every 300+d300 turns";
-		}
-
-		case ACT_RING_ACID:
-		{
-			return "cast a acid ball(80) and oppose acid every 50+d100 turns";
-		}
-		case ACT_RING_COLD:
-		{
-			return "cast a cold ball(80) and oppose cold every 50+d100 turns";
-		}
-		case ACT_RING_FIRE:
-		{
-			return "cast a fire ball(80) and oppose fire every 50+d100 turns";
-		}
-		case ACT_RING_ELEC:
-		{
-			return "cast a electricity ball(80) and oppose electricity every 50+d100 turns";
-		}
-		case ACT_AMULET_ESCAPING:
-		{
-			return "teleport(40) every 40+d40 turns";
-		}
-		default:
-		{
-			return "an undocumented activation";
-		}
-	}
-
-
-	/* Nothing else activates. */
-	return NULL;
-}
-
-
-/*
- * Describe a "fully identified" item
- */
-bool identify_fully_aux(object_type *o_ptr)
-{
-	int i = 0, j, k;
-
-	u32b f1, f2, f3;
-
-	cptr info[128];
-
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-
-	/* Describe activation, if present. */
-	if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION)
-	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
-		info[i++] = "...if it is being worn.";
-	}
-
-
-	/* Hack -- describe lite's */
-	if (o_ptr->tval == TV_LITE)
-	{
-		if (artifact_p(o_ptr))
-		{
-			info[i++] = "It provides light (radius 3) forever.";
-		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
-		{
-			info[i++] = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++] = "It provides light (radius 1) when fueled.";
-		}
-	}
-
-
-	/* And then describe it fully */
-
-	if (f1 & (TR1_STR))
-	{
-		info[i++] = "It affects your strength.";
-	}
-	if (f1 & (TR1_INT))
-	{
-		info[i++] = "It affects your intelligence.";
-	}
-	if (f1 & (TR1_WIS))
-	{
-		info[i++] = "It affects your wisdom.";
-	}
-	if (f1 & (TR1_DEX))
-	{
-		info[i++] = "It affects your dexterity.";
-	}
-	if (f1 & (TR1_CON))
-	{
-		info[i++] = "It affects your constitution.";
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "It affects your charisma.";
-	}
-	if (f1 & (TR1_MAGIC_MASTERY))
-	{
-		info[i++] = "It affects your magical device skill.";
-	}
-	if (f1 & (TR1_STEALTH))
-	{
-		info[i++] = "It affects your stealth.";
-	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "It affects your searching.";
-	}
-	if (f1 & (TR1_INFRA))
-	{
-		info[i++] = "It affects your infravision.";
-	}
-	if (f1 & (TR1_TUNNEL))
-	{
-		info[i++] = "It affects your ability to tunnel.";
-	}
-	if (f1 & (TR1_SPEED))
-	{
-		info[i++] = "It affects your speed.";
-	}
-
-	if (f1 & (TR1_SHOTS))
-	{
-		info[i++] = "It affects your shooting speed.";
-	}
-	if (f1 & (TR1_MIGHT1))
-	{
-		info[i++] = "It affects your shooting power.";
-	}
-	if (f1 & (TR1_MIGHT2))
-	{
-		info[i++] = "It greatly affects your shooting power.";
-	}
-
-	if (f1 & (TR1_SLAY_ANIMAL))
-	{
-		info[i++] = "It is especially deadly against natural creatures.";
-	}
-	if (f1 & (TR1_SLAY_EVIL))
-	{
-		info[i++] = "It fights against evil with holy fury.";
-	}
-	if (f1 & (TR1_SLAY_UNDEAD))
-	{
-		info[i++] = "It strikes at undead with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_DEMON))
-	{
-		info[i++] = "It strikes at demons with holy wrath.";
-	}
-	if (f1 & (TR1_SLAY_ORC))
-	{
-		info[i++] = "It is especially deadly against orcs.";
-	}
-	if (f1 & (TR1_SLAY_TROLL))
-	{
-		info[i++] = "It is especially deadly against trolls.";
-	}
-	if (f1 & (TR1_SLAY_GIANT))
-	{
-		info[i++] = "It is especially deadly against giants.";
-	}
-	if (f1 & (TR1_SLAY_DRAGON))
-	{
-		info[i++] = "It is especially deadly against dragons.";
-	}
-
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		info[i++] = "It does extra damage from acid.";
-	}
-	if (f1 & (TR1_BRAND_ELEC))
-	{
-		info[i++] = "It does extra damage from electricity.";
-	}
-	if (f1 & (TR1_BRAND_FIRE))
-	{
-		info[i++] = "It does extra damage from fire.";
-	}
-	if (f1 & (TR1_BRAND_COLD))
-	{
-		info[i++] = "It does extra damage from frost.";
-	}
-
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		info[i++] = "It does extra damage from poison.";
-	}
-
-	if (f1 & (TR1_THROWING))
-	{
-		if (f1 & (TR1_PERFECT_BALANCE))
-		{
-			info[i++] = "It can be thrown hard and fast.";
-		}
-		else info[i++] = "It can be thrown effectively.";
-	}
-
-	if (f2 & (TR2_SUST_STR))
-	{
-		info[i++] = "It sustains your strength.";
-	}
-	if (f2 & (TR2_SUST_INT))
-	{
-		info[i++] = "It sustains your intelligence.";
-	}
-	if (f2 & (TR2_SUST_WIS))
-	{
-		info[i++] = "It sustains your wisdom.";
-	}
-	if (f2 & (TR2_SUST_DEX))
-	{
-		info[i++] = "It sustains your dexterity.";
-	}
-	if (f2 & (TR2_SUST_CON))
-	{
-		info[i++] = "It sustains your constitution.";
-	}
-	if (f2 & (TR2_SUST_CHR))
-	{
-		info[i++] = "It sustains your charisma.";
-	}
-
-	if (f2 & (TR2_IM_ACID))
-	{
-		info[i++] = "It provides immunity to acid.";
-	}
-	else if (f2 & (TR2_RES_ACID))
-	{
-		info[i++] = "It provides resistance to acid.";
-	}
-
-	if (f2 & (TR2_IM_ELEC))
-	{
-		info[i++] = "It provides immunity to electricity.";
-	}
-	else if (f2 & (TR2_RES_ELEC))
-	{
-		info[i++] = "It provides resistance to electricity.";
-	}
-
-	if (f2 & (TR2_IM_FIRE))
-	{
-		info[i++] = "It provides immunity to fire.";
-	}
-	else if (f2 & (TR2_RES_FIRE))
-	{
-		info[i++] = "It provides resistance to fire.";
-	}
-
-	if (f2 & (TR2_IM_COLD))
-	{
-		info[i++] = "It provides immunity to cold.";
-	}
-	else if (f2 & (TR2_RES_COLD))
-	{
-		info[i++] = "It provides resistance to cold.";
-	}
-
-	if (f2 & (TR2_RES_POIS))
-	{
-		info[i++] = "It provides resistance to poison.";
-	}
-
-	if (f2 & (TR2_RES_FEAR))
-	{
-		info[i++] = "It provides resistance to fear.";
-	}
-
-	if (f2 & (TR2_RES_LITE))
-	{
-		info[i++] = "It provides resistance to light.";
-	}
-
-	if (f2 & (TR2_RES_DARK))
-	{
-		info[i++] = "It provides resistance to dark.";
-	}
-
-	if (f2 & (TR2_RES_BLIND))
-	{
-		info[i++] = "It provides resistance to blindness.";
-	}
-
-	if (f2 & (TR2_RES_CONFU))
-	{
-		info[i++] = "It provides resistance to confusion.";
-	}
-
-	if (f2 & (TR2_RES_SOUND))
-	{
-		info[i++] = "It provides resistance to sound.";
-	}
-
-	if (f2 & (TR2_RES_SHARD))
-	{
-		info[i++] = "It provides resistance to shards.";
-	}
-
-	if (f2 & (TR2_RES_NEXUS))
-	{
-		info[i++] = "It provides resistance to nexus.";
-	}
-
-	if (f2 & (TR2_RES_NETHR))
-	{
-		info[i++] = "It provides resistance to nether.";
-	}
-
-	if (f2 & (TR2_RES_CHAOS))
-	{
-		info[i++] = "It provides resistance to chaos.";
-	}
-
-	if (f2 & (TR2_RES_DISEN))
-	{
-		info[i++] = "It provides resistance to disenchantment.";
-	}
-
-	if (f3 & (TR3_SLOW_DIGEST))
-	{
-		info[i++] = "It slows your metabolism.";
-	}
-
-	if (f3 & (TR3_FEATHER))
-	{
-		info[i++] = "It induces feather falling.";
-	}
-
-	if (f3 & (TR3_LITE))
-	{
-		info[i++] = "It provides permanent light.";
-	}
-
-	if (f3 & (TR3_REGEN))
-	{
-		info[i++] = "It speeds your regenerative powers.";
-	}
-
-	if (f3 & (TR3_TELEPATHY))
-	{
-		info[i++] = "It gives telepathic powers.";
-	}
-
-	if (f3 & (TR3_SEE_INVIS))
-	{
-		info[i++] = "It allows you to see invisible monsters.";
-	}
-
-	if (f3 & (TR3_FREE_ACT))
-	{
-		info[i++] = "It provides immunity to paralysis.";
-	}
-
-	if (f3 & (TR3_HOLD_LIFE))
-	{
-		info[i++] = "It provides resistance to life draining.";
-	}
-
-	if (f3 & (TR3_IMPACT))
-	{
-		info[i++] = "It induces earthquakes.";
-	}
-
-	if (f3 & (TR3_TELEPORT))
-	{
-		info[i++] = "It induces random teleportation.";
-	}
-
-	if (f3 & (TR3_AGGRAVATE))
-	{
-		info[i++] = "It aggravates nearby creatures.";
-	}
-
-	if (f3 & (TR3_DRAIN_EXP))
-	{
-		info[i++] = "It drains experience.";
-	}
-
-	if (f3 & (TR3_BLESSED))
-	{
-		info[i++] = "It has been blessed by the gods.";
-	}
-
-	if (cursed_p(o_ptr))
-	{
-		if (f3 & (TR3_PERMA_CURSE))
-		{
-			info[i++] = "It is permanently cursed.";
-		}
-		else if (f3 & (TR3_HEAVY_CURSE))
-		{
-			info[i++] = "It is heavily cursed.";
-		}
-		else
-		{
-			info[i++] = "It is cursed.";
-		}
-	}
-
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
-
-	/* No special effects */
-	if (!i) return (FALSE);
-
-
-	/* Save screen */
-	screen_save();
-
-
-	/* Erase the screen */
-	Term_clear();
-
-	/* Label the information */
-	prt("     Item Attributes:", 1, 0);
-
-	/* Dump some info */
-	for (k = 2, j = 0; j < i; j++)
-	{
-		/* Show the info */
-		prt(info[j], k++, 0);
-
-		/* Page wrap every 20 lines. */
-		if ((k % 22 == 0) && (j+1 < i))
-		{
-			prt("-- more --", k, 0);
-			inkey();
-
-			/* Erase the screen */
-			Term_clear();
-
-			k = 2;
-
-			/* Label the information */
-			prt("     Item Attributes:", 1, 0);
-		}
-	}
-
-	/* Wait for it */
-	prt("[Press any key to continue]", k, 0);
-	(void)inkey();
-
-
-	/* Load screen */
-	screen_load();
-
-
-	/* Gave knowledge */
-	return (TRUE);
-}
 
 
 
@@ -3146,7 +2217,12 @@ cptr mention_use(int i)
 		case INVEN_LITE:  p = "Light source"; break;
 		case INVEN_BODY:  p = "On body"; break;
 		case INVEN_OUTER: p = "About body"; break;
-		case INVEN_ARM:   p = "On arm"; break;
+		case INVEN_ARM:
+		{
+			if (p_ptr->shield_on_back) p = "On back"; 
+			else p = "On arm";
+			break;
+		}
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
@@ -3198,7 +2274,12 @@ cptr describe_use(int i)
 		case INVEN_LITE:  p = "using to light the way"; break;
 		case INVEN_BODY:  p = "wearing on your body"; break;
 		case INVEN_OUTER: p = "wearing on your back"; break;
-		case INVEN_ARM:   p = "wearing on your arm"; break;
+		case INVEN_ARM:
+		{
+			if (p_ptr->shield_on_back) p = "carrying on your back"; 
+			else p = "wearing on your arm";
+			break;
+		}
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
@@ -3324,8 +2405,8 @@ void display_inven(void)
 		/* Obtain the length of the description */
 		n = strlen(o_name);
 
-		/* Acquire inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		attr = proc_list_color_hack(o_ptr);
 
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
@@ -3337,7 +2418,9 @@ void display_inven(void)
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			if (use_metric) sprintf(tmp_val, "%3d.%1d kg", 
+				make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
 		}
 	}
@@ -3394,8 +2477,8 @@ void display_equip(void)
 		/* Obtain the length of the description */
 		n = strlen(o_name);
 
-		/* Acquire inventory color */
-		attr = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		attr = proc_list_color_hack(o_ptr);
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -3415,7 +2498,11 @@ void display_equip(void)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			int col = (show_labels ? 52 : 71);
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+
+			if (use_metric) sprintf(tmp_val, "%3d.%1d kg", 
+				make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+
 			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
 		}
 	}
@@ -3489,8 +2576,8 @@ void show_inven(void)
 		/* Save the index */
 		out_index[k] = i;
 
-		/* Acquire inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		out_color[k] = proc_list_color_hack(o_ptr);
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -3536,7 +2623,11 @@ void show_inven(void)
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;	
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+
+			if (use_metric) sprintf(tmp_val, "%3d.%1d kg", 
+				make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+
 			put_str(tmp_val, j + 1, 71);
 		}
 	}
@@ -3595,8 +2686,8 @@ void show_equip(void)
 		/* Save the index */
 		out_index[k] = i;
 
-		/* Acquire inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		out_color[k] = proc_list_color_hack(o_ptr);
 
 		/* Save the description */
 		strcpy(out_desc[k], o_name);
@@ -3660,7 +2751,11 @@ void show_equip(void)
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
+
+			if (use_metric) sprintf(tmp_val, "%3d.%1d kg", 
+				make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+
 			put_str(tmp_val, j+1, 71);
 		}
 	}
@@ -3979,8 +3074,8 @@ void show_floor(int y, int x)
 		/* Save the index */
 		out_index[k] = i;
 
-		/* Acquire inventory color */
-		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+		/* Acquire inventory color.  Apply spellbook hack. */
+		out_color[k] = proc_list_color_hack(o_ptr);
 
 		/* Save the object description */
 		strcpy(out_desc[k], o_name);
@@ -4026,7 +3121,9 @@ void show_floor(int y, int x)
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			if (use_metric) sprintf(tmp_val, "%3d.%1d kg", 
+				make_metric(wgt) / 10, make_metric(wgt) % 10);
+			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			put_str(tmp_val, j + 1, 71);
 		}
 	}
@@ -4114,8 +3211,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_num, floor_list[23], floor_top = 0;
 
-#ifdef ALLOW_REPEAT
-
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -4157,8 +3252,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT */
 
 	/* Extract args */
 	if (mode & (USE_EQUIP)) equip = TRUE;
@@ -4243,8 +3336,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
-		/* Use inventory if allowed */
-		else if (allow_inven)
+		/* Use inventory if items available or inventory is both requested and allowed. */
+		else if ((allow_inven) || ((p_ptr->command_wrk == (USE_INVEN)) && (inven)))
 		{
 			p_ptr->command_wrk = (USE_INVEN);
 		}
@@ -4351,8 +3444,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Begin the prompt */
 			sprintf(out_val, "Inven:");
 
+
 			/* Build the prompt */
-			sprintf(tmp_val, " %c-%c,",
+			if (i1 > i2) sprintf(tmp_val, " (none),");
+
+			else sprintf(tmp_val, " %c-%c,",
 				index_to_label(i1), index_to_label(i2));
 
 			/* Append */
@@ -4374,8 +3470,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Begin the prompt */
 			sprintf(out_val, "Equip:");
 
+
 			/* Build the prompt */
-			sprintf(tmp_val, " %c-%c,",
+			if (e1 > e2) sprintf(tmp_val, " (none),");
+
+			else sprintf(tmp_val, " %c-%c,",
 				index_to_label(e1), index_to_label(e2));
 
 			/* Append */
@@ -4770,4 +3869,23 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Result */
 	return (item);
+}
+
+
+/*
+ * Link to various object coloring functions from info.c. -LM-
+ */
+cptr object_adj(int tval, int sval)
+{
+	switch (tval)
+	{
+		case TV_AMULET: return amulet_adj[sval];
+		case TV_RING: return ring_adj[sval];
+		case TV_STAFF: return staff_adj[sval];
+		case TV_WAND: return wand_adj[sval];
+		case TV_ROD: return rod_adj[sval];
+		case TV_POTION: return potion_adj[sval];
+		case TV_SCROLL: return scroll_adj[sval];
+		default: return (NULL);
+	}
 }

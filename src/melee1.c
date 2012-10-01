@@ -25,11 +25,14 @@ static int monster_critical(int dice, int sides, int dam)
 	int max = 0;
 	int total = dice * sides;
 
-	/* Must do at least 95% of perfect */
+	/* Must do at least 90% of perfect */
 	if (dam < total * 19 / 20) return (0);
 
+	/* Randomize. -LM- */
+	if (rand_int(3) == 0) return (0);
+
 	/* Weak blows rarely work */
-	if ((dam < 20) && (randint(100) > dam)) return (0);
+	if ((dam < 20) && (dam < randint(100))) return (0);
 
 	/* Perfect damage */
 	if (dam == total) max++;
@@ -55,13 +58,15 @@ static int monster_critical(int dice, int sides, int dam)
 
 /*
  * Determine if a monster attack against the player succeeds.
- * Now incorporates the effects of terrain. -LM-
+ * Now incorporates the effects of terrain and penalizes stunned monsters. -LM-
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level, int terrain_bonus)
+static int check_hit(int power, int level, int terrain_bonus, int m_idx)
 {
 	int i, k, ac;
+
+	monster_type *m_ptr = &m_list[m_idx];
 
 	/* Percentile dice */
 	k = rand_int(100);
@@ -69,8 +74,8 @@ static int check_hit(int power, int level, int terrain_bonus)
 	/* Hack -- Always miss or hit */
 	if (k < 10) return (k < 5);
 
-	/* Calculate the "attack quality" */
-	i = (power + (level * 3));
+	/* Calculate the "attack quality".  Stunned monsters are hindered. */
+	i = (power + (m_ptr->stunned ? level * 2 : level * 3));
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a + terrain_bonus;
@@ -196,7 +201,7 @@ static void make_request(int m_idx)
 			/* I know what I want.  Now I need to figure how much of it I 
 			 * can get away with.
 			 */
-			requested_number = o_ptr->number - rand_int(1);
+			requested_number = o_ptr->number;
 			if (requested_number > 10) 
 				requested_number = 9 + (requested_number / 5);
 
@@ -422,7 +427,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev, terrain_bonus))
+		if (!effect || check_hit(power, rlev, terrain_bonus, m_idx))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -609,12 +614,12 @@ bool make_attack_normal(int m_idx, int y, int x)
 			/* Message */
 			if (act) msg_format("%^s %s", m_name, act);
 
-			/* The undead can give the player the Black Breath with
-			 * a sucessful blow. Uniques have a better chance. -LM-
+			/* The undead can give the player the Black Breath with a 
+			 * sucessful blow. Uniques have a much better chance. -LM-
 			 */
-			if ((r_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) && 
+			if ((r_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) && 
 				(r_ptr->flags1 & (RF1_UNIQUE)) && 
-					(randint(300 - r_ptr->level) == 1))
+					(randint(250 - r_ptr->level) == 1))
 
 			{
 				msg_print("Your foe calls upon your soul!");
@@ -622,8 +627,8 @@ bool make_attack_normal(int m_idx, int y, int x)
 				p_ptr->black_breath = TRUE;
 			}
 
-			else if ((r_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) && 
-				(randint(450 - r_ptr->level) == 1))
+			else if ((r_ptr->level >= 50) && (r_ptr->flags3 & (RF3_UNDEAD)) && 
+				(randint(500 - r_ptr->level) == 1))
 			{
 				msg_print("Your foe calls upon your soul!");
 				msg_print("You feel the Black Breath slowly draining you of life...");
@@ -674,7 +679,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
+						if (set_poisoned(p_ptr->poisoned + randint((damage + 1) / 2) + (damage / 2)))
 						{
 							obvious = TRUE;
 						}
@@ -810,13 +815,18 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
+					/* Confused monsters cannot steal successfully. -LM-*/
+					if (m_ptr->confused) break;
+
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					/* Saving throw (unless paralyzed) based on dex and 
+					 * relationship between yours and monster's level.
+					 */
+					if (!p_ptr->paralyzed && (rand_int(100) < 
+						(adj_dex_safe[p_ptr->stat_ind[A_DEX]] + 
+						p_ptr->lev - (r_ptr->level / 2))))
 					{
 						/* Saving throw message */
 						msg_print("You quickly protect your money pouch!");
@@ -866,9 +876,15 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Saving throw (unless paralyzed) based on dex and level */
+					/* Confused monsters cannot steal successfully. -LM-*/
+					if (m_ptr->confused) break;
+
+					/* Saving throw (unless paralyzed) based on dex and 
+					 * relationship between yours and monster's level.
+					 */
 					if (!p_ptr->paralyzed && (rand_int(100) < 
-						(adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev)))
+						(adj_dex_safe[p_ptr->stat_ind[A_DEX]] + 
+						p_ptr->lev - (r_ptr->level / 2))))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -1227,7 +1243,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					{
 						if (p_ptr->paralyzed)
 						{
-							if (set_paralyzed(p_ptr->paralyzed + 2 + randint(rlev / 2)))
+							if (set_paralyzed(p_ptr->paralyzed + 2 + randint(rlev / 3)))
 							{
 								obvious = TRUE;
 							}
@@ -1505,7 +1521,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 				if (k) (void)set_cut(p_ptr->cut + k);
 			}
 
-			/* Handle stun */
+			/* Handle stun.  Reduced in Oangband */
 			if (do_stun)
 			{
 				int k = 0;
@@ -1518,12 +1534,12 @@ bool make_attack_normal(int m_idx, int y, int x)
 				{
 					case 0: k = 0; break;
 					case 1: k = randint(5); break;
-					case 2: k = randint(10) + 10; break;
-					case 3: k = randint(20) + 20; break;
-					case 4: k = randint(30) + 30; break;
-					case 5: k = randint(40) + 40; break;
-					case 6: k = 100; break;
-					default: k = 200; break;
+					case 2: k = randint(8) + 8; break;
+					case 3: k = randint(15) + 15; break;
+					case 4: k = randint(25) + 25; break;
+					case 5: k = randint(35) + 35; break;
+					case 6: k = 60; break;
+					default: k = 100; break;
 				}
 
 				/* Apply the stun */
