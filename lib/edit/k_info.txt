@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -450,7 +450,7 @@ D:A great, double-edged broadsword which few can wield in one hand.
 N:68:& Executioner's Sword~
 G:|:r
 I:23:28:0
-W:50:0:220:1250
+W:50:0:210:1250
 A:50/1
 P:0:4d5:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
@@ -598,7 +598,7 @@ D:to properly wield.
 N:90:& Mace~ of Disruption
 G:\:v
 I:21:20:0
-W:85:0:300:4500
+W:85:0:275:4500
 A:85/6
 P:0:4d8:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS | SLAY_UNDEAD
@@ -740,7 +740,7 @@ G:/:s
 I:22:20:0
 W:15:0:300:230
 A:15/3
-P:0:2d8:0:0:0
+P:0:3d8:0:0:0
 F:TWO_HANDED_DES | SHOW_MODS
 D:A massive, tapered spear used primarily from horseback.
 
@@ -789,7 +789,7 @@ D:a stronger foe.
 N:125:& Scythe~ of Slicing
 G:/:r
 I:22:30:0
-W:80:0:240:3500
+W:80:0:220:3500
 A:80/5
 P:0:6d4:0:10:0
 F:TWO_HANDED_DES | SHOW_MODS

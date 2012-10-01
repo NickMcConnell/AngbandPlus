@@ -177,6 +177,9 @@ void shapechange(s16b shape)
 		case SHAPE_WYRM:
 			shapedesc = "wyrm";
 			break;
+		case SHAPE_BEAR:
+			shapedesc = "bear";
+			break;
 		default:
 			msg_print("You return to your normal form.");
 			break;
@@ -437,6 +440,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 				return (TRUE);
 			}
 		}
+
+		/* Invalid repeat - reset it */
+		else repeat_clear();
 	}
 
 #endif /* ALLOW_REPEAT */
@@ -2675,7 +2681,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				take_hit(damroll(2, 8), "Death claiming his wages");
 				if (!get_aim_dir(&dir)) return;
-				fire_sphere(GF_SPIRIT, dir, 15 + plev * 3, 1, 20);
+				fire_sphere(GF_SPIRIT, dir, 15 + (7 * plev / 2), 1, 20);
 				break;
 			}
 			case 237: /* dispel life */

@@ -1767,7 +1767,41 @@ bool save_player(void)
 	return (result);
 }
 
+/*
+ * Hack
+ *
+ * Check worn items and apply sets as set data is not stored -GS-
+ */
+void check_item_sets(void)
+{
+	int j;
 
+	/* Check all equipped items. */
+	for (j=INVEN_WIELD;j<=INVEN_FEET;j++)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[j];
+
+		/* Is it an artifact? */
+		if (o_ptr->name1)
+		{
+			artifact_type *a_ptr=&a_info[o_ptr->name1];
+
+			/* Is it a set item? */
+			if (a_ptr->set_no != 0)
+			{
+
+				/* Check for complete set. */
+				if (check_set(a_ptr->set_no)) 
+				{
+
+					/* Apply set bonuses */
+					apply_set(a_ptr->set_no);
+				}
+			}
+		}
+	}
+}
 
 /*
  * Attempt to Load a "savefile"
@@ -2011,6 +2045,9 @@ bool load_player(void)
 			/* Cheat death */
 			if (arg_wizard)
 			{
+				/* Check the character for completed item sets */
+				check_item_sets();
+
 				/* A character was loaded */
 				character_loaded = TRUE;
 
@@ -2027,6 +2064,9 @@ bool load_player(void)
 			/* Done */
 			return (TRUE);
 		}
+
+		/* Check the character for completed item sets */
+		check_item_sets();
 
 		/* A character was loaded */
 		character_loaded = TRUE;

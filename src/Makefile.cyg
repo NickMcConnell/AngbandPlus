@@ -30,8 +30,8 @@ SRCS = \
 	load1.c \
 	load2.c \
 	main-win.c \
-	melee1.c \
-	melee2.c \
+	monmove.c \
+	monattk.c \
 	monster1.c \
 	monster2.c \
 	object1.c \
@@ -77,8 +77,8 @@ EXOBJS = \
 	load1.o \
 	load2.o \
 	main-win.o \
-	melee1.o \
-	melee2.o \
+	monmove.o \
+	monattk.o \
 	monster1.o \
 	monster2.o \
 	object1.o \
@@ -221,13 +221,13 @@ load2.o: load2.c $(INCS)
 main.o: main.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee1.o: melee1.c $(INCS)
+monmove.o: monmovee.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main-win.o: main-win.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee2.o: melee2.c $(INCS)
+monattk.o: monattk.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 monster1.o: monster1.c $(INCS)

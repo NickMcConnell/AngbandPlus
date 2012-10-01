@@ -1,6 +1,6 @@
 
              ****************************************************
-             **   Oangband 0.5.1b  ***   The Pits of Angband   **
+             **    Oangband 0.5.2  ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,16 +15,15 @@
 
          Oangband 0.1.0-0.4.0: Copyright (c) 1998-1999 Leon Marrick
 
-         Oangband 0.5.0-0.5.1: Copyright (c) 2000-2001 Bahman Rabii
+         Oangband 0.5.0-0.5.2: Copyright (c) 2000-2001 Bahman Rabii
 
     Send comments, bug reports, and patches to "bahman@topped-with-meat.com".
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
-         The Oangband home page is "http://www.consume.org/Oangband".
+              The Oangband home page is "http://www.oangband.com".
                            '?' for online help.
-
 === General Info ===
 
-This is the readme file for Oangband 0.5.1b (April 26, 2000)
+This is the readme file for Oangband 0.5.2 (Oct 4, 2000)
 
      Oangband is a variant of Angband, created to experiment with
 changes in melee algorithms, monster AI, spells, items, a substantial
@@ -40,14 +39,11 @@ can be found in the lib/files directory.
 
      Oangband is based on Angband 2.8.3.  I hope you will join me in a
 paean of praise to Ben Harrison, whose excellent code has made so many
-variants of Angband possible.
+variants of Angband possible.  Oangband 0.5.0 adapts a large amount of
+code from Angband 2.8.5-2.9.1.
 
-     Oangband 0.5.0 adapts a large amount of code from Angband
-2.8.5-2.9.1.
-
-     Oangband 0.5.1 was producing in collaboration between Leon
-Marrick and Bahman Rabii.
-
-     Expect another version (more than bug-fixes) in late 2001.
+     Oangband 0.5.1 was produced in collaboration between Leon
+Marrick and Bahman Rabii.  Oangband 0.5.2 features contributions from
+Leon Marrick and Gail Shaw.
 
 Bahman Rabii

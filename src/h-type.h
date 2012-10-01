@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:53 $ */
+/* CVS: Last edit by $Author: bahman $ on $Date: 2001/10/10 17:12:30 $ */
 /* File: h-type.h */
 
 #ifndef INCLUDED_H_TYPE_H

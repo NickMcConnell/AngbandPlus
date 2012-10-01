@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 
 #N: monster index: name
@@ -8606,7 +8606,7 @@ D:became little more than a mindless creature of evil.
 
 N:720:Quaker, Master of Earth
 G:E:u
-I:110:15d1000:10:50:90
+I:110:15d100:10:50:90
 W:53:3:81:7000
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
@@ -9737,7 +9737,7 @@ B:TOUCH:HURT:4d14
 B:TOUCH:EXP_40:1d5
 B:TOUCH:HURT:4d14
 F:UNIQUE | PLAYER_GHOST | 
-D:FORCE_MAXHP | SMART | 
+F:FORCE_MAXHP | SMART | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_SLEEP | 
 F:ONLY_ITEM | DROP_90 | DROP_CHEST | 

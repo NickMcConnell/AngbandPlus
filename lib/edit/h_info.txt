@@ -22,6 +22,7 @@
 #  Maia          --> 25 --> 26 --> 67 --> 68
 #   Shadow Fairy  --> 28 --> 29 --> 69 --> 70 --> 71 --> 72
 #   Ent           --> 31 --> 32 --> 74 --> 75 --> 76
+#   Beorning      -->  80 -->  81 -->  3 --> 50 --> 51 --> 52 --> 53
 #
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -31,7 +32,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -508,3 +509,26 @@ D:ridged black skin.
 N:76:0:100:50
 D:thick, almost corky skin.
 
+N:80:81:10:25
+D:You are the illegitimate and unacknowledged child 
+N:80:81:20:35
+D:You are the illegitimate but acknowledged child 
+N:80:81:95:45
+D:You are one of several children 
+N:80:81:100:50
+D:You are the first child 
+
+N:81:3:40:65
+D:of a Villager.  
+N:81:3:65:80
+D:of a solitary Trapper.  
+N:81:3:80:90
+D:of a respected Hunter.  
+N:81:3:90:105
+D:of prosperous Woodfolk.  
+N:81:3:96:120
+D:of a Ranger.  
+N:81:3:99:130
+D:of a Druid.  
+N:81:3:100:140
+D:of Beorn himself.  

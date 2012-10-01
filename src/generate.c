@@ -6713,7 +6713,7 @@ static void cave_gen(void)
 					y = rand_int(DUNGEON_HGT);
 					x = rand_int(DUNGEON_WID);
 
-					if (cave_naked_bold(y, x)) break;
+					if (cave_exist_mon(r_ptr, y, x, FALSE)) break;
 				}
 
 				/* Place the questor */

@@ -1296,9 +1296,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
-		/* Update the flow */
-		p_ptr->update |= (PU_UPDATE_FLOW);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 	}
@@ -1328,9 +1325,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
-
-		/* Update the flow */
-		p_ptr->update |= (PU_UPDATE_FLOW);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
@@ -1456,26 +1450,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
 
-	/* Require passable terrain, with no other creature or player. */
-	if (!cave_passable_bold(y, x)) return (FALSE);
-	if (cave_m_idx[y][x] != 0) return (FALSE);
-
-	/* Hack -- no creation on glyph of warding */
-	if (cave_feat[y][x] == FEAT_GLYPH) return (FALSE);
-
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
-
-	/* Hack -- Demons & creatures who breathe fire cannot appear on water. */
-	if ((cave_feat[y][x] == FEAT_WATER) && 
-		((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BRTH_FIRE)))) 
-		return (FALSE);
-
-	/* Hack -- Only creatures resistant to fire may appear on lava. */
-	if ((cave_feat[y][x] == FEAT_LAVA) && (!(r_ptr->flags3 & (RF3_IM_FIRE)))) 
-		return (FALSE);
-
+	/* The monster must be able to exist in this grid */
+	if (!cave_exist_mon(r_ptr, y, x, FALSE)) return (FALSE);
 
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
@@ -1545,14 +1524,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	}
 
 
-	/* Initialize WDT variables */
-#ifdef WDT_TRACK_OPTIONS
-	n_ptr->ty=0;
-	n_ptr->tx=0;
-	n_ptr->t_dur=0;
-	n_ptr->t_bit=0;
-#endif
-
 	/* Initialize distance at which monster likes to operate */
 
 	/* Mark minimum range for recalculation */
@@ -1579,26 +1550,19 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	}
 
 
-	/* Give a random starting energy */
-	n_ptr->energy = (byte)rand_int(100);
-
-	/* Force monster to wait for player */
-	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
-	{
-		/* Monster is still being nice */
-		n_ptr->mflag |= (MFLAG_NICE);
-
-		/* Optimize -- Repair flags */
-		repair_mflag_nice = TRUE;
+  	/* Force monster to wait for player */
+  	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
+  	{
+		/* Give a random starting energy */
+		n_ptr->energy = 0;
 	}
-
-	/* Monster is still being born */
-	n_ptr->mflag |= (MFLAG_BORN);
-
-	/* Optimize -- Repair flags */
-	repair_mflag_born = TRUE;
-
-	/* Place the monster in the dungeon */
+	else
+	{
+		/* Give a random starting energy */
+		n_ptr->energy = rand_int(50);
+  	}
+  
+  	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
 
 	/* Monster generation messages for cheaters */
@@ -1951,10 +1915,26 @@ bool place_monster(int y, int x, bool slp, bool grp, bool quick)
  */
 bool alloc_monster(int dis, bool slp, bool quick)
 {
+	monster_race *r_ptr;
+
+	int r_idx;
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int y, x;
+
+	/* Pick a monster - regular method */
+	if (!quick) r_idx = get_mon_num(monster_level);
+
+	/* Pick a monster - quick method */
+	else r_idx = get_mon_num_quick(monster_level);
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+
+	/* Get the monster */
+	r_ptr = &r_info[r_idx];
 
 	/* Find a legal, distant, unoccupied, space */
 	while (TRUE)
@@ -1963,8 +1943,8 @@ bool alloc_monster(int dis, bool slp, bool quick)
 		y = rand_int(DUNGEON_HGT);
 		x = rand_int(DUNGEON_WID);
 
-		/* Require "naked" floor grid */
-		if (!cave_naked_bold(y, x)) continue;
+		/* Require a grid that the monster can exist in. */
+		if (!cave_exist_mon(r_ptr, y, x, FALSE)) continue;
 
 		/* Do not put random monsters in marked rooms. */
 		if ((!character_dungeon) && (cave_info[y][x] & (CAVE_TEMP))) 
@@ -1974,9 +1954,8 @@ bool alloc_monster(int dis, bool slp, bool quick)
 		if ((dis == 0) || (distance(y, x, py, px) > dis)) break;
 	}
 
-	/* Attempt to place the monster, allow groups */
-	if (place_monster(y, x, slp, TRUE, quick)) return (TRUE);
-
+	/* Attempt to place the monster, allow groups  */
+	if (place_monster_aux(y, x, r_idx, slp, TRUE)) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -2408,9 +2387,6 @@ void message_pain(int m_idx, int dam)
  */
 void update_smart_learn(int m_idx, int what)
 {
-
-#ifdef DRS_SMART_OPTIONS
-
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2764,8 +2740,5 @@ void update_smart_learn(int m_idx, int what)
 		}
 
 	}
-
-#endif /* DRS_SMART_OPTIONS */
-
 }
 

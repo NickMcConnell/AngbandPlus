@@ -3506,6 +3506,17 @@ bool repeat_pull(int *what)
 	return (TRUE);
 }
 
+void repeat_clear()
+{
+	/* Start over from the failed pull */
+	if (repeat__idx) repeat__cnt = --repeat__idx;
+
+	/* Paranioa */
+	else repeat__cnt = repeat__idx;
+
+	return;
+}
+
 /*
  * From Tim Baker's Easy Patch.
  */

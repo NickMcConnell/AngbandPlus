@@ -1152,6 +1152,23 @@ static void prt_num(cptr header, int num, int row, int col, byte color)
 	c_put_str(color, out_val, row, col + len);
 }
 
+/*
+ * Print decimal number with header at given row, column
+ */
+static void prt_deci(cptr header, int num, int deci, int row, int col, byte color)
+{
+	int len = strlen(header);
+	char out_val[32];
+	put_str(header, row, col);
+	put_str("   ", row, col + len);
+	sprintf(out_val, "%8ld", (long)deci);
+	c_put_str(color, out_val, row, col + len);
+	sprintf(out_val, "%6ld", (long)num);
+	c_put_str(color, out_val, row, col + len);
+	sprintf(out_val, ".");
+	c_put_str(color, out_val, row, col + len + 6);
+}
+
 
 
 /*
@@ -1196,7 +1213,7 @@ static void display_player_middle(void)
 	if (object_known_p(o_ptr)) show_a_todam += o_ptr->to_d;
 
 	put_str("       (Shooting)    ", 12, 53);
-	prt_num("Shots/Round      ", p_ptr->num_fire, 13, 53, TERM_L_BLUE);
+	prt_deci("Shots/Round    ", p_ptr->num_fire/10, p_ptr->num_fire%10, 13, 53, TERM_L_BLUE);
 	prt_num("+ to Skill       ", show_a_tohit, 14, 53, TERM_L_BLUE);
 	if (show_a_todam > 0)
 		prt_num("Deadliness (%)   ", deadliness_conversion[show_a_todam], 15, 53, TERM_L_BLUE);
@@ -1478,6 +1495,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 		/* Shapechange, if any. */
 		switch (p_ptr->schange)
 		{
+			case SHAPE_BEAR:
 			case SHAPE_NORMAL:
 			{
 				break;
@@ -1621,7 +1639,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
  * We do not include AGGRAVATE, which is inherantly bad.  We only use
  * 'reversed' effects.
  *
- * The only effect that we *do* include are those which either totally
+ * The only effects that we *do* include are those which either totally
  * negate a resist/ability or those which have a negatively effective
  * pval.
  *
@@ -1652,6 +1670,7 @@ void player_weakness_dis(u32b *f1, u32b *f2, u32b *f3)
 		case SHAPE_LION:
 		case SHAPE_BAT:
 		case SHAPE_WEREWOLF:
+		case SHAPE_BEAR:
 		{
 			(*f1) |= (TR1_MAGIC_MASTERY);
 			break;

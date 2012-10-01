@@ -3369,6 +3369,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_list[24];
 	int floor_num;
 
+#ifdef ALLOW_REPEAT
+
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
@@ -3384,7 +3386,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Success */
 			return (TRUE);
 		}
+
+		/* Invalid repeat - reset it */
+		else repeat_clear();
 	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -3573,13 +3580,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (!p_ptr->command_see) strcat(out_val, " * to see,");
 
 			/* Indicate that equipment items are available */
-			if (use_equip) strcat(out_val, " / for equip,");
+			if (use_equip) strcat(out_val, " / equip,");
 
 			/* Indicate that floor items are available */
-			if (allow_floor) strcat(out_val, " - for floor,");
+			if (allow_floor) strcat(out_val, " - floor, . floor top,");
 
 			/* Indicate that selecting all SQUELCHED items is an option */
-			if (can_squelch) strcat(out_val, " ! for all SQUELCHED,");
+			if (can_squelch) strcat(out_val, " ! all SQUELCHED,");
 		}
 
 		/* Viewing equipment */
@@ -3605,13 +3612,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (!p_ptr->command_see) strcat(out_val, " * to see,");
 
 			/* Append */
-			if (use_inven) strcat(out_val, " / for inven,");
+			if (use_inven) strcat(out_val, " / inven,");
 
 			/* Append */
-			if (allow_floor) strcat(out_val, " - for floor,");
+			if (allow_floor) strcat(out_val, " - floor, . floor top,");
 
 			/* Indicate that selecting all SQUELCHED items is an option */
-			if (can_squelch) strcat(out_val, " ! for all SQUELCHED,");
+			if (can_squelch) strcat(out_val, " ! all SQUELCHED,");
 		}
 
 		/* Viewing floor */
@@ -3627,7 +3634,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (f1 > f2) sprintf(tmp_val, " (none),");
 
 			/* List choices. */
-			else sprintf(tmp_val, " %c-%c, . for a,", I2A(f1-f1), I2A(f2-f1));
+			else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
 
 			/* Append */
 			strcat(out_val, tmp_val);
@@ -3638,15 +3645,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Append */
 			if (use_inven)
 			{
-				strcat(out_val, " / for inven,");
+				strcat(out_val, " / inven,");
 			}
 			else if (use_equip)
 			{
-				strcat(out_val, " / for equip,");
+				strcat(out_val, " / equip,");
 			}
 
 			/* Indicate that selecting all SQUELCHED items is an option */
-			if (can_squelch) strcat(out_val, " ! for SQUELCH,");
+			if (can_squelch) strcat(out_val, " ! all SQUELCHED,");
 		}
 
 		/* Finish the prompt */
@@ -3783,11 +3790,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '.':
 			{
 				/*
-				 * If we are already examining the floor, select it
+				 * If we are allow to use the floor, select
 				 * the top item. -BR-
 				 */
-				/* Hack -- Auto-Select */
-				if (p_ptr->command_wrk == (USE_FLOOR))
+				if (allow_floor)
 				{
 				        /* Special index */
 				        k = 0 - floor_list[0];
@@ -4190,7 +4196,137 @@ extern bool destroy_squelched_items(void)
 	return (count != 0);
 }
 
+/* Set Item Code */
 
+/*
+ * Determin if a given Set of artifacts is being used by the player.
+ */
+extern bool check_set(byte s_idx)
+{
+	byte count = 0;
+	byte i;
+	set_type *s_ptr = &s_info[s_idx];;
 
+	for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
+	{
+		object_type *o_ptr=&inventory[i];
+		if (o_ptr->name1)
+		{
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			if (a_ptr->set_no==s_idx)
+			{
+				count++;
+			}
+		}
+	}
+	
+	return (count==s_ptr->no_of_items);
+}
 
+/*
+ * Apply bonuses for complete artifact sets.
+ */
+extern void apply_set(int s_idx)
+{
+	set_type *s_ptr = &s_info[s_idx];
+        
+	bool bonus_applied = FALSE;
 
+	byte i, j;
+
+	for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Is it an artifact? */
+		if (o_ptr->name1)
+		{
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+			/* Is it in the correct set? */ 
+			if (a_ptr->set_no==s_idx)
+			{
+
+				/* Loop through set elements */
+				for (j=0;j<(s_ptr->no_of_items);j++)
+				{
+				
+					set_element *se_ptr = &s_ptr->set_items[j];
+
+					/* Correct Element? */
+					if (se_ptr->a_idx == o_ptr->name1)
+					{
+
+						/* Bonus already applied? */
+						if (!(a_ptr->set_bonus))
+						{
+							a_ptr->flags1 |= se_ptr->flags1;
+							a_ptr->flags2 |= se_ptr->flags2;
+							a_ptr->flags3 |= se_ptr->flags3;
+							o_ptr->pval += se_ptr->pval;
+							a_ptr->set_bonus = TRUE;
+							bonus_applied = TRUE;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/* Notify */
+	if (bonus_applied) msg_print("Item set completed!");
+}
+
+/*
+ * Remove bonuses for no-longer-complete artifact sets.
+ */
+extern void remove_set(int s_idx)
+{
+	set_type *s_ptr = &s_info[s_idx];
+
+	bool bonus_removed = FALSE;
+
+	byte i, j;
+
+	for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Is it an artifact? */
+		if (o_ptr->name1)
+		{
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+			/* Is it in the correct set? */ 
+			if (a_ptr->set_no==s_idx)
+			{
+
+				/* Loop through set elements */
+				for (j=0;j<(s_ptr->no_of_items);j++)
+				{
+				
+					set_element *se_ptr = &s_ptr->set_items[j];
+
+					/* Correct Element? */
+					if (se_ptr->a_idx == o_ptr->name1)
+					{
+
+						/* Is the bonus really there? */
+						if (a_ptr->set_bonus)
+						{
+							a_ptr->flags1 &= ~se_ptr->flags1;
+							a_ptr->flags2 &= ~se_ptr->flags2;
+							a_ptr->flags3 &= ~se_ptr->flags3;
+							o_ptr->pval = a_ptr->pval;
+							a_ptr->set_bonus = FALSE;
+							bonus_removed = TRUE;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/* Notify */
+	if (bonus_removed) msg_print("Item set no longer completed.");
+}

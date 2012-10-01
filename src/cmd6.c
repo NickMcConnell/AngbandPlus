@@ -4058,8 +4058,7 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_IDENTIFY:
 		{
 			msg_print("You unveil hidden secrets.");
-			(void)ident_spell();
-			o_ptr->timeout = 30;
+			if (ident_spell()) o_ptr->timeout = 30;
 			break;
 		}
 		case ACT_RANDOM_SPEED:

@@ -2392,7 +2392,7 @@ static void spoil_mon_info(cptr fname)
 		if (breath || magic)
 		{
 			sprintf(buf, "; 1 time in %d.  ",
-				200 / (r_ptr->freq_inate + r_ptr->freq_spell));
+				100 / (r_ptr->freq_ranged));
 			spoil_out(buf);
 		}
 

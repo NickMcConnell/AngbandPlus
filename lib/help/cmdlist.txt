@@ -56,7 +56,7 @@ mation about any command, consult the help file "cmddesc.txt".
  {  Inscribe an object                  ^K  (unused)
  }  Uninscribe an object                ^L  (unused)
  [  (unused)                            ^M  (special - return)
- ]  end shapechange                     ^N  (unused)
+ ]  end/default shapechange             ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
  +  Alter grid*                         ^Q  (unused)

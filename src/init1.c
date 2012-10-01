@@ -427,7 +427,7 @@ static cptr p_info_flags_sp[] =
 	"DIVINE",
 	"SHADOW",
 	"WOODEN",
-	"XXX7",
+	"BEARSKIN",
 	"XXX8",
 	"XXX9",
 	"XX10",
@@ -2500,7 +2500,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 				if (1 == sscanf(s, "1_IN_%d", &i))
 				{
 					/* Extract a "frequency" */
-					r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
+					r_ptr->freq_ranged = 100 / i;
 
 					/* Start at next entry */
 					s = t;

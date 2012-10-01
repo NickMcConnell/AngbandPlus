@@ -285,7 +285,7 @@ cptr obj_special_info[6][50] =
 		"",				/*  */
 		"",				/* Teleport Away */
 		"(chance: 95%)",		/* Disarming */
-		"(damage: 4 - 28)",	/* Light */
+		"(damage: 4 - 20)",	/* Light */
 		"",				/* Sleep Monster */
 		"",				/* Slow Monster */
 		"(damage: 45 - 120)",	/* Drain Life */
@@ -647,9 +647,9 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 	cptr baseinfo = "";
 
 
-
+	
 	/* Standard artifacts have unique descriptions. */
-	if ((artifact_p(o_ptr)) && (o_ptr->name1 < ART_MIN_RANDOM))
+	if ((artifact_p(o_ptr)) && (o_ptr->name1 < ART_MIN_RANDOM) && (object_known_p(o_ptr)))
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1688,7 +1688,6 @@ void identify_fully_aux(object_type *o_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-
 	/* Describe activation, if present. */
 	if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION)
 	{
@@ -2520,6 +2519,9 @@ void self_knowledge(void)
 		case SHAPE_WYRM:
 			info[i++] = "You are wearing the body of a small dragon.";
 			break;
+		case SHAPE_BEAR:
+			info[i++] = "You are wearing the body of a bear.";
+			break;
 	}
 
 	if (p_ptr->blind)
@@ -3200,7 +3202,7 @@ void spell_info(char *p, int spell_index)
 		case 231: strcpy(p, " dur d66"); break;
 		case 233: strcpy(p, " dur 10+d20"); break;
 		case 235: sprintf(p, " dam %dd11", 3 * plev / 5); break;
-		case 236: sprintf(p, " dam %d, hurt 2d8", 15 + plev * 3); break;
+		case 236: sprintf(p, " dam %d, hurt 2d8", 15 + (7 * plev / 2)); break;
 		case 237: sprintf(p, " dam %d+d%d", 60, plev * 2); break;
 		case 238: sprintf(p, " dam %dd11, heal %d", plev / 3, 3 * plev); break;
 		case 240: strcpy(p, " hurt 2d7"); break;

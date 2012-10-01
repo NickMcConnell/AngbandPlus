@@ -343,6 +343,134 @@ bool cave_valid_bold(int y, int x)
 }
 
 
+/* 
+ * Table of breath colors.  Must match listings in a single set of 
+ * monster spell flags.
+ *
+ * The value "255" is special.  Monsters with that kind of breath 
+ * may be any color.
+ */
+static byte breath_to_attr[32][2] = 
+{
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  TERM_SLATE, TERM_L_DARK },       /* RF4_BRTH_ACID */
+	{  TERM_BLUE,  TERM_L_BLUE },       /* RF4_BRTH_ELEC */
+	{  TERM_RED,  TERM_L_RED },         /* RF4_BRTH_FIRE */
+	{  TERM_WHITE,  TERM_L_WHITE },     /* RF4_BRTH_COLD */
+	{  TERM_GREEN,  TERM_L_GREEN },     /* RF4_BRTH_POIS */
+	{  TERM_ORANGE,  TERM_RED },        /* RF4_BRTH_PLAS */
+	{  TERM_YELLOW,  TERM_ORANGE },     /* RF4_BRTH_LITE */
+	{  TERM_L_DARK,  TERM_SLATE },      /* RF4_BRTH_DARK */
+	{  TERM_L_UMBER,  TERM_UMBER },     /* RF4_BRTH_CONFU */
+	{  TERM_YELLOW,  TERM_L_UMBER },    /* RF4_BRTH_SOUND */
+	{  TERM_UMBER,  TERM_L_UMBER },     /* RF4_BRTH_SHARD */
+	{  TERM_L_WHITE,  TERM_SLATE },     /* RF4_BRTH_INER */
+	{  TERM_L_WHITE,  TERM_SLATE },     /* RF4_BRTH_GRAV */
+	{  TERM_UMBER,  TERM_L_UMBER },     /* RF4_BRTH_FORCE */
+	{  TERM_L_RED,  TERM_VIOLET },      /* RF4_BRTH_NEXUS */
+	{  TERM_L_GREEN,  TERM_GREEN },     /* RF4_BRTH_NETHR */
+	{  255,  255 },   /* (any color) */ /* RF4_BRTH_CHAOS */
+	{  TERM_VIOLET,  TERM_VIOLET },     /* RF4_BRTH_DISEN */
+	{  TERM_L_BLUE,  TERM_L_BLUE },     /* RF4_BRTH_TIME */
+	{  0,  0 },     /*  */
+	{  0,  0 },     /*  */
+	{  0,  0 },     /*  */
+	{  0,  0 },     /*  */
+	{  0,  0 }      /*  */
+};
+
+
+/*
+ * Multi-hued monsters shimmer acording to their breaths.
+ *
+ * If a monster has only one kind of breath, it uses both colors 
+ * associated with that breath.  Otherwise, it just uses the first 
+ * color for any of its breaths.
+ *
+ * If a monster does not breath anything, it can be any color.
+ */
+static byte multi_hued_attr(monster_race *r_ptr)
+{
+	byte allowed_attrs[15];
+
+	int i, j;
+
+	int stored_colors = 0;
+	int breaths = 0;
+	int first_color = 0;
+	int second_color = 0;
+
+
+	/* Monsters with no ranged attacks can be any color */
+	if (!r_ptr->freq_ranged) return (randint(15));
+
+	/* Check breaths */
+	for (i = 0; i < 32; i++)
+	{
+		bool stored = FALSE;
+
+		/* Don't have that breath */
+		if (!(r_ptr->flags4 & (1L << i))) continue;
+
+		/* Get the first color of this breath */
+		first_color = breath_to_attr[i][0];
+
+		/* Breath has no color associated with it */
+		if (first_color == 0) continue;
+
+		/* Monster can be of any color */
+		if (first_color == 255) return (randint(15));
+
+
+		/* Increment the number of breaths */
+		breaths++;
+
+		/* Monsters with lots of breaths may be any color. */
+		if (breaths == 6) return (randint(15));
+
+
+		/* Always store the first color */
+		for (j = 0; j < stored_colors; j++)
+		{
+			/* Already stored */
+			if (allowed_attrs[j] == first_color) stored = TRUE;
+		}
+		if (!stored)
+		{
+			allowed_attrs[stored_colors] = first_color;
+			stored_colors++;
+		}
+
+		/* 
+		 * Remember (but do not immediately store) the second color 
+		 * of the first breath.
+		 */
+		if (breaths == 1)
+		{
+			second_color = breath_to_attr[i][1];
+		}
+	}
+
+	/* Monsters with no breaths may be of any color. */
+	if (breaths == 0) return (randint(15));
+
+	/* If monster has one breath, store the second color too. */
+	if (breaths == 1)
+	{
+		allowed_attrs[stored_colors] = second_color;
+		stored_colors++;
+	}
+
+	/* Pick a color at random */
+	return (allowed_attrs[rand_int(stored_colors)]);
+}
 
 /*
  * Hack -- Legal monster codes
@@ -518,7 +646,7 @@ bool feat_supports_lighting(byte feat)
  * floors", which is stored in "f_info[FEAT_FLOOR]".  Sometimes, special
  * lighting effects may cause this picture to be modified.
  *
- * Note that "invisible traps" are always displayes exactly like "empty
+ * Note that "invisible traps" are always displayed exactly like "empty
  * floors", which prevents various forms of "cheating", with no loss of
  * efficiency.  There are still a few ways to "guess" where traps may be
  * located, for example, objects will never fall into a grid containing
@@ -969,7 +1097,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
 			{
 				/* Multi-hued attr */
-				a = randint(15);
+				a = multi_hued_attr(r_ptr);
 
 				/* Normal char */
 				c = dc;
@@ -3031,219 +3159,411 @@ void update_view(void)
 
 
 
-#ifdef MONSTER_FLOW
-
 /*
- * Size of the circular queue used by "update_flow()"
- */
-#define FLOW_MAX 2048
-
-/*
- * Hack -- provide some "speed" for the "flow" code
- * This entry is the "current index" for the "when" field
- * Note that a "when" value of "zero" means "not used".
+ * Every so often, the character makes enough noise that nearby 
+ * monsters can use it to home in on him.
  *
- * Note that the "cost" indexes from 1 to 127 are for
- * "old" data, and from 128 to 255 are for "new" data.
+ * Fill in the "cave_cost" field of every grid that the player can 
+ * reach with the number of steps needed to reach that grid.  This 
+ * also yields the route distance of the player from every grid.
  *
- * This means that as long as the player does not "teleport",
- * then any monster up to 128 + MONSTER_FLOW_DEPTH will be
- * able to track down the player, and in general, will be
- * able to track down either the player or a position recently
- * occupied by the player.
+ * Monsters use this information by moving to adjacent grids with 
+ * lower flow costs, thereby homing in on the player even though 
+ * twisty tunnels and mazes.  Monsters can also run away from loud 
+ * noises.
+ *
+ * The biggest limitation of this code is that it does not easily 
+ * allow for alternate ways around doors (not all monsters can handle 
+ * doors) and lava/water (many monsters are not allowed to enter 
+ * water, lava, or both).
+ *
+ * The flow table is three-dimensional.  The first dimension allows the 
+ * table to both store and overwrite grids safely.  The second indicates 
+ * whether this value is that for x or for y.  The third is the number 
+ * of grids able to be stored at any flow distance.
  */
-static int flow_save = 0;
-
-#endif /* MONSTER_FLOW */
-
-
-
-/*
- * Hack -- forget the "flow" information
- */
-void forget_flow(void)
+void update_noise(void)
 {
-
 #ifdef MONSTER_FLOW
+	int cost;
+	int route_distance = 0;
 
-	int x, y;
+	int i, d;
+	int y, x, y2, x2;
+	int last_index;
+	int grid_count = 0;
 
-	/* Nothing to forget */
-	if (!flow_save) return;
+	int dist;
+	bool full = FALSE;
 
-	/* Check the entire dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	/* Note where we get information from, and where we overwrite */
+	int this_cycle = 0;
+	int next_cycle = 1;
+
+	int flow_table_size = 8 * NOISE_STRENGTH;
+	byte flow_table[2][2][flow_table_size];
+
+	/* The character's grid has no flow info.  Do a full rebuild. */
+	if (cave_cost[p_ptr->py][p_ptr->px] == 0) full = TRUE;
+
+	/* Determine when to rebuild, update, or do nothing */
+	if (!full)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		dist = ABS(p_ptr->py - flow_center_y);
+		if (ABS(p_ptr->px - flow_center_x) > dist)
+			dist = ABS(p_ptr->px - flow_center_x);
+
+		/*
+		 * Character is far enough away from the previous flow center - 
+		 * do a full rebuild.
+		 */
+		if (dist >= 15) full = TRUE;
+
+		else
 		{
-			/* Forget the old data */
-			cave_cost[y][x] = 0;
-			cave_when[y][x] = 0;
+			/* Get axis distance to center of last update */
+			dist = ABS(p_ptr->py - update_center_y);
+			if (ABS(p_ptr->px - update_center_x) > dist)
+				dist = ABS(p_ptr->px - update_center_x);
+
+			/*
+			 * We probably cannot decrease the center cost any more.
+			 * We should assume that we have to do a full rebuild.
+			 */
+			if (cost_at_center - (dist + 5) <= 0) full = TRUE;
+
+
+			/* Less than five grids away from last update */
+			else if (dist < 5)
+			{
+				/* We're in LOS of the last update - don't update again */
+				if (los(p_ptr->py, p_ptr->px, update_center_y, 
+		 		    update_center_x)) return;
+
+				/* We're not in LOS - update */
+				else full = FALSE;
+			}
+
+			/* Always update if at least five grids away */
+			else full = FALSE;
 		}
 	}
 
-	/* Start over */
-	flow_save = 0;
-
-#endif
-
-}
-
-#ifdef MONSTER_FLOW
-
-/*
- * Hack - speed up the update_flow algorithm by only doing
- * it everytime the player moves out of LOS of the last
- * "way-point".
- */
-static u16b last_flow_x = 0;
-static u16b last_flow_y = 0;
-
-
-#endif /* MONSTER_FLOW */
-
-/*
- * Hack -- fill in the "cost" field of every grid that the player can
- * "reach" with the number of steps needed to reach that grid.  This
- * also yields the "distance" of the player from every grid.
- *
- * In addition, mark the "when" of the grids that can reach the player
- * with the incremented value of "flow_save".
- *
- * Hack -- use the local "flow_y" and "flow_x" arrays as a "circular
- * queue" of cave grids.
- *
- * We do not need a priority queue because the cost from grid to grid
- * is always "one" (even along diagonals) and we process them in order.
- */
-void update_flow(void)
-{
-
-#ifdef MONSTER_FLOW
-
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int ty, tx;
-
-	int y, x;
-
-	int n, d;
-
-	int flow_n;
-
-	int flow_tail = 0;
-	int flow_head = 0;
-
-	byte flow_y[FLOW_MAX];
-	byte flow_x[FLOW_MAX];
-
-	int max = (fast_flow ? FAST_FLOW_DEPTH : MONSTER_FLOW_DEPTH)-1;
-
-	/* 
-	 * The last way-point is in sight, and we are
-	 * using simple flowing, and some flow is already saved.
-	 * Skip recalculating flow this time.
-	 */
-	if ((fast_flow) && (flow_save) &&
-	    (player_has_los_bold(last_flow_y, last_flow_x)))
-	  return;
-
-	/* Save player position */
-	last_flow_y = py;
-	last_flow_x = px;
-
-	/*** Cycle the flow ***/
-
-	/* Cycle the flow */
-	if (flow_save++ == 255)
+	/* Update */
+	if (!full)
 	{
-		/* Cycle the flow */
+		bool found = FALSE;
+
+		/* Start at the character's location */
+		flow_table[this_cycle][0][0] = p_ptr->py;
+		flow_table[this_cycle][1][0] = p_ptr->px;
+		grid_count = 1;
+
+		/* Erase outwards until we hit the previous update center */
+		for (cost = 0; cost <= NOISE_STRENGTH; cost++)
+		{
+			/*
+			 * Keep track of the route distance to the previous 
+			 * update center.
+			 */
+			route_distance++;
+
+
+			/* Get the number of grids we'll be looking at */
+			last_index = grid_count;
+
+			/* Clear the grid count */
+			grid_count = 0;
+
+			/* Get each valid entry in the flow table in turn */
+			for (i = 0; i < last_index; i++)
+			{
+				/* Get this grid */
+				y = flow_table[this_cycle][0][i];
+				x = flow_table[this_cycle][1][i];
+
+				/* Look at all adjacent grids */
+				for (d = 0; d < 8; d++)
+				{
+					/* Child location */
+					y2 = y + ddy_ddd[d];
+					x2 = x + ddx_ddd[d];
+
+					/* Check Bounds */
+					if (!in_bounds(y2, x2)) continue;
+
+					/* Ignore illegal grids */
+					if (cave_cost[y2][x2] == 0) continue;
+
+					/* Ignore previously erased grids */
+					if (cave_cost[y2][x2] == 255) continue;
+
+					/* Erase previous info, mark grid */
+					cave_cost[y2][x2] = 255;
+
+					/* Store this grid in the flow table */
+					flow_table[next_cycle][0][grid_count] = y2;
+					flow_table[next_cycle][1][grid_count] = x2;
+
+					/* Increment number of grids stored */
+					grid_count++;
+
+					/* If this is the previous update center, we can stop */
+					if ((y2 == update_center_y) && 
+						(x2 == update_center_x)) found = TRUE;
+				}
+			}
+
+			/* Stop when we find the previous update center. */
+			if (found) break;
+
+
+			/* Swap write and read portions of the table */
+			if (this_cycle == 0)
+			{
+				this_cycle = 1;
+				next_cycle = 0;
+			}
+			else
+			{
+				this_cycle = 0;
+				next_cycle = 1;
+			}
+		}
+
+		/*
+		 * Reduce the flow cost assigned to the new center grid by 
+		 * enough to maintain the correct cost slope out to the range 
+		 * we have to update the flow.
+		 */
+		cost_at_center -= route_distance;
+
+		/* We can't reduce the center cost any more.  Do a full rebuild. */
+		if (cost_at_center < 0) full = TRUE;
+
+		else
+		{
+			/* Store the new update center */
+			update_center_y = p_ptr->py;
+			update_center_x = p_ptr->px;
+		}
+	}
+
+
+	/* Full rebuild */
+	if (full)
+	{
+		/*
+		 * Set the initial cost to 100; updates will progressively 
+		 * lower this value.  When it reaches zero, another full 
+		 * rebuild has to be done.
+		 */
+		cost_at_center = 100;
+
+		/* Save the new noise epicenter */
+		flow_center_y = p_ptr->py;
+		flow_center_x = p_ptr->px;
+		update_center_y = p_ptr->py;
+		update_center_x = p_ptr->px;
+
+
+		/* Erase all of the current flow (noise) information */
 		for (y = 0; y < DUNGEON_HGT; y++)
 		{
 			for (x = 0; x < DUNGEON_WID; x++)
 			{
-				int w = cave_when[y][x];
-				cave_when[y][x] = (w >= 128) ? (w - 128) : 0;
+				cave_cost[y][x] = 0;
+			}
+		}
+	}
+
+
+	/*** Update or rebuild the flow ***/
+
+
+	/* Store base cost at the character location */
+	cave_cost[p_ptr->py][p_ptr->px] = cost_at_center;
+
+	/* Store this grid in the flow table, note that we've done so */
+	flow_table[this_cycle][0][0] = p_ptr->py;
+	flow_table[this_cycle][1][0] = p_ptr->px;
+	grid_count = 1;
+
+	/* Extend the noise burst out to its limits */
+	for (cost = cost_at_center + 1; cost <= cost_at_center + NOISE_STRENGTH; cost++)
+	{
+		/* Get the number of grids we'll be looking at */
+		last_index = grid_count;
+
+		/* Stop if we've run out of work to do */
+		if (last_index == 0) break;
+
+		/* Clear the grid count */
+		grid_count = 0;
+
+		/* Get each valid entry in the flow table in turn. */
+		for (i = 0; i < last_index; i++)
+		{
+			/* Get this grid */
+			y = flow_table[this_cycle][0][i];
+			x = flow_table[this_cycle][1][i];
+
+			/* Look at all adjacent grids */
+			for (d = 0; d < 8; d++)
+			{
+				/* Child location */
+				y2 = y + ddy_ddd[d];
+				x2 = x + ddx_ddd[d];
+
+				/* Check Bounds */
+				if (!in_bounds(y2, x2)) continue;
+
+				/* When doing a rebuild... */
+				if (full)
+				{
+					/* Ignore previously marked grids */
+					if (cave_cost[y2][x2]) continue;
+
+					/* Ignore walls.  Do not ignore rubble. */
+					if ((cave_feat[y2][x2] > FEAT_RUBBLE) && 
+					    (cave_feat[y2][x2] < FEAT_SHOP_HEAD)) 
+					{
+						continue;
+					}
+				}
+
+				/* When doing an update... */
+				else
+				{
+					/* Ignore all but specially marked grids */
+					if (cave_cost[y2][x2] != 255) continue;
+				}
+
+				/* Store cost at this location */
+				cave_cost[y2][x2] = cost;
+
+				/* Store this grid in the flow table */
+				flow_table[next_cycle][0][grid_count] = y2;
+				flow_table[next_cycle][1][grid_count] = x2;
+
+				/* Increment number of grids stored */
+				grid_count++;
 			}
 		}
 
-		/* Restart */
-		flow_save = 128;
-	}
-
-	/* Local variable */
-	flow_n = flow_save;
-
-
-	/*** Player Grid ***/
-
-	/* Save the time-stamp */
-	cave_when[py][px] = flow_n;
-
-	/* Save the flow cost */
-	cave_cost[py][px] = 0;
-
-	/* Enqueue that entry */
-	flow_y[flow_head] = py;
-	flow_x[flow_head] = px;
-
-	/* Advance the queue */
-	++flow_tail;
-
-	/*** Process Queue ***/
-
-	/* Now process the queue */
-	while (flow_head != flow_tail)
-	{
-		/* Extract the next entry */
-		ty = flow_y[flow_head];
-		tx = flow_x[flow_head];
-
-		/* Forget that entry (with wrap) -TNB- */
-		if (++flow_head == FLOW_MAX) flow_head = 0;
-
-		/* Child cost */
-		n = cave_cost[ty][tx] + 1;
-
-		/* Add the "children" */
-		for (d = 0; d < 8; d++)
+		/* Swap write and read portions of the table */
+		if (this_cycle == 0)
 		{
-			int old_head = flow_tail;
-
-			/* Child location */
-			y = ty + ddy_ddd[d];
-			x = tx + ddx_ddd[d];
-
-			/* Ignore "pre-stamped" entries */
-			if (cave_when[y][x] == flow_n) continue;
-
-			/* Ignore walls.  Do not ignore rubble. */
-			if ((cave_feat[y][x] > FEAT_RUBBLE) && (cave_feat[y][x] < FEAT_SHOP_HEAD)) continue;
-
-			/* Save the time-stamp */
-			cave_when[y][x] = flow_n;
-
-			/* Save the flow cost */
-			cave_cost[y][x] = n;
-
-			/* Hack -- Limit flow depth */
-			if (n == max) continue;
-
-			/* Enqueue that entry */
-			flow_y[flow_tail] = y;
-			flow_x[flow_tail] = x;
-
-			/* Advance the queue */
-			if (++flow_tail == FLOW_MAX) flow_tail = 0;
-
-			/* Hack -- Overflow by forgetting new entry */
-			if (flow_tail == flow_head) flow_tail = old_head;
+			this_cycle = 1;
+			next_cycle = 0;
+		}
+		else
+		{
+			this_cycle = 0;
+			next_cycle = 1;
 		}
 	}
 
 #endif
+}
 
+
+/*
+ * Characters leave scent trails for perceptive monsters to track.
+ *
+ * Smell is rather more limited than sound.  Many creatures cannot use 
+ * it at all, it doesn't extend very far outwards from the character's 
+ * current position, and monsters can use it to home in the character, 
+ * but not to run away from him.
+ *
+ * Smell is valued according to age.  When a character takes his turn, 
+ * scent is aged by one, and new scent of the current age is laid down.  
+ * Speedy characters leave more scent, true, but it also ages faster, 
+ * which makes it harder to hunt them down.
+ *
+ * Whenever the age count loops, most of the scent trail is erased and 
+ * the age of the remainder is recalculated.
+ */
+void update_smell(void)
+{
+#ifdef MONSTER_FLOW
+
+	int i, j;
+	int y, x;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+
+	/* Create a table that controls the spread of scent */
+	int scent_adjust[5][5] = 
+	{
+		{ 250,  2,  2,  2, 250 },
+		{   2,  1,  1,  1,   2 },
+		{   2,  1,  0,  1,   2 },
+		{   2,  1,  1,  1,   2 },
+		{ 250,  2,  2,  2, 250 },
+	};
+
+	/* Scent becomes "younger" */
+	scent_when--;
+
+	/* Loop the age and adjust scent values when necessary */
+	if (scent_when <= 0)
+	{
+		/* Scan the entire dungeon */
+		for (y = 0; y < DUNGEON_HGT; y++)
+		{
+			for (x = 0; x < DUNGEON_WID; x++)
+			{
+				/* Ignore non-existent scent */
+				if (cave_when[y][x] == 0) continue;
+
+				/* Erase the earlier part of the previous cycle */
+				if (cave_when[y][x] > SMELL_STRENGTH) cave_when[y][x] = 0;
+
+				/* Reset the ages of the most recent scent */
+				else cave_when[y][x] = 250 - SMELL_STRENGTH + cave_when[y][x];
+			}
+		}
+
+		/* Reset the age value */
+		scent_when = 250 - SMELL_STRENGTH;
+	}
+
+
+	/* Lay down new scent */
+	for (i = 0; i < 5; i++)
+	{
+		for (j = 0; j < 5; j++)
+		{
+			/* Translate table to map grids */
+			y = i + py - 2;
+			x = j + px - 2;
+
+			/* Check Bounds */
+			if (!in_bounds(y, x)) continue;
+
+			/* Walls, water, and lava cannot hold scent. */
+			if ((cave_feat[y][x] > FEAT_RUBBLE) || 
+			    (cave_feat[y][x] == FEAT_WATER) || 
+			    (cave_feat[y][x] == FEAT_LAVA))
+			{
+				continue;
+			}
+
+			/* Grid must not be blocked by walls from the character */
+			if (!los(p_ptr->py, p_ptr->px, y, x)) continue;
+
+			/* Note grids that are too far away */
+			if (scent_adjust[i][j] == 250) continue;
+
+			/* Mark the grid with new scent */
+			cave_when[y][x] = scent_when + scent_adjust[i][j];
+		}
+	}
+
+#endif
 }
 
 /*

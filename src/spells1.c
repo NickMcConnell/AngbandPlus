@@ -7,7 +7,7 @@
  * nexus, destroy and create terrain features, light+dark, destroy ob-
  * jects.  handlers for beam/bolt/ball spells that do damage to a monster, 
  * other player combat spells, special effects of monster and player 
- * breaths and	spells to the player, monsters, and dungeon terrain.  The 
+ * breaths and spells to the player, monsters, and dungeon terrain.  The 
  * projection code.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -136,12 +136,12 @@ s16b poly_r_idx(int base_idx)
  */
 void teleport_away(int m_idx, int dis)
 {
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
 	int ny, nx, oy, ox, d, i, min;
 
 	bool look = TRUE;
-
-	monster_type *m_ptr = &m_list[m_idx];
-
 
 	/* Paranoia */
 	if (!m_ptr->r_idx) return;
@@ -174,14 +174,8 @@ void teleport_away(int m_idx, int dis)
 			/* Ignore illegal locations */
 			if (!in_bounds_fully(ny, nx)) continue;
 
-			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
-
-			/* Hack -- no teleport onto glyph of warding */
-			if (cave_feat[ny][nx] == FEAT_GLYPH) continue;
-
-			/* No teleporting into vaults and such */
-			/* if (cave_info[ny][nx] & (CAVE_ICKY)) continue; */
+			/* Require a grid that the monster can (safely) exist in. */
+			if (!cave_exist_mon(r_ptr, ny, nx, FALSE)) continue;
 
 			/* This grid looks good */
 			look = FALSE;
@@ -211,7 +205,7 @@ void teleport_away(int m_idx, int dis)
 /*
  * Thrust the player or a monster away from the source of a projection.   
  * Used for GF_FORCE only (GF_STORM and GF_GRAVITY blink the player in 
- * a random direction).    -LM-
+ * a random direction).  -LM-
  *
  * Monsters and players can be pushed past monsters or players weaker than 
  * they are.
@@ -527,9 +521,6 @@ void teleport_player(int dis, bool safe)
 	/* Sound */
 	sound(SOUND_TELEPORT);
 
-	/* HACK - forget the flow */
-	p_ptr->update |= (PU_FORGET_FLOW);
-
 	/* Move player */
 	monster_swap(py, px, y, x);
 
@@ -670,9 +661,6 @@ void teleport_player_to(int ny, int nx)
 
 	/* Sound */
 	sound(SOUND_TELEPORT);
-
-	/* HACK - forget the flow */
-	p_ptr->update |= (PU_FORGET_FLOW);
 
 	/* Move player */
 	monster_swap(py, px, y, x);
@@ -1243,6 +1231,16 @@ static int minus_ac(int dam)
 	 * body, and cannot be damaged. -JL-
 	 */
 	if (SCHANGE) return (FALSE);
+
+	/* Not all attacks hurt armour */
+	if (dam < 10)
+	{
+		if (randint(2) == 0) return (FALSE);
+	}
+	else if (dam < 50)
+	{
+		if (randint(3) == 0) return (FALSE);
+	}
 
 	/* Pick a (possibly empty) equipment slot */
 	switch (randint(6))
@@ -2148,9 +2146,6 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-			/* Fully update the flow */
-			p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 			break;
 		}
@@ -4170,6 +4165,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		/* Wake the monster up */
 		m_ptr->csleep = 0;
 
+		/* Go active */
+		m_ptr->mflag |= (MFLAG_ACTV);
+
 		/* Hurt the monster */
 		m_ptr->hp -= dam;
 
@@ -4196,7 +4194,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			else if (dam > 0) message_pain(cave_m_idx[y][x], dam);
 
 			/* Hack -- handle sleep */
-			if (do_sleep) m_ptr->csleep = do_sleep;
+			if (do_sleep)
+			{
+				/* Sleep */
+				m_ptr->csleep = do_sleep;
+
+				/* Go inactive */
+				m_ptr->mflag &= ~(MFLAG_ACTV);
+			}
 		}
 	}
 
@@ -4210,6 +4215,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		{
 			/* Dead monster */
 		}
+
 		/* Damaged monster */
 		else
 		{
@@ -4230,7 +4236,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			}
 
 			/* Hack -- handle sleep */
-			if (do_sleep) m_ptr->csleep = do_sleep;
+			if (do_sleep)
+			{
+				/* Sleep */
+				m_ptr->csleep = do_sleep;
+
+				/* Go inactive */
+				m_ptr->mflag &= ~(MFLAG_ACTV);
+			}
 		}
 	}
 
@@ -4300,6 +4313,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 {
 	int k = 0;
 
+	/* Self Inflicted? */
+	bool self = FALSE;
+
 	/* Adjustment to damage caused by terrain, if any. */
 	int terrain_adjustment = 0;
 
@@ -4325,10 +4341,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Hack -- messages */
 	cptr act = NULL;
 
-
 	/* No player here */
 	if (!(cave_m_idx[y][x] < 0)) return (FALSE);
 
+	/* Check for self inflicted damage */
+	if (!(who > 0)) self = TRUE;
 
 	/* Hacks -- Adjust damages for certain races. */
 	if (((rp_ptr->flags_special) & PS_SHADOW) && (typ == GF_LITE)) dam += dam / 3;
@@ -4393,19 +4410,24 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
 
+	/* Is this cast by a monster*/
+	if (!self)
+	{
+		/* Get the source monster */
+		m_ptr = &m_list[who];
 
-	/* Get the source monster */
-	m_ptr = &m_list[who];
+		/* Get the monster race. */
+		r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Get the monster race. */
-	r_ptr = &r_info[m_ptr->r_idx];
+		/* Get the monster name */
+		monster_desc(m_name, m_ptr, 0);
 
-	/* Get the monster name */
-	monster_desc(m_name, m_ptr, 0);
+		/* Get the monster's real name */
+		monster_desc(killer, m_ptr, 0x88);
+	}
 
-	/* Get the monster's real name */
-	monster_desc(killer, m_ptr, 0x88);
-
+	/* Default 'killer' for self inflicted damage */
+	else strcpy(killer, "Dangerous Forces");
 
 	/* Analyze the damage */
 	switch (typ)
@@ -4425,7 +4447,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					(p_ptr->total_weight > 300 ? p_ptr->total_weight : 300);
 
 				/* Do we dodge the boulder? */
-				if (dodging > 10 + rand_int(r_ptr->level))
+				if ((!self) && (dodging > 10 + rand_int(r_ptr->level)))
 				{
 					msg_print("You nimbly dodge aside.");
 					dam = 0;
@@ -4468,7 +4490,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		case GF_SHOT:
 		{
 			/* Test for deflection - Only base armour counts here. */
-			if (p_ptr->ac > 10 + rand_int(r_ptr->level))
+			if ((!self) && (p_ptr->ac > 10 + rand_int(r_ptr->level)))
 			{
 				if (fuzzy) msg_print("A missile glances off your armour.");
 
@@ -4522,8 +4544,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			/* Test for a miss or armour deflection. */
-			if ((p_ptr->ac + p_ptr->to_a < 150 ? p_ptr->ac + p_ptr->to_a : 
-				150) > randint((10 + r_ptr->level) * 5))
+			if ((!self) && ((p_ptr->ac + p_ptr->to_a < 150 ? p_ptr->ac + p_ptr->to_a : 
+				150) > randint((10 + r_ptr->level) * 5)))
 			{
 				if ((p_ptr->ac > 9) && (rand_int(2) == 0)) 
 					msg_print("The missile glances off your armour.");
@@ -4588,7 +4610,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					(p_ptr->total_weight > 300 ? p_ptr->total_weight : 300);
 
 				/* Do we dodge the missile (not an easy thing to do)? */
-				if (dodging > rand_int(40 + 3 * r_ptr->level / 2))
+				if ((!self) && (dodging > rand_int(40 + 3 * r_ptr->level / 2)))
 				{
 					msg_print("You nimbly dodge aside.");
 					dam = 0;
@@ -4602,11 +4624,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				if (typ == GF_PMISSILE)
 				{
 					/* Monster has Morgul-magic. */
-					if (r_ptr->flags2 & (RF2_MORGUL_MAGIC)) 
+					if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)))
 					{
 						/* Hack - cannot rapid-fire morgul missiles. */
 							if ((r_ptr->flags2 & (RF2_ARCHER)) && (m_ptr->cdis > 1) && 
-							(randint(100) > r_ptr->freq_spell))
+							(randint(100) > r_ptr->freq_ranged))
 						{
 							k = 1;
 						}
@@ -4779,7 +4801,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
 
-			if (r_ptr->flags3 & (RF3_ANIMAL))
+			if ((!self) && (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (fuzzy) msg_print("You have been spat upon.");
 
@@ -4840,7 +4862,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Strong Morgul-cold can have extra side effects. */
 
 			/* 100% of the time if no resistance, 33% if only one resistance. */
-			if ((r_ptr->flags2 & (RF2_MORGUL_MAGIC)) && (!p_ptr->immune_cold) && 
+			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)) && (!p_ptr->immune_cold) && 
 				(((!p_ptr->resist_cold) && (!p_ptr->oppose_cold)) ||
 				(((!p_ptr->resist_cold) || (!p_ptr->oppose_cold)) &&
 				(rand_int(3) == 0))))
@@ -4887,7 +4909,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			/* Morgul-poison is also acidic. */
-			if (r_ptr->flags2 & (RF2_MORGUL_MAGIC)) 
+			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC))) 
 			{
 				if (fuzzy) msg_print("You are hit by acidic venom.");
 				acid_dam(dam / 3, killer);
@@ -4913,7 +4935,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			 * resistance (but not acid resistance) reduces the damage 
 			 * counted when determining effects.
 			 */
-			if (r_ptr->flags2 & (RF2_MORGUL_MAGIC))
+			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)))
 			{
 				/* Paralyzation. */
 				if ((!p_ptr->free_act) && (rand_int(dam / 2 + 20) > 
@@ -4966,7 +4988,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			take_hit((dam+2) / 3, killer);
 
 			/* Test player's saving throw. */
-			if (randint(5 * r_ptr->level / 4) > p_ptr->skill_sav)
+			if ((!self) && (randint(5 * r_ptr->level / 4) > p_ptr->skill_sav))
 			{
 				msg_print("Visions of hell invade your mind!");
 
@@ -5064,11 +5086,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Determine power of attack - usually between 25 and 350. */
-			k = dam * r_ptr->level / 100;
+			if (!self) k = dam * r_ptr->level / 100;
+			else k = 0;
 
 			/* Hack - The Ringwraiths and Sauron are very dangerous. */
-			if ((prefix(m_name, "Sauron, the Sorcerer")) || 
-				((r_ptr->d_char == 'W') && (r_ptr->flags1 & (RF1_UNIQUE))))
+			if ((!self) && ((prefix(m_name, "Sauron, the Sorcerer")) || 
+				((r_ptr->d_char == 'W') && (r_ptr->flags1 & (RF1_UNIQUE)))))
 			{
 				if (k < 175) k = 175;
 			}
@@ -5675,6 +5698,9 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		m_ptr = &m_list[cave_m_idx[y][x]];
 		r_ptr = &r_info[m_ptr->r_idx];
 		l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Get the monster name */
+		monster_desc(m_name, m_ptr, 0);
 	}
 
 	if (affect_player)
@@ -5996,9 +6022,6 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		/* Give detailed messages if visible */
 		if (note && seen)
 		{
-			/* Get the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
 			msg_format("%^s%s", m_name, note);
 		}
 
@@ -6418,7 +6441,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		}
 
 		/* Pre-calculate some things for arcs. */
-		if (flg & (PROJECT_ARC))
+		if ((flg & (PROJECT_ARC)) && (path_n != 0))
 		{
 			/* Explosion centers on the caster. */
 			y0 = y1;

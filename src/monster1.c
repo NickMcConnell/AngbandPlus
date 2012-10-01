@@ -1192,7 +1192,7 @@ static void roff_aux(int r_idx)
 		m = l_ptr->cast_inate + l_ptr->cast_spell;
 
 		/* Average frequency */
-		n = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
+		n = (r_ptr->freq_ranged);
 
 		/* Describe the spell frequency */
 		if (m > 100)
@@ -1897,7 +1897,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		/* Half-Elf */
 		case 1:
 		{
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 3;
+			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 3;
 			r_ptr->aaf += 2;
 			r_ptr->hdice = 6 * r_ptr->hdice / 7;
 			break;
@@ -1905,7 +1905,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		/* Elf */
 		case 2:
 		{
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 5;
+			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
 			r_ptr->aaf += 4;
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
 			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
@@ -1929,7 +1929,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 				}
 			}
 
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 4;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 4;
 
 			r_ptr->flags4 |= (RF4_SHOT);
 
@@ -1958,9 +1958,9 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		/* Half-Troll */
 		case 7:
 		{
-			if (!r_ptr->freq_spell) r_ptr->freq_spell = 5;
-			if (r_ptr->freq_spell > 5) 
-				r_ptr->freq_spell = 2 * r_ptr->freq_spell / 3;
+			if (!r_ptr->freq_ranged) r_ptr->freq_ranged = 5;
+			if (r_ptr->freq_ranged > 5) 
+				r_ptr->freq_ranged = 2 * r_ptr->freq_ranged / 3;
 
 			r_ptr->flags4 |= (RF4_BOULDER);
 			r_ptr->flags3 |= (RF3_TROLL);
@@ -1996,7 +1996,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		{
 			r_ptr->ac += r_ptr->level / 10 + 2;
 
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 8;
+			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 8;
 			r_ptr->aaf += 5;
 			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
 				r_ptr->flags3 &= ~(RF3_HURT_LITE);
@@ -2006,7 +2006,7 @@ static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr)
 		/* Maia */
 		case 10:
 		{
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 5;
+			if (r_ptr->freq_ranged) r_ptr->freq_ranged += 5;
 			r_ptr->ac += r_ptr->level / 10 + 5;
 			r_ptr->aaf += 4;
 			r_ptr->hdice = 5 * r_ptr->hdice / 4;
@@ -2052,12 +2052,12 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Warrior */
 		case 0:
 		{
-			if (r_ptr->freq_spell <= 10) r_ptr->freq_spell = 5;
-			else r_ptr->freq_spell -= 5;
+			if (r_ptr->freq_ranged <= 10) r_ptr->freq_ranged = 5;
+			else r_ptr->freq_ranged -= 5;
 
-			if ((dun_level > 24) && (r_ptr->freq_spell)) 
+			if ((dun_level > 24) && (r_ptr->freq_ranged)) 
 				r_ptr->flags4 |= (RF4_BOLT);
-			if ((dun_level > 54) && (r_ptr->freq_spell)) 
+			if ((dun_level > 54) && (r_ptr->freq_ranged)) 
 				r_ptr->flags2 |= (RF2_ARCHER);
 
 			r_ptr->spell_power = 2 * r_ptr->spell_power / 3;
@@ -2076,8 +2076,8 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Mage */
 		case 1:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
-			else r_ptr->freq_spell += 10;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+			else r_ptr->freq_ranged += 10;
 
 			if (r_ptr->flags4 & (RF4_SHOT)) r_ptr->flags4 &= ~(RF4_SHOT);
 			if (r_ptr->flags4 & (RF4_ARROW)) r_ptr->flags4 &= ~(RF4_ARROW);
@@ -2121,8 +2121,8 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Priest */
 		case 2:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
-			else r_ptr->freq_spell += 5;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+			else r_ptr->freq_ranged += 5;
 
 			r_ptr->flags6 |= (RF6_WOUND);
 			if (dun_level > 34) r_ptr->flags5 |= (RF5_BALL_LITE);
@@ -2149,7 +2149,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Rogue */
 		case 3:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
 
 			if (dun_level > 24) r_ptr->flags6 |= (RF6_HASTE);
 			if (dun_level > 34) m_ptr->mspeed += 5;
@@ -2158,7 +2158,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 			r_ptr->hdice = 4 * r_ptr->hdice / 5;
 
 			if (dun_level > 11) r_ptr->flags4 |= (RF4_SHOT);
-			if ((dun_level > 44) && (r_ptr->freq_spell)) 
+			if ((dun_level > 44) && (r_ptr->freq_ranged)) 
 				r_ptr->flags2 |= (RF2_ARCHER);
 
 			if (dun_level > 24) r_ptr->flags5 |= (RF5_BALL_POIS);
@@ -2193,11 +2193,11 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Ranger */
 		case 4:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
 			r_ptr->aaf += 5;
 
 			r_ptr->flags4 |= (RF4_ARROW);
-			if ((dun_level > 24) && (r_ptr->freq_spell)) 
+			if ((dun_level > 24) && (r_ptr->freq_ranged)) 
 				r_ptr->flags2 |= (RF2_ARCHER);
 
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -2212,7 +2212,7 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Paladin */
 		case 5:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 8;
 
 			if (r_ptr->flags4 & (RF4_SHOT)) r_ptr->flags4 &= ~(RF4_SHOT);
 			if (r_ptr->flags4 & (RF4_ARROW)) r_ptr->flags4 &= ~(RF4_ARROW);
@@ -2238,8 +2238,8 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Druid */
 		case 6:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
-			else r_ptr->freq_spell += 5;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+			else r_ptr->freq_ranged += 5;
 
 			if (dun_level > 29) r_ptr->flags5 |= (RF5_BALL_ELEC);
 			else r_ptr->flags5 |= (RF5_BEAM_ELEC);
@@ -2282,8 +2282,8 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Necromancer */
 		case 7:
 		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
-			else r_ptr->freq_spell += 10;
+			if (r_ptr->freq_ranged == 0) r_ptr->freq_ranged = 10;
+			else r_ptr->freq_ranged += 10;
 
 			if (dun_level > 49) r_ptr->flags2 |= (RF2_MORGUL_MAGIC);
 
@@ -2326,9 +2326,9 @@ static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
 		/* Assassin */
 		case 8:
 		{
-			if ((dun_level > 9) && (r_ptr->freq_spell == 0)) 
-				r_ptr->freq_spell = 6;
-			else r_ptr->freq_spell = 3 * r_ptr->freq_spell / 4;
+			if ((dun_level > 9) && (r_ptr->freq_ranged == 0)) 
+				r_ptr->freq_ranged = 6;
+			else r_ptr->freq_ranged = 3 * r_ptr->freq_ranged / 4;
 
 			if ((dun_level > 11) && (dun_level < 45)) 
 				r_ptr->flags4 |= (RF4_MISSL);

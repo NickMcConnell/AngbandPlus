@@ -125,8 +125,6 @@ bool opening_chest;		/* Hack -- prevent chest generation */
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
-bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
-bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
 bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 
@@ -394,13 +392,34 @@ s16b (*cave_m_idx)[DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
+ * Used to simulate character noise.
  */
 byte (*cave_cost)[DUNGEON_WID];
 
 /*
- * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps.
+ * Used to store character scent trails.
  */
 byte (*cave_when)[DUNGEON_WID];
+
+/*
+ * Current scent age marker.  Counts down from 250 to 0 and then loops.
+ */
+int scent_when = 250;
+
+
+/*
+ * Centerpoints of the last flow (noise) rebuild and the last flow update.
+ */
+int flow_center_y;
+int flow_center_x;
+int update_center_y;
+int update_center_x;
+
+/*
+ * Flow cost at the center grid of the current update.
+ */
+int cost_at_center = 0;
 
 #endif	/* MONSTER_FLOW */
 
@@ -521,10 +540,17 @@ static player_type player_type_body;
 player_type *p_ptr = &player_type_body;
 
 /*
- * Alterations to the possibility that monsters accessed in the next call to 
- * process_monsters will be disturbed.
+ * The character generates both directed (extra) noise (by doing noisy 
+ * things) and ambiant noise (the combination of directed and innate 
+ * noise).  Directed noise can immediately wake up monsters in LOS. 
+ * Ambient noise determines how quickly monsters wake up and how often 
+ * they get new information on the current character position.
+ *
+ * Each player turn, more noise accumulates.  Every time monster 
+ * temporary conditions are processed, all non-innate noise is cleared.
  */
 int add_wakeup_chance = 0;
+u32b total_wakeup_chance = 0;
 
 /*
  * The vault generation arrays

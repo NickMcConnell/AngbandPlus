@@ -474,6 +474,7 @@ void do_cmd_unchange(void)
 		msg_print("You aren't in another form right now.");
 		return;
 	}
+
 	/* Confirm */
 	if (!get_check("Really return to normal? "))
 		return;
@@ -743,8 +744,11 @@ bool detect_traps(int range, bool show)
 
 	}
 
-	/* Result */
-	return (detect);
+	/* Redraw DTrap Status */
+	p_ptr->redraw |= (PR_DTRAP);
+
+	/* Result - trap detection items are easy to recognize for now -BR- */
+	return (TRUE);
 }
 
 
@@ -2245,6 +2249,17 @@ bool ident_spell(void)
 			    ((squelch==-1) ? "(Squelch Failed)" : "")));
 		
 	}
+
+	/* If artifact, check for Set Item */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		if (a_ptr->set_no != 0)
+		{
+			msg_print("This item is part of a set!");
+		}
+	}
+
  
 	/* Now squelch it if needed */
 	if (squelch == 1) do_squelch_item(o_ptr);
@@ -2355,7 +2370,17 @@ bool identify_fully(void)
 		
 	}
 
-	/* Now squelch it if needed */
+	/* If artifact, check for Set Item */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		if (a_ptr->set_no != 0)
+		{
+			msg_print("This item is part of a set!");
+		}
+	}
+
+ 	/* Now squelch it if needed */
 	if (squelch == 1) do_squelch_item(o_ptr);
 
 	do_cmd_observe(o_ptr, FALSE);
@@ -3268,14 +3293,18 @@ void aggravate_monsters(int who, bool the_entire_level)
 				m_ptr->csleep = 0;
 			}
 
+			/* Go active */
+			m_ptr->mflag |= (MFLAG_ACTV);
+
 			/* Get mad. */
 			if (m_ptr->mspeed < r_ptr->speed + 10) 
 				m_ptr->mspeed = r_ptr->speed + 10;
 		}
 
-		/* Wake up nearby sleeping monsters */
+		/* Standard aggravation */
 		else 
 		{
+			/* Wake up nearby sleeping monsters */
 			if (m_ptr->cdis < (p_ptr->themed_level ? 
 				MAX_SIGHT : MAX_SIGHT * 2))
 			{
@@ -3285,8 +3314,11 @@ void aggravate_monsters(int who, bool the_entire_level)
 					/* Wake up */
 					m_ptr->csleep = 0;
 					sleep = TRUE;
+
+					/* Do not necessarily go active */
 				}
 			}
+
 			/* Speed up monsters in line of sight */
 			else if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) && 
 				(sleep == FALSE))
@@ -3579,9 +3611,6 @@ void destroy_area(int y1, int x1, int r, bool full)
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
@@ -3824,6 +3853,9 @@ void earthquake(int cy, int cx, int r, bool volcano)
 					/* Monster is certainly awake */
 					m_ptr->csleep = 0;
 
+					/* Go active */
+					m_ptr->mflag |= (MFLAG_ACTV);
+
 					/* Apply damage directly */
 					m_ptr->hp -= damage;
 
@@ -3956,9 +3988,6 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
@@ -4037,6 +4066,9 @@ static void cave_temp_room_lite(void)
 			{
 				/* Wake up! */
 				m_ptr->csleep = 0;
+
+				/* Go active */
+				m_ptr->mflag |= (MFLAG_ACTV);
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)

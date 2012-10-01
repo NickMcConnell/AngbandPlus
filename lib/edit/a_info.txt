@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -1122,7 +1122,7 @@ D:men of Umbar who met it in combat.
 
 N:113:'Crisdurian'
 I:23:28:0
-W:50:15:260:100000
+W:50:15:220:100000
 P:0:4d5:18:19:0:0
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
 F:SLAY_ORC | SEE_INVIS | 
@@ -1149,7 +1149,7 @@ D:is combat incarnate.
 
 N:115:'Ringil'
 I:23:17:10
-W:30:120:100:300000
+W:30:120:125:300000
 P:0:4d5:22:25:0:72
 F:SPEED | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | 
@@ -1390,7 +1390,7 @@ D:spear.
 N:140:of the Eorlingas
 I:22:20:2
 W:40:6:300:55000
-P:0:3d8:3:21:0:0
+P:0:4d8:3:21:0:0
 F:DEX | STR | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SLAY_ANIMAL | SEE_INVIS | RES_FEAR | 
 F:TWO_HANDED_DES | SHOW_MODS
@@ -1462,7 +1462,7 @@ D:of the Rangers of Arnor.
 N:145:'Mundwine'
 I:22:22:0
 W:40:20:250:30000
-P:0:3d8:12:17:0:0
+P:0:3d10:12:17:0:0
 F:TWO_HANDED_DES | SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | 
 F:RES_COLD | SHOW_MODS
 D:A massive axe with twin razor-sharp heads, so large that it usually 
@@ -1502,8 +1502,8 @@ D:evil and undead.
 
 N:148:of Ulmo
 I:22:5:4
-W:80:90:70:120000
-P:0:4d7:15:19:0:83
+W:80:90:90:120000
+P:0:4d6:15:19:0:83
 F:DEX | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_UNDEAD | FREE_ACT | HOLD_LIFE | 
 F:IM_ACID | RES_ACID | BRAND_ACID | RES_NETHR | 
@@ -1582,7 +1582,7 @@ D:becomes a fiery comet as you bring it down.
 N:160:'Thunderfist'
 I:21:18:4
 W:55:38:300:160000
-P:0:4d6:5:18:0:0
+P:0:3d9:5:18:0:0
 F:STR | HIDE_TYPE | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
 F:RES_ELEC | RES_FIRE | RES_DARK | 
@@ -1633,7 +1633,7 @@ D:fingers and eyebrows.
 
 N:164:of Aule
 I:21:8:4
-W:80:95:120:200000
+W:80:95:140:200000
 P:0:5d5:19:21:5:0
 F:WIS | HIDE_TYPE | 
 F:SLAY_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON | 

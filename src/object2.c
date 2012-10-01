@@ -1420,6 +1420,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				else return (FALSE);
 			}
 
+			/* Require identical pseudo ID for un-IDed items */
+			if ((!object_known_p(o_ptr)) && ((o_ptr->ident & (IDENT_SENSE)) != (j_ptr->ident & (IDENT_SENSE)))) return (FALSE);
+
 			/* Require identical "bonuses" */
 			if (o_ptr->to_h != j_ptr->to_h) return (FALSE);
 			if (o_ptr->to_d != j_ptr->to_d) return (FALSE);
@@ -3441,9 +3444,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	
 				if ((rand_int((o_ptr->dd + 2) * 
 					(o_ptr->ds + 2) / 4) == 0) && 
-					(o_ptr->dd * 2 * o_ptr->ds < 41))
+					((o_ptr->dd * (11 * o_ptr->ds / 6)) < 41))
 				{
-					newdicesides = 2 * o_ptr->ds;
+					newdicesides = 11 * o_ptr->ds / 6;
 				}
 				/* If at least the first test succeeded, improve
 				 * the damage dice.
@@ -5277,6 +5280,22 @@ s16b inven_takeoff(int item, int amt)
 	/* Verify */
 	if (amt > o_ptr->number) amt = o_ptr->number;
 
+	/* Check to see if a Set Item is being removed */
+	if (o_ptr->name1) 
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		if (a_ptr->set_no!=0)
+		{
+			/* The object is part of a set. Check to see if rest of set
+			 * is equiped and if so remove bonuses -GS-
+			 */
+			if (check_set(a_ptr->set_no)) 
+			{
+				remove_set(a_ptr->set_no);
+			}
+		}				
+	}
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -5304,14 +5323,14 @@ s16b inven_takeoff(int item, int amt)
 	/* Took off light */
 	else if (item == INVEN_LITE)
 	{
-		act = "You were holding";
+		act= "You were holding";
 	}
 
 	/* Removed something from the quiver slots */
 	else if ((item >= INVEN_Q0) && (item <= INVEN_Q9))
 	{
 		act = "You removed";
-		act2 = "from your quiver";
+		act2 = " from your quiver";
 	}
 
 	/* Took off something */
@@ -5328,7 +5347,7 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(i_ptr);
 
 	/* Message */
-	msg_format("%s %s (%c) %s.", act, o_name, index_to_label(slot), act2);
+	msg_format("%s %s (%c)%s.", act, o_name, index_to_label(slot), act2);
 
 	/* Return slot */
 	return (slot);
@@ -5812,7 +5831,7 @@ int process_quiver(int num_new, object_type *o_ptr)
 			}
 
 			/* Mark the destination slot as being untouchable. */
-			untouchable[INVEN_Q0 + tag_num] = TRUE;
+			untouchable[tag_num] = TRUE;
 
 			/* Keep track of 'new' item */
 			if (slot == i) slot = INVEN_Q0 + tag_num;

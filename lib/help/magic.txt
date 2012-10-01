@@ -178,6 +178,11 @@ Item based shapeshifts:
             Depending on the item that caused the shapeshift, there may be an
             additional bonus power.
 
+Intrinsic racial shapeshifts:
+     Bear-As Beornings gain levels, their Bear form gains increasing bonuses to
+            STR, CON, armour class, and combat.  Bears have small INT and CHR
+            penalties, and are poor magic device skills.
+
 === Warrior special ability:  Pseudo-probing ===
 
 Command to use: 'm'.

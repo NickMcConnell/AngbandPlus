@@ -28,10 +28,13 @@ one designed especially for new players.
 relying on magic, melee, shooting, throwing, or magical devices to do damage 
 to your foes.
 
-- The most cunning AI in any Angband variant.  Monster mana.  All sorts of new 
-monster nastiness.  Dragons are dangerous once more, Undead have a deadly touch, 
-Trolls will gleefully pelt you to death with boulders, and those Zephyr Hounds 
-are out of control.  In Oangband, even the snakes have attitude.
+- The most cunning AI in any Angband variant.  Monster mana.  All
+sorts of new monster nastiness.
+
+- Dragons are dangerous once more, Undead have a deadly touch, Trolls
+will gleefully pelt you to death with boulders, and those Zephyr
+Hounds are out of control.  In Oangband, even the snakes have
+attitude.
 
 - Enhanced object description and learning code.  Dungeon features that affect 
 movement, sighting, and combat.  Exciting chests and nasty traps.
@@ -47,6 +50,8 @@ player ghosts that challenge you to mortal combat.
 
 - A versatile quiver that makes archery really practical.
 
+- Sets of artifacts that grow in power when used together.
+
 - New just about everything.  Whether it be Wands of Storms, the Dark Elven 
 Smith Eol, Shields of Night and Day, Athelas, Amulets of the Lion, Large 
 Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
@@ -56,7 +61,7 @@ Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
 
 If you feel the need for more detail, I'd suggest just perusing the help files.  
 You will also find a file in the "lib/info/diffs" folder that lists (many) of 
-the changes between Oangband 0.5.0 and 0.5.1.
+the changes between Oangband 0.5.1 and 0.5.2.
 
 
 === The Jaded Angband Player's Guide to Oangband ===
@@ -65,8 +70,8 @@ the changes between Oangband 0.5.0 and 0.5.1.
 -Don't ignore combat magic and spells that hinder monsters.
 -Melee requires as much backpack space as magic.
 -Don't try to melee or shoot with the pros if you haven't the Skill to swing it.
--Forget about blows.  Everybody gets two for a long time.
--don't ignore infravision, searching, and perception.
+-Forget about blows.  Most characters get two for a long time.
+-Don't ignore infravision, searching, and perception.
 -Don't go into autopilot and sell every damage-dealing wand, staff, or rod you 
  see.
 -Useful utility magics aren't only found in spellbooks and rods.

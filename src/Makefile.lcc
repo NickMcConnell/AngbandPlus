@@ -40,8 +40,8 @@ OBJS=\
 	object1.obj \
 	monster2.obj \
 	monster1.obj \
-	melee2.obj \
-	melee1.obj \
+	monattk.obj \
+	monmove.obj \
 	main-win.obj \
 	load1.obj \
 	load2.obj \
@@ -503,8 +503,8 @@ MONSTER1_C=\
 monster1.obj: $(MONSTER1_C) monster1.c
 	$(CC) -c $(CFLAGS) monster1.c
 
-# Build MELEE2.C
-MELEE2_C=\
+# Build MONATTK.C
+MONATTK_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -521,11 +521,11 @@ MELEE2_C=\
 	types.h\
 	externs.h\
 
-melee2.obj: $(MELEE2_C) melee2.c
-	$(CC) -c $(CFLAGS) melee2.c
+monattk.obj: $(MONATTK_C) monattk.c
+	$(CC) -c $(CFLAGS) monattk.c
 
-# Build MELEE1.C
-MELEE1_C=\
+# Build MONMOVE.C
+MONMOVE_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -542,8 +542,8 @@ MELEE1_C=\
 	types.h\
 	externs.h\
 
-melee1.obj: $(MELEE1_C) melee1.c
-	$(CC) -c $(CFLAGS) melee1.c
+monmove.obj: $(MONMOVE_C) monmove.c
+	$(CC) -c $(CFLAGS) monmove.c
 
 # Build MAIN-WIN.C
 MAIN-WIN_C=\

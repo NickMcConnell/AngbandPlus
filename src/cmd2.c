@@ -1531,9 +1531,6 @@ static bool twall(int y, int x)
 	/* Update the visuals */
 	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
 	/* Result */
 	return (TRUE);
 }
@@ -2311,7 +2308,7 @@ void do_cmd_alter(void)
 	 */
 	if (cave_m_idx[y][x] > 0)
 	{
-		if (p_ptr->pclass == CLASS_ROGUE)
+		if ((p_ptr->pclass == CLASS_ROGUE) && (!SCHANGE))
 		{
 			m_ptr = &m_list[cave_m_idx[y][x]];
 			if (m_ptr->ml) py_steal(y, x);
@@ -2325,7 +2322,7 @@ void do_cmd_alter(void)
 	 * too many do not exist on the level.  If there are too many, notify
 	 * the player. -LM-
 	 */
-	else if ((p_ptr->pclass == CLASS_ROGUE) && (cave_naked_bold(y, x)))
+	else if ((p_ptr->pclass == CLASS_ROGUE) && (!SCHANGE) && (cave_naked_bold(y, x)))
 	{
 		if (num_trap_on_level == 0) py_set_trap(y, x);
 		else msg_print("You must disarm an existing trap to free up your equipment.");

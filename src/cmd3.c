@@ -175,13 +175,6 @@ void do_cmd_wield(void)
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
-	if (SCHANGE)
-	{
-		msg_print("You cannot wield new equipment while shapechanged.");
-		msg_print("Use the ']' command to return to your normal form.");
-		return;
-	}
-
 	/* Get an item */
 	q = "Wear/Wield which item? ";
 	s = "You have nothing you can wear or wield.";
@@ -367,7 +360,7 @@ void do_cmd_wield(void)
 	{
 		if (f3 & (TR3_TWO_HANDED_REQ) || (f3 & (TR3_TWO_HANDED_DES) && 
 			(p_ptr->stat_ind[A_STR] < 
-			25 + (o_ptr->weight / 50 > 11 ? 11 : o_ptr->weight / 50))))
+			29 + ((o_ptr->weight / 50 > 8) ? 8 : (o_ptr->weight / 50)))))
 		{
 			p_ptr->shield_on_back = TRUE;
 		}
@@ -423,6 +416,26 @@ void do_cmd_wield(void)
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+	/* Set item handling -GS- */
+	if (o_ptr->name1) 
+	{
+
+		/* Is the artifact a set item? */
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		if (a_ptr->set_no!=0)
+		{
+			/*
+			 * The object is part of a set. Check to see if rest of
+			 * set is equiped.
+			 */
+			if (check_set(a_ptr->set_no)) 
+			{
+				/* add bonuses */
+				apply_set(a_ptr->set_no);
+			}
+		}				
+	}
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))
@@ -823,6 +836,38 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 	/* Object type or artifact information. */
 	c_roff(TERM_L_BLUE, info_text, 3, 77);
+
+	/* 
+	 * If it is a set item, describe it as such.
+	 */
+	if ((known) && (o_ptr->name1))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		/* Is it a set item? */
+		if (a_ptr->set_no)
+		{
+
+			/* Advance a line */
+			for (i = 0; i < 2; i++) roff("\n", 0, 0);
+
+			/* Set notification */
+			c_roff(TERM_GREEN,"Set Item: ",3,77);
+
+			/* Fully ID describtion? */
+			if (mental) 
+			{
+				set_type *s_ptr = &s_info[a_ptr->set_no];
+				c_roff(TERM_GREEN, s_ptr->set_desc,3,77);
+			}
+
+			/* Generic describtion */
+			else c_roff(TERM_GREEN,"It gains power when combined with matching items",3,77);
+
+			/* End sentence */
+			c_roff(TERM_GREEN,".",3,77);
+		}
+	}
 
 	/* Fully identified objects. */
 	if (mental)
@@ -1989,6 +2034,7 @@ void py_steal(int y, int x)
 	if (randint(4) != 1)
 	{
 		m_ptr->csleep = 0;
+		m_ptr->mflag |= (MFLAG_ACTV);
 		if (m_ptr->mspeed < r_ptr->speed + 3) m_ptr->mspeed += 10;
 
 
@@ -2063,6 +2109,14 @@ void py_set_trap(int y, int x)
 	if (num_trap_on_level > 0)
 	{
 		msg_print("You must disarm your existing trap to free up your equipment.");
+		return;
+	}
+
+	/* No setting traps while shapeshifted */
+	if (SCHANGE)
+	{
+		msg_print("You can not set traps while shapechanged.");
+		msg_print("Use the ']' command to return to your normal form.");
 		return;
 	}
 

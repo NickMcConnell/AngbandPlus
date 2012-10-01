@@ -26,21 +26,19 @@ s16b ddd[9] =
  * Global arrays for converting "keypad direction" into offsets
  */
 s16b ddx[10] =
-{ 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+{  0, -1,  0,  1, -1,  0,  1, -1,  0,  1 };
 
 s16b ddy[10] =
-{ 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
+{  0,  1,  1,  1,  0,  0,  0, -1, -1, -1 };
 
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
  */
 s16b ddx_ddd[9] =
-{ 0, 0, 1, -1, 1, -1, 1, -1, 0 };
+{  0,  0,  1, -1,  1, -1,  1, -1,  0 };
 
 s16b ddy_ddd[9] =
-{ 1, -1, 0, 0, 1, 1, -1, -1, 0 };
-
-
+{  1, -1,  0,  0,  1,  1, -1, -1,  0 };
 
 /*
  * Global array for converting numbers to uppercase hecidecimal digit
@@ -815,25 +813,71 @@ byte adj_dex_blow[] =
 	2	/* 18/10-18/19 */,
 	2	/* 18/20-18/29 */,
 	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
+	3	/* 18/40-18/49 */,
 	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
+	4	/* 18/60-18/69 */,
 	4	/* 18/70-18/79 */,
-	4	/* 18/80-18/89 */,
+	5	/* 18/80-18/89 */,
 	5	/* 18/90-18/99 */,
 	6	/* 18/100-18/109 */,
 	7	/* 18/110-18/119 */,
 	8	/* 18/120-18/129 */,
 	9	/* 18/130-18/139 */,
-	10	/* 18/140-18/149 */,
-	11	/* 18/150-18/159 */,
-	11	/* 18/160-18/169 */,
+	9	/* 18/140-18/149 */,
+	10	/* 18/150-18/159 */,
+	10	/* 18/160-18/169 */,
 	11	/* 18/170-18/179 */,
 	11	/* 18/180-18/189 */,
 	11	/* 18/190-18/199 */,
 	11	/* 18/200-18/209 */,
 	11	/* 18/210-18/219 */,
 	11	/* 18/220+ */
+};
+
+
+/*
+ * Stat Table (DEX) -- Used for number of shots per round
+ */
+byte adj_dex_shots[] =
+{
+	0	/* 3 */,
+	0	/* 4 */,
+	0	/* 5 */,
+	0	/* 6 */,
+	0	/* 7 */,
+	0	/* 8 */,
+	0	/* 9 */,
+	0	/* 10 */,
+	0	/* 11 */,
+	0	/* 12 */,
+	0	/* 13 */,
+	0	/* 14 */,
+	0	/* 15 */,
+	0	/* 16 */,
+	0	/* 17 */,
+	1	/* 18/00-18/09 */,
+	1	/* 18/10-18/19 */,
+	2	/* 18/20-18/29 */,
+	3	/* 18/30-18/39 */,
+	4	/* 18/40-18/49 */,
+	5	/* 18/50-18/59 */,
+	6	/* 18/60-18/69 */,
+	7	/* 18/70-18/79 */,
+	8	/* 18/80-18/89 */,
+	9	/* 18/90-18/99 */,
+	10	/* 18/100-18/109 */,
+	11	/* 18/110-18/119 */,
+	12	/* 18/120-18/129 */,
+	13	/* 18/130-18/139 */,
+	14	/* 18/140-18/149 */,
+	15	/* 18/150-18/159 */,
+	16	/* 18/160-18/169 */,
+	17	/* 18/170-18/179 */,
+	18	/* 18/180-18/189 */,
+	19	/* 18/190-18/199 */,
+	20	/* 18/200-18/209 */,
+	20	/* 18/210-18/219 */,
+	20	/* 18/220+ */
 };
 
 
@@ -979,10 +1023,8 @@ byte adj_con_mhp[] =
 
 
 /*
- * This table has been revised in Oangband.
- *
  * This table is used to help calculate the number of blows the player 
- * can strike in a single round of attacks (one player turn) with a 
+ * can make in a single round of attacks (one player turn) with a 
  * weapon that is not too heavy to wield effectively.
  *
  * The player gets "blows_table[P][D]" blows/round, as shown below.
@@ -991,49 +1033,29 @@ byte adj_con_mhp[] =
  * multiply it by 6, and then divide it by the effective weapon 
  * weight (in deci-pounds), rounding down.
  *
- * To get "D", we look up the relevant "adj_dex_blow[]" (see above),
- * note especially column 6 (DEX 18/101) and 11 (DEX 18/150).
+ * To get "D", we look up the relevant "adj_dex_blow[]" (see above).
+ *
+ * (Some interesting calculations)
+ * The character cannot get five blows with any weapon greater than 21
+ * lb, and cannot get six with any weapon greater than 14.4 lb.
  */
 byte blows_table[12][12] =
 {
-	/* P/D */
-	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
+  /*  <- Dexterity factor -> */
+  /* 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11+ */
 
-	/* 0  */
-	{  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2},
-
-	/* 1 */
-	{  2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3},
-
-	/* 2 */
-	{  2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3},
-
-	/* 3 */
-	{  2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,   3},
-
-	/* 4 */
-	{  2,   2,   2,   2,   2,   3,   3,   3,   3,   3,   3,   4},
-
-	/* 5 */
-	{  2,   2,   2,   2,   3,   3,   3,   3,   3,   4,   4,   4},
-
-	/* 6 */
-	{  2,   2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   4},
-
-	/* 7 */
-	{  2,   2,   2,   3,   3,   3,   3,   4,   4,   4,   4,   4},
-
-	/* 8 */
-	{  2,   2,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4},
-
-	/* 9 */
-	{  2,   2,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4},
-
-	/* 10 */
-	{  2,   3,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4},
-
-	/* 11+ */
-	{  2,   3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4}
+  {  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3 }, /*  0         */
+  {  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  3 }, /*  1    ^    */
+  {  2,  2,  2,  2,  2,  2,  2,  3,  3,  3,  3,  4 }, /*  2    |    */
+  {  2,  2,  2,  2,  3,  3,  3,  3,  3,  4,  4,  4 }, /*  3         */
+  {  2,  2,  2,  3,  3,  3,  3,  3,  4,  4,  4,  4 }, /*  4  Ratio  */
+  {  2,  2,  3,  3,  3,  3,  4,  4,  4,  4,  4,  4 }, /*  5  of STR */
+  {  2,  3,  3,  3,  3,  4,  4,  4,  4,  4,  4,  5 }, /*  6  over   */
+  {  2,  3,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5 }, /*  7  weight */
+  {  2,  3,  3,  3,  4,  4,  4,  4,  4,  5,  5,  5 }, /*  8         */
+  {  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,  5 }, /*  9    |    */
+  {  2,  3,  3,  3,  4,  4,  4,  5,  5,  5,  5,  6 }, /* 10    V    */
+  {  2,  3,  3,  4,  4,  4,  5,  5,  5,  6,  6,  6 }  /* 11+        */
 };
 
 /*
@@ -1250,8 +1272,8 @@ player_class class_info[MAX_CLASS] =
 	{
 		"Assassin",
 		{ 2, 1, -3, 2, 0, -2},
-		35, 26, 20,  5, 30, 22, 17, 29,
-		70, 50, 40,  0, 10, 10, 75, 75,
+		35, 26, 20,  5, 30, 22, 20, 29,
+		70, 50, 40,  0, 10, 10, 85, 80,
 		4, 30
 	}
 };
@@ -2385,7 +2407,6 @@ byte deadliness_conversion[151] =
 	255, 255, 255, 255, 255, 255, 255, 255, 255, 255
 };
 
-
 /*
  * Each chest has a certain set of traps, determined by pval (which 
  * also controls the quality of treasure).
@@ -2493,6 +2514,77 @@ int chest_traps[100] =
 	(CHEST_H_SUMMON),
 	(CHEST_RUNES_OF_EVIL),
 	(CHEST_RUNES_OF_EVIL | CHEST_EXPLODE),
+};
+
+
+set_type s_info[MAX_S_IDX] =
+{
+
+	/* Blank Set */
+	{
+		"Dummy",0,"",
+		{}
+	},
+ 
+	/* Holy Fire Set */ 
+	{
+		"Flame of Wrath",2,"It is part of a set of items infused with holy fire",
+		{ 
+			/* The Amulet of Carlammas */
+			{4,(TR1_WIS),(TR2_IM_FIRE | TR2_RES_FEAR),0,0},	
+
+			/* The Morning Star 'Firestar' */
+			{162,(TR1_STR | TR1_SLAY_EVIL | TR1_SLAY_UNDEAD),0,0,4}
+		}
+	},
+
+	/* Shadow Set */ 
+	{
+		"Shadow Ward",2,"It is one of the Shadow Ward items",
+		{ 
+			/* The Soft Leather Armour 'Hithlomir' */
+			{37,(TR1_SEARCH),(TR2_RES_BLIND),0,0},
+
+			/* The Set of Leather Gloves 'Cammithrim' */
+			{78,(TR1_DEX | TR1_MAGIC_MASTERY),(TR2_SUST_DEX),0,2}
+		}
+	},
+
+	/* Eorl/Rohan Set */ 
+	{
+		"Eorl's Arms",2,"It is part of the equipment of Eorl the Young",
+		{
+			/* Lance of the Eorlingas */
+			{28,0,0,(TR3_FREE_ACT),1},
+
+			/* The Metal Brigandine Armour of the Rohirrim */
+			{140,(TR1_CON),0,(TR3_REGEN),0}
+		}
+	},
+
+	/* Elf-friend's Set */ 
+	{
+		"Elven Gifts",2,"It is from a group of Elven items once entrusted to Hobbits",
+		{
+			/* The Phial of Galadriel */
+			{1,(TR1_WIS | TR1_CHR),(TR2_RES_DARK),0,1},
+
+			/* The Small Sword 'Sting' */
+			{121,(TR1_STEALTH),0,(TR3_REGEN | TR3_SLOW_DIGEST),0}
+		}
+	},
+
+	/* Gil-Galad's Set */ 
+	{
+		"Gil-Galad's Battle Gear",2,"It is one of Gil-Galad's items",
+		{
+			/* The Shield of Deflection of Gil-Galad */
+			{48,0,(TR2_RES_FIRE | TR2_RES_POIS | TR2_SUST_DEX),0,0},	
+
+			/* The Spear 'Aeglos' */
+			{137,(TR1_SLAY_DEMON),(TR2_RES_DARK),0,0}	
+		}
+	}
 };
 
 
@@ -2766,7 +2858,7 @@ cptr option_text[OPT_MAX] =
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	NULL,
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	"fast_flow",			/* OPT_dungeon_stair */
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -2918,7 +3010,7 @@ cptr option_desc[OPT_MAX] =
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
 	NULL,									   /*40*/
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	"Simplified monster path finding (faster)",	/* OPT_fast_flow */
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -3070,7 +3162,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_view_torch_grids */
 	FALSE,						     /*40*/
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_fast_flow */
+	FALSE,
 	FALSE,
 	FALSE,
 	FALSE,
@@ -3240,7 +3332,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_torch_grids,
 		255,
 		OPT_dungeon_stair,
-		OPT_fast_flow,
+		255,
 		255,
 		255,
 		255,

@@ -45,6 +45,7 @@ extern byte adj_str_wgt[];
 extern byte adj_str_hold[];
 extern byte adj_str_dig[];
 extern byte adj_str_blow[];
+extern byte adj_dex_shots[];
 extern byte adj_dex_blow[];
 extern byte adj_dex_safe[];
 extern byte adj_con_fix[];
@@ -54,12 +55,12 @@ extern owner_type owners[MAX_STORES][MAX_B_IDX];
 extern byte extract_energy[200];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
-extern player_race race_info[MAX_P_IDX];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
 extern cptr spell_names[255];
 extern byte deadliness_conversion[151];
 extern int chest_traps[100];
+extern set_type s_info[MAX_S_IDX];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[6];
@@ -144,9 +145,6 @@ extern s16b coin_type;
 extern bool opening_chest;
 extern bool shimmer_monsters;
 extern bool shimmer_objects;
-extern bool repair_mflag_blbr;
-extern bool repair_mflag_born;
-extern bool repair_mflag_nice;
 extern bool repair_mflag_show;
 extern bool repair_mflag_mark;
 extern s16b o_max;
@@ -207,8 +205,20 @@ extern byte (*cave_info)[256];
 extern byte (*cave_feat)[DUNGEON_WID];
 extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
+
+#ifdef MONSTER_FLOW
+
 extern byte (*cave_cost)[DUNGEON_WID];
 extern byte (*cave_when)[DUNGEON_WID];
+extern int scent_when;
+extern int flow_center_y;
+extern int flow_center_x;
+extern int update_center_y;
+extern int update_center_x;
+extern int cost_at_center;
+
+#endif
+
 extern object_type *o_list;
 extern monster_type *m_list;
 extern monster_lore *l_list;
@@ -233,6 +243,7 @@ extern player_magic *mp_ptr;
 extern player_other *op_ptr;
 extern player_type *p_ptr;
 extern int add_wakeup_chance;
+extern u32b total_wakeup_chance;
 extern header *v_head;
 extern vault_type *v_info;
 extern char *v_name;
@@ -346,8 +357,8 @@ extern void do_cmd_view_map(void);
 extern errr vinfo_init(void);
 extern void forget_view(void);
 extern void update_view(void);
-extern void forget_flow(void);
-extern void update_flow(void);
+extern void update_noise(void);
+extern void update_smell(void);
 extern void map_area(int y, int x, bool extended);
 extern void wiz_lite(bool wizard);
 extern void wiz_dark(void);
@@ -530,12 +541,16 @@ extern errr rd_savefile_old(void);
 extern errr rd_savefile_new(void);
 extern errr rd_version_info(void);
 
-/* melee1.c */
-extern bool make_attack_normal(int m_idx, int y, int x);
+/* monattk.c */
+extern bool make_attack_normal(monster_type *m_ptr, int y, int x);
+extern bool make_attack_ranged(monster_type *m_ptr, int attack);
 
-/* melee2.c */
-extern bool make_attack_spell(int m_idx);
+/* monmove.c */
+extern byte side_dirs[20][8];
+extern int get_scent(int y, int x);
+extern bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok);
 extern void process_monsters(byte minimum_energy);
+extern void reset_monsters(void);
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -594,6 +609,9 @@ extern void show_floor(int *floor_list, int floor_num);
 extern bool get_item_floor(int *cp, cptr pmt, cptr str, int mode);
 extern cptr object_adj(int tval, int sval);
 extern bool destroy_squelched_items(void);
+extern bool check_set(byte s_idx);
+extern void apply_set(int s_idx);
+extern void remove_set(int s_idx);
 
 /* object2.c */
 extern void excise_object_idx(int o_idx);
@@ -847,6 +865,7 @@ extern bool is_a_vowel(int ch);
 
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
+extern void repeat_clear(void);
 extern void repeat_check(void);
 extern int make_metric(int wgt);
 extern byte get_angle_to_grid[41][41];

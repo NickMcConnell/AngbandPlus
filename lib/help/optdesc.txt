@@ -153,7 +153,8 @@ Disturb whenever map panel changes    [disturb_panel]
 Disturb when leaving last trap detect area    [disturb_trap_detect]
      This option causes you to be disturbed when attempting to run outside
      the region of your last 'detect traps' spell.  It will take effect only
-     once per trap detection spell you use.
+     once per trap detection spell you use.  In addition, this option will
+     cause a text warning to be printed when you leave this region.
 
 Disturb whenever player state changes    [disturb_state]
      This option causes you to be disturbed whenever the player state changes, 
@@ -245,21 +246,6 @@ Generate dungeons with connected stairs    [dungeon_stair]
      Always generate a staircase back to the level you came from, if you used
      a staircase to get to the level.  This is more "realistic", and "safer",
      but less of a "challenge" for some people.
-
-Simplified monster path finding (faster)    [fast_flow]
-     Monsters use a simplified method to find paths around walls
-     toward you.  The difference in movement is rarely noticeable for
-     most monsters.  This simplification can cause the game to run
-     much faster on certain older computers, especially when running
-     down corridors.
-
-Monsters chase current location (v.slow)    [flow_by_sound]
-     Allow monsters to make paths to the player when they are nearby.  This
-     option is extremely slow, but can produce viciously smart monsters.
-
-Monsters chase recent locations (v.slow)    [flow_by_smell]
-     Allow monsters to take advantage of "old" trails that you may have left
-     in the dungeon.  This has no effect unless "flow_by_sound" is also set.
 
 Monsters exploit players weaknesses    [smart_cheat]
      Allow monsters to know what spell attacks you are resistant to,

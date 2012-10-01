@@ -5284,15 +5284,15 @@ void amiga_hs_to_ascii(void)
 #ifdef KANGBAND
 	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
-	        race_info[pr].title, class_info[pc].title,
+	        rp_ptr->title, class_info[pc].title,
 	        clev);
 #else
 /*	sprintf(temp, "%3d.%9s  %s the %s %s",
 	        i + 1, h.pts, h.who,
-	        race_info[pr].title,magic_info[pc].title); */
+	        rp_ptr->title,magic_info[pc].title); */
 	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
-	        race_info[pr].title, class_info[pc].title,
+	        rp_ptr->title, class_info[pc].title,
 	        clev);
 
 #endif

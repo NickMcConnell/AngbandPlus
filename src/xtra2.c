@@ -848,7 +848,7 @@ bool set_tim_esp(int v)
 	/* Open */
 	if (v)
 	{
-		if ((!p_ptr->tim_esp) && (!p_ptr->telepathy))
+		if (!p_ptr->tim_esp)
 		{
 			msg_print("You feel your conciousness expand!");
 			notice = TRUE;
@@ -858,7 +858,7 @@ bool set_tim_esp(int v)
 	/* Shut */
 	else
 	{
-		if ((p_ptr->tim_esp) && (!p_ptr->telepathy))
+		if (p_ptr->tim_esp)
 		{
 			msg_print("You feel your conciousness contract.");
 			notice = TRUE;
@@ -2272,9 +2272,6 @@ void monster_death(int m_idx)
 
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Fully update the flow */
-		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 	}
 
 
@@ -2313,12 +2310,6 @@ void monster_death(int m_idx)
  * Invisible monsters induce a special "You have killed it." message.
  *
  * Hack -- we "delay" fear messages by passing around a "fear" flag.
- *
- * Consider decreasing monster experience over time, say, by using
- * "(m_exp * m_lev * (m_lev)) / (p_lev * (m_lev + n_killed))" instead
- * of simply "(m_exp * m_lev) / (p_lev)", to make the first monster
- * worth more than subsequent monsters.   This would also need to
- * induce changes in the monster recall code.  XXX XXX XXX
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
@@ -2341,6 +2332,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
+
+	/* Always go active */
+	m_ptr->mflag |= (MFLAG_ACTV);
 
 	/* Hack - Cancel any special player stealth magics. */
 	if (p_ptr->superstealth)
@@ -2467,8 +2461,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 
-#ifdef ALLOW_FEAR
-
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
@@ -2507,8 +2499,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		if ((dam > 0) && ((randint(10) >= percentage) || 
+		    ((dam >= m_ptr->hp) && (rand_int(100) < 80))))
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;
@@ -2523,10 +2515,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 	}
 
-#endif
-
 	/* Recalculate desired minimum range */
-	m_ptr->min_range = 0;
+	if (dam > 0) m_ptr->min_range = 0;
 
 	/* Not dead yet */
 	return (FALSE);
@@ -4193,10 +4183,13 @@ bool get_aim_dir(int *dp)
 	if (repeat_pull(dp))
 	{
 		/* Verify */
-		if (!(*dp == 5 && !target_okay()))
+		if ((*dp > 0) && (*dp < 10) && (!(*dp == 5 && !target_okay())))
 		{
 			return (TRUE);
 		}
+
+		/* Invalid repeat - reset it */
+		else repeat_clear();
 	}
 
 #endif /* ALLOW_REPEAT */

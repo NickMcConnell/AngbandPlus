@@ -10,7 +10,7 @@ OBJS = \
   variable.o tables.o util.o cave.o info.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o randart.o \
+  monmove.o monattk.o save.o files.o randart.o \
   attack.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o squelch.o\
@@ -65,8 +65,8 @@ load1.o: load1.c $(INCS)
 load2.o: load2.c $(INCS)
 main-ami.o: main-ami.c $(INCS) sound-ami.h
 main.o: main.c $(INCS)
-melee1.o: melee1.c $(INCS)
-melee2.o: melee2.c $(INCS)
+monmove.o: monmove.c $(INCS)
+monattk.o: monattk.c $(INCS)
 monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)

@@ -276,14 +276,14 @@ Disarm a trap or chest / Desanctify a glyph (D)
 
 Alter (+)
      This special command allows the use of a single keypress to select any of 
-     the dungeon alteration commands above (attack, tunnel, bash, open, disarm, 
+     the dungeon alteration commands above (attack, tunnel, bash, open, disarm,
      close), and, by using macros or keymaps, to combine this keypress with 
-     directions.  For Rogues, it also allows stealing and setting traps.  In 
-     general, this allows the use of the control key plus the appropriate 
-     direction key (including the roguelike direction keys in roguelike mode) 
-     as a kind of generic "alter the terrain feature of an adjacent grid" 
-     command.  This command may take a count, is affected by the "always_repeat" 
-     option, requires a direction, and takes some energy.
+     directions.  For (non-shapeshifted) Rogues, it also allows stealing and
+     setting traps.  In  general, this allows the use of the control key plus
+     the appropriate direction key (including the roguelike direction keys in 
+     roguelike mode) as a kind of generic "alter the terrain feature of an
+     adjacent grid" command.  This command may take a count, is affected by the
+     "always_repeat" option, requires a direction, and takes some energy.
 
 
 --- Spell and Prayer Commands ---
@@ -319,10 +319,11 @@ Cast a spell or Pray a Prayer (m and p)
 
 --- Player Manipulation Commands ---
 
-End a shapechange (])
+End/Default shapechange (])
      This command will return you to your normal state, if you have previously 
-     transformed yourself into any creature.
-
+     transformed yourself into any creature.  In addition, if your character
+     has an intrinsic ability to shapechange (ie the Beorning player race)
+     this command will initiate the shape change.
 
 --- Object Manipulation Commands ---
 

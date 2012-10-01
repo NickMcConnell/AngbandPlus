@@ -273,6 +273,9 @@ static void prt_shape(void)
 		case SHAPE_WYRM:
 			shapedesc = "Wyrm      ";
 			break;
+		case SHAPE_BEAR:
+			shapedesc = "Bear      ";
+			break;
 		default:
 			shapedesc = "          ";
 			break;
@@ -405,7 +408,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	c_prt(TERM_L_BLUE, format("%7s", depths), Term->hgt - 1, Term->wid - 10);
+	c_prt(TERM_L_BLUE, format("%7s", depths), Term->hgt - 1, Term->wid - 8);
 }
 
 
@@ -661,7 +664,20 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str((byte)attr, format("%-14s", buf), Term->hgt - 1, COL_SPEED);
+	c_put_str((byte)attr, format("%-11s", buf), Term->hgt - 1, COL_SPEED);
+}
+
+
+static void prt_dtrap(void)
+{
+	if (p_ptr->dtrap_rad)
+	{
+		c_put_str(TERM_YELLOW, "DTrap", Term->hgt - 1, COL_DTRAP);
+	}
+	else
+	{
+		c_put_str(TERM_YELLOW, "     ", Term->hgt - 1, COL_DTRAP);
+	}
 }
 
 
@@ -669,7 +685,7 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", Term->hgt - 1, 64);
+		put_str("Study", Term->hgt - 1, COL_STUDY);
 	}
 	else
 	{
@@ -1189,6 +1205,9 @@ static void prt_frame_extra(void)
 
 	/* Speed */
 	prt_speed();
+
+	/* Study spells */
+	prt_dtrap();
 
 	/* Study spells */
 	prt_study();
@@ -2422,6 +2441,17 @@ static void shape_change_stat(void)
 			p_ptr->stat_add[A_CHR] -= 1;
 			break;
 		}
+		case SHAPE_BEAR:
+		{
+			p_ptr->stat_add[A_STR] += 1;
+			if (p_ptr->lev >= 10) p_ptr->stat_add[A_STR] += 1;
+			if (p_ptr->lev >= 20) p_ptr->stat_add[A_CON] += 1;
+			if (p_ptr->lev >= 30) p_ptr->stat_add[A_CON] += 1;
+			if (p_ptr->lev >= 40) p_ptr->stat_add[A_STR] += 1;
+			p_ptr->stat_add[A_INT] -= 1;
+			p_ptr->stat_add[A_CHR] -= 1;
+			break;
+		}
 	}
 }
 
@@ -2627,6 +2657,37 @@ static void shape_change_main(void)
 			}
 			break;
 		}
+		case SHAPE_BEAR:
+		{
+			p_ptr->to_a += 5;
+			p_ptr->dis_to_a += 5;
+			p_ptr->to_h += 5;
+			p_ptr->dis_to_h += 5;
+			if (p_ptr->lev >= 10) 
+			{
+				p_ptr->to_d += 5;
+				p_ptr->dis_to_d += 5;
+			}
+			if (p_ptr->lev >= 20) 
+			{
+				p_ptr->to_d += 5;
+				p_ptr->dis_to_d += 5;
+			}
+			if (p_ptr->lev >= 30) 
+			{
+				p_ptr->to_a += 10;
+				p_ptr->dis_to_a += 10;
+			}
+			if (p_ptr->lev >= 40) 
+			{
+				p_ptr->to_h += 5;
+				p_ptr->dis_to_h += 5;
+			}
+			p_ptr->skill_dev /= 2;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
+			break;
+		}
 	}
 }
 
@@ -2666,6 +2727,8 @@ static void calc_bonuses(void)
 
 	int old_speed;
 
+	int old_stealth;
+
 	int old_telepathy;
 	int old_see_inv;
 
@@ -2681,8 +2744,6 @@ static void calc_bonuses(void)
 	int old_stat_use[6];
 	int old_stat_ind[6];
 
-	int float_simulator;
-
 	object_type *o_ptr;
 
 	u32b f1, f2, f3;
@@ -2692,6 +2753,9 @@ static void calc_bonuses(void)
 
 	/* Save the old speed */
 	old_speed = p_ptr->pspeed;
+
+	/* Save the old stealth */
+	old_stealth = p_ptr->skill_stl;
 
 	/* Save the old vision stuff */
 	old_telepathy = p_ptr->telepathy;
@@ -2874,8 +2938,6 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
-
-	/* Special Stuff, not found in p_info.txt */
 
 	/* Ent */
 	if ((rp_ptr->flags_special) & PS_WOODEN) 
@@ -3309,24 +3371,6 @@ static void calc_bonuses(void)
 	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
 	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
 
-	/* Apply Skill -- Extract the base wakeup chance (x100) from stealth.  
-	 * Various activities can now directly affect the possibility that 
-	 * monsters will be disturbed the next time they are processed.   So be 
-	 * careful when bashing or fighting!  Also, since noise is created by 
-	 * performing actions, not passing time, faster chars no longer have an 
-	 * effective bonus to stealth.  To compensate, stealth is now 15% more 
-	 * effective intrinsically.  See global variable "add_wakeup_chance".  -LM-
-	 */
-	float_simulator = 100;
-	if (p_ptr->skill_stl % 3 == 1) float_simulator = 126;
-	if (p_ptr->skill_stl % 3 == 2) float_simulator = 159;
-
-	p_ptr->base_wakeup_chance = 85000L * 
-		extract_energy[p_ptr->pspeed] / 
-			( (1L << (p_ptr->skill_stl / 3)) * 
-				float_simulator);
-
-
 	/*** Analyze shapechanges - everything but statistics ***/
 	shape_change_main();
 
@@ -3357,8 +3401,7 @@ static void calc_bonuses(void)
 	if (o_ptr->k_idx)
 	{
 		/* Get to shoot */
-		p_ptr->num_fire = 1;
-		p_ptr->num_fire = 1;
+		p_ptr->num_fire = 10;
 
 		/* Launcher multiplier is now simply their damage dice. */
 		p_ptr->ammo_mult = o_ptr->dd;
@@ -3406,8 +3449,11 @@ static void calc_bonuses(void)
 		/* Apply special flags */
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
+			/* Dex factor for shot speed */
+			int dex_factor = (adj_dex_shots[p_ptr->stat_ind[A_DEX]]);
+
 			/* Extra shots */
-			p_ptr->num_fire += extra_shots;
+			p_ptr->num_fire += extra_shots * 10;
 
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
@@ -3416,63 +3462,62 @@ static void calc_bonuses(void)
 			if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
-				/* Extra shot at level 20 */
-				if (p_ptr->lev > 19) p_ptr->num_fire++;
-
-				/* Extra shot at level 40 */
-				if (p_ptr->lev > 39) p_ptr->num_fire++;
+				/* Big bonus */
+				p_ptr->num_fire += dex_factor;
 			}
 
 			/* Hack -- Rangers are also decent with slings and xbows. */
-			if ((p_ptr->pclass == CLASS_RANGER) &&
+			else if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
-				/* Extra shot at level 25 */
-				if (p_ptr->lev > 24) p_ptr->num_fire++;
+				/* Medium bonus */
+				p_ptr->num_fire += dex_factor / 2;
 			}
-			if ((p_ptr->pclass == CLASS_RANGER) &&
+			else if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->ammo_tval == TV_BOLT))
 			{
-				/* Extra shot at level 45 */
-				if (p_ptr->lev > 44) p_ptr->num_fire++;
+				/* Medium bonus */
+				p_ptr->num_fire += dex_factor / 2;
 			}
 
 
 			/* Hack -- Warriors can handle most missile weapons effectively. */
-			if ((p_ptr->pclass == CLASS_WARRIOR) &&
+			else if ((p_ptr->pclass == CLASS_WARRIOR) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
-				/* Extra shot at level 35 */
-				if (p_ptr->lev > 34) p_ptr->num_fire++;
+				/* Medium bonus */
+				p_ptr->num_fire += dex_factor / 2;
 			}
-			if ((p_ptr->pclass == CLASS_WARRIOR) &&
+			else if ((p_ptr->pclass == CLASS_WARRIOR) &&
 			    (p_ptr->ammo_tval == TV_BOLT))
 			{
-				/* Extra shot at level 40 */
-				if (p_ptr->lev > 39) p_ptr->num_fire++;
+				/* Medium bonus */
+				p_ptr->num_fire += dex_factor / 2;
 			}
 
 
 			/* Hack -- Rogues are great with slings. */
-			if ((p_ptr->pclass == CLASS_ROGUE) &&
+			else if ((p_ptr->pclass == CLASS_ROGUE) &&
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
-				/* Extra shot at level 20 */
-				if (p_ptr->lev > 19) p_ptr->num_fire++;
+				/* Big bonus */
+				p_ptr->num_fire += dex_factor;
 			}
-			if ((p_ptr->pclass == CLASS_ROGUE) &&
-			    (p_ptr->ammo_tval == TV_SHOT))
+
+			/* Hack -- Every other class/launcher combo */
+			else
 			{
-				/* Extra shot at level 40 */
-				if (p_ptr->lev > 39) p_ptr->num_fire++;
+				/* Small bonus */
+				p_ptr->num_fire += dex_factor / 4;
 			}
+
 
 			/* See formula "do_cmd_fire" in "cmd2.c" for Assassin bonus
 			 * to Deadliness. */
 		}
 
-		/* Require at least one shot */
-		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
+		/* Require at least one shot per round in real terms */
+		if (p_ptr->num_fire < 10) p_ptr->num_fire = 10;
 	}
 
 	/* Add all class and race-specific adjustments to missile Skill. */
@@ -3654,6 +3699,26 @@ static void calc_bonuses(void)
 	{
 		/* Redraw speed */
 		p_ptr->redraw |= (PR_SPEED);
+	}
+
+	/* Recalculate stealth when needed */
+	if (p_ptr->skill_stl != old_stealth)
+	{
+		/* Assume character is extremely noisy. */
+		p_ptr->base_wakeup_chance = 100 * WAKEUP_ADJ;
+
+		/* For every increase in stealth past 0, multiply wakeup chance by 0.8. */
+		for (i = 0; i < p_ptr->skill_stl; i++)
+		{
+			p_ptr->base_wakeup_chance = 4 * p_ptr->base_wakeup_chance / 5;
+
+			/* Always make at least some innate noise */
+			if (p_ptr->base_wakeup_chance < 100)
+			{
+				p_ptr->base_wakeup_chance = 100;
+				break;
+			}
+		}
 	}
 
 	/* Redraw armor (if needed) */
@@ -3840,20 +3905,6 @@ void update_stuff(void)
 		update_view();
 	}
 
-
-	if (p_ptr->update & (PU_FORGET_FLOW))
-	{
-		p_ptr->update &= ~(PU_FORGET_FLOW);
-		forget_flow();
-	}
-
-	if (p_ptr->update & (PU_UPDATE_FLOW))
-	{
-		p_ptr->update &= ~(PU_UPDATE_FLOW);
-		update_flow();
-	}
-
-
 	if (p_ptr->update & (PU_DISTANCE))
 	{
 		p_ptr->update &= ~(PU_DISTANCE);
@@ -3999,6 +4050,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
 		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
 		p_ptr->redraw &= ~(PR_STATUS);
+		p_ptr->redraw &= ~(PR_DTRAP);
 		prt_frame_extra();
 	}
 
@@ -4054,6 +4106,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_SPEED);
 		prt_speed();
+	}
+
+	if (p_ptr->redraw & (PR_DTRAP))
+	{
+		p_ptr->redraw &= ~(PR_DTRAP);
+		prt_dtrap();
 	}
 
 	if (p_ptr->redraw & (PR_STUDY))

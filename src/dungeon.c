@@ -422,79 +422,6 @@ static void regenmana(int percent)
 	}
 }
 
-
-
-
-
-
-/*
- * Regenerate the monsters (once per 100 game turns)
- *
- * Also regen monster mana -BR-
- *
- * XXX XXX XXX Should probably be done during monster turns.
- */
-static void regen_monsters(void)
-{
-	int i, frac;
-
-	/* Regenerate everyone */
-	for (i = 1; i < m_max; i++)
-	{
-		/* Check the i'th monster */
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* first regenerate mana */
-		if (m_ptr->mana < r_ptr->mana)
-		{
-			/* Mana comes back 1 point at a time, with probability
-			 * Based on maximum mana */
-			if (rand_int(200) < (r_ptr->mana)) m_ptr->mana++;
-			
-			/* Do not over-regenerate */
-			if (m_ptr->mana > r_ptr->mana) m_ptr->mana = r_ptr->mana;
-			
-			/* Fully healed -> flag minimum range for recalculation */
-			if (m_ptr->mana == r_ptr->mana) m_ptr->min_range = 0;
-		}
-
-		/* Monsters suffering from the Black Breath cannot regenerate hps. */
-		if (m_ptr->black_breath)
-		{
-			continue;
-		}
-
-		/* Allow hp regeneration (if needed) */
-		if (m_ptr->hp < m_ptr->maxhp)
-		{
-			/* Hack -- Base regeneration */
-			frac = m_ptr->maxhp / 100;
-
-			/* Hack -- Minimal regeneration rate */
-			if (!frac) frac = 1;
-
-			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
-
-			/* Hack -- Regenerate */
-			m_ptr->hp += frac;
-
-			/* Do not over-regenerate */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			/* Fully healed -> flag minimum range for recalculation */
-			if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
-
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-		}
-	}
-}
-
 /*
  * If player has inscribed the object with "!!", let him know when it's 
  * recharged. -LM-
@@ -700,12 +627,6 @@ static void process_world(void)
 	/* Hack - if there is a ghost now, and there was not before, 
 	 * give a challenge */
 	if ((bones_selector) && (!(was_ghost))) ghost_challenge();
-
-	/* Hack -- Check for creature regeneration 
-	 * Monster hps and mana -BR-
-	 */
-	if (!(turn % 100)) regen_monsters();
-
 
 	/*** Damage over Time ***/
 
@@ -1963,9 +1884,17 @@ static void process_command(void)
 		/*** Misc Commands ***/
 
 		/* Stop doing a shapechange.  From Sangband. */
+		/* Or use a special racial shapechange -BR- */
 		case ']':
 		{
-			do_cmd_unchange();
+			if ((!SCHANGE) &&
+			    ((rp_ptr->flags_special) & PS_BEARSKIN))
+			{
+				/* Confirm */
+				if (get_check("Assume the form of a bear? "))
+				   shapechange(SHAPE_BEAR);
+			}
+			else do_cmd_unchange();
 			break;
 		}
 
@@ -2184,6 +2113,8 @@ static void process_player_aux(void)
 static void process_player(void)
 {
 	int i;
+
+	int temp_wakeup_chance;
 
 	/*** Check for interupts ***/
 
@@ -2451,28 +2382,6 @@ static void process_player(void)
 				}
 			}
 
-			/* Repair "nice" flags */
-			if (repair_mflag_nice)
-			{
-				/* Clear flag */
-				repair_mflag_nice = FALSE;
-
-				/* Process monsters */
-				for (i = 1; i < m_max; i++)
-				{
-					monster_type *m_ptr;
-
-					/* Access monster */
-					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
-					/* if (!m_ptr->r_idx) continue; */
-
-					/* Clear "nice" flag */
-					m_ptr->mflag &= ~(MFLAG_NICE);
-				}
-			}
-
 			/* Repair "mark" flags */
 			if (repair_mflag_mark)
 			{
@@ -2536,6 +2445,42 @@ static void process_player(void)
 		}
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
+
+	/*
+	 * Characters are noisy.
+	 * Use the amount of extra (directed) noise the player has made 
+	 * this turn to calculate the total amount of ambiant noise.
+	 */
+	temp_wakeup_chance = p_ptr->base_wakeup_chance + add_wakeup_chance;
+
+	/* People don't make much noise when resting. */
+	if (p_ptr->resting) temp_wakeup_chance /= 2;
+
+	/* Characters hidden in shadow have almost perfect stealth. */
+	if ((p_ptr->superstealth) && (!p_ptr->aggravate))
+	{
+		if (temp_wakeup_chance > 200) temp_wakeup_chance = 200;
+	}
+
+
+	/* Increase noise level if necessary. */
+	if (temp_wakeup_chance > total_wakeup_chance) 
+		total_wakeup_chance = temp_wakeup_chance;
+
+
+	/* Update noise flow information */
+	update_noise();
+
+	/* Update scent trail */
+	update_smell();
+
+
+	/* 
+	 * Reset character vulnerability.  Will be calculated by 
+	 * the first member of an animal pack that has a use for it.
+	 */
+	p_ptr->vulnerability = 0;
+
 }
 
 
@@ -2545,20 +2490,9 @@ static void process_player(void)
  *
  * This function will not exit until the level is completed,
  * the user dies, or the game is terminated.
- *
- * This function is modified in Oangband 0.5.0 to process 
- * monsters with energy greater than the player, then the 
- * player, then remaining monsters.  100 or more energy is still 
- * also required.
- * This function now applies energy to players and monsters.
- * Patch by FM.
  */
 static void dungeon(void)
 {
-
-	monster_type *m_ptr;
-	int i;
-
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -2578,14 +2512,11 @@ static void dungeon(void)
 	/* Cancel the health bar */
 	health_track(0);
 
-
 	/* Reset shimmer flags */
 	shimmer_monsters = TRUE;
 	shimmer_objects = TRUE;
 
 	/* Reset repair flags */
-	repair_mflag_born = TRUE;
-	repair_mflag_nice = TRUE;
 	repair_mflag_show = TRUE;
 	repair_mflag_mark = TRUE;
 
@@ -2675,9 +2606,6 @@ static void dungeon(void)
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
-	/* Fully update the flow */
-	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
@@ -2736,6 +2664,9 @@ static void dungeon(void)
 	/* Announce a player ghost challenge. -LM- */
 	if (bones_selector) ghost_challenge();
 
+	/* Reset noise */
+	total_wakeup_chance = 0;
+	add_wakeup_chance = 0;
 
 	/*** Process this dungeon level ***/
 
@@ -2766,20 +2697,6 @@ static void dungeon(void)
 
 		/* Give the player some energy */
 		p_ptr->energy += extract_energy[p_ptr->pspeed];
-
-		/* Give energy to all monsters */
-		for (i = m_max - 1; i >= 1; i--)
-		{
-
-			/* Access the monster */
-			m_ptr = &m_list[i];
-
-			/* Ignore "dead" monsters */
-			if (!m_ptr->r_idx) continue;
-
-			/* Give this monster some energy */
-			m_ptr->energy += extract_energy[m_ptr->mspeed];
-		}
 
 		/* Can the player move? */
 		while (p_ptr->energy >= 100 && !p_ptr->leaving)
@@ -2817,12 +2734,11 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-		/* Process all remaining monsters */
-		process_monsters(100);
+		/* Process monsters */
+		process_monsters(0);
 
-		/* Every ten game turns, clear any modifications to the chance that 
-		 * a monster will be disturbed. */
-		if (!(turn % 10)) add_wakeup_chance = 0;
+		/* Reset Monsters */
+		reset_monsters();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -3063,7 +2979,6 @@ void play_game(bool new_game)
 
 	/* Initialize the artifact allocation lists */
 	init_artifacts();
-
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);

@@ -238,8 +238,6 @@ static cptr err_str[8] =
 
 #endif
 
-
-
 /*** Initialize from binary image files ***/
 
 
@@ -3636,6 +3634,33 @@ static void init_angband_aux(cptr why)
 	quit("Fatal Error.");
 }
 
+/*
+ * Hack - identify set item artifacts.
+ *
+ * Go through the list of Set Items and identify all artifacts in each set
+ * as belonging to that set. By GS
+ */
+void update_artifact_sets()
+{
+ 	byte i;
+	byte j;
+	set_type *s_ptr;
+	set_element *se_ptr;
+	artifact_type *a_ptr;
+
+	for (i=0;i<MAX_S_IDX;i++)
+	{
+
+		s_ptr = &s_info[i];
+		for (j=0;j<s_ptr->no_of_items;j++)
+		{
+			se_ptr= &s_ptr->set_items[j];
+			a_ptr = &a_info[se_ptr->a_idx];
+			a_ptr->set_no = i;
+		}
+	}
+}
+
 
 /*
  * Hack -- main Angband initialization entry point
@@ -3796,6 +3821,9 @@ void init_angband(void)
 	/* Initialize artifact info */
 	note("[Initializing arrays... (artifacts)]");
 	if (init_a_info()) quit("Cannot initialize artifacts");
+
+	/* Initialize set item artifacts. */
+	update_artifact_sets();
 
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");

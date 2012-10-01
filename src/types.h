@@ -74,6 +74,8 @@ typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
+typedef struct set_type set_type;
+typedef struct set_element set_element;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
@@ -269,6 +271,33 @@ struct artifact_type
 	byte creat_stat;		/* Was cur_num.  0 or 1.  
 					 * Possible future expanded functionality. */
 	byte activation;		/* Temporary activation index. -LM- */
+
+	byte set_no;		/* Stores the set number of the artifact. 0 if not part of a set -GS- */
+	bool set_bonus;		/* Is the item set, is the bonus currently applied? */
+};
+
+
+/* Item sets */
+
+/* Information about an item in a set -GS- */
+struct set_element  
+{
+	byte a_idx;			/* the artifact ID */
+	u32b flags1;			/* Artifact Flags, set 1 */
+	u32b flags2;			/* Artifact Flags, set 2 */
+	u32b flags3;			/* Artifact Flags, set 3 */
+	s16b pval;			/* Item pval with complete set */
+};
+
+/* Information about items sets -GS- */
+struct set_type 
+{
+	cptr set_name;			/* The name of the set */
+	/*u16b name;*/			/* Name (offset) */
+	/*u16b text;*/			/* Text (offset) */
+	byte no_of_items;		/* The number of items in the set */
+	cptr set_desc;			/* Description of set shown when an object is *identified* */
+	set_element set_items[6];	/* the artifact no and extra powers. */	
 };
 
 
@@ -357,8 +386,7 @@ struct monster_race
 
 	byte mana;                              /* max mana */
 
-	byte freq_inate;		/* Inate spell frequency */
-	byte freq_spell;		/* Other spell frequency */
+	byte freq_ranged;		/* Ranged attack frequency */
 
 	u32b flags1;			/* Flags 1 (general) */
 	u32b flags2;			/* Flags 2 (abilities) */
@@ -568,25 +596,23 @@ struct monster_type
 
 	s16b hold_o_idx;	        /* Object being held (if any) */
 
-#ifdef DRS_SMART_OPTIONS
-
 	u32b smart;			/* Field for "smart_learn" */  /* Now saved */
 
-#endif
+        byte ty;			/* Monster target */
+	byte tx;			
 
-#ifdef WDT_TRACK_OPTIONS
-	byte ty;			/* Y location of target */  /* Not yet used */
-	byte tx;			/* X location of target */  /* Not yet used */
-
-#endif
-
-	byte harass;                    /* An AI variable making harassment spells 
-					 * more likely early in a battle */
+	byte harass;                    /* 
+					 * Mega Hack
+					 * An AI variable making harassment spells 
+					 * more likely early in a battle 
+					 */
   
 	byte min_range;			/* What is the closest we want to be? */  /* Not saved */
 	byte best_range;		/* How close do we want to be? */  /* Not saved */
 
 	byte mana;                      /* Current mana level */
+
+	bool moved;			/* Monster has moved this turn */
 
 };
 
@@ -1165,6 +1191,8 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+	byte vulnerability;	/* Used to make animal packs charge and retreat */
 
         /* Add some variables for disturb_trap_detect.  Not saved.  -BR- */
         byte dtrap_x;           /* X location of last trap detection */

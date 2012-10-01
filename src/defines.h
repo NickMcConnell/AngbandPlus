@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.5.1"
+#define VERSION_STRING	"0.5.2"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -67,7 +67,7 @@
  */
 #define O_VERSION_MAJOR	0
 #define O_VERSION_MINOR	5
-#define O_VERSION_PATCH	1
+#define O_VERSION_PATCH	2
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -174,10 +174,10 @@
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
 #define MAX_R_IDX	800	/* Max size for "r_info[]" */
 #define MAX_V_IDX	150	/* Max size for "v_info[]" */
-#define MAX_H_IDX	212	/* Max size for "h_info[]" */
+#define MAX_H_IDX	223	/* Max size for "h_info[]" */
 #define MAX_B_IDX	6	/* Max size for "b_info[]" */
-#define MAX_P_IDX	13	/* Max size for "p_info[]" */
-
+#define MAX_P_IDX	14	/* Max size for "p_info[]" */
+#define MAX_S_IDX	6	/* Max size for "s_info[]" */
 
 /*
  * Size of the "fake" array for reading in names of monsters, objects,
@@ -245,6 +245,15 @@
  */
 #define TEMP_MAX 1536
 
+/*
+ * Maximum distance from the character to store flow (noise) information
+ */
+#define NOISE_STRENGTH 45
+
+/*
+ * Character turns it takes for smell to totally dissipate
+ */
+#define SMELL_STRENGTH 60
 
 /*
  * OPTION: Maximum number of macros (see "io.c")
@@ -325,12 +334,22 @@
  * Misc constants
  */
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
-#define BREAK_GLYPH		550		/* Rune of protection resistance */
+#define BREAK_GLYPH		400		/* Rune of protection resistance */
 #define BTH_PLUS_ADJ    1       /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
 #define USE_DEVICE      3		/* x> Harder devices x< Easier devices     */
+
+/*
+ * Percentage likelihood that monsters will be disturbed by the
+ * character each ten game turns, assuming a stealth of zero.
+ *
+ * This value is 100 in Angband.  It has been lowered in Oangband because
+ * combat and other actions can temporarily increase the noise level.
+ */
+#define WAKEUP_ADJ    90
+
 
 /*
  * There is a 1/25 (4%) chance of inflating the requested object_level
@@ -595,7 +614,9 @@
 
 #define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
 
-#define COL_STUDY               64      /* "Study" */
+#define COL_DTRAP               60      /* "DTrap" */
+
+#define COL_STUDY               66      /* "Study" */
 
 #define ROW_MAP			1
 #define COL_MAP			13
@@ -2112,9 +2133,6 @@
 #define PU_FORGET_VIEW	0x00010000L	/* Forget field of view */
 #define PU_UPDATE_VIEW	        0x00020000L	/* Update field of view */
 /* xxx (many) */
-#define PU_FORGET_FLOW	0x00100000L	/* Forget flow data */
-#define PU_UPDATE_FLOW	0x00200000L	/* Update flow data */
-/* xxx (many) */
 #define PU_MONSTERS	0x10000000L	/* Update monsters */
 #define PU_DISTANCE	0x20000000L	/* Update distances */
 /* xxx */
@@ -2147,7 +2165,7 @@
 #define PR_STATE	0x00100000L	/* Display Extra (State) */
 #define PR_SPEED	0x00200000L	/* Display Extra (Speed) */
 #define PR_STUDY	0x00400000L	/* Display Extra (Study) */
-/* xxx */
+#define PR_DTRAP        0x00800000L     /* Display Extra (DTrap) */
 #define PR_EXTRA	0x01000000L	/* Display Extra Info */
 #define PR_BASIC	0x02000000L	/* Display Basic Info */
 /* xxx */
@@ -2216,9 +2234,10 @@
 #define SHAPE_WEREWOLF 8
 #define SHAPE_VAMPIRE 9
 #define SHAPE_WYRM 10
+#define SHAPE_BEAR 11
 
 #define SCHANGE \
-    (p_ptr->schange > 0 && p_ptr->schange < 11)
+    (p_ptr->schange > 0 && p_ptr->schange < 12)
 
 
 /*** Cave flags ***/
@@ -2352,8 +2371,8 @@
 #define PS_DIVINE	              	0x00100000L
 #define PS_SHADOW	              	0x00200000L
 #define PS_WOODEN	              	0x00400000L
-#define PS_XXX7	                	0x00800000L
-#define PS_XXX8	                	0x01000000L
+#define PS_BEARSKIN                    	0x00800000L
+#define PS_XXX8                       	0x01000000L
 #define PS_XXX9	                	0x03000000L
 #define PS_XX10	                	0x04000000L
 #define PS_XX11	                	0x08000000L
@@ -2540,9 +2559,11 @@
  * Special Monster Flags (all temporary)
  */
 #define MFLAG_VIEW	0x01	/* Monster is in line of sight */
-#define MFLAG_BLBR	0x08	/* Monster suffers from the Black Breath. -LM- */
-#define MFLAG_BORN	0x10	/* Monster is still being born */
-#define MFLAG_NICE	0x20	/* Monster is still being nice */
+#define MFLAG_XXX1	0x02	/*  */
+#define MFLAG_XXX2	0x04	/*  */
+#define MFLAG_ACTV	0x08	/* Monster is in active mode */
+#define MFLAG_XXX4	0x10	/*  */
+#define MFLAG_XXX5	0x20	/*  */
 #define MFLAG_SHOW	0x40	/* Monster is recently memorized */
 #define MFLAG_MARK	0x80	/* Monster is currently memorized */
 
@@ -2968,7 +2989,7 @@
 #define OPT_view_torch_grids		39
 /* xxx */
 #define OPT_dungeon_stair			41
-#define OPT_fast_flow		                42
+/* xxx */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -3077,7 +3098,7 @@
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 /* xxx */
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
-#define fast_flow			op_ptr->opt[OPT_fast_flow]
+/* xxx */
 /* xxx */
 /* xxx */
 /* xxx */

@@ -176,11 +176,11 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 			/* Absorb floor object. */
 			object_absorb(i_ptr, o_ptr);
 
-			/* Increase carried weight */
-			p_ptr->total_weight += o_ptr->weight * (o_ptr->number - old_num);
-
 			/* Get the object again */
 			o_ptr = &inventory[i];
+
+			/* Increase carried weight */
+			p_ptr->total_weight += o_ptr->weight * (o_ptr->number - old_num);
 
 			/* Describe the object */
 			object_desc(o_name, o_ptr, TRUE, 3);
@@ -1868,6 +1868,22 @@ void move_player(int dir, int do_pickup)
 					/* Hit the floor trap. */
 					hit_trap(y, x);
 				}
+
+				/* Warn when leaving trap detected region */
+				if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
+				{
+					if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= p_ptr->dtrap_rad) 
+					{
+							p_ptr->dtrap_x=0;
+							p_ptr->dtrap_y=0;
+							p_ptr->dtrap_rad=0;
+							msg_print("*Leaving trap detect region!*");
+
+							/* Redraw DTrap Status */
+							p_ptr->redraw |= (PR_DTRAP);
+
+					}
+				}
 			}
 		}
 	}
@@ -2227,11 +2243,17 @@ static bool run_test(void)
 	/* break run when leaving trap detected region */
 	if (disturb_trap_detect && p_ptr->dtrap_x && p_ptr->dtrap_y && p_ptr->dtrap_rad)
 	{
-		if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= p_ptr->dtrap_rad) 
+		if (distance(p_ptr->py, p_ptr->px, p_ptr->dtrap_y, p_ptr->dtrap_x) >= (p_ptr->dtrap_rad - 1)) 
 		{
 			p_ptr->dtrap_x=0;
 			p_ptr->dtrap_y=0;
 			p_ptr->dtrap_rad=0;
+			msg_print("*Leaving trap detect region!*");
+
+			/* Redraw DTrap Status */
+			p_ptr->redraw |= (PR_DTRAP);
+
+			/* Break Run */
 			return(TRUE);
 		}
 	}

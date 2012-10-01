@@ -166,8 +166,22 @@ players whose spellcasters of other races die too quickly.
          Members of this wise race can never gain feather fall by any means, but 
          will slowly acquire the ability needed to tear rock apart with their 
          weaponless hands.
-
  
+     Beorning:
+         These hardy woodsfolk, though of human origin, have developed a deep
+         affinity with nature.  Many of the Beornings have learned the secret
+         languanges of animals and some have learned to transform themselves
+         into the forms of great bears.  They have respectable dungeon survival
+         skills and are comfortable with all manner of weapons, but they are
+         mediocre with magical devices.  They are at a slight disadvantage in
+         charisma and intellegence, but they have better wisdom and 
+         consistution than other humans.  When needed, they can take the form
+         of an increasingly powerful bear (use the ']' command), making them
+         more effective in combat and weaker in magic and archery.  Beorning
+         are best known as warriors, rangers, and druids, though they make 
+         fine rogues and priests as well.
+
+
 === Classes ===
  
 Nine different classes are available in Oangband.  Some classes are not re-
@@ -184,13 +198,13 @@ more experienced player that is familiar with survival techniques.
          level 30, learns to probe for weaknesses (see the help doc "magic.txt")
          at level 35, can spread attacks out among weaker monsters at level 40, 
          and regenerates intrinsically at level 45.  He is unchallengable with 
-         melee weapons, and is also good with all missile launchers, getting an 
-         extra shot with bows (level 35) and crossbows (level 40).  His biggest 
-         drawback is his ignorance of spells and many magical items.  Most of 
-         his dungeon survival skills are average or worse.  A Warrior learns 
-         no magical spells, and has poor magical defences.  He has very fast, 
-         strong pseudo-ID.  His prime stat is Strength, and a good Dexterity and 
-         Constitution can really help at times.
+         melee weapons, and is also good with all missile launchers, shooting 
+         quickly with bows and crossbows.  His biggest drawback is his ignorance
+         of spells and many magical items.  Most of his dungeon survival skills
+         are average or worse.  A Warrior learns no magical spells, and has poor
+         magical defences.  He has very fast, strong pseudo-ID.  His prime stat
+         is Strength, and a good Dexterity and Constitution can really help at
+         times.
 
      Mage:
          Master of sorcery.  A mage is not really happy without an assortment 
@@ -219,28 +233,26 @@ more experienced player that is familiar with survival techniques.
      Rogue:
          The flexible dungeon sneaker, first in line when dungeon survival 
          skills were handed out.  Rogues can fight very well with light weapons 
-         and are dangerous with slings (extra shots at 20th and 40th level), but 
-         have trouble with heavier gear.  They can fight hand-to-hand more 
-         quietly than can any other class, and gets the most effective sneak 
-         attacks against sleeping monsters.  Rogues have the unique capacity of 
-         filching purses and setting traps (use the '+' command.  See the help 
-         file "combat.txt for more details).   They have fairly fast, strong 
-         pseudo-ID.  They will also get a fairly good collection of spells to 
-         improve their natural skills, aid in battle, and gain information.  
-         Unfortunately, no shopkeeper trusts a rogue, and so members of this 
-         class will pay dearly for goods in town.  A rogue's primary stats are 
-         Intelligence and Dexterity.
+         and shoot very quickly with slings, but have trouble with heavier gear.
+         They can fight hand-to-hand more quietly than can any other class, and
+         gets the most effective sneak attacks against sleeping monsters.
+         Rogues have the unique capacity of filching purses and setting traps
+         (use the '+' command.  See the help file "combat.txt for more details).
+         They have fairly fast, strong pseudo-ID.  They will also get a fairly
+         good collection of spells to improve their natural skills, aid in
+         battle, and gain information.  Unfortunately, no shopkeeper trusts a
+         rogue, and so members of this class will pay dearly for goods in town.
+         A rogue's primary stats are Intelligence and Dexterity.
 
      Ranger:
          An archer skilled in nature lore.  Rangers are better than any other 
-         class with any missile weapon except slings, getting one extra shot 
-         with slings and crosbows (25th level for slings, 45th for xbows), and 
-         two with bows (20th and 40th level).  They learn about monster abil-
-         ities very quickly.  Rangers are better than average in melee, and 
-         find their spells to be mighty handy.   They have pretty good dungeon 
-         survival skills and stealth, but are a little uncertain about magical 
-         devices, and have fairly slow pseudo-ID.  A ranger's primary stats are 
-         Wisdom and Constitution.
+         class with any missile weapon except slings, shooting quickly with
+         slings and crosbows and very quickly with bows.  They learn about
+         monsters abilities very quickly.  Rangers are better than average in
+         melee, and find their spells to be mighty handy.   They have pretty
+         good dungeon survival skills and stealth, but are a little uncertain
+         about magical devices, and have fairly slow pseudo-ID.  A ranger's
+         primary stats are Wisdom and Constitution.
 
      Paladin:
          A champion of the Faith.  A paladin is the second best melee fighter 
@@ -274,17 +286,17 @@ more experienced player that is familiar with survival techniques.
          and he needs to watch his Constitution.
 
      Assassin:
+
          The death-dealing stalker.  He is better than a Rogue at melee, but is 
          still limited to reasonably light weapons.  An Assassin is deadly with 
-         lighter missile launchers, and can eventually poison missiles, but gets 
-         no innate extra shots.  He is a master at using thrown weapons against 
-         sleeping monsters.  He has rather good stealth, but lacks protection 
-         if caught.  His other dungeon survival skills are good, and he has 
-         access to a sub-set of the necromantic spells.  He can shoot missiles 
-         and throw objects more quietly than any other class, and makes little 
-         noise in melee as well.  An Assassin will have mediocre magic skill, 
-         and poor magical defences.  He has fairly fast, strong pseudo-ID.  
-         His primary stats are Intelligence and Strength.
+         lighter missile launchers, and can eventually poison missiles, but does
+         not shoot especially quickly.  He is a master at using thrown weapons          against sleeping monsters.  He has rather good stealth, but lacks
+         protection if caught.  His other dungeon survival skills are good, and
+         he has access to a sub-set of the necromantic spells.  He can shoot
+         missiles and throw objects more quietly than any other class, and
+         makes little noise in melee as well.  An Assassin will have mediocre
+         magic skill, and poor magical defences.  He has fairly fast, strong
+         pseudo-ID.  His primary stats are Intelligence and Strength.
 
 
 === Combinations of Race and Class (recommendations only) ===
@@ -304,7 +316,8 @@ more experienced player that is familiar with survival techniques.
      High-Elf      Yes   Yes   Yes   Yes   Yes   No    Yes   Yes   Yes
      Maia          Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes   Yes
      Shadow Fairy  Yes   Yes   Yes   Yes   Yes   No    Yes   Yes   Yes
-     Ent           Yes   No    Yes   No    Yes   No    Yes   No    Yes
+     Ent           Yes   No    Yes   No    Yes   No    Yes   No    No
+     Beorning      Yes   No    Yes   Yes   Yes   No    Yes   No    No
 
 
 === Stat Bonus and Hit Point Tables ===
@@ -323,6 +336,7 @@ more experienced player that is familiar with survival techniques.
      Maia          +4    +3    +3    +3    +4    +5      12         +25%*
      Shadow Fairy  -2    +2    +2    +1    -1     0       7         +20%
      Ent           +2     0    +2    -3    +2     0      12         +30%
+     Beorning       0    -1    +1     0    +1     0      10         +15%
 
 * : Also halves your score.
 
@@ -359,7 +373,8 @@ Abilities are ranked on a comparative scale ranging from 1 to 10.
      Maia          9      9    10      6      7     10     10     10
      Shadow Fairy  8      6     5     10+    10     10      2      4
      Ent           3      5     7      6      3      5      7      3
-  
+     Beorning      6      5     5      6      6      8      6      5
+
                  disarm device save stealth search percep melee missile
      Warrior       5      3     5      3      4      4      10     8
      Mage          3     10     6     5->2    5      6      3      3
@@ -369,7 +384,7 @@ Abilities are ranked on a comparative scale ranging from 1 to 10.
      Paladin       3      2     6      3      3      3      9*     4
      Druid         4      5     7      6      6      7      4      6
      Necromancer   3      6     4      4      4      4      3      3
-     Assassin      7      5     3      7      8      8      7      9
+     Assassin      7      5     3      7      8      8      9      9
 
 * : With blunt weapons; otherwise much worse (use the 'I'nspect 
     command to find out which weapons are blunt)

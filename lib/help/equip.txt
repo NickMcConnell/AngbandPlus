@@ -353,3 +353,10 @@ to acid damage.  They also occasionally allow you to breathe as a dragon would!
 powerful than ego armour.  Some artifact are standard, and you may already know 
 of their fame, while others will certainly be unfamiliar to you and will need to 
 be fully identified (*identified*).
+
+     In addition, a small number of artifacts, known as Set Items are designed
+to be used in conjunction with related items.  Equipping an entire set of these
+items will grant the wearer additional bonuses and abilities.  Item sets
+generally  consist of two items, but may include more.  A set item is revealed
+when identified, and more information about the set is revealed when it is
+*identified*.

@@ -17,62 +17,213 @@
 
 
 /*
- * Hack -- quick debugging hook
+ * Debug scent trails and noise bursts.
  */
 static void do_cmd_wiz_hack_ben(void)
 {
 
 #ifdef MONSTER_FLOW
 
+	char cmd;
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, y, x;
+	int i, y, x, y2, x2;
+
+	/* Get a "debug command" */
+	if (!get_com("Press 'S' for scent, 'N' for noise info: ", &cmd)) return;
 
 
-	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
+	/* Analyze the command */
+	switch (cmd)
 	{
-		/* Update map */
-		for (y = panel_row_min; y <= panel_row_max; y++)
+		case 'S':
+		case 's':
 		{
-			for (x = panel_col_min; x <= panel_col_max; x++)
+			/* Update map */
+			for (y = panel_row_min; y <= panel_row_max; y++)
 			{
-				byte a = TERM_RED;
+				for (x = panel_col_min; x <= panel_col_max; x++)
+				{
+					byte a;
 
-				/* Display proper cost */
-				if (cave_cost[y][x] != i) continue;
+					int age = get_scent(y, x);
 
-				/* Reliability in yellow */
-				if (cave_when[y][x] == cave_when[py][px])
-				{
-					a = TERM_YELLOW;
-				}
+					/* Must have scent */
+					if (age == -1) continue;
 
-				/* Display player/floors/walls */
-				if ((y == py) && (x == px))
-				{
-					print_rel('@', a, y, x);
-				}
-				else if (cave_floor_bold(y, x))
-				{
-					print_rel('*', a, y, x);
-				}
-				else
-				{
-					print_rel('#', a, y, x);
+					/* Pretty colors by age */
+					if (age > SMELL_STRENGTH) a = TERM_L_DARK;
+
+					else if (age < 10) a = TERM_BLUE;
+					else if (age < 20) a = TERM_L_BLUE;
+					else if (age < 30) a = TERM_GREEN;
+					else if (age < 40) a = TERM_L_GREEN;
+					else if (age < 50) a = TERM_YELLOW;
+					else if (age < 60) a = TERM_ORANGE;
+					else if (age < 70) a = TERM_L_RED;
+					else a = TERM_RED;
+
+
+					/* Display player/floors/walls */
+					if ((y == py) && (x == px))
+					{
+						print_rel('@', a, y, x);
+					}
+					else 
+					{
+						print_rel('0' + (age % 10), a, y, x);
+					}
 				}
 			}
+
+			/* Prompt */
+			prt("Scent ages", 0, 0);
+
+			/* Wait for a keypress */
+			(void)inkey();
+
+			/* Redraw map */
+			prt_map();
+
+			break;
+
 		}
 
-		/* Prompt */
-		prt(format("Depth %d: ", i), 0, 0);
+		case 'N':
+		case 'n':
+		{
 
-		/* Get key */
-		if (inkey() == ESCAPE) break;
+			/* Get a "debug command" */
+			if (!get_com("Press 'D' for direction of flow, 'C' for actual cost values: ", &cmd)) return;
 
-		/* Redraw map */
-		prt_map();
-	}
+			if ((cmd == 'D') || (cmd == 'd'))
+			{
+				/* Update map */
+				for (y = panel_row_min; y <= panel_row_max; y++)
+				{
+					for (x = panel_col_min; x <= panel_col_max; x++)
+					{
+						int lowest_cost = cave_cost[y][x];
+						int dir = -1;
+						int cost;
+
+						if (lowest_cost == 0) continue;
+
+						for (i = 0; i < 8; i++)
+						{
+							/* Get the location */
+							y2 = y + ddy_ddd[i];
+							x2 = x + ddx_ddd[i];
+
+							cost = cave_cost[y2][x2];
+							if (!cost) continue;
+
+							/* If this grid's scent is younger, save it */
+							if (lowest_cost > cost) lowest_cost = cost;
+
+							/* If it isn't, look elsewhere */
+							else continue;
+
+							/* Save this direction */
+							dir = i;
+						}
+
+						/* If we didn't find any younger scent, print a '5' */
+						if (dir == -1) print_rel('5', TERM_YELLOW, y, x);
+
+						/* Otherwise, convert to true direction and print */
+						else
+						{
+							i = ddd[dir];
+							print_rel('0' + i, TERM_L_BLUE, y, x);
+						}
+					}
+				}
+
+				/* Prompt */
+				prt("Directions given to advancing monsters using noise info", 0, 0);
+
+				/* Wait for a keypress */
+				(void)inkey();
+
+				/* Redraw map */
+				prt_map();
+			}
+
+			/* Actual cost values */
+			else
+			{
+				int j;
+
+				for (i = cost_at_center - 2; i <= 100 + NOISE_STRENGTH; ++i)
+				{
+					/* First show grids with no scent */
+					if (i == cost_at_center - 2) j = 0;
+
+					/* Then show specially marked grids (bug-checking) */
+					else if (i == cost_at_center - 1) j = 255;
+
+					/* Then show standard grids */
+					else j = i;
+
+					/* Update map */
+					for (y = panel_row_min; y <= panel_row_max; y++)
+					{
+						for (x = panel_col_min; x <= panel_col_max; x++)
+						{
+							byte a = TERM_YELLOW;
+
+							/* Display proper cost */
+							if (cave_cost[y][x] != j) continue;
+
+							/* Display player/floors/walls */
+							if ((y == py) && (x == px))
+							{
+								print_rel('@', a, y, x);
+							}
+							else if (cave_floor_bold(y, x))
+							{
+								print_rel('*', a, y, x);
+							}
+							else
+							{
+								print_rel('#', a, y, x);
+							}
+						}
+					}
+
+					/* Prompt */
+					if (j == 0)
+					{
+						prt("Grids with no scent", 0, 0);
+					}
+					else if (j == 255)
+					{
+						prt("Specially marked grids", 0, 0);
+					}
+					else
+					{
+						prt(format("Depth %d: ", j), 0, 0);
+					}
+
+					/* Get key */
+					if (inkey() == ESCAPE) break;
+
+					/* Redraw map */
+					prt_map();
+				}
+			}
+
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+  	}
 
 	/* Done */
 	prt("", 0, 0);
@@ -83,7 +234,7 @@ static void do_cmd_wiz_hack_ben(void)
 #else /* MONSTER_FLOW */
 
 	/* Oops */
-	msg_print("Oops");
+	msg_print("Monster flow is not included in this copy of the game.");
 
 #endif /* MONSTER_FLOW */
 
@@ -1391,6 +1542,8 @@ static void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named(int r_idx, bool slp)
 {
+	monster_race *r_ptr = &r_info[r_idx];
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -1408,8 +1561,8 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		/* Pick a location */
 		scatter(&y, &x, py, px, d, 0);
 
-		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
+		/* Require grids that the monster can exist in */
+		if (!cave_exist_mon(r_ptr, y, x, FALSE)) continue;
 
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
