@@ -5,8 +5,9 @@
 the left side of the main window, the basic skills characters possess, and the 
 various special immunities and qualities that characters may acquire in their 
 adventures.  It also tells you how to keep track of all this information.
-     Your character may also gain one or more "specialty abilities", (described 
-in the file "specialt.txt") using the 'O' command.
+     Your character may view your race, class, and "specialty" abilties
+(described in the file "specialt.txt") or learn new specialty abilities using
+the 'O' command.
 
 
 === Character Attributes Shown on the Left Side of the Main Window ===

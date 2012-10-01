@@ -1787,7 +1787,7 @@ static errr init_s_info_raw(int fd)
 	fd_read(fd, (char*)(s_name), s_head->name_size);
 
 
-#ifndef DELAY_LOAD_A_TEXT
+#ifndef DELAY_LOAD_S_TEXT
 
 	/* Allocate the "a_text" array */
 	C_MAKE(s_text, s_head->text_size, char);
@@ -2752,23 +2752,23 @@ static errr init_v_info(void)
 
 
 /*
- * Initialize the "p_info" array, by parsing a binary "image" file
+ * Initialize the "rp_info" array, by parsing a binary "image" file
  */
-static errr init_p_info_raw(int fd)
+static errr init_rp_info_raw(int fd)
 {
 	header test;
 
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	   (test.v_major != p_head->v_major) ||
-	   (test.v_minor != p_head->v_minor) ||
-	   (test.v_patch != p_head->v_patch) ||
-	   (test.v_extra != p_head->v_extra) ||
-	   (test.info_num != p_head->info_num) ||
-	   (test.info_len != p_head->info_len) ||
-	   (test.head_size != p_head->head_size) ||
-	   (test.info_size != p_head->info_size))
+	   (test.v_major != rp_head->v_major) ||
+	   (test.v_minor != rp_head->v_minor) ||
+	   (test.v_patch != rp_head->v_patch) ||
+	   (test.v_extra != rp_head->v_extra) ||
+	   (test.info_num != rp_head->info_num) ||
+	   (test.info_len != rp_head->info_len) ||
+	   (test.head_size != rp_head->head_size) ||
+	   (test.info_size != rp_head->info_size))
 	{
 	      /* Error */
 	      return (-1);
@@ -2776,30 +2776,30 @@ static errr init_p_info_raw(int fd)
 
 
 	/* Accept the header */
-	(*p_head) = test;
+	(*rp_head) = test;
 
 
-	/* Allocate the "p_info" array */
-	C_MAKE(p_info, p_head->info_num, player_race);
+	/* Allocate the "rp_info" array */
+	C_MAKE(rp_info, rp_head->info_num, player_race);
 
-	/* Read the "p_info" array */
-	fd_read(fd, (char*)(p_info), p_head->info_size);
+	/* Read the "rp_info" array */
+	fd_read(fd, (char*)(rp_info), rp_head->info_size);
 
 
-	/* Allocate the "p_name" array */
-	C_MAKE(p_name, p_head->name_size, char);
+	/* Allocate the "rp_name" array */
+	C_MAKE(rp_name, rp_head->name_size, char);
 
-	/* Read the "p_name" array */
-	fd_read(fd, (char*)(p_name), p_head->name_size);
+	/* Read the "rp_name" array */
+	fd_read(fd, (char*)(rp_name), rp_head->name_size);
 
 
 #ifndef DELAY_LOAD_P_TEXT
 
 	/* Allocate the "p_text" array */
-	C_MAKE(p_text, p_head->text_size, char);
+	C_MAKE(rp_text, rp_head->text_size, char);
 
 	/* Read the "p_text" array */
-	fd_read(fd, (char*)(p_text), p_head->text_size);
+	fd_read(fd, (char*)(rp_text), rp_head->text_size);
 
 #endif
 
@@ -2811,12 +2811,12 @@ static errr init_p_info_raw(int fd)
 
 
 /*
- * Initialize the "p_info" array
+ * Initialize the "rp_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_p_info(void)
+static errr init_rp_info(void)
 {
 	int fd;
 
@@ -2832,21 +2832,21 @@ static errr init_p_info(void)
 	/*** Make the "header" ***/
 
 	/* Allocate the "header" */
-	MAKE(p_head, header);
+	MAKE(rp_head, header);
 
 	/* Save the "version" */
-	p_head->v_major = O_VERSION_MAJOR;
-	p_head->v_minor = O_VERSION_MINOR;
-	p_head->v_patch = O_VERSION_PATCH;
-	p_head->v_extra = O_VERSION_EXTRA;
+	rp_head->v_major = O_VERSION_MAJOR;
+	rp_head->v_minor = O_VERSION_MINOR;
+	rp_head->v_patch = O_VERSION_PATCH;
+	rp_head->v_extra = O_VERSION_EXTRA;
 
 	/* Save the "record" information */
-	p_head->info_num = MAX_P_IDX;
-	p_head->info_len = sizeof(player_race);
+	rp_head->info_num = MAX_P_IDX;
+	rp_head->info_len = sizeof(player_race);
 
-	/* Save the size of "p_head" and "p_info" */
-	p_head->head_size = sizeof(header);
-	p_head->info_size = p_head->info_num * p_head->info_len;
+	/* Save the size of "p_head" and "rp_info" */
+	rp_head->head_size = sizeof(header);
+	rp_head->info_size = rp_head->info_num * rp_head->info_len;
 
 
 #ifdef ALLOW_TEMPLATES
@@ -2870,7 +2870,7 @@ static errr init_p_info(void)
 
 	      /* Attempt to parse the "raw" file */
 	      if (!err)
-		     err = init_p_info_raw(fd);
+		     err = init_rp_info_raw(fd);
 	      
 	      /* Close it */
 	      fd_close(fd);
@@ -2882,12 +2882,12 @@ static errr init_p_info(void)
 
 	/*** Make the fake arrays ***/
 
-	/* Allocate the "p_info" array */
-	C_MAKE(p_info, p_head->info_num, player_race);
+	/* Allocate the "rp_info" array */
+	C_MAKE(rp_info, rp_head->info_num, player_race);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(p_name, FAKE_NAME_SIZE, char);
-	C_MAKE(p_text, FAKE_TEXT_SIZE, char);
+	C_MAKE(rp_name, FAKE_NAME_SIZE, char);
+	C_MAKE(rp_text, FAKE_TEXT_SIZE, char);
 
 
 	/*** Load the ascii template file ***/
@@ -2902,7 +2902,7 @@ static errr init_p_info(void)
 	if (!fp) quit("Cannot open 'p_race.txt' file.");
 
 	/* Parse the file */
-	err = init_p_info_txt(fp, buf);
+	err = init_rp_info_txt(fp, buf);
 
 	/* Close it */
 	my_fclose(fp);
@@ -2944,16 +2944,16 @@ static errr init_p_info(void)
 	if (fd >= 0)
 	{
 	      /* Dump it */
-	      fd_write(fd, (char*)(p_head), p_head->head_size);
+	      fd_write(fd, (char*)(rp_head), rp_head->head_size);
 
-	      /* Dump the "p_info" array */
-	      fd_write(fd, (char*)(p_info), p_head->info_size);
+	      /* Dump the "rp_info" array */
+	      fd_write(fd, (char*)(rp_info), rp_head->info_size);
 
-	      /* Dump the "p_name" array */
-	      fd_write(fd, (char*)(p_name), p_head->name_size);
+	      /* Dump the "rp_name" array */
+	      fd_write(fd, (char*)(rp_name), rp_head->name_size);
 
-	      /* Dump the "p_text" array */
-	      fd_write(fd, (char*)(p_text), p_head->text_size);
+	      /* Dump the "rp_text" array */
+	      fd_write(fd, (char*)(rp_text), rp_head->text_size);
 
 	      /* Close */
 	      fd_close(fd);
@@ -2962,12 +2962,12 @@ static errr init_p_info(void)
 
 	/*** Kill the fake arrays ***/
 
-	/* Free the "p_info" array */
-	C_KILL(p_info, p_head->info_num, player_race);
+	/* Free the "rp_info" array */
+	C_KILL(rp_info, rp_head->info_num, player_race);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(p_name, FAKE_NAME_SIZE, char);
-	C_KILL(p_text, FAKE_TEXT_SIZE, char);
+	C_KILL(rp_name, FAKE_NAME_SIZE, char);
+	C_KILL(rp_text, FAKE_TEXT_SIZE, char);
   
 
 #endif	/* ALLOW_TEMPLATES */
@@ -2985,13 +2985,260 @@ static errr init_p_info(void)
 	if (fd < 0) quit("Cannot open 'p_race.raw' file.");
 
 	/* Attempt to parse the "raw" file */
-	err = init_p_info_raw(fd);
+	err = init_rp_info_raw(fd);
 
 	/* Close it */
 	fd_close(fd);
 
 	/* Error */
 	if (err) quit("Cannot parse 'p_race.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "cp_info" array, by parsing a binary "image" file
+ */
+static errr init_cp_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	   (test.v_major != cp_head->v_major) ||
+	   (test.v_minor != cp_head->v_minor) ||
+	   (test.v_patch != cp_head->v_patch) ||
+	   (test.v_extra != cp_head->v_extra) ||
+	   (test.info_num != cp_head->info_num) ||
+	   (test.info_len != cp_head->info_len) ||
+	   (test.head_size != cp_head->head_size) ||
+	   (test.info_size != cp_head->info_size))
+	{
+	      /* Error */
+	      return (-1);
+	}
+
+
+	/* Accept the header */
+	(*cp_head) = test;
+
+
+	/* Allocate the "cp_info" array */
+	C_MAKE(cp_info, cp_head->info_num, player_class);
+
+	/* Read the "cp_info" array */
+	fd_read(fd, (char*)(cp_info), cp_head->info_size);
+
+
+	/* Allocate the "cp_name" array */
+	C_MAKE(cp_name, cp_head->name_size, char);
+
+	/* Read the "cp_name" array */
+	fd_read(fd, (char*)(cp_name), cp_head->name_size);
+
+
+#ifndef DELAY_LOAD_CP_TEXT
+
+	/* Allocate the "p_text" array */
+	C_MAKE(cp_text, cp_head->text_size, char);
+
+	/* Read the "p_text" array */
+	fd_read(fd, (char*)(cp_text), cp_head->text_size);
+
+#endif
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "cp_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_cp_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(cp_head, header);
+
+	/* Save the "version" */
+	cp_head->v_major = O_VERSION_MAJOR;
+	cp_head->v_minor = O_VERSION_MINOR;
+	cp_head->v_patch = O_VERSION_PATCH;
+	cp_head->v_extra = O_VERSION_EXTRA;
+
+	/* Save the "record" information */
+	cp_head->info_num = MAX_P_IDX;
+	cp_head->info_len = sizeof(player_class);
+
+	/* Save the size of "p_head" and "cp_info" */
+	cp_head->head_size = sizeof(header);
+	cp_head->info_size = cp_head->info_num * cp_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_class.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+	      err = check_modification_date(fd, "p_class.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+	      /* Attempt to parse the "raw" file */
+	      if (!err)
+		     err = init_cp_info_raw(fd);
+	      
+	      /* Close it */
+	      fd_close(fd);
+
+	      /* Success */
+	      if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "cp_info" array */
+	C_MAKE(cp_info, cp_head->info_num, player_class);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(cp_name, FAKE_NAME_SIZE, char);
+	C_MAKE(cp_text, FAKE_TEXT_SIZE, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_class.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'p_class.txt' file.");
+
+	/* Parse the file */
+	err = init_cp_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+	      cptr oops;
+
+	      /* Error string */
+	      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+	      /* Oops */
+	      msg_format("Error %d at line %d of 'p_class.txt'.", err, error_line);
+	      msg_format("Record %d contains a '%s' error.", error_idx, oops);
+	      msg_format("Parsing '%s'.", buf);
+	      msg_print(NULL);
+
+	      /* Quit */
+	      quit("Error in 'p_class.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_class.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+	      /* Dump it */
+	      fd_write(fd, (char*)(cp_head), cp_head->head_size);
+
+	      /* Dump the "cp_info" array */
+	      fd_write(fd, (char*)(cp_info), cp_head->info_size);
+
+	      /* Dump the "cp_name" array */
+	      fd_write(fd, (char*)(cp_name), cp_head->name_size);
+
+	      /* Dump the "cp_text" array */
+	      fd_write(fd, (char*)(cp_text), cp_head->text_size);
+
+	      /* Close */
+	      fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "cp_info" array */
+	C_KILL(cp_info, cp_head->info_num, player_class);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(cp_name, FAKE_NAME_SIZE, char);
+	C_KILL(cp_text, FAKE_TEXT_SIZE, char);
+  
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_class.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'p_class.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_cp_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'p_class.raw' file.");
 
 	/* Success */
 	return (0);
@@ -4175,15 +4422,19 @@ void init_angband(void)
 	note("[Initializing arrays... (histories)]");
 	if (init_h_info()) quit("Cannot initialize histories");
 
-	/* Initialize history info */
+	/* Initialize race info */
 	note("[Initializing arrays... (races)]");
-	if (init_p_info()) quit("Cannot initialize races");
+	if (init_rp_info()) quit("Cannot initialize races");
 
-	/* Initialize history info */
+	/* Initialize class info */
+	note("[Initializing arrays... (classes)]");
+	if (init_cp_info()) quit("Cannot initialize classes");
+
+	/* Initialize price info */
 	note("[Initializing arrays... (prices)]");
 	if (init_g_info()) quit("Cannot initialize prices");
 
-	/* Initialize history info */
+	/* Initialize owner info */
 	note("[Initializing arrays... (owners)]");
 	if (init_b_info()) quit("Cannot initialize owners");
 

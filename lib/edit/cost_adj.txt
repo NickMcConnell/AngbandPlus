@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 # Hum,HfE,Elf,Hob,Gno,Dwa,HfO,HfT,Dun,HiE,Mai,SFa,Ent,Beo
 

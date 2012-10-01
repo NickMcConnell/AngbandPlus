@@ -1153,7 +1153,20 @@ byte extract_energy[200] =
 
 
 
-
+/*
+ * Player resistance levels.
+ * 
+ * The interesting range is Base-1 (vulnerable) to Base+10 (immune).
+ */
+int extract_resistance[60] =
+{
+	/* -20	*/    -30, -30, -30, -30, -30, -30, -30, -30, -30, -30,
+	/* -10	*/    -30, -30, -30, -30, -30, -30, -30, -30, -30, -30,
+	/* Base	*/      0,  25,	 45,  60,  70,  75,  80,  85,  90,  95,
+	/* +10	*/    100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+	/* +20	*/    100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+	/* +30	*/    100, 100, 100, 100, 100, 100, 100, 100, 100, 100
+};
 
 
 
@@ -1231,390 +1244,6 @@ player_sex sex_info[MAX_SEXES] =
 	{
 		"Male",
 		"King"
-	}
-};
-
-/*
- * Player Classes
- *
- *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
- *	 c_dis,  c_dev,  c_sav,  c_stl,  c_srh,  c_fos,  c_thn,  c_thb,
- *	cx_dis, cx_dev, cx_sav, cx_stl, cx_srh, cx_fos, cx_thn, cx_thb,
- *
- *	Note: Modifier values are the total level bonus that a 50th 
- *    level character would get for that skill.  See xtra1.c for how 
- *    this works.
- *
- *	HD, Exp
- */
-player_class class_info[MAX_CLASS] =
-{
-	{
-		"Warrior",
-		{ 5, -2, -2, 2, 2, -1},
-		18, 18, 18, 1, 14,  5, 25, 25,
-		50, 35, 50, 0,  0,  0,100, 80,
-		9
-	},
-
-	{	
-		"Mage",
-		{-4, 3, 0, 1, -2, 1},
-		14, 36, 30,  3, 16, 12, 10, 15,
-		30, 65, 45, -3,  0,  0, 25, 25,
-		0
-	},
-
-	{
-		"Priest",
-		{-1, -3, 3, -1, 0, 2},
-		15, 32, 32,  2, 16,  8, 16, 15,
-		30, 50, 60,  0,  0,  0, 50, 25,
-		2
-	},
-
-		/* A high-level rogue sees and disarms *everything*. */
-	{
-		"Rogue",
-		{ 2, 1, -2, 3, 1, -5},
-		45, 32, 28,  6, 36, 28, 15, 29,
-		90, 50, 50,  0, 40, 40, 70, 60,
-		5
-	},
-
-	{
-		"Ranger",
-		{ 1, 0, 1, 2, 1, 0},
-		22, 26, 28, 4, 24, 16, 15, 30,
-		50, 40, 50, 0,  0,  0, 65, 95,
-		5
-	},
-
-	{
-		"Paladin",
-		{ 2, -3, 1, 0, 1, 2},
-		14, 16, 25, 1, 12,  2, 19, 15,
-		30, 30, 55, 0,  0,  0, 76, 20,
-		7
-	},
-
-	{
-		"Druid",
-		{ -2, -2, 3, 1, 0, 1},
-		22, 26, 30, 4, 24, 16, 12, 21,
-		40, 45, 60, 0,  0,  0, 30, 40,
-		0
-	},
-
-	{
-		"Necromancer",
-		{ -2, 3, -2, 1, 0, -2},
-		14, 32, 25,  2, 14,  6, 10, 15,
-		30, 50, 40,  0,  0,  0, 30, 30,
-		0
-	},
-
-	{
-		"Assassin",
-		{ 2, 1, -3, 2, 0, -2},
-		35, 26, 20,  5, 30, 22, 20, 29,
-		70, 50, 40,  0, 10, 10, 85, 80,
-		4
-	}
-};
-
-
-/*
- * Bonuses to close combat skill based on class, weapon, and 
- * weapon weight. -BR-
- */
-player_weapon weapon_info[MAX_CLASS] =
-{
-	{
-		/* Warrior */
-		150,		/* Max Weight (decipounds) at level 1 */
-		450,		/* Max Weight (decipounds) at level 50 */
-		17,		/* Penalty per 10 pounds over */
-		10,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Mage */
-		60,		/* Max Weight (decipounds) at level 1 */
-		160,		/* Max Weight (decipounds) at level 50 */
-		33,		/* Penalty per 10 pounds over */
-		30,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Priest */
-		120,		/* Max Weight (decipounds) at level 1 */
-		220,		/* Max Weight (decipounds) at level 50 */
-		25,		/* Penalty per 10 pounds over */
-		25,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		TRUE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Rogue */
-		100,		/* Max Weight (decipounds) at level 1 */
-		200,		/* Max Weight (decipounds) at level 50 */
-		33,		/* Penalty per 10 pounds over */
-		25,		/* Max Penalty */
-		17,		/* Bonus per 10 pounds under */
-		15,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Ranger */
-		120,		/* Max Weight (decipounds) at level 1 */
-		250,		/* Max Weight (decipounds) at level 50 */
-		20,		/* Penalty per 10 pounds over */
-		20,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Paladin */
-		150,		/* Max Weight (decipounds) at level 1 */
-		450,		/* Max Weight (decipounds) at level 50 */
-		17,		/* Penalty per 10 pounds over */
-		10,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		TRUE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Druid */
-		50,		/* Max Weight (decipounds) at level 1 */
-		120,		/* Max Weight (decipounds) at level 50 */
-		33,		/* Penalty per 10 pounds over */
-		30,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		TRUE		/* Bare-handed skill */
-	},
-
-	{
-		/* Necromancer */
-		60,		/* Max Weight (decipounds) at level 1 */
-		160,		/* Max Weight (decipounds) at level 50 */
-		33,		/* Penalty per 10 pounds over */
-		30,		/* Max Penalty */
-		0,		/* Bonus per 10 pounds under */
-		0,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	},
-
-	{
-		/* Assassin */
-		100,		/* Max Weight (decipounds) at level 1 */
-		200,		/* Max Weight (decipounds) at level 50 */
-		33,		/* Penalty per 10 pounds over */
-		25,		/* Max Penalty */
-		22,		/* Bonus per 10 pounds under */
-		20,		/* Max Bonus */
-		FALSE,		/* Edged Weapon Penalty */
-		FALSE		/* Bare-handed skill */
-	}
-};
-
-
-/*
- * Specialty abilities available by class -BR-
- */
-byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
-{
-	{
-		/* Warrior */
-		SP_ARMOR_MAST,
-		SP_ARMSMAN,
-		SP_ATHLETICS,
-		SP_MIGHTY_THROW,
-		SP_FAST_ATTACK,
-		SP_FURY,
-		SP_MARKSMAN,
-		SP_PIERCE_SHOT,
-		SP_REGENERATION,
-		SP_SHIELD_MAST,
-		SP_EVASION,
-		SP_MARTIAL_ARTS,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Mage */
-		SP_ARMOR_PROFICIENCY,
-		SP_BEGUILE,
-		SP_CLARITY,
-		SP_ENHANCE_MAGIC,
-		SP_FAST_CAST,
-		SP_MEDITATION,
-		SP_POWER_SIPHON,
-		SP_MAGIC_RESIST,
-		SP_PHASEWALK,
-		SP_HEIGHTEN_MAGIC,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Priest */
-		SP_CLARITY,
-		SP_ENHANCE_MAGIC,
-		SP_FAST_CAST,
-		SP_MEDITATION,
-		SP_ARMSMAN,
-		SP_PHASEWALK,
-		SP_HOLY_LIGHT,
-		SP_HARMONY,
-		SP_FURY,
-		SP_HEIGHTEN_MAGIC,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Rogue */
-		SP_ARMSMAN,
-		SP_ATHLETICS,
-		SP_EVASION,
-		SP_FAST_ATTACK,
-		SP_MARKSMAN,
-		SP_REGENERATION,
-		SP_MIGHTY_THROW,
-		SP_PHASEWALK,
-		SP_UNLIGHT,
-		SP_EXTRA_TRAP,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Ranger */
-		SP_ARMSMAN,
-		SP_ATHLETICS,
-		SP_EVASION,
-		SP_FAST_ATTACK,
-		SP_FURY,
-		SP_MARKSMAN,
-		SP_PIERCE_SHOT,
-		SP_REGENERATION,
-		SP_MIGHTY_THROW,
-		SP_SHIELD_MAST,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Paladin */
-		SP_ARMOR_MAST,
-		SP_ARMSMAN,
-		SP_ATHLETICS,
-		SP_FAST_ATTACK,
-		SP_FURY,
-		SP_REGENERATION,
-		SP_SHIELD_MAST,
-		SP_ENHANCE_MAGIC,
-		SP_MAGIC_RESIST,
-		SP_HOLY_LIGHT,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Druid */
-		SP_ARMOR_PROFICIENCY,
-		SP_BEGUILE,
-		SP_CLARITY,
-		SP_FAST_CAST,
-		SP_MEDITATION,
-		SP_ENHANCE_MAGIC,
-		SP_REGENERATION,
-		SP_HARMONY,
-		SP_POWER_STRIKE,
-		SP_HEIGHTEN_MAGIC,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Necromancer */
-		SP_UNLIGHT,
-		SP_ARMOR_PROFICIENCY,
-		SP_BEGUILE,
-		SP_CLARITY,
-		SP_ENHANCE_MAGIC,
-		SP_FAST_CAST,
-		SP_MEDITATION,
-		SP_MAGIC_RESIST,
-		SP_SOUL_SIPHON,
-		SP_HEIGHTEN_MAGIC,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
-	},
-
-	{
-		/* Assassin */
-		SP_ARMSMAN,
-		SP_ATHLETICS,
-		SP_EVASION,
-		SP_FAST_ATTACK,
-		SP_MARKSMAN,
-		SP_PIERCE_SHOT,
-		SP_REGENERATION,
-		SP_MIGHTY_THROW,
-		SP_UNLIGHT,
-		SP_FURY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY,
-		SP_NO_SPECIALTY
 	}
 };
 
@@ -2859,142 +2488,6 @@ int chest_traps[100] =
 };
 
 
-/*
- * Class titles for the player.
- *
- * The player gets a new title every five levels, so each class
- * needs only ten titles total.
- */
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
-{
-	/* Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
-	},
-
-	/* Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Mage Lord",
-	},
-
-	/* Priest */
-	{
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Theurgist",
-		"Canon",
-		"Lama",
-		"Patriarch",
-		"High Priest",
-		"Priest Lord",
-	},
-
-	/* Rogue */
-	{
-		"Vagabond",
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Guildmaster",
-	},
-
-	/* Ranger */
-	{
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-		"Ranger Lord",
-	},
-
-	/* Paladin */
-	{
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Crusader",
-		"Paladin",
-		"Paladin Lord",
-	},
-
-	/* Druid */
-	{
-		"Wanderer",
-		"Tamer",
-		"Nurturer",
-		"Gardener",
-		"Creator",
-		"Earth Warder",
-		"Windrider",
-		"Stormwielder",
-		"High Mystic",
-		"Mystic Lord",
-	},
-
-	/* Necromancer */
-	{
-		"Acolyte",
-		"Curser",
-		"Dark Student",
-		"Initiate",
-		"Slavemaster",
-		"Summoner",
-		"Controller",
-		"Commander",
-		"Dark Master",
-		"Night Lord",
-	},
-	/* Assassin */
-	{
-		"Trainee",
-		"Myrmidon",
-		"Initiate",
-		"Knifer",
-		"Bladesman",
-		"Hashishin",
-		"Black Dagger",
-		"Shadowstrike",
-		"Assassinator",
-		"Death Lord",
-	}
-
-};
-
-
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -3023,7 +2516,7 @@ cptr color_names[16] =
 /*
  * Abbreviations of healthy stats
  */
-cptr stat_names[6] =
+cptr stat_names[A_MAX] =
 {
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
 };
@@ -3031,7 +2524,7 @@ cptr stat_names[6] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[6] =
+cptr stat_names_reduced[A_MAX] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
 };
@@ -3986,7 +3479,7 @@ byte spell_desire_RF6[32][8] =
 	{ 25,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
 	{ 25,  0,   0,   0,	5,   0, LRN_SAVE  ,  100}, /* RF6_FORGET    */
 	{ 25,  0,   0,   15,	0,   0, LRN_MANA  ,  100}, /* RF6_DRAIN_MANA*/
-	{ 20,  0,   0,   10,	0,   0,	   0      ,  100}, /* RF6_DISPEL    */
+	{ 25,  0,   0,   5,	0,   0,	   0      ,  100}, /* RF6_DISPEL    */
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX5	    */
 	{ 30,  0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_MIND_BLAST*/
 	{ 40,  0,   0,   0,	0,   0, LRN_SAVE  ,  100}, /* RF6_BRAIN_SMASH*/
@@ -4076,7 +3569,7 @@ byte spell_range_RF7[32] =
  * The order here must match both the definition numbers in defines.h and
  * the order of specialty_tips in info.c
  */
-cptr specialty_names[255]=
+cptr specialty_names[TOTAL_SPECIALTIES]=
 {
 	"Armor Mastery",			/* Defense */
 	"Shield Mastery",
@@ -4093,7 +3586,8 @@ cptr specialty_names[255]=
 	"Mighty Throw",
 	"Power Strike",
 	"Martial Arts",
-	"","","","","","","","","","","","","",
+	"Mana Burn",
+	"","","","","","","","","","","","",
 	"Beguile",				/* Magic and Mana */
 	"Enhance Magic",
 	"Fast Casting",
@@ -4101,7 +3595,9 @@ cptr specialty_names[255]=
 	"Heighten Magic",
 	"Soul Siphon",
 	"Harmony",
-	"","","","","","","","","","","","","",
+	"",
+	"Channeling",
+	"","","","","","","","","","","",
 	"Athletics",				/* Others */
 	"Clarity",
 	"",
@@ -4110,14 +3606,63 @@ cptr specialty_names[255]=
 	"Regeneration",
 	"Extra Trap",
 	"Holy Light",
+	"","","","","","","","","","","","", 
+	"","","","","","","","","","","","","","","","","","","","", /* 80 - 99 */
+	"","","","","","","","","","","","","","","","","","","","", /* 100 - 119 */
+	"","","","","","","","",                   /* 120 - 127 */
+	"Sword Preference",                     /* Racial Inherent abilities */
+	"Polearm Preference",
+	"Hafted Preference",
+	"Sling Preference",
+	"Bow Preference",
+	"Crossbow Preference",
+	"","","",
+	"Sword Distaste",
+	"Polearm Distaste",
+	"Hafted Distaste",
+	"Sling Distaste",
+	"Bow Distaste",
+	"Crossbow Distaste",
+	"","","",
+	"Hardy",
+	"Ravenous",
+	"Divine Recovery",
+	"Shadow",
+	"Treeish",
+	"Shapeshifter",
+	"","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","", /* 160 - 179 */
 	"","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","",""
+	"Fast Bow Shots",
+	"Very Fast Bow Shots",
+	"Fast Sling Shots",
+	"Very Fast Sling Shots",
+	"Fast Crossbow Shots",
+	"Very Fast Crossbow Shots",
+	"","","",
+	"Assassinate",
+	"Deadly Shot",
+	"Backstab",
+	"Crowd Combat [40]",
+	"Strong Shield Bashing",
+	"Unarmed Combat",
+	"Edged Weapon Distaste",
+	"",
+	"Charms",
+	"Magic Device Expertise",
+	"Full Spellcaster",
+	"Extra Spell Beaming",
+	"",
+	"Lore",
+	"Pious",
+	"Relentless [30, 40]",
+	"Monster Probing [35]",
+	"Evil",
+	"Pickpocketing",
+	"Detailed Object Sensing",
+	"Trap Setting",
+	"Woodsmanship",
+	"Specialization [1]"
+        "","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","",""                 /* 240 - 255 */
 };

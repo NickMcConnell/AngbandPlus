@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 
 #N: monster index: name
@@ -1642,7 +1642,7 @@ D:A dark elven figure, dressed all in black, hurling spells at you.
 N:154:Dark elven warrior
 G:h:u
 I:110:7d14:20:14:20
-W:10:1:12:33
+W:10:1:0:33
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 F:MALE | SMART | 
@@ -5216,7 +5216,7 @@ F:NO_SLEEP
 S:1_IN_3 | POW_35 | 
 S:HASTE | BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
 S:DRAIN_MANA | BRAIN_SMASH | ADD_MANA | 
-S:WOUND | BOLT_ELEC
+S:WOUND | BOLT_ELEC | DISPEL
 D:A skeletal form dressed in robes.  It radiates vastly evil power.
 
 N:459:Master vampire
@@ -6610,7 +6610,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP
 S:1_IN_2 | POW_55 | 
 S:SLOW | WOUND | DRAIN_MANA | MIND_BLAST | BRAIN_SMASH | FORGET | 
-S:BOLT_MANA | BEAM_NETHR
+S:BOLT_MANA | BEAM_NETHR | DISPEL
 D:A disembodied eye, floating in the air.  Black nether storms rage around 
 D:its bloodshot pupil and light seems to bend as it sucks its power from the 
 D:very air around it.  Your soul chills as it drains your vitality for its 
@@ -6660,7 +6660,7 @@ S:1_IN_3 | POW_60 |
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | 
 S:DRAIN_MANA | BRAIN_SMASH | ADD_MANA | 
 S:WOUND | BALL_ELEC | 
-S:S_UNDEAD
+S:S_UNDEAD | DISPEL
 D:A skeletal form wrapped in robes.  Powerful magic crackles along its bony 
 D:fingers.
 
@@ -6819,7 +6819,7 @@ F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | POW_56 | 
 S:HEAL | CURE | BLINK | BLIND | HOLD | SCARE | HASTE | 
 S:WOUND | BALL_LITE | BRAIN_SMASH | 
-S:S_MONSTERS | S_UNDEAD
+S:S_MONSTERS | S_UNDEAD | DISPEL
 D:A dark priest of the highest order.  Powerful and evil, beware his many 
 D:spells.
 
@@ -7275,7 +7275,7 @@ F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4 | POW_85 | 
 S:BLIND | HOLD | CONF | DRAIN_MANA | 
 S:BALL_NETHR | BEAM_NETHR | BALL_MANA
-S:S_UNDEAD
+S:S_UNDEAD | DISPEL
 D:It is a massive form of animated death, its colour deeper than black.  It 
 D:drinks in light, and space around it is twisted and torn by the weight of 
 D:its evil.  It is unlife and it knows nothing but the stealing of souls and 
@@ -7303,7 +7303,7 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT
 S:1_IN_3 | POW_68 | 
 S:HEAL | TELE_TO | SCARE | 
-S:S_MONSTERS
+S:S_MONSTERS | DISPEL
 D:A forty foot tall humanoid that shakes the ground as it walks.  The power 
 D:radiating from its frame shakes your courage, its hatred inspired by your 
 D:defiance.
@@ -7368,7 +7368,7 @@ F:LOW_MANA_RUN
 S:1_IN_2 | POW_75 | 
 S:HASTE | BLINK | TPORT | BLIND | CONF | HOLD | SCARE | ADD_MANA | 
 S:BALL_ACID | BALL_FIRE | BALL_COLD | BALL_ELEC | BOLT_MANA | 
-S:S_MONSTER
+S:S_MONSTER | DISPEL
 D:A human figure in robes, he moves with magically improved speed, and his 
 D:hands are ablur with spell casting.
 
@@ -7481,7 +7481,7 @@ F:NO_SLEEP | KILL_WALL
 S:1_IN_3 | POW_75 | 
 S:TELE_TO | BLIND | HOLD | CONF | WOUND | DRAIN_MANA | 
 S:BRAIN_SMASH | BALL_MANA | BALL_ELEC | 
-S:S_UNDEAD
+S:S_UNDEAD | DISPEL
 D:A humanoid form, black as night, crackling with lightning and raw 
 D:magic, advancing steadily and unstoppably.  Flee!
 
@@ -7535,7 +7535,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | POW_45 | 
 S:SLOW | WOUND | MIND_BLAST | BRAIN_SMASH | 
 S:BOLT_PLAS | BOLT_WATER | BOLT_NETHR | BOLT_MANA
-S:S_UNDEAD
+S:S_UNDEAD | DISPEL
 D:A glowing skull possessed by sorcerous power.  It need not move, but 
 D:merely blast you with mighty magic.
 
@@ -7612,7 +7612,7 @@ F:MORGUL_MAGIC
 S:1_IN_5 | POW_90 | 
 S:BLIND | SCARE | BRAIN_SMASH | 
 S:BALL_DARK | BALL_MANA | BEAM_NETHR | BOLT_COLD | BOLT_POIS | 
-S:S_UNDEAD | S_KIN
+S:S_UNDEAD | S_KIN | DISPEL
 D:A huge giant garbed in black, more massive than a titan and stronger than 
 D:a dragon.  With terrible blows, it breaks your armour from your back, 
 D:leaving you defenseless against its evil wrath.  It can smell your fear, 
@@ -8560,7 +8560,7 @@ F:ONLY_ITEM | DROP_3D2 | DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_ACID | IM_POIS | IM_COLD | IM_ELEC
 S:1_IN_3 | POW_20 | 
-S:HOLD | SCARE | DARKNESS | BLIND 
+S:HOLD | SCARE | DARKNESS | BLIND | DISPEL
 D:A grim-faced dark elf, garbed in layer upon layer of gleaming black 
 D:armor.  As strong as he is magical, Eol is a worthy opponent.
 
@@ -8763,7 +8763,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | IM_FIRE | IM_POIS | IM_ACID | IM_COLD | IM_ELEC
 S:1_IN_3 | POW_62 | 
 S:BLINK | TELE_TO | BLIND | HASTE | CONF | HOLD | TRAPS | DARKNESS
-S:PMISSL | BOLT | BOLT_POIS
+S:PMISSL | BOLT | BOLT_POIS | DISPEL
 D:A famed former adventurer, returned from oblivion to once more test 
 D:your skill and bravery.
 
@@ -8847,7 +8847,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF
 S:1_IN_4 | POW_75 | 
 S:HEAL | BLIND | CONF | SCARE | WOUND | BRAIN_SMASH | 
 S:FORGET | BALL_LITE | 
-S:S_MONSTERS
+S:S_MONSTERS | DISPEL
 D:He is one of the greatest dwarven priests to walk the earth.  Fundin has 
 D:earned a high position in the church, and his skill with both weapon and 
 D:spell only justify his position further.  His combination of dwarven 
@@ -8996,7 +8996,7 @@ S:1_IN_2 | POW_90 |
 S:HOLD | BLIND | SCARE | CONF | HASTE | 
 S:BLINK | TPORT | TELE_AWAY | TELE_SELF_TO | DRAIN_MANA | ADD_MANA | 
 S:BALL_ACID | BALL_ELEC | BALL_COLD | BALL_FIRE | BALL_LITE | ARC_FORCE | 
-S:BOLT_MANA
+S:BOLT_MANA | DISPEL
 D:Errata is a bold and mighty mage.  Her power and guile are legendary.  
 D:Hers is the right to face Morgoth in single combat and she will not let 
 D:you stand in her way.  Defend yourself!
@@ -9045,7 +9045,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_4 | POW_70 | 
 S:BALL_ACID | BALL_ELEC | HASTE | HEAL | 
-S:TPORT | TELE_TO | S_MONSTER
+S:TPORT | TELE_TO | S_MONSTER | DISPEL
 D:A dark elf, mighty in Gondolin, and betrayer of that hidden city to 
 D:Morgoth's wrath.
 
@@ -9112,7 +9112,7 @@ F:MORGUL_MAGIC
 S:1_IN_3 | POW_105 | 
 S:BLIND | HOLD | SCARE | WOUND | WOUND | MIND_BLAST | HASTE | CURE | 
 S:PMISSL | BOLT_ICE | BALL_COLD | BALL_NETHR | BOLT_MANA | ADD_MANA | 
-S:S_KIN | S_UNDEAD
+S:S_KIN | S_UNDEAD | DISPEL
 D:A Ringwraith powerful in fell sorcery, he yearns for the life he has 
 D:lost for a life of everlasting torment.
 
@@ -9157,7 +9157,7 @@ S:HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE |
 S:WOUND | MIND_BLAST | FORGET | TRAPS | ADD_MANA | 
 S:BOLT_ICE | BALL_POIS | BALL_ACID | BALL_COLD | BALL_DARK | BALL_STORM | 
 S:BALL_POIS | BALL_MANA 
-S:S_DRAGON | S_DEMON | S_UNDEAD
+S:S_DRAGON | S_DEMON | S_UNDEAD | DISPEL
 D:Originally known as the White, Saruman fell prey to Sauron's wiles.  He 
 D:seeks to emulate him and breeds orcs and trolls to fight for him.  He 
 D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
@@ -9200,7 +9200,7 @@ F:UDUN_MAGIC
 S:1_IN_3 | POW_92 | 
 S:TELE_TO | BLIND | 
 S:BOLT_MANA | BALL_NETHR | BALL_FIRE | 
-S:BRTH_FIRE | BRTH_NETHR | BRTH_DARK
+S:BRTH_FIRE | BRTH_NETHR | BRTH_DARK | DISPEL
 D:This mighty Balrog commands awesome power, his visage grave enough 
 D:to shrivel your soul.  You shriek with disbelief as his mastery of 
 D:death draws you to your grave.  It is truly beyond all but the 
@@ -9321,7 +9321,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_2 | POW_125 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BALL_DARK | BOLT_ACID | BOLT_FIRE | BOLT_COLD | 
-S:S_KIN
+S:S_KIN | DISPEL
 D:A disembodied eye, floating in the air.  His gaze seems to shred your 
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -9360,7 +9360,7 @@ F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | POW_110 | 
 S:BLIND | HOLD | CONF | 
 S:BALL_DARK | BALL_NETHR | DRAIN_MANA | 
-S:S_KIN | S_HI_UNDEAD
+S:S_KIN | S_HI_UNDEAD | DISPEL
 D:This huge affront to existence twists and tears at the fabric of space.  A 
 D:master of mighty magic, Tselakus hungers for your tender flesh.  Darkness 
 D:itself recoils from the touch of Tselakus as he leaves a trail of death 
@@ -9452,7 +9452,7 @@ F:MORGUL_MAGIC
 S:1_IN_2 | POW_135 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | ADD_MANA | HASTE | CURE | 
 S:BRAIN_SMASH | WOUND | PMISSL | BALL_NETHR | BEAM_NETHR | BALL_MANA | 
-S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD
+S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD | DISPEL
 D:The Chief of the Ringwraiths.  A fell being of devastating power.  His 
 D:spells are lethal and his combat blows crushingly hard.  He moves at 
 D:speed, and commands legions of evil to do his bidding.  It is said that 
@@ -9530,7 +9530,7 @@ S:1_IN_1 | POW_130 |
 S:TELE_TO | SLOW | SCARE | WOUND | BRAIN_SMASH | ADD_MANA | 
 S:BOLT_ICE | BOLT_WATER | BALL_MANA | BALL_STORM | BALL_NETHR | 
 S:BEAM_NETHR | 
-S:S_HI_UNDEAD
+S:S_HI_UNDEAD | DISPEL
 D:A legion of evil undead druj animating the skeleton of a once mighty 
 D:sorcerer.  His power is devastating and his speed unmatched in the 
 D:underworld.  Flee his wrath!
@@ -9606,7 +9606,7 @@ F:UNIQUE | QUESTOR | MALE | SPEAKING |
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
-F:EVIL | IM_POIS | 
+F:EVIL | IM_POIS | MORGUL_MAGIC |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | POW_158 | 
 S:BLINK | TPORT | TELE_LEVEL | BLIND | CONF | SCARE | WOUND | 
@@ -9820,7 +9820,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | POW_63 | 
 S:BALL_COLD | BALL_ELEC | 
 S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
-S:WOUND | DRAIN_MANA | MIND_BLAST | ADD_MANA
+S:WOUND | DRAIN_MANA | MIND_BLAST | ADD_MANA | DISPEL
 D:A skeletal form dressed in robes, radiating vastly evil 
 D:power.  You feel you know it and it knows you.
 
@@ -9863,7 +9863,7 @@ F:MORGUL_MAGIC |
 S:1_IN_4 | POW_90 | 
 S:BRAIN_SMASH | WOUND | ADD_MANA | TELE_TO | 
 S:BALL_NETHR | BALL_DARK | 
-S:S_UNDEAD
+S:S_UNDEAD | DISPEL
 D:Cloaked in midnight, and supported by minions of death, this lord of the undead 
 D:comes to claim your soul.  You feel you know it and it knows you.
 

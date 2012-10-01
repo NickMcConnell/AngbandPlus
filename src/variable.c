@@ -526,7 +526,6 @@ cptr keymap_act[KEYMAP_MODES][256];
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
-player_weapon *wp_ptr;
 player_magic *mp_ptr;
 
 /*
@@ -629,10 +628,19 @@ char *r_text;
 /*
  * The player race arrays
  */
-header *p_head;
-player_race *p_info;
-char *p_name;
-char *p_text;
+header *rp_head;
+player_race *rp_info;
+char *rp_name;
+char *rp_text;
+
+
+/*
+ * The player class arrays
+ */
+header *cp_head;
+player_class *cp_info;
+char *cp_name;
+char *cp_text;
 
 
 /*

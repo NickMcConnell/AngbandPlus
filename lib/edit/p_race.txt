@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 N:0:Human
 S:0:0:0:0:0:0

@@ -474,7 +474,7 @@ void teleport_player(int dis, bool safe)
 	if (min < 1) min = 1;
 
 	/* Check for specialty resistance on unsafe teleports */
-	if ((safe == FALSE) && (check_specialty(SP_PHASEWALK)) && (check_save(100)))
+	if ((safe == FALSE) && (check_ability(SP_PHASEWALK)) && (check_save(100)))
 	{
 		msg_print("Teleport Resistance!");
 		return;
@@ -541,7 +541,7 @@ void teleport_player(int dis, bool safe)
 	monster_swap(py, px, y, x);
 
 	/* Check for specialty speed boost on safe teleports */
-	if ((safe == TRUE) && (check_specialty(SP_PHASEWALK)))
+	if ((safe == TRUE) && (check_ability(SP_PHASEWALK)))
 	{
 		/* Calculate Distance */
 		d = distance(py, px, y, x);
@@ -663,7 +663,7 @@ void teleport_player_to(int ny, int nx, bool friendly)
 	x = px;
 
 	/* Check for specialty resistance on hostile teleports */
-	if ((friendly == FALSE) && (check_specialty(SP_PHASEWALK)) && (check_save(100)))
+	if ((friendly == FALSE) && (check_ability(SP_PHASEWALK)) && (check_save(100)))
 	{
 		msg_print("Teleport Resistance!");
 		return;
@@ -692,7 +692,7 @@ void teleport_player_to(int ny, int nx, bool friendly)
 	}
 
 	/* Check for specialty speed boost on friendly teleports */
-	if ((friendly == TRUE) && (check_specialty(SP_PHASEWALK)))
+	if ((friendly == TRUE) && (check_ability(SP_PHASEWALK)))
 	{
 		/* Calculate Distance */
 		int d = distance(py, px, y, x);
@@ -719,7 +719,7 @@ void teleport_player_to(int ny, int nx, bool friendly)
 void teleport_player_level(bool friendly)
 {
 	/* Check for specialty resistance on hostile teleports */
-	if ((friendly == FALSE) && (check_specialty(SP_PHASEWALK)))
+	if ((friendly == FALSE) && (check_ability(SP_PHASEWALK)))
 	{
 		msg_print("Teleport Resistance!");
 		return;
@@ -924,6 +924,39 @@ void add_speed_boost(int value)
 	}
 }
 
+/*
+ * Reduce dam by an amount appropriate to the players resistance to
+ * the damage type.
+ *
+ * Return damage reduction calculated.
+ *
+ * Rand factor should be 0 for low elements and informational queries,
+ * 1 for damage from most high elements, 2 damage from chaos.
+ */
+int resist_damage(int dam, byte resist, byte rand_factor)
+{
+	/* Base Value */
+	int resist_percentage = extract_resistance[p_ptr->res_list[resist]];
+
+	/* Randomize if requested */
+	/* No randomization of vulnerability */
+	if ((rand_factor != 0) & (resist_percentage > 0) & (resist_percentage < 100))
+	{
+		int max_range, range;
+
+		/* How far is the closer of zero and 100 */
+		max_range = ((resist_percentage > 50) ? (100-resist_percentage) : resist_percentage);
+
+		/* Random range is rand_factor times 10% of that range */
+		range = (rand_factor * max_range) / 10;
+
+		/* Randomize */
+		resist_percentage = resist_percentage - range + rand_int((2 * range) + 1);
+	}
+
+	/* Return damage reduction */
+	return (((dam * resist_percentage) + 99) / 100);
+}
 
 /*
  * Decreases players hit points and sets death flag if necessary
@@ -948,7 +981,7 @@ void take_hit(int dam, cptr kb_str)
 	p_ptr->chp -= dam;
 
 	/* Specialty Ability Fury */
-	if (check_specialty(SP_FURY)) add_speed_boost(1 + ((dam * 70) / p_ptr->mhp));
+	if (check_ability(SP_FURY)) add_speed_boost(1 + ((dam * 70) / p_ptr->mhp));
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -1404,23 +1437,15 @@ void acid_dam(int dam, cptr kb_str)
 	 */
 	inv = 3 + dam / 15;
 	if (inv > 30) inv = 30;
-	if (p_ptr->immune_acid) inv /= 5;
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid)) inv /= 2;
 
-
-	/* Total (bodily) Immunity */
-	if (p_ptr->immune_acid) dam = 0;
+	/* Partial resistance to inventory damage */
+	inv -= resist_damage(((4 * inv) / 5), P_RES_ACID, 0);
 
 	/* Resist the damage */
-	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
-
-	/* Hack - Temporary bonuses are stronger with Enhance Magic */
-	if (p_ptr->oppose_acid & (check_specialty(SP_ENHANCE_MAGIC))) dam = (dam + 5) / 6;
+	dam -= resist_damage(dam, P_RES_ACID, 0);
 
 	/* Players can lose unsustained CHR to strong, unresisted acid */
-	if ((!(p_ptr->oppose_acid || p_ptr->resist_acid))
-		&& (randint(HURT_CHANCE) == 1) && (dam > 9) && (!p_ptr->sustain_chr))
+	if ((!p_resist_pos(P_RES_ACID)) && (randint(HURT_CHANCE) == 1) && (dam > 9))
 	    (void) do_dec_stat(A_CHR);
 
 	/* Take damage */
@@ -1449,23 +1474,15 @@ void elec_dam(int dam, cptr kb_str)
 	 */
 	inv = 3 + dam / 15;
 	if (inv > 30) inv = 30;
-	if (p_ptr->immune_elec) inv /= 5;
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec)) inv /= 2;
 
-
-	/* Total (bodily) Immunity */
-	if (p_ptr->immune_elec) dam = 0;
+	/* Partial resistance to inventory damage */
+	inv -= resist_damage(((4 * inv) / 5), P_RES_ELEC, 0);
 
 	/* Resist the damage */
-	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
-	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
-
-	/* Hack - Temporary bonuses are stronger with Enhance Magic */
-	if (p_ptr->oppose_elec & (check_specialty(SP_ENHANCE_MAGIC))) dam = (dam + 5) / 6;
+	dam -= resist_damage(dam, P_RES_ELEC, 0);
 
 	/* Players can lose unsustained DEX to strong, unresisted electricity */
-	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec))
-		&& (randint(HURT_CHANCE) == 1) && (dam > 9))
+	if ((!p_resist_pos(P_RES_ELEC)) && (randint(HURT_CHANCE) == 1) && (dam > 9))
 		  (void) do_dec_stat(A_DEX);
 
 	/* Can stun, if enough damage is done. */
@@ -1500,24 +1517,15 @@ void fire_dam(int dam, cptr kb_str)
 	 */
 	inv = 3 + dam / 15;
 	if (inv > 30) inv = 30;
-	if (p_ptr->immune_fire) inv /= 5;
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire)) inv /= 2;
 
-
-
-	/* Total (bodily) Immunity */
-	if (p_ptr->immune_fire) dam = 0;
+	/* Partial resistance to inventory damage */
+	inv -= resist_damage(((4 * inv) / 5), P_RES_FIRE, 0);
 
 	/* Resist the damage */
-	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
-
-	/* Hack - Temporary bonuses are stronger with Enhance Magic */
-	if (p_ptr->oppose_fire & (check_specialty(SP_ENHANCE_MAGIC))) dam = (dam + 5) / 6;
+	dam -= resist_damage(dam, P_RES_FIRE, 0);
 
 	/* Players can lose unsustained STR to strong, unresisted fire */
-	if ((!(p_ptr->oppose_fire || p_ptr->resist_fire))
-		&& randint(HURT_CHANCE) == 1 && (dam > 9) && (!p_ptr->sustain_str))
+	if ((!p_resist_pos(P_RES_FIRE)) && (randint(HURT_CHANCE) == 1) && (dam > 9))
 	  (void) do_dec_stat(A_STR);
 
 	/* Take damage */
@@ -1545,23 +1553,15 @@ void cold_dam(int dam, cptr kb_str)
 	 */
 	inv = 3 + dam / 15;
 	if (inv > 30) inv = 30;
-	if (p_ptr->immune_cold) inv /= 5;
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold)) inv /= 2;
 
-
-	/* Total (bodily) Immunity */
-	if (p_ptr->immune_cold) dam = 0;
+	/* Partial resistance to inventory damage */
+	inv -= resist_damage(((4 * inv) / 5), P_RES_COLD, 0);
 
 	/* Resist the damage */
-	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
-
-	/* Hack - Temporary bonuses are stronger with Enhance Magic */
-	if (p_ptr->oppose_cold & (check_specialty(SP_ENHANCE_MAGIC))) dam = (dam + 5) / 6;
+	dam -= resist_damage(dam, P_RES_COLD, 0);
 
 	/* Players can lose unsustained CON to strong, unresisted cold */
-	if ((!(p_ptr->oppose_cold || p_ptr->resist_cold))
-		&& (randint(HURT_CHANCE) == 1) && (dam > 9) && (!p_ptr->sustain_con))
+	if ((!p_resist_pos(P_RES_COLD)) && (randint(HURT_CHANCE) == 1) && (dam > 9))
 	    (void)do_dec_stat(A_CON);
 
 	/* Take damage */
@@ -1584,11 +1584,7 @@ void pois_dam(int dam, cptr kb_str)
 	pois_hit(dam);
 
 	/* Resist the damage */
-	if (p_ptr->resist_pois) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
-
-	/* Hack - Temporary bonuses are stronger with Enhance Magic */
-	if (p_ptr->oppose_pois & (check_specialty(SP_ENHANCE_MAGIC))) dam = (dam + 5) / 6;
+	dam -= resist_damage(dam, P_RES_POIS, 0);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1610,13 +1606,11 @@ bool pois_hit(int pois_inc)
 	/* No damage. */
 	if (pois_inc <= 0) return(did_harm);
 
-	/* Take "poison" effect */
-	if (!(p_ptr->resist_pois && p_ptr->oppose_pois))
+	/* Take "poison" effect if not strongly resistant */
+	if (!p_resist_strong(P_RES_POIS))
 	{
-		if (p_ptr->resist_pois || p_ptr->oppose_pois) pois_inc /= 3;
-
-		/* Hack - Temporary bonuses are stronger with Enhance Magic */
-		if (p_ptr->oppose_pois & (check_specialty(SP_ENHANCE_MAGIC))) pois_inc = (pois_inc + 5) / 6;
+		/* Resist the toxin */
+		pois_inc -= resist_damage(pois_inc, P_RES_POIS, 0);
 
 		/* Poison is not fully cumulative. */
 		if (p_ptr->poisoned)
@@ -1848,6 +1842,172 @@ bool res_stat(int stat)
 }
 
 
+/*
+ * Hostile removal of player mana.
+ *
+ * "power" is the amount of mana to try to remove.
+ *
+ * Return the number amount removed.
+ */
+int remove_player_mana(int power)
+{
+	/* Full drain */
+	if (power >= p_ptr->csp)
+	{
+		power = p_ptr->csp;
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+	}
+
+	/* Partial drain */
+	else
+	{
+		p_ptr->csp -= power;
+	}
+
+	return(power);
+}
+
+
+/*
+ * "Dispel Magic" - remove temporary enhancements from the player.
+ *
+ * "power" is the size of the dieroll for the saving throw vs each effect.
+ *
+ * Return the number of effects removed.
+ */
+int apply_dispel(int power)
+{
+	int num_effects = 0;
+
+	if (p_ptr->fast && (!check_save(power)))
+	{
+		set_fast(0);
+		num_effects += 1;
+	}
+	if (p_ptr->protevil && (!check_save(power)))
+	{
+		set_protevil(0);
+		num_effects += 1;
+	}
+	if (p_ptr->magicdef && (!check_save(power)))
+	{
+		set_extra_defences(0);
+		num_effects += 1;
+	}
+	if (p_ptr->hero && (!check_save(power)))
+	{
+		set_hero(0);
+		num_effects += 1;
+	}
+	if (p_ptr->shero && (!check_save(power)))
+	{
+		set_shero(0);
+		num_effects += 1;
+	}
+	if (p_ptr->shield && (!check_save(power)))
+	{
+		set_shield(0);
+		num_effects += 1;
+	}
+	if (p_ptr->blessed && (!check_save(power)))
+	{
+		set_blessed(0);
+		num_effects += 1;
+	}
+	if (p_ptr->tim_invis && (!check_save(power)))
+	{
+		set_tim_invis(0);
+		num_effects += 1;
+	}
+	if (p_ptr->tim_infra && (!check_save(power)))
+	{
+		set_tim_infra(0);
+		num_effects += 1;
+	}
+	if (p_ptr->tim_esp && (!check_save(power)))
+	{
+		set_tim_esp(0);
+		num_effects += 1;
+	}
+	if (p_ptr->superstealth && (!check_save(power)))
+	{
+		set_superstealth(0);
+		num_effects += 1;
+	}
+	if (p_ptr->ele_attack && (!check_save(power)))
+	{
+		set_ele_attack(0, 0);
+		num_effects += 1;
+	}
+	if (p_ptr->oppose_acid && (!check_save(power)))
+	{
+		set_oppose_acid(0);
+		num_effects += 1;
+	}
+	if (p_ptr->oppose_elec && (!check_save(power)))
+	{
+		set_oppose_elec(0);
+		num_effects += 1;
+	}
+	if (p_ptr->oppose_fire && (!check_save(power)))
+	{
+		set_oppose_fire(0);
+		num_effects += 1;
+	}
+	if (p_ptr->oppose_cold && (!check_save(power)))
+	{
+		set_oppose_cold(0);
+		num_effects += 1;
+	}
+	if (p_ptr->oppose_pois && (!check_save(power)))
+	{
+		set_oppose_pois(0);
+		num_effects += 1;
+	}
+	if (p_ptr->word_recall && (!check_save(power)))
+	{
+		set_recall(0);
+		num_effects += 1;
+	}
+	if ((p_ptr->special_attack & (ATTACK_CONFUSE)) && (!check_save(power)))
+	{
+		p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+		msg_print("Your hands stop glowing.");
+		num_effects += 1;
+	}
+	if ((p_ptr->special_attack & (ATTACK_BLKBRTH)) && (!check_save(power)))
+	{
+		p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
+		msg_print("Your hands stop radiating Night.");
+		num_effects += 1;
+	}
+	if ((p_ptr->special_attack & (ATTACK_FLEE)) && (!check_save(power)))
+	{
+		p_ptr->special_attack &= ~(ATTACK_FLEE);
+		msg_print("You forget your escape plan.");
+		num_effects += 1;
+	}
+	if ((p_ptr->special_attack & (ATTACK_SUPERSHOT)) && (!check_save(power)))
+	{
+		p_ptr->special_attack &= ~(ATTACK_SUPERSHOT);
+		msg_print("Your ready crossbow bolt seems less dangerous.");
+		num_effects += 1;
+	}
+	if ((p_ptr->special_attack & (ATTACK_HOLY)) && (!check_save(power)))
+	{
+		p_ptr->special_attack &= ~(ATTACK_HOLY);
+		msg_print("Your Holy attack dissipates.");
+		num_effects += 1;
+	}
+	if (SCHANGE && (!check_save(power)))
+	{
+		shapechange(SHAPE_NORMAL);
+		num_effects += 1;
+	}
+
+	return(num_effects);
+}
 
 
 /*
@@ -1870,7 +2030,7 @@ bool apply_disenchant(int dam)
 
 
 	/* Disenchantment can force the player back into his normal form. */
-	if ((SCHANGE) && (randint(dam) > (20 + (dam/3))) && (check_save(150)))
+	if ((SCHANGE) && (randint(dam) > (20 + (dam/3))) && (!check_save(150)))
 	{
 		/* Change back to normal form. */
 		shapechange(SHAPE_NORMAL);
@@ -2721,6 +2881,9 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 {
 	int tmp;
+	int charm_boost, turn_all_boost, turn_evil_boost, turn_undead_boost;
+
+	bool beguile;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -2741,7 +2904,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 	/* Were the effects "irrelevant"? */
 	bool skipped = FALSE;
-
 
 	/* Polymorph setting (true or false) */
 	int do_poly = 0;
@@ -2804,6 +2966,31 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		return (FALSE);
 	}
 
+	/*
+	 * Various bonuses to beguiling spells
+	 */
+
+	/* Specialty beguiling */
+	beguile = check_ability(SP_BEGUILE);
+
+	/* Charmers are good with some types of slow/sleep/confusion spells */
+	charm_boost = 0;
+	if (check_ability(SP_CHARM)) charm_boost = 1;
+
+	/* Strong holy casters are good at turning */
+	turn_all_boost = 0;
+	if ((check_ability(SP_HOLY)) && (check_ability(SP_STRONG_MAGIC))) turn_all_boost = 1;
+
+	/* Strong evil casters are great at turning undead; Strong holy casters are good at it */
+	turn_undead_boost = 0;
+	if ((check_ability(SP_EVIL)) && (check_ability(SP_STRONG_MAGIC))) turn_undead_boost = 2;
+	else if ((check_ability(SP_HOLY)) && (check_ability(SP_STRONG_MAGIC))) turn_undead_boost = 1;
+
+	/* Strong holy casters are great at turning evil; Weak holy, and strong evil casters are good at it */
+	turn_evil_boost = 0;
+	if ((check_ability(SP_HOLY)) && (check_ability(SP_STRONG_MAGIC))) turn_evil_boost = 2;
+	else if (check_ability(SP_HOLY)) turn_evil_boost = 1;
+	else if ((check_ability(SP_EVIL)) && (check_ability(SP_STRONG_MAGIC))) turn_evil_boost = 1;
 
 	/* Determine if terrain is capable of adjusting physical damage. */
 	switch (cave_feat[y][x])
@@ -3079,12 +3266,19 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				note_dies = " shrivels away in the light!";
 			}
 
+			/* Normally no damage */
+			else
+			{
+				/* No damage */
+				dam = 0;
+			}
+
 			/* Holy Light gives a chance to scare targets */
 			if ((who < 0) &&
 			    ((r_ptr->flags3 & (RF3_UNDEAD)) || 
 			     (r_ptr->flags3 & (RF3_HURT_LITE)) || 
 			     (r_ptr->flags3 & (RF3_EVIL))) && 
-			    (check_specialty(SP_HOLY_LIGHT)) & 
+			    (check_ability(SP_HOLY_LIGHT)) & 
 			    (randint(5) == 1))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3100,13 +3294,6 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 					/* Give Feedback */
 					note = " is dismayed by the Light!";
 				}
-			}
-
-			/* Normally no damage */
-			else
-			{
-				/* No damage */
-				dam = 0;
 			}
 
 			break;
@@ -3137,7 +3324,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			    ((r_ptr->flags3 & (RF3_UNDEAD)) || 
 			     (r_ptr->flags3 & (RF3_HURT_LITE)) || 
 			     (r_ptr->flags3 & (RF3_EVIL))) && 
-			    (check_specialty(SP_HOLY_LIGHT)) & 
+			    (check_ability(SP_HOLY_LIGHT)) & 
 			    (randint(3) == 1))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3434,6 +3621,11 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				note = " resists.";
 				dam *= 3; dam /= 14 + rand_int(3);
 			}
+			/* If not resistant, drain mana */
+			else if (m_ptr->mana)
+			{
+				m_ptr->mana -= ((m_ptr->mana > (dam / 5)) ? (dam / 5) : m_ptr->mana);
+			}
 			break;
 		}
 
@@ -3631,15 +3823,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 			/* Sometimes super-charge the spell. */
-			if (((p_ptr->pclass == CLASS_MAGE) || 
-				(p_ptr->pclass == CLASS_DRUID)) && (randint(3) == 1))
+			if ((charm_boost > 0) && (randint(3) == 1))
 			{
 				dam += dam / 2;
 			}
 			else if (randint(6) == 1) dam += dam / 3;
 
 			/* Beguiling specialty ability */
-			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
+			if (beguile) dam += dam / 2;
 
 			/* Determine monster's power to resist. */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3678,15 +3869,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 			/* Sometimes super-charge the spell. */
-			if (((p_ptr->pclass == CLASS_MAGE) || 
-				(p_ptr->pclass == CLASS_DRUID)) && (randint(3) == 1))
+			if ((charm_boost > 0) && (randint(3) == 1))
 			{
 				dam += dam / 2;
 			}
 			else if (randint(6) == 1) dam += dam / 3;
 
 			/* Beguiling specialty ability */
-			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
+			if (beguile) dam += dam / 2;
 
 			/* Determine monster's power to resist. */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3727,15 +3917,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 			/* Sometimes super-charge the spell. */
-			if (((p_ptr->pclass == CLASS_MAGE) || 
-				(p_ptr->pclass == CLASS_DRUID)) && (randint(3) == 1))
+			if ((charm_boost > 0) && (randint(3) == 1))
 			{
 				dam += dam / 2;
 			}
 			else if (randint(6) == 1) dam += dam / 3;
 
 			/* Beguiling specialty ability */
-			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
+			if (beguile) dam += dam / 2;
 
 			/* Determine monster's power to resist.   */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -3893,18 +4082,18 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 				/* Sometimes super-charge the spell. */
-				if ((p_ptr->pclass == CLASS_NECRO) && (randint(2) == 1))
+				if ((turn_undead_boost > 1) && (randint(2) == 1))
 				{
 					dam += dam / 2;
 				}
-				else if ((p_ptr->pclass == CLASS_PRIEST) && (randint(4) == 1))
+				else if ((turn_undead_boost == 1) && (randint(4) == 1))
 				{
 					dam += dam / 2;
 				}
 				else if (randint(6) == 1) dam += dam / 3;
 
 				/* Beguiling specialty ability */
-				if (check_specialty(SP_BEGUILE)) dam += dam / 2;
+				if (beguile) dam += dam / 2;
 
 				/* Determine monster's power to resist. */
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 10;
@@ -3954,19 +4143,18 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 
 				/* Sometimes super-charge the spell. */
-				if ((p_ptr->pclass == CLASS_PRIEST) && (randint(3) == 1))
+				if ((turn_evil_boost > 1) && (randint(3) == 1))
 				{
 					dam += dam / 2;
 				}
-				else if (((p_ptr->pclass == CLASS_PALADIN) || 
-					(p_ptr->pclass == CLASS_NECRO)) && (randint(4) == 1))
+				else if ((turn_evil_boost == 1) && (randint(4) == 1))
 				{
 					dam += dam / 3;
 				}
 				else if (randint(6) == 1) dam += dam / 3;
 
 				/* Beguiling specialty ability */
-				if (check_specialty(SP_BEGUILE)) dam += dam / 2;
+				if (beguile) dam += dam / 2;
 
 				/* Determine monster's power to resist.   */
 				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -4016,7 +4204,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 
 			/* Sometimes super-charge the spell. */
 
-			if ((p_ptr->pclass == CLASS_PRIEST) && 
+			if ((turn_all_boost > 0) && 
 				(randint(3) == 1))
 			{
 				dam += dam / 3;
@@ -4024,7 +4212,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			else if (randint(6) == 1) dam += dam / 3;
 
 			/* Beguiling specialty ability */
-			if (check_specialty(SP_BEGUILE)) dam += dam / 2;
+			if (beguile) dam += dam / 2;
 
 			/* Determine monster's power to resist.   */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
@@ -4580,8 +4768,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if (!(who > 0)) self = TRUE;
 
 	/* Hacks -- Adjust damages for certain races. */
-	if (((rp_ptr->flags_special) & PS_SHADOW) && (typ == GF_LITE)) dam += dam / 3;
-	if (((rp_ptr->flags_special) & PS_WOODEN) && (typ == GF_FIRE)) dam += dam / 3;
+	if ((check_ability(SP_SHADOW)) && (typ == GF_LITE)) dam += dam / 3;
+	if ((check_ability(SP_WOODEN)) && (typ == GF_FIRE)) dam += dam / 3;
 
 	/* Limit maximum damage XXX XXX XXX */
 	if (dam > 1600) dam = 1600;
@@ -4608,7 +4796,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		{
 			if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
 				(typ == GF_PLASMA)) terrain_adjustment -= dam / 4;
-			else if ((typ == GF_WATER) || (typ = GF_STORM)) 
+			else if ((typ == GF_WATER) || (typ == GF_STORM)) 
 				terrain_adjustment = dam / 2;
 			else terrain_adjustment = dam / 10;
 			break;
@@ -4627,7 +4815,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		/* Ranger and druids can duck, and any player will take less damage. */
 		case FEAT_TREE:
 		{
-			if ((randint(8) == 1) && ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
+			if ((randint(8) == 1) && (check_ability(SP_WOODSMAN)))
 			{
 				msg_print("You dodge behind a tree!");
 				return (FALSE);
@@ -4640,7 +4828,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Hack -
 	 * Darkness protects those who serve it.
 	 */
-	if (check_specialty(SP_UNLIGHT) & !player_can_see_bold(p_ptr->py, p_ptr->px)) terrain_adjustment -= dam / 4;
+	if (((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) == 0) && 
+	    (p_ptr->cur_lite <= 0) && 
+	    check_ability(SP_UNLIGHT)) terrain_adjustment -= dam / 4;
 
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
@@ -4673,7 +4863,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			int dodging = 0;
 
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
+			if (check_ability(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the boulder!");
@@ -4681,7 +4871,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Dodging takes alertness, agility, speed, and a light pack. */
-			else if (((!p_ptr->blind) | check_specialty(SP_UNLIGHT)) && (!p_ptr->confused) && (!p_ptr->paralyzed))
+			else if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->paralyzed))
 			{
 				/* Value for dodging should normally be between 18 and 75. */
 				dodging = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 124) + 
@@ -4733,7 +4923,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		case GF_SHOT:
 		{
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
+			if (check_ability(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the missile!");
@@ -4795,7 +4985,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
+			if (check_ability(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the missile!");
@@ -4817,7 +5007,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Test for a deflection. */
 			else if ((inventory[INVEN_ARM].k_idx) && 
 				(!p_ptr->shield_on_back) &&
-				(inventory[INVEN_ARM].ac  + (check_specialty(SP_SHIELD_MAST) ? 3 : 0) > 
+				(inventory[INVEN_ARM].ac  + (check_ability(SP_SHIELD_MAST) ? 3 : 0) > 
 				 rand_int(MAX_SHIELD_BASE_AC * 4)))
 			{
 				msg_print("The missile ricochets off your shield.");
@@ -4861,7 +5051,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			/* Try for Evasion */
-			if (check_specialty(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
+			if (check_ability(SP_EVASION) & (randint(75) <= p_ptr->evasion_chance))
 			{
 				/* Message */
 				msg_print("You Evade the missile!");
@@ -4869,7 +5059,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Dodging takes alertness, agility, speed, and a light pack. */
-			else if (((!p_ptr->blind) | check_specialty(SP_UNLIGHT)) && (!p_ptr->confused) && (!p_ptr->paralyzed))
+			else if ((!p_ptr->blind) && (!p_ptr->confused) && (!p_ptr->paralyzed))
 			{
 				/* Value for dodging should normally be between 18 and 75. */
 				dodging = 2 * (adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 124) + 
@@ -5100,11 +5290,10 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 			/* Strong Morgul-cold can have extra side effects. */
 
-			/* 100% of the time if no resistance, 33% if only one resistance. */
-			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)) && (!p_ptr->immune_cold) && 
-				(((!p_ptr->resist_cold) && (!p_ptr->oppose_cold)) ||
-				(((!p_ptr->resist_cold) || (!p_ptr->oppose_cold)) &&
-				(rand_int(3) == 0))))
+			/* 100% of the time if no resistance, 33% if some resistance. */
+			if ((!self) && (r_ptr->flags2 & (RF2_MORGUL_MAGIC)) &&
+			    ((!p_resist_pos(P_RES_COLD)) ||
+			     ((!p_immune(P_RES_COLD)) && (rand_int(3) == 0))))
 			{
 				k = randint(3);
 
@@ -5125,7 +5314,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					{
 						(void)set_paralyzed(p_ptr->paralyzed + rand_int(3) + 2);
 					}
-					if (!p_ptr->resist_fear)
+					if (!p_ptr->no_fear)
 					{
 						(void)set_afraid(p_ptr->afraid + rand_int(21) + 10);
 					}
@@ -5171,7 +5360,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					(void)set_paralyzed(p_ptr->paralyzed + rand_int(3) + 2);
 				}
 
-				if ((!p_ptr->resist_blind) && (!check_save(dam / 2 + 20)))
+				if ((!p_ptr->no_blind) && (!check_save(dam / 2 + 20)))
 				{
 					(void)set_blind(p_ptr->blind + rand_int(17) + 16);
 					msg_print("The deadly vapor blinds you!");
@@ -5202,11 +5391,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by hellfire!");
 			fire_dam(2 * dam / 3, killer);
 
-			if (p_ptr->resist_dark)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else if (!blind && !p_ptr->resist_blind)
+			/* Resist Darkness */
+			dam -= resist_damage(dam, P_RES_DARK, 1);
+
+			/* Blind the player */
+			if (!blind && !p_ptr->no_blind && !p_resist_pos(P_RES_DARK))
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -5218,14 +5407,14 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				msg_print("Visions of hell invade your mind!");
 
 				/* Possible fear, hallucination and confusion. */
-				if (!p_ptr->resist_fear)
+				if (!p_ptr->no_fear)
 				{
 					(void)set_afraid(p_ptr->afraid + randint(30) + r_ptr->level * 2);				}
-				if (!p_ptr->resist_chaos)
+				if (!p_resist_pos(P_RES_CHAOS))
 				{
 					(void)set_image(p_ptr->image + rand_int(101) + 100);
 				}
-				if (!p_ptr->resist_confu)
+				if (!p_resist_pos(P_RES_CONFU))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(31) + 30);
 				}
@@ -5242,11 +5431,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			cold_dam(dam, killer);
-			if (!p_ptr->resist_shard)
+			if (!p_resist_pos(P_RES_SHARD))
 			{
 				(void)set_cut(p_ptr->cut + damroll(5, 8));
 			}
-			if (!p_ptr->resist_sound)
+			if (!p_resist_pos(P_RES_SOUND))
 			{
 				(void)set_stun(p_ptr->stun + randint(15));
 			}
@@ -5260,11 +5449,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_lite)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else if (!blind && !p_ptr->resist_blind)
+
+			/* Resist Damage */
+			dam -= resist_damage(dam, P_RES_LITE, 1);
+
+			/* Apply Blindness */
+			if (!blind && !p_ptr->no_blind  && !p_resist_pos(P_RES_LITE))
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + ((dam > 40) ? 2 : 0));
 			}
@@ -5279,11 +5469,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_dark)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else if (!blind && !p_ptr->resist_blind)
+
+			/* Resist Damage */
+			dam -= resist_damage(dam, P_RES_DARK, 1);
+
+			/* Blind the player */
+			if (!blind && !p_ptr->no_blind && !p_resist_pos(P_RES_DARK))
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -5299,12 +5490,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 			if (fuzzy) msg_print("You feel a deadly blackness surround you!");
 
-			/* Adjust damage for darkness resistance, or blind the player. */
-			if (p_ptr->resist_dark)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else if (!blind && !p_ptr->resist_blind)
+			/* Resist Damage */
+			dam -= resist_damage(dam, P_RES_DARK, 1);
+
+			/* Blind the player */
+			if (!blind && !p_ptr->no_blind && !p_resist_pos(P_RES_DARK))
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -5325,7 +5515,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			if (rand_int(k) > 20)
 			{
 				/* Extremely frightening. */
-				if (!p_ptr->resist_fear)
+				if (!p_ptr->no_fear)
 				{
 					/* Paralyze.  If has free action, max of 1 turn. */
 					if ((!p_ptr->free_act) || rand_int(3) == 0)
@@ -5374,7 +5564,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			if (rand_int(k) > 120)
 			{
 				/* Disenchantment. */
-				if (!p_ptr->resist_disen)
+				if (!p_resist_pos(P_RES_DISEN))
 				{
 					msg_print("You feel a force attacking the magic around you.");
 					(void)apply_disenchant(0);
@@ -5428,11 +5618,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_confu)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			if (!p_ptr->resist_confu)
+
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_CONFU, 1);
+
+			if (!p_resist_pos(P_RES_CONFU))
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
@@ -5448,18 +5638,14 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 
 			if (fuzzy) msg_print("You are surrounded by sound.");
 
-
-			/* Resistance reduces damage, negates all side effects. */
-			if (p_ptr->resist_sound)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_SOUND, 1);
 
 			/* Side effects of powerful sound attacks. */
-			else if (dam > rand_int(30 + dam / 2))
+			if ((dam > rand_int(30 + dam / 2)) && !p_resist_pos(P_RES_SOUND))
 			{
 				/* Confuse the player (a little). */
-				if (!p_ptr->resist_confu)
+				if (!p_resist_pos(P_RES_CONFU))
 				{
 					k = (randint((dam > 400) ? 21 : (1 + dam / 20)));
 					(void)set_confused(p_ptr->confused + k);
@@ -5470,7 +5656,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 				(void)set_stun(p_ptr->stun + k);
 
 				/* Sometimes, paralyze the player briefly. */
-				if (check_save(dam))
+				if (!check_save(dam))
 				{
 					/* Warning */
 					msg_print("The noise shatters your wits, and you struggle to recover.");
@@ -5482,7 +5668,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Resistance to sound - much less inventory destruction . */
-			if (p_ptr->resist_sound) k = dam / 3;
+			if (!p_resist_pos(P_RES_SOUND)) k = dam / 3;
 			else k = dam;
 
 			/* Blow up flasks and potions sometimes. */
@@ -5501,25 +5687,26 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			/* Test for partial shield protection. */
 			if ((inventory[INVEN_ARM].k_idx) && 
 				(!p_ptr->shield_on_back) && 
-				(inventory[INVEN_ARM].ac + (check_specialty(SP_SHIELD_MAST) ? 3 : 0) > 
+				(inventory[INVEN_ARM].ac + (check_ability(SP_SHIELD_MAST) ? 3 : 0) > 
 				 rand_int(MAX_SHIELD_BASE_AC * 2)))
 			{
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 
 			if (fuzzy) msg_print("You are hit by something sharp!");
-			if (p_ptr->resist_shard)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else
+
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_SHARD, 1);
+
+			/* Cut the player */
+			if (!p_resist_pos(P_RES_SHARD))
 			{
 				(void)set_cut(p_ptr->cut + dam);
 
 			}
 
 			/* Resistance to shards - much less inventory destruction. */
-			if (p_ptr->resist_shard) k = dam / 3;
+			if (p_resist_pos(P_RES_SHARD)) k = dam / 3;
 			else k = dam;
 
 			/* Blow up flasks and potions on rare occasions. */
@@ -5543,7 +5730,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		case GF_GRAVITY:
 		{
 			(void)set_slow(p_ptr->slow + rand_int(3) + dam >= 100 ? 4 : 2);
-			if (!p_ptr->resist_sound)
+
+			/* May Stun */
+			if (!p_resist_pos(P_RES_SOUND))
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 5 + 5)));
 				(void)set_stun(p_ptr->stun + k);
@@ -5563,7 +5752,9 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			if (fuzzy) msg_print("You are hit by something!");
-			if (!p_ptr->resist_sound)
+
+			/* May Stun */
+			if (!p_resist_pos(P_RES_SOUND))
 			{
 				(void)set_stun(p_ptr->stun + randint(20));
 			}
@@ -5582,11 +5773,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment;
 
 			if (fuzzy) msg_print("You are hit by something!");
-			if ((!p_ptr->resist_sound) && (rand_int(2) == 0))
+			if ((!p_resist_pos(P_RES_SOUND)) && (rand_int(2) == 0))
 			{
 				(void)set_stun(p_ptr->stun + randint(5 + dam / 10));
 			}
-			if ((!p_ptr->resist_confu) && (rand_int(2) == 0))
+			if ((!p_resist_pos(P_RES_CONFU)) && (rand_int(2) == 0))
 			{
 				(void)set_confused(p_ptr->confused + rand_int(4) + 3);
 			}
@@ -5633,7 +5824,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			}
 
 			/* Sometimes, confuse the player. */
-			if ((rand_int(2) == 0) && (!p_ptr->resist_confu))
+			if ((rand_int(2) == 0) && (!p_resist_pos(P_RES_CONFU)))
 			{
 				(void)set_confused(p_ptr->confused + 5 + randint(dam / 3));
 			}
@@ -5648,10 +5839,10 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		case GF_NEXUS:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-			if (p_ptr->resist_nexus)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
+
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_NEXUS, 1);
+
 			take_hit(dam, killer);
 
 			/* Mark grid for later processing. */
@@ -5667,11 +5858,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something strange!");
-			if (p_ptr->resist_nethr)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else
+
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_NETHR, 1);
+
+			/* Drain Exp */
+			if (!p_resist_pos(P_RES_NETHR))
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
@@ -5699,17 +5891,17 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something strange!");
-			if (p_ptr->resist_chaos)
+
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_CHAOS, 2);
+
+			if (!p_resist_pos(P_RES_CHAOS))
 			{
-				dam *= 5; dam /= 8 + rand_int(5);
-			}
-			if (!p_ptr->resist_chaos)
-			{
-				if (!p_ptr->resist_confu) 
+				if (!p_resist_pos(P_RES_CONFU)) 
 					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 				(void)set_image(p_ptr->image + randint(10));
 			}
-			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos)
+			if (!p_resist_pos(P_RES_CHAOS) && !p_resist_pos(P_RES_NETHR))
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
@@ -5734,13 +5926,16 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		case GF_DISENCHANT:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-			if (p_ptr->resist_disen)
-			{
-				dam *= 5; dam /= 9 + rand_int(3);
-			}
-			else
+
+			/* Resist damage */
+			dam -= resist_damage(dam, P_RES_DISEN, 1);
+
+			/* Disenchant Gear */
+			if (!p_resist_pos(P_RES_DISEN))
 			{
 				(void)apply_disenchant(dam);
+				remove_player_mana(dam/5);
+				apply_dispel(dam/5);
 			}
 			take_hit(dam, killer);
 			break;
@@ -5816,8 +6011,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			dam += terrain_adjustment / 2;
 
 			if (fuzzy) msg_print("You are hit by something!");
-			if ((p_ptr->pclass != CLASS_NECRO) && 
-				(p_ptr->pclass != CLASS_ASSASSIN)) dam /= 2;
+			if (!check_ability(SP_EVIL)) dam /= 2;
 			take_hit(dam, killer);
 			break;
 		}
@@ -6027,7 +6221,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		{
 			if (affect_player)
 			{
-				if (((p_ptr->resist_nexus) || (p_ptr->ffall)) && 
+				if (((p_resist_pos(P_RES_NEXUS)) || (p_ptr->ffall)) && 
 					(rand_int(2) == 0))
 				{
 					msg_print("You barely hold your ground.");
@@ -6135,7 +6329,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 		{
 			if (affect_player)
 			{
-				if (!p_ptr->resist_nexus)
+				if (!p_resist_pos(P_RES_NEXUS))
 				{
 					/* Get caster */
 					monster_type *n_ptr = &m_list[who];

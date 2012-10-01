@@ -18,6 +18,8 @@ rasa" approach to game balance in general.
 four spellcasters, any of four warrior-spellcasters, or the pure warrior we 
 all know and love.
 
+- A new system of incremental resistance to elements.
+
 - Very much more varied classes.  Mages are great with magical items, Rogues 
 steal and set traps, Assassins whip poisoned knives at their foes, Paladins 
 smite with elemental powers, Priests evoke the power of Holy Light, and 
@@ -63,7 +65,7 @@ Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
 
 If you feel the need for more detail, I'd suggest just perusing the help
 files.  You will also find a file in the "lib/info/diffs" folder that lists
-(many of) the changes between Oangband 0.6.0 and 0.6.2.
+(many of) the changes between Oangband 0.6.2 and 0.7.0.
 
 
 === The Jaded Angband Player's Guide to Oangband ===
@@ -73,6 +75,8 @@ files.  You will also find a file in the "lib/info/diffs" folder that lists
 -Melee requires as much backpack space as magic.
 -Don't try to melee or shoot with the pros if you haven't the Skill to swing
  it.
+-For similar effects to "resistance" in Angband, you will need two resistance
+ items for basic elements, and one item for "high" elements.
 -Forget about blows.  Most characters get two for a long time.
 -Don't ignore infravision, searching, and perception.
 -Don't go into autopilot and sell every damage-dealing wand, staff, or rod you 
@@ -96,7 +100,9 @@ Oangband Version 0.5  : 4/18/99  Bahman Rabii
 
 Oangband Version 0.6  : 1/10/03  Bahman Rabii
 
-Copyright (c) 2003      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
+Oangband Version 0.7  : 4/21/05  Bahman Rabii
+
+Copyright (c) 2005      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
                         Ben Harrison, James E. Wilson, Robert A. Koeneke
 
 This software may be copied and distributed for educational, research,

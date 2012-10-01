@@ -131,7 +131,7 @@ Run past known corners    [run_cut_corners]
      faster running, but may cause you to run into a lurking monster.
 
 Run into potential corners    [run_use_corners]
-     Fully explore potential corners in hallways.
+     When running in unmapped hallways, fully explore potential corners.
 
 Disturb whenever any monster moves    [disturb_move]
      Disturb the player when any monster moves, appears, or disappears.

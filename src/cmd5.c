@@ -390,6 +390,22 @@ static void rebalance_weapon(void)
 
 
 /*
+ * Calculate level boost for Channeling ability.
+ */
+int get_channeling_boost(void)
+{
+	long max_channeling = 45 + (2 * p_ptr->lev);
+	long channeling = 0L;
+	int boost;
+
+	if (p_ptr->msp > 0) channeling = (max_channeling * p_ptr->csp * p_ptr->csp) / (p_ptr->msp * p_ptr->msp);
+	boost = ((int) channeling + 5) / 10;
+
+	return(boost);
+}
+
+
+/*
  * Allow user to choose a spell/prayer from the given book.
  *
  * If a valid spell is chosen, saves it in '*sn' and returns TRUE
@@ -408,6 +424,8 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	int first_spell, after_last_spell;
 
 	int ver;
+
+	int total_heighten;
 
 	bool flag, redraw, okay;
 	char choice;
@@ -449,6 +467,10 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 
 #endif /* ALLOW_REPEAT */
 
+	/* Calculate effective level boost */
+	total_heighten = p_ptr->heighten_power;
+	if (check_ability(SP_CHANNELING)) total_heighten += (10 * get_channeling_boost());
+
 	/* Determine the magic description, for color. */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK) p = "spell";
 	if (mp_ptr->spell_book == TV_PRAYER_BOOK) p = "prayer";
@@ -456,9 +478,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	if (mp_ptr->spell_book == TV_NECRO_BOOK) p = "ritual";
 
 	/* Power enhancement. */
-	else if (p_ptr->heighten_power > 145) h = "(**Heightened**) ";
-	else if (p_ptr->heighten_power > 85) h = "(Heightened!) ";
-	else if (p_ptr->heighten_power > 35) h = "(heightened) ";
+	if (total_heighten > 145) h = "(**Empowered**) ";
+	else if (total_heighten > 85) h = "(Empowered!!) ";
+	else if (total_heighten > 35) h = "(Empowered) ";
 	else h = "";
 
 	/* Assume no usable spells */
@@ -627,7 +649,7 @@ void do_cmd_browse(void)
 	if (!mp_ptr->spell_book)
 	{
 		/* Warriors will eventually learn to pseudo-probe monsters. */
-		if (p_ptr->pclass == CLASS_WARRIOR) warrior_probe_desc();
+		if (check_ability(SP_PROBE)) warrior_probe_desc();
 
 		else msg_print("You cannot read books!");
 		return;
@@ -976,7 +998,7 @@ void do_cmd_cast_or_pray(void)
 	if (!mp_ptr->spell_book)
 	{
 		/* Warriors will eventually learn to pseudo-probe monsters. */
-		if (p_ptr->pclass == CLASS_WARRIOR) 
+		if (check_ability(SP_PROBE)) 
 		{
 			if (p_ptr->lev < 35) 
 				msg_print("You do not know how to probe monsters yet.");
@@ -1113,7 +1135,8 @@ void do_cmd_cast_or_pray(void)
 	chance = spell_chance(spell);
 
 	/* Specialty Ability */
-	if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 1 + ((p_ptr->heighten_power + 5)/ 10);
+	if (check_ability(SP_HEIGHTEN_MAGIC)) plev += 1 + ((p_ptr->heighten_power + 5)/ 10);
+	if (check_ability(SP_CHANNELING)) plev += get_channeling_boost();
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
@@ -1137,8 +1160,7 @@ void do_cmd_cast_or_pray(void)
 		/* Hack -- higher chance of "beam" instead of "bolt" for mages 
 		 * and necros.
 		 */
-		beam = (((p_ptr->pclass == CLASS_MAGE) || 
-			(p_ptr->pclass == CLASS_NECRO)) ? plev : (plev / 2));
+		beam = ((check_ability(SP_BEAM)) ? plev : (plev / 2));
 
 
 
@@ -1246,7 +1268,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 16:	/* Recharge Item I */
 			{
-				(void)recharge(85);
+				if (!recharge(85)) return;
 				break;
 			}
 			case 17:	/* Cone of Cold */
@@ -1274,7 +1296,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 21:	/* Identify */
 			{
-				(void)ident_spell();
+				if (!ident_spell()) return;
 				break;
 			}
 			case 22:	/* Sleep Monsters */
@@ -1308,7 +1330,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 27:	/* Recharge Item II */
 			{
-				(void)recharge(150);
+				if (!recharge(150)) return;
 				break;
 			}
 			case 28:	/* Teleport Other */
@@ -1668,7 +1690,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_sphere(GF_HOLY_ORB, dir, (damroll(3, 6) + plev / 4 +
-					(plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
+					(plev / ((check_ability(SP_STRONG_MAGIC)) ? 2 : 4))),
 					((plev < 30) ? 1 : 2), 30);
 				break;
 			}
@@ -1705,7 +1727,7 @@ void do_cmd_cast_or_pray(void)
 			case 86: /* Sense Surroundings. */
 			{
 				/* Extended area for high-level Rangers. */
-				if ((p_ptr->pclass == CLASS_RANGER) && (plev > 34))
+				if ((check_ability(SP_LORE)) && (plev > 34))
 					map_area(0, 0, TRUE);
 				else	map_area(0, 0, FALSE);
 				break;
@@ -1839,7 +1861,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 104: /* Perception */
 			{
-				(void)ident_spell();
+				if (!ident_spell()) return;
 				break;
 			}
 			case 105: /* Clairvoyance */
@@ -1889,7 +1911,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 112: /* Recharging */
 			{
-				(void)recharge(140);
+				if (!recharge(140)) return;
 				break;
 			}
 			case 113: /* Dispel Curse */
@@ -2198,7 +2220,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 157:  /* identify */
 			{
-				(void)ident_spell();
+				if (!ident_spell()) return;
 				break;
 			}
 			case 158:  /* create athelas */
@@ -2395,7 +2417,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 183:  /* infusion */
 			{
-				(void)recharge(125);
+				if (!recharge(125)) return;
 				break;
 			}
 			case 184:  /* become ent */
@@ -2633,7 +2655,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 225: /* identify */
 			{
-				(void)ident_spell();
+				if (!ident_spell()) return;
 				break;
 			}
 			case 226: /* shadow warping */
@@ -2705,7 +2727,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				take_hit(damroll(2, 8), "Death claiming his wages");
-				fire_sphere(GF_SPIRIT, dir, 20 + (2 * plev), 1, 20);
+				fire_sphere(GF_SPIRIT, dir, 20 + (4 * plev), 1, 20);
 				break;
 			}
 			case 237: /* dispel life */
@@ -2724,7 +2746,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 239: /* recharging */
 			{
-				(void)recharge(140);
+				if (!recharge(140)) return;
 				break;
 			}
 			case 240: /* become werewolf */
@@ -2875,7 +2897,7 @@ void do_cmd_cast_or_pray(void)
 	p_ptr->energy_use = 100;
 
 	/* Reduced for fast casters */
-	if (check_specialty(SP_FAST_CAST))
+	if (check_ability(SP_FAST_CAST))
 	{
 		int level_difference = p_ptr->lev - s_ptr->slevel;
 
@@ -2886,7 +2908,7 @@ void do_cmd_cast_or_pray(void)
 	}
 
 	/* Give Credit for Heighten Magic */
-	if (check_specialty(SP_HEIGHTEN_MAGIC)) add_heighten_power(20);
+	if (check_ability(SP_HEIGHTEN_MAGIC)) add_heighten_power(20);
 
 	/* Paranioa */
 	if (p_ptr->energy_use < 50) p_ptr->energy_use = 50;
@@ -2898,7 +2920,7 @@ void do_cmd_cast_or_pray(void)
 		p_ptr->csp -= s_ptr->smana;
 
 		/* Specialty ability Harmony */
-		if ((failed == FALSE) & (check_specialty(SP_HARMONY)))
+		if ((failed == FALSE) & (check_ability(SP_HARMONY)))
 		{
 		  	int frac, boost;
 
@@ -2959,9 +2981,43 @@ void do_cmd_cast_or_pray(void)
 }
 
 /*
+ * Check if we have a race, class, or specialty ability -BR-
+ */
+bool check_ability(int ability)
+{
+	int i;
+
+	/* Check for innate racial specialty */
+	if ((ability >= SP_RACIAL_START) && (ability <= SP_RACIAL_END))
+	{
+		int offset = ability - SP_RACIAL_START;
+		if (rp_ptr->flags_special & (0x00000001 << offset)) return(TRUE);
+	}
+	
+	/* Check for innate class ability */
+	if ((ability >= SP_CLASS_START) && (ability <= SP_CLASS_END))
+	{
+		int offset = ability - SP_CLASS_START;
+		if (cp_ptr->flags_special & (0x00000001 << offset)) return(TRUE);
+	}
+	
+	/* 
+	 * Check to see if the queried specialty is
+	 * on the allowed part of the list 
+	 */
+	for (i = 0; i < p_ptr->specialties_allowed; i++)
+	{
+		if (p_ptr->specialty_order[i] == ability) return(TRUE);
+	}
+
+	/* Assume false */
+	return(FALSE);
+}
+
+/*
  * Check if we have a specialty ability -BR-
  */
-bool check_specialty(int specialty)
+bool check_ability_specialty(int ability)
 {
 	int i;
 
@@ -2971,7 +3027,7 @@ bool check_specialty(int specialty)
 	 */
 	for (i = 0; i < p_ptr->specialties_allowed; i++)
 	{
-		if (p_ptr->specialty_order[i] == specialty) return(TRUE);
+		if (p_ptr->specialty_order[i] == ability) return(TRUE);
 	}
 
 	/* Assume false */
@@ -2995,7 +3051,7 @@ bool check_specialty_gain(int specialty)
 	/* Is it allowed for this class? */
 	for (i = 0; i < CLASS_SPECIALTIES; i++)
 	{
-		if (specialty_info[p_ptr->pclass][i] == specialty)
+		if (cp_ptr->specialties[i] == specialty)
 		{
 			allowed = TRUE;
 			break;
@@ -3063,7 +3119,7 @@ void do_cmd_gain_specialty(void)
 		}
 
 		/* Find height of selection interface */
-		hgt = Term->hgt - 6;
+		hgt = Term->hgt - 7;
 		if (hgt > j) hgt = j;
 
 		/* Prompt choices */
@@ -3095,13 +3151,14 @@ void do_cmd_gain_specialty(void)
 				Term_erase(5, i + 2, 66);
 			
 				/* Display */
-				Term_putstr(5, i + 2, 66, TERM_WHITE, buf);
+				Term_putstr(5, i + 2, 66, TERM_GREEN, buf);
 			}
 
 			/* Display that specialty's information. */
+			roff("",5,0);
+			Term_erase(5, hgt + 5, 255);
 			Term_erase(5, hgt + 4, 255);
 			Term_erase(5, hgt + 3, 255);
-			Term_erase(5, hgt + 2, 255);
 			c_roff(TERM_L_BLUE, specialty_tips[choices[cur]], 5, 0);
 
 			/* Move the cursor */
@@ -3217,6 +3274,9 @@ void do_cmd_gain_specialty(void)
 				p_ptr->new_specialties--;
 				p_ptr->old_specialties = p_ptr->new_specialties;
 
+				/* In case we have more to learn, go to the head of the list */
+				cur = 0;
+
 				/* Update some stuff */
 				p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY | PU_TORCH);
 
@@ -3239,161 +3299,6 @@ void do_cmd_gain_specialty(void)
 
 
 /*
- * Browse known specialty abilities -BR-
- * Adapted from birth.c get_player_choice
- */
-void do_cmd_view_specialties(void)
-{
-	int top = 0, cur = 0;
-	int i, num_known, dir;
-	char c;
-	int hgt;
-	char buf[80];
-	bool done;
-
-        /* Count the number of specialties we know */
-        for (i = 0, num_known = 0; i < MAX_SPECIALTIES; i++)
-        {
-                if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY) num_known++;
-        }
-
-	/* Save and clear creen */
-	screen_save();
-	Term_clear();
-
-	/* Find height of selection interface */
-	hgt = Term->hgt - 6;
-	if (hgt > num_known) hgt = num_known;
-
-	/* Prompt choices */
-	sprintf(buf, "Specialties learned (%c-%c, ESC=exit): ",
-			 I2A(0), I2A(num_known-1));
-
-	Term_putstr(5, 0, 66, TERM_WHITE, buf);
-
-
-	/* View choices until user exits */
-	done = FALSE;
-	while (!done)
-	{
-		/* Redraw the list */
-		for (i = 0; ((i + top < num_known) && (i < hgt)); i++)
-		{
-			if (i + top < 26)
-			{
-				sprintf(buf, "%c) %s %s", I2A(i + top), specialty_names[p_ptr->specialty_order[i + top]],
-					     (p_ptr->new_specialties < i + top + 1 - num_known) ? "(forgotten)" : "");
-			}
-			else
-			{
-				/* ToDo: Fix the ASCII dependency */
-				sprintf(buf, "%c) %s %s", 'A' + (i + top - 26), specialty_names[p_ptr->specialty_order[i + top]],
-					     (p_ptr->new_specialties < i + top + 1 - num_known) ? "(forgotten)" : "");
-			}
-
-			/* Clear */
-			Term_erase(5, i + 2, 66);
-		
-			/* Display */
-			Term_putstr(5, i + 2, 66, TERM_WHITE, buf);
-		}
-
-		/* Display that specialty's information. */
-		Term_erase(5, hgt + 4, 255);
-		Term_erase(5, hgt + 3, 255);
-		Term_erase(5, hgt + 2, 255);
-		c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[cur]], 5, 0);
-
-		/* Move the cursor */
-		put_str("", 2 + cur - top, 5);
-
-		/* get input */
-		c = inkey();
-
-		/* Numbers are used for scolling */
-		if (isdigit(c))
-		{
-			/* Get a direction from the key */
-			dir = target_dir(c);
-
-			/* Going up? */
-			if (dir == 8)
-			{
-				if (cur != 0)
-				{
-					/* Move selection */
-					cur--;
-				}
-
-				if ((top > 0) && ((cur - top) < 4))
-				{
-					/* Scroll up */
-					top--;
-				}
-			}
-
-			/* Going down? */
-			if (dir == 2)
-			{
-				if (cur != (num_known - 1))
-				{
-					/* Move selection */
-					cur++;
-				}
-
-				if ((top + hgt - 1 < (num_known - 1)) && ((top + hgt - 1 - cur) < 4))
-				{
-					/* Scroll down */
-					top++;
-				}
-			}
-		}
-
-		/* Letters are used for selection */
-		else if (isalpha(c))
-		{
-			int choice;
-
-			if (islower(c))
-			{
-				choice = A2I(c);
-			}
-			else
-			{
-				choice = c - 'A' + 26;
-			}
-
-			/* Validate input */
-			if ((choice > -1) && (choice < num_known))
-			{
-				cur = choice;
-			}
-
-			else
-			{
-				bell("Illegal response to question!");
-			}
-		}
-
-		/* Allow user to exit the fuction */
-		else if (c == ESCAPE)
-		{
-			done = TRUE;
-		}
-
-		/* Invalid input */
-		else bell("Illegal response to question!");
-	}
-
-	/* Load screen */
-	screen_load();
-
-	/* exit */
-	return;
-}
-
-
-/*
  * Interact with specialty abilities -BR-
  */
 void do_cmd_specialty(void)
@@ -3401,16 +3306,12 @@ void do_cmd_specialty(void)
 	char answer;
 
 	/* Might want to gain a new ability or browse old ones */
-	if ((p_ptr->new_specialties > 0) && (p_ptr->specialty_order[0] != SP_NO_SPECIALTY))
+	if (p_ptr->new_specialties > 0)
 	{
-
 		/* Query */
-		msg_print("'L'earn a specialty or 'V'iew your specialties (l/v)?");
-
 		/* Interact and choose. */
-		while(1)
+		while(get_com("'V'iew your abilities or 'L'earn specialty (l/v/ESC)?", &answer))
 		{
-			answer = inkey();
 
 			/* New ability */
 			if ((answer == 'L') || (answer == 'l'))
@@ -3422,37 +3323,23 @@ void do_cmd_specialty(void)
 			/* View Current */
 			if ((answer == 'V') || (answer == 'v'))
 			{
-				do_cmd_view_specialties();
+				do_cmd_view_abilities();
 				return;
 			}
 
 			/* Exit */
 			else if (answer == ESCAPE) return;
 
-			/* Reprompt */
-			else msg_print("'l' to learn a specialty, 'v' to view specialties, ESC to cancel");
+
 		}
 
 	}
 
-	/* Gain new specialties is the only option*/
-	else if (p_ptr->new_specialties > 0)
-	{
-		do_cmd_gain_specialty();
-		return;
-	}
-
 	/* View existing specialties is the only option */
-	else if (p_ptr->specialty_order[0] != SP_NO_SPECIALTY)
-	{
-		do_cmd_view_specialties();
-		return;
-	}
-
-	/* No specialties and no potential to get them - should not happen */
 	else
 	{
-		msg_print("You have no specialty abilities.");
+		do_cmd_view_abilities();
+		return;
 	}
 
 	return;

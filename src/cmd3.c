@@ -1447,7 +1447,7 @@ static cptr ident_info[] =
 	">:A down staircase",
 	"?:A scroll",
 	"@:You",
-	"A:Angel",
+	/* "A:unused", */
 	"B:Bird",
 	"C:Canine",
 	"D:Ancient Dragon/Wyrm",
@@ -2139,6 +2139,10 @@ void py_steal(int y, int x)
  */
 void py_set_trap(int y, int x)
 {
+	int max_traps;
+
+	max_traps = 1 + ((p_ptr->lev >= 25) ? 1 : 0) + (check_ability(SP_EXTRA_TRAP) ? 1 : 0);
+
 	if (p_ptr->blind || no_lite())
 	{
 		msg_print("You can not see to set a trap.");
@@ -2152,7 +2156,7 @@ void py_set_trap(int y, int x)
 	}
 
 	/* Paranoia -- Forbid more than one trap being set. */
-	if (num_trap_on_level > (check_specialty(SP_EXTRA_TRAP) ? 1 : 0))
+	if (num_trap_on_level >= max_traps)
 	{
 		msg_print("You must disarm your existing trap to free up your equipment.");
 		return;
@@ -2193,7 +2197,9 @@ bool choose_mtrap(byte *choice)
 
 	prt("        Choose an advanced monster trap (ESC to cancel):", 1, 8);
 
-	num = 1 + (p_ptr->lev / 6);
+
+	if (check_ability(SP_EXTRA_TRAP)) num = 1 + (p_ptr->lev / 4);
+	else num = 1 + (p_ptr->lev / 6);
 
         prt("        a) Sturdy Trap      (less likely to break)", 2, 8);
 	if (num >= 2) prt("        b) Netted Trap      (effective versus flyers)", 3, 8);
@@ -2204,6 +2210,9 @@ bool choose_mtrap(byte *choice)
 	if (num >= 7) prt("        g) Explosive Trap   (causes area damage)", 8, 8);
 	if (num >= 8) prt("        h) Portal Trap      (teleports monsters)", 9, 8);
 	if (num >= 9) prt("        i) Stasis Trap      (freezes time for a monster)", 10, 8);
+	if (num >= 10) prt("        j) Drain Life Trap  (hurts living monsters)", 11, 8);
+	if (num >= 11) prt("        k) Unmagic Trap     (deals damage and reduces mana)", 12, 8);
+	if (num >= 12) prt("        l) Dispelling Trap  (hurts all monster in sight)", 13, 8);
 
 	while (!done)
 	{

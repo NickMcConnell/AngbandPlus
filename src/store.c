@@ -1609,7 +1609,7 @@ static void display_store(void)
 
 		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
-		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
+		cptr race_name = rp_name + rp_info[ot_ptr->owner_race].name;
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);

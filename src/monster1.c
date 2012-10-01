@@ -73,7 +73,7 @@ static bool know_armour(int r_idx)
 	s32b kills = l_list[r_idx].tkills;
 
 	/* Rangers learn quickly. */
-	if (p_ptr->pclass == CLASS_RANGER) kills *= 2;
+	if (check_ability(SP_LORE)) kills *= 2;
 
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
@@ -101,8 +101,8 @@ static bool know_mana(int r_idx)
 
 	s32b kills = l_list[r_idx].tkills;
 
-	/* Mages learn quickly. */
-	if (p_ptr->pclass == CLASS_MAGE) kills *= 2;
+	/* Stong sorcery users (i.e. Mages) learn quickly. */
+	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) && (check_ability(SP_STRONG_MAGIC))) kills *= 2;
 
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
@@ -140,7 +140,7 @@ static bool know_damage(int r_idx, int i)
 	if (d > 100) d = 100;
 
 	/* Hack -- Rangers learn quickly. */
-	if (p_ptr->pclass == CLASS_RANGER) level = 10 + 3 * level / 2;
+	if (check_ability(SP_LORE)) level = 10 + 3 * level / 2;
 
 	/* Normal monsters */
 	if ((4 + level) * a > 80 * d) return (TRUE);

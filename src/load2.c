@@ -3448,11 +3448,8 @@ static errr rd_savefile_new_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &p_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
-
-	/* Important -- Initialize the combat style */
-	wp_ptr = &weapon_info[p_ptr->pclass];
+	rp_ptr = &rp_info[p_ptr->prace];
+	cp_ptr = &cp_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];

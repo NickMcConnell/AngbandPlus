@@ -10,7 +10,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 #N: vault index: name
 #X: vault type: increase in level feeling: height of description: 

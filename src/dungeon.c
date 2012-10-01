@@ -122,104 +122,11 @@ static void sense_inventory(void)
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-	/* Analyze the class */
-	switch (p_ptr->pclass)
-	{
-		case CLASS_WARRIOR:
-		{
-			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+	/* Heavy sensing */
+	heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
 
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PRIEST:
-		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			/* Good sensing */
-			if (0 != rand_int(25000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			/* Acceptable (light) sensing */
-			if (0 != rand_int(30000L / (plev + 20))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PALADIN:
-		{
-			/* Decent sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_DRUID:
-		{
-			/* Wretched (light) sensing */
-			if (0 != rand_int(360000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_NECRO:
-		{
-			/* Bad (light) sensing */
-			if (0 != rand_int(180000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ASSASSIN:
-		{
-			/* Good sensing */
-			if (0 != rand_int(25000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-	}
-
+	/* Do we get pseudo-id this turn? */
+	if (0 != rand_int(cp_ptr->sense_base / (heavy ? (plev * plev + 40) : (plev + 5)))) return;
 
 	/*** Sense everything ***/
 
@@ -478,11 +385,14 @@ static void process_world(void)
 
 	bool extend_magic = FALSE;
 
+	bool divine = (check_ability(SP_DIVINE));
+	bool hardy = (check_ability(SP_HARDY));
+
 	/* Every 10 game turns */
 	if (turn % 10) return;
 
 	/* Hack - beneficial effects timeout at 2/3 speed with ENHANCE_MAGIC */
-	if ((check_specialty(SP_ENHANCE_MAGIC)) && ((turn/10) % EXTEND_MAGIC_FRACTION))
+	if ((check_ability(SP_ENHANCE_MAGIC)) && ((turn/10) % EXTEND_MAGIC_FRACTION))
 		extend_magic = TRUE;
 
 	/*** Check the Time and Load ***/
@@ -680,7 +590,7 @@ static void process_world(void)
 			i = extract_energy[p_ptr->pspeed] * 2;
 
 			/* Half-trolls eat a lot.  */
-			if ((rp_ptr->flags_special) & PS_HUNGRY) i += 5;
+			if (check_ability(SP_HUNGRY)) i += 5;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -767,8 +677,8 @@ static void process_world(void)
 	else	mana_regen_amount = regen_amount;
 
 	/* Consider specialty abilities */
-        if (check_specialty(SP_REGENERATION)) regen_amount *= 2;
-        if (check_specialty(SP_MEDITATION)) mana_regen_amount *= 2;
+        if (check_ability(SP_REGENERATION)) regen_amount *= 2;
+        if (check_ability(SP_MEDITATION)) mana_regen_amount *= 2;
 
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
@@ -795,7 +705,7 @@ static void process_world(void)
 	if (p_ptr->image)
 	{
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)
+		if (divine)
 			(void)set_image(p_ptr->image - 2);
 		else (void)set_image(p_ptr->image - 1);
 	}
@@ -804,7 +714,7 @@ static void process_world(void)
 	if (p_ptr->blind)
 	{
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)
+		if (divine)
 			(void)set_blind(p_ptr->blind - 2);
 
 		else (void)set_blind(p_ptr->blind - 1);
@@ -857,7 +767,7 @@ static void process_world(void)
 	if (p_ptr->paralyzed)
 	{
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)
+		if (divine)
 			(void)set_paralyzed(p_ptr->paralyzed - 2);
 
 		else (void)set_paralyzed(p_ptr->paralyzed - 1);
@@ -867,7 +777,7 @@ static void process_world(void)
 	if (p_ptr->confused)
 	{
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)
+		if (divine)
 			(void)set_confused(p_ptr->confused - 2);
 
 		else (void)set_confused(p_ptr->confused - 1);
@@ -877,7 +787,7 @@ static void process_world(void)
 	if (p_ptr->afraid)
 	{
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)
+		if (divine)
 			(void)set_afraid(p_ptr->afraid - 2);
 
 		else (void)set_afraid(p_ptr->afraid - 1);
@@ -893,7 +803,7 @@ static void process_world(void)
 	if (p_ptr->slow)
 	{
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)
+		if (divine)
 			(void)set_slow(p_ptr->slow - 2);
 
 		else (void)set_slow(p_ptr->slow - 1);
@@ -974,10 +884,10 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Hobbits are sturdy. */
-		if ((rp_ptr->flags_special) & PS_HARDY) adjust++;
+		if (hardy) adjust++;
 
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE) adjust = 3 * adjust / 2;
+		if (divine) adjust = 3 * adjust / 2;
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -989,7 +899,7 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE)adjust = 3 * adjust / 2;
+		if (divine)adjust = 3 * adjust / 2;
 
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
@@ -1001,10 +911,10 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Hobbits are sturdy. */
-		if ((rp_ptr->flags_special) & PS_HARDY) adjust++;
+		if (hardy) adjust++;
 
 		/* Maiar recover quickly from anything. */
-		if ((rp_ptr->flags_special) & PS_DIVINE) adjust = 3 * adjust / 2;
+		if (divine) adjust = 3 * adjust / 2;
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
@@ -1130,7 +1040,7 @@ static void process_world(void)
 	 */
 	if (p_ptr->black_breath)
 	{
-		if ((rp_ptr->flags_special) & PS_HARDY) chance = 2;
+		if (hardy) chance = 2;
 		else chance = 5;
 
 		if ((rand_int(100) < chance) && (p_ptr->exp > 0))
@@ -1932,11 +1842,9 @@ static void process_command(void)
 		case ']':
 		{
 			if ((!SCHANGE) &&
-			    ((rp_ptr->flags_special) & PS_BEARSKIN))
+			    (check_ability(SP_BEARSKIN)))
 			{
-				/* Confirm */
-				if (get_check("Assume the form of a bear? "))
-				   shapechange(SHAPE_BEAR);
+				do_cmd_bear_shape();
 			}
 			else do_cmd_unchange();
 			break;
@@ -2161,7 +2069,7 @@ static void special_mana_gain(void)
 		 * Mega-Hack - Restrict to Necromancers to make it affect Soul Siphon
 		 * and not Power Siphon.
 		 */
-		if ((p_ptr->mana_gain > p_ptr->lev) && (p_ptr->pclass == CLASS_NECRO))
+		if ((p_ptr->mana_gain > p_ptr->lev) && (check_ability(SP_EVIL)))
 		{
 			msg_print("You absorb too much mana!");
 			take_hit(damroll(2, 8), "mana burn");
@@ -2899,13 +2807,13 @@ static void process_some_user_pref_files(void)
 	(void)process_pref_file("user.prf");
 
 	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", p_name + rp_ptr->name);
+	sprintf(buf, "%s.prf", rp_name + rp_ptr->name);
 
 	/* Process that file */
 	process_pref_file(buf);
 
 	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
+	sprintf(buf, "%s.prf", cp_name + cp_ptr->name);
 
 	/* Process that file */
 	process_pref_file(buf);

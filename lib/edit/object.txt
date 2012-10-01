@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -2212,7 +2212,7 @@ G:?:d
 I:70:13:0
 W:35:0:5:1000
 A:35/1:50/1:65/2:80/2
-D:that reveal in full detail the true nature of an oject.  Such can
+D:that reveal in full detail the true nature of an object.  Such can 
 D:not be forgotten.
 
 N:334:Remove Curse
@@ -2234,7 +2234,7 @@ G:?:d
 I:70:16:0
 W:15:0:5:150
 A:5/2:15/2
-D:that improves a piece of armour.  It is less likely to succeed on
+D:that improves a piece of armour.  It is less likely to succeed on 
 D:strongly enchanted items.
 
 N:337:Enchant Weapon (Skill)
@@ -2242,7 +2242,7 @@ G:?:d
 I:70:17:0
 W:15:0:5:150
 A:5/2:15/2
-D:that makes a weapon more accurate.  It is less likely to succeed on
+D:that makes a weapon more accurate.  It is less likely to succeed on 
 D:strongly enchanted items.
 
 N:338:Enchant Weapon (Deadliness)
@@ -2250,7 +2250,7 @@ G:?:d
 I:70:18:0
 W:15:0:5:150
 A:5/2:15/2
-D:that makes a weapon more damaging.  It is less likely to succeed on
+D:that makes a weapon more damaging.  It is less likely to succeed on 
 D:strongly enchanted items.
 
 N:339:*Recharging*
@@ -2258,7 +2258,7 @@ G:?:d
 I:70:19:0
 W:65:0:5:400
 A:65/2:85/2
-D:that recharges a magic item.  It is more likely than lesser scrolls
+D:that recharges a magic item.  It is more likely than lesser scrolls 
 D:to succeed on strong items.
 
 N:340:*Enchant Armor*
@@ -2266,7 +2266,7 @@ G:?:d
 I:70:20:0
 W:60:0:5:500
 A:60/1:70/2
-D:that greatly improves a piece of armour.  It is less likely to
+D:that greatly improves a piece of armour.  It is less likely to 
 D:succeed on strongly enchanted items.
 
 N:341:*Enchant Weapon*
@@ -2274,7 +2274,7 @@ G:?:d
 I:70:21:0
 W:60:0:5:500
 A:60/1
-D:that makes a weapon more accurate and damaging.  It is less likely
+D:that makes a weapon more accurate and damaging.  It is less likely 
 D:to succeed on strongly enchanted items.
 
 N:342:Recharging
@@ -2282,7 +2282,7 @@ G:?:d
 I:70:22:0
 W:15:0:5:180
 A:15/1:25/1:40/2:60/2
-D:that recharges a magic item.  The item may be destroyed, especially
+D:that recharges a magic item.  The item may be destroyed, especially 
 D:if it is very strong.
 
 N:343:Brand Missiles
@@ -2355,7 +2355,7 @@ G:?:d
 I:70:33:0
 W:1:0:5:20
 A:1/2
-D:that grants you a breif bonus to combat skills.
+D:that grants you a brief bonus to combat skills.
 
 N:354:Holy Chant
 G:?:d
@@ -2390,7 +2390,7 @@ G:?:d
 I:70:38:0
 W:60:0:5:2500
 A:60/2:85/2
-D:that creates a place of sanctuary, difficult for enemies to
+D:that creates a place of sanctuary, difficult for enemies to 
 D:penetrate.
 
 N:359:Door Destruction
@@ -2412,7 +2412,7 @@ G:?:d
 I:70:41:0
 W:50:0:5:750
 A:50/1
-D:that obliterates almost everything nearby.  Unique monsters will
+D:that obliterates almost everything nearby.  Unique monsters will 
 D:escape.
 
 N:362:Dispel Undead
@@ -2429,7 +2429,7 @@ G:?:d
 I:70:44:0
 W:45:0:5:750
 A:50/4
-D:that banishes all monsters of a give type from the level.  Unique
+D:that banishes all monsters of a give type from the level.  Unique 
 D:foes are immune, as are those in protected areas.
 
 N:365:Mass Genocide
@@ -2437,7 +2437,7 @@ G:?:d
 I:70:45:0
 W:60:0:5:1500
 A:60/4
-D:that banishes all nearby monsters from the level.  Unique foes are
+D:that banishes all nearby monsters from the level.  Unique foes are 
 D:immune, as are those in protected areas.
 
 N:366:Acquirement
@@ -2920,7 +2920,7 @@ I:75:57:0
 W:70:0:4:60000
 A:70/4
 P:0:1d1:0:0:0
-D:that reveals the level and its secrets, improves your mind,
+D:that reveals the level and its secrets, improves your mind, 
 D:identifies your possesions, and gives self knowledge.
 
 N:438:Self Knowledge

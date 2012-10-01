@@ -742,13 +742,13 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
-			  v = p_name + rp_ptr->name;
+			  v = rp_name + rp_ptr->name;
 			}
 
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				v = cp_ptr->title;
+			  v = cp_name + cp_ptr->name;
 			}
 
 			/* Player */
@@ -1172,6 +1172,114 @@ static void prt_deci(cptr header, int num, int deci, int row, int col, byte colo
 
 
 /*
+ * Prints the player resistance levels.
+ */
+static void display_player_resistances(void)
+{
+	int resist;
+	byte color;
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_ACID]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Acid:      ", resist, 10, 1, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_ELEC]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Lightning: ", resist, 11, 1, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_FIRE]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Fire:      ", resist, 12, 1, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_COLD]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Cold:      ", resist, 13, 1, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_POIS]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Poison:    ", resist, 14, 1, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_LITE]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Light:     ", resist, 10, 26, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_DARK]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Darkness:  ", resist, 11, 26, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_CONFU]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Confusion: ", resist, 12, 26, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_SOUND]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Sound:     ", resist, 13, 26, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_SHARD]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Shards:    ", resist, 14, 26, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_NEXUS]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Nexus:     ", resist, 10, 51, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_NETHR]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Nether:    ", resist, 11, 51, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_CHAOS]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Chaos:     ", resist, 12, 51, color);
+
+	resist = extract_resistance[p_ptr->dis_res_list[P_RES_DISEN]];
+	color = ((resist < 0) ? TERM_RED :
+		 (resist == 0) ? TERM_YELLOW :
+		 (resist < 70) ? TERM_WHITE :
+		 TERM_L_GREEN);
+	prt_num("Res Disenchant:", resist, 13, 51, color);
+}
+
+
+/*
  * Prints the following information on the screen.
  *
  * For this to look right, the following should be spaced the
@@ -1483,22 +1591,22 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 	(*f3) |= rp_ptr->flags3;
 
 	/* Warrior. */
-	if (p_ptr->pclass == CLASS_WARRIOR)
+	if (check_ability(SP_RELENTLESS))
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
 		if (p_ptr->lev >= 40) (*f3) |= (TR3_REGEN);
 	}
 
 	/* Specialty ability Holy Light */
-	if (check_specialty(SP_HOLY_LIGHT))
+	if (check_ability(SP_HOLY_LIGHT))
 	{
-		p_ptr->resist_lite = TRUE;
+		(*f2) |= (TR2_RES_LITE);
 	}
 
 	/* Specialty ability Unight */
-	if (check_specialty(SP_UNLIGHT))
+	if (check_ability(SP_UNLIGHT))
 	{
-		p_ptr->resist_dark = TRUE;
+		(*f2) |= (TR2_RES_DARK);
 	}
 
 	if (shape)
@@ -1663,7 +1771,7 @@ void player_weakness_dis(u32b *f1, u32b *f2, u32b *f3)
 	(*f1) = (*f2) = (*f3) = 0L;
 
 	/* HACK - add weakness of some races */
-	if ((rp_ptr->flags_special) & PS_WOODEN) 
+	if (check_ability(SP_WOODEN)) 
 	{	
 		(*f3) |= (TR3_FEATHER);
 	}
@@ -1957,9 +2065,9 @@ static void display_player_misc_info(void)
 
 	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 8);
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
-	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
+	c_put_str(TERM_L_BLUE, rp_name + rp_ptr->name, 4, 8);
 
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
+	c_put_str(TERM_L_BLUE, cp_name + cp_ptr->name, 5, 8);
 
 	/* Display extras */
 	put_str("Level:", 6, 1);
@@ -2175,8 +2283,8 @@ void display_player(int mode)
 		c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 11);
 		c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 11);
 
-		c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 11);
-		c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 11);
+		c_put_str(TERM_L_BLUE, rp_name + rp_ptr->name, 4, 11);
+		c_put_str(TERM_L_BLUE, cp_name + cp_ptr->name, 5, 11);
 
 		/* Age, Height, Weight, Social */
 		prt_num("Age              ", (int)p_ptr->age, 2, 27, TERM_L_BLUE);
@@ -2244,12 +2352,11 @@ void display_player(int mode)
 			}
 		}
 
-		/* Extra info */
-		display_player_middle();
-
-		/* Display "history" info */
+		/* History and Resistance Screen */
 		if (mode == 1)
 		{
+			display_player_resistances();
+
 			put_str("(Character Background)", 17, 28);
 
 			for (i = 0; i < 4; i++)
@@ -2258,10 +2365,13 @@ void display_player(int mode)
 			}
 		}
 
-		/* Display "various" info */
+		/* Initial Screen */
 		else
 		{
 			put_str("(Character Abilities)", 17, 28);
+
+			/* Extra info */
+			display_player_middle();
 
 			display_player_various();
 		}
@@ -3504,7 +3614,7 @@ static void print_tomb(void)
 	/* Normal */
 	else
 	{
-		p =  player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+		p = cp_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
 	}
 
 	center_string(buf, op_ptr->full_name);
@@ -3517,7 +3627,7 @@ static void print_tomb(void)
 	put_str(buf, 8, 11);
 
 
-	center_string(buf, cp_ptr->title);
+	center_string(buf, cp_name + cp_ptr->name);
 	put_str(buf, 10, 11);
 
 	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
@@ -3965,7 +4075,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 				place, the_score.pts, the_score.who,
-				p_name + p_info[pr].name, class_info[pc].title,
+				rp_name + rp_info[pr].name, cp_name + cp_info[pc].name,
 				clev);
 
 			/* Append a "maximum level" */

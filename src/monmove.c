@@ -289,35 +289,35 @@ static void update_smart_cheat(int m_idx)
 	if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 
 	/* Know immunities */
-	if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
-	if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
-	if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
-	if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+	if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
+	if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
+	if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
+	if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
 	
 	/* Know oppositions */
-	if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
-	if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
-	if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
-	if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
-	if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+	if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
+	if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+	if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
+	if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+	if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
 	
 	/* Know resistances */
-	if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
-	if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
-	if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
-	if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
-	if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
-	if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
-	if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
-	if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
-	if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
-	if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
-	if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
-	if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
-	if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
-	if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
-	if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
-	if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+	if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
+	if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
+	if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
+	if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
+	if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
+	if (p_ptr->no_fear) m_ptr->smart |= (SM_RES_FEAR);
+	if (p_resist_pos(P_RES_LITE)) m_ptr->smart |= (SM_RES_LITE);
+	if (p_resist_pos(P_RES_DARK)) m_ptr->smart |= (SM_RES_DARK);
+	if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
+	if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+	if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
+	if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
+	if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
+	if (p_resist_pos(P_RES_NETHR)) m_ptr->smart |= (SM_RES_NETHR);
+	if (p_resist_pos(P_RES_CHAOS)) m_ptr->smart |= (SM_RES_CHAOS);
+	if (p_resist_pos(P_RES_DISEN)) m_ptr->smart |= (SM_RES_DISEN);
 
 	return;
 }
@@ -356,47 +356,47 @@ static int find_resist(int m_idx, int spell_lrn)
 		/* As above, but poisonous. */
 		case LRN_PARCH:
 		{
-			if ((smart & (SM_OPP_POIS)) || (smart & (SM_RES_POIS))) return(10);
+			if (smart & (SM_RES_POIS)) return(10);
 			else return(0);
 		}
 		/* Acid Spells */
 		case LRN_ACID:
 		{
 			if (smart & (SM_IMM_ACID)) return(100);
-			else if ((smart & (SM_OPP_ACID)) && (smart & (SM_RES_ACID))) return(70);
-			else if ((smart & (SM_OPP_ACID)) || (smart & (SM_RES_ACID))) return(40);
+			else if (smart & (SM_RES_STRONG_ACID)) return(70);
+			else if (smart & (SM_RES_ACID)) return(40);
 			else return(0);
 		}
 		/* Lightning Spells */
 		case LRN_ELEC:
 		{
 			if (smart & (SM_IMM_ELEC)) return(100);
-			else if ((smart & (SM_OPP_ELEC)) && (smart & (SM_RES_ELEC))) return(70);
-			else if ((smart & (SM_OPP_ELEC)) || (smart & (SM_RES_ELEC))) return(40);
+			else if (smart & (SM_RES_STRONG_ELEC)) return(70);
+			else if (smart & (SM_RES_ELEC)) return(40);
 			else return(0);
 		}
 		/* Fire Spells */
 		case LRN_FIRE:
 		{
 			if (smart & (SM_IMM_FIRE)) return(100);
-			else if ((smart & (SM_OPP_FIRE)) && (smart & (SM_RES_FIRE))) return(70);
-			else if ((smart & (SM_OPP_FIRE)) || (smart & (SM_RES_FIRE))) return(40);
+			else if (smart & (SM_RES_STRONG_FIRE)) return(70);
+			else if (smart & (SM_RES_FIRE)) return(40);
 			else return(0);
 		}
 		/* Cold Spells */
 		case LRN_COLD:
 		{
 			if (smart & (SM_IMM_COLD)) return(100);
-			else if ((smart & (SM_OPP_COLD)) && (smart & (SM_RES_COLD))) return(70);
-			else if ((smart & (SM_OPP_COLD)) || (smart & (SM_RES_COLD))) return(40);
+			else if (smart & (SM_RES_STRONG_COLD)) return(70);
+			else if (smart & (SM_RES_COLD)) return(40);
 			else return(0);
 		}
 		/* Ice Spells */
 		case LRN_ICE:
 		{
 			if (smart & (SM_IMM_COLD)) a=90;
-			else if ((smart & (SM_OPP_COLD)) && (smart & (SM_RES_COLD))) a=60;
-			else if ((smart & (SM_OPP_COLD)) || (smart & (SM_RES_COLD))) a=30;
+			else if (smart & (SM_RES_STRONG_COLD)) a=60;
+			else if (smart & (SM_RES_COLD)) a=30;
 			else a=0;
 			if (smart & (SM_RES_SOUND)) a += 5;
 			if (smart & (SM_RES_SHARD)) a += 5;
@@ -405,8 +405,8 @@ static int find_resist(int m_idx, int spell_lrn)
 		/* Poison Spells */
 		case LRN_POIS:
 		{
-			if ((smart & (SM_OPP_POIS)) && (smart & (SM_RES_POIS))) return(80);
-			else if ((smart & (SM_OPP_POIS)) || (smart & (SM_RES_POIS))) return(55);
+			if (smart & (SM_RES_STRONG_POIS)) return(80);
+			else if (smart & (SM_RES_POIS)) return(55);
 			else return(0);
 		}
 		/* Plasma Spells */
@@ -414,11 +414,11 @@ static int find_resist(int m_idx, int spell_lrn)
 		{
 			a=0;
 			if (smart & (SM_IMM_FIRE)) a += 50;
-			else if ((smart & (SM_OPP_FIRE)) && (smart & (SM_RES_FIRE))) a += 35;
-			else if ((smart & (SM_OPP_FIRE)) || (smart & (SM_RES_FIRE))) a += 20;
+			else if (smart & (SM_RES_STRONG_FIRE)) a += 35;
+			else if (smart & (SM_RES_FIRE)) a += 20;
 			if (smart & (SM_IMM_ELEC)) a += 50;
-			else if ((smart & (SM_OPP_ELEC)) && (smart & (SM_RES_ELEC))) a += 35;
-			else if ((smart & (SM_OPP_ELEC)) || (smart & (SM_RES_ELEC))) a += 20;
+			else if (smart & (SM_RES_STRONG_ELEC)) a += 35;
+			else if (smart & (SM_RES_ELEC)) a += 20;
 			return(a);
 		}
 		/* Light Spells */
@@ -490,10 +490,10 @@ static int find_resist(int m_idx, int spell_lrn)
 		{
 			a=0;
 			if (smart & (SM_IMM_ELEC)) a+=15;
-			else if ((smart & (SM_OPP_ELEC)) && (smart & (SM_RES_ELEC))) a += 10;
-			else if ((smart & (SM_OPP_ELEC)) || (smart & (SM_RES_ELEC))) a += 5;
-			if ((smart & (SM_OPP_COLD)) || (smart & (SM_RES_COLD)) ||(smart & (SM_IMM_COLD))) a += 5;
-			if ((smart & (SM_OPP_ACID)) || (smart & (SM_RES_ACID)) ||(smart & (SM_IMM_ACID))) a += 5;
+			else if (smart & (SM_RES_STRONG_ELEC)) a += 10;
+			else if (smart & (SM_RES_ELEC)) a += 5;
+			if (smart & (SM_RES_COLD)) a += 5;
+			if (smart & (SM_RES_ACID)) a += 5;
 			if (smart & (SM_RES_CONFU)) a += 10;
 			return(a);
 		}
@@ -3450,6 +3450,27 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 			if (m_ptr->ml) msg_format("%^s is caught in stasis!", m_name);
 		}
 
+		else if (feat == FEAT_MTRAP_DRAIN_LIFE)
+		{
+			(void)fire_meteor(0, GF_OLD_DRAIN, y, x, (3 * trap_power) / 4, 3, FALSE);
+			if (!(m_ptr->r_idx)) mon_dies = TRUE;
+		}
+
+		else if (feat == FEAT_MTRAP_UNMAGIC)
+		{
+			(void)fire_meteor(0, GF_DISENCHANT, y, x, (3 * trap_power) / 4, 0, FALSE);
+			if (!(m_ptr->r_idx)) mon_dies = TRUE;
+		}
+
+		else if (feat == FEAT_MTRAP_DISPEL_M)
+		{
+			/* 50% - 75% damage of trap power to all creatures within LOS of trap*/
+			int dam = ((trap_power / 2) + randint(trap_power / 4));
+
+			(void)project_los_not_player(y, x, dam, GF_DISP_ALL);
+			if (!(m_ptr->r_idx)) mon_dies = TRUE;
+		}
+
 		/* Other traps (sturdy, net, spirit) default to 75% of normal damage */
 		else
 		{
@@ -3544,6 +3565,12 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		do_move = FALSE;
 	}
 
+	/* No player here. */
+	else
+	{
+		/* Final sanity check on non-moving monsters */
+		if (r_ptr->flags1 & (RF1_NEVER_MOVE)) do_move = FALSE;
+	}
 
 	/* Get the feature in the grid that the monster is trying to enter. */
 	feat = cave_feat[ny][nx];
@@ -4021,7 +4048,7 @@ static void process_monster(monster_type *m_ptr)
 
 	/* Hack -- Always redraw the current target monster health bar */
 	if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx]) 
-		p_ptr->redraw |= (PR_HEALTH);
+		p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 
 	/* Attempt to multiply if able to and allowed */
@@ -4665,7 +4692,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 
 	/* Hack -- Update the health bar (always) */
 	if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx]) 
-		p_ptr->redraw |= (PR_HEALTH);
+		p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 }
 
 

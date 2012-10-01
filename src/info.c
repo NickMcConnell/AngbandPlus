@@ -1,3 +1,5 @@
+
+
 /* File: info.c */
 
 /*
@@ -583,7 +585,7 @@ cptr spell_tips[255] =
 /*
  * Prints information about specialty abilties
  */
-cptr specialty_tips[255]=
+cptr specialty_tips[TOTAL_SPECIALTIES]=
 {
 	"Increases the effects of body armor.",
 	"Improves shield AC, chance of shield deflection, and damage from shield bashes.",
@@ -600,7 +602,8 @@ cptr specialty_tips[255]=
 	"Allows you to hurl throwing weapons and other objects great distances.",
 	"Gives you a stronger barehanded attack.",
 	"Gives you a powerful unarmed attack.",
-	"","","","","","","","","","","","","",
+	"Allows you to burn monster mana in melee.  Mana burned adds to melee damage.",
+	"","","","","","","","","","","","",
 	"Enhances your power to slow, sleep, confuse, or turn your enemies.",
 	"Increases the effects and durations of beneficial magical effects.",
 	"Increases spell casting speed, especially for low level spells from high level casters.",
@@ -608,25 +611,76 @@ cptr specialty_tips[255]=
 	"Causes spells cast in rapid succession to become increasingly powerful.",
 	"Gives you mana when you slay monsters.  May cause damage when overloaded.",
 	"Causes you to gain hit points when casting spells.",
-	"","","","","","","","","","","","","",
+	"",
+	"Makes your spells stronger when your mana level is high.",
+	"","","","","","","","","","","",
 	"Increases and partially sustains Dexterity and Constitution.",
 	"Increases and partially sustains Intelligence and Wisdom.",
 	"",
 	"Allows you to move faster after attacking or being damaged.",
 	"Improves mana regeneration; cumulative with other forms of regeneration.",
 	"Improves hit point regeneration; cumulative with other forms of regeneration.",
-	"Allows you to have two monster traps at a time.",
+	"Allows you to set an additional monster trap, and to learn to set more advanced types of traps.",
 	"Increases light radius.  Causes undead, evil, and light-sensitive creatures to take extra melee damage and makes them fear your light-based spells.  Grants resistance to light.",
+	"","","","","","","","","","","","", 
+	"","","","","","","","","","","","","","","","","","","","", /* 80 - 99 */
+	"","","","","","","","","","","","","","","","","","","","", /* 100 - 119 */
+	"","","","","","","","",                   /* 120 - 127 */
+	"You are slightly more skilled with swords than other melee weapons.",
+	"You are slightly more skilled with axes and polearms than other melee weapons.",
+	"You are slightly more skilled with blunt weapons than other melee weapons.",
+	"You are slightly more skilled with slings than other ranged weapons.",
+	"You are slightly more skilled with bows than other ranged weapons.",
+	"You are slightly more skilled with crossbows than other ranged weapons.",
+	"","","",
+	"You are slightly less skilled with swords than other melee weapons.",
+	"You are slightly less skilled with axes and polearms than other melee weapons.",
+	"You are slightly less skilled with blunt weapons than other melee weapons.",
+	"You are slightly less skilled with slings than other ranged weapons.",
+	"You are slightly less skilled with bows than other ranged weapons.",
+	"You are slightly less skilled with crossbows than other ranged weapons.",
+	"","","",
+	"You recover quickly from poison and cuts, and succumb slowly to the Black Breath",
+	"You eat.  A lot.",
+	"You recover very quickly from negative effects.",
+	"You are incredibly stealthy, but are vulnerable to bright light.",
+	"Your bare hands tear through stone, but you are vulnerable to fire and falling.",
+	"You can take the form of a bear (use the ']' command).",
+	"","","","","","","","",
+	"","","","","","","","","","","","","","","","","","","","", /* 160 - 179 */
 	"","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","","","","","","","",
-	"","","","","","","","","","","","","","",""
+	"Your shooting speed with a bow increases quickly with Dexterity.",
+	"Your shooting speed with a bow increases very quickly with Dexterity.",
+	"Your shooting speed with a sling increases quickly with Dexterity.",
+	"Your shooting speed with a sling increases very quickly with Dexterity.",
+	"Your shooting speed with a crossbow increases quickly with Dexterity.",
+	"Your shooting speed with a crossbow increases very quickly with Dexterity.",
+	"","","",
+	"You effectively assassinate unsuspecting creatures in melee and with ranged attacks.",
+	"You do extra damage when shooting.",
+	"You effectively backstab unsuspecting creatures in melee.",
+	"You can efficiently spread your attacks over multiple weak opponents at level 40.",
+	"You are adept at fighting with your shield as well as your weapon.",
+	"You are skilled in hand to hand combat, and are somewhat talented with slings.",
+	"You are not comfortable with edged melee weapons, unless they have been Blessed.",
+	"",
+	"You have a bonus to cause sleep, confusion, and slow.",
+	"You have a great understanding of magical devices and can recharge them very reliably.",
+	"You are an expert spellcaster and have a large reserve of mana.",
+	"Your spells are more likely to 'beam', striking multiple targets.",
+	"",
+	"You learn quickly about monster abilities.",
+	"You carry a pious authority.  You glow with an inner light at level 35 (Priest) or level 45 (Paladin).",
+	"You resist fear intrinsically at level 30.  You regenerate hitpoints intrinsically at level 40.",
+	"You can learn details of monster attributes at level 35.",
+	"You deal with dark forces.  Beware!",
+	"You can rob gold from living monsters.",
+	"You obtain relatively specific pseudoidentify information.",
+	"You can set monster traps.",
+	"You are attuned to nature.  You easily move and hide in trees.",
+	"You can learn an extra specialty abilty at level 1."
+        "","","","","","","","","","","","","","","","",
+	"","","","","","","","","","","","","","",""                 /* 240 - 255 */
 };
 
 /*
@@ -2582,119 +2636,6 @@ void self_knowledge(void)
 			break;
 	}
 
-	if (check_specialty(SP_ARMOR_MAST))
-	{
-		info[i++] = "You are very good with heavy armor.";
-	}
-	if (check_specialty(SP_SHIELD_MAST))
-	{
-		info[i++] = "You are very good with shields.";
-	}
-	if (check_specialty(SP_ARMOR_PROFICIENCY))
-	{
-		info[i++] = "You are reasonably able to cast spells in armor.";
-	}
-	if (check_specialty(SP_EVASION))
-	{
-		info[i++] = "You are very hard to hit.";
-	}
-	if (check_specialty(SP_MAGIC_RESIST))
-	{
-		info[i++] = "You resist magical effects.";
-	}
-	if (check_specialty(SP_PHASEWALK))
-	{
-		info[i++] = "You are adept at teleportation.";
-	}
-	if (check_specialty(SP_ARMSMAN))
-	{
-		info[i++] = "You score deadly hits in melee combat.";
-	}
-	if (check_specialty(SP_FAST_ATTACK))
-	{
-		info[i++] = "You attack quickly.";
-	}
-	if (check_specialty(SP_MARKSMAN))
-	{
-		info[i++] = "You score deadly hits in archery.";
-	}
-	if (check_specialty(SP_PIERCE_SHOT))
-	{
-		info[i++] = "Your bow and crossbow shots can skewer multiple targets.";
-	}
-	if (check_specialty(SP_HOLY_LIGHT))
-	{
-		info[i++] = "You are surrounded by the Light of Anar.";
-	}
-	if (check_specialty(SP_UNLIGHT))
-	{
-		info[i++] = "You are surrounded by a veil of Night.";
-	}
-	if (check_specialty(SP_MIGHTY_THROW))
-	{
-		info[i++] = "You can throw objects exceptionally far.";
-	}
-	if (check_specialty(SP_POWER_STRIKE))
-	{
-		info[i++] = "Your empty hand druid strikes are extra strong.";
-	}
-	if (check_specialty(SP_MARTIAL_ARTS))
-	{
-		info[i++] = "You have powerful unarmed attacks.";
-	}
-	if (check_specialty(SP_BEGUILE))
-	{
-		info[i++] = "You can daunt and deceive your foes.";
-	}
-	if (check_specialty(SP_ENHANCE_MAGIC))
-	{
-		info[i++] = "Beneficial magics are extra potent on you.";
-	}
-	if (check_specialty(SP_FAST_CAST))
-	{
-		info[i++] = "You cast spells quickly.";
-	}
-	if (check_specialty(SP_POWER_SIPHON))
-	{
-		info[i++] = "You can steal mana used to cast hostile spells.";
-	}
-	if (check_specialty(SP_SOUL_SIPHON))
-	{
-		info[i++] = "You gain mana when injured.";
-	}
-	if (check_specialty(SP_HARMONY))
-	{
-		info[i++] = "You gain health when casting spells.";
-	}
-	if (check_specialty(SP_ATHLETICS))
-	{
-		info[i++] = "You are very limber and healthy.";
-	}
-	if (check_specialty(SP_CLARITY))
-	{
-		info[i++] = "Your mind is clear and sharp.";
-	}
-	if (check_specialty(SP_FURY))
-	{
-		info[i++] = "You move quickly after attacking or being injured.";
-	}
-	if (check_specialty(SP_MEDITATION))
-	{
-		info[i++] = "You recover mana quickly.";
-	}
-	if (check_specialty(SP_REGENERATION))
-	{
-		info[i++] = "You recover hit points quickly.";
-	}
-	if (check_specialty(SP_EXTRA_TRAP))
-	{
-		info[i++] = "You may have two monster traps set at once.";
-	}
-        if (check_specialty(SP_HEIGHTEN_MAGIC))
-	{
-		info[i++] = "Your spells get stronger when cast quickly.";
-	}
-
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -2811,111 +2752,83 @@ void self_knowledge(void)
 		info[i++] = "You have a firm hold on your life force.";
 	}
 
-	if (p_ptr->immune_acid)
-	{
-		info[i++] = "You are completely immune to acid.";
-	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
-	{
-		info[i++] = "You resist acid exceptionally well.";
-	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
-	{
-		info[i++] = "You are resistant to acid.";
-	}
+	if (p_immune(P_RES_ACID)) info[i++] = "You are immune to acid.";
+	else if (p_resist_strong(P_RES_ACID)) info[i++] = "You resist acid exceptionally well.";
+	else if (p_resist_pos(P_RES_ACID)) info[i++] = "You resist acid.";
+	else if (p_vulnerable(P_RES_ACID)) info[i++] = "You are vulnerable to acid.";
 
-	if (p_ptr->immune_elec)
-	{
-		info[i++] = "You are completely immune to lightning.";
-	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
-	{
-		info[i++] = "You resist lightning exceptionally well.";
-	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
-	{
-		info[i++] = "You are resistant to lightning.";
-	}
+	if (p_immune(P_RES_ELEC)) info[i++] = "You are immune to lightning.";
+	else if (p_resist_strong(P_RES_ELEC)) info[i++] = "You resist lightning exceptionally well.";
+	else if (p_resist_pos(P_RES_ELEC)) info[i++] = "You resist lightning.";
+	else if (p_vulnerable(P_RES_ELEC)) info[i++] = "You are vulnerable to lightning.";
 
-	if (p_ptr->immune_fire)
-	{
-		info[i++] = "You are completely immune to fire.";
-	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
-	{
-		info[i++] = "You resist fire exceptionally well.";
-	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
-	{
-		info[i++] = "You are resistant to fire.";
-	}
+	if (p_immune(P_RES_FIRE)) info[i++] = "You are immune to fire.";
+	else if (p_resist_strong(P_RES_FIRE)) info[i++] = "You resist fire exceptionally well.";
+	else if (p_resist_pos(P_RES_FIRE)) info[i++] = "You resist fire.";
+	else if (p_vulnerable(P_RES_FIRE)) info[i++] = "You are vulnerable to fire.";
 
-	if (p_ptr->immune_cold)
-	{
-		info[i++] = "You are completely immune to cold.";
-	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
-	{
-		info[i++] = "You resist cold exceptionally well.";
-	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
-	{
-		info[i++] = "You are resistant to cold.";
-	}
+	if (p_immune(P_RES_COLD)) info[i++] = "You are immune to cold.";
+	else if (p_resist_strong(P_RES_COLD)) info[i++] = "You resist cold exceptionally well.";
+	else if (p_resist_pos(P_RES_COLD)) info[i++] = "You resist cold.";
+	else if (p_vulnerable(P_RES_COLD)) info[i++] = "You are vulnerable to cold.";
 
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
-	{
-		info[i++] = "You resist poison exceptionally well.";
-	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
-	{
-		info[i++] = "You are resistant to poison.";
-	}
+	if (p_immune(P_RES_POIS)) info[i++] = "You are immune to poison.";
+	else if (p_resist_strong(P_RES_POIS)) info[i++] = "You resist poison exceptionally well.";
+	else if (p_resist_pos(P_RES_POIS)) info[i++] = "You resist poison.";
+	else if (p_vulnerable(P_RES_POIS)) info[i++] = "You are vulnerable to poison.";
 
-	if (p_ptr->resist_fear)
+	if (p_immune(P_RES_LITE)) info[i++] = "You are immune to light.";
+	else if (p_resist_strong(P_RES_LITE)) info[i++] = "You resist light exceptionally well.";
+	else if (p_resist_pos(P_RES_LITE)) info[i++] = "You resist light.";
+	else if (p_vulnerable(P_RES_LITE)) info[i++] = "You are vulnerable to light.";
+
+	if (p_immune(P_RES_DARK)) info[i++] = "You are immune to darkness.";
+	else if (p_resist_strong(P_RES_DARK)) info[i++] = "You resist darkness exceptionally well.";
+	else if (p_resist_pos(P_RES_DARK)) info[i++] = "You resist darkness.";
+	else if (p_vulnerable(P_RES_DARK)) info[i++] = "You are vulnerable to darkness.";
+
+	if (p_immune(P_RES_CONFU)) info[i++] = "You are immune to confusion.";
+	else if (p_resist_strong(P_RES_CONFU)) info[i++] = "You resist confusion exceptionally well.";
+	else if (p_resist_pos(P_RES_CONFU)) info[i++] = "You resist confusion.";
+	else if (p_vulnerable(P_RES_CONFU)) info[i++] = "You are vulnerable to confusion.";
+
+	if (p_immune(P_RES_SOUND)) info[i++] = "You are immune to sound.";
+	else if (p_resist_strong(P_RES_SOUND)) info[i++] = "You resist sound exceptionally well.";
+	else if (p_resist_pos(P_RES_SOUND)) info[i++] = "You resist sound.";
+	else if (p_vulnerable(P_RES_SOUND)) info[i++] = "You are vulnerable to sound.";
+
+	if (p_immune(P_RES_SHARD)) info[i++] = "You are immune to blasts of shards.";
+	else if (p_resist_strong(P_RES_SHARD)) info[i++] = "You resist blasts of shards exceptionally well.";
+	else if (p_resist_pos(P_RES_SHARD)) info[i++] = "You resist blasts of shards.";
+	else if (p_vulnerable(P_RES_SHARD)) info[i++] = "You are vulnerable to blasts of shards.";
+
+	if (p_immune(P_RES_NEXUS)) info[i++] = "You are immune to nexus attacks.";
+	else if (p_resist_strong(P_RES_NEXUS)) info[i++] = "You resist nexus attacks exceptionally well.";
+	else if (p_resist_pos(P_RES_NEXUS)) info[i++] = "You resist nexus attacks.";
+	else if (p_vulnerable(P_RES_NEXUS)) info[i++] = "You are vulnerable to nexus attacks.";
+
+	if (p_immune(P_RES_NETHR)) info[i++] = "You are immune to nether forces.";
+	else if (p_resist_strong(P_RES_NETHR)) info[i++] = "You resist nether forces exceptionally well.";
+	else if (p_resist_pos(P_RES_NETHR)) info[i++] = "You resist nether forces.";
+	else if (p_vulnerable(P_RES_NETHR)) info[i++] = "You are vulnerable to nether forces.";
+
+	if (p_immune(P_RES_CHAOS)) info[i++] = "You are immune to chaos.";
+	else if (p_resist_strong(P_RES_CHAOS)) info[i++] = "You resist chaos exceptionally well.";
+	else if (p_resist_pos(P_RES_CHAOS)) info[i++] = "You resist chaos.";
+	else if (p_vulnerable(P_RES_CHAOS)) info[i++] = "You are vulnerable to chaos.";
+
+	if (p_immune(P_RES_DISEN)) info[i++] = "You are immune to disenchantment.";
+	else if (p_resist_strong(P_RES_DISEN)) info[i++] = "You resist disenchantment exceptionally well.";
+	else if (p_resist_pos(P_RES_DISEN)) info[i++] = "You resist disenchantment.";
+	else if (p_vulnerable(P_RES_DISEN)) info[i++] = "You are vulnerable to disenchantment.";
+
+	if (p_ptr->no_fear)
 	{
 		info[i++] = "You are completely fearless.";
 	}
-
-	if (p_ptr->resist_lite)
-	{
-		info[i++] = "You are resistant to bright light.";
-	}
-	if (p_ptr->resist_dark)
-	{
-		info[i++] = "You are resistant to darkness.";
-	}
-	if (p_ptr->resist_blind)
+	if (p_ptr->no_blind)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
-	}
-	if (p_ptr->resist_confu)
-	{
-		info[i++] = "You are resistant to confusion.";
-	}
-	if (p_ptr->resist_sound)
-	{
-		info[i++] = "You are resistant to sonic attacks.";
-	}
-	if (p_ptr->resist_shard)
-	{
-		info[i++] = "You are resistant to blasts of shards.";
-	}
-	if (p_ptr->resist_nexus)
-	{
-		info[i++] = "You are resistant to nexus attacks.";
-	}
-	if (p_ptr->resist_nethr)
-	{
-		info[i++] = "You are resistant to nether forces.";
-	}
-	if (p_ptr->resist_chaos)
-	{
-		info[i++] = "You are resistant to chaos.";
-	}
-	if (p_ptr->resist_disen)
-	{
-		info[i++] = "You are resistant to disenchantment.";
 	}
 
 	if (p_ptr->sustain_str)
@@ -3230,10 +3143,11 @@ void spell_info(char *p, int spell_index)
 	int beam, beam_low;
 
         /* Specialty Ability */
-	if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 1 + (p_ptr->heighten_power / 10);
+	if (check_ability(SP_HEIGHTEN_MAGIC)) plev += 1 + ((p_ptr->heighten_power + 5)/ 10);
+	if (check_ability(SP_CHANNELING)) plev += get_channeling_boost();
 
 	/* Beaming chance */
-	beam = (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_NECRO)) 
+	beam = (((check_ability(SP_BEAM))) 
 		? plev : (plev / 2));
 	beam_low = (beam - 10 > 0 ? beam - 10 : 0);
 
@@ -3296,7 +3210,7 @@ void spell_info(char *p, int spell_index)
 		case 75: strcpy(p, " dur 24+d24"); break;
 		case 79: sprintf(p, " dur %d+d10", plev / 2); break;
 		case 81: sprintf(p, " dam %d+3d6, rad %d", plev / 4 + 
-			(plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4)), 
+			(plev / ((check_ability(SP_STRONG_MAGIC)) ? 2 : 4)), 
 			(plev < 30) ? 1 : 2); break;
 		case 82: sprintf(p, " dur %d+d24", plev); break;
 		case 83: sprintf(p, " dur %d+d24", 3 * plev / 2); break;
@@ -3386,7 +3300,7 @@ void spell_info(char *p, int spell_index)
 		case 231: strcpy(p, " dur d66"); break;
 		case 233: strcpy(p, " dur 10+d20"); break;
 		case 235: sprintf(p, " dam %dd13", 3 * plev / 5); break;
-		case 236: sprintf(p, " dam %d, hurt 2d8", 20 + (2 * plev)); break;
+		case 236: sprintf(p, " dam %d, hurt 2d8", 20 + (4 * plev)); break;
 		case 237: sprintf(p, " dam %d+d%d", 60, plev * 2); break;
 		case 238: sprintf(p, " dam %dd11, heal %d", plev / 3, 3 * plev); break;
 		case 240: strcpy(p, " hurt 2d7"); break;
@@ -3551,6 +3465,532 @@ void print_spells(int tval, int sval, int y, int x)
 
 	/* Clear the bottom line */
 	prt("", y + j + 2, x);
+}
+
+
+/*
+ * For a string describing the player's intrinsic racial flags.
+ */
+static cptr view_abilities_aux(char *desc)
+{
+  //	u32b f1 = rp_ptr->flags1;
+	u32b f2 = rp_ptr->flags2;
+	u32b f3 = rp_ptr->flags3;
+
+	int attr_num, attr_listed, j;
+
+	/* Sustain stats. */
+	if ((f2 & (TR2_SUST_STR)) || (f2 & (TR2_SUST_INT)) || (f2 & (TR2_SUST_WIS)) 
+		|| (f2 & (TR2_SUST_DEX)) || (f2 & (TR2_SUST_CON)) || 
+		(f2 & (TR2_SUST_CHR)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f2 & (TR2_SUST_STR)) attr_num++;
+		if (f2 & (TR2_SUST_INT)) attr_num++;
+		if (f2 & (TR2_SUST_WIS)) attr_num++;
+		if (f2 & (TR2_SUST_DEX)) attr_num++;
+		if (f2 & (TR2_SUST_CON)) attr_num++;
+		if (f2 & (TR2_SUST_CHR)) attr_num++;
+
+		/* Special case:  sustain all stats */
+		if (attr_num == 6)
+		{
+			strcat(desc, "Your stats are all sustained.  ");
+		}
+		else
+		{
+			strcat(desc, "Your");
+
+			/* Loop for number of attributes in this group. */
+			for (j = 0; j < 6; j++)
+			{
+				bool list_ok = FALSE;
+
+				if ((j == 0) && (f2 & (TR2_SUST_STR))) list_ok = TRUE;
+				if ((j == 1) && (f2 & (TR2_SUST_INT))) list_ok = TRUE;
+				if ((j == 2) && (f2 & (TR2_SUST_WIS))) list_ok = TRUE;
+				if ((j == 3) && (f2 & (TR2_SUST_DEX))) list_ok = TRUE;
+				if ((j == 4) && (f2 & (TR2_SUST_CON))) list_ok = TRUE;
+				if ((j == 5) && (f2 & (TR2_SUST_CHR))) list_ok = TRUE;
+
+				if (!list_ok) continue;
+
+				/* Listing another attribute. */
+				attr_listed++;
+
+				/* Commas separate members of a list of more than two. */
+				if ((attr_num > 2) && (attr_listed > 1)) strcat(desc, ",");
+
+				/* "and" before final member of a list of more than one. */
+				if ((attr_num > 1) && (j != 0))
+				{
+					if (attr_num == attr_listed) strcat(desc, " and");
+				}
+
+				/* List the attribute description, in its proper place. */
+				if (j == 0) strcat(desc, " strength");
+				if (j == 1) strcat(desc, " intelligence");
+				if (j == 2) strcat(desc, " wisdom");
+				if (j == 3) strcat(desc, " dexterity");
+				if (j == 4) strcat(desc, " constitution");
+				if (j == 5) strcat(desc, " charisma");
+			}
+		}
+
+		/* Pluralize the verb. */
+		if (attr_num > 1) strcat(desc, " are");
+		else strcat(desc, " is");
+
+		/* End sentence.  Go to next line. */
+		strcat(desc, " sustained.  ");
+	}
+
+	/* Elemental immunities. */
+	if ((f2 & (TR2_IM_ACID)) || (f2 & (TR2_IM_ELEC)) || 
+		(f2 & (TR2_IM_FIRE)) || (f2 & (TR2_IM_COLD)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f2 & (TR2_IM_ACID)) attr_num++;
+		if (f2 & (TR2_IM_ELEC)) attr_num++;
+		if (f2 & (TR2_IM_FIRE)) attr_num++;
+		if (f2 & (TR2_IM_COLD)) attr_num++;
+
+		strcat(desc, "You are immune to");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 4; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f2 & (TR2_IM_ACID))) list_ok = TRUE;
+			if ((j == 1) && (f2 & (TR2_IM_ELEC))) list_ok = TRUE;
+			if ((j == 2) && (f2 & (TR2_IM_FIRE))) list_ok = TRUE;
+			if ((j == 3) && (f2 & (TR2_IM_COLD))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) strcat(desc, ",");
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
+			{
+				if (attr_num == attr_listed) strcat(desc, " and");
+			}
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) strcat(desc, " acid");
+			if (j == 1) strcat(desc, " electricity");
+			if (j == 2) strcat(desc, " fire");
+			if (j == 3) strcat(desc, " frost");
+		}
+
+		/* End sentence.  Go to next line. */
+		strcat(desc, ".  ");
+	}
+
+
+	/* Resistances. */
+	if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) || 
+		(f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) || 
+		(f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) || 
+		(f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) || 
+		(f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) || 
+		(f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) || 
+		(f2 & (TR2_RES_DISEN)) || (f2 & (TR2_RES_CONFU)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f2 & (TR2_RES_ACID)) attr_num++;
+		if (f2 & (TR2_RES_ELEC)) attr_num++;
+		if (f2 & (TR2_RES_FIRE)) attr_num++;
+		if (f2 & (TR2_RES_COLD)) attr_num++;
+		if (f2 & (TR2_RES_POIS)) attr_num++;
+		if (f2 & (TR2_RES_LITE)) attr_num++;
+		if (f2 & (TR2_RES_DARK)) attr_num++;
+		if (f2 & (TR2_RES_SOUND)) attr_num++;
+		if (f2 & (TR2_RES_SHARD)) attr_num++;
+		if (f2 & (TR2_RES_NEXUS)) attr_num++;
+		if (f2 & (TR2_RES_NETHR)) attr_num++;
+		if (f2 & (TR2_RES_CHAOS)) attr_num++;
+		if (f2 & (TR2_RES_DISEN)) attr_num++;
+		if (f2 & (TR2_RES_CONFU)) attr_num++;
+
+		strcat(desc, "You are resistant to");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 14; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
+			if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
+			if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
+			if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
+			if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
+			if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
+			if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
+			if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
+			if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
+			if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
+			if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
+			if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
+			if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
+			if ((j == 12) && (f2 & (TR2_RES_CONFU))) list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) strcat(desc, ",");
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
+			{
+				if (attr_num == attr_listed) strcat(desc, " and");
+			}
+
+			/* List the attribute description, in its proper place. */
+			if (j ==  0) strcat(desc, " acid");
+			if (j ==  1) strcat(desc, " electricity");
+			if (j ==  2) strcat(desc, " fire");
+			if (j ==  3) strcat(desc, " frost");
+			if (j ==  4) strcat(desc, " poison");
+			if (j ==  5) strcat(desc, " light");
+			if (j ==  6) strcat(desc, " darkness");
+			if (j ==  7) strcat(desc, " sound");
+			if (j ==  8) strcat(desc, " shards");
+			if (j ==  9) strcat(desc, " nexus");
+			if (j == 10) strcat(desc, " nether");
+			if (j == 11) strcat(desc, " chaos");
+			if (j == 12) strcat(desc, " disenchantment");
+			if (j == 13) strcat(desc, " confusion");
+		}
+
+		/* End sentence.  Go to next line. */
+		strcat(desc, ".  ");
+	}
+
+
+	/* Clear a listing variable. */
+	attr_num = 0;
+
+	/* Special processing for the three "survival resists" */
+	if (f2 & (TR2_RES_FEAR)) attr_num++;
+	if (f2 & (TR2_RES_BLIND)) attr_num++;
+
+	if (f2 & (TR2_RES_FEAR))
+	{
+		strcat(desc, "You are fearless");
+		if (attr_num == 1) strcat(desc, ".  ");
+		else strcat(desc, ", and");
+	}
+
+	if (f2 & (TR2_RES_BLIND))
+	{
+		if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+			strcat(desc, " can not be blinded.  ");
+		else strcat(desc, "You can not be blinded.  ");
+	}
+
+	/* Miscellanious abilities. */
+	if ((f3 & (TR3_SLOW_DIGEST)) || (f3 & (TR3_FEATHER)) || 
+		(f3 & (TR3_LITE)) || (f3 & (TR3_REGEN)) || 
+		(f3 & (TR3_TELEPATHY)) || (f3 & (TR3_SEE_INVIS)) || 
+		(f3 & (TR3_FREE_ACT)) || (f3 & (TR3_HOLD_LIFE)))
+	{
+		/* Clear number of items to list, and items listed. */
+		attr_num = 0;
+		attr_listed = 0;
+
+		/* How many attributes need to be listed? */
+		if (f3 & (TR3_SLOW_DIGEST)) attr_num++;
+		if (f3 & (TR3_FEATHER)) attr_num++;
+		if (f3 & (TR3_LITE)) attr_num++;
+		if (f3 & (TR3_REGEN)) attr_num++;
+		if (f3 & (TR3_TELEPATHY)) attr_num++;
+		if (f3 & (TR3_SEE_INVIS)) attr_num++;
+		if (f3 & (TR3_FREE_ACT)) attr_num++;
+		if (f3 & (TR3_HOLD_LIFE)) attr_num++;
+
+		strcat(desc, "You");
+
+		/* Loop for number of attributes in this group. */
+		for (j = 0; j < 10; j++)
+		{
+			bool list_ok = FALSE;
+
+			if ((j == 0) && (f3 & (TR3_SLOW_DIGEST))) list_ok = TRUE;
+			if ((j == 1) && (f3 & (TR3_FEATHER))) list_ok = TRUE;
+			if ((j == 2) && (f3 & (TR3_LITE))) list_ok = TRUE;
+			if ((j == 3) && (f3 & (TR3_REGEN))) list_ok = TRUE;
+			if ((j == 4) && (f3 & (TR3_TELEPATHY))) list_ok = TRUE;
+			if ((j == 5) && (f3 & (TR3_SEE_INVIS))) list_ok = TRUE;
+			if ((j == 6) && (f3 & (TR3_FREE_ACT))) list_ok = TRUE;
+			if ((j == 7) && (f3 & (TR3_HOLD_LIFE)))list_ok = TRUE;
+
+			if (!list_ok) continue;
+
+			/* Listing another attribute. */
+			attr_listed++;
+
+			/* Commas separate members of a list of more than two. */
+			if ((attr_num > 2) && (attr_listed > 1)) strcat(desc, ",");
+
+			/* "and" before final member of a list of more than one. */
+			if ((attr_num > 1) && (j != 0))
+			{
+				if (attr_num == attr_listed) strcat(desc, " and");
+			}
+
+			/* List the attribute description, in its proper place. */
+			if (j == 0) strcat(desc, " digest slowly");
+			if (j == 1) strcat(desc, " falling gently");
+			if (j == 2) strcat(desc, " glow with permanent light");
+			if (j == 3) strcat(desc, " regenerative quickly");
+			if (j == 4) strcat(desc, " have telepathic powers");
+			if (j == 5) strcat(desc, " can see invisible monsters");
+			if (j == 6) strcat(desc, " are immune to paralysis");
+			if (j == 7) strcat(desc, " are resistant to life draining");
+		}
+
+		/* End sentence.  Go to next line. */
+		strcat(desc, ".");
+	}
+
+	return(desc);
+
+}
+/*
+ * Browse known specialty abilities -BR-
+ * Adapted from birth.c get_player_choice
+ */
+void do_cmd_view_abilities(void)
+{
+	int top = 0, cur = 0;
+	int i, spec_known, racial_known, class_known, dir;
+	int total_known = 0;
+	int race_start, class_start, race_other_start;
+	char c;
+	int hgt;
+	byte racial_list[32];
+	byte class_list[32];
+	char buf[80];
+	bool done;
+	byte color;
+	char race_other_desc[1000] ="";
+
+        /* Count the number of specialties we know */
+	for (i = 0, spec_known = 0; i < MAX_SPECIALTIES; i++)
+	{
+		if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY) spec_known++;
+	}
+
+	total_known += spec_known;
+
+	/* Count the number of class powers we have */
+        for (i = 0, class_known = 0; i < 32; i++)
+        {
+                if (cp_ptr->flags_special & (0x00000001L << i))
+		{
+			class_list[class_known++] = i;
+		}
+        }
+
+	total_known += class_known;
+
+	/* Count the number of racial powers we have */
+        for (i = 0, racial_known = 0; i < 32; i++)
+        {
+                if (rp_ptr->flags_special & (0x00000001L << i))
+		{
+			racial_list[racial_known++] = i;
+		}
+        }
+
+	total_known += racial_known;
+
+	/* Standard racial flags */
+	if (rp_ptr->flags1 | rp_ptr->flags2 | rp_ptr->flags3)
+	{
+		total_known++;
+		view_abilities_aux(race_other_desc);
+	}
+
+	class_start = spec_known;
+	race_start = spec_known + class_known;
+	race_other_start = spec_known + class_known + racial_known;
+
+	/* Save and clear creen */
+	screen_save();
+	Term_clear();
+
+	/* Find height of selection interface */
+	hgt = Term->hgt - 7;
+	if (hgt > total_known) hgt = total_known;
+
+	/* Prompt choices */
+	sprintf(buf, "Race, class, and specialties abilities (%c-%c, ESC=exit): ",
+			 I2A(0), I2A(total_known-1));
+
+	Term_putstr(5, 0, 66, TERM_WHITE, buf);
+
+
+	/* View choices until user exits */
+	done = FALSE;
+	while (!done)
+	{
+		/* Redraw the list */
+		for (i = 0; ((i + top < total_known) && (i < hgt)); i++)
+		{
+			char index;
+
+			if (i + top < 26) index = I2A(i + top);
+			else index = 'A' + (i + top - 26);
+
+			if (i + top < class_start)
+			{
+				bool forgotten = (p_ptr->new_specialties < i + top + 1 - spec_known);
+
+				sprintf(buf, "%c) Specialty Ability: %s %s", index, specialty_names[p_ptr->specialty_order[i + top]],
+					(forgotten) ? "(forgotten)" : "");
+				color = forgotten ? TERM_SLATE : TERM_GREEN;
+			}
+			else if (i + top < race_start)
+			{
+				sprintf(buf, "%c) Class: %s", index, specialty_names[SP_CLASS_START + class_list[i - class_start + top]]);
+				color = TERM_UMBER;
+			}
+			else if (i + top < race_other_start)
+			{
+				sprintf(buf, "%c) Racial: %s", index, specialty_names[SP_RACIAL_START + racial_list[i - race_start + top]]);
+				color = TERM_YELLOW;
+			}
+			else
+			{
+				sprintf(buf, "%c) Racial: Other", index);
+				color = TERM_YELLOW;
+			}
+
+			/* Clear */
+			Term_erase(5, i + 2, 66);
+		
+			/* Display */
+			Term_putstr(5, i + 2, 66, color, buf);
+		}
+
+		/* Display that specialty's information. */
+		roff("",5,0);
+		Term_erase(5, hgt + 5, 255);
+		Term_erase(5, hgt + 4, 255);
+		Term_erase(5, hgt + 3, 255);
+		if (cur < class_start) c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[cur]], 5, 0);
+		else if (cur < race_start) c_roff(TERM_L_BLUE, specialty_tips[SP_CLASS_START + class_list[cur - class_start]], 5, 0);
+		else if (cur < race_other_start) c_roff(TERM_L_BLUE, specialty_tips[SP_RACIAL_START + racial_list[cur - race_start]], 5, 0);
+		else c_roff(TERM_L_BLUE, race_other_desc, 5, 0);
+
+		/* Move the cursor */
+		put_str("", 2 + cur - top, 5);
+
+		/* get input */
+		c = inkey();
+
+		/* Numbers are used for scolling */
+		if (isdigit(c))
+		{
+			/* Get a direction from the key */
+			dir = target_dir(c);
+
+			/* Going up? */
+			if (dir == 8)
+			{
+				if (cur != 0)
+				{
+					/* Move selection */
+					cur--;
+				}
+
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+				}
+			}
+
+			/* Going down? */
+			if (dir == 2)
+			{
+				if (cur != (total_known - 1))
+				{
+					/* Move selection */
+					cur++;
+				}
+
+				if ((top + hgt - 1 < (total_known - 1)) && ((top + hgt - 1 - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+				}
+			}
+		}
+
+		/* Letters are used for selection */
+		else if (isalpha(c))
+		{
+			int choice;
+
+			if (islower(c))
+			{
+				choice = A2I(c);
+			}
+			else
+			{
+				choice = c - 'A' + 26;
+			}
+
+			/* Validate input */
+			if ((choice > -1) && (choice < total_known))
+			{
+				cur = choice;
+			}
+
+			else
+			{
+				bell("Illegal response to question!");
+			}
+		}
+
+		/* Allow user to exit the fuction */
+		else if (c == ESCAPE)
+		{
+			done = TRUE;
+		}
+
+		/* Invalid input */
+		else bell("Illegal response to question!");
+	}
+
+	/* Load screen */
+	screen_load();
+
+	/* exit */
+	return;
 }
 
 

@@ -996,9 +996,6 @@ static s32b object_value_real(object_type *o_ptr)
 				value += (o_ptr->pval * 50L);
 			}
 
-			/* Give credit for perfect balance. */
-			if (f1 & (TR1_PERFECT_BALANCE)) value += o_ptr->dd * 200L;
-
 			/* Give credit for speed bonus.   Formula changed to avoid
 			 * excessively valuable low-speed items.
 			 */
@@ -1113,6 +1110,9 @@ static s32b object_value_real(object_type *o_ptr)
 				value += (5 * value / 2);
 				}
 			}
+
+			/* Give credit for perfect balance. */
+			if (f1 & (TR1_PERFECT_BALANCE)) value += o_ptr->dd * 200L;
 
 			/* Done */
 			break;
@@ -3068,7 +3068,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Extra powers */
 		/* Don't override perfect balance */
-		if (e_ptr->xtra & (o_ptr->xtra1 == 0))
+		if ((e_ptr->xtra != 0) && (o_ptr->xtra1 == 0))
 		{
 			o_ptr->xtra1 = e_ptr->xtra;
 			switch (o_ptr->xtra1)

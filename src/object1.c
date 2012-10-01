@@ -114,10 +114,10 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, 
 	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_YELLOW, TERM_L_UMBER, 
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, 
-	TERM_UMBER, TERM_SLATE, TERM_WHITE, TERM_L_UMBER, TERM_UMBER, 
+	TERM_WHITE, TERM_SLATE, TERM_WHITE, TERM_L_UMBER, TERM_UMBER, 
 	TERM_L_UMBER, TERM_YELLOW, TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, 
 	TERM_L_GREEN, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_RED, 
-	TERM_L_RED, TERM_UMBER, TERM_UMBER, TERM_L_WHITE, TERM_L_UMBER, 
+	TERM_L_RED, TERM_UMBER, TERM_UMBER, TERM_L_WHITE, TERM_L_DARK, 
 	TERM_L_UMBER, TERM_L_DARK, TERM_UMBER, TERM_L_UMBER, TERM_SLATE, 
 	TERM_L_DARK
 };
@@ -2761,10 +2761,10 @@ void show_inven(void)
 	 * to show all slots, and have items in the quiver.
 	 */
 	if ((p_ptr->pack_size_reduce) && (item_tester_full) && 
-		(j <= (23 - p_ptr->pack_size_reduce)))
+		(j <= (INVEN_PACK - p_ptr->pack_size_reduce)))
 	{
 		/* Insert a blank dividing line, if we have the space. */
-		if (j <= (22 - p_ptr->pack_size_reduce))
+		if (j <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce))
 		{
 			j++;
 			prt("", j, col ? col - 2 : col);

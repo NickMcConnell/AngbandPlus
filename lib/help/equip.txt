@@ -177,12 +177,13 @@ comfortably, unless they are especially blessed for their use.
      If you should ever be fortunate enough to find a piece of equipment that 
 grants immunity to an element, you will take no damage from that element.  Be 
 warned that immunity does not extend to your backpack; the stuff you are 
-carrying in inventory can still be destroyed on rare occasions.
+carrying in inventory can still be destroyed on rare occasions.  Under certian
+circumstances, characters that are vulnerable to an element (i.e. Ent with
+Fire) may still take a tiny amount of damage through immunity.
 
 Immunity to Acid:
-     You take no damage from acid.  Worn items will not be affected by acid.  
-Staffs, missiles, weapons, armour, and scrolls in your backpack become highly 
-resistant to destruction.
+     You take no damage from acid.  Staffs, missiles, weapons, armour, and 
+scrolls in your backpack become highly resistant to destruction.
 
 Immunity to Electricity:
      You take no damage from electricity.  Rings, wands, and rods in your back-
@@ -200,15 +201,18 @@ destruction.
 
 --- Resistances ---
 
-     Resistances from equipment cannot be combined; You either have it or you 
-don't.
+     Resistances from equipment can be combined with resistance from other
+equipment and "temporary" resistance sources such as spell and potions.  Your
+current level of resistance can be seen in the Character Description screen
+(type 'C h').  In general, any positive level of resistance will block most
+side effects from that damage type.
 
 Resist Acid:
-     You take one-thirds damage from acid.  Staffs, missiles, weapons, armour, 
+     You take reduced damage from acid.  Staffs, missiles, weapons, armour, 
 and scrolls in your backpack become a little more resistant to destruction.
 
 Resist Electricity:
-     You take one-thirds damage from electricity.  Rings, wands, and rods in 
+     You take reduced damage from electricity.  Rings, wands, and rods in 
 your backpack become a little more resistant to destruction.
 
 Resist Cold:
@@ -216,12 +220,14 @@ Resist Cold:
 a little more resistant to destruction.
 
 Resist Fire:
-     You take one-thirds damage from fire.  Spellbooks, scrolls, staffs, and 
+     You take reduced damage from fire.  Spellbooks, scrolls, staffs, and 
 burnable weapons, missiles, and armour in your backpack become a little more 
 resistant to destruction.
 
 Resist Poison:
-     You take one thirds damage from poison.
+     You take reduced damage and ongoing damage from poison.  Note that
+multipe sources of Resist Poison are needed to completely prevent the
+ongoing damaging.
 
 Resist Light:
      The damage you take from light is reduced.  You cannot be blinded by 
@@ -345,7 +351,8 @@ normally identified ego-item to learn everything about it.
 
      These extremely rare pieces of armour come in many different colors, each 
 protecting you against the relevant dragons.  Naturally they are all resistant 
-to acid damage.  They also occasionally allow you to breathe as a dragon would!
+to acid damage.  They also you to take the form of a dragon.  In dragon form
+you have heightened abilities and can occasionally breathe as a dragon would!
 
 --- Artifacts ---
 

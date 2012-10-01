@@ -209,6 +209,8 @@ static cptr desc_stat_neg[] =
 bool do_dec_stat(int stat)
 {
 	bool sust = FALSE;
+	bool clarity = (check_ability(SP_CLARITY));
+	bool athletics = (check_ability(SP_ATHLETICS));
 
 	/* Access the "sustain" and specialty skills */
 	switch (stat)
@@ -216,16 +218,16 @@ bool do_dec_stat(int stat)
 		case A_STR: if (p_ptr->sustain_str)
 				sust = TRUE; break;
 		case A_INT: if ((p_ptr->sustain_int) || 
-		     ((check_specialty(SP_CLARITY)) && (rand_int(2) != 0)))
+		     (clarity && (rand_int(2) != 0)))
 				sust = TRUE; break;
 		case A_WIS: if ((p_ptr->sustain_wis) || 
-		     ((check_specialty(SP_CLARITY)) && (rand_int(2) != 0)))
+		     (clarity && (rand_int(2) != 0)))
 				sust = TRUE; break;
 		case A_DEX: if ((p_ptr->sustain_dex) || 
-		     ((check_specialty(SP_ATHLETICS)) && (rand_int(2) != 0)))
+		     (athletics && (rand_int(2) != 0)))
 				sust = TRUE; break;
 		case A_CON: if ((p_ptr->sustain_con) || 
-		     ((check_specialty(SP_ATHLETICS)) && (rand_int(2) != 0)))
+		     (athletics && (rand_int(2) != 0)))
 				sust = TRUE; break;
 		case A_CHR: if (p_ptr->sustain_chr)
 				sust = TRUE; break;}
@@ -471,6 +473,22 @@ bool restore_level(void)
 
 	/* No effect */
 	return (FALSE);
+}
+
+
+void do_cmd_bear_shape(void)
+{
+	/* Sanity */
+	if ((SCHANGE) || (!check_ability(SP_BEARSKIN))) return;
+
+	/* Confirm */
+	if (!get_check("Assume the form of a bear? ")) return;
+
+	/* Change */
+	shapechange(SHAPE_BEAR);
+
+	/* Use some energy */
+	p_ptr->energy_use = 100;
 }
 
 
@@ -2606,7 +2624,7 @@ bool recharge(int power)
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if (p_ptr->pclass == CLASS_MAGE)
+			if (check_ability(SP_DEVICE_EXPERT))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -3102,6 +3120,53 @@ void ele_air_smite(void)
 }
 
 
+/*
+ * Apply a "project()" directly to all monsters in view of a certain spot.
+ *
+ * Note that affected monsters are NOT auto-tracked by this usage.
+ *
+ * This function is not optimized for efficieny.  It should only be used
+ * in non-bottleneck functions such as spells. It should not be used in functions
+ * that are major code bottlenecks such as process monster or update_view. -JG
+ */
+bool project_los_not_player(int y1, int x1, int dam, int typ)
+{
+	int i, x, y;
+
+	u32b flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+
+	bool obvious = FALSE;
+
+	/* Affect all (nearby) monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/*The LOS function doesn't do well with long distances*/
+		if (distance(y1, x1, y, x) > MAX_RANGE) continue;
+
+		/* Require line of sight or the monster being right on the square */
+		if ((y != y1) || (x != x1))
+		{
+
+			if (!los(y1, x1, y, x)) continue;
+
+		}
+
+		/* Jump directly to the target monster */
+		if (project(-1, 0, y, x, dam, typ, flg,0 ,0)) obvious = TRUE;
+	}
+
+	/* Result */
+	return (obvious);
+}
 
 
 /*
@@ -3603,7 +3668,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+		if (!p_ptr->no_blind && !p_resist_pos(P_RES_LITE))
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -3994,8 +4059,8 @@ void earthquake(int cy, int cx, int r, bool volcano)
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
-	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
+	/* Update the health and mana bars */
+	p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);

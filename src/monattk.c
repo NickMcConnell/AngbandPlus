@@ -343,7 +343,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 	/* Players in trees can take advantage of cover, especially rangers and druids. */
 	if (cave_feat[y][x] == FEAT_TREE)
 	{
-		if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID))
+		if (check_ability(SP_WOODSMAN))
 			terrain_bonus = ac / 8 + 10;
 		else terrain_bonus = ac / 10 + 2;
 	}
@@ -356,7 +356,9 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 	/* 
 	 * Hack -- darkness protects those who serve it.
 	 */
-	if (check_specialty(SP_UNLIGHT) & !player_can_see_bold(p_ptr->py, p_ptr->px)) terrain_bonus += ac / 8 + 10;
+	if (((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW)) == 0) && 
+	    (p_ptr->cur_lite <= 0) && 
+	    check_ability(SP_UNLIGHT)) terrain_bonus += ac / 8 + 10;
 
 
 	/* Assume no blink */
@@ -427,7 +429,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		}
 
 		/* Try for Evasion */
-		if (check_specialty(SP_EVASION) & (randint(100) <= p_ptr->evasion_chance))
+		if (check_ability(SP_EVASION) & (randint(100) <= p_ptr->evasion_chance))
 		{
 			/* Message */
 			msg_print("You Evade the attack!");
@@ -700,7 +702,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 					take_hit(damage, ddesc);
 
 					/* Allow complete resist */
-					if (!p_ptr->resist_disen)
+					if (!p_resist_pos(P_RES_DISEN))
 					{
 						/* Apply disenchantment */
 						if (apply_disenchant(0)) obvious = TRUE;
@@ -803,7 +805,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 
 								/* Redraw (later) if needed */
 								if (p_ptr->health_who == m_idx) 
-									p_ptr->redraw |= (PR_HEALTH);
+									p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 
 								/* Uncharge */
@@ -1146,7 +1148,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 					take_hit(damage, ddesc);
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+					if (!p_ptr->no_blind)
 					{
 						if (p_ptr->blind)
 						{
@@ -1177,7 +1179,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_confu)
+					if (!p_resist_pos(P_RES_CONFU))
 					{
 						if (p_ptr->confused)
 						{
@@ -1208,7 +1210,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 					take_hit(damage, ddesc);
 
 					/* Increase "afraid" */
-					if (p_ptr->resist_fear)
+					if (p_ptr->no_fear)
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -1851,6 +1853,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	else return (FALSE);
 	m_ptr->mana -= manacost;
 
+	/* Redraw (later) if needed */
+	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_MON_MANA);
+
 	/*** Get some info. ***/
 
 	/* Extract the monster level */
@@ -1930,9 +1935,15 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 					 * resists should not be allowed to reduce 
 					 * damage as much as they do normally.
 					 * Damage will be reduced later.
+					 *
+					 * Note than increasing then
+					 * decreasing damage by the
+					 * same percentage will lead
+					 * to a net decrease, to
+					 * resistance is helpful.
 					 */
-					if (p_ptr->resist_acid) damage *= 2;
-					if (p_ptr->oppose_acid) damage *= 2;
+					damage += resist_damage(damage, P_RES_ACID, 0);
+
 					typ = GF_ACID;
 					desc = " acid";
 					add_of = " of";
@@ -1940,8 +1951,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				}
 				case RBE_ELEC:
 				{
-					if (p_ptr->resist_elec) damage *= 2;
-					if (p_ptr->oppose_elec) damage *= 2;
+					damage += resist_damage(damage, P_RES_ELEC, 0);
 
 					typ = GF_ELEC;
 					desc = " lightning";
@@ -1950,8 +1960,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				}
 				case RBE_FIRE:
 				{
-					if (p_ptr->resist_fire) damage *= 2;
-					if (p_ptr->oppose_fire) damage *= 2;
+					damage += resist_damage(damage, P_RES_FIRE, 0);
 
 					typ = GF_FIRE;
 					desc = " fire";
@@ -1960,8 +1969,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				}
 				case RBE_COLD:
 				{
-					if (p_ptr->resist_cold) damage *= 2;
-					if (p_ptr->oppose_cold) damage *= 2;
+					damage += resist_damage(damage, P_RES_COLD, 0);
 
 					typ = GF_COLD;
 					desc = " frost";
@@ -1970,8 +1978,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				}
 				case RBE_POISON:
 				{
-					if (p_ptr->resist_pois) damage *= 2;
-					if (p_ptr->oppose_pois) damage *= 2;
+					damage += resist_damage(damage, P_RES_POIS, 0);
 
 					typ = GF_POIS;
 					desc = " venom";
@@ -1980,6 +1987,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				}
 				case RBE_BLIND:
 				{
+					damage += resist_damage(damage, P_RES_DARK, 0);
+
 					typ = GF_DARK;
 					desc = " blackness";
 					add_of = " of";
@@ -1988,6 +1997,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				case RBE_CONFUSE:
 				case RBE_PARALYZE:
 				{
+					damage += resist_damage(damage, P_RES_CONFU, 0);
+
 					typ = GF_CONFUSION;
 					desc = " confusion";
 					add_of = " of";
@@ -1997,6 +2008,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				case RBE_UN_BONUS:
 				case RBE_UN_POWER:
 				{
+					damage += resist_damage(damage, P_RES_DISEN, 0);
+
 					typ = GF_DISENCHANT;
 					desc = " unmagic";
 					add_of = " of";
@@ -2020,6 +2033,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				case RBE_EXP_40:
 				case RBE_EXP_80:
 				{
+					damage += resist_damage(damage, P_RES_NETHR, 0);
+
 					typ = GF_NETHER;
 					desc = " withering";
 					add_of = " of";
@@ -3444,7 +3459,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
-			if (p_ptr->resist_nexus)
+			if (p_resist_pos(P_RES_NEXUS))
 			{
 				msg_print("You are unaffected!");
 			}
@@ -3515,22 +3530,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				/* Basic message */
 				msg_format("%^s draws psychic energy from you!", m_name);
 
-				/* Attack power */
-				r1 = (randint(spower) / 20) + 1;
-
-				/* Full drain */
-				if (r1 >= p_ptr->csp)
-				{
-					r1 = p_ptr->csp;
-					p_ptr->csp = 0;
-					p_ptr->csp_frac = 0;
-				}
-
-				/* Partial drain */
-				else
-				{
-					p_ptr->csp -= r1;
-				}
+				/* Drain */
+				r1 = remove_player_mana((randint(spower) / 20) + 1);
 
 				/* Redraw mana */
 				p_ptr->redraw |= (PR_MANA);
@@ -3551,6 +3552,9 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 						 m_ptr->mana += r1;
 						 r1 = 0;
 					} 
+
+					/* Redraw (later) if needed */
+					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_MON_MANA);
 				}
 
 				/* Heal the monster with remaining energy */
@@ -3585,131 +3589,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			else if (spower < 90) msg_format("%^s murmurs deeply.", m_name);
 			else msg_format("%^s chants powerfully.", m_name);
 
-			if (p_ptr->fast && (!check_save(spower)))
-			{
-				set_fast(0);
-				r1 += 2;
-			}
-			if (p_ptr->protevil && (!check_save(spower)))
-			{
-				set_protevil(0);
-				r1 += 2;
-			}
-			if (p_ptr->magicdef && (!check_save(spower)))
-			{
-				set_extra_defences(0);
-				r1 += 2;
-			}
-			if (p_ptr->hero && (!check_save(spower)))
-			{
-				set_hero(0);
-				r1 += 2;
-			}
-			if (p_ptr->shero && (!check_save(spower)))
-			{
-				set_shero(0);
-				r1 += 2;
-			}
-			if (p_ptr->shield && (!check_save(spower)))
-			{
-				set_shield(0);
-				r1 += 2;
-			}
-			if (p_ptr->blessed && (!check_save(spower)))
-			{
-				set_blessed(0);
-				r1 += 2;
-			}
-			if (p_ptr->tim_invis && (!check_save(spower)))
-			{
-				set_tim_invis(0);
-				r1 += 2;
-			}
-			if (p_ptr->tim_infra && (!check_save(spower)))
-			{
-				set_tim_infra(0);
-				r1 += 2;
-			}
-			if (p_ptr->tim_esp && (!check_save(spower)))
-			{
-				set_tim_esp(0);
-				r1 += 2;
-			}
-			if (p_ptr->superstealth && (!check_save(spower)))
-			{
-				set_superstealth(0);
-				r1 += 2;
-			}
-			if (p_ptr->ele_attack && (!check_save(spower)))
-			{
-				set_ele_attack(0, 0);
-				r1 += 2;
-			}
-			if (p_ptr->oppose_acid && (!check_save(spower)))
-			{
-				set_oppose_acid(0);
-				r1 += 2;
-			}
-			if (p_ptr->oppose_elec && (!check_save(spower)))
-			{
-				set_oppose_elec(0);
-				r1 += 2;
-			}
-			if (p_ptr->oppose_fire && (!check_save(spower)))
-			{
-				set_oppose_fire(0);
-				r1 += 2;
-			}
-			if (p_ptr->oppose_cold && (!check_save(spower)))
-			{
-				set_oppose_cold(0);
-				r1 += 2;
-			}
-			if (p_ptr->oppose_pois && (!check_save(spower)))
-			{
-				set_oppose_pois(0);
-				r1 += 2;
-			}
-			if (p_ptr->word_recall && (!check_save(spower)))
-			{
-				set_recall(0);
-				r1 += 2;
-			}
-			if ((p_ptr->special_attack & (ATTACK_CONFUSE)) && (!check_save(spower)))
-			{
-				p_ptr->special_attack &= ~(ATTACK_CONFUSE);
-				msg_print("Your hands stop glowing.");
-				r1 += 2;
-			}
-			if ((p_ptr->special_attack & (ATTACK_BLKBRTH)) && (!check_save(spower)))
-			{
-				p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
-				msg_print("Your hands stop radiating Night.");
-				r1 += 2;
-			}
-			if ((p_ptr->special_attack & (ATTACK_FLEE)) && (!check_save(spower)))
-			{
-				p_ptr->special_attack &= ~(ATTACK_FLEE);
-				msg_print("You forget your escape plan.");
-				r1 += 2;
-			}
-			if ((p_ptr->special_attack & (ATTACK_SUPERSHOT)) && (!check_save(spower)))
-			{
-				p_ptr->special_attack &= ~(ATTACK_SUPERSHOT);
-				msg_print("Your ready crossbow bolt seems less dangerous.");
-				r1 += 2;
-			}
-			if ((p_ptr->special_attack & (ATTACK_HOLY)) && (!check_save(spower)))
-			{
-				p_ptr->special_attack &= ~(ATTACK_HOLY);
-				msg_print("Your Holy attack dissipates.");
-				r1 += 2;
-			}
-			if (SCHANGE && (!check_save(spower)))
-			{
-				shapechange(SHAPE_NORMAL);
-				r1 += 2;
-			}
+			/* Strength of dispel == saving throw dieroll */
+			r1 = apply_dispel((spower) > 80 ? spower : 80);
+
+			/* Regain two mana per effect removed */
+			r1 *= 2;
 
 			/* Replenish monster mana */
 			if ( r1 > r_ptr->mana - m_ptr->mana) m_ptr->mana = r_ptr->mana;
@@ -3744,7 +3628,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				if (!p_ptr->resist_confu)
+				if (!p_resist_pos(P_RES_CONFU))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -3774,11 +3658,11 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 				msg_print("Your mind is blasted by psionic energy.");
 				take_hit(damroll(12, 15), ddesc);
-				if (!p_ptr->resist_blind)
+				if (!p_ptr->no_blind)
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
 				}
-				if (!p_ptr->resist_confu)
+				if (!p_resist_pos(P_RES_CONFU))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -3901,7 +3785,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear scary noises.", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
-			if (p_ptr->resist_fear)
+			if (p_ptr->no_fear)
 			{
 				msg_print("You refuse to be frightened.");
 			}
@@ -3922,7 +3806,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a spell, burning your eyes!", m_name);
-			if (p_ptr->resist_blind)
+			if (p_ptr->no_blind)
 			{
 				msg_print("You are unaffected!");
 			}
@@ -3943,7 +3827,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
 			else msg_format("%^s creates a mesmerising illusion.", m_name);
-			if (p_ptr->resist_confu)
+			if (p_resist_pos(P_RES_CONFU))
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
@@ -4329,7 +4213,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	}
 
 	/* Power Siphon Specialty Ability */
-	if ((check_specialty(SP_POWER_SIPHON)) && (manacost) && m_ptr->ml)
+	if ((check_ability(SP_POWER_SIPHON)) && (manacost) && m_ptr->ml)
 	{
 		p_ptr->mana_gain += manacost;
 	}

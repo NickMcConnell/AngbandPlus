@@ -151,13 +151,13 @@ void do_cmd_eat_food(void)
 	{
 		case SV_FOOD_POISON:
 		{
-			pois_hit(15);
+			if (pois_hit(15)) ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_BLINDNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				if (set_blind(p_ptr->blind + rand_int(200) + 200))
 				{
@@ -169,7 +169,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_PARANOIA:
 		{
-			if (!p_ptr->resist_fear)
+			if (!p_ptr->no_fear)
 			{
 				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
 				{
@@ -181,7 +181,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_CONFUSION:
 		{
-			if (!p_ptr->resist_confu)
+			if (!p_resist_pos(P_RES_CONFU))
 			{
 				if (set_confused(p_ptr->confused + rand_int(10) + 10))
 				{
@@ -193,7 +193,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_HALLUCINATION:
 		{
-			if (!p_ptr->resist_chaos)
+			if (!p_resist_pos(P_RES_CHAOS))
 			{
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
@@ -487,13 +487,13 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_POISON:
 		{
-			pois_hit(30);
+			if (pois_hit(30)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_BLINDNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				if (set_blind(p_ptr->blind + rand_int(100) + 100))
 				{
@@ -505,7 +505,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CONFUSION:
 		{
-			if (!p_ptr->resist_confu)
+			if (!p_resist_pos(P_RES_CONFU))
 			{
 				if (set_confused(p_ptr->confused + rand_int(20) + 15))
 				{
@@ -1107,7 +1107,7 @@ void do_cmd_read_scroll(void)
 	{
 		case SV_SCROLL_DARKNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				(void)set_blind(p_ptr->blind + 3 + randint(5));
 			}
@@ -1612,7 +1612,7 @@ void do_cmd_use_staff(void)
 	{
 		case SV_STAFF_DARKNESS:
 		{
-			if (!p_ptr->resist_blind)
+			if (!p_ptr->no_blind)
 			{
 				if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
 			}
@@ -1858,7 +1858,7 @@ void do_cmd_use_staff(void)
 			msg_print("Mighty magics rend your enemies!");
 			fire_sphere(GF_MANA, 0,
 			       randint(75) + 125, 5, 20);
-			if (p_ptr->pclass != CLASS_MAGE)
+			if (!(check_ability(SP_DEVICE_EXPERT)))
 			{
 				(void)take_hit(20, "unleashing magics too mighty to control");
 			}
@@ -2009,7 +2009,7 @@ void do_cmd_use_staff(void)
 
 	/* Make it possible to fully identify staffs through use. */
 	if ((object_known_p(o_ptr)) && (!k_ptr->known_effect) &&
-		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 25 : 35) == 0))
+		(rand_int((check_ability(SP_DEVICE_EXPERT)) ? 25 : 35) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
 		k_ptr->known_effect = TRUE;
@@ -2452,7 +2452,7 @@ void do_cmd_aim_wand(void)
 
 	/* Make it possible to fully identify wands through use. */
 	if ((object_known_p(o_ptr)) && (!k_ptr->known_effect) &&
-		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 30 : 40) == 0))
+		(rand_int((check_ability(SP_DEVICE_EXPERT)) ? 30 : 40) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
 		k_ptr->known_effect = TRUE;
@@ -2855,7 +2855,8 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_SHADOW:
 		{
-			if (p_ptr->pclass == CLASS_ROGUE)
+			/* Hack - Extra good for those who backstab. */
+			if (check_ability(SP_BACKSTAB))
 			{
 				if (p_ptr->superstealth) 
 					(void)set_superstealth(p_ptr->superstealth + 30);
@@ -2916,7 +2917,7 @@ void do_cmd_zap_rod(void)
 
 	/* Make it possible to fully identify rods through use. */
 	if ((object_known_p(o_ptr)) && (!k_ptr->known_effect) &&
-	    (rand_int((p_ptr->pclass == CLASS_MAGE) ? 45 : 65) == 0))
+	    (rand_int((check_ability(SP_DEVICE_EXPERT)) ? 45 : 65) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
 		k_ptr->known_effect = TRUE;
@@ -3877,8 +3878,7 @@ void do_cmd_activate(void)
 			msg_print("A wave of goodness washes over you...");
 			(void)dispel_evil(100);
 
-			if ((p_ptr->pclass == CLASS_NECRO) || 
-				(p_ptr->pclass == CLASS_ASSASSIN))
+			if (check_ability(SP_EVIL))
 			{
 				msg_print("Your black soul is hit!");
 				take_hit(25, "struck down by Good");

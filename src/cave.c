@@ -307,7 +307,7 @@ bool no_lite(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	if (check_specialty(SP_UNLIGHT)) return(FALSE);
+	if (check_ability(SP_UNLIGHT)) return(FALSE);
 
 	return (!player_can_see_bold(py, px));
 }
@@ -4319,7 +4319,7 @@ void health_track(int m_idx)
 	p_ptr->health_who = m_idx;
 
 	/* Redraw (later) */
-	p_ptr->redraw |= (PR_HEALTH);
+	p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 }
 
 

@@ -1043,6 +1043,9 @@ bool set_oppose_acid(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
 	/* Redraw status */
 	p_ptr->redraw |= PR_STATUS;
 
@@ -1092,6 +1095,9 @@ bool set_oppose_elec(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Redraw status */
 	p_ptr->redraw |= PR_STATUS;
@@ -1146,6 +1152,9 @@ bool set_oppose_fire(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
 	/* Redraw status */
 	p_ptr->redraw |= PR_STATUS;
 
@@ -1196,6 +1205,9 @@ bool set_oppose_cold(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
 	/* Redraw status */
 	p_ptr->redraw |= PR_STATUS;
 
@@ -1245,6 +1257,9 @@ bool set_oppose_pois(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Redraw status */
 	p_ptr->redraw |= PR_STATUS;
@@ -2361,7 +2376,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		sound(SOUND_KILL);
 
 		/* Specialty Ability SOUL_SIPHON */
-		if ((check_specialty(SP_SOUL_SIPHON)) && 
+		if ((check_ability(SP_SOUL_SIPHON)) && 
 		    (p_ptr->csp < p_ptr->msp) && 
 		    (!((r_ptr->flags3 & (RF3_DEMON)) || 
 		       (r_ptr->flags3 & (RF3_UNDEAD)) || 

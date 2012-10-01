@@ -97,6 +97,7 @@ typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct druid_blows druid_blows;
 typedef struct player_type player_type;
+typedef struct start_item start_item;
 
 
 
@@ -832,13 +833,27 @@ struct player_race
 
 
 /*
+ * Starting equipment entry
+ */
+struct start_item
+{
+	byte tval;	/* Item's tval */
+	byte sval;	/* Item's sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
+};
+
+
+/*
  * Player class info
  */
 struct player_class
 {
-	cptr title;			/* Type of class */
+	u32b name;			/* Name (offset) */
 
-	s16b c_adj[6];		/* Class stat modifier */
+	u32b title[10];			/* Type of class */
+
+	s16b c_adj[A_MAX];		/* Class stat modifier */
 
 	s16b c_dis;			/* class disarming */
 	s16b c_dev;			/* class magic devices */
@@ -859,6 +874,22 @@ struct player_class
 	s16b cx_thb;		/* extra to hit (missile and throwing) */
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
+
+	u32b sense_base;			/* Base psuedo-id time */
+
+        u32b flags_special;     /* Special Class Flags */
+
+	start_item start_items[MAX_START_ITEMS];   /* The starting inventory */
+
+	byte specialties[MAX_SPECIALTIES];   /* Available Specialty Abilities */
+
+	/* Weapon Info */
+	u16b max_1;		/* Max Weight (decipounds) at level 1 */
+	u16b max_50;		/* Max Weight (decipounds) at level 50 */
+	byte penalty;		/* Penalty per 10 pounds over */
+	byte max_penalty;	/* Max Penalty */
+	byte bonus;		/* Bonus per 10 pounds under */
+	byte max_bonus;		/* Max Bonus */
 };
 
 
@@ -873,8 +904,6 @@ struct player_weapon
 	byte max_penalty;	/* Max Penalty */
 	byte bonus;		/* Bonus per 10 pounds under */
 	byte max_bonus;		/* Max Bonus */
-	bool no_edged;		/* Edged Weapon Penalty */
-	bool bare_handed;	/* Bare-handed skill */
 };
 
 
@@ -1129,28 +1158,11 @@ struct player_type
 	s16b stat_add[6];	/* Equipment stat bonuses */
 	s16b stat_ind[6];	/* Indexes into stat tables */
 
-	bool immune_acid;	/* Immunity to acid */
-	bool immune_elec;	/* Immunity to lightning */
-	bool immune_fire;	/* Immunity to fire */
-	bool immune_cold;	/* Immunity to cold */
+	byte res_list[MAX_P_RES]; /* Resistances and immunities */
+	byte dis_res_list[MAX_P_RES]; /* Known resistances and immunities */
 
-	bool resist_acid;	/* Resist acid */
-	bool resist_elec;	/* Resist lightning */
-	bool resist_fire;	/* Resist fire */
-	bool resist_cold;	/* Resist cold */
-	bool resist_pois;	/* Resist poison */
-
-	bool resist_fear;	/* Resist fear */
-	bool resist_lite;	/* Resist light */
-	bool resist_dark;	/* Resist darkness */
-	bool resist_blind;	/* Resist blindness */
-	bool resist_confu;	/* Resist confusion */
-	bool resist_sound;	/* Resist sound */
-	bool resist_shard;	/* Resist shards */
-	bool resist_nexus;	/* Resist nexus */
-	bool resist_nethr;	/* Resist nether */
-	bool resist_chaos;	/* Resist chaos */
-	bool resist_disen;	/* Resist disenchant */
+	bool no_fear;	/* Resist fear */
+	bool no_blind;	/* Resist blindness */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */

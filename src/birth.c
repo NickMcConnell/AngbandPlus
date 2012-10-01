@@ -558,77 +558,6 @@ static void player_wipe(void)
 	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
 }
 
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * In addition, he always has some food and a few torches.
- */
-
-static byte player_init[MAX_CLASS][3][2] =
-{
-	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_BERSERK_STR },
-		{ TV_SWORD, SV_LONG_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger */
-		{ TV_DRUID_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_BOW, SV_SHORT_BOW }
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEROISM }
-	},
-
-	{
-		/* Druid */
-		{ TV_DRUID_BOOK, 0 },
-		{ TV_POTION, SV_POTION_CURE_POISON },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Necromancer */
-		{ TV_NECRO_BOOK, 0 },
-		{ TV_HAFTED, SV_WHIP },
-		{ TV_CLOAK, SV_CLOAK }
-	},
-
-	{
-		/* Assassin */
-		{ TV_NECRO_BOOK, 0 },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
-		{ TV_BOW, SV_SLING }
-	}
-};
-
 
 
 /*
@@ -638,8 +567,8 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
-
+	int i;
+	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
 
@@ -666,33 +595,33 @@ static void player_outfit(void)
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player his equipment */
+	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
-		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
+		/* Access the item */
+		e_ptr = &(cp_ptr->start_items[i]);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Hack -- Give the player an object */
-		object_prep(i_ptr, lookup_kind(tv, sv));
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
-	}
+		/* Hack	-- Give the player an object */
+		if (e_ptr->tval > 0)
+		{
+			/* Get the object_kind */
+			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
 
-	/* Hack - Rangers start off with some arrows. */
-	if (p_ptr->pclass == CLASS_RANGER)
-	{
-		object_prep(i_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-		i_ptr->number = 25;
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
-	}
+			/* Valid item? */
+			if (!k_idx) continue;
 
+			/* Prepare the item */
+			object_prep(i_ptr, k_idx);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+		}
+	}
 }
 
 /* Locations of the tables on the screen */
@@ -936,7 +865,7 @@ static void race_aux_hook(birth_menu r_str)
 	/* Extract the proper race index from the string. */
 	for (race = 0; race < MAX_P_IDX; race++)
 	{
-		if (!strcmp(r_str.name, p_name + p_info[race].name)) break;
+		if (!strcmp(r_str.name, rp_name + rp_info[race].name)) break;
 	}
 
 	if (race == MAX_P_IDX) return;
@@ -945,29 +874,29 @@ static void race_aux_hook(birth_menu r_str)
 	for (i = 0; i < A_MAX; i++)
 	{
 		sprintf(s, "%s%+d", stat_names_reduced[i],
-		p_info[race].r_adj[i]);
+		rp_info[race].r_adj[i]);
 		Term_putstr(RACE_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 
-	sprintf(s, "Hit die: %d ", p_info[race].r_mhp);
+	sprintf(s, "Hit die: %d ", rp_info[race].r_mhp);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
-	sprintf(s, "Infravision: %d ft ", p_info[race].infra * 10);
+	sprintf(s, "Infravision: %d ft ", rp_info[race].infra * 10);
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
 
 	sprintf(s, "Difficulty: ");
 	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 
 	/* Race difficulty factor */
-	if (p_info[race].difficulty == 1)      sprintf(s, "Lowest       ");
-	else if (p_info[race].difficulty == 2) sprintf(s, "Low          ");
-	else if (p_info[race].difficulty == 3) sprintf(s, "Moderate/Low ");
-	else if (p_info[race].difficulty == 4) sprintf(s, "Moderate/High");
-	else if (p_info[race].difficulty == 5) sprintf(s, "High         ");
+	if (rp_info[race].difficulty == 1)      sprintf(s, "Lowest       ");
+	else if (rp_info[race].difficulty == 2) sprintf(s, "Low          ");
+	else if (rp_info[race].difficulty == 3) sprintf(s, "Moderate/Low ");
+	else if (rp_info[race].difficulty == 4) sprintf(s, "Moderate/High");
+	else if (rp_info[race].difficulty == 5) sprintf(s, "High         ");
 	else                                   sprintf(s, "??           ");
 
 	/* Color code difficulty factor */
-	/*if (p_info[race].difficulty < 3) color = TERM_GREEN;
-	else if (p_info[race].difficulty < 5) color = TERM_WHITE;
+	/*if (rp_info[race].difficulty < 3) color = TERM_GREEN;
+	else if (rp_info[race].difficulty < 5) color = TERM_WHITE;
 	else color = TERM_RED;*/
 
 	Term_putstr(RACE_AUX_COL + 12, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
@@ -988,7 +917,7 @@ static bool get_player_race()
 	/* Tabulate races */
 	for (i = 0; i < MAX_P_IDX; i++)
 	{
-		races[i].name = p_name + p_info[i].name;
+		races[i].name = rp_name + rp_info[i].name;
 		races[i].ghost = FALSE;
 	}
 
@@ -1003,7 +932,7 @@ static bool get_player_race()
 	}
 
 	/* Save the race pointer */
-	rp_ptr = &p_info[p_ptr->prace];
+	rp_ptr = &rp_info[p_ptr->prace];
 
 	/* Success */
 	return (TRUE);
@@ -1014,27 +943,27 @@ static bool get_player_race()
  */
 static void class_aux_hook(birth_menu c_str)
 {
-	int class_idx, i;
+	int class, i;
 	char s[128];
 
 	
 	/* Extract the proper class index from the string. */
-	for (class_idx = 0; class_idx < MAX_CLASS; class_idx++)
+	for (class = 0; class < MAX_CLASS; class++)
 	{
-		if (!strcmp(c_str.name, class_info[class_idx].title)) break;
+		if (!strcmp(c_str.name, cp_name + cp_info[class].name)) break;
 	}
-	
-	if (class_idx == MAX_CLASS) return;
-	
+
+	if (class == MAX_CLASS) return;
+
 	/* Display relevant details. */
 	for (i = 0; i < A_MAX; i++)
 	{
 		sprintf(s, "%s%+d", stat_names_reduced[i],
-		class_info[class_idx].c_adj[i]);
+		cp_info[class].c_adj[i]);
 		Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
 	}
 	
-	sprintf(s, "Hit die: %d ", class_info[class_idx].c_mhp);
+	sprintf(s, "Hit die: %d ", cp_info[class].c_mhp);
 	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 }
 
@@ -1055,18 +984,8 @@ static bool get_player_class(void)
 	/* Tabulate classes */
 	for (i = 0; i < MAX_CLASS; i++)
 	{
-		/* Analyze */
-		if (!(rp_ptr->choice & (1L << i)))
-		{
-			classes[i].ghost = TRUE;
-		}
-		else
-		{
-			classes[i].ghost = FALSE;
-		}
-
-		/* Save the string */
-		classes[i].name = class_info[i].title;
+		classes[i].name = cp_name + cp_info[i].name;
+		classes[i].ghost = FALSE;
 	}
 
 	p_ptr->pclass = get_player_choice(classes, MAX_CLASS, CLASS_COL, 20,
@@ -1080,9 +999,10 @@ static bool get_player_class(void)
 		return (FALSE);
 	}
 
+	/* Save the class pointer */
+	cp_ptr = &cp_info[p_ptr->pclass];
+
 	/* Set class */
-	cp_ptr = &class_info[p_ptr->pclass];
-	wp_ptr = &weapon_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
 
 	return (TRUE);

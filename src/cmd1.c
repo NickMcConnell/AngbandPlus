@@ -987,7 +987,7 @@ void hit_trap(int y, int x)
 			if (selection == 1)
 			{
 				msg_print("You are surrounded by a black gas!");
-				if (!p_ptr->resist_blind)
+				if (!p_ptr->no_blind)
 				{
 					Rand_quick = FALSE;
 
@@ -1001,7 +1001,7 @@ void hit_trap(int y, int x)
 			if (selection == 2)
 			{
 				msg_print("You are surrounded by a gas of scintillating colors!");
-				if (!p_ptr->resist_confu)
+				if (!p_resist_pos(P_RES_CONFU))
 				{
 					Rand_quick = FALSE;
 
@@ -1303,11 +1303,11 @@ void hit_trap(int y, int x)
 				/* explain what the dickens is going on. */
 				msg_print("GRUESOME Software Bugs leap out at you!");
 
-				if (!p_ptr->resist_confu)
+				if (!p_resist_pos(P_RES_CONFU))
 				{
 					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 				}
-				if (!p_ptr->resist_chaos)
+				if (!p_resist_pos(P_RES_CHAOS))
 				{
 					(void)set_image(p_ptr->image + randint(40));
 				}
@@ -1705,8 +1705,7 @@ void move_player(int dir, int do_pickup)
 				case FEAT_TREE:
 				{
 					/* Druids and rangers slip easily under trees. */
-					if ((p_ptr->pclass == CLASS_RANGER) || 
-						(p_ptr->pclass == CLASS_DRUID)) can_move = TRUE;
+					if ((check_ability(SP_WOODSMAN))) can_move = TRUE;
 
 					/* Allow movement only if partway through already. */
 					else if (player_is_crossing == dir) 
@@ -1756,11 +1755,9 @@ void move_player(int dir, int do_pickup)
 					}
 
 					/* Smart enough to sense trouble. */
-					else if (((!p_ptr->resist_fire) && (!p_ptr->oppose_fire) && 
-						  (!p_ptr->immune_fire)) ||
-						 (((!p_ptr->resist_fire) || (!p_ptr->oppose_fire)) && 
-						  (!p_ptr->immune_fire) && (p_ptr->chp <= 100)) ||
-						 ((!p_ptr->immune_fire) && (p_ptr->chp <= 30)))
+					else if ((!p_resist_pos(P_RES_FIRE)) ||
+						 (!p_resist_strong(P_RES_FIRE) && (p_ptr->chp <= 100)) ||
+						 (!p_immune(P_RES_FIRE) && (p_ptr->chp <= 30)))
 					{
 						if (!get_check("The heat of the lava scalds you!  Really enter? "))
 						{

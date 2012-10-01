@@ -86,7 +86,7 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 	}*/
 
 	/* Specialty Ability */
-	if ((visible) && (check_specialty(SP_ARMSMAN)) && (rand_int(6) == 0))
+	if ((visible) && (check_ability(SP_ARMSMAN)) && (rand_int(6) == 0))
 	{
 		armsman = TRUE;
 	}
@@ -104,7 +104,7 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 		if ((sleeping_bonus) && (visible))
 		{
 			/* More "interesting" messages if we get a seriously good hit. */
-			if ((add_dice >= 4) && (p_ptr->pclass == CLASS_ROGUE))
+			if ((add_dice >= 4) && (check_ability(SP_BACKSTAB)))
 			{
 				message(MSG_HIT, 0, "You ruthlessly sneak attack!");
 			}
@@ -236,7 +236,7 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 	}*/
 
 	/* Specialty Ability */
-	if ((visible) && (check_specialty(SP_MARKSMAN)) && (rand_int(6) == 0))
+	if ((visible) && (check_ability(SP_MARKSMAN)) && (rand_int(6) == 0))
 	{
 		marksman = TRUE;
 	}
@@ -352,11 +352,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			/* Hack -- paladins cannot take advantage of 
+			/* Hack -- paladins (and priests) cannot take advantage of 
 			 * temporary elemental brands to rescue their
 			 * lousy shooting skill.
+			 *
+			 * Missle weapons are "kind of" edged, right?
 			 */
-			 if (p_ptr->pclass == CLASS_PALADIN) allow_t_brand = FALSE;
+			 if (check_ability(SP_BLESS_WEAPON)) allow_t_brand = FALSE;
 
 			/* Fall through. */
 		}
@@ -559,7 +561,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 			}
 
 			/* Additional bonus for Holy Light */
-			if (check_specialty(SP_HOLY_LIGHT))
+			if (check_ability(SP_HOLY_LIGHT))
 			{
 				/* +2 or +3 versus Undead and light-sensitive creatures */
 				if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_HURT_LITE)))
@@ -624,8 +626,8 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 	bool power_strike = FALSE;
 
         /* Specialty Ability */
-        if ((check_specialty(SP_MARTIAL_ARTS) && (rand_int(6) == 0))
-	    || (check_specialty(SP_POWER_STRIKE) && (rand_int(8) == 0)))
+        if ((check_ability(SP_MARTIAL_ARTS) && (rand_int(6) == 0))
+	    || (check_ability(SP_POWER_STRIKE) && (rand_int(8) == 0)))
 	{
 		power_strike = TRUE;
 	}
@@ -810,6 +812,8 @@ void py_attack(int y, int x)
 
 	bool do_quake = FALSE;
 
+	bool did_burn = FALSE;
+
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
@@ -821,9 +825,9 @@ void py_attack(int y, int x)
 	if ((m_ptr->csleep) && (m_ptr->ml))
 	{
 		sleeping_bonus =  5 + 1 * p_ptr->lev / 5;
-		if (p_ptr->pclass == CLASS_ROGUE) 
+		if (check_ability(SP_BACKSTAB))
 			sleeping_bonus *= 2;
-		else if (p_ptr->pclass == CLASS_ASSASSIN)
+		else if (check_ability(SP_ASSASSINATE))
 		        sleeping_bonus = (3 * sleeping_bonus / 2);
 			
 	}
@@ -902,25 +906,29 @@ void py_attack(int y, int x)
 	/* Bashing chance depends on melee Skill, Dex, and a class level bonus. */
 	else bash_chance = p_ptr->skill_thn + 
 		(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128 
-		+ ((p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_PALADIN) ? 
+		+ ((check_ability(SP_STRONG_BASHES)) ? 
 		p_ptr->lev : 0);
 
-	/* Some classes don't bash very often. */
-	if ((p_ptr->pclass == CLASS_MAGE) || 
-		(p_ptr->pclass == CLASS_DRUID) || (p_ptr->pclass == CLASS_NECRO)) 
+	/* Spell casters don't bash much - except for those who like the "blunt" nature of bashes. */
+	if ((check_ability(SP_STRONG_MAGIC)) && (!(check_ability(SP_BLESS_WEAPON))))
 	{
 		bash_chance /= 3;
 	}
 
 	/* Players bash more often when they see a real need. */
-	if ((bash_chance) && (p_ptr->pclass != CLASS_DRUID) && (!(check_specialty(SP_MARTIAL_ARTS))))
+	/* Unarmed and unskilled */
+	if ((!(inventory[INVEN_WIELD].k_idx)) && (bash_chance) &&
+	    (!(check_ability(SP_UNARMED_COMBAT))) && (!(check_ability(SP_MARTIAL_ARTS))))
 	{
-		if (!inventory[INVEN_WIELD].k_idx) bash_chance *= 4;
-		else if ((inventory[INVEN_WIELD].dd * inventory[INVEN_WIELD].ds * blows) 
-			< (inventory[INVEN_ARM].dd * inventory[INVEN_ARM].ds * 3))
-		{
-			bash_chance *= 2;
-		}
+		bash_chance *= 4;
+	}
+
+	/* ... or armed with a puny weapon */
+	if ((inventory[INVEN_WIELD].k_idx) && (bash_chance) &&
+	    ((inventory[INVEN_WIELD].dd * inventory[INVEN_WIELD].ds * blows) 
+	     < (inventory[INVEN_ARM].dd * inventory[INVEN_ARM].ds * 3)))
+	{
+		bash_chance *= 2;
 	}
 
 	/* Try to get in a shield bash. */
@@ -933,7 +941,7 @@ void py_attack(int y, int x)
 			(p_ptr->total_weight / 80) + (inventory[INVEN_ARM].weight / 3);
 
 		/* Enhanced for shield masters */
-		if (check_specialty(SP_SHIELD_MAST)) 
+		if (check_ability(SP_SHIELD_MAST)) 
 		        bash_quality += inventory[INVEN_ARM].weight / 5;
 
 		/* Calculate damage.  Big shields are deadly. */
@@ -963,14 +971,14 @@ void py_attack(int y, int x)
 			 * In this case a shield bash kill takes the same time one
 			 * attack.
 			 */
-			if ((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->energy_use) && 
+			if ((check_ability(SP_SPREAD_ATTACKS)) && (p_ptr->energy_use) && 
 			    (p_ptr->lev > 39))
 			{
 				p_ptr->energy_use = p_ptr->energy_use / blows;
 			}
 
 			/* Specialty Ability Fury */
-			if (check_specialty(SP_FURY))
+			if (check_ability(SP_FURY))
 			{
 				int boost_value;
 
@@ -1030,7 +1038,7 @@ void py_attack(int y, int x)
 	if (total_deadliness > 150) total_deadliness = 150;
 
 	/* Specialty Ability */
-	if ((check_specialty(SP_FAST_ATTACK)) && (randint(8) <= p_ptr->num_blow))
+	if ((check_ability(SP_FAST_ATTACK)) && (randint(8) <= p_ptr->num_blow))
 	{
 		blows++;
 		bonus_attack = TRUE;
@@ -1039,6 +1047,8 @@ void py_attack(int y, int x)
 	/* Attack once for each legal blow */
 	while (num++ < blows)
 	{
+		int crit_dice = 0;
+
 		/* Credit where credit is due */
 		if (bonus_attack && (num == blows)) msg_print("Extra Attack!");
 
@@ -1056,8 +1066,8 @@ void py_attack(int y, int x)
 
 				/* Hack -- Rogues and Assassins are silent melee 
 				 * killers. */
-				if ((p_ptr->pclass == CLASS_ROGUE) || 
-					(p_ptr->pclass == CLASS_ASSASSIN)) 
+				if ((check_ability(SP_BACKSTAB)) ||
+				    (check_ability(SP_ASSASSINATE)))
 				add_wakeup_chance = p_ptr->base_wakeup_chance / 4 + 500;
 
 				/* Otherwise, make the standard amount of noise. */
@@ -1075,10 +1085,31 @@ void py_attack(int y, int x)
 				/* Base damage dice */
 				dice = o_ptr->dd;
 
-				/* Critical hits may add damage dice. */
-				dice += critical_melee(chance, sleeping_bonus, m_ptr->ml, 
+				/* Calculate criticals. */
+				crit_dice = critical_melee(chance, sleeping_bonus, m_ptr->ml, 
 				                       m_name, o_ptr);
 
+				/* Critical hits may add damage dice. */
+				dice += crit_dice;
+
+				/* Mana Burn Specialty */
+				if ((crit_dice > 0) && (!did_burn) && check_ability(SP_MANA_BURN) && (m_ptr->mana))
+				{
+					/* Base burn amount */
+					int burn = BASE_MANA_BURN;
+
+					/* Only one per round! */
+					did_burn = TRUE;
+
+					/* Can only burn what we have */
+					if (burn > m_ptr->mana) burn = m_ptr->mana;
+
+					/* Hit mana and add to damage */
+					m_ptr->mana -= burn;
+					dice++;
+
+					message(MSG_HIT, 0, "Mana Burn!");
+				}
 
 				/* Get the average value of a single damage die. (x10) */
 				die_average = (10 * (o_ptr->ds + 1)) / 2;
@@ -1112,7 +1143,7 @@ void py_attack(int y, int x)
 				 * able to fight effectively.   All other classes only get 1 damage, plus 
 				 * whatever bonus their strength gives them. -LM-
 				 */
-				if (p_ptr->pclass == CLASS_DRUID || check_specialty(SP_MARTIAL_ARTS))
+				if ((check_ability(SP_UNARMED_COMBAT)) || check_ability(SP_MARTIAL_ARTS))
 				{
 					damage = get_druid_damage(p_ptr->lev, m_name, chance + sleeping_bonus, total_deadliness);
 				}
@@ -1138,7 +1169,7 @@ void py_attack(int y, int x)
 				 * Hack -- High-level warriors can spread their attacks out 
 				 * among weaker foes.
 				 */
-				if ((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->energy_use) && 
+				if ((check_ability(SP_SPREAD_ATTACKS)) && (p_ptr->energy_use) && 
 				    (p_ptr->lev > 39) && (num < blows))
 				{
 					p_ptr->energy_use = p_ptr->energy_use * num / blows;
@@ -1243,7 +1274,7 @@ void py_attack(int y, int x)
 				p_ptr->redraw |= (PR_STATUS);
 
 				/* Specialty Ability Fury */
-				if (check_specialty(SP_FURY))
+				if (check_ability(SP_FURY))
 				{
 					int boost_value;
 
@@ -1277,7 +1308,7 @@ void py_attack(int y, int x)
 	}
 
 	/* Specialty Ability Fury */
-	if (check_specialty(SP_FURY))
+	if (check_ability(SP_FURY))
 	{
 		int boost_value;
 
@@ -1611,13 +1642,22 @@ void do_cmd_fire(void)
 			
 			int dice, add;
 			long die_average, temp, sides;
-			
+			int cur_range, base_range, chance2;
+
 			/* Assume a default death */
 			cptr note_dies = " dies.";
 
+			/* Find Range */
+			cur_range = distance(py, px, y, x);
+
+			/* Most Accurate Range */
+			base_range = tdis / 2;
+			if (base_range > 10) base_range = 10;
+
 			/* Penalize Range */
-			int chance2 = chance - distance(py, px, y, x);
-			
+			if (cur_range > base_range) chance2 = chance - cur_range + base_range;
+			else chance2 = chance;
+
 			/* Note the (attempted) collision */
 			hit_body = TRUE;
 
@@ -1685,7 +1725,7 @@ void do_cmd_fire(void)
 			/* Make some noise.  Hack -- Assassins are silent 
 			 * missile weapon killers.
 			 */
-			if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
+			if (check_ability(SP_ASSASSINATE)) add_wakeup_chance = 
 				p_ptr->base_wakeup_chance / 4 + 600;
 			else add_wakeup_chance = 
 				p_ptr->base_wakeup_chance / 3 + 1200;
@@ -1759,7 +1799,7 @@ void do_cmd_fire(void)
 			}
 			
 			/* Hack - Assassins are deadly... */
-			if (p_ptr->pclass == CLASS_ASSASSIN)
+			if (check_ability(SP_STRONG_SHOOT))
 			{
 			/* Increase damage directly (to avoid excessive total
 			 * damage by granting too high a Deadliness).
@@ -1807,7 +1847,7 @@ void do_cmd_fire(void)
 			}			
 
 			/* Check for piercing */
-			if ((check_specialty(SP_PIERCE_SHOT)) && 
+			if ((check_ability(SP_PIERCE_SHOT)) && 
 			    (rand_int(2) == 0) && 
 			    ((p_ptr->ammo_tval == TV_ARROW) ||
 			     (p_ptr->ammo_tval == TV_BOLT)))
@@ -1955,7 +1995,7 @@ void do_cmd_throw(void)
 	if (tdis > 10) tdis = 10;
 
 	/* Specialty Ability Mighty Throw */
-	if (check_specialty(SP_MIGHTY_THROW)) tdis *= 2;
+	if (check_ability(SP_MIGHTY_THROW)) tdis *= 2;
 
 	/*
 	 * Other thrown objects are easier to use, but only throwing weapons 
@@ -2042,19 +2082,28 @@ void do_cmd_throw(void)
 			
 			int dice, add;
 			long die_average, temp, sides;
+			int cur_range, base_range, chance2;
 
 			/* Assume a default death */
 			cptr note_dies = " dies.";
 			
-			/* Calculate the projectile accuracy, modified by distance. */
-			int chance2 = chance - distance(py, px, y, x);
-			
+			/* Find Range */
+			cur_range = distance(py, px, y, x);
+
+			/* Most Accurate Range */
+			base_range = tdis / 2;
+			if (base_range > 10) base_range = 10;
+
+			/* Penalize Range */
+			if (cur_range > base_range) chance2 = chance - cur_range + base_range;
+			else chance2 = chance;
+
 			/* If the monster is sleeping, it'd better pray there are no 
 			 * Assassins with throwing weapons nearby. -LM-
 			 */
 			if ((m_ptr->csleep) && (m_ptr->ml) && (f1 & (TR1_THROWING)))
 			{
-				if (p_ptr->pclass == CLASS_ASSASSIN) 
+				if (check_ability(SP_ASSASSINATE))
 					sleeping_bonus = 15 + p_ptr->lev / 2;
 				else sleeping_bonus = 0;
 			}
@@ -2107,7 +2156,7 @@ void do_cmd_throw(void)
 			/* Make some noise.  Hack -- Assassins are silent 
 			 * missile weapon killers.
 			 */
-			if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
+			if (check_ability(SP_ASSASSINATE)) add_wakeup_chance = 
 				p_ptr->base_wakeup_chance / 4 + 300;
 			else add_wakeup_chance = 
 				p_ptr->base_wakeup_chance / 3 + 1200;

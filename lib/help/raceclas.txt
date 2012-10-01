@@ -229,18 +229,18 @@ classes have access to different specialty abilites (described in
          weak pseudo-ID.  Wisdom is a Priest's primary stat.
 
      Rogue:
-         The flexible dungeon sneaker, first in line when dungeon survival 
-         skills were handed out.  Rogues can fight very well with light weapons 
+         The flexible dungeon sneaker, first in line when dungeon survival
+         skills were handed out.  Rogues can fight very well with light weapons
          and shoot very quickly with slings, but have trouble with heavier gear.
          They can fight hand-to-hand more quietly than can any other class, and
          gets the most effective sneak attacks against sleeping monsters.
-         Rogues have the unique capacity of filching purses and setting traps
-         (use the '+' command.  See the help file "combat.txt for more details).
-         They have fairly fast, strong pseudo-ID.  They will also get a fairly
-         good collection of spells to improve their natural skills, aid in
-         battle, and gain information.  Unfortunately, no shopkeeper trusts a
-         rogue, and so members of this class will pay dearly for goods in town.
-         A rogue's primary stats are Intelligence and Dexterity.
+         Rogues have the capacity of filching purses and setting traps (use the
+         '+' command.  See the help file "combat.txt for more details).  They
+         have fairly fast, strong pseudo-ID.  They will also get a fairly good
+         collection of spells to improve their natural skills, aid in battle,
+         and gain information.  Unfortunately, no shopkeeper trusts a rogue, and
+         so members of this class will pay dearly for goods in town.  A rogue's
+         primary stats are Intelligence and Dexterity.
 
      Ranger:
          An archer skilled in nature lore.  Rangers are better than any other 
@@ -342,7 +342,7 @@ classes have access to different specialty abilites (described in
      Mage          -4    +3     0    +1    -2    +1      +0
      Priest        -1    -3    +3    -1     0    +2      +2
      Rogue         +2    +1    -2    +3    +1    -5      +5
-     Ranger        +1     0    +1    +2    +1    +0      +5
+     Ranger        +2     0    +1    +2    +1    +0      +6
      Paladin       +2    -3    +1     0    +1    +2      +7
      Druid         -2    -2    +3    +1     0    +1      +0
      Necromancer   -2    +3    -2    +1     0    -2      +0

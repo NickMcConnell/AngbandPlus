@@ -2356,7 +2356,7 @@ void do_cmd_alter(void)
 	 */
 	if (cave_m_idx[y][x] > 0)
 	{
-		if ((p_ptr->pclass == CLASS_ROGUE) && (!SCHANGE))
+		if ((check_ability(SP_STEAL)) && (!SCHANGE))
 		{
 			m_ptr = &m_list[cave_m_idx[y][x]];
 			if (m_ptr->ml) py_steal(y, x);
@@ -2366,14 +2366,12 @@ void do_cmd_alter(void)
 		did_nothing = FALSE;
 	}
 
-	/* If a rogue, and the target square is a naked floor, set a trap if 
-	 * too many do not exist on the level.  If there are too many, notify
-	 * the player. -LM-
+	/*
+	 * Some players can set traps.  Total number is checked in py_set_trap.
 	 */
-	else if ((p_ptr->pclass == CLASS_ROGUE) && (cave_naked_bold(y, x)))
+	else if ((check_ability(SP_TRAP)) && (cave_naked_bold(y, x)))
 	{
-		if (num_trap_on_level <= (check_specialty(SP_EXTRA_TRAP) ? 1 : 0)) py_set_trap(y, x);
-		else msg_print("You must disarm an existing trap to free up your equipment.");
+		py_set_trap(y, x);
 		did_nothing = FALSE;
 	}
 

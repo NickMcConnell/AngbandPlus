@@ -777,8 +777,8 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		}
 		case BLESSED:
 		{
-			if ((p_ptr->pclass == CLASS_PRIEST) || 
-				(p_ptr->pclass == CLASS_PALADIN))
+			if ((check_ability(SP_BLESS_WEAPON))
+			    & ((a_ptr->tval == TV_POLEARM) || (a_ptr->tval == TV_SWORD)))
 			{
 				if (take_money(on_credit, 400)) 
 				{

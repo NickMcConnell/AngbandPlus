@@ -250,10 +250,11 @@ items do benefit from other Skill and Deadliness bonuses.
 
 === How to Steal and Set Traps ===
 
-     Only Rogues may steal and set traps.  If you type the alter command ('+'
-in either keyset), enter a direction and target a visible monster, you will
-attempt to steal.  If you target a totally bare floor square, you will set a
-monster trap.  Rogues may not use these abilities when shapeshifted.
+     Only Rogues may steal.  Characters with the Trap Setting ability may 
+set traps.  If you type the alter command ('+' in either keyset), enter a
+direction and target a visible monster, you will attempt to steal.  If you 
+target a totally bare floor square, you will set a monster trap.  You may not
+use these abilities when shapeshifted.
      Stealing is lucrative but risky.  All monsters that drop anything will
 have at least some treasure on them.  Humans, humanoids, and dragons are the
 juiciest targets, and most other smart bipedal creatures, nagas, or wraiths
@@ -270,11 +271,12 @@ temporarily become wary and less susceptible to further traps.  Only one
 monster trap may exist on a level at any one time, so disarm an old trap to
 use your trap gear elsewhere.  If your trap is buried in rubble, you will not
 be able to reset it on that level.
-     There are 10 types of monster trap: the basic trap, and 9 advanced traps.
+     There are 13 types of monster trap: the basic trap, and 12 advanced traps.
 Advanced traps are created by updgrading a basic trap using the alter command.
-As your level increases, you gain access to more of the advanced traps.  Most
-traps are unreliable versus flying and insubstantial monsters.  The traps are
-as follows:
+As your level increases, you gain access to more of the advanced traps.  
+Characters with the "Extra Trap" specialty ability learn to use the advanced
+traps sooner and get access to the most advanced traps.  Most traps are
+unreliable versus flying and insubstantial monsters.  The traps are as follows:
 	
    Basic Monster Trap - This is the fastest to set, and does the most damage
       of any trap.
@@ -302,6 +304,14 @@ as follows:
       no actions and can not be moved or harmed.  Does no damage.
       Consistently triggered by all sorts of monsters.  This trap is always
       destroyed when activated.  (Requires level 48)
+   Drain Life Trap - Releases a blast of life draining, damaging living
+      monsters in a good area.  (Requires level *)
+   Unmagic Trap - Unleashes disenchantment, damaging the target and reducing
+      mana.  (Requires level *)
+   Dispel Monsters Trap - Damages all monsters within sight of the trap when
+      detonated.  (Requires level *)
+
+* These traps are available at high levels to those with the Extra Trap ability.
 
 
 === Listing of Druid/Martial Arts Blows and their Damage Potential ===

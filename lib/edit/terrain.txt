@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -464,19 +464,19 @@ G:^:y
 N:89:monster trap (stasis)
 G:^:y
 
-# 0x5A --> monster trap -- unused
+# 0x5A --> monster trap -- drain life
 
-N:90:monster trap
+N:90:monster trap (drain life)
 G:^:y
 
-# 0x5B --> monster trap -- unused
+# 0x5B --> monster trap -- unmagic
 
-N:91:monster trap
+N:91:monster trap (unmagic)
 G:^:y
 
-# 0x5C --> monster trap -- unused
+# 0x5C --> monster trap -- dispel monsters
 
-N:92:monster trap
+N:92:monster trap (dispel monsters)
 G:^:y
 
 # 0x5D --> monster trap -- unused

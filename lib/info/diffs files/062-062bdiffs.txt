@@ -1,8 +1,0 @@
-Items:
-- Made Rings of Speed more rare, but added Rings of Eregion and Rings
-  of Warfare which grant smaller speed bonuses and other effects.
-
-Specialties:
-- Evasion again depends on Dex and Armor weight, but still gives a 
-  fixed "dodge" chance rather than an AC boost.  Still very strong
-  vs missile attacks.

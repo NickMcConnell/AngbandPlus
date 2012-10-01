@@ -1041,7 +1041,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
 
 	/* Bizarre */
-	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", td->bizarre, ini_file) != 0);
+	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", TRUE, ini_file) != 0);
 
 	/* Analyze font, save desired font name */
 	td->font_want = string_make(analyze_font(tmp, &wid, &hgt));
@@ -1603,8 +1603,8 @@ static void term_change_font(term_data *td)
 			(void)term_force_font(td, tmp);
 		}
 
-		/* Assume not bizarre */
-		td->bizarre = FALSE;
+		/* Assume bizarre */
+		td->bizarre = TRUE;
 
 		/* Reset the tile info */
 		td->tile_wid = td->font_wid;
@@ -2688,8 +2688,8 @@ static void init_windows(void)
 			td->tile_wid = 8;
 			td->tile_hgt = 13;
 
-			/* Assume not bizarre */
-			td->bizarre = FALSE;
+			/* Assume bizarre */
+			td->bizarre = TRUE;
 		}
 
 		/* Analyze the font */

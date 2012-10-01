@@ -3045,9 +3045,9 @@ int amiga_tomb( void )
 	else
 	{
 #ifdef SANGBAND
-		p =  mp_ptr->title;
+		p = mp_ptr->title;
 #else
-		p = player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+		p = cp_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
 #endif
 	}
 
@@ -5284,7 +5284,7 @@ void amiga_hs_to_ascii(void)
 #ifdef KANGBAND
 	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
-	        rp_ptr->title, class_info[pc].title,
+	        rp_ptr->title, cp_ptr->title,
 	        clev);
 #else
 /*	sprintf(temp, "%3d.%9s  %s the %s %s",
@@ -5292,7 +5292,7 @@ void amiga_hs_to_ascii(void)
 	        rp_ptr->title,magic_info[pc].title); */
 	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
-	        rp_ptr->title, class_info[pc].title,
+	        rp_ptr->title, cp_ptr->title,
 	        clev);
 
 #endif

@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.6.2
+V:0.7.0
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 

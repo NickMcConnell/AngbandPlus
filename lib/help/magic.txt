@@ -151,9 +151,8 @@ Druid:
              CHR/INT/WIS and magical device skill.
       Elder Ent-Bonuses to most stats, resist cold and poison, see
              invisible, free action, plus to Deadliness and tunnelling, but 
-             loses any feather fall and any permanent protection from fire.
-             Temporary ofrms of fire resistance (spells and potions) are still 
-             useable.
+             loses any feather fall and some protection from fire.  Imposes
+	     a cap on fire resistance.
 
 Necromancer:
      Bat-Cannot be blinded, large bonus to infravision, feather fall, speed 
@@ -164,10 +163,10 @@ Necromancer:
             nearby monsters.
      Vampire-Bonuses to various stats, resist cold, hold life, see invisible, 
             regenerate, fights and uses magical devices well, and is stealthy, 
-            but is never resistant to light, never double-resistant to fire, 
-            has a penalty to CHR, and never has a light radius of more than two.
-	    The bows/throws skill penalty is much smaller than for other
-            shapeshifts.
+            but is vulnerable to light and has a cap on overall light resistance,
+	    may never have temporary resistance to fire, and has a penalty to
+            CHR, and never has a light radius of more than two.  The bows/throws
+	    skill penalty is much smaller than for other shapeshifts.
 
 Item based shapeshifts:
      Lion-As with the Druid spell.

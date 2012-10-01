@@ -278,7 +278,8 @@ Alter (+)
      This special command allows the use of a single keypress to select any of 
      the dungeon alteration commands above (attack, tunnel, bash, open, disarm,
      close), and, by using macros or keymaps, to combine this keypress with 
-     directions.  For (non-shapeshifted) Rogues, it also allows stealing and
+     directions.  For (non-shapeshifted) Rogues, it also allows stealing; for
+     Rogues and those with the "Trap Setting" specialty ability, it allow the
      setting traps.  In  general, this allows the use of the control key plus
      the appropriate direction key (including the roguelike direction keys in 
      roguelike mode) as a kind of generic "alter the terrain feature of an
@@ -286,13 +287,14 @@ Alter (+)
      "always_repeat" option, requires a direction, and takes some energy.
 
 
---- Specialty Ability Commands ---
+--- Ability Interaction Commands ---
 
-Learn New Specialty/View Specialty Abilities (O)
-     Use this command to learn specialty abilities or get information about your
-     existing abilities.  If both options are possible, you will be given a
-     choice.  When you are able to learn new specialty abilities, the word
-     "Spec." will appear on the status line at the bottom of the screen.
+View abilites/Gain specialty (O)
+     Use this command to get information about your existing race, class, and
+     specialty abilities or to learn new specialty abilities.  If both options
+     are possible, you will be given a choice.  When you are able to learn new
+     specialty abilities, the word "Spec." will appear on the status line at the
+     bottom of the screen.
 
 
 --- Spell and Prayer Commands ---

@@ -1095,7 +1095,7 @@ void update_mon(int m_idx, bool full)
 			lite_spot(fy, fx);
 
 			/* Update health bar as needed */
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
@@ -1118,7 +1118,7 @@ void update_mon(int m_idx, bool full)
 			lite_spot(fy, fx);
 
 			/* Update health bar as needed */
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 
 			/* Disturb on disappearance */
 			if (disturb_move) disturb(1, 0);
@@ -2444,11 +2444,11 @@ void update_smart_learn(int m_idx, int what)
 		/* Acid attacks learn about Acid resists and immunities */
 		case LRN_ACID:
 		{
-			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+			if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
 			else m_ptr->smart &= ~(SM_RES_ACID);
-			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
-			else m_ptr->smart &= ~(SM_OPP_ACID);
-			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+			if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
+			else m_ptr->smart &= ~(SM_RES_STRONG_ACID);
+			if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
 			else m_ptr->smart &= ~(SM_IMM_ACID);
 			break;
 		}
@@ -2456,11 +2456,11 @@ void update_smart_learn(int m_idx, int what)
 		/* Electircal attacks learn about Electrical resists and immunities */
 		case LRN_ELEC:
 		{
-			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
 			else m_ptr->smart &= ~(SM_RES_ELEC);
-			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
-			else m_ptr->smart &= ~(SM_OPP_ELEC);
-			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+			else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
+			if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
 			else m_ptr->smart &= ~(SM_IMM_ELEC);
 			break;
 		}
@@ -2468,11 +2468,11 @@ void update_smart_learn(int m_idx, int what)
 		/* Fire attacks learn about Fire resists and immunities */
 		case LRN_FIRE:
 		{
-			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+			if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
 			else m_ptr->smart &= ~(SM_RES_FIRE);
-			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
-			else m_ptr->smart &= ~(SM_OPP_FIRE);
-			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+			if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
+			else m_ptr->smart &= ~(SM_RES_STRONG_FIRE);
+			if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
 			else m_ptr->smart &= ~(SM_IMM_FIRE);
 			break;
 		}
@@ -2480,11 +2480,11 @@ void update_smart_learn(int m_idx, int what)
 		/* Cold attacks learn about Cold resists and immunities */
 		case LRN_COLD:
 		{
-			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
 			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
-			else m_ptr->smart &= ~(SM_OPP_COLD);
-			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+			else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
+			if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
 			else m_ptr->smart &= ~(SM_IMM_COLD);
 			break;
 		}
@@ -2492,10 +2492,10 @@ void update_smart_learn(int m_idx, int what)
 		/* Poison attacks learn about Poison resists */
 		case LRN_POIS:
 		{
-			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+			if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
 			else m_ptr->smart &= ~(SM_RES_POIS);
-			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
-			else m_ptr->smart &= ~(SM_OPP_POIS);
+			if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
+			else m_ptr->smart &= ~(SM_RES_STRONG_POIS);
 			break;
 		}
 
@@ -2506,7 +2506,7 @@ void update_smart_learn(int m_idx, int what)
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+			if (p_ptr->no_fear) m_ptr->smart |= (SM_RES_FEAR);
 			else m_ptr->smart &= ~(SM_RES_FEAR);
 			break;
 		}
@@ -2514,7 +2514,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Light attacks learn about light and blindness resistance */
 		case LRN_LITE:
 		{
-			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
+			if (p_resist_pos(P_RES_LITE)) m_ptr->smart |= (SM_RES_LITE);
 			else m_ptr->smart &= ~(SM_RES_LITE);
 			break;
 		}
@@ -2522,7 +2522,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Darkness attacks learn about dark and blindness resistance */
 		case LRN_DARK:
 		{
-			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+			if (p_resist_pos(P_RES_DARK)) m_ptr->smart |= (SM_RES_DARK);
 			else m_ptr->smart &= ~(SM_RES_DARK);
 			break;
 		}
@@ -2533,7 +2533,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_BLIND:
 		{
-			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
 			else m_ptr->smart &= ~(SM_RES_BLIND);
 			break;
 		}
@@ -2544,7 +2544,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_CONFU:
 		{
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 			break;
 		}
@@ -2555,9 +2555,9 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_SOUND:
 		{
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
@@ -2569,7 +2569,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Shards attacks learn about shards resistance */
 		case LRN_SHARD:
 		{
-			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
 			else m_ptr->smart &= ~(SM_RES_SHARD);
 			break;
 		}
@@ -2580,7 +2580,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_NEXUS:
 		{
-			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+			if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
 			else m_ptr->smart &= ~(SM_RES_NEXUS);
 			break;
 		}
@@ -2588,7 +2588,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Nether attacks learn about Nether resistance */
 		case LRN_NETHR:
 		{
-			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+			if (p_resist_pos(P_RES_NETHR)) m_ptr->smart |= (SM_RES_NETHR);
 			else m_ptr->smart &= ~(SM_RES_NETHR);
 			break;
 		}
@@ -2596,7 +2596,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Chaos attacks learn about Chaos resistance */
 		case LRN_CHAOS:
 		{
-			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+			if (p_resist_pos(P_RES_CHAOS)) m_ptr->smart |= (SM_RES_CHAOS);
 			else m_ptr->smart &= ~(SM_RES_CHAOS);
 			break;
 		}
@@ -2604,7 +2604,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Disenchantment attacks learn about disenchantment resistance */
 		case LRN_DISEN:
 		{
-			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+			if (p_resist_pos(P_RES_DISEN)) m_ptr->smart |= (SM_RES_DISEN);
 			else m_ptr->smart &= ~(SM_RES_DISEN);
 			break;
 		}
@@ -2627,42 +2627,43 @@ void update_smart_learn(int m_idx, int what)
 		/* Poison archery attacks learn about poison resists */
 		case LRN_PARCH:
 		{
-			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+			if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
 			else m_ptr->smart &= ~(SM_RES_POIS);
-			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
-			else m_ptr->smart &= ~(SM_OPP_POIS);
+			if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
+			else m_ptr->smart &= ~(SM_RES_STRONG_POIS);
 			break;
 		}
 
 		/* Ice attacks learn aboyt sound/shards/cold resists and cold immunity */
 		case LRN_ICE:
 		{
-			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
 			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
-			else m_ptr->smart &= ~(SM_OPP_COLD);
-			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+			else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
+			if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
 			else m_ptr->smart &= ~(SM_IMM_COLD);
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
+			else m_ptr->smart &= ~(SM_RES_SHARD);
 			break;
 		}
 
 		/* Plasma attacks learn about fire/lightning resists/immunities */
 		case LRN_PLAS:
 		{
-			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
 			else m_ptr->smart &= ~(SM_RES_ELEC);
-			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
-			else m_ptr->smart &= ~(SM_OPP_ELEC);
-			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+			else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
+			if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
 			else m_ptr->smart &= ~(SM_IMM_ELEC);
-			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+			if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
 			else m_ptr->smart &= ~(SM_RES_FIRE);
-			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
-			else m_ptr->smart &= ~(SM_OPP_FIRE);
-			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+			if (p_resist_strong(P_RES_FIRE)) m_ptr->smart |= (SM_RES_STRONG_FIRE);
+			else m_ptr->smart &= ~(SM_RES_STRONG_FIRE);
+			if (p_immune(P_RES_FIRE)) m_ptr->smart |= (SM_IMM_FIRE);
 			else m_ptr->smart &= ~(SM_IMM_FIRE);
 			break;
 		}
@@ -2673,7 +2674,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_SOUND2:
 		{
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
 			break;
 		}
@@ -2684,33 +2685,33 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_STORM:
 		{
-			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+			if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
 			else m_ptr->smart &= ~(SM_RES_ELEC);
-			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
-			else m_ptr->smart &= ~(SM_OPP_ELEC);
-			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+			if (p_resist_strong(P_RES_ELEC)) m_ptr->smart |= (SM_RES_STRONG_ELEC);
+			else m_ptr->smart &= ~(SM_RES_STRONG_ELEC);
+			if (p_immune(P_RES_ELEC)) m_ptr->smart |= (SM_IMM_ELEC);
 			else m_ptr->smart &= ~(SM_IMM_ELEC);
-			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
 			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
-			else m_ptr->smart &= ~(SM_OPP_COLD);
-			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			if (p_resist_strong(P_RES_COLD)) m_ptr->smart |= (SM_RES_STRONG_COLD);
+			else m_ptr->smart &= ~(SM_RES_STRONG_COLD);
+			if (p_immune(P_RES_COLD)) m_ptr->smart |= (SM_IMM_COLD);
 			else m_ptr->smart &= ~(SM_IMM_COLD);
-			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+			if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
 			else m_ptr->smart &= ~(SM_RES_ACID);
-			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
-			else m_ptr->smart &= ~(SM_OPP_ACID);
-			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+			if (p_resist_strong(P_RES_ACID)) m_ptr->smart |= (SM_RES_STRONG_ACID);
+			else m_ptr->smart &= ~(SM_RES_STRONG_ACID);
+			if (p_immune(P_RES_ACID)) m_ptr->smart |= (SM_IMM_ACID);
 			else m_ptr->smart &= ~(SM_IMM_ACID);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
 		}
 
 		/* Water attacks learn about sound/confusion resists */
 		case LRN_WATER:
 		{
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 		}
 
@@ -2724,7 +2725,7 @@ void update_smart_learn(int m_idx, int what)
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+			if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
 			break;
 		}
 
@@ -2738,7 +2739,7 @@ void update_smart_learn(int m_idx, int what)
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
 			break;
 		}
 
@@ -2752,7 +2753,7 @@ void update_smart_learn(int m_idx, int what)
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 			break;
 		}

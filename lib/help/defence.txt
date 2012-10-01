@@ -53,15 +53,13 @@ only a few of which you cannot resist.
 
      Fire, Acid, Electricity, and Cold are the basic elemental attacks.  Because 
 the maximum damage they can do to you is very high, find and wear items that 
-confer resistance as soon as possible.  Unlike with other attack types, you can 
-resist, double resist, and be immune to the elements.  If you wear two pieces of 
-armor with resist fire, you will not have double resistance to fire.  If you are 
-wearing one (or more) pieces of armor that resist fire and have also cast a 
-spell, quaffed a potion, or otherwise gained temporary fire resistance, you have 
-temporary double resistance.  Immunity to any of the elements is hard to get.
+confer resistance as soon as possible.  As with all attack types stacking
+multiple sources of resistance is especially effective.  Temporary resistance
+sources are more effective than permanent resist.  The rare items which grant
+immunity are best of all.
      Poison is deadly, and not so easy to gain resistance to.  Fortunately, you 
 can journey quite a way into the dungeon without meeting monsters that breath it 
-powerfully.  You can double-resist poison.
+powerfully.
      Darkness, Light, Shards, and Sound can be moderately dangerous if unresis-
 ted, but monsters that breath any of them powerfully are rare enough that you 
 can concentrate on more urgent issues.  Keep a eye open, though...

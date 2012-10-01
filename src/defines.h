@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.6.2"
+#define VERSION_STRING	"0.7.0"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -66,8 +66,8 @@
  * Current Oangband version numbers.
  */
 #define O_VERSION_MAJOR	0
-#define O_VERSION_MINOR	6
-#define O_VERSION_PATCH	2
+#define O_VERSION_MINOR	7
+#define O_VERSION_PATCH	0
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -157,6 +157,10 @@
  */
 #define MAX_CLASS            9
 
+/*
+ * Maximum amount of starting equipment
+ */
+#define MAX_START_ITEMS	4
 
 /*
  * Maximum number of magical realms (see "table.c", etc)
@@ -393,6 +397,11 @@
 #define EXTEND_MAGIC_FRACTION	3	/* Skip every 3rd turn -> 50% longer durations */
 
 /*
+ * Amount of mana removed by Mana Burn specialty.
+ */
+#define BASE_MANA_BURN          20
+
+/*
  * Refueling constants
  */
 #define FUEL_TORCH	5000	/* Maximum amount of fuel in a torch */
@@ -603,20 +612,17 @@
 #define ROW_AC			15
 #define COL_AC			0	/* "Cur AC xxxxx" */
 
-#define ROW_MAXHP		16
-#define COL_MAXHP		0	/* "Max HP xxxxx" */
+#define ROW_HP			16
+#define COL_HP			0	/* "HP xxxxx" */
 
-#define ROW_CURHP		17
-#define COL_CURHP		0	/* "Cur HP xxxxx" */
+#define ROW_SP			17
+#define COL_SP			0	/* "SP xxxxx" */
 
-#define ROW_MAXSP		18
-#define COL_MAXSP		0	/* "Max SP xxxxx" */
-
-#define ROW_CURSP		19
-#define COL_CURSP		0	/* "Cur SP xxxxx" */
-
-#define ROW_INFO		20
+#define ROW_INFO		18
 #define COL_INFO		0	/* "xxxxxxxxxxxx" (the monster health bar) */
+
+#define ROW_MON_MANA		19
+#define COL_MON_MANA		0	/* "xxxxxxxxxxxx" (the monster mana bar) */
 
 #define ROW_CUT			21
 #define COL_CUT			0	/* <cut> */
@@ -673,6 +679,54 @@
 #define SUMMON_BIRD		36
 #define SUMMON_THIEF		38
 
+
+/*
+ * Indexes for array of player incremental resists.
+ */
+#define P_RES_ACID		0
+#define P_RES_ELEC		1
+#define P_RES_FIRE		2
+#define P_RES_COLD		3
+#define P_RES_POIS		4
+#define P_RES_LITE		5
+#define P_RES_DARK		6
+#define P_RES_CONFU		7
+#define P_RES_SOUND		8
+#define P_RES_SHARD		9
+#define P_RES_NEXUS		10
+#define P_RES_NETHR		11
+#define P_RES_CHAOS		12
+#define P_RES_DISEN		13
+#define MAX_P_RES		14
+
+/*
+ * Offset zero for incremental resistance points.
+ */
+#define RES_LEVEL_BASE		20
+#define RES_LEVEL_MAX		49
+#define RES_LEVEL_MIN		10
+
+/*
+ * Incremental resistance modifiers and caps.
+ */
+#define RES_BOOST_NORMAL	2
+#define RES_BOOST_GREAT		4
+#define RES_BOOST_IMMUNE	10
+#define RES_BOOST_MINOR		1
+#define RES_CAP_EXTREME		(RES_LEVEL_BASE + 1)
+#define RES_CAP_MODERATE	(RES_LEVEL_BASE + 3)
+
+/*
+ * Some qualitative checks.
+ */
+#define p_resist_pos(X) \
+   (extract_resistance[p_ptr->res_list[X]] > 0)
+#define p_resist_strong(X) \
+   (extract_resistance[p_ptr->res_list[X]] >= 80)
+#define p_immune(X) \
+   (extract_resistance[p_ptr->res_list[X]] >= 100)
+#define p_vulnerable(X) \
+   (extract_resistance[p_ptr->res_list[X]] < 0)
 
 /*
  * Spell types used by project(), and related functions.
@@ -873,6 +927,9 @@
 #define FEAT_MTRAP_EXPLOSIVE	0x57 /* Level 36 */
 #define FEAT_MTRAP_PORTAL	0x58 /* Level 42 */
 #define FEAT_MTRAP_STASIS	0x59 /* Level 48 */
+#define FEAT_MTRAP_DRAIN_LIFE	0x5A /* Level * */
+#define FEAT_MTRAP_UNMAGIC	0x5B /* Level * */
+#define FEAT_MTRAP_DISPEL_M	0x5C /* Level * */
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -2210,7 +2267,7 @@
 #define PR_DTRAP        0x00800000L     /* Display Extra (DTrap) */
 #define PR_EXTRA	0x01000000L	/* Display Extra Info */
 #define PR_BASIC	0x02000000L	/* Display Basic Info */
-/* xxx */
+#define PR_MON_MANA	0x04000000L	/* Display Mana Bar */
 #define PR_MAP		0x08000000L	/* Display Map */
 #define PR_WIPE         0x10000000L     /* Hack -- Total Redraw */
 /* xxx (many) */
@@ -2352,14 +2409,14 @@
  *
  * Most of these map to the "TR2_xxx" flags
  */
-#define SM_OPP_ACID		0x00000001
-#define SM_OPP_ELEC		0x00000002
-#define SM_OPP_FIRE		0x00000004
-#define SM_OPP_COLD		0x00000008
-#define SM_OPP_POIS		0x00000010
-#define SM_OPP_XXX1		0x00000020
-#define SM_OPP_XXX2		0x00000040
-#define SM_OPP_XXX3		0x00000080
+#define SM_RES_STRONG_ACID		0x00000001
+#define SM_RES_STRONG_ELEC		0x00000002
+#define SM_RES_STRONG_FIRE		0x00000004
+#define SM_RES_STRONG_COLD		0x00000008
+#define SM_RES_STRONG_POIS		0x00000010
+#define SM_XXX1		0x00000020
+#define SM_XXX2		0x00000040
+#define SM_XXX3		0x00000080
 #define SM_GOOD_SAVE		0x00000100
 #define SM_PERF_SAVE		0x00000200
 #define SM_IMM_FREE		0x00000400
@@ -2385,43 +2442,6 @@
 #define SM_RES_CHAOS	0x40000000
 #define SM_RES_DISEN	0x80000000
 
-
-/* Player race Special flags, used for p-info
- * -BR-
- */
-
-#define PS_SWORD_SKILL  		0x00000001L
-#define PS_POLEARM_SKILL       	        0x00000002L
-#define PS_HAFTED_SKILL  		0x00000004L
-#define PS_SLING_SKILL  		0x00000008L
-#define PS_BOW_SKILL  		        0x00000010L
-#define PS_XBOW_SKILL   		0x00000020L
-#define PS_XXX1	                	0x00000040L
-#define PS_XXX2	                	0x00000080L
-#define PS_XXX3	                	0x00000100L
-#define PS_SWORD_UNSKILL		0x00000200L
-#define PS_POLEARM_UNSKILL		0x00000400L
-#define PS_HAFTED_UNSKILL	        0x00000800L
-#define PS_SLING_UNSKILL		0x00001000L
-#define PS_BOW_UNSKILL		        0x00002000L
-#define PS_XBOW_UNSKILL 		0x00004000L
-#define PS_XXX4	                	0x00008000L
-#define PS_XXX5	                	0x00010000L
-#define PS_XXX6	                	0x00020000L
-#define PS_HARDY	              	0x00040000L
-#define PS_HUNGRY	              	0x00080000L
-#define PS_DIVINE	              	0x00100000L
-#define PS_SHADOW	              	0x00200000L
-#define PS_WOODEN	              	0x00400000L
-#define PS_BEARSKIN                    	0x00800000L
-#define PS_XXX8                       	0x01000000L
-#define PS_XXX9	                	0x03000000L
-#define PS_XX10	                	0x04000000L
-#define PS_XX11	                	0x08000000L
-#define PS_XX12	                	0x10000000L
-#define PS_XX13	                	0x30000000L
-#define PS_XX14	                	0x40000000L
-#define PS_XX15	                	0x80000000L
 
 /*   
  * As of 2.7.8, the "object flags" are valid for all objects, and as
@@ -3601,6 +3621,11 @@ extern int PlayerUID;
 #define PARSE_ERROR_MAX                     11
 
 /*
+ * Total number of specialties -CN-
+ */
+#define TOTAL_SPECIALTIES 255
+ 
+/*
  * Specialty Abilities -BR-
  */
 /* Defense/Armor */
@@ -3620,6 +3645,7 @@ extern int PlayerUID;
 #define SP_MIGHTY_THROW		24	/* Extend Range on Throwing Attacks */
 #define SP_POWER_STRIKE		25	/* More Confusion Attacks and Better Attacks (Druids) */
 #define SP_MARTIAL_ARTS		26	/* Druid-like Unarmed Combat */
+#define SP_MANA_BURN		27	/* Reduce Mana with Melee Criticals */
 
 /* Magic and Mana */
 #define SP_BEGUILE		40	/* More effective monster status attacks */
@@ -3629,6 +3655,7 @@ extern int PlayerUID;
 #define SP_HEIGHTEN_MAGIC	44	/* Cast spells at higher effective level */
 #define SP_SOUL_SIPHON		45	/* Gain mana when taking damage */
 #define SP_HARMONY		46	/* Gain hp when casting spells */
+#define SP_CHANNELING		48	/* Spell heightening when close to full mana */
 
 /* Other */
 #define SP_ATHLETICS		60	/* Increase and Partial Sustain Dex/Con */
@@ -3640,6 +3667,63 @@ extern int PlayerUID;
 #define SP_HOLY_LIGHT		67	/* Increased light radius, resist light, damage to undead */
 
 #define SP_NO_SPECIALTY		255
+
+/*
+ * Inherent racial abilities
+ */
+#define SP_RACIAL_START		128
+#define SP_SWORD_SKILL  	128
+#define SP_POLEARM_SKILL       	129
+#define SP_HAFTED_SKILL  	130
+#define SP_SLING_SKILL  	131
+#define SP_BOW_SKILL  		132
+#define SP_XBOW_SKILL   	133
+#define SP_SWORD_UNSKILL	137
+#define SP_POLEARM_UNSKILL	138
+#define SP_HAFTED_UNSKILL	139
+#define SP_SLING_UNSKILL	140
+#define SP_BOW_UNSKILL		141
+#define SP_XBOW_UNSKILL 	142
+#define SP_HARDY	        146
+#define SP_HUNGRY	        147
+#define SP_DIVINE	        148
+#define SP_SHADOW	        149
+#define SP_WOODEN	        150
+#define SP_BEARSKIN             151
+#define SP_RACIAL_END		159
+
+/*
+ * Inherent class abilities
+ */
+#define SP_CLASS_START		192
+#define SP_BOW_SPEED_GOOD  	192
+#define SP_BOW_SPEED_GREAT     	193
+#define SP_SLING_SPEED_GOOD  	194
+#define SP_SLING_SPEED_GREAT  	195
+#define SP_XBOW_SPEED_GOOD	196
+#define SP_XBOW_SPEED_GREAT   	197
+#define SP_ASSASSINATE		201
+#define SP_STRONG_SHOOT		202
+#define SP_BACKSTAB		203
+#define SP_SPREAD_ATTACKS	204
+#define SP_STRONG_BASHES	205
+#define SP_UNARMED_COMBAT 	206
+#define SP_BLESS_WEAPON 		207
+#define SP_CHARM		209
+#define SP_DEVICE_EXPERT	210
+#define SP_STRONG_MAGIC	        211
+#define SP_BEAM                 212
+#define SP_LORE                 214
+#define SP_HOLY                 215
+#define SP_RELENTLESS           216
+#define SP_PROBE		217
+#define SP_EVIL	                218
+#define SP_STEAL		219
+#define SP_PSEUDO_ID_HEAVY         	220
+#define SP_TRAP	                221
+#define SP_WOODSMAN	        222
+#define SP_XTRA_SPECIALTY	223
+#define SP_CLASS_END		223
 
 /*
  * Max number of terminal windows -CN-
